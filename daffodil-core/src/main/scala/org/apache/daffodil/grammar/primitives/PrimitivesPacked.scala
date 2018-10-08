@@ -17,18 +17,23 @@
 
 package org.apache.daffodil.grammar.primitives
 
-import org.apache.daffodil.grammar.Terminal
 import org.apache.daffodil.dsom.ElementBase
-import org.apache.daffodil.util.PackedSignCodes
-import org.apache.daffodil.processors.parsers.PackedIntegerRuntimeLengthParser
-import org.apache.daffodil.processors.parsers.PackedIntegerKnownLengthParser
-import org.apache.daffodil.processors.parsers.PackedDecimalRuntimeLengthParser
+import org.apache.daffodil.grammar.Terminal
 import org.apache.daffodil.processors.parsers.PackedDecimalKnownLengthParser
-import org.apache.daffodil.processors.unparsers.Unparser
-import org.apache.daffodil.processors.unparsers.PackedIntegerRuntimeLengthUnparser
-import org.apache.daffodil.processors.unparsers.PackedIntegerKnownLengthUnparser
-import org.apache.daffodil.processors.unparsers.PackedDecimalRuntimeLengthUnparser
+import org.apache.daffodil.processors.parsers.PackedDecimalPrefixedLengthParser
+import org.apache.daffodil.processors.parsers.PackedDecimalRuntimeLengthParser
+import org.apache.daffodil.processors.parsers.PackedIntegerKnownLengthParser
+import org.apache.daffodil.processors.parsers.PackedIntegerPrefixedLengthParser
+import org.apache.daffodil.processors.parsers.PackedIntegerRuntimeLengthParser
 import org.apache.daffodil.processors.unparsers.PackedDecimalKnownLengthUnparser
+import org.apache.daffodil.processors.unparsers.PackedDecimalPrefixedLengthUnparser
+import org.apache.daffodil.processors.unparsers.PackedDecimalRuntimeLengthUnparser
+import org.apache.daffodil.processors.unparsers.PackedIntegerKnownLengthUnparser
+import org.apache.daffodil.processors.unparsers.PackedIntegerPrefixedLengthUnparser
+import org.apache.daffodil.processors.unparsers.PackedIntegerRuntimeLengthUnparser
+import org.apache.daffodil.processors.unparsers.Unparser
+import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
+import org.apache.daffodil.util.PackedSignCodes
 
 class PackedIntegerRuntimeLength(val e: ElementBase, signed: Boolean, packedSignCodes: PackedSignCodes) extends Terminal(e, true) {
   override lazy val parser = new PackedIntegerRuntimeLengthParser(e.elementRuntimeData, signed, packedSignCodes, e.lengthEv, e.lengthUnits)
@@ -43,6 +48,26 @@ class PackedIntegerKnownLength(val e: ElementBase, signed: Boolean, packedSignCo
   override lazy val unparser: Unparser = new PackedIntegerKnownLengthUnparser(e.elementRuntimeData, packedSignCodes, lengthInBits.toInt)
 }
 
+class PackedIntegerPrefixedLength(val e: ElementBase, signed: Boolean, packedSignCodes: PackedSignCodes) extends Terminal(e, true) {
+
+  override lazy val parser = new PackedIntegerPrefixedLengthParser(
+    e.elementRuntimeData,
+    e.prefixedLengthBody.parser,
+    e.prefixedLengthElementDecl.elementRuntimeData,
+    signed,
+    packedSignCodes,
+    e.lengthUnits,
+    e.prefixedLengthAdjustmentInUnits)
+
+  override lazy val unparser: Unparser = new PackedIntegerPrefixedLengthUnparser(
+    e.elementRuntimeData,
+    e.prefixedLengthBody.unparser,
+    e.prefixedLengthElementDecl.elementRuntimeData,
+    packedSignCodes,
+    e.lengthUnits,
+    e.prefixedLengthAdjustmentInUnits)
+}
+
 class PackedDecimalRuntimeLength(val e: ElementBase, packedSignCodes: PackedSignCodes) extends Terminal(e, true) {
   override lazy val parser = new PackedDecimalRuntimeLengthParser(e.elementRuntimeData, e.binaryDecimalVirtualPoint, packedSignCodes, e.lengthEv, e.lengthUnits)
 
@@ -54,4 +79,26 @@ class PackedDecimalKnownLength(val e: ElementBase, packedSignCodes: PackedSignCo
   override lazy val parser = new PackedDecimalKnownLengthParser(e.elementRuntimeData, e.binaryDecimalVirtualPoint, packedSignCodes, lengthInBits.toInt)
 
   override lazy val unparser: Unparser = new PackedDecimalKnownLengthUnparser(e.elementRuntimeData, e.binaryDecimalVirtualPoint, packedSignCodes, lengthInBits.toInt)
+}
+
+
+class PackedDecimalPrefixedLength(val e: ElementBase, packedSignCodes: PackedSignCodes) extends Terminal(e, true) {
+
+  override lazy val parser = new PackedDecimalPrefixedLengthParser(
+    e.elementRuntimeData,
+    e.prefixedLengthBody.parser,
+    e.prefixedLengthElementDecl.elementRuntimeData,
+    e.binaryDecimalVirtualPoint,
+    packedSignCodes,
+    e.lengthUnits,
+    e.prefixedLengthAdjustmentInUnits)
+
+  override lazy val unparser: Unparser = new PackedDecimalPrefixedLengthUnparser(
+    e.elementRuntimeData,
+    e.prefixedLengthBody.unparser,
+    e.prefixedLengthElementDecl.elementRuntimeData,
+    e.binaryDecimalVirtualPoint,
+    packedSignCodes,
+    e.lengthUnits,
+    e.prefixedLengthAdjustmentInUnits)
 }

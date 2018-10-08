@@ -17,12 +17,18 @@
 
 package org.apache.daffodil.processors.parsers
 
-import org.apache.daffodil.processors.ParseOrUnparseState
-import org.apache.daffodil.processors.Evaluatable
-import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
-import org.apache.daffodil.processors.ElementRuntimeData
-import org.apache.daffodil.util.Numbers
 import java.lang.{ Long => JLong }
+import java.lang.{ Number => JNumber }
+
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.infoset.DISimple
+import org.apache.daffodil.infoset.Infoset
+import org.apache.daffodil.processors.ElementRuntimeData
+import org.apache.daffodil.processors.Evaluatable
+import org.apache.daffodil.processors.ParseOrUnparseState
+import org.apache.daffodil.processors.Success
+import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
+import org.apache.daffodil.util.Numbers
 
 trait HasKnownLengthInBits {
   def lengthInBits: Int
@@ -34,19 +40,79 @@ trait HasKnownLengthInBits {
 
 trait HasRuntimeExplicitLength {
   def e: ElementRuntimeData
-  def lUnits: LengthUnits // get at compile time, not runtime.
+  def lengthUnits: LengthUnits // get at compile time, not runtime.
   def lengthEv: Evaluatable[JLong]
 
   // binary numbers will use this conversion. Others won't.
-  lazy val toBits = lUnits match {
+  lazy val toBits = lengthUnits match {
     case LengthUnits.Bits => 1
     case LengthUnits.Bytes => 8
-    case _ => e.schemaDefinitionError("Binary Numbers must have length units of Bits or Bytes.")
+    case _ => Assert.invariantFailed("Binary Numbers should never have length units of Bits or Bytes.")
   }
 
   def getBitLength(s: ParseOrUnparseState): Int = {
     val nBytesAsJLong = lengthEv.evaluate(s)
     val nBytes = Numbers.asInt(nBytesAsJLong)
     nBytes * toBits
+  }
+}
+
+
+trait PrefixedLengthParserMixin {
+
+  def prefixedLengthParser: Parser
+  def prefixedLengthERD: ElementRuntimeData
+  def lengthUnits: LengthUnits
+  def prefixedLengthAdjustmentInUnits: Long
+
+  /**
+   * Runs the prefixedLengthParser to determine the prefix length value, making
+   * adjustments as necessary. If the parse fails, this returns 0. The caller
+   * is expected to check to see if state.processorStatus is error upon
+   * returning, indicating that the returned value is meaningless.
+   */
+  def getPrefixedLengthInUnits(state: PState): Long = {
+    val savedInfoset = state.infoset
+
+    // create a "detached" element that the prefix length will be parsed to.
+    // This temporarily removes to infoset.
+    val plElement = Infoset.newElement(prefixedLengthERD, state.tunable).asInstanceOf[DISimple]
+    state.infoset = plElement
+
+    val parsedLen: JLong = try {
+      prefixedLengthParser.parse1(state)
+      // Return zero if there was an error parsing, the caller of this
+      // evaluatable should check the processorStatus to see if anything
+      // failed and ignore this zero. If there was no error, return the value
+      // as a long.
+      if (state.processorStatus ne Success) 0 else Numbers.asLong(plElement.dataValue)
+    } finally {
+      // reset back to the original infoset and throw away the detatched
+      // element
+      state.infoset = savedInfoset
+    }
+    if (parsedLen < 0) {
+      state.SDE("Prefixed length result must be non-negative, but was: %d", parsedLen)
+    }
+    val adjustedLen = parsedLen - prefixedLengthAdjustmentInUnits
+    if (adjustedLen < 0) {
+      state.SDE("Prefixed length result must be non-negative after dfdl:prefixIncludesPrefixLength adjustment , but was: %d", adjustedLen)
+    }
+    adjustedLen
+  }
+
+  /**
+   * Get the prefixed length in bits. If the parse fails, this returns 0. The
+   * caller is expected to check to see if state.processorStatus is error upon
+   * returning, indicating that the returned value is meaningless.
+   */
+  def getPrefixedLengthInBits(state: PState): Long = {
+    Assert.invariant(lengthUnits != LengthUnits.Characters)
+    val lenInUnits = getPrefixedLengthInUnits(state)
+    if (lengthUnits == LengthUnits.Bytes) {
+      lenInUnits * 8
+    } else {
+      lenInUnits
+    }
   }
 }

@@ -170,58 +170,93 @@ trait ElementBase
    *  Tells us if, for this element, we need to capture its content length
    *  at parse runtime, or we can ignore that.
    */
-  final lazy val isReferencedByContentLengthParserExpressions: Boolean =
-    // TODO: should be for all root elements that are compiled in this
-    // schema compilation, such time as we allow more than one root element.
-    // Applies to all code that references the rootElementRef in this trait.
-    rootElementRef.get.contentLengthParserReferencedElementInfos.contains(this.dpathElementCompileInfo)
+  final lazy val shouldCaptureParseContentLength: Boolean = {
+    val isReferenced =
+      if (this.isInstanceOf[DetachedElementDecl]) false
+      else {
+        val setElems = rootElementRef.get.contentLengthParserReferencedElementInfos
+        setElems.contains(this.dpathElementCompileInfo)
+      }
+    isReferenced
+  }
 
   /**
    * Tells us if, for this element, we need to capture its content length
    *  at unparse runtime, or we can ignore that.
    */
-  final lazy val isReferencedByContentLengthUnparserExpressions: Boolean =
-    rootElementRef.get.contentLengthUnparserReferencedElementInfos.contains(this.dpathElementCompileInfo)
+  final lazy val shouldCaptureUnparseContentLength: Boolean = {
+    val isReferenced =
+      if (this.isInstanceOf[DetachedElementDecl]) false
+      else {
+        val setElems = rootElementRef.get.contentLengthUnparserReferencedElementInfos
+        setElems.contains(this.dpathElementCompileInfo)
+      }
+
+    // We need to capture content length when maybeFixedLengthInBits is
+    // defined because it allows us to set absolute start bit positions of
+    // the DOS, even when there are things like padding and OVC that can
+    // cause suspensions that result in relative bit positions. However, we
+    // really only need this if there are going to be suspensions, not on all
+    // fixed length elements. Otherwise, we're capturing content length for
+    // no reason (unless it is referenced in a contentLength expression).
+    val mightHaveSuspensions = (maybeFixedLengthInBits.isDefined && couldHaveSuspensions)
+
+    isReferenced || mightHaveSuspensions
+  }
 
   /**
    * Tells us if, for this element, we need to capture its value length
    *  at parse runtime, or we can ignore that.
    */
-  final lazy val isReferencedByValueLengthParserExpressions: Boolean = {
-    val setElems = rootElementRef.get.valueLengthParserReferencedElementInfos
-    //    if (this eq rootElement.get)
-    //      println("PARSER these are referenced by valueCalc: " + setElems.toString)
-    val res = setElems.contains(this.dpathElementCompileInfo)
-    res
+  final lazy val shouldCaptureParseValueLength: Boolean = {
+    val isReferenced =
+      if (this.isInstanceOf[DetachedElementDecl]) false
+      else {
+        val setElems = rootElementRef.get.valueLengthParserReferencedElementInfos
+        setElems.contains(this.dpathElementCompileInfo)
+      }
+
+    // For simple elements with text representation, valueLength is captured in
+    // individual parsers since they handle removing delimiters and padding.
+    //
+    // For complex elements with specified length, valueLength is captured in
+    // the specified length parsers, since they handle skipping unused
+    // element regions. For complex elements, this means lengthKind is not
+    // implicit or delimited.
+    //
+    // So for these cases we do not want to capture value length, since
+    // they are handled by the parsers as necessary
+    val capturedByParsers =
+      (isSimpleType && impliedRepresentation == Representation.Text) ||
+      (isComplexType && (lengthKind != LengthKind.Implicit && lengthKind != LengthKind.Delimited))
+
+    !capturedByParsers && isReferenced
   }
+
   /**
    * Tells us if, for this element, we need to capture its value length
    *  at unparse runtime, or we can ignore that.
    */
-  final lazy val isReferencedByValueLengthUnparserExpressions: Boolean = {
-    val setElems = rootElementRef.get.valueLengthUnparserReferencedElementInfos
-    //    if (this eq rootElement.get)
-    //      println("UNPARSER these are referenced by valueCalc: " + setElems.toString)
-    val isInExprs = setElems.contains(this.dpathElementCompileInfo)
-    val res = isInExprs ||
-      otherwiseShouldCaptureValueRegionLength
-    res
-  }
+  final lazy val shouldCaptureUnparseValueLength: Boolean = {
+    val isReferenced =
+      if (this.isInstanceOf[DetachedElementDecl]) false
+      else {
+        val setElems = rootElementRef.get.valueLengthUnparserReferencedElementInfos
+        setElems.contains(this.dpathElementCompileInfo)
+      }
 
-  /**
-   * Besides being referenced by the dfdl:valueLength function,
-   * We need the valueLength to be computed for unparser pad/fill, to check
-   * excess length, and for alignmentFills.
-   *
-   * TBD: why for alignment fills? Don't see using it in the code. Try without this?
-   */
-  private lazy val otherwiseShouldCaptureValueRegionLength: Boolean = {
+    // Besides being referenced by the dfdl:valueLength function,
+    // We need the valueLength to be computed for unparser pad/fill, to check
+    // excess length, and for alignmentFills.
+    //
+    // TBD: why for alignment fills? Don't see using it in the code. Try without this?
     val pad = this.shouldAddPadding
     val fill = this.shouldAddFill
     val len = this.shouldCheckExcessLength
     val alg = !this.isKnownToBeAligned // alignment fill uses the value length.
-    val res = pad || fill || len || alg
-    res
+    val mightHaveSuspensions = pad || fill || len || alg
+
+    isReferenced || mightHaveSuspensions
   }
 
   /**

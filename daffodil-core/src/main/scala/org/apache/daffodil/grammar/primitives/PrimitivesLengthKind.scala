@@ -18,35 +18,40 @@
 package org.apache.daffodil.grammar.primitives
 
 import scala.Boolean
+
 import org.apache.daffodil.dsom.ElementBase
 import org.apache.daffodil.dsom.Term
 import org.apache.daffodil.grammar.Gram
 import org.apache.daffodil.grammar.Terminal
+import org.apache.daffodil.processors.FieldDFAParseEv
+import org.apache.daffodil.processors.TextTruncationType
 import org.apache.daffodil.processors.dfa.TextDelimitedParser
 import org.apache.daffodil.processors.dfa.TextDelimitedParserWithEscapeBlock
 import org.apache.daffodil.processors.dfa.TextPaddingParser
+import org.apache.daffodil.processors.parsers.BCDDecimalDelimitedParser
+import org.apache.daffodil.processors.parsers.BCDIntegerDelimitedParser
 import org.apache.daffodil.processors.parsers.HexBinaryDelimitedParser
 import org.apache.daffodil.processors.parsers.HexBinaryEndOfBitLimitParser
+import org.apache.daffodil.processors.parsers.HexBinaryLengthPrefixedParser
 import org.apache.daffodil.processors.parsers.HexBinarySpecifiedLengthParser
-import org.apache.daffodil.processors.parsers.PackedIntegerDelimitedParser
-import org.apache.daffodil.processors.parsers.PackedDecimalDelimitedParser
-import org.apache.daffodil.processors.parsers.BCDIntegerDelimitedParser
-import org.apache.daffodil.processors.parsers.BCDDecimalDelimitedParser
-import org.apache.daffodil.processors.parsers.IBM4690PackedIntegerDelimitedParser
 import org.apache.daffodil.processors.parsers.IBM4690PackedDecimalDelimitedParser
+import org.apache.daffodil.processors.parsers.IBM4690PackedIntegerDelimitedParser
 import org.apache.daffodil.processors.parsers.LiteralNilDelimitedEndOfDataParser
+import org.apache.daffodil.processors.parsers.PackedDecimalDelimitedParser
+import org.apache.daffodil.processors.parsers.PackedIntegerDelimitedParser
 import org.apache.daffodil.processors.parsers.StringDelimitedParser
 import org.apache.daffodil.processors.parsers.StringOfSpecifiedLengthParser
 import org.apache.daffodil.processors.parsers.{ Parser => DaffodilParser }
-import org.apache.daffodil.processors.unparsers.HexBinaryMinLengthInBytesUnparser
-import org.apache.daffodil.processors.unparsers.PackedIntegerDelimitedUnparser
-import org.apache.daffodil.processors.unparsers.PackedDecimalDelimitedUnparser
-import org.apache.daffodil.processors.unparsers.BCDIntegerDelimitedUnparser
 import org.apache.daffodil.processors.unparsers.BCDDecimalDelimitedUnparser
-import org.apache.daffodil.processors.unparsers.IBM4690PackedIntegerDelimitedUnparser
-import org.apache.daffodil.processors.unparsers.IBM4690PackedDecimalDelimitedUnparser
+import org.apache.daffodil.processors.unparsers.BCDIntegerDelimitedUnparser
+import org.apache.daffodil.processors.unparsers.HexBinaryLengthPrefixedUnparser
+import org.apache.daffodil.processors.unparsers.HexBinaryMinLengthInBytesUnparser
 import org.apache.daffodil.processors.unparsers.HexBinarySpecifiedLengthUnparser
+import org.apache.daffodil.processors.unparsers.IBM4690PackedDecimalDelimitedUnparser
+import org.apache.daffodil.processors.unparsers.IBM4690PackedIntegerDelimitedUnparser
 import org.apache.daffodil.processors.unparsers.LiteralNilDelimitedEndOfDataUnparser
+import org.apache.daffodil.processors.unparsers.PackedDecimalDelimitedUnparser
+import org.apache.daffodil.processors.unparsers.PackedIntegerDelimitedUnparser
 import org.apache.daffodil.processors.unparsers.StringDelimitedUnparser
 import org.apache.daffodil.processors.unparsers.StringMaybeTruncateBitsUnparser
 import org.apache.daffodil.processors.unparsers.StringMaybeTruncateCharactersUnparser
@@ -58,8 +63,6 @@ import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
 import org.apache.daffodil.util.Maybe.Nope
 import org.apache.daffodil.util.Maybe.One
 import org.apache.daffodil.util.PackedSignCodes
-import org.apache.daffodil.processors.FieldDFAParseEv
-import org.apache.daffodil.processors.TextTruncationType
 
 case class HexBinarySpecifiedLength(e: ElementBase) extends Terminal(e, true) {
 
@@ -190,6 +193,24 @@ case class HexBinaryEndOfBitLimit(e: ElementBase) extends Terminal(e, true) {
   override lazy val unparser: DaffodilUnparser = new HexBinaryMinLengthInBytesUnparser(
     e.minLength.longValue,
     e.elementRuntimeData)
+}
+
+case class HexBinaryLengthPrefixed(e: ElementBase) extends Terminal(e, true) {
+
+  override lazy val parser: DaffodilParser = new HexBinaryLengthPrefixedParser(
+    e.elementRuntimeData,
+    e.prefixedLengthBody.parser,
+    e.prefixedLengthElementDecl.elementRuntimeData,
+    e.lengthUnits,
+    e.prefixedLengthAdjustmentInUnits)
+
+  override lazy val unparser: DaffodilUnparser = new HexBinaryLengthPrefixedUnparser(
+    e.elementRuntimeData,
+    e.prefixedLengthBody.unparser,
+    e.prefixedLengthElementDecl.elementRuntimeData,
+    e.minLength.longValue,
+    e.lengthUnits,
+    e.prefixedLengthAdjustmentInUnits)
 }
 
 abstract class PackedIntegerDelimited(e: ElementBase, signed: Boolean, packedSignCodes: PackedSignCodes)
@@ -333,6 +354,3 @@ case class LiteralNilDelimitedEndOfData(eb: ElementBase)
       isDelimRequired)
 
 }
-
-case class PrefixLength(e: ElementBase) extends UnimplementedPrimitive(e, e.lengthKind == LengthKind.Prefixed)
-

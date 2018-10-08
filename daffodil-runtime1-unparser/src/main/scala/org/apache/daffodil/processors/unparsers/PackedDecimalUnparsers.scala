@@ -17,15 +17,18 @@
 
 package org.apache.daffodil.processors.unparsers
 
-import org.apache.daffodil.processors.parsers.HasKnownLengthInBits
-import org.apache.daffodil.processors.ElementRuntimeData
-import org.apache.daffodil.processors.ParseOrUnparseState
-import org.apache.daffodil.util.{ DecimalUtils, PackedSignCodes }
 import java.lang.{ Long => JLong }
 import java.math.{ BigInteger => JBigInteger }
-import org.apache.daffodil.processors.parsers.HasRuntimeExplicitLength
+
+import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.processors.Evaluatable
+import org.apache.daffodil.processors.ParseOrUnparseState
+import org.apache.daffodil.processors.parsers.HasKnownLengthInBits
+import org.apache.daffodil.processors.parsers.HasRuntimeExplicitLength
+import org.apache.daffodil.processors.Processor
 import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
+import org.apache.daffodil.util.{ DecimalUtils, PackedSignCodes }
+
 
 abstract class PackedIntegerBaseUnparser(
   e: ElementRuntimeData,
@@ -47,7 +50,7 @@ class PackedIntegerRuntimeLengthUnparser(
   val e: ElementRuntimeData,
   packedSignCodes: PackedSignCodes,
   val lengthEv: Evaluatable[JLong],
-  val lUnits: LengthUnits)
+  val lengthUnits: LengthUnits)
   extends PackedIntegerBaseUnparser(e, packedSignCodes)
   with HasRuntimeExplicitLength {
 
@@ -60,6 +63,32 @@ final class PackedIntegerDelimitedUnparser(
   extends PackedIntegerBaseUnparser(e, packedSignCodes) {
 
   override def getBitLength(state: ParseOrUnparseState): Int = { 0 }
+}
+
+final class PackedIntegerPrefixedLengthUnparser(
+  e: ElementRuntimeData,
+  override val prefixedLengthUnparser: Unparser,
+  override val prefixedLengthERD: ElementRuntimeData,
+  packedSignCodes: PackedSignCodes,
+  override val lengthUnits: LengthUnits,
+  override val prefixedLengthAdjustmentInUnits: Long)
+  extends PackedIntegerBaseUnparser(e, packedSignCodes)
+  with KnownPrefixedLengthUnparserMixin {
+
+  override def childProcessors: Vector[Processor] = Vector(prefixedLengthUnparser)
+  override lazy val runtimeDependencies = Vector()
+
+  override def getBitLength(s: ParseOrUnparseState): Int = {
+    val number = getNumberToPut(s.asInstanceOf[UState])
+    val absBigIntStr = number.asInstanceOf[JBigInteger].abs.toString
+    val (byteLength, _) = DecimalUtils.packedFromBigIntegerLength(absBigIntStr, 0)
+    byteLength * 8
+  }
+
+  override def unparse(state: UState): Unit = {
+    unparsePrefixedLength(state)
+    super.unparse(state)
+  }
 }
 
 
@@ -86,7 +115,7 @@ class PackedDecimalRuntimeLengthUnparser(
   binaryDecimalVirtualPoint: Int,
   packedSignCodes: PackedSignCodes,
   val lengthEv: Evaluatable[JLong],
-  val lUnits: LengthUnits)
+  val lengthUnits: LengthUnits)
   extends PackedDecimalBaseUnparser(e, binaryDecimalVirtualPoint, packedSignCodes)
   with HasRuntimeExplicitLength {
 
@@ -100,4 +129,32 @@ final class PackedDecimalDelimitedUnparser(
   extends PackedDecimalBaseUnparser(e, binaryDecimalVirtualPoint, packedSignCodes) {
 
   override def getBitLength(state: ParseOrUnparseState): Int = { 0 }
+}
+
+final class PackedDecimalPrefixedLengthUnparser(
+  e: ElementRuntimeData,
+  override val prefixedLengthUnparser: Unparser,
+  override val prefixedLengthERD: ElementRuntimeData,
+  binaryDecimalVirtualPoint: Int,
+  packedSignCodes: PackedSignCodes,
+  override val lengthUnits: LengthUnits,
+  override val prefixedLengthAdjustmentInUnits: Long)
+  extends PackedDecimalBaseUnparser(e, binaryDecimalVirtualPoint, packedSignCodes)
+  with KnownPrefixedLengthUnparserMixin {
+  
+  override def childProcessors: Vector[Processor] = Vector(prefixedLengthUnparser)
+  override lazy val runtimeDependencies = Vector()
+
+  override def getBitLength(s: ParseOrUnparseState): Int = {
+    val number = getNumberToPut(s.asInstanceOf[UState])
+    val absBigIntStr = number.asInstanceOf[JBigInteger].abs.toString
+    val (byteLength, _) = DecimalUtils.packedFromBigIntegerLength(absBigIntStr, 0)
+    byteLength * 8
+  }
+
+  override def unparse(state: UState): Unit = {
+    unparsePrefixedLength(state)
+    super.unparse(state)
+  }
+
 }

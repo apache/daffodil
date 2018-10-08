@@ -143,6 +143,30 @@ class SpecifiedLengthImplicit(e: ElementBase, eGram: => Gram, nBits: Long)
 
 }
 
+class SpecifiedLengthPrefixed(e: ElementBase, eGram: => Gram, bitsMultiplier: Int)
+  extends SpecifiedLengthCombinatorBase(e, eGram) {
+
+  Assert.usage(bitsMultiplier > 0)
+
+  lazy val kind = "Prefixed_" + e.lengthUnits.toString
+
+  lazy val parser: Parser = new SpecifiedLengthPrefixedParser(
+    eParser,
+    e.elementRuntimeData,
+    e.prefixedLengthBody.parser,
+    e.prefixedLengthElementDecl.elementRuntimeData,
+    e.lengthUnits,
+    e.prefixedLengthAdjustmentInUnits)
+
+  lazy val unparser: Unparser = new SpecifiedLengthPrefixedUnparser(
+    eUnparser,
+    e.elementRuntimeData,
+    e.prefixedLengthBody.unparser,
+    e.prefixedLengthElementDecl.elementRuntimeData,
+    e.lengthUnits,
+    e.prefixedLengthAdjustmentInUnits)
+}
+
 class SpecifiedLengthExplicitCharacters(e: ElementBase, eGram: => Gram)
   extends SpecifiedLengthCombinatorBase(e, eGram)
   with SpecifiedLengthExplicitImplicitUnparserMixin {
@@ -165,4 +189,19 @@ class SpecifiedLengthImplicitCharacters(e: ElementBase, eGram: => Gram, nChars: 
     eParser,
     e.elementRuntimeData,
     nChars)
+}
+
+class SpecifiedLengthPrefixedCharacters(e: ElementBase, eGram: => Gram)
+  extends SpecifiedLengthCombinatorBase(e, eGram) {
+
+  val kind = "ExplicitCharacters"
+
+  lazy val parser: Parser = new SpecifiedLengthPrefixedCharactersParser(
+    eParser,
+    e.elementRuntimeData,
+    e.prefixedLengthBody.parser,
+    e.prefixedLengthElementDecl.elementRuntimeData,
+    e.prefixedLengthAdjustmentInUnits)
+
+  lazy val unparser: Unparser = Assert.nyi("unparsing with dfdl:lengthKind=\"prefixed\" and dfdl:lengthUnits=\"characters\"")
 }

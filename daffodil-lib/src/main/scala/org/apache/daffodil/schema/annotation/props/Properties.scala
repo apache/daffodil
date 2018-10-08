@@ -232,9 +232,8 @@ trait PropertyMixin
     pv
   }
 
-  def convertToQName(pv: String): String = {
-    // remember: schema validation already checked format of QName for us.
-    pv
+  def convertToQName(pv: String, pl: LookupLocation) = {
+    pl.resolveQName(pv)
   }
 
   def convertToNCName(pv: String): String = {

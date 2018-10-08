@@ -28,7 +28,9 @@ class LiteralValueNilOfSpecifiedLengthUnparser(
 
   override lazy val runtimeDependencies = Vector(slEv)
 
-  override protected def contentString(state: UState) = slEv.evaluate(state)
+  override protected def contentString(state: UState) = {
+    slEv.evaluate(state)
+  }
 
 }
 

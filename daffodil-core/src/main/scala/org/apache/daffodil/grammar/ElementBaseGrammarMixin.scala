@@ -25,6 +25,7 @@ import scala.Long
 import org.apache.daffodil.api.WarnID
 import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.dpath.NodeInfo.PrimType
+import org.apache.daffodil.dsom.DetachedElementDecl
 import org.apache.daffodil.dsom.ElementBase
 import org.apache.daffodil.dsom.ExpressionCompilers
 import org.apache.daffodil.dsom.InitiatedTerminatedMixin
@@ -33,16 +34,21 @@ import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.grammar.primitives.AlignmentFill
 import org.apache.daffodil.grammar.primitives.BCDDecimalDelimitedEndOfData
 import org.apache.daffodil.grammar.primitives.BCDDecimalKnownLength
+import org.apache.daffodil.grammar.primitives.BCDDecimalPrefixedLength
 import org.apache.daffodil.grammar.primitives.BCDDecimalRuntimeLength
 import org.apache.daffodil.grammar.primitives.BCDIntegerDelimitedEndOfData
 import org.apache.daffodil.grammar.primitives.BCDIntegerKnownLength
+import org.apache.daffodil.grammar.primitives.BCDIntegerPrefixedLength
 import org.apache.daffodil.grammar.primitives.BCDIntegerRuntimeLength
 import org.apache.daffodil.grammar.primitives.BinaryBoolean
+import org.apache.daffodil.grammar.primitives.BinaryBooleanPrefixedLength
 import org.apache.daffodil.grammar.primitives.BinaryDecimalKnownLength
+import org.apache.daffodil.grammar.primitives.BinaryDecimalPrefixedLength
 import org.apache.daffodil.grammar.primitives.BinaryDecimalRuntimeLength
 import org.apache.daffodil.grammar.primitives.BinaryDouble
 import org.apache.daffodil.grammar.primitives.BinaryFloat
 import org.apache.daffodil.grammar.primitives.BinaryIntegerKnownLength
+import org.apache.daffodil.grammar.primitives.BinaryIntegerPrefixedLength
 import org.apache.daffodil.grammar.primitives.BinaryIntegerRuntimeLength
 import org.apache.daffodil.grammar.primitives.CaptureContentLengthEnd
 import org.apache.daffodil.grammar.primitives.CaptureContentLengthStart
@@ -87,12 +93,15 @@ import org.apache.daffodil.grammar.primitives.ElementParseAndUnspecifiedLength
 import org.apache.daffodil.grammar.primitives.ElementUnused
 import org.apache.daffodil.grammar.primitives.HexBinaryDelimitedEndOfData
 import org.apache.daffodil.grammar.primitives.HexBinaryEndOfBitLimit
+import org.apache.daffodil.grammar.primitives.HexBinaryLengthPrefixed
 import org.apache.daffodil.grammar.primitives.HexBinarySpecifiedLength
 import org.apache.daffodil.grammar.primitives.IBM4690PackedDecimalDelimitedEndOfData
 import org.apache.daffodil.grammar.primitives.IBM4690PackedDecimalKnownLength
+import org.apache.daffodil.grammar.primitives.IBM4690PackedDecimalPrefixedLength
 import org.apache.daffodil.grammar.primitives.IBM4690PackedDecimalRuntimeLength
 import org.apache.daffodil.grammar.primitives.IBM4690PackedIntegerDelimitedEndOfData
 import org.apache.daffodil.grammar.primitives.IBM4690PackedIntegerKnownLength
+import org.apache.daffodil.grammar.primitives.IBM4690PackedIntegerPrefixedLength
 import org.apache.daffodil.grammar.primitives.IBM4690PackedIntegerRuntimeLength
 import org.apache.daffodil.grammar.primitives.Initiator
 import org.apache.daffodil.grammar.primitives.InputValueCalc
@@ -102,24 +111,27 @@ import org.apache.daffodil.grammar.primitives.LiteralCharacterNilOfSpecifiedLeng
 import org.apache.daffodil.grammar.primitives.LiteralNilDelimitedEndOfData
 import org.apache.daffodil.grammar.primitives.LiteralValueNilOfSpecifiedLength
 import org.apache.daffodil.grammar.primitives.LogicalNilValue
-import org.apache.daffodil.grammar.primitives.OVCRetry
 import org.apache.daffodil.grammar.primitives.OnlyPadding
 import org.apache.daffodil.grammar.primitives.PackedDecimalDelimitedEndOfData
 import org.apache.daffodil.grammar.primitives.PackedDecimalKnownLength
+import org.apache.daffodil.grammar.primitives.PackedDecimalPrefixedLength
 import org.apache.daffodil.grammar.primitives.PackedDecimalRuntimeLength
 import org.apache.daffodil.grammar.primitives.PackedIntegerDelimitedEndOfData
 import org.apache.daffodil.grammar.primitives.PackedIntegerKnownLength
+import org.apache.daffodil.grammar.primitives.PackedIntegerPrefixedLength
 import org.apache.daffodil.grammar.primitives.PackedIntegerRuntimeLength
 import org.apache.daffodil.grammar.primitives.PaddingInfoMixin
-import org.apache.daffodil.grammar.primitives.PrefixLength
 import org.apache.daffodil.grammar.primitives.RightCenteredPadding
 import org.apache.daffodil.grammar.primitives.RightFill
 import org.apache.daffodil.grammar.primitives.SimpleNilOrValue
+import org.apache.daffodil.grammar.primitives.SimpleTypeRetry
 import org.apache.daffodil.grammar.primitives.SpecifiedLengthExplicit
 import org.apache.daffodil.grammar.primitives.SpecifiedLengthExplicitCharacters
 import org.apache.daffodil.grammar.primitives.SpecifiedLengthImplicit
 import org.apache.daffodil.grammar.primitives.SpecifiedLengthImplicitCharacters
 import org.apache.daffodil.grammar.primitives.SpecifiedLengthPattern
+import org.apache.daffodil.grammar.primitives.SpecifiedLengthPrefixed
+import org.apache.daffodil.grammar.primitives.SpecifiedLengthPrefixedCharacters
 import org.apache.daffodil.grammar.primitives.StringDelimitedEndOfData
 import org.apache.daffodil.grammar.primitives.StringOfSpecifiedLength
 import org.apache.daffodil.grammar.primitives.Terminator
@@ -139,6 +151,7 @@ import org.apache.daffodil.schema.annotation.props.gen.TextNumberRep
 import org.apache.daffodil.schema.annotation.props.gen.YesNo
 import org.apache.daffodil.util.PackedSignCodes
 import org.apache.daffodil.xml.GlobalQName
+import org.apache.daffodil.xml.QName
 import org.apache.daffodil.xml.XMLUtils
 
 /////////////////////////////////////////////////////////////////
@@ -186,6 +199,79 @@ trait ElementBaseGrammarMixin
       (justificationPad ne TextJustificationType.None) &&
       minLen > 0)
   }
+
+  final lazy val prefixedLengthElementDecl: DetachedElementDecl = {
+    Assert.invariant(lengthKind == LengthKind.Prefixed)
+
+    // We need to resolve the global simple type of the prefix length type
+    // because we need to create a detached element with the same schema
+    // document/parent of the GSTD.
+    val prefixLengthTypeGSTD = schemaSet.getGlobalSimpleTypeDef(prefixLengthType).getOrElse(
+      schemaDefinitionError("Failed to resolve dfdl:prefixLengthType=\"%s\" to a simpleType", prefixLengthType.toQNameString)
+    )
+
+    val detachedNode = <element name={ name + " (prefixLength)" } type={ prefixLengthType.toQNameString } />.copy(scope = prefixLengthTypeGSTD.xml.scope)
+    val detachedElementDecl = new DetachedElementDecl(this, detachedNode, prefixLengthTypeGSTD.parent)
+
+    val prefixedLengthKind = detachedElementDecl.lengthKind
+    prefixedLengthKind match {
+      case LengthKind.Delimited | LengthKind.EndOfParent | LengthKind.Pattern =>
+        schemaDefinitionError("%s is specified as a dfdl:prefixLengthType, but has a dfdl:lengthKind of %s", prefixLengthType, prefixedLengthKind)
+      case LengthKind.Explicit if detachedElementDecl.optLengthConstant.isEmpty =>
+        schemaDefinitionError("%s is specified as a dfdl:prefixLengthType, but has an expression for dfdl:length", prefixLengthType)
+      case LengthKind.Implicit | LengthKind.Explicit if lengthUnits != detachedElementDecl.lengthUnits =>
+        schemaDefinitionError("%s is specified as a dfdl:prefixLengthType with dfdl:lengthKind %s, but has different dfdl:lengthUnits than the element", prefixLengthType, prefixedLengthKind)
+      case _ =>
+    }
+
+    schemaDefinitionUnless(detachedElementDecl.primType.isSubtypeOf(NodeInfo.Integer),
+      "%s is specified as a dfdl:prefixLengthType, but its type xs:%s is not a subtype of xs:integer", prefixLengthType, detachedElementDecl.primType.toString.toLowerCase)
+
+    schemaDefinitionWhen(detachedElementDecl.isOutputValueCalc,
+      "%s is specified as a dfdl:prefixLengthType, but specifies dfdl:outputValueCalc", prefixLengthType)
+    schemaDefinitionWhen(detachedElementDecl.hasInitiator,
+      "%s is specified as a dfdl:prefixLengthType, but specifies a dfdl:initiator", prefixLengthType)
+    schemaDefinitionWhen(detachedElementDecl.hasTerminator,
+      "%s is specified as a dfdl:prefixLengthType, but specifies a dfdl:terminator", prefixLengthType)
+    schemaDefinitionWhen(detachedElementDecl.alignment != 1,
+      "%s is specified as a dfdl:prefixLengthType, but specifies a dfdl:alignment other than 1", prefixLengthType)
+    schemaDefinitionWhen(detachedElementDecl.leadingSkip != 0,
+      "%s is specified as a dfdl:prefixLengthType, but specifies a dfdl:leadingSkip other than 0", prefixLengthType)
+    schemaDefinitionWhen(detachedElementDecl.trailingSkip != 0,
+      "%s is specified as a dfdl:prefixLengthType, but specifies a dfdl:trailingSkip other than 0", prefixLengthType)
+
+    if (detachedElementDecl.lengthKind == LengthKind.Prefixed &&
+        detachedElementDecl.prefixedLengthElementDecl.lengthKind == LengthKind.Prefixed) {
+        schemaDefinitionError("Nesting level for dfdl:prefixLengthType exceeds 1: %s > %s > %s > %s",
+          name, prefixLengthType,
+          detachedElementDecl.prefixLengthType,
+          detachedElementDecl.prefixedLengthElementDecl.prefixLengthType)
+    }
+
+    subset(detachedElementDecl.lengthKind != LengthKind.Prefixed, "Nested dfdl:lengthKind=\"prefixed\" is not supported.")
+
+    detachedElementDecl
+  }
+  final lazy val prefixedLengthAdjustmentInUnits: Long = prefixIncludesPrefixLength match {
+    case YesNo.Yes => {
+      // get the known length of the prefix element in lengthUnits
+      val pl = prefixedLengthElementDecl
+      pl.lengthKind match {
+        case LengthKind.Explicit => pl.lengthEv.optConstant.get // already in lengthUnits when explicit
+        case LengthKind.Implicit =>
+          Assert.invariant(impliedRepresentation == Representation.Binary)
+          val len = pl.lengthEv.optConstant.get // always in bits when implicit
+          pl.lengthUnits match {
+            case LengthUnits.Bits => len
+            case LengthUnits.Bytes => len / 8
+            case LengthUnits.Characters => Assert.impossible()
+          }
+        case _ => Assert.impossible()
+      }
+    }
+    case YesNo.No => 0
+  }
+  final lazy val prefixedLengthBody = prefixedLengthElementDecl.parsedValue
 
   /**
    * Quite tricky when we add padding or fill
@@ -433,28 +519,39 @@ trait ElementBaseGrammarMixin
       CaptureContentLengthEnd(this)
   }
 
-  private lazy val parsedValue = prod("parsedValue", isSimpleType) {
+  lazy val parsedValue = prod("parsedValue", isSimpleType) {
     initiatorRegion ~
       valueMTA ~
-      captureLengthRegions(leftPadding, ovcRetry(value), rightPadding ~ rightFill) ~
+      captureLengthRegions(leftPadding, retrySimpleType(value), rightPadding ~ rightFill) ~
       terminatorRegion
   }
 
   /**
-   * Wrapped around the simple value unparsers used for dfdl:outputValueCalc (OVC)
-   * with a combinator. Will retry them until the value is available.
+   * Wrapped around the simple value unparsers where the simple type value is
+   * dynamic (e.g. prefixed length, dfdl:outputValueCalc). The correct parser
+   * will be inserted to retry until the simple type value is available.
    *
-   * Evaporates for parsing, and when the element is not dfdl:outputValueCalc.
+   * Evaporates for parsing, and when a dynamic simple type can't occur.
    *
    * Note: must be wrapped around the unparsed value only, not the framing.
    * Because some framing is alignment regions, which are themselves possibly
    * blocking/retrying. Setup of these must happen on the first pass, we cannot
    * do setups of ustate/data-output-streams when unparsing the result of an OVC.
    */
-  private def ovcRetry(allowedValueArg: => Gram) = {
+  private def retrySimpleType(allowedValueArg: => Gram) = {
     lazy val allowedValue = allowedValueArg
     if (this.isOutputValueCalc)
-      OVCRetry(this, allowedValue)
+      SimpleTypeRetry(this, allowedValue)
+    else if (this.isInstanceOf[DetachedElementDecl] &&
+             this.asInstanceOf[DetachedElementDecl].detachedReference.impliedRepresentation == Representation.Text)
+      // If an element has text representation and has a prefixed length, it
+      // means that the prefix length value will be calculated using a
+      // specified length unparser. This unparser works by suspending the
+      // prefix length unaprser, eventually calculating the length of the
+      // unaprsed data, then setting the length to the value of the detached
+      // element. Since the prefixed length unparser will need to suspend until
+      // its data value is dynaically set, it needs this SimpleTypeRetry.
+      SimpleTypeRetry(this, allowedValue)
     else
       allowedValue
   }
@@ -486,6 +583,7 @@ trait ElementBaseGrammarMixin
     case LengthKind.Implicit => implicitBinaryLengthInBits
     case LengthKind.Explicit if (lengthEv.isConstant) => explicitBinaryLengthInBits()
     case LengthKind.Explicit => -1 // means must be computed at runtime.
+    case LengthKind.Prefixed => -1 // means must be computed at runtime
     case LengthKind.Delimited => primType match {
       case PrimType.DateTime | PrimType.Date | PrimType.Time =>
         if (binaryCalendarRep == BinaryCalendarRep.BinaryMilliseconds || binaryCalendarRep == BinaryCalendarRep.BinarySeconds)
@@ -495,7 +593,6 @@ trait ElementBaseGrammarMixin
         else -1 // only for packed binary data, length must be computed at runtime.
     }
     case LengthKind.Pattern => schemaDefinitionError("Binary data elements cannot have lengthKind='pattern'.")
-    case LengthKind.Prefixed => subsetError("lengthKind='prefixed' not yet supported.")
     case LengthKind.EndOfParent => schemaDefinitionError("Binary data elements cannot have lengthKind='endOfParent'.")
   }
 
@@ -524,6 +621,7 @@ trait ElementBaseGrammarMixin
   private lazy val stringPrim = {
     lengthKind match {
       case LengthKind.Explicit => specifiedLength(StringOfSpecifiedLength(this))
+      case LengthKind.Prefixed => specifiedLength(StringOfSpecifiedLength(this))
       case LengthKind.Delimited => stringDelimitedEndOfData
       case LengthKind.Pattern => specifiedLength(StringOfSpecifiedLength(this))
       case LengthKind.Implicit => {
@@ -541,12 +639,16 @@ trait ElementBaseGrammarMixin
 
   private lazy val hexBinaryLengthPattern = prod("hexBinaryLengthPattern") { new SpecifiedLengthPattern(this, new HexBinaryEndOfBitLimit(this)) }
 
+  private lazy val hexBinaryLengthPrefixed = prod("hexBinaryLengthPrefixed") { new HexBinaryLengthPrefixed(this) }
+
   private lazy val hexBinaryValue = prod("hexBinaryValue") {
+    schemaDefinitionWhen(lengthUnits == LengthUnits.Characters, "Hex binary Numbers must have dfdl:lengthUnits of \"bits\" or \"bytes\".")
     lengthKind match {
       case LengthKind.Explicit => specifiedLengthHexBinary
       case LengthKind.Implicit => specifiedLengthHexBinary
       case LengthKind.Delimited => hexBinaryDelimitedEndOfData
       case LengthKind.Pattern => hexBinaryLengthPattern
+      case LengthKind.Prefixed => hexBinaryLengthPrefixed
       case LengthKind.EndOfParent if isComplexType => notYetImplemented("lengthKind='endOfParent' for complex type")
       case LengthKind.EndOfParent => notYetImplemented("lengthKind='endOfParent' for simple type")
       case _ => SDE("Unimplemented lengthKind %s", lengthKind)
@@ -657,6 +759,9 @@ trait ElementBaseGrammarMixin
   private lazy val bcdDelimitedLengthCalendar = prod("bcdDelimitedLengthCalendar", binaryCalendarRep == BinaryCalendarRep.Bcd) {
     bcdDateDelimitedLength || bcdTimeDelimitedLength || bcdDateTimeDelimitedLength
   }
+  private lazy val bcdPrefixedLengthCalendar = prod("bcdPrefixedLengthCalendar", binaryCalendarRep == BinaryCalendarRep.Bcd) {
+    bcdDatePrefixedLength || bcdTimePrefixedLength || bcdDateTimePrefixedLength
+  }
 
   // BCD calendar with known length
   private lazy val bcdDateKnownLength = prod("bcdDateKnownLength", primType == PrimType.Date) {
@@ -691,6 +796,17 @@ trait ElementBaseGrammarMixin
     ConvertZonedCombinator(this, new BCDIntegerDelimitedEndOfData(this), ConvertTextTimePrim(this))
   }
 
+  // BCD calendar with prefixed length
+  private lazy val bcdDatePrefixedLength = prod("bcdDatePrefixedLength", primType == PrimType.Date) {
+    ConvertZonedCombinator(this, new BCDIntegerPrefixedLength(this), ConvertTextDatePrim(this))
+  }
+  private lazy val bcdDateTimePrefixedLength = prod("bcdDateTimePrefixedLength", primType == PrimType.DateTime) {
+    ConvertZonedCombinator(this, new BCDIntegerPrefixedLength(this), ConvertTextDateTimePrim(this))
+  }
+  private lazy val bcdTimePrefixedLength = prod("bcdTimePrefixedLength", primType == PrimType.Time) {
+    ConvertZonedCombinator(this, new BCDIntegerPrefixedLength(this), ConvertTextTimePrim(this))
+  }
+
   private lazy val ibm4690PackedKnownLengthCalendar = prod("ibm4690PackedKnownLengthCalendar", binaryCalendarRep == BinaryCalendarRep.Ibm4690Packed) {
     ibm4690PackedDateKnownLength || ibm4690PackedTimeKnownLength || ibm4690PackedDateTimeKnownLength
   }
@@ -699,6 +815,9 @@ trait ElementBaseGrammarMixin
   }
   private lazy val ibm4690PackedDelimitedLengthCalendar = prod("ibm4690PackedDelimitedLengthCalendar", binaryCalendarRep == BinaryCalendarRep.Ibm4690Packed) {
     ibm4690PackedDateDelimitedLength || ibm4690PackedTimeDelimitedLength || ibm4690PackedDateTimeDelimitedLength
+  }
+  private lazy val ibm4690PackedPrefixedLengthCalendar = prod("ibm4690PackedPrefixedLengthCalendar", binaryCalendarRep == BinaryCalendarRep.Ibm4690Packed) {
+    ibm4690PackedDatePrefixedLength || ibm4690PackedTimePrefixedLength || ibm4690PackedDateTimePrefixedLength
   }
 
   // ibm4690Packed calendar with known length
@@ -734,6 +853,17 @@ trait ElementBaseGrammarMixin
     ConvertZonedCombinator(this, new IBM4690PackedIntegerDelimitedEndOfData(this, false), ConvertTextTimePrim(this))
   }
 
+  // ibm4690Packed calendar with prefixed length
+  private lazy val ibm4690PackedDatePrefixedLength = prod("ibm4690PackedDatePrefixedLength", primType == PrimType.Date) {
+    ConvertZonedCombinator(this, new IBM4690PackedIntegerPrefixedLength(this, false), ConvertTextDatePrim(this))
+  }
+  private lazy val ibm4690PackedDateTimePrefixedLength = prod("ibm4690PackedDateTimePrefixedLength", primType == PrimType.DateTime) {
+    ConvertZonedCombinator(this, new IBM4690PackedIntegerPrefixedLength(this, false), ConvertTextDateTimePrim(this))
+  }
+  private lazy val ibm4690PackedTimePrefixedLength = prod("ibm4690PackedTimePrefixedLength", primType == PrimType.Time) {
+    ConvertZonedCombinator(this, new IBM4690PackedIntegerPrefixedLength(this, false), ConvertTextTimePrim(this))
+  }
+
   private lazy val packedKnownLengthCalendar = prod("packedKnownLengthCalendar", binaryCalendarRep == BinaryCalendarRep.Packed) {
     packedDateKnownLength || packedTimeKnownLength || packedDateTimeKnownLength
   }
@@ -742,6 +872,9 @@ trait ElementBaseGrammarMixin
   }
   private lazy val packedDelimitedLengthCalendar = prod("packedDelimitedLengthCalendar", binaryCalendarRep == BinaryCalendarRep.Packed) {
     packedDateDelimitedLength || packedTimeDelimitedLength || packedDateTimeDelimitedLength
+  }
+  private lazy val packedPrefixedLengthCalendar = prod("packedPrefixedLengthCalendar", binaryCalendarRep == BinaryCalendarRep.Packed) {
+    packedDatePrefixedLength || packedTimePrefixedLength || packedDateTimePrefixedLength
   }
 
   // Packed calendar with known length
@@ -775,6 +908,17 @@ trait ElementBaseGrammarMixin
   }
   private lazy val packedTimeDelimitedLength = prod("packedTimeDelimitedLength", primType == PrimType.Time) {
     ConvertZonedCombinator(this, new PackedIntegerDelimitedEndOfData(this, false, packedSignCodes), ConvertTextTimePrim(this))
+  }
+
+  // Packed calendar with prefixed length
+  private lazy val packedDatePrefixedLength = prod("packedDatePrefixedLength", primType == PrimType.Date) {
+    ConvertZonedCombinator(this, new PackedIntegerPrefixedLength(this, false, packedSignCodes), ConvertTextDatePrim(this))
+  }
+  private lazy val packedDateTimePrefixedLength = prod("packedDateTimePrefixedLength", primType == PrimType.DateTime) {
+    ConvertZonedCombinator(this, new PackedIntegerPrefixedLength(this, false, packedSignCodes), ConvertTextDateTimePrim(this))
+  }
+  private lazy val packedTimePrefixedLength = prod("packedTimePrefixedLength", primType == PrimType.Time) {
+    ConvertZonedCombinator(this, new PackedIntegerPrefixedLength(this, false, packedSignCodes), ConvertTextTimePrim(this))
   }
 
   private lazy val textDouble = prod("textDouble", impliedRepresentation == Representation.Text) {
@@ -859,21 +1003,25 @@ trait ElementBaseGrammarMixin
       byteOrderRaw // must be defined or SDE
     }
     (binaryNumberRep, lengthKind, binaryNumberKnownLengthInBits) match {
+      case (BinaryNumberRep.Binary, LengthKind.Prefixed, _) => new BinaryIntegerPrefixedLength(this, isSigned)
       case (BinaryNumberRep.Binary, _, -1) => new BinaryIntegerRuntimeLength(this, isSigned)
       case (BinaryNumberRep.Binary, _, _) => new BinaryIntegerKnownLength(this, isSigned, binaryNumberKnownLengthInBits)
       case (_, LengthKind.Implicit, _) => SDE("lengthKind='implicit' is not allowed with packed binary formats")
       case (_, _, _) if ((binaryNumberKnownLengthInBits != -1) && (binaryNumberKnownLengthInBits % 4) != 0) =>
         SDE("The given length (%s bits) must be a multiple of 4 when using packed binary formats", binaryNumberKnownLengthInBits)
       case (BinaryNumberRep.Packed, LengthKind.Delimited, -1) => new PackedIntegerDelimitedEndOfData(this, isSigned, packedSignCodes)
+      case (BinaryNumberRep.Packed, LengthKind.Prefixed, -1) => new PackedIntegerPrefixedLength(this, isSigned, packedSignCodes)
       case (BinaryNumberRep.Packed, _, -1) => new PackedIntegerRuntimeLength(this, isSigned, packedSignCodes)
       case (BinaryNumberRep.Packed, _, _) => new PackedIntegerKnownLength(this, isSigned, packedSignCodes, binaryNumberKnownLengthInBits)
       case (BinaryNumberRep.Ibm4690Packed, LengthKind.Delimited, -1) => new IBM4690PackedIntegerDelimitedEndOfData(this, isSigned)
+      case (BinaryNumberRep.Ibm4690Packed, LengthKind.Prefixed, -1) => new IBM4690PackedIntegerPrefixedLength(this, isSigned)
       case (BinaryNumberRep.Ibm4690Packed, _, -1) => new IBM4690PackedIntegerRuntimeLength(this, isSigned)
       case (BinaryNumberRep.Ibm4690Packed, _, _) => new IBM4690PackedIntegerKnownLength(this, isSigned, binaryNumberKnownLengthInBits)
       case (BinaryNumberRep.Bcd, _, _) => primType match {
         case PrimType.Long | PrimType.Int | PrimType.Short | PrimType.Byte => SDE("%s is not an allowed type for bcd binary values", primType.name)
         case _ => (lengthKind, binaryNumberKnownLengthInBits) match {
           case (LengthKind.Delimited, -1) => new BCDIntegerDelimitedEndOfData(this)
+          case (LengthKind.Prefixed, -1) => new BCDIntegerPrefixedLength(this)
           case (_, -1) => new BCDIntegerRuntimeLength(this)
           case (_, _) => new BCDIntegerKnownLength(this, binaryNumberKnownLengthInBits)
         }
@@ -883,6 +1031,8 @@ trait ElementBaseGrammarMixin
 
   private lazy val binaryValue: Gram = {
     Assert.invariant(primType != PrimType.String)
+    
+    schemaDefinitionWhen(lengthUnits == LengthUnits.Characters, "Binary Numbers must have dfdl:lengthUnits of \"bits\" or \"bytes\".")
 
     // We have to dispatch carefully here. We cannot force evaluation of properties
     // that may not be necessary. E.g., float does not need property binaryNumberRep, so
@@ -921,24 +1071,33 @@ trait ElementBaseGrammarMixin
           binaryNumberKnownLengthInBits > 8) byteOrderRaw // must have or SDE
 
         (binaryNumberRep, lengthKind, binaryNumberKnownLengthInBits) match {
+          case (BinaryNumberRep.Binary, LengthKind.Prefixed, _) => new BinaryDecimalPrefixedLength(this)
           case (BinaryNumberRep.Binary, _, -1) => new BinaryDecimalRuntimeLength(this)
           case (BinaryNumberRep.Binary, _, _) => new BinaryDecimalKnownLength(this, binaryNumberKnownLengthInBits)
           case (_, LengthKind.Implicit, _) => SDE("lengthKind='implicit' is not allowed with packed binary formats")
           case (_, _, _) if ((binaryNumberKnownLengthInBits != -1) && (binaryNumberKnownLengthInBits % 4) != 0) =>
             SDE("The given length (%s bits) must be a multiple of 4 when using packed binary formats", binaryNumberKnownLengthInBits)
           case (BinaryNumberRep.Packed, LengthKind.Delimited, -1) => new PackedDecimalDelimitedEndOfData(this, packedSignCodes)
+          case (BinaryNumberRep.Packed, LengthKind.Prefixed, _) => new PackedDecimalPrefixedLength(this, packedSignCodes)
           case (BinaryNumberRep.Packed, _, -1) => new PackedDecimalRuntimeLength(this, packedSignCodes)
           case (BinaryNumberRep.Packed, _, _) => new PackedDecimalKnownLength(this, packedSignCodes, binaryNumberKnownLengthInBits)
           case (BinaryNumberRep.Bcd, LengthKind.Delimited, -1) => new BCDDecimalDelimitedEndOfData(this)
+          case (BinaryNumberRep.Bcd, LengthKind.Prefixed, _) => new BCDDecimalPrefixedLength(this)
           case (BinaryNumberRep.Bcd, _, -1) => new BCDDecimalRuntimeLength(this)
           case (BinaryNumberRep.Bcd, _, _) => new BCDDecimalKnownLength(this, binaryNumberKnownLengthInBits)
           case (BinaryNumberRep.Ibm4690Packed, LengthKind.Delimited, -1) => new IBM4690PackedDecimalDelimitedEndOfData(this)
+          case (BinaryNumberRep.Ibm4690Packed, LengthKind.Prefixed, _) => new IBM4690PackedDecimalPrefixedLength(this)
           case (BinaryNumberRep.Ibm4690Packed, _, -1) => new IBM4690PackedDecimalRuntimeLength(this)
           case (BinaryNumberRep.Ibm4690Packed, _, _) => new IBM4690PackedDecimalKnownLength(this, binaryNumberKnownLengthInBits)
         }
       }
 
-      case PrimType.Boolean => { new BinaryBoolean(this) }
+      case PrimType.Boolean => {
+        lengthKind match {
+          case LengthKind.Prefixed => new BinaryBooleanPrefixedLength(this)
+          case _ => new BinaryBoolean(this)
+        }
+      }
 
       case PrimType.DateTime | PrimType.Date | PrimType.Time => {
         (primType, binaryCalendarRep) match {
@@ -964,6 +1123,7 @@ trait ElementBaseGrammarMixin
               case (BinaryCalendarRep.Bcd) => {
                 (lengthKind, binaryNumberKnownLengthInBits) match {
                   case (LengthKind.Delimited, -1) => bcdDelimitedLengthCalendar
+                  case (LengthKind.Prefixed, -1) => bcdPrefixedLengthCalendar
                   case (_, -1) => bcdRuntimeLengthCalendar
                   case (_, _) => bcdKnownLengthCalendar
                 }
@@ -971,6 +1131,7 @@ trait ElementBaseGrammarMixin
               case (BinaryCalendarRep.Ibm4690Packed) => {
                 (lengthKind, binaryNumberKnownLengthInBits) match {
                   case (LengthKind.Delimited, -1) => ibm4690PackedDelimitedLengthCalendar
+                  case (LengthKind.Prefixed, -1) => ibm4690PackedPrefixedLengthCalendar
                   case (_, -1) => ibm4690PackedRuntimeLengthCalendar
                   case (_, _) => ibm4690PackedKnownLengthCalendar
                 }
@@ -978,6 +1139,7 @@ trait ElementBaseGrammarMixin
               case (BinaryCalendarRep.Packed) => {
                 (lengthKind, binaryNumberKnownLengthInBits) match {
                   case (LengthKind.Delimited, -1) => packedDelimitedLengthCalendar
+                  case (LengthKind.Prefixed, -1) => packedPrefixedLengthCalendar
                   case (_, -1) => packedRuntimeLengthCalendar
                   case (_, _) => packedKnownLengthCalendar
                 }
@@ -1086,7 +1248,7 @@ trait ElementBaseGrammarMixin
               LiteralValueNilOfSpecifiedLength(this)
             }
             case LengthKind.Implicit if isComplexType => Assert.invariantFailed("literal nil complex types aren't handled here.")
-            case LengthKind.Prefixed => notYetImplemented("lengthKind='prefixed'")
+            case LengthKind.Prefixed => LiteralValueNilOfSpecifiedLength(this)
             case LengthKind.EndOfParent if isComplexType => notYetImplemented("lengthKind='endOfParent' for complex type")
             case LengthKind.EndOfParent => notYetImplemented("lengthKind='endOfParent' for simple type")
           }
@@ -1149,6 +1311,13 @@ trait ElementBaseGrammarMixin
         Assert.invariant(lengthUnits eq LengthUnits.Characters)
         new SpecifiedLengthExplicitCharacters(this, body)
       }
+      case LengthKind.Prefixed if bitsMultiplier != 0 =>
+        new SpecifiedLengthPrefixed(this, body, bitsMultiplier)
+      case LengthKind.Prefixed => {
+        Assert.invariant(!knownEncodingIsFixedWidth)
+        Assert.invariant(lengthUnits eq LengthUnits.Characters)
+        new SpecifiedLengthPrefixedCharacters(this, body)
+      }
       case LengthKind.Implicit if isSimpleType && primType == PrimType.String &&
         encodingInfo.knownEncodingIsFixedWidth => {
         //
@@ -1169,7 +1338,7 @@ trait ElementBaseGrammarMixin
       case LengthKind.EndOfParent if isComplexType => notYetImplemented("lengthKind='endOfParent' for complex type")
       case LengthKind.EndOfParent => notYetImplemented("lengthKind='endOfParent' for simple type")
       case _ => {
-        // TODO: implement other specified length like prefixed and end of parent
+        // TODO: implement other specified length like end of parent
         // for now, no restriction
         body
       }
@@ -1203,7 +1372,7 @@ trait ElementBaseGrammarMixin
    * the element left framing does not include the initiator nor the element right framing the terminator
    */
   private lazy val alignAndSkipFraming = prod("alignAndSkipFraming") {
-    LeadingSkipRegion(this) ~ AlignmentFill(this) ~ PrefixLength(this)
+    LeadingSkipRegion(this) ~ AlignmentFill(this)
   }
 
   private lazy val elementLeftFraming = alignAndSkipFraming

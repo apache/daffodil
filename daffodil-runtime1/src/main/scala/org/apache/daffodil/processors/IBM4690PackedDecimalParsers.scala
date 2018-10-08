@@ -17,12 +17,15 @@
 
 package org.apache.daffodil.processors.parsers
 
-import org.apache.daffodil.processors.Evaluatable
-import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
-import org.apache.daffodil.processors.ElementRuntimeData
-import org.apache.daffodil.util.DecimalUtils
 import java.lang.{ Long => JLong }
 import java.math.{ BigInteger => JBigInteger, BigDecimal => JBigDecimal }
+
+import org.apache.daffodil.processors.ElementRuntimeData
+import org.apache.daffodil.processors.Evaluatable
+import org.apache.daffodil.processors.ParseOrUnparseState
+import org.apache.daffodil.processors.Processor
+import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
+import org.apache.daffodil.util.DecimalUtils
 
 class IBM4690PackedDecimalKnownLengthParser(
   e: ElementRuntimeData,
@@ -40,7 +43,7 @@ class IBM4690PackedDecimalRuntimeLengthParser(
   val e: ElementRuntimeData,
   binaryDecimalVirtualPoint: Int,
   val lengthEv: Evaluatable[JLong],
-  val lUnits: LengthUnits)
+  val lengthUnits: LengthUnits)
   extends PackedBinaryDecimalBaseParser(e, binaryDecimalVirtualPoint)
   with HasRuntimeExplicitLength {
 
@@ -49,11 +52,32 @@ class IBM4690PackedDecimalRuntimeLengthParser(
 
 }
 
+class IBM4690PackedDecimalPrefixedLengthParser(
+  e: ElementRuntimeData,
+  override val prefixedLengthParser: Parser,
+  override val prefixedLengthERD: ElementRuntimeData,
+  binaryDecimalVirtualPoint: Int,
+  override val lengthUnits: LengthUnits,
+  override val prefixedLengthAdjustmentInUnits: Long)
+  extends PackedBinaryDecimalBaseParser(e, binaryDecimalVirtualPoint)
+  with PrefixedLengthParserMixin {
+
+  override def toBigInteger(num: Array[Byte]): JBigInteger = DecimalUtils.ibm4690ToBigInteger(num)
+  override def toBigDecimal(num: Array[Byte], scale: Int): JBigDecimal = DecimalUtils.ibm4690ToBigDecimal(num, scale)
+  
+  override def childProcessors: Vector[Processor] = Vector(prefixedLengthParser)
+      
+  override def getBitLength(state: ParseOrUnparseState): Int = {
+    getPrefixedLengthInBits(state.asInstanceOf[PState]).toInt
+  }
+
+}
+
 class IBM4690PackedIntegerRuntimeLengthParser(
   val e: ElementRuntimeData,
   signed: Boolean,
   val lengthEv: Evaluatable[JLong],
-  val lUnits: LengthUnits)
+  val lengthUnits: LengthUnits)
   extends PackedBinaryIntegerBaseParser(e, signed)
   with HasRuntimeExplicitLength {
 
@@ -73,3 +97,25 @@ class IBM4690PackedIntegerKnownLengthParser(
   override def toBigDecimal(num: Array[Byte], scale: Int): JBigDecimal = DecimalUtils.ibm4690ToBigDecimal(num, scale)
 
 }
+
+
+class IBM4690PackedIntegerPrefixedLengthParser(
+  e: ElementRuntimeData,
+  override val prefixedLengthParser: Parser,
+  override val prefixedLengthERD: ElementRuntimeData,
+  signed: Boolean,
+  override val lengthUnits: LengthUnits,
+  override val prefixedLengthAdjustmentInUnits: Long)
+  extends PackedBinaryIntegerBaseParser(e, signed)
+  with PrefixedLengthParserMixin {
+
+  override def toBigInteger(num: Array[Byte]): JBigInteger = DecimalUtils.ibm4690ToBigInteger(num)
+  override def toBigDecimal(num: Array[Byte], scale: Int): JBigDecimal = DecimalUtils.ibm4690ToBigDecimal(num, scale)
+  
+  override def childProcessors: Vector[Processor] = Vector(prefixedLengthParser)
+      
+  override def getBitLength(state: ParseOrUnparseState): Int = {
+    getPrefixedLengthInBits(state.asInstanceOf[PState]).toInt
+  }
+}
+

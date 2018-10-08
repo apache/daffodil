@@ -128,7 +128,8 @@ class TestPropertyGenerator {
     val pg = new PropertyGenerator(sch)
     val mx = pg.genComplexType(sch)
     assertTrue(mx.contains("""convertToNCName(cacheProperty("name").value)"""))
-    assertTrue(mx.contains("""convertToQName(cacheProperty("baseFormat").value"""))
+    assertTrue(mx.contains("""cacheProperty("baseFormat")"""))
+    assertTrue(mx.contains("""convertToQName"""))
   }
 
   @Test def testElement1() {

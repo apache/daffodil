@@ -17,50 +17,38 @@
 
 package org.apache.daffodil.processors.unparsers
 
-import org.apache.daffodil.processors.ElementRuntimeData
-import org.apache.daffodil.processors.ParseOrUnparseState
-import org.apache.daffodil.util.Maybe._
 import java.lang.{ Long => JLong, Boolean => JBoolean }
-import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.processors.Evaluatable
-import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
-import org.apache.daffodil.io.DataOutputStream
-import org.apache.daffodil.schema.annotation.props.gen.LengthKind
-import org.apache.daffodil.util.Numbers
-import org.apache.daffodil.util.MaybeULong
-import passera.unsigned.ULong
-import org.apache.daffodil.io.FormatInfo
 
-class BinaryBooleanUnparser(
-  e: ElementRuntimeData,
+import passera.unsigned.ULong
+
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.infoset.DISimple
+import org.apache.daffodil.infoset.Infoset
+import org.apache.daffodil.io.DataOutputStream
+import org.apache.daffodil.io.FormatInfo
+import org.apache.daffodil.processors.ElementRuntimeData
+import org.apache.daffodil.processors.Evaluatable
+import org.apache.daffodil.processors.ParseOrUnparseState
+import org.apache.daffodil.processors.Processor
+import org.apache.daffodil.schema.annotation.props.gen.LengthKind
+import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
+import org.apache.daffodil.util.Maybe._
+import org.apache.daffodil.util.MaybeULong
+import org.apache.daffodil.util.Numbers
+
+abstract class BinaryBooleanUnparserBase(
+  override val context: ElementRuntimeData,
   binaryBooleanTrueRep: MaybeULong,
   binaryBooleanFalseRep: ULong,
-  val lengthEv: Evaluatable[JLong],
-  val lUnits: LengthUnits,
-  val lengthKind: LengthKind)
-  extends PrimUnparser() {
+  lengthUnits: LengthUnits)
+  extends PrimUnparser {
 
-  lazy val toBits = lUnits match {
+  def getBitLength(s: ParseOrUnparseState): Int
+
+  lazy val toBits = lengthUnits match {
     case LengthUnits.Bits => 1
     case LengthUnits.Bytes => 8
-    case _ => e.schemaDefinitionError("Binary Numbers must have length units of Bits or Bytes.")
-  }
-
-  def getBitLength(s: ParseOrUnparseState): Int = {
-    val nBytesAsJLong = lengthEv.evaluate(s)
-    val nBytes = Numbers.asInt(nBytesAsJLong)
-    lengthKind match {
-      case LengthKind.Implicit => nBytes
-      case _ => nBytes * toBits
-    }
-  }
-
-  override def context = e
-
-  override lazy val runtimeDependencies = Vector(lengthEv)
-
-  protected def putNumber(dos: DataOutputStream, value: ULong, nBits: Int, finfo: FormatInfo): Boolean = {
-    dos.putULong(value, nBits, finfo)
+    case _ => context.schemaDefinitionError("Binary Numbers must have length units of Bits or Bytes.")
   }
 
   def unparse(state: UState): Unit = {
@@ -87,8 +75,57 @@ class BinaryBooleanUnparser(
     if (!res) {
       Assert.invariant(dos.maybeRelBitLimit0b.isDefined)
       UnparseError(One(state.schemaFileLocation), One(state.currentLocation), "Insufficient space to unparse element %s, required %s bits, but only %s were available.",
-        e.dpathElementCompileInfo.namedQName.toPrettyString, nBits, dos.maybeRelBitLimit0b.get)
+        context.dpathElementCompileInfo.namedQName.toPrettyString, nBits, dos.maybeRelBitLimit0b.get)
     }
+  }
+
+  protected def putNumber(dos: DataOutputStream, value: ULong, nBits: Int, finfo: FormatInfo): Boolean = {
+    dos.putULong(value, nBits, finfo)
+  }
+
+}
+
+class BinaryBooleanUnparser(
+  e: ElementRuntimeData,
+  binaryBooleanTrueRep: MaybeULong,
+  binaryBooleanFalseRep: ULong,
+  val lengthEv: Evaluatable[JLong],
+  val lengthUnits: LengthUnits,
+  val lengthKind: LengthKind)
+  extends BinaryBooleanUnparserBase(e, binaryBooleanTrueRep, binaryBooleanFalseRep, lengthUnits) {
+
+  override lazy val runtimeDependencies = Vector(lengthEv)
+
+  override def getBitLength(s: ParseOrUnparseState): Int = {
+    val nBytesAsJLong = lengthEv.evaluate(s)
+    val nBytes = Numbers.asInt(nBytesAsJLong)
+    lengthKind match {
+      case LengthKind.Implicit => nBytes
+      case _ => nBytes * toBits
+    }
+  }
+}
+
+class BinaryBooleanPrefixedLengthUnparser(
+  e: ElementRuntimeData,
+  override val prefixedLengthUnparser: Unparser,
+  override val prefixedLengthERD: ElementRuntimeData,
+  binaryBooleanTrueRep: MaybeULong,
+  binaryBooleanFalseRep: ULong,
+  override val lengthUnits: LengthUnits,
+  override val prefixedLengthAdjustmentInUnits: Long)
+  extends BinaryBooleanUnparserBase(e, binaryBooleanTrueRep, binaryBooleanFalseRep, lengthUnits)
+  with KnownPrefixedLengthUnparserMixin {
+
+  override def childProcessors: Vector[Processor] = Vector(prefixedLengthUnparser)
+
+  override lazy val runtimeDependencies = Vector()
+
+  override def getBitLength(s: ParseOrUnparseState): Int = 32
+
+  override def unparse(state: UState): Unit = {
+    unparsePrefixedLength(state)
+    super.unparse(state)
   }
 
 }

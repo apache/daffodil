@@ -1,0 +1,1995 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<tdml:testSuite suiteName="PrefixedTests"
+  description="Section 12 - lengthKind=prefixed" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+  xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  xmlns:ex="http://example.com"
+  xmlns:tns="http://example.com"
+  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
+  defaultRoundTrip="onePass">
+
+  <tdml:defineSchema name="lengthKindPrefixed-text.dfdl.xsd">
+
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+
+    <dfdl:format ref="ex:GeneralFormat"
+      representation="text"
+      encoding="UTF-8"
+      binaryDecimalVirtualPoint="2"
+      nilKind="literalValue"
+      nilValue="%WSP+;"
+      textBooleanTrueRep="TRUE"
+      textBooleanFalseRep="FALSE"
+      prefixIncludesPrefixLength="no" />
+
+    <dfdl:defineFormat name="prefixedTxtByte">
+      <dfdl:format lengthKind="prefixed" lengthUnits="bytes" prefixLengthType="ex:threeByteTextInt" />
+    </dfdl:defineFormat>
+
+    <dfdl:defineFormat name="prefixedBinByte">
+      <dfdl:format lengthKind="prefixed" lengthUnits="bytes" prefixLengthType="ex:threeByteBinInt" />
+    </dfdl:defineFormat>
+
+    <dfdl:defineFormat name="prefixedTxtBits">
+      <dfdl:format lengthKind="prefixed" lengthUnits="bits" prefixLengthType="ex:twentyFourBitsTextInt" />
+    </dfdl:defineFormat>
+
+    <dfdl:defineFormat name="prefixedBinBits">
+      <dfdl:format lengthKind="prefixed" lengthUnits="bits" prefixLengthType="ex:twentyFourBitsBinInt" />
+    </dfdl:defineFormat>
+
+    <dfdl:defineFormat name="prefixedTxtChar">
+      <dfdl:format lengthKind="prefixed" lengthUnits="characters" prefixLengthType="ex:threeCharTextInt" />
+    </dfdl:defineFormat>
+
+
+    <xs:simpleType name="threeByteTextInt" dfdl:representation="text" dfdl:lengthKind="explicit"
+      dfdl:length="3" dfdl:lengthUnits="bytes">
+      <xs:restriction base="xs:integer" /> 
+    </xs:simpleType>
+
+    <xs:simpleType name="threeByteBinInt" dfdl:representation="binary" dfdl:lengthKind="explicit"
+      dfdl:length="3" dfdl:lengthUnits="bytes">
+      <xs:restriction base="xs:integer" />
+    </xs:simpleType>
+
+    <xs:simpleType name="twentyFourBitsTextInt" dfdl:representation="text" dfdl:lengthKind="explicit"
+      dfdl:length="24" dfdl:lengthUnits="bits">
+      <xs:restriction base="xs:integer" /> 
+    </xs:simpleType>
+
+    <xs:simpleType name="twentyFourBitsBinInt" dfdl:representation="binary" dfdl:lengthKind="explicit"
+      dfdl:length="24" dfdl:lengthUnits="bits">
+      <xs:restriction base="xs:integer" />
+    </xs:simpleType>
+
+    <xs:simpleType name="threeCharTextInt" dfdl:representation="text" dfdl:lengthKind="explicit"
+      dfdl:length="3" dfdl:lengthUnits="characters" dfdl:textNumberJustification="left"
+      dfdl:textPadKind="padChar" dfdl:textTrimKind="padChar" dfdl:textNumberPadCharacter="X">
+      <xs:restriction base="xs:integer" /> 
+    </xs:simpleType>
+
+    <xs:simpleType name="nByteTextInt" dfdl:representation="text" dfdl:lengthKind="prefixed"
+      dfdl:prefixLengthType="ex:threeByteTextInt" dfdl:lengthUnits="bytes">
+      <xs:restriction base="xs:integer" />
+    </xs:simpleType>
+
+
+
+    <xs:element name="pl_text_string_txt_bytes" type="xs:string" dfdl:ref="prefixedTxtByte"
+      nillable="true" /> 
+    <xs:element name="pl_text_string_txt_bits"  type="xs:string" dfdl:ref="prefixedTxtBits"
+      nillable="true" />
+    <xs:element name="pl_text_string_txt_chars" type="xs:string" dfdl:ref="prefixedTxtChar"
+      nillable="true" daf:parseUnparsePolicy="parseOnly" />
+
+    <xs:element name="pl_text_string_txt_bytes_includes" type="xs:string" dfdl:ref="prefixedTxtByte"
+      nillable="true" dfdl:prefixIncludesPrefixLength="yes" />
+    <xs:element name="pl_text_string_txt_bits_includes" type="xs:string" dfdl:ref="prefixedTxtBits"
+      nillable="true" dfdl:prefixIncludesPrefixLength="yes" />
+    <xs:element name="pl_text_string_txt_chars_includes" type="xs:string" dfdl:ref="prefixedTxtChar"
+      nillable="true"  dfdl:prefixIncludesPrefixLength="yes" daf:parseUnparsePolicy="parseOnly" />
+
+    <xs:element name="pl_text_string_bin_bytes" type="xs:string" dfdl:ref="prefixedBinByte"
+      nillable="true" />
+    <xs:element name="pl_text_string_bin_bits" type="xs:string" dfdl:ref="prefixedBinBits"
+     nillable="true" />
+ 
+    <xs:element name="pl_text_int_txt_bytes" type="xs:int" dfdl:ref="prefixedTxtByte" />
+    <xs:element name="pl_text_int_txt_bits" type="xs:int" dfdl:ref="prefixedTxtBits" />
+    <xs:element name="pl_text_int_txt_chars" type="xs:int" dfdl:ref="prefixedTxtChar"
+      daf:parseUnparsePolicy="parseOnly" />
+
+    <xs:element name="pl_text_int_bin_bytes" type="xs:int" dfdl:ref="prefixedBinByte" />
+    <xs:element name="pl_text_int_bin_bits" type="xs:int" dfdl:ref="prefixedBinBits" />
+
+    <xs:element name="pl_text_int_txt_bytes_includes" type="xs:int" dfdl:ref="prefixedTxtByte"
+      dfdl:prefixIncludesPrefixLength="yes" />
+    <xs:element name="pl_text_int_txt_bits_includes" type="xs:int" dfdl:ref="prefixedTxtBits"
+      dfdl:prefixIncludesPrefixLength="yes" />
+    <xs:element name="pl_text_int_txt_chars_includes" type="xs:int" dfdl:ref="prefixedTxtChar"
+      dfdl:prefixIncludesPrefixLength="yes" daf:parseUnparsePolicy="parseOnly" />
+
+    <xs:element name="pl_text_int_bin_bytes_includes" type="xs:int" dfdl:ref="prefixedBinByte"
+      dfdl:prefixIncludesPrefixLength="yes" />
+    <xs:element name="pl_text_int_bin_bits_includes" type="xs:int" dfdl:ref="prefixedBinBits"
+      dfdl:prefixIncludesPrefixLength="yes" />
+
+    <xs:element name="pl_text_dec_txt_bytes" type="xs:decimal" dfdl:ref="prefixedTxtByte" />
+    <xs:element name="pl_text_dec_txt_bits" type="xs:decimal" dfdl:ref="prefixedTxtBits" />
+    <xs:element name="pl_text_dec_txt_chars" type="xs:decimal" dfdl:ref="prefixedTxtChar"
+      daf:parseUnparsePolicy="parseOnly" />
+
+    <xs:element name="pl_text_dec_bin_bytes" type="xs:decimal" dfdl:ref="prefixedBinByte" />
+    <xs:element name="pl_text_dec_bin_bits" type="xs:decimal" dfdl:ref="prefixedBinBits" />
+
+    <xs:element name="pl_text_date_txt_bytes" type="xs:dateTime" dfdl:ref="prefixedTxtByte" />
+    <xs:element name="pl_text_date_txt_bits" type="xs:dateTime" dfdl:ref="prefixedTxtBits" />
+    <xs:element name="pl_text_date_txt_chars" type="xs:dateTime" dfdl:ref="prefixedTxtChar"
+      daf:parseUnparsePolicy="parseOnly" />
+
+    <xs:element name="pl_text_date_bin_bytes" type="xs:dateTime" dfdl:ref="prefixedBinByte" />
+    <xs:element name="pl_text_date_bin_bits" type="xs:dateTime" dfdl:ref="prefixedBinBits" />
+
+    <xs:element name="pl_text_bool_txt_bytes" type="xs:boolean" dfdl:ref="prefixedTxtByte" />
+    <xs:element name="pl_text_bool_txt_bits" type="xs:boolean" dfdl:ref="prefixedTxtBits" />
+    <xs:element name="pl_text_bool_txt_chars" type="xs:boolean" dfdl:ref="prefixedTxtChar"
+      daf:parseUnparsePolicy="parseOnly" />
+
+    <xs:element name="pl_text_bool_bin_bytes" type="xs:boolean" dfdl:ref="prefixedBinByte" />
+    <xs:element name="pl_text_bool_bin_bits" type="xs:boolean" dfdl:ref="prefixedBinBits" />
+
+    <xs:element name="pl_text_string_pl_txt_bytes" type="xs:string" dfdl:lengthKind="prefixed"
+      dfdl:prefixLengthType="ex:nByteTextInt" dfdl:lengthUnits="bytes" />
+
+    <xs:element name="pl_complex_bin_bytes">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="strings" dfdl:ref="prefixedBinByte">
+            <xs:complexType>
+              <xs:sequence dfdl:separator=",">
+                <xs:element name="str" type="xs:string" maxOccurs="unbounded" dfdl:lengthKind="delimited" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="remaining" type="xs:string" dfdl:lengthKind="delimited" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="pl_complex_bin_bits">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="strings" dfdl:ref="prefixedBinBits">
+            <xs:complexType>
+              <xs:sequence dfdl:separator=",">
+                <xs:element name="str" type="xs:string" maxOccurs="unbounded" dfdl:lengthKind="delimited" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="remaining" type="xs:string" dfdl:lengthKind="delimited" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="pl_complex_bin_bytes_suspension">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="lenValue" dfdl:ref="prefixedBinByte">
+            <xs:complexType>
+              <xs:sequence dfdl:separator=",">
+                <xs:element name="len" type="xs:int" dfdl:lengthKind="delimited"
+                  dfdl:outputValueCalc="{ dfdl:valueLength(../ex:value, 'bytes') + 3 }" />
+                <xs:element name="value" type="xs:string" dfdl:lengthKind="explicit"
+                  dfdl:length="{ ../ex:len }" dfdl:textStringJustification="right"
+                  dfdl:textPadKind="padChar" dfdl:textTrimKind="padChar" dfdl:textStringPadCharacter="X" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="remaining" type="xs:string" dfdl:lengthKind="delimited" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="pl_complex_bin_bytes_suspension_includes">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="lenValue" dfdl:ref="prefixedBinByte" dfdl:prefixIncludesPrefixLength="yes">
+            <xs:complexType>
+              <xs:sequence dfdl:separator=",">
+                <xs:element name="len" type="xs:int" dfdl:lengthKind="delimited"
+                  dfdl:outputValueCalc="{ dfdl:valueLength(../ex:value, 'bytes') + 3 }" />
+                <xs:element name="value" type="xs:string" dfdl:lengthKind="explicit"
+                  dfdl:length="{ ../ex:len }" dfdl:textStringJustification="right"
+                  dfdl:textPadKind="padChar" dfdl:textTrimKind="padChar" dfdl:textStringPadCharacter="X" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="remaining" type="xs:string" dfdl:lengthKind="delimited" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:defineSchema name="lengthKindPrefixed-bin.dfdl.xsd">
+
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+
+    <dfdl:format ref="ex:GeneralFormat"
+      representation="binary"
+      encoding="UTF-8"
+      binaryDecimalVirtualPoint="2"
+      binaryBooleanTrueRep=""
+      binaryBooleanFalseRep="0"
+      binaryPackedSignCodes="C D F C"
+      binaryNumberCheckPolicy="strict"
+      calendarPatternKind="explicit"
+      calendarPattern="MMddyyyyHHmmss"
+      prefixIncludesPrefixLength="no" />
+
+    <dfdl:defineFormat name="prefixedTxtByte">
+      <dfdl:format lengthKind="prefixed" lengthUnits="bytes" prefixLengthType="ex:threeByteTextInt" />
+    </dfdl:defineFormat>
+
+    <dfdl:defineFormat name="prefixedBinByte">
+      <dfdl:format lengthKind="prefixed" lengthUnits="bytes" prefixLengthType="ex:threeByteBinInt" />
+    </dfdl:defineFormat>
+
+    <dfdl:defineFormat name="prefixedTxtBits">
+      <dfdl:format lengthKind="prefixed" lengthUnits="bits"  prefixLengthType="ex:twentyFourBitsTextInt" />
+    </dfdl:defineFormat>
+
+    <dfdl:defineFormat name="prefixedBinBits">
+      <dfdl:format lengthKind="prefixed" lengthUnits="bits"  prefixLengthType="ex:twentyFourBitsBinInt" />
+    </dfdl:defineFormat>
+
+    <dfdl:defineFormat name="prefixedTxtChar">
+      <dfdl:format lengthKind="prefixed" lengthUnits="characters" prefixLengthType="ex:threeCharTextInt" />
+    </dfdl:defineFormat>
+
+
+    <xs:simpleType name="threeByteTextInt" dfdl:representation="text" dfdl:lengthKind="explicit"
+      dfdl:length="3" dfdl:lengthUnits="bytes">
+      <xs:restriction base="xs:integer" /> 
+    </xs:simpleType>
+
+    <xs:simpleType name="threeByteBinInt" dfdl:representation="binary" dfdl:lengthKind="explicit"
+      dfdl:length="3" dfdl:lengthUnits="bytes">
+      <xs:restriction base="xs:integer" />
+    </xs:simpleType>
+
+    <xs:simpleType name="twentyFourBitsTextInt" dfdl:representation="text" dfdl:lengthKind="explicit"
+      dfdl:length="24" dfdl:lengthUnits="bits">
+      <xs:restriction base="xs:integer" /> 
+    </xs:simpleType>
+
+    <xs:simpleType name="twentyFourBitsBinInt" dfdl:representation="binary" dfdl:lengthKind="explicit"
+      dfdl:length="24" dfdl:lengthUnits="bits">
+      <xs:restriction base="xs:integer" />
+    </xs:simpleType>
+
+    <xs:simpleType name="threeCharTextInt" dfdl:representation="text" dfdl:lengthKind="explicit"
+      dfdl:length="3" dfdl:lengthUnits="characters" dfdl:textNumberJustification="left"
+      dfdl:textPadKind="padChar" dfdl:textTrimKind="padChar" dfdl:textNumberPadCharacter="X">
+      <xs:restriction base="xs:integer" /> 
+    </xs:simpleType>
+
+    <xs:simpleType name="nByteTextInt" dfdl:representation="text" dfdl:lengthKind="prefixed"
+      dfdl:prefixLengthType="ex:threeByteTextInt" dfdl:lengthUnits="bytes">
+      <xs:restriction base="xs:integer" />
+    </xs:simpleType>
+
+
+    <xs:element name="pl_bin_int_txt_bytes" type="xs:int" dfdl:ref="prefixedTxtByte" />
+    <xs:element name="pl_bin_int_txt_bits" type="xs:int" dfdl:ref="prefixedTxtBits" />
+
+    <xs:element name="pl_bin_int_bin_bytes" type="xs:int" dfdl:ref="prefixedBinByte" />
+    <xs:element name="pl_bin_int_bin_bits" type="xs:int" dfdl:ref="prefixedBinBits" />
+
+    <xs:element name="pl_bin_int_txt_bytes_includes" type="xs:int" dfdl:ref="prefixedTxtByte"
+      dfdl:prefixIncludesPrefixLength="yes" />
+    <xs:element name="pl_bin_int_txt_bits_includes" type="xs:int" dfdl:ref="prefixedTxtBits"
+      dfdl:prefixIncludesPrefixLength="yes" />
+
+    <xs:element name="pl_bin_int_bin_bytes_includes" type="xs:int" dfdl:ref="prefixedBinByte"
+      dfdl:prefixIncludesPrefixLength="yes" />
+    <xs:element name="pl_bin_int_bin_bits_includes" type="xs:int" dfdl:ref="prefixedBinBits"
+      dfdl:prefixIncludesPrefixLength="yes" />
+
+    <xs:element name="pl_bin_int_bin_bytes_packed" type="xs:int" dfdl:ref="prefixedBinByte"
+      dfdl:binaryNumberRep="packed" />
+    <xs:element name="pl_bin_int_bin_bits_packed" type="xs:int" dfdl:ref="prefixedBinBits"
+      dfdl:binaryNumberRep="packed" />
+
+    <xs:element name="pl_bin_int_bin_bytes_bcd" type="xs:unsignedInt" dfdl:ref="prefixedBinByte"
+      dfdl:binaryNumberRep="bcd" />
+    <xs:element name="pl_bin_int_bin_bits_bcd" type="xs:unsignedInt" dfdl:ref="prefixedBinBits"
+      dfdl:binaryNumberRep="bcd" />
+
+    <xs:element name="pl_bin_int_bin_bytes_ibm4690" type="xs:int" dfdl:ref="prefixedBinByte"
+      dfdl:binaryNumberRep="ibm4690Packed" />
+    <xs:element name="pl_bin_int_bin_bits_ibm4690" type="xs:int" dfdl:ref="prefixedBinBits"
+      dfdl:binaryNumberRep="ibm4690Packed" />
+
+    <xs:element name="pl_bin_dec_txt_bytes" type="xs:decimal" dfdl:ref="prefixedTxtByte" />
+    <xs:element name="pl_bin_dec_txt_bits" type="xs:decimal" dfdl:ref="prefixedTxtBits" />
+
+    <xs:element name="pl_bin_dec_bin_bytes" type="xs:decimal" dfdl:ref="prefixedBinByte" />
+    <xs:element name="pl_bin_dec_bin_bits" type="xs:decimal" dfdl:ref="prefixedBinBits" />
+
+    <xs:element name="pl_bin_dec_bin_bytes_packed" type="xs:decimal" dfdl:ref="prefixedBinByte"
+      dfdl:binaryNumberRep="packed" />
+    <xs:element name="pl_bin_dec_bin_bits_packed" type="xs:decimal" dfdl:ref="prefixedBinBits"
+      dfdl:binaryNumberRep="packed" />
+
+    <xs:element name="pl_bin_dec_bin_bytes_bcd" type="xs:decimal" dfdl:ref="prefixedBinByte"
+      dfdl:binaryNumberRep="bcd" />
+    <xs:element name="pl_bin_dec_bin_bits_bcd" type="xs:decimal" dfdl:ref="prefixedBinBits"
+      dfdl:binaryNumberRep="bcd" />
+
+    <xs:element name="pl_bin_dec_bin_bytes_ibm4690" type="xs:decimal" dfdl:ref="prefixedBinByte"
+      dfdl:binaryNumberRep="ibm4690Packed" />
+    <xs:element name="pl_bin_dec_bin_bits_ibm4690" type="xs:decimal" dfdl:ref="prefixedBinBits"
+      dfdl:binaryNumberRep="ibm4690Packed" />
+
+    <xs:element name="pl_bin_hex_txt_bytes" type="xs:hexBinary" dfdl:ref="prefixedTxtByte" />
+    <xs:element name="pl_bin_hex_txt_bits" type="xs:hexBinary" dfdl:ref="prefixedTxtBits" />
+
+    <xs:element name="pl_bin_hex_bin_bytes" type="xs:hexBinary" dfdl:ref="prefixedBinByte" />
+    <xs:element name="pl_bin_hex_bin_bits" type="xs:hexBinary" dfdl:ref="prefixedBinBits" />
+
+    <xs:element name="pl_bin_bool_txt_bytes" type="xs:boolean" dfdl:ref="prefixedTxtByte" />
+    <xs:element name="pl_bin_bool_txt_bits" type="xs:boolean" dfdl:ref="prefixedTxtBits" />
+
+    <xs:element name="pl_bin_bool_bin_bytes" type="xs:boolean" dfdl:ref="prefixedBinByte" />
+    <xs:element name="pl_bin_bool_bin_bits" type="xs:boolean" dfdl:ref="prefixedBinBits" />
+    
+    <xs:element name="pl_bin_date_bin_bytes_packed" type="xs:dateTime" dfdl:ref="prefixedBinByte"
+      dfdl:binaryCalendarRep="packed" />
+    <xs:element name="pl_bin_date_bin_bits_packed" type="xs:dateTime" dfdl:ref="prefixedBinBits"
+      dfdl:binaryCalendarRep="packed" />
+
+    <xs:element name="pl_bin_date_bin_bytes_bcd" type="xs:dateTime" dfdl:ref="prefixedBinByte"
+      dfdl:binaryCalendarRep="bcd" />
+    <xs:element name="pl_bin_date_bin_bits_bcd" type="xs:dateTime" dfdl:ref="prefixedBinBits"
+      dfdl:binaryCalendarRep="bcd" />
+
+    <xs:element name="pl_bin_date_bin_bytes_ibm4690" type="xs:dateTime" dfdl:ref="prefixedBinByte"
+      dfdl:binaryCalendarRep="ibm4690Packed" />
+    <xs:element name="pl_bin_date_bin_bits_ibm4690" type="xs:dateTime" dfdl:ref="prefixedBinBits"
+      dfdl:binaryCalendarRep="ibm4690Packed" />
+
+    <xs:simpleType name="plSlash1_string_prefix"
+       dfdl:lengthKind="explicit" dfdl:length="4" dfdl:lengthUnits="bytes">
+      <xs:restriction base="xs:unsignedByte" />
+    </xs:simpleType>
+
+    <xs:element name="plSlash1_data">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="string" type="xs:string" maxOccurs="unbounded"
+            dfdl:lengthKind="prefixed" dfdl:prefixLengthType="ex:plSlash1_string_prefix"
+            dfdl:lengthUnits="bytes" dfdl:alignment="4" dfdl:alignmentUnits="bytes" dfdl:fillByte="%NUL;" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:defineSchema name="lengthKindPrefixed-sde.dfdl.xsd">
+
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+
+    <dfdl:format ref="ex:GeneralFormat"
+      prefixIncludesPrefixLength="no" />
+
+    <xs:complexType name="prefixComplex">
+      <xs:sequence>
+        <xs:element name="foo" type="xs:int" dfdl:lengthKind="explicit"
+          dfdl:length="3" dfdl:lengthUnits="bytes" />
+      </xs:sequence>
+    </xs:complexType>
+
+    <xs:simpleType name="prefixDelimited" dfdl:lengthKind="delimited">
+      <xs:restriction base="xs:integer" /> 
+    </xs:simpleType>
+
+    <xs:simpleType name="prefixEndOfParent" dfdl:lengthKind="endOfParent">
+      <xs:restriction base="xs:integer" /> 
+    </xs:simpleType>
+
+    <xs:simpleType name="prefixPattern" dfdl:lengthKind="pattern" dfdl:lengthPattern="[0-9]{1,2}">
+      <xs:restriction base="xs:integer" /> 
+    </xs:simpleType>
+
+    <xs:simpleType name="prefixExpression" dfdl:lengthKind="explicit" dfdl:length="{ fn:count(.) }">
+      <xs:restriction base="xs:integer" /> 
+    </xs:simpleType>
+
+    <xs:simpleType name="prefixOVC" dfdl:lengthKind="explicit" dfdl:length="2" dfdl:outputValueCalc="{ 5 }" >
+      <xs:restriction base="xs:integer" /> 
+    </xs:simpleType>
+
+    <xs:simpleType name="prefixInitiator" dfdl:lengthKind="explicit" dfdl:length="2" dfdl:initiator="i">
+      <xs:restriction base="xs:integer" /> 
+    </xs:simpleType>
+
+    <xs:simpleType name="prefixTerminator" dfdl:lengthKind="explicit" dfdl:length="2" dfdl:terminator="t">
+      <xs:restriction base="xs:integer" /> 
+    </xs:simpleType>
+
+    <xs:simpleType name="prefixAlignment" dfdl:lengthKind="explicit" dfdl:length="2" dfdl:alignment="8"
+      dfdl:alignmentUnits="bits">
+      <xs:restriction base="xs:integer" /> 
+    </xs:simpleType>
+
+    <xs:simpleType name="prefixLeadingSkip" dfdl:lengthKind="explicit" dfdl:length="2" dfdl:leadingSkip="1">
+      <xs:restriction base="xs:integer" /> 
+    </xs:simpleType>
+
+    <xs:simpleType name="prefixTrailingSkip" dfdl:lengthKind="explicit" dfdl:length="2" dfdl:trailingSkip="1">
+      <xs:restriction base="xs:integer" /> 
+    </xs:simpleType>
+
+    <xs:simpleType name="prefixLengthUnits" dfdl:lengthKind="explicit" dfdl:length="8" dfdl:lengthUnits="bits">
+      <xs:restriction base="xs:integer" /> 
+    </xs:simpleType>
+
+    <xs:simpleType name="prefixLengthNest1" dfdl:lengthKind="prefixed"
+      dfdl:prefixLengthType="prefixLengthNest2">
+      <xs:restriction base="xs:integer" /> 
+    </xs:simpleType>
+
+    <xs:simpleType name="prefixLengthNest2" dfdl:lengthKind="prefixed"
+      dfdl:prefixLengthType="prefixLengthNest3">
+      <xs:restriction base="xs:integer" /> 
+    </xs:simpleType>
+
+    <xs:simpleType name="prefixLengthNest3" dfdl:lengthKind="explicit" dfdl:length="2">
+      <xs:restriction base="xs:integer" /> 
+    </xs:simpleType>
+
+    <xs:simpleType name="prefixLengthDecimal" dfdl:lengthKind="explicit" dfdl:length="2">
+      <xs:restriction base="xs:decimal" /> 
+    </xs:simpleType>
+
+    <xs:element name="pl_complex" type="xs:string" dfdl:lengthKind="prefixed"
+      dfdl:prefixLengthType="ex:prefixComplex" />
+    <xs:element name="pl_delimited" type="xs:string" dfdl:lengthKind="prefixed"
+      dfdl:prefixLengthType="ex:prefixDelimited" />
+    <xs:element name="pl_endofparent" type="xs:string" dfdl:lengthKind="prefixed"
+      dfdl:prefixLengthType="ex:prefixEndOfParent" />
+    <xs:element name="pl_pattern" type="xs:string" dfdl:lengthKind="prefixed"
+      dfdl:prefixLengthType="ex:prefixPattern" />
+    <xs:element name="pl_expression" type="xs:string" dfdl:lengthKind="prefixed"
+      dfdl:prefixLengthType="ex:prefixExpression" />
+    <xs:element name="pl_ovc" type="xs:string" dfdl:lengthKind="prefixed"
+      dfdl:prefixLengthType="ex:prefixOVC" />
+    <xs:element name="pl_initiator" type="xs:string" dfdl:lengthKind="prefixed"
+      dfdl:prefixLengthType="ex:prefixInitiator" />
+    <xs:element name="pl_terminator" type="xs:string" dfdl:lengthKind="prefixed"
+      dfdl:prefixLengthType="ex:prefixTerminator" />
+    <xs:element name="pl_alignment" type="xs:string" dfdl:lengthKind="prefixed"
+      dfdl:prefixLengthType="ex:prefixAlignment" />
+    <xs:element name="pl_leadingskip" type="xs:string" dfdl:lengthKind="prefixed"
+      dfdl:prefixLengthType="ex:prefixLeadingSkip" />
+    <xs:element name="pl_trailingskip" type="xs:string" dfdl:lengthKind="prefixed"
+      dfdl:prefixLengthType="ex:prefixTrailingSkip" />
+    <xs:element name="pl_lengthunits" type="xs:string" dfdl:lengthKind="prefixed"
+      dfdl:prefixLengthType="ex:prefixLengthUnits" />
+    <xs:element name="pl_nest" type="xs:string" dfdl:lengthKind="prefixed"
+      dfdl:prefixLengthType="ex:prefixLengthNest1" />
+    <xs:element name="pl_decimal" type="xs:string" dfdl:lengthKind="prefixed"
+      dfdl:prefixLengthType="ex:prefixLengthDecimal" />
+
+  </tdml:defineSchema>
+
+
+  <tdml:parserTestCase name="pl_text_string_txt_bytes" roundTrip="twoPass"
+    root="pl_text_string_txt_bytes"
+    model="lengthKindPrefixed-text.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text">006</tdml:documentPart>
+      <tdml:documentPart type="text">ábcde</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:pl_text_string_txt_bytes>ábcde</ex:pl_text_string_txt_bytes>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_text_string_txt_bits" roundTrip="twoPass"
+    root="pl_text_string_txt_bits"
+    model="lengthKindPrefixed-text.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text">048</tdml:documentPart>
+      <tdml:documentPart type="text">ábcde</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_text_string_txt_bits>ábcde</pl_text_string_txt_bits>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    DAFFODIL-2029: Cannot roundTrip due to unimplemented unparsing with
+    dfdl:lengthKind="prefixed" and dfdl:lengthUnits="characters"
+  -->
+  <tdml:parserTestCase name="pl_text_string_txt_chars" roundTrip="false"
+    root="pl_text_string_txt_chars"
+    model="lengthKindPrefixed-text.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text">005</tdml:documentPart>
+      <tdml:documentPart type="text">ábcde</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_text_string_txt_chars>ábcde</pl_text_string_txt_chars>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_text_string_txt_bytes_includes" roundTrip="twoPass"
+    root="pl_text_string_txt_bytes_includes"
+    model="lengthKindPrefixed-text.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text">009</tdml:documentPart>
+      <tdml:documentPart type="text">ábcde</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:pl_text_string_txt_bytes_includes>ábcde</ex:pl_text_string_txt_bytes_includes>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_text_string_txt_bits_includes" roundTrip="twoPass"
+    root="pl_text_string_txt_bits_includes"
+    model="lengthKindPrefixed-text.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text">072</tdml:documentPart>
+      <tdml:documentPart type="text">ábcde</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_text_string_txt_bits_includes>ábcde</pl_text_string_txt_bits_includes>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    DAFFODIL-2029: Cannot roundTrip due to unimplemented unparsing with
+    dfdl:lengthKind="prefixed" and dfdl:lengthUnits="characters"
+  -->
+  <tdml:parserTestCase name="pl_text_string_txt_chars_includes" roundTrip="false"
+    root="pl_text_string_txt_chars_includes"
+    model="lengthKindPrefixed-text.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text">008</tdml:documentPart>
+      <tdml:documentPart type="text">ábcde</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_text_string_txt_chars_includes>ábcde</pl_text_string_txt_chars_includes>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    DAFFODIL-2029: Cannot roundTrip due to unimplemented unparsing with
+    dfdl:lengthKind="prefixed" and dfdl:lengthUnits="characters"
+  -->
+  <tdml:parserTestCase name="pl_text_string_txt_chars_padding" roundTrip="false"
+    root="pl_text_string_txt_chars"
+    model="lengthKindPrefixed-text.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text">5XX</tdml:documentPart>
+      <tdml:documentPart type="text">ábcde</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_text_string_txt_chars>ábcde</pl_text_string_txt_chars>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_text_string_bin_bytes"
+    root="pl_text_string_bin_bytes"
+    model="lengthKindPrefixed-text.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 06</tdml:documentPart>
+      <tdml:documentPart type="text">ábcde</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_text_string_bin_bytes>ábcde</pl_text_string_bin_bytes>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_text_string_bin_bits"
+    root="pl_text_string_bin_bits"
+    model="lengthKindPrefixed-text.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 30</tdml:documentPart>
+      <tdml:documentPart type="text">ábcde</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_text_string_bin_bits>ábcde</pl_text_string_bin_bits>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_text_string_txt_bytes_nil" roundTrip="twoPass"
+    root="pl_text_string_txt_bytes"
+    model="lengthKindPrefixed-text.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text">006</tdml:documentPart>
+      <tdml:documentPart type="text">      </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_text_string_txt_bytes xsi:nil="true" />
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_text_string_txt_bits_nil" roundTrip="twoPass"
+    root="pl_text_string_txt_bits"
+    model="lengthKindPrefixed-text.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text">048</tdml:documentPart>
+      <tdml:documentPart type="text">      </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_text_string_txt_bits xsi:nil="true" />
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    DAFFODIL-2029: Cannot roundTrip due to unimplemented unparsing with
+    dfdl:lengthKind="prefixed" and dfdl:lengthUnits="characters"
+  -->
+  <tdml:parserTestCase name="pl_text_string_txt_chars_nil" roundTrip="false"
+    root="pl_text_string_txt_chars"
+    model="lengthKindPrefixed-text.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text">005</tdml:documentPart>
+      <tdml:documentPart type="text">     </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_text_string_txt_chars xsi:nil="true" />
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_text_string_bin_bytes_nil" roundTrip="twoPass"
+    root="pl_text_string_bin_bytes"
+    model="lengthKindPrefixed-text.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 06</tdml:documentPart>
+      <tdml:documentPart type="text">      </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_text_string_bin_bytes xsi:nil="true" />
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_text_string_bin_bits_nil" roundTrip="twoPass"
+    root="pl_text_string_bin_bits"
+    model="lengthKindPrefixed-text.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 30</tdml:documentPart>
+      <tdml:documentPart type="text">      </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_text_string_bin_bits xsi:nil="true" />
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_text_string_txt_bytes_neg_len"
+    root="pl_text_string_txt_bytes"
+    model="lengthKindPrefixed-text.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text">-06</tdml:documentPart>
+      <tdml:documentPart type="text">ábcde</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Runtime Schema Definition Error</tdml:error>
+      <tdml:error>Prefixed length</tdml:error>
+      <tdml:error>non-negative</tdml:error>
+      <tdml:error>-6</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_text_string_txt_bytes_not_enough_data"
+    root="pl_text_string_txt_bytes"
+    model="lengthKindPrefixed-text.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text">006</tdml:documentPart>
+      <tdml:documentPart type="text">abcde</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Insufficient bits in data</tdml:error>
+      <tdml:error>48</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_text_string_txt_bytes_not_enough_prefix_data"
+    root="pl_text_string_txt_bytes"
+    model="lengthKindPrefixed-text.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text">01</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Insufficient bits in data</tdml:error>
+      <tdml:error>24</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_text_string_pl_txt_bytes"
+    root="pl_text_string_pl_txt_bytes"
+    model="lengthKindPrefixed-text.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text">002</tdml:documentPart>
+      <tdml:documentPart type="text">06</tdml:documentPart>
+      <tdml:documentPart type="text">ábcde</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_text_string_pl_txt_bytes>ábcde</pl_text_string_pl_txt_bytes>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_text_int_txt_bytes" roundTrip="twoPass"
+    root="pl_text_int_txt_bytes"
+    model="lengthKindPrefixed-text.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text">002</tdml:documentPart>
+      <tdml:documentPart type="text">12</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_text_int_txt_bytes>12</pl_text_int_txt_bytes>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_text_int_txt_bits" roundTrip="twoPass"
+    root="pl_text_int_txt_bits"
+    model="lengthKindPrefixed-text.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text">016</tdml:documentPart>
+      <tdml:documentPart type="text">12</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_text_int_txt_bits>12</pl_text_int_txt_bits>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    DAFFODIL-2029: Cannot roundTrip due to unimplemented unparsing with
+    dfdl:lengthKind="prefixed" and dfdl:lengthUnits="characters"
+  -->
+  <tdml:parserTestCase name="pl_text_int_txt_chars" roundTrip="false"
+    root="pl_text_int_txt_chars"
+    model="lengthKindPrefixed-text.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text">002</tdml:documentPart>
+      <tdml:documentPart type="text">12</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_text_int_txt_chars>12</pl_text_int_txt_chars>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_text_int_bin_bytes"
+    root="pl_text_int_bin_bytes"
+    model="lengthKindPrefixed-text.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 02</tdml:documentPart>
+      <tdml:documentPart type="text">12</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_text_int_bin_bytes>12</pl_text_int_bin_bytes>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_text_int_bin_bits"
+    root="pl_text_int_bin_bits"
+    model="lengthKindPrefixed-text.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 10</tdml:documentPart>
+      <tdml:documentPart type="text">12</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_text_int_bin_bits>12</pl_text_int_bin_bits>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_text_int_txt_bytes_includes" roundTrip="twoPass"
+    root="pl_text_int_txt_bytes_includes"
+    model="lengthKindPrefixed-text.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text">005</tdml:documentPart>
+      <tdml:documentPart type="text">12</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_text_int_txt_bytes_includes>12</pl_text_int_txt_bytes_includes>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_text_int_txt_bits_includes" roundTrip="twoPass"
+    root="pl_text_int_txt_bits_includes"
+    model="lengthKindPrefixed-text.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text">040</tdml:documentPart>
+      <tdml:documentPart type="text">12</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_text_int_txt_bits_includes>12</pl_text_int_txt_bits_includes>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    DAFFODIL-2029: Cannot roundTrip due to unimplemented unparsing with
+    dfdl:lengthKind="prefixed" and dfdl:lengthUnits="characters"
+  -->
+  <tdml:parserTestCase name="pl_text_int_txt_chars_includes" roundTrip="false"
+    root="pl_text_int_txt_chars_includes"
+    model="lengthKindPrefixed-text.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text">005</tdml:documentPart>
+      <tdml:documentPart type="text">12</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_text_int_txt_chars_includes>12</pl_text_int_txt_chars_includes>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_text_int_bin_bytes_includes"
+    root="pl_text_int_bin_bytes_includes"
+    model="lengthKindPrefixed-text.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 05</tdml:documentPart>
+      <tdml:documentPart type="text">12</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_text_int_bin_bytes_includes>12</pl_text_int_bin_bytes_includes>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_text_int_bin_bits_includes"
+    root="pl_text_int_bin_bits_includes"
+    model="lengthKindPrefixed-text.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 28</tdml:documentPart>
+      <tdml:documentPart type="text">12</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_text_int_bin_bits_includes>12</pl_text_int_bin_bits_includes>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_text_dec_txt_bytes" roundTrip="twoPass"
+    root="pl_text_dec_txt_bytes"
+    model="lengthKindPrefixed-text.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text">006</tdml:documentPart>
+      <tdml:documentPart type="text">123.45</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_text_dec_txt_bytes>123.45</pl_text_dec_txt_bytes>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_text_dec_txt_bits" roundTrip="twoPass"
+    root="pl_text_dec_txt_bits"
+    model="lengthKindPrefixed-text.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text">048</tdml:documentPart>
+      <tdml:documentPart type="text">123.45</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_text_dec_txt_bits>123.45</pl_text_dec_txt_bits>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+
+  <!--
+    DAFFODIL-2029: Cannot roundTrip due to unimplemented unparsing with
+    dfdl:lengthKind="prefixed" and dfdl:lengthUnits="characters"
+  -->
+  <tdml:parserTestCase name="pl_text_dec_txt_chars" roundTrip="false"
+    root="pl_text_dec_txt_chars"
+    model="lengthKindPrefixed-text.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text">006</tdml:documentPart>
+      <tdml:documentPart type="text">123.45</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_text_dec_txt_chars>123.45</pl_text_dec_txt_chars>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_text_dec_bin_bytes"
+    root="pl_text_dec_bin_bytes"
+    model="lengthKindPrefixed-text.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 06</tdml:documentPart>
+      <tdml:documentPart type="text">123.45</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_text_dec_bin_bytes>123.45</pl_text_dec_bin_bytes>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_text_dec_bin_bits"
+    root="pl_text_dec_bin_bits"
+    model="lengthKindPrefixed-text.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 30</tdml:documentPart>
+      <tdml:documentPart type="text">123.45</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_text_dec_bin_bits>123.45</pl_text_dec_bin_bits>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_text_date_txt_bytes" roundTrip="twoPass"
+    root="pl_text_date_txt_bytes"
+    model="lengthKindPrefixed-text.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text">019</tdml:documentPart>
+      <tdml:documentPart type="text">2017-08-28T18:29:00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_text_date_txt_bytes>2017-08-28T18:29:00</pl_text_date_txt_bytes>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_text_date_txt_bits"
+    root="pl_text_date_txt_bits"
+    model="lengthKindPrefixed-text.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text">152</tdml:documentPart>
+      <tdml:documentPart type="text">2017-08-28T18:29:00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_text_date_txt_bits>2017-08-28T18:29:00</pl_text_date_txt_bits>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    DAFFODIL-2029: Cannot roundTrip due to unimplemented unparsing with
+    dfdl:lengthKind="prefixed" and dfdl:lengthUnits="characters"
+  -->
+  <tdml:parserTestCase name="pl_text_date_txt_chars" roundTrip="false"
+    root="pl_text_date_txt_chars"
+    model="lengthKindPrefixed-text.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text">019</tdml:documentPart>
+      <tdml:documentPart type="text">2017-08-28T18:29:00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_text_date_txt_chars>2017-08-28T18:29:00</pl_text_date_txt_chars>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_text_date_bin_bytes"
+    root="pl_text_date_bin_bytes"
+    model="lengthKindPrefixed-text.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 13</tdml:documentPart>
+      <tdml:documentPart type="text">2017-08-28T18:29:00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_text_date_bin_bytes>2017-08-28T18:29:00</pl_text_date_bin_bytes>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_text_date_bin_bits"
+    root="pl_text_date_bin_bits"
+    model="lengthKindPrefixed-text.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 98</tdml:documentPart>
+      <tdml:documentPart type="text">2017-08-28T18:29:00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_text_date_bin_bits>2017-08-28T18:29:00</pl_text_date_bin_bits>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_text_bool_txt_bytes" roundTrip="twoPass"
+    root="pl_text_bool_txt_bytes"
+    model="lengthKindPrefixed-text.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text">004</tdml:documentPart>
+      <tdml:documentPart type="text">TRUE</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_text_bool_txt_bytes>true</pl_text_bool_txt_bytes>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_text_bool_txt_bits" roundTrip="twoPass"
+    root="pl_text_bool_txt_bits"
+    model="lengthKindPrefixed-text.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text">032</tdml:documentPart>
+      <tdml:documentPart type="text">TRUE</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_text_bool_txt_bits>true</pl_text_bool_txt_bits>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    DAFFODIL-2029: Cannot roundTrip due to unimplemented unparsing with
+    dfdl:lengthKind="prefixed" and dfdl:lengthUnits="characters"
+  -->
+  <tdml:parserTestCase name="pl_text_bool_txt_chars" roundTrip="false"
+    root="pl_text_bool_txt_chars"
+    model="lengthKindPrefixed-text.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text">004</tdml:documentPart>
+      <tdml:documentPart type="text">TRUE</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_text_bool_txt_chars>true</pl_text_bool_txt_chars>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_text_bool_bin_bytes"
+    root="pl_text_bool_bin_bytes"
+    model="lengthKindPrefixed-text.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 04</tdml:documentPart>
+      <tdml:documentPart type="text">TRUE</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_text_bool_bin_bytes>true</pl_text_bool_bin_bytes>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_text_bool_bin_bits"
+    root="pl_text_bool_bin_bits"
+    model="lengthKindPrefixed-text.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 20</tdml:documentPart>
+      <tdml:documentPart type="text">TRUE</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_text_bool_bin_bits>true</pl_text_bool_bin_bits>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_bin_int_txt_bytes" roundTrip="twoPass"
+    root="pl_bin_int_txt_bytes"
+    model="lengthKindPrefixed-bin.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text">002</tdml:documentPart>
+      <tdml:documentPart type="byte">30 39</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_bin_int_txt_bytes>12345</pl_bin_int_txt_bytes>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_bin_int_txt_bits" roundTrip="twoPass"
+    root="pl_bin_int_txt_bits"
+    model="lengthKindPrefixed-bin.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text">016</tdml:documentPart>
+      <tdml:documentPart type="byte">30 39</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_bin_int_txt_bits>12345</pl_bin_int_txt_bits>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_bin_int_bin_bytes" roundTrip="twoPass"
+    root="pl_bin_int_bin_bytes"
+    model="lengthKindPrefixed-bin.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 02</tdml:documentPart>
+      <tdml:documentPart type="byte">30 39</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_bin_int_bin_bytes>12345</pl_bin_int_bin_bytes>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_bin_int_bin_bits" roundTrip="twoPass"
+    root="pl_bin_int_bin_bits"
+    model="lengthKindPrefixed-bin.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 10</tdml:documentPart>
+      <tdml:documentPart type="byte">30 39</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_bin_int_bin_bits>12345</pl_bin_int_bin_bits>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_bin_int_txt_bytes_includes" roundTrip="twoPass"
+    root="pl_bin_int_txt_bytes_includes"
+    model="lengthKindPrefixed-bin.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text">005</tdml:documentPart>
+      <tdml:documentPart type="byte">30 39</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_bin_int_txt_bytes_includes>12345</pl_bin_int_txt_bytes_includes>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_bin_int_txt_bits_includes" roundTrip="twoPass"
+    root="pl_bin_int_txt_bits_includes"
+    model="lengthKindPrefixed-bin.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text">040</tdml:documentPart>
+      <tdml:documentPart type="byte">30 39</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_bin_int_txt_bits_includes>12345</pl_bin_int_txt_bits_includes>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_bin_int_bin_bytes_includes" roundTrip="twoPass"
+    root="pl_bin_int_bin_bytes_includes"
+    model="lengthKindPrefixed-bin.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 05</tdml:documentPart>
+      <tdml:documentPart type="byte">30 39</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_bin_int_bin_bytes_includes>12345</pl_bin_int_bin_bytes_includes>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_bin_int_bin_bits_includes" roundTrip="twoPass"
+    root="pl_bin_int_bin_bits_includes"
+    model="lengthKindPrefixed-bin.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 28</tdml:documentPart>
+      <tdml:documentPart type="byte">30 39</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_bin_int_bin_bits_includes>12345</pl_bin_int_bin_bits_includes>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_bin_int_bin_bytes_packed"
+    root="pl_bin_int_bin_bytes_packed"
+    model="lengthKindPrefixed-bin.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 03</tdml:documentPart>
+      <tdml:documentPart type="byte">01234C</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_bin_int_bin_bytes_packed>1234</pl_bin_int_bin_bytes_packed>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+      
+  <tdml:parserTestCase name="pl_bin_int_bin_bits_packed"
+    root="pl_bin_int_bin_bits_packed"
+    model="lengthKindPrefixed-bin.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 18</tdml:documentPart>
+      <tdml:documentPart type="byte">01234C</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_bin_int_bin_bits_packed>1234</pl_bin_int_bin_bits_packed>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_bin_int_bin_bytes_bcd"
+    root="pl_bin_int_bin_bytes_bcd"
+    model="lengthKindPrefixed-bin.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 02</tdml:documentPart>
+      <tdml:documentPart type="byte">1234</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_bin_int_bin_bytes_bcd>1234</pl_bin_int_bin_bytes_bcd>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+      
+  <tdml:parserTestCase name="pl_bin_int_bin_bits_bcd"
+    root="pl_bin_int_bin_bits_bcd"
+    model="lengthKindPrefixed-bin.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 10</tdml:documentPart>
+      <tdml:documentPart type="byte">1234</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_bin_int_bin_bits_bcd>1234</pl_bin_int_bin_bits_bcd>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_bin_int_bin_bytes_ibm4690"
+    root="pl_bin_int_bin_bytes_ibm4690"
+    model="lengthKindPrefixed-bin.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 02</tdml:documentPart>
+      <tdml:documentPart type="byte">1234</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_bin_int_bin_bytes_ibm4690>1234</pl_bin_int_bin_bytes_ibm4690>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+      
+  <tdml:parserTestCase name="pl_bin_int_bin_bits_ibm4690"
+    root="pl_bin_int_bin_bits_ibm4690"
+    model="lengthKindPrefixed-bin.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 10</tdml:documentPart>
+      <tdml:documentPart type="byte">1234</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_bin_int_bin_bits_ibm4690>1234</pl_bin_int_bin_bits_ibm4690>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_bin_dec_txt_bytes" roundTrip="twoPass"
+    root="pl_bin_dec_txt_bytes"
+    model="lengthKindPrefixed-bin.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text">002</tdml:documentPart>
+      <tdml:documentPart type="byte">30 39</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_bin_dec_txt_bytes>123.45</pl_bin_dec_txt_bytes>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_bin_dec_txt_bits" roundTrip="twoPass"
+    root="pl_bin_dec_txt_bits"
+    model="lengthKindPrefixed-bin.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text">016</tdml:documentPart>
+      <tdml:documentPart type="byte">30 39</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_bin_dec_txt_bits>123.45</pl_bin_dec_txt_bits>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_bin_dec_bin_bytes"
+    root="pl_bin_dec_bin_bytes"
+    model="lengthKindPrefixed-bin.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 02</tdml:documentPart>
+      <tdml:documentPart type="byte">30 39</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_bin_dec_bin_bytes>123.45</pl_bin_dec_bin_bytes>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_bin_dec_bin_bits"
+    root="pl_bin_dec_bin_bits"
+    model="lengthKindPrefixed-bin.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 10</tdml:documentPart>
+      <tdml:documentPart type="byte">30 39</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_bin_dec_bin_bits>123.45</pl_bin_dec_bin_bits>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_bin_dec_bin_bytes_packed"
+    root="pl_bin_dec_bin_bytes_packed"
+    model="lengthKindPrefixed-bin.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 03</tdml:documentPart>
+      <tdml:documentPart type="byte">01234C</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_bin_dec_bin_bytes_packed>12.34</pl_bin_dec_bin_bytes_packed>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+      
+  <tdml:parserTestCase name="pl_bin_dec_bin_bits_packed"
+    root="pl_bin_dec_bin_bits_packed"
+    model="lengthKindPrefixed-bin.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 18</tdml:documentPart>
+      <tdml:documentPart type="byte">01234C</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_bin_dec_bin_bits_packed>12.34</pl_bin_dec_bin_bits_packed>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_bin_dec_bin_bytes_bcd"
+    root="pl_bin_dec_bin_bytes_bcd"
+    model="lengthKindPrefixed-bin.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 02</tdml:documentPart>
+      <tdml:documentPart type="byte">1234</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_bin_dec_bin_bytes_bcd>12.34</pl_bin_dec_bin_bytes_bcd>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+      
+  <tdml:parserTestCase name="pl_bin_dec_bin_bits_bcd"
+    root="pl_bin_dec_bin_bits_bcd"
+    model="lengthKindPrefixed-bin.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 10</tdml:documentPart>
+      <tdml:documentPart type="byte">1234</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_bin_dec_bin_bits_bcd>12.34</pl_bin_dec_bin_bits_bcd>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_bin_dec_bin_bytes_ibm4690"
+    root="pl_bin_dec_bin_bytes_ibm4690"
+    model="lengthKindPrefixed-bin.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 02</tdml:documentPart>
+      <tdml:documentPart type="byte">1234</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_bin_dec_bin_bytes_ibm4690>12.34</pl_bin_dec_bin_bytes_ibm4690>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+      
+  <tdml:parserTestCase name="pl_bin_dec_bin_bits_ibm4690"
+    root="pl_bin_dec_bin_bits_ibm4690"
+    model="lengthKindPrefixed-bin.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 10</tdml:documentPart>
+      <tdml:documentPart type="byte">1234</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_bin_dec_bin_bits_ibm4690>12.34</pl_bin_dec_bin_bits_ibm4690>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_bin_hex_txt_bytes" roundTrip="twoPass"
+    root="pl_bin_hex_txt_bytes"
+    model="lengthKindPrefixed-bin.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text">004</tdml:documentPart>
+      <tdml:documentPart type="byte">DE AD BE EF</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_bin_hex_txt_bytes>DEADBEEF</pl_bin_hex_txt_bytes>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_bin_hex_txt_bits" roundTrip="twoPass"
+    root="pl_bin_hex_txt_bits"
+    model="lengthKindPrefixed-bin.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text">032</tdml:documentPart>
+      <tdml:documentPart type="byte">DE AD BE EF</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_bin_hex_txt_bits>DEADBEEF</pl_bin_hex_txt_bits>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_bin_hex_bin_bytes"
+    root="pl_bin_hex_bin_bytes"
+    model="lengthKindPrefixed-bin.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 04</tdml:documentPart>
+      <tdml:documentPart type="byte">DE AD BE EF</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_bin_hex_bin_bytes>DEADBEEF</pl_bin_hex_bin_bytes>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_bin_hex_bin_bits"
+    root="pl_bin_hex_bin_bits"
+    model="lengthKindPrefixed-bin.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 20</tdml:documentPart>
+      <tdml:documentPart type="byte">DE AD BE EF</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_bin_hex_bin_bits>DEADBEEF</pl_bin_hex_bin_bits>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_bin_bool_txt_bytes" roundTrip="twoPass"
+    root="pl_bin_bool_txt_bytes"
+    model="lengthKindPrefixed-bin.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text">001</tdml:documentPart>
+      <tdml:documentPart type="byte">01</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_bin_bool_txt_bytes>true</pl_bin_bool_txt_bytes>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_bin_bool_txt_bits" roundTrip="twoPass"
+    root="pl_bin_bool_txt_bits"
+    model="lengthKindPrefixed-bin.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text">008</tdml:documentPart>
+      <tdml:documentPart type="byte">01</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_bin_bool_txt_bits>true</pl_bin_bool_txt_bits>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_bin_bool_bin_bytes" roundTrip="twoPass"
+    root="pl_bin_bool_bin_bytes"
+    model="lengthKindPrefixed-bin.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 01</tdml:documentPart>
+      <tdml:documentPart type="byte">01</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_bin_bool_bin_bytes>true</pl_bin_bool_bin_bytes>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_bin_bool_bin_bits" roundTrip="twoPass"
+    root="pl_bin_bool_bin_bits"
+    model="lengthKindPrefixed-bin.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 08</tdml:documentPart>
+      <tdml:documentPart type="byte">01</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_bin_bool_bin_bits>true</pl_bin_bool_bin_bits>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+
+  <tdml:parserTestCase name="pl_bin_date_bin_bytes_packed"
+    root="pl_bin_date_bin_bytes_packed"
+    model="lengthKindPrefixed-bin.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 08</tdml:documentPart>
+      <tdml:documentPart type="byte">01 22 51 64 51 93 65 0C</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_bin_date_bin_bytes_packed>1645-12-25T19:36:50</pl_bin_date_bin_bytes_packed>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_bin_date_bin_bits_packed"
+    root="pl_bin_date_bin_bits_packed"
+    model="lengthKindPrefixed-bin.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 40</tdml:documentPart>
+      <tdml:documentPart type="byte">01 22 51 64 51 93 65 0C</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_bin_date_bin_bits_packed>1645-12-25T19:36:50</pl_bin_date_bin_bits_packed>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_bin_date_bin_bytes_bcd"
+    root="pl_bin_date_bin_bytes_bcd"
+    model="lengthKindPrefixed-bin.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 07</tdml:documentPart>
+      <tdml:documentPart type="byte">06 14 20 04 18 56 03</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_bin_date_bin_bytes_bcd>2004-06-14T18:56:03</pl_bin_date_bin_bytes_bcd>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_bin_date_bin_bits_bcd"
+    root="pl_bin_date_bin_bits_bcd"
+    model="lengthKindPrefixed-bin.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 38</tdml:documentPart>
+      <tdml:documentPart type="byte">06 14 20 04 18 56 03</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_bin_date_bin_bits_bcd>2004-06-14T18:56:03</pl_bin_date_bin_bits_bcd>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_bin_date_bin_bytes_ibm4690"
+    root="pl_bin_date_bin_bytes_ibm4690"
+    model="lengthKindPrefixed-bin.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 07</tdml:documentPart>
+      <tdml:documentPart type="byte">11 30 20 07 04 15 08</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_bin_date_bin_bytes_ibm4690>2007-11-30T04:15:08</pl_bin_date_bin_bytes_ibm4690>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_bin_date_bin_bits_ibm4690"
+    root="pl_bin_date_bin_bits_ibm4690"
+    model="lengthKindPrefixed-bin.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 38</tdml:documentPart>
+      <tdml:documentPart type="byte">11 30 20 07 04 15 08</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_bin_date_bin_bits_ibm4690>2007-11-30T04:15:08</pl_bin_date_bin_bits_ibm4690>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="plSlash1_data"
+    root="plSlash1_data"
+    model="lengthKindPrefixed-bin.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 00 07</tdml:documentPart>
+      <tdml:documentPart type="text">abcdefg</tdml:documentPart>
+      <tdml:documentPart type="byte">00</tdml:documentPart>
+      <tdml:documentPart type="byte">00 00 00 07</tdml:documentPart>
+      <tdml:documentPart type="text">ABCDEFG</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <plSlash1_data>
+          <string>abcdefg</string>
+          <string>ABCDEFG</string>
+        </plSlash1_data>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+
+  <tdml:parserTestCase name="pl_complex_bin_bytes"
+    root="pl_complex_bin_bytes"
+    model="lengthKindPrefixed-text.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 0D</tdml:documentPart>
+      <tdml:documentPart type="text">one,two,threeremaining</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_complex_bin_bytes>
+          <strings>
+            <str>one</str>
+            <str>two</str>
+            <str>three</str>
+          </strings>
+          <remaining>remaining</remaining>
+        </pl_complex_bin_bytes>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_complex_bin_bits"
+    root="pl_complex_bin_bits"
+    model="lengthKindPrefixed-text.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 68</tdml:documentPart>
+      <tdml:documentPart type="text">one,two,threeremaining</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_complex_bin_bits>
+          <strings>
+            <str>one</str>
+            <str>two</str>
+            <str>three</str>
+          </strings>
+          <remaining>remaining</remaining>
+        </pl_complex_bin_bits>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_complex_bin_bytes_suspension"
+    root="pl_complex_bin_bytes_suspension"
+    model="lengthKindPrefixed-text.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 0A</tdml:documentPart>
+      <tdml:documentPart type="text">8,XXXthreeremaining</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_complex_bin_bytes_suspension>
+          <lenValue>
+            <len>8</len>
+            <value>three</value>
+          </lenValue>
+          <remaining>remaining</remaining>
+        </pl_complex_bin_bytes_suspension>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_complex_bin_bytes_suspension_includes"
+    root="pl_complex_bin_bytes_suspension_includes"
+    model="lengthKindPrefixed-text.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 0D</tdml:documentPart>
+      <tdml:documentPart type="text">8,XXXthreeremaining</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_complex_bin_bytes_suspension_includes>
+          <lenValue>
+            <len>8</len>
+            <value>three</value>
+          </lenValue>
+          <remaining>remaining</remaining>
+        </pl_complex_bin_bytes_suspension_includes>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_complex_err"
+    root="pl_complex"
+    model="lengthKindPrefixed-sde.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>ex:prefixComplex</tdml:error>
+      <tdml:error>dfdl:prefixLengthType</tdml:error>
+      <tdml:error>simpleType</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_delimited_err"
+    root="pl_delimited"
+    model="lengthKindPrefixed-sde.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>ex:prefixDelimited</tdml:error>
+      <tdml:error>dfdl:prefixLengthType</tdml:error>
+      <tdml:error>lengthKind</tdml:error>
+      <tdml:error>delimited</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_endofparent_err"
+    root="pl_endofparent"
+    model="lengthKindPrefixed-sde.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>ex:prefixEndOfParent</tdml:error>
+      <tdml:error>dfdl:prefixLengthType</tdml:error>
+      <tdml:error>lengthKind</tdml:error>
+      <tdml:error>endOfParent</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_pattern_err"
+    root="pl_pattern"
+    model="lengthKindPrefixed-sde.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>ex:prefixPattern</tdml:error>
+      <tdml:error>dfdl:prefixLengthType</tdml:error>
+      <tdml:error>lengthKind</tdml:error>
+      <tdml:error>pattern</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_expression_err"
+    root="pl_expression"
+    model="lengthKindPrefixed-sde.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>ex:prefixExpression</tdml:error>
+      <tdml:error>dfdl:prefixLengthType</tdml:error>
+      <tdml:error>expression</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_ovc_err"
+    root="pl_ovc"
+    model="lengthKindPrefixed-sde.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>ex:prefixOVC</tdml:error>
+      <tdml:error>dfdl:prefixLengthType</tdml:error>
+      <tdml:error>dfdl:outputValueCalc</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_initiator_err"
+    root="pl_initiator"
+    model="lengthKindPrefixed-sde.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>ex:prefixInitiator</tdml:error>
+      <tdml:error>dfdl:prefixLengthType</tdml:error>
+      <tdml:error>dfdl:initiator</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_terminator_err"
+    root="pl_terminator"
+    model="lengthKindPrefixed-sde.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>ex:prefixTerminator</tdml:error>
+      <tdml:error>dfdl:prefixLengthType</tdml:error>
+      <tdml:error>dfdl:terminator</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_alignment_err"
+    root="pl_alignment"
+    model="lengthKindPrefixed-sde.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>ex:prefixAlignment</tdml:error>
+      <tdml:error>dfdl:prefixLengthType</tdml:error>
+      <tdml:error>dfdl:alignment</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_leadingskip_err"
+    root="pl_leadingskip"
+    model="lengthKindPrefixed-sde.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>ex:prefixLeadingSkip</tdml:error>
+      <tdml:error>dfdl:prefixLengthType</tdml:error>
+      <tdml:error>dfdl:leadingSkip</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_trailingskip_err"
+    root="pl_trailingskip"
+    model="lengthKindPrefixed-sde.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>ex:prefixTrailingSkip</tdml:error>
+      <tdml:error>dfdl:prefixLengthType</tdml:error>
+      <tdml:error>dfdl:trailingSkip</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_lengthunits_err"
+    root="pl_lengthunits"
+    model="lengthKindPrefixed-sde.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>ex:prefixLengthUnits</tdml:error>
+      <tdml:error>dfdl:prefixLengthType</tdml:error>
+      <tdml:error>dfdl:lengthUnits</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_nest_err"
+    root="pl_nest"
+    model="lengthKindPrefixed-sde.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+<!--
+      <tdml:error>dfdl:prefixLengthType</tdml:error>
+      <tdml:error>Nesting level</tdml:error>
+      <tdml:error>prefixLengthNest1</tdml:error>
+      <tdml:error>prefixLengthNest2</tdml:error>
+      <tdml:error>prefixLengthNest3</tdml:error>
+
+      The above errors should be correct due to excessive nesting
+      when support for nested suspensions is implemented,
+-->
+      <tdml:error>Nested</tdml:error>
+      <tdml:error>dfdl:lengthKind="prefixed"</tdml:error>
+      <tdml:error>not supported</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_decimal_err"
+    root="pl_decimal"
+    model="lengthKindPrefixed-sde.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>dfdl:prefixLengthType</tdml:error>
+      <tdml:error>ex:prefixLengthDecimal</tdml:error>
+      <tdml:error>xs:decimal</tdml:error>
+      <tdml:error>subtype</tdml:error>
+      <tdml:error>xs:integer</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+</tdml:testSuite>

@@ -42,7 +42,7 @@ import org.apache.daffodil.processors.unparsers.ElementUnparserNoRep
 import org.apache.daffodil.processors.unparsers.ElementUnspecifiedLengthUnparser
 import org.apache.daffodil.processors.unparsers.ElementUnusedUnparser
 import org.apache.daffodil.processors.unparsers.LeftCenteredPaddingUnparser
-import org.apache.daffodil.processors.unparsers.OVCRetryUnparser
+import org.apache.daffodil.processors.unparsers.SimpleTypeRetryUnparser
 import org.apache.daffodil.processors.unparsers.OnlyPaddingUnparser
 import org.apache.daffodil.processors.unparsers.RightCenteredPaddingUnparser
 import org.apache.daffodil.processors.unparsers.RightFillUnparser
@@ -214,11 +214,11 @@ case class RightFill(ctxt: ElementBase)
     unparsingPadChar)
 }
 
-case class OVCRetry(ctxt: ElementBase, v: Gram)
+case class SimpleTypeRetry(ctxt: ElementBase, v: Gram)
   extends Terminal(ctxt, true) {
   override def parser = v.parser
 
-  override def unparser = new OVCRetryUnparser(
+  override def unparser = new SimpleTypeRetryUnparser(
     ctxt.erd,
     ctxt.maybeUnparseTargetLengthInBitsEv, v.unparser)
 }
@@ -226,23 +226,13 @@ case class OVCRetry(ctxt: ElementBase, v: Gram)
 case class CaptureContentLengthStart(ctxt: ElementBase)
   extends Terminal(ctxt, true) {
   override def parser =
-    if (ctxt.isReferencedByContentLengthParserExpressions)
+    if (ctxt.shouldCaptureParseContentLength)
       new CaptureStartOfContentLengthParser(ctxt.erd)
     else
       new NadaParser(ctxt.erd)
 
   override lazy val unparser: Unparser =
-    // TODO: This content length start is added when maybeFixedLengthInBits is
-    // defined because it allows us to set absolute start bit positions of the
-    // DOS, even when there are things like padding and OVC that can cause
-    // suspensions that result in relative bit positions. However, we really
-    // only need this if there are going to be suspensions, not on all fixed
-    // length elements. Otherwise, we're capturing content length for no reason
-    // (unless it is referenced in a contentLength expression). We should
-    // improve this check so that this unparser can be optimized out if there
-    // will not be any suspensions.
-    if (ctxt.isReferencedByContentLengthUnparserExpressions ||
-      (ctxt.maybeFixedLengthInBits.isDefined && ctxt.couldHaveSuspensions))
+    if (ctxt.shouldCaptureUnparseContentLength)
       new CaptureStartOfContentLengthUnparser(ctxt.erd)
     else
       new NadaUnparser(ctxt.erd)
@@ -251,23 +241,13 @@ case class CaptureContentLengthStart(ctxt: ElementBase)
 case class CaptureContentLengthEnd(ctxt: ElementBase)
   extends Terminal(ctxt, true) {
   override def parser =
-    if (ctxt.isReferencedByContentLengthParserExpressions)
+    if (ctxt.shouldCaptureParseContentLength)
       new CaptureEndOfContentLengthParser(ctxt.erd)
     else
       new NadaParser(ctxt.erd)
 
   override lazy val unparser: Unparser =
-    // TODO: This content length start is added when maybeFixedLengthInBits is
-    // defined because it allows us to set absolute start bit positions of the
-    // DOS, even when there are things like padding and OVC that can cause
-    // suspensions that result in relative bit positions. However, we really
-    // only need this if there are going to be suspensions, not on all fixed
-    // length elements. Otherwise, we're capturing content length for no reason
-    // (unless it is referenced in a contentLength expression). We should
-    // improve this check so that this unparser can be optimized out if there
-    // will not be any suspensions.
-    if (ctxt.isReferencedByContentLengthUnparserExpressions ||
-      (ctxt.maybeFixedLengthInBits.isDefined && ctxt.couldHaveSuspensions))
+    if (ctxt.shouldCaptureUnparseContentLength)
       new CaptureEndOfContentLengthUnparser(ctxt.erd, ctxt.maybeFixedLengthInBits)
     else
       new NadaUnparser(ctxt.erd)
@@ -276,62 +256,33 @@ case class CaptureContentLengthEnd(ctxt: ElementBase)
 case class CaptureValueLengthStart(ctxt: ElementBase)
   extends Terminal(ctxt, true) {
   override def parser =
-    if (ctxt.isReferencedByValueLengthParserExpressions) {
-      // For simple elements with text representation, valueLength is captured in
-      // individual parsers since they handle removing delimiters and padding.
-      //
-      // For complex elements with specified length, valueLength is captured in
-      // the specified length parsers, since they handle skipping unused
-      // element regions. For complex elements, this means lengthKind is not
-      // implicit or delimited.
-      //
-      // For all other elements, we can just use the Capture*ValueLength parsers.
-      if ((ctxt.isSimpleType && ctxt.impliedRepresentation == Representation.Text) ||
-        (ctxt.isComplexType && (ctxt.lengthKind != LengthKind.Implicit && ctxt.lengthKind != LengthKind.Delimited)))
-        new NadaParser(ctxt.erd)
-      else
-        new CaptureStartOfValueLengthParser(ctxt.erd)
-    } else
+    if (ctxt.shouldCaptureParseValueLength)
+      new CaptureStartOfValueLengthParser(ctxt.erd)
+    else
       new NadaParser(ctxt.erd)
 
   override lazy val unparser: Unparser =
-    if (ctxt.isReferencedByValueLengthUnparserExpressions) {
+    if (ctxt.shouldCaptureUnparseValueLength)
       new CaptureStartOfValueLengthUnparser(ctxt.erd)
-    } else
+    else
       new NadaUnparser(ctxt.erd)
 }
 
 case class CaptureValueLengthEnd(ctxt: ElementBase)
   extends Terminal(ctxt, true) {
   override def parser =
-    if (ctxt.isReferencedByValueLengthParserExpressions) {
-      // For simple elements with text representation, valueLength is captured in
-      // individual parsers since they handle removing delimiters and padding.
-      //
-      // For complex elements with specified length, valueLength is captured in
-      // the specified length parsers, since they handle skipping unused
-      // element regions. For complex elements, this means lengthKind is not
-      // implicit or delimited.
-      //
-      // For all other elements, we can just use the Capture*ValueLength parsers.
-      if ((ctxt.isSimpleType && ctxt.impliedRepresentation == Representation.Text) ||
-        (ctxt.isComplexType && (ctxt.lengthKind != LengthKind.Implicit && ctxt.lengthKind != LengthKind.Delimited)))
-        new NadaParser(ctxt.erd)
-      else
-        new CaptureEndOfValueLengthParser(ctxt.erd)
-    } else
+    if (ctxt.shouldCaptureParseValueLength)
+      new CaptureEndOfValueLengthParser(ctxt.erd)
+    else
       new NadaParser(ctxt.erd)
 
   override lazy val unparser: Unparser =
-    if (ctxt.isReferencedByValueLengthUnparserExpressions) {
+    if (ctxt.shouldCaptureUnparseValueLength)
       new CaptureEndOfValueLengthUnparser(ctxt.erd)
-    } else
+    else
       new NadaUnparser(ctxt.erd)
 }
 
-/*
- * new stuff for specified length unparsing above here.
- */
 
 class ElementParseAndUnspecifiedLength(context: ElementBase, eBeforeGram: Gram, eGram: Gram, eAfterGram: Gram)
   extends ElementCombinatorBase(context, eBeforeGram, eGram, eAfterGram) {

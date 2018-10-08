@@ -20,6 +20,7 @@ package org.apache.daffodil.grammar
 import org.apache.daffodil.dsom.Term
 import org.apache.daffodil.dsom.ElementBase
 import org.apache.daffodil.dsom.ModelGroup
+import org.apache.daffodil.dsom.DetachedElementDecl
 import org.apache.daffodil.schema.annotation.props.gen.AlignmentUnits
 import org.apache.daffodil.schema.annotation.props.gen.LengthKind
 import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
@@ -125,8 +126,8 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
   }
 
   private lazy val priorAlignmentApprox: AlignmentMultipleOf = {
-    if (this.isInstanceOf[Root]) {
-      AlignmentMultipleOf(0) // root is aligned with anything
+    if (this.isInstanceOf[Root] || this.isInstanceOf[DetachedElementDecl]) {
+      AlignmentMultipleOf(0) // root and detached elements are aligned with anything
     } else {
       val (priorSibs, parent) = potentialPriorTerms
       val arraySelfAlignment =
