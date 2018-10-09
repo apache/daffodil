@@ -191,6 +191,8 @@ class TestSimpleTypes {
   @Test def test_dateTimeBin18() { runner.runOneTest("dateTimeBin18") }
   @Test def test_dateTimeBin19() { runner.runOneTest("dateTimeBin19") }
   @Test def test_dateTimeBin20() { runner.runOneTest("dateTimeBin20") }
+  @Test def test_dateTimeBin21() { runner.runOneTest("dateTimeBin21") }
+  @Test def test_dateTimeBin22() { runner.runOneTest("dateTimeBin22") }
   @Test def test_dateBinBCD() { runner.runOneTest("dateBinBCD") }
   @Test def test_dateBinBCD2() { runner.runOneTest("dateBinBCD2") }
   @Test def test_dateBinBCD3() { runner.runOneTest("dateBinBCD3") }

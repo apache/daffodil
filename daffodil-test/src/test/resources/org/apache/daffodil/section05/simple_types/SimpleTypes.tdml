@@ -2407,6 +2407,36 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
+  <tdml:parserTestCase name="dateTimeBin21" root="dateTimeBin"
+    model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">0000000 00000000 00000000 00111110</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Insufficient bits</tdml:error>
+      <tdml:error>Needed 32</tdml:error>
+      <tdml:error>31 available</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="dateTimeBin22" root="dateTimeBin5"
+    model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R"
+    roundTrip="true">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">0000000 00000000 00000000 00000000 00000000 00000000 00000000 00000001</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Insufficient bits</tdml:error>
+      <tdml:error>Needed 64</tdml:error>
+      <tdml:error>63 available</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
   <tdml:parserTestCase name="dateBinBCD" root="dateBinBCD"
     model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R"
     roundTrip="true">
