@@ -237,12 +237,12 @@ abstract class OrderedSequenceParserBase(
                   case t: Throwable => {
                     if (pstate.isInUse(priorState)) {
                       markLeakCausedByException = true
+                      pstate.discard(priorState)
                       if (!t.isInstanceOf[SchemaDefinitionDiagnosticBase] && !t.isInstanceOf[UnsuppressableException]) {
                         val stackTrace = new StringWriter()
                         t.printStackTrace(new PrintWriter(stackTrace))
                         Assert.invariantFailed("Exception thrown with mark not returned: " + t + "\nStackTrace:\n" + stackTrace)
                       }
-                      pstate.discard(priorState)
                     }
                     throw t
                   }

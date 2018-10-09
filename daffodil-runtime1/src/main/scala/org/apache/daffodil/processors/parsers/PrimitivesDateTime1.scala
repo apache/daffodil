@@ -184,6 +184,12 @@ case class ConvertBinaryCalendarSecMilliParser(
   def parse(start: PState): Unit = {
 
     val dis = start.dataInputStream
+
+    if (!dis.isDefinedForLength(lengthInBits)) {
+      PENotEnoughBits(start, lengthInBits, dis.remainingBits)
+      return
+    }
+
     val slong: Long = dis.getSignedLong(lengthInBits, start)
     val cal = epochCal.clone.asInstanceOf[Calendar]
 
