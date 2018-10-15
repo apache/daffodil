@@ -43,7 +43,7 @@ trait DataStreamCommonState {
   var debugging: Boolean = false
   //
   // These are for dealing with 4-byte UTF-8 codepoints
-  // that require 2 16-bit charaters.
+  // that require 2 16-bit characters.
   //
   // This only comes up in an incredibly obscure case
   // when fillCharBuffer is called with a char buffer having

@@ -512,7 +512,7 @@ sealed abstract class StringLiteralBase(
       case whitespaceMatcher(_) => true
       case _ => false
     }
-    context.schemaDefinitionWhen(hasWhitespace, "For %s, the string (%s) must not contain any whitespace. Use DFDL Entities for whitespace charaters.", propName, raw)
+    context.schemaDefinitionWhen(hasWhitespace, "For %s, the string (%s) must not contain any whitespace. Use DFDL Entities for whitespace characters.", propName, raw)
     testRaw(raw, context)
     val thawed = thaw(raw)
     testThawed(thawed, context)
