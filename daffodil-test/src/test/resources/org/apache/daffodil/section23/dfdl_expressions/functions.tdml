@@ -113,7 +113,7 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <dtFunctions>
-          <bulkDateTime>1988-03-24T04:55:23.000000</bulkDateTime>
+          <bulkDateTime>1988-03-24T04:55:23</bulkDateTime>
           <year>1988</year>
           <month>3</month>
           <day>24</day>
@@ -140,7 +140,7 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <dtFunctions>
-          <bulkDateTime>1988-04-05T04:55:23.000000</bulkDateTime>
+          <bulkDateTime>1988-04-05T04:55:23</bulkDateTime>
           <year>1988</year>
           <month>4</month>
           <day>5</day>
@@ -214,7 +214,7 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <tFunctions>
-          <bulkTime>12:44:56.000000+00:00</bulkTime>
+          <bulkTime>12:44:56+00:00</bulkTime>
           <hours>12</hours>
           <minutes>44</minutes>
           <seconds>56</seconds>
@@ -238,7 +238,7 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <tFunctions>
-          <bulkTime>13:02:56.000000+00:00</bulkTime>
+          <bulkTime>13:02:56+00:00</bulkTime>
           <hours>13</hours>
           <minutes>2</minutes>
           <seconds>56</seconds>

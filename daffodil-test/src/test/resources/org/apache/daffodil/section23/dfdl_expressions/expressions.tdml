@@ -5593,8 +5593,8 @@ c]]></value>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e37>
-          <dateTime1>1988-03-24T04:55:23.000000</dateTime1>
-          <dateTime2>1988-03-24T04:55:24.000000</dateTime2>
+          <dateTime1>1988-03-24T04:55:23</dateTime1>
+          <dateTime2>1988-03-24T04:55:24</dateTime2>
           <lessThanEqualTo>true</lessThanEqualTo>
         </e37>
       </tdml:dfdlInfoset>
@@ -5615,8 +5615,8 @@ c]]></value>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e38>
-          <dateTime1>1988-03-24T04:55:24.000000</dateTime1>
-          <dateTime2>1988-03-24T04:55:23.000000</dateTime2>
+          <dateTime1>1988-03-24T04:55:24</dateTime1>
+          <dateTime2>1988-03-24T04:55:23</dateTime2>
           <greaterThanEqualTo>true</greaterThanEqualTo>
         </e38>
       </tdml:dfdlInfoset>
@@ -5637,8 +5637,8 @@ c]]></value>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e18>
-          <dateTime1>1988-03-24T04:55:24.000000</dateTime1>
-          <dateTime2>1988-03-24T04:55:23.000000</dateTime2>
+          <dateTime1>1988-03-24T04:55:24</dateTime1>
+          <dateTime2>1988-03-24T04:55:23</dateTime2>
           <oneGTtwo>true</oneGTtwo>
         </e18>
       </tdml:dfdlInfoset>
@@ -5659,8 +5659,8 @@ c]]></value>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e19>
-          <dateTime1>1988-03-24T04:55:23.000000</dateTime1>
-          <dateTime2>1988-03-24T04:55:24.000000</dateTime2>
+          <dateTime1>1988-03-24T04:55:23</dateTime1>
+          <dateTime2>1988-03-24T04:55:24</dateTime2>
           <oneLTtwo>true</oneLTtwo>
         </e19>
       </tdml:dfdlInfoset>
@@ -5681,8 +5681,8 @@ c]]></value>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e20>
-          <dateTime1>1988-03-24T04:55:23.000000</dateTime1>
-          <dateTime2>1988-03-24T04:55:24.000000</dateTime2>
+          <dateTime1>1988-03-24T04:55:23</dateTime1>
+          <dateTime2>1988-03-24T04:55:24</dateTime2>
           <notEqual>true</notEqual>
         </e20>
       </tdml:dfdlInfoset>
@@ -5703,8 +5703,8 @@ c]]></value>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e21>
-          <dateTime1>1988-03-24T04:55:23.000000</dateTime1>
-          <dateTime2>1988-03-24T04:55:23.000000</dateTime2>
+          <dateTime1>1988-03-24T04:55:23</dateTime1>
+          <dateTime2>1988-03-24T04:55:23</dateTime2>
           <same>true</same>
         </e21>
       </tdml:dfdlInfoset>
@@ -5857,8 +5857,8 @@ c]]></value>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e28>
-          <time1>04:55:23.000000</time1>
-          <time2>04:55:24.000000</time2>
+          <time1>04:55:23</time1>
+          <time2>04:55:24</time2>
           <lessThanEqualTo>true</lessThanEqualTo>
         </e28>
       </tdml:dfdlInfoset>
@@ -5879,8 +5879,8 @@ c]]></value>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e29>
-          <time1>04:55:24.000000</time1>
-          <time2>04:55:23.000000</time2>
+          <time1>04:55:24</time1>
+          <time2>04:55:23</time2>
           <greaterThanEqualTo>true</greaterThanEqualTo>
         </e29>
       </tdml:dfdlInfoset>
@@ -5901,8 +5901,8 @@ c]]></value>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e30>
-          <time1>04:55:24.000000</time1>
-          <time2>04:55:23.000000</time2>
+          <time1>04:55:24</time1>
+          <time2>04:55:23</time2>
           <oneGTtwo>true</oneGTtwo>
         </e30>
       </tdml:dfdlInfoset>
@@ -5923,8 +5923,8 @@ c]]></value>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e31>
-          <time1>04:55:23.000000</time1>
-          <time2>04:55:24.000000</time2>
+          <time1>04:55:23</time1>
+          <time2>04:55:24</time2>
           <oneLTtwo>true</oneLTtwo>
         </e31>
       </tdml:dfdlInfoset>
@@ -5945,8 +5945,8 @@ c]]></value>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e32>
-          <time1>04:55:23.000000</time1>
-          <time2>04:55:24.000000</time2>
+          <time1>04:55:23</time1>
+          <time2>04:55:24</time2>
           <notEqual>true</notEqual>
         </e32>
       </tdml:dfdlInfoset>
@@ -5967,8 +5967,8 @@ c]]></value>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e33>
-          <time1>04:55:23.000000</time1>
-          <time2>04:55:23.000000</time2>
+          <time1>04:55:23</time1>
+          <time2>04:55:23</time2>
           <same>true</same>
         </e33>
       </tdml:dfdlInfoset>
@@ -5990,8 +5990,8 @@ c]]></value>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e34>
-          <dateTime1>2000-01-15T00:00:00.000000</dateTime1>
-          <dateTime2>2000-02-15T00:00:00.000000</dateTime2>
+          <dateTime1>2000-01-15T00:00:00</dateTime1>
+          <dateTime2>2000-02-15T00:00:00</dateTime2>
           <oneLTtwo>true</oneLTtwo>
         </e34>
       </tdml:dfdlInfoset>
@@ -6014,8 +6014,8 @@ c]]></value>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e35>
-          <dateTime1>2000-01-01T12:00:00.000000+00:00</dateTime1>
-          <dateTime2>1999-12-31T23:00:00.000000+00:00</dateTime2>
+          <dateTime1>2000-01-01T12:00:00+00:00</dateTime1>
+          <dateTime2>1999-12-31T23:00:00+00:00</dateTime2>
           <oneLTtwo>false</oneLTtwo>
         </e35>
       </tdml:dfdlInfoset>
@@ -6030,8 +6030,8 @@ c]]></value>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e35a>
-          <dateTime1>2000-01-01T12:00:00.000000</dateTime1>
-          <dateTime2>1999-12-31T23:00:00.000000+00:00</dateTime2>
+          <dateTime1>2000-01-01T12:00:00</dateTime1>
+          <dateTime2>1999-12-31T23:00:00+00:00</dateTime2>
           <oneLTtwo>true</oneLTtwo>
         </e35a>
       </tdml:dfdlInfoset>
@@ -6054,8 +6054,8 @@ c]]></value>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e36>
-          <dateTime1>2002-04-02T12:00:00.000000-01:00</dateTime1>
-          <dateTime2>2002-04-02T17:00:00.000000+04:00</dateTime2>
+          <dateTime1>2002-04-02T12:00:00-01:00</dateTime1>
+          <dateTime2>2002-04-02T17:00:00+04:00</dateTime2>
           <same>true</same>
         </e36>
       </tdml:dfdlInfoset>
@@ -6077,8 +6077,8 @@ c]]></value>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e36>
-          <dateTime1>2002-04-02T12:00:00.000000-05:00</dateTime1>
-          <dateTime2>2002-04-02T23:00:00.000000+06:00</dateTime2>
+          <dateTime1>2002-04-02T12:00:00-05:00</dateTime1>
+          <dateTime2>2002-04-02T23:00:00+06:00</dateTime2>
           <same>true</same>
         </e36>
       </tdml:dfdlInfoset>
@@ -6100,8 +6100,8 @@ c]]></value>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e36>
-          <dateTime1>2002-04-02T12:00:00.000000-05:00</dateTime1>
-          <dateTime2>2002-04-02T17:00:00.000000-05:00</dateTime2>
+          <dateTime1>2002-04-02T12:00:00-05:00</dateTime1>
+          <dateTime2>2002-04-02T17:00:00-05:00</dateTime2>
           <same>false</same>
         </e36>
       </tdml:dfdlInfoset>
@@ -6123,8 +6123,8 @@ c]]></value>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e36>
-          <dateTime1>2002-04-02T12:00:00.000000-05:00</dateTime1>
-          <dateTime2>2002-04-02T12:00:00.000000-05:00</dateTime2>
+          <dateTime1>2002-04-02T12:00:00-05:00</dateTime1>
+          <dateTime2>2002-04-02T12:00:00-05:00</dateTime2>
           <same>true</same>
         </e36>
       </tdml:dfdlInfoset>
@@ -6146,8 +6146,8 @@ c]]></value>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e36>
-          <dateTime1>2002-04-02T23:00:00.000000-04:00</dateTime1>
-          <dateTime2>2002-04-03T02:00:00.000000-01:00</dateTime2>
+          <dateTime1>2002-04-02T23:00:00-04:00</dateTime1>
+          <dateTime2>2002-04-03T02:00:00-01:00</dateTime2>
           <same>true</same>
         </e36>
       </tdml:dfdlInfoset>
@@ -6173,8 +6173,8 @@ c]]></value>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e36>
-          <dateTime1>2000-01-01T00:00:00.000000-05:00</dateTime1>
-          <dateTime2>2000-01-01T00:00:00.000000-05:00</dateTime2>
+          <dateTime1>2000-01-01T00:00:00-05:00</dateTime1>
+          <dateTime2>2000-01-01T00:00:00-05:00</dateTime2>
           <same>true</same>
         </e36>
       </tdml:dfdlInfoset>
@@ -6197,8 +6197,8 @@ c]]></value>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e36>
-          <dateTime1>2005-04-05T00:00:00.000000-05:00</dateTime1>
-          <dateTime2>2005-04-04T00:00:00.000000-05:00</dateTime2>
+          <dateTime1>2005-04-05T00:00:00-05:00</dateTime1>
+          <dateTime2>2005-04-04T00:00:00-05:00</dateTime2>
           <same>false</same>
         </e36>
       </tdml:dfdlInfoset>

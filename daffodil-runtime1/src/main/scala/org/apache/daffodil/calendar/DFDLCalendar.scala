@@ -223,7 +223,13 @@ case class DFDLTime(calendar: Calendar, parsedTZ: Boolean)
     new DFDLTime(cal, expectsTZ)
   }
 
-  @transient override lazy val tlFormatter = if (this.hasTimeZone) TextCalendarConstants.tlTimeInfosetFormatter else TextCalendarConstants.tlTimeNoTZInfosetFormatter
+  @transient override lazy val tlFormatter = (this.hasTimeZone, this.hasFractionalSeconds) match {
+    case (true, true) => TextCalendarConstants.tlTimeInfosetFormatter
+    case (false, true) => TextCalendarConstants.tlTimeNoTZInfosetFormatter
+    case (true, false) => TextCalendarConstants.tlTimeNoFractSecInfosetFormatter
+    case (false, false) => TextCalendarConstants.tlTimeNoTZNoFractSecInfosetFormatter
+  }
+
 
   override def equals(other: Any): Boolean = other match {
     case that: DFDLTime => this.toDateTimeWithReference equals that.toDateTimeWithReference
@@ -273,7 +279,12 @@ case class DFDLDateTime(calendar: Calendar, parsedTZ: Boolean)
     new DFDLDateTime(cal, expectsTZ)
   }
 
-  @transient override lazy val tlFormatter = if (this.hasTimeZone) TextCalendarConstants.tlDateTimeInfosetFormatter else TextCalendarConstants.tlDateTimeNoTZInfosetFormatter
+  @transient override lazy val tlFormatter = (this.hasTimeZone, this.hasFractionalSeconds) match {
+    case (true, true) => TextCalendarConstants.tlDateTimeInfosetFormatter
+    case (false, true) => TextCalendarConstants.tlDateTimeNoTZInfosetFormatter
+    case (true, false) => TextCalendarConstants.tlDateTimeNoFractSecInfosetFormatter
+    case (false, false) => TextCalendarConstants.tlDateTimeNoTZNoFractSecInfosetFormatter
+  }
 
   override def equals(other: Any) = other match {
     case that: DFDLDateTime => dateTimeEqual(this, that)
@@ -424,6 +435,8 @@ abstract class DFDLCalendar(containsTZ: Boolean)
     //
     containsTZ
   }
+
+  def hasFractionalSeconds: Boolean = (calendar.isSet(Calendar.MILLISECOND) && (calendar.get(Calendar.MILLISECOND) != 0))
 
   final def toJBigDecimal: JBigDecimal = new JBigDecimal(calendar.getTimeInMillis())
 

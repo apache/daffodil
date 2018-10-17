@@ -81,7 +81,7 @@
           <table>
             <metadata>
               <repdate xsi:type="xs:date">2008-04-08-06:00</repdate>
-              <reptime xsi:type="xs:time">00:53:00.000000-06:00</reptime>
+              <reptime xsi:type="xs:time">00:53:00-06:00</reptime>
               <startDate xsi:type="xs:date">2008-04-07-06:00</startDate>
               <endDate xsi:type="xs:date">2008-04-07-06:00</endDate>
             </metadata>

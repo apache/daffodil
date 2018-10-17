@@ -4808,7 +4808,7 @@
     <tdml:document><![CDATA[2013-03-24T03:45:30]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <dateTimeImp>2013-03-24T03:45:30.000000</dateTimeImp>
+        <dateTimeImp>2013-03-24T03:45:30</dateTimeImp>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -6202,7 +6202,7 @@
     <tdml:document>11:00:00</tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <mImE_e14>11:00:00.000000</mImE_e14>
+        <mImE_e14>11:00:00</mImE_e14>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

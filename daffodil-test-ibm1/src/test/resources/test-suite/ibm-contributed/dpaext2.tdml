@@ -267,7 +267,7 @@
 		<document>xxxx2011040506MON01@</document>
 		<infoset>
 			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-			  <myDateTime xsi:type="xs:dateTime">2010-12-27T04:05:06.000000+00:00</myDateTime>
+			  <myDateTime xsi:type="xs:dateTime">2010-12-27T04:05:06+00:00</myDateTime>
 			</dfdlInfoset>
 
 		</infoset>
@@ -283,8 +283,8 @@
 			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 			  <calendar_group>
 			    <date1 xsi:type="xs:date">2010-12-30+00:00</date1>
-			    <time1 xsi:type="xs:time">04:05:06.000000+01:00</time1>
-			    <datetime1 xsi:type="xs:dateTime">2010-12-30T04:05:06.000000+00:00</datetime1>
+			    <time1 xsi:type="xs:time">04:05:06+01:00</time1>
+			    <datetime1 xsi:type="xs:dateTime">2010-12-30T04:05:06+00:00</datetime1>
 			  </calendar_group>
 			</dfdlInfoset>
 		</infoset>
@@ -297,7 +297,7 @@
 		<document>xxxx2011040506MON56@</document>
 		<infoset>
 			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-			  <myDateTime xsi:type="xs:dateTime">2012-01-16T04:05:06.000000+00:00</myDateTime>
+			  <myDateTime xsi:type="xs:dateTime">2012-01-16T04:05:06+00:00</myDateTime>
 			</dfdlInfoset>
 		</infoset>
 	</parserTestCase>	
@@ -308,7 +308,7 @@
 		<document>101230040506@</document>
 		<infoset>
 			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-			  <myDateTime4 xsi:type="xs:dateTime">2010-12-30T04:05:06.000000-05:00</myDateTime4>
+			  <myDateTime4 xsi:type="xs:dateTime">2010-12-30T04:05:06-05:00</myDateTime4>
 			</dfdlInfoset>
 		</infoset>
 	</parserTestCase>
@@ -319,7 +319,7 @@
 		<document><documentPart type="byte">0000003C</documentPart></document>
 		<infoset>
 			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-			  <testBinarySeconds xsi:type="xs:dateTime">1970-01-01T00:01:00.000000+00:00</testBinarySeconds>
+			  <testBinarySeconds xsi:type="xs:dateTime">1970-01-01T00:01:00+00:00</testBinarySeconds>
 			</dfdlInfoset>
 		</infoset>
 	</parserTestCase>

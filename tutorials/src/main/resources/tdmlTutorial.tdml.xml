@@ -169,7 +169,7 @@ For this example we'll just look at a simple textual data document.
          Here is our actual expected result, where the date and time
          is now in XML's cannonical representation for these.
         -->
-        <ex:myTestRoot>2013-04-02T14:00:56.000000-05:00</ex:myTestRoot>
+        <ex:myTestRoot>2013-04-02T14:00:56-05:00</ex:myTestRoot>
       </tdml:dfdlInfoset>
     </tdml:infoset>
      
@@ -201,7 +201,7 @@ second. The order doesn't actually matter.
 </p></tdml:tutorial>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <ex:myTestRoot>2013-04-02T14:00:56.000000-05:00</ex:myTestRoot>
+        <ex:myTestRoot>2013-04-02T14:00:56-05:00</ex:myTestRoot>
       </tdml:dfdlInfoset>
     </tdml:infoset>
 

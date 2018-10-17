@@ -74,7 +74,7 @@
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <ex:myTestRoot>2013-04-02T14:00:56.000000-05:00</ex:myTestRoot>
+        <ex:myTestRoot>2013-04-02T14:00:56-05:00</ex:myTestRoot>
       </tdml:dfdlInfoset>
     </tdml:infoset>
      
@@ -85,7 +85,7 @@
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <ex:myTestRoot>2013-04-02T14:00:56.000000-05:00</ex:myTestRoot>
+        <ex:myTestRoot>2013-04-02T14:00:56-05:00</ex:myTestRoot>
       </tdml:dfdlInfoset>
     </tdml:infoset>
 
