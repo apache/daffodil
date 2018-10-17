@@ -1601,7 +1601,7 @@
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <timeT>04:09:23.000000</timeT>
+        <timeT>04:09:23</timeT>
       </tdml:dfdlInfoset>
     </tdml:infoset>
 
@@ -1625,7 +1625,7 @@
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <dateTimeT>2013-05-03T03:30:30.000000</dateTimeT>
+        <dateTimeT>2013-05-03T03:30:30</dateTimeT>
       </tdml:dfdlInfoset>
     </tdml:infoset>
 

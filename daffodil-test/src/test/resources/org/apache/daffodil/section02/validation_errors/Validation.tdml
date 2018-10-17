@@ -693,7 +693,7 @@
     <tdml:document><![CDATA[2014-03-24T03:45:30]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <dateTimeImp>2014-03-24T03:45:30.000000</dateTimeImp>
+        <dateTimeImp>2014-03-24T03:45:30</dateTimeImp>
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:validationErrors>
