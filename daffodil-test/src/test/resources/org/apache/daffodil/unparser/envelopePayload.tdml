@@ -32,6 +32,8 @@ looking at DFDL schemas for some complex formats like STANAG 5516 with NACT wrap
  -->
  
   <tdml:defineSchema name="model1" elementFormDefault="unqualified">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+  
     <dfdl:format ref="be" />
     <dfdl:defineFormat name="be">
       <dfdl:format ref="ex:GeneralFormat" representation="binary" 
@@ -184,6 +186,7 @@ looking at DFDL schemas for some complex formats like STANAG 5516 with NACT wrap
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="model2" elementFormDefault="unqualified">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="be" />
     <dfdl:defineFormat name="be">
       <dfdl:format ref="ex:GeneralFormat" representation="binary" 
@@ -341,6 +344,7 @@ looking at DFDL schemas for some complex formats like STANAG 5516 with NACT wrap
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="model3" elementFormDefault="unqualified">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="be" />
     <dfdl:defineFormat name="be">
       <dfdl:format ref="ex:GeneralFormat" representation="binary" 

@@ -709,7 +709,7 @@ object Main extends Logging {
     // to also include the call to pf.onPath. (which is the last phase
     // of compilation, where it asks for the parser)
     //
-    val schemaSource = URISchemaSource(schema)
+    val schemaSource = new URISchemaSource(schema)
     val pf = Timer.getResult("compiling", {
       val processorFactory = compiler.compileSource(schemaSource)
       if (!processorFactory.isError) {
@@ -1191,14 +1191,14 @@ object Main extends Logging {
             testOpts.names().flatMap(testName => {
               if (testOpts.regex()) {
                 val regex = testName.r
-                val matches = tdmlRunner.testCases.filter(testCase => regex.pattern.matcher(testCase.name).matches)
-                matches.map(testCase => (testCase.name, Some(testCase)))
+                val matches = tdmlRunner.testCases.filter(testCase => regex.pattern.matcher(testCase.tcName).matches)
+                matches.map(testCase => (testCase.tcName, Some(testCase)))
               } else {
-                List((testName, tdmlRunner.testCases.find(_.name == testName)))
+                List((testName, tdmlRunner.testCases.find(_.tcName == testName)))
               }
             })
           } else {
-            tdmlRunner.testCases.map(test => (test.name, Some(test)))
+            tdmlRunner.testCases.map(test => (test.tcName, Some(test)))
           }
         }.distinct.sortBy(_._1)
 

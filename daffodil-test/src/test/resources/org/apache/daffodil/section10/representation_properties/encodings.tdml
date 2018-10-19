@@ -24,6 +24,8 @@
   defaultRoundTrip="true">
   
 <tdml:defineSchema name="enc1">
+  <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+  
   <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited"/>
     
   <xs:element name="eString" type="xs:string" dfdl:encoding="ebcdic-cp-us"/>

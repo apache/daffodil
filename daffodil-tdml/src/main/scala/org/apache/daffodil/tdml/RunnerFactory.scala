@@ -19,6 +19,7 @@ package org.apache.daffodil.tdml
 
 import org.apache.daffodil.util.Misc
 import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.tdml.processor.DaffodilTDMLDFDLProcessorFactory
 
 /**
  * Creates the DFDLTestSuite object lazily, so the file isn't read into memory
@@ -42,9 +43,10 @@ object Runner {
     validateDFDLSchemas: Boolean = true,
     compileAllTopLevel: Boolean = false,
     defaultRoundTripDefault: RoundTrip = defaultRoundTripDefaultDefault,
-    defaultValidationDefault: String = defaultValidationDefaultDefault): Runner =
+    defaultValidationDefault: String = defaultValidationDefaultDefault,
+    defaultImplementationsDefault: Seq[String] = defaultImplementationsDefaultDefault): Runner =
     new Runner(null, dir, file, validateTDMLFile, validateDFDLSchemas, compileAllTopLevel,
-      defaultRoundTripDefault, defaultValidationDefault)
+      defaultRoundTripDefault, defaultValidationDefault, defaultImplementationsDefault)
 
   def apply(elem: scala.xml.Elem): Runner =
     new Runner(elem, null, null)
@@ -58,6 +60,17 @@ object Runner {
   //
   def defaultRoundTripDefaultDefault: RoundTrip = NoRoundTrip
   def defaultValidationDefaultDefault = "off"
+
+  /**
+    * Default for what DFDL implementations to run tests against.
+    */
+  def defaultImplementationsDefaultDefault = Seq(daffodilTDMLDFDLProcessorFactoryName)
+
+  lazy val daffodilTDMLDFDLProcessorFactoryName = {
+    // Doing this so that if we decide to rename the verbose class name here
+    // it will handle this code too. Also we can rename the packages, etc.
+    scala.reflect.classTag[DaffodilTDMLDFDLProcessorFactory].toString()
+  }
 }
 
 /**
@@ -71,7 +84,8 @@ class Runner private (elem: scala.xml.Elem, dir: String, file: String,
   validateDFDLSchemas: Boolean = true,
   compileAllTopLevel: Boolean = false,
   defaultRoundTripDefault: RoundTrip = Runner.defaultRoundTripDefaultDefault,
-  defaultValidationDefault: String = Runner.defaultValidationDefaultDefault) {
+  defaultValidationDefault: String = Runner.defaultValidationDefaultDefault,
+  defaultImplementationsDefault: Seq[String] = Runner.defaultImplementationsDefaultDefault) {
 
 
   if (elem ne null)
@@ -91,10 +105,10 @@ class Runner private (elem: scala.xml.Elem, dir: String, file: String,
     if (ts == null) {
       if (elem eq null) {
         tl_ts.set(new DFDLTestSuite(resource, validateTDMLFile, validateDFDLSchemas, compileAllTopLevel,
-          defaultRoundTripDefault, defaultValidationDefault))
+          defaultRoundTripDefault, defaultValidationDefault, defaultImplementationsDefault))
       } else {
         tl_ts.set(new DFDLTestSuite(elem, validateTDMLFile, validateDFDLSchemas, compileAllTopLevel,
-          defaultRoundTripDefault, defaultValidationDefault))
+          defaultRoundTripDefault, defaultValidationDefault, defaultImplementationsDefault))
       }
     }
     ts

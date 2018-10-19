@@ -24,6 +24,7 @@
   defaultRoundTrip="true">
 
   <tdml:defineSchema name="textNumberPattern">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" occursCountKind="implicit"/>
 
     <xs:element name="tnp01" type="xs:int" dfdl:textNumberRep="standard" dfdl:textStandardBase="16" dfdl:textNumberPattern="0000" />
@@ -3338,6 +3339,7 @@
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="textprops">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" separator="" separatorSuppressionPolicy="anyEmpty"
       separatorPosition="infix" documentFinalTerminatorCanBeMissing="yes"

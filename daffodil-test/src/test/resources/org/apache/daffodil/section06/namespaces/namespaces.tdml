@@ -21,9 +21,11 @@
   xmlns:gpf="http://www.ibm.com/dfdl/GeneralPurposeFormat" 
   xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:a01="http://a01.com" xmlns:b01="http://b01.com"
+  xmlns:ex="http://example.com"
   defaultRoundTrip="true">
 
   <tdml:defineSchema name="embeddedWithImport">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <xs:import namespace="http://www.ibm.com/dfdl/GeneralPurposeFormat"
       schemaLocation="IBMdefined/GeneralPurposeFormat.xsd" />
     <dfdl:format ref="gpf:GeneralPurposeFormat" />
@@ -33,12 +35,13 @@
 
   <tdml:defineSchema name="embeddedWithInclude">
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
-    <dfdl:format ref="GeneralFormat" />
+    <dfdl:format ref="ex:GeneralFormat" />
     <xs:element name="basic" type="xs:string"
       dfdl:lengthKind="delimited" />
   </tdml:defineSchema>
 
   <tdml:defineSchema name="embedded_base_01">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="gpf:GeneralPurposeFormat" separator=""
       initiator="" terminator="" leadingSkip='0' textTrimKind="none"
       initiatedContent="no" ignoreCase="no" representation="text"
@@ -65,6 +68,7 @@
   </tdml:defineSchema>
 
   <tdml:defineSchema name="IncorrectAppinfoSource">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <xs:import namespace="http://www.ibm.com/dfdl/GeneralPurposeFormat"
       schemaLocation="IBMdefined/GeneralPurposeFormat.xsd" />
     <dfdl:format ref="gpf:GeneralPurposeFormat" />

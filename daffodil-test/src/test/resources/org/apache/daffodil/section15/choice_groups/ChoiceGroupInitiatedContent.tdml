@@ -23,6 +23,7 @@
   defaultRoundTrip="true">
 
   <tdml:defineSchema name="s1">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
     <dfdl:defineFormat name="def">
       <dfdl:format initiatedContent="yes"/>
@@ -380,6 +381,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="s2">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
     <xs:element name="e" dfdl:lengthKind="implicit">
       <xs:complexType>
@@ -488,6 +490,7 @@
 
   <tdml:defineSchema name="nestedDiscriminator1">
 
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
 
     <xs:element name="e">
@@ -631,6 +634,7 @@
   </tdml:unparserTestCase>
 
   <tdml:defineSchema name="s3">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
     <dfdl:defineFormat name="def">
       <dfdl:format initiatedContent="yes"/>

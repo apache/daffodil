@@ -25,6 +25,7 @@
        to any specific requirements. /!-->
 
   <tdml:defineSchema name="parseUnparsePolicy">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" representation="text"
         lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator=""
         separator="" ignoreCase="no" textNumberRep="standard" leadingSkip="0" />

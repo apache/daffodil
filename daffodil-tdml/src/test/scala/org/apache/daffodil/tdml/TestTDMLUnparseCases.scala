@@ -49,7 +49,7 @@ class TestTDMLUnparseCases {
                       </ts:unparserTestCase>
                     </ts:testSuite>
     lazy val ts = new DFDLTestSuite(testSuite)
-    val tc: UnparserTestCase = ts.unparserTestCases.find { utc => utc.name == "test1" }.get
+    val tc: UnparserTestCase = ts.unparserTestCases.find { utc => utc.tcName == "test1" }.get
     // println(tc)
     tc.document
     val is = tc.inputInfoset

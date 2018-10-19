@@ -24,6 +24,7 @@
   defaultRoundTrip="true">
 
   <defineSchema name="es1">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" />
 
     <dfdl:defineEscapeScheme name="pound">
@@ -56,16 +57,19 @@
   </defineSchema>
 
   <defineSchema name="es2">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" />
       <xs:element name="elem" dfdl:defineEscapeScheme=""/>
   </defineSchema>
 
   <defineSchema name="es4">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" />
       <xs:element name="elem"/>
   </defineSchema>
 
   <defineSchema name="es5">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" />
     <dfdl:defineEscapeScheme>
       <dfdl:escapeScheme escapeCharacter='#'
@@ -75,6 +79,7 @@
   </defineSchema>
   
   <defineSchema name="es6">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" />
 
     <dfdl:defineEscapeScheme name="pound">
@@ -109,6 +114,7 @@
   </defineSchema>
 
   <defineSchema name="emptyRef">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
   <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" />
     
     <dfdl:defineEscapeScheme name="table1">
@@ -123,6 +129,7 @@
   </defineSchema>
   
   <defineSchema name="unusedRef">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
   <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" />
     
     <dfdl:defineEscapeScheme name="table1">
@@ -136,6 +143,7 @@
   </defineSchema>
 
   <defineSchema name="nonUnique">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" />
     <dfdl:defineEscapeScheme name="escapeScheme">
       <dfdl:escapeScheme escapeCharacter='#'
@@ -277,6 +285,7 @@
   </parserTestCase>
   
   <defineSchema name="escapeSchemeExpressions">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="tns:GeneralFormat" separatorPosition="infix" lengthKind="delimited"
       occursCountKind='parsed'/> 
 
@@ -530,6 +539,7 @@
          Purpose: This test demonstrates that escapeSheme with escapeBlock where the escapeBlockStart, escapeBlockEnd and escapeEscapeCharacter characters are the same, all quotes (DAFFODIL-1923).
   -->
   <defineSchema name="eBlkAllQuotes">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" />
 
     <dfdl:defineEscapeScheme name="eBlkAllQuotes">
@@ -571,6 +581,7 @@
          Purpose: This test demonstrates that escapeSheme with escapeBlock where the escapeBlockEnd and escapeEscapeCharacter characters are the same (closing paren) but differnet from escapeBlockStart (DAFFODIL-1923).
   -->
   <defineSchema name="eBlkEndSame">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" />
 
     <dfdl:defineEscapeScheme name="eBlkEndParen">
@@ -612,6 +623,7 @@
          Purpose: This test demonstrates that escapeSheme with escapeBlock where the escapeBlockEnd is the same as 2 escapeEscapeCharacters (DAFFODIL-1923).
   -->
   <defineSchema name="eBlkMultipleEEC">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" />
 
     <dfdl:defineEscapeScheme name="eBlkMultipleEEC">

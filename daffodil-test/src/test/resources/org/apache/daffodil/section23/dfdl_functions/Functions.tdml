@@ -25,6 +25,7 @@
   defaultRoundTrip="onePass">
     
   <tdml:defineSchema name="Functions.dfdl.xsd">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" initiator=""
       separator="," terminator="" leadingSkip="0" trailingSkip="0"
       textBidi="no" floating="no" byteOrder="bigEndian"
@@ -873,6 +874,7 @@
 </tdml:defineSchema>
   
   <tdml:defineSchema name="Functions-binary.dfdl.xsd">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" initiator=""
       separator="" terminator="" leadingSkip="0" trailingSkip="0"
       textBidi="no" floating="no" byteOrder="bigEndian"
@@ -4096,6 +4098,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="XPathFunctions">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat"/>
 
     <xs:element name="abs" type="xs:int" dfdl:inputValueCalc="{ fn:abs(-9) }"/>
@@ -6254,7 +6257,8 @@
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="constructorSchema">
-    <dfdl:format ref="GeneralFormat" />
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:element name="integer01" type="xs:integer" dfdl:inputValueCalc="{ xs:integer(45.4) }"/>
     <xs:element name="integer02">
@@ -8936,6 +8940,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="booleanFunctions">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" initiator=""
       separator="," terminator="" leadingSkip="0" trailingSkip="0"
       textBidi="no" floating="no" byteOrder="bigEndian"
@@ -13281,6 +13286,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="XPathMathFunctions">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat"/>
 
     <!-- These pow test were taken from the math:pow examples at https://www.w3.org/TR/xpath-functions-31/#func-math-pow -->

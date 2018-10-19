@@ -191,7 +191,7 @@ class TestTDMLRunner {
 
     val ts = new DFDLTestSuite(xml)
     val ptc = ts.parserTestCases(0)
-    assertEquals("test1", ptc.name)
+    assertEquals("test1", ptc.tcName)
     assertEquals("byte1", ptc.root)
     assertEquals("test-suite/ibm-contributed/dpanum.dfdl.xsd", ptc.model)
     assertTrue(ptc.description.contains("Some test case description."))
@@ -224,7 +224,7 @@ class TestTDMLRunner {
     assertEquals("", ts.description)
     val ptc = ts.parserTestCases(0)
     assertEquals("", ptc.description)
-    assertEquals("test2", ptc.name)
+    assertEquals("test2", ptc.tcName)
     assertEquals("byte1", ptc.root)
     assertEquals("test-suite/ibm-contributed/dpanum.dfdl.xsd", ptc.model)
     val doc = ptc.document.get
@@ -289,8 +289,8 @@ class TestTDMLRunner {
     ts.runOneTest("test3b")
   }
 
-
   val testSchema = SchemaUtils.dfdlTestSchema(
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
     <dfdl:format ref="tns:GeneralFormat"/>,
     <xs:element name="data" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ xs:unsignedInt(2) }"/>)
 
@@ -490,6 +490,7 @@ class TestTDMLRunner {
   val tdmlWithEmbeddedSchema =
     <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
       <tdml:defineSchema name="mySchema">
+        <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
         <dfdl:format ref="tns:GeneralFormat"/>
         <xsd:element name="data" type="xsd:int" dfdl:lengthKind="explicit" dfdl:length="{ xs:unsignedInt(2) }"/>
       </tdml:defineSchema>
@@ -530,7 +531,7 @@ class TestTDMLRunner {
     assertFalse(ts.isTDMLFileValid)
     lazy val ts = new DFDLTestSuite(testSuite)
     assertFalse(ts.isTDMLFileValid)
-    val msgs = ts.getLoadingDiagnosticMessages()
+    val msgs: String = ts.loadingDiagnosticMessages
     val hasMsg = msgs.contains("notAllowed")
     // println("messages = '" + msgs + "'")
     assertTrue(hasMsg)
@@ -565,7 +566,7 @@ class TestTDMLRunner {
 
       lazy val ts = new DFDLTestSuite(new java.io.File(tmpTDMLFileName))
       assertFalse(ts.isTDMLFileValid)
-      val msgs = ts.getLoadingDiagnosticMessages()
+      val msgs = ts.loadingDiagnosticMessages
       assertTrue(msgs.contains("notAllowed"))
 
     } finally {
@@ -577,6 +578,7 @@ class TestTDMLRunner {
   val tdmlWithUnicode2028 =
     <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
       <tdml:defineSchema name="mySchema">
+        <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
         <dfdl:format ref="tns:GeneralFormat"/>
         <xsd:element name="data" type="xsd:string" dfdl:encoding="utf-8" dfdl:lengthKind="delimited" dfdl:terminator="!"/>
       </tdml:defineSchema>
@@ -599,6 +601,7 @@ class TestTDMLRunner {
   val tdmlWithUnicode5E74AndCDATA =
     <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
       <tdml:defineSchema name="mySchema">
+        <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
         <dfdl:format ref="tns:GeneralFormat"/>
         <xsd:element name="data" type="xsd:string" dfdl:encoding="utf-8" dfdl:lengthKind="delimited" dfdl:terminator=""/>
       </tdml:defineSchema>
@@ -630,6 +633,7 @@ class TestTDMLRunner {
     val testSuite =
       <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
         <tdml:defineSchema name="mySchema">
+          <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
           <dfdl:format ref="tns:GeneralFormat" nilKind="literalValue" nilValueDelimiterPolicy="terminator"/>
           <xsd:element name="data" type="xsd:int" nillable="true" dfdl:lengthKind="delimited" dfdl:nilValue="nil" dfdl:terminator=";"/>
         </tdml:defineSchema>
@@ -651,6 +655,7 @@ class TestTDMLRunner {
     val testSuite =
       <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
         <tdml:defineSchema name="mySchema">
+          <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
           <dfdl:format ref="tns:GeneralFormat" nilKind="literalValue" nilValueDelimiterPolicy="terminator"/>
           <xsd:element name="data" type="xsd:int" nillable="true" dfdl:lengthKind="delimited" dfdl:nilValue="nil" dfdl:terminator=";"/>
         </tdml:defineSchema>
@@ -680,6 +685,7 @@ class TestTDMLRunner {
     val testSuite =
       <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
         <tdml:defineSchema name="mySchema">
+          <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
           <xsd:element name="data" type="xsd:string" dfdl:lengthKind="delimited" dfdl:encoding="iso-8859-1"/>
           <dfdl:format ref="tns:GeneralFormat"/>
         </tdml:defineSchema>
@@ -732,6 +738,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
     val testSuite =
       <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
         <tdml:defineSchema name="mySchema">
+          <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
           <xsd:element name="data" type="xsd:string" dfdl:lengthKind="delimited" dfdl:encoding="iso-8859-1"/>
           <dfdl:format ref="tns:GeneralFormat"/>
         </tdml:defineSchema>

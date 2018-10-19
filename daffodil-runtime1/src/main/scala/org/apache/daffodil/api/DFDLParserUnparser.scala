@@ -187,7 +187,7 @@ object DFDL {
    * Interface for Parse and Unparse results
    */
   abstract class Result {
-    protected def resultState: State
+    def resultState: State
     var diagnostics: Seq[Diagnostic] = Nil
 
     private def resultStatusDiagnostics: Seq[Diagnostic] = {

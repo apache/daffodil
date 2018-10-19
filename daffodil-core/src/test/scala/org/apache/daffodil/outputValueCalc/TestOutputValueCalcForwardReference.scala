@@ -38,6 +38,7 @@ class TestOutputValueCalcForwardReference {
 
   @Test def testOutputValueCalcForwardReference1() {
     val sch = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" encoding="ascii" lengthUnits="bytes"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
@@ -54,6 +55,7 @@ class TestOutputValueCalcForwardReference {
 
   @Test def testOutputValueCalcForwardReference2() {
     val sch = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" encoding="ascii" lengthUnits="bytes" textTrimKind="padChar" textStringPadCharacter="%SP;"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
@@ -71,6 +73,7 @@ class TestOutputValueCalcForwardReference {
 
   @Test def testOutputValueCalcForwardReference3() {
     val sch = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" encoding="ascii" lengthUnits="bytes"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
@@ -88,6 +91,7 @@ class TestOutputValueCalcForwardReference {
 
   @Test def testOutputValueCalcDeadlock() {
     val sch = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" encoding="ascii" lengthUnits="bytes"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
@@ -100,7 +104,7 @@ class TestOutputValueCalcForwardReference {
       </xs:element>, elementFormDefault = "unqualified")
     val infoset = <ex:e1 xmlns:ex={ example }></ex:e1>
     val areTracing = false
-    
+
     try {
       TestUtils.testUnparsing(sch, infoset, "222", areTracing)
       fail("Expected SuspendedExpressionsDeadlockException")
@@ -116,6 +120,7 @@ class TestOutputValueCalcForwardReference {
 
   @Test def testOutputValueCalcConstant() {
     val sch = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="bar" dfdl:lengthKind="implicit">
         <xs:complexType>
@@ -132,6 +137,7 @@ class TestOutputValueCalcForwardReference {
 
   @Test def testOutputValueCalcAfterOptional() {
     val sch = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="bar" dfdl:lengthKind="implicit">
         <xs:complexType>
@@ -149,6 +155,7 @@ class TestOutputValueCalcForwardReference {
 
   @Test def testMultipleOutputValueCalcAndDefaultablePresent() {
     val sch = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="bar" dfdl:lengthKind="implicit">
         <xs:complexType>

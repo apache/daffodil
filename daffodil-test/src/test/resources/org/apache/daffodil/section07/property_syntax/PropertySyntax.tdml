@@ -24,6 +24,7 @@
 
   <tdml:defineSchema name="PropertySyntax">
 
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"
       lengthUnits="bytes" encoding="UTF-8" separator="" initiator=""
       terminator="" occursCountKind="parsed" ignoreCase="no"
@@ -224,6 +225,7 @@
 
   <tdml:defineSchema name="PropertySyntaxInvalid">
 
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"
       lengthUnits="bytes" encoding="" separator="" initiator=""
       terminator="" occursCountKind="parsed" ignoreCase="no"

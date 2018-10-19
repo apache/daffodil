@@ -29,6 +29,7 @@
       defaultValue="42" />
     <dfdl:defineVariable name="myVar1" type="xs:int"
       defaultValue="6" />
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
     <xs:element name="c">
       <xs:complexType>
@@ -517,6 +518,7 @@
       defaultValue="42" />
     <dfdl:defineVariable name="myVar1" type="xs:int" />
 
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:element name="r1">
@@ -637,7 +639,8 @@
   
   <tdml:defineSchema name="absolutePath" elementFormDefault="qualified">
     
-  <dfdl:format ref="ex:GeneralFormat"/>
+  <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat"/>
     
     <xs:element name="elem">
       <xs:complexType>
@@ -857,6 +860,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="choiceInSequenceWithSeparators">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
 
     <xs:element name="ch1">
@@ -872,6 +876,7 @@
   </tdml:defineSchema>
 
   <tdml:defineSchema name="separatorAsVar">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
 
     <dfdl:defineVariable name="v3_with_default" type="xs:string"
@@ -913,6 +918,7 @@
       defaultValue="" />
     <dfdl:defineVariable name="v_empty_default2" type="xs:string" >{ "" }</dfdl:defineVariable>
 
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:element name="r1">
@@ -979,6 +985,7 @@
     <dfdl:defineVariable name="v_empty_default_invalid" type="xs:string"
       defaultValue="">{ "" }</dfdl:defineVariable>
 
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:element name="r2" type="xs:string" dfdl:inputValueCalc="{ $ex:v_empty_default_invalid }" dfdl:lengthKind="delimited" />
@@ -1002,6 +1009,7 @@
 
   <tdml:defineSchema name="variable_path">
     
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
 
     <dfdl:defineVariable name="var" defaultValue="e1" />

@@ -43,6 +43,7 @@ class TestExternalVariablesLoader extends Logging {
 
   def generateSD(topLevelAnnotations: Seq[Node] = <dfdl:format ref="tns:GeneralFormat"/>) = {
     lazy val sch = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       topLevelAnnotations,
       <xs:element name="fake" type="xs:string" dfdl:lengthKind="delimited"/>
       <xs:element name="fake2" type="tns:fakeCT"/>

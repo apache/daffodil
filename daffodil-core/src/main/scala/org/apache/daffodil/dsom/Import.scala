@@ -96,7 +96,7 @@ final class Import(importNode: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
         val uri = resolver.resolveURI(ns.toString)
         if (uri == null) None
         else {
-          val res = URISchemaSource(URI.create(uri))
+          val res = new URISchemaSource(URI.create(uri))
           Some(res)
         }
       }

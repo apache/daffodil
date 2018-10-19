@@ -214,12 +214,12 @@ abstract class IIBase( final override val xml: Node, xsdArg: XMLSchemaDocument, 
       //
       val resolved =
         if (protocol == "file" && (new File(completeURI)).exists)
-          Some(URISchemaSource(completeURI))
+          Some(new URISchemaSource(completeURI))
         else if (protocol == "jar")
-          Some(URISchemaSource(completeURI)) // jars are pre-resolved - we got the jar URI from the resolver
+          Some(new URISchemaSource(completeURI)) // jars are pre-resolved - we got the jar URI from the resolver
         else {
           val res = Misc.getResourceRelativeOption(encodedSLText, enclosingSchemaURI)
-          res.map { URISchemaSource(_) }
+          res.map { new URISchemaSource(_) }
         }
       resolved
     }

@@ -24,6 +24,7 @@
   defaultRoundTrip="true">
 
   <tdml:defineSchema name="sch1">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
     <xs:element name="root" dfdl:lengthKind="implicit">
       <xs:complexType>
@@ -52,6 +53,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="sch2" elementFormDefault="unqualified">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
     <xs:element name="root" dfdl:lengthKind="implicit">
       <xs:complexType>
@@ -81,6 +83,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="sch3">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
     <xs:element name="root" dfdl:lengthKind="implicit">
       <xs:complexType>
@@ -110,6 +113,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="sch4">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" separator="" separatorSuppressionPolicy="anyEmpty"
       separatorPosition="infix" documentFinalTerminatorCanBeMissing="yes"
@@ -141,6 +145,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="sch5">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" separator="" separatorSuppressionPolicy="anyEmpty"
       separatorPosition="infix" documentFinalTerminatorCanBeMissing="yes"
@@ -217,6 +222,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="sch6">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" separator="" separatorSuppressionPolicy="anyEmpty"
       separatorPosition="infix" documentFinalTerminatorCanBeMissing="yes"

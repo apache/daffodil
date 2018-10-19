@@ -37,6 +37,7 @@ class TestDsomCompiler3 {
 
   @Test def testTmpDirProvided() {
     val sc = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
 
       <xs:element name="list" type="tns:example1">

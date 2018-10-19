@@ -50,6 +50,7 @@ class TestTDMLRunnerWarnings {
     val testSuite =
       <tdml:testSuite suiteName="tdml warnings" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="http://example.com" xmlns:fn="http://www.w3.org/2005/xpath-functions">
         <tdml:defineSchema name="causesWarnings" elementFormDefault="unqualified">
+          <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
           <dfdl:format ref="ex:GeneralFormat" lengthKind="explicit"/>
           <xs:element name="causesWarnings" dfdl:lengthKind="implicit">
             <xs:complexType>
@@ -102,6 +103,7 @@ class TestTDMLRunnerWarnings {
     val testSuite =
       <tdml:testSuite suiteName="tdml warnings" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="http://example.com" xmlns:fn="http://www.w3.org/2005/xpath-functions">
         <tdml:defineSchema name="causesWarnings" elementFormDefault="unqualified">
+          <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
           <dfdl:format ref="ex:GeneralFormat" lengthKind="explicit"/>
           <xs:element name="causesWarnings" dfdl:lengthKind="implicit">
             <xs:complexType>
@@ -150,6 +152,7 @@ class TestTDMLRunnerWarnings {
     val testSuite =
       <tdml:testSuite suiteName="tdml warnings" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="http://example.com" xmlns:fn="http://www.w3.org/2005/xpath-functions">
         <tdml:defineSchema name="causesWarnings" elementFormDefault="unqualified">
+          <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
           <dfdl:format ref="ex:GeneralFormat" lengthKind="explicit"/>
           <xs:element name="errUnparsing" dfdl:lengthKind="implicit">
             <xs:complexType>
@@ -196,6 +199,7 @@ class TestTDMLRunnerWarnings {
     val testSuite =
       <tdml:testSuite suiteName="tdml warnings" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="http://example.com" xmlns:fn="http://www.w3.org/2005/xpath-functions">
         <tdml:defineSchema name="causesWarnings" elementFormDefault="unqualified">
+          <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
           <dfdl:format ref="ex:GeneralFormat" lengthKind="explicit"/>
           <xs:element name="errUnparsing" dfdl:lengthKind="implicit">
             <xs:complexType>

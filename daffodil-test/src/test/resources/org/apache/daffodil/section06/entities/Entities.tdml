@@ -24,6 +24,7 @@
   defaultRoundTrip="true">
 
   <tdml:defineSchema name="Entities-Embedded.dfdl.xsd">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
     <dfdl:format ref="rdefFormat" encoding="utf-8"
       byteOrder="bigEndian" ignoreCase="no" textStringJustification="left"
@@ -66,6 +67,7 @@ is multiple bytes in UTF-8 encoding that is used - DFDL-6-042R"
 
   <tdml:defineSchema name="Entities_01-Embedded.dfdl.xsd">
 
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" encoding="utf-8"
       byteOrder="bigEndian" representation="text" lengthUnits="characters"
       textNumberRep="standard" lengthKind="delimited" initiator=""
@@ -265,6 +267,7 @@ is multiple bytes in UTF-8 encoding that is used - DFDL-6-042R"
     
   <tdml:defineSchema name="Entities_02-Embedded">
   
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" representation="text" encoding="utf-16" 
       separator="/" byteOrder="bigEndian" ignoreCase="no" textNumberRep="standard"
       initiator="" initiatedContent="no" terminator="" />
@@ -526,6 +529,7 @@ is multiple bytes in UTF-8 encoding that is used"
   
   <tdml:defineSchema name="EscapesSchema">
 
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" encoding="utf-8"
       byteOrder="bigEndian" ignoreCase="no" textStringJustification="left"
       textStringPadCharacter="0" textTrimKind="none" textPadKind="none"
@@ -620,7 +624,8 @@ is multiple bytes in UTF-8 encoding that is used"
   
   <tdml:defineSchema name="whitespaceSchema">
 
-    <dfdl:format ref="GeneralFormat" encoding="utf-8"
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" encoding="utf-8"
       byteOrder="bigEndian" ignoreCase="no" textStringJustification="left"
       textStringPadCharacter="0" textTrimKind="padChar" textPadKind="padChar"
       documentFinalTerminatorCanBeMissing="no" nilValueDelimiterPolicy="none"
@@ -847,6 +852,7 @@ is multiple bytes in UTF-8 encoding that is used"
   
   <tdml:defineSchema name="NLSchema">
 
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" encoding="utf-8"
       byteOrder="bigEndian" representation="text" lengthUnits="characters"
       textNumberRep="standard" lengthKind="delimited" initiator=""
@@ -967,6 +973,7 @@ is multiple bytes in UTF-8 encoding that is used"
   
   <tdml:defineSchema name="EntitiesMix">
 
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" encoding="utf-8"
       byteOrder="bigEndian" representation="text" lengthUnits="characters"
       textNumberRep="standard" lengthKind="delimited" initiator=""
@@ -1114,6 +1121,7 @@ is multiple bytes in UTF-8 encoding that is used"
   
   <tdml:defineSchema name="EmptyStringEntityInExpression">
   
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" representation="text" encoding="US-ASCII" 
       separator="" byteOrder="bigEndian" ignoreCase="no" textNumberRep="standard"
       initiator="" initiatedContent="no" terminator="" />

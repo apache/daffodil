@@ -23,6 +23,8 @@
   defaultRoundTrip="true">
 
   <defineSchema name="es1">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+  
     <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" 
         occursCountKind="implicit"/>
 
@@ -52,6 +54,7 @@
   </defineSchema>
   
   <defineSchema name="es1-2">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" documentFinalTerminatorCanBeMissing="no"/>
 
     <dfdl:defineEscapeScheme name="scenario1">
@@ -307,6 +310,7 @@
   </parserTestCase>
   
   <defineSchema name="es2">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" />
 
     <dfdl:defineEscapeScheme name="scenario2">
@@ -335,6 +339,7 @@
   </defineSchema>
   
   <defineSchema name="es2-2">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" documentFinalTerminatorCanBeMissing="no"/>
 
     <dfdl:defineEscapeScheme name="scenario2">
@@ -594,6 +599,7 @@
   </parserTestCase>
 
   <defineSchema name="es3">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" />
 
     <dfdl:defineEscapeScheme name="scenario3">
@@ -622,6 +628,7 @@
   </defineSchema>
   
   <defineSchema name="es3-2">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" documentFinalTerminatorCanBeMissing="no"/>
 
     <dfdl:defineEscapeScheme name="scenario3">
@@ -877,6 +884,7 @@
   </parserTestCase>
 
   <defineSchema name="es4">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" />
 
     <dfdl:defineEscapeScheme name="scenario4">
@@ -905,6 +913,7 @@
   </defineSchema>
   
   <defineSchema name="es4-2">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" documentFinalTerminatorCanBeMissing="no"/>
 
     <dfdl:defineEscapeScheme name="scenario4">
@@ -924,6 +933,7 @@
   </defineSchema>
   
   <defineSchema name="es5">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" />
 
     <dfdl:defineEscapeScheme name="es">

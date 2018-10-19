@@ -19,11 +19,13 @@
 <tdml:testSuite suiteName="AA-BG"
   description="Original suite of AA through BG" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-  xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://example.com"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"  xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+  xmlns:tns="http://example.com"
   defaultRoundTrip="true">
 
 
   <tdml:defineSchema name="AJ">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="tns:GeneralFormat" binaryNumberRep="binary"
       byteOrder="bigEndian" />
 

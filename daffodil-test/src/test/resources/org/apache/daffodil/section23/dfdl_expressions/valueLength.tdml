@@ -26,6 +26,7 @@
   defaultRoundTrip="true">
   
   <tdml:defineSchema name="cl1" elementFormDefault="unqualified">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" representation="binary" />
 
     <!--  this lives in a hidden group for a reason. That way the len element doesn't appear

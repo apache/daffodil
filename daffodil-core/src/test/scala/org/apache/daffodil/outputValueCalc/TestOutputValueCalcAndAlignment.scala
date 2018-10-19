@@ -44,6 +44,7 @@ class TestOutputValueCalcAndAlignment {
    */
   @Test def testOutputValueCalcAlignmentFixed() {
     val sch = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" encoding="ascii" lengthUnits="bytes" alignmentUnits="bytes" fillByte="X"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
@@ -66,6 +67,7 @@ class TestOutputValueCalcAndAlignment {
    */
   @Test def testOutputValueCalcVariableLengthThenAlignment() {
     val sch = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" encoding="ascii" lengthUnits="bytes" alignmentUnits="bytes" fillByte="X"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
@@ -104,6 +106,7 @@ class TestOutputValueCalcAndAlignment {
    */
   @Test def testOutputValueCalcVariableLengthThenAlignmentDeadlock() {
     val sch = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" encoding="ascii" lengthUnits="bytes" alignmentUnits="bytes" fillByte="X"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>

@@ -25,6 +25,7 @@
 
 <tdml:defineSchema name="expressions-Embedded.dfdl.xsd">
 
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"
       lengthUnits="bytes" encoding="US-ASCII" separator="" initiator=""
       terminator="" occursCountKind="parsed" ignoreCase="no"

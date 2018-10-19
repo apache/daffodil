@@ -39,6 +39,7 @@ class TestTDMLRunnerConfig {
     val testSuite =
       <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi } defaultConfig="nonsense">
         <tdml:defineSchema name="mySchema">
+          <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
           <xs:element name="dummy" type="xs:string"/>
         </tdml:defineSchema>
         <tdml:parserTestCase xmlns={ tdml } name="test1" root="dummy" model="mySchema">
@@ -65,6 +66,7 @@ class TestTDMLRunnerConfig {
     val testSuite =
       <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
         <tdml:defineSchema name="mySchema">
+          <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
           <dfdl:format ref="tns:GeneralFormat"/>
           <xs:element name="dummy" type="xs:string" dfdl:lengthKind="delimited"/>
         </tdml:defineSchema>
@@ -92,6 +94,7 @@ class TestTDMLRunnerConfig {
     val testSuite =
       <tdml:testSuite suiteName="theSuiteName" xmlns:daf={ daf } xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi } defaultConfig="nonsense">
         <tdml:defineSchema name="mySchema">
+          <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
           <dfdl:format ref="tns:GeneralFormat"/>
           <xs:element name="dummy" type="xs:string" dfdl:lengthKind="delimited"/>
         </tdml:defineSchema>
@@ -124,6 +127,7 @@ class TestTDMLRunnerConfig {
     val testSuite =
       <tdml:testSuite suiteName="theSuiteName" xmlns:daf={ daf } xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
         <tdml:defineSchema name="mySchema">
+          <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
           <dfdl:format representation="binary" binaryNumberRep="binary" lengthKind="implicit" lengthUnits="bytes" alignmentUnits="bytes" alignment="implicit" leadingSkip="0" trailingSkip="0" byteOrder="bigEndian" textOutputMinLength="0" initiator="" terminator="" textPadKind="none" encoding="ascii"/>
           <xs:element name="dummy" type="xs:int"/>
         </tdml:defineSchema>
@@ -149,6 +153,7 @@ class TestTDMLRunnerConfig {
     val testSuite =
       <tdml:testSuite suiteName="theSuiteName" xmlns:daf={ daf } xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi } defaultConfig="myConfig">
         <tdml:defineSchema name="mySchema">
+          <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
           <dfdl:format representation="binary" binaryNumberRep="binary" lengthKind="implicit" lengthUnits="bytes" alignmentUnits="bytes" alignment="implicit" leadingSkip="0" trailingSkip="0" byteOrder="bigEndian" textOutputMinLength="0" initiator="" terminator="" textPadKind="none" encoding="ascii"/>
           <xs:element name="dummy" type="xs:int"/>
         </tdml:defineSchema>
@@ -174,6 +179,7 @@ class TestTDMLRunnerConfig {
     val testSuite =
       <tdml:testSuite suiteName="theSuiteName" xmlns:daf={ daf } xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi } defaultConfig="testConfigFile.xml">
         <tdml:defineSchema name="mySchema">
+          <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
           <dfdl:format representation="binary" binaryNumberRep="binary" lengthKind="implicit" lengthUnits="bytes" alignmentUnits="bytes" alignment="implicit" leadingSkip="0" trailingSkip="0" byteOrder="bigEndian" textOutputMinLength="0" initiator="" terminator="" textPadKind="none" encoding="ascii"/>
           <xs:element name="dummy" type="xs:int"/>
         </tdml:defineSchema>

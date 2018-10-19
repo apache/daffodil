@@ -40,17 +40,22 @@ object SchemaUtils {
    * Constructs a DFDL schema more conveniently than having to specify all those xmlns attributes.
    */
 
-  def dfdlTestSchemaUnqualified(topLevelAnnotations: Seq[Node], contentElements: Seq[Node], fileName: String = ""): Elem =
-    dfdlTestSchema(topLevelAnnotations, contentElements, fileName = fileName, elementFormDefault = "unqualified")
+  def dfdlTestSchemaUnqualified(
+    includeImports: Seq[Node],
+    topLevelAnnotations: Seq[Node],
+    contentElements: Seq[Node],
+    fileName: String = ""): Elem =
+    dfdlTestSchema(includeImports, topLevelAnnotations, contentElements, fileName = fileName, elementFormDefault = "unqualified")
 
   def dfdlTestSchemaWithTarget(
+    includeImports: Seq[Node],
     topLevelAnnotations: Seq[Node],
     contentElements: Seq[Node],
     theTargetNS: String,
     elementFormDefault: String = "qualified"): Elem = {
     val tns = if (theTargetNS == "" || theTargetNS == null) NoNamespace else NS(theTargetNS)
     val sch =
-      dfdlTestSchema(topLevelAnnotations, contentElements,
+      dfdlTestSchema(includeImports, topLevelAnnotations, contentElements,
         targetNamespace = tns, defaultNamespace = tns, elementFormDefault = elementFormDefault)
     sch
   }
@@ -66,6 +71,7 @@ object SchemaUtils {
    * This also makes these much more readable.
    */
   def dfdlTestSchema(
+    includeImports: Seq[Node],
     topLevelAnnotations: Seq[Node],
     contentElements: Seq[Node],
     schemaScope: NamespaceBinding = TopScope, // from the defineSchema node
@@ -92,7 +98,9 @@ object SchemaUtils {
 
     val schemaNode =
       <xs:schema elementFormDefault={ elementFormDefault } attributeFormDefault="unqualified">
-        <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+        {
+          includeImports
+        }
         <xs:annotation>
           <xs:appinfo source={ XMLUtils.dfdlAppinfoSource }>
             { topLevelAnnotations }

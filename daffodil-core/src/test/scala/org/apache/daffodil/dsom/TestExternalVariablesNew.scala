@@ -48,6 +48,7 @@ class TestExternalVariablesNew {
 
   def generateSD(topLevelAnnotations: Seq[Node] = <dfdl:format ref="tns:GeneralFormat"/>) = {
     lazy val sch = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       topLevelAnnotations,
       <xs:element name="fake" type="xs:string" dfdl:lengthKind="delimited"/>
       <xs:element name="fake2" type="tns:fakeCT"/>
@@ -70,6 +71,7 @@ class TestExternalVariablesNew {
 
   def generateTestSchema(topLevelAnnotations: Seq[Node]) = {
     val sch = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       topLevelAnnotations,
       <xs:element name="fake" type="xs:string" dfdl:lengthKind="delimited"/>
       <xs:element name="fake2" type="tns:fakeCT"/>
@@ -89,6 +91,7 @@ class TestExternalVariablesNew {
 
   def generateTestSchemaWithTarget(topLevelAnnotations: Seq[Node], theTargetNS: String, importSchemaLocation: String) = {
     val sch = SchemaUtils.dfdlTestSchemaWithTarget(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       topLevelAnnotations,
       <xs:import schemaLocation={ importSchemaLocation } namespace=""/>
       <xs:element name="fake" type="xs:string" dfdl:lengthKind="delimited"/>
@@ -110,6 +113,7 @@ class TestExternalVariablesNew {
 
   def generateTestSchemaNoTarget(topLevelAnnotations: Seq[Node]) = {
     val sch = SchemaUtils.dfdlTestSchemaWithTarget(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       topLevelAnnotations,
       <xs:element name="fake" type="xs:string" dfdl:lengthKind="delimited"/>
       <xs:element name="fake2" type="fakeCT"/>
@@ -158,12 +162,12 @@ class TestExternalVariablesNew {
       <dfdl:defineVariable name="var1" type="xs:string" external="true" defaultValue="default1"/>
       <dfdl:defineVariable name="var3" type="xs:string" external="true" defaultValue="default3"/>
     }
-    source_no_ns.tempSchemaFile.toString
+    source_no_ns.uriForLoading.toString
 
-    val sch = generateTestSchemaWithTarget(tla, XMLUtils.EXAMPLE_NAMESPACE, source_no_ns.tempSchemaFile.toURI.toString)
+    val sch = generateTestSchemaWithTarget(tla, XMLUtils.EXAMPLE_NAMESPACE, source_no_ns.uriForLoading.toString)
     val source = UnitTestSchemaSource(sch, "test_figures_out_namespace_success")
 
-    source.tempSchemaFile.toString
+    source.uriForLoading.toString
 
     val vars = Map(
       ("{http://example.com}var1", "value1"), // Namespace defined
@@ -212,7 +216,7 @@ class TestExternalVariablesNew {
       <dfdl:defineVariable name="var1" type="xs:string" external="true" defaultValue="default1"/>
       <dfdl:defineVariable name="var2" type="xs:string" external="true" defaultValue="default2.1"/>
     }
-    val sch = generateTestSchemaWithTarget(tla, XMLUtils.EXAMPLE_NAMESPACE, source_no_ns.tempSchemaFile.toURI.toString)
+    val sch = generateTestSchemaWithTarget(tla, XMLUtils.EXAMPLE_NAMESPACE, source_no_ns.uriForLoading.toString)
     val source = UnitTestSchemaSource(sch, "test_no_namespace_success")
 
     val vars = Map(
@@ -258,7 +262,7 @@ class TestExternalVariablesNew {
       <dfdl:defineVariable name="var1" type="xs:string" external="true" defaultValue="default1"/>
       <dfdl:defineVariable name="var3" type="xs:string" external="true" defaultValue="default3.1"/>
     }
-    val sch = generateTestSchemaWithTarget(tla, XMLUtils.EXAMPLE_NAMESPACE, source_no_ns.tempSchemaFile.toURI.toString)
+    val sch = generateTestSchemaWithTarget(tla, XMLUtils.EXAMPLE_NAMESPACE, source_no_ns.uriForLoading.toString)
     val source = UnitTestSchemaSource(sch, "test_figures_out_namespace_failure")
 
     val vars = Map(

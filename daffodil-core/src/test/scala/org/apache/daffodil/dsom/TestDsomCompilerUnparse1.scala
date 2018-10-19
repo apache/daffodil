@@ -31,6 +31,7 @@ class TestDsomCompilerUnparse1 {
 
   @Test def testUnparse1() {
     val sch = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" encoding="ascii" lengthUnits="bytes"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
@@ -50,6 +51,7 @@ class TestDsomCompilerUnparse1 {
    */
   @Test def testUnparse2() {
     val sch = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" encoding="ascii" lengthUnits="bytes" outputNewLine="%CR;%LF;"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
@@ -68,6 +70,7 @@ class TestDsomCompilerUnparse1 {
    */
   @Test def testUnparse3() {
     val sch = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" encoding="ascii" lengthUnits="bytes" outputNewLine="%CR;%LF;"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
@@ -86,6 +89,7 @@ class TestDsomCompilerUnparse1 {
    */
   @Test def testUnparse4() {
     val sch = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" encoding="ascii" lengthUnits="bytes" outputNewLine="%CR;%LF;" truncateSpecifiedLengthString="no"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit" dfdl:initiator="!#" dfdl:terminator="#!">
         <xs:complexType>
@@ -111,6 +115,7 @@ class TestDsomCompilerUnparse1 {
    */
   @Test def testUnparse5() {
     val sch = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" encoding="ascii" lengthUnits="bytes" outputNewLine="%CR;%LF;"/>
       <dfdl:defineEscapeScheme name="pound">
         <dfdl:escapeScheme escapeCharacter='#' escapeKind="escapeCharacter" escapeEscapeCharacter="" extraEscapedCharacters="" generateEscapeBlock="whenNeeded"/>

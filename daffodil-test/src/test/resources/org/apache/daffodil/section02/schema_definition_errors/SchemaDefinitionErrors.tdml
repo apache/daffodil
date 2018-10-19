@@ -32,6 +32,7 @@
 
   <tdml:defineSchema name="SDE">
 
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" occursCountKind="implicit"/>
 
     <xs:element name="matrix">
@@ -138,6 +139,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="warning">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" encoding="utf-8" representation="text"/>
     <xs:element name="elem" type="xs:string">
       <xs:annotation>

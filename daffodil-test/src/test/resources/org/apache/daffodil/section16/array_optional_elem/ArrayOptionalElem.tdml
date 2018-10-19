@@ -28,6 +28,7 @@
   defaultRoundTrip="true">
   
   <tdml:defineSchema name="s1">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
     <dfdl:format lengthKind="explicit" length="1" ref="ex:GeneralFormat"
       separator="" initiator="" terminator="" occursCountKind="implicit"
@@ -50,6 +51,7 @@
   </tdml:defineSchema>
 
   <tdml:defineSchema name="array-optionalElem.dfdl.xsd">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
     <dfdl:format lengthKind="delimited" lengthUnits="bytes"
       ref="ex:GeneralFormat" encoding="UTF-8" separator="" initiator="" terminator=""
@@ -127,7 +129,9 @@
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="arrays1">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" occursCountKind="implicit"
       lengthKind="delimited" separatorSuppressionPolicy="trailingEmptyStrict"
       separatorPosition="prefix" />
@@ -271,6 +275,7 @@
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="arrayExpressions">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
     
     <dfdl:defineVariable name="counter" type="xs:int" />
@@ -637,6 +642,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="array-ockImplicitSeparators.dfdl.xsd" elementFormDefault="unqualified">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
     <dfdl:format lengthKind="delimited" lengthUnits="bytes"
       ref="ex:GeneralFormat" encoding="UTF-8" separator="" initiator="" terminator=""
@@ -816,6 +822,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="nestedSequence" elementFormDefault="unqualified">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
     <dfdl:format lengthKind="delimited" lengthUnits="bytes"
       ref="ex:GeneralFormat" encoding="UTF-8" separator="" initiator="" terminator=""

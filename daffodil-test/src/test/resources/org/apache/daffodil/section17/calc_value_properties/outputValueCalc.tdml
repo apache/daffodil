@@ -24,7 +24,8 @@
 	<tdml:defineSchema name="outputValueCalc-Embedded.dfdl.xsd">
 
 
-		<dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"
+		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"
 			lengthUnits="bytes" encoding="utf-8" byteOrder="bigEndian" separator=""
 			initiator="" terminator="" occursCountKind="parsed" ignoreCase="no"
 			textNumberRep="standard" representation="text" alignment="8"

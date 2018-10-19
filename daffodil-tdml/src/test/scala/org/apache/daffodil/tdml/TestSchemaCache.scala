@@ -41,9 +41,9 @@ class TestSchemaCache {
     tempFile.deleteOnExit()
     touchFile()
     val originalURI = tempFile.toURI
-    originalUSS = URISchemaSource(originalURI)
+    originalUSS = new URISchemaSource(originalURI)
     val newURI = tempFile.toURI
-    newUSS = URISchemaSource(newURI)
+    newUSS = new URISchemaSource(newURI)
   }
 
   /**

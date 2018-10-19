@@ -62,6 +62,7 @@ class TestInfoset1 {
 
   @Test def testXMLToInfoset1() {
     val testSchema = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="list" type="tns:example1"/>
       <xs:complexType name="example1">
@@ -93,6 +94,7 @@ class TestInfoset1 {
 
   @Test def testXMLToInfoset2() {
     val testSchema = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="list" type="tns:example1"/>
       <xs:complexType name="example1">
@@ -132,6 +134,7 @@ class TestInfoset1 {
 
   @Test def testXMLToInfoset2a() {
     val testSchema = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="list" type="tns:example1"/>
       <xs:complexType name="example1">
@@ -171,6 +174,7 @@ class TestInfoset1 {
 
   @Test def testXMLToInfoset3() {
     val testSchema = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="list" type="tns:example1"/>
       <xs:complexType name="example1">
@@ -217,6 +221,7 @@ class TestInfoset1 {
 
   @Test def testXMLToInfosetNil1() {
     val testSchema = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="list">
         <xs:complexType>
@@ -253,6 +258,7 @@ class TestInfoset1 {
 
   @Test def testXMLToInfoset4() {
     val testSchema = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="list" type="tns:example1"/>
       <xs:complexType name="example1">
@@ -296,6 +302,7 @@ class TestInfoset1 {
 
   @Test def testXMLToInfoset5() {
     val testSchema = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="list" type="tns:example1"/>
       <xs:complexType name="example1">
@@ -347,6 +354,7 @@ class TestInfoset1 {
 
   @Test def testXMLToInfoset6() {
     val testSchema = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="list" type="tns:example1"/>
       <xs:complexType name="example1">

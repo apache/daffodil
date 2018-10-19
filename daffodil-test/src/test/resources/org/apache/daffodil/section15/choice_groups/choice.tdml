@@ -24,6 +24,7 @@
   xmlns="http://example.com">
 
   <tdml:defineSchema name="basic">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:element name="root">
@@ -72,6 +73,7 @@
 
 
   <tdml:defineSchema name="choice2">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
   
     <xs:group name="simpleGroup">
@@ -273,6 +275,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="choiceSch3">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:element name="ch1" dfdl:lengthKind="implicit">
@@ -309,6 +312,7 @@
 
 
   <tdml:defineSchema name="choiceDelim">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
 
     <xs:complexType name="ctype">
@@ -467,6 +471,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="nestedChoice1">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
 
     <xs:complexType name="intFloatOrString">
@@ -625,6 +630,7 @@
 
 
   <tdml:defineSchema name="nestedChoice2">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
 
     <xs:complexType name="String">
@@ -700,6 +706,7 @@
 
 
   <tdml:defineSchema name="choiceInSequenceWithSeparators">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
 
     <xs:element name="ch1">
@@ -752,6 +759,7 @@
 
 
   <tdml:defineSchema name="sequenceInChoiceInSequenceWithSeparators">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
     <xs:element name="ch1">
       <xs:complexType>
@@ -807,6 +815,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="sequenceInChoiceInSequenceWithSameSeparators">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
     <xs:element name="ch1">
       <xs:complexType>
@@ -863,6 +872,7 @@
 
 
   <tdml:defineSchema name="choiceWithInitsAndTerms">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
 
     <xs:element name="ch1">
@@ -1026,6 +1036,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="choiceWithSequence">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
 
     <xs:element name="ch1">
@@ -1090,6 +1101,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="choiceWithChoice">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
 
     <xs:element name="ch1">
@@ -1178,6 +1190,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="choiceWithArray">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
 
     <xs:element name="ch1">
@@ -1319,6 +1332,7 @@
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="optionalChoices">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
 
       <xs:complexType name="redSeq">
@@ -1498,6 +1512,7 @@ it sure is/
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="invalidChoices">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:element name="ch1">
@@ -1534,6 +1549,7 @@ it sure is/
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="direct_dispatch_1">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:element name="dd1">

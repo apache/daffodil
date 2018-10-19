@@ -302,7 +302,7 @@ class Compiler(var validateDFDLSchemas: Boolean = true)
    * to see if compilation was successful or not.
    */
   def compileFile(file: File): ProcessorFactory = {
-    val source = URISchemaSource(file.toURI)
+    val source = new URISchemaSource(file.toURI)
     compileSource(source)
   }
 

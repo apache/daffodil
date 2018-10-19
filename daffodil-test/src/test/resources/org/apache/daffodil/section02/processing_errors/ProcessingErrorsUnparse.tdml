@@ -33,6 +33,7 @@
 
   <tdml:defineSchema name="upaFailure">
 
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" textBidi="no" floating="no" encoding="ascii"
       byteOrder="bigEndian" alignment="1" alignmentUnits="bytes"
@@ -78,6 +79,7 @@
   
   <tdml:defineSchema name="okSchema">
 
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" textBidi="no" floating="no" encoding="ascii"
       byteOrder="bigEndian" alignment="1" alignmentUnits="bytes"
@@ -235,6 +237,7 @@
   </tdml:unparserTestCase>
   
   <tdml:defineSchema name="roundTripErr">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format lengthKind="explicit" length="1" ref="ex:GeneralFormat"
       separator="" initiator="" terminator="" occursCountKind="parsed"
       ignoreCase="no" textNumberRep="standard" representation="text"

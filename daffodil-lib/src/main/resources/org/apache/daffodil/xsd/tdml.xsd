@@ -76,6 +76,7 @@
       <attribute name="defaultRoundTrip" type="tns:roundTripType" use="optional"/>
       <attribute name="defaultValidation" type="tns:validationType" use="optional"/>
       <attribute name="defaultConfig" type="xs:string" use="optional"/>
+      <attribute name="defaultImplementations" type="xs:string" use="optional"/>
     </complexType>
     <unique name="unique-parserTestCase-name">
       <selector xpath="parserTestCase"/>
@@ -155,6 +156,8 @@
     <attribute name="description" type="xs:string" use="optional"/>
     <attribute name="unsupported" type="xs:boolean" use="optional" default="false"/>
     <attribute name="validation" type="tns:validationType" use="optional"/>
+    <attribute name="implementations" type="xs:string" use="optional"/>
+
   </attributeGroup>
 
   <simpleType name="roundTripType">
