@@ -370,7 +370,7 @@
   <tdml:defineSchema name="delimitedStrings">
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
 
-      <dfdl:format ref="ex:GeneralFormat" encoding="ascii" 
+    <dfdl:format ref="ex:GeneralFormat" encoding="ascii" 
         lengthUnits="bytes" outputNewLine="%CR;%LF;"/>
 
       <xs:element name="e1" dfdl:lengthKind="implicit">
@@ -564,7 +564,7 @@
   <tdml:defineSchema name="alignmentPaddingOVC">
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
 
-      <dfdl:format ref="ex:GeneralFormat" encoding="ascii" 
+    <dfdl:format ref="ex:GeneralFormat" encoding="ascii" 
         lengthUnits="bytes" outputNewLine="%CR;%LF;" alignment="1" alignmentUnits="bytes"
         textNumberPadCharacter="x" textPadKind="padChar" textTrimKind="padChar"
         fillByte="%NUL;"/>
@@ -641,22 +641,17 @@
       <xs:element name="e4">
         <xs:complexType>
           <xs:sequence>
-            <xs:element name="length" type="xs:int" dfdl:textNumberJustification="center" dfdl:lengthKind="explicit" dfdl:textOutputMinLength="4" dfdl:length="1" dfdl:outputValueCalc="{ dfdl:valueLength(../ex:payload, 'bits') }" />
-            <xs:element name="payload">
-              <xs:complexType>
-                <xs:sequence>
-                  <xs:element name="sublength" type="xs:unsignedInt" dfdl:representation="binary"
-                              dfdl:alignment="1" dfdl:alignmentUnits="bits"
-                              dfdl:lengthKind="explicit" dfdl:length="4" dfdl:lengthUnits="bits" />
-                  <xs:element name="subfield1" type="xs:unsignedInt" dfdl:representation="binary"
-                              dfdl:alignment="1" dfdl:alignmentUnits="bits"
-                              dfdl:lengthKind="explicit" dfdl:length="{ ../ex:sublength }" dfdl:lengthUnits="bits" />
-                  <xs:element name="subfield2" type="xs:unsignedInt" dfdl:representation="binary"
-                              dfdl:alignment="8" dfdl:alignmentUnits="bits"
-                              dfdl:lengthKind="explicit" dfdl:length="4" dfdl:lengthUnits="bits" />
-                </xs:sequence>
-              </xs:complexType>
-            </xs:element>
+            <xs:element name="length" type="xs:int"
+                        dfdl:representation="text"
+                        dfdl:textPadKind="padChar"
+                        dfdl:textTrimKind="padChar"
+                        dfdl:textNumberPadCharacter="0"
+                        dfdl:textNumberJustification="right"
+                        dfdl:lengthKind="explicit"
+                        dfdl:textOutputMinLength="4"
+                        dfdl:length="1"
+                        dfdl:outputValueCalc="{ dfdl:valueLength(../ex:payload, 'bytes') }" />
+            <xs:element name="payload" type="xs:string" dfdl:lengthKind="delimited" dfdl:terminator=";"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>
@@ -749,20 +744,22 @@
       Schema: delimitedStrings
       Purpose: This test demonstrates an SDE when explicit length is less than textOutputMinLength
 -->
-  <tdml:unparserTestCase name="alignmentPaddingOVC4" model="alignmentPaddingOVC" root="e4">
-    <tdml:document>
-      <tdml:documentPart type="text">x20x</tdml:documentPart><!-- length of below fields in bits -->
-      <tdml:documentPart type="bits">0101</tdml:documentPart><!-- subfield1 length -->
-      <tdml:documentPart type="bits">10101</tdml:documentPart><!-- subfield1 -->
-      <tdml:documentPart type="bits">0000000</tdml:documentPart><!-- alignment skip -->
-      <tdml:documentPart type="bits">1010</tdml:documentPart><!-- subfield1 -->
-    </tdml:document>
-    <tdml:errors>
-      <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Explicit dfdl:length</tdml:error>
-      <tdml:error>out of range</tdml:error>
-      <tdml:error>textOutputMinLength</tdml:error>
-    </tdml:errors>
+  <tdml:unparserTestCase name="alignmentPaddingOVC4" model="alignmentPaddingOVC"
+    roundTrip="none">
+    <tdml:document>2AB;</tdml:document>
+    <tdml:warnings>
+      <tdml:warning>Schema Definition Warning</tdml:warning>
+      <tdml:warning>Explicit dfdl:length</tdml:warning>
+      <tdml:warning>out of range</tdml:warning>
+      <tdml:warning>textOutputMinLength</tdml:warning>
+    </tdml:warnings>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e4>
+          <ex:payload>AB</ex:payload>
+        </ex:e4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:unparserTestCase>
 
 </tdml:testSuite>

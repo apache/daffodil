@@ -24,6 +24,7 @@
 
 
   <tdml:defineSchema name="s1">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:defineFormat name="def">
       <dfdl:format ref="tns:def1" encoding="utf-8"
         lengthKind="explicit" lengthUnits="characters" length="5"
@@ -57,6 +58,7 @@
   </tdml:defineSchema>
 
   <tdml:defineSchema name="s1-u">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:defineFormat name="def">
       <dfdl:format ref="tns:def1" encoding="ascii"
         lengthKind="explicit" lengthUnits="characters" length="5"
@@ -90,6 +92,7 @@
   </tdml:defineSchema>
 
   <tdml:defineSchema name="s1-u2">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:defineFormat name="def">
       <dfdl:format ref="tns:def1" encoding="ascii"
         lengthKind="explicit" lengthUnits="characters" length="5"/>
@@ -119,6 +122,7 @@
 
 
   <tdml:defineSchema name="s2">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
     <dfdl:defineFormat name="def2">
       <dfdl:format ref="tns:def3" lengthKind="explicit"
@@ -172,6 +176,7 @@
 
 
   <tdml:defineSchema name="s3">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="tns:GeneralFormat" initiator=""
       terminator="" encoding="utf-8" binaryNumberRep="binary"
       initiatedContent="no" />
@@ -224,6 +229,7 @@
 
 
   <tdml:defineSchema name="PropScoping-Embedded.dfdl.xsd">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="tns:GeneralFormat" representation="text"
       occursCountKind="parsed" lengthUnits="bytes" encoding="US-ASCII"
       initiator="" terminator="" separator="" ignoreCase="no" />
@@ -258,6 +264,7 @@
 
 
   <tdml:defineSchema name="dfdlRefNotFound">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:defineFormat name="def">
       <dfdl:format ref="tns:noWayMan" encoding="utf-8"
         lengthKind="explicit" lengthUnits="characters" length="5"
@@ -288,6 +295,7 @@
   </tdml:defineSchema>
 
   <tdml:defineSchema name="formatRefLongVsShortForm">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
     <dfdl:defineFormat name="aFormat">
       <dfdl:format ref="tns:GeneralFormat" representation="text"

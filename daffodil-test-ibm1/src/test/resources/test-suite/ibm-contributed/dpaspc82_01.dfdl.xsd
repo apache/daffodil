@@ -30,7 +30,7 @@
 		<xs:appinfo source="http://www.ogf.org/dfdl/">
 			<dfdl:format initiator="" terminator="" leadingSkip="0" trailingSkip="0" 
 				truncateSpecifiedLengthString="no"  separator=""  
-				textBidi="no" floating="no" encodingErrorPolicy="replace"   
+				textBidi="no" floating="no" encodingErrorPolicy="error"   
 				encoding="ASCII" representation="text" textOutputMinLength="0"
 				byteOrder="bigEndian" bitOrder="mostSignificantBitFirst" 
 				alignment="1" alignmentUnits="bytes" fillByte="f"
@@ -51,7 +51,7 @@
 	<xs:annotation>
 		<xs:appinfo source="http://www.ogf.org/dfdl/">
 			<dfdl:defineFormat name="myFormat">
-				<dfdl:format initiator="" terminator="" leadingSkip="0" trailingSkip="0" truncateSpecifiedLengthString="no"  separator=""  textBidi="no" floating="no"  encodingErrorPolicy="replace"  encoding="ASCII" />
+				<dfdl:format initiator="" terminator="" leadingSkip="0" trailingSkip="0" truncateSpecifiedLengthString="no"  separator=""  textBidi="no" floating="no"  encodingErrorPolicy="error"  encodingErrorPolicy="error" encoding="ASCII" />
 			</dfdl:defineFormat>
 		</xs:appinfo>
 	</xs:annotation>
@@ -63,7 +63,7 @@
 				<xs:element name="title" type="xs:string">
 					<xs:annotation>
 						<xs:appinfo source="http://www.ogf.org/dfdl/">
-							<dfdl:element ref="myFormat" encodingErrorPolicy="replace" encoding="ASCII" />
+							<dfdl:element ref="myFormat" encodingErrorPolicy="error" encoding="ASCII" />
 						</xs:appinfo>
 					</xs:annotation>
 				</xs:element>

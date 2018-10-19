@@ -9,8 +9,6 @@ src_managed
 resource_managed
 .history
 .cache
-.idea
-.idea_modules
 daffodil-core/errors
 daffodil-lib/errors
 daffodil-lib/bin
@@ -20,21 +18,21 @@ errors
 project/errors
 .~*#
 testData_OnClassPath
-daffodil-core/src/main/daffodil-core.iml
-daffodil-core/src/test/Test1.iml
-daffodil-lib/src/main/daffodil-lib.iml
-daffodil-lib/src/test/daffodil-lib.iml
-daffodil-lib/src/test/Test.iml
-daffodil-propgen/src/main/daffodil-propgen.iml
-daffodil-propgen/src/test/Test3.iml
-daffodil-test/src/test/Test2.iml
-daffodil-test/src/test/daffodil-test.iml
 out
 .scala_dependencies
 .settings
 daffodil-extra/*
 # ignore all emacs backup files
 *~
+#
+# For IntelliJ IDEA
+#
+# (Not keeping these for now. But if someone starts using IntelliJ heavily
+# this could be changed.)
+#
+.idea
+.idea_modules
+*.iml
 #
 # For ECLIPSE
 #
@@ -43,7 +41,7 @@ daffodil-extra/*
 # but eclipse has its own kind of internal resource links to them
 # and when EGit (eclipse's git interface) looks for files to say, commit
 # it constructs paths using its own resource links, and then 
-# uses .gitignore to week out the ones it isn't to use.
+# uses .gitignore to work out the ones it isn't to use.
 # so this helps with using git from eclipse.
 #
 # The eclipse-projects directories are supposed to just be 

@@ -27,6 +27,7 @@ class TestInputValueCalc extends Logging {
   // @Test
   @Test def testInputValueCalc1() {
     val testSchema = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="data" type="xs:string" dfdl:textNumberRep="standard" dfdl:representation="text" dfdl:terminator="" dfdl:emptyValueDelimiterPolicy="none" dfdl:inputValueCalc="{ 42 }" dfdl:initiator="" dfdl:lengthKind="explicit" dfdl:length="1"/>)
     val (_, actual) = TestUtils.testString(testSchema, "")
@@ -37,6 +38,7 @@ class TestInputValueCalc extends Logging {
   // @Test
   @Test def testInputValueCalcString2() {
     val testSchema = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" encoding="ascii"/>,
       <xs:element name="data">
         <xs:complexType>
@@ -55,6 +57,7 @@ class TestInputValueCalc extends Logging {
   // @Test
   @Test def testInputValueCalcInt3() {
     val testSchema = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" encoding="ascii"/>,
       <xs:element name="data">
         <xs:complexType>

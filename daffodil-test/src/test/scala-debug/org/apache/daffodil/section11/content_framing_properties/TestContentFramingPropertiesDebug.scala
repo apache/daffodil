@@ -22,14 +22,11 @@ import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 
 object TestContentFramingPropertiesDebug {
-  private val testDir_01 = "/org/apache/daffodil/ibm-tests/"
-  lazy val runner1 = Runner(testDir_01, "dpaext1.tdml")
 
   private val testDir_02 = "/org/apache/daffodil/section11/content_framing_properties/"
   lazy val runner2 = Runner(testDir_02, "ContentFramingProps.tdml")
 
   @AfterClass def shutdown {
-    runner1.reset
     runner2.reset
   }
 }

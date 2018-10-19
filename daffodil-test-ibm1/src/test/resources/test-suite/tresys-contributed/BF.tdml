@@ -17,8 +17,9 @@
 -->
 
 <testSuite suiteName="BF" xmlns="http://www.ibm.com/xmlns/dfdl/testData"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
-  xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:ex="http://example.com"
+  defaultImplementations="ibm daffodil">
 
   <parserTestCase name="BF000" root="root" model="BF.dfdl.xsd"
     description="Unordered sequences">
@@ -33,7 +34,7 @@ X:x3
 ]]></document>
     <infoset>
       <dfdlInfoset>
-        <root>
+        <ex:root>
           <seq>
             <x>x0</x>
             <x>x1</x>
@@ -44,7 +45,7 @@ X:x3
             <y>y2</y>
             <y>y3</y>
           </seq>
-        </root>
+        </ex:root>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -63,7 +64,7 @@ X:beyond
 ]]></document>
     <infoset>
       <dfdlInfoset>
-        <root xmlns="http://www.example.org/example1">
+        <ex:root>
           <plain><![CDATA[Y:y0
 Y:y1
 Y:y2
@@ -73,7 +74,7 @@ X:x1
 X:x2
 X:x3
 X:beyond]]></plain>
-        </root>
+        </ex:root>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>

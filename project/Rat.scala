@@ -123,6 +123,8 @@ object Rat {
     file("daffodil-tdml/src/test/resources/test/tdml/test.bin"),
     file("daffodil-tdml/src/test/resources/test/tdml/test.txt"),
     file("daffodil-tdml/src/test/resources/test/tdml/test.xml"),
+    file("daffodil-tdml-processor/src/test/resources/test/tdml/test.txt"),
+    file("daffodil-tdml-processor/src/test/resources/test/tdml/test.xml"),
     file("daffodil-test-ibm1/src/test/resources/test-suite/tresys-contributed/AB006.in"),
     file("daffodil-test-ibm1/src/test/resources/test-suite/tresys-contributed/AB007.in"),
     file("daffodil-test-ibm1/src/test/resources/test-suite/tresys-contributed/AB008.in"),

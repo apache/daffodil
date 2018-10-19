@@ -35,6 +35,7 @@ class TestLayers {
 
   val B64Layer1Schema =
     SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
@@ -57,6 +58,7 @@ class TestLayers {
 
   val B64Layer2Schema =
     SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" lengthKind='delimited'/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
@@ -79,6 +81,7 @@ class TestLayers {
 
   val B64Layer3Schema =
     SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" lengthKind='delimited'/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
@@ -128,6 +131,7 @@ a few lines of pointless text like this.""".replace("\n", " ")
 
   val GZIPLayer1Schema =
     SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" layerLengthUnits="bytes" representation="binary"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
@@ -170,6 +174,7 @@ a few lines of pointless text like this.""".replace("\n", " ")
   }
 
   def makeB64GZIPSchema(term: String, layerTerm: String) = SchemaUtils.dfdlTestSchema(
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
     <dfdl:format ref="tns:GeneralFormat" layerLengthUnits="bytes" representation="binary" layerEncoding="iso-8859-1"/>,
     <xs:element name="e1" dfdl:lengthKind="implicit">
       <xs:complexType>
@@ -234,6 +239,7 @@ a few lines of pointless text like this.""".replace("\n", " ")
 
   val lineFoldLayer1Schema =
     SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
@@ -276,6 +282,7 @@ a few lines of pointless text like this.""".replace("\n", " ")
 
   val lineFoldLayer2Schema =
     SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
@@ -322,6 +329,7 @@ a few lines of pointless text like this.""".replace("\n", " ")
    */
   val lineFoldLayer3Schema =
     SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="e1" dfdl:lengthKind="explicit" dfdl:length="100">
         <xs:complexType>
@@ -366,6 +374,7 @@ a few lines of pointless text like this.""".replace("\n", " ")
 
   val le32BitSchema =
     SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" bitOrder="leastSignificantBitFirst"
                    byteOrder="littleEndian" alignmentUnits="bits" alignment="1"
                    lengthKind="explicit" lengthUnits="bits"/>,

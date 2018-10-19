@@ -32,10 +32,10 @@ object TresysTests {
 
   val testDir = "/test-suite/tresys-contributed/"
 
-  val runnerDelimited = Runner(testDir, "dpaext1.tdml")
+  lazy val runnerDelimited = Runner(testDir, "delimTests.tdml")
 
-  val runnerMD = Runner(testDir, "multiple-diagnostics.tdml", compileAllTopLevel = true)
-  val runnerMD_NV = Runner(testDir, "multiple-diagnostics.tdml", compileAllTopLevel = true, validateDFDLSchemas = false)
+  lazy val runnerMD = Runner(testDir, "multiple-diagnostics.tdml", compileAllTopLevel = true)
+  lazy val runnerMD_NV = Runner(testDir, "multiple-diagnostics.tdml", compileAllTopLevel = true, validateDFDLSchemas = false)
 
   val ax = testDir + "AX.tdml"
   lazy val runnerAX = new DFDLTestSuite(Misc.getRequiredResource(ax))
@@ -65,7 +65,7 @@ object TresysTests {
   lazy val runnerSQ = new DFDLTestSuite(Misc.getRequiredResource(sq))
 
   lazy val runnerMB = new DFDLTestSuite(Misc.getRequiredResource(testDir + "mixed-binary-text.tdml"))
-  val runnerNG = new DFDLTestSuite(Misc.getRequiredResource(testDir + "nested_group_ref.tdml"))
+  lazy val runnerNG = new DFDLTestSuite(Misc.getRequiredResource(testDir + "nested_group_ref.tdml"))
   val af = testDir + "AF.tdml"
   lazy val runnerAF = new DFDLTestSuite(Misc.getRequiredResource(af))
   val ag = testDir + "AG.tdml"

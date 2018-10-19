@@ -17,9 +17,11 @@
 -->
 
 <testSuite suiteName="AY" xmlns="http://www.ibm.com/xmlns/dfdl/testData"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
-  xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd"
-  defaultRoundTrip="true">
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:ex="http://example.com"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  defaultRoundTrip="true"
+  defaultImplementations="ibm daffodil">
 
   <!-- See DFDL-1556 to enable round trip -->
   <parserTestCase name="AY000" root="list" model="AY.dfdl.xsd"
@@ -27,14 +29,14 @@
     <document><![CDATA[INITIATOR1it#TERMINATOR1em#ST0TERMINATOR1SEPARATORINITIATOR1item1#SEPARATORTERMINATOR1SEPARATORINITIATOR2START,item2ENDTERMINATOR2SEPARATORINITIATOR2STARTSTARTitem3ENDTERMINATOR2SEPARATORINITIATOR2iENDtSTARTem4TERMINATOR2SEPARATORINITIATOR2STARTitTERMINATOR2em5ENDTERMINATOR2]]></document>
     <infoset>
       <dfdlInfoset>
-        <list xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+        <ex:list>
           <character xsi:type="xsd:string">itTERMINATOR1emST0</character>
           <character xsi:type="xsd:string">item1SEPARATOR</character>
           <block xsi:type="xsd:string">,item2</block>
           <block xsi:type="xsd:string">STARTitem3</block>
           <block xsi:type="xsd:string">iENDtSTARTem4</block>
           <block xsi:type="xsd:string">itTERMINATOR2em5</block>
-        </list>
+        </ex:list>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>

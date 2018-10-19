@@ -50,7 +50,7 @@
   <xsd:attribute name="utf16Width" type="dfdl:UTF16WidthEnum" />
   <xsd:attribute name="ignoreCase" type="dfdl:YesNoEnum" />
   <xsd:attribute name="choiceBranchKey" type="dfdl:ListOfDFDLStringLiteral" />
-  <xsd:attribute name="textBiDi" type="dfdl:YesNoEnum"/>
+  <xsd:attribute name="textBidi" type="dfdl:YesNoEnum"/>
   
   <!-- Added to DFDL -->
   <xsd:attribute name="encodingErrorPolicy" type="dfdl:EncodingErrorPolicyEnum"/>
@@ -68,7 +68,7 @@
     <xsd:attribute name="encodingErrorPolicy" type="dfdl:EncodingErrorPolicyEnum"/>
     <xsd:attribute name="ignoreCase" type="dfdl:YesNoEnum" />
     <xsd:attribute name="choiceBranchKey" type="dfdl:ListOfDFDLStringLiteral" />
-    <xsd:attribute name="textBiDi" type="dfdl:YesNoEnum"/>
+    <xsd:attribute name="textBidi" type="dfdl:YesNoEnum"/>
   </xsd:attributeGroup>
 
   <!-- 12.1 Aligned Data -->
@@ -169,7 +169,6 @@
 
   <!-- 13.3 Properties for Bidirectional support for all Simple Types with 
     Text representation -->
-  <xsd:attribute name="textBidi" type="dfdl:YesNoEnum" />
   <xsd:attribute name="textBidiTextOrdering" type="dfdl:TextBidiTextOrderingEnum" />
   <xsd:attribute name="textBidiOrientation" type="dfdl:TextBidiOrientationEnum" />
   <xsd:attribute name="textBidiSymmetric" type="dfdl:YesNoEnum" />
@@ -177,7 +176,6 @@
   <xsd:attribute name="textBidiNumeralShapes" type="dfdl:TextBidiNumeralShapesEnum" />
 
   <xsd:attributeGroup name="TextBidiSchemeAG">
-    <xsd:attribute name="textBidi" type="dfdl:YesNoEnum" />
     <xsd:attribute name="textBidiTextOrdering" type="dfdl:TextBidiTextOrderingEnum" />
     <xsd:attribute name="textBidiOrientation" type="dfdl:TextBidiOrientationEnum" />
     <xsd:attribute name="textBidiSymmetric" type="dfdl:YesNoEnum" />
@@ -225,6 +223,9 @@
   <xsd:attribute name="textStandardDecimalSeparator"
     type="dfdl:DFDLStringLiteral_Or_DFDLExpression" />
   <xsd:attribute name="textStandardExponentRep"
+    type="dfdl:DFDLStringLiteral_Or_DFDLExpression" />  
+  <!-- deprecated form accepted by IBM DFDL as of 2018-10-30 -->
+  <xsd:attribute name="textStandardExponentCharacter"
     type="dfdl:DFDLStringLiteral_Or_DFDLExpression" />
   <xsd:attribute name="textNumberCheckPolicy" type="dfdl:TextNumberCheckPolicyEnum" />
   <xsd:attribute name="textStandardInfinityRep" type="dfdl:DFDLStringLiteral" />
@@ -242,6 +243,9 @@
     <xsd:attribute name="textStandardDecimalSeparator"
       type="dfdl:DFDLStringLiteral_Or_DFDLExpression" />
     <xsd:attribute name="textStandardExponentRep"
+      type="dfdl:DFDLStringLiteral_Or_DFDLExpression" />
+    <!-- deprecated form accepted by IBM DFDL as of 2018-10-30 -->
+    <xsd:attribute name="textStandardExponentCharacter"
       type="dfdl:DFDLStringLiteral_Or_DFDLExpression" />
     <xsd:attribute name="textNumberCheckPolicy" type="dfdl:TextNumberCheckPolicyEnum" />
     <xsd:attribute name="textStandardInfinityRep" type="dfdl:DFDLStringLiteral" />
@@ -490,6 +494,8 @@
       <xsd:enumeration value="textStandardGroupingSeparator" />
       <xsd:enumeration value="textStandardDecimalSeparator" />
       <xsd:enumeration value="textStandardExponentRep" />
+      <!-- deprecated form accepted by IBM DFDL as of 2018-10-30 -->
+      <xsd:enumeration value="textStandardExponentCharacter" />
       <xsd:enumeration value="textStandardInfinityRep" />
       <xsd:enumeration value="textStandardNaNRep" />
       <xsd:enumeration value="textStandardZeroRep" />
@@ -729,7 +735,6 @@
     Text representation -->
 
   <xsd:attributeGroup name="TextBidiSchemeAGQualified">
-    <xsd:attribute form="qualified" name="textBidi" type="dfdl:YesNoEnum" />
     <xsd:attribute form="qualified" name="textBidiTextOrdering"
       type="dfdl:TextBidiTextOrderingEnum" />
     <xsd:attribute form="qualified" name="textBidiOrientation"
@@ -783,6 +788,9 @@
     <xsd:attribute form="qualified" name="textStandardDecimalSeparator"
       type="dfdl:DFDLStringLiteral_Or_DFDLExpression" />
     <xsd:attribute form="qualified" name="textStandardExponentRep"
+      type="dfdl:DFDLStringLiteral_Or_DFDLExpression" />
+    <!-- deprecated form still accepted by IBM DFDL as of 2018-10-30 -->
+    <xsd:attribute form="qualified" name="textStandardExponentCharacter"
       type="dfdl:DFDLStringLiteral_Or_DFDLExpression" />
     <xsd:attribute form="qualified" name="textNumberCheckPolicy"
       type="dfdl:TextNumberCheckPolicyEnum" />

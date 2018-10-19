@@ -100,12 +100,14 @@
     </p>
   </tdml:tutorial>
   <tdml:defineSchema name="mySchema">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="tns:GeneralFormat"/>
     <xs:element name="data" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ xs:unsignedInt(2) }"/>
     <xs:element tdml:tutorialInclude="no" name="shouldNotShowInTutorial" type="xs:int" dfdl:inputValueCalc="{ 5 }"/>
   </tdml:defineSchema>
   
   <tdml:defineSchema name="shouldNotAppearInTutorial" tdml:tutorialInclude="no">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="tns:GeneralFormat"/>
     <xs:element name="shouldNotAppearInTutorial" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ xs:unsignedInt(2) }"/>
   </tdml:defineSchema>

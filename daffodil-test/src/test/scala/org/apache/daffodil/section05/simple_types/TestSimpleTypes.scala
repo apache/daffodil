@@ -24,7 +24,6 @@ import org.junit.AfterClass
 object TestSimpleTypes {
 
   val testDir = "/org/apache/daffodil/section05/simple_types/"
-  val testDir_01 = "/org/apache/daffodil/ibm-tests/"
 
   val runner = Runner(testDir, "SimpleTypes.tdml")
 
@@ -224,7 +223,6 @@ class TestSimpleTypes {
 
   @Test def test_dateBinPacked() { runner.runOneTest("dateBinPacked") }
   @Test def test_dateBinPacked2() { runner.runOneTest("dateBinPacked2") }
-  @Test def test_dateBinPacked3() { runner.runOneTest("dateBinPacked3") }
   @Test def test_dateBinPacked4() { runner.runOneTest("dateBinPacked4") }
   @Test def test_timeBinPacked() { runner.runOneTest("timeBinPacked") }
   @Test def test_timeBinPacked2() { runner.runOneTest("timeBinPacked2") }

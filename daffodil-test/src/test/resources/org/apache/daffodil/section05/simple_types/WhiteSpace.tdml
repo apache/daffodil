@@ -24,7 +24,8 @@
 
   <tdml:defineSchema name="Lax.dfdl.xsd">
 
-    <dfdl:format ref="GeneralFormat" lengthKind="implicit" representation="text"
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="implicit" representation="text"
         lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator=""
         separator="" ignoreCase="no" textNumberRep="standard" textNumberCheckPolicy="lax"
         textPadKind="padChar" />
@@ -71,7 +72,8 @@
 <!-- STRICT -->
   <tdml:defineSchema name="strict.dfdl.xsd">
 
-    <dfdl:format ref="GeneralFormat" lengthKind="implicit" representation="text"
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="implicit" representation="text"
         lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator=""
         separator="" ignoreCase="no" textNumberRep="standard" textNumberCheckPolicy="strict" />
 
@@ -116,7 +118,8 @@
         lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator=""
         separator="" ignoreCase="no" textNumberRep="standard" textNumberCheckPolicy="strict"/>
     </dfdl:defineFormat>
-    <dfdl:format ref="GeneralFormat" />
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:element name="uS_02" type="xs:unsignedShort"
       dfdl:lengthKind="explicit" dfdl:length="{ 4 }" />

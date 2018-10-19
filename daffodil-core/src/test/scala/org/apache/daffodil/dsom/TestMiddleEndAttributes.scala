@@ -31,6 +31,7 @@ class TestMiddleEndAttributes {
 
   @Test def testHasPriorRequiredSiblings {
     val testSchema = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator="" separator="" ignoreCase="no"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
@@ -60,6 +61,7 @@ class TestMiddleEndAttributes {
 
   @Test def testDoesNotHavePriorRequiredSiblings {
     val testSchema = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format representation="text" occursCountKind="parsed" lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator="" separator="" ignoreCase="no"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
@@ -89,6 +91,7 @@ class TestMiddleEndAttributes {
 
   @Test def testRequiredSiblings {
     val testSchema = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format representation="text" occursCountKind="parsed" lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator="" separator="" ignoreCase="no"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
@@ -131,6 +134,7 @@ class TestMiddleEndAttributes {
 
   @Test def testStaticallyFirstWithChoice {
     val testSchema = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format representation="text" occursCountKind="parsed" lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator="" separator="" ignoreCase="no"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
@@ -169,6 +173,7 @@ class TestMiddleEndAttributes {
 
   @Test def testNearestEnclosingSequenceElementRef() {
     val testSchema = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
 
       <dfdl:format ref="tns:GeneralFormat" representation="text" occursCountKind="parsed" lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator="" separator="" ignoreCase="no" initiatedContent="no"/>,
 
@@ -204,6 +209,7 @@ class TestMiddleEndAttributes {
 
   @Test def testImmediatelyEnclosingModelGroup1() {
     val testSchema = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited"/>,
 
       <xs:element name="doc">

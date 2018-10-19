@@ -24,6 +24,7 @@
 
   <tdml:defineSchema name="s1">
 
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:element name="e" type="xs:string" dfdl:lengthKind="delimited"
@@ -55,6 +56,7 @@
   
   <tdml:defineSchema name="alignmentSchema">
     
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" representation="binary" encoding="utf-8" alignmentUnits="bits" alignment="4" leadingSkip="0"
       occursCountKind='parsed'/>
     
@@ -481,6 +483,7 @@
   
   <tdml:defineSchema name="implicitAlignmentSchema">
 
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" representation="binary" encoding="ascii" 
       lengthUnits="bits" alignmentUnits="bits" binaryNumberRep="binary" textNumberPattern="###0.###;-###0.###"/>
 
@@ -564,7 +567,8 @@
   </tdml:defineSchema>
   
   <tdml:defineSchema name="alignmentBitOrder">
-      <dfdl:format ref="ex:GeneralFormat" textNumberPattern="###0.###;-###0.###" lengthUnits='bits' representation='binary'
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" textNumberPattern="###0.###;-###0.###" lengthUnits='bits' representation='binary'
       binaryNumberRep='binary' alignmentUnits='bits' lengthKind='explicit'
       byteOrder="littleEndian"/>
 
@@ -3573,7 +3577,7 @@
       model="s1">
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <ex:e3>a1a2a3</ex:e3>
+        <ex:e4>a1a2a3</ex:e4>
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:errors>
@@ -3665,7 +3669,7 @@
       model="s1">
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <ex:e6>a1a2a3</ex:e6>
+        <ex:e7>a1a2a3</ex:e7>
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:errors>

@@ -24,18 +24,15 @@ import org.junit.AfterClass
 object TestArrayOptionalElem {
   private val testDir = "/org/apache/daffodil/section16/array_optional_elem/"
   private val testDir01 = "/org/apache/daffodil/section05/facets/"
-  private val testDir1 = "/org/apache/daffodil/ibm-tests/"
 
   val runner = Runner(testDir, "ArrayOptionalElem.tdml")
   val runner01 = Runner(testDir01, "Facets.tdml", validateTDMLFile = false)
-  val runner1 = Runner(testDir1, "dpaext2.tdml")
   val rBack = Runner(testDir, "backtracking.tdml")
   val runnerAC = Runner(testDir, "ArrayComb.tdml")
 
   @AfterClass def shutDown {
     runner.reset
     runner01.reset
-    runner1.reset
     rBack.reset
     runnerAC.reset
   }
@@ -72,8 +69,6 @@ class TestArrayOptionalElem {
   @Test def test_Lesson6_variable_array_02() { runner.runOneTest("Lesson6_variable_array_02") }
 
   @Test def test_leftOverData_Neg() { runner01.runOneTest("leftOverData_Neg") }
-
-  @Test def test_arrays_16_01() { runner1.runOneTest("arrays_16_01") }
 
   @Test def test_backtrack1Text() = { rBack.runOneTest("backtrack1Text") }
 

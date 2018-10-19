@@ -36,6 +36,8 @@ abstract class Diagnostic(
   private val maybeFormatString: Maybe[String],
   private val args: Any*)
   extends Exception() with ThinThrowableWithCause {
+  
+  def isValidation = false
 
   override val throwableCause = if (maybeCause.isDefined) maybeCause.get else null
 

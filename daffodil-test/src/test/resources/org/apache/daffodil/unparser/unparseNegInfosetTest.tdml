@@ -23,6 +23,7 @@
   xmlns="http://example.com" defaultRoundTrip="true">
 
   <tdml:defineSchema name="model1">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" nilKind="literalValue" nilValue="%ES;" />
 
     <xs:element name="root1">
@@ -151,6 +152,9 @@
     </tdml:errors>
   </tdml:unparserTestCase>
   
+  <!-- consistency of root="root1" with the infoset root element is checked
+  by TDML runner now. Not a runtime error. -->
+  <!-- 
   <tdml:unparserTestCase name="unexpectedRootSingle" root="root1" model="model1">
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns:ex="http://example.com">
@@ -168,7 +172,8 @@
       <tdml:error>root1</tdml:error>
     </tdml:errors>
   </tdml:unparserTestCase>
-
+  -->
+  
   <tdml:unparserTestCase name="unexpectedChildSingle" root="root1" model="model1">
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns:ex="http://example.com">

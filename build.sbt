@@ -24,7 +24,7 @@ lazy val IntegrationTestDebug = config("debugIt") extend(Test)
 
 
 lazy val daffodil         = Project("daffodil", file(".")).configs(IntegrationTest, TestDebug, IntegrationTestDebug)
-                              .aggregate(macroLib, propgen, lib, io, runtime1, runtime1Unparser, core, japi, sapi, tdml, cli, test, testIBM1, tutorials, testStdLayout)
+                              .aggregate(macroLib, propgen, lib, io, runtime1, runtime1Unparser, core, japi, sapi, tdmlLib, tdmlProc, cli, test, testIBM1, tutorials, testStdLayout)
                               .settings(commonSettings, nopublish, ratSettings)
 
 lazy val macroLib         = Project("daffodil-macro-lib", file("daffodil-macro-lib")).configs(IntegrationTest, TestDebug, IntegrationTestDebug)
@@ -62,31 +62,46 @@ lazy val sapi             = Project("daffodil-sapi", file("daffodil-sapi")).conf
                               .dependsOn(core)
                               .settings(commonSettings)
 
-lazy val tdml             = Project("daffodil-tdml", file("daffodil-tdml")).configs(IntegrationTest, TestDebug, IntegrationTestDebug)
-                              .dependsOn(core, core % "test->test", io % "test->test")
+lazy val tdmlLib             = Project("daffodil-tdml-lib", file("daffodil-tdml-lib")).configs(IntegrationTest, TestDebug, IntegrationTestDebug)
+                              .dependsOn(macroLib % "compile-internal", lib, io, io % "test->test")
+                              .settings(commonSettings)
+                              .settings(libraryDependencies += Dependencies.junit)
+
+lazy val tdmlProc         = Project("daffodil-tdml-processor", file("daffodil-tdml-processor")).configs(IntegrationTest, TestDebug, IntegrationTestDebug)
+                              .dependsOn(tdmlLib, core)
                               .settings(commonSettings)
 
 lazy val cli              = Project("daffodil-cli", file("daffodil-cli")).configs(IntegrationTest, TestDebug, IntegrationTestDebug)
-                              .dependsOn(tdml, sapi, japi) // causes sapi/japi to be pulled in to the helper zip/tar
+                              .dependsOn(tdmlProc, sapi, japi) // causes sapi/japi to be pulled in to the helper zip/tar
                               .settings(commonSettings, nopublish)
                               .settings(libraryDependencies ++= Dependencies.cli) 
 
 lazy val test             = Project("daffodil-test", file("daffodil-test")).configs(IntegrationTest, TestDebug, IntegrationTestDebug)
-                              .dependsOn(tdml, core % "test->test")
+                              .dependsOn(tdmlProc)
                               .settings(commonSettings, nopublish)
+                              //
+                              // Uncomment the following line to run these tests 
+                              // against IBM DFDL using the Cross Tester
+                              //
+                              //.settings(IBMDFDLCrossTesterPlugin.settings)
+
 
 lazy val testIBM1         = Project("daffodil-test-ibm1", file("daffodil-test-ibm1")).configs(IntegrationTest, TestDebug, IntegrationTestDebug)
-                              .dependsOn(tdml)
+                              .dependsOn(tdmlProc)
                               .settings(commonSettings, nopublish)
+                              //
+                              // Uncomment the following line to run these tests 
+                              // against IBM DFDL using the Cross Tester
+                              //
+                              //.settings(IBMDFDLCrossTesterPlugin.settings)
 
 lazy val tutorials        = Project("daffodil-tutorials", file("tutorials")).configs(IntegrationTest, TestDebug, IntegrationTestDebug)
-                              .dependsOn(tdml)
+                              .dependsOn(tdmlProc)
                               .settings(commonSettings, nopublish)
 
 lazy val testStdLayout    = Project("daffodil-test-stdLayout", file("test-stdLayout")).configs(IntegrationTest, TestDebug, IntegrationTestDebug)
-                              .dependsOn(tdml)
+                              .dependsOn(tdmlProc)
                               .settings(commonSettings, nopublish)
-
 
 
 lazy val commonSettings = Seq(
@@ -95,6 +110,7 @@ lazy val commonSettings = Seq(
   scalaVersion := "2.12.6",
   crossScalaVersions := Seq("2.12.6", "2.11.12"),
   scalacOptions ++= Seq(
+    "-feature",
     "-deprecation",
     "-language:experimental.macros",
     "-unchecked",

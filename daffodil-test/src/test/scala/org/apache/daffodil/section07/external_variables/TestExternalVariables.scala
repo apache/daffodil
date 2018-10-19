@@ -63,7 +63,7 @@ class TestExternalVariables {
     runner.runOneTest("access_default_predefined_vars")
   }
 
-  @Test def test_set_a_predefined_var() {
+  @Test def test_set_predefined_var() {
     runner.runOneTest("set_predefined_var")
   }
 

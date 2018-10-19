@@ -76,7 +76,7 @@
   <complexType name="prpIntro">
     <sequence>
       <element name="Description" type="tns:mydesc" maxOccurs="unbounded"
-        dfdl:occursCountKind="expression" dfdl:occursCount="{ ../../tns:occurs }" />
+        dfdl:occursCountKind="expression" dfdl:occursCount="{ ../../occurs }" />
     </sequence>
   </complexType>
 
@@ -101,7 +101,7 @@
     <sequence>
       <sequence dfdl:hiddenGroupRef="tns:frameHeaderGroup" />
       <element name="number" maxOccurs="unbounded"
-        dfdl:occursCountKind="expression" dfdl:occursCount="{ ../../tns:occurs }">
+        dfdl:occursCountKind="expression" dfdl:occursCount="{ ../../occurs }">
         <annotation>
           <appinfo source="http://www.ogf.org/dfdl/">
             <dfdl:setVariable ref="tns:counter">{ 0 }</dfdl:setVariable>

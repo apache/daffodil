@@ -75,7 +75,7 @@
                     floating="no"           
                     calendarCenturyStart="53"
                     calendarObserveDST="yes"
-                    textBiDi="no"
+                    textBidi="no"
                      />
 			</dfdl:defineFormat>
 

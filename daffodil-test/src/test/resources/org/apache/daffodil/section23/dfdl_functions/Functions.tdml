@@ -25,6 +25,7 @@
   defaultRoundTrip="onePass">
     
   <tdml:defineSchema name="Functions.dfdl.xsd">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" initiator=""
       separator="," terminator="" leadingSkip="0" trailingSkip="0"
       textBidi="no" floating="no" byteOrder="bigEndian"
@@ -873,6 +874,7 @@
 </tdml:defineSchema>
   
   <tdml:defineSchema name="Functions-binary.dfdl.xsd">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" initiator=""
       separator="" terminator="" leadingSkip="0" trailingSkip="0"
       textBidi="no" floating="no" byteOrder="bigEndian"
@@ -4096,6 +4098,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="XPathFunctions">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat"/>
 
     <xs:element name="abs" type="xs:int" dfdl:inputValueCalc="{ fn:abs(-9) }"/>
@@ -5296,10 +5299,10 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <ceil06>
+        <ex:ceil06>
           <val>49.2</val>
           <ceilval>50</ceilval>
-        </ceil06>
+        </ex:ceil06>
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:validationErrors>
@@ -6254,7 +6257,8 @@
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="constructorSchema">
-    <dfdl:format ref="GeneralFormat" />
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:element name="integer01" type="xs:integer" dfdl:inputValueCalc="{ xs:integer(45.4) }"/>
     <xs:element name="integer02">
@@ -8374,7 +8378,7 @@
     </tdml:document>
     <tdml:infoset>
     	<tdml:dfdlInfoset>
-    		<dfdl:time04>08:00:00</dfdl:time04>
+    		<ex:time04>08:00:00</ex:time04>
     	</tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -8395,7 +8399,7 @@
     </tdml:document>
     <tdml:infoset>
     	<tdml:dfdlInfoset>
-    		<tdml:time05>08:00:00</tdml:time05>
+    		<ex:time05>08:00:00</ex:time05>
     	</tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -8936,6 +8940,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="booleanFunctions">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" initiator=""
       separator="," terminator="" leadingSkip="0" trailingSkip="0"
       textBidi="no" floating="no" byteOrder="bigEndian"
@@ -11237,7 +11242,7 @@
     </tdml:document>
     <tdml:infoset>
     	<tdml:dfdlInfoset>
-    		<tdml:date04>2014-10-23</tdml:date04>
+    		<ex:date04>2014-10-23</ex:date04>
     	</tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -11258,7 +11263,7 @@
     </tdml:document>
     <tdml:infoset>
     	<tdml:dfdlInfoset>
-    		<tdml:date05>2014-10-23-05:00</tdml:date05>
+    		<ex:date05>2014-10-23-05:00</ex:date05>
     	</tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -11279,10 +11284,10 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <hexBinary01>
+        <ex:hexBinary01>
           <string>abcdef123456</string>
           <hexBinary>ABCDEF123456</hexBinary>
-        </hexBinary01>
+        </ex:hexBinary01>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -11303,7 +11308,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <tdml:dfdlHexBinary01>00D0</tdml:dfdlHexBinary01>
+        <ex:dfdlHexBinary01>00D0</ex:dfdlHexBinary01>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -11324,7 +11329,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <tdml:dfdlHexBinary02>D0</tdml:dfdlHexBinary02>
+        <ex:dfdlHexBinary02>D0</ex:dfdlHexBinary02>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -11345,7 +11350,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <tdml:dfdlHexBinary03>F7DC</tdml:dfdlHexBinary03>
+        <ex:dfdlHexBinary03>F7DC</ex:dfdlHexBinary03>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -11366,7 +11371,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <tdml:dfdlHexBinary04>0AD78EBC5AC6200000</tdml:dfdlHexBinary04>
+        <ex:dfdlHexBinary04>0AD78EBC5AC6200000</ex:dfdlHexBinary04>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -11387,7 +11392,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <tdml:dfdlByte01>127</tdml:dfdlByte01>
+        <ex:dfdlByte01>127</ex:dfdlByte01>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -11428,7 +11433,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <tdml:dfdlByte03>127</tdml:dfdlByte03>
+        <ex:dfdlByte03>127</ex:dfdlByte03>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -11469,7 +11474,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <tdml:dfdlByte05>127</tdml:dfdlByte05>
+        <ex:dfdlByte05>127</ex:dfdlByte05>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -11530,7 +11535,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <tdml:dfdlByte08>127</tdml:dfdlByte08>
+        <ex:dfdlByte08>127</ex:dfdlByte08>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -11591,7 +11596,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <tdml:dfdlUByte01>208</tdml:dfdlUByte01>
+        <ex:dfdlUByte01>208</ex:dfdlUByte01>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -11632,7 +11637,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <tdml:dfdlUByte03>208</tdml:dfdlUByte03>
+        <ex:dfdlUByte03>208</ex:dfdlUByte03>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -11673,7 +11678,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <tdml:dfdlUByte05>208</tdml:dfdlUByte05>
+        <ex:dfdlUByte05>208</ex:dfdlUByte05>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -11714,7 +11719,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <tdml:dfdlUByte07>208</tdml:dfdlUByte07>
+        <ex:dfdlUByte07>208</ex:dfdlUByte07>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -11795,7 +11800,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <tdml:dfdlShort01>32767</tdml:dfdlShort01>
+        <ex:dfdlShort01>32767</ex:dfdlShort01>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -11836,7 +11841,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <tdml:dfdlShort03>32767</tdml:dfdlShort03>
+        <ex:dfdlShort03>32767</ex:dfdlShort03>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -11877,7 +11882,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <tdml:dfdlShort05>32767</tdml:dfdlShort05>
+        <ex:dfdlShort05>32767</ex:dfdlShort05>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -11918,7 +11923,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <tdml:dfdlShort07>32767</tdml:dfdlShort07>
+        <ex:dfdlShort07>32767</ex:dfdlShort07>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -11999,7 +12004,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <tdml:dfdlUShort01>65535</tdml:dfdlUShort01>
+        <ex:dfdlUShort01>65535</ex:dfdlUShort01>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -12040,7 +12045,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <tdml:dfdlUShort03>65535</tdml:dfdlUShort03>
+        <ex:dfdlUShort03>65535</ex:dfdlUShort03>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -12081,7 +12086,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <tdml:dfdlUShort05>65535</tdml:dfdlUShort05>
+        <ex:dfdlUShort05>65535</ex:dfdlUShort05>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -12122,7 +12127,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <tdml:dfdlUShort07>65535</tdml:dfdlUShort07>
+        <ex:dfdlUShort07>65535</ex:dfdlUShort07>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -12202,7 +12207,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <tdml:dfdlInt01>2147483647</tdml:dfdlInt01>
+        <ex:dfdlInt01>2147483647</ex:dfdlInt01>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -12243,7 +12248,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <tdml:dfdlInt03>2147483647</tdml:dfdlInt03>
+        <ex:dfdlInt03>2147483647</ex:dfdlInt03>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -12284,7 +12289,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <tdml:dfdlInt05>2147483647</tdml:dfdlInt05>
+        <ex:dfdlInt05>2147483647</ex:dfdlInt05>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -12325,7 +12330,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <tdml:dfdlInt07>2147483647</tdml:dfdlInt07>
+        <ex:dfdlInt07>2147483647</ex:dfdlInt07>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -12406,7 +12411,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <tdml:dfdlInt12>-2147483648</tdml:dfdlInt12>
+        <ex:dfdlInt12>-2147483648</ex:dfdlInt12>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -12447,7 +12452,7 @@
     </tdml:document>
     <tdml:infoset>
     	<tdml:dfdlInfoset>
-    		<tdml:dfdlInt14>125</tdml:dfdlInt14>
+    		<ex:dfdlInt14>125</ex:dfdlInt14>
     	</tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -12468,7 +12473,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <tdml:dfdlUInt01>4294967295</tdml:dfdlUInt01>
+        <ex:dfdlUInt01>4294967295</ex:dfdlUInt01>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -12509,7 +12514,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <tdml:dfdlUInt03>4294967295</tdml:dfdlUInt03>
+        <ex:dfdlUInt03>4294967295</ex:dfdlUInt03>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -12550,7 +12555,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <tdml:dfdlUInt05>4294967295</tdml:dfdlUInt05>
+        <ex:dfdlUInt05>4294967295</ex:dfdlUInt05>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -12592,7 +12597,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <tdml:dfdlUInt07>4294967295</tdml:dfdlUInt07>
+        <ex:dfdlUInt07>4294967295</ex:dfdlUInt07>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -12694,7 +12699,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <tdml:dfdlLong01>9223372036854775807</tdml:dfdlLong01>
+        <ex:dfdlLong01>9223372036854775807</ex:dfdlLong01>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -12735,7 +12740,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <tdml:dfdlLong03>9223372036854775807</tdml:dfdlLong03>
+        <ex:dfdlLong03>9223372036854775807</ex:dfdlLong03>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -12776,7 +12781,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <tdml:dfdlLong05>9223372036854775807</tdml:dfdlLong05>
+        <ex:dfdlLong05>9223372036854775807</ex:dfdlLong05>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -12817,7 +12822,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <tdml:dfdlLong07>9223372036854775807</tdml:dfdlLong07>
+        <ex:dfdlLong07>9223372036854775807</ex:dfdlLong07>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -12898,7 +12903,7 @@
     </tdml:document>
     <tdml:infoset>
     	<tdml:dfdlInfoset>
-    		<tdml:dfdlLong12>-9223372036854775808</tdml:dfdlLong12>
+    		<ex:dfdlLong12>-9223372036854775808</ex:dfdlLong12>
     	</tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -12920,7 +12925,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <tdml:dfdlULong01>18446744073709551615</tdml:dfdlULong01>
+        <ex:dfdlULong01>18446744073709551615</ex:dfdlULong01>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -12961,7 +12966,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <tdml:dfdlULong03>18446744073709551615</tdml:dfdlULong03>
+        <ex:dfdlULong03>18446744073709551615</ex:dfdlULong03>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -13002,7 +13007,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <tdml:dfdlULong05>18446744073709551615</tdml:dfdlULong05>
+        <ex:dfdlULong05>18446744073709551615</ex:dfdlULong05>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -13043,7 +13048,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <tdml:dfdlULong07>18446744073709551615</tdml:dfdlULong07>
+        <ex:dfdlULong07>18446744073709551615</ex:dfdlULong07>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -13163,7 +13168,7 @@
     <tdml:document/>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <e_timezonefromdatetime1>-05:00</e_timezonefromdatetime1>
+        <ex:e_timezonefromdatetime1>-05:00</ex:e_timezonefromdatetime1>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -13181,7 +13186,7 @@
     <tdml:document/>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <e_timezonefromdatetime2></e_timezonefromdatetime2>
+        <ex:e_timezonefromdatetime2></ex:e_timezonefromdatetime2>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -13199,7 +13204,7 @@
     <tdml:document/>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <e_timezonefromdate1>-05:00</e_timezonefromdate1>
+        <ex:e_timezonefromdate1>-05:00</ex:e_timezonefromdate1>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -13217,7 +13222,7 @@
     <tdml:document/>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <e_timezonefromdate2/>
+        <ex:e_timezonefromdate2/>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -13235,7 +13240,7 @@
     <tdml:document/>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <e_timezonefromtime1>-05:00</e_timezonefromtime1>
+        <ex:e_timezonefromtime1>-05:00</ex:e_timezonefromtime1>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -13253,7 +13258,7 @@
     <tdml:document/>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <e_timezonefromtime2/>
+        <ex:e_timezonefromtime2/>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -13272,15 +13277,16 @@
     <tdml:document>04:17:09+07:00</tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <e_timezonefromtime3>
+        <ex:e_timezonefromtime3>
           <time>04:17:09+07:00</time>
           <timeZone>+07:00</timeZone>
-        </e_timezonefromtime3>
+        </ex:e_timezonefromtime3>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="XPathMathFunctions">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat"/>
 
     <!-- These pow test were taken from the math:pow examples at https://www.w3.org/TR/xpath-functions-31/#func-math-pow -->

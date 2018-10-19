@@ -25,6 +25,7 @@
   defaultRoundTrip="true">
 
   <tdml:defineSchema name="SequenceGroupDelimiters-Embedded.dfdl.xsd">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" leadingSkip="0" trailingSkip="0" separator=""
       encoding="utf-8" occursCountKind="parsed" separatorSuppressionPolicy="anyEmpty"
@@ -197,6 +198,7 @@
 
   <tdml:defineSchema name="dfdlPrefix.xsd">
 
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" encoding="utf-8" byteOrder="bigEndian"
       occursCountKind="parsed" ignoreCase="no" representation="text"
@@ -303,6 +305,7 @@
   <tdml:defineSchema name="groupRefInheritProps.xsd">
 
 
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" encoding="utf-8" byteOrder="bigEndian"
       occursCountKind="parsed" ignoreCase="no" representation="text"
@@ -370,6 +373,7 @@
 
   <tdml:defineSchema name="sequenceWithinSequence.xsd">
 
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" encoding="utf-8" byteOrder="bigEndian"
       occursCountKind="parsed" ignoreCase="no" representation="text"
@@ -434,6 +438,7 @@
   
   <tdml:defineSchema name="nextInitNotDelim">
 
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" encoding="utf-8" byteOrder="bigEndian"
       occursCountKind="parsed" ignoreCase="no" representation="text"
@@ -472,6 +477,7 @@
 
   <tdml:defineSchema name="lastElts">
 
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" encoding="utf-8" byteOrder="bigEndian"
       occursCountKind="implicit" ignoreCase="no" representation="text"

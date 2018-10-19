@@ -118,6 +118,8 @@ class ValidationError(schemaContext: Maybe[SchemaFileLocation],
     this(Nope, runtimeContext, Maybe(cause), Nope)
 
   override def isError = true
+  
+  override def isValidation = true
   val modeName = "Validation"
 
 }

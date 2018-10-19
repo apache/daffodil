@@ -1,0 +1,100 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.daffodil.tdml
+
+import org.apache.daffodil.api.Diagnostic
+import org.apache.daffodil.util.Maybe
+import org.junit.AssumptionViolatedException
+import org.apache.daffodil.util.Misc
+
+object TDMLException {
+
+  def msgWithImpl(msg: String, implementation: Option[String]) =
+    implementation.map { impl =>
+      "(Implementation: " + impl + ") " + msg
+    }.getOrElse(msg)
+
+  def apply(msg: String, implementation: Option[String]) = new TDMLExceptionImpl(msg, implementation)
+  def apply(cause: Throwable, implementation: Option[String]) = new TDMLExceptionImpl(cause, implementation)
+  def apply(causes: Seq[Throwable], implementation: Option[String]) = new TDMLExceptionImpl(causes, implementation)
+}
+
+/**
+ * This is a trait so that we can create these from various exception classes
+ * already defined by JUnit or other systems. For example, allows us to
+ * define TDMLTestNotCompatibleException, as well as have a family of other
+ * exceptions.
+ */
+trait TDMLException { self: Exception =>
+  def msg: String
+  def causes: Seq[Throwable]
+  def implementation: Option[String]
+
+  /**
+   * These method prototypes are here because while this has self-type of Exception
+   * that doesn't give it an implementation of all the methods of Exception. The methods
+   * we want exposed from Exception have to be mentioned here. They are implemented when
+   * this trait is mixed into an Exception class.
+   */
+  def getMessage(): String
+  def getCause(): Throwable
+
+  def asException = self
+}
+
+class TDMLExceptionImpl(override val msg: String,
+  override val causes: Seq[Throwable],
+  override val implementation: Option[String])
+  extends Exception(
+    TDMLException.msgWithImpl(msg, implementation),
+    if (causes.length > 0) causes(0) else null)
+  with TDMLException {
+
+  def this(msg: String, implementation: Option[String]) = this(msg, Nil, implementation)
+
+  def this(cause: Throwable, implementation: Option[String]) =
+    this(Misc.getNameFromClass(cause) + ": " + cause.getMessage(), List(cause), implementation)
+
+  def this(causes: Seq[Throwable], implementation: Option[String]) = this(
+    causes.map { cause => Misc.getNameFromClass(cause) + ": " + cause.getMessage() }.mkString("\n"),
+    causes,
+    implementation)
+}
+
+/**
+ * Use when TDML Runner must add to diagnostic lists held by other objects.
+ */
+class TDMLDiagnostic(diag: String, implementation: Option[String])
+  extends Diagnostic(Maybe.Nope, Maybe.Nope, Maybe.Nope,
+    Maybe(TDMLException.msgWithImpl(diag, implementation))) {
+  override def isError = true
+  override def modeName = "TDML"
+}
+
+/**
+ * Causes a Junit test to be skipped, but otherwise is a TDMLException like
+ * others thrown by the TDML runner.
+ */
+class TDMLTestNotCompatibleException(testName: String, override val implementation: Option[String])
+  extends AssumptionViolatedException(
+    implementation.map { impl =>
+      "Test '%s' not compatible with implementation '%s'.".format(testName, impl)
+    }.get) with TDMLException {
+  override def msg = getMessage()
+  override def causes: Seq[Throwable] = Nil
+}

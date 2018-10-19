@@ -31,7 +31,8 @@
         separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"
         documentFinalTerminatorCanBeMissing='yes'
         occursCountKind='parsed' textTrimKind="none"
-        alignment="implicit" alignmentUnits="bytes" trailingSkip="0"/>
+        alignment="implicit" alignmentUnits="bytes" trailingSkip="0"
+        encodingErrorPolicy="error" choiceLengthKind="implicit"/>
     </appinfo>
   </annotation>
 

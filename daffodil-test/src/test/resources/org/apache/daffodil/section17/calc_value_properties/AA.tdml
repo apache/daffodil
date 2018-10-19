@@ -17,14 +17,17 @@
 -->
 
 <tdml:testSuite suiteName="AA" description="AA test of InputValueCalc"
-  xmlns="http://example.com" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
   xmlns:ex="http://example.com">
 
   <tdml:defineSchema name="AA.dfdl.xsd">
     <dfdl:defineVariable name="x" type="xsd:int"
       defaultValue="0" />
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="explicit"
       length="{ 0 }" lengthUnits="bytes" encoding="US-ASCII" />
     <xs:element name="list" type="example1" />
@@ -51,19 +54,19 @@
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <list xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-          xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+        <ex:list>
           <w xsi:type="xsd:int">1</w>
           <x xsi:type="xsd:int">2</x>
           <y xsi:type="xsd:int">3</y>
           <z xsi:type="xsd:int">4</z>
-        </list>
+        </ex:list>
 
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="err1">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
     <xs:element name="root">
       <xs:complexType>
@@ -90,6 +93,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="err2">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
     <xs:element name="root">
       <xs:complexType>
@@ -115,7 +119,8 @@
 
   </tdml:parserTestCase>
 
-  <tdml:defineSchema name="ivc.absolute">
+  <tdml:defineSchema name="ivc.absolute" elementFormDefault="qualified">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
     <xs:element name="root">
       <xs:complexType>

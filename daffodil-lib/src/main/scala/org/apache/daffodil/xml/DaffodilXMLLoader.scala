@@ -261,8 +261,32 @@ class DFDLCatalogResolver private ()
     null
   }
 
+  /**
+   * This resolver is also called sometimes. If we pass this resolver to other uses of resolvers
+   * (xerces, IBM DFDL, etc.) this API may be called even though Daffodil itself doesn't (or didn't
+   * anyway as of when this was written) use this method..
+   */
   def resolveEntity(name: String, publicId: String, baseURI: String, systemId: String) = {
-    Assert.invariantFailed("resolveEntity4 - should not be called")
+    //
+    // When this method is called from IBM DFDL, for an xs:include with a schemaLocation, the
+    // schemaLocation attribute's value is passed in the systemID string.
+    //
+    // Ex: publicId = http://example.com,
+    // baseURI= file:/tmp/s_9828982379827.dfdl.xsd (generated schema file when a
+    // schema is embedded inside a TDML file.
+    // and
+    // systemID = org/apache/daffodil/xml/DFDLGeneralFormat.dfdl.xsd
+    //
+    val optURI = resolveCommon(publicId, systemId, baseURI)
+    optURI match {
+      case None => null
+      case Some(uri) => {
+        val xis = new InputSource(uri.toURL().openStream())
+        // xis.setPublicId(uri.toString())
+        xis.setSystemId(uri.toString())
+        xis
+      }
+    }
   }
 }
 

@@ -17,9 +17,10 @@
 -->
 
 <testSuite suiteName="AW" xmlns="http://www.ibm.com/xmlns/dfdl/testData"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
-  xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd"
-  defaultRoundTrip="true">
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:ex="http://example.com"
+  defaultRoundTrip="true"
+  defaultImplementations="ibm daffodil">
 
   <!-- See DFDL-1556 to enable round trip -->
   <parserTestCase name="AW000" root="list" model="AW.dfdl.xsd"
@@ -30,7 +31,7 @@
 ]]></document>
     <infoset>
       <dfdlInfoset>
-        <list xmlns="http://www.example.org/example1">
+        <ex:list>
           <character>item0</character>
           <character>item01</character>
           <character>,i,t,e,m,2</character>
@@ -44,7 +45,7 @@
           <block>Item/**/5</block>
           <block>,6</block>
           <block>Item/!7</block>
-        </list>
+        </ex:list>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -64,7 +65,7 @@ Item0,Item1,/*A,A*/,/*AAA/*/,Item*/,Item/**/5,/*,*/,/*
 ]]></document>
     <infoset>
       <dfdlInfoset>
-        <list xmlns="http://www.example.org/example1">
+        <ex:list>
           <character>item0</character>
           <character>item01</character>
           <character>,i,t,e,m,2</character>
@@ -85,7 +86,7 @@ Item0,Item1,/*A,A*/,/*AAA/*/,Item*/,Item/**/5,/*,*/,/*
 
 
 </block>
-        </list>
+        </ex:list>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>

@@ -17,9 +17,11 @@
 -->
 
 <tdml:testSuite xmlns="http://example.com"
-	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
+	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
 	xmlns:ex="http://example.com" xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext">
 
 	<tdml:defineSchema name="predefinedVars">
@@ -29,7 +31,8 @@
 			defaultValue="42" external="true" />
 		<dfdl:defineVariable name="myVar1" type="xs:int"
 			defaultValue="6" external="true" />
-		<dfdl:format ref="ex:GeneralFormat" />
+		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" />
 
 		<xs:element name="accessPreDefs">
 			<xs:complexType>
@@ -73,12 +76,12 @@
 
 		<tdml:infoset>
 			<tdml:dfdlInfoset>
-				<accessPreDefs xmlns="http://www.example.org/example1/">
+				<ex:accessPreDefs>
 					<encoding>UTF-8</encoding>
 					<byteOrder>bigEndian</byteOrder>
 					<binaryFloatRep>ieee</binaryFloatRep>
 					<outputNewLine><![CDATA[%LF;]]></outputNewLine>
-				</accessPreDefs>
+				</ex:accessPreDefs>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>
@@ -90,10 +93,10 @@
 
 		<tdml:infoset>
 			<tdml:dfdlInfoset>
-				<setAPreDef xmlns="http://www.example.org/example1/">
+				<ex:setAPreDef>
 					<settingValue><![CDATA[setting a value]]></settingValue>
 					<finalValue><![CDATA[%NL;]]></finalValue>
-				</setAPreDef>
+				</ex:setAPreDef>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>
@@ -105,7 +108,8 @@
 			defaultValue="42" external="true" />
 		<dfdl:defineVariable name="myVar1" type="xs:int"
 			defaultValue="6" external="true" />
-		<dfdl:format ref="ex:GeneralFormat" />
+		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" />
 
 		<xs:element name="c">
 			<xs:complexType>
@@ -137,10 +141,10 @@
 
 		<tdml:infoset>
 			<tdml:dfdlInfoset>
-				<c xmlns="http://www.example.org/example1/">
+				<ex:c>
 					<d xsi:type="xsd:int">2</d>
 					<e xsi:type="xsd:int">1</e>
-				</c>
+				</ex:c>
 
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
@@ -155,10 +159,10 @@
 
 		<tdml:infoset>
 			<tdml:dfdlInfoset>
-				<c xmlns="http://www.example.org/example1/">
+				<ex:c>
 					<d xsi:type="xsd:int">2</d>
 					<e xsi:type="xsd:int">1</e>
-				</c>
+				</ex:c>
 
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
@@ -193,7 +197,8 @@
 			defaultValue="42" external="true" />
 		<dfdl:defineVariable name="myVar1" type="xs:int"
 			defaultValue="6" />
-		<dfdl:format ref="ex:GeneralFormat" />
+		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" />
 
 		<xs:element name="c">
 			<xs:complexType>
@@ -229,10 +234,10 @@
 
 		<tdml:infoset>
 			<tdml:dfdlInfoset>
-				<c xmlns="http://www.example.org/example1/">
+				<ex:c>
 					<d xsi:type="xsd:int">2</d>
 					<e xsi:type="xsd:int">2</e>
-				</c>
+				</ex:c>
 
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
@@ -244,7 +249,8 @@
 			defaultValue="42" external="true" />
 		<dfdl:defineVariable name="myVar1" type="xs:int"
 			defaultValue="6" />
-		<dfdl:format ref="ex:GeneralFormat" />
+		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" />
 
 		<xs:element name="c">
 			<xs:complexType>
@@ -295,7 +301,8 @@
 			external="true">73</dfdl:defineVariable>
 		<dfdl:defineVariable name="v_with_global_default"
 			type="xsd:int" defaultValue="15" external="true" />
-		<dfdl:format ref="ex:GeneralFormat" />
+		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" />
 
 		<xs:element name="c">
 			<xs:complexType>
@@ -328,12 +335,12 @@
 
 		<tdml:infoset>
 			<tdml:dfdlInfoset>
-				<c xmlns="http://www.example.org/example1/">
+				<ex:c>
 					<d xsi:type="xsd:int">42</d>
 					<e xsi:type="xsd:int">1</e>
 					<f xsi:type="xsd:int">73</f>
 					<g xsi:type="xsd:int">48</g>
-				</c>
+				</ex:c>
 
 			</tdml:dfdlInfoset>
 		</tdml:infoset>

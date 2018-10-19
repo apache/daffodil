@@ -31,7 +31,8 @@
         documentFinalTerminatorCanBeMissing='yes' byteOrder="bigEndian"
         binaryNumberRep='binary' representation="text" occursCountKind='parsed'
         lengthUnits="bytes" textTrimKind='none' escapeSchemeRef=''
-        ref="tns:GeneralFormat" />
+        ref="tns:GeneralFormat" 
+        encodingErrorPolicy="error" binaryNumberCheckPolicy="lax"/>
     </appinfo>
   </annotation>
 

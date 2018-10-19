@@ -22,6 +22,7 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:ex="http://example.com" 
+  xmlns:tns="urn:foo"
   xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
   xmlns:oth="urn:otherAnnotationLanguage">
   
@@ -31,7 +32,7 @@
   <tdml:document>foo</tdml:document>
   <tdml:infoset>
     <tdml:dfdlInfoset>
-      <ex:r1>foo</ex:r1>
+      <tns:r1>foo</tns:r1>
     </tdml:dfdlInfoset>
   </tdml:infoset>
 

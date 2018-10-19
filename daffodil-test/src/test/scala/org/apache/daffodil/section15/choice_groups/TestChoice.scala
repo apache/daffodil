@@ -23,13 +23,10 @@ import org.junit.AfterClass
 
 object TestChoice {
   val testDir = "/org/apache/daffodil/section15/choice_groups/"
-  val testDir1 = "/org/apache/daffodil/ibm-tests/"
 
   val runnerCH = Runner(testDir, "choice.tdml")
-  val runner = Runner(testDir1, "dpaext2.tdml")
 
   @AfterClass def shutDown {
-    runner.reset
     runnerCH.reset
   }
 
@@ -104,10 +101,6 @@ class TestChoice {
   @Test def test_choice_maxOccurs() { runnerCH.runOneTest("choice_maxOccurs") }
 
   @Test def test_choice_with_inputvaluecalc() { runnerCH.runOneTest("choice_with_inputvaluecalc") }
-
-  @Test def test_choices_basic_15_01() { runner.runOneTest("choices_basic_15_01") }
-  @Test def test_choices_basic_15_02() { runner.runOneTest("choices_basic_15_02") }
-  @Test def test_choices_basic_15_03() { runner.runOneTest("choices_basic_15_03") }
 
   // DFDL-641
   @Test def test_direct_dispatch_01() { runnerCH.runOneTest("direct_dispatch_01") }

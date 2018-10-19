@@ -18,7 +18,7 @@
 
 <testSuite suiteName="BA" xmlns="http://www.ibm.com/xmlns/dfdl/testData"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
-  xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+  defaultImplementations="ibm daffodil">
 
   <parserTestCase name="BA000" root="list" model="BA.dfdl.xsd"
     description="Schema Escaping: escape escape character, variable length">

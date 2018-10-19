@@ -24,6 +24,7 @@
 
 	<tdml:defineSchema
 		name="DFDL-362-skip-alignments-leading-skip-bytes.dfdl.xsd">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 		<dfdl:format ref="tns:GeneralFormat"/>
 		<xs:element name="Outer" dfdl:leadingSkip="0"
 			dfdl:alignment="implicit" dfdl:alignmentUnits="bytes"
@@ -51,6 +52,7 @@
 
 	<tdml:defineSchema
 		name="DFDL-362-skip-alignments-leading-skip-bits.dfdl.xsd">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 		<dfdl:format ref="tns:GeneralFormat" representation="binary"
 			binaryNumberRep="binary" lengthUnits="bits" byteOrder="bigEndian"
 			alignment="1" alignmentUnits="bits" lengthKind="implicit" />
@@ -122,6 +124,7 @@
 
 	<tdml:defineSchema
 		name="DFDL-362-skip-alignments-trailing-skip-bytes.dfdl.xsd">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 		<dfdl:format ref="tns:GeneralFormat" representation="binary"
 			binaryNumberRep="binary" lengthUnits="bytes" byteOrder="bigEndian"
 			alignment="1" alignmentUnits="bytes" lengthKind="implicit" />
@@ -137,6 +140,7 @@
 
 	<tdml:defineSchema
 		name="DFDL-362-skip-alignments-trailing-skip-bits.dfdl.xsd">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 		<dfdl:format ref="tns:GeneralFormat" representation="binary"
 			binaryNumberRep="binary" lengthUnits="bits" byteOrder="bigEndian"
 			alignment="1" alignmentUnits="bits" lengthKind="implicit" />
@@ -208,6 +212,7 @@
 
 	<tdml:defineSchema
 		name="DFDL-362-skip-alignments-aligning-skip-bytes.dfdl.xsd">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 		<dfdl:format ref="tns:GeneralFormat" representation="binary"
 			binaryNumberRep="binary" lengthUnits="bytes" byteOrder="bigEndian"
 			alignment="8" alignmentUnits="bytes" lengthKind="implicit" />
@@ -225,6 +230,7 @@
 
 	<tdml:defineSchema
 		name="alignmentBytes">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 		<dfdl:format ref="tns:GeneralFormat" representation="binary"
 			binaryNumberRep="binary" lengthUnits="bytes" byteOrder="bigEndian"
 			alignment="4" alignmentUnits="bytes" lengthKind="implicit" />
@@ -244,6 +250,7 @@
 
 	<tdml:defineSchema
 		name="DFDL-362-skip-alignments-aligning-skip-bits.dfdl.xsd">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 		<dfdl:format ref="tns:GeneralFormat" representation="binary"
 			binaryNumberRep="binary" lengthUnits="bits" byteOrder="bigEndian"
 			alignment="8" alignmentUnits="bits" lengthKind="implicit" />
@@ -261,6 +268,7 @@
 	
   <tdml:defineSchema
 		name="alignmentBits">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 		<dfdl:format ref="tns:GeneralFormat" representation="binary"
 			binaryNumberRep="binary" lengthUnits="bits" byteOrder="bigEndian"
 			alignment="16" alignmentUnits="bits" lengthKind="implicit" />

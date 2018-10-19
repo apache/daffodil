@@ -19,7 +19,8 @@
 <testSuite suiteName="Newlines" description="Different representations of newline"
   xmlns="http://www.ibm.com/xmlns/dfdl/testData" 
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:tns="http://www.example.org/example1/"
   defaultRoundTrip="true">
 
   <parserTestCase name="LineFeed" root="matrix"
@@ -32,9 +33,8 @@
     </document>
 
     <infoset>
-      <dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <matrix>
+      <dfdlInfoset>
+        <tns:matrix>
           <row>
             <cell>0</cell>
             <cell>1</cell>
@@ -56,7 +56,7 @@
             <cell>13</cell>
             <cell>14</cell>
           </row>
-        </matrix>
+        </tns:matrix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -184,9 +184,8 @@
     </document>
 
     <infoset>
-      <dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <matrix>
+      <dfdlInfoset>
+        <tns:matrix>
           <row>
             <cell>0</cell>
             <cell>1</cell>
@@ -208,7 +207,7 @@
             <cell>13</cell>
             <cell>14</cell>
           </row>
-        </matrix>
+        </tns:matrix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -224,9 +223,8 @@
     </document>
 
     <infoset>
-      <dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <matrix>
+      <dfdlInfoset >
+        <tns:matrix>
           <row>
             <cell>0</cell>
             <cell>1</cell>
@@ -248,7 +246,7 @@
             <cell>13</cell>
             <cell>14</cell>
           </row>
-        </matrix>
+        </tns:matrix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -264,9 +262,8 @@
     </document>
 
     <infoset>
-      <dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <matrix>
+      <dfdlInfoset>
+        <tns:matrix>
           <row>
             <cell>0</cell>
             <cell>1</cell>
@@ -288,7 +285,7 @@
             <cell>13</cell>
             <cell>14</cell>
           </row>
-        </matrix>
+        </tns:matrix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -304,9 +301,8 @@
     </document>
 
     <infoset>
-      <dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <matrix>
+      <dfdlInfoset>
+        <tns:matrix>
           <row>
             <cell>0</cell>
             <cell>1</cell>
@@ -328,7 +324,7 @@
             <cell>13</cell>
             <cell>14</cell>
           </row>
-        </matrix>
+        </tns:matrix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -344,9 +340,8 @@
     </document>
 
     <infoset>
-      <dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <matrix>
+      <dfdlInfoset>
+        <tns:matrix>
           <row>
             <cell>0</cell>
             <cell>1</cell>
@@ -368,7 +363,7 @@
             <cell>13</cell>
             <cell>14</cell>
           </row>
-        </matrix>
+        </tns:matrix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -382,9 +377,8 @@
     </document>
 
     <infoset>
-      <dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <matrix_01>
+      <dfdlInfoset>
+        <tns:matrix_01>
           <row>
             <cell>0</cell>
             <cell>1</cell>
@@ -406,7 +400,7 @@
             <cell>13</cell>
             <cell>14</cell>
           </row>
-        </matrix_01>
+        </tns:matrix_01>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -418,7 +412,7 @@
     <document><documentPart replaceDFDLEntities="true" type="text">%#x0040;</documentPart></document>
     <infoset>
       <dfdlInfoset>
-        <hcp>&#64;</hcp>
+        <tns:hcp>&#64;</tns:hcp>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -463,7 +457,7 @@ jonesington,david,frederick,1986-02-19
     </document>
     <infoset>
       <dfdlInfoset>
-        <TopLevel>
+        <ex:TopLevel xmlns:ex="http://example.com">
           <MessageHeaders><![CDATA[Date: Fri, 15 Feb 2013 08:54:52 -0500
 From: john@doe.com
 To: jane@doe.com
@@ -475,7 +469,7 @@ User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:16.0) Gecko/20120828 Thunderb
 Content-Type: multipart/mixed; boundary=gc0p4Jq0M2Yt08jU534c0p]]></MessageHeaders>
           <Body><![CDATA[This is the body
 ]]></Body>
-          </TopLevel>
+          </ex:TopLevel>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>

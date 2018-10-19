@@ -30,6 +30,7 @@
   defaultRoundTrip="true" defaultValidation="limited">
 
   <tdml:defineSchema name="embedded01">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
     <xs:import namespace="urn:payload" schemaLocation="org2/xsd/payload.dfdl.xsd" />
 

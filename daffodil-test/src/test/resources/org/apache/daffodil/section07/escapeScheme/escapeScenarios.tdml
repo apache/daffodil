@@ -23,6 +23,8 @@
   defaultRoundTrip="true">
 
   <defineSchema name="es1">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+  
     <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" 
         occursCountKind="implicit"/>
 
@@ -52,6 +54,7 @@
   </defineSchema>
   
   <defineSchema name="es1-2">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" documentFinalTerminatorCanBeMissing="no"/>
 
     <dfdl:defineEscapeScheme name="scenario1">
@@ -75,10 +78,10 @@
     <document>foo;bar</document>
     <infoset>
       <dfdlInfoset>
-        <e_infix>
+        <tns:e_infix>
           <x>foo</x>
 	      <y>bar</y>
-	</e_infix>
+	</tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -89,9 +92,9 @@
     <document>foo/bar</document>
     <infoset>
       <dfdlInfoset>
-        <e_infix>
+        <tns:e_infix>
           <x>foobar</x>
-	</e_infix>
+	</tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -101,9 +104,9 @@
     <document>foo/;bar</document>
     <infoset>
       <dfdlInfoset>
-        <e_infix>
+        <tns:e_infix>
           <x>foo;bar</x>
-	</e_infix>
+	</tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -113,10 +116,10 @@
     <document>foo//;bar</document>
     <infoset>
       <dfdlInfoset>
-        <e_infix>
+        <tns:e_infix>
           <x>foo/</x>
 	  <y>bar</y>
-	</e_infix>
+	</tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -127,9 +130,9 @@
     <document>foo///bar</document>
     <infoset>
       <dfdlInfoset>
-        <e_infix>
+        <tns:e_infix>
           <x>foo/bar</x>
-	</e_infix>
+	</tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -139,9 +142,9 @@
     <document>foo///;bar</document>
     <infoset>
       <dfdlInfoset>
-        <e_infix>
+        <tns:e_infix>
           <x>foo/;bar</x>
-	</e_infix>
+	</tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -152,10 +155,10 @@
     <document>foo;</document>
     <infoset>
       <dfdlInfoset>
-        <e_infix>
+        <tns:e_infix>
           <x>foo</x>
           <y/>
-	    </e_infix>
+	    </tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -165,9 +168,9 @@
     <document>foo;</document>
     <infoset>
       <dfdlInfoset>
-        <e_postfix>
+        <tns:e_postfix>
           <x>foo</x>
-	</e_postfix>
+	</tns:e_postfix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -177,9 +180,9 @@
     <document>foo/;</document>
     <infoset>
       <dfdlInfoset>
-        <e_infix>
+        <tns:e_infix>
           <x>foo;</x>
-	</e_infix>
+	</tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -198,10 +201,10 @@
     <document>foo/;;</document>
     <infoset>
       <dfdlInfoset>
-        <e_infix>
+        <tns:e_infix>
           <x>foo;</x>
 	  <y></y>
-	</e_infix>
+	</tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -211,9 +214,9 @@
     <document>foo/;;</document>
     <infoset>
       <dfdlInfoset>
-        <e_postfix>
+        <tns:e_postfix>
           <x>foo;</x>
-	</e_postfix>
+	</tns:e_postfix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -224,10 +227,10 @@
     <document>foo//;</document>
     <infoset>
       <dfdlInfoset>
-        <e_infix>
+        <tns:e_infix>
           <x>foo/</x>
 	  <y></y>
-	</e_infix>
+	</tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -237,9 +240,9 @@
     <document>foo//;</document>
     <infoset>
       <dfdlInfoset>
-        <e_postfix>
+        <tns:e_postfix>
           <x>foo/</x>
-	</e_postfix>
+	</tns:e_postfix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -249,9 +252,9 @@
     <document>foo///;</document>
     <infoset>
       <dfdlInfoset>
-        <e_infix>
+        <tns:e_infix>
           <x>foo/;</x>
-	</e_infix>
+	</tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -270,9 +273,9 @@
     <document>foo/</document>
     <infoset>
       <dfdlInfoset>
-        <e_infix>
+        <tns:e_infix>
           <x>foo</x>
-	</e_infix>
+	</tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -291,9 +294,9 @@
     <document>foo///</document>
     <infoset>
       <dfdlInfoset>
-        <e_infix>
+        <tns:e_infix>
           <x>foo/</x>
-	</e_infix>
+	</tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -307,6 +310,7 @@
   </parserTestCase>
   
   <defineSchema name="es2">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" />
 
     <dfdl:defineEscapeScheme name="scenario2">
@@ -335,6 +339,7 @@
   </defineSchema>
   
   <defineSchema name="es2-2">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" documentFinalTerminatorCanBeMissing="no"/>
 
     <dfdl:defineEscapeScheme name="scenario2">
@@ -358,10 +363,10 @@
     <document>foo$;bar</document>
     <infoset>
       <dfdlInfoset>
-        <e_infix>
+        <tns:e_infix>
           <x>foo</x>
 	  <y>bar</y>
-	</e_infix>
+	</tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -371,9 +376,9 @@
     <document>foo/$;bar</document>
     <infoset>
       <dfdlInfoset>
-        <e_infix>
+        <tns:e_infix>
           <x>foo$;bar</x>
-	</e_infix>
+	</tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -383,10 +388,10 @@
     <document>foo$/$;bar</document>
     <infoset>
       <dfdlInfoset>
-        <e_infix>
+        <tns:e_infix>
           <x>foo/</x>
 	  <y>bar</y>
-	</e_infix>
+	</tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -397,10 +402,10 @@
     <document>foo$$;bar</document>
     <infoset>
       <dfdlInfoset>
-        <e_infix>
+        <tns:e_infix>
           <x>foo$</x>
 	  <y>bar</y>
-	</e_infix>
+	</tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -411,9 +416,9 @@
     <document>foo//$;bar</document>
     <infoset>
       <dfdlInfoset>
-        <e_infix>
+        <tns:e_infix>
           <x>foo$;bar</x>
-	</e_infix>
+	</tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -424,9 +429,9 @@
     <document>foo//////////bar</document>
     <infoset>
       <dfdlInfoset>
-        <e_infix>
+        <tns:e_infix>
           <x>foobar</x>
-	</e_infix>
+	</tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -437,9 +442,9 @@
     <document>foo$$$$$bar</document>
     <infoset>
       <dfdlInfoset>
-        <e_infix>
+        <tns:e_infix>
           <x>foo$$$$$bar</x>
-	</e_infix>
+	</tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -450,9 +455,9 @@
     <document>foo$//;bar</document>
     <infoset>
       <dfdlInfoset>
-        <e_infix>
+        <tns:e_infix>
           <x>foo/;bar</x>
-	</e_infix>
+	</tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -463,10 +468,10 @@
     <document>foo$/$$;bar</document>
     <infoset>
       <dfdlInfoset>
-        <e_infix>
+        <tns:e_infix>
           <x>foo/$</x>
 	  <y>bar</y>
-	</e_infix>
+	</tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -477,10 +482,10 @@
     <document>foo$;</document>
     <infoset>
       <dfdlInfoset>
-        <e_infix>
+        <tns:e_infix>
           <x>foo</x>
 	  <y></y>
-	</e_infix>
+	</tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -490,9 +495,9 @@
     <document>foo$;</document>
     <infoset>
       <dfdlInfoset>
-        <e_postfix>
+        <tns:e_postfix>
           <x>foo</x>
-	</e_postfix>
+	</tns:e_postfix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -502,9 +507,9 @@
     <document>foo/$;</document>
     <infoset>
       <dfdlInfoset>
-        <e_infix>
+        <tns:e_infix>
           <x>foo$;</x>
-	</e_infix>
+	</tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -523,10 +528,10 @@
     <document>foo$/$;</document>
     <infoset>
       <dfdlInfoset>
-        <e_infix>
+        <tns:e_infix>
           <x>foo/</x>
 	  <y></y>
-	</e_infix>
+	</tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -536,9 +541,9 @@
     <document>foo$/$;</document>
     <infoset>
       <dfdlInfoset>
-        <e_postfix>
+        <tns:e_postfix>
           <x>foo/</x>
-	</e_postfix>
+	</tns:e_postfix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -549,10 +554,10 @@
     <document>foo$$/$;</document>
     <infoset>
       <dfdlInfoset>
-        <e_infix>
+        <tns:e_infix>
           <x>foo$/</x>
 	  <y></y>
-	</e_infix>
+	</tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -563,9 +568,9 @@
     <document>foo$$/$;</document>
     <infoset>
       <dfdlInfoset>
-        <e_postfix>
+        <tns:e_postfix>
           <x>foo$/</x>
-	</e_postfix>
+	</tns:e_postfix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -576,9 +581,9 @@
     <document>foo$$$//$;</document>
     <infoset>
       <dfdlInfoset>
-        <e_infix>
+        <tns:e_infix>
           <x>foo$$/$;</x>
-	</e_infix>
+	</tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -594,6 +599,7 @@
   </parserTestCase>
 
   <defineSchema name="es3">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" />
 
     <dfdl:defineEscapeScheme name="scenario3">
@@ -622,6 +628,7 @@
   </defineSchema>
   
   <defineSchema name="es3-2">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" documentFinalTerminatorCanBeMissing="no"/>
 
     <dfdl:defineEscapeScheme name="scenario3">
@@ -645,10 +652,10 @@
     <document>foo/;bar</document>
     <infoset>
       <dfdlInfoset>
-        <e_infix>
+        <tns:e_infix>
           <x>foo</x>
 	  <y>bar</y>
-	</e_infix>
+	</tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -659,9 +666,9 @@
     <document>foo$/;bar</document>
     <infoset>
       <dfdlInfoset>
-        <e_infix>
+        <tns:e_infix>
           <x>foo/;bar</x>
-	</e_infix>
+	</tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -672,9 +679,9 @@
     <document>foo$$/;bar</document>
     <infoset>
       <dfdlInfoset>
-        <e_infix>
+        <tns:e_infix>
           <x>foo$/;bar</x>
-	</e_infix>
+	</tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -684,9 +691,9 @@
     <document>foo//;bar</document>
     <infoset>
       <dfdlInfoset>
-        <e_infix>
+        <tns:e_infix>
           <x>foo/;bar</x>
-	</e_infix>
+	</tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -697,10 +704,10 @@
     <document>foo///;bar</document>
     <infoset>
       <dfdlInfoset>
-        <e_infix>
+        <tns:e_infix>
           <x>foo/</x>
 	  <y>bar</y>
-	</e_infix>
+	</tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -710,10 +717,10 @@
     <document>foo$//;bar</document>
     <infoset>
       <dfdlInfoset>
-        <e_infix>
+        <tns:e_infix>
           <x>foo/</x>
 	  <y>bar</y>
-	</e_infix>
+	</tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -723,9 +730,9 @@
     <document>foo$///;bar</document>
     <infoset>
       <dfdlInfoset>
-        <e_infix>
+        <tns:e_infix>
           <x>foo//;bar</x>
-	</e_infix>
+	</tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -736,10 +743,10 @@
     <document>foo$////;bar</document>
     <infoset>
       <dfdlInfoset>
-        <e_infix>
+        <tns:e_infix>
           <x>foo//</x>
 	  <y>bar</y>
-	</e_infix>
+	</tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -750,9 +757,9 @@
     <document>foo$///////;bar</document>
     <infoset>
       <dfdlInfoset>
-        <e_infix>
+        <tns:e_infix>
           <x>foo////;bar</x>
-	</e_infix>
+	</tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -763,10 +770,10 @@
     <document>foo/;</document>
     <infoset>
       <dfdlInfoset>
-        <e_infix>
+        <tns:e_infix>
           <x>foo</x>
 	  <y></y>
-	</e_infix>
+	</tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -776,9 +783,9 @@
     <document>foo/;</document>
     <infoset>
       <dfdlInfoset>
-        <e_postfix>
+        <tns:e_postfix>
           <x>foo</x>
-	</e_postfix>
+	</tns:e_postfix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -789,9 +796,9 @@
     <document>foo$/;</document>
     <infoset>
       <dfdlInfoset>
-        <e_infix>
+        <tns:e_infix>
           <x>foo/;</x>
-	</e_infix>
+	</tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -801,9 +808,9 @@
     <document>foo$/;</document>
     <infoset>
       <dfdlInfoset>
-        <e_postfix>
+        <tns:e_postfix>
           <x>foo/;</x>
-	</e_postfix>
+	</tns:e_postfix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -814,9 +821,9 @@
     <document>foo$$/;</document>
     <infoset>
       <dfdlInfoset>
-        <e_infix>
+        <tns:e_infix>
           <x>foo$/;</x>
-	</e_infix>
+	</tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -835,10 +842,10 @@
     <document>foo$//;</document>
     <infoset>
       <dfdlInfoset>
-        <e_infix>
+        <tns:e_infix>
           <x>foo/</x>
 	  <y></y>
-	</e_infix>
+	</tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -848,9 +855,9 @@
     <document>foo$//;</document>
     <infoset>
       <dfdlInfoset>
-        <e_postfix>
+        <tns:e_postfix>
           <x>foo/</x>
-	</e_postfix>
+	</tns:e_postfix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -861,9 +868,9 @@
     <document>foo$/$/$/;</document>
     <infoset>
       <dfdlInfoset>
-        <e_infix>
+        <tns:e_infix>
           <x>foo///;</x>
-	</e_infix>
+	</tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -877,6 +884,7 @@
   </parserTestCase>
 
   <defineSchema name="es4">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" />
 
     <dfdl:defineEscapeScheme name="scenario4">
@@ -905,6 +913,7 @@
   </defineSchema>
   
   <defineSchema name="es4-2">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" documentFinalTerminatorCanBeMissing="no"/>
 
     <dfdl:defineEscapeScheme name="scenario4">
@@ -924,6 +933,7 @@
   </defineSchema>
   
   <defineSchema name="es5">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" />
 
     <dfdl:defineEscapeScheme name="es">
@@ -945,10 +955,10 @@
     <document>foo/;bar</document>
     <infoset>
       <dfdlInfoset>
-        <e_infix>
+        <tns:e_infix>
           <x>foo</x>
 	  <y>bar</y>
-	</e_infix>
+	</tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -958,9 +968,9 @@
     <document>foo//;bar</document>
     <infoset>
       <dfdlInfoset>
-        <e_infix>
+        <tns:e_infix>
           <x>foo/;bar</x>
-	</e_infix>
+	</tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -970,10 +980,10 @@
     <document>foo///;bar</document>
     <infoset>
       <dfdlInfoset>
-        <e_infix>
+        <tns:e_infix>
           <x>foo/</x>
 	  <y>bar</y>
-	</e_infix>
+	</tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -983,9 +993,9 @@
     <document>foo////bar</document>
     <infoset>
       <dfdlInfoset>
-        <e_infix>
+        <tns:e_infix>
           <x>foo//bar</x>
-	</e_infix>
+	</tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -995,9 +1005,9 @@
     <document>foo////;bar</document>
     <infoset>
       <dfdlInfoset>
-        <e_infix>
+        <tns:e_infix>
           <x>foo//;bar</x>
-	</e_infix>
+	</tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -1007,10 +1017,10 @@
     <document>foo/////;bar</document>
     <infoset>
       <dfdlInfoset>
-        <e_infix>
+        <tns:e_infix>
           <x>foo//</x>
 	  <y>bar</y>
-	</e_infix>
+	</tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -1020,9 +1030,9 @@
     <document>foo</document>
     <infoset>
       <dfdlInfoset>
-        <e_infix>
+        <tns:e_infix>
           <x>foo</x>
-	</e_infix>
+	</tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -1041,10 +1051,10 @@
     <document>foo/;</document>
     <infoset>
       <dfdlInfoset>
-        <e_infix>
+        <tns:e_infix>
           <x>foo</x>
 	  <y></y>
-	</e_infix>
+	</tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -1054,9 +1064,9 @@
     <document>foo/;</document>
     <infoset>
       <dfdlInfoset>
-        <e_postfix>
+        <tns:e_postfix>
           <x>foo</x>
-	</e_postfix>
+	</tns:e_postfix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -1066,9 +1076,9 @@
     <document>foo//;</document>
     <infoset>
       <dfdlInfoset>
-        <e_infix>
+        <tns:e_infix>
           <x>foo/;</x>
-	</e_infix>
+	</tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -1087,9 +1097,9 @@
     <document>foo///</document>
     <infoset>
       <dfdlInfoset>
-        <e_infix>
+        <tns:e_infix>
           <x>foo/</x>
-	</e_infix>
+	</tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -1108,10 +1118,10 @@
     <document>foo///;</document>
     <infoset>
       <dfdlInfoset>
-        <e_infix>
+        <tns:e_infix>
           <x>foo/</x>
 	  <y></y>
-	</e_infix>
+	</tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -1121,9 +1131,9 @@
     <document>foo///;</document>
     <infoset>
       <dfdlInfoset>
-        <e_postfix>
+        <tns:e_postfix>
           <x>foo/</x>
-	</e_postfix>
+	</tns:e_postfix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -1133,9 +1143,9 @@
     <document>foo////;</document>
     <infoset>
       <dfdlInfoset>
-        <e_infix>
+        <tns:e_infix>
           <x>foo//;</x>
-	</e_infix>
+	</tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -1166,9 +1176,9 @@
     <document><![CDATA[STARTfieldEcontents\ENDescaped\\contentEND]]></document>
     <infoset>
       <dfdlInfoset>
-        <root>
+        <tns:root>
           <field>fieldEcontentsENDescaped\content</field>
-        </root>
+        </tns:root>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>

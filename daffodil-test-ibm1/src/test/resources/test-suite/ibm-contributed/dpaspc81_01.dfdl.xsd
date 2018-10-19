@@ -35,7 +35,7 @@
 		<xs:appinfo source="http://www.ogf.org/dfdl/">
 			<dfdl:format initiator="" terminator="" leadingSkip="0" trailingSkip="0" 
 				truncateSpecifiedLengthString="no"  separator=""  
-				textBidi="no" floating="no" encodingErrorPolicy="replace"
+				textBidi="no" floating="no" encodingErrorPolicy="error"
 				encoding="ASCII" representation="text" textOutputMinLength="0"
 				byteOrder="bigEndian" bitOrder="mostSignificantBitFirst" alignment="1" alignmentUnits="bytes" fillByte="f"
 				occursCountKind="implicit" initiatedContent="no" sequenceKind="ordered"
@@ -61,7 +61,7 @@
 				<xs:element name="title" type="xs:string">
 					<xs:annotation>
 						<xs:appinfo source="http://www.ogf.org/dfdl/">
-							<dfdl:element encodingErrorPolicy="replace" encoding="ASCII" />
+							<dfdl:element encodingErrorPolicy="error" encoding="ASCII" />
 						</xs:appinfo>
 					</xs:annotation>
 				</xs:element>

@@ -17,8 +17,10 @@
 -->
 
 <testSuite suiteName="AV002" xmlns="http://www.ibm.com/xmlns/dfdl/testData"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
-  xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:ex="http://example.com"
+  defaultImplementations="daffodil">
 
   <parserTestCase name="AV002" root="wholeFile" model="AV.dfdl.xsd"
     description="HR/CU Medical data" roundTrip="false">
@@ -98,9 +100,7 @@
 %#x0c;%#x1b;E]]></documentPart></document>
     <infoset>
       <dfdlInfoset>
-        <wholeFile xmlns="http://www.example.org/example1/"
-          xmlns:tns="http://www.example.org/example1/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-          xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+        <ex:wholeFile>
           <table>
             <metadata>
               <repdate xsi:type="xs:date">2008-04-10-06:00</repdate>
@@ -335,7 +335,7 @@
             </data>
             <GT xsi:type="xs:int">109</GT>
           </table>
-        </wholeFile>
+        </ex:wholeFile>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>

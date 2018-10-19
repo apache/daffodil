@@ -43,8 +43,9 @@
 	<xs:annotation>
 		<xs:appinfo source="http://www.ogf.org/dfdl/">
 			<dfdl:defineFormat name="config">
-               <dfdl:format ref="GeneralFormat" encoding="UTF-8" 
-                   byteOrder="bigEndian" bitOrder="mostSignificantBitFirst" />
+         <dfdl:format ref="GeneralFormat" encoding="UTF-8" 
+           byteOrder="bigEndian" bitOrder="mostSignificantBitFirst"
+           encodingErrorPolicy="error" />
 			</dfdl:defineFormat>
 		</xs:appinfo>
 	</xs:annotation>

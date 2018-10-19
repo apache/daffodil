@@ -21,6 +21,7 @@
   xmlns:ex="http://example.com" xmlns:tns="http://example.com" defaultRoundTrip="true">
 
   <tdml:defineSchema name="s1" elementFormDefault="unqualified">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:defineFormat name="general">
       <dfdl:format ref="ex:GeneralFormat" />
     </dfdl:defineFormat>
@@ -91,6 +92,7 @@
 
 
   <tdml:defineSchema name="s2" elementFormDefault="unqualified">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:defineFormat name="general">
       <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" outputNewLine="%CR;%LF;" />
     </dfdl:defineFormat>
@@ -180,6 +182,7 @@ YSBhbGlxdWEuIFV0IGVuaW0gYWQ=%CR;
   </tdml:unparserTestCase>
 
   <tdml:defineSchema name="s3" elementFormDefault="unqualified">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:defineFormat name="general">
       <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" outputNewLine="%CR;%LF;" />
     </dfdl:defineFormat>
@@ -223,6 +226,7 @@ xxx]]></tdml:documentPart>
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="err1" elementFormDefault="unqualified">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:defineFormat name="general">
       <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" outputNewLine="%CR;%LF;" />
     </dfdl:defineFormat>
@@ -231,7 +235,6 @@ xxx]]></tdml:documentPart>
         layerEncoding="iso-8859-1" />
     </dfdl:defineFormat>
     <dfdl:format ref="ex:general" />
-
 
     <xs:element name="root" dfdl:lengthKind="implicit">
       <xs:complexType>
@@ -256,7 +259,7 @@ xxx]]></tdml:documentPart>
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="s4" elementFormDefault="unqualified">
-
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:defineFormat name="general">
       <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" outputNewLine="%CR;%LF;" layerEncoding="iso-8859-1"
         layerLengthUnits='bytes' />

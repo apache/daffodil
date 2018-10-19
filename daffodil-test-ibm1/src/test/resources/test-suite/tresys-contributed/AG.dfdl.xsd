@@ -32,7 +32,8 @@
         terminator="" initiatedContent="no" textNumberRep="standard"
         separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"
         occursCountKind="parsed" textTrimKind="none"
-        alignment="implicit" alignmentUnits="bytes" trailingSkip="0"/>
+        alignment="implicit" alignmentUnits="bytes" trailingSkip="0"
+        encodingErrorPolicy="error"/>
     </appinfo>
   </annotation>
   

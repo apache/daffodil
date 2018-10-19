@@ -36,11 +36,11 @@ import org.apache.daffodil.exceptions.Assert
  */
 object Position {
   /** Number of bits used to encode the line number */
-  final val LINE_BITS   = 20
+  final val LINE_BITS = 20
   /** Number of bits used to encode the column number */
   final val COLUMN_BITS = 31 - LINE_BITS // no negatives => 31
   /** Mask to decode the line number */
-  final val LINE_MASK   = (1 << LINE_BITS) - 1
+  final val LINE_MASK = (1 << LINE_BITS) - 1
   /** Mask to decode the column number */
   final val COLUMN_MASK = (1 << COLUMN_BITS) - 1
 
@@ -72,7 +72,7 @@ object Position {
  * gets positions is different. It is given just an offset into the document file/stream,
  * and it therefore must synthesize line number/col number info itself.
  */
-class DaffodilConstructingLoader(uri: URI, errorHandler: org.xml.sax.ErrorHandler)
+class DaffodilConstructingLoader(uri: URI, errorHandler: org.xml.sax.ErrorHandler, addLineColInfo: Boolean = false)
   extends ConstructingParser({
     //
     // Note: we must open the XML carefully since it might be in some non
@@ -92,7 +92,6 @@ class DaffodilConstructingLoader(uri: URI, errorHandler: org.xml.sax.ErrorHandle
     val exc = new org.xml.sax.SAXParseException(msg, null, uri.toString, line, col)
     errorHandler.error(exc)
   }
-
 
   /**
    * We probably aren't supposed to override mkAttributes(), however,
@@ -125,38 +124,46 @@ class DaffodilConstructingLoader(uri: URI, errorHandler: org.xml.sax.ErrorHandle
 
     val (pre, local) = Utility.prefix(qname) match {
       case Some(p) => (p, qname.drop(p.length + 1))
-      case _       => (null, qname)
+      case _ => (null, qname)
     }
     val nsURI = NS(scope.getURI(pre))
     val isFileRootNode = (local.equalsIgnoreCase("schema") && nsURI == XMLUtils.XSD_NAMESPACE) ||
-                         (local.equalsIgnoreCase("testSuite") && nsURI == XMLUtils.TDML_NAMESPACE)
+      (local.equalsIgnoreCase("testSuite") && nsURI == XMLUtils.TDML_NAMESPACE)
     val hasLineCol = attrs.exists {
       case PrefixedAttribute(XMLUtils.INT_PREFIX, attr, _, _) => {
         attr.equalsIgnoreCase(XMLUtils.COLUMN_ATTRIBUTE_NAME) ||
-        attr.equalsIgnoreCase(XMLUtils.LINE_ATTRIBUTE_NAME)
+          attr.equalsIgnoreCase(XMLUtils.LINE_ATTRIBUTE_NAME)
       }
       case _ => false
     }
 
-    val newAttrs = if (!hasLineCol) {
-      val next = if (isFileRootNode) {
-        new PrefixedAttribute(XMLUtils.INT_PREFIX, XMLUtils.FILE_ATTRIBUTE_NAME, uri.toString, attrs)
+    val newAttrs: MetaData = {
+      if (!hasLineCol) {
+        val withFile: MetaData =
+          if (isFileRootNode) {
+            new PrefixedAttribute(XMLUtils.INT_PREFIX, XMLUtils.FILE_ATTRIBUTE_NAME, uri.toString, attrs)
+          } else {
+            attrs
+          }
+        val withLineCol: MetaData =
+          if (addLineColInfo) {
+            val withCol: MetaData = new PrefixedAttribute(XMLUtils.INT_PREFIX, XMLUtils.COLUMN_ATTRIBUTE_NAME, Position.column(capturedPos).toString, withFile)
+            val withLine: MetaData = new PrefixedAttribute(XMLUtils.INT_PREFIX, XMLUtils.LINE_ATTRIBUTE_NAME, Position.line(capturedPos).toString, withCol)
+            withLine
+          } else {
+            withFile
+          }
+        withLineCol
       } else {
         attrs
       }
-      val colAttr  = new PrefixedAttribute(XMLUtils.INT_PREFIX, XMLUtils.COLUMN_ATTRIBUTE_NAME, Position.column(capturedPos).toString, next)
-      val lineAttr = new PrefixedAttribute(XMLUtils.INT_PREFIX, XMLUtils.LINE_ATTRIBUTE_NAME, Position.line(capturedPos).toString, colAttr)
-      lineAttr
-    } else {
-      attrs
     }
-
     // add the dafint prefix if it doesn't already exist
     val intPrefix = scope.getPrefix(XMLUtils.INT_NS)
     val newScope = if (intPrefix == null) {
       NamespaceBinding(XMLUtils.INT_PREFIX, XMLUtils.INT_NS, scope)
     } else {
-      Assert.usage(intPrefix == XMLUtils.INT_PREFIX) // can't deal with some other binding for dafint
+      Assert.usage(intPrefix == null || intPrefix == XMLUtils.INT_PREFIX) // can't deal with some other binding for dafint
       scope
     }
 

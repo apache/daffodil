@@ -24,6 +24,7 @@
   defaultRoundTrip="true">
 
   <tdml:defineSchema name="s1">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="explicit" encoding="ISO-8859-1" occursCountKind="implicit"
       textNumberCheckPolicy="strict" textNumberPadCharacter="0" textNumberJustification="right" textNumberRep="zoned"
       textZonedSignStyle="asciiStandard"

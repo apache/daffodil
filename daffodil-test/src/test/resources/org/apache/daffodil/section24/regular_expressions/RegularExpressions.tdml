@@ -25,6 +25,7 @@
   <tdml:defineSchema name="RegularExpressions-Embedded.dfdl.xsd">
 
 
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="implicit"
       lengthUnits="bytes" encoding="US-ASCII" separator="" initiator=""
       terminator="" textNumberRep="standard" representation="text" />

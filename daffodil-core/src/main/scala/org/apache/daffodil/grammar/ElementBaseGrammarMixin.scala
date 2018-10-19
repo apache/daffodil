@@ -1385,7 +1385,11 @@ trait ElementBaseGrammarMixin
       isTypeUsingTextOutputMinLength &&
       optLengthConstant.isDefined) {
       val len = optLengthConstant.get
-      if (len < textOutputMinLength) SDE("Explicit dfdl:length of %s is out of range for dfdl:textOutputMinLength='%s'.", len, textOutputMinLength)
+      if (len < textOutputMinLength)
+        SDW(WarnID.TextOutputMinLengthOutOfRange,
+          "Explicit dfdl:length of %s is out of range for dfdl:textOutputMinLength='%s'.",
+          len,
+          textOutputMinLength)
 
     }
   }

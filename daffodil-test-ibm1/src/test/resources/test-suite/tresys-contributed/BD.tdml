@@ -17,8 +17,10 @@
 -->
 
 <testSuite suiteName="BD" xmlns="http://www.ibm.com/xmlns/dfdl/testData"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
-  xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:ex="http://example.com"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  defaultImplementations="ibm daffodil">
 
   <parserTestCase name="BD000" root="list" model="BD.dfdl.xsd"
     description="Binary boolean">
@@ -27,12 +29,12 @@
     </document>
     <infoset>
       <dfdlInfoset>
-        <list xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+        <ex:list>
           <x xsi:type="xsd:boolean">true</x>
           <x xsi:type="xsd:boolean">false</x>
           <x xsi:type="xsd:boolean">false</x>
           <x xsi:type="xsd:boolean">true</x>
-        </list>
+        </ex:list>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>

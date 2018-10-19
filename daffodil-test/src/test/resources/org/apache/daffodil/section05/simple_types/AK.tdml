@@ -17,7 +17,10 @@
 -->
 
 <testSuite suiteName="AK" xmlns="http://www.ibm.com/xmlns/dfdl/testData"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:ex="http://example.com"
   xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd"
   defaultRoundTrip="true">
 
@@ -29,7 +32,7 @@
     </document>
     <infoset>
       <dfdlInfoset>
-        <list xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+        <ex:list>
           <a xsi:type="xsd:byte">-1</a>
           <b xsi:type="xsd:unsignedByte">255</b>
           <c xsi:type="xsd:short">-1</c>
@@ -38,7 +41,7 @@
           <f xsi:type="xsd:unsignedInt">4294967295</f>
           <g xsi:type="xsd:long">-1</g>
           <h xsi:type="xsd:unsignedLong">18446744073709551615</h>
-        </list>
+        </ex:list>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -51,7 +54,7 @@
     </document>
     <infoset>
       <dfdlInfoset>
-        <list xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+        <ex:list>
           <a xsi:type="xsd:byte">127</a>
           <b xsi:type="xsd:unsignedByte">127</b>
           <c xsi:type="xsd:short">32767</c>
@@ -60,7 +63,7 @@
           <f xsi:type="xsd:unsignedInt">2147483647</f>
           <g xsi:type="xsd:long">9223372036854775807</g>
           <h xsi:type="xsd:unsignedLong">9223372036854775807</h>
-        </list>
+        </ex:list>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>

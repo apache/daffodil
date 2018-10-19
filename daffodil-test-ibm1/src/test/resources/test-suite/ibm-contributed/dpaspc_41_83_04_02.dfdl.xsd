@@ -42,7 +42,7 @@
 
    <xs:annotation>
       <xs:appinfo source="http://www.ogf.org/dfdl/">
-          <dfdl:format textBidi="no" floating="no" encodingErrorPolicy="replace"  
+          <dfdl:format textBidi="no" floating="no" encodingErrorPolicy="error"  
           encoding="ascii" byteOrder="littleEndian"
           alignment="1" alignmentUnits="bytes" fillByte="f" occursCountKind="implicit"
                 initiator="" terminator="" truncateSpecifiedLengthString="no"  separator="" 

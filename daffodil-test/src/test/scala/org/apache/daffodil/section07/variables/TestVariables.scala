@@ -23,7 +23,6 @@ import org.apache.daffodil.Implicits._
 import org.apache.daffodil.dsom._
 import org.apache.daffodil.tdml.DFDLTestSuite
 import scala.math.Pi
-import org.apache.daffodil.util.Fakes
 import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 
@@ -82,7 +81,7 @@ class TestVariables {
   // @Test def test_setAfterReadErr_d() { runner_01.runOneTest("setAfterReadErr_d") }
   @Test def test_setVar1_d_unparse() { runner_01.runOneTest("setVar1_d_unparse") }
 
-  /*****************************************************************/
+/*****************************************************************/
   val tdmlVal = XMLUtils.TDML_NAMESPACE
   val dfdl = XMLUtils.DFDL_NAMESPACE
   val xsi = XMLUtils.XSI_NAMESPACE
@@ -90,11 +89,10 @@ class TestVariables {
   val example = XMLUtils.EXAMPLE_NAMESPACE
   val tns = example
 
-  val context: SchemaComponent = Fakes.fakeSD
-
   val variables2 =
     <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdmlVal } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
       <tdml:defineSchema name="mySchema">
+        <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
         <dfdl:format ref="tns:GeneralFormat"/>
         <dfdl:defineVariable name="pi" type="xs:double" defaultValue={ Pi.toString }/>
         <xs:element name="data" type="xs:double" dfdl:inputValueCalc="{ $tns:pi }"/>
@@ -118,6 +116,7 @@ class TestVariables {
   val variables3 =
     <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdmlVal } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
       <tdml:defineSchema name="mySchema">
+        <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
         <dfdl:format ref="tns:GeneralFormat"/>
         <dfdl:defineVariable name="x" type="xs:double"/>
         <xs:element name="data">

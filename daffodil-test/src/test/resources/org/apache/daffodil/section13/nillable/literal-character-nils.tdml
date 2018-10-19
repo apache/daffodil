@@ -24,6 +24,7 @@
   defaultRoundTrip="true">
   
   <tdml:defineSchema name="text_nil_only1">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" initiator="" terminator="" separator="" separatorSuppressionPolicy="anyEmpty" separatorPosition="infix" documentFinalTerminatorCanBeMissing="yes" encoding="ASCII" representation="text" occursCountKind="parsed" nilValueDelimiterPolicy="none"
       nilValue="-" nilKind="literalCharacter" textNumberRep="standard" ignoreCase="no"/>
 
@@ -34,6 +35,7 @@
 
 
   <tdml:defineSchema name="text_01">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" separator="" separatorSuppressionPolicy="anyEmpty"
       separatorPosition="infix" documentFinalTerminatorCanBeMissing="yes"
@@ -79,12 +81,11 @@
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <doc xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-          xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+        <ex:doc>
           <e1>0</e1>
           <e2 xsi:nil="true" />
           <e3 xsi:nil="true" />
-        </doc>
+        </ex:doc>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -100,17 +101,17 @@
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <docIC xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-          xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+        <ex:docIC>
           <e1>0</e1>
           <e2 xsi:nil="true" />
           <e3 xsi:nil="true" />
-        </docIC>
+        </ex:docIC>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="text_02">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" separator="" separatorSuppressionPolicy="anyEmpty"
       separatorPosition="infix" documentFinalTerminatorCanBeMissing="yes"
@@ -144,17 +145,17 @@
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <doc xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-          xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+        <ex:doc>
           <e1>0</e1>
           <e2 xsi:nil="true" />
           <e3 xsi:nil="true" />
-        </doc>
+        </ex:doc>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="text_03">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" separator="" separatorSuppressionPolicy="anyEmpty"
       separatorPosition="infix" documentFinalTerminatorCanBeMissing="yes"
@@ -195,6 +196,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="text_04">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" separator="" separatorSuppressionPolicy="anyEmpty"
       separatorPosition="infix" documentFinalTerminatorCanBeMissing="yes"
@@ -235,6 +237,7 @@
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="binary_01">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" separator="" separatorSuppressionPolicy="anyEmpty"
       separatorPosition="infix" documentFinalTerminatorCanBeMissing="yes"
@@ -270,12 +273,11 @@
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <doc xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-          xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+        <ex:doc>
           <e1>0</e1>
           <e2 xsi:nil="true" />
           <e3 xsi:nil="true" />
-        </doc>
+        </ex:doc>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

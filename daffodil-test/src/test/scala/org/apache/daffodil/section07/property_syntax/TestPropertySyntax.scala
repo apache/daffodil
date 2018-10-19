@@ -22,15 +22,11 @@ import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 
 object TestPropertySyntax {
-  val testDir = "/org/apache/daffodil/ibm-tests/"
-  val runner = Runner(testDir, "dpaext1.tdml")
-
   val testDir1 = "/org/apache/daffodil/section07/property_syntax/"
   val runner1 = Runner(testDir1, "PropertySyntax.tdml", false, false)
   val runner1V = Runner(testDir1, "PropertySyntax.tdml", validateTDMLFile = false)
 
   @AfterClass def shutDown {
-    runner.reset
     runner1.reset
   }
 
@@ -39,10 +35,6 @@ object TestPropertySyntax {
 class TestPropertySyntax {
 
   import TestPropertySyntax._
-
-  @Test def test_property_syntax_7_01() { runner.runOneTest("property_syntax_7_01") }
-  @Test def test_property_syntax_7_02() { runner.runOneTest("property_syntax_7_02") }
-  @Test def test_property_syntax_7_03() { runner.runOneTest("property_syntax_7_03") }
 
   @Test def test_ShortAndLongForm() { runner1.runOneTest("ShortAndLongForm") }
   @Test def test_ShortAnnotationAndElementForm() { runner1.runOneTest("ShortAnnotationAndElementForm") }

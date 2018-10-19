@@ -25,7 +25,7 @@
 		<xs:appinfo source="http://www.ogf.org/dfdl/">
 			<dfdl:format initiator="" terminator="" leadingSkip="0" trailingSkip="0" 
 			    truncateSpecifiedLengthString="no"  textBidi="no" floating="no" 
-			    encodingErrorPolicy="replace" encoding="utf-8" byteOrder="bigEndian" 
+			    encodingErrorPolicy="error" encoding="utf-8" byteOrder="bigEndian" 
 			    bitOrder="mostSignificantBitFirst" alignment="1" alignmentUnits="bytes" fillByte="f" 
 				occursCountKind="implicit"
 				ignoreCase="no" representation="text" textStringPadCharacter=" "

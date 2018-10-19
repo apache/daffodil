@@ -47,10 +47,6 @@ class TresysTests2 {
   @Test def test_AT000() { runnerAT.runOneTest("AT000") } // needs newVariableInstance
   @Test def test_AT001() { runnerAT.runOneTest("AT001") } // needs newVariableInstance
 
-  val au = testDir + "AU.tdml"
-  lazy val runnerAU = new DFDLTestSuite(Misc.getRequiredResource(au))
-  @Test def test_AU000() { runnerAU.runOneTest("AU000") } // packed and bcd
-
   val bb = testDir + "BB.tdml"
   lazy val runnerBB = new DFDLTestSuite(Misc.getRequiredResource(bb))
   @Test def test_BB000() { runnerBB.runOneTest("BB000") } // occursCountKind stopValue

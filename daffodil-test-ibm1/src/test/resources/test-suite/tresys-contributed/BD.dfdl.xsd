@@ -32,7 +32,8 @@
         documentFinalTerminatorCanBeMissing='yes'
         byteOrder="bigEndian" binaryNumberRep='binary'
         representation="text"
-        occursCountKind='parsed'/>
+        occursCountKind='parsed'
+        encodingErrorPolicy="error"/>
     </appinfo>
   </annotation>
   

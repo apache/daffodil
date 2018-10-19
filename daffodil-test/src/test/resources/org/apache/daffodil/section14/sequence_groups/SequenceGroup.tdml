@@ -24,6 +24,7 @@
   defaultRoundTrip="true">
 
    <tdml:defineSchema name="emptySDEschema">
+     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
      <dfdl:format ref="ex:GeneralFormat"/>
 
      <xs:element name="emptySeq" type="ex:complexEmptySeq"/>
@@ -117,6 +118,7 @@
   </tdml:parserTestCase>
 
    <tdml:defineSchema name="SequenceGroup-Embedded.dfdl.xsd">
+     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
      <dfdl:format ref="ex:GeneralFormat" lengthUnits="bytes"
        lengthKind="implicit" />
      <xs:element name="SG_05">
@@ -136,6 +138,7 @@
    </tdml:defineSchema>
    
   <tdml:defineSchema name="SequenceGroup546">
+     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
      <dfdl:format ref="ex:GeneralFormat" lengthUnits="bytes"
        lengthKind="implicit" />
      <xs:element name="SG_05">
@@ -181,6 +184,7 @@
    </tdml:parserTestCase>
  
   <tdml:defineSchema name="hiddenGroup1">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
     <xs:group name="hg">
       <xs:sequence>
@@ -212,6 +216,7 @@
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="hiddenGroup2">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
     <xs:group name="hg">
       <xs:sequence>
@@ -242,6 +247,7 @@
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="hiddenGroup3">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
 
     <xs:group name="hg">
@@ -266,6 +272,7 @@
   </tdml:defineSchema>
   
   <tdml:defineSchema name="hiddenGroupEmpty">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
 
     <xs:element name="e">
@@ -331,6 +338,7 @@
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="hiddenGroup4">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
     <xs:group name="hgNested">
       <xs:sequence>
@@ -421,6 +429,7 @@
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="hiddenGroupChoice">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
 
     <xs:group name="hg">
@@ -484,6 +493,7 @@
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="hiddenGroupLoop">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
     <xs:group name="hgNested">
       <xs:sequence>
@@ -669,6 +679,7 @@ Date: Mon Feb 23 15:20:47 CST 2009
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="AS-Embedded">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat"
           lengthKind="delimited" separator=""
           leadingSkip='0' encoding="US-ASCII" ignoreCase='no' initiator=""
@@ -726,6 +737,7 @@ Date: Mon Feb 23 15:20:47 CST 2009
   </tdml:defineSchema>
   
   <tdml:defineSchema name="hiddenGroup5">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
     <xs:group name="ab">
       <xs:sequence>
@@ -744,6 +756,7 @@ Date: Mon Feb 23 15:20:47 CST 2009
   </tdml:defineSchema>
   
   <tdml:defineSchema name="hiddenGroup6">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
     <xs:group name="ab">
       <xs:sequence dfdl:separator=":">
@@ -765,6 +778,7 @@ Date: Mon Feb 23 15:20:47 CST 2009
   </tdml:defineSchema>
   
   <tdml:defineSchema name="hiddenGroup7">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
     <xs:group name="ab">
       <xs:sequence dfdl:separator=":">
@@ -839,6 +853,7 @@ Date: Mon Feb 23 15:20:47 CST 2009
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="AD-Embedded">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" 
         lengthKind="delimited" separator=""
         leadingSkip='0' encoding="US-ASCII" ignoreCase='no' initiator=""
@@ -920,6 +935,7 @@ more ignored input
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="AC-Embedded">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat"
         lengthKind="delimited" separator=""
         leadingSkip='0' encoding="US-ASCII" ignoreCase='no' initiator=""
@@ -983,7 +999,8 @@ more ignored input
   </tdml:parserTestCase>
 
 	<tdml:defineSchema name="nestedGroupRefs">
-		<dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"
+		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"
           occursCountKind='parsed'/>
 
 		<xs:element name="root">
@@ -1087,7 +1104,8 @@ A,B,C|D,E,F|G,H,I]]></tdml:document>
   </tdml:parserTestCase>
 
 	<tdml:defineSchema name="nestedGroupRefs2">
-		<dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" 
+		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" 
           occursCountKind='parsed'/>
 
 		<xs:element name="root">
@@ -1262,6 +1280,7 @@ A,B,C,4,u|D,E,F,5,v|G,H,I,6,w]]></tdml:document>
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="hiddenGroupSeqWithRequiredElements">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
 
     <xs:group name="hg">
@@ -1300,6 +1319,7 @@ A,B,C,4,u|D,E,F,5,v|G,H,I,6,w]]></tdml:document>
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="hiddenGroupChoiceWithAllRequiredBranches">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
 
     <xs:group name="hg">
@@ -1339,6 +1359,7 @@ A,B,C,4,u|D,E,F,5,v|G,H,I,6,w]]></tdml:document>
 
 
   <tdml:defineSchema name="groupsWithAnnotations">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
 
     <xs:group name="sequenceGroup">

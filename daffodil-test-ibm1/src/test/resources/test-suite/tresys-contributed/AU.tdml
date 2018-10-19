@@ -18,7 +18,7 @@
 
 <testSuite suiteName="AU" xmlns="http://www.ibm.com/xmlns/dfdl/testData"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
-  xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+  defaultImplementations="ibm daffodil">
 
   <parserTestCase name="AU000" root="list" model="AU.dfdl.xsd"
     description="Binary values packed and bsd">
@@ -29,7 +29,7 @@
     </document>
     <infoset>
       <dfdlInfoset>
-        <list xmlns="http://www.example.org/example1" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+        <list xmlns="http://example.com" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
           <bcd>17</bcd>
           <bcd>23</bcd>
           <bcd>27</bcd>

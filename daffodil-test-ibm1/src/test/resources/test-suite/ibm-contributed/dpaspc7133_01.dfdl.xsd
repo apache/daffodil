@@ -38,7 +38,7 @@
 		<xs:appinfo source="http://www.ogf.org/dfdl/">
 			<dfdl:format ref="GeneralFormat" initiator="" terminator="" 
 				leadingSkip="0" trailingSkip="0" truncateSpecifiedLengthString="no"  
-				textBidi="no" floating="no"   encodingErrorPolicy="replace" 
+				textBidi="no" floating="no"
 				encoding="utf-8" 
 				byteOrder="bigEndian" bitOrder="mostSignificantBitFirst"
 				alignment="1" alignmentUnits="bytes" fillByte="f" occursCountKind="implicit"
@@ -51,7 +51,8 @@
 				nilValueDelimiterPolicy="both" textNumberPattern="#"
 				textNumberCheckPolicy="lax" textStandardGroupingSeparator=","
 				textNumberRoundingMode="roundFloor" textStandardZeroRep=""
-				textNumberRounding="pattern" />
+				textNumberRounding="pattern"
+        encodingErrorPolicy="error" />
 
 
 		</xs:appinfo>

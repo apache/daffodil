@@ -29,7 +29,7 @@
 				name
 			-->
 			<dfdl:format initiator="" terminator="" leadingSkip="0" trailingSkip="0" 
-			    textBidi="no" floating="no"   encodingErrorPolicy="replace" encoding="utf-8" 
+			    textBidi="no" floating="no"   encodingErrorPolicy="error" encoding="utf-8" 
 			    byteOrder="bigEndian" bitOrder="mostSignificantBitFirst" alignment="1" alignmentUnits="bytes" fillByte="f" outputNewLine="%LF;"
 				occursCountKind="implicit"
 				truncateSpecifiedLengthString="no" ignoreCase="no" representation="binary"

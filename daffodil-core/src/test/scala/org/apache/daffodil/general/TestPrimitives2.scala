@@ -31,6 +31,7 @@ class TestPrimitives2 {
 
   @Test def testUnparseNilValueEntities() {
     val sch = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" encoding="ascii" lengthUnits="bytes"/>,
       <xs:element name="e1" nillable="true" dfdl:nilKind="literalValue" dfdl:lengthKind="delimited" type="xs:string" dfdl:nilValue="%WSP;nil%NL; foobar" dfdl:outputNewline="%LF;"/>,
       elementFormDefault = "unqualified")
@@ -40,6 +41,7 @@ class TestPrimitives2 {
 
   @Test def testUnparseNilValueEntities2() {
     val sch = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" encoding="ascii" lengthUnits="bytes"/>,
       <xs:element name="e1" dfdl:nilValue="start%WSP;bla%%WSP;;;;foo%WSP*;bar%WSP+;baz%ES;quux%NL;boo%%baz%%NL;end" dfdl:outputNewline="%LF;" nillable="true" dfdl:nilKind="literalValue" dfdl:lengthKind="delimited" type="xs:string"/>,
       elementFormDefault = "unqualified")

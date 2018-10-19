@@ -27,13 +27,11 @@ object TestLengthKindDelimitedDebug {
   val runner = Runner(testDir, "DelimitedTests.tdml")
   val runnerAB = Runner(testDir, "AB.tdml")
   val runnerAN = Runner(testDir, "AN.tdml")
-  val runner_01 = Runner("/org/apache/daffodil/ibm-tests/", "dpaext1.tdml")
 
   @AfterClass def shutDown {
     runner.reset
     runnerAB.reset
     runnerAN.reset
-    runner_01.reset
   }
 
 }

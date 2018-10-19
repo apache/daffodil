@@ -50,7 +50,13 @@ sealed trait DaffodilSchemaSource {
   def uriForLoading: URI
 }
 
-case class URISchemaSource(fileOrResource: URI) extends DaffodilSchemaSource {
+object URISchemaSource {
+  def apply(fileOrResource: URI) = {
+    new URISchemaSource(fileOrResource)
+  }
+}
+
+class URISchemaSource protected (val fileOrResource: URI) extends DaffodilSchemaSource {
 
   override def equals(other: Any) = other match {
     case oth: URISchemaSource => this.fileOrResource == oth.fileOrResource
@@ -125,24 +131,27 @@ case class InputStreamSchemaSource(is: java.io.InputStream, tmpDir: Option[File]
   override def uriForLoading = tempURI
 }
 
-protected sealed abstract class NodeSchemaSourceBase(node: Node, nameHint: String, tmpDir: Option[File]) extends DaffodilSchemaSource {
-  lazy val tempSchemaFile = XMLUtils.convertNodeToTempFile(node, tmpDir.getOrElse(null), nameHint)
-  lazy val tempURI = tempSchemaFile.toURI
+protected sealed abstract class NodeSchemaSourceBase(node: Node, nameHint: String, tmpDir: Option[File])
+  extends URISchemaSource({
+    val tempSchemaFile = XMLUtils.convertNodeToTempFile(node, tmpDir.orNull, nameHint)
+    val tempURI = tempSchemaFile.toURI
+    tempURI
+  }) {
+
   def blameName: String
+
   override def newInputSource() = {
-    val is = new FileInputStream(tempSchemaFile)
-    val inSrc = new InputSource(is)
+    val inSrc = new InputSource(this.uriForLoading.toURL().openStream())
     inSrc.setSystemId(blameName)
     inSrc
   }
-  override def uriForLoading = tempURI
 }
 
 case class UnitTestSchemaSource(node: Node, nameHint: String, optTmpDir: Option[File] = None)
   extends NodeSchemaSourceBase(node, nameHint, optTmpDir) {
   override val blameName =
     if (nameHint != "") "unittest:" + nameHint
-    else tempURI.toString
+    else uriForLoading.toString
 }
 
 /**
@@ -151,5 +160,5 @@ case class UnitTestSchemaSource(node: Node, nameHint: String, optTmpDir: Option[
  */
 case class EmbeddedSchemaSource(node: Node, nameHint: String, optTmpDir: Option[File] = None)
   extends NodeSchemaSourceBase(node, nameHint, optTmpDir) {
-  override val blameName = tempURI.toString
+  override val blameName = nameHint
 }

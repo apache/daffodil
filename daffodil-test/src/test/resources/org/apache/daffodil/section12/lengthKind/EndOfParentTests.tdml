@@ -24,7 +24,8 @@
 
 	<tdml:defineSchema name="endOfParent-Embedded.dfdl.xsd">
 
-		<dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"
+		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"
 			separator="" leadingSkip='0' encoding="US-ASCII" ignoreCase='no'
 			initiator="" terminator="" initiatedContent="no" textNumberRep="standard"
 			separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"

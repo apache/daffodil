@@ -37,7 +37,13 @@
         byteOrder="bigEndian" binaryNumberRep="binary"
         emptyValueDelimiterPolicy='none' textTrimKind="none" 
         occursCountKind='implicit' 
-        calendarFirstDayOfWeek='Sunday' calendarDaysInFirstWeek='4' calendarTimeZone='UTC-6' calendarCheckPolicy='strict' calendarLanguage='en' escapeSchemeRef=''
+        calendarFirstDayOfWeek='Sunday' 
+        calendarDaysInFirstWeek='4' 
+        calendarTimeZone='UTC-6' 
+        calendarCheckPolicy='strict'
+        calendarLanguage='en' 
+        escapeSchemeRef=''
+        encodingErrorPolicy="error"
         daf:parseUnparsePolicy="parseOnly" />
     </appinfo>
   </annotation>
@@ -205,7 +211,8 @@
   <group name="EOT">
     <sequence>
       <element name="EOT_BYTE" type="xs:byte" minOccurs="3"
-        maxOccurs="3" dfdl:representation="binary" dfdl:lengthKind="implicit" />
+        maxOccurs="3" dfdl:representation="binary" dfdl:lengthKind="implicit"
+      />
     </sequence>
   </group>
 

@@ -31,10 +31,11 @@
  <tdml:defineSchema name="s1" 
  elementFormDefault="unqualified"
  >
-  <dfdl:format
-   ref="ex:GeneralFormat"
-   lengthKind="explicit" 
-   representation="binary" lengthUnits="bits"/>
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format
+      ref="ex:GeneralFormat"
+      lengthKind="explicit" 
+      representation="binary" lengthUnits="bits"/>
 
   <xs:element name="e1" dfdl:lengthKind="implicit">
    <xs:complexType>
@@ -110,6 +111,7 @@
 
 <tdml:defineSchema name="s2" elementFormDefault="unqualified">
   
+  <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
   <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"/>
    
   <!-- This for reproducing the diagnostic about upward paths past root -->
@@ -135,7 +137,6 @@
       <tdml:error>Relative path</tdml:error>
       <tdml:error>past root element</tdml:error>
       <tdml:error>ex:f1</tdml:error>
-      <tdml:error>line</tdml:error>
       <tdml:error>../ex:f2</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
@@ -224,6 +225,7 @@
 
   <tdml:defineSchema name="traceComplex" elementFormDefault="unqualified">
 
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:element name="e">
