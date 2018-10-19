@@ -26,12 +26,13 @@
 
   <tdml:defineSchema name="lengthKindDelimited-Embedded.dfdl.xsd">
 
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"
       lengthUnits="bytes" encoding="ascii" separator="" initiator=""
       terminator="" occursCountKind="implicit" ignoreCase="no"
       textNumberRep="standard" representation="text" initiatedContent="no" />
     <dfdl:defineFormat name="trimmed">
-       <dfdl:format ref="ex:GeneralFormat" textTrimKind="padChar" textPadKind="padChar"
+      <dfdl:format ref="ex:GeneralFormat" textTrimKind="padChar" textPadKind="padChar"
                       textStringPadCharacter="%SP;" textStringJustification="center"
                       truncateSpecifiedLengthString="no"/>
     </dfdl:defineFormat>
@@ -944,6 +945,7 @@ C</MessageHeaders>
 
   <tdml:defineSchema name="refInitiator.xsd">
 
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" encoding="utf-8" byteOrder="bigEndian"
       occursCountKind="parsed" ignoreCase="no" representation="text"
@@ -1012,6 +1014,7 @@ C</MessageHeaders>
   <tdml:defineSchema name="refInitiator2.xsd">
 
 
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" encoding="utf-8" byteOrder="bigEndian"
       occursCountKind="parsed" ignoreCase="no" representation="text"
@@ -1088,7 +1091,8 @@ C</MessageHeaders>
   </tdml:parserTestCase>
 
 	<tdml:defineSchema name="wspstar_nl">
-		<dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"
+		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"
 			lengthUnits="bytes" encoding="ascii" separator="" initiator=""
 			terminator="" occursCountKind="parsed" ignoreCase="no" textNumberRep="standard"
 			representation="text" initiatedContent="no" />
@@ -1112,6 +1116,7 @@ C</MessageHeaders>
   
   <tdml:defineSchema name="delimitedBinary">
 
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" encoding="utf-8" byteOrder="bigEndian"
       occursCountKind="parsed" ignoreCase="no" representation="binary"

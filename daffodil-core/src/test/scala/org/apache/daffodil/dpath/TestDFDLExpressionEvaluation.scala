@@ -60,6 +60,7 @@ class TestDFDLExpressionEvaluation extends Parsers {
 
   @Test def test_a() = {
     val schema = SchemaUtils.dfdlTestSchemaUnqualified(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="a" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ xs:unsignedInt(5) }"/>)
 
@@ -71,6 +72,7 @@ class TestDFDLExpressionEvaluation extends Parsers {
 
   @Test def test_ba() {
     val schema = SchemaUtils.dfdlTestSchemaUnqualified(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="b">
         <xs:complexType>
@@ -88,6 +90,7 @@ class TestDFDLExpressionEvaluation extends Parsers {
 
   @Test def test_arrayCount1() {
     val schema = SchemaUtils.dfdlTestSchemaUnqualified(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="b">
         <xs:complexType>
@@ -104,6 +107,7 @@ class TestDFDLExpressionEvaluation extends Parsers {
 
   @Test def test_arrayIndex1() {
     val schema = SchemaUtils.dfdlTestSchemaUnqualified(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="b">
         <xs:complexType>
@@ -120,6 +124,7 @@ class TestDFDLExpressionEvaluation extends Parsers {
 
   @Test def test_absPathWithArrayIndex1() {
     val schema = SchemaUtils.dfdlTestSchemaUnqualified(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="b">
         <xs:complexType>
@@ -136,6 +141,7 @@ class TestDFDLExpressionEvaluation extends Parsers {
 
   @Test def test_ivc1() {
     val schema = SchemaUtils.dfdlTestSchemaUnqualified(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="b">
         <xs:complexType>

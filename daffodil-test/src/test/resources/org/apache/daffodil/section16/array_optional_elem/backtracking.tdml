@@ -28,6 +28,7 @@
     <xsd:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
 
     <!-- Must be utf-8, or it chooses the other backend which does more copying and so doesn't show up the bug. -->
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" encoding="UTF-8" lengthKind="delimited" />
 
     <xsd:element name="A">

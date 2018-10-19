@@ -22,6 +22,7 @@
   suiteName="escapeSchemeUnparse">
 
   <tdml:defineSchema name="delimitedStringsEscapeScheme">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" encoding="ascii" lengthUnits="bytes" outputNewLine="%CR;%LF;"/>
       <dfdl:defineEscapeScheme name="pound">
         <dfdl:escapeScheme escapeCharacter='#'
@@ -382,12 +383,12 @@
   <tdml:unparserTestCase name="unparseInvalidExtraEscapedCharacters" model="delimitedStringsEscapeScheme" root="e9" roundTrip="true">
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <ex:e8 xmlns:ex="http://example.com">
+        <ex:e9 xmlns:ex="http://example.com">
           <ex:s1>one,two</ex:s1>
           <ex:s1>three</ex:s1>
           <ex:s1>four/</ex:s1>
           <ex:s1>five</ex:s1>
-        </ex:e8>
+        </ex:e9>
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:errors>
@@ -398,6 +399,7 @@
   </tdml:unparserTestCase>
   
   <tdml:defineSchema name="foo">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" encoding="ascii" lengthUnits="bytes" outputNewLine="%CR;%LF;"/>
         <dfdl:defineEscapeScheme name='quoteSlash'>
           <dfdl:escapeScheme escapeBlockStart='"'

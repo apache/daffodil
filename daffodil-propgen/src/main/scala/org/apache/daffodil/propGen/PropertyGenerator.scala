@@ -37,12 +37,12 @@ class PropertyGenerator(arg: Node) {
   val dfdlSchema = arg
 
   val excludedTypes = List("TextNumberBase", "AlignmentType", "FillByteType", "BinaryBooleanTrueRepType", "BinaryBooleanFalseRepType",
-    "SeparatorSuppressionPolicy", "dafint:daffodilAG", // Do these by hand.
+    "SeparatorSuppressionPolicy", "dafint:daffodilAG", "TextStandardExponentRep", "TextOutputMinLength", // Do these by hand.
     "PropertyNameType", "PropertyType", // Not used and causes conflict with daf namespace
     "externalVariableBindings", "externalVarType", "bind", "bindNameType", "bindType", "tunables") // Ignore daffodil configuration types
 
   val excludedAttributes = List("TextNumberBase",
-    "SeparatorSuppressionPolicy") // Do these by hand.
+    "SeparatorSuppressionPolicy", "TextStandardExponentRep", "TextOutputMinLength" ) // Do these by hand.
 
   def excludeType(name: String) = {
     excludedTypes.exists { _.toUpperCase.contains(name.toUpperCase()) }
@@ -226,7 +226,10 @@ class PropertyGenerator(arg: Node) {
       // We don't want properties for these.
       val notFormatProperties = List("ref", "type", "name", "test", "defaultValue", "message", "baseFormat")
       val notScopedFormatProperties = List("inputValueCalc", "outputValueCalc", "hiddenGroupRef") // do these by-hand since they are not scoped.
-      val excludedBecauseDoneByHand = List("separatorSuppressionPolicy", "separatorPolicy")
+      val excludedBecauseDoneByHand =
+        List("separatorSuppressionPolicy", "separatorPolicy",
+            "textStandardExponentRep", "textStandardExponentCharacter",
+            "textOutputMinLength")
       val exclusions = notFormatProperties ++ notScopedFormatProperties ++ excludedBecauseDoneByHand
       if (rawName == "binaryFloatRep") {
       }

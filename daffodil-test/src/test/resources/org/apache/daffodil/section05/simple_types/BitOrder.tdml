@@ -25,6 +25,7 @@
 
 
   <tdml:defineSchema name="s">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" representation="binary"
       lengthUnits="bits" bitOrder='leastSignificantBitFirst' lengthKind='explicit'
       byteOrder='littleEndian' alignmentUnits='bits' alignment='1'
@@ -147,6 +148,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="s2">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" representation="binary"
       lengthUnits="bits" bitOrder='leastSignificantBitFirst' lengthKind='explicit'
       alignmentUnits='bits' alignment='1' binaryNumberRep='binary'
@@ -266,6 +268,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="s3">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" representation="binary"
       lengthUnits="bits" bitOrder='mostSignificantBitFirst' lengthKind='explicit'
       alignmentUnits='bits' alignment='1' binaryNumberRep='binary'/>
@@ -349,6 +352,7 @@
   </tdml:unparserTestCase>
 
   <tdml:defineSchema name="s4">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" representation="binary" lengthUnits="bytes"
       lengthKind='explicit' alignmentUnits='bytes' alignment='1' binaryNumberRep='binary' />
 
@@ -396,6 +400,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="s5">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" representation="binary" lengthUnits="bytes"
       lengthKind='explicit' alignmentUnits='bytes' alignment='1' binaryNumberRep='binary' />
 
@@ -456,6 +461,7 @@
   </tdml:unparserTestCase>
 
   <tdml:defineSchema name="s6">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" representation="binary"
       lengthUnits="bits" lengthKind='explicit'
       alignmentUnits='bits' alignment='1' binaryNumberRep='binary'/>
@@ -565,6 +571,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="s7">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" representation="binary"
       lengthUnits="bits" bitOrder='mostSignificantBitFirst' lengthKind='explicit'
       alignmentUnits='bits' alignment='1' binaryNumberRep='binary'

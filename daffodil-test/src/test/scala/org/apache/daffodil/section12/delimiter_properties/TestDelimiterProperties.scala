@@ -22,14 +22,11 @@ import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 
 object TestDelimiterProperties {
-  val testDir_01 = "/org/apache/daffodil/ibm-tests/"
-  val runner_01 = Runner(testDir_01, "dpaext1.tdml")
 
   val testDir_02 = "/org/apache/daffodil/section12/delimiter_properties/"
   val runner_02 = Runner(testDir_02, "DelimiterProperties.tdml")
 
   @AfterClass def shutDown {
-    runner_01.reset
     runner_02.reset
   }
 
@@ -38,11 +35,6 @@ object TestDelimiterProperties {
 class TestDelimiterProperties {
 
   import TestDelimiterProperties._
-
-  @Test def test_delimiter_12_01() { runner_01.runOneTest("delimiter_12_01") }
-  @Test def test_delimiter_12_02() { runner_01.runOneTest("delimiter_12_02") }
-  @Test def test_delimiter_12_03() { runner_01.runOneTest("delimiter_12_03") }
-  @Test def test_delimiter_12_04() { runner_01.runOneTest("delimiter_12_04") }
 
   @Test def test_DelimProp_01() = { runner_02.runOneTest("DelimProp_01") }
   @Test def test_ParseSequence4() { runner_02.runOneTest("ParseSequence4") }

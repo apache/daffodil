@@ -58,6 +58,7 @@ class TestInfosetInputterFromReader {
 
   @Test def testUnparseFixedLengthString1() {
     val sch = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="foo" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string"/>)
     val infosetXML = <foo xmlns={ XMLUtils.EXAMPLE_NAMESPACE }>Hello</foo>
@@ -66,6 +67,7 @@ class TestInfosetInputterFromReader {
 
   @Test def testInfosetInputter1() {
     val sch = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="foo" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string"/>)
     val infosetXML = <foo xmlns={ XMLUtils.EXAMPLE_NAMESPACE }>Hello</foo>
@@ -78,6 +80,7 @@ class TestInfosetInputterFromReader {
 
   @Test def testInfosetInputterNil1() {
     val sch = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element nillable="true" dfdl:nilValue="nil" dfdl:nilKind="literalValue" name="foo" dfdl:lengthKind="explicit" dfdl:length="3" type="xs:string"/>)
     val infosetXML = <foo xsi:nil="true" xmlns={ XMLUtils.EXAMPLE_NAMESPACE } xmlns:xsi={ XMLUtils.XSI_NAMESPACE }/>
@@ -89,6 +92,7 @@ class TestInfosetInputterFromReader {
 
   @Test def testInfosetComplex1() {
     val sch = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="bar" dfdl:lengthKind="implicit">
         <xs:complexType>
@@ -112,6 +116,7 @@ class TestInfosetInputterFromReader {
 
   @Test def testInfosetComplex2() {
     val sch = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="bar" dfdl:lengthKind="implicit">
         <xs:complexType>
@@ -140,6 +145,7 @@ class TestInfosetInputterFromReader {
 
   @Test def testInfosetComplex3() {
     val sch = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="quux">
         <xs:complexType>
@@ -200,6 +206,7 @@ class TestInfosetInputterFromReader {
 
   @Test def testInfosetArray1() {
     val sch = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="bar" dfdl:lengthKind="implicit">
         <xs:complexType>
@@ -231,6 +238,7 @@ class TestInfosetInputterFromReader {
 
   @Test def testInfosetArray2() {
     val sch = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="bar" dfdl:lengthKind="implicit">
         <xs:complexType>
@@ -268,6 +276,7 @@ class TestInfosetInputterFromReader {
 
   @Test def testInfosetArray3() {
     val sch = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="bar" dfdl:lengthKind="implicit">
         <xs:complexType>
@@ -306,6 +315,7 @@ class TestInfosetInputterFromReader {
 
   @Test def testInfosetArray4() {
     val sch = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="bar" dfdl:lengthKind="implicit">
         <xs:complexType>
@@ -346,6 +356,7 @@ class TestInfosetInputterFromReader {
 
   @Test def testInfosetComplexPeek1() {
     val sch = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="bar" dfdl:lengthKind="implicit">
         <xs:complexType>
@@ -378,6 +389,7 @@ class TestInfosetInputterFromReader {
 
   @Test def testInfosetArrayComplex1() {
     val sch = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="e" dfdl:lengthKind="implicit">
         <xs:complexType>

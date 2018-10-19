@@ -23,17 +23,12 @@ import org.junit.AfterClass
 
 object TestSequenceGroupsDebug {
 
-  val testDir = "/org/apache/daffodil/ibm-tests/"
   val testDir_01 = "/org/apache/daffodil/section14/sequence_groups/"
 
-  val runner = Runner(testDir, "dpaext1.tdml")
-  val runner2 = Runner(testDir, "dpaext2.tdml")
   val runner_01 = Runner(testDir_01, "SequenceGroupDelimiters.tdml")
   var runner_02 = Runner(testDir_01, "SequenceGroup.tdml", validateTDMLFile = false)
 
   @AfterClass def shutDown {
-    runner.reset
-    runner2.reset
     runner_01.reset
     runner_02.reset
   }

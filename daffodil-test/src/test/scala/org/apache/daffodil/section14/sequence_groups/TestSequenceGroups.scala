@@ -23,17 +23,12 @@ import org.junit.AfterClass
 
 object TestSequenceGroups {
 
-  val testDir = "/org/apache/daffodil/ibm-tests/"
   val testDir_01 = "/org/apache/daffodil/section14/sequence_groups/"
 
-  val runner = Runner(testDir, "dpaext1.tdml")
-  val runner2 = Runner(testDir, "dpaext2.tdml")
   val runner_01 = Runner(testDir_01, "SequenceGroupDelimiters.tdml")
   var runner_02 = Runner(testDir_01, "SequenceGroup.tdml", validateTDMLFile = false)
 
   @AfterClass def shutDown {
-    runner.reset
-    runner2.reset
     runner_01.reset
     runner_02.reset
   }
@@ -44,11 +39,8 @@ class TestSequenceGroups {
 
   import TestSequenceGroups._
 
-  @Test def test_multiple_delimiters2() { runner.runOneTest("multiple_delimiters2") }
 
-  @Test def test_sequences_separated_14_03() { runner2.runOneTest("sequences_separated_14_03") }
-  @Test def test_sequences_separated_14_05() { runner2.runOneTest("sequences_separated_14_05") }
-  @Test def test_sequences_separated_14_06() { runner2.runOneTest("sequences_separated_14_06") }
+
 
   @Test def test_SeqGrp_01() { runner_01.runOneTest("SeqGrp_01") }
   @Test def test_SeqGrp_02() { runner_01.runOneTest("SeqGrp_02") }

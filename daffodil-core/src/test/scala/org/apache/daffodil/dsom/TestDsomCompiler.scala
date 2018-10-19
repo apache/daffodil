@@ -48,6 +48,7 @@ class TestDsomCompiler extends Logging {
 
   @Test def testHasProps() {
     val testSchema = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="list" type="tns:example1"/>
       <xs:complexType name="example1">
@@ -72,6 +73,7 @@ class TestDsomCompiler extends Logging {
 
   @Test def testSchemaValidationSubset() {
     val sch: Node = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="list">
         <xs:complexType>
@@ -99,6 +101,7 @@ class TestDsomCompiler extends Logging {
   @Test def testTypeReferentialError() {
     // LoggingDefaults.setLoggingLevel(LogLevel.OOLAGDebug)
     val sch: Node = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="list" type="typeDoesNotExist"/>)
     val pf = Compiler().compileNode(sch)
@@ -125,6 +128,7 @@ class TestDsomCompiler extends Logging {
 
   @Test def testSchemaValidationPropertyChecking() {
     val s: Node = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="list">
         <xs:complexType>
@@ -146,6 +150,7 @@ class TestDsomCompiler extends Logging {
 
   @Test def test2() {
     val sc = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
 
       <xs:element name="list" type="tns:example1">
@@ -176,6 +181,7 @@ class TestDsomCompiler extends Logging {
 
   @Test def testSequence1() {
     val testSchema = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
 
       <xs:element name="list" type="tns:example1">
@@ -523,6 +529,7 @@ class TestDsomCompiler extends Logging {
 
   @Test def testDfdlRef() {
     val testSchema = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:defineFormat name="ref1"> <dfdl:format initiator=":"/> </dfdl:defineFormat>,
       <xs:element name="e1" dfdl:lengthKind="implicit" dfdl:ref="tns:ref1" type="xs:string">
       </xs:element>)
@@ -538,6 +545,7 @@ class TestDsomCompiler extends Logging {
 
   @Test def testGetQName = {
     val testSchema = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:defineFormat name="ref1">
         <dfdl:format initiator=":" alignmentUnits="bits"/>
       </dfdl:defineFormat>,
@@ -569,6 +577,7 @@ class TestDsomCompiler extends Logging {
 
   @Test def test_escapeSchemeOverride = {
     val testSchema = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format separator="" initiator="" terminator="" emptyValueDelimiterPolicy="none" textNumberRep="standard" representation="text" occursStopValue="-1" occursCountKind="expression" escapeSchemeRef="pound"/>
       <dfdl:defineEscapeScheme name="pound">
         <dfdl:escapeScheme escapeCharacter='#' escapeKind="escapeCharacter"/>
@@ -635,6 +644,7 @@ class TestDsomCompiler extends Logging {
 
   @Test def testPathWithIndexes() {
     val testSchema = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="r" type="tns:myType"/>
       <xs:complexType name="myType">

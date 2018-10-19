@@ -24,12 +24,13 @@
 	defaultRoundTrip="true">
 
 	<tdml:defineSchema name="lengthKind_explicit">
-      <dfdl:defineFormat name="trimmed">
-         <dfdl:format ref="ex:GeneralFormat" textTrimKind="padChar"
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:defineFormat name="trimmed">
+      <dfdl:format ref="ex:GeneralFormat" textTrimKind="padChar"
                       textStringPadCharacter="%SP;" textStringJustification="center" 
                       truncateSpecifiedLengthString="no" textPadKind="padChar" />
-      </dfdl:defineFormat>
-		<dfdl:format ref="ex:GeneralFormat" />
+    </dfdl:defineFormat>
+    <dfdl:format ref="ex:GeneralFormat" />
 
 		<xs:element name="address" dfdl:lengthKind="implicit">
 			<xs:complexType>
@@ -65,12 +66,13 @@
 	</tdml:parserTestCase>
 
 	<tdml:defineSchema name="test_ExplicitLengthBits">
-      <dfdl:defineFormat name="trimmed">
-         <dfdl:format ref="ex:GeneralFormat" textTrimKind="padChar"
+    <dfdl:defineFormat name="trimmed">
+      <dfdl:format ref="ex:GeneralFormat" textTrimKind="padChar"
                       textStringPadCharacter="%SP;" textStringJustification="center" textPadKind="padChar"
                       truncateSpecifiedLengthString="no"/>
-      </dfdl:defineFormat>
-		<dfdl:format ref="ex:GeneralFormat" />
+    </dfdl:defineFormat>
+		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" />
 
 		<xs:element name="notFixed">
 			<xs:complexType>
@@ -180,12 +182,13 @@
 	</tdml:parserTestCase>
 
 	<tdml:defineSchema name="test_ExplicitLengthChildLengthLessParent">
-      <dfdl:defineFormat name="trimmed">
-         <dfdl:format ref="ex:GeneralFormat" textTrimKind="padChar"
+    <dfdl:defineFormat name="trimmed">
+      <dfdl:format ref="ex:GeneralFormat" textTrimKind="padChar"
                       textStringPadCharacter="%SP;" textStringJustification="center" 
                       truncateSpecifiedLengthString="no"/>
-      </dfdl:defineFormat>
-		<dfdl:format ref="ex:GeneralFormat" />
+    </dfdl:defineFormat>
+		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" />
 
 		<xs:element name="fixed1">
 			<xs:complexType>
@@ -337,12 +340,13 @@
   </tdml:parserTestCase>
 
 	<tdml:defineSchema name="test_ExplicitLengthBytes">
-      <dfdl:defineFormat name="trimmed">
-         <dfdl:format ref="ex:GeneralFormat" textTrimKind="padChar"
+    <dfdl:defineFormat name="trimmed">
+      <dfdl:format ref="ex:GeneralFormat" textTrimKind="padChar"
                       textStringPadCharacter="%SP;" textStringJustification="center" 
                       truncateSpecifiedLengthString="no" textPadKind="padChar"/>
-      </dfdl:defineFormat>
-		<dfdl:format ref="ex:GeneralFormat" />
+    </dfdl:defineFormat>
+		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" />
 
 		<xs:element name="notFixed">
 			<xs:complexType>
@@ -601,12 +605,13 @@
     </tdml:parserTestCase>
         
 	<tdml:defineSchema name="test_ExplicitLengthChars">
-      <dfdl:defineFormat name="trimmed">
-         <dfdl:format ref="ex:GeneralFormat" textTrimKind="padChar"
+    <dfdl:defineFormat name="trimmed">
+      <dfdl:format ref="ex:GeneralFormat" textTrimKind="padChar"
                       textStringPadCharacter="%SP;" textStringJustification="center" 
                       truncateSpecifiedLengthString="no" textPadKind="padChar"/>
-      </dfdl:defineFormat>
-		<dfdl:format ref="ex:GeneralFormat" />
+    </dfdl:defineFormat>
+		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" />
 
 		<xs:element name="notFixed">
 			<xs:complexType>
@@ -765,6 +770,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="explicitLenBytes">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:element name="stringy" type="xs:string" dfdl:representation="binary" dfdl:lengthUnits="bytes" dfdl:lengthKind="explicit" dfdl:length="6"/>
@@ -831,9 +837,10 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="s1">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
     <dfdl:defineFormat name="bits">
-    <dfdl:format ref="ex:GeneralFormat" lengthUnits="bits" alignmentUnits="bits" 
+      <dfdl:format ref="ex:GeneralFormat" lengthUnits="bits" alignmentUnits="bits" 
       alignment="1" representation="binary" encoding="ascii"
       lengthKind="explicit" occursCountKind="parsed" 
       bitOrder="leastSignificantBitFirst" 

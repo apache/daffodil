@@ -57,11 +57,11 @@ object ExternalVariablesLoader {
     bindings
   }
 
-  def getVariables(node: Node, tunableArg: DaffodilTunables): Seq[Binding] = getBindings(node, tunableArg)
+  def getVariables(node: Node, tunableArg: DaffodilTunables): Seq[Binding] = Binding.getBindings(node, tunableArg)
 
   def getVariables(varsFile: File, tunableArg: DaffodilTunables): Seq[Binding] = {
     val node = getVariablesAsNode(varsFile)
-    val bindings = this.getBindings(node, tunableArg)
+    val bindings = Binding.getBindings(node, tunableArg)
     bindings
   }
 
@@ -115,7 +115,7 @@ object ExternalVariablesLoader {
   def loadVariables(node: Node, referringContext: ThrowsSDE, vmap: VariableMap, tunableArg: DaffodilTunables): VariableMap = {
     Assert.usage(node != null, "loadVariables expects 'node' to not be null!")
     Assert.usage(referringContext != null, "loadVariables expects 'referringContext' to not be null!")
-    val bindings = getBindings(node, tunableArg)
+    val bindings = Binding.getBindings(node, tunableArg)
     loadVariables(bindings, referringContext, vmap)
   }
 
@@ -123,11 +123,6 @@ object ExternalVariablesLoader {
     Assert.usage(referringContext != null, "loadVariables expects 'referringContext' to not be null!")
     val finalVMap = VariableUtils.setExternalVariables(vmap, bindings, referringContext)
     finalVMap
-  }
-
-  private def getBindings(extVarBindings: Node, tunableArg: DaffodilTunables) = {
-    val bindings = extVarBindings \ "bind"
-    bindings.map(b => Binding(b, tunableArg))
   }
 
 }

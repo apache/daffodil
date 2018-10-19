@@ -40,7 +40,7 @@ object DaffodilTunables {
     val configTunables: Map[String, String] =
       if (configOpt.isDefined) {
         val loader = new DaffodilXMLLoader()
-        val node = loader.load(new URISchemaSource(configOpt.get))
+        val node = loader.load(URISchemaSource(configOpt.get))
         val trimmed = scala.xml.Utility.trim(node)
         val tunablesNode = (trimmed \ "tunables").headOption
         val tunablesMap: Map[String, String] = tunablesNode match {

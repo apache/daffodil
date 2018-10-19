@@ -23,6 +23,7 @@
   defaultRoundTrip="true">
 
   <tdml:defineSchema name="SimpleTypes-Embedded.dfdl.xsd">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="implicit" representation="text"
         lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator=""
         separator="" textNumberCheckPolicy="lax" ignoreCase="no" textNumberRep="standard"
@@ -194,6 +195,7 @@
   </tdml:defineSchema>
 
   <tdml:defineSchema name="SimpleTypes-binary">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" representation="binary"
       lengthUnits="bytes"
       textPadKind="padChar" textTrimKind="padChar" />
@@ -365,8 +367,7 @@
       dfdl:binaryPackedSignCodes="C D F C" dfdl:binaryNumberCheckPolicy="strict" dfdl:calendarTimeZone=""/>
     <xs:element name="dateBinPacked2" type="xs:date" dfdl:calendarPattern="MMddyy" dfdl:calendarPatternKind="explicit"
       dfdl:lengthKind="explicit" dfdl:length="{ 4 }" dfdl:lengthUnits="bytes" dfdl:binaryCalendarRep="packed" />
-    <xs:element name="dateBinPacked3" type="xs:date" dfdl:calendarPattern="MMddyy" dfdl:calendarPatternKind="explicit"
-      dfdl:lengthKind="explicit" dfdl:length="{ 4 }" dfdl:lengthUnits="bytes" dfdl:binaryCalendarRep="packed" dfdl:binaryPackedSignCodes="C D F C" />
+
     <xs:element name="dateBinPacked4">
       <xs:complexType>
         <xs:sequence>
@@ -2835,19 +2836,6 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="dateBinPacked3" root="dateBinPacked3"
-    model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R"
-    roundTrip="true">
-
-    <tdml:document>
-      <tdml:documentPart type="byte">01 21 42 3C</tdml:documentPart>
-    </tdml:document>
-    <tdml:errors>
-      <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Property binaryNumberCheckPolicy is not defined</tdml:error>
-    </tdml:errors>
-  </tdml:parserTestCase>
-
   <tdml:parserTestCase name="dateBinPacked4" root="dateBinPacked4"
     model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R"
     roundTrip="true">
@@ -4027,6 +4015,7 @@
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="SimpleTypes-padding">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" representation="text"
       lengthUnits="characters" encoding="utf-8" byteOrder="bigEndian" 
       textStringPadCharacter="X" textStringJustification="left" textTrimKind="padChar" textPadKind="padChar"
@@ -4529,7 +4518,8 @@
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="dateTimeSchemaTNR">
-            <dfdl:format ref="tns:GeneralFormat" initiator="" terminator="" leadingSkip="0" 
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="tns:GeneralFormat" initiator="" terminator="" leadingSkip="0" 
                 trailingSkip="0"  textBidi="no" floating="no"   encoding="utf-8" 
                 byteOrder="bigEndian" alignment="1" alignmentUnits="bytes" fillByte="f" 
                 occursCountKind="implicit" 
@@ -4555,6 +4545,7 @@
   
   <tdml:defineSchema name="dateTimeSchema">
   
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
 
 <!--
@@ -6990,6 +6981,7 @@
   
   
   <tdml:defineSchema name="HexBinary">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"
       lengthUnits="bytes" encoding="UTF-8" separator="" initiator=""
       terminator="" occursCountKind="parsed" ignoreCase="no"
@@ -7582,7 +7574,8 @@
   
   <tdml:defineSchema name="DFDL-307-one-octet.dfdl.xsd">
 
-        <dfdl:format ref="ex:GeneralFormat" representation="binary"
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" representation="binary"
             binaryNumberRep="binary" lengthUnits="bits" byteOrder='bigEndian'
             alignment="1" alignmentUnits="bits" lengthKind='explicit' />
 

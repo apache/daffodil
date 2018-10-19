@@ -94,6 +94,7 @@ import javax.xml.parsers.DocumentBuilderFactory
 import org.apache.commons.io.IOUtils
 import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.io.InputSourceDataInputStream
+import org.apache.daffodil.tdml.TDMLTestNotCompatibleException
 
 class NullOutputStream extends OutputStream {
   override def close() {}
@@ -543,7 +544,6 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
   addSubcommand(save)
   addSubcommand(test)
 
-
   validateOpt(trace, debug) {
     case (Some(true), Some(_)) => Left("Only one of --trace and --debug may be defined")
     case _ => Right(Unit)
@@ -559,7 +559,8 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
 
 object Main extends Logging {
 
-  val traceCommands = Seq("display info parser",
+  val traceCommands = Seq(
+    "display info parser",
     "display info data",
     "display info infoset",
     "display info diff",
@@ -1191,14 +1192,14 @@ object Main extends Logging {
             testOpts.names().flatMap(testName => {
               if (testOpts.regex()) {
                 val regex = testName.r
-                val matches = tdmlRunner.testCases.filter(testCase => regex.pattern.matcher(testCase.name).matches)
-                matches.map(testCase => (testCase.name, Some(testCase)))
+                val matches = tdmlRunner.testCases.filter(testCase => regex.pattern.matcher(testCase.tcName).matches)
+                matches.map(testCase => (testCase.tcName, Some(testCase)))
               } else {
-                List((testName, tdmlRunner.testCases.find(_.name == testName)))
+                List((testName, tdmlRunner.testCases.find(_.tcName == testName)))
               }
             })
           } else {
-            tdmlRunner.testCases.map(test => (test.name, Some(test)))
+            tdmlRunner.testCases.map(test => (test.tcName, Some(test)))
           }
         }.distinct.sortBy(_._1)
 
@@ -1218,7 +1219,7 @@ object Main extends Logging {
                     case (name, Some(test)) => List(
                       maxVals(0).max(name.length),
                       maxVals(1).max(test.model.length),
-                      maxVals(2).max(test.root.length),
+                      maxVals(2).max(test.rootName.length),
                       maxVals(3).max(test.description.length))
                   }
                 }
@@ -1227,7 +1228,7 @@ object Main extends Logging {
             println(formatStr.format(headers: _*))
             tests.foreach { testPair =>
               testPair match {
-                case (name, Some(test)) => println(formatStr.format(name, test.model, test.root, test.description))
+                case (name, Some(test)) => println(formatStr.format(name, test.model, test.rootName, test.description))
                 case (name, None) => println(formatStr.format(name, "[Not Found]", "", ""))
               }
             }
@@ -1254,7 +1255,10 @@ object Main extends Logging {
                 } catch {
                   case s: scala.util.control.ControlThrowable => throw s
                   case u: UnsuppressableException => throw u
-                  case e: Throwable =>
+                  case e: TDMLTestNotCompatibleException => {
+                    println("[Skipped] %s (Not compatible implementation.)".format(name))
+                  }
+                  case e: Throwable => {
                     println("[Fail] %s".format(name))
                     fail += 1
                     if (testOpts.info() > 0) {
@@ -1272,6 +1276,7 @@ object Main extends Logging {
                         e.getStackTrace.foreach { st => println(indent(st.toString, 4)) }
                       }
                     }
+                  }
                 }
                 TDMLLogWriter.reset
               }

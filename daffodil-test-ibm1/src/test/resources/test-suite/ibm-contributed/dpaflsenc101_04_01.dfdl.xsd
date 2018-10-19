@@ -30,7 +30,8 @@
 			
    <dfdl:format ref="GeneralFormat" initiator="" terminator="" truncateSpecifiedLengthString="no" textBidi="no" floating="no" encoding="UTF-32LE" 
    alignment="1" alignmentUnits="bytes" fillByte="%#r00;" leadingSkip="0" trailingSkip="0"
-   escapeSchemeRef="" ignoreCase="yes" occursCountKind="implicit" bitOrder="mostSignificantBitFirst"/>
+   escapeSchemeRef="" ignoreCase="yes" occursCountKind="implicit" bitOrder="mostSignificantBitFirst"
+   encodingErrorPolicy="error"/>
 			
 		</xs:appinfo>
 	</xs:annotation>

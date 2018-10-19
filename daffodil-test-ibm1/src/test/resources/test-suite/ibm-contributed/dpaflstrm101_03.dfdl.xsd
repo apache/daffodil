@@ -27,7 +27,7 @@
 			<dfdl:defineFormat name="config">
    <dfdl:format initiator="" terminator="" leadingSkip="0" trailingSkip="0" 
    				truncateSpecifiedLengthString="no"  textBidi="no" floating="no"
-   				encodingErrorPolicy="replace"  encoding="UTF-8" 
+   				encodingErrorPolicy="error"  encoding="UTF-8" 
    				byteOrder="bigEndian" bitOrder="mostSignificantBitFirst"
    				ignoreCase="yes"
 				textStringJustification="center"

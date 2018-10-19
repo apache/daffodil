@@ -23,24 +23,26 @@ import org.apache.daffodil.tdml.DFDLTestSuite
 import org.apache.daffodil.debugger.InteractiveDebugger
 import org.apache.daffodil.debugger.TraceDebuggerRunner
 import org.apache.daffodil.dsom.ExpressionCompilers
+import org.apache.daffodil.tdml.Runner
 
 class TestUserSubmittedTestsDebug {
   val testDir = "/org/apache/daffodil/usertests/"
-  val aa = testDir + "UserSubmittedTests.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  lazy val runner = Runner(testDir, "UserSubmittedTests.tdml")
 
   //DFDL-1118
   @Test def test_dfdl_782() = {
     val tr = new CustomTraceRunner1
     val db = new InteractiveDebugger(tr, ExpressionCompilers)
     runner.setDebugger(db)
-    runner.setDebugging(true)
 
     runner.runOneTest("test_DFDL_782")
 
     // Comment out this line to see issue
     // documented in DFDL-790
-    runner.setDebugging(false)
+    //
+    // Note: Fixed, as tests always turn off debugging at end of a test now.
+    //
+    // runner.setDebugging(false)
   }
 
 }

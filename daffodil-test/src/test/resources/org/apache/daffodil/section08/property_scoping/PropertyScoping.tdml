@@ -23,6 +23,7 @@
   defaultRoundTrip="true">
 
   <tdml:defineSchema name="defineFormat-Embedded.dfdl.xsd">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
     <dfdl:defineFormat name="format_01">
       <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"
@@ -89,6 +90,7 @@
   </tdml:unparserTestCase>
 
   <tdml:defineSchema name="defineFormat_01-Embedded.dfdl.xsd">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"
       lengthUnits="characters" encoding="UTF-8" separator="" initiator=""
       terminator="" separatorSuppressionPolicy="anyEmpty" occursCountKind="parsed"
@@ -196,6 +198,7 @@
 
   <tdml:defineSchema name="dfdl_subset-Embedded">
 
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" encoding="utf-8" byteOrder="bigEndian"
       occursCountKind="parsed" ignoreCase="no" representation="text"
@@ -246,7 +249,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="defineFormat-Nested.dfdl.xsd">
-
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:defineFormat name="format_a">
       <dfdl:format ref="ex:GeneralFormat" lengthKind="explicit"
         lengthUnits="bytes" encoding="ascii" terminator=";" length="3"
@@ -294,6 +297,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="multipleDef">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:defineFormat name="def">
       <dfdl:format ref="ex:GeneralFormat" lengthKind="explicit" lengthUnits="characters" length="4"/>
     </dfdl:defineFormat>
@@ -326,6 +330,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="multipleDef2">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:defineFormat name="def">
       <dfdl:format ref="ex:GeneralFormat" lengthKind="explicit" lengthUnits="characters" length="4"/>
     </dfdl:defineFormat>
@@ -356,6 +361,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="multipleDef3">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:defineFormat name="def">
       <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" separator=","/>
     </dfdl:defineFormat>
@@ -390,7 +396,8 @@
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="localAnnotationSchema">
-
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"
       lengthUnits="bytes" encoding="UTF-8" separator="" initiator=""
       terminator="" occursCountKind="parsed" ignoreCase="no"

@@ -17,8 +17,9 @@
 -->
 
 <testSuite suiteName="BG" xmlns="http://www.ibm.com/xmlns/dfdl/testData"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
-  xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:ex="http://example.com"
+  defaultImplementations="ibm daffodil">
 
   <parserTestCase name="BG000" root="list" model="BG.dfdl.xsd"
     description="Text number properties">
@@ -28,7 +29,7 @@
 ]]></document>
     <infoset>
       <dfdlInfoset>
-        <list xmlns="http://www.example.org/example1">
+        <ex:list>
           <x>9876543210.012345678</x>
           <x>12345.6</x>
           <x>123456789123456789</x>
@@ -43,7 +44,7 @@
           <z>10.1</z>
           <z>20.3</z>
           <z>-0.0000000000912</z>
-        </list>
+        </ex:list>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>

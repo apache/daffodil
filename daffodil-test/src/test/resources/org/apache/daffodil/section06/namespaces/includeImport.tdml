@@ -17,7 +17,7 @@
 -->
 
 <testSuite suiteName="Namespaces"
-  xmlns="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:gpf="http://www.ibm.com/dfdl/GeneralPurposeFormat" 
   xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" 
   xmlns:xs="http://www.w3.org/2001/XMLSchema" 

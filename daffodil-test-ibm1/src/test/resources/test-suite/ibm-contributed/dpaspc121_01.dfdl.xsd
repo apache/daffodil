@@ -29,13 +29,15 @@
 	<xs:annotation>
 		
 		<xs:appinfo source="http://www.ogf.org/dfdl/">
-			<dfdl:format initiator="" terminator="" leadingSkip="0" trailingSkip="0" truncateSpecifiedLengthString="no"  separator="" textBidi="no" floating="no"    encodingErrorPolicy="replace" encoding="utf-8" 
+			<dfdl:format initiator="" terminator="" leadingSkip="0" trailingSkip="0" truncateSpecifiedLengthString="no"  separator="" textBidi="no" floating="no" 
+        encodingErrorPolicy="error" encoding="utf-8" 
 				lengthUnits="bytes" lengthKind="implicit" separatorSuppressionPolicy="trailingEmpty"
 				initiatedContent="no" sequenceKind="ordered" 
 				alignment="1" alignmentUnits="bytes" fillByte="f" occursCountKind="implicit"
 				bitOrder="mostSignificantBitFirst" representation="binary"
 				textPadKind="none" textOutputMinLength="0" ignoreCase="no"
-				escapeSchemeRef=''/>
+				escapeSchemeRef=''
+        binaryNumberCheckPolicy="lax"/>
 		</xs:appinfo>
 
 	</xs:annotation>

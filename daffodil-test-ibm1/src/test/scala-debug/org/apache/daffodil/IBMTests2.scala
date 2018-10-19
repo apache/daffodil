@@ -26,7 +26,7 @@ import org.junit.Test
  * Delete this class once these regressions have been addressed.
  */
 //class IBMTestRegressions {
-//  
+//
 //  val testDir = "/test-suite/ibm-contributed/"
 //  val tdml1 = testDir + "dpaext1.tdml"
 //  val tdml2 = testDir + "dpaext2.tdml"
@@ -60,4 +60,6 @@ class IBMTestsThatThrow {
 
   @Test def test_sequences_separated_14_04() { runner2.runOneTest("sequences_separated_14_04") } // left over data
 
+  // Needs dfdl:utf16Width='variable' implementation
+  @Test def test_syntax_entities_6_03() { runner1.runOneTest("syntax_entities_6_03") }
 }

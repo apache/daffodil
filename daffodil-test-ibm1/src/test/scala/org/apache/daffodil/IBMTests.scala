@@ -64,7 +64,6 @@ class IBMTestsThatPass {
   @Test def test_scoping_define_format_8_04() { runner1.runOneTest("scoping_define_format_8_04") }
   @Test def test_scoping_define_format_8_05() { runner1.runOneTest("scoping_define_format_8_05") }
 
-
   @Test def test_encoding_11_01() { runner1.runOneTest("encoding_11_01") }
 
   @Test def test_length_implicit_12_01() { runner1.runOneTest("length_implicit_12_01") }
@@ -88,4 +87,3 @@ class IBMTestsThatPass {
 
   @Test def test_delimiter_12_02() { runner1.runOneTest("delimiter_12_02") }
 }
-

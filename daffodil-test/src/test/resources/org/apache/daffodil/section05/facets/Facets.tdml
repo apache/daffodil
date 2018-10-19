@@ -73,6 +73,7 @@
 
   <tdml:defineSchema name="facets-min0max0.dfdl.xsd">
 
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" leadingSkip="0" trailingSkip="0" textBidi="no"
       floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="1"
@@ -113,6 +114,7 @@
 
   <tdml:defineSchema name="facets-min1max1-scalar.dfdl.xsd">
 
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" leadingSkip="0" trailingSkip="0" textBidi="no"
       floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="1"
@@ -152,6 +154,7 @@
 
   <tdml:defineSchema name="facets-min2max20-array.dfdl.xsd">
 
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" leadingSkip="0" trailingSkip="0" textBidi="no"
       floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="1"
@@ -185,6 +188,7 @@
 
   <tdml:defineSchema name="arrays-min0max5.dfdl.xsd">
 
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" leadingSkip="0" trailingSkip="0" textBidi="no"
       floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="1"
@@ -222,6 +226,7 @@
 
   <tdml:defineSchema name="arrays-min1max5.dfdl.xsd">
 
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" leadingSkip="0" trailingSkip="0" textBidi="no"
       floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="1"
@@ -259,6 +264,7 @@
 
   <tdml:defineSchema name="arrays-min3max5.dfdl.xsd">
 
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" leadingSkip="0" trailingSkip="0" textBidi="no"
       floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="1"
@@ -298,6 +304,7 @@
 
   <tdml:defineSchema name="facets-min5max10.dfdl.xsd">
 
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" leadingSkip="0" trailingSkip="0" textBidi="no"
       floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="1"
@@ -331,6 +338,7 @@
 
   <tdml:defineSchema name="facets-min5max10-2.dfdl.xsd">
 
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" leadingSkip="0" trailingSkip="0" textBidi="no"
       floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="1"
@@ -382,6 +390,7 @@
 
   <tdml:defineSchema name="facets-min2max3-schemaErr.dfdl.xsd">
 
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" leadingSkip="0" trailingSkip="0" textBidi="no"
       floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="1"
@@ -424,6 +433,7 @@
 
   <tdml:defineSchema name="facets-fixedUnboundedMax-schemaErr.dfdl.xsd">
 
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" leadingSkip="0" trailingSkip="0" textBidi="no"
       floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="1"
@@ -469,6 +479,7 @@
   <tdml:defineSchema name="facets-cell-min1max1.dfdl.xsd">
 
 
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" leadingSkip="0" trailingSkip="0" textBidi="no"
       floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="1"
@@ -509,6 +520,7 @@
   <tdml:defineSchema name="facets-rowcell-min2maxUnbounded.dfdl.xsd">
 
 
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" leadingSkip="0" trailingSkip="0" textBidi="no"
       floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="1"
@@ -2766,6 +2778,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="pattern">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:element name="e1" dfdl:lengthKind="delimited">
@@ -3183,6 +3196,7 @@
   
 
   <tdml:defineSchema name="lengthFacets">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" representation="text"/>
     <xs:element name="e1" dfdl:lengthKind="implicit" dfdl:lengthUnits="bytes">
       <xs:annotation>
@@ -3295,6 +3309,7 @@
   </tdml:defineSchema>
 
   <tdml:defineSchema name="lengthFacetsIsolate">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" representation="text"/>
     <xs:element name="e7" dfdl:lengthKind="delimited" dfdl:lengthUnits="bytes">
       <xs:annotation>
@@ -3313,6 +3328,7 @@
   </tdml:defineSchema>
   
   <tdml:defineSchema name="lengthFacetsIsolate2">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" representation="text"/>
     <xs:element name="e8" dfdl:lengthKind="delimited" dfdl:lengthUnits="bytes">
       <xs:annotation>
@@ -3525,6 +3541,7 @@
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="checkConstraints">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
     <xs:element name="e1">
       <xs:complexType>
@@ -3876,6 +3893,7 @@
   </tdml:parserTestCase>  
   
   <tdml:defineSchema name="TestFacets">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
     <xs:element name="e1" dfdl:lengthKind="delimited">
       <xs:annotation>
@@ -4832,6 +4850,7 @@
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="enumSchema">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:simpleType name="enum_st1">
@@ -5361,6 +5380,7 @@
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="minMaxInExSchema">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:simpleType name="mImE_st1">
@@ -6240,6 +6260,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="totalDigitsSchema">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:simpleType name="tD_st1">
@@ -6316,6 +6337,7 @@
   </tdml:defineSchema>
 
   <tdml:defineSchema name="totalDigitsSchemaIsolate">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:simpleType name="tD_st2">
@@ -6339,6 +6361,7 @@
   </tdml:defineSchema>
  
   <tdml:defineSchema name="totalDigitsSchemaIsolate2">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:simpleType name="tD_st3">
@@ -6362,6 +6385,7 @@
   </tdml:defineSchema>    
 
   <tdml:defineSchema name="totalDigitsSchemaIsolate3">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:simpleType name="tD_st6">
@@ -6552,6 +6576,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="fractionDigitsSchema">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:simpleType name="fD_st1">

@@ -17,8 +17,8 @@
 -->
 
 <testSuite suiteName="AF" xmlns="http://www.ibm.com/xmlns/dfdl/testData"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
-  xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  defaultImplementations="ibm daffodil">
 
   <parserTestCase name="AF000" root="allZones" model="AF.dfdl.xsd"
     description="Initiated choices">

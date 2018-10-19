@@ -21,9 +21,11 @@
   xmlns:gpf="http://www.ibm.com/dfdl/GeneralPurposeFormat" 
   xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:a01="http://a01.com" xmlns:b01="http://b01.com"
+  xmlns:ex="http://example.com"
   defaultRoundTrip="true">
 
   <tdml:defineSchema name="embeddedWithImport">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <xs:import namespace="http://www.ibm.com/dfdl/GeneralPurposeFormat"
       schemaLocation="IBMdefined/GeneralPurposeFormat.xsd" />
     <dfdl:format ref="gpf:GeneralPurposeFormat" />
@@ -33,12 +35,13 @@
 
   <tdml:defineSchema name="embeddedWithInclude">
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
-    <dfdl:format ref="GeneralFormat" />
+    <dfdl:format ref="ex:GeneralFormat" />
     <xs:element name="basic" type="xs:string"
       dfdl:lengthKind="delimited" />
   </tdml:defineSchema>
 
   <tdml:defineSchema name="embedded_base_01">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="gpf:GeneralPurposeFormat" separator=""
       initiator="" terminator="" leadingSkip='0' textTrimKind="none"
       initiatedContent="no" ignoreCase="no" representation="text"
@@ -65,6 +68,7 @@
   </tdml:defineSchema>
 
   <tdml:defineSchema name="IncorrectAppinfoSource">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <xs:import namespace="http://www.ibm.com/dfdl/GeneralPurposeFormat"
       schemaLocation="IBMdefined/GeneralPurposeFormat.xsd" />
     <dfdl:format ref="gpf:GeneralPurposeFormat" />
@@ -720,8 +724,6 @@
       <tdml:error>multi_C_03.dfdl.xsd</tdml:error>    
       <tdml:error>multi_D_03.dfdl.xsd</tdml:error>    
       <tdml:error>multi_E_03.dfdl.xsd</tdml:error>   
-      <tdml:error>Location line</tdml:error>
-      <tdml:error>column</tdml:error>                         
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -1536,7 +1538,6 @@
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>MinInclusive(16) must be less than or equal to MaxInclusive(10)</tdml:error>
       <tdml:error>shishi</tdml:error>
-      <tdml:error>Location line</tdml:error>
       <!-- 
         No longer gives this location (which is the type definition location. Now it gives
         the element reference having that type, which is a different file.
@@ -2140,7 +2141,6 @@ jonesington,david,frederick,1986-02-19
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>junk-annotation-01.dfdl.xsd</tdml:error>
-      <tdml:error>line 19</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -2172,7 +2172,6 @@ jonesington,david,frederick,1986-02-19
         <tdml:error>Invalid dfdl annotation</tdml:error>
         <tdml:error>xs:format</tdml:error>
         <tdml:error>Schema context:</tdml:error>
-        <tdml:error>Location line 19 column 2</tdml:error>
         <tdml:error>section06/namespaces/multi_base_04_invalid.dfdl.xsd</tdml:error>
       </tdml:errors>
   </tdml:parserTestCase>
@@ -2193,7 +2192,6 @@ jonesington,david,frederick,1986-02-19
         <tdml:error>Invalid dfdl annotation</tdml:error>
         <tdml:error>xs:format</tdml:error>
         <tdml:error>Schema context:</tdml:error>
-        <tdml:error>Location line 36 column 8</tdml:error>
         <tdml:error>section06/namespaces/multi_B_04_invalid.dfdl.xsd</tdml:error>
       </tdml:errors>
   </tdml:parserTestCase>

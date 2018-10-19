@@ -18,8 +18,8 @@
 
 <testSuite suiteName="AT"
 	xmlns="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
-	
+	xmlns:ex="http://example.com"
+  defaultImplementations="ibm daffodil">
 	<parserTestCase name="AT000" root="PRP" model="AT.dfdl.xsd"
 		description="PRP file example - defineVariable, calendarPattern, textStringJustification">
 	<document><![CDATA[     79;06/06/05   13:38:32     1;    0;
@@ -1323,7 +1323,7 @@ frame
 ]]></document>
 		<infoset>
 			<dfdlInfoset>
-<PRP xmlns="http://www.example.org/example1/" xmlns:tns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+<ex:PRP xmlns="http://www.example.org/example1/" xmlns:tns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
   <occurs xsi:type="xsd:int">79</occurs>
   <date xsi:type="xsd:dateTime">2005-06-06T13:38:32</date>
   <unknownnum1 xsi:type="xsd:int">1</unknownnum1>
@@ -24354,7 +24354,7 @@ frame
       <value xsi:type="xsd:float">-5676.04</value>
     </number>
   </frame>
-</PRP>
+</ex:PRP>
 			</dfdlInfoset>
 		</infoset>
 	</parserTestCase>
@@ -24371,7 +24371,7 @@ frame
 ]]></document>
 		<infoset>
 			<dfdlInfoset>
-<PRP xmlns="http://www.example.org/example1/" xmlns:tns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+<ex:PRP xmlns="http://www.example.org/example1/" xmlns:tns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
   <occurs xsi:type="xsd:int">79</occurs>
   <date xsi:type="xsd:dateTime">2005-06-06T13:38:32</date>
   <unknownnum1 xsi:type="xsd:int">1</unknownnum1>
@@ -24393,7 +24393,7 @@ frame
       <value xsi:type="xsd:float">84951</value>
     </number>
   </frame>
-</PRP>
+</ex:PRP>
 			</dfdlInfoset>
 		</infoset>
 	</parserTestCase>

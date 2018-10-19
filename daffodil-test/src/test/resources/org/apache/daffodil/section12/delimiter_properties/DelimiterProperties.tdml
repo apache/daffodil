@@ -24,6 +24,7 @@
   defaultRoundTrip="true">
 
   <tdml:defineSchema name="DelimiterProperties-Embedded.dfdl.xsd">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" leadingSkip="0" trailingSkip="0" separator=""
       encoding="utf-8" occursCountKind="parsed" separatorSuppressionPolicy="anyEmpty"
@@ -182,6 +183,7 @@
   </tdml:defineSchema>
 
   <tdml:defineSchema name="DelimiterProperties-Embedded2.dfdl.xsd">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="explicit" />
 
     <xs:element dfdl:lengthKind="implicit" name="e1">
@@ -459,6 +461,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="basic">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
     <dfdl:format separatorSuppressionPolicy="never"
       separatorPosition="infix" ref="ex:GeneralFormat" />
@@ -540,6 +543,7 @@
     </tdml:parserTestCase> -->
 
   <tdml:defineSchema name="initiatedContentSchema">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" initiator="" terminator="" leadingSkip="0"
     alignment="1" alignmentUnits="bytes" trailingSkip="0"
     separator="" encoding="utf-8" occursCountKind="parsed"
@@ -631,6 +635,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="initiatedContentSimple1">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" encoding="utf-8"
       representation="text" lengthUnits="characters" lengthKind="delimited" />
 
@@ -664,6 +669,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="AssertsOnSimpleTypes">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
 
     <xs:element name="EI">
@@ -702,6 +708,7 @@
   </tdml:parserTestCase>
 
  <tdml:defineSchema name="ReqFieldMissingAndSepIsPrefixOfTerminator">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
 
     <xs:element name="E1" dfdl:terminator="$$">
@@ -766,7 +773,8 @@
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="Lesson4_initiators_terminators"> 
-        <dfdl:format ref="ex:GeneralFormat" representation="text"   
+        <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" representation="text"   
                      lengthKind="delimited" 
                      encoding="ASCII" /> 
   
@@ -806,6 +814,7 @@
 
 
   <tdml:defineSchema name="ignoreCase">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
     <dfdl:format separatorPosition="infix" ref="ex:GeneralFormat" ignoreCase="yes" />
 

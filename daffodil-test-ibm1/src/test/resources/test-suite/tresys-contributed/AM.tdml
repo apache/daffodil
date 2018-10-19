@@ -19,7 +19,8 @@
 <testSuite suiteName="AM" xmlns="http://www.ibm.com/xmlns/dfdl/testData"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
-  defaultConfig="cfg_largeArray">
+  defaultConfig="cfg_largeArray"
+  defaultImplementations="ibm daffodil">
   
   <defineConfig name="cfg_largeArray">
     <daf:tunables xmlns="http://www.w3.org/2001/XMLSchema"
@@ -29,7 +30,8 @@
   </defineConfig>
 
   <parserTestCase name="AM000" root="mimeType" model="AM.dfdl.xsd"
-    description="MIME type detect - hiddenGroupRef, discriminators, and inputValueCalc" roundTrip="false">
+    description="MIME type detect - hiddenGroupRef, discriminators, and inputValueCalc" roundTrip="false"
+    implementations="daffodil">
     <document>
       <documentPart type="byte"><![CDATA[
  4947 3846 6139 0064 0064 64c6 0000 0000 0101 0201 0202 0303 0703 0707 0808 0908
@@ -73,7 +75,7 @@
     </document>
     <infoset>
       <dfdlInfoset>
-        <mimeType xmlns="http://www.example.org/example1/"
+        <mimeType xmlns="http://example.com"
           xmlns:xsd="http://www.w3.org/2001/XMLSchema">
           <mime>
             <type xsi:type="xsd:string">image/gif</type>
@@ -122,7 +124,8 @@
  ]]> -->
 
   <parserTestCase name="AM001" root="mimeType" model="AM.dfdl.xsd"
-    description="hiddenGroupRef, discriminators, and inputValueCalc" roundTrip="false">
+    description="hiddenGroupRef, discriminators, and inputValueCalc" roundTrip="false"
+    implementations="daffodil">
     <document>
       <documentPart type="byte"><![CDATA[
  d8ff e0ff 1000 464a 4649 0100 0101 4800 4800 0000 feff 1300 7243 6165 6574 2064
@@ -176,7 +179,7 @@
     </document>
     <infoset>
       <dfdlInfoset>
-        <mimeType xmlns="http://www.example.org/example1/"
+        <mimeType xmlns="http://example.com"
           xmlns:xsd="http://www.w3.org/2001/XMLSchema">
           <mime>
             <type xsi:type="xsd:string">image/jpeg</type>

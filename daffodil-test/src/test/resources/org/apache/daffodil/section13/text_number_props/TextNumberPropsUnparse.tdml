@@ -23,6 +23,7 @@
   defaultRoundTrip="true">
 
   <tdml:defineSchema name="delimitedStringsPadding">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" encoding="ascii" lengthUnits="bytes" outputNewLine="%CR;%LF;" />
 
       <xs:element name="e1" dfdl:lengthKind="implicit" dfdl:initiator="!#" dfdl:terminator="#!">
@@ -516,6 +517,7 @@
   </tdml:unparserTestCase>
 
   <tdml:defineSchema name="pattern">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" representation="text"
         lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator="" textNumberPattern="#,##0.###;-#,##0.###"
         separator="" textNumberCheckPolicy="lax" ignoreCase="no" textNumberRep="standard"/>

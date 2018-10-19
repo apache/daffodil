@@ -95,7 +95,7 @@ A general purpose defineFormat annotation.
 bitOrder="mostSignificantBitFirst"
 
 encoding="UTF-8" utf16Width="fixed" byteOrder="bigEndian"
-encodingErrorPolicy="replace"
+encodingErrorPolicy="error"
 ignoreCase="no" outputNewLine="%CR;%LF;"
 
 alignment="1" alignmentUnits="bytes" fillByte="0"
@@ -107,8 +107,8 @@ prefixIncludesPrefixLength="no"
 representation="text" textPadKind="none" textTrimKind="none"
 escapeSchemeRef="tns:GeneralBlockEscapeScheme"
 
-textBidi="no" textBidiTextOrdering="implicit"
-textBidiSymmetric="yes" textBidiTextShaped="no"
+textBidi="no" 
+textBidiSymmetric="yes" 
 textBidiNumeralShapes="nominal" textBidiOrientation="RTL"
 
 textStringJustification="left" textStringPadCharacter="%SP;"

@@ -32,7 +32,8 @@
         documentFinalTerminatorCanBeMissing='yes' occursStopValue="-1"
         byteOrder="bigEndian" binaryNumberRep='binary'
         representation="text" emptyValueDelimiterPolicy="none"
-        occursCountKind='parsed' lengthUnits="bytes"/>
+        occursCountKind='parsed' lengthUnits="bytes"
+        encodingErrorPolicy="error"/>
 
       <dfdl:defineEscapeScheme name="pound">
         <dfdl:escapeScheme escapeCharacter='#' escapeEscapeCharacter="\"

@@ -31,15 +31,6 @@ class TresysTestsDebug {
 
   val testDir = "/test-suite/tresys-contributed/"
 
-  val delimited = testDir + "dpaext1.tdml"
-  lazy val runnerDelimited = new DFDLTestSuite(Misc.getRequiredResource(delimited))
-
-  @Test def test_length_delimited_12_03_controversial() { runnerDelimited.runOneTest("length_delimited_12_03_controversial") }
-
-  val td = testDir + "multiple-diagnostics.tdml"
-  lazy val runnerMD = new DFDLTestSuite(Misc.getRequiredResource(td), validateTDMLFile = true, validateDFDLSchemas = false)
-  runnerMD.setCheckAllTopLevel(true)
-
   // Jira DFDL-1392 - Issue with escapeEscape character that is first and precedes an escape-block start.
   // Is being removed, but should be preserved as it does not precede an escape character, nor an escape block end.
   val ba = testDir + "BA.tdml"

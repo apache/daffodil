@@ -53,7 +53,7 @@
 	<tdml:defineSchema name="unqualifiedPathStep" elementFormDefault="unqualified">
 		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
 
-		<dfdl:format ref="ex:GeneralFormat" />
+    <dfdl:format ref="ex:GeneralFormat" />
 
 		<xs:element name="b" type="xs:string" dfdl:length="1"
 			dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" />
@@ -191,7 +191,7 @@
 	<tdml:defineSchema name="exceedMaxOccursBounds">
 		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
 
-		<dfdl:format ref="ex:GeneralFormat" />
+    <dfdl:format ref="ex:GeneralFormat" />
 
 		<xs:element name="root">
 			<xs:complexType>

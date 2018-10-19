@@ -32,7 +32,8 @@
         documentFinalTerminatorCanBeMissing='yes'
         byteOrder="bigEndian" binaryNumberRep='binary'
         representation="text"
-        occursCountKind='parsed'/>
+        occursCountKind='parsed'
+        encodingErrorPolicy="error"/>
     </appinfo>
   </annotation>
 
@@ -46,7 +47,7 @@
         </sequence>
         <sequence dfdl:separator="," dfdl:terminator="%NL;">
           <element name="y" type="xsd:boolean" maxOccurs="unbounded"
-            dfdl:textBooleanTrueRep="{ 1*10 }" dfdl:textBooleanFalseRep="{'a b c'}" />
+            dfdl:textBooleanTrueRep="{ xsd:string(1*10) }" dfdl:textBooleanFalseRep="{'a b c'}" />
         </sequence>
       </sequence>
     </complexType>

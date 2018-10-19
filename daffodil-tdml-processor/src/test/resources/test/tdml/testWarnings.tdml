@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<tdml:testSuite 
+  suiteName="tdml warnings" 
+  description="Tests for TDML Runner warnings features." 
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:ex="http://example.com" 
+  xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  defaultRoundTrip="false">
+
+<tdml:defineSchema name="causesWarnings" elementFormDefault="unqualified">
+
+  <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="explicit" occursCountKind="implicit"/>
+
+  <xs:element name="causesWarnings" dfdl:lengthKind="implicit">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="A" type="xs:string" dfdl:length="1" />
+        <xs:element name="AmbigElt" type="xs:string" dfdl:length="1" />
+        <xs:element name="B" type="xs:string" dfdl:length="1" />
+        <xs:element name="AmbigElt" type="xs:string" dfdl:length="1" minOccurs="0"/>
+        <xs:sequence>
+          <xs:annotation>
+            <xs:appinfo source="http://www.ogf.org/dfdl/">
+              <dfdl:assert>{ ./AmbigElt eq '2' }</dfdl:assert>
+            </xs:appinfo>
+          </xs:annotation>
+        </xs:sequence>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+    <xs:element name="errUnparsing" dfdl:lengthKind="implicit">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="A" type="xs:string" dfdl:length="1" />
+        <xs:element name="AmbigElt" type="xs:string" dfdl:length="1" />
+        <xs:element name="B" type="xs:string" dfdl:length="1" />
+        <xs:element name="AmbigElt" type="xs:string" dfdl:length="1" minOccurs="0" />
+        <xs:element name="UnparseFails" type="xs:string" dfdl:length="1"
+           dfdl:outputValueCalc="{ ../AmbigElt }"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+</tdml:defineSchema>
+
+<tdml:parserTestCase name="warningWhenExpectingError" root="causesWarnings" model="causesWarnings" description="TDML runner verifies warnings and errors.">
+
+  <tdml:document><![CDATA[1234]]></tdml:document>
+
+  <tdml:errors>
+    <tdml:error>Schema Definition Error</tdml:error>
+    <tdml:error>query-style</tdml:error>
+    <tdml:error>AmbigElt</tdml:error>
+  </tdml:errors>
+
+  <tdml:warnings>
+    <tdml:warning>Schema Definition Warning</tdml:warning>
+    <tdml:warning>AmbigElt</tdml:warning>
+    <tdml:warning>query-style</tdml:warning>
+  </tdml:warnings>
+</tdml:parserTestCase>
+
+<tdml:unparserTestCase name="unparserWarningWhenExpectingError" root="errUnparsing" model="causesWarnings" description="TDML runner verifies warnings and errors.">
+  <tdml:infoset>
+    <tdml:dfdlInfoset>
+      <ex:errUnparsing>
+        <A>1</A>
+        <AmbigElt>2</AmbigElt>
+        <B>3</B>
+        <AmbigElt>4</AmbigElt>
+      </ex:errUnparsing>
+    </tdml:dfdlInfoset>
+  </tdml:infoset>
+  
+  <tdml:document><![CDATA[12344]]></tdml:document>
+
+  <tdml:errors>
+    <tdml:error>Schema Definition Error</tdml:error>
+    <tdml:error>query-style</tdml:error>
+    <tdml:error>AmbigElt</tdml:error>
+  </tdml:errors>
+
+  <tdml:warnings>
+    <tdml:warning>Schema Definition Warning</tdml:warning>
+    <tdml:warning>AmbigElt</tdml:warning>
+    <tdml:warning>query-style</tdml:warning>
+  </tdml:warnings>
+</tdml:unparserTestCase>
+
+
+<tdml:parserTestCase name="warningWhenExpectingSuccess" root="causesWarnings" model="causesWarnings" description="TDML runner verifies warnings and infoset.">
+
+  <tdml:document><![CDATA[123]]></tdml:document>
+
+  <tdml:infoset>
+    <tdml:dfdlInfoset>
+      <ex:causesWarnings>
+        <A>1</A>
+        <AmbigElt>2</AmbigElt>
+        <B>3</B>
+      </ex:causesWarnings>
+    </tdml:dfdlInfoset>
+  </tdml:infoset>
+
+  <tdml:warnings>
+    <tdml:warning>Schema Definition Warning</tdml:warning>
+    <tdml:warning>query-style</tdml:warning>
+    <tdml:warning>AmbigElt</tdml:warning>
+  </tdml:warnings>
+</tdml:parserTestCase>
+
+<tdml:unparserTestCase name="unparserWarningWhenExpectingSuccess" root="causesWarnings" model="causesWarnings" description="TDML runner verifies warnings and infoset.">
+
+  <tdml:document><![CDATA[123]]></tdml:document>
+
+  <tdml:infoset>
+    <tdml:dfdlInfoset>
+      <ex:causesWarnings>
+        <A>1</A>
+        <AmbigElt>2</AmbigElt>
+        <B>3</B>
+      </ex:causesWarnings>
+    </tdml:dfdlInfoset>
+  </tdml:infoset>
+
+  <tdml:warnings>
+    <tdml:warning>Schema Definition Warning</tdml:warning>
+    <tdml:warning>query-style</tdml:warning>
+    <tdml:warning>AmbigElt</tdml:warning>
+  </tdml:warnings>
+</tdml:unparserTestCase>
+
+
+</tdml:testSuite>

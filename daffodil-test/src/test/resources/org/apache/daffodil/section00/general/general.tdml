@@ -25,6 +25,7 @@
        to any specific requirements. /!-->
 
   <tdml:defineSchema name="generalSchema">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
     <dfdl:defineFormat name="generalSchema">
       <dfdl:format ref="ex:GeneralFormat" lengthKind="implicit" representation="text"
         lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator=""
@@ -58,6 +59,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="s1">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" separator="" separatorSuppressionPolicy="anyEmpty"
       separatorPosition="infix" documentFinalTerminatorCanBeMissing="yes"
@@ -188,6 +190,7 @@
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="delim_distinct1">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
 
     <dfdl:defineEscapeScheme name="pound">

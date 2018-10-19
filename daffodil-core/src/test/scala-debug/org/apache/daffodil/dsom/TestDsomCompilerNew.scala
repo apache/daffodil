@@ -41,6 +41,7 @@ class TestDsomCompilerNew extends Logging {
 
   @Test def testHasPatternFacets() {
     val testSchema = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="e1" type="tns:st1" dfdl:lengthKind="explicit" dfdl:length="1"/>
       <xs:simpleType name="st1">
@@ -65,6 +66,7 @@ class TestDsomCompilerNew extends Logging {
 
   @Test def testPatternFacetsInheritance() {
     val testSchema = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="e1" type="tns:st1" dfdl:lengthKind="explicit" dfdl:length="1"/>
       <xs:simpleType name="st1">
@@ -112,6 +114,7 @@ class TestDsomCompilerNew extends Logging {
    */
   @Test def test_could_be_next_method_01() {
     val testSchema = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="root">
         <xs:complexType>
@@ -203,6 +206,7 @@ class TestDsomCompilerNew extends Logging {
    */
   @Test def test_could_be_next_method_02() {
     val testSchema = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="root">
         <xs:complexType>
@@ -294,6 +298,7 @@ class TestDsomCompilerNew extends Logging {
    */
   @Test def test_could_be_next_method_03() {
     val testSchema = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="root">
         <xs:complexType>
@@ -384,6 +389,7 @@ class TestDsomCompilerNew extends Logging {
    */
   @Test def test_could_be_next_method_04() {
     val testSchema = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="root">
         <xs:complexType>
@@ -479,6 +485,7 @@ class TestDsomCompilerNew extends Logging {
    */
   @Test def test_could_be_next_method_05() {
     val testSchema = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="root">
         <xs:complexType>
@@ -586,6 +593,7 @@ class TestDsomCompilerNew extends Logging {
    */
   @Test def test_could_be_next_method_06() {
     val testSchema = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="root">
         <xs:complexType>
@@ -696,6 +704,7 @@ class TestDsomCompilerNew extends Logging {
    */
   @Test def test_could_be_next_method_07() {
     val testSchema = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="root">
         <xs:complexType>
@@ -830,6 +839,7 @@ class TestDsomCompilerNew extends Logging {
    */
   @Test def test_could_be_next_method_08() {
     val testSchema = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="root">
         <xs:complexType>
@@ -980,6 +990,7 @@ class TestDsomCompilerNew extends Logging {
    */
   @Test def test_could_be_next_method_09() {
     val testSchema = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="root">
         <xs:complexType>
@@ -1128,6 +1139,7 @@ class TestDsomCompilerNew extends Logging {
    */
   @Test def test_could_be_next_method_10() {
     val testSchema = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="root">
         <xs:complexType>
@@ -1267,6 +1279,7 @@ class TestDsomCompilerNew extends Logging {
    */
   @Test def test_could_be_next_method_11() {
     val testSchema = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="root">
         <xs:complexType>
@@ -1351,6 +1364,7 @@ class TestDsomCompilerNew extends Logging {
    */
   @Test def test_could_be_next_method_12() {
     val testSchema = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="root">
         <xs:complexType>
@@ -1442,6 +1456,7 @@ class TestDsomCompilerNew extends Logging {
    */
   @Test def test_could_be_next_method_13() {
     val testSchema = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="root">
         <xs:complexType>
@@ -1569,6 +1584,7 @@ class TestDsomCompilerNew extends Logging {
    */
   @Test def test_could_be_next_method_13_1() {
     val testSchema = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="root">
         <xs:complexType>

@@ -347,3 +347,42 @@ object BinaryBooleanFalseRepType {
     ULong(i)
   }
 }
+
+/**
+ * This mixin provides textStandardExponentRep, using that modern
+ * property name, but also a legacy property name textStandardExponentCharacter that has been superceded now.
+ *
+ * TextStandardExponentRepMixin is not auto generated
+ * by propgen. Nor is TextStandardExponentCharacterMixin
+ */
+trait TextStandardExponentCharacterMixin
+
+trait TextStandardExponentRepMixin   extends PropertyMixin {
+  protected final lazy val optionTextStandardExponentRepRaw = findPropertyOption("textStandardExponentRep")
+  protected final lazy val textStandardExponentRepRaw = requireProperty(optionTextStandardExponentRepRaw)
+
+  // Deprecated textStandardExponentCharacter
+  protected final lazy val optionTextStandardExponentCharacterRaw = findPropertyOption("textStandardExponentCharacter")
+  protected final lazy val textStandardExponentCharacterRaw = requireProperty(optionTextStandardExponentCharacterRaw)
+
+  lazy val textStandardExponentRep: Found = {
+    val tsec = getPropertyOption("textStandardExponentCharacter")
+    val tser = getPropertyOption("textStandardExponentRep")
+    (tsec, tser) match {
+      case (Some(tsecStr), Some(tserStr)) => {
+        SDW(WarnID.DeprecatedPropertySeparatorPolicy, "Both textStandardExponentCharacter(deprecated) and textStandardExponentRep are defined. The textStandardExponentCharacter will be ignored.")
+        textStandardExponentRepRaw
+      }
+      case (None, Some(tserStr)) => textStandardExponentRepRaw
+      case (None, None) => {
+        getProperty("textStandardExponentRep") // which will SDE!
+        Assert.impossible("Above is going to SDE")
+      }
+      case (Some(tsecStr), None) => {
+        SDW(WarnID.DeprecatedPropertySeparatorPolicy, "Property textStandardExponentCharacter is deprecated. Use textStandardExponentRep instead.")
+        textStandardExponentCharacterRaw
+      }
+      case _ => Assert.invariantFailed("combination of textStandardExponentCharacter and textStandardExponentRep not understood")
+    }
+  }
+}

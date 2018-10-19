@@ -35,7 +35,8 @@
 					alignment="1" alignmentUnits="bytes" fillByte="f" leadingSkip="0" trailingSkip="0"
 					ignoreCase="no" lengthKind="implicit" sequenceKind="ordered"
 					initiatedContent="no"	textPadKind="none" textTrimKind="none" textStringJustification="left"
-					occursCountKind="implicit"	
+					occursCountKind="implicit"
+          encodingErrorPolicy="error"	
 					/>
 				
 			</xs:appinfo>
@@ -44,7 +45,8 @@
 	<xs:annotation>
 		<xs:appinfo source="http://www.ogf.org/dfdl/">
 			<dfdl:defineFormat name="config">
-				<dfdl:format ref="GeneralFormat"  encoding="UTF-32BE" />
+				<dfdl:format ref="GeneralFormat"  encoding="UTF-32BE"
+          encodingErrorPolicy="error"/>
 			</dfdl:defineFormat>
 		</xs:appinfo>
 	</xs:annotation>

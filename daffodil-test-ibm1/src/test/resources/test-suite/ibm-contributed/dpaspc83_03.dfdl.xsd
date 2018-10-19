@@ -35,7 +35,7 @@
 		<xs:appinfo source="http://www.ogf.org/dfdl/">
 			<dfdl:format initiator="" terminator="" leadingSkip="0" trailingSkip="0" 
 				truncateSpecifiedLengthString="no"  separator=""  
-				textBidi="no" floating="no"   encodingErrorPolicy="replace" 
+				textBidi="no" floating="no"   encodingErrorPolicy="error" 
 				encoding="ASCII" representation="text"
 				byteOrder="bigEndian" bitOrder="mostSignificantBitFirst" 
 				initiatedContent="no" sequenceKind="ordered"

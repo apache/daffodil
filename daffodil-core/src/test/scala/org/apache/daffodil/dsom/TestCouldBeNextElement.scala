@@ -29,6 +29,7 @@ class TestCouldBeNextElement {
 
   @Test def testCouldBeNextElement_1() {
     val testSchema = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="root">
         <xs:complexType>
@@ -98,6 +99,7 @@ class TestCouldBeNextElement {
 
   @Test def testCouldBeNextElement_2() {
     val testSchema = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="root">
         <xs:complexType>
@@ -166,6 +168,7 @@ class TestCouldBeNextElement {
 
   @Test def testCouldBeNextElement_3() {
     val testSchema = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="root">
         <xs:complexType>
@@ -203,6 +206,7 @@ class TestCouldBeNextElement {
 
   @Test def testCouldBeNextElement_4() {
     val testSchema = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="root">
         <xs:complexType>

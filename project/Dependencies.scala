@@ -31,6 +31,9 @@ object Dependencies {
     "jline" % "jline" % "2.14.6",
   )
 
+  lazy val junit = "junit" % "junit" % "4.12" // needed for TDML runner use of AssertionViolationException
+  
+
   lazy val infoset = Seq(
     "org.jdom" % "jdom2" % "2.0.6",
     "com.fasterxml.woodstox" % "woodstox-core" % "5.1.0",
@@ -44,7 +47,7 @@ object Dependencies {
   )
 
   lazy val test = Seq(
-    "junit" % "junit" % "4.12" % "it,test",
+    junit % "it,test", 
     "com.novocode" % "junit-interface" % "0.11" % "it,test",
     "org.scalacheck" %% "scalacheck" % "1.14.0" % "it,test"
   )

@@ -23,13 +23,10 @@ import org.junit.AfterClass
 
 object TestChoiceDebug {
   val testDir = "/org/apache/daffodil/section15/choice_groups/"
-  val testDir1 = "/org/apache/daffodil/ibm-tests/"
 
   val runnerCH = Runner(testDir, "choice.tdml")
-  val runner = Runner(testDir1, "dpaext2.tdml")
 
   @AfterClass def shutDown {
-    runner.reset
     runnerCH.reset
   }
 
@@ -40,5 +37,5 @@ class TestChoiceDebug {
   import TestChoiceDebug._
 
   @Test def test_choice_noBranch() { runnerCH.runOneTest("choice_noBranch") }
-  
+
 }

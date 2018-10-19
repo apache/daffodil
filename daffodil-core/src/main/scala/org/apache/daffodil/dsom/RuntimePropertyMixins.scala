@@ -68,6 +68,9 @@ import org.apache.daffodil.processors.LayerEncodingEv
 import org.apache.daffodil.processors.LayerLengthInBytesEv
 import org.apache.daffodil.processors.LayerBoundaryMarkEv
 import org.apache.daffodil.processors.LayerCharsetEv
+import org.apache.daffodil.schema.annotation.props.TextStandardExponentRepMixin
+import org.apache.daffodil.schema.annotation.props.PropertyMixin
+import org.apache.daffodil.schema.annotation.props.Found
 
 /*
  * These are the DFDL properties which can have their values come
@@ -381,6 +384,47 @@ trait ElementRuntimeValuedPropertiesMixin
     res
   }
 
+  protected final lazy val optionTextOutputMinLength = findPropertyOption("textOutputMinLength")
+
+  /**
+   * We only use textOutputMinLength in a very narrow set of circumstances.
+   * Otherwise we assume 0.
+   */
+  lazy val textOutputMinLength: Long = {
+    val d = decl
+    val pt = decl.primType
+    val useTextOutputMinLength: Boolean = {
+      d.isSimpleType &&
+        (pt ne PrimType.String) &&
+        (pt ne PrimType.HexBinary) &&
+        (d.impliedRepresentation eq Representation.Text) &&
+        d.optionTextPadKind.isDefined &&
+        (d.textPadKind eq TextPadKind.PadChar) &&
+        {
+          import LengthKind._
+          val lk = d.lengthKind
+          lk match {
+            case Delimited | Prefixed | Pattern | EndOfParent => true
+            case Explicit if (!d.lengthEv.isConstant) => true
+            case _ => false
+          }
+        }
+    }
+    val res: Long =
+      if (useTextOutputMinLength) {
+        val Found(value, _, _, _) = findProperty("textOutputMinLength")
+        value.toLong
+      } else {
+        // if it is defined, use it, otherwise 0.
+        val optTOML = findPropertyOption("textOutputMinLength")
+        optTOML match {
+          case Found(value, _, _,_) => value.toLong
+          case _ => 0
+        }
+      }
+    res
+  }
+
   final lazy val maybeUnparseTargetLengthInBitsEv = {
     if ((this.optionLengthRaw.isDefined &&
       (lengthKind _eq_ LengthKind.Explicit)) ||
@@ -657,7 +701,8 @@ trait LayeringRuntimeValuedPropertiesMixin
 
 trait SimpleTypeRuntimeValuedPropertiesMixin
   extends DFDLSimpleTypeMixin
-  with RawSimpleTypeRuntimeValuedPropertiesMixin { decl: ElementBase =>
+  with RawSimpleTypeRuntimeValuedPropertiesMixin
+  with TextStandardExponentRepMixin { decl: ElementBase =>
 
   private lazy val textStandardDecimalSeparatorExpr = LV('textStandardDecimalSeparator) {
     val qn = this.qNameForProperty("textStandardDecimalSeparator")
@@ -685,7 +730,7 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
 
   private lazy val textStandardExponentRepExpr = LV('textStandardExponentRep) {
     val qn = this.qNameForProperty("textStandardExponentRep")
-    val c = ExpressionCompilers.String.compileProperty(qn, NodeInfo.String, textStandardExponentRepRaw, decl)
+    val c = ExpressionCompilers.String.compileProperty(qn, NodeInfo.String, textStandardExponentRep, decl)
     c
   }.value
 

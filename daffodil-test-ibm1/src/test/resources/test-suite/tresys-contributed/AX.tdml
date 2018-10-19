@@ -17,8 +17,9 @@
 -->
 
 <testSuite suiteName="AX" xmlns="http://www.ibm.com/xmlns/dfdl/testData"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
-  xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:ex="http://example.com"
+  defaultImplementations="ibm daffodil">
 
   <parserTestCase name="AX000" root="list" model="AX.dfdl.xsd"
     description="escape character and escape block, fixed length">
@@ -30,7 +31,7 @@
     </document>
     <infoset>
       <dfdlInfoset>
-        <list xmlns="http://www.example.org/example1">
+        <ex:list>
           <character>aaaaa</character>
           <character>bb,b</character>
           <character>ccc,</character>
@@ -49,7 +50,7 @@
           <block>FFFFFF\/*xxxxxxx</block>
           <block>GGG/*G</block>
           <block>G\*/GG</block>
-        </list>
+        </ex:list>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>

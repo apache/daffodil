@@ -23,18 +23,15 @@ import org.junit.AfterClass
 
 object TestEntities {
   private val testDir = "/org/apache/daffodil/section06/entities/"
-  private val testDir_02 = "/org/apache/daffodil/ibm-tests/"
 
   val runner = Runner(testDir, "charClassEntities.tdml")
   val runner_01 = Runner(testDir, "Entities.tdml")
-  val runner_02 = Runner(testDir_02, "dpaext1.tdml")
   val runnerEntity = Runner(testDir, "entities_01.tdml")
   val runnerInvalid = Runner(testDir, "InvalidEntities.tdml")
 
   @AfterClass def shutDown {
     runner.reset
     runner_01.reset
-    runner_02.reset
     runnerEntity.reset
     runnerInvalid.reset
   }
@@ -98,12 +95,6 @@ class TestEntities {
   // JIRA DFDL-1475 - Broken currently - test was wrong. Should expect error. Test changed, but diagnostic is not acceptable.
   // @Test def test_emptyStringEntityTermInExpression_01() { runner_01.runOneTest("emptyStringEntityTermInExpression_01") }
   @Test def test_emptyStringEntityTermInExpression_02() { runner_01.runOneTest("emptyStringEntityTermInExpression_02") }
-
-  @Test def test_syntax_entities_6_01() { runner_02.runOneTest("syntax_entities_6_01") }
-  @Test def test_syntax_entities_6_02() { runner_02.runOneTest("syntax_entities_6_02") }
-  //
-  // Needs dfdl:utf16Width='variable' implementation
-  //  @Test def test_syntax_entities_6_03() { runner_02.runOneTest("syntax_entities_6_03") }
 
   @Test def test_entity_fail_01() { runnerEntity.runOneTest("entity_fail_01") }
   @Test def test_entity_fail_02() { runnerEntity.runOneTest("entity_fail_02") }

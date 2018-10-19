@@ -85,10 +85,6 @@ class SerializableDataProcessor(val data: SchemaSetRuntimeData)
   }
 }
 
-trait HasSetDebugger {
-  def setDebugger(dbg: Debugger): Unit
-  def setDebugging(b: Boolean): Unit
-}
 /**
  * The very last aspects of compilation, and the start of the
  * back-end runtime.
@@ -138,8 +134,8 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
     optDebugger.get
   }
 
-  def setDebugger(dbg: Debugger) {
-    optDebugger_ = Some(dbg)
+  def setDebugger(dbg: AnyRef) {
+    optDebugger_ = Some(dbg.asInstanceOf[Debugger])
   }
 
   def setDebugging(flag: Boolean) {

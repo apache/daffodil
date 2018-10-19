@@ -138,7 +138,7 @@ class TestGeneratedProperties {
     comparePropValue(hasProps.textStringJustification, "left")
     //comparePropValue(hasProps.textStringPadCharacter, "%SP;")
     comparePropValue(hasProps.truncateSpecifiedLengthString, "no")
-    comparePropValue(hasProps.textOutputMinLength, "0")
+    // comparePropValue(hasProps.textOutputMinLength, "0")
     comparePropValue(hasProps.textNumberJustification, "right")
     //    comparePropValue(hasProps.textNumberPadCharacter, "0")
     comparePropValue(hasProps.decimalSigned, "yes")

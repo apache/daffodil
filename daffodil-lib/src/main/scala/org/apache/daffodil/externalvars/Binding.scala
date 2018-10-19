@@ -70,4 +70,8 @@ object Binding {
     new Binding(RefQName(None, name, namespace.getOrElse(UnspecifiedNamespace)), value)
   }
 
+  def getBindings(extVarBindings: Node, tunableArg: DaffodilTunables) = {
+    val bindings = extVarBindings \ "bind"
+    bindings.map(b => Binding(b, tunableArg))
+  }
 }

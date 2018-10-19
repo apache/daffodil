@@ -17,7 +17,10 @@
 -->
 
 <testSuite suiteName="AL" xmlns="http://www.ibm.com/xmlns/dfdl/testData"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:ex="http://example.com"
   xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd"
   defaultRoundTrip="true">
 
@@ -28,10 +31,10 @@
     </document>
     <infoset>
       <dfdlInfoset>
-        <list xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+        <ex:list>
           <x xsi:type="xsd:hexBinary">DEADBEEF</x>
           <y xsi:type="xsd:hexBinary">FA7A55</y>
-        </list>
+        </ex:list>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
