@@ -537,7 +537,22 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
   val tcName = (testCaseXML \ "@name").text
   lazy val tcID = (testCaseXML \ "@ID").text
   lazy val id = tcName + (if (tcID != "") "(" + tcID + ")" else "")
-  lazy val root = (testCaseXML \ "@root").text
+  lazy val rootAttrib = (testCaseXML \ "@root").text
+  lazy val (infosetRootName, infosetRootNamespaceString) =
+    if (this.optExpectedOrInputInfoset.isDefined) {
+      val infoset = optExpectedOrInputInfoset.get.dfdlInfoset.contents
+      (infoset.label, infoset.namespace)
+    } else (null, null)
+
+  lazy val rootName = {
+    if (rootAttrib == "") infosetRootName
+    else if (this.optExpectedOrInputInfoset.isDefined) {
+      if (infosetRootName != rootAttrib)
+        throw new TDMLException("root attribute name: %s, does not match the name of the root element of the infoset: %s.".format(
+          rootAttrib, infosetRootName))
+      rootAttrib
+    } else rootAttrib
+  }
   lazy val model = (testCaseXML \ "@model").text
   lazy val config = (testCaseXML \ "@config").text
   lazy val tcRoundTrip: String = (testCaseXML \ "@roundTrip").text
@@ -689,7 +704,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
         case Some(definedConfig) => retrieveBindings(definedConfig, tunableObj)
       }
 
-      impl.setDistinguishedRootNode(root, null)
+      impl.setDistinguishedRootNode(rootName, infosetRootNamespaceString)
       impl.setCheckAllTopLevel(parent.checkAllTopLevel)
       impl.setExternalDFDLVariables(externalVarBindings)
 

@@ -34,12 +34,12 @@ trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
   requiredEvaluations(encodingInfo.preSerialization)
   requiredEvaluations(checkTextBidi)
 
-  private lazy val optionTextBiDi = findPropertyOption("textBiDi")
+  private lazy val optionTextBiDi = findPropertyOption("textBidi")
 
   private def checkTextBidi = {
     this.subset(
-      !optionTextBiDi.isDefined || (optionTextBiDi.isDefined && (textBiDi eq YesNo.No)),
-      "Property value textBiDi='yes' is not supported.")
+      !optionTextBiDi.isDefined || (optionTextBiDi.isDefined && (textBidi eq YesNo.No)),
+      "Property value textBidi='yes' is not supported.")
   }
 
   protected final lazy val defaultEncodingErrorPolicy = {

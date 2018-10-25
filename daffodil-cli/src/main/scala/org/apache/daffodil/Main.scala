@@ -1218,7 +1218,7 @@ object Main extends Logging {
                     case (name, Some(test)) => List(
                       maxVals(0).max(name.length),
                       maxVals(1).max(test.model.length),
-                      maxVals(2).max(test.root.length),
+                      maxVals(2).max(test.rootName.length),
                       maxVals(3).max(test.description.length))
                   }
                 }
@@ -1227,7 +1227,7 @@ object Main extends Logging {
             println(formatStr.format(headers: _*))
             tests.foreach { testPair =>
               testPair match {
-                case (name, Some(test)) => println(formatStr.format(name, test.model, test.root, test.description))
+                case (name, Some(test)) => println(formatStr.format(name, test.model, test.rootName, test.description))
                 case (name, None) => println(formatStr.format(name, "[Not Found]", "", ""))
               }
             }

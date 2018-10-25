@@ -192,7 +192,7 @@ class TestTDMLRunner {
     val ts = new DFDLTestSuite(xml)
     val ptc = ts.parserTestCases(0)
     assertEquals("test1", ptc.tcName)
-    assertEquals("byte1", ptc.root)
+    assertEquals("byte1", ptc.rootName)
     assertEquals("test-suite/ibm-contributed/dpanum.dfdl.xsd", ptc.model)
     assertTrue(ptc.description.contains("Some test case description."))
     val doc = ptc.document.get
@@ -225,7 +225,7 @@ class TestTDMLRunner {
     val ptc = ts.parserTestCases(0)
     assertEquals("", ptc.description)
     assertEquals("test2", ptc.tcName)
-    assertEquals("byte1", ptc.root)
+    assertEquals("byte1", ptc.rootName)
     assertEquals("test-suite/ibm-contributed/dpanum.dfdl.xsd", ptc.model)
     val doc = ptc.document.get
     val expectedBytes = Vector('0'.toByte, '1'.toByte, '2'.toByte, '3'.toByte).toList

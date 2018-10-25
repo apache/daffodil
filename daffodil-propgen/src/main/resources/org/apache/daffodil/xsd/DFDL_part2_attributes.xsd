@@ -50,7 +50,7 @@
   <xsd:attribute name="utf16Width" type="dfdl:UTF16WidthEnum" />
   <xsd:attribute name="ignoreCase" type="dfdl:YesNoEnum" />
   <xsd:attribute name="choiceBranchKey" type="dfdl:ListOfDFDLStringLiteral" />
-  <xsd:attribute name="textBiDi" type="dfdl:YesNoEnum"/>
+  <xsd:attribute name="textBidi" type="dfdl:YesNoEnum"/>
   
   <!-- Added to DFDL -->
   <xsd:attribute name="encodingErrorPolicy" type="dfdl:EncodingErrorPolicyEnum"/>
@@ -68,7 +68,7 @@
     <xsd:attribute name="encodingErrorPolicy" type="dfdl:EncodingErrorPolicyEnum"/>
     <xsd:attribute name="ignoreCase" type="dfdl:YesNoEnum" />
     <xsd:attribute name="choiceBranchKey" type="dfdl:ListOfDFDLStringLiteral" />
-    <xsd:attribute name="textBiDi" type="dfdl:YesNoEnum"/>
+    <xsd:attribute name="textBidi" type="dfdl:YesNoEnum"/>
   </xsd:attributeGroup>
 
   <!-- 12.1 Aligned Data -->
@@ -169,7 +169,7 @@
 
   <!-- 13.3 Properties for Bidirectional support for all Simple Types with 
     Text representation -->
-  <xsd:attribute name="textBidi" type="dfdl:YesNoEnum" />
+  <!--  <xsd:attribute name="textBidi" type="dfdl:YesNoEnum" /> -->
   <xsd:attribute name="textBidiTextOrdering" type="dfdl:TextBidiTextOrderingEnum" />
   <xsd:attribute name="textBidiOrientation" type="dfdl:TextBidiOrientationEnum" />
   <xsd:attribute name="textBidiSymmetric" type="dfdl:YesNoEnum" />
@@ -177,7 +177,7 @@
   <xsd:attribute name="textBidiNumeralShapes" type="dfdl:TextBidiNumeralShapesEnum" />
 
   <xsd:attributeGroup name="TextBidiSchemeAG">
-    <xsd:attribute name="textBidi" type="dfdl:YesNoEnum" />
+    <!-- <xsd:attribute name="textBidi" type="dfdl:YesNoEnum" /> -->
     <xsd:attribute name="textBidiTextOrdering" type="dfdl:TextBidiTextOrderingEnum" />
     <xsd:attribute name="textBidiOrientation" type="dfdl:TextBidiOrientationEnum" />
     <xsd:attribute name="textBidiSymmetric" type="dfdl:YesNoEnum" />
@@ -729,7 +729,7 @@
     Text representation -->
 
   <xsd:attributeGroup name="TextBidiSchemeAGQualified">
-    <xsd:attribute form="qualified" name="textBidi" type="dfdl:YesNoEnum" />
+    <!-- <xsd:attribute form="qualified" name="textBidi" type="dfdl:YesNoEnum" /> -->
     <xsd:attribute form="qualified" name="textBidiTextOrdering"
       type="dfdl:TextBidiTextOrderingEnum" />
     <xsd:attribute form="qualified" name="textBidiOrientation"

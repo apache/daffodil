@@ -62,7 +62,7 @@
           separatorSuppressionPolicy="anyEmpty"
           sequenceKind="ordered"
           terminator=""
-          textBiDi="no"
+          textBidi="no"
           textBooleanPadCharacter="%SP;"
           textCalendarJustification="left"
           textCalendarPadCharacter="%SP;"
