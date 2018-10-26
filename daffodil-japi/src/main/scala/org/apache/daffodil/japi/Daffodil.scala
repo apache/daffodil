@@ -137,7 +137,7 @@ class Compiler private[japi] () {
    */
   @throws(classOf[java.io.IOException])
   def compileSource(uri: URI): ProcessorFactory = {
-    val source = new URISchemaSource(uri)
+    val source = URISchemaSource(uri)
     val pf = sCompiler.compileSource(source)
     new ProcessorFactory(pf.asInstanceOf[SProcessorFactory])
   }

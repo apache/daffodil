@@ -257,13 +257,13 @@ class DFDLTestSuite private[tdml](
     case tdmlFile: File => {
       log(LogLevel.Info, "loading TDML file: %s", tdmlFile)
       val uri = tdmlFile.toURI()
-      val newNode = loader.load(new URISchemaSource(uri))
+      val newNode = loader.load(URISchemaSource(uri))
       val res = (newNode, uri)
       log(LogLevel.Debug, "done loading TDML file: %s", tdmlFile)
       res
     }
     case uri: URI => {
-      val newNode = loader.load(new URISchemaSource(uri))
+      val newNode = loader.load(URISchemaSource(uri))
       val res = (newNode, uri)
       res
     }
@@ -651,7 +651,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
       case (None, None, Some(uri)) => {
         //
         // In this case, we have a real TDML file (or resource) to open
-        new URISchemaSource(uri)
+        URISchemaSource(uri)
       }
     } // end match
     suppliedSchema

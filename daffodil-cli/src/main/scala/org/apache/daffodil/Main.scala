@@ -709,7 +709,7 @@ object Main extends Logging {
     // to also include the call to pf.onPath. (which is the last phase
     // of compilation, where it asks for the parser)
     //
-    val schemaSource = new URISchemaSource(schema)
+    val schemaSource = URISchemaSource(schema)
     val pf = Timer.getResult("compiling", {
       val processorFactory = compiler.compileSource(schemaSource)
       if (!processorFactory.isError) {

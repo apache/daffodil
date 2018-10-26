@@ -40,7 +40,7 @@ object ConfigurationLoader {
 
   def getConfiguration(loader: DaffodilXMLLoader, uri: URI): Node = {
     Assert.usage(uri != null, "getConfiguration expects 'uri' to not be null!")
-    val node = loader.load(new URISchemaSource(uri))
+    val node = loader.load(URISchemaSource(uri))
     scala.xml.Utility.trim(node)
   }
 

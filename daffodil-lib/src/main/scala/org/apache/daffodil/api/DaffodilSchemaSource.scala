@@ -50,7 +50,11 @@ sealed trait DaffodilSchemaSource {
   def uriForLoading: URI
 }
 
-class URISchemaSource(val fileOrResource: URI) extends DaffodilSchemaSource {
+object URISchemaSource {
+  def apply(fileOrResource: URI) = new URISchemaSource(fileOrResource)
+}
+
+class URISchemaSource protected (val fileOrResource: URI) extends DaffodilSchemaSource {
 
   override def equals(other: Any) = other match {
     case oth: URISchemaSource => this.fileOrResource == oth.fileOrResource
