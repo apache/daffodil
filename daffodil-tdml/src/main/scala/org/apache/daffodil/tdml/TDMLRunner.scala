@@ -538,6 +538,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
   lazy val tcID = (testCaseXML \ "@ID").text
   lazy val id = tcName + (if (tcID != "") "(" + tcID + ")" else "")
   lazy val rootAttrib = (testCaseXML \ "@root").text
+
   lazy val (infosetRootName, infosetRootNamespaceString) =
     if (this.optExpectedOrInputInfoset.isDefined) {
       val infoset = optExpectedOrInputInfoset.get.dfdlInfoset.contents
@@ -553,6 +554,16 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
       rootAttrib
     } else rootAttrib
   }
+
+  lazy val rootNamespaceString = {
+    if (optExpectedOrInputInfoset.isDefined)
+      infosetRootNamespaceString
+    else if (embeddedSchema.isDefined)
+      XMLUtils.EXAMPLE_NAMESPACE.toString
+    else
+      null
+  }
+
   lazy val model = (testCaseXML \ "@model").text
   lazy val config = (testCaseXML \ "@config").text
   lazy val tcRoundTrip: String = (testCaseXML \ "@roundTrip").text
@@ -619,8 +630,9 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
     combined
   }
 
+  lazy val embeddedSchema = parent.findEmbeddedSchema(model)
+
   def getSuppliedSchema(schemaArg: Option[Node]): DaffodilSchemaSource = {
-    val embeddedSchema = parent.findEmbeddedSchema(model)
     val schemaURI = parent.findSchemaFileName(model)
     val suppliedSchema = (schemaArg, embeddedSchema, schemaURI) match {
       case (None, None, None) => throw new TDMLException("Model '" + model + "' was not passed, found embedded in the TDML file, nor as a schema file.")
@@ -704,7 +716,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
         case Some(definedConfig) => retrieveBindings(definedConfig, tunableObj)
       }
 
-      impl.setDistinguishedRootNode(rootName, infosetRootNamespaceString)
+      impl.setDistinguishedRootNode(rootName, rootNamespaceString)
       impl.setCheckAllTopLevel(parent.checkAllTopLevel)
       impl.setExternalDFDLVariables(externalVarBindings)
 
@@ -1965,7 +1977,11 @@ class FileDocumentPart(part: Node, parent: Document) extends DocumentPart(part, 
       (url, -1L)
   }
 
-  lazy val fileDataInput = {
+  /**
+   * Must be def, so that if you run a test repeatedly it will supply the data
+   * again every time.
+   */
+  def fileDataInput = {
     val is = url.openStream()
     is
   }
