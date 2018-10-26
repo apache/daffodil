@@ -367,9 +367,9 @@ trait ElementRuntimeValuedPropertiesMixin
         case (Implicit, Binary, HexBinary) => (LengthUnits.Bytes, maxLengthLong) // fixed length
         case (Implicit, Text, String) => (lengthUnits, maxLengthLong) // fixed length
         case (Implicit, Text, AnySimpleType) => (lengthUnits, textOutputMinLength) // fixed length
-        case (Explicit, Text, String) => (lengthUnits, minLengthLong)
-        case (Explicit, Binary, HexBinary) => (LengthUnits.Bytes, minLengthLong)
-        case (Explicit, Text, AnySimpleType) => (lengthUnits, textOutputMinLength)
+        case (Explicit, Text, String) => (lengthUnits, 0L)
+        case (Explicit, Binary, HexBinary) => (LengthUnits.Bytes, 0L)
+        case (Explicit, Text, AnySimpleType) => (lengthUnits, 0L)
         case (Prefixed, _, String) => (lengthUnits, minLengthLong)
         case (Prefixed, Text, _) => (lengthUnits, textOutputMinLength)
         case (Pattern, _, String) => (lengthUnits, minLengthLong)
