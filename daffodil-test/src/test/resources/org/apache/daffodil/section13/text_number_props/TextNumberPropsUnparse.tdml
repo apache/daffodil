@@ -394,11 +394,10 @@
       Test Name: unparseDelimitedPaddedString09
       Schema: delimitedStringsPadding
       Purpose: This test demonstrates unparsing a string with padding
-               In this case, lengthKind is explicit and NOT an expression, so the value is padded to the length 
-               given by the max of the expression and the minimum length.
-               or the minimum length, whichever is greater. 
-               (See JIRA DFDL-1584 however, as this behavior needs clarification)
-      Round trip - no. See description of unparsePaddedString10.
+               In this case, lengthKind is explicit and an expression, so the value is padded to the length given by dfdl:length.
+               Because the facet minLength (and maxLength) is 10, but the length expression is only 2
+               when we unparse, we'll show a Schema Definition Warning and only pad to dfdl:length,
+               as is described in DFDL Erratum 5.18
 -->
   <tdml:unparserTestCase name="unparseDelimitedPaddedString09" model="delimitedStringsPadding" root="e11"
     roundTrip="false">
@@ -407,19 +406,23 @@
         <ex:e11 xmlns:ex="http://example.com">O</ex:e11>
       </tdml:dfdlInfoset>
     </tdml:infoset>
-    <tdml:document>O#########</tdml:document>
+    <tdml:warnings>
+      <tdml:warning>Schema Definition Warning</tdml:warning>
+      <tdml:warning>Explicit dfdl:length</tdml:warning>
+      <tdml:warning>out of range</tdml:warning>
+      <tdml:warning>facet minLength</tdml:warning>
+    </tdml:warnings>
+    <tdml:document>O#</tdml:document>
   </tdml:unparserTestCase>
 
 <!--
       Test Name: unparsePaddedString10
       Schema: delimitedStringsPadding
       Purpose: This test demonstrates unparsing a string with padding
-               In this case, lengthKind is explicit and an expression, so the value is padded to the length given by the max
-               of the expression and the minimum length, which for a string is given by minLength facet.
-               Because the facet minLength (and maxLength) is 10, but the length expression
-               when we unparse, we'll pad to the minLength, and get 10 characters, 
-               and that won't re-parse. So this test cannot round trip.
-      (See JIRA DFDL-1584 however, as this behavior needs clarification)
+               In this case, lengthKind is explicit and an expression, so the value is padded to the length given by dfdl:length.
+               Because the facet minLength (and maxLength) is 10, but the length expression is only 2
+               when we unparse, we'll show a Schema Definition Warning and only pad to dfdl:length,
+               as is described in DFDL Erratum 5.18
 -->
   <tdml:unparserTestCase name="unparsePaddedString10" model="delimitedStringsPadding" root="e12"
    roundTrip="false">
@@ -428,7 +431,13 @@
         <ex:e12 xmlns:ex="http://example.com">O</ex:e12>
       </tdml:dfdlInfoset>
     </tdml:infoset>
-    <tdml:document>O#########</tdml:document>
+    <tdml:warnings>
+      <tdml:warning>Schema Definition Warning</tdml:warning>
+      <tdml:warning>Explicit dfdl:length</tdml:warning>
+      <tdml:warning>out of range</tdml:warning>
+      <tdml:warning>facet minLength</tdml:warning>
+    </tdml:warnings>
+    <tdml:document>O#</tdml:document>
   </tdml:unparserTestCase>
 
 <!--

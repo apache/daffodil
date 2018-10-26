@@ -70,5 +70,6 @@ class TestUnparserGeneral {
   @Test def test_alignmentPaddingOVC1() { runner.runOneTest("alignmentPaddingOVC1") }
   @Test def test_alignmentPaddingOVC2() { runner.runOneTest("alignmentPaddingOVC2") }
   @Test def test_alignmentPaddingOVC3() { runner.runOneTest("alignmentPaddingOVC3") }
+  @Test def test_alignmentPaddingOVC4() { runner.runOneTest("alignmentPaddingOVC4") }
 
 }

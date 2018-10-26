@@ -1361,7 +1361,7 @@ trait ElementBaseGrammarMixin
       val len = optLengthConstant.get
       val maxLengthLong = maxLength.longValueExact
       val minLengthLong = minLength.longValueExact
-      def warn(m: String, value: Long) = SDW(WarnID.FacetExplicitLengthOutOfRange, "Explicit dfdl:length of %s is out of range for facet %sLength='%s'.", len, "max", value)
+      def warn(m: String, value: Long) = SDW(WarnID.FacetExplicitLengthOutOfRange, "Explicit dfdl:length of %s is out of range for facet %sLength='%s'.", len, m, value)
       if (maxLengthLong != -1 && len > maxLengthLong) warn("max", maxLengthLong)
       Assert.invariant(minLengthLong >= 0)
       if (minLengthLong > 0 && len < minLengthLong) warn("min", minLengthLong)
