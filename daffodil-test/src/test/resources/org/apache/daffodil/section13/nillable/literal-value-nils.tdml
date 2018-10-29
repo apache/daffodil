@@ -81,12 +81,11 @@
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <doc xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-          xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+        <ex:doc>
           <e1>0</e1>
           <e2 xsi:nil="true" />
           <e3 xsi:nil="true" />
-        </doc>
+        </ex:doc>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -102,12 +101,11 @@
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <docIC xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-          xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+        <ex:docIC>
           <e1 xsi:nil="true" />
           <e2 xsi:nil="true" />
           <e3 xsi:nil="true" />
-        </docIC>
+        </ex:docIC>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -147,12 +145,11 @@
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <doc xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-          xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+        <ex:doc>
           <e1>0</e1>
           <e2 xsi:nil="true" />
           <e3 xsi:nil="true" />
-        </doc>
+        </ex:doc>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -192,12 +189,11 @@
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <doc xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-          xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+        <ex:doc>
           <e1>0</e1>
           <e2 xsi:nil="true" />
           <e3 xsi:nil="true" />
-        </doc>
+        </ex:doc>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -237,12 +233,11 @@
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <doc xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-          xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+        <ex:doc>
           <e1>0</e1>
           <e2 xsi:nil="true" />
           <e3 xsi:nil="true" />
-        </doc>
+        </ex:doc>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -289,11 +284,10 @@
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <doc xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-          xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+        <ex:doc>
           <e1 xsi:nil="true" />
           <e2>-1</e2>
-        </doc>
+        </ex:doc>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -334,12 +328,11 @@
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <doc xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-          xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+        <ex:doc>
           <e1>0</e1>
           <e2 xsi:nil="true" />
           <e3 xsi:nil="true" />
-        </doc>
+        </ex:doc>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -383,10 +376,10 @@
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <doc>
+        <ex:doc>
           <ct xsi:nil="true" />
           <after>after</after>
-        </doc>
+        </ex:doc>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -406,7 +399,7 @@
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <doc5 xmlns="http://www.example.org/example1/" xsi:nil="true" />
+        <ex:doc5 xsi:nil="true" />
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -443,11 +436,11 @@
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <doc>
+        <ex:doc>
           <e1>0</e1>
           <e2 xsi:nil="true" />
           <e3>3</e3>
-        </doc>
+        </ex:doc>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

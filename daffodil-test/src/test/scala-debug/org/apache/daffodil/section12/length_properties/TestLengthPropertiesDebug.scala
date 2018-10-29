@@ -22,14 +22,11 @@ import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 
 object TestLengthPropertiesDebug {
-  val testDir_01 = "/org/apache/daffodil/ibm-tests/"
   val testDir_02 = "/org/apache/daffodil/section12/length_properties/"
 
-  val runner_01 = Runner(testDir_01, "dpaext1.tdml")
   val runner_02 = Runner(testDir_02, "LengthProperties.tdml")
 
   @AfterClass def shutDown {
-    runner_01.reset
     runner_02.reset
   }
 
@@ -38,9 +35,6 @@ object TestLengthPropertiesDebug {
 class TestLengthPropertiesDebug {
 
   import TestLengthPropertiesDebug._
-
-  // uses lengthUnits bytes with lengthKind explicit and utf-8
-  @Test def test_length_explicit_12_01() { runner_01.runOneTest("length_explicit_12_01") }
 
   // DFDL-931 Uses lengthUnits bytes with utf-8 encoding and explicit lengthKind
   @Test def test_LengthProp_02() { runner_02.runOneTest("LengthProp_02") }

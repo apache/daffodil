@@ -26,7 +26,6 @@ import org.junit.AfterClass
 object TestSimpleTypesDebug {
 
   val testDir = "/org/apache/daffodil/section05/simple_types/"
-  val testDir_01 = "/org/apache/daffodil/ibm-tests/"
 
   val runner = Runner(testDir, "SimpleTypes.tdml")
   val runnerAL = Runner(testDir, "AL.tdml")
@@ -35,7 +34,6 @@ object TestSimpleTypesDebug {
   val runnerAK = Runner(testDir, "AK.tdml")
   val runner1 = Runner(testDir, "BitOrder.tdml")
   val runnerST = Runner(testDir, "simple-type-bases.tdml")
-  val runner_01 = Runner(testDir_01, "dpaext1.tdml")
   val runner3 = Runner(testDir, "BitOrderInvalid.tdml")
 
   @AfterClass def shutDown() {
@@ -44,7 +42,6 @@ object TestSimpleTypesDebug {
     runner2.reset
     runnerAJ.reset
     runnerAK.reset
-    runner_01.reset
     runner1.reset
     runnerST.reset
   }

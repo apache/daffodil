@@ -51,7 +51,9 @@ sealed trait DaffodilSchemaSource {
 }
 
 object URISchemaSource {
-  def apply(fileOrResource: URI) = new URISchemaSource(fileOrResource)
+  def apply(fileOrResource: URI) = {
+    new URISchemaSource(fileOrResource)
+  }
 }
 
 class URISchemaSource protected (val fileOrResource: URI) extends DaffodilSchemaSource {

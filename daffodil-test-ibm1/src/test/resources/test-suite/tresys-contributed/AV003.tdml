@@ -17,7 +17,8 @@
 -->
 
 <testSuite suiteName="AV003" xmlns="http://www.ibm.com/xmlns/dfdl/testData"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:ex="http://example.com"
   xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
 
   <parserTestCase name="AV003" root="wholeFile" model="AV.dfdl.xsd"
@@ -91,9 +92,7 @@
 %#x0c;%#x1b;E]]></documentPart></document>
     <infoset>
       <dfdlInfoset>
-        <wholeFile xmlns="http://www.example.org/example1/"
-          xmlns:tns="http://www.example.org/example1/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-          xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+        <ex:wholeFile>
           <table>
             <metadata>
               <repdate xsi:type="xs:date">2008-04-10-06:00</repdate>
@@ -300,7 +299,7 @@
             </metadata>
             <GT xsi:type="xs:int">89</GT>
           </table>
-        </wholeFile>
+        </ex:wholeFile>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>

@@ -47,8 +47,6 @@ class TestUnparseNegInfoset {
   @Test def test_unexpectedChildMultiple() { runner.runOneTest("unexpectedChildMultiple") }
   @Test def test_unexpectedChildSameAsSibling() { runner.runOneTest("unexpectedChildSameAsSibling") }
 
-  @Test def test_unexpectedRootSingle() { runner.runOneTest("unexpectedRootSingle") }
-
   @Test def test_nilledTrueNonNillable() { runner.runOneTest("nilledTrueNonNillable") }
   @Test def test_nilledFalseNonNillable() { runner.runOneTest("nilledFalseNonNillable") }
   @Test def test_nilledSimpleWithContent() { runner.runOneTest("nilledSimpleWithContent") }

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<tdml:testSuite 
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData tdml.xsd">
+
+
+  <!-- With lengthKind="delimited", tests show various ways to in indicate
+    the end of an element's content - with terminator, with
+    parent separator, with parent of specified length, with end of input.
+    Delimited length can also be used with BCD fields, which
+    is shown here. Also, an element of explicit length can be a component
+    of a delimited sequence. -->
+
+  <!-- A couple of valid logical types are shown with lengthKind="implicit" -->
+
+
+  <tdml:parserTestCase name="length_delimited_12_03_controversial"
+    model="delimTests.dfdl.xsd"
+    description="Section 12.3 Properties for specifying length -delimited - parent has specified length"
+    root="myStringSeq2_controversial">
+    <tdml:document>abcde</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <myStringSeq2_controversial>
+          <Test1>abcde</Test1>
+        </myStringSeq2_controversial>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+
+</tdml:testSuite>
+
+

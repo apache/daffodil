@@ -400,12 +400,12 @@ class TestTDMLRunner {
   //  }
 
   @Test def testTDMLParseRunAll() {
-    val testSuite = <testSuite xmlns={ tdml } suiteName="theSuiteName">
+    val testSuite = <testSuite xmlns={ tdml } suiteName="theSuiteName" xmlns:tns={ example }>
                       <parserTestCase name="testTDMLParseRunAll1" root="data">
                         <document>37</document>
                         <infoset>
                           <dfdlInfoset>
-                            <data>37</data>
+                            <tns:data>37</tns:data>
                           </dfdlInfoset>
                         </infoset>
                       </parserTestCase>
@@ -413,7 +413,7 @@ class TestTDMLRunner {
                         <document>92</document>
                         <infoset>
                           <dfdlInfoset xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
-                            <data>92</data>
+                            <tns:data>92</tns:data>
                           </dfdlInfoset>
                         </infoset>
                       </parserTestCase>
@@ -715,7 +715,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
           <tdml:infoset>
             <tdml:dfdlInfoset>
               <!-- Note below that 0xD aka CR gets translated into 0xA or LF. -->
-              <data><![CDATA[]]>&#x9;&#xA;<![CDATA[]]>&#xA;<![CDATA[]]>&#x20;<![CDATA[!#$%'()*+,-./0123456789:;=?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~]]>&#xA0;<![CDATA[¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ]]></data>
+              <tns:data><![CDATA[]]>&#x9;&#xA;<![CDATA[]]>&#xA;<![CDATA[]]>&#x20;<![CDATA[!#$%'()*+,-./0123456789:;=?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~]]>&#xA0;<![CDATA[¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ]]></tns:data>
             </tdml:dfdlInfoset>
           </tdml:infoset>
         </tdml:parserTestCase>

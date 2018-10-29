@@ -44,7 +44,7 @@ class TestProcessingErrorsUnparse {
   @Test def test_upaInvalidSchemaUnparse() { runner02Validate.runOneTest("upaInvalidSchemaUnparse") }
   @Test def test_upaInvalidSchemaUnparse2() { runner02Validate.runOneTest("upaInvalidSchemaUnparse2") }
   @Test def test_missingNamespacePrefixUnparse() { runner02.runOneTest("missingNamespacePrefixUnparse") }
-  @Test def test_incorrectRootUnparse() { runner02.runOneTest("incorrectRootUnparse") }
+
   @Test def test_incorrectNamespaceUnparse() { runner02.runOneTest("incorrectNamespaceUnparse") }
 
 }

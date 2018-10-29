@@ -17,7 +17,8 @@
 -->
 
 <testSuite suiteName="BC" xmlns="http://www.ibm.com/xmlns/dfdl/testData"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:ex="http://example.com"
   xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
 
   <parserTestCase name="BC000" root="list" model="BC.dfdl.xsd"
@@ -27,7 +28,7 @@
 ]]></document>
     <infoset>
       <dfdlInfoset>
-        <list xmlns="http://www.example.org/example1">
+        <ex:list>
           <x>true</x>
           <x>true</x>
           <x>true</x>
@@ -40,7 +41,7 @@
           <y>false</y>
           <y>true</y>
           <y>false</y>
-        </list>
+        </ex:list>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>

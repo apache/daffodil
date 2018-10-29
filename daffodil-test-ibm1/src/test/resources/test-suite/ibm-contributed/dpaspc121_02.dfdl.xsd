@@ -25,14 +25,12 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
 	xmlns:cal="http://www.saf.cal/" elementFormDefault="unqualified"
 	attributeFormDefault="unqualified" >
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
 	 
 	<xs:annotation>
 		<!-- Defaulted property values minimum needed for a text boolean-->
 		<xs:appinfo source="http://www.ogf.org/dfdl/">
-			<dfdl:format initiator="" terminator="" leadingSkip="0" trailingSkip="0" 
-				truncateSpecifiedLengthString="no"  textBidi="no" floating="no"
-				encodingErrorPolicy="replace" encoding="utf-8" 
-				byteOrder="bigEndian" bitOrder="mostSignificantBitFirst"
+			<dfdl:format ref="GeneralFormat" initiator="" terminator="" leadingSkip="0" trailingSkip="0" truncateSpecifiedLengthString="no"  textBidi="no" floating="no"   encoding="utf-8" byteOrder="bigEndian"
 				alignment="1" alignmentUnits="bytes" fillByte="f" occursCountKind="implicit"
 				lengthUnits="bytes" initiatedContent="no"
 				sequenceKind="ordered" ignoreCase="no" textPadKind="none"
@@ -44,7 +42,8 @@
 				textStandardExponentRep="E" textNumberCheckPolicy="lax"
 				textStandardInfinityRep="~" textStandardNaNRep="z"
 				textNumberRoundingMode="roundHalfDown" textStandardZeroRep=""
-				textZonedSignStyle="asciiStandard" textNumberRounding="pattern" />
+				textZonedSignStyle="asciiStandard" textNumberRounding="pattern" 
+                bitOrder="mostSignificantBitFirst" representation="text"/>
 
 
 		</xs:appinfo>

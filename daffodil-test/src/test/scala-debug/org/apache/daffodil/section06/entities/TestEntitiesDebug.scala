@@ -23,18 +23,15 @@ import org.junit.AfterClass
 
 object TestEntitiesDebug {
   private val testDir = "/org/apache/daffodil/section06/entities/"
-  private val testDir_02 = "/org/apache/daffodil/ibm-tests/"
 
   val runner = Runner(testDir, "charClassEntities.tdml")
   val runner_01 = Runner(testDir, "Entities.tdml")
-  val runner_02 = Runner(testDir_02, "dpaext1.tdml")
   val runnerEntity = Runner(testDir, "entities_01.tdml")
   val runnerInvalid = Runner(testDir, "InvalidEntities.tdml")
 
   @AfterClass def shutDown {
     runner.reset
     runner_01.reset
-    runner_02.reset
     runnerEntity.reset
     runnerInvalid.reset
   }
@@ -52,9 +49,6 @@ class TestEntitiesDebug {
 
   //DFDL-258 - raw byte entities
   @Test def test_byte_entities_6_10() { runner_01.runOneTest("byte_entities_6_10") }
-
-  // Needs dfdl:utf16Width='variable' implementation
-  @Test def test_syntax_entities_6_03() { runner_02.runOneTest("syntax_entities_6_03") }
 
   // Regression - we used to just reject %ES; in terminators. Now we accept it, but it doesn't work
   // right. JIRA DFDL-1477

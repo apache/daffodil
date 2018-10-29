@@ -27,13 +27,11 @@ object TestLengthKindDelimited {
   val runner = Runner(testDir, "DelimitedTests.tdml")
   val runnerAB = Runner(testDir, "AB.tdml")
   val runnerAN = Runner(testDir, "AN.tdml")
-  val runner_01 = Runner("/org/apache/daffodil/ibm-tests/", "dpaext1.tdml")
 
   @AfterClass def shutDown {
     runner.reset
     runnerAB.reset
     runnerAN.reset
-    runner_01.reset
   }
 
 }
@@ -92,10 +90,5 @@ class TestLengthKindDelimited {
 
   @Test def test_AN000() { runnerAN.runOneTest("AN000") }
   @Test def test_AN001() { runnerAN.runOneTest("AN001") }
-
-  @Test def test_introduction_1_02() { runner_01.runOneTest("introduction_1_02") }
-  @Test def test_length_delimited_12_03() { runner_01.runOneTest("length_delimited_12_03") }
-  @Test def test_length_delimited_12_02() { runner_01.runOneTest("length_delimited_12_02") }
-  @Test def test_multiple_delimiters() { runner_01.runOneTest("multiple_delimiters") }
 
 }

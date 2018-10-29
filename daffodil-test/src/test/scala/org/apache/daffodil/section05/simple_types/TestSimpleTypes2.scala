@@ -24,7 +24,6 @@ import org.junit.AfterClass
 object TestSimpleTypes2 {
 
   val testDir = "/org/apache/daffodil/section05/simple_types/"
-  val testDir_01 = "/org/apache/daffodil/ibm-tests/"
 
   val runnerAL = Runner(testDir, "AL.tdml")
   val runner2 = Runner(testDir, "WhiteSpace.tdml")
@@ -32,7 +31,6 @@ object TestSimpleTypes2 {
   val runnerAK = Runner(testDir, "AK.tdml")
   val runner1 = Runner(testDir, "BitOrder.tdml")
   val runnerST = Runner(testDir, "simple-type-bases.tdml")
-  val runner_01 = Runner(testDir_01, "dpaext1.tdml")
 
   val runner = Runner(testDir, "SimpleTypes.tdml")
 
@@ -41,7 +39,6 @@ object TestSimpleTypes2 {
     runner2.reset
     runnerAJ.reset
     runnerAK.reset
-    runner_01.reset
     runner1.reset
     runnerST.reset
     runner.reset
@@ -58,12 +55,6 @@ class TestSimpleTypes2 {
 
   @Test def test_AK000() { runnerAK.runOneTest("AK000") }
   @Test def test_AK001() { runnerAK.runOneTest("AK001") }
-
-  @Test def test_schema_types_5_01() { runner_01.runOneTest("schema_types_5_01") }
-  @Test def test_schema_types_5_02() { runner_01.runOneTest("schema_types_5_02") }
-  @Test def test_schema_types_5_03() { runner_01.runOneTest("schema_types_5_03") }
-  @Test def test_schema_types_5_04() { runner_01.runOneTest("schema_types_5_04") }
-  @Test def test_schema_types_5_05() { runner_01.runOneTest("schema_types_5_05") }
 
   @Test def test_whiteSpaceBeforeLax() { runner2.runOneTest("whiteSpaceBeforeLax") }
   @Test def test_whiteSpaceDuringLax() { runner2.runOneTest("whiteSpaceDuringLax") }

@@ -74,7 +74,7 @@ class TestTDMLRunner2 {
           </tdml:document>
           <tdml:infoset>
             <tdml:dfdlInfoset>
-              <array>
+              <tns:array>
                 <data>1</data>
                 <data>2</data>
                 <data>3</data>
@@ -84,7 +84,7 @@ class TestTDMLRunner2 {
                 <data>7</data>
                 <data>8</data>
                 <data>9</data>
-              </array>
+              </tns:array>
             </tdml:dfdlInfoset>
           </tdml:infoset>
           <tdml:validationErrors>
@@ -135,7 +135,7 @@ class TestTDMLRunner2 {
           </tdml:document>
           <tdml:infoset>
             <tdml:dfdlInfoset>
-              <array>
+              <tns:array>
                 <data>1</data>
                 <data>2</data>
                 <data>3</data>
@@ -145,7 +145,7 @@ class TestTDMLRunner2 {
                 <data>7</data>
                 <data>8</data>
                 <data>9</data>
-              </array>
+              </tns:array>
             </tdml:dfdlInfoset>
           </tdml:infoset>
           <tdml:validationErrors/>
@@ -184,7 +184,7 @@ class TestTDMLRunner2 {
           </tdml:document>
           <tdml:infoset>
             <tdml:dfdlInfoset>
-              <array>
+              <tns:array>
                 <data>1</data>
                 <data>2</data>
                 <data>3</data>
@@ -194,7 +194,7 @@ class TestTDMLRunner2 {
                 <data>7</data>
                 <data>8</data>
                 <data>9</data>
-              </array>
+              </tns:array>
             </tdml:dfdlInfoset>
           </tdml:infoset>
         </tdml:parserTestCase>
@@ -233,7 +233,7 @@ class TestTDMLRunner2 {
           </tdml:document>
           <tdml:infoset>
             <tdml:dfdlInfoset>
-              <array>
+              <tns:array>
                 <data>1</data>
                 <data>2</data>
                 <data>3</data>
@@ -243,7 +243,7 @@ class TestTDMLRunner2 {
                 <data>7</data>
                 <data>8</data>
                 <data>9</data>
-              </array>
+              </tns:array>
             </tdml:dfdlInfoset>
           </tdml:infoset>
         </tdml:parserTestCase>
@@ -297,7 +297,7 @@ abc # a comment
           </tdml:document>
           <tdml:infoset>
             <tdml:dfdlInfoset>
-              <data/>
+              <tns:data/>
             </tdml:dfdlInfoset>
           </tdml:infoset>
         </tdml:parserTestCase>
@@ -328,7 +328,7 @@ abc # a comment
           </tdml:document>
           <tdml:infoset>
             <tdml:dfdlInfoset>
-              <data>abc123</data>
+              <tns:data>abc123</tns:data>
             </tdml:dfdlInfoset>
           </tdml:infoset>
         </tdml:parserTestCase>
@@ -366,7 +366,7 @@ abc # a comment
           </tdml:document>
           <tdml:infoset>
             <tdml:dfdlInfoset>
-              <data>abc123</data>
+              <tns:data>abc123</tns:data>
             </tdml:dfdlInfoset>
           </tdml:infoset>
         </tdml:parserTestCase>

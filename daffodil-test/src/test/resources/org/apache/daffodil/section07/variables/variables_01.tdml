@@ -17,9 +17,11 @@
 -->
 
 <tdml:testSuite
-  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
   xmlns:ex="http://example.com"
   defaultRoundTrip="true">
 
@@ -30,10 +32,10 @@
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <c xmlns="http://www.example.org/example1/">
+        <ex:c>
           <d xsi:type="xsd:int">42</d>
           <e xsi:type="xsd:int">42</e>
-        </c>
+        </ex:c>
 
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -44,7 +46,7 @@
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <ex:c_2 >
+        <ex:c_2>
           <d xsi:type="xsd:int">42</d>
         </ex:c_2>
       </tdml:dfdlInfoset>

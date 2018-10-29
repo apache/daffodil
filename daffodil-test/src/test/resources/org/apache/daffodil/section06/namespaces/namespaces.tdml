@@ -724,8 +724,6 @@
       <tdml:error>multi_C_03.dfdl.xsd</tdml:error>    
       <tdml:error>multi_D_03.dfdl.xsd</tdml:error>    
       <tdml:error>multi_E_03.dfdl.xsd</tdml:error>   
-      <tdml:error>Location line</tdml:error>
-      <tdml:error>column</tdml:error>                         
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -1540,7 +1538,6 @@
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>MinInclusive(16) must be less than or equal to MaxInclusive(10)</tdml:error>
       <tdml:error>shishi</tdml:error>
-      <tdml:error>Location line</tdml:error>
       <!-- 
         No longer gives this location (which is the type definition location. Now it gives
         the element reference having that type, which is a different file.
@@ -2144,7 +2141,6 @@ jonesington,david,frederick,1986-02-19
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>junk-annotation-01.dfdl.xsd</tdml:error>
-      <tdml:error>line 19</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -2176,7 +2172,6 @@ jonesington,david,frederick,1986-02-19
         <tdml:error>Invalid dfdl annotation</tdml:error>
         <tdml:error>xs:format</tdml:error>
         <tdml:error>Schema context:</tdml:error>
-        <tdml:error>Location line 19 column 2</tdml:error>
         <tdml:error>section06/namespaces/multi_base_04_invalid.dfdl.xsd</tdml:error>
       </tdml:errors>
   </tdml:parserTestCase>
@@ -2197,7 +2192,6 @@ jonesington,david,frederick,1986-02-19
         <tdml:error>Invalid dfdl annotation</tdml:error>
         <tdml:error>xs:format</tdml:error>
         <tdml:error>Schema context:</tdml:error>
-        <tdml:error>Location line 36 column 8</tdml:error>
         <tdml:error>section06/namespaces/multi_B_04_invalid.dfdl.xsd</tdml:error>
       </tdml:errors>
   </tdml:parserTestCase>

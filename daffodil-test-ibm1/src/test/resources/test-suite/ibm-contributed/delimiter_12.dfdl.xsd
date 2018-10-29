@@ -21,6 +21,7 @@
 	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
 	elementFormDefault="qualified" attributeFormDefault="unqualified" >
 
+	<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
 
     <xs:annotation>
 		<xs:appinfo source="http://www.ogf.org/dfdl/">
@@ -30,8 +31,11 @@
 					textOutputMinLength="1"
 					alignment="1" alignmentUnits="bytes" fillByte="%NUL;" leadingSkip="0" trailingSkip="0"
 					ignoreCase="no" lengthKind="delimited" sequenceKind="ordered"
+					initiatedContent="no"	
 					outputNewLine="%CR;%LF;"
 					occursCountKind="implicit"
+                    bitOrder="mostSignificantBitFirst"
+                    representation="text"
 					/>
 				
 			</xs:appinfo>
@@ -40,10 +44,9 @@
 	<xs:annotation>
 		<xs:appinfo source="http://www.ogf.org/dfdl/">
 			<dfdl:defineFormat name="config">
-   <dfdl:format  encoding="UTF-8" byteOrder="littleEndian" ignoreCase="yes"
+   <dfdl:format ref="GeneralFormat" encoding="UTF-8" byteOrder="littleEndian" ignoreCase="yes"
 				textStringJustification="right"
-				textStringPadCharacter="x" textTrimKind="padChar"  textPadKind="padChar" 
-				documentFinalTerminatorCanBeMissing="yes"/>
+				textStringPadCharacter="x" textTrimKind="padChar"  textPadKind="padChar" documentFinalTerminatorCanBeMissing="yes"/>
 			</dfdl:defineFormat>
 		</xs:appinfo>
 	</xs:annotation>
@@ -86,8 +89,8 @@
 			</xs:restriction>
 		</xs:simpleType>
 	</xs:element>
-	
-	<xs:element name="Fixed_text_sequence"  dfdl:lengthKind="implicit">
+
+<xs:element name="Fixed_text_sequence"  dfdl:lengthKind="implicit">
   <xs:complexType>
   
   <xs:sequence  dfdl:sequenceKind="ordered" >

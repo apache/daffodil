@@ -64,7 +64,7 @@ class TestTDMLRunnerCommentSyntax {
             <!-- comment -->
             <tdml:dfdlInfoset>
               <!-- comment -->
-              <array>
+              <tns:array>
                 <!-- comment -->
                 <data>1</data>
                 <!-- comment -->
@@ -77,7 +77,7 @@ class TestTDMLRunnerCommentSyntax {
                 <data>8</data>
                 <data>9</data>
                 <!-- comment -->
-              </array>
+              </tns:array>
               <!-- comment -->
             </tdml:dfdlInfoset>
             <!-- comment -->

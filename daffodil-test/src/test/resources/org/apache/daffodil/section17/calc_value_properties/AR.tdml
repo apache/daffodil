@@ -17,15 +17,21 @@
 -->
 
 <tdml:testSuite suiteName="AR" description="AR test of Binary Floats"
-  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
-  xmlns:ex="http://example.com">
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+  xmlns:ex="http://example.com"
+  xmlns:tns="http://example.com"
+  >
 
   <tdml:defineSchema name="AR.dfdl.xsd"
-    xmlns="http://www.w3.org/2001/XMLSchema">
+    xmlns="http://www.w3.org/2001/XMLSchema" 
+    elementFormDefault="qualified">
 
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    
     <dfdl:format ref="ex:GeneralFormat" separator=""
       initiator="" terminator="" emptyValueDelimiterPolicy="none"
       lengthKind="implicit" textNumberRep="standard" binaryNumberRep="binary"

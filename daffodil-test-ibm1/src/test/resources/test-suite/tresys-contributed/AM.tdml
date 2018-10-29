@@ -73,7 +73,7 @@
     </document>
     <infoset>
       <dfdlInfoset>
-        <mimeType xmlns="http://www.example.org/example1/"
+        <mimeType xmlns="http://example.com"
           xmlns:xsd="http://www.w3.org/2001/XMLSchema">
           <mime>
             <type xsi:type="xsd:string">image/gif</type>
@@ -176,7 +176,7 @@
     </document>
     <infoset>
       <dfdlInfoset>
-        <mimeType xmlns="http://www.example.org/example1/"
+        <mimeType xmlns="http://example.com"
           xmlns:xsd="http://www.w3.org/2001/XMLSchema">
           <mime>
             <type xsi:type="xsd:string">image/jpeg</type>

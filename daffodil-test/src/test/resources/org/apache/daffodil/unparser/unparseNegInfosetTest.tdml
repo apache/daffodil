@@ -152,6 +152,9 @@
     </tdml:errors>
   </tdml:unparserTestCase>
   
+  <!-- consistency of root="root1" with the infoset root element is checked
+  by TDML runner now. Not a runtime error. -->
+  <!-- 
   <tdml:unparserTestCase name="unexpectedRootSingle" root="root1" model="model1">
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns:ex="http://example.com">
@@ -169,7 +172,8 @@
       <tdml:error>root1</tdml:error>
     </tdml:errors>
   </tdml:unparserTestCase>
-
+  -->
+  
   <tdml:unparserTestCase name="unexpectedChildSingle" root="root1" model="model1">
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns:ex="http://example.com">

@@ -17,10 +17,13 @@
 -->
 
 <tdml:testSuite suiteName="AQ" description="AQ test of InputValueCalc"
-  xmlns="http://example.com" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-  xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xmlns:ex="http://example.com">
+  xmlns="http://example.com" 
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:ex="http://example.com">
 
   <tdml:defineSchema name="AQ.dfdl.xsd">
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
@@ -60,16 +63,15 @@
     </tdml:document>
 
     <tdml:infoset>
-      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <ROOT xmlns="http://www.example.org/example1">
+      <tdml:dfdlInfoset>
+        <ex:ROOT>
           <x>10.5</x>
           <y>12.01</y>
           <Multiply xsi:type="xsd:float">126.105</Multiply>
           <Add xsi:type="xsd:float">22.51</Add>
           <Subtract xsi:type="xsd:float">-1.5100002</Subtract>
           <SubtractLiteral xsi:type="xsd:float">8.5</SubtractLiteral>
-        </ROOT>
+        </ex:ROOT>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

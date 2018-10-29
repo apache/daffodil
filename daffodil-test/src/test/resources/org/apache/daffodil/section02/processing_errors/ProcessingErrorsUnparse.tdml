@@ -145,10 +145,10 @@
     
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <ex:root>
+        <ex:root2>
           <ex:a1>one</ex:a1>
           <ex:a1>one</ex:a1>
-        </ex:root>
+        </ex:root2>
       </tdml:dfdlInfoset>
     </tdml:infoset>
     
@@ -190,6 +190,12 @@
     Purpose: This infoset uses the wrong root element and should fail
   -->
 
+  <!-- 
+  This inconsistency of root="root" and the ex:arbitrary element of 
+  the infoset is now detected by the TDML runner. So this test is no longer
+  relevant. 
+   -->
+  <!-- 
   <tdml:unparserTestCase name="incorrectRootUnparse"
     root="root" model="okSchema">
     
@@ -203,13 +209,14 @@
     
     <tdml:errors>
       <tdml:error>Unparse Error</tdml:error>
-      <tdml:error>Found root</tdml:error>
-      <tdml:error>{http://example.com}arbitrary</tdml:error>
-      <tdml:error>{http://example.com}root</tdml:error>
+      <tdml:error>root</tdml:error>
+      <tdml:error>does not match</tdml:error>
+      <tdml:error>arbitrary</tdml:error>
     </tdml:errors>
 
   </tdml:unparserTestCase>
-
+  -->
+  
   <!--
     Test name: incorrectNamespaceUnparse
     Schema: okSchema
@@ -228,10 +235,9 @@
     </tdml:infoset>
     
     <tdml:errors>
-      <tdml:error>Unparse Error</tdml:error>
-      <tdml:error>Found root</tdml:error>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>No global element</tdml:error>
       <tdml:error>{http://www.w3.org/2001/XMLSchema}root</tdml:error>
-      <tdml:error>{http://example.com}root</tdml:error>
     </tdml:errors>
 
   </tdml:unparserTestCase>

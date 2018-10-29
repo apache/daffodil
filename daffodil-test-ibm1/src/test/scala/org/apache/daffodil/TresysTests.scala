@@ -32,7 +32,7 @@ object TresysTests {
 
   val testDir = "/test-suite/tresys-contributed/"
 
-  val runnerDelimited = Runner(testDir, "dpaext1.tdml")
+  val runnerDelimited = Runner(testDir, "delimTests.tdml")
 
   val runnerMD = Runner(testDir, "multiple-diagnostics.tdml", compileAllTopLevel = true)
   val runnerMD_NV = Runner(testDir, "multiple-diagnostics.tdml", compileAllTopLevel = true, validateDFDLSchemas = false)

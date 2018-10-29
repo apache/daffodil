@@ -24,17 +24,14 @@ import org.junit.AfterClass
 object TestArrayOptionalElemDebug {
   private val testDir = "/org/apache/daffodil/section16/array_optional_elem/"
   private val testDir01 = "/org/apache/daffodil/section05/facets/"
-  private val testDir1 = "/org/apache/daffodil/ibm-tests/"
 
   val runner = Runner(testDir, "ArrayOptionalElem.tdml")
   val runner01 = Runner(testDir01, "Facets.tdml", validateTDMLFile = false)
-  val runner1 = Runner(testDir1, "dpaext2.tdml")
   val rBack = Runner(testDir, "backtracking.tdml")
 
   @AfterClass def shutDown {
     runner.reset
     runner01.reset
-    runner1.reset
     rBack.reset
   }
 

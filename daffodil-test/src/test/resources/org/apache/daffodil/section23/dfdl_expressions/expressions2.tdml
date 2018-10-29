@@ -137,7 +137,6 @@
       <tdml:error>Relative path</tdml:error>
       <tdml:error>past root element</tdml:error>
       <tdml:error>ex:f1</tdml:error>
-      <tdml:error>line</tdml:error>
       <tdml:error>../ex:f2</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>

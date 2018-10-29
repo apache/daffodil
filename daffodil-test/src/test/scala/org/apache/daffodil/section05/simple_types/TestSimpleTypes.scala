@@ -24,7 +24,6 @@ import org.junit.AfterClass
 object TestSimpleTypes {
 
   val testDir = "/org/apache/daffodil/section05/simple_types/"
-  val testDir_01 = "/org/apache/daffodil/ibm-tests/"
 
   val runner = Runner(testDir, "SimpleTypes.tdml")
 

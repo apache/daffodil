@@ -137,22 +137,30 @@ class DaffodilConstructingLoader(uri: URI, errorHandler: org.xml.sax.ErrorHandle
       case _ => false
     }
 
-    val newAttrs = if (!hasLineCol && addLineColInfo) {
-      val next = if (isFileRootNode) {
-        new PrefixedAttribute(XMLUtils.INT_PREFIX, XMLUtils.FILE_ATTRIBUTE_NAME, uri.toString, attrs)
+    val newAttrs: MetaData = {
+      if (!hasLineCol) {
+        val withFile: MetaData =
+          if (isFileRootNode) {
+            new PrefixedAttribute(XMLUtils.INT_PREFIX, XMLUtils.FILE_ATTRIBUTE_NAME, uri.toString, attrs)
+          } else {
+            attrs
+          }
+        val withLineCol: MetaData =
+          if (addLineColInfo) {
+            val withCol: MetaData = new PrefixedAttribute(XMLUtils.INT_PREFIX, XMLUtils.COLUMN_ATTRIBUTE_NAME, Position.column(capturedPos).toString, withFile)
+            val withLine: MetaData = new PrefixedAttribute(XMLUtils.INT_PREFIX, XMLUtils.LINE_ATTRIBUTE_NAME, Position.line(capturedPos).toString, withCol)
+            withLine
+          } else {
+            withFile
+          }
+        withLineCol
       } else {
         attrs
       }
-      val colAttr = new PrefixedAttribute(XMLUtils.INT_PREFIX, XMLUtils.COLUMN_ATTRIBUTE_NAME, Position.column(capturedPos).toString, next)
-      val lineAttr = new PrefixedAttribute(XMLUtils.INT_PREFIX, XMLUtils.LINE_ATTRIBUTE_NAME, Position.line(capturedPos).toString, colAttr)
-      lineAttr
-    } else {
-      attrs
     }
-
     // add the dafint prefix if it doesn't already exist
     val intPrefix = scope.getPrefix(XMLUtils.INT_NS)
-    val newScope = if (intPrefix == null && addLineColInfo) {
+    val newScope = if (intPrefix == null) {
       NamespaceBinding(XMLUtils.INT_PREFIX, XMLUtils.INT_NS, scope)
     } else {
       Assert.usage(intPrefix == null || intPrefix == XMLUtils.INT_PREFIX) // can't deal with some other binding for dafint

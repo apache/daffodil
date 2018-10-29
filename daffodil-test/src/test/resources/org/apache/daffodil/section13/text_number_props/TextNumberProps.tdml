@@ -17,13 +17,18 @@
 -->
 
 <tdml:testSuite suiteName="text-number-properties"
-  description="Text Number Properties" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
-  xmlns:ex="http://example.com" xmlns="http://example.com" xmlns:tns="http://example.com" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  description="Text Number Properties" 
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:ex="http://example.com" 
+  xmlns="http://example.com" 
+  xmlns:tns="http://example.com" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
   defaultRoundTrip="true">
 
-  <tdml:defineSchema name="textNumberPattern">
+  <tdml:defineSchema name="textNumberPattern" elementFormDefault="qualified">
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" occursCountKind="implicit"/>
 
@@ -292,7 +297,7 @@
 
   </tdml:defineSchema>
   
-  <tdml:defineSchema name="textNumberPattern2">
+  <tdml:defineSchema name="textNumberPattern2"  elementFormDefault="qualified">
     <dfdl:format
       alignment="1" alignmentUnits="bytes" binaryFloatRep="ieee"
       binaryNumberRep="binary" bitOrder="mostSignificantBitFirst"
@@ -2116,7 +2121,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <ex:tnp50 xmlns:ex="http://example.com">1234.0</ex:tnp50>
+        <tnp50 xmlns:ex="http://example.com">1234.0</tnp50>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -3338,7 +3343,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
   
-  <tdml:defineSchema name="textprops">
+  <tdml:defineSchema name="textprops" elementFormDefault="qualified">
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" separator="" separatorSuppressionPolicy="anyEmpty"
@@ -3493,7 +3498,7 @@
 
   </tdml:defineSchema>
 
-  <tdml:defineSchema name="textpropsInvalid">
+  <tdml:defineSchema name="textpropsInvalid" elementFormDefault="qualified">
     <dfdl:format
       alignment="1" alignmentUnits="bytes" binaryFloatRep="ieee"
       binaryNumberRep="binary" bitOrder="mostSignificantBitFirst"
@@ -3524,7 +3529,7 @@
 
   </tdml:defineSchema>
 
-  <tdml:defineSchema name="textpropsInvalid2">
+  <tdml:defineSchema name="textpropsInvalid2" elementFormDefault="qualified">
     <dfdl:format
       alignment="1" alignmentUnits="bytes" binaryFloatRep="ieee"
       binaryNumberRep="binary" bitOrder="mostSignificantBitFirst"
@@ -3572,7 +3577,7 @@
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <dynamic xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        <dynamic
           xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
           <decimalSep>_</decimalSep>
           <groupingSep>^</groupingSep>
@@ -3648,7 +3653,7 @@
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <dynamicExp xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        <dynamicExp
           xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
           <decimalSep>_</decimalSep>
           <exponentRep>@</exponentRep>
@@ -3675,7 +3680,7 @@
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <dynamicExp xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        <dynamicExp
           xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
           <decimalSep>_</decimalSep>
           <exponentRep>exp</exponentRep>
@@ -3899,8 +3904,7 @@
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <infnanDouble xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-          xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+        <infnanDouble>
           <posinf>INF</posinf>
           <neginf>-INF</neginf>
           <nan>NaN</nan>
@@ -3920,8 +3924,7 @@
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <infFloat xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-          xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+        <infFloat>
           <posinf>INF</posinf>
           <neginf>-INF</neginf>
         </infFloat>
@@ -3956,8 +3959,7 @@
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <infnan2 xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-          xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+        <infnan2>
           <posinf>INF</posinf>
           <neginf>-INF</neginf>
           <nan>NaN</nan>
@@ -3977,8 +3979,7 @@
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <infnanCaseInsensitive xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-          xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+        <infnanCaseInsensitive>
           <posinf>INF</posinf>
           <neginf>-INF</neginf>
           <nan>NaN</nan>
@@ -4126,8 +4127,7 @@
     
 	<tdml:infoset>
       <tdml:dfdlInfoset>
-        <zero xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-          xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+        <zero>
           <double>0.0</double>
           <double>0.0</double>
           <double>0.0</double>

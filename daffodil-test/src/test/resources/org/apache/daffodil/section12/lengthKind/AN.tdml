@@ -17,9 +17,12 @@
 -->
 
 <tdml:testSuite suiteName="AA-BG"
-  description="Original suite of AA through BG" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
+  description="Original suite of AA through BG" 
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
   xmlns:ex="http://example.com" xmlns="http://example.com"
   defaultRoundTrip="true">
 
@@ -66,31 +69,30 @@
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <path xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-          xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+        <ex:path>
           <folder xsi:type="xsd:string">folder1</folder>
           <folder xsi:type="xsd:string">folder2</folder>
           <folder xsi:type="xsd:string">folder3</folder>
           <file xsi:type="xsd:string">file_name</file>
-        </path>
+        </ex:path>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+  
   <tdml:parserTestCase name="AN001" root="path"
     model="AN-Embedded.dfdl.xsd" description="Tests lenthKind delimited - DFDL-12-042R">
 
     <tdml:document><![CDATA[folder1/folder2/folder3/]]></tdml:document>
 
     <tdml:infoset>
-      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <path xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-          xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+      <tdml:dfdlInfoset>
+        <ex:path>
           <folder xsi:type="xsd:string">folder1</folder>
           <folder xsi:type="xsd:string">folder2</folder>
           <folder xsi:type="xsd:string">folder3</folder>
-        </path>
+        </ex:path>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+  
 </tdml:testSuite>

@@ -161,10 +161,10 @@
     <document><![CDATA[ab#,cd,/*ef,gh*/]]></document>
     <infoset>
       <dfdlInfoset>
-        <list1>
+        <tns:list1>
           <character>ab,cd</character>
           <block>ef,gh</block>
-        </list1>
+        </tns:list1>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -227,7 +227,7 @@
     <document><![CDATA[;/../a]]></document>
     <infoset>
       <dfdlInfoset>
-        <noesc>;/../a</noesc>
+        <tns:noesc>;/../a</tns:noesc>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -246,7 +246,7 @@
     <document><![CDATA[;/../a]]></document>
     <infoset>
       <dfdlInfoset>
-        <noesc>;/../a</noesc>
+        <tns:noesc>;/../a</tns:noesc>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -264,7 +264,7 @@
     <document><![CDATA[;/../a]]></document>
     <infoset>
       <dfdlInfoset>
-        <esc>/..a</esc>
+        <tns:esc>/..a</tns:esc>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>

@@ -17,21 +17,23 @@
 -->
 
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-	xmlns:cal="http://www.saf.cal/" elementFormDefault="unqualified"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+	xmlns:cal="http://www.saf.cal/" 
+  elementFormDefault="unqualified"
 	attributeFormDefault="unqualified" >
 	<!--
 	-->
+	<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+	
 	<xs:annotation>
 		<xs:appinfo source="http://www.ogf.org/dfdl/">
 			<!--
 				This is the new schema level default format block. It doesn't get a
 				name
 			-->
-			<dfdl:format initiator="" terminator="" leadingSkip="0" trailingSkip="0"  
-				textBidi="no" floating="no"   encodingErrorPolicy="replace" 
-				encoding="utf-8" byteOrder="bigEndian" bitOrder="mostSignificantBitFirst" 
-				alignment="1" alignmentUnits="bytes" fillByte="f" 
+			<dfdl:format ref="GeneralFormat" 
+			    initiator="" terminator="" leadingSkip="0" trailingSkip="0"  textBidi="no" floating="no"   encoding="utf-8" byteOrder="bigEndian" alignment="1" alignmentUnits="bytes" fillByte="f" 
                 occursCountKind="implicit" 
 				truncateSpecifiedLengthString="no" ignoreCase="no"
 				representation="text"  textPadKind="none"
@@ -46,18 +48,16 @@
 				calendarPatternKind="implicit" calendarPattern="yyyymmddhhmmss" calendarCheckPolicy="lax" 
 				calendarTimeZone="UTC" calendarObserveDST="yes" 
 				calendarFirstDayOfWeek="Wednesday" calendarDaysInFirstWeek="7" calendarCenturyStart="50" 
-				calendarLanguage="it-IT" outputNewLine="%LF;"
+				calendarLanguage="it-IT" 
+                bitOrder="mostSignificantBitFirst"
 				/>
 
 		</xs:appinfo>
 	</xs:annotation>
-
-		
 	
 	<!-- annotation on type -->
-    <xs:element name="myDate1" type="newType1" dfdl:terminator="@">
+  <xs:element name="myDate1" type="newType1" dfdl:terminator="@">
 	</xs:element>
-	
 	
 	<!--  end of data -->
 	<xs:element name="myDate2" type="newType1" >
@@ -83,7 +83,7 @@
 	</xs:element>
 	
 	<!--  parent with specified length -->
-	<xs:element name="myStringSeq2" dfdl:lengthKind="explicit" dfdl:length="5">
+	<xs:element name="myStringSeq2_controversial"  dfdl:lengthKind="explicit" dfdl:length="5">
 		<xs:complexType>
 			<xs:sequence dfdl:initiatedContent="no" dfdl:separatorPosition="infix"
 				dfdl:sequenceKind="ordered" dfdl:separator="" >
@@ -96,9 +96,19 @@
 
 	</xs:element>
 	
-	
-	
-	
+	<!--  parent with specified length -->
+	<xs:element name="myStringSeq2" dfdl:lengthKind="delimited" dfdl:terminator=";"> <!-- dfdl:lengthKind="explicit" dfdl:length="5"> -->
+		<xs:complexType>
+			<xs:sequence dfdl:initiatedContent="no" dfdl:separatorPosition="infix"
+				dfdl:sequenceKind="ordered" dfdl:separator="" >
+				<xs:element name="Test1" type="xs:string">
+				</xs:element>
+				
+				
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
 	<xs:simpleType name="newType1">
 		<xs:annotation>
 			<xs:appinfo source="http://www.ogf.org/dfdl/">
@@ -110,9 +120,43 @@
 			</xs:appinfo>
 		</xs:annotation>
 		<xs:restriction base="xs:date">
-			
 		</xs:restriction>
 	</xs:simpleType>
-    
+  
+  <!--  parent with specified length -->
+  <xs:element name="myStringSeq3"> <!-- dfdl:lengthKind="explicit" dfdl:length="5"> -->
+    <xs:complexType>
+      <xs:sequence  dfdl:separatorPosition="infix" dfdl:separator="|" dfdl:terminator=":: ; ]" >
+        <xs:element name="element1" type="xs:string" dfdl:lengthKind="delimited"/>
+        <xs:element name="element2" type="xs:string" dfdl:lengthKind="delimited"/>
+        <xs:element name="element3" type="xs:string" dfdl:lengthKind="delimited"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+	
+	<xs:element name="myStringSeq4"> <!-- dfdl:lengthKind="explicit" dfdl:length="5"> -->
+		<xs:complexType>
+			<xs:sequence  dfdl:separator=":: ; ]" dfdl:terminator=":: ; ]" dfdl:separatorPosition="infix">
+				<xs:element name="seq1" dfdl:lengthKind="delimited" >
+				  <xs:complexType>
+				  	<xs:sequence dfdl:separatorPosition="infix" dfdl:separator="|" >
+				  		<xs:element name="element1" type="xs:string" dfdl:lengthKind="delimited"/>
+						<xs:element name="element2" type="xs:string" dfdl:lengthKind="delimited"/>
+						<xs:element name="element3" type="xs:string" dfdl:lengthKind="delimited"/>
+				  	</xs:sequence>
+				  </xs:complexType>
+				</xs:element>
+				<xs:element name="seq2" dfdl:lengthKind="delimited" >
+				  <xs:complexType>
+				  	<xs:sequence dfdl:separatorPosition="infix" dfdl:separator="|" >
+				  		<xs:element name="element1" type="xs:string" dfdl:lengthKind="delimited"/>
+						<xs:element name="element2" type="xs:string" dfdl:lengthKind="delimited"/>
+						<xs:element name="element3" type="xs:string" dfdl:lengthKind="delimited"/>
+				  	</xs:sequence>
+				  </xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
     
 </xs:schema>
