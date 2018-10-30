@@ -68,6 +68,7 @@ import org.apache.daffodil.processors.LayerEncodingEv
 import org.apache.daffodil.processors.LayerLengthInBytesEv
 import org.apache.daffodil.processors.LayerBoundaryMarkEv
 import org.apache.daffodil.processors.LayerCharsetEv
+import org.apache.daffodil.schema.annotation.props.TextStandardExponentRepMixin
 
 /*
  * These are the DFDL properties which can have their values come
@@ -657,7 +658,8 @@ trait LayeringRuntimeValuedPropertiesMixin
 
 trait SimpleTypeRuntimeValuedPropertiesMixin
   extends DFDLSimpleTypeMixin
-  with RawSimpleTypeRuntimeValuedPropertiesMixin { decl: ElementBase =>
+  with RawSimpleTypeRuntimeValuedPropertiesMixin
+  with TextStandardExponentRepMixin { decl: ElementBase =>
 
   private lazy val textStandardDecimalSeparatorExpr = LV('textStandardDecimalSeparator) {
     val qn = this.qNameForProperty("textStandardDecimalSeparator")
@@ -685,7 +687,7 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
 
   private lazy val textStandardExponentRepExpr = LV('textStandardExponentRep) {
     val qn = this.qNameForProperty("textStandardExponentRep")
-    val c = ExpressionCompilers.String.compileProperty(qn, NodeInfo.String, textStandardExponentRepRaw, decl)
+    val c = ExpressionCompilers.String.compileProperty(qn, NodeInfo.String, textStandardExponentRep, decl)
     c
   }.value
 

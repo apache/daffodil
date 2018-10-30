@@ -97,8 +97,8 @@ trait RawSimpleTypeRuntimeValuedPropertiesMixin
   protected final lazy val textStandardDecimalSeparatorRaw = requireProperty(optionTextStandardDecimalSeparatorRaw)
   protected final lazy val optionTextStandardGroupingSeparatorRaw = findPropertyOption("textStandardGroupingSeparator")
   protected final lazy val textStandardGroupingSeparatorRaw = requireProperty(optionTextStandardGroupingSeparatorRaw)
-  protected final lazy val optionTextStandardExponentRepRaw = findPropertyOption("textStandardExponentRep")
-  protected final lazy val textStandardExponentRepRaw = requireProperty(optionTextStandardExponentRepRaw)
+
+  
   protected final lazy val optionBinaryFloatRepRaw = findPropertyOption("binaryFloatRep")
   protected final lazy val binaryFloatRepRaw = requireProperty(optionBinaryFloatRepRaw)
   protected final lazy val optionTextBooleanTrueRepRaw = findPropertyOption("textBooleanTrueRep")

@@ -225,6 +225,9 @@
   <xsd:attribute name="textStandardDecimalSeparator"
     type="dfdl:DFDLStringLiteral_Or_DFDLExpression" />
   <xsd:attribute name="textStandardExponentRep"
+    type="dfdl:DFDLStringLiteral_Or_DFDLExpression" />  
+  <!-- deprecated form accepted by IBM DFDL as of 2018-10-30 -->
+  <xsd:attribute name="textStandardExponentCharacter"
     type="dfdl:DFDLStringLiteral_Or_DFDLExpression" />
   <xsd:attribute name="textNumberCheckPolicy" type="dfdl:TextNumberCheckPolicyEnum" />
   <xsd:attribute name="textStandardInfinityRep" type="dfdl:DFDLStringLiteral" />
@@ -242,6 +245,9 @@
     <xsd:attribute name="textStandardDecimalSeparator"
       type="dfdl:DFDLStringLiteral_Or_DFDLExpression" />
     <xsd:attribute name="textStandardExponentRep"
+      type="dfdl:DFDLStringLiteral_Or_DFDLExpression" />
+    <!-- deprecated form accepted by IBM DFDL as of 2018-10-30 -->
+    <xsd:attribute name="textStandardExponentCharacter"
       type="dfdl:DFDLStringLiteral_Or_DFDLExpression" />
     <xsd:attribute name="textNumberCheckPolicy" type="dfdl:TextNumberCheckPolicyEnum" />
     <xsd:attribute name="textStandardInfinityRep" type="dfdl:DFDLStringLiteral" />
@@ -490,6 +496,8 @@
       <xsd:enumeration value="textStandardGroupingSeparator" />
       <xsd:enumeration value="textStandardDecimalSeparator" />
       <xsd:enumeration value="textStandardExponentRep" />
+      <!-- deprecated form accepted by IBM DFDL as of 2018-10-30 -->
+      <xsd:enumeration value="textStandardExponentCharacter" />
       <xsd:enumeration value="textStandardInfinityRep" />
       <xsd:enumeration value="textStandardNaNRep" />
       <xsd:enumeration value="textStandardZeroRep" />
@@ -783,6 +791,9 @@
     <xsd:attribute form="qualified" name="textStandardDecimalSeparator"
       type="dfdl:DFDLStringLiteral_Or_DFDLExpression" />
     <xsd:attribute form="qualified" name="textStandardExponentRep"
+      type="dfdl:DFDLStringLiteral_Or_DFDLExpression" />
+    <!-- deprecated form still accepted by IBM DFDL as of 2018-10-30 -->
+    <xsd:attribute form="qualified" name="textStandardExponentCharacter"
       type="dfdl:DFDLStringLiteral_Or_DFDLExpression" />
     <xsd:attribute form="qualified" name="textNumberCheckPolicy"
       type="dfdl:TextNumberCheckPolicyEnum" />
