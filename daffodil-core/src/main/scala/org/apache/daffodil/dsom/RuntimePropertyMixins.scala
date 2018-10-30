@@ -69,6 +69,8 @@ import org.apache.daffodil.processors.LayerLengthInBytesEv
 import org.apache.daffodil.processors.LayerBoundaryMarkEv
 import org.apache.daffodil.processors.LayerCharsetEv
 import org.apache.daffodil.schema.annotation.props.TextStandardExponentRepMixin
+import org.apache.daffodil.schema.annotation.props.PropertyMixin
+import org.apache.daffodil.schema.annotation.props.Found
 
 /*
  * These are the DFDL properties which can have their values come
@@ -379,6 +381,37 @@ trait ElementRuntimeValuedPropertiesMixin
         case (Delimited, Text, _) => (lengthUnits, textOutputMinLength)
         case _ => (LengthUnits.Bits, 0L) // anything else. This shuts off checking a min.
       }
+    res
+  }
+
+  protected final lazy val optionTextOutputMinLength = findPropertyOption("textOutputMinLength")
+
+  /**
+   * We only use textOutputMinLength in a very narrow set of circumstances.
+   * Otherwise we assume 0.
+   */
+  lazy val textOutputMinLength: Long = {
+    val useTextOutputMinLength: Boolean = {
+      decl.isSimpleType &&
+        (decl.simpleType.primType ne PrimType.String) &&
+        (decl.simpleType.primType ne PrimType.HexBinary) &&
+        (decl.impliedRepresentation eq Representation.Text) &&
+        decl.optionTextPadKind.isDefined &&
+        (decl.textPadKind eq TextPadKind.PadChar) &&
+        {
+          import LengthKind._
+          decl.lengthKind match {
+            case Delimited | Prefixed | Pattern | EndOfParent => true
+            case Explicit if (!decl.lengthEv.isConstant) => true
+            case _ => false
+          }
+        }
+    }
+    val res: Long =
+      if (useTextOutputMinLength) {
+        val Found(value, _, _, _) = findProperty("textOutputMinLength")
+        value.toLong
+      } else 0
     res
   }
 
