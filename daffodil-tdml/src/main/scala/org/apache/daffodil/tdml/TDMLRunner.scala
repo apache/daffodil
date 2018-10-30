@@ -500,7 +500,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
 
     val res =
       try {
-        Seq(Class.forName(className).newInstance().asInstanceOf[TDMLDFDLProcessorFactory])
+        Seq(Class.forName(className).getDeclaredConstructor().newInstance().asInstanceOf[TDMLDFDLProcessorFactory])
       } catch {
         case cnf: ClassNotFoundException =>
           System.err.println("TDML Runner did not find implementation '%s'. No tests will be run against it.".format(className))
