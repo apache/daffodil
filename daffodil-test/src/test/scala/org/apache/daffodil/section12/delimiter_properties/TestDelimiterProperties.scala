@@ -59,6 +59,8 @@ class TestDelimiterProperties {
 
   @Test def test_DelimProp_10() = { runner_02.runOneTest("DelimProp_10") }
   @Test def test_DelimProp_10_01() = { runner_02.runOneTest("DelimProp_10_01") }
+  @Test def test_DelimProp_10_02() = { runner_02.runOneTest("DelimProp_10_02") }
+  @Test def test_DelimProp_10_03() = { runner_02.runOneTest("DelimProp_10_03") }
 
   @Test def test_E1() = { runner_02.runOneTest("E1") }
 

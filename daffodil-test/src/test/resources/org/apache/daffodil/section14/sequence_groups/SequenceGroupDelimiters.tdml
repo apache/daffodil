@@ -444,7 +444,7 @@
       <xs:complexType>
         <xs:sequence dfdl:separator="">
           <xs:element name="quantity" type="xs:int"/>
-          <xs:element name="item" type="xs:string" dfdl:initiator="Item: " />
+          <xs:element name="item" type="xs:string" dfdl:initiator="Item:%SP;" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>

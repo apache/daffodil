@@ -641,7 +641,12 @@ sealed abstract class ListOfStringLiteralBase(
   private lazy val olc = oneLiteralCooker
 
   protected def cook(raw: String, context: ThrowsSDE, forUnparse: Boolean): List[String] = {
+    if (raw.length != 0 && (raw.head.isWhitespace || raw.last.isWhitespace)) {
+      context.SDE("The property '%s' cannot start or end with the string \" \", did you mean to use '%%SP;' instead?", propNameArg)
+    }
+
     val rawList = raw.split("\\s+").toList
+
     val cooked = {
       val cookedList: ListBuffer[String] = ListBuffer.empty
       rawList.foreach(x => {
