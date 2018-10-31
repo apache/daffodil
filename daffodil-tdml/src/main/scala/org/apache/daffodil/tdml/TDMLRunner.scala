@@ -94,6 +94,11 @@ import org.apache.daffodil.tdml.processor.{
   TDMLDFDLProcessorFactory
 }
 
+import scala.util.Try
+import scala.util.Failure
+import scala.util.Success
+import org.apache.daffodil.tdml.processor.DaffodilTDMLDFDLProcessorFactory
+
 /**
   * Parses and runs tests expressed in IBM's contributed tdml "Test Data Markup Language"
   */
@@ -105,7 +110,7 @@ sealed trait RoundTrip
   */
 case object NoRoundTrip extends RoundTrip
 
-/**
+/**io.github.openDFDL.IBM_DFDL
   * Test round trips with a single pass. Unparse produces exactly the original data.
   */
 case object OnePassRoundTrip extends RoundTrip
@@ -498,32 +503,27 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
     import scala.language.reflectiveCalls
     import scala.language.existentials
 
-    val res =
-      try {
-        Seq(Class.forName(className).getDeclaredConstructor().newInstance().asInstanceOf[TDMLDFDLProcessorFactory])
-      } catch {
-        case cnf: ClassNotFoundException =>
-          System.err.println("TDML Runner did not find implementation '%s'. No tests will be run against it.".format(className))
-          Seq()
-        case ie: InstantiationException => {
-          //
-          // In this case, we found it, but we couldn't create an instance of it, so it's somehow broken,
-          // but there's no point in trying to use it.
-          //
-          System.err.println("TDML Runner found implementation '%s'. But was unable to create an instance. No tests will be run against it.".format(className))
-          Seq()
-        }
-        case cce: ClassCastException => {
-          //
-          // In this case, we found it, created an instance, but it's not the right type.
-          // So there's no point in trying to use it.
-          //
-          System.err.println("TDML Runner found implementation '%s'. But it was not an instance of %s. No tests will be run against it.".format(
-            className, tdmlDFDLProcessorFactoryTraitName
-          ))
-          Seq()
-        }
+    val clazz = Try(Class.forName(className))
+    val constructor = clazz.map{ _.getDeclaredConstructor() }
+    val tryInstance = constructor.map{ _.newInstance().asInstanceOf[TDMLDFDLProcessorFactory] }
+    val res = tryInstance match {
+      case Success(instance) => Seq(instance)
+      case Failure(e) => {
+        // issue warnings
+        val warnMsgGuts =
+        e match {
+          case e: ClassNotFoundException =>  ": ClassNotFoundException - did not find implementation '%s'.".format(className)
+          case e: NoClassDefFoundError =>  ": NoClassDefFoundError - did not find implementation '%s'.".format(className)
+          case e: NoSuchMethodException => "found implementation %s, but it has no default constructor.".format(className)
+          case e: InstantiationException => "found implementation %s, but unable to create an instance due to:%s.".format(className, e.getMessage())
+          case e: ClassCastException => "found implementation '%s'. But it was not an instance of %s. No tests will be run against it.".format(
+            className, tdmlDFDLProcessorFactoryTraitName)
+          case e => "for implementation %s - cannot use due to unexpected exception %s.".format(className, e.getMessage())
       }
+        this.parent.log(LogLevel.Warning, "TDML Runner %s No tests will be run against it.", warnMsgGuts)
+        Seq()
+    }
+    }
     res
   }
 
@@ -708,6 +708,10 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
     val tunableObj = DaffodilTunables(tunables)
 
     implementations.foreach { impl: TDMLDFDLProcessorFactory =>
+
+      if (!impl.isInstanceOf[DaffodilTDMLDFDLProcessorFactory]) {
+        log(LogLevel.Info, "Using TDML Implementation %s.", Misc.getNameFromClass(impl))
+      }
 
       impl.setTunables(tunables)
 

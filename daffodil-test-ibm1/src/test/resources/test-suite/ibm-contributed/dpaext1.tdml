@@ -21,7 +21,8 @@
 	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" 
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	defaultRoundTrip="true">
+	defaultRoundTrip="true"
+  defaultImplementations="io.github.openDFDL.IBM_DFDL daffodil">
 
 
    <!-- 

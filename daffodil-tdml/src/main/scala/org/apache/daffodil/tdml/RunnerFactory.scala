@@ -62,9 +62,12 @@ object Runner {
   def defaultValidationDefaultDefault = "off"
 
   /**
-    * Default for what DFDL implementations to run tests against.
-    */
-  def defaultImplementationsDefaultDefault = Seq(daffodilTDMLDFDLProcessorFactoryName)
+   * Default for what DFDL implementations to run tests against.
+   *
+   * If any other listed implementation is found on the class path, it will be used by default.
+   * Except for test suites or test cases that explicitly specify only Daffodil.
+   */
+  def defaultImplementationsDefaultDefault = Seq(daffodilTDMLDFDLProcessorFactoryName) // , "io.github.openDFDL.IBM_DFDL")
 
   lazy val daffodilTDMLDFDLProcessorFactoryName = {
     // Doing this so that if we decide to rename the verbose class name here
@@ -86,7 +89,6 @@ class Runner private (elem: scala.xml.Elem, dir: String, file: String,
   defaultRoundTripDefault: RoundTrip = Runner.defaultRoundTripDefaultDefault,
   defaultValidationDefault: String = Runner.defaultValidationDefaultDefault,
   defaultImplementationsDefault: Seq[String] = Runner.defaultImplementationsDefaultDefault) {
-
 
   if (elem ne null)
     Assert.usage((dir eq null) && (file eq null))
