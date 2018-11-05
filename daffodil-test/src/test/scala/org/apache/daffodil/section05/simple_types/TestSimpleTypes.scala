@@ -239,7 +239,8 @@ class TestSimpleTypes {
   @Test def test_dateTimeImplicitPatternFail2() { runner.runOneTest("dateTimeImplicitPatternFail2") }
   @Test def test_dateTimeImplicitPatternFail3() { runner.runOneTest("dateTimeImplicitPatternFail3") }
   @Test def test_dateTimeImplicitPatternFail4() { runner.runOneTest("dateTimeImplicitPatternFail4") }
-  //@Test def test_dateTimeImplicitPatternFail5() { runner.runOneTest("dateTimeImplicitPatternFail5") }
+  @Test def test_dateTimeImplicitPatternFail5() { runner.runOneTest("dateTimeImplicitPatternFail5") }
+  @Test def test_dateTimeImplicitPatternFail6() { runner.runOneTest("dateTimeImplicitPatternFail6") }
 
   @Test def test_datePattern01() { runner.runOneTest("datePattern01") }
   //  @Test def test_datePattern01b() { runner.runOneTest("datePattern01b") }

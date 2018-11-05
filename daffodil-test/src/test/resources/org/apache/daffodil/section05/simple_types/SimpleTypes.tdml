@@ -2236,11 +2236,12 @@
     <tdml:document>
       <tdml:documentPart type="bits">00000000 00000001 00000010 01001110 11010001 10100111 00001000 00000000</tdml:documentPart>
     </tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <dateTimeBin6>11000-06-15T03:25:19</dateTimeBin6>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Tunable Limit Exceeded Error</tdml:error>
+      <tdml:error>not within the limits of</tdml:error>
+      <tdml:error>minValidYear</tdml:error>
+      <tdml:error>maxValidYear</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
   <!-- xs:dateTime with binaryCalendarRep='binaryMillieconds' -->
@@ -2264,11 +2265,11 @@
     roundTrip="true">
 
     <tdml:document>
-      <tdml:documentPart type="bits">00000000 00000000 11100101 10011000 00001111 10110100 10001110 11101000</tdml:documentPart>
+      <tdml:documentPart type="bits">00000000 00000000 11100101 10011000 00001111 10101000 11010110 11101000</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <dateTimeBin6>10000-01-01T00:00:00</dateTimeBin6>
+        <dateTimeBin6>9999-12-31T23:47:12</dateTimeBin6>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -2287,7 +2288,7 @@
   </tdml:parserTestCase>
 
   <!-- xs:dateTime with binaryCalendarRep='binaryMillieconds' with expected result equal
-    to the maximum date allowed -->
+    to the maximum date allowed, but still out of bounds for maxValidYear tunable  -->
   <tdml:parserTestCase name="dateTimeBin12" root="dateTimeBin6"
     model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R"
     roundTrip="true">
@@ -2295,11 +2296,12 @@
     <tdml:document>
       <tdml:documentPart type="bits">00000010 10001101 01000110 11111011 11111100 10101110 01100010 11101000</tdml:documentPart>
     </tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <dateTimeBin6>5828963-12-20T00:00:00</dateTimeBin6>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Tunable Limit Exceeded Error:</tdml:error>
+      <tdml:error>not within the limits of</tdml:error>
+      <tdml:error>minValidYear</tdml:error>
+      <tdml:error>maxValidYear</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
   <!-- xs:dateTime with binaryCalendarRep='binaryMillieconds' - expecting an error for being 1 milisecond
@@ -2317,7 +2319,7 @@
   </tdml:parserTestCase>
 
   <!-- xs:dateTime with binaryCalendarRep='binaryMillieconds' with expected result equal
-    to the minimum date allowed -->
+    to the minimum date allowed, but still out of bounds for minValidYear tunable -->
   <tdml:parserTestCase name="dateTimeBin14" root="dateTimeBin6"
     model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R"
     roundTrip="true">
@@ -2325,11 +2327,12 @@
     <tdml:document>
       <tdml:documentPart type="bits">11111101 01110001 00110111 10110011 11111100 10101110 01100010 11101000</tdml:documentPart>
     </tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <dateTimeBin6>-5838269-09-20T00:00:00</dateTimeBin6>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Tunable Limit Exceeded Error:</tdml:error>
+      <tdml:error>not within the limits of</tdml:error>
+      <tdml:error>minValidYear</tdml:error>
+      <tdml:error>maxValidYear</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
   <!-- xs:dateTime with binaryCalendarRep='binaryMillieconds' - expecting an error for being 1 milisecond
@@ -4952,10 +4955,32 @@
 
     <tdml:document><![CDATA[99999999-03-24T03:45:30]]></tdml:document>
     <tdml:errors>
-      <tdml:error>Parse Error:</tdml:error>
-      <tdml:error>Placeholder for error message</tdml:error>
+      <tdml:error>Tunable Limit Exceeded Error:</tdml:error>
+      <tdml:error>not within the limits of</tdml:error>
+      <tdml:error>minValidYear</tdml:error>
+      <tdml:error>maxValidYear</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
+
+<!--
+     Test Name: dateTimeImplicitPatternFail6
+        Schema: dateTimeSchema
+          Root: dateTimeImp
+       Purpose: This test demonstrates a dateTime data type with a year that is out of range.
+-->
+
+  <tdml:parserTestCase name="dateTimeImplicitPatternFail6" root="dateTimeImp"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarPatternKind - DFDL-13-138R">
+
+    <tdml:document><![CDATA[10000-03-24T03:45:30]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Tunable Limit Exceeded Error:</tdml:error>
+      <tdml:error>not within the limits of</tdml:error>
+      <tdml:error>minValidYear</tdml:error>
+      <tdml:error>maxValidYear</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
 
 <!--
      Test Name: datePattern01
