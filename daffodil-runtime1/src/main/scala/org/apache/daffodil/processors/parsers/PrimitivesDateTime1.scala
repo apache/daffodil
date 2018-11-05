@@ -30,6 +30,7 @@ import org.apache.daffodil.processors.CalendarLanguageEv
 import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.processors.Processor
 import org.apache.daffodil.schema.annotation.props.gen.BinaryCalendarRep
+import org.apache.daffodil.dsom.TunableLimitExceededError
 
 abstract class ConvertTextCalendarProcessorBase(
   override val context: ElementRuntimeData,
@@ -131,6 +132,10 @@ case class ConvertTextCalendarParser(
     // exception to be thrown if a Calendar is not valid.
     try {
       cal.getTime
+      if ((cal.get(Calendar.YEAR) > start.tunable.maxValidYear) || (cal.get(Calendar.YEAR) < start.tunable.minValidYear))
+        throw new TunableLimitExceededError(erd.schemaFileLocation,
+          "Year value of %s is not within the limits of the tunables minValidYear (%s) and maxValidYear (%s)",
+          cal.get(Calendar.YEAR), start.tunable.minValidYear, start.tunable.maxValidYear)
     } catch {
       case e: IllegalArgumentException => {
         PE(start, "Convert to %s (for xs:%s): Failed to parse '%s': %s.", prettyType, xsdType, str, e.getMessage())
@@ -212,6 +217,10 @@ case class ConvertBinaryCalendarSecMilliParser(
     val newTime = cal.getTimeInMillis + millisToAdd
     try {
       cal.setTimeInMillis(newTime)
+      if ((cal.get(Calendar.YEAR) > start.tunable.maxValidYear) || (cal.get(Calendar.YEAR) < start.tunable.minValidYear))
+        throw new TunableLimitExceededError(context.schemaFileLocation,
+          "Year value of %s is not within the limits of the tunables minValidYear (%s) and maxValidYear (%s)",
+          cal.get(Calendar.YEAR), start.tunable.minValidYear, start.tunable.maxValidYear)
     } catch {
       case e: IllegalArgumentException => {
         PE(start, "%s milliseconds from the binaryCalendarEpoch is out of range of valid values: %s.",

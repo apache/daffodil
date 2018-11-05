@@ -138,7 +138,15 @@ case class DaffodilTunables(
 
   val maximumSimpleElementSizeInCharacters: Int = 1024 * 1024,
   val initialRegexMatchLimitInCharacters: Int = 64,
-  val maximumRegexMatchLengthInCharacters: Int = 1024 * 1024)
+  val maximumRegexMatchLengthInCharacters: Int = 1024 * 1024,
+
+  /* Due to differences in the DFDL spec and ICU4J SimpleDateFormat, we must have SimpleDateFormat
+   * parse in lenient mode, which allows the year value to overflow with very large years
+   * into possibly negative years. These tunables simply make sure that value we get back
+   * from SimpleDateFormat are reasonable
+   */
+  val minValidYear: Int = 0,
+  val maxValidYear: Int = 9999)
 
   extends Serializable
   with Logging {
