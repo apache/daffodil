@@ -5808,7 +5808,7 @@
     <tdml:document><![CDATA[day 1 of the week, month 02 year 2013]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <date06>2013-02-03+00:00</date06>
+        <date06>2013-02-03</date06>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -5829,7 +5829,7 @@
     <tdml:document><![CDATA[day 2 of the week, month 02 year 2013]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <date06>2013-02-04+00:00</date06>
+        <date06>2013-02-04</date06>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

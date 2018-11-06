@@ -261,7 +261,7 @@
 	
 	-->
 	<parserTestCase name="simple_type_properties_text_calendar_13_01" root="myDateTime"
-		model="./fvt/ext/dpa/dpacaltxt_43.dfdl.xsd" 
+		model="./fvt/ext/dpa/dpacaltxt_43.dfdl.xsd"  roundTrip="twoPass"
 		 description="Section 13.10 Properties for calendar text  -calendarPattern, calendarPatternKind, celendarFirstDayOfWeek
 		 calendardDaysInFirstWeek , Section 13.12 - textCalendarJustification, textCalendarPadCharacter">
 		<document>xxxx2011040506MON01@</document>
