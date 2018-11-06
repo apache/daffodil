@@ -110,9 +110,9 @@ class TestSimpleTypes {
 
   @Test def test_dateCalendarDaysInFirstWeek() { runner.runOneTest("dateCalendarDaysInFirstWeek") }
   @Test def test_dateCalendarDaysInFirstWeek2() { runner.runOneTest("dateCalendarDaysInFirstWeek2") }
-  //DAFFODIL-1945 @Test def test_dateCalendarDaysInFirstWeek3() { runner.runOneTest("dateCalendarDaysInFirstWeek3") }
+  @Test def test_dateCalendarDaysInFirstWeek3() { runner.runOneTest("dateCalendarDaysInFirstWeek3") }
   @Test def test_dateCalendarDaysInFirstWeek4() { runner.runOneTest("dateCalendarDaysInFirstWeek4") }
-  //DAFFODIL-1945 @Test def test_dateCalendarDaysInFirstWeek5() { runner.runOneTest("dateCalendarDaysInFirstWeek5") }
+  @Test def test_dateCalendarDaysInFirstWeek5() { runner.runOneTest("dateCalendarDaysInFirstWeek5") }
 
   @Test def test_timeSymbols() { runner.runOneTest("timeSymbols") }
   @Test def test_timeSymbols2() { runner.runOneTest("timeSymbols2") }

@@ -5455,13 +5455,13 @@
                 and in 2012 the first day of the year started the first full week, so we should get January 1st.
 -->
   
-  <tdml:parserTestCase name="dateCalendarDaysInFirstWeek3" root="date17"
+  <tdml:parserTestCase name="dateCalendarDaysInFirstWeek3" root="date17" roundTrip="twoPass"
     model="dateTimeSchema" description="Section 13 Simple Types - calendarDaysInFirstWeek - DFDL-13-143R">
 
     <tdml:document><![CDATA[01 2012]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <date17>2012-01-01+00:00</date17>
+        <date17>2012-01-01</date17>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -5496,13 +5496,13 @@
                 which is Feb 24th.
 -->
   
-  <tdml:parserTestCase name="dateCalendarDaysInFirstWeek5" root="date20"
+  <tdml:parserTestCase name="dateCalendarDaysInFirstWeek5" root="date20" roundTrip="twoPass"
     model="dateTimeSchema" description="Section 13 Simple Types - calendarDaysInFirstWeek - DFDL-13-143R">
 
     <tdml:document><![CDATA[01 03 2013]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <date20>2013-02-24+00:00</date20>
+        <date20>2013-02-24</date20>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
