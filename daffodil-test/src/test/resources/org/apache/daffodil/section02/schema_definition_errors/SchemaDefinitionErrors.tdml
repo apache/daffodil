@@ -191,4 +191,25 @@
 
   </tdml:parserTestCase>
 
+<!--
+    Test Name: missing_closing_tag
+       Schema: MissingClosingTag.dfdl.xsd
+         Root: e1
+      Purpose: This test demonstrates that an SDE will be displayed in the event of a missing
+               closing tag in the schema file.
+-->
+
+  <tdml:parserTestCase name="missing_closing_tag" root="e1"
+    model="MissingClosingTag.dfdl.xsd"
+    description="">
+    <tdml:document />
+
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>expected closing tag</tdml:error>
+      <tdml:error>dfdl:format</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
 </tdml:testSuite>
