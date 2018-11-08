@@ -127,6 +127,7 @@ final class DFDLSchemaFile(val sset: SchemaSet,
     } catch {
       case e: java.io.IOException => die(e)
       case e: SAXException => die(e)
+      case e: scala.xml.parsing.FatalError => die(e)
     }
     node
   }.value
