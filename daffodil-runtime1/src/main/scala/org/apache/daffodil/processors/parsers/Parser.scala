@@ -271,7 +271,7 @@ class ChoiceParser(ctxt: RuntimeData, val childParsers: Vector[Parser])
       case t: Throwable => {
         if (pBefore != null) {
           markLeakCausedByException = true
-          if (!t.isInstanceOf[SchemaDefinitionDiagnosticBase] && !t.isInstanceOf[UnsuppressableException]) {
+          if (!t.isInstanceOf[SchemaDefinitionDiagnosticBase] && !t.isInstanceOf[UnsuppressableException] && !t.isInstanceOf[java.lang.Error]) {
             val stackTrace = new StringWriter()
             t.printStackTrace(new PrintWriter(stackTrace))
             Assert.invariantFailed("Exception thrown with mark not returned: " + t + "\nStackTrace:\n" + stackTrace)
