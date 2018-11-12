@@ -1355,6 +1355,20 @@ object Main extends Logging {
         log(LogLevel.Error, "%s", e.getMessage())
         1
       }
+      case e: OutOfMemoryError => {
+        System.err.println("""|
+                            |!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                            |!!             Daffodil ran out of memory!              !!
+                            |!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                            |
+                            | Try increasing the amount of memory by changing or
+                            | setting the DAFFODIL_JAVA_OPTS environment variable.
+                            | "DAFFODIL_JAVA_OPTS=-Xmx5G" for 5GB.
+                            |
+                            |""".stripMargin)
+        e.printStackTrace
+        1
+      }
       case e: Exception => {
         bugFound(e)
       }
