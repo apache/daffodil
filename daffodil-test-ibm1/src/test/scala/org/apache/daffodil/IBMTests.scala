@@ -57,10 +57,11 @@ class IBMTestsThatPass {
 
   @Test def test_property_syntax_7_04() { runner1.runOneTest("property_syntax_7_04") }
 
-  // Used to work, but now we get NYI for attributeFormDefault='qualified'
-  // @Test def test_scoping_default_format_8_01() { runner1.runOneTest("scoping_default_format_8_01") }
+  @Test def test_scoping_default_format_8_01() { runner1.runOneTest("scoping_default_format_8_01") }
+  @Test def test_scoping_define_format_8_01() { runner1.runOneTest("scoping_define_format_8_01") }
   @Test def test_scoping_define_format_8_02() { runner1.runOneTest("scoping_define_format_8_02") }
   @Test def test_scoping_define_format_8_03() { runner1.runOneTest("scoping_define_format_8_03") }
+  @Test def test_scoping_define_format_8_04() { runner1.runOneTest("scoping_define_format_8_04") }
   @Test def test_scoping_define_format_8_05() { runner1.runOneTest("scoping_define_format_8_05") }
 
 

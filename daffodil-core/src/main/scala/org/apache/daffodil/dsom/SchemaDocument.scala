@@ -118,11 +118,12 @@ final class XMLSchemaDocument(xmlArg: Node,
     val hasSchemaLocation = (xml \ "@schemaLocation").text != ""
     val hasBlockDefault = (xml \ "@blockDefault").text != ""
     val hasFinalDefault = (xml \ "@finalDefault").text != ""
+    val hasAttributeFormDefault = (xml \ "@attributeFormDefault").text != ""
     schemaDefinitionWarningUnless(WarnID.UnsupportedAttributeSchemaLocation, !hasSchemaLocation, "schemaLocation is ignored.")
     schemaDefinitionWarningUnless(WarnID.UnsupportedAttributeBlockDefault, !hasBlockDefault, "blockDefault is ignored")
     schemaDefinitionWarningUnless(WarnID.UnsupportedAttributeFinalDefault, !hasFinalDefault, "finalDefault is ignored")
-    schemaDefinitionUnless(attributeFormDefault == "unqualified", "attributeFormDefault='qualified' is not yet implemented.")
-    val res = hasSchemaLocation | hasBlockDefault | hasFinalDefault
+    schemaDefinitionWarningUnless(WarnID.UnsupportedAttributeFormDefault, !hasAttributeFormDefault, "attributeFormDefault is not part of DFDL and will be ignored")
+    val res = hasSchemaLocation | hasBlockDefault | hasFinalDefault | hasAttributeFormDefault
     res
   }.value
 

@@ -44,11 +44,6 @@ class IBMTestsThatThrow {
   lazy val runner1 = new DFDLTestSuite(Misc.getRequiredResource(tdml1))
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
 
-  @Test def test_scoping_define_format_8_04() { runner1.runOneTest("scoping_define_format_8_04") } //DFDL-565 - attributeFormDefault='qualified'
-
-  @Test def test_scoping_default_format_8_01() { runner1.runOneTest("scoping_default_format_8_01") } // DFDL-565 attributeFormDefault='qualified'
-  @Test def test_scoping_define_format_8_01() { runner1.runOneTest("scoping_define_format_8_01") } // DFDL-565 attributeFormDefault='qualified'
-
   @Test def test_alignment_bytes_12_05() { runner1.runOneTest("alignment_bytes_12_05") } //DFDL-99 binary dateTime
 
   @Test def test_length_implicit_12_02() { runner1.runOneTest("length_implicit_12_02") } // implicit length string - bug in IBM test (doesn't have minLength - both are required)
