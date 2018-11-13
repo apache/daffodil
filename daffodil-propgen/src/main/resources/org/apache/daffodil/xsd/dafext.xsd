@@ -145,6 +145,7 @@
                  <xsd:enumeration value="regexPatternZeroLength" />
                  <xsd:enumeration value="unsupportedAttributeBlockDefault" />
                  <xsd:enumeration value="unsupportedAttributeFinalDefault" />
+                 <xsd:enumeration value="unsupportedAttributeFormDefault" />
                  <xsd:enumeration value="unsupportedAttributeSchemaLocation" />
                </xsd:restriction>
              </xsd:simpleType>

@@ -78,6 +78,7 @@ object WarnID extends PropsEnum[WarnID] {
   case object UnsupportedAttributeBlockDefault extends WarnID; forceConstruction(UnsupportedAttributeBlockDefault)
   case object UnsupportedAttributeFinalDefault extends WarnID; forceConstruction(UnsupportedAttributeFinalDefault)
   case object UnsupportedAttributeSchemaLocation extends WarnID; forceConstruction(UnsupportedAttributeSchemaLocation)
+  case object UnsupportedAttributeFormDefault extends WarnID; forceConstruction(UnsupportedAttributeFormDefault)
 
   override def apply(name: String, context: ThrowsSDE) = Assert.usageError("not to be called. Call find(name) method instead.")
 

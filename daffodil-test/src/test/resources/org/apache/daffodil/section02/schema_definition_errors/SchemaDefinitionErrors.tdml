@@ -212,4 +212,28 @@
 
   </tdml:parserTestCase>
 
+  <!--
+    Test Name: ignoreAttributeFormDefault
+       Schema: AttributeFormDefault.dfdl.xsd
+         Root: elem
+      Purpose: This test demonstrates the Schema Definition Warning for attributeFormDefault
+-->
+
+  <tdml:parserTestCase name="ignoreAttributeFormDefault" root="elem"
+    model="AttributeFormDefault.dfdl.xsd"
+    description="">
+    <tdml:document><![CDATA[test]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <elem>test</elem>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:warnings>
+      <tdml:warning>Schema Definition Warning</tdml:warning>
+      <tdml:warning>attributeFormDefault is not part of DFDL and will be ignored</tdml:warning>
+    </tdml:warnings>
+
+  </tdml:parserTestCase>
+
 </tdml:testSuite>

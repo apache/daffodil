@@ -91,7 +91,7 @@ object SchemaUtils {
     scope = XMLUtils.combineScopes("ex", targetNamespace, scope)
 
     val schemaNode =
-      <xs:schema elementFormDefault={ elementFormDefault } attributeFormDefault="unqualified">
+      <xs:schema elementFormDefault={ elementFormDefault } >
         <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
         <xs:annotation>
           <xs:appinfo source={ XMLUtils.dfdlAppinfoSource }>
