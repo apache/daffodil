@@ -318,6 +318,12 @@ final class EntityReplacer {
     result
   }
 
+  private def errBadEntityLonePercent(ent: String, orig: String, context: Maybe[ThrowsSDE]) {
+    val msg = "Invalid DFDL Entity (%s) found in \"%s\". If a single percent was intended instead of a DFDL Entity, it must be self escaped (%%%%).".format(ent, orig)
+    if (context.isDefined) context.get.SDE(msg)
+    else throw new EntitySyntaxException(msg)
+  }
+
   private def errBadEntityNoSemi(ent: String, orig: String, context: Maybe[ThrowsSDE]) {
     val msg = "Invalid DFDL Entity (%%%s) found in \"%s\". Missing semicolon at end of entity name?".format(stripLeadingPercent(ent), orig)
     if (context.isDefined) context.get.SDE(msg)
@@ -331,6 +337,10 @@ final class EntityReplacer {
     allowByteEntities: Boolean = true): String = {
     Assert.usage(!input.contains("%%"))
     if (!input.contains("%")) { return input }
+
+    if (input.equals("%")) {
+      errBadEntityLonePercent(input, orig, context)
+    }
 
     val tokens = input.split("""%""") ++ (if (input.endsWith("%")) List("") else Nil)
     // we must have a minimum of 2 tokens here. The first token never was for an entity. Only 2nd to last ones.

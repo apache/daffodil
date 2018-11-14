@@ -4127,6 +4127,8 @@
 
     <xs:element name="string11" dfdl:textStringPadCharacter=" " dfdl:lengthKind="delimited" type="xs:string" />
 
+    <xs:element name="string12" dfdl:textStringPadCharacter="%" dfdl:lengthKind="delimited" type="xs:string" />
+
   </tdml:defineSchema>
   
   <!--
@@ -4506,6 +4508,24 @@
         </seq>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: percentPadding
+    Schema: SimpleTypes-padding
+    Purpose: This document demonstrates the use of a percent sign for textStringPadCharacter and throws an error.
+  -->
+
+  <tdml:parserTestCase name="percentPadding" root="string12"
+      model="SimpleTypes-padding" description="Section 13 Simple Types - textStringPadCharacter DFDL-13-042R"
+      >
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[remove padding please%%%%%%%%%%]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Invalid DFDL Entity (%) found</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="dateTimeSchemaTNR">

@@ -82,4 +82,10 @@ class TestDelimiterProperties {
   }
 
   @Test def test_delims_ignorecase_01() = { runner_02.runOneTest("delims_ignorecase_01") }
+
+  @Test def test_percentInitiator() = { runner_02.runOneTest("percentInitiator") }
+  @Test def test_percentSeparator() = { runner_02.runOneTest("percentSeparator") }
+  @Test def test_percentTerminator() = { runner_02.runOneTest("percentTerminator") }
+  @Test def test_percentTerminator2() = { runner_02.runOneTest("percentTerminator2") }
+  @Test def test_percentExpression() = { runner_02.runOneTest("percentExpression") }
 }
