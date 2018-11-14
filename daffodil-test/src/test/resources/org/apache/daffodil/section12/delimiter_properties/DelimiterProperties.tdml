@@ -129,6 +129,56 @@
       </xs:complexType>
     </xs:element>
 
+    <xs:element name="DP_05" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:initiatedContent="no"
+          dfdl:separatorPosition="infix" dfdl:separator=",">
+          <xs:element name="num1" type="xs:int"
+            dfdl:initiator="%" maxOccurs="unbounded" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="DP_06" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:initiatedContent="no"
+          dfdl:separatorPosition="infix" dfdl:separator="%">
+          <xs:element name="num1" type="xs:int"
+            dfdl:initiator=":" maxOccurs="unbounded" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="DP_07" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:initiatedContent="no"
+          dfdl:separatorPosition="infix" dfdl:separator=",">
+          <xs:element name="num1" type="xs:int"
+            dfdl:terminator="%" maxOccurs="unbounded" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="DP_08" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:initiatedContent="no"
+          dfdl:separatorPosition="infix" dfdl:separator=",">
+          <xs:element name="num1" type="xs:int"
+            dfdl:terminator="test%" maxOccurs="unbounded" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="DP_09" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:initiatedContent="no"
+          dfdl:separatorPosition="infix" dfdl:separator=",">
+          <xs:element name="num1" type="xs:int"
+            dfdl:terminator="{if ('true') then '%' else 'IMPOSSIBLE'}" maxOccurs="unbounded" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
   </tdml:defineSchema>
 
   <tdml:defineSchema name="DelimiterProperties-Embedded2.dfdl.xsd">
@@ -808,6 +858,62 @@
         </e2>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="percentInitiator"
+    model="DelimiterProperties-Embedded.dfdl.xsd"
+    description="An initiator of '%' causes an error"
+    root="DP_05">
+    <tdml:document><![CDATA[%1,%2,%3,%4]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Invalid DFDL Entity (%) found</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="percentSeparator"
+    model="DelimiterProperties-Embedded.dfdl.xsd"
+    description="A separator of '%' causes an error"
+    root="DP_06">
+    <tdml:document><![CDATA[:1%:2%:3%:4]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Invalid DFDL Entity (%) found</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="percentTerminator"
+    model="DelimiterProperties-Embedded.dfdl.xsd"
+    description="A terminator of '%' causes an error"
+    root="DP_07">
+    <tdml:document><![CDATA[1%,2%,3%,4%]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Invalid DFDL Entity (%) found</tdml:error>
+      <tdml:error>%%</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="percentTerminator2"
+    model="DelimiterProperties-Embedded.dfdl.xsd"
+    description="A terminator that ends in a '%' causes an error"
+    root="DP_08">
+    <tdml:document><![CDATA[1test%,2test%,3test%,4test%]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Invalid DFDL Entity (%) found</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="percentExpression"
+    model="DelimiterProperties-Embedded.dfdl.xsd"
+    description="A terminator that is an expression that results in '%' causes an error"
+    root="DP_09">
+    <tdml:document><![CDATA[1%,2%,3%,4%]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Invalid DFDL Entity (%) found</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
 </tdml:testSuite>
