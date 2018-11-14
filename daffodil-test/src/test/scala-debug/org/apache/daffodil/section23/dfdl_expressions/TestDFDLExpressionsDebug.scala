@@ -58,10 +58,6 @@ class TestDFDLExpressionsDebug {
 
   import TestDFDLExpressionsDebug._
 
-  //DFDL-1287
-  @Test def test_internal_space_preserved4() { runner.runOneTest("internal_space_preserved4") }
-  @Test def test_internal_space_not_preserved2() { runner.runOneTest("internal_space_not_preserved2") }
-
   //DFDL-1146
   @Test def test_attribute_axis_01() { runner.runOneTest("attribute_axis_01") }
   @Test def test_attribute_axis_02() { runner.runOneTest("attribute_axis_02") }
