@@ -1670,13 +1670,11 @@ c]]></value>
     model="expressions-Embedded.dfdl.xsd" description="">
 
     <tdml:document><![CDATA[1blastoff]]></tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <expr_space5b>
-          <value>blastoff</value>
-        </expr_space5b>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>property 'initiator'</tdml:error>
+      <tdml:error>cannot start or end with the string " "</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
 <!--
@@ -1715,14 +1713,11 @@ c]]></value>
     model="expressions-Embedded.dfdl.xsd" description="">
 
     <tdml:document><![CDATA[321blastoff]]></tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <expr_space4>
-          <dummy>2</dummy>
-          <value><![CDATA[a b c]]></value>
-        </expr_space4>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>property 'initiator'</tdml:error>
+      <tdml:error>cannot start or end with the string " "</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="expression-type-errors.dfdl.xsd">
