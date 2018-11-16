@@ -845,7 +845,7 @@ object Main extends Logging {
               case Some("-") | None => System.out
               case Some(file) => new FileOutputStream(file)
             }
-            val writer = new BufferedWriter(new OutputStreamWriter(output))
+            val writer = new BufferedWriter(new OutputStreamWriter(output, "UTF-8"))
             val outputter = getInfosetOutputter(parseOpts.infosetType.toOption.get, writer)
 
             var lastParseBitPosition = 0L
