@@ -79,8 +79,8 @@ class TestSequenceGroups {
   //DFDL-284
   // @Test def test_hiddenGroupLoop() { runner_02.runOneTest("hiddenGroupLoop") }
 
-  //DFDL-598
-  // @Test def test_hiddenGroupEmpty() { runner_02.runOneTest("hiddenGroupEmpty") }
+  //DFDL-598(related to, but this test does not say this is fixed)
+  @Test def test_hiddenGroupRefEmptyString() { runner_02.runOneTest("hiddenGroupRefEmptyString") }
 
   @Test def test_AC000() { runner_02.runOneTest("AC000") }
   @Test def test_AD000() { runner_02.runOneTest("AD000") }

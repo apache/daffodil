@@ -39,7 +39,7 @@ final class DFDLProperty(xmlArg: Node, formatAnnotation: DFDLFormatAnnotation)
   // TODO: if we grab the value from here, then any qnames inside that value
   // have to be resolved by THIS Object
   lazy val value = {
-    lazy val values: Option[NodeSeq] = xml match {
+    val values: Option[NodeSeq] = xml match {
       case <dfdl:property/> => None
       case <daf:property/> => None
       case <dfdl:property>{ valueNodes @ _* }</dfdl:property> => Some(valueNodes)

@@ -295,8 +295,9 @@ trait SequenceDefMixin
   // attribute, not a format property in the usual sense.
   // So we retrieve it by this lower-level mechanism which only combines short and long form.
   //
-  final lazy val hiddenGroupRefOption =
+  final lazy val hiddenGroupRefOption = LV('hiddenGroupRefOption) {
     findPropertyOptionThisComponentOnly("hiddenGroupRef")
+  }.value
 
 }
 

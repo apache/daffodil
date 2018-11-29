@@ -271,7 +271,7 @@
     </xs:element>
   </tdml:defineSchema>
   
-  <tdml:defineSchema name="hiddenGroupEmpty">
+  <tdml:defineSchema name="hiddenGroupRefEmptyString">
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
 
@@ -286,18 +286,19 @@
   </tdml:defineSchema>
   
   <!--
-    Test name: hiddenGroupEmpty
-       Schema: hiddenGroupEmpty
+    Test name: hiddenGroupRefEmptyString
+       Schema: hiddenGroupRefEmptyString
       Purpose: This test demonstrates that hidden group references cannot be the empty string.
   -->
   
-  <tdml:parserTestCase name="hiddenGroupEmpty" root="e"
-    model="hiddenGroup3" description="Section 14 - Hidden Elements DFDL-14-037R.">
+  <tdml:parserTestCase name="hiddenGroupRefEmptyString" root="e"
+    model="hiddenGroupRefEmptyString" description="Section 14 - Hidden Elements DFDL-14-037R.">
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[42,2]]></tdml:documentPart>
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>QName</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -530,6 +531,7 @@
     </tdml:document>
     <tdml:errors> 
       <tdml:error>Schema Definition Error</tdml:error> 
+      <tdml:error>circular</tdml:error>
     </tdml:errors> 
  </tdml:parserTestCase>
 
@@ -1000,6 +1002,7 @@ more ignored input
 
 	<tdml:defineSchema name="nestedGroupRefs">
 		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"
           occursCountKind='parsed'/>
 
@@ -1105,7 +1108,7 @@ A,B,C|D,E,F|G,H,I]]></tdml:document>
 
 	<tdml:defineSchema name="nestedGroupRefs2">
 		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
-    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" 
+        <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" 
           occursCountKind='parsed'/>
 
 		<xs:element name="root">

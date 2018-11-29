@@ -145,7 +145,7 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
   //    seq
   //  }
 
-  private lazy val shortFormProperties: Set[PropItem] = {
+  private lazy val shortFormProperties: Set[PropItem] = LV[Set[PropItem]]('shortFormProperties) {
     // shortForm properties should be prefixed by dfdl
     // Remove the dfdl prefix from the attributes so that they
     // can be properly combined later.
@@ -159,9 +159,9 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
     val kvPairsButNotRef = kvPairs.filterNot { _._1 == "ref" } // dfdl:ref is NOT a property
     val pairs = kvPairsButNotRef.map { case (k, v) => (k, (v, annotatedSC)).asInstanceOf[PropItem] }
     pairs.toSet
-  }
+  }.value
 
-  private lazy val longFormProperties: Set[PropItem] = {
+  private lazy val longFormProperties: Set[PropItem] = LV[Set[PropItem]]('longFormProperties) {
     // longForm Properties are not prefixed by dfdl
     val dfdlAttrs = dfdlAttributes(xml).asAttrMap
     schemaDefinitionUnless(dfdlAttrs.isEmpty, "long form properties are not prefixed by dfdl:")
@@ -181,7 +181,7 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
     val dfdlAndDafAttribs = unqualifiedAttribs ++ dafAttrMap
     val res = dfdlAndDafAttribs.map { case (k, v) => (k, (v, this.asInstanceOf[LookupLocation])) }.toSet
     res
-  }
+  }.value
 
   private lazy val elementFormPropertyAnnotations = {
     val props = xml \\ "property"
@@ -191,9 +191,9 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
     res
   }
 
-  private lazy val elementFormProperties: Set[PropItem] = {
+  private lazy val elementFormProperties: Set[PropItem] = LV[Set[PropItem]]('elementFormProperties) {
     elementFormPropertyAnnotations.map { p => (p.name, (p.value, p)) }.toSet
-  }
+  }.value
 
   /**
    * 'locallyConflicting' means conflicting between the short form and long form and
@@ -212,9 +212,10 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
 
   private lazy val hasConflictingPropertyError = locallyConflictingProperties.size != 0
 
-  private lazy val combinedJustThisOneProperties: PropMap = {
+  private lazy val combinedJustThisOneProperties: PropMap = LV('combinedJustThisOneOproperties) {
     // We need this error to occur immediately! Didn't seem to be checked otherwise.
-    schemaDefinitionUnless(!hasConflictingPropertyError,
+    schemaDefinitionUnless(
+      !hasConflictingPropertyError,
       "Short, long, and element form properties overlap: %s at %s",
       locallyConflictingProperties.mkString(", "),
       this.locationDescription)
@@ -222,7 +223,7 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
     val jtoSet = shortFormProperties.union(longFormProperties).union(elementFormProperties)
     val jto = jtoSet.toMap
     jto
-  }
+  }.value
 
   /**
    * Just this one, as in the short, long, and element form properties, on just this

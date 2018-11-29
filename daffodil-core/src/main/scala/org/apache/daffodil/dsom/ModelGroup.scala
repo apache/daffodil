@@ -46,41 +46,51 @@ object ModelGroupFactory {
    * flatmap it to get a collection of model groups. Nil for non-model groups, non-Nil for the model group
    * object. There should be only one non-Nil.
    */
-  def apply(child: Node, parent: SchemaComponent, position: Int, isHidden: Boolean): List[ModelGroup] = {
-    val childList: List[ModelGroup] = child match {
-      case <sequence>{ _* }</sequence> => {
-        val seq = new Sequence(child, parent, position)
-        if (seq.hiddenGroupRefOption.isDefined) {
-          //
-          // construct the group ref XML, then recursively process that,
-          // but set flag so it will be hidden.
-          //
-          val hgrXML = seq.hiddenGroupRefXML
-          ModelGroupFactory(hgrXML, parent, position, true)
-        } else {
-          List(seq)
+  def apply(child: Node, parent: SchemaComponent, position: Int, isHidden: Boolean,
+    nodesAlreadyTrying: Set[Node] = Set()): List[ModelGroup] = {
+    if (nodesAlreadyTrying.contains(child)) {
+      //
+      // We are chasing our tail. Circular reference among named model groups/terms.
+      //
+      parent.schemaDefinitionError("Model group circular definitions. Group references, or hidden group references form a loop.")
+    } else {
+      val moreNodesAlreadyTrying = nodesAlreadyTrying + child
+
+      val childList: List[ModelGroup] = child match {
+        case <sequence>{ _* }</sequence> => {
+          val seq = new Sequence(child, parent, position)
+          if (seq.hiddenGroupRefOption.isDefined) {
+            //
+            // construct the group ref XML, then recursively process that,
+            // but set flag so it will be hidden.
+            //
+            val hgrXML = seq.hiddenGroupRefXML
+            ModelGroupFactory(hgrXML, parent, position, true, moreNodesAlreadyTrying)
+          } else {
+            List(seq)
+          }
+        }
+        case <choice>{ _* }</choice> => List(new Choice(child, parent, position))
+        case <group>{ _* }</group> => {
+          val pos = parent match {
+            case ct: ComplexTypeBase => 1
+            case mg: ModelGroup => position
+            case gd: GlobalGroupDef => position
+          }
+          val isH = isHidden || parent.isHidden
+          val groupRefFactory = new GroupRefFactory(child, parent, pos, isH)
+          val groupRefInstance = groupRefFactory.groupRef
+          List(groupRefInstance.asModelGroup)
+        }
+        case <annotation>{ _* }</annotation> => Nil
+        case textNode: Text => Nil
+        case _: Comment => Nil
+        case _ => {
+          parent.SDE("Unrecognized construct: %s", child)
         }
       }
-      case <choice>{ _* }</choice> => List(new Choice(child, parent, position))
-      case <group>{ _* }</group> => {
-        val pos = parent match {
-          case ct: ComplexTypeBase => 1
-          case mg: ModelGroup => position
-          case gd: GlobalGroupDef => position
-        }
-        val isH = isHidden || parent.isHidden
-        val groupRefFactory = new GroupRefFactory(child, parent, pos, isH)
-        val groupRefInstance = groupRefFactory.groupRef
-        List(groupRefInstance.asModelGroup)
-      }
-      case <annotation>{ _* }</annotation> => Nil
-      case textNode: Text => Nil
-      case _: Comment => Nil
-      case _ => {
-        parent.SDE("Unrecognized construct: %s", child)
-      }
+      childList
     }
-    childList
   }
 
 }
@@ -98,7 +108,7 @@ object TermFactory {
    * remove all the parts of the schema that are not relevant.
    *
    */
-  def apply(child: Node, parent: GroupDefLike, position: Int) = {
+  def apply(child: Node, parent: GroupDefLike, position: Int, nodesAlreadyTrying: Set[Node] = Set()) = {
     val childList: List[Term] = child match {
       case <element>{ _* }</element> => {
         val refProp = child.attribute("ref").map { _.text }
@@ -114,7 +124,7 @@ object TermFactory {
       }
       case <annotation>{ _* }</annotation> => Nil
       case textNode: Text => Nil
-      case _ => ModelGroupFactory(child, parent, position, false)
+      case _ => ModelGroupFactory(child, parent, position, false, nodesAlreadyTrying)
     }
     childList
   }
@@ -174,11 +184,16 @@ abstract class ModelGroup
     }
   }
 
-  final lazy val elementChildren: Seq[ElementBase] =
-    groupMembers.flatMap {
-      case eb: ElementBase => Seq(eb)
-      case gb: ModelGroup => gb.elementChildren
+  final lazy val elementChildren: Seq[ElementBase] = LV('elementChildren) {
+    val gms = groupMembers
+    val echls = gms.flatMap { gm =>
+      gm match {
+        case eb: ElementBase => Seq(eb)
+        case gb: ModelGroup => gb.elementChildren
+      }
     }
+    echls
+  }.value
 
   final override lazy val runtimeData: RuntimeData = modelGroupRuntimeData
 

@@ -271,5 +271,18 @@
       <tdml:error>badElementFormProperty</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
+  
+    <tdml:parserTestCase name="badElementFormProperty2" root="badElementFormProperty2"
+    model="property_syntax.dfdl.xsd" description="wrong annotation element.">
+    <tdml:document/>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>DFDL annotation type</tdml:error>
+      <tdml:error>dfdl:sequence</tdml:error>
+      <tdml:error>expected</tdml:error>
+      <tdml:error>dfdl:element</tdml:error>
+      <tdml:error>badElementFormProperty2</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
 
 </tdml:testSuite>

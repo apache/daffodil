@@ -112,7 +112,19 @@ trait ProvidesDFDLStatementMixin extends ThrowsSDE with HasTermCheck { self: Ann
       //
       case <dfdl:property>{ _* }</dfdl:property> =>
         SDE("A dfdl:property annotation element is not allowed without a surrounding dfdl:format, dfdl:element, etc. ")
+      case e: scala.xml.Elem if mismatchedFormatAnnotation(e) =>
+        SDE("DFDL annotation type 'dfdl:%s' invalid. Expected 'dfdl:%s'.", e.label, self.formatAnnotationExpectedName)
       case _ => SDE("Invalid DFDL annotation found: %s", node)
+    }
+  }
+
+  private def mismatchedFormatAnnotation(e: scala.xml.Elem): Boolean = {
+    (e.label, self) match {
+      case ("element", _: ElementBase) => false
+      case ("choice", _: ChoiceTermBase) => false
+      case ("sequence", _: SequenceTermBase) => false
+      case ("simpleType", _: SimpleTypeBase) => false
+      case _ => true
     }
   }
 
