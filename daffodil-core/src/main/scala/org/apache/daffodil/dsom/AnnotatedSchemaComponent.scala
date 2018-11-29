@@ -289,7 +289,7 @@ trait AnnotatedMixin { self: AnnotatedSchemaComponent =>
    * The DFDL annotations on the component, as objects
    * that are subtypes of DFDLAnnotation.
    */
-  final lazy val annotationObjs = {
+  final lazy val annotationObjs = LV('annotationObjs) {
     val objs = dfdlAppInfos.flatMap { dai =>
       {
         val children = dai.child
@@ -302,7 +302,7 @@ trait AnnotatedMixin { self: AnnotatedSchemaComponent =>
       }
     }
     objs
-  }
+  }.value
 
   /**
    * Here we establish an invariant which is that every annotatable schema component has, definitely, has an
@@ -317,6 +317,9 @@ trait AnnotatedMixin { self: AnnotatedSchemaComponent =>
    * is imposed. There *is* a formatAnnotation.
    */
   protected def emptyFormatFactory: DFDLFormatAnnotation
+
+  final lazy val formatAnnotationExpectedName = emptyFormatFactory.xml.asInstanceOf[scala.xml.Elem].label
+
   protected def isMyFormatAnnotation(a: DFDLAnnotation): Boolean
 
   final lazy val formatAnnotation = LV('formatAnnotation) {

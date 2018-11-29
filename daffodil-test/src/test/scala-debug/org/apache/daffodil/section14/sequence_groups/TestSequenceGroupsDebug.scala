@@ -42,9 +42,6 @@ class TestSequenceGroupsDebug {
   //DFDL-284
   @Test def test_hiddenGroupLoop() { runner_02.runOneTest("hiddenGroupLoop") }
 
-  //DFDL-598
-  @Test def test_hiddenGroupEmpty() { runner_02.runOneTest("hiddenGroupEmpty") }
-
   @Test def test_emptySequenceSDE() { runner_02.runOneTest("emptySequenceSDE") }
 
 }

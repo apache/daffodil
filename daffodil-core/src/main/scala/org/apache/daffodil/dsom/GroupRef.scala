@@ -32,7 +32,9 @@ trait GroupRef { self: ModelGroup =>
 
   final override lazy val optReferredToComponent = Some(referredToComponent)
 
-  final override lazy val groupMembers = groupDef.groupMembers
+  final override lazy val groupMembers = LV('groupMembers) {
+    groupDef.groupMembers
+  }.value
 
   override protected def annotationFactory(node: Node): Option[DFDLAnnotation] = {
     node match {
@@ -62,17 +64,18 @@ final class GroupRefFactory(refXMLArg: Node, val refLexicalParent: SchemaCompone
 
   final def qname = this.refQName
 
-  lazy val groupRef = {
+  lazy val groupRef = LV('groupRef) {
     val gdefFactory = parent.schemaSet.getGlobalGroupDef(qname).getOrElse {
       SDE("Referenced group definition not found: %s", this.ref)
     }
     val (gref, _) = gdefFactory.forGroupRef(refXMLArg, refLexicalParent, position, isHidden)
     gref
-  }
+  }.value
 
 }
 
-final class SequenceGroupRef(globalGroupDef: => GlobalSequenceGroupDef,
+final class SequenceGroupRef(
+  globalGroupDef: => GlobalSequenceGroupDef,
   refXML: Node,
   refLexicalParent: SchemaComponent,
   positionArg: Int,
@@ -92,11 +95,12 @@ final class SequenceGroupRef(globalGroupDef: => GlobalSequenceGroupDef,
 
   override def hiddenGroupRefOption = nf
 
-  override lazy val groupDef = globalGroupDef
+  override lazy val groupDef = LV('groupDef) { globalGroupDef }.value
 
 }
 
-final class ChoiceGroupRef(globalGroupDef: => GlobalChoiceGroupDef,
+final class ChoiceGroupRef(
+  globalGroupDef: => GlobalChoiceGroupDef,
   refXML: Node,
   refLexicalParent: SchemaComponent,
   positionArg: Int,

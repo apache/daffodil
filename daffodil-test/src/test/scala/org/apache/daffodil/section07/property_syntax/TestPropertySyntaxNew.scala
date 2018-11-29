@@ -39,4 +39,7 @@ class TestPropertySyntax2 {
   // JIRA DFDL-1722
   @Test def test_badElementFormProperty() { runner.runOneTest("badElementFormProperty") }
 
+  // DAFFODIL-2202
+  @Test def test_badElementFormProperty2() { runner.runOneTest("badElementFormProperty2") }
+
 }

@@ -479,7 +479,7 @@ trait ElementBase
   }.value
 
   protected def computeElementRuntimeData(): ElementRuntimeData = {
-    
+
     lazy val childrenERDs: Seq[ElementRuntimeData] =
       elementChildren.map { _.elementRuntimeData }
 
@@ -551,14 +551,14 @@ trait ElementBase
    *
    * Include both represented and non-represented elements.
    */
-  final lazy val elementChildren: Seq[ElementBase] = {
+  final lazy val elementChildren: Seq[ElementBase] = LV('elementChildren) {
     this.typeDef match {
       case ct: ComplexTypeBase => {
         ct.group.elementChildren
       }
       case _ => Nil
     }
-  }
+  }.value
 
   final lazy val elementChildrenCompileInfo =
     elementChildren.map {

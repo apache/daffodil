@@ -74,4 +74,20 @@
            </xs:appinfo>
         </xs:annotation> 
       </xs:element>
+      
+      <xs:element name="badElementFormProperty2" type="xs:int">
+        <xs:annotation>
+          <xs:documentation><![CDATA[ 
+            Example of a User mistake. They forgot that element form property
+            syntax must be contained within a format element that matches the
+            annotated object. I.e., dfdl:sequence on an xs:sequence.
+            This was causing DAFFODIL-2202 bug. 
+          ]]></xs:documentation> 
+          <xs:appinfo source="http://www.ogf.org/dfdl/" > 
+             <dfdl:sequence>
+               <dfdl:property name="representation">text</dfdl:property>
+             </dfdl:sequence>
+           </xs:appinfo>
+        </xs:annotation> 
+      </xs:element>
 </xs:schema>

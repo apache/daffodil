@@ -46,10 +46,12 @@ trait SequenceGrammarMixin extends GrammarMixin { self: SequenceTermBase =>
     LayeredSequence(this, new ScalarOrderedSequenceChild(this, term, 1)) // We use 1-based indexing for children.
   }
 
-  private lazy val seqChildren = (groupMembers zip Stream.from(1)).map {
-    case (gm, i) =>
-      sequenceChild(gm, i)
-  }
+  private lazy val seqChildren = LV('seqChildren) {
+    (groupMembers zip Stream.from(1)).map {
+      case (gm, i) =>
+        sequenceChild(gm, i)
+    }
+  }.value
 
   private lazy val orderedSequence = {
     val res = new OrderedSequence(this, seqChildren)
@@ -156,4 +158,3 @@ trait SequenceGrammarMixin extends GrammarMixin { self: SequenceTermBase =>
     delimMTA ~ SequenceSeparator(this)
   }
 }
-
