@@ -26,9 +26,11 @@ object TestSimpleTypesNew {
 
   val runner = Runner(testDir, "SimpleTypes.tdml")
   val runner1 = Runner(testDir, "BitOrder.tdml")
+  val runner2 = Runner(testDir, "SimpleTypes2.tdml")
   @AfterClass def shutdown {
     runner.reset
     runner1.reset
+    runner2.reset
   }
 }
 
@@ -46,4 +48,7 @@ class TestSimpleTypesNew {
 
   // DAFFODIL-1001 fixed.
   @Test def test_bigEndianLeastFirst() { runner1.runOneTest("bigEndianLeastFirst") }
+
+  // DAFFODIL-2204
+  @Test def test_terminatorErrorMessage() { runner2.runOneTest("terminatorErrorMessage") }
 }

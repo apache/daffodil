@@ -92,35 +92,29 @@ abstract class StaticText(delim: String, e: Term, eb: Term, kindString: String, 
   lazy val textParser = new TextParser(e.termRuntimeData)
 }
 
-abstract class DelimiterText(e: Term, eb: Term, guard: Boolean = true)
+abstract class DelimiterText(e: Term, eb: Term, delimiterType: DelimiterTextType.Type, guard: Boolean = true)
   extends Text(e, eb, guard) {
 
   lazy val textParser = new TextParser(e.termRuntimeData)
-
-  def delimiterType: DelimiterTextType.Type
 
   override lazy val parser: DaffodilParser = new DelimiterTextParser(e.termRuntimeData, textParser, positionalInfo, delimiterType)
   override lazy val unparser: DaffodilUnparser = new DelimiterTextUnparser(e.termRuntimeData, delimiterType)
 }
 
-case class Initiator(e: Term) extends DelimiterText(e, e) {
+case class Initiator(e: Term) extends DelimiterText(e, e, DelimiterTextType.Initiator) {
   Assert.invariant(e.hasInitiator)
-  val delimiterType: DelimiterTextType.Type = DelimiterTextType.Initiator
 }
 
-case class SequenceSeparator(s: SequenceTermBase) extends DelimiterText(s, s, s.hasSeparator) {
-  val delimiterType: DelimiterTextType.Type = DelimiterTextType.Separator
-}
-case class Terminator(e: Term) extends DelimiterText(e, e) {
+case class SequenceSeparator(s: SequenceTermBase) extends DelimiterText(s, s, DelimiterTextType.Separator, s.hasSeparator)
+
+case class Terminator(e: Term) extends DelimiterText(e, e, DelimiterTextType.Terminator) {
   Assert.invariant(e.hasTerminator)
-  val delimiterType: DelimiterTextType.Type = DelimiterTextType.Terminator
 }
 
 abstract class StringDelimBase(e: Term, guard: Boolean) extends Terminal(e, guard) {
   override def toString = "StringDelimBase[" + name + "]"
 
-  def checkDelimiterDistinctness(
-    escapeSchemeKind: EscapeKind,
+  def checkDelimiterDistinctness(escapeSchemeKind: EscapeKind,
     optPadChar: Option[String],
     optEscChar: Option[String], // Could be a DFDL expression
     optEscEscChar: Option[String], // Could be a DFDL expression
