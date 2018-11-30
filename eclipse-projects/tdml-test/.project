@@ -29,7 +29,7 @@
 		<link>
 			<name>src/test</name>
 			<type>2</type>
-			<locationURI>DAFFODIL_ROOT/daffodil-tdml/src/test</locationURI>
+			<locationURI>DAFFODIL_ROOT/daffodil-tdml-lib/src/test</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>
