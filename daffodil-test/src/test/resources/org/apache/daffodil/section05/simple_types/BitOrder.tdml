@@ -375,7 +375,7 @@
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://example.com">
-        <littleLeast>00925A</littleLeast>
+        <littleLeast>5A9200</littleLeast>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -394,7 +394,7 @@
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://example.com">
-        <littleLeast>5A9200</littleLeast>
+        <littleLeast>00925A</littleLeast>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

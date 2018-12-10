@@ -7138,6 +7138,55 @@
       </xs:complexType>
     </xs:element>
 
+    <xs:element name="hB_bits_le_lsbf_2">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="hb1" type="xs:hexBinary" dfdl:alignmentUnits="bits" dfdl:lengthKind="explicit"
+            dfdl:lengthUnits="bits" dfdl:length="5" dfdl:bitOrder="leastSignificantBitFirst"
+            dfdl:byteOrder="littleEndian" />
+          <xs:element name="hb2" type="xs:hexBinary" dfdl:alignmentUnits="bits" dfdl:lengthKind="explicit"
+            dfdl:lengthUnits="bits" dfdl:length="22" dfdl:bitOrder="leastSignificantBitFirst"
+            dfdl:byteOrder="littleEndian" />
+          <xs:element name="hb3" type="xs:hexBinary" dfdl:alignmentUnits="bits" dfdl:lengthKind="explicit"
+            dfdl:lengthUnits="bits" dfdl:length="5" dfdl:bitOrder="leastSignificantBitFirst"
+            dfdl:byteOrder="littleEndian" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="hB_bits_be_msbf_2">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="hb1" type="xs:hexBinary" dfdl:alignmentUnits="bits" dfdl:lengthKind="explicit"
+            dfdl:lengthUnits="bits" dfdl:length="5" dfdl:bitOrder="mostSignificantBitFirst"
+            dfdl:byteOrder="bigEndian" />
+          <xs:element name="hb2" type="xs:hexBinary" dfdl:alignmentUnits="bits" dfdl:lengthKind="explicit"
+            dfdl:lengthUnits="bits" dfdl:length="22" dfdl:bitOrder="mostSignificantBitFirst"
+            dfdl:byteOrder="bigEndian" />
+          <xs:element name="hb3" type="xs:hexBinary" dfdl:alignmentUnits="bits" dfdl:lengthKind="explicit"
+            dfdl:lengthUnits="bits" dfdl:length="5" dfdl:bitOrder="mostSignificantBitFirst"
+            dfdl:byteOrder="bigEndian" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="hB_bits_le_msbf_2"
+      dfdl:bitOrder="mostSignificantBitFirst" dfdl:byteOrder="littleEndian">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="hb1" type="xs:hexBinary" dfdl:alignmentUnits="bits" dfdl:lengthKind="explicit"
+            dfdl:lengthUnits="bits" dfdl:length="5" dfdl:bitOrder="mostSignificantBitFirst"
+            dfdl:byteOrder="littleEndian" />
+          <xs:element name="hb2" type="xs:hexBinary" dfdl:alignmentUnits="bits" dfdl:lengthKind="explicit"
+            dfdl:lengthUnits="bits" dfdl:length="22" dfdl:bitOrder="mostSignificantBitFirst"
+            dfdl:byteOrder="littleEndian" />
+          <xs:element name="hb3" type="xs:hexBinary" dfdl:alignmentUnits="bits" dfdl:lengthKind="explicit"
+            dfdl:lengthUnits="bits" dfdl:length="5" dfdl:bitOrder="mostSignificantBitFirst"
+            dfdl:byteOrder="littleEndian" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
   </tdml:defineSchema>
   
   <!--
@@ -7491,7 +7540,7 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <hB_bits_le_lsbf>
-          <hb1>0A35</hb1>
+          <hb1>350A</hb1>
           <hb2>05</hb2>
         </hB_bits_le_lsbf>
       </tdml:dfdlInfoset>
@@ -7507,8 +7556,8 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <hB_bits_be_msbf>
-          <hb1>06B5</hb1>
-          <hb2>02</hb2>
+          <hb1>35A8</hb1>
+          <hb2>40</hb2>
         </hB_bits_be_msbf>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -7523,9 +7572,60 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <hB_bits_le_msbf>
-          <hb1>1535</hb1>
-          <hb2>02</hb2>
+          <hb1>35A8</hb1>
+          <hb2>40</hb2>
         </hB_bits_le_msbf>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="hexBinary_bits_le_lsbf_2"
+    root="hB_bits_le_lsbf_2" model="HexBinary"
+    description="Section 5 Simple Types - hexBinary - DFDL-5-025R" roundTrip="true">
+    <tdml:document>
+      <tdml:documentPart type="byte">DEADBEEF</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <hB_bits_le_lsbf_2>
+          <hb1>1E</hb1>
+          <hb2>6EF53D</hb2>
+          <hb3>1D</hb3>
+        </hB_bits_le_lsbf_2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="hexBinary_bits_be_msbf_2"
+    root="hB_bits_be_msbf_2" model="HexBinary"
+    description="Section 5 Simple Types - hexBinary - DFDL-5-025R" roundTrip="true">
+    <tdml:document>
+      <tdml:documentPart type="byte">DEADBEEF</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <hB_bits_be_msbf_2>
+          <hb1>D8</hb1>
+          <hb2>D5B7DC</hb2>
+          <hb3>78</hb3>
+        </hB_bits_be_msbf_2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="hexBinary_bits_le_msbf_2"
+    root="hB_bits_le_msbf_2" model="HexBinary"
+    description="Section 5 Simple Types - hexBinary - DFDL-5-025R" roundTrip="true">
+    <tdml:document>
+      <tdml:documentPart type="byte">DEADBEEF</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <hB_bits_le_msbf_2>
+          <hb1>D8</hb1>
+          <hb2>D5B7DC</hb2>
+          <hb3>78</hb3>
+        </hB_bits_le_msbf_2>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

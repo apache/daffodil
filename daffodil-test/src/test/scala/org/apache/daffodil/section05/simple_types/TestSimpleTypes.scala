@@ -57,10 +57,13 @@ class TestSimpleTypes {
   @Test def test_hexBinary_func() { runner.runOneTest("hexBinary_func") }
   @Test def test_hexBinary_func_neg() { runner.runOneTest("hexBinary_func_neg") }
 
-  // DFDL-1707
   @Test def test_hexBinary_bits_be_msbf() { runner.runOneTest("hexBinary_bits_be_msbf") }
   @Test def test_hexBinary_bits_le_msbf() { runner.runOneTest("hexBinary_bits_le_msbf") }
   @Test def test_hexBinary_bits_le_lsbf() { runner.runOneTest("hexBinary_bits_le_lsbf") }
+
+  @Test def test_hexBinary_bits_be_msbf_2() { runner.runOneTest("hexBinary_bits_be_msbf_2") }
+  @Test def test_hexBinary_bits_le_msbf_2() { runner.runOneTest("hexBinary_bits_le_msbf_2") }
+  @Test def test_hexBinary_bits_le_lsbf_2() { runner.runOneTest("hexBinary_bits_le_lsbf_2") }
 
   @Test def test_dateTextNumberRep() { runner.runOneTest("dateTextNumberRep") }
 
