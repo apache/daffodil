@@ -20,7 +20,6 @@ package org.apache.daffodil.section07.variables
 import org.junit.Test
 import org.apache.daffodil.xml.XMLUtils
 import org.apache.daffodil.Implicits._
-import org.apache.daffodil.dsom._
 import org.apache.daffodil.tdml.DFDLTestSuite
 import scala.math.Pi
 import org.apache.daffodil.tdml.Runner
