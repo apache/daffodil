@@ -109,7 +109,11 @@ class TresysTests {
   // not found. Debug later.
   // @Test def test_duplicateDefineFormatsOneSchema() { runnerMD.runOneTest("duplicateDefineFormatsOneSchema") }
 
-  @Test def test_nested_separator_delimited_baseline() { runnerNSD.runOneTest("baseline") }
+  @Test def test_nested_separator_delimited_baseline() { runnerNSD.trace.runOneTest("baseline") }
+
+  // Fails in IBM DFDL - ambiguous separator/terminator not accepted.
+  @Test def test_nested_separator_delimited_baseline_ibm() { runnerNSD.trace.runOneTest("baseline_ibm") }
+
   @Test def test_nested_separator_delimited_basicNest() { runnerNSD.runOneTest("basicNest") }
   // Fails infinite loop
   // @Test def test_nested_separator_delimited_basicNest2() { runnerNSD.runOneTest("basicNest2")}

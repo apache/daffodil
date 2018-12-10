@@ -67,7 +67,7 @@
 		<xs:complexType>
 			<xs:sequence dfdl:sequenceKind="ordered"
 				dfdl:initiatedContent="no" dfdl:separator="* -"
-				dfdl:separatorPosition="prefix" dfdl:separatorSuppressionPolicy="never">
+				dfdl:separatorPosition="prefix" dfdl:separatorSuppressionPolicy="anyEmpty">
 				<xs:element name="Test1"  type="xs:int"
 					dfdl:initiator="Test1:" dfdl:terminator="+" />
 				<xs:element name="Test2" minOccurs="0" maxOccurs="1" type="xs:string"

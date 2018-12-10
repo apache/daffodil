@@ -47,6 +47,8 @@ class IBMTestsThatPass {
   // Doesn't work for a user, possible locale issue (DAFFODIL-1945)
   // @Test def test_simple_type_properties_text_calendar_13_01() { runner2.runOneTest("simple_type_properties_text_calendar_13_01") }
   @Test def test_simple_type_properties_text_calendar_13_02() { runner2.runOneTest("simple_type_properties_text_calendar_13_02") }
+  // Equivalent IBM test needed until DAFFODIL-2026 is implemented
+  @Test def test_simple_type_properties_text_calendar_13_02_ibm() { runner2.runOneTest("simple_type_properties_text_calendar_13_02_ibm") }
   @Test def test_simple_type_properties_text_calendar_13_03() { runner2.runOneTest("simple_type_properties_text_calendar_13_03") }
   @Test def test_simple_type_properties_text_calendar_13_04() { runner2.runOneTest("simple_type_properties_text_calendar_13_04") }
 

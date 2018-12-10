@@ -33,6 +33,7 @@
 					initiatedContent="no"	textPadKind="none" textTrimKind="none" textStringJustification="left"
 					occursCountKind="implicit" separatorSuppressionPolicy="trailingEmpty"
                     bitOrder="mostSignificantBitFirst"
+                    binaryNumberRep="binary"
 					/>
 				
 			</xs:appinfo>
