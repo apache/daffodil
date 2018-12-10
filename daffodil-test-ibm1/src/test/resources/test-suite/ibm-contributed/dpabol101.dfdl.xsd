@@ -79,9 +79,10 @@
                       dfdl:representation="text" 
                       dfdl:textBooleanJustification="right" 
                       dfdl:lengthUnits="bytes" 
-                      dfdl:lengthKind="implicit"
+                      dfdl:lengthKind="explicit"
+                      dfdl:length="4"
                       dfdl:textBooleanTrueRep="true"
-                      dfdl:textBooleanFalseRep="no">
+                      dfdl:textBooleanFalseRep="nope">
                     </xs:element>
 		  </xs:sequence>
 		</xs:complexType>

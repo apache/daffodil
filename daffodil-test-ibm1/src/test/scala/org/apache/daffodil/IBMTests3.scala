@@ -50,6 +50,9 @@ class IBMTestsThatPass2 {
 
   @Test def test_multiple_delimiters2() { runner1.runOneTest("multiple_delimiters2") }
 
+  // Fails on IBM DFDL
+  // @Test def test_multiple_delimiters2_ibm() { runner1.runOneTest("multiple_delimiters2_ibm") }
+
   @Test def test_syntax_entities_6_01() { runner1.runOneTest("syntax_entities_6_01") }
   @Test def test_syntax_entities_6_02() { runner1.runOneTest("syntax_entities_6_02") }
   //
@@ -87,4 +90,15 @@ class IBMTestsThatPass2 {
   // @Test def test_length_explicit_12_01() { runner1.runOneTest("length_explicit_12_01") }
   @Test def test_length_explicit_12_02() { runner1.runOneTest("length_explicit_12_02") }
   @Test def test_length_delimited_12_06() { runner1.runOneTest("length_delimited_12_06") }
+
+  @Test def test_alignment_bytes_12_05() { runner1.runOneTest("alignment_bytes_12_05") } //DFDL-99 binary dateTime
+
+  @Test def test_length_implicit_12_02() { runner1.runOneTest("length_implicit_12_02") } // implicit length string - bug in IBM test (doesn't have minLength - both are required)
+  @Test def test_simple_type_properties_text_boolean_13_03() { runner2.runOneTest("simple_type_properties_text_boolean_13_03") } // DFDL-462 boolean type
+  @Test def test_simple_type_properties_bin_boolean_13_01() { runner2.runOneTest("simple_type_properties_bin_boolean_13_01") } // DFDL-461 boolean type
+
+  @Test def test_simple_type_properties_text_calendar_13_01() { runner2.runOneTest("simple_type_properties_text_calendar_13_01") } // DAFFODIL-1945
+
+  @Test def test_sequences_separated_14_04() { runner2.runOneTest("sequences_separated_14_04") } // left over data
+
 }

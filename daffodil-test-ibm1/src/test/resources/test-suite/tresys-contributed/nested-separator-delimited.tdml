@@ -26,7 +26,8 @@
 
   <tdml:defineSchema name="baseline">
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
-    <dfdl:format ref="ex:GeneralFormat" occursCountKind="parsed" />
+    <dfdl:format ref="ex:GeneralFormat" occursCountKind="parsed" 
+      encodingErrorPolicy="error"/>
 
     <xs:element name="e1" dfdl:lengthKind="implicit"
       dfdl:terminator=".">
@@ -38,11 +39,12 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
-
+    
   </tdml:defineSchema>
-
+  
   <tdml:parserTestCase name="baseline" root="e1"
-    model="baseline" description="Baseline. Basic Separators">
+    model="baseline" description="Baseline. Basic Separators"
+    implementations="daffodil">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[5;6;7;8;.]]></tdml:documentPart>
@@ -59,11 +61,57 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+  
+  <tdml:defineSchema name="baseline_ibm">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" occursCountKind="parsed" 
+      encodingErrorPolicy="error"/>
+    
+    <xs:element name="e1a" dfdl:lengthKind="implicit"
+      dfdl:terminator=".">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=";" dfdl:terminator=";">
+          <xs:element name="s1" type="xs:int"
+            dfdl:lengthKind="delimited" minOccurs="0"
+            dfdl:occursCountKind="parsed" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+  
+  
+  <tdml:parserTestCase name="baseline_ibm" root="e1a"
+    model="baseline_ibm" description="Baseline. Basic Separators"
+    implementations="ibm">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[5;6;7;8;.]]></tdml:documentPart>
+    </tdml:document>
+    
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e1a>
+          <s1>5</s1>
+          <s1>6</s1>
+          <s1>7</s1>
+          <s1>8</s1>
+        </e1a>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    
+    <tdml:warnings>
+      <tdml:warning>separator</tdml:warning>
+      <tdml:warning>terminator</tdml:warning>
+    </tdml:warnings>
+  </tdml:parserTestCase>
+  
 
 
   <tdml:defineSchema name="basicNest">
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
-    <dfdl:format ref="ex:GeneralFormat" occursCountKind="parsed" />
+    <dfdl:format ref="ex:GeneralFormat" occursCountKind="parsed" 
+      encodingErrorPolicy="error"/>
 
     <xs:element name="e1" dfdl:lengthKind="implicit"
       dfdl:terminator=".">

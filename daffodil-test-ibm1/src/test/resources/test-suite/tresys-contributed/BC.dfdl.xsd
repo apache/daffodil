@@ -18,7 +18,7 @@
 
 <schema xmlns="http://www.w3.org/2001/XMLSchema"
   targetNamespace="http://example.com" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="http://example.com">
 
 <include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
@@ -42,12 +42,12 @@
     <complexType>
       <sequence>
         <sequence dfdl:separator="," dfdl:terminator="%NL;">
-          <element name="x" type="xsd:boolean" maxOccurs="unbounded"
+          <element name="x" type="xs:boolean" maxOccurs="unbounded"
             dfdl:textBooleanTrueRep="yes Y 1" dfdl:textBooleanFalseRep="no N 0" />
         </sequence>
         <sequence dfdl:separator="," dfdl:terminator="%NL;">
-          <element name="y" type="xsd:boolean" maxOccurs="unbounded"
-            dfdl:textBooleanTrueRep="{ xsd:string(1*10) }" dfdl:textBooleanFalseRep="{'a b c'}" />
+          <element name="y" type="xs:boolean" maxOccurs="unbounded"
+            dfdl:textBooleanTrueRep="{ xs:string(1*10) }" dfdl:textBooleanFalseRep="{'a b c'}" />
         </sequence>
       </sequence>
     </complexType>

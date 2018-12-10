@@ -51,7 +51,7 @@
 	<xs:annotation>
 		<xs:appinfo source="http://www.ogf.org/dfdl/">
 			<dfdl:defineFormat name="myFormat">
-				<dfdl:format initiator="" terminator="" leadingSkip="0" trailingSkip="0" truncateSpecifiedLengthString="no"  separator=""  textBidi="no" floating="no"  encodingErrorPolicy="error"  encodingErrorPolicy="error" encoding="ASCII" />
+				<dfdl:format initiator="" terminator="" leadingSkip="0" trailingSkip="0" truncateSpecifiedLengthString="no"  separator=""  textBidi="no" floating="no"  encodingErrorPolicy="error" encoding="ASCII" />
 			</dfdl:defineFormat>
 		</xs:appinfo>
 	</xs:annotation>
