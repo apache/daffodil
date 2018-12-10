@@ -17,15 +17,17 @@
 
 package org.apache.daffodil.processors.unparsers
 
+import passera.unsigned.ULong
+
 import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.infoset.DISimple
-import org.apache.daffodil.infoset.Infoset
 import org.apache.daffodil.infoset.RetryableException
 import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.processors.ParseOrUnparseState
 import org.apache.daffodil.processors.Processor
 import org.apache.daffodil.processors.UnparseTargetLengthInBitsEv
+import org.apache.daffodil.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
+import org.apache.daffodil.util.Bits
 import org.apache.daffodil.util.Maybe._
 
 abstract class HexBinaryUnparserBase(override val context: ElementRuntimeData)
@@ -60,12 +62,30 @@ abstract class HexBinaryUnparserBase(override val context: ElementRuntimeData)
 
     val dos = state.dataOutputStream
 
-    // put the hex binary array
-    if (bitsFromValueToPut > 0) {
-      val ret = dos.putByteArray(value, bitsFromValueToPut.toInt, state)
+    // We cannot use dos.putByteArray(...) because that function takes into
+    // account byteOrder. hexBinary should completely ignore byteOrder, only
+    // taking into account bitOrder. To do this, we want to just repeatedly put
+    // 8 bit's at a time, effecitively ignores byteOrder.
+    var pos = 0
+    var bitsRemaining = bitsFromValueToPut
+    while (bitsRemaining > 0) {
+      val byte = Bits.asUnsignedByte(value(pos))
+      val bitsToPut = Math.min(bitsRemaining, 8).toInt
+
+      val adjustedForBitOrder =
+        if (bitsToPut < 8 && state.bitOrder == BitOrder.MostSignificantBitFirst) {
+          byte >> (8 - bitsToPut)
+        } else {
+          byte
+        }
+
+      val ret = dos.putULong(ULong(adjustedForBitOrder), bitsToPut, state)
       if (!ret) {
-        UnparseError(One(context.schemaFileLocation), One(state.currentLocation), "Failed to write %d hexBinary bits", bitsFromValueToPut)
+        UnparseError(One(context.schemaFileLocation), One(state.currentLocation), "Failed to write byte % from hexBinary data", pos)
       }
+
+      pos += 1
+      bitsRemaining -= bitsToPut
     }
 
     // calculate the skip bits

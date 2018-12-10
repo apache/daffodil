@@ -403,13 +403,13 @@ a few lines of pointless text like this.""".replace("\n", " ")
     val infoset =
       <e1 xmlns={ example }>
         <s0>00</s0>
-        <s1>01</s1>
+        <s1>10</s1>
         <s2>02</s2>
         <s3>333333</s3>
         <s4>44</s4>
-        <s5>0555</s5>
-        <s6>06</s6>
-        <s7>07</s7>
+        <s5>5505</s5>
+        <s6>60</s6>
+        <s7>70</s7>
       </e1>
 
     val (_, actual) = TestUtils.testBinary(sch, data, areTracing = false)
