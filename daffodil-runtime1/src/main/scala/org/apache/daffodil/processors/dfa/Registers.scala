@@ -24,18 +24,7 @@ import org.apache.daffodil.util.Pool
 import org.apache.daffodil.util.Poolable
 import org.apache.daffodil.io.FormatInfo
 
-private[dfa] object TLRegistersPool extends ThreadLocal[RegistersPool] {
-  override def initialValue = new RegistersPool()
-
-  def pool() = this.get
-
-  def getFromPool(requestorID: String) =
-    pool.getFromPool(requestorID)
-
-  def returnToPool(r: Registers) = pool.returnToPool(r)
-}
-
-private[dfa] class RegistersPool() extends Pool[Registers] {
+class RegistersPool() extends Pool[Registers] {
   override def allocate = new Registers()
 }
 

@@ -59,6 +59,10 @@ import org.apache.daffodil.schema.annotation.props.gen.ByteOrder
 import org.apache.daffodil.processors.charset.BitsCharsetDecoder
 import org.apache.daffodil.processors.charset.BitsCharsetEncoder
 import org.apache.daffodil.processors.unparsers.UState
+import org.apache.daffodil.processors.dfa.Registers
+import org.apache.daffodil.processors.dfa.RegistersPool
+import org.apache.daffodil.processors.dfa.RegistersPool
+import org.apache.daffodil.processors.dfa.RegistersPool
 
 /**
  * Trait mixed into the PState.Mark object class and the ParseOrUnparseState
@@ -75,8 +79,7 @@ trait StateForDebugger {
   def discriminator: Boolean = false
 }
 
-case class TupleForDebugger(
-  val bytePos: Long,
+case class TupleForDebugger(val bytePos: Long,
   val childPos: Long,
   val groupPos: Long,
   val currentLocation: DataLocation,
@@ -119,8 +122,7 @@ trait SetProcessorMixin {
  * which should be isolated to the alternative parser, and repParsers, i.e.,
  * places where points-of-uncertainty are handled.
  */
-abstract class ParseOrUnparseState protected (
-  protected var variableBox: VariableBox,
+abstract class ParseOrUnparseState protected (protected var variableBox: VariableBox,
   var diagnostics: List[Diagnostic],
   var dataProc: Maybe[DataProcessor],
   val tunable: DaffodilTunables) extends DFDL.State
@@ -491,6 +493,17 @@ abstract class ParseOrUnparseState protected (
       val rsdw = new RuntimeSchemaDefinitionWarning(ctxt.schemaFileLocation, this, str, args: _*)
       diagnostics = rsdw :: diagnostics
     }
+  }
+
+  object dfaRegistersPool {
+    private val pool = new RegistersPool()
+
+    def getFromPool(requestorID: String) =
+      pool.getFromPool(requestorID)
+
+    def returnToPool(r: Registers) = pool.returnToPool(r)
+
+    def finalCheck() = pool.finalCheck
   }
 
 }
