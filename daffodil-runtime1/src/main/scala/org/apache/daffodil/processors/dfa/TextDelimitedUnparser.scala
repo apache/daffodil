@@ -86,7 +86,7 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
     // We need to recognize the blockEnd in addition to the other pieces of
     // text we should escape
     //
-    val fieldReg: Registers = TLRegistersPool.getFromPool("escapeBlock1")
+    val fieldReg: Registers = state.dfaRegistersPool.getFromPool("escapeBlock1")
 
     val fieldEscapesIter = {
       val ab = ArrayBuffer((blockEnd +: delims): _*)
@@ -128,7 +128,7 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
 
           // We check for a blockEnd first, if it exists then we MUST
           // generate an escape block
-          val blockEndReg: Registers = TLRegistersPool.getFromPool("escapeBlock2")
+          val blockEndReg: Registers = state.dfaRegistersPool.getFromPool("escapeBlock2")
           blockEndReg.reset(state, input, blockEndDelimIter)
           blockEnd.run(blockEndReg)
           val blockEndStatus = blockEndReg.status
@@ -136,7 +136,8 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
             case StateKind.Succeeded if (!escapeEscapeChar.isDefined) => {
               // Found an escapeEnd, which requires an escapeEscapeChar, but one was not provided
               beforeDelimiter = DataInputStream.MarkPos.NoMarkPos
-              UnparseError(One(context.schemaFileLocation),
+              UnparseError(
+                One(context.schemaFileLocation),
                 One(state.currentLocation),
                 "escapeEscapeCharacter was not defined but the escapeBlockEnd (%s) was present in the data.",
                 blockEnd.lookingFor)
@@ -171,7 +172,7 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
               delimIter.reset()
               while (delimIter.hasNext()) {
                 val d = delimIter.next()
-                val delimReg: Registers = TLRegistersPool.getFromPool("escapeBlock3")
+                val delimReg: Registers = state.dfaRegistersPool.getFromPool("escapeBlock3")
                 input.resetPos(beforeDelimiter)
                 beforeDelimiter = input.markPos
                 delimReg.reset(state, input, delimIter)
@@ -187,7 +188,7 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
                   }
                   case _ => {
                     // this delim did not match, ignore it and discard its register
-                    TLRegistersPool.returnToPool(delimReg)
+                    state.dfaRegistersPool.returnToPool(delimReg)
                   }
                 }
               }
@@ -206,7 +207,7 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
                 val (_, matchedReg) = longestMatch(successes).get
                 val delim = matchedReg.delimString
                 fieldReg.appendToField(delim) // the delim just becomes field content, because we already had an escape block start.
-                successes.foreach { case (d, r) => TLRegistersPool.returnToPool(r) }
+                successes.foreach { case (d, r) => state.dfaRegistersPool.returnToPool(r) }
                 successes.clear
                 shouldGenerateEscapeBlock = true
                 fieldReg.actionNum = 0
@@ -215,7 +216,7 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
               // now go around the while loop again
             } // end case StateKind.Failed for finding the block end.
           } // end blockEndStatus.status match
-          TLRegistersPool.returnToPool(blockEndReg)
+          state.dfaRegistersPool.returnToPool(blockEndReg)
         } // end case StateKind.Paused for finding any of block end or a delimiter
       } // end dfaStatus match
     } // end while stillSearching
@@ -229,8 +230,8 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
     // us to reuse the DFA for determining when to escape data while unparsing.
     val resString = fieldReg.resultString.toString
 
-    TLRegistersPool.returnToPool(fieldReg)
-    TLRegistersPool.pool.finalCheck
+    state.dfaRegistersPool.returnToPool(fieldReg)
+    state.dfaRegistersPool.finalCheck
 
     (resString, shouldGenerateEscapeBlock)
   }
@@ -249,7 +250,7 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
     Assert.invariant(field != null)
 
     val successes: ArrayBuffer[(DFADelimiter, Registers)] = ArrayBuffer.empty
-    val fieldReg: Registers = TLRegistersPool.getFromPool("escapeCharacter1")
+    val fieldReg: Registers = state.dfaRegistersPool.getFromPool("escapeCharacter1")
 
     val delimIter = new AllDelimiterIterator(ArrayBuffer(delims: _*))
 
@@ -287,7 +288,7 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
           delimIter.reset()
           while (delimIter.hasNext()) {
             val d = delimIter.next()
-            val delimReg: Registers = TLRegistersPool.getFromPool("escapeCharacter2")
+            val delimReg: Registers = state.dfaRegistersPool.getFromPool("escapeCharacter2")
             delimReg.reset(state, input, delimIter)
             input.resetPos(beforeDelimiter)
             beforeDelimiter = input.markPos
@@ -303,7 +304,7 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
               }
               case _ => {
                 // this delim did not match, ignore it and discard its register
-                TLRegistersPool.returnToPool(delimReg)
+                state.dfaRegistersPool.returnToPool(delimReg)
               }
             }
           }
@@ -335,7 +336,7 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
             input.resetPos(beforeDelimiter)
             Assert.invariant(input.skipChars(delim.length, state))
             fieldReg.resetChars(state)
-            successes.foreach { case (d, r) => TLRegistersPool.returnToPool(r) }
+            successes.foreach { case (d, r) => state.dfaRegistersPool.returnToPool(r) }
             successes.clear
             stillSearching = true
 
@@ -357,8 +358,8 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
     // us to reuse the DFA for determining when to escape data while unparsing.
     val resString = fieldReg.resultString.toString
 
-    TLRegistersPool.returnToPool(fieldReg)
-    TLRegistersPool.pool.finalCheck
+    state.dfaRegistersPool.returnToPool(fieldReg)
+    state.dfaRegistersPool.finalCheck
 
     (resString, escapeOccurred)
   }

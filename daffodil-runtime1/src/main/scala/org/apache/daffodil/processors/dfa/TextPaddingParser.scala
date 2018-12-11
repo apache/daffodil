@@ -24,6 +24,7 @@ import org.apache.daffodil.processors.DelimiterIterator
 import org.apache.daffodil.io.DataInputStream
 import scala.collection.mutable.ArrayBuffer
 import org.apache.daffodil.io.FormatInfo
+import org.apache.daffodil.processors.parsers.PState
 
 class TextPaddingParser(val padChar: Char,
   override val context: TermRuntimeData)
@@ -34,18 +35,18 @@ class TextPaddingParser(val padChar: Char,
 
   val paddingDFA = CreatePaddingDFA(padChar, context)
 
-  def parse(finfo: FormatInfo, input: DataInputStream, delimIter: DelimiterIterator): Maybe[ParseResult] = {
+  def parse(state: PState, input: DataInputStream, delimIter: DelimiterIterator): Maybe[ParseResult] = {
 
-    val paddingReg: Registers = TLRegistersPool.getFromPool("TextPaddingParser1")
+    val paddingReg: Registers = state.dfaRegistersPool.getFromPool("TextPaddingParser1")
 
-    paddingReg.reset(finfo, input, delimIter)
+    paddingReg.reset(state, input, delimIter)
 
     paddingDFA.run(paddingReg) // Will always succeed.
 
     val paddingValue = One(paddingReg.resultString.toString)
 
-    TLRegistersPool.returnToPool(paddingReg)
-    TLRegistersPool.pool.finalCheck
+    state.dfaRegistersPool.returnToPool(paddingReg)
+    state.dfaRegistersPool.finalCheck
 
     One(new ParseResult(paddingValue, Nope, ArrayBuffer()))
   }

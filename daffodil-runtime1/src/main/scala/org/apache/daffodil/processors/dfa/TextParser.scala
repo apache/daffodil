@@ -23,15 +23,15 @@ import org.apache.daffodil.processors.TermRuntimeData
 import org.apache.daffodil.processors.DelimiterIterator
 import org.apache.daffodil.io.DataInputStream
 import org.apache.daffodil.io.FormatInfo
+import org.apache.daffodil.processors.parsers.PState
 
-class TextParser(
-  override val context: TermRuntimeData)
+class TextParser(override val context: TermRuntimeData)
   extends DFAParser {
 
   override lazy val name: String = "TextParser"
   override lazy val info: String = "" // Nothing additional to add here
 
-  def parse(finfo: FormatInfo, input: DataInputStream, delimIter: DelimiterIterator, isDelimRequired: Boolean): Maybe[ParseResult] = {
+  def parse(state: PState, input: DataInputStream, delimIter: DelimiterIterator, isDelimRequired: Boolean): Maybe[ParseResult] = {
 
     val lmt = new LongestMatchTracker()
 
@@ -39,14 +39,14 @@ class TextParser(
     delimIter.reset()
     while (delimIter.hasNext()) {
       val d = delimIter.next()
-      val reg = TLRegistersPool.getFromPool("TextParser1")
-      reg.reset(finfo, input, delimIter, m)
+      val reg = state.dfaRegistersPool.getFromPool("TextParser1")
+      reg.reset(state, input, delimIter, m)
       m = input.markPos
       d.run(reg)
       if (reg.status == StateKind.Succeeded) {
         lmt.successfulMatch(reg.matchStartPos, reg.delimString, d, delimIter.currentIndex)
       }
-      TLRegistersPool.returnToPool(reg)
+      state.dfaRegistersPool.returnToPool(reg)
     }
     input.resetPos(m)
 
@@ -55,7 +55,7 @@ class TextParser(
         if (isDelimRequired) Nope
         else {
           val totalNumCharsRead = 0
-          input.getString(totalNumCharsRead, finfo)
+          input.getString(totalNumCharsRead, state)
           One(new ParseResult(Nope, Nope, lmt.longestMatches))
         }
       } else {
@@ -66,7 +66,7 @@ class TextParser(
       }
     }
 
-    TLRegistersPool.pool.finalCheck
+    state.dfaRegistersPool.finalCheck
 
     result
   }
