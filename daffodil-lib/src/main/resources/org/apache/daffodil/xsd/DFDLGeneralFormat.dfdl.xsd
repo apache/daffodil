@@ -23,7 +23,15 @@
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/">
 
-      <dfdl:defineFormat name="GeneralFormat">
+      <!--
+        This set of properties should never change. It can be added to 
+        if properties are missing, but should not be changed.
+        
+        Changes should be introduced by way of defining new formats in
+        terms of this one, which override definitions. See below in 
+        the file for examples. 
+       -->
+      <dfdl:defineFormat name="GeneralFormatOriginal">
         <dfdl:format
           alignment="1"
           alignmentUnits="bytes"
@@ -92,6 +100,17 @@
           truncateSpecifiedLengthString="no"
           utf16Width="fixed"
         />
+      </dfdl:defineFormat>
+      
+      <dfdl:defineFormat name="GeneralFormat">
+        <dfdl:format ref="GeneralFormatOriginal" />
+      </dfdl:defineFormat>
+        
+      <dfdl:defineFormat name="GeneralFormatForCrossTesting">
+        <dfdl:format ref="GeneralFormatOriginal"
+          calendarTimeZone=""
+          encodingErrorPolicy="error"
+        />   
       </dfdl:defineFormat>
 
     </xs:appinfo>
