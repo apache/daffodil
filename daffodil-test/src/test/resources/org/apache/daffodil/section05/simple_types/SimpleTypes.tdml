@@ -24,7 +24,7 @@
 
   <tdml:defineSchema name="SimpleTypes-Embedded.dfdl.xsd">
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
-    <dfdl:format ref="ex:GeneralFormat" lengthKind="implicit" representation="text"
+    <dfdl:format ref="ex:GeneralFormatPortable" lengthKind="implicit" representation="text"
         lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator=""
         separator="" textNumberCheckPolicy="lax" ignoreCase="no" textNumberRep="standard"
         textPadKind="padChar" textTrimKind="padChar"/>
@@ -196,7 +196,7 @@
 
   <tdml:defineSchema name="SimpleTypes-binary">
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
-    <dfdl:format ref="ex:GeneralFormat" representation="binary"
+    <dfdl:format ref="ex:GeneralFormatPortable" representation="binary"
       lengthUnits="bytes"
       textPadKind="padChar" textTrimKind="padChar" />
 
@@ -364,7 +364,7 @@
 
     <xs:element name="dateBinPacked" type="xs:date" dfdl:calendarPattern="MMddyy" dfdl:calendarPatternKind="explicit"
       dfdl:lengthKind="explicit" dfdl:length="{ 4 }" dfdl:lengthUnits="bytes" dfdl:binaryCalendarRep="packed"
-      dfdl:binaryPackedSignCodes="C D F C" dfdl:binaryNumberCheckPolicy="strict" dfdl:calendarTimeZone=""/>
+      dfdl:binaryPackedSignCodes="C D F C" dfdl:binaryNumberCheckPolicy="strict" dfdl:calendarTimeZone="UTC"/>
     <xs:element name="dateBinPacked2" type="xs:date" dfdl:calendarPattern="MMddyy" dfdl:calendarPatternKind="explicit"
       dfdl:lengthKind="explicit" dfdl:length="{ 4 }" dfdl:lengthUnits="bytes" dfdl:binaryCalendarRep="packed" />
 
@@ -376,7 +376,7 @@
             dfdl:binaryNumberCheckPolicy="strict" />
           <xs:element name="date" type="xs:date" dfdl:calendarPattern="MMddyyyy" dfdl:encoding="ISO-8859-1"
             dfdl:calendarPatternKind="explicit" dfdl:binaryCalendarRep="packed" dfdl:lengthKind="delimited" dfdl:terminator=";"
-            dfdl:binaryPackedSignCodes="C D F C" dfdl:binaryNumberCheckPolicy="strict" dfdl:calendarTimeZone="" />
+            dfdl:binaryPackedSignCodes="C D F C" dfdl:binaryNumberCheckPolicy="strict" dfdl:calendarTimeZone="UTC" />
           <xs:element name="num2" type="xs:decimal" dfdl:encoding="ISO-8859-1" dfdl:representation="binary" dfdl:binaryNumberRep="packed"
             dfdl:lengthKind="delimited" dfdl:terminator=";" dfdl:binaryDecimalVirtualPoint="0" dfdl:binaryPackedSignCodes="C D F C"
             dfdl:binaryNumberCheckPolicy="strict" />
@@ -386,7 +386,7 @@
 
     <xs:element name="timeBinPacked" type="xs:time" dfdl:calendarPattern="HHmmss" dfdl:calendarPatternKind="explicit"
       dfdl:lengthKind="explicit" dfdl:length="{ 4 }" dfdl:lengthUnits="bytes" dfdl:binaryCalendarRep="packed"
-      dfdl:binaryPackedSignCodes="C D F C" dfdl:binaryNumberCheckPolicy="strict" dfdl:calendarTimeZone=""/>
+      dfdl:binaryPackedSignCodes="C D F C" dfdl:binaryNumberCheckPolicy="strict" dfdl:calendarTimeZone="UTC"/>
     <xs:element name="timeBinPacked2">
       <xs:complexType>
         <xs:sequence>
@@ -394,7 +394,7 @@
             dfdl:lengthKind="explicit" dfdl:length="{ 1 }" dfdl:lengthUnits="bytes" />
           <xs:element name="time" type="xs:time" dfdl:calendarPattern="HHmmss" dfdl:calendarPatternKind="explicit"
             dfdl:lengthKind="explicit" dfdl:length="{ ../ex:length }" dfdl:lengthUnits="bytes" dfdl:binaryCalendarRep="packed"
-            dfdl:binaryPackedSignCodes="C D F C"  dfdl:binaryNumberCheckPolicy="strict" dfdl:calendarTimeZone="" />
+            dfdl:binaryPackedSignCodes="C D F C"  dfdl:binaryNumberCheckPolicy="strict" dfdl:calendarTimeZone="UTC" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -2105,7 +2105,7 @@
     <tdml:document><![CDATA[Wednesday, July 10, '96]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <dateText>1996-07-10</dateText>
+        <dateText xsi:type="xs:date">1996-07-10+00:00</dateText>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -2116,7 +2116,7 @@
     <tdml:document><![CDATA[12:08 PM]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <timeText>12:08:00</timeText>
+        <timeText xsi:type="xs:time">12:08:00+00:00</timeText>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -2818,7 +2818,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <dateBinPacked>2023-12-14</dateBinPacked>
+        <dateBinPacked>2023-12-14+00:00</dateBinPacked>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -2847,7 +2847,7 @@
       <tdml:dfdlInfoset>
         <dateBinPacked4>
           <num1>-14</num1>
-          <date>1978-01-01</date>
+          <date>1978-01-01+00:00</date>
           <num2>67</num2>
         </dateBinPacked4>
       </tdml:dfdlInfoset>
@@ -2863,7 +2863,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <timeBinPacked>06:13:27</timeBinPacked>
+        <timeBinPacked>06:13:27+00:00</timeBinPacked>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -2879,7 +2879,7 @@
       <tdml:dfdlInfoset>
         <timeBinPacked2>
           <length>4</length>
-          <time>04:15:08</time>
+          <time>04:15:08+00:00</time>
         </timeBinPacked2>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -2894,7 +2894,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <dateTimeBinPacked>1645-12-25T19:36:50</dateTimeBinPacked>
+        <dateTimeBinPacked xsi:type="xs:dateTime">1645-12-25T19:36:50+00:00</dateTimeBinPacked>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -4616,13 +4616,7 @@
     <xs:element name="date31" type="ex:explicDate" dfdl:calendarPattern="dd MM yyyy, mm:ss"/>
     
     <xs:element name="date32" type="ex:explicDate" dfdl:encoding="UTF-8" dfdl:calendarPattern="EEEE MMM yyyy" dfdl:calendarLanguage="ru-RU"/>
-    <xs:element name="date33">
-      <xs:complexType>
-        <xs:sequence dfdl:separator=",">
-          <xs:element name="date" type="xs:date" dfdl:lengthKind="delimited" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="yyyy-MM-dd" dfdl:calendarTimeZone=""/>
-        </xs:sequence>
-      </xs:complexType>
-    </xs:element>
+  
     <xs:element name="date34">
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
@@ -4683,13 +4677,7 @@
     <xs:element name="time28" type="ex:strictExplicTime" dfdl:calendarPattern="hh:mm.zzz" dfdl:calendarTimeZone="UTC+1:30"/>
     <xs:element name="time29" type="ex:strictExplicTime" dfdl:calendarPattern="hh:mm:ss.SSSSSSSSS"/>
     <xs:element name="time30" type="ex:strictExplicTime" dfdl:calendarPattern="hh:mm:ss.SSSSSSSSSS"/>
-    <xs:element name="time31">
-      <xs:complexType>
-        <xs:sequence dfdl:separator=",">
-          <xs:element name="time" type="xs:time" dfdl:lengthKind="delimited" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="HH:mm:ss" dfdl:calendarTimeZone="" />
-        </xs:sequence>
-      </xs:complexType>
-    </xs:element>
+  
     <xs:element name="time32">
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
@@ -4724,13 +4712,7 @@
     <xs:element name="dateTime12" type="xs:dateTime" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit" dfdl:textTrimKind="padChar"
                 dfdl:textCalendarJustification="right" dfdl:textCalendarPadCharacter="%HT;" dfdl:lengthKind="delimited" dfdl:calendarPattern="MM.dd.yyyy hh:mm:ssaa"/>
     <xs:element name="dateTime13" type="xs:dateTime" dfdl:lengthKind="delimited" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="dd-MM-yyyy hh:mm:ss.SSSSSSSSSS"/>
-    <xs:element name="dateTime14"><!-- No Time Zone -->
-      <xs:complexType>
-        <xs:sequence dfdl:separator=",">
-          <xs:element name="dateTime" type="xs:dateTime" dfdl:lengthKind="delimited" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="yyyy-MM-dd HH:mm:ss" dfdl:calendarTimeZone=""/>
-        </xs:sequence>
-      </xs:complexType>
-    </xs:element>
+   
     <xs:element name="dateTime15"><!-- EST Time Zone -->
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
@@ -4741,6 +4723,47 @@
     
   </tdml:defineSchema>
   
+  <!-- 
+  This schema exists to isolate all schema parts that use calendarTimeZone="".
+  
+  This is DFDL standard, but not portable to IBM. If this is present in a schema on any element, 
+  then IBM DFDL will produce an SDE, and no test using elements from that schema
+  can be run. 
+  
+  By isolating it here, tests that use this feature can be setup to only run on 
+  daffodil, and all other tests can run portably.
+   -->
+  <tdml:defineSchema name="tzEmptySchema">
+  
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" />
+    
+    <xs:element name="date33">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="date" type="xs:date" dfdl:lengthKind="delimited" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="yyyy-MM-dd" dfdl:calendarTimeZone=""/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+      <xs:element name="time31">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="time" type="xs:time" dfdl:lengthKind="delimited" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="HH:mm:ss" 
+            dfdl:calendarTimeZone="" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+     <xs:element name="dateTime14"><!-- No Time Zone -->
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="dateTime" type="xs:dateTime" dfdl:lengthKind="delimited" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="yyyy-MM-dd HH:mm:ss" dfdl:calendarTimeZone=""/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+  </tdml:defineSchema>
   <!--
      Test Name: dateTime_calendarTimeZone_EmptyString
         Schema: dateTimeSchema
@@ -4752,8 +4775,9 @@
   -->
   
   <tdml:parserTestCase name="dateTime_calendarTimeZone_EmptyString" root="dateTime14"
-    model="dateTimeSchema" description="Section 13 Simple Types - xs:dateTime calendarTimeZone Empty String - DFDL-13-XXXR"
-    roundTrip="true">
+    model="tzEmptySchema" description="Section 13 Simple Types - xs:dateTime calendarTimeZone Empty String - DFDL-13-XXXR"
+    roundTrip="true"
+    implementations="daffodil">
 
     <tdml:document><![CDATA[1995-03-24 01:30:00]]></tdml:document>
     <tdml:infoset>
@@ -6503,9 +6527,10 @@
                calendarTimeZone="", no time zone expected in the result
   -->
 
-  <tdml:parserTestCase name="time_calendarTimeZone_EmptyString" root="time31" model="dateTimeSchema"
+  <tdml:parserTestCase name="time_calendarTimeZone_EmptyString" root="time31" model="tzEmptySchema"
     description="Section 13 - Simple Types - xs:time calendarTimeZone Empty String  - DFDL-13-XXXR"
-    roundTrip="true">
+    roundTrip="true"
+    implementations="daffodil">
 
     <tdml:document>
       <tdml:documentPart type="text">12:49:00</tdml:documentPart>
@@ -6554,8 +6579,9 @@
                calendarTimeZone="", expect no time zone in result
   -->
 
-  <tdml:parserTestCase name="date_calendarTimeZone_EmptyString" root="date33" model="dateTimeSchema"
-    description="Section 13 - Simple Types - xs:date calendarTimeZone Empty String  - DFDL-13-XXXR">
+  <tdml:parserTestCase name="date_calendarTimeZone_EmptyString" root="date33" model="tzEmptySchema"
+    description="Section 13 - Simple Types - xs:date calendarTimeZone Empty String  - DFDL-13-XXXR"
+    implementations="daffodil">
 
     <tdml:document>
       <tdml:documentPart type="text">1991-03-04</tdml:documentPart>

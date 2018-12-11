@@ -40,7 +40,7 @@
 					calendarPatternKind="implicit" calendarTimeZone="UTC"
 					choiceLengthKind="implicit" decimalSigned="yes"
 					documentFinalTerminatorCanBeMissing="yes" emptyValueDelimiterPolicy="none"
-					encoding="UTF-8" encodingErrorPolicy="replace"
+					encoding="UTF-8" encodingErrorPolicy="error"
 					escapeSchemeRef="" fillByte="0" floating="no" ignoreCase="no"
 					initiatedContent="no" initiator="" leadingSkip="0" lengthKind="delimited"
 					lengthUnits="characters" nilKind="literalValue" nilValueDelimiterPolicy="none"

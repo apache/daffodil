@@ -21,7 +21,7 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:xs="http://www.w3.org/2001/XMLSchema" 
   xmlns:ex="http://example.com" xmlns="http://example.com"
-  defaultImplementations="ibm dfdl">
+  defaultImplementations="ibm daffodil">
 
 
   <tdml:defineSchema name="baseline">
