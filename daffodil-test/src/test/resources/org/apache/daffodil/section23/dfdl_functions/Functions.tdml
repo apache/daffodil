@@ -697,7 +697,7 @@
       <xs:complexType>
         <xs:sequence>
           <xs:element name="date" type="xs:dateTime" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="implicit"
-            dfdl:lengthKind="explicit" dfdl:length="19" dfdl:calendarTimeZone="" />
+            dfdl:lengthKind="explicit" dfdl:length="19" dfdl:calendarTimeZone="UTC" />
           <xs:element name="year" type="xs:int" dfdl:inputValueCalc="{ fn:year-from-dateTime(../ex:date) }"/>
           <xs:element name="month" type="xs:int" dfdl:inputValueCalc="{ fn:month-from-dateTime(../ex:date) }"/>
           <xs:element name="day" type="xs:int" dfdl:inputValueCalc="{ fn:day-from-dateTime(../ex:date) }"/>
@@ -2445,14 +2445,14 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e_xfromdatetime2>
-          <date>2014-01-01T00:02:30</date>
+          <date xsi:type="xs:dateTime">2014-01-01T00:02:30+00:00</date>
           <year>2014</year>
           <month>1</month>
           <day>1</day>
           <hours>0</hours>
           <minutes>2</minutes>
           <seconds>30</seconds>
-          <timeZone/>
+          <timeZone>+00:00</timeZone>
         </e_xfromdatetime2>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -2473,14 +2473,14 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e_xfromdatetime2>
-          <date>0101-01-13T00:12:39</date>
+          <date xsi:type="xs:dateTime">0101-01-13T00:12:39+00:00</date>
           <year>101</year>
           <month>1</month>
           <day>13</day>
           <hours>0</hours>
           <minutes>12</minutes>
           <seconds>39</seconds>
-          <timeZone/>
+          <timeZone>+00:00</timeZone>
         </e_xfromdatetime2>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -6348,7 +6348,7 @@
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
           <xs:element name="date" type="xs:date" dfdl:lengthKind="delimited" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="MM-dd-yyyy" dfdl:calendarTimeZone="UTC-09:00"/>
-          <xs:element name="time" type="xs:time" dfdl:lengthKind="delimited" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="hh:mm:ss" dfdl:calendarTimeZone=""/>
+          <xs:element name="time" type="xs:time" dfdl:lengthKind="delimited" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="hh:mm:ss" dfdl:calendarTimeZone="UTC-09:00"/>
           <xs:element name="dateTime" type="xs:dateTime" dfdl:inputValueCalc="{ fn:dateTime(../ex:date, ../ex:time) }"/>
         </xs:sequence>
       </xs:complexType>
@@ -6356,7 +6356,7 @@
     <xs:element name="dateTime13">
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
-          <xs:element name="date" type="xs:date" dfdl:lengthKind="delimited" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="MM-dd-yyyy" dfdl:calendarTimeZone=""/>
+          <xs:element name="date" type="xs:date" dfdl:lengthKind="delimited" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="MM-dd-yyyy" dfdl:calendarTimeZone="UTC+11:00"/>
           <xs:element name="time" type="xs:time" dfdl:lengthKind="delimited" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="hh:mm:ss" dfdl:calendarTimeZone="UTC+11:00"/>
           <xs:element name="dateTime" type="xs:dateTime" dfdl:inputValueCalc="{ fn:dateTime(../ex:date, ../ex:time) }"/>
         </xs:sequence>
@@ -6978,7 +6978,8 @@
   -->
 
   <tdml:parserTestCase name="fnDateTime_constructor_06" root="dateTime10" model="constructorSchema"
-    description="Section 23 - Constructor Functions - fn:dateTime()  - DFDL-23-089R">
+    description="Section 23 - Constructor Functions - fn:dateTime()  - DFDL-23-089R"
+    implementations="daffodil">
 
     <tdml:document>
       <tdml:documentPart type="text">03-31-1996,04:55:30</tdml:documentPart>
@@ -7041,7 +7042,7 @@
       <tdml:dfdlInfoset>
         <dateTime12>
           <date>1996-03-31-09:00</date>
-          <time>04:55:30</time>
+          <time>04:55:30-09:00</time>
           <dateTime>1996-03-31T04:55:30-09:00</dateTime>
         </dateTime12>
       </tdml:dfdlInfoset>
@@ -7067,7 +7068,7 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <dateTime13>
-          <date>1996-03-31</date>
+          <date>1996-03-31+11:00</date>
           <time>04:55:30+11:00</time>
           <dateTime>1996-03-31T04:55:30+11:00</dateTime>
         </dateTime13>

@@ -76,7 +76,7 @@
       calendarLanguage="en" calendarPatternKind="implicit"
       calendarTimeZone="UTC" decimalSigned="yes"
       documentFinalTerminatorCanBeMissing="no"
-      emptyValueDelimiterPolicy="both" encodingErrorPolicy="replace"
+      emptyValueDelimiterPolicy="both" encodingErrorPolicy="error"
       encoding="utf-8" escapeSchemeRef="" fillByte="%#r20;" ignoreCase="no"
       initiatedContent="no" initiator="" lengthKind="delimited"
       lengthUnits="bytes" occursCountKind="parsed" outputNewLine="%LF;"

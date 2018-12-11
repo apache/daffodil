@@ -633,7 +633,7 @@
       textStandardZeroRep="0" textStandardInfinityRep="Inf" textStandardNaNRep="NaN"
       textNumberPattern="#,##0.###;-#,##0.###" textNumberRounding="explicit"
       textNumberRoundingMode="roundUnnecessary" textNumberRoundingIncrement="0" decimalSigned="yes"
-      encodingErrorPolicy="replace" sequenceKind="ordered" calendarFirstDayOfWeek='Sunday'
+      encodingErrorPolicy="error" sequenceKind="ordered" calendarFirstDayOfWeek='Sunday'
       calendarDaysInFirstWeek='4' calendarTimeZone='UTC' calendarCheckPolicy='strict' calendarLanguage='en'
       bitOrder="leastSignificantBitFirst" outputNewLine="%LF;" textPadKind="none" fillByte="%#r20;"
       truncateSpecifiedLengthString="no" textStringPadCharacter="%SP;" textNumberPadCharacter="%SP;"

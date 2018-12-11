@@ -35,7 +35,7 @@
         byteOrder="littleEndian" calendarCheckPolicy='strict'
         calendarDaysInFirstWeek='4' calendarFirstDayOfWeek='Sunday'
         calendarLanguage='en' calendarPatternKind='implicit' calendarTimeZone='UTC'
-        encoding="ASCII" encodingErrorPolicy="replace" escapeSchemeRef=""
+        encoding="ASCII" encodingErrorPolicy="error" escapeSchemeRef=""
         fillByte="%#r20;" ignoreCase="no" initiatedContent="no" initiator=""
         leadingSkip='0' occursCountKind="parsed" outputNewLine="%LF;"
         representation="text" separator="" separatorPosition="infix"

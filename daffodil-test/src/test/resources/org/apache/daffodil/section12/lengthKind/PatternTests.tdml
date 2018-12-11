@@ -384,7 +384,7 @@
       ignoreCase='no' initiatedContent='no' lengthKind='implicit'
       occursCountKind='parsed' separatorSuppressionPolicy='anyEmpty'
       separatorPosition='infix' textNumberRep='standard' initiator=""
-      terminator="" separator="" />
+      terminator="" separator=""/>
 
     <xs:element name="doctors">
       <xs:complexType>
@@ -471,24 +471,6 @@
     <xs:element name="def_02" type="xs:string"
       dfdl:lengthKind="pattern" dfdl:lengthPattern="!!.*!!"
       dfdl:encoding="utf-8" />
-
-    <xs:element name="def_04" dfdl:lengthKind="pattern"
-      dfdl:lengthPattern="!!.*!!" dfdl:lengthUnits="characters"
-      dfdl:encoding="utf-8" dfdl:encodingErrorPolicy="replace">
-      <xs:complexType>
-        <xs:sequence>
-          <xs:element name="first" type="xs:string"
-            dfdl:lengthKind="explicit" dfdl:length="{2}"
-            dfdl:lengthUnits="characters" dfdl:encoding="utf-8"/>
-          <xs:element name="inner" type="xs:string"
-            dfdl:lengthKind="explicit" dfdl:length="{2}"
-            dfdl:lengthUnits="characters" dfdl:encoding="utf-8" dfdl:encodingErrorPolicy="replace"/>
-          <xs:element name="last" type="xs:string"
-            dfdl:lengthKind="explicit" dfdl:length="{2}"
-            dfdl:lengthUnits="characters" dfdl:encoding="utf-8"/>
-        </xs:sequence>
-      </xs:complexType>
-    </xs:element>
 
     <xs:element name="def_05" dfdl:lengthKind="pattern"
       dfdl:lengthPattern="!!.*!!" dfdl:lengthUnits="characters"
@@ -615,6 +597,37 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
+<tdml:defineSchema name="DFDL-207-non-portable">
+
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" representation="text"
+      lengthUnits="bytes" encoding="US-ASCII" byteOrder='bigEndian'
+      ignoreCase='no' initiatedContent='no' lengthKind='implicit'
+      occursCountKind='parsed' separatorSuppressionPolicy='anyEmpty'
+      separatorPosition='infix' textNumberRep='standard' initiator=""
+      terminator="" separator=""
+      encodingErrorPolicy="replace"/>
+      
+    <xs:element name="def_04" dfdl:lengthKind="pattern"
+      dfdl:lengthPattern="!!.*!!" dfdl:lengthUnits="characters"
+      dfdl:encoding="utf-8">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="first" type="xs:string"
+            dfdl:lengthKind="explicit" dfdl:length="{2}"
+            dfdl:lengthUnits="characters" dfdl:encoding="utf-8"/>
+          <xs:element name="inner" type="xs:string"
+            dfdl:lengthKind="explicit" dfdl:length="{2}"
+            dfdl:lengthUnits="characters" dfdl:encoding="utf-8" dfdl:encodingErrorPolicy="replace"/>
+          <xs:element name="last" type="xs:string"
+            dfdl:lengthKind="explicit" dfdl:length="{2}"
+            dfdl:lengthUnits="characters" dfdl:encoding="utf-8"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+  </tdml:defineSchema>
+  
   <!--
        Test Name: LengthPatternIllegalBits_02_EncodingErrorPolicy_Replace
           Schema: DFDL-207-Embedded.dfdl.xsd
@@ -623,9 +636,10 @@
                   with encodingErrorPolicy = 'replace'.
   -->
   <tdml:parserTestCase name="LengthPatternIllegalBits_02_EncodingErrorPolicy_Replace"
-    root="def_04" model="DFDL-207-Embedded.dfdl.xsd"
+    root="def_04" model="DFDL-207-non-portable"
     description="Section 12 lengthKind-pattern -c2c2 is an invalid code point in utf-8 - DFDL-12-088R"
-    roundTrip="twoPass">
+    roundTrip="twoPass"
+    implementations="daffodil">
     <tdml:document>
       <tdml:documentPart type="byte">2121c2c22121</tdml:documentPart>
     </tdml:document>
@@ -944,7 +958,8 @@
 
   <tdml:parserTestCase name="lengthPatternEncodingErrorReplace"
     root="e1" model="lengthKindPattern-Embedded-2.dfdl.xsd" description="Section 12 lengthKind-pattern - DFDL-12-087R"
-    roundTrip="twoPass">
+    roundTrip="twoPass"
+    implementations="daffodil">
 
     <tdml:document>
       <tdml:documentPart type="bits">11000000 10100000</tdml:documentPart>

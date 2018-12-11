@@ -25,7 +25,7 @@
     <appinfo source="http://www.ogf.org/dfdl/">
         <dfdl:format alignment="1"
           alignmentUnits="bytes" binaryFloatRep="ieee" binaryNumberRep="binary"
-          byteOrder="bigEndian" bitOrder="mostSignificantBitFirst" encodingErrorPolicy="replace"
+          byteOrder="bigEndian" bitOrder="mostSignificantBitFirst" encodingErrorPolicy="error"
           documentFinalTerminatorCanBeMissing="no" emptyValueDelimiterPolicy="both"
           encoding="US-ASCII" escapeSchemeRef="" ignoreCase="no"
           initiatedContent="no" initiator="" leadingSkip="0" lengthKind="delimited"

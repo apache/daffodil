@@ -36,7 +36,7 @@ class TestTDMLCrossTest {
   @Test def testUnrecognizedImpl1() {
 
     val testSuite =
-      <ts:testSuite xmlns:dfdl={ dfdl } xmlns:xs={ xsd } xmlns:ex={ example } xmlns:ts={ tdml } suiteName="theSuiteName" defaultImplementations="notAClassName alsoNotAClassName reallyNotAClassName">
+      <ts:testSuite xmlns:dfdl={ dfdl } xmlns:xs={ xsd } xmlns:ex={ example } xmlns:ts={ tdml } suiteName="theSuiteName" defaultImplementations="notAnImplName">
         <ts:defineSchema name="s">
           <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
           <dfdl:format ref="ex:GeneralFormat"/>
@@ -52,11 +52,11 @@ class TestTDMLCrossTest {
         </ts:parserTestCase>
       </ts:testSuite>
     lazy val ts = new DFDLTestSuite(testSuite)
-    val e = intercept[AssumptionViolatedException] {
+    val e = intercept[TDMLException] {
       ts.runOneTest("test1")
     }
     val msg = e.getMessage()
-    assertTrue(msg.contains("Test 'test1' not compatible with implementation"))
+    assertTrue(msg.contains("notAnImplName"))
   }
 
 }

@@ -164,6 +164,12 @@ private[tdml] object DFDLTestSuite {
  *
  * defaultImplementationsDefault the implementations default for the test suite will be
  * taken from this value if it is not specified on the testSuite itself.
+ *
+ * shouldDoErrorComparisonOnCrossTests controls whether negative test error messages  are compared
+ * during cross testing, or the tests are just run to determine that they fail.
+ *
+ * shouldDoWarningComparisonOnCrossTests controls whether test warning messages  are compared
+ * during cross testing.
  */
 
 class DFDLTestSuite private[tdml] (val __nl: Null, // this extra arg allows us to make this primary constructor package private so we can deprecate the one generally used.
@@ -173,7 +179,9 @@ class DFDLTestSuite private[tdml] (val __nl: Null, // this extra arg allows us t
   val compileAllTopLevel: Boolean,
   val defaultRoundTripDefault: RoundTrip,
   val defaultValidationDefault: String,
-  val defaultImplementationsDefault: Seq[String])
+  val defaultImplementationsDefault: Seq[String],
+  val shouldDoErrorComparisonOnCrossTests: Boolean,
+  val shouldDoWarningComparisonOnCrossTests: Boolean)
   extends Logging
   with HasSetDebugger {
 
@@ -188,11 +196,15 @@ class DFDLTestSuite private[tdml] (val __nl: Null, // this extra arg allows us t
     compileAllTopLevel: Boolean = false,
     defaultRoundTripDefault: RoundTrip = Runner.defaultRoundTripDefaultDefault,
     defaultValidationDefault: String = Runner.defaultValidationDefaultDefault,
-    defaultImplementationsDefault: Seq[String] = Runner.defaultImplementationsDefaultDefault) =
+    defaultImplementationsDefault: Seq[String] = Runner.defaultImplementationsDefaultDefault,
+    shouldDoErrorComparisonOnCrossTests: Boolean = Runner.defaultShouldDoErrorComparisonOnCrossTests,
+    shouldDoWarningComparisonOnCrossTests: Boolean = Runner.defaultShouldDoWarningComparisonOnCrossTests) =
     this(null, aNodeFileOrURL, validateTDMLFile, validateDFDLSchemas, compileAllTopLevel,
       defaultRoundTripDefault,
       defaultValidationDefault,
-      defaultImplementationsDefault)
+      defaultImplementationsDefault,
+      shouldDoErrorComparisonOnCrossTests,
+      shouldDoWarningComparisonOnCrossTests)
 
   if (!aNodeFileOrURL.isInstanceOf[scala.xml.Node])
     System.err.println("Creating DFDL Test Suite for " + aNodeFileOrURL)
@@ -442,6 +454,10 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
     }
   }
 
+  final def isCrossTest(implString: String) = implString != "daffodil"
+
+  final def isNegativeTest = optExpectedErrors.isDefined
+
   lazy val tdmlDFDLProcessorFactory: AbstractTDMLDFDLProcessorFactory = {
     import scala.language.reflectiveCalls
     import scala.language.existentials
@@ -653,7 +669,10 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
     //
     // Should we run the test?
     //
-    if (!implementationStrings.contains(impl.implementationName)) {
+    val implName = impl.implementationName
+    val istrings = implementationStrings
+    val useThisImpl = istrings.contains(implName)
+    if (!useThisImpl) {
       //
       // skip the test
       //
@@ -706,6 +725,22 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
 
     }
   }
+
+  protected def checkDiagnosticMessages(diagnostics: Seq[Throwable],
+    errors: ExpectedErrors,
+    optWarnings: Option[ExpectedWarnings],
+    implString: Option[String]) {
+    Assert.usage(this.isNegativeTest)
+
+    // check for any test-specified errors or warnings
+    if (!isCrossTest(implString.get) ||
+      parent.shouldDoErrorComparisonOnCrossTests)
+      VerifyTestCase.verifyAllDiagnosticsFound(diagnostics, Some(errors), implString)
+
+    if (!isCrossTest(implString.get) ||
+      parent.shouldDoWarningComparisonOnCrossTests)
+      VerifyTestCase.verifyAllDiagnosticsFound(diagnostics, optWarnings, implString)
+  }
 }
 
 case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
@@ -735,9 +770,9 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         }
       }
 
-      case (None, Some(_)) => {
+      case (None, Some(errors)) => {
         compileResult.left.foreach { diags =>
-          VerifyTestCase.verifyAllDiagnosticsFound(diags, optExpectedErrors, implString)
+          checkDiagnosticMessages(diags, errors, optExpectedWarnings, implString)
         }
         compileResult.right.foreach {
           case (_, processor) =>
@@ -790,15 +825,11 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         (actual, diagnostics, isErr)
       }
     }
-    // check for any test-specified warnings
-    VerifyTestCase.verifyAllDiagnosticsFound(diagnostics, optWarnings, implString)
-    if (isError) {
-      // good we expected an error
-      // check for any test-specified errors
-      VerifyTestCase.verifyAllDiagnosticsFound(diagnostics, Some(errors), implString)
-    } else {
+    if (!isError) {
       throw TDMLException("Expected error. Didn't get one. Actual result was\n" + parseResult.getResult.toString, implString)
     }
+
+    checkDiagnosticMessages(diagnostics, errors, optWarnings, implString)
   }
 
   /**
@@ -859,7 +890,9 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     }
 
     val allDiags = processor.getDiagnostics ++ actual.getDiagnostics
-    VerifyTestCase.verifyAllDiagnosticsFound(allDiags, optExpectedWarnings, implString)
+    if (!isCrossTest(implString.get) ||
+      parent.shouldDoWarningComparisonOnCrossTests)
+      VerifyTestCase.verifyAllDiagnosticsFound(allDiags, optExpectedWarnings, implString)
   }
 
   /**
@@ -1067,9 +1100,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
       case (_, Some(errors)) => {
         compileResult.left.foreach { diags =>
-          VerifyTestCase.verifyAllDiagnosticsFound(diags, Some(errors), implString)
-          // check warnings even if there are errors expected.
-          VerifyTestCase.verifyAllDiagnosticsFound(diags, optWarnings, implString)
+          checkDiagnosticMessages(diags, errors, optWarnings, implString)
         }
         compileResult.right.foreach {
           case (_, processor) =>
@@ -1123,7 +1154,9 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       VerifyTestCase.verifyBinaryOrMixedData(expectedData, outStream, implString)
     }
     val allDiags = actual.getDiagnostics ++ processor.getDiagnostics
-    VerifyTestCase.verifyAllDiagnosticsFound(allDiags, optWarnings, implString)
+    if (!isCrossTest(implString.get) ||
+      parent.shouldDoWarningComparisonOnCrossTests)
+      VerifyTestCase.verifyAllDiagnosticsFound(allDiags, optWarnings, implString)
 
     if (roundTrip eq OnePassRoundTrip) {
 
@@ -1151,7 +1184,9 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
       val xmlNode = parseActual.getResult
       VerifyTestCase.verifyParserTestData(xmlNode, inputInfoset, implString)
-      VerifyTestCase.verifyAllDiagnosticsFound(actual.getDiagnostics, optWarnings, implString)
+      if (!isCrossTest(implString.get) ||
+        parent.shouldDoWarningComparisonOnCrossTests)
+        VerifyTestCase.verifyAllDiagnosticsFound(actual.getDiagnostics, optWarnings, implString)
 
       (shouldValidate, expectsValidationError) match {
         case (true, true) => {
@@ -1194,7 +1229,6 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
             case t: Throwable => toss(t, implString)
           }
 
-        // Verify that some partial output has shown up in the bytes.
         val dataErrors = {
           optExpectedData.flatMap { data =>
             try {
@@ -1224,9 +1258,9 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       }
     }
 
-    // check for any test-specified errors or warnings
-    VerifyTestCase.verifyAllDiagnosticsFound(diagnostics, Some(errors), implString)
-    VerifyTestCase.verifyAllDiagnosticsFound(diagnostics, optWarnings, implString)
+    if (diagnostics.isEmpty)
+      throw TDMLException("Unparser test expected error. Didn't get one.", implString)
+    checkDiagnosticMessages(diagnostics, errors, optWarnings, implString)
   }
 }
 

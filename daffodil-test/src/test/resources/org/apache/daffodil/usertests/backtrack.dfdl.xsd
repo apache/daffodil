@@ -36,7 +36,7 @@
           calendarPattern="yyyy-MM-dd'T'HH:mm:ss" calendarTimeZone="UTC"
           choiceLengthKind="implicit" decimalSigned="yes"
           documentFinalTerminatorCanBeMissing="no" emptyValueDelimiterPolicy="none"
-          encoding="UTF-8" encodingErrorPolicy="replace" escapeSchemeRef=""
+          encoding="UTF-8" encodingErrorPolicy="error" escapeSchemeRef=""
           fillByte="0" floating="no" ignoreCase="no" initiatedContent="no"
           initiator="" leadingSkip="0" lengthKind="implicit" lengthUnits="bits"
           nilKind="literalValue" nilValueDelimiterPolicy="none" nilValue="NIL"
