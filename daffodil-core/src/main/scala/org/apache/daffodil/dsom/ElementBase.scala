@@ -657,25 +657,43 @@ trait ElementBase
     (theRepresentation, thePrimType) match {
       case (Representation.Text, PrimType.HexBinary) => Assert.impossible("type xs:hexBinary with representation='text'")
       case (Representation.Text, _) => knownEncodingAlignmentInBits
+      case (Representation.Binary, PrimType.String) => Assert.impossible("type xs:string with representation='binary'")
+      // Boolean, Float, Double, and HexBinary do not require binaryNumberRep to be defined
       case (Representation.Binary, PrimType.Float | PrimType.Boolean) => 32
       case (Representation.Binary, PrimType.Double) => 64
-      case (Representation.Binary, _) => binaryNumberRep match {
-        case BinaryNumberRep.Packed | BinaryNumberRep.Bcd | BinaryNumberRep.Ibm4690Packed => 8
-        case _ => thePrimType match {
-          case PrimType.String => Assert.impossible("type xs:string with representation='binary'")
-          case PrimType.Double | PrimType.Long | PrimType.UnsignedLong => 64
-          case PrimType.Float | PrimType.Int | PrimType.UnsignedInt | PrimType.Boolean => 32
-          case PrimType.Short | PrimType.UnsignedShort => 16
-          case PrimType.Integer | PrimType.Decimal | PrimType.Byte | PrimType.UnsignedByte | PrimType.NonNegativeInteger => 8
-          case PrimType.DateTime | PrimType.Date | PrimType.Time =>
-            binaryCalendarRep match {
-              case BinaryCalendarRep.BinaryMilliseconds => 64
-              case BinaryCalendarRep.BinarySeconds => 32
-              case _ => schemaDefinitionError("Implicit Alignment: binaryCalendarRep was %s but we expected BinarySeconds or BinaryMilliseconds.", binaryCalendarRep)
-            }
-          case PrimType.HexBinary => 8
+      case (Representation.Binary, PrimType.HexBinary) => 8
+      // Handle 64 bit types
+      case (Representation.Binary, PrimType.Long | PrimType.UnsignedLong) => 
+        binaryNumberRep match {
+          case BinaryNumberRep.Packed | BinaryNumberRep.Bcd | BinaryNumberRep.Ibm4690Packed => 8
+          case _ => 64
         }
-      }
+      // Handle 32 bit types
+      case (Representation.Binary, PrimType.Int | PrimType.UnsignedInt | PrimType.Boolean) => 
+        binaryNumberRep match {
+          case BinaryNumberRep.Packed | BinaryNumberRep.Bcd | BinaryNumberRep.Ibm4690Packed => 8
+          case _ => 32
+        }
+      // Handle 16 bit types
+      case (Representation.Binary, PrimType.Short | PrimType.UnsignedShort) => 
+        binaryNumberRep match {
+          case BinaryNumberRep.Packed | BinaryNumberRep.Bcd | BinaryNumberRep.Ibm4690Packed => 8
+          case _ => 16
+        }
+      // Handle 8 bit types
+      case (Representation.Binary, PrimType.Integer | PrimType.Decimal | PrimType.Byte |
+        PrimType.UnsignedByte | PrimType.NonNegativeInteger) => 
+        binaryNumberRep match {
+          case BinaryNumberRep.Packed | BinaryNumberRep.Bcd | BinaryNumberRep.Ibm4690Packed => 8
+          case _ => 8
+        }
+      // Handle date types
+      case (Representation.Binary, PrimType.DateTime | PrimType.Date | PrimType.Time) =>
+        binaryCalendarRep match {
+          case BinaryCalendarRep.BinaryMilliseconds => 64
+          case BinaryCalendarRep.BinarySeconds => 32
+          case _ => schemaDefinitionError("Implicit Alignment: binaryCalendarRep was %s but we expected BinarySeconds or BinaryMilliseconds.", binaryCalendarRep)
+        }
     }
   }
 
@@ -701,7 +719,7 @@ trait ElementBase
                   alignInBits, implicitAlignmentInBits, primType.name, this.knownEncodingName)
             }
             case Representation.Binary => primType match {
-              case PrimType.Float | PrimType.Double | PrimType.Boolean => /* Non textual data, no need to compare alignment to encoding's expected alignment */
+              case PrimType.Float | PrimType.Double | PrimType.Boolean | PrimType.HexBinary=> /* Non textual data, no need to compare alignment to encoding's expected alignment */
               case _ => binaryNumberRep match {
                 case BinaryNumberRep.Packed | BinaryNumberRep.Bcd | BinaryNumberRep.Ibm4690Packed => {
                   if ((alignInBits % 4) != 0)
