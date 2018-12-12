@@ -85,6 +85,8 @@
       <xsd:sequence>
         <xsd:element name="requireBitOrderProperty" minOccurs="0" type="xsd:boolean" />
         <xsd:element name="requireEncodingErrorPolicyProperty" minOccurs="0" type="xsd:boolean" />
+        <xsd:element name="requireTextBidiProperty" minOccurs="0" type="xsd:boolean" />
+        <xsd:element name="requireFloatingProperty" minOccurs="0" type="xsd:boolean" />
         <xsd:element name="maxFieldContentLengthInBytes" minOccurs="0" type="xsd:int" />
         <xsd:element name="maxOccursBounds" minOccurs="0" type="xsd:int" />
         <xsd:element name="maxSkipLengthInBytes" minOccurs="0" type="xsd:int" />

@@ -94,6 +94,7 @@ trait ElementBase
   requiredEvaluations(if (hasFractionDigits) fractionDigits)
   requiredEvaluations(erd.preSerialization)
   requiredEvaluations(checkForAlignmentAmbiguity)
+  requiredEvaluations(checkFloating)
 
   def name: String
 
@@ -1231,6 +1232,14 @@ trait ElementBase
         }
       }
     }
+  }
+
+  private lazy val optionFloating = findPropertyOption("floating")
+
+  private def checkFloating = (optionFloating.isDefined, tunable.requireFloatingProperty) match {
+    case (false, false) => SDW(WarnID.FloatingError, "Property 'dfdl:floating' is required but not defined.")
+    case (false, true) => floating
+    case (_, _) => this.subset((floating eq YesNo.No), "Property value floating='yes' is not supported.")
   }
 
 }

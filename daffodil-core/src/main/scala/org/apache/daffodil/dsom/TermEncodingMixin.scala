@@ -36,10 +36,10 @@ trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
 
   private lazy val optionTextBidi = findPropertyOption("textBidi")
 
-  private def checkTextBidi = {
-    this.subset(
-      !optionTextBidi.isDefined || (optionTextBidi.isDefined && (textBidi eq YesNo.No)),
-      "Property value textBidi='yes' is not supported.")
+  private def checkTextBidi = (optionTextBidi.isDefined, self.tunable.requireTextBidiProperty) match {
+    case (false, false) => SDW(WarnID.TextBidiError, "Property 'dfdl:textBidi' is required but not defined.")
+    case (false, true) => textBidi
+    case (_, _) => this.subset((textBidi eq YesNo.No), "Property value textBidi='yes' is not supported.")
   }
 
   protected final lazy val defaultEncodingErrorPolicy = {
@@ -47,6 +47,8 @@ trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
       if (self.tunable.requireEncodingErrorPolicyProperty) {
         encodingErrorPolicy
       } else {
+        if (!optionEncodingErrorPolicy.isDefined)
+          SDW(WarnID.EncodingErrorPolicyError, "Property 'dfdl:encodingErrorPolicy' is required but not defined, using 'replace' by default.")
         optionEncodingErrorPolicy.getOrElse(EncodingErrorPolicy.Replace)
       }
     if (policy == EncodingErrorPolicy.Error) {
