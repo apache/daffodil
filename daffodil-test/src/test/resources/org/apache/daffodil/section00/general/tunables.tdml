@@ -50,6 +50,48 @@
 		</daf:tunables>
 	</tdml:defineConfig>
 
+	<tdml:defineConfig name="cfg_requireTextBidiPropertyTrue">
+		<daf:tunables xmlns="http://www.w3.org/2001/XMLSchema"
+			xmlns:xs="http://www.w3.org/2001/XMLSchema">
+			<daf:requireTextBidiProperty>true</daf:requireTextBidiProperty>
+		</daf:tunables>
+	</tdml:defineConfig>
+
+	<tdml:defineConfig name="cfg_requireTextBidiPropertyFalse">
+		<daf:tunables xmlns="http://www.w3.org/2001/XMLSchema"
+			xmlns:xs="http://www.w3.org/2001/XMLSchema">
+			<daf:requireTextBidiProperty>false</daf:requireTextBidiProperty>
+		</daf:tunables>
+	</tdml:defineConfig>
+
+	<tdml:defineConfig name="cfg_requireFloatingPropertyTrue">
+		<daf:tunables xmlns="http://www.w3.org/2001/XMLSchema"
+			xmlns:xs="http://www.w3.org/2001/XMLSchema">
+			<daf:requireFloatingProperty>true</daf:requireFloatingProperty>
+		</daf:tunables>
+	</tdml:defineConfig>
+
+	<tdml:defineConfig name="cfg_requireFloatingPropertyFalse">
+		<daf:tunables xmlns="http://www.w3.org/2001/XMLSchema"
+			xmlns:xs="http://www.w3.org/2001/XMLSchema">
+			<daf:requireFloatingProperty>false</daf:requireFloatingProperty>
+		</daf:tunables>
+	</tdml:defineConfig>
+
+	<tdml:defineConfig name="cfg_requireEncodingErrorPolicyPropertyTrue">
+		<daf:tunables xmlns="http://www.w3.org/2001/XMLSchema"
+			xmlns:xs="http://www.w3.org/2001/XMLSchema">
+			<daf:requireEncodingErrorPolicyProperty>true</daf:requireEncodingErrorPolicyProperty>
+		</daf:tunables>
+	</tdml:defineConfig>
+
+	<tdml:defineConfig name="cfg_requireEncodingErrorPolicyPropertyFalse">
+		<daf:tunables xmlns="http://www.w3.org/2001/XMLSchema"
+			xmlns:xs="http://www.w3.org/2001/XMLSchema">
+			<daf:requireEncodingErrorPolicyProperty>false</daf:requireEncodingErrorPolicyProperty>
+		</daf:tunables>
+	</tdml:defineConfig>
+
 	<tdml:defineSchema name="unqualifiedPathStep" elementFormDefault="unqualified">
 		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
 
@@ -218,6 +260,305 @@
 			<tdml:error>char</tdml:error>
 		</tdml:errors>
 
-	</tdml:parserTestCase>
+  </tdml:parserTestCase>
+
+	<tdml:defineSchema name="missingTextBidi">
+		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+
+    <dfdl:format lengthKind="implicit" leadingSkip="0" sequenceKind="ordered" representation="text"
+      trailingSkip="0" encoding="US-ASCII" alignment="1" alignmentUnits="bytes" initiator=""
+      terminator="" separator="" ignoreCase="no" occursCountKind="implicit" lengthUnits="bytes"
+      initiatedContent="no" textPadKind="none" truncateSpecifiedLengthString="no" textTrimKind="none"
+      escapeSchemeRef="" encodingErrorPolicy="replace"/>
+
+		<xs:element name="root">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="char" type="xs:string" maxOccurs="unbounded" dfdl:lengthKind="explicit" dfdl:length="1" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+  </tdml:defineSchema>
+
+	<tdml:parserTestCase
+		name="requireTextBidiTrue" root="root"
+		model="missingTextBidi" description="Tunables - maxOccursBounds"
+		config="cfg_requireTextBidiPropertyTrue">
+
+		<tdml:document>
+			<tdml:documentPart type="text">1234</tdml:documentPart>
+		</tdml:document>
+
+    <tdml:errors>
+      <tdml:error>Property</tdml:error>
+      <tdml:error>textBidi</tdml:error>
+      <tdml:error>is not defined</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
+	<tdml:parserTestCase
+		name="requireTextBidiFalse" root="root"
+		model="missingTextBidi" description="Tunables - maxOccursBounds"
+		config="cfg_requireTextBidiPropertyFalse">
+
+		<tdml:document>
+			<tdml:documentPart type="text">1234</tdml:documentPart>
+		</tdml:document>
+
+    <tdml:warnings>
+      <tdml:warning>dfdl:textBidi</tdml:warning>
+      <tdml:warning>required but not defined</tdml:warning>
+    </tdml:warnings>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+        <ex:root>
+          <ex:char>1</ex:char>
+          <ex:char>2</ex:char>
+          <ex:char>3</ex:char>
+          <ex:char>4</ex:char>
+        </ex:root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+	<tdml:defineSchema name="textBidiYes">
+		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+
+    <dfdl:format lengthKind="implicit" leadingSkip="0" sequenceKind="ordered" representation="text"
+      trailingSkip="0" encoding="US-ASCII" alignment="1" alignmentUnits="bytes" initiator=""
+      terminator="" separator="" ignoreCase="no" occursCountKind="implicit" lengthUnits="bytes"
+      initiatedContent="no" textPadKind="none" truncateSpecifiedLengthString="no" textTrimKind="none"
+      escapeSchemeRef="" encodingErrorPolicy="replace" textBidi="yes"/>
+
+		<xs:element name="root">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="char" type="xs:string" maxOccurs="unbounded" dfdl:lengthKind="explicit" dfdl:length="1" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+  </tdml:defineSchema>
+
+	<tdml:parserTestCase
+		name="textBidiYes" root="root"
+		model="textBidiYes" description="Tunables - maxOccursBounds"
+		config="cfg_requireTextBidiPropertyFalse">
+
+		<tdml:document>
+			<tdml:documentPart type="text">1234</tdml:documentPart>
+		</tdml:document>
+
+    <tdml:errors>
+      <tdml:error>textBidi='yes'</tdml:error>
+      <tdml:error>is not supported</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
+	<tdml:defineSchema name="missingFloating">
+		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+
+    <dfdl:format lengthKind="implicit" leadingSkip="0" sequenceKind="ordered" representation="text"
+      trailingSkip="0" encoding="US-ASCII" alignment="1" alignmentUnits="bytes" initiator=""
+      terminator="" separator="" ignoreCase="no" occursCountKind="implicit" lengthUnits="bytes"
+      initiatedContent="no" textPadKind="none" truncateSpecifiedLengthString="no" textTrimKind="none"
+      escapeSchemeRef="" encodingErrorPolicy="replace" textBidi="no"/>
+
+		<xs:element name="root">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="char" type="xs:string" maxOccurs="unbounded" dfdl:lengthKind="explicit" dfdl:length="1" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+  </tdml:defineSchema>
+
+	<tdml:parserTestCase
+		name="requireFloatingTrue" root="root"
+		model="missingFloating" description="Tunables - maxOccursBounds"
+		config="cfg_requireFloatingPropertyTrue">
+
+		<tdml:document>
+			<tdml:documentPart type="text">1234</tdml:documentPart>
+		</tdml:document>
+
+    <tdml:errors>
+      <tdml:error>Property</tdml:error>
+      <tdml:error>floating</tdml:error>
+      <tdml:error>is not defined</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
+	<tdml:parserTestCase
+		name="requireFloatingFalse" root="root"
+		model="missingFloating" description="Tunables - maxOccursBounds"
+		config="cfg_requireFloatingPropertyFalse">
+
+		<tdml:document>
+			<tdml:documentPart type="text">1234</tdml:documentPart>
+		</tdml:document>
+
+    <tdml:warnings>
+      <tdml:warning>dfdl:floating</tdml:warning>
+      <tdml:warning>required but not defined</tdml:warning>
+    </tdml:warnings>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+        <ex:root>
+          <ex:char>1</ex:char>
+          <ex:char>2</ex:char>
+          <ex:char>3</ex:char>
+          <ex:char>4</ex:char>
+        </ex:root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+	<tdml:defineSchema name="floatingYes">
+		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+
+    <dfdl:format lengthKind="implicit" leadingSkip="0" sequenceKind="ordered" representation="text"
+      trailingSkip="0" encoding="US-ASCII" alignment="1" alignmentUnits="bytes" initiator=""
+      terminator="" separator="" ignoreCase="no" occursCountKind="implicit" lengthUnits="bytes"
+      initiatedContent="no" textPadKind="none" truncateSpecifiedLengthString="no" textTrimKind="none"
+      escapeSchemeRef="" encodingErrorPolicy="replace" textBidi="no" floating="yes"/>
+
+		<xs:element name="root">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="char" type="xs:string" maxOccurs="unbounded" dfdl:lengthKind="explicit" dfdl:length="1" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+  </tdml:defineSchema>
+
+	<tdml:parserTestCase
+		name="floatingYes" root="root"
+		model="floatingYes" description="Tunables - maxOccursBounds"
+		config="cfg_requireFloatingPropertyFalse">
+
+		<tdml:document>
+			<tdml:documentPart type="text">1234</tdml:documentPart>
+		</tdml:document>
+
+    <tdml:errors>
+      <tdml:error>floating='yes'</tdml:error>
+      <tdml:error>is not supported</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
+	<tdml:defineSchema name="encodingErrorPolicyError">
+		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+
+    <dfdl:format lengthKind="implicit" leadingSkip="0" sequenceKind="ordered" representation="text"
+      trailingSkip="0" encoding="US-ASCII" alignment="1" alignmentUnits="bytes" initiator=""
+      terminator="" separator="" ignoreCase="no" occursCountKind="implicit" lengthUnits="bytes"
+      initiatedContent="no" textPadKind="none" truncateSpecifiedLengthString="no" textTrimKind="none"
+      escapeSchemeRef="" encodingErrorPolicy="error" textBidi="no"/>
+
+		<xs:element name="root">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="char" type="xs:string" maxOccurs="unbounded" dfdl:lengthKind="explicit" dfdl:length="1" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+  </tdml:defineSchema>
+
+	<tdml:parserTestCase
+		name="encodingErrorPolicyError" root="root"
+		model="encodingErrorPolicyError" description="Tunables - maxOccursBounds"
+		config="cfg_requireEncodingErrorPolicyPropertyFalse">
+
+		<tdml:document>
+			<tdml:documentPart type="text">1234</tdml:documentPart>
+		</tdml:document>
+
+    <tdml:warnings>
+      <tdml:warning>dfdl:encodingErrorPolicy="error"</tdml:warning>
+      <tdml:warning>is not yet implemented</tdml:warning>
+      <tdml:warning>'replace' value will be used</tdml:warning>
+    </tdml:warnings>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+        <ex:root>
+          <ex:char>1</ex:char>
+          <ex:char>2</ex:char>
+          <ex:char>3</ex:char>
+          <ex:char>4</ex:char>
+        </ex:root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+	<tdml:defineSchema name="missingEncodingErrorPolicy">
+		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+
+    <dfdl:format lengthKind="implicit" leadingSkip="0" sequenceKind="ordered" representation="text"
+      trailingSkip="0" encoding="US-ASCII" alignment="1" alignmentUnits="bytes" initiator=""
+      terminator="" separator="" ignoreCase="no" occursCountKind="implicit" lengthUnits="bytes"
+      initiatedContent="no" textPadKind="none" truncateSpecifiedLengthString="no" textTrimKind="none"
+      escapeSchemeRef="" textBidi="no"/>
+
+		<xs:element name="root">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="char" type="xs:string" maxOccurs="unbounded" dfdl:lengthKind="explicit" dfdl:length="1" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+  </tdml:defineSchema>
+
+	<tdml:parserTestCase
+		name="requireEncodingErrorPolicyTrue" root="root"
+		model="missingEncodingErrorPolicy" description="Tunables - maxOccursBounds"
+		config="cfg_requireEncodingErrorPolicyPropertyTrue">
+
+		<tdml:document>
+			<tdml:documentPart type="text">1234</tdml:documentPart>
+		</tdml:document>
+
+    <tdml:errors>
+      <tdml:error>encodingErrorPolicy</tdml:error>
+      <tdml:error>is not defined</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
+	<tdml:parserTestCase
+		name="requireEncodingErrorPolicyFalse" root="root"
+		model="missingEncodingErrorPolicy" description="Tunables - maxOccursBounds"
+		config="cfg_requireEncodingErrorPolicyPropertyFalse">
+
+		<tdml:document>
+			<tdml:documentPart type="text">1234</tdml:documentPart>
+		</tdml:document>
+
+    <tdml:warnings>
+      <tdml:warning>dfdl:encodingErrorPolicy</tdml:warning>
+      <tdml:warning>required but not defined</tdml:warning>
+    </tdml:warnings>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+        <ex:root>
+          <ex:char>1</ex:char>
+          <ex:char>2</ex:char>
+          <ex:char>3</ex:char>
+          <ex:char>4</ex:char>
+        </ex:root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
 
 </tdml:testSuite>

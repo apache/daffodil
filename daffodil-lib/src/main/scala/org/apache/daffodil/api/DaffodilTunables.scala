@@ -73,11 +73,25 @@ case class DaffodilTunables(
   val requireBitOrderProperty: Boolean = false,
   //
   // If true, require that the encodingErrorPolicy property is specified. If
-  // false, use a default value not defined in a schema
+  // false, use a default value not defined in a schema and warn about missing property
   //
   // Looks to be compile-time as it gets 'tunable' from Term.
   //
   val requireEncodingErrorPolicyProperty: Boolean = false,
+  //
+  // If true, require that the encodingErrorPolicy property is specified. If
+  // false, warn about missing property
+  //
+  // Looks to be compile-time as it gets 'tunable' from Term.
+  //
+  val requireTextBidiProperty: Boolean = false,
+  //
+  // If true, require that the encodingErrorPolicy property is specified. If
+  // false, warn about missing property
+  //
+  // Looks to be compile-time as it gets 'tunable' from Term.
+  //
+  val requireFloatingProperty: Boolean = false,
   //
   // Whether to compile a schema to support parsing, unparsing, both, or to use
   // the daf:parseUnparsePolicy from the root node. None means to use the
@@ -215,6 +229,8 @@ case class DaffodilTunables(
       }
       case "requirebitorderproperty" => this.copy(requireBitOrderProperty = java.lang.Boolean.valueOf(value))
       case "requireencodingerrorpolicyproperty" => this.copy(requireEncodingErrorPolicyProperty = java.lang.Boolean.valueOf(value))
+      case "requiretextbidiproperty" => this.copy(requireTextBidiProperty = java.lang.Boolean.valueOf(value))
+      case "requirefloatingproperty" => this.copy(requireFloatingProperty = java.lang.Boolean.valueOf(value))
       case "maxskiplengthinbytes" => this.copy(maxSkipLengthInBytes = java.lang.Long.valueOf(value))
       case "maxbinarydecimalvirtualpoint" => this.copy(maxBinaryDecimalVirtualPoint = java.lang.Integer.valueOf(value))
       case "minbinarydecimalvirtualpoint" => this.copy(minBinaryDecimalVirtualPoint = java.lang.Integer.valueOf(value))

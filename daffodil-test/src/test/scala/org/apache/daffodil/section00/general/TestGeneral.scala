@@ -101,5 +101,14 @@ class TestGeneral {
   @Test def test_unqualifiedPathStepPolicy_defaultNamespace_test_02() { tunables_runner.runOneTest("unqualifiedPathStepPolicy_defaultNamespace_test_02") }
   
   @Test def test_maxOccursBoundsExceeded() { tunables_runner.runOneTest("maxOccursBoundsExceeded") }
+  @Test def test_textBidiYes() { tunables_runner.runOneTest("textBidiYes") }
+  @Test def test_requireTextBidiTrue() { tunables_runner.runOneTest("requireTextBidiTrue") }
+  @Test def test_requireTextBidiFalse() { tunables_runner.runOneTest("requireTextBidiFalse") }
+  @Test def test_floatingYes() { tunables_runner.runOneTest("floatingYes") }
+  @Test def test_requireFloatingTrue() { tunables_runner.runOneTest("requireFloatingTrue") }
+  @Test def test_requireFloatingFalse() { tunables_runner.runOneTest("requireFloatingFalse") }
+  @Test def test_encodingErrorPolicyError() { tunables_runner.runOneTest("encodingErrorPolicyError") }
+  @Test def test_requireEncodingErrorPolicyTrue() { tunables_runner.runOneTest("requireEncodingErrorPolicyTrue") }
+  @Test def test_requireEncodingErrorPolicyFalse() { tunables_runner.runOneTest("requireEncodingErrorPolicyFalse") }
 
 }

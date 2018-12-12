@@ -60,6 +60,8 @@ object WarnID extends PropsEnum[WarnID] {
    */
   case object DeprecatedPropertySeparatorPolicy extends WarnID; forceConstruction(DeprecatedPropertySeparatorPolicy)
   case object EncodingErrorPolicyError extends WarnID; forceConstruction(EncodingErrorPolicyError)
+  case object TextBidiError extends WarnID; forceConstruction(TextBidiError)
+  case object FloatingError extends WarnID; forceConstruction(FloatingError)
   case object EscapeSchemeRefUndefined extends WarnID; forceConstruction(EscapeSchemeRefUndefined)
   case object FacetExplicitLengthOutOfRange extends WarnID; forceConstruction(FacetExplicitLengthOutOfRange)
   case object InconsistentLengthKind extends WarnID; forceConstruction(InconsistentLengthKind)
