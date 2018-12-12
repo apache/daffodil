@@ -207,48 +207,73 @@ trait ElementBaseGrammarMixin
     // because we need to create a detached element with the same schema
     // document/parent of the GSTD.
     val prefixLengthTypeGSTD = schemaSet.getGlobalSimpleTypeDef(prefixLengthType).getOrElse(
-      schemaDefinitionError("Failed to resolve dfdl:prefixLengthType=\"%s\" to a simpleType", prefixLengthType.toQNameString)
+      schemaDefinitionError(
+        "Failed to resolve dfdl:prefixLengthType=\"%s\" to a simpleType",
+        prefixLengthType.toQNameString)
     )
 
-    val detachedNode = <element name={ name + " (prefixLength)" } type={ prefixLengthType.toQNameString } />.copy(scope = prefixLengthTypeGSTD.xml.scope)
-    val detachedElementDecl = new DetachedElementDecl(this, detachedNode, prefixLengthTypeGSTD.parent)
+    val detachedNode =
+      <element name={ name + " (prefixLength)" } type={ prefixLengthType.toQNameString } />
+        .copy(scope = prefixLengthTypeGSTD.xml.scope)
+    val detachedElementDecl =
+      new DetachedElementDecl(this, detachedNode, prefixLengthTypeGSTD.parent)
 
     val prefixedLengthKind = detachedElementDecl.lengthKind
     prefixedLengthKind match {
       case LengthKind.Delimited | LengthKind.EndOfParent | LengthKind.Pattern =>
-        schemaDefinitionError("%s is specified as a dfdl:prefixLengthType, but has a dfdl:lengthKind of %s", prefixLengthType, prefixedLengthKind)
+        schemaDefinitionError(
+          "%s is specified as a dfdl:prefixLengthType, but has a dfdl:lengthKind of %s",
+          prefixLengthType,
+          prefixedLengthKind)
       case LengthKind.Explicit if detachedElementDecl.optLengthConstant.isEmpty =>
-        schemaDefinitionError("%s is specified as a dfdl:prefixLengthType, but has an expression for dfdl:length", prefixLengthType)
-      case LengthKind.Implicit | LengthKind.Explicit if lengthUnits != detachedElementDecl.lengthUnits =>
-        schemaDefinitionError("%s is specified as a dfdl:prefixLengthType with dfdl:lengthKind %s, but has different dfdl:lengthUnits than the element", prefixLengthType, prefixedLengthKind)
+        schemaDefinitionError(
+          "%s is specified as a dfdl:prefixLengthType, but has an expression for dfdl:length",
+          prefixLengthType)
+      case LengthKind.Implicit | LengthKind.Explicit if prefixIncludesPrefixLength == YesNo.Yes &&
+        lengthUnits != detachedElementDecl.lengthUnits =>
+          schemaDefinitionError(
+            "%s is specified as a dfdl:prefixLengthType where dfdl:prefixIncludesPrefixLength=\"yes\" " +
+            "with dfdl:lengthKind %s, but has different dfdl:lengthUnits than the element",
+            prefixLengthType,
+            prefixedLengthKind)
       case _ =>
     }
 
     schemaDefinitionUnless(detachedElementDecl.primType.isSubtypeOf(NodeInfo.Integer),
-      "%s is specified as a dfdl:prefixLengthType, but its type xs:%s is not a subtype of xs:integer", prefixLengthType, detachedElementDecl.primType.toString.toLowerCase)
+      "%s is specified as a dfdl:prefixLengthType, but its type xs:%s is not a subtype of xs:integer",
+      prefixLengthType,
+      detachedElementDecl.primType.toString.toLowerCase)
 
     schemaDefinitionWhen(detachedElementDecl.isOutputValueCalc,
-      "%s is specified as a dfdl:prefixLengthType, but specifies dfdl:outputValueCalc", prefixLengthType)
+      "%s is specified as a dfdl:prefixLengthType, but specifies dfdl:outputValueCalc",
+      prefixLengthType)
     schemaDefinitionWhen(detachedElementDecl.hasInitiator,
-      "%s is specified as a dfdl:prefixLengthType, but specifies a dfdl:initiator", prefixLengthType)
+      "%s is specified as a dfdl:prefixLengthType, but specifies a dfdl:initiator",
+      prefixLengthType)
     schemaDefinitionWhen(detachedElementDecl.hasTerminator,
-      "%s is specified as a dfdl:prefixLengthType, but specifies a dfdl:terminator", prefixLengthType)
+      "%s is specified as a dfdl:prefixLengthType, but specifies a dfdl:terminator",
+      prefixLengthType)
     schemaDefinitionWhen(detachedElementDecl.alignment != 1,
-      "%s is specified as a dfdl:prefixLengthType, but specifies a dfdl:alignment other than 1", prefixLengthType)
+      "%s is specified as a dfdl:prefixLengthType, but specifies a dfdl:alignment other than 1",
+      prefixLengthType)
     schemaDefinitionWhen(detachedElementDecl.leadingSkip != 0,
-      "%s is specified as a dfdl:prefixLengthType, but specifies a dfdl:leadingSkip other than 0", prefixLengthType)
+      "%s is specified as a dfdl:prefixLengthType, but specifies a dfdl:leadingSkip other than 0",
+      prefixLengthType)
     schemaDefinitionWhen(detachedElementDecl.trailingSkip != 0,
-      "%s is specified as a dfdl:prefixLengthType, but specifies a dfdl:trailingSkip other than 0", prefixLengthType)
+      "%s is specified as a dfdl:prefixLengthType, but specifies a dfdl:trailingSkip other than 0",
+      prefixLengthType)
 
     if (detachedElementDecl.lengthKind == LengthKind.Prefixed &&
         detachedElementDecl.prefixedLengthElementDecl.lengthKind == LengthKind.Prefixed) {
         schemaDefinitionError("Nesting level for dfdl:prefixLengthType exceeds 1: %s > %s > %s > %s",
-          name, prefixLengthType,
+          name,
+          prefixLengthType,
           detachedElementDecl.prefixLengthType,
           detachedElementDecl.prefixedLengthElementDecl.prefixLengthType)
     }
 
-    subset(detachedElementDecl.lengthKind != LengthKind.Prefixed, "Nested dfdl:lengthKind=\"prefixed\" is not supported.")
+    subset(detachedElementDecl.lengthKind != LengthKind.Prefixed,
+      "Nested dfdl:lengthKind=\"prefixed\" is not supported.")
 
     detachedElementDecl
   }

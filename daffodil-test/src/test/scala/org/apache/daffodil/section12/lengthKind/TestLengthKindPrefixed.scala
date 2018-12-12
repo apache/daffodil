@@ -81,6 +81,17 @@ class TestLengthKindPrefixed {
   @Test def test_pl_text_bool_bin_bytes() = { runner.runOneTest("pl_text_bool_bin_bytes") }
   @Test def test_pl_text_bool_bin_bits() = { runner.runOneTest("pl_text_bool_bin_bits") }
 
+  @Test def test_pl_text_int_txt_bytes_plbits() = { runner.runOneTest("pl_text_int_txt_bytes_plbits") }
+  @Test def test_pl_text_int_txt_bytes_plchars() = { runner.runOneTest("pl_text_int_txt_bytes_plchars") }
+  @Test def test_pl_text_int_txt_bits_plbytes() = { runner.runOneTest("pl_text_int_txt_bits_plbytes") }
+  @Test def test_pl_text_int_txt_bits_plchars() = { runner.runOneTest("pl_text_int_txt_bits_plchars") }
+  @Test def test_pl_text_int_txt_chars_plbits() = { runner.runOneTest("pl_text_int_txt_chars_plbits") }
+  @Test def test_pl_text_int_txt_chars_plbytes() = { runner.runOneTest("pl_text_int_txt_chars_plbytes") }
+  @Test def test_pl_text_int_bin_bytes_plbits() = { runner.runOneTest("pl_text_int_bin_bytes_plbits") }
+  @Test def test_pl_text_int_bin_bytes_plchars() = { runner.runOneTest("pl_text_int_bin_bytes_plchars") }
+  @Test def test_pl_text_int_bin_bits_plbytes() = { runner.runOneTest("pl_text_int_bin_bits_plbytes") }
+  @Test def test_pl_text_int_bin_bits_plchars() = { runner.runOneTest("pl_text_int_bin_bits_plchars") }
+
   @Test def test_pl_complex_bin_bytes() = { runner.runOneTest("pl_complex_bin_bytes") }
   @Test def test_pl_complex_bin_bits() = { runner.runOneTest("pl_complex_bin_bits") }
   @Test def test_pl_complex_bin_bytes_suspension() = { runner.runOneTest("pl_complex_bin_bytes_suspension") }
