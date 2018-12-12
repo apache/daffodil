@@ -74,6 +74,9 @@ class TestVariables {
   @Test def test_var_end_path() { runner.runOneTest("var_end_path") }
   @Test def test_var_in_path() { runner.runOneTest("var_in_path") }
 
+  @Test def test_logical_default_values() { runner.runOneTest("logical_default_values") }
+  @Test def test_logical_default_values_err() { runner.runOneTest("logical_default_values_err") }
+
   @Test def test_doubleSetErr_d() { runner_01.runOneTest("doubleSetErr_d") }
   @Test def test_setVar1_d() { runner_01.runOneTest("setVar1_d") }
   // DFDL-1443 & DFDL-1448

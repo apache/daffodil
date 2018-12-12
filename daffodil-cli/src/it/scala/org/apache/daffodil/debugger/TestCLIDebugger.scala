@@ -253,7 +253,7 @@ class TestCLIdebugger {
       shell.sendLine("condition 2 dfdl:occursIndex() mod 2 eq 0")
 
       shell.sendLine("info breakpoints")
-      shell.expect(contains("2: cell   dfdl:occursIndex() mod 2 eq 0"))
+      shell.expect(contains("2: cell   { dfdl:occursIndex() mod 2 eq 0 }"))
 
       shell.sendLine("display info arrayIndex")
 
@@ -311,10 +311,10 @@ class TestCLIdebugger {
       shell.sendLine("break cell")
       shell.expect(contains("1: cell"))
       shell.sendLine("condition 1 xsd:string(.) eq '3'")
-      shell.expect(contains("1: cell   xsd:string(.) eq '3'"))
+      shell.expect(contains("1: cell   { xsd:string(.) eq '3' }"))
 
       shell.sendLine("info breakpoints")
-      shell.expect(allOf(contains("breakpoints:"), contains("1: cell   xsd:string(.) eq '3'")))
+      shell.expect(allOf(contains("breakpoints:"), contains("1: cell   { xsd:string(.) eq '3' }")))
 
       shell.sendLine("continue")
       shell.expect(contains("<tns:cell>3</tns:cell>\n      </tns:row>\n    </tns:matrix>"))
@@ -424,7 +424,7 @@ class TestCLIdebugger {
       shell.sendLine("condition 1 dfdl:occursIndex() eq 3")
 
       shell.sendLine("info breakpoints")
-      shell.expect(contains("1: cell   dfdl:occursIndex() eq 3"))
+      shell.expect(contains("1: cell   { dfdl:occursIndex() eq 3 }"))
 
       shell.sendLine("continue")
       shell.expect(contains("</tns:cell>"))

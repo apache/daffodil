@@ -255,7 +255,7 @@ class TestDFDLExpressionTree extends Parsers {
   }
 
   @Test def test_numbers1() = {
-    testExpr(dummySchema, "0.") { actual: Expression =>
+    testExpr(dummySchema, "{ 0. }") { actual: Expression =>
       val res = BigDecimal("0.0")
       val a @ WholeExpression(_, LiteralExpression(actualRes), _, _, _) = actual; assertNotNull(a)
       val bd = BigDecimal(actualRes.asInstanceOf[JBigDecimal])
@@ -265,32 +265,32 @@ class TestDFDLExpressionTree extends Parsers {
 
   @Test def test_numbers() = {
 
-    testExpr(dummySchema, "5.0E2") { case WholeExpression(_, LiteralExpression(500.0), _, _, _) => /* ok */ ; }
-    testExpr(dummySchema, "5E2") { case WholeExpression(_, LiteralExpression(500.0), _, _, _) => /* ok */ ; }
-    testExpr(dummySchema, ".2E2") { case WholeExpression(_, LiteralExpression(20.0), _, _, _) => /* ok */ ; }
-    testExpr(dummySchema, ".2E-3") { case WholeExpression(_, LiteralExpression(0.0002), _, _, _) => /* ok */ ; }
-    testExpr(dummySchema, ".2E+3") { case WholeExpression(_, LiteralExpression(200.0), _, _, _) => /* ok */ ; }
+    testExpr(dummySchema, "{ 5.0E2 }") { case WholeExpression(_, LiteralExpression(500.0), _, _, _) => /* ok */ ; }
+    testExpr(dummySchema, "{ 5E2 }") { case WholeExpression(_, LiteralExpression(500.0), _, _, _) => /* ok */ ; }
+    testExpr(dummySchema, "{ .2E2 }") { case WholeExpression(_, LiteralExpression(20.0), _, _, _) => /* ok */ ; }
+    testExpr(dummySchema, "{ .2E-3 }") { case WholeExpression(_, LiteralExpression(0.0002), _, _, _) => /* ok */ ; }
+    testExpr(dummySchema, "{ .2E+3 }") { case WholeExpression(_, LiteralExpression(200.0), _, _, _) => /* ok */ ; }
 
     //    testExpr(dummySchema, "0.") { actual =>
     //      val res = new JBigDecimal("0.0")
     //      val a @ WholeExpression(_, LiteralExpression(`res`), _, _, _) = actual; assertNotNull(a)
     //    }
-    testExpr(dummySchema, ".1") { actual =>
+    testExpr(dummySchema, "{ .1 }") { actual =>
       val res = new JBigDecimal("0.1")
       val a @ WholeExpression(_, LiteralExpression(`res`), _, _, _) = actual; assertNotNull(a)
     }
-    testExpr(dummySchema, "982304892038409234982304892038409234.0909808908982304892038409234") { actual =>
+    testExpr(dummySchema, "{ 982304892038409234982304892038409234.0909808908982304892038409234 }") { actual =>
       val res = new JBigDecimal("982304892038409234982304892038409234.0909808908982304892038409234")
       val WholeExpression(_, LiteralExpression(r: JBigDecimal), _, _, _) = actual
       assertEquals(res, r)
     }
 
-    testExpr(dummySchema, "0") { actual =>
+    testExpr(dummySchema, "{ 0 }") { actual =>
       val res = scala.math.BigInt(0)
       val a @ WholeExpression(_, LiteralExpression(actualRes: JBigInt), _, _, _) = actual; assertNotNull(a)
       assertEquals(res, BigInt(actualRes))
     }
-    testExpr(dummySchema, "9817239872193792873982173948739879128370982398723897921370") { actual =>
+    testExpr(dummySchema, "{ 9817239872193792873982173948739879128370982398723897921370 }") { actual =>
       val res = scala.math.BigInt("9817239872193792873982173948739879128370982398723897921370")
       val a @ WholeExpression(_, LiteralExpression(actualRes: JBigInt), _, _, _) = actual; assertNotNull(a)
       assertEquals(res, BigInt(actualRes))
@@ -305,8 +305,8 @@ class TestDFDLExpressionTree extends Parsers {
         case WholeExpression(_, LiteralExpression(expr), _, _, _) => /* ok */
       }
     }
-    testStringLit("'abc'")
-    testStringLit("\"def\"")
+    testStringLit("{ 'abc' }")
+    testStringLit("{ \"def\" }")
   }
 
   @Test def test_funCall1() = {
@@ -328,8 +328,8 @@ class TestDFDLExpressionTree extends Parsers {
       }
     }
 
-    testFn("fn:true()") { actual => assertEquals("true", actual.functionQName.local) }
-    testFn("fn:concat('a', 'b')") { actual => assertEquals("concat", actual.functionQName.local) }
+    testFn("{ fn:true() }") { actual => assertEquals("true", actual.functionQName.local) }
+    testFn("{ fn:concat('a', 'b') }") { actual => assertEquals("concat", actual.functionQName.local) }
 
   }
 

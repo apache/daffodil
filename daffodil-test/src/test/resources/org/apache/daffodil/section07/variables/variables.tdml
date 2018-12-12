@@ -1061,4 +1061,67 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
+
+  <tdml:defineSchema name="logical_default_values">
+    
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" />
+
+    <dfdl:defineVariable name="float" type="xs:float" defaultValue="-INF" />
+    <dfdl:defineVariable name="double" type="xs:double" defaultValue="1.0e-5" />
+    <dfdl:defineVariable name="bool" type="xs:boolean" defaultValue="false" />
+    <dfdl:defineVariable name="string" type="xs:string" defaultValue="str" />
+    <dfdl:defineVariable name="date" type="xs:date" defaultValue="1999-12-31" />
+
+    <xs:element name="root">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="float" type="xs:float" dfdl:inputValueCalc="{ $float }" />
+          <xs:element name="double" type="xs:double" dfdl:inputValueCalc="{ $double + 2.0 }" />
+          <xs:element name="bool" type="xs:boolean" dfdl:inputValueCalc="{ $bool }" />
+          <xs:element name="string" type="xs:string" dfdl:inputValueCalc="{ $string }" />
+          <xs:element name="date" type="xs:date" dfdl:inputValueCalc="{ $date }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="logical_default_values" root="root"
+    model="logical_default_values" description="Section 7 - ">
+    <tdml:document/>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root xmlns="http://example.com">
+          <float>-INF</float>
+          <double>2.00001</double>
+          <bool>false</bool>
+          <string>str</string>
+          <date>1999-12-31</date>
+        </root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+
+  <tdml:defineSchema name="logical_default_values_err">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" />
+
+    <dfdl:defineVariable name="float" type="xs:float" defaultValue="float" />
+    <xs:element name="float" type="xs:float" dfdl:inputValueCalc="{ $float }" />
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="logical_default_values_err" root="float"
+    model="logical_default_values_err" description="Section 7 - ">
+    <tdml:document/>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Unable to convert logical value</tdml:error>
+      <tdml:error>float</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>

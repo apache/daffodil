@@ -400,8 +400,11 @@ object NodeInfo extends Enum {
     }
 
     def fromNameString(name: String): Option[PrimType] = {
-      val m: Option[PrimType] = allPrims.find { _.pname.toLowerCase == name.toLowerCase }
-      m
+      allPrims.find { _.pname.toLowerCase == name.toLowerCase }
+    }
+
+    def fromNodeInfo(nodeInfo: NodeInfo.Kind): Option[PrimType] = {
+      allPrims.find { nodeInfo.isSubtypeOf(_) }
     }
 
     protected sealed trait FloatKind extends SignedNumeric.Kind

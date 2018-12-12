@@ -191,9 +191,8 @@ class DFDLPathExpressionParser[T <: AnyRef](qn: NamedQName,
   def EqualityComp = "eq" | "ne" | "!=" | "="
   def NumberComp = "lt" | "le" | "gt" | "ge" | "<=" | ">=" | "<" | ">"
   def Comp = EqualityComp | NumberComp
-  //
-  // we don't care if it has braces around it or not.
-  def TopLevel: Parser[WholeExpression] = ("{" ~> Expr <~ "}" | Expr) ^^ { xpr =>
+
+  def TopLevel: Parser[WholeExpression] = ("{" ~> Expr <~ "}") ^^ { xpr =>
     WholeExpression(nodeInfoKind, xpr, namespaces, context, host)
   }
 
