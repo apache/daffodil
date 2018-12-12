@@ -784,9 +784,12 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
       def act(args: Seq[String], prestate: StateForDebugger, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
         val id = args.head.toInt
         val expression = args.tail.mkString(" ")
+        val expressionWithBraces =
+          if (!DPathUtil.isExpression(expression)) "{ " + expression + " }"
+          else expression
         val b = DebuggerConfig.breakpoints.find(_.id == id).get
-        b.condition = Some(expression)
-        debugPrintln("%s: %s   %s".format(b.id, b.breakpoint, expression))
+        b.condition = Some(expressionWithBraces)
+        debugPrintln("%s: %s   %s".format(b.id, b.breakpoint, expressionWithBraces))
         DebugState.Pause
       }
     }

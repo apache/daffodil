@@ -18,6 +18,7 @@
 package org.apache.daffodil.dsom
 
 import org.apache.daffodil.dpath._
+import org.apache.daffodil.dpath.NodeInfo.PrimType
 import scala.xml.NamespaceBinding
 import org.apache.daffodil.xml.NamedQName
 import java.lang.{ Long => JLong, Boolean => JBoolean }
@@ -34,20 +35,49 @@ object ExpressionCompilers extends ExpressionCompilerClass {
 class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
 
   /**
-   * Compiles the expression.
+   * Compiles an expression or a literl value. If the passed in string does not
+   * start with an unescaped curly brace it is treated as a literal value.
+   *
+   * An expression could be evaluated as constant as in { 5 } or { "California" },
+   * and in that case this should return a ConstantExpression object.
+   * Non-constant expressions will return a RuntimeExpressionDPath.
+   *
+   * Literal values (i.e. those that do not start with a unescape curly brace),
+   * will be converted to a privite value as defined by nodeInfoKind and will
+   * return a ConstantExpression with that value.
    *
    * This method available at compilation and also at runtime for use by the debuggger.
-   *
-   * Expression may or may not have braces around it. It could still be a constant as in
-   * { 5 } or { "California" }, and in that case this should return a ConstantExpression
-   * object.
    */
-  def compileExpression(qn: NamedQName, nodeInfoKind: NodeInfo.Kind, exprWithBracesMaybe: String, namespaces: NamespaceBinding,
+  def compileExpression(
+    qn: NamedQName,
+    nodeInfoKind: NodeInfo.Kind,
+    exprOrLiteral: String,
+    namespaces: NamespaceBinding,
     compileInfoWherePropertyWasLocated: DPathCompileInfo,
-    isEvaluatedAbove: Boolean, host: OOLAGHost): CompiledExpression[T] = {
-    val (exprForCompiling, isRealExpression) = exprOrLiteral(exprWithBracesMaybe, nodeInfoKind, compileInfoWherePropertyWasLocated)
-    compileExpression1(qn, nodeInfoKind, exprForCompiling, namespaces, compileInfoWherePropertyWasLocated, isEvaluatedAbove, host,
-      isRealExpression)
+    isEvaluatedAbove: Boolean,
+    host: OOLAGHost): CompiledExpression[T] = {
+
+    val res =
+      if (DPathUtil.isExpression(exprOrLiteral)) {
+        compileRealExpression(
+          qn,
+          nodeInfoKind,
+          exprOrLiteral,
+          namespaces,
+          compileInfoWherePropertyWasLocated,
+          isEvaluatedAbove,
+          host)
+      } else {
+        convertLiteralToConstant(
+          qn,
+          nodeInfoKind,
+          exprOrLiteral,
+          namespaces,
+          compileInfoWherePropertyWasLocated,
+          isEvaluatedAbove,
+          host)
+      }
+    res
   }
 
   /**
@@ -64,13 +94,22 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
    * paths. In that case those relative paths will all have to be adjusted
    * so they work in the context of one node above.
    */
-  def compileProperty(qn: NamedQName, nodeInfoKind: NodeInfo.Kind, property: Found, host: OOLAGHost, isEvaluatedAbove: Boolean = false): CompiledExpression[T] =
-    compileExpression(qn,
+  def compileProperty(
+    qn: NamedQName,
+    nodeInfoKind: NodeInfo.Kind,
+    property: Found,
+    host: OOLAGHost,
+    isEvaluatedAbove: Boolean = false): CompiledExpression[T] = {
+
+    compileExpression(
+      qn,
       nodeInfoKind,
       property.value,
       property.location.namespaces,
       propertyCompileInfo(property),
-      isEvaluatedAbove, host)
+      isEvaluatedAbove,
+      host)
+  }
 
   /**
    * Compile a potentially runtime-valued delimiter property
@@ -91,26 +130,39 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
    * We don't want to allow turning on/off whether a format is delimited or
    * not based on runtime expressions, only what the delimiters are.
    */
-  def compileDelimiter(qn: NamedQName, staticNodeInfoKind: NodeInfo.Kind, runtimeNodeInfoKind: NodeInfo.Kind, property: Found,
+  def compileDelimiter(
+    qn: NamedQName,
+    staticNodeInfoKind: NodeInfo.Kind,
+    runtimeNodeInfoKind: NodeInfo.Kind,
+    property: Found,
     host: OOLAGHost): CompiledExpression[T] = {
+
     val isEvaluatedAbove = false
-    val expr = property.value
+    val exprOrLiteral = property.value
     val namespacesForNamespaceResolution = property.location.namespaces
     val compileInfoWherePropertyWasLocated = propertyCompileInfo(property)
-    val (exprForCompiling, isRealExpression) = exprOrLiteral(expr, staticNodeInfoKind, compileInfoWherePropertyWasLocated)
-    val compiled1 = compileExpression1(qn, staticNodeInfoKind, exprForCompiling, namespacesForNamespaceResolution, compileInfoWherePropertyWasLocated, isEvaluatedAbove, host,
-      isRealExpression)
-    if (compiled1.isConstant) return compiled1
-    if (staticNodeInfoKind == runtimeNodeInfoKind) return compiled1
-    //
-    // TODO: consider passing in a flag or some other way of avoiding this
-    // duplicate compile run.
+    val compiled1 = compileExpression(
+      qn,
+      staticNodeInfoKind,
+      exprOrLiteral,
+      namespacesForNamespaceResolution,
+      compileInfoWherePropertyWasLocated,
+      isEvaluatedAbove,
+      host)
 
-    // This is, this nodeInfo.Kind is used as the target type in the DPath expression compiler, and
-    //
-    val compiled2 = compileExpression1(qn, runtimeNodeInfoKind, exprForCompiling, namespacesForNamespaceResolution, compileInfoWherePropertyWasLocated,
-      isEvaluatedAbove, host, isRealExpression)
-    compiled2
+    if (compiled1.isConstant || (staticNodeInfoKind == runtimeNodeInfoKind)) {
+      compiled1
+    } else {
+      val compiled2 = compileExpression(
+        qn,
+        runtimeNodeInfoKind,
+        exprOrLiteral,
+        namespacesForNamespaceResolution,
+        compileInfoWherePropertyWasLocated,
+        isEvaluatedAbove,
+        host)
+      compiled2
+    }
   }
 
   /**
@@ -131,86 +183,69 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
     compileInfoWherePropertyWasLocated
   }
 
-  /**
-   * Returns expression and flag as to whether it must be compiled.
-   *
-   * If the 2nd return value, 'isRealExpression' is true then we need to compile
-   * the expression, and the expression *will* have curly braces around it.
-   * If the 2nd return value is false, then the expression is a string literal
-   * being evaluated for a string, so we can directly construct a constant
-   * expression object.
-   */
-  private def exprOrLiteral(exprWithBracesMaybe: String, nodeInfoKind: NodeInfo.Kind, compileInfoWherePropertyWasLocated: DPathCompileInfo) = {
-    var compile: Boolean = true
-    val expr = exprWithBracesMaybe
-    //
-    // we want to standardize that the expression has braces
-    //
-    val exprForCompiling =
-      if (DPathUtil.isExpression(expr)) expr.trim
-      else {
-        // not an expression. For some properties like delimiters, you can use a literal string
-        // whitespace separated list of literal strings, or an expression in { .... }
-        if (expr.startsWith("{") && !expr.startsWith("{{")) {
-          val msg = "'%s' is an unterminated expression.  Add missing closing brace, or escape opening brace with another opening brace."
-          compileInfoWherePropertyWasLocated.SDE(msg, expr)
-        }
-        val expr1 = if (expr.startsWith("{{"))
-          expr.tail // everything except the self-escaped leading brace
-        else expr
-        //
-        // Literal String: if the target type is String, do not compile.
-        //
-        nodeInfoKind match {
-          case _: NodeInfo.String.Kind => compile = false // Constant String
-          case _ => compile = true
-        }
-        expr1
-      }
+  private def compileRealExpression(
+    qn: NamedQName,
+    nodeInfoKind: NodeInfo.Kind,
+    exprOrLiteral: String,
+    namespaces: NamespaceBinding,
+    compileInfoWherePropertyWasLocated: DPathCompileInfo,
+    isEvaluatedAbove: Boolean,
+    host: OOLAGHost): CompiledExpression[T] = {
 
-    // If we get here then now it's something we can compile. It might be trivial
-    // to compile (e.g, '5' compiles to Literal(5)) but we no longer uniformly
-    // compile everything.  As a performance optimization (DFDL-1775),
-    // we will NOT compile constant strings (constant values whose target type
-    // is String).
+    // Treat this as an expression--validate and compile it
 
-    /* Question: If something starts with {{, e.g.
-     * separator="{{ not an expression", then we strip off the first brace,
-     * wrap in quotes, and compile it? Why try compiling it? Shouldn't we just
-     * return a constant expression or something at this point?
-     * <p>
-     * Answer: Conversions. E.g., if you have "{{ 6.847 }" as the expression
-     * for an inputValueCalc on an element of float type, then the compiler
-     * can tell you this isn't going to convert - you get a type check error or
-     * maybe a number format exception at constant-folding time, which tells us
-     * that the expression - even though it's a constant, isn't right.
-     *
-     * If we try to do this outside the expression compiler we'd be replicating
-     * some of this type-infer/check logic.
-     */
-    (exprForCompiling, compile)
+    val expr = exprOrLiteral.trim
+    if (!expr.endsWith("}")) {
+      val msg = "'%s' is an unterminated expression. Add missing closing brace, or escape opening brace with another opening brace."
+      compileInfoWherePropertyWasLocated.SDE(msg, exprOrLiteral)
+    }
+
+    val compiler = new DFDLPathExpressionParser[T](
+      qn,
+      nodeInfoKind,
+      namespaces,
+      compileInfoWherePropertyWasLocated,
+      isEvaluatedAbove,
+      host)
+    val compiledDPath = compiler.compile(expr)
+    compiledDPath
   }
 
-  /**
-   * Compile the expression or construct a constant expression from it.
-   */
-  private def compileExpression1(qn: NamedQName, nodeInfoKind: NodeInfo.Kind, exprForCompiling: String, namespaces: NamespaceBinding,
+  private def convertLiteralToConstant(
+    qn: NamedQName,
+    nodeInfoKind: NodeInfo.Kind,
+    exprOrLiteral: String,
+    namespaces: NamespaceBinding,
     compileInfoWherePropertyWasLocated: DPathCompileInfo,
-    isEvaluatedAbove: Boolean, host: OOLAGHost, isRealExpression: Boolean): CompiledExpression[T] = {
-    val res = if (isRealExpression) {
-      // This is important. The namespace bindings we use must be
-      // those from the object where the property carrying the expression
-      // was written, not those of the edecl object where the property
-      // value is being used/compiled. JIRA DFDL-407
-      //
-      val compiler = new DFDLPathExpressionParser[T](qn,
-        nodeInfoKind, namespaces, compileInfoWherePropertyWasLocated, isEvaluatedAbove, host)
-      val compiledDPath = compiler.compile(exprForCompiling)
-      compiledDPath
-    } else {
-      // Don't compile, meaning this is a constant string
-      new ConstantExpression[T](qn, nodeInfoKind, exprForCompiling.asInstanceOf[T])
+    isEvaluatedAbove: Boolean,
+    host: OOLAGHost): CompiledExpression[T] = {
+
+    // This string is not a real expression, we need to convert it to it's
+    // logical type and set it as a constant expression. Not compilation
+    // required. If something is passed in that does not convert to the
+    // expected type it will result in error.
+
+    // must be able to convert this to a primitive type
+    val maybePrimType = PrimType.fromNodeInfo(nodeInfoKind)
+    if (maybePrimType.isEmpty) {
+      val msg = "No known primitive type to convert logical value to: %s"
+      compileInfoWherePropertyWasLocated.SDE(msg, nodeInfoKind)
     }
-    res
+
+    // remove the leading escape curly brace if it exists
+    val literal =
+      if (exprOrLiteral.startsWith("{{")) exprOrLiteral.tail
+      else exprOrLiteral
+
+    val logical = try {
+      maybePrimType.get.fromXMLString(literal)
+    } catch {
+      case e: Exception => {
+        val msg = "Unable to convert logical value \"%s\" to %s: %s"
+        compileInfoWherePropertyWasLocated.SDE(msg, exprOrLiteral, nodeInfoKind, e.getMessage)
+      }
+    }
+
+    new ConstantExpression[T](qn, nodeInfoKind, logical.asInstanceOf[T])
   }
 }
