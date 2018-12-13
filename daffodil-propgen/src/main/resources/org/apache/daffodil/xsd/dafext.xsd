@@ -135,6 +135,7 @@
                  <xsd:enumeration value="deprecatedEncodingNameUSASCII7BitPacked"/>
                  <xsd:enumeration value="deprecatedFunctionDAFError"/>
                  <xsd:enumeration value="deprecatedPropertySeparatorPolicy" />
+                 <xsd:enumeration value="encodingErrorPolicyError"/>
                  <xsd:enumeration value="escapeSchemeRefUndefined"/>
                  <xsd:enumeration value="facetExplicitLengthOutOfRange"/>
                  <xsd:enumeration value="inconsistentLengthKind"/>
