@@ -18,11 +18,18 @@
 package org.apache.daffodil.xml
 
 import java.io.File
-import scala.xml._
-import org.apache.daffodil.exceptions._
+
 import scala.collection.mutable.ArrayBuilder
-import org.apache.commons.io.IOUtils
 import scala.xml.NamespaceBinding
+import scala.xml._
+
+import org.apache.commons.io.IOUtils
+
+import org.apache.daffodil.exceptions._
+import org.apache.daffodil.util.Misc
+import org.apache.daffodil.calendar.DFDLDateConversion
+import org.apache.daffodil.calendar.DFDLDateTimeConversion
+import org.apache.daffodil.calendar.DFDLTimeConversion
 import org.apache.daffodil.schema.annotation.props.LookupLocation
 
 /**
@@ -209,6 +216,17 @@ object XMLUtils {
     remapXMLCharacters(dfdlString, remapPUAToXMLIllegalChar(false))
   }
 
+  def coalesceAllAdjacentTextNodes(node: Node): Node = {
+    node match {
+      case Elem(prefix, label, attribs, scope, child @ _*) => {
+        val coalescedChildren = child.map(coalesceAllAdjacentTextNodes(_))
+        val newChildren = coalesceAdjacentTextNodes(coalescedChildren)
+        Elem(prefix, label, attribs, scope, true, newChildren: _*)
+      }
+      case x => x
+    }
+  }
+
   /*
    * This is needed for equality comparison of XML.
    *
@@ -224,15 +242,7 @@ object XMLUtils {
     if (seq.length == 0) return seq
     if (seq.length == 1) {
       seq(0) match {
-
-        case p: PCData => return seq
-
-        case Text(data) =>
-          if (data.matches("""\s*""")) return Nil
-          else return seq
-
-        case u: Unparsed => return seq // TODO: are these needed or possible?
-
+        case a: Atom[_] => return seq
         case _ => // fall through to code below. (We need to process children)
       }
     }
@@ -616,10 +626,8 @@ object XMLUtils {
 
   def convertPCDataToText(n: Node): Node = {
     val res = n match {
-      case PCData(data) => {
-        val t = Text(n.text)
-        t
-      }
+      case t: Text => t
+      case a: Atom[_] => Text(a.text)
       case Elem(prefix, label, attributes, scope, children @ _*) => {
         val newChildren = children.map { convertPCDataToText(_) }
         Elem(prefix, label, attributes, scope, true, newChildren: _*)
@@ -716,14 +724,25 @@ object XMLUtils {
     res
   }
 
-  def compareAndReport(trimmedExpected: Node, actualNoAttrs: Node, ignoreProcInstr: Boolean = true) = {
-    if (trimmedExpected != actualNoAttrs) {
-      val expString = trimmedExpected.toString
-      val actString = actualNoAttrs.toString
-      if (expString != actString) {
-        val diffs = XMLUtils.computeDiff(trimmedExpected, actualNoAttrs, ignoreProcInstr)
-        if (diffs.length > 0) {
-          throw new Exception("""
+  /**
+   * Prepares an XML node for diff comparison
+   **/
+  private def prepareForDiffComparison(n: Node): Node = {
+    val noComments = removeComments(n)
+    val noPCData = convertPCDataToText(noComments)
+    val combinedText = coalesceAllAdjacentTextNodes(noPCData)
+    val noMixedWS = removeMixedWhitespace(combinedText)
+    noMixedWS
+  }
+
+  class XMLDifferenceException(message: String) extends Exception(message)
+
+  def compareAndReport(expected: Node, actual: Node, ignoreProcInstr: Boolean = true) = {
+    val expectedMinimized = prepareForDiffComparison(expected)
+    val actualMinimized = prepareForDiffComparison(actual)
+    val diffs = XMLUtils.computeDiff(expectedMinimized, actualMinimized, ignoreProcInstr)
+    if (diffs.length > 0) {
+      throw new XMLDifferenceException("""
 Comparison failed.
 Expected
           %s
@@ -731,9 +750,9 @@ Actual
           %s
 Differences were (path, expected, actual):
  %s""".format(
-            trimmedExpected.toString, actualNoAttrs.toString, diffs.map { _.toString }.mkString("\n")))
-        }
-      }
+     removeAttributes(expected).toString,
+     removeAttributes(actual).toString,
+     diffs.map { _.toString }.mkString("", "\n", "\n")))
     }
   }
 
@@ -742,7 +761,7 @@ Differences were (path, expected, actual):
    * Each triple is the path (an x-path-like string), followed by expected, and actual values.
    */
   def computeDiff(a: Node, b: Node, ignoreProcInstr: Boolean = true) = {
-    computeDiffOne(Seq(a), Seq(b), Map.empty, Nil, ignoreProcInstr)
+    computeDiffOne(Seq(a), Seq(b), Map.empty, Nil, ignoreProcInstr, None)
   }
 
   def childArrayCounters(e: Elem) = {
@@ -755,27 +774,38 @@ Differences were (path, expected, actual):
     arrayCounters
   }
 
-  def computeDiffOne(as: Seq[Node], bs: Seq[Node],
+  def computeDiffOne(
+    as: Seq[Node],
+    bs: Seq[Node],
     aCounters: Map[String, Long],
     path: Seq[String],
-    ignoreProcInstr: Boolean = true): Seq[(String, String, String)] = {
+    ignoreProcInstr: Boolean,
+    maybeType: Option[String]): Seq[(String, String, String)] = {
     lazy val zPath = path.reverse.mkString("/")
     (as, bs) match {
       case (a1 :: ars, b1 :: brs) if (a1.isInstanceOf[Elem] && b1.isInstanceOf[Elem]) => {
         val (a: Elem, b: Elem) = (a1, b1)
         val Elem(_, labelA, attribsA, _, childrenA @ _*) = a
         val Elem(_, labelB, attribsB, _, childrenB @ _*) = b
-        if (labelA != labelB)
-          List((zPath, a.toString, b.toString))
-        else if (attribsA != attribsB
-          && !((attribsA == null && (attribsB == null || attribsB.length == 0))
-            || (attribsB == null) && attribsA.length == 0)) {
+        val typeA: Option[String] = a.attribute(XSI_NAMESPACE.toString, "type").map(_.head.text)
+        val typeB: Option[String] = b.attribute(XSI_NAMESPACE.toString, "type").map(_.head.text)
+        val maybeType: Option[String] = Option(typeA.getOrElse(typeB.getOrElse(null)))
+        val nilledA = a.attribute(XSI_NAMESPACE.toString, "nil")
+        val nilledB = b.attribute(XSI_NAMESPACE.toString, "nil")
 
-          // println("attributes are different")
-
-          val aA = if (attribsA == null || attribsA == "") "null" else attribsA.toString
-          val aB = if (attribsB == null || attribsB == "") "null" else attribsB.toString
-          List((zPath, aA, aB))
+        if (labelA != labelB) {
+          // different label
+          List((zPath, labelA, labelB))
+        } else if (nilledA != nilledB) {
+          // different xsi:nil
+          List((zPath + "/" + labelA + "@xsi:nil",
+            nilledA.map(_.toString).getOrElse(""),
+            nilledB.map(_.toString).getOrElse("")))
+        } else if (typeA != typeB && typeA.isDefined && typeB.isDefined) {
+          // different xsi:type (if both suppplied)
+          List((zPath + "/" + labelA + "@xsi:type",
+            typeA.map(_.toString).getOrElse(""),
+            typeA.map(_.toString).getOrElse("")))
         } else {
           val aIndex = aCounters.get(labelA)
           val aIndexExpr = aIndex.map { n => labelA + "[" + n + "]" }
@@ -790,27 +820,28 @@ Differences were (path, expected, actual):
           val newPath = pathStep +: path
           val childrenAList = childrenA.toList
           val childrenBList = childrenB.toList
+
           val childrenDiffs =
-            computeDiffOne(childrenAList, childrenBList, aChildArrayCounters, newPath, ignoreProcInstr)
-          val subsequentPeerDiffs = computeDiffOne(ars, brs, newACounters, path, ignoreProcInstr)
+            computeDiffOne(childrenAList, childrenBList, aChildArrayCounters, newPath, ignoreProcInstr, maybeType)
+          val subsequentPeerDiffs = computeDiffOne(ars, brs, newACounters, path, ignoreProcInstr, maybeType)
           val res = childrenDiffs ++ subsequentPeerDiffs
           res
         }
       }
       case (tA1 :: ars, tB1 :: brs) if (tA1.isInstanceOf[Text] && tB1.isInstanceOf[Text]) => {
         val (tA: Text, tB: Text) = (tA1, tB1)
-        val thisDiff = computeTextDiff(zPath, tA, tB)
-        val restDiffs = computeDiffOne(ars, brs, aCounters, path, ignoreProcInstr)
+        val thisDiff = computeTextDiff(zPath, tA, tB, maybeType)
+        val restDiffs = computeDiffOne(ars, brs, aCounters, path, ignoreProcInstr, maybeType)
         val res = thisDiff ++ restDiffs
         res
       }
       case (tA1 :: ars, brs) if (ignoreProcInstr && tA1.isInstanceOf[scala.xml.ProcInstr]) =>
-        computeDiffOne(ars, brs, aCounters, path, ignoreProcInstr)
+        computeDiffOne(ars, brs, aCounters, path, ignoreProcInstr, maybeType)
       case (ars, tB1 :: brs) if (ignoreProcInstr && tB1.isInstanceOf[scala.xml.ProcInstr]) =>
-        computeDiffOne(ars, brs, aCounters, path, ignoreProcInstr)
+        computeDiffOne(ars, brs, aCounters, path, ignoreProcInstr, maybeType)
       case (scala.xml.ProcInstr(tA1label, tA1content) :: ars,
         scala.xml.ProcInstr(tB1label, tB1content) :: brs) => {
-        val labelDiff = computeTextDiff(zPath, tA1label, tB1label)
+        val labelDiff = computeTextDiff(zPath, tA1label, tB1label, None)
         //
         // The content of a ProcInstr is technically a big string
         // But our usage of them the content is XML-like so could be loaded and then compared
@@ -822,8 +853,8 @@ Differences were (path, expected, actual):
         //
         // TODO: implement XML-comparison for our data format info PIs.
         //
-        val contentDiff = computeTextDiff(zPath, tA1content, tB1content)
-        val restDiffs = computeDiffOne(ars, brs, aCounters, path, ignoreProcInstr)
+        val contentDiff = computeTextDiff(zPath, tA1content, tB1content, maybeType)
+        val restDiffs = computeDiffOne(ars, brs, aCounters, path, ignoreProcInstr, maybeType)
         val res = labelDiff ++ contentDiff ++ restDiffs
         res
       }
@@ -845,15 +876,26 @@ Differences were (path, expected, actual):
     }
   }
 
-  def computeTextDiff(zPath: String, tA: Text, tB: Text): Seq[(String, String, String)] = {
+  def computeTextDiff(
+    zPath: String,
+    tA: Text,
+    tB:Text,
+    maybeType: Option[String]): Seq[(String, String, String)] = {
+
     val dataA = tA.toString
     val dataB = tB.toString
-    computeTextDiff(zPath, dataA, dataB)
+    computeTextDiff(zPath, dataA, dataB, maybeType)
   }
 
-  def computeTextDiff(zPath: String, dataA: String, dataB: String): Seq[(String, String, String)] = {
+  def computeTextDiff(
+    zPath: String,
+    dataA: String,
+    dataB: String,
+    maybeType: Option[String]): Seq[(String, String, String)] = {
+
     def quoteIt(str: String) = "'" + str + "'"
-    if (dataA == dataB) Nil
+
+    if (textIsSame(dataA, dataB, maybeType)) Nil
     else if (dataA.length != dataB.length) {
       List((zPath, quoteIt(dataA), quoteIt(dataB)))
     } else {
@@ -868,6 +910,28 @@ Differences were (path, expected, actual):
           }
       }
       res
+    }
+  }
+
+  def textIsSame(dataA: String, dataB: String, maybeType: Option[String]): Boolean = {
+    maybeType match {
+      case Some("xs:hexBinary") => dataA.equalsIgnoreCase(dataB)
+      case Some("xs:date") => {
+        val a = DFDLDateConversion.fromXMLString(dataA)
+        val b = DFDLDateConversion.fromXMLString(dataB)
+        a == b
+      }
+      case Some("xs:time") => {
+        val a = DFDLTimeConversion.fromXMLString(dataA)
+        val b = DFDLTimeConversion.fromXMLString(dataB)
+        a == b
+      }
+      case Some("xs:dateTime") => {
+        val a = DFDLDateTimeConversion.fromXMLString(dataA)
+        val b = DFDLDateTimeConversion.fromXMLString(dataB)
+        a == b
+      }
+      case _ => dataA == dataB
     }
   }
 

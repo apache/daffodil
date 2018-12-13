@@ -527,27 +527,15 @@ object NodeInfo extends Enum {
     case object Date extends PrimTypeNode(AnyDateTime, Nil) with DateKind {
       type Kind = DateKind
       override def fromXMLString(s: String): AnyRef = {
-        StringToDate.computeValue(s, null)
-        //val juDate = TextCalendarConstants.tlDateNoTZInfosetFormatter.get.parse(s)
-        //val icuCal = dateToCalendar(juDate)
-        //DFDLDate(icuCal, false)
+        DFDLDateConversion.fromXMLString(s)
       }
-
-      /*
-      private def dateToCalendar(date: java.util.Date): Calendar = {
-        val cal = Calendar.getInstance()
-        cal.setTime(date)
-        cal
-      }
-*/
-
     }
 
     protected sealed trait DateTimeKind extends AnyDateTimeKind
     case object DateTime extends PrimTypeNode(AnyDateTime, Nil) with DateTimeKind {
       type Kind = DateTimeKind
       override def fromXMLString(s: String): AnyRef = {
-        StringToDateTime.computeValue(s, null)
+        DFDLDateTimeConversion.fromXMLString(s)
       }
     }
 
@@ -555,7 +543,7 @@ object NodeInfo extends Enum {
     case object Time extends PrimTypeNode(AnyDateTime, Nil) with TimeKind {
       type Kind = TimeKind
       override def fromXMLString(s: String): AnyRef = {
-        StringToTime.computeValue(s, null)
+        DFDLTimeConversion.fromXMLString(s)
       }
     }
   }

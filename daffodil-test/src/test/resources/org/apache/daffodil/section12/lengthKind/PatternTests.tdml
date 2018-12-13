@@ -329,8 +329,7 @@
           <first>bat</first>
           <second>cz</second>
           <third>3 4</third>
-          <fourth>
-          </fourth>
+          <fourth><![CDATA[  ]]></fourth>
           <fifth>AAAAA</fifth>
         </list_01>
       </tdml:dfdlInfoset>

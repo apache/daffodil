@@ -50,15 +50,9 @@ object TestUtils {
 
   /**
    * Compares two XML Elements, after having (optionally) stripped off all attributes.
-   *
-   * TODO: we might start using xsi:type attributes at some point. If so fix this to
-   * save that attribute.
-   *
-   * NOTE: Has Side Effects: strips off attributes
    */
-  def assertEqualsXMLElements(expected: Node, actual: Node, stripAttributes: Boolean = true) {
-    val (exp, act) = if (!stripAttributes) (expected, actual) else (XMLUtils.removeAttributes(expected), XMLUtils.removeAttributes(actual))
-    XMLUtils.compareAndReport(Utility.trim(exp), Utility.trim(act))
+  def assertEqualsXMLElements(expected: Node, actual: Node) {
+    XMLUtils.compareAndReport(expected, actual)
   }
 
   /**

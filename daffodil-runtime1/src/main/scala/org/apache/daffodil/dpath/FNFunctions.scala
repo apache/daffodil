@@ -242,7 +242,7 @@ case class FNDateTime(recipes: List[CompiledDPath]) extends FNTwoArgs(recipes) {
 
   private def calendarToDFDLDateTime(calendar: Calendar, hasTZ: Boolean, dstate: DState, fncName: String, toType: String): DFDLCalendar = {
     try {
-      val cal = new DFDLDateTime(calendar, hasTZ)
+      val cal = DFDLDateTime(calendar, hasTZ)
       return cal
     } catch {
       case ex: java.lang.IllegalArgumentException =>
@@ -253,8 +253,8 @@ case class FNDateTime(recipes: List[CompiledDPath]) extends FNTwoArgs(recipes) {
     val dateCalendar = arg1.asInstanceOf[DFDLCalendar]
     val timeCalendar = arg2.asInstanceOf[DFDLCalendar]
 
-    val dateCal = dateCalendar.getCalendar
-    val timeCal = timeCalendar.getCalendar
+    val dateCal = dateCalendar.calendar
+    val timeCal = timeCalendar.calendar
 
     val year = dateCal.get(Calendar.YEAR)
     val day = dateCal.get(Calendar.DAY_OF_MONTH)
@@ -748,7 +748,7 @@ abstract class FNFromDateTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
   with FNFromDateTimeKind {
   override def computeValue(a: AnyRef, dstate: DState): AnyRef = {
     a match {
-      case dt: DFDLDateTime => asAnyRef(dt.getField(field))
+      case dt: DFDLDateTime => asAnyRef(dt.calendar.get(field))
       case _ => throw new NumberFormatException("fn:" + fieldName + "-from-dateTime only accepts xs:dateTime.")
     }
   }
@@ -759,7 +759,7 @@ abstract class FNFromDate(recipe: CompiledDPath, argType: NodeInfo.Kind)
   with FNFromDateTimeKind {
   override def computeValue(a: AnyRef, dstate: DState): AnyRef = {
     a match {
-      case d: DFDLDate => asAnyRef(d.getField(field))
+      case d: DFDLDate => asAnyRef(d.calendar.get(field))
       case _ => throw new NumberFormatException("fn:" + fieldName + "-from-date only accepts xs:date.")
     }
   }
@@ -770,7 +770,7 @@ abstract class FNFromTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
   with FNFromDateTimeKind {
   override def computeValue(a: AnyRef, dstate: DState): AnyRef = {
     a match {
-      case t: DFDLTime => asAnyRef(t.getField(field))
+      case t: DFDLTime => asAnyRef(t.calendar.get(field))
       case _ => throw new NumberFormatException("fn:" + fieldName + "-from-time only accepts xs:time.")
     }
   }
@@ -826,8 +826,8 @@ case class FNSecondsFromDateTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
     //
     val res: JNumber = a match {
       case dt: DFDLDateTime => {
-        val seconds = dt.getField(Calendar.SECOND)
-        val frac = dt.getField(Calendar.MILLISECOND)
+        val seconds = dt.calendar.get(Calendar.SECOND)
+        val frac = dt.calendar.get(Calendar.MILLISECOND)
         if (frac == 0) { seconds }
         else {
           val d = seconds + (frac / 1000.0)
@@ -878,8 +878,8 @@ case class FNSecondsFromTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
     //
     val res: JNumber = a match {
       case dt: DFDLTime => {
-        val seconds = dt.getField(Calendar.SECOND)
-        val frac = dt.getField(Calendar.MILLISECOND)
+        val seconds = dt.calendar.get(Calendar.SECOND)
+        val frac = dt.calendar.get(Calendar.MILLISECOND)
         if (frac == 0) { seconds }
         else {
           val d = seconds + (frac / 1000.0)

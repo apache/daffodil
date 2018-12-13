@@ -18,13 +18,6 @@
 package org.apache.daffodil.dpath
 
 import org.apache.daffodil.exceptions.ThrowsSDE
-import java.text.ParsePosition
-import com.ibm.icu.util.Calendar
-import com.ibm.icu.text.SimpleDateFormat
-import java.text.ParseException
-import org.apache.daffodil.calendar.DFDLDateTime
-import org.apache.daffodil.calendar.DFDLTime
-import org.apache.daffodil.calendar.DFDLDate
 
 /*
  * Casting chart taken from http://www.w3.org/TR/xpath-functions/#casting, with
@@ -294,61 +287,4 @@ object Conversion {
     ops
   }
 
-  protected def constructCalendar(value: String, inFormat: SimpleDateFormat, fncName: String, toType: String): Calendar = {
-    val isLenient = inFormat.isLenient()
-
-    try {
-      inFormat.setLenient(false)
-      inFormat.parse(value)
-      true
-    } catch {
-      case e: ParseException => {
-        inFormat.setLenient(isLenient)
-        throw new java.lang.IllegalArgumentException(String.format("Conversion Error: %s failed to convert \"%s\" to %s. Due to %s",
-          fncName, value.toString, toType, "Failed to match format."))
-      }
-    }
-
-    val calendar = inFormat.getCalendar()
-    val pos = new ParsePosition(0)
-
-    inFormat.parse(value.toString, calendar, pos)
-
-    try {
-      calendar.getTime()
-    } catch {
-      case ex: java.lang.IllegalArgumentException => {
-        inFormat.setLenient(isLenient)
-        throw new java.lang.IllegalArgumentException(String.format("Conversion Error: %s failed to convert \"%s\" to %s. Due to %s",
-          fncName, value.toString, toType, ex.getMessage()))
-      }
-    }
-
-    inFormat.setLenient(isLenient)
-
-    if (pos.getIndex() == 0 || pos.getErrorIndex() != -1) {
-      throw new java.lang.IllegalArgumentException(String.format("Conversion Error: %s failed to convert \"%s\" to %s due to a parse error.",
-        fncName, value.toString, toType))
-    }
-    if (pos.getIndex() != (value.length())) {
-      throw new java.lang.IllegalArgumentException(String.format("Conversion Error: %s failed to convert \"%s\" to %s. Failed to use up all characters in the parse.  Stopped at %s.",
-        fncName, value.toString, toType, pos.getIndex().toString))
-    }
-    calendar
-  }
-
-  def stringToDFDLDateTime(value: String, inFormat: SimpleDateFormat, expectsTZ: Boolean, fncName: String, toType: String): DFDLDateTime = {
-    val calendar = constructCalendar(value, inFormat, fncName, toType)
-    DFDLDateTime(calendar, expectsTZ)
-  }
-
-  def stringToDFDLDate(value: String, inFormat: SimpleDateFormat, expectsTZ: Boolean, fncName: String, toType: String): DFDLDate = {
-    val calendar = constructCalendar(value, inFormat, fncName, toType)
-    DFDLDate(calendar, expectsTZ)
-  }
-
-  def stringToDFDLTime(value: String, inFormat: SimpleDateFormat, expectsTZ: Boolean, fncName: String, toType: String): DFDLTime = {
-    val calendar = constructCalendar(value, inFormat, fncName, toType)
-    DFDLTime(calendar, expectsTZ)
-  }
 }

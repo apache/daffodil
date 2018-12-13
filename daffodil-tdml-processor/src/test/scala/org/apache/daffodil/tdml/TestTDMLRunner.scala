@@ -521,4 +521,172 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
     lazy val r = new DFDLTestSuite(Misc.getRequiredResource(t0))
     r.runOneTest("tdmlNamespaces1")
   }
+
+
+  val testHexBinarySchema = SchemaUtils.dfdlTestSchema(
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+    <dfdl:format ref="tns:GeneralFormat"/>,
+    <xs:element name="data" type="xs:hexBinary" dfdl:lengthKind="explicit" dfdl:length="4"/>)
+
+  @Test def testTDMLHexBinaryTypeAwareSuccess_01() {
+    val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName">
+                      <ts:parserTestCase ID="some identifier" name="testTDMLHexBinaryTypeAwareSuccess"
+                        root="data">
+                        <ts:document>
+                          <ts:documentPart type="byte">A1B2C3D4</ts:documentPart>
+                        </ts:document>
+                        <ts:infoset>
+                          <ts:dfdlInfoset>
+                            <data xmlns={ example } xmlns:xsi={ xsi } xmlns:xs={ xsd }
+                              xsi:type="xs:hexBinary">a1b2c3d4</data>
+                          </ts:dfdlInfoset>
+                        </ts:infoset>
+                      </ts:parserTestCase>
+                    </ts:testSuite>
+    val ts = new DFDLTestSuite(testSuite)
+    ts.runOneTest("testTDMLHexBinaryTypeAwareSuccess", Some(testHexBinarySchema))
+  }
+
+  @Test def testTDMLHexBinaryTypeAwareSuccess_02() {
+    val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName">
+                      <ts:parserTestCase ID="some identifier" name="testTDMLHexBinaryTypeAwareSuccess"
+                        root="data">
+                        <ts:document>
+                          <ts:documentPart type="byte">A1B2C3D4</ts:documentPart>
+                        </ts:document>
+                        <ts:infoset>
+                          <ts:dfdlInfoset>
+                            <data xmlns={ example } xmlns:xsi={ xsi } xmlns:xs={ xsd }
+                              xsi:type="xs:hexBinary">A1B2C3D4</data>
+                          </ts:dfdlInfoset>
+                        </ts:infoset>
+                      </ts:parserTestCase>
+                    </ts:testSuite>
+    val ts = new DFDLTestSuite(testSuite)
+    ts.runOneTest("testTDMLHexBinaryTypeAwareSuccess", Some(testHexBinarySchema))
+  }
+
+  @Test def testTDMLHexBinaryTypeAwareFailure() {
+    val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName">
+                      <ts:parserTestCase ID="some identifier" name="testTDMLHexBinaryTypeAwareFailure"
+                        root="data">
+                        <ts:document>
+                          <ts:documentPart type="byte">A1B2C3D4</ts:documentPart>
+                        </ts:document>
+                        <ts:infoset>
+                          <ts:dfdlInfoset>
+                            <data xmlns={ example }>a1b2c3d4</data>
+                          </ts:dfdlInfoset>
+                        </ts:infoset>
+                      </ts:parserTestCase>
+                    </ts:testSuite>
+    val ts = new DFDLTestSuite(testSuite)
+    val e = intercept[Exception] {
+      ts.runOneTest("testTDMLHexBinaryTypeAwareFailure", Some(testHexBinarySchema))
+    }
+    val msg = e.getMessage()
+    assertTrue(msg.contains("Comparison failed"))
+    assertTrue(msg.contains("a1b2c3d4"))
+    assertTrue(msg.contains("A1B2C3D4"))
+  }
+
+
+
+  val testDateTimeSchema = SchemaUtils.dfdlTestSchema(
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+    <dfdl:format ref="tns:GeneralFormat"/>,
+    <xs:element name="data" type="xs:dateTime" dfdl:lengthKind="explicit" dfdl:length="32"
+      dfdl:calendarPatternKind="explicit"
+      dfdl:calendarPattern="uuuu-MM-dd'T'HH:mm:ss.SSSSSSxxxxx" />)
+
+  @Test def testTDMLDateTimeTypeAwareSuccess_01() {
+    val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName">
+                      <ts:parserTestCase ID="some identifier" name="testTDMLDateTimeTypeAwareSuccess"
+                        root="data">
+                        <ts:document>1995-03-24T01:30:00.000000+00:00</ts:document>
+                        <ts:infoset>
+                          <ts:dfdlInfoset>
+                            <data xmlns={ example } xmlns:xsi={ xsi } xmlns:xs={ xsd }
+                              xsi:type="xs:dateTime">1995-03-24T01:30:00Z</data>
+                          </ts:dfdlInfoset>
+                        </ts:infoset>
+                      </ts:parserTestCase>
+                    </ts:testSuite>
+    val ts = new DFDLTestSuite(testSuite)
+    ts.runOneTest("testTDMLDateTimeTypeAwareSuccess", Some(testDateTimeSchema))
+  }
+
+  @Test def testTDMLDateTimeTypeAwareSuccess_02() {
+    val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName">
+                      <ts:parserTestCase ID="some identifier" name="testTDMLDateTimeTypeAwareSuccess"
+                        root="data">
+                        <ts:document>1995-03-24T01:30:00.000000+00:00</ts:document>
+                        <ts:infoset>
+                          <ts:dfdlInfoset>
+                            <data xmlns={ example } xmlns:xsi={ xsi } xmlns:xs={ xsd }
+                              xsi:type="xs:dateTime">1995-03-24T01:30:00+00:00</data>
+                          </ts:dfdlInfoset>
+                        </ts:infoset>
+                      </ts:parserTestCase>
+                    </ts:testSuite>
+    val ts = new DFDLTestSuite(testSuite)
+    ts.runOneTest("testTDMLDateTimeTypeAwareSuccess", Some(testDateTimeSchema))
+  }
+
+  @Test def testTDMLDateTimeTypeAwareSuccess_03() {
+    val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName">
+                      <ts:parserTestCase ID="some identifier" name="testTDMLDateTimeTypeAwareSuccess"
+                        root="data">
+                        <ts:document>1995-03-24T01:30:00.000000+00:00</ts:document>
+                        <ts:infoset>
+                          <ts:dfdlInfoset>
+                            <data xmlns={ example } xmlns:xsi={ xsi } xmlns:xs={ xsd }
+                              xsi:type="xs:dateTime">1995-03-24T01:30:00.000+00:00</data>
+                          </ts:dfdlInfoset>
+                        </ts:infoset>
+                      </ts:parserTestCase>
+                    </ts:testSuite>
+    val ts = new DFDLTestSuite(testSuite)
+    ts.runOneTest("testTDMLDateTimeTypeAwareSuccess", Some(testDateTimeSchema))
+  }
+
+  @Test def testTDMLDateTimeTypeAwareSuccess_04() {
+    val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName">
+                      <ts:parserTestCase ID="some identifier" name="testTDMLDateTimeTypeAwareSuccess"
+                        root="data">
+                        <ts:document>1995-03-24T01:30:00.000000+00:00</ts:document>
+                        <ts:infoset>
+                          <ts:dfdlInfoset>
+                            <data xmlns={ example } xmlns:xsi={ xsi } xmlns:xs={ xsd }
+                              xsi:type="xs:dateTime">1995-03-24T01:30:00.000000Z</data>
+                          </ts:dfdlInfoset>
+                        </ts:infoset>
+                      </ts:parserTestCase>
+                    </ts:testSuite>
+    val ts = new DFDLTestSuite(testSuite)
+    ts.runOneTest("testTDMLDateTimeTypeAwareSuccess", Some(testDateTimeSchema))
+  }
+
+  @Test def testTDMLDateTimeTypeAwareFailure() {
+    val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName">
+                      <ts:parserTestCase ID="some identifier" name="testTDMLDateTimeTypeAwareFailure"
+                        root="data">
+                        <ts:document>1995-03-24T01:30:00.000000+00:00</ts:document>
+                        <ts:infoset>
+                          <ts:dfdlInfoset>
+                            <data xmlns={ example }>1995-03-24T01:30:00Z</data>
+                          </ts:dfdlInfoset>
+                        </ts:infoset>
+                      </ts:parserTestCase>
+                    </ts:testSuite>
+    val ts = new DFDLTestSuite(testSuite)
+    val e = intercept[Exception] {
+      ts.runOneTest("testTDMLDateTimeTypeAwareFailure", Some(testDateTimeSchema))
+    }
+    val msg = e.getMessage()
+    assertTrue(msg.contains("Comparison failed"))
+    assertTrue(msg.contains("1995-03-24T01:30:00Z"))
+    assertTrue(msg.contains("1995-03-24T01:30:00+00:00"))
+  }
+
 }
