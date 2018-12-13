@@ -76,7 +76,7 @@
   <xs:group name="h_e">
     <xs:sequence>
       <xs:element name="e" type="xsd:string" dfdl:lengthKind="delimited"
-          dfdl:outputValueCalc="{ $ex:v_no_default }" />
+          dfdl:outputValueCalc="{ xs:string($ex:v_no_default) }" />
     </xs:sequence>
   </xs:group>
   
@@ -86,7 +86,7 @@
         <xs:element name="d" type="xsd:string" dfdl:lengthKind="delimited">
           <xs:annotation>
             <xs:appinfo source="http://www.ogf.org/dfdl/">
-              <dfdl:setVariable ref="ex:v_no_default">{ . }</dfdl:setVariable>
+              <dfdl:setVariable ref="ex:v_no_default">{ xs:int(.) }</dfdl:setVariable>
             </xs:appinfo>
           </xs:annotation>
         </xs:element>

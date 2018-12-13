@@ -118,7 +118,7 @@
           <xs:sequence dfdl:separator="," dfdl:terminator=";">
             <xs:element name="y" type="xs:boolean" maxOccurs="unbounded" dfdl:textTrimKind="padChar"
               dfdl:textBooleanJustification="center"
-              dfdl:textBooleanTrueRep="{ 5-3 }" dfdl:textBooleanFalseRep="{'a b c'}" />
+              dfdl:textBooleanTrueRep="{ xs:string(5-3) }" dfdl:textBooleanFalseRep="{'a b c'}" />
           </xs:sequence>
         </xs:sequence>
       </xs:complexType>
@@ -134,7 +134,7 @@
           <xs:sequence dfdl:separator="," dfdl:terminator=";">
             <xs:element name="y" type="xs:boolean" maxOccurs="unbounded" dfdl:textTrimKind="padChar"
               dfdl:textBooleanJustification="center"
-              dfdl:textBooleanTrueRep="{ 5-3 }" dfdl:textBooleanFalseRep="{'a b c'}" dfdl:ignoreCase="yes" />
+              dfdl:textBooleanTrueRep="{ xs:string(5-3) }" dfdl:textBooleanFalseRep="{'a b c'}" dfdl:ignoreCase="yes" />
           </xs:sequence>
         </xs:sequence>
       </xs:complexType>
@@ -173,12 +173,13 @@
           <xs:element name="b" type="xs:string" />
           <xs:sequence dfdl:separator="," dfdl:terminator=";">
             <xs:element name="x" type="xs:boolean" maxOccurs="unbounded"
-              dfdl:textBooleanTrueRep="{ dfdl:valueLength( ../ex:a, 'bytes') }" dfdl:textBooleanFalseRep="{ dfdl:valueLength( ../ex:b, 'bytes') }" />
+              dfdl:textBooleanTrueRep="{ xs:string(dfdl:valueLength( ../ex:a, 'bytes')) }"
+              dfdl:textBooleanFalseRep="{ xs:string(dfdl:valueLength( ../ex:b, 'bytes')) }" />
           </xs:sequence>
           <xs:element name="c" type="xs:boolean"
-            dfdl:textBooleanTrueRep="{ dfdl:valueLength( ../ex:a, 'bytes') }" dfdl:textBooleanFalseRep="no" />
+            dfdl:textBooleanTrueRep="{ xs:string(dfdl:valueLength( ../ex:a, 'bytes')) }" dfdl:textBooleanFalseRep="no" />
           <xs:element name="d" type="xs:boolean"
-            dfdl:textBooleanTrueRep="{ dfdl:valueLength( ../ex:c, 'bytes') }" dfdl:textBooleanFalseRep="no" />
+            dfdl:textBooleanTrueRep="{ xs:string(dfdl:valueLength( ../ex:c, 'bytes')) }" dfdl:textBooleanFalseRep="no" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>

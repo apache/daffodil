@@ -65,7 +65,7 @@
    <xs:complexType>
     <xs:sequence>
      <xs:element name="count" type="xs:unsignedByte" dfdl:length="2" />
-     <xs:element name="ovc" type="xs:unsignedByte" dfdl:inputValueCalc="{ if (../count eq 1) then ../count div 0.75 else 0 }" />
+     <xs:element name="ovc" type="xs:unsignedByte" dfdl:inputValueCalc="{ xs:unsignedByte(if (../count eq 1) then ../count div 0.75 else 0) }" />
     </xs:sequence>
    </xs:complexType>
   </xs:element>
@@ -74,7 +74,7 @@
    <xs:complexType>
     <xs:sequence>
      <xs:element name="count" type="xs:unsignedByte" dfdl:length="2" />
-     <xs:element name="ovc" type="xs:unsignedByte" dfdl:inputValueCalc="{ 5 + (if (../count eq 1) then ../count div 0.75 else 0) + 6 }" />
+     <xs:element name="ovc" type="xs:unsignedByte" dfdl:inputValueCalc="{ xs:unsignedByte(5 + (if (../count eq 1) then ../count div 0.75 else 0) + 6) }" />
     </xs:sequence>
    </xs:complexType>
   </xs:element>
@@ -83,7 +83,7 @@
    <xs:complexType>
     <xs:sequence>
      <xs:element name="count" type="xs:unsignedByte" dfdl:length="2" />
-     <xs:element name="ovc" type="xs:unsignedByte" dfdl:inputValueCalc="{ 5 + (if (../count eq 1) then ../count div 0.75 else '0') + 6 }" />
+     <xs:element name="ovc" type="xs:unsignedByte" dfdl:inputValueCalc="{ xs:unsignedByte(5 + (if (../count eq 1) then ../count div 0.75 else '0') + 6) }" />
     </xs:sequence>
    </xs:complexType>
   </xs:element>

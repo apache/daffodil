@@ -80,9 +80,6 @@ class TestDFDLExpressionsDebug {
   // DFDL-1043
   @Test def test_checkConstraintsComplexTypeFails() { runner.runOneTest("checkConstraintsComplexTypeFails") }
 
-  // DFDL-1044
-  @Test def test_expression_type_error2() { runner.runOneTest("expression_type_error2") }
-
   //DFDL-1164
   @Test def test_predicate_02() { runner.runOneTest("predicate_02") }
   @Test def test_predicate_03() { runner.runOneTest("predicate_03") }

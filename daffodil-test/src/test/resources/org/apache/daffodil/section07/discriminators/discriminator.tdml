@@ -787,11 +787,11 @@
         <xs:sequence>
           <xs:annotation>
             <xs:appinfo source="http://www.ogf.org/dfdl/">
-              <dfdl:setVariable ref="ex:var">{ 41 }</dfdl:setVariable>
+              <dfdl:setVariable ref="ex:var">{ xs:string(41) }</dfdl:setVariable>
               <dfdl:discriminator testKind="pattern" testPattern="o_o" message="Discriminator failed for pattern 'o_o'" />
             </xs:appinfo>
           </xs:annotation>
-          <xs:element name="e1" dfdl:lengthKind="explicit" dfdl:length="2" type="xs:int" dfdl:inputValueCalc="{ $ex:var }"/>
+          <xs:element name="e1" dfdl:lengthKind="explicit" dfdl:length="2" type="xs:int" dfdl:inputValueCalc="{ xs:int($ex:var) }"/>
           <xs:element name="extra" type="xs:string" dfdl:lengthKind="delimited" />
         </xs:sequence>
       </xs:complexType>
@@ -802,11 +802,11 @@
         <xs:sequence>
           <xs:annotation>
             <xs:appinfo source="http://www.ogf.org/dfdl/">
-              <dfdl:setVariable ref="ex:var">{ 41 }</dfdl:setVariable>
+              <dfdl:setVariable ref="ex:var">{ xs:string(41) }</dfdl:setVariable>
               <dfdl:discriminator testKind="pattern" testPattern="41" message="Discriminator failed for pattern '41'" />
             </xs:appinfo>
           </xs:annotation>
-          <xs:element name="e1" dfdl:lengthKind="explicit" dfdl:length="2" type="xs:int" dfdl:inputValueCalc="{ $ex:var }"/>
+          <xs:element name="e1" dfdl:lengthKind="explicit" dfdl:length="2" type="xs:int" dfdl:inputValueCalc="{ xs:int($ex:var) }"/>
           <xs:element name="extra" type="xs:string" dfdl:lengthKind="delimited" />
         </xs:sequence>
       </xs:complexType>

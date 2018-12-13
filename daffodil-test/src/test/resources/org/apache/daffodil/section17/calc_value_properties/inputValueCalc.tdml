@@ -79,7 +79,7 @@
             dfdl:lengthKind="delimited" />
           <xs:element name="e3" type="xs:int"
             dfdl:lengthKind="delimited" />
-          <xs:element name="divide" type="xs:int"
+          <xs:element name="divide" type="xs:float"
             dfdl:inputValueCalc="{ xs:int(../ex:e2) div xs:int(../ex:e3) }" />
         </xs:sequence>
       </xs:complexType>
@@ -181,7 +181,7 @@
       <xs:complexType>
         <xs:sequence>
           <xs:element name="num" type="xs:string" />
-          <xs:element name="ivc_int_range_min" type="xs:int" dfdl:inputValueCalc="{ ../ex:num }"/>
+          <xs:element name="ivc_int_range_min" type="xs:int" dfdl:inputValueCalc="{ xs:int(../ex:num) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -199,7 +199,7 @@
       <xs:complexType>
         <xs:sequence>
           <xs:element name="num" type="xs:string" />
-          <xs:element name="ivc_int_range_max" type="xs:int" dfdl:inputValueCalc="{ ../ex:num }"/>
+          <xs:element name="ivc_int_range_max" type="xs:int" dfdl:inputValueCalc="{ xs:int(../ex:num) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -235,7 +235,7 @@
       <xs:complexType>
         <xs:sequence>
           <xs:element name="num" type="xs:string" />
-          <xs:element name="ivc_short_range_min" type="xs:short" dfdl:inputValueCalc="{ ../ex:num }"/>
+          <xs:element name="ivc_short_range_min" type="xs:short" dfdl:inputValueCalc="{ xs:short(../ex:num) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -253,7 +253,7 @@
       <xs:complexType>
         <xs:sequence>
           <xs:element name="num" type="xs:string" />
-          <xs:element name="ivc_short_range_max" type="xs:short" dfdl:inputValueCalc="{ ../ex:num }"/>
+          <xs:element name="ivc_short_range_max" type="xs:short" dfdl:inputValueCalc="{ xs:short(../ex:num) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -289,7 +289,7 @@
       <xs:complexType>
         <xs:sequence>
           <xs:element name="num" type="xs:string" />
-          <xs:element name="ivc_uint_range_min" type="xs:unsignedInt" dfdl:inputValueCalc="{ ../ex:num }"/>
+          <xs:element name="ivc_uint_range_min" type="xs:unsignedInt" dfdl:inputValueCalc="{ xs:unsignedInt(../ex:num) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -307,7 +307,7 @@
       <xs:complexType>
         <xs:sequence>
           <xs:element name="num" type="xs:string" />
-          <xs:element name="ivc_uint_range_max" type="xs:unsignedInt" dfdl:inputValueCalc="{ ../ex:num }"/>
+          <xs:element name="ivc_uint_range_max" type="xs:unsignedInt" dfdl:inputValueCalc="{ xs:unsignedInt(../ex:num) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -334,7 +334,7 @@
       <xs:complexType>
         <xs:sequence>
           <xs:element name="num" type="xs:string" />
-          <xs:element name="ivc_ushort_range_min" type="xs:unsignedShort" dfdl:inputValueCalc="{ ../ex:num }"/>
+          <xs:element name="ivc_ushort_range_min" type="xs:unsignedShort" dfdl:inputValueCalc="{ xs:unsignedShort(../ex:num) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -352,7 +352,7 @@
       <xs:complexType>
         <xs:sequence>
           <xs:element name="num" type="xs:string" />
-          <xs:element name="ivc_ushort_range_max" type="xs:unsignedShort" dfdl:inputValueCalc="{ ../ex:num }"/>
+          <xs:element name="ivc_ushort_range_max" type="xs:unsignedShort" dfdl:inputValueCalc="{ xs:unsignedShort(../ex:num) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -379,7 +379,7 @@
       <xs:complexType>
         <xs:sequence>
           <xs:element name="num" type="xs:string" />
-          <xs:element name="ivc_long_range_min" type="xs:long" dfdl:inputValueCalc="{ ../ex:num }"/>
+          <xs:element name="ivc_long_range_min" type="xs:long" dfdl:inputValueCalc="{ xs:long(../ex:num) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -397,7 +397,7 @@
       <xs:complexType>
         <xs:sequence>
           <xs:element name="num" type="xs:string" />
-          <xs:element name="ivc_long_range_max" type="xs:long" dfdl:inputValueCalc="{ ../ex:num }"/>
+          <xs:element name="ivc_long_range_max" type="xs:long" dfdl:inputValueCalc="{ xs:long(../ex:num) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -433,7 +433,7 @@
       <xs:complexType>
         <xs:sequence>
           <xs:element name="num" type="xs:string" />
-          <xs:element name="ivc_ulong_range_min" type="xs:unsignedLong" dfdl:inputValueCalc="{ ../ex:num }"/>
+          <xs:element name="ivc_ulong_range_min" type="xs:unsignedLong" dfdl:inputValueCalc="{ xs:unsignedLong(../ex:num) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -451,7 +451,7 @@
       <xs:complexType>
         <xs:sequence>
           <xs:element name="num" type="xs:string" />
-          <xs:element name="ivc_ulong_range_max" type="xs:unsignedLong" dfdl:inputValueCalc="{ ../ex:num }"/>
+          <xs:element name="ivc_ulong_range_max" type="xs:unsignedLong" dfdl:inputValueCalc="{ xs:unsignedLong(../ex:num) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -478,7 +478,7 @@
       <xs:complexType>
         <xs:sequence>
           <xs:element name="num" type="xs:string" />
-          <xs:element name="ivc_byte_range_min" type="xs:byte" dfdl:inputValueCalc="{ ../ex:num }"/>
+          <xs:element name="ivc_byte_range_min" type="xs:byte" dfdl:inputValueCalc="{ xs:byte(../ex:num) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -496,7 +496,7 @@
       <xs:complexType>
         <xs:sequence>
           <xs:element name="num" type="xs:string" />
-          <xs:element name="ivc_byte_range_max" type="xs:byte" dfdl:inputValueCalc="{ ../ex:num }"/>
+          <xs:element name="ivc_byte_range_max" type="xs:byte" dfdl:inputValueCalc="{ xs:byte(../ex:num) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -532,7 +532,7 @@
       <xs:complexType>
         <xs:sequence>
           <xs:element name="num" type="xs:string" />
-          <xs:element name="ivc_ubyte_range_min" type="xs:unsignedByte" dfdl:inputValueCalc="{ ../ex:num }"/>
+          <xs:element name="ivc_ubyte_range_min" type="xs:unsignedByte" dfdl:inputValueCalc="{ xs:unsignedByte(../ex:num) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -550,7 +550,7 @@
       <xs:complexType>
         <xs:sequence>
           <xs:element name="num" type="xs:string" />
-          <xs:element name="ivc_ubyte_range_max" type="xs:unsignedByte" dfdl:inputValueCalc="{ ../ex:num }"/>
+          <xs:element name="ivc_ubyte_range_max" type="xs:unsignedByte" dfdl:inputValueCalc="{ xs:unsignedByte(../ex:num) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -567,7 +567,7 @@
     <xs:element name="ivc_20">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="a" type="xs:double" dfdl:inputValueCalc="{ 'nan' }" />
+          <xs:element name="a" type="xs:double" dfdl:inputValueCalc="{ xs:double('nan') }" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>

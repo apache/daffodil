@@ -296,7 +296,7 @@
         <xs:sequence dfdl:separator=",">
           <xs:element name="str" type="xs:string"  dfdl:lengthKind="delimited" dfdl:textTrimKind="padChar" 
             dfdl:textStringPadCharacter="/" dfdl:textStringJustification="center" />
-          <xs:element name="valLen" type="xs:string"
+          <xs:element name="valLen" type="xs:long"
             dfdl:lengthKind="delimited" dfdl:inputValueCalc="{ dfdl:valueLength( ../ex:str, 'bits') }" />
         </xs:sequence>
       </xs:complexType>
@@ -307,7 +307,7 @@
         <xs:sequence dfdl:separator=",">
           <xs:element name="str" type="xs:string"  dfdl:lengthKind="delimited" dfdl:textTrimKind="padChar" 
             dfdl:textStringPadCharacter="/" dfdl:textStringJustification="center" />
-          <xs:element name="valLen" type="xs:string"
+          <xs:element name="valLen" type="xs:long"
             dfdl:lengthKind="delimited" dfdl:inputValueCalc="{ dfdl:valueLength( ../ex:str, 'bytes' ) }" />
         </xs:sequence>
       </xs:complexType>
@@ -318,7 +318,7 @@
         <xs:sequence dfdl:separator=",">
           <xs:element name="str" type="xs:string" dfdl:lengthKind="delimited" dfdl:textTrimKind="padChar"
             dfdl:textStringPadCharacter="/" dfdl:textStringJustification="center" />
-          <xs:element name="valLen" type="xs:string"
+          <xs:element name="valLen" type="xs:long"
             dfdl:lengthKind="delimited" dfdl:inputValueCalc="{ dfdl:valueLength( ../ex:str, 'characters') }" />
         </xs:sequence>
       </xs:complexType>
@@ -336,7 +336,7 @@
           <xs:element name="str" type="xs:string"  dfdl:lengthKind="delimited" dfdl:textTrimKind="padChar"
             dfdl:textStringPadCharacter="/" dfdl:textStringJustification="center" dfdl:escapeSchemeRef="ex:es1"
             dfdl:terminator=";" />
-          <xs:element name="valLen" type="xs:string"
+          <xs:element name="valLen" type="xs:long"
             dfdl:lengthKind="delimited" dfdl:inputValueCalc="{ dfdl:valueLength( ../ex:str, 'bytes' ) }" />
         </xs:sequence>
       </xs:complexType>
@@ -349,7 +349,7 @@
             dfdl:textStringPadCharacter="/" dfdl:textStringJustification="center" dfdl:escapeSchemeRef="ex:es1"
             dfdl:terminator=";" />
           <xs:element name="valLen" type="xs:string"
-            dfdl:lengthKind="delimited" dfdl:outputValueCalc="{ dfdl:valueLength( ../ex:str, 'bits' ) }" />
+            dfdl:lengthKind="delimited" dfdl:outputValueCalc="{ xs:string(dfdl:valueLength( ../ex:str, 'bits' )) }" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -360,7 +360,7 @@
           <xs:element name="str" type="xs:string"  dfdl:lengthKind="delimited" dfdl:textTrimKind="padChar"
             dfdl:textStringPadCharacter="/" dfdl:textStringJustification="center" />
           <xs:element name="valLen" type="xs:string"
-            dfdl:lengthKind="delimited" dfdl:outputValueCalc="{ dfdl:valueLength( ../ex:str, 'characters') }" />
+            dfdl:lengthKind="delimited" dfdl:outputValueCalc="{ xs:string(dfdl:valueLength( ../ex:str, 'characters')) }" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -371,7 +371,7 @@
           <xs:element name="str" type="xs:string"  dfdl:lengthKind="delimited" dfdl:textTrimKind="padChar"
             dfdl:textStringPadCharacter="/" dfdl:textStringJustification="center" />
           <xs:element name="valLen" type="xs:string"
-            dfdl:lengthKind="delimited" dfdl:outputValueCalc="{ dfdl:valueLength( ../ex:str, 'bytes') }" />
+            dfdl:lengthKind="delimited" dfdl:outputValueCalc="{ xs:string(dfdl:valueLength( ../ex:str, 'bytes')) }" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -381,7 +381,7 @@
         <xs:sequence dfdl:separator=",">
           <xs:element name="str" type="xs:string"  dfdl:lengthKind="delimited"
              nillable="true" dfdl:nilKind="literalValue" dfdl:nilValue="NIL" />
-          <xs:element name="valLen" type="xs:string"
+          <xs:element name="valLen" type="xs:long"
             dfdl:lengthKind="delimited" dfdl:inputValueCalc="{ dfdl:valueLength( ../ex:str, 'bytes' ) }" />
         </xs:sequence>
       </xs:complexType>
@@ -393,7 +393,7 @@
           <xs:element name="str" type="xs:string"  dfdl:lengthKind="delimited"
              nillable="true" dfdl:nilKind="literalValue" dfdl:nilValue="NIL" />
           <xs:element name="valLen" type="xs:string"
-            dfdl:lengthKind="delimited" dfdl:outputValueCalc="{ dfdl:valueLength( ../ex:str, 'bytes' ) }" />
+            dfdl:lengthKind="delimited" dfdl:outputValueCalc="{ xs:string(dfdl:valueLength( ../ex:str, 'bytes' )) }" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -411,7 +411,7 @@
               </xs:sequence>
             </xs:complexType>
           </xs:element>
-          <xs:element name="valLen" type="xs:string"
+          <xs:element name="valLen" type="xs:long"
             dfdl:lengthKind="delimited" dfdl:inputValueCalc="{ dfdl:valueLength( ../ex:seq, 'bytes' ) }" />
         </xs:sequence>
       </xs:complexType>
@@ -431,7 +431,7 @@
             </xs:complexType>
           </xs:element>
           <xs:element name="valLen" type="xs:string"
-            dfdl:lengthKind="delimited" dfdl:outputValueCalc="{ dfdl:valueLength( ../ex:seq, 'bytes' ) }" />
+            dfdl:lengthKind="delimited" dfdl:outputValueCalc="{ xs:string(dfdl:valueLength( ../ex:seq, 'bytes' )) }" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -441,7 +441,7 @@
         <xs:sequence dfdl:separator=",">
           <xs:element name="str" type="xs:string"  dfdl:lengthKind="delimited" />
           <xs:element name="valLen" type="xs:string"
-            dfdl:lengthKind="delimited" dfdl:inputValueCalc="{ dfdl:valueLength( ../ex:str, 'wrong') }" />
+            dfdl:lengthKind="delimited" dfdl:inputValueCalc="{ xs:string(dfdl:valueLength( ../ex:str, 'wrong')) }" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -462,7 +462,7 @@
         <xs:sequence dfdl:separator=",">
           <xs:element name="str" type="xs:string"  dfdl:lengthKind="delimited" dfdl:textTrimKind="padChar" 
             dfdl:textStringPadCharacter="/" dfdl:textStringJustification="center" />
-          <xs:element name="conLen" dfdl:lengthKind="delimited" type="xs:string" dfdl:inputValueCalc="{ dfdl:contentLength( ../ex:str, 'bits' ) }" />
+          <xs:element name="conLen" dfdl:lengthKind="delimited" type="xs:long" dfdl:inputValueCalc="{ dfdl:contentLength( ../ex:str, 'bits' ) }" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -490,7 +490,7 @@
       </xs:complexType>
     </xs:element>
 
-    <xs:element name="e_concat4" type="xs:int" dfdl:inputValueCalc="{ fn:concat(1, 2) }" />
+    <xs:element name="e_concat4" type="xs:int" dfdl:inputValueCalc="{ xs:int(fn:concat(1, 2)) }" />
     <xs:element name="e_concat5" type="xs:string" dfdl:inputValueCalc="{ fn:concat('a','','b','c') }" />
 
     <xs:element name="e_substring1" type="xs:string" dfdl:inputValueCalc="{ fn:substring('A substring test', 6) }" />
@@ -543,7 +543,7 @@
         <xs:sequence dfdl:separator=",">
           <xs:element name="one" type="xs:string" dfdl:lengthKind="delimited" />
           <xs:element name="two" type="xs:string" dfdl:lengthKind="delimited" />
-          <xs:element name="contains" type="xs:string" dfdl:inputValueCalc="{ fn:contains(../ex:one, ../ex:two) }"/>
+          <xs:element name="contains" type="xs:boolean" dfdl:inputValueCalc="{ fn:contains(../ex:one, ../ex:two) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -558,7 +558,7 @@
         <xs:sequence dfdl:separator=",">
           <xs:element name="one" type="xs:string" dfdl:lengthKind="delimited" />
           <xs:element name="two" type="xs:string" dfdl:lengthKind="delimited" />
-          <xs:element name="starts" type="xs:string" dfdl:inputValueCalc="{ fn:starts-with(../ex:one, ../ex:two) }"/>
+          <xs:element name="starts" type="xs:boolean" dfdl:inputValueCalc="{ fn:starts-with(../ex:one, ../ex:two) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -573,7 +573,7 @@
         <xs:sequence dfdl:separator=",">
           <xs:element name="one" type="xs:string" dfdl:lengthKind="delimited" />
           <xs:element name="two" type="xs:string" dfdl:lengthKind="delimited" />
-          <xs:element name="ends" type="xs:string" dfdl:inputValueCalc="{ fn:ends-with(../ex:one, ../ex:two) }"/>
+          <xs:element name="ends" type="xs:boolean" dfdl:inputValueCalc="{ fn:ends-with(../ex:one, ../ex:two) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -4191,13 +4191,13 @@
       </xs:complexType>
     </xs:element>
  
-    <xs:element name="ceil" type="xs:int" dfdl:inputValueCalc="{ fn:ceiling(4.2) }"/>
+    <xs:element name="ceil" type="xs:double" dfdl:inputValueCalc="{ fn:ceiling(4.2) }"/>
 
     <xs:element name="ceil02">
       <xs:complexType>
         <xs:sequence>
           <xs:element name="val" type="xs:float" dfdl:lengthKind="delimited"/>
-          <xs:element name="ceilval" type="xs:int" dfdl:inputValueCalc="{ fn:ceiling(../ex:val) }"/>
+          <xs:element name="ceilval" type="xs:float" dfdl:inputValueCalc="{ fn:ceiling(../ex:val) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -4206,7 +4206,7 @@
       <xs:complexType>
         <xs:sequence>
           <xs:element name="val" type="xs:string" dfdl:lengthKind="delimited"/>
-          <xs:element name="ceilval" type="xs:int" dfdl:inputValueCalc="{ fn:ceiling(xs:double(../ex:val)) }"/>
+          <xs:element name="ceilval" type="xs:double" dfdl:inputValueCalc="{ fn:ceiling(xs:double(../ex:val)) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -4215,7 +4215,7 @@
       <xs:complexType>
         <xs:sequence>
           <xs:element name="val" type="xs:string" dfdl:lengthKind="delimited"/>
-          <xs:element xmlns:tst="http://www.w3.org/2005/xpath-functions" name="ceilval" type="xs:int" dfdl:inputValueCalc="{ tst:ceiling(xs:double(../ex:val)) }"/>
+          <xs:element xmlns:tst="http://www.w3.org/2005/xpath-functions" name="ceilval" type="xs:double" dfdl:inputValueCalc="{ tst:ceiling(xs:double(../ex:val)) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -4224,7 +4224,7 @@
       <xs:complexType>
         <xs:sequence>
           <xs:element name="val" type="xs:hexBinary" dfdl:lengthKind="delimited" dfdl:encoding="ISO-8859-1"/>
-          <xs:element name="ceilval" type="xs:int" dfdl:inputValueCalc="{ fn:ceiling(../ex:val) }"/>
+          <xs:element name="ceilval" type="xs:double" dfdl:inputValueCalc="{ fn:ceiling(../ex:val) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -4235,7 +4235,7 @@
           <xs:element name="val" type="xs:float" dfdl:lengthKind="delimited"/>
           <xs:element name="ceilval" dfdl:inputValueCalc="{ fn:ceiling(../ex:val) }">
             <xs:simpleType>
-              <xs:restriction base="xs:int">
+              <xs:restriction base="xs:float">
                 <xs:maxExclusive value="50"/>
                 <xs:minExclusive value="0"/>
               </xs:restriction>
@@ -4249,18 +4249,18 @@
       <xs:complexType>
         <xs:sequence>
           <xs:element name="val" type="xs:string" dfdl:lengthKind="delimited"/>
-          <xs:element name="ceilval" type="xs:int" dfdl:inputValueCalc="{ fn:ceiling(../ex:val) }"/>
+          <xs:element name="ceilval" type="xs:double" dfdl:inputValueCalc="{ fn:ceiling(../ex:val) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
     
-    <xs:element name="floor" type="xs:int" dfdl:inputValueCalc="{ fn:floor(4.2) }"/>
+    <xs:element name="floor" type="xs:double" dfdl:inputValueCalc="{ fn:floor(4.2) }"/>
 
     <xs:element name="floor02">
       <xs:complexType>
         <xs:sequence>
           <xs:element name="val" type="xs:float" dfdl:lengthKind="delimited"/>
-          <xs:element name="floorval" type="xs:int" dfdl:inputValueCalc="{ fn:floor(../ex:val) }"/>
+          <xs:element name="floorval" type="xs:float" dfdl:inputValueCalc="{ fn:floor(../ex:val) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -4269,7 +4269,7 @@
       <xs:complexType>
         <xs:sequence>
           <xs:element name="val" type="xs:string" dfdl:lengthKind="delimited"/>
-          <xs:element name="floorval" type="xs:int" dfdl:inputValueCalc="{ fn:floor(xs:double(../ex:val)) }"/>
+          <xs:element name="floorval" type="xs:double" dfdl:inputValueCalc="{ fn:floor(xs:double(../ex:val)) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -4278,7 +4278,7 @@
       <xs:complexType>
         <xs:sequence>
           <xs:element name="val" type="xs:string" dfdl:lengthKind="delimited"/>
-          <xs:element xmlns:tst="http://www.w3.org/2005/xpath-functions" name="floorval" type="xs:int" dfdl:inputValueCalc="{ tst:floor(xs:double(../ex:val)) }"/>
+          <xs:element xmlns:tst="http://www.w3.org/2005/xpath-functions" name="floorval" type="xs:double" dfdl:inputValueCalc="{ tst:floor(xs:double(../ex:val)) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -4289,7 +4289,7 @@
           <xs:element name="val" type="xs:float" dfdl:lengthKind="delimited"/>
           <xs:element name="floorval" dfdl:inputValueCalc="{ fn:floor(../ex:val) }">
             <xs:simpleType>
-              <xs:restriction base="xs:int">
+              <xs:restriction base="xs:float">
                 <xs:maxExclusive value="50"/>
                 <xs:minExclusive value="0"/>
               </xs:restriction>
@@ -4312,18 +4312,18 @@
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
           <xs:element name="val" type="xs:float" dfdl:representation="binary" dfdl:lengthKind="explicit" dfdl:length="4"/>
-          <xs:element name="floorval" type="xs:int" dfdl:inputValueCalc="{ fn:floor(../ex:val) }"/>
+          <xs:element name="floorval" type="xs:float" dfdl:inputValueCalc="{ fn:floor(../ex:val) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
     
-    <xs:element name="round" type="xs:int" dfdl:inputValueCalc="{ fn:round(4.2) }"/>
+    <xs:element name="round" type="xs:double" dfdl:inputValueCalc="{ fn:round(4.2) }"/>
 
     <xs:element name="round02">
       <xs:complexType>
         <xs:sequence>
           <xs:element name="val" type="xs:float" dfdl:lengthKind="delimited" dfdl:textStandardInfinityRep="INF" dfdl:textStandardNaNRep="NaN"/>
-          <xs:element name="roundval" type="xs:int" dfdl:inputValueCalc="{ fn:round(../ex:val) }"/>
+          <xs:element name="roundval" type="xs:float" dfdl:inputValueCalc="{ fn:round(../ex:val) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -4332,7 +4332,7 @@
       <xs:complexType>
         <xs:sequence>
           <xs:element name="val" type="xs:string" dfdl:lengthKind="delimited"/>
-          <xs:element name="roundval" type="xs:int" dfdl:inputValueCalc="{ fn:round(xs:double(../ex:val)) }"/>
+          <xs:element name="roundval" type="xs:double" dfdl:inputValueCalc="{ fn:round(xs:double(../ex:val)) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -4341,7 +4341,7 @@
       <xs:complexType>
         <xs:sequence>
           <xs:element name="val" type="xs:string" dfdl:lengthKind="delimited"/>
-          <xs:element xmlns:tst="http://www.w3.org/2005/xpath-functions" name="roundval" type="xs:int" dfdl:inputValueCalc="{ tst:round(xs:double(../ex:val)) }"/>
+          <xs:element xmlns:tst="http://www.w3.org/2005/xpath-functions" name="roundval" type="xs:double" dfdl:inputValueCalc="{ tst:round(xs:double(../ex:val)) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -4350,7 +4350,7 @@
       <xs:complexType>
         <xs:sequence>
           <xs:element name="val" type="xs:float" dfdl:representation="binary" dfdl:lengthKind="explicit" dfdl:length="4"/>
-          <xs:element name="roundval" type="xs:int" dfdl:inputValueCalc="{ fn:round(../ex:val) }"/>
+          <xs:element name="roundval" type="xs:float" dfdl:inputValueCalc="{ fn:round(../ex:val) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -4360,7 +4360,7 @@
         <xs:sequence>
           <xs:element name="one" type="xs:float" dfdl:representation="binary" dfdl:lengthKind="explicit" dfdl:length="4"/>
           <xs:element name="two" type="xs:float" dfdl:representation="binary" dfdl:lengthKind="explicit" dfdl:length="4"/>
-          <xs:element name="roundval" type="xs:int" dfdl:inputValueCalc="{ fn:round(../ex:one + ../ex:two) }"/>
+          <xs:element name="roundval" type="xs:float" dfdl:inputValueCalc="{ fn:round(../ex:one + ../ex:two) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -4418,7 +4418,7 @@
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
           <xs:element name="num" type="xs:string" dfdl:lengthKind="delimited"/>
-          <xs:element name="roundval" type="xs:float" dfdl:inputValueCalc="{ fn:round-half-to-even(xs:double(../ex:num)) }"/>
+          <xs:element name="roundval" type="xs:double" dfdl:inputValueCalc="{ fn:round-half-to-even(xs:double(../ex:num)) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -4427,7 +4427,26 @@
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
           <xs:element name="num" dfdl:representation="binary" type="xs:float" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="4"/>
-          <xs:element name="roundval" type="xs:float" dfdl:inputValueCalc="{ fn:round-half-to-even(xs:double(../ex:num)) }"/>
+          <xs:element name="roundval" type="xs:double" dfdl:inputValueCalc="{ fn:round-half-to-even(xs:double(../ex:num)) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="round-hte-7">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="num" type="xs:float" dfdl:lengthKind="delimited" dfdl:textNumberPattern="#.#######"/>
+          <xs:element name="precision" type="xs:int" dfdl:lengthKind="delimited"/>
+          <xs:element name="roundval" type="xs:int" dfdl:inputValueCalc="{ xs:int(fn:round-half-to-even(../ex:num,../ex:precision)) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="round-hte-8">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="num" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="roundval" type="xs:int" dfdl:inputValueCalc="{ xs:int(fn:round-half-to-even(xs:double(../ex:num))) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -5170,7 +5189,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <ceil>5</ceil>
+        <ceil>5.0</ceil>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -5192,7 +5211,7 @@
       <tdml:dfdlInfoset>
         <ceil02>
           <val>6.1</val>
-          <ceilval>7</ceilval>
+          <ceilval>7.0</ceilval>
         </ceil02>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -5237,7 +5256,7 @@
       <tdml:dfdlInfoset>
         <ceil04>
           <val>4.2</val>
-          <ceilval>5</ceilval>
+          <ceilval>5.0</ceilval>
         </ceil04>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -5260,7 +5279,7 @@
       <tdml:dfdlInfoset>
         <ceil04>
           <val>-3.4</val>
-          <ceilval>-3</ceilval>
+          <ceilval>-3.0</ceilval>
         </ceil04>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -5301,14 +5320,14 @@
       <tdml:dfdlInfoset>
         <ex:ceil06>
           <val>49.2</val>
-          <ceilval>50</ceilval>
+          <ceilval>50.0</ceilval>
         </ex:ceil06>
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:validationErrors>
-      <tdml:error>'50'</tdml:error>
+      <tdml:error>'50.0'</tdml:error>
       <tdml:error>not facet-valid</tdml:error>
-      <tdml:error>maxExclusive '50'</tdml:error>
+      <tdml:error>maxExclusive</tdml:error>
     </tdml:validationErrors>
   </tdml:parserTestCase>
 
@@ -5346,7 +5365,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <floor>4</floor>
+        <floor>4.0</floor>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -5368,7 +5387,7 @@
       <tdml:dfdlInfoset>
         <floor02>
           <val>6.1</val>
-          <floorval>6</floorval>
+          <floorval>6.0</floorval>
         </floor02>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -5413,7 +5432,7 @@
       <tdml:dfdlInfoset>
         <floor04>
           <val>4.2</val>
-          <floorval>4</floorval>
+          <floorval>4.0</floorval>
         </floor04>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -5436,7 +5455,7 @@
       <tdml:dfdlInfoset>
         <floor04>
           <val>-3.4</val>
-          <floorval>-4</floorval>
+          <floorval>-4.0</floorval>
         </floor04>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -5458,14 +5477,14 @@
       <tdml:dfdlInfoset>
         <floor05>
           <val>0.8</val>
-          <floorval>0</floorval>
+          <floorval>0.0</floorval>
         </floor05>
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:validationErrors>
-      <tdml:error>'0'</tdml:error>
+      <tdml:error>'0.0'</tdml:error>
       <tdml:error>not facet-valid</tdml:error>
-      <tdml:error>minExclusive '0'</tdml:error>
+      <tdml:error>minExclusive</tdml:error>
     </tdml:validationErrors>
   </tdml:parserTestCase>
 
@@ -5503,7 +5522,7 @@
       <tdml:dfdlInfoset>
         <floor07>
           <val>42.0</val>
-          <floorval>42</floorval>
+          <floorval>42.0</floorval>
         </floor07>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -5525,7 +5544,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <round>4</round>
+        <round>4.0</round>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -5547,7 +5566,7 @@
       <tdml:dfdlInfoset>
         <round02>
           <val>6.1</val>
-          <roundval>6</roundval>
+          <roundval>6.0</roundval>
         </round02>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -5592,7 +5611,7 @@
       <tdml:dfdlInfoset>
         <round04>
           <val>4.2</val>
-          <roundval>4</roundval>
+          <roundval>4.0</roundval>
         </round04>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -5615,7 +5634,7 @@
       <tdml:dfdlInfoset>
         <round04>
           <val>-3.4</val>
-          <roundval>-3</roundval>
+          <roundval>-3.0</roundval>
         </round04>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -5638,7 +5657,7 @@
       <tdml:dfdlInfoset>
         <round04>
           <val>.5</val>
-          <roundval>1</roundval>
+          <roundval>1.0</roundval>
         </round04>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -5680,7 +5699,7 @@
       <tdml:dfdlInfoset>
         <round05>
           <val>40.3</val>
-          <roundval>40</roundval>
+          <roundval>40.0</roundval>
         </round05>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -5703,7 +5722,7 @@
       <tdml:dfdlInfoset>
         <round05>
           <val>40.5</val>
-          <roundval>41</roundval>
+          <roundval>41.0</roundval>
         </round05>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -5727,7 +5746,7 @@
         <round06>
           <one>10.3</one>
           <two>10.4</two>
-          <roundval>21</roundval>
+          <roundval>21.0</roundval>
         </round06>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -5751,7 +5770,7 @@
         <round06>
           <one>10.3</one>
           <two>10.1</two>
-          <roundval>20</roundval>
+          <roundval>20.0</roundval>
         </round06>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -5770,9 +5789,14 @@
     <tdml:document>
       <tdml:documentPart type="text">INF</tdml:documentPart>
     </tdml:document>
-    <tdml:errors>
-      <tdml:error>Parse Error</tdml:error>
-    </tdml:errors>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <round02>
+          <val>INF</val>
+          <roundval>INF</roundval>
+        </round02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
 <!--
@@ -5815,7 +5839,7 @@
       <tdml:dfdlInfoset>
         <round04>
           <val>-0.5</val>
-          <roundval>0</roundval>
+          <roundval>0.0</roundval>
         </round04>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -5838,7 +5862,7 @@
       <tdml:dfdlInfoset>
         <round04>
           <val>-0.0</val>
-          <roundval>0</roundval>
+          <roundval>0.0</roundval>
         </round04>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -6158,7 +6182,7 @@
       <tdml:documentPart type="text">three point two,5</tdml:documentPart>
     </tdml:document>
     <tdml:errors>
-      <tdml:error>String cannot be converted to Numeric</tdml:error>
+      <tdml:error>First argument must be of numeric type but was String</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -6255,6 +6279,54 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+
+<!--
+    Test Name: round_hte_17
+       Schema: XPathFunctions
+         Root: round-hte
+      Purpose: This test demonstrates the round-half-to-even function, converted to an xs:int
+-->
+
+  <tdml:parserTestCase name="round_hte_17" root="round-hte-7"
+    model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - round-half-to-even - DFDL-23-098R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">3.45,0</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <round-hte-7>
+          <num>3.45</num>
+          <precision>0</precision>
+          <roundval>3</roundval>
+        </round-hte-7>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: round_hte_18
+       Schema: XPathFunctions
+         Root: round-hte-8
+      Purpose: This test demonstrates the round-half-to-even function, converted to an xs:int
+-->
+
+  <tdml:parserTestCase name="round_hte_18" root="round-hte-8"
+    model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - round-half-to-even - DFDL-23-098R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">3.5</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <round-hte-8>
+          <num>3.5</num>
+          <roundval>4</roundval>
+        </round-hte-8>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
   
   <tdml:defineSchema name="constructorSchema">
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>

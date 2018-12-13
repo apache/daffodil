@@ -557,7 +557,7 @@
           <xs:element name="one" type="xs:int" dfdl:inputValueCalc="{ $ex:v_with_default }" dfdl:lengthKind="delimited">
             <xs:annotation>
               <xs:appinfo source="http://www.ogf.org/dfdl/">
-                <dfdl:setVariable ref="ex:v_no_default">{ "BEEEP" }</dfdl:setVariable>
+                <dfdl:setVariable ref="ex:v_no_default">{ xs:int("BEEEP") }</dfdl:setVariable>
               </xs:appinfo>
             </xs:annotation>
           </xs:element>
@@ -592,7 +592,7 @@
           <xs:element name="one" type="xs:string" dfdl:lengthKind="delimited">
             <xs:annotation>
               <xs:appinfo source="http://www.ogf.org/dfdl/">
-                <dfdl:setVariable ref="ex:holder2" value="{ (.) }" />
+                <dfdl:setVariable ref="ex:holder2" value="{ xs:int(.) }" />
               </xs:appinfo>
             </xs:annotation>
           </xs:element>

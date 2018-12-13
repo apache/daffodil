@@ -231,7 +231,7 @@
               <xs:sequence>
                 <xs:element name="checksum" type="xs:int"/>
                 <xs:sequence dfdl:hiddenGroupRef="ex:IPSrcGrp"/>
-                <xs:element name="IPSrc" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:inputValueCalc="{ ../sbyte1 }"/>
+                <xs:element name="IPSrc" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:inputValueCalc="{ xs:string(../sbyte1) }"/>
               </xs:sequence>
             </xs:complexType>
           </xs:element>
@@ -315,8 +315,8 @@
           <xs:element name="yi" type="xs:string" dfdl:length="1" dfdl:lengthKind="explicit"/>
           <xs:element name="zi" type="xs:string" dfdl:length="1" dfdl:lengthKind="explicit"/>
 
-          <xs:element name="x" type="xs:string" dfdl:outputValueCalc="{ dfdl:valueLength(../y, 'bytes') }" dfdl:initiator="{../xi}"  dfdl:lengthKind="delimited" dfdl:terminator=";"/>
-          <xs:element name="y" type="xs:string" dfdl:outputValueCalc="{ dfdl:valueLength(../z, 'bytes')}"  dfdl:initiator="Y"  dfdl:lengthKind="delimited" dfdl:terminator=";"/>
+          <xs:element name="x" type="xs:string" dfdl:outputValueCalc="{ xs:string(dfdl:valueLength(../y, 'bytes')) }" dfdl:initiator="{../xi}"  dfdl:lengthKind="delimited" dfdl:terminator=";"/>
+          <xs:element name="y" type="xs:string" dfdl:outputValueCalc="{ xs:string(dfdl:valueLength(../z, 'bytes')) }" dfdl:initiator="Y"  dfdl:lengthKind="delimited" dfdl:terminator=";"/>
           <xs:element name="z" type="xs:string" dfdl:initiator="Z"  dfdl:lengthKind="delimited" dfdl:terminator=";"/>
         </xs:sequence>
       </xs:complexType>
@@ -371,8 +371,8 @@
           <xs:element name="yi" type="xs:string" dfdl:length="5" dfdl:lengthKind="explicit"/>
           <xs:element name="zi" type="xs:string" dfdl:length="5" dfdl:lengthKind="explicit"/>
 
-          <xs:element name="x" type="xs:date" dfdl:lengthKind="delimited" dfdl:representation="text" dfdl:calendarPattern="EEEE MMMM yyyy" dfdl:calendarLanguage="{ ../xi }" dfdl:outputValueCalc="{ fn:concat('2017-8-',dfdl:valueLength(../y, 'bytes')) }" dfdl:calendarPatternKind="explicit" />
-          <xs:element name="y" type="xs:date" dfdl:lengthKind="delimited" dfdl:representation="text" dfdl:calendarPattern="EEEE MMMM yyyy" dfdl:calendarLanguage="{ ../yi }" dfdl:outputValueCalc="{ fn:concat('1986-6-',dfdl:valueLength(../z, 'bytes')) }" dfdl:calendarPatternKind="explicit" />
+          <xs:element name="x" type="xs:date" dfdl:lengthKind="delimited" dfdl:representation="text" dfdl:calendarPattern="EEEE MMMM yyyy" dfdl:calendarLanguage="{ ../xi }" dfdl:outputValueCalc="{ xs:date(fn:concat('2017-8-',dfdl:valueLength(../y, 'bytes'))) }" dfdl:calendarPatternKind="explicit" />
+          <xs:element name="y" type="xs:date" dfdl:lengthKind="delimited" dfdl:representation="text" dfdl:calendarPattern="EEEE MMMM yyyy" dfdl:calendarLanguage="{ ../yi }" dfdl:outputValueCalc="{ xs:date(fn:concat('1986-6-',dfdl:valueLength(../z, 'bytes'))) }" dfdl:calendarPatternKind="explicit" />
           <xs:element name="z" type="xs:date" dfdl:lengthKind="delimited" dfdl:representation="text" dfdl:calendarPattern="EEEE MMMM yyyy" dfdl:calendarLanguage="{ ../zi }" dfdl:calendarPatternKind="explicit" dfdl:encoding="UTF-8" />
         </xs:sequence>
       </xs:complexType>

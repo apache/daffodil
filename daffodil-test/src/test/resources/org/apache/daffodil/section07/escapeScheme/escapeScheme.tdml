@@ -310,8 +310,8 @@
     </dfdl:defineEscapeScheme>
     
     <dfdl:defineEscapeScheme name="fromData3">
-      <dfdl:escapeScheme escapeCharacter="{ xs:int(../tns:escapeChar) - 3 }"
-        escapeKind="escapeCharacter" escapeEscapeCharacter="{ xs:int(fn:ceiling(xs:float(../tns:escapeEscapeChar))) }" extraEscapedCharacters="" generateEscapeBlock="whenNeeded" />
+      <dfdl:escapeScheme escapeCharacter="{ xs:string(xs:int(../tns:escapeChar) - 3) }"
+        escapeKind="escapeCharacter" escapeEscapeCharacter="{ xs:string(xs:int(fn:ceiling(xs:float(../tns:escapeEscapeChar)))) }" extraEscapedCharacters="" generateEscapeBlock="whenNeeded" />
     </dfdl:defineEscapeScheme>
 
     <xs:element name="e1">

@@ -84,7 +84,7 @@ class TestDFDLExpressionTree extends Parsers {
   val aSchema = SchemaUtils.dfdlTestSchema(
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
     <dfdl:format ref="tns:GeneralFormat"/>,
-    <xs:element name="a" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ xs:unsignedInt(5) }"/>)
+    <xs:element name="a" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ xs:string(xs:unsignedInt(5)) }"/>)
 
   @Test def test_a() = {
     testExpr2(aSchema, "{ /tns:a }") { (ce, erd) =>
@@ -107,7 +107,7 @@ class TestDFDLExpressionTree extends Parsers {
       <xs:complexType>
         <xs:sequence>
           <xs:element name="i" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="2"/>
-          <xs:element name="a" maxOccurs="2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ xs:unsignedInt(5) }"/>
+          <xs:element name="a" maxOccurs="2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ xs:string(xs:unsignedInt(5)) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>)

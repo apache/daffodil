@@ -226,10 +226,12 @@ class TestDFDLExpressions {
   @Test def test_ArrayOptElem_01() { runner.runOneTest("ArrayOptElem_01") }
   @Test def test_lke2_rel() { runner.runOneTest("lke2_rel") }
   @Test def test_expression_type_error1() { runner.runOneTest("expression_type_error1") }
-  // DFDL-1044
-  // @Test def test_expression_type_error2() { runner.runOneTest("expression_type_error2") }
+  @Test def test_expression_type_error2() { runner.runOneTest("expression_type_error2") }
   @Test def test_expression_type_error3() { runner.runOneTest("expression_type_error3") }
   @Test def test_expression_type_error4() { runner.runOneTest("expression_type_error4") }
+  @Test def test_expression_type_error5() { runner.runOneTest("expression_type_error5") }
+  @Test def test_expression_type_error6() { runner.runOneTest("expression_type_error6") }
+  @Test def test_expression_type_error7() { runner.runOneTest("expression_type_error7") }
   @Test def test_expression_unknown_prefix() { runner.runOneTest("expression_unknown_prefix") }
   @Test def test_ocke_rel() { runner.runOneTest("ocke_rel") }
   @Test def test_ocke_rel2() { runner.runOneTest("ocke_rel2") }
@@ -448,6 +450,8 @@ class TestDFDLExpressions {
   @Test def test_round_hte_14() { runner2.runOneTest("round_hte_14") }
   @Test def test_round_hte_15() { runner2.runOneTest("round_hte_15") }
   @Test def test_round_hte_16() { runner2.runOneTest("round_hte_16") }
+  @Test def test_round_hte_17() { runner2.runOneTest("round_hte_17") }
+  @Test def test_round_hte_18() { runner2.runOneTest("round_hte_18") }
 
   //DFDL-1080
   //@Test def test_empty_02() { runner2.runOneTest("empty_02") }

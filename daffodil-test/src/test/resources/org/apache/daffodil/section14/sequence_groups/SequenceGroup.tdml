@@ -984,11 +984,11 @@ more ignored input
   <xs:group name="data">
     <xs:sequence dfdl:separator="">
       <xs:element name="_x" type="xs:int" dfdl:representation="text"
-        dfdl:terminator="%NL;" dfdl:outputValueCalc="{ ../ex:x }" />
+        dfdl:terminator="%NL;" dfdl:outputValueCalc="{ xs:int(../ex:x) }" />
       <xs:element name="_y" type="xs:int" dfdl:representation="text"
-        dfdl:terminator="%NL;" dfdl:outputValueCalc="{ ../ex:y }" />
+        dfdl:terminator="%NL;" dfdl:outputValueCalc="{ xs:int(../ex:y) }" />
       <xs:element name="_z" type="xs:int" dfdl:representation="text"
-        dfdl:terminator="%NL;" dfdl:outputValueCalc="{ ../ex:z }" />
+        dfdl:terminator="%NL;" dfdl:outputValueCalc="{ xs:int(../ex:z) }" />
     </xs:sequence>
   </xs:group>
 
@@ -1002,11 +1002,11 @@ more ignored input
           dfdl:inputValueCalc="{ /ex:table/ex:_x + /ex:table/ex:_y + /ex:table/ex:_z }" />
         <xs:element name="concat" type="xs:string"
           dfdl:inputValueCalc="{ fn:concat(fn:concat(/ex:table/ex:_x,/ex:table/ex:_y),/ex:table/ex:_z) }" />
-        <xs:element name="x" type="xs:string" dfdl:inputValueCalc="{ ../ex:_x }" />
-        <xs:element name="y" type="xs:string" dfdl:inputValueCalc="{ ../ex:_y }" />
-        <xs:element name="z" type="xs:string" dfdl:inputValueCalc="{ ../ex:_z }" />
+        <xs:element name="x" type="xs:string" dfdl:inputValueCalc="{ xs:string(../ex:_x) }" />
+        <xs:element name="y" type="xs:string" dfdl:inputValueCalc="{ xs:string(../ex:_y) }" />
+        <xs:element name="z" type="xs:string" dfdl:inputValueCalc="{ xs:string(../ex:_z) }" />
         <xs:element name="productAgain" type="xs:string"
-          dfdl:inputValueCalc="{ ../ex:product }" />
+          dfdl:inputValueCalc="{ xs:string(../ex:product) }" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
