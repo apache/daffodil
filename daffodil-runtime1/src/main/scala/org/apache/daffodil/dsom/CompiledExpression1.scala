@@ -372,14 +372,16 @@ class DPathElementCompileInfo(
    * TODO: Must eventually change to support query-style expressions where there
    * can be more than one such child.
    */
-  final def findNamedChild(step: StepQName,
+  final def findNamedChild(
+    step: StepQName,
     expr: ImplementsThrowsOrSavesSDE): DPathElementCompileInfo = {
     val matches = findNamedMatches(step, elementChildrenCompileInfo, expr)
     indicateReferencedByExpression(matches)
     matches(0)
   }
 
-  final def findRoot(step: StepQName,
+  final def findRoot(
+    step: StepQName,
     expr: ImplementsThrowsOrSavesSDE): DPathElementCompileInfo = {
     val matches = findNamedMatches(step, Seq(this), expr)
     indicateReferencedByExpression(matches)
@@ -448,7 +450,8 @@ class DPathElementCompileInfo(
    * Issues a good diagnostic with suggestions about near-misses on names
    * like missing prefixes.
    */
-  final def noMatchError(step: StepQName,
+  final def noMatchError(
+    step: StepQName,
     possibles: Seq[DPathElementCompileInfo] = this.elementChildrenCompileInfo) = {
     //
     // didn't find a exact match.
@@ -482,7 +485,8 @@ class DPathElementCompileInfo(
       }
     val interestingCandidates = withStepsQNamePrefixes.map { _.toPrettyString }.mkString(", ")
     if (interestingCandidates.length > 0) {
-      SDE("No element corresponding to step %s found,\nbut elements with the same local name were found (%s).\nPerhaps a prefix is incorrect or missing on the step name?",
+      SDE(
+        "No element corresponding to step %s found,\nbut elements with the same local name were found (%s).\nPerhaps a prefix is incorrect or missing on the step name?",
         step.toPrettyString, interestingCandidates)
     } else {
       //
@@ -490,10 +494,12 @@ class DPathElementCompileInfo(
       //
       val interestingCandidates = possibles.map { _.namedQName }.mkString(", ")
       if (interestingCandidates != "")
-        SDE("No element corresponding to step %s found. Possibilities for this step include: %s.",
+        SDE(
+          "No element corresponding to step %s found. Possibilities for this step include: %s.",
           step.toPrettyString, interestingCandidates)
       else
-        SDE("No element corresponding to step %s found.",
+        SDE(
+          "No element corresponding to step %s found.",
           step.toPrettyString)
     }
   }

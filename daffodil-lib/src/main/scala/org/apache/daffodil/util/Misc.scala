@@ -144,7 +144,7 @@ object Misc {
     val cl = this.getClass().getClassLoader()
     val urls = cl match {
       case url: URLClassLoader => url.getURLs().toSeq
-      case _  => Seq.empty
+      case _ => Seq.empty
     }
     urls
   }

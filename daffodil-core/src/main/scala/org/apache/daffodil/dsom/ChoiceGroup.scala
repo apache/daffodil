@@ -105,7 +105,7 @@ abstract class ChoiceTermBase(
   extends ModelGroup(position)
   with Choice_AnnotationMixin
   with RawDelimitedRuntimeValuedPropertiesMixin // initiator and terminator (not separator)
-  with ChoiceGrammarMixin 
+  with ChoiceGrammarMixin
   with HasOptRepTypeMixinImpl {
 
   requiredEvaluations(branchesAreNonOptional)
@@ -114,28 +114,21 @@ abstract class ChoiceTermBase(
 
   protected final override lazy val myPeers = choicePeers
 
-  final lazy val hasStaticallyRequiredOccurrencesInDataRepresentation = {
-    // true if the choice has syntactic features (initiator, terminator)
-    hasInitiator || hasTerminator ||
-      // or if all arms of the choice have statically required instances.
-      groupMembers.forall { _.hasStaticallyRequiredOccurrencesInDataRepresentation }
-  }
-
   final protected lazy val optionChoiceDispatchKeyRaw = findPropertyOption("choiceDispatchKey")
   final protected lazy val choiceDispatchKeyRaw = requireProperty(optionChoiceDispatchKeyRaw)
-  
+
   lazy val optionChoiceDispatchKeyKindRaw = findPropertyOption("choiceDispatchKeyKind")
-  lazy val defaultableChoiceDispatchKeyKind = 
-    if(tunable.requireChoiceDispatchKeyKindProperty){
+  lazy val defaultableChoiceDispatchKeyKind =
+    if (tunable.requireChoiceDispatchKeyKindProperty) {
       choiceDispatchKeyKind
     } else {
       val asString = optionChoiceDispatchKeyKindRaw.toOption.getOrElse("implicit")
       ChoiceKeyKindType(asString, this)
     }
-  
+
   lazy val optionChoiceBranchKeyKindRaw = findPropertyOption("choiceBranchKeyKind")
-  lazy val defaultableChoiceBranchKeyKind = 
-    if(tunable.requireChoiceBranchKeyKindProperty){
+  lazy val defaultableChoiceBranchKeyKind =
+    if (tunable.requireChoiceBranchKeyKindProperty) {
       choiceDispatchKeyKind
     } else {
       val asString = optionChoiceBranchKeyKindRaw.toOption.getOrElse("implicit")
@@ -143,7 +136,7 @@ abstract class ChoiceTermBase(
     }
 
   final lazy val isDirectDispatch = {
-    val isDD :Boolean = defaultableChoiceDispatchKeyKind match{
+    val isDD: Boolean = defaultableChoiceDispatchKeyKind match {
       case ChoiceKeyKindType.ByType => true
       case ChoiceKeyKindType.Explicit => true
       case ChoiceKeyKindType.Implicit => optionChoiceDispatchKeyRaw.isDefined
@@ -172,17 +165,17 @@ abstract class ChoiceTermBase(
   override final lazy val optRepTypeFactory: Option[SimpleTypeDefFactory with NamedMixin] = defaultableChoiceDispatchKeyKind match {
     case ChoiceKeyKindType.ByType => {
       val branchReptypes: Seq[SimpleTypeDefFactory with NamedMixin] = groupMembers.map(term => {
-          term match{
-            case e: ElementDeclMixin => e.typeDef match{
-              case t: SimpleTypeDefBase => t.optRepTypeDefFactory match{
-                case None => SDE("When <xs:choice> has choiceBranchKey=\"byType\", all branches must have a type which defines a repType")
-                case Some(x) => x
-              }
-              case _ : SimpleTypeBase => SDE("When <xs:choice> has choiceBranchKey=\"byType\", no branch can have a primitive xsd type")
-              case _ => SDE("When <xs:choice> has choiceBranchKey=\"byType\", all branches must be a simple type")
+        term match {
+          case e: ElementDeclMixin => e.typeDef match {
+            case t: SimpleTypeDefBase => t.optRepTypeDefFactory match {
+              case None => SDE("When <xs:choice> has choiceBranchKey=\"byType\", all branches must have a type which defines a repType")
+              case Some(x) => x
             }
-            case _ => SDE("When <xs:choice> has choiceBranchKey=\"byType\", all branches must be a simple element")
+            case _: SimpleTypeBase => SDE("When <xs:choice> has choiceBranchKey=\"byType\", no branch can have a primitive xsd type")
+            case _ => SDE("When <xs:choice> has choiceBranchKey=\"byType\", all branches must be a simple type")
           }
+          case _ => SDE("When <xs:choice> has choiceBranchKey=\"byType\", all branches must be a simple element")
+        }
       })
       val ans = branchReptypes.reduce((a, b) => {
         /*
@@ -196,8 +189,8 @@ abstract class ChoiceTermBase(
       Some(ans)
     }
     case ChoiceKeyKindType.Speculative => None
-    case ChoiceKeyKindType.Explicit    => None
-    case ChoiceKeyKindType.Implicit    => None
+    case ChoiceKeyKindType.Explicit => None
+    case ChoiceKeyKindType.Implicit => None
   }
 
   /*
@@ -210,13 +203,24 @@ abstract class ChoiceTermBase(
    * There is no indication yet that this problem is particuarly intractable, however it is non-trivial. Since we never
    * actually need to know the optRepValueSet of an entire choiceGroup, we can simple avoid thinking about it until such a time that we do.
    */
-  
+
   override final lazy val optRepValueSet = Assert.invariantFailed("We shouldn't need to compute the optRepValueSet of a choiceGroup")
 
-  final override def hasKnownRequiredSyntax = LV('hasKnownRequiredSyntax) {
-    if (hasInitiator || hasTerminator) true
+  final override lazy val hasKnownRequiredSyntax = LV('hasKnownRequiredSyntax) {
+    if (hasFraming) true
     // else if (isKnownToBeAligned) true //TODO: Alignment may not occur; hence, cannot be part of determining whether there is known syntax.
-    else groupMembers.forall(_.hasKnownRequiredSyntax)
+    else {
+      val res =
+        // For a group, we only have known required syntax if all branches do.
+        // If even one branch doesn't, then we don't have "known required" because the data could match
+        // that branch, meaning we wouldn't, in that case, have syntax.
+        groupMembers.forall { member =>
+          val res =
+            member.hasKnownRequiredSyntax
+          res
+        }
+      res
+    }
   }.value
 
   /**
@@ -234,10 +238,11 @@ abstract class ChoiceTermBase(
    *
    * Open issues:
    * 1) Is alignment or leading/trailing skip to be considered syntax. Alignment might not be there.
-   * 2) What about an empty sequence that only carries statement annotations such as dfdl:assert
+   * 2) What about an empty sequence that only carries statement annotations such as dfdl:assert or
+   * dfdl:setVariable
    *
-   * This latter need to be allowed, and are because while they do not have known required syntax,
-   * they are still considered to be represented. (all sequence and choice groups are isRepresented == true).
+   * This latter need to be allowed, because while they do not have known required syntax they do
+   * have to be executed for side-effect.
    */
   final def branchesAreNonOptional = LV('branchesAreNonOptional) {
     val branchesOk = groupMembers map { branch =>
@@ -290,9 +295,9 @@ abstract class ChoiceTermBase(
             // So if there is ambiguity at this point, we have to fail.
             SDE(
               "UPA violation. Multiple choice branches begin with %s.\n" +
-              "Note that elements with dfdl:outputValueCalc cannot be used to distinguish choice branches.\n" +
-              "Note that choice branches with entirely optional content are not allowed.\n" +
-              "The offending choice branches are:\n%s",
+                "Note that elements with dfdl:outputValueCalc cannot be used to distinguish choice branches.\n" +
+                "Note that choice branches with entirely optional content are not allowed.\n" +
+                "The offending choice branches are:\n%s",
               event.qname, trds.map { trd => "%s at %s".format(trd.diagnosticDebugName, trd.locationDescription) }.mkString("\n"))
           } else {
             val eventType = event match {
@@ -368,4 +373,3 @@ final class Choice(xmlArg: Node, parent: SchemaComponent, position: Int)
   override lazy val optReferredToComponent = None
 
 }
-

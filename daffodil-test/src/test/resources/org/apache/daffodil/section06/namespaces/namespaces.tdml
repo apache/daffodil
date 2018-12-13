@@ -1375,13 +1375,13 @@
       <tdml:documentPart type="text">shi</tdml:documentPart> <!-- sequence initiator -->
       <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi initiator -->
       <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi value -->
-      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi terminator -->
+      <tdml:documentPart type="text">shi,shi</tdml:documentPart> <!-- element shi terminator -->
       <tdml:documentPart type="text">shi</tdml:documentPart> <!-- sequence separator -->
       <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi initiator -->
       <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi value -->
-      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi terminator -->
-      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- sequence terminator -->
-      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- root element shishishi terminator -->
+      <tdml:documentPart type="text">shi,shi</tdml:documentPart> <!-- element shi terminator -->
+      <tdml:documentPart type="text">shi,shi</tdml:documentPart> <!-- sequence terminator -->
+      <tdml:documentPart type="text">shi,shi</tdml:documentPart> <!-- root element shishishi terminator -->
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -1447,19 +1447,19 @@
       <tdml:documentPart type="text">shi</tdml:documentPart> <!-- sequence initiator -->
       <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shishi:shi initiator -->
       <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shishi:shi value -->
-      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shishi:shi terminator -->
+      <tdml:documentPart type="text">shi,shi</tdml:documentPart> <!-- element shishi:shi terminator -->
       <tdml:documentPart type="text">shi</tdml:documentPart> <!-- sequence separator -->
       <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shishi:shi initiator -->
       <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shishi:shi value -->
-      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shishi:shi terminator -->
-      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- sequence terminator -->
-      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shishi:shishi terminator -->
+      <tdml:documentPart type="text">shi,shi</tdml:documentPart> <!-- element shishi:shi terminator -->
+      <tdml:documentPart type="text">shi,shi</tdml:documentPart> <!-- sequence terminator -->
+      <tdml:documentPart type="text">shi,shi</tdml:documentPart> <!-- element shishi:shishi terminator -->
       <tdml:documentPart type="text">shi</tdml:documentPart> <!-- sequence separator -->
       <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi initiator -->
       <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi value -->
-      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi terminator -->
-      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- sequence terminator -->
-      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- root element shishishishi terminator -->
+      <tdml:documentPart type="text">shi,shi</tdml:documentPart> <!-- element shi terminator -->
+      <tdml:documentPart type="text">shi,shi</tdml:documentPart> <!-- sequence terminator -->
+      <tdml:documentPart type="text">shi,shi</tdml:documentPart> <!-- root element shishishishi terminator -->
     </tdml:document>
 
     <tdml:infoset>
@@ -1495,17 +1495,17 @@
       <tdml:documentPart type="text">shi</tdml:documentPart> <!-- sequence initiator -->
       <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi initiator -->
       <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi value -->
-      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi terminator -->
+      <tdml:documentPart type="text">shi,shi</tdml:documentPart> <!-- element shi terminator -->
       <tdml:documentPart type="text">shi</tdml:documentPart> <!-- sequence separator -->
       <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi initiator -->
       <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi value -->
-      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi terminator -->
+      <tdml:documentPart type="text">shi,shi</tdml:documentPart> <!-- element shi terminator -->
       <tdml:documentPart type="text">shi</tdml:documentPart> <!-- sequence separator -->
       <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi initiator -->
       <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi value -->
-      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi terminator -->
-      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- sequence terminator -->
-      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- root element shishishishi terminator -->
+      <tdml:documentPart type="text">shi,shi</tdml:documentPart> <!-- element shi terminator -->
+      <tdml:documentPart type="text">shi,shi</tdml:documentPart> <!-- sequence terminator -->
+      <tdml:documentPart type="text">shi,shi</tdml:documentPart> <!-- root element shishishishi terminator -->
     </tdml:document>
 
     <tdml:infoset>
@@ -1568,17 +1568,17 @@
       <tdml:documentPart type="text">shi</tdml:documentPart> <!-- sequence initiator -->
       <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi initiator -->
       <tdml:documentPart type="text">5</tdml:documentPart> <!-- element shi value -->
-      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi terminator -->
+      <tdml:documentPart type="text">shi,shi</tdml:documentPart> <!-- element shi terminator -->
       <tdml:documentPart type="text">shi</tdml:documentPart> <!-- sequence separator -->
       <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shishishi:shi initiator -->
       <tdml:documentPart type="text">12345</tdml:documentPart> <!-- element shishishi:shi value -->
-      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shishishi:shi terminator -->
+      <tdml:documentPart type="text">shi,shi</tdml:documentPart> <!-- element shishishi:shi terminator -->
       <tdml:documentPart type="text">shi</tdml:documentPart> <!-- sequence separator -->
       <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shishi:shi initiator -->
       <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shishi:shi value -->
-      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shishi:shi terminator -->
-      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- sequence terminator -->
-      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- root element shishishishi terminator -->
+      <tdml:documentPart type="text">shi,shi</tdml:documentPart> <!-- element shishi:shi terminator -->
+      <tdml:documentPart type="text">shi,shi</tdml:documentPart> <!-- sequence terminator -->
+      <tdml:documentPart type="text">shi,shi</tdml:documentPart> <!-- root element shishishishi terminator -->
     </tdml:document>
 
     <tdml:infoset>

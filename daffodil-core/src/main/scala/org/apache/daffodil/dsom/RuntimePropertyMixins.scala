@@ -431,7 +431,7 @@ trait ElementRuntimeValuedPropertiesMixin
         // if it is defined, use it, otherwise 0.
         val optTOML = findPropertyOption("textOutputMinLength")
         optTOML match {
-          case Found(value, _, _,_) => value.toLong
+          case Found(value, _, _, _) => value.toLong
           case _ => 0
         }
       }
@@ -611,6 +611,52 @@ trait SequenceRuntimeValuedPropertiesMixin
   extends DelimitedRuntimeValuedPropertiesMixin
   with Sequence_AnnotationMixin
   with RawSequenceRuntimeValuedPropertiesMixin { decl: SequenceTermBase =>
+
+  /**
+   *  Insures at compile time if the separator and terminator are both
+   *  statically known, that they are not the same.
+   *
+   *  If there is a possible terminator that could be after this,
+   *  or enclosing group separator, that could be after this,
+   *  then it has to not be ambiguous with this sequence's separator.
+   *
+   *  Note that checking, in general, for whether two delimiter DFA things
+   *  can accept the same string, or one can accept a prefix of something the
+   *  other accepts, is generally hard, and even if someone creates things with
+   *  some ambiguity of that sort, real data might not ever run into that
+   *  ambiguity. So spurious warnings are a possible outcome.
+   *
+   *  DFDL specifically does not check for, nor require detection of this
+   *  sort of ambiguity at runtime or at compile time. But when it's
+   *  completely obvious at compile time it's sensible to give an error.
+   *
+   *  TODO: An improvement - the enclosing sequence object should really be
+   *  passing a list of possible terminating markup down to each sequence child object.
+   *  Those that aren't runtime-valued exprsesions could be checked for
+   *  ambiguity.
+   *
+   *  For now, we just check if this sequence itself has a constant
+   *  separator and terminator that are the same. That is, we're checking
+   *  for an obvious kind of cut/paste error by the schema author.
+   */
+  final lazy val checkSeparatorTerminatorConflict: Unit = {
+    if (hasTerminator) {
+      val termEV = this.terminatorParseEv
+      val sepEV = this.separatorParseEv
+      if (termEV.isConstant && sepEV.isConstant) {
+        val termDelimArray = termEV.constValue
+        val sepDelimArray = sepEV.constValue
+        val terms = termDelimArray.map { _.lookingFor }.toSet
+        val seps = sepDelimArray.map { _.lookingFor }.toSet
+        val inBoth = terms.intersect(seps)
+        if (!inBoth.isEmpty) {
+          SDE(
+            "The dfdl:terminator and dfdl:separator properties must be distinct. Both contain: %s.",
+            inBoth.map { s => "'" + s + "'" }.mkString(", "))
+        }
+      }
+    }
+  }
 
   private lazy val separatorExpr = {
     val qn = this.qNameForProperty("separator")

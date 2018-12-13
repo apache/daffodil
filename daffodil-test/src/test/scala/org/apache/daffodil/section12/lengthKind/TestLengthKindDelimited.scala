@@ -86,7 +86,8 @@ class TestLengthKindDelimited {
   @Test def test_AB002() { runnerAB.runOneTest("AB002") }
   @Test def test_AB003() { runnerAB.runOneTest("AB003") }
   @Test def test_AB004() { runnerAB.runOneTest("AB004") }
-  @Test def test_AB005() { runnerAB.runOneTest("AB005") }
+  @Test def test_AB005_parse() { runnerAB.runOneTest("AB005_parse") }
+  @Test def test_AB005_unparse() { runnerAB.runOneTest("AB005_unparse") }
 
   @Test def test_AN000() { runnerAN.runOneTest("AN000") }
   @Test def test_AN001() { runnerAN.runOneTest("AN001") }

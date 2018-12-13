@@ -47,7 +47,7 @@ object ModelGroupFactory {
    * object. There should be only one non-Nil.
    */
   def apply(child: Node, parent: SchemaComponent, position: Int, isHidden: Boolean,
-    nodesAlreadyTrying: Set[Node] = Set()): List[ModelGroup] = {
+            nodesAlreadyTrying: Set[Node] = Set()): List[ModelGroup] = {
     if (nodesAlreadyTrying.contains(child)) {
       //
       // We are chasing our tail. Circular reference among named model groups/terms.
@@ -144,13 +144,30 @@ abstract class ModelGroup(index: Int)
 
   requiredEvaluations(groupMembers)
 
+  /**
+   * FIXME: DAFFODIL-2132. This tells us if framing is expressed on the schema.
+   * It does NOT tell us if that framing occupies bits in the data stream or not.
+   */
+  final lazy val hasFraming =
+    hasInitiator ||
+      hasTerminator ||
+      !hasNoSkipRegions
+
+  final lazy val hasStaticallyRequiredOccurrencesInDataRepresentation = {
+    hasFraming ||
+      // or if all arms of the choice have statically required instances.
+      groupMembers.forall { _.hasStaticallyRequiredOccurrencesInDataRepresentation }
+  }
+
   def groupMembers: Seq[Term]
+
+  final lazy val representedMembers = groupMembers.filter { _.isRepresented }
+
   def xmlChildren: Seq[Node]
   protected def myPeers: Option[Seq[ModelGroup]]
 
   final override def isScalar = true
   final override def isOptional = false
-  final override def isRequiredOrComputed = true
   final override def isArray = false
 
   private def prettyIndex = "[" + index + "]" // 1-based indexing in XML/XSD
@@ -230,7 +247,7 @@ abstract class ModelGroup(index: Int)
           val last = maybeLast.get
           val lastIsOptional = last match {
             case mg: ModelGroup => false // model group is mandatory
-            case eb: ElementBase => !eb.isRequiredOrComputed || !eb.isRepresented
+            case eb: ElementBase => !eb.isRequiredInInfoset || !eb.isRepresented
           }
           if (lastIsOptional) {
             val (priorSibs, parent) = last.potentialPriorTerms
@@ -249,10 +266,10 @@ abstract class ModelGroup(index: Int)
         case _ => true
       }
     }
-    if(potentialLastRepresented.isEmpty){
+    if (potentialLastRepresented.isEmpty) {
       //If there are no children, by definition, all children are optional.
-      (Seq(),true)
-    }else{
+      (Seq(), true)
+    } else {
       (potentialLastRepresented, allOptional)
     }
   }
@@ -261,7 +278,7 @@ abstract class ModelGroup(index: Int)
     LV('allSelfContainedTermsTerminatedByRequiredElement) {
       val listOfTerms = groupMembers.map(m => {
         m match {
-          case e: ElementBase if !e.isRequiredOrComputed => (Seq(e) ++ e.possibleNextTerms) // A LocalElement or ElementRef
+          case e: ElementBase if !e.isRequiredInInfoset => (Seq(e) ++ e.possibleNextTerms) // A LocalElement or ElementRef
           case e: ElementBase => Seq(e)
           case mg: ModelGroup => Seq(mg)
         }
@@ -372,7 +389,7 @@ abstract class ModelGroup(index: Int)
         // required next sibling if the last sibling element is required
         possibleNextSiblingTerms.lastOption match {
           case None => false
-          case Some(e: ElementBase) => e.isRequiredOrComputed
+          case Some(e: ElementBase) => e.isRequiredInInfoset
           case Some(mg: ModelGroup) => mg.mustHaveRequiredElement
           case Some(_) => Assert.invariantFailed()
         }

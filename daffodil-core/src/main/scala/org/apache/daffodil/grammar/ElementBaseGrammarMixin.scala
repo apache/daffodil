@@ -211,11 +211,10 @@ trait ElementBaseGrammarMixin
     val prefixLengthTypeGSTD = schemaSet.getGlobalSimpleTypeDef(prefixLengthType).getOrElse(
       schemaDefinitionError(
         "Failed to resolve dfdl:prefixLengthType=\"%s\" to a simpleType",
-        prefixLengthType.toQNameString)
-    )
+        prefixLengthType.toQNameString))
 
     val detachedNode =
-      <element name={ name + " (prefixLength)" } type={ prefixLengthType.toQNameString } />
+      <element name={ name + " (prefixLength)" } type={ prefixLengthType.toQNameString }/>
         .copy(scope = prefixLengthTypeGSTD.xml.scope)
     val detachedElementDecl =
       new PrefixLengthQuasiElementDecl(this, detachedNode, prefixLengthTypeGSTD.parent)
@@ -233,48 +232,57 @@ trait ElementBaseGrammarMixin
           prefixLengthType)
       case LengthKind.Implicit | LengthKind.Explicit if prefixIncludesPrefixLength == YesNo.Yes &&
         lengthUnits != detachedElementDecl.lengthUnits =>
-          schemaDefinitionError(
-            "%s is specified as a dfdl:prefixLengthType where dfdl:prefixIncludesPrefixLength=\"yes\" " +
+        schemaDefinitionError(
+          "%s is specified as a dfdl:prefixLengthType where dfdl:prefixIncludesPrefixLength=\"yes\" " +
             "with dfdl:lengthKind %s, but has different dfdl:lengthUnits than the element",
-            prefixLengthType,
-            prefixedLengthKind)
+          prefixLengthType,
+          prefixedLengthKind)
       case _ =>
     }
 
-    schemaDefinitionUnless(detachedElementDecl.primType.isSubtypeOf(NodeInfo.Integer),
+    schemaDefinitionUnless(
+      detachedElementDecl.primType.isSubtypeOf(NodeInfo.Integer),
       "%s is specified as a dfdl:prefixLengthType, but its type xs:%s is not a subtype of xs:integer",
       prefixLengthType,
       detachedElementDecl.primType.toString.toLowerCase)
 
-    schemaDefinitionWhen(detachedElementDecl.isOutputValueCalc,
+    schemaDefinitionWhen(
+      detachedElementDecl.isOutputValueCalc,
       "%s is specified as a dfdl:prefixLengthType, but specifies dfdl:outputValueCalc",
       prefixLengthType)
-    schemaDefinitionWhen(detachedElementDecl.hasInitiator,
+    schemaDefinitionWhen(
+      detachedElementDecl.hasInitiator,
       "%s is specified as a dfdl:prefixLengthType, but specifies a dfdl:initiator",
       prefixLengthType)
-    schemaDefinitionWhen(detachedElementDecl.hasTerminator,
+    schemaDefinitionWhen(
+      detachedElementDecl.hasTerminator,
       "%s is specified as a dfdl:prefixLengthType, but specifies a dfdl:terminator",
       prefixLengthType)
-    schemaDefinitionWhen(detachedElementDecl.alignment != 1,
+    schemaDefinitionWhen(
+      detachedElementDecl.alignment != 1,
       "%s is specified as a dfdl:prefixLengthType, but specifies a dfdl:alignment other than 1",
       prefixLengthType)
-    schemaDefinitionWhen(detachedElementDecl.leadingSkip != 0,
+    schemaDefinitionWhen(
+      detachedElementDecl.leadingSkip != 0,
       "%s is specified as a dfdl:prefixLengthType, but specifies a dfdl:leadingSkip other than 0",
       prefixLengthType)
-    schemaDefinitionWhen(detachedElementDecl.trailingSkip != 0,
+    schemaDefinitionWhen(
+      detachedElementDecl.trailingSkip != 0,
       "%s is specified as a dfdl:prefixLengthType, but specifies a dfdl:trailingSkip other than 0",
       prefixLengthType)
 
     if (detachedElementDecl.lengthKind == LengthKind.Prefixed &&
-        detachedElementDecl.prefixedLengthElementDecl.lengthKind == LengthKind.Prefixed) {
-        schemaDefinitionError("Nesting level for dfdl:prefixLengthType exceeds 1: %s > %s > %s > %s",
-          name,
-          prefixLengthType,
-          detachedElementDecl.prefixLengthType,
-          detachedElementDecl.prefixedLengthElementDecl.prefixLengthType)
+      detachedElementDecl.prefixedLengthElementDecl.lengthKind == LengthKind.Prefixed) {
+      schemaDefinitionError(
+        "Nesting level for dfdl:prefixLengthType exceeds 1: %s > %s > %s > %s",
+        name,
+        prefixLengthType,
+        detachedElementDecl.prefixLengthType,
+        detachedElementDecl.prefixedLengthElementDecl.prefixLengthType)
     }
 
-    subset(detachedElementDecl.lengthKind != LengthKind.Prefixed,
+    subset(
+      detachedElementDecl.lengthKind != LengthKind.Prefixed,
       "Nested dfdl:lengthKind=\"prefixed\" is not supported.")
 
     detachedElementDecl
@@ -570,7 +578,7 @@ trait ElementBaseGrammarMixin
     if (this.isOutputValueCalc)
       SimpleTypeRetry(this, allowedValue)
     else if (this.isInstanceOf[PrefixLengthQuasiElementDecl] &&
-             this.asInstanceOf[PrefixLengthQuasiElementDecl].detachedReference.impliedRepresentation == Representation.Text)
+      this.asInstanceOf[PrefixLengthQuasiElementDecl].detachedReference.impliedRepresentation == Representation.Text)
       // If an element has text representation and has a prefixed length, it
       // means that the prefix length value will be calculated using a
       // specified length unparser. This unparser works by suspending the
@@ -618,7 +626,7 @@ trait ElementBaseGrammarMixin
           SDE("lengthKind='delimited' only supported for packed binary formats.")
         else -1 // only for packed binary data, length must be computed at runtime.
       case _ => if (binaryNumberRep == BinaryNumberRep.Binary) SDE("lengthKind='delimited' only supported for packed binary formats.")
-        else -1 // only for packed binary data, length must be computed at runtime.
+      else -1 // only for packed binary data, length must be computed at runtime.
     }
     case LengthKind.Pattern => schemaDefinitionError("Binary data elements cannot have lengthKind='pattern'.")
     case LengthKind.EndOfParent => schemaDefinitionError("Binary data elements cannot have lengthKind='endOfParent'.")
@@ -731,52 +739,73 @@ trait ElementBaseGrammarMixin
   // We could now break it down by lengthKind, and have specialized primitives
   // depending on the length kind.
   //
-  private lazy val standardTextInteger = prod("standardTextInteger",
+  private lazy val standardTextInteger = prod(
+    "standardTextInteger",
     textNumberRep == TextNumberRep.Standard) { ConvertTextCombinator(this, stringValue, ConvertTextIntegerPrim(this)) }
-  private lazy val standardTextDecimal = prod("standardTextDecimal",
+  private lazy val standardTextDecimal = prod(
+    "standardTextDecimal",
     textNumberRep == TextNumberRep.Standard) { ConvertTextCombinator(this, stringValue, ConvertTextDecimalPrim(this)) }
-  private lazy val standardTextNonNegativeInteger = prod("standardTextNonNegativeInteger",
+  private lazy val standardTextNonNegativeInteger = prod(
+    "standardTextNonNegativeInteger",
     textNumberRep == TextNumberRep.Standard) { ConvertTextCombinator(this, stringValue, ConvertTextNonNegativeIntegerPrim(this)) }
-  private lazy val standardTextLong = prod("standardTextLong",
+  private lazy val standardTextLong = prod(
+    "standardTextLong",
     textNumberRep == TextNumberRep.Standard) { ConvertTextCombinator(this, stringValue, ConvertTextLongPrim(this)) }
-  private lazy val standardTextInt = prod("standardTextInt",
+  private lazy val standardTextInt = prod(
+    "standardTextInt",
     textNumberRep == TextNumberRep.Standard) { ConvertTextCombinator(this, stringValue, ConvertTextIntPrim(this)) }
-  private lazy val standardTextShort = prod("standardTextShort",
+  private lazy val standardTextShort = prod(
+    "standardTextShort",
     textNumberRep == TextNumberRep.Standard) { ConvertTextCombinator(this, stringValue, ConvertTextShortPrim(this)) }
-  private lazy val standardTextByte = prod("standardTextByte",
+  private lazy val standardTextByte = prod(
+    "standardTextByte",
     textNumberRep == TextNumberRep.Standard) { ConvertTextCombinator(this, stringValue, ConvertTextBytePrim(this)) }
-  private lazy val standardTextUnsignedLong = prod("standardTextUnsignedLong",
+  private lazy val standardTextUnsignedLong = prod(
+    "standardTextUnsignedLong",
     textNumberRep == TextNumberRep.Standard) { ConvertTextCombinator(this, stringValue, ConvertTextUnsignedLongPrim(this)) }
-  private lazy val standardTextUnsignedInt = prod("standardTextUnsignedInt",
+  private lazy val standardTextUnsignedInt = prod(
+    "standardTextUnsignedInt",
     textNumberRep == TextNumberRep.Standard) { ConvertTextCombinator(this, stringValue, ConvertTextUnsignedIntPrim(this)) }
-  private lazy val standardTextUnsignedShort = prod("standardTextUnsignedShort",
+  private lazy val standardTextUnsignedShort = prod(
+    "standardTextUnsignedShort",
     textNumberRep == TextNumberRep.Standard) { ConvertTextCombinator(this, stringValue, ConvertTextUnsignedShortPrim(this)) }
-  private lazy val standardTextUnsignedByte = prod("standardTextUnsignedByte",
+  private lazy val standardTextUnsignedByte = prod(
+    "standardTextUnsignedByte",
     textNumberRep == TextNumberRep.Standard) { ConvertTextCombinator(this, stringValue, ConvertTextUnsignedBytePrim(this)) }
 
-  private lazy val zonedTextInteger = prod("zonedTextInteger",
+  private lazy val zonedTextInteger = prod(
+    "zonedTextInteger",
     textNumberRep == TextNumberRep.Zoned) { ConvertZonedCombinator(this, stringValue, ConvertZonedIntegerPrim(this)) }
-  private lazy val zonedTextDecimal = prod("zonedTextDecimal",
+  private lazy val zonedTextDecimal = prod(
+    "zonedTextDecimal",
     textNumberRep == TextNumberRep.Zoned) { ConvertZonedCombinator(this, stringValue, ConvertZonedDecimalPrim(this)) }
-  private lazy val zonedTextNonNegativeInteger = prod("zonedTextNonNegativeInteger",
+  private lazy val zonedTextNonNegativeInteger = prod(
+    "zonedTextNonNegativeInteger",
     textNumberRep == TextNumberRep.Zoned) { ConvertZonedCombinator(this, stringValue, ConvertZonedNonNegativeIntegerPrim(this)) }
-  private lazy val zonedTextLong = prod("zonedTextLong",
+  private lazy val zonedTextLong = prod(
+    "zonedTextLong",
     textNumberRep == TextNumberRep.Zoned) { ConvertZonedCombinator(this, stringValue, ConvertZonedLongPrim(this)) }
-  private lazy val zonedTextInt = prod("zonedTextInt",
+  private lazy val zonedTextInt = prod(
+    "zonedTextInt",
     textNumberRep == TextNumberRep.Zoned) { ConvertZonedCombinator(this, stringValue, ConvertZonedIntPrim(this)) }
-  private lazy val zonedTextShort = prod("zonedTextShort",
+  private lazy val zonedTextShort = prod(
+    "zonedTextShort",
     textNumberRep == TextNumberRep.Zoned) { ConvertZonedCombinator(this, stringValue, ConvertZonedShortPrim(this)) }
-  private lazy val zonedTextByte = prod("zonedTextByte",
+  private lazy val zonedTextByte = prod(
+    "zonedTextByte",
     textNumberRep == TextNumberRep.Zoned) { ConvertZonedCombinator(this, stringValue, ConvertZonedBytePrim(this)) }
-  private lazy val zonedTextUnsignedLong = prod("zonedTextUnsignedLong",
+  private lazy val zonedTextUnsignedLong = prod(
+    "zonedTextUnsignedLong",
     textNumberRep == TextNumberRep.Zoned) { ConvertZonedCombinator(this, stringValue, ConvertZonedUnsignedLongPrim(this)) }
-  private lazy val zonedTextUnsignedInt = prod("zonedTextUnsignedInt",
+  private lazy val zonedTextUnsignedInt = prod(
+    "zonedTextUnsignedInt",
     textNumberRep == TextNumberRep.Zoned) { ConvertZonedCombinator(this, stringValue, ConvertZonedUnsignedIntPrim(this)) }
-  private lazy val zonedTextUnsignedShort = prod("zonedTextUnsignedShort",
+  private lazy val zonedTextUnsignedShort = prod(
+    "zonedTextUnsignedShort",
     textNumberRep == TextNumberRep.Zoned) { ConvertZonedCombinator(this, stringValue, ConvertZonedUnsignedShortPrim(this)) }
-  private lazy val zonedTextUnsignedByte = prod("zonedTextUnsignedByte",
+  private lazy val zonedTextUnsignedByte = prod(
+    "zonedTextUnsignedByte",
     textNumberRep == TextNumberRep.Zoned) { ConvertZonedCombinator(this, stringValue, ConvertZonedUnsignedBytePrim(this)) }
-
 
   private lazy val bcdKnownLengthCalendar = prod("bcdKnownLengthCalendar", binaryCalendarRep == BinaryCalendarRep.Bcd) {
     bcdDateKnownLength || bcdTimeKnownLength || bcdDateTimeKnownLength
@@ -959,20 +988,24 @@ trait ElementBaseGrammarMixin
   //      subsetError("ibm390Hex not supported")
   //    }
 
-  private lazy val standardTextDouble = prod("standardTextDouble",
+  private lazy val standardTextDouble = prod(
+    "standardTextDouble",
     textNumberRep == TextNumberRep.Standard) { ConvertTextCombinator(this, stringValue, ConvertTextDoublePrim(this)) }
 
-  private lazy val zonedTextDouble = prod("zonedTextDouble",
+  private lazy val zonedTextDouble = prod(
+    "zonedTextDouble",
     textNumberRep == TextNumberRep.Zoned) { SDE("Zoned not supported for float and double") }
 
   private lazy val textFloat = prod("textFloat", impliedRepresentation == Representation.Text) {
     standardTextFloat || zonedTextFloat
   }
 
-  private lazy val standardTextFloat = prod("standardTextFloat",
+  private lazy val standardTextFloat = prod(
+    "standardTextFloat",
     textNumberRep == TextNumberRep.Standard) { ConvertTextCombinator(this, stringValue, ConvertTextFloatPrim(this)) }
 
-  private lazy val zonedTextFloat = prod("zonedTextFloat",
+  private lazy val zonedTextFloat = prod(
+    "zonedTextFloat",
     textNumberRep == TextNumberRep.Zoned) { SDE("Zoned not supported for float and double") }
 
   private lazy val textDate = prod("textDate", impliedRepresentation == Representation.Text) {
@@ -1059,7 +1092,7 @@ trait ElementBaseGrammarMixin
 
   private lazy val binaryValue: Gram = {
     Assert.invariant(primType != PrimType.String)
-    
+
     schemaDefinitionWhen(lengthUnits == LengthUnits.Characters, "Binary Numbers must have dfdl:lengthUnits of \"bits\" or \"bytes\".")
 
     // We have to dispatch carefully here. We cannot force evaluation of properties
@@ -1172,7 +1205,7 @@ trait ElementBaseGrammarMixin
                   case (_, _) => packedKnownLengthCalendar
                 }
               }
-              case _ =>  notYetImplemented("Type %s when representation='binary' and binaryCalendarRep=%s", primType.name, binaryCalendarRep.toString)
+              case _ => notYetImplemented("Type %s when representation='binary' and binaryCalendarRep=%s", primType.name, binaryCalendarRep.toString)
             }
           }
         }
@@ -1188,7 +1221,8 @@ trait ElementBaseGrammarMixin
     Assert.invariant(pt != PrimType.String)
     Assert.invariant(pt != PrimType.HexBinary)
     Assert.invariant(impliedRepresentation == Representation.Text)
-    schemaDefinitionWhen(lengthKind == LengthKind.Implicit,
+    schemaDefinitionWhen(
+      lengthKind == LengthKind.Implicit,
       "Type %s cannot have lengthKind='implicit' when representation='text'",
       pt.name)
     val res = primType match {
@@ -1215,7 +1249,7 @@ trait ElementBaseGrammarMixin
     res
   }
 
-  protected final lazy val empty = prod("empty", NYI && emptyIsAnObservableConcept) { EmptyGram }
+  protected final lazy val empty = prod("empty", NYI && isEmptyAnObservableConcept) { EmptyGram }
 
   private lazy val nilElementInitiator = prod("nilElementInitiator", hasNilValueInitiator) { delimMTA ~ Initiator(this) }
   private lazy val nilElementTerminator = prod("nilElementTerminator", hasNilValueTerminator) { delimMTA ~ Terminator(this) }
@@ -1238,7 +1272,8 @@ trait ElementBaseGrammarMixin
   private lazy val nilLitSimpleOrComplex = prod("nilLitSimpleOrComplex") { nilLitSimple || nilLitComplex }
 
   private lazy val nilLitSimple = prod("nilLitSimple", isSimpleType) {
-    captureLengthRegions(leftPadding,
+    captureLengthRegions(
+      leftPadding,
       specifiedLength(nilLitContent),
       rightPadding ~ rightFill)
   }
@@ -1246,7 +1281,8 @@ trait ElementBaseGrammarMixin
   private lazy val nilLitComplex = prod("nilLitComplex", isComplexType) {
     // Note: the only allowed nil value for a complex type is ES. It's length will be zero always. (as of DFDL v1.0 - 2015-07-15)
     schemaDefinitionUnless(this.hasESNilValue && cookedNilValuesForParse.length == 1, "Nillable complex type elements can only have '%ES;' as their dfdl:nilValue property.")
-    captureLengthRegions(EmptyGram,
+    captureLengthRegions(
+      EmptyGram,
       nilLitContent,
       //
       // Because nil complex can only be ES (e.g., length 0), there's no possible
@@ -1261,7 +1297,8 @@ trait ElementBaseGrammarMixin
    */
   private lazy val nilLitMTA = prod("nilLitMTA", isNilLit && !hasNilValueInitiator) { mtaBase }
 
-  private lazy val nilLitContent = prod("nilLitContent",
+  private lazy val nilLitContent = prod(
+    "nilLitContent",
     isNillable && (nilKind == NilKind.LiteralValue || nilKind == NilKind.LiteralCharacter)) {
 
       nilKind match {
@@ -1375,7 +1412,8 @@ trait ElementBaseGrammarMixin
 
   private lazy val complexContentSpecifiedLength = prod("complexContentSpecifiedLength", isComplexType) {
     initiatorRegion ~
-      captureLengthRegions(EmptyGram,
+      captureLengthRegions(
+        EmptyGram,
         specifiedLength(complexContent),
         elementUnused) ~
         terminatorRegion
@@ -1439,7 +1477,8 @@ trait ElementBaseGrammarMixin
 
   protected final def ivcCompiledExpression = inputValueCalcPrim.expr
 
-  private lazy val inputValueCalcElement = prod("inputValueCalcElement",
+  private lazy val inputValueCalcElement = prod(
+    "inputValueCalcElement",
     isSimpleType && inputValueCalcOption.isInstanceOf[Found]) {
       // No framing surrounding inputValueCalc elements.
       // Note that we need these elements even when unparsing, because they appear in the infoset
@@ -1453,14 +1492,15 @@ trait ElementBaseGrammarMixin
     val exprText = exprProp.value
     val exprNamespaces = exprProp.location.namespaces
     val qn = GlobalQName(Some("daf"), "outputValueCalc", XMLUtils.dafintURI)
-    val expr = ExpressionCompilers.AnyRef.compileExpression(qn,
-      primType, exprText, exprNamespaces, dpathCompileInfo, false, self, dpathCompileInfo)
+    val expr = ExpressionCompilers.AnyRef.compileExpression(
+      qn, primType, exprText, exprNamespaces, dpathCompileInfo, false, self, dpathCompileInfo)
     expr
   }
 
   private lazy val outputValueCalcElement =
 
-    prod("outputValueCalcElement",
+    prod(
+      "outputValueCalcElement",
       isSimpleType && outputValueCalcOption.isInstanceOf[Found]) {
         scalarDefaultablePhysical
       }
@@ -1523,7 +1563,8 @@ trait ElementBaseGrammarMixin
         //
         SDE("dfdl:encoding is a runtime expression, but dfdl:lengthKind 'implicit' for type xs:string and dfdl:lengthUnits 'bytes' requires an explicit known single byte character set encoding (SBCS).")
       } else if (knownEncodingWidthInBits != 8) {
-        SDE("dfdl:encoding '%s' is not a single-byte encoding, but dfdl:lengthKind 'implicit' for type xs:string and dfdl:lengthUnits 'bytes' a single byte character set encoding (SBCS) is required.",
+        SDE(
+          "dfdl:encoding '%s' is not a single-byte encoding, but dfdl:lengthKind 'implicit' for type xs:string and dfdl:lengthUnits 'bytes' a single byte character set encoding (SBCS) is required.",
           knownEncodingName)
       }
     }
@@ -1591,7 +1632,8 @@ trait ElementBaseGrammarMixin
       optLengthConstant.isDefined) {
       val len = optLengthConstant.get
       if (len < textOutputMinLength)
-        SDW(WarnID.TextOutputMinLengthOutOfRange,
+        SDW(
+          WarnID.TextOutputMinLengthOutOfRange,
           "Explicit dfdl:length of %s is out of range for dfdl:textOutputMinLength='%s'.",
           len,
           textOutputMinLength)
@@ -1608,7 +1650,8 @@ trait ElementBaseGrammarMixin
    * in the property environment shouldn't get you an MTA region. It has
    * to be textual.
    */
-  protected final lazy val valueMTA = prod("mandatoryTextAlignment",
+  protected final lazy val valueMTA = prod(
+    "mandatoryTextAlignment",
     impliedRepresentation eq Representation.Text) {
       mtaBase
     }

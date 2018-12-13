@@ -110,7 +110,11 @@ trait SequenceGrammarMixin extends GrammarMixin { self: SequenceTermBase =>
       case _ => (1, 1, null)
     }
     // don't require SSP unnecessarily
-    val ssp = if (!hasSeparator) SeparatorSuppressionPolicy.AnyEmpty else separatorSuppressionPolicy
+    val ssp =
+      if (!hasSeparator)
+        SeparatorSuppressionPolicy.AnyEmpty
+      else
+        separatorSuppressionPolicy
 
     val res = (child, sequenceKind, ssp, ock, min, max) match {
       case (e: EB, Ordered__, ___________, _________, ONE, ONE) => new ScalarOrderedSequenceChild(this, e, groupIndex)
@@ -118,15 +122,16 @@ trait SequenceGrammarMixin extends GrammarMixin { self: SequenceTermBase =>
       case (_____, Unordered, ___________, __________, ___, __2) => this.subsetError("Unordered sequences are not supported.")
       case (e: EB, Ordered__, ___________, Parsed____, ___, __2) => new RepOrderedWithMinMaxSequenceChild(this, e, groupIndex)
       case (e: EB, Ordered__, ___________, Fixed_____, ___, UNB) => e.SDE("occursCountKind='fixed' not allowed with unbounded maxOccurs")
+      case (e: EB, Ordered__, Never______, Implicit__, ___, UNB) if !e.isLastDeclaredRepresentedInSequence => unboundedPositionalError(e)
+      case (e: EB, Ordered__, Trailing___, Implicit__, ___, UNB) if !e.isLastDeclaredRepresentedInSequence => unboundedPositionalError(e)
+      case (e: EB, Ordered__, TrailingStr, Implicit__, ___, UNB) if !e.isLastDeclaredRepresentedInSequence => unboundedPositionalError(e)
       case (e: EB, Ordered__, ___________, Fixed_____, ___, `min`) => new RepOrderedExactlyNSequenceChild(this, e, groupIndex, min)
       case (e: EB, Ordered__, ___________, Fixed_____, ___, max) => { Assert.invariant(min != max); e.SDE("occursCountKind='fixed' requires minOccurs and maxOccurs to be equal (%d != %d)", min, max) }
       case (e: EB, Ordered__, ___________, Expression, ___, __2) => new RepOrderedExactlyTotalOccursCountSequenceChild(this, e, groupIndex)
       case (e: EB, Ordered__, Never______, Implicit__, ___, UNB) => e.SDE("separatorSuppressionPolicy='never' with occursCountKind='implicit' requires bounded maxOccurs.")
       case (e: EB, Ordered__, Never______, Implicit__, ___, max) => new RepOrderedExactlyNSequenceChild(this, e, groupIndex, max)
       case (e: EB, Ordered__, Never______, ock /****/ , ___, __2) if (ock ne null) => e.SDE("separatorSuppressionPolicy='never' not allowed in combination with occursCountKind='" + ock + "'.")
-      case (e: EB, Ordered__, Trailing___, Implicit__, ___, UNB) if !e.isLastDeclaredRequiredElementOfSequence => e.SDE("occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence")
       case (e: EB, Ordered__, Trailing___, Implicit__, ___, max) => new RepOrderedWithMinMaxSequenceChild(this, e, groupIndex)
-      case (e: EB, Ordered__, TrailingStr, Implicit__, ___, UNB) if !e.isLastDeclaredRequiredElementOfSequence => e.SDE("occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence")
       case (e: EB, Ordered__, TrailingStr, Implicit__, ___, UNB) => new RepOrderedWithMinMaxSequenceChild(this, e, groupIndex)
       case (e: EB, Ordered__, TrailingStr, Implicit__, ___, max) => new RepOrderedWithMinMaxSequenceChild(this, e, groupIndex)
       case (e: EB, Ordered__, Always_____, Implicit__, ___, max) => new RepOrderedWithMinMaxSequenceChild(this, e, groupIndex)
@@ -135,6 +140,9 @@ trait SequenceGrammarMixin extends GrammarMixin { self: SequenceTermBase =>
     }
     res
   }
+
+  private def unboundedPositionalError(e: ElementBase) =
+    e.SDE("occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a positional sequence")
 
   /**
    * These are static properties even though the delimiters can have runtime-computed values.
@@ -152,6 +160,13 @@ trait SequenceGrammarMixin extends GrammarMixin { self: SequenceTermBase =>
     else false
   }
 
+  /**
+   * True if the term has a separator expressed on it.
+   *
+   * Do not confuse with the concept of the delimiter being able to match or not match zero-length data.
+   * Whether the representation of a term in the data stream "has a separator", as in a specific separator
+   * occupies a non-zero number of bits, is an entirely different question.
+   */
   lazy val hasSeparator = separatorParseEv.isKnownNonEmpty
 
   lazy val sequenceSeparator = prod("separator", hasSeparator) {

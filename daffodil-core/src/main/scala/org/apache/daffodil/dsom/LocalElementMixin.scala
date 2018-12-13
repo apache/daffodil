@@ -32,7 +32,7 @@ trait LocalElementMixin
   extends ParticleMixin
   with LocalElementGrammarMixin { self: ElementBase =>
 
-  final def hasSep = LV('hasSep) {
+  final lazy val hasSep = LV('hasSep) {
     nearestEnclosingSequence match {
       case None => false
       case Some(es) => {
@@ -49,9 +49,8 @@ trait LocalElementMixin
    * These content grammar regions are orthogonal to both nillable representations, and
    * empty representations, and to all aspects of framing - alignment, skip, delimiters
    * etc.
-   *
    */
-  final def isContentRegionLengthKnownToBeGreaterThanZero = LV('isContentRegionLengthKnownToBeGreaterThanZero) {
+  final lazy val isContentRegionLengthKnownToBeGreaterThanZero = LV('isContentRegionLengthKnownToBeGreaterThanZero) {
     val pt = primType
     val res = lengthKind match {
       case LengthKind.Explicit => (isFixedLength && (fixedLength > 0))
@@ -74,20 +73,42 @@ trait LocalElementMixin
     res
   }.value
 
-  final override def hasKnownRequiredSyntax: Boolean = LV('hasKnownRequiredSyntax) {
-    !couldBeMissing
-  }.value
+  final override def hasKnownRequiredSyntax: Boolean = !couldBeMissing
 
-  final def couldBeMissing: Boolean = LV('couldBeMissing) {
+  final lazy val couldBeMissing: Boolean = LV('couldBeMissing) {
     val res =
       if (minOccurs == 0) true
       else if (isNillable && !hasNilValueRequiredSyntax) true
       else if (isDefaultable && emptyValueDelimiterPolicy =:= EmptyValueDelimiterPolicy.None) true
       else if (isDefaultable && !hasInitiator && emptyValueDelimiterPolicy =:= EmptyValueDelimiterPolicy.Initiator) true
       else if (isDefaultable && !hasTerminator && emptyValueDelimiterPolicy =:= EmptyValueDelimiterPolicy.Terminator) true
-      else if (hasInitiator) false
-      else if (hasTerminator) false
-      else if (isSimpleType) {
+      else if (hasInitiator) {
+        //
+        // TODO: It is possible that this initiator expression cannot match zero length
+        // or that it can match zero length. We don't really know without analyzing it.
+        // The easiest way may be at compile time to try matching it against an empty string.
+        // That would tell us whether it requires input or not.
+        //
+        // For now we just assume if it has an initiator, then it can't be missing.
+        false
+      } else if (hasTerminator) {
+        // If the lengthKind is NOT delimited, then the terminator is potentially redundant and
+        // there are real formats (mil-std-2045) where the terminator is an expression, but that expression
+        // returns %WSP*; or %ES;, meaning the terminator can match zero length.
+        if (!terminatorExpr.isConstant && (lengthKind ne LengthKind.Delimited)) {
+          //
+          // It seems like we could do better here if we actually looked at the expression to see
+          // if it can be zero length. But we don't necessarily know because the expression could
+          // refer to other infoset contents, which is in fact the case for mil-std-2045 tString32
+          // type. It uses the length of another element to decide whether the terminator exists or not.
+          true
+        } else {
+          false
+          // expression with lengthKind 'delimited' isn't allowed to return something that can match zero length
+          // or we wouldn't be able to scan for it.
+          // constants can't be zero-length matchers or we wouldn't be able to scan for it.
+        }
+      } else if (isSimpleType) {
         primType match {
           case PrimType.String | PrimType.HexBinary => !isContentRegionLengthKnownToBeGreaterThanZero
           case PrimType.Boolean => false // Note that textBooleanTrueRep and textBooleanFalseRep cannot contain %ES; so there is no way for an ES as boolean rep.
@@ -99,37 +120,4 @@ trait LocalElementMixin
     res
   }.value
 
-  final def isLastDeclaredRequiredElementOfSequence = LV('isLastDeclaredRequiredElementOfSequence) {
-    if (isRequiredOrComputed) {
-      val es = nearestEnclosingSequence
-      val res = es match {
-        case None => true
-        case Some(s) => {
-          val allRequired = s.groupMembers.filter(_.isRequiredOrComputed)
-          val lastDeclaredRequired = allRequired.last
-          if (lastDeclaredRequired _eq_ this) true
-          else false
-        }
-      }
-      res
-      // Since we can't determine at compile time, return true so that we can continue processing.
-      // Runtime checks will make final determination.
-    } else true
-  }.value
-
-  final def separatorSuppressionPolicy = LV('separatorSuppressionPolicy) {
-    nearestEnclosingSequence match {
-      case Some(ssp) => ssp.separatorSuppressionPolicy
-      //
-      // There is no enclosing sequence (could be just a big nest of choices I suppose)
-      // In that case, there still has to be a value for this.
-      //
-      // Strictly speaking, it's a bug to require this property in a situation where there
-      // are no sequences at all. However, that's so unlikely to be the case that it's
-      // not worth paying attention to. In any real format, the root element will be
-      // a sequence.
-      //
-      case None => schemaDocument.separatorSuppressionPolicy
-    }
-  }.value
 }

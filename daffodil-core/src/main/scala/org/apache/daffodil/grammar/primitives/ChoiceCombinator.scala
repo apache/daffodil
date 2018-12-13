@@ -48,12 +48,20 @@ import org.apache.daffodil.util.Maybe
  * need to determine which branch of the choice to take at runtime. This
  * unparser uses a Map to make the determination based on the element seen.
  */
-case class ChoiceCombinator(ch: ChoiceTermBase, rawAlternatives: Seq[Gram])
-  extends Terminal(ch, !rawAlternatives.isEmpty) {
+case class ChoiceCombinator(ch: ChoiceTermBase, alternatives: Seq[Gram])
+  extends Terminal(ch, !alternatives.isEmpty) {
 
-  private lazy val alternatives = rawAlternatives.filterNot(_.isEmpty)
-
-  private lazy val parsers = alternatives.map { _.parser }.filterNot { _.isEmpty }
+  private lazy val parsers = {
+    val res = alternatives.map { alt =>
+      val p = alt.parser
+      val res =
+        if (p.isEmpty)
+          new EmptyChoiceBranchParser(alt.context.runtimeData)
+        else p
+      res
+    }
+    res
+  }
 
   override def isEmpty = super.isEmpty || alternatives.isEmpty
 
@@ -215,4 +223,3 @@ case class ChoiceCombinator(ch: ChoiceTermBase, rawAlternatives: Seq[Gram])
     }
   }
 }
-

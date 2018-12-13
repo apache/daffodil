@@ -79,12 +79,13 @@ trait StateForDebugger {
   def discriminator: Boolean = false
 }
 
-case class TupleForDebugger(val bytePos: Long,
-  val childPos: Long,
-  val groupPos: Long,
-  val currentLocation: DataLocation,
-  val arrayPos: Long,
-  val bitLimit0b: MaybeULong,
+case class TupleForDebugger(
+  val bytePos:                Long,
+  val childPos:               Long,
+  val groupPos:               Long,
+  val currentLocation:        DataLocation,
+  val arrayPos:               Long,
+  val bitLimit0b:             MaybeULong,
   override val discriminator: Boolean) extends StateForDebugger
 
 trait SetProcessorMixin {
@@ -122,10 +123,11 @@ trait SetProcessorMixin {
  * which should be isolated to the alternative parser, and repParsers, i.e.,
  * places where points-of-uncertainty are handled.
  */
-abstract class ParseOrUnparseState protected (protected var variableBox: VariableBox,
-  var diagnostics: List[Diagnostic],
-  var dataProc: Maybe[DataProcessor],
-  val tunable: DaffodilTunables) extends DFDL.State
+abstract class ParseOrUnparseState protected (
+  protected var variableBox: VariableBox,
+  var diagnostics:           List[Diagnostic],
+  var dataProc:              Maybe[DataProcessor],
+  val tunable:               DaffodilTunables) extends DFDL.State
   with StateForDebugger
   with ThrowsSDE
   with SavesErrorsAndWarnings
@@ -343,16 +345,19 @@ abstract class ParseOrUnparseState protected (protected var variableBox: Variabl
   /**
    * Variable map provides access to variable bindings.
    */
-  def variableMap = variableBox.vmap
-  def setVariableMap(newMap: VariableMap) {
+  final def variableMap = variableBox.vmap
+  final def setVariableMap(newMap: VariableMap) {
     variableBox.setVMap(newMap)
   }
 
-  protected var _processorStatus: ProcessorResult = Success
-  protected var _validationStatus: Boolean = true
+  final protected var _processorStatus: ProcessorResult = Success
+  final protected var _validationStatus: Boolean = true
 
-  def processorStatus = _processorStatus
-  def validationStatus = _validationStatus
+  final def processorStatus = _processorStatus
+  final def validationStatus = _validationStatus
+
+  final def isSuccess = processorStatus.isSuccess
+  final def isFailure = processorStatus.isFailure
 
   final def setFailed(failureDiagnostic: Diagnostic) {
     // threadCheck()
@@ -364,14 +369,14 @@ abstract class ParseOrUnparseState protected (protected var variableBox: Variabl
     }
   }
 
-  def validationError(msg: String, args: Any*) {
+  final def validationError(msg: String, args: Any*) {
     val ctxt = getContext()
     val vde = new ValidationError(Maybe(ctxt.schemaFileLocation), this, msg, args: _*)
     _validationStatus = false
     diagnostics = vde :: diagnostics
   }
 
-  def validationErrorNoContext(cause: Throwable): Unit = {
+  final def validationErrorNoContext(cause: Throwable): Unit = {
     val vde = new ValidationError(this, cause)
     _validationStatus = false
     diagnostics = vde :: diagnostics
@@ -383,7 +388,7 @@ abstract class ParseOrUnparseState protected (protected var variableBox: Variabl
    *
    * This happens, for example, in the debugger when it is evaluating expressions.
    */
-  def setSuccess() {
+  final def setSuccess() {
     _processorStatus = Success
   }
 
@@ -411,7 +416,7 @@ abstract class ParseOrUnparseState protected (protected var variableBox: Variabl
    * regular execution call stack, which
    * keeps track of exactly where in the expression evaluation we are.
    */
-  def dState = _dState
+  final def dState = _dState
 
   def copyStateForDebugger = {
     TupleForDebugger(
@@ -424,7 +429,7 @@ abstract class ParseOrUnparseState protected (protected var variableBox: Variabl
       discriminator)
   }
 
-  override def schemaFileLocation = getContext().schemaFileLocation
+  final override def schemaFileLocation = getContext().schemaFileLocation
 
   def dataStream: Maybe[DataStreamCommon]
 
@@ -454,7 +459,7 @@ abstract class ParseOrUnparseState protected (protected var variableBox: Variabl
 
   def hasInfoset: Boolean
 
-  def maybeERD = {
+  final def maybeERD = {
     if (hasInfoset)
       Maybe(getContext())
     else
@@ -463,7 +468,7 @@ abstract class ParseOrUnparseState protected (protected var variableBox: Variabl
 
   def thisElement: InfosetElement
 
-  def getContext(): ElementRuntimeData = {
+  final def getContext(): ElementRuntimeData = {
     // threadCheck()
     val currentElement = infoset.asInstanceOf[InfosetElement]
     val res = currentElement.runtimeData
@@ -477,28 +482,28 @@ abstract class ParseOrUnparseState protected (protected var variableBox: Variabl
    */
   def notifyDebugging(flag: Boolean): Unit
 
-  def SDE(str: String, args: Any*) = {
+  final def SDE(str: String, args: Any*) = {
     // ExecutionMode.requireRuntimeMode // not any more. More code is shared between compile and runtime now, so these requirements gotta go
     val ctxt = getContext()
     val rsde = new RuntimeSchemaDefinitionError(ctxt.schemaFileLocation, this, str, args: _*)
     ctxt.toss(rsde)
   }
 
-  def SDEButContinue(str: String, args: Any*) = {
+  final def SDEButContinue(str: String, args: Any*) = {
     // ExecutionMode.requireRuntimeMode
     val ctxt = getContext()
     val rsde = new RuntimeSchemaDefinitionError(ctxt.schemaFileLocation, this, str, args: _*)
     diagnostics = rsde :: diagnostics
   }
 
-  def SDW(str: String, args: Any*) = {
+  final def SDW(str: String, args: Any*) = {
     // ExecutionMode.requireRuntimeMode
     val ctxt = getContext()
     val rsdw = new RuntimeSchemaDefinitionWarning(ctxt.schemaFileLocation, this, str, args: _*)
     diagnostics = rsdw :: diagnostics
   }
 
-  def SDW(warnID: WarnID, str: String, args: Any*) = {
+  final def SDW(warnID: WarnID, str: String, args: Any*) = {
     // ExecutionMode.requireRuntimeMode
     if (tunable.notSuppressedWarning(warnID)) {
       val ctxt = getContext()

@@ -23,6 +23,7 @@ import org.apache.daffodil.util.LogLevel
 import org.apache.daffodil.util.Logging
 import org.apache.daffodil.util.Misc
 import org.apache.daffodil.xml.DaffodilXMLLoader
+import org.apache.daffodil.schema.annotation.props.EmptyElementParsePolicy
 
 object DaffodilTunables {
 
@@ -59,11 +60,11 @@ object DaffodilTunables {
 }
 
 case class DaffodilTunables(
-  val maxSkipLengthInBytes: Long = 1024, // applicable to leadingSkip and trailingSkip
-  val maxBinaryDecimalVirtualPoint: Int = 200, // Can be as large as Int.MaxValue
-  val minBinaryDecimalVirtualPoint: Int = -200, // Can be as small as Int.MinValue
+  val maxSkipLengthInBytes:         Long   = 1024, // applicable to leadingSkip and trailingSkip
+  val maxBinaryDecimalVirtualPoint: Int    = 200, // Can be as large as Int.MaxValue
+  val minBinaryDecimalVirtualPoint: Int    = -200, // Can be as small as Int.MinValue
   val generatedNamespacePrefixStem: String = "tns",
-  val readerByteBufferSize: Long = 8192,
+  val readerByteBufferSize:         Long   = 8192,
   //
   // If true, require that the bitOrder property is specified. If false, use a
   // default value for bitOrder if not defined in a schema
@@ -107,17 +108,23 @@ case class DaffodilTunables(
   //
   val requireFloatingProperty: Boolean = false,
   //
+  // If true, require that the emptyElementParsePolicy property is specified. If
+  // false, warn about missing property
+  //
+  val requireEmptyElementParsePolicyProperty: Boolean                 = false,
+  val defaultEmptyElementParsePolicy:         EmptyElementParsePolicy = EmptyElementParsePolicy.TreatAsEmpty,
+  //
   // Whether to compile a schema to support parsing, unparsing, both, or to use
   // the daf:parseUnparsePolicy from the root node. None means to use the
   // policy from the schema, otherwise use whatever the value is
   //
   // Looks to be compile-time. Set in Compiler.
   ///
-  val parseUnparsePolicy: Option[ParseUnparsePolicy] = None,
-  val maxFieldContentLengthInBytes: Long = 1024 * 1024, // Can be as large as Int.MaxValue
-  val defaultInitRegexMatchLimitInChars: Long = 32,
-  val maxDataDumpSizeInBytes: Long = 256,
-  val maxOccursBounds: Long = Int.MaxValue, // Can be as large as Int.MaxValue
+  val parseUnparsePolicy:                Option[ParseUnparsePolicy] = None,
+  val maxFieldContentLengthInBytes:      Long                       = 1024 * 1024, // Can be as large as Int.MaxValue
+  val defaultInitRegexMatchLimitInChars: Long                       = 32,
+  val maxDataDumpSizeInBytes:            Long                       = 256,
+  val maxOccursBounds:                   Long                       = Int.MaxValue, // Can be as large as Int.MaxValue
   //
   // When unexpected text is found where a delimiter is expected, this is the maximum
   // number of bytes (characters) to display when the expected delimiter is a variable
@@ -145,9 +152,9 @@ case class DaffodilTunables(
   //
   // Applies to InfosetImpl, as such is a run-time thing
   //
-  val initialElementOccurrencesHint: Long = 10,
-  val unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy.Type = UnqualifiedPathStepPolicy.NoNamespace,
-  val suppressSchemaDefinitionWarnings: List[WarnID] = Nil,
+  val initialElementOccurrencesHint:    Long                           = 10,
+  val unqualifiedPathStepPolicy:        UnqualifiedPathStepPolicy.Type = UnqualifiedPathStepPolicy.NoNamespace,
+  val suppressSchemaDefinitionWarnings: List[WarnID]                   = Nil,
 
   // By default, path expressions in Daffodil will only work correctly if path
   // steps are used in an expression defined in the schema when compiled. To
@@ -165,8 +172,8 @@ case class DaffodilTunables(
   val errorOnUnsupportedJavaVersion: Boolean = true,
 
   val maximumSimpleElementSizeInCharacters: Int = 1024 * 1024,
-  val initialRegexMatchLimitInCharacters: Int = 64,
-  val maximumRegexMatchLengthInCharacters: Int = 1024 * 1024,
+  val initialRegexMatchLimitInCharacters:   Int = 64,
+  val maximumRegexMatchLengthInCharacters:  Int = 1024 * 1024,
 
   /* Due to differences in the DFDL spec and ICU4J SimpleDateFormat, we must have SimpleDateFormat
    * parse in lenient mode, which allows the year value to overflow with very large years
@@ -186,8 +193,7 @@ case class DaffodilTunables(
    * provide a warning and attempt to coerce the result type to the expected
    * type.
    */
-  val allowExpressionResultCoercion: Boolean = true
-  )
+  val allowExpressionResultCoercion: Boolean = true)
 
   extends Serializable
   with Logging {
@@ -200,6 +206,8 @@ case class DaffodilTunables(
    *  minBinaryDecimalVirtualPoint
    *  requireEncodingErrorPolicyProperty
    *  requireBitOrderProperty
+   *  requireEmptyElementPolicyProperty
+   *  emptyElementParsePolicy
    *  generatedNamespacePrefixStem
    *  parseUnparsePolicy
    *
@@ -259,6 +267,15 @@ case class DaffodilTunables(
       case "requireencodingerrorpolicyproperty" => this.copy(requireEncodingErrorPolicyProperty = java.lang.Boolean.valueOf(value))
       case "requiretextbidiproperty" => this.copy(requireTextBidiProperty = java.lang.Boolean.valueOf(value))
       case "requirefloatingproperty" => this.copy(requireFloatingProperty = java.lang.Boolean.valueOf(value))
+      case "requireemptyelementparsepolicyproperty" => this.copy(requireEmptyElementParsePolicyProperty = java.lang.Boolean.valueOf(value))
+      case "defaultemptyelementparsepolicy" => {
+        val policy = value.toLowerCase match {
+          case "treatasmissing" => EmptyElementParsePolicy.TreatAsMissing
+          case "treatasempty" => EmptyElementParsePolicy.TreatAsEmpty
+          case _ => Assert.usageError("Unknown value for defaultEmptyElementParsePolicy tunable. Value must be \"treatAsMissing\" or \"treatAsEmpty\".")
+        }
+        this.copy(defaultEmptyElementParsePolicy = policy)
+      }
       case "maxskiplengthinbytes" => this.copy(maxSkipLengthInBytes = java.lang.Long.valueOf(value))
       case "maxbinarydecimalvirtualpoint" => this.copy(maxBinaryDecimalVirtualPoint = java.lang.Integer.valueOf(value))
       case "minbinarydecimalvirtualpoint" => this.copy(minBinaryDecimalVirtualPoint = java.lang.Integer.valueOf(value))

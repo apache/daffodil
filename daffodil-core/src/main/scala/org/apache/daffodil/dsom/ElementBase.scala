@@ -74,6 +74,7 @@ trait ElementBase
   with CalendarTextMixin
   with BooleanTextMixin
   with TextNumberFormatMixin
+  with EmptyElementParsePolicyMixin
   with OverlapCheckMixin {
 
   override final def eBase = this
@@ -117,9 +118,9 @@ trait ElementBase
   def simpleType: SimpleTypeBase
 
   def complexType: ComplexTypeBase
-  
-  lazy final val optSimpleType = if(isSimpleType) Some(simpleType) else None
-  lazy final val optComplexType = if(isComplexType) Some(complexType) else None
+
+  lazy final val optSimpleType = if (isSimpleType) Some(simpleType) else None
+  lazy final val optComplexType = if (isComplexType) Some(complexType) else None
 
   /**
    * Irrespective of whether the type of this element is immediate or
@@ -129,7 +130,7 @@ trait ElementBase
   def typeDef: TypeBase
 
   private lazy val optRepValueSet = optSimpleType.flatMap(_.optRepValueSet)
-  
+
   /**
    * The DPathElementInfo objects referenced within an IVC
    * that calls dfdl:contentLength( thingy )
@@ -234,7 +235,7 @@ trait ElementBase
     // they are handled by the parsers as necessary
     val capturedByParsers =
       (isSimpleType && impliedRepresentation == Representation.Text) ||
-      (isComplexType && (lengthKind != LengthKind.Implicit && lengthKind != LengthKind.Delimited))
+        (isComplexType && (lengthKind != LengthKind.Implicit && lengthKind != LengthKind.Delimited))
 
     !capturedByParsers && isReferenced
   }
@@ -432,11 +433,23 @@ trait ElementBase
   override lazy val runtimeData: RuntimeData = elementRuntimeData
   override lazy val termRuntimeData: TermRuntimeData = elementRuntimeData
 
-  final lazy val defaultValue = {
+  /**
+   * Is either None, Some(primTypeValue) or Some(UseNilForDefault), which is a
+   * singleton object indicating that the item is nillable, and useNilForDefault was true.
+   *
+   * The value will always be of the matching primitive types for the element, and
+   * directly usable as the value of a simple-type element.
+   *
+   * When a value is used, it is created from the XSD default or fixed attribute of the
+   * element declaration, and that string cannot contain DFDL entities of any kind,
+   * nor any PUA-remapped characters. This insures the default/fixed value can still be
+   * used for ordinary XML-schema validation outside of Daffodil/DFDL.
+   */
+  final lazy val defaultValue: Option[AnyRef] = {
     if (isDefaultable && (isScalar || isArraywithAtLeastOneRequiredArrayElement)) {
       val dv =
         if (isNillable && useNilForDefault =:= YesNo.Yes) {
-          UseNilForDefault // singleton object indicator
+          Some(UseNilForDefault) // singleton object indicator
         } else {
           //
           // Note: no remapping PUA chars or otherwise messing with the text of the default value
@@ -503,7 +516,7 @@ trait ElementBase
   }
 
   lazy val isQuasiElement: Boolean = false //overriden by RepTypeQuasiElementDecls
-  
+
   //  private lazy val mustBeAbsentFromUnparseInfoset: Boolean = {
   //    isOutputValueCalc
   //  }
@@ -553,7 +566,7 @@ trait ElementBase
       isNillable,
       isArray, // can have more than 1 occurrence
       isOptional, // can have exactly 0 or 1 occurrence
-      isRequiredOrComputed, // must have at least 1 occurrence
+      isRequiredInInfoset, // must have at least 1 occurrence
       namedQName,
       isRepresented,
       couldHaveText,
@@ -671,26 +684,26 @@ trait ElementBase
       case (Representation.Binary, PrimType.Double) => 64
       case (Representation.Binary, PrimType.HexBinary) => 8
       // Handle 64 bit types
-      case (Representation.Binary, PrimType.Long | PrimType.UnsignedLong) => 
+      case (Representation.Binary, PrimType.Long | PrimType.UnsignedLong) =>
         binaryNumberRep match {
           case BinaryNumberRep.Packed | BinaryNumberRep.Bcd | BinaryNumberRep.Ibm4690Packed => 8
           case _ => 64
         }
       // Handle 32 bit types
-      case (Representation.Binary, PrimType.Int | PrimType.UnsignedInt | PrimType.Boolean) => 
+      case (Representation.Binary, PrimType.Int | PrimType.UnsignedInt | PrimType.Boolean) =>
         binaryNumberRep match {
           case BinaryNumberRep.Packed | BinaryNumberRep.Bcd | BinaryNumberRep.Ibm4690Packed => 8
           case _ => 32
         }
       // Handle 16 bit types
-      case (Representation.Binary, PrimType.Short | PrimType.UnsignedShort) => 
+      case (Representation.Binary, PrimType.Short | PrimType.UnsignedShort) =>
         binaryNumberRep match {
           case BinaryNumberRep.Packed | BinaryNumberRep.Bcd | BinaryNumberRep.Ibm4690Packed => 8
           case _ => 16
         }
       // Handle 8 bit types
       case (Representation.Binary, PrimType.Integer | PrimType.Decimal | PrimType.Byte |
-        PrimType.UnsignedByte | PrimType.NonNegativeInteger) => 
+        PrimType.UnsignedByte | PrimType.NonNegativeInteger) =>
         binaryNumberRep match {
           case BinaryNumberRep.Packed | BinaryNumberRep.Bcd | BinaryNumberRep.Ibm4690Packed => 8
           case _ => 8
@@ -727,7 +740,7 @@ trait ElementBase
                   alignInBits, implicitAlignmentInBits, primType.name, this.knownEncodingName)
             }
             case Representation.Binary => primType match {
-              case PrimType.Float | PrimType.Double | PrimType.Boolean | PrimType.HexBinary=> /* Non textual data, no need to compare alignment to encoding's expected alignment */
+              case PrimType.Float | PrimType.Double | PrimType.Boolean | PrimType.HexBinary => /* Non textual data, no need to compare alignment to encoding's expected alignment */
               case _ => binaryNumberRep match {
                 case BinaryNumberRep.Packed | BinaryNumberRep.Bcd | BinaryNumberRep.Ibm4690Packed => {
                   if ((alignInBits % 4) != 0)
@@ -756,15 +769,22 @@ trait ElementBase
   final lazy val isFixedLength = {
     (lengthKind =:= LengthKind.Explicit && lengthEv.isConstant) ||
       isImplicitLengthString
-    // TODO: there are lots of other cases where things are fixed length
+    // FIXME: there are lots of other cases where things are fixed length
     // e.g., implicit length hexBinary uses maxLength for length in bytes
     // e.g., implicit length fixed-precision binary numbers (byte, short, int, long and unsigned thereof)
     // In general the things in this file about fixed length seem to miss hexBinary.
+    // Also, things like packed and zoned decimal are usually fixed length, sometimes delimited.
   }
 
   final def isImplicitLengthString = isSimpleType && primType =:= PrimType.String && lengthKind =:= LengthKind.Implicit
 
   final lazy val fixedLengthValue: Long = {
+    // FIXME: this calculation only good for string type.
+    // We need this for every type and representation however.
+    // The answer should be in lengthUnits, and -1 should mean
+    // lengthUnits is bytes/bits, but the fixed length is given in characters
+    // of a variable-width charset, so greater than 0, but we don't know
+    // exactly.
     Assert.usage(isFixedLength)
     if (lengthKind =:= LengthKind.Explicit) lengthEv.optConstant.get
     else {
@@ -777,6 +797,9 @@ trait ElementBase
   }
 
   final def hasFixedLengthOf(n: Int) = {
+    // FIXME: needs to work in lengthUnits. If length units is bytes/bits
+    // and encoding is variable-width charset, what should this return?
+    // (Perhaps should be usage error?)
     if (!isFixedLength) false
     else {
       val fl = fixedLengthValue
@@ -792,9 +815,18 @@ trait ElementBase
   }
 
   final lazy val fixedLength = {
-    if (isFixedLength) lengthEv.optConstant.get.longValue() else -1L // shouldn't even be asking for this if not isFixedLength
+    if (isFixedLength) lengthEv.optConstant.get.longValue() else -1L
+    // FIXME: shouldn't even be asking for this if not isFixedLength
+    // try changing to Assert.usage(isFixedLength)
+    // FIXME: needs to return fixed length in lengthUnits.
+    // as for many of the other methods associated with length,
+    // if lengthUnits is bits/bytes and the element is textual, and
+    // the encoding is unknown, or known to be variable-width, what to return?
+    // (perhaps usage error, you must ask about textual data with unknown or
+    // known variable-width charset in lengthUnits characters ??)
   }
 
+  // FIXME: bless this method. Deprecate and remove other less reliable things.
   final lazy val maybeFixedLengthInBits: MaybeULong = {
     if (optRepTypeElement.isDefined) {
       optRepTypeElement.get.maybeFixedLengthInBits
@@ -850,14 +882,30 @@ trait ElementBase
    * The difference is due to for unparsing the %NL; is treated specially
    * because it must be computed based on dfdl:outputNewLine.
    */
-  lazy val cookedNilValuesForParse = cookedNilValue(forUnparse = false)
-  lazy val rawNilValuesForParse = rawNilValueList(forUnparse = false)
+  final lazy val cookedNilValuesForParse = cookedNilValue(forUnparse = false)
+  final lazy val rawNilValuesForParse = rawNilValueList(forUnparse = false)
 
-  lazy val cookedNilValuesForUnparse = cookedNilValue(forUnparse = true)
-  lazy val rawNilValuesForUnparse = rawNilValueList(forUnparse = false)
+  final lazy val cookedNilValuesForUnparse = cookedNilValue(forUnparse = true)
+  final lazy val rawNilValuesForUnparse = rawNilValueList(forUnparse = false)
 
-  lazy val hasESNilValue = rawNilValuesForParse.contains("%ES;")
+  final lazy val hasESNilValue = rawNilValuesForParse.contains("%ES;")
 
+  /**
+   * Determines if the nil representation is one that has non-zero-length
+   * syntax.
+   *
+   * Returnes true if the nil representation *always* has some non-zero length.
+   *
+   * Returns false if a zero-length representation is the nil representation, or one of the
+   * accepted nil representations. This enables one to quickly recognize that
+   * a nilled element should be produced, and that one need not (in the runtime)
+   * entertain considerations of required/optional, separator suppression, etc.
+   *
+   * Since dfdl:nilValue property takes a list of nil representations
+   * (for dfdl:nilKind 'literalValue'), it is possible for a given element to
+   * have both zero-length and non-zero-length representations which cause
+   * a nilled element to be created by the parser.
+   */
   final lazy val hasNilValueRequiredSyntax = isNillable &&
     ((isDefinedNilLit && (hasNilValueInitiator || hasNilValueTerminator)) ||
       (isDefinedNilLit && !hasESNilValue) ||
@@ -895,18 +943,35 @@ trait ElementBase
    * Empty is observable so long as one can
    * have zero length followed by a separator, or zero length between an
    * initiator and terminator (as required for empty by emptyValueDelimiterPolicy)
+   *
+   * The concept of Empty here subsumes "empty triggers default values (when defined)"
+   * From DFDL Spec (2014 draft) section 9.4.2, and
+   * zero-length so that separator suppression applies, from DFDL Spec 2014 draft Section 14.2.1)
+   *
+   * It applies in this case to elements only. There is a concept of zero-length for model groups as well
+   * but is defined elsewhere.
    */
-  final def emptyIsAnObservableConcept = LV('emptyIsAnObservableConcept) {
-    if (this.isLengthAlwaysNonZero) false
-    else {
-      val res = if (hasSep || //FIXME: not sufficient unless it's a postfix separator, or we know there will be some other terminating markup after.
-        hasEmptyValueInitiator ||
-        hasEmptyValueTerminator) {
-        true
-      } else false
+  final lazy val isEmptyAnObservableConcept: Boolean = {
+    if (!isRepresented) false
+    else if (this.isLengthAlwaysNonZero) false
+    else if (isSimpleType) {
+      primType match {
+        case NodeInfo.String | NodeInfo.HexBinary => true // can be zero-length so empty, regardless of EVDP and init/term
+        case _ => {
+          // for other simple types, they can be empty only if they are defaultable
+          // because otherwise they always require some representation.
+          // but this calculation is used by the isDefaultable predicate to decide
+          // whether an element can have an empty rep so that it could be defaulted.
+          false
+        }
+      }
+    } else {
+      Assert.invariant(isComplexType)
+      val isZLP = !complexType.modelGroup.hasKnownRequiredSyntax
+      val res = isZLP
       res
     }
-  }.value
+  }
 
   /**
    * True if the element can be empty, and there is no syntax to indicate
@@ -1146,7 +1211,7 @@ trait ElementBase
       if (!isRepresented) false
       else if (!hasDefaultValue) false
       else {
-        if (!emptyIsAnObservableConcept)
+        if (!isEmptyAnObservableConcept)
           SDW(WarnID.NoEmptyDefault, "Element with no empty representation. XSD default='%s' can only be used when unparsing.", defaultValueAsString)
         schemaDefinitionWhen(isOptional, "Optional elements cannot have default values but default='%s' was found.", defaultValueAsString)
         if (isArray && !isArraywithAtLeastOneRequiredArrayElement) {
@@ -1189,7 +1254,7 @@ trait ElementBase
       case None => true
       case Some(s: SequenceTermBase) if s.isOrdered => {
         !possibleNextSiblingTerms.exists {
-          case e: ElementBase => e.isRequiredOrComputed
+          case e: ElementBase => e.isRequiredInInfoset
           case mg: ModelGroup => mg.mustHaveRequiredElement
         }
       }

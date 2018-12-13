@@ -38,7 +38,7 @@ abstract class Text(es: Term, e: Term, guard: Boolean) extends StringDelimBase(e
   lazy val eName = e.toString()
 
   lazy val positionalInfo = {
-    if (e.isDirectChildOfSequence) {
+    if (e.isSequenceChild) {
       e.nearestEnclosingSequence match {
         case Some(es) => {
           val pos = e.positionInNearestEnclosingSequence - 1
@@ -114,14 +114,15 @@ case class Terminator(e: Term) extends DelimiterText(e, e, DelimiterTextType.Ter
 abstract class StringDelimBase(e: Term, guard: Boolean) extends Terminal(e, guard) {
   override def toString = "StringDelimBase[" + name + "]"
 
-  def checkDelimiterDistinctness(escapeSchemeKind: EscapeKind,
-    optPadChar: Option[String],
-    optEscChar: Option[String], // Could be a DFDL expression
-    optEscEscChar: Option[String], // Could be a DFDL expression
-    optEscBlkStart: Option[String],
-    optEscBlkEnd: Option[String],
+  def checkDelimiterDistinctness(
+    escapeSchemeKind:  EscapeKind,
+    optPadChar:        Option[String],
+    optEscChar:        Option[String], // Could be a DFDL expression
+    optEscEscChar:     Option[String], // Could be a DFDL expression
+    optEscBlkStart:    Option[String],
+    optEscBlkEnd:      Option[String],
     terminatingMarkup: Seq[String],
-    context: ThrowsSDE): Unit = {
+    context:           ThrowsSDE): Unit = {
 
     // TODO: DFDL-451 - After conversing with Mike B. about this, we're putting this on the backburner.
     // Leaving the code here, just commented out the entry point until we can decide what is the appropriate

@@ -4134,8 +4134,9 @@
       </xs:complexType>
     </xs:element>    
 
+    <!-- intentional invalid " " for textStringPadCharacter -->
     <xs:element name="string11" dfdl:textStringPadCharacter=" " dfdl:lengthKind="delimited" type="xs:string" />
-
+    <!-- intentional invalid "%" for textStringPadCharacter -->
     <xs:element name="string12" dfdl:textStringPadCharacter="%" dfdl:lengthKind="delimited" type="xs:string" />
 
   </tdml:defineSchema>

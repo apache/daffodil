@@ -153,8 +153,8 @@ class TestNamespaces {
   @Test def test_multi_encoding_01() { runner.runOneTest("multi_encoding_01") }
   @Test def test_multi_encoding_02() { runner.runOneTest("multi_encoding_02") }
   @Test def test_multi_encoding_03() { runner.runOneTest("multi_encoding_03") }
-  //  @Test def test_multi_encoding_04() { runner.runOneTest("multi_encoding_04") } //DFDL-716
-  //  @Test def test_multi_encoding_05() { runner.runOneTest("multi_encoding_05") } //DFDL-715
+  //  @Test def test_multi_encoding_04() { runner.runOneTest("multi_encoding_04") } //DAFFODIL-716
+  //  @Test def test_multi_encoding_05() { runner.runOneTest("multi_encoding_05") } //DAFFODIL-715
   //  @Test def test_indexOutOfBounds_01() { runner.runOneTest("indexOutOfBounds_01") } // DAFFODIL-717
 
   // Preliminary tests for import format schemas

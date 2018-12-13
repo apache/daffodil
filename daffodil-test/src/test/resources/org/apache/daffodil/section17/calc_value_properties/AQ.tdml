@@ -29,7 +29,7 @@
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" separator=""
       initiator="" terminator="" emptyValueDelimiterPolicy="none"
-      textNumberRep="standard" representation="text" occursStopValue="-1"
+      textNumberRep="standard" representation="text"
       occursCountKind="parsed" lengthKind="delimited" lengthUnits="bytes"
       encoding="US-ASCII" ignoreCase="no" />
     <!-- Basic Math in DFDL Representations -->

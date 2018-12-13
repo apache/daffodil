@@ -17,8 +17,10 @@
 -->
 
 <testSuite suiteName="escapeScheme" xmlns="http://www.ibm.com/xmlns/dfdl/testData"
-  xmlns:tns="http://example.com" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
-  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:tns="http://example.com"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
+  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   defaultRoundTrip="true">
 
@@ -36,6 +38,16 @@
     <xs:element name="e_infix">
       <xs:complexType>
         <xs:sequence dfdl:separator=";" dfdl:separatorPosition="infix">
+          <xs:element name="x" type="xs:string" dfdl:escapeSchemeRef="tns:scenario1" />
+          <xs:element name="y" type="xs:string" minOccurs="0" dfdl:escapeSchemeRef="tns:scenario1" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e_infix_never">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=";" dfdl:separatorPosition="infix"
+          dfdl:separatorSuppressionPolicy="never">
           <xs:element name="x" type="xs:string" dfdl:escapeSchemeRef="tns:scenario1" />
           <xs:element name="y" type="xs:string" minOccurs="0" dfdl:escapeSchemeRef="tns:scenario1" />
         </xs:sequence>
@@ -80,8 +92,8 @@
       <dfdlInfoset>
         <tns:e_infix>
           <x>foo</x>
-	      <y>bar</y>
-	</tns:e_infix>
+        <y>bar</y>
+  </tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -94,7 +106,7 @@
       <dfdlInfoset>
         <tns:e_infix>
           <x>foobar</x>
-	</tns:e_infix>
+  </tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -106,7 +118,7 @@
       <dfdlInfoset>
         <tns:e_infix>
           <x>foo;bar</x>
-	</tns:e_infix>
+  </tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -118,8 +130,8 @@
       <dfdlInfoset>
         <tns:e_infix>
           <x>foo/</x>
-	  <y>bar</y>
-	</tns:e_infix>
+    <y>bar</y>
+  </tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -132,7 +144,7 @@
       <dfdlInfoset>
         <tns:e_infix>
           <x>foo/bar</x>
-	</tns:e_infix>
+  </tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -144,21 +156,21 @@
       <dfdlInfoset>
         <tns:e_infix>
           <x>foo/;bar</x>
-	</tns:e_infix>
+  </tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
   
   <parserTestCase name="scenario1_7" model="es1"
-    description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix"
-    roundTrip="threePass">
+    description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix_never"
+    roundTrip="onePass">
     <document>foo;</document>
     <infoset>
       <dfdlInfoset>
-        <tns:e_infix>
+        <tns:e_infix_never>
           <x>foo</x>
           <y/>
-	    </tns:e_infix>
+      </tns:e_infix_never>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -170,7 +182,7 @@
       <dfdlInfoset>
         <tns:e_postfix>
           <x>foo</x>
-	</tns:e_postfix>
+  </tns:e_postfix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -182,7 +194,7 @@
       <dfdlInfoset>
         <tns:e_infix>
           <x>foo;</x>
-	</tns:e_infix>
+  </tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -196,15 +208,15 @@
   </parserTestCase>
   
   <parserTestCase name="scenario1_9" model="es1"
-    description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix"
-    roundTrip="threePass">
+    description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix_never"
+    roundTrip="onePass">
     <document>foo/;;</document>
     <infoset>
       <dfdlInfoset>
-        <tns:e_infix>
+        <tns:e_infix_never>
           <x>foo;</x>
-	  <y></y>
-	</tns:e_infix>
+          <y></y>
+        </tns:e_infix_never>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -216,21 +228,21 @@
       <dfdlInfoset>
         <tns:e_postfix>
           <x>foo;</x>
-	</tns:e_postfix>
+        </tns:e_postfix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
   
   <parserTestCase name="scenario1_10" model="es1"
-    description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix"
-    roundTrip="threePass">
+    description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix_never"
+    roundTrip="onePass">
     <document>foo//;</document>
     <infoset>
       <dfdlInfoset>
-        <tns:e_infix>
+        <tns:e_infix_never>
           <x>foo/</x>
-	  <y></y>
-	</tns:e_infix>
+          <y></y>
+        </tns:e_infix_never>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -242,7 +254,7 @@
       <dfdlInfoset>
         <tns:e_postfix>
           <x>foo/</x>
-	</tns:e_postfix>
+        </tns:e_postfix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -254,7 +266,7 @@
       <dfdlInfoset>
         <tns:e_infix>
           <x>foo/;</x>
-	</tns:e_infix>
+        </tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -275,7 +287,7 @@
       <dfdlInfoset>
         <tns:e_infix>
           <x>foo</x>
-	</tns:e_infix>
+  </tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -296,7 +308,7 @@
       <dfdlInfoset>
         <tns:e_infix>
           <x>foo/</x>
-	</tns:e_infix>
+  </tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -321,6 +333,26 @@
     <xs:element name="e_infix">
       <xs:complexType>
         <xs:sequence dfdl:separator="$;" dfdl:separatorPosition="infix">
+          <xs:element name="x" type="xs:string" dfdl:escapeSchemeRef="tns:scenario2" />
+          <xs:element name="y" type="xs:string" minOccurs="0" dfdl:escapeSchemeRef="tns:scenario2" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+   <xs:element name="e_infix_keepEmpty">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="$;" dfdl:separatorPosition="infix">
+          <xs:element name="x" type="xs:string" dfdl:escapeSchemeRef="tns:scenario2" />
+          <xs:element name="y" type="xs:string" minOccurs="0" dfdl:escapeSchemeRef="tns:scenario2"
+            daf:emptyElementParsePolicy="treatAsEmpty" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e_infix_never">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="$;" dfdl:separatorPosition="infix"
+          dfdl:separatorSuppressionPolicy="never">
           <xs:element name="x" type="xs:string" dfdl:escapeSchemeRef="tns:scenario2" />
           <xs:element name="y" type="xs:string" minOccurs="0" dfdl:escapeSchemeRef="tns:scenario2" />
         </xs:sequence>
@@ -365,8 +397,8 @@
       <dfdlInfoset>
         <tns:e_infix>
           <x>foo</x>
-	  <y>bar</y>
-	</tns:e_infix>
+    <y>bar</y>
+  </tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -378,7 +410,7 @@
       <dfdlInfoset>
         <tns:e_infix>
           <x>foo$;bar</x>
-	</tns:e_infix>
+        </tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -390,8 +422,8 @@
       <dfdlInfoset>
         <tns:e_infix>
           <x>foo/</x>
-	  <y>bar</y>
-	</tns:e_infix>
+          <y>bar</y>
+        </tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -404,8 +436,8 @@
       <dfdlInfoset>
         <tns:e_infix>
           <x>foo$</x>
-	  <y>bar</y>
-	</tns:e_infix>
+          <y>bar</y>
+        </tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -418,7 +450,7 @@
       <dfdlInfoset>
         <tns:e_infix>
           <x>foo$;bar</x>
-	</tns:e_infix>
+        </tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -431,7 +463,7 @@
       <dfdlInfoset>
         <tns:e_infix>
           <x>foobar</x>
-	</tns:e_infix>
+  </tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -444,7 +476,7 @@
       <dfdlInfoset>
         <tns:e_infix>
           <x>foo$$$$$bar</x>
-	</tns:e_infix>
+  </tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -457,7 +489,7 @@
       <dfdlInfoset>
         <tns:e_infix>
           <x>foo/;bar</x>
-	</tns:e_infix>
+  </tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -470,22 +502,22 @@
       <dfdlInfoset>
         <tns:e_infix>
           <x>foo/$</x>
-	  <y>bar</y>
-	</tns:e_infix>
+    <y>bar</y>
+  </tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
   
   <parserTestCase name="scenario2_10" model="es2"
-    description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix"
-    roundTrip="threePass">
+    description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix_never"
+    roundTrip="onePass">
     <document>foo$;</document>
     <infoset>
       <dfdlInfoset>
-        <tns:e_infix>
+        <tns:e_infix_never>
           <x>foo</x>
-	  <y></y>
-	</tns:e_infix>
+          <y></y>
+        </tns:e_infix_never>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -497,7 +529,7 @@
       <dfdlInfoset>
         <tns:e_postfix>
           <x>foo</x>
-	</tns:e_postfix>
+  </tns:e_postfix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -509,7 +541,7 @@
       <dfdlInfoset>
         <tns:e_infix>
           <x>foo$;</x>
-	</tns:e_infix>
+  </tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -523,15 +555,15 @@
   </parserTestCase>
   
   <parserTestCase name="scenario2_12" model="es2"
-    description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix"
-    roundTrip="threePass">
+    description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix_never"
+    roundTrip="onePass">
     <document>foo$/$;</document>
     <infoset>
       <dfdlInfoset>
-        <tns:e_infix>
+        <tns:e_infix_never>
           <x>foo/</x>
-	  <y></y>
-	</tns:e_infix>
+          <y></y>
+        </tns:e_infix_never>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -543,47 +575,50 @@
       <dfdlInfoset>
         <tns:e_postfix>
           <x>foo/</x>
-	</tns:e_postfix>
+        </tns:e_postfix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
   
   <parserTestCase name="scenario2_13" model="es2"
-    description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix" roundTrip="false">
-    <!-- See DFDL-1556 for to make roundTrip="true" -->
+    description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix_keepEmpty" roundTrip="false">
+    <!-- See DAFFODIL-1556 for to make roundTrip="true" -->
     <document>foo$$/$;</document>
     <infoset>
       <dfdlInfoset>
-        <tns:e_infix>
+        <tns:e_infix_keepEmpty>
           <x>foo$/</x>
-	  <y></y>
-	</tns:e_infix>
+          <!-- daf:emptyElementParsePolicy 'treatAsEmpty' only creates empty
+               string elements if there is some non-zero-length syntax
+          <y></y>
+          -->
+        </tns:e_infix_keepEmpty>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
   
   <parserTestCase name="scenario2_13_postfix" model="es2"
     description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_postfix" roundTrip="false">
-    <!-- See DFDL-1556 for to make roundTrip="true" -->
+    <!-- See DAFFODIL-1556 for to make roundTrip="true" -->
     <document>foo$$/$;</document>
     <infoset>
       <dfdlInfoset>
         <tns:e_postfix>
           <x>foo$/</x>
-	</tns:e_postfix>
+        </tns:e_postfix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
   
   <parserTestCase name="scenario2_14" model="es2"
     description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix" roundTrip="false">
-    <!-- See DFDL-1556 for to make roundTrip="true" -->
+    <!-- See DFDL-DAFFODIL for to make roundTrip="true" -->
     <document>foo$$$//$;</document>
     <infoset>
       <dfdlInfoset>
         <tns:e_infix>
           <x>foo$$/$;</x>
-	</tns:e_infix>
+  </tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -615,6 +650,17 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    
+    <xs:element name="e_infix_never">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="/;" dfdl:separatorPosition="infix"
+          dfdl:separatorSuppressionPolicy="never">
+          <xs:element name="x" type="xs:string" dfdl:escapeSchemeRef="tns:scenario3" />
+          <xs:element name="y" type="xs:string" minOccurs="0" dfdl:escapeSchemeRef="tns:scenario3" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
 
     <xs:element name="e_postfix">
       <xs:complexType>
@@ -654,8 +700,8 @@
       <dfdlInfoset>
         <tns:e_infix>
           <x>foo</x>
-	  <y>bar</y>
-	</tns:e_infix>
+    <y>bar</y>
+  </tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -668,7 +714,7 @@
       <dfdlInfoset>
         <tns:e_infix>
           <x>foo/;bar</x>
-	</tns:e_infix>
+  </tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -681,7 +727,7 @@
       <dfdlInfoset>
         <tns:e_infix>
           <x>foo$/;bar</x>
-	</tns:e_infix>
+  </tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -693,7 +739,7 @@
       <dfdlInfoset>
         <tns:e_infix>
           <x>foo/;bar</x>
-	</tns:e_infix>
+  </tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -706,8 +752,8 @@
       <dfdlInfoset>
         <tns:e_infix>
           <x>foo/</x>
-	  <y>bar</y>
-	</tns:e_infix>
+    <y>bar</y>
+  </tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -719,8 +765,8 @@
       <dfdlInfoset>
         <tns:e_infix>
           <x>foo/</x>
-	  <y>bar</y>
-	</tns:e_infix>
+    <y>bar</y>
+  </tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -732,7 +778,7 @@
       <dfdlInfoset>
         <tns:e_infix>
           <x>foo//;bar</x>
-	</tns:e_infix>
+  </tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -745,8 +791,8 @@
       <dfdlInfoset>
         <tns:e_infix>
           <x>foo//</x>
-	  <y>bar</y>
-	</tns:e_infix>
+    <y>bar</y>
+  </tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -759,21 +805,21 @@
       <dfdlInfoset>
         <tns:e_infix>
           <x>foo////;bar</x>
-	</tns:e_infix>
+  </tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
   
   <parserTestCase name="scenario3_10" model="es3"
-    description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix"
-    roundTrip="threePass">
+    description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix_never"
+    roundTrip="onePass">
     <document>foo/;</document>
     <infoset>
       <dfdlInfoset>
-        <tns:e_infix>
+        <tns:e_infix_never>
           <x>foo</x>
-	  <y></y>
-	</tns:e_infix>
+          <y></y>
+        </tns:e_infix_never>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -785,7 +831,7 @@
       <dfdlInfoset>
         <tns:e_postfix>
           <x>foo</x>
-	</tns:e_postfix>
+        </tns:e_postfix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -798,7 +844,7 @@
       <dfdlInfoset>
         <tns:e_infix>
           <x>foo/;</x>
-	</tns:e_infix>
+  </tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -810,7 +856,7 @@
       <dfdlInfoset>
         <tns:e_postfix>
           <x>foo/;</x>
-	</tns:e_postfix>
+  </tns:e_postfix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -823,7 +869,7 @@
       <dfdlInfoset>
         <tns:e_infix>
           <x>foo$/;</x>
-	</tns:e_infix>
+  </tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -835,17 +881,17 @@
       <error>Parse Error</error>
     </errors>
   </parserTestCase>
-  
+
   <parserTestCase name="scenario3_13" model="es3"
-    description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix"
-    roundTrip="threePass">
+    description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix_never" 
+    roundTrip="onePass">
     <document>foo$//;</document>
     <infoset>
       <dfdlInfoset>
-        <tns:e_infix>
+        <tns:e_infix_never>
           <x>foo/</x>
-	  <y></y>
-	</tns:e_infix>
+          <y></y>
+        </tns:e_infix_never>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -857,7 +903,7 @@
       <dfdlInfoset>
         <tns:e_postfix>
           <x>foo/</x>
-	</tns:e_postfix>
+  </tns:e_postfix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -870,7 +916,7 @@
       <dfdlInfoset>
         <tns:e_infix>
           <x>foo///;</x>
-	</tns:e_infix>
+  </tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -895,6 +941,16 @@
     <xs:element name="e_infix">
       <xs:complexType>
         <xs:sequence dfdl:separator="/;" dfdl:separatorPosition="infix">
+          <xs:element name="x" type="xs:string" dfdl:escapeSchemeRef="tns:scenario4" />
+          <xs:element name="y" type="xs:string" minOccurs="0" dfdl:escapeSchemeRef="tns:scenario4" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e_infix_never">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="/;" dfdl:separatorPosition="infix"
+          dfdl:separatorSuppressionPolicy="never">
           <xs:element name="x" type="xs:string" dfdl:escapeSchemeRef="tns:scenario4" />
           <xs:element name="y" type="xs:string" minOccurs="0" dfdl:escapeSchemeRef="tns:scenario4" />
         </xs:sequence>
@@ -957,8 +1013,8 @@
       <dfdlInfoset>
         <tns:e_infix>
           <x>foo</x>
-	  <y>bar</y>
-	</tns:e_infix>
+    <y>bar</y>
+  </tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -970,7 +1026,7 @@
       <dfdlInfoset>
         <tns:e_infix>
           <x>foo/;bar</x>
-	</tns:e_infix>
+  </tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -982,8 +1038,8 @@
       <dfdlInfoset>
         <tns:e_infix>
           <x>foo/</x>
-	  <y>bar</y>
-	</tns:e_infix>
+    <y>bar</y>
+  </tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -995,7 +1051,7 @@
       <dfdlInfoset>
         <tns:e_infix>
           <x>foo//bar</x>
-	</tns:e_infix>
+  </tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -1007,7 +1063,7 @@
       <dfdlInfoset>
         <tns:e_infix>
           <x>foo//;bar</x>
-	</tns:e_infix>
+  </tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -1019,8 +1075,8 @@
       <dfdlInfoset>
         <tns:e_infix>
           <x>foo//</x>
-	  <y>bar</y>
-	</tns:e_infix>
+    <y>bar</y>
+  </tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -1032,7 +1088,7 @@
       <dfdlInfoset>
         <tns:e_infix>
           <x>foo</x>
-	</tns:e_infix>
+  </tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -1046,15 +1102,15 @@
   </parserTestCase>
   
   <parserTestCase name="scenario4_8" model="es4"
-    description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix"
-    roundTrip="threePass">
+    description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix_never"
+    roundTrip="onePass">
     <document>foo/;</document>
     <infoset>
       <dfdlInfoset>
-        <tns:e_infix>
+        <tns:e_infix_never>
           <x>foo</x>
-	  <y></y>
-	</tns:e_infix>
+          <y></y>
+        </tns:e_infix_never>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -1066,7 +1122,7 @@
       <dfdlInfoset>
         <tns:e_postfix>
           <x>foo</x>
-	</tns:e_postfix>
+  </tns:e_postfix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -1078,7 +1134,7 @@
       <dfdlInfoset>
         <tns:e_infix>
           <x>foo/;</x>
-	</tns:e_infix>
+  </tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -1099,7 +1155,7 @@
       <dfdlInfoset>
         <tns:e_infix>
           <x>foo/</x>
-	</tns:e_infix>
+  </tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -1111,21 +1167,21 @@
       <error>Parse Error</error>
     </errors>
   </parserTestCase>
-  
+
   <parserTestCase name="scenario4_11" model="es4"
-    description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix"
-    roundTrip="threePass">
+    description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix_never" 
+    roundTrip="onePass">
     <document>foo///;</document>
     <infoset>
       <dfdlInfoset>
-        <tns:e_infix>
+        <tns:e_infix_never>
           <x>foo/</x>
-	  <y></y>
-	</tns:e_infix>
+          <y></y>
+        </tns:e_infix_never>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
-  
+
   <parserTestCase name="scenario4_11_postfix" model="es4"
     description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_postfix">
     <document>foo///;</document>
@@ -1133,7 +1189,7 @@
       <dfdlInfoset>
         <tns:e_postfix>
           <x>foo/</x>
-	</tns:e_postfix>
+        </tns:e_postfix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -1145,7 +1201,7 @@
       <dfdlInfoset>
         <tns:e_infix>
           <x>foo//;</x>
-	</tns:e_infix>
+        </tns:e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>

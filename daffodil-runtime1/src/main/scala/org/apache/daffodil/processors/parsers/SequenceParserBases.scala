@@ -28,71 +28,80 @@ import org.apache.daffodil.processors.SequenceRuntimeData
 import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.processors.TermRuntimeData
 import org.apache.daffodil.processors.Failure
+import org.apache.daffodil.processors.ModelGroupRuntimeData
 
-abstract class OrderedSequenceParserBase(
-  srd: SequenceRuntimeData,
+/**
+ * Base class for all sequence parsers, which are the combinators that coordinate
+ * all the parsing of the sequence child parsers.
+ */
+abstract class SequenceParserBase(
+  srd:                        SequenceRuntimeData,
   protected val childParsers: Vector[Parser])
   extends CombinatorParser(srd) {
   override def nom = "Sequence"
 
   override lazy val runtimeDependencies: Vector[Evaluatable[AnyRef]] = Vector()
   override lazy val childProcessors = childParsers
+}
 
-  /**
-   * Parses (1) one iteration of an array with fixed/expression occurs count.
-   * (2) a model group (3) a scalar element.
-   *
-   * Returns a status indicating success/failure and the nature of that success/failure.
-   *
-   * No backtracking supported.
-   */
-  protected def parseOneWithoutPoU(
-    parserArg: SequenceChildParser,
-    trd: TermRuntimeData,
-    pstate: PState): ParseAttemptStatus
+abstract class OrderedSequenceParserBase(
+  srd:             SequenceRuntimeData,
+  childParsersArg: Vector[Parser])
+  extends SequenceParserBase(srd, childParsersArg) {
 
-  /**
-   * Parses one iteration of an array/optional element, and returns
-   * a status indicating success/failure and the nature of that success/failure.
-   *
-   * Supports speculative parsing via backtracking.
-   */
-  protected def parseOneWithPoU(
-    parser: RepeatingChildParser,
-    erd: ElementRuntimeData,
-    pstate: PState,
-    priorState: PState.Mark,
-    ais: GoArrayIndexStatus,
-    isBounded: Boolean): ParseAttemptStatus
+  import ParseAttemptStatus._
+  import ArrayIndexStatus._
 
-  protected def zeroLengthSpecialChecks(pstate: PState, wasLastChildZeroLength: Boolean): Unit
-
-  final protected def checkN(pstate: PState, childParser: RepeatingChildParser): Unit = {
+  final protected def checkN(pstate: PState, childParser: SequenceChildParser): Unit = {
     if (pstate.arrayPos > pstate.tunable.maxOccursBounds) {
-      throw new TunableLimitExceededError(childParser.erd.schemaFileLocation,
+      throw new TunableLimitExceededError(
+        childParser.trd.schemaFileLocation,
         "Array occurrences excceeds the maxOccursBounds tunable limit of %s",
         pstate.tunable.maxOccursBounds)
     }
   }
 
-  /**
-   * This parse method is used for both separated and unseparated sequences.
-   */
+  final protected def checkForwardProgress(
+    pstate:     PState,
+    currentPos: Long,
+    priorPos:   Long,
+    ais:        ArrayIndexStatus): ArrayIndexStatus = {
+    Assert.invariant(currentPos >= priorPos)
+    if (currentPos == priorPos && pstate.groupPos > 1) {
+      PE(pstate, "No forward progress.")
+      Done
+    } else {
+      ais
+    }
+  }
+
   override protected def parse(pstate: PState): Unit = {
+    pstate.mpstate.groupIndexStack.push(1L)
+
     val children = childParsers
 
     var scpIndex = 0
-    pstate.mpstate.groupIndexStack.push(1L) // one-based indexing
 
     val limit = children.length
 
-    var wasLastChildZeroLength = false
+    var resultOfTry: ParseAttemptStatus = ParseAttemptStatus.Uninitialized
+
+    /**
+     * On exit from the sequence loop, if the last thing was Missing, we
+     * want to look back one prior to see if that followed a EmptyRep or AbsentRep,
+     * so that we can implement the check for trailingEmptyStrict
+     */
+    var priorResultOfTry: ParseAttemptStatus = ParseAttemptStatus.Uninitialized
+
+    var child: SequenceChildParser = null
+
+    var isDone = false
 
     //
     // This loop iterates over the children terms of the sequence
     //
-    while ((scpIndex < limit) && (pstate.processorStatus eq Success)) {
-      val child = children(scpIndex).asInstanceOf[SequenceChildParser]
+    while (!isDone && (scpIndex < limit) && (pstate.processorStatus eq Success)) {
+      child = children(scpIndex).asInstanceOf[SequenceChildParser]
       child match {
         case parser: RepeatingChildParser => {
           //
@@ -102,203 +111,83 @@ abstract class OrderedSequenceParserBase(
           //
           val min = parser.minRepeats(pstate)
           val max = parser.maxRepeats(pstate)
-          val isBounded = parser.isBoundedMax(max)
+          val isBounded = parser.isBoundedMax
           val erd = parser.trd.asInstanceOf[ElementRuntimeData]
 
           parser.startArray(pstate)
 
           //
-          // There are two kinds of loops. Arrays which have points of uncertainty (PoU)
-          // where speculative parsing is used to determine how many occurrences,
-          // and specified-number of occurrences, where a number is known or is computed.
+          // This case for array/optionals where the number of occurences is
+          // determined by speculative parsing. OCK=implicit with min/maxOccurs
+          // different, or OCK=parsed.
           //
-          parser.hasPoU match {
-            case true => {
+
+          priorResultOfTry = resultOfTry
+          resultOfTry = ParseAttemptStatus.Uninitialized
+
+          var ais: ArrayIndexStatus = ArrayIndexStatus.Uninitialized
+          while ((ais ne Done) && { // check ais for Done in case it was assigned
+            ais = parser.arrayIndexStatus(min, max, pstate)
+            (pstate.isSuccess) && (ais ne Done) // check ais for done from min/max computation
+          }) {
+            val roStatus = ais.asInstanceOf[RequiredOptionalStatus]
+
+            val priorPos = pstate.bitPos0b
+
+            {
               //
-              // This case for array/optionals where the number of occurences is
-              // determined by speculative parsing. OCK=implicit with min/maxOccurs
-              // different, or OCK=parsed.
+              // Note: Performance - counting on Scala compiler to optimize away
+              // this 2-tuple to avoid allocation in the inner loop here.
               //
-
-              var resultOfTry: ParseAttemptStatus = ParseAttemptStatus.Uninitialized
-
-              var ais: ArrayIndexStatus = null
-              var goAIS: GoArrayIndexStatus = null
-
-              while ({
-                ais = parser.arrayIndexStatus(min, max, pstate, resultOfTry)
-                ais match {
-                  case go: GoArrayIndexStatus => { goAIS = go; true }
-                  case _ => false
-                }
-              }) {
-
-                //
-                // Saved state before an individual occurrence.
-                // These should not leak as we iterate the occurrences.
-                // The lifetime of these is the parse attempt for a single occurrence
-                // only.
-                //
-                val priorState = pstate.mark("before occurrence")
-
-                var markLeakCausedByException = false
-                var wasThrow = true
-                try {
-                  checkN(pstate, parser) // check if arrayIndex exceeds tunable limit.
-
-                  pstate.pushDiscriminator
-                  resultOfTry =
-                    parseOneWithPoU(parser, erd, pstate, priorState, goAIS, isBounded)
-                  wasThrow = false
-                  pstate.popDiscriminator
-                  //
-                  // Now we handle the result of the parse attempt.
-                  //
-                  // check for consistency - failure comes with a PE in the PState.
-                  Assert.invariant((pstate.processorStatus eq Success) ||
-                    resultOfTry.isInstanceOf[FailedParseAttemptStatus])
-
-                  resultOfTry match {
-
-                    case ParseAttemptStatus.Failed_EntireArray |
-                      ParseAttemptStatus.Success_EndOfArray =>
-                      Assert.invariantFailed("not valid return status for a PoU array/optional.")
-
-                    case ParseAttemptStatus.Success_SkippedSeparator => {
-                      //
-                      // In the case of separated sequences when we skip just the separator,
-                      // the parseWithOnePoU method has handled the reset to priorState
-                      // and advance past the separator. It has to, as it knows
-                      // how long the separator was.
-                      //
-                      wasLastChildZeroLength = true
-                    }
-                    case _: SuccessParseAttemptStatus => {
-                      pstate.mpstate.moveOverOneGroupIndexOnly()
-                      wasLastChildZeroLength = resultOfTry eq ParseAttemptStatus.Success_ZeroLength
-                    }
-
-                    case ParseAttemptStatus.Failed_WithDiscriminatorSet => {
-                      // Just allow the failure to propagate.
-                    }
-
-                    case ParseAttemptStatus.Failed_SpeculativeParse => {
-                      // We failed.
-                      goAIS match {
-                        case ArrayIndexStatus.Required => {
-                          //
-                          // Did we reach minOccurs? I.e., did we fail on a required element?
-                          // if so, then we failed the whole array
-                          //
-                          // Grab the cause, restore the state prior to the whole array,
-                          // then re-assert the failure cause.
-                          //
-                          val Failure(cause) = pstate.processorStatus
-
-                          pstate.discard(priorState)
-                          pstate.setFailed(cause)
-                          resultOfTry = ParseAttemptStatus.Failed_EntireArray
-                        }
-                        case _: OptionalArrayIndexStatus => {
-                          //
-                          // We failed on an optional element.
-                          // Means we back out and succeed on prior
-                          // (which might be none - could be no occurrences at all)
-                          //
-                          pstate.reset(priorState)
-                          //
-                          // The above doesn't reset the array index back to the prior, because that is
-                          // advanced at the bottom of the loop before the priorState is captured for this
-                          // iteration, so the array index needs to back up by 1.
-                          //
-                          // We're done with the array, but the arrayPos still has to be correct for validation
-                          // purposes - it is used to measure how many occurrences.
-                          //
-                          pstate.mpstate.moveBackOneArrayIndexOnly()
-                          Assert.invariant(pstate.processorStatus eq Success)
-                          resultOfTry = ParseAttemptStatus.Success_EndOfArray
-                        }
-                      }
-                    }
-
-                    case ParseAttemptStatus.Failed_NoForwardProgress => {
-                      // Just allow the failure to propagate.
-                    }
-
-                    case other => Assert.invariantFailed("Unexpected parse attempt status: " + other)
-                  }
-
-                } catch {
-                  // Similar try/catch/finally logic for returning marks is also used in
-                  // the Choice parser. The logic isn't
-                  // easily factored out so it is duplicated. Changes made here should also
-                  // be made there. Only these parsers deal with taking marks, so this logic
-                  // should not be needed elsewhere.
-                  case t: Throwable => {
-                    if (pstate.isInUse(priorState)) {
-                      markLeakCausedByException = true
-                      pstate.discard(priorState)
-                      if (!t.isInstanceOf[SchemaDefinitionDiagnosticBase] && !t.isInstanceOf[UnsuppressableException] && !t.isInstanceOf[java.lang.Error]) {
-                        val stackTrace = new StringWriter()
-                        t.printStackTrace(new PrintWriter(stackTrace))
-                        Assert.invariantFailed("Exception thrown with mark not returned: " + t + "\nStackTrace:\n" + stackTrace)
-                      }
-                    }
-                    throw t
-                  }
-                }
-                // if it wasn't reset, we discard priorState here.
-                if (pstate.isInUse(priorState)) {
-                  pstate.discard(priorState)
-                }
-                //
-                // advance array position.
-                // Done unconditionally, as some failures get converted into successes
-                //
-                // If ultimately this is a real failure, then mothing cares about this, it is
-                // about to get poppped/cleared anyway.
-                //
-                pstate.mpstate.moveOverOneArrayIndexOnly()
-
-              } // end while for each repeat
-
-            } // end match case hasPoU = true
-
-            case false => {
+              val (nextAIS, nextResultOfTry) = parseOneInstance(parser, pstate, roStatus, resultOfTry)
+              ais = nextAIS
+              priorResultOfTry = resultOfTry
+              resultOfTry = nextResultOfTry
+            }
+            val currentPos = pstate.bitPos0b
+            if (pstate.isSuccess && !isBounded && (
+              resultOfTry match {
+                case ParseAttemptStatus.AbsentRep => true
+                case _: ParseAttemptStatus.SuccessParseAttemptStatus => true
+                case _ => false
+              })) {
               //
-              // This case for array/optionals where the number of occurences is
-              // specified or fixed. dfdl:occursCountKind='expression' or 'fixed'
-              // or 'implicit' when minOccurs = maxOccurs.
+              // result of try could be missing if we just ended an array
+              // by speculation.
               //
-
-              var resultOfTry: ParseAttemptStatus = ParseAttemptStatus.Uninitialized
-              var ais: ArrayIndexStatus = null
-              var goAIS: GoArrayIndexStatus = null
-
-              while ({
-                ais = parser.arrayIndexStatus(min, max, pstate, resultOfTry)
-                ais match {
-                  case go: GoArrayIndexStatus => { goAIS = go; true }
-                  case _ => false
-                }
-              }) {
-
-                checkN(pstate, parser)
-                resultOfTry = parseOneWithoutPoU(parser, parser.trd, pstate)
-                resultOfTry match {
-                  case ParseAttemptStatus.Success_EndOfArray => // ok, success will move on to next sequence child.
-                  case _: SuccessParseAttemptStatus => {
-                    pstate.mpstate.moveOverOneGroupIndexOnly() // advance group position
-                    pstate.mpstate.moveOverOneArrayIndexOnly() // advance array position
-                  }
-                  case _: FailedParseAttemptStatus => // ok, failure will propagate from pstate.
-                  case ParseAttemptStatus.Uninitialized =>
-                    Assert.invariantFailed("Cannot be uninitialized")
-                }
-                wasLastChildZeroLength = resultOfTry eq ParseAttemptStatus.Success_ZeroLength
-              } // end while for each occurrence
-            } // end match case hasPoU == false
-          } // end match hasPoU
+              // result of try could also be absent if we just ended a group
+              // by not finding a separator
+              //
+              ais = checkForwardProgress(pstate, currentPos, priorPos, ais)
+            }
+            //
+            // advance array position.
+            // Done unconditionally, as some failures get converted into successes
+            //
+            // If ultimately this is a real failure, then mothing cares about this, it is
+            // about to get poppped/cleared anyway.
+            //
+            if (ais ne Done) {
+              pstate.mpstate.moveOverOneArrayIndexOnly()
+            }
+            if (currentPos > priorPos ||
+              ((resultOfTry eq AbsentRep) && pstate.isSuccess
+                && parser.isPositional) ||
+                resultOfTry.isInstanceOf[SuccessParseAttemptStatus]) {
+              // we moved past something, so we're definitely not first
+              // in the group any more.
+              //
+              // Or if AbsentRep, and we're positional. Then also we
+              // move on in the group.
+              //
+              // But if not, if we're still at position zero, then
+              // whatever is next could still be first in the group
+              // and not get an infix separator. So we have to conditionally
+              // not move the group index unless we really did parse something.
+              //
+              pstate.mpstate.moveOverOneGroupIndexOnly()
+            }
+          } // end while for each repeat
           parser.endArray(pstate)
         } // end match case RepeatingChildParser
 
@@ -308,30 +197,142 @@ abstract class OrderedSequenceParserBase(
         // A model group term is considered scalar
         // in that they cannot be repeating at all in DFDL v1.0.
         //
-        case scalarParser: SequenceChildParser => {
-          val resultOfTry = parseOneWithoutPoU(scalarParser, scalarParser.trd, pstate)
-          if (resultOfTry.isSuccess) {
-            // only move over in group if the scalar "thing" is an element
-            // that is represented.
-            if (scalarParser.trd.isRepresented) {
-              // allows for non-represented elements, and if we add it to DFDL
-              // a concept of non-represented model groups - model groups containing
-              // only statement annotations for example, or only non-represented elements.
-              pstate.mpstate.moveOverOneGroupIndexOnly()
+        case nonRepresentedParser: NonRepresentedSequenceChildParser => {
+          nonRepresentedParser.parseOne(pstate, null)
+          // don't need to digest result from this. All
+          // information about success/failure is in the pstate.
+          //
+          // We do NOT move over the group index state for non-represented things.
+        }
+        case scalarParser => {
+          val roStatus = scalarParser.maybeStaticRequiredOptionalStatus.get
+          val (_, nextResultOfTry) = parseOneInstance(scalarParser, pstate, roStatus, resultOfTry)
+          priorResultOfTry = resultOfTry
+          resultOfTry = nextResultOfTry
+          resultOfTry match {
+            case AbsentRep => {
+              // a scalar element, or a model group is absent. That means no separator
+              // was found for it.
+              //
+              // That means were at the end of the representation of this sequence,
+              // This is only returned as resultOfTry if it is
+              // OK for us to act on it. I.e., we know that the situation is
+              // Positional trailing, with a group that can have zero-length representation.
+              // and no separator was found for it.
+              //
+              // So we mask the failure, and exit the sequence successfully
+              pstate.setSuccess()
+              isDone = true
             }
+            case _ => // ok.
           }
-          // in failure case, pstate indicates failure of this scalar, and
-          // we will exit the loop for the sequence's children.
-          wasLastChildZeroLength = resultOfTry eq ParseAttemptStatus.Success_ZeroLength
-        } // end match case scalar parser
-      } // end match
+          pstate.mpstate.moveOverOneGroupIndexOnly()
+        } // end case scalarParser
+      } // end match case parser
       scpIndex += 1
     } // end while for each sequence child parser
 
-    zeroLengthSpecialChecks(pstate, wasLastChildZeroLength)
-
+    if (child ne null) child.finalChecks(pstate, resultOfTry, priorResultOfTry)
     pstate.mpstate.groupIndexStack.pop()
     ()
   }
-}
 
+  private def parseOneInstance(
+    parser:         SequenceChildParser,
+    pstate:         PState,
+    roStatus:       RequiredOptionalStatus,
+    resultOfTryArg: ParseAttemptStatus): (ArrayIndexStatus, ParseAttemptStatus) = {
+    var resultOfTry = resultOfTryArg
+    var ais: ArrayIndexStatus = ArrayIndexStatus.Uninitialized
+
+    val hasPoU = parser.pouStatus eq PoUStatus.HasPoU
+
+    //
+    // Saved state before an individual occurrence.
+    // These should not leak as we iterate the occurrences.
+    // The lifetime of these is the parse attempt for a single occurrence
+    // only.
+    //
+    val priorState = if (hasPoU) pstate.mark("before occurrence") else null
+
+    var wasThrow = true
+    try {
+      checkN(pstate, parser) // check if arrayIndex exceeds tunable limit.
+
+      if (hasPoU) pstate.pushDiscriminator
+      val priorPos = pstate.bitPos0b
+
+      resultOfTry = parser.parseOne(pstate, roStatus)
+
+      wasThrow = false
+
+      val currentPos = pstate.bitPos0b
+
+      val wasDescriminatorSet = pstate.discriminator
+      if (hasPoU) pstate.popDiscriminator
+      //
+      // Now we handle the result of the parse attempt.
+      //
+      // check for consistency - failure comes with a PE in the PState.
+      Assert.invariant((pstate.processorStatus eq Success) ||
+        resultOfTry.isInstanceOf[FailedParseAttemptStatus])
+
+      resultOfTry match {
+        case _: SuccessParseAttemptStatus => // ok
+        case AbsentRep => {
+          if (hasPoU) pstate.reset(priorState) // back out any side effects of the attempt to parse
+          pstate.dataInputStream.setBitPos0b(currentPos) // skip syntax such as a separator
+        }
+        case MissingSeparator if (pstate.isSuccess) => {
+          // missing separator with parse success indicates that we should end the sequence now
+          if (hasPoU) pstate.discard(priorState)
+          ais = Done
+        }
+        case _: FailedParseAttemptStatus => { // MissingSeparator with failure will match here
+          Assert.invariant(pstate.isFailure)
+          if (hasPoU && !wasDescriminatorSet &&
+            (roStatus.isInstanceOf[RequiredOptionalStatus.Optional])) {
+            // we back up and finish the array at the prior element if any.
+            pstate.reset(priorState)
+            Assert.invariant(pstate.isSuccess)
+          } else {
+            val cause = pstate.processorStatus.asInstanceOf[Failure].cause
+            parser.trd match {
+              case erd: ElementRuntimeData if (erd.isArray) =>
+                parser.PE(pstate, "Failed to populate %s[%s]. Cause: %s",
+                  erd.prefixedName, pstate.mpstate.arrayPos, cause)
+              case _ => // ok
+            }
+          }
+          ais = Done // exits the while loop for the array
+        }
+        case other => Assert.invariantFailed("Unexpected parse attempt status: " + other)
+      }
+
+    } catch {
+      // Similar try/catch/finally logic for returning marks is also used in
+      // the Choice parser. The logic isn't
+      // easily factored out so it is duplicated. Changes made here should also
+      // be made there. Only these parsers deal with taking marks, so this logic
+      // should not be needed elsewhere.
+      case t: Throwable => {
+        if (hasPoU) {
+          if (pstate.isInUse(priorState)) {
+            pstate.discard(priorState)
+            if (!t.isInstanceOf[SchemaDefinitionDiagnosticBase] && !t.isInstanceOf[UnsuppressableException] && !t.isInstanceOf[java.lang.Error]) {
+              val stackTrace = new StringWriter()
+              t.printStackTrace(new PrintWriter(stackTrace))
+              Assert.invariantFailed("Exception thrown with mark not returned: " + t + "\nStackTrace:\n" + stackTrace)
+            }
+          }
+        }
+        throw t
+      }
+    }
+    // if it wasn't reset, we discard priorState here.
+    if (hasPoU && pstate.isInUse(priorState)) {
+      pstate.discard(priorState)
+    }
+    (ais, resultOfTry)
+  }
+}

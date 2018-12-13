@@ -32,7 +32,7 @@
 				This is the new schema level default format block. It doesn't get a
 				name
 			-->
-			<dfdl:format ref="GeneralFormat" 
+			<dfdl:format ref="GeneralFormatPortable" 
 			  initiator="" terminator="" leadingSkip="0" trailingSkip="0"  textBidi="no" floating="no"   encoding="utf-8" byteOrder="bigEndian" alignment="1" alignmentUnits="bytes" fillByte="f" 
         occursCountKind="implicit" 
 				truncateSpecifiedLengthString="no" ignoreCase="no"
@@ -137,7 +137,7 @@
 	
 	<xs:element name="myStringSeq4"> <!-- dfdl:lengthKind="explicit" dfdl:length="5"> -->
 		<xs:complexType>
-			<xs:sequence  dfdl:separator=":: ; ]" dfdl:terminator=":: ; ]" dfdl:separatorPosition="infix">
+			<xs:sequence  dfdl:separator="; ::" dfdl:terminator="]" dfdl:separatorPosition="infix">
 				<xs:element name="seq1" dfdl:lengthKind="delimited" >
 				  <xs:complexType>
 				  	<xs:sequence dfdl:separatorPosition="infix" dfdl:separator="|" >
@@ -159,5 +159,30 @@
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
-    
+  
+  <xs:element name="myStringSeq5"> <!-- dfdl:lengthKind="explicit" dfdl:length="5"> -->
+    <xs:complexType>
+      <xs:sequence  dfdl:separator="; ::" dfdl:terminator="]" dfdl:separatorPosition="infix">
+        <xs:element name="seq1" dfdl:lengthKind="delimited" >
+          <xs:complexType>
+            <xs:sequence dfdl:separatorPosition="infix" dfdl:separator="|" >
+              <xs:element name="element1" type="xs:string" dfdl:lengthKind="delimited"/>
+            <xs:element name="element2" type="xs:string" dfdl:lengthKind="delimited"/>
+            <xs:element name="element3" type="xs:string" dfdl:lengthKind="delimited"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="seq2" dfdl:lengthKind="delimited" >
+          <xs:complexType>
+            <xs:sequence dfdl:separatorPosition="infix" dfdl:separator="|" >
+              <xs:element name="element1" type="xs:string" dfdl:lengthKind="delimited"/>
+            <xs:element name="element2" type="xs:string" dfdl:lengthKind="delimited"/>
+            <xs:element name="element3" type="xs:string" dfdl:lengthKind="delimited"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
 </xs:schema>

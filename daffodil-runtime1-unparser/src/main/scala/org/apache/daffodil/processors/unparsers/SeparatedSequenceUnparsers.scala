@@ -22,224 +22,224 @@ import org.apache.daffodil.processors.{ ElementRuntimeData, SequenceRuntimeData,
 import org.apache.daffodil.schema.annotation.props.SeparatorSuppressionPolicy
 import org.apache.daffodil.schema.annotation.props.gen.{ SeparatorPosition }
 import org.apache.daffodil.infoset.DIElement
-
-/**
- * DFDL Spec. section 14.2.3 specifies only a few different behaviors
- * for separator suppression. Each has an algorithm.
- */
-sealed trait SeparatorSuppressionMode extends Serializable {
-
-  /**
-   * Determines if we should suppress a zero length element and
-   * separator.
-   *
-   * Checks if the length is zero if necessary to decide.
-   *
-   * Returns Suppress or IfTrailing when the element is, in fact, zero length,
-   * and the algorithm wants those to be suppressed.
-   * Returns DoNotSuppress otherwise.
-   */
-  def shouldSuppressIfZeroLength(state: UState, infosetElement: DIElement): SeparatorSuppressionAction
-
-  def shouldDoExtraSeparators = false
-
-  def checkArrayPosAgainstMaxOccurs(state: UState, maxRepeats: Long): Boolean = true
-
-}
-
-object SeparatorSuppressionMode {
-  type Type = SeparatorSuppressionMode
-  import SeparatorSuppressionAction._
-
-  object None extends Type {
-    def shouldSuppressIfZeroLength(state: UState, infosetElement: DIElement) = Assert.usageError("not to be called.")
-  }
-  object FixedOrExpression extends Type {
-    def shouldSuppressIfZeroLength(state: UState, infosetElement: DIElement) = DoNotSuppress
-  }
-
-  class SuppressAnyEmpty(zeroLengthDetector: ZeroLengthDetector) extends Type {
-    def shouldSuppressIfZeroLength(state: UState, infosetElement: DIElement) = {
-      val isZL = zeroLengthDetector.isZeroLength(infosetElement)
-      if (isZL) Suppress
-      else DoNotSuppress
-    }
-  }
-
-  trait CheckArrayPosMixin { self: SeparatorSuppressionMode =>
-    override def checkArrayPosAgainstMaxOccurs(state: UState, maxRepeats: Long): Boolean = {
-      state.arrayPos <= maxRepeats
-    }
-  }
-
-  class ImplicitSuppressAnyEmpty(zeroLengthDetector: ZeroLengthDetector)
-    extends SuppressAnyEmpty(zeroLengthDetector)
-    with CheckArrayPosMixin
-
-  object ImplicitNeverOrNotPotentiallyTrailing extends Type
-    with CheckArrayPosMixin {
-    def shouldSuppressIfZeroLength(state: UState, infosetElement: DIElement) = DoNotSuppress
-
-    override def shouldDoExtraSeparators = true
-
-  }
-
-  class ImplicitPotentiallyTrailing(zeroLengthDetector: ZeroLengthDetector) extends Type
-    with CheckArrayPosMixin {
-    def shouldSuppressIfZeroLength(state: UState, infosetElement: DIElement) = {
-      val isZL = zeroLengthDetector.isZeroLength(infosetElement)
-      if (isZL) IfTrailing
-      else DoNotSuppress
-    }
-  }
-}
-
-sealed trait SeparatorSuppressionAction extends Serializable
-object SeparatorSuppressionAction {
-  type Type = SeparatorSuppressionAction
-  case object Suppress extends Type
-  case object DoNotSuppress extends Type
-  case object IfTrailing extends Type
-}
+import org.apache.daffodil.processors.ModelGroupRuntimeData
+import org.apache.daffodil.util.Maybe
+import scala.collection.mutable.Buffer
+import SeparatorSuppressionPolicy._
+import SeparatorPosition._
 
 trait Separated { self: SequenceChildUnparser =>
 
   def sep: Unparser
   def spos: SeparatorPosition
   def ssp: SeparatorSuppressionPolicy
-  def ssAlgorithm: SeparatorSuppressionMode
+  def zeroLengthDetector: ZeroLengthDetector
+  def isPotentiallyTrailing: Boolean
+
+  def isKnownStaticallyNotToSuppressSeparator: Boolean
+
+  def isDeclaredLast: Boolean
+
+  def isPositional: Boolean
 
   val childProcessors = Vector(childUnparser, sep)
 }
 
-class ScalarOrderedSeparatedSequenceChildUnparser(
-  childUnparser: Unparser,
-  srd: SequenceRuntimeData,
-  trd: TermRuntimeData,
-  val sep: Unparser,
-  val spos: SeparatorPosition,
-  val ssp: SeparatorSuppressionPolicy,
-  val ssAlgorithm: SeparatorSuppressionMode)
+sealed abstract class ScalarOrderedSeparatedSequenceChildUnparserBase(
+  childUnparser:                                        Unparser,
+  srd:                                                  SequenceRuntimeData,
+  trd:                                                  TermRuntimeData,
+  override val sep:                                     Unparser,
+  override val spos:                                    SeparatorPosition,
+  override val ssp:                                     SeparatorSuppressionPolicy,
+  override val zeroLengthDetector:                      ZeroLengthDetector,
+  override val isPotentiallyTrailing:                   Boolean,
+  override val isKnownStaticallyNotToSuppressSeparator: Boolean,
+  override val isPositional:                            Boolean,
+  override val isDeclaredLast:                          Boolean)
   extends SequenceChildUnparser(childUnparser, srd, trd)
   with Separated {
 
   override def unparse(state: UState) = childUnparser.unparse1(state)
 }
 
+class ScalarOrderedSeparatedSequenceChildUnparser(
+  childUnparser:                           Unparser,
+  srd:                                     SequenceRuntimeData,
+  trd:                                     TermRuntimeData,
+  sep:                                     Unparser,
+  spos:                                    SeparatorPosition,
+  ssp:                                     SeparatorSuppressionPolicy,
+  zlDetector:                              ZeroLengthDetector,
+  isPotentiallyTrailing:                   Boolean,
+  isKnownStaticallyNotToSuppressSeparator: Boolean,
+  isPositional:                            Boolean,
+  isDeclaredLast:                          Boolean)
+  extends ScalarOrderedSeparatedSequenceChildUnparserBase(childUnparser, srd, trd, sep, spos, ssp,
+    zlDetector, isPotentiallyTrailing, isKnownStaticallyNotToSuppressSeparator, isPositional,
+    isDeclaredLast)
+
 class RepOrderedSeparatedSequenceChildUnparser(
-  childUnparser: Unparser,
-  srd: SequenceRuntimeData,
-  erd: ElementRuntimeData,
-  val sep: Unparser,
-  val spos: SeparatorPosition,
-  val ssp: SeparatorSuppressionPolicy, // need for diagnostics perhaps
-  val ssAlgorithm: SeparatorSuppressionMode)
+  childUnparser:                                        Unparser,
+  srd:                                                  SequenceRuntimeData,
+  erd:                                                  ElementRuntimeData,
+  override val sep:                                     Unparser,
+  override val spos:                                    SeparatorPosition,
+  override val ssp:                                     SeparatorSuppressionPolicy, // need for diagnostics perhaps
+  override val zeroLengthDetector:                      ZeroLengthDetector,
+  override val isPotentiallyTrailing:                   Boolean,
+  override val isKnownStaticallyNotToSuppressSeparator: Boolean,
+  override val isPositional:                            Boolean,
+  override val isDeclaredLast:                          Boolean)
   extends RepeatingChildUnparser(childUnparser, srd, erd)
   with Separated {
 
-  override def checkArrayPosAgainstMaxOccurs(state: UState) = ssAlgorithm.checkArrayPosAgainstMaxOccurs(state, maxRepeats(state))
+  override def checkArrayPosAgainstMaxOccurs(state: UState) =
+    state.arrayPos <= maxRepeats(state)
 }
 
 class OrderedSeparatedSequenceUnparser(
-  rd: SequenceRuntimeData,
-  ssp: SeparatorSuppressionPolicy,
-  spos: SeparatorPosition,
-  sep: Unparser,
+  rd:                SequenceRuntimeData,
+  ssp:               SeparatorSuppressionPolicy,
+  spos:              SeparatorPosition,
+  sep:               Unparser,
   childUnparsersArg: Vector[SequenceChildUnparser])
-  extends OrderedSequenceUnparserBase(rd, childUnparsersArg) {
+  extends OrderedSequenceUnparserBase(rd, childUnparsersArg :+ sep) {
 
-  private val childUnparsers = childUnparsersArg.asInstanceOf[Seq[SequenceChildUnparser with Separated]]
-
-  /**
-   * True if requires special treatment in the unparse processing loop, as occurrences
-   * of later sequence children can influence whether possible trailing separators
-   * from earlier sequence children are actually trailing or not.
-   */
-  private type IPT = SeparatorSuppressionMode.ImplicitPotentiallyTrailing
-
-  private val hasTrailingSeparatorSuppression = {
-    childUnparsers.last.ssAlgorithm.isInstanceOf[IPT]
-  }
+  private val childUnparsers =
+    childUnparsersArg.asInstanceOf[Seq[SequenceChildUnparser with Separated]]
 
   /**
-   * Unparses one occurrence.
+   * Unparses one occurrence with associated separator (non-suppressable).
    */
   protected def unparseOne(
     unparser: SequenceChildUnparser,
-    trd: TermRuntimeData,
-    state: UState): Unit = {
+    trd:      TermRuntimeData,
+    state:    UState): Unit = {
 
     if (trd.isRepresented) {
-      if ((spos eq SeparatorPosition.Prefix)) {
-        sep.unparse1(state)
-      } else if ((spos eq SeparatorPosition.Infix) && state.groupPos > 1) {
-        sep.unparse1(state)
+      spos match {
+        case Prefix => {
+          sep.unparse1(state)
+          unparser.unparse1(state)
+        }
+        case Infix => {
+          if (state.groupPos > 1)
+            sep.unparse1(state)
+          unparser.unparse1(state)
+        }
+        case Postfix => {
+          unparser.unparse1(state)
+          sep.unparse1(state)
+        }
       }
+    } else {
+      Assert.invariant(!trd.isRepresented)
+      unparser.unparse1(state)
     }
-
-    unparser.unparse1(state)
-
-    if ((spos eq SeparatorPosition.Postfix) && trd.isRepresented) {
-      sep.unparse1(state)
-    }
-  }
-
-  /**
-   * Unparses a zero-length occurrence, without the separator. This is so that
-   * any statements or other side-effects (discriminators, setVariable, etc.)
-   * will occur.
-   */
-  private def unparseZeroLengthWithoutSeparatorForSideEffect(
-    unparser: SequenceChildUnparser,
-    trd: TermRuntimeData,
-    state: UState): Unit = {
-    //
-    // Unfortunately there's no way to confirm that this produced zero length
-    // because of the possible buffering going on in the unparser.
-    // We'd have to depend on intricate details of the unparser behavior to do this,
-    // and that's unwise from separation-of-concerns perspective.
-    //
-    unparser.unparse1(state)
   }
 
   /**
    * Unparses the separator only.
    *
-   * Does not deals with infix boundary condition, because
-   * the counting of the potential trailing separators takes
-   * this into account.
+   * Does not deals with infix boundary condition.
    */
   private def unparseJustSeparator(state: UState): Unit = {
     sep.unparse1(state)
   }
 
   /**
-   * Returns 1, or 0 if infix separator, and this is the first thing
-   * in the sequence meaning there is no separator for it.
+   * Unparses the separator only.
    *
-   * However, if we're not doing trailing separator suppression, always
-   * returns 0.
+   * Does not have to deal with infix and first child.
    */
-  private def suppressedTrailingSeparatorIncrement(unparser: SequenceChildUnparser with Separated, state: UState): Int = {
-    Assert.usage(unparser.trd.isRepresented)
-    val notIPT = !unparser.ssAlgorithm.isInstanceOf[IPT]
-    val result =
-      if (notIPT)
-        0
-      else {
-        val infixAndFirst = (spos eq SeparatorPosition.Infix) && state.groupPos == 1
-        if (infixAndFirst)
-          0
-        else
-          1
-      }
-    result
+  private def unparseJustSeparatorWithTrailingSuppression(
+    trd:                  TermRuntimeData,
+    state:                UState,
+    trailingSuspendedOps: Buffer[SuppressableSeparatorUnparserSuspendableOperation]): Unit = {
+
+    val suspendableOp = new SuppressableSeparatorUnparserSuspendableOperation(sep, trd)
+    // TODO: merge these two objects. We can allocate just one thing here.
+    val suppressableSep = SuppressableSeparatorUnparser(sep, trd, suspendableOp)
+
+    suppressableSep.unparse1(state)
+    trailingSuspendedOps += suspendableOp
   }
 
   /**
    * Unparses an entire sequence, including both scalar and array/optional children.
    */
   protected def unparse(state: UState): Unit = {
+    ssp match {
+      case Never =>
+        unparseWithNoSuppression(state)
+      case _ =>
+        unparseWithSuppression(state)
+    }
+  }
+
+  private def unparseOneWithSuppression(
+    unparser:             SequenceChildUnparser,
+    trd:                  TermRuntimeData,
+    state:                UState,
+    trailingSuspendedOps: Buffer[SuppressableSeparatorUnparserSuspendableOperation],
+    onlySeparatorFlag:    Boolean): Unit = {
+    val doUnparseChild = !onlySeparatorFlag
+    // We don't know if the unparse will result in zero length or not.
+    // We have to use a suspendable unparser here for the separator
+    // which suspends until it is known whether the unparse of the contents
+    // were ZL or not.
+    //
+    // infix, prefix, postfix matters here, because the separator comes after
+    // for postfix.
+
+    if ((spos eq Infix) && state.groupPos == 1) {
+      // no separator possible; hence, no suppression
+      if (doUnparseChild) unparser.unparse1(state)
+    } else {
+
+      val suspendableOp = new SuppressableSeparatorUnparserSuspendableOperation(sep, trd)
+      // TODO: merge these two objects. We can allocate just one thing here.
+      val suppressableSep = SuppressableSeparatorUnparser(sep, trd, suspendableOp)
+
+      spos match {
+        case Prefix | Infix => {
+          suppressableSep.unparse1(state)
+          if (doUnparseChild) unparser.unparse1(state)
+          ssp match {
+            case AnyEmpty => {
+              suspendableOp.captureStateAtEndOfPotentiallyZeroLengthRegionFollowingTheSeparator(state)
+            }
+            case TrailingEmpty | TrailingEmptyStrict => {
+              trailingSuspendedOps += suspendableOp
+            }
+            case Never => Assert.invariantFailed("Should not be ssp Never")
+          }
+        }
+        case Postfix => {
+          ssp match {
+            case AnyEmpty => {
+              suspendableOp.captureDOSForStartOfSeparatedRegionBeforePostfixSeparator(state)
+              if (doUnparseChild) unparser.unparse1(state)
+              suspendableOp.captureDOSForEndOfSeparatedRegionBeforePostfixSeparator(state)
+              suppressableSep.unparse1(state)
+              suspendableOp.captureStateAtEndOfPotentiallyZeroLengthRegionFollowingTheSeparator(state)
+            }
+            case TrailingEmpty | TrailingEmptyStrict => {
+              suspendableOp.captureDOSForStartOfSeparatedRegionBeforePostfixSeparator(state)
+              if (doUnparseChild) unparser.unparse1(state)
+              suspendableOp.captureDOSForEndOfSeparatedRegionBeforePostfixSeparator(state)
+              suppressableSep.unparse1(state)
+              trailingSuspendedOps += suspendableOp
+            }
+            case Never => Assert.invariantFailed("Should not be ssp Never")
+          }
+        }
+      }
+    }
+  }
+
+  private def unparseWithSuppression(state: UState): Unit = {
 
     state.groupIndexStack.push(1L) // one-based indexing
 
@@ -247,13 +247,203 @@ class OrderedSeparatedSequenceUnparser(
     var doUnparser = false
     val limit = childUnparsers.length
 
-    var potentialTrailingSeparatorCount: Int = 0
+    lazy val trailingSuspendedOps = Buffer[SuppressableSeparatorUnparserSuspendableOperation]()
 
-    // This state var just lets us check some important
-    // invariants about potentially trailing, e.g., once
-    // you hit it, it sticks until the end of the group.
-    //
-    var haveSeenPotentiallyTrailingSeparators = false
+    while (index < limit) {
+      val childUnparser = childUnparsers(index)
+      val trd = childUnparser.trd
+      val zlDetector = childUnparser.zeroLengthDetector
+      childUnparser match {
+        case unparser: RepOrderedSeparatedSequenceChildUnparser => {
+          val erd = unparser.erd
+          var numOccurrences = 0
+          val maxReps = unparser.maxRepeats(state)
+          val isBounded = unparser.isBoundedMax
+          //
+          // The number of occurrances we unparse is always exactly driven
+          // by the number of infoset events for the repeating/optional element.
+          //
+          // For RepUnparser - array/optional case - in all cases we should get a
+          // startArray event. That is, defaulting of required array elements
+          // (up to minOccurs) happens elsewhere, and we get events for all of those
+          // here.
+          //
+          // If we don't get any array element events, then the element must be
+          // entirely optional, so we get no events for it at all.
+          //
+          if (state.inspect) {
+            val ev = state.inspectAccessor
+            val isArr = erd.isArray
+            if (ev.isStart && (isArr || erd.isOptional)) {
+              val eventNQN = ev.node.namedQName
+              if (eventNQN =:= erd.namedQName) {
+
+                //
+                // Note: leaving in some of these println, since debugger for unparsing is so inadequate currently.
+                // This is the only way to figure out what is going on.
+                //
+                // System.err.println("Starting unparse of array/opt %s. Array Index Stack is: %s".format(
+                //   erd.namedQName, state.arrayIndexStack))
+                //
+
+                // StartArray for this unparser's array element
+                //
+                unparser.startArrayOrOptional(state)
+                while ({
+                  doUnparser = unparser.shouldDoUnparser(unparser, state)
+                  doUnparser
+                }) {
+                  Assert.invariant(erd.isRepresented) // since this is an array, can't have inputValueCalc
+
+                  if (isArr) if (state.dataProc.isDefined) state.dataProc.get.beforeRepetition(state, this)
+                  // System.err.println("Starting unparse of occurrence of %s. Array Index Stack is: %s".format(
+                  //   erd.namedQName, state.arrayIndexStack))
+
+                  if (unparser.isKnownStaticallyNotToSuppressSeparator ||
+                    {
+                      val isKnownNonZeroLength =
+                        zlDetector.isKnownNonZeroLength(state.inspectAccessor.asElement)
+                      isKnownNonZeroLength
+                    }) {
+                    unparseOne(unparser, erd, state)
+                  } else {
+                    unparseOneWithSuppression(unparser, erd, state, trailingSuspendedOps,
+                      onlySeparatorFlag = false)
+                  }
+                  numOccurrences += 1
+                  state.moveOverOneArrayIndexOnly()
+                  // System.err.println("Finished unparse of occurrence of %s. Array Index Stack is: %s".format(
+                  //   erd.namedQName, state.arrayIndexStack))
+
+                  state.moveOverOneGroupIndexOnly() // array elements are always represented.
+
+                  if (isArr) if (state.dataProc.isDefined) state.dataProc.get.afterRepetition(state, this)
+
+                }
+                // System.err.println("Finished unparse of array/opt %s. Array Index Stack is: %s, maxReps %s, numOccurrences %s".format(
+                //   erd.namedQName, state.arrayIndexStack, maxReps, numOccurrences))
+                numOccurrences = unparsePositionallyRequiredSeps(unparser, erd, state, numOccurrences, trailingSuspendedOps)
+                unparser.checkFinalOccursCountBetweenMinAndMaxOccurs(state, unparser, numOccurrences, maxReps, state.arrayPos - 1)
+                unparser.endArrayOrOptional(erd, state)
+              } else {
+                //
+                // start array for some other array. Not this one.
+                //
+                Assert.invariant(erd.minOccurs == 0L)
+                numOccurrences = unparsePositionallyRequiredSeps(unparser, erd, state, numOccurrences, trailingSuspendedOps)
+              }
+
+            } else if (ev.isStart) {
+              Assert.invariant(!ev.erd.isArray && !erd.isOptional)
+              val eventNQN = ev.node.namedQName
+              Assert.invariant(eventNQN != erd.namedQName)
+              //
+              // start of scalar.
+              // That has to be for a different element later in the sequence
+              // since this one has a RepUnparser (i.e., is NOT scalar)
+              //
+              numOccurrences = unparsePositionallyRequiredSeps(unparser, erd, state, numOccurrences, trailingSuspendedOps)
+            } else {
+              Assert.invariant(ev.isEnd && ev.isComplex)
+              unparser.checkFinalOccursCountBetweenMinAndMaxOccurs(state, unparser, numOccurrences, maxReps, 0)
+              numOccurrences = unparsePositionallyRequiredSeps(unparser, erd, state, numOccurrences, trailingSuspendedOps)
+            }
+          } else {
+            // no event (state.inspect returned false)
+            Assert.invariantFailed("No event for unparsing.")
+          }
+        }
+        case scalarUnparser => trd match {
+          case erd: ElementRuntimeData => {
+            // scalar element case. These always get associated separator (if represented)
+            unparseOne(scalarUnparser, trd, state) // handles case of non-represented.
+            if (erd.isRepresented)
+              state.moveOverOneGroupIndexOnly()
+          }
+          case mgrd: ModelGroupRuntimeData => {
+            //
+            // There are cases where we suppress the separator associated with a model group child
+            //
+            // The model group must have no required syntax (initiator/terminator nor alignment)
+            // and all optional children (none of which can be present if there are unsuppressed separators)
+            //
+            // The model group must be zero-length
+            // The SSP must be AnyEmpty or
+            // The SSP must be TrailingEmpty | TrailingEmptyStrict, AND the model group must be
+            // potentially trailing AND actually trailing.
+            //
+            // Most of the above is static information. Only whether the length is nonZero or zero, and
+            // whether it is actually trailing are run-time concepts.
+            //
+            if (scalarUnparser.isKnownStaticallyNotToSuppressSeparator) {
+              unparseOne(scalarUnparser, trd, state)
+            } else {
+              unparseOneWithSuppression(scalarUnparser, trd, state, trailingSuspendedOps,
+                onlySeparatorFlag = false)
+            }
+            state.moveOverOneGroupIndexOnly()
+          }
+        }
+      }
+      index += 1
+    }
+    ssp match {
+      case TrailingEmpty | TrailingEmptyStrict => {
+        //
+        // For trailing empty suppression, things have to be actually trailing in the sequence.
+        // By setting the after-state to the complete end of the sequence, we insure that we suppress
+        // separators only if there is nothing at all after them.
+        //
+        // Note: Quadratic behavior here.
+        // When determining if trailing, each suspended separator will examine a list of length N, where
+        // N is number of children in the list. It will examine them only to determine if the entries are
+        // zero-length or not. But these chains could in principle have shared structure so that there
+        // would, in principle, be only one chain length N, not Sum(for i from 1 to N)of(N - i), whichis O(n^2).
+        //
+        // In practice, these chains are short (separator suppression seldom applies to long arrays, usually to
+        // optional fields near the end of a record. So the above may simply not matter.
+        //
+        for (suspendedOp <- trailingSuspendedOps.toSeq) {
+          suspendedOp.captureStateAtEndOfPotentiallyZeroLengthRegionFollowingTheSeparator(state)
+        }
+      }
+      case _ => // do nothing
+    }
+    state.groupIndexStack.pop()
+  }
+
+  private def unparsePositionallyRequiredSeps(
+    unparserArg: SequenceChildUnparser,
+    erd:         ElementRuntimeData, state: UState, numOccurs: Int, trailingSuspendedOps: Buffer[SuppressableSeparatorUnparserSuspendableOperation]): Int = {
+    var numOccurrences = numOccurs
+    unparserArg match {
+      case unparser: RepOrderedSeparatedSequenceChildUnparser => {
+        val isBounded = unparser.isBoundedMax
+        if (unparser.isPositional && isBounded &&
+          (!unparser.isDeclaredLast || !unparser.isPotentiallyTrailing)) {
+          val maxReps = unparser.maxRepeats(state)
+          while (numOccurrences < maxReps) {
+            unparseOneWithSuppression(unparser, erd, state, trailingSuspendedOps,
+              onlySeparatorFlag = true)
+            state.moveOverOneArrayIndexOnly()
+            state.moveOverOneGroupIndexOnly()
+            numOccurrences += 1
+          }
+          //
+        }
+      }
+      case _ => Assert.invariantFailed("Not a repeating element")
+    }
+    numOccurrences
+  }
+
+  private def unparseWithNoSuppression(state: UState): Unit = {
+
+    state.groupIndexStack.push(1L) // one-based indexing
+
+    var index = 0
+    var doUnparser = false
+    val limit = childUnparsers.length
 
     while (index < limit) {
       val childUnparser = childUnparsers(index)
@@ -279,7 +469,6 @@ class OrderedSeparatedSequenceUnparser(
           // the element must be entirely optional, so we get no events for it
           // at all.
           //
-          val ssAlgorithm = unparser.ssAlgorithm
 
           if (state.inspect) {
             val ev = state.inspectAccessor
@@ -289,7 +478,7 @@ class OrderedSeparatedSequenceUnparser(
               if (eventNQN =:= erd.namedQName) {
 
                 //
-                // Note: leaving in some ofthese println, since debugger for unparsing is so inadequate currently.
+                // Note: leaving in some of these println, since debugger for unparsing is so inadequate currently.
                 // This is the only way to figure out what is going on.
                 //
                 // System.err.println("Starting unparse of array/opt %s. Array Index Stack is: %s".format(
@@ -303,59 +492,25 @@ class OrderedSeparatedSequenceUnparser(
                   doUnparser = unparser.shouldDoUnparser(unparser, state)
                   doUnparser
                 }) {
-                  val suppressionAction =
-                    ssAlgorithm.shouldSuppressIfZeroLength(
-                      state,
-                      state.inspectAccessor.asElement)
-                  import SeparatorSuppressionAction._
-                  suppressionAction match {
-                    case DoNotSuppress => {
-                      //
-                      // If there are pending potentially trailing separators,
-                      // then we've just proven that they are NOT actually trailing
-                      // So we output them all.
-                      //
-                      while (potentialTrailingSeparatorCount > 0) {
-                        Assert.invariant(haveSeenPotentiallyTrailingSeparators)
-                        Assert.invariant(ssAlgorithm.isInstanceOf[IPT]) // sticks once we hit one
-                        unparseJustSeparator(state)
-                        potentialTrailingSeparatorCount -= 1
-                      }
+                  if (isArr) if (state.dataProc.isDefined) state.dataProc.get.beforeRepetition(state, this)
+                  // System.err.println("Starting unparse of occurrence of %s. Array Index Stack is: %s".format(
+                  //   erd.namedQName, state.arrayIndexStack))
 
-                      if (isArr) if (state.dataProc.isDefined) state.dataProc.get.beforeRepetition(state, this)
-                      // System.err.println("Starting unparse of occurrence of %s. Array Index Stack is: %s".format(
-                      //   erd.namedQName, state.arrayIndexStack))
+                  unparseOne(unparser, erd, state)
+                  numOccurrences += 1
 
-                      unparseOne(unparser, erd, state)
-                      numOccurrences += 1
+                  state.moveOverOneArrayIndexOnly()
+                  // System.err.println("Finished unparse of occurrence of %s. Array Index Stack is: %s".format(
+                  //   erd.namedQName, state.arrayIndexStack))
 
-                      state.moveOverOneArrayIndexOnly()
-                      // System.err.println("Finished unparse of occurrence of %s. Array Index Stack is: %s".format(
-                      //   erd.namedQName, state.arrayIndexStack))
+                  state.moveOverOneGroupIndexOnly() // array elements are always represented.
 
-                      state.moveOverOneGroupIndexOnly() // array elements are always represented.
-
-                      if (isArr) if (state.dataProc.isDefined) state.dataProc.get.afterRepetition(state, this)
-                    }
-                    case Suppress => {
-                      unparseZeroLengthWithoutSeparatorForSideEffect(unparser, trd, state)
-                      state.moveOverOneArrayIndexOnly()
-                      state.moveOverOneGroupIndexOnly() // array elements are always represented.
-                    }
-                    case IfTrailing => {
-                      Assert.invariant(hasTrailingSeparatorSuppression)
-                      haveSeenPotentiallyTrailingSeparators = true // sticks once we've hit one.
-                      unparseZeroLengthWithoutSeparatorForSideEffect(unparser, trd, state)
-                      state.moveOverOneArrayIndexOnly()
-                      state.moveOverOneGroupIndexOnly() // array elements are always represented
-                      potentialTrailingSeparatorCount += suppressedTrailingSeparatorIncrement(unparser, state)
-                    }
-                  }
+                  if (isArr) if (state.dataProc.isDefined) state.dataProc.get.afterRepetition(state, this)
                 }
                 //
-                // For maxOccurs bounded, and never or not potentially trailing
+                // If not enough occurences in array, we output extra separators
                 //
-                if (ssAlgorithm.shouldDoExtraSeparators && maxReps > numOccurrences) {
+                if (maxReps > numOccurrences) {
                   var numExtraSeps = erd.maxOccurs - numOccurrences
                   while (numExtraSeps > 0) {
                     unparseJustSeparator(state)
@@ -374,7 +529,6 @@ class OrderedSeparatedSequenceUnparser(
                 //
                 Assert.invariant(erd.minOccurs == 0L)
               }
-
             } else if (ev.isStart) {
               Assert.invariant(!ev.erd.isArray && !erd.isOptional)
               //
@@ -392,18 +546,7 @@ class OrderedSeparatedSequenceUnparser(
             Assert.invariantFailed("No event for unparsing.")
           }
         }
-        //
         case scalarUnparser => {
-          //
-          // Note that once we've encountered a trailing separator situation,
-          // all subsequent sequence children must also be that, otherwise
-          // the first one wouldn't have been in trailing position to begin with.
-          //
-          // So that means we can never find ourself encountering
-          // a need to output potentially trailing separators here.
-          //
-          Assert.invariant(!haveSeenPotentiallyTrailingSeparators)
-          Assert.invariant(potentialTrailingSeparatorCount == 0)
           unparseOne(scalarUnparser, trd, state)
           // only move over in group if the scalar "thing" is an element
           // that is represented.
@@ -417,6 +560,4 @@ class OrderedSeparatedSequenceUnparser(
     }
     state.groupIndexStack.pop()
   }
-
 }
-

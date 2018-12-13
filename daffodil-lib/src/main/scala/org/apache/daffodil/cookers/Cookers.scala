@@ -41,7 +41,7 @@ object NilValueLiteralValueBinaryCooker extends NonEmptyListOfStringLiteralCharC
 
 object NilValueLiteralValueTextCooker extends NonEmptyListOfStringLiteral("nilValue", true)
 
-object NilValueRawListCooker extends ListOfStringLiteral("nilValue", false)
+object NilValueRawListCooker extends ListOfStringLiteral("nilValue", true)
 
 object EscapeCharacterCooker extends SingleCharacterLiteralNoCharClassEntitiesNoByteEntities()
 

@@ -170,7 +170,15 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
           Seq()
         }
 
-      val priorAlignmentsApprox = priorSibs.map(_.endingAlignmentApprox) ++ parent.map(_.contentStartAlignment).toSeq ++ arraySelfAlignment
+      val priorSibsAlignmentsApprox = priorSibs.map { ps =>
+        val eaa = ps.endingAlignmentApprox
+        eaa
+      }
+      val parentAlignmentApprox = parent.map { p =>
+        val csa = p.contentStartAlignment
+        csa
+      }.toSeq
+      val priorAlignmentsApprox = priorSibsAlignmentsApprox ++ parentAlignmentApprox ++ arraySelfAlignment
       priorAlignmentsApprox.reduce(_ * _)
     }
   }
@@ -201,10 +209,21 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
       }
       case mg: ModelGroup => {
         val (lastChildren, couldBeLast) = mg.potentialLastChildren
-        val lastApprox = lastChildren.map(_.endingAlignmentApprox + trailingSkipApprox) ++ (if (couldBeLast) Seq(contentStartAlignment + trailingSkipApprox) else Seq())
-        
+        val lastApprox = lastChildren.map {
+          lc =>
+            val lceaa = lc.endingAlignmentApprox
+            val res = lceaa + trailingSkipApprox
+            res
+        } ++ {
+          if (couldBeLast)
+            Seq(contentStartAlignment + trailingSkipApprox)
+          else
+            Seq()
+        }
+
         Assert.invariant(!lastApprox.isEmpty)
-        lastApprox.reduce { _ * _ }
+        val res = lastApprox.reduce { _ * _ }
+        res
       }
     }
   }

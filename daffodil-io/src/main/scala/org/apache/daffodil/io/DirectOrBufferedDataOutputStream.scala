@@ -209,6 +209,8 @@ final class DirectOrBufferedDataOutputStream private[io] (var splitFrom: DirectO
    */
   private var _following: Maybe[DirectOrBufferedDataOutputStream] = Nope
 
+  override def maybeNextInChain: Maybe[DataOutputStream] = _following
+
   def lastInChain: DirectOrBufferedDataOutputStream =
     if (_following.isEmpty) this
     else _following.get.lastInChain
@@ -742,9 +744,10 @@ object DirectOrBufferedDataOutputStream {
    * Delivers the bits of bufDOS into directDOS's output stream. Deals with the possibility that
    * the directDOS ends with a fragment byte, or the bufDOS does, or both.
    */
-  private def deliverBufferContent(directDOS: DirectOrBufferedDataOutputStream,
-    bufDOS: DirectOrBufferedDataOutputStream,
-    finfo: FormatInfo) {
+  private def deliverBufferContent(
+    directDOS: DirectOrBufferedDataOutputStream,
+    bufDOS:    DirectOrBufferedDataOutputStream,
+    finfo:     FormatInfo) {
     Assert.invariant(bufDOS.isBuffering)
     Assert.invariant(!directDOS.isBuffering)
 

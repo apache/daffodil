@@ -37,6 +37,13 @@ trait InitiatedTerminatedMixin
     parentSays
   }
 
+  /**
+   * True if the term has an initiator expressed on it.
+   *
+   * Do not confuse with the concept of the delimiter being able to match or not match zero-length data.
+   * Whether the representation of a term in the data stream "has an initiator", as in the initator
+   * occupies a non-zero number of bits in the data stream, is an entirely different question.
+   */
   lazy val hasInitiator = {
     val hasOne = initiatorExpr.isKnownNonEmpty
     if (parentSaysInitiatedContent)
@@ -44,6 +51,13 @@ trait InitiatedTerminatedMixin
     hasOne
   }
 
+  /**
+   * True if the term has a terminator expressed on it.
+   *
+   * Do not confuse with the concept of the delimiter being able to match or not match zero-length data.
+   * Whether the representation of a term in the data stream "has a terminator", as in the terminator
+   * occupies a non-zero number of bits, is an entirely different question.
+   */
   lazy val hasTerminator = {
     val res = terminatorExpr.isKnownNonEmpty
     res

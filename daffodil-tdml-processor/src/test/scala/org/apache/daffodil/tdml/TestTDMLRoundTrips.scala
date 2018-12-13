@@ -26,6 +26,7 @@ class TestTDMLRoundTrips {
 
   val tdml = XMLUtils.TDML_NAMESPACE
   val dfdl = XMLUtils.DFDL_NAMESPACE
+  val daf = XMLUtils.EXT_NS_APACHE
   val xsi = XMLUtils.XSI_NAMESPACE
   val xsd = XMLUtils.XSD_NAMESPACE
   val example = XMLUtils.EXAMPLE_NAMESPACE
@@ -184,7 +185,7 @@ class TestTDMLRoundTrips {
       ts.runOneTest("test1")
     }
     val m = e.getMessage()
-    assertTrue(m.toLowerCase.contains("should this really be a two-pass test"))
+    assertTrue(m.toLowerCase.contains("should this really be a twopass test"))
   }
 
   /**
@@ -193,32 +194,41 @@ class TestTDMLRoundTrips {
    * but unparsing that infoset finally does give us matching unparsed data.
    */
   @Test def testThreePass1() {
-    val testSuite = <ts:testSuite xmlns:dfdl={ dfdl } xmlns:xs={ xsd } xmlns:xsi={ xsi } xmlns:fn={ fn } xmlns:ex={ example } xmlns:ts={ tdml } suiteName="theSuiteName">
+    val testSuite = <ts:testSuite xmlns:dfdl={ dfdl } xmlns:xs={ xsd } xmlns:xsi={ xsi } xmlns:fn={ fn } xmlns:ex={ example } xmlns:ts={ tdml } xmlns:daf={ daf } suiteName="theSuiteName">
                       <ts:defineSchema name="s" elementFormDefault="unqualified">
                         <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
-                        <dfdl:format ref="ex:GeneralFormat"/>
+                        <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" separatorSuppressionPolicy="anyEmpty"/>
                         <xs:element name="r" dfdl:lengthKind="implicit">
                           <xs:complexType>
-                            <xs:sequence dfdl:separator="," dfdl:separatorSuppressionPolicy="anyEmpty">
-                              <xs:element name="foo" type="xs:string" dfdl:lengthKind="delimited"/>
-                              <xs:element name="bar" type="xs:string" dfdl:lengthKind="delimited" minOccurs="0" dfdl:occursCountKind="implicit"/>
-                            </xs:sequence>
+                            <xs:choice>
+                              <xs:sequence dfdl:separator=",," dfdl:separatorPosition="postfix">
+                                <xs:element name="bar" type="xs:string"/>
+                              </xs:sequence>
+                              <xs:sequence dfdl:separator="," dfdl:separatorPosition="postfix">
+                                <xs:element name="foo" type="xs:string"/>
+                                <xs:element name="bar" type="xs:string" nillable="true" dfdl:nilKind="literalValue" dfdl:nilValue="%ES; nil"/>
+                              </xs:sequence>
+                            </xs:choice>
                           </xs:complexType>
                         </xs:element>
                       </ts:defineSchema>
-                      <ts:parserTestCase ID="test1" name="test1" root="r" model="s" roundTrip="threePass">
+                      <ts:parserTestCase name="test1" root="r" model="s" roundTrip="threePass">
                         <ts:infoset>
                           <ts:dfdlInfoset>
+                            <!--
+                              In a three pass test the infoset given should be the
+                              final steady-state infoset.
+                              -->
                             <ex:r>
-                              <foo>foo</foo>
-                              <bar/>
+                              <bar>foo</bar>
                             </ex:r>
                           </ts:dfdlInfoset>
                         </ts:infoset>
-                        <ts:document>foo,</ts:document>
+                        <ts:document>foo,nil,</ts:document>
                       </ts:parserTestCase>
                     </ts:testSuite>
     lazy val ts = new DFDLTestSuite(testSuite)
+    // ts.areTracing = true
     ts.runOneTest("test1")
   }
 
@@ -234,7 +244,7 @@ class TestTDMLRoundTrips {
       ts.runOneTest("test1")
     }
     val m = e.getMessage()
-    assertTrue(m.toLowerCase.contains("should this really be a three-pass test"))
+    assertTrue(m.toLowerCase.contains("should this really be a threepass test"))
   }
 
   /**
@@ -243,15 +253,22 @@ class TestTDMLRoundTrips {
    * even really need three passes, two would have been enough),
    * that it is detected and reported.
    */
-  @Test def testThreePassNotNeeded2() {
-
-    val testSuite = needsTwoPassesOnlyTDML("threePass")
-    lazy val ts = new DFDLTestSuite(testSuite)
-    val e = intercept[TDMLException] {
-      ts.runOneTest("test1")
-    }
-    val m = e.getMessage()
-    assertTrue(m.toLowerCase.contains("should this really be a three-pass test"))
-  }
+  // Note: three pass tests no longer actually check that the first parse infoset
+  // matches. There is a class of such tests where even though the unparsed data requires
+  // three pass testing, the infoset is right from the very first parse.
+  //
+  // Forcing the original infoset to NOT match just makes those tests harder to write.
+  // FYI: One such test is in PCAP.
+  //
+  //  @Test def testThreePassNotNeeded2() {
+  //
+  //    val testSuite = needsTwoPassesOnlyTDML("threePass")
+  //    lazy val ts = new DFDLTestSuite(testSuite)
+  //    val e = intercept[TDMLException] {
+  //      ts.runOneTest("test1")
+  //    }
+  //    val m = e.getMessage()
+  //    assertTrue(m.toLowerCase.contains("should this really be a threepass test"))
+  //  }
 
 }

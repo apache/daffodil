@@ -34,7 +34,11 @@
   <tdml:parserTestCase name="length_delimited_12_03_controversial"
     model="delimTests.dfdl.xsd"
     description="Section 12.3 Properties for specifying length -delimited - parent has specified length"
-    root="myStringSeq2_controversial">
+    root="myStringSeq2_controversial" 
+    implementations="daffodil">
+  <!-- 
+   test doesn't run on IBM DFDL because of restriction that separtor/terminator must be unique CTDV1425W
+   -->
     <tdml:document>abcde</tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"

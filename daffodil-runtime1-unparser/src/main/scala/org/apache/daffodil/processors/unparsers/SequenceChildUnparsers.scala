@@ -26,6 +26,7 @@ import org.apache.daffodil.infoset.DIArray
 import org.apache.daffodil.equality._
 import org.apache.daffodil.processors.parsers.MinMaxRepeatsMixin
 import org.apache.daffodil.schema.annotation.props.gen.OccursCountKind
+import org.apache.daffodil.processors.ModelGroupRuntimeData
 
 /**
  * base for unparsers for the children of sequences.
@@ -38,11 +39,12 @@ import org.apache.daffodil.schema.annotation.props.gen.OccursCountKind
  */
 abstract class SequenceChildUnparser(
   val childUnparser: Unparser,
-  val srd: SequenceRuntimeData,
-  val trd: TermRuntimeData)
+  val srd:           SequenceRuntimeData,
+  val trd:           TermRuntimeData)
   extends CombinatorUnparser(srd) {
 
   override def runtimeDependencies = Vector()
+
 }
 
 /**
@@ -53,8 +55,8 @@ abstract class SequenceChildUnparser(
  */
 abstract class RepeatingChildUnparser(
   override val childUnparser: Unparser,
-  override val srd: SequenceRuntimeData,
-  val erd: ElementRuntimeData)
+  override val srd:           SequenceRuntimeData,
+  val erd:                    ElementRuntimeData)
   extends SequenceChildUnparser(childUnparser, srd, erd)
   with MinMaxRepeatsMixin {
 
@@ -171,11 +173,11 @@ abstract class RepeatingChildUnparser(
               }
             } else {
               Assert.invariant(ev.isEnd)
-              // could be end of simple elemnet - we handle on the start event. Nothing to do.
+              // could be end of simple element - we handle on the start event. Nothing to do.
               // or could be end of complex event, i.e., we've peeked ahead and found the end of a complex element.
               // It has to be the complex element that ultimately encloses this sequence.
               // Though that's not a unique element given that this sequence could be inside
-              // a global group definition that is reused in muliple places.
+              // a global group definition that is reused in multiple places.
               // Nothing to do for complex type either.
               false
             }
@@ -217,8 +219,8 @@ abstract class RepeatingChildUnparser(
    * 'unbounded', then maxReps will be Long.MaxValue.
    */
   def checkFinalOccursCountBetweenMinAndMaxOccurs(
-    state: UState,
-    unparser: RepeatingChildUnparser,
+    state:          UState,
+    unparser:       RepeatingChildUnparser,
     numOccurrences: Int, maxReps: Long, arrPos: Long): Unit = {
     import OccursCountKind._
 
@@ -242,7 +244,10 @@ abstract class RepeatingChildUnparser(
     val ock = erd.maybeOccursCountKind.get
     // System.err.println("Checking for events consistent with Array index:\n ==> Array Index Stack is:" + state.arrayIndexStack)
 
-    Assert.invariant(arrPos <= maxReps || !(ock eq Implicit))
+    // check against maxReps + 1 since we incremented to the next array position
+    // before calling this check.
+    if ((ock eq Implicit) && unparser.isBoundedMax && (arrPos > maxReps + 1))
+      UE(state, "Expected maximum of %s elements, but received %s.", maxReps, arrPos - 1)
 
     //
     // check that if we could consume more (didn't end due to maxReps)
@@ -262,4 +267,3 @@ abstract class RepeatingChildUnparser(
     }
   }
 }
-

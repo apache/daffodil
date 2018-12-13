@@ -635,10 +635,12 @@ is multiple bytes in UTF-8 encoding that is used"
       alignment="1" alignmentUnits="bytes" fillByte="1" occursCountKind="implicit"
       escapeSchemeRef="" representation="text" lengthUnits="characters"
       lengthKind="delimited"/>
-
+      
+    <!-- intentional invalid " " for textStringPadCharacter -->
     <xs:element name="spacePad" type="xs:string" dfdl:textStringPadCharacter=" " dfdl:textStringJustification="center"/>
     <xs:element name="spacePad2" type="xs:string" dfdl:textStringPadCharacter="%SP;" dfdl:textStringJustification="center"/>
-    
+
+    <!-- intentional invalid " " for textStringPadCharacter -->
     <xs:element name="spacePad3" type="xs:int" dfdl:textNumberPadCharacter=" " dfdl:textNumberJustification="center"/>
     <xs:element name="spacePad4" type="xs:int" dfdl:textNumberPadCharacter="%SP;" dfdl:textNumberJustification="center"/>
 
