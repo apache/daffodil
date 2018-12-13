@@ -40,10 +40,10 @@ object DelimiterTextType extends Enum {
 }
 
 class DelimiterTextParser(
-  rd: TermRuntimeData,
-  textParser: TextParser,
+  rd:             TermRuntimeData,
+  textParser:     TextParser,
   positionalInfo: String,
-  delimiterType: DelimiterTextType.Type)
+  delimiterType:  DelimiterTextType.Type)
   extends TextPrimParser {
 
   override lazy val runtimeDependencies = rd.encodingInfo.runtimeDependencies
@@ -101,15 +101,15 @@ class DelimiterTextParser(
         //
         // We are going to scan for delimiter text.
         //
-        // FIXME: This is incorrect. It grabs all local delimiters even if we're last in a group so the separator
-        // cannot be relevant, or if we're in the middle of a group with required elements following so
-        // the terminator cannot be relevant.
+        // FIXME: This is incorrect. It grabs all local delimiters even if we're last in a group so the
+        // prefix or infix separator cannot be relevant, or if we're in the middle of a group with required elements following so
+        // the sequence's (or any enclosing sequence's) terminator cannot be relevant.
         //
         // Fixing this is going to require the compiler to pre-compute the relevant delimiters for every
         // Term. (relevant delimiters meaning the specific compiled expressions that are relevant.)
         //
         // TODO: PERFORMANCE: this should also help performance by eliminating the construction of lists/sets of
-        // these things at run time.
+        // these things at run time. We should try to not allocate objects here.
         //
         // FIXME: This is incorrect. It is going to get too many delimiters. See above.
         // Nowever, code below does assume that we always find a match, even to incorrect markup, so fixing this is
@@ -159,13 +159,10 @@ class DelimiterTextParser(
           PE(start, "Found out of scope delimiter: %ES;")
           return
         } else {
+          //
           // no match and no ES in delims
           //
-          // FIXME: this was just doing start.mpstate.delimiters.last, assuming that would be the matching
-          // delim, but it isn't in some tests. It's a terminator when the delimiterType is initiator.
-          //
-          // val optDelim = start.mpstate.delimiters.find{ d => d.delimType == delimiterType }
-          val optDelim = Some(start.mpstate.delimiters.last)
+          val optDelim = start.mpstate.delimiters.find { d => d.delimType == delimiterType }
           Assert.invariant(optDelim.isDefined)
           PE(start, "%s '%s' not found.", delimiterType.toString, optDelim.get.lookingFor)
           return

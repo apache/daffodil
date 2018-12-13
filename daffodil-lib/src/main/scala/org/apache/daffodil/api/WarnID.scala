@@ -73,7 +73,7 @@ object WarnID extends PropsEnum[WarnID] {
   case object PatternEncodingSlashW extends WarnID; forceConstruction(PatternEncodingSlashW)
   case object QueryStylePathExpression extends WarnID; forceConstruction(QueryStylePathExpression)
   case object RegexPatternZeroLength extends WarnID; forceConstruction(RegexPatternZeroLength)
-
+  case object EmptyElementParsePolicyError extends WarnID; forceConstruction(EmptyElementParsePolicyError)
   /**
    * UnsupportedThing warning suppression.
    */
@@ -83,8 +83,8 @@ object WarnID extends PropsEnum[WarnID] {
   case object UnsupportedAttributeFormDefault extends WarnID; forceConstruction(UnsupportedAttributeFormDefault)
 
   /**
-    * textOutputMinLength checking
-    */
+   * textOutputMinLength checking
+   */
   case object TextOutputMinLengthOutOfRange extends WarnID; forceConstruction(TextOutputMinLengthOutOfRange)
 
   /**

@@ -21,6 +21,14 @@ import passera.unsigned.ULong
 import java.nio.CharBuffer
 import org.apache.daffodil.util.MaybeULong
 import org.apache.daffodil.util.Logging
+import org.apache.daffodil.util.Maybe
+
+sealed abstract class ZeroLengthStatus
+object ZeroLengthStatus {
+  object Zero extends ZeroLengthStatus
+  object NonZero extends ZeroLengthStatus
+  object Unknown extends ZeroLengthStatus
+}
 
 /**
  * There is an asymmetry between DataInputStream and DataOutputStream with respect to the
@@ -77,6 +85,8 @@ import org.apache.daffodil.util.Logging
  */
 trait DataOutputStream extends DataStreamCommon
   with Logging {
+
+  def maybeNextInChain: Maybe[DataOutputStream]
 
   def id: String
 
@@ -189,4 +199,5 @@ trait DataOutputStream extends DataStreamCommon
   def setFinished(finfo: FormatInfo): Unit
   def isFinished: Boolean
 
+  def zeroLengthStatus: ZeroLengthStatus
 }

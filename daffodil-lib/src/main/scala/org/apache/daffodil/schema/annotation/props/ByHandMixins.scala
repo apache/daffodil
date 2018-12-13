@@ -17,26 +17,37 @@
 
 package org.apache.daffodil.schema.annotation.props
 
-import org.apache.daffodil.exceptions._
-import org.apache.daffodil.equality._
-import org.apache.daffodil.schema.annotation.props.gen._
-import org.apache.daffodil.oolag.OOLAG.OOLAGHost
 import java.lang.{ Integer => JInt }
-import org.apache.daffodil.util.MaybeULong
-import passera.unsigned.ULong
-import org.apache.daffodil.cookers.TextStringPadCharacterCooker
-import org.apache.daffodil.cookers.TextStandardZeroRepCooker
-import org.apache.daffodil.cookers.TextStandardNaNRepCooker
-import org.apache.daffodil.cookers.TextStandardInfinityRepCooker
-import org.apache.daffodil.cookers.TextCalendarPadCharacterCooker
-import org.apache.daffodil.cookers.TextBooleanPadCharacterCooker
-import org.apache.daffodil.cookers.NilValueRawListCooker
-import org.apache.daffodil.cookers.NilValueLogicalValueCooker
-import org.apache.daffodil.cookers.NilValueLiteralValueTextCooker
-import org.apache.daffodil.cookers.NilValueLiteralValueBinaryCooker
-import org.apache.daffodil.cookers.NilValueLiteralCharacterCooker
-import org.apache.daffodil.cookers.TextNumberPadCharacterCooker
+
+import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.api.WarnID
+import org.apache.daffodil.cookers.NilValueLiteralCharacterCooker
+import org.apache.daffodil.cookers.NilValueLiteralValueBinaryCooker
+import org.apache.daffodil.cookers.NilValueLiteralValueTextCooker
+import org.apache.daffodil.cookers.NilValueLogicalValueCooker
+import org.apache.daffodil.cookers.NilValueRawListCooker
+import org.apache.daffodil.cookers.TextBooleanPadCharacterCooker
+import org.apache.daffodil.cookers.TextCalendarPadCharacterCooker
+import org.apache.daffodil.cookers.TextNumberPadCharacterCooker
+import org.apache.daffodil.cookers.TextStandardInfinityRepCooker
+import org.apache.daffodil.cookers.TextStandardNaNRepCooker
+import org.apache.daffodil.cookers.TextStandardZeroRepCooker
+import org.apache.daffodil.cookers.TextStringPadCharacterCooker
+import org.apache.daffodil.equality.ViewEqual
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.exceptions.ThrowsSDE
+import org.apache.daffodil.oolag.OOLAG.OOLAGHost
+import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
+import org.apache.daffodil.schema.annotation.props.gen.LengthUnitsMixin
+import org.apache.daffodil.schema.annotation.props.gen.NilKind
+import org.apache.daffodil.schema.annotation.props.gen.NilKindMixin
+import org.apache.daffodil.schema.annotation.props.gen.NilValueDelimiterPolicyMixin
+import org.apache.daffodil.schema.annotation.props.gen.Representation
+import org.apache.daffodil.schema.annotation.props.gen.RepresentationMixin
+import org.apache.daffodil.util.MaybeULong
+import org.apache.daffodil.util.Misc
+
+import passera.unsigned.ULong
 
 /**
  * We don't want to make the code generator so sophisticated as to be
@@ -357,7 +368,7 @@ object BinaryBooleanFalseRepType {
  */
 trait TextStandardExponentCharacterMixin
 
-trait TextStandardExponentRepMixin   extends PropertyMixin {
+trait TextStandardExponentRepMixin extends PropertyMixin {
   protected final lazy val optionTextStandardExponentRepRaw = findPropertyOption("textStandardExponentRep")
   protected final lazy val textStandardExponentRepRaw = requireProperty(optionTextStandardExponentRepRaw)
 
@@ -385,4 +396,57 @@ trait TextStandardExponentRepMixin   extends PropertyMixin {
       case _ => Assert.invariantFailed("combination of textStandardExponentCharacter and textStandardExponentRep not understood")
     }
   }
+}
+
+/**
+ * By hand because we can set our preference for it via a tunable.
+ * And also can require it to be present or not via a tunable.
+ */
+sealed trait EmptyElementParsePolicy extends EmptyElementParsePolicy.Value
+object EmptyElementParsePolicy extends Enum[EmptyElementParsePolicy] {
+  case object TreatAsMissing extends EmptyElementParsePolicy; forceConstruction(TreatAsMissing)
+  case object TreatAsEmpty extends EmptyElementParsePolicy; forceConstruction(TreatAsEmpty)
+
+  def apply(name: String, context: ThrowsSDE): EmptyElementParsePolicy = stringToEnum("emptyElementParsePolicy", name, context)
+}
+trait EmptyElementParsePolicyMixin extends PropertyMixin {
+
+  def tunable: DaffodilTunables
+
+  /**
+   * get Some(property value) or None if not defined in scope.
+   *
+   * Mostly do not use this. Most code shouldn't need to test for
+   * property existence. Just insist on the property you need by
+   * using its name. E.g., if you need calendarTimeZone, just use
+   * a.calendarTimeZone (where a is an AnnotatedSchemaComponent)
+   */
+  private def optionEmptyElementPolicyRaw = cachePropertyOption("emptyElementParsePolicy")
+  private def emptyElementPolicyRaw =
+    EmptyElementParsePolicy(requireProperty(optionEmptyElementPolicyRaw).value, this)
+
+  /**
+   * Property determines whether Daffodil implements empty elements in a manner consistent with
+   * IBM DFDL (as of 2019-05-02), which has policy treatAsMissing, or implements what is
+   * described in the DFDL spec., which is treatAsEmpty - if the syntax of
+   * empty (or nullness) is matched, create an empty (or null) item, even if optional, unless
+   * the element is entirely absent.
+   */
+  final lazy val emptyElementParsePolicy = {
+    if (this.tunable.requireEmptyElementParsePolicyProperty) {
+      emptyElementPolicyRaw // will cause SDE if not found
+    } else if (this.optionEmptyElementPolicyRaw.isDefined) {
+      emptyElementPolicyRaw // it's there, so just use it.
+    } else {
+      // prop is not required AND not defined so use tunable value
+      // but issue warning (which can be suppressed)
+      val defaultEmptyElementParsePolicy = this.tunable.defaultEmptyElementParsePolicy
+      SDW(
+        WarnID.EmptyElementParsePolicyError,
+        "Property 'daf:emptyElementParsePolicy' is required but not defined, using tunable '%s' by default.",
+        defaultEmptyElementParsePolicy)
+      defaultEmptyElementParsePolicy
+    }
+  }
+
 }

@@ -49,6 +49,7 @@ class IBMTestsThatPass2 {
   @Test def test_sequences_separated_14_06() { runner2.runOneTest("sequences_separated_14_06") }
 
   @Test def test_multiple_delimiters2() { runner1.runOneTest("multiple_delimiters2") }
+  @Test def test_multiple_delimiters2err() { runner1.runOneTest("multiple_delimiters2_err") }
 
   // Fails on IBM DFDL
   // @Test def test_multiple_delimiters2_ibm() { runner1.runOneTest("multiple_delimiters2_ibm") }

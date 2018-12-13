@@ -1,0 +1,784 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<tdml:testSuite suiteName="sequence" 
+  description="Tests for separators and separator suppression."
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
+  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:ex="http://example.com"
+  defaultImplementations="ibm daffodil"
+  defaultRoundTrip="none"
+  defaultConfig="cfg">
+  
+  <tdml:defineConfig name="cfg">
+    <daf:tunables>
+      <daf:suppressSchemaDefinitionWarnings>
+        unsupportedAttributeFormDefault 
+        encodingErrorPolicyError
+      </daf:suppressSchemaDefinitionWarnings>
+    </daf:tunables>
+  </tdml:defineConfig>
+  
+  <tdml:defineConfig name="cfg_noEmptyElements">
+    <daf:tunables>
+      <daf:defaultEmptyElementParsePolicy>treatAsMissing</daf:defaultEmptyElementParsePolicy>
+      <daf:suppressSchemaDefinitionWarnings>
+        unsupportedAttributeFormDefault 
+        encodingErrorPolicyError
+      </daf:suppressSchemaDefinitionWarnings>
+    </daf:tunables>
+  </tdml:defineConfig>
+
+  <tdml:defineSchema name="s1">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+
+    <dfdl:format ref="ex:GeneralFormatPortable" 
+      lengthKind="delimited"
+      occursCountKind="implicit" />
+
+    <!-- 
+      for exploring when groups are 'potentially trailing' meaning their 
+      separator (in enclosing sequence) might be suppressed/not-required.
+     -->
+    <xs:element name="ptg1" dfdl:initiator="%NL;">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="">
+          <xs:element name="record" dfdl:terminator="%NL;%WSP*;" maxOccurs="unbounded" >
+            <xs:complexType>
+              <xs:sequence dfdl:separator="," dfdl:separatorSuppressionPolicy="trailingEmpty">
+                <xs:element name="required1" type="xs:string" />
+                <xs:element name="positional2" type="xs:string" minOccurs="0" /> <!-- not potentially trailing-->
+                <xs:element name="positional3" type="xs:string" minOccurs="0" /> <!-- not potentially trailing -->
+                <xs:choice> 
+                  <!-- 
+                    choice is NOT potentially trailing
+                    even though positional4_s is a string which could be zero length. 
+                   -->
+                  <xs:element name="positional4_n" type="xs:decimal" />
+                  <xs:element name="positional4_s" type="xs:string" /> <!-- could be zero length -->
+                </xs:choice>
+                <!-- 
+                  Element potTrailing5 is potentially trailing because the sequence
+                  following it is a potentially trailing group.
+                 -->
+                <xs:element name="potTrailing5" type="xs:string" minOccurs="0"/>
+                <xs:sequence dfdl:separator="*" dfdl:separatorSuppressionPolicy="trailingEmpty"> 
+                  <!-- 
+                    This sequence is potentially trailing, 
+                    If empty and trailing the comma for this group in the enclosing sequence may be omitted.
+                  -->
+                  <xs:element name="potTrailing6" type="xs:int" minOccurs="0" maxOccurs="3" />
+                </xs:sequence>
+                <xs:element name="potTrailing7" type="xs:string" minOccurs="0"/> 
+                <xs:element name="potTrailing8" type="xs:string" minOccurs="0"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  
+  </tdml:defineSchema>
+  
+
+
+  <tdml:parserTestCase name="ptg1_1p" root="ptg1" model="s1"
+    description="Test of potentially trailing groups.">
+
+    <tdml:document><![CDATA[
+a,b,c,7.1,e,1*2*3,g,h
+a,b,c,7.1,e,1*2*3,g,h
+]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns="http://example.com">
+        <ptg1>
+          <record>
+            <required1>a</required1>
+            <positional2>b</positional2>
+            <positional3>c</positional3>
+            <positional4_n>7.1</positional4_n>
+            <potTrailing5>e</potTrailing5>
+            <potTrailing6>1</potTrailing6>
+            <potTrailing6>2</potTrailing6>
+            <potTrailing6>3</potTrailing6>
+            <potTrailing7>g</potTrailing7>
+            <potTrailing8>h</potTrailing8>
+          </record>
+          <record>
+            <required1>a</required1>
+            <positional2>b</positional2>
+            <positional3>c</positional3>
+            <positional4_n>7.1</positional4_n>
+            <potTrailing5>e</potTrailing5>
+            <potTrailing6>1</potTrailing6>
+            <potTrailing6>2</potTrailing6>
+            <potTrailing6>3</potTrailing6>
+            <potTrailing7>g</potTrailing7>
+            <potTrailing8>h</potTrailing8>
+          </record>
+        </ptg1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="ptg1_2p" root="ptg1" model="s1"
+    description="Test of potentially trailing groups.">
+
+    <tdml:document><![CDATA[
+a,b,c,7.1,e,,g,h
+a,b,c,7.1,e
+]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns="http://example.com">
+        <ptg1>
+          <record>
+            <required1>a</required1>
+            <positional2>b</positional2>
+            <positional3>c</positional3>
+            <positional4_n>7.1</positional4_n>
+            <potTrailing5>e</potTrailing5>
+            <potTrailing7>g</potTrailing7>
+            <potTrailing8>h</potTrailing8>
+          </record>
+          <record>
+            <required1>a</required1>
+            <positional2>b</positional2>
+            <positional3>c</positional3>
+            <positional4_n>7.1</positional4_n>
+            <potTrailing5>e</potTrailing5>
+          </record>
+        </ptg1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="ptg1_3p" root="ptg1" model="s1"
+    description="Test of potentially trailing groups.">
+
+    <tdml:document><![CDATA[
+a,b,c,7.1,e,,g,h
+a,b,c,7.1
+]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns="http://example.com">
+        <ptg1>
+          <record>
+            <required1>a</required1>
+            <positional2>b</positional2>
+            <positional3>c</positional3>
+            <positional4_n>7.1</positional4_n>
+            <potTrailing5>e</potTrailing5>
+            <potTrailing7>g</potTrailing7>
+            <potTrailing8>h</potTrailing8>
+          </record>
+          <record>
+            <required1>a</required1>
+            <positional2>b</positional2>
+            <positional3>c</positional3>
+            <positional4_n>7.1</positional4_n>
+          </record>
+        </ptg1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+ <tdml:parserTestCase name="ptg1_4p" root="ptg1" model="s1"
+    description="Test of potentially trailing groups."
+    config="cfg_noEmptyElements">
+
+    <tdml:document><![CDATA[
+a,,,d,,,g,h
+a,,,d,,,g
+]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns="http://example.com">
+        <ptg1>
+          <record>
+            <required1>a</required1>
+            <!-- 
+              On Daffodil, because we are using daf:emptyElementParsePolicy='treatAsMissing'
+              This test should not create any empty-string-valued elements.
+              That should be consistent with IBM DFDL behavior (as of 2019-05-04 version).              
+            <positional2/>
+            <positional3/>
+            -->
+            <positional4_s>d</positional4_s>
+            <potTrailing7>g</potTrailing7>
+            <potTrailing8>h</potTrailing8>
+          </record>
+          <record>
+            <required1>a</required1>
+            <!-- 
+            <positional2/>
+            <positional3/>
+             -->
+            <positional4_s>d</positional4_s>
+            <potTrailing7>g</potTrailing7> 
+          </record>
+        </ptg1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  
+  <tdml:parserTestCase name="ptg1_5p" root="ptg1" model="s1"
+    description="Test of potentially trailing groups."
+    roundTrip="none"
+    config="cfg_noEmptyElements"><!-- twoPass if round tripping, since trailing final comma won't be unparsed. -->
+
+    <tdml:document><![CDATA[
+a,,,d,,,g,h
+a,,,d,,,g,
+]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns="http://example.com">
+        <ptg1>
+          <record>
+            <required1>a</required1>
+            <!-- daf:emptyElementParsePolicy='treatAsMissing'
+              <positional2/>
+              <positional3/>
+            -->
+            <positional4_s>d</positional4_s>
+            <potTrailing7>g</potTrailing7>
+            <potTrailing8>h</potTrailing8>
+          </record>
+          <record>
+            <required1>a</required1>
+            <!-- daf:emptyElementParsePolicy='treatAsMissing'
+              <positional2/>
+              <positional3/>
+            -->
+            <positional4_s>d</positional4_s>
+            <potTrailing7>g</potTrailing7> 
+          </record>
+        </ptg1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="ptg1_6p" root="ptg1" model="s1"
+    description="Test of potentially trailing groups.">
+
+    <tdml:document><![CDATA[
+a,,,d
+a,,,d
+]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns="http://example.com">
+        <ptg1>
+          <record>
+            <required1>a</required1>
+            <!-- 
+              Because these are optional, and their dfdl:emptyValueDelimiterPolicy is 'none'
+              an empty representation does not create an element.
+              This is true for daf:emptyElementParsePolicy="treatAsEmpty".
+              If you want empty elements, there has to be a non-zero-length 
+              syntax in the data stream
+              <positional2/>
+              <positional3/>
+            -->
+            <positional4_s>d</positional4_s>
+          </record>
+          <record>
+            <required1>a</required1>
+            <!-- See above
+              <positional2/>
+              <positional3/>
+            -->
+            <positional4_s>d</positional4_s>
+          </record>
+        </ptg1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+    <tdml:unparserTestCase name="ptg1_1u" root="ptg1" model="s1"
+    description="Test of potentially trailing groups.">
+
+    <tdml:document><![CDATA[
+a,b,c,7.1,e,1*2*3,g,h
+a,b,c,7.1,e,1*2*3,g,h
+]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns="http://example.com">
+        <ptg1>
+          <record>
+            <required1>a</required1>
+            <positional2>b</positional2>
+            <positional3>c</positional3>
+            <positional4_n>7.1</positional4_n>
+            <potTrailing5>e</potTrailing5>
+            <potTrailing6>1</potTrailing6>
+            <potTrailing6>2</potTrailing6>
+            <potTrailing6>3</potTrailing6>
+            <potTrailing7>g</potTrailing7>
+            <potTrailing8>h</potTrailing8>
+          </record>
+          <record>
+            <required1>a</required1>
+            <positional2>b</positional2>
+            <positional3>c</positional3>
+            <positional4_n>7.1</positional4_n>
+            <potTrailing5>e</potTrailing5>
+            <potTrailing6>1</potTrailing6>
+            <potTrailing6>2</potTrailing6>
+            <potTrailing6>3</potTrailing6>
+            <potTrailing7>g</potTrailing7>
+            <potTrailing8>h</potTrailing8>
+          </record>
+        </ptg1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="ptg1_2u" root="ptg1" model="s1"
+    description="Test of potentially trailing groups.">
+
+    <tdml:document><![CDATA[
+a,b,c,7.1,e,,g,h
+a,b,c,7.1,e
+]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns="http://example.com">
+        <ptg1>
+          <record>
+            <required1>a</required1>
+            <positional2>b</positional2>
+            <positional3>c</positional3>
+            <positional4_n>7.1</positional4_n>
+            <potTrailing5>e</potTrailing5>
+            <potTrailing7>g</potTrailing7>
+            <potTrailing8>h</potTrailing8>
+          </record>
+          <record>
+            <required1>a</required1>
+            <positional2>b</positional2>
+            <positional3>c</positional3>
+            <positional4_n>7.1</positional4_n>
+            <potTrailing5>e</potTrailing5>
+          </record>
+        </ptg1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:unparserTestCase>
+  
+  <tdml:unparserTestCase name="ptg1_3u" root="ptg1" model="s1"
+    description="Test of potentially trailing groups.">
+
+    <tdml:document><![CDATA[
+a,b,c,7.1,e,,g,h
+a,b,c,7.1
+]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns="http://example.com">
+        <ptg1>
+          <record>
+            <required1>a</required1>
+            <positional2>b</positional2>
+            <positional3>c</positional3>
+            <positional4_n>7.1</positional4_n>
+            <potTrailing5>e</potTrailing5>
+            <potTrailing7>g</potTrailing7>
+            <potTrailing8>h</potTrailing8>
+          </record>
+          <record>
+            <required1>a</required1>
+            <positional2>b</positional2>
+            <positional3>c</positional3>
+            <positional4_n>7.1</positional4_n>
+          </record>
+        </ptg1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:unparserTestCase>
+ 
+  
+ <tdml:unparserTestCase name="ptg1_4u" root="ptg1" model="s1"
+    description="Test of potentially trailing groups.">
+
+    <tdml:document><![CDATA[
+a,,,d,,,g,h
+a,,,d,,,g
+]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns="http://example.com">
+        <ptg1>
+          <record>
+            <required1>a</required1>
+            <positional4_s>d</positional4_s>
+            <potTrailing7>g</potTrailing7>
+            <potTrailing8>h</potTrailing8>
+          </record>
+          <record>
+            <required1>a</required1>
+            <positional4_s>d</positional4_s>
+            <potTrailing7>g</potTrailing7> 
+          </record>
+        </ptg1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:unparserTestCase>
+  
+  <tdml:unparserTestCase name="ptg1_5u" root="ptg1" model="s1"
+    description="Test of potentially trailing groups."
+    roundTrip="none"> 
+
+    <tdml:document><![CDATA[
+a,,,d,,,g,h
+a,,,d,,,g
+]]></tdml:document><!-- Note: trailing final comma from the parse example ptg1_5 test removed here -->
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns="http://example.com">
+        <ptg1>
+          <record>
+            <required1>a</required1>
+            <positional4_s>d</positional4_s>
+            <potTrailing7>g</potTrailing7>
+            <potTrailing8>h</potTrailing8>
+          </record>
+          <record>
+            <required1>a</required1>
+            <positional4_s>d</positional4_s>
+            <potTrailing7>g</potTrailing7> 
+          </record>
+        </ptg1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:unparserTestCase>
+  
+ 
+  
+  <tdml:unparserTestCase name="ptg1_6u" root="ptg1" model="s1"
+    description="Test of potentially trailing groups."
+    implementations="ibm daffodil">
+
+    <tdml:document><![CDATA[
+a,,,d
+a,,,d
+]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns="http://example.com">
+        <ptg1>
+          <record>
+            <required1>a</required1>
+            <positional4_s>d</positional4_s>
+          </record>
+          <record>
+            <required1>a</required1>
+            <positional4_s>d</positional4_s>
+          </record>
+        </ptg1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:unparserTestCase>
+  
+  
+  <tdml:defineSchema name="s2">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+    
+    <dfdl:format ref="ex:GeneralFormatPortable" 
+      lengthKind="delimited" 
+      occursCountKind="implicit"/>    
+    <!-- 
+      ptg2 explores whether a choice can also become potentially trailing
+      based on its content.
+     -->
+    <xs:element name="ptg2" dfdl:initiator="%NL;">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="">
+          <xs:element name="record" dfdl:terminator="%NL;%WSP*;" maxOccurs="unbounded" >
+            <xs:complexType>
+              <xs:sequence dfdl:separator="," dfdl:separatorSuppressionPolicy="trailingEmpty">
+                <xs:element name="required1" type="xs:string" />
+                <xs:element name="potTrailing2" type="xs:string" minOccurs="0" />
+                <xs:element name="potTrailing3" type="xs:string" minOccurs="0" />
+                <xs:choice> 
+                  <!-- 
+                    choice is potTrailing because all sequences within are potentially trailing
+                   -->
+                  <xs:sequence>
+                    <!-- This sequence is potentially trailing -->
+                    <xs:element name="potTrailing4_n" type="xs:decimal" minOccurs="0"/>
+                  </xs:sequence>
+                    <!-- 
+                      This string could be zero length. But that's not enough for it
+                      to be potentially trailing. It has to be optional also.
+                      -->
+                  <xs:sequence>
+                    <xs:element name="potTrailing4_s" type="xs:string"/>
+                  </xs:sequence>
+                                    
+                </xs:choice>
+                <!-- 
+                  Element potTrailing5 is potentially trailing because the sequence
+                  following it is a potentially trailing group.
+                 -->
+                <xs:element name="potTrailing5" type="xs:string" minOccurs="0"/>
+                <xs:sequence dfdl:separator="*" dfdl:separatorSuppressionPolicy="trailingEmpty"> 
+                  <!-- 
+                    This sequence is potentially trailing, 
+                    If empty and trailing the comma for this group in the enclosing sequence may be omitted.
+                  -->
+                  <xs:element name="potTrailing6" type="xs:int" minOccurs="0" maxOccurs="3" />
+                </xs:sequence>
+                <xs:element name="potTrailing7" type="xs:string" minOccurs="0"/> 
+                <xs:element name="potTrailing8" type="xs:string" minOccurs="0"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+  </tdml:defineSchema>
+    
+  <tdml:parserTestCase name="ptg2_1p" root="ptg2" model="s2"
+    description="Test shows potentially trailing CHOICE group is missing, and that's ok."
+    implementations="daffodil">
+
+    <tdml:document><![CDATA[
+a,,,
+a,,,
+]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns="http://example.com">
+        <ptg2>
+          <record>
+            <required1>a</required1>
+          </record>
+          <record>
+            <required1>a</required1>
+          </record>
+        </ptg2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  
+  <tdml:unparserTestCase name="ptg2_1u" root="ptg2" model="s2"
+    description="Test shows potentially trailing CHOICE group is missing, and that's ok."
+    config="cfg_noEmptyElements">
+
+    <tdml:document><![CDATA[
+a,,,
+a,,,
+]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns="http://example.com">
+        <ptg2>
+          <record>
+            <required1>a</required1>
+          </record>
+          <record>
+            <required1>a</required1>
+          </record>
+        </ptg2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:unparserTestCase>
+    
+  <tdml:defineSchema name="s3">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+    
+    <dfdl:format ref="ex:GeneralFormatPortable" 
+      lengthKind="delimited" 
+      occursCountKind="implicit"/>
+      
+    <!-- 
+      ptg3 explores spoiling the choice's potentially trailing by just having
+      a single branch that has required framing.
+     -->
+    <xs:element name="ptg3" dfdl:initiator="%NL;">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="">
+          <xs:element dfdl:occursCountKind="implicit" dfdl:terminator="%NL;%WSP*;"
+            maxOccurs="unbounded" name="record">
+            <xs:complexType>
+              <xs:sequence dfdl:separator="," dfdl:separatorSuppressionPolicy="trailingEmpty">
+                <xs:element name="required1" type="xs:string" />
+                <xs:element name="positional2" type="xs:string" minOccurs="0" /> <!-- never trailing due to choice -->
+                <xs:element name="positional3" type="xs:string" minOccurs="0" /> <!-- never trailing due to choice -->
+                <xs:choice> 
+                  <!-- 
+                    choice is not trailing, because none of the choice branches are.
+                    (In general, it ought to be the last choice branch, otherwise 
+                    finding zero length will cut off consideration of any branches after
+                    the first potentially trailing branch.)
+                   -->
+                  <xs:sequence>
+                    <xs:element name="positional4_n" type="xs:decimal"/>
+                  </xs:sequence>
+                  <xs:sequence>
+                    <xs:element name="positional4_s" type="xs:string" />
+                  </xs:sequence>
+                  <xs:sequence /> 
+                </xs:choice>
+                <!-- 
+                  Element potTrailing5 is potentially trailing because the sequence
+                  following it is a potentially trailing group.
+                 -->
+                <xs:element name="potTrailing5" type="xs:string" minOccurs="0"/>
+                <xs:sequence dfdl:separator="*" dfdl:separatorSuppressionPolicy="trailingEmpty"> 
+                  <!-- 
+                    This sequence is potentially trailing, 
+                    If empty and trailing the comma for this group in the enclosing sequence may be omitted.
+                  -->
+                  <xs:element name="potTrailing6" type="xs:int" minOccurs="0" maxOccurs="3" />
+                </xs:sequence>
+                <xs:element name="potTrailing7" type="xs:string" minOccurs="0"/> 
+                <xs:element name="potTrailing8" type="xs:string" minOccurs="0"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+  </tdml:defineSchema>
+  
+  <tdml:parserTestCase name="ptg3_2p_daf" root="ptg3" model="s3"
+    description="Test of potentially trailing groups. Daffodil specific as it retains required empty string elements."
+    roundTrip="none"
+    implementations="daffodil">
+
+    <tdml:document><![CDATA[
+a,,,,
+a,,,,
+]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns="http://example.com">
+        <ptg3>
+          <record>
+            <required1>a</required1>
+            <!-- empty string has no syntax, so even when daf:emptyElementParsePolicy is 'treatAsEmpty'
+                 we still don't create optional empty string elements.
+            <positional2/>
+            <positional3/>
+            -->
+            <positional4_s/> <!-- must be present, as the element is scalar -->
+            <!-- Same reason as above. Optional empty element is dropped.
+            <potTrailing5/> 
+            -->
+          </record>
+          <record>
+            <required1>a</required1>
+            <!-- Same reason as above. Optional empty element is dropped
+            <positional2/>
+            <positional3/>
+            -->
+            <positional4_s/> <!-- must be present, as the element is scalar -->
+            <!-- Same reason as above. Optional empty element is dropped.
+            <potTrailing5/> 
+            -->
+          </record>
+        </ptg3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+ 
+  <tdml:parserTestCase name="ptg3_1p" root="ptg3" model="s3"
+    description="Test of potentially trailing groups."
+    config="cfg_noEmptyElements"
+    roundTrip="none">
+
+    <tdml:document><![CDATA[
+a,,,,
+a,,,,
+]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns="http://example.com">
+        <ptg3>
+          <record>
+            <required1>a</required1>
+            <!-- <positional4_s/> scalar, but is backtracked anyway by IBM DFDL, daffodil treatAsMissing mode. -->
+            <!-- no empty string for positional5 -->
+          </record>
+          <record>
+            <required1>a</required1>
+            <!-- <positional4_s/> scalar, but is backtracked anyway by IBM DFDL, daffodil treatAsMissing mode. -->
+            <!-- no empty string for positional5 -->
+          </record>
+        </ptg3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase> 
+   
+  <tdml:unparserTestCase name="ptg3_1u" root="ptg3" model="s3"
+    description="Test of potentially trailing groups."
+    implementations="ibm daffodil">
+
+    <tdml:document><![CDATA[
+a,,,
+a,,,
+]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns="http://example.com">
+        <ptg3>
+          <record>
+            <required1>a</required1>
+            <positional4_s/> <!-- must be present, as the element is scalar -->
+          </record>
+          <record>
+            <required1>a</required1>
+            <positional4_s/> <!-- must be present, as the element is scalar -->
+          </record>
+        </ptg3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:unparserTestCase>
+  
+
+</tdml:testSuite>

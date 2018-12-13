@@ -28,7 +28,7 @@
 			
 			<dfdl:format ref="GeneralFormat" initiator="" terminator="" leadingSkip="0" trailingSkip="0" textBidi="no" floating="no"   encoding="utf-8" byteOrder="bigEndian" alignment="1" alignmentUnits="bytes" fillByte="f"  
 				truncateSpecifiedLengthString="no" ignoreCase="no" representation="text"
-				textStringPadCharacter=" " textPadKind="none" textTrimKind="none"
+				textStringPadCharacter="%SP;" textPadKind="none" textTrimKind="none"
 				textStringJustification="left" lengthKind="delimited"
 				textOutputMinLength="6" lengthUnits="bytes"
 				textCalendarJustification="right" emptyValueDelimiterPolicy="none"  nilValueDelimiterPolicy="both" 
@@ -45,7 +45,7 @@
 			<dfdl:defineFormat name="baseText">
 				<dfdl:format byteOrder="bigEndian" encoding="utf-8"
 					ignoreCase="no" representation="text" textOutputMinLength="6"
-					textStringPadCharacter=" " textPadKind="none"
+					textStringPadCharacter="%SP;" textPadKind="none"
 					textStringJustification="left" textTrimKind="none" lengthKind="delimited"
 					lengthUnits="characters" />
 			</dfdl:defineFormat>

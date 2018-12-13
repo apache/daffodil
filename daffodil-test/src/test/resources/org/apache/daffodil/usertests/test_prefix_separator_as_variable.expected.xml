@@ -39,5 +39,10 @@ s.org/sites/merppbem/index.html">http://web.archive.org/web/20030408023607/=
 http://www.TESTS.org/sites/merppbem/index.html</a></div>
 </body>
 </html>]]></BodyPart>
+<!-- 
+ Note this empty BodyPart is no longer expected.
+ DFDL creates empty string optional elements only if there is some non-zero
+ syntax that indicates presence of an empty string.
   <BodyPart></BodyPart>
+-->
 </ex:MultipartBody>

@@ -17,8 +17,10 @@
 -->
 
 <xsd:schema 
-xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-    xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:fn="http://www.w3.org/2005/xpath-functions"
  >
 
 	<!-- include the default properties -->
@@ -51,7 +53,8 @@ xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xsd="http://www.w3.org/2001
 				dfdl:terminator="--%CR;%LF;">
 				<xsd:element name="BodyPart" dfdl:lengthKind="delimited"
 					minOccurs="1" maxOccurs="unbounded" type="xsd:string"
-					dfdl:occursCountKind="implicit" />
+					dfdl:occursCountKind="implicit" 
+          daf:emptyElementParsePolicy="treatAsEmpty" />
 			</xsd:sequence>
 		</xsd:complexType>
 	</xsd:element>

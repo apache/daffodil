@@ -52,6 +52,58 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
    */
   private var relBitPos0b_ : ULong = ULong(0)
 
+  private var zlStatus_ : ZeroLengthStatus = ZeroLengthStatus.Unknown
+
+  /**
+   * If we merge forward into this buffering stream, converting it into a direct stream,
+   * we must set this var to the size of the stream, so that comparing this to
+   * the relBitPos0b tells us if there have been any actual writes to this stream.
+   */
+  private var maybeStartingRelBitPos0bAfterMerging_ : MaybeULong = MaybeULong.Nope
+
+  /**
+   * Determines, as soon as possible, whether the stream has zero length, or non-zero length.
+   *
+   * Only produces Zero length if the stream is finished, so we know nothing will be added to
+   * make it non-zero.
+   *
+   * Starts as Unknown status, transitions to either Zero or NonZero.
+   *
+   * Works even if the streams have been collapsing together as a result of earlier streams
+   * having been setFinished.
+   */
+  final override def zeroLengthStatus = {
+    import ZeroLengthStatus._
+    zlStatus_ match {
+      case Zero => // ok
+      case NonZero => // ok
+      case Unknown => {
+        if (this.isFinished) {
+          //
+          // nothing has written to this, or the
+          // zlStatus would have been set by setNonZeroLength() call,
+          // which is required to be called by everything that writes.
+          //
+          // So regardless of whether this stream has been merged/collapsed, etc.
+          // we know that no actual writes occurred to this DOS, so it is zero length.
+          // And now that it is finsihed, that can never change.
+          zlStatus_ = Zero
+        } else {
+          // do nothing. It stays what it is, Unknown.
+        }
+      }
+    }
+    zlStatus_
+  }
+
+  /**
+   * Must be called by anything that writes to the DOS
+   * if the amount written was 1 bit or more.
+   */
+  final protected def setNonZeroLength(): Unit = {
+    zlStatus_ = ZeroLengthStatus.NonZero
+  }
+
   /**
    * Once we determine what it is, this will hold the absolute bit pos
    * of the first bit of this buffer.
@@ -108,6 +160,7 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
     this.maybeAbsolutizedRelativeStartingBitPosInBits_ = MaybeULong.Nope
     maybeAbsStartingBitPos0b_ = MaybeULong.Nope
     relBitPos0b_ = ULong(0)
+    zlStatus_ = ZeroLengthStatus.Unknown
   }
 
   def setAbsStartingBitPos0b(newStartingBitPos0b: ULong) {
@@ -284,6 +337,7 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
     this.maybeAbsBitLimit0b = other.maybeAbsBitLimit0b
     this.maybeRelBitLimit0b_ = other.maybeRelBitLimit0b_
     this.debugOutputStream = other.debugOutputStream
+    this.zlStatus_ = other.zlStatus_
   }
 
   /**
@@ -430,7 +484,7 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
         // but only bother checking if the bilength is more than a byte--single
         // byte sizes are common and it avoids the byteOrder check and
         // potential array allocation
-        val bytes = 
+        val bytes =
           if (bitLengthFrom1 > 8 && finfo.byteOrder =:= ByteOrder.LittleEndian) {
             // We need to reverse this array. However, we cannot modify this
             // array since it might come straight from the infoset, which could
@@ -472,7 +526,7 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
           // There is an existing fragment byte. That means we must combine
           // all the bytes with the existing fragment byte to create
           // new bytes and a new fragment byte, taking bitOrder into account
-    
+
           val isMSBF = finfo.bitOrder == BitOrder.MostSignificantBitFirst
 
           // Determine masks and shifts needed to combine the fragment byte
@@ -500,7 +554,7 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
             (fragmentLastByteLimit + bitsAvailableInLastByte) >= 8
           }
           val lastIndex = bytesToPutFromArray - 1
-          
+
           // For each byte, combine it with the previous fragment byte
           // according to bitOrder to create a new byte and a new fragment
           // byte. Potentially write the new byte to the stream if we had
@@ -542,7 +596,7 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
           // calculated a new fragment. However, since this is a fragment byte,
           // some of the bits need to be masked out.
           val mask =
-            if (finfo.bitOrder == BitOrder.MostSignificantBitFirst) 
+            if (finfo.bitOrder == BitOrder.MostSignificantBitFirst)
               Bits.maskL(newFragmentByteLimit)
             else
               Bits.maskR(newFragmentByteLimit)
@@ -554,6 +608,7 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
         }
 
         setRelBitPos0b(relBitPos0b + ULong(bitLengthFrom1))
+        setNonZeroLength()
         true
       }
     res
@@ -583,6 +638,8 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
         }
       realStream.write(ba, byteStartOffset0b, nBytes.toInt)
       setRelBitPos0b(relBitPos0b + ULong(nBytes * 8))
+      if (lengthInBytes > 0)
+        setNonZeroLength()
       nBytes
     } else {
       // the data currently ends with some bits in the fragment byte.
@@ -620,23 +677,27 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
     if (nFragBits > 0) bb.limit(bb.limit() - 1) // last byte is the frag byte
     val nBytesWritten = putByteBuffer(bb, finfo) // output all but the frag byte if there is one.
     val nBitsWritten = nBytesWritten * 8
-    if (nBytesWritten < nWholeBytes) {
-      nBytesWritten * 8
-    } else {
-      val isFragWritten =
-        if (nFragBits > 0) {
-          bb.limit(bb.limit() + 1)
-          var fragByte: Long = Bits.asUnsignedByte(bb.get(bb.limit() - 1))
-          if (finfo.bitOrder eq BitOrder.MostSignificantBitFirst) {
-            // we need to shift the bits. We want the most significant bits of the byte
-            fragByte = fragByte >>> (8 - nFragBits)
-          }
-          putLongChecked(fragByte, nFragBits, finfo)
-        } else
-          true
-      if (isFragWritten) nBitsWritten + nFragBits
-      else nBitsWritten
+    val res = {
+      if (nBytesWritten < nWholeBytes) {
+        nBytesWritten * 8
+      } else {
+        val isFragWritten =
+          if (nFragBits > 0) {
+            bb.limit(bb.limit() + 1)
+            var fragByte: Long = Bits.asUnsignedByte(bb.get(bb.limit() - 1))
+            if (finfo.bitOrder eq BitOrder.MostSignificantBitFirst) {
+              // we need to shift the bits. We want the most significant bits of the byte
+              fragByte = fragByte >>> (8 - nFragBits)
+            }
+            putLongChecked(fragByte, nFragBits, finfo)
+          } else
+            true
+        if (isFragWritten) nBitsWritten + nFragBits
+        else nBitsWritten
+      }
     }
+    if (res > 0) setNonZeroLength()
+    res
   }
 
   private def putByteBuffer(bb: java.nio.ByteBuffer, finfo: FormatInfo): Long = {
@@ -667,6 +728,7 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
           i
         }
       }
+    if (nTransferred > 0) setNonZeroLength()
     nTransferred
   }
 
@@ -733,6 +795,8 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
       if (putBitBuffer(bb, bitsToWrite, finfo) == 0) 0 else nToTransfer
     }
     log(LogLevel.Debug, "Wrote string '%s' to %s", debugCBString, this)
+    if (res > 0)
+      setNonZeroLength()
     res
   }
 
@@ -801,6 +865,7 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
 
     if (res) {
       setRelBitPos0b(relBitPos0b + ULong(bitLengthFrom1To64))
+      setNonZeroLength()
     }
     res
   }
@@ -902,6 +967,7 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
         val isFinalFragDone = putLongUnchecked(finfo.fillByte, nBitsRemaining.toInt, finfo)
         Assert.invariant(isFinalFragDone)
       }
+      setNonZeroLength()
       true
     }
   }

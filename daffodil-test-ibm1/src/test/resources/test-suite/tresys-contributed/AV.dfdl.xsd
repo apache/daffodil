@@ -221,9 +221,9 @@
       <element name="Symptom" type="xs:string" dfdl:lengthKind="pattern"
         dfdl:initiator="%WSP+;" dfdl:lengthPattern="[A-Z]+" dfdl:encoding="ASCII"
         dfdl:textStringJustification="right"
-        dfdl:textStringPadCharacter=" " />
+        dfdl:textStringPadCharacter="%SP;" />
       <element name="Count" type="xs:int" dfdl:lengthKind="delimited"
-        dfdl:terminator="%NL;" dfdl:textStringPadCharacter=" "
+        dfdl:terminator="%NL;" dfdl:textStringPadCharacter="%SP;"
         dfdl:textStringJustification="right" dfdl:encoding="ASCII" />
     </sequence>
   </complexType>
@@ -248,7 +248,7 @@
       <sequence dfdl:hiddenGroupRef="tns:header" />
       <element name="value" type="xs:int"
         dfdl:textStringJustification="right"
-        dfdl:textStringPadCharacter=" " dfdl:terminator="%NL;" />
+        dfdl:textStringPadCharacter="%SP;" dfdl:terminator="%NL;" />
       <sequence dfdl:hiddenGroupRef="tns:extraByte" />
     </sequence>
   </complexType>

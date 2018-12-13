@@ -30,11 +30,11 @@
   <tdml:defineSchema name="s1">
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
-    <dfdl:format lengthKind="explicit" length="1" ref="ex:GeneralFormat"
+    <dfdl:format lengthKind="explicit" length="1" ref="ex:GeneralFormatPortable"
       separator="" initiator="" terminator="" occursCountKind="implicit"
       ignoreCase="no" textNumberRep="standard" representation="text" />
     <dfdl:defineFormat name="root">
-      <dfdl:format lengthKind="implicit" ref="ex:GeneralFormat"
+      <dfdl:format lengthKind="implicit" ref="ex:GeneralFormatPortable"
         separator="" initiator="" terminator="" representation="text" />
     </dfdl:defineFormat>
     
@@ -54,7 +54,7 @@
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
     <dfdl:format lengthKind="delimited" lengthUnits="bytes"
-      ref="ex:GeneralFormat" encoding="UTF-8" separator="" initiator="" terminator=""
+      ref="ex:GeneralFormatPortable" encoding="UTF-8" separator="" initiator="" terminator=""
       occursCountKind="parsed" ignoreCase="no" textNumberRep="standard"
       representation="text" />
 
@@ -90,7 +90,8 @@
   
   <tdml:parserTestCase name="error01" root="root2"
     model="array-optionalElem.dfdl.xsd"
-    description="Section 16 - Processing error if a separator is parsed successfully but subsequent element not found - DFDL-16-017R">
+    description="Section 16 - Processing error if a separator is parsed successfully but subsequent element not found - DFDL-16-017R"
+    implementations="daffodil"><!-- left over data not an error in IBM DFDL -->
 
     <tdml:document><![CDATA[3,4,5,]]></tdml:document>
 
@@ -132,7 +133,7 @@
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
-    <dfdl:format ref="ex:GeneralFormat" occursCountKind="implicit"
+    <dfdl:format ref="ex:GeneralFormatPortable" occursCountKind="implicit"
       lengthKind="delimited" separatorSuppressionPolicy="trailingEmptyStrict"
       separatorPosition="prefix" />
 
@@ -150,8 +151,10 @@
   </tdml:defineSchema>
 
   <tdml:parserTestCase name="optionalWithSeparators"
-    model="arrays1" root="r" description="Section 16 - an optional element applied to a local element - DFDL-16-001R">
-    <tdml:document><![CDATA[$x;]]></tdml:document>
+    model="arrays1" root="r" description="Section 16 - an optional element applied to a local element - DFDL-16-001R"
+    implementations="daffodil"><!-- trailingEmptyStrict gives SDE on IBM DFDL -->
+
+    <tdml:document><![CDATA[$$x;]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <r>
@@ -274,9 +277,54 @@
     </tdml:infoset>
   </tdml:parserTestCase>
   
+  <tdml:defineSchema name="arrayExpressions-portable">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormatPortable" />
+    
+    <dfdl:defineVariable name="counter" type="xs:int" />
+    
+    <xs:element name="e2b">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|" dfdl:separatorPosition="infix">
+          <xs:element name="separator" type="xs:string" dfdl:lengthKind="explicit" minOccurs="1" maxOccurs="1" dfdl:occursCountKind="fixed" dfdl:length="1"/>
+          <xs:element name="dataArray" minOccurs="1" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence dfdl:separator="{ /ex:e2b/ex:separator }">
+                <xs:element name="num" type="xs:int" minOccurs="3" maxOccurs="3" dfdl:occursCountKind="fixed" dfdl:lengthKind="delimited"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e3">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
+          <xs:element name="nums" minOccurs="2" maxOccurs="2">
+            <xs:complexType>
+              <xs:sequence dfdl:separator="|" dfdl:separatorPosition="infix">
+                <xs:element name="a1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
+                <xs:element name="a2">
+                  <xs:complexType>
+                    <xs:sequence dfdl:separator=".">
+                      <xs:element name="num" dfdl:representation="binary" type="xs:unsignedShort" 
+                        maxOccurs="1" dfdl:lengthKind="implicit" dfdl:byteOrder="{ if (../../ex:a1 eq 'b') then 'bigEndian' else 'littleEndian' }"/>
+                    </xs:sequence>
+                  </xs:complexType>
+                </xs:element>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+  
   <tdml:defineSchema name="arrayExpressions">
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
-    <dfdl:format ref="ex:GeneralFormat" />
+    <dfdl:format ref="ex:GeneralFormatPortable" />
     
     <dfdl:defineVariable name="counter" type="xs:int" />
 
@@ -301,21 +349,6 @@
           <xs:element name="dataArray" minOccurs="3" maxOccurs="3" dfdl:occursCountKind="fixed">
             <xs:complexType>
               <xs:sequence dfdl:separator="{ xs:string(/ex:e2/ex:separatorArray[xs:int(dfdl:occursIndex())]) }">
-                <xs:element name="num" type="xs:int" minOccurs="3" maxOccurs="3" dfdl:occursCountKind="fixed" dfdl:lengthKind="delimited"/>
-              </xs:sequence>
-            </xs:complexType>
-          </xs:element>
-        </xs:sequence>
-      </xs:complexType>
-    </xs:element>
-    
-    <xs:element name="e2b">
-      <xs:complexType>
-        <xs:sequence dfdl:separator="|" dfdl:separatorPosition="infix">
-          <xs:element name="separator" type="xs:string" dfdl:lengthKind="explicit" minOccurs="1" maxOccurs="1" dfdl:occursCountKind="fixed" dfdl:length="1"/>
-          <xs:element name="dataArray" minOccurs="1" maxOccurs="1">
-            <xs:complexType>
-              <xs:sequence dfdl:separator="{ /ex:e2b/ex:separator }">
                 <xs:element name="num" type="xs:int" minOccurs="3" maxOccurs="3" dfdl:occursCountKind="fixed" dfdl:lengthKind="delimited"/>
               </xs:sequence>
             </xs:complexType>
@@ -354,28 +387,6 @@
       </xs:complexType>
     </xs:element>
     
-    <xs:element name="e3">
-      <xs:complexType>
-        <xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
-          <xs:element name="nums" minOccurs="2" maxOccurs="2">
-            <xs:complexType>
-              <xs:sequence dfdl:separator="|" dfdl:separatorPosition="infix">
-                <xs:element name="a1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
-                <xs:element name="a2">
-                  <xs:complexType>
-                    <xs:sequence dfdl:separator=".">
-                      <xs:element name="num" dfdl:representation="binary" type="xs:unsignedShort" 
-                        maxOccurs="1" dfdl:lengthKind="implicit" dfdl:byteOrder="{ if (../../ex:a1 eq 'b') then 'bigEndian' else 'littleEndian' }"/>
-                    </xs:sequence>
-                  </xs:complexType>
-                </xs:element>
-              </xs:sequence>
-            </xs:complexType>
-          </xs:element>
-        </xs:sequence>
-      </xs:complexType>
-    </xs:element>
-    
     <xs:element name="e4">
       <xs:complexType>
         <xs:sequence dfdl:separator="|" dfdl:separatorPosition="infix">
@@ -406,6 +417,7 @@
     </xs:element>
 
   </tdml:defineSchema>
+  
 
 <!--
      Test Name: arrayExpressions03
@@ -414,7 +426,7 @@
                 the expression is evaluated for each occurrence. In this case, the property is byteOrder
 -->
 
-  <tdml:parserTestCase name="arrayExpressions03" model="arrayExpressions" root="e3"
+  <tdml:parserTestCase name="arrayExpressions03" model="arrayExpressions-portable" root="e3"
         description="Section 16 - Arrays with DFDL Expression re-evaluated for each occurrence - DFDL-16-023R">
     <tdml:document>
       <tdml:documentPart type="byte">627C003A2C6C7C003A</tdml:documentPart>
@@ -447,7 +459,8 @@
 -->
 
   <tdml:parserTestCase name="arrayExpressions02" model="arrayExpressions" root="e2"
-        description="Section 16 - Arrays with DFDL Expression re-evaluated for each occurrence - DFDL-16-023R">
+        description="Section 16 - Arrays with DFDL Expression re-evaluated for each occurrence - DFDL-16-023R"
+        implementations="daffodil"><!-- IBM DFDL no dfdl functions in expressions -->
     <tdml:document>
       <tdml:documentPart type="text">;|-|#|1;2;3|1-2-3|3#9#1</tdml:documentPart>
     </tdml:document>
@@ -483,7 +496,7 @@
        Purpose: This test demonstrates that you can use an expression that references a previous element to set a separator.
   -->
 
-  <tdml:parserTestCase name="arrayExpressions02b" model="arrayExpressions" root="e2b"
+  <tdml:parserTestCase name="arrayExpressions02b" model="arrayExpressions-portable" root="e2b"
         description="Section 16 - Arrays with DFDL Expression re-evaluated for each occurrence - DFDL-16-023R">
     <tdml:document>
       <tdml:documentPart type="text">.|1.2.3</tdml:documentPart>
@@ -510,7 +523,8 @@
   -->
 
   <tdml:parserTestCase name="arrayExpressions02c" model="arrayExpressions" root="e2c"
-        description="Section 16 - Arrays with DFDL Expression re-evaluated for each occurrence - DFDL-16-023R">
+        description="Section 16 - Arrays with DFDL Expression re-evaluated for each occurrence - DFDL-16-023R"
+        implementations="daffodil"><!-- IBM DFDL no dfdl functions in expressions -->
     <tdml:document>
       <tdml:documentPart type="text">.|,|#|1.2,3#</tdml:documentPart>
     </tdml:document>
@@ -538,7 +552,8 @@
   -->
 
   <tdml:parserTestCase name="arrayExpressions02d" model="arrayExpressions" root="e2d"
-        description="Section 16 - Arrays with DFDL Expression re-evaluated for each occurrence - DFDL-16-023R">
+        description="Section 16 - Arrays with DFDL Expression re-evaluated for each occurrence - DFDL-16-023R"
+        implementations="daffodil"><!-- IBM DFDL no dfdl functions in expressions -->
     <tdml:document>
       <tdml:documentPart type="text">;|-|#|;1,2,3|-1,2,3|#3,9,1</tdml:documentPart>
     </tdml:document>
@@ -576,7 +591,8 @@
 -->
 
   <tdml:parserTestCase name="arrayExpressions01" model="arrayExpressions" root="e1"
-        description="Section 16 - Arrays with DFDL Expression re-evaluated for each occurrence - DFDL-16-023R">
+        description="Section 16 - Arrays with DFDL Expression re-evaluated for each occurrence - DFDL-16-023R"
+        implementations="daffodil"><!-- IBM DFDL no dfdl functions in expressions -->
     <tdml:document>
       <tdml:documentPart type="text">1.2.3.4.5</tdml:documentPart>
     </tdml:document>
@@ -601,7 +617,8 @@
 -->
 
   <tdml:parserTestCase name="arrayExpressions04" model="arrayExpressions" root="e4"
-        description="Section 16 - Arrays with DFDL Expression re-evaluated for each occurrence - DFDL-16-023R">
+        description="Section 16 - Arrays with DFDL Expression re-evaluated for each occurrence - DFDL-16-023R"
+        implementations="daffodil"><!-- IBM DFDL no dfdl functions in expressions -->
     <tdml:document>
       <tdml:documentPart type="text">3|4|5|6</tdml:documentPart>
     </tdml:document>
@@ -625,7 +642,8 @@
 -->
 
   <tdml:parserTestCase name="arrayExpressions05" model="arrayExpressions" root="e5"
-        description="Section 16 - Arrays with DFDL Expression re-evaluated for each occurrence - DFDL-16-023R">
+        description="Section 16 - Arrays with DFDL Expression re-evaluated for each occurrence - DFDL-16-023R"
+        implementations="daffodil"><!-- IBM DFDL no dfdl functions in expressions -->
     <tdml:document>
       <tdml:documentPart type="text">;|-|#|;1,2,3|-1,2,3|#3,9,1</tdml:documentPart>
     </tdml:document>
@@ -659,7 +677,7 @@
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
     <dfdl:format lengthKind="delimited" lengthUnits="bytes"
-      ref="ex:GeneralFormat" encoding="UTF-8" separator="" initiator="" terminator=""
+      ref="ex:GeneralFormatPortable" encoding="UTF-8" separator="" initiator="" terminator=""
       occursCountKind="implicit" ignoreCase="no" textNumberRep="standard"
       representation="text" />
 
@@ -669,20 +687,27 @@
           dfdl:separatorPosition="infix" dfdl:separatorSuppressionPolicy="trailingEmpty"
           dfdl:sequenceKind="ordered">
           <xs:element name="a" type="xs:int"/>
-          <xs:element name="b" type="xs:int" minOccurs="0" />
-          <xs:element name="c" type="xs:int" minOccurs="0" />
-          <xs:element name="d" type="xs:int" minOccurs="0" />
-          <xs:element name="e" type="xs:int" minOccurs="0" maxOccurs="unbounded"/>
-        </xs:sequence>
-      </xs:complexType>
-    </xs:element>
-
-    <xs:element name="ts_root">
-      <xs:complexType>
-        <xs:sequence dfdl:separator=":"
-          dfdl:separatorPosition="infix" dfdl:separatorSuppressionPolicy="trailingEmptyStrict"
-          dfdl:sequenceKind="ordered">
-          <xs:element name="a" type="xs:int"/>
+          <!-- 
+          Note on unparse behavior for this schema element.
+          
+          Section 14.2.3 of DFDL Spec 2014 draft has table 48, which applies here.
+          
+          element a is required and is not an array so is always unparsed along with
+          its separator. (Per paragraph 1 under 14.2.3).
+          
+          elements b, c, d, they are potentially trailing, maxOccurs bounded, not declared
+          last. The table cells say the unparse behavior depends on whether they 
+          are actually last, or not. 
+          
+          If not actually last, they are "positional" here, so N occurrences are 
+          output along with maxOccurs - N trailing zero-length occurrences.
+          
+          That means if there are zero occurrences in the infoset, you still output
+          a separator for them. 
+          
+          If actually trailing, no zero-length occurrences (no extra separators)
+          are output. 
+           -->
           <xs:element name="b" type="xs:int" minOccurs="0" />
           <xs:element name="c" type="xs:int" minOccurs="0" />
           <xs:element name="d" type="xs:int" minOccurs="0" />
@@ -714,6 +739,30 @@
               </xs:sequence>
             </xs:complexType>
           </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:defineSchema name="array-ockImplicitSeparators.dfdl.xsd-strict" elementFormDefault="unqualified">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+
+    <dfdl:format lengthKind="delimited" lengthUnits="bytes"
+      ref="ex:GeneralFormatPortable" encoding="UTF-8" separator="" initiator="" terminator=""
+      occursCountKind="implicit" ignoreCase="no" textNumberRep="standard"
+      representation="text" />
+     
+      <xs:element name="ts_root">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=":"
+          dfdl:separatorPosition="infix" dfdl:separatorSuppressionPolicy="trailingEmptyStrict"
+          dfdl:sequenceKind="ordered">
+          <xs:element name="a" type="xs:int"/>
+          <xs:element name="b" type="xs:int" minOccurs="0" />
+          <xs:element name="c" type="xs:int" minOccurs="0" />
+          <xs:element name="d" type="xs:int" minOccurs="0" />
+          <xs:element name="e" type="xs:int" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -751,7 +800,6 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
-  
 
   <tdml:parserTestCase name="occursCountKindImplicitSeparators01a" root="te_root"
     model="array-ockImplicitSeparators.dfdl.xsd"
@@ -768,8 +816,9 @@
   </tdml:parserTestCase>
   
     <tdml:parserTestCase name="occursCountKindImplicitSeparators01b" root="ts_root"
-    model="array-ockImplicitSeparators.dfdl.xsd"
-    roundTrip="false">
+    model="array-ockImplicitSeparators.dfdl.xsd-strict"
+    roundTrip="false"
+    implementations="daffodil"><!-- trailingEmptyStrict gives SDE on IBM DFDL -->
 
     <tdml:document><![CDATA[1::::]]></tdml:document>
     <tdml:errors>
@@ -812,8 +861,35 @@
   <tdml:unparserTestCase name="occursCountKindImplicitSeparatorsUnparser" root="te_root"
     model="array-ockImplicitSeparators.dfdl.xsd"
     roundTrip="false">
-
-    <tdml:document><![CDATA[1:3:5]]></tdml:document>
+    <!-- 
+      This is separatorSuppressionPolicy trailing empty so this is a positional
+      sequence. 
+      
+      However, element a is required scalar. Elements b to e are optional (min 0 max 1),
+      and have OCK implicit.
+      
+      Table 48 in 2014 draft of the DFDL spec section 14.2.3 says trailingEmpty
+      for elements b, c, d under maxOccurs bounded, potentially trailing, and not-declared last
+      and not followed by end-of group:
+      
+      Unparse N occurrences ~ unparse (maxOccurs - N) trailing zero-length occurrences
+      
+      For element e, which differs only in maxOccurs unbounded, but declared last,
+      it has 
+      
+      Unparse N occurrences (suppressing trailing zero-length occurrences)
+      
+      The infoset has only elements a, c, and e in it.
+      
+      So we must unparse:
+      * for element a - "1"
+      * for element b - unparse 1 trailing zero-length occurrences so ":"
+      * for elemetn c - ":3"
+      * for element d - unparse 1 trailing zero-length occurrences so ":"
+      * for element e - ":5"
+      Total "1::3::5"
+     -->
+    <tdml:document><![CDATA[1::3::5]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <ex:te_root>
@@ -826,10 +902,11 @@
   </tdml:unparserTestCase>
 
   <tdml:parserTestCase name="occursCountKindImplicitSeparators04" root="ts_root"
-    model="array-ockImplicitSeparators.dfdl.xsd"
-    roundTrip="true">
+    model="array-ockImplicitSeparators.dfdl.xsd-strict"
+    roundTrip="true"
+    implementations="daffodil"><!-- trailingEmptyStrict gives SDE on IBM DFDL -->
 
-    <tdml:document><![CDATA[1:2:3::]]></tdml:document>
+    <tdml:document><![CDATA[1::2::3::]]></tdml:document>
     <tdml:errors>
       <tdml:error>trailingEmptyStrict</tdml:error>
     </tdml:errors>
@@ -839,14 +916,45 @@
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
     <dfdl:format lengthKind="delimited" lengthUnits="bytes"
-      ref="ex:GeneralFormat" encoding="UTF-8" separator="" initiator="" terminator=""
+      ref="ex:GeneralFormatPortable" encoding="UTF-8" separator="" initiator="" terminator=""
       occursCountKind="implicit" ignoreCase="no" textNumberRep="standard"
       representation="text" />
 
-    <dfdl:defineFormat name="listFormat">
-      <dfdl:format separator="||%NL;" separatorPosition="postfix" separatorSuppressionPolicy="trailingEmptyStrict"/>
+    <dfdl:defineFormat name="parameters">
+      <dfdl:format sequenceKind="ordered" separator="|" separatorPosition="prefix" separatorSuppressionPolicy="trailingEmpty"/>
     </dfdl:defineFormat>
 
+    <xs:complexType name="listObject">
+      <xs:sequence dfdl:ref="parameters">
+        <xs:element name="param1" type="xs:string"/>
+        <xs:element name="param2" type="xs:string"/>
+        <xs:element name="param3" type="xs:string" minOccurs="0" maxOccurs="4" dfdl:occursCountKind="implicit"/>
+      </xs:sequence>
+    </xs:complexType>
+    
+    <dfdl:defineFormat name="listFormat">
+      <dfdl:format separator="||%NL;" separatorPosition="postfix" separatorSuppressionPolicy="trailingEmpty"/>
+    </dfdl:defineFormat> 
+
+    <xs:element name="nestedRoot">
+      <xs:complexType>
+        <xs:sequence dfdl:ref="listFormat">
+          <xs:element name="list1" type="listObject" dfdl:initiator="BEGIN"/>
+          <xs:element name="list2" type="listObject" dfdl:initiator="BEGIN"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+  </tdml:defineSchema>
+      
+  <tdml:defineSchema name="nestedSequence-strict" elementFormDefault="unqualified">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+
+    <dfdl:format lengthKind="delimited" lengthUnits="bytes"
+      ref="ex:GeneralFormatPortable" encoding="UTF-8" separator="" initiator="" terminator=""
+      occursCountKind="implicit" ignoreCase="no" textNumberRep="standard"
+      representation="text" />
+      
     <dfdl:defineFormat name="parameters">
       <dfdl:format sequenceKind="ordered" separator="|" separatorPosition="prefix" separatorSuppressionPolicy="trailingEmptyStrict"/>
     </dfdl:defineFormat>
@@ -858,10 +966,30 @@
         <xs:element name="param3" type="xs:string" minOccurs="0" maxOccurs="4" dfdl:occursCountKind="implicit"/>
       </xs:sequence>
     </xs:complexType>
-
+    
+    <dfdl:defineFormat name="listFormatStrict">
+      <dfdl:format separator="%NL;" separatorPosition="postfix" separatorSuppressionPolicy="trailingEmptyStrict"/>
+    </dfdl:defineFormat>
+    
     <xs:element name="nestedRoot">
       <xs:complexType>
-        <xs:sequence dfdl:ref="listFormat">
+        <xs:sequence dfdl:ref="listFormatStrict">
+          <xs:element name="list1" type="listObject" dfdl:initiator="BEGIN"/>
+          <xs:element name="list2" type="listObject" dfdl:initiator="BEGIN"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+      <dfdl:defineFormat name="listFormatStrictOk">
+        <!-- the ||%NL separtor for the outer list elements absorbs as one 
+        longest match separator, what LOOKS like trailing separators of the
+        inner param list objects.  -->
+      <dfdl:format separator="||%NL;" separatorPosition="postfix" separatorSuppressionPolicy="trailingEmptyStrict"/>
+    </dfdl:defineFormat>
+    
+    <xs:element name="nestedRootOk">
+      <xs:complexType>
+        <xs:sequence dfdl:ref="listFormatStrictOk">
           <xs:element name="list1" type="listObject" dfdl:initiator="BEGIN"/>
           <xs:element name="list2" type="listObject" dfdl:initiator="BEGIN"/>
         </xs:sequence>
@@ -870,16 +998,17 @@
 
   </tdml:defineSchema>
 
-  <tdml:parserTestCase name="occursCountKindImplicitSeparators05" root="nestedRoot"
-    model="nestedSequence"
-    roundTrip="true">
+  <tdml:parserTestCase name="occursCountKindImplicitSeparators05" root="nestedRootOk"
+    model="nestedSequence-strict"
+    roundTrip="true"
+    implementations="daffodil"><!-- trailingEmptyStrict gives SDE on IBM DFDL -->
 
     <tdml:document>
 	  <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[BEGIN|this|is||%LF;BEGIN|of|nested||%LF;]]></tdml:documentPart>
 	</tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <ex:nestedRoot>
+        <ex:nestedRootOk>
           <list1>
             <param1>this</param1>
             <param2>is</param2>
@@ -888,7 +1017,54 @@
             <param1>of</param1>
             <param2>nested</param2>
           </list2>
-        </ex:nestedRoot>
+        </ex:nestedRootOk>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="occursCountKindImplicitSeparators05Strict" root="nestedRoot"
+    model="nestedSequence-strict"
+    implementations="daffodil"><!-- trailingEmptyStrict gives SDE on IBM DFDL -->
+
+    <tdml:document>
+    <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[BEGIN|this|is||%LF;BEGIN|of|nested||%LF;]]></tdml:documentPart>
+  </tdml:document>
+    <tdml:errors>
+    <tdml:error>Parse Error</tdml:error>
+    <tdml:error>Empty trailing optional</tdml:error>
+    <tdml:error>separatorSuppressionPolicy</tdml:error>
+    <tdml:error>trailingEmptyStrict</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+ <tdml:defineSchema name="adjacent"  elementFormDefault="unqualified">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormatPortable" lengthKind="delimited"/>
+    
+    <xs:element name="r">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=":" dfdl:separatorSuppressionPolicy="trailingEmpty">
+          <xs:element name="e1" type="xs:int" minOccurs="0"/>
+          <xs:element name="e2" type="xs:int" minOccurs="0"/>
+          <xs:element name="e3" type="xs:int" minOccurs="0"/>
+          <xs:element name="e4" type="xs:int" minOccurs="0"/>
+          <xs:element name="e5" type="xs:int" minOccurs="0"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+  </tdml:defineSchema>
+  
+  <tdml:parserTestCase name="manyAdjacentOptionals_01" root="r"
+    description="Based on IBM4690TLog schema needs. DAFFODIL-1886" 
+    model="adjacent"
+    roundTrip="twoPass">
+    <tdml:document>:::4:</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:r>
+          <e4>4</e4>
+        </ex:r>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

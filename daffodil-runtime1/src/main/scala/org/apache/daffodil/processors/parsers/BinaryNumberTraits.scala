@@ -57,7 +57,6 @@ trait HasRuntimeExplicitLength {
   }
 }
 
-
 trait PrefixedLengthParserMixin {
 
   def prefixedLengthParser: Parser
@@ -107,12 +106,16 @@ trait PrefixedLengthParserMixin {
    * returning, indicating that the returned value is meaningless.
    */
   def getPrefixedLengthInBits(state: PState): Long = {
-    Assert.invariant(lengthUnits != LengthUnits.Characters)
     val lenInUnits = getPrefixedLengthInUnits(state)
-    if (lengthUnits == LengthUnits.Bytes) {
-      lenInUnits * 8
-    } else {
-      lenInUnits
+    lengthUnits match {
+      case LengthUnits.Bits => lenInUnits
+      case LengthUnits.Bytes => lenInUnits * 8
+      case LengthUnits.Characters => {
+        val mfw = state.encoder.bitsCharset.maybeFixedWidth
+        if (mfw.isDefined) mfw.get
+        else
+          Assert.invariantFailed("Prefixed length for text data in non-fixed width encoding.")
+      }
     }
   }
 }

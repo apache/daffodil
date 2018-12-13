@@ -143,7 +143,7 @@
     <xs:element name="r6">
       <xs:complexType>
         <xs:sequence dfdl:separator="," dfdl:separatorSuppressionPolicy="trailingEmpty">
-          <xs:element name="b" minOccurs="1" maxOccurs="100" dfdl:occursCountKind="implicit"
+          <xs:element name="b" minOccurs="1" maxOccurs="5" dfdl:occursCountKind="implicit"
             dfdl:initiator="(" dfdl:terminator=")">
             <xs:annotation>
               <xs:appinfo source="http://www.ogf.org/dfdl/">
@@ -609,7 +609,7 @@
     <tdml:errors>
       <tdml:error>Failed to populate</tdml:error>
       <tdml:error>ex:a[2]</tdml:error>
-      <tdml:error>Initiator ')' not found</tdml:error>
+      <tdml:error>Initiator '(' not found</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -626,7 +626,7 @@
     <tdml:document><![CDATA[(12),(23),24,25]]></tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence</tdml:error>
+      <tdml:error>occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a positional sequence</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -664,7 +664,7 @@
     <tdml:document><![CDATA[(23),(25),[48]]]></tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence</tdml:error>
+      <tdml:error>occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a positional sequence</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -679,8 +679,8 @@
 
   <tdml:parserTestCase name="ockImplicit8" root="r6"
     model="s1" description="Section 14.2.2"
-    roundTrip="threePass">
-    <tdml:document><![CDATA[(23),(25),48]]></tdml:document>
+    roundTrip="onePass">
+    <tdml:document><![CDATA[(23),(25),,,,48]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <r6>
@@ -706,7 +706,7 @@
     <tdml:document><![CDATA[(23),(25),48]]></tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence</tdml:error>
+      <tdml:error>occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a positional sequence</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -746,7 +746,7 @@
     <tdml:document><![CDATA[(23),(25),48]]></tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence</tdml:error>
+      <tdml:error>occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a positional sequence</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -765,7 +765,7 @@
     <tdml:document><![CDATA[(23),(25),ab]]></tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence</tdml:error>
+      <tdml:error>occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a positional sequence</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -784,7 +784,7 @@
     <tdml:document><![CDATA[(23),(25),ab]]></tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence</tdml:error>
+      <tdml:error>occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a positional sequence</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -802,7 +802,7 @@
     <tdml:document><![CDATA[(23),(25),ab]]></tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence</tdml:error>
+      <tdml:error>occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a positional sequence</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -819,7 +819,7 @@
     <tdml:document><![CDATA[(23),(25),ab]]></tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence</tdml:error>
+      <tdml:error>occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a positional sequence</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -864,7 +864,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence</tdml:error>
+      <tdml:error>occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a positional sequence</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -883,7 +883,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence</tdml:error>
+      <tdml:error>occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a positional sequence</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -942,7 +942,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence</tdml:error>
+      <tdml:error>occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a positional sequence</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -961,7 +961,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence</tdml:error>
+      <tdml:error>occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a positional sequence</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -971,7 +971,7 @@
          Root: r20
       Purpose: This test shows that maxOccurs="unbounded" and occursCountKind="implicit"
                is only allowed on the last required element of a sequence.  In this case there is
-               a required unbounded element (minOccurs > 0 and emptyIsAnObservableConcept) followed by another.
+               a required unbounded element (minOccurs > 0 and isEmptyAnObservableConcept) followed by another.
   -->
 
   <tdml:parserTestCase name="ockImplicit22" root="r20" model="s1" description="Section 14.2.2">
@@ -980,7 +980,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence</tdml:error>
+      <tdml:error>occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a positional sequence</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -999,7 +999,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence</tdml:error>
+      <tdml:error>occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a positional sequence</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

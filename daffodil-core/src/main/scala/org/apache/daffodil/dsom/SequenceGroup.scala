@@ -47,8 +47,8 @@ import org.apache.daffodil.exceptions.Assert
  * that are choice branches, are all instances.
  */
 abstract class SequenceTermBase(
-  final override val xml: Node,
-  final override val parent: SchemaComponent,
+  final override val xml:      Node,
+  final override val parent:   SchemaComponent,
   final override val position: Int)
   extends ModelGroup(position)
   with SequenceGrammarMixin {
@@ -83,8 +83,8 @@ abstract class SequenceTermBase(
  * but NOT implied sequences inside choice branches.
  */
 abstract class SequenceGroupTermBase(
-  xml: Node,
-  parent: SchemaComponent,
+  xml:      Node,
+  parent:   SchemaComponent,
   position: Int)
   extends SequenceTermBase(xml, parent, position)
   with Sequence_AnnotationMixin
@@ -104,38 +104,52 @@ abstract class SequenceGroupTermBase(
   protected def hiddenGroupRefOption: PropertyLookupResult
 
   /**
-   * True if this sequence group has syntactic features itself or
-   * within itself.
+   * When a sequence has prefix or postfix separator and must have one or more children,
+   * then we know a separator MUST appear in the data. Statically this can be
+   * determined.
    */
-  final lazy val hasStaticallyRequiredOccurrencesInDataRepresentation = {
-    // true if there are syntactic features
-    hasInitiator || hasTerminator ||
-      // or if any child of the sequence has statically required instances.
-      groupMembers.exists { _.hasStaticallyRequiredOccurrencesInDataRepresentation }
-  }
+  private lazy val prefixOrPostfixAndStaticallyRequiredInstance =
+    (hasPrefixSep || hasPostfixSep) &&
+      representedMembers.exists { member =>
+        val res = member.hasStaticallyRequiredOccurrencesInDataRepresentation
+        res
+      }
 
-  final override def hasKnownRequiredSyntax = LV('hasKnownRequiredSyntax) {
-    lazy val memberHasRequiredSyntax = groupMembers.exists(_.hasKnownRequiredSyntax)
-    lazy val prefixOrPostfixAndStaticallyRequiredInstance =
-      groupMembers.filter { _.isRepresented }.exists { _.hasStaticallyRequiredOccurrencesInDataRepresentation } &&
-        (hasPrefixSep || hasPostfixSep)
-    lazy val infixAnd2OrMoreStaticallyRequiredInstances =
-      groupMembers.filter { m => m.isRepresented && m.hasStaticallyRequiredOccurrencesInDataRepresentation }.length > 1 && hasInfixSep
-    lazy val sepAndArryaWith2OrMoreStaticallyRequiredInstances =
-      groupMembers.filter { m =>
-        m.isRepresented && m.hasStaticallyRequiredOccurrencesInDataRepresentation && (m match {
-          case e: ElementBase => e.minOccurs > 1
-          case _ => false
-        })
-      }.length > 0 && hasSeparator
-    val res =
-      hasInitiator ||
-        hasTerminator ||
+  /**
+   * When a sequence has infix separator, and must have two or more children, then
+   * we know a separator MUST appear in the data stream.
+   */
+  private lazy val infixAndTwoOrMoreStaticallyRequiredInstances =
+    hasInfixSep && (representedMembers.filter { m =>
+      val res = m.hasStaticallyRequiredOccurrencesInDataRepresentation
+      res
+    }.length >= 2)
+
+  private lazy val sepAndArrayaWithTwoOrMoreStaticallyRequiredInstances =
+    hasSeparator && (representedMembers.filter { m =>
+      val res = m.hasStaticallyRequiredOccurrencesInDataRepresentation && (m match {
+        case e: ElementBase => e.minOccurs >= 2
+        case _ => false
+      })
+      res
+    }.length > 0)
+
+  final override lazy val hasKnownRequiredSyntax = LV('hasKnownRequiredSyntax) {
+    if (hasFraming) true
+    else {
+      lazy val memberHasRequiredSyntax = representedMembers.exists { member =>
+        val instancesAreRequired = member.hasStaticallyRequiredOccurrencesInDataRepresentation
+        val hasKnownRequiredSyntax = member.hasKnownRequiredSyntax
+        val res = instancesAreRequired && hasKnownRequiredSyntax
+        res
+      }
+      val res =
         memberHasRequiredSyntax ||
-        prefixOrPostfixAndStaticallyRequiredInstance ||
-        infixAnd2OrMoreStaticallyRequiredInstances ||
-        sepAndArryaWith2OrMoreStaticallyRequiredInstances
-    res
+          prefixOrPostfixAndStaticallyRequiredInstance ||
+          infixAndTwoOrMoreStaticallyRequiredInstances ||
+          sepAndArrayaWithTwoOrMoreStaticallyRequiredInstances
+      res
+    }
   }.value
 
   /**
@@ -410,6 +424,6 @@ final class ChoiceBranchImpliedSequence(rawGM: Term)
   def xmlChildren: Seq[scala.xml.Node] = Seq(xml)
 
   // Members declared in Term
-  def hasStaticallyRequiredOccurrencesInDataRepresentation: Boolean = groupMembers(0).hasStaticallyRequiredOccurrencesInDataRepresentation
+  def hasKnownRequiredSyntax: Boolean = groupMembers(0).hasKnownRequiredSyntax
 
 }

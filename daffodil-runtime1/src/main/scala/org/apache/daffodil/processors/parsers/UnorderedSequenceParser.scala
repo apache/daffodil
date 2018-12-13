@@ -21,9 +21,9 @@ import org.apache.daffodil.processors.ModelGroupRuntimeData
 
 class UnorderedSequenceParser(
   override val context: ModelGroupRuntimeData,
-  sortOrder: Seq[(String, org.jdom2.Namespace)],
-  scalarMembers: Seq[(String, String, org.jdom2.Namespace)],
-  uoSeqParser: Parser)
+  sortOrder:            Seq[(String, org.jdom2.Namespace)],
+  scalarMembers:        Seq[(String, String, org.jdom2.Namespace)],
+  uoSeqParser:          Parser)
   extends CombinatorParser(context) {
 
   override lazy val runtimeDependencies = Vector()

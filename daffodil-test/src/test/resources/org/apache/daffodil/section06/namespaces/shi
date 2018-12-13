@@ -22,7 +22,7 @@
 
   <shi:annotation>
     <shi:appinfo source="http://www.ogf.org/dfdl/">
-      <dfdl:format ref="GeneralFormat" separator="shi" initiator="shi" terminator="shi" leadingSkip='0' lengthUnits="characters" textTrimKind="none" 
+      <dfdl:format ref="GeneralFormat" separator="shi" initiator="shi" terminator="shi,shi" leadingSkip='0' lengthUnits="characters" textTrimKind="none" 
       initiatedContent="no"
         separatorPosition="infix" ignoreCase="no" separatorPolicy="suppressed" representation="text" textNumberRep="standard" 
         lengthKind="delimited" encoding="US-ASCII" alignment="implicit" alignmentUnits="bytes" trailingSkip="0"/>

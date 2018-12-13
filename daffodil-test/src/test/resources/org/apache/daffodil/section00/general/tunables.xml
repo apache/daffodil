@@ -17,10 +17,8 @@
 -->
 
 <daf:dfdlConfig
-	xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<daf:tunables xmlns="http://www.w3.org/2001/XMLSchema"
-		xmlns:xs="http://www.w3.org/2001/XMLSchema" >
+	xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext">
+	<daf:tunables >
 		<daf:unqualifiedPathStepPolicy>defaultNamespace</daf:unqualifiedPathStepPolicy>
 	</daf:tunables>
 </daf:dfdlConfig>

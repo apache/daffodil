@@ -63,13 +63,13 @@ trait RequiredOptionalMixin { self: ElementBase =>
    * True if the element is required to appear in the DFDL Infoset.
    *
    * This includes elements that have no representation in the
-   * data stream. That is, an element with dfdl:inputValueCalc will be isRequiredOrComputed true.
+   * data stream. That is, an element with dfdl:inputValueCalc will be isRequiredInInfoset true.
    *
    * Takes into account that some dfdl:occursCountKind can make
    * seemingly required elements (based on minOccurs) optional or
    * repeating.
    */
-  final override def isRequiredOrComputed: Boolean = LV('isRequired) {
+  final lazy val isRequiredInInfoset: Boolean = {
     val res = {
       if (isScalar) true
       else if (isOptional) false
@@ -77,7 +77,7 @@ trait RequiredOptionalMixin { self: ElementBase =>
       else false
     }
     res
-  }.value
+  }
 
   /**
    * True if a "real" array, i.e., not an optional element, but something

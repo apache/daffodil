@@ -31,19 +31,20 @@ case class LayeredSequence(sq: SequenceTermBase, bodyTerm: SequenceChild)
   extends Terminal(sq, true) {
 
   private val srd = sq.sequenceRuntimeData
-  private val trd = bodyTerm.trd
+  private val trd = bodyTerm.termRuntimeData
 
   override def toString() =
     "<" + Misc.getNameFromClass(this) + ">" +
       bodyTerm.toString() +
       "</" + Misc.getNameFromClass(this) + ">"
 
+  lazy val bodyParser = bodyTerm.parser
+  lazy val bodyUnparser = bodyTerm.unparser
+
   override lazy val parser: DaffodilParser =
-    new LayeredSequenceParser(srd, sq.maybeLayerTransformerEv.get,
-      new ScalarOrderedUnseparatedSequenceChildParser(bodyTerm.parser, srd, trd))
+    new LayeredSequenceParser(srd, sq.maybeLayerTransformerEv.get, bodyParser)
 
   override lazy val unparser: DaffodilUnparser = {
-    new LayeredSequenceUnparser(sq.sequenceRuntimeData, sq.maybeLayerTransformerEv.get,
-      new ScalarOrderedUnseparatedSequenceChildUnparser(bodyTerm.unparser, srd, trd))
+    new LayeredSequenceUnparser(srd, sq.maybeLayerTransformerEv.get, bodyUnparser)
   }
 }

@@ -27,6 +27,9 @@ import org.apache.daffodil.processors.Failure
 import org.apache.daffodil.processors.OccursCountEv
 import org.apache.daffodil.schema.annotation.props.gen.OccursCountKind
 import org.apache.daffodil.processors.ParseOrUnparseState
+import org.apache.daffodil.processors.ModelGroupRuntimeData
+import org.apache.daffodil.processors.Processor
+import org.apache.daffodil.util.Maybe
 
 /**
  * Enables various sub-kinds of success/failure of a parse to be distinguished
@@ -37,86 +40,143 @@ import org.apache.daffodil.processors.ParseOrUnparseState
 sealed trait ParseAttemptStatus {
   def isSuccess: Boolean = false
 }
-sealed trait SuccessParseAttemptStatus extends ParseAttemptStatus {
-  override def isSuccess = true
-}
-sealed trait FailedParseAttemptStatus extends ParseAttemptStatus {
-  override def isSuccess = false
-}
 
 object ParseAttemptStatus {
-
+  type Type = ParseAttemptStatus
+  sealed trait SuccessParseAttemptStatus extends Type {
+    override def isSuccess = true
+  }
+  sealed trait FailedParseAttemptStatus extends Type {
+    override def isSuccess = false
+  }
   /**
    * State that we initialize the variable to. Only exists until the first
    * parse attempt.
    */
-  case object Uninitialized extends ParseAttemptStatus
+  case object Uninitialized extends Type
 
   /**
-   * The parse succeeded. The parse consumed no bits - i.e., was zero length.
-   */
-  case object Success_ZeroLength extends SuccessParseAttemptStatus
-
-  /**
-   * The parse succeeded. The parse consumed a separator that is being skipped.
+   * Means the Nil representation was found in the data stream.
    *
-   * This is used only by separated sequences, and only for optional occurrences
-   * when a separator is being passed over and ignored, without an occurrence
-   * being added to the infoset.
-   */
-  case object Success_SkippedSeparator extends SuccessParseAttemptStatus
-
-  /**
-   * The parse succeeded. The parse consumed some bits - was not zero length.
-   */
-  case object Success_NotZeroLength extends SuccessParseAttemptStatus
-
-  /**
-   * The parse succeeded. We did not keep track of whether it consumed bits or not.
-   */
-  case object Success_LengthUndetermined extends SuccessParseAttemptStatus
-
-  /**
-   * The parse succeeded. We have reached the end of the variable occurrences.
+   * Used only on nillable elements.
    *
-   * Ultimately all parses of variable-occurrence/PoU elements must end with
-   * either Success_EndOfArray, or FailedWholeArray status. However, in some cases
-   * a failure of an occurrence gets turned into a Success_EndOfArray (at a
-   * prior occurrence) or a FailedWholeArray.
+   * The NilRep has priority over other representations. Due to
+   * dfdl:nilValueDelimiterPolicy, the NilRep can be zero-length or non-zero length.
    */
-  case object Success_EndOfArray extends SuccessParseAttemptStatus
+  case object NilRep extends SuccessParseAttemptStatus
 
   /**
-   * The parse failed, and a discriminator was set, indicating that the
-   * PoU was resolved first, and subsequently a failure occurred.
-   */
-  case object Failed_WithDiscriminatorSet extends FailedParseAttemptStatus
-
-  /**
-   * The parse failed. This was a forward-speculative parse, and it failed.
-   */
-  case object Failed_SpeculativeParse extends FailedParseAttemptStatus
-
-  /**
-   * The parse failed. This was a forward speculative parse, and it failed, but furthermore,
-   * no forward progress was made.
+   * Empty rep is second in priority to NilRep. Due to
+   * dfdl:emptyValueDelimiterPolicy, the EmptyRep can be zero-length or non-zero-length, which
+   * allows the schema author to arrange for it to be distinguished from AbsentRep.
    *
-   * This status is only created by unseparated sequences.
+   * An example would be dfdl:emptyValueDelimiterPolicy="both" dfdl:initiator='"' dfdl:terminator='"'.
+   * Then in comma separated data, if you want to specify that a field contains an empty string,
+   * the data must contain ....,"",.... i.e., open-close quotes to indicate a literal empty string.
+   *
+   * The EmptyRep for simpleTypes enables default values to be substituted at parse time.
+   *
+   * For simple types xs:string and xs:hexBinary, the property daf:emptyElementParsePolicy controls
+   * whether the EmptyRep is allowed for strings and hexBinary. In required positions, when
+   * daf:emptyElementParsePolicy is 'treatAsMissing', a required string/hexBinary that has EmptyRep
+   * causes a Parse Error, and an optional EmptyRep causes nothing to be added to the infoset (the empty string
+   * or hexBinary value is suppressed). When daf:emptyElementParsePolicy is 'treatAsEmpty', a required
+   * string/hexBinary with EmptyRep creates an empty string or zero-length byte array in the infoset.
+   * An optional EmptyRep behaves differently depending on whether the EmptyRep is truly zero-length, or
+   * dfdl:emptyValueDelimiterPolicy is such that EmptyRep is non-zero-length. When truly zero-length, no
+   * value is added to the infoset. When non-zero-length, an empty string or zero-length byte array is added
+   * to the infoset at the current index.
+   *
+   * An element may have no EmptyRep. For example, a fixed-length data element has no EmptyRep.
+   *
+   * An element of complex type can have EmptyRep, but dfdl:emptyValueDelimiterPolicy does not apply.
+   * TBD: CONFIRM THIS. When a complex type element is parsed, and zero data is consumed, but the parse is successful,
+   * then any infoset created is the "empty value" for this complex type element. When the element is required,
+   * this infoset is retained. When the element is optional, this infoset is discarded, any side-effects that occurred
+   * in its creation are backtracked.
    */
-  case object Failed_NoForwardProgress extends FailedParseAttemptStatus
+  case object EmptyRep extends SuccessParseAttemptStatus
 
   /**
-   * The parse failed. The entire array/optional element failed.
+   * When the parse is successful, and the data did not match NilRep(if nillable) or
+   * EmptyRep(if defined/meaningful.)
    *
-   * When the number of occurrences is specified, then any failure results in
-   * a failure of the entire array.
-   *
-   * When the number of occurrences is determined by speculative parsing,
-   * then in some cases a failure of an occurrence gets turned into a
-   * Success_EndOfArray (at a prior occurrence) or a Failed_WholeArray.
+   * Normal means the data in the data stream matches the representation required for the
+   * type of the element. For all simple types other than string and hexBinary, this requires
+   * some representation in the data stream. For string and hexBinary it is possible for "normal"
+   * data to be empty string, in which case normalRep is the same thing as emptyRep, and so can be
+   * ambiguous with absentRep.
    */
-  case object Failed_EntireArray extends FailedParseAttemptStatus
+  case object NormalRep extends SuccessParseAttemptStatus
 
+  /**
+   * Means the representation is zero-length, but if a separated
+   * sequence, the separator was found. It also is lower priority
+   * than the NilRep or the EmptyRep, if either of those can contain
+   * zero-length.
+   *
+   * AbsentRep is only a concept when there is a way to distinguish
+   * an occurrence of AbsentRep from a situation where there is just
+   * a parse failure, for example when there are separators.
+   *
+   * This status influences when separatorSuppressionPolicy of trailingEmpty or
+   * trailingEmptyStrict accepts and moves past extra adjacent separators.
+   */
+  case object AbsentRep extends FailedParseAttemptStatus
+
+  /**
+   * Base for statuses that indicate data is missing, which means that
+   * we are able to find where it should have been, and isolate the length of
+   * that area, but it is zero length. Typically these are used in delimited
+   * formats where it is possible to recognize where data might have been located,
+   * but can determine that it isn't present because it is zero-length, or
+   * lacks a distinguishing separator.
+   */
+  trait Missing extends FailedParseAttemptStatus
+
+  /**
+   * Means the separator was not found for a separated sequence.
+   * This is different from AbsentRep, which requires the separator to
+   * be successfully parsed in a separated sequence.
+   *
+   * This status is obtained when parsing the sequence children and
+   * you run out of them, and encounter data that does not have a separator
+   * at all. (Typically an out of scope delimiter, or end-of-data.)
+   */
+  case object MissingSeparator extends Missing
+
+  /**
+   * Means that the representation was simply not found, but still there is
+   * a way to determine where it should have been, and nothing is there. That
+   * is, parsing failed, but zero data was consumed. Typically this would be
+   * finding an out-of-scope delimiter or end-of-data *without* having found
+   * a separator.
+   */
+  case object MissingItem extends Missing
+
+  /**
+   * Means the parsing failed but no particular information about
+   * separators or the length the data was consuming is available.
+   *
+   * As an example, if a fixed length field length 8 fails, then that
+   * could be because there weren't 8 units of data available, or the 8
+   * units didn't produce data of the right type, etc.
+   *
+   * This avoids overloading the term Missing to mean "just didn't parse successfully",
+   * allowing us to give the term Missing to mean a more specific notion where
+   * zero data was available.
+   */
+  case object FailureUnspecified extends FailedParseAttemptStatus
+}
+
+/**
+ * Strong typing, not a bunch of booleans that can be
+ * mixed up with each other.
+ */
+sealed abstract class PoUStatus
+object PoUStatus {
+  case object HasPoU extends PoUStatus
+  case object NoPoU extends PoUStatus
 }
 
 /**
@@ -133,7 +193,63 @@ abstract class SequenceChildParser(
   val trd: TermRuntimeData)
   extends CombinatorParser(srd) {
 
+  override def childProcessors: Vector[Processor] = Vector(childParser)
+
   override def runtimeDependencies: Vector[Evaluatable[AnyRef]] = Vector()
+
+  final override def parse(pstate: PState): Unit = Assert.usageError("Not to be called on sequence child parsers")
+
+  def parseOne(pstate: PState, requiredOptional: RequiredOptionalStatus): ParseAttemptStatus
+
+  def maybeStaticRequiredOptionalStatus: Maybe[RequiredOptionalStatus]
+
+  def isPositional: Boolean
+
+  def pouStatus: PoUStatus
+
+  def finalChecks(pstate: PState, resultOfTry: ParseAttemptStatus, priorResultOfTry: ParseAttemptStatus): Unit = {
+    // does nothing by default.
+    // overridden in separated sequence child parsers in some cases
+  }
+
+}
+
+trait NonRepeatingSequenceChildParser { self: SequenceChildParser =>
+
+  def pouStatus: PoUStatus = PoUStatus.NoPoU
+
+  def maybeStaticRequiredOptionalStatus: Maybe[RequiredOptionalStatus] =
+    Maybe(RequiredOptionalStatus.Required)
+
+}
+
+/**
+ * For computed elements, and for groups (which commonly will be sequences)
+ * which contain only other non-represented entities, or executable
+ * statements like asserts or setVar, and which have no
+ * syntax of their own. These have no representation, their parsers just need
+ * to be called for side-effect.
+ */
+final class NonRepresentedSequenceChildParser(
+  childParser: Parser,
+  srd: SequenceRuntimeData,
+  trd: TermRuntimeData)
+  extends SequenceChildParser(childParser, srd, trd) {
+
+  def pouStatus = PoUStatus.NoPoU
+
+  def isPositional = false
+
+  def maybeStaticRequiredOptionalStatus: Maybe[RequiredOptionalStatus] =
+    Assert.usageError("not to be used for non-represented terms.")
+
+  def parseOne(pstate: PState, ignored_roStatus: RequiredOptionalStatus): ParseAttemptStatus = {
+    childParser.parse1(pstate)
+    if (pstate.processorStatus eq Success)
+      ParseAttemptStatus.NormalRep
+    else
+      ParseAttemptStatus.FailureUnspecified
+  }
 }
 
 /**
@@ -141,7 +257,7 @@ abstract class SequenceChildParser(
  *
  * This mixes in the interface. Implementations of this enable the
  * driver loop in OrderedSequenceParserBase to iterate over the occurrences
- * with a common interation pattern.
+ * with a common iteration pattern.
  */
 abstract class RepeatingChildParser(
   childParser: Parser,
@@ -151,57 +267,31 @@ abstract class RepeatingChildParser(
   extends SequenceChildParser(childParser, srd, erd)
   with MinMaxRepeatsMixin {
 
-  def hasPoU: Boolean
-
-  /**
-   *  Invokes the child parser. Once, only. Does NOT do iterations of it.
-   */
-  override protected def parse(pstate: PState): Unit = {
-    childParser.parse1(pstate)
-    //
-    // This is retained because tests look for this wording in error messages.
-    // It isn't really necessary to re-encapsulate the failure like this, but
-    // we otherwise have to chase down tests that depend on this wording.
-    //
-    if (pstate.processorStatus ne Success) {
-      val cause = pstate.processorStatus.asInstanceOf[Failure].cause
-      PE(pstate, "Failed to populate %s[%s]. Cause: %s.",
-        erd.prefixedName, pstate.mpstate.arrayPos, cause)
-      return
-    }
-  }
+  final def maybeStaticRequiredOptionalStatus: Maybe[RequiredOptionalStatus] = Maybe.Nope
 
   /**
    * Tells us whether to attempt another array element at the current index,
-   * and how we should interpret the existence of an element
-   * or empty/zero-length based on the array index.
    *
    * NOTE: must be stateless. State must be passed in, and returned for
    * assignment to a loop var, or held in pstate.
    */
   def arrayIndexStatus(minRepeats: Long, maxRepeats: Long,
-    pstate: PState,
-    resultOfPriorTry: ParseAttemptStatus): ArrayIndexStatus = {
+    pstate: PState): ArrayIndexStatus = {
     import ParseAttemptStatus._
     import ArrayIndexStatus._
-    val result =
-      if (pstate.processorStatus ne Success)
-        Failed
-      else
-        resultOfPriorTry match {
-          case Success_EndOfArray => Done
-          case _: SuccessParseAttemptStatus | Uninitialized =>
-            if (pstate.arrayPos <= minRepeats)
-              Required
-            else if (pstate.arrayPos < maxRepeats)
-              OptionalMiddle
-            else if (pstate.arrayPos == maxRepeats)
-              OptionalLast
-            else
-              Done
-          // case FailedSpeculativeParse => Assert.invariantFailed("Should already be handled.")
-          case _: FailedParseAttemptStatus => Failed
-        }
+    Assert.invariant(pstate.processorStatus eq Success)
+    val apos = pstate.arrayPos
+    val result: ArrayIndexStatus =
+      if (apos <= minRepeats)
+        Required
+      else if (apos < maxRepeats)
+        OptionalMiddle
+      else if (apos == maxRepeats) {
+        OptionalLast
+      } else {
+        Assert.invariant(apos == (maxRepeats + 1))
+        Done
+      }
     result
   }
 
@@ -274,33 +364,36 @@ abstract class RepeatingChildParser(
 }
 
 /**
+ * Base for Required/Optional information about any sequence child.
+ */
+sealed trait RequiredOptionalStatus
+
+object RequiredOptionalStatus {
+  type Type = RequiredOptionalStatus
+  sealed trait Required extends Type
+  object Required extends Required
+
+  sealed trait Optional extends Type
+  object Optional extends Optional
+}
+
+/**
  * Indicates the status of an array index vis a vis whether the
- * element occurrence at that index is required, optional, etc.
+ * element occurrence at that index is required or variants on optional.
  */
 sealed trait ArrayIndexStatus
 
-/**
- * Indicates that parsing of an element occurrence for that index
- * should be attempted.
- */
-sealed trait GoArrayIndexStatus extends ArrayIndexStatus
-
-/**
- * Indicates that the parsing of an element occurrence for that index
- * should be attempted, and that the index is for an optional occurrence.
- */
-sealed trait OptionalArrayIndexStatus extends GoArrayIndexStatus
-
-/**
- * Indicates that the parsing of an element occurence for that index should
- * not be attempted.
- */
-sealed trait StopArrayIndexStatus extends ArrayIndexStatus
-
-/**
- * Object to provide namespace for these constant values.
- */
 object ArrayIndexStatus {
+  trait Type extends ArrayIndexStatus
+
+  case object Uninitialized extends Type
+  /**
+   * Indicates that we are done iterating, and should stop parsing more
+   * array. Used to indicate that the end of the array was identified
+   * by speculative parsing, or that we reached and finished the parse
+   * of the element at index maxOccurs and are stepping past that.
+   */
+  case object Done extends Type
 
   /**
    * Indicates the array element occurrence index is less than or equal to
@@ -308,14 +401,14 @@ object ArrayIndexStatus {
    * this is never returned, as the min/max bounds are only advisory
    * for validation purposes in that case.
    */
-  case object Required extends GoArrayIndexStatus
+  case object Required extends Type with RequiredOptionalStatus.Required
 
   /**
    * Indicates that the array element index is minOccurs or greater, and strictly less than maxOccurs.
    *
    * When maxOccurs is unbounded, this is always returned.
    */
-  case object OptionalMiddle extends OptionalArrayIndexStatus
+  case object OptionalMiddle extends Type with RequiredOptionalStatus.Optional
 
   /**
    * Indicates that the array element index is maxOccurs exactly, for any
@@ -325,21 +418,7 @@ object ArrayIndexStatus {
    * fail on a zero-length string. This is used in some situations where we
    * tolerate redundant separators.
    */
-  case object OptionalLast extends OptionalArrayIndexStatus
-
-  /**
-   * Indicates that pstate status is failed, that is, we
-   * are unable to continue parsing. No parse attempt should be done for this
-   * index.
-   */
-  case object Failed extends StopArrayIndexStatus
-
-  /**
-   * Indicates that we are done iterating, and should stop parsing more
-   * array. Used to indicate that the end of the array was identified
-   * by speculative parsing.
-   */
-  case object Done extends StopArrayIndexStatus
+  case object OptionalLast extends Type with RequiredOptionalStatus.Optional
 }
 
 /**
@@ -353,7 +432,7 @@ abstract class OccursCountExactParser(
   erd: ElementRuntimeData)
   extends RepeatingChildParser(childParser, srd, erd, "ExactN") {
 
-  final override def isBoundedMax(max: Long) = true
+  final override def isBoundedMax = true
 
   final override def minRepeats(pstate: ParseOrUnparseState) = maxRepeats(pstate)
 
@@ -362,7 +441,7 @@ abstract class OccursCountExactParser(
     case _ => erd.maxOccurs
   }
 
-  final override def hasPoU = false
+  final override def pouStatus = PoUStatus.NoPoU
 }
 
 /**
@@ -378,11 +457,11 @@ abstract class OccursCountExpressionParser(
   val occursCountEv: OccursCountEv)
   extends RepeatingChildParser(childParser, srd, erd, "Expression") {
 
-  final override def hasPoU = false
+  final override def pouStatus = PoUStatus.NoPoU
 
   final override lazy val runtimeDependencies = Vector(occursCountEv)
 
-  final override def isBoundedMax(max: Long) = true
+  final override def isBoundedMax = true
 
   final override def minRepeats(pstate: ParseOrUnparseState) = maxRepeats(pstate)
 
@@ -436,7 +515,7 @@ trait MinMaxRepeatsMixin {
 
   private val isBoundedMax_ = maxRepeats_ < Long.MaxValue
 
-  def isBoundedMax(maxRepeats: Long) = isBoundedMax_
+  def isBoundedMax: Boolean = isBoundedMax_
 
 }
 
@@ -460,5 +539,5 @@ abstract class OccursCountMinMaxParser(
   Assert.invariant(ock == OccursCountKind.Implicit ||
     ock == OccursCountKind.Parsed)
 
-  final override def hasPoU = true
+  final override def pouStatus = PoUStatus.HasPoU
 }

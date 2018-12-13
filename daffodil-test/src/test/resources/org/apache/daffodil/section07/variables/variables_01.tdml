@@ -41,8 +41,24 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+  <tdml:parserTestCase name="setVar1_d_parse" root="c_2"
+    model="variables_01.dfdl.xsd"
+    roundTrip="none">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:c_2>
+          <d xsi:type="xsd:int">42</d>
+        </ex:c_2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    
+    <tdml:document>42,42</tdml:document>
+  </tdml:parserTestCase>  
+  
   <tdml:unparserTestCase name="setVar1_d_unparse" root="c_2"
-    model="variables_01.dfdl.xsd">
+    model="variables_01.dfdl.xsd"
+    roundTrip="none">
 
     <tdml:infoset>
       <tdml:dfdlInfoset>

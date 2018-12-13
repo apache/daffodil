@@ -34,7 +34,8 @@ import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.xml.GetAttributesMixin
 import org.apache.daffodil.schema.annotation.props.PropTypes
 
-abstract class SchemaComponentImpl( final override val xml: Node,
+abstract class SchemaComponentImpl(
+  final override val xml:    Node,
   final override val parent: SchemaComponent)
   extends SchemaComponent
 
@@ -146,11 +147,13 @@ trait SchemaComponent
   }
 
   final lazy val enclosingTerm: Option[Term] = {
-    enclosingComponent match {
+    val ec = enclosingComponent
+    val et = ec match {
       case None => None
       case Some(t: Term) => Some(t)
-      case _ => enclosingComponent.get.enclosingTerm
+      case _ => ec.get.enclosingTerm
     }
+    et
   }
 
   /**

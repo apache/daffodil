@@ -27,13 +27,12 @@
       <dfdl:format ref="gpf:GeneralPurposeFormat" lengthKind="delimited" separator=""
         leadingSkip='0' encoding="US-ASCII" ignoreCase='no' initiator=""
         terminator=""
-        separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"
+        separatorSuppressionPolicy="trailingEmpty" separatorPosition="infix"
         documentFinalTerminatorCanBeMissing='yes'
         byteOrder="bigEndian" binaryNumberRep='binary'
         representation="text"
-        occursCountKind='parsed' lengthUnits="bytes"
+        occursCountKind='implicit' lengthUnits="bytes"
         emptyValueDelimiterPolicy="none" textNumberRep="standard"
-        occursStopValue="-1"
         initiatedContent="no" textTrimKind="none"/>
       <dfdl:defineEscapeScheme name="pound">
         <dfdl:escapeScheme escapeCharacter='#' escapeEscapeCharacter="#"

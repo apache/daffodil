@@ -41,8 +41,17 @@
           <block>AAAAAAAAAAAAAAA</block>
           <block>BBBBBB/*x,xBB</block>
           <block>CCCCCC/*</block>
-          <block></block>
-          <block></block>
+          <!-- DFDL Spec section 14.2.2 says when OCK is parsed, behavior is like AnyEmpty
+               which says that these optional empty string elements are NOT created.
+               
+               To get empty strings created there would have to be a syntax like 
+               in the data stream, like initiator and terminator with
+               emptyValueDelimiterPolicy such that there is syntax for empty elements.
+            -->
+          <!-- 
+            <block></block>
+            <block></block>
+            --> 
           <block>*/CC</block>
           <block>D/*x*/D/*z*/DDD</block>
           <!-- <block>EE&#xA;E</block> -->

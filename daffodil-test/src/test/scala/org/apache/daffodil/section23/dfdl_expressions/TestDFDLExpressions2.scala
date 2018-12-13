@@ -57,10 +57,6 @@ object TestDFDLExpressions2 {
 class TestDFDLExpressions2 {
   import TestDFDLExpressions2._
 
-  //DFDL-1233
-  @Test def test_nilled_02() { runner2.runOneTest("nilled_02") }
-  @Test def test_nilled_03() { runner2.runOneTest("nilled_03") }
-
   // DFDL-1669
   @Test def test_dfdl_1669_unsignedLong_conversion() { runner5.runOneTest("test_dfdl_1669_unsignedLong_conversion") }
 

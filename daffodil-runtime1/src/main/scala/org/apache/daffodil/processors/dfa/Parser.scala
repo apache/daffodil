@@ -66,14 +66,21 @@ class LongestMatchTracker {
   }
 }
 
-class ParseResult(val field: Maybe[String],
+class ParseResult(
+  val field:                 Maybe[String],
   val matchedDelimiterValue: Maybe[String],
-  val matchedDFAs: ArrayBuffer[DFADelimiter]) {
+  val matchedDFAs:           ArrayBuffer[DFADelimiter]) {
 
   override def toString(): String = {
-  
-    val fieldStr = if (field.isDefined) field.get else "NOT-FOUND"
-    val matchedDelimStr = if (matchedDelimiterValue.isDefined) matchedDelimiterValue.get else "NOT-FOUND"
-    "<DFAParseResult field='%s' foundDelimiter='%s' />".format(fieldStr, matchedDelimStr)
+
+    val status =
+      if (matchedDelimiterValue.isDefined) "Matched"
+      else "NoMatch"
+    val fieldStr =
+      if (field.isDefined) " field='%s'".format(field.get)
+      else ""
+    val matchedDelimStr =
+      if (matchedDelimiterValue.isDefined) " foundDelimiter='%s'".format(matchedDelimiterValue.get) else ""
+    "<DFAParseResult status='%s'%s%s/>".format(status, fieldStr, matchedDelimStr)
   }
 }

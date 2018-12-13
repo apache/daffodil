@@ -58,10 +58,10 @@
   </complexType>
 
   <element name="matrix_01" type="tns:matrixType_01"
-    dfdl:lengthKind="implicit" />
+    dfdl:lengthKind="implicit"/>
 
   <complexType name="matrixType_01">
-    <sequence dfdl:separator="%NL;" dfdl:terminator="%NL;">
+    <sequence dfdl:separator="%NL;" dfdl:separatorPosition="postfix">
       <element name="row" maxOccurs="unbounded" dfdl:lengthKind="implicit">
         <complexType>
           <sequence dfdl:separator=",">
@@ -93,7 +93,7 @@
     dfdl:lengthKind="implicit" />
 
   <complexType name="matrixType_03">
-    <sequence dfdl:separator="%NL;" dfdl:separatorPosition="postfix" dfdl:terminator="%NL;">
+    <sequence dfdl:separator="%NL;" dfdl:separatorPosition="postfix">
       <element name="row" maxOccurs="unbounded" dfdl:lengthKind="implicit">
         <complexType>
           <sequence dfdl:separator=",">

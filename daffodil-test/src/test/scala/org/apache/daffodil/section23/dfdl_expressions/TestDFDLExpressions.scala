@@ -41,12 +41,10 @@ object TestDFDLExpressions {
   val runner_fun = Runner(testDir, "functions.tdml")
   val runner5 = Runner(testDir, "valueLength.tdml")
 
-    val testDir6 = "/org/apache/daffodil/section23/dfdl_expressions/"
+  val testDir6 = "/org/apache/daffodil/section23/dfdl_expressions/"
   val runner6 = Runner(testDir6, "expressions.tdml")
 
   val runner7 = Runner(testDir, "expressions2.tdml", compileAllTopLevel = true)
-
-
 
   @AfterClass def shutDown() {
     runner4.reset
@@ -452,9 +450,9 @@ class TestDFDLExpressions {
   @Test def test_round_hte_17() { runner2.runOneTest("round_hte_17") }
   @Test def test_round_hte_18() { runner2.runOneTest("round_hte_18") }
 
-  //DFDL-1080
-  //@Test def test_empty_02() { runner2.runOneTest("empty_02") }
-  //@Test def test_exists_02() { runner2.runOneTest("exists_02") }
+  //DAFFODIL-1080
+  @Test def test_empty_02() { runner2.runOneTest("empty_02") }
+  @Test def test_exists_02() { runner2.runOneTest("exists_02") }
 
   //DFDL-1091
   //@Test def test_count_05b() { runner2.runOneTest("count_05b") }
@@ -1031,4 +1029,3 @@ class TestDFDLExpressions {
 
   @Test def test_element_long_form_whitespace() { runner.runOneTest("element_long_form_whitespace") }
 }
-

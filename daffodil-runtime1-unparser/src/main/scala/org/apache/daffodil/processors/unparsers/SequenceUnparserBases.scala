@@ -20,7 +20,9 @@ import org.apache.daffodil.processors.Evaluatable
 import org.apache.daffodil.processors.SequenceRuntimeData
 import org.apache.daffodil.exceptions.Assert
 
-abstract class OrderedSequenceUnparserBase(srd: SequenceRuntimeData, childUnparsers: Vector[SequenceChildUnparser])
+abstract class OrderedSequenceUnparserBase(
+  srd:            SequenceRuntimeData,
+  childUnparsers: Vector[Unparser])
   extends CombinatorUnparser(srd) {
 
   override def nom = "Sequence"

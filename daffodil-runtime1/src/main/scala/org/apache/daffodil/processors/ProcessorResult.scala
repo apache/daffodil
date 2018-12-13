@@ -19,16 +19,21 @@ package org.apache.daffodil.processors
 
 import org.apache.daffodil.util.Misc
 import org.apache.daffodil.api.Diagnostic
-
+ 
 /**
  * The resulting state after invoking a Processor
  */
-sealed abstract class ProcessorResult;
+sealed abstract class ProcessorResult {
+  def isSuccess: Boolean
+  final def isFailure: Boolean = !isSuccess
+}
 
-case object Success extends ProcessorResult
+case object Success extends ProcessorResult {
+  override def isSuccess = true
+}
 
 case class Failure(cause: Diagnostic) extends ProcessorResult {
+  override def isSuccess = false
   lazy val msg = Misc.getSomeMessage(cause).get
   override def toString = "Failure(" + msg + ")"
 }
-

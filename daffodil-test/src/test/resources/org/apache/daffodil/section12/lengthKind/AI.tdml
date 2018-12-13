@@ -38,11 +38,11 @@
           <xs:element name="secondToken" type="xs:string"
             dfdl:lengthKind="pattern" dfdl:lengthPattern="[0-9]+"
             dfdl:representation="text" dfdl:textStringJustification="center"
-            dfdl:textStringPadCharacter=" " />
+            dfdl:textStringPadCharacter="%SP;" />
           <xs:element name="thirdToken" type="xs:string"
             dfdl:lengthKind="explicit" dfdl:length="5"
             dfdl:representation="text" dfdl:textStringJustification="center"
-            dfdl:textStringPadCharacter=" " dfdl:terminator="%NL;%WSP*;" />
+            dfdl:textStringPadCharacter="%SP;" dfdl:terminator="%NL;%WSP*;" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>

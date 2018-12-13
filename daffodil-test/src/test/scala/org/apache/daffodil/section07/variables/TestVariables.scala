@@ -81,6 +81,7 @@ class TestVariables {
   @Test def test_setVar1_d() { runner_01.runOneTest("setVar1_d") }
   // DFDL-1443 & DFDL-1448
   // @Test def test_setAfterReadErr_d() { runner_01.runOneTest("setAfterReadErr_d") }
+  @Test def test_setVar1_d_parse() { runner_01.runOneTest("setVar1_d_parse") }
   @Test def test_setVar1_d_unparse() { runner_01.runOneTest("setVar1_d_unparse") }
 
 /*****************************************************************/

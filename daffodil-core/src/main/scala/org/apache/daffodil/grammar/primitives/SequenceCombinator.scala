@@ -51,8 +51,7 @@ class OrderedSequence(sq: SequenceTermBase, sequenceChildrenArg: Seq[SequenceChi
 
   override lazy val parser: Parser = sq.hasSeparator match {
     case true => new OrderedSeparatedSequenceParser(
-      srd,
-      sq.separatorSuppressionPolicy, sq.separatorPosition, sepParser,
+      srd, sq.separatorPosition, sepParser,
       sequenceChildren.flatMap { _.optSequenceChildParser })
     case false =>
       new OrderedUnseparatedSequenceParser(

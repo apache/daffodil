@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+	xmlns:cal="http://www.saf.cal/" 
+  elementFormDefault="unqualified"
+	attributeFormDefault="unqualified" >
+	<!--
+    This has to be a separate file so we can cross test against 
+    IBM DFDL. IBM DFDL is stricter about errors in "other parts" of the 
+    schema than what a test is specifically executing. So schemas 
+    specifically intended for negative testing that produce SDE, have 
+    to be isolated from schema for tests that do not have SDEs.
+	-->
+	<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+	
+	<xs:annotation>
+		<xs:appinfo source="http://www.ogf.org/dfdl/">
+			<!--
+				This is the new schema level default format block. It doesn't get a
+				name
+			-->
+			<dfdl:format ref="GeneralFormatPortable" 
+			  initiator="" terminator="" leadingSkip="0" trailingSkip="0"  textBidi="no" floating="no"   encoding="utf-8" byteOrder="bigEndian" alignment="1" alignmentUnits="bytes" fillByte="f" 
+        occursCountKind="implicit" 
+				truncateSpecifiedLengthString="no" ignoreCase="no"
+				representation="text"  textPadKind="none"
+				textTrimKind="none"  lengthKind="delimited" escapeSchemeRef=""
+				textOutputMinLength="30" lengthUnits="bytes"
+				textStringJustification="left"  textStringPadCharacter="%SP;"
+				textCalendarJustification="left"  textCalendarPadCharacter="%SP;"
+				nilValueDelimiterPolicy="both"  emptyValueDelimiterPolicy="none" 
+				documentFinalTerminatorCanBeMissing="no" initiatedContent="no"
+				sequenceKind="ordered" 
+				separatorSuppressionPolicy="never" 
+				calendarPatternKind="implicit" calendarPattern="yyyymmddhhmmss" calendarCheckPolicy="lax" 
+				calendarTimeZone="UTC" calendarObserveDST="yes" 
+				calendarFirstDayOfWeek="Wednesday" calendarDaysInFirstWeek="7" calendarCenturyStart="50" 
+				calendarLanguage="it-IT" 
+        bitOrder="mostSignificantBitFirst"
+        encodingErrorPolicy="error"
+				/>
+
+		</xs:appinfo>
+	</xs:annotation>
+    
+  <xs:element name="myStringSeq4err"> <!-- dfdl:lengthKind="explicit" dfdl:length="5"> -->
+    <xs:complexType>
+      <xs:sequence  dfdl:separator="; ::" dfdl:terminator="; ]" dfdl:separatorPosition="infix">
+        <xs:element name="seq1" dfdl:lengthKind="delimited" >
+          <xs:complexType>
+            <xs:sequence dfdl:separatorPosition="infix" dfdl:separator="|" >
+              <xs:element name="element1" type="xs:string" dfdl:lengthKind="delimited"/>
+            <xs:element name="element2" type="xs:string" dfdl:lengthKind="delimited"/>
+            <xs:element name="element3" type="xs:string" dfdl:lengthKind="delimited"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="seq2" dfdl:lengthKind="delimited" >
+          <xs:complexType>
+            <xs:sequence dfdl:separatorPosition="infix" dfdl:separator="|" >
+              <xs:element name="element1" type="xs:string" dfdl:lengthKind="delimited"/>
+            <xs:element name="element2" type="xs:string" dfdl:lengthKind="delimited"/>
+            <xs:element name="element3" type="xs:string" dfdl:lengthKind="delimited"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+</xs:schema>

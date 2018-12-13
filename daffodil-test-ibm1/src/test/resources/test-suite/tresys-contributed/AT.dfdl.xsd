@@ -47,17 +47,17 @@
       <sequence>
         <element name="occurs" type="xsd:int"
           dfdl:textStringJustification="right"
-          dfdl:textStringPadCharacter=" " dfdl:terminator=";" />
+          dfdl:textStringPadCharacter="%SP" dfdl:terminator=";" />
         <element name="date" type="xsd:dateTime"
           dfdl:lengthKind="pattern" dfdl:lengthPattern="[^ ]+\s+[^ ]+"
           dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="MM/dd/yy'   'HH:mm:ss" />
         <element name="unknownnum1" type="xsd:int"
           dfdl:terminator=";" dfdl:textStringJustification="right"
-          dfdl:textStringPadCharacter=" " />
+          dfdl:textStringPadCharacter="%SP;" />
         <element name="unknownnum2" type="xsd:int"
           dfdl:lengthKind="delimited" dfdl:terminator=";"
           dfdl:textStringJustification="right"
-          dfdl:textStringPadCharacter=" " />
+          dfdl:textStringPadCharacter="%SP;" />
         <sequence dfdl:hiddenGroupRef="tns:prpIntroGroup" />
 
         <element name="frame" type="tns:frame" maxOccurs="unbounded" 
@@ -85,7 +85,7 @@
       <element name="Name" type="xsd:string" dfdl:terminator="%WSP;%WSP;%WSP;%WSP;" />
       <!-- we can't use %WSP; as padding because it includes \n -->
       <element name="Unit" type="xsd:string" default="NA"
-        dfdl:textStringPadCharacter=" " dfdl:textStringJustification="right"
+        dfdl:textStringPadCharacter="%SP;" dfdl:textStringJustification="right"
         dfdl:terminator="%NL;" />
     </sequence>
   </complexType>

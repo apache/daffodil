@@ -102,9 +102,9 @@ sealed trait Parser
       case pe: ParseError => pstate.setFailed(pe)
     } finally {
       pstate.resetFormatInfoCaches()
+      if (pstate.dataProc.isDefined) pstate.dataProc.get.after(pstate, this)
+      pstate.setMaybeProcessor(savedParser)
     }
-    if (pstate.dataProc.isDefined) pstate.dataProc.get.after(pstate, this)
-    pstate.setMaybeProcessor(savedParser)
   }
 }
 
@@ -148,6 +148,28 @@ final class NadaParser(override val context: RuntimeData)
 
   override def parse(start: PState): Unit = {
     Assert.abort("NadaParsers are all supposed to optimize out!")
+  }
+}
+
+/**
+ * Explicit parser for the case of
+ *    <choice>
+ *       ....
+ *       ....
+ *       <sequence/> <!-- branch explicitly contains nothing at all -->
+ *    </choice>
+ *
+ */
+final class EmptyChoiceBranchParser(override val context: RuntimeData)
+  extends PrimParserNoData {
+  override def runtimeDependencies: Vector[Evaluatable[AnyRef]] = Vector()
+
+  override def isEmpty = false // it's an empty one, but lying here let's us avoid having this optimized out.
+
+  override def toString = "Empty Choice Branch"
+
+  override def parse(start: PState): Unit = {
+    // nothing
   }
 }
 

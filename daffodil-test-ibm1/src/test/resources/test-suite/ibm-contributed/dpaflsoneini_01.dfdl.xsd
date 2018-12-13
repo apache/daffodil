@@ -29,7 +29,7 @@
 				byteOrder="bigEndian" bitOrder="mostSignificantBitFirst"
 				alignment="1" alignmentUnits="bytes" fillByte="f" 
 		 		occursCountKind="implicit"
-				ignoreCase="no" representation="text" textStringPadCharacter=" "
+				ignoreCase="no" representation="text" textStringPadCharacter="%SP;"
 				textPadKind="none" textTrimKind="none" textStringJustification="left"
 				lengthKind="implicit" sequenceKind="ordered" initiatedContent="yes"
 				emptyValueDelimiterPolicy="none"  nilValueDelimiterPolicy="none"   textNumberRep="standard"

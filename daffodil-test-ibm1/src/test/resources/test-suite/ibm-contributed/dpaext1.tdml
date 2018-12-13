@@ -668,10 +668,9 @@ entity NL and also use of UTF-16 encoding - DFDL-6-045R"
 	
 	<!--  A couple of valid logical types are shown with lengthKind="implicit" 	-->
 	
-
-	
 <tdml:parserTestCase name="length_delimited_12_01"
- model="dpaextdeltxt101.dfdl.xsd" description="Section 12.3 Properties for specifying length delimited - element terminator"
+ model="dpaextdeltxt101.dfdl.xsd" 
+ description="Section 12.3 Properties for specifying length delimited - element terminator"
  root="myDate1">
  <tdml:document>2011-03-21@</tdml:document>
  <tdml:infoset>
@@ -817,12 +816,12 @@ entity NL and also use of UTF-16 encoding - DFDL-6-045R"
  
  <tdml:parserTestCase name="multiple_delimiters2"
  model="dpaextdeltxt101.dfdl.xsd" description="Section 14 Sequence groups with delimiters, a whitespace separated list for separator - DFDL-14-008R"
- root="myStringSeq4"
- roundTrip="twoPass" implementations="daffodil">
+ root="myStringSeq5"
+ roundTrip="twoPass">
  <tdml:document>abcde|fghij|klmno::pqrst|uvwzy|z]</tdml:document>
  <tdml:infoset>
   <tdml:dfdlInfoset>
-  <myStringSeq4>
+  <myStringSeq5>
   	<seq1>
   		<element1>abcde</element1>
     	<element2>fghij</element2>
@@ -833,32 +832,19 @@ entity NL and also use of UTF-16 encoding - DFDL-6-045R"
     	<element2>uvwzy</element2>
     	<element3>z</element3>
   	</seq2>
-  </myStringSeq4>
+  </myStringSeq5>
 </tdml:dfdlInfoset>
 </tdml:infoset>
  </tdml:parserTestCase> 	 	
 
- <tdml:parserTestCase name="multiple_delimiters2_ibm"
- model="dpaextdeltxt101.dfdl.xsd" description="Section 14 Sequence groups with delimiters, a whitespace separated list for separator - DFDL-14-008R"
- root="myStringSeq4"
- roundTrip="twoPass" implementations="ibm">
+ <tdml:parserTestCase name="multiple_delimiters2_err"
+ model="dpaextdeltxt101-err.dfdl.xsd" description="Section 14 Sequence groups with delimiters, a whitespace separated list for separator - DFDL-14-008R"
+ root="myStringSeq4err">
  <tdml:document>abcde|fghij|klmno::pqrst|uvwzy|z]</tdml:document>
- <tdml:infoset>
-  <tdml:dfdlInfoset>
-  <myStringSeq4>
-    <seq1>
-      <element1>abcde</element1>
-      <element2>fghij</element2>
-      <element3>klmno</element3>
-    </seq1>
-    <seq2>
-      <element1>pqrst</element1>
-      <element2>uvwzy</element2>
-      <element3>z</element3>
-    </seq2>
-  </myStringSeq4>
-</tdml:dfdlInfoset>
-</tdml:infoset>
+ <tdml:errors>
+   <tdml:error>Schema Definition Error</tdml:error>
+   <tdml:error>must be distinct</tdml:error>
+ </tdml:errors>
  </tdml:parserTestCase>   
 
 </tdml:testSuite>

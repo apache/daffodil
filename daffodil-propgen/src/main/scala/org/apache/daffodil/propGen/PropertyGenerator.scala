@@ -36,16 +36,16 @@ class PropertyGenerator(arg: Node) {
 
   val dfdlSchema = arg
 
-  val excludedTypes = List("TextNumberBase", "AlignmentType", "FillByteType", "BinaryBooleanTrueRepType", "BinaryBooleanFalseRepType",
+  val excludedTypes = List("Property", "EmptyElementParsePolicy", "TextNumberBase", "AlignmentType", "FillByteType", "BinaryBooleanTrueRepType", "BinaryBooleanFalseRepType",
     "SeparatorSuppressionPolicy", "dafint:daffodilAG", "TextStandardExponentRep", "TextOutputMinLength", // Do these by hand.
     "PropertyNameType", "PropertyType", // Not used and causes conflict with daf namespace
     "externalVariableBindings", "externalVarType", "bind", "bindNameType", "bindType", "tunables") // Ignore daffodil configuration types
 
-  val excludedAttributes = List("TextNumberBase",
-    "SeparatorSuppressionPolicy", "TextStandardExponentRep", "TextOutputMinLength" ) // Do these by hand.
+  val excludedAttributes = List("EmptyElementParsePolicy", "TextNumberBase",
+    "SeparatorSuppressionPolicy", "TextStandardExponentRep", "TextOutputMinLength") // Do these by hand.
 
   def excludeType(name: String) = {
-    excludedTypes.exists { _.toUpperCase.contains(name.toUpperCase()) }
+    excludedTypes.exists { _.toUpperCase == name.toUpperCase() }
   }
 
   def excludeAttribute(name: String) = {
@@ -228,8 +228,8 @@ class PropertyGenerator(arg: Node) {
       val notScopedFormatProperties = List("inputValueCalc", "outputValueCalc", "hiddenGroupRef") // do these by-hand since they are not scoped.
       val excludedBecauseDoneByHand =
         List("separatorSuppressionPolicy", "separatorPolicy",
-            "textStandardExponentRep", "textStandardExponentCharacter",
-            "textOutputMinLength")
+          "textStandardExponentRep", "textStandardExponentCharacter",
+          "textOutputMinLength")
       val exclusions = notFormatProperties ++ notScopedFormatProperties ++ excludedBecauseDoneByHand
       if (rawName == "binaryFloatRep") {
       }
@@ -495,10 +495,10 @@ object Currency {
   def generateNonEnumInstantiation(propName: String, typeName: String) = {
     val converterName = getConverterTypeName(typeName)
     val midTemplate = if (converterName != "QName") {
-"""  def EUR = convertToTYPE(cacheProperty("EUR").value)
+      """  def EUR = convertToTYPE(cacheProperty("EUR").value)
 """
     } else {
-"""  def EUR = {
+      """  def EUR = {
     val cp = cacheProperty("EUR")
     convertToTYPE(cp.value, cp.location)
   }
@@ -625,8 +625,7 @@ object Currency {
 } // end trait
 
 object PropertyGenerator {
-  val dfdlSchemasForDFDLAnnotations = List(
-    "/org/apache/daffodil/xsd/DFDL_part1_simpletypes.xsd",
+  val dfdlSchemasForDFDLAnnotations = List("/org/apache/daffodil/xsd/DFDL_part1_simpletypes.xsd",
     "/org/apache/daffodil/xsd/DFDL_part2_attributes.xsd",
     "/org/apache/daffodil/xsd/DFDL_part3_model.xsd",
     "/org/apache/daffodil/xsd/dafext.xsd")

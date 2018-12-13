@@ -31,7 +31,7 @@
         separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"
         documentFinalTerminatorCanBeMissing='yes'
         byteOrder="bigEndian" binaryNumberRep='binary'
-        representation="text" occursStopValue="-1"
+        representation="text"
         occursCountKind='parsed' emptyValueDelimiterPolicy="none"
         alignment="1" alignmentUnits="bytes"/>
 

@@ -94,31 +94,41 @@ import org.apache.daffodil.processors.HasSetDebugger
  * Parses and runs tests expressed in IBM's contributed tdml "Test Data Markup Language"
  */
 
-sealed trait RoundTrip
+sealed trait RoundTrip {
+  def propValueName: String
+}
 
 /**
  * Test is just a parse test, or just an unparse, with no round trip involved.
  */
-case object NoRoundTrip extends RoundTrip
+case object NoRoundTrip extends RoundTrip {
+  override def propValueName = "none"
+}
 
 /**
  * Test round trips with a single pass. Unparse produces exactly the original data.
  */
-case object OnePassRoundTrip extends RoundTrip
+case object OnePassRoundTrip extends RoundTrip {
+  override def propValueName = "onePass"
+}
 
 /**
  * Unparse doesn't produce original data, but equivalent canonical data which
  * if reparsed in a second parse pass, produces the same infoset as the first
  * parse.
  */
-case object TwoPassRoundTrip extends RoundTrip
+case object TwoPassRoundTrip extends RoundTrip {
+  override def propValueName = "twoPass"
+}
 
 /**
  * Unparse doesn't produce original data, parsing it doesn't produce the
  * same infoset, but an equivalent infoset which if unparsed, reproduces
  * the first unparse output.
  */
-case object ThreePassRoundTrip extends RoundTrip
+case object ThreePassRoundTrip extends RoundTrip {
+  override def propValueName = "threePass"
+}
 
 private[tdml] object DFDLTestSuite {
 
@@ -174,7 +184,8 @@ private[tdml] object DFDLTestSuite {
  * during cross testing.
  */
 
-class DFDLTestSuite private[tdml] (val __nl: Null, // this extra arg allows us to make this primary constructor package private so we can deprecate the one generally used.
+class DFDLTestSuite private[tdml] (
+  val __nl: Null, // this extra arg allows us to make this primary constructor package private so we can deprecate the one generally used.
   aNodeFileOrURL: Any,
   validateTDMLFile: Boolean,
   val validateDFDLSchemas: Boolean,
@@ -192,7 +203,8 @@ class DFDLTestSuite private[tdml] (val __nl: Null, // this extra arg allows us t
   // you have an @AfterClass shutdown method in the object that calls runner.reset() at end.
   //
   // @deprecated("2016-12-30", "Use Runner(...) instead.")
-  def this(aNodeFileOrURL: Any,
+  def this(
+    aNodeFileOrURL: Any,
     validateTDMLFile: Boolean = true,
     validateDFDLSchemas: Boolean = true,
     compileAllTopLevel: Boolean = false,
@@ -462,9 +474,9 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
     override def transform(n: Node) = n match {
       case e: Elem => {
         e.copy(attributes = n.attributes.filter(a =>
-        (a.prefixedKey != "dafint:" + XMLUtils.COLUMN_ATTRIBUTE_NAME) &&
-        (a.prefixedKey != "dafint:" + XMLUtils.LINE_ATTRIBUTE_NAME) &&
-        (a.prefixedKey != "dafint:" + XMLUtils.FILE_ATTRIBUTE_NAME)))
+          (a.prefixedKey != "dafint:" + XMLUtils.COLUMN_ATTRIBUTE_NAME) &&
+            (a.prefixedKey != "dafint:" + XMLUtils.LINE_ATTRIBUTE_NAME) &&
+            (a.prefixedKey != "dafint:" + XMLUtils.FILE_ATTRIBUTE_NAME)))
       }
       case _ => n
     }
@@ -563,7 +575,8 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
   lazy val shouldValidate = validationMode != ValidationMode.Off
   lazy val expectsValidationError = if (optExpectedValidationErrors.isDefined) optExpectedValidationErrors.get.hasDiagnostics else false
 
-  protected def runProcessor(compileResult: TDML.CompileResult,
+  protected def runProcessor(
+    compileResult: TDML.CompileResult,
     expectedData: Option[InputStream],
     nBits: Option[Long],
     errors: Option[ExpectedErrors],
@@ -774,7 +787,8 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
     }
   }
 
-  protected def checkDiagnosticMessages(diagnostics: Seq[Throwable],
+  protected def checkDiagnosticMessages(
+    diagnostics: Seq[Throwable],
     errors: ExpectedErrors,
     optWarnings: Option[ExpectedWarnings],
     implString: Option[String]) {
@@ -796,7 +810,8 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
   lazy val optExpectedInfoset = this.optExpectedOrInputInfoset
 
-  override def runProcessor(compileResult: TDML.CompileResult,
+  override def runProcessor(
+    compileResult: TDML.CompileResult,
     optDataToParse: Option[InputStream],
     optLengthLimitInBits: Option[Long],
     optExpectedErrors: Option[ExpectedErrors],
@@ -832,7 +847,8 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     }
   }
 
-  def runParseExpectErrors(processor: TDMLDFDLProcessor,
+  def runParseExpectErrors(
+    processor: TDMLDFDLProcessor,
     dataToParse: InputStream,
     lengthLimitInBits: Long,
     errors: ExpectedErrors,
@@ -842,8 +858,10 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     implString: Option[String]): Unit = {
 
     val (parseResult: TDMLParseResult, diagnostics, isError: Boolean) = {
-      if (processor.isError) (null, processor.getDiagnostics, true)
-      else {
+      if (processor.isError) {
+        val noParseResult: TDMLParseResult = null
+        (noParseResult, processor.getDiagnostics, true)
+      } else {
         val actual =
           try {
             processor.parse(dataToParse, lengthLimitInBits)
@@ -883,7 +901,8 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   /**
    * Returns outputter containing the parse infoset. Throws if there isn't one.
    */
-  private def doParseExpectSuccess(testData: Array[Byte],
+  private def doParseExpectSuccess(
+    testData: Array[Byte],
     testInfoset: Infoset,
     processor: TDMLDFDLProcessor,
     lengthLimitInBits: Long,
@@ -917,7 +936,8 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     } // if we get here, throw the left over data exception.
   }
 
-  private def verifyParseResults(processor: TDMLDFDLProcessor,
+  private def verifyParseResults(
+    processor: TDMLDFDLProcessor,
     actual: TDMLParseResult,
     testInfoset: Infoset,
     implString: Option[String]) = {
@@ -947,7 +967,8 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
    * Do an unparse. Report any actual diagnostics, but don't compare
    * the unparsed data output.
    */
-  private def doOnePassRoundTripUnparseExpectSuccess(processor: TDMLDFDLProcessor,
+  private def doOnePassRoundTripUnparseExpectSuccess(
+    processor: TDMLDFDLProcessor,
     outStream: OutputStream, // stream where unparsed data is written
     parseResult: TDMLParseResult, // result from prior parse.
     implString: Option[String]): TDMLUnparseResult = {
@@ -965,12 +986,13 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     unparseResult
   }
 
-  private def doTwoPassRoundTripExpectSuccess(implString: Option[String],
+  private def doTwoPassRoundTripExpectSuccess(
+    implString: Option[String],
     processor: TDMLDFDLProcessor,
     parseResult: TDMLParseResult,
     firstParseTestData: Array[Byte],
     testInfoset: Infoset,
-    passesLabel: String = "Two-Pass"): (TDMLParseResult, Array[Byte], Long) = {
+    passesLabel: String = TwoPassRoundTrip.propValueName): (TDMLParseResult, Array[Byte], Long) = {
     val outStream = new java.io.ByteArrayOutputStream()
     val unparseResult: TDMLUnparseResult = doOnePassRoundTripUnparseExpectSuccess(processor, outStream, parseResult, implString)
     val isUnparseOutputDataMatching =
@@ -1005,7 +1027,8 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     (actual, reParseTestData, reParseTestDataLength)
   }
 
-  def runParseExpectSuccess(processor: TDMLDFDLProcessor,
+  def runParseExpectSuccess(
+    processor: TDMLDFDLProcessor,
     dataToParse: InputStream,
     lengthLimitInBits: Long,
     warnings: Option[ExpectedWarnings],
@@ -1027,8 +1050,58 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     val testInfoset = optExpectedInfoset.get
 
     val firstParseResult = doParseExpectSuccess(firstParseTestData, testInfoset, processor, lengthLimitInBits, implString)
-    verifyParseResults(processor, firstParseResult, testInfoset, implString)
-    verifyLeftOverData(firstParseResult, lengthLimitInBits, implString)
+
+    roundTrip match {
+      case NoRoundTrip | OnePassRoundTrip => {
+        verifyParseResults(processor, firstParseResult, testInfoset, implString)
+        verifyLeftOverData(firstParseResult, lengthLimitInBits, implString)
+      }
+      case TwoPassRoundTrip => {
+        // don't compare first parse pass. Because it may or may not match.
+        //
+        // There's really two different kinds of tests here that we're not distinguishing, which
+        // are
+        // (a) those where the infoset is what is expected, but doesn't unparse to the same
+        // data as original, which then still reparses to that same infoset.
+        // (b) those where the infoset isn't what is expected, but unparses to something which
+        // then parses to what is expected.
+      }
+      case ThreePassRoundTrip => {
+        //
+        // Arguably, there are two different kinds of tests here that we've selected just
+        // one of:
+        // (a) the original infoset is NOT a match. The later steady-state infoset
+        // differs from this original infoset and matches the expected
+        // (b) the original infoset is a match, and reflects steady state. Just the unparse from it
+        // doesn't match the original input data stream. But reparsing that data stream produces the same
+        // infoset which demonstrates steady state.
+        //
+        // We can tell these apart, by just remembering whether this infoset matches or not
+        // rather than reporting a problem here. If after the reparse we get the expected
+        // infoset also, then this was NOT an error, and having the same infoset indicates
+        // steady state. If after the reparse we get the expected
+        // infoset but this one was NOT matching the expected, then we must unparse again to be sure we
+        // are at steady state.
+        //
+        // Instead we choose to just not check this initial infoset at all, and always behave
+        // as if it was NOT a match.
+        //
+        //        val isFirstParseInfosetMatching =
+        //          try {
+        //            verifyParseResults(processor, firstParseResult, testInfoset, implString)
+        //            verifyLeftOverData(firstParseResult, lengthLimitInBits, implString)
+        //            true
+        //          } catch {
+        //            case t: TDMLException =>
+        //              false
+        //          }
+        //        if (isFirstParseInfosetMatching) {
+        //          val msg = ("Expected infoset from first parse of data to NOT match expected infoset, but it did match." +
+        //            "\nShould this really be a %s test?").format(roundTrip.propValueName)
+        //          throw TDMLException(msg, implString)
+        //        }
+      }
+    }
 
     // if we get here, the parse test passed. If we don't get here then some exception was
     // thrown either during the run of the test or during the comparison.
@@ -1089,24 +1162,16 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
             firstParseResult,
             firstParseTestData,
             testInfoset,
-            "Three-Pass")
-        val isUnparseOutputDataMatching =
-          try {
-            verifyParseResults(processor, secondParseResult, testInfoset, implString)
-            verifyLeftOverData(secondParseResult, reParseTestDataLength, implString)
-            true
-          } catch {
-            case _: TDMLException => {
-              false
-              //
-              // We got the failure we expect for a three-pass test on the reparse.
-              //
-            }
-          }
-        if (isUnparseOutputDataMatching) {
-          throw TDMLException("Expected infoset from reparse of Three-Pass to NOT match original infoset, but it did match." +
-            "\nShould this really be a Three-Pass test?", implString)
-        }
+            ThreePassRoundTrip.propValueName)
+        //
+        // The infoset from the reparse should be the final
+        // steady state infoset, which is what the test case
+        // should put as the expected infoset.
+        //
+        // So we just verify normally here.
+        //
+        verifyParseResults(processor, secondParseResult, testInfoset, implString)
+        verifyLeftOverData(secondParseResult, reParseTestDataLength, implString)
         //
         // So now we do the third pass unparse and compare this output with the
         // first unparsed output.
@@ -1127,7 +1192,8 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
   lazy val inputInfoset = optInputInfoset.get
 
-  def runProcessor(compileResult: TDML.CompileResult,
+  def runProcessor(
+    compileResult: TDML.CompileResult,
     optExpectedData: Option[InputStream],
     optNBits: Option[Long],
     optErrors: Option[ExpectedErrors],
@@ -1160,7 +1226,8 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
   }
 
-  def runUnparserExpectSuccess(processor: TDMLDFDLProcessor,
+  def runUnparserExpectSuccess(
+    processor: TDMLDFDLProcessor,
     expectedData: InputStream,
     optWarnings: Option[ExpectedWarnings],
     roundTrip: RoundTrip,
@@ -1261,7 +1328,8 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     }
   }
 
-  def runUnparserExpectErrors(processor: TDMLDFDLProcessor,
+  def runUnparserExpectErrors(
+    processor: TDMLDFDLProcessor,
     optExpectedData: Option[InputStream],
     errors: ExpectedErrors,
     optWarnings: Option[ExpectedWarnings],

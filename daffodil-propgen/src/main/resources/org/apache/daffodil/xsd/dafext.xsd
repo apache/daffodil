@@ -28,11 +28,21 @@
 
   <xsd:attribute name="parseUnparsePolicy" type="daf:ParseUnparsePolicyEnum"/>
 
+  
   <xsd:simpleType name="ParseUnparsePolicyEnum">
     <xsd:restriction base="xsd:string">
       <xsd:enumeration value="parseOnly" />
       <xsd:enumeration value="unparseOnly" />
       <xsd:enumeration value="both" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  
+  <xsd:attribute name="emptyElementParsePolicy" type="daf:EmptyElementParsePolicyEnum"/>
+  
+  <xsd:simpleType name="EmptyElementParsePolicyEnum">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="treatAsMissing" />
+      <xsd:enumeration value="treatAsEmpty" />
     </xsd:restriction>
   </xsd:simpleType>
 
@@ -50,6 +60,7 @@
   <xsd:simpleType name="PropertyNameType">
     <xsd:restriction base="xsd:string">
       <xsd:enumeration value="parseUnparsePolicy"/>
+      <xsd:enumeration value="emptyElementParsePolicy"/>
     </xsd:restriction>
   </xsd:simpleType>
 
@@ -82,7 +93,7 @@
 
   <xsd:element name="tunables">
       <xsd:complexType>
-      <xsd:sequence>
+      <xsd:all><!-- any order but only 0 or 1 time each -->
         <xsd:element name="requireBitOrderProperty" minOccurs="0" type="xsd:boolean" />
         <xsd:element name="requireEncodingErrorPolicyProperty" minOccurs="0" type="xsd:boolean" />
         <xsd:element name="requireTextBidiProperty" minOccurs="0" type="xsd:boolean" />
@@ -99,16 +110,7 @@
         <xsd:element name="maximumSimpleElementSizeInCharacters" minOccurs="0" type="xsd:int" />
         <xsd:element name="initialRegexMatchLimitInCharacters" minOccurs="0" type="xsd:int" />
         <xsd:element name="maximumRegexMatchLengthInCharacters" minOccurs="0" type="xsd:int" />
-        <xsd:element name="parseUnparsePolicy" minOccurs="0">
-          <xsd:simpleType>
-            <xsd:restriction base="xsd:string">
-              <xsd:enumeration value="parseOnly" />
-              <xsd:enumeration value="unparseOnly" />
-              <xsd:enumeration value="both" />
-              <xsd:enumeration value="schema" />
-            </xsd:restriction>
-          </xsd:simpleType>
-        </xsd:element>
+        <xsd:element name="parseUnparsePolicy" minOccurs="0" type="daf:ParseUnparsePolicyEnum"/>
         <xsd:element name="unqualifiedPathStepPolicy" minOccurs="0">
           <xsd:simpleType>
             <xsd:restriction base="xsd:string">
@@ -136,6 +138,8 @@
                  <xsd:enumeration value="deprecatedFunctionDAFError"/>
                  <xsd:enumeration value="deprecatedPropertySeparatorPolicy" />
                  <xsd:enumeration value="deprecatedExpressionResultCoercion" />
+                 <xsd:enumeration value="emptyElementPolicyError" />
+                 <xsd:enumeration value="encodingErrorPolicyError"/>
                  <xsd:enumeration value="escapeSchemeRefUndefined"/>
                  <xsd:enumeration value="facetExplicitLengthOutOfRange"/>
                  <xsd:enumeration value="inconsistentLengthKind"/>
@@ -156,7 +160,9 @@
            </xsd:simpleType>
         </xsd:element>
         <xsd:element name="allowExpressionResultCoercion" minOccurs="0" type="xsd:boolean" />
-      </xsd:sequence>
+        <xsd:element name="defaultEmptyElementParsePolicy" minOccurs="0" type="daf:EmptyElementParsePolicyEnum"/>
+        <xsd:element name="requireEmptyElementParsePolicyProperty" minOccurs="0" type="xsd:boolean" />
+      </xsd:all>
     </xsd:complexType>
   </xsd:element>
 

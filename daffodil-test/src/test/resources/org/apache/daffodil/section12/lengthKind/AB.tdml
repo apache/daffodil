@@ -19,6 +19,7 @@
 <testSuite suiteName="AA-BG" description="Original suite of AA through BG"
   xmlns="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:ex="http://www.example.org/example1/"
   defaultRoundTrip="true">
 
   <parserTestCase name="AB000" root="matrix" model="AB.dfdl.xsd"
@@ -33,7 +34,7 @@
 
     <infoset>
       <dfdlInfoset>
-        <matrix xmlns="http://www.example.org/example1/">
+        <ex:matrix xmlns="">
           <row>
             <cell>0</cell>
             <cell>1</cell>
@@ -55,7 +56,7 @@
             <cell>13</cell>
             <cell>14</cell>
           </row>
-        </matrix>
+        </ex:matrix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -69,7 +70,7 @@
 
     <infoset>
       <dfdlInfoset>
-        <matrix_01 xmlns="http://www.example.org/example1/">
+        <ex:matrix_01 xmlns="">
           <row>
             <cell>0</cell>
             <cell>1</cell>
@@ -91,7 +92,7 @@
             <cell>13</cell>
             <cell>14</cell>
           </row>
-        </matrix_01>
+        </ex:matrix_01>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -100,12 +101,12 @@
     description="CSV-style tests - data stream is scanned for element's enclosing construct's separator and terminator.  separatorPosition is postfix - DFDL-12-043R">
 
     <document>
-      <documentPart replaceDFDLEntities="true" type="text"><![CDATA[0,1,2,3,4%LF;5,6,7,8,9%LF;10,11,12,13,14%LF;%LF;]]></documentPart>
+      <documentPart replaceDFDLEntities="true" type="text"><![CDATA[0,1,2,3,4%LF;5,6,7,8,9%LF;10,11,12,13,14%LF;]]></documentPart>
     </document>
 
     <infoset>
       <dfdlInfoset>
-        <matrix_03 xmlns="http://www.example.org/example1/">
+        <ex:matrix_03 xmlns="">
           <row>
             <cell>0</cell>
             <cell>1</cell>
@@ -127,7 +128,7 @@
             <cell>13</cell>
             <cell>14</cell>
           </row>
-        </matrix_03>
+        </ex:matrix_03>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -141,7 +142,7 @@
 
     <infoset>
       <dfdlInfoset>
-        <matrix_01 xmlns="http://www.example.org/example1/">
+        <ex:matrix_01 xmlns="">
           <row>
             <cell>0</cell>
             <cell>1</cell>
@@ -160,7 +161,7 @@
             <cell>10</cell>
             <cell>11</cell>
           </row>
-        </matrix_01>
+        </ex:matrix_01>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -174,7 +175,7 @@
 
     <infoset>
       <dfdlInfoset>
-        <matrix_02 xmlns="http://www.example.org/example1/"
+        <ex:matrix_02 xmlns=""
           xmlns:xsd="http://www.w3.org/2001/XMLSchema">
           <row>
             <cell xsi:type="xsd:int">0</cell>
@@ -196,22 +197,76 @@
             <cell xsi:nil="true" />
             <cell xsi:type="xsd:int">13</cell>
           </row>
-        </matrix_02>
+        </ex:matrix_02>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
 
-  <parserTestCase name="AB005" root="matrix_02" model="AB.dfdl.xsd"
+  <parserTestCase name="AB005_parse" root="matrix_02" model="AB.dfdl.xsd"
     description="CSV-style tests - data stream is scanned for element's enclosing construct's separator.  separatorPosition is postfix.  Sequence has is nil elements. - DFDL-12-043R"
-    roundTrip="threePass">
+    roundTrip="none">
     <document>
+      <!-- 
       <documentPart replaceDFDLEntities="true" type="text"><![CDATA[0,1,2,3,4%LF;5,6,7,8,9%LF;10,11,,%LF;]]></documentPart>
+      -->
+      <documentPart replaceDFDLEntities="true" type="text"><![CDATA[11,,%LF;]]></documentPart>
     </document>
 
     <infoset>
       <dfdlInfoset>
-        <matrix_02 xmlns="http://www.example.org/example1/"
-          xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+        <ex:matrix_02 xmlns="">
+        <!-- 
+          <row>
+            <cell xsi:type="xsd:int">0</cell>
+            <cell xsi:type="xsd:int">1</cell>
+            <cell xsi:type="xsd:int">2</cell>
+            <cell xsi:type="xsd:int">3</cell>
+            <cell xsi:type="xsd:int">4</cell>
+          </row>
+          <row>
+            <cell xsi:type="xsd:int">5</cell>
+            <cell xsi:type="xsd:int">6</cell>
+            <cell xsi:type="xsd:int">7</cell>
+            <cell xsi:type="xsd:int">8</cell>
+            <cell xsi:type="xsd:int">9</cell>
+          </row>
+          -->
+          <row>
+            <!-- <cell xsi:type="xsd:int">10</cell> -->
+            <cell xsi:type="xsd:int">11</cell>
+            <!-- 
+              DFDL Spec Section 14.2.2 says that these nilled elements, because
+              the nil representation is empty string, are zero-length.
+              So since they are optional array elements, their separators will
+              be suppressed. 
+              
+              That makes it impossible for this test to ever round-trip if the
+              input data had separators in it that caused these nilled elements
+              to be created.
+              
+              This is not a matter of multiple passes. We can *never* get the
+              separators out because dfdl:separatorSuppressionPolicy="trailingEmpty".
+              
+              So this test was split into two. One for unparsing, one for parsing.
+             -->
+            <cell xsi:nil="true" />
+            <cell xsi:nil="true" />
+          </row>
+        </ex:matrix_02>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+  
+  <unparserTestCase name="AB005_unparse" root="matrix_02" model="AB.dfdl.xsd"
+    description="CSV-style tests - data stream is scanned for element's enclosing construct's separator.  separatorPosition is postfix.  Sequence has is nil elements. - DFDL-12-043R"
+    roundTrip="none">
+    <document>
+      <documentPart replaceDFDLEntities="true" type="text"><![CDATA[0,1,2,3,4%LF;5,6,7,8,9%LF;10,11%LF;]]></documentPart>
+    </document>
+
+    <infoset>
+      <dfdlInfoset>
+        <ex:matrix_02 xmlns="">
           <row>
             <cell xsi:type="xsd:int">0</cell>
             <cell xsi:type="xsd:int">1</cell>
@@ -229,12 +284,27 @@
           <row>
             <cell xsi:type="xsd:int">10</cell>
             <cell xsi:type="xsd:int">11</cell>
+            <!-- 
+              DFDL Spec Section 14.2.3.1 says that these nilled elements, because
+              the nil representation is empty string, are zero-length.
+              So since they are optional array elements, their separators will
+              be suppressed. 
+              
+              That makes it impossible for this test to ever round-trip if the
+              input data had separators in it that caused these nilled elements
+              to be created.
+              
+              This is not a matter of multiple passes. We can *never* get the
+              separators out because dfdl:separatorSuppressionPolicy="trailingEmpty".
+              
+              So this test was split into two. One for unparsing, one for parsing.
+             -->
             <cell xsi:nil="true" />
             <cell xsi:nil="true" />
           </row>
-        </matrix_02>
+        </ex:matrix_02>
       </dfdlInfoset>
     </infoset>
-  </parserTestCase>
+  </unparserTestCase>
 
 </testSuite>

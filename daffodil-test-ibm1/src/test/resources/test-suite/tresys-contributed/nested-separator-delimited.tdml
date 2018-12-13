@@ -83,8 +83,10 @@
   
   <tdml:parserTestCase name="baseline_ibm" root="e1a"
     model="baseline_ibm" description="Baseline. Basic Separators"
-    implementations="ibm">
-
+    implementations="daffodil">
+     <!-- 
+   test doesn't run on IBM DFDL because of restriction that separator/terminator must be unique CTDV1425W
+   -->
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[5;6;7;8;.]]></tdml:documentPart>
     </tdml:document>
@@ -100,10 +102,6 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
     
-    <tdml:warnings>
-      <tdml:warning>separator</tdml:warning>
-      <tdml:warning>terminator</tdml:warning>
-    </tdml:warnings>
   </tdml:parserTestCase>
   
 
@@ -159,7 +157,7 @@
 
   <tdml:defineSchema name="basicNest2">
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
-    <dfdl:format ref="ex:GeneralFormat" occursCountKind="parsed" />
+    <dfdl:format ref="ex:GeneralFormatPortable" occursCountKind="parsed" />
 
     <xs:element name="e1" dfdl:lengthKind="implicit"
       dfdl:terminator=".">
@@ -314,7 +312,7 @@
 
   <tdml:defineSchema name="nest3">
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
-    <dfdl:format ref="ex:GeneralFormat" occursCountKind="parsed" />
+    <dfdl:format ref="ex:GeneralFormatPortable" occursCountKind="parsed" />
     <!-- test the issue of shared prefixes among the delimiters. This makes
       it challenging to determine longest match, as several contenders must
       be
