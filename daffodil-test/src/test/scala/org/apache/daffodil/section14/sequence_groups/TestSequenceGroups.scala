@@ -81,6 +81,7 @@ class TestSequenceGroups {
 
   //DFDL-598(related to, but this test does not say this is fixed)
   @Test def test_hiddenGroupRefEmptyString() { runner_02.runOneTest("hiddenGroupRefEmptyString") }
+  @Test def test_hiddenGroupRefDoesNotExist() { runner_02.runOneTest("hiddenGroupRefDoesNotExist") }
 
   @Test def test_AC000() { runner_02.runOneTest("AC000") }
   @Test def test_AD000() { runner_02.runOneTest("AD000") }

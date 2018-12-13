@@ -302,6 +302,39 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
+  <tdml:defineSchema name="hiddenGroupRefDoesNotExist">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
+
+    <xs:element name="e">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:sequence dfdl:hiddenGroupRef="doesNotExist"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <!--
+    Test name: hiddenGroupRefDoesNotExist
+       Schema: hiddenGroupRefDoesNotExist
+       Purpose: This test demonstrates that hidden group references that don't exist are handled
+       cleanly
+  -->
+
+  <tdml:parserTestCase name="hiddenGroupRefDoesNotExist" root="e"
+    model="hiddenGroupRefDoesNotExist" description="Section 14 - Hidden Elements DFDL-14-037R.">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[42,2]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Referenced group definition not found</tdml:error>
+      <tdml:error>doesNotExist</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
   <!--
     Test name: hiddenGroupWithAssert
        Schema: hiddenGroup3
