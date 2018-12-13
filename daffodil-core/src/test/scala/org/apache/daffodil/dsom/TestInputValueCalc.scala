@@ -29,7 +29,7 @@ class TestInputValueCalc extends Logging {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
-      <xs:element name="data" type="xs:string" dfdl:textNumberRep="standard" dfdl:representation="text" dfdl:terminator="" dfdl:emptyValueDelimiterPolicy="none" dfdl:inputValueCalc="{ 42 }" dfdl:initiator="" dfdl:lengthKind="explicit" dfdl:length="1"/>)
+      <xs:element name="data" type="xs:string" dfdl:textNumberRep="standard" dfdl:representation="text" dfdl:terminator="" dfdl:emptyValueDelimiterPolicy="none" dfdl:inputValueCalc="{ xs:string(42) }" dfdl:initiator="" dfdl:lengthKind="explicit" dfdl:length="1"/>)
     val (_, actual) = TestUtils.testString(testSchema, "")
     val expected: Node = <data>42</data>
     TestUtils.assertEqualsXMLElements(expected, actual)

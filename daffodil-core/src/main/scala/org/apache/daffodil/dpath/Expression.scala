@@ -583,7 +583,41 @@ case class WholeExpression(
     // because if ifor was a function call, then the resulting function
     // object will have been created and given this as its parent pointer.
     //
-    Assert.invariant(subExpr == ifor | ifor.isInstanceOf[FunctionCallExpression])
+    Assert.invariant(subExpr == ifor || ifor.isInstanceOf[FunctionCallExpression])
+
+    // The result of this function will be used to coerce the result of the
+    // expression to the target type. However, we do not always want to allow
+    // type coercion even when it might be possible. For example, if the
+    // targetType is xs:string and the expression is { 5 }, we do not want to
+    // coerce that to the string "5", but instead want to throw an SDE
+    // signifying that we expected a string but the expression result was a
+    // numeric. But we sometimes do want coercion for usability purposes. For
+    // example, if the result of an expression is a int but the type is long,
+    // then we should still allow that coercion. Below we allow coercion
+    // between decimal-like types where precision would not be lost, and all
+    // integer-like types (which check for precision loss when evaluated).
+
+    val allowCoercion = (inherentType, targetType) match {
+      case (_, _) if inherentType == targetType => true
+      case (_, _) if (inherentType.isSubtypeOf(NodeInfo.String) && targetType.isSubtypeOf(NodeInfo.String)) => true
+      case (_, _) if (inherentType.isSubtypeOf(NodeInfo.Integer) && targetType.isSubtypeOf(NodeInfo.Integer)) => true
+      case (_, NodeInfo.Float) if (inherentType.isSubtypeOf(NodeInfo.Integer)) => true
+      case (_, NodeInfo.Double) if (inherentType.isSubtypeOf(NodeInfo.Integer)) => true
+      case (_, NodeInfo.Decimal) if (inherentType.isSubtypeOf(NodeInfo.Integer)) => true
+      case (NodeInfo.Float, NodeInfo.Double) => true
+      case (NodeInfo.Float, NodeInfo.Decimal) => true
+      case (NodeInfo.Double, NodeInfo.Decimal) => true
+      case (NodeInfo.Nothing, _) => true
+      case (_, NodeInfo.AnyType) => true
+      case _ => false
+    }
+
+    if (!allowCoercion) {
+      SDE("Expression result type (%s) cannot be coerced to the expected type (%s)",
+        inherentType,
+        targetType)
+    }
+
     targetType
   }
 
@@ -1502,13 +1536,13 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
       }
 
       case (RefQName(_, "round-half-to-even", FUNC), args) if args.length == 1 => {
-        FNOneArgExpr(functionQNameString, functionQName, args,
-          NodeInfo.Numeric, NodeInfo.Numeric, FNRoundHalfToEven1(_, _))
+        FNOneArgMathExpr(functionQNameString, functionQName, args,
+          FNRoundHalfToEven1(_, _))
       }
 
       case (RefQName(_, "round-half-to-even", FUNC), args) => {
-        FNTwoArgsExpr(functionQNameString, functionQName, args,
-          NodeInfo.Numeric, NodeInfo.Numeric, NodeInfo.Integer, FNRoundHalfToEven2(_))
+        FNTwoArgsMathExpr(functionQNameString, functionQName, args,
+          NodeInfo.Integer, FNRoundHalfToEven2(_))
       }
 
       case (RefQName(_, "string-length", FUNC), args) => {
@@ -1761,6 +1795,38 @@ case class FNOneArgMathExpr(nameAsParsed: String, fnQName: RefQName,
     val c = conversions
     val res = new CompiledDPath(constructor(arg0Recipe, arg0Type) +: c)
     res
+  }
+}
+
+/**
+ * Preserves the inherent type of the argument to the function as the type of
+ * the result, that is if the argument type is a numeric type, and if the
+ * argument type is a subtype thereof. The inherent type comes from the first
+ * argument
+ */
+case class FNTwoArgsMathExpr(nameAsParsed: String, fnQName: RefQName,
+  args: List[Expression], arg2Type: NodeInfo.Kind, constructor: List[CompiledDPath] => RecipeOp)
+  extends FNTwoArgsExprBase(nameAsParsed, fnQName, args, NodeInfo.Numeric, NodeInfo.Numeric, arg2Type, constructor) {
+
+  override lazy val inherentType = {
+    schemaDefinitionUnless(argInherentType.isSubtypeOf(NodeInfo.Numeric),
+      "First argument must be of numeric type but was %s.", argInherentType)
+    argInherentType
+  }
+
+  lazy val argInherentType = {
+    schemaDefinitionUnless(args.length == 2, "Function %s takes 2 arguments.",
+      fnQName.toPrettyString)
+    args(0).inherentType
+  }
+
+  override def targetTypeForSubexpression(subexp: Expression): NodeInfo.Kind = {
+    if (subexp == arg1)
+      inherentType
+    else if (subexp == arg2)
+      arg2Type
+    else
+      Assert.invariantFailed("subexpression %s is not an argument.".format(subexp))
   }
 }
 

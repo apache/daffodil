@@ -42,11 +42,11 @@
 						dfdl:lengthKind="explicit" />
 
 					<xs:element name="x" type="xs:string"
-						dfdl:outputValueCalc="{ dfdl:valueLength(../ex:y,'bytes') }"
+						dfdl:outputValueCalc="{ xs:string(dfdl:valueLength(../ex:y,'bytes')) }"
 						dfdl:initiator="{ ../ex:xi }" dfdl:lengthKind="delimited"
 						dfdl:terminator=";" />
 					<xs:element name="y" type="xs:string"
-						dfdl:outputValueCalc="{ dfdl:valueLength(../ex:z, 'bytes') }"
+						dfdl:outputValueCalc="{ xs:string(dfdl:valueLength(../ex:z, 'bytes')) }"
 						dfdl:initiator="{ ../ex:yi }" dfdl:lengthKind="delimited"
 						dfdl:terminator=";" />
 					<xs:element name="z" type="xs:string" dfdl:initiator="{ ../ex:zi }"
@@ -66,11 +66,11 @@
 						dfdl:lengthKind="explicit" />
 
 					<xs:element name="x" type="xs:string"
-						dfdl:outputValueCalc="{ dfdl:valueLength(../ex:y,'bytes') }"
+						dfdl:outputValueCalc="{ xs:string(dfdl:valueLength(../ex:y,'bytes')) }"
 						dfdl:terminator="{ ../ex:xt }" dfdl:lengthKind="delimited"
 						dfdl:initiator=";" />
 					<xs:element name="y" type="xs:string"
-						dfdl:outputValueCalc="{ dfdl:valueLength(../ex:z, 'bytes') }"
+						dfdl:outputValueCalc="{ xs:string(dfdl:valueLength(../ex:z, 'bytes')) }"
 						dfdl:terminator="{ ../ex:yt }" dfdl:lengthKind="delimited"
 						dfdl:initiator=";" />
 					<xs:element name="z" type="xs:string" dfdl:terminator="{ ../ex:zt }"
@@ -94,12 +94,12 @@
 							<xs:sequence dfdl:separator="{ ../ex:xsep }"
 								dfdl:separatorPosition="prefix">
 								<xs:element name="x" type="xs:string"
-									dfdl:outputValueCalc="{ dfdl:valueLength(../ex:y,'bytes') }"
+									dfdl:outputValueCalc="{ xs:string(dfdl:valueLength(../ex:y,'bytes')) }"
 									dfdl:lengthKind="delimited" />
 								<xs:sequence dfdl:separator="{ ../ex:ysep  }"
 									dfdl:separatorPosition="prefix">
 									<xs:element name="y" type="xs:string"
-										dfdl:outputValueCalc="{ dfdl:valueLength(../ex:z, 'bytes') }"
+										dfdl:outputValueCalc="{ xs:string(dfdl:valueLength(../ex:z, 'bytes')) }"
 										dfdl:lengthKind="delimited" />
 									<xs:sequence dfdl:separator="{ ../ex:zsep }"
 										dfdl:separatorPosition="prefix">
@@ -118,21 +118,21 @@
 			<xs:complexType>
 				<xs:sequence>
 					<xs:element name="xonl" type="xs:string" dfdl:length="2"
-						dfdl:outputValueCalc="{ dfdl:decodeDFDLEntities('%NEL;') }"
+						dfdl:outputValueCalc="{ xs:string(dfdl:decodeDFDLEntities('%NEL;')) }"
 						dfdl:lengthKind="explicit" />
 					<xs:element name="yonl" type="xs:string" dfdl:length="1"
-						dfdl:outputValueCalc="{ dfdl:decodeDFDLEntities('%LF;') }"
+						dfdl:outputValueCalc="{ xs:string(dfdl:decodeDFDLEntities('%LF;')) }"
 						dfdl:lengthKind="explicit" />
 					<xs:element name="zonl" type="xs:string" dfdl:length="1"
-						dfdl:outputValueCalc="{ dfdl:decodeDFDLEntities('%CR;') }"
+						dfdl:outputValueCalc="{ xs:string(dfdl:decodeDFDLEntities('%CR;')) }"
 						dfdl:lengthKind="explicit" />
 
 					<xs:element name="x" type="xs:string" dfdl:initiator="|"
-						dfdl:outputValueCalc="{ dfdl:valueLength(../ex:y,'bytes') }"
+						dfdl:outputValueCalc="{ xs:string(dfdl:valueLength(../ex:y,'bytes')) }"
 						dfdl:outputNewLine="{ dfdl:encodeDFDLEntities(../ex:xonl) }"
 						dfdl:lengthKind="delimited" dfdl:terminator="%NL;|" />
 					<xs:element name="y" type="xs:string"
-						dfdl:outputValueCalc="{ dfdl:valueLength(../ex:z, 'bytes') }"
+						dfdl:outputValueCalc="{ xs:string(dfdl:valueLength(../ex:z, 'bytes')) }"
 						dfdl:outputNewLine="{ dfdl:encodeDFDLEntities(../ex:yonl) }"
 						dfdl:lengthKind="delimited" dfdl:terminator="%NL;|" />
 					<xs:element name="z" type="xs:string"
@@ -199,7 +199,7 @@
 					<xs:element name="delimA" type="xs:string" dfdl:length="1"
 						dfdl:lengthKind="explicit" dfdl:terminator="--" />
 					<xs:element name="x" type="xs:string"
-						dfdl:outputValueCalc="{ dfdl:valueLength(../ex:nestA/ex:y, 'bytes') }"
+						dfdl:outputValueCalc="{ xs:string(dfdl:valueLength(../ex:nestA/ex:y, 'bytes')) }"
 						dfdl:lengthKind="delimited" dfdl:terminator=";" />
 					<xs:element name="nestA" dfdl:initiator="{ ../ex:delim }">
 						<xs:complexType>
@@ -207,7 +207,7 @@
 								<xs:element name="delimB" type="xs:string"
 									dfdl:length="1" dfdl:lengthKind="explicit" />
 								<xs:element name="y" type="xs:string"
-									dfdl:outputValueCalc="{ dfdl:valueLength(../ex:nestB/ex:z, 'bytes') }"
+									dfdl:outputValueCalc="{ xs:string(dfdl:valueLength(../ex:nestB/ex:z, 'bytes')) }"
 									dfdl:lengthKind="delimited" dfdl:terminator=";" />
 								<xs:element name="nestB" dfdl:initiator="{ ../../ex:delimA }">
 									<xs:complexType>

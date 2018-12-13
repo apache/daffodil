@@ -90,7 +90,7 @@
               </xs:sequence>
             </xs:complexType>
           </xs:element>
-          <xs:element name="items" type="xs:string" dfdl:inputValueCalc="{ /ex:e1/ex:seq/ex:item }"/>
+          <xs:element name="items" type="xs:int" dfdl:inputValueCalc="{ /ex:e1/ex:seq/ex:item }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -105,7 +105,7 @@
               </xs:sequence>
             </xs:complexType>
           </xs:element>
-          <xs:element name="items" type="xs:string" dfdl:inputValueCalc="{ /ex:e2/ex:seq/../ex:seq/../ex:seq/ex:item[2] }"/>
+          <xs:element name="items" type="xs:string" dfdl:inputValueCalc="{ xs:string(/ex:e2/ex:seq/../ex:seq/../ex:seq/ex:item[2]) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -134,7 +134,7 @@
               </xs:sequence>
             </xs:complexType>
           </xs:element>
-          <xs:element name="items" type="xs:string" dfdl:inputValueCalc="{ /ex:e3/ex:seq/ex:item[2] + /ex:e3/ex:seq/../ex:seq2/ex:item[1] + /ex:e3/ex:seq3/../ex:seq2/../ex:seq/../ex:seq3/ex:item[4] }"/>
+          <xs:element name="items" type="xs:string" dfdl:inputValueCalc="{ xs:string(/ex:e3/ex:seq/ex:item[2] + /ex:e3/ex:seq/../ex:seq2/ex:item[1] + /ex:e3/ex:seq3/../ex:seq2/../ex:seq/../ex:seq3/ex:item[4]) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -1769,7 +1769,7 @@ c]]></value>
           <xs:element name="e1" type="xs:string"
             dfdl:inputValueCalc="{ 'notAnInt' }" />
           <xs:element name="e3" type="xs:int"
-            dfdl:inputValueCalc="{ ../ex:e1 }" /> <!-- type error -->
+            dfdl:inputValueCalc="{ xs:int(../ex:e1) }" /> <!-- type error -->
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -1779,6 +1779,33 @@ c]]></value>
         <xs:sequence>
           <xs:element name="e1" type="xs:string"
             dfdl:inputValueCalc="{ 2.0 + 'cant add this' }" /><!-- compilation time type error -->
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="i" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" type="xs:boolean"
+            dfdl:inputValueCalc="{ 'true' }" /><!-- no type coercion to the target type -->
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="j" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" type="xs:string"
+            dfdl:inputValueCalc="{ 5 }" /><!-- no type coercion to the target type -->
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="k" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" type="xs:float"
+            dfdl:inputValueCalc="{ xs:double(5) }" /><!-- no type coercion to the target type -->
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -1805,7 +1832,10 @@ c]]></value>
     <tdml:document />
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>convert</tdml:error>
+      <tdml:error>Expression result type</tdml:error>
+      <tdml:error>cannot be coerced</tdml:error>
+      <tdml:error>Double</tdml:error>
+      <tdml:error>Int</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -1836,7 +1866,46 @@ c]]></value>
       <tdml:error>string</tdml:error>      
     </tdml:errors>
   </tdml:parserTestCase>
-  
+
+  <tdml:parserTestCase name="expression_type_error5"
+    root="i" model="expression-type-errors.dfdl.xsd"
+    description="get a type error from an expression at compilation time - no coercion">
+    <tdml:document />
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Expression result type</tdml:error>
+      <tdml:error>cannot be coerced</tdml:error>
+      <tdml:error>String</tdml:error>
+      <tdml:error>Boolean</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="expression_type_error6"
+    root="j" model="expression-type-errors.dfdl.xsd"
+    description="get a type error from an expression at compilation time - no coercion">
+    <tdml:document />
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Expression result type</tdml:error>
+      <tdml:error>cannot be coerced</tdml:error>
+      <tdml:error>Int</tdml:error>
+      <tdml:error>String</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="expression_type_error7"
+    root="k" model="expression-type-errors.dfdl.xsd"
+    description="get a type error from an expression at compilation time - no coercion">
+    <tdml:document />
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Expression result type</tdml:error>
+      <tdml:error>cannot be coerced</tdml:error>
+      <tdml:error>Double</tdml:error>
+      <tdml:error>Float</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
   <tdml:defineSchema name="elementFormWithWhitespace">
 
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
@@ -6954,48 +7023,48 @@ c]]></value>
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat"/>
 
-    <xs:element name="div01" type="xs:string" dfdl:inputValueCalc="{ xs:double(5) div xs:double(2) }" />
-    <xs:element name="div02" type="xs:string" dfdl:inputValueCalc="{ xs:float(5) div xs:float(2) }" />
-    <xs:element name="div03" type="xs:string" dfdl:inputValueCalc="{ xs:decimal(5) div xs:decimal(2) }" />
-    <xs:element name="div04" type="xs:string" dfdl:inputValueCalc="{ xs:integer(5) div xs:integer(2) }" />
-    <xs:element name="div05" type="xs:string" dfdl:inputValueCalc="{ xs:int(5) div xs:int(2) }" />
-    <xs:element name="div06" type="xs:string" dfdl:inputValueCalc="{ xs:short(5) div xs:short(2) }" />
-    <xs:element name="div07" type="xs:string" dfdl:inputValueCalc="{ xs:double(5) div xs:double(0) }" />
-    <xs:element name="div08" type="xs:string" dfdl:inputValueCalc="{ xs:float(5) div xs:float(0) }" />
-    <xs:element name="div09" type="xs:string" dfdl:inputValueCalc="{ xs:decimal(5) div xs:decimal(0) }" />
-    <xs:element name="div10" type="xs:string" dfdl:inputValueCalc="{ xs:integer(5) div xs:integer(0) }" />
-    <xs:element name="div11" type="xs:string" dfdl:inputValueCalc="{ xs:int(5) div xs:int(0) }" />
-    <xs:element name="div12" type="xs:string" dfdl:inputValueCalc="{ xs:short(5) div xs:short(0) }" />
-    <xs:element name="div13" type="xs:string" dfdl:inputValueCalc="{ xs:double('INF') div xs:double(2) }" />
-    <xs:element name="div14" type="xs:string" dfdl:inputValueCalc="{ xs:float('INF') div xs:float(2) }" />
-    <xs:element name="div15" type="xs:string" dfdl:inputValueCalc="{ xs:double('NaN') div xs:double(2) }" />
-    <xs:element name="div16" type="xs:string" dfdl:inputValueCalc="{ xs:float('NaN') div xs:float(2) }" />
-    <xs:element name="div17" type="xs:string" dfdl:inputValueCalc="{ xs:double(5) div xs:double('NaN') }" />
-    <xs:element name="div18" type="xs:string" dfdl:inputValueCalc="{ xs:float(5) div xs:float('NaN') }" />
-    <xs:element name="div19" type="xs:string" dfdl:inputValueCalc="{ xs:double(5) div xs:double('INF') }" />
-    <xs:element name="div20" type="xs:string" dfdl:inputValueCalc="{ xs:float(5) div xs:float('INF') }" />
-    <xs:element name="div21" type="xs:string" dfdl:inputValueCalc="{ 90.0 div 1234567.0 }" />
+    <xs:element name="div01" type="xs:double" dfdl:inputValueCalc="{ xs:double(5) div xs:double(2) }" />
+    <xs:element name="div02" type="xs:float" dfdl:inputValueCalc="{ xs:float(5) div xs:float(2) }" />
+    <xs:element name="div03" type="xs:decimal" dfdl:inputValueCalc="{ xs:decimal(5) div xs:decimal(2) }" />
+    <xs:element name="div04" type="xs:decimal" dfdl:inputValueCalc="{ xs:integer(5) div xs:integer(2) }" />
+    <xs:element name="div05" type="xs:float" dfdl:inputValueCalc="{ xs:int(5) div xs:int(2) }" />
+    <xs:element name="div06" type="xs:float" dfdl:inputValueCalc="{ xs:short(5) div xs:short(2) }" />
+    <xs:element name="div07" type="xs:double" dfdl:inputValueCalc="{ xs:double(5) div xs:double(0) }" />
+    <xs:element name="div08" type="xs:float" dfdl:inputValueCalc="{ xs:float(5) div xs:float(0) }" />
+    <xs:element name="div09" type="xs:decimal" dfdl:inputValueCalc="{ xs:decimal(5) div xs:decimal(0) }" />
+    <xs:element name="div10" type="xs:decimal" dfdl:inputValueCalc="{ xs:integer(5) div xs:integer(0) }" />
+    <xs:element name="div11" type="xs:float" dfdl:inputValueCalc="{ xs:int(5) div xs:int(0) }" />
+    <xs:element name="div12" type="xs:float" dfdl:inputValueCalc="{ xs:short(5) div xs:short(0) }" />
+    <xs:element name="div13" type="xs:double" dfdl:inputValueCalc="{ xs:double('INF') div xs:double(2) }" />
+    <xs:element name="div14" type="xs:float" dfdl:inputValueCalc="{ xs:float('INF') div xs:float(2) }" />
+    <xs:element name="div15" type="xs:double" dfdl:inputValueCalc="{ xs:double('NaN') div xs:double(2) }" />
+    <xs:element name="div16" type="xs:float" dfdl:inputValueCalc="{ xs:float('NaN') div xs:float(2) }" />
+    <xs:element name="div17" type="xs:double" dfdl:inputValueCalc="{ xs:double(5) div xs:double('NaN') }" />
+    <xs:element name="div18" type="xs:float" dfdl:inputValueCalc="{ xs:float(5) div xs:float('NaN') }" />
+    <xs:element name="div19" type="xs:double" dfdl:inputValueCalc="{ xs:double(5) div xs:double('INF') }" />
+    <xs:element name="div20" type="xs:float" dfdl:inputValueCalc="{ xs:float(5) div xs:float('INF') }" />
+    <xs:element name="div21" type="xs:double" dfdl:inputValueCalc="{ 90.0 div 1234567.0 }" />
 
-    <xs:element name="idiv01" type="xs:string" dfdl:inputValueCalc="{ xs:double(5) idiv xs:double(2) }" />
-    <xs:element name="idiv02" type="xs:string" dfdl:inputValueCalc="{ xs:float(5) idiv xs:float(2) }" />
-    <xs:element name="idiv03" type="xs:string" dfdl:inputValueCalc="{ xs:decimal(5) idiv xs:decimal(2) }" />
-    <xs:element name="idiv04" type="xs:string" dfdl:inputValueCalc="{ xs:integer(5) idiv xs:integer(2) }" />
-    <xs:element name="idiv05" type="xs:string" dfdl:inputValueCalc="{ xs:int(5) idiv xs:int(2) }" />
-    <xs:element name="idiv06" type="xs:string" dfdl:inputValueCalc="{ xs:short(5) idiv xs:short(2) }" />
-    <xs:element name="idiv07" type="xs:string" dfdl:inputValueCalc="{ xs:double(5) idiv xs:double(0) }" />
-    <xs:element name="idiv08" type="xs:string" dfdl:inputValueCalc="{ xs:float(5) idiv xs:float(0) }" />
-    <xs:element name="idiv09" type="xs:string" dfdl:inputValueCalc="{ xs:decimal(5) idiv xs:decimal(0) }" />
-    <xs:element name="idiv10" type="xs:string" dfdl:inputValueCalc="{ xs:integer(5) idiv xs:integer(0) }" />
-    <xs:element name="idiv11" type="xs:string" dfdl:inputValueCalc="{ xs:int(5) idiv xs:int(0) }" />
-    <xs:element name="idiv12" type="xs:string" dfdl:inputValueCalc="{ xs:short(5) idiv xs:short(0) }" />
-    <xs:element name="idiv13" type="xs:string" dfdl:inputValueCalc="{ xs:double('INF') idiv xs:double(2) }" />
-    <xs:element name="idiv14" type="xs:string" dfdl:inputValueCalc="{ xs:float('INF') idiv xs:float(2) }" />
-    <xs:element name="idiv15" type="xs:string" dfdl:inputValueCalc="{ xs:double('NaN') idiv xs:double(2) }" />
-    <xs:element name="idiv16" type="xs:string" dfdl:inputValueCalc="{ xs:float('NaN') idiv xs:float(2) }" />
-    <xs:element name="idiv17" type="xs:string" dfdl:inputValueCalc="{ xs:double(5) idiv xs:double('NaN') }" />
-    <xs:element name="idiv18" type="xs:string" dfdl:inputValueCalc="{ xs:float(5) idiv xs:float('NaN') }" />
-    <xs:element name="idiv19" type="xs:string" dfdl:inputValueCalc="{ xs:double(5) idiv xs:double('INF') }" />
-    <xs:element name="idiv20" type="xs:string" dfdl:inputValueCalc="{ xs:float(5) idiv xs:float('INF') }" />
+    <xs:element name="idiv01" type="xs:int" dfdl:inputValueCalc="{ xs:double(5) idiv xs:double(2) }" />
+    <xs:element name="idiv02" type="xs:int" dfdl:inputValueCalc="{ xs:float(5) idiv xs:float(2) }" />
+    <xs:element name="idiv03" type="xs:int" dfdl:inputValueCalc="{ xs:decimal(5) idiv xs:decimal(2) }" />
+    <xs:element name="idiv04" type="xs:int" dfdl:inputValueCalc="{ xs:integer(5) idiv xs:integer(2) }" />
+    <xs:element name="idiv05" type="xs:int" dfdl:inputValueCalc="{ xs:int(5) idiv xs:int(2) }" />
+    <xs:element name="idiv06" type="xs:int" dfdl:inputValueCalc="{ xs:short(5) idiv xs:short(2) }" />
+    <xs:element name="idiv07" type="xs:int" dfdl:inputValueCalc="{ xs:double(5) idiv xs:double(0) }" />
+    <xs:element name="idiv08" type="xs:int" dfdl:inputValueCalc="{ xs:float(5) idiv xs:float(0) }" />
+    <xs:element name="idiv09" type="xs:int" dfdl:inputValueCalc="{ xs:decimal(5) idiv xs:decimal(0) }" />
+    <xs:element name="idiv10" type="xs:int" dfdl:inputValueCalc="{ xs:integer(5) idiv xs:integer(0) }" />
+    <xs:element name="idiv11" type="xs:int" dfdl:inputValueCalc="{ xs:int(5) idiv xs:int(0) }" />
+    <xs:element name="idiv12" type="xs:int" dfdl:inputValueCalc="{ xs:short(5) idiv xs:short(0) }" />
+    <xs:element name="idiv13" type="xs:int" dfdl:inputValueCalc="{ xs:double('INF') idiv xs:double(2) }" />
+    <xs:element name="idiv14" type="xs:int" dfdl:inputValueCalc="{ xs:float('INF') idiv xs:float(2) }" />
+    <xs:element name="idiv15" type="xs:int" dfdl:inputValueCalc="{ xs:double('NaN') idiv xs:double(2) }" />
+    <xs:element name="idiv16" type="xs:int" dfdl:inputValueCalc="{ xs:float('NaN') idiv xs:float(2) }" />
+    <xs:element name="idiv17" type="xs:int" dfdl:inputValueCalc="{ xs:double(5) idiv xs:double('NaN') }" />
+    <xs:element name="idiv18" type="xs:int" dfdl:inputValueCalc="{ xs:float(5) idiv xs:float('NaN') }" />
+    <xs:element name="idiv19" type="xs:int" dfdl:inputValueCalc="{ xs:double(5) idiv xs:double('INF') }" />
+    <xs:element name="idiv20" type="xs:int" dfdl:inputValueCalc="{ xs:float(5) idiv xs:float('INF') }" />
 
   </tdml:defineSchema>
 
@@ -7031,12 +7100,12 @@ c]]></value>
 
   <tdml:parserTestCase name="div07" root="div07" model="XPathDiv" description="Section 23 - DFDL Expressions - div">
     <tdml:document></tdml:document>
-    <tdml:infoset><tdml:dfdlInfoset><div07>Infinity</div07></tdml:dfdlInfoset></tdml:infoset>
+    <tdml:infoset><tdml:dfdlInfoset><div07>INF</div07></tdml:dfdlInfoset></tdml:infoset>
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="div08" root="div08" model="XPathDiv" description="Section 23 - DFDL Expressions - div">
     <tdml:document></tdml:document>
-    <tdml:infoset><tdml:dfdlInfoset><div08>Infinity</div08></tdml:dfdlInfoset></tdml:infoset>
+    <tdml:infoset><tdml:dfdlInfoset><div08>INF</div08></tdml:dfdlInfoset></tdml:infoset>
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="div09" root="div09" model="XPathDiv" description="Section 23 - DFDL Expressions - div">
@@ -7069,12 +7138,12 @@ c]]></value>
 
   <tdml:parserTestCase name="div13" root="div13" model="XPathDiv" description="Section 23 - DFDL Expressions - div">
     <tdml:document></tdml:document>
-    <tdml:infoset><tdml:dfdlInfoset><div13>Infinity</div13></tdml:dfdlInfoset></tdml:infoset>
+    <tdml:infoset><tdml:dfdlInfoset><div13>INF</div13></tdml:dfdlInfoset></tdml:infoset>
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="div14" root="div14" model="XPathDiv" description="Section 23 - DFDL Expressions - div">
     <tdml:document></tdml:document>
-    <tdml:infoset><tdml:dfdlInfoset><div14>Infinity</div14></tdml:dfdlInfoset></tdml:infoset>
+    <tdml:infoset><tdml:dfdlInfoset><div14>INF</div14></tdml:dfdlInfoset></tdml:infoset>
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="div15" root="div15" model="XPathDiv" description="Section 23 - DFDL Expressions - div">
