@@ -18,13 +18,12 @@
 package org.apache.daffodil.calendar
 
 import com.ibm.icu.text.SimpleDateFormat
-import com.ibm.icu.util.Calendar;
-import com.ibm.icu.util.TimeZone;
+import com.ibm.icu.util.Calendar
+import com.ibm.icu.util.TimeZone
 
 import java.math.{ BigDecimal => JBigDecimal }
 
 import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.processors.parsers.TextCalendarConstants
 
 object DFDLCalendarOrder extends Enumeration {
   type DFDLCalendarOrder = Value
@@ -96,20 +95,26 @@ trait OrderedCalendar { self: DFDLCalendar =>
       else if (pHasTZ && !qHasTZ) {
         val qPlus = qPrime.getDateTimePlusFourteenHours
 
-        if (orderCompareFields(pPrime, qPlus) == DFDLCalendarOrder.P_LESS_THAN_Q) { DFDLCalendarOrder.P_LESS_THAN_Q }
+        if (orderCompareFields(pPrime, qPlus) == DFDLCalendarOrder.P_LESS_THAN_Q)
+          DFDLCalendarOrder.P_LESS_THAN_Q
         else {
           val qMinus = q.getDateTimeMinusFourteenHours
-          if (orderCompareFields(pPrime, qMinus) == DFDLCalendarOrder.P_GREATER_THAN_Q) { DFDLCalendarOrder.P_GREATER_THAN_Q }
-          else { DFDLCalendarOrder.P_NOT_EQUAL_Q }
+          if (orderCompareFields(pPrime, qMinus) == DFDLCalendarOrder.P_GREATER_THAN_Q)
+            DFDLCalendarOrder.P_GREATER_THAN_Q
+          else
+            DFDLCalendarOrder.P_NOT_EQUAL_Q
         }
       } else if (!pHasTZ && qHasTZ) {
         val pMinus = pPrime.getDateTimeMinusFourteenHours
 
-        if (orderCompareFields(pMinus, qPrime) == DFDLCalendarOrder.P_LESS_THAN_Q) { DFDLCalendarOrder.P_LESS_THAN_Q }
+        if (orderCompareFields(pMinus, qPrime) == DFDLCalendarOrder.P_LESS_THAN_Q)
+          DFDLCalendarOrder.P_LESS_THAN_Q
         else {
           val pPlus = pPrime.getDateTimePlusFourteenHours
-          if (orderCompareFields(pPlus, qPrime) == DFDLCalendarOrder.P_GREATER_THAN_Q) { DFDLCalendarOrder.P_GREATER_THAN_Q }
-          else { DFDLCalendarOrder.P_NOT_EQUAL_Q }
+          if (orderCompareFields(pPlus, qPrime) == DFDLCalendarOrder.P_GREATER_THAN_Q)
+            DFDLCalendarOrder.P_GREATER_THAN_Q
+          else
+            DFDLCalendarOrder.P_NOT_EQUAL_Q
         }
       } else { Assert.impossibleCase }
     }
@@ -133,14 +138,14 @@ trait OrderedCalendar { self: DFDLCalendar =>
     for (i <- 0 until length) {
       val field = fieldsForComparison(i)
 
-      val hasPSubI = p.isFieldSet(field)
-      val hasQSubI = q.isFieldSet(field)
+      val hasPSubI = p.calendar.isSet(field)
+      val hasQSubI = q.calendar.isSet(field)
 
       if (!hasPSubI && !hasQSubI) { /* continue */ }
       else if (hasPSubI ^ hasQSubI) return DFDLCalendarOrder.P_NOT_EQUAL_Q
       else {
-        val pSubI = p.getField(field)
-        val qSubI = q.getField(field)
+        val pSubI = p.calendar.get(field)
+        val qSubI = q.calendar.get(field)
 
         if (pSubI < qSubI) { return DFDLCalendarOrder.P_LESS_THAN_Q }
         else if (pSubI > qSubI) { return DFDLCalendarOrder.P_GREATER_THAN_Q }
@@ -152,31 +157,23 @@ trait OrderedCalendar { self: DFDLCalendar =>
 }
 
 trait ToDateTimeMixin { self: DFDLCalendar =>
-  def toDateTime(): DFDLDateTime = new DFDLDateTime(calendar.clone().asInstanceOf[Calendar], self.hasTimeZone)
+  def toDateTime(): DFDLDateTime = DFDLDateTime(calendar.clone().asInstanceOf[Calendar], self.hasTimeZone)
 }
 
 trait ToTimeMixin { self: DFDLCalendar =>
-  def toTime(): DFDLTime = new DFDLTime(calendar.clone().asInstanceOf[Calendar], self.hasTimeZone)
+  def toTime(): DFDLTime = DFDLTime(calendar.clone().asInstanceOf[Calendar], self.hasTimeZone)
 }
 
 trait ToDateMixin { self: DFDLCalendar =>
-  def toDate(): DFDLDate = new DFDLDate(calendar.clone().asInstanceOf[Calendar], self.hasTimeZone)
+  def toDate(): DFDLDate = DFDLDate(calendar.clone().asInstanceOf[Calendar], self.hasTimeZone)
 }
 
-case class DFDLDate(calendar: Calendar, parsedTZ: Boolean)
-  extends DFDLCalendar(parsedTZ: Boolean)
-  with ToDateTimeMixin with ToDateMixin {
+case class DFDLDate(calendar: Calendar, override val hasTimeZone: Boolean)
+  extends DFDLCalendar
+  with ToDateTimeMixin
+  with ToDateMixin {
 
-  /**
-   * This apply method supplies a way to just specify 'no time zone' when
-   * one was not expected.  This just so happens to be the same as GMT.
-   */
-  def apply(cal: Calendar, expectsTZ: Boolean) = {
-    if (!expectsTZ) cal.setTimeZone(TimeZone.UNKNOWN_ZONE)
-    new DFDLDate(cal, expectsTZ)
-  }
-
-  @transient override lazy val tlFormatter = if (this.hasTimeZone) TextCalendarConstants.tlDateInfosetFormatter else TextCalendarConstants.tlDateNoTZInfosetFormatter
+  override def toString(): String = DFDLDateConversion.toXMLString(this)
 
   override def equals(other: Any): Boolean = other match {
     case that: DFDLDate => this.toDateTimeWithReference equals that.toDateTimeWithReference
@@ -205,31 +202,16 @@ case class DFDLDate(calendar: Calendar, parsedTZ: Boolean)
     dateCal.clear(Calendar.HOUR_OF_DAY)
     dateCal.clear(Calendar.MINUTE)
     dateCal.clear(Calendar.SECOND)
-    new DFDLDateTime(dateCal, parsedTZ)
+    DFDLDateTime(dateCal, hasTimeZone)
   }
 
 }
 
-case class DFDLTime(calendar: Calendar, parsedTZ: Boolean)
-  extends DFDLCalendar(parsedTZ)
+case class DFDLTime(calendar: Calendar, override val hasTimeZone: Boolean)
+  extends DFDLCalendar
   with ToTimeMixin {
 
-  /**
-   * This apply method supplies a way to just specify 'no time zone' when
-   * one was not expected.  This just so happens to be the same as GMT.
-   */
-  def apply(cal: Calendar, expectsTZ: Boolean) = {
-    if (!expectsTZ) cal.setTimeZone(TimeZone.UNKNOWN_ZONE)
-    new DFDLTime(cal, expectsTZ)
-  }
-
-  @transient override lazy val tlFormatter = (this.hasTimeZone, this.hasFractionalSeconds) match {
-    case (true, true) => TextCalendarConstants.tlTimeInfosetFormatter
-    case (false, true) => TextCalendarConstants.tlTimeNoTZInfosetFormatter
-    case (true, false) => TextCalendarConstants.tlTimeNoFractSecInfosetFormatter
-    case (false, false) => TextCalendarConstants.tlTimeNoTZNoFractSecInfosetFormatter
-  }
-
+  override def toString(): String = DFDLTimeConversion.toXMLString(this)
 
   override def equals(other: Any): Boolean = other match {
     case that: DFDLTime => this.toDateTimeWithReference equals that.toDateTimeWithReference
@@ -261,30 +243,18 @@ case class DFDLTime(calendar: Calendar, parsedTZ: Boolean)
     timeCal.clear(Calendar.EXTENDED_YEAR)
     timeCal.clear(Calendar.MONTH)
     timeCal.clear(Calendar.DAY_OF_MONTH)
-    new DFDLDateTime(timeCal, parsedTZ)
+    DFDLDateTime(timeCal, hasTimeZone)
   }
 
 }
 
-case class DFDLDateTime(calendar: Calendar, parsedTZ: Boolean)
-  extends DFDLCalendar(parsedTZ)
-  with ToDateTimeMixin with ToDateMixin with ToTimeMixin {
+case class DFDLDateTime(calendar: Calendar, override val hasTimeZone: Boolean)
+  extends DFDLCalendar
+  with ToDateTimeMixin
+  with ToDateMixin
+  with ToTimeMixin {
 
-  /**
-   * This apply method supplies a way to just specify 'no time zone' when
-   * one was not expected.  This just so happens to be the same as GMT.
-   */
-  def apply(cal: Calendar, expectsTZ: Boolean) = {
-    if (!expectsTZ) cal.setTimeZone(TimeZone.UNKNOWN_ZONE)
-    new DFDLDateTime(cal, expectsTZ)
-  }
-
-  @transient override lazy val tlFormatter = (this.hasTimeZone, this.hasFractionalSeconds) match {
-    case (true, true) => TextCalendarConstants.tlDateTimeInfosetFormatter
-    case (false, true) => TextCalendarConstants.tlDateTimeNoTZInfosetFormatter
-    case (true, false) => TextCalendarConstants.tlDateTimeNoFractSecInfosetFormatter
-    case (false, false) => TextCalendarConstants.tlDateTimeNoTZNoFractSecInfosetFormatter
-  }
+  override def toString(): String = DFDLDateTimeConversion.toXMLString(this)
 
   override def equals(other: Any) = other match {
     case that: DFDLDateTime => dateTimeEqual(this, that)
@@ -303,14 +273,14 @@ case class DFDLDateTime(calendar: Calendar, parsedTZ: Boolean)
   def getDateTimePlusFourteenHours: DFDLDateTime = {
     Assert.invariant(!hasTimeZone)
     val adjustedCal = adjustTimeZone(normalizedCalendar, 14, 0)
-    val dt = new DFDLDateTime(adjustedCal, parsedTZ)
+    val dt = DFDLDateTime(adjustedCal, hasTimeZone)
     dt
   }
 
   def getDateTimeMinusFourteenHours: DFDLDateTime = {
     Assert.invariant(!hasTimeZone)
     val adjustedCal = adjustTimeZone(normalizedCalendar, -14, 0)
-    val dt = new DFDLDateTime(adjustedCal, parsedTZ)
+    val dt = DFDLDateTime(adjustedCal, hasTimeZone)
     dt
   }
 
@@ -349,7 +319,7 @@ case class DFDLDateTime(calendar: Calendar, parsedTZ: Boolean)
   }
 
   def getNormalizedCalendar(): DFDLDateTime = {
-    new DFDLDateTime(normalizedCalendar.clone().asInstanceOf[Calendar], parsedTZ)
+    DFDLDateTime(normalizedCalendar.clone().asInstanceOf[Calendar], hasTimeZone)
   }
 
   /**
@@ -400,77 +370,33 @@ case class DFDLDateTime(calendar: Calendar, parsedTZ: Boolean)
   }
 }
 
-abstract class DFDLCalendar(containsTZ: Boolean)
+/**
+ * Abstract class for DFDL Date/Time/DateTime. Wrapper around ICU calendar.
+ *
+ * The main reason this is neeed  is there does not appear to really be a
+ * concept of 'no time zone', so a hasTimeZone function must be implemented by
+ * implementors specifying whether or not the calendar has a timezone.
+ *
+ * On a related note, it does appear that we can specify an 'unknown' time zone
+ * using TimeZone.UNKNOWN_ZONE, since this behaves like the GMT/UTC time zone.
+ *
+ * To be clear, when no time zone is present (or expected) we set the calendar
+ * time zone to TimeZone.UNKNOWN_ZONE and carry around the hasTimeZOne flag.
+ * This avoids accessing calendar.getZone and comparing against
+ * TimeZone.UNKNOWN_ZONE, but allows the calendar object to somewhat represent
+ * 'no time zone'.
+ */
+abstract class DFDLCalendar
   extends OrderedCalendar with Serializable {
 
-  /* Print formats */
-  final val dateTimeFormatNoTZ: String = "uuuu-MM-dd'T'HH:mm:ss.SSSSSS"
-  final val dateFormatNoTZ: String = "uuuu-MM-dd"
-  final val timeFormatNoTZ: String = "HH:mm:ss.SSSSSS"
-  final val dateTimeFormat: String = "uuuu-MM-dd'T'HH:mm:ss.SSSSSSxxxxx"
-  final val dateFormat: String = "uuuu-MM-ddxxxxx"
-  final val timeFormat: String = "HH:mm:ss.SSSSSSxxxxx"
-  final val tzFormat: String = "xxx" // -08:00 The ISO8601 extended format with hours and minutes fields.
+  // Ensure the calendar does not have a timezone set if the hasTimeZone flag
+  // has not been set
+  if (!hasTimeZone) calendar.setTimeZone(TimeZone.UNKNOWN_ZONE)
 
   def calendar: Calendar
-  def tlFormatter: ThreadLocal[SimpleDateFormat]
 
-  def getField(fieldIndex: Int): Int = calendar.get(fieldIndex)
-  def isFieldSet(fieldIndex: Int): Boolean = calendar.isSet(fieldIndex)
-  def hasTimeZone: Boolean = {
-    // There does not appear to really be a concept of 'no time zone'
-    // so we use a regex or other means of elimination to determine
-    // if a time zone was expected or parsed.  This is passed as a flag
-    // to the DFDLCalendar object.
-    //
-    // On a side note, it does appear that we can specify an 'unknown'
-    // time zone using TimeZone.UNKNOWN_ZONE.  However, this behaves like
-    // the GMT/UTC time zone.
-    //
-    // To be clear, when no time zone is present (or expected) we set
-    // the calendar time zone to TimeZone.UNKNOWN_ZONE and carry around
-    // this flag.  This avoids accessing calendar.getZone and comparing
-    // against TimeZone.UNKNOWN_ZONE, but allows the calendar object
-    // to somewhat represent 'no time zone'.
-    //
-    containsTZ
-  }
-
-  def hasFractionalSeconds: Boolean = (calendar.isSet(Calendar.MILLISECOND) && (calendar.get(Calendar.MILLISECOND) != 0))
+  def hasTimeZone: Boolean
 
   final def toJBigDecimal: JBigDecimal = new JBigDecimal(calendar.getTimeInMillis())
-
-  /**
-   * Returns the TimeZone in the format of "+00:00"
-   */
-  def getTimeZoneString: String = {
-    val formatter = TextCalendarConstants.tlTzInfosetFormatter.get
-    val formattedString = try {
-      formatter.format(calendar)
-    } catch {
-      case ex: java.lang.IllegalArgumentException =>
-        throw new java.lang.IllegalArgumentException("Calendar content failed to match the format '%s' due to %s".format(formatter.toPattern, ex.getMessage()))
-    }
-    formattedString
-  }
-
-  /**
-   * Returns the ICU Calendar object.
-   *
-   * We represent 'No time zone' by TimeZone.UNKNOWN_ZONE
-   */
-  def getCalendar() = calendar
-  override def toString(): String = {
-    val formatter: SimpleDateFormat = tlFormatter.get
-    formatter.setCalendar(calendar)
-
-    val formattedString = try {
-      formatter.format(calendar)
-    } catch {
-      case ex: java.lang.IllegalArgumentException =>
-        throw new java.lang.IllegalArgumentException("Calendar content failed to match the format '%s' due to %s".format(formatter.toPattern, ex.getMessage()))
-    }
-    formattedString
-  }
-
 }
+

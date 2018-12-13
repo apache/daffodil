@@ -276,8 +276,7 @@
 	<tdml:parserTestCase name="simple_type_properties_text_calendar_13_02" root="calendar_group"
         roundTrip="twoPass"
 		model="./fvt/ext/dpa/dpacaltxt_43.dfdl.xsd" 
-		 description="Section 13.10 Properties for calendar text  - implicit patterns for date, time, and dateTime "
-     implementations="daffodil">
+		 description="Section 13.10 Properties for calendar text  - implicit patterns for date, time, and dateTime ">
 		<tdml:document>2010-12-30*04:05:06+01:00*2010-12-30T04:05:06@@</tdml:document>
 		<tdml:infoset>
 			<tdml:dfdlInfoset>
@@ -289,27 +288,6 @@
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>
-  
-  <!-- Until DAFFODIL-2026 (type-dependent comparison for TDML tests) is implemented, we need
-  some tests to be split into IBM tests, and Daffodil tests since different equivalent infosets are 
-  allowed. -->
-    <tdml:parserTestCase name="simple_type_properties_text_calendar_13_02_ibm" root="calendar_group"
-        roundTrip="twoPass"
-    model="./fvt/ext/dpa/dpacaltxt_43.dfdl.xsd" 
-     description="Section 13.10 Properties for calendar text  - implicit patterns for date, time, and dateTime "
-     implementations="ibm">
-    <tdml:document>2010-12-30*04:05:06+01:00*2010-12-30T04:05:06@@</tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <calendar_group>
-          <date1 xsi:type="xs:date">2010-12-30Z</date1>
-          <time1 xsi:type="xs:time">04:05:06.000+01:00</time1>
-          <datetime1 xsi:type="xs:dateTime">2010-12-30T04:05:06.000Z</datetime1>
-        </calendar_group>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-  </tdml:parserTestCase>
-  
 		
 	<tdml:parserTestCase name="simple_type_properties_text_calendar_13_03" root="myDateTime"
         roundTrip="twoPass"

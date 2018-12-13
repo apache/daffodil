@@ -1267,40 +1267,10 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 object VerifyTestCase {
   def verifyParserTestData(actual: Node, infoset: Infoset, implString: Option[String]) {
 
-    val actualForCompare = XMLUtils.removeAttributes(actual)
-
-    // For debug
-    // scala.xml.XML.save("/tmp/actual.out.xml", actual, "utf-8")
-
-    //
-    // Would be great to validate the actuals against the DFDL schema, used as
-    // an XML schema on the returned infoset XML.
-    // Getting this to work is a bigger issue. What with stripping of attributes
-    // and that our internal Daffodil XML Catalog has a special treatment of the
-    // mapping of the XML Schema URI.
-    // etc.
-    //
-    // TODO: Fix so we can validate here.
-    //
-
-    // Something about the way XML is constructed is different between our infoset
-    // results and the ones created by scala directly parsing the TDML test files.
-    //
-    // This has something to do with values being lists of text nodes and entities
-    // and not just simple strings. I.e., if you write: <foo>a&#x5E74;</foo>, that's not
-    // an element with a string as its value. It's an element with several text nodes as
-    // its values.
-    //
-    // so we run the expected stuff through the same conditioners as the actual
-    // data so that they are properly comparable.
-    //
-
     val expected = infoset.contents
 
-    val expectedForCompare = XMLUtils.removeAttributes(XMLUtils.convertPCDataToText(expected))
-
     try {
-      XMLUtils.compareAndReport(expectedForCompare, actualForCompare)
+      XMLUtils.compareAndReport(expected, actual)
     } catch {
       case e: Exception =>
         throw TDMLException(e, implString)

@@ -17,29 +17,32 @@
 
 package org.apache.daffodil.grammar.primitives
 
-import java.text.ParsePosition
 import com.ibm.icu.text.SimpleDateFormat
 import com.ibm.icu.util.Calendar
+import com.ibm.icu.util.Calendar
+import com.ibm.icu.util.TimeZone
 import com.ibm.icu.util.TimeZone
 import com.ibm.icu.util.ULocale
+
+import java.text.ParsePosition
+
+import scala.Boolean
+
+import org.apache.daffodil.calendar.TextCalendarConstants
 import org.apache.daffodil.dsom.ElementBase
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.grammar.Terminal
-import org.apache.daffodil.schema.annotation.props.gen.CalendarCheckPolicy
-import org.apache.daffodil.schema.annotation.props.gen.CalendarFirstDayOfWeek
-import org.apache.daffodil.schema.annotation.props.gen.CalendarPatternKind
-import org.apache.daffodil.processors.unparsers.ConvertBinaryCalendarSecMilliUnparser
-import org.apache.daffodil.processors.unparsers.ConvertTextCalendarUnparser
-import com.ibm.icu.util.Calendar
-import com.ibm.icu.util.TimeZone
 import org.apache.daffodil.processors.CalendarEv
 import org.apache.daffodil.processors.CalendarLanguageEv
 import org.apache.daffodil.processors.parsers.ConvertBinaryCalendarSecMilliParser
 import org.apache.daffodil.processors.parsers.ConvertTextCalendarParser
-import org.apache.daffodil.processors.parsers.TextCalendarConstants
+import org.apache.daffodil.processors.unparsers.ConvertBinaryCalendarSecMilliUnparser
+import org.apache.daffodil.processors.unparsers.ConvertTextCalendarUnparser
 import org.apache.daffodil.schema.annotation.props.gen.BinaryCalendarRep
+import org.apache.daffodil.schema.annotation.props.gen.CalendarCheckPolicy
+import org.apache.daffodil.schema.annotation.props.gen.CalendarFirstDayOfWeek
+import org.apache.daffodil.schema.annotation.props.gen.CalendarPatternKind
 import org.apache.daffodil.schema.annotation.props.gen.Representation
-import scala.Boolean
 
 abstract class ConvertCalendarPrimBase(e: ElementBase, guard: Boolean)
   extends Terminal(e, guard) {

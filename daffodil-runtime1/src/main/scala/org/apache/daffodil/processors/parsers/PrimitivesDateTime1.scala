@@ -144,45 +144,14 @@ case class ConvertTextCalendarParser(
     }
 
     val newCal = xsdType.toLowerCase() match {
-      case "time" => new DFDLTime(cal, hasTZ)
-      case "date" => new DFDLDate(cal, hasTZ)
-      case "datetime" => new DFDLDateTime(cal, hasTZ)
+      case "time" => DFDLTime(cal, hasTZ)
+      case "date" => DFDLDate(cal, hasTZ)
+      case "datetime" => DFDLDateTime(cal, hasTZ)
       case _ => Assert.impossibleCase
     }
 
     node.overwriteDataValue(newCal)
 
-  }
-}
-
-object TextCalendarConstants {
-  final val maxFractionalSeconds = 9
-
-  // before being used, setCalendar must be called on the SimpleDateFormat
-  //
-  // The reason for the various NoTZ and NoFractSec variations are because
-  // we need to keep track of whether the data had timezone or millisecond
-  // information initially, otherwise we end up assuming a timezone, such
-  // as UTC, and .000000 milliseconds when the data did not specify this
-  // information.
-  final val tlDateTimeNoTZInfosetFormatter: ThreadLocal[SimpleDateFormat] = createTLInfosetFormatter("uuuu-MM-dd'T'HH:mm:ss.SSSSSS")
-  final val tlDateTimeInfosetFormatter: ThreadLocal[SimpleDateFormat] = createTLInfosetFormatter("uuuu-MM-dd'T'HH:mm:ss.SSSSSSxxxxx")
-  final val tlDateTimeNoTZNoFractSecInfosetFormatter: ThreadLocal[SimpleDateFormat] = createTLInfosetFormatter("uuuu-MM-dd'T'HH:mm:ss")
-  final val tlDateTimeNoFractSecInfosetFormatter: ThreadLocal[SimpleDateFormat] = createTLInfosetFormatter("uuuu-MM-dd'T'HH:mm:ssxxxxx")
-  final val tlDateNoTZInfosetFormatter: ThreadLocal[SimpleDateFormat] = createTLInfosetFormatter("uuuu-MM-dd")
-  final val tlDateInfosetFormatter: ThreadLocal[SimpleDateFormat] = createTLInfosetFormatter("uuuu-MM-ddxxxxx")
-  final val tlTimeNoTZInfosetFormatter: ThreadLocal[SimpleDateFormat] = createTLInfosetFormatter("HH:mm:ss.SSSSSS")
-  final val tlTimeInfosetFormatter: ThreadLocal[SimpleDateFormat] = createTLInfosetFormatter("HH:mm:ss.SSSSSSxxxxx")
-  final val tlTimeNoTZNoFractSecInfosetFormatter: ThreadLocal[SimpleDateFormat] = createTLInfosetFormatter("HH:mm:ss")
-  final val tlTimeNoFractSecInfosetFormatter: ThreadLocal[SimpleDateFormat] = createTLInfosetFormatter("HH:mm:ssxxxxx")
-  final val tlTzInfosetFormatter: ThreadLocal[SimpleDateFormat] = createTLInfosetFormatter("xxx") // -08:00 The ISO8601 extended format with hours and minutes fields.
-
-  private def createTLInfosetFormatter(pattern: String) = new ThreadLocal[SimpleDateFormat] {
-    override def initialValue = {
-      val formatter = new SimpleDateFormat(pattern)
-      formatter.setLenient(true)
-      formatter
-    }
   }
 }
 
@@ -229,7 +198,7 @@ case class ConvertBinaryCalendarSecMilliParser(
       }
     }
 
-    val newCal = new DFDLDateTime(cal, hasTZ)
+    val newCal = DFDLDateTime(cal, hasTZ)
     start.simpleElement.overwriteDataValue(newCal)
   }
 }

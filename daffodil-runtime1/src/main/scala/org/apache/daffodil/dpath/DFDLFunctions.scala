@@ -17,11 +17,12 @@
 
 package org.apache.daffodil.dpath
 
-import org.apache.daffodil.exceptions._
-import org.apache.daffodil.dsom._
 import org.apache.daffodil.calendar.DFDLCalendar
-import org.apache.daffodil.util.Numbers._
+import org.apache.daffodil.calendar.DFDLCalendarConversion
 import org.apache.daffodil.cookers.EntityReplacer
+import org.apache.daffodil.dsom._
+import org.apache.daffodil.exceptions._
+import org.apache.daffodil.util.Numbers._
 
 case class DFDLCheckConstraints(recipe: CompiledDPath) extends RecipeOpWithSubRecipes(recipe) {
   override def run(dstate: DState) {
@@ -114,10 +115,8 @@ case class DFDLTimeZoneFromDFDLCalendar(recipe: CompiledDPath, argType: NodeInfo
   extends FNOneArg(recipe, argType) {
 
   override def computeValue(value: AnyRef, dstate: DState) = {
-    val calendar = value.asInstanceOf[DFDLCalendar]
-
-    val res = if (calendar.hasTimeZone) { calendar.getTimeZoneString } else { "" }
-    res
+    val dfdlcal = value.asInstanceOf[DFDLCalendar]
+    DFDLCalendarConversion.timeZonePartToXMLString(dfdlcal)
   }
 }
 

@@ -30,7 +30,7 @@ class TestXMLUtils {
   @Test def testDiff0() {
     val d1 = new Text("a")
     val d2 = new Text("b")
-    val diffs = XMLUtils.computeTextDiff("", d1, d2)
+    val diffs = XMLUtils.computeTextDiff("", d1, d2, None)
     val Seq((p, a, b)) = diffs
     assertEquals(".charAt(1)", p)
     assertEquals("a(%#x0061;)", a)
@@ -74,14 +74,12 @@ class TestXMLUtils {
   @Test def testNilDiff1() {
     val d1 = <a xmlns:xsi={ XMLUtils.XSI_NAMESPACE } xsi:nil="true" foo="bar"/>
     val d2 = <a dafint:col="30" xmlns:dafint={ XMLUtils.INT_NS }/>
-    val d1NoA = XMLUtils.removeAttributes(d1)
-    val d2NoA = XMLUtils.removeAttributes(d2)
-    val diffs = XMLUtils.computeDiff(d1NoA, d2NoA)
+    val diffs = XMLUtils.computeDiff(d1, d2)
     val Seq((path, d1attribs, d2attribs)) = diffs
-    assertEquals("", path)
+    assertEquals("/a@xsi:nil", path)
     // for whatever reason, an attribute prints with a leading space or something.
     // so we make the comparison be a 'contains' style comparison.
-    assertTrue(d1attribs.contains("xsi:nil=\"true\""))
+    assertTrue(d1attribs.contains("true"))
     assertEquals("", d2attribs)
   }
 

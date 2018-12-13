@@ -25,7 +25,7 @@ import com.ibm.icu.util.Calendar
 import com.ibm.icu.text.DecimalFormat
 import com.ibm.icu.text.DecimalFormatSymbols
 import org.junit.Test
-import org.apache.daffodil.processors.parsers.TextCalendarConstants
+import org.apache.daffodil.calendar.TextCalendarConstants
 
 class TestICU {
 
