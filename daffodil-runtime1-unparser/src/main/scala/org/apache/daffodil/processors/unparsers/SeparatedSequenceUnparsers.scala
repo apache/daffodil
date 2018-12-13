@@ -22,6 +22,7 @@ import org.apache.daffodil.processors.{ ElementRuntimeData, SequenceRuntimeData,
 import org.apache.daffodil.schema.annotation.props.SeparatorSuppressionPolicy
 import org.apache.daffodil.schema.annotation.props.gen.{ SeparatorPosition }
 import org.apache.daffodil.infoset.DIElement
+import org.apache.daffodil.processors.ModelGroupRuntimeData
 
 /**
  * DFDL Spec. section 14.2.3 specifies only a few different behaviors
@@ -112,8 +113,7 @@ trait Separated { self: SequenceChildUnparser =>
   val childProcessors = Vector(childUnparser, sep)
 }
 
-class ScalarOrderedSeparatedSequenceChildUnparser(
-  childUnparser: Unparser,
+sealed abstract class ScalarOrderedSeparatedSequenceChildUnparserBase(childUnparser: Unparser,
   srd: SequenceRuntimeData,
   trd: TermRuntimeData,
   val sep: Unparser,
@@ -126,8 +126,26 @@ class ScalarOrderedSeparatedSequenceChildUnparser(
   override def unparse(state: UState) = childUnparser.unparse1(state)
 }
 
-class RepOrderedSeparatedSequenceChildUnparser(
-  childUnparser: Unparser,
+class ScalarOrderedSeparatedSequenceChildUnparser(childUnparser: Unparser,
+  srd: SequenceRuntimeData,
+  trd: TermRuntimeData,
+  sep: Unparser,
+  spos: SeparatorPosition,
+  ssp: SeparatorSuppressionPolicy,
+  ssAlgorithm: SeparatorSuppressionMode)
+  extends ScalarOrderedSeparatedSequenceChildUnparserBase(childUnparser, srd, trd, sep, spos, ssp, ssAlgorithm)
+
+class PotentiallyTrailingGroupSeparatedSequenceChildUnparser(childUnparser: Unparser,
+  srd: SequenceRuntimeData,
+  val mrd: ModelGroupRuntimeData,
+  sep: Unparser,
+  spos: SeparatorPosition,
+  ssp: SeparatorSuppressionPolicy,
+  ssAlgorithm: SeparatorSuppressionMode)
+  extends ScalarOrderedSeparatedSequenceChildUnparserBase(childUnparser, srd, mrd, sep, spos, ssp, ssAlgorithm)
+  with PotentiallyTrailingGroupSequenceChildUnparser
+
+class RepOrderedSeparatedSequenceChildUnparser(childUnparser: Unparser,
   srd: SequenceRuntimeData,
   erd: ElementRuntimeData,
   val sep: Unparser,
@@ -140,8 +158,7 @@ class RepOrderedSeparatedSequenceChildUnparser(
   override def checkArrayPosAgainstMaxOccurs(state: UState) = ssAlgorithm.checkArrayPosAgainstMaxOccurs(state, maxRepeats(state))
 }
 
-class OrderedSeparatedSequenceUnparser(
-  rd: SequenceRuntimeData,
+class OrderedSeparatedSequenceUnparser(rd: SequenceRuntimeData,
   ssp: SeparatorSuppressionPolicy,
   spos: SeparatorPosition,
   sep: Unparser,
@@ -164,8 +181,7 @@ class OrderedSeparatedSequenceUnparser(
   /**
    * Unparses one occurrence.
    */
-  protected def unparseOne(
-    unparser: SequenceChildUnparser,
+  protected def unparseOne(unparser: SequenceChildUnparser,
     trd: TermRuntimeData,
     state: UState): Unit = {
 
@@ -189,8 +205,7 @@ class OrderedSeparatedSequenceUnparser(
    * any statements or other side-effects (discriminators, setVariable, etc.)
    * will occur.
    */
-  private def unparseZeroLengthWithoutSeparatorForSideEffect(
-    unparser: SequenceChildUnparser,
+  private def unparseZeroLengthWithoutSeparatorForSideEffect(unparser: SequenceChildUnparser,
     trd: TermRuntimeData,
     state: UState): Unit = {
     //
@@ -304,8 +319,7 @@ class OrderedSeparatedSequenceUnparser(
                   doUnparser
                 }) {
                   val suppressionAction =
-                    ssAlgorithm.shouldSuppressIfZeroLength(
-                      state,
+                    ssAlgorithm.shouldSuppressIfZeroLength(state,
                       state.inspectAccessor.asElement)
                   import SeparatorSuppressionAction._
                   suppressionAction match {
@@ -314,6 +328,31 @@ class OrderedSeparatedSequenceUnparser(
                       // If there are pending potentially trailing separators,
                       // then we've just proven that they are NOT actually trailing
                       // So we output them all.
+                      //
+                      // This works for array elements of a simpleType element array, since
+                      // we can examine each element and determine if it will be zero-length
+                      // when unparsed without having to unparse it.
+                      //
+                      // This is a heuristic though. It isn't necessarily correct.
+                      // For example, if when we unparse the simple element, there could be
+                      // statements (set var, asserts, etc.) those could cause the execution to suspend
+                      // which is transparent to us, but for example, if the element has
+                      // dfdl:lengthKind="pattern" (say), but dfdl:terminator="{ some expression }"
+                      // and the expression returns zero-length (e.g., '%ES;' - which is allowed when
+                      // the lengthKind is not 'delimited') then the value
+                      // could be zero length even though there is a terminator.
+                      // Hence, the zero-length predictor really has to take lengthKind and the complete unparsing
+                      // into account. Furthermore, that dfdl:terminator expression could refer to
+                      // an element with dfdl:outputValueCalc that does not yet have a value.
+                      // If so then we can't know ZL for sure.
+                      //
+                      // In general, we can't know ZL without doing the unparsing and measuring it,
+                      // and that's what all the unparser complexity of suspensions and split buffering is
+                      // enabling. So really this quick check of a zeroLengthPredictor is just going to
+                      // give an approximation that says "not ZL for sure" because it sees the value has
+                      // characters/bytes in it, so can analyze that, or if there aren't characters/bytes it
+                      // has to be conservative and go back to actually doing the unparsing, block until the
+                      // length is resolved, and measure if it is zero length.
                       //
                       while (potentialTrailingSeparatorCount > 0) {
                         Assert.invariant(haveSeenPotentiallyTrailingSeparators)
@@ -392,7 +431,74 @@ class OrderedSeparatedSequenceUnparser(
             Assert.invariantFailed("No event for unparsing.")
           }
         }
-        //
+
+        case null => { // potentiallyTrailingGroupUnparser: PotentiallyTrailingGroupSequenceChildUnparser => {
+          //
+          // We have to unparse the group, for side-effects potentially.
+          // however, we don't know whether to output the separator.
+          //
+          // The problem is that whether we put down this separator depends on whether
+          // the children of this group are in fact all absent and so there's nothing to output here, AND
+          // there's no subsequent siblings (i.e, this model group is truly trailing empty.)
+          //
+          // This really is a case where we can't stream.
+          //
+          // Simpler DFDL implementations could implement this behavior by some sort of backtracking on the output stream.
+          // They could use similar techniques for dealing with the storing of prefix-lengths. They don't implement
+          // don't have to do dfdl:outputValueCalc with arbitrary forward-reference though, so
+          // our technique for implementing this might have to be different.
+          //
+
+          //
+          // Possible mechanism 1:
+          //
+          // A zeroLengthPredictor for a model group will pull elements until either (a) it finds one that
+          // allows it to know non-zero length, or it finds one beyond end of group. If it detects end of group
+          // but has all ZL-predicted elements (or no elements) pulled, then it can successfully predict that the
+          // whole group will be zero length.
+          //
+          // ZL predictors are potentially problematic in case of non-delimited lengthKind, where a delimiter expression can
+          // return a zero-length. That would make a ZL predictor conservative - it would assume non-zero length if there
+          // are any delimiter expressions. The same is true if elements have outputValueCalc. In that case those would
+          // have to be evaluated so as to get the values in order to determine if they will in fact be zero length.
+          //
+          // So a ZL predictor could, in general, have to suspend.
+          //
+          // And the zeroLengthPredictor for a model group potentially has to recurse. It's a schema-aware structure.
+          //
+          // Look for events corresponding to "beyond the group". if next event is "beyond the group's elements",
+          // then we know the group won't have any element contents, and so knowing that it is
+          // potentially trailing, if it has ZL predicted, then we can queue up (add to the counter) another separator for it
+          // which will ultimately get discarded if this is truly trailing. Then we can unparse the child recursively
+          // for side-effects (like variable setting), knowing that it will use zero-length in doing so.
+          //
+          // If we do find events for simple elements, if the are predictably zero-length (using zeroLengthPredictor)
+          // then again we know not to output the separator.
+          //
+          // If we find events for other things within the group.... punt and output the separator.
+          //
+
+          //
+          // The Architecturally "Right Thing" to always get this right....
+          //
+          // Right thing is to suspend a conditional separator unparser here that is blocked until
+          // it is known whether (a) the group contents unparsed to non-zero length or (b)
+          // subsequent siblings unparsed to non-zero length.
+          //
+          // We would need a way to suspend on this complex predicate. It can't be expressed in terms of DPath
+          // language, but like alignment suspensions, we can have specific code for this kind of a suspension.
+          //
+          // Since many many unparsers have to work by way of suspensions and such, this *shouldn't be* that
+          // hard to do, and should be preferable to some ad-hoc zero-length-predictor.
+          //
+          // Important to keep in mind that as we recursively invoke unparsers, the unparser is doing its thing
+          // suspending things, splitting dataOutputStreams into new buffering streams, etc. All that is
+          // transparent to us.
+          //
+          // We just want to play that same game here to reduce complexity, and avoid a bunch of ad-hoc control
+          // flow that ultimately won't be correct in all cases.
+          //
+        }
         case scalarUnparser => {
           //
           // Note that once we've encountered a trailing separator situation,
@@ -419,4 +525,3 @@ class OrderedSeparatedSequenceUnparser(
   }
 
 }
-

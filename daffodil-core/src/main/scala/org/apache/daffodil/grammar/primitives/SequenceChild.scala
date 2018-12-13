@@ -47,23 +47,22 @@ import org.apache.daffodil.schema.annotation.props.gen.Representation
  * on the DSOM objects, but on these SequenceChild objects in the Gram
  * objects.
  */
-abstract class SequenceChild(
-  protected val sq: SequenceTermBase, child: Term, groupIndex: Int)
+abstract class SequenceChild(protected val sq: SequenceTermBase, child: Term, groupIndex: Int)
   extends Terminal(child, true) {
 
-  protected def childParser = child.termContentBody.parser
-  protected def childUnparser = child.termContentBody.unparser
+  protected lazy val childParser = child.termContentBody.parser
+  protected lazy val childUnparser = child.termContentBody.unparser
 
-  final override def parser = sequenceChildParser
-  final override def unparser = sequenceChildUnparser
+  final override lazy val parser = sequenceChildParser
+  final override lazy val unparser = sequenceChildUnparser
 
   protected def sequenceChildParser: SequenceChildParser
   protected def sequenceChildUnparser: SequenceChildUnparser
 
-  def optSequenceChildParser: Option[SequenceChildParser] =
+  lazy val optSequenceChildParser: Option[SequenceChildParser] =
     if (childParser.isEmpty) None else Some(parser)
 
-  def optSequenceChildUnparser: Option[SequenceChildUnparser] =
+  lazy val optSequenceChildUnparser: Option[SequenceChildUnparser] =
     if (childUnparser.isEmpty) None else Some(unparser)
 
   protected lazy val sepGram = sq.sequenceSeparator
@@ -72,6 +71,7 @@ abstract class SequenceChild(
 
   lazy val srd = sq.sequenceRuntimeData
   lazy val trd = child.termRuntimeData
+  lazy val mrd = child.asInstanceOf[ModelGroup].modelGroupRuntimeData
 
   /**
    * Used by unparsing algorithms that involve separator suppression for
@@ -173,21 +173,33 @@ abstract class SequenceChild(
 class ScalarOrderedSequenceChild(sq: SequenceTermBase, term: Term, groupIndex: Int)
   extends SequenceChild(sq, term, groupIndex) {
 
-  def sequenceChildParser: SequenceChildParser = sq.hasSeparator match {
-    case true => new ScalarOrderedSeparatedSequenceChildParser(
-      childParser, srd, trd, sepParser, sq.separatorPosition, sq.separatorSuppressionPolicy)
-    case false => new ScalarOrderedUnseparatedSequenceChildParser(childParser, srd, trd)
+  lazy val sequenceChildParser: SequenceChildParser = {
+    val res =
+      (sq.hasSeparator, term.isPotentiallyTrailing) match {
+        case (true, false) => new ScalarOrderedSeparatedSequenceChildParser(
+        childParser, srd, trd, sepParser, sq.separatorPosition, sq.separatorSuppressionPolicy)
+        case (true, true) => new PotentiallyTrailingGroupSeparatedSequenceChildParser(
+        childParser, srd, mrd, sepParser, sq.separatorPosition, sq.separatorSuppressionPolicy)
+        case (false, _) => new ScalarOrderedUnseparatedSequenceChildParser(childParser, srd, trd)
+      }
+    res
   }
-  def sequenceChildUnparser: SequenceChildUnparser = sq.hasSeparator match {
-    case true => new ScalarOrderedSeparatedSequenceChildUnparser(
-      childUnparser, srd, trd, sepUnparser, sq.separatorPosition, sq.separatorSuppressionPolicy,
-      this.separatorSuppressionMode)
-    case false => new ScalarOrderedUnseparatedSequenceChildUnparser(childUnparser, srd, trd)
+  lazy val sequenceChildUnparser: SequenceChildUnparser = {
+    val res =
+      (sq.hasSeparator, term.isPotentiallyTrailing) match {
+        case (true, false) => new ScalarOrderedSeparatedSequenceChildUnparser(
+        childUnparser, srd, trd, sepUnparser, sq.separatorPosition, sq.separatorSuppressionPolicy,
+          this.separatorSuppressionMode)
+        case (true, true) => new PotentiallyTrailingGroupSeparatedSequenceChildUnparser(
+        childUnparser, srd, mrd, sepUnparser, sq.separatorPosition, sq.separatorSuppressionPolicy,
+          this.separatorSuppressionMode)
+        case (false, _) => new ScalarOrderedUnseparatedSequenceChildUnparser(childUnparser, srd, trd)
+      }
+    res
   }
 }
 
-sealed abstract class ElementSequenceChild(
-  sq: SequenceTermBase,
+sealed abstract class ElementSequenceChild(sq: SequenceTermBase,
   protected val e: ElementBase, groupIndex: Int)
   extends SequenceChild(sq, e, groupIndex) {
 
@@ -198,9 +210,9 @@ sealed trait RepUnparserMixin { self: ElementSequenceChild =>
 
   protected def e: ElementBase
 
-  def sequenceChildUnparser: SequenceChildUnparser = sq.hasSeparator match {
+  lazy val sequenceChildUnparser: SequenceChildUnparser = sq.hasSeparator match {
     case true => new RepOrderedSeparatedSequenceChildUnparser(
-      childUnparser, srd, erd, sepUnparser, sq.separatorPosition, sq.separatorSuppressionPolicy,
+    childUnparser, srd, erd, sepUnparser, sq.separatorPosition, sq.separatorSuppressionPolicy,
       this.separatorSuppressionMode)
     case false => new RepOrderedUnseparatedSequenceChildUnparser(childUnparser, srd, erd)
   }
@@ -210,9 +222,9 @@ class RepOrderedExactlyNSequenceChild(sq: SequenceTermBase, e: ElementBase, grou
   extends ElementSequenceChild(sq, e, groupIndex)
   with RepUnparserMixin {
 
-  def sequenceChildParser: SequenceChildParser = sq.hasSeparator match {
+  lazy val sequenceChildParser: SequenceChildParser = sq.hasSeparator match {
     case true => new RepOrderedExactlyNSeparatedSequenceChildParser(
-      childParser, srd, erd, sepParser, sq.separatorPosition, sq.separatorSuppressionPolicy)
+    childParser, srd, erd, sepParser, sq.separatorPosition, sq.separatorSuppressionPolicy)
     case false => new RepOrderedExactlyNUnseparatedSequenceChildParser(childParser, srd, erd, repeatCount)
   }
 
@@ -222,9 +234,9 @@ class RepOrderedExactlyTotalOccursCountSequenceChild(sq: SequenceTermBase, e: El
   extends ElementSequenceChild(sq, e, groupIndex)
   with RepUnparserMixin {
 
-  def sequenceChildParser: SequenceChildParser = sq.hasSeparator match {
+  lazy val sequenceChildParser: SequenceChildParser = sq.hasSeparator match {
     case true => new RepOrderedExactlyTotalOccursCountSeparatedSequenceChildParser(
-      childParser, e.occursCountEv, srd, erd, sepParser, sq.separatorPosition, sq.separatorSuppressionPolicy)
+    childParser, e.occursCountEv, srd, erd, sepParser, sq.separatorPosition, sq.separatorSuppressionPolicy)
     case false => new RepOrderedExactlyTotalOccursCountUnseparatedSequenceChildParser(childParser, e.occursCountEv, srd, erd)
   }
 }
@@ -233,9 +245,9 @@ class RepOrderedWithMinMaxSequenceChild(sq: SequenceTermBase, e: ElementBase, gr
   extends ElementSequenceChild(sq, e, groupIndex)
   with RepUnparserMixin {
 
-  def sequenceChildParser: SequenceChildParser = sq.hasSeparator match {
+  lazy val sequenceChildParser: SequenceChildParser = sq.hasSeparator match {
     case true => new RepOrderedWithMinMaxSeparatedSequenceChildParser(
-      childParser, srd, erd, sepParser, sq.separatorPosition, sq.separatorSuppressionPolicy,
+    childParser, srd, erd, sepParser, sq.separatorPosition, sq.separatorSuppressionPolicy,
       e.isPotentiallyTrailing, e.isLastDeclaredRepresentedInSequence)
     case false => new RepOrderedWithMinMaxUnseparatedSequenceChildParser(childParser, srd, erd)
   }

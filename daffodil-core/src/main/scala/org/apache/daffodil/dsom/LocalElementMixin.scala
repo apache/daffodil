@@ -74,11 +74,9 @@ trait LocalElementMixin
     res
   }.value
 
-  final override def hasKnownRequiredSyntax: Boolean = LV('hasKnownRequiredSyntax) {
-    !couldBeMissing
-  }.value
+  final override def hasKnownRequiredSyntax: Boolean = !couldBeMissing
 
-  final def couldBeMissing: Boolean = LV('couldBeMissing) {
+  final lazy val couldBeMissing: Boolean = LV('couldBeMissing) {
     val res =
       if (minOccurs == 0) true
       else if (isNillable && !hasNilValueRequiredSyntax) true

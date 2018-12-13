@@ -38,7 +38,7 @@ abstract class Text(es: Term, e: Term, guard: Boolean) extends StringDelimBase(e
   lazy val eName = e.toString()
 
   lazy val positionalInfo = {
-    if (e.isDirectChildOfSequence) {
+    if (e.isSequenceChild) {
       e.nearestEnclosingSequence match {
         case Some(es) => {
           val pos = e.positionInNearestEnclosingSequence - 1

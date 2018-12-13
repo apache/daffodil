@@ -28,9 +28,9 @@ import org.apache.daffodil.processors.SequenceRuntimeData
 import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.processors.TermRuntimeData
 import org.apache.daffodil.processors.Failure
+import org.apache.daffodil.processors.ModelGroupRuntimeData
 
-abstract class OrderedSequenceParserBase(
-  srd: SequenceRuntimeData,
+abstract class OrderedSequenceParserBase(srd: SequenceRuntimeData,
   protected val childParsers: Vector[Parser])
   extends CombinatorParser(srd) {
   override def nom = "Sequence"
@@ -46,8 +46,7 @@ abstract class OrderedSequenceParserBase(
    *
    * No backtracking supported.
    */
-  protected def parseOneWithoutPoU(
-    parserArg: SequenceChildParser,
+  protected def parseOneWithoutPoU(parserArg: SequenceChildParser,
     trd: TermRuntimeData,
     pstate: PState): ParseAttemptStatus
 
@@ -57,13 +56,20 @@ abstract class OrderedSequenceParserBase(
    *
    * Supports speculative parsing via backtracking.
    */
-  protected def parseOneWithPoU(
-    parser: RepeatingChildParser,
+  protected def parseOneWithPoU(parser: RepeatingChildParser,
     erd: ElementRuntimeData,
     pstate: PState,
     priorState: PState.Mark,
     ais: GoArrayIndexStatus,
     isBounded: Boolean): ParseAttemptStatus
+
+  /**
+   * Parses potentially trailing group - needs special treatment for separated case
+   * since the presence/absence of the separator can be it's own "quasi-PoU"
+   */
+  protected def parsePotentiallyTrailingGroup(parser: PotentiallyTrailingGroupSequenceChildParser,
+    trd: ModelGroupRuntimeData,
+    pstate: PState): ParseAttemptStatus
 
   protected def zeroLengthSpecialChecks(pstate: PState, wasLastChildZeroLength: Boolean): Unit
 
@@ -178,11 +184,15 @@ abstract class OrderedSequenceParserBase(
                       wasLastChildZeroLength = resultOfTry eq ParseAttemptStatus.Success_ZeroLength
                     }
 
-                    case ParseAttemptStatus.Failed_WithDiscriminatorSet => {
+                    case _: FailedParseAttemptStatus if pstate.discriminator == true => {
                       // Just allow the failure to propagate.
                     }
 
-                    case ParseAttemptStatus.Failed_SpeculativeParse => {
+                    case ParseAttemptStatus.Failed_NoForwardProgress => {
+                      // Just allow the failure to propagate.
+                    }
+
+                    case _: FailedParseAttemptStatus => {
                       // We failed.
                       goAIS match {
                         case ArrayIndexStatus.Required => {
@@ -219,10 +229,6 @@ abstract class OrderedSequenceParserBase(
                           resultOfTry = ParseAttemptStatus.Success_EndOfArray
                         }
                       }
-                    }
-
-                    case ParseAttemptStatus.Failed_NoForwardProgress => {
-                      // Just allow the failure to propagate.
                     }
 
                     case other => Assert.invariantFailed("Unexpected parse attempt status: " + other)
@@ -303,6 +309,25 @@ abstract class OrderedSequenceParserBase(
         } // end match case RepeatingChildParser
 
         //
+        // This case for potentially trailing groups that might not appear
+        // i.e., might be actually trailing, meaning their separator won't be found
+        //
+        case potTrailingGroupParser: PotentiallyTrailingGroupSequenceChildParser => {
+          val resultOfTry =
+            parsePotentiallyTrailingGroup(potTrailingGroupParser,
+              potTrailingGroupParser.mrd, pstate)
+          resultOfTry match {
+            case _: SuccessParseAttemptStatus => // all good
+            case ParseAttemptStatus.Failed_MissingSeparator => {
+              // ok. We tolerate this for potentially trailing groups
+              // It means we go no introducing separator, (or ZL and no postfix sep)
+              // but either way we're ok.
+              pstate.setSuccess()
+            }
+            case _ => // just allow problem to propagate.
+          }
+        }
+        //
         // This case for scalar parsers. This includes both scalar elements, and
         // model group terms (choices, or sequences that are children of a sequence).
         // A model group term is considered scalar
@@ -334,4 +359,3 @@ abstract class OrderedSequenceParserBase(
     ()
   }
 }
-

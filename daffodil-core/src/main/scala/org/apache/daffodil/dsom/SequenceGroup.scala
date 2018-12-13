@@ -46,8 +46,7 @@ import org.apache.daffodil.exceptions.Assert
  * Sequences, group refs to sequences, and the implied sequences
  * that are choice branches, are all instances.
  */
-abstract class SequenceTermBase(
-  final override val xml: Node,
+abstract class SequenceTermBase(final override val xml: Node,
   final override val parent: SchemaComponent,
   final override val position: Int)
   extends ModelGroup
@@ -82,8 +81,7 @@ abstract class SequenceTermBase(
  * has the sequence properties. So actual sequences, group refs to them,
  * but NOT implied sequences inside choice branches.
  */
-abstract class SequenceGroupTermBase(
-  xml: Node,
+abstract class SequenceGroupTermBase(xml: Node,
   parent: SchemaComponent,
   position: Int)
   extends SequenceTermBase(xml, parent, position)
@@ -103,39 +101,41 @@ abstract class SequenceGroupTermBase(
 
   protected def hiddenGroupRefOption: PropertyLookupResult
 
-  /**
-   * True if this sequence group has syntactic features itself or
-   * within itself.
-   */
-  final lazy val hasStaticallyRequiredOccurrencesInDataRepresentation = {
-    // true if there are syntactic features
-    hasInitiator || hasTerminator ||
-      // or if any child of the sequence has statically required instances.
-      groupMembers.exists { _.hasStaticallyRequiredOccurrencesInDataRepresentation }
-  }
+  final override lazy val hasKnownRequiredSyntax = LV('hasKnownRequiredSyntax) {
+    if (hasFraming) true
+    else {
+      val representedMembers = groupMembers.filter { _.isRepresented }
 
-  final override def hasKnownRequiredSyntax = LV('hasKnownRequiredSyntax) {
-    lazy val memberHasRequiredSyntax = groupMembers.exists(_.hasKnownRequiredSyntax)
-    lazy val prefixOrPostfixAndStaticallyRequiredInstance =
-      groupMembers.filter { _.isRepresented }.exists { _.hasStaticallyRequiredOccurrencesInDataRepresentation } &&
-        (hasPrefixSep || hasPostfixSep)
-    lazy val infixAnd2OrMoreStaticallyRequiredInstances =
-      groupMembers.filter { m => m.isRepresented && m.hasStaticallyRequiredOccurrencesInDataRepresentation }.length > 1 && hasInfixSep
-    lazy val sepAndArryaWith2OrMoreStaticallyRequiredInstances =
-      groupMembers.filter { m =>
-        m.isRepresented && m.hasStaticallyRequiredOccurrencesInDataRepresentation && (m match {
-          case e: ElementBase => e.minOccurs > 1
-          case _ => false
-        })
-      }.length > 0 && hasSeparator
-    val res =
-      hasInitiator ||
-        hasTerminator ||
+      lazy val memberHasRequiredSyntax = representedMembers.exists { member =>
+        val res = member.hasKnownRequiredSyntax
+        res
+      }
+      lazy val prefixOrPostfixAndStaticallyRequiredInstance =
+        representedMembers.exists { member =>
+          val res = member.hasStaticallyRequiredOccurrencesInDataRepresentation
+          res
+        } &&
+          (hasPrefixSep || hasPostfixSep)
+      lazy val infixAnd2OrMoreStaticallyRequiredInstances =
+        representedMembers.filter { m =>
+          val res = m.hasStaticallyRequiredOccurrencesInDataRepresentation
+          res
+        }.length > 1 && hasInfixSep
+      lazy val sepAndArrayaWith2OrMoreStaticallyRequiredInstances =
+        representedMembers.filter { m =>
+          val res = m.hasStaticallyRequiredOccurrencesInDataRepresentation && (m match {
+            case e: ElementBase => e.minOccurs > 1
+            case _ => false
+          })
+          res
+        }.length > 0 && hasSeparator
+      val res =
         memberHasRequiredSyntax ||
-        prefixOrPostfixAndStaticallyRequiredInstance ||
-        infixAnd2OrMoreStaticallyRequiredInstances ||
-        sepAndArryaWith2OrMoreStaticallyRequiredInstances
-    res
+          prefixOrPostfixAndStaticallyRequiredInstance ||
+          infixAnd2OrMoreStaticallyRequiredInstances ||
+          sepAndArrayaWith2OrMoreStaticallyRequiredInstances
+      res
+    }
   }.value
 
   /**
@@ -190,9 +190,8 @@ abstract class SequenceGroupTermBase(
             // Now we're looking at the individual name buckets within the
             // individual namespace bucket.
             if (children.length > 1)
-              this.SDE(
-                "Two or more members of the unordered sequence (%s) have the same name and the same namespace." +
-                  "\nNamespace: %s\tName: %s.",
+              this.SDE("Two or more members of the unordered sequence (%s) have the same name and the same namespace." +
+                "\nNamespace: %s\tName: %s.",
                 this.path, ns, name)
         }
       }
@@ -217,8 +216,7 @@ abstract class SequenceGroupTermBase(
   final lazy val modelGroupRuntimeData = sequenceRuntimeData
 
   final lazy val sequenceRuntimeData = {
-    new SequenceRuntimeData(
-      schemaSet.variableMap,
+    new SequenceRuntimeData(schemaSet.variableMap,
       encodingInfo,
       // elementChildren.map { _.elementRuntimeData.dpathElementCompileInfo },
       schemaFileLocation,
@@ -249,8 +247,7 @@ abstract class SequenceGroupTermBase(
       if (disallowedKeys.size > 0)
         SDE("Sequence has dfdl:layerTransform specified, so cannot have non-layering properties: %s", disallowedKeys.mkString(", "))
 
-      val lt = new LayerTransformerEv(
-        maybeLayerTransformEv.get,
+      val lt = new LayerTransformerEv(maybeLayerTransformEv.get,
         maybeLayerCharsetEv,
         Maybe.toMaybe(optionLayerLengthKind),
         maybeLayerLengthInBytesEv,
@@ -370,8 +367,7 @@ final class ChoiceBranchImpliedSequence(rawGM: Term)
   override def checkHiddenSequenceIsDefaultableOrOVC: Unit = ()
 
   override lazy val sequenceRuntimeData: SequenceRuntimeData = {
-    new SequenceRuntimeData(
-      schemaSet.variableMap,
+    new SequenceRuntimeData(schemaSet.variableMap,
       encodingInfo,
       schemaFileLocation,
       dpathCompileInfo,
@@ -410,6 +406,6 @@ final class ChoiceBranchImpliedSequence(rawGM: Term)
   def xmlChildren: Seq[scala.xml.Node] = Seq(xml)
 
   // Members declared in Term
-  def hasStaticallyRequiredOccurrencesInDataRepresentation: Boolean = groupMembers(0).hasStaticallyRequiredOccurrencesInDataRepresentation
+  def hasKnownRequiredSyntax: Boolean = groupMembers(0).hasKnownRequiredSyntax
 
 }

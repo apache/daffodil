@@ -402,8 +402,7 @@ abstract class ParseOrUnparseState protected (protected var variableBox: Variabl
   def dState = _dState
 
   def copyStateForDebugger = {
-    TupleForDebugger(
-      bytePos,
+    TupleForDebugger(bytePos,
       childPos,
       groupPos,
       currentLocation,

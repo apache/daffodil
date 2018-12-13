@@ -26,6 +26,7 @@ import org.apache.daffodil.infoset.DIArray
 import org.apache.daffodil.equality._
 import org.apache.daffodil.processors.parsers.MinMaxRepeatsMixin
 import org.apache.daffodil.schema.annotation.props.gen.OccursCountKind
+import org.apache.daffodil.processors.ModelGroupRuntimeData
 
 /**
  * base for unparsers for the children of sequences.
@@ -36,8 +37,7 @@ import org.apache.daffodil.schema.annotation.props.gen.OccursCountKind
  * in the caller. These unparse only a single occurrence when the child unparser
  * is for an array/optional element.
  */
-abstract class SequenceChildUnparser(
-  val childUnparser: Unparser,
+abstract class SequenceChildUnparser(val childUnparser: Unparser,
   val srd: SequenceRuntimeData,
   val trd: TermRuntimeData)
   extends CombinatorUnparser(srd) {
@@ -46,13 +46,21 @@ abstract class SequenceChildUnparser(
 }
 
 /**
+ * Marker mixin is not specific to separated or not.
+ * Just indicates whether the sequence child is potentially trailing or not.
+ */
+trait PotentiallyTrailingGroupSequenceChildUnparser extends CombinatorUnparser { self: SequenceChildUnparser =>
+  def scu = self
+  def mrd: ModelGroupRuntimeData
+}
+
+/**
  * Base for unparsers of array/optional elements.
  *
  * The unparse() method unparses exactly one occurrance, does NOT iterate over
  * all the occurrences.
  */
-abstract class RepeatingChildUnparser(
-  override val childUnparser: Unparser,
+abstract class RepeatingChildUnparser(override val childUnparser: Unparser,
   override val srd: SequenceRuntimeData,
   val erd: ElementRuntimeData)
   extends SequenceChildUnparser(childUnparser, srd, erd)
@@ -175,7 +183,7 @@ abstract class RepeatingChildUnparser(
               // or could be end of complex event, i.e., we've peeked ahead and found the end of a complex element.
               // It has to be the complex element that ultimately encloses this sequence.
               // Though that's not a unique element given that this sequence could be inside
-              // a global group definition that is reused in muliple places.
+              // a global group definition that is reused in multiple places.
               // Nothing to do for complex type either.
               false
             }
@@ -216,8 +224,7 @@ abstract class RepeatingChildUnparser(
    * bounds checking that should be done. E.g., if 'implicit' but maxReps is
    * 'unbounded', then maxReps will be Long.MaxValue.
    */
-  def checkFinalOccursCountBetweenMinAndMaxOccurs(
-    state: UState,
+  def checkFinalOccursCountBetweenMinAndMaxOccurs(state: UState,
     unparser: RepeatingChildUnparser,
     numOccurrences: Int, maxReps: Long, arrPos: Long): Unit = {
     import OccursCountKind._
@@ -262,4 +269,3 @@ abstract class RepeatingChildUnparser(
     }
   }
 }
-

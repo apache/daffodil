@@ -21,14 +21,14 @@ import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.processors.Failure
 import org.apache.daffodil.processors.OccursCountEv
+import org.apache.daffodil.processors.ModelGroupRuntimeData
 
 trait Unseparated { self: SequenceChildParser =>
 
   val childProcessors = Vector(childParser)
 }
 
-class ScalarOrderedUnseparatedSequenceChildParser(
-  override val childParser: Parser,
+class ScalarOrderedUnseparatedSequenceChildParser(override val childParser: Parser,
   override val srd: SequenceRuntimeData,
   override val trd: TermRuntimeData)
   extends SequenceChildParser(childParser, srd, trd) with Unseparated {
@@ -36,24 +36,21 @@ class ScalarOrderedUnseparatedSequenceChildParser(
   override protected def parse(state: PState) = childParser.parse1(state)
 }
 
-class RepOrderedExactlyNUnseparatedSequenceChildParser(
-  childParser: Parser,
+class RepOrderedExactlyNUnseparatedSequenceChildParser(childParser: Parser,
   srd: SequenceRuntimeData,
   erd: ElementRuntimeData,
   val repeatCount: Long)
   extends OccursCountExactParser(childParser, srd, erd)
   with Unseparated
 
-class RepOrderedExactlyTotalOccursCountUnseparatedSequenceChildParser(
-  childParser: Parser,
+class RepOrderedExactlyTotalOccursCountUnseparatedSequenceChildParser(childParser: Parser,
   ocEv: OccursCountEv,
   srd: SequenceRuntimeData,
   erd: ElementRuntimeData)
   extends OccursCountExpressionParser(childParser, srd, erd, ocEv)
   with Unseparated
 
-class RepOrderedWithMinMaxUnseparatedSequenceChildParser(
-  childParser: Parser,
+class RepOrderedWithMinMaxUnseparatedSequenceChildParser(childParser: Parser,
   srd: SequenceRuntimeData,
   erd: ElementRuntimeData) // pass -2 to force unbounded behavior
   extends OccursCountMinMaxParser(childParser, srd, erd)
@@ -70,8 +67,7 @@ class OrderedUnseparatedSequenceParser(rd: SequenceRuntimeData, childParsersArg:
    *
    * No backtracking supported.
    */
-  override protected def parseOneWithoutPoU(
-    parser: SequenceChildParser,
+  override protected def parseOneWithoutPoU(parser: SequenceChildParser,
     trd: TermRuntimeData,
     pstate: PState): ParseAttemptStatus = {
 
@@ -108,8 +104,7 @@ class OrderedUnseparatedSequenceParser(rd: SequenceRuntimeData, childParsersArg:
    *
    * Does not modify priorState.
    */
-  override protected def parseOneWithPoU(
-    parser: RepeatingChildParser,
+  override protected def parseOneWithPoU(parser: RepeatingChildParser,
     erd: ElementRuntimeData,
     pstate: PState,
     priorStateArg: PState.Mark,
@@ -138,8 +133,7 @@ class OrderedUnseparatedSequenceParser(rd: SequenceRuntimeData, childParsersArg:
               // success but no forward progress in unbounded case
               // This is the parser equivalent of an infinite loop.
               //
-              PE(
-                pstate,
+              PE(pstate,
                 "Repeating or Optional Element - No forward progress at byte %s. Attempt to parse %s " +
                   "succeeded but consumed no data.\nPlease re-examine your schema to correct this infinite loop.",
                 pstate.bytePos, erd.diagnosticDebugName)
@@ -160,6 +154,10 @@ class OrderedUnseparatedSequenceParser(rd: SequenceRuntimeData, childParsersArg:
       }
     res
   }
+
+  final override protected def parsePotentiallyTrailingGroup(parser: PotentiallyTrailingGroupSequenceChildParser,
+    trd: ModelGroupRuntimeData,
+    pstate: PState): ParseAttemptStatus = parseOneWithoutPoU(parser.scp, trd, pstate)
 
   override protected def zeroLengthSpecialChecks(pstate: PState, wasLastChildZeroLength: Boolean): Unit = {
     // Nothing for unseparated sequences

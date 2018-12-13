@@ -27,6 +27,7 @@ import org.apache.daffodil.processors.Failure
 import org.apache.daffodil.processors.OccursCountEv
 import org.apache.daffodil.schema.annotation.props.gen.OccursCountKind
 import org.apache.daffodil.processors.ParseOrUnparseState
+import org.apache.daffodil.processors.ModelGroupRuntimeData
 
 /**
  * Enables various sub-kinds of success/failure of a parse to be distinguished
@@ -98,6 +99,12 @@ object ParseAttemptStatus {
   case object Failed_SpeculativeParse extends FailedParseAttemptStatus
 
   /**
+   * The parse failed. A separator was not found. Used to tolerate missing separators
+   * in some situations.
+   */
+  case object Failed_MissingSeparator extends FailedParseAttemptStatus
+
+  /**
    * The parse failed. This was a forward speculative parse, and it failed, but furthermore,
    * no forward progress was made.
    *
@@ -117,6 +124,11 @@ object ParseAttemptStatus {
    */
   case object Failed_EntireArray extends FailedParseAttemptStatus
 
+  /**
+   * The parse failed. The group failed to parse.
+   */
+  case object Failed_Group extends FailedParseAttemptStatus
+
 }
 
 /**
@@ -127,13 +139,21 @@ object ParseAttemptStatus {
  * and must distinguish situations with specified numbers of occurrences from
  * those with points-of-uncertainty.
  */
-abstract class SequenceChildParser(
-  val childParser: Parser,
+abstract class SequenceChildParser(val childParser: Parser,
   val srd: SequenceRuntimeData,
   val trd: TermRuntimeData)
   extends CombinatorParser(srd) {
 
   override def runtimeDependencies: Vector[Evaluatable[AnyRef]] = Vector()
+}
+
+/**
+ * Marker mixin is not specific to separated or not.
+ * Just indicates whether the sequence child is potentially trailing or not.
+ */
+trait PotentiallyTrailingGroupSequenceChildParser extends CombinatorParser { self: SequenceChildParser =>
+  def scp = self
+  def mrd: ModelGroupRuntimeData
 }
 
 /**
@@ -143,8 +163,7 @@ abstract class SequenceChildParser(
  * driver loop in OrderedSequenceParserBase to iterate over the occurrences
  * with a common interation pattern.
  */
-abstract class RepeatingChildParser(
-  childParser: Parser,
+abstract class RepeatingChildParser(childParser: Parser,
   srd: SequenceRuntimeData,
   val erd: ElementRuntimeData,
   baseName: String)
@@ -347,8 +366,7 @@ object ArrayIndexStatus {
  *
  * There are no points-of-uncertainty (PoU).
  */
-abstract class OccursCountExactParser(
-  childParser: Parser,
+abstract class OccursCountExactParser(childParser: Parser,
   srd: SequenceRuntimeData,
   erd: ElementRuntimeData)
   extends RepeatingChildParser(childParser, srd, erd, "ExactN") {
@@ -371,8 +389,7 @@ abstract class OccursCountExactParser(
  *
  * There are no points-of-uncertainty (PoU).
  */
-abstract class OccursCountExpressionParser(
-  childParser: Parser,
+abstract class OccursCountExpressionParser(childParser: Parser,
   srd: SequenceRuntimeData,
   erd: ElementRuntimeData,
   val occursCountEv: OccursCountEv)
@@ -447,8 +464,7 @@ trait MinMaxRepeatsMixin {
  * (e.g., parsed uses 0 for min, unbounded for max, implicit does use the
  * min and max occurs values.)
  */
-abstract class OccursCountMinMaxParser(
-  childParser: Parser,
+abstract class OccursCountMinMaxParser(childParser: Parser,
   srd: SequenceRuntimeData,
   erd: ElementRuntimeData)
   extends RepeatingChildParser(childParser, srd, erd, "MinMax") {

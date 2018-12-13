@@ -108,13 +108,6 @@ abstract class ChoiceTermBase(
 
   protected final override lazy val myPeers = choicePeers
 
-  final lazy val hasStaticallyRequiredOccurrencesInDataRepresentation = {
-    // true if the choice has syntactic features (initiator, terminator)
-    hasInitiator || hasTerminator ||
-      // or if all arms of the choice have statically required instances.
-      groupMembers.forall { _.hasStaticallyRequiredOccurrencesInDataRepresentation }
-  }
-
   final protected lazy val optionChoiceDispatchKeyRaw = findPropertyOption("choiceDispatchKey")
   final protected lazy val choiceDispatchKeyRaw = requireProperty(optionChoiceDispatchKeyRaw)
 
@@ -138,10 +131,21 @@ abstract class ChoiceTermBase(
     ev
   }
 
-  final override def hasKnownRequiredSyntax = LV('hasKnownRequiredSyntax) {
-    if (hasInitiator || hasTerminator) true
+  final override lazy val hasKnownRequiredSyntax = LV('hasKnownRequiredSyntax) {
+    if (hasFraming) true
     // else if (isKnownToBeAligned) true //TODO: Alignment may not occur; hence, cannot be part of determining whether there is known syntax.
-    else groupMembers.forall(_.hasKnownRequiredSyntax)
+    else {
+      val res =
+        // For a group, we only have known required syntax if all branches do.
+        // If even one branch doesn't, then we don't have "known required" because the data could match
+        // that branch, meaning we wouldn't, in that case, have syntax.
+        groupMembers.forall { member =>
+          val res =
+            member.hasKnownRequiredSyntax
+          res
+        }
+      res
+    }
   }.value
 
   /**

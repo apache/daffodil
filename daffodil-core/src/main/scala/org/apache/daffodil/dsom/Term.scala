@@ -25,6 +25,7 @@ import org.apache.daffodil.schema.annotation.props.gen.YesNo
 import java.lang.{ Integer => JInt }
 import org.apache.daffodil.schema.annotation.props.Found
 import org.apache.daffodil.schema.annotation.props.gen.NilKind
+import org.apache.daffodil.util.ListUtils
 
 /**
  * Mixin for objects that are shared, but have consistency checks to be run
@@ -134,7 +135,7 @@ trait Term
 
   /**
    * True if the Term is required to appear in the DFDL Infoset.
-   * 
+   *
    * This is about the infoset, so this is false for model groups, which have no appearance in the infoset.
    *
    * This includes elements that have no representation in the
@@ -194,12 +195,6 @@ trait Term
   def termChildren: Seq[Term]
 
   final val tID = UUID.randomUUID()
-
-  // Scala coding style note: This style of passing a constructor arg that is named fooArg,
-  // and then having an explicit val/lazy val which has the 'real' name is
-  // highly recommended. Lots of time wasted because a val constructor parameter can be
-  // accidently hidden if a derived class uses the same name as one of its own parameters.
-  // These errors just seem easier to deal with if you use the fooArg style.
 
   lazy val someEnclosingComponent = enclosingComponent.getOrElse(Assert.invariantFailed("All terms except a root element have an enclosing component."))
 
@@ -318,10 +313,6 @@ trait Term
     res
   }
 
-  final lazy val isDirectChildOfSequence = parent.isInstanceOf[Sequence]
-
-  import org.apache.daffodil.util.ListUtils
-
   final lazy val allSiblings: Seq[Term] = {
     val res = nearestEnclosingSequence.map { enc =>
       val allSiblings = enc.groupMembers
@@ -425,7 +416,7 @@ trait Term
    * False only if the term has possibly no representation whatsoever in the
    * data stream.
    */
-  def hasKnownRequiredSyntax = false
+  def hasKnownRequiredSyntax: Boolean
 
   /**
    * Can have a varying number of occurrences.
@@ -435,46 +426,83 @@ trait Term
   def isVariableOccurrences: Boolean = false
 
   /**
+   * True when a term's immediately enclosing model group is a Sequence.
+   */
+  final lazy val isSequenceChild =
+    immediatelyEnclosingModelGroup.getOrElse(false).isInstanceOf[SequenceTermBase]
+
+  /**
    * The concept of potentially trailing is defined in the DFDL specification.
-   * 
-   * It applies only to elements and model groups that have representation in the data stream.
    *
-   * It means that the term could have instances that are the last thing in the sequence group
-   * and that are potentially also not present, so the issue of extra separators being present/absent for
-   * instances of the term is relevant.
+   * This concept applies to terms that are direct children of a sequence only.
+   *
+   * It is true for terms that may be absent from the representation, but furthermore, may be last
+   * in a sequence, so that the notion of whether they are trailing, and so their separator may not be
+   * present, is a relevant issue.
+   *
+   * If an element is an array, and has some required instances, then it is not potentially trailing, as some
+   * instances will have to appear, with separators.
+   *
+   * This concept applies only to elements and model groups that have representation in the data stream.
    *
    * Previously there was a misguided notion that since only DFDL elements can have minOccurs/maxOccurs
    * that this notion of potentially trailing didn't apply to model groups. (Sequences and Choices, the other
-   * kind of Term). But this is not the case. 
-   * 
+   * kind of Term). But this is not the case.
+   *
    * A sequence/choice which has no framing, and whose content doesn't exist - no child elements, any contained
    * model groups recursively with no framing and no content - such a model group effectively "dissapears" from
    * the data stream, and in some cases need not have a separator.
+   *
+   * This is computed by way of couldBePotentiallyTrailing. This value means that the term, in isolation, looking only
+   * at its own characteristics, disregarding its following siblings in any given sequence, has the characteristics
+   * of being potentially trailing.
+   *
+   * Then that is combined with information about following siblings in a sequence to determine if a given term, that
+   * is a child of a sequence, is in fact potentially trailing within that sequence.
+   *
+   * These two concepts are mutually recursive, since a sequence that is entirely composed of potentially trailing children
+   * satisfies couldBePotentialyTrailing in whatever sequence encloses it.
    */
-  final lazy val isPotentiallyTrailing = {
-    if (!isRepresented) false // concept doesn't really apply to non-represented things. It's about the representation.
-    else if (!isRequiredInInfoset ||
-      (isRequiredInInfoset && isLastDeclaredRepresentedInSequence && isVariableOccurrences)) {
-      val es = nearestEnclosingSequence
-      val res = es match {
-        case None => true
-        case Some(s) => {
-          val allRequired = s.groupMembers.filter(_.isRequiredInInfoset)
-          if (allRequired.isEmpty) true
-          else {
-            val lastDeclaredRequired = allRequired.last
-            val thisLoc = s.groupMembers.indexOf(this)
-            val lastDeclaredRequiredLoc = s.groupMembers.indexOf(lastDeclaredRequired)
-            val res = lastDeclaredRequiredLoc <= thisLoc
-            res
-          }
+  final lazy val isPotentiallyTrailing: Boolean = LV('isPotentiallyTrailing) {
+    Assert.usage(isSequenceChild || parent.isInstanceOf[ComplexTypeBase])
+    val res =
+      couldBePotentiallyTrailing &&
+        this.laterSiblings.forall { _.isPotentiallyTrailing }
+    res
+  }.value
+
+  //      (isRequiredInInfoset && isLastDeclaredRepresentedInSequence && isVariableOccurrences)) {
+  //      val es = nearestEnclosingSequence
+  //      val res = es match {
+  //        case None => true
+  //        case Some(s) => {
+  //          val allRequired = s.groupMembers.filter(_.isRequiredInInfoset)
+  //          if (allRequired.isEmpty) true
+  //          else {
+  //            val lastDeclaredRequired = allRequired.last
+  //            val thisLoc = s.groupMembers.indexOf(this)
+  //            val lastDeclaredRequiredLoc = s.groupMembers.indexOf(lastDeclaredRequired)
+  //            val res = lastDeclaredRequiredLoc <= thisLoc
+  //            res
+  //          }
+  //        }
+  //      }
+  //      res
+  //      // Since we can't determine at compile time, return false so that we can continue processing.
+  //      // Runtime checks will make final determination.
+  //    } else false
+
+  final lazy val couldBePotentiallyTrailing: Boolean = LV('couldBePotentiallyTrailing) {
+    val res =
+      if (!isRepresented) false
+      else this match {
+        case e: ElementBase => !e.isRequiredInInfoset
+        case m: ModelGroup => {
+          !m.hasKnownRequiredSyntax
         }
       }
-      res
-      // Since we can't determine at compile time, return false so that we can continue processing.
-      // Runtime checks will make final determination.
-    } else false
-  }
+    res
+  }.value
 
   /**
    * Returns a tuple, where the first item in the tuple is the list of sibling

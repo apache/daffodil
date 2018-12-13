@@ -47,7 +47,7 @@ object ModelGroupFactory {
    * object. There should be only one non-Nil.
    */
   def apply(child: Node, parent: SchemaComponent, position: Int, isHidden: Boolean,
-    nodesAlreadyTrying: Set[Node] = Set()): List[ModelGroup] = {
+            nodesAlreadyTrying: Set[Node] = Set()): List[ModelGroup] = {
     if (nodesAlreadyTrying.contains(child)) {
       //
       // We are chasing our tail. Circular reference among named model groups/terms.
@@ -74,8 +74,8 @@ object ModelGroupFactory {
         case <group>{ _* }</group> => {
           val pos = parent match {
             case ct: ComplexTypeBase => 1
-            case mg: ModelGroup => position
-            case gd: GlobalGroupDef => position
+            case mg: ModelGroup      => position
+            case gd: GlobalGroupDef  => position
           }
           val isH = isHidden || parent.isHidden
           val groupRefFactory = new GroupRefFactory(child, parent, pos, isH)
@@ -83,8 +83,8 @@ object ModelGroupFactory {
           List(groupRefInstance.asModelGroup)
         }
         case <annotation>{ _* }</annotation> => Nil
-        case textNode: Text => Nil
-        case _: Comment => Nil
+        case textNode: Text                  => Nil
+        case _: Comment                      => Nil
         case _ => {
           parent.SDE("Unrecognized construct: %s", child)
         }
@@ -123,8 +123,8 @@ object TermFactory {
         }
       }
       case <annotation>{ _* }</annotation> => Nil
-      case textNode: Text => Nil
-      case _ => ModelGroupFactory(child, parent, position, false, nodesAlreadyTrying)
+      case textNode: Text                  => Nil
+      case _                               => ModelGroupFactory(child, parent, position, false, nodesAlreadyTrying)
     }
     childList
   }
@@ -144,7 +144,19 @@ abstract class ModelGroup
 
   requiredEvaluations(groupMembers)
 
+  final lazy val hasFraming =
+    hasInitiator ||
+      hasTerminator ||
+      !hasNoSkipRegions
+
+  final lazy val hasStaticallyRequiredOccurrencesInDataRepresentation = {
+    hasFraming ||
+      // or if all arms of the choice have statically required instances.
+      groupMembers.forall { _.hasStaticallyRequiredOccurrencesInDataRepresentation }
+  }
+
   def groupMembers: Seq[Term]
+
   def xmlChildren: Seq[Node]
   protected def myPeers: Option[Seq[ModelGroup]]
 
@@ -174,11 +186,11 @@ abstract class ModelGroup
   override lazy val alignmentValueInBits: JInt = {
     this.alignment match {
       case AlignmentType.Implicit => this.alignmentUnits match {
-        case AlignmentUnits.Bits => 1
+        case AlignmentUnits.Bits  => 1
         case AlignmentUnits.Bytes => 8
       }
       case align: JInt => this.alignmentUnits match {
-        case AlignmentUnits.Bits => align
+        case AlignmentUnits.Bits  => align
         case AlignmentUnits.Bytes => 8 * align
       }
     }
@@ -189,7 +201,7 @@ abstract class ModelGroup
     val echls = gms.flatMap { gm =>
       gm match {
         case eb: ElementBase => Seq(eb)
-        case gb: ModelGroup => gb.elementChildren
+        case gb: ModelGroup  => gb.elementChildren
       }
     }
     echls
@@ -204,7 +216,7 @@ abstract class ModelGroup
       case mg: ModelGroup => mg.groupMembers.map {
         _ match {
           case eb: ElementBase => eb.erd
-          case t: Term => t.termRuntimeData
+          case t: Term         => t.termRuntimeData
         }
       }
       case _ => Nil
@@ -229,14 +241,14 @@ abstract class ModelGroup
    */
   lazy val potentialLastChildren: (Seq[Term], Boolean) = {
     val (potentialLast, allOptional) = this match {
-      case ch: ChoiceTermBase => (ch.groupMembers, false)
+      case ch: ChoiceTermBase                    => (ch.groupMembers, false)
       case sq: SequenceTermBase if !sq.isOrdered => (sq.groupMembers, true) // TBD: is true correct? Are all children optional in unordered sequence?
       case sq: SequenceTermBase => {
         val maybeLast = sq.groupMembers.lastOption
         if (maybeLast.isDefined) {
           val last = maybeLast.get
           val lastIsOptional = last match {
-            case mg: ModelGroup => false // model group is mandatory
+            case mg: ModelGroup  => false // model group is mandatory
             case eb: ElementBase => !eb.isRequiredInInfoset || !eb.isRepresented
           }
           if (lastIsOptional) {
@@ -253,7 +265,7 @@ abstract class ModelGroup
     val potentialLastRepresented = potentialLast.filter { term =>
       term match {
         case eb: ElementBase => eb.isRepresented
-        case _ => true
+        case _               => true
       }
     }
     (potentialLastRepresented, allOptional)
@@ -264,8 +276,8 @@ abstract class ModelGroup
       val listOfTerms = groupMembers.map(m => {
         m match {
           case e: ElementBase if !e.isRequiredInInfoset => (Seq(e) ++ e.possibleNextTerms) // A LocalElement or ElementRef
-          case e: ElementBase => Seq(e)
-          case mg: ModelGroup => Seq(mg)
+          case e: ElementBase                           => Seq(e)
+          case mg: ModelGroup                           => Seq(mg)
         }
       }).flatten
       listOfTerms
@@ -320,7 +332,7 @@ abstract class ModelGroup
    */
   protected final def possibleFirstChildTerms: Seq[Term] = LV('possibleFirstChildTerms) {
     val firstTerms = this match {
-      case c: ChoiceTermBase => groupMembers
+      case c: ChoiceTermBase                   => groupMembers
       case s: SequenceTermBase if !s.isOrdered => groupMembers
       case s: SequenceTermBase => {
         groupMembers.headOption match {
@@ -332,10 +344,10 @@ abstract class ModelGroup
             // follow it
             Seq(e) ++ e.possibleNextSiblingTerms
           }
-          case Some(s: SequenceTermBase) if s.isHidden => s.possibleNextSiblingTerms
+          case Some(s: SequenceTermBase) if s.isHidden             => s.possibleNextSiblingTerms
           case Some(mg: ModelGroup) if !mg.mustHaveRequiredElement => Seq(mg) ++ mg.possibleNextSiblingTerms
-          case Some(e: ElementBase) => Seq(e)
-          case Some(mg: ModelGroup) => Seq(mg)
+          case Some(e: ElementBase)                                => Seq(e)
+          case Some(mg: ModelGroup)                                => Seq(mg)
         }
       }
     }
@@ -373,10 +385,10 @@ abstract class ModelGroup
         // required element, or the last one is required. Thus, this has a
         // required next sibling if the last sibling element is required
         possibleNextSiblingTerms.lastOption match {
-          case None => false
+          case None                 => false
           case Some(e: ElementBase) => e.isRequiredInInfoset
           case Some(mg: ModelGroup) => mg.mustHaveRequiredElement
-          case Some(_) => Assert.invariantFailed()
+          case Some(_)              => Assert.invariantFailed()
         }
       }
       case _ => false

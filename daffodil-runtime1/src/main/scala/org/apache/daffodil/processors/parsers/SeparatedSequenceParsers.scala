@@ -35,9 +35,8 @@ trait Separated { self: SequenceChildParser =>
 sealed trait RepeatingSeparatedPoU extends Separated { self: RepeatingChildParser =>
 
   private lazy val shouldRemoveZLStringHexBinaryValue_ =
-    false && // disable this feature as many test in daffodil-core depend on NOT removing these empty strings.
+    true ||
       isPotentiallyTrailing &&
-      isLastDeclaredRepresentedInSequence &&
       (
         (ssp eq SeparatorSuppressionPolicy.TrailingEmpty) ||
         (ssp eq SeparatorSuppressionPolicy.TrailingEmptyStrict))
@@ -120,8 +119,7 @@ sealed trait RepeatingSeparatedPoU extends Separated { self: RepeatingChildParse
    * This is applicable only to OPTIONAL elements (as in between min/maxOccurs, i.e.,
    * has variable occurrences, and speculative parsing/PoU.
    */
-  final def shouldSuppressZLDelimitedParseFailure(
-    pstate: PState,
+  final def shouldSuppressZLDelimitedParseFailure(pstate: PState,
     hasZLParseAttempt: Boolean): Boolean = {
     val shouldSuppress =
       shouldSuppressZLDelimitedParseFailures_ && {
@@ -132,8 +130,7 @@ sealed trait RepeatingSeparatedPoU extends Separated { self: RepeatingChildParse
   }
 }
 
-final class ScalarOrderedSeparatedSequenceChildParser(
-  childParser: Parser,
+sealed abstract class ScalarOrderedSeparatedSequenceChildParserBase(childParser: Parser,
   srd: SequenceRuntimeData,
   trd: TermRuntimeData,
   val sep: Parser,
@@ -146,8 +143,24 @@ final class ScalarOrderedSeparatedSequenceChildParser(
 
 }
 
-final class RepOrderedExactlyNSeparatedSequenceChildParser(
-  childParser: Parser,
+final class ScalarOrderedSeparatedSequenceChildParser(childParser: Parser,
+  srd: SequenceRuntimeData,
+  trd: TermRuntimeData,
+  sep: Parser,
+  spos: SeparatorPosition,
+  ssp: SeparatorSuppressionPolicy)
+  extends ScalarOrderedSeparatedSequenceChildParserBase(childParser, srd, trd, sep, spos, ssp)
+
+final class PotentiallyTrailingGroupSeparatedSequenceChildParser(childParser: Parser,
+  srd: SequenceRuntimeData,
+  val mrd: ModelGroupRuntimeData,
+  sep: Parser,
+  spos: SeparatorPosition,
+  ssp: SeparatorSuppressionPolicy)
+  extends ScalarOrderedSeparatedSequenceChildParserBase(childParser, srd, mrd, sep, spos, ssp)
+  with PotentiallyTrailingGroupSequenceChildParser
+
+final class RepOrderedExactlyNSeparatedSequenceChildParser(childParser: Parser,
   srd: SequenceRuntimeData,
   erd: ElementRuntimeData,
   val sep: Parser,
@@ -156,8 +169,7 @@ final class RepOrderedExactlyNSeparatedSequenceChildParser(
   extends OccursCountExactParser(childParser, srd, erd)
   with Separated
 
-final class RepOrderedExactlyTotalOccursCountSeparatedSequenceChildParser(
-  childParser: Parser,
+final class RepOrderedExactlyTotalOccursCountSeparatedSequenceChildParser(childParser: Parser,
   ocEv: OccursCountEv,
   srd: SequenceRuntimeData,
   erd: ElementRuntimeData,
@@ -167,8 +179,7 @@ final class RepOrderedExactlyTotalOccursCountSeparatedSequenceChildParser(
   extends OccursCountExpressionParser(childParser, srd, erd, ocEv)
   with Separated
 
-final class RepOrderedWithMinMaxSeparatedSequenceChildParser(
-  childParser: Parser,
+final class RepOrderedWithMinMaxSeparatedSequenceChildParser(childParser: Parser,
   srd: SequenceRuntimeData,
   erd: ElementRuntimeData,
   override val sep: Parser,
@@ -181,8 +192,7 @@ final class RepOrderedWithMinMaxSeparatedSequenceChildParser(
 
 }
 
-final class OrderedSeparatedSequenceParser(
-  rd: SequenceRuntimeData,
+final class OrderedSeparatedSequenceParser(rd: SequenceRuntimeData,
   ssp: SeparatorSuppressionPolicy,
   spos: SeparatorPosition,
   sep: Parser,
@@ -199,8 +209,7 @@ final class OrderedSeparatedSequenceParser(
    *
    * No backtracking supported.
    */
-  final protected def parseOneWithoutPoU(
-    parserArg: SequenceChildParser,
+  final protected def parseOneWithoutPoU(parserArg: SequenceChildParser,
     trd: TermRuntimeData,
     pstate: PState): ParseAttemptStatus = {
 
@@ -285,8 +294,7 @@ final class OrderedSeparatedSequenceParser(
    * Parses one iteration of an array/optional element, and returns
    * a status indicating success/failure and the nature of that success/failure.
    */
-  final protected def parseOneWithPoU(
-    parserArg: RepeatingChildParser,
+  final protected def parseOneWithPoU(parserArg: RepeatingChildParser,
     erd: ElementRuntimeData,
     pstate: PState,
     priorState: PState.Mark,
@@ -505,6 +513,144 @@ final class OrderedSeparatedSequenceParser(
             } // end val res
             res
           } // end if postfix
+        } // end if infix
+      } // end if prefix
+    } // end val finalStatus
+    finalStatus
+  }
+
+  /**
+   * A potentially trailing group is sort of a quasi-PoU. There's uncertainty over
+   * whether the associated separator must be found or not.
+   */
+  final protected def parsePotentiallyTrailingGroup(parser: PotentiallyTrailingGroupSequenceChildParser,
+    trd: ModelGroupRuntimeData,
+    pstate: PState): ParseAttemptStatus = {
+
+    val finalStatus: ParseAttemptStatus = {
+
+      val bitPosBeforeSeparator = pstate.bitPos0b
+
+      //
+      // Note: Performance. All this conditional branch logic could in principle be hoisted
+      // out and decided at schema compile time, as what is being tested here is statically known.
+      //
+      // However, that's trading a few conditional branches for a virtual function call, and that
+      // might or might not be an improvement worth making. Not worth bothering with unless
+      // some profiling makes it look like this could help.
+      //
+
+      // parse prefix sep if any
+      val prefixSepSuccessful =
+        if (spos eq SeparatorPosition.Prefix) {
+          sep.parse1(pstate)
+          pstate.processorStatus eq Success
+        } else
+          true
+
+      if (!prefixSepSuccessful) {
+        failedSeparator(pstate, "prefix", trd)
+        ParseAttemptStatus.Failed_MissingSeparator
+      } else {
+        // except for the first position of the group, parse an infix separator
+
+        val isInfix = spos eq SeparatorPosition.Infix
+
+        val infixSepShouldBePresent =
+          pstate.mpstate.groupPos > 1
+
+        val infixSepSuccessful =
+          if (isInfix && infixSepShouldBePresent) {
+            sep.parse1(pstate)
+            pstate.processorStatus eq Success
+          } else
+            true
+
+        //
+        // captures corner case when there is no separator because it's infix,
+        // and this optional/array element was first in the group
+        // so we don't put an infix separator in.
+        //
+        val wasInfixSepSkippedForInitialElement =
+          isInfix && !infixSepShouldBePresent
+
+        if (!infixSepSuccessful) {
+          failedSeparator(pstate, "infix", trd)
+          ParseAttemptStatus.Failed_MissingSeparator
+        } else {
+          //
+          // now we parse the child
+          // This is a group, so this is a recursive parse.
+          //
+          // For a potentially trailing group, this is what could come back with a failure
+          // because the enclosing sequence separator isn't found, rather, an "out of scope" terminator.
+          //
+          // We need to distinguish
+          // a successful parse at zero-length - easy
+          // a failed parse due to separator not being found - this is easy because we parse for them
+          // directly.
+          //
+          // We depend on the child parser succeeding either due to termination by the
+          // sequence's separator, or an enclosing end-of-sequence terminating delimiter.
+          // I.e., it can't be requiring the next separator - that would simply be incorrect given that
+          // the model group is potentially trailing ie., might not be here.
+          //
+          val prevBitPosBeforeChild = pstate.bitPos0b
+
+          if (pstate.dataProc.isDefined) pstate.dataProc.get.beforeRepetition(pstate, this)
+
+          parser.parse1(pstate)
+
+          if (pstate.dataProc.isDefined) pstate.dataProc.get.afterRepetition(pstate, this)
+
+          val childSuccessful = pstate.processorStatus eq Success
+          val childFailure = !childSuccessful // just makes later logic easier to read
+
+          val bitPosAfterChildAttempt = pstate.bitPos0b
+
+          val hasZLChildAttempt = prevBitPosBeforeChild == bitPosAfterChildAttempt
+          val hasZLChildSuccess = childSuccessful && hasZLChildAttempt
+
+          /**
+           * This is what the DFDL Spec v1.0 calls the "absent" representation.
+           * (Section 9.2.4). This is a kind of missing representation (section 9.2.6)
+           */
+          val isRepresentationAbsent = childFailure && hasZLChildAttempt
+
+          //
+          // We are only considering parsing the postfix separator if the child
+          // parse was a success. Otherwise we shouldn't even be trying to parse this.
+          //
+          val postfixSepSuccessful =
+            if ((spos eq SeparatorPosition.Postfix) &&
+              childSuccessful) {
+              // parse postfix sep if any
+              sep.parse1(pstate)
+              pstate.processorStatus eq Success
+            } else
+              true
+
+          val bitPosAfterSeparator = pstate.bitPos0b
+
+          val res = {
+            if (hasZLChildSuccess && !postfixSepSuccessful) {
+              // zero length succsesful parse, but separator (postfix) missing
+              // can be ok for a potentially trailing group
+              failedSeparator(pstate, "postfix", trd)
+              ParseAttemptStatus.Failed_MissingSeparator
+            } else if (childSuccessful && !postfixSepSuccessful) {
+              failedSeparator(pstate, "postfix", trd)
+              ParseAttemptStatus.Failed_Group
+            } else if (hasZLChildSuccess)
+              ParseAttemptStatus.Success_ZeroLength
+            else if (childSuccessful)
+              ParseAttemptStatus.Success_NotZeroLength
+            else {
+              Assert.invariant(childFailure)
+              ParseAttemptStatus.Failed_Group
+            }
+          }
+          res
         } // end if infix
       } // end if prefix
     } // end val finalStatus
