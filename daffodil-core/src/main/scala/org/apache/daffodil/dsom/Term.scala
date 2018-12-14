@@ -134,17 +134,17 @@ trait Term
 
   /**
    * True if the Term is required to appear in the DFDL Infoset.
+   * 
+   * This is about the infoset, so this is false for model groups, which have no appearance in the infoset.
    *
    * This includes elements that have no representation in the
-   * data stream. That is, an element with dfdl:inputValueCalc will be isRequiredOrComputed true.
+   * data stream. That is, an element with dfdl:inputValueCalc will be isRequiredInInfoset true.
    *
    * For elements takes into account that some dfdl:occursCountKind can make
    * seemingly required elements (based on minOccurs) optional or
-   * repeating.
-   *
-   * All model groups are required.
+   * repeating. E.g., for occursCountKind parsed, an element with minOccurs="1" is still optional, so false here.
    */
-  def isRequiredOrComputed: Boolean
+  def isRequiredInInfoset: Boolean
 
   /**
    * An array can have more than 1 occurrence.
@@ -436,26 +436,30 @@ trait Term
 
   /**
    * The concept of potentially trailing is defined in the DFDL specification.
+   * 
+   * It applies only to elements and model groups that have representation in the data stream.
    *
    * It means that the term could have instances that are the last thing in the sequence group
    * and that are potentially also not present, so the issue of extra separators being present/absent for
    * instances of the term is relevant.
    *
-   * This currently can only be true for elements, however, it is defined for terms because
-   * the DFDL spec defines
-   * the concept of a potentially trailing group as well. Though the current draft of the DFDL spec
-   * doesn't USE this concept of potentially trailing group, that is likely to be corrected at some
-   * point.
+   * Previously there was a misguided notion that since only DFDL elements can have minOccurs/maxOccurs
+   * that this notion of potentially trailing didn't apply to model groups. (Sequences and Choices, the other
+   * kind of Term). But this is not the case. 
+   * 
+   * A sequence/choice which has no framing, and whose content doesn't exist - no child elements, any contained
+   * model groups recursively with no framing and no content - such a model group effectively "dissapears" from
+   * the data stream, and in some cases need not have a separator.
    */
   final lazy val isPotentiallyTrailing = {
-    if (!isRepresented) false
-    else if (!isRequiredOrComputed ||
-      (isRequiredOrComputed && isLastDeclaredRepresentedInSequence && isVariableOccurrences)) {
+    if (!isRepresented) false // concept doesn't really apply to non-represented things. It's about the representation.
+    else if (!isRequiredInInfoset ||
+      (isRequiredInInfoset && isLastDeclaredRepresentedInSequence && isVariableOccurrences)) {
       val es = nearestEnclosingSequence
       val res = es match {
         case None => true
         case Some(s) => {
-          val allRequired = s.groupMembers.filter(_.isRequiredOrComputed)
+          val allRequired = s.groupMembers.filter(_.isRequiredInInfoset)
           if (allRequired.isEmpty) true
           else {
             val lastDeclaredRequired = allRequired.last
@@ -491,7 +495,7 @@ trait Term
         } else {
           val firstNonOptional = previousTerms.reverse.find {
             _ match {
-              case eb: ElementBase if !eb.isRequiredOrComputed || !eb.isRepresented => false
+              case eb: ElementBase if !eb.isRequiredInInfoset || !eb.isRepresented => false
               case _ => true
             }
           }

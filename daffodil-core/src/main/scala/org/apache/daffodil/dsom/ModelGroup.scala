@@ -150,7 +150,7 @@ abstract class ModelGroup
 
   final override def isScalar = true
   final override def isOptional = false
-  final override def isRequiredOrComputed = true
+  final override def isRequiredInInfoset = false
   final override def isArray = false
 
   private def prettyIndex = LV('prettyIndex) {
@@ -237,7 +237,7 @@ abstract class ModelGroup
           val last = maybeLast.get
           val lastIsOptional = last match {
             case mg: ModelGroup => false // model group is mandatory
-            case eb: ElementBase => !eb.isRequiredOrComputed || !eb.isRepresented
+            case eb: ElementBase => !eb.isRequiredInInfoset || !eb.isRepresented
           }
           if (lastIsOptional) {
             val (priorSibs, parent) = last.potentialPriorTerms
@@ -263,7 +263,7 @@ abstract class ModelGroup
     LV('allSelfContainedTermsTerminatedByRequiredElement) {
       val listOfTerms = groupMembers.map(m => {
         m match {
-          case e: ElementBase if !e.isRequiredOrComputed => (Seq(e) ++ e.possibleNextTerms) // A LocalElement or ElementRef
+          case e: ElementBase if !e.isRequiredInInfoset => (Seq(e) ++ e.possibleNextTerms) // A LocalElement or ElementRef
           case e: ElementBase => Seq(e)
           case mg: ModelGroup => Seq(mg)
         }
@@ -374,7 +374,7 @@ abstract class ModelGroup
         // required next sibling if the last sibling element is required
         possibleNextSiblingTerms.lastOption match {
           case None => false
-          case Some(e: ElementBase) => e.isRequiredOrComputed
+          case Some(e: ElementBase) => e.isRequiredInInfoset
           case Some(mg: ModelGroup) => mg.mustHaveRequiredElement
           case Some(_) => Assert.invariantFailed()
         }

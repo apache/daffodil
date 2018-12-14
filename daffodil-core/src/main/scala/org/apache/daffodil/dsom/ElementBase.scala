@@ -546,7 +546,7 @@ trait ElementBase
       isNillable,
       isArray, // can have more than 1 occurrence
       isOptional, // can have exactly 0 or 1 occurrence
-      isRequiredOrComputed, // must have at least 1 occurrence
+      isRequiredInInfoset, // must have at least 1 occurrence
       namedQName,
       isRepresented,
       couldHaveText,
@@ -1176,7 +1176,7 @@ trait ElementBase
       case None => true
       case Some(s: SequenceTermBase) if s.isOrdered => {
         !possibleNextSiblingTerms.exists {
-          case e: ElementBase => e.isRequiredOrComputed
+          case e: ElementBase => e.isRequiredInInfoset
           case mg: ModelGroup => mg.mustHaveRequiredElement
         }
       }

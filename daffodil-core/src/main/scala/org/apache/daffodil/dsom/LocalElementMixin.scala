@@ -100,12 +100,12 @@ trait LocalElementMixin
   }.value
 
   final def isLastDeclaredRequiredElementOfSequence = LV('isLastDeclaredRequiredElementOfSequence) {
-    if (isRequiredOrComputed) {
+    if (isRequiredInInfoset) {
       val es = nearestEnclosingSequence
       val res = es match {
         case None => true
         case Some(s) => {
-          val allRequired = s.groupMembers.filter(_.isRequiredOrComputed)
+          val allRequired = s.groupMembers.filter(_.isRequiredInInfoset)
           val lastDeclaredRequired = allRequired.last
           if (lastDeclaredRequired _eq_ this) true
           else false
