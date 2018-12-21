@@ -256,7 +256,12 @@ abstract class ModelGroup
         case _ => true
       }
     }
-    (potentialLastRepresented, allOptional)
+    if(potentialLastRepresented.isEmpty){
+      //If there are no children, by definition, all children are optional.
+      (Seq(),true)
+    }else{
+      (potentialLastRepresented, allOptional)
+    }
   }
 
   final def allSelfContainedTermsTerminatedByRequiredElement: Seq[Term] =
