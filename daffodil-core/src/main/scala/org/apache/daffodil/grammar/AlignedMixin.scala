@@ -26,6 +26,7 @@ import org.apache.daffodil.schema.annotation.props.gen.LengthKind
 import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
 import org.apache.daffodil.util.Math
 import org.apache.daffodil.dsom.Root
+import org.apache.daffodil.exceptions.Assert
 
 case class AlignmentMultipleOf(nBits: Long) {
   def *(that: AlignmentMultipleOf) = AlignmentMultipleOf(Math.gcd(nBits, that.nBits))
@@ -200,6 +201,8 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
       case mg: ModelGroup => {
         val (lastChildren, couldBeLast) = mg.potentialLastChildren
         val lastApprox = lastChildren.map(_.endingAlignmentApprox + trailingSkipApprox) ++ (if (couldBeLast) Seq(contentStartAlignment + trailingSkipApprox) else Seq())
+        
+        Assert.invariant(!lastApprox.isEmpty)
         lastApprox.reduce { _ * _ }
       }
     }
