@@ -24,6 +24,19 @@ import org.apache.daffodil.schema.annotation.props.gen.BitOrder
 object Bits {
 
   /**
+   * When dealing with bitOrder, it is very common to need a bit mask of some
+   * amount of the right-most or left-most bits of a byte. These two arrays are
+   * a useful way to get such a bit mask in constant time and make the logic
+   * more clear. Each index in the array (between 0 and 8) contains a bit mask
+   * for that many bits on either the leftor right side of a byte. For example:
+   *
+   *   Bits.maskR(2) == 0b00000011
+   *   Bits.maskL(2) == 0b11000000
+   */
+  val maskR: IndexedSeq[Int] = (0 to 8).map { bits => (1 << bits) - 1 }
+  val maskL: IndexedSeq[Int] = (0 to 8).map { bits => ((1 << bits) - 1) << (8 - bits) }
+
+  /**
    * Convert signed Byte type to Int that is the unsigned equivalent.
    */
   def asUnsignedByte(b: Byte): Int = if (b < 0) 256 + b else b
@@ -81,32 +94,30 @@ object Bits {
     }
   }
 
-  def reverseBytes(a: Array[Byte]) {
+  def reverseBytes(a: Array[Byte], length: Int) {
     var i: Int = 0
-    val len = a.length
-    while (i < (len >> 1)) {
-      // swap positions end to end,
-      // Do this in-place to avoid unnecessary further allocation.
-      val upperByte = a(len - i - 1)
-      val lowerByte = a(i)
-      a(len - i - 1) = lowerByte
-      a(i) = upperByte
-      i = i + 1
+    var lowerIndex = 0
+    var upperIndex = length - 1
+    while (lowerIndex < upperIndex) {
+      val tmp = a(lowerIndex)
+      a(lowerIndex) = a(upperIndex)
+      a(upperIndex) = tmp
+      lowerIndex += 1
+      upperIndex -= 1
     }
   }
 
   def reverseBytes(bb: ByteBuffer) {
     Assert.usage(bb.position() == 0)
     var i: Int = 0
-    val len = bb.remaining
-    while (i < (len >> 1)) {
-      // swap positions end to end,
-      // Do this in-place to avoid unnecessary further allocation.
-      val upperByte = bb.get(len - i - 1)
-      val lowerByte = bb.get(i)
-      bb.put(len - i - 1, lowerByte)
-      bb.put(i, upperByte)
-      i = i + 1
+    var lowerIndex = bb.position()
+    var upperIndex = bb.remaining() - 1
+    while (lowerIndex < upperIndex) {
+      val tmp = bb.get(lowerIndex)
+      bb.put(lowerIndex, bb.get(upperIndex))
+      bb.put(upperIndex, tmp)
+      lowerIndex += 1
+      upperIndex -= 1
     }
   }
 

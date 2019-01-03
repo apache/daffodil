@@ -62,30 +62,11 @@ abstract class HexBinaryUnparserBase(override val context: ElementRuntimeData)
 
     val dos = state.dataOutputStream
 
-    // We cannot use dos.putByteArray(...) because that function takes into
-    // account byteOrder. hexBinary should completely ignore byteOrder, only
-    // taking into account bitOrder. To do this, we want to just repeatedly put
-    // 8 bit's at a time, effecitively ignores byteOrder.
-    var pos = 0
-    var bitsRemaining = bitsFromValueToPut
-    while (bitsRemaining > 0) {
-      val byte = Bits.asUnsignedByte(value(pos))
-      val bitsToPut = Math.min(bitsRemaining, 8).toInt
-
-      val adjustedForBitOrder =
-        if (bitsToPut < 8 && state.bitOrder == BitOrder.MostSignificantBitFirst) {
-          byte >> (8 - bitsToPut)
-        } else {
-          byte
-        }
-
-      val ret = dos.putULong(ULong(adjustedForBitOrder), bitsToPut, state)
+    if (bitsFromValueToPut > 0) {
+      val ret = dos.putByteArray(value, bitsFromValueToPut.toInt, state)
       if (!ret) {
-        UnparseError(One(context.schemaFileLocation), One(state.currentLocation), "Failed to write byte % from hexBinary data", pos)
+        UnparseError(One(context.schemaFileLocation), One(state.currentLocation), "Failed to write %d hexBinary bits", bitsFromValueToPut)
       }
-
-      pos += 1
-      bitsRemaining -= bitsToPut
     }
 
     // calculate the skip bits

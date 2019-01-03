@@ -128,9 +128,9 @@ class TestInputSourceDataInputStream7 {
     assertEquals(21, dis.bitLimit0b.get)
     assertEquals(21, dis.bitPos0b)
     assertEquals(3, arr.size)
-    assertEquals(0x0C.toByte, arr(0))
-    assertEquals(0x3E.toByte, arr(1))
-    assertEquals(0x23.toByte, arr(2))
+    assertEquals(0x61.toByte, arr(0))
+    assertEquals(0xF1.toByte, arr(1))
+    assertEquals(0x18.toByte, arr(2))
   }
 
   /*

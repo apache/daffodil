@@ -42,30 +42,7 @@ sealed abstract class HexBinaryLengthParser(override val context: ElementRuntime
     } else if (!dis.isDefinedForLength(nBits)) {
       PENotEnoughBits(start, nBits, dis.remainingBits)
     } else {
-      // We cannot use dataInputStream.getByteArray(nBits) because that
-      // function takes into account byteOrder. hexBinary should completely
-      // ignore byteOrder, only taking into account bitOrder. To do this, we
-      // want to just repeatedly read 8 bit's at a time and add them to an
-      // ByteArray, effecitively ignoring byteOrder.
-      val nBytes = (nBits + 7) >> 3
-      val array = new Array[Byte](nBytes)
-      var bitsRemaining = nBits
-      var pos = 0
-      while (bitsRemaining > 0) {
-        val bitsToGet = Math.min(bitsRemaining, 8)
-        val longVal = start.dataInputStream.getUnsignedLong(bitsToGet, start)
-
-        val adjustedForBitOrder =
-          if (bitsToGet < 8 && start.bitOrder == BitOrder.MostSignificantBitFirst) {
-            (longVal << (8 - bitsToGet))
-          } else {
-            longVal
-          }
-
-        array(pos) = adjustedForBitOrder.toByte
-        pos += 1
-        bitsRemaining -= bitsToGet
-      }
+      val array =  start.dataInputStream.getByteArray(nBits, start)
       currentElement.setDataValue(array)
     }
   }

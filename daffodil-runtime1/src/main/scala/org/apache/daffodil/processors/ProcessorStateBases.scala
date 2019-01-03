@@ -227,7 +227,17 @@ abstract class ParseOrUnparseState protected (protected var variableBox: Variabl
   final def byteOrder: ByteOrder = {
     if (byteOrderCache eq null) {
       val bo = runtimeData match {
-        case erd: ElementRuntimeData => erd.maybeByteOrderEv.get.evaluate(this)
+        case erd: ElementRuntimeData => {
+          if (erd.maybeByteOrderEv.isDefined) {
+            erd.maybeByteOrderEv.get.evaluate(this)
+          } else {
+            // If byte order is not defined, that means this primitive type is
+            // something like hexBinary where byte order should be ignored. We
+            // achieve the expected behavior by just setting the byte order to
+            // BigEndian.
+            ByteOrder.BigEndian
+          }
+        }
         case mgrd: ModelGroupRuntimeData => {
           //
           // Model Groups can't have the byteOrder property.

@@ -67,14 +67,6 @@ trait FormatInfo {
   def byteOrder: ByteOrder
 
   /**
-   * Returns ByteOrder as a java.nio.ByteOrder constant.
-   */
-  final def jByteOrder = byteOrder match {
-    case ByteOrder.BigEndian => java.nio.ByteOrder.BIG_ENDIAN
-    case _ => java.nio.ByteOrder.LITTLE_ENDIAN
-  }
-
-  /**
    * Returns bit order. If text, this is the bit order for the character set
    * encoding. If binary, this is the bitOrder property value.
    */

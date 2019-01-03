@@ -25,60 +25,6 @@ class TestDataOutputStream2 {
 
   val beFinfo = FormatInfoForUnitTest()
 
-  @Test def testPutBitsDirect0_BE_MSBF {
-
-    val baos = new ByteArrayOutputStreamWithGetBuf()
-    val out = DirectOrBufferedDataOutputStream(baos, null)
-
-    out.putBits(List(0xA5.toByte, 0xBE.toByte, 0xEF.toByte).toArray, 1, 16, beFinfo)
-
-    out.setFinished(beFinfo)
-
-    val buf = baos.getBuf()
-
-    assertEquals(0xBE.toByte, buf(0))
-    assertEquals(0xEF.toByte, buf(1))
-    if (buf.length > 2)
-      assertEquals(0, buf(2))
-
-  }
-
-  @Test def testPutBitsDirect1_BE_MSBF {
-
-    val baos = new ByteArrayOutputStreamWithGetBuf()
-    val out = DirectOrBufferedDataOutputStream(baos, null)
-
-    out.putBits(List(0xA5.toByte, 0xBE.toByte, 0xEF.toByte).toArray, 1, 9, beFinfo)
-
-    out.setFinished(beFinfo)
-
-    val buf = baos.getBuf()
-
-    assertEquals(0xBE.toByte, buf(0))
-    assertEquals(0x80.toByte, buf(1))
-    if (buf.length > 2)
-      assertEquals(0, buf(2))
-
-  }
-
-  @Test def testPutBitsDirect7_BE_MSBF {
-
-    val baos = new ByteArrayOutputStreamWithGetBuf()
-    val out = DirectOrBufferedDataOutputStream(baos, null)
-
-    out.putBits(List(0xA5.toByte, 0xBE.toByte, 0xEF.toByte).toArray, 1, 15, beFinfo)
-
-    out.setFinished(beFinfo)
-
-    val buf = baos.getBuf()
-
-    assertEquals(0xBE.toByte, buf(0))
-    assertEquals(0xEE.toByte, buf(1))
-    if (buf.length > 2)
-      assertEquals(0, buf(2))
-
-  }
-
   /*
    * BitBuffer tests
    */
