@@ -404,7 +404,7 @@
     <dfdl:format ref="ex:GeneralFormat" representation="binary" lengthUnits="bytes"
       lengthKind='explicit' alignmentUnits='bytes' alignment='1' binaryNumberRep='binary' />
 
-      <xs:element name="bigLeast" type="xs:hexBinary" dfdl:byteOrder="bigEndian"
+      <xs:element name="bigLeast" type="xs:int" dfdl:byteOrder="bigEndian"
         dfdl:representation="binary" dfdl:bitOrder='leastSignificantBitFirst' dfdl:length="1"/>
 
   </tdml:defineSchema>

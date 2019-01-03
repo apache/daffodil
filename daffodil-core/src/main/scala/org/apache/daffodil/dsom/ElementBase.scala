@@ -628,7 +628,7 @@ trait ElementBase
     }
     rep match {
       case Representation.Binary =>
-        byteOrderEv // ensure defined
+        if (isComplexType || primType != PrimType.HexBinary) byteOrderEv // ensure defined
       case _ =>
         charsetEv // ensure defined
     }

@@ -422,27 +422,138 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
       if (maybeRelBitLimit0b.isDefined && maybeRelBitLimit0b.get < (relBitPos0b + bitLengthFrom1)) {
         false
       } else {
-        if (finfo.bitOrder =:= BitOrder.MostSignificantBitFirst) {
-          val fragBits = bitLengthFrom1 % 8
-          if (finfo.byteOrder =:= ByteOrder.LittleEndian) {
-            // MSBF & LE
-            if (fragBits > 0) {
-              array(0) = Bits.asSignedByte((array(0) << (8 - fragBits)) & 0xFF)
+        // Cannot rely on array.length since it is possible the array is bigger
+        // than the number of bits we should put
+        val bytesToPutFromArray = (bitLengthFrom1 + 7) / 8
+
+        // First thing we need to do is reverse the array if it's littleEndian,
+        // but only bother checking if the bilength is more than a byte--single
+        // byte sizes are common and it avoids the byteOrder check and
+        // potential array allocation
+        val bytes = 
+          if (bitLengthFrom1 > 8 && finfo.byteOrder =:= ByteOrder.LittleEndian) {
+            // We need to reverse this array. However, we cannot modify this
+            // array since it might come straight from the infoset, which could
+            // potentiall affect expressions that reference this data. So
+            // allocate a new array and populate it with the reverse of the old
+            // array.
+            val reversedArray = new Array[Byte](bytesToPutFromArray)
+            var index = 0
+            while (index < bytesToPutFromArray) {
+              reversedArray(index) = array(bytesToPutFromArray - 1 - index)
+              index += 1
             }
-            Bits.reverseBytes(array)
+            reversedArray
           } else {
-            // MSBF & BE
-            if (fragBits > 0) {
-              Bits.shiftLeft(array, 8 - fragBits)
-            }
+            // do not need to reverse, and the below code does not modify the
+            // array, so we can just use this for outputting data
+            array
+          }
+
+        // Determine the length of the new fragment after everything is added
+        // from the array taking into account the current fragment limit, and
+        // define a place to store its eventual value
+        val newFragmentByteLimit = (fragmentLastByteLimit + bitLengthFrom1) % 8
+        var newFragmentByte: Int = 0
+
+        if (fragmentLastByteLimit == 0) {
+          // There is no current fragment byte, so we can just write all the
+          // full bytes
+          val fullBytes = bitLengthFrom1 / 8
+          realStream.write(bytes, 0, fullBytes)
+
+          // There still maybe be a fragment byte. If so it will become our new
+          // fragment byte. Note that this new byte contains too much data that
+          // needs to be masked out, but we'll do that at the end.
+          if (newFragmentByteLimit > 0) {
+            newFragmentByte = Bits.asUnsignedByte(bytes(fullBytes))
           }
         } else {
-          // LSBF & LE
-          Bits.reverseBytes(array)
+          // There is an existing fragment byte. That means we must combine
+          // all the bytes with the existing fragment byte to create
+          // new bytes and a new fragment byte, taking bitOrder into account
+    
+          val isMSBF = finfo.bitOrder == BitOrder.MostSignificantBitFirst
+
+          // Determine masks and shifts needed to combine the fragment byte
+          // with array bytes
+          val fragByteMask =
+            if (isMSBF)
+              Bits.maskR(fragmentLastByteLimit)
+            else
+              Bits.maskL(fragmentLastByteLimit)
+          val curByteMask = ~fragByteMask & 0xFF
+          val fragShift = 8 - fragmentLastByteLimit
+          val curShift = fragmentLastByteLimit
+
+          // When we loop through the bytes we combine bytes with the existing
+          // fragment byte, updating the new fragment byte as we go along. This
+          // byte array might also have some fragment bits if the bitLength is
+          // not a multiple of 8. So when we combine the fragment byte with the
+          // last fragment byte, it may or may not create a complete new byte.
+          // The below pre-determines where the last index in the byte array is,
+          // and if that byte combined with a fragment byte will create a whole
+          // byte or have some leftover.
+          val lastIndexCreatesFullByte = {
+            val fragmentBitsInArray = bitLengthFrom1 % 8
+            val bitsAvailableInLastByte = if (fragmentBitsInArray == 0) 8 else fragmentBitsInArray
+            (fragmentLastByteLimit + bitsAvailableInLastByte) >= 8
+          }
+          val lastIndex = bytesToPutFromArray - 1
+          
+          // For each byte, combine it with the previous fragment byte
+          // according to bitOrder to create a new byte and a new fragment
+          // byte. Potentially write the new byte to the stream if we had
+          // enough bits for a full byte.
+          newFragmentByte = fragmentLastByte
+          var index = 0
+          while (index < bytesToPutFromArray) {
+            val curByte = Bits.asUnsignedByte(bytes(index))
+            val newByte =
+              if (isMSBF)
+                ((curByte & curByteMask) >> curShift) | newFragmentByte
+              else
+                ((curByte & curByteMask) << curShift) | newFragmentByte
+
+            if (index != lastIndex || lastIndexCreatesFullByte) {
+              // If this is *not* the last byte, then we definitely got 8 bits
+              // from this index and can write a full byte and update the
+              // fragment with the remaining byte. If this *is* the last byte,
+              // but what is left in the last byte combined with the fragment
+              // byte creates a full byte, then write the full byte and update
+              // the fragment byte with what is left over.
+              realStream.write(Bits.asSignedByte(newByte))
+              if (isMSBF)
+                newFragmentByte = (curByte & fragByteMask) << fragShift
+              else
+                newFragmentByte = (curByte & fragByteMask) >> fragShift
+            } else {
+              // We are at the last byte, and the remaining bits combined with
+              // the frag byte will not create a whole byte. The new byte we
+              // calculated is actually the new frag byte.
+              newFragmentByte = newByte
+            }
+            index += 1
+          }
         }
 
-        val bits = putBits(array, 0, bitLengthFrom1, finfo)
-        Assert.invariant(bits == bitLengthFrom1)
+        if (newFragmentByteLimit > 0) {
+          // We have written all the data that can be written and now have
+          // calculated a new fragment. However, since this is a fragment byte,
+          // some of the bits need to be masked out.
+          val mask =
+            if (finfo.bitOrder == BitOrder.MostSignificantBitFirst) 
+              Bits.maskL(newFragmentByteLimit)
+            else
+              Bits.maskR(newFragmentByteLimit)
+          setFragmentLastByte(newFragmentByte & mask, newFragmentByteLimit)
+        } else {
+          // After writing all the bytes, we ended on a byte boundary, there is
+          // no fragment byte. Erase the existing one if it existed.
+          setFragmentLastByte(0, 0)
+        }
+
+        setRelBitPos0b(relBitPos0b + ULong(bitLengthFrom1))
         true
       }
     res
@@ -453,34 +564,6 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
     if (maybeRelBitLimit0b.isDefined &&
       (relEndBitPos0b > maybeRelBitLimit0b.getULong)) true
     else false
-  }
-
-  /**
-   * Returns number of bits transferred. The last byte of the byte buffer
-   * can be a fragment byte.
-   */
-  private[io] def putBits(ba: Array[Byte], byteStartOffset0b: Int, lengthInBits: Long, finfo: FormatInfo): Long = {
-    Assert.usage((ba.length - byteStartOffset0b) * 8 >= lengthInBits)
-    val nWholeBytes = (lengthInBits / 8).toInt
-    val nFragBits = (lengthInBits % 8).toInt
-    val nBytesWritten = putBytes(ba, byteStartOffset0b, nWholeBytes, finfo)
-    val nBitsWritten = nBytesWritten * 8
-    if (nBytesWritten < nWholeBytes) {
-      nBytesWritten * 8
-    } else {
-      val isFragWritten =
-        if (nFragBits > 0) {
-          var fragByte: Long = ba(byteStartOffset0b + nWholeBytes)
-          if (finfo.bitOrder == BitOrder.MostSignificantBitFirst) {
-            // we need to shift the bits. We want the most significant bits of the byte
-            fragByte = fragByte >>> (8 - nFragBits)
-          }
-          putLongChecked(fragByte, nFragBits, finfo)
-        } else
-          true
-      if (isFragWritten) nBitsWritten + nFragBits
-      else nBitsWritten
-    }
   }
 
   /**

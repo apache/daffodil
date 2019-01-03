@@ -254,7 +254,19 @@ trait ElementRuntimeValuedPropertiesMixin
   }
 
   final lazy val maybeByteOrderEv = {
-    if (optionByteOrderRaw.isDefined) {
+    if (isSimpleType && primType == PrimType.HexBinary) {
+      // xs:hexBinary types should ignore the byteOrder property and
+      // effectively always use a bigEndian byteOrder. One way to accomplish
+      // this would be to modify the byteOrderExpr to return a constant value
+      // of "bigEndian" for hexBinary types. The problem with this is that
+      // Daffodil does not allow byteOrder="bigEndian" with
+      // bitOrder="leastSignificantBitFirst", which is what would happen when
+      // parsing hexBinary data with LSBF bitOrder, resulting in an SDE. So
+      // instead, we just set this to Nope, and ensure we never try to get the
+      // byteOrder property when the type is xs:hexBinary. The IO layer will
+      // see this Nope and do the right thing.
+      Nope
+    } else if (optionByteOrderRaw.isDefined) {
       val ev = new ByteOrderEv(byteOrderExpr, elementRuntimeData)
       ev.compile()
       One(ev)
@@ -524,34 +536,44 @@ trait ElementRuntimeValuedPropertiesMixin
       ReferencedElementInfos.None
 
   private def localElementPropertyReferencedElements(f: F) = {
-    propExprElts(optionByteOrderRaw, byteOrderEv, f) ++
-      lengthReferencedElements(f) ++
+    val booleanTextExprElts =
+      if (isSimpleType && primType =:= PrimType.Boolean) {
+        propExprElts(optionTextBooleanTrueRepRaw, textBooleanTrueRepEv, f) ++
+          propExprElts(optionTextBooleanFalseRepRaw, textBooleanFalseRepEv, f)
+      } else {
+        ReferencedElementInfos.None
+      }
+
+    val escapeSchemeExprElts =
+      if (optionEscapeScheme.isDefined) {
+        val es: DFDLEscapeScheme = optionEscapeScheme.get
+        val ee =
+          if (es.optionEscapeEscapeCharacterEv.isDefined)
+            f(es.optionEscapeEscapeCharacterEv.get)
+          else
+            ReferencedElementInfos.None
+        ee ++ propExprElts(es.optionEscapeCharacterRaw, es.escapeCharacterEv, f)
+      } else {
+        ReferencedElementInfos.None
+      }
+
+    val byteOrderExprElts =
+      if (isSimpleType && primType =:= PrimType.HexBinary) {
+        ReferencedElementInfos.None
+      } else {
+        propExprElts(optionByteOrderRaw, byteOrderEv, f)
+      }
+
+    lengthReferencedElements(f) ++
       propExprElts(optionOccursCountRaw, occursCountEv, f) ++
       propExprElts(optionTextStandardDecimalSeparatorRaw, textStandardDecimalSeparatorEv, f) ++
       propExprElts(optionTextStandardGroupingSeparatorRaw, textStandardGroupingSeparatorEv, f) ++
       propExprElts(optionTextStandardExponentRepRaw, textStandardExponentRepEv, f) ++
       propExprElts(optionBinaryFloatRepRaw, binaryFloatRepEv, f) ++
-      (
-        if (isSimpleType && primType =:= PrimType.Boolean) {
-          propExprElts(optionTextBooleanTrueRepRaw, textBooleanTrueRepEv, f) ++
-            propExprElts(optionTextBooleanFalseRepRaw, textBooleanFalseRepEv, f)
-        } else {
-          ReferencedElementInfos.None
-        }) ++
-        propExprElts(optionCalendarLanguageRaw, calendarLanguage, f) ++
-        (
-          if (optionEscapeScheme.isDefined) {
-            val es: DFDLEscapeScheme = optionEscapeScheme.get
-            val ee =
-              if (es.optionEscapeEscapeCharacterEv.isDefined)
-                f(es.optionEscapeEscapeCharacterEv.get)
-              else
-                ReferencedElementInfos.None
-            ee ++
-              propExprElts(es.optionEscapeCharacterRaw, es.escapeCharacterEv, f)
-          } else {
-            ReferencedElementInfos.None
-          })
+      propExprElts(optionCalendarLanguageRaw, calendarLanguage, f) ++
+      booleanTextExprElts ++
+      escapeSchemeExprElts ++
+      byteOrderExprElts
   }
 
   private lazy val myPropertyContentReferencedElementInfos =
