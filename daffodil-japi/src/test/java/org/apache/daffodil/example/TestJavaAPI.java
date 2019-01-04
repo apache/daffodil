@@ -24,6 +24,8 @@ import static org.junit.Assert.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.channels.Channels;
@@ -51,7 +53,7 @@ import org.apache.daffodil.japi.io.InputSourceDataInputStream;
 
 public class TestJavaAPI {
 
-    public java.io.File getResource(String resPath) {
+    private java.io.File getResource(String resPath) {
         try {
             return new java.io.File(this.getClass().getResource(resPath).toURI());
         } catch (Exception e) {
@@ -59,8 +61,57 @@ public class TestJavaAPI {
         }
     }
 
+    /**
+     * This is a test-only helper function used to serialize and deserialize a
+     * DataProcessor to ensure all JAPI classes that need to extend
+     * Serializable do so appropriately.
+     *
+     * All of the JAPI tests create a DataProcessor. To test that we correctly
+     * made all the necessary changes to make the JAPI DataProcessor
+     * serializable, it is important to serialize and deserialize that
+     * DataProcessor before use in the tests. This function acts as a helper
+     * function to accomplish that task.
+     *
+     * So this functions accepts a DataProcessor, serializes and deserializes
+     * that DataProcessor in memory, and then returns the result. The test
+     * should then use that resulting DataProcessor for the rest of the test.
+     * This function is only used for testing purposes.
+     *
+     * Note that this function contains an ObjectInputStream for
+     * deserialization, but one that is extended to override the resolveClass
+     * function. This override is necessary to work around a bug when running
+     * tests in SBT that causes an incorrect class loader to be used. Normal
+     * users of the Java API should not need this and can serialize/deserialize
+     * as one would normally do with a standard Object{Input,Output}Stream.
+     */
+    private DataProcessor reserializeDataProcessor(DataProcessor dp) throws IOException, ClassNotFoundException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(baos);
+        oos.writeObject(dp);
+        oos.close();
+
+        ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+        ObjectInputStream ois = new ObjectInputStream(bais) {
+            /**
+             * This override is here because of a bug in sbt where the wrong class loader is being
+             * used when deserializing an object.
+             * For more information, see https://github.com/sbt/sbt/issues/163
+             */
+            @Override
+            protected Class resolveClass(java.io.ObjectStreamClass desc) throws IOException, ClassNotFoundException {
+                try {
+                    return Class.forName(desc.getName(), false, getClass().getClassLoader());
+                } catch (ClassNotFoundException e) {
+                    return super.resolveClass(desc);
+                }
+            }
+        };
+
+        return (DataProcessor)ois.readObject();
+    }
+
     @Test
-    public void testJavaAPI1() throws IOException {
+    public void testJavaAPI1() throws IOException, ClassNotFoundException {
         LogWriterForJAPITest lw = new LogWriterForJAPITest();
         DebuggerRunnerForJAPITest debugger = new DebuggerRunnerForJAPITest();
 
@@ -72,8 +123,10 @@ public class TestJavaAPI {
         java.io.File schemaFile = getResource("/test/japi/mySchema1.dfdl.xsd");
         ProcessorFactory pf = c.compileFile(schemaFile);
         DataProcessor dp = pf.onPath("/");
+        dp = reserializeDataProcessor(dp);
         dp.setDebugger(debugger);
         dp.setDebugging(true);
+
         java.io.File file = getResource("/test/japi/myData.dat");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
         InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
@@ -199,7 +252,7 @@ public class TestJavaAPI {
     }
 
     @Test
-    public void testJavaAPI2() throws IOException {
+    public void testJavaAPI2() throws IOException, ClassNotFoundException {
         LogWriterForJAPITest lw = new LogWriterForJAPITest();
 
         Daffodil.setLogWriter(lw);
@@ -210,6 +263,8 @@ public class TestJavaAPI {
         java.io.File schemaFile = getResource("/test/japi/mySchema1.dfdl.xsd");
         ProcessorFactory pf = c.compileFile(schemaFile);
         DataProcessor dp = pf.onPath("/");
+        dp = reserializeDataProcessor(dp);
+
         java.io.File file = getResource("/test/japi/myDataBroken.dat");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
         InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
@@ -252,13 +307,15 @@ public class TestJavaAPI {
      * @throws IOException
      */
     @Test
-    public void testJavaAPI3() throws IOException {
+    public void testJavaAPI3() throws IOException, ClassNotFoundException {
         org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
         c.setValidateDFDLSchemas(false);
         java.io.File schemaFile = getResource("/test/japi/mySchema3.dfdl.xsd");
         ProcessorFactory pf = c.compileFile(schemaFile);
         pf.setDistinguishedRootNode("e3", null);
         DataProcessor dp = pf.onPath("/");
+        dp = reserializeDataProcessor(dp);
+
         java.io.File file = getResource("/test/japi/myData16.dat");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
         InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
@@ -321,13 +378,15 @@ public class TestJavaAPI {
     }
 
     @Test
-    public void testJavaAPI4b() throws IOException {
+    public void testJavaAPI4b() throws IOException, ClassNotFoundException {
         org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
         c.setValidateDFDLSchemas(false);
         File schemaFileName = getResource("/test/japi/mySchema3.dfdl.xsd");
         c.setDistinguishedRootNode("e4", null);
         ProcessorFactory pf = c.compileFile(schemaFileName);
         DataProcessor dp = pf.onPath("/");
+        dp = reserializeDataProcessor(dp);
+
         java.io.File file = getResource("/test/japi/myData2.dat");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
         InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
@@ -349,7 +408,7 @@ public class TestJavaAPI {
     }
 
     @Test
-    public void testJavaAPI5() throws IOException {
+    public void testJavaAPI5() throws IOException, ClassNotFoundException {
         org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
         c.setValidateDFDLSchemas(false);
         File schemaFileName = getResource("/test/japi/mySchema3.dfdl.xsd");
@@ -357,6 +416,8 @@ public class TestJavaAPI {
                                                 // element
         ProcessorFactory pf = c.compileFile(schemaFileName);
         DataProcessor dp = pf.onPath("/");
+        dp = reserializeDataProcessor(dp);
+
         java.io.File file = getResource("/test/japi/myData3.dat"); // contains 5
                                                                    // bytes
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
@@ -417,7 +478,7 @@ public class TestJavaAPI {
      * @throws IOException
      */
     @Test
-    public void testJavaAPI7() throws IOException {
+    public void testJavaAPI7() throws IOException, ClassNotFoundException {
         // TODO: This is due to the fact that we are doing several conversions
         // back and forth between Scala.xml.Node and JDOM. And the conversions
         // both use XMLOutputter to format the result (which escapes the
@@ -433,6 +494,8 @@ public class TestJavaAPI {
         c.setDistinguishedRootNode("TopLevel", null);
         ProcessorFactory pf = c.compileFile(schemaFile);
         DataProcessor dp = pf.onPath("/");
+        dp = reserializeDataProcessor(dp);
+
         java.io.File file = getResource("/test/japi/01very_simple.txt");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
         InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
@@ -464,7 +527,7 @@ public class TestJavaAPI {
      * @throws IOException
      */
     @Test
-    public void testJavaAPI8() throws IOException {
+    public void testJavaAPI8() throws IOException, ClassNotFoundException {
         LogWriterForJAPITest lw = new LogWriterForJAPITest();
 
         Daffodil.setLogWriter(lw);
@@ -476,6 +539,8 @@ public class TestJavaAPI {
         c.setDistinguishedRootNode("TopLevel2", null);
         ProcessorFactory pf = c.compileFile(schemaFile);
         DataProcessor dp = pf.onPath("/");
+        dp = reserializeDataProcessor(dp);
+
         java.io.File file = getResource("/test/japi/01very_simple.txt");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
         InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
@@ -503,7 +568,7 @@ public class TestJavaAPI {
      * error.
      */
     @Test
-    public void testJavaAPI9() throws IOException {
+    public void testJavaAPI9() throws IOException, ClassNotFoundException {
         LogWriterForJAPITest lw = new LogWriterForJAPITest();
 
         Daffodil.setLogWriter(lw);
@@ -515,6 +580,8 @@ public class TestJavaAPI {
         c.setDistinguishedRootNode("TopLevel2", null);
         ProcessorFactory pf = c.compileFile(schemaFile);
         DataProcessor dp = pf.onPath("/");
+        dp = reserializeDataProcessor(dp);
+
         java.io.File file = getResource("/test/japi/01very_simple.txt");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
         InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
@@ -553,13 +620,15 @@ public class TestJavaAPI {
      * Verify that hidden elements do not appear in the resulting infoset
      */
     @Test
-    public void testJavaAPI10() throws IOException {
+    public void testJavaAPI10() throws IOException, ClassNotFoundException {
 
         org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
         c.setValidateDFDLSchemas(false);
         java.io.File schemaFile = getResource("/test/japi/mySchema4.dfdl.xsd");
         ProcessorFactory pf = c.compileFile(schemaFile);
         DataProcessor dp = pf.onPath("/");
+        dp = reserializeDataProcessor(dp);
+
         java.io.File file = getResource("/test/japi/myData4.dat");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
         InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
@@ -580,13 +649,15 @@ public class TestJavaAPI {
      * Verify that nested elements do not appear as duplicates
      */
     @Test
-    public void testJavaAPI11() throws IOException {
+    public void testJavaAPI11() throws IOException, ClassNotFoundException {
 
         org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
         c.setValidateDFDLSchemas(false);
         java.io.File schemaFile = getResource("/test/japi/mySchema5.dfdl.xsd");
         ProcessorFactory pf = c.compileFile(schemaFile);
         DataProcessor dp = pf.onPath("/");
+        dp = reserializeDataProcessor(dp);
+
         java.io.File file = getResource("/test/japi/myData5.dat");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
         InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
@@ -617,7 +688,7 @@ public class TestJavaAPI {
     }
 
     @Test
-    public void testJavaAPI12() throws IOException {
+    public void testJavaAPI12() throws IOException, ClassNotFoundException {
         LogWriterForJAPITest2 lw2 = new LogWriterForJAPITest2();
         DebuggerRunnerForJAPITest debugger = new DebuggerRunnerForJAPITest();
 
@@ -630,6 +701,7 @@ public class TestJavaAPI {
         java.io.File schemaFile = getResource("/test/japi/mySchema1.dfdl.xsd");
         ProcessorFactory pf = c.compileFile(schemaFile);
         DataProcessor dp = pf.onPath("/");
+        dp = reserializeDataProcessor(dp);
         dp.setDebugger(debugger);
         dp.setDebugging(true);
 
@@ -654,7 +726,7 @@ public class TestJavaAPI {
     }
 
     @Test
-    public void testJavaAPI13() throws IOException {
+    public void testJavaAPI13() throws IOException, ClassNotFoundException {
         // Demonstrates here that we can set external variables
         // after compilation but before parsing via Compiler.
         LogWriterForJAPITest lw = new LogWriterForJAPITest();
@@ -671,6 +743,7 @@ public class TestJavaAPI {
         ProcessorFactory pf = c.compileFile(schemaFile);
 
         DataProcessor dp = pf.onPath("/");
+        dp = reserializeDataProcessor(dp);
         dp.setDebugger(debugger);
         dp.setDebugging(true);
 
@@ -696,7 +769,7 @@ public class TestJavaAPI {
     }
 
     @Test
-    public void testJavaAPI14() throws IOException {
+    public void testJavaAPI14() throws IOException, ClassNotFoundException {
         // Demonstrates here that we can set external variables
         // after compilation but before parsing via DataProcessor.
         LogWriterForJAPITest lw = new LogWriterForJAPITest();
@@ -711,9 +784,10 @@ public class TestJavaAPI {
         java.io.File schemaFile = getResource("/test/japi/mySchemaWithVars.dfdl.xsd");
         ProcessorFactory pf = c.compileFile(schemaFile);
         DataProcessor dp = pf.onPath("/");
+        dp.setExternalVariables(extVarFile);
+        dp = reserializeDataProcessor(dp);
         dp.setDebugger(debugger);
         dp.setDebugging(true);
-        dp.setExternalVariables(extVarFile);
 
         java.io.File file = getResource("/test/japi/myData.dat");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
@@ -744,7 +818,7 @@ public class TestJavaAPI {
     }
 
     @Test
-    public void testJavaAPI15() throws IOException {
+    public void testJavaAPI15() throws IOException, ClassNotFoundException {
         LogWriterForJAPITest lw = new LogWriterForJAPITest();
 
         Daffodil.setLogWriter(lw);
@@ -755,6 +829,8 @@ public class TestJavaAPI {
         java.io.File schemaFile = getResource("/test/japi/mySchema1.dfdl.xsd");
         ProcessorFactory pf = c.compileFile(schemaFile);
         DataProcessor dp = pf.onPath("/");
+        dp = reserializeDataProcessor(dp);
+
         java.io.File file = getResource("/test/japi/myInfosetBroken.xml");
         org.jdom2.input.SAXBuilder builder = new org.jdom2.input.SAXBuilder();
 
@@ -784,13 +860,15 @@ public class TestJavaAPI {
     }
 
     @Test
-    public void testJavaAPI16() throws IOException, InvalidUsageException {
+    public void testJavaAPI16() throws IOException, InvalidUsageException, ClassNotFoundException {
         org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
         c.setValidateDFDLSchemas(false);
         java.io.File schemaFile = getResource("/test/japi/mySchema1.dfdl.xsd");
         ProcessorFactory pf = c.compileFile(schemaFile);
         DataProcessor dp = pf.onPath("/");
         dp.setValidationMode(ValidationMode.Limited);
+        dp = reserializeDataProcessor(dp);
+
         java.io.File file = getResource("/test/japi/myData.dat");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
         InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
@@ -810,13 +888,15 @@ public class TestJavaAPI {
     }
 
     @Test
-    public void testJavaAPI17() throws IOException, InvalidUsageException {
+    public void testJavaAPI17() throws IOException, InvalidUsageException, ClassNotFoundException {
         org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
         c.setValidateDFDLSchemas(false);
         java.io.File schemaFile = getResource("/test/japi/mySchema1.dfdl.xsd");
         ProcessorFactory pf = c.compileFile(schemaFile);
         DataProcessor dp = pf.onPath("/");
         dp.setValidationMode(ValidationMode.Full);
+        dp = reserializeDataProcessor(dp);
+
         java.io.File file = getResource("/test/japi/myData.dat");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
         InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
@@ -847,7 +927,7 @@ public class TestJavaAPI {
     }
 
     @Test
-    public void testJavaAPI18() throws IOException {
+    public void testJavaAPI18() throws IOException, ClassNotFoundException {
       // Demonstrate that we can use the API to continue a parse where we left off
       org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
       c.setValidateDFDLSchemas(false);
@@ -855,6 +935,8 @@ public class TestJavaAPI {
       c.setDistinguishedRootNode("e4", null);
       ProcessorFactory pf = c.compileFile(schemaFile);
       DataProcessor dp = pf.onPath("/");
+      dp = reserializeDataProcessor(dp);
+
       java.io.File file = getResource("/test/japi/myData2.dat");
       java.io.FileInputStream fis = new java.io.FileInputStream(file);
       InputSourceDataInputStream input = new InputSourceDataInputStream(fis);

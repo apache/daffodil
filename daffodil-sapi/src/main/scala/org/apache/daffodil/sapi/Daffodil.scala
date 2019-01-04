@@ -285,7 +285,8 @@ class ProcessorFactory private[sapi] (pf: SProcessorFactory)
  * functions in [[WithDiagnostics]], is invalid and will result in an
  * Exception.
  */
-abstract class WithDiagnostics private[sapi] (wd: SWithDiagnostics) {
+abstract class WithDiagnostics private[sapi] (wd: SWithDiagnostics)
+  extends Serializable {
 
   /**
    * Determine if any errors occurred in the creation of the parent object.
@@ -396,7 +397,8 @@ class LocationInSchemaFile private[sapi] (lsf: SLocationInSchemaFile) {
  * Compiled version of a DFDL Schema, used to parse data and get the DFDL infoset
  */
 class DataProcessor private[sapi] (dp: SDataProcessor)
-  extends WithDiagnostics(dp) {
+  extends WithDiagnostics(dp)
+  with Serializable {
 
   /**
    * Enable/disable debugging.
