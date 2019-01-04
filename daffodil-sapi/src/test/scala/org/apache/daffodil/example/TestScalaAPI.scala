@@ -23,10 +23,13 @@ import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
 import java.io.File
 import java.nio.channels.Channels
 import org.junit.Test
 import org.apache.daffodil.sapi.Daffodil
+import org.apache.daffodil.sapi.DataProcessor
 import org.apache.daffodil.sapi.ParseResult
 import org.apache.daffodil.sapi.logger.ConsoleLogWriter
 import org.apache.daffodil.sapi.logger.LogLevel
@@ -47,6 +50,31 @@ class TestScalaAPI {
     f
   }
 
+  def reserializeDataProcessor(dp: DataProcessor): DataProcessor = {
+      val baos = new ByteArrayOutputStream()
+      val oos = new ObjectOutputStream(baos)
+      oos.writeObject(dp)
+      oos.close()
+
+      val bais = new ByteArrayInputStream(baos.toByteArray())
+      val ois = new ObjectInputStream(bais) {
+        /**
+         * This override is here because of a bug in sbt where the wrong class loader is being
+         * used when deserializing an object.
+         * For more information, see https://github.com/sbt/sbt/issues/163
+         */
+        override protected def resolveClass(desc: java.io.ObjectStreamClass): Class[_] = {
+          try {
+            Class.forName(desc.getName, false, getClass.getClassLoader)
+          } catch {
+            case e: ClassNotFoundException => super.resolveClass(desc);
+          }
+        }
+      }
+
+      ois.readObject().asInstanceOf[DataProcessor]
+    }
+
   @Test
   def testScalaAPI1() {
     val lw = new LogWriterForSAPITest()
@@ -59,9 +87,11 @@ class TestScalaAPI {
     c.setValidateDFDLSchemas(false)
     val schemaFile = getResource("/test/sapi/mySchema1.dfdl.xsd")
     val pf = c.compileFile(schemaFile)
-    val dp = pf.onPath("/")
+    val dp1 = pf.onPath("/")
+    val dp = reserializeDataProcessor(dp1)
     dp.setDebugger(debugger)
     dp.setDebugging(true)
+
     val file = getResource("/test/sapi/myData.dat")
     val fis = new java.io.FileInputStream(file)
     val input = new InputSourceDataInputStream(fis)
@@ -164,7 +194,9 @@ class TestScalaAPI {
     c.setValidateDFDLSchemas(false)
     val schemaFile = getResource("/test/sapi/mySchema1.dfdl.xsd")
     val pf = c.compileFile(schemaFile)
-    val dp = pf.onPath("/")
+    val dp1 = pf.onPath("/")
+    val dp = reserializeDataProcessor(dp1)
+
     val file = getResource("/test/sapi/myDataBroken.dat")
     val fis = new java.io.FileInputStream(file)
     val input = new InputSourceDataInputStream(fis)
@@ -206,7 +238,9 @@ class TestScalaAPI {
     val schemaFile = getResource("/test/sapi/mySchema3.dfdl.xsd")
     val pf = c.compileFile(schemaFile)
     pf.setDistinguishedRootNode("e3", null)
-    val dp = pf.onPath("/")
+    val dp1 = pf.onPath("/")
+    val dp = reserializeDataProcessor(dp1)
+
     val file = getResource("/test/sapi/myData16.dat")
     val fis = new java.io.FileInputStream(file)
     val input = new InputSourceDataInputStream(fis)
@@ -275,7 +309,9 @@ class TestScalaAPI {
     val schemaFileName = getResource("/test/sapi/mySchema3.dfdl.xsd")
     c.setDistinguishedRootNode("e4", null)
     val pf = c.compileFile(schemaFileName)
-    val dp = pf.onPath("/")
+    val dp1 = pf.onPath("/")
+    val dp = reserializeDataProcessor(dp1)
+
     val file = getResource("/test/sapi/myData2.dat")
     val fis = new java.io.FileInputStream(file)
     val input = new InputSourceDataInputStream(fis)
@@ -304,7 +340,9 @@ class TestScalaAPI {
     c.setDistinguishedRootNode("e4", null); // e4 is a 4-byte long string
     // element
     val pf = c.compileFile(schemaFileName)
-    val dp = pf.onPath("/")
+    val dp1 = pf.onPath("/")
+    val dp = reserializeDataProcessor(dp1)
+
     val file = getResource("/test/sapi/myData3.dat"); // contains 5
     // bytes
     val fis = new java.io.FileInputStream(file)
@@ -381,7 +419,9 @@ class TestScalaAPI {
     val schemaFile = getResource("/test/sapi/TopLevel.dfdl.xsd")
     c.setDistinguishedRootNode("TopLevel", null)
     val pf = c.compileFile(schemaFile)
-    val dp = pf.onPath("/")
+    val dp1 = pf.onPath("/")
+    val dp = reserializeDataProcessor(dp1)
+
     val file = getResource("/test/sapi/01very_simple.txt")
     val fis = new java.io.FileInputStream(file)
     val input = new InputSourceDataInputStream(fis)
@@ -424,7 +464,9 @@ class TestScalaAPI {
     val schemaFile = getResource("/test/sapi/TopLevel.dfdl.xsd")
     c.setDistinguishedRootNode("TopLevel2", null)
     val pf = c.compileFile(schemaFile)
-    val dp = pf.onPath("/")
+    val dp1 = pf.onPath("/")
+    val dp = reserializeDataProcessor(dp1)
+
     val file = getResource("/test/sapi/01very_simple.txt")
     val fis = new java.io.FileInputStream(file)
     val input = new InputSourceDataInputStream(fis)
@@ -463,7 +505,9 @@ class TestScalaAPI {
     val schemaFile = getResource("/test/sapi/TopLevel.dfdl.xsd")
     c.setDistinguishedRootNode("TopLevel2", null)
     val pf = c.compileFile(schemaFile)
-    val dp = pf.onPath("/")
+    val dp1 = pf.onPath("/")
+    val dp = reserializeDataProcessor(dp1)
+
     val file = getResource("/test/sapi/01very_simple.txt")
     val fis = new java.io.FileInputStream(file)
     val input = new InputSourceDataInputStream(fis)
@@ -507,7 +551,9 @@ class TestScalaAPI {
     c.setValidateDFDLSchemas(false)
     val schemaFile = getResource("/test/sapi/mySchema4.dfdl.xsd")
     val pf = c.compileFile(schemaFile)
-    val dp = pf.onPath("/")
+    val dp1 = pf.onPath("/")
+    val dp = reserializeDataProcessor(dp1)
+
     val file = getResource("/test/sapi/myData4.dat")
     val fis = new java.io.FileInputStream(file)
     val input = new InputSourceDataInputStream(fis)
@@ -531,7 +577,9 @@ class TestScalaAPI {
     c.setValidateDFDLSchemas(false)
     val schemaFile = getResource("/test/sapi/mySchema5.dfdl.xsd")
     val pf = c.compileFile(schemaFile)
-    val dp = pf.onPath("/")
+    val dp1 = pf.onPath("/")
+    val dp = reserializeDataProcessor(dp1)
+
     val file = getResource("/test/sapi/myData5.dat")
     val fis = new java.io.FileInputStream(file)
     val input = new InputSourceDataInputStream(fis)
@@ -566,7 +614,9 @@ class TestScalaAPI {
 
     val schemaFile = getResource("/test/sapi/mySchema1.dfdl.xsd")
     val pf = c.compileFile(schemaFile)
-    val dp = pf.onPath("/")
+    val dp1 = pf.onPath("/")
+    val dp = reserializeDataProcessor(dp1)
+
     dp.setDebugger(debugger)
     dp.setDebugging(true)
     val file = getResource("/test/sapi/myData.dat")
@@ -610,7 +660,9 @@ class TestScalaAPI {
     c.setExternalDFDLVariables(extVarsFile)
     val pf = c.compileFile(schemaFile)
 
-    val dp = pf.onPath("/")
+    val dp1 = pf.onPath("/")
+    val dp = reserializeDataProcessor(dp1)
+
     dp.setDebugger(debugger)
     dp.setDebugging(true)
     val file = getResource("/test/sapi/myData.dat")
@@ -647,10 +699,12 @@ class TestScalaAPI {
     val extVarFile = getResource("/test/sapi/external_vars_1.xml")
     val schemaFile = getResource("/test/sapi/mySchemaWithVars.dfdl.xsd")
     val pf = c.compileFile(schemaFile)
-    val dp = pf.onPath("/")
+    val dp1 = pf.onPath("/")
+    dp1.setExternalVariables(extVarFile)
+    val dp = reserializeDataProcessor(dp1)
+
     dp.setDebugger(debugger)
     dp.setDebugging(true)
-    dp.setExternalVariables(extVarFile)
 
     val file = getResource("/test/sapi/myData.dat")
     val fis = new java.io.FileInputStream(file)
@@ -733,9 +787,11 @@ class TestScalaAPI {
     c.setValidateDFDLSchemas(false)
     val schemaFile = getResource("/test/sapi/mySchema1.dfdl.xsd")
     val pf = c.compileFile(schemaFile)
-    val dp = pf.onPath("/")
+    val dp1 = pf.onPath("/")
+    val dp = reserializeDataProcessor(dp1)
     dp.setDebugger(debugger)
     dp.setDebugging(true)
+
     val file = getResource("/test/sapi/myInfosetBroken.xml")
     val xml = scala.xml.XML.loadFile(file)
     val bos = new java.io.ByteArrayOutputStream()
@@ -763,8 +819,10 @@ class TestScalaAPI {
     c.setValidateDFDLSchemas(false)
     val schemaFile = getResource("/test/sapi/mySchema1.dfdl.xsd")
     val pf = c.compileFile(schemaFile)
-    val dp = pf.onPath("/")
-    dp.setValidationMode(ValidationMode.Limited)
+    val dp1 = pf.onPath("/")
+    dp1.setValidationMode(ValidationMode.Limited)
+    val dp = reserializeDataProcessor(dp1)
+
     val file = getResource("/test/sapi/myData.dat")
     val fis = new java.io.FileInputStream(file)
     val input = new InputSourceDataInputStream(fis)
@@ -789,8 +847,10 @@ class TestScalaAPI {
     c.setValidateDFDLSchemas(false)
     val schemaFile = getResource("/test/sapi/mySchema1.dfdl.xsd")
     val pf = c.compileFile(schemaFile)
-    val dp = pf.onPath("/")
-    dp.setValidationMode(ValidationMode.Full)
+    val dp1 = pf.onPath("/")
+    dp1.setValidationMode(ValidationMode.Full)
+    val dp = reserializeDataProcessor(dp1)
+
     val file = getResource("/test/sapi/myData.dat")
     val fis = new java.io.FileInputStream(file)
     val input = new InputSourceDataInputStream(fis)
@@ -827,7 +887,9 @@ class TestScalaAPI {
     val schemaFile = getResource("/test/sapi/mySchema3.dfdl.xsd")
     c.setDistinguishedRootNode("e4", null)
     val pf = c.compileFile(schemaFile)
-    val dp = pf.onPath("/")
+    val dp1 = pf.onPath("/")
+    val dp = reserializeDataProcessor(dp1)
+
     val file = getResource("/test/sapi/myData2.dat")
     val fis = new java.io.FileInputStream(file)
     val input = new InputSourceDataInputStream(fis)

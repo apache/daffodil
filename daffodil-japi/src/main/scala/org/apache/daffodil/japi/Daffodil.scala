@@ -302,7 +302,8 @@ class ProcessorFactory private[japi] (pf: SProcessorFactory)
  * functions in [[WithDiagnostics]], is invalid and will result in an
  * Exception.
  */
-abstract class WithDiagnostics private[japi] (wd: SWithDiagnostics) {
+abstract class WithDiagnostics private[japi] (wd: SWithDiagnostics)
+  extends Serializable {
 
   /**
    * Determine if any errors occurred in the creation of the parent object.
@@ -419,7 +420,8 @@ class LocationInSchemaFile private[japi] (lsf: SLocationInSchemaFile) {
  * Compiled version of a DFDL Schema, used to parse data and get the DFDL infoset
  */
 class DataProcessor private[japi] (dp: SDataProcessor)
-  extends WithDiagnostics(dp) {
+  extends WithDiagnostics(dp)
+  with Serializable {
 
   /**
    * Enable/disable debugging.
