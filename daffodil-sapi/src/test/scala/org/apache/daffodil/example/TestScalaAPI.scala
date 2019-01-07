@@ -41,7 +41,7 @@ import org.apache.daffodil.sapi.io.InputSourceDataInputStream
 
 class TestScalaAPI {
 
-  def getResource(resPath: String): File = {
+  private def getResource(resPath: String): File = {
     val f = try {
       new File(this.getClass().getResource(resPath).toURI())
     } catch {
@@ -50,7 +50,30 @@ class TestScalaAPI {
     f
   }
 
-  def reserializeDataProcessor(dp: DataProcessor): DataProcessor = {
+  /**
+   * This is a test-only helper function used to serialize and deserialize a
+   * DataProcessor to ensure all SAPI classes that need to extend
+   * Serializable do so appropriately.
+   *
+   * All of the SAPI tests create a DataProcessor. To test that we correctly
+   * made all the necessary changes to make the SAPI DataProcessor
+   * serializable, it is important to serialize and deserialize that
+   * DataProcessor before use in the tests. This function acts as a helper
+   * function to accomplish that task.
+   *
+   * So this functions accepts a DataProcessor, serializes and deserializes
+   * that DataProcessor in memory, and then returns the result. The test
+   * should then use that resulting DataProcessor for the rest of the test.
+   * This function is only used for testing purposes.
+   *
+   * Note that this function contains an ObjectInputStream for
+   * deserialization, but one that is extended to override the resolveClass
+   * function. This override is necessary to work around a bug when running
+   * tests in SBT that causes an incorrect class loader to be used. Normal
+   * users of the Scala API should not need this and can serialize/deserialize
+   * as one would normally do with a standard Object{Input,Output}Stream.
+   */
+  private def reserializeDataProcessor(dp: DataProcessor): DataProcessor = {
       val baos = new ByteArrayOutputStream()
       val oos = new ObjectOutputStream(baos)
       oos.writeObject(dp)
