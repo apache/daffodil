@@ -49,7 +49,7 @@ import java.io.File
 import org.apache.daffodil.tdml.DFDLTestSuite
 import org.apache.daffodil.api.ValidationMode
 import scala.xml.Node
-import org.apache.daffodil.externalvars.Binding
+import org.apache.daffodil.externalvars.{ Binding, BindingException }
 import org.apache.daffodil.externalvars.ExternalVariablesLoader
 import org.apache.daffodil.configuration.ConfigurationLoader
 import org.apache.daffodil.api.ValidationMode
@@ -627,7 +627,9 @@ object Main extends Logging {
         val extVarBindingNodeOpt = (configNode \ "externalVariableBindings").headOption
         extVarBindingNodeOpt match {
           case None => Seq.empty
-          case Some(extVarBindingsNode) => ExternalVariablesLoader.getVariables(extVarBindingsNode, tunables)
+          case Some(extVarBindingsNode) => {
+            ExternalVariablesLoader.getVariables(extVarBindingsNode, tunables)
+          }
         }
       }
     }
@@ -1340,6 +1342,20 @@ object Main extends Logging {
     1
   }
 
+  def oomError(e: OutOfMemoryError): Int = {
+    System.err.println("""|
+                          |!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                          |!!             Daffodil ran out of memory!              !!
+                          |!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                          |
+                          | Try increasing the amount of memory by changing or
+                          | setting the DAFFODIL_JAVA_OPTS environment variable.
+                          | "DAFFODIL_JAVA_OPTS=-Xmx5G" for 5GB.
+                          |
+                          |""".format(e.getMessage()).stripMargin)
+    1
+  }
+
   def main(arguments: Array[String]): Unit = {
     val ret = try {
       run(arguments)
@@ -1353,6 +1369,10 @@ object Main extends Logging {
         log(LogLevel.Error, "%s", e.getMessage())
         1
       }
+      case e: BindingException => {
+        log(LogLevel.Error, "%s", e.getMessage())
+        1
+      }
       case e: NotYetImplementedException => {
         nyiFound(e)
       }
@@ -1361,18 +1381,7 @@ object Main extends Logging {
         1
       }
       case e: OutOfMemoryError => {
-        System.err.println("""|
-                            |!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                            |!!             Daffodil ran out of memory!              !!
-                            |!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                            |
-                            | Try increasing the amount of memory by changing or
-                            | setting the DAFFODIL_JAVA_OPTS environment variable.
-                            | "DAFFODIL_JAVA_OPTS=-Xmx5G" for 5GB.
-                            |
-                            |""".stripMargin)
-        e.printStackTrace
-        1
+        oomError(e)
       }
       case e: Exception => {
         bugFound(e)
