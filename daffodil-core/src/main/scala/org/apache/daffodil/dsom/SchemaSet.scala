@@ -18,7 +18,7 @@
 package org.apache.daffodil.dsom
 
 import scala.xml.Node
-import org.apache.daffodil.externalvars.Binding
+import org.apache.daffodil.externalvars.{ Binding, BindingException }
 import org.apache.daffodil.compiler.RootSpec
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.xml._
@@ -472,7 +472,11 @@ final class SchemaSet(
       }
 
       val newNS = matchingDVs.head.namespace
-      val newBinding = Binding(v.varQName.local, Some(newNS), v.varValue)
+      val newBinding = try {
+        Binding(v.varQName.local, Some(newNS), v.varValue)
+      } catch {
+        case e: BindingException => this.SDE("Exception when processing external variable %s: %s", v.varQName, e.getMessage)
+      }
       finalExternalVariables.enqueue(newBinding)
     })
     finalExternalVariables

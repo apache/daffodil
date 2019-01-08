@@ -83,7 +83,12 @@ object ExternalVariablesLoader {
   // return the mutated map.
 
   def loadVariables(vars: Map[String, String], referringContext: ThrowsSDE, vmap: VariableMap): VariableMap = {
-    val bindings = getVariables(vars)
+    val bindings = try {
+      getVariables(vars)
+    } catch {
+      case e: Throwable => referringContext.SDE("Exception when processing external variable binding file: %s", e.getMessage)
+    }
+
     val finalVMap = this.loadVariables(bindings, referringContext, vmap)
     finalVMap
   }
@@ -115,7 +120,12 @@ object ExternalVariablesLoader {
   def loadVariables(node: Node, referringContext: ThrowsSDE, vmap: VariableMap, tunableArg: DaffodilTunables): VariableMap = {
     Assert.usage(node != null, "loadVariables expects 'node' to not be null!")
     Assert.usage(referringContext != null, "loadVariables expects 'referringContext' to not be null!")
-    val bindings = Binding.getBindings(node, tunableArg)
+    val bindings = try {
+      Binding.getBindings(node, tunableArg)
+    } catch {
+      case e: Throwable => referringContext.SDE("Exception when processing external variable binding file: %s", e.getMessage)
+    }
+
     loadVariables(bindings, referringContext, vmap)
   }
 
