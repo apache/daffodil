@@ -42,6 +42,7 @@ class TestSDE {
 
   @Test def test_schema_line_number() { runner.runOneTest("schema_line_number") }
   @Test def test_schema_warning() { runner.runOneTest("schema_warning") }
+  @Test def test_missing_appinfo_source() { runner.runOneTest("missing_appinfo_source") }
   @Test def test_missing_closing_tag() { runner.runOneTest("missing_closing_tag") }
   @Test def test_ignoreAttributeFormDefault() { runner.runOneTest("ignoreAttributeFormDefault") }
 }

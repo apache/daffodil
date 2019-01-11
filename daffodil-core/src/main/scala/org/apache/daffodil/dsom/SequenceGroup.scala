@@ -50,7 +50,7 @@ abstract class SequenceTermBase(
   final override val xml: Node,
   final override val parent: SchemaComponent,
   final override val position: Int)
-  extends ModelGroup
+  extends ModelGroup(position)
   with SequenceGrammarMixin {
 
   def separatorSuppressionPolicy: SeparatorSuppressionPolicy

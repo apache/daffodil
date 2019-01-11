@@ -173,6 +173,25 @@
   </tdml:parserTestCase>
 
 <!--
+    Test Name: missing_appinfo_source
+       Schema: warning
+         Root: elem
+      Purpose: This test demonstrates tdml:warnings
+-->
+
+  <tdml:parserTestCase name="missing_appinfo_source" root="elem"
+    model="MissingAppinfoSource.dfdl.xsd"
+    description="">
+    <tdml:document><![CDATA[test]]></tdml:document>
+
+    <tdml:errors>
+      <tdml:error>Schema Definition Warning</tdml:error>
+      <tdml:error>xs:appinfo without source attribute</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
+<!--
     Test Name: schema_line_number
        Schema: lineNumber.dfdl.xsd
          Root: e1
