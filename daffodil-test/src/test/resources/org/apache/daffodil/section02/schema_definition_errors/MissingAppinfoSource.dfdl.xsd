@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:fn="http://www.w3.org/2005/xpath-functions"
+>
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/">
+      <dfdl:format
+          terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
+          alignment="implicit" alignmentUnits="bits" trailingSkip="0" ignoreCase="no"
+          separatorPosition="infix" occursCountKind="implicit"
+          emptyValueDelimiterPolicy="both" representation="text" textNumberRep="standard"
+          lengthKind="delimited" encoding="ASCII" textPadKind="none" outputNewLine="%LF;"
+          calendarTimeZone="UTC" truncateSpecifiedLengthString="no" escapeSchemeRef=""
+          separatorSuppressionPolicy="trailingEmpty" initiator=""
+          calendarFirstDayOfWeek="Sunday" calendarDaysInFirstWeek="1" calendarCheckPolicy="strict"
+          calendarPatternKind="implicit" calendarLanguage="en" sequenceKind="ordered" separator=""
+      />
+    </xs:appinfo>
+  </xs:annotation>
+
+  <xs:element name="elem">
+    <xs:complexType>
+      <xs:choice>
+        <xs:sequence>
+          <xs:annotation>
+            <!-- 
+            <xs:appinfo source="http://www.ogf.org/dfdl/"> 
+            -->
+            <xs:appinfo>
+              <dfdl:discriminator testKind="pattern" testPattern="."/>
+            </xs:appinfo>
+          </xs:annotation>
+        </xs:sequence>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

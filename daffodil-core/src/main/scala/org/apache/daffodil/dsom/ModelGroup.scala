@@ -136,7 +136,7 @@ object TermFactory {
  * There are ultimately 4 concrete classes that implement this:
  * Sequence, Choice, SequenceGroupRef, and ChoiceGroupRef
  */
-abstract class ModelGroup
+abstract class ModelGroup(index: Int)
   extends Term
   with ModelGroupGrammarMixin
   with OverlapCheckMixin
@@ -153,14 +153,7 @@ abstract class ModelGroup
   final override def isRequiredOrComputed = true
   final override def isArray = false
 
-  private def prettyIndex = LV('prettyIndex) {
-    myPeers.map { peers =>
-      {
-        if (peers.length == 1) "" // no index expression if we are the only one
-        else "[" + (peers.indexOf(this) + 1) + "]" // 1-based indexing in XML/XSD
-      }
-    }.getOrElse("")
-  }.value
+  private def prettyIndex = "[" + index + "]" // 1-based indexing in XML/XSD
 
   override lazy val diagnosticDebugName = prettyBaseName + prettyIndex
 

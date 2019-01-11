@@ -97,7 +97,7 @@ abstract class ChoiceTermBase(
   final override val xml: Node,
   final override val parent: SchemaComponent,
   final override val position: Int)
-  extends ModelGroup
+  extends ModelGroup(position)
   with Choice_AnnotationMixin
   with RawDelimitedRuntimeValuedPropertiesMixin // initiator and terminator (not separator)
   with ChoiceGrammarMixin {
