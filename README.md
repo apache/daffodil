@@ -25,7 +25,7 @@ For more information about Daffodil, see https://daffodil.apache.org/.
 
 ## Build Requirements
 
-* JDK 7 or higher
+* JDK 8 or higher
 * SBT 0.13.8 or higher
 
 ## Getting Started
