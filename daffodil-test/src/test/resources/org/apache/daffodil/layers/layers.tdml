@@ -153,17 +153,7 @@
 
   <tdml:unparserTestCase name="layers2" root="root" model="s2" roundTrip="true">
     <tdml:document>
-      <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[boundary=frontier%CR;
---frontier%CR;
-Comment: This simulates a header field that is so long it will get folded%CR;
- into multiple lines of text because it is too long and my job is at the%CR;
- redundancy department is where I work.%CR;
-Content-Transfer-Encoding: base64%CR;
-%CR;
-TG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQsIGNvbnNlY3RldHVyIGFkaXBpc2NpbmcgZWxpdCwg%CR;
-c2VkIGRvIGVpdXNtb2QgdGVtcG9yIGluY2lkaWR1bnQgdXQgbGFib3JlIGV0IGRvbG9yZSBtYWdu%CR;
-YSBhbGlxdWEuIFV0IGVuaW0gYWQ=%CR;
---frontier--]]></tdml:documentPart>
+      <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[boundary=frontier%CR;%LF;--frontier%CR;%LF;Comment: This simulates a header field that is so long it will get folded%CR;%LF; into multiple lines of text because it is too long and my job is at the%CR;%LF; redundancy department is where I work.%CR;%LF;Content-Transfer-Encoding: base64%CR;%LF;%CR;%LF;TG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQsIGNvbnNlY3RldHVyIGFkaXBpc2NpbmcgZWxpdCwg%CR;%LF;c2VkIGRvIGVpdXNtb2QgdGVtcG9yIGluY2lkaWR1bnQgdXQgbGFib3JlIGV0IGRvbG9yZSBtYWdu%CR;%LF;YSBhbGlxdWEuIFV0IGVuaW0gYWQ=%CR;%LF;--frontier--]]></tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -212,8 +202,7 @@ YSBhbGlxdWEuIFV0IGVuaW0gYWQ=%CR;
 
   <tdml:parserTestCase name="layers3" root="root" model="s3" roundTrip="true">
     <tdml:document>
-      <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[boundary=frontier%CR;
-xxx]]></tdml:documentPart>
+      <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[boundary=frontier%CR;%LF;xxx]]></tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -347,11 +336,7 @@ jones,arya,cat,1986-02-19
 
 We gzip that, and then we must prepend that with the length (as a binary 4-byte int) before we base64 encode.
   -->
-      <tdml:documentPart type="text" 
-      replaceDFDLEntities="true"
-      ><![CDATA[AAAAcx+LCAAAAAAAAAAtyUEKgCAQheG94E1mIDWittG+M0xpaNQIo5tuX0Kb98P7LioVjiTf3sn7%CR;
-K8CyzlqVO9UIkrcgFTYh9pnBTOOInUPba3XmyOX7WiEGlqfxgJ1B6xpzKEDyEOxUf7JoJq1e/RI4%CR;
-wXIAAAA=--END--]]></tdml:documentPart>
+      <tdml:documentPart type="text"  replaceDFDLEntities="true"><![CDATA[AAAAcx+LCAAAAAAAAAAtyUEKgCAQheG94E1mIDWittG+M0xpaNQIo5tuX0Kb98P7LioVjiTf3sn7%CR;%LF;K8CyzlqVO9UIkrcgFTYh9pnBTOOInUPba3XmyOX7WiEGlqfxgJ1B6xpzKEDyEOxUf7JoJq1e/RI4%CR;%LF;wXIAAAA=--END--]]></tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>

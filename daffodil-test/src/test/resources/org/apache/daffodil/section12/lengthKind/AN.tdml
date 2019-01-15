@@ -63,8 +63,9 @@
   <tdml:parserTestCase name="AN000" root="path"
     model="AN-Embedded.dfdl.xsd" description="Tests lenthKind delimited - DFDL-12-042R.">
 
-    <tdml:document><![CDATA[folder1/folder2/folder3/file_name
-]]></tdml:document>
+    <tdml:document>
+	  <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[folder1/folder2/folder3/file_name%LF;]]></tdml:documentPart>
+	</tdml:document>
 
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"

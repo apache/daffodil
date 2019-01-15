@@ -24,9 +24,9 @@
   <parserTestCase name="AG000" root="allZones" model="AG.dfdl.xsd"
     description="Discriminated choices"
     roundTrip="true">
-    <document><![CDATA[1
-zone 1
-]]></document>
+    <document>
+	  <documentPart type="text" replaceDFDLEntities="true"><![CDATA[1%LF;zone 1%LF;]]></documentPart>
+	</document>
     <infoset>
       <dfdlInfoset>
         <allZones xmlns="http://example.com" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
@@ -39,9 +39,9 @@ zone 1
   <parserTestCase name="AG001" root="allZones" model="AG.dfdl.xsd"
     description="Discriminated choices"
     roundTrip="true">
-    <document><![CDATA[2
-zone 2
-]]></document>
+	<document>
+	  <documentPart type="text" replaceDFDLEntities="true"><![CDATA[2%LF;zone 2%LF;]]></documentPart>
+	</document>
     <infoset>
       <dfdlInfoset>
         <allZones xmlns="http://example.com" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
@@ -54,9 +54,9 @@ zone 2
   <parserTestCase name="AG002" root="allZones" model="AG.dfdl.xsd"
     description="Discriminated choices"
     roundTrip="true">
-    <document><![CDATA[3
-zone 3
-]]></document>
+	<document>
+	  <documentPart type="text" replaceDFDLEntities="true"><![CDATA[3%LF;zone 3%LF;]]></documentPart>
+	</document>
     <infoset>
       <dfdlInfoset>
         <allZones xmlns="http://example.com" xmlns:xsd="http://www.w3.org/2001/XMLSchema">

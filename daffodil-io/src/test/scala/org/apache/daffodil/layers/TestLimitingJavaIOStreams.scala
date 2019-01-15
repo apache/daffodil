@@ -52,7 +52,7 @@ class TestLimitingJavaIOStreams {
   val text = """Man is distinguished, not only by his reason, but by this singular passion from
 other animals, which is a lust of the mind, that by a perseverance of delight
 in the continued and indefatigable generation of knowledge, exceeds the short
-vehemence of any carnal pleasure.""".replace("\n", " ")
+vehemence of any carnal pleasure.""".replace("\r\n", "\n").replace("\n", " ")
 
   val b64Text = """TWFuIGlzIGRpc3Rpbmd1aXNoZWQsIG5vdCBvbmx5IGJ5IGhpcyByZWFzb24sIGJ1dCBieSB0aGlz
 IHNpbmd1bGFyIHBhc3Npb24gZnJvbSBvdGhlciBhbmltYWxzLCB3aGljaCBpcyBhIGx1c3Qgb2Yg

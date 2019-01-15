@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<ex:MultipartBody mlns:ex="http://example.com">
+  <BodyPart><![CDATA[Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+http://web.archive.org/web/20030408023607/http://www.TESTS.org/sites/merp=
+pbem/index.html]]></BodyPart>
+  <BodyPart><![CDATA[Content-Type: text/html; charset="us-ascii"
+Content-ID: <0DBE34352EE4EB4F924BC40019F609CD@imc.TESTS.org>
+Content-Transfer-Encoding: quoted-printable
+
+<html>
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dus-ascii"=
+>
+</head>
+<body style=3D"word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-lin=
+e-break: after-white-space; color: rgb(0, 0, 0); font-size: 16px; font-fami=
+ly: Calibri, sans-serif; ">
+<div><a href=3D"http://web.archive.org/web/20030408023607/http://www.TESTS=
+s.org/sites/merppbem/index.html">http://web.archive.org/web/20030408023607/=
+http://www.TESTS.org/sites/merppbem/index.html</a></div>
+</body>
+</html>]]></BodyPart>
+  <BodyPart></BodyPart>
+</ex:MultipartBody>

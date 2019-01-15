@@ -1036,8 +1036,7 @@ is multiple bytes in UTF-8 encoding that is used"
   <tdml:parserTestCase name="entityAndNonMix_01" root="seq_01" model="EntitiesMix"
     description="">
     <tdml:document>
-      <tdml:documentPart type="text"><![CDATA[1; 2: 3:
-;]]></tdml:documentPart>
+      <tdml:documentPart replaceDFDLEntities="true" type="text"><![CDATA[1; 2: 3:%LF;;]]></tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -1105,8 +1104,7 @@ is multiple bytes in UTF-8 encoding that is used"
   <tdml:parserTestCase name="entityAndNonMix_04" root="seq_04" model="EntitiesMix"
     description="">
     <tdml:document>
-      <tdml:documentPart type="text"><![CDATA[ SP1;
-; ; 2]]></tdml:documentPart>
+      <tdml:documentPart replaceDFDLEntities="true" type="text"><![CDATA[ SP1;%LF;; ; 2]]></tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>

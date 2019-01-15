@@ -23,16 +23,15 @@
 
   <parserTestCase name="AZ000" root="list" model="AZ.dfdl.xsd"
     description="defineEscapeScheme">
-    <document><![CDATA[item0,item#,1,item#
-2
-]]></document>
+    <document>
+	  <documentPart type="text" replaceDFDLEntities="true"><![CDATA[item0,item#,1,item#%LF;2%LF;]]></documentPart>
+	</document>
     <infoset>
       <dfdlInfoset>
         <ex:list>
           <character>item0</character>
           <character>item,1</character>
-          <character>item
-2</character>
+          <character>item&#x0A;2</character>
         </ex:list>
       </dfdlInfoset>
     </infoset>

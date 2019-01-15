@@ -167,8 +167,9 @@
   <tdml:parserTestCase name="ibm_format_compat_02"
     root="ABC" model="ABC_IBM.dfdl.xsd" description=""
     roundTrip="twoPass">
-    <tdml:document><![CDATA[a
-]]></tdml:document>
+    <tdml:document>
+	  <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[a%LF;]]></tdml:documentPart>
+	</tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <ABC>
@@ -1750,8 +1751,9 @@
   <tdml:parserTestCase name="nonsense_namespace_01"
     root="ABC" model="ABC_invalid.dfdl.xsd" description=""
     roundTrip="twoPass">
-    <tdml:document><![CDATA[a
-]]></tdml:document>
+    <tdml:document>
+	  <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[a%LF;]]></tdml:documentPart>
+	</tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <ABC>
@@ -1765,9 +1767,10 @@
 
   <tdml:parserTestCase name="nonsense_namespace_02"
     root="ABC" model="ABC_invalid.dfdl.xsd" description=""
-    roundTrip="twoPass">
-    <tdml:document><![CDATA[d
-]]></tdml:document>
+    roundTrip="onePass">
+    <tdml:document>
+	  <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[d%CR;%LF;]]></tdml:documentPart>
+	</tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <ABC>
@@ -2038,11 +2041,9 @@
     description="Hexadecimal code point used in document tag - DFDL-6-044R">
     <!-- Fix DFDL-1555 to enable roundTrip -->
 
-    <tdml:document><![CDATA[last,first,middle,DOB
-jones,robert,brandon,1988-03-24
-johnson,john,henry,1986-01-23
-jonesington,david,frederick,1986-02-19
-]]></tdml:document>
+    <tdml:document>
+	  <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[last,first,middle,DOB%LF;jones,robert,brandon,1988-03-24%LF;johnson,john,henry,1986-01-23%LF;jonesington,david,frederick,1986-02-19%LF;]]></tdml:documentPart>
+	</tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <file>
@@ -2092,11 +2093,9 @@ jonesington,david,frederick,1986-02-19
     description="Hexadecimal code point used in document tag - DFDL-6-044R">
     <!-- Fix DFDL-1555 to enable roundTrip -->
 
-    <tdml:document><![CDATA[last,first,middle,DOB
-jones,robert,brandon,1988-03-24
-johnson,john,henry,1986-01-23
-jonesington,david,frederick,1986-02-19
-]]></tdml:document>
+    <tdml:document>
+	  <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[last,first,middle,DOB%LF;jones,robert,brandon,1988-03-24%LF;johnson,john,henry,1986-01-23%LF;jonesington,david,frederick,1986-02-19%LF;]]></tdml:documentPart>
+	</tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <file2>

@@ -36,7 +36,7 @@ class TestLengthLimitedLineFoldingStreams {
 minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea\r
 \tcommodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit\r
 esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat\r
-\tnon proident, sunt in culpa qui officia deserunt mollit anim id est laborum."""
+\tnon proident, sunt in culpa qui officia deserunt mollit anim id est laborum.""".replace("\r\r\n", "\r\n")
 
   val ipsumLorem1UnfoldedFirstLine = s"""Lorem ipsum dolor sit amet, consectetur adipiscing elit,""" +
     s"""\tsed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad"""
@@ -80,7 +80,7 @@ esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat\r
 minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea\r
 \t\tcommodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit\r
 esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat\r
-\t\tnon proident, sunt in culpa qui officia deserunt mollit anim id est laborum."""
+\t\tnon proident, sunt in culpa qui officia deserunt mollit anim id est laborum.""".replace("\r\r\n", "\r\n")
 
   /**
    * Shows that the regex will limit length to just the first line, but unfold will

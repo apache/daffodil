@@ -28,9 +28,7 @@
       <!-- <documentPart type="text"><![CDATA[0,1,2,3,4
         5,6,7,8,9
         10,11,12,13,14]]></documentPart> -->
-      <documentPart type="text"><![CDATA[0,1,2,3,4
-5,6,7,8,9
-10,11,12,13,14]]></documentPart>
+      <documentPart replaceDFDLEntities="true" type="text"><![CDATA[0,1,2,3,4%LF;5,6,7,8,9%LF;10,11,12,13,14]]></documentPart>
     </document>
 
     <infoset>
@@ -66,10 +64,7 @@
     description="CSV-style tests - data stream is scanned for element's enclosing construct's separator and terminator.  separatorPosition is infix - DFDL-12-043R">
 
     <document>
-      <documentPart type="text"><![CDATA[0,1,2,3,4
-5,6,7,8,9
-10,11,12,13,14
-]]></documentPart>
+      <documentPart replaceDFDLEntities="true" type="text"><![CDATA[0,1,2,3,4%LF;5,6,7,8,9%LF;10,11,12,13,14%LF;]]></documentPart>
     </document>
 
     <infoset>
@@ -105,11 +100,7 @@
     description="CSV-style tests - data stream is scanned for element's enclosing construct's separator and terminator.  separatorPosition is postfix - DFDL-12-043R">
 
     <document>
-      <documentPart type="text"><![CDATA[0,1,2,3,4
-5,6,7,8,9
-10,11,12,13,14
-
-]]></documentPart>
+      <documentPart replaceDFDLEntities="true" type="text"><![CDATA[0,1,2,3,4%LF;5,6,7,8,9%LF;10,11,12,13,14%LF;%LF;]]></documentPart>
     </document>
 
     <infoset>
@@ -145,10 +136,7 @@
     description="CSV-style tests - data stream is scanned for element's enclosing construct's separator and terminator.  separatorPosition is infix - DFDL-12-043R">
 
     <document>
-      <documentPart type="text"><![CDATA[0,1,2,3,4
-5,6,7,8,9
-10,11
-]]></documentPart>
+      <documentPart replaceDFDLEntities="true" type="text"><![CDATA[0,1,2,3,4%LF;5,6,7,8,9%LF;10,11%LF;]]></documentPart>
     </document>
 
     <infoset>
@@ -181,10 +169,7 @@
     description="CSV-style tests - data stream is scanned for element's enclosing construct's separator.  separatorPosition is postfix.  Sequence has is nil element. - DFDL-12-043R">
 
     <document>
-      <documentPart type="text"><![CDATA[0,1,2,3,4
-5,6,7,8,9
-10,11,,13
-]]></documentPart>
+      <documentPart replaceDFDLEntities="true" type="text"><![CDATA[0,1,2,3,4%LF;5,6,7,8,9%LF;10,11,,13%LF;]]></documentPart>
     </document>
 
     <infoset>
@@ -219,12 +204,8 @@
   <parserTestCase name="AB005" root="matrix_02" model="AB.dfdl.xsd"
     description="CSV-style tests - data stream is scanned for element's enclosing construct's separator.  separatorPosition is postfix.  Sequence has is nil elements. - DFDL-12-043R"
     roundTrip="threePass">
-
     <document>
-      <documentPart type="text"><![CDATA[0,1,2,3,4
-5,6,7,8,9
-10,11,,
-]]></documentPart>
+      <documentPart replaceDFDLEntities="true" type="text"><![CDATA[0,1,2,3,4%LF;5,6,7,8,9%LF;10,11,,%LF;]]></documentPart>
     </document>
 
     <infoset>
@@ -255,7 +236,5 @@
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
-
-
 
 </testSuite>

@@ -128,9 +128,9 @@ class UnitTestTDMLRunner {
     val ptc = ts.parserTestCases(0)
     val doc = ptc.document.get
     doc.documentParts(0)
-    val bytes = new Array[Byte](11)
-    doc.data.read(bytes)
-    val actual = new String(bytes, "UTF8")
+    val bytes = new Array[Byte](20)
+    val numBytes = doc.data.read(bytes)
+    val actual = new String(bytes, 0, numBytes, "UTF8").replace("\r\n", "\n")
     assertEquals("test\n1\n2\n3\n", actual)
   }
 
