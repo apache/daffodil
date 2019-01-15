@@ -1809,7 +1809,9 @@
     model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-nonNegativeInteger - DFDL-5-016R"
     roundTrip="true">
 
-    <tdml:document><![CDATA[184467440737095516158]]></tdml:document>
+    <tdml:document>
+	  <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[184467440737095516158]]></tdml:documentPart>
+	</tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <nonNegIntText>184467440737095516158</nonNegIntText>
@@ -7666,8 +7668,7 @@
     model="nonNegativeInteger.dfdl.xsd" description="nonNegativeInteger test"
     roundTrip="twoPass">
     <tdml:document>
-      <tdml:documentPart type="text"><![CDATA[Date: 20
-]]></tdml:documentPart>
+      <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[Date: 20%LF;]]></tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>

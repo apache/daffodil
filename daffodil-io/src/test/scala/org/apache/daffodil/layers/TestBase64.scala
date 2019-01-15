@@ -40,7 +40,7 @@ class TestBase64 {
 a few lines long. If this had been real text, it would not have been quite
 so boring to read. Use of famous quotes or song lyrics or anything like that
 introduces copyright notice issues, so it is easier to simply make up
-a few lines of pointless text like this.""".replace("\n", " ")
+a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", " ")
 
   val b64Text = """VGhpcyBpcyBqdXN0IHNvbWUgbWFkZSB1cCB0ZXh0IHRoYXQgaXMgaW50Z
 W5kZWQgdG8gYmUgYSBmZXcgbGluZXMgbG9uZy4gSWYgdGhpcyBoYWQgYmVlbiByZWFsIHRleHQsI
@@ -48,7 +48,7 @@ Gl0IHdvdWxkIG5vdCBoYXZlIGJlZW4gcXVpdGUgc28gYm9yaW5nIHRvIHJlYWQuIFVzZSBvZiBmY
 W1vdXMgcXVvdGVzIG9yIHNvbmcgbHlyaWNzIG9yIGFueXRoaW5nIGxpa2UgdGhhdCBpbnRyb2R1Y
 2VzIGNvcHlyaWdodCBub3RpY2UgaXNzdWVzLCBzbyBpdCBpcyBlYXNpZXIgdG8gc2ltcGx5IG1ha
 2UgdXAgYSBmZXcgbGluZXMgb2YgcG9pbnRsZXNzIHRleHQgbGlrZSB0aGlzLg==
-""".replace("\n", "").sliding(76, 76).mkString("\r\n")
+""".replace("\r\n", "\n").replace("\n", "").sliding(76, 76).mkString("\r\n")
 
   /**
    * Same encoded data, but shot through with extra CRLFs

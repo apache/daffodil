@@ -20,7 +20,7 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:gpf="http://www.ibm.com/dfdl/GeneralPurposeFormat" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
   xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  xmlns:a01="http://a01.com" xmlns:b01="http://b01.com">
+  xmlns:a01="http://a01.com" xmlns:b01="http://b01.com" defaultRoundTrip="onePass">
 
   <tdml:defineSchema name="embeddedWithImport">
     <xs:import namespace="http://www.ibm.com/dfdl/GeneralPurposeFormat"
@@ -1647,9 +1647,11 @@
   -->
 
   <tdml:parserTestCase name="nonsense_namespace_01"
-    root="ABC" model="ABC_invalid.dfdl.xsd" description="">
-    <tdml:document><![CDATA[a
-]]></tdml:document>
+    root="ABC" model="ABC_invalid.dfdl.xsd" description="" roundTrip="onePass">
+    <tdml:document>
+	  <tdml:documentPart replaceDFDLEntities="true" type="text"><![CDATA[a
+]]></tdml:documentPart>
+	</tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <ABC>

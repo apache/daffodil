@@ -570,19 +570,9 @@
 
   <tdml:parserTestCase name="AS000" root="table" model="AS-Embedded"
     description="hiddenGroupRef">
-    <tdml:document><![CDATA[Creator: NCSA
-Date: Mon Feb 23 15:20:47 CST 2009
-0,1,2,3,4,5,6,7,8,9
-1,2,3,4,5,6,7,8,9,10
-2,3,4,5,6,7,8,9,10,11
-3,4,5,6,7,8,9,10,11,12
-4,5,6,7,8,9,10,11,12,13
-5,6,7,8,9,10,11,12,13,14
-6,7,8,9,10,11,12,13,14,15
-7,8,9,10,11,12,13,14,15,16
-8,9,10,11,12,13,14,15,16,17
-9,10,11,12,13,14,15,16,17,18
-]]></tdml:document>
+    <tdml:document>
+	  <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[Creator: NCSA%LF;Date: Mon Feb 23 15:20:47 CST 2009%LF;0,1,2,3,4,5,6,7,8,9%LF;1,2,3,4,5,6,7,8,9,10%LF;2,3,4,5,6,7,8,9,10,11%LF;3,4,5,6,7,8,9,10,11,12%LF;4,5,6,7,8,9,10,11,12,13%LF;5,6,7,8,9,10,11,12,13,14%LF;6,7,8,9,10,11,12,13,14,15%LF;7,8,9,10,11,12,13,14,15,16%LF;8,9,10,11,12,13,14,15,16,17%LF;9,10,11,12,13,14,15,16,17,18%LF;]]></tdml:documentPart>
+	</tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <table>
@@ -940,19 +930,9 @@ Date: Mon Feb 23 15:20:47 CST 2009
   <tdml:parserTestCase name="AD000" root="list" model="AD-Embedded"
     description="occursCount with expressions"
     roundTrip="twoPass">
-    <tdml:document><![CDATA[3
-first x
-second x
-third x
-5
-first y
-second y
-third y
-fourth y
-fifth y
-ignored input
-more ignored input
-]]></tdml:document>
+    <tdml:document>
+	  <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[3%LF;first x%LF;second x%LF;third x%LF;5%LF;first y%LF;second y%LF;third y%LF;fourth y%LF;fifth y%LF;ignored input%LF;more ignored input%LF;]]></tdml:documentPart>
+	</tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <list>
@@ -1014,10 +994,9 @@ more ignored input
   
   <tdml:parserTestCase name="AC000" root="table" model="AC-Embedded"
     description="inputValueCalc expressions and hiddenGroupRef">
-    <tdml:document><![CDATA[10
-20
-30
-]]></tdml:document>
+    <tdml:document>
+	  <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[10%LF;20%LF;30%LF;]]></tdml:documentPart>
+	</tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <table>
@@ -1075,9 +1054,9 @@ more ignored input
 	<tdml:parserTestCase name="nestedGroupRefs" root="root"
 		model="nestedGroupRefs" description="Verify that nested group references are working properly - DFDL-14">
 
-		<tdml:document><![CDATA[A,B,C|D,E,F|G,H,I
-A,B,C|D,E,F|G,H,I
-A,B,C|D,E,F|G,H,I]]></tdml:document>
+		<tdml:document>
+		  <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[A,B,C|D,E,F|G,H,I%LF;A,B,C|D,E,F|G,H,I%LF;A,B,C|D,E,F|G,H,I]]></tdml:documentPart>
+		</tdml:document>
 
 		<tdml:infoset>
 			<tdml:dfdlInfoset>
@@ -1199,9 +1178,9 @@ A,B,C|D,E,F|G,H,I]]></tdml:document>
 		model="nestedGroupRefs2" description="Verify that nested hidden groups and choices work correctly - DFDL-14-039R"
 		roundTrip="twoPass">
 
-		<tdml:document><![CDATA[A,B,C,1,x|D,E,F,2,y|G,H,I,3,z
-A,B,C,x,1|D,E,F,y,2|G,H,I,z,3
-A,B,C,4,u|D,E,F,5,v|G,H,I,6,w]]></tdml:document>
+		<tdml:document>
+		  <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[A,B,C,1,x|D,E,F,2,y|G,H,I,3,z%LF;A,B,C,x,1|D,E,F,y,2|G,H,I,z,3%LF;A,B,C,4,u|D,E,F,5,v|G,H,I,6,w]]></tdml:documentPart>
+		</tdml:document>
 
 		<tdml:infoset>
 			<tdml:dfdlInfoset>

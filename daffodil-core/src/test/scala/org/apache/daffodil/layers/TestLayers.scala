@@ -118,7 +118,7 @@ class TestLayers {
 a few lines long. If this had been real text, it would not have been quite
 so boring to read. Use of famous quotes or song lyrics or anything like that
 introduces copyright notice issues, so it is easier to simply make up
-a few lines of pointless text like this.""".replace("\n", " ")
+a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", " ")
 
   @Test def testGZIPRoundTrips() {
     val bais = new ByteArrayInputStream(makeGZIPData(text))

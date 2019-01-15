@@ -54,15 +54,9 @@
   <parserTestCase name="AW001" root="list" model="AW.dfdl.xsd"
     description="escape character and escape block, variable length"
     roundTrip="false">
-    <document><![CDATA[item0,item#01,#,i#,t#,e#,m#,2,#,#B#,item3,ite#,m4#
-,item5
-Item0,Item1,/*A,A*/,/*AAA/*/,Item*/,Item/**/5,/*,*/,/*
-
-7
-
-
-*/
-]]></document>
+    <document>
+	  <documentPart type="text" replaceDFDLEntities="true"><![CDATA[item0,item#01,#,i#,t#,e#,m#,2,#,#B#,item3,ite#,m4#%LF;,item5%LF;Item0,Item1,/*A,A*/,/*AAA/*/,Item*/,Item/**/5,/*,*/,/*%LF;%LF;7%LF;%LF;%LF;*/%LF;]]></documentPart>
+	</document>
     <infoset>
       <dfdlInfoset>
         <ex:list>
@@ -70,8 +64,7 @@ Item0,Item1,/*A,A*/,/*AAA/*/,Item*/,Item/**/5,/*,*/,/*
           <character>item01</character>
           <character>,i,t,e,m,2</character>
           <character>,B,item3</character>
-          <character>ite,m4
-</character>
+          <character>ite,m4&#x0A;</character>
           <character>item5</character>
           <block>Item0</block>
           <block>Item1</block>
@@ -80,12 +73,7 @@ Item0,Item1,/*A,A*/,/*AAA/*/,Item*/,Item/**/5,/*,*/,/*
           <block>Item*/</block>
           <block>Item/**/5</block>
           <block>,</block>
-          <block>
-
-7
-
-
-</block>
+          <block>&#x0A;&#x0A;7&#x0A;&#x0A;&#x0A;</block>
         </ex:list>
       </dfdlInfoset>
     </infoset>

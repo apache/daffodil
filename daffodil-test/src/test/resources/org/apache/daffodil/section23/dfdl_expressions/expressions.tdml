@@ -1323,9 +1323,7 @@
             <xs:annotation>
               <xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:element>
-                  <dfdl:property name="inputValueCalc"><![CDATA[ {  'a
-b
-c'    } ]]></dfdl:property>
+                  <dfdl:property name="inputValueCalc"><![CDATA[ { dfdl:decodeDFDLEntities('a%LF;b%LF;c') } ]]></dfdl:property>
                 </dfdl:element>
               </xs:appinfo>
            </xs:annotation>
@@ -1362,9 +1360,7 @@ c'    } ]]></dfdl:property>
             <xs:annotation>
 		    <xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:element>
-                  <dfdl:property name="inputValueCalc"><![CDATA[{ 'a
-b
-c' }]]></dfdl:property>
+                  <dfdl:property name="inputValueCalc"><![CDATA[{ dfdl:decodeDFDLEntities('a%LF;b%LF;c') }]]></dfdl:property>
                 </dfdl:element>
               </xs:appinfo>
             </xs:annotation>
@@ -1378,9 +1374,7 @@ c' }]]></dfdl:property>
         <xs:sequence dfdl:separator=",">
           <xs:element name="dummy" type="xs:int"
             dfdl:lengthKind="delimited" />
-          <xs:element name="value" type="xs:string" dfdl:inputValueCalc="{ 'a
-b
-c' }"/>
+          <xs:element name="value" type="xs:string" dfdl:inputValueCalc="{ 'a&#x0A;b&#x0A;c' }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -1615,14 +1609,14 @@ c' }"/>
   <tdml:parserTestCase name="internal_space_preserved2" root="expr_space2"
     model="expressions-Embedded.dfdl.xsd" description="">
 
-    <tdml:document><![CDATA[2]]></tdml:document>
+    <tdml:document>
+	  <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[2]]></tdml:documentPart>
+	</tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <expr_space2>
           <dummy>2</dummy>
-          <value><![CDATA[a
-b
-c]]></value>
+          <value>a&#x0A;b&#x0A;c</value>
         </expr_space2>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -1664,9 +1658,7 @@ c]]></value>
       <tdml:dfdlInfoset>
         <expr_space3b>
           <dummy>2</dummy>
-          <value><![CDATA[a
-b
-c]]></value>
+          <value>a&#x0A;b&#x0A;c</value>
         </expr_space3b>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -1702,7 +1694,9 @@ c]]></value>
   <tdml:parserTestCase name="internal_space_not_preserved1" root="expr_space4"
     model="expressions-Embedded.dfdl.xsd" description="">
 
-    <tdml:document><![CDATA[2]]></tdml:document>
+    <tdml:document>
+	  <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[2]]></tdml:documentPart>
+	</tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <expr_space4>
@@ -3328,10 +3322,9 @@ c]]></value>
   <tdml:parserTestCase name="whitespace_expression" root="ws_expr"
     model="expressions-Embedded.dfdl.xsd" description="Section 6 - DFDL Expressions - DFDL-06-078R">
 
-    <tdml:document>3]
-=4]
-=5]
-=</tdml:document>
+    <tdml:document>
+	  <tdml:documentPart type="text" replaceDFDLEntities="true">3]%LF;=4]%LF;=5]%LF;=</tdml:documentPart>
+	</tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <ex:ws_expr>

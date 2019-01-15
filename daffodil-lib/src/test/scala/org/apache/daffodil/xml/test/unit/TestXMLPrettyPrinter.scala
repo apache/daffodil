@@ -70,7 +70,7 @@ class TestXMLPrettyPrinter {
   @Test def test_daffodil_pretty_printer_preserves_whitespace_inside_text() {
 
     val str = """aaaaa
-bbbbb"""
+bbbbb""".replace("\r\n", "\n")
     val fragment = <xxxxx><yyyyy><zzzzz>{ str }</zzzzz></yyyyy></xxxxx>
     val pp = new org.apache.daffodil.xml.PrettyPrinter(2)
     val xmlString = pp.format(fragment)
@@ -79,7 +79,7 @@ bbbbb"""
     <zzzzz>aaaaa
 bbbbb</zzzzz>
   </yyyyy>
-</xxxxx>""", xmlString)
+</xxxxx>""".replace("\r\n", "\n"), xmlString)
   }
 
   @Test def test_daffodil_pretty_printer_preserves_whitespace_inside_cdata_properly2() {
@@ -100,7 +100,7 @@ bbbbb</zzzzz>
     <zzzzz><![CDATA[ aaaaa
 bbbbb ]]></zzzzz>
   </yyyyy>
-</xxxxx>"""))
+</xxxxx>""".replace("\r\n", "\n")))
   }
 
   @Test def test_daffodil_pretty_printer_preserves_whitespace_inside_cdata_properly3() {
@@ -121,7 +121,7 @@ bbbbb ]]></zzzzz>
     val chunk = """<xxxxx>
   <yyyyy>
     <zzzzz><![CDATA[ aaaaa
-bbbbb ]]>"""
+bbbbb ]]>""".replace("\r\n", "\n")
     assertTrue(xmlString.startsWith(chunk))
     xmlString = xmlString.substring(chunk.length, xmlString.length)
     //
@@ -138,7 +138,7 @@ bbbbb ]]>"""
         assertEquals("""<![CDATA[ aaaaa
 bbbbb ]]></zzzzz>
   </yyyyy>
-</xxxxx>""", rest)
+</xxxxx>""".replace("\r\n", "\n"), rest)
       }
     }
   }
@@ -152,8 +152,10 @@ bbbbb ]]></zzzzz>
   <yyyyy>
     <zzzzz>aaaaa bbbbb ccccc ddddd eeeee fffff ggggg</zzzzz>
   </yyyyy>
-</xxxxx>"""
-    assertEquals(expected, xmlString)
+</xxxxx>""".replace("\r\n", "\n")
+    // The following 'replace' corrects for Windows CR/LF sequence in the compared string.
+    val actual = xmlString.replace("\r\n", "\n")
+    assertEquals(expected, actual)
   }
 
   @Test def test_daffodil_pretty_printer_removes_redundant_xmlns_bindings() {
@@ -166,7 +168,7 @@ bbbbb ]]></zzzzz>
   <yyyyy>
     <zzzzz>aaaaa bbbbb ccccc ddddd eeeee fffff ggggg</zzzzz>
   </yyyyy>
-</xxxxx>"""
+</xxxxx>""".replace("\r\n", "\n")
     assertEquals(expected, xmlString)
   }
 
@@ -180,7 +182,7 @@ bbbbb ]]></zzzzz>
   <cell>-9</cell>
   <cell>-2</cell>
   <cell>-8</cell>
-</tns:row2>"""
+</tns:row2>""".replace("\r\n", "\n")
     assertEquals(expected, xmlString)
   }
 

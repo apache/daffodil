@@ -52,7 +52,7 @@ class TestDump {
 87654321  0011 2233 4455 6677 8899 aabb ccdd eeff  0~1~2~3~4~5~6~7~8~9~a~b~c~d~e~f~
 00000000: 4461 7465 20e5 b9b4 e69c 88e6 97a5 3d32  D~a~t~e~␣~年~~~~月~~~~日~~~~=~2~
 00000010: 3030 33e5 b9b4 3038 e69c 8832 37e6 97a5  0~0~3~年~~~~0~8~月~~~~2~7~日~~~~
-"""
+""".replace("\r\n", "\n")
     assertEquals(expected, "\n" + dumpString + "\n")
   }
 
@@ -77,7 +77,7 @@ class TestDump {
 000003e0:                     4461 7465 20e5 b9b4                  D~a~t~e~␣~年~~~~
 000003f0: e69c 88e6 97a5 3d32 3030 33e5 b9b4 3038  月~~~~日~~~~=~2~0~0~3~年~~~~0~8~
 00000400: e69c 8832 37e6 97a5                      月~~~~2~7~日~~~~                
-"""
+""".replace("\r\n", "\n")
     assertEquals(expected, "\n" + dumpString + "\n")
   }
 
@@ -96,7 +96,7 @@ class TestDump {
 87654321  0011 2233 4455 6677 8899 aabb ccdd eeff  0~1~2~3~4~5~6~7~8~9~a~b~c~d~e~f~
 00000000: 4461 7465 20e5 b9b4 e69c 88e6 97a5 3d32  D~a~t~e~␣~年~~~~月~~~~日~~~~=~2~
 00000010: 3030 33e5 b9b4 3038 e69c 8832 37e6 97a5  0~0~3~年~~~~0~8~月~~~~2~7~日~~~~
-"""
+""".replace("\r\n", "\n")
     assertEquals(expected, "\n" + dumpString + "\n")
   }
 
@@ -115,7 +115,7 @@ class TestDump {
 87654321  0011 2233 4455 6677 8899 aabb ccdd eeff  0~1~2~3~4~5~6~7~8~9~a~b~c~d~e~f~
 00000000: 4461 7465 20e5 b9b4 e69c 88e6 97a5 3d32  D~a~t~e~␣~年~~~~月~~~~日~~~~=~2~
 00000010: 3030 33e5 b9b4 3038 e69c 8832 37e6 97a5  0~0~3~年~~~~0~8~月~~~~2~7~日~~~~
-"""
+""".replace("\r\n", "\n")
     assertEquals(expected, "\n" + dumpString + "\n")
   }
 
@@ -134,7 +134,7 @@ class TestDump {
 00000020: 0000 003d 0000 0032 0000 0030 0000 0030  =~~~~~~~2~~~~~~~0~~~~~~~0~~~~~~~
 00000030: 0000 0033 0000 5e74 0000 0030 0000 0038  3~~~~~~~年~~~~~~0~~~~~~~8~~~~~~~
 00000040: 0000 6708 0000 0032 0000 0037 0000 65e5  月~~~~~~2~~~~~~~7~~~~~~~日~~~~~~
-"""
+""".replace("\r\n", "\n")
     assertEquals(expected, "\n" + dumpString + "\n")
   }
 
@@ -155,7 +155,7 @@ class TestDump {
 00000020: 0000 003d 0000 0032 0000 0030 0000 0030  =~~~~~~~2~~~~~~~0~~~~~~~0~~~~~~~
 00000030: 0000 0033 0000 5e74 0000 0030 0000 0038  3~~~~~~~年~~~~~~0~~~~~~~8~~~~~~~
 00000040: 0000 6708 0000 0032 0000 0037 0000 65e5  月~~~~~~2~~~~~~~7~~~~~~~日~~~~~~
-"""
+""".replace("\r\n", "\n")
     assertEquals(expected, "\n" + dumpString + "\n")
   }
 
@@ -176,7 +176,7 @@ class TestDump {
 00000020: 0000 003d 0000 0032 0000 0030 0000 0030  =~~~~~~~2~~~~~~~0~~~~~~~0~~~~~~~
 00000030: 0000 0033 0000 5e74 0000 0030 0000 0038  3~~~~~~~年~~~~~~0~~~~~~~8~~~~~~~
 00000040: 0000 6708 0000 0032 0000 0037 0000 65e5  月~~~~~~2~~~~~~~7~~~~~~~日~~~~~~
-"""
+""".replace("\r\n", "\n")
     assertEquals(expected, "\n" + dumpString + "\n")
   }
 
@@ -193,7 +193,7 @@ class TestDump {
 00000000: 4400 6100 7400 6500 2000 745e 0867 e565  D~~~a~~~t~~~e~~~␣~~~年~~月~~日~~
 00000010: 3d00 3200 3000 3000 3300 745e 3000 3800  =~~~2~~~0~~~0~~~3~~~年~~0~~~8~~~
 00000020: 0867 3200 3700 e565                      月~~2~~~7~~~日~~                
-"""
+""".replace("\r\n", "\n")
     assertEquals(expected, "\n" + dumpString + "\n")
   }
 
@@ -220,7 +220,7 @@ class TestDump {
 000000d0: d0d1 d2d3 d4d5 d6d7 d8d9 dadb dcdd dedf  ÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß
 000000e0: e0e1 e2e3 e4e5 e6e7 e8e9 eaeb eced eeef  àáâãäåæçèéêëìíîï
 000000f0: f0f1 f2f3 f4f5 f6f7 f8f9 fafb fcfd feff  ðñòóôõö÷øùúûüýþÿ
-"""
+""".replace("\r\n", "\n")
     assertEquals(expected, "\n" + dumpString + "\n")
   }
 
@@ -248,7 +248,7 @@ class TestDump {
 000000d0: cfd0 d1d2 d3d4 d5d6 d7d8 d9da dbdc ddde  ÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞ
 000000e0: dfe0 e1e2 e3e4 e5e6 e7e8 e9ea ebec edee  ßàáâãäåæçèéêëìíî
 000000f0: eff0 f1f2 f3f4 f5f6 f7f8 f9fa fbfc fd    ïðñòóôõö÷øùúûüý 
-"""
+""".replace("\r\n", "\n")
 
     assertEquals(expected, "\n" + dumpString + "\n")
   }
@@ -273,7 +273,7 @@ class TestDump {
 000000a0: 9a9b 9c9d 9e9f a0a1 a2a3 a4a5 a6a7 a8a9  š›œƝžŸ␢¡¢£¤¥¦§¨©
 000000b0: aaab acad aeaf b0b1 b2b3 b4b5 b6b7 b8b9  ª«¬-®¯°±²³´µ¶·¸¹
 000000c0: babb bcbd bebf                           º»¼½¾¿          
-"""
+""".replace("\r\n", "\n")
 
     assertEquals(expected, "\n" + dumpString + "\n")
   }
@@ -286,7 +286,7 @@ class TestDump {
     val expected = """
 87654321  0011 2233 4455 6677 8899 aabb ccdd eeff  0123456789abcdef
 00000000:                0001 0203 0405 0607             ␀␁␂␃␄␅␆␇  
-"""
+""".replace("\r\n", "\n")
     assertEquals(expected, "\n" + dumpString + "\n")
   }
 
@@ -298,7 +298,7 @@ class TestDump {
     val expected = """
 fedcba9876543210  ffee ddcc bbaa 9988 7766 5544 3322 1100  87654321
   ␇␆␅␄␃␂␁␀             7060 5040 3020 1000                :00000000
-"""
+""".replace("\r\n", "\n")
     assertEquals(expected, "\n" + dumpString + "\n")
   }
 
@@ -309,7 +309,7 @@ fedcba9876543210  ffee ddcc bbaa 9988 7766 5544 3322 1100  87654321
     val dump = Dump.dump(Dump.TextOnly(None), 0, lengthInbits, bs)
     val dumpString = dump.mkString("\n")
     val expected = """␀␁␂␃␄␅␆␇␈␉␊␋␌␍␎␏␐␑␒␓␔␕␖␗␘␙␚␛␜␝␞␟␣!"#$%&'()*+,-./0123456789:;<=>?@ABCDE"""
-    // """FGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~␡€Ɓ‚ƒ„…†‡ˆ‰Š‹ŒƍŽƏƐ‘’“”•–—˜™š›œƝžŸ␢¡¢£¤¥¦§¨©ª«¬-®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ"""
+    // """FGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~␡€Ɓ‚ƒ„…†‡ˆ‰Š‹ŒƍŽƏƐ‘’“”•–—˜™š›œƝžŸ␢¡¢£¤¥¦§¨©ª«¬-®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ""".replace("\r\n", "\n")
     assertEquals(expected, dumpString)
   }
 
@@ -324,8 +324,8 @@ fedcba9876543210  ffee ddcc bbaa 9988 7766 5544 3322 1100  87654321
     val dumpString = dump.mkString("\n")
     val expected =
       """|                                ├──────┤
-         |␀␁␂␃␄␅␆␇␈␉␊␋␌␍␎␏␐␑␒␓␔␕␖␗␘␙␚␛␜␝␞␟␣!"#$%&'()*+,-./0123456789:;<=>?@ABCDE""".stripMargin
-    // """FGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~␡€Ɓ‚ƒ„…†‡ˆ‰Š‹ŒƍŽƏƐ‘’“”•–—˜™š›œƝžŸ␢¡¢£¤¥¦§¨©ª«¬-®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ"""
+         |␀␁␂␃␄␅␆␇␈␉␊␋␌␍␎␏␐␑␒␓␔␕␖␗␘␙␚␛␜␝␞␟␣!"#$%&'()*+,-./0123456789:;<=>?@ABCDE""".stripMargin.replace("\r\n", "\n")
+    // """FGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~␡€Ɓ‚ƒ„…†‡ˆ‰Š‹ŒƍŽƏƐ‘’“”•–—˜™š›œƝžŸ␢¡¢£¤¥¦§¨©ª«¬-®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ""".replace("\r\n", "\n")
     assertEquals(expected, dumpString)
   }
 
@@ -350,9 +350,9 @@ fedcba9876543210  ffee ddcc bbaa 9988 7766 5544 3322 1100  87654321
     val ex =
       """#├────────────────────────────────────────────────────────────────────═
          #␣!"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcde"""
-    val expected = ex.stripMargin('#')
+    val expected = ex.stripMargin('#').replace("\r\n", "\n")
 
-    // """FGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~␡€Ɓ‚ƒ„…†‡ˆ‰Š‹ŒƍŽƏƐ‘’“”•–—˜™š›œƝžŸ␢¡¢£¤¥¦§¨©ª«¬-®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ"""
+    // """FGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~␡€Ɓ‚ƒ„…†‡ˆ‰Š‹ŒƍŽƏƐ‘’“”•–—˜™š›œƝžŸ␢¡¢£¤¥¦§¨©ª«¬-®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ""".replace("\r\n", "\n")
     assertEquals(expected, dumpString)
   }
 
@@ -376,7 +376,7 @@ fedcba9876543210  ffee ddcc bbaa 9988 7766 5544 3322 1100  87654321
     val ex =
       """#├──────────────────────────────┤
          #␣!"#$%&'()*+,-./0123456789:;<=>?"""
-    val expected = ex.stripMargin('#')
+    val expected = ex.stripMargin('#').replace("\r\n", "\n")
     assertEquals(expected, dumpString)
   }
 
@@ -396,7 +396,7 @@ fedcba9876543210  ffee ddcc bbaa 9988 7766 5544 3322 1100  87654321
     //
     val expected =
       """#     │
-         #␣!"#$%&'()*+,-./0123456789:;<=>?""".stripMargin('#')
+         #␣!"#$%&'()*+,-./0123456789:;<=>?""".stripMargin('#').replace("\r\n", "\n")
     assertEquals(expected, dumpString)
   }
 
@@ -411,7 +411,7 @@ fedcba9876543210  ffee ddcc bbaa 9988 7766 5544 3322 1100  87654321
     val dumpString = dump.mkString("\n")
     val expected =
       """#     ║
-         #␣!"#$%&'()*+,-./0123456789:;<=>?""".stripMargin('#')
+         #␣!"#$%&'()*+,-./0123456789:;<=>?""".stripMargin('#').replace("\r\n", "\n")
     assertEquals(expected, dumpString)
   }
 

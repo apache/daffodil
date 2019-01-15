@@ -860,9 +860,9 @@
     model="nestedSequence"
     roundTrip="true">
 
-    <tdml:document><![CDATA[BEGIN|this|is||
-BEGIN|of|nested||
-]]></tdml:document>
+    <tdml:document>
+	  <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[BEGIN|this|is||%LF;BEGIN|of|nested||%LF;]]></tdml:documentPart>
+	</tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <ex:nestedRoot>

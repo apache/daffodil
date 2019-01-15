@@ -38,7 +38,7 @@ class TestInputSourceDataInputStream3 {
 87654321  0011 2233 4455 6677 8899 aabb ccdd eeff  0~1~2~3~4~5~6~7~8~9~a~b~c~d~e~f~
 00000000: 4461 7465 20e5 b9b4 e69c 88e6 97a5 3d32  D~a~t~e~␣~年~~~~月~~~~日~~~~=~2~
 00000010: 3030 33e5 b9b4 3038 e69c 8832 37e6 97a5  0~0~3~年~~~~0~8~月~~~~2~7~日~~~~
-"""
+""".replace("\r\n", "\n")
     assertEquals(expected, "\n" + dumpString + "\n")
   }
 
@@ -56,7 +56,7 @@ class TestInputSourceDataInputStream3 {
 87654321  0011 2233 4455 6677 8899 aabb ccdd eeff  0~1~2~3~4~5~6~7~8~9~a~b~c~d~e~f~
 00000010: 4461 7465 20e5 b9b4 e69c 88e6 97a5 3d32  D~a~t~e~␣~年~~~~月~~~~日~~~~=~2~
 00000020: 3030 33e5 b9b4 3038 e69c 8832 37e6 97a5  0~0~3~年~~~~0~8~月~~~~2~7~日~~~~
-"""
+""".replace("\r\n", "\n")
 
     assertEquals(expected, "\n" + dumpString + "\n")
   }
@@ -76,7 +76,7 @@ class TestInputSourceDataInputStream3 {
 00000010:           4461 7465 20e5 b9b4 e69c 88e6          D~a~t~e~␣~年~~~~月~~~~日
 00000020: 97a5 3d32 3030 33e5 b9b4 3038 e69c 8832  ~~~~=~2~0~0~3~年~~~~0~8~月~~~~2~
 00000030: 37e6 97a5                                7~日~~~~                        
-"""
+""".replace("\r\n", "\n")
     assertEquals(expected, "\n" + dumpString + "\n")
   }
 }
