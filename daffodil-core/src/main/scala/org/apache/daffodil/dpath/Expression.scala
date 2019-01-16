@@ -613,9 +613,17 @@ case class WholeExpression(
     }
 
     if (!allowCoercion) {
-      SDE("Expression result type (%s) cannot be coerced to the expected type (%s)",
-        inherentType,
-        targetType)
+      if (tunable.allowExpressionResultCoercion) {
+        SDW(WarnID.DeprecatedExpressionResultCoercion,
+          "Expression result type (%s) should be manually cast to the expected type (%s) with the appropriate constructor. " +
+          "Performing deprecated automatic conversion.",
+          inherentType,
+          targetType)
+      } else {
+        SDE("Expression result type (%s) must be manually cast to the expected type (%s) with the approrpriate constructor.",
+          inherentType,
+          targetType)
+      }
     }
 
     targetType

@@ -1812,6 +1812,12 @@ c]]></value>
 
   </tdml:defineSchema>
 
+  <tdml:defineConfig name="cfg_errorOnResultCoercion">
+    <daf:tunables>
+      <daf:allowExpressionResultCoercion>false</daf:allowExpressionResultCoercion>
+    </daf:tunables>
+  </tdml:defineConfig>
+
   <tdml:parserTestCase name="expression_type_error1"
     root="e" model="expression-type-errors.dfdl.xsd"
     description="get a type error from an expression at runtime - DFDL-23-006R">
@@ -1828,12 +1834,13 @@ c]]></value>
 
   <tdml:parserTestCase name="expression_type_error2"
     root="f" model="expression-type-errors.dfdl.xsd"
-    description="get a type error from an expression at compile time - DFDL-23-006R">
+    description="get a type error from an expression at compile time - DFDL-23-006R"
+    config="cfg_errorOnResultCoercion">
     <tdml:document />
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>Expression result type</tdml:error>
-      <tdml:error>cannot be coerced</tdml:error>
+      <tdml:error>must be manually cast</tdml:error>
       <tdml:error>Double</tdml:error>
       <tdml:error>Int</tdml:error>
     </tdml:errors>
@@ -1869,12 +1876,13 @@ c]]></value>
 
   <tdml:parserTestCase name="expression_type_error5"
     root="i" model="expression-type-errors.dfdl.xsd"
-    description="get a type error from an expression at compilation time - no coercion">
+    description="get a type error from an expression at compilation time - no coercion"
+    config="cfg_errorOnResultCoercion">
     <tdml:document />
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>Expression result type</tdml:error>
-      <tdml:error>cannot be coerced</tdml:error>
+      <tdml:error>must be manually cast</tdml:error>
       <tdml:error>String</tdml:error>
       <tdml:error>Boolean</tdml:error>
     </tdml:errors>
@@ -1882,12 +1890,13 @@ c]]></value>
 
   <tdml:parserTestCase name="expression_type_error6"
     root="j" model="expression-type-errors.dfdl.xsd"
-    description="get a type error from an expression at compilation time - no coercion">
+    description="get a type error from an expression at compilation time - no coercion"
+    config="cfg_errorOnResultCoercion">
     <tdml:document />
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>Expression result type</tdml:error>
-      <tdml:error>cannot be coerced</tdml:error>
+      <tdml:error>must be manually cast</tdml:error>
       <tdml:error>Int</tdml:error>
       <tdml:error>String</tdml:error>
     </tdml:errors>
@@ -1895,12 +1904,13 @@ c]]></value>
 
   <tdml:parserTestCase name="expression_type_error7"
     root="k" model="expression-type-errors.dfdl.xsd"
-    description="get a type error from an expression at compilation time - no coercion">
+    description="get a type error from an expression at compilation time - no coercion"
+    config="cfg_errorOnResultCoercion">
     <tdml:document />
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>Expression result type</tdml:error>
-      <tdml:error>cannot be coerced</tdml:error>
+      <tdml:error>must be manually cast</tdml:error>
       <tdml:error>Double</tdml:error>
       <tdml:error>Float</tdml:error>
     </tdml:errors>

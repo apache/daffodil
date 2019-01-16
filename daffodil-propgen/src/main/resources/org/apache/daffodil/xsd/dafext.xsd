@@ -135,6 +135,7 @@
                  <xsd:enumeration value="deprecatedEncodingNameUSASCII7BitPacked"/>
                  <xsd:enumeration value="deprecatedFunctionDAFError"/>
                  <xsd:enumeration value="deprecatedPropertySeparatorPolicy" />
+                 <xsd:enumeration value="deprecatedExpressionResultCoercion" />
                  <xsd:enumeration value="escapeSchemeRefUndefined"/>
                  <xsd:enumeration value="facetExplicitLengthOutOfRange"/>
                  <xsd:enumeration value="inconsistentLengthKind"/>
@@ -154,6 +155,7 @@
            </xsd:list>
            </xsd:simpleType>
         </xsd:element>
+        <xsd:element name="allowExpressionResultCoercion" minOccurs="0" type="xsd:boolean" />
       </xsd:sequence>
     </xsd:complexType>
   </xsd:element>
