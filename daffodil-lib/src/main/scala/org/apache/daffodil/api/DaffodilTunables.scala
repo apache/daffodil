@@ -160,7 +160,20 @@ case class DaffodilTunables(
    * from SimpleDateFormat are reasonable
    */
   val minValidYear: Int = 0,
-  val maxValidYear: Int = 9999)
+  val maxValidYear: Int = 9999,
+
+  /* Defines how Daffodil coerces expressions where the result type differs
+   * from the expected type. As an example, assume the expected type of an
+   * expression is an xs:string, but the expression is { 3 }. In this case, the
+   * expression result is an xs:int, which should not be automatically coerced
+   * to an xs:string. Instead, the expression should be { xs:string(3) } or { "3" }
+   * If the value of this tunable is false, these types of expressions will
+   * result in a schema definition error. If the value is true, Daffodil will
+   * provide a warning and attempt to coerce the result type to the expected
+   * type.
+   */
+  val allowExpressionResultCoercion: Boolean = true
+  )
 
   extends Serializable
   with Logging {
@@ -267,6 +280,7 @@ case class DaffodilTunables(
       case "maximumsimpleelementsizeincharacters" => this.copy(maximumSimpleElementSizeInCharacters = java.lang.Integer.valueOf(value))
       case "initialregexmatchlimitincharacters" => this.copy(initialRegexMatchLimitInCharacters = java.lang.Integer.valueOf(value))
       case "maximumregexmatchlengthincharacters" => this.copy(maximumRegexMatchLengthInCharacters = java.lang.Integer.valueOf(value))
+      case "allowexpressionresultcoercion" => this.copy(allowExpressionResultCoercion = java.lang.Boolean.valueOf(value))
       case _ => {
         log(LogLevel.Warning, "Ignoring unknown tunable: %s", tunable)
         this

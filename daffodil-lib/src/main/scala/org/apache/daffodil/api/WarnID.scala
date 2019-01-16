@@ -87,6 +87,11 @@ object WarnID extends PropsEnum[WarnID] {
     */
   case object TextOutputMinLengthOutOfRange extends WarnID; forceConstruction(TextOutputMinLengthOutOfRange)
 
+  /**
+   * Automatic expression result type coercion
+   */
+  case object DeprecatedExpressionResultCoercion extends WarnID; forceConstruction(DeprecatedExpressionResultCoercion)
+
   override def apply(name: String, context: ThrowsSDE) = Assert.usageError("not to be called. Call find(name) method instead.")
 
   def find(name: String): Option[WarnID] = optionStringToEnum("warning identifier", name)
