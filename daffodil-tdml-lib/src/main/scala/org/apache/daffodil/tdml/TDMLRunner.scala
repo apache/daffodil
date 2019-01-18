@@ -24,9 +24,11 @@ import java.io.StringReader
 import java.net.URI
 
 import scala.xml.Node
+import scala.xml.Elem
 import scala.xml.NodeSeq
 import scala.xml.NodeSeq.seqToNodeSeq
 import scala.xml.SAXParseException
+import scala.xml.transform._
 import org.apache.daffodil.api.DataLocation
 import org.apache.daffodil.api.ValidationMode
 import org.apache.daffodil.api.DaffodilSchemaSource
@@ -456,6 +458,20 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
 
   final def isCrossTest(implString: String) = implString != "daffodil"
 
+  val removeLineColInfo = new RewriteRule {
+    override def transform(n: Node) = n match {
+      case e: Elem => {
+        e.copy(attributes = n.attributes.filter(a =>
+        (a.prefixedKey != "dafint:" + XMLUtils.COLUMN_ATTRIBUTE_NAME) &&
+        (a.prefixedKey != "dafint:" + XMLUtils.LINE_ATTRIBUTE_NAME) &&
+        (a.prefixedKey != "dafint:" + XMLUtils.FILE_ATTRIBUTE_NAME)))
+      }
+      case _ => n
+    }
+  }
+
+  val stripLineColInfo = new RuleTransformer(removeLineColInfo)
+
   final def isNegativeTest = optExpectedErrors.isDefined
 
   lazy val tdmlDFDLProcessorFactory: AbstractTDMLDFDLProcessorFactory = {
@@ -603,7 +619,19 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
       }
       case (None, Some(defSchema), None) => {
         Assert.invariant(model != "") // validation of the TDML should prevent this
-        EmbeddedSchemaSource(defSchema.xsdSchema, defSchema.name)
+
+        /* The file, line, and column attributes we add for tracking purposes
+         * cause issues with the IBM DFDL processor as it doesn't allow
+         * attributes that it doesn't understand, so we must remove them */
+        val processedSchema = {
+          if (isCrossTest(this.tdmlDFDLProcessorFactory.implementationName)) {
+            stripLineColInfo(defSchema.xsdSchema)
+          } else {
+            defSchema.xsdSchema
+          }
+        }
+
+        EmbeddedSchemaSource(processedSchema, defSchema.name)
       }
       case (None, None, Some(uri)) => {
         //
@@ -1120,7 +1148,13 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
     Assert.usage(roundTrip ne TwoPassRoundTrip) // not supported for unparser test cases.
 
-    val infosetXML: Node = this.inputInfoset.dfdlInfoset.contents
+    val infosetXML: Node = {
+      if (isCrossTest(implString.get)) {
+        stripLineColInfo(this.inputInfoset.dfdlInfoset.contents)
+      } else {
+        this.inputInfoset.dfdlInfoset.contents
+      }
+    }
     val outStream = new java.io.ByteArrayOutputStream()
     val actual =
       try {
@@ -1220,7 +1254,11 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         val infosetXML = {
           if (optInputInfoset.isEmpty)
             throw TDMLException("No infoset specified, but one is required to run the test.", implString)
-          inputInfoset.dfdlInfoset.contents
+          if (isCrossTest(implString.get)) {
+            stripLineColInfo(inputInfoset.dfdlInfoset.contents)
+          } else {
+            inputInfoset.dfdlInfoset.contents
+          }
         }
         val actual =
           try {
