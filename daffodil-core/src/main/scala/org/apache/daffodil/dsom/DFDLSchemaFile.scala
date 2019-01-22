@@ -122,12 +122,10 @@ final class DFDLSchemaFile(val sset: SchemaSet,
       //
       ldr.setValidation(false)
       val node = ldr.load(schemaSource)
-      schemaDefinitionUnless(node != null, "No XML Node could be loaded from %s.", schemaSource)
+      schemaDefinitionUnless(node != null, "Unable to load XML from %s.", diagnosticDebugName)
       node
     } catch {
       case e: java.io.IOException => die(e)
-      case e: SAXException => die(e)
-      case e: scala.xml.parsing.FatalError => die(e)
     }
     node
   }.value
