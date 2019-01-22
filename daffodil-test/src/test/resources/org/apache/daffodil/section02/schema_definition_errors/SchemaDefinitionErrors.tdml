@@ -207,7 +207,8 @@
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>lineNumber.dfdl.xsd</tdml:error>
-      <tdml:error>lineNumber: 35</tdml:error>
+      <tdml:error>line 65</tdml:error>
+      <tdml:error>column 10</tdml:error>
     </tdml:errors>
 
   </tdml:parserTestCase>

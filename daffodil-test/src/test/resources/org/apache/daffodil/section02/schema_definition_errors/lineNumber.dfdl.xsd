@@ -20,6 +20,35 @@
 
   <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
+  <!--
+    This group doesn't do anything. It's just a convenient way to insert a
+    multline CDATA, which has been a cause of incorrect line numbers
+  -->
+  <xs:group name="groupWithCDATA">
+    <xs:sequence>
+      <xs:element name="ivc">
+        <xs:annotation>
+          <xs:appinfo source="http://www.ogf.org/dfdl/">
+            <dfdl:element>
+              <dfdl:property name="inputValueCalc"><![CDATA[{
+                   if (1 eq 2) then 2
+              else if (3 eq 4) then 4
+              else if (5 eq 6) then 6
+              else if (7 eq 8) then 8
+              else if (9 eq 10) then 10
+              else 11
+              }]]>
+              </dfdl:property>
+            </dfdl:element>
+          </xs:appinfo>
+        </xs:annotation>
+        <xs:simpleType>
+          <xs:restriction base="xs:int" />
+        </xs:simpleType>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:format ref="GeneralFormat" lengthKind="delimited" separator="."
@@ -32,7 +61,8 @@
   <xs:element name="e1">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="inty" type="blah" maxOccurs="unbounded"/>
+        <!-- missing dfdl:length causes an SDE deteced by Daffodil instead of Saxon -->
+        <xs:element name="inty" type="xs:int" dfdl:lengthKind="explicit" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>

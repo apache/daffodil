@@ -72,7 +72,7 @@ object Position {
  * gets positions is different. It is given just an offset into the document file/stream,
  * and it therefore must synthesize line number/col number info itself.
  */
-class DaffodilConstructingLoader(uri: URI, errorHandler: org.xml.sax.ErrorHandler, addLineColInfo: Boolean = false)
+class DaffodilConstructingLoader(uri: URI, errorHandler: org.xml.sax.ErrorHandler)
   extends ConstructingParser({
     //
     // Note: we must open the XML carefully since it might be in some non
@@ -86,46 +86,60 @@ class DaffodilConstructingLoader(uri: URI, errorHandler: org.xml.sax.ErrorHandle
     source
   }, true) {
 
-  override def reportSyntaxError(pos: Int, msg: String) {
+  // This one line is a bit of a hack to get consistent line numbers. The
+  // scala-xml libary reads XML from a scala.io.Source which maintains private
+  // line/col information about where in the Source we are reading from (i.e.
+  // scala.io.Source.pos). The problem is that when CDATA or a processing
+  // instruction is encountered, the library switches to a custom
+  // "WithLookAhead" scala.io.Source that buffers the original Source. This
+  // lookahead Source allows it to peek ahead a few characters, which is used
+  // to find the end of CDATA and processing instructions. The problem is that
+  // when it switches to this new Source, we lose position information since
+  // that information is private to each Source. This causes line information
+  // to reset to zero when the first CDATA or processing instruction is found.
+  // And there is no good way to copy position information from one source to
+  // another. So, what we can do is call this lookahead() function before any
+  // XML is parsed. This causes the ConstructingLoader to immediately switch to
+  // the buffering source. There may be some slight overhead for buffering, but
+  // at last our line numbers are correct.
+  lookahead()
+
+
+  private def makeSAXParseException(pos: Int, msg: String) = {
     val line = Position.line(pos)
     val col = Position.column(pos)
     val exc = new org.xml.sax.SAXParseException(msg, null, uri.toString, line, col)
+    exc
+  }
+
+  override def reportSyntaxError(pos: Int, msg: String) {
+    val exc = makeSAXParseException(pos, msg)
     errorHandler.error(exc)
   }
 
-  /**
-   * We probably aren't supposed to override mkAttributes(), however,
-   * mkAttributes is a really really easy place to add our file/line/col
-   * attributes and namespace, since this is the function in the
-   * ConstructingParser that creates that stuff. However, the super mkAttribute
-   * function, and functions that lead up to it being called, change the pos
-   * member variable. So by the time our mkAttributes is called, the pos is
-   * off, usually by a line or two, which is confusing. So override xTag, which
-   * is called early enough before the position is changed, to capture the
-   * position, and then use that position when mkAttributes is called.
+  /*
+   * Callback method invoked by MarkupParser after parsing an element, between
+   * the elemStart and elemEnd callbacks. This adds daffodil file/line/column
+   * information as attributes to the existing input attrs, modifying the scope
+   * if necessary, then creates an element using the super def elem function.
    *
-   * Note that this is potentially fragile and could break if scala-xml ever
-   * makes significant changes. However, these functions, and the classes
-   * containing these functions have not been modified for many years, so I
-   * suspect they are fairly stable and it's safe to assume things won't change
-   * significantly.
+   *  @param pos      the position in the source file
+   *  @param pre      the prefix
+   *  @param local    the local name
+   *  @param attrs    the attributes (metadata)
+   *  @param scope    the namespace binding scope
+   *  @param empty    `true` if the element was previously empty; `false` otherwise.
+   *  @param args     the children of this element
    */
-  var capturedPos: Int = 0
+  override def elem(
+    pos: Int,
+    pre: String,
+    local: String,
+    attrs: MetaData,
+    scope: NamespaceBinding,
+    empty: Boolean,
+    nodes: NodeSeq): NodeSeq = {
 
-  override protected def xTag(pscope: NamespaceType): (String, AttributesType) = {
-    // save the position so we can use it in mkAttributes, super.xTag is going
-    // to change it before our mkAttributes is called
-    capturedPos = this.pos
-    super.xTag(pscope)
-  }
-
-  override def mkAttributes(qname: String, pscope: NamespaceBinding): (scala.xml.MetaData, scala.xml.NamespaceBinding) = {
-    val (attrs, scope) = super.mkAttributes(qname, pscope)
-
-    val (pre, local) = Utility.prefix(qname) match {
-      case Some(p) => (p, qname.drop(p.length + 1))
-      case _ => (null, qname)
-    }
     val nsURI = NS(scope.getURI(pre))
     val isFileRootNode = (local.equalsIgnoreCase("schema") && nsURI == XMLUtils.XSD_NAMESPACE) ||
       (local.equalsIgnoreCase("testSuite") && nsURI == XMLUtils.TDML_NAMESPACE)
@@ -145,19 +159,14 @@ class DaffodilConstructingLoader(uri: URI, errorHandler: org.xml.sax.ErrorHandle
           } else {
             attrs
           }
-        val withLineCol: MetaData =
-          if (addLineColInfo) {
-            val withCol: MetaData = new PrefixedAttribute(XMLUtils.INT_PREFIX, XMLUtils.COLUMN_ATTRIBUTE_NAME, Position.column(capturedPos).toString, withFile)
-            val withLine: MetaData = new PrefixedAttribute(XMLUtils.INT_PREFIX, XMLUtils.LINE_ATTRIBUTE_NAME, Position.line(capturedPos).toString, withCol)
-            withLine
-          } else {
-            withFile
-          }
-        withLineCol
+        val withCol: MetaData = new PrefixedAttribute(XMLUtils.INT_PREFIX, XMLUtils.COLUMN_ATTRIBUTE_NAME, Position.column(pos).toString, withFile)
+        val withLine: MetaData = new PrefixedAttribute(XMLUtils.INT_PREFIX, XMLUtils.LINE_ATTRIBUTE_NAME, Position.line(pos).toString, withCol)
+        withLine
       } else {
         attrs
       }
     }
+
     // add the dafint prefix if it doesn't already exist
     val intPrefix = scope.getPrefix(XMLUtils.INT_NS)
     val newScope = if (intPrefix == null) {
@@ -167,15 +176,23 @@ class DaffodilConstructingLoader(uri: URI, errorHandler: org.xml.sax.ErrorHandle
       scope
     }
 
-    (newAttrs, newScope)
+    super.elem(pos, pre, local, newAttrs, newScope, empty, nodes)
   }
 
   def load(): Node = {
-    this.initialize
-    val doc = this.document()
     val res =
-      if (doc == null) null
-      else doc.docElem
+      try {
+        this.initialize
+        val doc = this.document()
+        if (doc == null) null
+        else doc.docElem
+      } catch {
+        case e: Exception => {
+          val exc = makeSAXParseException(curInput.pos, e.toString)
+          errorHandler.fatalError(exc)
+          null
+        }
+      }
     res
   }
 }
