@@ -81,4 +81,19 @@
       </xs:complexType>
     </xs:element>
 
+    <xs:element name="entirelyOptionalChoice">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:choice>
+          <xs:sequence>
+            <xs:element name="a" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit" minOccurs="0"/>
+          </xs:sequence>
+          <xs:sequence>
+            <xs:element name="b" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit" minOccurs="0"/>
+          </xs:sequence>
+          </xs:choice>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
 </xs:schema>

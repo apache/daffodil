@@ -23,6 +23,7 @@ import org.apache.daffodil.schema.annotation.props.gen.Choice_AnnotationMixin
 import org.apache.daffodil.grammar.ChoiceGrammarMixin
 import org.apache.daffodil.processors.RuntimeData
 import org.apache.daffodil.processors.ChoiceRuntimeData
+import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.infoset.ChoiceBranchEvent
 import org.apache.daffodil.infoset.ChoiceBranchStartEvent
 import org.apache.daffodil.infoset.ChoiceBranchEndEvent
@@ -216,6 +217,7 @@ abstract class ChoiceTermBase(
             SDE(
               "UPA violation. Multiple choice branches begin with %s.\n" +
               "Note that elements with dfdl:outputValueCalc cannot be used to distinguish choice branches.\n" +
+              "Note that choice branches with entirely optional content are not allowed.\n" +
               "The offending choice branches are:\n%s",
               event.qname, trds.map { trd => "%s at %s".format(trd.diagnosticDebugName, trd.locationDescription) }.mkString("\n"))
           } else {
@@ -228,6 +230,7 @@ abstract class ChoiceTermBase(
               WarnID.MultipleChoiceBranches,
               "Multiple choice branches are associated with the %s of element %s.\n" +
                 "Note that elements with dfdl:outputValueCalc cannot be used to distinguish choice branches.\n" +
+                "Note that choice branches with entirely optional content are not allowed.\n" +
                 "The offending choice branches are:\n%s\n" +
                 "The first branch will be used during unparsing when an infoset ambiguity exists.",
               eventType, event.qname, trds.map { trd => "%s at %s".format(trd.diagnosticDebugName, trd.locationDescription) }.mkString("\n"))
