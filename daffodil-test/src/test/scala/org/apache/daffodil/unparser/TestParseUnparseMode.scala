@@ -42,4 +42,5 @@ class TestParseUnparseMode {
 
   @Test def test_unparse2() { runner.runOneTest("unparse2") }
 
+  @Test def test_unparse3() { runner.runOneTest("unparse3") }
 }

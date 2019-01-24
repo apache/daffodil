@@ -60,4 +60,18 @@
     </tdml:errors>
   </tdml:unparserTestCase>
 
+  <tdml:unparserTestCase name="unparse3" root="entirelyOptionalChoice" model="parseUnparseModeTest.dfdl.xsd"
+    roundTrip="false">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:entirelyOptionalChoice><a>1</a></ex:entirelyOptionalChoice>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:warnings>
+      <tdml:warning>Schema Definition Warning</tdml:warning>
+      <tdml:warning>entirely optional content</tdml:warning>
+    </tdml:warnings>
+    <tdml:document>1</tdml:document>
+  </tdml:unparserTestCase>
+
 </tdml:testSuite>
