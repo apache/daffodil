@@ -35,7 +35,7 @@ class TestCLITunables {
     val shell = Util.start("")
 
     try {
-      val cmd = String.format("echo -n 12| %s parse -s %s -r test_01 -TunqualifiedPathStepPolicy=noNamespace", Util.binPath, testSchemaFile)
+      val cmd = String.format(Util.echoN("12") + "| %s parse -s %s -r test_01 -TunqualifiedPathStepPolicy=noNamespace", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expect(contains(unqualifiedPathStep01))
       shell.sendLine("exit")
@@ -51,7 +51,7 @@ class TestCLITunables {
     val shell = Util.start("", true)
 
     try {
-      val cmd = String.format("echo -n 12| %s parse -s %s -r test_02 -TunqualifiedPathStepPolicy=noNamespace", Util.binPath, testSchemaFile)
+      val cmd = String.format(Util.echoN("12") + "| %s parse -s %s -r test_02 -TunqualifiedPathStepPolicy=noNamespace", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       //shell.expect(contains(unqualifiedPathStep02))
       shell.expect(contains("Schema Definition Error"))
@@ -68,7 +68,7 @@ class TestCLITunables {
     val shell = Util.start("", true)
 
     try {
-      val cmd = String.format("echo -n 12| %s parse -s %s -r test_03 -TunqualifiedPathStepPolicy=noNamespace", Util.binPath, testSchemaFile)
+      val cmd = String.format(Util.echoN("12") + "| %s parse -s %s -r test_03 -TunqualifiedPathStepPolicy=noNamespace", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       //shell.expect(contains(unqualifiedPathStep03))
       shell.expect(contains("Schema Definition Error"))
@@ -85,7 +85,7 @@ class TestCLITunables {
     val shell = Util.start("")
 
     try {
-      val cmd = String.format("echo -n 12| %s parse -s %s -r test_04 -TunqualifiedPathStepPolicy=noNamespace", Util.binPath, testSchemaFile)
+      val cmd = String.format(Util.echoN("12") + "| %s parse -s %s -r test_04 -TunqualifiedPathStepPolicy=noNamespace", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expect(contains(unqualifiedPathStep04))
       shell.sendLine("exit")
@@ -103,7 +103,7 @@ class TestCLITunables {
     val shell = Util.start("")
 
     try {
-      val cmd = String.format("echo -n 12| %s parse -s %s -r test_01 -TunqualifiedPathStepPolicy=defaultNamespace", Util.binPath, testSchemaFile)
+      val cmd = String.format(Util.echoN("12") + "| %s parse -s %s -r test_01 -TunqualifiedPathStepPolicy=defaultNamespace", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expect(contains(unqualifiedPathStep01))
       shell.sendLine("exit")
@@ -119,7 +119,7 @@ class TestCLITunables {
     val shell = Util.start("")
 
     try {
-      val cmd = String.format("echo -n 12| %s parse -s %s -r test_02 -TunqualifiedPathStepPolicy=defaultNamespace", Util.binPath, testSchemaFile)
+      val cmd = String.format(Util.echoN("12") + "| %s parse -s %s -r test_02 -TunqualifiedPathStepPolicy=defaultNamespace", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expect(contains(unqualifiedPathStep02))
       shell.sendLine("exit")
@@ -135,7 +135,7 @@ class TestCLITunables {
     val shell = Util.start("", true)
 
     try {
-      val cmd = String.format("echo -n 12| %s parse -s %s -r test_03 -TunqualifiedPathStepPolicy=defaultNamespace", Util.binPath, testSchemaFile)
+      val cmd = String.format(Util.echoN("12") + "| %s parse -s %s -r test_03 -TunqualifiedPathStepPolicy=defaultNamespace", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       //shell.expect(contains(unqualifiedPathStep03))
       shell.expect(contains("Schema Definition Error"))
@@ -152,7 +152,7 @@ class TestCLITunables {
     val shell = Util.start("", true)
 
     try {
-      val cmd = String.format("echo -n 12| %s parse -s %s -r test_04 -TunqualifiedPathStepPolicy=defaultNamespace", Util.binPath, testSchemaFile)
+      val cmd = String.format(Util.echoN("12") + "| %s parse -s %s -r test_04 -TunqualifiedPathStepPolicy=defaultNamespace", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expect(contains("Schema Definition Error"))
       //shell.expect(contains(unqualifiedPathStep04))
@@ -171,7 +171,7 @@ class TestCLITunables {
     val shell = Util.start("")
 
     try {
-      val cmd = String.format("echo -n 12| %s parse -s %s -r test_01 -TunqualifiedPathStepPolicy=preferDefaultNamespace", Util.binPath, testSchemaFile)
+      val cmd = String.format(Util.echoN("12") + "| %s parse -s %s -r test_01 -TunqualifiedPathStepPolicy=preferDefaultNamespace", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expect(contains(unqualifiedPathStep01))
       shell.sendLine("exit")
@@ -187,7 +187,7 @@ class TestCLITunables {
     val shell = Util.start("")
 
     try {
-      val cmd = String.format("echo -n 12| %s parse -s %s -r test_02 -TunqualifiedPathStepPolicy=preferDefaultNamespace", Util.binPath, testSchemaFile)
+      val cmd = String.format(Util.echoN("12") + "| %s parse -s %s -r test_02 -TunqualifiedPathStepPolicy=preferDefaultNamespace", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expect(contains(unqualifiedPathStep02))
       shell.sendLine("exit")
@@ -203,7 +203,7 @@ class TestCLITunables {
     val shell = Util.start("", true)
 
     try {
-      val cmd = String.format("echo -n 12| %s parse -s %s -r test_03 -TunqualifiedPathStepPolicy=preferDefaultNamespace", Util.binPath, testSchemaFile)
+      val cmd = String.format(Util.echoN("12") + "| %s parse -s %s -r test_03 -TunqualifiedPathStepPolicy=preferDefaultNamespace", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       //shell.expect(contains(unqualifiedPathStep03))
       shell.expect(contains("Schema Definition Error"))
@@ -220,7 +220,7 @@ class TestCLITunables {
     val shell = Util.start("")
 
     try {
-      val cmd = String.format("echo -n 12| %s parse -s %s -r test_04 -TunqualifiedPathStepPolicy=preferDefaultNamespace", Util.binPath, testSchemaFile)
+      val cmd = String.format(Util.echoN("12") + "| %s parse -s %s -r test_04 -TunqualifiedPathStepPolicy=preferDefaultNamespace", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expect(contains(unqualifiedPathStep04))
       shell.sendLine("exit")
@@ -229,6 +229,5 @@ class TestCLITunables {
       shell.close()
     }
   }
-
 
 }

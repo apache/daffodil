@@ -77,7 +77,7 @@ class TestCLIunparsing {
     val shell = Util.start("")
 
     try {
-      val cmd = String.format("cat %s | %s unparse -s %s --root e3", testInputFile, Util.binPath, testSchemaFile)
+	  val cmd = String.format(Util.cat(testInputFile) + "| %s unparse -s %s --root e3", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expect(contains("[1,2]"))
 
@@ -137,8 +137,8 @@ class TestCLIunparsing {
     val shell = Util.start("")
 
     try {
-      val input = """'<tns:file xmlns:tns="http://www.example.org/example1/"><tns:header><tns:title>1</tns:title><tns:title>2</tns:title><tns:title>3</tns:title></tns:header><tns:record><tns:item>4</tns:item><tns:item>5</tns:item><tns:item>6</tns:item></tns:record></tns:file>'"""
-      val cmd = String.format("echo %s | %s unparse -s %s --root file", input, Util.binPath, testSchemaFile)
+      val input = "\"<tns:file xmlns:tns='http://www.example.org/example1/'><tns:header><tns:title>1</tns:title><tns:title>2</tns:title><tns:title>3</tns:title></tns:header><tns:record><tns:item>4</tns:item><tns:item>5</tns:item><tns:item>6</tns:item></tns:record></tns:file>\""
+      val cmd = String.format(Util.echoN(input) + "| %s unparse -s %s --root file", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expect(contains("1,2,3"))
       shell.expect(contains("4,5,6"))
@@ -359,7 +359,7 @@ class TestCLIunparsing {
     val shell = Util.start("")
 
     try {
-      val cmd = String.format("echo '<rabbitHole><nestSequence><nest>test</nest></nestSequence></rabbitHole>'| %s -t unparse -s %s", Util.binPath, testSchemaFile)
+      val cmd = String.format(Util.echoN("\"<rabbitHole><nestSequence><nest>test</nest></nestSequence></rabbitHole>\"") + "| %s -t unparse -s %s", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expect(contains("parser: <Element name='nest'>"))
       shell.expect(contains("parser: <Element name='rabbitHole'>"))

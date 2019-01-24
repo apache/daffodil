@@ -237,7 +237,7 @@ class TestCLIparsing {
     val shell = Util.start("")
 
     try {
-      val cmd = String.format("echo -n test| %s parse -s %s", Util.binPath, testSchemaFile)
+      val cmd = String.format(Util.echoN("test") + "| %s parse -s %s", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expect(contains(output9))
       shell.sendLine("exit")
@@ -253,7 +253,7 @@ class TestCLIparsing {
     val shell = Util.start("")
 
     try {
-      val cmd = String.format("echo -n test| %s parse -s %s", Util.binPath, testSchemaFile)
+      val cmd = String.format(Util.echoN("test") + "| %s parse -s %s", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
 
       shell.expect(contains(output10))
@@ -270,7 +270,7 @@ class TestCLIparsing {
     val shell = Util.start("")
 
     try {
-      val cmd = String.format("echo -n test| %s parse -s %s", Util.binPath, testSchemaFile)
+      val cmd = String.format(Util.echoN("test") + "| %s parse -s %s", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
 
       shell.expect(contains(output10))
@@ -542,7 +542,11 @@ class TestCLIparsing {
     try {
       val cmd = String.format("echo 0,1,2| %s parse -P parserThatDoesNotExist", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
-      shell.expect(contains("parserThatDoesNotExist (No such file or directory)"))
+      if (Util.isWindows) {
+	    shell.expect(contains("parserThatDoesNotExist (The system cannot find the file specified)"))
+	  } else {
+        shell.expect(contains("parserThatDoesNotExist (No such file or directory)"))
+	  }
       shell.sendLine("exit")
       shell.expect(eof)
     } finally {
@@ -821,7 +825,7 @@ class TestCLIparsing {
     try {
       val cmd = String.format("echo 0,1,2,3,,,,| %s -t parse -s %s", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
-      shell.expectIn(1, contains("Left over data. Consumed 56 bit(s) with at least 40 bit(s) remaining."))
+      shell.expectIn(1, contains("Left over data. Consumed 56 bit(s) with at least"))
       shell.sendLine("exit")
       shell.expect(eof)
     } finally {
@@ -838,7 +842,7 @@ class TestCLIparsing {
     try {
       val cmd = String.format("echo 1,2,3,4,,,| %s parse -s %s -r matrix", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
-      shell.expect(contains("Left over data. Consumed 56 bit(s) with at least 32 bit(s) remaining."))
+      shell.expect(contains("Left over data. Consumed 56 bit(s) with at least"))
       shell.sendLine("exit")
       shell.expect(eof)
     } finally {
@@ -963,7 +967,7 @@ class TestCLIparsing {
     val shell = Util.start("")
 
     try {
-      val cmd = String.format("echo -n 123 | %s parse --stream -s %s", Util.binPath, testSchemaFile)
+      val cmd = String.format(Util.echoN("123") + "| %s parse --stream -s %s", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expect(contains("<a>1</a>"))
       shell.expect(contains("<a>2</a>"))
@@ -981,7 +985,7 @@ class TestCLIparsing {
     val shell = Util.startIncludeErrors("")
 
     try {
-      val cmd = String.format("echo -n 123ab | %s parse --stream -s %s", Util.binPath, testSchemaFile)
+      val cmd = String.format(Util.echoN("123ab") + "| %s parse --stream -s %s", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expect(contains("<a>1</a>"))
       shell.expect(contains("<a>2</a>"))

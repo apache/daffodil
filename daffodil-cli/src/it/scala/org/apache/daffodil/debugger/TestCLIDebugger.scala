@@ -25,7 +25,7 @@ import net.sf.expectit.matcher.Matchers.times
 
 class TestCLIdebugger {
 
-  val DAFFODIL_JAVA_OPTS = Map("DAFFODIL_JAVA_OPTS" -> "-Xms1024m -Xmx1024m -XX:MaxPermSize=256m -XX:ReservedCodeCacheSize=128m -Djline.terminal=jline.UnsupportedTerminal -Dfile.encoding=UTF-8")
+  val DAFFODIL_JAVA_OPTS = Map("DAFFODIL_JAVA_OPTS" -> "-Xms256m -Xmx2048m -Djline.terminal=jline.UnsupportedTerminal -Dfile.encoding=UTF-8")
   //  Dubugging tests were not executing under Windows and especially under Eclipse
   //  due to the use of a non-interactive console.
   //  Set the DAFFODIL_JAVA_OPTS environment variable for Debugger tests to specify

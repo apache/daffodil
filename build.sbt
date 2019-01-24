@@ -139,6 +139,7 @@ lazy val commonSettings = Seq(
   sourceManaged := baseDirectory.value / "src_managed",
   resourceManaged := baseDirectory.value / "resource_managed",
   libraryDependencies ++= Dependencies.common,
+  parallelExecution in IntegrationTest := false
 ) ++ Defaults.itSettings ++ debugTestSettings ++ debugIntegrationTestSettings
 
 lazy val debugTestSettings = inConfig(TestDebug)(Defaults.testSettings ++ Seq(
