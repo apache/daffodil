@@ -34,13 +34,13 @@ class TestCLITunables2 {
 
     try {
       // note: 2>&1 is shell-speak for "connect stderr into stdout"
-      val cmd = String.format("""echo "a,b" | %s parse -s %s -TsuppressSchemaDefinitionWarnings=all 2>&1""", Util.binPath, testSchemaFile)
+      val cmd = String.format("""echo a,b| %s parse -s %s -TsuppressSchemaDefinitionWarnings=all 2>&1""", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expect(contains("""<ex:e1 xmlns:ex="http://example.com">
   <s1>a</s1>
   <s2>b
 </s2>
-</ex:e1>"""))
+</ex:e1>""".replace("\r\n", "\n")))
       shell.sendLine("exit")
       shell.expect(eof)
     } finally {
@@ -58,7 +58,7 @@ class TestCLITunables2 {
 
     try {
       // note: 2>&1 is shell-speak for "connect stderr into stdout"
-      val cmd = String.format("""echo "a,b" | %s parse -s %s 2>&1""", Util.binPath, testSchemaFile)
+      val cmd = String.format("""echo a,b| %s parse -s %s 2>&1""", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expect(contains("""Schema Definition Warning"""))
       shell.expect(contains("""dfdl:lengthKind"""))
@@ -68,7 +68,7 @@ class TestCLITunables2 {
   <s1>a</s1>
   <s2>b
 </s2>
-</ex:e1>"""))
+</ex:e1>""".replace("\r\n", "\n")))
       shell.sendLine("exit")
       shell.expect(eof)
     } finally {
