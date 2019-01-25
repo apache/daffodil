@@ -19,6 +19,7 @@ package org.apache.daffodil.xml
 
 import java.io.File
 
+import scala.collection.mutable
 import scala.collection.mutable.ArrayBuilder
 import scala.xml.NamespaceBinding
 import scala.xml._
@@ -749,10 +750,10 @@ Expected
 Actual
           %s
 Differences were (path, expected, actual):
- %s""".format(
+%s""".format(
      removeAttributes(expected).toString,
      removeAttributes(actual).toString,
-     diffs.map { _.toString }.mkString("", "\n", "\n")))
+     diffs.map { _.toString }.mkString("- ", "\n- ", "\n")))
     }
   }
 
@@ -761,7 +762,7 @@ Differences were (path, expected, actual):
    * Each triple is the path (an x-path-like string), followed by expected, and actual values.
    */
   def computeDiff(a: Node, b: Node, ignoreProcInstr: Boolean = true) = {
-    computeDiffOne(Seq(a), Seq(b), Map.empty, Nil, ignoreProcInstr, None)
+    computeDiffOne(a, b, None, Nil, ignoreProcInstr, None)
   }
 
   def childArrayCounters(e: Elem) = {
@@ -775,16 +776,15 @@ Differences were (path, expected, actual):
   }
 
   def computeDiffOne(
-    as: Seq[Node],
-    bs: Seq[Node],
-    aCounters: Map[String, Long],
-    path: Seq[String],
+    an: Node,
+    bn: Node,
+    maybeIndex: Option[Int],
+    parentPathSteps: Seq[String],
     ignoreProcInstr: Boolean,
     maybeType: Option[String]): Seq[(String, String, String)] = {
-    lazy val zPath = path.reverse.mkString("/")
-    (as, bs) match {
-      case (a1 :: ars, b1 :: brs) if (a1.isInstanceOf[Elem] && b1.isInstanceOf[Elem]) => {
-        val (a: Elem, b: Elem) = (a1, b1)
+    lazy val zPath = parentPathSteps.reverse.mkString("/")
+    (an, bn) match {
+      case (a: Elem, b: Elem) => {
         val Elem(_, labelA, attribsA, _, childrenA @ _*) = a
         val Elem(_, labelB, attribsB, _, childrenB @ _*) = b
         val typeA: Option[String] = a.attribute(XSI_NAMESPACE.toString, "type").map(_.head.text)
@@ -807,40 +807,56 @@ Differences were (path, expected, actual):
             typeA.map(_.toString).getOrElse(""),
             typeA.map(_.toString).getOrElse("")))
         } else {
-          val aIndex = aCounters.get(labelA)
-          val aIndexExpr = aIndex.map { n => labelA + "[" + n + "]" }
-          val newAIndex = aIndex.map { n => (labelA, n + 1) }
-          val newACounters = aCounters ++ newAIndex.toList
-          val pathStep = aIndexExpr.getOrElse(labelA)
-          val aChildArrayCounters = childArrayCounters(a)
-          //
-          // Tricky induction here. For the rest of our peers, we must use newACounters
-          // But as we move across our children, we're using a new map, aChildArrayCounters.
-          //
-          val newPath = pathStep +: path
-          val childrenAList = childrenA.toList
-          val childrenBList = childrenB.toList
+          val pathLabel = labelA + maybeIndex.map("[" + _ + "]").getOrElse("")
+          val thisPathStep = pathLabel +: parentPathSteps
 
-          val childrenDiffs =
-            computeDiffOne(childrenAList, childrenBList, aChildArrayCounters, newPath, ignoreProcInstr, maybeType)
-          val subsequentPeerDiffs = computeDiffOne(ars, brs, newACounters, path, ignoreProcInstr, maybeType)
-          val res = childrenDiffs ++ subsequentPeerDiffs
-          res
+          val (childrenACompare, childrenBCompare) =
+            if (ignoreProcInstr) {
+              val ca = childrenA.filterNot(_.isInstanceOf[ProcInstr])
+              val cb = childrenB.filterNot(_.isInstanceOf[ProcInstr])
+              (ca, cb)
+            } else {
+              (childrenA, childrenB)
+            }
+
+          // for elements with repeats we want to use an index in any diff
+          // outut. So for repeating children, we'll create a mutable map where
+          // the key is the label and the value is the count of how many
+          // children of that label we've seen
+          val repeatingChildrenLabels = childrenA.groupBy(_.label).filter { case (k,v) => v.length > 1 }.keys
+          val labelsWithZeroCount = repeatingChildrenLabels.map { _ -> 0 }
+          val countMap = mutable.Map(labelsWithZeroCount.toSeq: _*)
+
+          val childrenDiffs = childrenACompare.zip(childrenBCompare).flatMap { case (ca, cb) =>
+            val maybeChildCount = countMap.get(ca.label)
+            val maybeChildIndex = maybeChildCount.map { count =>
+              countMap(ca.label) += 1
+              count + 1
+            }
+            computeDiffOne(ca, cb, maybeChildIndex, thisPathStep, ignoreProcInstr, maybeType)
+          }
+
+          // if childrenA and childrenB have different length, zip will drop an
+          // extra. This will report a diff if the lengths are off.
+          val childrenLengthDiff =
+            if (childrenA.length != childrenB.length) {
+              List((zPath + "/" + labelA + "::child@count)",
+                childrenA.length.toString,
+                childrenB.length.toString))
+            } else {
+              Nil
+            }
+
+          childrenDiffs ++ childrenLengthDiff
         }
       }
-      case (tA1 :: ars, tB1 :: brs) if (tA1.isInstanceOf[Text] && tB1.isInstanceOf[Text]) => {
-        val (tA: Text, tB: Text) = (tA1, tB1)
+      case (tA: Text, tB: Text) => {
         val thisDiff = computeTextDiff(zPath, tA, tB, maybeType)
-        val restDiffs = computeDiffOne(ars, brs, aCounters, path, ignoreProcInstr, maybeType)
-        val res = thisDiff ++ restDiffs
-        res
+        thisDiff
       }
-      case (tA1 :: ars, brs) if (ignoreProcInstr && tA1.isInstanceOf[scala.xml.ProcInstr]) =>
-        computeDiffOne(ars, brs, aCounters, path, ignoreProcInstr, maybeType)
-      case (ars, tB1 :: brs) if (ignoreProcInstr && tB1.isInstanceOf[scala.xml.ProcInstr]) =>
-        computeDiffOne(ars, brs, aCounters, path, ignoreProcInstr, maybeType)
-      case (scala.xml.ProcInstr(tA1label, tA1content) :: ars,
-        scala.xml.ProcInstr(tB1label, tB1content) :: brs) => {
+      case (pA: ProcInstr, pB: ProcInstr) => {
+        val ProcInstr(tA1label, tA1content) = pA
+        val ProcInstr(tB1label, tB1content) = pB
         val labelDiff = computeTextDiff(zPath, tA1label, tB1label, None)
         //
         // The content of a ProcInstr is technically a big string
@@ -854,24 +870,10 @@ Differences were (path, expected, actual):
         // TODO: implement XML-comparison for our data format info PIs.
         //
         val contentDiff = computeTextDiff(zPath, tA1content, tB1content, maybeType)
-        val restDiffs = computeDiffOne(ars, brs, aCounters, path, ignoreProcInstr, maybeType)
-        val res = labelDiff ++ contentDiff ++ restDiffs
-        res
+        labelDiff ++ contentDiff
       }
-      case (Nil, Nil) => Nil
-      //
-      // special case.
-      //
-      // when we read in an infoset for comparison we might have <foo></foo> which
-      // loads as an Elem with Nil for child.
-      //
-      // But the actual might be Elem with child that is an array of exactly one Text node
-      // with value "" (empty string). Visually this is the same! <foo></foo>
-      //
-      // Something in scala's libraries removes the isolated Text empty string nodes
-      // So this comparison works. (Whitespace removal)
       case _ => {
-        List((zPath, as.toString, bs.toString))
+        List((zPath, an.toString, bn.toString))
       }
     }
   }
