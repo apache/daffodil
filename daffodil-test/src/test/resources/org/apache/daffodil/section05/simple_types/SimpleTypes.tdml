@@ -4015,7 +4015,24 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
-  
+
+   <!--
+    Test name: hexBinary_fromString
+    Schema: HexBinary
+     Purpose: This test demonstrates that a string of valid hexBinary characters can be implicitly converted to
+     hexBinary.
+  -->
+
+  <tdml:parserTestCase name="hexBinary_fromString" root="hB_fromString"
+      model="HexBinary" description="Section 13 Simple Types - hexBinary - DFDL-13-018R" roundTrip="true">
+    <tdml:document><tdml:documentPart type="byte"></tdml:documentPart></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <hB_fromString>DEADBEEF</hB_fromString>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
   <tdml:defineSchema name="SimpleTypes-padding">
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" representation="text"
@@ -7101,6 +7118,8 @@
     </xs:simpleType>
     
     <xs:element name="hB_rep" dfdl:representation="text" type="xs:hexBinary" dfdl:lengthKind="delimited" dfdl:encoding="ISO-8859-1"/>
+
+    <xs:element name="hB_fromString" type="xs:hexBinary" dfdl:encoding="ISO-8859-1" dfdl:inputValueCalc="{ xs:string('DEADBEEF') }" />
 
     <xs:element name="hB_imp">
       <xs:complexType>
