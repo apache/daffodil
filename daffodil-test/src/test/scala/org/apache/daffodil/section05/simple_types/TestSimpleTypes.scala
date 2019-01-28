@@ -42,6 +42,7 @@ class TestSimpleTypes {
   @Test def test_nonNegativeInteger_Fail() { runner.runOneTest("NonNegativeInteger_Fail") }
 
   @Test def test_hexBinary_rep() { runner.runOneTest("hexBinary_rep") } //roundTrip
+  @Test def test_hexBinary_fromString() { runner.runOneTest("hexBinary_fromString") } //roundTrip
 
   @Test def test_hexBinary_01() { runner.runOneTest("hexBinary_01") } //roundTrip
   @Test def test_hexBinary_Delimited_01() { runner.runOneTest("hexBinary_Delimited_01") } //roundTrip

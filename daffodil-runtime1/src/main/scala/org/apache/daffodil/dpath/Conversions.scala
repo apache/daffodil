@@ -144,7 +144,7 @@ object Conversion {
       case (String, UnsignedShort) => List(StringToLong, LongToUnsignedShort)
       case (String, Byte) => List(StringToLong, LongToByte)
       case (String, UnsignedByte) => List(StringToLong, LongToUnsignedByte)
-      case (String, HexBinary) => List(XSHexBinary.asInstanceOf[RecipeOp]) // TODO: figure out why I had to put this cast in place.
+      case (String, HexBinary) => List(StringToHexBinary)
       case (String, Date) => List(StringToDate)
       case (String, Time) => List(StringToTime)
       case (String, DateTime) => List(StringToDateTime)

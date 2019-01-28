@@ -78,3 +78,16 @@ case object StringToTime extends Converter {
     result
   }
 }
+
+case object StringToHexBinary extends Converter with HexBinaryKind{
+  val name = "StringToHexBinary"
+
+  override def computeValue(a: AnyRef, dstate: DState): AnyRef = {
+    val result = a match {
+      case s: String => hexStringToByteArray(s)
+      case hb: Array[Byte] => hb
+      case x => throw new NumberFormatException("%s cannot be cast to dfdl:hexBinary\ndfdl:hexBinary received an unrecognized type! Must be String or HexBinary.".format(x.toString))
+    }
+    result
+  }
+}

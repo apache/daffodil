@@ -86,18 +86,10 @@ trait HexBinaryKind {
 }
 
 case class XSHexBinary(recipe: CompiledDPath, argType: NodeInfo.Kind)
-  extends FNOneArg(recipe, argType) with HexBinaryKind {
+  extends FNOneArg(recipe, argType) {
   val name = "XSHexBinary"
 
   override def computeValue(a: AnyRef, dstate: DState): AnyRef = {
-    // Check for:
-    // 1. Even number of characters
-    // 2. Valid hex (0-9 A-F)
-    val array = a match {
-      case s: String => hexStringToByteArray(s)
-      case hb: Array[Byte] => hb
-      case x => throw new NumberFormatException("%s cannot be cast to dfdl:hexBinary\ndfdl:hexBinary received an unrecognized type! Must be String or HexBinary.".format(x.toString))
-    }
-    array
+    StringToHexBinary.computeValue(a, dstate)
   }
 }
