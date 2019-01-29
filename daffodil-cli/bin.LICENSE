@@ -210,7 +210,7 @@ subcomponents is subject to the terms and conditions of the following licenses.
 
   This product bundles compiled source from 'Passera', including the following
   files:
-    - passera/ directory in lib/org.apache.daffodil.daffodil-lib-2.2.0.jar
+    - passera/ directory in lib/org.apache.daffodil.daffodil-lib-2.3.0.jar
   These files are available under the BSD-2-Clause license:
 
     Copyright (c) 2011-2013, Nate Nystrom
@@ -241,7 +241,7 @@ subcomponents is subject to the terms and conditions of the following licenses.
     - lib/org.scala-lang.modules.scala-parser-combinators_2.12-1.1.1.jar
     - lib/org.scala-lang.modules.scala-xml_2.12-1.1.0.jar
     - lib/org.scala-lang.scala-library-2.12.6.jar
-    - org/apache/daffodil/util/UniquenessCache.class in lib/org.apache.daffodil.daffodil-lib-2.2.0.jar
+    - org/apache/daffodil/util/UniquenessCache.class in lib/org.apache.daffodil.daffodil-lib-2.3.0.jar
   These files are available under the BSD-3-Clause licnese:
 
     Copyright (c) 2002-  EPFL
@@ -277,11 +277,11 @@ subcomponents is subject to the terms and conditions of the following licenses.
 
   This product bundles material copied or derived from W3C, including the
   following files:
-    - org/apache/daffodil/xsd/XMLSchema.dtd (https://www.w3.org/2001/XMLSchema.dtd) in lib/org.apache.daffodil.daffodil-lib-2.2.0.jar
-    - org/apache/daffodil/xsd/XMLSchema.xsd (https://www.w3.org/2001/XMLSchema.xsd) in lib/org.apache.daffodil.daffodil-lib-2.2.0.jar
-    - org/apache/daffodil/xsd/xml.xsd (https://www.w3.org/2001/xml.xsd) in lib/org.apache.daffodil.daffodil-lib-2.2.0.jar
-    - org/apache/daffodil/xsd/datatypes.dtd (https://www.w3.org/2001/datatypes.dtd) in lib/org.apache.daffodil.daffodil-lib-2.2.0.jar
-    - org/apache/daffodil/xsd/XMLSchema_for_DFDL.xsd (https://www.w3.org/2001/XMLSchema.dtd) in lib/org.apache.daffodil.daffodil-lib-2.2.0.jar
+    - org/apache/daffodil/xsd/XMLSchema.dtd (https://www.w3.org/2001/XMLSchema.dtd) in lib/org.apache.daffodil.daffodil-lib-2.3.0.jar
+    - org/apache/daffodil/xsd/XMLSchema.xsd (https://www.w3.org/2001/XMLSchema.xsd) in lib/org.apache.daffodil.daffodil-lib-2.3.0.jar
+    - org/apache/daffodil/xsd/xml.xsd (https://www.w3.org/2001/xml.xsd) in lib/org.apache.daffodil.daffodil-lib-2.3.0.jar
+    - org/apache/daffodil/xsd/datatypes.dtd (https://www.w3.org/2001/datatypes.dtd) in lib/org.apache.daffodil.daffodil-lib-2.3.0.jar
+    - org/apache/daffodil/xsd/XMLSchema_for_DFDL.xsd (https://www.w3.org/2001/XMLSchema.dtd) in lib/org.apache.daffodil.daffodil-lib-2.3.0.jar
   These files are available under the W3C Software and Document Licnese:
 
     By obtaining and/or copying this work, you (the licensee) agree that you have
