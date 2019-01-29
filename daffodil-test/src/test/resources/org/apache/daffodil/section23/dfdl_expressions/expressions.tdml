@@ -7188,7 +7188,7 @@
   <tdml:parserTestCase name="div22" root="div22" model="XPathDiv" description="Section 23 - DFDL Expressions - div">
     <tdml:document></tdml:document>
     <tdml:errors>
-      <tdml:error>use 'div'?</tdml:error>
+      <tdml:error>Did you mean to use 'div'?</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

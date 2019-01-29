@@ -242,6 +242,7 @@ class DFDLPathExpressionParser[T <: AnyRef](qn: NamedQName,
     })("add")
 
   def MultiplicativeExpr: Parser[Expression] = log(
+    UnaryExpr ~ (("/") ~ UnaryExpr) ^^ { _ => context.SDE("'/' is not a valid operator in DFDL Expression Syntax. Did you mean to use 'div'?") } |
     UnaryExpr ~ (("*" | "div" | "idiv" | "mod") ~ UnaryExpr).* ^^ {
       case u1 ~ uMore => uMore.foldLeft(u1) { case (a, op ~ b) => MultiplicativeExpression(op, List(a, b)) }
     })("mult")
