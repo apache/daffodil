@@ -7047,6 +7047,7 @@
     <xs:element name="div19" type="xs:double" dfdl:inputValueCalc="{ xs:double(5) div xs:double('INF') }" />
     <xs:element name="div20" type="xs:float" dfdl:inputValueCalc="{ xs:float(5) div xs:float('INF') }" />
     <xs:element name="div21" type="xs:double" dfdl:inputValueCalc="{ 90.0 div 1234567.0 }" />
+    <xs:element name="div22" type="xs:double" dfdl:inputValueCalc="{ 90.0 / 1234567.0 }" />
 
     <xs:element name="idiv01" type="xs:int" dfdl:inputValueCalc="{ xs:double(5) idiv xs:double(2) }" />
     <xs:element name="idiv02" type="xs:int" dfdl:inputValueCalc="{ xs:float(5) idiv xs:float(2) }" />
@@ -7184,6 +7185,12 @@
     <tdml:infoset><tdml:dfdlInfoset><div21>7.290005321703885E-5</div21></tdml:dfdlInfoset></tdml:infoset>
   </tdml:parserTestCase>
 
+  <tdml:parserTestCase name="div22" root="div22" model="XPathDiv" description="Section 23 - DFDL Expressions - div">
+    <tdml:document></tdml:document>
+    <tdml:errors>
+      <tdml:error>use 'div'?</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
 
   <tdml:parserTestCase name="idiv01" root="idiv01" model="XPathDiv" description="Section 23 - DFDL Expressions - idiv">
     <tdml:document></tdml:document>

@@ -157,7 +157,14 @@ class DFDLPathExpressionParser[T <: AnyRef](qn: NamedQName,
           nextRdr = nextRdr.rest
           i += 1
         }
-        context.SDE("Unable to parse expression. Message: %s\nNext: %s.", msg, nextString.toString())
+        val err_msg = {
+          if (msg.contains('/')) {
+            msg + ", did you mean to use 'div'?"
+          } else {
+            msg
+          }
+        }
+        context.SDE("Unable to parse expression. Message: %s\nNext: %s.", err_msg, nextString.toString())
       }
     }
   }
