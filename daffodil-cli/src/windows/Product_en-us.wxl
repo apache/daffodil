@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<WixLocalization Culture="en-us" Codepage="1252" xmlns="http://schemas.microsoft.com/wix/2006/localization">
+   <String Id="Language">1033</String>         <!-- Supported language and codepage codes can be found here: http://www.tramontana.co.hu/wix/lesson2.php#2.4 -->
+ 
+   <String Id="ApplicationName">Daffodil</String>
+   <String Id="ManufacturerName">Apache</String>
+   
+   <!-- SBT Native Packager plug-in uses 'ManufacturerFullName' instead of 'ManufacturerName'. -->
+   <!-- This doesn't matter most places, but in the directory structure we have to be short and have no spaces. -->
+   <String Id="ManufacturerFullName">Apache</String>
+   
+   <!-- SBT Native Packager plug-in uses 'ProductDescription' as the title on the installer window. -->
+   <String Id="ProductDescription">Daffodil Installer</String>
+   
+   <!-- SBT Native Packager plug-in does not support comments, so this next line is ignored. -->
+   <String Id="Comments">Installs Daffodil</String>
+ 
+   <!-- Set up the Notice dialog. -->
+   <String Id="DisclaimerDlg_Title" Overridable="yes">Daffodil Setup</String>
+   <String Id="DisclaimerDlg_TitleBold" Overridable="yes">{\WixUI_Font_Title}Apache Incubator Disclaimer</String>
+   <String Id="DisclaimerDlgDescription" Overridable="yes">Please read this Disclaimer, then click the 'Next' button</String>
+   <String Id="DisclaimerText" Overridable="yes">{\WixUI_Font_Bigger}Apache Daffodil is an effort undergoing incubation at The Apache Software Foundation (ASF), sponsored by the Apache Incubator PMC. Incubation is required of all newly accepted projects until a further review indicates that the infrastructure, communications, and decision making process have stabilized in a manner consistent with other successful ASF projects. While incubation status is not necessarily a reflection of the completeness or stability of the code, it does indicate that the project has yet to be fully endorsed by the ASF.</String>
+   
+   <!-- Set up the License Agreement dialog. -->
+   <String Id="LicenseAgreementDlg_Title" Overridable="yes">Daffodil Setup</String>
+   <String Id="LicenseAgreementDlg_TitleBold" Overridable="yes">{\WixUI_Font_Title}Apache Daffodil License</String>   
+   <String Id="LicenseAgreementDlgDescription" Overridable="yes">Please read this License, click the 'I accept' checkbox and then click the 'Next' button.</String>
+
+   <!-- This string is displayed when the user tries to install on a platform that is too old. --> 
+   <String Id="OS2Old">This product requires at least Windows 95 / Windows NT 4.0 Server.</String>
+   
+   <String Id="FeatureCompleteDescription">Daffodil</String>
+   <String Id="FeatureMainProgramDescription">The Daffodil product with all dependencies.</String>
+   <String Id="FeatureMainProgramTitle">Daffodil Installer</String>
+
+</WixLocalization>
