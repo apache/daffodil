@@ -41,6 +41,8 @@ class IBMTestsThatPass {
   @Test def test_alignment_bytes_12_03() { runner1.runOneTest("alignment_bytes_12_03") }
   @Test def test_alignment_bytes_12_06() { runner1.runOneTest("alignment_bytes_12_06") }
 
+  // These 2 tests don't work on IBM due to the separator and terminator being the same character
+  // see DAFFODIL-2018
   @Test def test_length_delimited_12_01() { runner1.runOneTest("length_delimited_12_01") }
   @Test def test_length_delimited_12_04() { runner1.runOneTest("length_delimited_12_04") }
 
