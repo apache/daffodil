@@ -86,9 +86,9 @@ object NodeInfoUtils {
       case Decimal => Decimal
       case Integer => Decimal
       case Double => Double
-      case Long => Double
+      case Long => Decimal
       case Float => Float
-      case Int => Float
+      case Int => Decimal
       case ArrayIndex => ArrayIndex
       case _ => Assert.usageError("Unsupported return type: %s".format(resultType))
     }

@@ -94,6 +94,9 @@ class TestDFDLExpressions2 {
   @Test def test_div19 { runner.runOneTest("div19") }
   @Test def test_div20 { runner.runOneTest("div20") }
   @Test def test_div21 { runner.runOneTest("div21") }
+  @Test def test_div22 { runner.runOneTest("div22") }
+  @Test def test_div23 { runner.runOneTest("div23") }
+  @Test def test_div24 { runner.runOneTest("div24") }
 
   @Test def test_idiv01 { runner.runOneTest("idiv01") }
   @Test def test_idiv02 { runner.runOneTest("idiv02") }
