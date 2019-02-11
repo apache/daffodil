@@ -54,6 +54,7 @@ class TestSequenceGroups {
   @Test def test_delimitedByNextInitFail() { runner_01.runOneTest("delimitedByNextInitFail") }
 
   //  @Test def test_emptySequenceSDE() { runner_02.runOneTest("emptySequenceSDE") }
+  @Test def test_NadaParser() { runner_02.runOneTest("nadaParser") }
   @Test def test_complexEmptyContent() { runner_02.runOneTest("complexEmptyContent") }
   @Test def test_noContentComplexSDE() { runner_02.runOneTest("noContentComplexSDE") }
   @Test def test_noContentAnnotatedComplexSDE() { runner_02.runOneTest("noContentAnnotatedComplexSDE") }
