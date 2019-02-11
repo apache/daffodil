@@ -120,11 +120,14 @@ class SpecifiedLengthExplicit(e: ElementBase, eGram: => Gram, bitsMultiplier: In
 
   lazy val kind = "Explicit_" + e.lengthUnits.toString
 
-  lazy val parser: Parser = new SpecifiedLengthExplicitParser(
-    eParser,
-    e.elementRuntimeData,
-    e.lengthEv,
-    bitsMultiplier)
+  lazy val parser: Parser = {
+    if (eParser.isEmpty) eParser
+    else new SpecifiedLengthExplicitParser(
+      eParser,
+      e.elementRuntimeData,
+      e.lengthEv,
+      bitsMultiplier)
+  }
 
 }
 

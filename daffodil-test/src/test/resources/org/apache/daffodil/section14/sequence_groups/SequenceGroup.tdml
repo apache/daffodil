@@ -117,6 +117,45 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
+  <tdml:defineSchema name="NadaParser.dfdl.xsd">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" />
+    <xs:element name="test">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="count" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1" />
+          <xs:element name="record" dfdl:lengthKind="explicit" dfdl:length="0" maxOccurs="unbounded"
+            dfdl:occursCountKind="expression" dfdl:occursCount="{ ../ex:count }">
+            <xs:complexType>
+              <xs:sequence>
+              <!--
+                <xs:element name="value1" dfdl:lengthKind="explicit" dfdl:length="1" type="xs:string" />
+                <xs:element name="value2" dfdl:lengthKind="explicit" dfdl:length="1" type="xs:string" />
+              -->
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="nadaParser" root="test"
+    model="NadaParser.dfdl.xsd" description="Tests to make sure that the NadaParser generated in SpecifiedLengthExplicit is optimized out"
+    roundTrip="false">
+    <tdml:document>
+      <tdml:documentPart type="text">1,</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <test>
+          <count>1</count>
+          <record/>
+        </test>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
    <tdml:defineSchema name="SequenceGroup-Embedded.dfdl.xsd">
      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
      <dfdl:format ref="ex:GeneralFormat" lengthUnits="bytes"
