@@ -139,6 +139,7 @@ wixProductUpgradeId := "4C966AFF-585E-4E17-8CC2-059FD70FEC77"
 // specific XML to enable this, the WiX compiler and linker
 // complain about it unless you specifically suppress the warning.
 lightOptions := Seq(
+	"-sval", // validation does not currently work under Wine, this disables that
 	"-sice:ICE61",
 	"-ext", "WixUIExtension",
 	"-cultures:en-us",
@@ -161,11 +162,12 @@ wixProductLicense := {
 
   val licenseLines = scala.io.Source.fromFile(sourceLicense, "UTF-8").getLines
   val writer = new java.io.PrintWriter(targetLicense, "UTF-8")
-  writer.println(rtfHeader)
+  // windows style line endings in the license are required by the WiX toolkit
+  writer.write(rtfHeader + "\r\n")
   licenseLines.foreach { line =>
-    writer.println(line + """\line""")
+    writer.write(line + """\line""" + "\r\n")
   }
-  writer.println(rtfFooter)
+  writer.write(rtfFooter + "\r\n")
   writer.close
   Option(targetLicense)
 }

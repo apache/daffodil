@@ -18,6 +18,9 @@
 set -e
 
 command -v rpmbuild &> /dev/null || { echo -e "\n!!! rpmbuild command required !!!\n"; exit; }
+command -v wine &> /dev/null || { echo -e "\n!!! wine command required, please set up the environment for WiX !!!\n"; exit; }
+command -v $WIX/\\bin\\candle.exe &> /dev/null || { echo -e "\n!!! WiX environment not set up correctly, missing candle.exe !!!\n"; exit; }
+command -v $WIX/\\bin\\light.exe &> /dev/null || { echo -e "\n!!! WiX environment not set up correctly, missing light.exe !!!\n"; exit; }
 
 if [ -n "$(git status --porcelain)" ]; then { echo -e "\n!!! Repository is not clean. Commit changes or clean repo before building release !!!\n"; git status; exit; } fi
 
@@ -32,12 +35,12 @@ DAFFODIL_DIST_ROOT="$APACHE_DIST/dev/incubator/daffodil/"
 DAFFODIL_RELEASE_DIR=$DAFFODIL_DIST_ROOT/$VERSION-$PRE_RELEASE
 if [ ! -d "$DAFFODIL_DIST_ROOT" ]; then echo -e "\n!!! Daffodil release root directory does not exist: $DAFFODIL_DIST_ROOT !!!\n"; exit; fi
 if [ -d "$DAFFODIL_RELEASE_DIR" ]; then
-    read -p "\nOutput directory already exists: '$DAFFODIL_RELEASE_DIR'. Remove it? (Y/n)" REMOVE
-    if [[ -z "$REMOVE" || "$REMOVE" == "Y" ]]; then
-	rm -rf "$DAFFODIL_RELEASE_DIR"
+    read -p "Output directory already exists: '$DAFFODIL_RELEASE_DIR'. Remove it? (Y/n) " REMOVE
+    if [[ -z "$REMOVE" || "$REMOVE" == "Y" || "$REMOVE" == "y" ]]; then
+        rm -rf "$DAFFODIL_RELEASE_DIR"
     else
-	echo "Exiting."
-	exit;
+        echo "Exiting."
+        exit
     fi
 fi    
 
@@ -45,12 +48,12 @@ read -e -p "Path to Apache Daffodil site directory: " DAFFODIL_SITE_DIR
 DAFFODIL_DOCS_DIR=$DAFFODIL_SITE_DIR/site/docs/$VERSION/
 if [ ! -d "$DAFFODIL_SITE_DIR" ]; then echo -e "\n!!! Daffodil site directory does not exist: $DAFFODIL_SITE_DIR !!!\n";  exit; fi
 if [ -d "$DAFFODIL_DOCS_DIR" ]; then
-    read -p "\nDaffodil site doc version directory already exists: '$DAFFODIL_DOCS_DIR'. Remove it? (Y/n)" REMOVE
-    if [[ -z "$REMOVE" || "$REMOVE" == "Y" ]]; then
-	rm -rf "$DAFFODIL_DOCS_DIR";
+    read -p "Daffodil site doc version directory already exists: '$DAFFODIL_DOCS_DIR'. Remove it? (Y/n) " REMOVE
+    if [[ -z "$REMOVE" || "$REMOVE" == "Y" || "$REMOVE" == "y" ]]; then
+        rm -rf "$DAFFODIL_DOCS_DIR"
     else
-	echo "Exiting."
-	exit;
+        echo "Exiting."
+        exit
     fi
 fi
 
@@ -81,6 +84,7 @@ sbt \
   "+compile" \
   "+publishSigned" \
   "daffodil-cli/rpm:packageBin" \
+  "daffodil-cli/windows:packageBin" \
   "daffodil-cli/universal:packageBin" \
   "daffodil-cli/universal:packageZipTarball" \
   "daffodil-japi/genjavadoc:doc" \
@@ -89,6 +93,9 @@ sbt \
 cp daffodil-cli/target/universal/apache-daffodil-*.tgz $DAFFODIL_RELEASE_DIR/bin/
 cp daffodil-cli/target/universal/apache-daffodil-*.zip $DAFFODIL_RELEASE_DIR/bin/
 cp daffodil-cli/target/rpm/RPMS/noarch/apache-daffodil-*.rpm $DAFFODIL_RELEASE_DIR/bin/
+MSI_NAME=$(basename $DAFFODIL_RELEASE_DIR/bin/*.zip .zip).msi
+cp daffodil-cli/target/windows/Daffodil.msi $DAFFODIL_RELEASE_DIR/bin/$MSI_NAME
+chmod -x $DAFFODIL_RELEASE_DIR/bin/$MSI_NAME
 
 cp -R daffodil-japi/target/scala-2.12/genjavadoc-api/* $DAFFODIL_DOCS_DIR/javadoc/
 cp -R daffodil-sapi/target/scala-2.12/api/* $DAFFODIL_DOCS_DIR/scaladoc/
