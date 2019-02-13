@@ -65,7 +65,6 @@ lazy val sapi             = Project("daffodil-sapi", file("daffodil-sapi")).conf
 lazy val tdmlLib             = Project("daffodil-tdml-lib", file("daffodil-tdml-lib")).configs(IntegrationTest, TestDebug, IntegrationTestDebug)
                               .dependsOn(macroLib % "compile-internal", lib, io, io % "test->test")
                               .settings(commonSettings)
-                              .settings(libraryDependencies += Dependencies.junit)
 
 lazy val tdmlProc         = Project("daffodil-tdml-processor", file("daffodil-tdml-processor")).configs(IntegrationTest, TestDebug, IntegrationTestDebug)
                               .dependsOn(tdmlLib, core)
