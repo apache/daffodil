@@ -664,6 +664,31 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
     optDefinedConfig
   }
 
+  // Throws an exception marking a test as not compatible based on what classes
+  // are on the classpath. If Junit is on the classpath, assume we are in a
+  // Junit test and throw the AssumptionViolatedException to mark a test as
+  // skipped rather than failed. Otherwise, if Junit is not on the classpath
+  // just throw a standard "not compatible" exception and let the caller figure
+  // out the right way to handle it.
+  private def testNotCompatible(testName: String, implementationName: Option[String]) = {
+    import scala.language.reflectiveCalls
+    import scala.language.existentials
+
+    val tdmlException = new TDMLTestNotCompatibleException(testName, implementationName)
+
+    val junitExceptionClassName = "org.junit.AssumptionViolatedException"
+    val junitExceptionClass = Try(Class.forName(junitExceptionClassName))
+    val junitExceptionConstructor = junitExceptionClass.map {
+      _.getDeclaredConstructor(classOf[String], classOf[Throwable])
+    }
+    val junitExceptionInstance = junitExceptionConstructor.map {
+      _.newInstance(tdmlException.getMessage, tdmlException).asInstanceOf[Exception]
+    }
+
+    val exceptionToThrow = junitExceptionInstance.getOrElse(tdmlException)
+    throw exceptionToThrow
+  }
+
   def run(schemaArg: Option[Node] = None): Unit = {
     val suppliedSchema = getSuppliedSchema(schemaArg)
 
@@ -701,13 +726,8 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
     val istrings = implementationStrings
     val useThisImpl = istrings.contains(implName)
     if (!useThisImpl) {
-      //
-      // skip the test
-      //
-      // JUnit framework will mark as skipped (and count them) tests that throw this.
-      // But it is not considered a failure.
-      //
-      throw new TDMLTestNotCompatibleException(this.tcName, implString)
+      // throws an exception marking a test as not compatible
+      testNotCompatible(this.tcName, implString)
     } else {
       // run the test.
 

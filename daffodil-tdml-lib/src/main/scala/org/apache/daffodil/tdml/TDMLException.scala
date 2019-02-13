@@ -19,7 +19,6 @@ package org.apache.daffodil.tdml
 
 import org.apache.daffodil.api.Diagnostic
 import org.apache.daffodil.util.Maybe
-import org.junit.AssumptionViolatedException
 import org.apache.daffodil.util.Misc
 
 object TDMLException {
@@ -87,14 +86,10 @@ class TDMLDiagnostic(diag: String, implementation: Option[String])
 }
 
 /**
- * Causes a Junit test to be skipped, but otherwise is a TDMLException like
- * others thrown by the TDML runner.
+ * Used to determine when a test will not be run due to not being compatible
+ * with the implementation. Useful since this isn't necessarily a failure and
+ * may want to be treated differently in some cases.
  */
 class TDMLTestNotCompatibleException(testName: String, override val implementation: Option[String])
-  extends AssumptionViolatedException(
-    implementation.map { impl =>
-      "Test '%s' not compatible with implementation '%s'.".format(testName, impl)
-    }.get) with TDMLException {
-  override def msg = getMessage()
-  override def causes: Seq[Throwable] = Nil
+  extends TDMLExceptionImpl("Test '%s' not compatible with implementation.".format(testName), implementation) {
 }
