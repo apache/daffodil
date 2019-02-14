@@ -7022,7 +7022,7 @@
 
 
 
-  <tdml:defineSchema name="XPathDiv">
+  <tdml:defineSchema name="XPathMath">
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat"/>
 
@@ -7072,128 +7072,129 @@
     <xs:element name="idiv19" type="xs:int" dfdl:inputValueCalc="{ xs:double(5) idiv xs:double('INF') }" />
     <xs:element name="idiv20" type="xs:int" dfdl:inputValueCalc="{ xs:float(5) idiv xs:float('INF') }" />
 
+    <xs:element name="add01" type="xs:int" dfdl:inputValueCalc="{ xs:unsignedInt(5) + (-1) }" />
   </tdml:defineSchema>
 
-  <tdml:parserTestCase name="div01" root="div01" model="XPathDiv" description="Section 23 - DFDL Expressions - div">
+  <tdml:parserTestCase name="div01" root="div01" model="XPathMath" description="Section 23 - DFDL Expressions - div">
     <tdml:document></tdml:document>
     <tdml:infoset><tdml:dfdlInfoset><div01>2.5</div01></tdml:dfdlInfoset></tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="div02" root="div02" model="XPathDiv" description="Section 23 - DFDL Expressions - div">
+  <tdml:parserTestCase name="div02" root="div02" model="XPathMath" description="Section 23 - DFDL Expressions - div">
     <tdml:document></tdml:document>
     <tdml:infoset><tdml:dfdlInfoset><div02>2.5</div02></tdml:dfdlInfoset></tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="div03" root="div03" model="XPathDiv" description="Section 23 - DFDL Expressions - div">
+  <tdml:parserTestCase name="div03" root="div03" model="XPathMath" description="Section 23 - DFDL Expressions - div">
     <tdml:document></tdml:document>
     <tdml:infoset><tdml:dfdlInfoset><div03>2.5</div03></tdml:dfdlInfoset></tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="div04" root="div04" model="XPathDiv" description="Section 23 - DFDL Expressions - div">
+  <tdml:parserTestCase name="div04" root="div04" model="XPathMath" description="Section 23 - DFDL Expressions - div">
     <tdml:document></tdml:document>
     <tdml:infoset><tdml:dfdlInfoset><div04>2.5</div04></tdml:dfdlInfoset></tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="div05" root="div05" model="XPathDiv" description="Section 23 - DFDL Expressions - div">
+  <tdml:parserTestCase name="div05" root="div05" model="XPathMath" description="Section 23 - DFDL Expressions - div">
     <tdml:document></tdml:document>
     <tdml:infoset><tdml:dfdlInfoset><div05>2.5</div05></tdml:dfdlInfoset></tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="div06" root="div06" model="XPathDiv" description="Section 23 - DFDL Expressions - div">
+  <tdml:parserTestCase name="div06" root="div06" model="XPathMath" description="Section 23 - DFDL Expressions - div">
     <tdml:document></tdml:document>
     <tdml:infoset><tdml:dfdlInfoset><div06>2.5</div06></tdml:dfdlInfoset></tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="div07" root="div07" model="XPathDiv" description="Section 23 - DFDL Expressions - div">
+  <tdml:parserTestCase name="div07" root="div07" model="XPathMath" description="Section 23 - DFDL Expressions - div">
     <tdml:document></tdml:document>
     <tdml:infoset><tdml:dfdlInfoset><div07>INF</div07></tdml:dfdlInfoset></tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="div08" root="div08" model="XPathDiv" description="Section 23 - DFDL Expressions - div">
+  <tdml:parserTestCase name="div08" root="div08" model="XPathMath" description="Section 23 - DFDL Expressions - div">
     <tdml:document></tdml:document>
     <tdml:infoset><tdml:dfdlInfoset><div08>INF</div08></tdml:dfdlInfoset></tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="div09" root="div09" model="XPathDiv" description="Section 23 - DFDL Expressions - div">
+  <tdml:parserTestCase name="div09" root="div09" model="XPathMath" description="Section 23 - DFDL Expressions - div">
     <tdml:document></tdml:document>
     <tdml:errors>
       <tdml:error>by zero</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="div10" root="div10" model="XPathDiv" description="Section 23 - DFDL Expressions - div">
+  <tdml:parserTestCase name="div10" root="div10" model="XPathMath" description="Section 23 - DFDL Expressions - div">
     <tdml:document></tdml:document>
     <tdml:errors>
       <tdml:error>by zero</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="div11" root="div11" model="XPathDiv" description="Section 23 - DFDL Expressions - div">
+  <tdml:parserTestCase name="div11" root="div11" model="XPathMath" description="Section 23 - DFDL Expressions - div">
     <tdml:document></tdml:document>
     <tdml:errors>
       <tdml:error>by zero</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="div12" root="div12" model="XPathDiv" description="Section 23 - DFDL Expressions - div">
+  <tdml:parserTestCase name="div12" root="div12" model="XPathMath" description="Section 23 - DFDL Expressions - div">
     <tdml:document></tdml:document>
     <tdml:errors>
       <tdml:error>by zero</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="div13" root="div13" model="XPathDiv" description="Section 23 - DFDL Expressions - div">
+  <tdml:parserTestCase name="div13" root="div13" model="XPathMath" description="Section 23 - DFDL Expressions - div">
     <tdml:document></tdml:document>
     <tdml:infoset><tdml:dfdlInfoset><div13>INF</div13></tdml:dfdlInfoset></tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="div14" root="div14" model="XPathDiv" description="Section 23 - DFDL Expressions - div">
+  <tdml:parserTestCase name="div14" root="div14" model="XPathMath" description="Section 23 - DFDL Expressions - div">
     <tdml:document></tdml:document>
     <tdml:infoset><tdml:dfdlInfoset><div14>INF</div14></tdml:dfdlInfoset></tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="div15" root="div15" model="XPathDiv" description="Section 23 - DFDL Expressions - div">
+  <tdml:parserTestCase name="div15" root="div15" model="XPathMath" description="Section 23 - DFDL Expressions - div">
     <tdml:document></tdml:document>
     <tdml:infoset><tdml:dfdlInfoset><div15>NaN</div15></tdml:dfdlInfoset></tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="div16" root="div16" model="XPathDiv" description="Section 23 - DFDL Expressions - div">
+  <tdml:parserTestCase name="div16" root="div16" model="XPathMath" description="Section 23 - DFDL Expressions - div">
     <tdml:document></tdml:document>
     <tdml:infoset><tdml:dfdlInfoset><div16>NaN</div16></tdml:dfdlInfoset></tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="div17" root="div17" model="XPathDiv" description="Section 23 - DFDL Expressions - div">
+  <tdml:parserTestCase name="div17" root="div17" model="XPathMath" description="Section 23 - DFDL Expressions - div">
     <tdml:document></tdml:document>
     <tdml:infoset><tdml:dfdlInfoset><div17>NaN</div17></tdml:dfdlInfoset></tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="div18" root="div18" model="XPathDiv" description="Section 23 - DFDL Expressions - div">
+  <tdml:parserTestCase name="div18" root="div18" model="XPathMath" description="Section 23 - DFDL Expressions - div">
     <tdml:document></tdml:document>
     <tdml:infoset><tdml:dfdlInfoset><div18>NaN</div18></tdml:dfdlInfoset></tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="div19" root="div19" model="XPathDiv" description="Section 23 - DFDL Expressions - div">
+  <tdml:parserTestCase name="div19" root="div19" model="XPathMath" description="Section 23 - DFDL Expressions - div">
     <tdml:document></tdml:document>
     <tdml:infoset><tdml:dfdlInfoset><div19>0.0</div19></tdml:dfdlInfoset></tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="div20" root="div20" model="XPathDiv" description="Section 23 - DFDL Expressions - div">
+  <tdml:parserTestCase name="div20" root="div20" model="XPathMath" description="Section 23 - DFDL Expressions - div">
     <tdml:document></tdml:document>
     <tdml:infoset><tdml:dfdlInfoset><div20>0.0</div20></tdml:dfdlInfoset></tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="div21" root="div21" model="XPathDiv" description="Section 23 - DFDL Expressions - div">
+  <tdml:parserTestCase name="div21" root="div21" model="XPathMath" description="Section 23 - DFDL Expressions - div">
     <tdml:document></tdml:document>
     <tdml:infoset><tdml:dfdlInfoset><div21>7.290005321703885E-5</div21></tdml:dfdlInfoset></tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="div22" root="div22" model="XPathDiv" description="Section 23 - DFDL Expressions - div"
+  <tdml:parserTestCase name="div22" root="div22" model="XPathMath" description="Section 23 - DFDL Expressions - div"
     config="cfg_errorOnResultCoercion">
     <tdml:document></tdml:document>
     <tdml:infoset><tdml:dfdlInfoset><div22>0.028125</div22></tdml:dfdlInfoset></tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="div23" root="div23" model="XPathDiv" description="Section 23 - DFDL Expressions - div"
+  <tdml:parserTestCase name="div23" root="div23" model="XPathMath" description="Section 23 - DFDL Expressions - div"
     config="cfg_errorOnResultCoercion">
     <tdml:document></tdml:document>
       <tdml:errors>
@@ -7204,7 +7205,7 @@
       </tdml:errors>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="div24" root="div24" model="XPathDiv" description="Section 23 - DFDL Expressions - div"
+  <tdml:parserTestCase name="div24" root="div24" model="XPathMath" description="Section 23 - DFDL Expressions - div"
     config="cfg_errorOnResultCoercion">
     <tdml:document></tdml:document>
       <tdml:errors>
@@ -7215,79 +7216,79 @@
       </tdml:errors>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="idiv01" root="idiv01" model="XPathDiv" description="Section 23 - DFDL Expressions - idiv">
+  <tdml:parserTestCase name="idiv01" root="idiv01" model="XPathMath" description="Section 23 - DFDL Expressions - idiv">
     <tdml:document></tdml:document>
     <tdml:infoset><tdml:dfdlInfoset><idiv01>2</idiv01></tdml:dfdlInfoset></tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="idiv02" root="idiv02" model="XPathDiv" description="Section 23 - DFDL Expressions - idiv">
+  <tdml:parserTestCase name="idiv02" root="idiv02" model="XPathMath" description="Section 23 - DFDL Expressions - idiv">
     <tdml:document></tdml:document>
     <tdml:infoset><tdml:dfdlInfoset><idiv02>2</idiv02></tdml:dfdlInfoset></tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="idiv03" root="idiv03" model="XPathDiv" description="Section 23 - DFDL Expressions - idiv">
+  <tdml:parserTestCase name="idiv03" root="idiv03" model="XPathMath" description="Section 23 - DFDL Expressions - idiv">
     <tdml:document></tdml:document>
     <tdml:infoset><tdml:dfdlInfoset><idiv03>2</idiv03></tdml:dfdlInfoset></tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="idiv04" root="idiv04" model="XPathDiv" description="Section 23 - DFDL Expressions - idiv">
+  <tdml:parserTestCase name="idiv04" root="idiv04" model="XPathMath" description="Section 23 - DFDL Expressions - idiv">
     <tdml:document></tdml:document>
     <tdml:infoset><tdml:dfdlInfoset><idiv04>2</idiv04></tdml:dfdlInfoset></tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="idiv05" root="idiv05" model="XPathDiv" description="Section 23 - DFDL Expressions - idiv">
+  <tdml:parserTestCase name="idiv05" root="idiv05" model="XPathMath" description="Section 23 - DFDL Expressions - idiv">
     <tdml:document></tdml:document>
     <tdml:infoset><tdml:dfdlInfoset><idiv05>2</idiv05></tdml:dfdlInfoset></tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="idiv06" root="idiv06" model="XPathDiv" description="Section 23 - DFDL Expressions - idiv">
+  <tdml:parserTestCase name="idiv06" root="idiv06" model="XPathMath" description="Section 23 - DFDL Expressions - idiv">
     <tdml:document></tdml:document>
     <tdml:infoset><tdml:dfdlInfoset><idiv06>2</idiv06></tdml:dfdlInfoset></tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="idiv07" root="idiv07" model="XPathDiv" description="Section 23 - DFDL Expressions - idiv">
+  <tdml:parserTestCase name="idiv07" root="idiv07" model="XPathMath" description="Section 23 - DFDL Expressions - idiv">
     <tdml:document></tdml:document>
     <tdml:errors>
       <tdml:error>by zero</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="idiv08" root="idiv08" model="XPathDiv" description="Section 23 - DFDL Expressions - idiv">
+  <tdml:parserTestCase name="idiv08" root="idiv08" model="XPathMath" description="Section 23 - DFDL Expressions - idiv">
     <tdml:document></tdml:document>
     <tdml:errors>
       <tdml:error>by zero</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="idiv09" root="idiv09" model="XPathDiv" description="Section 23 - DFDL Expressions - idiv">
+  <tdml:parserTestCase name="idiv09" root="idiv09" model="XPathMath" description="Section 23 - DFDL Expressions - idiv">
     <tdml:document></tdml:document>
     <tdml:errors>
       <tdml:error>by zero</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="idiv10" root="idiv10" model="XPathDiv" description="Section 23 - DFDL Expressions - idiv">
+  <tdml:parserTestCase name="idiv10" root="idiv10" model="XPathMath" description="Section 23 - DFDL Expressions - idiv">
     <tdml:document></tdml:document>
     <tdml:errors>
       <tdml:error>by zero</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="idiv11" root="idiv11" model="XPathDiv" description="Section 23 - DFDL Expressions - idiv">
+  <tdml:parserTestCase name="idiv11" root="idiv11" model="XPathMath" description="Section 23 - DFDL Expressions - idiv">
     <tdml:document></tdml:document>
     <tdml:errors>
       <tdml:error>by zero</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="idiv12" root="idiv12" model="XPathDiv" description="Section 23 - DFDL Expressions - idiv">
+  <tdml:parserTestCase name="idiv12" root="idiv12" model="XPathMath" description="Section 23 - DFDL Expressions - idiv">
     <tdml:document></tdml:document>
     <tdml:errors>
       <tdml:error>by zero</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="idiv13" root="idiv13" model="XPathDiv" description="Section 23 - DFDL Expressions - idiv">
+  <tdml:parserTestCase name="idiv13" root="idiv13" model="XPathMath" description="Section 23 - DFDL Expressions - idiv">
     <tdml:document></tdml:document>
     <tdml:errors>
       <tdml:error>integer division</tdml:error>
@@ -7295,7 +7296,7 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="idiv14" root="idiv14" model="XPathDiv" description="Section 23 - DFDL Expressions - idiv">
+  <tdml:parserTestCase name="idiv14" root="idiv14" model="XPathMath" description="Section 23 - DFDL Expressions - idiv">
     <tdml:document></tdml:document>
     <tdml:errors>
       <tdml:error>integer division</tdml:error>
@@ -7303,7 +7304,7 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="idiv15" root="idiv15" model="XPathDiv" description="Section 23 - DFDL Expressions - idiv">
+  <tdml:parserTestCase name="idiv15" root="idiv15" model="XPathMath" description="Section 23 - DFDL Expressions - idiv">
     <tdml:document></tdml:document>
     <tdml:errors>
       <tdml:error>integer division</tdml:error>
@@ -7311,7 +7312,7 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="idiv16" root="idiv16" model="XPathDiv" description="Section 23 - DFDL Expressions - idiv">
+  <tdml:parserTestCase name="idiv16" root="idiv16" model="XPathMath" description="Section 23 - DFDL Expressions - idiv">
     <tdml:document></tdml:document>
     <tdml:errors>
       <tdml:error>integer division</tdml:error>
@@ -7319,7 +7320,7 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="idiv17" root="idiv17" model="XPathDiv" description="Section 23 - DFDL Expressions - idiv">
+  <tdml:parserTestCase name="idiv17" root="idiv17" model="XPathMath" description="Section 23 - DFDL Expressions - idiv">
     <tdml:document></tdml:document>
     <tdml:errors>
       <tdml:error>integer division</tdml:error>
@@ -7327,7 +7328,7 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="idiv18" root="idiv18" model="XPathDiv" description="Section 23 - DFDL Expressions - idiv">
+  <tdml:parserTestCase name="idiv18" root="idiv18" model="XPathMath" description="Section 23 - DFDL Expressions - idiv">
     <tdml:document></tdml:document>
     <tdml:errors>
       <tdml:error>integer division</tdml:error>
@@ -7335,15 +7336,19 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="idiv19" root="idiv19" model="XPathDiv" description="Section 23 - DFDL Expressions - div">
+  <tdml:parserTestCase name="idiv19" root="idiv19" model="XPathMath" description="Section 23 - DFDL Expressions - div">
     <tdml:document></tdml:document>
     <tdml:infoset><tdml:dfdlInfoset><idiv19>0</idiv19></tdml:dfdlInfoset></tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="idiv20" root="idiv20" model="XPathDiv" description="Section 23 - DFDL Expressions - div">
+  <tdml:parserTestCase name="idiv20" root="idiv20" model="XPathMath" description="Section 23 - DFDL Expressions - div">
     <tdml:document></tdml:document>
     <tdml:infoset><tdml:dfdlInfoset><idiv20>0</idiv20></tdml:dfdlInfoset></tdml:infoset>
   </tdml:parserTestCase>
 
+  <tdml:parserTestCase name="add01" root="add01" model="XPathMath" description="Section 23 - DFDL Expressions - div">
+    <tdml:document></tdml:document>
+    <tdml:infoset><tdml:dfdlInfoset><add01>4</add01></tdml:dfdlInfoset></tdml:infoset>
+  </tdml:parserTestCase>
 
 </tdml:testSuite>
