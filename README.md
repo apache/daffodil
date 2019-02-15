@@ -74,6 +74,16 @@ This following command generates an [Apache RAT](https://creadur.apache.org/rat/
 $ sbt ratCheck
 ```
 
+### Test Coverage Report
+
+This follow commands generate an [sbt-scoverage](https://github.com/scoverage/sbt-scoverage) test coverage report that will be located in ``target/scala-ver/scoverage-report/``.
+
+```bash
+$ sbt clean coverage test it:test
+$ sbt coverageReport
+$ sbt coverageAggregate
+```
+
 ## Getting Help
 
 For questions, we can be reached at the dev@daffodil.apache.org or user@daffodil.apache.org mailing lists or in #Daffodil on [ASF HipChat](https://www.hipchat.com/gJt9EQs5l). Bugs can be reported via the [Daffodil JIRA](https://issues.apache.org/jira/projects/DAFFODIL).

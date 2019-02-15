@@ -31,11 +31,14 @@ before_script:
   - unset _JAVA_OPTIONS
 script:
   - sbt -J-Xms1g -J-Xmx5g ++$TRAVIS_SCALA_VERSION compile test:compile it:compile debug:compile || travis_terminate 1
-  - sbt -J-Xms1g -J-Xmx5g ++$TRAVIS_SCALA_VERSION test
-  - sbt -J-Xms1g -J-Xmx5g ++$TRAVIS_SCALA_VERSION it:test
+  - sbt -J-Xms1g -J-Xmx5g ++$TRAVIS_SCALA_VERSION coverage test
+  - sbt -J-Xms1g -J-Xmx5g ++$TRAVIS_SCALA_VERSION coverage it:test
   - sbt -J-Xms1g -J-Xmx5g ++$TRAVIS_SCALA_VERSION daffodil-cli/universal:packageBin
   - sbt -J-Xms1g -J-Xmx5g ++$TRAVIS_SCALA_VERSION daffodil-cli/universal:packageZipTarball
   - sbt -J-Xms1g -J-Xmx5g ++$TRAVIS_SCALA_VERSION daffodil-cli/rpm:packageBin
   - sbt -J-Xms1g -J-Xmx5g ++$TRAVIS_SCALA_VERSION daffodil-japi/genjavadoc:doc
   - sbt -J-Xms1g -J-Xmx5g ++$TRAVIS_SCALA_VERSION daffodil-sapi/doc
   - sbt -J-Xms1g -J-Xmx5g ++$TRAVIS_SCALA_VERSION ratCheck
+  - sbt -J-Xms1g -J-Xmx5g ++$TRAVIS_SCALA_VERSION coverageReport
+  - sbt -J-Xms1g -J-Xmx5g ++$TRAVIS_SCALA_VERSION coverageAggregate
+  - bash <(curl -s https://codecov.io/bash)
