@@ -33,7 +33,6 @@ sources in JavaDoc :=
   (sources in Compile).value.filter(_.getName.endsWith(".java"))
 
 javacOptions in JavaDoc := Seq(
-  "-Xdoclint:none",
   "-windowtitle", "Apache Daffodil (incubating) " + version.value + " Java API",
   "-doctitle", "<h1>Apache Daffodil (incubating) " + version.value + " Java API</h1>"
 )
