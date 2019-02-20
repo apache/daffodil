@@ -26,10 +26,12 @@ object TestOutputValueCalc {
 
   val runner = Runner(testDir, "outputValueCalc.tdml")
   val runner2 = Runner(testDir, "outputValueCalc2.tdml")
+  val runner3 = Runner(testDir, "outputValueCalc3.tdml")
 
   @AfterClass def shutdown {
     runner.reset
     runner2.reset
+    runner3.reset
   }
 }
 
@@ -73,4 +75,9 @@ class TestOutputValueCalc {
   @Test def test_errorOneArg() { runner.runOneTest("errorOneArg") }
   @Test def test_errorTwoArg() { runner.runOneTest("errorTwoArg") }
   @Test def test_errorThreeArg() { runner.runOneTest("errorThreeArg") }
+
+  // DAFFODIL-2069
+  // @Test def test_ovcHexBinaryLSBF1() { runner3.runOneTest("rHexBinaryLSBF1") }
+  @Test def test_ovcHexBinaryLSBF2() { runner3.runOneTest("rHexBinaryLSBF2") }
+  @Test def test_ovcStringLSBF1() { runner3.runOneTest("rStringLSBF1") }
 }
