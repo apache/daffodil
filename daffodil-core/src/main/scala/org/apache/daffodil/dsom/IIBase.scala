@@ -132,9 +132,16 @@ abstract class IIBase( final override val xml: Node, xsdArg: XMLSchemaDocument, 
    * An import/include requires only that we can access the
    * schema file, recursively any of its includes/imports,
    * and that all the resulting are validated by the validating loader.
+   *
+   * It is important to point out that this intentionally references
+   * iiSchemaFileMaybe rather than iiSchemaFile because the former only loads a
+   * schema if it hasn't been seen before. If we instead required the
+   * evaluation of iiSchemaFile, it would force loading of schemas that have
+   * already been seen and result in duplicate effort and slower schema
+   * compilation.
    */
-  requiredEvaluations(iiSchemaFile)
-  requiredEvaluations(iiSchemaFile.iiXMLSchemaDocument)
+  requiredEvaluations(iiSchemaFileMaybe)
+  requiredEvaluations(iiSchemaFileMaybe.map(_.iiXMLSchemaDocument))
 
   protected final def notSeenThisBefore = LV('notSeenThisBefore) {
     val mp = mapPair
