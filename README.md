@@ -86,7 +86,7 @@ $ sbt coverageAggregate
 
 ## Getting Help
 
-For questions, we can be reached at the dev@daffodil.apache.org or user@daffodil.apache.org mailing lists or in #Daffodil on [ASF HipChat](https://www.hipchat.com/gJt9EQs5l). Bugs can be reported via the [Daffodil JIRA](https://issues.apache.org/jira/projects/DAFFODIL).
+For questions, we can be reached at the dev@daffodil.apache.org or users@daffodil.apache.org mailing lists. Bugs can be reported via the [Daffodil JIRA](https://issues.apache.org/jira/projects/DAFFODIL).
 
 ## License
 
