@@ -112,17 +112,25 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase)
         (Nope, Nope)
       }
 
+    // If the pattern contains any of these characters, we need to set both
+    // group and decimal separators, even if the pattern doesn't contain the
+    // associated character. This is because even when the pattern does not
+    // contain the grouping/decimal separators, ICU stills seems to take the
+    // separators into account. And since ICU provides defaut values based on
+    // locales, not setting them can cause subtle locale related bugs.
+    val requireDecGroupSeps =
+      patternStripped.contains(",") || patternStripped.contains(".") ||
+      patternStripped.contains("E") || patternStripped.contains("@")
+
     val decSep: Maybe[Evaluatable[List[String]]] =
-      if (!h.isInt && (patternStripped.contains(".") ||
-        patternStripped.contains("E") ||
-        patternStripped.contains("@"))) {
+      if (requireDecGroupSeps) {
         One(e.textStandardDecimalSeparatorEv)
       } else {
         Nope
       }
 
     val groupSep =
-      if (patternStripped.contains(",")) {
+      if (requireDecGroupSeps) {
         One(e.textStandardGroupingSeparatorEv)
       } else {
         Nope

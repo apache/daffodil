@@ -17,13 +17,15 @@
 
 package org.apache.daffodil.util
 
-import junit.framework.Assert._
 import com.ibm.icu.text.DecimalFormat
+import com.ibm.icu.text.DecimalFormatSymbols
 import java.text.ParsePosition
+import junit.framework.Assert._
 import org.junit.Test
-import org.apache.daffodil.Implicits._
 import org.junit.Test
 import scala.math.BigInt.int2bigInt
+
+import org.apache.daffodil.Implicits._
 
 /**
  * Tests that characterize ICU number parsing specifically with respect
@@ -149,7 +151,11 @@ abstract class ConvertTo[S] {
 
   lazy val parser = new NumVerifier[S] {
     def parse(str: String): S = {
+      val dfs = new DecimalFormatSymbols()
+      dfs.setDecimalSeparator('.')
+      dfs.setGroupingSeparator(',')
       val df = new DecimalFormat()
+      df.setDecimalFormatSymbols(dfs)
       val pos = new ParsePosition(0)
       val num = df.parse(str, pos)
       if (num == null) throw new Exception("not a valid representation")

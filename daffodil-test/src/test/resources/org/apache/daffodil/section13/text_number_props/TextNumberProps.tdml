@@ -331,7 +331,7 @@
     <xs:element name="tnp01" type="xs:float" dfdl:textNumberRep="standard" dfdl:textNumberPattern="@@###E0" />
     <xs:element name="tnp02" type="xs:float" dfdl:textNumberRep="standard" dfdl:textNumberPattern="@@@" />
     
-    <xs:element name="tnp03" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberPattern="#,###" />
+    <xs:element name="tnp03" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberPattern="#,###" dfdl:textStandardDecimalSeparator="." />
   
   </tdml:defineSchema>
   

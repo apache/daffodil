@@ -141,6 +141,8 @@ class TestICU {
   @Test def test_empty_exponent_separator = {
     val dfs = new DecimalFormatSymbols()
     dfs.setExponentSeparator("")
+    dfs.setGroupingSeparator(',')
+    dfs.setDecimalSeparator('.')
     val df = new DecimalFormat("##.##E+0", dfs)
     val pp = new ParsePosition(0)
     val num = df.parse("12.34+2", pp)
@@ -148,5 +150,33 @@ class TestICU {
     assertEquals(5, pp.getIndex)
     //assertEquals(1234L, num)
     //assertEquals(7, pp.getIndex)
+  }
+
+  // Shows that even if a decimal format pattern doesn't contain a decimal
+  // point, the decimal format separator from the locale still has an effect
+  // and can cause locale specific behavior
+  @Test def test_local_side_effect = {
+
+    // Germany's locale has a decimal separator of ','
+    val dfs = new DecimalFormatSymbols(java.util.Locale.GERMANY)
+
+    // Set the grouping separator to be the same as the decimal separator from
+    // the locale. ICU never complains
+    dfs.setGroupingSeparator(',')
+
+    // Define a pattern that only has a grouping separator--no decimal separator
+    val df = new DecimalFormat("###,###", dfs)
+
+    // We don't have a decimal point character in the pattern, so one might
+    // expect that only the grouping separator would be used, with a resulting
+    // value of 123456. However, the decimal separator from the locale does
+    // have an effect with ICU, which causes the result to be 123.456. This
+    // shows that it's often important to set both the grouping and decimal
+    // separators, even if the pattern only contains one. Otherwise locale
+    // information might be used when parsing.
+    val pp = new ParsePosition(0)
+    val num = df.parse("123,456", pp)
+    assertEquals(7, pp.getIndex)
+    assertEquals(123.456, num.doubleValue)
   }
 }
