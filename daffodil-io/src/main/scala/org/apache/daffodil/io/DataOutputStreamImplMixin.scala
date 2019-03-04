@@ -757,32 +757,46 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
    * Assumed to be called from inner loops, so should be fast as possible.
    */
   protected final def putLongUnchecked(signedLong: Long, bitLengthFrom1To64: Int, finfo: FormatInfo): Boolean = {
+    // The order we check bitOrder vs byteOrder here is actually very
+    // important, primarily due to how suspensions end up resolved and data
+    // output streams (DOS) collapsed. To explain why:
     //
-    // based on bit and byte order, dispatch to specific code
+    // When we create new a buffered DOS, no byteOrder is really associated
+    // with the DOS, because a DOS is just a series of bytes. To figure out
+    // what bytes to write to the DOS, we use the FormatInfo associated with an
+    // element, call the appropriate function below to convert that element to
+    // bytes, and then write those bytes to the DOS. This works as expected
+    // most of the time.
     //
+    // However, a buffered DOS maintains a fragment byte, and at some point we
+    // collapse that fragment byte into a direct DOS using this function. But
+    // we just said that there not really a byteOrder associated with a DOS,
+    // only with elements. So if we do not know the byteOrder of the fragment
+    // byte of a DOS, how do we know which function below to call when
+    // collapsing a fragment byte?
+    //
+    // Well, we do keep track of the bitOrder, since we need to know if we
+    // change bitOrder not on a byte boundary, and we need to know the bitOrder
+    // when collapsing a fragment byte. And fortunately, byteOrder doesn't
+    // matter because a fragment byte is always less than 8 bits--byteOrder
+    // only makes a difference for lengths greater than 8 bits. So, as long as
+    // we call *some* function below that uses the right bitOrder, then it
+    // doesn't matter what the byteOrder is. So we need to make sure we check
+    // bitOrder and byteOrder below in the correct order so that that if
+    // bitOrer is MSBF we call one of the MBSF functions, and vice versa for
+    // LSBF. Note that for this reason, even if bitOrder is LSBF and byteOrder
+    // is BE, we can still call putLong_LE_LSBFirst function. That's because
+    // the only time that combination can legally occurs is in this edge case
+    // of collapsing a fragment byte, and then byte order doesn't matter.
     val res =
-      if (finfo.byteOrder eq ByteOrder.BigEndian) {
-        //
-        // You would think this invariant would hold
-        //
-        // Assert.invariant(bitOrder eq BitOrder.MostSignificantBitFirst)
-        //
-        // However, when collapsing DOS forward into each other as a part of
-        // evaluating suspensions, we encounter situations where the bitOrder
-        // in the DOS has LSBF, and that was just never modified though the
-        // byte order was modified. We could hammer the bitOrder to MSBF
-        // any time the byte order is set, but that would mask errors where the
-        // user really had the properties conflicting.
-        //
-        putLong_BE_MSBFirst(signedLong, bitLengthFrom1To64)
-      } else {
-        Assert.invariant(finfo.byteOrder eq ByteOrder.LittleEndian)
-        if (finfo.bitOrder eq BitOrder.MostSignificantBitFirst) {
-          putLong_LE_MSBFirst(signedLong, bitLengthFrom1To64)
+      if (finfo.bitOrder eq BitOrder.MostSignificantBitFirst) {
+        if (finfo.byteOrder eq ByteOrder.BigEndian) {
+          putLong_BE_MSBFirst(signedLong, bitLengthFrom1To64)
         } else {
-          Assert.invariant(finfo.bitOrder eq BitOrder.LeastSignificantBitFirst)
-          putLong_LE_LSBFirst(signedLong, bitLengthFrom1To64)
+          putLong_LE_MSBFirst(signedLong, bitLengthFrom1To64)
         }
+      } else {
+        putLong_LE_LSBFirst(signedLong, bitLengthFrom1To64)
       }
 
     if (res) {
