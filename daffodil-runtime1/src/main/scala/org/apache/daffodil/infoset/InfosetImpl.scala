@@ -189,13 +189,8 @@ case class InfosetNoParentException(val diElement: DIElement, val erd: ElementRu
   with InfosetException
 
 sealed abstract class InfosetLengthUnknownException(lengthState: LengthState, kind: String, val diElement: DIElement, val erd: ElementRuntimeData)
-  extends ProcessingError("Expression Evaluation", Nope, Nope, "%s length unknown for element %s.", kind, erd.namedQName)
-  with InfosetException with RetryableException {
-
-  lazy val blockingDOS = lengthState.diagnoseNoLength()
-
-  override def componentText = "BlockingDOS(" + blockingDOS + ")"
-}
+  extends ProcessingError("Expression Evaluation", Nope, Nope, "%s length unknown for element '%s'.", kind, erd.namedQName)
+  with InfosetException with RetryableException
 
 case class InfosetContentLengthUnknownException(lengthState: LengthState, override val diElement: DIElement, override val erd: ElementRuntimeData)
   extends InfosetLengthUnknownException(lengthState, "Content", diElement, erd)
@@ -229,6 +224,8 @@ final class FakeDINode extends DISimple(null) {
 
   override def children = die
 
+  override def contentLength: ContentLengthState = die
+  override def valueLength: ValueLengthState = die
 }
 
 /**
@@ -636,7 +633,7 @@ sealed trait DIElementSharedMembersMixin {
     else _contentLength.clear()
   }
 
-  final def contentLength = {
+  def contentLength = {
     if (_contentLength eq null) {
       _contentLength = allocContentLength
     }
@@ -648,7 +645,7 @@ sealed trait DIElementSharedMembersMixin {
     else _valueLength.clear()
   }
 
-  final def valueLength = {
+  def valueLength = {
     if (_valueLength eq null) {
       _valueLength = allocValueLength
     }
