@@ -446,6 +446,21 @@
       </xs:complexType>
     </xs:element>
 
+    <xs:element name="valueLength13">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="x" dfdl:lengthKind="explicit" dfdl:length="{ 1 }">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="y" type="xs:int" maxOccurs="2" dfdl:occursCountKind="expression"
+                  dfdl:occursCount='{ if(dfdl:valueLength(.., "bits") eq 0) then 1 else 2 }' />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
     <xs:element name="contentLength">
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
@@ -463,6 +478,21 @@
           <xs:element name="str" type="xs:string"  dfdl:lengthKind="delimited" dfdl:textTrimKind="padChar" 
             dfdl:textStringPadCharacter="/" dfdl:textStringJustification="center" />
           <xs:element name="conLen" dfdl:lengthKind="delimited" type="xs:long" dfdl:inputValueCalc="{ dfdl:contentLength( ../ex:str, 'bits' ) }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="contentLength3">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="x" dfdl:lengthKind="explicit" dfdl:length="{ 1 }">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="y" type="xs:int" maxOccurs="2" dfdl:occursCountKind="expression"
+                  dfdl:occursCount='{ if (dfdl:contentLength(.., "bits") eq 0) then 1 else 2 }' />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -3850,6 +3880,26 @@
   </tdml:parserTestCase>
 
 <!--
+    Test Name: valueLength_6
+       Schema: Functions.dfdl.xsd
+         Root: valueLength13
+      Purpose: This test demonstrates the valueLength function throws a SDE when 
+-->
+
+  <tdml:parserTestCase name="valueLength_6" root="valueLength13"
+    model="Functions.dfdl.xsd" description="Section 23 ">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[test]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Runtime Schema Definition Error</tdml:error>
+      <tdml:error>Value length unknown</tdml:error>
+      <tdml:error>{http://example.com}x</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+<!--
     Test Name: valueLength_unparse_0
        Schema: Functions.dfdl.xsd
          Root: valueLength5
@@ -4023,6 +4073,26 @@
         </contentLength2>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: contentLength_2
+       Schema: Functions.dfdl.xsd
+         Root: contentLength3
+      Purpose: This test demonstrates the contentLength function (formerly representationLength).
+-->
+
+  <tdml:parserTestCase name="contentLength_2" root="contentLength3"
+    model="Functions.dfdl.xsd" description="Section 23 " roundTrip="false">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[////test////]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Runtime Schema Definition Error</tdml:error>
+      <tdml:error>Content length unknown</tdml:error>
+      <tdml:error>{http://example.com}x</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
 <!--
