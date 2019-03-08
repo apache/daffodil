@@ -55,13 +55,13 @@ object ExtraEscapedCharactersCooker extends ListOfSingleCharacterLiteralNoCharCl
 
 object FillByteCooker extends SingleCharacterLiteralNoCharClassEntitiesWithByteEntities()
 
-object InitiatorCooker extends DelimiterCooker()
+object InitiatorCooker extends DelimiterCooker("initiator")
 
-object TerminatorCooker extends DelimiterCooker()
+object TerminatorCooker extends DelimiterCooker("terminator")
 
 object TerminatorCookerNoES extends DelimiterCookerNoES("terminator")
 
-object SeparatorCooker extends DelimiterCookerNoES(null)
+object SeparatorCooker extends DelimiterCookerNoES("separator")
 
 object TextStandardDecimalSeparatorCooker extends ListOfSingleCharacterLiteralNoCharClassEntitiesNoByteEntities()
 

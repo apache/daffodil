@@ -40,15 +40,13 @@ object SchemaUtils {
    * Constructs a DFDL schema more conveniently than having to specify all those xmlns attributes.
    */
 
-  def dfdlTestSchemaUnqualified(
-    includeImports: Seq[Node],
+  def dfdlTestSchemaUnqualified(includeImports: Seq[Node],
     topLevelAnnotations: Seq[Node],
     contentElements: Seq[Node],
     fileName: String = ""): Elem =
     dfdlTestSchema(includeImports, topLevelAnnotations, contentElements, fileName = fileName, elementFormDefault = "unqualified")
 
-  def dfdlTestSchemaWithTarget(
-    includeImports: Seq[Node],
+  def dfdlTestSchemaWithTarget(includeImports: Seq[Node],
     topLevelAnnotations: Seq[Node],
     contentElements: Seq[Node],
     theTargetNS: String,
@@ -70,8 +68,7 @@ object SchemaUtils {
    * as those were aggravating a xerces bug that we might as well avoid.
    * This also makes these much more readable.
    */
-  def dfdlTestSchema(
-    includeImports: Seq[Node],
+  def dfdlTestSchema(includeImports: Seq[Node],
     topLevelAnnotations: Seq[Node],
     contentElements: Seq[Node],
     schemaScope: NamespaceBinding = TopScope, // from the defineSchema node
@@ -97,7 +94,7 @@ object SchemaUtils {
     scope = XMLUtils.combineScopes("ex", targetNamespace, scope)
 
     val schemaNode =
-      <xs:schema elementFormDefault={ elementFormDefault } attributeFormDefault="unqualified">
+      <xs:schema elementFormDefault={ elementFormDefault }>
         {
           includeImports
         }
