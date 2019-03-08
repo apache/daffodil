@@ -1678,7 +1678,8 @@
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>property 'initiator'</tdml:error>
-      <tdml:error>cannot start or end with the string " "</tdml:error>
+      <tdml:error>cannot start or end with the string</tdml:error>
+      <tdml:error>U+0020</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -1723,7 +1724,8 @@
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>property 'initiator'</tdml:error>
-      <tdml:error>cannot start or end with the string " "</tdml:error>
+      <tdml:error>cannot start or end with the string</tdml:error>
+      <tdml:error>U+0020</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

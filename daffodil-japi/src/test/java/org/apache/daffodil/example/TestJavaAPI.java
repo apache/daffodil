@@ -98,7 +98,7 @@ public class TestJavaAPI {
              * For more information, see https://github.com/sbt/sbt/issues/163
              */
             @Override
-            protected Class resolveClass(java.io.ObjectStreamClass desc) throws IOException, ClassNotFoundException {
+            protected Class<?> resolveClass(java.io.ObjectStreamClass desc) throws IOException, ClassNotFoundException {
                 try {
                     return Class.forName(desc.getName(), false, getClass().getClassLoader());
                 } catch (ClassNotFoundException e) {

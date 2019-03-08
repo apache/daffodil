@@ -47,8 +47,7 @@ final class EntityReplacer {
   val dfdlCharClassEntityName = "NL|WSP|WSP\\*|WSP\\+|ES"
 
   val entityCharacterUnicode: List[(String, String, Matcher)] =
-    List(
-      ("NUL", "\u0000", Pattern.compile("%" + "NUL" + ";", Pattern.MULTILINE).matcher("")),
+    List(("NUL", "\u0000", Pattern.compile("%" + "NUL" + ";", Pattern.MULTILINE).matcher("")),
       ("SOH", "\u0001", Pattern.compile("%" + "SOH" + ";", Pattern.MULTILINE).matcher("")),
       ("STX", "\u0002", Pattern.compile("%" + "STX" + ";", Pattern.MULTILINE).matcher("")),
       ("ETX", "\u0003", Pattern.compile("%" + "ETX" + ";", Pattern.MULTILINE).matcher("")),
@@ -87,8 +86,7 @@ final class EntityReplacer {
       ("LS", "\u2028", Pattern.compile("%" + "LS" + ";", Pattern.MULTILINE).matcher("")))
 
   val charClassReplacements: List[(String, String, Matcher)] =
-    List(
-      ("WSP", "\u0020", Pattern.compile("%" + "WSP" + ";", Pattern.MULTILINE).matcher("")),
+    List(("WSP", "\u0020", Pattern.compile("%" + "WSP" + ";", Pattern.MULTILINE).matcher("")),
       ("WSP*", "", Pattern.compile("%" + "WSP\\*" + ";", Pattern.MULTILINE).matcher("")),
       ("WSP+", "\u0020", Pattern.compile("%" + "WSP\\+" + ";", Pattern.MULTILINE).matcher("")),
       ("ES", "", Pattern.compile("%" + "ES" + ";", Pattern.MULTILINE).matcher("")))
@@ -490,8 +488,7 @@ abstract class UpperCaseToken(propNameArg: String = null)
  *
  *  This is the kind of string literal you can use within an expression.
  */
-sealed abstract class StringLiteralBase(
-  propNameArg: String,
+sealed abstract class StringLiteralBase(propNameArg: String,
   protected val allowByteEntities: Boolean)
   extends AutoPropNameBase(propNameArg)
   with StringLiteralCookerMixin {
@@ -642,8 +639,7 @@ sealed abstract class AutoPropNameBase(propNameArg: String) extends Serializable
     if (propNameArg eq null) autoPropName else propNameArg
 }
 
-sealed abstract class ListOfStringLiteralBase(
-  propNameArg: String,
+sealed abstract class ListOfStringLiteralBase(propNameArg: String,
   protected val allowByteEntities: Boolean)
   extends AutoPropNameBase(propNameArg)
   with ListStringLiteralCookerMixin {
@@ -652,7 +648,11 @@ sealed abstract class ListOfStringLiteralBase(
 
   protected def cook(raw: String, context: ThrowsSDE, forUnparse: Boolean): List[String] = {
     if (raw.length != 0 && (raw.head.isWhitespace || raw.last.isWhitespace)) {
-      context.SDE("The property '%s' cannot start or end with the string \" \", did you mean to use '%%SP;' instead?", propNameArg)
+      val ws = if (raw.head.isWhitespace) raw.head else raw.last
+      val wsVisible = Misc.remapCodepointToVisibleGlyph(ws.toChar).toChar
+      val hexCodePoint = "%04x".format(ws.toInt)
+      context.SDE("The property '%s' cannot start or end with the string \"%s\"(Unicode hex code point U+%s), or consist entirely of whitespace."
+        + "\nDid you mean to use character entities like '%%SP;' or '%%NL;' to indicate whitespace in the data format instead?", propNameArg, wsVisible, hexCodePoint)
     }
 
     val rawList = raw.split("\\s+").toList
@@ -815,7 +815,7 @@ class DelimiterCookerNoES(pn: String) extends ListOfString1OrMoreLiteral(pn, tru
     }
 }
 
-class DelimiterCooker(pn: String = null) extends ListOfStringLiteralBase(pn, true) {
+class DelimiterCooker(pn: String) extends ListOfStringLiteralBase(pn, true) {
   private val constantCooker = new ListOfStringLiteral(propName, true) // zero length allowed
   private val runtimeCooker = new ListOfString1OrMoreLiteral(propName, true)
 
@@ -831,8 +831,3 @@ class DelimiterCooker(pn: String = null) extends ListOfStringLiteralBase(pn, tru
   override protected def oneLiteralCooker: StringLiteralBase = Assert.usageError("not to be used.")
   override protected def cook(raw: String, context: ThrowsSDE, forUnparse: Boolean): List[String] = Assert.usageError("not to be used")
 }
-
-/**
- * For generic cases where the code is handling many kinds of delimiters
- */
-object DelimiterCooker extends DelimiterCooker(null) // TODO: Deprecate and fix places using this.
