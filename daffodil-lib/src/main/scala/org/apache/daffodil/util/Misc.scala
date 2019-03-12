@@ -142,15 +142,18 @@ object Misc {
     //    val lines = cp.split(":").toSeq
     //    lines
     val cl = this.getClass().getClassLoader()
-    val urls = cl.asInstanceOf[URLClassLoader].getURLs()
-    urls.toList
+    val urls = cl match {
+      case url: URLClassLoader => url.getURLs().toSeq
+      case _  => Seq.empty
+    }
+    urls
   }
 
   def getRequiredResource(resourcePath: String): URI = {
     getResourceOption(resourcePath) match {
       case (None, resPath) => {
         val msg = "Required resource " + resPath + " was not found.\nClasspath is " +
-          (if (classPath.length == 0) "empty."
+          (if (classPath.length == 0) "unknown."
           else ": " + classPath.mkString("\n"))
         // System.err.println(msg)
         throw new java.io.FileNotFoundException(msg)

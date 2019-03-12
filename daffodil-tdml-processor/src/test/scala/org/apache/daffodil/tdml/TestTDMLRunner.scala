@@ -689,4 +689,29 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
     assertTrue(msg.contains("1995-03-24T01:30:00+00:00"))
   }
 
+  /**
+   * Test illustrates problem with multiple document parts having a RTL byte order
+   * not being assembled properly.
+   *
+   * That or the document bitOrder is causing the parts bitOrders to be assembled incorrectly.
+   *
+   * There are many other tests that use RTL byte order to assemble bits together, so it is
+   * something about mixing byteOrder RTL with LTR that is causing the problem.
+   *
+   * Bug DAFFODIL-1898
+   */
+  //  @Test def testMixedBigEndianMSBFWithLittleEndianLSBF() {
+  //    val xml = <document bitOrder="MSBFirst" xmlns="http://www.ibm.com/xmlns/dfdl/testData">
+  //                <documentPart type="byte" bitOrder="MSBFirst" byteOrder="LTR">AA                  </documentPart>
+  //                <documentPart type="bits" bitOrder="LSBFirst" byteOrder="RTL">XXXX X001</documentPart>
+  //                <documentPart type="bits" bitOrder="LSBFirst" byteOrder="RTL">1111 1XXX</documentPart>
+  //                <!-- The above is AAF9 -->
+  //              </document>
+  //    val doc = new Document(xml, null)
+  //    val bytes = doc.documentBytes
+  //    val hexDigits = Misc.bytes2Hex(bytes)
+  //    val expected = "AAF9".replace(" ", "")
+  //    assertEquals(expected, hexDigits)
+  //  }
+
 }

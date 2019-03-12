@@ -44,6 +44,7 @@ class TestRegularExpressions {
   @Test def test_testRegEx_02() { runner.runOneTest("testRegEx_02") }
   @Test def test_testRegEx_03() { runner.runOneTest("testRegEx_03") }
 
+  // DFDL-517
   // // Unsupported Java 7 features (should return Schema Definition Errors)
   // @Test def test_testRegEx_04() { runner.runOneTest("testRegEx_04") }
   // @Test def test_testRegEx_05() { runner.runOneTest("testRegEx_05") }

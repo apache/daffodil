@@ -36,7 +36,22 @@ object TresysTests {
 
   lazy val runnerMD = Runner(testDir, "multiple-diagnostics.tdml", compileAllTopLevel = true)
   lazy val runnerMD_NV = Runner(testDir, "multiple-diagnostics.tdml", compileAllTopLevel = true, validateDFDLSchemas = false)
+  
+  val bb = testDir + "BB.tdml"
+  lazy val runnerBB = new DFDLTestSuite(Misc.getRequiredResource(bb))
+  val be = testDir + "BE.tdml"
+  lazy val runnerBE = new DFDLTestSuite(Misc.getRequiredResource(be))
+  val bf = testDir + "BF.tdml"
+  lazy val runnerBF1 = new DFDLTestSuite(Misc.getRequiredResource(bf))
+  val bg = testDir + "BG.tdml"
+  lazy val runnerBG = new DFDLTestSuite(Misc.getRequiredResource(bg))
+  val mb = testDir + "mixed-binary-text.tdml"
+  lazy val runnerMB = new DFDLTestSuite(Misc.getRequiredResource(mb))
 
+  val ap = testDir + "AP.tdml"
+  lazy val runnerAP = new DFDLTestSuite(Misc.getRequiredResource(ap))
+  val at = testDir + "AT.tdml"
+  lazy val runnerAT = new DFDLTestSuite(Misc.getRequiredResource(at))
   val ax = testDir + "AX.tdml"
   lazy val runnerAX = new DFDLTestSuite(Misc.getRequiredResource(ax))
   val av0 = testDir + "AV000.tdml"
@@ -49,6 +64,7 @@ object TresysTests {
   lazy val runnerAV003 = new DFDLTestSuite(Misc.getRequiredResource(av3))
   val nsd = testDir + "nested-separator-delimited.tdml"
   lazy val runnerNSD = new DFDLTestSuite(Misc.getRequiredResource(nsd))
+
 
   /* Very big test data files, so each is in its own TDML file */
 
@@ -64,7 +80,6 @@ object TresysTests {
   val sq = testDir + "sequence.tdml"
   lazy val runnerSQ = new DFDLTestSuite(Misc.getRequiredResource(sq))
 
-  lazy val runnerMB = new DFDLTestSuite(Misc.getRequiredResource(testDir + "mixed-binary-text.tdml"))
   lazy val runnerNG = new DFDLTestSuite(Misc.getRequiredResource(testDir + "nested_group_ref.tdml"))
   val af = testDir + "AF.tdml"
   lazy val runnerAF = new DFDLTestSuite(Misc.getRequiredResource(af))
@@ -80,11 +95,13 @@ object TresysTests {
   val az = testDir + "AZ.tdml"
   lazy val runnerAZ = new DFDLTestSuite(Misc.getRequiredResource(az))
 
-  //  val ba = testDir + "BA.tdml"
-  //  lazy val runnerBA = new DFDLTestSuite(Misc.getRequiredResource(ba))
+  val ba = testDir + "BA.tdml"
+  lazy val runnerBA = new DFDLTestSuite(Misc.getRequiredResource(ba))
 
-  lazy val runnerBC = Runner(testDir, "BC.tdml")
-  lazy val runnerBD = Runner(testDir, "BD.tdml")
+  val bc = testDir + "BC.tdml"
+  lazy val runnerBC = Runner(testDir, bc)
+  val bd = testDir + "BD.tdml"
+  lazy val runnerBD = Runner(testDir, bd)
 }
 
 class TresysTests {
@@ -158,9 +175,35 @@ class TresysTests {
 
   @Test def test_AZ000() { runnerAZ.runOneTest("AZ000") } // escape schemes
 
-  // Jira DFDL-1392
-  //  @Test def test_BA000() { runnerBA.runOneTest("BA000") } // escape schemes and delimiters
+  // Jira DFDL-1392 - Issue with escapeEscape character that is first and precedes an escape-block start.
+  // Is being removed, but should be preserved as it does not precede an escape character, nor an escape block end.
+  //@Test def test_BA000() { runnerBA.runOneTest("BA000") } // escape schemes and delimiters
+  //@Test def test_BB000() { runnerBB.runOneTest("BB000") } // occursCountKind stopValue
 
-  @Test def test_BC000() { runnerBC.runOneTest("BC000") } // text boolean type
-  @Test def test_BD000() { runnerBD.runOneTest("BD000") } // binary boolean type
+  //DFDL-1010
+  //@Test def test_BE000() { runnerBE.runOneTest("BE000") } // unordered sequences
+  //@Test def test_BE001() { runnerBE.runOneTest("BE001") }
+
+  //DFDL-1010
+  //@Test def test_BF000() { runnerBF1.runOneTest("BF000") } // unordered sequences
+  //@Test def test_BF001() { runnerBF1.runOneTest("BF001") }
+
+  //@Test def test_BG000() { runnerBG.runOneTest("BG000") } // needs text numbers: advanced properties (DFDL-452)
+
+  //@Test def test_BC000() { runnerBC.runOneTest("BC000") } // text boolean type
+  //@Test def test_BD000() { runnerBD.runOneTest("BD000") } // binary boolean type
+
+  //@Test def test_AP000() { runnerAP.runOneTest("AP000") } // lengthKind endOfParent
+
+  //@Test def test_AT000() { runnerAT.runOneTest("AT000") } // needs newVariableInstance
+  //@Test def test_AT001() { runnerAT.runOneTest("AT001") } // needs newVariableInstance
+
+  //@Test def test_seq1() { runnerSQ.runOneTest("seq1") }
+
+  // DFDL-935
+  //@Test def test_t1() { runnerMB.runOneTest("t1") }
+  //@Test def test_t2() { runnerMB.runOneTest("t2") }
+  //@Test def test_t3() { runnerMB.runOneTest("t3") }
+  //@Test def test_encodingErrorPolicy_error() { runnerMB.runOneTest("encodingErrorPolicy_error") }
+
 }

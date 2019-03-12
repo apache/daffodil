@@ -119,4 +119,6 @@ class TestChoice {
   @Test def test_direct_dispatch_14() { runnerCH.runOneTest("direct_dispatch_14") }
   @Test def test_direct_dispatch_15() { runnerCH.runOneTest("direct_dispatch_15") }
   @Test def test_direct_dispatch_16() { runnerCH.runOneTest("direct_dispatch_16") }
+
+  //@Test def test_choice_noBranch() { runnerCH.runOneTest("choice_noBranch") }
 }

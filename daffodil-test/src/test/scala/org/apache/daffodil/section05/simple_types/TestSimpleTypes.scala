@@ -35,6 +35,13 @@ object TestSimpleTypes {
 class TestSimpleTypes {
   import TestSimpleTypes._
 
+  //  @Test def test_warning_exercise() {
+  //    val exc = intercept[Exception] {
+  //      runner.runOneTest("warning_exercise")
+  //    }
+  //    assertTrue(exc.getMessage().contains("Did not find"))
+  //  }
+
   @Test def test_one_octet() { runner.runOneTest("OneOctetBinaryParse") }
   @Test def test_oneBit2() { runner.runOneTest("OneBit2") }
 
@@ -108,6 +115,7 @@ class TestSimpleTypes {
 
   @Test def test_datePatternChoice() { runner.runOneTest("datePatternChoice") }
 
+  // DFDL-529
   //  @Test def test_dateCalendarCenturyStart() { runner.runOneTest("dateCalendarCenturyStart") }
   //  @Test def test_dateCalendarCenturyStart2() { runner.runOneTest("dateCalendarCenturyStart2") }
 

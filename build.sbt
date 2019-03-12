@@ -19,63 +19,60 @@ lazy val genManaged = taskKey[Unit]("Generate managed sources and resources")
 lazy val genProps = taskKey[Seq[File]]("Generate properties scala source")
 lazy val genSchemas = taskKey[Seq[File]]("Generated DFDL schemas")
 
-lazy val TestDebug = config("debug") extend(Test)
-lazy val IntegrationTestDebug = config("debugIt") extend(Test)
 
-
-lazy val daffodil         = Project("daffodil", file(".")).configs(IntegrationTest, TestDebug, IntegrationTestDebug)
+lazy val daffodil         = Project("daffodil", file(".")).configs(IntegrationTest)
                               .aggregate(macroLib, propgen, lib, io, runtime1, runtime1Unparser, core, japi, sapi, tdmlLib, tdmlProc, cli, test, testIBM1, tutorials, testStdLayout)
                               .settings(commonSettings, nopublish, ratSettings)
 
-lazy val macroLib         = Project("daffodil-macro-lib", file("daffodil-macro-lib")).configs(IntegrationTest, TestDebug, IntegrationTestDebug)
+lazy val macroLib         = Project("daffodil-macro-lib", file("daffodil-macro-lib")).configs(IntegrationTest)
                               .settings(commonSettings, nopublish)
                               .settings(libraryDependencies += "org.scala-lang" % "scala-reflect" % scalaVersion.value)
 
-lazy val propgen          = Project("daffodil-propgen", file("daffodil-propgen")).configs(IntegrationTest, TestDebug, IntegrationTestDebug)
+lazy val propgen          = Project("daffodil-propgen", file("daffodil-propgen")).configs(IntegrationTest)
                               .settings(commonSettings, nopublish)
 
-lazy val lib              = Project("daffodil-lib", file("daffodil-lib")).configs(IntegrationTest, TestDebug, IntegrationTestDebug)
+lazy val lib              = Project("daffodil-lib", file("daffodil-lib")).configs(IntegrationTest)
                               .dependsOn(macroLib % "compile-internal, test-internal")
                               .settings(commonSettings, libManagedSettings, usesMacros)
 
-lazy val io               = Project("daffodil-io", file("daffodil-io")).configs(IntegrationTest, TestDebug, IntegrationTestDebug)
+lazy val io               = Project("daffodil-io", file("daffodil-io")).configs(IntegrationTest)
                               .dependsOn(lib, macroLib % "compile-internal, test-internal")
                               .settings(commonSettings, usesMacros)
 
-lazy val runtime1         = Project("daffodil-runtime1", file("daffodil-runtime1")).configs(IntegrationTest, TestDebug, IntegrationTestDebug)
+lazy val runtime1         = Project("daffodil-runtime1", file("daffodil-runtime1")).configs(IntegrationTest)
                               .dependsOn(io, lib % "test->test")
                               .settings(commonSettings)
 
-lazy val runtime1Unparser = Project("daffodil-runtime1-unparser", file("daffodil-runtime1-unparser")).configs(IntegrationTest, TestDebug, IntegrationTestDebug)
+lazy val runtime1Unparser = Project("daffodil-runtime1-unparser", file("daffodil-runtime1-unparser")).configs(IntegrationTest)
                               .dependsOn(runtime1, lib % "test->test", runtime1 % "test->test")
                               .settings(commonSettings)
 
-lazy val core             = Project("daffodil-core", file("daffodil-core")).configs(IntegrationTest, TestDebug, IntegrationTestDebug)
+lazy val core             = Project("daffodil-core", file("daffodil-core")).configs(IntegrationTest)
                               .dependsOn(runtime1Unparser, lib % "test->test", runtime1 % "test->test")
                               .settings(commonSettings)
 
-lazy val japi             = Project("daffodil-japi", file("daffodil-japi")).configs(IntegrationTest, TestDebug, IntegrationTestDebug)
+lazy val japi             = Project("daffodil-japi", file("daffodil-japi")).configs(IntegrationTest)
                               .dependsOn(core)
                               .settings(commonSettings)
 
-lazy val sapi             = Project("daffodil-sapi", file("daffodil-sapi")).configs(IntegrationTest, TestDebug, IntegrationTestDebug)
+lazy val sapi             = Project("daffodil-sapi", file("daffodil-sapi")).configs(IntegrationTest)
                               .dependsOn(core)
                               .settings(commonSettings)
 
-lazy val tdmlLib             = Project("daffodil-tdml-lib", file("daffodil-tdml-lib")).configs(IntegrationTest, TestDebug, IntegrationTestDebug)
+lazy val tdmlLib             = Project("daffodil-tdml-lib", file("daffodil-tdml-lib")).configs(IntegrationTest)
                               .dependsOn(macroLib % "compile-internal", lib, io, io % "test->test")
                               .settings(commonSettings)
 
-lazy val tdmlProc         = Project("daffodil-tdml-processor", file("daffodil-tdml-processor")).configs(IntegrationTest, TestDebug, IntegrationTestDebug)
+lazy val tdmlProc         = Project("daffodil-tdml-processor", file("daffodil-tdml-processor")).configs(IntegrationTest)
                               .dependsOn(tdmlLib, core)
                               .settings(commonSettings)
 
-lazy val cli              = Project("daffodil-cli", file("daffodil-cli")).configs(IntegrationTest, TestDebug, IntegrationTestDebug)
+lazy val cli              = Project("daffodil-cli", file("daffodil-cli")).configs(IntegrationTest)
                               .dependsOn(tdmlProc, sapi, japi) // causes sapi/japi to be pulled in to the helper zip/tar
                               .settings(commonSettings, nopublish)
                               .settings(libraryDependencies ++= Dependencies.cli) 
 
-lazy val test             = Project("daffodil-test", file("daffodil-test")).configs(IntegrationTest, TestDebug, IntegrationTestDebug)
+lazy val test             = Project("daffodil-test", file("daffodil-test")).configs(IntegrationTest)
                               .dependsOn(tdmlProc)
                               .settings(commonSettings, nopublish)
                               //
@@ -85,7 +82,7 @@ lazy val test             = Project("daffodil-test", file("daffodil-test")).conf
                               //.settings(IBMDFDLCrossTesterPlugin.settings)
 
 
-lazy val testIBM1         = Project("daffodil-test-ibm1", file("daffodil-test-ibm1")).configs(IntegrationTest, TestDebug, IntegrationTestDebug)
+lazy val testIBM1         = Project("daffodil-test-ibm1", file("daffodil-test-ibm1")).configs(IntegrationTest)
                               .dependsOn(tdmlProc)
                               .settings(commonSettings, nopublish)
                               //
@@ -94,11 +91,11 @@ lazy val testIBM1         = Project("daffodil-test-ibm1", file("daffodil-test-ib
                               //
                               //.settings(IBMDFDLCrossTesterPlugin.settings)
 
-lazy val tutorials        = Project("daffodil-tutorials", file("tutorials")).configs(IntegrationTest, TestDebug, IntegrationTestDebug)
+lazy val tutorials        = Project("daffodil-tutorials", file("tutorials")).configs(IntegrationTest)
                               .dependsOn(tdmlProc)
                               .settings(commonSettings, nopublish)
 
-lazy val testStdLayout    = Project("daffodil-test-stdLayout", file("test-stdLayout")).configs(IntegrationTest, TestDebug, IntegrationTestDebug)
+lazy val testStdLayout    = Project("daffodil-test-stdLayout", file("test-stdLayout")).configs(IntegrationTest)
                               .dependsOn(tdmlProc)
                               .settings(commonSettings, nopublish)
 
@@ -139,19 +136,7 @@ lazy val commonSettings = Seq(
   resourceManaged := baseDirectory.value / "resource_managed",
   libraryDependencies ++= Dependencies.common,
   parallelExecution in IntegrationTest := false
-) ++ Defaults.itSettings ++ debugTestSettings ++ debugIntegrationTestSettings
-
-lazy val debugTestSettings = inConfig(TestDebug)(Defaults.testSettings ++ Seq(
-  sourceDirectory := baseDirectory.value / "src" / "test",
-  scalaSource := sourceDirectory.value / "scala-debug",
-  exportJars := false,
-))
-
-lazy val debugIntegrationTestSettings = inConfig(IntegrationTestDebug)(Defaults.itSettings ++ Seq(
-  sourceDirectory := baseDirectory.value / "src" / "it",
-  scalaSource := sourceDirectory.value / "scala-debug",
-  exportJars := false,
-))
+) ++ Defaults.itSettings
 
 lazy val nopublish = Seq(
   publish := {},
