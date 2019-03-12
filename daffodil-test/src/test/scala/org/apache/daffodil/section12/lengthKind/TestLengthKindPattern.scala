@@ -61,6 +61,8 @@ class TestLengthKindPattern {
 
   // DFDL-309
   @Test def test_LengthPatternIllegalBits_02_EncodingErrorPolicy_Replace() { runner.runOneTest("LengthPatternIllegalBits_02_EncodingErrorPolicy_Replace") }
+  // DFDL-935 dfdl:encodingErrorPolicy='error'
+  //@Test def test_LengthPatternIllegalBits_02_EncodingErrorPolicy_Error() { runner.runOneTest("LengthPatternIllegalBits_02_EncodingErrorPolicy_Error") }
 
   @Test def test_LengthPatternLegalBits_02() { runner.runOneTest("LengthPatternLegalBits_02") } // round trip
   @Test def test_lengthKindPatternFail() { runner.runOneTest("lengthKindPatternFail") }

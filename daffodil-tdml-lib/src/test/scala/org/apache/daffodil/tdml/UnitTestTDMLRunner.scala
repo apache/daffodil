@@ -220,7 +220,7 @@ class UnitTestTDMLRunner {
   }
   /////////////////////////////////////////////////////////////////////////////////////////////////////
   @Test def testTDMLResource() {
-    lazy val res = Misc.getRequiredResource("/test-suite/ibm-contributed/dpaext1.tdml")
+    lazy val res = Misc.getRequiredResource("/test-suite/ibm-contributed/dpaext1-2.tdml")
     lazy val ts = new DFDLTestSuite(new File(res))
     val mf = ts.findTDMLResource("./fvt/ext/dpa/dpaspc121_01.dfdl.xsd")
     val file = new File(mf.get)

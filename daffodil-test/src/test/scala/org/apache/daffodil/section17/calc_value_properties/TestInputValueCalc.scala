@@ -45,6 +45,7 @@ class TestInputValueCalc {
   @Test def test_AR000() { runnerAR.runOneTest("AR000") }
 
   @Test def test_AQ000() { runnerAQ.runOneTest("AQ000") }
+  //@Test def test_AQ001() { runnerAQ.runOneTest("AQ001") } // This appears to expect an error, but doesn't state why.
 
   @Test def test_AA000() { runnerAA.runOneTest("AA000") }
   @Test def test_inputValueCalcErrorDiagnostic1() { runnerAA.runOneTest("inputValueCalcErrorDiagnostic1") }
@@ -124,4 +125,13 @@ class TestInputValueCalc {
   @Test def test_InputValueCalc_no_representation() { runner.runOneTest("InputValueCalc_no_representation") }
   @Test def test_InputValueCalc_in_format() { runner.runOneTest("InputValueCalc_in_format") }
   @Test def test_InputValueCalc_with_outputValueCalc() { runner.runOneTest("InputValueCalc_with_outputValueCalc") }
+
+  //DFDL-1025
+  //@Test def test_InputValueCalc_refers_self() { runner.runOneTest("InputValueCalc_refers_self") }
+  //@Test def test_InputValueCalc_circular_ref() { runner.runOneTest("InputValueCalc_circular_ref") }
+  
+  //DFDL-1024
+  //@Test def test_InputValueCalc_optional_elem() { runner.runOneTest("InputValueCalc_optional_elem") }
+  //@Test def test_InputValueCalc_array_elem() { runner.runOneTest("InputValueCalc_array_elem") }
+  //@Test def test_InputValueCalc_global_elem() { runner.runOneTest("InputValueCalc_global_elem") }
 }

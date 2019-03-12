@@ -88,4 +88,16 @@ class IBMTestsThatPass {
   @Test def test_sequences_separated_14_08() { runner2.runOneTest("sequences_separated_14_08") }
 
   @Test def test_delimiter_12_02() { runner1.runOneTest("delimiter_12_02") }
+  
+  // DAFFODIL-1541 Need support for handling delimited data with encoding other than ISO-8859-1
+  //@Test def test_length_delimited_12_05() { runner1.runOneTest("length_delimited_12_05") }
+
+  // DAFFODIL-853 text number advanced props (V Symbol)
+  //@Test def test_simple_type_properties_text_number_13_01() { runner2.runOneTest("simple_type_properties_text_number_13_01") }
+
+  // DAFFODIL-840 textStandardBase (base 16)
+  //@Test def test_simple_type_properties_text_number_13_03() { runner2.runOneTest("simple_type_properties_text_number_13_03") }
+
+  // DAFFODIL-551 Needs dfdl:utf16Width='variable' implementation
+  //@Test def test_syntax_entities_6_03() { runner1.runOneTest("syntax_entities_6_03") }
 }

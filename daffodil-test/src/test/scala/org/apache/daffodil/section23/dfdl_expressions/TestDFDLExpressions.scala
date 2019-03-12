@@ -217,7 +217,7 @@ class TestDFDLExpressions {
   @Test def test_expressionRules06() { runner.runOneTest("expressionRules06") }
 
   // uses lengthUnits bytes with utf-8 and lengthKind Explicit
-  // @Test def test_lke3_rel() { runner.runOneTest("lke3_rel") }
+  @Test def test_lke3_rel() { runner.runOneTest("lke3_rel") }
 
   @Test def test_lke1_rel() { runner.runOneTest("lke1_rel") }
   @Test def test_lke1_abs() { runner.runOneTest("lke1_abs") }
@@ -317,7 +317,7 @@ class TestDFDLExpressions {
   //DFDL-1059
   @Test def test_parent_axis_01() { runner.runOneTest("parent_axis_01") }
   @Test def test_child_axis_01() { runner.runOneTest("child_axis_01") }
-  //@Test def test_self_axis_01() { runner.runOneTest("self_axis_01") }
+  @Test def test_self_axis_01() { runner.runOneTest("self_axis_01") }
   //@Test def test_multiple_axis_01() { runner.runOneTest("multiple_axis_01") }
 
   @Test def test_attribute_axis_04() { runner.runOneTest("attribute_axis_04") }
@@ -491,7 +491,7 @@ class TestDFDLExpressions {
   //@Test def test_exactly_one_01() { runner2.runOneTest("exactly_one_01") }
   //@Test def test_exactly_one_02() { runner2.runOneTest("exactly_one_02") }
   //@Test def test_exactly_one_03() { runner2.runOneTest("exactly_one_03") }
-  //@Test def test_exactly_one_04() { runner2.runOneTest("exactly_one_04") }
+  @Test def test_exactly_one_04() { runner2.runOneTest("exactly_one_04") }
   //@Test def test_exactly_one_05() { runner2.runOneTest("exactly_one_05") }
   //@Test def test_exactly_one_06() { runner2.runOneTest("exactly_one_06") }
 
@@ -508,7 +508,7 @@ class TestDFDLExpressions {
   //DFDL-1159 (unordered sequences)
   //@Test def test_count_05() { runner2.runOneTest("count_05") }
   //@Test def test_count_06() { runner2.runOneTest("count_06") }
-  //@Test def test_count_08() { runner2.runOneTest("count_08") }
+  @Test def test_count_08() { runner2.runOneTest("count_08") }
 
   @Test def test_local_name_01() { runner2.runOneTest("local_name_01") }
   @Test def test_local_name_02() { runner2.runOneTest("local_name_02") }
@@ -810,8 +810,11 @@ class TestDFDLExpressions {
   //DFDL-1124
   //@Test def test_date_constructor_01() { runner2.runOneTest("date_constructor_01") }
   @Test def test_date_constructor_02() { runner2.runOneTest("date_constructor_02") }
+  //@Test def test_date_constructor_02a() { runner2.runOneTest("date_constructor_02a") }
   @Test def test_date_constructor_03() { runner2.runOneTest("date_constructor_03") }
+  //@Test def test_date_constructor_03a() { runner2.runOneTest("date_constructor_03a") }
   @Test def test_date_constructor_04() { runner2.runOneTest("date_constructor_04") }
+  //@Test def test_nonNeg_constructor_02a() { runner2.runOneTest("nonNeg_constructor_02a") }
 
   @Test def test_xsDateTime_constructor_01() { runner2.runOneTest("xsDateTime_constructor_01") }
   @Test def test_xsDateTime_constructor_02() { runner2.runOneTest("xsDateTime_constructor_02") }
@@ -1028,4 +1031,7 @@ class TestDFDLExpressions {
 
   //DFDL-711
   @Test def test_short_parent_axis_01() { runner.runOneTest("short_parent_axis_01") }
+
+  @Test def test_element_long_form_whitespace() { runner.runOneTest("element_long_form_whitespace") }
 }
+

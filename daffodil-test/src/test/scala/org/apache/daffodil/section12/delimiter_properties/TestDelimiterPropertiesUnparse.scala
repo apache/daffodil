@@ -36,7 +36,7 @@ class TestDelimiterPropertiesUnparse {
 
   import TestDelimiterPropertiesUnparse._
 
-  //DFDL-1287
+  //DFDL-1287, DFDL-947
   //@Test def test_unparseSeparatorLeadingSpace() { runner.runOneTest("unparseSeparatorLeadingSpace") }
 
   //DFDL-1213

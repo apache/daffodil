@@ -49,6 +49,7 @@ class TestEscapeScheme {
   @Test def test_escapeSchemeFail2() { runner.runOneTest("escapeSchemeFail2") }
   @Test def test_escapeSchemeFail3() { runner.runOneTest("escapeSchemeFail3") }
   @Test def test_escapeSchemeNonEmpty() { runner.runOneTest("escapeSchemeNonEmpty") }
+  //@Test def test_escapeSchemeNonUnique() { runner.runOneTest("escapeSchemeNonUnique") }
 
   @Test def test_escapeExpressions_01() { runner.runOneTest("escapeExpressions_01") }
   @Test def test_escapeExpressions_01b() { runner.runOneTest("escapeExpressions_01b") }
@@ -113,6 +114,8 @@ class TestEscapeScheme {
   @Test def test_scenario3_10() { runner2.runOneTest("scenario3_10") }
   @Test def test_scenario3_10_postfix() { runner2.runOneTest("scenario3_10_postfix") }
   @Test def test_scenario3_11() { runner2.runOneTest("scenario3_11") }
+  //DFDL-961
+  //@Test def test_scenario3_11_postfix() { runner2.runOneTest("scenario3_11_postfix") }
   @Test def test_scenario3_12() { runner2.runOneTest("scenario3_12") }
   @Test def test_scenario3_12_req_term() { runner2.runOneTest("scenario3_12_req_term") }
   @Test def test_scenario3_13() { runner2.runOneTest("scenario3_13") }
@@ -143,4 +146,5 @@ class TestEscapeScheme {
 
   @Test def test_escBlkAllQuotes() { runner.runOneTest("escBlkAllQuotes") }
   @Test def test_escBlkEndSame() { runner.runOneTest("escBlkEndSame") }
+  //@Test def test_escBlkMultipleEEC() { runner.runOneTest("escBlkMultipleEEC") } // DAFFODIL-1972
 }
