@@ -34,6 +34,7 @@ import org.apache.daffodil.processors.ProcessingError
 import org.apache.daffodil.processors.VariableException
 import org.apache.daffodil.processors.VariableRuntimeData
 import org.apache.daffodil.util.Misc
+import org.apache.daffodil.dpath.NodeInfo.PrimType
 
 class CompiledDPath(val ops: RecipeOp*) extends Serializable {
 
@@ -152,7 +153,7 @@ abstract class RecipeOp
    * there are children to display.
    */
   def toXML: scala.xml.Node = toXML(scala.xml.NodeSeq.Empty)
-
+  
 }
 
 abstract class RecipeOpWithSubRecipes(recipes: List[CompiledDPath]) extends RecipeOp {

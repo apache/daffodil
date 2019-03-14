@@ -117,6 +117,9 @@ trait ElementBase
   def simpleType: SimpleTypeBase
 
   def complexType: ComplexTypeBase
+  
+  lazy final val optSimpleType = if(isSimpleType) Some(simpleType) else None
+  lazy final val optComplexType = if(isComplexType) Some(complexType) else None
 
   /**
    * Irrespective of whether the type of this element is immediate or
@@ -125,6 +128,8 @@ trait ElementBase
    */
   def typeDef: TypeBase
 
+  private lazy val optRepValueSet = optSimpleType.flatMap(_.optRepValueSet)
+  
   /**
    * The DPathElementInfo objects referenced within an IVC
    * that calls dfdl:contentLength( thingy )
@@ -173,7 +178,7 @@ trait ElementBase
    */
   final lazy val shouldCaptureParseContentLength: Boolean = {
     val isReferenced =
-      if (this.isInstanceOf[DetachedElementDecl]) false
+      if (this.isInstanceOf[PrefixLengthQuasiElementDecl]) false
       else {
         val setElems = rootElementRef.get.contentLengthParserReferencedElementInfos
         setElems.contains(this.dpathElementCompileInfo)
@@ -187,7 +192,7 @@ trait ElementBase
    */
   final lazy val shouldCaptureUnparseContentLength: Boolean = {
     val isReferenced =
-      if (this.isInstanceOf[DetachedElementDecl]) false
+      if (this.isInstanceOf[PrefixLengthQuasiElementDecl]) false
       else {
         val setElems = rootElementRef.get.contentLengthUnparserReferencedElementInfos
         setElems.contains(this.dpathElementCompileInfo)
@@ -211,7 +216,7 @@ trait ElementBase
    */
   final lazy val shouldCaptureParseValueLength: Boolean = {
     val isReferenced =
-      if (this.isInstanceOf[DetachedElementDecl]) false
+      if (this.isInstanceOf[PrefixLengthQuasiElementDecl]) false
       else {
         val setElems = rootElementRef.get.valueLengthParserReferencedElementInfos
         setElems.contains(this.dpathElementCompileInfo)
@@ -240,7 +245,7 @@ trait ElementBase
    */
   final lazy val shouldCaptureUnparseValueLength: Boolean = {
     val isReferenced =
-      if (this.isInstanceOf[DetachedElementDecl]) false
+      if (this.isInstanceOf[PrefixLengthQuasiElementDecl]) false
       else {
         val setElems = rootElementRef.get.valueLengthUnparserReferencedElementInfos
         setElems.contains(this.dpathElementCompileInfo)
@@ -497,6 +502,8 @@ trait ElementBase
     unparserInfosetElementDefaultingBehavior !=:= MustExist
   }
 
+  lazy val isQuasiElement: Boolean = false //overriden by RepTypeQuasiElementDecls
+  
   //  private lazy val mustBeAbsentFromUnparseInfoset: Boolean = {
   //    isOutputValueCalc
   //  }
@@ -564,7 +571,8 @@ trait ElementBase
       maybeByteOrderEv,
       maybeFillByteEv,
       maybeCheckByteAndBitOrderEv,
-      maybeCheckBitOrderAndCharset)
+      maybeCheckBitOrderAndCharset,
+      isQuasiElement)
     newERD
   }
 
@@ -787,20 +795,24 @@ trait ElementBase
     if (isFixedLength) lengthEv.optConstant.get.longValue() else -1L // shouldn't even be asking for this if not isFixedLength
   }
 
-  final lazy val maybeFixedLengthInBits = {
-    if (isRepresented && isFixedLength) {
-      val bitsMultiplier = lengthUnits match {
-        case LengthUnits.Bits => 1
-        case LengthUnits.Bytes => 8
-        case LengthUnits.Characters => if (knownEncodingIsFixedWidth) knownEncodingWidthInBits else -1
-      }
-      if (bitsMultiplier > 0) {
-        MaybeULong(fixedLengthValue * bitsMultiplier)
+  final lazy val maybeFixedLengthInBits: MaybeULong = {
+    if (optRepTypeElement.isDefined) {
+      optRepTypeElement.get.maybeFixedLengthInBits
+    } else {
+      if (isRepresented && isFixedLength) {
+        val bitsMultiplier = lengthUnits match {
+          case LengthUnits.Bits => 1
+          case LengthUnits.Bytes => 8
+          case LengthUnits.Characters => if (knownEncodingIsFixedWidth) knownEncodingWidthInBits else -1
+        }
+        if (bitsMultiplier > 0) {
+          MaybeULong(fixedLengthValue * bitsMultiplier)
+        } else {
+          MaybeULong.Nope
+        }
       } else {
         MaybeULong.Nope
       }
-    } else {
-      MaybeULong.Nope
     }
   }
 
@@ -965,6 +977,7 @@ trait ElementBase
         // This means we cannot check and SDE here on incorrect simple type.
         return (zeroBD, unbBD)
       }
+      case st: SimpleTypeDefBase if st.optRepTypeElement.isDefined => (st.optRepTypeElement.get.minLength, st.optRepTypeElement.get.maxLength)
       case st: SimpleTypeDefBase if st.optRestriction.isDefined => {
         val r = st.optRestriction.get
         val pt = st.primType

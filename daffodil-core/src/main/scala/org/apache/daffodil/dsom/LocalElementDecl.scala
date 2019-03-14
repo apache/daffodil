@@ -32,7 +32,7 @@ sealed class LocalElementDecl(
 }
 
 /**
- * A DetachedElement is similar to a LocalElement except it will have no
+ * A QuasiElement is similar to a LocalElement except it will have no
  * representation in the infoset, acting only as a temporary element that can
  * be parsed/unparsed. As an example, this is used as an element foar
  * parsing/unparsing prefix lengths. No element exists in the infoset or in the
@@ -40,9 +40,26 @@ sealed class LocalElementDecl(
  * DetachedElementDecl is used as a place where properties related to the
  * prefix simpel type can be accessed.
  */
-final class DetachedElementDecl(
+sealed abstract class QuasiElementDeclBase(
   val detachedReference: ElementBase,
   xml: Node,
   parent: SchemaComponent)
   extends LocalElementDecl(xml, parent, -1){
+  
+  override lazy val isQuasiElement = true
+}
+
+final class PrefixLengthQuasiElementDecl(
+  detachedReference: ElementBase,
+  xml: Node,
+  parent: SchemaComponent)
+  extends QuasiElementDeclBase(detachedReference, xml, parent){
+}
+
+final class RepTypeQuasiElementDecl(
+  detachedReference: ElementBase,
+  xml: Node,
+  parent: SchemaComponent)
+  extends QuasiElementDeclBase(detachedReference, xml, parent){
+  
 }

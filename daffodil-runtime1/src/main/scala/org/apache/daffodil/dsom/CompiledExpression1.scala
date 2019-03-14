@@ -99,7 +99,7 @@ abstract class CompiledExpression[+T <: AnyRef](
   def isConstant: Boolean
 
   def evaluate(state: ParseOrUnparseState): T
-
+  def run(dstate: DState): Unit
   /**
    * The target type of the expression. This is the type that we want the expression to create.
    */
@@ -145,7 +145,8 @@ final case class ConstantExpression[+T <: AnyRef](
     dstate.setCurrentValue(value)
     value
   }
-
+  override def run(dstate: DState) = dstate.setCurrentValue(value)
+ 
   final def evaluateForwardReferencing(state: ParseOrUnparseState, whereBlockedLocation: Suspension): Maybe[T] = {
     // whereBlockedLocation is ignored since a constant expression cannot block.
     whereBlockedLocation.setDone

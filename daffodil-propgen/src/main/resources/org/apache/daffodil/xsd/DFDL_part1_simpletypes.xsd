@@ -97,6 +97,21 @@
     </xsd:restriction>
   </xsd:simpleType>
 
+  <!-- used alone, this type will allow empty string -->
+  <xsd:simpleType name="ListOfInteger">
+    <xsd:list itemType="xsd:integer"/>
+  </xsd:simpleType>
+
+  <xsd:simpleType name="NonEmptyListOfInteger">
+    <xsd:restriction base="dfdl:ListOfInteger">
+       <xsd:minLength value="1"/> 
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:simpleType name="NonEmptyListofDFDLStringLiteralOrNonEmptyListOfInteger">
+    <xsd:union memberTypes="dfdl:NonEmptyListOfDFDLStringLiteral dfdl:NonEmptyListOfInteger" />
+  </xsd:simpleType>
+
   <xsd:simpleType name="DFDLNonNegativeInteger">
     <xsd:restriction base="xsd:int">
       <xsd:minInclusive value="0" />
@@ -566,6 +581,15 @@
     <xsd:restriction base="xsd:string">
       <xsd:enumeration value="expression" />
       <xsd:enumeration value="pattern" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  
+  <xsd:simpleType name="ChoiceKeyKindType">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="byType"/>
+      <xsd:enumeration value="explicit"/>
+      <xsd:enumeration value="speculative"/>
+      <xsd:enumeration value="implicit"/>
     </xsd:restriction>
   </xsd:simpleType>
 

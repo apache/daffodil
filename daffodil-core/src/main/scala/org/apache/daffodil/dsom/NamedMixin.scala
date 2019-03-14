@@ -31,7 +31,7 @@ trait NamedMixin
   extends GetAttributesMixin
   with NamedMixinBase {
 
-  lazy val name = getAttributeOption("name").getOrElse(Misc.getNameFromClass(this))
+  def name = getAttributeOption("name").getOrElse(Misc.getNameFromClass(this))
 
   override def xml: Node
   def schemaDocument: SchemaDocument

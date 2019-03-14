@@ -40,9 +40,13 @@ import org.apache.daffodil.schema.annotation.props.PropertyLookupResult
 import org.apache.daffodil.schema.annotation.props.Found
 import org.apache.daffodil.dsom.ExpressionCompilers
 import org.apache.daffodil.dsom.DFDLSetVariable
-import org.apache.daffodil.dsom.ExpressionCompilers
 import org.apache.daffodil.dsom.DFDLNewVariableInstance
 import org.apache.daffodil.processors.parsers.AssertPatternParser
+import org.apache.daffodil.processors.parsers.TypeValueCalcParser
+import org.apache.daffodil.processors.TypeCalculator
+import org.apache.daffodil.processors.unparsers.NadaUnparser
+import org.apache.daffodil.processors.RuntimeData
+import org.apache.daffodil.processors.unparsers.TypeValueCalcUnparser
 
 abstract class AssertBase(decl: AnnotatedSchemaComponent,
   exprWithBraces: String,
@@ -72,7 +76,7 @@ abstract class AssertBase(decl: AnnotatedSchemaComponent,
   lazy val msgExpr ={
     if (msgOpt.isDefined) {
       ExpressionCompilers.String.compileExpression(qn,
-      NodeInfo.String, msgOpt.get, exprNamespaces, exprComponent.dpathCompileInfo, false, this)
+      NodeInfo.String, msgOpt.get, exprNamespaces, exprComponent.dpathCompileInfo, false, this, exprComponent.dpathCompileInfo)
     } else {
       new ConstantExpression[String](qn, NodeInfo.String, exprWithBraces + " failed")
     }
@@ -175,7 +179,7 @@ abstract class ExpressionEvaluatorBase(e: AnnotatedSchemaComponent) extends Term
 
   lazy val expr = LV('expr) {
     ExpressionCompilers.AnyRef.compileExpression(qn,
-      nodeKind, exprText, exprNamespaces, exprComponent.dpathCompileInfo, false, this)
+      nodeKind, exprText, exprNamespaces, exprComponent.dpathCompileInfo, false, this, exprComponent.dpathCompileInfo)
   }.value
 }
 
@@ -206,6 +210,34 @@ case class InputValueCalc(e: ElementBase,
   }
 
   override lazy val unparser = Assert.usageError("Not to be called on InputValueCalc class.")
+}
+
+case class TypeValueCalc(e: ElementBase)
+    extends Terminal(e,e.hasRepType){
+  
+  private lazy val simpleTypeDefBase = e.simpleType.asInstanceOf[SimpleTypeDefBase]
+  private lazy val typeCalculator = {
+    val a = simpleTypeDefBase
+    val b = simpleTypeDefBase.optTypeCalculator
+    simpleTypeDefBase.optTypeCalculator.get
+  }
+  private lazy val repTypeRuntimeData = simpleTypeDefBase.optRepTypeElement.get.elementRuntimeData
+  private lazy val repTypeParser = simpleTypeDefBase.optRepTypeElement.get.enclosedElement.parser
+  private lazy val repTypeUnparser = simpleTypeDefBase.optRepTypeElement.get.enclosedElement.unparser
+  
+  override lazy val parser: DaffodilParser = {
+    if(!typeCalculator.supportsParse){
+      SDE("Parsing not defined by typeValueCalc")
+    }
+    new TypeValueCalcParser(typeCalculator, repTypeParser, e.elementRuntimeData, repTypeRuntimeData)
+  }
+  override lazy val unparser: DaffodilUnparser = {
+    if(!typeCalculator.supportsUnparse){
+      SDE("Unparsing not defined by typeValueCalc")
+    }
+    new TypeValueCalcUnparser(typeCalculator, repTypeUnparser, e.elementRuntimeData, repTypeRuntimeData)
+  }
+  
 }
 
 //case class OutputValueCalcStaticLength(e: ElementBase,

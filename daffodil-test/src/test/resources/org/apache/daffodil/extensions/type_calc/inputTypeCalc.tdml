@@ -1,0 +1,509 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<tdml:testSuite xmlns:ex="http://example.com" xmlns="http://example.com"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  >
+
+  <tdml:defineSchema name="inputTypeCalc-Embedded.dfdl.xsd">
+
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"
+      lengthUnits="bytes" encoding="UTF-8" separator="" initiator=""
+      terminator="" occursCountKind="parsed" ignoreCase="no"
+      textNumberRep="standard" representation="binary" />
+
+    <xs:element name="keysetValue_00" type="tns:keysetValue_01"/>
+
+    <xs:element name="keysetValue_01">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="byte" type="tns:keysetValue_01"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="keysetValue_02">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="byte" type="tns:keysetValue_01" maxOccurs="unbounded" dfdl:occursCountKind="parsed"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:simpleType name="uint8" dfdl:lengthKind="explicit" dfdl:length="1">
+      <xs:restriction base="xs:unsignedInt"/>
+    </xs:simpleType>
+
+    <xs:simpleType name="keysetValue_01" dfdl:repType="tns:uint8">
+      <xs:restriction base="xs:string">
+        <xs:enumeration value="zero" dfdl:repValues="0" />
+        <xs:enumeration value="one" dfdl:repValues="1" />
+        <xs:enumeration value="2-100" dfdl:repValueRanges="2 100" />
+        <xs:enumeration value="101 103-110 115 120-125" dfdl:repValues="101 115" dfdl:repValueRanges="103 110 120 125"/>
+      </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="_1_to_string" dfdl:repType="tns:uint8">
+      <xs:restriction base="xs:string">
+        <xs:enumeration value="one" dfdl:repValues="1"/>
+      </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="_2through100_to_string" dfdl:repType="tns:uint8">
+      <xs:restriction base="xs:string">
+        <xs:enumeration value="2-100" dfdl:repValueRanges="2 100"/>
+      </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="_1through100_union_to_string" >
+      <xs:union memberTypes="tns:_1_to_string tns:_2through100_to_string tns:unreachableRepTypeuint8" />
+    </xs:simpleType>
+
+    <xs:simpleType name="_2through100_to_int" dfdl:repType="tns:uint8">
+      <xs:restriction base="xs:unsignedInt">
+        <xs:minInclusive value="2"/>
+        <xs:maxInclusive value="100"/>
+      </xs:restriction>
+    </xs:simpleType>
+
+    <!-- Used to verify that a branch of a choice statement is not considered. -->
+    <xs:simpleType name="unreachableRepTypeuint8" dfdl:repType="tns:uint8">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
+          <dfdl:discriminator>{ fn:true() }</dfdl:discriminator>
+        </xs:appinfo>
+      </xs:annotation>
+      <xs:restriction base="xs:string">
+        <xs:enumeration value="unreachable" dfdl:repValues="-1"/>
+      </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="complexSet_to_string" dfdl:repType="tns:uint8">
+      <xs:restriction base="xs:string">
+        <xs:enumeration value="101 103-110 115 120-125" dfdl:repValues="101 115" dfdl:repValueRanges="103 110 120 125"/>
+      </xs:restriction>
+    </xs:simpleType>
+
+    <xs:element name="choice_dispatchKeyByType_01">
+      <xs:complexType>
+        <xs:choice dfdl:choiceBranchKeyKind="explicit" dfdl:choiceDispatchKeyKind="byType" >
+          <xs:element name="unreachable" type="tns:unreachableRepTypeuint8" dfdl:choiceBranchKey="-1"/>
+          <xs:element name="one" type="tns:_1_to_string" dfdl:choiceBranchKey="1"/>
+          <xs:element name="two" type="tns:_2through100_to_string" dfdl:choiceBranchKey="2"/>
+          <xs:element name="three_four_five" type="tns:_2through100_to_string" dfdl:choiceBranchKey="3 4 5"/>
+          <xs:element name="_101_122" type="tns:complexSet_to_string" dfdl:choiceBranchKey="101 122"/>
+        </xs:choice>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="choice_dispatchKeyByType_02">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="byte" dfdl:occursCountKind="parsed" maxOccurs="unbounded">
+            <xs:complexType>
+              <xs:choice dfdl:choiceBranchKeyKind="explicit" dfdl:choiceDispatchKeyKind="byType" >
+                <xs:element name="unreachable" type="tns:unreachableRepTypeuint8" dfdl:choiceBranchKey="255"/>
+                <xs:element name="one" type="tns:_1_to_string" dfdl:choiceBranchKey="1"/>
+                <xs:element name="two" type="tns:_2through100_to_string" dfdl:choiceBranchKey="2"/>
+                <xs:element name="three_four_five" type="tns:_2through100_to_string" dfdl:choiceBranchKey="3 4 5"/>
+                <xs:element name="_101_122" type="tns:complexSet_to_string" dfdl:choiceBranchKey="101 122"/>
+              </xs:choice>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="choice_branchKeyByType_01">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="byte" dfdl:occursCountKind="parsed" maxOccurs="unbounded">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="dispatchKey" type="tns:uint8">
+                  <xs:annotation>
+                    <xs:appinfo source="http://www.ogf.org/dfdl/">
+                      <dfdl:discriminator>{ fn:true() }</dfdl:discriminator>
+                    </xs:appinfo>
+                  </xs:annotation>
+                </xs:element>
+                <xs:choice dfdl:choiceBranchKeyKind="byType" dfdl:choiceDispatchKeyKind="explicit" dfdl:choiceDispatchKey="{ ex:dispatchKey }">
+                  <xs:element name="unreachable" type="tns:unreachableRepTypeuint8"/>
+                  <xs:element name="many" type="tns:_2through100_to_int"/>
+                  <xs:element name="one" type="tns:_1_to_string"/>
+                </xs:choice>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="inputTypeCalc_unionOfKeysetValueCalcs_01">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="byte" type="tns:_1through100_union_to_string" maxOccurs="unbounded" dfdl:occursCoundKind="parsed"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="inputTypeCalc_unionOfKeysetValueCalcs_02">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="byte" maxOccurs="unbounded" dfdl:occursCoundKind="parsed">
+            <xs:complexType>
+              <xs:choice dfdl:choiceBranchKeyKind="byType" dfdl:choiceDispatchKeyKind="byType">
+                <xs:element name="a" type="tns:_1through100_union_to_string"/>
+                <xs:element name="b" type="tns:complexSet_to_string"/>
+              </xs:choice>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="InputTypeCalc_keysetValue_00"
+    root="keysetValue_00" model="inputTypeCalc-Embedded.dfdl.xsd" description="Extensions - inputTypeCalc keysetValue transform">
+
+    <tdml:document>
+    <tdml:documentPart type="byte">
+    01
+    </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <keysetValue_00>one</keysetValue_00>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="InputTypeCalc_keysetValue_01"
+    root="keysetValue_01" model="inputTypeCalc-Embedded.dfdl.xsd" description="Extensions - inputTypeCalc keysetValue transform">
+
+    <tdml:document>
+    <tdml:documentPart type="byte">
+    01
+    </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <keysetValue_01><byte>one</byte></keysetValue_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="InputTypeCalc_keysetValue_02"
+    root="keysetValue_02" model="inputTypeCalc-Embedded.dfdl.xsd" description="Extensions - inputTypeCalc keysetValue transform">
+
+    <tdml:document>
+    <tdml:documentPart type="byte">
+    00
+    01 
+    02 20 64 
+    65 67 68 6E 73 78 7A 7D 
+    </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <keysetValue_02>
+          <byte>zero</byte>
+          <byte>one</byte>
+          <byte>2-100</byte>
+          <byte>2-100</byte>
+          <byte>2-100</byte>
+          <byte>101 103-110 115 120-125</byte>
+          <byte>101 103-110 115 120-125</byte>
+          <byte>101 103-110 115 120-125</byte>
+          <byte>101 103-110 115 120-125</byte>
+          <byte>101 103-110 115 120-125</byte>
+          <byte>101 103-110 115 120-125</byte>
+          <byte>101 103-110 115 120-125</byte>
+          <byte>101 103-110 115 120-125</byte>
+        </keysetValue_02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:unparserTestCase name="InputTypeCalc_unparse_keysetValue_00"
+    root="keysetValue_00" model="inputTypeCalc-Embedded.dfdl.xsd" description="Extensions - inputTypeCalc keysetValue transform">
+
+    <tdml:document>
+    <tdml:documentPart type="byte">
+    01
+    </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <keysetValue_00>one</keysetValue_00>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="InputTypeCalc_unparse_keysetValue_01"
+    root="keysetValue_01" model="inputTypeCalc-Embedded.dfdl.xsd" description="Extensions - inputTypeCalc keysetValue transform">
+
+    <tdml:document>
+    <tdml:documentPart type="byte">
+    01
+    </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <keysetValue_01><byte>one</byte></keysetValue_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="InputTypeCalc_unparse_keysetValue_02"
+    root="keysetValue_02" model="inputTypeCalc-Embedded.dfdl.xsd" description="Extensions - inputTypeCalc keysetValue transform">
+
+    <tdml:document>
+    <tdml:documentPart type="byte">
+    00
+    01 
+    02 
+    65 
+    </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <keysetValue_02>
+          <byte>zero</byte>
+          <byte>one</byte>
+          <byte>2-100</byte>
+          <byte>101 103-110 115 120-125</byte>
+        </keysetValue_02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <tdml:parserTestCase name="InputTypeCalc_choiceDispatchByType_01"
+    root="choice_dispatchKeyByType_01" model="inputTypeCalc-Embedded.dfdl.xsd" description="Extensions - choiceDispatchByType with keysetValue types">
+
+    <tdml:document>
+    <tdml:documentPart type="byte">
+    01
+    </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <choice_dispatchKeyByType_01>
+          <one>one</one>
+        </choice_dispatchKeyByType_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="InputTypeCalc_choiceDispatchByType_02"
+    root="choice_dispatchKeyByType_02" model="inputTypeCalc-Embedded.dfdl.xsd" description="Extensions - choiceDispatchByType with keysetValue types">
+
+    <tdml:document>
+    <tdml:documentPart type="byte">
+    01 02 03 04 05 65 7A
+    </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <choice_dispatchKeyByType_02>
+          <byte><one>one</one></byte>
+          <byte><two>2-100</two></byte>
+          <byte><three_four_five>2-100</three_four_five></byte>
+          <byte><three_four_five>2-100</three_four_five></byte>
+          <byte><three_four_five>2-100</three_four_five></byte>
+          <byte><_101_122>101 103-110 115 120-125</_101_122></byte>
+          <byte><_101_122>101 103-110 115 120-125</_101_122></byte>
+        </choice_dispatchKeyByType_02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="InputTypeCalc_choiceDispatchByType_03"
+    root="choice_dispatchKeyByType_01" model="inputTypeCalc-Embedded.dfdl.xsd" description="Extensions - choiceDispatchByType with keysetValue types - bad key">
+
+    <tdml:document>
+    <tdml:documentPart type="byte">
+    ff
+    </tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Failed to match any of the branch keys</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:unparserTestCase name="InputTypeCalc_unparse_choiceDispatchByType_01"
+    root="choice_dispatchKeyByType_01" model="inputTypeCalc-Embedded.dfdl.xsd" description="Extensions - choiceDispatchByType with keysetValue types">
+
+    <tdml:document>
+    <tdml:documentPart type="byte">
+    01
+    </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <choice_dispatchKeyByType_01>
+          <one>one</one>
+        </choice_dispatchKeyByType_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="InputTypeCalc_unparse_choiceDispatchByType_02"
+    root="choice_dispatchKeyByType_02" model="inputTypeCalc-Embedded.dfdl.xsd" description="Extensions - choiceDispatchByType with keysetValue types">
+
+    <tdml:document>
+    <tdml:documentPart type="byte">
+    01 02 02 65
+    </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <choice_dispatchKeyByType_02>
+          <byte><one>one</one></byte>
+          <byte><two>2-100</two></byte>
+
+          <!-- It is a bit unclear what the below should unparse to.
+               Since it's type is 2-100, it would normally unparse to 2 if it
+               were outside of the choice, so this test expects that here.
+          -->
+          <byte><three_four_five>2-100</three_four_five></byte>
+          <byte><_101_122>101 103-110 115 120-125</_101_122></byte>
+        </choice_dispatchKeyByType_02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <tdml:parserTestCase name="InputTypeCalc_choiceBranchKeyByType_01"
+    root="choice_branchKeyByType_01" model="inputTypeCalc-Embedded.dfdl.xsd" description="Extensions - choiceBranchKeyByType with keysetValue types">
+
+    <tdml:document>
+    <tdml:documentPart type="byte">
+    01 01 02 02 07 08
+    </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <choice_branchKeyByType_01>
+          <byte><dispatchKey>1</dispatchKey><one>one</one></byte>
+          <byte><dispatchKey>2</dispatchKey><many>2</many></byte>
+          <byte><dispatchKey>7</dispatchKey><many>8</many></byte>
+        </choice_branchKeyByType_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="InputTypeCalc_unionOfKeysetValueCalcs_01"
+    root="inputTypeCalc_unionOfKeysetValueCalcs_01" model="inputTypeCalc-Embedded.dfdl.xsd" description="Extensions - repType with union of keysetValue types">
+
+    <tdml:document>
+    <tdml:documentPart type="byte">
+    01 02 03 64
+    </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <inputTypeCalc_unionOfKeysetValueCalcs_01>
+          <byte>one</byte>
+          <byte>2-100</byte>
+          <byte>2-100</byte>
+          <byte>2-100</byte>
+        </inputTypeCalc_unionOfKeysetValueCalcs_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:unparserTestCase name="InputTypeCalc_unparse_unionOfKeysetValueCalcs_01"
+    root="inputTypeCalc_unionOfKeysetValueCalcs_01" model="inputTypeCalc-Embedded.dfdl.xsd" description="Extensions - repType with union of keysetValue types">
+
+    <tdml:document>
+    <tdml:documentPart type="byte">
+    01 02
+    </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <inputTypeCalc_unionOfKeysetValueCalcs_01>
+          <byte>one</byte>
+          <byte>2-100</byte>
+        </inputTypeCalc_unionOfKeysetValueCalcs_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <tdml:parserTestCase name="InputTypeCalc_unionOfKeysetValueCalcs_02"
+    root="inputTypeCalc_unionOfKeysetValueCalcs_02" model="inputTypeCalc-Embedded.dfdl.xsd" description="Extensions - repType with union of keysetValue types">
+
+    <tdml:document>
+    <tdml:documentPart type="byte">
+    01 02 03 64 65 67
+    </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <inputTypeCalc_unionOfKeysetValueCalcs_02>
+          <byte><a>one</a></byte>
+          <byte><a>2-100</a></byte>
+          <byte><a>2-100</a></byte>
+          <byte><a>2-100</a></byte>
+          <byte><b>101 103-110 115 120-125</b></byte>
+          <byte><b>101 103-110 115 120-125</b></byte>
+        </inputTypeCalc_unionOfKeysetValueCalcs_02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:unparserTestCase name="InputTypeCalc_unparse_unionOfKeysetValueCalcs_02"
+    root="inputTypeCalc_unionOfKeysetValueCalcs_02" model="inputTypeCalc-Embedded.dfdl.xsd" description="Extensions - repType with union of keysetValue types">
+
+    <tdml:document>
+    <tdml:documentPart type="byte">
+    01 02 65
+    </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <inputTypeCalc_unionOfKeysetValueCalcs_02>
+          <byte><a>one</a></byte>
+          <byte><a>2-100</a></byte>
+          <byte><b>101 103-110 115 120-125</b></byte>
+        </inputTypeCalc_unionOfKeysetValueCalcs_02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+</tdml:testSuite>

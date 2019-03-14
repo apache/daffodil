@@ -1543,6 +1543,49 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
         DFDLSetBitsExpr(functionQNameString, functionQName, args)
       }
 
+      //Begin TypeValueCalc related functions
+      case (RefQName(_, "inputTypeCalcInt", DFDL), args) =>
+        FNTwoArgsExprInferedArgType(functionQNameString, functionQName, args,
+          NodeInfo.Int, NodeInfo.String, args(1).inherentType, DFDLXInputTypeCalcInt(_))
+
+      case (RefQName(_, "inputTypeCalcString", DFDL), args) =>
+        FNTwoArgsExprInferedArgType(functionQNameString, functionQName, args,
+          NodeInfo.String, NodeInfo.String, args(1).inherentType, DFDLXInputTypeCalcString(_))
+
+      case (RefQName(_, "outputTypeCalcInt", DFDL), args) =>
+        FNTwoArgsExprInferedArgType(functionQNameString, functionQName, args,
+          NodeInfo.Int, NodeInfo.String, args(1).inherentType, DFDLXOutputTypeCalcInt(_))
+
+      case (RefQName(_, "outputTypeCalcString", DFDL), args) =>
+        FNTwoArgsExprInferedArgType(functionQNameString, functionQName, args,
+          NodeInfo.String, NodeInfo.String, args(1).inherentType, DFDLXOutputTypeCalcString(_))
+
+      case (RefQName(_, "outputTypeCalcNextSiblingInt", DFDL), args) =>
+        FNZeroArgExpr(functionQNameString, functionQName,
+          NodeInfo.Int, NodeInfo.AnyAtomic, DFDLXOutputTypeCalcNextSiblingInt(_, _))
+
+      case (RefQName(_, "outputTypeCalcNextSiblingString", DFDL), args) =>
+        FNZeroArgExpr(functionQNameString, functionQName,
+          NodeInfo.String, NodeInfo.AnyAtomic, DFDLXOutputTypeCalcNextSiblingString(_, _))
+
+      case (RefQName(_, "repTypeValueInt", DFDL), args) =>
+        FNZeroArgExpr(functionQNameString, functionQName,
+          NodeInfo.Integer, NodeInfo.AnyAtomic, DFDLXRepTypeValueInt(_, _))
+
+      case (RefQName(_, "repTypeValueString", DFDL), args) =>
+        FNZeroArgExpr(functionQNameString, functionQName,
+          NodeInfo.String, NodeInfo.AnyAtomic, DFDLXRepTypeValueString(_, _))
+
+      case (RefQName(_, "logicalTypeValueInt", DFDL), args) =>
+        FNZeroArgExpr(functionQNameString, functionQName,
+          NodeInfo.Integer, NodeInfo.AnyAtomic, DFDLXLogicalTypeValueInt(_, _))
+          
+      case (RefQName(_, "logicalTypeValueString", DFDL), args) =>
+        FNZeroArgExpr(functionQNameString, functionQName,
+          NodeInfo.String, NodeInfo.AnyAtomic, DFDLXLogicalTypeValueString(_, _))
+
+      //End typeValueCalc related functions
+
       case (RefQName(_, "round-half-to-even", FUNC), args) if args.length == 1 => {
         FNOneArgMathExpr(functionQNameString, functionQName, args,
           FNRoundHalfToEven1(_, _))
@@ -1913,7 +1956,8 @@ abstract class FNTwoArgsExprBase(nameAsParsed: String, fnQName: RefQName,
   override lazy val compiledDPath = {
     val arg1Recipe = arg1.compiledDPath
     val arg2Recipe = arg2.compiledDPath
-    val res = new CompiledDPath(constructor(List(arg1Recipe, arg2Recipe)) +: conversions)
+    val recipe = constructor(List(arg1Recipe, arg2Recipe))
+    val res = new CompiledDPath(recipe +: conversions)
     res
   }
 }
@@ -1922,6 +1966,28 @@ case class FNTwoArgsExpr(nameAsParsed: String, fnQName: RefQName,
   args: List[Expression], resultType: NodeInfo.Kind, arg1Type: NodeInfo.Kind, arg2Type: NodeInfo.Kind,
   constructor: List[CompiledDPath] => RecipeOp)
   extends FNTwoArgsExprBase(nameAsParsed, fnQName, args, resultType, arg1Type, arg2Type, constructor)
+
+/*
+ * Used when the underlying constructor does not inherantly know its arguement types will be.
+ * Note that we do not actually "infer" the types here, as we can get them from the args parameter
+ * as easily as the caller, and the caller might be aware of more constraints than we are.
+ * (Eg. in the DFDLXTypeInputCalc functions, only the second parameter is infered, the first
+ * must be a String).
+ * 
+ * Note that, for arguements that should be inferred, the caller should use arg.inherentType,
+ * not arg.targetType, as the latter will look to this class to make its determination.
+ */
+case class FNTwoArgsExprInferedArgType(nameAsParsed: String, fnQName: RefQName,
+  args: List[Expression], resultType: NodeInfo.Kind, arg1Type: NodeInfo.Kind, arg2Type: NodeInfo.Kind,
+  constructor: List[(CompiledDPath, NodeInfo.Kind)] => RecipeOp)
+  extends {
+    private val constructor_ : List[CompiledDPath] => RecipeOp = (subExprs : List[CompiledDPath]) => {
+      Assert.invariant(subExprs.length == args.length)
+      val types = args.map(_.targetType)
+      val typedSubExprs = subExprs.zip(types)
+      constructor(typedSubExprs)
+    }
+  } with FNTwoArgsExprBase(nameAsParsed, fnQName, args, resultType, arg1Type, arg2Type, constructor_)
 
 sealed abstract class LengthExprBase(nameAsParsed: String, fnQName: RefQName,
   args: List[Expression], resultType: NodeInfo.Kind, arg1Type: NodeInfo.Kind, arg2Type: NodeInfo.Kind,

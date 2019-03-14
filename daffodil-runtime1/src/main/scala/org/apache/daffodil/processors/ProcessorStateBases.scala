@@ -398,8 +398,10 @@ abstract class ParseOrUnparseState protected (protected var variableBox: Variabl
   }
 
   def currentNode: Maybe[DINode]
-
-  private val _dState = new DState
+  
+  private val maybeSsrd = if(dataProc.isDefined){One(dataProc.get.ssrd)} else Maybe.Nope
+  
+  private val _dState = new DState(maybeSsrd)
 
   /**
    * Used when evaluating expressions. Holds state of expression

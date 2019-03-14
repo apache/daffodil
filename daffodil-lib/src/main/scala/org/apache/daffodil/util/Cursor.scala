@@ -93,8 +93,22 @@ trait Cursor[AccessorType <: Accessor[AccessorType]] {
    * The inspectAccessor provides access to the data, the returned
    * boolean indicates whether that happened successfully or there
    * was no more data.
+   *
+   * Note that inspecting may have side effects. For instance, the InfosetInputter
+   * returns a DINode on inspection. However, in order to construct a DINode, said node
+   * must be inserted into the infoset. Therefore, in a chain with one or more calls to inspect,
+   * followed by a call to advance, the side effect of constructing the DINode will be realized on the
+   * first call to inspect.
+   *
+   * For a side-effect free variant, consider inspectPure
    */
   def inspect: Boolean
+
+  /**
+   * Like inspect, but only partially populates the accessor with data that can be computed without
+   * side effects
+   */
+  def inspectPure: Boolean
 
   /**
    * Convenient combinations of advance with
@@ -110,6 +124,11 @@ trait Cursor[AccessorType <: Accessor[AccessorType]] {
     else Nope
   }
 
+  final def inspectPureMaybe: Maybe[AccessorType] = {
+    if (inspectPure) One(inspectAccessor)
+    else Nope
+  }
+
   /**
    * Cause this cursor to finish and cleanup anything that may be necessary,
    * regardless of if it is complete or not
@@ -119,16 +138,29 @@ trait Cursor[AccessorType <: Accessor[AccessorType]] {
 
 trait CursorImplMixin[AccessorType <: Accessor[AccessorType]] { self: Cursor[AccessorType] =>
 
-  private trait OpKind
-  private case object Advance extends OpKind
-  private case object Inspect extends OpKind
-  private case object Unsuccessful extends OpKind
-  private var priorOpKind: OpKind = Advance
+  /*
+   * We are a bit of a state machine based on what the last operation was.
+   * At all times, we have a "current" element, which is what future calls to advance/inspect/inspectPure provide information about.
+   * 
+   * Our states our as follows:
+   * priorOpKind == Advance - No work has been done for the current element. All work has been done on the prior element
+   * priorOpKind == InspectPure - The input corresponding to the current element has been consumed, but no externally visable side effects have occured
+   * priorOpKind == Inspect - The input corresponding to the current element has been consumed, and all exteranlly visible side effects have occured.
+   */
+  protected trait OpKind
+  protected case object Advance extends OpKind
+  protected case object Inspect extends OpKind
+  protected case object InspectPure extends OpKind
+  protected case object Unsuccessful extends OpKind
+  protected var priorOpKind: OpKind = Advance
 
   /**
    * Implement to fill in the accessor defined by the var`accessor`
+   * 
+   * if advanceInput is false, then the relevent data from the underlying input stream has already been consumed,
+   * and the prior value should be used.
    */
-  protected def fill(): Boolean
+  protected def fill(advanceInput: Boolean): Boolean
 
   /**
    * Assign this var to whatever accessor you want filled by the next
@@ -141,7 +173,11 @@ trait CursorImplMixin[AccessorType <: Accessor[AccessorType]] { self: Cursor[Acc
   final override def advance: Boolean = {
     accessor = advanceAccessor
     val res = priorOpKind match {
-      case Advance => doAdvance(false)
+      case Advance => doAdvance(false, advanceInput=true)
+      case InspectPure => {
+        priorOpKind = Advance
+        doAdvance(false, advanceInput=false)
+      }
       case Inspect => {
         // prior operation was inspect!
         priorOpKind = Advance
@@ -160,9 +196,13 @@ trait CursorImplMixin[AccessorType <: Accessor[AccessorType]] { self: Cursor[Acc
     val res = priorOpKind match {
       case Advance => {
         priorOpKind = Inspect
-        doAdvance(true)
+        doAdvance(true, true)
       }
-      case Inspect => true // inspect again does nothing.
+      case InspectPure => {
+        priorOpKind = Inspect
+        doAdvance(true, advanceInput=false)
+      }
+      case Inspect      => true // inspect again does nothing.
       case Unsuccessful => return false
     }
     // successful
@@ -170,8 +210,20 @@ trait CursorImplMixin[AccessorType <: Accessor[AccessorType]] { self: Cursor[Acc
     res
   }
 
-  private def doAdvance(isFilledValue: Boolean) = {
-    val res = fill()
+  //inpsectPure implemented in InfosetInputter.scala
+
+  /*
+   * Logically speaking, a Cursor may have 2 "streams": an input stream and an output stream.
+   *  
+   * When calling inspect/inspectPure/advance, we observe the current element of the output stream.
+   * We advance the input stream the first time we observe an element, but do not advance the output
+   * stream until the last time we observe an element (eg. until we observe an elemnt through the advance() method).
+   * 
+   * The advanceInput flag is needed so that calls to advance() can keep track if they are also the
+   * first observations of the elment, and therefore need to advance both the input stream and the output stream.
+   */
+  private def doAdvance(isFilledValue: Boolean, advanceInput: Boolean) = {
+    val res = fill(advanceInput)
     if (!res) priorOpKind = Unsuccessful
     isFilled = res
     res

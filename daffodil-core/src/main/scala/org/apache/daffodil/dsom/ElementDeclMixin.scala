@@ -62,7 +62,7 @@ trait ElementDeclMixin
     val ct = xml \ "complexType"
     val nt = typeName
     if (st.length == 1) {
-      val lstd = new LocalSimpleTypeDef(st(0), this)
+      val lstd = new LocalSimpleTypeDefFactory(st(0), schemaDocument).forElement(this)
       Some(lstd)
     } else if (ct.length == 1)
       Some(new LocalComplexTypeDef(ct(0), this))

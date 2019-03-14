@@ -95,13 +95,25 @@ case object UnparserNonBlocking extends EvalMode
  * if used in a forward referencing expression the expression can block until the information
  * becomes available.
  */
-case class DState() {
+case class DState(val maybeSsrd:Maybe[SchemaSetRuntimeData]) {
   import org.apache.daffodil.util.Numbers._
 
   var isCompile = false
 
   var opIndex: Int = 0
 
+  /*
+   * Used by TypeValueCalc to pass the logical or representation value to the DPath runtime.
+   * In principle, TypeValueCalc can be used recursively, so these data structures are really a stack.
+   * Instead of storing the stack explicitly, we rely on the runtime stack.
+   * When ExpressionTypeCalculator begins a computation, it saves the previous value of logical/repValue to a local variable
+   * (eg. to the runtime stack), and replaces the below fields.
+   * At the end of the computation, it should restore the below fields.
+   */
+  var logicalValue:Maybe[(AnyRef, NodeInfo.Kind)] = Maybe.Nope
+  
+  var repValue:Maybe[(AnyRef, NodeInfo.Kind)] = Maybe.Nope
+  
   /**
    * The currentValue is used when we have a value that is not
    * associated with an element of simple type. E.g., If I have
@@ -260,6 +272,18 @@ case class DState() {
   def currentElement = currentNode.asInstanceOf[DIElement]
   def currentArray = currentNode.asInstanceOf[DIArray]
   def currentComplex = currentNode.asComplex
+  
+  def nextSibling = {
+    val contents = currentElement.parent.asInstanceOf[DIComplex].contents
+       
+    //TOOD, currentNode should really know this
+    val i = contents.indexOf(currentNode)
+    if(i == contents.length-1){
+      throw new InfosetNoNextSiblingException(currentNode.asSimple, currentNode.erd.dpathElementCompileInfo)
+    }else{
+      contents(i+1)
+    }
+  }
 
   private var _vbox: VariableBox = null
 
@@ -388,7 +412,7 @@ object DState {
   }
 }
 
-class DStateForConstantFolding extends DState {
+class DStateForConstantFolding extends DState(Nope) {
   private def die = throw new java.lang.IllegalStateException("No infoset at compile time.")
 
   override def currentSimple = currentNode.asInstanceOf[DISimple]
@@ -402,4 +426,6 @@ class DStateForConstantFolding extends DState {
   override def fnExists() = die
   override def arrayPos = die
   override def arrayLength = die
+  
+  isCompile = true
 }

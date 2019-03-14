@@ -28,7 +28,8 @@ trait ExpressionCompilerBase[T <: AnyRef] {
   def compileExpression(qn: NamedQName, nodeInfoKind: NodeInfo.Kind, exprWithBracesMaybe: String, namespaces: NamespaceBinding,
     compileInfoWherePropertyWasLocated: DPathCompileInfo,
     isEvaluatedAbove: Boolean,
-    host: OOLAGHost): CompiledExpression[T]
+    host: OOLAGHost,
+    compileInfo: DPathCompileInfo): CompiledExpression[T]
 }
 
 abstract class ExpressionCompilerClass {

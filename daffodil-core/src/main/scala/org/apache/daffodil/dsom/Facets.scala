@@ -22,7 +22,7 @@ import scala.xml.Node
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.dpath.NodeInfo.PrimType
 
-trait Facets { self: Restriction =>
+trait Facets { self: RestrictionFactory =>
   import org.apache.daffodil.dsom.FacetTypes._
 
   requiredEvaluations(if (hasPattern) patternValues)

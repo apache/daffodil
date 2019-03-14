@@ -19,6 +19,8 @@ package org.apache.daffodil.processors.parsers
 
 import org.apache.daffodil.processors._
 import org.apache.daffodil.util.LogLevel
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.exceptions.Assert
 
 class ComplexTypeParser(rd: RuntimeData, bodyParser: Parser)
   extends CombinatorParser(rd) {
@@ -116,42 +118,141 @@ class DynamicEscapeSchemeParser(
   }
 }
 
-class ChoiceDispatchCombinatorParser(rd: TermRuntimeData, dispatchKeyEv: ChoiceDispatchKeyEv, dispatchBranchKeyMap: Map[String, Parser])
+/*
+ * dispatchBranchKeyMap: choiceBranchKey -> (Parser, hasRepresentation)
+ */
+
+abstract class ChoiceDispatchCombinatorParserBase(rd: TermRuntimeData, 
+                                                  dispatchBranchKeyMap: Map[String, (Parser, Boolean)], 
+                                                  dispatchKeyRangeMap:Vector[(RangeBound[BigInt],RangeBound[BigInt],Parser, Boolean)])
   extends CombinatorParser(rd) {
   override def nom = "ChoiceDispatch"
 
   override lazy val runtimeDependencies = Vector()
 
-  override lazy val childProcessors = dispatchBranchKeyMap.values.toVector
+  override def childProcessors = dispatchBranchKeyMap.values.map(_._1).toVector ++ dispatchKeyRangeMap.map(_._3)
+
+  /*
+   * Returns a value if pstate.processorStatus eq Success
+   */
+  def computeDispatchKey(pstate: PState): Maybe[String]
+
+  /*
+   * having choiceDispatchKeyKind=byType introduces some subtle problems.
+   * In the basic case a naive implementation would try to parse the repType twice:
+   *  once to determine the dispatchKey, and once because the resulting branch would have the same repType
+   * However, it is also possible that the branch would have an inputValueCalc, in which case we would
+   *  only parse the repType when computing the dispatchKey.
+   * The difficulty is that, in both the above cases, the *correct* behavior is to parse the reptype exactly once
+   *
+   * Ideally, we would actually parse repType once, and pass the result into the branch's parser
+   * However, in practice, this would involve a significant amount of reworking of Daffodil parsing subsystem.
+   *
+   * Instead, we simulate parseing once by saving and restoring state as follows:
+   *
+   * initialState = pstate.mark()
+   * dispatchKey <- repType.parse()
+   * if(branch.isRepresented){
+   *   pstate.restore(initialState)
+   * }else{
+   *   pstate.discard(initialState)
+   * }
+   * branch.parse()
+   *
+   *
+   */
 
   def parse(pstate: PState): Unit = {
-    val key = dispatchKeyEv.evaluate(pstate)
-
-    val parserOpt = dispatchBranchKeyMap.get(key)
-    if (parserOpt.isEmpty) {
-      val diag = new ChoiceDispatchNoMatch(context.schemaFileLocation, pstate, key)
-      pstate.setFailed(diag)
-    } else {
-      val parser = parserOpt.get
-
-      // Note that we are intentionally not pushing/popping a new
-      // discriminator here, as is done in the ChoiceCombinatorParser and
-      // AltCompParser. This has the effect that if a branch of this direct
-      // dispatch choice specifies a discriminator, then it will discriminate a
-      // point of uncertainty outside of the choice. If we pushed a new
-      // discriminator here if would essentially ignore discriminators on a
-      // choice branch.
-
-      log(LogLevel.Debug, "Dispatching to choice alternative: %s", parser)
-      parser.parse1(pstate)
+    val initialState = pstate.mark("ChoiceDispatchCombinatorParserBase.parse")
+    var freedInitialState = false
+    try {
+      val maybeKey = computeDispatchKey(pstate)
 
       if (pstate.processorStatus eq Success) {
-        log(LogLevel.Debug, "Choice dispatch success: %s", parser)
-      } else {
-        log(LogLevel.Debug, "Choice dispatch failed: %s", parser)
-        val diag = new ChoiceDispatchFailed(context.schemaFileLocation, pstate, pstate.diagnostics)
-        pstate.setFailed(diag)
+        val key = maybeKey.get
+
+        val parserOpt1 = dispatchBranchKeyMap.get(key)
+        val parserOpt2 = 
+          if(parserOpt1.isDefined) {
+            parserOpt1
+          } else{
+            if(!dispatchKeyRangeMap.isEmpty){
+              val keyAsBigInt = BigInt(key)
+              val optAns1= dispatchKeyRangeMap.filter({case(min,max,_,_) => min.testAsLower(keyAsBigInt) && max.testAsUpper(keyAsBigInt)}).headOption
+              optAns1.map({case(_,_,parser,isRepresented)=>(parser,isRepresented)})
+            }else{
+              None
+            }
+          }
+        
+        val parserOpt:Option[(Parser,Boolean)] = parserOpt2
+        if (parserOpt.isEmpty) {
+          val diag = new ChoiceDispatchNoMatch(context.schemaFileLocation, pstate, key)
+          pstate.setFailed(diag)
+        } else {
+          val (parser, isRepresented) = parserOpt.get
+          if (isRepresented) {
+            pstate.reset(initialState)
+            freedInitialState = true
+          } else {
+            pstate.discard(initialState)
+            freedInitialState = true
+          }
+
+          // Note that we are intentionally not pushing/popping a new
+          // discriminator here, as is done in the ChoiceCombinatorParser and
+          // AltCompParser. This has the effect that if a branch of this direct
+          // dispatch choice specifies a discriminator, then it will discriminate a
+          // point of uncertainty outside of the choice. If we pushed a new
+          // discriminator here if would essentially ignore discriminators on a
+          // choice branch.
+
+          log(LogLevel.Debug, "Dispatching to choice alternative: %s", parser)
+          parser.parse1(pstate)
+
+          if (pstate.processorStatus eq Success) {
+            log(LogLevel.Debug, "Choice dispatch success: %s", parser)
+          } else {
+            log(LogLevel.Debug, "Choice dispatch failed: %s", parser)
+            val diag = new ChoiceDispatchFailed(context.schemaFileLocation, pstate, pstate.diagnostics)
+            pstate.setFailed(diag)
+          }
+        }
+      }
+    } finally {
+      if (!freedInitialState) {
+        Assert.invariant(pstate.processorStatus ne Success)
+        //Since we failed, it does not matter what state we are actually in, as our caller will backtrack anyway
+        //What does matter is that we return the mark to the pool
+        pstate.discard(initialState)
+        freedInitialState = true
       }
     }
+
   }
+}
+
+class ChoiceDispatchCombinatorParser(rd: TermRuntimeData, dispatchKeyEv: ChoiceDispatchKeyEv, 
+  dispatchBranchKeyMap: Map[String, (Parser, Boolean)], dispatchKeyRangeMap:Vector[(RangeBound[BigInt],RangeBound[BigInt],Parser, Boolean)])
+  extends ChoiceDispatchCombinatorParserBase(rd, dispatchBranchKeyMap, dispatchKeyRangeMap) {
+  override def computeDispatchKey(pstate: PState): Maybe[String] = Maybe(dispatchKeyEv.evaluate(pstate))
+}
+
+class ChoiceDispatchCombinatorKeyByTypeParser(rd: TermRuntimeData, repTypeParser: Parser, repTypeRuntimeData: ElementRuntimeData, 
+                                              dispatchBranchKeyMap: Map[String, (Parser, Boolean)], dispatchKeyRangeMap:Vector[(RangeBound[BigInt],RangeBound[BigInt],Parser, Boolean)])
+  extends ChoiceDispatchCombinatorParserBase(rd, dispatchBranchKeyMap, dispatchKeyRangeMap)
+  with WithDetachedParser {
+
+//  override lazy val childProcessors = dispatchBranchKeyMap.values.map(_._1).toVector ++ dispatchKeyRangeMap.map(_._3)
+  override lazy val childProcessors = super.childProcessors ++ Vector(repTypeParser)
+  
+  override def computeDispatchKey(pstate: PState): Maybe[String] = {
+    val ans1 = runDetachedParser(pstate, repTypeParser, repTypeRuntimeData)
+    if (ans1.isDefined) {
+      Maybe(ans1.get.toString())
+    } else {
+      Maybe.Nope
+    }
+  }
+
 }

@@ -36,6 +36,9 @@ import org.apache.daffodil.api.DaffodilSchemaSource
 import org.apache.daffodil.api.UnitTestSchemaSource
 import org.apache.daffodil.schema.annotation.props.LookupLocation
 import org.apache.daffodil.api.DaffodilTunables
+import org.apache.daffodil.processors.TypeCalculator
+import scala.collection.immutable.Map
+import scala.collection.immutable.HashMap
 
 /**
  * A schema set is exactly that, a set of schemas. Each schema has
@@ -73,6 +76,8 @@ final class SchemaSet(
     tunableArg
 
   requiredEvaluations(isValid)
+  requiredEvaluations(typeCalcMap)
+  
   if (checkAllTopLevel) {
     requiredEvaluations(checkForDuplicateTopLevels())
     requiredEvaluations(this.allTopLevels)
@@ -139,7 +144,7 @@ final class SchemaSet(
     res
   }
 
-  lazy val schemas = LV('schemas) {
+  lazy val schemas: Seq[Schema] = LV('schemas) {
     val schemaPairs = allSchemaDocuments.map { sd => (sd.targetNamespace, sd) }
     //
     // groupBy is deterministic if the hashCode of the key element is deterministic.
@@ -157,6 +162,16 @@ final class SchemaSet(
     }
     schemas.toSeq
   }.value
+
+  lazy val globalSimpleTypeDefs: Seq[GlobalSimpleTypeDefFactory] = schemas.flatMap(_.globalSimpleTypeDefs)
+
+  lazy val typeCalcMap: Map[GlobalQName, TypeCalculator[AnyRef, AnyRef]] = {
+    val factories = globalSimpleTypeDefs
+    val withCalc = factories.filter(_.optTypeCalculator.isDefined)
+    val mappings = withCalc.map(st=> (st.globalQName, st.optTypeCalculator.get))
+
+    mappings.toMap
+  }
 
   /**
    * For checking uniqueness of global definitions in their namespaces
@@ -386,6 +401,10 @@ final class SchemaSet(
       val optPrimNode = NodeInfo.PrimType.fromNameString(refQName.local)
       optPrimNode.map { PrimitiveType(_) }
     }
+  }
+  def getPrimitiveTypeFactory(refQName: RefQName) = {
+    val primType = getPrimitiveType(refQName)
+    primType.map(new PrimitiveSimpleTypeFactory(_, schemaDocument))
   }
 
   /**

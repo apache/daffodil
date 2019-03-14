@@ -300,7 +300,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
         val hostForDiags = new DebuggerHost()
         val ce = eCompilers.JBoolean.compileExpression(debuggerQName,
           NodeInfo.Boolean, expression, processor.context.namespaces, context.dpathCompileInfo, false,
-          hostForDiags)
+          hostForDiags, context.dpathCompileInfo)
         val warnings = hostForDiags.getDiagnostics.filterNot(_.isError)
         warnings.foreach {
           debugPrintln(_)
@@ -1045,7 +1045,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
           val hostForDiags = new DebuggerHost()
           val compiledExpression = eCompilers.AnyRef.compileExpression(debuggerQName,
             NodeInfo.AnyType, expressionWithBraces, namespaces, context.dpathCompileInfo,
-            isEvaluatedAbove, hostForDiags)
+            isEvaluatedAbove, hostForDiags, context.dpathElementCompileInfo)
           val res = compiledExpression.evaluate(state)
           val warnings = hostForDiags.getDiagnostics.filterNot(_.isError)
           warnings.foreach {
