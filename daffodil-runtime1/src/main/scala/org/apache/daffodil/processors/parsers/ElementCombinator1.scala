@@ -40,7 +40,8 @@ abstract class ElementParserBase(
   testAssertParser: Array[Parser],
   eBeforeParser: Maybe[Parser],
   eParser: Maybe[Parser],
-  eAfterParser: Maybe[Parser])
+  eAfterParser: Maybe[Parser],
+  eRepTypeParser: Maybe[Parser])
   extends CombinatorParser(rd) {
 
   override lazy val runtimeDependencies = Vector()
@@ -56,7 +57,8 @@ abstract class ElementParserBase(
     setVarParser ++
     testDiscrimParser.toSeq ++
     testAssertParser ++
-    eAfterParser.toSeq).toVector
+    eAfterParser.toSeq ++
+    eRepTypeParser.toSeq).toVector
 
   override def toBriefXML(depthLimit: Int = -1): String = {
     if (depthLimit == 0) "..." else
@@ -140,9 +142,12 @@ abstract class ElementParserBase(
       // debugger of this so it can do things like check for break points
       if (pstate.dataProc.isDefined) pstate.dataProc.value.startElement(pstate, this)
 
-      if (eParser.isDefined)
+      if(eRepTypeParser.isDefined){
+        eRepTypeParser.get.parse1(pstate)
+      }  else if (eParser.isDefined){
         eParser.get.parse1(pstate)
-
+      }
+      
       Assert.invariant(pstate.hasInfoset)
 
       var setVarFailureDiags: Seq[Diagnostic] = Nil
@@ -217,7 +222,9 @@ class ElementParser(
   testAssert: Array[Parser],
   eBeforeParser: Maybe[Parser],
   eParser: Maybe[Parser],
-  eAfterParser: Maybe[Parser])
+  eAfterParser: Maybe[Parser],
+  eRepTypeParser: Maybe[Parser]
+  )
   extends ElementParserBase(
     erd,
     name,
@@ -228,7 +235,9 @@ class ElementParser(
     testAssert,
     eBeforeParser,
     eParser,
-    eAfterParser) {
+    eAfterParser,
+    eRepTypeParser  
+  ) {
 
   def move(start: PState) {
     start.mpstate.moveOverOneElementChildOnly
@@ -244,8 +253,12 @@ class ElementParser(
       case ct: DIComplex => ct.addChild(currentElement)
       case st: DISimple => {
         // don't add as a child. This corner case
-        // is just about tests where the root node is
+        // comes up with QuasiElements, which do not actually get inserted into the infoset
+        // The under such cases, we don't particuarly care about keeping the infoset clean (as the caller will revert changes anyway),
+        // but we do need to set the QuasiElements parent to maintain the invariant.
+        // It also comes up in tests where the root node is
         // a simple element.
+        currentElement.setParent(st.parent)
       }
     }
     log(LogLevel.Debug, "priorElement = %s", priorElement)
@@ -298,7 +311,9 @@ class ElementParserNoRep(
     testAssert,
     eBeforeParser,
     eParser,
-    eAfterParser) {
+    eAfterParser,
+    Maybe.Nope  
+  ) {
 
   // if there is no rep (inputValueCalc), then we do create a new child so that index must advance,
   // but we don't create anything new as far as the group is concerned, and we don't want
@@ -330,7 +345,9 @@ class ChoiceElementParser(
     testAssert,
     eBeforeParser,
     eParser,
-    eAfterParser) {
+    eAfterParser,
+    Maybe.Nope  
+  ) {
 
   def move(state: PState) = {}
 

@@ -28,6 +28,7 @@ import org.apache.daffodil.processors.UnparseTargetLengthInBitsEv
 import org.apache.daffodil.util.MaybeULong
 import org.apache.daffodil.processors.Evaluatable
 import org.apache.daffodil.infoset.RetryableException
+import org.apache.daffodil.processors.TypeCalculator
 
 /**
  * Elements that, when unparsing, have no length specified.
@@ -39,13 +40,15 @@ class ElementUnspecifiedLengthUnparser(
   setVarUnparsers: Array[Unparser],
   eBeforeUnparser: Maybe[Unparser],
   eUnparser: Maybe[Unparser],
-  eAfterUnparser: Maybe[Unparser])
+  eAfterUnparser: Maybe[Unparser],
+  eReptypeUnparser: Maybe[Unparser])
   extends ElementUnparserBase(
     erd,
     setVarUnparsers,
     eBeforeUnparser,
     eUnparser,
-    eAfterUnparser)
+    eAfterUnparser,
+    eReptypeUnparser)
   with RegularElementUnparserStartEndStrategy
   with RepMoveMixin {
 
@@ -77,6 +80,7 @@ class ElementUnparserNoRep(
     setVarUnparsers,
     Nope,
     Nope,
+    Nope,
     Nope)
   with RegularElementUnparserStartEndStrategy {
 
@@ -103,7 +107,8 @@ class ElementOVCUnspecifiedLengthUnparser(
     setVarUnparsers,
     eBeforeUnparser,
     eUnparser,
-    eAfterUnparser)
+    eAfterUnparser,
+    Nope)
   with OVCStartEndStrategy
   with RepMoveMixin {
 
@@ -123,13 +128,14 @@ sealed abstract class ElementUnparserBase(
   val setVarUnparsers: Array[Unparser],
   val eBeforeUnparser: Maybe[Unparser],
   val eUnparser: Maybe[Unparser],
-  val eAfterUnparser: Maybe[Unparser])
+  val eAfterUnparser: Maybe[Unparser],
+  val eReptypeUnparser: Maybe[Unparser])
   extends CombinatorUnparser(erd)
   with RepMoveMixin
   with ElementUnparserStartEndStrategy {
 
   final override lazy val childProcessors =
-    (eBeforeUnparser.toList ++ eUnparser.toList ++ eAfterUnparser.toList ++ setVarUnparsers.toList).toVector
+    (eBeforeUnparser.toList ++ eUnparser.toList ++ eAfterUnparser.toList ++ eReptypeUnparser.toList ++ setVarUnparsers.toList).toVector
 
   private val name = erd.name
 
@@ -137,6 +143,7 @@ sealed abstract class ElementUnparserBase(
     if (depthLimit == 0) "..." else
       "<Element name='" + name + "'>" +
         (if (eBeforeUnparser.isDefined) eBeforeUnparser.value.toBriefXML(depthLimit - 1) else "") +
+        (if (eReptypeUnparser.isDefined) eReptypeUnparser.value.toBriefXML(depthLimit -1) else "") +
         (if (eUnparser.isDefined) eUnparser.value.toBriefXML(depthLimit - 1) else "") +
         (if (eAfterUnparser.isDefined) eAfterUnparser.value.toBriefXML(depthLimit - 1) else "") +
         setVarUnparsers.map { _.toBriefXML(depthLimit - 1) }.mkString +
@@ -167,7 +174,9 @@ sealed abstract class ElementUnparserBase(
   }
 
   protected def runContentUnparser(state: UState) {
-    if (eUnparser.isDefined)
+    if (eReptypeUnparser.isDefined) {
+      eReptypeUnparser.get.unparse1(state)
+    } else if (eUnparser.isDefined)
       eUnparser.get.unparse1(state)
   }
 
@@ -267,13 +276,15 @@ class ElementSpecifiedLengthUnparser(
   setVarUnparsers: Array[Unparser],
   eBeforeUnparser: Maybe[Unparser],
   eUnparser: Maybe[Unparser],
-  eAfterUnparser: Maybe[Unparser])
+  eAfterUnparser: Maybe[Unparser],
+  eReptypeUnparser: Maybe[Unparser])
   extends ElementUnparserBase(
     context,
     setVarUnparsers,
     eBeforeUnparser,
     eUnparser,
-    eAfterUnparser)
+    eAfterUnparser,
+    eReptypeUnparser)
   with RegularElementUnparserStartEndStrategy
   with ElementSpecifiedLengthMixin {
 
@@ -325,7 +336,8 @@ class ElementOVCSpecifiedLengthUnparser(
     setVarUnparsers,
     eBeforeUnparser,
     eUnparser,
-    eAfterUnparser)
+    eAfterUnparser,
+    Nope)
   with OVCStartEndStrategy
   with ElementSpecifiedLengthMixin {
 
@@ -375,50 +387,67 @@ sealed trait RegularElementUnparserStartEndStrategy
    * element's DIElement node is the context element.
    */
   final override protected def unparseBegin(state: UState): Unit = {
-    val elem =
-      if (!erd.isHidden) {
-        // Hidden elements are not in the infoset, so we will never get an event
-        // for them. Only try to consume start events for non-hidden elements
-        val event = state.advanceOrError
-        if (!event.isStart || event.erd != erd) {
-          // it's not a start element event, or it's a start element event, but for a different element.
-          // this indicates that the incoming infoset (as events) doesn't match the schema
-          UnparseError(Nope, One(state.currentLocation), "Expected element start event for %s, but received %s.", erd.namedQName, event)
+    if (erd.isQuasiElement) {
+      //Quasi elements are used for TypeValueCalc, and have no corresponding events in the infoset inputter
+      //The parent parser will push a DIElement for us to consume containing the logical value, so we do
+      //not need to do so here
+      Assert.invariant(state.currentInfosetNode.isSimple)
+      Assert.invariant(state.currentInfosetNode.asSimple.erd eq erd)
+      ()
+    } else {
+      val elem =
+        if (!erd.isHidden) {
+          // Hidden elements are not in the infoset, so we will never get an event
+          // for them. Only try to consume start events for non-hidden elements
+          val event = state.advanceOrError
+          if (!event.isStart || event.erd != erd) {
+            // it's not a start element event, or it's a start element event, but for a different element.
+            // this indicates that the incoming infoset (as events) doesn't match the schema
+            UnparseError(Nope, One(state.currentLocation), "Expected element start event for %s, but received %s.", erd.namedQName, event)
+          }
+          event.asElement
+        } else {
+          // Since we never get events for hidden elements, their infoset elements
+          // will have never been created. This means we need to manually create them
+          val e = if (erd.isComplexType) new DIComplex(erd, state.tunable) else new DISimple(erd)
+          state.currentInfosetNode.asComplex.addChild(e)
+          e
         }
-        event.asElement
-      } else {
-        // Since we never get events for hidden elements, their infoset elements
-        // will have never been created. This means we need to manually create them
-        val e = if (erd.isComplexType) new DIComplex(erd, state.tunable) else new DISimple(erd)
-        state.currentInfosetNode.asComplex.addChild(e)
-        e
-      }
 
-    // When the infoset events are being advanced, the currentInfosetNodeStack
-    // is pushing and popping to match the events. This provides the proper
-    // context for evaluation of expressions.
-    val e = One(elem)
-    state.currentInfosetNodeStack.push(e)
+      // When the infoset events are being advanced, the currentInfosetNodeStack
+      // is pushing and popping to match the events. This provides the proper
+      // context for evaluation of expressions.
+      val e = One(elem)
+      state.currentInfosetNodeStack.push(e)
+    }
   }
 
   /**
    * Restores prior context. Consumes end-element event.
    */
   final override protected def unparseEnd(state: UState): Unit = {
-    if (!erd.isHidden) {
-      // Hidden elements are not in the infoset, so we will never get an event
-      // for them. Only try to consume end events for non-hidden elements
-      val event = state.advanceOrError
-      if (!event.isEnd || event.erd != erd) {
-        // it's not an end-element event, or it's an end element event, but for a different element.
-        // this indicates that the incoming infoset (as events) doesn't match the schema
-        UnparseError(Nope, One(state.currentLocation), "Expected element end event for %s, but received %s.", erd.namedQName, event)
+    if (erd.isQuasiElement) {
+      //Quasi elements are used for TypeValueCalc, and have no corresponding events in the infoset inputter
+      //The parent parser will handle pushing and poping the Infoset, so we do not need to do anything here.
+      Assert.invariant(state.currentInfosetNode.isSimple)
+      Assert.invariant(state.currentInfosetNode.asSimple.erd eq erd)
+      ()
+    } else {
+      if (!erd.isHidden) {
+        // Hidden elements are not in the infoset, so we will never get an event
+        // for them. Only try to consume end events for non-hidden elements
+        val event = state.advanceOrError
+        if (!event.isEnd || event.erd != erd) {
+          // it's not an end-element event, or it's an end element event, but for a different element.
+          // this indicates that the incoming infoset (as events) doesn't match the schema
+          UnparseError(Nope, One(state.currentLocation), "Expected element end event for %s, but received %s.", erd.namedQName, event)
+        }
       }
+
+      state.currentInfosetNodeStack.pop
+
+      move(state)
     }
-
-    state.currentInfosetNodeStack.pop
-
-    move(state)
   }
 
   final override protected def captureRuntimeValuedExpressionValues(ustate: UState): Unit = {}
@@ -435,11 +464,11 @@ trait OVCStartEndStrategy
     val elem =
       if (!erd.isHidden) {
         // outputValueCalc elements are optional in the infoset. If the next event
-        // is for this is for this OVC element, then consume the start/end events.
+        // is for this OVC element, then consume the start/end events.
         // Otherwise, the next event is for a following element, and we do not want
         // to consume it. Don't even bother checking all this if it's hidden. It
         // definitely won't be in the infoset in that case.
-        val eventMaybe = state.inspectMaybe
+        val eventMaybe = state.inspectPureMaybe
         if (eventMaybe.isDefined && eventMaybe.get.erd == erd) {
           // Event existed for this OVC element, should be a start and end events
           val startEv = state.advanceOrError // Consume the start event

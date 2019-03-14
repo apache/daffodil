@@ -30,12 +30,12 @@ import org.apache.daffodil.compiler.Compiler
  * Lets us pattern deconstruct infoset events, which is nice for unit testing
  */
 object Start {
-  def apply(node: DINode) = InfosetAccessor(StartKind, node)
+  def apply(node: DINode) = InfosetAccessor(StartKind, node, node.erd)
   def unapply(ev: InfosetAccessor) = if (ev.kind eq StartKind) Some(ev.node) else None
 }
 
 object End {
-  def apply(node: DINode) = InfosetAccessor(EndKind, node)
+  def apply(node: DINode) = InfosetAccessor(EndKind, node, node.erd)
   def unapply(ev: InfosetAccessor) = if (ev.kind eq EndKind) Some(ev.node) else None
 }
 

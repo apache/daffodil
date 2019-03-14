@@ -279,8 +279,8 @@ trait Term
       case c: ChoiceTermBase => Some(c)
       case s: SequenceTermBase => Some(s)
       case d: SchemaDocument => {
-        // we must be the Root elementRef or a detatched node
-        Assert.invariant(this.isInstanceOf[Root] || this.isInstanceOf[DetachedElementDecl])
+        // we must be the Root elementRef or a quasi node
+        Assert.invariant(this.isInstanceOf[Root] || this.isInstanceOf[QuasiElementDeclBase])
         None
       }
       case gr: GroupRef => gr.asModelGroup.immediatelyEnclosingModelGroup

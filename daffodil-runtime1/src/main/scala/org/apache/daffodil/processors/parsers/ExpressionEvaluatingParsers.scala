@@ -29,6 +29,22 @@ import org.apache.daffodil.processors.RuntimeData
 import org.apache.daffodil.processors.Success
 import org.apache.daffodil.processors.VariableRuntimeData
 import org.apache.daffodil.util.LogLevel
+import org.apache.daffodil.infoset.Infoset
+import org.apache.daffodil.processors.TypeCalculator
+import org.apache.daffodil.infoset.DISimple
+import org.apache.daffodil.infoset.DISimple
+import org.apache.daffodil.processors.Evaluatable
+import org.apache.daffodil.infoset.DIComplex
+import org.apache.daffodil.infoset.DIDocument
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.infoset.DIComplexState
+import org.apache.daffodil.infoset.DIComplex
+import org.apache.daffodil.infoset.DIComplex
+import org.apache.daffodil.infoset.DIElement
+import org.apache.daffodil.infoset.DIDocument
+import org.apache.daffodil.infoset.DIComplex
+import org.apache.daffodil.processors.ElementRuntimeData
+import org.apache.daffodil.processors.Processor
 
 // import java.lang.{ Boolean => JBoolean }
 
@@ -65,6 +81,80 @@ class IVCParser(expr: CompiledExpression[AnyRef], e: ElementRuntimeData)
       currentElement.setDataValue(res)
       if (start.processorStatus ne Success) return
     }
+}
+
+/*
+ * Run a parser for an element that does not occur in the infoset
+ * Prior to running, a temporary element (of the type expected by the parser) will be created in the infoset,
+ * After running, the infoset will be reverted to its original state, but any other side effect of parsing will remain
+ *
+ * Additionally, the dataValue of the element the parser parsed will be returned
+ */
+trait WithDetachedParser {
+  def runDetachedParser(pstate: PState, detachedParser: Parser, erd: ElementRuntimeData): Maybe[AnyRef] = {
+    /*
+     * The parse1 being called here is that of ElementCombinator1, which expects to begin and end in the parent
+     * of whatever element it is parsing. parse1 will create the new element and append it to the end of the
+     * children list of the parent.
+     *
+     * The parse() call we are in currently is in the middle of the above process already.
+     * To use the distachedParser, we need to unwind then rewind the work that ElementCombinator1 has already done
+     *  (in addition to reverting the infoset changes that repTypeParser made). the general flow is:
+     *
+     *  1) priorElement = pstate.infoset
+     *  2) pstate.infoset = pstate.infoset.parent
+     *  3) pstate.infoset.mark
+     *  4) distachedParser.parse1
+     *  5) pstate.infoset.restore
+     *  6) pstate.infoset = priorElement
+     *
+     *  Note that we are only restoring the infoset. Any other side effects the repTypeParser has on pstate
+     *  (such as advancing the bit posistion) will remain.
+     *
+     *  If repTypeParser has an error (either thrown or status), we percolate it up to our caller.
+     */
+
+    val priorElement = pstate.infoset
+    pstate.setParent(pstate.infoset.diParent)
+
+    val priorState = pstate.mark("WithDetachedParser.runDetachedParser: About to run detachedParser")
+
+    val ans: Maybe[AnyRef] = try {
+      detachedParser.parse1(pstate)
+      pstate.processorStatus match {
+        case Success => Maybe(pstate.infoset.children.last.asSimple.dataValue)
+        case _       => None
+      }
+    } finally {
+      //Restore the infoset, but keep any other side effects
+      priorState.restoreInfoset(pstate)
+      pstate.discard(priorState)
+      pstate.setParent(priorElement)
+    }
+    ans
+  }
+}
+
+class TypeValueCalcParser(typeCalculator: TypeCalculator[AnyRef, AnyRef], repTypeParser: Parser, e: ElementRuntimeData, repTypeRuntimeData: ElementRuntimeData)
+  extends CombinatorParser(e)
+  with WithDetachedParser {
+  override lazy val childProcessors = Vector(repTypeParser)
+  override lazy val runtimeDependencies: Vector[Evaluatable[AnyRef]] = Vector()
+  
+  override def parse(pstate: PState): Unit = {
+    val repValue: Maybe[AnyRef] = runDetachedParser(pstate, repTypeParser, repTypeRuntimeData)
+    val repValueType = repTypeRuntimeData.optPrimType.get
+    pstate.dataProc.get.ssrd
+    if (pstate.processorStatus == Success) {
+      Assert.invariant(repValue.isDefined)
+      val logicalValue: Maybe[AnyRef] = typeCalculator.inputTypeCalcParse(pstate, context, repValue.get, repValueType)
+      if (pstate.processorStatus == Success) {
+        Assert.invariant(logicalValue.isDefined)
+        pstate.simpleElement.setDataValue(logicalValue.get)
+      }
+    }
+  }
+
 }
 
 class SetVariableParser(expr: CompiledExpression[AnyRef], decl: VariableRuntimeData)

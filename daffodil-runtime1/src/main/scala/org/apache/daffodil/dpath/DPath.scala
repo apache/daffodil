@@ -169,6 +169,8 @@ final class RuntimeExpressionDPath[T <: AnyRef](qn: NamedQName, tt: NodeInfo.Kin
         whereBlockedInfo.block(unfin.node, unfin.node.erd.dpathElementCompileInfo, 0, unfin)
       case noChild: InfosetNoSuchChildElementException =>
         whereBlockedInfo.block(noChild.diComplex, noChild.info, 0, noChild)
+      case noSibling: InfosetNoNextSiblingException =>
+        whereBlockedInfo.block(noSibling.diSimple, noSibling.info, 0 , noSibling)
       case noArrayIndex: InfosetArrayIndexOutOfBoundsException =>
         whereBlockedInfo.block(noArrayIndex.diArray, noArrayIndex.diArray.erd.dpathElementCompileInfo, noArrayIndex.index, noArrayIndex)
       case nd: InfosetNoDataException if nd.erd.outputValueCalcExpr.isDefined => {
@@ -187,6 +189,10 @@ final class RuntimeExpressionDPath[T <: AnyRef](qn: NamedQName, tt: NodeInfo.Kin
     value1
   }
 
+  override def run(dstate: DState) {
+    recipe.run(dstate)
+  }
+  
   private def processForwardExpressionResults(dstate: DState): AnyRef = {
     val v: AnyRef = {
       dstate.currentNode match {
@@ -328,7 +334,8 @@ final class RuntimeExpressionDPath[T <: AnyRef](qn: NamedQName, tt: NodeInfo.Kin
             case NodeInfo.NonEmptyString => {
               Assert.invariant(value.isInstanceOf[String])
               if (value.asInstanceOf[String].length == 0) {
-                ci.schemaDefinitionError("Non-empty string required.")
+                val e = new RuntimeSchemaDefinitionError(ci.schemaFileLocation, state, "Non-empty string required." )
+                doSDE(e,state)
               }
               value
             }

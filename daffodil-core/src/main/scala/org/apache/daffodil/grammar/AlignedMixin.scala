@@ -20,13 +20,14 @@ package org.apache.daffodil.grammar
 import org.apache.daffodil.dsom.Term
 import org.apache.daffodil.dsom.ElementBase
 import org.apache.daffodil.dsom.ModelGroup
-import org.apache.daffodil.dsom.DetachedElementDecl
+import org.apache.daffodil.dsom.PrefixLengthQuasiElementDecl
 import org.apache.daffodil.schema.annotation.props.gen.AlignmentUnits
 import org.apache.daffodil.schema.annotation.props.gen.LengthKind
 import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
 import org.apache.daffodil.util.Math
 import org.apache.daffodil.dsom.Root
 import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.dsom.QuasiElementDeclBase
 
 case class AlignmentMultipleOf(nBits: Long) {
   def *(that: AlignmentMultipleOf) = AlignmentMultipleOf(Math.gcd(nBits, that.nBits))
@@ -127,8 +128,8 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
   }
 
   private lazy val priorAlignmentApprox: AlignmentMultipleOf = {
-    if (this.isInstanceOf[Root] || this.isInstanceOf[DetachedElementDecl]) {
-      AlignmentMultipleOf(0) // root and detached elements are aligned with anything
+    if (this.isInstanceOf[Root] || this.isInstanceOf[QuasiElementDeclBase]) {
+      AlignmentMultipleOf(0) // root and quasi elements are aligned with anything
     } else {
       val (priorSibs, parent) = potentialPriorTerms
       val arraySelfAlignment =

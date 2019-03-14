@@ -52,6 +52,11 @@ sealed abstract class PropertyLookupResult(val pname: String) extends Serializab
    * for the schema file.
    */
   def isFromDefaultFormat: Boolean
+  
+  lazy val toOption = this match{
+    case Found(value, _,_,_) => Some(value)
+    case _: NotFound => None
+  }
 }
 
 case class Found(value: String, location: LookupLocation, override val pname: String,

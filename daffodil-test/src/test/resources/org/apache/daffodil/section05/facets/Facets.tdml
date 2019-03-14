@@ -5027,25 +5027,9 @@
       </xs:restriction>
     </xs:simpleType>
     
-    <xs:simpleType name="enum_st4">
-      <xs:restriction base="ex:enum_st1">
-        <xs:enumeration value="Trout" />
-        <xs:enumeration value="Bass" />
-        <xs:enumeration value="Carp" />
-      </xs:restriction>
-    </xs:simpleType>
-    
     <xs:simpleType name="enum_st5">
       <xs:restriction base="ex:enum_st1">
         <xs:enumeration value="Bass" />
-      </xs:restriction>
-    </xs:simpleType>
-    
-    <xs:simpleType name="enum_st6">
-      <xs:restriction base="xs:string">
-        <xs:enumeration value="Dalmation" />
-        <xs:enumeration value="Dalmation" />
-        <xs:enumeration value="Dalmation" />
       </xs:restriction>
     </xs:simpleType>
     
@@ -5075,19 +5059,6 @@
       </xs:simpleType>
     </xs:element>
     
-    <xs:element name="enum_e3" dfdl:lengthKind="delimited">
-      <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/">
-          <dfdl:assert test="{ dfdl:checkConstraints(.) }"
-            message="Assertion failed for dfdl:checkConstraints(.)" />
-        </xs:appinfo>
-      </xs:annotation>
-      <xs:simpleType>
-        <xs:restriction base="ex:enum_st4">
-        </xs:restriction>
-      </xs:simpleType>
-    </xs:element>
-    
     <xs:element name="enum_e4" dfdl:lengthKind="delimited">
       <xs:annotation>
         <xs:appinfo source="http://www.ogf.org/dfdl/">
@@ -5110,19 +5081,6 @@
       </xs:annotation>
       <xs:simpleType>
         <xs:restriction base="ex:enum_st2">
-        </xs:restriction>
-      </xs:simpleType>
-    </xs:element>
-    
-    <xs:element name="enum_e6" dfdl:lengthKind="delimited">
-      <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/">
-          <dfdl:assert test="{ dfdl:checkConstraints(.) }"
-            message="Assertion failed for dfdl:checkConstraints(.)" />
-        </xs:appinfo>
-      </xs:annotation>
-      <xs:simpleType>
-        <xs:restriction base="ex:enum_st6">
         </xs:restriction>
       </xs:simpleType>
     </xs:element>
@@ -5313,8 +5271,43 @@
     Purpose: This test fails because the inheriting enumeration is not a subset of the base value.
   -->
 
+  <tdml:defineSchema name="facetEnum06">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" />
+
+    <xs:simpleType name="enum_st4_base">
+      <xs:restriction base="xs:string">
+        <xs:enumeration value="Trout" />
+        <xs:enumeration value="Bass" />
+        <xs:enumeration value="Catfish" />
+      </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="enum_st4">
+      <xs:restriction base="ex:enum_st4_base">
+        <xs:enumeration value="Trout" />
+        <xs:enumeration value="Bass" />
+        <xs:enumeration value="Carp" />
+      </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:element name="enum_e3" dfdl:lengthKind="delimited">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
+          <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+            message="Assertion failed for dfdl:checkConstraints(.)" />
+        </xs:appinfo>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="ex:enum_st4">
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
   <tdml:parserTestCase name="facetEnum06" root="enum_e3"
-    model="enumSchema" description="Section 5 - Facets - enumeration - DFDL-5-054R">
+    model="facetEnum06" description="Section 5 - Facets - enumeration - DFDL-5-054R">
     <tdml:document>Carp</tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
@@ -5342,8 +5335,35 @@
     Purpose: This test fails because the enum values are not unique
   -->
 
+  <tdml:defineSchema name="facetEnum08">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" />
+
+    <xs:simpleType name="enum_st6">
+      <xs:restriction base="xs:string">
+        <xs:enumeration value="Dalmation" />
+        <xs:enumeration value="Dalmation" />
+        <xs:enumeration value="Dalmation" />
+      </xs:restriction>
+    </xs:simpleType>
+
+    <xs:element name="enum_e6" dfdl:lengthKind="delimited">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
+          <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+            message="Assertion failed for dfdl:checkConstraints(.)" />
+        </xs:appinfo>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="ex:enum_st6">
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
   <tdml:parserTestCase name="facetEnum08" root="enum_e6"
-    model="enumSchema" description="Section 5 - Facets - enumeration - DFDL-5-054R">
+    model="facetEnum08" description="Section 5 - Facets - enumeration - DFDL-5-054R">
     <tdml:document>Dalmation</tdml:document>
     <tdml:errors>
       <tdml:error>Enumerations must be unique</tdml:error>
@@ -5589,13 +5609,6 @@
       </xs:restriction>
     </xs:simpleType>
     
-    <xs:simpleType name="mImE_st8">
-      <xs:restriction base="xs:short">
-        <xs:minInclusive value="1" />
-        <xs:maxInclusive value="33000" />
-      </xs:restriction>
-    </xs:simpleType>
-    
     <xs:simpleType name="mImE_st9">
       <xs:restriction base="xs:short">
         <xs:minInclusive value="-10" />
@@ -5766,19 +5779,6 @@
       </xs:annotation>
       <xs:simpleType>
         <xs:restriction base="ex:mImE_st7">
-        </xs:restriction>
-      </xs:simpleType>
-    </xs:element>
-    
-    <xs:element name="mImE_e8" dfdl:lengthKind="delimited">
-      <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/">
-          <dfdl:assert test="{ dfdl:checkConstraints(.) }"
-            message="Assertion failed for dfdl:checkConstraints(.)" />
-        </xs:appinfo>
-      </xs:annotation>
-      <xs:simpleType>
-        <xs:restriction base="ex:mImE_st8">
         </xs:restriction>
       </xs:simpleType>
     </xs:element>
@@ -6132,9 +6132,37 @@
     Schema: minMaxInExSchema 
     Purpose: This test fails because the value of maxInclusive is not within the range of the type xs:short
   -->
+  <tdml:defineSchema name="minMaxInEx10">
+
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" />
+
+    <xs:simpleType name="mImE_st8">
+      <xs:restriction base="xs:short">
+        <xs:minInclusive value="1" />
+        <xs:maxInclusive value="33000" />
+      </xs:restriction>
+    </xs:simpleType>
+    
+
+    <xs:element name="mImE_e8" dfdl:lengthKind="delimited">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
+          <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+            message="Assertion failed for dfdl:checkConstraints(.)" />
+        </xs:appinfo>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="ex:mImE_st8">
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+    
+
+  </tdml:defineSchema>
 
   <tdml:parserTestCase name="minMaxInEx10" root="mImE_e8"
-    model="minMaxInExSchema" description="Section 5 - Facets - min/max In/Exclusive - DFDL-5-055R">
+    model="minMaxInEx10" description="Section 5 - Facets - min/max In/Exclusive - DFDL-5-055R">
     <tdml:document>5</tdml:document>
     <tdml:errors>
       <tdml:error>maxInclusive facet value (33000) was found to be outside of Short range</tdml:error>

@@ -53,6 +53,7 @@ import org.apache.daffodil.processors.ParseOrUnparseState
 import org.apache.daffodil.processors.parsers.PState
 import org.apache.daffodil.api.DaffodilTunables
 import java.util.HashMap
+import org.apache.daffodil.dsom.DPathElementCompileInfo
 
 sealed trait DINode {
 
@@ -64,7 +65,8 @@ sealed trait DINode {
       }
     }
   }
-
+  def isSimple: Boolean
+  
   def asComplex: DIComplex = {
     this match {
       case diComplex: DIComplex => diComplex
@@ -73,6 +75,7 @@ sealed trait DINode {
       }
     }
   }
+  def isComplex: Boolean
 
   def children: Stream[DINode]
   def totalElementCount: Long
@@ -154,6 +157,10 @@ case class InfosetWrongNodeType(expectedType: String, val node: DINode)
  */
 case class InfosetNoSuchChildElementException(val diComplex: DIComplex, val info: DPathElementCompileInfo)
   extends ProcessingError("Expression Evaluation", Nope, Nope, "Child element %s does not exist.", info.namedQName)
+  with InfosetException with RetryableException
+  
+case class InfosetNoNextSiblingException(val diSimple:DISimple, val info:DPathElementCompileInfo)
+  extends ProcessingError("Expression Evaluation", Nope, Nope, "Element %s does not have a nextSibling", info.namedQName)
   with InfosetException with RetryableException
 
 case class InfosetNoInfosetException(val rd: Maybe[RuntimeData])
@@ -954,6 +961,9 @@ final class DIArray(
       }
     }
   }
+  
+  override def isSimple = false
+  override def isComplex = false
 
   override def toString = "DIArray(" + namedQName + "," + _contents + ")"
 
@@ -1527,9 +1537,12 @@ final class DIDocument(erd: ElementRuntimeData, tunable: DaffodilTunables)
   }
 
   override def addChild(child: InfosetElement) {
-    // DIDocument only ever allowed a single child
-    //
-    Assert.invariant(childNodes.length == 0)
+    /*
+     * DIDocument normally only has a single child.
+     * However, if said child wants to create a quasi-element (eg. if it is a simpleType with a typeCalc),
+     * said element will need to be temporarily added as a second child to DIDocument.
+     * When this happens, we do not set it as the root, but otherwise proceed normally
+     */
     val node = child.asInstanceOf[DINode]
     childNodes += node
     if (node.erd.dpathElementCompileInfo.isReferencedByExpressions) {
@@ -1538,7 +1551,8 @@ final class DIDocument(erd: ElementRuntimeData, tunable: DaffodilTunables)
       nameToChildNodeLookup.put(node.namedQName, ab)
     }
     child.setParent(this)
-    root = child.asInstanceOf[DIElement]
+    if(root == null)
+      root = child.asInstanceOf[DIElement]
   }
 
   def getRootElement(): InfosetElement = {

@@ -47,9 +47,13 @@ final class DFDLSequence(node: Node, decl: SequenceDefMixin)
 final class DFDLChoice(node: Node, decl: ChoiceDefMixin)
   extends DFDLModelGroup(node, decl)
 
-final class DFDLSimpleType(node: Node, decl: SimpleTypeDefBase)
+final class DFDLSimpleType(node: Node, decl: SimpleTypeDefFactory)
   extends DFDLNonDefaultFormatAnnotation(node, decl) {
 }
+
+final class DFDLEnumerationFactory(node: Node, decl: EnumerationDefFactory)
+  extends DFDLFormatAnnotation(node, decl)
+
 // Leave the below comments in place. These are not reproduced (currently)
 // on SimpleTypeDefBase. It appears these properties are only accessed
 // indirectly by way of an ElementDecl that uses this type.

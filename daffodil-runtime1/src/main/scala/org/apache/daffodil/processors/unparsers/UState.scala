@@ -363,6 +363,7 @@ class UStateForSuspension(
   override def advance: Boolean = die
   override def advanceAccessor: InfosetAccessor = die
   override def inspect: Boolean = die
+  override def inspectPure: Boolean = die
   override def inspectAccessor: InfosetAccessor = die
   override def fini: Unit = {}
   override def inspectOrError = die
@@ -482,6 +483,7 @@ final class UStateMain private (
   override def advance: Boolean = inputter.advance
   override def advanceAccessor: InfosetAccessor = inputter.advanceAccessor
   override def inspect: Boolean = inputter.inspect
+  override def inspectPure: Boolean = inputter.inspectPure
   override def inspectAccessor: InfosetAccessor = inputter.inspectAccessor
   override def fini: Unit = { inputter.fini }
 

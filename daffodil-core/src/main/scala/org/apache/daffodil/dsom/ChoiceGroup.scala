@@ -32,6 +32,10 @@ import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.processors.ChoiceDispatchKeyEv
 import org.apache.daffodil.schema.annotation.props.gen.YesNo
 import org.apache.daffodil.api.WarnID
+import org.apache.daffodil.schema.annotation.props.gen.ChoiceKeyKindType
+import org.apache.daffodil.schema.annotation.props.Found
+import org.apache.daffodil.processors.SimpleTypeRuntimeData
+import org.apache.daffodil.schema.annotation.props.NotFound
 
 /**
  *
@@ -101,7 +105,8 @@ abstract class ChoiceTermBase(
   extends ModelGroup(position)
   with Choice_AnnotationMixin
   with RawDelimitedRuntimeValuedPropertiesMixin // initiator and terminator (not separator)
-  with ChoiceGrammarMixin {
+  with ChoiceGrammarMixin 
+  with HasOptRepTypeMixinImpl {
 
   requiredEvaluations(branchesAreNonOptional)
   requiredEvaluations(branchesAreNotIVCElements)
@@ -118,9 +123,32 @@ abstract class ChoiceTermBase(
 
   final protected lazy val optionChoiceDispatchKeyRaw = findPropertyOption("choiceDispatchKey")
   final protected lazy val choiceDispatchKeyRaw = requireProperty(optionChoiceDispatchKeyRaw)
+  
+  lazy val optionChoiceDispatchKeyKindRaw = findPropertyOption("choiceDispatchKeyKind")
+  lazy val defaultableChoiceDispatchKeyKind = 
+    if(tunable.requireChoiceDispatchKeyKindProperty){
+      choiceDispatchKeyKind
+    } else {
+      val asString = optionChoiceDispatchKeyKindRaw.toOption.getOrElse("implicit")
+      ChoiceKeyKindType(asString, this)
+    }
+  
+  lazy val optionChoiceBranchKeyKindRaw = findPropertyOption("choiceBranchKeyKind")
+  lazy val defaultableChoiceBranchKeyKind = 
+    if(tunable.requireChoiceBranchKeyKindProperty){
+      choiceDispatchKeyKind
+    } else {
+      val asString = optionChoiceBranchKeyKindRaw.toOption.getOrElse("implicit")
+      ChoiceKeyKindType(asString, this)
+    }
 
   final lazy val isDirectDispatch = {
-    val isDD = optionChoiceDispatchKeyRaw.isDefined
+    val isDD :Boolean = defaultableChoiceDispatchKeyKind match{
+      case ChoiceKeyKindType.ByType => true
+      case ChoiceKeyKindType.Explicit => true
+      case ChoiceKeyKindType.Implicit => optionChoiceDispatchKeyRaw.isDefined
+      case ChoiceKeyKindType.Speculative => false
+    }
     if (isDD && initiatedContent == YesNo.Yes) {
       SDE("dfdl:initiatedContent must not equal 'yes' when dfdl:choiceDispatchKey is defined")
     }
@@ -129,7 +157,7 @@ abstract class ChoiceTermBase(
 
   final protected lazy val choiceDispatchKeyExpr = {
     val qn = this.qNameForProperty("choiceDispatchKey")
-    ExpressionCompilers.String.compileProperty(qn, NodeInfo.NonEmptyString, choiceDispatchKeyRaw, this)
+    ExpressionCompilers.String.compileProperty(qn, NodeInfo.NonEmptyString, choiceDispatchKeyRaw, this, dpathCompileInfo)
   }
 
   final lazy val choiceDispatchKeyEv = {
@@ -138,6 +166,52 @@ abstract class ChoiceTermBase(
     ev.compile()
     ev
   }
+
+  // If choiceDispatchKeyKind is byType, verify that all our children share a repType,
+  // and use that. Otherwise, there is no need to associate a repType with this choice
+  override final lazy val optRepTypeFactory: Option[SimpleTypeDefFactory with NamedMixin] = defaultableChoiceDispatchKeyKind match {
+    case ChoiceKeyKindType.ByType => {
+      val branchReptypes: Seq[SimpleTypeDefFactory with NamedMixin] = groupMembers.map(term => {
+          term match{
+            case e: ElementDeclMixin => e.typeDef match{
+              case t: SimpleTypeDefBase => t.optRepTypeDefFactory match{
+                case None => SDE("When <xs:choice> has choiceBranchKey=\"byType\", all branches must have a type which defines a repType")
+                case Some(x) => x
+              }
+              case _ : SimpleTypeBase => SDE("When <xs:choice> has choiceBranchKey=\"byType\", no branch can have a primitive xsd type")
+              case _ => SDE("When <xs:choice> has choiceBranchKey=\"byType\", all branches must be a simple type")
+            }
+            case _ => SDE("When <xs:choice> has choiceBranchKey=\"byType\", all branches must be a simple element")
+          }
+      })
+      val ans = branchReptypes.reduce((a, b) => {
+        /*
+         * We tolerate type objects being copies or the same object because we compare the QNames.
+         */
+        if (a.namedQName != b.namedQName) {
+          SDE("All children of an <xs:choice> with choiceDispatchKeyKind=byType must have the same reptype")
+        }
+        a
+      })
+      Some(ans)
+    }
+    case ChoiceKeyKindType.Speculative => None
+    case ChoiceKeyKindType.Explicit    => None
+    case ChoiceKeyKindType.Implicit    => None
+  }
+
+  /*
+   * When choiceBranchKeyKind=byType or choiceDispatchKeyKind=byType, we are associated with one or more repTypes (corresponding to
+   * the reptypes of our choices).
+   * Since the repValueSet represents the set of repValues that we expect to be able to be associated with an element, it does, in theory,
+   * make sense to assign a repValueSet to an entire choiceGroup. For instance, in the common case of  choiceBranchKeyKind=byType and choiceDispatchKeyKind=byType,
+   * this would just be the union of the repValueSets of all of the individual choices.
+   * However, figuring this out becomes more complicated when we start having to deal with choiceBranchKeyKind=explicit
+   * There is no indication yet that this problem is particuarly intractable, however it is non-trivial. Since we never
+   * actually need to know the optRepValueSet of an entire choiceGroup, we can simple avoid thinking about it until such a time that we do.
+   */
+  
+  override final lazy val optRepValueSet = Assert.invariantFailed("We shouldn't need to compute the optRepValueSet of a choiceGroup")
 
   final override def hasKnownRequiredSyntax = LV('hasKnownRequiredSyntax) {
     if (hasInitiator || hasTerminator) true

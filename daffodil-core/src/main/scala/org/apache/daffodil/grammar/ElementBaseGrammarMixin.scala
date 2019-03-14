@@ -25,7 +25,7 @@ import scala.Long
 import org.apache.daffodil.api.WarnID
 import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.dpath.NodeInfo.PrimType
-import org.apache.daffodil.dsom.DetachedElementDecl
+import org.apache.daffodil.dsom.PrefixLengthQuasiElementDecl
 import org.apache.daffodil.dsom.ElementBase
 import org.apache.daffodil.dsom.ExpressionCompilers
 import org.apache.daffodil.dsom.InitiatedTerminatedMixin
@@ -153,6 +153,8 @@ import org.apache.daffodil.util.PackedSignCodes
 import org.apache.daffodil.xml.GlobalQName
 import org.apache.daffodil.xml.QName
 import org.apache.daffodil.xml.XMLUtils
+import org.apache.daffodil.grammar.primitives.ElementCombinator
+import org.apache.daffodil.grammar.primitives.TypeValueCalc
 
 /////////////////////////////////////////////////////////////////
 // Elements System
@@ -200,7 +202,7 @@ trait ElementBaseGrammarMixin
       minLen > 0)
   }
 
-  final lazy val prefixedLengthElementDecl: DetachedElementDecl = {
+  final lazy val prefixedLengthElementDecl: PrefixLengthQuasiElementDecl = {
     Assert.invariant(lengthKind == LengthKind.Prefixed)
 
     // We need to resolve the global simple type of the prefix length type
@@ -216,7 +218,7 @@ trait ElementBaseGrammarMixin
       <element name={ name + " (prefixLength)" } type={ prefixLengthType.toQNameString } />
         .copy(scope = prefixLengthTypeGSTD.xml.scope)
     val detachedElementDecl =
-      new DetachedElementDecl(this, detachedNode, prefixLengthTypeGSTD.parent)
+      new PrefixLengthQuasiElementDecl(this, detachedNode, prefixLengthTypeGSTD.parent)
 
     val prefixedLengthKind = detachedElementDecl.lengthKind
     prefixedLengthKind match {
@@ -567,8 +569,8 @@ trait ElementBaseGrammarMixin
     lazy val allowedValue = allowedValueArg
     if (this.isOutputValueCalc)
       SimpleTypeRetry(this, allowedValue)
-    else if (this.isInstanceOf[DetachedElementDecl] &&
-             this.asInstanceOf[DetachedElementDecl].detachedReference.impliedRepresentation == Representation.Text)
+    else if (this.isInstanceOf[PrefixLengthQuasiElementDecl] &&
+             this.asInstanceOf[PrefixLengthQuasiElementDecl].detachedReference.impliedRepresentation == Representation.Text)
       // If an element has text representation and has a prefixed length, it
       // means that the prefix length value will be calculated using a
       // specified length unparser. This unparser works by suspending the
@@ -604,7 +606,8 @@ trait ElementBaseGrammarMixin
    * SDE if the lengthKind is inconsistent with binary numbers, not yet implemented
    * for binary numbers, or not supported by Daffodil.
    */
-  private lazy val binaryNumberKnownLengthInBits: Long = lengthKind match {
+  protected lazy val binaryNumberKnownLengthInBits: Long = lengthKind match {
+    case _ if optRepTypeElement.isDefined => optRepTypeElement.get.binaryNumberKnownLengthInBits
     case LengthKind.Implicit => implicitBinaryLengthInBits
     case LengthKind.Explicit if (lengthEv.isConstant) => explicitBinaryLengthInBits()
     case LengthKind.Explicit => -1 // means must be computed at runtime.
@@ -1393,6 +1396,10 @@ trait ElementBaseGrammarMixin
     else body
   }
 
+  lazy val hasRepType = (isSimpleType && simpleType.optRepTypeFactory.isDefined)
+  lazy val optRepType = if (hasRepType) Some(simpleType.optRepTypeFactory.get) else None
+  lazy val optRepTypeElement = if (isSimpleType && simpleType.optRepTypeElement.isDefined) Some(simpleType.optRepTypeElement.get) else None
+
   /**
    * the element left framing does not include the initiator nor the element right framing the terminator
    */
@@ -1438,7 +1445,7 @@ trait ElementBaseGrammarMixin
       // Note that we need these elements even when unparsing, because they appear in the infoset
       // as regular elements (most times), and so we have to have an unparser that consumes the corresponding events.
       new ElementParseAndUnspecifiedLength(this, dfdlScopeBegin,
-        inputValueCalcPrim, dfdlScopeEnd)
+        inputValueCalcPrim, dfdlScopeEnd, EmptyGram)
     }
 
   protected final lazy val ovcCompiledExpression = { // ovcValueCalcObject.expr
@@ -1447,7 +1454,7 @@ trait ElementBaseGrammarMixin
     val exprNamespaces = exprProp.location.namespaces
     val qn = GlobalQName(Some("daf"), "outputValueCalc", XMLUtils.dafintURI)
     val expr = ExpressionCompilers.AnyRef.compileExpression(qn,
-      primType, exprText, exprNamespaces, dpathCompileInfo, false, self)
+      primType, exprText, exprNamespaces, dpathCompileInfo, false, self, dpathCompileInfo)
     expr
   }
 
@@ -1485,13 +1492,17 @@ trait ElementBaseGrammarMixin
 
   private lazy val scalarDefaultablePhysical = prod("scalarDefaultablePhysical") {
 
-    val elem = new ElementCombinator(this, elementLeftFraming ~ dfdlScopeBegin,
-      withDelimiterStack {
-        withEscapeScheme {
-          scalarDefaultableSimpleContent || scalarComplexContent
-        }
-      },
-      elementRightFraming ~ dfdlScopeEnd)
+    val elem = if (hasRepType) {
+      new ElementCombinator(this, dfdlScopeBegin, scalarDefaultableSimpleContent, dfdlScopeEnd, new TypeValueCalc(this))
+    } else {
+      new ElementCombinator(this, elementLeftFraming ~ dfdlScopeBegin,
+        withDelimiterStack {
+          withEscapeScheme {
+            scalarDefaultableSimpleContent || scalarComplexContent
+          }
+        },
+        elementRightFraming ~ dfdlScopeEnd)
+    }
     elem
   }
 

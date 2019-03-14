@@ -139,6 +139,7 @@ trait SchemaComponent
       case None => this match {
         case ged: GlobalElementDecl => Some(ged)
         case root: Root => root.optReferredToComponent
+        case qed: QuasiElementDeclBase => qed.detachedReference.rootElementDecl
         case _ => Assert.invariantFailed("No global element decl")
       }
     }

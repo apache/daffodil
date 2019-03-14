@@ -143,7 +143,8 @@ final class ProcessorFactory(val sset: SchemaSet)
         this.diagnostics,
         rootERD,
         variables,
-        validationMode)
+        validationMode,
+        sset.typeCalcMap)
       val dataProc = new DataProcessor(ssrd)
       if (dataProc.isError) {
         // NO longer printing anything here. Callers must do this.

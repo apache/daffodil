@@ -81,4 +81,6 @@ object ChoiceDispatchKeyCooker extends StringLiteralNonEmptyNoCharClassEntitiesN
 
 object ChoiceBranchKeyCooker extends ListOfStringLiteralNonEmptyNoCharClassEntitiesNoByteEntities()
 
+object RepValueCooker extends ListOfStringLiteralNonEmptyNoCharClassEntitiesNoByteEntities()
+
 object UpperCaseTokenCooker extends UpperCaseToken

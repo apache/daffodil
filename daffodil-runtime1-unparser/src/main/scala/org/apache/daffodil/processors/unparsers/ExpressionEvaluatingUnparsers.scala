@@ -23,6 +23,15 @@ import org.apache.daffodil.processors.VariableRuntimeData
 import org.apache.daffodil.dpath.SuspendableExpression
 import org.apache.daffodil.util.MaybeULong
 import org.apache.daffodil.processors.RuntimeData
+import org.apache.daffodil.processors.ElementRuntimeData
+import org.apache.daffodil.processors.Evaluatable
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.processors.TypeCalculator
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.processors.Success
+import org.apache.daffodil.infoset.Infoset
+import org.apache.daffodil.infoset.DISimple
+import org.apache.daffodil.infoset.EndElement
 
 final class SetVariableSuspendableExpression(
   override val expr: CompiledExpression[AnyRef],
@@ -98,4 +107,45 @@ class NewVariableInstanceEndUnparser(override val context: RuntimeData)
   override def unparse(ustate: UState) = {
     context.notYetImplemented("newVariableInstance")
   }
+}
+
+class TypeValueCalcUnparser(typeCalculator: TypeCalculator[AnyRef, AnyRef], repTypeUnparser: Unparser, e: ElementRuntimeData, repTypeRuntimeData: ElementRuntimeData)
+  extends CombinatorUnparser(e) {
+
+  override def childProcessors: Vector[Unparser] = Vector(repTypeUnparser)
+
+  def runtimeDependencies: Vector[Evaluatable[AnyRef]] = Vector()
+
+  protected def unparse(ustate: UState): Unit = {
+    Assert.invariant(ustate.currentInfosetNodeMaybe.isDefined)
+    Assert.invariant(ustate.currentInfosetNode.isSimple)
+
+    val currentSimple = ustate.currentInfosetNode.asSimple
+    
+    val logicalValue: AnyRef = currentSimple.dataValue
+    val logicalValueType = currentSimple.erd.optPrimType.get
+    val repTypeValue: Maybe[AnyRef] = typeCalculator.outputTypeCalcUnparse(ustate, e, logicalValue, logicalValueType)
+
+    val origInfosetElement = ustate.currentInfosetNode
+    val tmpInfosetElement = Infoset.newElement(repTypeRuntimeData, repTypeRuntimeData.tunable).asInstanceOf[DISimple]
+
+    if (ustate.processorStatus == Success) {
+
+      Assert.invariant(repTypeValue.isDefined)
+      tmpInfosetElement.setDataValue(repTypeValue.get)
+      ustate.currentInfosetNodeStack.push(Maybe(tmpInfosetElement))
+
+      try {
+        repTypeUnparser.unparse1(ustate)
+      } catch {
+        case e: Throwable => {
+          e.printStackTrace()
+        }
+      } finally {
+        ustate.currentInfosetNodeStack.pop
+      }
+    }
+
+  }
+
 }

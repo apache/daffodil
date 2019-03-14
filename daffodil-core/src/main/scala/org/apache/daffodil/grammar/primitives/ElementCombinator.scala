@@ -53,6 +53,9 @@ import org.apache.daffodil.schema.annotation.props.gen.TestKind
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.processors.parsers.NadaParser
 import org.apache.daffodil.processors.unparsers.NadaUnparser
+import org.apache.daffodil.dsom.LocalElementDecl
+import org.apache.daffodil.grammar.EmptyGram
+import org.apache.daffodil.processors.unparsers.TypeValueCalcUnparser
 
 /**
  * This uber combinator exists because we (currently) do quite different things
@@ -70,7 +73,9 @@ class ElementCombinator(
   context: ElementBase,
   eBeforeContent: Gram,
   eValue: Gram,
-  eAfterValue: Gram)
+  eAfterValue: Gram,
+  repTypeElementGram: Gram = EmptyGram
+  )
   extends NamedGram(context)
   with Padded {
 
@@ -82,7 +87,7 @@ class ElementCombinator(
         eValue, eAfterValue)
     } else {
       new ElementParseAndUnspecifiedLength(context, eBeforeContent,
-        eValue, eAfterValue)
+        eValue, eAfterValue, repTypeElementGram)
     }
   }
 
@@ -109,6 +114,8 @@ class ElementCombinator(
     if (eAfterValue.isEmpty) Maybe.Nope
     else Maybe(eAfterValue.unparser)
 
+  private lazy val eReptypeUnparser: Maybe[Unparser] = repTypeElementGram.maybeUnparser
+    
   override lazy val unparser: Unparser = {
     if (context.isOutputValueCalc) {
       new ElementOVCSpecifiedLengthUnparser(
@@ -129,7 +136,9 @@ class ElementCombinator(
         uSetVars,
         eBeforeUnparser,
         eUnparser,
-        eAfterUnparser)
+        eAfterUnparser,
+        eReptypeUnparser
+      )
     } else {
       subComb.unparser
     }
@@ -284,8 +293,8 @@ case class CaptureValueLengthEnd(ctxt: ElementBase)
 }
 
 
-class ElementParseAndUnspecifiedLength(context: ElementBase, eBeforeGram: Gram, eGram: Gram, eAfterGram: Gram)
-  extends ElementCombinatorBase(context, eBeforeGram, eGram, eAfterGram) {
+class ElementParseAndUnspecifiedLength(context: ElementBase, eBeforeGram: Gram, eGram: Gram, eAfterGram: Gram, repTypeElementGram: Gram)
+  extends ElementCombinatorBase(context, eBeforeGram, eGram, eAfterGram, repTypeElementGram) {
 
   lazy val parser: Parser =
     if (context.isRepresented)
@@ -299,7 +308,9 @@ class ElementParseAndUnspecifiedLength(context: ElementBase, eBeforeGram: Gram, 
         testAssert,
         eBeforeParser,
         eParser,
-        eAfterParser)
+        eAfterParser,
+        eRepTypeParser
+      )
     else
       new ElementParserNoRep(
         context.erd,
@@ -318,7 +329,7 @@ class ElementParseAndUnspecifiedLength(context: ElementBase, eBeforeGram: Gram, 
       if (context.isOutputValueCalc) {
         new ElementOVCUnspecifiedLengthUnparser(context.erd, uSetVar, eBeforeUnparser, eUnparser, eAfterUnparser)
       } else {
-        new ElementUnspecifiedLengthUnparser(context.erd, uSetVar, eBeforeUnparser, eUnparser, eAfterUnparser)
+        new ElementUnspecifiedLengthUnparser(context.erd, uSetVar, eBeforeUnparser, eUnparser, eAfterUnparser, eRepTypeUnparser)
       }
     } else {
       // dfdl:inputValueCalc case.
@@ -330,7 +341,7 @@ class ElementParseAndUnspecifiedLength(context: ElementBase, eBeforeGram: Gram, 
 }
 
 class ChoiceElementCombinator(context: ElementBase, eGramBefore: Gram, eGram: Gram, eAfterGram: Gram)
-  extends ElementCombinatorBase(context, eGramBefore, eGram, eAfterGram) {
+  extends ElementCombinatorBase(context, eGramBefore, eGram, eAfterGram,  EmptyGram) {
 
   lazy val parser: Parser = new ChoiceElementParser(
     context.erd,
@@ -348,7 +359,7 @@ class ChoiceElementCombinator(context: ElementBase, eGramBefore: Gram, eGram: Gr
 
 }
 
-abstract class ElementCombinatorBase(context: ElementBase, eGramBefore: Gram, eGram: Gram, eGramAfter: Gram)
+abstract class ElementCombinatorBase(context: ElementBase, eGramBefore: Gram, eGram: Gram, eGramAfter: Gram, repTypeElementGram:Gram)
   extends NamedGram(context) {
 
   override def toString() = "<element name='" + name + "'>" + eGram.toString() + "</element>"
@@ -394,6 +405,8 @@ abstract class ElementCombinatorBase(context: ElementBase, eGramBefore: Gram, eG
   lazy val eParser: Maybe[Parser] = eGram.maybeParser
 
   lazy val eAfterParser: Maybe[Parser] = eGramAfter.maybeParser
+  
+  lazy val eRepTypeParser: Maybe[Parser] = repTypeElementGram.maybeParser
 
   def parser: Parser
 
@@ -404,6 +417,8 @@ abstract class ElementCombinatorBase(context: ElementBase, eGramBefore: Gram, eG
   lazy val eUnparser: Maybe[Unparser] = eGram.maybeUnparser
 
   lazy val eAfterUnparser: Maybe[Unparser] = eGramAfter.maybeUnparser
+  
+  lazy val eRepTypeUnparser: Maybe[Unparser] = repTypeElementGram.maybeUnparser
 
   def unparser: Unparser
 

@@ -205,6 +205,7 @@
   <xsd:element name="choice" type="dfdl:DFDLChoiceType" />
   <xsd:element name="group" type="dfdl:DFDLGroupType" />
   <xsd:element name="simpleType" type="dfdl:DFDLSimpleType" />
+  <xsd:element name="enumeration" type="dfdl:DFDLEnumerationType" />
 
   <!-- ============================================================= -->
   <!-- Specialized annotations types -->
@@ -272,6 +273,10 @@
     </xsd:complexContent>
   </xsd:complexType>
 
+  <xsd:complexType name="DFDLEnumerationType">
+    <xsd:attributeGroup ref="dfdl:RepValuesAG" />
+  </xsd:complexType>
+
   <xsd:complexType name="DFDLGroupType">
     <xsd:complexContent>
       <xsd:extension base="dfdl:DFDLBaseType">
@@ -330,6 +335,7 @@
     <xsd:attributeGroup ref="dfdl:CalendarFormatAG" />
     <xsd:attributeGroup ref="dfdl:BooleanTextAG" />
     <xsd:attributeGroup ref="dfdl:BooleanBinaryAG" />
+    <xsd:attributeGroup ref="dfdl:SimpleTypeValueCalcAG" />
   </xsd:attributeGroup>
 
 </xsd:schema>

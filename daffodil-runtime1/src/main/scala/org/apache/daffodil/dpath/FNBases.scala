@@ -136,7 +136,9 @@ abstract class FNTwoArgs(recipes: List[CompiledDPath])
     recipe2.run(dstate)
     val arg2 = dstate.currentValue
 
-    dstate.setCurrentValue(computeValue(arg1, arg2, dstate))
+    val res = computeValue(arg1, arg2, dstate)
+    
+    dstate.setCurrentValue(res)
   }
 
   def computeValue(arg1: AnyRef, arg2: AnyRef, dstate: DState): AnyRef

@@ -237,7 +237,11 @@ final class SimpleTypeRuntimeData(
   @TransientParam totalDigitsArg: => Option[java.math.BigDecimal],
   @TransientParam fractionDigitsArg: => Option[java.math.BigDecimal],
   @TransientParam unionMemberTypesArg: => Seq[SimpleTypeRuntimeData],
-  @TransientParam tunableArg: => DaffodilTunables) extends NonTermRuntimeData(variableMapArg, schemaFileLocationArg, diagnosticDebugNameArg,
+  @TransientParam tunableArg: => DaffodilTunables,
+  @TransientParam repTypeRuntimeDataArg: => Option[SimpleTypeRuntimeData],
+  @TransientParam repValueSetArg: => Option[RepValueSet[AnyRef]],
+  @TransientParam typeCalculatorArg: => Option[TypeCalculator[AnyRef,AnyRef]]
+) extends NonTermRuntimeData(variableMapArg, schemaFileLocationArg, diagnosticDebugNameArg,
   pathArg, namespacesArg, tunableArg) {
 
   import OKOrError._
@@ -255,6 +259,9 @@ final class SimpleTypeRuntimeData(
   lazy val totalDigits = totalDigitsArg
   lazy val fractionDigits = fractionDigitsArg
   lazy val unionMemberTypes = unionMemberTypesArg
+  lazy val repTypeRuntimeData = repTypeRuntimeDataArg
+  lazy val repValueSet = repValueSetArg
+  lazy val typeCalculator = typeCalculatorArg
 
   override def preSerialization: Unit = {
     super.preSerialization
@@ -271,6 +278,9 @@ final class SimpleTypeRuntimeData(
     totalDigits
     fractionDigits
     unionMemberTypes
+    repTypeRuntimeData
+    repValueSet
+    typeCalculator
   }
 
   @throws(classOf[java.io.IOException])
@@ -642,7 +652,8 @@ final class ElementRuntimeData(
   @TransientParam maybeByteOrderEvArg: => Maybe[ByteOrderEv],
   @TransientParam maybeFillByteEvArg: => Maybe[FillByteEv],
   @TransientParam maybeCheckByteAndBitOrderEvArg: => Maybe[CheckByteAndBitOrderEv],
-  @TransientParam maybeCheckBitOrderAndCharsetEvArg: => Maybe[CheckBitOrderAndCharsetEv])
+  @TransientParam maybeCheckBitOrderAndCharsetEvArg: => Maybe[CheckBitOrderAndCharsetEv],
+  @TransientParam isQuasiElementArg: => Boolean)
   extends TermRuntimeData(encInfoArg, dpathElementCompileInfoArg, isRepresentedArg, couldHaveTextArg, alignmentValueInBitsArg, hasNoSkipRegionsArg,
     defaultBitOrderArg, optIgnoreCaseArg, maybeFillByteEvArg,
     maybeCheckByteAndBitOrderEvArg,
@@ -683,6 +694,7 @@ final class ElementRuntimeData(
   lazy val outputValueCalcExpr = outputValueCalcExprArg
   lazy val maybeBinaryFloatRepEv = maybeBinaryFloatRepEvArg
   lazy val maybeByteOrderEv = maybeByteOrderEvArg
+  lazy val isQuasiElement = isQuasiElementArg
 
   override def preSerialization: Unit = {
     super.preSerialization
@@ -719,6 +731,7 @@ final class ElementRuntimeData(
     outputValueCalcExpr
     maybeBinaryFloatRepEv
     maybeByteOrderEv
+    isQuasiElement
   }
 
   @throws(classOf[java.io.IOException])

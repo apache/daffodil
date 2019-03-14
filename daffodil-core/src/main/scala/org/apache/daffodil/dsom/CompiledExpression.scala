@@ -55,7 +55,8 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
     namespaces: NamespaceBinding,
     compileInfoWherePropertyWasLocated: DPathCompileInfo,
     isEvaluatedAbove: Boolean,
-    host: OOLAGHost): CompiledExpression[T] = {
+    host: OOLAGHost,
+    compileInfo: DPathCompileInfo): CompiledExpression[T] = {
 
     val res =
       if (DPathUtil.isExpression(exprOrLiteral)) {
@@ -66,7 +67,8 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
           namespaces,
           compileInfoWherePropertyWasLocated,
           isEvaluatedAbove,
-          host)
+          host,
+          compileInfo)
       } else {
         convertLiteralToConstant(
           qn,
@@ -99,6 +101,7 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
     nodeInfoKind: NodeInfo.Kind,
     property: Found,
     host: OOLAGHost,
+    compileInfo: DPathCompileInfo,
     isEvaluatedAbove: Boolean = false): CompiledExpression[T] = {
 
     compileExpression(
@@ -106,9 +109,10 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
       nodeInfoKind,
       property.value,
       property.location.namespaces,
-      propertyCompileInfo(property),
+      compileInfo,
       isEvaluatedAbove,
-      host)
+      host,
+      compileInfo)
   }
 
   /**
@@ -135,7 +139,8 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
     staticNodeInfoKind: NodeInfo.Kind,
     runtimeNodeInfoKind: NodeInfo.Kind,
     property: Found,
-    host: OOLAGHost): CompiledExpression[T] = {
+    host: OOLAGHost,
+    compileInfo: DPathCompileInfo): CompiledExpression[T] = {
 
     val isEvaluatedAbove = false
     val exprOrLiteral = property.value
@@ -146,9 +151,10 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
       staticNodeInfoKind,
       exprOrLiteral,
       namespacesForNamespaceResolution,
-      compileInfoWherePropertyWasLocated,
+      compileInfo,
       isEvaluatedAbove,
-      host)
+      host,
+      compileInfo)
 
     if (compiled1.isConstant || (staticNodeInfoKind == runtimeNodeInfoKind)) {
       compiled1
@@ -158,9 +164,10 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
         runtimeNodeInfoKind,
         exprOrLiteral,
         namespacesForNamespaceResolution,
-        compileInfoWherePropertyWasLocated,
+        compileInfo,
         isEvaluatedAbove,
-        host)
+        host,
+        compileInfo)
       compiled2
     }
   }
@@ -190,7 +197,8 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
     namespaces: NamespaceBinding,
     compileInfoWherePropertyWasLocated: DPathCompileInfo,
     isEvaluatedAbove: Boolean,
-    host: OOLAGHost): CompiledExpression[T] = {
+    host: OOLAGHost,
+    compileInfo: DPathCompileInfo): CompiledExpression[T] = {
 
     // Treat this as an expression--validate and compile it
 
@@ -204,7 +212,7 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
       qn,
       nodeInfoKind,
       namespaces,
-      compileInfoWherePropertyWasLocated,
+      compileInfo,
       isEvaluatedAbove,
       host)
     val compiledDPath = compiler.compile(expr)

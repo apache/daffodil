@@ -72,6 +72,20 @@ case class DaffodilTunables(
   //
   val requireBitOrderProperty: Boolean = false,
   //
+  // If true, require that the choiceDispatchKeyKind property is specified. If false, use a
+  // default value for bitOrder if not defined in a schema
+  //
+  // Looks to be compile-time as it gets 'tunable' from Term.
+  //
+  val requireChoiceDispatchKeyKindProperty: Boolean = false,
+  //
+  // If true, require that the choiceBranchKeyKind property is specified. If false, use a
+  // default value for bitOrder if not defined in a schema
+  //
+  // Looks to be compile-time as it gets 'tunable' from Term.
+  //
+  val requireChoiceBranchKeyKindProperty: Boolean = false,
+  //
   // If true, require that the encodingErrorPolicy property is specified. If
   // false, use a default value not defined in a schema and warn about missing property
   //
@@ -241,6 +255,7 @@ case class DaffodilTunables(
         this.copy(unqualifiedPathStepPolicy = policy)
       }
       case "requirebitorderproperty" => this.copy(requireBitOrderProperty = java.lang.Boolean.valueOf(value))
+      case "requirechoicedispatchkeykindproperty" => this.copy(requireChoiceDispatchKeyKindProperty = java.lang.Boolean.valueOf(value))
       case "requireencodingerrorpolicyproperty" => this.copy(requireEncodingErrorPolicyProperty = java.lang.Boolean.valueOf(value))
       case "requiretextbidiproperty" => this.copy(requireTextBidiProperty = java.lang.Boolean.valueOf(value))
       case "requirefloatingproperty" => this.copy(requireFloatingProperty = java.lang.Boolean.valueOf(value))

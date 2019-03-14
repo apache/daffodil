@@ -30,6 +30,7 @@ import org.apache.daffodil.util.MStackOf
 import org.apache.daffodil.processors.unparsers.UnparseError
 import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.api.DaffodilTunables
+import org.apache.daffodil.processors.ElementRuntimeData
 
 class InfosetError(kind: String, args: String*) extends ProcessingError("Infoset", Nope, Nope, kind, args: _*)
 
@@ -44,8 +45,8 @@ trait InfosetInputterCursor extends Cursor[InfosetAccessor] {
    * Override these further only if you want to say, delegate from one cursor implemtation
    * to another one.
    */
-  override lazy val advanceAccessor = InfosetAccessor(null, null)
-  override lazy val inspectAccessor = InfosetAccessor(null, null)
+  override lazy val advanceAccessor = InfosetAccessor(null, null, null)
+  override lazy val inspectAccessor = InfosetAccessor(null, null, null)
 
   def initialize(rootElement: ElementRuntimeData, tunable: DaffodilTunables)
 }
@@ -145,6 +146,39 @@ abstract class InfosetInputter
       indent + "********************************************"
   }
 
+  override def inspectPure: Boolean = {
+    accessor = inspectAccessor
+    
+    val res = priorOpKind match {
+      case Advance => {
+        priorOpKind = InspectPure
+        next() //advance the input stream so nextElementErd is pointing to the correct place
+        val eventKind = getEventType() match {
+          case StartElement  => StartKind
+          case EndElement    => EndKind
+          case StartDocument => StartKind
+          case EndDocument   => EndKind
+        }
+        accessor.kind = eventKind
+        if (eventKind == StartKind) {
+          accessor.erd = nextElementErd()
+          accessor.node = null
+        }else{
+          //accessor.kind == EndKind
+          val node = nodeStack.top
+          accessor.node=node
+          accessor.erd=node.erd
+        }
+        true
+      }
+      case InspectPure => true
+      case Inspect => true
+      case Unsuccessful => false
+    }
+
+    res
+  }
+
   /**
    * Queues used to hold additional events, thereby allowing a single pull to result
    * in multiple infoset events. For each pull, the first event coming back is not
@@ -200,7 +234,7 @@ abstract class InfosetInputter
    * Return true if the accessor was filled with another
    * infoset event, or one was taken from the queued events.
    */
-  protected final def fill(): Boolean = {
+  protected final def fill(advanceInput: Boolean): Boolean = {
     if (isPending) {
       val (kind, n) = dequeuePending()
       kind match {
@@ -210,7 +244,7 @@ abstract class InfosetInputter
       true
     } else {
       try {
-        reallyFill()
+        reallyFill(advanceInput)
       } catch {
         case ex: InvalidInfosetException => {
           UnparseError(One(nodeStack.top.erd.schemaFileLocation), Nope, ex.getMessage())
@@ -219,8 +253,10 @@ abstract class InfosetInputter
     }
   }
 
-  private def reallyFill(): Boolean = {
-    next()
+  private def reallyFill(advanceInput:Boolean): Boolean = {
+    if(advanceInput){
+      next()
+    }
 
     getEventType() match {
       case StartElement => handleStartElement()
@@ -315,8 +351,10 @@ abstract class InfosetInputter
         e.erd.childElementResolver
   }
 
+  private def nextElementErd() = nextElementResolver.nextElement(getLocalName(), getNamespaceURI(), supportsNamespaces)
+
   private def createElement() = {
-    val erd = nextElementResolver.nextElement(getLocalName(), getNamespaceURI(), supportsNamespaces)
+    val erd = nextElementErd()
     val elem = if (erd.isSimpleType) new DISimple(erd) else new DIComplex(erd, tunable)
 
     val optNilled = isNilled()
@@ -375,11 +413,13 @@ abstract class InfosetInputter
   private def start(node: DINode) {
     accessor.kind = StartKind
     accessor.node = node
+    accessor.erd = node.erd
   }
 
   private def end(node: DINode) {
     accessor.kind = EndKind
     accessor.node = node
+    accessor.erd = node.erd
     node match {
       case f: DIFinalizable => f.setFinal()
       case _ => // ok
@@ -394,6 +434,7 @@ object NonUsableInfosetInputter extends InfosetInputterCursor {
   override lazy val inspectAccessor = doNotUse
   override def advance = doNotUse
   override def inspect = doNotUse
+  override def inspectPure = doNotUse
   override def fini = doNotUse
   override def initialize(rootElement: ElementRuntimeData, tunable: DaffodilTunables) = doNotUse
 }
@@ -414,14 +455,22 @@ case object EndKind extends InfosetEventKind { override def toString = "end" }
  * An infoset event accessor.
  *
  * Not a case class because we don't want pattern matching on this. (It allocates to pattern match)
+ *
+ * We have erd as a seperate field (instead of just using node.erd) since
+ * the inspectPure method finds an erd without constructing the corresponding DINode (so as to avoid side effects)
+ *
+ * We maintaint the invariant that node==null || node.erd==erd
+ *
  */
-class InfosetAccessor private (var kind: InfosetEventKind, var node: DINode) extends Accessor[InfosetAccessor] {
-  def namedQName = node.namedQName
-  def erd: ElementRuntimeData = node.erd
+class InfosetAccessor private (var kind: InfosetEventKind, var node: DINode, var erd: ElementRuntimeData) extends Accessor[InfosetAccessor] {
+  def namedQName = erd.namedQName
+
+  Assert.invariant(node == null || node.erd == erd)
 
   override def toString = {
     val evLbl = if (kind eq null) "NullKind" else kind.toString
     val nodeKind = node match {
+      case null => "?"
       case _: DIArray => "array"
       case _: DIElement => "element"
     }
@@ -442,13 +491,14 @@ class InfosetAccessor private (var kind: InfosetEventKind, var node: DINode) ext
   def isSimple = node.isInstanceOf[DISimple]
   def asSimple: DISimple = node.asInstanceOf[DISimple]
 
-  override def cpy() = new InfosetAccessor(kind, node)
+  override def cpy() = new InfosetAccessor(kind, node, erd)
   override def assignFrom(other: InfosetAccessor) {
     kind = other.kind
     node = other.node
+    erd = other.erd
   }
 }
 
 object InfosetAccessor {
-  def apply(kind: InfosetEventKind, node: DINode) = new InfosetAccessor(kind, node)
+  def apply(kind: InfosetEventKind, node: DINode, erd: ElementRuntimeData) = new InfosetAccessor(kind, node, erd)
 }

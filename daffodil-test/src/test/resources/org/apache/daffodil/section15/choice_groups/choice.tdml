@@ -1812,7 +1812,7 @@ it sure is/
     description="simple case of direct dispatch - DFDL-15-001R. Dispatch key returns empty string">
     <tdml:document><![CDATA[;default]]></tdml:document>
     <tdml:errors>
-      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Runtime Schema Definition Error</tdml:error>
       <tdml:error>Non-empty string required</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
