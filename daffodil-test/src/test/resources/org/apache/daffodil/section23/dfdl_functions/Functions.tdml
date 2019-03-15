@@ -4324,6 +4324,8 @@
       </xs:complexType>
     </xs:element>
     
+    <xs:element name="ceil08" type="xs:decimal" dfdl:inputValueCalc="{ fn:ceiling(xs:decimal(0.125)) }"/>
+
     <xs:element name="floor" type="xs:double" dfdl:inputValueCalc="{ fn:floor(4.2) }"/>
 
     <xs:element name="floor02">
@@ -4387,6 +4389,8 @@
       </xs:complexType>
     </xs:element>
     
+    <xs:element name="floor08" type="xs:decimal" dfdl:inputValueCalc="{ fn:floor(xs:decimal(0.125)) }"/>
+
     <xs:element name="round" type="xs:double" dfdl:inputValueCalc="{ fn:round(4.2) }"/>
 
     <xs:element name="round02">
@@ -4444,6 +4448,17 @@
       </xs:complexType>
     </xs:element>
     
+    <xs:element name="round08" type="xs:decimal" dfdl:inputValueCalc="{ fn:round(xs:decimal(0.125)) }"/>
+    <xs:element name="round09" type="xs:decimal" dfdl:inputValueCalc="{ fn:round(xs:decimal(0.5)) }"/>
+    <xs:element name="round10">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="val" type="xs:decimal" dfdl:inputValueCalc="{ xs:decimal(0.5) }"/>
+          <xs:element name="roundVal" type="xs:decimal" dfdl:inputValueCalc="{ fn:round(../ex:val) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
     <xs:element name="round-hte">
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
@@ -5419,7 +5434,27 @@
       <tdml:error>Argument must be of numeric type but was String.</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
-  
+
+<!--
+    Test Name: ceil_09
+       Schema: XPathFunctions
+         Root: ceil08
+      Purpose: This test demonstrates the ceiling function with xs:decimal
+-->
+
+  <tdml:parserTestCase name="ceil_09" root="ceil08"
+    model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - ceiling - DFDL-23-095R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ceil08>1</ceil08>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
 <!--
     Test Name: xPathFunc_floor_01
        Schema: XPathFunctions
@@ -5599,6 +5634,26 @@
 
   </tdml:parserTestCase>
   
+<!--
+    Test Name: floor_09
+       Schema: XPathFunctions
+         Root: floor08
+      Purpose: This test demonstrates the floor function with xs:decimal
+-->
+
+  <tdml:parserTestCase name="floor_09" root="floor08"
+    model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - floor - DFDL-23-095R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <floor08>0</floor08>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
 <!--
     Test Name: xPathFunc_round_01
        Schema: XPathFunctions
@@ -5960,7 +6015,70 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
-  
+
+<!--
+    Test Name: round_17
+       Schema: XPathFunctions
+         Root: round08
+      Purpose: This test demonstrates the round function with xs:decimal
+-->
+
+  <tdml:parserTestCase name="round_17" root="round08"
+    model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - round - DFDL-23-095R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <round08>0</round08>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: round_18
+       Schema: XPathFunctions
+         Root: round09
+      Purpose: This test demonstrates the round function with xs:decimal
+-->
+
+  <tdml:parserTestCase name="round_18" root="round09"
+    model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - round - DFDL-23-095R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <round09>1</round09>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: round_19
+       Schema: XPathFunctions
+         Root: round10
+      Purpose: This test demonstrates the round function with xs:decimal produces no side effects
+-->
+
+  <tdml:parserTestCase name="round_19" root="round10"
+    model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - round - DFDL-23-095R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <round10>
+          <val>0.5</val>
+          <roundVal>1</roundVal>
+        </round10>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
 <!--
     Test Name: xPathFunc_round_hte_01
        Schema: XPathFunctions
