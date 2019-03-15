@@ -105,18 +105,40 @@ case class ConvertTextCalendarParser(
     val pos = new ParsePosition(0)
 
     val locale: ULocale = localeEv.evaluate(start)
-    val calendar: Calendar = calendarEv.evaluate(start)
 
-    // This initialization is needed because the calendar object may have
-    // been persisted, and that computes/completes fields that are not yet completed,
-    // such as the Julian day, which freezes the year to 1970.
-    // We want a fresh start on all the fields that are filled in from a parse.
+    val calendarOrig: Calendar = calendarEv.evaluate(start)
 
-    calendar.clear()
+    // The clear here actually shouldn't be necessary since we call clear()
+    // when we create the calendar in CalendarEv, and nothing ever modifies
+    // that calendar, we only modify clones. However, it looks like the act of
+    // deserializing a Calendar object causes values to be initialized again.
+    // So if someone uses a saved parser this calendar will have garbage in it
+    // that can affect the results. So clear it here to make sure that's not
+    // the case.
+    calendarOrig.clear()
 
-    val df = tlDataFormatter(locale, calendar)
-    val cal = df.getCalendar.clone.asInstanceOf[Calendar]
-    df.parse(str, cal, pos);
+    // It's important here to use the calendarOrig that results from
+    // calendarEv.evaluate() since the tlDataFormatter is a cache the uses
+    // reference equality. For everything else we want to use a clone for
+    // reasons described below.
+    val df = tlDataFormatter(locale, calendarOrig)
+
+    // When we evaluate calendarEV, if it is a constant we will always get back
+    // the same Calendar object. Because of this it is important here to clone
+    // this calendar and always use the clone below for two reasons:
+    //
+    // 1) The below code will modify modify the calendar object based on the
+    //    value of the parsed string. Any changes to the object will persist
+    //    and could affect future parses. By cloning, we ensure we do not
+    //    modify the original calendar object.
+    //
+    // 2) Multiple threads would have access to the same Calendar object, and
+    //    so the below could modify the same object at the same time. By
+    //    cloning, we ensure that they modify different objects.
+    val calendar = calendarOrig.clone().asInstanceOf[Calendar]
+
+    df.setCalendar(calendar)
+    df.parse(str, calendar, pos);
 
     // Verify that what was parsed was what was passed exactly in byte count
     // Use pos to verify all characters consumed & check for errors
@@ -131,11 +153,11 @@ case class ConvertTextCalendarParser(
     // try to calculate the time, which forces validation. This causes an
     // exception to be thrown if a Calendar is not valid.
     try {
-      cal.getTime
-      if ((cal.get(Calendar.YEAR) > start.tunable.maxValidYear) || (cal.get(Calendar.YEAR) < start.tunable.minValidYear))
+      calendar.getTime
+      if ((calendar.get(Calendar.YEAR) > start.tunable.maxValidYear) || (calendar.get(Calendar.YEAR) < start.tunable.minValidYear))
         throw new TunableLimitExceededError(erd.schemaFileLocation,
           "Year value of %s is not within the limits of the tunables minValidYear (%s) and maxValidYear (%s)",
-          cal.get(Calendar.YEAR), start.tunable.minValidYear, start.tunable.maxValidYear)
+          calendar.get(Calendar.YEAR), start.tunable.minValidYear, start.tunable.maxValidYear)
     } catch {
       case e: IllegalArgumentException => {
         PE(start, "Convert to %s (for xs:%s): Failed to parse '%s': %s.", prettyType, xsdType, str, e.getMessage())
@@ -143,14 +165,14 @@ case class ConvertTextCalendarParser(
       }
     }
 
-    val newCal = xsdType.toLowerCase() match {
-      case "time" => DFDLTime(cal, hasTZ)
-      case "date" => DFDLDate(cal, hasTZ)
-      case "datetime" => DFDLDateTime(cal, hasTZ)
+    val infosetCalendar = xsdType.toLowerCase() match {
+      case "time" => DFDLTime(calendar, hasTZ)
+      case "date" => DFDLDate(calendar, hasTZ)
+      case "datetime" => DFDLDateTime(calendar, hasTZ)
       case _ => Assert.impossibleCase
     }
 
-    node.overwriteDataValue(newCal)
+    node.overwriteDataValue(infosetCalendar)
 
   }
 }

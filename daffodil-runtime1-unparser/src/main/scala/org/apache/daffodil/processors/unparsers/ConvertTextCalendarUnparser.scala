@@ -42,51 +42,72 @@ case class ConvertTextCalendarUnparser(
   override lazy val runtimeDependencies = Vector(localeEv, calendarEv)
 
   def unparse(state: UState): Unit = {
-    val locale: ULocale = localeEv.evaluate(state)
-    val calendar: Calendar = calendarEv.evaluate(state)
 
     val node = state.currentInfosetNode.asSimple
 
     val dc = node.dataValue
 
-    val calValue = node.dataValue match {
+    val infosetCalendar = node.dataValue match {
       case dc: DFDLCalendar => dc.calendar
       case x => Assert.invariantFailed("ConvertTextCalendar received unsupported type. %s of type %s.".format(x, Misc.getNameFromClass(x)))
     }
 
-    // This initialization is needed because the calendar object may have been
-    // persisted, and that computes/completes fields that are not yet
-    // completed, such as the Julian day, which freezes the year to 1970. We
-    // want a fresh start on all the fields that are filled in from a parse.
-    // Also, the tlDataFormatter below uses a cache based on the value of the
-    // calendar, so we want to ensure we always get the same data formatter if
-    // the calendar is the same
-    calendar.clear()
+    val locale: ULocale = localeEv.evaluate(state)
 
-    val df = tlDataFormatter(locale, calendar)
-    df.setCalendar(calendar)
+    val calendarOrig: Calendar = calendarEv.evaluate(state)
 
-    // At this point we should be able to just do "df.format(calValue)".
-    // However, when we do that ICU actually uses some fields in calValue (e.g.
+    // The clear() here actually shouldn't be necessary since we call clear()
+    // when we create the calendar in CalendarEv, and nothing ever modifies
+    // that calendar--we only modify clones. However, it looks like the act of
+    // deserializing a Calendar object causes values to be initialized again.
+    // So if someone uses a saved parser this calendar will have garbage in it
+    // that can affect the results. So clear it here to make sure that's not
+    // the case.
+    calendarOrig.clear()
+
+    // It's important here to use the calendarOrig that results from
+    // calendarEv.evaluate() since the tlDataFormatter is a cache the uses
+    // reference equality. For everything else we want to use a clone for
+    // reasons described below.
+    val df = tlDataFormatter(locale, calendarOrig)
+
+    // When we evaluate calendarEV, if it is a constant we will always get back
+    // the same Calendar object. Because of this it is important here to clone
+    // this calendar and always use the clone below for two reasons:
+    //
+    // 1) The below code will modify the calendar object based on the dateTime
+    //    in the infoset. Any changes to the object would persist and affect
+    //    future unparses. By cloning, we ensure we do not modify the original
+    //    calendar object that other unparses will use.
+    //
+    // 2) Multiple threads would have access to the same Calendar object, and
+    //    so the below code could modify the same object at the same time
+    //    across threads. By cloning, we ensure that they modify different
+    //    objects.
+    val calendar = calendarOrig.clone().asInstanceOf[Calendar]
+
+    // At this point we should be able to just do "df.format(infosetCalendar)".
+    // However, when we do that ICU actually uses some fields in infosetCalendar (e.g.
     // minimamDaysInFirstWeek, firstDayInWeek) rather than using the fields in
-    // "calendar" set in setCalendar above. Those fields in calValue are
+    // "calendar" set in setCalendar above. Those fields in infosetCalendar are
     // specific to the locale used to parse the infoset value, which means the
     // locale can effect the unparsed value. So instead of calling
-    // format(calValue), copy all the date/time fields into "calendar" (which
+    // format(infosetCalendar), copy all the date/time fields into "calendar" (which
     // has the appropriate settings based on DFDL properties) and then unparse
     // that. This ensures there are no locale specific issues related to
     // unparsing calendars.
     calendar.set(
-      calValue.get(Calendar.EXTENDED_YEAR),
-      calValue.get(Calendar.MONTH),
-      calValue.get(Calendar.DAY_OF_MONTH),
-      calValue.get(Calendar.HOUR_OF_DAY),
-      calValue.get(Calendar.MINUTE),
-      calValue.get(Calendar.SECOND)
+      infosetCalendar.get(Calendar.EXTENDED_YEAR),
+      infosetCalendar.get(Calendar.MONTH),
+      infosetCalendar.get(Calendar.DAY_OF_MONTH),
+      infosetCalendar.get(Calendar.HOUR_OF_DAY),
+      infosetCalendar.get(Calendar.MINUTE),
+      infosetCalendar.get(Calendar.SECOND)
     )
-    calendar.set(Calendar.MILLISECOND,   calValue.get(Calendar.MILLISECOND))
-    calendar.setTimeZone(calValue.getTimeZone)
+    calendar.set(Calendar.MILLISECOND, infosetCalendar.get(Calendar.MILLISECOND))
+    calendar.setTimeZone(infosetCalendar.getTimeZone)
 
+    df.setCalendar(calendar)
     val str = df.format(calendar)
 
     node.overwriteDataValue(str)

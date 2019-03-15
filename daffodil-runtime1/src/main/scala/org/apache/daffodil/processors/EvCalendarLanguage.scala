@@ -79,6 +79,12 @@ class CalendarEv(localeEv: CalendarLanguageEv,
       if (calendarTz.isDefined) calendarTz.get else TimeZone.UNKNOWN_ZONE
     }
     cal.setTimeZone(tz)
+
+    // The Calendar is initialized with time values based on the current system
+    // which aren't always overwritten during a parse. We don't want that, so
+    // clear out those values.
+    cal.clear()
+
     cal
   }
 }
