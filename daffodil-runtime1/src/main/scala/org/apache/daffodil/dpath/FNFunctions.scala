@@ -685,7 +685,7 @@ case class FNCeiling(recipe: CompiledDPath, argType: NodeInfo.Kind) extends FNOn
 
     case NodeInfo.Decimal => {
       val bd = asBigDecimal(value)
-      bd.round(new MathContext(0, RoundingMode.CEILING))
+      bd.setScale(0, RoundingMode.CEILING)
     }
     case NodeInfo.Float => asAnyRef(asFloat(value).floatValue().ceil)
     case NodeInfo.Double => asAnyRef(asDouble(value).floatValue().ceil)
@@ -699,7 +699,7 @@ case class FNFloor(recipe: CompiledDPath, argType: NodeInfo.Kind) extends FNOneA
 
     case NodeInfo.Decimal => {
       val bd = asBigDecimal(value)
-      bd.round(new MathContext(0, RoundingMode.FLOOR))
+      bd.setScale(0, RoundingMode.FLOOR)
     }
     case NodeInfo.Float => asAnyRef(asFloat(value).floatValue().floor)
     case NodeInfo.Double => asAnyRef(asDouble(value).doubleValue().floor)
@@ -717,7 +717,7 @@ case class FNRound(recipe: CompiledDPath, argType: NodeInfo.Kind) extends FNOneA
         // A MathContext object whose settings have
         // the values required for unlimited precision arithmetic.
         val mc = java.math.MathContext.UNLIMITED
-        bd.round(mc)
+        bd.setScale(0, RoundingMode.HALF_UP)
       }
       case NodeInfo.Float => {
         val f = asFloat(value).floatValue()

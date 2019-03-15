@@ -407,6 +407,7 @@ class TestDFDLExpressions {
   @Test def test_ceil_06() { runner2.runOneTest("ceil_06") }
   @Test def test_ceil_07() { runner2.runOneTest("ceil_07") }
   @Test def test_ceil_08() { runner2.runOneTest("ceil_08") }
+  @Test def test_ceil_09() { runner2.runOneTest("ceil_09") }
 
   @Test def test_xPathFunc_floor_01() { runner2.runOneTest("xPathFunc_floor_01") }
   @Test def test_xPathFunc_floor_02() { runner2.runOneTest("xPathFunc_floor_02") }
@@ -416,6 +417,7 @@ class TestDFDLExpressions {
   @Test def test_floor_06() { runner2.runOneTest("floor_06") }
   @Test def test_floor_07() { runner2.runOneTest("floor_07") }
   @Test def test_floor_08() { runner2.runOneTest("floor_08") }
+  @Test def test_floor_09() { runner2.runOneTest("floor_09") }
 
   @Test def test_xPathFunc_round_01() { runner2.runOneTest("xPathFunc_round_01") }
   @Test def test_xPathFunc_round_02() { runner2.runOneTest("xPathFunc_round_02") }
@@ -433,6 +435,9 @@ class TestDFDLExpressions {
   @Test def test_xPathFunc_round_14() { runner2.runOneTest("xPathFunc_round_14") }
   @Test def test_xPathFunc_round_15() { runner2.runOneTest("xPathFunc_round_15") }
   @Test def test_xPathFunc_round_16() { runner2.runOneTest("xPathFunc_round_16") }
+  @Test def test_round_17() { runner2.runOneTest("round_17") }
+  @Test def test_round_18() { runner2.runOneTest("round_18") }
+  @Test def test_round_19() { runner2.runOneTest("round_19") }
 
   @Test def test_xPathFunc_round_hte_01() { runner2.runOneTest("xPathFunc_round_hte_01") }
   @Test def test_xPathFunc_round_hte_02() { runner2.runOneTest("xPathFunc_round_hte_02") }
