@@ -697,6 +697,7 @@ class TestDFDLExpressions {
   @Test def test_dfdlHexBinary_constructor_02() { runner2.runOneTest("dfdlHexBinary_constructor_02") }
   @Test def test_dfdlHexBinary_constructor_03() { runner2.runOneTest("dfdlHexBinary_constructor_03") }
   @Test def test_dfdlHexBinary_constructor_04() { runner2.runOneTest("dfdlHexBinary_constructor_04") }
+  @Test def test_dfdlHexBinary_constructor_05() { runner2.runOneTest("dfdlHexBinary_constructor_05") }
 
   @Test def test_dfdlByte_constructor_01() { runner2.runOneTest("dfdlByte_constructor_01") }
   @Test def test_dfdlByte_constructor_02() { runner2.runOneTest("dfdlByte_constructor_02") }

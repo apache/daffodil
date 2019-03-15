@@ -26,7 +26,7 @@ object HexBinaryConversions {
     val lower = (s & 0x00FF).toByte
     Array[Byte](upper, lower)
   }
-  def toByteArray(i: Integer): Array[Byte] = {
+  def toByteArray(i: Int): Array[Byte] = {
     val byte0 = ((i >> 24) & 0x000000FF).toByte
     val byte1 = ((i >> 16) & 0x000000FF).toByte
     val byte2 = ((i >> 8) & 0x000000FF).toByte

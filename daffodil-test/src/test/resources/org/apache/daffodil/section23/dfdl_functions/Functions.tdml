@@ -6691,6 +6691,7 @@
     <xs:element name="dfdlHexBinary02" type="xs:hexBinary" dfdl:inputValueCalc="{ dfdl:hexBinary('208') }"/>
     <xs:element name="dfdlHexBinary03" type="xs:hexBinary" dfdl:inputValueCalc="{ dfdl:hexBinary(-2084) }"/>
     <xs:element name="dfdlHexBinary04" type="xs:hexBinary" dfdl:inputValueCalc="{ dfdl:hexBinary(200000000000000000000) }"/>
+    <xs:element name="dfdlHexBinary05" type="xs:hexBinary" dfdl:inputValueCalc="{ dfdl:hexBinary(xs:integer(32768)) }"/>
     
     <xs:element name="dfdlByte01" type="xs:byte" dfdl:inputValueCalc="{ dfdl:byte(127) }"/> <!-- valid -->
     <xs:element name="dfdlByte02" type="xs:byte" dfdl:inputValueCalc="{ dfdl:byte(208) }"/> <!-- invalid -->
@@ -11636,7 +11637,28 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
-  
+
+ <!--
+    Test name: dfdlHexBinary_constructor_05
+       Schema: constructorSchema
+         Root: dfdlHexBinary05
+      Purpose: This test demonstrates the use of the dfdl:hexBinary constructor function and its ability to
+               construct a hexBinary string from an xs:integer.
+  -->
+
+  <tdml:parserTestCase name="dfdlHexBinary_constructor_05" root="dfdlHexBinary05" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:hexBinary()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:dfdlHexBinary05>00008000</ex:dfdlHexBinary05>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
   <!--
     Test name: dfdlByte_constructor_01
        Schema: constructorSchema
