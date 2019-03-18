@@ -47,13 +47,13 @@ abstract class ProcessingError protected (
    * looks like the same as other parse errors to tests that search for the
    * "Parse Error" string.
    */
-  def toParseError = new ParseError(schemaContext, dataContext, Maybe(this), maybeFormatString, args: _*)
+  def toParseError = new ParseError(schemaContext, dataContext, Maybe(this), Maybe.Nope)
 
   /**
    * Used to convert a processing error into a unparse error so that it
    * looks like the same as other unparse errors to tests that search for the
    * "Unparse Error" string.
    */
-  def toUnparseError = new UnparseError(schemaContext, dataContext, maybeCause, maybeFormatString, args: _*)
+  def toUnparseError = new UnparseError(schemaContext, dataContext, Maybe(this), Maybe.Nope)
 
 }
