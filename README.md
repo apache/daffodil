@@ -15,11 +15,22 @@
   limitations under the License.
 -->
 
-# Apache Daffodil (incubating)
+[<img src="https://daffodil.apache.org/assets/themes/apache/img/apache-daffodil-logo.svg" height="85" align="left" alt="Apache Daffodil"/>][Website]
+[<img src="https://img.shields.io/travis/apache/incubator-daffodil/master.svg" align="right"/>][TravisCI]
+<br clear="right" />
+[<img src="https://img.shields.io/codecov/c/github/apache/incubator-daffodil/master.svg" align="right"/>][CodeCov]
+<br clear="right" />
+[<img src="https://img.shields.io/maven-central/v/org.apache.daffodil/daffodil-core_2.12.svg?color=brightgreen&label=version" align="right"/>][Releases]
+<br clear="both" />
 
-## Introduction
-
-Apache Daffodil (incubating) is the open source implementation of the [Data Format Description Language (DFDL)](http://www.ogf.org/dfdl), a specification created by the [Open Grid Forum](http://www.ogf.org). DFDL is capable of describing many data formats, including textual and binary, commercial record-oriented, scientific and numeric, modern and legacy, and many industry standards. It leverages XML technology and concepts, using a subset of W3C XML schema type system and annotations to describe such data. Daffodil uses this description to parse data into an infoset represented as XML or JSON, easily capable of ingestion, validation, and transformation.
+Apache Daffodil (incubating) is the open source implementation of the [Data Format
+Description Language (DFDL)], a specification created by the [Open Grid Forum]. DFDL is
+capable of describing many data formats, including textual and binary, commercial
+record-oriented, scientific and numeric, modern and legacy, and many industry standards.
+It leverages XML technology and concepts, using a subset of W3C XML schema type system and
+annotations to describe such data. Daffodil uses this description to parse data into an
+infoset represented as XML or JSON, easily capable of ingestion, validation, and
+transformation.
 
 For more information about Daffodil, see https://daffodil.apache.org/.
 
@@ -30,55 +41,59 @@ For more information about Daffodil, see https://daffodil.apache.org/.
 
 ## Getting Started
 
-[SBT](http://www.scala-sbt.org) is the officially supported tool to build
-Daffodil, run all tests, create packages, and more. Below are some of the more
-common commands used for Daffodil development.
+[SBT] is the officially supported tool to build Daffodil, run all tests, create packages,
+and more. Below are some of the more common commands used for Daffodil development.
 
-> Note that compiling and running all Daffodil tests works best with at least
-> 6GB of memory, more than is usually provided by default. We recommended that
-> you supply ``-mem 6144`` either as an sbt option (e.g. ``sbt -mem 6144
-> test``) or edit ``/etc/sbt/sbtopts`` to increase the available memory when
-> running the below commands.
+> :exclamation: **SBT Memory Requirements**
+>
+> *Compiling and running all Daffodil tests works best with at least 6GB of memory, more
+> than is usually provided by default. We recommended that you supply ``-mem 6144`` either
+> as an sbt option (e.g. ``sbt -mem 6144 test``) or edit ``/etc/sbt/sbtopts`` to increase
+> the available memory when running the below commands.*
 
 ### Compile
 
-```bash
+```text
 $ sbt compile
 ```
 ### Tests
 
-The following command runs all unit tests.
+Run all unit tests:
 
-```bash
+```text
 $ sbt test 
 ```
 
-The following command runs all command line interface tests.
-```bash
+Run all command line interface tests:
+
+```text
 $ sbt it:test
 ```
 
 ### Command Line Interface
 
-The following command creates Linux and Windows shell scripts in `daffodil-cli/target/universal/stage/bin/`. See the [Command Line Interface](https://daffodil.apache.org/cli/) documentation for details on its usage.
+Create Linux and Windows shell scripts in `daffodil-cli/target/universal/stage/bin/`. See
+the [Command Line Interface] documentation for details on its usage:
 
-```bash 
+```btext
 $ sbt daffodil-cli/stage
 ```
 
-### Apache RAT
+### License Check
 
-This following command generates an [Apache RAT](https://creadur.apache.org/rat/) report in ``target/rat.txt`` and errors if any unapproved licenses are found.
+Generate an [Apache RAT] license check report located in ``target/rat.txt`` and error if
+any unapproved licenses are found:
 
-```bash
+```text
 $ sbt ratCheck
 ```
 
 ### Test Coverage Report
 
-This follow commands generate an [sbt-scoverage](https://github.com/scoverage/sbt-scoverage) test coverage report that will be located in ``target/scala-ver/scoverage-report/``.
+Generate an [sbt-scoverage] test coverage report located in
+``target/scala-ver/scoverage-report/``:
 
-```bash
+```text
 $ sbt clean coverage test it:test
 $ sbt coverageReport
 $ sbt coverageAggregate
@@ -86,8 +101,35 @@ $ sbt coverageAggregate
 
 ## Getting Help
 
-For questions, we can be reached at the dev@daffodil.apache.org or users@daffodil.apache.org mailing lists. Bugs can be reported via the [Daffodil JIRA](https://issues.apache.org/jira/projects/DAFFODIL).
+For questions, we can be reached at the dev@daffodil.apache.org or
+users@daffodil.apache.org mailing lists. Bugs can be reported via the [Daffodil JIRA].
 
 ## License
 
-Daffodil is licensed under the [Apache License, v2.0](https://www.apache.org/licenses/LICENSE-2.0)
+Apache Daffodil is licensed under the [Apache License, v2.0].
+
+## Disclaimer
+
+Apache Daffodil is an effort undergoing incubation at The Apache Software Foundation
+(ASF), sponsored by the Incubator PMC. Incubation is required of all newly accepted
+projects until a further review indicates that the infrastructure, communications, and
+decision making process have stabilized in a manner consistent with other successful ASF
+projects. While incubation status is not necessarily a reflection of the completeness or
+stability of the code, it does indicate that the project has yet to be fully endorsed by
+the ASF.
+
+
+
+
+[Apache License, v2.0]: https://www.apache.org/licenses/LICENSE-2.0
+[Apache RAT]: https://creadur.apache.org/rat/
+[CodeCov]: https://codecov.io/gh/apache/incubator-daffodil/
+[Command Line Interface]: https://daffodil.apache.org/cli/
+[Daffodil JIRA]: https://issues.apache.org/jira/projects/DAFFODIL
+[Data Format Description Language (DFDL)]: http://www.ogf.org/dfdl
+[Open Grid Forum]: http://www.ogf.org
+[Releases]: http://daffodil.apache.org/releases/
+[SBT]: http://www.scala-sbt.org
+[TravisCI]: https://travis-ci.org/apache/incubator-daffodil
+[Website]: https://daffodil.apache.org
+[sbt-scoverage]: https://github.com/scoverage/sbt-scoverage
