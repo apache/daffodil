@@ -216,7 +216,7 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
   }
 
   private def doParse(p: Parser, state: PState) {
-    var wasThrow = true
+    var optThrown: Maybe[Throwable] = None
     try {
       try {
         this.startElement(state, p)
@@ -232,11 +232,15 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
         // so that subsequent use of the state can generally work and have a context.
         //
         state.setMaybeProcessor(Maybe(p))
-
-        wasThrow = false
-      } finally {
-        state.verifyFinalState(wasThrow)
-      }
+      } catch {
+        //We will actually be handling all errors in the outer loop
+        //However, there is a chance that our finally block will itself throw.
+        //In such a case, it is useful to include the original error.
+        case e: Throwable => {
+          optThrown = Some(e)
+          throw e
+        }
+      } finally { state.verifyFinalState(optThrown) }
 
     } catch {
       // technically, runtime shouldn't throw. It's really too heavyweight a construct. And "failure"
