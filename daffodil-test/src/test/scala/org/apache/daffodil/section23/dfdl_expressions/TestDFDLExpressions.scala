@@ -86,9 +86,6 @@ class TestDFDLExpressions {
   //@Test def test_diagnostics_02() { runner.runOneTest("diagnostics_02") }
   //@Test def test_diagnostics_03() { runner.runOneTest("diagnostics_03") }
 
-  //DFDL-1221
-  //@Test def test_beyondRoot_01() { runner.runOneTest("beyondRoot_01") }
-
   @Test def test_sequenceReturned_01() { runner.runOneTest("sequenceReturned_01") }
   @Test def test_sequenceReturned_02() { runner.runOneTest("sequenceReturned_02") }
   @Test def test_sequenceReturned_03() { runner.runOneTest("sequenceReturned_03") }
@@ -102,7 +99,7 @@ class TestDFDLExpressions {
   @Test def test_arrayIndexOutOfBounds_02() { runner.runOneTest("arrayIndexOutOfBounds_02") }
   @Test def test_arrayIndexOutOfBounds_03() { runner.runOneTest("arrayIndexOutOfBounds_03") }
 
-  // TODO: TBD DFDL-TICKET, should statically tell this is an invalid index (-1)
+  // DFDL-1865
   //@Test def test_arrayIndexOutOfBounds_04() { runner.runOneTest("arrayIndexOutOfBounds_04") }
   @Test def test_arrayIndexOutOfBounds_05() { runner.runOneTest("arrayIndexOutOfBounds_05") }
 
@@ -207,7 +204,7 @@ class TestDFDLExpressions {
   @Test def test_regexLookahead() { runnerNV.runOneTest("regexLookahead") }
   @Test def test_regexLookaheadFail() { runnerNV.runOneTest("regexLookaheadFail") }
   @Test def test_regexLookaheadFail2() { runnerNV.runOneTest("regexLookaheadFail2") }
-  //  @Test def test_regexCompatFail() { runner.runOneTest("regexCompatFail") }
+  @Test def test_regexCompatFail() { runner.runOneTest("regexCompatFail") }
 
   @Test def test_expressionRules01() { runner.runOneTest("expressionRules01") }
   @Test def test_expressionRules02() { runner.runOneTest("expressionRules02") }
@@ -331,9 +328,6 @@ class TestDFDLExpressions {
   @Test def test_namespace_axis_01() { runner.runOneTest("namespace_axis_01") }
   @Test def test_preceding_axis_01() { runner.runOneTest("preceding_axis_01") }
   @Test def test_preceding_sibling_axis_01() { runner.runOneTest("preceding_sibling_axis_01") }
-
-  //DFDL-711
-  //@Test def test_short_parent_axis_01() { runner.runOneTest("short_parent_axis_01") }
 
   /////////////////////// FUNCTIONS ///////////////////////////
 
@@ -532,12 +526,9 @@ class TestDFDLExpressions {
   //@Test def test_namespace_uri_05() { runner2.runOneTest("namespace_uri_05") }
   //@Test def test_namespace_uri_06() { runner2.runOneTest("namespace_uri_06") }
 
-  //DFDL-1076
-  //@Test def test_nilled_01() { runner2.runOneTest("nilled_01") }
   //DFDL-1233
-  //@Test def test_nilled_02() { runner2.runOneTest("nilled_02") }
-  //@Test def test_nilled_03() { runner2.runOneTest("nilled_03") }
-  //@Test def test_nilled_04() { runner2.runOneTest("nilled_04") }
+  @Test def test_nilled_02() { runner2.runOneTest("nilled_02") }
+  @Test def test_nilled_03() { runner2.runOneTest("nilled_03") }
 
   @Test def test_concat_01() { runner2.runOneTest("concat_01") }
   @Test def test_concat_02() { runner2.runOneTest("concat_02") }

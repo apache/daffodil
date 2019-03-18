@@ -58,22 +58,17 @@ class TestPropertyScoping {
   @Test def test_multipleDefinition2() { runner.runOneTest("multipleDefinition2") }
   @Test def test_multipleDefinition3() { runner.runOneTest("multipleDefinition3") }
 
-  // Moved back to debug, because validation is no longer detecting the error it is
-  // expecting
-  // @Test def test_property_shortFormSchemaFail() { runner.runOneTest("shortFormSchemaFail") }
-
   @Test def test_format_nesting_01() { runner.runOneTest("format_nesting_01") }
 
   @Test def test_property_scoping_02() { runner_01.runOneTest("property_scoping_02") }
-  //See DFDL-1337
-  //@Test def test_unparse_property_scoping_02() { runner_01.runOneTest("unparse_property_scoping_02") }
+  // DAFFODIL-2103
+  // @Test def test_unparse_property_scoping_02() { runner_01.runOneTest("unparse_property_scoping_02") }
   @Test def test_property_scoping_03() = { runner_01.runOneTest("property_scoping_03") }
   @Test def test_unparse_property_scoping_03() = { runner_01.runOneTest("unparse_property_scoping_03") }
   @Test def test_property_scoping_04() { runner_01.runOneTest("property_scoping_04") }
   @Test def test_property_scoping_05() { runner_01.runOneTest("property_scoping_05") }
-  // See DFDL-1342
-  //@Test def test_unparse_property_scoping_04() { runner_01.runOneTest("unparse_property_scoping_04") }
-  //@Test def test_unparse_property_scoping_05() { runner_01.runOneTest("unparse_property_scoping_05") }
+  @Test def test_unparse_property_scoping_04() { runner_01.runOneTest("unparse_property_scoping_04") }
+  @Test def test_unparse_property_scoping_05() { runner_01.runOneTest("unparse_property_scoping_05") }
   @Test def test_property_scoping_07() { runner_01.runOneTest("property_scoping_07") }
   @Test def test_unparse_property_scoping_07() { runner_01.runOneTest("unparse_property_scoping_07") }
   @Test def test_property_scoping_08() { runner_01.runOneTest("property_scoping_08") }

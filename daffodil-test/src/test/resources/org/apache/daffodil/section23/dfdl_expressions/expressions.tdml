@@ -3252,14 +3252,11 @@
     model="newRegex" description="Section -  - DFDL-R">
 
     <tdml:document>45someletters</tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <s1>
-          <e1>45</e1>
-          <extra>someletters</extra>
-        </s1>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>InvalidRegex</tdml:error>
+      <tdml:error>not a valid regular expression</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
 <!--

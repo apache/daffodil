@@ -56,7 +56,7 @@ class IBMTestsThatPass2 {
   @Test def test_syntax_entities_6_01() { runner1.runOneTest("syntax_entities_6_01") }
   @Test def test_syntax_entities_6_02() { runner1.runOneTest("syntax_entities_6_02") }
   //
-  // Needs dfdl:utf16Width='variable' implementation
+  // Needs DFDL-1559 - CR;LF output
   //  @Test def test_syntax_entities_6_03() { runner1.runOneTest("syntax_entities_6_03") }
 
   @Test def test_property_syntax_7_01() { runner1.runOneTest("property_syntax_7_01") }
@@ -68,9 +68,6 @@ class IBMTestsThatPass2 {
   @Test def test_choices_basic_15_03() { runner2.runOneTest("choices_basic_15_03") }
 
   @Test def test_arrays_16_01() { runner2.runOneTest("arrays_16_01") }
-
-  // uses lengthUnits bytes with lengthKind explicit and utf-8
-  @Test def test_length_explicit_12_01() { runner1.runOneTest("length_explicit_12_01") }
 
   @Test def test_introduction_1_02() { runner1.runOneTest("introduction_1_02") }
   @Test def test_length_delimited_12_03() { runner1.runOneTest("length_delimited_12_03") }
@@ -87,7 +84,7 @@ class IBMTestsThatPass2 {
   @Test def test_delimiter_12_04() { runner1.runOneTest("delimiter_12_04") }
 
   // uses lengthUnits bytes with lengthKind explicit and utf-8
-  // @Test def test_length_explicit_12_01() { runner1.runOneTest("length_explicit_12_01") }
+  @Test def test_length_explicit_12_01() { runner1.runOneTest("length_explicit_12_01") }
   @Test def test_length_explicit_12_02() { runner1.runOneTest("length_explicit_12_02") }
   @Test def test_length_delimited_12_06() { runner1.runOneTest("length_delimited_12_06") }
 

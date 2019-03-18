@@ -35,12 +35,7 @@ object TestSimpleTypes {
 class TestSimpleTypes {
   import TestSimpleTypes._
 
-  //  @Test def test_warning_exercise() {
-  //    val exc = intercept[Exception] {
-  //      runner.runOneTest("warning_exercise")
-  //    }
-  //    assertTrue(exc.getMessage().contains("Did not find"))
-  //  }
+  @Test def test_warning_exercise() { runner.runOneTest("warning_exercise") }
 
   @Test def test_one_octet() { runner.runOneTest("OneOctetBinaryParse") }
   @Test def test_oneBit2() { runner.runOneTest("OneBit2") }
@@ -115,9 +110,9 @@ class TestSimpleTypes {
 
   @Test def test_datePatternChoice() { runner.runOneTest("datePatternChoice") }
 
-  // DFDL-529
-  //  @Test def test_dateCalendarCenturyStart() { runner.runOneTest("dateCalendarCenturyStart") }
-  //  @Test def test_dateCalendarCenturyStart2() { runner.runOneTest("dateCalendarCenturyStart2") }
+  // DFDL-519
+  //@Test def test_dateCalendarCenturyStart() { runner.runOneTest("dateCalendarCenturyStart") }
+  //@Test def test_dateCalendarCenturyStart2() { runner.runOneTest("dateCalendarCenturyStart2") }
 
   @Test def test_dateCalendarDaysInFirstWeek() { runner.runOneTest("dateCalendarDaysInFirstWeek") }
   @Test def test_dateCalendarDaysInFirstWeek2() { runner.runOneTest("dateCalendarDaysInFirstWeek2") }
@@ -164,7 +159,7 @@ class TestSimpleTypes {
   @Test def test_timeZoneFormats8() { runner.runOneTest("timeZoneFormats8") }
   @Test def test_timeZoneFormats9() { runner.runOneTest("timeZoneFormats9") }
 
-  //  @Test def test_dateCountDeterminesFormat() { runner.runOneTest("dateCountDeterminesFormat") }
+  @Test def test_dateCountDeterminesFormat() { runner.runOneTest("dateCountDeterminesFormat") }
   @Test def test_dateNonAlphaChars01() { runner.runOneTest("dateNonAlphaChars01") }
   @Test def test_dateTrim01() { runner.runOneTest("dateTrim01") }
   @Test def test_dateTrim02() { runner.runOneTest("dateTrim02") }
@@ -253,7 +248,8 @@ class TestSimpleTypes {
   @Test def test_dateTimeImplicitPatternFail6() { runner.runOneTest("dateTimeImplicitPatternFail6") }
 
   @Test def test_datePattern01() { runner.runOneTest("datePattern01") }
-  //  @Test def test_datePattern01b() { runner.runOneTest("datePattern01b") }
+  // DAFFODIL-488
+  // @Test def test_datePattern01b() { runner.runOneTest("datePattern01b") }
   @Test def test_timeLaxCheckPolicy01() { runner.runOneTest("timeLaxCheckPolicy01") }
   @Test def test_timeLaxCheckPolicy02() { runner.runOneTest("timeLaxCheckPolicy02") }
   @Test def test_timeLaxCheckPolicy03() { runner.runOneTest("timeLaxCheckPolicy03") }
@@ -335,7 +331,6 @@ class TestSimpleTypes {
   @Test def test_whiteSpaceAfterLengthExceededInteger() { runner.runOneTest("whiteSpaceAfterLengthExceededInteger") }
   @Test def test_whiteSpaceBeforeLengthExceededInteger() { runner.runOneTest("whiteSpaceBeforeLengthExceededInteger") }
   @Test def test_whiteSpaceDuringLengthExceededInteger() { runner.runOneTest("whiteSpaceDuringLengthExceededInteger") }
-  //TODO: Find out why these test generate unexpected errors
   @Test def test_characterDuringValidLong() { runner.runOneTest("characterDuringValidLong") }
   @Test def test_whiteSpaceAfterLengthExceededLong() { runner.runOneTest("whiteSpaceAfterLengthExceededLong") }
   @Test def test_whiteSpaceBeforeLengthExceededLong() { runner.runOneTest("whiteSpaceBeforeLengthExceededLong") }
@@ -349,7 +344,6 @@ class TestSimpleTypes {
   @Test def test_whiteSpaceAfterLengthExceededByte() { runner.runOneTest("whiteSpaceAfterLengthExceededByte") }
   @Test def test_whiteSpaceBeforeLengthExceededByte() { runner.runOneTest("whiteSpaceBeforeLengthExceededByte") }
   @Test def test_whiteSpaceDuringLengthExceededByte() { runner.runOneTest("whiteSpaceDuringLengthExceededByte") }
-  // TODO: Find out why these test generate unexpected errors
   @Test def test_characterDuringValidUnsignedInt() { runner.runOneTest("characterDuringValidUnsignedInt") }
   @Test def test_negativeUnsignedInt() { runner.runOneTest("negativeUnsignedInt") }
   @Test def test_whiteSpaceAfterLengthExceededUnsignedInt() { runner.runOneTest("whiteSpaceAfterLengthExceededUnsignedInt") }
@@ -365,17 +359,12 @@ class TestSimpleTypes {
   @Test def test_whiteSpaceAfterLengthExceededUnsignedLong() { runner.runOneTest("whiteSpaceAfterLengthExceededUnsignedLong") }
   @Test def test_whiteSpaceBeforeLengthExceededUnsignedLong() { runner.runOneTest("whiteSpaceBeforeLengthExceededUnsignedLong") }
   @Test def test_whiteSpaceDuringLengthExceededUnsignedLong() { runner.runOneTest("whiteSpaceDuringLengthExceededUnsignedLong") }
-  // TODO: Find out why these test generate unexpected errors
 
   @Test def test_characterDuringValidUnsignedShort() { runner.runOneTest("characterDuringValidUnsignedShort") }
   @Test def test_negativeUnsignedShort() { runner.runOneTest("negativeUnsignedShort") }
   @Test def test_whiteSpaceAfterLengthExceededUnsignedShort() { runner.runOneTest("whiteSpaceAfterLengthExceededUnsignedShort") }
   @Test def test_whiteSpaceBeforeLengthExceededUnsignedShort() { runner.runOneTest("whiteSpaceBeforeLengthExceededUnsignedShort") }
   @Test def test_whiteSpaceDuringLengthExceededUnsignedShort() { runner.runOneTest("whiteSpaceDuringLengthExceededUnsignedShort") }
-
-  //  @Test def test_whiteSpaceAfterLengthExceeded() { runner.runOneTest("whiteSpaceAfterLengthExceeded") }
-  //  @Test def test_whiteSpaceBeforeLengthExceeded() { runner.runOneTest("whiteSpaceBeforeLengthExceeded") }
-  //  @Test def test_whiteSpaceDuringLengthExceeded() { runner.runOneTest("whiteSpaceDuringLengthExceeded") }
 
   @Test def test_unsignedShort_01() { runner.runOneTest("unsignedShort_01") }
   @Test def test_unsignedByte_01() { runner.runOneTest("unsignedByte_01") }
@@ -434,7 +423,7 @@ class TestSimpleTypes {
 
   @Test def test_int_implicit() { runner.runOneTest("int_implicit") }
 
-  //  @Test def test_posinteger_binary_01() { runner.runOneTest("nonNegInt_binary_01") }
+  @Test def test_posinteger_binary_01() { runner.runOneTest("nonNegInt_binary_01") }
 
   @Test def test_literalChar_padding() { runner.runOneTest("literalChar_padding") }
   @Test def test_literalChar_padding2() { runner.runOneTest("literalChar_padding2") }

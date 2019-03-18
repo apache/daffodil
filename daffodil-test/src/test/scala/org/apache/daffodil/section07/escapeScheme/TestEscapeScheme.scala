@@ -49,6 +49,7 @@ class TestEscapeScheme {
   @Test def test_escapeSchemeFail2() { runner.runOneTest("escapeSchemeFail2") }
   @Test def test_escapeSchemeFail3() { runner.runOneTest("escapeSchemeFail3") }
   @Test def test_escapeSchemeNonEmpty() { runner.runOneTest("escapeSchemeNonEmpty") }
+  // DAFFODIL-844
   //@Test def test_escapeSchemeNonUnique() { runner.runOneTest("escapeSchemeNonUnique") }
 
   @Test def test_escapeExpressions_01() { runner.runOneTest("escapeExpressions_01") }

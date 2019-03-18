@@ -48,8 +48,7 @@ class TresysTests3 {
   @Test def test_testOne() { runnerBF.runOneTest("testOne") }
   @Test def test_testMany() { runnerBF.runOneTest("testMany") }
 
-  // Runs, but it is too slow to use in regression tests
-  //@Test def test_AB006() { runnerAB.runOneTest("AB006") }
+  @Test def test_AB006() { runnerAB.runOneTest("AB006") }
 
   @Test def test_AH000() { runnerAH.runOneTest("AH000") }
   @Test def test_AH001() { runnerAH.runOneTest("AH001") }
