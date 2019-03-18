@@ -60,6 +60,8 @@ import org.apache.daffodil.util.Pool
 import org.apache.daffodil.util.Poolable
 import org.apache.daffodil.infoset.DIComplexState
 import org.apache.daffodil.infoset.DISimpleState
+import org.apache.daffodil.exceptions.UnsuppressableException
+import org.apache.daffodil.exceptions.Abort
 
 object MPState {
 
@@ -336,18 +338,31 @@ final class PState private (
    * pools - all items returned, etc.
    *
    * If for some reason parsing ends with a throw (not supposed to, but just if)
-   * then all bets are off, so this must be called ONLY on a normal return from parse call.
-   * That is, the parse can succeed or fail with diagnostics, but it must have returned normally.
+   * then all bets are off, so most checks are disabled.
+   * Some checks are still done. If those fail, we include the original error (if present) as the cause.
+   * 
+   * verifyFinalState may be called from within another try..catch block for which certain excepetions
+   * are expected as control flow.
+   * To avoid accidently creating such an exception, we wrap our generated exception in UnsuppressableException
    */
-  def verifyFinalState(wasThrow: Boolean): Unit = {
-    if (!wasThrow) {
-      Assert.invariant(this.discriminatorStack.length == 1)
-      mpstate.verifyFinalState()
+  def verifyFinalState(optThrown: Maybe[Throwable]): Unit = {
+    try {
+      if (optThrown.isEmpty) {
+        Assert.invariant(this.discriminatorStack.length == 1)
+        mpstate.verifyFinalState()
+      }
+      // These we check regardless of throw or not.
+      markPool.finalCheck
+      dataInputStream.inputSource.compact // discard any storage that can be freed.
+      dataInputStream.validateFinalStreamState
+    } catch {
+      case e: Throwable => {
+        if (optThrown.isDefined) e.addSuppressed(optThrown.get)
+        val toThrow = new Abort(e)
+        toThrow.addSuppressed(e)
+        throw toThrow
+      }
     }
-    // These we check regardless of throw or not.
-    markPool.finalCheck
-    dataInputStream.inputSource.compact // discard any storage that can be freed.
-    dataInputStream.validateFinalStreamState
   }
 }
 
