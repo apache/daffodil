@@ -58,8 +58,6 @@ class TestNillable {
 
   @Test def test_text_nil_characterClass_04_parse() = { runnerLN.runOneTest("text_nil_characterClass_04_parse") }
 
-  //@Test def test_text_01() { runnerLN.runOneTest("text_01")}  This test is identical to litNil1.
-  //@Test def test_text_02() { runnerLN.runOneTest("text_02")}  This test is identical to litNil2
   @Test def test_text_03() { runnerLN.runOneTest("text_03") }
   @Test def test_text_03ic() { runnerLN.runOneTest("text_03ic") }
   @Test def test_text_04() { runnerLN.runOneTest("text_04") }

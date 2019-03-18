@@ -56,9 +56,9 @@ class TestSimpleTypes2 {
   @Test def test_AK000() { runnerAK.runOneTest("AK000") }
   @Test def test_AK001() { runnerAK.runOneTest("AK001") }
 
-  //@Test def test_redefinedFormat() { runner2.runOneTest("redefinedFormat") }
+  @Test def test_redefinedFormat() { runner2.runOneTest("redefinedFormat") }
   @Test def test_whiteSpaceBeforeLax() { runner2.runOneTest("whiteSpaceBeforeLax") }
-  //@Test def test_whiteSpaceAfterLax() { runner2.runOneTest("whiteSpaceAfterLax") }
+  @Test def test_whiteSpaceAfterLax() { runner2.runOneTest("whiteSpaceAfterLax") }
   @Test def test_whiteSpaceDuringLax() { runner2.runOneTest("whiteSpaceDuringLax") }
   @Test def test_whiteSpaceBeforeStrict() { runner2.runOneTest("whiteSpaceBeforeStrict") }
   @Test def test_whiteSpaceDuringStrict() { runner2.runOneTest("whiteSpaceDuringStrict") }
@@ -81,6 +81,8 @@ class TestSimpleTypes2 {
   @Test def test_bitOrderChangeInvalid2() { runner1.runOneTest("bitOrderChangeInvalid2") }
   @Test def test_bitOrderChangeInvalid2Unparser() { runner1.runOneTest("bitOrderChangeInvalid2Unparser") }
   @Test def test_noByteOrder() { runner1.runOneTest("noByteOrder") }
+
+  // DAFFODIL-897
   //@Test def test_bitOrderChange() { runner1.runOneTest("bitOrderChange") }
   //@Test def test_bitOrderDocument() { runner1.runOneTest("bitOrderDocument") }
   //@Test def test_bitOrderTypeByte() { runner1.runOneTest("bitOrderTypeByte") }

@@ -470,16 +470,6 @@ class TestCLIparsing {
     }
   }
 
-  //  @Test def test_989_CLI_Parsing_negativeTest02() {
-  //    val cmd = "echo 12| " + Util.binPath + " parse -s daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd -n 'http://www.example.org/example1/'\n"
-  //    val shell = Util.start(cmd)
-  //    shell.expect(contains("--root must be defined if --namespace is defined"))
-  //
-  //    shell.send("exit\n")
-  //    shell.expect(eof)
-  //    shell.close()
-  //  }
-
   @Test def test_996_CLI_Parsing_negativeTest04() {
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
     val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile

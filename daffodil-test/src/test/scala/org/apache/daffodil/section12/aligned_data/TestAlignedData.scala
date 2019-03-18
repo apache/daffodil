@@ -80,7 +80,7 @@ class TestAlignedData {
   @Test def test_alignmentOptionalElem() = { runner1.runOneTest("alignmentOptionalElem") }
   @Test def test_alignmentOptionalElem02() = { runner1.runOneTest("alignmentOptionalElem02") }
   // DFDL-1217
-  //  @Test def test_alignmentOptionalElem03() = { runner1.runOneTest("alignmentOptionalElem03") }
+  // @Test def test_alignmentOptionalElem03() = { runner1.runOneTest("alignmentOptionalElem03") }
   @Test def test_alignmentOptionalElem04() = { runner1.runOneTest("alignmentOptionalElem04") }
 
   @Test def test_leadingSkip1() = { runner1.runOneTest("leadingSkip1") }

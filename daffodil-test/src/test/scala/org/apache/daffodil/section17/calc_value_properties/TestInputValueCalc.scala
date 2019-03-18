@@ -45,7 +45,6 @@ class TestInputValueCalc {
   @Test def test_AR000() { runnerAR.runOneTest("AR000") }
 
   @Test def test_AQ000() { runnerAQ.runOneTest("AQ000") }
-  //@Test def test_AQ001() { runnerAQ.runOneTest("AQ001") } // This appears to expect an error, but doesn't state why.
 
   @Test def test_AA000() { runnerAA.runOneTest("AA000") }
   @Test def test_inputValueCalcErrorDiagnostic1() { runnerAA.runOneTest("inputValueCalcErrorDiagnostic1") }

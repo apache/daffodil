@@ -354,7 +354,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <cal01>1961-02-01+00:00</cal01>
+        <cal01>1961-02-01</cal01>
       </tdml:dfdlInfoset>
     </tdml:infoset>
 
@@ -479,7 +479,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <cal01>1961-02-01+00:00</cal01>
+        <cal01>1961-02-01</cal01>
       </tdml:dfdlInfoset>
     </tdml:infoset>
 
@@ -635,7 +635,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <cal01>1961-02-01+00:00</cal01>
+        <cal01>1961-02-01</cal01>
       </tdml:dfdlInfoset>
     </tdml:infoset>
 

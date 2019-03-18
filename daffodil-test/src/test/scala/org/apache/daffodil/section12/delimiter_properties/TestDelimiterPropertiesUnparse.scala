@@ -36,14 +36,14 @@ class TestDelimiterPropertiesUnparse {
 
   import TestDelimiterPropertiesUnparse._
 
-  //DFDL-1287, DFDL-947
-  //@Test def test_unparseSeparatorLeadingSpace() { runner.runOneTest("unparseSeparatorLeadingSpace") }
+  @Test def test_unparseSeparatorLeadingSpace() { runner.runOneTest("unparseSeparatorLeadingSpace") }
 
-  //DFDL-1213
+  //DFDL-1493, DFDL-1477
   //@Test def test_unparseMultipleInitiators04() { runner.runOneTest("unparseMultipleInitiators04") }
-  //@Test def test_unparseMultipleInitiators05() { runner.runOneTest("unparseMultipleInitiators05") }
   //@Test def test_unparseMultipleInitiators06() { runner.runOneTest("unparseMultipleInitiators06") }
-  //@Test def test_unparseMultipleTerminators03() { runner.runOneTest("unparseMultipleTerminators03") }
+
+  @Test def test_unparseMultipleInitiators05() { runner.runOneTest("unparseMultipleInitiators05") }
+  @Test def test_unparseMultipleTerminators03() { runner.runOneTest("unparseMultipleTerminators03") }
 
   @Test def test_unparseMultipleInitiators01() { runner.runOneTest("unparseMultipleInitiators01") }
   @Test def test_unparseMultipleInitiators02() { runner.runOneTest("unparseMultipleInitiators02") }

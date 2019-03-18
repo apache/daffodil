@@ -39,6 +39,8 @@ class TestAssertions {
   @Test def test_assertFail1() { runner.runOneTest("assertFail1") }
   @Test def test_assertFail2() { runner.runOneTest("assertFail2") }
 
+  // DAFFODIL-752
+  //@Test def test_assertFailShowsValue() { runner.runOneTest("assertFailShowsValue") }
   // DFDL-1043
   // @Test def test_assertFailShowsValue2() { runner.runOneTest("assertFailShowsValue2") }
   @Test def test_assertFailShowsDetails() { runner.runOneTest("assertFailShowsDetails") }
@@ -98,6 +100,4 @@ class TestAssertions {
   @Test def test_assertWithMessageExpression_01() { runner.runOneTest("test_assertWithMessageExpression_01") }
   @Test def test_assertWithMessageExpression_02() { runner.runOneTest("test_assertWithMessageExpression_02") }
 
-  //DFDL-1210
-  //@Test def test_assertFailShowsValue() { runner.runOneTest("assertFailShowsValue") }
 }

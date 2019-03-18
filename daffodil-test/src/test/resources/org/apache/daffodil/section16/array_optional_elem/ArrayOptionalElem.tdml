@@ -356,13 +356,19 @@
     
     <xs:element name="e3">
       <xs:complexType>
-        <xs:sequence dfdl:separator="|" dfdl:separatorPosition="infix">
-          <xs:element name="a1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
-          <xs:element name="a2">
+        <xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
+          <xs:element name="nums" minOccurs="2" maxOccurs="2">
             <xs:complexType>
-              <xs:sequence dfdl:separator=".">
-                <xs:element name="num" dfdl:representation="binary" type="xs:unsignedShort" 
-                    maxOccurs="1" dfdl:lengthKind="implicit" dfdl:byteOrder="{ if (/ex:e3/ex:a1 eq b) then 'bigEndian' else 'littleEndian' }"/>
+              <xs:sequence dfdl:separator="|" dfdl:separatorPosition="infix">
+                <xs:element name="a1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
+                <xs:element name="a2">
+                  <xs:complexType>
+                    <xs:sequence dfdl:separator=".">
+                      <xs:element name="num" dfdl:representation="binary" type="xs:unsignedShort" 
+                        maxOccurs="1" dfdl:lengthKind="implicit" dfdl:byteOrder="{ if (../../ex:a1 eq 'b') then 'bigEndian' else 'littleEndian' }"/>
+                    </xs:sequence>
+                  </xs:complexType>
+                </xs:element>
               </xs:sequence>
             </xs:complexType>
           </xs:element>
@@ -411,15 +417,23 @@
   <tdml:parserTestCase name="arrayExpressions03" model="arrayExpressions" root="e3"
         description="Section 16 - Arrays with DFDL Expression re-evaluated for each occurrence - DFDL-16-023R">
     <tdml:document>
-      <tdml:documentPart type="byte">62|003A|6C|003A</tdml:documentPart>
+      <tdml:documentPart type="byte">627C003A2C6C7C003A</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e3>
-          <a1>b</a1>
-          <num>58</num>
-          <a1>l</a1>
-          <num>14848</num>
+          <nums>
+            <a1>b</a1>
+            <a2>
+              <num>58</num>
+            </a2>
+          </nums>
+          <nums>
+            <a1>l</a1>
+            <a2>
+              <num>14848</num>
+            </a2>
+          </nums>
         </e3>
       </tdml:dfdlInfoset>
     </tdml:infoset>

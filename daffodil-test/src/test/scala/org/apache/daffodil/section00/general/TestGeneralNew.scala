@@ -21,18 +21,22 @@ package org.apache.daffodil.section00.general
  * not related to any specific requirement
  */
 
-import org.apache.daffodil.tdml.DFDLTestSuite
-import org.apache.daffodil.util.Misc
+import org.junit.Test
+import org.apache.daffodil.tdml.Runner
+import org.junit.AfterClass
 
 object TestGeneralNew {
 
   val testDir = "/org/apache/daffodil/section00/general/"
-  val aa = testDir + "general.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  val runner = Runner(testDir, "general.tdml")
+
+  @AfterClass def shutDown {
+    runner.reset
+  }
 }
 
 class TestGeneralNew {
-  //import TestGeneralNew._
+  import TestGeneralNew._
 
   // TODO: DFDL-451 - After speaking with Mike B. about this we are putting this functionality on the backburner
   // until we can figure out the appropriate behavior here.
