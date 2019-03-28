@@ -131,9 +131,9 @@ class TresysTests {
   @Test def test_nested_separator_delimited_basicNest() { runnerNSD.runOneTest("basicNest") }
   @Test def test_nested_separator_delimited_basicNest2() { runnerNSD.runOneTest("basicNest2")}
 
-  // Fails, index out of bounds TODO: TEST
+  // Nested delimiter issues - DAFFODIL-2101
   // @Test def test_nested_separator_delimited_nest1() { runnerNSD.runOneTest("nest1")}
-  // Fails infinite loop TODO: TEST
+  // Nested delimiter issues - DAFFODIL-2101
   // @Test def test_nested_separator_delimited_nest2() { runnerNSD.runOneTest("nest2")}
   @Test def test_nested_separator_delimited_nest3() { runnerNSD.runOneTest("nest3")}
 
@@ -181,7 +181,7 @@ class TresysTests {
   //@Test def test_BF000() { runnerBF1.runOneTest("BF000") } // unordered sequences
   //@Test def test_BF001() { runnerBF1.runOneTest("BF001") }
 
-  // @Test def test_BG000() { runnerBG.runOneTest("BG000") } // needs text numbers: advanced properties (DFDL-452) TODO: nested delimiters
+  // @Test def test_BG000() { runnerBG.runOneTest("BG000") } // Nested delimiters - DAFFODIL-2101
 
   @Test def test_BC000() { runnerBC.runOneTest("BC000") } // text boolean type
   @Test def test_BD000() { runnerBD.runOneTest("BD000") } // binary boolean type

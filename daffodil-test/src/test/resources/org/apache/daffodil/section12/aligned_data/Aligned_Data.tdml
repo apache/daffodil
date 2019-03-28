@@ -2090,8 +2090,11 @@
   </tdml:document>
   <tdml:infoset>
     <tdml:dfdlInfoset><e10b><varArr><e>11</e><e>4</e><e>14</e><e>9</e><e>11</e></varArr><one>11</one></e10b>
-    </tdml:dfdlInfoset>
+  </tdml:dfdlInfoset>
   </tdml:infoset>
+  <tdml:warnings>
+    <tdml:warning>Schema Definition Warning Palceholder</tdml:warning>
+  </tdml:warnings>
   </tdml:parserTestCase>
   
   <!--

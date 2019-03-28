@@ -248,7 +248,8 @@ class TestSimpleTypes {
   @Test def test_dateTimeImplicitPatternFail6() { runner.runOneTest("dateTimeImplicitPatternFail6") }
 
   @Test def test_datePattern01() { runner.runOneTest("datePattern01") }
-  //@Test def test_datePattern01b() { runner.runOneTest("datePattern01b") } - TODO: Re-examine
+  // DAFFODIL-488
+  // @Test def test_datePattern01b() { runner.runOneTest("datePattern01b") }
   @Test def test_timeLaxCheckPolicy01() { runner.runOneTest("timeLaxCheckPolicy01") }
   @Test def test_timeLaxCheckPolicy02() { runner.runOneTest("timeLaxCheckPolicy02") }
   @Test def test_timeLaxCheckPolicy03() { runner.runOneTest("timeLaxCheckPolicy03") }

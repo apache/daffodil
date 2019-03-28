@@ -68,7 +68,6 @@ class TestEntities {
 
   @Test def test_text_entities_6_02() { runner_01.runOneTest("text_entities_6_02") }
   @Test def test_text_entities_6_03() { runner_01.runOneTest("text_entities_6_03") }
-  // JIRA DFDL-1400 - TODO: Close bug?
   @Test def test_text_entities_6_03b() { runner_01.runOneTest("text_entities_6_03b") }
   @Test def test_text_entities_6_04() { runner_01.runOneTest("text_entities_6_04") }
   @Test def test_byte_entities_6_01() { runner_01.runOneTest("byte_entities_6_01") }
@@ -79,7 +78,7 @@ class TestEntities {
   @Test def test_byte_entities_6_06() { runner_01.runOneTest("byte_entities_6_06") }
   @Test def test_byte_entities_6_07() { runner_01.runOneTest("byte_entities_6_07") }
   @Test def test_byte_entities_6_08() { runner_01.runOneTest("byte_entities_6_08") }
-  // TODO: Create bug
+  // DAFFODIL-2102
   //  @Test def test_byte_entities_6_10() { runner_01.runOneTest("byte_entities_6_10") }
 
   @Test def test_whitespace_01() { runner_01.runOneTest("whitespace_01") }

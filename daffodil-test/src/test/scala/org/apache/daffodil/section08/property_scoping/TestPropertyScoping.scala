@@ -61,8 +61,8 @@ class TestPropertyScoping {
   @Test def test_format_nesting_01() { runner.runOneTest("format_nesting_01") }
 
   @Test def test_property_scoping_02() { runner_01.runOneTest("property_scoping_02") }
-  //See DFDL-1337 - TODO: Create bug
-  //@Test def test_unparse_property_scoping_02() { runner_01.runOneTest("unparse_property_scoping_02") }
+  // DAFFODIL-2103
+  // @Test def test_unparse_property_scoping_02() { runner_01.runOneTest("unparse_property_scoping_02") }
   @Test def test_property_scoping_03() = { runner_01.runOneTest("property_scoping_03") }
   @Test def test_unparse_property_scoping_03() = { runner_01.runOneTest("unparse_property_scoping_03") }
   @Test def test_property_scoping_04() { runner_01.runOneTest("property_scoping_04") }
