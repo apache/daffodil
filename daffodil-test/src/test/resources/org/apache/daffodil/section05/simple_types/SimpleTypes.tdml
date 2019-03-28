@@ -48,7 +48,7 @@
       dfdl:length="13" />
     <xs:element name="int02" type="xs:int" dfdl:lengthKind="explicit"
       dfdl:length="11" />
-    <xs:element name="int03" type="xs:int"
+    <xs:element name="int03" type="xs:int" dfdl:representation="binary"
       dfdl:binaryNumberRep="binary" />
     <xs:element name="int04" type="xs:int" dfdl:lengthKind="explicit"
       dfdl:length="10" />
@@ -3975,7 +3975,8 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Length of binary data 'integer' cannot be determined implicitly</tdml:error>
+      <tdml:error>Length of binary data</tdml:error>
+      <tdml:error>cannot be determined implicitly</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -4576,8 +4577,8 @@
     <xs:element name="dateImp" type="xs:date" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="delimited" />
     <xs:element name="date01" type="xs:date" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="'Today is the 'dd'th day of 'MMMM', year 'yyyy"
                 dfdl:lengthKind="explicit" dfdl:length="43" />
-    <xs:element name="date01b" type="xs:date" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="'Today is the 'dd'th day of 'MMM', year 'YYYY"
-                dfdl:lengthKind="explicit" dfdl:length="43" />
+    <xs:element name="date01b" type="xs:date" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="'Today is the 'dd'th day of 'MMM', year 'Y"
+                dfdl:lengthKind="explicit" dfdl:length="38" />
     <xs:element name="date02" type="xs:date" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="explicit" dfdl:length="10" />
     <xs:element name="date03" type="xs:date" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="explicit" dfdl:length="11"
     			dfdl:textTrimKind="padChar" dfdl:textPadKind="padChar" />
@@ -5065,10 +5066,10 @@
   <tdml:parserTestCase name="datePattern01b" root="date01b"
     model="dateTimeSchema" description="Section 13 Simple Types - calendarPattern - DFDL-13-146R">
 
-    <tdml:document><![CDATA[Today is the 25th day of January, year 2013]]></tdml:document>
+    <tdml:document><![CDATA[Today is the 25th day of Jan, year 2013]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <date01>2013-01-25+00:00</date01>
+        <date01b>2013-01-25</date01b>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -5360,7 +5361,7 @@
     <tdml:document><![CDATA[03 22 45]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <date22>1945-03-22+00:00</date22>
+        <date22>1945-03-22</date22>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -5380,7 +5381,7 @@
     <tdml:document><![CDATA[03 22 45]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <date22>2045-03-22+00:00</date22>
+        <date23>2045-03-22</date23>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -6306,12 +6307,12 @@
 -->
   
   <tdml:parserTestCase name="dateCountDeterminesFormat" root="date07"
-    model="dateTimeSchema" description="Section 13 Simple Types - count determines format - DFDL-13-153R">
+    model="dateTimeSchema" description="Section 13 Simple Types - count determines format - DFDL-13-153R" roundTrip="false">
 
     <tdml:document><![CDATA[Mon, 01 2013]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <time03>08:43:31</time03>
+        <date07>2013-01-07</date07>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

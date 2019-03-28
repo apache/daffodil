@@ -493,17 +493,17 @@ is multiple bytes in UTF-8 encoding that is used - DFDL-6-042R"
   <tdml:parserTestCase name="byte_entities_6_10"
     description="Section 6.3 DFDL Character Entities - single DFDLEntityName in initiator and terminator - SP and LS, the later 
 is multiple bytes in UTF-8 encoding that is used"
-    model="Entities_01-Embedded.dfdl.xsd" root="seq_10">
+    model="Entities_01-Embedded.dfdl.xsd" root="seq_10" roundTrip="false">
     <tdml:document>
       <tdml:documentPart type="byte">30 ab 31 32 32 7f</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <seq_06>
+        <seq_10>
           <e1>0</e1>
           <e2>1</e2>
           <e3>2</e3>
-        </seq_06>
+        </seq_10>
       </tdml:dfdlInfoset>
 
     </tdml:infoset>

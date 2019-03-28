@@ -35,8 +35,8 @@ class defineFormatTests {
 
   import defineFormatTests._
 
-  //DFDL-1276
-  //@Test def test_format_with_comment() { runner.runOneTest("format_with_comment") }
+  //DFDL-1276 - TODO: Close bug
+  @Test def test_format_with_comment() { runner.runOneTest("format_with_comment") }
 
   //DFDL-478
   //@Test def test_nameCollision() { runner.runOneTest("nameCollision") }

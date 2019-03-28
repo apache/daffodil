@@ -68,12 +68,12 @@ object TresysTests {
 
   /* Very big test data files, so each is in its own TDML file */
 
-  //  val ab7 = testDir + "ABLargeData.tdml.dat"
-  //  lazy val runnerAB7 = new DFDLTestSuite(Misc.getRequiredResource(ab7))
-  //  val ab8 = testDir + "AB008.tdml"
-  //  lazy val runnerAB8 = new DFDLTestSuite(Misc.getRequiredResource(ab8))
-  //  val ab9 = testDir + "AB009.tdml"
-  //  lazy val runnerAB9 = new DFDLTestSuite(Misc.getRequiredResource(ab9))
+  val ab7 = testDir + "ABLargeData.tdml.dat"
+  lazy val runnerAB7 = new DFDLTestSuite(Misc.getRequiredResource(ab7))
+  val ab8 = testDir + "AB008.tdml"
+  lazy val runnerAB8 = new DFDLTestSuite(Misc.getRequiredResource(ab8))
+  val ab9 = testDir + "AB009.tdml"
+  lazy val runnerAB9 = new DFDLTestSuite(Misc.getRequiredResource(ab9))
 
   lazy val runnerRD = Runner(testDir, "runtime-diagnostics.tdml", compileAllTopLevel = true, validateTDMLFile = false)
 
@@ -99,9 +99,9 @@ object TresysTests {
   lazy val runnerBA = new DFDLTestSuite(Misc.getRequiredResource(ba))
 
   val bc = testDir + "BC.tdml"
-  lazy val runnerBC = Runner(testDir, bc)
+  lazy val runnerBC = new DFDLTestSuite(Misc.getRequiredResource(bc))
   val bd = testDir + "BD.tdml"
-  lazy val runnerBD = Runner(testDir, bd)
+  lazy val runnerBD = new DFDLTestSuite(Misc.getRequiredResource(bd))
 }
 
 class TresysTests {
@@ -123,40 +123,33 @@ class TresysTests {
   @Test def test_multiple_diagnostics2() { runnerMD.runOneTest("manyErrors1") }
   @Test def test_multiple_diagnostics3() { runnerMD_NV.runOneTest("manyErrors2") }
 
-  // not found. Debug later.
-  // @Test def test_duplicateDefineFormatsOneSchema() { runnerMD.runOneTest("duplicateDefineFormatsOneSchema") }
-
   @Test def test_nested_separator_delimited_baseline() { runnerNSD.runOneTest("baseline") }
 
   // Fails in IBM DFDL - ambiguous separator/terminator not accepted.
   @Test def test_nested_separator_delimited_baseline_ibm() { runnerNSD.runOneTest("baseline_ibm") }
 
   @Test def test_nested_separator_delimited_basicNest() { runnerNSD.runOneTest("basicNest") }
-  // Fails infinite loop
-  // @Test def test_nested_separator_delimited_basicNest2() { runnerNSD.runOneTest("basicNest2")}
+  @Test def test_nested_separator_delimited_basicNest2() { runnerNSD.runOneTest("basicNest2")}
 
-  // Fails, index out of bounds
+  // Fails, index out of bounds TODO: TEST
   // @Test def test_nested_separator_delimited_nest1() { runnerNSD.runOneTest("nest1")}
-  // Fails infinite loop
+  // Fails infinite loop TODO: TEST
   // @Test def test_nested_separator_delimited_nest2() { runnerNSD.runOneTest("nest2")}
-  // Fails infinite loop
-  // @Test def test_nested_separator_delimited_nest3() { runnerNSD.runOneTest("nest3")}
+  @Test def test_nested_separator_delimited_nest3() { runnerNSD.runOneTest("nest3")}
 
   /* Very big test data files, so each is in its own TDML file */
 
-  //  @Test def test_AB007() { runnerAB7.runOneTest("AB007") }
-  //  @Test def test_AB008() { runnerAB8.runOneTest("AB008") }
-  //  @Test def test_AB009() { runnerAB9.runOneTest("AB009") }
+  @Test def test_AB007() { runnerAB7.runOneTest("AB007") }
 
   @Test def test_runtime_diagnostics1() { runnerRD.runOneTest("PE1") }
 
   @Test def test_seq1() { runnerSQ.runOneTest("seq1") }
 
   // DFDL-935
-  // @Test def test_t1() { runnerMB.runOneTest("t1") }
+  // @Test def test_encodingErrorPolicy_error() { runnerMB.runOneTest("encodingErrorPolicy_error") }
   // @Test def test_t2() { runnerMB.runOneTest("t2") }
   // @Test def test_t3() { runnerMB.runOneTest("t3") }
-  // @Test def test_encodingErrorPolicy_error() { runnerMB.runOneTest("encodingErrorPolicy_error") }
+  @Test def test_t1() { runnerMB.runOneTest("t1") }
 
   @Test def test_nested_group_refs1() { runnerNG.runOneTest("nestedGroupRefs1") }
 
@@ -188,22 +181,14 @@ class TresysTests {
   //@Test def test_BF000() { runnerBF1.runOneTest("BF000") } // unordered sequences
   //@Test def test_BF001() { runnerBF1.runOneTest("BF001") }
 
-  //@Test def test_BG000() { runnerBG.runOneTest("BG000") } // needs text numbers: advanced properties (DFDL-452)
+  // @Test def test_BG000() { runnerBG.runOneTest("BG000") } // needs text numbers: advanced properties (DFDL-452) TODO: nested delimiters
 
-  //@Test def test_BC000() { runnerBC.runOneTest("BC000") } // text boolean type
-  //@Test def test_BD000() { runnerBD.runOneTest("BD000") } // binary boolean type
+  @Test def test_BC000() { runnerBC.runOneTest("BC000") } // text boolean type
+  @Test def test_BD000() { runnerBD.runOneTest("BD000") } // binary boolean type
 
-  //@Test def test_AP000() { runnerAP.runOneTest("AP000") } // lengthKind endOfParent
+  // @Test def test_AP000() { runnerAP.runOneTest("AP000") } // lengthKind endOfParent - DAFFODIL-567
 
-  //@Test def test_AT000() { runnerAT.runOneTest("AT000") } // needs newVariableInstance
-  //@Test def test_AT001() { runnerAT.runOneTest("AT001") } // needs newVariableInstance
-
-  //@Test def test_seq1() { runnerSQ.runOneTest("seq1") }
-
-  // DFDL-935
-  //@Test def test_t1() { runnerMB.runOneTest("t1") }
-  //@Test def test_t2() { runnerMB.runOneTest("t2") }
-  //@Test def test_t3() { runnerMB.runOneTest("t3") }
-  //@Test def test_encodingErrorPolicy_error() { runnerMB.runOneTest("encodingErrorPolicy_error") }
+  // @Test def test_AT000() { runnerAT.runOneTest("AT000") } // needs newVariableInstance - DAFFODIL-341
+  // @Test def test_AT001() { runnerAT.runOneTest("AT001") } // needs newVariableInstance - DAFFODIL-341
 
 }

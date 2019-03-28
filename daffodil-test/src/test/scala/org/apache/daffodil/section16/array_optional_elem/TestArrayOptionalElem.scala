@@ -52,7 +52,7 @@ class TestArrayOptionalElem {
   @Test def test_arrayExpressions02b() { runner.runOneTest("arrayExpressions02b") }
   @Test def test_arrayExpressions02c() { runner.runOneTest("arrayExpressions02c") }
   @Test def test_arrayExpressions02d() { runner.runOneTest("arrayExpressions02d") }
-  //  @Test def test_arrayExpressions03() { runner.runOneTest("arrayExpressions03") }
+  @Test def test_arrayExpressions03() { runner.runOneTest("arrayExpressions03") }
   @Test def test_arrayExpressions04() { runner.runOneTest("arrayExpressions04") }
   @Test def test_arrayExpressions05() { runner.runOneTest("arrayExpressions05") }
 

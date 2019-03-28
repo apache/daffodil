@@ -53,6 +53,7 @@ class TestSequenceGroups {
   @Test def test_sequenceWithinSequence() { runner_01.runOneTest("sequenceWithinSequence") }
   @Test def test_delimitedByNextInitFail() { runner_01.runOneTest("delimitedByNextInitFail") }
 
+  // DAFFODIL-669
   //  @Test def test_emptySequenceSDE() { runner_02.runOneTest("emptySequenceSDE") }
   @Test def test_NadaParser() { runner_02.runOneTest("nadaParser") }
   @Test def test_complexEmptyContent() { runner_02.runOneTest("complexEmptyContent") }

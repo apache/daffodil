@@ -57,10 +57,7 @@ class TestUnparseArrayOptionalElem {
   @Test def test_exprOptParsedData_03() { runner_expr.runOneTest("exprOptParsedData_03") }
   @Test def test_exprOptParsedData_04() { runner_expr.runOneTest("exprOptParsedData_04") }
 
-  //DFDL-1301
-  //@Test def test_fixedUnparseArrayTooManyElements01() { runner_fixed.runOneTest("fixedUnparseArrayTooManyElements01") }
-
-  //DFDL-1301 - ticket to improve diagnostic. test will need to be updated.
+  @Test def test_fixedUnparseArrayTooManyElements01() { runner_fixed.runOneTest("fixedUnparseArrayTooManyElements01") }
   @Test def test_fixedUnparseArrayTooFewElements01() { runner_fixed.runOneTest("fixedUnparseArrayTooFewElements01") }
   @Test def test_impOptScalarThenArray03() { runner_imp.runOneTest("impOptScalarThenArray03") }
   @Test def test_impOptArrayThenScalar03() { runner_imp.runOneTest("impOptArrayThenScalar03") }

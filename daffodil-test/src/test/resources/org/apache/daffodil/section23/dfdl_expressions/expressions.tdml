@@ -3252,14 +3252,9 @@
     model="newRegex" description="Section -  - DFDL-R">
 
     <tdml:document>45someletters</tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <s1>
-          <e1>45</e1>
-          <extra>someletters</extra>
-        </s1>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>This expression is not supported in the current option setting</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
 <!--

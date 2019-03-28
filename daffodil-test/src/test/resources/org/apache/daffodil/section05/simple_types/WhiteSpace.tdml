@@ -36,7 +36,7 @@
   </tdml:defineSchema>
 
   <tdml:parserTestCase name="whiteSpaceAfterLax"
-    root="uS_02" model="Lax.dfdl.xsd"
+    root="uS_02" model="Lax.dfdl.xsd" roundTrip="twoPass"
     description="Test parsing when encountering a whitespace character after a valid unsigned short - DFDL-5-019R">
     <tdml:document><![CDATA[999 ]]></tdml:document>
     <tdml:infoset>
@@ -133,7 +133,7 @@
     description="">
     <tdml:document><![CDATA[9 99]]></tdml:document>
     <tdml:errors>
-      <tdml:error>Duplicate Definition Error</tdml:error>
+      <tdml:error>More than one definition</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

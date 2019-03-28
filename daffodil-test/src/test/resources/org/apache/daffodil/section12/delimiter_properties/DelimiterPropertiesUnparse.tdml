@@ -249,7 +249,13 @@
         <ex:e10>terminated</ex:e10>
       </tdml:dfdlInfoset>
     </tdml:infoset>
-    <tdml:document>terminated?</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>dfdl:terminator</tdml:error>
+      <tdml:error>cannot</tdml:error>
+      <tdml:error>contain</tdml:error>
+      <tdml:error>ES</tdml:error>
+    </tdml:errors>
   </tdml:unparserTestCase>
 
 <!--
@@ -342,10 +348,10 @@
   <tdml:unparserTestCase name="unparseSeparatorLeadingSpace" model="delimitedStrings" root="e15" roundTrip="true">
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <ex:e14>
+        <ex:e15>
           <ex:a>apple</ex:a>
           <ex:b>banana</ex:b>
-        </ex:e14>
+        </ex:e15>
       </tdml:dfdlInfoset>
     </tdml:infoset>
 

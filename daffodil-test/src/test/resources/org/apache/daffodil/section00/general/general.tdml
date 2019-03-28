@@ -132,37 +132,6 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
- <!--
-    Test name: litNil2
-    Schema: s1
-    Purpose: Test to verify that a document can come from several parts (file, byte, text)
-  -->
-
-<!--
-     This test is commented out until DFDL-577 has been resolved
-  <tdml:parserTestCase name="litNil2" root="doc2"
-    model="s1" description="literal nil - DFDL-13-234R">
-
-    <tdml:document>
-      <tdml:documentPart type="file">ext_file2.txt</tdml:documentPart>
-      <tdml:documentPart type="byte">000000002CFFFFFFFF3B</tdml:documentPart>
-      <tdml:documentPart type="text">,400;</tdml:documentPart>
-    </tdml:document>
-
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <doc>
-          <e1>0</e1>
-          <e2 xsi:nil="true" />
-          <e3 xsi:nil="true" />
-          <e4>-1</e4>
-          <e5>400</e5>
-        </doc>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-  </tdml:parserTestCase>
--->
-
   <tdml:parserTestCase name="fileDNE" root="doc"
     model="s1" description="literal nil - DFDL-13-234R">
 
@@ -194,11 +163,11 @@
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
 
     <dfdl:defineEscapeScheme name="pound">
-      <dfdl:escapeScheme escapeCharacter='#'
+      <dfdl:escapeScheme escapeCharacter='#' extraEscapedCharacters="" generateEscapeBlock="whenNeeded"
         escapeKind="escapeCharacter" escapeEscapeCharacter="" />
     </dfdl:defineEscapeScheme>
     <dfdl:defineEscapeScheme name='cStyleComment'>
-      <dfdl:escapeScheme escapeBlockStart='/*'
+      <dfdl:escapeScheme escapeBlockStart='/*' extraEscapedCharacters="" generateEscapeBlock="whenNeeded"
         escapeBlockEnd='*/' escapeKind="escapeBlock"
         escapeEscapeCharacter="" />
     </dfdl:defineEscapeScheme>
@@ -223,7 +192,7 @@
   </tdml:defineSchema>
   
   <tdml:parserTestCase name="check_escape_separator_distinct_fail" root="root1"
-    model="delim_distinct1" description="Esc Char and separator same, should SDE">
+    model="delim_distinct1" description="Esc Char and separator same">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[ab#,cd,/*ef,gh*/]]></tdml:documentPart>
