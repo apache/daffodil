@@ -70,10 +70,6 @@ object TresysTests {
 
   val ab7 = testDir + "ABLargeData.tdml.dat"
   lazy val runnerAB7 = new DFDLTestSuite(Misc.getRequiredResource(ab7))
-  val ab8 = testDir + "AB008.tdml"
-  lazy val runnerAB8 = new DFDLTestSuite(Misc.getRequiredResource(ab8))
-  val ab9 = testDir + "AB009.tdml"
-  lazy val runnerAB9 = new DFDLTestSuite(Misc.getRequiredResource(ab9))
 
   lazy val runnerRD = Runner(testDir, "runtime-diagnostics.tdml", compileAllTopLevel = true, validateTDMLFile = false)
 

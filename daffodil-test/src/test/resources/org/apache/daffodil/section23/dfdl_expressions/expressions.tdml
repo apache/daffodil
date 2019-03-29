@@ -3253,7 +3253,9 @@
 
     <tdml:document>45someletters</tdml:document>
     <tdml:errors>
-      <tdml:error>This expression is not supported in the current option setting</tdml:error>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>InvalidRegex</tdml:error>
+      <tdml:error>not a valid regular expression</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
