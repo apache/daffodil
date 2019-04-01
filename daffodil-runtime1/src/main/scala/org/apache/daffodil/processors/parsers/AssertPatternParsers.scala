@@ -22,6 +22,7 @@ import java.util.regex.Matcher
 import org.apache.daffodil.dsom.CompiledExpression
 import org.apache.daffodil.dsom.SchemaDefinitionDiagnosticBase
 import org.apache.daffodil.processors._
+import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.util.LogLevel
 import org.apache.daffodil.util.OnStack
 import org.apache.daffodil.util.Maybe
@@ -76,9 +77,16 @@ class AssertPatternParser(
       val isMatch = dis.lookingAt(m, start)
       if (!isMatch) {
         val message = getAssertFailureMessage(start)
-        val currentElem = start.infoset
-        val details = "\nParsed value was: " + currentElem.toString
-        val diag = new AssertionFailed(context.schemaFileLocation, start, message, Some(details))
+
+        Assert.invariant(start.currentNode.isDefined)
+        val currentElem = start.currentNode.get
+        val details = if (currentElem.isSimple) {
+          "\nParsed value was: " + currentElem.toString
+        } else {
+          "<" + currentElem.name + ">...</" + currentElem.name + ">"
+        }
+
+        val diag = new AssertionFailed(context.schemaFileLocation, start, message, Maybe.One(details))
         start.setFailed(diag)
       } else if (discrim) {
         // Only want to set the discriminator if there was a match.

@@ -29,6 +29,7 @@ import org.apache.daffodil.processors.RuntimeData
 import org.apache.daffodil.processors.Success
 import org.apache.daffodil.processors.VariableRuntimeData
 import org.apache.daffodil.util.LogLevel
+import org.apache.daffodil.util.Maybe
 
 // import java.lang.{ Boolean => JBoolean }
 
@@ -143,9 +144,16 @@ class AssertExpressionEvaluationParser(
         start.setDiscriminator(discrim)
       } else {
         val message = getAssertFailureMessage(start)
-        val currentElem = start.infoset
-        val details = "\nParsed value was: " + currentElem.toString
-        val diag = new AssertionFailed(decl.schemaFileLocation, start, message, Some(details))
+
+        Assert.invariant(start.currentNode.isDefined)
+        val currentElem = start.currentNode.get
+        val details = if (currentElem.isSimple) {
+          "\nParsed value was: " + currentElem.toString
+        } else {
+          "<" + currentElem.name + ">...</" + currentElem.name + ">"
+        }
+
+        val diag = new AssertionFailed(decl.schemaFileLocation, start, message, Maybe.One(details))
         start.setFailed(diag)
       }
     }
