@@ -143,7 +143,9 @@ class AssertExpressionEvaluationParser(
         start.setDiscriminator(discrim)
       } else {
         val message = getAssertFailureMessage(start)
-        val diag = new AssertionFailed(decl.schemaFileLocation, start, message)
+        val currentElem = start.infoset
+        val details = "\nParsed value was: " + currentElem.toString
+        val diag = new AssertionFailed(decl.schemaFileLocation, start, message, Some(details))
         start.setFailed(diag)
       }
     }

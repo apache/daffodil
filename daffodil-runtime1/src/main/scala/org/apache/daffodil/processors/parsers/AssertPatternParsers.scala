@@ -24,6 +24,7 @@ import org.apache.daffodil.dsom.SchemaDefinitionDiagnosticBase
 import org.apache.daffodil.processors._
 import org.apache.daffodil.util.LogLevel
 import org.apache.daffodil.util.OnStack
+import org.apache.daffodil.util.Maybe
 
 trait AssertMessageEvaluationMixin {
   def messageExpr: CompiledExpression[AnyRef]
@@ -75,7 +76,9 @@ class AssertPatternParser(
       val isMatch = dis.lookingAt(m, start)
       if (!isMatch) {
         val message = getAssertFailureMessage(start)
-        val diag = new AssertionFailed(context.schemaFileLocation, start, message)
+        val currentElem = start.infoset
+        val details = "\nParsed value was: " + currentElem.toString
+        val diag = new AssertionFailed(context.schemaFileLocation, start, message, Some(details))
         start.setFailed(diag)
       } else if (discrim) {
         // Only want to set the discriminator if there was a match.
