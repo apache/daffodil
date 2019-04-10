@@ -40,24 +40,16 @@ class TestCLIPerformance {
       shell.expect(contains("total parse time (sec):"))
       shell.expect(contains("avg rate (files/sec):"))
 
-      try {
-        val error = shell.expectIn(1, anyString).group()
-        fail(error)
-      } catch {
-        case ae: ExpectIOException => {
-          //No error was found, which is correct
-          val exitCodeCmd = if (Util.isWindows) "echo %errorlevel%" else "echo $?"
-          shell.sendLine(exitCodeCmd)
+      val exitCodeCmd = if (Util.isWindows) "echo %errorlevel%" else "echo $?"
+      shell.sendLine(exitCodeCmd)
 
-          if (Util.isWindows) shell.expect(contains(exitCodeCmd + "\n"))
-          else shell.expect(contains("\n"))
+      if (Util.isWindows) shell.expect(contains(exitCodeCmd + "\n"))
+      else shell.expect(contains("\n"))
 
-          val sExitCode = shell.expect(contains("\n")).getBefore()
-          val exitCode = Integer.parseInt(sExitCode.trim())
-          if (exitCode != 0)
-            fail("Tests failed. Exit code: " + exitCode)
-        }
-      }
+      val sExitCode = shell.expect(contains("\n")).getBefore()
+      val exitCode = Integer.parseInt(sExitCode.trim())
+      if (exitCode != 0)
+        fail("Tests failed. Exit code: " + exitCode)
 
       shell.sendLine("exit")
       shell.expect(eof())
@@ -79,24 +71,16 @@ class TestCLIPerformance {
       shell.expect(contains("total parse time (sec):"))
       shell.expect(contains("avg rate (files/sec):"))
 
-      try {
-        val error = shell.expectIn(1, anyString).group()
-        fail(error)
-      } catch {
-        case ae: ExpectIOException => {
-          //No error was found, which is correct
-          val exitCodeCmd = if (Util.isWindows) "echo %errorlevel%" else "echo $?"
-          shell.sendLine(exitCodeCmd)
+      val exitCodeCmd = if (Util.isWindows) "echo %errorlevel%" else "echo $?"
+      shell.sendLine(exitCodeCmd)
 
-          if (Util.isWindows) shell.expect(contains(exitCodeCmd + "\n"))
-          else shell.expect(contains("\n"))
+      if (Util.isWindows) shell.expect(contains(exitCodeCmd + "\n"))
+      else shell.expect(contains("\n"))
 
-          val sExitCode = shell.expect(contains("\n")).getBefore()
-          val exitCode = Integer.parseInt(sExitCode.trim())
-          if (exitCode != 0)
-            fail("Tests failed. Exit code: " + exitCode)
-        }
-      }
+      val sExitCode = shell.expect(contains("\n")).getBefore()
+      val exitCode = Integer.parseInt(sExitCode.trim())
+      if (exitCode != 0)
+        fail("Tests failed. Exit code: " + exitCode)
 
       shell.sendLine("exit")
       shell.expect(eof())
@@ -119,24 +103,16 @@ class TestCLIPerformance {
       shell.expect(contains("total parse time (sec):"))
       shell.expect(contains("avg rate (files/sec):"))
 
-      try {
-        val error = shell.expectIn(1, anyString).group()
-        fail(error)
-      } catch {
-        case ae: ExpectIOException => {
-          //No error was found, which is correct
-          val exitCodeCmd = if (Util.isWindows) "echo %errorlevel%" else "echo $?"
-          shell.sendLine(exitCodeCmd)
+      val exitCodeCmd = if (Util.isWindows) "echo %errorlevel%" else "echo $?"
+      shell.sendLine(exitCodeCmd)
 
-          if (Util.isWindows) shell.expect(contains(exitCodeCmd + "\n"))
-          else shell.expect(contains("\n"))
+      if (Util.isWindows) shell.expect(contains(exitCodeCmd + "\n"))
+      else shell.expect(contains("\n"))
 
-          val sExitCode = shell.expect(contains("\n")).getBefore()
-          val exitCode = Integer.parseInt(sExitCode.trim())
-          if (exitCode != 0)
-            fail("Tests failed. Exit code: " + exitCode)
-        }
-      }
+      val sExitCode = shell.expect(contains("\n")).getBefore()
+      val exitCode = Integer.parseInt(sExitCode.trim())
+       if (exitCode != 0)
+        fail("Tests failed. Exit code: " + exitCode)
 
       shell.sendLine("exit")
       shell.expect(eof())
@@ -190,24 +166,16 @@ class TestCLIPerformance {
       shell.expect(contains("total unparse time (sec):"))
       shell.expect(contains("avg rate (files/sec):"))
 
-      try {
-        val error = shell.expectIn(1, anyString).group()
-        fail(error)
-      } catch {
-        case ae: ExpectIOException => {
-          //No error was found, which is correct
-          val exitCodeCmd = if (Util.isWindows) "echo %errorlevel%" else "echo $?"
-          shell.sendLine(exitCodeCmd)
+      val exitCodeCmd = if (Util.isWindows) "echo %errorlevel%" else "echo $?"
+      shell.sendLine(exitCodeCmd)
 
-          if (Util.isWindows) shell.expect(contains(exitCodeCmd + "\n"))
-          else shell.expect(contains("\n"))
+      if (Util.isWindows) shell.expect(contains(exitCodeCmd + "\n"))
+      else shell.expect(contains("\n"))
 
-          val sExitCode = shell.expect(contains("\n")).getBefore()
-          val exitCode = Integer.parseInt(sExitCode.trim())
-          if (exitCode != 0)
-            fail("Tests failed. Exit code: " + exitCode)
-        }
-      }
+      val sExitCode = shell.expect(contains("\n")).getBefore()
+      val exitCode = Integer.parseInt(sExitCode.trim())
+      if (exitCode != 0)
+        fail("Tests failed. Exit code: " + exitCode)
 
       shell.sendLine("exit")
       shell.expect(eof())
@@ -229,24 +197,16 @@ class TestCLIPerformance {
       shell.expect(contains("total unparse time (sec):"))
       shell.expect(contains("avg rate (files/sec):"))
 
-      try {
-        val error = shell.expectIn(1, anyString).group()
-        fail(error)
-      } catch {
-        case ae: ExpectIOException => {
-          //No error was found, which is correct
-          val exitCodeCmd = if (Util.isWindows) "echo %errorlevel%" else "echo $?"
-          shell.sendLine(exitCodeCmd)
+      val exitCodeCmd = if (Util.isWindows) "echo %errorlevel%" else "echo $?"
+      shell.sendLine(exitCodeCmd)
 
-          if (Util.isWindows) shell.expect(contains(exitCodeCmd + "\n"))
-          else shell.expect(contains("\n"))
+      if (Util.isWindows) shell.expect(contains(exitCodeCmd + "\n"))
+      else shell.expect(contains("\n"))
 
-          val sExitCode = shell.expect(contains("\n")).getBefore()
-          val exitCode = Integer.parseInt(sExitCode.trim())
-          if (exitCode != 0)
-            fail("Tests failed. Exit code: " + exitCode)
-        }
-      }
+      val sExitCode = shell.expect(contains("\n")).getBefore()
+      val exitCode = Integer.parseInt(sExitCode.trim())
+      if (exitCode != 0)
+        fail("Tests failed. Exit code: " + exitCode)
 
       shell.sendLine("exit")
       shell.expect(eof())
@@ -268,24 +228,16 @@ class TestCLIPerformance {
       shell.expect(contains("total unparse time (sec):"))
       shell.expect(contains("avg rate (files/sec):"))
 
-      try {
-        val error = shell.expectIn(1, anyString).group()
-        fail(error)
-      } catch {
-        case ae: ExpectIOException => {
-          //No error was found, which is correct
-          val exitCodeCmd = if (Util.isWindows) "echo %errorlevel%" else "echo $?"
-          shell.sendLine(exitCodeCmd)
+      val exitCodeCmd = if (Util.isWindows) "echo %errorlevel%" else "echo $?"
+      shell.sendLine(exitCodeCmd)
 
-          if (Util.isWindows) shell.expect(contains(exitCodeCmd + "\n"))
-          else shell.expect(contains("\n"))
+      if (Util.isWindows) shell.expect(contains(exitCodeCmd + "\n"))
+      else shell.expect(contains("\n"))
 
-          val sExitCode = shell.expect(contains("\n")).getBefore()
-          val exitCode = Integer.parseInt(sExitCode.trim())
-          if (exitCode != 0)
-            fail("Tests failed. Exit code: " + exitCode)
-        }
-      }
+      val sExitCode = shell.expect(contains("\n")).getBefore()
+      val exitCode = Integer.parseInt(sExitCode.trim())
+      if (exitCode != 0)
+        fail("Tests failed. Exit code: " + exitCode)
 
       shell.sendLine("exit")
       shell.expect(eof())

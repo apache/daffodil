@@ -132,13 +132,6 @@ class TestCLIexecuting {
     try {
       shell.sendLine(String.format("%s test -l %s", Util.binPath, testTdmlFile))
       shell.expect(contains(output16))
-      shell.sendLine()
-
-      val countTests = if (Util.isWindows) "find /v \"\" /c" else "wc -l"
-      val numTests = Integer.parseInt((String.format("%s test -l %s", Util.binPath, testTdmlFile) #| countTests !!).trim())
-      val numFile = Integer.parseInt((String.format(if (Util.isWindows) "cmd.exe /c more %s | find /c \"parserTestCase>\"" else "grep -c parserTestCase> %s", testTdmlFile)!!).trim())
-
-      assertTrue("Number of tests run should match the number of tests in the file.", numTests == numFile)
       shell.sendLine("exit")
     } finally {
       shell.close()
