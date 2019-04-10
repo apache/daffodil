@@ -66,11 +66,6 @@ object TresysTests {
   lazy val runnerNSD = new DFDLTestSuite(Misc.getRequiredResource(nsd))
 
 
-  /* Very big test data files, so each is in its own TDML file */
-
-  val ab7 = testDir + "ABLargeData.tdml.dat"
-  lazy val runnerAB7 = new DFDLTestSuite(Misc.getRequiredResource(ab7))
-
   lazy val runnerRD = Runner(testDir, "runtime-diagnostics.tdml", compileAllTopLevel = true, validateTDMLFile = false)
 
   val sq = testDir + "sequence.tdml"
@@ -132,10 +127,6 @@ class TresysTests {
   // Nested delimiter issues - DAFFODIL-2101
   // @Test def test_nested_separator_delimited_nest2() { runnerNSD.runOneTest("nest2")}
   @Test def test_nested_separator_delimited_nest3() { runnerNSD.runOneTest("nest3")}
-
-  /* Very big test data files, so each is in its own TDML file */
-
-  @Test def test_AB007() { runnerAB7.runOneTest("AB007") }
 
   @Test def test_runtime_diagnostics1() { runnerRD.runOneTest("PE1") }
 

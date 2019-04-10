@@ -27,18 +27,32 @@ jdk:
   - oraclejdk11
 sudo: required
 dist: trusty
+
+cache:
+  directories:
+    - $HOME/.ivy2/cache
+    - $HOME/.sbt/boot
+before_cache:
+  - find $HOME/.sbt -name "*.lock" | xargs rm
+  - find $HOME/.ivy2 -name "ivydata-*.properties" | xargs rm
+  - rm -f $HOME/.ivy2/.sbt.ivy.lock
+
+env:
+  global:
+    - SBT="sbt -J-Xms1024m -J-Xmx4096m -J-XX:ReservedCodeCacheSize=512m -J-XX:MaxMetaspaceSize=1024m"
+
 before_script:
   - unset _JAVA_OPTIONS
 script:
-  - sbt -J-Xms1g -J-Xmx5g ++$TRAVIS_SCALA_VERSION compile test:compile it:compile || travis_terminate 1
-  - sbt -J-Xms1g -J-Xmx5g ++$TRAVIS_SCALA_VERSION coverage test
-  - sbt -J-Xms1g -J-Xmx5g ++$TRAVIS_SCALA_VERSION coverage it:test
-  - sbt -J-Xms1g -J-Xmx5g ++$TRAVIS_SCALA_VERSION daffodil-cli/universal:packageBin
-  - sbt -J-Xms1g -J-Xmx5g ++$TRAVIS_SCALA_VERSION daffodil-cli/universal:packageZipTarball
-  - sbt -J-Xms1g -J-Xmx5g ++$TRAVIS_SCALA_VERSION daffodil-cli/rpm:packageBin
-  - sbt -J-Xms1g -J-Xmx5g ++$TRAVIS_SCALA_VERSION daffodil-japi/genjavadoc:doc
-  - sbt -J-Xms1g -J-Xmx5g ++$TRAVIS_SCALA_VERSION daffodil-sapi/doc
-  - sbt -J-Xms1g -J-Xmx5g ++$TRAVIS_SCALA_VERSION ratCheck
-  - sbt -J-Xms1g -J-Xmx5g ++$TRAVIS_SCALA_VERSION coverageReport
-  - sbt -J-Xms1g -J-Xmx5g ++$TRAVIS_SCALA_VERSION coverageAggregate
+  - $SBT ++$TRAVIS_SCALA_VERSION coverage compile test:compile it:compile || travis_terminate 1
+  - $SBT ++$TRAVIS_SCALA_VERSION coverage test
+  - $SBT ++$TRAVIS_SCALA_VERSION coverage it:test
+  - $SBT ++$TRAVIS_SCALA_VERSION coverage daffodil-cli/universal:packageBin
+  - $SBT ++$TRAVIS_SCALA_VERSION coverage daffodil-cli/universal:packageZipTarball
+  - $SBT ++$TRAVIS_SCALA_VERSION coverage daffodil-cli/rpm:packageBin
+  - $SBT ++$TRAVIS_SCALA_VERSION coverage daffodil-japi/genjavadoc:doc
+  - $SBT ++$TRAVIS_SCALA_VERSION coverage daffodil-sapi/doc
+  - $SBT ++$TRAVIS_SCALA_VERSION coverage ratCheck || (cat target/rat.txt; exit 1)
+  - $SBT ++$TRAVIS_SCALA_VERSION coverage coverageReport
+  - $SBT ++$TRAVIS_SCALA_VERSION coverage coverageAggregate
   - bash <(curl -s https://codecov.io/bash)

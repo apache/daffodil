@@ -26,9 +26,6 @@ object TresysTests3 {
   lazy val runnerBF = Runner(testDir, "bitFlagExpression.tdml",
     compileAllTopLevel = false) // test has elements that have upward paths past root.
 
-  lazy val runnerAB = Runner(testDir, "ABLargeData.tdml.dat",
-    compileAllTopLevel = true)
-
   lazy val runnerAH = Runner(testDir, "AH.tdml", compileAllTopLevel = true)
 
   lazy val runnerAM = Runner(testDir, "AM.tdml", validateTDMLFile = true, validateDFDLSchemas = false,
@@ -47,8 +44,6 @@ class TresysTests3 {
   @Test def test_testNone() = { runnerBF.runOneTest("testNone") }
   @Test def test_testOne() { runnerBF.runOneTest("testOne") }
   @Test def test_testMany() { runnerBF.runOneTest("testMany") }
-
-  @Test def test_AB006() { runnerAB.runOneTest("AB006") }
 
   @Test def test_AH000() { runnerAH.runOneTest("AH000") }
   @Test def test_AH001() { runnerAH.runOneTest("AH001") }
