@@ -1337,6 +1337,8 @@ sealed class DIComplex(override val erd: ElementRuntimeData, val tunable: Daffod
 
   override def children = childNodes.toStream
 
+  var hasVisibleChildren = false
+
   final def getChild(erd: ElementRuntimeData): InfosetElement = {
     getChild(erd.dpathElementCompileInfo)
   }
@@ -1381,6 +1383,7 @@ sealed class DIComplex(override val erd: ElementRuntimeData, val tunable: Daffod
   }
 
   override def addChild(e: InfosetElement): Unit = {
+    if (!e.isHidden && !hasVisibleChildren) hasVisibleChildren = true
     if (e.runtimeData.isArray) {
       val childERD = e.runtimeData
       if (childNodes.isEmpty || childNodes.last.erd != childERD) {
