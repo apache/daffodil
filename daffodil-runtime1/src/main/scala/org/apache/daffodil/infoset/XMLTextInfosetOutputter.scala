@@ -41,7 +41,7 @@ class XMLTextInfosetOutputter(writer: java.io.Writer, pretty: Boolean = true)
     if (prefix == null || prefix == "") elem.erd.name else prefix + ":" + elem.erd.name
   }
 
-  private def outputStartTag(elem: DIElement, name: String): Unit = {
+  private def outputStartTag(elem: DIElement, name: String, isEmpty: Boolean=false): Unit = {
     writer.write("<")
 
     writer.write(name)
@@ -58,7 +58,11 @@ class XMLTextInfosetOutputter(writer: java.io.Writer, pretty: Boolean = true)
       writer.write(" xsi:nil=\"true\"")
     }
 
-    writer.write(">")
+    if (isEmpty) {
+      writer.write("/>")
+    } else {
+      writer.write(">")
+    }
   }
 
   private def outputEndTag(elem: DIElement, name: String): Unit = {
@@ -97,19 +101,24 @@ class XMLTextInfosetOutputter(writer: java.io.Writer, pretty: Boolean = true)
   override def startComplex(complex: DIComplex): Boolean = {
     val name = getTagName(complex)
     if (pretty) outputIndentation(writer)
-    outputStartTag(complex, name)
+    outputStartTag(complex, name, !complex.hasVisibleChildren)
     incrementIndentation()
     if (pretty) writer.write(System.lineSeparator())
     true
   }
 
   override def endComplex(complex: DIComplex): Boolean = {
-    val name = getTagName(complex)
-    decrementIndentation()
-    if (pretty) outputIndentation(writer)
-    outputEndTag(complex, name)
-    if (pretty) writer.write(System.lineSeparator())
-    true
+    if (!complex.hasVisibleChildren) {
+      // Empty complex elements should have an inline closing tag
+      true
+    } else {
+      val name = getTagName(complex)
+      decrementIndentation()
+      if (pretty) outputIndentation(writer)
+      outputEndTag(complex, name)
+      if (pretty) writer.write(System.lineSeparator())
+      true
+    }
   }
 
   override def startArray(array: DIArray): Boolean = {
