@@ -4095,6 +4095,20 @@
         </xs:restriction>
       </xs:simpleType>
     </xs:element>
+    <xs:element name="e4_3_4" dfdl:lengthKind="delimited">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
+          <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+            message="Assertion failed for dfdl:checkConstraints(.)" />
+        </xs:appinfo>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:decimal">
+          <xs:minInclusive value="-5" />
+          <xs:maxInclusive value="5" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
     <xs:element name="e4_4_1" dfdl:lengthKind="delimited">
       <xs:annotation>
         <xs:appinfo source="http://www.ogf.org/dfdl/">
@@ -4104,6 +4118,20 @@
       </xs:annotation>
       <xs:simpleType>
         <xs:restriction base="xs:int">
+          <xs:minExclusive value="-5" />
+          <xs:maxExclusive value="5" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+    <xs:element name="e4_4_2" dfdl:lengthKind="delimited">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
+          <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+            message="Assertion failed for dfdl:checkConstraints(.)" />
+        </xs:appinfo>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:decimal">
           <xs:minExclusive value="-5" />
           <xs:maxExclusive value="5" />
         </xs:restriction>
@@ -4701,7 +4729,129 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
-  
+
+  <!--
+    Test name: checkMinInclusiveDecimal_Pass
+       Schema: checkConstraints
+      Purpose: This test demonstrates the use of validation for the maxInclusive facet with xs:decimal.
+  -->
+  <tdml:parserTestCase name="checkMinInclusiveDecimal_Pass"
+    root="e4_3_4" model="TestFacets">
+
+    <tdml:document>-5</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e4_3_4>-5</e4_3_4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+    <!--
+    Test name: checkMaxInclusiveDecimal_Pass
+       Schema: checkConstraints
+      Purpose: This test demonstrates the use of validation for the maxInclusive facet with xs:decimal.
+  -->
+  <tdml:parserTestCase name="checkMaxInclusiveDecimal_Pass"
+    root="e4_3_4" model="TestFacets">
+
+    <tdml:document>5</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e4_3_4>5</e4_3_4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+    <!--
+    Test name: checkMinInclusiveDecimal_Fail
+       Schema: checkConstraints
+      Purpose: This test demonstrates the use of validation for the maxInclusive facet with xs:decimal.
+               Specifically will fial because -6 is more negative than -5
+  -->
+  <tdml:parserTestCase name="checkMinInclusiveDecimal_Fail"
+    root="e4_3_4" model="TestFacets">
+
+    <tdml:document>-6</tdml:document>
+    <tdml:errors>
+      <tdml:error>Assertion failed: Assertion failed for dfdl:checkConstraints(.)</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+    <!--
+    Test name: checkMaxInclusiveDecimal_Fail
+       Schema: checkConstraints
+      Purpose: This test demonstrates the use of validation for the maxInclusive facet with xs:decimal.
+               Specifically will fail because 6 is greater than 5.
+  -->
+  <tdml:parserTestCase name="checkMaxInclusiveDecimal_Fail"
+    root="e4_3_4" model="TestFacets">
+
+    <tdml:document>6</tdml:document>
+    <tdml:errors>
+      <tdml:error>Assertion failed: Assertion failed for dfdl:checkConstraints(.)</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: checkMinExclusiveDecimal_Fail
+       Schema: checkConstraints
+      Purpose: This test demonstrates the use of validation for the maxInclusive facet with xs:decimal.
+  -->
+  <tdml:parserTestCase name="checkMinExclusiveDecimal_Fail"
+    root="e4_4_2" model="TestFacets">
+
+    <tdml:document>-5</tdml:document>
+    <tdml:errors>
+      <tdml:error></tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+    <!--
+    Test name: checkMaxExclusiveDecimal_Fail
+       Schema: checkConstraints
+      Purpose: This test demonstrates the use of validation for the maxInclusive facet with xs:decimal.
+  -->
+  <tdml:parserTestCase name="checkMaxExclusiveDecimal_Fail"
+    root="e4_4_2" model="TestFacets">
+
+    <tdml:document>5</tdml:document>
+    <tdml:errors>
+      <tdml:error></tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+      <!--
+    Test name: checkMinExclusiveDecimal_Pass
+       Schema: checkConstraints
+      Purpose: This test demonstrates the use of validation for the maxExclusive facet with xs:decimal.
+  -->
+  <tdml:parserTestCase name="checkMinExclusiveDecimal_Pass"
+    root="e4_4_2" model="TestFacets">
+
+    <tdml:document>-4</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e4_4_2>-4</e4_4_2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+    <!--
+    Test name: checkMaxExclusiveDecimal_Pass
+       Schema: checkConstraints
+      Purpose: This test demonstrates the use of validation for the maxExclusive facet with xs:decimal.
+  -->
+  <tdml:parserTestCase name="checkMaxExclusiveDecimal_Pass"
+    root="e4_4_2" model="TestFacets">
+
+    <tdml:document>4</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e4_4_2>4</e4_4_2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
   <!--
     Test name: checkCombining_Pass
        Schema: checkConstraints

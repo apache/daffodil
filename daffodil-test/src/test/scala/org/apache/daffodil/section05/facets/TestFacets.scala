@@ -127,6 +127,16 @@ class TestFacets {
   @Test def test_checkMaxInclusive_Fail_MaxInt { runner.runOneTest("checkMaxInclusive_Fail_MaxInt") }
   @Test def test_checkMinInclusive_Fail_MinInt { runner.runOneTest("checkMinInclusive_Fail_MinInt") }
 
+  @Test def test_checkMinInclusiveDecimal_Pass { runner.runOneTest("checkMinInclusiveDecimal_Pass") }
+  @Test def test_checkMaxInclusiveDecimal_Pass { runner.runOneTest("checkMaxInclusiveDecimal_Pass") }
+  @Test def test_checkMinInclusiveDecimal_Fail { runner.runOneTest("checkMinInclusiveDecimal_Fail") }
+  @Test def test_checkMaxInclusiveDecimal_Fail { runner.runOneTest("checkMaxInclusiveDecimal_Fail") }
+
+  @Test def test_checkMinExclusiveDecimal_Pass { runner.runOneTest("checkMinExclusiveDecimal_Pass") }
+  @Test def test_checkMaxExclusiveDecimal_Pass { runner.runOneTest("checkMaxExclusiveDecimal_Pass") }
+  @Test def test_checkMinExclusiveDecimal_Fail { runner.runOneTest("checkMinExclusiveDecimal_Fail") }
+  @Test def test_checkMaxExclusiveDecimal_Fail { runner.runOneTest("checkMaxExclusiveDecimal_Fail") }
+
   @Test def test_checkMinExclusive_Fail { runner.runOneTest("checkMinExclusive_Fail") }
   @Test def test_checkMaxExclusive_Fail { runner.runOneTest("checkMaxExclusive_Fail") }
   @Test def test_checkMinExclusive_Pass { runner.runOneTest("checkMinExclusive_Pass") }

@@ -384,13 +384,14 @@ trait Facets { self: Restriction =>
                 facetType, localFacet)
             }
           }
+          case PrimType.Decimal => { /* Nothing to do here */ }
           case PrimType.DateTime => { /* Nothing to do here */ }
           case PrimType.Date => { /* Nothing to do here */ }
           case PrimType.Time => { /* Nothing to do here */ }
           case PrimType.Boolean => notYetImplemented("checkValueSpaceFacetRange - Boolean")
           case PrimType.HexBinary => { /* Nothing to do here */ }
           case PrimType.String => { /* Nothing to do here */ }
-          case _ => schemaDefinitionError("checkValueSpaceFacetRange - Unrecognized primitive type: %s", primType.name)
+          case _ => Assert.usageError("checkValueSpaceFacetRange - Unrecognized primitive type: " + primType.name)
         }
       }
       case _ => { /* Nothing to do */ }
