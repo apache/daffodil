@@ -33,6 +33,7 @@ import org.apache.daffodil.processors.LayerCharsetEv
 import org.apache.daffodil.processors.parsers.PState
 import org.apache.daffodil.io.ExplicitLengthLimitingStream
 import org.apache.daffodil.processors.unparsers.UState
+import org.apache.daffodil.processors.LayerTransformArgsEv
 
 /**
  * An input stream wrapper that re-orders bytes according to wordsize.
@@ -161,7 +162,7 @@ class ByteSwapOutputStream(wordsize: Int, jos: OutputStream)
 class ByteSwapTransformer(wordsize: Int, layerLengthInBytesEv: LayerLengthInBytesEv)
   extends LayerTransformer() {
 
-  override def wrapLayerDecoder(jis: java.io.InputStream) = {
+  override def wrapLayerDecoder(jis: java.io.InputStream, state: PState) = {
     val s = new ByteSwapInputStream(wordsize, jis)
     s
   }
@@ -173,7 +174,7 @@ class ByteSwapTransformer(wordsize: Int, layerLengthInBytesEv: LayerLengthInByte
     s
   }
 
-  override protected def wrapLayerEncoder(jos: java.io.OutputStream): java.io.OutputStream = {
+  override protected def wrapLayerEncoder(jos: java.io.OutputStream, state: UState): java.io.OutputStream = {
     val s = new ByteSwapOutputStream(wordsize, jos)
     s
   }
@@ -198,6 +199,7 @@ sealed abstract class ByteSwapTransformerFactory(wordsize: Int, name: String)
     maybeLayerLengthInBytesEv: Maybe[LayerLengthInBytesEv],
     maybeLayerLengthUnits: Maybe[LayerLengthUnits],
     maybeLayerBoundaryMarkEv: Maybe[LayerBoundaryMarkEv],
+    maybeLayerTransformArgsEv: Maybe[LayerTransformArgsEv],
     trd: TermRuntimeData): LayerTransformer = {
 
     trd.schemaDefinitionUnless(maybeLayerLengthKind.isDefined,

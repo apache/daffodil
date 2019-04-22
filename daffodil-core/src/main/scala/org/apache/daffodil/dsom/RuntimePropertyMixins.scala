@@ -72,6 +72,7 @@ import org.apache.daffodil.processors.LayerCharsetEv
 import org.apache.daffodil.schema.annotation.props.TextStandardExponentRepMixin
 import org.apache.daffodil.schema.annotation.props.PropertyMixin
 import org.apache.daffodil.schema.annotation.props.Found
+import org.apache.daffodil.processors.LayerTransformArgsEv
 
 /*
  * These are the DFDL properties which can have their values come
@@ -649,6 +650,18 @@ trait LayeringRuntimeValuedPropertiesMixin
   final lazy val maybeLayerTransformEv = {
     if (optionLayerTransformRaw.isDefined) {
       val ev = new LayerTransformEv(layerTransformExpr, termRuntimeData)
+      ev.compile()
+      One(ev)
+    } else {
+      Nope
+    }
+  }
+  
+  final lazy val maybeLayerTransformArgsEv = {
+    if(optionLayerTransformArgsRaw.isDefined){
+      val qn = this.qNameForProperty("layerTransformArgs")
+      val expr = ExpressionCompilers.String.compileProperty(qn, NodeInfo.NonEmptyString, layerTransformArgsRaw, decl)
+      val ev = new LayerTransformArgsEv(expr, termRuntimeData)
       ev.compile()
       One(ev)
     } else {

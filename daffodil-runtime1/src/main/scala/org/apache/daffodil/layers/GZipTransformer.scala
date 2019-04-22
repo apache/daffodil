@@ -27,11 +27,12 @@ import org.apache.daffodil.processors.LayerCharsetEv
 import org.apache.daffodil.processors.parsers.PState
 import org.apache.daffodil.io.ExplicitLengthLimitingStream
 import org.apache.daffodil.processors.unparsers.UState
+import org.apache.daffodil.processors.LayerTransformArgsEv
 
 class GZIPTransformer(layerLengthInBytesEv: LayerLengthInBytesEv)
   extends LayerTransformer() {
 
-  override def wrapLayerDecoder(jis: java.io.InputStream) = {
+  override def wrapLayerDecoder(jis: java.io.InputStream, sate: PState) = {
     val s = new java.util.zip.GZIPInputStream(jis)
     s
   }
@@ -42,7 +43,7 @@ class GZIPTransformer(layerLengthInBytesEv: LayerLengthInBytesEv)
     s
   }
 
-  override protected def wrapLayerEncoder(jos: java.io.OutputStream): java.io.OutputStream = {
+  override protected def wrapLayerEncoder(jos: java.io.OutputStream, state: UState): java.io.OutputStream = {
     val s = new java.util.zip.GZIPOutputStream(jos)
     s
   }
@@ -62,6 +63,7 @@ object GZIPTransformerFactory
     maybeLayerLengthInBytesEv: Maybe[LayerLengthInBytesEv],
     maybeLayerLengthUnits: Maybe[LayerLengthUnits],
     maybeLayerBoundaryMarkEv: Maybe[LayerBoundaryMarkEv],
+    maybeLayerTransformArgsEv: Maybe[LayerTransformArgsEv],
     trd: TermRuntimeData): LayerTransformer = {
 
     val xformer = new GZIPTransformer(maybeLayerLengthInBytesEv.get)

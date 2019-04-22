@@ -32,11 +32,12 @@ import org.apache.daffodil.processors.charset.BitsCharset
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.processors.unparsers.UState
 import org.apache.daffodil.io.LayerBoundaryMarkInsertingJavaOutputStream
+import org.apache.daffodil.processors.LayerTransformArgsEv
 
 class Base64MIMETransformer(layerCharsetEv: LayerCharsetEv, layerBoundaryMarkEv: LayerBoundaryMarkEv)
   extends LayerTransformer() {
 
-  override def wrapLayerDecoder(jis: java.io.InputStream): java.io.InputStream = {
+  override def wrapLayerDecoder(jis: java.io.InputStream, state: PState): java.io.InputStream = {
     val b64 = java.util.Base64.getMimeDecoder().wrap(jis)
     b64
   }
@@ -52,7 +53,7 @@ class Base64MIMETransformer(layerCharsetEv: LayerCharsetEv, layerBoundaryMarkEv:
     s
   }
 
-  override protected def wrapLayerEncoder(jos: java.io.OutputStream): java.io.OutputStream = {
+  override protected def wrapLayerEncoder(jos: java.io.OutputStream, state: UState): java.io.OutputStream = {
     val b64 = java.util.Base64.getMimeEncoder().wrap(jos)
     b64
   }
@@ -77,6 +78,7 @@ object Base64MIMETransformerFactory
     maybeLayerLengthInBytesEv: Maybe[LayerLengthInBytesEv],
     maybeLayerLengthUnits: Maybe[LayerLengthUnits],
     maybeLayerBoundaryMarkEv: Maybe[LayerBoundaryMarkEv],
+    maybeLayerTransformArgsEv: Maybe[LayerTransformArgsEv],
     trd: TermRuntimeData): LayerTransformer = {
 
     trd.schemaDefinitionUnless(scala.util.Properties.isJavaAtLeast("1.8"),

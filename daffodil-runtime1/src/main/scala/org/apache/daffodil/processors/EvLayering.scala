@@ -36,6 +36,12 @@ final class LayerTransformEv(override val expr: CompiledExpression[String], trd:
     trd)
   with NoCacheEvaluatable[String]
 
+final class LayerTransformArgsEv(override val expr: CompiledExpression[String], trd: TermRuntimeData)
+  extends EvaluatableExpression[String](expr, trd)
+  with NoCacheEvaluatable[String]{
+  
+}
+
 final class LayerEncodingEv(override val expr: CompiledExpression[String], trd: TermRuntimeData)
   extends EncodingEvBase(expr, trd)
 
@@ -68,6 +74,7 @@ final class LayerBoundaryMarkEv(override val expr: CompiledExpression[String], o
 
 final class LayerTransformerEv(
   layerTransformEv: LayerTransformEv,
+  maybeLayerTransformArgsEv: Maybe[LayerTransformArgsEv],
   maybeLayerCharsetEv: Maybe[LayerCharsetEv],
   maybeLayerLengthKind: Maybe[LayerLengthKind],
   maybeLayerLengthInBytesEv: Maybe[LayerLengthInBytesEv],
@@ -94,6 +101,7 @@ final class LayerTransformerEv(
       maybeLayerLengthInBytesEv,
       maybeLayerLengthUnits,
       maybeLayerBoundaryMarkEv,
+      maybeLayerTransformArgsEv,
       trd)
     xformer
   }

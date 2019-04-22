@@ -40,6 +40,7 @@ import org.apache.daffodil.processors.parsers.PState
 import org.apache.daffodil.processors.unparsers.UState
 import org.apache.daffodil.io.DirectOrBufferedDataOutputStream
 import passera.unsigned.ULong
+import org.apache.daffodil.processors.LayerTransformArgsEv
 
 /**
  * Factory for a layer transformer.
@@ -58,6 +59,7 @@ abstract class LayerTransformerFactory(nom: String)
     maybeLayerLengthInBytesEv: Maybe[LayerLengthInBytesEv],
     maybeLayerLengthUnits: Maybe[LayerLengthUnits],
     maybeLayerBoundaryMarkEv: Maybe[LayerBoundaryMarkEv],
+    maybeLayerTransformArgsEv: Maybe[LayerTransformArgsEv],
     trd: TermRuntimeData): LayerTransformer
 }
 
@@ -102,6 +104,7 @@ object LayerTransformerFactory {
   register(ICalendarLineFoldedTransformerFactory)
   register(AISPayloadArmoringTransformerFactory)
   register(FourByteSwapTransformerFactory)
+  register(midBitsToEndTransformerFactory)
 }
 
 /**
@@ -110,7 +113,7 @@ object LayerTransformerFactory {
 abstract class LayerTransformer()
   extends Serializable {
 
-  protected def wrapLayerDecoder(jis: java.io.InputStream): java.io.InputStream
+  protected def wrapLayerDecoder(jis: java.io.InputStream, state: PState): java.io.InputStream
 
   protected def wrapLimitingStream(jis: java.io.InputStream, state: PState): java.io.InputStream
 
@@ -118,7 +121,7 @@ abstract class LayerTransformer()
     new JavaIOInputStream(s, fInfo)
   }
 
-  protected def wrapLayerEncoder(jos: java.io.OutputStream): java.io.OutputStream
+  protected def wrapLayerEncoder(jos: java.io.OutputStream, state: UState): java.io.OutputStream
 
   protected def wrapLimitingStream(jis: java.io.OutputStream, state: UState): java.io.OutputStream
 
@@ -135,7 +138,7 @@ abstract class LayerTransformer()
   def addLayer(s: InputSourceDataInputStream, state: PState): InputSourceDataInputStream = {
     val jis = wrapJavaInputStream(s, state)
     val limitedJIS = wrapLimitingStream(jis, state)
-    val decodedInputStream = wrapLayerDecoder(limitedJIS)
+    val decodedInputStream = wrapLayerDecoder(limitedJIS, state)
     //    val str = Iterator.continually { decodedInputStream.read() }.takeWhile { _ != -1 }.toStream.mkString
     //    println(str)
     //    val bais = new ByteArrayInputStream(str.getBytes("ascii"))
@@ -153,7 +156,7 @@ abstract class LayerTransformer()
   def addLayer(s: DataOutputStream, state: UState): DataOutputStream = {
     val jos = wrapJavaOutputStream(s, state)
     val limitedJOS = wrapLimitingStream(jos, state)
-    val encodedOutputStream = wrapLayerEncoder(limitedJOS)
+    val encodedOutputStream = wrapLayerEncoder(limitedJOS, state)
     val newDOS = DirectOrBufferedDataOutputStream(encodedOutputStream, null, isLayer = true)
     newDOS.setPriorBitOrder(BitOrder.MostSignificantBitFirst)
     newDOS.setAbsStartingBitPos0b(ULong(0L))

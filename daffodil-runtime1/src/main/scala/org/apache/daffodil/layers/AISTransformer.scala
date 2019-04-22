@@ -45,6 +45,7 @@ import org.apache.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
 import org.apache.daffodil.schema.annotation.props.gen.UTF16Width
 import org.apache.daffodil.processors.charset.BitsCharsetDecoder
 import org.apache.daffodil.processors.charset.BitsCharsetEncoder
+import org.apache.daffodil.processors.LayerTransformArgsEv
 
 object AISPayloadArmoringTransformer {
   val iso8859 = StandardCharsets.ISO_8859_1
@@ -58,7 +59,7 @@ class AISPayloadArmoringTransformer()
    * Decoding AIS payload armoring is encoding the ASCII text into the
    * underlying binary data.
    */
-  override def wrapLayerDecoder(jis: java.io.InputStream) = {
+  override def wrapLayerDecoder(jis: java.io.InputStream, state: PState) = {
     new AISPayloadArmoringInputStream(jis)
   }
 
@@ -68,7 +69,7 @@ class AISPayloadArmoringTransformer()
     s
   }
 
-  override protected def wrapLayerEncoder(jos: java.io.OutputStream): java.io.OutputStream = {
+  override protected def wrapLayerEncoder(jos: java.io.OutputStream, state: UState): java.io.OutputStream = {
     new AISPayloadArmoringOutputStream(jos)
   }
 
@@ -166,6 +167,7 @@ object AISPayloadArmoringTransformerFactory
     maybeLayerLengthInBytesEv: Maybe[LayerLengthInBytesEv],
     maybeLayerLengthUnits: Maybe[LayerLengthUnits],
     maybeLayerBoundaryMarkEv: Maybe[LayerBoundaryMarkEv],
+    maybeLayerTransformArgsEv: Maybe[LayerTransformArgsEv],
     trd: TermRuntimeData): LayerTransformer = {
 
     val xformer = new AISPayloadArmoringTransformer()

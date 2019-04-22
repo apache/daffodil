@@ -28,6 +28,7 @@ import org.junit.AfterClass
 object TestLayers {
   lazy val testDir = "/org/apache/daffodil/layers/"
   lazy val runner = Runner(testDir, "layers.tdml")
+  lazy val midBitsToEndRunner = Runner(testDir, "midBitsToEnd.tdml")
 
   @AfterClass def shutDown() {
     runner.reset
@@ -43,5 +44,8 @@ class TestLayers {
   @Test def test_layers3() { runner.runOneTest("layers3") }
   @Test def test_layersErr1() { runner.runOneTest("layersErr1") }
   @Test def test_layers4() { runner.runOneTest("layers4") }
+
+  @Test def test_moveMidBitsToEnd() { midBitsToEndRunner.runOneTest("midBitsToEnd1") }
+  @Test def test_midBitsToEnd_unsufficentBits_1() { midBitsToEndRunner.runOneTest("midBitsToEnd_unsufficentBits_1") }
 
 }

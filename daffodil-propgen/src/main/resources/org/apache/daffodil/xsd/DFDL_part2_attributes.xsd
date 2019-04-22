@@ -382,6 +382,8 @@
   
   <xsd:attribute name="layerTransform"
     type="dfdl:LayerTransformType_Or_DFDLExpression" />
+  <xsd:attribute name="layerTransformArgs"
+    type="dfdl:ListOfDFDLStringLiteral_Or_DFDLExpression" />
   <xsd:attribute name="layerEncoding"
     type="dfdl:EncodingEnum_Or_DFDLExpression" />
   <xsd:attribute name="layerLengthKind" type="dfdl:LayerLengthKindEnum" />
@@ -394,6 +396,8 @@
   <xsd:attributeGroup name="LayeringAG">
     <xsd:attribute name="layerTransform"
       type="dfdl:LayerTransformType_Or_DFDLExpression" />
+    <xsd:attribute name="layerTransformArgs"
+      type="dfdl:ListOfDFDLStringLiteral_Or_DFDLExpression" />
     <xsd:attribute name="layerEncoding"
       type="dfdl:EncodingEnum_Or_DFDLExpression" />
     <xsd:attribute name="layerLengthKind" type="dfdl:LayerLengthKindEnum" />
@@ -590,6 +594,7 @@
       <xsd:enumeration value="hiddenGroupRef" />
       
       <xsd:enumeration value="layerTransform"/>
+      <xsd:enumeration value="layerTransformArgs"/>
       <xsd:enumeration value="layerEncoding" />
       <xsd:enumeration value="layerLengthKind" />
       <xsd:enumeration value="layerLength" />
@@ -1021,6 +1026,8 @@
   <xsd:attributeGroup name="LayeringAGQualified">
     <xsd:attribute form="qualified" name="layerTransform"
       type="dfdl:LayerTransformType_Or_DFDLExpression" />
+    <xsd:attribute name="layerTransformArgs"
+      type="dfdl:ListOfDFDLStringLiteral_Or_DFDLExpression" />
     <xsd:attribute form="qualified" name="layerEncoding"
       type="dfdl:EncodingEnum_Or_DFDLExpression" />
     <xsd:attribute form="qualified" name="layerLengthKind" type="dfdl:LayerLengthKindEnum" />

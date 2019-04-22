@@ -34,6 +34,7 @@ import java.io.InputStream
 import org.apache.daffodil.exceptions.ThrowsSDE
 import org.apache.daffodil.schema.annotation.props.Enum
 import org.apache.daffodil.io.RegexLimitingStream
+import org.apache.daffodil.processors.LayerTransformArgsEv
 
 /*
  * This and related classes implement so called "line folding" from
@@ -115,11 +116,11 @@ class LineFoldedTransformerDelimited(mode: LineFoldMode)
     newJOS
   }
 
-  override protected def wrapLayerDecoder(jis: java.io.InputStream): java.io.InputStream = {
+  override protected def wrapLayerDecoder(jis: java.io.InputStream, state: PState): java.io.InputStream = {
     val s = new LineFoldedInputStream(mode, jis)
     s
   }
-  override protected def wrapLayerEncoder(jos: java.io.OutputStream): java.io.OutputStream = {
+  override protected def wrapLayerEncoder(jos: java.io.OutputStream, state: UState): java.io.OutputStream = {
     val s = new LineFoldedOutputStream(mode, jos)
     s
   }
@@ -142,11 +143,11 @@ class LineFoldedTransformerImplicit(mode: LineFoldMode)
     jos // no limiting - just write output until EOF.
   }
 
-  override protected def wrapLayerDecoder(jis: java.io.InputStream): java.io.InputStream = {
+  override protected def wrapLayerDecoder(jis: java.io.InputStream, state:PState): java.io.InputStream = {
     val s = new LineFoldedInputStream(mode, jis)
     s
   }
-  override protected def wrapLayerEncoder(jos: java.io.OutputStream): java.io.OutputStream = {
+  override protected def wrapLayerEncoder(jos: java.io.OutputStream, state:UState): java.io.OutputStream = {
     val s = new LineFoldedOutputStream(mode, jos)
     s
   }
@@ -160,6 +161,7 @@ sealed abstract class LineFoldedTransformerFactory(mode: LineFoldMode, name: Str
     maybeLayerLengthInBytesEv: Maybe[LayerLengthInBytesEv],
     maybeLayerLengthUnits: Maybe[LayerLengthUnits],
     maybeLayerBoundaryMarkEv: Maybe[LayerBoundaryMarkEv],
+    maybeLayerTransformArgsEv: Maybe[LayerTransformArgsEv],
     trd: TermRuntimeData): LayerTransformer = {
 
     trd.schemaDefinitionUnless(maybeLayerLengthKind.isDefined,
