@@ -20,6 +20,7 @@ package org.apache.daffodil.processors.unparsers
 import org.apache.daffodil.processors._
 import org.apache.daffodil.infoset._
 import org.apache.daffodil.processors.RuntimeData
+import org.apache.daffodil.processors.dfa.DFADelimiter
 import org.apache.daffodil.util.Maybe._
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe._
@@ -117,9 +118,9 @@ class DelimiterStackUnparser(
 
   def unparse(state: UState): Unit = {
     // Evaluate Delimiters
-    val init = if (initiatorOpt.isDefined) Maybe.toMaybe(initiatorOpt.get.evaluate(state)) else Nope
-    val sep = if (separatorOpt.isDefined) Maybe.toMaybe(separatorOpt.get.evaluate(state)) else Nope
-    val term = if (terminatorOpt.isDefined) Maybe.toMaybe(terminatorOpt.get.evaluate(state)) else Nope
+    val init = if (initiatorOpt.isDefined) initiatorOpt.get.evaluate(state) else Array[DFADelimiter]()
+    val sep = if (separatorOpt.isDefined) separatorOpt.get.evaluate(state) else Array[DFADelimiter]()
+    val term = if (terminatorOpt.isDefined) terminatorOpt.get.evaluate(state) else Array[DFADelimiter]()
 
     val node = DelimiterStackUnparseNode(init, sep, term)
 

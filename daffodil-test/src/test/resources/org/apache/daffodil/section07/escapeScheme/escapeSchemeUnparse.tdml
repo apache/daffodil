@@ -134,6 +134,14 @@
         </xs:complexType>
       </xs:element>
   
+      <xs:element name="e10">
+        <xs:complexType>
+          <xs:sequence dfdl:separator="| ; ," >
+            <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited" dfdl:escapeSchemeRef="pound" minOccurs="0" maxOccurs="6" dfdl:occursCountKind="parsed"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
   </tdml:defineSchema>
 
 <!--
@@ -397,7 +405,25 @@
       <tdml:error>exactly 1 character</tdml:error>
     </tdml:errors>
   </tdml:unparserTestCase>
-  
+
+<!--
+      Test Name: unparseDelimitedEscapedString22
+      Schema: delimitedStringsEscapeScheme
+      Purpose: This test demonstrates unparsing a sequence of delimited strings with escape schemes
+-->
+  <tdml:unparserTestCase name="unparseDelimitedEscapedString22" model="delimitedStringsEscapeScheme" root="e10" roundTrip="true">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e10 xmlns:ex="http://example.com">
+          <ex:s1>one,two</ex:s1>
+          <ex:s1>three|four</ex:s1>
+          <ex:s1>five;six</ex:s1>
+        </ex:e10>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>one#,two|three#|four|five#;six</tdml:document>
+  </tdml:unparserTestCase>
+
   <tdml:defineSchema name="foo">
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" encoding="ascii" lengthUnits="bytes" outputNewLine="%CR;%LF;"/>

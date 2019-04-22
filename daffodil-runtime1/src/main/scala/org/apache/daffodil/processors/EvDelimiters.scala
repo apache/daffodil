@@ -74,23 +74,23 @@ abstract class DelimiterParseEv(delimType: DelimiterTextType.Type, override val 
 }
 
 abstract class DelimiterUnparseEv(delimType: DelimiterTextType.Type, override val expr: CompiledExpression[String], outputNewLine: OutputNewLineEv, override val trd: TermRuntimeData)
-  extends Evaluatable[Option[DFADelimiter]](trd)
-  with InfosetCachedEvaluatable[Option[DFADelimiter]]
-  with DelimiterEvMixin[Option[DFADelimiter]] {
+  extends Evaluatable[Array[DFADelimiter]](trd)
+  with InfosetCachedEvaluatable[Array[DFADelimiter]]
+  with DelimiterEvMixin[Array[DFADelimiter]] {
 
   override lazy val runtimeDependencies = Seq(outputNewLine)
 
-  override protected def compute(state: ParseOrUnparseState): Option[DFADelimiter] = {
+  override protected def compute(state: ParseOrUnparseState): Array[DFADelimiter] = {
     if (state.isInstanceOf[PState]) {
       Assert.invariantFailed("State was PState in Unparser Evaluatable")
     }
 
     val converterResult = evalAndConvert(state)
     if (converterResult.length == 1 && converterResult(0) == "") {
-      None
+      Array()
     } else {
       val onl = outputNewLine.evaluate(state)
-      Some(CreateDelimiterDFA(delimType, trd, converterResult(0), onl))
+      CreateDelimiterDFA(delimType, trd, converterResult, onl)
     }
   }
 }

@@ -17,30 +17,28 @@
 
 package org.apache.daffodil.processors
 
-import org.apache.daffodil.util.Maybe
-import org.apache.daffodil.util.Maybe.Nope
 import org.apache.daffodil.processors.dfa.DFADelimiter
 
 object EmptyDelimiterStackUnparseNode {
-  val node = new DelimiterStackUnparseNode(Nope, Nope, Nope)
+  val node = new DelimiterStackUnparseNode(Array(), Array(), Array())
   def apply() = node
 }
 
 object DelimiterStackUnparseNode {
 
   def apply(
-    initiator: Maybe[DFADelimiter],
-    separator: Maybe[DFADelimiter],
-    terminator: Maybe[DFADelimiter]): DelimiterStackUnparseNode = {
-    if (!initiator.isDefined && !terminator.isDefined && !separator.isDefined) EmptyDelimiterStackUnparseNode()
+    initiator: Array[DFADelimiter],
+    separator: Array[DFADelimiter],
+    terminator: Array[DFADelimiter]): DelimiterStackUnparseNode = {
+    if (initiator.isEmpty && terminator.isEmpty && separator.isEmpty) EmptyDelimiterStackUnparseNode()
     else new DelimiterStackUnparseNode(initiator, separator, terminator)
   }
 
 }
 
 class DelimiterStackUnparseNode(
-  val initiator: Maybe[DFADelimiter],
-  val separator: Maybe[DFADelimiter],
-  val terminator: Maybe[DFADelimiter]) {
+  val initiator: Array[DFADelimiter],
+  val separator: Array[DFADelimiter],
+  val terminator: Array[DFADelimiter]) {
 
 }
