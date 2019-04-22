@@ -28,6 +28,7 @@ import org.apache.daffodil.processors.WSPPlusDelim
 import org.apache.daffodil.processors.WSPStarDelim
 import org.apache.daffodil.processors.RuntimeData
 import org.apache.daffodil.processors.parsers.DelimiterTextType
+import org.apache.daffodil.exceptions.Assert
 
 object CreateDelimiterDFA {
 
@@ -78,6 +79,14 @@ object CreateDelimiterDFA {
     d.compileDelimiter(delimiterStr, false)
     val db = d.delimBuf
     apply(delimType, rd, db, delimiterStr, outputNewLine)
+  }
+
+  /**
+   * Converts a Seq of String to a Seq of
+   * DFA's representing each String with outputNewLine.
+   */
+  def apply(delimType: DelimiterTextType.Type, rd: RuntimeData, delimiters: Seq[String], outputNewLine: String): Array[DFADelimiter] = {
+    delimiters.map(d => apply(delimType, rd, d, outputNewLine)).toArray
   }
 
   /**

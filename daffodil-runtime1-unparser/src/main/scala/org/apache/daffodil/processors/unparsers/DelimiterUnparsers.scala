@@ -50,15 +50,15 @@ class DelimiterTextUnparser(override val context: TermRuntimeData, delimiterType
 
     val localDelimNode = state.localDelimiters
 
-    val delimDFAOpt = {
+    val delimDFAs = {
       if (delimiterType == DelimiterTextType.Initiator) localDelimNode.initiator
       else if (delimiterType == DelimiterTextType.Separator) localDelimNode.separator
       else localDelimNode.terminator
     }
 
-    if (!delimDFAOpt.isDefined) Assert.invariantFailed("Expected a delimiter of type " + delimiterType + " on the stack, but was not found.")
+    if (delimDFAs.isEmpty) Assert.invariantFailed("Expected a delimiter of type " + delimiterType + " on the stack, but was not found.")
 
-    val delimDFA = delimDFAOpt.get
+    val delimDFA = delimDFAs(0)
 
     try {
       val valueString = delimDFA.unparseValue
