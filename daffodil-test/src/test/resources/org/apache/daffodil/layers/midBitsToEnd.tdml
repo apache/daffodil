@@ -26,7 +26,7 @@
       <dfdl:format ref="ex:GeneralFormat" />
     </dfdl:defineFormat>
     <dfdl:defineFormat name="bits8_9_toEnd">
-      <dfdl:format ref="ex:general" layerTransform="midBitsToEnd" layerTransformArgs="7 2" layerLengthKind="explicit" layerLength="3" layerLengthUnits="bytes" />
+      <dfdl:format ref="ex:general" layerTransform="midBitsToEnd" layerTransformArgs="8 2" layerLengthKind="explicit" layerLength="3" layerLengthUnits="bytes" />
     </dfdl:defineFormat>
     <dfdl:format ref="ex:general" />
 

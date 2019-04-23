@@ -32,7 +32,7 @@ import org.apache.daffodil.processors.LayerTransformArgsEv
 class GZIPTransformer(layerLengthInBytesEv: LayerLengthInBytesEv)
   extends LayerTransformer() {
 
-  override def wrapLayerDecoder(jis: java.io.InputStream, sate: PState) = {
+  override def wrapLayerDecoder(jis: java.io.InputStream, state: PState) = {
     val s = new java.util.zip.GZIPInputStream(jis)
     s
   }
