@@ -238,7 +238,8 @@ abstract class SequenceGroupTermBase(
       maybeCheckBitOrderAndCharset)
   }
 
-  private val layeredSequenceAllowedProps = Set("ref", "layerTransform", "layerEncoding", "layerLengthKind", "layerLength", "layerLengthUnits", "layerBoundaryMark", "layerTransformArgs")
+  private val layeredSequenceAllowedProps = Set("ref", "layerTransform", "layerEncoding", "layerLengthKind", "layerLength",
+    "layerLengthUnits", "layerBoundaryMark", "layerTransformArgs", "bitOrder", "byteOrder")
 
   final lazy val maybeLayerTransformerEv: Maybe[LayerTransformerEv] = {
     if (maybeLayerTransformEv.isEmpty) Maybe.Nope

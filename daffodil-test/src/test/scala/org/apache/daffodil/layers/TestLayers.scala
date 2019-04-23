@@ -45,7 +45,9 @@ class TestLayers {
   @Test def test_layersErr1() { runner.runOneTest("layersErr1") }
   @Test def test_layers4() { runner.runOneTest("layers4") }
 
-  @Test def test_moveMidBitsToEnd() { midBitsToEndRunner.runOneTest("midBitsToEnd1") }
+  @Test def test_midBitsToEndMSBF1() { midBitsToEndRunner.runOneTest("midBitsToEndMSBF1") }
+  @Test def test_midBitsToEndLSBF1() { midBitsToEndRunner.runOneTest("midBitsToEndLSBF1") }
+
   @Test def test_midBitsToEnd_unsufficentBits_1() { midBitsToEndRunner.runOneTest("midBitsToEnd_unsufficentBits_1") }
 
 }

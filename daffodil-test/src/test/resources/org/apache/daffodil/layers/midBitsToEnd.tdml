@@ -30,16 +30,24 @@
     </dfdl:defineFormat>
     <dfdl:format ref="ex:general" />
 
-    <xs:element name="root">
+    <xs:element name="e1">
       <xs:complexType>
         <xs:sequence dfdl:ref="tns:bits8_9_toEnd">
           <xs:element name="transformedContent" type="xs:hexBinary" dfdl:lengthKind="explicit" dfdl:length="3" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+
+    <xs:element name="e2">
+      <xs:complexType>
+        <xs:sequence dfdl:ref="tns:bits8_9_toEnd" dfdl:bitOrder="leastSignificantBitFirst" dfdl:byteOrder="littleEndian">
+          <xs:element name="transformedContent" type="xs:hexBinary" dfdl:lengthKind="explicit" dfdl:length="3" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
   </tdml:defineSchema>
 
-  <tdml:parserTestCase name="midBitsToEnd1" root="root" model="s1">
+  <tdml:parserTestCase name="midBitsToEndMSBF1" root="e1" model="s1">
     <tdml:document>
       <tdml:documentPart type="bits"><![CDATA[
       0000 0011
@@ -50,19 +58,42 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <ex:root>
+        <ex:e1>
           <!--
           0000 0011 # 03
           0000 0000 # 00
           0100 0011 # 43
           -->
           <transformedContent>030043</transformedContent>
-        </ex:root>
+        </ex:e1>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="midBitsToEnd_unsufficentBits_1" root="root" model="s1">
+  <tdml:parserTestCase name="midBitsToEndLSBF1" root="e2" model="s1">
+    <tdml:document>
+      <tdml:documentPart type="bits"><![CDATA[
+      1100 0000
+      0000 0011
+      0000 1000
+      ]]>
+      </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e2>
+          <!--
+          1100 0000 # C0
+          0000 0000 # 00
+          1100 0010 # C2
+          -->
+          <transformedContent>C000C2</transformedContent>
+        </ex:e2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="midBitsToEnd_unsufficentBits_1" root="e1" model="s1">
     <tdml:document>
       <tdml:documentPart type="bits"><![CDATA[
       0000 0011

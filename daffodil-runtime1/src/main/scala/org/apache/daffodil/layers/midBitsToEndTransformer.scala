@@ -38,10 +38,12 @@ import java.io.ByteArrayOutputStream
 import java.io.ByteArrayInputStream
 import org.apache.daffodil.util.MaybeULong
 import org.apache.daffodil.processors.Failure
+import org.apache.daffodil.schema.annotation.props.gen.BitOrder.MostSignificantBitFirst
 
 class midBitsToEndTransformer(
   layerLengthInBytesEv: LayerLengthInBytesEv,
-  layerTransformArgsEv: LayerTransformArgsEv)
+  layerTransformArgsEv: LayerTransformArgsEv,
+  trd:                  TermRuntimeData)
   extends LayerTransformer {
   /*
    * For unparsing, it is more or less unavoidable that we cannot stream, as we need to reach
@@ -54,6 +56,8 @@ class midBitsToEndTransformer(
   
   var firstBitIndex0b: Int = -1
   var numBits: Int = -1
+
+  val isMSBF = trd.defaultBitOrder == MostSignificantBitFirst
 
   /*
    * Note the extra padding bytes. One of these bytes is just to accomodate rounding from integer division.
@@ -69,8 +73,16 @@ class midBitsToEndTransformer(
 
   def firstBitByteIndex0b = (firstBitIndex0b / 8)
   def lastBitByteIndex0b = ((firstBitIndex0b + numBits) / 8)
-  def firstBitBitIndex0b = firstBitIndex0b % 8
-  def lastBitBitIndex0b = (firstBitIndex0b + numBits) % 8
+  def firstBitBitIndex0b = if (isMSBF) {
+    firstBitIndex0b % 8
+  } else {
+    7 - (firstBitIndex0b % 8)
+  }
+  def lastBitBitIndex0b = if (isMSBF) {
+    (firstBitIndex0b + numBits) % 8
+  } else {
+    7 - ((firstBitIndex0b + numBits) % 8)
+  }
 
   private def buffToHex(buff: Array[Byte]): String = {
     buff.map(b => String.format("%02x", Byte.box(b))).mkString(" ")
@@ -106,6 +118,14 @@ class midBitsToEndTransformer(
 
   val bitMask: Int = 0x000000ff
 
+  /*
+   * For the purposes of comments, assume we have have firstBitIndex0b=7, length=2.
+   * That is to say, the bits marked X below are what is getting shifted if we are MSBF
+   *
+   * bbbb bbbX
+   * Xbbb bbbb
+   */
+
   private def doDecode(buff: Array[Byte]): Unit = {
 
     /*First, move the middle bits to the end.
@@ -120,9 +140,31 @@ class midBitsToEndTransformer(
       val srcByte = buff(srcByteIndex0b) & bitMask
       val srcByteNext = buff(srcByteIndex0b + 1) & bitMask
 
-      val byteUpper = (srcByte << firstBitBitIndex0b) & bitMask
-      val byteLower = (srcByteNext >>> (8 - firstBitBitIndex0b))
-      val byte = (byteLower | byteUpper).toByte
+      val byte = if (isMSBF) {
+        /*
+         * Given:
+         * bbbb bbbX
+         * Ybbb bbbb
+         *
+         * Compute:
+         * XYbb bbbb
+         */
+        val byteUpper = (srcByte << firstBitBitIndex0b) & bitMask
+        val byteLower = (srcByteNext >>> (8 - firstBitBitIndex0b))
+        (byteLower | byteUpper).toByte
+      } else {
+        /*
+         * Given:
+         * Xbbb bbbb
+         * bbbb bbbY
+         *
+         * Compute:
+         * bbbb bbYX
+         */
+        val byteUpper = (srcByteNext << firstBitBitIndex0b) & bitMask
+        val byteLower = (srcByte >>> (8 - firstBitBitIndex0b))
+        (byteLower | byteUpper).toByte
+      }
       buff(dstByteIndex0b) = byte
       dstByteIndex0b += 1
       srcByteIndex0b += 1
@@ -134,7 +176,11 @@ class midBitsToEndTransformer(
      */
     val savedBits = {
       val srcByte = buff(firstBitByteIndex0b) & bitMask
-      ((srcByte >>> (8 - firstBitBitIndex0b)) << (8 - firstBitBitIndex0b)).toByte
+      if (isMSBF) {
+        ((srcByte >>> (8 - firstBitBitIndex0b)) << (8 - firstBitBitIndex0b)).toByte
+      } else {
+        ((srcByte << firstBitBitIndex0b) >> firstBitBitIndex0b).toByte
+      }
     }
 
     /*
@@ -145,40 +191,57 @@ class midBitsToEndTransformer(
       val srcByte = buff(dstByteIndex0b + byteShift) & bitMask
       val srcByteNext = buff(dstByteIndex0b + byteShift + 1) & bitMask
 
-      val byteUpper = srcByte << bitShift & bitMask
-      val byteLower = srcByteNext >>> (8 - bitShift)
-      val byte = (byteLower | byteUpper).toByte
+      val byte = if (isMSBF) {
+        val byteUpper = (srcByte << bitShift) & bitMask
+        val byteLower = srcByteNext >>> (8 - bitShift)
+        (byteLower | byteUpper).toByte
+      } else {
+        val byteUpper = (srcByteNext << (8 - bitShift)) & bitMask
+        val byteLower = srcByte >>> bitShift
+        (byteLower | byteUpper).toByte
+      }
       buff(dstByteIndex0b) = byte
       dstByteIndex0b += 1
     }
 
     /*
      * Finally, restore the upper bits of the byte containing firstBitIndex
+     * (or lower bits if LSBF)
      */
     {
       val srcByte = buff(firstBitByteIndex0b) & bitMask
-      val byteLower = ((srcByte << firstBitBitIndex0b) & bitMask) >>> firstBitBitIndex0b
-      val byteUpper = savedBits
-      val byte = (byteLower | byteUpper).toByte
+
+      val byte = if (isMSBF) {
+        val byteLower = ((srcByte << firstBitBitIndex0b) & bitMask) >>> firstBitBitIndex0b
+        val byteUpper = savedBits
+        (byteLower | byteUpper).toByte
+      } else {
+        val byteLower = savedBits
+        val byteUpper = ((srcByte >>> (7 - firstBitBitIndex0b)) << (7 - firstBitBitIndex0b)) & bitMask
+        (byteLower | byteUpper).toByte
+      }
       buff(firstBitByteIndex0b) = byte
     }
 
   }
 
   private def doEncode(buff: Array[Byte]): Unit = {
-
+   
     /*
      * When we shift, we move all the bits in byte containing firstBitIndex.
      */
     val savedBits1 = {
       val srcByte = buff(firstBitByteIndex0b) & bitMask
-      ((srcByte >>> (8 - firstBitBitIndex0b)) << (8 - firstBitBitIndex0b)).toByte
+      if (isMSBF) {
+        ((srcByte >>> (8 - firstBitBitIndex0b)) << (8 - firstBitBitIndex0b)).toByte
+      } else {
+        (((srcByte << (firstBitBitIndex0b+1)) & bitMask) >> (firstBitBitIndex0b+1)).toByte
+      }
     }
 
     /*
      * First, do the shift
      */
-
     var dstByteIndex0b = buffSize - 1
     while (dstByteIndex0b >= firstBitByteIndex0b) {
       val srcByte = buff(dstByteIndex0b - byteShift) & bitMask
@@ -188,9 +251,16 @@ class midBitsToEndTransformer(
       } else {
         buff(dstByteIndex0b - byteShift - 1) & bitMask
       }
-      val byteLower = srcByte >>> bitShift
-      val byteUpper = (srcBytePrev << (8 - bitShift)) & bitMask
-      val byte = (byteLower | byteUpper).toByte
+
+      val byte = if (isMSBF) {
+        val byteLower = srcByte >>> bitShift
+        val byteUpper = (srcBytePrev << (8 - bitShift)) & bitMask
+        (byteLower | byteUpper).toByte
+      } else {
+        val byteLower = (srcBytePrev >>> (8 - bitShift))
+        val byteUpper = (srcByte << bitShift) & bitMask
+        (byteLower | byteUpper).toByte
+      }
       buff(dstByteIndex0b) = byte
       dstByteIndex0b -= 1
     }
@@ -202,7 +272,11 @@ class midBitsToEndTransformer(
 
     val savedBits2 = {
       val srcByte = buff(lastBitByteIndex0b) & bitMask
-      (((srcByte << lastBitBitIndex0b) & bitMask) >>> lastBitBitIndex0b).toByte
+      if (isMSBF) {
+        (((srcByte << lastBitBitIndex0b) & bitMask) >>> lastBitBitIndex0b).toByte
+      } else {
+        (((srcByte >>> (7 - lastBitBitIndex0b)) << (7-lastBitBitIndex0b)) & bitMask).toByte
+      }
     }
 
     /*
@@ -215,9 +289,24 @@ class midBitsToEndTransformer(
       val srcByte = buff(srcByteIndex0b) & bitMask
       val srcBytePrev = buff(srcByteIndex0b - 1) & bitMask
 
-      val byteUpper = srcBytePrev << (8 - firstBitBitIndex0b)
-      val byteLower = srcByte >>> firstBitBitIndex0b
-      val byte = (byteLower | byteUpper).toByte
+      val byte = if (isMSBF) {
+        val byteUpper = srcBytePrev << (8 - firstBitBitIndex0b)
+        val byteLower = srcByte >>> firstBitBitIndex0b
+        (byteLower | byteUpper).toByte
+      } else {
+        /*
+         * The off-by-one here does look awkward.
+         * Note, however, that the constants still differ by 8, which is what we would expect.
+         * One way of understanding the off-by-one compared to the previous case, is that the shift
+         * used with srcByte should be in the range [0,7],
+         * while the shift used with srcBytePrev should be in [1,8]
+         * This reflects the fact that, when we are byte aligned, we expect
+         * to get data from srcByte, and full mask out srcBytePrev
+         */
+        val byteUpper = srcByte << (7 - firstBitBitIndex0b)
+        val byteLower = srcBytePrev >>> (1 + firstBitBitIndex0b)
+        (byteLower | byteUpper).toByte
+      }
 
       buff(dstByteIndex0b) = byte
 
@@ -227,23 +316,39 @@ class midBitsToEndTransformer(
 
     /*
      * Restore the upper bits of the byte containing firstBitIndex
+     * (or lower if MSBF)
      */
     {
       val srcByte = buff(firstBitByteIndex0b) & bitMask
-      val byteLower = ((srcByte << firstBitBitIndex0b) & bitMask) >>> firstBitBitIndex0b
-      val byteUpper = savedBits1
-      val byte = (byteLower | byteUpper).toByte
+
+      val byte = if (isMSBF) {
+        val byteUpper = savedBits1
+        val byteLower = ((srcByte << firstBitBitIndex0b) & bitMask) >>> firstBitBitIndex0b
+        (byteLower | byteUpper).toByte
+      } else {
+        val byteUpper = ((srcByte >>> (7-firstBitBitIndex0b)) << (7-firstBitBitIndex0b)) & bitMask
+        val byteLower = savedBits1
+        (byteLower | byteUpper).toByte
+      }
       buff(firstBitByteIndex0b) = byte
     }
 
     /*
      * Restore the lower bits of the byte containing firstBitIndex
+     * (Or upper if MSBF)
      */
     {
       val srcByte = buff(lastBitByteIndex0b) & bitMask
-      val byteLower = savedBits2
-      val byteUpper = (srcByte >> (8 - lastBitBitIndex0b)) << (8 - lastBitBitIndex0b)
-      val byte = (byteLower | byteUpper).toByte
+
+      val byte = if (isMSBF) {
+        val byteUpper = (srcByte >>> (8 - lastBitBitIndex0b)) << (8 - lastBitBitIndex0b)
+        val byteLower = savedBits2
+        (byteLower | byteUpper).toByte
+      } else {
+        val byteUpper = savedBits2
+        val byteLower = ((srcByte << lastBitBitIndex0b) & bitMask) >>> lastBitBitIndex0b
+        (byteLower | byteUpper).toByte
+      }
       buff(lastBitByteIndex0b) = byte
     }
   }
@@ -339,7 +444,7 @@ object midBitsToEndTransformerFactory
     maybeLayerTransformArgsEv: Maybe[LayerTransformArgsEv],
     trd:                       TermRuntimeData): LayerTransformer = {
 
-    val xformer = new midBitsToEndTransformer(maybeLayerLengthInBytesEv.get, maybeLayerTransformArgsEv.get)
+    val xformer = new midBitsToEndTransformer(maybeLayerLengthInBytesEv.get, maybeLayerTransformArgsEv.get, trd)
     xformer
   }
 }
