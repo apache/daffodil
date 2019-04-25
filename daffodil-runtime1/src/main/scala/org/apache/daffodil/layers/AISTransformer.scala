@@ -46,6 +46,7 @@ import org.apache.daffodil.schema.annotation.props.gen.UTF16Width
 import org.apache.daffodil.processors.charset.BitsCharsetDecoder
 import org.apache.daffodil.processors.charset.BitsCharsetEncoder
 import org.apache.daffodil.processors.LayerTransformArgsEv
+import org.apache.daffodil.processors.ParseOrUnparseState
 
 object AISPayloadArmoringTransformer {
   val iso8859 = StandardCharsets.ISO_8859_1
@@ -168,6 +169,7 @@ object AISPayloadArmoringTransformerFactory
     maybeLayerLengthUnits: Maybe[LayerLengthUnits],
     maybeLayerBoundaryMarkEv: Maybe[LayerBoundaryMarkEv],
     maybeLayerTransformArgsEv: Maybe[LayerTransformArgsEv],
+    state: ParseOrUnparseState,
     trd: TermRuntimeData): LayerTransformer = {
 
     val xformer = new AISPayloadArmoringTransformer()

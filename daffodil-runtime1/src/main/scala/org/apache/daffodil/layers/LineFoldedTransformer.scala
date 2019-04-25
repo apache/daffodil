@@ -35,6 +35,7 @@ import org.apache.daffodil.exceptions.ThrowsSDE
 import org.apache.daffodil.schema.annotation.props.Enum
 import org.apache.daffodil.io.RegexLimitingStream
 import org.apache.daffodil.processors.LayerTransformArgsEv
+import org.apache.daffodil.processors.ParseOrUnparseState
 
 /*
  * This and related classes implement so called "line folding" from
@@ -162,6 +163,7 @@ sealed abstract class LineFoldedTransformerFactory(mode: LineFoldMode, name: Str
     maybeLayerLengthUnits: Maybe[LayerLengthUnits],
     maybeLayerBoundaryMarkEv: Maybe[LayerBoundaryMarkEv],
     maybeLayerTransformArgsEv: Maybe[LayerTransformArgsEv],
+    state: ParseOrUnparseState,
     trd: TermRuntimeData): LayerTransformer = {
 
     trd.schemaDefinitionUnless(maybeLayerLengthKind.isDefined,

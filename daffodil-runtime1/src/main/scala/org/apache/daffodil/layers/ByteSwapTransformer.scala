@@ -34,6 +34,7 @@ import org.apache.daffodil.processors.parsers.PState
 import org.apache.daffodil.io.ExplicitLengthLimitingStream
 import org.apache.daffodil.processors.unparsers.UState
 import org.apache.daffodil.processors.LayerTransformArgsEv
+import org.apache.daffodil.processors.ParseOrUnparseState
 
 /**
  * An input stream wrapper that re-orders bytes according to wordsize.
@@ -200,6 +201,7 @@ sealed abstract class ByteSwapTransformerFactory(wordsize: Int, name: String)
     maybeLayerLengthUnits: Maybe[LayerLengthUnits],
     maybeLayerBoundaryMarkEv: Maybe[LayerBoundaryMarkEv],
     maybeLayerTransformArgsEv: Maybe[LayerTransformArgsEv],
+    state: ParseOrUnparseState,
     trd: TermRuntimeData): LayerTransformer = {
 
     trd.schemaDefinitionUnless(maybeLayerLengthKind.isDefined,

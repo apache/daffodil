@@ -658,7 +658,7 @@ trait LayeringRuntimeValuedPropertiesMixin
   }
   
   final lazy val maybeLayerTransformArgsEv = {
-    if(optionLayerTransformArgsRaw.isDefined){
+    if (optionLayerTransformArgsRaw.isDefined) {
       val qn = this.qNameForProperty("layerTransformArgs")
       val expr = ExpressionCompilers.String.compileProperty(qn, NodeInfo.NonEmptyString, layerTransformArgsRaw, decl)
       val ev = new LayerTransformArgsEv(expr, termRuntimeData)

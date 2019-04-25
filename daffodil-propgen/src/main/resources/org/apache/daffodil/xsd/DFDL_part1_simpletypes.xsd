@@ -797,7 +797,7 @@
        <xsd:enumeration value="midBitsToEnd">
          <xsd:annotation>
            <xsd:documentation><![CDATA[
-             Move the bits with indecis [x, x+y] to
+             Move the bits with indices [x, x+y] to
              the end of the layer block.
 
              x,y are provided as a space delimated list in layerTransformArgs

@@ -33,6 +33,7 @@ import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.processors.unparsers.UState
 import org.apache.daffodil.io.LayerBoundaryMarkInsertingJavaOutputStream
 import org.apache.daffodil.processors.LayerTransformArgsEv
+import org.apache.daffodil.processors.ParseOrUnparseState
 
 class Base64MIMETransformer(layerCharsetEv: LayerCharsetEv, layerBoundaryMarkEv: LayerBoundaryMarkEv)
   extends LayerTransformer() {
@@ -79,6 +80,7 @@ object Base64MIMETransformerFactory
     maybeLayerLengthUnits: Maybe[LayerLengthUnits],
     maybeLayerBoundaryMarkEv: Maybe[LayerBoundaryMarkEv],
     maybeLayerTransformArgsEv: Maybe[LayerTransformArgsEv],
+    state: ParseOrUnparseState,
     trd: TermRuntimeData): LayerTransformer = {
 
     trd.schemaDefinitionUnless(scala.util.Properties.isJavaAtLeast("1.8"),

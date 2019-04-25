@@ -41,6 +41,7 @@ import org.apache.daffodil.processors.unparsers.UState
 import org.apache.daffodil.io.DirectOrBufferedDataOutputStream
 import passera.unsigned.ULong
 import org.apache.daffodil.processors.LayerTransformArgsEv
+import org.apache.daffodil.processors.ParseOrUnparseState
 
 /**
  * Factory for a layer transformer.
@@ -60,6 +61,7 @@ abstract class LayerTransformerFactory(nom: String)
     maybeLayerLengthUnits: Maybe[LayerLengthUnits],
     maybeLayerBoundaryMarkEv: Maybe[LayerBoundaryMarkEv],
     maybeLayerTransformArgsEv: Maybe[LayerTransformArgsEv],
+    state: ParseOrUnparseState,
     trd: TermRuntimeData): LayerTransformer
 }
 
@@ -104,7 +106,7 @@ object LayerTransformerFactory {
   register(ICalendarLineFoldedTransformerFactory)
   register(AISPayloadArmoringTransformerFactory)
   register(FourByteSwapTransformerFactory)
-  register(midBitsToEndTransformerFactory)
+  register(MidBitsToEndTransformerFactory)
 }
 
 /**
