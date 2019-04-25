@@ -302,11 +302,3 @@ abstract class Converter extends RecipeOp {
 trait ToString extends Converter {
   override def computeValue(a: AnyRef, dstate: DState): AnyRef = a.toString
 }
-
-case object StringToNonEmptyString extends RecipeOp {
-  override def run(dstate: DState) {
-    val current = dstate.currentValue.asInstanceOf[String]
-    if (current.length == 0)
-      throw new IllegalArgumentException("String value may not be empty.")
-  }
-}

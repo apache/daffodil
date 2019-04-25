@@ -57,26 +57,28 @@ class DelimiterStackParser(
     val newLocalIndex = start.mpstate.delimiters.length
     start.mpstate.delimitersLocalIndexStack.push(newLocalIndex)
 
-    // evaluate and add delimiters to the stack
-    var i: Int = 0
-    while (i < delimiters.length) {
-      start.mpstate.delimiters ++= delimiters(i).evaluate(start)
-      i += 1
+    try {
+      // evaluate and add delimiters to the stack
+      var i: Int = 0
+      while (i < delimiters.length) {
+        start.mpstate.delimiters ++= delimiters(i).evaluate(start)
+        i += 1
+      }
+
+      // set the index of the newly added delimiters
+      val newDelimLen = start.mpstate.delimiters.length
+      i = newLocalIndex
+      while (i < newDelimLen) {
+        start.mpstate.delimiters(i).indexInDelimiterStack = i
+        i += 1
+      }
+
+      // parse
+        bodyParser.parse1(start)
+    } finally {
+      // pop delimiters
+      start.mpstate.delimiters.reduceToSize(start.mpstate.delimitersLocalIndexStack.pop)
     }
-
-    // set the index of the newly added delimiters
-    val newDelimLen = start.mpstate.delimiters.length
-    i = newLocalIndex
-    while (i < newDelimLen) {
-      start.mpstate.delimiters(i).indexInDelimiterStack = i
-      i += 1
-    }
-
-    // parse
-    bodyParser.parse1(start)
-
-    // pop delimiters
-    start.mpstate.delimiters.reduceToSize(start.mpstate.delimitersLocalIndexStack.pop)
   }
 }
 

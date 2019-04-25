@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<testSuite suiteName="NameDOB"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+  xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:ex="http://example.com"
+  defaultRoundTrip="onePass">
+  
+  <tdml:defineSchema name="test2" elementFormDefault="unqualified">
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+
+      <dfdl:defineEscapeScheme name="eb1">
+        <dfdl:escapeScheme
+          escapeKind="escapeBlock"
+          escapeBlockStart="&quot;"
+          escapeBlockEnd='"'
+          escapeEscapeCharacter='\'
+          generateEscapeBlock="whenNeeded" 
+          extraEscapedCharacters=""
+        />
+      </dfdl:defineEscapeScheme>
+      <dfdl:format ref="tns:GeneralFormat" escapeSchemeRef="tns:eb1" 
+        separator="" initiator=""
+        terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
+        alignment="implicit" alignmentUnits="bits" trailingSkip="0" ignoreCase="no"
+        separatorPosition="infix" occursCountKind="implicit"
+        emptyValueDelimiterPolicy="both" representation="text" textNumberRep="standard"
+        lengthKind="delimited" encoding="ASCII" />
+ 
+    <xs:element name="file2" dfdl:initiator="sep,last,middle,first,DOB%NL;%WSP*;">
+    <xs:complexType>
+      <xs:sequence dfdl:separator="%NL;" dfdl:separatorPosition="postfix">
+        <xs:element name="record" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:sequence dfdl:separator="| // %HT; ,">
+              <xs:element name="sep" type="xs:string"/>
+              <xs:sequence dfdl:separator='{ ./sep }'>
+                <xs:element name="lastName" type="xs:string" />
+                <xs:element name="middleName" type="xs:string" />
+                <xs:element name="firstName" type="xs:string" />
+                <xs:element name="DOB" type="xs:date"
+                   dfdl:calendarPattern="MM/dd/yyyy" 
+                   dfdl:calendarPatternKind="explicit"/>
+              </xs:sequence>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+  </tdml:defineSchema>
+  <tdml:parserTestCase name="nameDOB_test2_pass" root="file2"
+    model="test2" 
+    roundTrip="twoPass">
+    <tdml:document><![CDATA[sep,last,middle,first,DOB
+#,"smith, jr."#robert#brandon#03/24/1988
+$,johnson$john$henry$01/23/1986
+[SEP],jones[SEP]arya[SEP]cat[SEP]02/19/1986
+]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:file2>
+          <record>
+            <sep>#</sep>
+            <lastName>smith, jr.</lastName>
+            <middleName>robert</middleName>
+            <firstName>brandon</firstName>
+            <DOB>1988-03-24</DOB>
+          </record>
+          <record>
+            <sep>$</sep>
+            <lastName>johnson</lastName>
+            <middleName>john</middleName>
+            <firstName>henry</firstName>
+            <DOB>1986-01-23</DOB>
+          </record>
+          <record>
+            <sep>[SEP]</sep>
+            <lastName>jones</lastName>
+            <middleName>arya</middleName>
+            <firstName>cat</firstName>
+            <DOB>1986-02-19</DOB>
+          </record>
+        </ex:file2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+ 
+  <tdml:parserTestCase name="nameDOB_test2_fail" root="file2"
+    model="test2" 
+    roundTrip="onePass">
+    <tdml:document><![CDATA[sep,last,middle,first,DOB
+,|"smith, jr.",robert,brandon,03/24/1988
+|,johnson|john|henry|01/23/1986
+[SEP],jones[SEP]arya[SEP]cat[SEP]02/19/1986
+]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Non-empty string required</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  
+</testSuite>
