@@ -73,8 +73,8 @@ object Conversion {
 
       case (x: AnyDateTime.Kind, String) => List(DateTimeToString)
       case (HexBinary, String) => List(HexBinaryToString)
-      case (String, NonEmptyString) => List(StringToNonEmptyString)
-      case (x, NonEmptyString) => conversionOps(st, String, context) :+ StringToNonEmptyString
+      case (String, NonEmptyString) => Nil
+      case (x, NonEmptyString) => conversionOps(st, String, context)
       case (x, ArrayIndex) => conversionOps(st, Long, context) ++ List(LongToArrayIndex)
 
       case (Integer, Boolean) => IntegerToDecimal +: conversionOps(Decimal, tt, context)

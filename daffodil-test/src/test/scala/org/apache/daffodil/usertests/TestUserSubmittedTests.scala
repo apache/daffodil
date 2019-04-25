@@ -24,6 +24,7 @@ import org.junit.AfterClass
 object TestUserSubmittedTests {
   val testDir = "/org/apache/daffodil/usertests/"
   val runner = Runner(testDir, "UserSubmittedTests.tdml")
+  val runner2 = Runner(testDir, "nameDOB_test.tdml")
 
   @AfterClass def shutDown {
     runner.reset
@@ -38,6 +39,9 @@ class TestUserSubmittedTests {
   @Test def test_prefix_separator_as_variable() {
     runner.runOneTest("test_prefix_separator_as_variable")
   }
+
+  @Test def test_nameDOB_test2_pass() { runner2.runOneTest("nameDOB_test2_pass") }
+  @Test def test_nameDOB_test2_fail() { runner2.runOneTest("nameDOB_test2_fail") }
 
   /*//DFDL-1118
   @Test def test_dfdl_782() = {
