@@ -790,13 +790,34 @@ object DirectOrBufferedDataOutputStream {
             val wholeBytesWritten = directDOS.putBytes(ba, 0, byteCount, finfo)
             Assert.invariant(byteCount == wholeBytesWritten)
             if (nFragBits > 0) {
-              val origfrag = bufDOS.fragmentLastByte
-              val fragNum =
-                if (finfoBitOrder eq BitOrder.MostSignificantBitFirst)
-                  origfrag >> (8 - nFragBits)
-                else
-                  origfrag
-              Assert.invariant(directDOS.putLongUnchecked(fragNum, nFragBits, finfo))
+              if (directDOS.isEndOnByteBoundary) {
+                // We cannot use putLong like below because it's possible that
+                // the fragment byte has a different bitOrder than the finfo
+                // passed in, since that came from a suspension. However, if
+                // the directDOS ended on a byte boundary, that means that its
+                // new fragment byte should be exactly the same as the buffered
+                // DOS fragment byte. So in this case, just copy the frag byte
+                // information from buffered to direct.
+                directDOS.setFragmentLastByte(bufDOS.fragmentLastByte, bufDOS.fragmentLastByteLimit)
+              } else {
+                // If the direct DOS wasn't byte aligned, then we need logic to
+                // write the buffered DOS fragment after the direct DOS
+                // fragment. Fortunately, putLong has all of this logic. Like
+                // above, the call to putLong potentially uses the wrong finfo
+                // since it may have come from a suspension. However, all that
+                // putLong really uses from the finfo is the bitOrder. And
+                // because the directDOS isn't byte aligned we know it must
+                // have the same bitOrder as the buffered DOS. So even though
+                // it could be the wrong format info, it's safe to use in this
+                // case.
+                val origfrag = bufDOS.fragmentLastByte
+                val fragNum =
+                  if (finfoBitOrder eq BitOrder.MostSignificantBitFirst)
+                    origfrag >> (8 - nFragBits)
+                  else
+                    origfrag
+                Assert.invariant(directDOS.putLongUnchecked(fragNum, nFragBits, finfo))
+              }
             }
             //
             // bufDOS contents have now been output into directDOS
