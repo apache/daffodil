@@ -80,4 +80,6 @@ class TestOutputValueCalc {
   @Test def test_ovcHexBinaryLSBF1() { runner3.runOneTest("rHexBinaryLSBF1") }
   @Test def test_ovcHexBinaryLSBF2() { runner3.runOneTest("rHexBinaryLSBF2") }
   @Test def test_ovcStringLSBF1() { runner3.runOneTest("rStringLSBF1") }
+
+  @Test def test_ovcBitOrderChange() { runner3.runOneTest("ovc_bitOrderChange") }
 }

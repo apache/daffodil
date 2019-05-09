@@ -90,6 +90,26 @@
       </xs:complexType>
     </xs:element>
 
+    <xs:element name="ovcBitOrderChange">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="zero" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="8"
+            dfdl:bitOrder="mostSignificantBitFirst" dfdl:byteOrder="bigEndian"
+            dfdl:outputValueCalc="{ ../body/zero }" />
+          <xs:element name="body">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="a" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="4"/>
+                <xs:element name="b" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="4"
+                  dfdl:outputValueCalc="{ ../zero }"/>
+                <xs:element name="zero" type="xs:int" dfdl:inputValueCalc="{ 0 }"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
   </tdml:defineSchema>
 
   <tdml:unparserTestCase name="rHexBinaryLSBF1" root="rHexBinary" model="s" roundTrip="onePass">
@@ -141,6 +161,27 @@
           <value>1</value>
           <next>3</next>
         </ex:rString>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="ovc_bitOrderChange" root="ovcBitOrderChange" model="s" roundTrip="onePass">
+    <tdml:document>
+      <tdml:documentPart type="byte">
+        00 02
+      </tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:ovcBitOrderChange>
+          <zero>0</zero>
+          <body>
+            <a>2</a>
+            <b>0</b>
+            <zero>0</zero>
+          </body>
+        </ex:ovcBitOrderChange>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:unparserTestCase>
