@@ -237,14 +237,13 @@ class DFDLCatalogResolver private ()
     optURI match {
       case None => null
       case Some(uri) => {
-        val resourceAsStream =
-          try {
-            uri.toURL.openStream() // This will work.
-          } catch {
-            case _: java.io.IOException => Assert.invariantFailed("found resource but couldn't open")
-          }
-        val input = new Input(publicId, uri.toString, new BufferedInputStream(resourceAsStream))
-        input
+        try {
+          val resourceAsStream = uri.toURL.openStream()
+          val input = new Input(publicId, uri.toString, new BufferedInputStream(resourceAsStream))
+          input
+        } catch {
+          case _: java.io.IOException => null
+        }
       }
     }
   }
