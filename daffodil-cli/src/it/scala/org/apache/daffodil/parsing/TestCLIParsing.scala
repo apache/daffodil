@@ -989,4 +989,35 @@ class TestCLIparsing {
     }
   }
 
+  @Test def test_CLI_Parsing_XCatalog_Resolution_Failure() {
+    val schemaFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/xcatalog_import_failure.dfdl.xsd")
+    val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
+
+    val xcatalogFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/xcatalog_invalid.xml")
+    val testXcatalogFile = if (Util.isWindows) Util.cmdConvert(xcatalogFile) else xcatalogFile
+
+    val DAFFODIL_JAVA_OPTS = Map("DAFFODIL_JAVA_OPTS" -> ("-Dxml.catalog.files=" + testXcatalogFile + " -Xms256m -Xmx2048m -Djline.terminal=jline.UnsupportedTerminal -Dfile.encoding=UTF-8"))
+
+    val shell = Util.startIncludeErrors("", envp = DAFFODIL_JAVA_OPTS)
+
+    try {
+      val cmd = String.format(Util.echoN("X") + "| %s parse -s %s", Util.binPath, testSchemaFile)
+      shell.sendLine(cmd)
+
+      shell.expectIn(1, contains("Schema Definition Error"))
+      if (Util.isWindows) {
+        shell.expectIn(1, contains("\\this\\path\\does\\not\\exist"))
+        shell.expectIn(1, contains("The system cannot find the path specified"))
+      } else {
+        shell.expectIn(1, contains("/this/path/does/not/exist"))
+        shell.expectIn(1, contains("No such file or directory"))
+      }
+
+      shell.sendLine("exit")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+    }
+  }
+
 }
