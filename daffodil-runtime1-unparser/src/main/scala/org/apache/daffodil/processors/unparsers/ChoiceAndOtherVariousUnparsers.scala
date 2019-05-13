@@ -21,8 +21,10 @@ import org.apache.daffodil.processors._
 import org.apache.daffodil.infoset._
 import org.apache.daffodil.processors.RuntimeData
 import org.apache.daffodil.processors.dfa.DFADelimiter
+import org.apache.daffodil.schema.annotation.props.gen.ChoiceLengthKind
 import org.apache.daffodil.util.Maybe._
 import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.MaybeInt
 import org.apache.daffodil.util.Maybe._
 
 class ComplexTypeUnparser(rd: RuntimeData, bodyUnparser: Unparser)
@@ -43,7 +45,10 @@ class ComplexTypeUnparser(rd: RuntimeData, bodyUnparser: Unparser)
   }
 }
 
-class ChoiceCombinatorUnparser(mgrd: ModelGroupRuntimeData, eventUnparserMap: Map[ChoiceBranchEvent, Unparser])
+class ChoiceCombinatorUnparser(
+  mgrd: ModelGroupRuntimeData,
+  eventUnparserMap: Map[ChoiceBranchEvent, Unparser],
+  choiceLengthInBits: MaybeInt)
   extends CombinatorUnparser(mgrd)
   with ToBriefXMLImpl {
   override def nom = "Choice"
@@ -71,7 +76,18 @@ class ChoiceCombinatorUnparser(mgrd: ModelGroupRuntimeData, eventUnparserMap: Ma
       UnparseError(One(mgrd.schemaFileLocation), One(state.currentLocation), "Encountered event %s. Expected one of %s.",
         key, eventUnparserMap.keys.mkString(", "))
     }
-    childUnparser.unparse1(state)
+
+    if (choiceLengthInBits.isDefined) {
+      val suspendableOp = new ChoiceUnusedUnparserSuspendableOperation(mgrd, choiceLengthInBits.get)
+      val choiceUnusedUnparser = new ChoiceUnusedUnparser(mgrd, choiceLengthInBits.get, suspendableOp)
+
+      suspendableOp.captureDOSStartForChoiceUnused(state)
+      childUnparser.unparse1(state)
+      suspendableOp.captureDOSEndForChoiceUnused(state)
+      choiceUnusedUnparser.unparse(state)
+    } else {
+      childUnparser.unparse1(state)
+    }
   }
 }
 

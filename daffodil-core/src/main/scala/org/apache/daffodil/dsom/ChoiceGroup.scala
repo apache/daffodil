@@ -20,6 +20,7 @@ package org.apache.daffodil.dsom
 import scala.xml.Node
 import scala.xml._
 import org.apache.daffodil.schema.annotation.props.gen.Choice_AnnotationMixin
+import org.apache.daffodil.schema.annotation.props.gen.ChoiceAGMixin
 import org.apache.daffodil.grammar.ChoiceGrammarMixin
 import org.apache.daffodil.processors.RuntimeData
 import org.apache.daffodil.processors.ChoiceRuntimeData
@@ -106,6 +107,7 @@ abstract class ChoiceTermBase(
   with Choice_AnnotationMixin
   with RawDelimitedRuntimeValuedPropertiesMixin // initiator and terminator (not separator)
   with ChoiceGrammarMixin
+  with ChoiceAGMixin
   with HasOptRepTypeMixinImpl {
 
   requiredEvaluations(branchesAreNonOptional)

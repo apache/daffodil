@@ -19,6 +19,10 @@ package org.apache.daffodil.grammar
 
 import org.apache.daffodil.dsom.ChoiceTermBase
 import org.apache.daffodil.grammar.primitives.ChoiceCombinator
+import org.apache.daffodil.processors.parsers.NadaParser
+import org.apache.daffodil.processors.unparsers.Unparser
+import org.apache.daffodil.processors.unparsers.ChoiceUnusedUnparser
+import org.apache.daffodil.util.Maybe
 
 trait ChoiceGrammarMixin extends GrammarMixin { self: ChoiceTermBase =>
 

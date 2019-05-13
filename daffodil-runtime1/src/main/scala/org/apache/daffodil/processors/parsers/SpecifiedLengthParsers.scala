@@ -25,6 +25,7 @@ import passera.unsigned.ULong
 import org.apache.daffodil.equality._
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.processors.ElementRuntimeData
+import org.apache.daffodil.processors.RuntimeData
 import org.apache.daffodil.processors.Evaluatable
 import org.apache.daffodil.processors.Success
 import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
@@ -35,7 +36,7 @@ import org.apache.daffodil.util.OnStack
 
 sealed abstract class SpecifiedLengthParserBase(
   eParser: Parser,
-  erd: ElementRuntimeData)
+  erd: RuntimeData)
   extends CombinatorParser(erd)
   with CaptureParsingValueLength {
 
@@ -129,6 +130,17 @@ class SpecifiedLengthExplicitParser(
     val nBytesAsAny = lengthEv.evaluate(s)
     val nBytes = Numbers.asLong(nBytesAsAny)
     MaybeULong(nBytes * toBits)
+  }
+}
+
+class SpecifiedLengthChoiceParser(
+  eParser: Parser,
+  erd: RuntimeData,
+  choiceLengthInBits: JLong)
+  extends SpecifiedLengthParserBase(eParser, erd) {
+
+  final override def getBitLength(s: PState): MaybeULong = {
+    MaybeULong(choiceLengthInBits)
   }
 }
 

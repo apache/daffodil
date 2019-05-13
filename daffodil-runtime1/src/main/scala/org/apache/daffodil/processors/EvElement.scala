@@ -36,12 +36,13 @@ import org.apache.daffodil.processors.unparsers.UState
 import org.apache.daffodil.schema.annotation.props.gen.LengthKind
 import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
 import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.Maybe.Nope
 import org.apache.daffodil.util.MaybeJULong
 import org.apache.daffodil.util.Numbers
 
 sealed trait LengthEv extends Evaluatable[JLong]
 
-class ExplicitLengthEv(expr: CompiledExpression[JLong], rd: ElementRuntimeData)
+class ExplicitLengthEv(expr: CompiledExpression[JLong], rd: RuntimeData)
   extends EvaluatableExpression[JLong](
     expr,
     rd)
@@ -124,7 +125,7 @@ class ImplicitLengthEv(lengthValue: Long, rd: ElementRuntimeData)
  * In that case, the access to the infoset throws particular exceptions
  * descended from the RetryableException trait.
  */
-sealed abstract class LengthInBitsEvBase(rd: ElementRuntimeData,
+sealed abstract class LengthInBitsEvBase(rd: TermRuntimeData,
   val lengthUnits: LengthUnits,
   val lengthKind: LengthKind)
   extends Evaluatable[MaybeJULong](rd)
@@ -167,7 +168,7 @@ class LengthInBitsEv(lengthUnits: LengthUnits,
   lengthKind: LengthKind,
   override val maybeCharsetEv: Maybe[CharsetEv],
   val lengthEv: LengthEv,
-  rd: ElementRuntimeData)
+  rd: TermRuntimeData)
   extends LengthInBitsEvBase(rd, lengthUnits, lengthKind) {
 
   override lazy val runtimeDependencies = maybeCharsetEv.toList :+ lengthEv
@@ -187,7 +188,7 @@ class LengthInBitsEv(lengthUnits: LengthUnits,
 class MinLengthInBitsEv(lengthUnits: LengthUnits,
   lengthKind: LengthKind,
   override val maybeCharsetEv: Maybe[CharsetEv],
-  minLen: Long, rd: ElementRuntimeData)
+  minLen: Long, rd: TermRuntimeData)
   extends LengthInBitsEvBase(rd, lengthUnits, lengthKind) {
 
   override lazy val runtimeDependencies = maybeCharsetEv.toList
@@ -209,7 +210,7 @@ class MinLengthInBitsEv(lengthUnits: LengthUnits,
 class UnparseTargetLengthInBitsEv(
   val lengthInBitsEv: LengthInBitsEv,
   minLengthInBitsEv: MinLengthInBitsEv,
-  rd: ElementRuntimeData)
+  rd: RuntimeData)
   extends Evaluatable[MaybeJULong](rd)
   with InfosetCachedEvaluatable[MaybeJULong] {
 

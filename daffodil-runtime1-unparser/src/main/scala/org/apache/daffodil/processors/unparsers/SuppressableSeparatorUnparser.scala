@@ -38,7 +38,8 @@ import org.apache.daffodil.io.DirectOrBufferedDataOutputStream
 final class SuppressableSeparatorUnparserSuspendableOperation(
   sepUnparser: Unparser,
   override val rd: TermRuntimeData)
-  extends SuspendableOperation {
+  extends SuspendableOperation
+  with StreamSplitter {
 
   private var zlStatus_ : ZeroLengthStatus = ZeroLengthStatus.Unknown
 
@@ -47,7 +48,7 @@ final class SuppressableSeparatorUnparserSuspendableOperation(
   private var maybeDOSForEndOfSeparatedRegionBeforePostfixSeparator: Maybe[DataOutputStream] = Maybe.Nope
 
   def captureStateAtEndOfPotentiallyZeroLengthRegionFollowingTheSeparator(s: UState): Unit = {
-    val splitter = SuspressionRegionSplitUnparser(rd)
+    val splitter = RegionSplitUnparser(rd)
     splitter.unparse(s) // splits the DOS so all the potentially ZL stuff is isolated.
     maybeDOSAfterSeparatorRegion = Maybe(splitter.dataOutputStream)
   }
@@ -62,13 +63,13 @@ final class SuppressableSeparatorUnparserSuspendableOperation(
    * from unparsing.
    */
   def captureDOSForStartOfSeparatedRegionBeforePostfixSeparator(s: UState): Unit = {
-    val splitter = SuspressionRegionSplitUnparser(rd)
+    val splitter = RegionSplitUnparser(rd)
     splitter.unparse(s) // splits the DOS so all the potentially ZL stuff is isolated.
     maybeDOSForStartOfSeparatedRegionBeforePostfixSeparator = Maybe(splitter.dataOutputStream.maybeNextInChain.get)
   }
 
   def captureDOSForEndOfSeparatedRegionBeforePostfixSeparator(s: UState): Unit = {
-    val splitter = SuspressionRegionSplitUnparser(rd)
+    val splitter = RegionSplitUnparser(rd)
     splitter.unparse(s) // splits the DOS so all the potentially ZL stuff is isolated.
     maybeDOSForEndOfSeparatedRegionBeforePostfixSeparator = Maybe(splitter.dataOutputStream)
   }
@@ -137,28 +138,6 @@ final class SuppressableSeparatorUnparserSuspendableOperation(
   }
 
   /**
-   * Given two DataOutputStream, determine the set of data output streams starting from the first,
-   * and in chain until (and including) we reach the second.
-   *
-   * If the two are the same DataOutputStream, we get back a sequence of just the one DOS.
-   */
-  private def getDOSFromAtoB(beforeDOS: DataOutputStream, afterDOS: DataOutputStream): Seq[DataOutputStream] = {
-    val buf = Buffer[DataOutputStream]()
-    var maybeNext = Maybe(beforeDOS)
-    while (maybeNext.isDefined && (maybeNext.get ne afterDOS)) {
-      val thisOne = maybeNext.get
-      buf += thisOne
-      maybeNext = thisOne.maybeNextInChain
-    }
-    Assert.invariant(maybeNext.isDefined) // we MUST find a path to the afterDOS.
-    Assert.invariant(maybeNext.get eq afterDOS)
-    // we include the final afterDOS data output stream in the list
-    buf += afterDOS
-    val res = buf.toSeq
-    res
-  }
-
-  /**
    * Once we know whether the length is zero/non-zero, then we decide to unparse the
    * separator or not.
    *
@@ -210,76 +189,3 @@ object SuppressableSeparatorUnparser {
 
 }
 
-/**
- * We need to isolate the regions that we have to test for ZL/notZL
- * for separator suppression. So we want these regions to not share
- * data output streams with anything outside them.
- *
- * To achieve that we split the data output stream using its buffering
- * capabilities. Some of the splits are natural. They are one side of
- * the (potentially suppressed) separator itself. So creating that
- * suspendable unparser for the separator gives us a split.
- *
- * The other side of these regions is however, an artificial split.
- *
- * To avoid duplication of complex code paths, we create this
- * suspendable unparser that exists purely to split the underlying DOS
- * but maintain all the invariants of the underlying DOS code, i.e.,
- * the streams still get finalized (and therefore collapsed) the regular
- * way.
- *
- * We are counting on the fact that these objects live on the garbage
- * collected heap, so have unbounded lifetimes, i.e., they aren't recycled
- * in a pool or anything.
- *
- * Performance Note: These do not need to capture state like a normal
- * suspension does (e.g., for dfdl:outputValueCalc), as they're not actually
- * suspending any actual unparsing behavior. Just forcing a boundary in the
- * data output streams so that we can use the data output streams to measure the
- * length (zero/non-zero) of unparsed data.
- */
-final class SuspressionRegionSplitUnparser private (override val context: TermRuntimeData)
-  extends PrimUnparser
-  with SuspendableUnparser {
-
-  override val childProcessors: Vector[Processor] = Vector()
-
-  override def runtimeDependencies = Vector()
-
-  override lazy val suspendableOperation = new SuppressionRegionSplitSuspendableOperation(context)
-
-  lazy val dataOutputStream = suspendableOperation.savedUstate.dataOutputStream
-}
-
-final class SuppressionRegionSplitSuspendableOperation(override val rd: TermRuntimeData)
-  extends SuspendableOperation {
-
-  private var secondTime = false
-
-  /**
-   * Suspends once, since test fails the first time.
-   * When retried, the test succeeds.
-   */
-  override def test(ustate: UState): Boolean = {
-    if (secondTime) true
-    else {
-      secondTime = true
-      false
-    }
-  }
-
-  override def continuation(ustate: UState): Unit = {
-    // do nothing.
-    //
-    // The underlying suspension system will take care of
-    // finishing the DOS so everything gets unblocked.
-  }
-}
-
-object SuspressionRegionSplitUnparser {
-  def apply(trd: TermRuntimeData) = {
-    val unp = new SuspressionRegionSplitUnparser(trd)
-    Processor.initialize(unp)
-    unp
-  }
-}

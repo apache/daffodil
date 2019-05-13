@@ -22,6 +22,8 @@ import org.apache.daffodil.infoset.DIComplex
 import org.apache.daffodil.infoset.DIElement
 import org.apache.daffodil.infoset.DISimple
 import org.apache.daffodil.processors.ElementRuntimeData
+import org.apache.daffodil.processors.ModelGroupRuntimeData
+import org.apache.daffodil.processors.RuntimeData
 import org.apache.daffodil.processors.SuspendableOperation
 import org.apache.daffodil.processors.UnparseTargetLengthInBitsEv
 import org.apache.daffodil.processors.charset.BitsCharset
@@ -37,6 +39,8 @@ import org.apache.daffodil.processors.LengthEv
 import org.apache.daffodil.processors.Evaluatable
 import org.apache.daffodil.util.MaybeJULong
 import org.apache.daffodil.io.DirectOrBufferedDataOutputStream
+import org.apache.daffodil.io.ZeroLengthStatus
+import org.apache.daffodil.io.DataOutputStream
 import passera.unsigned.ULong
 
 import java.nio.charset.MalformedInputException
@@ -405,26 +409,9 @@ sealed trait NeedValueAndTargetLengthMixin {
   }
 }
 
-class ElementUnusedUnparserSuspendableOperation(
-  override val rd: ElementRuntimeData,
-  override val targetLengthEv: UnparseTargetLengthInBitsEv,
-  override val maybeLengthEv: Maybe[LengthEv],
-  override val maybeCharsetEv: Maybe[CharsetEv],
-  override val maybeLiteralNilEv: Maybe[NilStringLiteralForUnparserEv])
-  extends SuspendableOperation
-  with NeedValueAndTargetLengthMixin {
+trait SkipTheBits { self: SuspendableOperation =>
 
-  /**
-   * determine delta between value length and target length
-   *
-   * and skip that many bits.
-   */
-  override def continuation(ustate: UState) {
-    val skipInBits = getSkipBits(ustate)
-    if (skipInBits < 0)
-      UE(ustate, "Data too long by %s bits. Unable to truncate.", -skipInBits)
-    skipTheBits(ustate, skipInBits)
-  }
+  protected val rd: RuntimeData
 
   protected final def skipTheBits(ustate: UState, skipInBits: Long) {
     if (skipInBits > 0) {
@@ -439,6 +426,29 @@ class ElementUnusedUnparserSuspendableOperation(
       log(LogLevel.Debug, "%s filled %s bits for %s DOS %s.",
         Misc.getNameFromClass(this), skipInBits, rd.diagnosticDebugName, ustate.dataOutputStream)
     }
+  }
+}
+
+class ElementUnusedUnparserSuspendableOperation(
+  override val rd: ElementRuntimeData,
+  override val targetLengthEv: UnparseTargetLengthInBitsEv,
+  override val maybeLengthEv: Maybe[LengthEv],
+  override val maybeCharsetEv: Maybe[CharsetEv],
+  override val maybeLiteralNilEv: Maybe[NilStringLiteralForUnparserEv])
+  extends SuspendableOperation
+  with SkipTheBits
+  with NeedValueAndTargetLengthMixin {
+
+  /**
+   * determine delta between value length and target length
+   *
+   * and skip that many bits.
+   */
+  override def continuation(ustate: UState) {
+    val skipInBits = getSkipBits(ustate)
+    if (skipInBits < 0)
+      UE(ustate, "Data too long by %s bits. Unable to truncate.", -skipInBits)
+    skipTheBits(ustate, skipInBits)
   }
 
 }
@@ -458,6 +468,97 @@ class ElementUnusedUnparser(
     new ElementUnusedUnparserSuspendableOperation(
       context, targetLengthEv, maybeLengthEv, maybeCharsetEv, maybeLiteralNilEv)
 
+}
+
+class ChoiceUnusedUnparserSuspendableOperation(
+  override val rd: ModelGroupRuntimeData,
+  targetLengthInBits: Long)
+  extends SuspendableOperation
+  with StreamSplitter
+  with SkipTheBits {
+
+  private var zlStatus_ : ZeroLengthStatus = ZeroLengthStatus.Unknown
+
+  private var maybeDOSStart : Maybe[DataOutputStream] = Maybe.Nope
+  private var maybeDOSEnd : Maybe[DataOutputStream] = Maybe.Nope
+
+
+  def captureDOSStartForChoiceUnused(state: UState): Unit = {
+    val splitter = new RegionSplitUnparser(rd)
+    splitter.unparse(state)
+    maybeDOSStart = Maybe(splitter.dataOutputStream)
+  }
+
+  def captureDOSEndForChoiceUnused(state: UState): Unit = {
+    val splitter = new RegionSplitUnparser(rd)
+    splitter.unparse(state)
+    maybeDOSEnd = Maybe(splitter.dataOutputStream)
+  }
+
+  private lazy val dosToCheck_ = {
+    Assert.usage(maybeDOSStart.isDefined)
+    val dosForStart = maybeDOSStart.get
+    val dosForEnd = maybeDOSEnd.get
+    val primaryDOSList = getDOSFromAtoB(
+      dosForStart,
+      dosForEnd)
+
+    primaryDOSList
+  }
+
+  override def test(ustate: UState): Boolean = {
+    if (zlStatus_ ne ZeroLengthStatus.Unknown)
+      true
+    else if (maybeDOSStart.isEmpty)
+      false
+    else {
+      Assert.invariant(maybeDOSStart.isDefined)
+      if (dosToCheck_.exists { dos =>
+        val dosZLStatus = dos.zeroLengthStatus
+        dosZLStatus eq ZeroLengthStatus.NonZero
+      }) {
+        zlStatus_ = ZeroLengthStatus.NonZero
+        true
+      } else if (dosToCheck_.forall { dos =>
+          val dosZLStatus = dos.zeroLengthStatus
+          dosZLStatus eq ZeroLengthStatus.Zero
+      }) {
+        zlStatus_ = ZeroLengthStatus.Zero
+        true
+      } else {
+        Assert.invariant(zlStatus_ eq ZeroLengthStatus.Unknown)
+        false
+      }
+    }
+  }
+
+
+  /**
+   * determine delta between value length and target length
+   *
+   * and skip that many bits.
+   */
+  override def continuation(ustate: UState) {
+    val startPos0b = dosToCheck_(0).relBitPos0b
+    val endPos0b = dosToCheck_.last.relBitPos0b + startPos0b
+    val vl = (endPos0b - startPos0b).toLong
+    val skipInBits = targetLengthInBits - vl
+    if (skipInBits < 0)
+      UE(ustate, "Data too long for dfdl:choiceLength (%s bits) by %s bits. Unable to truncate.", targetLengthInBits, -skipInBits)
+    skipTheBits(ustate, skipInBits)
+  }
+}
+
+class ChoiceUnusedUnparser(
+  override val context: ModelGroupRuntimeData,
+  targetLengthInBits: Long,
+  suspendableOp: SuspendableOperation)
+  extends PrimUnparser
+  with SuspendableUnparser {
+
+  override lazy val runtimeDependencies = Vector()
+
+  override def suspendableOperation = suspendableOp
 }
 
 trait PaddingUnparserMixin
