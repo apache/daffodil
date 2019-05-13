@@ -19,6 +19,7 @@ package org.apache.daffodil.processors.parsers
 
 import java.io.StringWriter
 import java.io.PrintWriter
+import java.lang.{ Long => JLong }
 
 import org.apache.daffodil.api.Diagnostic
 import org.apache.daffodil.dsom.RuntimeSchemaDefinitionError
@@ -29,6 +30,7 @@ import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.processors.Processor
 import org.apache.daffodil.processors.RuntimeData
 import org.apache.daffodil.processors.Success
+import org.apache.daffodil.processors.Evaluatable
 import org.apache.daffodil.util.LogLevel
 import org.apache.daffodil.util.Maybe.One
 import org.apache.daffodil.util.MaybeULong

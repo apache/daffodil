@@ -25,9 +25,11 @@ object TestChoice {
   val testDir = "/org/apache/daffodil/section15/choice_groups/"
 
   val runnerCH = Runner(testDir, "choice.tdml")
+  val runnerCE = Runner(testDir, "ChoiceLengthExplicit.tdml")
 
   @AfterClass def shutDown {
     runnerCH.reset
+    runnerCE.reset
   }
 
 }
@@ -121,4 +123,21 @@ class TestChoice {
   @Test def test_direct_dispatch_16() { runnerCH.runOneTest("direct_dispatch_16") }
 
   //@Test def test_choice_noBranch() { runnerCH.runOneTest("choice_noBranch") } - Test consumes no data, which causes a TDMLError
+
+
+  @Test def test_explicit_01() { runnerCE.runOneTest("explicit_01") }
+  @Test def test_explicit_02() { runnerCE.runOneTest("explicit_02") }
+  @Test def test_explicit_03() { runnerCE.runOneTest("explicit_03") }
+  @Test def test_explicit_04() { runnerCE.runOneTest("explicit_04") }
+  @Test def test_explicit_05() { runnerCE.runOneTest("explicit_05") }
+  @Test def test_explicit_06() { runnerCE.runOneTest("explicit_06") }
+  @Test def test_explicit_07() { runnerCE.runOneTest("explicit_07") }
+  @Test def test_explicit_08() { runnerCE.runOneTest("explicit_08") }
+  @Test def test_explicit_09() { runnerCE.runOneTest("explicit_09") }
+
+  @Test def test_explicit_multiple_choices() { runnerCE.runOneTest("explicit_multiple_choices") }
+
+  @Test def test_explicit_unparse_01() { runnerCE.runOneTest("explicit_unparse_01") }
+  @Test def test_explicit_unparse_02() { runnerCE.runOneTest("explicit_unparse_02") }
+
 }

@@ -39,6 +39,8 @@ trait RawDelimitedRuntimeValuedPropertiesMixin
   protected final lazy val initiatorRaw = requireProperty(optionInitiatorRaw)
   protected final lazy val optionTerminatorRaw = findPropertyOption("terminator")
   protected final lazy val terminatorRaw = requireProperty(optionTerminatorRaw)
+  protected final lazy val optionChoiceLengthRaw = findPropertyOption("choiceLength")
+  protected final lazy val choiceLengthRaw = requireProperty(optionChoiceLengthRaw)
 }
 
 trait RawElementRuntimeValuedPropertiesMixin

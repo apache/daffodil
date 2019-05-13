@@ -46,6 +46,7 @@ import org.apache.daffodil.schema.annotation.props.gen.DFDLBaseTypeMixin
 import org.apache.daffodil.schema.annotation.props.gen.DFDLSimpleTypeMixin
 import org.apache.daffodil.schema.annotation.props.gen.LengthAGMixin
 import org.apache.daffodil.schema.annotation.props.gen.LengthKind
+import org.apache.daffodil.schema.annotation.props.gen.ChoiceAGMixin
 import org.apache.daffodil.schema.annotation.props.gen.OccursAGMixin
 import org.apache.daffodil.schema.annotation.props.gen.Representation
 import org.apache.daffodil.schema.annotation.props.gen.Sequence_AnnotationMixin
@@ -84,6 +85,7 @@ import org.apache.daffodil.schema.annotation.props.Found
 trait TermRuntimeValuedPropertiesMixin
   extends DFDLBaseTypeMixin
   with PropertyReferencedElementInfosMixin
+  with ChoiceAGMixin
   with RawCommonRuntimeValuedPropertiesMixin { decl: Term =>
 
   private lazy val encodingExpr = LV('encoding) {

@@ -26,6 +26,7 @@ import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.cookers.ChoiceBranchKeyCooker
 import org.apache.daffodil.api.WarnID
 import org.apache.daffodil.equality._
+import org.apache.daffodil.schema.annotation.props.gen.ChoiceLengthKind
 import org.apache.daffodil.schema.annotation.props.gen.ChoiceKeyKindType
 import org.apache.daffodil.dsom.ChoiceTermBase
 import scala.util.Try
@@ -35,6 +36,7 @@ import scala.math.BigInt
 import org.apache.daffodil.cookers.RepValueCooker
 import org.apache.daffodil.processors.RangeBound
 import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.MaybeInt
 
 /*
  * The purpose of the ChoiceCombinator (and the parsers it creates) is to
@@ -67,9 +69,19 @@ case class ChoiceCombinator(ch: ChoiceTermBase, alternatives: Seq[Gram])
 
   lazy val optChoiceDispatchKeyKind = Some(ch.choiceDispatchKeyKind)
 
+  // dfdl:choiceLength is always specified in bytes
+  private lazy val choiceLengthInBits: MaybeInt = ch.choiceLengthKind match {
+    case ChoiceLengthKind.Explicit => MaybeInt(ch.choiceLength * 8)
+    case ChoiceLengthKind.Implicit => MaybeInt.Nope
+  }
+
   lazy val parser: Parser = {
     if (!ch.isDirectDispatch) {
-      new ChoiceParser(ch.termRuntimeData, parsers.toVector)
+      val cp = new ChoiceParser(ch.termRuntimeData, parsers.toVector)
+      ch.choiceLengthKind match {
+        case ChoiceLengthKind.Implicit => cp
+        case ChoiceLengthKind.Explicit => new SpecifiedLengthChoiceParser(cp, ch.choiceRuntimeData, choiceLengthInBits.get)
+      }
     } else {
       val dispatchBranchKeyValueTuples: Seq[(String, Gram)] = alternatives.flatMap { alt =>
         val keyTerm = alt.context.asInstanceOf[Term]
@@ -176,7 +188,6 @@ case class ChoiceCombinator(ch: ChoiceTermBase, alternatives: Seq[Gram])
           new ChoiceDispatchCombinatorParser(ch.termRuntimeData, ch.choiceDispatchKeyEv, serializableMap, serializableKeyRangeMap)
         case ChoiceKeyKindType.Speculative => Assert.invariantFailed("ChoiceKeyKindType==speculative while isDirectDispatch==true")
       }
-
     }
   }
 
@@ -199,8 +210,9 @@ case class ChoiceCombinator(ch: ChoiceTermBase, alternatives: Seq[Gram])
       val mapValues = eventUnparserMap.map { case (k, v) => v }.toSeq.filterNot(_.isEmpty)
       if (mapValues.isEmpty)
         new NadaUnparser(null)
-      else
-        new ChoiceCombinatorUnparser(ch.modelGroupRuntimeData, eventUnparserMap)
+      else {
+        new ChoiceCombinatorUnparser(ch.modelGroupRuntimeData, eventUnparserMap, choiceLengthInBits)
+      }
     } else {
       // Choices inside a hidden group ref are slightly different because we
       // will never see events for any of the branches. Instead, we will just
