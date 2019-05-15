@@ -39,7 +39,8 @@ class PropertyGenerator(arg: Node) {
   val excludedTypes = List("Property", "EmptyElementParsePolicy", "TextNumberBase", "AlignmentType", "FillByteType", "BinaryBooleanTrueRepType", "BinaryBooleanFalseRepType",
     "SeparatorSuppressionPolicy", "dafint:daffodilAG", "TextStandardExponentRep", "TextOutputMinLength", // Do these by hand.
     "PropertyNameType", "PropertyType", // Not used and causes conflict with daf namespace
-    "externalVariableBindings", "externalVarType", "bind", "bindNameType", "bindType", "tunables") // Ignore daffodil configuration types
+    "externalVariableBindings", "externalVarType", "bind", "bindNameType", "bindType", "tunables", // Ignore daffodil configuration types
+    "TunableEmptyElementParsePolicy", "TunableParseUnparsePolicyTunable", "TunableSuppressSchemaDefinitionWarnings", "TunableUnqualifiedPathStepPolicy") // Ignore tunable types
 
   val excludedAttributes = List("EmptyElementParsePolicy", "TextNumberBase",
     "SeparatorSuppressionPolicy", "TextStandardExponentRep", "TextOutputMinLength") // Do these by hand.
@@ -641,6 +642,12 @@ object PropertyGenerator {
   def generatedCodeFilename = "GeneratedCode.scala"
   def generatedCodePackage = "org.apache.daffodil.schema.annotation.props.gen"
 
+  def tunableCodeFilename = "DaffodilTunablesGen.scala"
+  def tunableCodePackage = "org.apache.daffodil.api"
+
+  def warnIdCodeFilename = "WarnIdGen.scala"
+  def warnIdCodePackage = "org.apache.daffodil.api"
+
   def preamble = "package " + generatedCodePackage + """
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -677,6 +684,13 @@ import org.apache.daffodil.exceptions.ThrowsSDE
     allThunks
   }
 
+  def getGeneratedFilePath(rootDir: String, pkg: String, filename: String): String = {
+    val outDir = new java.io.File(rootDir + "/" + pkg.split('.').reduceLeft(_ + "/" + _))
+    outDir.mkdirs()
+    val outPath = outDir + "/" + filename
+    outPath
+  }
+
   /**
    * Main - run as a scala application to actually create a new GeneratedCode.scala file in the gen directory.
    */
@@ -687,14 +701,20 @@ import org.apache.daffodil.exceptions.ThrowsSDE
 
     val thunks = generateThunks()
 
-    val outDir = new java.io.File(args(0) + "/" + generatedCodePackage.split('.').reduceLeft(_ + "/" + _))
-    outDir.mkdirs()
-    val outPath = outDir + "/" + generatedCodeFilename
-    val outwriter = new java.io.FileWriter(outPath)
+    val generatedCodePath = getGeneratedFilePath(args(0), generatedCodePackage, generatedCodeFilename)
+    writeGeneratedCode(thunks, new java.io.FileWriter(generatedCodePath))
+    System.out.println(generatedCodePath)
 
-    writeGeneratedCode(thunks, outwriter)
+    val tunablePath = getGeneratedFilePath(args(0), tunableCodePackage, tunableCodeFilename)
+    val tunableGenerator = new TunableGenerator(daffodilExtensionsXML)
+    tunableGenerator.writeGeneratedCode(new java.io.FileWriter(tunablePath))
+    System.out.println(tunablePath)
 
-    System.out.println(outPath)
+    val warnIdPath = getGeneratedFilePath(args(0), warnIdCodePackage, warnIdCodeFilename)
+    val warnIdGenerator = new WarnIDGenerator(daffodilExtensionsXML)
+    warnIdGenerator.writeGeneratedCode(new java.io.FileWriter(warnIdPath))
+    System.out.println(warnIdPath)
+
   }
 
   //

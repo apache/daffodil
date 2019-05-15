@@ -15,155 +15,427 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<xsd:schema targetNamespace="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
-  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+
+<xs:schema
+  targetNamespace="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
   xmlns:dafint="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:int"
-  attributeFormDefault="unqualified" elementFormDefault="qualified"
+  attributeFormDefault="unqualified"
+  elementFormDefault="qualified"
   xsi:schemaLocation="http://www.w3.org/2001/XMLSchema XMLSchema.xsd
   urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:int xsd/dafint.xsd">
 
-  <xsd:import namespace="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:int"/>
+  <xs:import namespace="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:int"/>
 
-  <xsd:attribute name="parseUnparsePolicy" type="daf:ParseUnparsePolicyEnum"/>
+  <xs:attribute name="parseUnparsePolicy" type="daf:ParseUnparsePolicyEnum"/>
 
+  <xs:simpleType name="ParseUnparsePolicyEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="both" />
+      <xs:enumeration value="parseOnly" />
+      <xs:enumeration value="unparseOnly" />
+    </xs:restriction>
+  </xs:simpleType>
   
-  <xsd:simpleType name="ParseUnparsePolicyEnum">
-    <xsd:restriction base="xsd:string">
-      <xsd:enumeration value="parseOnly" />
-      <xsd:enumeration value="unparseOnly" />
-      <xsd:enumeration value="both" />
-    </xsd:restriction>
-  </xsd:simpleType>
+  <xs:attribute name="emptyElementParsePolicy" type="daf:EmptyElementParsePolicyEnum"/>
   
-  <xsd:attribute name="emptyElementParsePolicy" type="daf:EmptyElementParsePolicyEnum"/>
-  
-  <xsd:simpleType name="EmptyElementParsePolicyEnum">
-    <xsd:restriction base="xsd:string">
-      <xsd:enumeration value="treatAsMissing" />
-      <xsd:enumeration value="treatAsEmpty" />
-    </xsd:restriction>
-  </xsd:simpleType>
+  <xs:simpleType name="EmptyElementParsePolicyEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="treatAsEmpty" />
+      <xs:enumeration value="treatAsMissing" />
+    </xs:restriction>
+  </xs:simpleType>
 
-  <xsd:element name="property" type="daf:PropertyType" />
+  <xs:element name="property" type="daf:PropertyType" />
 
-  <xsd:complexType name="PropertyType">
-    <xsd:simpleContent>
-      <xsd:extension base="xsd:string">
-        <xsd:attribute name="name" type="daf:PropertyNameType" use='required'/>
-        <xsd:attributeGroup ref="dafint:daffodilAG"/>
-      </xsd:extension>
-    </xsd:simpleContent>
-  </xsd:complexType>
+  <xs:complexType name="PropertyType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="name" type="daf:PropertyNameType" use='required'/>
+        <xs:attributeGroup ref="dafint:daffodilAG"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
 
-  <xsd:simpleType name="PropertyNameType">
-    <xsd:restriction base="xsd:string">
-      <xsd:enumeration value="parseUnparsePolicy"/>
-      <xsd:enumeration value="emptyElementParsePolicy"/>
-    </xsd:restriction>
-  </xsd:simpleType>
-
+  <xs:simpleType name="PropertyNameType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="emptyElementParsePolicy"/>
+      <xs:enumeration value="parseUnparsePolicy"/>
+    </xs:restriction>
+  </xs:simpleType>
 
   <!-- properties related to daffodil configuration -->
 
-  <xsd:element name="externalVariableBindings" type="daf:externalVarType" />
-  <xsd:complexType name="externalVarType">
-    <xsd:sequence>
-      <xsd:element ref="daf:bind" minOccurs="0" maxOccurs="unbounded" />
-    </xsd:sequence>
-  </xsd:complexType>
+  <xs:element name="externalVariableBindings" type="daf:externalVarType" />
 
-  <xsd:element name="bind" type="daf:bindType" />
+  <xs:complexType name="externalVarType">
+    <xs:sequence>
+      <xs:element ref="daf:bind" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
 
-  <xsd:simpleType name="bindNameType">
-    <xsd:restriction base="xsd:string" />
-  </xsd:simpleType>
-  <xsd:complexType name="bindType">
-    <xsd:simpleContent>
-      <xsd:extension base="daf:bindNameType">
-        <xsd:attribute name="name" use="required">
-          <xsd:simpleType>
-            <xsd:restriction base="xsd:string" />
-          </xsd:simpleType>
-        </xsd:attribute>
-      </xsd:extension>
-    </xsd:simpleContent>
-  </xsd:complexType>
+  <xs:element name="bind" type="daf:bindType" />
 
-  <xsd:element name="tunables">
-      <xsd:complexType>
-      <xsd:all><!-- any order but only 0 or 1 time each -->
-        <xsd:element name="requireBitOrderProperty" minOccurs="0" type="xsd:boolean" />
-        <xsd:element name="requireEncodingErrorPolicyProperty" minOccurs="0" type="xsd:boolean" />
-        <xsd:element name="requireTextBidiProperty" minOccurs="0" type="xsd:boolean" />
-        <xsd:element name="requireFloatingProperty" minOccurs="0" type="xsd:boolean" />
-        <xsd:element name="maxFieldContentLengthInBytes" minOccurs="0" type="xsd:int" />
-        <xsd:element name="maxOccursBounds" minOccurs="0" type="xsd:int" />
-        <xsd:element name="maxSkipLengthInBytes" minOccurs="0" type="xsd:int" />
-        <xsd:element name="maxBinaryDecimalVirtualPoint" minOccurs="0" type="xsd:int" />
-        <xsd:element name="minBinaryDecimalVirtualPoint" minOccurs="0" type="xsd:int" />
-        <xsd:element name="generatedNamespacePrefixStem" minOccurs="0" type="xsd:string" />
-        <xsd:element name="readerByteBufferSize" minOccurs="0" type="xsd:int" />
-        <xsd:element name="maxLengthForVariableLengthDelimiterDisplay" minOccurs="0" type="xsd:int" />
-        <xsd:element name="inputFileMemoryMapLowThreshold" minOccurs="0" type="xsd:int" />
-        <xsd:element name="maximumSimpleElementSizeInCharacters" minOccurs="0" type="xsd:int" />
-        <xsd:element name="initialRegexMatchLimitInCharacters" minOccurs="0" type="xsd:int" />
-        <xsd:element name="maximumRegexMatchLengthInCharacters" minOccurs="0" type="xsd:int" />
-        <xsd:element name="parseUnparsePolicy" minOccurs="0" type="daf:ParseUnparsePolicyEnum"/>
-        <xsd:element name="unqualifiedPathStepPolicy" minOccurs="0">
-          <xsd:simpleType>
-            <xsd:restriction base="xsd:string">
-              <xsd:enumeration value="noNamespace" />
-              <xsd:enumeration value="defaultNamespace" />
-              <xsd:enumeration value="preferDefaultNamespace" />
-            </xsd:restriction>
-          </xsd:simpleType>
-        </xsd:element>
-        <xsd:element name="suppressSchemaDefinitionWarnings" minOccurs="0">
-           <xsd:simpleType>
-           <xsd:list>
-             <xsd:simpleType>
-               <xsd:restriction base="xsd:token">
-                 <xsd:enumeration value="all"/>
-                 <!-- 
-                    Please keep these in alphabetical order
-                     -->
-                 <xsd:enumeration value="alignmentNotSame"/>
-                 <xsd:enumeration value="appinfoDFDLSourceWrong"/>
-                 <xsd:enumeration value="appinfoNoSource"/>
-                 <xsd:enumeration value="choiceInsideHiddenGroup" />
-                 <xsd:enumeration value="deprecatedBuiltInFormats"/>
-                 <xsd:enumeration value="deprecatedEncodingNameUSASCII7BitPacked"/>
-                 <xsd:enumeration value="deprecatedFunctionDAFError"/>
-                 <xsd:enumeration value="deprecatedPropertySeparatorPolicy" />
-                 <xsd:enumeration value="deprecatedExpressionResultCoercion" />
-                 <xsd:enumeration value="emptyElementParsePolicyError" />
-                 <xsd:enumeration value="encodingErrorPolicyError"/>
-                 <xsd:enumeration value="escapeSchemeRefUndefined"/>
-                 <xsd:enumeration value="facetExplicitLengthOutOfRange"/>
-                 <xsd:enumeration value="inconsistentLengthKind"/>
-                 <xsd:enumeration value="multipleChoiceBranches"/>
-                 <xsd:enumeration value="namespaceDifferencesOnly"/>
-                 <xsd:enumeration value="noEmptyDefault"/>
-                 <xsd:enumeration value="pathNotToArray" />
-                 <xsd:enumeration value="patternEncodingSlashW"/>
-                 <xsd:enumeration value="queryStylePathExpression"/>
-                 <xsd:enumeration value="regexPatternZeroLength" />
-                 <xsd:enumeration value="unsupportedAttributeBlockDefault" />
-                 <xsd:enumeration value="unsupportedAttributeFinalDefault" />
-                 <xsd:enumeration value="unsupportedAttributeFormDefault" />
-                 <xsd:enumeration value="unsupportedAttributeSchemaLocation" />
-               </xsd:restriction>
-             </xsd:simpleType>
-           </xsd:list>
-           </xsd:simpleType>
-        </xsd:element>
-        <xsd:element name="allowExpressionResultCoercion" minOccurs="0" type="xsd:boolean" />
-        <xsd:element name="defaultEmptyElementParsePolicy" minOccurs="0" type="daf:EmptyElementParsePolicyEnum"/>
-        <xsd:element name="requireEmptyElementParsePolicyProperty" minOccurs="0" type="xsd:boolean" />
-      </xsd:all>
-    </xsd:complexType>
-  </xsd:element>
+  <xs:simpleType name="bindNameType">
+    <xs:restriction base="xs:string" />
+  </xs:simpleType>
 
-</xsd:schema>
+  <xs:complexType name="bindType">
+    <xs:simpleContent>
+      <xs:extension base="daf:bindNameType">
+        <xs:attribute name="name" use="required">
+          <xs:simpleType>
+            <xs:restriction base="xs:string" />
+          </xs:simpleType>
+        </xs:attribute>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:element name="tunables">
+    <xs:complexType>
+      <xs:all>
+        <xs:element name="allowExpressionResultCoercion" type="xs:boolean" default="true" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              Defines how Daffodil coerces expressions where the result type differs
+              from the expected type. As an example, assume the expected type of an
+              expression is an xs:string, but the expression is { 3 }. In this case, the
+              expression result is an xs:int, which should not be automatically coerced
+              to an xs:string. Instead, the expression should be { xs:string(3) } or { "3" }
+              If the value of this tunable is false, these types of expressions will
+              result in a schema definition error. If the value is true, Daffodil will
+              provide a warning and attempt to coerce the result type to the expected
+              type.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="allowExternalPathExpressions" type="xs:boolean" default="false" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              By default, path expressions in Daffodil will only work correctly if path
+              steps are used in an expression defined in the schema when compiled. To
+              enable the use of other expressions (e.g. during debugging, where not all
+              expressions are known at schema compile time), set this tunable to true.
+              This may cause a degredation of performance in path expression evaluation,
+              so this should be avoided when in production. This flag is automatically
+              enabled when debugging is enabled.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="defaultInitialRegexMatchLimitInChars" type="xs:int" default="32" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              Deprecated. This tunable no longer has any affect and is only kept for
+              backwards compatability.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="defaultEmptyElementParsePolicy" type="daf:TunableEmptyElementParsePolicy" default="treatAsEmpty" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              Defines the default empty element parse policy to use if it is not defined
+              in a schema. This is only used if requireEmptyElementParsePolicyProperty is
+              false.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="errorOnUnsupportedJavaVersion" type="xs:boolean" default="true" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              Deprecated. This tunable no longer has any affect and is only kept for
+              backwards compatability.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="generatedNamespacePrefixStem" type="xs:string" default="tns" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              Stem to use when generating a namespace prefix when one is not defined for
+              the target naespace.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="initialElementOccurrencesHint" type="xs:int" default="10" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              Initial array buffer size allocated for recurring elements/arrays.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="initialRegexMatchLimitInCharacters" type="xs:int" default="64" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              Initial number of characters to match when performing regular expression
+              matches on input data. When a regex fails to match, more data may be
+              consumed up to the maximumRegexMatchLengthInCharacters tunable.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="inputFileMemoryMapLowThreshold" type="xs:int" default="33554432" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              Deprecated. This tunable no longer has any affect and is only kept for
+              backwards compatability.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="maxBinaryDecimalVirtualPoint" type="xs:int" default="200" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              The largest allowed value of the dfdl:binaryDecimalVirtualPoint property.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="maxDataDumpSizeInBytes" type="xs:int" default="256" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              The maximum size of data to retrive when When getting data to display
+              for debugging.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="maxFieldContentLengthInBytes" type="xs:int" default="1048576" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              Deprecated. This tunable no longer has any affect and is only kept for
+              backwards compatability.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="maxLengthForVariableLengthDelimiterDisplay" type="xs:int" default="10" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              When unexpected text is found where a delimiter is expected, this is the maximum
+              number of bytes (characters) to display when the expected delimiter is a variable
+              length delimiter.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="maxOccursBounds" type="xs:int" default="2147483647" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              Maximum number of occurances of an array element.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="maxSkipLengthInBytes" type="xs:int" default="1024" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              Maximum number of bytes allowed to skip in a skip region.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="maxValidYear" type="xs:int" default="9999" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              Due to differences in the DFDL spec and ICU4J SimpleDateFormat, we must
+              have SimpleDateFormat parse in lenient mode, which allows the year value
+              to overflow with very large years into possibly negative years. This
+              tunable tunable sets an upper limit for values to prevent overflow.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="maximumRegexMatchLengthInCharacters" type="xs:int" default="1048576" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              Maximum number of characters to match when performing regular expression
+              matches on input data.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="maximumSimpleElementSizeInCharacters" type="xs:int" default="1048576" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              Maximum number of characters to parse when parsing string data.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="minBinaryDecimalVirtualPoint" type="xs:int" default="-200" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              The smallest allowed value of the dfdl:binaryDecimalVirtualPoint property.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="minValidYear" type="xs:int" default="0" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              Due to differences in the DFDL spec and ICU4J SimpleDateFormat, we must
+              have SimpleDateFormat parse in lenient mode, which allows the year value
+              to overflow with very large years into possibly negative years. This
+              tunable tunable sets an upper limit for values to prevent underflow.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="parseUnparsePolicy" type="daf:TunableParseUnparsePolicyTunable" default="fromRoot" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              Whether to compile a schema to support only parsing, only unparsing, both, or to
+              use the daf:parseUnparsePolicy from the root node. All child elements of the root
+              must have a compatable daf:parseUnaprsePolicy property.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="readerByteBufferSize" type="xs:int" default="8192" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              Deprecated. This tunable no longer has any affect and is only kept for
+              backwards compatability.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="requireBitOrderProperty" type="xs:boolean" default="false" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              If true, require that the dfdl:bitOrder property is specified. If false, use a
+              default value if the property is not defined in the schema.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="requireChoiceDispatchKeyKindProperty" type="xs:boolean" default="false" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              If true, require that the dfdl:choiceDispatchKeyKind property is specified. If false, use a
+              default value if the property is not defined in the schema.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="requireChoiceBranchKeyKindProperty" type="xs:boolean" default="false" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              If true, require that the dfdl:choiceBranchKeyKind property is specified. If false, use a
+              default value if the property is not defined in the schema.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="requireEmptyElementParsePolicyProperty" type="xs:boolean" default="false" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              If true, require that the dfdl:emptyElementParsePolicy property is specified in
+              the schema. If false, and not defined in the schema, uses the
+              defaultEmptyElementParsePolicy as the value of emptyElementParsePolicy.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="requireEncodingErrorPolicyProperty" type="xs:boolean" default="false" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              If true, require that the dfdl:encodingErrorPolicy property is specified. If
+              false, use a default value if the property is not defined in the schema.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="requireFloatingProperty" type="xs:boolean" default="false" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              If true, require that the dfdl:floating property is specified. If
+              false, use a default value if the property is not defined in the schema.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="requireTextBidiProperty" type="xs:boolean" default="false" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              If true, require that the dfdl:testBidi property is specified. If
+              false, use a default value if the property is not defined in the schema.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="suppressSchemaDefinitionWarnings" type="daf:TunableSuppressSchemaDefinitionWarnings" default="" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              Space-separated list of schema definition warnings that should be ignored,
+              or "all" to ignore all warnings.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="unqualifiedPathStepPolicy" type="daf:TunableUnqualifiedPathStepPolicy" default="noNamespace" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              Defines how to lookup DFDL expression path steps that to not include a
+              namespace prefix. Values are:
+              - noNamespace: only match elements that do not have a namespace
+              - defaultNamespace: only match elements defined in the default namespace
+              - preferDefaultNamespace: match elements defined in the default namespace;
+                  if non are found, match elemnts that do not have a namespace
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+      </xs:all>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:simpleType name="TunableEmptyElementParsePolicy">
+    <xs:restriction base="daf:EmptyElementParsePolicyEnum" />
+  </xs:simpleType>
+
+  <!--
+    The two 'Tunables' in the name are intentional. The first is the standard for
+    Tunable enums used by the generator. The second is to differentiate between
+    the dfdl property enum and the tunable enum, since they have different allowed
+    values.
+  -->
+  <xs:simpleType name="TunableParseUnparsePolicyTunable">
+    <xs:union>
+      <xs:simpleType>
+        <xs:restriction base="daf:ParseUnparsePolicyEnum" />
+      </xs:simpleType>
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="fromRoot" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:union>
+  </xs:simpleType>
+
+  <xs:simpleType name="TunableUnqualifiedPathStepPolicy">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="defaultNamespace" />
+      <xs:enumeration value="noNamespace" />
+      <xs:enumeration value="preferDefaultNamespace" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="TunableSuppressSchemaDefinitionWarnings">
+    <xs:list>
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="all" />
+          <xs:enumeration value="alignmentNotSame" />
+          <xs:enumeration value="appinfoDFDLSourceWrong" />
+          <xs:enumeration value="appinfoNoSource" />
+          <xs:enumeration value="choiceInsideHiddenGroup" />
+          <xs:enumeration value="deprecatedBuiltInFormats" />
+          <xs:enumeration value="deprecatedEncodingNameUSASCII7BitPacked" />
+          <xs:enumeration value="deprecatedExpressionResultCoercion" />
+          <xs:enumeration value="deprecatedFunctionDAFError" />
+          <xs:enumeration value="deprecatedPropertySeparatorPolicy" />
+          <xs:enumeration value="emptyElementParsePolicyError" />
+          <xs:enumeration value="encodingErrorPolicyError" />
+          <xs:enumeration value="escapeSchemeRefUndefined" />
+          <xs:enumeration value="facetExplicitLengthOutOfRange" />
+          <xs:enumeration value="floatingError" />
+          <xs:enumeration value="ignoreImport" />
+          <xs:enumeration value="inconsistentLengthKind" />
+          <xs:enumeration value="multipleChoiceBranches" />
+          <xs:enumeration value="namespaceDifferencesOnly" />
+          <xs:enumeration value="noEmptyDefault" />
+          <xs:enumeration value="pathNotToArray" />
+          <xs:enumeration value="patternEncodingSlashW" />
+          <xs:enumeration value="queryStylePathExpression" />
+          <xs:enumeration value="regexPatternZeroLength" />
+          <xs:enumeration value="textBidiError" />
+          <xs:enumeration value="textOutputMinLengthOutOfRange" />
+          <xs:enumeration value="unsupportedAttributeBlockDefault" />
+          <xs:enumeration value="unsupportedAttributeFinalDefault" />
+          <xs:enumeration value="unsupportedAttributeFormDefault" />
+          <xs:enumeration value="unsupportedAttributeSchemaLocation" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:list>
+  </xs:simpleType>
+
+</xs:schema>

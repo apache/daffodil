@@ -85,8 +85,8 @@ class TestTunables extends Logging {
   }
 
   @Test def testTunableSuppressionListCopying() {
-    val t1 = DaffodilTunables("suppressschemadefinitionwarnings", "escapeSchemeRefUndefined")
-    val t2 = DaffodilTunables("suppressschemadefinitionwarnings", "all")
+    val t1 = DaffodilTunables("suppressSchemaDefinitionWarnings", "escapeSchemeRefUndefined")
+    val t2 = DaffodilTunables("suppressSchemaDefinitionWarnings", "all")
 
     val w1 = t1.suppressSchemaDefinitionWarnings.mkString(",")
     val w2 = t2.suppressSchemaDefinitionWarnings.mkString(",")
