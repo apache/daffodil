@@ -17,6 +17,8 @@
 
 package org.apache.daffodil.infoset
 
+import java.nio.charset.Charset
+
 import org.apache.daffodil.util.Indentable
 import org.apache.daffodil.dpath.NodeInfo
 
@@ -27,8 +29,17 @@ import org.apache.daffodil.dpath.NodeInfo
  * @param pretty Whether or to enable pretty printing. Set to true, XML
  *               elements are indented and newlines are inserted.
  */
-class XMLTextInfosetOutputter(writer: java.io.Writer, pretty: Boolean = true)
+class XMLTextInfosetOutputter private (writer: java.io.Writer, pretty: Boolean, dummy: Int)
   extends InfosetOutputter with Indentable with XMLInfosetOutputter {
+
+  @deprecated("This constructor is deprecated. Use XMLTextInfosetOutputter(java.io.OutputStream, Boolean) instead.", "2.4.0")
+  def this(writer: java.io.Writer, pretty: Boolean = true) = {
+    this(writer, pretty, 0)
+  }
+
+  def this(os: java.io.OutputStream, pretty: Boolean) = {
+    this(new java.io.OutputStreamWriter(os, Charset.forName("UTF-8")), pretty, 0)
+  }
 
   private val sb = new StringBuilder()
 
@@ -59,7 +70,7 @@ class XMLTextInfosetOutputter(writer: java.io.Writer, pretty: Boolean = true)
     }
 
     if (isEmpty) {
-      writer.write("/>")
+      writer.write(" />")
     } else {
       writer.write(">")
     }
@@ -102,18 +113,18 @@ class XMLTextInfosetOutputter(writer: java.io.Writer, pretty: Boolean = true)
     val name = getTagName(complex)
     if (pretty) outputIndentation(writer)
     outputStartTag(complex, name, !complex.hasVisibleChildren)
-    incrementIndentation()
     if (pretty) writer.write(System.lineSeparator())
+    incrementIndentation()
     true
   }
 
   override def endComplex(complex: DIComplex): Boolean = {
+    decrementIndentation()
     if (!complex.hasVisibleChildren) {
       // Empty complex elements should have an inline closing tag
       true
     } else {
       val name = getTagName(complex)
-      decrementIndentation()
       if (pretty) outputIndentation(writer)
       outputEndTag(complex, name)
       if (pretty) writer.write(System.lineSeparator())

@@ -28,7 +28,7 @@ import org.apache.daffodil.processors.unparsers.UnparseError
 
 class TestInfosetInputter1 {
 
-  def infosetInputter(testSchema: scala.xml.Node, infosetRdr: java.io.Reader) = {
+  def infosetInputter(testSchema: scala.xml.Node, is: java.io.InputStream) = {
     val compiler = Compiler()
     val pf = compiler.compileNode(testSchema)
     if (pf.isError) {
@@ -41,7 +41,7 @@ class TestInfosetInputter1 {
       throw new Exception(msgs)
     }
     val rootERD = u.ssrd.elementRuntimeData
-    val ic = new XMLTextInfosetInputter(infosetRdr)
+    val ic = new XMLTextInfosetInputter(is)
     ic.initialize(rootERD, u.getTunables())
     ic
   }
@@ -52,8 +52,9 @@ class TestInfosetInputter1 {
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="foo" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string"/>)
 
-    val rdr = new java.io.StringReader("this is not XML");
-    val ic = infosetInputter(sch, rdr)
+    val str = "this is not XML"
+    val is = new java.io.ByteArrayInputStream(str.getBytes("UTF-8"))
+    val ic = infosetInputter(sch, is)
     val exc = intercept[UnparseError] {
       ic.advance
     }
@@ -67,8 +68,9 @@ class TestInfosetInputter1 {
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="foo" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string"/>)
 
-    val rdr = new java.io.StringReader("""<this pretends to be xml""");
-    val ic = infosetInputter(sch, rdr)
+    val str = """<this pretends to be xml"""
+    val is = new java.io.ByteArrayInputStream(str.getBytes("UTF-8"))
+    val ic = infosetInputter(sch, is)
     val exc = intercept[UnparseError] {
       ic.advance
     }
@@ -83,12 +85,14 @@ class TestInfosetInputter1 {
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="foo" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string"/>)
 
-    val rdr = new java.io.StringReader("\u0000\u0000\uFFFF\uFFFF");
-    val ic = infosetInputter(sch, rdr)
+    val str = "\u0000\u0000\uFFFF\uFFFF"
+    val is = new java.io.ByteArrayInputStream(str.getBytes("UTF-8"))
+    val ic = infosetInputter(sch, is)
     val exc = intercept[UnparseError] {
       ic.advance
     }
     val msg = Misc.getSomeMessage(exc).get
-    assertTrue(msg.contains("Illegal character")) // content not allowed in prolog.
+    assertTrue(msg.contains("Illegal content")) // content not allowed in prolog.
+    assertTrue(msg.contains("Invalid UTF-8 character"))
   }
 }

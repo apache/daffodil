@@ -28,10 +28,11 @@ case class DAFTrace(recipe: CompiledDPath, msg: String)
   extends RecipeOpWithSubRecipes(recipe) {
 
   private def asXMLString(ie: InfosetCommon) = {
-    val sw = new java.io.StringWriter()
-    val xml = new XMLTextInfosetOutputter(sw)
+    val bos = new java.io.ByteArrayOutputStream()
+    val xml = new XMLTextInfosetOutputter(bos, true)
     ie.visit(xml, false)
-    sw.toString()
+    xml.endDocument() // causes the outputter to flush to the stream
+    bos.toString("UTF-8")
   }
 
   override def run(dstate: DState): Unit = {

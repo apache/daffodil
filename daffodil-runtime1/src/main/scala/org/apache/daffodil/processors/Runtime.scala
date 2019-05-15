@@ -418,10 +418,11 @@ class ParseResult(dp: DataProcessor, override val resultState: PState)
     if (dp.getValidationMode == ValidationMode.Full) {
       val schemaURIStrings = resultState.infoset.asInstanceOf[InfosetElement].runtimeData.schemaURIStringsForFullValidation
       try {
-        val sw = new java.io.StringWriter()
-        val xml = new XMLTextInfosetOutputter(sw)
+        val bos = new java.io.ByteArrayOutputStream()
+        val xml = new XMLTextInfosetOutputter(bos, false)
         resultState.infoset.visit(xml)
-        Validator.validateXMLSources(schemaURIStrings, sw.toString, this)
+        val bis = new java.io.ByteArrayInputStream(bos.toByteArray)
+        Validator.validateXMLSources(schemaURIStrings, bis, this)
       } catch {
         //
         // Some SAX Parse errors are thrown even if you specify an error handler to the

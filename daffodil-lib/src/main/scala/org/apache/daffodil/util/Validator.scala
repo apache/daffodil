@@ -41,7 +41,7 @@ object Validator extends NoBindingFactoryAdapter {
         new CacheType
     }
 
-  def validateXMLSources(schemaFileNames: Seq[String], document: String, errHandler: ErrorHandler): Unit = {
+  def validateXMLSources(schemaFileNames: Seq[String], document: java.io.InputStream, errHandler: ErrorHandler): Unit = {
     val cache = validationSchemaCache.get()
     val validator = {
       val optCachedValidator = cache.get(schemaFileNames)
@@ -83,7 +83,7 @@ object Validator extends NoBindingFactoryAdapter {
         }
       }
     }
-    val documentSource = new StreamSource(new StringReader(document))
+    val documentSource = new StreamSource(document)
     validator.validate(documentSource)
   }
 }

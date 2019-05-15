@@ -17,35 +17,36 @@
 
 package org.apache.daffodil.tdml
 
-import org.apache.daffodil.infoset.XMLTextInfosetOutputter
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
+
 import org.apache.daffodil.infoset.DIArray
-import org.apache.daffodil.infoset.XMLTextInfosetInputter
-import org.apache.daffodil.infoset.JDOMInfosetInputter
-import org.apache.daffodil.infoset.ScalaXMLInfosetInputter
-import java.io.StringReader
+import org.apache.daffodil.infoset.DIComplex
 import org.apache.daffodil.infoset.DISimple
+import org.apache.daffodil.infoset.InfosetOutputter
+import org.apache.daffodil.infoset.JDOMInfosetInputter
+import org.apache.daffodil.infoset.JDOMInfosetOutputter
+import org.apache.daffodil.infoset.JsonInfosetInputter
+import org.apache.daffodil.infoset.JsonInfosetOutputter
+import org.apache.daffodil.infoset.ScalaXMLInfosetInputter
+import org.apache.daffodil.infoset.ScalaXMLInfosetOutputter
 import org.apache.daffodil.infoset.W3CDOMInfosetInputter
 import org.apache.daffodil.infoset.W3CDOMInfosetOutputter
-import org.apache.daffodil.infoset.DIComplex
-import java.io.StringWriter
-import org.apache.daffodil.infoset.JsonInfosetOutputter
-import org.apache.daffodil.infoset.ScalaXMLInfosetOutputter
-import org.apache.daffodil.infoset.JDOMInfosetOutputter
-import org.apache.daffodil.infoset.InfosetOutputter
-import org.apache.daffodil.infoset.JsonInfosetInputter
+import org.apache.daffodil.infoset.XMLTextInfosetInputter
+import org.apache.daffodil.infoset.XMLTextInfosetOutputter
 
 class TDMLInfosetOutputter() extends InfosetOutputter {
 
   private def implString: String = "daffodil"
 
-  private val jsonWriter = new StringWriter()
-  private val xmlWriter = new StringWriter()
+  private val jsonStream = new ByteArrayOutputStream()
+  private val xmlStream = new ByteArrayOutputStream()
 
   private val scalaOut = new ScalaXMLInfosetOutputter()
   private val jdomOut = new JDOMInfosetOutputter()
   private val w3cdomOut = new W3CDOMInfosetOutputter()
-  private val jsonOut = new JsonInfosetOutputter(jsonWriter)
-  private val xmlOut = new XMLTextInfosetOutputter(xmlWriter)
+  private val jsonOut = new JsonInfosetOutputter(jsonStream, false)
+  private val xmlOut = new XMLTextInfosetOutputter(xmlStream, false)
 
   private val outputters = Seq(xmlOut, scalaOut, jdomOut, w3cdomOut, jsonOut)
 
@@ -107,8 +108,8 @@ class TDMLInfosetOutputter() extends InfosetOutputter {
     val scalaIn = new ScalaXMLInfosetInputter(scalaOut.getResult)
     val jdomIn = new JDOMInfosetInputter(jdomOut.getResult)
     val w3cdomIn = new W3CDOMInfosetInputter(w3cdomOut.getResult)
-    val jsonIn = new JsonInfosetInputter(new StringReader(jsonWriter.toString))
-    val xmlIn = new XMLTextInfosetInputter(new StringReader(xmlWriter.toString))
+    val jsonIn = new JsonInfosetInputter(new ByteArrayInputStream(jsonStream.toByteArray))
+    val xmlIn = new XMLTextInfosetInputter(new ByteArrayInputStream(xmlStream.toByteArray))
     new TDMLInfosetInputter(scalaIn, Seq(jdomIn, w3cdomIn, jsonIn, xmlIn))
   }
 }
