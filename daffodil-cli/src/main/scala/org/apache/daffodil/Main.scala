@@ -104,19 +104,6 @@ class NullOutputStream extends OutputStream {
   override def write(b: Int) {}
 }
 
-class NullWriter extends Writer {
-  override def append(c: Char): Writer = { this }
-  override def append(csq: CharSequence): Writer = { this }
-  override def append(csq: CharSequence, start: Int, end: Int): Writer = { this }
-  override def close(): Unit = {}
-  override def flush(): Unit = {}
-  override def write(chr: Array[Char]): Unit = {}
-  override def write(chr: Array[Char], st: Int, end: Int): Unit = {}
-  override def write(idx: Int): Unit = {}
-  override def write(str: String): Unit = {}
-  override def write(str: String, st: Int, end: Int): Unit = {}
-}
-
 class CommandLineXMLLoaderErrorHandler() extends org.xml.sax.ErrorHandler with Logging {
 
   def warning(exception: SAXParseException) = {
@@ -729,11 +716,11 @@ object Main extends Logging {
     pf
   }
 
-  def getInfosetOutputter(infosetType: String, writer: java.io.Writer): InfosetOutputter = {
+  def getInfosetOutputter(infosetType: String, os: java.io.OutputStream): InfosetOutputter = {
     infosetType match {
-      case "xml" => new XMLTextInfosetOutputter(writer)
+      case "xml" => new XMLTextInfosetOutputter(os, true)
       case "scala-xml" => new ScalaXMLInfosetOutputter()
-      case "json" => new JsonInfosetOutputter(writer)
+      case "json" => new JsonInfosetOutputter(os, true)
       case "jdom" => new JDOMInfosetOutputter()
       case "w3cdom" => new W3CDOMInfosetOutputter()
       case "null" => new NullInfosetOutputter()
@@ -773,13 +760,13 @@ object Main extends Logging {
   def getInfosetInputter(infosetType: String, anyRef: AnyRef): InfosetInputter = {
     infosetType match {
       case "xml" => {
-        val rdr = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(anyRef.asInstanceOf[Array[Byte]])))
-        new XMLTextInfosetInputter(rdr)
+        val is = new ByteArrayInputStream(anyRef.asInstanceOf[Array[Byte]])
+        new XMLTextInfosetInputter(is)
       }
       case "scala-xml" => new ScalaXMLInfosetInputter(anyRef.asInstanceOf[scala.xml.Node])
       case "json" => {
-        val rdr = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(anyRef.asInstanceOf[Array[Byte]])))
-        new JsonInfosetInputter(rdr)
+        val is = new ByteArrayInputStream(anyRef.asInstanceOf[Array[Byte]])
+        new JsonInfosetInputter(is)
       }
       case "jdom" => new JDOMInfosetInputter(anyRef.asInstanceOf[org.jdom2.Document])
       case "w3cdom" => {
@@ -848,8 +835,7 @@ object Main extends Logging {
               case Some("-") | None => System.out
               case Some(file) => new FileOutputStream(file)
             }
-            val writer = new BufferedWriter(new OutputStreamWriter(output, "UTF-8"))
-            val outputter = getInfosetOutputter(parseOpts.infosetType.toOption.get, writer)
+            val outputter = getInfosetOutputter(parseOpts.infosetType.toOption.get, output)
 
             var lastParseBitPosition = 0L
             var keepParsing = true
@@ -868,23 +854,27 @@ object Main extends Logging {
                 error = true
               } else {
                 // only XMLTextInfosetOutputter and JsonInfosetOutputter write
-                // directly to the writer. Other InfosetOutputters must manually
-                // be converted to a string and written to the output
+                // directly to the output stream. Other InfosetOutputters must manually
+                // get the result and write it to the stream
                 outputter match {
-                  case sxml: ScalaXMLInfosetOutputter => writer.write(sxml.getResult.toString)
-                  case jdom: JDOMInfosetOutputter => writer.write(
-                    new org.jdom2.output.XMLOutputter().outputString(jdom.getResult))
+                  case sxml: ScalaXMLInfosetOutputter => {
+                    val writer = new java.io.OutputStreamWriter(output, "UTF-8")
+                    scala.xml.XML.write(writer, sxml.getResult, "UTF-8", true, null)
+                    writer.flush()
+                  }
+                  case jdom: JDOMInfosetOutputter => {
+                    new org.jdom2.output.XMLOutputter().output(jdom.getResult, output)
+                  }
                   case w3cdom: W3CDOMInfosetOutputter => {
                     val tf = TransformerFactory.newInstance()
                     val transformer = tf.newTransformer()
-                    val result = new StreamResult(writer)
+                    val result = new StreamResult(output)
                     val source = new DOMSource(w3cdom.getResult)
                     transformer.transform(source, result)
                   }
                   case _ => // do nothing
                 }
-
-                writer.flush()
+                output.flush()
 
                 if (loc.isAtEnd) {
                   // do not try to keep parsing, nothing left to parse
@@ -911,7 +901,7 @@ object Main extends Logging {
                       lastParseBitPosition = loc.bitPos0b
                       keepParsing = true
                       error = false
-                      writer.write("\u0000")
+                      output.write(0) // NUL-byte separates streams
                     }
                   } else {
                     // not streaming, show left over data warning
@@ -1005,7 +995,7 @@ object Main extends Logging {
             }
 
             val nullChannelForUnparse = java.nio.channels.Channels.newChannel(new NullOutputStream)
-            val nullWriterForParse = new NullWriter()
+            val nullOutputStreamForParse = new NullOutputStream()
 
             //the following line allows output verification
             //val nullChannelForUnparse = java.nio.channels.Channels.newChannel(System.out)
@@ -1021,7 +1011,7 @@ object Main extends Logging {
                       })
                       case Right(data) => Timer.getTimeResult({
                         val input = InputSourceDataInputStream(data)
-                        val outputterForParse = getInfosetOutputter(infosetType, nullWriterForParse)
+                        val outputterForParse = getInfosetOutputter(infosetType, nullOutputStreamForParse)
                         processor.parse(input, outputterForParse)
                       })
                     }

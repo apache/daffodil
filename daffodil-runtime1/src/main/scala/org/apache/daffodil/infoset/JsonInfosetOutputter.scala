@@ -17,13 +17,25 @@
 
 package org.apache.daffodil.infoset
 
-import org.apache.daffodil.util.MStackOfBoolean
-import org.apache.daffodil.util.Indentable
-import com.fasterxml.jackson.core.util.BufferRecyclers
-import org.apache.daffodil.dpath.NodeInfo
+import java.nio.charset.Charset
 
-class JsonInfosetOutputter(writer: java.io.Writer, pretty: Boolean = true)
+import com.fasterxml.jackson.core.util.BufferRecyclers
+
+import org.apache.daffodil.dpath.NodeInfo
+import org.apache.daffodil.util.Indentable
+import org.apache.daffodil.util.MStackOfBoolean
+
+class JsonInfosetOutputter private (writer: java.io.Writer, pretty: Boolean, dummy: Int)
   extends InfosetOutputter with Indentable {
+
+  @deprecated("This constructor is deprecated. Use JsonInfosetOutputter(java.io.OutputStream, Boolean) instead.", "2.4.0")
+  def this(writer: java.io.Writer, pretty: Boolean = true) = {
+    this(writer, pretty, 0)
+  }
+
+  def this(os: java.io.OutputStream, pretty: Boolean) = {
+    this(new java.io.OutputStreamWriter(os, Charset.forName("UTF-8")), pretty, 0)
+  }
 
   // Keeps track of if the next element we see is the first child or not of a
   // document/array/complex type. The top of the stack is true if the an

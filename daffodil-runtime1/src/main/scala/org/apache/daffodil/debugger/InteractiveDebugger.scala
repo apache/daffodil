@@ -449,10 +449,11 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
   }
 
   private def debugPrettyPrintXML(ie: InfosetElement) {
-    val sw = new java.io.StringWriter()
-    val xml = new XMLTextInfosetOutputter(sw)
+    val bos = new java.io.ByteArrayOutputStream()
+    val xml = new XMLTextInfosetOutputter(bos, true)
     ie.visit(xml, DebuggerConfig.removeHidden)
-    debugPrintln(sw.toString)
+    xml.endDocument() // causes the outputter to flush to the stream
+    debugPrintln(bos.toString("UTF-8"))
   }
 
   /**********************************/
@@ -1515,11 +1516,11 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
 
           val infoset = getInfoset(state.infoset)
           if (infoset.getRootElement != null) {
-            val sw = new java.io.StringWriter()
-            val xml = new XMLTextInfosetOutputter(sw)
+            val bos = new java.io.ByteArrayOutputStream()
+            val xml = new XMLTextInfosetOutputter(bos, true)
             infoset.visit(xml, DebuggerConfig.removeHidden)
-
-            val infosetString = sw.toString()
+            xml.endDocument() // causes the outputter to flush to the stream
+            val infosetString = bos.toString("UTF-8")
             val lines = infosetString.split("\n")
             val tailLines =
               if (DebuggerConfig.infosetLines > 0) {
