@@ -23,8 +23,15 @@ package org.apache.daffodil.xml
  * See http://stackoverflow.com/questions/4446137/how-to-track-the-source-line-location-of-an-xml-element
  */
 
+import java.io.BufferedInputStream
 import java.io.File
+import java.io.InputStream
+import java.io.Reader
 import java.net.URI
+
+import javax.xml.XMLConstants
+import javax.xml.transform.sax.SAXSource
+
 import scala.collection.JavaConverters.asScalaBufferConverter
 import scala.xml.Elem
 import scala.xml.InputSource
@@ -33,20 +40,17 @@ import scala.xml.SAXParseException
 import scala.xml.SAXParser
 import scala.xml.TopScope
 import scala.xml.parsing.NoBindingFactoryAdapter
-import org.apache.xerces.xni.parser.XMLInputSource
-import org.apache.xml.resolver.Catalog
-import org.apache.xml.resolver.CatalogManager
+
 import org.w3c.dom.ls.LSInput
+
+import org.apache.daffodil.api.DaffodilSchemaSource
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.util.LogLevel
 import org.apache.daffodil.util.Logging
 import org.apache.daffodil.util.Misc
-import org.apache.daffodil.api.DaffodilSchemaSource
-import javax.xml.XMLConstants
-import java.io.InputStream
-import java.io.BufferedInputStream
-import java.io.Reader
-import javax.xml.transform.sax.SAXSource
+import org.apache.xerces.xni.parser.XMLInputSource
+import org.apache.xml.resolver.Catalog
+import org.apache.xml.resolver.CatalogManager
 
 /**
  * Resolves URI/URL/URNs to loadable files/streams.
@@ -238,8 +242,8 @@ class DFDLCatalogResolver private ()
       case None => null
       case Some(uri) => {
         try {
-          val resourceAsStream = uri.toURL.openStream()
-          val input = new Input(publicId, uri.toString, new BufferedInputStream(resourceAsStream))
+          val resourceAsStream = new BufferedInputStream(uri.toURL.openStream())
+          val input = new InputStreamLSInput(publicId, uri.toString, resourceAsStream)
           input
         } catch {
           case _: java.io.IOException => null
@@ -302,35 +306,43 @@ object DFDLCatalogResolver {
   def get = d.get
 }
 
-class Input(var pubId: String, var sysId: String, var inputStream: BufferedInputStream)
+/**
+ * This LSInput implementation is tailored specifically for Daffodil's use with
+ * Xerces and has implementation details to ensure XML data is read correctly
+ * and InputStreams are closed.
+ *
+ * It is important here that the different data getters (e.g.
+ * getCharacterStream, getStringData, getEncoding) do not return a value. Only
+ * getByteStream should return a value representing the data. This ensures that
+ * Xerces will use the data from the InputStream, use the XML preamble to
+ * determine encoding, and close the InputStream upon completion. If any of the
+ * other getters return a value, Xerces might ignore the InputStream
+ * completely, which can lead to open file descriptors or errors in XML decoding.
+ */
+class InputStreamLSInput(var pubId: String, var sysId: String, inputStream: InputStream)
   extends LSInput {
 
   var myBaseURI: String = null
 
-  def getPublicId = pubId
-  def setPublicId(publicId: String) = pubId = publicId
   def getBaseURI = myBaseURI
-  def getByteStream = null
+  def getPublicId = pubId
+  def getSystemId = sysId
+
+  def setBaseURI(baseURI: String) = myBaseURI = baseURI
+  def setPublicId(publicId: String) = pubId = publicId
+  def setSystemId(systemId: String) = sysId = systemId
+
+  def getByteStream = inputStream
   def getCertifiedText = false
   def getCharacterStream = null
   def getEncoding = null
-  def getStringData = {
-    this.synchronized {
-      val input: Array[Byte] = new Array[Byte](inputStream.available())
-      inputStream.read(input)
-      val contents = new String(input)
-      contents
-    }
-  }
-  def setBaseURI(baseURI: String) = myBaseURI = baseURI
+  def getStringData = null
+
   def setByteStream(byteStream: InputStream) = {}
   def setCertifiedText(certifiedText: Boolean) = {}
   def setCharacterStream(characterStream: Reader) = {}
   def setEncoding(encoding: String) = {}
   def setStringData(stringData: String) = {}
-  def getSystemId = sysId
-  def setSystemId(systemId: String) = sysId = systemId
-  def getInputStream: BufferedInputStream = inputStream
 }
 
 /**
@@ -463,9 +475,11 @@ trait SchemaAwareLoaderMixin {
    * it a plain old file or resource, and not try to play games to get it to
    * pick up the file/line/col information from attributes of the elements.
    */
-  def validateSchema(source: DaffodilSchemaSource) = {
-    val saxSource = new SAXSource(source.newInputSource())
+  def validateSchema(source: DaffodilSchemaSource): Unit = {
+    val inputSource = source.newInputSource()
+    val saxSource = new SAXSource(inputSource)
     sf.newSchema(saxSource)
+    inputSource.getByteStream().close()
   }
 
 }
@@ -534,10 +548,10 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler) {
    * Does (optional) validation,
    */
   def load(source: DaffodilSchemaSource): scala.xml.Node = {
-    var xercesNode: Node = null
     if (doValidation) {
-      xercesNode =
-        xercesAdapter.load(source.newInputSource()) // validates
+      val inputSource = source.newInputSource()
+      val xercesNode = xercesAdapter.load(inputSource) // validates
+      inputSource.getByteStream().close()
 
       if (xercesNode == null) return null
       // Note: we don't call xercesAdapter.validateSchema(source)
@@ -551,6 +565,7 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler) {
     //
     val constructingLoader = new DaffodilConstructingLoader(source.uriForLoading, errorHandler)
     val res = constructingLoader.load() // construct the XML objects for us.
+    constructingLoader.input.close()
     res
   }
 
