@@ -138,7 +138,7 @@
                  <xsd:enumeration value="deprecatedFunctionDAFError"/>
                  <xsd:enumeration value="deprecatedPropertySeparatorPolicy" />
                  <xsd:enumeration value="deprecatedExpressionResultCoercion" />
-                 <xsd:enumeration value="emptyElementPolicyError" />
+                 <xsd:enumeration value="emptyElementParsePolicyError" />
                  <xsd:enumeration value="encodingErrorPolicyError"/>
                  <xsd:enumeration value="escapeSchemeRefUndefined"/>
                  <xsd:enumeration value="facetExplicitLengthOutOfRange"/>
