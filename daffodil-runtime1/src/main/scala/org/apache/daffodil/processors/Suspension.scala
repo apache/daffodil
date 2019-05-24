@@ -130,9 +130,9 @@ trait Suspension
   }
 
   private def splitDOS(
-    ustate:                 UState,
+    ustate: UState,
     maybeKnownLengthInBits: MaybeULong,
-    original:               DirectOrBufferedDataOutputStream) {
+    original: DirectOrBufferedDataOutputStream) {
     Assert.usage(ustate.currentInfosetNodeMaybe.isDefined)
 
     val buffered = original.addBuffered

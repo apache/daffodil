@@ -67,9 +67,9 @@ class LongestMatchTracker {
 }
 
 class ParseResult(
-  val field:                 Maybe[String],
+  val field: Maybe[String],
   val matchedDelimiterValue: Maybe[String],
-  val matchedDFAs:           ArrayBuffer[DFADelimiter]) {
+  val matchedDFAs: ArrayBuffer[DFADelimiter]) {
 
   override def toString(): String = {
 

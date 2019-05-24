@@ -35,7 +35,7 @@ import org.apache.daffodil.processors.ModelGroupRuntimeData
  * all the parsing of the sequence child parsers.
  */
 abstract class SequenceParserBase(
-  srd:                        SequenceRuntimeData,
+  srd: SequenceRuntimeData,
   protected val childParsers: Vector[Parser])
   extends CombinatorParser(srd) {
   override def nom = "Sequence"
@@ -45,7 +45,7 @@ abstract class SequenceParserBase(
 }
 
 abstract class OrderedSequenceParserBase(
-  srd:             SequenceRuntimeData,
+  srd: SequenceRuntimeData,
   childParsersArg: Vector[Parser])
   extends SequenceParserBase(srd, childParsersArg) {
 
@@ -62,10 +62,10 @@ abstract class OrderedSequenceParserBase(
   }
 
   final protected def checkForwardProgress(
-    pstate:     PState,
+    pstate: PState,
     currentPos: Long,
-    priorPos:   Long,
-    ais:        ArrayIndexStatus): ArrayIndexStatus = {
+    priorPos: Long,
+    ais: ArrayIndexStatus): ArrayIndexStatus = {
     Assert.invariant(currentPos >= priorPos)
     if (currentPos == priorPos && pstate.groupPos > 1) {
       PE(pstate, "No forward progress.")
@@ -238,9 +238,9 @@ abstract class OrderedSequenceParserBase(
   }
 
   private def parseOneInstance(
-    parser:         SequenceChildParser,
-    pstate:         PState,
-    roStatus:       RequiredOptionalStatus,
+    parser: SequenceChildParser,
+    pstate: PState,
+    roStatus: RequiredOptionalStatus,
     resultOfTryArg: ParseAttemptStatus): (ArrayIndexStatus, ParseAttemptStatus) = {
     var resultOfTry = resultOfTryArg
     var ais: ArrayIndexStatus = ArrayIndexStatus.Uninitialized

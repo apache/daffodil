@@ -36,7 +36,7 @@ import org.apache.daffodil.io.DirectOrBufferedDataOutputStream
  * But we need none of the state needed to unparse or evaluate expressions.
  */
 final class SuppressableSeparatorUnparserSuspendableOperation(
-  sepUnparser:     Unparser,
+  sepUnparser: Unparser,
   override val rd: TermRuntimeData)
   extends SuspendableOperation {
 
@@ -186,8 +186,8 @@ final class SuppressableSeparatorUnparserSuspendableOperation(
 }
 
 final class SuppressableSeparatorUnparser private (
-  sepUnparser:                       Unparser,
-  override val context:              TermRuntimeData,
+  sepUnparser: Unparser,
+  override val context: TermRuntimeData,
   override val suspendableOperation: SuspendableOperation)
   extends PrimUnparser
   with SuspendableUnparser {
@@ -200,8 +200,8 @@ final class SuppressableSeparatorUnparser private (
 object SuppressableSeparatorUnparser {
 
   def apply(
-    sepUnparser:          Unparser,
-    context:              TermRuntimeData,
+    sepUnparser: Unparser,
+    context: TermRuntimeData,
     suspendableOperation: SuspendableOperation) = {
     val res = new SuppressableSeparatorUnparser(sepUnparser, context, suspendableOperation)
     Processor.initialize(res)

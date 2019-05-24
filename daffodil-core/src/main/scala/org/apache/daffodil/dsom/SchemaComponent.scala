@@ -35,7 +35,7 @@ import org.apache.daffodil.xml.GetAttributesMixin
 import org.apache.daffodil.schema.annotation.props.PropTypes
 
 abstract class SchemaComponentImpl(
-  final override val xml:    Node,
+  final override val xml: Node,
   final override val parent: SchemaComponent)
   extends SchemaComponent
 

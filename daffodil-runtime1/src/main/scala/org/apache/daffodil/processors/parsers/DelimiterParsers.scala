@@ -40,10 +40,10 @@ object DelimiterTextType extends Enum {
 }
 
 class DelimiterTextParser(
-  rd:             TermRuntimeData,
-  textParser:     TextParser,
+  rd: TermRuntimeData,
+  textParser: TextParser,
   positionalInfo: String,
-  delimiterType:  DelimiterTextType.Type)
+  delimiterType: DelimiterTextType.Type)
   extends TextPrimParser {
 
   override lazy val runtimeDependencies = rd.encodingInfo.runtimeDependencies
