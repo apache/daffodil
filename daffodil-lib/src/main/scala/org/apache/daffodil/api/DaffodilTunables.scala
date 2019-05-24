@@ -60,11 +60,11 @@ object DaffodilTunables {
 }
 
 case class DaffodilTunables(
-  val maxSkipLengthInBytes:         Long   = 1024, // applicable to leadingSkip and trailingSkip
-  val maxBinaryDecimalVirtualPoint: Int    = 200, // Can be as large as Int.MaxValue
-  val minBinaryDecimalVirtualPoint: Int    = -200, // Can be as small as Int.MinValue
+  val maxSkipLengthInBytes: Long = 1024, // applicable to leadingSkip and trailingSkip
+  val maxBinaryDecimalVirtualPoint: Int = 200, // Can be as large as Int.MaxValue
+  val minBinaryDecimalVirtualPoint: Int = -200, // Can be as small as Int.MinValue
   val generatedNamespacePrefixStem: String = "tns",
-  val readerByteBufferSize:         Long   = 8192,
+  val readerByteBufferSize: Long = 8192,
   //
   // If true, require that the bitOrder property is specified. If false, use a
   // default value for bitOrder if not defined in a schema
@@ -111,8 +111,8 @@ case class DaffodilTunables(
   // If true, require that the emptyElementParsePolicy property is specified. If
   // false, warn about missing property
   //
-  val requireEmptyElementParsePolicyProperty: Boolean                 = false,
-  val defaultEmptyElementParsePolicy:         EmptyElementParsePolicy = EmptyElementParsePolicy.TreatAsEmpty,
+  val requireEmptyElementParsePolicyProperty: Boolean = false,
+  val defaultEmptyElementParsePolicy: EmptyElementParsePolicy = EmptyElementParsePolicy.TreatAsEmpty,
   //
   // Whether to compile a schema to support parsing, unparsing, both, or to use
   // the daf:parseUnparsePolicy from the root node. None means to use the
@@ -120,11 +120,11 @@ case class DaffodilTunables(
   //
   // Looks to be compile-time. Set in Compiler.
   ///
-  val parseUnparsePolicy:                Option[ParseUnparsePolicy] = None,
-  val maxFieldContentLengthInBytes:      Long                       = 1024 * 1024, // Can be as large as Int.MaxValue
-  val defaultInitRegexMatchLimitInChars: Long                       = 32,
-  val maxDataDumpSizeInBytes:            Long                       = 256,
-  val maxOccursBounds:                   Long                       = Int.MaxValue, // Can be as large as Int.MaxValue
+  val parseUnparsePolicy: Option[ParseUnparsePolicy] = None,
+  val maxFieldContentLengthInBytes: Long = 1024 * 1024, // Can be as large as Int.MaxValue
+  val defaultInitRegexMatchLimitInChars: Long = 32,
+  val maxDataDumpSizeInBytes: Long = 256,
+  val maxOccursBounds: Long = Int.MaxValue, // Can be as large as Int.MaxValue
   //
   // When unexpected text is found where a delimiter is expected, this is the maximum
   // number of bytes (characters) to display when the expected delimiter is a variable
@@ -152,9 +152,9 @@ case class DaffodilTunables(
   //
   // Applies to InfosetImpl, as such is a run-time thing
   //
-  val initialElementOccurrencesHint:    Long                           = 10,
-  val unqualifiedPathStepPolicy:        UnqualifiedPathStepPolicy.Type = UnqualifiedPathStepPolicy.NoNamespace,
-  val suppressSchemaDefinitionWarnings: List[WarnID]                   = Nil,
+  val initialElementOccurrencesHint: Long = 10,
+  val unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy.Type = UnqualifiedPathStepPolicy.NoNamespace,
+  val suppressSchemaDefinitionWarnings: List[WarnID] = Nil,
 
   // By default, path expressions in Daffodil will only work correctly if path
   // steps are used in an expression defined in the schema when compiled. To
@@ -172,8 +172,8 @@ case class DaffodilTunables(
   val errorOnUnsupportedJavaVersion: Boolean = true,
 
   val maximumSimpleElementSizeInCharacters: Int = 1024 * 1024,
-  val initialRegexMatchLimitInCharacters:   Int = 64,
-  val maximumRegexMatchLengthInCharacters:  Int = 1024 * 1024,
+  val initialRegexMatchLimitInCharacters: Int = 64,
+  val maximumRegexMatchLengthInCharacters: Int = 1024 * 1024,
 
   /* Due to differences in the DFDL spec and ICU4J SimpleDateFormat, we must have SimpleDateFormat
    * parse in lenient mode, which allows the year value to overflow with very large years

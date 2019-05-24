@@ -115,14 +115,14 @@ abstract class StringDelimBase(e: Term, guard: Boolean) extends Terminal(e, guar
   override def toString = "StringDelimBase[" + name + "]"
 
   def checkDelimiterDistinctness(
-    escapeSchemeKind:  EscapeKind,
-    optPadChar:        Option[String],
-    optEscChar:        Option[String], // Could be a DFDL expression
-    optEscEscChar:     Option[String], // Could be a DFDL expression
-    optEscBlkStart:    Option[String],
-    optEscBlkEnd:      Option[String],
+    escapeSchemeKind: EscapeKind,
+    optPadChar: Option[String],
+    optEscChar: Option[String], // Could be a DFDL expression
+    optEscEscChar: Option[String], // Could be a DFDL expression
+    optEscBlkStart: Option[String],
+    optEscBlkEnd: Option[String],
     terminatingMarkup: Seq[String],
-    context:           ThrowsSDE): Unit = {
+    context: ThrowsSDE): Unit = {
 
     // TODO: DFDL-451 - After conversing with Mike B. about this, we're putting this on the backburner.
     // Leaving the code here, just commented out the entry point until we can decide what is the appropriate

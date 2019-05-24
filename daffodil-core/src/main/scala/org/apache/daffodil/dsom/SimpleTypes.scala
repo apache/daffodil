@@ -316,7 +316,7 @@ final class LocalSimpleTypeDef(
       //Note that this.toString=diagnosticDebugName, so cannot be used here
       Assert.invariantFailed("Anonymous Simple type is neither a union nor a restriction. Enclosing element is " + this.parent)))
     val repName = optRepTypeFactory.map(_.name)
-    repName match{
+    repName match {
       case None => baseName.diagnosticDebugName
       case Some(n) => s"${n} -> ${baseName.diagnosticDebugName}"
     }
@@ -340,7 +340,7 @@ trait SimpleTypeFactory {
   def forDerivedType(derivedType: SimpleTypeDefBase): SimpleTypeBase
 
   def primType: PrimType
-  
+
   def name: String
 }
 
@@ -352,7 +352,7 @@ abstract class SimpleTypeDefFactory(xmlArg: Node, schemaDocumentArg: SchemaDocum
   with ProvidesDFDLStatementMixin {
 
   override def name = diagnosticDebugName
-  
+
   override final def optReferredToComponent = optRestriction.flatMap { _.optBaseDef }
   override final def emptyFormatFactory = new DFDLSimpleType(newDFDLAnnotationXML("simpleType"), this)
 
@@ -461,7 +461,7 @@ abstract class SimpleTypeDefFactory(xmlArg: Node, schemaDocumentArg: SchemaDocum
         })
         (optInputCompiled, optOutputCompiled) match {
           case (None, None) => None
-          case _            => Some(TypeCalculatorCompiler.compileExpression(optInputCompiled, optOutputCompiled, srcType, dstType))
+          case _ => Some(TypeCalculatorCompiler.compileExpression(optInputCompiled, optOutputCompiled, srcType, dstType))
         }
       }
 
@@ -474,7 +474,7 @@ abstract class SimpleTypeDefFactory(xmlArg: Node, schemaDocumentArg: SchemaDocum
           if (dstType != srcType) {
             val repTypeName = optRepTypeDefFactory match {
               case Some(r) => r.diagnosticDebugName
-              case None    => repType.toString()
+              case None => repType.toString()
             }
             context.SDE(
               "repType (%s) with primitive type (%s) used without defining a transformation is not compatable with the baseType of (%s) with primitive type (%s)",
@@ -511,11 +511,12 @@ abstract class SimpleTypeDefFactory(xmlArg: Node, schemaDocumentArg: SchemaDocum
     lazy val fromSelf: Option[SimpleTypeFactory with NamedMixin] = {
       val qName = findPropertyOptionThisComponentOnly("repType").toOption
         .map(qn => {
-          QName.resolveRef(qn, namespaces, tunable).toOption match{
+          QName.resolveRef(qn, namespaces, tunable).toOption match {
             case Some(x) => x
             case None => SDE(s"Cannot resolve type ${qn}")
-        }})
-      
+          }
+        })
+
       val optRepTypeDef = qName.flatMap(schemaSet.getGlobalSimpleTypeDef(_))
       val optRepPrimType = qName.flatMap(schemaSet.getPrimitiveTypeFactory(_))
       Assert.invariant(!(optRepPrimType.isDefined && optRepTypeDef.isDefined))
@@ -563,7 +564,7 @@ abstract class SimpleTypeDefFactory(xmlArg: Node, schemaDocumentArg: SchemaDocum
     val fromSelf: Option[RepValueSet[AnyRef]] = optRepValueSetFromAttribute
 
     (fromRestriction, fromUnion, fromSelf) match {
-      case (None, None, None)    => None
+      case (None, None, None) => None
       case (Some(a), None, None) => Some(a)
       case (None, Some(a), None) => Some(a)
       case (None, None, Some(a)) => Some(a)
@@ -590,7 +591,7 @@ final class PrimitiveSimpleTypeFactory(primitiveType: PrimitiveType, schemaDocum
   with NamedMixin {
 
   override lazy val name = diagnosticDebugName
-  
+
   override def forElement(elementDecl: ElementDeclMixin) = primitiveType
   override def forDerivedType(derivedType: SimpleTypeDefBase) = primitiveType
 
@@ -637,7 +638,7 @@ final class GlobalSimpleTypeDefFactory(xmlArg: Node, schemaDocumentArg: SchemaDo
   override def forDerivedType(derivedType: SimpleTypeDefBase) = new GlobalSimpleTypeDef(Some(derivedType), this, None)
 
   override lazy val name = super[NamedMixin].name
-  
+
 }
 /**
  * The instance type for global simple type definitions.
@@ -660,13 +661,13 @@ final class GlobalSimpleTypeDef(
       case (Some(dt), None) => derivedType
       case (None, Some(elem)) => referringElement
       case (Some(_), Some(_)) => Assert.impossible("SimpleType must either have a derivedType or an element. Not both.")
-      case (None, None)       => None
+      case (None, None) => None
     }
 
   override lazy val elementDecl: ElementDeclMixin = referringComponent match {
     case Some(dt: SimpleTypeDefBase) => dt.elementDecl
-    case Some(e: ElementDeclMixin)   => e
-    case _                           => Assert.invariantFailed("unexpected referringComponent")
+    case Some(e: ElementDeclMixin) => e
+    case _ => Assert.invariantFailed("unexpected referringComponent")
   }
 
 }
@@ -674,14 +675,14 @@ final class GlobalSimpleTypeDef(
 /*
  * This isn't really a Factory class, as it already knows everything about the enumeration,
  * and we never actually use it to construct a concrete EnumerationDef object.
- * 
+ *
  * It is, however, a "Factory" in the sense that DSOM makes a factory/object distinction,
  * where a factory holds all the information stored on the node itself, while the object
  * computes additional information based on the context in the schema where it is being used.
  * In this sense, all usages of EnumerationDefs are using them as a "factory".
  */
 final class EnumerationDefFactory(
-  xml:               Node,
+  xml: Node,
   parentTypeFactory: SimpleTypeDefFactory)
   extends SchemaComponentFactory(xml, parentTypeFactory.schemaDocument)
   with NestingLexicalMixin
@@ -716,4 +717,3 @@ final class EnumerationDefFactory(
   protected def isMyFormatAnnotation(a: DFDLAnnotation): Boolean = Assert.invariantFailed("Should not be called")
 
 }
-

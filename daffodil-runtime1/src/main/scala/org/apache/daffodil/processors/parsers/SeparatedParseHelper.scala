@@ -35,9 +35,9 @@ object SeparatorParseStatus {
  * item and associated separator into a summary status.
  */
 sealed abstract class SeparatorParseHelper(
-  protected val sep:         Parser,
+  protected val sep: Parser,
   protected val childParser: Parser,
-  scParserArg:               Separated)
+  scParserArg: Separated)
   extends Serializable {
 
   import ParseAttemptStatus._
@@ -95,8 +95,8 @@ trait InfixPrefixSeparatorHelperMixin { self: SeparatorParseHelper =>
 
   final protected def parseOneWithInfixOrPrefixSeparator(
     shouldParseTheSep: Boolean,
-    pstate:            PState,
-    requiredOptional:  RequiredOptionalStatus): ParseAttemptStatus = {
+    pstate: PState,
+    requiredOptional: RequiredOptionalStatus): ParseAttemptStatus = {
 
     val sepStatus =
       if (shouldParseTheSep) {
@@ -134,7 +134,7 @@ trait InfixPrefixSeparatorHelperMixin { self: SeparatorParseHelper =>
 }
 
 final class PostfixSeparatorHelper(sep: Parser, child: Parser, scParserArg: Separated,
-                                   isSimpleDelimited: Boolean)
+  isSimpleDelimited: Boolean)
   extends SeparatorParseHelper(sep, child, scParserArg) {
   import ParseAttemptStatus._
 

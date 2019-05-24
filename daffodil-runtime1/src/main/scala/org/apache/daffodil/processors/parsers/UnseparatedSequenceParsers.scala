@@ -37,36 +37,36 @@ trait Unseparated { self: SequenceChildParser =>
 }
 
 class ScalarOrderedUnseparatedSequenceChildParser(
-  override val childParser:       Parser,
-  override val srd:               SequenceRuntimeData,
-  override val trd:               TermRuntimeData,
+  override val childParser: Parser,
+  override val srd: SequenceRuntimeData,
+  override val trd: TermRuntimeData,
   override val parseResultHelper: UnseparatedSequenceChildParseResultHelper)
   extends SequenceChildParser(childParser, srd, trd)
   with Unseparated
   with NonRepeatingSequenceChildParser
 
 class RepOrderedExactlyNUnseparatedSequenceChildParser(
-  childParser:                    Parser,
-  srd:                            SequenceRuntimeData,
-  erd:                            ElementRuntimeData,
+  childParser: Parser,
+  srd: SequenceRuntimeData,
+  erd: ElementRuntimeData,
   override val parseResultHelper: UnseparatedSequenceChildParseResultHelper,
-  val repeatCount:                Long)
+  val repeatCount: Long)
   extends OccursCountExactParser(childParser, srd, erd)
   with Unseparated
 
 class RepOrderedExactlyTotalOccursCountUnseparatedSequenceChildParser(
-  childParser:                    Parser,
-  ocEv:                           OccursCountEv,
-  srd:                            SequenceRuntimeData,
-  erd:                            ElementRuntimeData,
+  childParser: Parser,
+  ocEv: OccursCountEv,
+  srd: SequenceRuntimeData,
+  erd: ElementRuntimeData,
   override val parseResultHelper: UnseparatedSequenceChildParseResultHelper)
   extends OccursCountExpressionParser(childParser, srd, erd, ocEv)
   with Unseparated
 
 class RepOrderedWithMinMaxUnseparatedSequenceChildParser(
-  childParser:                    Parser,
-  srd:                            SequenceRuntimeData,
-  erd:                            ElementRuntimeData,
+  childParser: Parser,
+  srd: SequenceRuntimeData,
+  erd: ElementRuntimeData,
   override val parseResultHelper: UnseparatedSequenceChildParseResultHelper)
   extends OccursCountMinMaxParser(childParser, srd, erd)
   with Unseparated

@@ -80,12 +80,12 @@ trait StateForDebugger {
 }
 
 case class TupleForDebugger(
-  val bytePos:                Long,
-  val childPos:               Long,
-  val groupPos:               Long,
-  val currentLocation:        DataLocation,
-  val arrayPos:               Long,
-  val bitLimit0b:             MaybeULong,
+  val bytePos: Long,
+  val childPos: Long,
+  val groupPos: Long,
+  val currentLocation: DataLocation,
+  val arrayPos: Long,
+  val bitLimit0b: MaybeULong,
   override val discriminator: Boolean) extends StateForDebugger
 
 trait SetProcessorMixin {
@@ -125,9 +125,9 @@ trait SetProcessorMixin {
  */
 abstract class ParseOrUnparseState protected (
   protected var variableBox: VariableBox,
-  var diagnostics:           List[Diagnostic],
-  var dataProc:              Maybe[DataProcessor],
-  val tunable:               DaffodilTunables) extends DFDL.State
+  var diagnostics: List[Diagnostic],
+  var dataProc: Maybe[DataProcessor],
+  val tunable: DaffodilTunables) extends DFDL.State
   with StateForDebugger
   with ThrowsSDE
   with SavesErrorsAndWarnings
@@ -403,9 +403,9 @@ abstract class ParseOrUnparseState protected (
   }
 
   def currentNode: Maybe[DINode]
-  
-  private val maybeSsrd = if(dataProc.isDefined){One(dataProc.get.ssrd)} else Maybe.Nope
-  
+
+  private val maybeSsrd = if (dataProc.isDefined) { One(dataProc.get.ssrd) } else Maybe.Nope
+
   private val _dState = new DState(maybeSsrd)
 
   /**

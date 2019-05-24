@@ -47,8 +47,8 @@ import org.apache.daffodil.exceptions.Assert
  * that are choice branches, are all instances.
  */
 abstract class SequenceTermBase(
-  final override val xml:      Node,
-  final override val parent:   SchemaComponent,
+  final override val xml: Node,
+  final override val parent: SchemaComponent,
   final override val position: Int)
   extends ModelGroup(position)
   with SequenceGrammarMixin {
@@ -83,8 +83,8 @@ abstract class SequenceTermBase(
  * but NOT implied sequences inside choice branches.
  */
 abstract class SequenceGroupTermBase(
-  xml:      Node,
-  parent:   SchemaComponent,
+  xml: Node,
+  parent: SchemaComponent,
   position: Int)
   extends SequenceTermBase(xml, parent, position)
   with Sequence_AnnotationMixin

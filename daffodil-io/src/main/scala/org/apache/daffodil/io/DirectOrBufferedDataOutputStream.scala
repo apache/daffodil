@@ -746,8 +746,8 @@ object DirectOrBufferedDataOutputStream {
    */
   private def deliverBufferContent(
     directDOS: DirectOrBufferedDataOutputStream,
-    bufDOS:    DirectOrBufferedDataOutputStream,
-    finfo:     FormatInfo) {
+    bufDOS: DirectOrBufferedDataOutputStream,
+    finfo: FormatInfo) {
     Assert.invariant(bufDOS.isBuffering)
     Assert.invariant(!directDOS.isBuffering)
 

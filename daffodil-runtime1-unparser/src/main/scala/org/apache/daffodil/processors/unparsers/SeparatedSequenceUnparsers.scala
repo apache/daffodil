@@ -46,17 +46,17 @@ trait Separated { self: SequenceChildUnparser =>
 }
 
 sealed abstract class ScalarOrderedSeparatedSequenceChildUnparserBase(
-  childUnparser:                                        Unparser,
-  srd:                                                  SequenceRuntimeData,
-  trd:                                                  TermRuntimeData,
-  override val sep:                                     Unparser,
-  override val spos:                                    SeparatorPosition,
-  override val ssp:                                     SeparatorSuppressionPolicy,
-  override val zeroLengthDetector:                      ZeroLengthDetector,
-  override val isPotentiallyTrailing:                   Boolean,
+  childUnparser: Unparser,
+  srd: SequenceRuntimeData,
+  trd: TermRuntimeData,
+  override val sep: Unparser,
+  override val spos: SeparatorPosition,
+  override val ssp: SeparatorSuppressionPolicy,
+  override val zeroLengthDetector: ZeroLengthDetector,
+  override val isPotentiallyTrailing: Boolean,
   override val isKnownStaticallyNotToSuppressSeparator: Boolean,
-  override val isPositional:                            Boolean,
-  override val isDeclaredLast:                          Boolean)
+  override val isPositional: Boolean,
+  override val isDeclaredLast: Boolean)
   extends SequenceChildUnparser(childUnparser, srd, trd)
   with Separated {
 
@@ -64,33 +64,33 @@ sealed abstract class ScalarOrderedSeparatedSequenceChildUnparserBase(
 }
 
 class ScalarOrderedSeparatedSequenceChildUnparser(
-  childUnparser:                           Unparser,
-  srd:                                     SequenceRuntimeData,
-  trd:                                     TermRuntimeData,
-  sep:                                     Unparser,
-  spos:                                    SeparatorPosition,
-  ssp:                                     SeparatorSuppressionPolicy,
-  zlDetector:                              ZeroLengthDetector,
-  isPotentiallyTrailing:                   Boolean,
+  childUnparser: Unparser,
+  srd: SequenceRuntimeData,
+  trd: TermRuntimeData,
+  sep: Unparser,
+  spos: SeparatorPosition,
+  ssp: SeparatorSuppressionPolicy,
+  zlDetector: ZeroLengthDetector,
+  isPotentiallyTrailing: Boolean,
   isKnownStaticallyNotToSuppressSeparator: Boolean,
-  isPositional:                            Boolean,
-  isDeclaredLast:                          Boolean)
+  isPositional: Boolean,
+  isDeclaredLast: Boolean)
   extends ScalarOrderedSeparatedSequenceChildUnparserBase(childUnparser, srd, trd, sep, spos, ssp,
     zlDetector, isPotentiallyTrailing, isKnownStaticallyNotToSuppressSeparator, isPositional,
     isDeclaredLast)
 
 class RepOrderedSeparatedSequenceChildUnparser(
-  childUnparser:                                        Unparser,
-  srd:                                                  SequenceRuntimeData,
-  erd:                                                  ElementRuntimeData,
-  override val sep:                                     Unparser,
-  override val spos:                                    SeparatorPosition,
-  override val ssp:                                     SeparatorSuppressionPolicy, // need for diagnostics perhaps
-  override val zeroLengthDetector:                      ZeroLengthDetector,
-  override val isPotentiallyTrailing:                   Boolean,
+  childUnparser: Unparser,
+  srd: SequenceRuntimeData,
+  erd: ElementRuntimeData,
+  override val sep: Unparser,
+  override val spos: SeparatorPosition,
+  override val ssp: SeparatorSuppressionPolicy, // need for diagnostics perhaps
+  override val zeroLengthDetector: ZeroLengthDetector,
+  override val isPotentiallyTrailing: Boolean,
   override val isKnownStaticallyNotToSuppressSeparator: Boolean,
-  override val isPositional:                            Boolean,
-  override val isDeclaredLast:                          Boolean)
+  override val isPositional: Boolean,
+  override val isDeclaredLast: Boolean)
   extends RepeatingChildUnparser(childUnparser, srd, erd)
   with Separated {
 
@@ -99,10 +99,10 @@ class RepOrderedSeparatedSequenceChildUnparser(
 }
 
 class OrderedSeparatedSequenceUnparser(
-  rd:                SequenceRuntimeData,
-  ssp:               SeparatorSuppressionPolicy,
-  spos:              SeparatorPosition,
-  sep:               Unparser,
+  rd: SequenceRuntimeData,
+  ssp: SeparatorSuppressionPolicy,
+  spos: SeparatorPosition,
+  sep: Unparser,
   childUnparsersArg: Vector[SequenceChildUnparser])
   extends OrderedSequenceUnparserBase(rd, childUnparsersArg :+ sep) {
 
@@ -114,8 +114,8 @@ class OrderedSeparatedSequenceUnparser(
    */
   protected def unparseOne(
     unparser: SequenceChildUnparser,
-    trd:      TermRuntimeData,
-    state:    UState): Unit = {
+    trd: TermRuntimeData,
+    state: UState): Unit = {
 
     if (trd.isRepresented) {
       spos match {
@@ -154,8 +154,8 @@ class OrderedSeparatedSequenceUnparser(
    * Does not have to deal with infix and first child.
    */
   private def unparseJustSeparatorWithTrailingSuppression(
-    trd:                  TermRuntimeData,
-    state:                UState,
+    trd: TermRuntimeData,
+    state: UState,
     trailingSuspendedOps: Buffer[SuppressableSeparatorUnparserSuspendableOperation]): Unit = {
 
     val suspendableOp = new SuppressableSeparatorUnparserSuspendableOperation(sep, trd)
@@ -179,11 +179,11 @@ class OrderedSeparatedSequenceUnparser(
   }
 
   private def unparseOneWithSuppression(
-    unparser:             SequenceChildUnparser,
-    trd:                  TermRuntimeData,
-    state:                UState,
+    unparser: SequenceChildUnparser,
+    trd: TermRuntimeData,
+    state: UState,
     trailingSuspendedOps: Buffer[SuppressableSeparatorUnparserSuspendableOperation],
-    onlySeparatorFlag:    Boolean): Unit = {
+    onlySeparatorFlag: Boolean): Unit = {
     val doUnparseChild = !onlySeparatorFlag
     // We don't know if the unparse will result in zero length or not.
     // We have to use a suspendable unparser here for the separator
@@ -414,7 +414,7 @@ class OrderedSeparatedSequenceUnparser(
 
   private def unparsePositionallyRequiredSeps(
     unparserArg: SequenceChildUnparser,
-    erd:         ElementRuntimeData, state: UState, numOccurs: Int, trailingSuspendedOps: Buffer[SuppressableSeparatorUnparserSuspendableOperation]): Int = {
+    erd: ElementRuntimeData, state: UState, numOccurs: Int, trailingSuspendedOps: Buffer[SuppressableSeparatorUnparserSuspendableOperation]): Int = {
     var numOccurrences = numOccurs
     unparserArg match {
       case unparser: RepOrderedSeparatedSequenceChildUnparser => {

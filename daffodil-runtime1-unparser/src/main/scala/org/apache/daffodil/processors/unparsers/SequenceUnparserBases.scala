@@ -21,7 +21,7 @@ import org.apache.daffodil.processors.SequenceRuntimeData
 import org.apache.daffodil.exceptions.Assert
 
 abstract class OrderedSequenceUnparserBase(
-  srd:            SequenceRuntimeData,
+  srd: SequenceRuntimeData,
   childUnparsers: Vector[Unparser])
   extends CombinatorUnparser(srd) {
 

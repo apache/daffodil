@@ -39,8 +39,8 @@ import org.apache.daffodil.processors.ModelGroupRuntimeData
  */
 abstract class SequenceChildUnparser(
   val childUnparser: Unparser,
-  val srd:           SequenceRuntimeData,
-  val trd:           TermRuntimeData)
+  val srd: SequenceRuntimeData,
+  val trd: TermRuntimeData)
   extends CombinatorUnparser(srd) {
 
   override def runtimeDependencies = Vector()
@@ -55,8 +55,8 @@ abstract class SequenceChildUnparser(
  */
 abstract class RepeatingChildUnparser(
   override val childUnparser: Unparser,
-  override val srd:           SequenceRuntimeData,
-  val erd:                    ElementRuntimeData)
+  override val srd: SequenceRuntimeData,
+  val erd: ElementRuntimeData)
   extends SequenceChildUnparser(childUnparser, srd, erd)
   with MinMaxRepeatsMixin {
 
@@ -219,8 +219,8 @@ abstract class RepeatingChildUnparser(
    * 'unbounded', then maxReps will be Long.MaxValue.
    */
   def checkFinalOccursCountBetweenMinAndMaxOccurs(
-    state:          UState,
-    unparser:       RepeatingChildUnparser,
+    state: UState,
+    unparser: RepeatingChildUnparser,
     numOccurrences: Int, maxReps: Long, arrPos: Long): Unit = {
     import OccursCountKind._
 
