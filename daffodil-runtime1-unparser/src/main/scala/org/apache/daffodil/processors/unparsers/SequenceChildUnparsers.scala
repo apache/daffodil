@@ -84,15 +84,6 @@ abstract class RepeatingChildUnparser(
    * event.
    */
   final def startArrayOrOptional(state: UState): Unit = {
-    //
-    // The Infoset events don't create an array start/end event for a
-    // truly optional (0..1) element.
-    //
-    // But an expression might still refer to dfdl:occursIndex() and we want that
-    // to be 1, not wherever an enclosing parent array is.
-    //
-    state.arrayIndexStack.push(1L) // one-based indexing
-
     val ev = state.inspectAccessor
     if (ev.erd.isArray) {
       // only pull start array event for a true array, not an optional.
@@ -116,8 +107,7 @@ abstract class RepeatingChildUnparser(
       }
     }
 
-    // However, we pop the arrayIndexStack for either true arrays or optionals.
-    val actualOccurs = state.arrayIndexStack.pop()
+    val actualOccurs = state.arrayPos
 
     Assert.invariant(state.processorStatus eq Success)
 

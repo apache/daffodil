@@ -387,7 +387,8 @@ object XMLUtils {
   val dafintURI = DAFFODIL_INTERNAL_NAMESPACE
 
   val DFDL_SIMPLE_BUILT_IN_TYPES =
-    List("string",
+    List(
+      "string",
       "float",
       "double",
       "decimal",
@@ -727,7 +728,7 @@ object XMLUtils {
 
   /**
    * Prepares an XML node for diff comparison
-   **/
+   */
   private def prepareForDiffComparison(n: Node): Node = {
     val noComments = removeComments(n)
     val noPCData = convertPCDataToText(noComments)
@@ -745,15 +746,18 @@ object XMLUtils {
     if (diffs.length > 0) {
       throw new XMLDifferenceException("""
 Comparison failed.
-Expected
+Expected (attributes stripped)
           %s
-Actual
+Actual (attributes stripped)
           %s
 Differences were (path, expected, actual):
+%s
+Actual with Attributes (needed for unparse)
 %s""".format(
-     removeAttributes(expected).toString,
-     removeAttributes(actual).toString,
-     diffs.map { _.toString }.mkString("- ", "\n- ", "\n")))
+        removeAttributes(expected).toString,
+        removeAttributes(actual).toString,
+        diffs.map { _.toString }.mkString("- ", "\n- ", "\n"),
+        actual))
     }
   }
 
@@ -881,7 +885,7 @@ Differences were (path, expected, actual):
   def computeTextDiff(
     zPath: String,
     tA: Text,
-    tB:Text,
+    tB: Text,
     maybeType: Option[String]): Seq[(String, String, String)] = {
 
     val dataA = tA.toString
@@ -967,7 +971,8 @@ Differences were (path, expected, actual):
     tmpSchemaFile
   }
 
-  def convertInputStreamToTempFile(is: java.io.InputStream,
+  def convertInputStreamToTempFile(
+    is: java.io.InputStream,
     tmpDir: File,
     nameHint: String,
     suffix: String) = {
