@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<tdml:testSuite suiteName="uscg_ucop_lh.dfdl" description="USCG_UCOP_LH Tests"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
+  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+  xmlns:ex="http://example.com" 
+  defaultRoundTrip="onePass"
+  defaultConfig="cfg">
+
+  <tdml:defineConfig name="cfg">
+    <daf:tunables>
+      <daf:suppressSchemaDefinitionWarnings>
+        unsupportedAttributeFormDefault
+        encodingErrorPolicyError
+      </daf:suppressSchemaDefinitionWarnings>
+    </daf:tunables>
+  </tdml:defineConfig>
+
+  <tdml:defineConfig name="cfg_noEmptyElements">
+    <daf:tunables>
+      <daf:defaultEmptyElementParsePolicy>treatAsMissing</daf:defaultEmptyElementParsePolicy>
+      <daf:suppressSchemaDefinitionWarnings>
+        unsupportedAttributeFormDefault
+        encodingErrorPolicyError
+      </daf:suppressSchemaDefinitionWarnings>
+    </daf:tunables>
+  </tdml:defineConfig>
+
+  <tdml:defineSchema name="s1" elementFormDefault="unqualified">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+    <dfdl:format ref="ex:GeneralFormatPortable" />
+    <xs:element name="E">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="A" type="xs:string" dfdl:lengthKind="explicit"
+            dfdl:length="1" minOccurs="0" />
+          <xs:element name="C" type="xs:string" minOccurs="0" dfdl:lengthKind="explicit"
+            dfdl:length="1" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+  
+  <tdml:unparserTestCase name="unseparated_optionals1" root="E" model="s1" roundTrip="none">
+    <tdml:document>1D</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:E>
+          <A>1</A>
+          <C>D</C>
+        </ex:E>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>  
+  
+</tdml:testSuite>

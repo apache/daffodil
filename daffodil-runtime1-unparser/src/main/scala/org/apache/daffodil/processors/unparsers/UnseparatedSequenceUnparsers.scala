@@ -90,6 +90,7 @@ class OrderedUnseparatedSequenceUnparser(rd: SequenceRuntimeData, childUnparsers
       //
       childUnparser match {
         case unparser: RepeatingChildUnparser => {
+          state.arrayIndexStack.push(1L)
           val erd = unparser.erd
           var numOccurrences = 0
           val maxReps = unparser.maxRepeats(state)
@@ -159,6 +160,7 @@ class OrderedUnseparatedSequenceUnparser(rd: SequenceRuntimeData, childUnparsers
             // no event (state.inspect returned false)
             Assert.invariantFailed("No event for unparing.")
           }
+          state.arrayIndexStack.pop()
         }
         //
         case scalarUnparser => {

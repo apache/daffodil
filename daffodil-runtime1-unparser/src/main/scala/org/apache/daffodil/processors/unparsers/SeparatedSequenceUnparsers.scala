@@ -255,6 +255,7 @@ class OrderedSeparatedSequenceUnparser(
       val zlDetector = childUnparser.zeroLengthDetector
       childUnparser match {
         case unparser: RepOrderedSeparatedSequenceChildUnparser => {
+          state.arrayIndexStack.push(1L)
           val erd = unparser.erd
           var numOccurrences = 0
           val maxReps = unparser.maxRepeats(state)
@@ -293,6 +294,15 @@ class OrderedSeparatedSequenceUnparser(
                   doUnparser = unparser.shouldDoUnparser(unparser, state)
                   doUnparser
                 }) {
+                  //
+                  // These are so we can check invariants on these stacks being
+                  // pushed and popped reliably, and incremented only once
+                  //
+                  val arrayIndexBefore = state.arrayPos
+                  val arrayIndexStackDepthBefore = state.arrayIndexStack.length
+                  val groupIndexBefore = state.groupPos
+                  val groupIndexStackDepthBefore = state.groupIndexStack.length
+
                   Assert.invariant(erd.isRepresented) // since this is an array, can't have inputValueCalc
 
                   if (isArr) if (state.dataProc.isDefined) state.dataProc.get.beforeRepetition(state, this)
@@ -311,11 +321,15 @@ class OrderedSeparatedSequenceUnparser(
                       onlySeparatorFlag = false)
                   }
                   numOccurrences += 1
+                  Assert.invariant(state.arrayIndexStack.length == arrayIndexStackDepthBefore)
                   state.moveOverOneArrayIndexOnly()
+                  Assert.invariant(state.arrayPos == arrayIndexBefore + 1)
                   // System.err.println("Finished unparse of occurrence of %s. Array Index Stack is: %s".format(
                   //   erd.namedQName, state.arrayIndexStack))
 
+                  Assert.invariant(state.groupIndexStack.length == groupIndexStackDepthBefore)
                   state.moveOverOneGroupIndexOnly() // array elements are always represented.
+                  Assert.invariant(state.groupPos == groupIndexBefore + 1)
 
                   if (isArr) if (state.dataProc.isDefined) state.dataProc.get.afterRepetition(state, this)
 
@@ -352,6 +366,7 @@ class OrderedSeparatedSequenceUnparser(
             // no event (state.inspect returned false)
             Assert.invariantFailed("No event for unparsing.")
           }
+          state.arrayIndexStack.pop()
         }
         case scalarUnparser => trd match {
           case erd: ElementRuntimeData => {
