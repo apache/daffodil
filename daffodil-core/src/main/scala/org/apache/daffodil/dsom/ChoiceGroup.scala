@@ -100,7 +100,7 @@ trait ChoiceDefMixin
 
 abstract class ChoiceTermBase(
   final override val xml: Node,
-  final override val parent: SchemaComponent,
+  final override val lexicalParent: SchemaComponent,
   final override val position: Int)
   extends ModelGroup(position)
   with Choice_AnnotationMixin
@@ -162,12 +162,12 @@ abstract class ChoiceTermBase(
 
   // If choiceDispatchKeyKind is byType, verify that all our children share a repType,
   // and use that. Otherwise, there is no need to associate a repType with this choice
-  override final lazy val optRepTypeFactory: Option[SimpleTypeDefFactory with NamedMixin] = defaultableChoiceDispatchKeyKind match {
+  override final lazy val optRepType: Option[SimpleTypeDefBase] = defaultableChoiceDispatchKeyKind match {
     case ChoiceKeyKindType.ByType => {
-      val branchReptypes: Seq[SimpleTypeDefFactory with NamedMixin] = groupMembers.map(term => {
+      val branchReptypes: Seq[SimpleTypeDefBase] = groupMembers.map(term => {
         term match {
           case e: ElementDeclMixin => e.typeDef match {
-            case t: SimpleTypeDefBase => t.optRepTypeDefFactory match {
+            case t: SimpleTypeDefBase => t.optRepTypeDef match {
               case None => SDE("When <xs:choice> has choiceBranchKey=\"byType\", all branches must have a type which defines a repType")
               case Some(x) => x
             }
@@ -366,8 +366,8 @@ abstract class ChoiceTermBase(
   }
 }
 
-final class Choice(xmlArg: Node, parent: SchemaComponent, position: Int)
-  extends ChoiceTermBase(xmlArg, parent, position)
+final class Choice(xmlArg: Node, lexicalParent: SchemaComponent, position: Int)
+  extends ChoiceTermBase(xmlArg, lexicalParent, position)
   with ChoiceDefMixin {
 
   override lazy val optReferredToComponent = None

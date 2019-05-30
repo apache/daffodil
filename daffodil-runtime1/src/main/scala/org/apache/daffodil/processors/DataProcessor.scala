@@ -370,7 +370,7 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
     Assert.invariant(state.arrayIndexStack.length == 1)
     Assert.invariant(state.groupIndexStack.length == 1)
     Assert.invariant(state.childIndexStack.length == 1)
-    Assert.invariant(state.currentInfosetNodeStack.isEmpty)
+    Assert.invariant(state.currentInfosetNodeMaybe.isEmpty)
     Assert.invariant(state.escapeSchemeEVCache.isEmpty)
     //
     // All the DOS that precede the last one

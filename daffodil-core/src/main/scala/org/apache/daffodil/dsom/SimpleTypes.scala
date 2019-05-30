@@ -57,23 +57,14 @@ trait TypeBase {
   def optRestriction: Option[Restriction] = None
   def optUnion: Option[Union] = None
   def typeNode: NodeInfo.AnyType.Kind
-
 }
 
-trait NonPrimTypeMixin {
-  def elementDecl: ElementDeclMixin
-
-  def elementBase: ElementBase = elementDecl match {
-    case eb: ElementBase => eb
-    case ged: GlobalElementDecl => ged.elementRef
-  }
-}
+trait NonPrimTypeMixin
 
 sealed trait SimpleTypeBase extends TypeBase
   with HasOptRepTypeMixin {
 
   def primType: PrimType
-
 }
 
 /*
@@ -85,49 +76,50 @@ sealed trait SimpleTypeBase extends TypeBase
  * but the element will still have an optRepValueSet for another source (eg. children elements)
  */
 sealed trait HasRepValueAttributes extends AnnotatedSchemaComponent {
-  def optRepTypeFactory: Option[SimpleTypeFactory]
+  def optRepType: Option[SimpleTypeBase]
   def optRepValueSet: Option[RepValueSet[AnyRef]]
 
-  lazy val (repValuesAttrCooked: Seq[AnyRef], repValueRangesAttrCooked: Seq[(RangeBound[BigInt], RangeBound[BigInt])]) = optRepTypeFactory match {
-    case Some(repType) => {
-      val repValueSetRaw = findPropertyOptionThisComponentOnly("repValues").toOption
-        .map(_.split("\\s+").toSeq).getOrElse(Seq())
-      val repValueRangesRaw = findPropertyOptionThisComponentOnly("repValueRanges").toOption
-        .map(_.split("\\s+").toSeq).getOrElse(Seq())
-      repType.primType match {
-        case PrimType.String => {
-          if (repValueRangesRaw.size > 0) context.SDE("repValueRanges set when using a string repType")
-          val repValueSetCooked = repValueRangesRaw.map(RepValueCooker.convertConstant(_, context, false))
-          (repValueSetCooked, Seq())
-        }
-        case _: NodeInfo.Integer.Kind => {
-          if (repValueRangesRaw.size % 2 != 0) context.SDE("repValueRanges must have an even number of elements")
-          val ans1 = repValueSetRaw.map(BigInt(_))
-          def cookRepValueRanges(xs: Seq[String]): Seq[(RangeBound[BigInt], RangeBound[BigInt])] = {
-            xs match {
-              case Seq() => Seq()
-              case a +: b +: rest => {
-                val a2 = BigInt(a)
-                val b2 = BigInt(b)
-                if (a2.compare(b2) > 0) {
-                  context.SDE("min value must not be greater than max value")
+  lazy val (repValuesAttrCooked: Seq[AnyRef], repValueRangesAttrCooked: Seq[(RangeBound[BigInt], RangeBound[BigInt])]) =
+    optRepType match {
+      case Some(repType) => {
+        val repValueSetRaw = findPropertyOptionThisComponentOnly("repValues").toOption
+          .map(_.split("\\s+").toSeq).getOrElse(Seq())
+        val repValueRangesRaw = findPropertyOptionThisComponentOnly("repValueRanges").toOption
+          .map(_.split("\\s+").toSeq).getOrElse(Seq())
+        repType.primType match {
+          case PrimType.String => {
+            if (repValueRangesRaw.size > 0) SDE("repValueRanges set when using a string repType")
+            val repValueSetCooked = repValueRangesRaw.map(RepValueCooker.convertConstant(_, this, false))
+            (repValueSetCooked, Seq())
+          }
+          case _: NodeInfo.Integer.Kind => {
+            if (repValueRangesRaw.size % 2 != 0) SDE("repValueRanges must have an even number of elements")
+            val ans1 = repValueSetRaw.map(BigInt(_))
+            def cookRepValueRanges(xs: Seq[String]): Seq[(RangeBound[BigInt], RangeBound[BigInt])] = {
+              xs match {
+                case Seq() => Seq()
+                case a +: b +: rest => {
+                  val a2 = BigInt(a)
+                  val b2 = BigInt(b)
+                  if (a2.compare(b2) > 0) {
+                    SDE("min value must not be greater than max value")
+                  }
+                  val a3 = new RangeBound(Maybe(a2), true)
+                  val b3 = new RangeBound(Maybe(b2), true)
+                  (a3, b3) +: cookRepValueRanges(rest)
                 }
-                val a3 = new RangeBound(Maybe(a2), true)
-                val b3 = new RangeBound(Maybe(b2), true)
-                (a3, b3) +: cookRepValueRanges(rest)
               }
             }
+            val ans2 = cookRepValueRanges(repValueRangesRaw)
+            (ans1, ans2)
           }
-          val ans2 = cookRepValueRanges(repValueRangesRaw)
-          (ans1, ans2)
+          case x => SDE("repType must be either String or Integer type")
         }
-        case x => context.SDE("repType must be either String or Integer type")
       }
+      case None => (Seq(), Seq())
     }
-    case None => (Seq(), Seq())
-  }
 
-  lazy val optRepValueSetFromAttribute: Option[RepValueSet[AnyRef]] = optRepTypeFactory.flatMap(repType => {
+  lazy val optRepValueSetFromAttribute: Option[RepValueSet[AnyRef]] = optRepType.flatMap(repType => {
 
     val ans = RepValueSetCompiler.compile(repValuesAttrCooked, repValueRangesAttrCooked.asInstanceOf[Seq[(RangeBound[AnyRef], RangeBound[AnyRef])]])
     if (ans.isEmpty) None else Some(ans)
@@ -145,15 +137,30 @@ sealed trait HasRepValueAttributes extends AnnotatedSchemaComponent {
  *
  * So for the compiler, a PrimitiveType is just a wrapper around a PrimType object.
  */
-class PrimitiveType private (tn: PrimType)
-  extends SimpleTypeBase {
+final class PrimitiveType private (tn: PrimType)
+  extends SimpleTypeBase
+  with NamedMixin {
   override def optRestriction = None
   override def optUnion = None
-  override def optRepTypeFactory = None
+  override def optRepType = None
   override def optRepValueSet = None
   override def primType = tn
   override def typeNode = tn
-  override lazy val optRepTypeElement = None
+  override def optRepTypeElement = None
+
+  override def name = diagnosticDebugName
+
+  override def namedQName = typeNode.globalQName
+  override def namespace = namedQName.namespace
+  override def prefix = namedQName.prefix.get
+  override def xml = Assert.invariantFailed("Primitive types do not have XML")
+  override def schemaDocument = Assert.invariantFailed("Primitive types do not have schemaDocument")
+
+  /*
+   * These methods don't really make sense here, but are needed by NamedMixin
+   */
+  override def SDE(id: String, args: Any*) = Assert.invariantFailed("Primitive types shouldn't ever have an SDE")
+  override def schemaFileLocation = Assert.invariantFailed("Primitive types don't have a schemaFileLocation")
 }
 
 object PrimitiveType {
@@ -205,48 +212,27 @@ object PrimitiveType {
 
 }
 
-abstract class SimpleTypeDefBase(xml: Node, parent: SchemaComponent, val factory: SimpleTypeDefFactory)
-  extends AnnotatedSchemaComponentImpl(xml, parent)
+abstract class SimpleTypeDefBase(xml: Node, lexicalParent: SchemaComponent)
+  extends AnnotatedSchemaComponentImpl(xml, lexicalParent)
   with SimpleTypeBase
   with NonPrimTypeMixin
   with ProvidesDFDLStatementMixin
   with OverlapCheckMixin
-  with HasOptRepTypeMixinImpl {
+  with HasOptRepTypeMixinImpl
+  with NamedMixin
+  with HasRepValueAttributes {
 
-  requiredEvaluations(if (elementDecl.isSimpleType) simpleTypeRuntimeData.preSerialization)
-
-  lazy val primType = factory.primType
+  requiredEvaluations(simpleTypeRuntimeData.preSerialization)
 
   override def typeNode = primType
 
-  override final def optReferredToComponent = factory.optReferredToComponent
-
-  protected final def emptyFormatFactory = factory.emptyFormatFactory
-
-  protected final def isMyFormatAnnotation(a: DFDLAnnotation) = factory.isMyFormatAnnotation(a)
-
-  protected final def annotationFactory(node: Node): Option[DFDLAnnotation] = {
-    node match {
-      case <dfdl:simpleType>{ contents @ _* }</dfdl:simpleType> => factory.annotationFactory(node)
-      case _ => annotationFactoryForDFDLStatement(node, elementBase)
-    }
-  }
-
   def toOpt[R <: AnyRef](b: Boolean, v: => R) = Misc.boolToOpt(b, v)
-
-  lazy val optTypeCalculator = factory.optTypeCalculator
-  lazy val optRepTypeFactory = factory.optRepTypeFactory
-  lazy val optRepTypeDef = optRepTypeDefFactory.map(_.forDerivedType(this))
-  lazy val optRepValueSet = factory.optRepValueSet
-
-  override lazy val optRestriction = factory.optRestriction.map(_.restriction(this))
-  override lazy val optUnion = factory.optUnion.map(_.union(this))
 
   //Perfoming this validation on construction causes infinite loops
   //So we defer it to later
   def validate: Unit = {
-    if (optRepTypeFactory.isDefined
-      && optRepTypeFactory.get.isInstanceOf[PrimitiveSimpleTypeFactory]
+    if (optRepType.isDefined
+      && optRepType.get.isInstanceOf[PrimitiveType]
       && enclosingElement.isDefined
       && enclosingElement.get.isRepresented) {
       SDE("Primitive types can only be used as repTypes when the enclosing element is computed with inputValueCalc")
@@ -263,12 +249,6 @@ abstract class SimpleTypeDefBase(xml: Node, parent: SchemaComponent, val factory
       namespaces,
       primType,
       noFacetChecks,
-      //
-      // TODO: Cleanup code: really these should all have been option types
-      // not these pairs of a boolean, and a value that can only be evaluated
-      // if the boolean is true. Options types are preferable for these as
-      // they can be manipulated more easily with flatmap/orElse, etc.
-      //
       optRestriction.toSeq.flatMap { r => if (r.hasPattern) r.patternValues else Nil },
       optRestriction.flatMap { r => toOpt(r.hasEnumeration, r.enumerationValues.get) },
       optRestriction.flatMap { r => toOpt(r.hasMinLength, r.minLengthValue) },
@@ -283,7 +263,7 @@ abstract class SimpleTypeDefBase(xml: Node, parent: SchemaComponent, val factory
       tunable,
       optRepTypeDef.map(_.simpleTypeRuntimeData),
       optRepValueSet,
-      factory.optTypeCalculator)
+      optTypeCalculator)
   }
 
   private lazy val noFacetChecks =
@@ -293,65 +273,8 @@ abstract class SimpleTypeDefBase(xml: Node, parent: SchemaComponent, val factory
         r.hasTotalDigits || r.hasFractionDigits) false
       else true
     }.getOrElse(true)
-}
 
-final class LocalSimpleTypeDef(
-  xmlArg: Node, elementArg: ElementDeclMixin, factory: SimpleTypeDefFactory)
-  extends SimpleTypeDefBase(xmlArg, elementArg, factory)
-  with LocalNonElementComponentMixin
-  with NestingLexicalMixin {
-
-  override lazy val elementDecl = elementArg
-
-  /**
-   * For anonymous simple type def, uses the base name, or primitive type name
-   */
-  override lazy val diagnosticDebugName: String = {
-    //
-    // TODO: implement a daf:name property to give an alternate name. If present, use that.
-    //
-    val baseName = optRestriction.flatMap { r =>
-      r.optBaseDef.map { _.namedQName }.orElse(Some(r.primType.globalQName))
-    }.getOrElse(this.optUnion.map { u => u.primType.globalQName }.getOrElse(
-      //Note that this.toString=diagnosticDebugName, so cannot be used here
-      Assert.invariantFailed("Anonymous Simple type is neither a union nor a restriction. Enclosing element is " + this.parent)))
-    val repName = optRepTypeFactory.map(_.name)
-    repName match {
-      case None => baseName.diagnosticDebugName
-      case Some(n) => s"${n} -> ${baseName.diagnosticDebugName}"
-    }
-  }
-
-}
-
-/**
- * The factory is sharable even though the objects it creates cannot
- * be shared.
- *
- * This allows us to compute common properties of GlobalSimpleTypes exactly once
- * (and makes those properties available in the absence of an instantiating element)
- *
- * In theory this is not useful in the case of LocalSimpleTypes, as they will only ever be instantiated once,
- * but we do need LocalSimpleTypes to go through a factory so they have access to the features implemented in the factory
- */
-
-trait SimpleTypeFactory {
-  def forElement(elementDecl: ElementDeclMixin): SimpleTypeBase
-  def forDerivedType(derivedType: SimpleTypeDefBase): SimpleTypeBase
-
-  def primType: PrimType
-
-  def name: String
-}
-
-abstract class SimpleTypeDefFactory(xmlArg: Node, schemaDocumentArg: SchemaDocument)
-  extends SchemaComponentFactory(xmlArg, schemaDocumentArg)
-  with HasRepValueAttributes
-  with SimpleTypeFactory
-  with HasOptRepTypeMixinImpl
-  with ProvidesDFDLStatementMixin {
-
-  override def name = diagnosticDebugName
+  // override def name = diagnosticDebugName // don't do this. names are used by diagnosticDebugName
 
   override final def optReferredToComponent = optRestriction.flatMap { _.optBaseDef }
   override final def emptyFormatFactory = new DFDLSimpleType(newDFDLAnnotationXML("simpleType"), this)
@@ -364,17 +287,6 @@ abstract class SimpleTypeDefFactory(xmlArg: Node, schemaDocumentArg: SchemaDocum
       case _ => annotationFactoryForDFDLStatement(node, this)
     }
   }
-
-  /*
-   * We tighten the return type of these factory methods so callers can be sure that
-   * they are recieving a SimpleTypeDef (as opposed to a PrimitiveType).
-   *
-   * This is useful because only SimpleTypeDefs get passed to the runtime system.
-   * By keeping this information in the type system, callers can pass elements that they know
-   * are SimpleTypeDefs to the runtime without an explicit cast to SimpleTypeDef
-   */
-  override def forElement(elementDecl: ElementDeclMixin): SimpleTypeDefBase
-  override def forDerivedType(derivedType: SimpleTypeDefBase): SimpleTypeDefBase
 
   def primType: NodeInfo.PrimType = {
     optRestriction.map { _.primType }.getOrElse {
@@ -394,18 +306,18 @@ abstract class SimpleTypeDefFactory(xmlArg: Node, schemaDocumentArg: SchemaDocum
   /**
    * Exclusive of self.
    */
-  final lazy val bases: Seq[SimpleTypeDefFactory] =
+  final lazy val bases: Seq[SimpleTypeDefBase] =
     if (restrictions.isEmpty) Nil
-    else restrictions.tail.map { _.simpleTypeFactory }
+    else restrictions.tail.map { _.simpleTypeDef }
 
-  lazy val (optRestriction, optUnion) = {
+  override lazy val (optRestriction, optUnion) = {
     val restrictionNodeSeq = xml \ "restriction"
     if (restrictionNodeSeq.isEmpty) {
       val unionNodeSeq = xml \ "union"
       Assert.invariant(unionNodeSeq.length == 1)
-      (None, Some(new UnionFactory(unionNodeSeq(0), this)))
+      (None, Some(new Union(unionNodeSeq(0), this)))
     } else {
-      (Some(new RestrictionFactory(restrictionNodeSeq(0), this)), None)
+      (Some(new Restriction(restrictionNodeSeq(0), this)), None)
     }
   }
 
@@ -413,7 +325,7 @@ abstract class SimpleTypeDefFactory(xmlArg: Node, schemaDocumentArg: SchemaDocum
   lazy val optOutputTypeCalc = findPropertyOptionThisComponentOnly("outputTypeCalc")
 
   lazy val optTypeCalculator: Option[TypeCalculator[AnyRef, AnyRef]] = {
-    optRepTypeFactory.flatMap(repType => {
+    optRepType.flatMap(repType => {
       val srcType = repType.primType
       val dstType = primType
 
@@ -429,7 +341,7 @@ abstract class SimpleTypeDefFactory(xmlArg: Node, schemaDocumentArg: SchemaDocum
           Some(TypeCalculatorCompiler.compileIdentity(srcType))
         } else {
           if (enumerations.size != restriction.enumerations.size) {
-            context.SDE("If one enumeration value defines a repValue, then all must define a repValue")
+            SDE("If one enumeration value defines a repValue, then all must define a repValue")
           }
           val terms = enumerations.map(enum => (enum.optRepValueSet.get, enum.canonicalRepValue.get, enum.enumValueCooked))
           Some(TypeCalculatorCompiler.compileKeysetValue(terms, srcType, dstType))
@@ -468,15 +380,15 @@ abstract class SimpleTypeDefFactory(xmlArg: Node, schemaDocumentArg: SchemaDocum
       val ans = (fromRestriction, fromUnion, fromExpression) match {
         case (Some(x), None, None) => Some(x)
         case (None, Some(x), None) => Some(x)
-        case (None, None, Some(x)) => context.SDE("Usage of inputTypeCalc and outputTypeCalc requires an empty xs:restriction to determine the base type.")
+        case (None, None, Some(x)) => SDE("Usage of inputTypeCalc and outputTypeCalc requires an empty xs:restriction to determine the base type.")
         case (Some(x), _, Some(y)) if x.isInstanceOf[IdentifyTypeCalculator[AnyRef]] => Some(y)
         case (None, None, None) => {
           if (dstType != srcType) {
-            val repTypeName = optRepTypeDefFactory match {
+            val repTypeName = optRepTypeDef match {
               case Some(r) => r.diagnosticDebugName
               case None => repType.toString()
             }
-            context.SDE(
+            SDE(
               "repType (%s) with primitive type (%s) used without defining a transformation is not compatable with the baseType of (%s) with primitive type (%s)",
               repTypeName, srcType.name,
               diagnosticDebugName, dstType.name)
@@ -484,8 +396,8 @@ abstract class SimpleTypeDefFactory(xmlArg: Node, schemaDocumentArg: SchemaDocum
           None
         }
         case (Some(_), Some(_), _) => Assert.invariantFailed("Cannot combine an enumeration with a union")
-        case (Some(_), _, Some(_)) => context.SDE("Cannot use typeCalcExpressions while defining repValues of enumerations")
-        case (_, Some(_), Some(_)) => context.SDE("Cannot use typeCalcExpressions while using a union that defines typeCalcs")
+        case (Some(_), _, Some(_)) => SDE("Cannot use typeCalcExpressions while defining repValues of enumerations")
+        case (_, Some(_), Some(_)) => SDE("Cannot use typeCalcExpressions while using a union that defines typeCalcs")
       }
 
       ans match {
@@ -507,8 +419,8 @@ abstract class SimpleTypeDefFactory(xmlArg: Node, schemaDocumentArg: SchemaDocum
    * However, since only named types can be a repType, there is no problem
    * in requiring them to be named
    */
-  override lazy val optRepTypeFactory: Option[SimpleTypeFactory with NamedMixin] = {
-    lazy val fromSelf: Option[SimpleTypeFactory with NamedMixin] = {
+  override lazy val optRepType: Option[SimpleTypeBase with NamedMixin] = LV('optRepType) {
+    lazy val fromSelf: Option[SimpleTypeBase with NamedMixin] = {
       val qName = findPropertyOptionThisComponentOnly("repType").toOption
         .map(qn => {
           QName.resolveRef(qn, namespaces, tunable).toOption match {
@@ -516,17 +428,16 @@ abstract class SimpleTypeDefFactory(xmlArg: Node, schemaDocumentArg: SchemaDocum
             case None => SDE(s"Cannot resolve type ${qn}")
           }
         })
-
       val optRepTypeDef = qName.flatMap(schemaSet.getGlobalSimpleTypeDef(_))
-      val optRepPrimType = qName.flatMap(schemaSet.getPrimitiveTypeFactory(_))
+      val optRepPrimType = qName.flatMap(schemaSet.getPrimitiveType(_))
       Assert.invariant(!(optRepPrimType.isDefined && optRepTypeDef.isDefined))
       if (qName.isDefined) {
         schemaDefinitionUnless(optRepTypeDef.isDefined || optRepPrimType.isDefined, s"Cannot find reptype ${qName.get}")
       }
       optRepTypeDef.orElse(optRepPrimType)
     }
-    lazy val fromUnion: Option[SimpleTypeFactory with NamedMixin] = optUnion.flatMap(union => {
-      val repTypes = union.unionMemberTypes.map(_.optRepTypeFactory)
+    lazy val fromUnion: Option[SimpleTypeBase with NamedMixin] = optUnion.flatMap(union => {
+      val repTypes = union.unionMemberTypes.map(_.optRepTypeDef)
       //check that all repTypes are the same
       //Because of how we inline types, we do not expect to see structual equality,
       //so we rely on the xml qname instead
@@ -549,9 +460,9 @@ abstract class SimpleTypeDefFactory(xmlArg: Node, schemaDocumentArg: SchemaDocum
      * which is arguably a good design decision from a readability standpoint of the schema as well.
      */
     fromSelf.orElse(fromUnion)
-  }
+  }.toOption.flatten
 
-  override lazy val optRepValueSet: Option[RepValueSet[AnyRef]] = optRepTypeDefFactory.flatMap(repType => {
+  override lazy val optRepValueSet: Option[RepValueSet[AnyRef]] = optRepTypeDef.flatMap(repType => {
     val primType: PrimType = repType.primType
 
     val fromRestriction: Option[RepValueSet[AnyRef]] = optRestriction.flatMap(_.optRepValueSet)
@@ -569,8 +480,8 @@ abstract class SimpleTypeDefFactory(xmlArg: Node, schemaDocumentArg: SchemaDocum
       case (None, Some(a), None) => Some(a)
       case (None, None, Some(a)) => Some(a)
       case (Some(_), Some(_), _) => throw new IllegalStateException("Can't happen")
-      case (Some(_), _, Some(_)) => context.SDE("Cannot put repValues or repRangeValues on a simple type defining an enumeration")
-      case (_, Some(_), Some(_)) => context.SDE("Cannot put repValue or repRangeValues on a simple type defined by a union")
+      case (Some(_), _, Some(_)) => SDE("Cannot put repValues or repRangeValues on a simple type defining an enumeration")
+      case (_, Some(_), Some(_)) => SDE("Cannot put repValue or repRangeValues on a simple type defined by a union")
     }
 
   })
@@ -586,36 +497,32 @@ abstract class SimpleTypeDefFactory(xmlArg: Node, schemaDocumentArg: SchemaDocum
 
 }
 
-final class PrimitiveSimpleTypeFactory(primitiveType: PrimitiveType, schemaDocumentArg: => SchemaDocument)
-  extends SimpleTypeFactory
-  with NamedMixin {
+final class LocalSimpleTypeDef(
+  xmlArg: Node, lexicalParent: SchemaComponent)
+  extends SimpleTypeDefBase(xmlArg, lexicalParent)
+  with LocalNonElementComponentMixin
+  with NestingLexicalMixin {
 
-  override lazy val name = diagnosticDebugName
-
-  override def forElement(elementDecl: ElementDeclMixin) = primitiveType
-  override def forDerivedType(derivedType: SimpleTypeDefBase) = primitiveType
-
-  override lazy val namedQName = primitiveType.typeNode.globalQName
-  override lazy val namespace = namedQName.namespace
-  override lazy val prefix = namedQName.prefix.get
-  override lazy val xml = Assert.invariantFailed("Primitive types do not have XML")
-
-  override lazy val primType = primitiveType.primType
-  override lazy val schemaDocument = schemaDocumentArg
-
-  /*
-   * These methods don't really make sense here, but are needed by NamedMixin
+  /**
+   * For anonymous simple type def, uses the base name, or primitive type name
    */
-  override def SDE(id: String, args: Any*) = Assert.invariantFailed("Primitive types shouldn't ever have an SDE")
-  override def schemaFileLocation = Assert.invariantFailed("Primitive types don't have a schemaFileLocation")
-}
 
-final class LocalSimpleTypeDefFactory(xmlArg: Node, schemaDocumentArg: SchemaDocument)
-  extends SimpleTypeDefFactory(xmlArg, schemaDocumentArg)
-  with SimpleTypeFactory {
-
-  override def forElement(elementDecl: ElementDeclMixin) = new LocalSimpleTypeDef(xmlArg, elementDecl, this)
-  override def forDerivedType(derivedType: SimpleTypeDefBase) = Assert.invariantFailed("LocalSimpleTypes cannot be used for derived types")
+  override lazy val diagnosticDebugName: String = {
+    //
+    // TODO: implement a daf:name property to give an alternate name. If present, use that.
+    //
+    val baseName = optRestriction.flatMap { r =>
+      r.optBaseDef.map { _.namedQName }.orElse(Some(r.primType.globalQName))
+    }.getOrElse(this.optUnion.map { u => u.primType.globalQName }.getOrElse(
+      //Note that this.toString=diagnosticDebugName, so SDE cannot be used here
+      Assert.invariantFailed("Anonymous Simple type is neither a union nor a restriction. Enclosing element is " + this.lexicalParent)))
+    // furthermore, we can't call things that throw SDEs either.
+    val repName = optRepTypeDef.map(_.name)
+    repName match {
+      case None => baseName.diagnosticDebugName
+      case Some(n) => s"${n} -> ${baseName.diagnosticDebugName}"
+    }
+  }
 }
 
 /**
@@ -625,51 +532,13 @@ final class LocalSimpleTypeDefFactory(xmlArg: Node, schemaDocumentArg: SchemaDoc
  * Call forDeriviedType, and supply a different simpleType that uses this one,
  * and you get back an instance that is one-to-one with that other type
  */
-final class GlobalSimpleTypeDefFactory(xmlArg: Node, schemaDocumentArg: SchemaDocument)
-  extends SimpleTypeDefFactory(xmlArg, schemaDocumentArg)
+final class GlobalSimpleTypeDef(xmlArg: Node, schemaDocumentArg: SchemaDocument)
+  extends SimpleTypeDefBase(xmlArg, schemaDocumentArg)
   with GlobalNonElementComponentMixin
-  with SimpleTypeFactory
+  with NestingLexicalMixin
   with NamedMixin {
 
-  /**
-   * Create a private instance for this element's use.
-   */
-  override def forElement(elementDecl: ElementDeclMixin) = new GlobalSimpleTypeDef(None, this, Some(elementDecl))
-  override def forDerivedType(derivedType: SimpleTypeDefBase) = new GlobalSimpleTypeDef(Some(derivedType), this, None)
-
   override lazy val name = super[NamedMixin].name
-
-}
-/**
- * The instance type for global simple type definitions.
- */
-
-final class GlobalSimpleTypeDef(
-  derivedType: Option[SimpleTypeDefBase],
-  factory: GlobalSimpleTypeDefFactory,
-  val referringElement: Option[ElementDeclMixin])
-  extends SimpleTypeDefBase(factory.xml, factory.schemaDocument, factory)
-  with GlobalNonElementComponentMixin
-  with NestingTraversesToReferenceMixin {
-
-  // override def term = element
-
-  override lazy val primType = factory.primType
-
-  override lazy val referringComponent: Option[SchemaComponent] =
-    (derivedType, referringElement) match {
-      case (Some(dt), None) => derivedType
-      case (None, Some(elem)) => referringElement
-      case (Some(_), Some(_)) => Assert.impossible("SimpleType must either have a derivedType or an element. Not both.")
-      case (None, None) => None
-    }
-
-  override lazy val elementDecl: ElementDeclMixin = referringComponent match {
-    case Some(dt: SimpleTypeDefBase) => dt.elementDecl
-    case Some(e: ElementDeclMixin) => e
-    case _ => Assert.invariantFailed("unexpected referringComponent")
-  }
-
 }
 
 /*
@@ -683,18 +552,18 @@ final class GlobalSimpleTypeDef(
  */
 final class EnumerationDefFactory(
   xml: Node,
-  parentTypeFactory: SimpleTypeDefFactory)
-  extends SchemaComponentFactory(xml, parentTypeFactory.schemaDocument)
+  parentType: SimpleTypeDefBase)
+  extends SchemaComponentFactory(xml, parentType.schemaDocument)
   with NestingLexicalMixin
   with HasRepValueAttributes
   with ResolvesProperties {
 
   Assert.invariant(xml.label == "enumeration")
 
-  override lazy val optRepTypeFactory = parentTypeFactory.optRepTypeFactory
+  override lazy val optRepType = parentType.optRepTypeDef
 
   lazy val enumValueRaw: String = (xml \ "@value").head.text
-  lazy val enumValueCooked: AnyRef = parentTypeFactory.primType.fromXMLString(enumValueRaw)
+  lazy val enumValueCooked: AnyRef = parentType.primType.fromXMLString(enumValueRaw)
 
   override lazy val optRepValueSet: Option[RepValueSet[AnyRef]] = optRepValueSetFromAttribute
   lazy val logicalValueSet: RepValueSet[AnyRef] = RepValueSetCompiler.compile(Seq(enumValueCooked), Seq())

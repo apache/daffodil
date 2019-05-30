@@ -281,7 +281,7 @@ trait Term
     }
 
   final lazy val immediatelyEnclosingModelGroup: Option[ModelGroup] = {
-    val res = parent match {
+    val res = lexicalParent match {
       case c: ChoiceTermBase => Some(c)
       case s: SequenceTermBase => Some(s)
       case d: SchemaDocument => {
@@ -298,7 +298,7 @@ trait Term
         // but if we have a CT as our parent, the group around the element whose type
         // that is, isn't "immediately enclosing".
       }
-      case _ => Assert.invariantFailed("immediatelyEnclosingModelGroup called on " + this + "with parent " + parent)
+      case _ => Assert.invariantFailed("immediatelyEnclosingModelGroup called on " + this + "with lexical parent " + lexicalParent)
     }
     res
   }
@@ -539,11 +539,11 @@ trait Term
   /**
    * Returns a tuple, where the first item in the tuple is the list of sibling
    * terms that could appear before this. The second item in the tuple is a
-   * One(parent) if all prior siblings are optional or this element has no prior siblings
+   * One(enclosingParent) if all prior siblings are optional or this element has no prior siblings
    */
   lazy val potentialPriorTerms: (Seq[Term], Option[Term]) = {
     val et = enclosingTerm
-    val (potentialPrior, parent) = et match {
+    val (potentialPrior, optEnclosingParent) = et match {
       case None => (Seq(), None)
       case Some(eb: ElementBase) => (Seq(), Some(eb))
       case Some(ch: ChoiceTermBase) => (Seq(), Some(ch))
@@ -576,7 +576,7 @@ trait Term
         case _ => true
       }
     }
-    (potentialPriorRepresented, parent)
+    (potentialPriorRepresented, optEnclosingParent)
   }
 
   /*
@@ -740,7 +740,7 @@ trait Term
 
   /*
    * Returns a list of Elements that could follow this Term, including
-   * siblings, children of siblings, and siblings of the parent and their children.
+   * siblings, children of siblings, and siblings of the enclosingParent and their children.
    *
    * What stops this is when the end of an enclosing element has to be next.
    */
@@ -770,7 +770,7 @@ trait Term
 
   /*
    * Returns a list of sibling Terms that could follow this term. This will not
-   * return any children of sibling Terms, or any siblings of the parent.
+   * return any children of sibling Terms, or any siblings of the enclosingParent.
    */
   final def possibleNextSiblingTerms: Seq[Term] = LV('possibleNextSiblingTerms) {
     val et = enclosingTerm

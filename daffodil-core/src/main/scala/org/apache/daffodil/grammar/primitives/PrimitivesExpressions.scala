@@ -48,7 +48,8 @@ import org.apache.daffodil.processors.unparsers.NadaUnparser
 import org.apache.daffodil.processors.RuntimeData
 import org.apache.daffodil.processors.unparsers.TypeValueCalcUnparser
 
-abstract class AssertBase(decl: AnnotatedSchemaComponent,
+abstract class AssertBase(
+  decl: AnnotatedSchemaComponent,
   exprWithBraces: String,
   namespacesForNamespaceResolution: scala.xml.NamespaceBinding,
   scWherePropertyWasLocated: AnnotatedSchemaComponent,
@@ -73,10 +74,11 @@ abstract class AssertBase(decl: AnnotatedSchemaComponent,
 
   override val forWhat = ForParser
 
-  lazy val msgExpr ={
+  lazy val msgExpr = {
     if (msgOpt.isDefined) {
-      ExpressionCompilers.String.compileExpression(qn,
-      NodeInfo.String, msgOpt.get, exprNamespaces, exprComponent.dpathCompileInfo, false, this, exprComponent.dpathCompileInfo)
+      ExpressionCompilers.String.compileExpression(
+        qn,
+        NodeInfo.String, msgOpt.get, exprNamespaces, exprComponent.dpathCompileInfo, false, this, exprComponent.dpathCompileInfo)
     } else {
       new ConstantExpression[String](qn, NodeInfo.String, exprWithBraces + " failed")
     }
@@ -111,7 +113,8 @@ case class DiscriminatorBooleanPrim(
 // an XPath evaluator that runs fn:true() expression.
 case class InitiatedContent(
   decl: AnnotatedSchemaComponent)
-  extends AssertBase(decl,
+  extends AssertBase(
+    decl,
     "{ fn:true() }", <xml xmlns:fn={ XMLUtils.XPATH_FUNCTION_NAMESPACE }/>.scope, decl,
     // always true. We're just an assertion that says an initiator was found.
     None,
@@ -120,7 +123,7 @@ case class InitiatedContent(
 }
 
 case class SetVariable(stmt: DFDLSetVariable)
-  extends ExpressionEvaluatorBase(stmt.context) {
+  extends ExpressionEvaluatorBase(stmt.lexicalParent) {
 
   val baseName = "SetVariable[" + stmt.varQName.local + "]"
 
@@ -178,12 +181,14 @@ abstract class ExpressionEvaluatorBase(e: AnnotatedSchemaComponent) extends Term
   protected def qn = GlobalQName(Some("daf"), baseName, XMLUtils.dafintURI)
 
   lazy val expr = LV('expr) {
-    ExpressionCompilers.AnyRef.compileExpression(qn,
+    ExpressionCompilers.AnyRef.compileExpression(
+      qn,
       nodeKind, exprText, exprNamespaces, exprComponent.dpathCompileInfo, false, this, exprComponent.dpathCompileInfo)
   }.value
 }
 
-abstract class ValueCalcBase(e: ElementBase,
+abstract class ValueCalcBase(
+  e: ElementBase,
   property: PropertyLookupResult)
   extends ExpressionEvaluatorBase(e) {
 
@@ -199,7 +204,8 @@ abstract class ValueCalcBase(e: ElementBase,
 
 }
 
-case class InputValueCalc(e: ElementBase,
+case class InputValueCalc(
+  e: ElementBase,
   property: PropertyLookupResult)
   extends ValueCalcBase(e, property) {
 
@@ -213,8 +219,8 @@ case class InputValueCalc(e: ElementBase,
 }
 
 case class TypeValueCalc(e: ElementBase)
-    extends Terminal(e,e.hasRepType){
-  
+  extends Terminal(e, e.hasRepType) {
+
   private lazy val simpleTypeDefBase = e.simpleType.asInstanceOf[SimpleTypeDefBase]
   private lazy val typeCalculator = {
     val a = simpleTypeDefBase
@@ -224,20 +230,20 @@ case class TypeValueCalc(e: ElementBase)
   private lazy val repTypeRuntimeData = simpleTypeDefBase.optRepTypeElement.get.elementRuntimeData
   private lazy val repTypeParser = simpleTypeDefBase.optRepTypeElement.get.enclosedElement.parser
   private lazy val repTypeUnparser = simpleTypeDefBase.optRepTypeElement.get.enclosedElement.unparser
-  
+
   override lazy val parser: DaffodilParser = {
-    if(!typeCalculator.supportsParse){
+    if (!typeCalculator.supportsParse) {
       SDE("Parsing not defined by typeValueCalc")
     }
     new TypeValueCalcParser(typeCalculator, repTypeParser, e.elementRuntimeData, repTypeRuntimeData)
   }
   override lazy val unparser: DaffodilUnparser = {
-    if(!typeCalculator.supportsUnparse){
+    if (!typeCalculator.supportsUnparse) {
       SDE("Unparsing not defined by typeValueCalc")
     }
     new TypeValueCalcUnparser(typeCalculator, repTypeUnparser, e.elementRuntimeData, repTypeRuntimeData)
   }
-  
+
 }
 
 //case class OutputValueCalcStaticLength(e: ElementBase,
@@ -296,7 +302,7 @@ case class TypeValueCalc(e: ElementBase)
 
 abstract class AssertPatternPrimBase(decl: Term, stmt: DFDLAssertionBase, discrim: Boolean)
   extends ExpressionEvaluatorBase(decl) {
- 
+
   override val baseName = if (discrim) "Discriminator" else "Assert"
   override lazy val exprText = stmt.messageAttrib.get
   override lazy val exprNamespaces = decl.namespaces
@@ -325,7 +331,6 @@ abstract class AssertPatternPrimBase(decl: Term, stmt: DFDLAssertionBase, discri
 
 case class AssertPatternPrim(term: Term, stmt: DFDLAssert)
   extends AssertPatternPrimBase(term, stmt, false)
-
 
 case class DiscriminatorPatternPrim(term: Term, stmt: DFDLDiscriminator)
   extends AssertPatternPrimBase(term, stmt, true)

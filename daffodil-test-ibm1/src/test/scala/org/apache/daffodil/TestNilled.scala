@@ -28,5 +28,5 @@ object TestNilled {
 class TestNilled {
   import TestNilled._
 
-  @Test def test_nilled_ES_optional() = { runner.trace.runOneTest("nilled_ES_optional") }
+  @Test def test_nilled_ES_optional() = { runner.runOneTest("nilled_ES_optional") }
 }

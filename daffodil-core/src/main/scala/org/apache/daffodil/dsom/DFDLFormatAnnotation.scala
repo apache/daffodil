@@ -223,7 +223,7 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
     val jtoSet = shortFormProperties.union(longFormProperties).union(elementFormProperties)
     val jto = jtoSet.toMap
     jto
-  }.value
+  }.toOption.getOrElse(emptyPropMap)
 
   /**
    * Just this one, as in the short, long, and element form properties, on just this
@@ -237,7 +237,7 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
     val res = combinedJustThisOneProperties
     log(LogLevel.Debug, "%s::%s justThisOneProperties are: %s", annotatedSC.diagnosticDebugName, diagnosticDebugName, res)
     res
-  }.value
+  }.toOption.getOrElse(emptyPropMap)
 
   /**
    * For unit testing convenience, or for use when debugging.
@@ -249,8 +249,8 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
    * For unit testing convenience, or for use when debugging.
    */
   def verifyPropValue(propName: String, expectedValue: String): Boolean = {
-    val optInfo = justThisOneProperties.get(propName)
-    optInfo match {
+    val info = justThisOneProperties.get(propName)
+    info match {
       case None => false
       case Some((actualValue, _)) => actualValue == expectedValue
     }

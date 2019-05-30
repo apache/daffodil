@@ -65,7 +65,7 @@ final class GroupRefFactory(refXMLArg: Node, val refLexicalParent: SchemaCompone
   final def qname = this.refQName
 
   lazy val groupRef = LV('groupRef) {
-    val gdefFactory = parent.schemaSet.getGlobalGroupDef(qname).getOrElse {
+    val gdefFactory = lexicalParent.schemaSet.getGlobalGroupDef(qname).getOrElse {
       SDE("Referenced group definition not found: %s", this.ref)
     }
     val (gref, _) = gdefFactory.forGroupRef(refXMLArg, refLexicalParent, position, isHidden)

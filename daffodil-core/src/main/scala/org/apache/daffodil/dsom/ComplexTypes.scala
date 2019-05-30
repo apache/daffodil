@@ -32,8 +32,6 @@ abstract class ComplexTypeBase(xmlArg: Node, parentArg: SchemaComponent)
 
   requiredEvaluations(modelGroup)
 
-  override def elementDecl: ElementDeclMixin
-
   protected final lazy val <complexType>{ xmlChildren @ _* }</complexType> = xml
 
   final def group = modelGroup
@@ -65,19 +63,6 @@ abstract class ComplexTypeBase(xmlArg: Node, parentArg: SchemaComponent)
   lazy val localAndFormatRefProperties: Map[String, String] = {
     Map.empty[String, String]
   }
-
-  //  lazy val isScannable: Boolean = {
-  //    val selfOK = modelGroup.group.isScannable
-  //    if (!selfOK) false
-  //    else {
-  //      val parentElem: ElementBase = enclosingComponent.get.asInstanceOf[ElementBase]
-  //      val unScannableChildren = modelGroup.group.groupMembers.filterNot { child =>
-  //        (child.knownEncodingCharset == parentElem.knownEncodingCharset) && child.isScannable
-  //      }
-  //      unScannableChildren.length == 0
-  //    }
-  //  }
-
 }
 
 final class GlobalComplexTypeDefFactory(xmlArg: Node, schemaDocumentArg: SchemaDocument)
@@ -92,16 +77,18 @@ final class GlobalComplexTypeDefFactory(xmlArg: Node, schemaDocumentArg: SchemaD
 /**
  * For unit testing purposes, the element argument might be supplied as null.
  */
-final class GlobalComplexTypeDef(xmlArg: Node, schemaDocumentArg: SchemaDocument, override val elementDecl: ElementDeclMixin)
+final class GlobalComplexTypeDef(
+  xmlArg: Node,
+  schemaDocumentArg: SchemaDocument,
+  val elementDecl: ElementDeclMixin)
   extends ComplexTypeBase(xmlArg, schemaDocumentArg)
   with GlobalNonElementComponentMixin
   with NestingTraversesToReferenceMixin {
 
   override lazy val referringComponent = Option(elementDecl)
-
 }
 
-final class LocalComplexTypeDef(xmlArg: Node, override val elementDecl: ElementDeclMixin)
+final class LocalComplexTypeDef(xmlArg: Node, val elementDecl: ElementDeclMixin)
   extends ComplexTypeBase(xmlArg, elementDecl)
   with LocalNonElementComponentMixin
   with NestingLexicalMixin {

@@ -39,6 +39,7 @@ import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.processors.TypeCalculator
 import scala.collection.immutable.Map
 import scala.collection.immutable.HashMap
+import org.apache.daffodil.compiler.ProcessorFactory
 
 /**
  * A schema set is exactly that, a set of schemas. Each schema has
@@ -62,22 +63,26 @@ import scala.collection.immutable.HashMap
  */
 
 final class SchemaSet(
+  pfArg: => Option[ProcessorFactory],
   rootSpec: Option[RootSpec],
   externalVariables: Seq[Binding],
   schemaSourcesArg: Seq[DaffodilSchemaSource],
   val validateDFDLSchemas: Boolean,
   checkAllTopLevelArg: Boolean,
-  parent: SchemaComponent,
   tunableArg: DaffodilTunables)
-  extends SchemaComponentImpl(<schemaSet/>, parent) // a fake schema component
+  extends SchemaComponentImpl(<schemaSet/>, null)
   with SchemaSetIncludesAndImportsMixin {
+
+  private lazy val processorFactory = pfArg // insure this by name arg is evaluated exactly once.
+
+  lazy val root = rootElement(processorFactory.flatMap { _.rootSpec })
 
   override def tunable =
     tunableArg
 
   requiredEvaluations(isValid)
   requiredEvaluations(typeCalcMap)
-  
+
   if (checkAllTopLevel) {
     requiredEvaluations(checkForDuplicateTopLevels())
     requiredEvaluations(this.allTopLevels)
@@ -113,6 +118,7 @@ final class SchemaSet(
    */
   def this(sch: Node, rootNamespace: String = null, root: String = null, extVars: Seq[Binding] = Seq.empty, optTmpDir: Option[File] = None, tunableOpt: Option[DaffodilTunables] = None) =
     this(
+      None,
       {
         if (root == null) None else {
           if (rootNamespace == null) Some(RootSpec(None, root))
@@ -123,7 +129,6 @@ final class SchemaSet(
       List(UnitTestSchemaSource(sch, Option(root).getOrElse("anon"), optTmpDir)),
       false,
       false,
-      null,
       tunableOpt.getOrElse(DaffodilTunables()))
 
   lazy val schemaFileList = schemas.map(s => s.uriString)
@@ -163,12 +168,12 @@ final class SchemaSet(
     schemas.toSeq
   }.value
 
-  lazy val globalSimpleTypeDefs: Seq[GlobalSimpleTypeDefFactory] = schemas.flatMap(_.globalSimpleTypeDefs)
+  lazy val globalSimpleTypeDefs: Seq[GlobalSimpleTypeDef] = schemas.flatMap(_.globalSimpleTypeDefs)
 
   lazy val typeCalcMap: Map[GlobalQName, TypeCalculator[AnyRef, AnyRef]] = {
     val factories = globalSimpleTypeDefs
     val withCalc = factories.filter(_.optTypeCalculator.isDefined)
-    val mappings = withCalc.map(st=> (st.globalQName, st.optTypeCalculator.get))
+    val mappings = withCalc.map(st => (st.globalQName, st.optTypeCalculator.get))
 
     mappings.toMap
   }
@@ -402,10 +407,6 @@ final class SchemaSet(
       optPrimNode.map { PrimitiveType(_) }
     }
   }
-  def getPrimitiveTypeFactory(refQName: RefQName) = {
-    val primType = getPrimitiveType(refQName)
-    primType.map(new PrimitiveSimpleTypeFactory(_, schemaDocument))
-  }
 
   /**
    * Creates a DFDLDefineVariable object for the predefined variable.
@@ -484,8 +485,9 @@ final class SchemaSet(
       matchingDVs.length match {
         case 0 => this.SDE("Could not find the externally defined variable %s.", v.varQName)
         case x: Int if x > 1 =>
-          this.SDE("The externally defined variable %s is ambiguous.  " +
-            "A namespace is required to resolve the ambiguity.\nFound:\t%s",
+          this.SDE(
+            "The externally defined variable %s is ambiguous.  " +
+              "A namespace is required to resolve the ambiguity.\nFound:\t%s",
             v.varQName, matchingDVs.mkString(", "))
         case _ => // This is OK, we have exactly 1 match
       }

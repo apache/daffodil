@@ -36,7 +36,7 @@ import org.apache.daffodil.schema.annotation.props.PropTypes
 
 abstract class SchemaComponentImpl(
   final override val xml: Node,
-  final override val parent: SchemaComponent)
+  final override val lexicalParent: SchemaComponent)
   extends SchemaComponent
 
 /**
@@ -54,11 +54,12 @@ trait SchemaComponent
   with PropTypes {
 
   def xml: Node
-  def parent: SchemaComponent
+  def lexicalParent: SchemaComponent
+  final lazy val optLexicalParent = Option(lexicalParent) // Option because Option(null) == None. We want that.
 
-  final override def oolagContextViaArgs = Some(parent)
+  override def oolagContextViaArgs = Option(lexicalParent) // Option because Option(null) == None. We want that.
 
-  def tunable: DaffodilTunables = parent.tunable
+  def tunable: DaffodilTunables = lexicalParent.tunable
 
   lazy val dpathCompileInfo: DPathCompileInfo =
     new DPathCompileInfo(
@@ -68,8 +69,6 @@ trait SchemaComponent
       path,
       schemaFileLocation,
       tunable)
-
-  val context: SchemaComponent = parent
 
   /**
    * ALl non-terms get runtimeData from this definition. All Terms
@@ -132,20 +131,6 @@ trait SchemaComponent
     ee
   }.value
 
-  final lazy val rootElementRef = rootElementDecl.map { _.elementRef }
-
-  final lazy val rootElementDecl: Option[GlobalElementDecl] = {
-    enclosingElement match {
-      case Some(e) => e.rootElementDecl
-      case None => this match {
-        case ged: GlobalElementDecl => Some(ged)
-        case root: Root => root.optReferredToComponent
-        case qed: QuasiElementDeclBase => qed.detachedReference.rootElementDecl
-        case _ => Assert.invariantFailed("No global element decl")
-      }
-    }
-  }
-
   final lazy val enclosingTerm: Option[Term] = {
     val ec = enclosingComponent
     val et = ec match {
@@ -169,36 +154,24 @@ trait SchemaComponent
   /**
    * Elements only e.g., /foo/ex:bar
    */
-  final lazy val slashPath: String = {
-    val thisOne = "/" + diagnosticDebugName
-    val encElem = enclosingElement
-    if (encElem.isDefined)
-      encElem.get.slashPath + thisOne
-    else
-      thisOne
-  }
+  final lazy val slashPath: String =
+    scPath.filter { _.isInstanceOf[ElementBase] }.map { _.diagnosticDebugName }.mkString("/")
 
   override def toString = diagnosticDebugName
 
   /**
-   * Includes instances. Ie., a global element will appear inside an element ref.
-   * a global group inside a group ref, a global type inside an element or for
-   * derived simple types inside another simple type, etc.
+   * Does not include instances. Ie., walks up lexical nest only.
    *
-   * Used in diagnostic messages and code debug messages
+   * This implies that to fully distinguish context for diagnostic messages
+   * we will need to use the node stack in the state of the processor to provide
+   * the dynamic nest of elements, as at schema compile time we only have
+   * the lexical nest.
+   *
+   * Used in diagnostic messages and code debug messages.
    */
 
-  final lazy val scPath: Seq[SchemaComponent] = {
-    val ec = enclosingComponent
-    val scpOpt = ec.map {
-      sc =>
-        {
-          Assert.invariant(sc != null)
-          val parentPath = sc.scPath
-          parentPath
-        }
-    }
-    val res = scpOpt.getOrElse(Nil) :+ this
+  private lazy val scPath: Seq[SchemaComponent] = {
+    val res = optLexicalParent.map { _.scPath }.getOrElse(Nil) :+ this
     res
   }
 

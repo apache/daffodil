@@ -146,7 +146,7 @@ final case class ConstantExpression[+T <: AnyRef](
     value
   }
   override def run(dstate: DState) = dstate.setCurrentValue(value)
- 
+
   final def evaluateForwardReferencing(state: ParseOrUnparseState, whereBlockedLocation: Suspension): Maybe[T] = {
     // whereBlockedLocation is ignored since a constant expression cannot block.
     whereBlockedLocation.setDone
@@ -299,7 +299,7 @@ class DPathCompileInfo(
  * structures are created which reference these.
  */
 class DPathElementCompileInfo(
-  @TransientParam parentArg: => Option[DPathCompileInfo],
+  @TransientParam parentArg: => Option[DPathElementCompileInfo],
   @TransientParam variableMap: => VariableMap,
   @TransientParam elementChildrenCompileInfoArg: => Seq[DPathElementCompileInfo],
   namespaces: scala.xml.NamespaceBinding,

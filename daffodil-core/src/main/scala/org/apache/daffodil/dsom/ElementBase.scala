@@ -181,7 +181,7 @@ trait ElementBase
     val isReferenced =
       if (this.isInstanceOf[PrefixLengthQuasiElementDecl]) false
       else {
-        val setElems = rootElementRef.get.contentLengthParserReferencedElementInfos
+        val setElems = schemaSet.root.contentLengthParserReferencedElementInfos
         setElems.contains(this.dpathElementCompileInfo)
       }
     isReferenced
@@ -195,7 +195,7 @@ trait ElementBase
     val isReferenced =
       if (this.isInstanceOf[PrefixLengthQuasiElementDecl]) false
       else {
-        val setElems = rootElementRef.get.contentLengthUnparserReferencedElementInfos
+        val setElems = schemaSet.root.contentLengthUnparserReferencedElementInfos
         setElems.contains(this.dpathElementCompileInfo)
       }
 
@@ -219,7 +219,7 @@ trait ElementBase
     val isReferenced =
       if (this.isInstanceOf[PrefixLengthQuasiElementDecl]) false
       else {
-        val setElems = rootElementRef.get.valueLengthParserReferencedElementInfos
+        val setElems = schemaSet.root.valueLengthParserReferencedElementInfos
         setElems.contains(this.dpathElementCompileInfo)
       }
 
@@ -248,7 +248,7 @@ trait ElementBase
     val isReferenced =
       if (this.isInstanceOf[PrefixLengthQuasiElementDecl]) false
       else {
-        val setElems = rootElementRef.get.valueLengthUnparserReferencedElementInfos
+        val setElems = schemaSet.root.valueLengthUnparserReferencedElementInfos
         setElems.contains(this.dpathElementCompileInfo)
       }
 
@@ -270,11 +270,6 @@ trait ElementBase
    * None for complex types, Some(primType) for simple types.
    */
   final lazy val optPrimType: Option[PrimType] = Misc.boolToOpt(isSimpleType, primType) // .typeRuntimeData)
-
-  /**
-   * scalar means minOccurs=1 and maxOccurs=1
-   */
-  def isScalar: Boolean
 
   /**
    * An array element is required if its index is less than the minOccurs of the
@@ -382,7 +377,7 @@ trait ElementBase
   private lazy val myOwnNSPairs: Set[(String, NS)] = thisElementsRequiredNamespaceBindings
   private lazy val myParentNSPairs = enclosingElement match {
     case None => emptyNSPairs
-    case Some(parent) => parent.myOwnNSPairs
+    case Some(ee) => ee.myOwnNSPairs
   }
 
   private lazy val myUniquePairs: Set[(String, NS)] = {
@@ -668,7 +663,7 @@ trait ElementBase
   }
 
   final lazy val isParentUnorderedSequence: Boolean = {
-    parent match {
+    lexicalParent match {
       case s: SequenceTermBase if !s.isOrdered => true
       case _ => false
     }
@@ -928,14 +923,6 @@ trait ElementBase
       else false
     else false
   }
-
-  /**
-   * Means the element is in a context where there is a separator (from some enclosing sequence)
-   * expected after it.
-   *
-   * Abstract here because implementations are different for local vs. global things.
-   */
-  def hasSep: Boolean
 
   /**
    * check length and if there are delimiters such that there is a concept of something that we can call 'empty'

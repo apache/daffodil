@@ -298,7 +298,8 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
       //
       val compiledExpr = try {
         val hostForDiags = new DebuggerHost()
-        val ce = eCompilers.JBoolean.compileExpression(debuggerQName,
+        val ce = eCompilers.JBoolean.compileExpression(
+          debuggerQName,
           NodeInfo.Boolean, expression, processor.context.namespaces, context.dpathCompileInfo, false,
           hostForDiags, context.dpathCompileInfo)
         val warnings = hostForDiags.getDiagnostics.filterNot(_.isError)
@@ -456,9 +457,9 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
     debugPrintln(bos.toString("UTF-8"))
   }
 
-  /**********************************/
+/**********************************/
   /**          Commands            **/
-  /**********************************/
+/**********************************/
 
   abstract class DebugCommand {
     val name: String
@@ -1043,7 +1044,8 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
         val isEvaluatedAbove = false
         try {
           val hostForDiags = new DebuggerHost()
-          val compiledExpression = eCompilers.AnyRef.compileExpression(debuggerQName,
+          val compiledExpression = eCompilers.AnyRef.compileExpression(
+            debuggerQName,
             NodeInfo.AnyType, expressionWithBraces, namespaces, context.dpathCompileInfo,
             isEvaluatedAbove, hostForDiags, context.dpathElementCompileInfo)
           val res = compiledExpression.evaluate(state)
@@ -1494,27 +1496,10 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
         val desc = "display the current infoset"
         val longDesc = desc
 
-        def getInfoset(currentNode: InfosetItem) = {
-          val rootNode =
-            if (currentNode.isInstanceOf[InfosetElement]) {
-
-              var tmpNode = currentNode.asInstanceOf[DIElement]
-              var parent = tmpNode.diParent
-              while (parent ne null) {
-                tmpNode = parent
-                parent = tmpNode.diParent
-              }
-              tmpNode
-            } else {
-              currentNode
-            }
-          rootNode.asInstanceOf[DIDocument]
-        }
-
         def act(args: Seq[String], prestate: StateForDebugger, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
           debugPrintln("%s:".format(name))
 
-          val infoset = getInfoset(state.infoset)
+          val infoset = state.infoset.toRootDoc
           if (infoset.getRootElement != null) {
             val bos = new java.io.ByteArrayOutputStream()
             val xml = new XMLTextInfosetOutputter(bos, true)

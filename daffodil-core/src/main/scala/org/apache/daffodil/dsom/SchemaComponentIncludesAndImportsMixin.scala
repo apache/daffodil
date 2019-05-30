@@ -30,7 +30,7 @@ trait SchemaComponentIncludesAndImportsMixin
    * Used in diagnostic messages; hence, valueOrElse to avoid
    * problems when this can't get a value due to an error.
    */
-  override def uriString: String = uriString_.valueOrElse(orElseURL)
+  override def uriString: String = uriString_.toOption.getOrElse(orElseURL)
   private def uriString_ = LV('fileName) {
     xmlSchemaDocument.uriString
   }

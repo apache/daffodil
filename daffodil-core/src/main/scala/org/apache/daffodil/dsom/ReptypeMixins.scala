@@ -28,23 +28,38 @@ import org.apache.daffodil.processors.RepValueSet
  * need to get a quasi element with said type.
  */
 trait HasOptRepTypeMixinImpl extends SchemaComponent with HasOptRepTypeMixin {
-  
-  override lazy val optRepTypeElement: Option[RepTypeQuasiElementDecl] = optRepTypeFactory.map(repType => {
-    val xmlElem = Elem(null, "QuasiElementForTypeCalc", new UnprefixedAttribute("type", repType.namedQName.toAttributeNameString, Null), namespaces, true)
-    new RepTypeQuasiElementDecl(this.enclosingElement.get, xmlElem, parent)
-  })
+
+  override lazy val optRepTypeElement: Option[RepTypeQuasiElementDecl] =
+    optRepTypeDef.map(repType => {
+      val xmlElem = Elem(null, "QuasiElementForTypeCalc", new UnprefixedAttribute("type", repType.namedQName.toAttributeNameString, Null), namespaces, true)
+      new RepTypeQuasiElementDecl(xmlElem, lexicalParent)
+    })
 
 }
 
 trait HasOptRepTypeMixin {
-  def optRepTypeFactory: Option[SimpleTypeFactory with NamedMixin]
-  
-  lazy val optRepTypeDefFactory: Option[SimpleTypeDefFactory with NamedMixin] = optRepTypeFactory match {
-    case Some(x:SimpleTypeDefFactory) => Some(x)
+
+  /**
+   *  Provides the repType. Can be a "def" or a primitive type.
+   *
+   *  optRepType and optRepTypeDef are different, because it is possible for the
+   *  repType to be a primitive type. The resulting type would be difficult
+   *  (maybe impossible?) to use as the type for an element, as a primitive repType
+   *  would be missing any annotations that tell Daffodil what the physical
+   *  characteristics are; however the type can be used purely to define a
+   *  function for use by DPath expressions.
+   */
+  def optRepType: Option[SimpleTypeBase]
+
+  /**
+   * optRepTypeDef - there is no "def" for a primitive type.
+   */
+  final lazy val optRepTypeDef: Option[SimpleTypeDefBase] = optRepType match {
+    case Some(x: SimpleTypeDefBase) => Some(x)
     case _ => None
   }
   def optRepValueSet: Option[RepValueSet[AnyRef]]
-  
+
   def optRepTypeElement: Option[RepTypeQuasiElementDecl]
 
 }

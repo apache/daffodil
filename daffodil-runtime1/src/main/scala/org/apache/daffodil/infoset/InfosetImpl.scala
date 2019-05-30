@@ -66,7 +66,7 @@ sealed trait DINode {
     }
   }
   def isSimple: Boolean
-  
+
   def asComplex: DIComplex = {
     this match {
       case diComplex: DIComplex => diComplex
@@ -158,8 +158,8 @@ case class InfosetWrongNodeType(expectedType: String, val node: DINode)
 case class InfosetNoSuchChildElementException(val diComplex: DIComplex, val info: DPathElementCompileInfo)
   extends ProcessingError("Expression Evaluation", Nope, Nope, "Child element %s does not exist.", info.namedQName)
   with InfosetException with RetryableException
-  
-case class InfosetNoNextSiblingException(val diSimple:DISimple, val info:DPathElementCompileInfo)
+
+case class InfosetNoNextSiblingException(val diSimple: DISimple, val info: DPathElementCompileInfo)
   extends ProcessingError("Expression Evaluation", Nope, Nope, "Element %s does not have a nextSibling", info.namedQName)
   with InfosetException with RetryableException
 
@@ -836,11 +836,11 @@ sealed trait DIElement
     case _ => false
   }
 
-  def toRootDoc: DIComplex = toRootDoc1(this)
+  def toRootDoc: DIDocument = toRootDoc1(this)
 
-  private def toRootDoc1(orig: DIElement): DIComplex = {
+  private def toRootDoc1(orig: DIElement): DIDocument = {
     if (isRootDoc) this.asInstanceOf[DIDocument]
-    else if (isRoot) diParent
+    else if (isRoot) diParent.asInstanceOf[DIDocument]
     else {
       parent match {
         case null =>
@@ -961,7 +961,7 @@ final class DIArray(
       }
     }
   }
-  
+
   override def isSimple = false
   override def isComplex = false
 
@@ -1593,7 +1593,7 @@ final class DIDocument(erd: ElementRuntimeData, tunable: DaffodilTunables)
       nameToChildNodeLookup.put(node.namedQName, ab)
     }
     child.setParent(this)
-    if(root == null)
+    if (root == null)
       root = child.asInstanceOf[DIElement]
   }
 
