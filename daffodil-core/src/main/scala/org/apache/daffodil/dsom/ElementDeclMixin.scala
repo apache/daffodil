@@ -62,7 +62,7 @@ trait ElementDeclMixin
     val ct = xml \ "complexType"
     val nt = typeName
     if (st.length == 1) {
-      val lstd = new LocalSimpleTypeDefFactory(st(0), schemaDocument).forElement(this)
+      val lstd = new LocalSimpleTypeDef(st(0), this)
       Some(lstd)
     } else if (ct.length == 1)
       Some(new LocalComplexTypeDef(ct(0), this))
@@ -94,7 +94,7 @@ trait ElementDeclMixin
           val gstd = ss.getGlobalSimpleTypeDef(qn)
           val gctd = ss.getGlobalComplexTypeDef(qn)
           val res = (gstd, gctd) match {
-            case (Some(gstdFactory), None) => Some(gstdFactory.forElement(this))
+            case (Some(_), None) => gstd
             case (None, Some(gctdFactory)) => Some(gctdFactory.forElement(this))
             // Note: Validation of the DFDL Schema doesn't necessarily check referential integrity
             // or other complex constraints like conflicting names.

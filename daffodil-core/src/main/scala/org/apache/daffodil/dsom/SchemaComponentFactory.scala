@@ -29,21 +29,19 @@ import scala.xml.Node
  * Anything that can be computed without reference to the point of use
  * or point of reference can be computed here on these factory objects.
  */
-abstract class SchemaComponentFactory( final override val xml: Node,
-  final override val schemaDocument: SchemaDocument)
+abstract class SchemaComponentFactory(
+  final override val xml: Node,
+  final override val lexicalParent: SchemaComponent)
   extends SchemaComponent
   with NestingLexicalMixin {
 
-  final override def parent = schemaDocument
-
 }
 
-abstract class AnnotatedSchemaComponentFactory( final override val xml: Node,
-  final override val schemaDocument: SchemaDocument)
+abstract class AnnotatedSchemaComponentFactory(
+  final override val xml: Node,
+  final override val lexicalParent: SchemaComponent)
   extends AnnotatedSchemaComponent
   with NestingLexicalMixin {
-
-  final override def parent = schemaDocument
 
 }
 
@@ -52,7 +50,7 @@ trait SchemaFileLocatableImpl
 
   def xml: scala.xml.Node
   def schemaFile: Option[DFDLSchemaFile]
-  def parent: SchemaComponent
+  def lexicalParent: SchemaComponent
 
   /**
    * Annotations can contain expressions, so we need to be able to compile them.
@@ -65,7 +63,7 @@ trait SchemaFileLocatableImpl
     val attrText = xml.attribute(XMLUtils.INT_NS, XMLUtils.LINE_ATTRIBUTE_NAME).map { _.text }
     if (attrText.isDefined) {
       attrText
-    } else if (parent != null) parent.lineAttribute
+    } else if (lexicalParent != null) lexicalParent.lineAttribute
     else None
   }
 
@@ -81,14 +79,14 @@ trait SchemaFileLocatableImpl
 trait CommonContextMixin
   extends NestingMixin { self: OOLAGHost with ThrowsSDE =>
 
-  def parent: SchemaComponent
+  def lexicalParent: SchemaComponent
 
-  lazy val schemaFile: Option[DFDLSchemaFile] = parent.schemaFile
-  lazy val schemaSet: SchemaSet = parent.schemaSet
-  def schemaDocument: SchemaDocument = parent.schemaDocument
-  lazy val xmlSchemaDocument: XMLSchemaDocument = parent.xmlSchemaDocument
-  lazy val schema: Schema = parent.schema
-  def uriString: String = parent.uriString
+  lazy val schemaFile: Option[DFDLSchemaFile] = lexicalParent.schemaFile
+  lazy val schemaSet: SchemaSet = lexicalParent.schemaSet
+  def schemaDocument: SchemaDocument = lexicalParent.schemaDocument
+  lazy val xmlSchemaDocument: XMLSchemaDocument = lexicalParent.xmlSchemaDocument
+  lazy val schema: Schema = lexicalParent.schema
+  def uriString: String = lexicalParent.uriString
 
   def xml: scala.xml.Node
 

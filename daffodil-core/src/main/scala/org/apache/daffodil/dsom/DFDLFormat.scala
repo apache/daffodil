@@ -47,7 +47,7 @@ final class DFDLSequence(node: Node, decl: SequenceDefMixin)
 final class DFDLChoice(node: Node, decl: ChoiceDefMixin)
   extends DFDLModelGroup(node, decl)
 
-final class DFDLSimpleType(node: Node, decl: SimpleTypeDefFactory)
+final class DFDLSimpleType(node: Node, decl: SimpleTypeDefBase)
   extends DFDLNonDefaultFormatAnnotation(node, decl) {
 }
 

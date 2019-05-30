@@ -635,7 +635,7 @@ class TestCLIdebugger {
       shell.sendLine("display info path")
 
       shell.sendLine("continue")
-      shell.expect(contains("matrix::matrixType::sequence[1]::row::LocalComplexTypeDef::sequence[1]::cell"))
+      shell.expect(contains("matrixType::sequence[1]::row::LocalComplexTypeDef::sequence[1]::cell"))
 
       shell.sendLine("delete breakpoint 1")
       shell.expect(contains("debug"))

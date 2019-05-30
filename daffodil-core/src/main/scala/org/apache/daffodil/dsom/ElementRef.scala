@@ -25,10 +25,11 @@ import org.apache.daffodil.dpath.NodeInfo
  * There are 3 first-class concrete children of ElementBase.
  * Root, LocalElementDecl, and ElementRef
  */
-final class ElementRef(xmlArg: Node, parent: GroupDefLike, position: Int)
-  extends AbstractElementRef(xmlArg, parent, position)
+final class ElementRef(xmlArg: Node, lexicalParent: GroupDefLike, position: Int)
+  extends AbstractElementRef(xmlArg, lexicalParent, position)
 
-abstract class AbstractElementRef(xmlArg: Node,
+abstract class AbstractElementRef(
+  xmlArg: Node,
   parentArg: SchemaComponent,
   positionArg: Int)
   extends ElementBase
@@ -37,7 +38,7 @@ abstract class AbstractElementRef(xmlArg: Node,
   with NestingLexicalMixin {
 
   override lazy val xml = xmlArg
-  final override lazy val parent = parentArg
+  final override lazy val lexicalParent = parentArg
   final override lazy val position = positionArg
 
   requiredEvaluations(referencedElement)

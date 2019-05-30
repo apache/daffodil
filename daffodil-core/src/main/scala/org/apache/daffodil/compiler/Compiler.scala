@@ -107,9 +107,7 @@ final class ProcessorFactory(val sset: SchemaSet)
     unp
   }.value
 
-  lazy val rootElem = LV('rootElem) {
-    sset.rootElement(rootSpec)
-  }.value
+  lazy val rootElem = sset.root
 
   //
   // breaking this into these lines causes the order things are
@@ -151,7 +149,8 @@ final class ProcessorFactory(val sset: SchemaSet)
       Assert.usage(!isError)
       if (xpath != "/") rootElem.notYetImplemented("""Path must be "/". Other path support is not yet implemented.""")
       val rootERD = rootElem.elementRuntimeData
-      rootElem.schemaDefinitionUnless(rootERD.outputValueCalcExpr.isEmpty,
+      rootElem.schemaDefinitionUnless(
+        rootERD.outputValueCalcExpr.isEmpty,
         "The root element cannot have the dfdl:outputValueCalc property.")
       val validationMode = ValidationMode.Off
       val variables: VariableMap = rootElem.schemaDocument.schemaSet.variableMap
@@ -312,8 +311,7 @@ class Compiler(var validateDFDLSchemas: Boolean = true)
           "or it is missing from the classpath which is%s".format(
             cnf.getMessage(),
             scala.util.Properties.javaVersion,
-            cpString
-          )
+            cpString)
         throw new InvalidParserException(msg, cnf)
       }
     }
@@ -335,9 +333,20 @@ class Compiler(var validateDFDLSchemas: Boolean = true)
    */
   def compileSource(schemaSource: DaffodilSchemaSource): ProcessorFactory =
     Compiler.synchronized {
-      val noParent = null // null indicates this is the root, and has no parent
-      val sset = new SchemaSet(rootSpec, externalDFDLVariables, Seq(schemaSource), validateDFDLSchemas, checkAllTopLevel, noParent, tunablesObj)
-      val pf = new ProcessorFactory(sset)
+      //
+      // The SchemaSet object and the ProcessorFactory mutually refer to each other because
+      // the API allows the root to be specified by API calls on the processor factory, the compiler,
+      // or it can be inferred from the contents of the schema documents.
+      //
+      // The logic for assembling all those sources together is in the SchemaSet.
+      //
+      // To make these two objects refer to each other, we we create them lazily, and
+      // pass by name to SchemaSet constructor. This is the typical scala idiom
+      // for creating things that point mutually without using a side-effect which may or may not
+      // have happened a the time the information is demanded.
+      //
+      lazy val sset: SchemaSet = new SchemaSet(Some(pf), rootSpec, externalDFDLVariables, Seq(schemaSource), validateDFDLSchemas, checkAllTopLevel, tunablesObj)
+      lazy val pf: ProcessorFactory = new ProcessorFactory(sset)
       val err = pf.isError
       val diags = pf.getDiagnostics // might be warnings even if not isError
       if (err) {

@@ -44,11 +44,11 @@ import org.apache.daffodil.api.WarnID
  * All "real" terms are able to resolve properties. Most other objects just contribute
  * properties to the mix, but they are not points where properties are
  * used to generate processors.
- * 
- * EnumerationFactory and SimpleTypeDefFactory are the oddballs out. In addition to 
- * being used to generate processors, these classes our also used to generate abstract 
- * TypeCalculators, which are not nessasarily attached to any particular element, nor 
- * used to generate any processor (for instance, there may be a globalSimpleType whose 
+ *
+ * EnumerationFactory and SimpleTypeDefFactory are the oddballs out. In addition to
+ * being used to generate processors, these classes our also used to generate abstract
+ * TypeCalculators, which are not nessasarily attached to any particular element, nor
+ * used to generate any processor (for instance, there may be a globalSimpleType whose
  * only purpose is to define a TypeCalculator for use in DPath expressions)
  */
 trait ResolvesProperties
@@ -110,7 +110,7 @@ trait ResolvesProperties
 /** Convenience class for implemening AnnotatedSchemaComponent trait */
 abstract class AnnotatedSchemaComponentImpl(
   final override val xml: Node,
-  final override val parent: SchemaComponent)
+  final override val lexicalParent: SchemaComponent)
   extends AnnotatedSchemaComponent
 
 /**

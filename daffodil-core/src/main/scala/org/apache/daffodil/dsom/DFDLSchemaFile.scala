@@ -35,7 +35,8 @@ import org.apache.daffodil.exceptions.Assert
  *
  * manages loading of it, and keeping track of validation errors
  */
-final class DFDLSchemaFile(val sset: SchemaSet,
+final class DFDLSchemaFile(
+  val sset: SchemaSet,
   schemaSourceArg: => DaffodilSchemaSource, // fileName, URL, or a scala.xml.Node
   val iiParent: IIBase,
   seenBeforeArg: IIMap)
@@ -61,6 +62,10 @@ final class DFDLSchemaFile(val sset: SchemaSet,
     // for example), in which case you want iiXMLSchemaDocument
     res
   }
+
+  override lazy val xmlSchemaDocument = iiParent.xmlSchemaDocument
+
+  override lazy val uriString = schemaSource.uriForLoading.toString
 
   override lazy val diagnosticDebugName = schemaSource.uriForLoading.toString
 
@@ -148,11 +153,25 @@ final class DFDLSchemaFile(val sset: SchemaSet,
         ldr.load(schemaSource) // validate as XML file with XML Schema for DFDL Schemas
         ldr.validateSchema(schemaSource) // validate as XSD (catches UPA errors for example)
       } catch {
-        case _: org.xml.sax.SAXParseException =>
-          // ok to absorb this. We have captured fatal exceptions in the
-          // error handler. 
-        case e: Exception =>
-          Assert.invariantFailed("Unexpected exception type " + e)
+        // ok to absorb SAX Parse Exception as we've captured those errors in error handling
+        // elsewhere.
+        case _: org.xml.sax.SAXParseException => // ok
+
+        //
+        // Leaving this commented code in, to document that it
+        // is a BAD IDEA to catch Exception. A more specific exception may be ok.
+        // if you catch Exception, this will mask errors like Null Pointer Exceptions.
+        //
+        // This catch of Exception had been put here due to problems with circular definitions
+        // occurring during issuing of an SDE. If the computation of the error object
+        // such as the file name, proper schema object to blame, etc. if those can
+        // themselves cause an SDE, then we end up in a circular definition.
+        //
+        // However, masking all Exceptions is NOT the right way to fix this.
+        // Use of OOLAG LV's toOption method is a better way.
+        //
+        // case e: Exception =>
+        //   Assert.invariantFailed("Unexpected exception type " + e)
       }
     }
     res

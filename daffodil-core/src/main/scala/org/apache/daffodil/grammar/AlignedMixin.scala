@@ -79,7 +79,7 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
         true
       else
         false
-    } else if (this.rootElementRef.get.isScannable)
+    } else if (schemaSet.root.isScannable)
       true
     else
       false
@@ -93,7 +93,7 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
         true
       else
         false
-    } else if (this.rootElementRef.get.isScannable)
+    } else if (schemaSet.root.isScannable)
       true
     else
       false
@@ -131,7 +131,7 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
     if (this.isInstanceOf[Root] || this.isInstanceOf[QuasiElementDeclBase]) {
       AlignmentMultipleOf(0) // root and quasi elements are aligned with anything
     } else {
-      val (priorSibs, parent) = potentialPriorTerms
+      val (priorSibs, optEnclosingParent) = potentialPriorTerms
       val arraySelfAlignment =
         if (isArray) {
           val e = this.asInstanceOf[ElementBase]
@@ -174,7 +174,7 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
         val eaa = ps.endingAlignmentApprox
         eaa
       }
-      val parentAlignmentApprox = parent.map { p =>
+      val parentAlignmentApprox = optEnclosingParent.map { p =>
         val csa = p.contentStartAlignment
         csa
       }.toSeq

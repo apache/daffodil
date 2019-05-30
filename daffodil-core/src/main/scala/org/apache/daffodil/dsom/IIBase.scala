@@ -126,7 +126,7 @@ object IIUtils {
 abstract class IIBase( final override val xml: Node, xsdArg: XMLSchemaDocument, val seenBefore: IIMap)
   extends SchemaComponent
   with NestingLexicalMixin {
-  final override def parent = xsdArg
+  final override def lexicalParent = xsdArg
 
   /**
    * An import/include requires only that we can access the

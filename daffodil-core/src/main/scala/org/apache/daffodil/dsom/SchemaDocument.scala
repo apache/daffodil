@@ -61,7 +61,8 @@ trait SchemaDocumentMixin { self: SchemaComponent =>
  * do with DFDL. Things like namespace, include, import, elementFormDefault
  * etc.
  */
-final class XMLSchemaDocument(xmlArg: Node,
+final class XMLSchemaDocument(
+  xmlArg: Node,
   schemaSetArg: SchemaSet,
 
   /**
@@ -181,7 +182,7 @@ final class SchemaDocument(xmlSDoc: XMLSchemaDocument)
   with SeparatorSuppressionPolicyMixin {
 
   final override val xml = xmlSDoc.xml
-  final override def parent = xmlSDoc
+  final override def lexicalParent = xmlSDoc
 
   override lazy val optReferredToComponent = None
 
@@ -287,7 +288,7 @@ final class SchemaDocument(xmlSDoc: XMLSchemaDocument)
     val factories = xmlelts.map { new GlobalElementDeclFactory(_, this) }
     factories
   }
-  lazy val globalSimpleTypeDefs = (xml \ "simpleType").map { new GlobalSimpleTypeDefFactory(_, this) }
+  lazy val globalSimpleTypeDefs = (xml \ "simpleType").map { new GlobalSimpleTypeDef(_, this) }
   lazy val globalComplexTypeDefs = (xml \ "complexType").map { new GlobalComplexTypeDefFactory(_, this) }
   lazy val globalGroupDefs = (xml \ "group").map { new GlobalGroupDefFactory(_, this) }
 

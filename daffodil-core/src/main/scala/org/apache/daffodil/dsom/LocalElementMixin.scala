@@ -32,16 +32,6 @@ trait LocalElementMixin
   extends ParticleMixin
   with LocalElementGrammarMixin { self: ElementBase =>
 
-  final lazy val hasSep = LV('hasSep) {
-    nearestEnclosingSequence match {
-      case None => false
-      case Some(es) => {
-        val res = es.separatorParseEv.isKnownNonEmpty
-        res
-      }
-    }
-  }.value
-
   /**
    * True if the length of the SimpleContent region or the ComplexContent region
    * (see DFDL Spec section 9.2) is known to be greater than zero.

@@ -37,7 +37,7 @@ class GlobalElementDeclFactory(xmlArg: Node, schemaDocumentArg: SchemaDocument)
   def forRoot() = asRoot // cache. Not a new one every time.
 
   private lazy val asRoot = {
-    lazy val ged = new GlobalElementDecl(xml, parent, root)
+    lazy val ged = new GlobalElementDecl(xml, schemaDocument, root)
     lazy val root: Root = new Root(xml, schemaDocument, namedQName, ged)
     root
   }

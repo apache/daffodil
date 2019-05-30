@@ -46,39 +46,39 @@ object ModelGroupFactory {
    * flatmap it to get a collection of model groups. Nil for non-model groups, non-Nil for the model group
    * object. There should be only one non-Nil.
    */
-  def apply(child: Node, parent: SchemaComponent, position: Int, isHidden: Boolean,
-            nodesAlreadyTrying: Set[Node] = Set()): List[ModelGroup] = {
+  def apply(child: Node, lexicalParent: SchemaComponent, position: Int, isHidden: Boolean,
+    nodesAlreadyTrying: Set[Node] = Set()): List[ModelGroup] = {
     if (nodesAlreadyTrying.contains(child)) {
       //
       // We are chasing our tail. Circular reference among named model groups/terms.
       //
-      parent.schemaDefinitionError("Model group circular definitions. Group references, or hidden group references form a loop.")
+      lexicalParent.schemaDefinitionError("Model group circular definitions. Group references, or hidden group references form a loop.")
     } else {
       val moreNodesAlreadyTrying = nodesAlreadyTrying + child
 
       val childList: List[ModelGroup] = child match {
         case <sequence>{ _* }</sequence> => {
-          val seq = new Sequence(child, parent, position)
+          val seq = new Sequence(child, lexicalParent, position)
           if (seq.hiddenGroupRefOption.isDefined) {
             //
             // construct the group ref XML, then recursively process that,
             // but set flag so it will be hidden.
             //
             val hgrXML = seq.hiddenGroupRefXML
-            ModelGroupFactory(hgrXML, parent, position, true, moreNodesAlreadyTrying)
+            ModelGroupFactory(hgrXML, lexicalParent, position, true, moreNodesAlreadyTrying)
           } else {
             List(seq)
           }
         }
-        case <choice>{ _* }</choice> => List(new Choice(child, parent, position))
+        case <choice>{ _* }</choice> => List(new Choice(child, lexicalParent, position))
         case <group>{ _* }</group> => {
-          val pos = parent match {
+          val pos = lexicalParent match {
             case ct: ComplexTypeBase => 1
             case mg: ModelGroup => position
             case gd: GlobalGroupDef => position
           }
-          val isH = isHidden || parent.isHidden
-          val groupRefFactory = new GroupRefFactory(child, parent, pos, isH)
+          val isH = isHidden || lexicalParent.isHidden
+          val groupRefFactory = new GroupRefFactory(child, lexicalParent, pos, isH)
           val groupRefInstance = groupRefFactory.groupRef
           List(groupRefInstance.asModelGroup)
         }
@@ -86,7 +86,7 @@ object ModelGroupFactory {
         case textNode: Text => Nil
         case _: Comment => Nil
         case _ => {
-          parent.SDE("Unrecognized construct: %s", child)
+          lexicalParent.SDE("Unrecognized construct: %s", child)
         }
       }
       childList
@@ -108,7 +108,7 @@ object TermFactory {
    * remove all the parts of the schema that are not relevant.
    *
    */
-  def apply(child: Node, parent: GroupDefLike, position: Int, nodesAlreadyTrying: Set[Node] = Set()) = {
+  def apply(child: Node, lexicalParent: GroupDefLike, position: Int, nodesAlreadyTrying: Set[Node] = Set()) = {
     val childList: List[Term] = child match {
       case <element>{ _* }</element> => {
         val refProp = child.attribute("ref").map { _.text }
@@ -116,15 +116,15 @@ object TermFactory {
         // be tripped up by dfdl:ref="fmt:fooey" which is a format reference.
         refProp match {
           case None => {
-            val eDecl = new LocalElementDecl(child, parent, position)
+            val eDecl = new LocalElementDecl(child, lexicalParent, position)
             List(eDecl)
           }
-          case Some(_) => List(new ElementRef(child, parent, position))
+          case Some(_) => List(new ElementRef(child, lexicalParent, position))
         }
       }
       case <annotation>{ _* }</annotation> => Nil
       case textNode: Text => Nil
-      case _ => ModelGroupFactory(child, parent, position, false, nodesAlreadyTrying)
+      case _ => ModelGroupFactory(child, lexicalParent, position, false, nodesAlreadyTrying)
     }
     childList
   }
@@ -250,8 +250,8 @@ abstract class ModelGroup(index: Int)
             case eb: ElementBase => !eb.isRequiredInInfoset || !eb.isRepresented
           }
           if (lastIsOptional) {
-            val (priorSibs, parent) = last.potentialPriorTerms
-            (last +: priorSibs, parent.isDefined)
+            val (priorSibs, optPriorElementsIncludesThisParent) = last.potentialPriorTerms
+            (last +: priorSibs, optPriorElementsIncludesThisParent.isDefined)
           } else {
             (Seq(last), false)
           }

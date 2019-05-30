@@ -246,7 +246,7 @@ class TestDsomCompiler extends Logging {
 
     // Explore global simple type defs
     val Seq(st1, _, _, _) = sd.globalSimpleTypeDefs // there are two.
-    val Seq(b1, b2, _, b4) = st1.forElement(e1).annotationObjs // first one has 4 annotations
+    val Seq(b1, b2, _, b4) = st1.annotationObjs // first one has 4 annotations
     assertEquals(AlignmentUnits.Bytes.toString.toLowerCase, b1.asInstanceOf[DFDLSimpleType].getPropertyForUnitTest("alignmentUnits")) // first has alignmentUnits
     assertEquals("tns:myVar1", b2.asInstanceOf[DFDLSetVariable].ref) // second is setVariable with a ref
     assertEquals("yadda yadda yadda", b4.asInstanceOf[DFDLAssert].messageAttrib.get) // fourth is an assert with yadda message
@@ -419,7 +419,7 @@ class TestDsomCompiler extends Logging {
 
     val Seq(gs1f, _, gs3f, _) = sd.globalSimpleTypeDefs
 
-    val gs1 = gs1f.forElement(e1.referencedElement) // Global Simple Type - aType
+    val gs1 = gs1f // Global Simple Type - aType
 
     val baseQName = gs1.optRestriction.get.baseQName
 
@@ -435,7 +435,7 @@ class TestDsomCompiler extends Logging {
     assertTrue(e1.verifyPropValue("textStandardBase", "10")) // Define Format - def2
     assertTrue(e1.verifyPropValue("escapeSchemeRef", "tns:quotingScheme")) // Define Format - def2
 
-    val gs3 = gs3f.forElement(e1.referencedElement) // Global SimpleType - aTypeError - overlapping base props
+    val gs3 = gs3f // Global SimpleType - aTypeError - overlapping base props
 
     // Tests overlapping properties
     // because these unit tests are outside the normal framework,
@@ -672,7 +672,6 @@ class TestDsomCompiler extends Logging {
     assertTrue(ese.path.contains("sequence[3]"))
   }
 
-
   val dummyGroupRef = null // just because otherwise we have to construct too many things.
 
   def FindValue(collection: Map[String, String], key: String, value: String): Boolean = {
@@ -692,7 +691,7 @@ class TestDsomCompiler extends Logging {
     //    val actualString = actual.result.toString
     //    assertTrue(actualString.startsWith("<data"))
     //    assertTrue(actualString.endsWith(">word</data>"))
-  
+
     val infoset = <data xmlns={ example }>word</data>
     TestUtils.testUnparsing(testSchema, infoset, "*word")
   }
@@ -707,7 +706,7 @@ class TestDsomCompiler extends Logging {
     //    val actualString = actual.result.toString
     //    assertTrue(actualString.startsWith("<data"))
     //    assertTrue(actualString.endsWith(">37</data>"))
-  
+
     val infoset = <data xmlns={ example }>37</data>
     TestUtils.testUnparsing(testSchema, infoset, "37!")
   }
@@ -721,7 +720,7 @@ class TestDsomCompiler extends Logging {
     //    val actualString = actual.result.toString
     //    assertTrue(actualString.startsWith("<data"))
     //    assertTrue(actualString.endsWith(">37</data>"))
-  
+
     val infoset = <data xmlns={ example }>37</data>
     TestUtils.testUnparsing(testSchema, infoset, "*37!")
   }
@@ -759,7 +758,7 @@ class TestDsomCompiler extends Logging {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
-  
+
       <xs:element name="list" type="tns:example1">
         <xs:annotation>
           <xs:appinfo source={ dfdl }>
@@ -778,7 +777,7 @@ class TestDsomCompiler extends Logging {
     //    val actualString = actual.result.toString
     //    assertTrue(actualString.startsWith("<list"))
     //    assertTrue(actualString.endsWith("><somedata>50.93</somedata><moredata>XYZ</moredata><anddata>42</anddata></list>"))
-  
+
     val infoset = <list xmlns={ example }><somedata>50.93</somedata><moredata>XYZ</moredata><anddata>42</anddata></list>
     TestUtils.testUnparsing(testSchema, infoset, "50.93^%XYZ^42")
   }
@@ -992,7 +991,7 @@ class TestDsomCompiler extends Logging {
     //        val actualString = actual.result.toString
     //        assertTrue(actualString.startsWith("<data"))
     //        assertTrue(actualString.endsWith(">15</data>"))
-  
+
     val infoset = <data xmlns={ example }>15</data>
     val bytes = List[Byte](0, 0, 0, 15).toArray
     TestUtils.testUnparsingBinary(testSchema, infoset, bytes)
@@ -1007,7 +1006,7 @@ class TestDsomCompiler extends Logging {
     //        val actualString = actual.result.toString
     //        assertTrue(actualString.startsWith("<data"))
     //        assertTrue(actualString.endsWith(">15</data>"))
-  
+
     val infoset = <data xmlns={ example }>15</data>
     val bytes = List[Byte](15, 0, 0, 0).toArray
     TestUtils.testUnparsingBinary(testSchema, infoset, bytes)
@@ -1050,14 +1049,14 @@ class TestDsomCompiler extends Logging {
           <xs:pattern value="3"/>
         </xs:restriction>
       </xs:simpleType>)
-  
+
     val compiler = Compiler()
     val sset = compiler.compileNode(testSchema).sset
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
     val decl = declf.forRoot()
-  
+
     assertEquals(1, decl.patternValues.length)
     val (_, pattern) = decl.patternValues(0)
     assertEquals("1|2|3", pattern.toString())
@@ -1089,19 +1088,19 @@ class TestDsomCompiler extends Logging {
           <xs:pattern value="9"/>
         </xs:restriction>
       </xs:simpleType>)
-  
+
     val compiler = Compiler()
     val sset = compiler.compileNode(testSchema).sset
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
     val decl = declf.forRoot()
-  
+
     assertEquals(3, decl.patternValues.length)
     val (_, st1) = decl.patternValues(0)
     val (_, st2) = decl.patternValues(1)
     val (_, st3) = decl.patternValues(2)
-  
+
     assertEquals("1|2|3", st1.toString())
     assertEquals("4|5|6", st2.toString())
     assertEquals("7|8|9", st3.toString())
@@ -1159,7 +1158,7 @@ class TestDsomCompiler extends Logging {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-  
+
     val compiler = Compiler()
     val sset = compiler.compileNode(testSchema).sset
     val Seq(schema) = sset.schemas
@@ -1167,35 +1166,35 @@ class TestDsomCompiler extends Logging {
     val Seq(declf) = schemaDoc.globalElementDecls
     val root = declf.forRoot()
     val rootCT = root.complexType
-  
+
     // Verify that nothing follows the root, as it is the root.
     val elemsFollowingRoot = root.possibleNextTerms
     assertEquals(0, elemsFollowingRoot.length)
-  
+
     val rootCTSeq = rootCT.sequence //... which is a sequence
-  
+
     // Verify that nothing follows the sequence of the root.
     val elemsFollowingRootSeq = rootCTSeq.possibleNextTerms
     assertEquals(0, elemsFollowingRootSeq.length)
-  
+
     val Seq(one: ElementBase, two: ElementBase, three: ElementBase, _: Sequence) =
       rootCTSeq.groupMembers // has an element and a sub-sequence as its children.
-  
+
     val elemsFollowingOne = one.possibleNextTerms
     assertEquals(1, elemsFollowingOne.length)
     assertEquals("two", elemsFollowingOne(0).asInstanceOf[ElementBase].name)
-  
+
     val elemsFollowingTwo = two.possibleNextTerms
     assertEquals(1, elemsFollowingTwo.length)
     assertEquals("three", elemsFollowingTwo(0).asInstanceOf[ElementBase].name)
-  
+
     val elemsFollowingThree = three.possibleNextTerms
     assertEquals(1, elemsFollowingThree.length)
     val seqFollowingThree = elemsFollowingThree(0).asInstanceOf[Sequence]
-  
+
     val Seq(four: ElementBase) = seqFollowingThree.allSelfContainedTermsTerminatedByRequiredElement
     assertEquals("four", four.name)
-  
+
   }
 
   /**
@@ -1251,7 +1250,7 @@ class TestDsomCompiler extends Logging {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-  
+
     val compiler = Compiler()
     val sset = compiler.compileNode(testSchema).sset
     val Seq(schema) = sset.schemas
@@ -1259,31 +1258,31 @@ class TestDsomCompiler extends Logging {
     val Seq(declf) = schemaDoc.globalElementDecls
     val root = declf.forRoot()
     val rootCT = root.complexType
-  
+
     // Verify that nothing follows the root, as it is the root.
     val elemsFollowingRoot = root.possibleNextTerms
     assertEquals(0, elemsFollowingRoot.length)
-  
+
     val rootCTSeq = rootCT.sequence //... which is a sequence
-  
+
     // Verify that nothing follows the sequence of the root.
     val elemsFollowingRootSeq = rootCTSeq.possibleNextTerms
     assertEquals(0, elemsFollowingRootSeq.length)
-  
+
     val Seq(one: ElementBase, two: ElementBase, three: ElementBase, _: Sequence) =
       rootCTSeq.groupMembers // has an element and a sub-sequence as its children.
-  
+
     val elemsFollowingOne = one.possibleNextTerms
     assertEquals(1, elemsFollowingOne.length)
     assertEquals("two", elemsFollowingOne(0).asInstanceOf[ElementBase].name)
-  
+
     val elemsFollowingTwo = two.possibleNextTerms
     assertEquals(2, elemsFollowingTwo.length)
     assertEquals("three", elemsFollowingTwo(0).asInstanceOf[ElementBase].name)
     val seqFollowingThree = elemsFollowingTwo(1).asInstanceOf[Sequence]
     val Seq(four: ElementBase) = seqFollowingThree.groupMembers
     assertEquals("four", four.name)
-  
+
     val elemsFollowingThree = three.possibleNextTerms
     assertEquals(1, elemsFollowingThree.length)
     val seqFollowingThree2 = elemsFollowingThree(0).asInstanceOf[Sequence]
@@ -1343,7 +1342,7 @@ class TestDsomCompiler extends Logging {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-  
+
     val compiler = Compiler()
     val sset = compiler.compileNode(testSchema).sset
     val Seq(schema) = sset.schemas
@@ -1351,35 +1350,35 @@ class TestDsomCompiler extends Logging {
     val Seq(declf) = schemaDoc.globalElementDecls
     val root = declf.forRoot()
     val rootCT = root.complexType
-  
+
     // Verify that nothing follows the root, as it is the root.
     val elemsFollowingRoot = root.possibleNextTerms
     assertEquals(0, elemsFollowingRoot.length)
-  
+
     val rootCTSeq = rootCT.sequence //... which is a sequence
-  
+
     // Verify that nothing follows the sequence of the root.
     val elemsFollowingRootSeq = rootCTSeq.possibleNextTerms
     assertEquals(0, elemsFollowingRootSeq.length)
-  
+
     val Seq(one: ElementBase, two: ElementBase, three: ElementBase, _: Sequence) =
       rootCTSeq.groupMembers // has an element and a sub-sequence as its children.
-  
+
     val elemsFollowingOne = one.possibleNextTerms
     assertEquals(2, elemsFollowingOne.length)
     assertEquals("two", elemsFollowingOne(0).asInstanceOf[ElementBase].name)
     assertEquals("three", elemsFollowingOne(1).asInstanceOf[ElementBase].name)
-  
+
     val elemsFollowingTwo = two.possibleNextTerms
     assertEquals(1, elemsFollowingTwo.length)
     assertEquals("three", elemsFollowingTwo(0).asInstanceOf[ElementBase].name)
-  
+
     val elemsFollowingThree = three.possibleNextTerms
     assertEquals(1, elemsFollowingThree.length)
     val seqFollowingThree = elemsFollowingThree(0).asInstanceOf[Sequence]
     val Seq(four: ElementBase) = seqFollowingThree.groupMembers
     assertEquals("four", four.name)
-  
+
   }
 
   /**
@@ -1434,7 +1433,7 @@ class TestDsomCompiler extends Logging {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-  
+
     val compiler = Compiler()
     val sset = compiler.compileNode(testSchema).sset
     val Seq(schema) = sset.schemas
@@ -1442,34 +1441,34 @@ class TestDsomCompiler extends Logging {
     val Seq(declf) = schemaDoc.globalElementDecls
     val root = declf.forRoot()
     val rootCT = root.complexType
-  
+
     // Verify that nothing follows the root, as it is the root.
     val elemsFollowingRoot = root.possibleNextTerms
     assertEquals(0, elemsFollowingRoot.length)
-  
+
     val rootCTSeq = rootCT.sequence //... which is a sequence
-  
+
     // Verify that nothing follows the sequence of the root.
     val elemsFollowingRootSeq = rootCTSeq.possibleNextTerms
     assertEquals(0, elemsFollowingRootSeq.length)
-  
+
     val Seq(one: ElementBase, two: ElementBase, three: ElementBase, _: Sequence) =
       rootCTSeq.groupMembers // has an element and a sub-sequence as its children.
-  
+
     val elemsFollowingOne = one.possibleNextTerms
     assertEquals(1, elemsFollowingOne.length)
     assertEquals("two", elemsFollowingOne(0).asInstanceOf[ElementBase].name)
-  
+
     val elemsFollowingTwo = two.possibleNextTerms
     assertEquals(1, elemsFollowingTwo.length)
     assertEquals("three", elemsFollowingTwo(0).asInstanceOf[ElementBase].name)
-  
+
     val elemsFollowingThree = three.possibleNextTerms
     assertEquals(1, elemsFollowingThree.length)
     val seqFollowingThree = elemsFollowingThree(0).asInstanceOf[Sequence]
     val Seq(four: ElementBase) = seqFollowingThree.groupMembers
     assertEquals("four", four.name)
-  
+
   }
 
   /**
@@ -1530,7 +1529,7 @@ class TestDsomCompiler extends Logging {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-  
+
     val compiler = Compiler()
     val sset = compiler.compileNode(testSchema).sset
     val Seq(schema) = sset.schemas
@@ -1538,22 +1537,22 @@ class TestDsomCompiler extends Logging {
     val Seq(declf) = schemaDoc.globalElementDecls
     val root = declf.forRoot()
     val rootCT = root.complexType
-  
+
     // Verify that nothing follows the root, as it is the root.
     val elemsFollowingRoot = root.possibleNextTerms
     assertEquals(0, elemsFollowingRoot.length)
-  
+
     val rootCTSeq = rootCT.sequence //... which is a sequence
-  
+
     // Verify that nothing follows the sequence of the root.
     val elemsFollowingRootSeq = rootCTSeq.possibleNextTerms
     assertEquals(0, elemsFollowingRootSeq.length)
-  
+
     val Seq(one: ElementBase, two: ElementBase, three: ElementBase, seq: Sequence) =
       rootCTSeq.groupMembers // has an element and a sub-sequence as its children.
-  
+
     val Seq(four: ElementBase) = seq.groupMembers
-  
+
     val elemsFollowingOne = one.possibleNextTerms
     val Seq(eTwo: ElementBase, eThree: ElementBase, seqFollowingThree: Sequence) = one.possibleNextTerms
     assertEquals(3, elemsFollowingOne.length)
@@ -1561,23 +1560,23 @@ class TestDsomCompiler extends Logging {
     assertEquals("three", eThree.name)
     val Seq(eFour: ElementBase) = seqFollowingThree.groupMembers
     assertEquals("four", eFour.name)
-  
+
     val elemsFollowingTwo = two.possibleNextTerms
     val Seq(eThree_2: ElementBase, seqFollowingThree_2: Sequence) = two.possibleNextTerms
     assertEquals(2, elemsFollowingTwo.length)
     assertEquals("three", eThree_2.name)
     val Seq(eFour_2: ElementBase) = seqFollowingThree_2.groupMembers
     assertEquals("four", eFour_2.name)
-  
+
     val elemsFollowingThree = three.possibleNextTerms
     val Seq(seqFollowingThree_3: Sequence) = three.possibleNextTerms
     assertEquals(1, elemsFollowingThree.length)
     val Seq(eFour_3: ElementBase) = seqFollowingThree_3.groupMembers
     assertEquals("four", eFour_3.name)
-  
+
     val elemsFollowingFour = four.possibleNextTerms
     assertEquals(0, elemsFollowingFour.length)
-  
+
   }
 
   /**
@@ -1638,7 +1637,7 @@ class TestDsomCompiler extends Logging {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-  
+
     val compiler = Compiler()
     val sset = compiler.compileNode(testSchema).sset
     val Seq(schema) = sset.schemas
@@ -1646,22 +1645,22 @@ class TestDsomCompiler extends Logging {
     val Seq(declf) = schemaDoc.globalElementDecls
     val root = declf.forRoot()
     val rootCT = root.complexType
-  
+
     // Verify that nothing follows the root, as it is the root.
     val elemsFollowingRoot = root.possibleNextTerms
     assertEquals(0, elemsFollowingRoot.length)
-  
+
     val rootCTSeq = rootCT.sequence //... which is a sequence
-  
+
     // Verify that nothing follows the sequence of the root.
     val elemsFollowingRootSeq = rootCTSeq.possibleNextTerms
     assertEquals(0, elemsFollowingRootSeq.length)
-  
+
     val Seq(one: ElementBase, two: ElementBase, three: ElementBase, seq: Sequence) =
       rootCTSeq.groupMembers // has an element and a sub-sequence as its children.
-  
+
     val Seq(four: ElementBase) = seq.groupMembers
-  
+
     val elemsFollowingOne = one.possibleNextTerms
     val Seq(two_1: ElementBase, three_1: ElementBase, seqFollowingThree_1: Sequence) = one.possibleNextTerms
     val Seq(four_1: ElementBase) = seqFollowingThree_1.groupMembers
@@ -1669,23 +1668,23 @@ class TestDsomCompiler extends Logging {
     assertEquals("two", two_1.name)
     assertEquals("three", three_1.name)
     assertEquals("four", four_1.name)
-  
+
     val elemsFollowingTwo = two.possibleNextTerms
     val Seq(three_2: ElementBase, seqFollowingThree_2: Sequence) = two.possibleNextTerms
     val Seq(four_2: ElementBase) = seqFollowingThree_2.groupMembers
     assertEquals(2, elemsFollowingTwo.length)
     assertEquals("three", three_2.name)
     assertEquals("four", four_2.name)
-  
+
     val elemsFollowingThree = three.possibleNextTerms
     val Seq(seqFollowingThree_3: Sequence) = three.possibleNextTerms
     val Seq(four_3: ElementBase) = seqFollowingThree_3.groupMembers
     assertEquals(1, elemsFollowingThree.length)
     assertEquals("four", four_3.name)
-  
+
     val elemsFollowingFour = four.possibleNextTerms
     assertEquals(0, elemsFollowingFour.length)
-  
+
   }
 
   //  /**
@@ -2313,7 +2312,7 @@ class TestDsomCompiler extends Logging {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-  
+
     val compiler = Compiler()
     val sset = compiler.compileNode(testSchema).sset
     val Seq(schema) = sset.schemas
@@ -2321,32 +2320,32 @@ class TestDsomCompiler extends Logging {
     val Seq(declf) = schemaDoc.globalElementDecls
     val root = declf.forRoot()
     val rootCT = root.complexType
-  
+
     // Verify that nothing follows the root, as it is the root.
     val elemsFollowingRoot = root.possibleNextTerms
     assertEquals(0, elemsFollowingRoot.length)
-  
+
     val rootCTSeq = rootCT.sequence //... which is a sequence
-  
+
     // Verify that nothing follows the sequence of the root.
     val elemsFollowingRootSeq = rootCTSeq.possibleNextTerms
     assertEquals(0, elemsFollowingRootSeq.length)
-  
+
     val Seq(one: ElementBase, two: ElementBase, three: ElementBase) =
       rootCTSeq.groupMembers // has an element and a sub-sequence as its children.
-  
+
     val elemsFollowingOne = one.possibleNextTerms
     assertEquals(3, elemsFollowingOne.length)
     assertEquals("one", elemsFollowingOne(0).asInstanceOf[ElementBase].name)
     assertEquals("two", elemsFollowingOne(1).asInstanceOf[ElementBase].name)
     assertEquals("three", elemsFollowingOne(2).asInstanceOf[ElementBase].name)
-  
+
     val elemsFollowingTwo = two.possibleNextTerms
     assertEquals(3, elemsFollowingTwo.length)
     assertEquals("one", elemsFollowingTwo(0).asInstanceOf[ElementBase].name)
     assertEquals("two", elemsFollowingTwo(1).asInstanceOf[ElementBase].name)
     assertEquals("three", elemsFollowingTwo(2).asInstanceOf[ElementBase].name)
-  
+
     val elemsFollowingThree = three.possibleNextTerms
     assertEquals(3, elemsFollowingThree.length)
     assertEquals("one", elemsFollowingThree(0).asInstanceOf[ElementBase].name)

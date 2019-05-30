@@ -40,17 +40,13 @@ import org.apache.daffodil.processors.RepValueSet
 /**
  * A schema component for simple type restrictions
  */
-final class RestrictionFactory(val xmlArg: Node, val simpleTypeFactory: SimpleTypeDefFactory)
-  extends SchemaComponentFactory(xmlArg, simpleTypeFactory.schemaDocument)
+final class Restriction(xmlArg: Node, val simpleTypeDef: SimpleTypeDefBase)
+  extends SchemaComponentImpl(xmlArg, simpleTypeDef)
   with Facets
   with NestingLexicalMixin
   with TypeChecks {
 
   Assert.invariant(xmlArg.asInstanceOf[scala.xml.Elem].label == "restriction")
-
-  def restriction(simpleType: SimpleTypeDefBase) = {
-    new Restriction(simpleType, this)
-  }
 
   final lazy val primType: PrimType = {
     optDirectPrimType.getOrElse(optBaseType.get.primType)
@@ -59,13 +55,13 @@ final class RestrictionFactory(val xmlArg: Node, val simpleTypeFactory: SimpleTy
   /**
    * Defined if the restriction is derived from a union
    */
-  final lazy val optUnion: Option[UnionFactory] = {
+  final lazy val optUnion: Option[Union] = {
     optBaseType.flatMap { _.optUnion }.orElse(
       optBaseType.flatMap { _.optRestriction.flatMap { _.optUnion } })
   }
 
-  final lazy val derivationBaseRestrictions: Seq[RestrictionFactory] = {
-    val obt = optBaseType.toSeq
+  final lazy val derivationBaseRestrictions: Seq[Restriction] = {
+    val obt = optBaseTypeDef.toSeq
     val res = obt.flatMap {
       bt =>
         val res = bt.restrictions
@@ -82,12 +78,13 @@ final class RestrictionFactory(val xmlArg: Node, val simpleTypeFactory: SimpleTy
     tryBaseQName.get
   }
 
-  def optBaseDef = optBaseType
+  def optBaseType = optBaseTypeDef
+  def optBaseDef = optBaseTypeDef
 
   /**
    * Exclusive - restriction either has a baseType or a direct primType.
    */
-  lazy val (optDirectPrimType, optBaseType: Option[GlobalSimpleTypeDefFactory]) = {
+  lazy val (optDirectPrimType, optBaseTypeDef: Option[GlobalSimpleTypeDef]) = {
     val optPT = schemaSet.getPrimitiveType(baseQName)
     val res =
       if (optPT.isDefined)
@@ -175,7 +172,7 @@ final class RestrictionFactory(val xmlArg: Node, val simpleTypeFactory: SimpleTy
     }
   }.value
 
-  lazy val enumerations: Seq[EnumerationDefFactory] = (xml \ "enumeration").map(new EnumerationDefFactory(_, simpleTypeFactory))
+  lazy val enumerations: Seq[EnumerationDefFactory] = (xml \ "enumeration").map(new EnumerationDefFactory(_, simpleTypeDef))
 
   lazy val facetValueSet: RepValueSet[AnyRef] = {
     val initAns: (RangeBound[BigInt], RangeBound[BigInt]) = (new RangeBound(Maybe.Nope, false), new RangeBound(Maybe.Nope, false))
@@ -187,7 +184,7 @@ final class RestrictionFactory(val xmlArg: Node, val simpleTypeFactory: SimpleTy
           case Facet.maxInclusive => (Maybe(valueAsBigInt), true, true)
           case Facet.minExclusive => (Maybe(valueAsBigInt), false, false)
           case Facet.minInclusive => (Maybe(valueAsBigInt), false, true)
-          case _                  => (Maybe.Nope, false, false)
+          case _ => (Maybe.Nope, false, false)
         }
         if (maybeBound.isEmpty) {
           acc
@@ -211,11 +208,11 @@ final class RestrictionFactory(val xmlArg: Node, val simpleTypeFactory: SimpleTy
     })
     RepValueSetCompiler.compile(Seq(), Seq(range.asInstanceOf[(RangeBound[AnyRef], RangeBound[AnyRef])]))
   }
-  
+
   lazy val repValueSet: RepValueSet[AnyRef] = {
     val subsets = enumerations.map(_.optRepValueSet).filter(_.isDefined).map(_.get)
     if (subsets.length != 0 && subsets.length != enumerations.length) {
-      context.SDE("If one enumeration value defines a repValue, then all must define a repValue")
+      SDE("If one enumeration value defines a repValue, then all must define a repValue")
     }
     val fromEnums = subsets.fold(RepValueSetCompiler.empty)((a, b) => a.merge(b))
     if (enumerations.length > 0) {
@@ -225,7 +222,7 @@ final class RestrictionFactory(val xmlArg: Node, val simpleTypeFactory: SimpleTy
       facetValueSet
     }
   }
-  
+
   lazy val optRepValueSet = if (repValueSet.isEmpty) None else Some(repValueSet)
 
   lazy val logicalValueSet: RepValueSet[AnyRef] = {
@@ -238,57 +235,17 @@ final class RestrictionFactory(val xmlArg: Node, val simpleTypeFactory: SimpleTy
       facetValueSet
     }
   }
-  
-  lazy val optLogicalValueSet:Option[RepValueSet[AnyRef]] = if(logicalValueSet.isEmpty) None else Some(logicalValueSet)
 
-}
-
-final class Restriction(val simpleType: SimpleTypeDefBase, factory: RestrictionFactory)
-  extends SchemaComponentImpl(factory.xmlArg, simpleType.schemaDocument) {
-
-  import org.apache.daffodil.dsom.FacetTypes._
-
-  lazy val optUnion = factory.optUnion.map(_.union(simpleType))
-  lazy val enumerationValues = factory.enumerationValues
-  lazy val fractionDigitsValue = factory.fractionDigitsValue
-  lazy val hasEnumeration = factory.hasEnumeration
-  lazy val hasFractionDigits = factory.hasFractionDigits
-  lazy val hasMaxExclusive = factory.hasMaxExclusive
-  lazy val hasMaxInclusive = factory.hasMaxInclusive
-  lazy val hasMaxLength = factory.hasMaxLength
-  lazy val hasMinExclusive = factory.hasMinExclusive
-  lazy val hasMinInclusive = factory.hasMinInclusive
-  lazy val hasMinLength = factory.hasMinLength
-  lazy val hasPattern = factory.hasPattern
-  lazy val hasTotalDigits = factory.hasTotalDigits
-  lazy val maxExclusiveValue = factory.maxExclusiveValue
-  lazy val maxInclusiveValue = factory.maxInclusiveValue
-  lazy val maxLengthValue = factory.maxLengthValue
-  lazy val minExclusiveValue = factory.minExclusiveValue
-  lazy val minInclusiveValue = factory.minInclusiveValue
-  lazy val minLengthValue = factory.minLengthValue
-  lazy val patternValues = factory.patternValues
-  lazy val primType = factory.primType
-  lazy val totalDigitsValue = factory.totalDigitsValue
-  lazy val baseQName = factory.baseQName
-
-  override lazy val enclosingComponentDef = factory.enclosingComponent
-
-  lazy val optBaseDef = factory.optBaseDef.map(_.forElement(simpleType.elementDecl))
-
+  lazy val optLogicalValueSet: Option[RepValueSet[AnyRef]] = if (logicalValueSet.isEmpty) None else Some(logicalValueSet)
 }
 
 /**
  * A schema component for simple type unions
  */
-final class UnionFactory(val xmlArg: Node, simpleTypeFactory: SimpleTypeDefFactory)
-  extends SchemaComponentFactory(xmlArg, simpleTypeFactory.schemaDocument) {
-
+final class Union(val xmlArg: Node, simpleTypeDef: SimpleTypeDefBase)
+  extends SchemaComponentImpl(xmlArg, simpleTypeDef)
+  with NestingLexicalMixin {
   Assert.invariant(xmlArg.asInstanceOf[scala.xml.Elem].label == "union")
-  
-  def union(simpleType: SimpleTypeDefBase) = {
-    new Union(simpleType, this)
-  }
 
   lazy val primType: NodeInfo.PrimType = {
     if (unionMemberTypes.length == 1) {
@@ -310,9 +267,9 @@ final class UnionFactory(val xmlArg: Node, simpleTypeFactory: SimpleTypeDefFacto
   }
 
   private lazy val immediateTypeXMLs = xml \ "simpleType"
-  private lazy val immediateTypes: Seq[SimpleTypeDefFactory] = immediateTypeXMLs.map { node =>
+  private lazy val immediateTypes: Seq[SimpleTypeDefBase] = immediateTypeXMLs.map { node =>
     {
-      new LocalSimpleTypeDefFactory(node, schemaDocument)
+      new LocalSimpleTypeDef(node, schemaDocument)
     }
   }
 
@@ -324,26 +281,18 @@ final class UnionFactory(val xmlArg: Node, simpleTypeFactory: SimpleTypeDefFacto
     strings
   }
   private lazy val namedTypeQNames = namedTypeQNameStrings.map { qns => resolveQName(qns) }
-  private lazy val namedTypes: Seq[GlobalSimpleTypeDefFactory] = namedTypeQNames.map {
+  private lazy val namedTypes: Seq[GlobalSimpleTypeDef] = namedTypeQNames.map {
     qn => schemaSet.getGlobalSimpleTypeDef(qn).get
   }
-  private lazy val directMemberTypes: Seq[SimpleTypeDefFactory] = namedTypes ++ immediateTypes
+  private lazy val directMemberTypes: Seq[SimpleTypeDefBase] = namedTypes ++ immediateTypes
 
-  lazy val unionMemberTypes: Seq[SimpleTypeDefFactory] = {
+  lazy val unionMemberTypes: Seq[SimpleTypeDefBase] = {
     schemaDefinitionUnless(directMemberTypes.length > 0, "A simpleType union must have 2 or more member types. Only %d were found.", directMemberTypes.length)
     directMemberTypes
   }
 }
 
-final class Union(val simpleType: SimpleTypeDefBase, factory: UnionFactory)
-  extends SchemaComponentImpl(factory.xmlArg, simpleType.schemaDocument)
-  with NestingLexicalMixin {
-  
-  lazy val unionMemberTypes = factory.unionMemberTypes.map(_.forElement(simpleType.elementDecl))
-  lazy val primType = factory.primType
-}
-
-sealed trait TypeChecks { self: RestrictionFactory =>
+sealed trait TypeChecks { self: Restriction =>
   protected def dateToBigDecimal(date: String, format: String, dateType: String, context: ThrowsSDE): java.math.BigDecimal = {
     val df = new SimpleDateFormat(format)
     df.setCalendar(new GregorianCalendar())

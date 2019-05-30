@@ -68,13 +68,6 @@ object OOLAG extends Logging {
     }
   }
 
-  /**
-   * I tried making a private singleton to use instead of null. I couldn't get
-   * it to work right with the type checking. Not worth it. The root
-   * has parent null.
-   */
-  private val OOLAGRoot: OOLAGHost = null
-
   sealed abstract class Args
   case object OneArg extends Args
   case object ZeroArgs extends Args
@@ -95,7 +88,7 @@ object OOLAG extends Logging {
     def this() = this(null, ZeroArgs)
 
     final protected override def oolagContextViaArgs = {
-      Some(oolagContextArg)
+      Option(oolagContextArg) // Option since Option(null) is None.
     }
   }
 
@@ -150,8 +143,8 @@ object OOLAG extends Logging {
       Assert.usage(nArgs == ZeroArgs, "Cannot set oolag context if it was provided as a constructor arg.")
       if (oolagContextViaSet != None)
         Assert.usageError("Cannot set oolag context more than once.")
-      oolagContextViaSet = Some(oolagContextArg)
-      if (oolagContext != OOLAGRoot) {
+      oolagContextViaSet = Option(oolagContextArg) // Option since Option(null) is None
+      if (optOolagContext.isDefined) {
         oolagRoot.requiredEvalFunctions = this.requiredEvalFunctions ::: oolagRoot.requiredEvalFunctions
         this.requiredEvalFunctions = Nil
       }
@@ -194,13 +187,19 @@ object OOLAG extends Logging {
      * or we were constructed with no args, and in that case someone must call
      * setOOLAGContext before we access the oolagContext.
      */
-    final lazy val oolagContext = nArgs match {
+    final lazy val optOolagContext = nArgs match {
       case ZeroArgs => {
         Assert.usage(oolagContextViaSet != None, "Must call setOOLAGContext before accessing when OOLAGHost is constructed with no args.")
-        oolagContextViaSet.get
+        oolagContextViaSet
       }
-      case OneArg => oolagContextViaArgs.get
+      case OneArg => {
+        val oc = oolagContextViaArgs
+        Assert.invariant(oc.isEmpty || (oc.get ne null))
+        oc
+      }
     }
+
+    final lazy val oolagContext = optOolagContext.get
 
     /**
      * My parent, unless I am the root and have no parent. In that
@@ -221,7 +220,7 @@ object OOLAG extends Logging {
     }
 
     private def isOOLAGRoot = {
-      val res = oolagContext == OOLAGRoot
+      val res = optOolagContext.isEmpty
       res
     }
 
@@ -363,7 +362,10 @@ object OOLAG extends Logging {
    *
    * An OOLAG value is created as a val of an OOLAGHost class.
    */
-  sealed abstract class OOLAGValueBase(val oolagContext: OOLAGHost, nameArg: String)
+  sealed abstract class OOLAGValueBase(
+    val oolagContext: OOLAGHost,
+    nameArg: String,
+    body: => Any)
     extends Logging {
 
     Assert.usage(oolagContext != null)
@@ -539,47 +541,9 @@ object OOLAG extends Logging {
       res
     }
 
-    /**
-     * use for things where you need something to put
-     * into a diagnostic message. That is, you want to identify why
-     * there was an error with the name of the offending object,
-     * but what if we can't get the name even?
-     *
-     * That's what this is for.
-     */
-    final def valueOrElseAny(thing: => Any): Any = {
-      if (hasValue) valueAsAny
-      else {
-        val v = try {
-          valueAsAny
-        } catch {
-          case s: scala.util.control.ControlThrowable => throw s
-          case u: UnsuppressableException => toss(u)
-          case e: Error => toss(e)
-          //
-          // Ok to catch throwable here
-          // because we're trying to get out some sort of message.
-          //
-          case _: OOLAGException => thing
-          case t: Throwable => {
-            // System.err.println(" " * indent + "OOLAG valueOrElse failed on " + Misc.getNameFromClass(t) + ". Substituting: " + thing)
-            thing
-          }
-        }
-        v
-      }
-    }
-
-    def valueAsAny: Any
-  }
-
-  final class OOLAGValue[T](ctxt: OOLAGHost, nameArg: String, body: => T)
-    extends OOLAGValueBase(ctxt, nameArg) {
-
-    @inline final def valueAsAny: Any = value
-
-    final lazy val value: T = {
-      val res: T =
+    final lazy val valueAsAny: Any = {
+      if (hasValue) value_.get
+      val res =
         try {
           oolagBefore
           val v = body // good place for a breakpoint
@@ -597,18 +561,38 @@ object OOLAG extends Logging {
       res
     }
 
-    /**
-     * use for things where you need something to put
-     * into a diagnostic message. That is, you want to identify why
-     * there was an error with the name of the offending object,
-     * but what if we can't get the name even?
-     *
-     * That's what this is for.
-     */
-    @inline final def valueOrElse(thing: => T): T = valueOrElseAny(thing).asInstanceOf[T]
-
+    protected lazy val toOptionAny: Option[Any] = {
+      if (wasTried) {
+        if (hasValue) Some(value_.get)
+        else None
+      } else {
+        val res = try {
+          val v = valueAsAny
+          Some(v)
+        } catch {
+          case e: OOLAGRethrowException => None
+        }
+        res
+      }
+    }
   }
 
+  final class OOLAGValue[T](ctxt: OOLAGHost, nameArg: String, body: => T)
+    extends OOLAGValueBase(ctxt, nameArg, body) {
+
+    /**
+     * Converts LV into an option type.
+     *
+     * If the logical value of the LV is already an option type,
+     * keep in mind you have to flatten to get back to an Option\[T\].
+     *
+     * Use this if you are getting stack-overflows or circular value problems
+     * caused by an SDE and the SDE infrastructure needing the value of some LV.
+     */
+    final lazy val toOption: Option[T] = toOptionAny.asInstanceOf[Option[T]]
+
+    final lazy val value: T = valueAsAny.asInstanceOf[T]
+  }
 } // end object
 
 /**
@@ -674,4 +658,3 @@ final case class CircularDefinition(val lv: OOLAG.OOLAGValueBase, list: Seq[OOLA
     "OOLAG Cycle (of " + list.length + ") through " + list.mkString(", ")
   }
 }
-

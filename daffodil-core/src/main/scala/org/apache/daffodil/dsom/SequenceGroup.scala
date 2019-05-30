@@ -48,7 +48,7 @@ import org.apache.daffodil.exceptions.Assert
  */
 abstract class SequenceTermBase(
   final override val xml: Node,
-  final override val parent: SchemaComponent,
+  final override val lexicalParent: SchemaComponent,
   final override val position: Int)
   extends ModelGroup(position)
   with SequenceGrammarMixin {
@@ -84,9 +84,9 @@ abstract class SequenceTermBase(
  */
 abstract class SequenceGroupTermBase(
   xml: Node,
-  parent: SchemaComponent,
+  lexicalParent: SchemaComponent,
   position: Int)
-  extends SequenceTermBase(xml, parent, position)
+  extends SequenceTermBase(xml, lexicalParent, position)
   with Sequence_AnnotationMixin
   with SequenceRuntimeValuedPropertiesMixin
   with SeparatorSuppressionPolicyMixin
@@ -318,8 +318,8 @@ trait SequenceDefMixin
 /**
  * Represents a local sequence definition.
  */
-class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
-  extends SequenceGroupTermBase(xmlArg, parent, position)
+class Sequence(xmlArg: Node, lexicalParent: SchemaComponent, position: Int)
+  extends SequenceGroupTermBase(xmlArg, lexicalParent, position)
   with SequenceDefMixin {
 
   requiredEvaluations(checkHiddenGroupRefHasNoChildren)
@@ -356,7 +356,7 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
  * handled as a degenerate sequence having only one element decl within it.
  */
 final class ChoiceBranchImpliedSequence(rawGM: Term)
-  extends SequenceTermBase(rawGM.xml, rawGM.parent, rawGM.position)
+  extends SequenceTermBase(rawGM.xml, rawGM.lexicalParent, rawGM.position)
   with GroupDefLike {
 
   override def separatorSuppressionPolicy: SeparatorSuppressionPolicy = SeparatorSuppressionPolicy.TrailingEmptyStrict

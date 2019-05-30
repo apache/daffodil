@@ -217,7 +217,7 @@ trait ElementBaseGrammarMixin
       <element name={ name + " (prefixLength)" } type={ prefixLengthType.toQNameString }/>
         .copy(scope = prefixLengthTypeGSTD.xml.scope)
     val detachedElementDecl =
-      new PrefixLengthQuasiElementDecl(this, detachedNode, prefixLengthTypeGSTD.parent)
+      new PrefixLengthQuasiElementDecl(detachedNode, prefixLengthTypeGSTD.lexicalParent)
 
     val prefixedLengthKind = detachedElementDecl.lengthKind
     prefixedLengthKind match {
@@ -577,17 +577,18 @@ trait ElementBaseGrammarMixin
     lazy val allowedValue = allowedValueArg
     if (this.isOutputValueCalc)
       SimpleTypeRetry(this, allowedValue)
-    else if (this.isInstanceOf[PrefixLengthQuasiElementDecl] &&
-      this.asInstanceOf[PrefixLengthQuasiElementDecl].detachedReference.impliedRepresentation == Representation.Text)
-      // If an element has text representation and has a prefixed length, it
+    else if (this.isInstanceOf[PrefixLengthQuasiElementDecl]) {
+      //
+      // If an element has a prefixed length, it
       // means that the prefix length value will be calculated using a
       // specified length unparser. This unparser works by suspending the
       // prefix length unaprser, eventually calculating the length of the
-      // unaprsed data, then setting the length to the value of the detached
+      // unparsed data, then setting the length to the value of the detached
       // element. Since the prefixed length unparser will need to suspend until
-      // its data value is dynaically set, it needs this SimpleTypeRetry.
+      // its data value is dynamically set, it needs this SimpleTypeRetry.
+      //
       SimpleTypeRetry(this, allowedValue)
-    else
+    } else
       allowedValue
   }
 
@@ -1434,8 +1435,8 @@ trait ElementBaseGrammarMixin
     else body
   }
 
-  lazy val hasRepType = (isSimpleType && simpleType.optRepTypeFactory.isDefined)
-  lazy val optRepType = if (hasRepType) Some(simpleType.optRepTypeFactory.get) else None
+  lazy val hasRepType = (isSimpleType && simpleType.optRepType.isDefined)
+  lazy val optRepType = if (hasRepType) Some(simpleType.optRepType.get) else None
   lazy val optRepTypeElement = if (isSimpleType && simpleType.optRepTypeElement.isDefined) Some(simpleType.optRepTypeElement.get) else None
 
   /**

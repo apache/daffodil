@@ -39,8 +39,7 @@ abstract class DFDLAnnotation(xmlArg: Node, annotatedSCArg: AnnotatedSchemaCompo
   with NestingLexicalMixin {
 
   final override val xml = xmlArg
-  final override def parent = annotatedSCArg
-  final override val context: AnnotatedSchemaComponent = annotatedSCArg
+  final override def lexicalParent = annotatedSCArg
 
   final lazy val annotatedSC = annotatedSCArg
 

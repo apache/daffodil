@@ -101,6 +101,12 @@ final class MStackOfMaybe[T <: AnyRef] {
     else One(m)
   }
 
+  @inline final def bottom: Maybe[T] = {
+    val m = delegate.bottom
+    if (m eq null) Nope
+    else One(m)
+  }
+
   @inline final def isEmpty = delegate.isEmpty
 
   def clear() = delegate.clear()
@@ -138,6 +144,7 @@ final class MStackOf[T <: AnyRef] {
   @inline final def push(t: T) = delegate.push(t)
   @inline final def pop: T = delegate.pop.asInstanceOf[T]
   @inline final def top: T = delegate.top.asInstanceOf[T]
+  @inline final def bottom: T = delegate.bottom.asInstanceOf[T]
   @inline final def isEmpty = delegate.isEmpty
   def clear() = delegate.clear()
   def toList = delegate.toList
@@ -167,7 +174,7 @@ object MStackOfAnyRef {
  * things.
  */
 protected abstract class MStack[@specialized T] private[util] (
-    arrayAllocator: (Int) => Array[T], nullValue: T) {
+  arrayAllocator: (Int) => Array[T], nullValue: T) {
 
   private var index = 0
   private var table: Array[T] = null
@@ -260,6 +267,8 @@ protected abstract class MStack[@specialized T] private[util] (
    *  @return the element on top of the stack.
    */
   @inline final def top: T = table(index - 1).asInstanceOf[T]
+
+  @inline final def bottom: T = table(0).asInstanceOf[T]
 
   @inline final def isEmpty: Boolean = index == 0
 
