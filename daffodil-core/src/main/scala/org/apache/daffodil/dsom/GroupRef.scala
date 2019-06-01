@@ -59,13 +59,13 @@ trait GroupRef { self: ModelGroup =>
  * right part of the schema.
  */
 final class GroupRefFactory(refXMLArg: Node, val refLexicalParent: SchemaComponent, position: Int, isHidden: Boolean)
-  extends SchemaComponentFactory(refXMLArg, refLexicalParent.schemaDocument)
+  extends SchemaComponentFactory(refXMLArg, Some(refLexicalParent.schemaDocument))
   with HasRefMixin {
 
   final def qname = this.refQName
 
   lazy val groupRef = LV('groupRef) {
-    val gdefFactory = lexicalParent.schemaSet.getGlobalGroupDef(qname).getOrElse {
+    val gdefFactory = schemaSet.getGlobalGroupDef(qname).getOrElse {
       SDE("Referenced group definition not found: %s", this.ref)
     }
     val (gref, _) = gdefFactory.forGroupRef(refXMLArg, refLexicalParent, position, isHidden)
@@ -105,7 +105,7 @@ final class ChoiceGroupRef(
   refLexicalParent: SchemaComponent,
   positionArg: Int,
   isHiddenArg: Boolean)
-  extends ChoiceTermBase(refXML, refLexicalParent, positionArg)
+  extends ChoiceTermBase(refXML, Option(refLexicalParent), positionArg)
   with GroupRef {
 
   requiredEvaluations(groupDef)

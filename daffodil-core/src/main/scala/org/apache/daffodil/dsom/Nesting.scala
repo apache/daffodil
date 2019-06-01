@@ -22,7 +22,7 @@ import org.apache.daffodil.exceptions.Assert
 trait NestingMixin {
 
   /** The lexically enclosing schema component */
-  def lexicalParent: SchemaComponent
+  def optLexicalParent: Option[SchemaComponent]
 
   /**
    * Define this for schema components that have back-references to ref
@@ -56,8 +56,7 @@ trait NestingMixin {
 trait NestingLexicalMixin
   extends NestingMixin {
 
-  override protected def enclosingComponentDef =
-    if (lexicalParent eq null) None else Some(lexicalParent)
+  override protected def enclosingComponentDef = optLexicalParent
 
 }
 
@@ -70,7 +69,8 @@ trait NestingTraversesToReferenceMixin
   def referringComponent: Option[SchemaComponent]
 
   final override protected def enclosingComponentDef: Option[SchemaComponent] = {
-    Assert.invariant(lexicalParent.isInstanceOf[SchemaDocument]) // global things have schema documents as their parents.
+    Assert.invariant(optLexicalParent.isDefined &&
+      optLexicalParent.get.isInstanceOf[SchemaDocument]) // global things have schema documents as their parents.
     referringComponent
   }
 

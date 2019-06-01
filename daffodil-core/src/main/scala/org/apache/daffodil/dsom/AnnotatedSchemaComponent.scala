@@ -110,8 +110,12 @@ trait ResolvesProperties
 /** Convenience class for implemening AnnotatedSchemaComponent trait */
 abstract class AnnotatedSchemaComponentImpl(
   final override val xml: Node,
-  final override val lexicalParent: SchemaComponent)
-  extends AnnotatedSchemaComponent
+  final override val optLexicalParent: Option[SchemaComponent])
+  extends AnnotatedSchemaComponent {
+
+  def this(xml: Node, lexicalParent: SchemaComponent) =
+    this(xml, Option(lexicalParent))
+}
 
 /**
  * Shared characteristics of any annotated schema component.

@@ -33,13 +33,15 @@ import org.apache.daffodil.util.Misc
  * and Import objects which represent those statements in a schema,
  * the proxy DFDLSchemaFile object, etc.
  *
+ *
  */
 abstract class DFDLAnnotation(xmlArg: Node, annotatedSCArg: AnnotatedSchemaComponent)
   extends SchemaComponent
   with NestingLexicalMixin {
 
   final override val xml = xmlArg
-  final override def lexicalParent = annotatedSCArg
+
+  final override val optLexicalParent = Option(annotatedSCArg)
 
   final lazy val annotatedSC = annotatedSCArg
 

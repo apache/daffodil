@@ -217,7 +217,7 @@ trait ElementBaseGrammarMixin
       <element name={ name + " (prefixLength)" } type={ prefixLengthType.toQNameString }/>
         .copy(scope = prefixLengthTypeGSTD.xml.scope)
     val detachedElementDecl =
-      new PrefixLengthQuasiElementDecl(detachedNode, prefixLengthTypeGSTD.lexicalParent)
+      new PrefixLengthQuasiElementDecl(detachedNode, prefixLengthTypeGSTD.optLexicalParent.get)
 
     val prefixedLengthKind = detachedElementDecl.lengthKind
     prefixedLengthKind match {

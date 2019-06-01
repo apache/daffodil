@@ -101,7 +101,7 @@ trait ChoiceDefMixin
 
 abstract class ChoiceTermBase(
   final override val xml: Node,
-  final override val lexicalParent: SchemaComponent,
+  final override val optLexicalParent: Option[SchemaComponent],
   final override val position: Int)
   extends ModelGroup(position)
   with Choice_AnnotationMixin
@@ -369,7 +369,7 @@ abstract class ChoiceTermBase(
 }
 
 final class Choice(xmlArg: Node, lexicalParent: SchemaComponent, position: Int)
-  extends ChoiceTermBase(xmlArg, lexicalParent, position)
+  extends ChoiceTermBase(xmlArg, Option(lexicalParent), position)
   with ChoiceDefMixin {
 
   override lazy val optReferredToComponent = None

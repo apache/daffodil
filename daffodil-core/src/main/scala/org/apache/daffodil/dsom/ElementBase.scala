@@ -663,10 +663,12 @@ trait ElementBase
   }
 
   final lazy val isParentUnorderedSequence: Boolean = {
-    lexicalParent match {
-      case s: SequenceTermBase if !s.isOrdered => true
-      case _ => false
-    }
+    optLexicalParent.map { lp =>
+      lp match {
+        case s: SequenceTermBase if !s.isOrdered => true
+        case _ => false
+      }
+    }.getOrElse(false)
   }
 
   private def getImplicitAlignmentInBits(thePrimType: PrimType, theRepresentation: Representation): Int = {

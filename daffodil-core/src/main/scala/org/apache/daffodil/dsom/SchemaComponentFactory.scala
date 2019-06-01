@@ -31,15 +31,17 @@ import scala.xml.Node
  */
 abstract class SchemaComponentFactory(
   final override val xml: Node,
-  final override val lexicalParent: SchemaComponent)
+  final override val optLexicalParent: Option[SchemaComponent])
   extends SchemaComponent
   with NestingLexicalMixin {
 
+  def this(xml: Node, lexicalParent: SchemaComponent) =
+    this(xml, Option(lexicalParent))
 }
 
 abstract class AnnotatedSchemaComponentFactory(
   final override val xml: Node,
-  final override val lexicalParent: SchemaComponent)
+  final override val optLexicalParent: Option[SchemaComponent])
   extends AnnotatedSchemaComponent
   with NestingLexicalMixin {
 
@@ -50,7 +52,7 @@ trait SchemaFileLocatableImpl
 
   def xml: scala.xml.Node
   def schemaFile: Option[DFDLSchemaFile]
-  def lexicalParent: SchemaComponent
+  def optLexicalParent: Option[SchemaComponent]
 
   /**
    * Annotations can contain expressions, so we need to be able to compile them.
@@ -63,7 +65,7 @@ trait SchemaFileLocatableImpl
     val attrText = xml.attribute(XMLUtils.INT_NS, XMLUtils.LINE_ATTRIBUTE_NAME).map { _.text }
     if (attrText.isDefined) {
       attrText
-    } else if (lexicalParent != null) lexicalParent.lineAttribute
+    } else if (optLexicalParent.isDefined) optLexicalParent.get.lineAttribute
     else None
   }
 
@@ -79,14 +81,14 @@ trait SchemaFileLocatableImpl
 trait CommonContextMixin
   extends NestingMixin { self: OOLAGHost with ThrowsSDE =>
 
-  def lexicalParent: SchemaComponent
+  def optLexicalParent: Option[SchemaComponent]
 
-  lazy val schemaFile: Option[DFDLSchemaFile] = lexicalParent.schemaFile
-  lazy val schemaSet: SchemaSet = lexicalParent.schemaSet
-  def schemaDocument: SchemaDocument = lexicalParent.schemaDocument
-  lazy val xmlSchemaDocument: XMLSchemaDocument = lexicalParent.xmlSchemaDocument
-  lazy val schema: Schema = lexicalParent.schema
-  def uriString: String = lexicalParent.uriString
+  lazy val schemaFile: Option[DFDLSchemaFile] = optLexicalParent.flatMap { _.schemaFile }
+  lazy val schemaSet: SchemaSet = optLexicalParent.get.schemaSet
+  def schemaDocument: SchemaDocument = optLexicalParent.get.schemaDocument
+  lazy val xmlSchemaDocument: XMLSchemaDocument = optLexicalParent.get.xmlSchemaDocument
+  lazy val schema: Schema = optLexicalParent.get.schema
+  def uriString: String = optLexicalParent.get.uriString
 
   def xml: scala.xml.Node
 

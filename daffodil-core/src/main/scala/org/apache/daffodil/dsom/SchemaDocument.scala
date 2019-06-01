@@ -182,7 +182,8 @@ final class SchemaDocument(xmlSDoc: XMLSchemaDocument)
   with SeparatorSuppressionPolicyMixin {
 
   final override val xml = xmlSDoc.xml
-  final override def lexicalParent = xmlSDoc
+  final override def optLexicalParent = Option(xmlSDoc)
+  final override lazy val xmlSchemaDocument = xmlSDoc
 
   override lazy val optReferredToComponent = None
 

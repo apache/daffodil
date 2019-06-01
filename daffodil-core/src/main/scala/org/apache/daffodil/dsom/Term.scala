@@ -281,26 +281,28 @@ trait Term
     }
 
   final lazy val immediatelyEnclosingModelGroup: Option[ModelGroup] = {
-    val res = lexicalParent match {
-      case c: ChoiceTermBase => Some(c)
-      case s: SequenceTermBase => Some(s)
-      case d: SchemaDocument => {
-        // we must be the Root elementRef or a quasi node
-        Assert.invariant(this.isInstanceOf[Root] || this.isInstanceOf[QuasiElementDeclBase])
-        None
+    optLexicalParent.flatMap { lexicalParent =>
+      val res = lexicalParent match {
+        case c: ChoiceTermBase => Some(c)
+        case s: SequenceTermBase => Some(s)
+        case d: SchemaDocument => {
+          // we must be the Root elementRef or a quasi node
+          Assert.invariant(this.isInstanceOf[Root] || this.isInstanceOf[QuasiElementDeclBase])
+          None
+        }
+        case gr: GroupRef => gr.asModelGroup.immediatelyEnclosingModelGroup
+        case gdd: GlobalGroupDef => Some(gdd.groupRef.asModelGroup)
+        case ged: GlobalElementDecl => ged.elementRef.immediatelyEnclosingModelGroup
+        case ct: ComplexTypeBase => {
+          None
+          // The above formerly was ct.element.immediatelyEnclosingModelGroup,
+          // but if we have a CT as our parent, the group around the element whose type
+          // that is, isn't "immediately enclosing".
+        }
+        case _ => Assert.invariantFailed("immediatelyEnclosingModelGroup called on " + this + "with lexical parent " + lexicalParent)
       }
-      case gr: GroupRef => gr.asModelGroup.immediatelyEnclosingModelGroup
-      case gdd: GlobalGroupDef => Some(gdd.groupRef.asModelGroup)
-      case ged: GlobalElementDecl => ged.elementRef.immediatelyEnclosingModelGroup
-      case ct: ComplexTypeBase => {
-        None
-        // The above formerly was ct.element.immediatelyEnclosingModelGroup,
-        // but if we have a CT as our parent, the group around the element whose type
-        // that is, isn't "immediately enclosing".
-      }
-      case _ => Assert.invariantFailed("immediatelyEnclosingModelGroup called on " + this + "with lexical parent " + lexicalParent)
+      res
     }
-    res
   }
 
   /**
