@@ -36,8 +36,12 @@ import org.apache.daffodil.schema.annotation.props.PropTypes
 
 abstract class SchemaComponentImpl(
   final override val xml: Node,
-  final override val lexicalParent: SchemaComponent)
-  extends SchemaComponent
+  final override val optLexicalParent: Option[SchemaComponent])
+  extends SchemaComponent {
+
+  def this(xml: Node, lexicalParent: SchemaComponent) =
+    this(xml, Option(lexicalParent))
+}
 
 /**
  * The core root class of the DFDL Schema object model.
@@ -54,12 +58,10 @@ trait SchemaComponent
   with PropTypes {
 
   def xml: Node
-  def lexicalParent: SchemaComponent
-  final lazy val optLexicalParent = Option(lexicalParent) // Option because Option(null) == None. We want that.
 
-  override def oolagContextViaArgs = Option(lexicalParent) // Option because Option(null) == None. We want that.
+  override def oolagContextViaArgs = optLexicalParent
 
-  def tunable: DaffodilTunables = lexicalParent.tunable
+  lazy val tunable: DaffodilTunables = optLexicalParent.get.tunable
 
   lazy val dpathCompileInfo: DPathCompileInfo =
     new DPathCompileInfo(
@@ -209,7 +211,7 @@ trait SchemaComponent
  * the 'schema'.
  */
 final class Schema(val namespace: NS, schemaDocs: Seq[SchemaDocument], schemaSetArg: SchemaSet)
-  extends SchemaComponentImpl(<fake/>, schemaSetArg) {
+  extends SchemaComponentImpl(<fake/>, Option(schemaSetArg)) {
 
   requiredEvaluations(schemaDocuments)
 

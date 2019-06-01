@@ -21,7 +21,7 @@ import scala.xml.Node
 
 sealed abstract class LocalElementDeclBase(
   final override val xml: Node,
-  final override val lexicalParent: SchemaComponent,
+  final override val optLexicalParent: Option[SchemaComponent],
   final override val position: Int)
   extends ElementBase
   with LocalElementComponentMixin
@@ -35,7 +35,7 @@ class LocalElementDecl(
   xml: Node,
   lexicalParent: SchemaComponent,
   position: Int)
-  extends LocalElementDeclBase(xml, lexicalParent, position)
+  extends LocalElementDeclBase(xml, Option(lexicalParent), position)
 
 /**
  * A QuasiElement is similar to a LocalElement except it will have no
@@ -49,7 +49,7 @@ class LocalElementDecl(
 sealed abstract class QuasiElementDeclBase(
   xml: Node,
   lexicalParent: SchemaComponent)
-  extends LocalElementDeclBase(xml, lexicalParent, -1) {
+  extends LocalElementDeclBase(xml, Option(lexicalParent), -1) {
 
   override lazy val isQuasiElement = true
 }

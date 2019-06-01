@@ -123,7 +123,7 @@ case class InitiatedContent(
 }
 
 case class SetVariable(stmt: DFDLSetVariable)
-  extends ExpressionEvaluatorBase(stmt.lexicalParent) {
+  extends ExpressionEvaluatorBase(stmt.annotatedSC) {
 
   val baseName = "SetVariable[" + stmt.varQName.local + "]"
 

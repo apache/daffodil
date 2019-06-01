@@ -73,7 +73,7 @@ class TestPropertyRuntime {
 
 }
 
-class HasMixin extends SchemaComponentImpl(<foo/>, null)
+class HasMixin extends SchemaComponentImpl(<foo/>, None)
   with TheExamplePropMixin
   with NestingLexicalMixin {
 

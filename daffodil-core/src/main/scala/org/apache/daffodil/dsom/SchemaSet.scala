@@ -70,14 +70,14 @@ final class SchemaSet(
   val validateDFDLSchemas: Boolean,
   checkAllTopLevelArg: Boolean,
   tunableArg: DaffodilTunables)
-  extends SchemaComponentImpl(<schemaSet/>, null)
+  extends SchemaComponentImpl(<schemaSet/>, None)
   with SchemaSetIncludesAndImportsMixin {
 
   private lazy val processorFactory = pfArg // insure this by name arg is evaluated exactly once.
 
   lazy val root = rootElement(processorFactory.flatMap { _.rootSpec })
 
-  override def tunable =
+  override lazy val tunable =
     tunableArg
 
   requiredEvaluations(isValid)

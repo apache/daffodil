@@ -38,7 +38,7 @@ abstract class AbstractElementRef(
   with NestingLexicalMixin {
 
   override lazy val xml = xmlArg
-  final override lazy val lexicalParent = parentArg
+  final override lazy val optLexicalParent = Option(parentArg)
   final override lazy val position = positionArg
 
   requiredEvaluations(referencedElement)
