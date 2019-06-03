@@ -214,6 +214,15 @@
             </xs:documentation>
           </xs:annotation>
         </xs:element>
+        <xs:element name="maxLookaheadFunctionBits" type="xs:long" default="512" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              Max distance that the DPath lookahead function is permitted to look.
+              Distance is defined by the distance to the last bit accessed, and
+              so it is offset+bitsize.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
         <xs:element name="maxOccursBounds" type="xs:int" default="2147483647" minOccurs="0">
           <xs:annotation>
             <xs:documentation>
@@ -228,6 +237,7 @@
             </xs:documentation>
           </xs:annotation>
         </xs:element>
+        
         <xs:element name="maxValidYear" type="xs:int" default="9999" minOccurs="0">
           <xs:annotation>
             <xs:documentation>

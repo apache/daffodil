@@ -188,6 +188,7 @@ class PrimitiveTunable(name: String, schemaType: String, schemaDefault: String)
   private val scalaType = schemaType match {
     case "xs:boolean" => "Boolean"
     case "xs:int" =>  "Int"
+    case "xs:long" => "Long"
     case "xs:string" => "String"
   }
 

@@ -614,13 +614,15 @@ case class WholeExpression(
 
     if (!allowCoercion) {
       if (tunable.allowExpressionResultCoercion) {
-        SDW(WarnID.DeprecatedExpressionResultCoercion,
+        SDW(
+          WarnID.DeprecatedExpressionResultCoercion,
           "Expression result type (%s) should be manually cast to the expected type (%s) with the appropriate constructor. " +
-          "Performing deprecated automatic conversion.",
+            "Performing deprecated automatic conversion.",
           inherentType,
           targetType)
       } else {
-        SDE("Expression result type (%s) must be manually cast to the expected type (%s) with the approrpriate constructor.",
+        SDE(
+          "Expression result type (%s) must be manually cast to the expected type (%s) with the approrpriate constructor.",
           inherentType,
           targetType)
       }
@@ -642,7 +644,8 @@ case class WholeExpression(
 case class IfExpression(ifthenelse: List[Expression])
   extends ExpressionLists(ifthenelse) {
 
-  override lazy val compiledDPath = new CompiledDPath(IF(predicate.compiledDPath,
+  override lazy val compiledDPath = new CompiledDPath(IF(
+    predicate.compiledDPath,
     thenPart.compiledDPath, elsePart.compiledDPath))
 
   override def text = "if (" + predicate.text + ") then " + thenPart.text + " else " + elsePart.text
@@ -841,7 +844,8 @@ sealed abstract class StepExpression(val step: String, val pred: Option[Predicat
   extends Expression {
 
   def relPathErr() = {
-    val err = new RelativePathPastRootError(this.schemaFileLocation,
+    val err = new RelativePathPastRootError(
+      this.schemaFileLocation,
       "Relative path '%s' past root element.", this.wholeExpressionText)
     toss(err)
   }
@@ -1543,6 +1547,8 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
         DFDLSetBitsExpr(functionQNameString, functionQName, args)
       }
 
+      //Begin DFDLX functions
+
       //Begin TypeValueCalc related functions
       case (RefQName(_, "inputTypeCalcInt", DFDL), args) =>
         FNTwoArgsExprInferedArgType(functionQNameString, functionQName, args,
@@ -1579,12 +1585,18 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
       case (RefQName(_, "logicalTypeValueInt", DFDL), args) =>
         FNZeroArgExpr(functionQNameString, functionQName,
           NodeInfo.Integer, NodeInfo.AnyAtomic, DFDLXLogicalTypeValueInt(_, _))
-          
+
       case (RefQName(_, "logicalTypeValueString", DFDL), args) =>
         FNZeroArgExpr(functionQNameString, functionQName,
           NodeInfo.String, NodeInfo.AnyAtomic, DFDLXLogicalTypeValueString(_, _))
 
       //End typeValueCalc related functions
+
+      case (RefQName(_, "lookAhead", DAF_APACHE), args) =>
+        FNTwoArgsExpr(functionQNameString, functionQName, args,
+          NodeInfo.NonNegativeInteger, NodeInfo.UnsignedInt, NodeInfo.UnsignedInt, DAFLookAhead(_))
+
+      //End DFDLX functions
 
       case (RefQName(_, "round-half-to-even", FUNC), args) if args.length == 1 => {
         FNOneArgMathExpr(functionQNameString, functionQName, args,
@@ -1692,7 +1704,8 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
   }
 }
 
-abstract class FunctionCallBase(functionQNameString: String,
+abstract class FunctionCallBase(
+  functionQNameString: String,
   functionQName: RefQName,
   expressions: List[Expression]) extends ExpressionLists(expressions) {
   override def text = functionQNameString + "(" + expressions.map { _.text }.mkString(", ") + ")"
@@ -1796,7 +1809,8 @@ case class FNRoundHalfToEvenExpr(nameAsParsed: String, fnQName: RefQName,
   val (valueExpr, precisionExpr) = args match {
     case List(ve) => (ve, LiteralExpression(0))
     case List(ve, pe) => (ve, pe)
-    case _ => SDE("The %n function requires 1 or 2 arguments. But %s were found.",
+    case _ => SDE(
+      "The %n function requires 1 or 2 arguments. But %s were found.",
       fnQName.toPrettyString, args.length)
   }
 
@@ -1827,7 +1841,8 @@ case class FNOneArgMathExpr(nameAsParsed: String, fnQName: RefQName,
   extends FunctionCallBase(nameAsParsed, fnQName, args) {
 
   override lazy val inherentType = {
-    schemaDefinitionUnless(argInherentType.isSubtypeOf(NodeInfo.Numeric),
+    schemaDefinitionUnless(
+      argInherentType.isSubtypeOf(NodeInfo.Numeric),
       "Argument must be of numeric type but was %s.", argInherentType)
     argInherentType
   }
@@ -1860,7 +1875,8 @@ case class FNTwoArgsMathExpr(nameAsParsed: String, fnQName: RefQName,
   extends FNTwoArgsExprBase(nameAsParsed, fnQName, args, NodeInfo.Numeric, NodeInfo.Numeric, arg2Type, constructor) {
 
   override lazy val inherentType = {
-    schemaDefinitionUnless(argInherentType.isSubtypeOf(NodeInfo.Numeric),
+    schemaDefinitionUnless(
+      argInherentType.isSubtypeOf(NodeInfo.Numeric),
       "First argument must be of numeric type but was %s.", argInherentType)
     argInherentType
   }
@@ -1973,7 +1989,7 @@ case class FNTwoArgsExpr(nameAsParsed: String, fnQName: RefQName,
  * as easily as the caller, and the caller might be aware of more constraints than we are.
  * (Eg. in the DFDLXTypeInputCalc functions, only the second parameter is infered, the first
  * must be a String).
- * 
+ *
  * Note that, for arguements that should be inferred, the caller should use arg.inherentType,
  * not arg.targetType, as the latter will look to this class to make its determination.
  */
@@ -1981,7 +1997,7 @@ case class FNTwoArgsExprInferedArgType(nameAsParsed: String, fnQName: RefQName,
   args: List[Expression], resultType: NodeInfo.Kind, arg1Type: NodeInfo.Kind, arg2Type: NodeInfo.Kind,
   constructor: List[(CompiledDPath, NodeInfo.Kind)] => RecipeOp)
   extends {
-    private val constructor_ : List[CompiledDPath] => RecipeOp = (subExprs : List[CompiledDPath]) => {
+    private val constructor_ : List[CompiledDPath] => RecipeOp = (subExprs: List[CompiledDPath]) => {
       Assert.invariant(subExprs.length == args.length)
       val types = args.map(_.targetType)
       val typedSubExprs = subExprs.zip(types)
@@ -2197,7 +2213,8 @@ case class DAFTraceExpr(nameAsParsed: String, fnQName: RefQName, args: List[Expr
   lazy val (realArg, msgText) = args match {
     case List(arg0, LiteralExpression(txt: String)) => (arg0, txt)
     case List(arg0, other) =>
-      SDE("The second argument to %n must be a string literal, but was %s.",
+      SDE(
+        "The second argument to %n must be a string literal, but was %s.",
         nameAsParsed, other.text)
     case _ => {
       argCountErr(2)

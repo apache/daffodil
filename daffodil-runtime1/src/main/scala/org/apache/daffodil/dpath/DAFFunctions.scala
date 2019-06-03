@@ -17,12 +17,18 @@
 
 package org.apache.daffodil.dpath
 
+import java.lang.{ Long => JLong }
+
 import org.apache.daffodil.processors.unparsers.UnparseError
 import org.apache.daffodil.util.Maybe.Nope
 import org.apache.daffodil.util.Maybe.One
 import org.apache.daffodil.infoset.DISimple
 import org.apache.daffodil.infoset.XMLTextInfosetOutputter
 import org.apache.daffodil.infoset.InfosetCommon
+import org.apache.daffodil.processors.parsers.PState
+import org.apache.daffodil.processors.parsers.ParseError
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.processors.unparsers.UState
 
 case class DAFTrace(recipe: CompiledDPath, msg: String)
   extends RecipeOpWithSubRecipes(recipe) {
@@ -69,6 +75,67 @@ case object DAFError extends RecipeOp {
         val fe = new FNErrorFunctionException(maybeSFL, dstate.contextLocation, "The error function was called.")
         throw fe
       }
+    }
+  }
+}
+
+case class DAFLookAhead(recipes: List[CompiledDPath])
+  extends FNTwoArgs(recipes) {
+
+  def computeValue(arg1: AnyRef, arg2: AnyRef, dstate: DState): AnyRef = {
+    val offset = arg1.asInstanceOf[JLong]
+    val lBitSize = arg2.asInstanceOf[JLong]
+
+    /*
+     * Since daf:lookAhead is defined to take unsigned arguements, the DPath interperater
+     * will error out on the cast if a negative arguement is supplied, so we do not need to SDE here.
+     */
+
+    Assert.invariant(offset >= 0)
+    Assert.invariant(lBitSize >= 0)
+
+    val totalLookahead = offset + lBitSize
+    val maxLookahead = dstate.compileInfo.tunable.maxLookaheadFunctionBits
+    if (totalLookahead > maxLookahead) {
+      dstate.SDE("Look-ahead distance of %s bits exceeds implementation defined limit of %s bits", totalLookahead, maxLookahead)
+    }
+    //Safe since we guard on totalLookahead
+    val bitSize = lBitSize.toInt
+
+    if (!dstate.parseOrUnparseState.isDefined) {
+      Assert.invariant(dstate.isCompile)
+      /*
+        * This is an expected code path.
+        * Throwing an exception is how we indicated that this expression
+        * cannot be reduced to a constant at compile time.
+        */
+      throw new IllegalStateException("No input stream at compile time")
+    }
+    if (dstate.parseOrUnparseState.get.isInstanceOf[PState]) {
+      val pstate = dstate.parseOrUnparseState.get.asInstanceOf[PState]
+      val dis = pstate.dataInputStream
+      if (!dis.isDefinedForLength(totalLookahead)) {
+        val maybeSFL =
+          if (dstate.runtimeData.isDefined) One(dstate.runtimeData.get.schemaFileLocation)
+          else Nope
+        throw new ParseError(maybeSFL, dstate.contextLocation, Nope,
+          One("Insufficient bits available to satisfy daf:lookAhead(%s,%s)."),
+          offset, bitSize, totalLookahead)
+      }
+      val mark = dis.markPos
+      dis.skip(offset, pstate)
+      val ans: AnyRef = if (bitSize > 63) {
+        dis.getUnsignedBigInt(bitSize, pstate)
+      } else if (bitSize == 0) {
+        new JLong(0)
+      } else {
+        new JLong(dis.getUnsignedLong(bitSize, pstate).longValue)
+      }
+      dis.resetPos(mark)
+      ans
+    } else {
+      Assert.invariant(dstate.parseOrUnparseState.get.isInstanceOf[UState])
+      dstate.SDE("Cannot call daf:lookAhead() during unparse")
     }
   }
 }

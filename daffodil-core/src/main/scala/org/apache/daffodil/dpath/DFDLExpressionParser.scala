@@ -52,7 +52,7 @@ class DFDLPathExpressionParser[T <: AnyRef](qn: NamedQName,
 
     val recipe = tree.compiledDPath // if we cannot get one this will fail by throwing out of here.
 
-    val value = recipe.runExpressionForConstant(context.schemaFileLocation)
+    val value = recipe.runExpressionForConstant(context.schemaFileLocation, context)
     val res: CompiledExpression[T] = value match {
       case Some(constantValue) => {
         Assert.invariant(constantValue != null)

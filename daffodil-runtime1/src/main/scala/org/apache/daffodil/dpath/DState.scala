@@ -26,6 +26,7 @@ import org.apache.daffodil.equality._; object EqualityNoWarn2 { EqualitySuppress
 import org.apache.daffodil.api.DataLocation
 import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
 import org.apache.daffodil.api.WarnID
+import org.apache.daffodil.dsom.DPathCompileInfo
 
 /**
  * Modes for expression evaluation.
@@ -317,8 +318,12 @@ case class DState(val maybeSsrd:Maybe[SchemaSetRuntimeData]) {
   def runtimeData = {
     if (contextNode.isDefined) One(contextNode.get.erd)
     else Nope
-  }
-
+  } 
+  
+  // Overwritten in DStateForConstantFolding, so it should
+  // be safe to assume we have runtime data
+  def compileInfo = runtimeData.get.dpathCompileInfo
+  
   private var _contextNode: Maybe[DINode] = Nope
   def contextNode = _contextNode
   def setContextNode(node: DINode) {
@@ -355,6 +360,12 @@ case class DState(val maybeSsrd:Maybe[SchemaSetRuntimeData]) {
   def arrayPos = _arrayPos
   def setArrayPos(arrayPos1b: Long) {
     _arrayPos = arrayPos1b
+  }
+  
+  private var _parseOrUnparseState: Maybe[ParseOrUnparseState] = Nope
+  def parseOrUnparseState = _parseOrUnparseState
+  def setParseOrUnparseState(state: ParseOrUnparseState) {
+    _parseOrUnparseState = One(state)
   }
 
   def SDE(formatString: String, args: Any*) = {
@@ -412,7 +423,7 @@ object DState {
   }
 }
 
-class DStateForConstantFolding extends DState(Nope) {
+class DStateForConstantFolding(override val compileInfo: DPathCompileInfo) extends DState(Nope) {
   private def die = throw new java.lang.IllegalStateException("No infoset at compile time.")
 
   override def currentSimple = currentNode.asInstanceOf[DISimple]
