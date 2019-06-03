@@ -22,15 +22,19 @@ import scala.xml.Node
 final class GlobalElementDecl(
   xmlArg: Node,
   schemaDocument: SchemaDocument,
-  elementRefArg: => AbstractElementRef)
+  elementRefArg: => AbstractElementRef,
+  override val factory: GlobalElementDeclFactory)
   extends AnnotatedSchemaComponentImpl(xmlArg, schemaDocument)
   with GlobalElementComponentMixin
-  with ElementDeclMixin
+  with ElementDeclFactoryDelegatingMixin
   with NestingTraversesToReferenceMixin
   with ResolvesProperties {
+
   //   global elements combined with element references referring to them can
   //   be multiple occurring (aka arrays) hence, we have to have things
   //   that take root and referenced situation into account.
+
+  final override def delegate = factory
 
   lazy val elementRef = elementRefArg
   override lazy val dpathCompileInfo = elementRef.dpathElementCompileInfo

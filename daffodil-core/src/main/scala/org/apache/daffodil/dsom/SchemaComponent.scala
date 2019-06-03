@@ -133,6 +133,10 @@ trait SchemaComponent
     ee
   }.value
 
+  //
+  // Uncomment this to chase down these usages and revise them.
+  //
+  // @deprecated("2019-06-03", "Use enclosingTerms and deal with shared object with multiple referencers/enclosers.")
   final lazy val enclosingTerm: Option[Term] = {
     val ec = enclosingComponent
     val et = ec match {
@@ -143,14 +147,63 @@ trait SchemaComponent
     et
   }
 
+  final lazy val enclosingTerms: Seq[Term] = {
+    val ec = enclosingComponents.map { _.encloser }
+    val et = ec.flatMap { sc =>
+      sc match {
+        case t: Term => Seq(t)
+        case ct: ComplexTypeBase => ct.enclosingTerms
+        case gedf: GlobalElementDeclFactory => gedf.enclosingComponents.map { _.encloser }.flatMap { _.enclosingTerms }
+        case _ => Assert.invariantFailed("Should only be Term or ComplexType")
+      }
+    }
+    et
+  }
+
   /**
    * path is used in diagnostic messages and code debug
    * messages; hence, it is very important that it be
    * very dependable.
    */
   override lazy val path = {
-    val p = scPath.map { _.diagnosticDebugName }.mkString("::")
+    val list = scPath.filter { isComponentForSSCD(_) }
+    val p = list.map { _.diagnosticDebugName }.mkString("::")
     p
+  }
+
+  private def isComponentForSSCD(sc: SchemaComponent) = {
+    sc match {
+      case _: SchemaDocument => false
+      case _: XMLSchemaDocument => false
+      case _: DFDLSchemaFile => false
+      case _: Schema => false
+      case _: SchemaSet => false
+      case _ => true
+    }
+  }
+
+  lazy val shortSchemaComponentDesignator: String = {
+    val list = scPath.filter { isComponentForSSCD(_) }
+    val sscdStrings = list.map { sc =>
+      sc match {
+        case er: AbstractElementRef => "er" + (if (er.position > 1) er.position else "") + "=" + er.namedQName
+        case e: ElementBase => "e" + (if (e.position > 1) e.position else "") + "=" + e.namedQName
+        case ed: GlobalElementDecl => "e=" + ed.namedQName
+        case ct: GlobalComplexTypeDef => "ct=" + ct.namedQName
+        case ct: ComplexTypeBase => "ct"
+        case st: SimpleTypeDefBase => "st=" + st.namedQName
+        case st: SimpleTypeBase => "st=" + st.primType.globalQName
+        case cgr: ChoiceGroupRef => "cgr" + (if (cgr.position > 1) cgr.position else "") + "=" + cgr.groupDef.namedQName
+        case cgd: GlobalChoiceGroupDef => "cgd=" + cgd.namedQName
+        case sgr: SequenceGroupRef => "sgr" + (if (sgr.isHidden) "h" else "") + (if (sgr.position > 1) sgr.position else "") + "=" + sgr.groupDef.namedQName
+        case sgd: GlobalSequenceGroupDef => "sgd=" + sgd.namedQName
+        case cg: Choice => "c" + (if (cg.position > 1) cg.position else "")
+        case sg: Sequence => "s" + (if (sg.isHidden) "h" else "") + (if (sg.position > 1) sg.position else "")
+        case sc => Assert.invariantFailed("Unexpected component type: " + sc)
+      }
+    }
+    val sscd = sscdStrings.mkString(":")
+    sscd
   }
 
   /**
@@ -200,7 +253,6 @@ trait SchemaComponent
     val dfdlBinding = new scala.xml.NamespaceBinding("dfdl", XMLUtils.DFDL_NAMESPACE.toString, xml.scope)
     scala.xml.Elem("dfdl", label, emptyXMLMetadata, dfdlBinding, true)
   }
-
 }
 
 /**
@@ -218,6 +270,8 @@ final class Schema(val namespace: NS, schemaDocs: Seq[SchemaDocument], schemaSet
   override def targetNamespace: NS = namespace
 
   final override protected def enclosingComponentDef = None
+  final override protected def enclosingComponentDefs = Seq()
+
   override lazy val schemaDocument: SchemaDocument = Assert.usageError("schemaDocument should not be called on Schema")
 
   override lazy val schemaSet = schemaSetArg

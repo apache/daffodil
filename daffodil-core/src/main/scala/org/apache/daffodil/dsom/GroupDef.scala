@@ -34,14 +34,14 @@ final class GlobalGroupDefFactory(defXML: Node, schemaDocument: SchemaDocument)
         val list = contents.collect {
           case groupXML @ <sequence>{ _* }</sequence> => {
             lazy val gref: SequenceGroupRef = new SequenceGroupRef(gdef, refXML, refLexicalParent, position, isHidden)
-            lazy val gdef: GlobalSequenceGroupDef = new GlobalSequenceGroupDef(defXML, groupXML, schemaDocument, gref)
+            lazy val gdef: GlobalSequenceGroupDef = new GlobalSequenceGroupDef(defXML, groupXML, schemaDocument, gref, this)
             gref.groupDef
             gdef.groupRef
             (gref, gdef)
           }
           case groupXML @ <choice>{ _* }</choice> =>
             lazy val gref: ChoiceGroupRef = new ChoiceGroupRef(gdef, refXML, refLexicalParent, position, isHidden)
-            lazy val gdef: GlobalChoiceGroupDef = new GlobalChoiceGroupDef(defXML, groupXML, schemaDocument, gref)
+            lazy val gdef: GlobalChoiceGroupDef = new GlobalChoiceGroupDef(defXML, groupXML, schemaDocument, gref, this)
             gref.groupDef
             gdef.groupRef
             (gref, gdef)
@@ -108,7 +108,8 @@ sealed abstract class GlobalGroupDef(
   defXML: Node,
   groupXML: Node,
   schemaDocumentArg: SchemaDocument,
-  grefArg: => GroupRef)
+  grefArg: => GroupRef,
+  override val factory: GlobalGroupDefFactory)
   extends AnnotatedSchemaComponentImpl(groupXML, schemaDocumentArg)
   with GroupDefLike
   with GlobalNonElementComponentMixin
@@ -136,12 +137,16 @@ sealed abstract class GlobalGroupDef(
   final override lazy val referringComponent = Some(groupRef.asModelGroup)
 }
 
-final class GlobalSequenceGroupDef(defXMLArg: Node, seqXML: Node, schemaDocument: SchemaDocument, gref: => SequenceGroupRef)
-  extends GlobalGroupDef(defXMLArg, seqXML, schemaDocument, gref)
+final class GlobalSequenceGroupDef(
+  defXMLArg: Node, seqXML: Node, schemaDocument: SchemaDocument, gref: => SequenceGroupRef,
+  factory: GlobalGroupDefFactory)
+  extends GlobalGroupDef(defXMLArg, seqXML, schemaDocument, gref, factory)
   with SequenceDefMixin
 
-final class GlobalChoiceGroupDef(defXMLArg: Node, choiceXML: Node, schemaDocument: SchemaDocument, gref: => ChoiceGroupRef)
-  extends GlobalGroupDef(defXMLArg, choiceXML, schemaDocument, gref)
+final class GlobalChoiceGroupDef(
+  defXMLArg: Node, choiceXML: Node, schemaDocument: SchemaDocument, gref: => ChoiceGroupRef,
+  factory: GlobalGroupDefFactory)
+  extends GlobalGroupDef(defXMLArg, choiceXML, schemaDocument, gref, factory)
   with ChoiceDefMixin {
 
 }

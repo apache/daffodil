@@ -463,9 +463,18 @@
 
     <xs:element name="e31" dfdl:lengthKind="delimited" dfdl:terminator=")">
       <xs:complexType>
+        <!-- 
+          a sequence doesn't have a lengthKind, so the check for trailingSkip 
+          with lengthKind 'delimited' won't fail a check on the sequence here.
+          -->
         <xs:sequence dfdl:alignment="8" dfdl:alignmentUnits="bits" dfdl:leadingSkip="0" dfdl:trailingSkip="8">
           <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited" dfdl:encoding="ascii" dfdl:alignment="8" dfdl:terminator=":"/>
-          <xs:element name="s2" type="xs:string" dfdl:lengthKind="delimited" dfdl:encoding="ascii" dfdl:alignment="8" dfdl:terminator=":"/>
+          <!-- 
+            this element violates the requirement that when trailingSkip is non-zero and
+            lengthKind is 'delimited' there must be a terminator.
+           -->
+          <xs:element name="s2" type="xs:string" dfdl:lengthKind="delimited" dfdl:encoding="ascii" dfdl:alignment="8" 
+            dfdl:trailingSkip="8"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>

@@ -53,6 +53,7 @@ import org.apache.daffodil.xml.XMLUtils
 trait SchemaDocumentMixin { self: SchemaComponent =>
 
   protected final override def enclosingComponentDef: Option[SchemaComponent] = None
+  protected final override def enclosingComponentDefs = Seq()
 
 }
 

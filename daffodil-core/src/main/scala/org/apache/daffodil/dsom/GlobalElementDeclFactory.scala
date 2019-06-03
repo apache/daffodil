@@ -32,18 +32,21 @@ import scala.xml.Node
  */
 class GlobalElementDeclFactory(xmlArg: Node, schemaDocumentArg: SchemaDocument)
   extends SchemaComponentFactory(xmlArg, schemaDocumentArg)
-  with GlobalElementComponentMixin {
+  with GlobalElementComponentMixin
+  with ElementDeclFactoryImplMixin {
+
+  override def optReferredToComponent: Option[AnnotatedSchemaComponent] = None
 
   def forRoot() = asRoot // cache. Not a new one every time.
 
   private lazy val asRoot = {
-    lazy val ged = new GlobalElementDecl(xml, schemaDocument, root)
+    lazy val ged = new GlobalElementDecl(xml, schemaDocument, root, this)
     lazy val root: Root = new Root(xml, schemaDocument, namedQName, ged)
     root
   }
 
   def forElementRef(eRef: AbstractElementRef) = {
-    new GlobalElementDecl(xml, schemaDocument, eRef)
+    new GlobalElementDecl(xml, schemaDocument, eRef, this)
   }
 
 }

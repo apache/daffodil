@@ -51,6 +51,8 @@ abstract class AbstractElementRef(
   def isSimpleType: Boolean = this.referencedElement.isSimpleType
   def simpleType: SimpleTypeBase = this.referencedElement.simpleType
   def primType: NodeInfo.PrimType = this.referencedElement.primType
+  def optSimpleType = this.referencedElement.optSimpleType
+  def optComplexType = this.referencedElement.optComplexType
 
   override lazy val optReferredToComponent = Some(referencedElement)
 

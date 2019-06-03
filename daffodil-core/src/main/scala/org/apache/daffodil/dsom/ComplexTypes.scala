@@ -69,7 +69,7 @@ final class GlobalComplexTypeDefFactory(xmlArg: Node, schemaDocumentArg: SchemaD
   extends SchemaComponentFactory(xmlArg, schemaDocumentArg)
   with GlobalNonElementComponentMixin {
 
-  def forElement(elementDecl: ElementDeclMixin) = new GlobalComplexTypeDef(xml, schemaDocument, elementDecl)
+  def forElement(elementDecl: ElementDeclMixin) = new GlobalComplexTypeDef(xml, schemaDocument, elementDecl, this)
 
   override lazy val namedQName = QName.createGlobal(name, targetNamespace, xml.scope)
 }
@@ -80,7 +80,8 @@ final class GlobalComplexTypeDefFactory(xmlArg: Node, schemaDocumentArg: SchemaD
 final class GlobalComplexTypeDef(
   xmlArg: Node,
   schemaDocumentArg: SchemaDocument,
-  val elementDecl: ElementDeclMixin)
+  val elementDecl: ElementDeclMixin,
+  override val factory: GlobalComplexTypeDefFactory)
   extends ComplexTypeBase(xmlArg, schemaDocumentArg)
   with GlobalNonElementComponentMixin
   with NestingTraversesToReferenceMixin {

@@ -27,15 +27,10 @@ trait ElementLikeMixin
   extends AnnotatedSchemaComponent
   with ProvidesDFDLStatementMixin {
 
-  private lazy val elementBase = this match {
-    case ged: GlobalElementDecl => ged.elementRef
-    case eb: ElementBase => eb
-  }
-
   protected final def annotationFactory(node: Node): Option[DFDLAnnotation] = {
     node match {
       case <dfdl:element>{ contents @ _* }</dfdl:element> => Some(new DFDLElement(node, this))
-      case _ => elementBase.annotationFactoryForDFDLStatement(node, this)
+      case _ => annotationFactoryForDFDLStatement(node, this)
     }
   }
 
@@ -46,25 +41,81 @@ trait ElementLikeMixin
 /**
  * Shared by all element declarations local or global
  */
-trait ElementDeclMixin
+sealed trait ElementDeclMixin
   extends ElementLikeMixin {
 
   def namedQName: NamedQName
 
-  final override protected def optReferredToComponent = typeDef match {
+  def optReferredToComponent: Option[AnnotatedSchemaComponent]
+
+  def optImmediateSimpleType: Option[SimpleTypeBase]
+
+  def optImmediateComplexType: Option[ComplexTypeBase]
+
+  def immediateType: Option[TypeBase]
+
+  def typeName: Option[String]
+
+  def optNamedSimpleType: Option[SimpleTypeBase]
+
+  def optNamedComplexType: Option[GlobalComplexTypeDef]
+
+  def optSimpleType: Option[SimpleTypeBase]
+
+  def optComplexType: Option[ComplexTypeBase]
+
+  def namedTypeQName: Option[RefQName]
+
+  def namedType: Option[TypeBase]
+
+  def typeDef: TypeBase
+
+  final def isSimpleType: Boolean = optSimpleType.isDefined
+
+  final def isComplexType = !isSimpleType
+
+  def defaultAttr: Option[Seq[Node]]
+
+  def defaultValueAsString: String
+
+  final def primType = optSimpleType.get.primType
+
+  final def hasDefaultValue: Boolean = defaultAttr.isDefined
+
+  def isNillable: Boolean
+
+  final def simpleType: SimpleTypeBase = optSimpleType.get
+
+  final def complexType: ComplexTypeBase = optComplexType.get
+
+  /**
+   * Convenience methods for unit testing purposes.
+   */
+  final def sequence = complexType.sequence
+  final def choice = complexType.choice
+}
+
+sealed trait ElementDeclInstanceImplMixin
+  extends ElementDeclMixin {
+
+  final override lazy val optReferredToComponent = typeDef match {
     case std: SimpleTypeDefBase => Some(std)
     case ctd: ComplexTypeBase => None // in DFDL v1.0 complex types are not annotated, so can't carry properties nor statements.
     case _ => None
   }
 
-  final def immediateType: Option[TypeBase] = LV('immediateType) {
-    val st = xml \ "simpleType"
+  final override lazy val optNamedComplexType: Option[GlobalComplexTypeDef] = {
+    namedTypeQName.flatMap { qn =>
+      val gctdFactory = schemaSet.getGlobalComplexTypeDef(qn)
+      val res = gctdFactory.map { gctdf => gctdf.forElement(this) }
+      res
+    }
+  }
+
+  final override lazy val optImmediateComplexType: Option[ComplexTypeBase] = LV('optImmediateComplexType) {
     val ct = xml \ "complexType"
     val nt = typeName
-    if (st.length == 1) {
-      val lstd = new LocalSimpleTypeDef(st(0), this)
-      Some(lstd)
-    } else if (ct.length == 1)
+    if (ct.length == 1)
       Some(new LocalComplexTypeDef(ct(0), this))
     else {
       Assert.invariant(nt != "")
@@ -72,43 +123,22 @@ trait ElementDeclMixin
     }
   }.value
 
-  private lazy val typeName = getAttributeOption("type")
+  final override lazy val optComplexType =
+    optNamedComplexType.orElse(optImmediateComplexType.collect { case ct: ComplexTypeBase => ct })
 
-  private def namedTypeQName: Option[RefQName] = LV('namedTypeQName) {
-    typeName match {
-      case Some(tname) =>
-        Some(QName.resolveRef(tname, namespaces, tunable).get)
-      case None => None
+  final override lazy val namedType: Option[TypeBase] = LV('namedTypeDef) {
+    val res = optNamedSimpleType.orElse(optNamedComplexType).orElse {
+      namedTypeQName.map { qn => SDE("No type definition found for '%s'.", qn.toPrettyString) }
     }
+    if (optNamedSimpleType.isDefined &&
+      optNamedComplexType.isDefined)
+      SDE("Both a simple type and a complex type definition found for %s.", namedTypeQName.get.toPrettyString)
+    res
   }.value
 
-  private def namedType: Option[TypeBase] = LV('namedTypeDef) {
-    namedTypeQName match {
-      case None => None
-      case Some(qn) => {
+  final override lazy val immediateType = optImmediateSimpleType.orElse(optImmediateComplexType)
 
-        val ss = schemaSet
-        val optPrimitiveType = ss.getPrimitiveType(qn)
-        if (optPrimitiveType.isDefined) optPrimitiveType
-        else {
-          val gstd = ss.getGlobalSimpleTypeDef(qn)
-          val gctd = ss.getGlobalComplexTypeDef(qn)
-          val res = (gstd, gctd) match {
-            case (Some(_), None) => gstd
-            case (None, Some(gctdFactory)) => Some(gctdFactory.forElement(this))
-            // Note: Validation of the DFDL Schema doesn't necessarily check referential integrity
-            // or other complex constraints like conflicting names.
-            // So we check it here explicitly.
-            case (None, None) => schemaDefinitionError("No type definition found for '%s'.", qn.toPrettyString)
-            case (Some(_), Some(_)) => schemaDefinitionError("Both a simple and a complex type definition found for '%s'", qn.toPrettyString)
-          }
-          res
-        }
-      }
-    }
-  }.value
-
-  final lazy val typeDef: TypeBase = LV('typeDef) {
+  final override lazy val typeDef: TypeBase = LV('typeDef) {
     (immediateType, namedType) match {
       case (Some(ty), None) => ty
       case (None, Some(ty)) => ty
@@ -119,50 +149,81 @@ trait ElementDeclMixin
     }
   }.value
 
-  final lazy val isSimpleType = LV('isSimpleType) {
-    typeDef match {
-      case _: SimpleTypeBase => true
-      case _: ComplexTypeBase => false
-      case _ => Assert.invariantFailed("Must be either SimpleType or ComplexType")
-    }
+}
+
+trait ElementDeclFactoryImplMixin
+  extends ElementDeclMixin {
+
+  final override lazy val optImmediateSimpleType: Option[SimpleTypeBase] = LV('optImmediateSimpleType) {
+    val st = xml \ "simpleType"
+    if (st.length == 1) {
+      val lstd = new LocalSimpleTypeDef(st(0), this)
+      Some(lstd)
+    } else None
   }.value
 
-  final def isComplexType = !isSimpleType
+  final override lazy val typeName = getAttributeOption("type")
 
-  private def defaultAttr = xml.attribute("default")
+  final override lazy val namedTypeQName: Option[RefQName] = {
+    typeName.map { tname =>
+      QName.resolveRef(tname, namespaces, tunable).get
+    }
+  }
 
-  final lazy val defaultValueAsString = {
+  final lazy val optNamedSimpleType: Option[SimpleTypeBase] = {
+    namedTypeQName.flatMap { qn =>
+      schemaSet.getPrimitiveType(qn).orElse(schemaSet.getGlobalSimpleTypeDef(qn))
+    }
+  }
+
+  final override lazy val optSimpleType =
+    optNamedSimpleType.orElse(optImmediateSimpleType.collect { case st: SimpleTypeBase => st })
+
+  final override lazy val defaultAttr = xml.attribute("default")
+
+  final override lazy val defaultValueAsString = {
     Assert.usage(hasDefaultValue)
     val dv = defaultAttr.get.text
-    schemaDefinitionWhen(dv =:= "" && !(primType =:= PrimType.String), "Type was %s, but only type xs:string can have XSD default=\"\".",
+    schemaDefinitionWhen(
+      dv =:= "" && !(primType =:= PrimType.String),
+      "Type was %s, but only type xs:string can have XSD default=\"\".",
       primType.toString)
     dv
   }
 
-  // shorthand
-  final lazy val primType = {
-    val res = typeDef.asInstanceOf[SimpleTypeBase].primType
-    res
-  }
+  final override lazy val isNillable = (xml \ "@nillable").text == "true"
 
-  final lazy val hasDefaultValue: Boolean = {
-    Assert.usage(isSimpleType)
-    defaultAttr.isDefined
-  }
+  override def namedType: Option[TypeBase] = Assert.usageError("Not to be called on Element Decl Factories")
+  override def optComplexType: Option[ComplexTypeBase] = Assert.usageError("Not to be called on Element Decl Factories")
+  override def optNamedComplexType: Option[GlobalComplexTypeDef] = Assert.usageError("Not to be called on Element Decl Factories")
+  override def typeDef: TypeBase = Assert.usageError("Not to be called on Element Decl Factories")
+  override def immediateType: Option[TypeBase] = Assert.usageError("Not to be called on Element Decl Factories")
+  override def optImmediateComplexType: Option[ComplexTypeBase] = Assert.usageError("Not to be called on Element Decl Factories")
+}
 
-  final lazy val isNillable = (xml \ "@nillable").text == "true"
+trait ElementDeclNonFactoryDelegatingMixin
+  extends ElementDeclFactoryImplMixin
+  with ElementDeclInstanceImplMixin
 
-  final def simpleType = typeDef match {
-    case st: SimpleTypeBase => st
-    case ct: ComplexTypeBase =>
-      Assert.invariantFailed("Must be simple type: " + namedQName)
-  }
+trait ElementDeclFactoryDelegatingMixin
+  extends ElementDeclInstanceImplMixin {
 
-  final def complexType = typeDef.asInstanceOf[ComplexTypeBase]
-  /**
-   * Convenience methods for unit testing purposes.
-   */
-  final def sequence = complexType.sequence
-  final def choice = complexType.choice
+  protected def delegate: ElementDeclFactoryImplMixin
+
+  final override def typeName: Option[String] = delegate.typeName
+
+  final override def namedTypeQName: Option[RefQName] = delegate.namedTypeQName
+
+  final override def optImmediateSimpleType: Option[SimpleTypeBase] = delegate.optImmediateSimpleType
+
+  final override def optNamedSimpleType: Option[SimpleTypeBase] = delegate.optNamedSimpleType
+
+  final override def optSimpleType: Option[SimpleTypeBase] = delegate.optSimpleType
+
+  final override def defaultAttr: Option[Seq[Node]] = delegate.defaultAttr
+
+  final override def defaultValueAsString: String = delegate.defaultValueAsString
+
+  final override def isNillable: Boolean = delegate.isNillable
 
 }

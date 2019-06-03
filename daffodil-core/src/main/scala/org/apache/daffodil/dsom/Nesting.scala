@@ -19,6 +19,15 @@ package org.apache.daffodil.dsom
 
 import org.apache.daffodil.exceptions.Assert
 
+/**
+ * When a global schema component is referenced, the "backpointer" is represented by
+ * this class. The lexical position is the index within the enclosing construct's lexical parent.
+ * For example, if an element ref is referencing a global element decl, then the encloser is
+ * the elementRef, and the lexical position is which index, within the sequence/choice that
+ * contains that particular elementRef.
+ */
+case class EnclosingComponentDef(encloser: SchemaComponent, lexicalPosition: Int)
+
 trait NestingMixin {
 
   /** The lexically enclosing schema component */
@@ -33,7 +42,14 @@ trait NestingMixin {
    * Not for format annotations however. We don't backpoint those to
    * other format annotations that ref them.
    */
+  //
+  // Uncomment this to chase down these usages and revise them.
+  //
+  //
+  // @deprecated("2019-06-03", "Use enclosingComponentDefs method, and deal with sharing.")
   protected def enclosingComponentDef: Option[SchemaComponent]
+
+  protected def enclosingComponentDefs: Seq[EnclosingComponentDef]
 
   /**
    * The enclosing component, and follows back-references
@@ -45,7 +61,15 @@ trait NestingMixin {
    *  referenced from a element ref or group ref, is NOT the ref object, but the
    *  component that contains the ref object
    */
+  //
+  // Uncomment this to chase down these usages and revise them.
+  //
+  //
+  // @deprecated("2019-06-03", "Rewrite to use lexicalParent or enclosingComponents methods, and deal with sharing.")
   final lazy val enclosingComponent: Option[SchemaComponent] = enclosingComponentDef
+
+  final lazy val enclosingComponents: Seq[EnclosingComponentDef] =
+    enclosingComponentDefs
 }
 
 /**
@@ -54,24 +78,61 @@ trait NestingMixin {
  * schema components.
  */
 trait NestingLexicalMixin
-  extends NestingMixin {
+  extends NestingMixin { self: SchemaComponent =>
 
+  @deprecated("2019-06-03", "Use enclosingComponentDefs method, and deal with sharing.")
   override protected def enclosingComponentDef = optLexicalParent
 
+  final override protected lazy val enclosingComponentDefs: Seq[EnclosingComponentDef] =
+    optLexicalParent.map {
+      lp =>
+        val pos = self match {
+          case t: Term => t.position
+          case _ => 1
+        }
+        EnclosingComponentDef(lp, pos)
+    }.toSeq
 }
 
 /**
  * Mixin for all global schema components
  */
 trait NestingTraversesToReferenceMixin
-  extends NestingMixin {
+  extends NestingMixin { self: SchemaComponent =>
 
+  def factory: SchemaComponentFactory
+
+  @deprecated("2019-06-03", "Use referringComponents method, and deal with sharing.")
   def referringComponent: Option[SchemaComponent]
 
+  @deprecated("2019-06-03", "Use enclosingComponentDefs method, and deal with sharing.")
   final override protected def enclosingComponentDef: Option[SchemaComponent] = {
     Assert.invariant(optLexicalParent.isDefined &&
       optLexicalParent.get.isInstanceOf[SchemaDocument]) // global things have schema documents as their parents.
     referringComponent
   }
 
+  /**
+   * Enables compilation to know all the points of use of a global
+   * component.
+   */
+  def referringComponents: Seq[(String, Seq[RefSpec])] = {
+    schemaSet.root.refMap.get(this.factory) match {
+      case None => Assert.invariantFailed("There are no references to this component: " + this)
+      case Some(seq) => seq
+    }
+
+  }
+
+  final override protected def enclosingComponentDefs: Seq[EnclosingComponentDef] = {
+    Assert.invariant(optLexicalParent.isDefined &&
+      optLexicalParent.get.isInstanceOf[SchemaDocument]) // global things have schema documents as their parents.
+    val res = referringComponents.flatMap {
+      case (_, seq: Seq[RefSpec]) =>
+        seq.map { rs =>
+          EnclosingComponentDef(rs.from, rs.index)
+        }
+    }
+    res
+  }
 }

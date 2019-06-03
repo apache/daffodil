@@ -127,6 +127,8 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
     LengthExact(trailingSkipInBits)
   }
 
+  private lazy val unaligned = AlignmentMultipleOf(1)
+
   private lazy val priorAlignmentApprox: AlignmentMultipleOf = {
     if (this.isInstanceOf[Root] || this.isInstanceOf[QuasiElementDeclBase]) {
       AlignmentMultipleOf(0) // root and quasi elements are aligned with anything
@@ -179,7 +181,10 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
         csa
       }.toSeq
       val priorAlignmentsApprox = priorSibsAlignmentsApprox ++ parentAlignmentApprox ++ arraySelfAlignment
-      priorAlignmentsApprox.reduce(_ * _)
+      if (priorAlignmentsApprox.isEmpty)
+        unaligned
+      else
+        priorAlignmentsApprox.reduce(_ * _)
     }
   }
 

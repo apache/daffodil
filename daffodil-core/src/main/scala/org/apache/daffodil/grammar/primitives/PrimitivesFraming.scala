@@ -35,7 +35,8 @@ import org.apache.daffodil.dsom.TunableLimitExceededError
 abstract class SkipRegion(e: Term, skipLengthInBits: Int, propName: String) extends Terminal(e, skipLengthInBits > 0) {
 
   if (skipLengthInBits > e.tunable.maxSkipLengthInBytes * 8) {
-    throw new TunableLimitExceededError(e.schemaFileLocation,
+    throw new TunableLimitExceededError(
+      e.schemaFileLocation,
       "Property %s %s(bits) is larger than limit %s(bits).", propName, skipLengthInBits, e.tunable.maxSkipLengthInBytes * 8)
   }
 
@@ -47,15 +48,14 @@ case class LeadingSkipRegion(e: Term) extends SkipRegion(e, e.leadingSkipInBits,
 
 case class TrailingSkipRegion(e: Term) extends SkipRegion(e, e.trailingSkipInBits, "trailingSkip") {
 
-  val lengthKindContext = e match {
-    case eb: ElementBase => eb
-    case _ => {
-      Assert.invariant(e.nearestEnclosingElement != None) //root element is an ElementBase, all others have a nearestEnclosingElement
-      e.nearestEnclosingElement.get
+  e match {
+    case eb: ElementBase => {
+      e.schemaDefinitionWhen(
+        e.trailingSkip > 0 && eb.lengthKind == LengthKind.Delimited && !e.hasTerminator,
+        "Property terminator must be defined when trailingSkip > 0 and lengthKind='delimited'")
     }
+    case _ => // ok
   }
-  e.schemaDefinitionWhen(e.trailingSkip > 0 && lengthKindContext.lengthKind == LengthKind.Delimited && !e.hasTerminator,
-    "Property terminator must be defined when trailingSkip > 0 and lengthKind='delimited'")
 }
 
 case class AlignmentFill(e: Term) extends Terminal(e, !e.isKnownToBeAligned) {
@@ -66,11 +66,16 @@ case class AlignmentFill(e: Term) extends Terminal(e, !e.isKnownToBeAligned) {
   lazy val unparser: Unparser = new AlignmentFillUnparser(alignment, e.termRuntimeData)
 }
 
-case class MandatoryTextAlignment(e: Term, alignmentInBits: Int, forDelimiter: Boolean) extends Terminal(e,
-  if (forDelimiter)
-    !e.isDelimiterKnownToBeTextAligned
-  else
-    !e.isKnownToBeTextAligned) {
+case class MandatoryTextAlignment(
+  e: Term,
+  alignmentInBits: Int,
+  forDelimiter: Boolean)
+  extends Terminal(
+    e,
+    if (forDelimiter)
+      !e.isDelimiterKnownToBeTextAligned
+    else
+      !e.isKnownToBeTextAligned) {
   Assert.invariant(alignmentInBits > 0)
 
   lazy val parser: Parser = new MandatoryTextAlignmentParser(alignmentInBits, e.termRuntimeData)
