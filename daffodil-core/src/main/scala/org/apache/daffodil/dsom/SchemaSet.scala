@@ -94,7 +94,10 @@ final class SchemaSet(
   override lazy val schemaSet = this
   // These things are needed to satisfy the contract of being a schema component.
   final override protected def enclosingComponentDef = None
+  final override protected def enclosingComponentDefs = Seq()
+
   override lazy val schemaDocument = Assert.usageError("schemaDocument should not be called on SchemaSet")
+  override lazy val xmlSchemaDocument = Assert.usageError("xmlSchemaDocument should not be called on SchemaSet")
 
   override lazy val lineAttribute: Option[String] = None
 

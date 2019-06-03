@@ -79,6 +79,7 @@ final class ProcessorFactory(val sset: SchemaSet)
   with HavingRootSpec {
 
   final override def enclosingComponentDef: Option[SchemaComponent] = None
+  final override def enclosingComponentDefs = Seq()
 
   lazy val (generateParser, generateUnparser) = {
     val (context, policy) = tunable.parseUnparsePolicy match {

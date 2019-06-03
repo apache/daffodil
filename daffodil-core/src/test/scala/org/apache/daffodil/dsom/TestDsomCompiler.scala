@@ -405,6 +405,7 @@ class TestDsomCompiler extends Logging {
 
     val sset = new SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
+    val root = sset.root
     val Seq(sd, _) = sch.schemaDocuments
 
     // No annotations
@@ -440,10 +441,10 @@ class TestDsomCompiler extends Logging {
     // Tests overlapping properties
     // because these unit tests are outside the normal framework,
     // we sometimes have to demand things in order for errors to be noticed.
-    assertTrue(gs3.isError)
-    val msgs = gs3.getDiagnostics.mkString("\n").toLowerCase
+    assertTrue(root.isError)
+    val msgs = root.getDiagnostics.mkString("\n").toLowerCase
     assertTrue(msgs.contains("overlap"))
-    assertTrue(msgs.contains("alignmentUnits".toLowerCase))
+    assertTrue(msgs.contains("initiator".toLowerCase))
   }
 
   @Test def test_group_references {
@@ -490,9 +491,9 @@ class TestDsomCompiler extends Logging {
     myGlobal3.asInstanceOf[GlobalSequenceGroupDef]
 
     // Tests overlapping properties
-    assertTrue(e5ctgref.isError)
+    assertTrue(e5.isError)
 
-    val msg = e5ctgref.getDiagnostics.mkString("\n").toLowerCase
+    val msg = e5.getDiagnostics.mkString("\n").toLowerCase
     val res = msg.contains("overlap")
     if (!res) println(msg)
     assertTrue(res)

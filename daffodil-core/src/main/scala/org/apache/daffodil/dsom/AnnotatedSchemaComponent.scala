@@ -186,10 +186,6 @@ trait AnnotatedSchemaComponent
   with AnnotatedMixin
   with OverlapCheckMixin {
 
-  requiredEvaluations(annotationObjs)
-  requiredEvaluations(nonDefaultPropertySources)
-  requiredEvaluations(defaultPropertySources)
-
   /**
    * Since validation of extra attributes on XML Schema elements is
    * normally lax validation, we can't count on validation of DFDL schemas

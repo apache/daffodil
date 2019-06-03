@@ -114,8 +114,6 @@ abstract class ChoiceTermBase(
   requiredEvaluations(branchesAreNotIVCElements)
   requiredEvaluations(modelGroupRuntimeData.preSerialization)
 
-  protected final override lazy val myPeers = choicePeers
-
   final protected lazy val optionChoiceDispatchKeyRaw = findPropertyOption("choiceDispatchKey")
   final protected lazy val choiceDispatchKeyRaw = requireProperty(optionChoiceDispatchKeyRaw)
 

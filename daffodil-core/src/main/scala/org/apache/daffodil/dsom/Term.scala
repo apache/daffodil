@@ -102,6 +102,9 @@ trait Term
   with TermEncodingMixin
   with EscapeSchemeRefMixin {
 
+  requiredEvaluations(annotationObjs)
+  requiredEvaluations(nonDefaultPropertySources)
+  requiredEvaluations(defaultPropertySources)
   requiredEvaluations(termChecks)
 
   private lazy val termChecks = {
@@ -233,8 +236,6 @@ trait Term
 
   final val tID = UUID.randomUUID()
 
-  lazy val someEnclosingComponent = enclosingComponent.getOrElse(Assert.invariantFailed("All terms except a root element have an enclosing component."))
-
   /** Overridden as false for elements with dfdl:inputValueCalc property. */
   lazy val isRepresented = true
 
@@ -335,7 +336,14 @@ trait Term
           // but if we have a CT as our parent, the group around the element whose type
           // that is, isn't "immediately enclosing".
         }
-        case _ => Assert.invariantFailed("immediatelyEnclosingModelGroup called on " + this + "with lexical parent " + lexicalParent)
+        case qe: QuasiElementDeclBase => {
+          //
+          // If your lexical parent is a Quasi-element, then your model group is
+          // the one surrounding the quasi-element.
+          //
+          qe.immediatelyEnclosingModelGroup
+        }
+        case _ => Assert.invariantFailed("immediatelyEnclosingModelGroup called on " + this + " with lexical parent " + lexicalParent)
       }
       res
     }

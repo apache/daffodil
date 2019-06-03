@@ -97,8 +97,6 @@ abstract class SequenceGroupTermBase(
 
   protected def apparentXMLChildren: Seq[Node]
 
-  final override lazy val myPeers = sequencePeers
-
   final override lazy val hasDelimiters = hasInitiator || hasTerminator || hasSeparator
 
   protected def hiddenGroupRefOption: PropertyLookupResult
@@ -419,8 +417,6 @@ final class ChoiceBranchImpliedSequence(rawGM: Term)
   protected def optReferredToComponent: Option[AnnotatedSchemaComponent] = None
 
   def modelGroupRuntimeData: ModelGroupRuntimeData = sequenceRuntimeData
-
-  protected def myPeers: Option[Seq[ModelGroup]] = None
 
   def xmlChildren: Seq[scala.xml.Node] = Seq(xml)
 

@@ -217,10 +217,6 @@ class DPathCompileInfo(
   final private def writeObject(out: java.io.ObjectOutputStream): Unit = serializeObject(out)
 
   override def toString = "DPathCompileInfo(%s)".format(path)
-  /**
-   * The immediate containing parent.
-   */
-  final lazy val immediateEnclosingCompileInfo: Option[DPathCompileInfo] = parent
 
   /**
    * The contract here supports the semantics of ".." in paths.
@@ -237,7 +233,7 @@ class DPathCompileInfo(
     eci match {
       case None => None
       case Some(eci) => {
-        val eci2 = eci.immediateEnclosingCompileInfo
+        val eci2 = eci.parent
         eci2 match {
           case None => None
           case Some(ci) => {
@@ -258,7 +254,7 @@ class DPathCompileInfo(
   final lazy val elementCompileInfo: Option[DPathElementCompileInfo] = this match {
     case e: DPathElementCompileInfo => Some(e)
     case d: DPathCompileInfo => {
-      val eci = d.immediateEnclosingCompileInfo
+      val eci = d.parent
       eci match {
         case None => None
         case Some(ci) => {
@@ -413,39 +409,6 @@ class DPathElementCompileInfo(
     retryMatchesERD
   }
 
-  /**
-   * Returns a subset of the possibles which are truly ambiguous siblings.
-   * Does not find all such, but if any exist, it finds some ambiguous
-   * Siblings. Only returns empty Seq if there are no ambiguous siblings.
-   */
-  //      private def ambiguousModelGroupSiblings(possibles: Seq[DPathElementCompileInfo]) : Seq[DPathElementCompileInfo] = {
-  //        val ambiguityLists: Seq[Seq[DPathElementCompileInfo]] = possibles.tails.toSeq.map{
-  //          possiblesList =>
-  //          if (possiblesList.isEmpty) Nil
-  //          else {
-  //            val one = possiblesList.head
-  //            val rest = possiblesList.tail
-  //            val ambiguousSiblings = modelGroupSiblings(one, rest)
-  //            val allAmbiguous =
-  //                if (ambiguousSiblings.isEmpty) Nil
-  //            else one +: ambiguousSiblings
-  //            allAmbiguous
-  //          }
-  //        }
-  //          val firstAmbiguous = ambiguityLists
-  //          ambiguityLists.head
-  //        }
-
-  /**
-   * Returns others that are direct siblings of a specific one.
-   *
-   * Direct siblings means they have the same parent, but that parent
-   * cannot be a choice.
-   */
-  //  private def modelGroupSiblings(one: DPathElementCompileInfo, rest: Seq[DPathElementCompileInfo]): Seq[DPathElementCompileInfo] = {
-  //    rest.filter(r => one.immediateEnclosingCompileInfo eq r.immediateEnclosingCompileInfo &&
-  //        one.immediateEnclosingCompileInfo
-  //  }
   /**
    * Issues a good diagnostic with suggestions about near-misses on names
    * like missing prefixes.

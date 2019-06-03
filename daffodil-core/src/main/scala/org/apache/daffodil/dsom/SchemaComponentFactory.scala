@@ -39,14 +39,6 @@ abstract class SchemaComponentFactory(
     this(xml, Option(lexicalParent))
 }
 
-abstract class AnnotatedSchemaComponentFactory(
-  final override val xml: Node,
-  final override val optLexicalParent: Option[SchemaComponent])
-  extends AnnotatedSchemaComponent
-  with NestingLexicalMixin {
-
-}
-
 trait SchemaFileLocatableImpl
   extends SchemaFileLocatable {
 

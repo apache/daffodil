@@ -119,8 +119,8 @@ trait ElementBase
 
   def complexType: ComplexTypeBase
 
-  lazy final val optSimpleType = if (isSimpleType) Some(simpleType) else None
-  lazy final val optComplexType = if (isComplexType) Some(complexType) else None
+  def optSimpleType: Option[SimpleTypeBase]
+  def optComplexType: Option[ComplexTypeBase]
 
   /**
    * Irrespective of whether the type of this element is immediate or

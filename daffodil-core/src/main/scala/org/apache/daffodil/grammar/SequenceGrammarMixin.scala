@@ -30,7 +30,7 @@ trait SequenceGrammarMixin extends GrammarMixin { self: SequenceTermBase =>
     else sequenceContent
   }
 
-  final lazy val sequenceContent = {
+  private lazy val sequenceContent = {
     import columnConstants._
     self.sequenceKind match {
       case Ordered__ => orderedSequence
@@ -61,7 +61,7 @@ trait SequenceGrammarMixin extends GrammarMixin { self: SequenceTermBase =>
   /**
    * Constants to make the lookup tables below more readable without using fragile whitespace
    */
-  object columnConstants {
+  private object columnConstants {
     val UNB = -1 // UNBOUNDED
     val ZER = 0
     val ONE = 1
@@ -100,7 +100,7 @@ trait SequenceGrammarMixin extends GrammarMixin { self: SequenceTermBase =>
    * algorithm. For arrays these SequenceChild objects enable processing exactly one array instance at
    * a time, orchestrated by the surrounding sequence's processor.
    */
-  protected def sequenceChild(child: Term, groupIndex: Int): SequenceChild = {
+  private def sequenceChild(child: Term, groupIndex: Int): SequenceChild = {
     import columnConstants._
 
     val (max, min, ock) = child match {

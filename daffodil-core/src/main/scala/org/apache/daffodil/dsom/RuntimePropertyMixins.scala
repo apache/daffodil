@@ -181,9 +181,9 @@ trait DelimitedRuntimeValuedPropertiesMixin
   extends TermRuntimeValuedPropertiesMixin
   with RawDelimitedRuntimeValuedPropertiesMixin { decl: Term =>
 
-  lazy val isLengthKindDelimited = {
+  private lazy val isLengthKindDelimited = {
     this match {
-      case mg: ModelGroup => mg.enclosingElement.get.lengthKind == LengthKind.Delimited
+      case mg: ModelGroup => false
       case eb: ElementBase => eb.lengthKind == LengthKind.Delimited
     }
   }
@@ -440,7 +440,7 @@ trait ElementRuntimeValuedPropertiesMixin
     res
   }
 
-  final lazy val maybeUnparseTargetLengthInBitsEv:Maybe[UnparseTargetLengthInBitsEv] = {
+  final lazy val maybeUnparseTargetLengthInBitsEv: Maybe[UnparseTargetLengthInBitsEv] = {
     if (this.isSimpleType && this.simpleType.optRepTypeElement.isDefined) {
       this.simpleType.optRepTypeElement.get.maybeUnparseTargetLengthInBitsEv
     } else {

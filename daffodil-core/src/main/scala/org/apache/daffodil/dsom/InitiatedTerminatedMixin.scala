@@ -46,8 +46,6 @@ trait InitiatedTerminatedMixin
    */
   lazy val hasInitiator = {
     val hasOne = initiatorExpr.isKnownNonEmpty
-    if (parentSaysInitiatedContent)
-      schemaDefinitionUnless(hasOne, "Enclosing group has initiatedContent='yes', but initiator is not defined.")
     hasOne
   }
 
@@ -63,10 +61,10 @@ trait InitiatedTerminatedMixin
     res
   }
 
-  lazy val initiatorDiscriminator = prod("initiatorDiscriminator", parentSaysInitiatedContent) { InitiatedContent(this) }
+  private lazy val initiatorDiscriminator = prod("initiatorDiscriminator", parentSaysInitiatedContent) { InitiatedContent(this) }
 
   lazy val initiatorRegion = prod("initiatorRegion", hasInitiator) { initiatorItself ~ initiatorDiscriminator }
-  lazy val initiatorItself = delimMTA ~ Initiator(this)
+  private lazy val initiatorItself = delimMTA ~ Initiator(this)
 
   lazy val terminatorRegion = prod("terminatorRegion", hasTerminator) { delimMTA ~ Terminator(this) }
 

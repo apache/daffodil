@@ -32,6 +32,7 @@ import org.apache.daffodil.infoset.ChoiceBranchEndEvent
 import java.lang.{ Integer => JInt }
 import org.apache.daffodil.schema.annotation.props.AlignmentType
 import org.apache.daffodil.schema.annotation.props.gen.AlignmentUnits
+import org.apache.daffodil.schema.annotation.props.gen.YesNo
 
 /**
  * A factory for model groups.
@@ -143,6 +144,7 @@ abstract class ModelGroup(index: Int)
   with NestingLexicalMixin {
 
   requiredEvaluations(groupMembers)
+  requiredEvaluations(initiatedContentCheck)
 
   /**
    * FIXME: DAFFODIL-2132. This tells us if framing is expressed on the schema.
@@ -164,7 +166,6 @@ abstract class ModelGroup(index: Int)
   final lazy val representedMembers = groupMembers.filter { _.isRepresented }
 
   def xmlChildren: Seq[Node]
-  protected def myPeers: Option[Seq[ModelGroup]]
 
   final override def isScalar = true
   final override def isOptional = false
@@ -173,13 +174,6 @@ abstract class ModelGroup(index: Int)
   private def prettyIndex = "[" + index + "]" // 1-based indexing in XML/XSD
 
   override lazy val diagnosticDebugName = prettyBaseName + prettyIndex
-
-  /**
-   * This is only the immediately enclosing model group. It doesn't walk outward.
-   */
-  final lazy val enclosingComponentModelGroup = enclosingComponent.collect { case mg: ModelGroup => mg }
-  final lazy val sequencePeers = enclosingComponentModelGroup.map { _.sequenceChildren }
-  final lazy val choicePeers = enclosingComponentModelGroup.map { _.choiceChildren }
 
   override lazy val alignmentValueInBits: JInt = {
     this.alignment match {
@@ -421,4 +415,11 @@ abstract class ModelGroup(index: Int)
     }
   }.value
 
+  lazy val initiatedContentCheck: Unit = {
+    if (initiatedContent eq YesNo.Yes) {
+      groupMembers.foreach { term =>
+        term.schemaDefinitionUnless(term.hasInitiator, "Enclosing group has initiatedContent='yes', but initiator is not defined.")
+      }
+    }
+  }
 }
