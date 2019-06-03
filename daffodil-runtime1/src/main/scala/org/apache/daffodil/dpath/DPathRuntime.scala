@@ -35,6 +35,7 @@ import org.apache.daffodil.processors.VariableException
 import org.apache.daffodil.processors.VariableRuntimeData
 import org.apache.daffodil.util.Misc
 import org.apache.daffodil.dpath.NodeInfo.PrimType
+import org.apache.daffodil.dsom.DPathCompileInfo
 
 class CompiledDPath(val ops: RecipeOp*) extends Serializable {
 
@@ -55,6 +56,7 @@ class CompiledDPath(val ops: RecipeOp*) extends Serializable {
     dstate.setContextNode(state.thisElement.asInstanceOf[DINode]) // used for diagnostics
     dstate.setArrayPos(state.arrayPos)
     dstate.setErrorOrWarn(state)
+    dstate.setParseOrUnparseState(state)
     dstate.resetValue
     dstate.isCompile = state match {
       case cs: CompileState => true
@@ -70,13 +72,13 @@ class CompiledDPath(val ops: RecipeOp*) extends Serializable {
    * TODO: constant folding really should operate on sub-expressions of expressions
    * so that part of an expression can be constant, not necessarily the whole thing.
    */
-  def runExpressionForConstant(sfl: SchemaFileLocation): Option[AnyRef] = {
+  def runExpressionForConstant(sfl: SchemaFileLocation, compileInfo: DPathCompileInfo): Option[AnyRef] = {
 
     //
     // we use a special dummy dstate here that errors out via throw
     // if the evaluation tries to get a processor state or node.
     //
-    val dstate = new DStateForConstantFolding
+    val dstate = new DStateForConstantFolding(compileInfo)
     val isConstant: Boolean =
       try {
         run(dstate)

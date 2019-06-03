@@ -1,0 +1,389 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<tdml:testSuite xmlns:ex="http://example.com" xmlns="http://example.com"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
+  >
+
+  <tdml:defineSchema name="lookAhead-Embedded.dfdl.xsd">
+
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat"
+      lengthUnits="bits"
+      daf:emptyElementParsePolicy="treatAsEmpty"
+      />
+
+   <xs:element name="lookAhead_01">
+     <xs:complexType>
+       <xs:sequence>
+         <xs:element type="xs:int" name="byte1" dfdl:inputValueCalc="{ daf:lookAhead(0,8) }" />
+         <xs:element type="xs:int" name="byte2" dfdl:inputValueCalc="{ daf:lookAhead(8,8) }" />
+         <xs:element type="xs:int" name="bit7" dfdl:inputValueCalc="{ daf:lookAhead(6,1) }" />
+         <xs:element type="xs:int" name="bit9" dfdl:inputValueCalc="{ daf:lookAhead(8,1) }" />
+         <xs:element type="xs:int" name="bit16" dfdl:inputValueCalc="{ daf:lookAhead(15,1) }" />
+         <xs:element type="xs:int" name="bits4to15" dfdl:inputValueCalc="{ daf:lookAhead(3,12) }" />
+         <xs:element type="xs:hexBinary" name="data" dfdl:length="16" dfdl:lengthKind="explicit" />
+       </xs:sequence>
+     </xs:complexType>
+   </xs:element>
+
+   <xs:element name="lookAhead_03" >
+     <xs:complexType>
+       <xs:sequence>
+         <xs:element type="xs:int" name="bit512" dfdl:inputValueCalc="{ daf:lookAhead(511, 1) }" />
+         <xs:element type="xs:hexBinary" name="data8Bytes" dfdl:length="64" minOccurs="8" maxOccurs="8" dfdl:lengthKind="explicit" />
+         <xs:element type="xs:hexBinary" name="data1Byte" dfdl:length="8" dfdl:lengthKind="explicit" />
+       </xs:sequence>
+     </xs:complexType>
+   </xs:element>
+
+   <xs:element name="lookAhead_04" >
+     <xs:complexType>
+       <xs:sequence>
+         <xs:element type="xs:integer" name="bits0to62" dfdl:inputValueCalc="{ daf:lookAhead(0, 63) }" />
+         <xs:element type="xs:hexBinary" name="data" dfdl:length="64" dfdl:lengthKind="explicit" />
+       </xs:sequence>
+     </xs:complexType>
+   </xs:element>
+
+   <xs:element name="lookAhead_05" >
+     <xs:complexType>
+       <xs:sequence>
+         <xs:element type="xs:integer" name="bits0to63" dfdl:inputValueCalc="{ daf:lookAhead(0, 64) }" />
+         <xs:element type="xs:hexBinary" name="data" dfdl:length="64" dfdl:lengthKind="explicit" />
+       </xs:sequence>
+     </xs:complexType>
+   </xs:element>
+
+   <xs:element name="lookAhead_06" >
+     <xs:complexType>
+       <xs:sequence>
+         <xs:element type="xs:integer" name="bits0to64" dfdl:inputValueCalc="{ daf:lookAhead(0, 65) }" />
+         <xs:element type="xs:hexBinary" name="data" dfdl:length="72" dfdl:lengthKind="explicit" />
+       </xs:sequence>
+     </xs:complexType>
+   </xs:element>
+
+   <xs:element name="lookAhead_tooFar_01" >
+     <xs:complexType>
+       <xs:sequence>
+         <xs:element type="xs:int" name="byte65" dfdl:inputValueCalc="{ daf:lookAhead(512, 8) }" />
+         <xs:element type="xs:hexBinary" name="data8Bytes" dfdl:length="64" minOccurs="8" maxOccurs="8" dfdl:lengthKind="explicit" />
+         <xs:element type="xs:hexBinary" name="data1Byte" dfdl:length="8" dfdl:lengthKind="explicit" />
+       </xs:sequence>
+     </xs:complexType>
+   </xs:element>
+
+   <xs:element name="lookAhead_tooFar_02" >
+     <xs:complexType>
+       <xs:sequence>
+         <xs:element type="xs:int" name="bit513" dfdl:inputValueCalc="{ daf:lookAhead(512, 1) }" />
+         <xs:element type="xs:hexBinary" name="data8Bytes" dfdl:length="64" minOccurs="8" maxOccurs="8" dfdl:lengthKind="explicit" />
+         <xs:element type="xs:hexBinary" name="data1Byte" dfdl:length="8" dfdl:lengthKind="explicit" />
+       </xs:sequence>
+     </xs:complexType>
+   </xs:element>
+
+   <xs:element name="lookAhead_tooFar_03" >
+     <xs:complexType>
+       <xs:sequence>
+         <xs:element type="xs:int" name="bit9" dfdl:inputValueCalc=" { daf:lookAhead(8, 1) }" />
+         <xs:element type="xs:hexBinary" name="data" dfdl:length="8" dfdl:lengthKind="explicit" />
+       </xs:sequence>
+     </xs:complexType>
+   </xs:element>
+
+   <xs:element name="lookAhead_negativeOffset_01" >
+     <xs:complexType>
+       <xs:sequence>
+         <xs:element type="xs:int" name="illegal" dfdl:inputValueCalc=" { daf:lookAhead(-1, 8) }" />
+         <xs:element type="xs:hexBinary" name="data" dfdl:length="8" dfdl:lengthKind="explicit" />
+       </xs:sequence>
+     </xs:complexType>
+   </xs:element>
+
+   <xs:element name="lookAhead_negativeBitsize_01" >
+     <xs:complexType>
+       <xs:sequence>
+         <xs:element type="xs:int" name="illegal" dfdl:inputValueCalc=" { daf:lookAhead(0, -1) }" />
+         <xs:element type="xs:hexBinary" name="data" dfdl:length="8" dfdl:lengthKind="explicit" />
+       </xs:sequence>
+     </xs:complexType>
+   </xs:element>
+
+   <xs:element name="lookAhead_zeroBitsize_01" >
+     <xs:complexType>
+       <xs:sequence>
+         <xs:element type="xs:int" name="zero" dfdl:inputValueCalc=" { daf:lookAhead(0, 0) }" />
+         <xs:element type="xs:hexBinary" name="data" dfdl:length="8" dfdl:lengthKind="explicit" />
+       </xs:sequence>
+     </xs:complexType>
+   </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="lookAhead_01"
+    root="lookAhead_01" model="lookAhead-Embedded.dfdl.xsd" description="Extensions - lookAhead">
+
+    <tdml:document>
+    <tdml:documentPart type="bits">
+    0000 0010
+    1000 0000
+    </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <lookAhead_01>
+          <byte1>2</byte1>
+          <byte2>128</byte2>
+          <bit7>1</bit7>
+          <bit9>1</bit9>
+          <bit16>0</bit16>
+          <bits4to15>320</bits4to15>
+          <data>0280</data>
+        </lookAhead_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="lookAhead_02"
+    root="lookAhead_01" model="lookAhead-Embedded.dfdl.xsd" description="Extensions - lookAhead">
+
+    <tdml:document>
+    <tdml:documentPart type="bits">
+    1111 1101
+    0111 1111
+    </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <lookAhead_01>
+          <byte1>253</byte1>
+          <byte2>127</byte2>
+          <bit7>0</bit7>
+          <bit9>0</bit9>
+          <bit16>1</bit16>
+          <bits4to15>3775</bits4to15>
+          <data>FD7F</data>
+        </lookAhead_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="lookAhead_03"
+    root="lookAhead_03" model="lookAhead-Embedded.dfdl.xsd" description="Extensions - lookAhead">
+
+    <tdml:document>
+    <tdml:documentPart type="byte">
+    00 00 00 00 00 00 00 00
+    00 00 00 00 00 00 00 00
+    00 00 00 00 00 00 00 00
+    00 00 00 00 00 00 00 00
+    00 00 00 00 00 00 00 00
+    00 00 00 00 00 00 00 00
+    00 00 00 00 00 00 00 00
+    00 00 00 00 00 00 00 01
+    00
+    </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <lookAhead_03>
+          <bit512>1</bit512>
+          <data8Bytes>0000000000000000</data8Bytes>
+          <data8Bytes>0000000000000000</data8Bytes>
+          <data8Bytes>0000000000000000</data8Bytes>
+          <data8Bytes>0000000000000000</data8Bytes>
+          <data8Bytes>0000000000000000</data8Bytes>
+          <data8Bytes>0000000000000000</data8Bytes>
+          <data8Bytes>0000000000000000</data8Bytes>
+          <data8Bytes>0000000000000001</data8Bytes>
+          <data1Byte>00</data1Byte>
+        </lookAhead_03>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="lookAhead_04"
+    root="lookAhead_04" model="lookAhead-Embedded.dfdl.xsd" description="Extensions - lookAhead">
+
+    <tdml:document>
+    <tdml:documentPart type="byte">
+    FF ff FF ff FF ff FF FF
+    </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <lookAhead_04>
+          <bits0to62>9223372036854775807</bits0to62>
+          <data>FFFFFFFFFFFFFFFF</data>
+        </lookAhead_04>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="lookAhead_05"
+    root="lookAhead_05" model="lookAhead-Embedded.dfdl.xsd" description="Extensions - lookAhead">
+
+    <tdml:document>
+    <tdml:documentPart type="byte">
+    FF ff FF ff FF ff FF FF
+    </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <lookAhead_05>
+          <bits0to63>18446744073709551615</bits0to63>
+          <data>FFFFFFFFFFFFFFFF</data>
+        </lookAhead_05>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="lookAhead_06"
+    root="lookAhead_06" model="lookAhead-Embedded.dfdl.xsd" description="Extensions - lookAhead">
+
+    <tdml:document>
+    <tdml:documentPart type="byte">
+    FF ff FF ff FF ff FF ff FF
+    </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <lookAhead_06>
+          <bits0to64>36893488147419103231</bits0to64>
+          <data>FFFFFFFFFFFFFFFFFF</data>
+        </lookAhead_06>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="lookAhead_tooFar_01"
+    root="lookAhead_tooFar_01" model="lookAhead-Embedded.dfdl.xsd" description="Extensions - lookAhead">
+
+    <tdml:document>
+    <tdml:documentPart type="byte">
+    00 00 00 00 00 00 00 00
+    00 00 00 00 00 00 00 00
+    00 00 00 00 00 00 00 00
+    00 00 00 00 00 00 00 00
+    00 00 00 00 00 00 00 00
+    00 00 00 00 00 00 00 00
+    00 00 00 00 00 00 00 00
+    00 00 00 00 00 00 00 01
+    00
+    </tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Runtime Schema Definition Error</tdml:error>
+      <tdml:error>Look-ahead distance of 520 bits exceeds implementation defined limit of 512 bits</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="lookAhead_tooFar_02"
+    root="lookAhead_tooFar_02" model="lookAhead-Embedded.dfdl.xsd" description="Extensions - lookAhead">
+
+    <tdml:document>
+    <tdml:documentPart type="byte">
+    00 00 00 00 00 00 00 00
+    00 00 00 00 00 00 00 00
+    00 00 00 00 00 00 00 00
+    00 00 00 00 00 00 00 00
+    00 00 00 00 00 00 00 00
+    00 00 00 00 00 00 00 00
+    00 00 00 00 00 00 00 00
+    00 00 00 00 00 00 00 01
+    00
+    </tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Runtime Schema Definition Error</tdml:error>
+      <tdml:error>Look-ahead distance of 513 bits exceeds implementation defined limit of 512 bits</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="lookAhead_tooFar_03"
+    root="lookAhead_tooFar_03" model="lookAhead-Embedded.dfdl.xsd" description="Extensions - lookAhead">
+
+    <tdml:document>
+    <tdml:documentPart type="byte">
+    00
+    </tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Insufficient bits available</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="lookAhead_negativeOffset_01"
+    root="lookAhead_negativeOffset_01" model="lookAhead-Embedded.dfdl.xsd" description="Extensions - lookAhead">
+
+    <tdml:document>
+    <tdml:documentPart type="byte">
+    00
+    </tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Negative value -1 cannot be converted to an unsigned int</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="lookAhead_negativeBitsize_01"
+    root="lookAhead_negativeBitsize_01" model="lookAhead-Embedded.dfdl.xsd" description="Extensions - lookAhead">
+
+    <tdml:document>
+    <tdml:documentPart type="byte">
+    00
+    </tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Negative value -1 cannot be converted to an unsigned int</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="lookAhead_zeroBitsize_01"
+    root="lookAhead_zeroBitsize_01" model="lookAhead-Embedded.dfdl.xsd" description="Extensions - lookAhead">
+
+    <tdml:document>
+    <tdml:documentPart type="byte">
+    FF
+    </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <lookAhead_zeroBitsize_01>
+          <zero>0</zero>
+          <data>FF</data>
+        </lookAhead_zeroBitsize_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+</tdml:testSuite>
