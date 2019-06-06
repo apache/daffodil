@@ -127,9 +127,9 @@ case class DAFLookAhead(recipes: List[CompiledDPath])
       val ans: AnyRef = if (bitSize > 63) {
         dis.getUnsignedBigInt(bitSize, pstate)
       } else if (bitSize == 0) {
-        new JLong(0)
+        JLong.valueOf(0)
       } else {
-        new JLong(dis.getUnsignedLong(bitSize, pstate).longValue)
+        JLong.valueOf(dis.getUnsignedLong(bitSize, pstate).longValue)
       }
       dis.resetPos(mark)
       ans
