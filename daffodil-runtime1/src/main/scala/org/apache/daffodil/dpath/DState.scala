@@ -190,11 +190,18 @@ case class DState(val maybeSsrd:Maybe[SchemaSetRuntimeData]) {
     else _currentValue
   }
 
-  def setCurrentValue(v: Any) {
-    Assert.invariant(!v.isInstanceOf[(Any, Any)])
+  def setCurrentValue(v: AnyRef) {
+    _currentValue = v
+    _currentNode = null
+  }  
+  def setCurrentValue(v: Long) {
     _currentValue = asAnyRef(v)
     _currentNode = null
-  }
+  }  
+  def setCurrentValue(v: Boolean) {
+    _currentValue = asAnyRef(v)
+    _currentNode = null
+  }  
 
   def booleanValue: Boolean = currentValue.asInstanceOf[Boolean]
 

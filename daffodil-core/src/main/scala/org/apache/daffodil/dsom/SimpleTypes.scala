@@ -560,7 +560,7 @@ final class EnumerationDefFactory(
 
   Assert.invariant(xml.label == "enumeration")
 
-  override lazy val optRepType = parentType.optRepTypeDef
+  override lazy val optRepType = parentType.optRepType
 
   lazy val enumValueRaw: String = (xml \ "@value").head.text
   lazy val enumValueCooked: AnyRef = parentType.primType.fromXMLString(enumValueRaw)

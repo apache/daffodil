@@ -67,6 +67,13 @@
     <xs:restriction base="xs:int"/>
   </xs:simpleType>
 
+  <xs:simpleType name="AbstractIntToStringByKeyset" dfdl:repType="xs:int">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="one" dfdl:repValues="1"/>
+      <xs:enumeration value="zero" dfdl:repValues="0"/>
+    </xs:restriction>
+  </xs:simpleType>
+
   <xs:element name="inputTypeCalcInt_01" type="xs:int" dfdl:inputValueCalc="{ dfdl:inputTypeCalcInt('tns:AbstractIntTo1', 7) }" />
   <xs:element name="inputTypeCalcString_01" type="xs:string" dfdl:inputValueCalc="{ dfdl:inputTypeCalcString('tns:AbstractIntToXYZ', 7) }" />
   <xs:element name="outputTypeCalcInt_01">
@@ -99,6 +106,8 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
+
+  <xs:element name="abstractIntToStringByKeyset_01" type="xs:string" dfdl:inputValueCalc="{dfdl:inputTypeCalcString('AbstractIntToStringByKeyset',0)}"/>
 
   </tdml:defineSchema>
 
@@ -256,6 +265,21 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:unparserTestCase>
+
+  <tdml:parserTestCase name="abstractIntToStringByKeyset_01"
+    root="abstractIntToStringByKeyset_01" model="inputTypeCalc-Embedded.dfdl.xsd" description="Extensions - inputTypeCalc keysetValue transform">
+
+    <tdml:document>
+    <tdml:documentPart type="byte">
+    </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <abstractIntToStringByKeyset_01>zero</abstractIntToStringByKeyset_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
 
 </tdml:testSuite>
