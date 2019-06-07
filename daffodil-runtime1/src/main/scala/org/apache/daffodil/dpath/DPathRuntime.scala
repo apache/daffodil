@@ -36,6 +36,8 @@ import org.apache.daffodil.processors.VariableRuntimeData
 import org.apache.daffodil.util.Misc
 import org.apache.daffodil.dpath.NodeInfo.PrimType
 import org.apache.daffodil.dsom.DPathCompileInfo
+import org.apache.daffodil.xml.GlobalQName
+import org.apache.daffodil.processors.TypeCalculator
 
 class CompiledDPath(val ops: RecipeOp*) extends Serializable {
 
@@ -72,7 +74,9 @@ class CompiledDPath(val ops: RecipeOp*) extends Serializable {
    * TODO: constant folding really should operate on sub-expressions of expressions
    * so that part of an expression can be constant, not necessarily the whole thing.
    */
-  def runExpressionForConstant(sfl: SchemaFileLocation, compileInfo: DPathCompileInfo): Option[AnyRef] = {
+  def runExpressionForConstant(
+      sfl: SchemaFileLocation, 
+      compileInfo: DPathCompileInfo ): Option[AnyRef] = {
 
     //
     // we use a special dummy dstate here that errors out via throw

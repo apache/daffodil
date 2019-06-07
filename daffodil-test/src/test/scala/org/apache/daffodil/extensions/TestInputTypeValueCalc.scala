@@ -96,5 +96,7 @@ class TestInputTypeValueCalc {
   @Test def test_nonexistant_reptype_01() { fnErrRunner.runOneTest("nonexistant_reptype_01") }
   @Test def test_nonexistantOutputTypeCalc_01() { fnErrRunner.runOneTest("nonexistantOutputTypeCalc_01") }
   @Test def test_nonexistantInputTypeCalc_01() { fnErrRunner.runOneTest("nonexistantInputTypeCalc_01") }
+  @Test def test_nonexistantTypeCalcType_01() { fnErrRunner.runOneTest("nonexistantTypeCalcType_01") }
+  @Test def test_nonexistantTypeCalcType_02() { fnErrRunner.runOneTest("nonexistantTypeCalcType_02") }
 
 }

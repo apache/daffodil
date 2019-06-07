@@ -17,14 +17,20 @@
 
 package org.apache.daffodil.dpath
 
-import org.apache.daffodil.exceptions._
-import org.apache.daffodil.dsom._
-import scala.xml.NamespaceBinding
-import org.apache.daffodil.xml._
-import scala.util.parsing.input.CharSequenceReader
+import java.math.{ BigDecimal => JBigDecimal }
+import java.math.{ BigInteger => JBigInt }
+
 import scala.util.parsing.combinator.RegexParsers
-import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
-import org.apache.daffodil.oolag.OOLAG._
+import scala.util.parsing.input.CharSequenceReader
+import scala.xml.NamespaceBinding
+
+import org.apache.daffodil.dsom.CompiledExpression
+import org.apache.daffodil.dsom.ConstantExpression
+import org.apache.daffodil.dsom.DPathCompileInfo
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.oolag.OOLAG.OOLAGHost
+import org.apache.daffodil.xml.NamedQName
+import org.apache.daffodil.xml.QNameRegex
 
 /**
  * Parses DPath expressions. Most real analysis is done later. This is

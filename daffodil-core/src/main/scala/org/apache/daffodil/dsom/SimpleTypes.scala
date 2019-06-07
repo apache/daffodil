@@ -339,16 +339,25 @@ abstract class SimpleTypeDefBase(xml: Node, lexicalParent: SchemaComponent)
         TypeCalculatorCompiler.compileUnion(subCalculators)
       })
       val fromExpression: Option[TypeCalculator[AnyRef, AnyRef]] = {
-        val optInputCompiled = optInputTypeCalc.toOption.map(sExpr => {
+        /*
+         * This is a minefield for circular dependencies.
+         * In order to compile expressions involve many typeCalc functions,
+         * the DPath compiler needs to look up the typeCalculator involved
+         * (to determine the src/dst type of the calculator)
+         * However, a fromExpression typeCalculator needs to compile DPath expressions,
+         * which may make use of typeCalc functions, and therefore need for the expressions
+         * to have been already compiled.
+         */
+        lazy val optInputCompiled = optInputTypeCalc.toOption.map(sExpr => {
           val prop = optInputTypeCalc.asInstanceOf[Found]
-          val qn = GlobalQName(Some("daf"), "inputTypeCalc", XMLUtils.dafintURI)
+          val qn = GlobalQName(Some("dfdlx"), "inputTypeCalc", XMLUtils.dafintURI)
           val exprNamespaces = prop.location.namespaces
           val exprComponent = prop.location.asInstanceOf[SchemaComponent]
           ExpressionCompilers.AnyRef.compileExpression(
             qn,
             dstType, sExpr, exprNamespaces, exprComponent.dpathCompileInfo, false, this, dpathCompileInfo)
         })
-        val optOutputCompiled = optOutputTypeCalc.toOption.map(sExpr => {
+        lazy val optOutputCompiled = optOutputTypeCalc.toOption.map(sExpr => {
           val prop = optOutputTypeCalc.asInstanceOf[Found]
           val qn = GlobalQName(Some("daf"), "outputTypeCalc", XMLUtils.dafintURI)
           val exprNamespaces = prop.location.namespaces
@@ -357,9 +366,12 @@ abstract class SimpleTypeDefBase(xml: Node, lexicalParent: SchemaComponent)
             qn,
             srcType, sExpr, exprNamespaces, exprComponent.dpathCompileInfo, false, this, dpathCompileInfo)
         })
-        (optInputCompiled, optOutputCompiled) match {
-          case (None, None) => None
-          case _ => Some(TypeCalculatorCompiler.compileExpression(optInputCompiled, optOutputCompiled, srcType, dstType))
+        val supportsParse = optInputTypeCalc.isDefined
+        val supportsUnparse = optOutputTypeCalc.isDefined
+        if (supportsParse || supportsUnparse) {
+          Some(TypeCalculatorCompiler.compileTypeCalculatorFromExpression(optInputCompiled, optOutputCompiled, srcType, dstType, supportsParse, supportsUnparse))
+        } else {
+          None
         }
       }
 

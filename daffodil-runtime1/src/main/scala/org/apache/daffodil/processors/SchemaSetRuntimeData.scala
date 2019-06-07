@@ -23,6 +23,7 @@ import org.apache.daffodil.api.Diagnostic
 import org.apache.daffodil.processors.unparsers.Unparser
 import org.apache.daffodil.processors.parsers.Parser
 import org.apache.daffodil.xml.GlobalQName
+import org.apache.daffodil.processors.TypeCalculatorCompiler.TypeCalcMap
 
 final class SchemaSetRuntimeData(
   val parser: Parser,
@@ -31,7 +32,7 @@ final class SchemaSetRuntimeData(
   val elementRuntimeData: ElementRuntimeData,
   var variables: VariableMap,
   var validationMode: ValidationMode.Type,
-  val typeCalculators: Map[GlobalQName, TypeCalculator[AnyRef, AnyRef]])
+  val typeCalculators: TypeCalcMap)
   extends Serializable with ThrowsSDE {
 
   def tunable = elementRuntimeData.tunable

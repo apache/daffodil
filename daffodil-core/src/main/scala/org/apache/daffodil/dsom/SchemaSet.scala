@@ -40,6 +40,7 @@ import org.apache.daffodil.processors.TypeCalculator
 import scala.collection.immutable.Map
 import scala.collection.immutable.HashMap
 import org.apache.daffodil.compiler.ProcessorFactory
+import org.apache.daffodil.processors.TypeCalculatorCompiler.TypeCalcMap
 
 /**
  * A schema set is exactly that, a set of schemas. Each schema has
@@ -173,11 +174,10 @@ final class SchemaSet(
 
   lazy val globalSimpleTypeDefs: Seq[GlobalSimpleTypeDef] = schemas.flatMap(_.globalSimpleTypeDefs)
 
-  lazy val typeCalcMap: Map[GlobalQName, TypeCalculator[AnyRef, AnyRef]] = {
+  lazy val typeCalcMap: TypeCalcMap = {
     val factories = globalSimpleTypeDefs
     val withCalc = factories.filter(_.optTypeCalculator.isDefined)
     val mappings = withCalc.map(st => (st.globalQName, st.optTypeCalculator.get))
-
     mappings.toMap
   }
 
