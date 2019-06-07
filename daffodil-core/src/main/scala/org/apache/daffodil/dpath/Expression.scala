@@ -1234,7 +1234,7 @@ abstract class LiteralExpressionBase(value: Any)
   }
 
   override lazy val compiledDPath: CompiledDPath = {
-    new CompiledDPath(Literal(litValue) +: conversions)
+    new CompiledDPath(Literal(Numbers.asAnyRef(litValue)) +: conversions)
   }
 
   override lazy val inherentType = {

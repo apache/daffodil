@@ -23,6 +23,7 @@ import scala.xml.NodeSeq.seqToNodeSeq
 import org.apache.daffodil.exceptions.Assert
 import java.lang.{ Integer => JInt, Long => JLong, Double => JDouble, Boolean => JBoolean }
 import java.math.{ BigInteger => JBigInt, BigDecimal => JBigDecimal }
+import org.apache.daffodil.util.Numbers
 
 trait CompareOpBase {
   def operate(v1: AnyRef, v2: AnyRef): AnyRef
@@ -91,10 +92,10 @@ case class BooleanOp(op: String, left: CompiledDPath, right: CompiledDPath)
 case class NegateOp(recipe: CompiledDPath) extends RecipeOpWithSubRecipes(recipe) {
   override def run(dstate: DState) {
     recipe.run(dstate)
-    val value = dstate.currentValue match {
-      case i: JInt => i * -1
-      case l: JLong => l * (-1L)
-      case d: JDouble => d * -1.0
+    val value: AnyRef = dstate.currentValue match {
+      case i: JInt => Numbers.asAnyRef(i * -1)
+      case l: JLong => Numbers.asAnyRef(l * (-1L))
+      case d: JDouble => Numbers.asAnyRef(d * -1.0)
       case bi: JBigInt => bi.negate()
       case bd: JBigDecimal => bd.negate()
       case bi: BigInt => bi.underlying().negate()

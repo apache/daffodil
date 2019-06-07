@@ -180,7 +180,7 @@ case class VRef(vrd: VariableRuntimeData, context: ThrowsSDE)
 
 }
 
-case class Literal(v: Any) extends RecipeOp {
+case class Literal(v: AnyRef) extends RecipeOp {
   override def run(dstate: DState) {
     dstate.setCurrentValue(v)
   }

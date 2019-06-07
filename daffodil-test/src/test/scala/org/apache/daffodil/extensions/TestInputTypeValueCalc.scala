@@ -75,6 +75,7 @@ class TestInputTypeValueCalc {
   @Test def test_logicalTypeValueString_01() { fnRunner.runOneTest("logicalTypeValueString_01") }
   @Test def test_outputTypeCalcNextSiblingInt_01() { fnRunner.runOneTest("outputTypeCalcNextSiblingInt_01") }
   @Test def test_outputTypeCalcNextSiblingString_01() { fnRunner.runOneTest("outputTypeCalcNextSiblingString_01") }
+  @Test def test_abstractIntToStringByKeyset_01() { fnRunner.runOneTest("abstractIntToStringByKeyset_01") }
 
   @Test def test_typeCalcDispatch_typeError_01() { fnErrRunner.runOneTest("typeCalcDispatch_typeError_01") }
   @Test def test_typeCalcDispatch_typeError_02() { fnErrRunner.runOneTest("typeCalcDispatch_typeError_02") }

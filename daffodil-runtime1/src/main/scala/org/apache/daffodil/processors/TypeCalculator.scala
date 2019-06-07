@@ -98,7 +98,7 @@ abstract class TypeCalculator[A <: AnyRef, B <: AnyRef](val srcType: NodeInfo.Ki
       //      throw FNErrorFunctionException(Maybe(context.schemaFileLocation), dstate.contextLocation, err.get)
     }
 
-    dstate.setCurrentValue(ans)
+    dstate.setCurrentValue(ans.get)
 
   }
   def outputTypeCalcRun(dstate: DState, x: B, xType: NodeInfo.Kind): Unit = {
@@ -111,7 +111,7 @@ abstract class TypeCalculator[A <: AnyRef, B <: AnyRef](val srcType: NodeInfo.Ki
       throw diag
     }
 
-    dstate.setCurrentValue(ans)
+    dstate.setCurrentValue(ans.get)
 
   }
 
