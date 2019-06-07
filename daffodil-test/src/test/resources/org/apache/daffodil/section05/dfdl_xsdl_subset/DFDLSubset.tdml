@@ -103,8 +103,9 @@
     <tdml:document />
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>minOccurs' is not allowed to appear in element 'xs:sequence'</tdml:error>
-      <tdml:error>maxOccurs' is not allowed to appear in element 'xs:sequence'</tdml:error>
+      <tdml:error>minOccurs</tdml:error>
+      <tdml:error>cannot appear in</tdml:error>
+      <tdml:error>sequence</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

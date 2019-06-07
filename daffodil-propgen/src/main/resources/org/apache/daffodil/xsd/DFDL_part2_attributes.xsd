@@ -33,6 +33,41 @@
 
   <xsd:attribute name="ref" type="xsd:QName" />
 
+  <!--
+    This attribute group is a way to allow any attribute that is NOT in the
+    dfdl namespace to be used in elements. This anyAttribute matches non-dfdl
+    namespace attributes because the targetNamespace in this file is the dfdl
+    namespace, and the "namespace" attribute is "##other". The
+    processContexts="lax" says that these non-dfdl namespace attributes will be
+    validated if a schema for them can be found, but otherwise validation for
+    them will be skipped. This can be used to allow for DFDL schema authors to
+    use custom namespace attributes/annotations in their DFDL schemas without
+    us needing to know about them.
+
+    This means that by default, dfdl namespace attributes will not be allowed
+    at all. However, if we add dfdl namespace definitions alongside this
+    attribute group, those dfdl namespace attributes WILL be allowed and
+    strictly validated using standard XML schema validation rules. This has the
+    effect of strictly validating dfdl namespace attributes, but being lax
+    about all other attributes.
+  -->
+  <xsd:attributeGroup name="anyOther">
+    <xsd:anyAttribute namespace="##other" processContents="lax" />
+  </xsd:attributeGroup>
+
+  <!--
+    This works the same way as the anyOther attributeGroup defined above,
+    except it applies to elements instead of attributes (xs:any vs
+    xs:anyAttribute). See the description above for how this group works to
+    enable strict validation of dfdl namespace elements and lax validation of
+    other elements.
+  -->
+  <xsd:group name="anyOther">
+    <xsd:sequence>
+      <xsd:any namespace="##other" processContents="lax" />
+    </xsd:sequence>
+  </xsd:group>
+
   <xsd:attributeGroup name="BaseAG">
     <xsd:attribute name="ref" type="xsd:QName" />
     <xsd:anyAttribute namespace="http://www.ibm.com/xmlns/dfdl/testData" processContents="lax"/> 
@@ -647,6 +682,8 @@
   </xsd:attributeGroup>
 
   <xsd:attributeGroup name="CommonAGQualified">
+    <xsd:attribute form="qualified" name="bitOrder"
+      type="dfdl:BitOrderEnum"/>
     <xsd:attribute form="qualified" name="byteOrder"
       type="dfdl:ByteOrderEnum_Or_DFDLExpression" />
     <xsd:attribute form="qualified" name="encoding"

@@ -24,7 +24,7 @@ import org.junit.AfterClass
 object TestLengthKindPrefixed {
   private val testDir = "/org/apache/daffodil/section12/lengthKind/"
 
-  val runner = Runner(testDir, "PrefixedTests.tdml")
+  val runner = Runner(testDir, "PrefixedTests.tdml", validateTDMLFile = false, validateDFDLSchemas = false)
 
   @AfterClass def shutDown {
     runner.reset

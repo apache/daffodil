@@ -31,6 +31,25 @@
   <xsd:import namespace="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext" schemaLocation="org/apache/daffodil/xsd/dafext.xsd" />
   <xsd:include schemaLocation="DFDL_part2_attributes.xsd" />
 
+  <!-- all the dfdl: elements that can appear inside an xs:appinfo element -->
+  <xsd:group name="DFDLAppInfoGroup">
+    <xsd:choice>
+      <xsd:element ref="dfdl:assert" />
+      <xsd:element ref="dfdl:choice" />
+      <xsd:element ref="dfdl:defineEscapeScheme" />
+      <xsd:element ref="dfdl:defineFormat" />
+      <xsd:element ref="dfdl:defineVariable" />
+      <xsd:element ref="dfdl:discriminator" />
+      <xsd:element ref="dfdl:element" />
+      <xsd:element ref="dfdl:enumeration" />
+      <xsd:element ref="dfdl:format" />
+      <xsd:element ref="dfdl:group" />
+      <xsd:element ref="dfdl:newVariableInstance" />
+      <xsd:element ref="dfdl:sequence" />
+      <xsd:element ref="dfdl:setVariable" />
+      <xsd:element ref="dfdl:simpleType" />
+    </xsd:choice>
+  </xsd:group>
 
   <!-- ======================================================== -->
   <!-- DFDL Format definition types -->
