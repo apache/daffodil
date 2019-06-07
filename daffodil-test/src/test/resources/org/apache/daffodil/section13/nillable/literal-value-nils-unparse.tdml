@@ -33,14 +33,14 @@
     <xs:element name="doc6" dfdl:lengthKind="delimited" nillable="true" type="xsd:string" dfdl:outputNewLine="%CR;%LF;" dfdl:nilValue="%NL;"/>
     <xs:element name="doc7" dfdl:lengthKind="delimited" nillable="true" type="xsd:string" dfdl:outputNewLine="%LF;" dfdl:nilValue="%NL;"/>
 
-    <xs:simpleType name="type" dfdl:nilValue="NIL" dfdl:lengthKind="delimited">
+    <xs:simpleType name="type" dfdl:lengthKind="delimited">
         <xs:restriction base="xs:string"/>
     </xs:simpleType>
 
     <xs:element name="doc8">
         <xs:complexType>
             <xs:sequence dfdl:separator=",">
-                <xs:element name="e1" type="ex:type" nillable="true" minOccurs="2" maxOccurs="10"/>
+                <xs:element name="e1" type="ex:type" nillable="true" minOccurs="2" maxOccurs="10" dfdl:nilValue="NIL" />
             </xs:sequence>
         </xs:complexType>
     </xs:element>

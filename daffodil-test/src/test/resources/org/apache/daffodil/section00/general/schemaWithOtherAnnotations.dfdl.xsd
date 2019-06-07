@@ -28,8 +28,11 @@
   <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
 
   <!-- 
-    If you comment out the import below, then the other annotations are ignored.
-    Buf it this is allowed to import, you get an SDE on the attribute decls in it.
+    Daffodil ignores the imported schema because it does not define the dfdl
+    namespace. This is good since it has things like attribute declarations
+    that aren't allowed in a dfdl schema. This means we will never be able to
+    validate annotation defined inside that namespace, but that's fine since
+    Daffodil ignores them anyways.
     -->
   <xs:import namespace="urn:otherAnnotationLanguage" schemaLocation="otherAnnotationLanguage.xsd" />
 
@@ -39,12 +42,17 @@
     </xs:appinfo>
   </xs:annotation>
 
-  <xs:element name="r1" type="xs:string" dfdl:lengthKind="delimited">
+  <xs:element name="r1" type="xs:string">
     <xs:annotation>
       <xs:appinfo source="urn:otherAnnotationLanguage">
         <oth:otherAnnotation oth:otherAnnotationAttribute="other"/>
       </xs:appinfo>
+      <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <dfdl:element lengthKind="delimited"/>
+      </xs:appinfo>
     </xs:annotation>
   </xs:element>
+
+  <xs:element name="r2" type="xs:string" dfdl:lengthKind="delimited" oth:otherAnnotationAttribute="other" />
   
 </schema>

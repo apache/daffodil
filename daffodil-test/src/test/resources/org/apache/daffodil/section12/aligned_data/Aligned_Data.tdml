@@ -225,7 +225,7 @@
     <xs:element name="e12">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="bits" type="xs:unsignedByte" dfdl:represenation="binary" dfdl:leadingSkip="0" dfdl:alignment="1" 
+          <xs:element name="bits" type="xs:unsignedByte" dfdl:representation="binary" dfdl:leadingSkip="0" dfdl:alignment="1" 
             dfdl:alignmentUnits="bits" dfdl:lengthKind="explicit" dfdl:lengthUnits="bits" dfdl:length="4"/>
           <xs:element name="string" type="xs:string" dfdl:representation="text" dfdl:lengthKind="explicit" dfdl:length="4" dfdl:encoding="utf-8" dfdl:leadingSkip="0"
             dfdl:lengthUnits="bytes" dfdl:alignment="8" dfdl:alignmentUnits="bits">
@@ -238,7 +238,7 @@
       <xs:complexType>
         <xs:sequence>
           <xs:element name="bits" type="xs:unsignedByte" 
-            dfdl:terminator="TERM" dfdl:represenation="binary" dfdl:leadingSkip="0" dfdl:alignment="1" 
+            dfdl:terminator="TERM" dfdl:representation="binary" dfdl:leadingSkip="0" dfdl:alignment="1" 
             dfdl:alignmentUnits="bits" dfdl:lengthKind="explicit" dfdl:lengthUnits="bits" dfdl:length="4"/>
           <xs:element name="string" type="xs:string" dfdl:representation="text" dfdl:lengthKind="explicit" dfdl:length="4" dfdl:encoding="utf-8" dfdl:leadingSkip="0"
             dfdl:lengthUnits="bytes" dfdl:alignment="8" dfdl:alignmentUnits="bits">

@@ -556,51 +556,25 @@ this to validate when we load a DFDL Schema.
 
   <xsd:attributeGroup name="anyOther">
     <!--
-      
-      IBM's DFDL Schemas have ibm-specific attributes on them that we 
-      need to tolerate. Users may want to decorate their DFDL schemas with
-      other non-native and non-DFDL attributes and annotation sub-elements.
-      
-      So the behavior here has been switched back to the XSD Default behavior
-      which is lax validation allowing any other attribute to appear.
-      
-      The problem: this disables ability to catch certain typographical errors.
-      In fact a bunch of our negative tests will have to be fixed, as they are 
-      counting on errors from validation of these typos and mistakes and 
-      that sort of thing.
-      
-      A common error is to forget the dfdl: prefix on 
-      a short form dfdl property binding, or to include the dfdl: prefix
-      one on a long-form format annotation. This will no longer be caught by 
-      the validator. 
-      
-      We will have to build explicit checking for this into Daffodil's traversal
-      of the schema. 
-      
-      -->
-    <xsd:anyAttribute namespace="##other" processContents="lax"/> 
-    <!-- <xsd:anyAttribute namespace="##other" processContents="strict"/> -->
+    IBM's DFDL Schemas have ibm-specific attributes on them that we 
+    need to tolerate. Users may want to decorate their DFDL schemas with
+    other non-native and non-DFDL attributes and annotation sub-elements.
+    
+    The default XSD behavior (commented out below) is to allow any additional
+    attributes on a schema by performing lax validation on anything not in the
+    XSD namespace.
+    
+    The problem: since DFDL short form properties are not in the XSD namespace,
+    they are not validated. This means common typographical errors or forgetting
+    the dfdl: prefix are often not caught.
 
-
-    <!-- need some wildcard to allow xml:lang, xml:space etc. which do appear in 
-      schemas sometimes -->
-      
-    <!-- Daffodil augments schemas with dafint:file dafint:line and dafint:col -->
-          
-    <!-- Daffodil extensions to DFDL intended for end-users use the dafext namespace -->
-          
-    <!-- Not important to validate these, and we need to tolerate
-      Other attributes from other DFDL implementations -->
-     
-     <!-- <xsd:anyAttribute 
-    namespace="http://www.w3.org/XML/1998/namespace 
-    urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:int 
-    urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext
-    http://www.ibm.com/schema/extensions"
-      processContents="lax"
-    /> -->
-
-
+    So instead, we reference an attributeGroup that has the same anyAttribute line,
+    but is in a schema with a dfdl target namespace. This means we will perform lax
+    validation for attributes not in the dfdl namespace, but all dfdl properties
+    will be strictly validated.
+    -->
+    <!-- <xsd:anyAttribute namespace="##other" processContents="lax"/> -->
+    <xsd:attributeGroup ref="dfdl:anyOther" />
   </xsd:attributeGroup>
 
   <xsd:complexType name="topLevelComplexType">
@@ -1019,6 +993,7 @@ this to validate when we load a DFDL Schema.
         <!-- DFDL -->
         <xsd:attributeGroup ref="dfdl:SequenceAGQualified" />
         <xsd:attributeGroup ref="dfdl:SeparatorAGQualified" />
+        <xsd:attributeGroup ref="dfdl:LayeringAGQualified" />
       </xsd:extension>
     </xsd:complexContent>
   </xsd:complexType>
@@ -1379,13 +1354,19 @@ this to validate when we load a DFDL Schema.
     </xsd:annotation>
     <xsd:complexType mixed="true">
       <xsd:choice minOccurs="0" maxOccurs="unbounded">
-        <xsd:any processContents="lax" />
         <!--
-           strict so tooling will check DFDL annotations 
-          <xsd:any namespace="http://www.ogf.org/dfdl/dfdl-1.0/" processContents="strict"/>
-          <xsd:any namespace="##targetNamespace" processContents="lax"/>
-          <xsd:any namespace="##other" processContents="lax"/>
+          Some users may want to provide appinfo annotations specific to their
+          use-case in addition to the DFDL annotations. Normal XML schema allows
+          any elements with lax validation using the commented out line below.
+          However, we want to perform extra validation on the dfdl elements. So
+          the DFDLAppInfoGroup defines all the DFDL specific attribute-form
+          elements that are allowed in an xs:appinfo and what attributes they may
+          have. The dfdl:anyOther group reference is used to allow elements from any
+          other namespace with lax validation.
         -->
+        <!--<xsd:any processContents="lax" />-->
+        <xsd:group ref="dfdl:DFDLAppInfoGroup" />
+        <xsd:group ref="dfdl:anyOther" />
       </xsd:choice>
       <xsd:attribute name="source" type="xsd:anyURI" />
       <xsd:attributeGroup ref="sub:anyOther" />
@@ -1757,11 +1738,19 @@ this to validate when we load a DFDL Schema.
     </xsd:annotation>
   </xsd:element>
 
-  <xsd:element name="enumeration" id="enumeration" type="sub:noFixedFacet">
+  <xsd:element name="enumeration" id="enumeration">
     <xsd:annotation>
       <xsd:documentation
         source="http://www.w3.org/TR/xmlschema-2/#element-enumeration" />
     </xsd:annotation>
+    <xsd:complexType>
+      <xsd:complexContent>
+        <xsd:extension base="sub:facet">
+          <xsd:attributeGroup ref="dfdl:RepValuesAGQualified" />
+          <xsd:attributeGroup ref="sub:anyOther" />
+        </xsd:extension>
+      </xsd:complexContent>
+    </xsd:complexType>
   </xsd:element>
 
   <!--

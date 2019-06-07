@@ -23,7 +23,7 @@ import org.junit.AfterClass
 
 object TestImportOtherAnnotationSchema {
   val testDir = "/org/apache/daffodil/section00/general/"
-  val runner = Runner(testDir, "testImportOtherAnnotationSchema.tdml", validateDFDLSchemas = false)
+  val runner = Runner(testDir, "testImportOtherAnnotationSchema.tdml")
 
   @AfterClass def shutDown {
     runner.reset
@@ -36,5 +36,6 @@ class TestImportOtherAnnotationSchema {
 
   //DFDL-1907
   @Test def test_importOtherAnnotationSchema1() { runner.runOneTest("importOtherAnnotationSchema1") }
+  @Test def test_importOtherAnnotationSchema2() { runner.runOneTest("importOtherAnnotationSchema2") }
 
 }

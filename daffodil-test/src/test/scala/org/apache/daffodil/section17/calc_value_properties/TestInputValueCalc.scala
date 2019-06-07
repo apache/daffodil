@@ -130,7 +130,7 @@ class TestInputValueCalc {
   //@Test def test_InputValueCalc_circular_ref() { runner.runOneTest("InputValueCalc_circular_ref") }
   
   //DFDL-1024
-  //@Test def test_InputValueCalc_optional_elem() { runner.runOneTest("InputValueCalc_optional_elem") }
-  //@Test def test_InputValueCalc_array_elem() { runner.runOneTest("InputValueCalc_array_elem") }
+  @Test def test_InputValueCalc_optional_elem() { runner.runOneTest("InputValueCalc_optional_elem") }
+  @Test def test_InputValueCalc_array_elem() { runner.runOneTest("InputValueCalc_array_elem") }
   //@Test def test_InputValueCalc_global_elem() { runner.runOneTest("InputValueCalc_global_elem") }
 }

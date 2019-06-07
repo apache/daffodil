@@ -83,7 +83,7 @@
     <xs:element name="e1">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="seq" dfdl:separator=",">
+          <xs:element name="seq">
             <xs:complexType>
               <xs:sequence>
                 <xs:element name="item" type="xs:int" minOccurs="1" maxOccurs="10"/>
@@ -830,7 +830,7 @@
 
     <xs:element name="e46">
       <xs:complexType>
-        <xs:sequence dfdl:separatorPosition="infix" dfdl:seperator=",">
+        <xs:sequence>
           <xs:element name="hexBinary1" type="xs:hexBinary"
             dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes"
             dfdl:length="3" dfdl:encoding="ISO-8859-1"/>
@@ -846,10 +846,10 @@
       <xs:complexType>
         <xs:sequence>
           <xs:element name="hexBinary1" type="xs:hexBinary"
-            dfdl:lengthKind="explicit" dfdl:lenghtUnits="bytes"
+            dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes"
             dfdl:length="3" dfdl:encoding="ISO-8859-1"/>
           <xs:element name="hexBinary2" type="xs:hexBinary"
-            dfdl:lengthKind="explicit" dfdl:lenghtUnits="bytes"
+            dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes"
             dfdl:length="3" dfdl:encoding="ISO-8859-1"/>
           <xs:element name="notEqual" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:hexBinary1 ne ../ex:hexBinary2 }"/>
         </xs:sequence>

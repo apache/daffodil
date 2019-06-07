@@ -602,7 +602,7 @@
       <xs:complexType>
         <xs:sequence>
           <xs:element name="num" type="xs:int" />
-          <xs:element name="invalid" type="xs:int" dfdl:minOccurs="0" dfdl:inputValueCalc="{ ../ex:num }" />
+          <xs:element name="invalid" type="xs:int" minOccurs="0" dfdl:inputValueCalc="{ ../ex:num }" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -610,7 +610,7 @@
     <xs:element name="ivc_25">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="a" type="xs:int" dfdl:minOccurs="2" dfdl:maxOccurs="5" dfdl:inputValueCalc="{ 5 }"/>
+          <xs:element name="a" type="xs:int" minOccurs="2" maxOccurs="5" dfdl:inputValueCalc="{ 5 }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -1310,7 +1310,9 @@
 
     <tdml:document>5</tdml:document>
     <tdml:errors>
-      <tdml:error>Placeholder</tdml:error>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>inputValueCalc</tdml:error>
+      <tdml:error>array</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -1325,7 +1327,9 @@
 
     <tdml:document/>
     <tdml:errors>
-      <tdml:error>Placeholder</tdml:error>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>inputValueCalc</tdml:error>
+      <tdml:error>array</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

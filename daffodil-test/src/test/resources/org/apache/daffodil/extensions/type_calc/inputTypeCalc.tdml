@@ -160,7 +160,7 @@
     <xs:element name="inputTypeCalc_unionOfKeysetValueCalcs_01">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="byte" type="tns:_1through100_union_to_string" maxOccurs="unbounded" dfdl:occursCoundKind="parsed"/>
+          <xs:element name="byte" type="tns:_1through100_union_to_string" maxOccurs="unbounded" dfdl:occursCountKind="parsed"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -168,7 +168,7 @@
     <xs:element name="inputTypeCalc_unionOfKeysetValueCalcs_02">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="byte" maxOccurs="unbounded" dfdl:occursCoundKind="parsed">
+          <xs:element name="byte" maxOccurs="unbounded" dfdl:occursCountKind="parsed">
             <xs:complexType>
               <xs:choice dfdl:choiceBranchKeyKind="byType" dfdl:choiceDispatchKeyKind="byType">
                 <xs:element name="a" type="tns:_1through100_union_to_string"/>

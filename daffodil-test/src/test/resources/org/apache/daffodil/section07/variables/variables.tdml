@@ -658,7 +658,7 @@
       </xs:complexType>
     </xs:element>
 
-    <xs:simpleType name="reffed" dfdl:separator="{ /ex:elem/ex:header/ex:sep }" dfdl:terminator="{ /ex:elem/ex:header/ex:term }">
+    <xs:simpleType name="reffed" dfdl:terminator="{ /ex:elem/ex:header/ex:term }">
       <xs:restriction base="xs:string"/>
     </xs:simpleType>
 

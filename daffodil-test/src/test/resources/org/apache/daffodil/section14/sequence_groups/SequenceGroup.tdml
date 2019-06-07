@@ -316,9 +316,7 @@
 
     <xs:element name="e">
       <xs:complexType>
-        <xs:sequence dfdl:separator=",">
-          <xs:element name="elem" dfdl:hiddenGroupRef=""/>
-        </xs:sequence>
+        <xs:sequence dfdl:hiddenGroupRef="" />
       </xs:complexType>
     </xs:element>
 
