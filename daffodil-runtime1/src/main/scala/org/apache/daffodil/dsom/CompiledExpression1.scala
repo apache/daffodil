@@ -17,25 +17,29 @@
 
 package org.apache.daffodil.dsom
 
-import org.apache.daffodil.exceptions._
-import org.apache.daffodil.processors.VariableMap
-import org.apache.daffodil.processors.Suspension
-import org.apache.daffodil.util._
-import org.apache.daffodil.xml._
-import org.apache.daffodil.dpath._
-import org.apache.daffodil.xml.NamedQName
-import org.apache.daffodil.util.PreSerialization
-import org.apache.daffodil.dpath.NodeInfo.PrimType
-import org.apache.daffodil.processors.ParseOrUnparseState
-import org.apache.daffodil.util.TransientParam
-import org.apache.daffodil.util.Maybe
-import scala.runtime.ScalaRunTime.stringOf // for printing arrays properly.
-import org.apache.daffodil.exceptions.SchemaFileLocation
-import org.apache.daffodil.exceptions.HasSchemaFileLocation
-import org.apache.daffodil.processors.ParseOrUnparseState
+import scala.runtime.ScalaRunTime.stringOf
+
 import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.api.UnqualifiedPathStepPolicy
 import org.apache.daffodil.api.WarnID
+import org.apache.daffodil.dpath.DState
+import org.apache.daffodil.dpath.NodeInfo
+import org.apache.daffodil.dpath.NodeInfo.PrimType
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.exceptions.HasSchemaFileLocation
+import org.apache.daffodil.exceptions.SchemaFileLocation
+import org.apache.daffodil.processors.ParseOrUnparseState
+import org.apache.daffodil.processors.Suspension
+import org.apache.daffodil.processors.TypeCalculatorCompiler.TypeCalcMap
+import org.apache.daffodil.processors.VariableMap
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.MaybeULong
+import org.apache.daffodil.util.PreSerialization
+import org.apache.daffodil.util.TransientParam
+import org.apache.daffodil.xml.NS
+import org.apache.daffodil.xml.NamedQName
+import org.apache.daffodil.xml.NoNamespace
+import org.apache.daffodil.xml.StepQName
 
 trait ContentValueReferencedElementInfoMixin {
 
@@ -200,14 +204,20 @@ class DPathCompileInfo(
   val namespaces: scala.xml.NamespaceBinding,
   val path: String,
   override val schemaFileLocation: SchemaFileLocation,
-  val tunable: DaffodilTunables)
+  val tunable: DaffodilTunables,
+  @TransientParam typeCalcMapArg: => TypeCalcMap)
   extends ImplementsThrowsSDE with PreSerialization
   with HasSchemaFileLocation {
 
   lazy val parent = parentArg
   lazy val variableMap =
     variableMapArg
-
+    
+  /*
+   * This map(identity) pattern appears to work around an unidentified bug with serialization.
+   */
+  lazy val typeCalcMap: TypeCalcMap = typeCalcMapArg.map(identity)
+    
   override def preSerialization: Any = {
     parent
     variableMap
@@ -305,8 +315,9 @@ class DPathElementCompileInfo(
   val namedQName: NamedQName,
   val optPrimType: Option[PrimType],
   sfl: SchemaFileLocation,
-  override val tunable: DaffodilTunables)
-  extends DPathCompileInfo(parentArg, variableMap, namespaces, path, sfl, tunable)
+  override val tunable: DaffodilTunables,
+  typeCalcMap: TypeCalcMap)
+  extends DPathCompileInfo(parentArg, variableMap, namespaces, path, sfl, tunable, typeCalcMap)
   with HasSchemaFileLocation {
 
   lazy val elementChildrenCompileInfo = elementChildrenCompileInfoArg

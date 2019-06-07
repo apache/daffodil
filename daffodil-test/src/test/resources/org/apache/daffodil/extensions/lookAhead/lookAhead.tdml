@@ -299,7 +299,7 @@
     </tdml:documentPart>
     </tdml:document>
     <tdml:errors>
-      <tdml:error>Runtime Schema Definition Error</tdml:error>
+      <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>Look-ahead distance of 520 bits exceeds implementation defined limit of 512 bits</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
@@ -321,7 +321,7 @@
     </tdml:documentPart>
     </tdml:document>
     <tdml:errors>
-      <tdml:error>Runtime Schema Definition Error</tdml:error>
+      <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>Look-ahead distance of 513 bits exceeds implementation defined limit of 512 bits</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>

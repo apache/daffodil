@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.dpath
 
-import org.apache.daffodil.processors._ ; import org.apache.daffodil.infoset._
+import org.apache.daffodil.processors._; import org.apache.daffodil.infoset._
 import org.apache.daffodil.exceptions._
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe._
@@ -27,6 +27,8 @@ import org.apache.daffodil.api.DataLocation
 import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
 import org.apache.daffodil.api.WarnID
 import org.apache.daffodil.dsom.DPathCompileInfo
+import org.apache.daffodil.xml.GlobalQName
+import org.apache.daffodil.processors.TypeCalculatorCompiler.TypeCalcMap
 
 /**
  * Modes for expression evaluation.
@@ -96,7 +98,7 @@ case object UnparserNonBlocking extends EvalMode
  * if used in a forward referencing expression the expression can block until the information
  * becomes available.
  */
-case class DState(val maybeSsrd:Maybe[SchemaSetRuntimeData]) {
+case class DState(val maybeSsrd: Maybe[SchemaSetRuntimeData]) {
   import org.apache.daffodil.util.Numbers._
 
   var isCompile = false
@@ -111,10 +113,10 @@ case class DState(val maybeSsrd:Maybe[SchemaSetRuntimeData]) {
    * (eg. to the runtime stack), and replaces the below fields.
    * At the end of the computation, it should restore the below fields.
    */
-  var logicalValue:Maybe[(AnyRef, NodeInfo.Kind)] = Maybe.Nope
-  
-  var repValue:Maybe[(AnyRef, NodeInfo.Kind)] = Maybe.Nope
-  
+  var logicalValue: Maybe[(AnyRef, NodeInfo.Kind)] = Maybe.Nope
+
+  var repValue: Maybe[(AnyRef, NodeInfo.Kind)] = Maybe.Nope
+
   /**
    * The currentValue is used when we have a value that is not
    * associated with an element of simple type. E.g., If I have
@@ -193,15 +195,15 @@ case class DState(val maybeSsrd:Maybe[SchemaSetRuntimeData]) {
   def setCurrentValue(v: AnyRef) {
     _currentValue = v
     _currentNode = null
-  }  
+  }
   def setCurrentValue(v: Long) {
     _currentValue = asAnyRef(v)
     _currentNode = null
-  }  
+  }
   def setCurrentValue(v: Boolean) {
     _currentValue = asAnyRef(v)
     _currentNode = null
-  }  
+  }
 
   def booleanValue: Boolean = currentValue.asInstanceOf[Boolean]
 
@@ -280,16 +282,16 @@ case class DState(val maybeSsrd:Maybe[SchemaSetRuntimeData]) {
   def currentElement = currentNode.asInstanceOf[DIElement]
   def currentArray = currentNode.asInstanceOf[DIArray]
   def currentComplex = currentNode.asComplex
-  
+
   def nextSibling = {
     val contents = currentElement.parent.asInstanceOf[DIComplex].contents
-       
+
     //TOOD, currentNode should really know this
     val i = contents.indexOf(currentNode)
-    if(i == contents.length-1){
+    if (i == contents.length - 1) {
       throw new InfosetNoNextSiblingException(currentNode.asSimple, currentNode.erd.dpathElementCompileInfo)
-    }else{
-      contents(i+1)
+    } else {
+      contents(i + 1)
     }
   }
 
@@ -325,12 +327,12 @@ case class DState(val maybeSsrd:Maybe[SchemaSetRuntimeData]) {
   def runtimeData = {
     if (contextNode.isDefined) One(contextNode.get.erd)
     else Nope
-  } 
-  
+  }
+
   // Overwritten in DStateForConstantFolding, so it should
   // be safe to assume we have runtime data
   def compileInfo = runtimeData.get.dpathCompileInfo
-  
+
   private var _contextNode: Maybe[DINode] = Nope
   def contextNode = _contextNode
   def setContextNode(node: DINode) {
@@ -357,6 +359,8 @@ case class DState(val maybeSsrd:Maybe[SchemaSetRuntimeData]) {
     Nope
   }
 
+  def typeCalculators = maybeSsrd.get.typeCalculators
+
   private var _savesErrorsAndWarnings: Maybe[SavesErrorsAndWarnings] = Nope
   def errorOrWarn = _savesErrorsAndWarnings
   def setErrorOrWarn(s: SavesErrorsAndWarnings) {
@@ -368,7 +372,7 @@ case class DState(val maybeSsrd:Maybe[SchemaSetRuntimeData]) {
   def setArrayPos(arrayPos1b: Long) {
     _arrayPos = arrayPos1b
   }
-  
+
   private var _parseOrUnparseState: Maybe[ParseOrUnparseState] = Nope
   def parseOrUnparseState = _parseOrUnparseState
   def setParseOrUnparseState(state: ParseOrUnparseState) {
@@ -376,8 +380,12 @@ case class DState(val maybeSsrd:Maybe[SchemaSetRuntimeData]) {
   }
 
   def SDE(formatString: String, args: Any*) = {
-    Assert.usage(runtimeData.isDefined)
-    errorOrWarn.get.SDE(formatString, args: _*)
+    if (isCompile) {
+      compileInfo.SDE(formatString, args: _*)
+    } else {
+      Assert.usage(runtimeData.isDefined)
+      errorOrWarn.get.SDE(formatString, args: _*)
+    }
   }
 
   // These exists so we can override it in our fake DState we use when
@@ -430,7 +438,8 @@ object DState {
   }
 }
 
-class DStateForConstantFolding(override val compileInfo: DPathCompileInfo) extends DState(Nope) {
+class DStateForConstantFolding(
+  override val compileInfo: DPathCompileInfo) extends DState(Nope) {
   private def die = throw new java.lang.IllegalStateException("No infoset at compile time.")
 
   override def currentSimple = currentNode.asInstanceOf[DISimple]
@@ -444,6 +453,7 @@ class DStateForConstantFolding(override val compileInfo: DPathCompileInfo) exten
   override def fnExists() = die
   override def arrayPos = die
   override def arrayLength = die
-  
+  override val typeCalculators = compileInfo.typeCalcMap
+
   isCompile = true
 }

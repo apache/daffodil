@@ -17,31 +17,25 @@
 
 package org.apache.daffodil.processors
 
-import scala.math.BigInt
-import scala.collection.immutable.HashSet
-import org.apache.daffodil.dsom.CompiledExpression
-import org.apache.daffodil.util.Maybe
-import org.apache.daffodil.oolag.OOLAG.OOLAGHost
-import org.apache.daffodil.dsom.CompiledExpression
-import org.apache.daffodil.dsom.CompiledExpression
 import scala.collection.immutable.HashMap
+import scala.collection.immutable.HashSet
+
+import org.apache.daffodil.dpath.DState
+import org.apache.daffodil.dpath.NodeInfo
+import org.apache.daffodil.dsom.CompiledExpression
+import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.processors.parsers.PState
 import org.apache.daffodil.processors.parsers.ParseError
-import org.apache.daffodil.processors.parsers.GeneralParseFailure
-import org.apache.daffodil.exceptions.Assert
-import java.lang.{ Long => JLong }
 import org.apache.daffodil.processors.unparsers.UState
+import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe.One
-import org.apache.daffodil.dsom.CompiledExpression
-import org.apache.daffodil.dpath.DState
-import org.apache.daffodil.processors.parsers.ParseError
-import org.apache.daffodil.util.Maybe.One
-import org.apache.daffodil.dpath.NodeInfo.Kind
-import org.apache.daffodil.dpath.NodeInfo
+import org.apache.daffodil.util.PreSerialization
 import org.apache.daffodil.util.RangeBound
+import org.apache.daffodil.util.TransientParam
+import org.apache.daffodil.xml.GlobalQName
 
 abstract class TypeCalculator[A <: AnyRef, B <: AnyRef](val srcType: NodeInfo.Kind, val dstType: NodeInfo.Kind)
-  extends Serializable {
+  extends PreSerialization {
   type Error = String
 
   /*
@@ -118,10 +112,13 @@ abstract class TypeCalculator[A <: AnyRef, B <: AnyRef](val srcType: NodeInfo.Ki
 
   def supportsParse: Boolean = true
   def supportsUnparse: Boolean = true
+
+  @throws(classOf[java.io.IOException])
+  final private def writeObject(out: java.io.ObjectOutputStream): Unit = serializeObject(out)
 }
 
 class KeysetValueTypeCalculatorOrdered[A <: AnyRef, B <: AnyRef](valueMap: HashMap[A, B], rangeTable: Seq[(RangeBound[A], RangeBound[A], B)], unparseMap: HashMap[B, A],
-                                                                 srcType: NodeInfo.Kind, dstType: NodeInfo.Kind)
+  srcType: NodeInfo.Kind, dstType: NodeInfo.Kind)
   extends TypeCalculator[A, B](srcType, dstType) {
 
   override def inputTypeCalc(x: A, xType: NodeInfo.Kind): (Maybe[B], Maybe[Error]) = {
@@ -145,7 +142,7 @@ class KeysetValueTypeCalculatorOrdered[A <: AnyRef, B <: AnyRef](valueMap: HashM
   override def outputTypeCalc(x: B, xType: NodeInfo.Kind): (Maybe[A], Maybe[Error]) = {
     unparseMap.get(x) match {
       case Some(v) => (Maybe(v), Maybe.Nope)
-      case None    => (Maybe.Nope, One(s"Value ${x} not found in keyset-value mapping"))
+      case None => (Maybe.Nope, One(s"Value ${x} not found in keyset-value mapping"))
     }
   }
 
@@ -158,7 +155,7 @@ class KeysetValueTypeCalculatorUnordered[A <: AnyRef, B <: AnyRef](valueMap: Has
     if (valueMap.contains(x)) {
       valueMap.get(x) match {
         case Some(a) => (Maybe(a), Maybe.Nope)
-        case None    => (Maybe.Nope, One(s"Value ${x} not found in keyset-value mapping"))
+        case None => (Maybe.Nope, One(s"Value ${x} not found in keyset-value mapping"))
       }
     } else {
       (Maybe.Nope, One(s"Key ${x} not found in keyset-value mapping"))
@@ -168,17 +165,34 @@ class KeysetValueTypeCalculatorUnordered[A <: AnyRef, B <: AnyRef](valueMap: Has
   override def outputTypeCalc(x: B, xType: NodeInfo.Kind): (Maybe[A], Maybe[Error]) = {
     unparseMap.get(x) match {
       case Some(v) => (Maybe(v), Maybe.Nope)
-      case None    => (Maybe.Nope, One(s"Value ${x} not found in keyset-value mapping"))
+      case None => (Maybe.Nope, One(s"Value ${x} not found in keyset-value mapping"))
     }
   }
 
 }
 
-class ExpressionTypeCalculator[A <: AnyRef, B <: AnyRef](maybeInputTypeCalc: Maybe[CompiledExpression[B]], maybeOutputTypeCalc: Maybe[CompiledExpression[A]],
-                                                         srcType: NodeInfo.Kind, dstType: NodeInfo.Kind)
+class ExpressionTypeCalculator[A <: AnyRef, B <: AnyRef](
+  @TransientParam maybeInputTypeCalcArg: => Maybe[CompiledExpression[B]],
+  @TransientParam maybeOutputTypeCalcArg: => Maybe[CompiledExpression[A]],
+  srcType: NodeInfo.Kind, dstType: NodeInfo.Kind,
+  override val supportsParse: Boolean, override val supportsUnparse: Boolean)
   extends TypeCalculator[A, B](srcType, dstType) {
-  override def supportsParse = maybeInputTypeCalc.isDefined
-  override def supportsUnparse = maybeOutputTypeCalc.isDefined
+
+  /*
+   * Compiling DPath expressions may need to evaluate typeCalculators in order to lookup their srcType and dstType.
+   * To prevent circular dependencies, this means that the underlying expressions must be lazy.
+   *
+   * Since these fields must be lazy, we cannot use them to determine supportsParse or supportUnparse
+   */
+
+  lazy val maybeInputTypeCalc = maybeInputTypeCalcArg
+  lazy val maybeOutputTypeCalc = maybeOutputTypeCalcArg
+
+  override protected def preSerialization: Any = {
+    super.preSerialization
+    maybeInputTypeCalc
+    maybeOutputTypeCalc
+  }
 
   //The class TypeValueCalc will verify that supports(Un)Parse is true when nessasary
   //Therefore, if we ever call the below functions, we know that the relevent Maybe object is defined.
@@ -315,6 +329,9 @@ object RepValueSetCompiler {
 }
 
 object TypeCalculatorCompiler {
+
+  type TypeCalcMap = Map[GlobalQName, TypeCalculator[AnyRef, AnyRef]]
+
   // mappings: [(keySet, canonicalKey, value)]
   def compileKeysetValue[A <: AnyRef, B <: AnyRef](mappings: Seq[(RepValueSet[A], A, B)], srcType: NodeInfo.Kind, dstType: NodeInfo.Kind): TypeCalculator[A, B] = {
     Assert.invariant(!mappings.isEmpty)
@@ -349,10 +366,19 @@ object TypeCalculatorCompiler {
     }
   }
 
-  def compileExpression[A <: AnyRef, B <: AnyRef](optInputTypeCalc: Option[CompiledExpression[B]], optOutputTypeCalc: Option[CompiledExpression[A]], srcType: NodeInfo.Kind, dstType: NodeInfo.Kind): ExpressionTypeCalculator[A, B] = {
-    val maybeInputType: Maybe[CompiledExpression[B]] = optInputTypeCalc.map(Maybe(_)).getOrElse(Maybe.Nope)
-    val maybeOutputType: Maybe[CompiledExpression[A]] = optOutputTypeCalc.map(Maybe(_)).getOrElse(Maybe.Nope)
-    new ExpressionTypeCalculator(maybeInputType, maybeOutputType, srcType, dstType)
+  /*
+   * compileExpression is already a highly overloaded name from the DPath expression compiler.
+   * While this technically overload that function, to avoid confusion, we are giving it a different
+   * name entirely.
+   */
+  def compileTypeCalculatorFromExpression[A <: AnyRef, B <: AnyRef](
+    optInputTypeCalc: => Option[CompiledExpression[B]],
+    optOutputTypeCalc: => Option[CompiledExpression[A]],
+    srcType: NodeInfo.Kind, dstType: NodeInfo.Kind,
+    supportsParse: Boolean, supportsUnparse: Boolean): ExpressionTypeCalculator[A, B] = {
+    lazy val maybeInputType: Maybe[CompiledExpression[B]] = optInputTypeCalc.map(Maybe(_)).getOrElse(Maybe.Nope)
+    lazy val maybeOutputType: Maybe[CompiledExpression[A]] = optOutputTypeCalc.map(Maybe(_)).getOrElse(Maybe.Nope)
+    new ExpressionTypeCalculator(maybeInputType, maybeOutputType, srcType, dstType, supportsParse, supportsUnparse)
   }
   def compileIdentity[A <: AnyRef](srcType: NodeInfo.Kind): TypeCalculator[A, A] = new IdentifyTypeCalculator(srcType)
 

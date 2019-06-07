@@ -136,7 +136,8 @@
     </tdml:documentPart>
     </tdml:document>
     <tdml:errors>
-      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Cannot convert 'a' from String type to Long</tdml:error>
     </tdml:errors>
     <tdml:warnings>
       <tdml:warning>Schema Definition Warning</tdml:warning>
@@ -175,7 +176,8 @@
     </tdml:documentPart>
     </tdml:document>
     <tdml:errors>
-      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Cannot convert 'a' from String type to Long</tdml:error>
     </tdml:errors>
     <tdml:warnings>
       <tdml:warning>Schema Definition Warning</tdml:warning>
@@ -246,12 +248,10 @@
     <tdml:documentPart type="text">a</tdml:documentPart>
     </tdml:document>
     <tdml:errors>
-      <tdml:error>parse Error</tdml:error>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Cannot convert</tdml:error>
+      <tdml:error>from String type to Long</tdml:error>
     </tdml:errors>
-    <tdml:warnings>
-      <tdml:warning>Schema Definition Warning</tdml:warning>
-      <tdml:warning>Expression result type (String) should be manually cast to the expected type (Int)</tdml:warning>
-    </tdml:warnings>
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="typeCalcDispatch_typeError_10"
@@ -285,10 +285,6 @@
         <typeCalcDispatch_typeError_12>a</typeCalcDispatch_typeError_12>
       </tdml:dfdlInfoset>
     </tdml:infoset>
-    <tdml:warnings>
-      <tdml:warning>Schema Definition Warning</tdml:warning>
-      <tdml:warning>Expression result type (String) should be manually cast to the expected type (Int)</tdml:warning>
-    </tdml:warnings>
     <tdml:errors>
       <tdml:error>Unparse Error</tdml:error>
       <tdml:error>Cannot convert 'a' from String type to Long</tdml:error>
@@ -369,6 +365,59 @@
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>tns:outputConversionOnly does not define an inputValueCalc</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="nonexistantTypeCalcType_01.dfdl.xsd">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="implicit"
+      lengthUnits="bytes" encoding="UTF-8" separator="" initiator=""
+      terminator="" occursCountKind="parsed" ignoreCase="no"
+      textNumberRep="standard" representation="binary" 
+      dfdlx:parseUnparsePolicy="parseOnly"
+      />
+
+     <xs:element name="root" type="xs:int" dfdl:inputValueCalc="{ dfdlx:inputTypeCalcInt('tns:nonExistant', 0) }"/>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="nonexistantTypeCalcType_01"
+    root="root" model="nonexistantTypeCalcType_01.dfdl.xsd" description="Extensions - inputTypeCalc errors">
+    <tdml:document>
+    <tdml:documentPart type="byte"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>tns:nonExistant</tdml:error>
+      <tdml:error>does not exist</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="nonexistantTypeCalcType_02.dfdl.xsd">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="implicit"
+      lengthUnits="bytes" encoding="UTF-8" separator="" initiator=""
+      terminator="" occursCountKind="parsed" ignoreCase="no"
+      textNumberRep="standard" representation="binary" 
+      dfdlx:parseUnparsePolicy="parseOnly"
+      />
+
+     <xs:simpleType name="nonExistantTypeCalc">
+       <xs:restriction base="xs:int"/>
+     </xs:simpleType>
+     <xs:element name="root" type="xs:int" dfdl:inputValueCalc="{ dfdlx:inputTypeCalcInt('tns:nonExistantTypeCalc', 0) }"/>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="nonexistantTypeCalcType_02"
+    root="root" model="nonexistantTypeCalcType_02.dfdl.xsd" description="Extensions - inputTypeCalc errors">
+    <tdml:document>
+    <tdml:documentPart type="byte"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>tns:nonExistant</tdml:error>
+      <tdml:error>does not have a repType</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

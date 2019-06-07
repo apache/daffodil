@@ -62,7 +62,7 @@ trait SchemaComponent
   override def oolagContextViaArgs = optLexicalParent
 
   lazy val tunable: DaffodilTunables = optLexicalParent.get.tunable
-
+  
   lazy val dpathCompileInfo: DPathCompileInfo =
     new DPathCompileInfo(
       enclosingComponent.map { _.dpathCompileInfo },
@@ -70,7 +70,8 @@ trait SchemaComponent
       namespaces,
       path,
       schemaFileLocation,
-      tunable)
+      tunable,
+      schemaSet.typeCalcMap)
 
   /**
    * ALl non-terms get runtimeData from this definition. All Terms
