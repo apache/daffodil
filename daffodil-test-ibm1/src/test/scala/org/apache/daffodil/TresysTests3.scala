@@ -61,7 +61,7 @@ class TresysTests3 {
   // group. Because everything inside a hidden group must be either default or
   // OVC, and arrays can't have either, they cannot be in hidden groups.
   // This is fixed by specifying daffodil-specific property
-  // daf:parseUnparsePolicy="parseOnly", which suppresses the check for this
+  // dfdlx:parseUnparsePolicy="parseOnly", which suppresses the check for this
   // constraint.
 
   @Test def test_AM000() { runnerAM.runOneTest("AM000") }

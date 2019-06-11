@@ -323,6 +323,7 @@ object XMLUtils {
   val XPATH_FUNCTION_NAMESPACE = NS("http://www.w3.org/2005/xpath-functions")
   val XPATH_MATH_NAMESPACE = NS("http://www.w3.org/2005/xpath-functions/math")
   val DFDL_NAMESPACE = NS("http://www.ogf.org/dfdl/dfdl-1.0/") // dfdl ns does have a trailing slash
+  val DFDLX_NAMESPACE = NS("http://www.ogf.org/dfdl/dfdl-1.0/extensions")
   val TDML_NAMESPACE = NS("http://www.ibm.com/xmlns/dfdl/testData")
   val EXAMPLE_NAMESPACE = NS("http://example.com")
   val XHTML_NAMESPACE = NS("http://www.w3.org/1999/xhtml")
@@ -379,6 +380,7 @@ object XMLUtils {
   // shorter forms, to make constructing XML literals,... make the lines shorter.
   val xsdURI = XSD_NAMESPACE
   val dfdlURI = DFDL_NAMESPACE
+  val dfdlxURI = DFDLX_NAMESPACE
   val dfdlAppinfoSource = NS("http://www.ogf.org/dfdl/")
   val targetNS = EXAMPLE_NAMESPACE // we use this for tests.
   val xsiURI = XSI_NAMESPACE
@@ -431,6 +433,12 @@ object XMLUtils {
   def dfdlAttributes(n: Node) = {
     n.attributes filter {
       _.getNamespace(n) == DFDL_NAMESPACE.toString
+    }
+  }
+
+  def dfdlxAttributes(n: Node) = {
+    n.attributes.filter {
+      _.getNamespace(n) == DFDLX_NAMESPACE.toString
     }
   }
 
@@ -1097,6 +1105,7 @@ trait GetAttributesMixin extends ThrowsSDE {
    * For picking off the short-form annotations.
    */
   def dfdlAttributes(n: Node) = XMLUtils.dfdlAttributes(n)
+  def dfdlxAttributes(n: Node) = XMLUtils.dfdlxAttributes(n)
   def dafAttributes(n: Node) = XMLUtils.dafAttributes(n)
 
 }

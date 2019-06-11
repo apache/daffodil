@@ -47,5 +47,7 @@ class TestPropertySyntax {
 
   @Test def test_dafProperty1() { runner1.runOneTest("dafProperty1") }
   @Test def test_dafProperty2() { runner1.runOneTest("dafProperty2") }
+  @Test def test_dfdlxProperty1() { runner1.runOneTest("dfdlxProperty1") }
+  @Test def test_dfdlxProperty2() { runner1.runOneTest("dfdlxProperty2") }
 
 }

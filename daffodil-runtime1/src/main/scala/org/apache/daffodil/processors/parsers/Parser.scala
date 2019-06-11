@@ -336,7 +336,7 @@ case class NotParsableParser(context: ElementRuntimeData) extends PrimParserNoDa
     // We can't use state.SDE because that needs the infoset to determine the
     // context. No infoset will exist when this is called, so we'll manually
     // create an SDE and toss it
-    val rsde = new RuntimeSchemaDefinitionError(context.schemaFileLocation, state, "This schema was compiled without parse support. Check the parseUnparsePolicy tunable or daf:parseUnparsePolicy property.")
+    val rsde = new RuntimeSchemaDefinitionError(context.schemaFileLocation, state, "This schema was compiled without parse support. Check the parseUnparsePolicy tunable or dfdlx:parseUnparsePolicy property.")
     context.toss(rsde)
   }
 

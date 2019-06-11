@@ -261,7 +261,7 @@ abstract class SequenceGroupTermBase(
       val localKeys = localProps.keySet
       val disallowedKeys = localKeys.filterNot(k => layeredSequenceAllowedProps.contains(k))
       if (disallowedKeys.size > 0)
-        SDE("Sequence has dfdl:layerTransform specified, so cannot have non-layering properties: %s", disallowedKeys.mkString(", "))
+        SDE("Sequence has dfdlx:layerTransform specified, so cannot have non-layering properties: %s", disallowedKeys.mkString(", "))
 
       val lt = new LayerTransformerEv(
         maybeLayerTransformEv.get,

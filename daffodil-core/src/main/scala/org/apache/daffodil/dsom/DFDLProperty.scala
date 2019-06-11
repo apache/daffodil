@@ -19,15 +19,38 @@ package org.apache.daffodil.dsom
 
 import scala.xml.Node
 import scala.xml.NodeSeq
+
+import org.apache.daffodil.api.WarnID
+import org.apache.daffodil.xml.NamedQName
+import org.apache.daffodil.xml.NS
 import org.apache.daffodil.xml.QName
 import org.apache.daffodil.xml.XMLUtils
-import org.apache.daffodil.xml.NamedQName
 
 final class DFDLProperty(xmlArg: Node, formatAnnotation: DFDLFormatAnnotation)
   extends DFDLAnnotation(xmlArg, formatAnnotation.annotatedSC)
   with LocalNonElementComponentMixin {
 
-  override lazy val namedQName: NamedQName = QName.createGlobal(name, XMLUtils.DFDL_NAMESPACE, xml.scope)
+  /**
+   * Variable use to differentiate between same properities that are provided
+   * via differnt means (i.e. daf:property, name="dfdlx:...").
+   */
+  lazy val propertyNamespace = {
+    if (super.name.startsWith("dfdlx:")) {
+      XMLUtils.DFDLX_NAMESPACE
+    } else {
+      NS(xml.namespace)
+    }
+  }
+
+  /**
+   * Extension properties are provided in the dfdl:property element, but the
+   * name field is prefixed with dfdlx:. Strip that off to get the actual
+   * property name. The propertyNamespace above can be used to determine if
+   * this property was defined as an extension or not.
+   */
+  override val name =  super.name.stripPrefix("dfdlx:")
+
+  override lazy val namedQName: NamedQName = QName.createGlobal(name, propertyNamespace, xml.scope)
 
   override lazy val path = formatAnnotation.path + "::" + diagnosticDebugName
 
@@ -82,7 +105,5 @@ final class DFDLProperty(xmlArg: Node, formatAnnotation: DFDLFormatAnnotation)
       }
     }
   }
-
-  // override lazy val name = getAttributeRequired("name")
 
 }

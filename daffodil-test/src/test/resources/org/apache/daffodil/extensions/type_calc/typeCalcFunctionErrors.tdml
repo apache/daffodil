@@ -19,8 +19,8 @@
 <tdml:testSuite xmlns:ex="http://example.com" xmlns="http://example.com"
   xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
   xmlns:fn="http://www.w3.org/2005/xpath-functions"
-  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
   >
 
   <tdml:defineSchema name="inputTypeCalcFunctionErrors-Embedded.dfdl.xsd">
@@ -30,14 +30,14 @@
       lengthUnits="bytes" encoding="UTF-8" separator="" initiator=""
       terminator="" occursCountKind="parsed" ignoreCase="no"
       textNumberRep="standard" representation="binary" 
-      daf:parseUnparsePolicy="parseOnly"
+      dfdlx:parseUnparsePolicy="parseOnly"
       />
 
-    <xs:simpleType name="intToString" dfdl:repType="xs:int" dfdl:inputTypeCalc="{ 'a' }" dfdl:outputTypeCalc="{ 0 }">
+    <xs:simpleType name="intToString" dfdlx:repType="xs:int" dfdlx:inputTypeCalc="{ 'a' }" dfdlx:outputTypeCalc="{ 0 }">
       <xs:restriction base="xs:string"/>
     </xs:simpleType>
 
-    <xs:simpleType name="stringToInt" dfdl:repType="xs:string" dfdl:inputTypeCalc="{ 0 }" dfdl:outputTypeCalc="{ 'a' }">
+    <xs:simpleType name="stringToInt" dfdlx:repType="xs:string" dfdlx:inputTypeCalc="{ 0 }" dfdlx:outputTypeCalc="{ 'a' }">
       <xs:restriction base="xs:int"/>
     </xs:simpleType>
 
@@ -50,82 +50,82 @@
     </xs:simpleType>
 
     <!--
-    <xs:element name="typeCalcDispatch_typeError_baseline" type="xs:string" dfdl:inputValueCalc="{ dfdl:inputTypeCalcString('tns:intToString', 0) }" />
+    <xs:element name="typeCalcDispatch_typeError_baseline" type="xs:string" dfdl:inputValueCalc="{ dfdlx:inputTypeCalcString('tns:intToString', 0) }" />
     -->
-    <xs:element name="typeCalcDispatch_typeError_01" type="xs:int" dfdl:inputValueCalc="{ dfdl:inputTypeCalcString('tns:intToString', 0) }" />
-    <xs:element name="typeCalcDispatch_typeError_02" type="xs:int" dfdl:inputValueCalc="{ dfdl:inputTypeCalcInt('tns:intToString', 0) }" />
-    <xs:element name="typeCalcDispatch_typeError_03" type="xs:int" dfdl:inputValueCalc="{ dfdl:inputTypeCalcInt('tns:stringToInt', 0) }" />
+    <xs:element name="typeCalcDispatch_typeError_01" type="xs:int" dfdl:inputValueCalc="{ dfdlx:inputTypeCalcString('tns:intToString', 0) }" />
+    <xs:element name="typeCalcDispatch_typeError_02" type="xs:int" dfdl:inputValueCalc="{ dfdlx:inputTypeCalcInt('tns:intToString', 0) }" />
+    <xs:element name="typeCalcDispatch_typeError_03" type="xs:int" dfdl:inputValueCalc="{ dfdlx:inputTypeCalcInt('tns:stringToInt', 0) }" />
     <!--
-    <xs:element name="typeCalcDispatch_typeError_baseline" type="xs:string" dfdl:outputValueCalc="{ dfdl:outputTypeCalcString('tns:stringToInt', 0) }" />
+    <xs:element name="typeCalcDispatch_typeError_baseline" type="xs:string" dfdl:outputValueCalc="{ dfdlx:outputTypeCalcString('tns:stringToInt', 0) }" />
     -->
-    <xs:element name="typeCalcDispatch_typeError_04" type="xs:int" dfdl:inputValueCalc="{ dfdl:outputTypeCalcString('tns:stringToInt', 0) }" />
-    <xs:element name="typeCalcDispatch_typeError_05" type="xs:int" dfdl:inputValueCalc="{ dfdl:outputTypeCalcInt('tns:stringToInt', 0) }" />
-    <xs:element name="typeCalcDispatch_typeError_06" type="xs:int" dfdl:inputValueCalc="{ dfdl:outputTypeCalcInt('tns:intToString', 0) }" />
+    <xs:element name="typeCalcDispatch_typeError_04" type="xs:int" dfdl:inputValueCalc="{ dfdlx:outputTypeCalcString('tns:stringToInt', 0) }" />
+    <xs:element name="typeCalcDispatch_typeError_05" type="xs:int" dfdl:inputValueCalc="{ dfdlx:outputTypeCalcInt('tns:stringToInt', 0) }" />
+    <xs:element name="typeCalcDispatch_typeError_06" type="xs:int" dfdl:inputValueCalc="{ dfdlx:outputTypeCalcInt('tns:intToString', 0) }" />
 
-    <xs:element name="typeCalcDispatch_typeError_07" daf:parseUnparsePolicy="unparseOnly">
+    <xs:element name="typeCalcDispatch_typeError_07" dfdlx:parseUnparsePolicy="unparseOnly">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="raw" dfdl:outputValueCalc="{ dfdl:outputTypeCalcNextSiblingInt() }" type="tns:uint8" daf:parseUnparsePolicy="unparseOnly"/>
-          <xs:element name="stringToInt" type="stringToInt" daf:parseUnparsePolicy="unparseOnly" dfdl:inputValueCalc="{ 0 }"/>
+          <xs:element name="raw" dfdl:outputValueCalc="{ dfdlx:outputTypeCalcNextSiblingInt() }" type="tns:uint8" dfdlx:parseUnparsePolicy="unparseOnly"/>
+          <xs:element name="stringToInt" type="stringToInt" dfdlx:parseUnparsePolicy="unparseOnly" dfdl:inputValueCalc="{ 0 }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
 
-    <xs:element name="typeCalcDispatch_typeError_08" daf:parseUnparsePolicy="unparseOnly">
+    <xs:element name="typeCalcDispatch_typeError_08" dfdlx:parseUnparsePolicy="unparseOnly">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="raw" dfdl:outputValueCalc="{ dfdl:outputTypeCalcNextSiblingString() }" type="tns:uint8" daf:parseUnparsePolicy="unparseOnly"/>
-          <xs:element name="stringToInt" type="stringToInt" daf:parseUnparsePolicy="unparseOnly" dfdl:inputValueCalc="{ 0 }"/>
+          <xs:element name="raw" dfdl:outputValueCalc="{ dfdlx:outputTypeCalcNextSiblingString() }" type="tns:uint8" dfdlx:parseUnparsePolicy="unparseOnly"/>
+          <xs:element name="stringToInt" type="stringToInt" dfdlx:parseUnparsePolicy="unparseOnly" dfdl:inputValueCalc="{ 0 }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
 
     <xs:element name="typeCalcDispatch_typeError_09">
-      <xs:simpleType dfdl:repType="tns:string8" dfdl:inputTypeCalc="{ dfdl:repTypeValueString() }">
+      <xs:simpleType dfdlx:repType="tns:string8" dfdlx:inputTypeCalc="{ dfdlx:repTypeValueString() }">
         <xs:restriction base="xs:int"/>
       </xs:simpleType>
     </xs:element>
 
     <xs:element name="typeCalcDispatch_typeError_10">
-      <xs:simpleType dfdl:repType="tns:string8" dfdl:inputTypeCalc="{ dfdl:repTypeValueInt() }">
+      <xs:simpleType dfdlx:repType="tns:string8" dfdlx:inputTypeCalc="{ dfdlx:repTypeValueInt() }">
         <xs:restriction base="xs:int"/>
       </xs:simpleType>
     </xs:element>
 
-    <xs:element name="typeCalcDispatch_typeError_11" daf:parseUnparsePolicy="unparseOnly" >
-      <xs:simpleType dfdl:repType="tns:uint8" dfdl:outputTypeCalc="{ dfdl:logicalTypeValueInt() }">
+    <xs:element name="typeCalcDispatch_typeError_11" dfdlx:parseUnparsePolicy="unparseOnly" >
+      <xs:simpleType dfdlx:repType="tns:uint8" dfdlx:outputTypeCalc="{ dfdlx:logicalTypeValueInt() }">
         <xs:restriction base="xs:string"/>
       </xs:simpleType>
     </xs:element>
 
-    <xs:element name="typeCalcDispatch_typeError_12" daf:parseUnparsePolicy="unparseOnly">
-      <xs:simpleType dfdl:repType="tns:uint8" dfdl:outputTypeCalc="{ dfdl:logicalTypeValueString() }">
+    <xs:element name="typeCalcDispatch_typeError_12" dfdlx:parseUnparsePolicy="unparseOnly">
+      <xs:simpleType dfdlx:repType="tns:uint8" dfdlx:outputTypeCalc="{ dfdlx:logicalTypeValueString() }">
         <xs:restriction base="xs:string"/>
       </xs:simpleType>
     </xs:element>
 
-    <xs:element name="repTypeValue_bad_context_01" type="xs:string" dfdl:inputValueCalc="{ dfdl:repTypeValueString() }"/>
-    <xs:element name="repTypeValue_bad_context_02" type="xs:int" dfdl:inputValueCalc="{ dfdl:repTypeValueInt() }"/>
-    <xs:element name="logicalTypeValue_bad_context_01" type="xs:string" dfdl:inputValueCalc="{ dfdl:logicalTypeValueString() }"/>
-    <xs:element name="logicalTypeValue_bad_context_02" type="xs:int" dfdl:inputValueCalc="{ dfdl:logicalTypeValueInt() }"/>
+    <xs:element name="repTypeValue_bad_context_01" type="xs:string" dfdl:inputValueCalc="{ dfdlx:repTypeValueString() }"/>
+    <xs:element name="repTypeValue_bad_context_02" type="xs:int" dfdl:inputValueCalc="{ dfdlx:repTypeValueInt() }"/>
+    <xs:element name="logicalTypeValue_bad_context_01" type="xs:string" dfdl:inputValueCalc="{ dfdlx:logicalTypeValueString() }"/>
+    <xs:element name="logicalTypeValue_bad_context_02" type="xs:int" dfdl:inputValueCalc="{ dfdlx:logicalTypeValueInt() }"/>
 
     <xs:element name="nonexistant_reptype_01">
-      <xs:simpleType dfdl:repType="tns:nonExistant" dfdl:inputTypeCalc="{ 0 }">
+      <xs:simpleType dfdlx:repType="tns:nonExistant" dfdlx:inputTypeCalc="{ 0 }">
         <xs:restriction base="xs:int"/>
       </xs:simpleType>
     </xs:element>
 
-    <xs:simpleType name="inputConversionOnly" dfdl:repType="tns:uint8" dfdl:inputTypeCalc="{ 1 }">
+    <xs:simpleType name="inputConversionOnly" dfdlx:repType="tns:uint8" dfdlx:inputTypeCalc="{ 1 }">
       <xs:restriction base="xs:int"/>
     </xs:simpleType>
 
-    <xs:element name="nonexistantOutputTypeCalc_01" type="xs:int" dfdl:inputValueCalc="{dfdl:outputTypeCalcInt('tns:inputConversionOnly', 7)}"/>
+    <xs:element name="nonexistantOutputTypeCalc_01" type="xs:int" dfdl:inputValueCalc="{dfdlx:outputTypeCalcInt('tns:inputConversionOnly', 7)}"/>
 
-    <xs:simpleType name="outputConversionOnly" dfdl:repType="tns:uint8" dfdl:outputTypeCalc="{ 1 }">
+    <xs:simpleType name="outputConversionOnly" dfdlx:repType="tns:uint8" dfdlx:outputTypeCalc="{ 1 }">
       <xs:restriction base="xs:int"/>
     </xs:simpleType>
 
-    <xs:element name="nonexistantInputTypeCalc_01" type="xs:int" dfdl:inputValueCalc="{dfdl:inputTypeCalcInt('tns:outputConversionOnly', 7)}"/>
+    <xs:element name="nonexistantInputTypeCalc_01" type="xs:int" dfdl:inputValueCalc="{dfdlx:inputTypeCalcInt('tns:outputConversionOnly', 7)}"/>
 
   </tdml:defineSchema>
 
@@ -302,7 +302,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>dfdl:repTypeValueString() may only be called from within a dfdl:inputTypeCalc annotation</tdml:error>
+      <tdml:error>dfdlx:repTypeValueString() may only be called from within a dfdlx:inputTypeCalc annotation</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -313,7 +313,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>dfdl:repTypeValueInt() may only be called from within a dfdl:inputTypeCalc annotation</tdml:error>
+      <tdml:error>dfdlx:repTypeValueInt() may only be called from within a dfdlx:inputTypeCalc annotation</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -324,7 +324,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>dfdl:logicalTypeValueString() may only be called from within a dfdl:outputTypeCalc annotation</tdml:error>
+      <tdml:error>dfdlx:logicalTypeValueString() may only be called from within a dfdlx:outputTypeCalc annotation</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -335,7 +335,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>dfdl:logicalTypeValueInt() may only be called from within a dfdl:outputTypeCalc annotation</tdml:error>
+      <tdml:error>dfdlx:logicalTypeValueInt() may only be called from within a dfdlx:outputTypeCalc annotation</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

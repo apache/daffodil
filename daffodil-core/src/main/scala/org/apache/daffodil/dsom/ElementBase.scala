@@ -1277,9 +1277,9 @@ trait ElementBase
       val isCompatible = policy == childPolicy || childPolicy == ParseUnparsePolicy.Both
       if (!isCompatible) {
         if (context.isDefined) {
-          context.get.SDE("Child element '%s' with daf:parseUnparsePolicy='%s' is not compatible with root elements daf:parseUnparsePolicy='%s'", child, childPolicy, policy)
+          context.get.SDE("Child element '%s' with dfdlx:parseUnparsePolicy='%s' is not compatible with root elements dfdlx:parseUnparsePolicy='%s'", child, childPolicy, policy)
         } else {
-          SDE("Element '%s' with daf:parseUnparsePolicy='%s' is not compatible with user supplied daf:parseUnparsePolicy='%s'", child, childPolicy, policy)
+          SDE("Element '%s' with dfdlx:parseUnparsePolicy='%s' is not compatible with user supplied dfdlx:parseUnparsePolicy='%s'", child, childPolicy, policy)
         }
       }
 

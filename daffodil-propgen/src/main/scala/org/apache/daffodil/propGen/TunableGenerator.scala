@@ -19,7 +19,7 @@ package org.apache.daffodil.propGen
 
 import scala.xml.XML
 
-class TunableGenerator(schema: scala.xml.Node) {
+class TunableGenerator(schemaRootConfig: scala.xml.Node, schemaRootExt: scala.xml.Node) {
 
   val top = """
     |/*
@@ -122,14 +122,14 @@ class TunableGenerator(schema: scala.xml.Node) {
     |}
     """.trim.stripMargin
 
-  val tunablesRoot = (schema \ "element").find(_ \@ "name" == "tunables").get
+  val tunablesRoot = (schemaRootConfig \ "element").find(_ \@ "name" == "tunables").get
   val tunableNodes = tunablesRoot \\ "all" \ "element"
 
   val excludedSimpleTypes = Seq(
     "TunableEmptyElementParsePolicy",
     "TunableSuppressSchemaDefinitionWarnings"
   )
-  val tunableSimpleTypeNodes = (schema \ "simpleType")
+  val tunableSimpleTypeNodes = (schemaRootConfig \ "simpleType")
     .filter { st => (st \@ "name").startsWith("Tunable") }
     .filter { st => !excludedSimpleTypes.contains(st \@ "name") }
 
@@ -168,7 +168,7 @@ class TunableGenerator(schema: scala.xml.Node) {
 
     val tunableDefinitions =
       tunableSimpleTypeNodes.map { n =>
-        new TunableEnumDefinition(schema, n)
+        new TunableEnumDefinition(schemaRootConfig, schemaRootExt, n)
       }
 
     w.write(tunableDefinitions.map(_.scalaEnumeration).mkString("\n"))
@@ -243,7 +243,7 @@ class EnumListTunable(name: String, schemaType: String, schemaDefault: String, l
     """.trim.stripMargin
 }
 
-class TunableEnumDefinition(schemaRoot: scala.xml.Node, simpleTypeNode: scala.xml.Node) {
+class TunableEnumDefinition(schemaRootConfig: scala.xml.Node, schemaRootExt: scala.xml.Node, simpleTypeNode: scala.xml.Node) {
   private val nodeName = (simpleTypeNode \@ "name").stripPrefix("Tunable")
   private val scalaType = nodeName.head.toUpper + nodeName.tail
 
@@ -260,9 +260,13 @@ class TunableEnumDefinition(schemaRoot: scala.xml.Node, simpleTypeNode: scala.xm
         if (base.startsWith("xs:")) {
           (r \ "enumeration").map(_ \@ "value")
         } else {
-          val local = base.split(":")(1)
+          val Array(pre, local) = base.split(":")
+          val schemaToSearch = pre match {
+            case "daf" => schemaRootConfig
+            case "dfdlx" => schemaRootExt
+          }
           val restrictionSimpleTypeNode =
-            (schemaRoot \ "simpleType").find(_ \@ "name" == base.split(":")(1)).get
+            (schemaToSearch \ "simpleType").find(_ \@ "name" == base.split(":")(1)).get
           getAllEnumerationValues(restrictionSimpleTypeNode)
         }
       enumerationValues

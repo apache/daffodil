@@ -23,7 +23,7 @@
   xmlns:fn="http://www.w3.org/2005/xpath-functions"
   xmlns:ex="http://example.com"
   xmlns:tns="http://example.com"
-  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
+  xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
   defaultRoundTrip="onePass">
 
   <tdml:defineSchema name="lengthKindPrefixed-text.dfdl.xsd">
@@ -99,14 +99,14 @@
     <xs:element name="pl_text_string_txt_bits"  type="xs:string" dfdl:ref="prefixedTxtBits"
       nillable="true" />
     <xs:element name="pl_text_string_txt_chars" type="xs:string" dfdl:ref="prefixedTxtChar"
-      nillable="true" daf:parseUnparsePolicy="parseOnly" />
+      nillable="true" dfdlx:parseUnparsePolicy="parseOnly" />
 
     <xs:element name="pl_text_string_txt_bytes_includes" type="xs:string" dfdl:ref="prefixedTxtByte"
       nillable="true" dfdl:prefixIncludesPrefixLength="yes" />
     <xs:element name="pl_text_string_txt_bits_includes" type="xs:string" dfdl:ref="prefixedTxtBits"
       nillable="true" dfdl:prefixIncludesPrefixLength="yes" />
     <xs:element name="pl_text_string_txt_chars_includes" type="xs:string" dfdl:ref="prefixedTxtChar"
-      nillable="true"  dfdl:prefixIncludesPrefixLength="yes" daf:parseUnparsePolicy="parseOnly" />
+      nillable="true"  dfdl:prefixIncludesPrefixLength="yes" dfdlx:parseUnparsePolicy="parseOnly" />
 
     <xs:element name="pl_text_string_bin_bytes" type="xs:string" dfdl:ref="prefixedBinByte"
       nillable="true" />
@@ -116,7 +116,7 @@
     <xs:element name="pl_text_int_txt_bytes" type="xs:int" dfdl:ref="prefixedTxtByte" />
     <xs:element name="pl_text_int_txt_bits" type="xs:int" dfdl:ref="prefixedTxtBits" />
     <xs:element name="pl_text_int_txt_chars" type="xs:int" dfdl:ref="prefixedTxtChar"
-      daf:parseUnparsePolicy="parseOnly" />
+      dfdlx:parseUnparsePolicy="parseOnly" />
 
     <xs:element name="pl_text_int_bin_bytes" type="xs:int" dfdl:ref="prefixedBinByte" />
     <xs:element name="pl_text_int_bin_bits" type="xs:int" dfdl:ref="prefixedBinBits" />
@@ -134,10 +134,10 @@
 
     <xs:element name="pl_text_int_txt_chars_plbits" type="xs:int" dfdl:ref="prefixedTxtChar"
       dfdl:prefixLengthType="ex:twentyFourBitsTextInt"
-      daf:parseUnparsePolicy="parseOnly" />
+      dfdlx:parseUnparsePolicy="parseOnly" />
     <xs:element name="pl_text_int_txt_chars_plbytes" type="xs:int" dfdl:ref="prefixedTxtChar"
       dfdl:prefixLengthType="ex:threeCharTextInt"
-      daf:parseUnparsePolicy="parseOnly" />
+      dfdlx:parseUnparsePolicy="parseOnly" />
 
     <xs:element name="pl_text_int_bin_bytes_plbits" type="xs:int" dfdl:ref="prefixedBinByte"
       dfdl:prefixLengthType="ex:twentyFourBitsBinInt" />
@@ -153,7 +153,7 @@
     <xs:element name="pl_text_int_txt_bits_includes" type="xs:int" dfdl:ref="prefixedTxtBits"
       dfdl:prefixIncludesPrefixLength="yes" />
     <xs:element name="pl_text_int_txt_chars_includes" type="xs:int" dfdl:ref="prefixedTxtChar"
-      dfdl:prefixIncludesPrefixLength="yes" daf:parseUnparsePolicy="parseOnly" />
+      dfdl:prefixIncludesPrefixLength="yes" dfdlx:parseUnparsePolicy="parseOnly" />
 
     <xs:element name="pl_text_int_bin_bytes_includes" type="xs:int" dfdl:ref="prefixedBinByte"
       dfdl:prefixIncludesPrefixLength="yes" />
@@ -163,7 +163,7 @@
     <xs:element name="pl_text_dec_txt_bytes" type="xs:decimal" dfdl:ref="prefixedTxtByte" />
     <xs:element name="pl_text_dec_txt_bits" type="xs:decimal" dfdl:ref="prefixedTxtBits" />
     <xs:element name="pl_text_dec_txt_chars" type="xs:decimal" dfdl:ref="prefixedTxtChar"
-      daf:parseUnparsePolicy="parseOnly" />
+      dfdlx:parseUnparsePolicy="parseOnly" />
 
     <xs:element name="pl_text_dec_bin_bytes" type="xs:decimal" dfdl:ref="prefixedBinByte" />
     <xs:element name="pl_text_dec_bin_bits" type="xs:decimal" dfdl:ref="prefixedBinBits" />
@@ -171,7 +171,7 @@
     <xs:element name="pl_text_date_txt_bytes" type="xs:dateTime" dfdl:ref="prefixedTxtByte" />
     <xs:element name="pl_text_date_txt_bits" type="xs:dateTime" dfdl:ref="prefixedTxtBits" />
     <xs:element name="pl_text_date_txt_chars" type="xs:dateTime" dfdl:ref="prefixedTxtChar"
-      daf:parseUnparsePolicy="parseOnly" />
+      dfdlx:parseUnparsePolicy="parseOnly" />
 
     <xs:element name="pl_text_date_bin_bytes" type="xs:dateTime" dfdl:ref="prefixedBinByte" />
     <xs:element name="pl_text_date_bin_bits" type="xs:dateTime" dfdl:ref="prefixedBinBits" />
@@ -179,7 +179,7 @@
     <xs:element name="pl_text_bool_txt_bytes" type="xs:boolean" dfdl:ref="prefixedTxtByte" />
     <xs:element name="pl_text_bool_txt_bits" type="xs:boolean" dfdl:ref="prefixedTxtBits" />
     <xs:element name="pl_text_bool_txt_chars" type="xs:boolean" dfdl:ref="prefixedTxtChar"
-      daf:parseUnparsePolicy="parseOnly" />
+      dfdlx:parseUnparsePolicy="parseOnly" />
 
     <xs:element name="pl_text_bool_bin_bytes" type="xs:boolean" dfdl:ref="prefixedBinByte" />
     <xs:element name="pl_text_bool_bin_bits" type="xs:boolean" dfdl:ref="prefixedBinBits" />

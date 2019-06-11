@@ -39,7 +39,7 @@ class TestLayers {
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
-          <xs:sequence dfdl:layerTransform="base64_MIME" dfdl:layerLengthKind="boundaryMark" dfdl:layerBoundaryMark="!" dfdl:layerEncoding="iso-8859-1">
+          <xs:sequence dfdlx:layerTransform="base64_MIME" dfdlx:layerLengthKind="boundaryMark" dfdlx:layerBoundaryMark="!" dfdlx:layerEncoding="iso-8859-1">
             <xs:element name="s1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="3"/>
           </xs:sequence>
         </xs:complexType>
@@ -62,7 +62,7 @@ class TestLayers {
       <dfdl:format ref="tns:GeneralFormat" lengthKind='delimited'/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
-          <xs:sequence dfdl:layerTransform="base64_MIME" dfdl:layerLengthKind="boundaryMark" dfdl:layerBoundaryMark="!" dfdl:layerEncoding="iso-8859-1">
+          <xs:sequence dfdlx:layerTransform="base64_MIME" dfdlx:layerLengthKind="boundaryMark" dfdlx:layerBoundaryMark="!" dfdlx:layerEncoding="iso-8859-1">
             <xs:element name="s1" type="xs:string"/>
           </xs:sequence>
         </xs:complexType>
@@ -86,7 +86,7 @@ class TestLayers {
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence>
-            <xs:sequence dfdl:layerTransform="base64_MIME" dfdl:layerLengthKind="boundaryMark" dfdl:layerBoundaryMark="!" dfdl:layerEncoding="iso-8859-1">
+            <xs:sequence dfdlx:layerTransform="base64_MIME" dfdlx:layerLengthKind="boundaryMark" dfdlx:layerBoundaryMark="!" dfdlx:layerEncoding="iso-8859-1">
               <xs:element name="s1" type="xs:string"/>
             </xs:sequence>
             <xs:element name="s2" type="xs:string"/>
@@ -132,14 +132,14 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
   val GZIPLayer1Schema =
     SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
-      <dfdl:format ref="tns:GeneralFormat" layerLengthUnits="bytes" representation="binary"/>,
+      <dfdl:format ref="tns:GeneralFormat" dfdlx:layerLengthUnits="bytes" representation="binary"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence>
             <xs:element name="len" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="4" dfdl:outputValueCalc="{ dfdl:contentLength(../x1, 'bytes') }"/>
             <xs:element name="x1" dfdl:lengthKind="implicit">
               <xs:complexType>
-                <xs:sequence dfdl:layerTransform="gzip" dfdl:layerLengthKind="explicit" dfdl:layerLength="{ ../len }">
+                <xs:sequence dfdlx:layerTransform="gzip" dfdlx:layerLengthKind="explicit" dfdlx:layerLength="{ ../len }">
                   <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited"/>
                 </xs:sequence>
               </xs:complexType>
@@ -175,17 +175,17 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
 
   def makeB64GZIPSchema(term: String, layerTerm: String) = SchemaUtils.dfdlTestSchema(
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
-    <dfdl:format ref="tns:GeneralFormat" layerLengthUnits="bytes" representation="binary" layerEncoding="iso-8859-1"/>,
+    <dfdl:format ref="tns:GeneralFormat" dfdlx:layerLengthUnits="bytes" representation="binary" dfdlx:layerEncoding="iso-8859-1"/>,
     <xs:element name="e1" dfdl:lengthKind="implicit">
       <xs:complexType>
         <xs:sequence>
           <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited" dfdl:terminator={ term }/>
-          <xs:sequence dfdl:layerTransform="base64_MIME" dfdl:layerLengthKind="boundaryMark" dfdl:layerBoundaryMark={ layerTerm }>
+          <xs:sequence dfdlx:layerTransform="base64_MIME" dfdlx:layerLengthKind="boundaryMark" dfdlx:layerBoundaryMark={ layerTerm }>
             <xs:sequence>
               <xs:element name="len" type="xs:int" dfdl:outputValueCalc="{ dfdl:contentLength(../x1, 'bytes') }"/>
               <xs:element name="x1" dfdl:lengthKind="implicit">
                 <xs:complexType>
-                  <xs:sequence dfdl:layerTransform="gzip" dfdl:layerLengthKind="explicit" dfdl:layerLength="{ ../len }">
+                  <xs:sequence dfdlx:layerTransform="gzip" dfdlx:layerLengthKind="explicit" dfdlx:layerLength="{ ../len }">
                     <xs:element name="s2" type="xs:string" dfdl:lengthKind="delimited"/>
                   </xs:sequence>
                 </xs:complexType>
@@ -243,7 +243,7 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
-          <xs:sequence dfdl:layerTransform="lineFolded_IMF" dfdl:layerLengthKind="implicit">
+          <xs:sequence dfdlx:layerTransform="lineFolded_IMF" dfdlx:layerLengthKind="implicit">
             <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited"/>
           </xs:sequence>
         </xs:complexType>
@@ -286,7 +286,7 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
-          <xs:sequence dfdl:layerTransform="lineFolded_IMF" dfdl:layerLengthKind="boundaryMark">
+          <xs:sequence dfdlx:layerTransform="lineFolded_IMF" dfdlx:layerLengthKind="boundaryMark">
             <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited"/>
           </xs:sequence>
         </xs:complexType>
@@ -333,7 +333,7 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="e1" dfdl:lengthKind="explicit" dfdl:length="100">
         <xs:complexType>
-          <xs:sequence dfdl:layerTransform="lineFolded_IMF" dfdl:layerLengthKind="implicit">
+          <xs:sequence dfdlx:layerTransform="lineFolded_IMF" dfdlx:layerLengthKind="implicit">
             <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited"/>
           </xs:sequence>
         </xs:complexType>
@@ -383,7 +383,7 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
           <xs:sequence>
             <xs:element name="s0" type="xs:hexBinary" dfdl:length="4" dfdl:byteOrder="bigEndian" dfdl:bitOrder="mostSignificantBitFirst"/>
             <xs:element name="s1" type="xs:hexBinary" dfdl:length="4" dfdl:byteOrder="bigEndian" dfdl:bitOrder="mostSignificantBitFirst"/>
-            <xs:sequence dfdl:layerTransform="fourbyteswap" dfdl:layerLengthKind="explicit" dfdl:layerLengthUnits="bytes" dfdl:layerLength="6">
+            <xs:sequence dfdlx:layerTransform="fourbyteswap" dfdlx:layerLengthKind="explicit" dfdlx:layerLengthUnits="bytes" dfdlx:layerLength="6">
               <xs:sequence>
                 <xs:element name="s2" type="xs:hexBinary" dfdl:length="4"/>
                 <xs:element name="s3" type="xs:hexBinary" dfdl:length="24"/>

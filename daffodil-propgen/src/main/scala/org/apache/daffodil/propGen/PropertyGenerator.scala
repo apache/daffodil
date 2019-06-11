@@ -36,14 +36,33 @@ class PropertyGenerator(arg: Node) {
 
   val dfdlSchema = arg
 
-  val excludedTypes = List("Property", "EmptyElementParsePolicy", "TextNumberBase", "AlignmentType", "FillByteType", "BinaryBooleanTrueRepType", "BinaryBooleanFalseRepType",
-    "SeparatorSuppressionPolicy", "dafint:daffodilAG", "TextStandardExponentRep", "TextOutputMinLength", // Do these by hand.
-    "PropertyNameType", "PropertyType", // Not used and causes conflict with daf namespace
-    "externalVariableBindings", "externalVarType", "bind", "bindNameType", "bindType", "tunables", // Ignore daffodil configuration types
-    "TunableEmptyElementParsePolicy", "TunableParseUnparsePolicyTunable", "TunableSuppressSchemaDefinitionWarnings", "TunableUnqualifiedPathStepPolicy") // Ignore tunable types
+  val excludedTypes = List(
+    "AlignmentType",
+    "BinaryBooleanFalseRepType",
+    "BinaryBooleanTrueRepType",
+    "EmptyElementParsePolicy",
+    "ExtLayeringAG",
+    "ExtLayeringAGQualified",
+    "FillByteType",
+    "Property",
+    "PropertyNameType",
+    "PropertyType",
+    "SeparatorSuppressionPolicy",
+    "TextNumberBase",
+    "TextOutputMinLength",
+    "TextStandardExponentRep",
+    "TunableEmptyElementParsePolicy",
+    "TunableParseUnparsePolicyTunable",
+    "TunableSuppressSchemaDefinitionWarnings",
+    "TunableUnqualifiedPathStepPolicy",
+    "dafint:daffodilAG")
 
-  val excludedAttributes = List("EmptyElementParsePolicy", "TextNumberBase",
-    "SeparatorSuppressionPolicy", "TextStandardExponentRep", "TextOutputMinLength") // Do these by hand.
+  val excludedAttributes = List(
+    "EmptyElementParsePolicy",
+    "SeparatorSuppressionPolicy",
+    "TextNumberBase",
+    "TextOutputMinLength",
+    "TextStandardExponentRep")
 
   def excludeType(name: String) = {
     excludedTypes.exists { _.toUpperCase == name.toUpperCase() }
@@ -178,17 +197,25 @@ class PropertyGenerator(arg: Node) {
     //
     // for each attribute that is an Enum type, we want to use a Mixin of that type
     //
-    val attribsNoDafRefs = attribs.map { attrNode =>
+    val attribsNoDafRefs = attribs.flatMap { attrNode =>
       val rawRef = attr(attrNode, "ref")
       if (rawRef.isDefined) {
         // this is referencing a Daffodil Extension, go find that attribute
-        val refWithoutPrefix = stripPrefix("daf:", rawRef.get)
-        val dafAttrNode = (PropertyGenerator.daffodilExtensionsXML \ "attribute").find { node =>
-          attr(node, "name").get == refWithoutPrefix
-        }.get
-        dafAttrNode
+
+        if (rawRef.get.startsWith("daf:")) {
+          // ignore daf prefix and the dfdlx:Layer attribute group. These are
+          // duplicated in dfdlx for backwards compatability, so this ignores
+          // the duplicate.
+          None
+        } else {
+          val refWithoutPrefix = stripPrefix("dfdlx:", rawRef.get)
+          val dafAttrNode = (PropertyGenerator.daffodilExtensionsXML \ "attribute").find { node =>
+            attr(node, "name").get == refWithoutPrefix
+          }.get
+          Some(dafAttrNode)
+        }
       } else {
-        attrNode
+        Some(attrNode)
       }
     }
 
@@ -275,7 +302,7 @@ class PropertyGenerator(arg: Node) {
 
   def stripDFDLPrefix(s: String) = {
     val s1 = stripPrefix("dfdl:", s)
-    val s2 = stripPrefix("daf:", s1)
+    val s2 = stripPrefix("dfdlx:", s1)
     s2
   }
 
@@ -629,9 +656,10 @@ object PropertyGenerator {
   val dfdlSchemasForDFDLAnnotations = List("/org/apache/daffodil/xsd/DFDL_part1_simpletypes.xsd",
     "/org/apache/daffodil/xsd/DFDL_part2_attributes.xsd",
     "/org/apache/daffodil/xsd/DFDL_part3_model.xsd",
-    "/org/apache/daffodil/xsd/dafext.xsd")
+    "/org/apache/daffodil/xsd/dfdlx.xsd")
 
-  val daffodilExtensionsXML = getSchemaAsNode("/org/apache/daffodil/xsd/dafext.xsd")
+  val daffodilConfigXML = getSchemaAsNode("/org/apache/daffodil/xsd/dafext.xsd")
+  val daffodilExtensionsXML = getSchemaAsNode("/org/apache/daffodil/xsd/dfdlx.xsd")
 
   def getSchemaAsNode(name: String): Node = {
     val is = getResourceOrFileStream(name)
@@ -706,12 +734,12 @@ import org.apache.daffodil.exceptions.ThrowsSDE
     System.out.println(generatedCodePath)
 
     val tunablePath = getGeneratedFilePath(args(0), tunableCodePackage, tunableCodeFilename)
-    val tunableGenerator = new TunableGenerator(daffodilExtensionsXML)
+    val tunableGenerator = new TunableGenerator(daffodilConfigXML, daffodilExtensionsXML)
     tunableGenerator.writeGeneratedCode(new java.io.FileWriter(tunablePath))
     System.out.println(tunablePath)
 
     val warnIdPath = getGeneratedFilePath(args(0), warnIdCodePackage, warnIdCodeFilename)
-    val warnIdGenerator = new WarnIDGenerator(daffodilExtensionsXML)
+    val warnIdGenerator = new WarnIDGenerator(daffodilConfigXML)
     warnIdGenerator.writeGeneratedCode(new java.io.FileWriter(warnIdPath))
     System.out.println(warnIdPath)
 

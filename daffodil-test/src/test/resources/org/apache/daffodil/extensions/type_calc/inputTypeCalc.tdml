@@ -19,6 +19,7 @@
 <tdml:testSuite xmlns:ex="http://example.com" xmlns="http://example.com"
   xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
   xmlns:fn="http://www.w3.org/2005/xpath-functions"
   >
 
@@ -52,24 +53,24 @@
       <xs:restriction base="xs:unsignedInt"/>
     </xs:simpleType>
 
-    <xs:simpleType name="keysetValue_01" dfdl:repType="tns:uint8">
+    <xs:simpleType name="keysetValue_01" dfdlx:repType="tns:uint8">
       <xs:restriction base="xs:string">
-        <xs:enumeration value="zero" dfdl:repValues="0" />
-        <xs:enumeration value="one" dfdl:repValues="1" />
-        <xs:enumeration value="2-100" dfdl:repValueRanges="2 100" />
-        <xs:enumeration value="101 103-110 115 120-125" dfdl:repValues="101 115" dfdl:repValueRanges="103 110 120 125"/>
+        <xs:enumeration value="zero" dfdlx:repValues="0" />
+        <xs:enumeration value="one" dfdlx:repValues="1" />
+        <xs:enumeration value="2-100" dfdlx:repValueRanges="2 100" />
+        <xs:enumeration value="101 103-110 115 120-125" dfdlx:repValues="101 115" dfdlx:repValueRanges="103 110 120 125"/>
       </xs:restriction>
     </xs:simpleType>
 
-    <xs:simpleType name="_1_to_string" dfdl:repType="tns:uint8">
+    <xs:simpleType name="_1_to_string" dfdlx:repType="tns:uint8">
       <xs:restriction base="xs:string">
-        <xs:enumeration value="one" dfdl:repValues="1"/>
+        <xs:enumeration value="one" dfdlx:repValues="1"/>
       </xs:restriction>
     </xs:simpleType>
 
-    <xs:simpleType name="_2through100_to_string" dfdl:repType="tns:uint8">
+    <xs:simpleType name="_2through100_to_string" dfdlx:repType="tns:uint8">
       <xs:restriction base="xs:string">
-        <xs:enumeration value="2-100" dfdl:repValueRanges="2 100"/>
+        <xs:enumeration value="2-100" dfdlx:repValueRanges="2 100"/>
       </xs:restriction>
     </xs:simpleType>
 
@@ -77,7 +78,7 @@
       <xs:union memberTypes="tns:_1_to_string tns:_2through100_to_string tns:unreachableRepTypeuint8" />
     </xs:simpleType>
 
-    <xs:simpleType name="_2through100_to_int" dfdl:repType="tns:uint8">
+    <xs:simpleType name="_2through100_to_int" dfdlx:repType="tns:uint8">
       <xs:restriction base="xs:unsignedInt">
         <xs:minInclusive value="2"/>
         <xs:maxInclusive value="100"/>
@@ -85,26 +86,26 @@
     </xs:simpleType>
 
     <!-- Used to verify that a branch of a choice statement is not considered. -->
-    <xs:simpleType name="unreachableRepTypeuint8" dfdl:repType="tns:uint8">
+    <xs:simpleType name="unreachableRepTypeuint8" dfdlx:repType="tns:uint8">
       <xs:annotation>
         <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:discriminator>{ fn:true() }</dfdl:discriminator>
         </xs:appinfo>
       </xs:annotation>
       <xs:restriction base="xs:string">
-        <xs:enumeration value="unreachable" dfdl:repValues="-1"/>
+        <xs:enumeration value="unreachable" dfdlx:repValues="-1"/>
       </xs:restriction>
     </xs:simpleType>
 
-    <xs:simpleType name="complexSet_to_string" dfdl:repType="tns:uint8">
+    <xs:simpleType name="complexSet_to_string" dfdlx:repType="tns:uint8">
       <xs:restriction base="xs:string">
-        <xs:enumeration value="101 103-110 115 120-125" dfdl:repValues="101 115" dfdl:repValueRanges="103 110 120 125"/>
+        <xs:enumeration value="101 103-110 115 120-125" dfdlx:repValues="101 115" dfdlx:repValueRanges="103 110 120 125"/>
       </xs:restriction>
     </xs:simpleType>
 
     <xs:element name="choice_dispatchKeyByType_01">
       <xs:complexType>
-        <xs:choice dfdl:choiceBranchKeyKind="explicit" dfdl:choiceDispatchKeyKind="byType" >
+        <xs:choice dfdlx:choiceBranchKeyKind="explicit" dfdlx:choiceDispatchKeyKind="byType" >
           <xs:element name="unreachable" type="tns:unreachableRepTypeuint8" dfdl:choiceBranchKey="-1"/>
           <xs:element name="one" type="tns:_1_to_string" dfdl:choiceBranchKey="1"/>
           <xs:element name="two" type="tns:_2through100_to_string" dfdl:choiceBranchKey="2"/>
@@ -119,7 +120,7 @@
         <xs:sequence>
           <xs:element name="byte" dfdl:occursCountKind="parsed" maxOccurs="unbounded">
             <xs:complexType>
-              <xs:choice dfdl:choiceBranchKeyKind="explicit" dfdl:choiceDispatchKeyKind="byType" >
+              <xs:choice dfdlx:choiceBranchKeyKind="explicit" dfdlx:choiceDispatchKeyKind="byType" >
                 <xs:element name="unreachable" type="tns:unreachableRepTypeuint8" dfdl:choiceBranchKey="255"/>
                 <xs:element name="one" type="tns:_1_to_string" dfdl:choiceBranchKey="1"/>
                 <xs:element name="two" type="tns:_2through100_to_string" dfdl:choiceBranchKey="2"/>
@@ -145,7 +146,7 @@
                     </xs:appinfo>
                   </xs:annotation>
                 </xs:element>
-                <xs:choice dfdl:choiceBranchKeyKind="byType" dfdl:choiceDispatchKeyKind="explicit" dfdl:choiceDispatchKey="{ ex:dispatchKey }">
+                <xs:choice dfdlx:choiceBranchKeyKind="byType" dfdlx:choiceDispatchKeyKind="explicit" dfdl:choiceDispatchKey="{ ex:dispatchKey }">
                   <xs:element name="unreachable" type="tns:unreachableRepTypeuint8"/>
                   <xs:element name="many" type="tns:_2through100_to_int"/>
                   <xs:element name="one" type="tns:_1_to_string"/>
@@ -170,7 +171,7 @@
         <xs:sequence>
           <xs:element name="byte" maxOccurs="unbounded" dfdl:occursCountKind="parsed">
             <xs:complexType>
-              <xs:choice dfdl:choiceBranchKeyKind="byType" dfdl:choiceDispatchKeyKind="byType">
+              <xs:choice dfdlx:choiceBranchKeyKind="byType" dfdlx:choiceDispatchKeyKind="byType">
                 <xs:element name="a" type="tns:_1through100_union_to_string"/>
                 <xs:element name="b" type="tns:complexSet_to_string"/>
               </xs:choice>

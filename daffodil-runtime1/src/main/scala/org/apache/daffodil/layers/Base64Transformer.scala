@@ -83,14 +83,14 @@ object Base64MIMETransformerFactory
       "Base64 layer support requires Java 8 (aka Java 1.8).")
 
     trd.schemaDefinitionUnless(maybeLayerBoundaryMarkEv.isDefined,
-      "Property dfdl:layerBoundaryMark was not defined.")
+      "Property dfdlx:layerBoundaryMark was not defined.")
     trd.schemaDefinitionUnless(maybeLayerLengthKind.isEmpty ||
       (maybeLayerLengthKind.get eq LayerLengthKind.BoundaryMark),
-      "Only dfdl:layerLengthKind 'boundaryMark' is supported, but '%s' was specified",
+      "Only dfdlx:layerLengthKind 'boundaryMark' is supported, but '%s' was specified",
       maybeLayerLengthKind.get.toString)
 
     trd.schemaDefinitionUnless(maybeLayerCharsetEv.isDefined,
-      "Property dfdl:layerEncoding must be defined.")
+      "Property dfdlx:layerEncoding must be defined.")
 
     val xformer = new Base64MIMETransformer(maybeLayerCharsetEv.get, maybeLayerBoundaryMarkEv.get)
     xformer

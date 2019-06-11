@@ -584,15 +584,6 @@
     </xsd:restriction>
   </xsd:simpleType>
   
-  <xsd:simpleType name="ChoiceKeyKindType">
-    <xsd:restriction base="xsd:string">
-      <xsd:enumeration value="byType"/>
-      <xsd:enumeration value="explicit"/>
-      <xsd:enumeration value="speculative"/>
-      <xsd:enumeration value="implicit"/>
-    </xsd:restriction>
-  </xsd:simpleType>
-
   <!-- A pattern is used instead of an enumeration for compactness -->
   <xsd:simpleType name="BinaryPackedSignCodes">
     <xsd:restriction base="dfdl:DFDLStringLiteral">

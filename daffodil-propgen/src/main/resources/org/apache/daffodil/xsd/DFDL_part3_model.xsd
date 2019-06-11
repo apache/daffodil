@@ -19,16 +19,20 @@
 <xsd:schema targetNamespace="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
   xmlns:dafint="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:int"
   attributeFormDefault="unqualified" elementFormDefault="qualified"
   xsi:schemaLocation="http://www.w3.org/2001/XMLSchema XMLSchema.xsd 
   urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:int org/apache/daffodil/xsd/dafint.xsd
-  urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:int org/apache/daffodil/xsd/dafext.xsd">
+  urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:int org/apache/daffodil/xsd/dafext.xsd>
+  http://www.ogf.org/dfdl/dfdl-1.0/extensions org/apache/daffodil/xsd/dfdlx.xsd">
+  
 
   <xsd:import namespace="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:int" schemaLocation="org/apache/daffodil/xsd/dafint.xsd" />
   <xsd:import namespace="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext" schemaLocation="org/apache/daffodil/xsd/dafext.xsd" />
+  <xsd:import namespace="http://www.ogf.org/dfdl/dfdl-1.0/extensions" schemaLocation="org/apache/daffodil/xsd/dfdlx.xsd" />
   <xsd:include schemaLocation="DFDL_part2_attributes.xsd" />
 
   <!-- all the dfdl: elements that can appear inside an xs:appinfo element -->
@@ -107,7 +111,11 @@
   <xsd:complexType name="PropertyType">
     <xsd:simpleContent>
       <xsd:extension base="xsd:string">
-        <xsd:attribute name="name" type="dfdl:PropertyNameType" use='required'/>
+        <xsd:attribute name="name" use='required'>
+          <xsd:simpleType>
+            <xsd:union memberTypes="dfdl:PropertyNameType dfdlx:PropertyNameType" />
+          </xsd:simpleType>
+        </xsd:attribute>
         <xsd:attributeGroup ref="dafint:daffodilAG"/>
       </xsd:extension>
     </xsd:simpleContent>
@@ -267,7 +275,8 @@
         <xsd:sequence />
         <xsd:attributeGroup ref="dfdl:GroupCommonAG" />
         <xsd:attributeGroup ref="dfdl:SequenceAG" />
-        <xsd:attributeGroup ref="dfdl:LayeringAG" />
+        <xsd:attributeGroup ref="dfdl:LayeringAG" /> <!-- backwards compatibility -->
+        <xsd:attributeGroup ref="dfdlx:ExtLayeringAG" />
         <xsd:attributeGroup ref="dfdl:SeparatorAG" />
       </xsd:extension>
     </xsd:complexContent>
@@ -293,7 +302,7 @@
   </xsd:complexType>
 
   <xsd:complexType name="DFDLEnumerationType">
-    <xsd:attributeGroup ref="dfdl:RepValuesAG" />
+    <xsd:attributeGroup ref="dfdlx:RepValuesAG" />
   </xsd:complexType>
 
   <xsd:complexType name="DFDLGroupType">
@@ -332,7 +341,8 @@
   <xsd:attributeGroup name="GroupAG">
     <xsd:attributeGroup ref="dfdl:GroupCommonAG" />
     <xsd:attributeGroup ref="dfdl:SequenceAG" />
-    <xsd:attributeGroup ref="dfdl:LayeringAG" />
+    <xsd:attributeGroup ref="dfdl:LayeringAG" /> <!-- backwards compatibility -->
+    <xsd:attributeGroup ref="dfdlx:ExtLayeringAG" />
     <xsd:attributeGroup ref="dfdl:ChoiceAG" />
     <xsd:attributeGroup ref="dfdl:SeparatorAG" />
   </xsd:attributeGroup>
@@ -354,7 +364,7 @@
     <xsd:attributeGroup ref="dfdl:CalendarFormatAG" />
     <xsd:attributeGroup ref="dfdl:BooleanTextAG" />
     <xsd:attributeGroup ref="dfdl:BooleanBinaryAG" />
-    <xsd:attributeGroup ref="dfdl:SimpleTypeValueCalcAG" />
+    <xsd:attributeGroup ref="dfdlx:SimpleTypeValueCalcAG" />
   </xsd:attributeGroup>
 
 </xsd:schema>

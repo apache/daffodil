@@ -19,9 +19,9 @@
 <xs:schema
   targetNamespace="urn:parseUnparseMode" 
   xmlns:tns="urn:parseUnparseMode"
-  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
+  xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:fn="http://www.w3.org/2005/xpath-functions"
   elementFormDefault="qualified">
@@ -84,7 +84,7 @@
                    However, asserts aren't evaluated when unparsing, so we only error out here 
                    when parsing.
                -->
-              <dfdl:assert>{ daf:error() }</dfdl:assert>
+              <dfdl:assert>{ dfdlx:error() }</dfdl:assert>
            </xs:appinfo></xs:annotation>
       </xs:sequence>
     </xs:group>

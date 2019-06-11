@@ -19,7 +19,7 @@
 <testSuite suiteName="escapeScheme" xmlns="http://www.ibm.com/xmlns/dfdl/testData"
   xmlns:tns="http://example.com"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
-  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
+  xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   defaultRoundTrip="true">
@@ -344,7 +344,7 @@
         <xs:sequence dfdl:separator="$;" dfdl:separatorPosition="infix">
           <xs:element name="x" type="xs:string" dfdl:escapeSchemeRef="tns:scenario2" />
           <xs:element name="y" type="xs:string" minOccurs="0" dfdl:escapeSchemeRef="tns:scenario2"
-            daf:emptyElementParsePolicy="treatAsEmpty" />
+            dfdlx:emptyElementParsePolicy="treatAsEmpty" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -588,7 +588,7 @@
       <dfdlInfoset>
         <tns:e_infix_keepEmpty>
           <x>foo$/</x>
-          <!-- daf:emptyElementParsePolicy 'treatAsEmpty' only creates empty
+          <!-- dfdlx:emptyElementParsePolicy 'treatAsEmpty' only creates empty
                string elements if there is some non-zero-length syntax
           <y></y>
           -->

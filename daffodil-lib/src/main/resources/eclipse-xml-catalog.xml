@@ -21,6 +21,8 @@
 		uri="platform:/resource/daffodil-lib/src/main/resources/xsd/tdml.xsd" />
 	<uri name="http://www.ogf.org/dfdl/dfdl-1.0/"
 		uri="platform:/resource/daffodil-lib/resource_managed/main/xsd/DFDL_part3_model.xsd" />
+	<uri name="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
+		uri="platform:/resource/daffodil-lib/resource_managed/main/xsd/dfdlx.xsd" />
 	<uri name="http://www.w3.org/2001/XMLSchema"
 		uri="platform:/resource/daffodil-lib/src/main/resources/xsd/XMLSchema_for_DFDL.xsd" />
 	<public publicId="-//W3C//DTD XMLSCHEMA 200102//EN"

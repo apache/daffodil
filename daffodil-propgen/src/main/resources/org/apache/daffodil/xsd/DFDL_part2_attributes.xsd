@@ -19,12 +19,15 @@
 <xsd:schema targetNamespace="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
   attributeFormDefault="unqualified" elementFormDefault="qualified"
   xsi:schemaLocation="http://www.w3.org/2001/XMLSchema XMLSchema.xsd">
 
 <xsd:import namespace="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext" schemaLocation="org/apache/daffodil/xsd/dafext.xsd"/>
+<xsd:import namespace="http://www.ogf.org/dfdl/dfdl-1.0/extensions" schemaLocation="org/apache/daffodil/xsd/dfdlx.xsd"/>
+
   <xsd:include schemaLocation="DFDL_part1_simpletypes.xsd" />
 
   <!-- ==================================================================== -->
@@ -95,8 +98,9 @@
       type="dfdl:ByteOrderEnum_Or_DFDLExpression" />
       
     <xsd:attribute name="bitOrder" type="dfdl:BitOrderEnum"/>
-    <xsd:attribute ref="daf:parseUnparsePolicy"/>
-    <xsd:attribute ref="daf:emptyElementParsePolicy"/>
+    <xsd:attribute ref="daf:parseUnparsePolicy"/> <!-- backwards compatibility -->
+    <xsd:attribute ref="dfdlx:parseUnparsePolicy"/>
+    <xsd:attribute ref="dfdlx:emptyElementParsePolicy"/>
       
     <xsd:attribute name="encoding"
       type="dfdl:EncodingEnum_Or_DFDLExpression" />
@@ -189,18 +193,6 @@
     <xsd:attribute name="escapeSchemeRef" type="dfdl:DFDLQName" />
   </xsd:attributeGroup>
 
-  <xsd:attributeGroup name="SimpleTypeValueCalcAG">
-    <xsd:attribute name="repType" type="dfdl:DFDLQName" />
-    <xsd:attribute name="inputTypeCalc" type="dfdl:DFDLExpression" />
-    <xsd:attribute name="outputTypeCalc" type="dfdl:DFDLExpression" />
-    <xsd:attributeGroup ref="dfdl:RepValuesAG" />
-  </xsd:attributeGroup>
-
-  <xsd:attributeGroup name="RepValuesAG">
-    <xsd:attribute name="repValues" type="dfdl:NonEmptyListofDFDLStringLiteralOrNonEmptyListOfInteger" />
-    <xsd:attribute name="repValueRanges" type="dfdl:NonEmptyListOfInteger" />
-  </xsd:attributeGroup>
-  
   <!-- 13.2.1 Escape Scheme -->
   <!-- Note that these can never appear in short form -->
   <xsd:attributeGroup name="EscapeSchemeAG">
@@ -481,8 +473,8 @@
     <xsd:attribute name="choiceLengthKind" type="dfdl:ChoiceLengthKindEnum" />
     <xsd:attribute name="choiceLength" type="dfdl:DFDLNonNegativeInteger" />
     <xsd:attribute name="choiceDispatchKey" type="dfdl:DFDLExpression" />
-    <xsd:attribute name="choiceBranchKeyKind" type="dfdl:ChoiceKeyKindType"/>
-    <xsd:attribute name="choiceDispatchKeyKind" type="dfdl:ChoiceKeyKindType"/>
+    <xsd:attribute ref="dfdlx:choiceBranchKeyKind" />
+    <xsd:attribute ref="dfdlx:choiceDispatchKeyKind" />
   </xsd:attributeGroup>
 
   <!--16 Arrays and Optional Elements: Properties for Repeating and Variable-Occurrence 
@@ -656,8 +648,6 @@
       <xsd:enumeration value="choiceLength" />
       <xsd:enumeration value="choiceDispatchKey" />
       <xsd:enumeration value="choiceBranchKey" />
-      <xsd:enumeration value="choiceBranchKeyKind" />
-      <xsd:enumeration value="choiceDispatchKeyKind" />
 
       <xsd:enumeration value="occursCountKind" />
       <xsd:enumeration value="occursCount" />
@@ -666,12 +656,6 @@
       <xsd:enumeration value="truncateSpecifiedLengthString" />
 
       <xsd:enumeration value="decimalSigned" />
-      
-      <xsd:enumeration value="repType"/>
-      <xsd:enumeration value="repValues"/>
-      <xsd:enumeration value="repValueRanges"/>
-      <xsd:enumeration value="inputTypeCalc"/>
-      <xsd:enumeration value="outputTypeCalc"/>
     </xsd:restriction>
   </xsd:simpleType>
 
@@ -770,18 +754,6 @@
       type="dfdl:DFDLNonNegativeInteger" />
     <xsd:attribute form="qualified" name="escapeSchemeRef"
       type="dfdl:DFDLQName" />
-  </xsd:attributeGroup>
-
-  <xsd:attributeGroup name="SimpleTypeValueCalcAGQualified">
-    <xsd:attribute form="qualified" name="repType" type="dfdl:DFDLQName" />
-    <xsd:attribute form="qualified" name="inputTypeCalc" type="dfdl:DFDLExpression" />
-    <xsd:attribute form="qualified" name="outputTypeCalc" type="dfdl:DFDLExpression" />
-    <xsd:attributeGroup ref="dfdl:RepValuesAGQualified" />
-  </xsd:attributeGroup>
-
-  <xsd:attributeGroup name="RepValuesAGQualified">
-    <xsd:attribute form="qualified" name="repValues" type="dfdl:NonEmptyListofDFDLStringLiteralOrNonEmptyListOfInteger" />
-    <xsd:attribute form="qualified" name="repValueRanges" type="dfdl:NonEmptyListOfInteger" />
   </xsd:attributeGroup>
 
   <!-- 13.2.1 Escape Scheme -->
@@ -1023,10 +995,8 @@
       type="dfdl:DFDLNonNegativeInteger" />
     <xsd:attribute form="qualified" name="choiceDispatchKey"
       type="dfdl:DFDLExpression" />
-    <xsd:attribute form="qualified" name="choiceBranchKeyKind"
-      type="dfdl:ChoiceKeyKindType"/>
-    <xsd:attribute form="qualified" name="choiceDispatchKeyKind" 
-      type="dfdl:ChoiceKeyKindType"/>
+    <xsd:attribute ref="dfdlx:choiceBranchKeyKind" />
+    <xsd:attribute ref="dfdlx:choiceDispatchKeyKind" />
   </xsd:attributeGroup>
 
   <!--16 Arrays and Optional Elements: Properties for Repeating and Variable-Occurrence 
@@ -1070,7 +1040,8 @@
   <xsd:attributeGroup name="GroupAGQualified">
     <xsd:attributeGroup ref="dfdl:GroupCommonAGQualified" />
     <xsd:attributeGroup ref="dfdl:SequenceAGQualified" />
-    <xsd:attributeGroup ref="dfdl:LayeringAGQualified" />
+    <xsd:attributeGroup ref="dfdl:LayeringAGQualified" /> <!-- backwards compatibility -->
+    <xsd:attributeGroup ref="dfdlx:ExtLayeringAGQualified" />
     <xsd:attributeGroup ref="dfdl:ChoiceAGQualified" />
     <xsd:attributeGroup ref="dfdl:SeparatorAGQualified" />
   </xsd:attributeGroup>
@@ -1092,7 +1063,7 @@
     <xsd:attributeGroup ref="dfdl:CalendarFormatAGQualified" />
     <xsd:attributeGroup ref="dfdl:BooleanTextAGQualified" />
     <xsd:attributeGroup ref="dfdl:BooleanBinaryAGQualified" />
-    <xsd:attributeGroup ref="dfdl:SimpleTypeValueCalcAGQualified" />
+    <xsd:attributeGroup ref="dfdlx:SimpleTypeValueCalcAGQualified" />
   </xsd:attributeGroup>
 
   <xsd:attributeGroup name="LayeringAGQualified">

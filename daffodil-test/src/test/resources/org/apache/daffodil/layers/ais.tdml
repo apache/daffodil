@@ -17,6 +17,7 @@
 -->
 <tdml:testSuite xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
   xmlns:ex="http://example.com" xmlns:tns="http://example.com" defaultRoundTrip="true">
 
 <!-- 
@@ -51,7 +52,7 @@ Example Multifragment sentence:
       <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
     </dfdl:defineFormat>
     <dfdl:defineFormat name="aisEncoding">
-      <dfdl:format ref="ex:GeneralFormat" layerTransform="aisPayloadArmor" layerLengthUnits="bytes" />
+      <dfdl:format ref="ex:GeneralFormat" dfdlx:layerTransform="aisPayloadArmor" dfdlx:layerLengthUnits="bytes" />
     </dfdl:defineFormat>
     <dfdl:defineFormat name="aisBinary">
       <dfdl:format ref="ex:GeneralFormat" lengthKind="explicit" lengthUnits="bits" alignment="1" alignmentUnits="bits"

@@ -22,31 +22,18 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
   xmlns:dafint="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:int"
+  xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
   attributeFormDefault="unqualified"
   elementFormDefault="qualified"
   xsi:schemaLocation="http://www.w3.org/2001/XMLSchema XMLSchema.xsd
+  http://www.ogf.org/dfdl/dfdl-1.0/extensions xsd/dfdlx.xsd
   urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:int xsd/dafint.xsd">
-
+  
+  <xs:import namespace="http://www.ogf.org/dfdl/dfdl-1.0/extensions"/>
   <xs:import namespace="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:int"/>
 
-  <xs:attribute name="parseUnparsePolicy" type="daf:ParseUnparsePolicyEnum"/>
-
-  <xs:simpleType name="ParseUnparsePolicyEnum">
-    <xs:restriction base="xs:string">
-      <xs:enumeration value="both" />
-      <xs:enumeration value="parseOnly" />
-      <xs:enumeration value="unparseOnly" />
-    </xs:restriction>
-  </xs:simpleType>
-  
-  <xs:attribute name="emptyElementParsePolicy" type="daf:EmptyElementParsePolicyEnum"/>
-  
-  <xs:simpleType name="EmptyElementParsePolicyEnum">
-    <xs:restriction base="xs:string">
-      <xs:enumeration value="treatAsEmpty" />
-      <xs:enumeration value="treatAsMissing" />
-    </xs:restriction>
-  </xs:simpleType>
+  <!-- needed for backwards compatability with daf:parseUnparsePolicy -->
+  <xs:attribute name="parseUnparsePolicy" type="dfdlx:ParseUnparsePolicyEnum"/>
 
   <xs:element name="property" type="daf:PropertyType" />
 
@@ -61,10 +48,10 @@
 
   <xs:simpleType name="PropertyNameType">
     <xs:restriction base="xs:string">
-      <xs:enumeration value="emptyElementParsePolicy"/>
       <xs:enumeration value="parseUnparsePolicy"/>
     </xs:restriction>
   </xs:simpleType>
+
 
   <!-- properties related to daffodil configuration -->
 
@@ -379,7 +366,7 @@
   </xs:element>
 
   <xs:simpleType name="TunableEmptyElementParsePolicy">
-    <xs:restriction base="daf:EmptyElementParsePolicyEnum" />
+    <xs:restriction base="dfdlx:EmptyElementParsePolicyEnum" />
   </xs:simpleType>
 
   <!--
@@ -391,7 +378,7 @@
   <xs:simpleType name="TunableParseUnparsePolicyTunable">
     <xs:union>
       <xs:simpleType>
-        <xs:restriction base="daf:ParseUnparsePolicyEnum" />
+        <xs:restriction base="dfdlx:ParseUnparsePolicyEnum" />
       </xs:simpleType>
       <xs:simpleType>
         <xs:restriction base="xs:string">
@@ -422,6 +409,9 @@
           <xs:enumeration value="deprecatedEncodingNameUSASCII7BitPacked" />
           <xs:enumeration value="deprecatedExpressionResultCoercion" />
           <xs:enumeration value="deprecatedFunctionDAFError" />
+          <xs:enumeration value="deprecatedPropertyDAFError" />
+          <xs:enumeration value="deprecatedPropertyDFDLXError" />
+          <xs:enumeration value="deprecatedPropertyDFDLError" />
           <xs:enumeration value="deprecatedPropertySeparatorPolicy" />
           <xs:enumeration value="emptyElementParsePolicyError" />
           <xs:enumeration value="encodingErrorPolicyError" />

@@ -716,7 +716,7 @@
     <tdml:document>-1009</tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Value 'ref' is not facet-valid with respect to</tdml:error>
+      <tdml:error>'ref' is not a valid value</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

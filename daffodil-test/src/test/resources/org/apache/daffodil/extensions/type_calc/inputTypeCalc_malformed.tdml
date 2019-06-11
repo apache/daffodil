@@ -42,12 +42,12 @@
       <xs:restriction base="xs:unsignedInt"/>
     </xs:simpleType>
 
-    <xs:simpleType name="keysetValue_01" dfdl:repType="tns:keysetValue_01_repType">
+    <xs:simpleType name="keysetValue_01" dfdlx:repType="tns:keysetValue_01_repType">
       <xs:restriction base="xs:string">
-        <xs:enumeration value="zero" dfdl:repValues="0" />
-        <xs:enumeration value="one" dfdl:repValues="1" />
-        <xs:enumeration value="2-100" dfdl:repValueRanges="2 100" />
-        <xs:enumeration value="101 103-110 115 120-125" dfdl:repValues="101 115" dfdl:repValueRanges="103 110 120 125"/>
+        <xs:enumeration value="zero" dfdlx:repValues="0" />
+        <xs:enumeration value="one" dfdlx:repValues="1" />
+        <xs:enumeration value="2-100" dfdlx:repValueRanges="2 100" />
+        <xs:enumeration value="101 103-110 115 120-125" dfdlx:repValues="101 115" dfdlx:repValueRanges="103 110 120 125"/>
       </xs:restriction>
     </xs:simpleType>
 

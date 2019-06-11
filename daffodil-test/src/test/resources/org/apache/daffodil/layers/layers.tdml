@@ -18,6 +18,8 @@
 
 <tdml:testSuite xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
+  xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
   xmlns:ex="http://example.com" xmlns:tns="http://example.com" defaultRoundTrip="true">
 
   <tdml:defineSchema name="s1" elementFormDefault="unqualified">
@@ -26,7 +28,7 @@
       <dfdl:format ref="ex:GeneralFormat" />
     </dfdl:defineFormat>
     <dfdl:defineFormat name="compressed">
-      <dfdl:format ref="ex:general" layerTransform="gzip" layerLengthKind="explicit" layerLengthUnits="bytes" />
+      <dfdl:format ref="ex:general" dfdlx:layerTransform="gzip" dfdlx:layerLengthKind="explicit" dfdlx:layerLengthUnits="bytes" />
     </dfdl:defineFormat>
     <dfdl:format ref="ex:general" />
 
@@ -44,7 +46,7 @@
 
           <xs:element name="compressedPayload">
             <xs:complexType>
-              <xs:sequence dfdl:ref="tns:compressed" dfdl:layerLength="{ ../compressedPayloadLength }">
+              <xs:sequence dfdl:ref="tns:compressed" dfdlx:layerLength="{ ../compressedPayloadLength }">
                 <xs:group ref="tns:compressedGroupContents" />
               </xs:sequence>
             </xs:complexType>
@@ -97,12 +99,12 @@
       <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" outputNewLine="%CR;%LF;" />
     </dfdl:defineFormat>
     <dfdl:defineFormat name="base64">
-      <dfdl:format ref="ex:general" layerTransform="base64_MIME" layerLengthKind="boundaryMark" layerLengthUnits="bytes"
-        layerEncoding="iso-8859-1" />
+      <dfdl:format ref="ex:general" dfdlx:layerTransform="base64_MIME" dfdlx:layerLengthKind="boundaryMark" dfdlx:layerLengthUnits="bytes"
+        dfdlx:layerEncoding="iso-8859-1" />
     </dfdl:defineFormat>
     <dfdl:defineFormat name="folded">
-      <dfdl:format ref="ex:general" layerTransform="lineFolded_IMF" layerLengthKind="implicit" layerLengthUnits="bytes"
-        layerEncoding="iso-8859-1" />
+      <dfdl:format ref="ex:general" dfdlx:layerTransform="lineFolded_IMF" dfdlx:layerLengthKind="implicit" dfdlx:layerLengthUnits="bytes"
+        dfdlx:layerEncoding="iso-8859-1" />
     </dfdl:defineFormat>
     <dfdl:format ref="ex:general" />
 
@@ -124,7 +126,7 @@
                       <xs:choice dfdl:choiceDispatchKey="{ ../contentTransferEncoding }">
                         <xs:sequence dfdl:choiceBranchKey="base64">
                           <xs:sequence dfdl:ref="tns:base64"
-                            dfdl:layerBoundaryMark="{ 
+                            dfdlx:layerBoundaryMark="{ 
                               fn:concat(dfdl:decodeDFDLEntities('%CR;%LF;'),'--', ../../marker, '--')
                              }">
                             <xs:element name="value" type="xs:string" />
@@ -177,12 +179,12 @@
       <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" outputNewLine="%CR;%LF;" />
     </dfdl:defineFormat>
     <dfdl:defineFormat name="base64">
-      <dfdl:format ref="ex:general" layerTransform="base64_MIME" layerLengthKind="boundaryMark" layerLengthUnits="bytes"
-        layerEncoding="iso-8859-1" />
+      <dfdl:format ref="ex:general" dfdlx:layerTransform="base64_MIME" dfdlx:layerLengthKind="boundaryMark" dfdlx:layerLengthUnits="bytes"
+        dfdlx:layerEncoding="iso-8859-1" />
     </dfdl:defineFormat>
     <dfdl:defineFormat name="folded">
-      <dfdl:format ref="ex:general" layerTransform="lineFolded_IMF" layerLengthKind="implicit" layerLengthUnits="bytes"
-        layerEncoding="iso-8859-1" />
+      <dfdl:format ref="ex:general" dfdlx:layerTransform="lineFolded_IMF" dfdlx:layerLengthKind="implicit" dfdlx:layerLengthUnits="bytes"
+        dfdlx:layerEncoding="iso-8859-1" />
     </dfdl:defineFormat>
     <dfdl:format ref="ex:general" />
 
@@ -213,8 +215,8 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
-  
-  <tdml:defineSchema name="err1" elementFormDefault="unqualified">
+
+  <tdml:defineSchema name="s3_deprecated" elementFormDefault="unqualified">
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:defineFormat name="general">
       <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" outputNewLine="%CR;%LF;" />
@@ -222,6 +224,51 @@
     <dfdl:defineFormat name="folded">
       <dfdl:format ref="ex:general" layerTransform="lineFolded_IMF" layerLengthKind="implicit" layerLengthUnits="bytes"
         layerEncoding="iso-8859-1" />
+    </dfdl:defineFormat>
+    <dfdl:format ref="ex:general" />
+
+
+    <xs:element name="root" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:ref="folded" xmlns:foo="urn:Foo" foo:bar="shouldBeIgnored">
+          <xs:sequence>
+            <xs:element name="marker" dfdl:initiator="boundary=" type="xs:string" dfdl:terminator="%CR;%LF;" />
+            <xs:element name="nothing" type="xs:string" dfdl:initiator="xxx" />
+          </xs:sequence>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="layers3_deprecated" root="root" model="s3_deprecated" roundTrip="true">
+    <tdml:document>
+      <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[boundary=frontier%CR;%LF;xxx]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:warnings>
+      <tdml:warning>layerTransform is deprecated</tdml:warning>
+      <tdml:warning>layerLengthUnits is deprecated</tdml:warning>
+      <tdml:warning>layerEncoding is deprecated</tdml:warning>
+      <tdml:warning>layerLengthKind is deprecated</tdml:warning>
+    </tdml:warnings>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root>
+          <marker>frontier</marker>
+          <nothing />
+        </ex:root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:defineSchema name="err1" elementFormDefault="unqualified">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:defineFormat name="general">
+      <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" outputNewLine="%CR;%LF;" />
+    </dfdl:defineFormat>
+    <dfdl:defineFormat name="folded">
+      <dfdl:format ref="ex:general" dfdlx:layerTransform="lineFolded_IMF" dfdlx:layerLengthKind="implicit" dfdlx:layerLengthUnits="bytes"
+        dfdlx:layerEncoding="iso-8859-1" />
     </dfdl:defineFormat>
     <dfdl:format ref="ex:general" />
 
@@ -250,16 +297,16 @@
   <tdml:defineSchema name="s4" elementFormDefault="unqualified">
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:defineFormat name="general">
-      <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" outputNewLine="%CR;%LF;" layerEncoding="iso-8859-1"
-        layerLengthUnits='bytes' />
+      <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" outputNewLine="%CR;%LF;" dfdlx:layerEncoding="iso-8859-1"
+        dfdlx:layerLengthUnits='bytes' />
     </dfdl:defineFormat>
 
     <dfdl:defineFormat name="base64">
-      <dfdl:format ref="ex:general" layerTransform="base64_MIME" layerLengthKind="boundaryMark" />
+      <dfdl:format ref="ex:general" dfdlx:layerTransform="base64_MIME" dfdlx:layerLengthKind="boundaryMark" />
     </dfdl:defineFormat>
 
     <dfdl:defineFormat name="gzip">
-      <dfdl:format ref="ex:general" layerTransform="gzip" layerLengthKind="explicit" />
+      <dfdl:format ref="ex:general" dfdlx:layerTransform="gzip" dfdlx:layerLengthKind="explicit" />
     </dfdl:defineFormat>
 
     <dfdl:format ref="ex:general" />
@@ -272,7 +319,7 @@
       <!--
            first we have the base64 details
        -->
-      <xs:sequence dfdl:ref="ex:base64" dfdl:layerBoundaryMark="--END--">
+      <xs:sequence dfdl:ref="ex:base64" dfdlx:layerBoundaryMark="--END--">
         <xs:sequence>
           <!--
               now the gzip details, including the 4-byte gzLength element that stores how long
@@ -290,7 +337,7 @@
               <!--
                  now the gzipped layered sequence itself
                -->
-              <xs:sequence dfdl:ref="ex:gzip" dfdl:layerLength="{ ../gzLength }">
+              <xs:sequence dfdl:ref="ex:gzip" dfdlx:layerLength="{ ../gzLength }">
                 <!--
                   finally, inside that, we have the original fileTypeGroup group reference.
                   -->

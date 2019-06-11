@@ -17,12 +17,13 @@
 -->
 
 <schema xmlns="http://www.w3.org/2001/XMLSchema"
-  targetNamespace="http://example.com" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  targetNamespace="http://example.com"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
   xmlns:fn="http://www.w3.org/2005/xpath-functions"
-  xmlns:tns="http://example.com"
-  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext">
+  xmlns:tns="http://example.com">
 
 <include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
@@ -44,7 +45,7 @@
         calendarLanguage='en' 
         escapeSchemeRef=''
         encodingErrorPolicy="error"
-        daf:parseUnparsePolicy="parseOnly" />
+        dfdlx:parseUnparsePolicy="parseOnly" />
     </appinfo>
   </annotation>
 

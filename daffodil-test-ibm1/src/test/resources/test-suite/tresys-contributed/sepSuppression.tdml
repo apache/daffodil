@@ -221,7 +221,7 @@ a,,,d,,,g
           <record>
             <required1>a</required1>
             <!-- 
-              On Daffodil, because we are using daf:emptyElementParsePolicy='treatAsMissing'
+              On Daffodil, because we are using dfdlx:emptyElementParsePolicy='treatAsMissing'
               This test should not create any empty-string-valued elements.
               That should be consistent with IBM DFDL behavior (as of 2019-05-04 version).              
             <positional2/>
@@ -262,7 +262,7 @@ a,,,d,,,g,
         <ptg1>
           <record>
             <required1>a</required1>
-            <!-- daf:emptyElementParsePolicy='treatAsMissing'
+            <!-- dfdlx:emptyElementParsePolicy='treatAsMissing'
               <positional2/>
               <positional3/>
             -->
@@ -272,7 +272,7 @@ a,,,d,,,g,
           </record>
           <record>
             <required1>a</required1>
-            <!-- daf:emptyElementParsePolicy='treatAsMissing'
+            <!-- dfdlx:emptyElementParsePolicy='treatAsMissing'
               <positional2/>
               <positional3/>
             -->
@@ -301,7 +301,7 @@ a,,,d
             <!-- 
               Because these are optional, and their dfdl:emptyValueDelimiterPolicy is 'none'
               an empty representation does not create an element.
-              This is true for daf:emptyElementParsePolicy="treatAsEmpty".
+              This is true for dfdlx:emptyElementParsePolicy="treatAsEmpty".
               If you want empty elements, there has to be a non-zero-length 
               syntax in the data stream
               <positional2/>
@@ -698,7 +698,7 @@ a,,,,
         <ptg3>
           <record>
             <required1>a</required1>
-            <!-- empty string has no syntax, so even when daf:emptyElementParsePolicy is 'treatAsEmpty'
+            <!-- empty string has no syntax, so even when dfdlx:emptyElementParsePolicy is 'treatAsEmpty'
                  we still don't create optional empty string elements.
             <positional2/>
             <positional3/>

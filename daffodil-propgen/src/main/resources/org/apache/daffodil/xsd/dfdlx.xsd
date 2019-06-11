@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<xs:schema
+  targetNamespace="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
+  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
+  xmlns:dafint="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:int"
+  attributeFormDefault="unqualified"
+  elementFormDefault="qualified">
+
+  <xs:import namespace="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:int" schemaLocation="xsd/dafint.xsd" />
+  <xs:import namespace="http://www.ogf.org/dfdl/dfdl-1.0/" schemaLocation="xsd/DFDL_part3_model.xsd" />
+
+  <!-- dfdl:property="..." extension values. Extension properties must start with dfdlx: -->
+
+  <xs:simpleType name="PropertyNameType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="dfdlx:choiceBranchKeyKind" />
+      <xs:enumeration value="dfdlx:choiceDispatchKeyKind" />
+      <xs:enumeration value="dfdlx:emptyElementParsePolicy"/>
+      <xs:enumeration value="dfdlx:inputTypeCalc"/>
+      <xs:enumeration value="dfdlx:outputTypeCalc"/>
+      <xs:enumeration value="dfdlx:parseUnparsePolicy"/>
+      <xs:enumeration value="dfdlx:repType"/>
+      <xs:enumeration value="dfdlx:repValueRanges"/>
+      <xs:enumeration value="dfdlx:repValues"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:attribute name="parseUnparsePolicy" type="dfdlx:ParseUnparsePolicyEnum"/>
+  <xs:simpleType name="ParseUnparsePolicyEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="both" />
+      <xs:enumeration value="parseOnly" />
+      <xs:enumeration value="unparseOnly" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:attribute name="emptyElementParsePolicy" type="dfdlx:EmptyElementParsePolicyEnum"/>
+  <xs:simpleType name="EmptyElementParsePolicyEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="treatAsEmpty" />
+      <xs:enumeration value="treatAsMissing" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:attribute name="choiceBranchKeyKind" type="dfdlx:ChoiceKeyKindType"/>
+  <xs:attribute name="choiceDispatchKeyKind"  type="dfdlx:ChoiceKeyKindType"/>
+  <xs:simpleType name="ChoiceKeyKindType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="byType"/>
+      <xs:enumeration value="explicit"/>
+      <xs:enumeration value="speculative"/>
+      <xs:enumeration value="implicit"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:attributeGroup name="SimpleTypeValueCalcAG">
+    <xs:attribute form="qualified" name="repType" type="dfdl:DFDLQName" />
+    <xs:attribute form="qualified" name="inputTypeCalc" type="dfdl:DFDLExpression" />
+    <xs:attribute form="qualified" name="outputTypeCalc" type="dfdl:DFDLExpression" />
+    <xs:attributeGroup ref="dfdlx:RepValuesAG" />
+  </xs:attributeGroup>
+
+  <xs:attributeGroup name="RepValuesAG">
+    <xs:attribute form="qualified" name="repValues" type="dfdl:NonEmptyListofDFDLStringLiteralOrNonEmptyListOfInteger" />
+    <xs:attribute form="qualified" name="repValueRanges" type="dfdl:NonEmptyListOfInteger" />
+  </xs:attributeGroup>
+
+  <xs:attributeGroup name="SimpleTypeValueCalcAGQualified">
+    <xs:attribute form="qualified" name="repType" type="dfdl:DFDLQName" />
+    <xs:attribute form="qualified" name="inputTypeCalc" type="dfdl:DFDLExpression" />
+    <xs:attribute form="qualified" name="outputTypeCalc" type="dfdl:DFDLExpression" />
+    <xs:attributeGroup ref="dfdlx:RepValuesAGQualified" />
+  </xs:attributeGroup>
+
+  <xs:attributeGroup name="RepValuesAGQualified">
+    <xs:attribute form="qualified" name="repValues" type="dfdl:NonEmptyListofDFDLStringLiteralOrNonEmptyListOfInteger" />
+    <xs:attribute form="qualified" name="repValueRanges" type="dfdl:NonEmptyListOfInteger" />
+  </xs:attributeGroup>
+
+  <xs:attributeGroup name="ExtLayeringAG">
+    <xs:attribute form="qualified" name="layerTransform" type="dfdl:LayerTransformType_Or_DFDLExpression" />
+    <xs:attribute form="qualified" name="layerEncoding" type="dfdl:EncodingEnum_Or_DFDLExpression" />
+    <xs:attribute form="qualified" name="layerLengthKind" type="dfdl:LayerLengthKindEnum" />
+    <xs:attribute form="qualified" name="layerLength" type="dfdl:DFDLNonNegativeInteger_Or_DFDLExpression" />
+    <xs:attribute form="qualified" name="layerLengthUnits" type="dfdl:LayerLengthUnitsEnum" />
+    <xs:attribute form="qualified" name="layerBoundaryMark" type="dfdl:ListOfDFDLStringLiteral_Or_DFDLExpression" />
+  </xs:attributeGroup>
+
+  <xs:attributeGroup name="ExtLayeringAGQualified">
+    <xs:attribute form="qualified" name="layerTransform" type="dfdl:LayerTransformType_Or_DFDLExpression" />
+    <xs:attribute form="qualified" name="layerEncoding" type="dfdl:EncodingEnum_Or_DFDLExpression" />
+    <xs:attribute form="qualified" name="layerLengthKind" type="dfdl:LayerLengthKindEnum" />
+    <xs:attribute form="qualified" name="layerLength" type="dfdl:DFDLNonNegativeInteger_Or_DFDLExpression" />
+    <xs:attribute form="qualified" name="layerLengthUnits" type="dfdl:LayerLengthUnitsEnum" />
+    <xs:attribute form="qualified" name="layerBoundaryMark" type="dfdl:ListOfDFDLStringLiteral_Or_DFDLExpression" />
+  </xs:attributeGroup>
+
+</xs:schema>

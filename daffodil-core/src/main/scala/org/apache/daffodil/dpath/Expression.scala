@@ -1332,6 +1332,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
 
   lazy val functionObject: Expression = {
     val DFDL = XMLUtils.DFDL_NAMESPACE
+    val DFDLX = XMLUtils.DFDLX_NAMESPACE
     val FUNC = XMLUtils.XPATH_FUNCTION_NAMESPACE
     val MATH = XMLUtils.XPATH_MATH_NAMESPACE
     val XSD = XMLUtils.XSD_NAMESPACE
@@ -1339,19 +1340,21 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
     val DAF_APACHE = XMLUtils.EXT_NS_APACHE
     val funcObj = (functionQName, expressions) match {
 
-      case (RefQName(_, "trace", DAF_NCSA), args) =>
-        DAFTraceExpr(functionQNameString, functionQName, args)
-
-      case (RefQName(_, "trace", DAF_APACHE), args) =>
-        DAFTraceExpr(functionQNameString, functionQName, args)
-
-      case (RefQName(_, "error", DAF_NCSA), args) => {
-        SDW(WarnID.DeprecatedFunctionDAFError, "Expression daf:error is deprecated. Use fn:error instead")
-        DAFErrorExpr(functionQNameString, functionQName, args)
+      case (RefQName(_, "trace", DFDLX | DAF_NCSA | DAF_APACHE), args) => {
+        if (functionQName.namespace != DFDLX) {
+          SDW(
+            WarnID.DeprecatedFunctionDAFError,
+            "Expression %s is deprecated. Use dfdlx:trace instead",
+            functionQNameString)
+        }
+        DFDLXTraceExpr(functionQNameString, functionQName, args)
       }
 
-      case (RefQName(_, "error", DAF_APACHE), args) => {
-        SDW(WarnID.DeprecatedFunctionDAFError, "Expression daf:error is deprecated. Use fn:error instead")
+      case (RefQName(_, "error", DFDLX | DAF_NCSA | DAF_APACHE), args) => {
+        SDW(
+          WarnID.DeprecatedFunctionDAFError,
+          "Expression %s is deprecated. Use fn:error instead",
+          functionQNameString)
         DAFErrorExpr(functionQNameString, functionQName, args)
       }
 
@@ -1550,51 +1553,52 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
       //Begin DFDLX functions
 
       //Begin TypeValueCalc related functions
-      case (RefQName(_, "inputTypeCalcInt", DFDL), args) =>
+      case (RefQName(_, "inputTypeCalcInt", DFDLX), args) =>
         FNTwoArgsExprInferedArgType(functionQNameString, functionQName, args,
           NodeInfo.Int, NodeInfo.String, args(1).inherentType, DFDLXInputTypeCalcInt(_))
 
-      case (RefQName(_, "inputTypeCalcString", DFDL), args) =>
+      case (RefQName(_, "inputTypeCalcString", DFDLX), args) => {
         FNTwoArgsExprInferedArgType(functionQNameString, functionQName, args,
           NodeInfo.String, NodeInfo.String, args(1).inherentType, DFDLXInputTypeCalcString(_))
+      }
 
-      case (RefQName(_, "outputTypeCalcInt", DFDL), args) =>
+      case (RefQName(_, "outputTypeCalcInt", DFDLX), args) =>
         FNTwoArgsExprInferedArgType(functionQNameString, functionQName, args,
           NodeInfo.Int, NodeInfo.String, args(1).inherentType, DFDLXOutputTypeCalcInt(_))
 
-      case (RefQName(_, "outputTypeCalcString", DFDL), args) =>
+      case (RefQName(_, "outputTypeCalcString", DFDLX), args) =>
         FNTwoArgsExprInferedArgType(functionQNameString, functionQName, args,
           NodeInfo.String, NodeInfo.String, args(1).inherentType, DFDLXOutputTypeCalcString(_))
 
-      case (RefQName(_, "outputTypeCalcNextSiblingInt", DFDL), args) =>
+      case (RefQName(_, "outputTypeCalcNextSiblingInt", DFDLX), args) =>
         FNZeroArgExpr(functionQNameString, functionQName,
           NodeInfo.Int, NodeInfo.AnyAtomic, DFDLXOutputTypeCalcNextSiblingInt(_, _))
 
-      case (RefQName(_, "outputTypeCalcNextSiblingString", DFDL), args) =>
+      case (RefQName(_, "outputTypeCalcNextSiblingString", DFDLX), args) =>
         FNZeroArgExpr(functionQNameString, functionQName,
           NodeInfo.String, NodeInfo.AnyAtomic, DFDLXOutputTypeCalcNextSiblingString(_, _))
 
-      case (RefQName(_, "repTypeValueInt", DFDL), args) =>
+      case (RefQName(_, "repTypeValueInt", DFDLX), args) =>
         FNZeroArgExpr(functionQNameString, functionQName,
           NodeInfo.Integer, NodeInfo.AnyAtomic, DFDLXRepTypeValueInt(_, _))
 
-      case (RefQName(_, "repTypeValueString", DFDL), args) =>
+      case (RefQName(_, "repTypeValueString", DFDLX), args) =>
         FNZeroArgExpr(functionQNameString, functionQName,
           NodeInfo.String, NodeInfo.AnyAtomic, DFDLXRepTypeValueString(_, _))
 
-      case (RefQName(_, "logicalTypeValueInt", DFDL), args) =>
+      case (RefQName(_, "logicalTypeValueInt", DFDLX), args) =>
         FNZeroArgExpr(functionQNameString, functionQName,
           NodeInfo.Integer, NodeInfo.AnyAtomic, DFDLXLogicalTypeValueInt(_, _))
 
-      case (RefQName(_, "logicalTypeValueString", DFDL), args) =>
+      case (RefQName(_, "logicalTypeValueString", DFDLX), args) =>
         FNZeroArgExpr(functionQNameString, functionQName,
           NodeInfo.String, NodeInfo.AnyAtomic, DFDLXLogicalTypeValueString(_, _))
 
       //End typeValueCalc related functions
 
-      case (RefQName(_, "lookAhead", DAF_APACHE), args) =>
+      case (RefQName(_, "lookAhead", DFDLX), args) =>
         FNTwoArgsExpr(functionQNameString, functionQName, args,
-          NodeInfo.NonNegativeInteger, NodeInfo.UnsignedInt, NodeInfo.UnsignedInt, DAFLookAhead(_))
+          NodeInfo.NonNegativeInteger, NodeInfo.UnsignedInt, NodeInfo.UnsignedInt, DFDLXLookAhead(_))
 
       //End DFDLX functions
 
@@ -2204,7 +2208,7 @@ case class ParenthesizedExpression(expression: Expression)
   override lazy val compiledDPath = expression.compiledDPath // no conversions because we passed on targetType to subexp
 }
 
-case class DAFTraceExpr(nameAsParsed: String, fnQName: RefQName, args: List[Expression])
+case class DFDLXTraceExpr(nameAsParsed: String, fnQName: RefQName, args: List[Expression])
   extends FunctionCallBase(nameAsParsed, fnQName, args) {
 
   requiredEvaluations(realArg)
@@ -2225,7 +2229,7 @@ case class DAFTraceExpr(nameAsParsed: String, fnQName: RefQName, args: List[Expr
   override def targetTypeForSubexpression(subExp: Expression): NodeInfo.Kind = targetType
 
   override lazy val compiledDPath = {
-    new CompiledDPath(DAFTrace(realArg.compiledDPath, msgText) +: conversions)
+    new CompiledDPath(DFDLXTrace(realArg.compiledDPath, msgText) +: conversions)
   }
 }
 

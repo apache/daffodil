@@ -33,12 +33,16 @@ this to validate when we load a DFDL Schema.
   xmlns:sub="http://www.w3.org/2001/XMLSchema"
   xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
   xsi:schemaLocation="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:int dafint.xsd">
   <!-- Use the real URI for this, not the subset URI
    "http://www.w3.org/2001/XMLSchema"
   -->
 
   <xsd:import namespace="http://www.ogf.org/dfdl/dfdl-1.0/" />
+
+  <xsd:import namespace="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
+    schemaLocation="dfdlx.xsd" />
     
   <xsd:import namespace="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:int"
     schemaLocation="dafint.xsd"/>
@@ -1746,7 +1750,7 @@ this to validate when we load a DFDL Schema.
     <xsd:complexType>
       <xsd:complexContent>
         <xsd:extension base="sub:facet">
-          <xsd:attributeGroup ref="dfdl:RepValuesAGQualified" />
+          <xsd:attributeGroup ref="dfdlx:RepValuesAGQualified" />
           <xsd:attributeGroup ref="sub:anyOther" />
         </xsd:extension>
       </xsd:complexContent>

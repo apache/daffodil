@@ -20,7 +20,8 @@
   description="Section 12 - lengthKind=delimited" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
-  xmlns:ex="http://example.com" xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext">
+  xmlns:ex="http://example.com" xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
+  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext">
 
   <tdml:defineSchema name="PropertySyntax">
 
@@ -116,13 +117,25 @@
       <xs:annotation>
         <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:element>
+             <dfdl:property name="dfdlx:parseUnparsePolicy">unparseOnly</dfdl:property>
+           </dfdl:element>
+        </xs:appinfo>
+      </xs:annotation>
+    </xs:element>
+
+    <xs:element name="root5_deprecated" type="xs:int">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
+          <dfdl:element>
              <daf:property name="parseUnparsePolicy">unparseOnly</daf:property>
            </dfdl:element>
         </xs:appinfo>
       </xs:annotation>
     </xs:element>
 
-    <xs:element name="root6" type="xs:int" daf:parseUnparsePolicy="unparseOnly" />
+    <xs:element name="root6" type="xs:int" dfdlx:parseUnparsePolicy="unparseOnly" />
+
+    <xs:element name="root6_deprecated" type="xs:int" daf:parseUnparsePolicy="unparseOnly" />
 
 </tdml:defineSchema>
     
@@ -169,27 +182,60 @@
 
   </tdml:parserTestCase>
 
-  <!-- This tests that parseUnparsePolicy works via daf:property option.
+  <!-- This tests that parseUnparsePolicy works via dfdl:property option.
        This is a parserTestCase, but the shcema is built only for unparsing -->
-  <tdml:parserTestCase name="dafProperty1" root="root5"
-    model="PropertySyntax" description="daf:property setting of parseUnparsePolicy"
+  <tdml:parserTestCase name="dfdlxProperty1" root="root5"
+    model="PropertySyntax" description="dfdl:property setting of parseUnparsePolicy"
     roundTrip="true">
     <tdml:document><![CDATA[1]]></tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>daf:parseUnparsePolicy</tdml:error>
+      <tdml:error>dfdlx:parseUnparsePolicy</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
-  <!-- This tests that parseUnparsePolicy works via daf:property option.
+  <!-- This tests that parseUnparsePolicy works via the deprecatd daf:property option.
        This is a parserTestCase, but the shcema is built only for unparsing -->
-  <tdml:parserTestCase name="dafProperty2" root="root6"
-    model="PropertySyntax" description="daf:parseUnparsePolicy setting"
+  <tdml:parserTestCase name="dafProperty1" root="root5_deprecated"
+    model="PropertySyntax" description="dfdl:property setting of parseUnparsePolicy"
+    roundTrip="true">
+    <tdml:document><![CDATA[1]]></tdml:document>
+    <tdml:warnings>
+      <tdml:warning>daf:parseUnparsePolicy</tdml:warning>
+      <tdml:warning>deprecated</tdml:warning>
+      <tdml:warning>dfdlx:parseUnparsePolicy</tdml:warning>
+    </tdml:warnings>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>dfdlx:parseUnparsePolicy</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!-- This tests that parseUnparsePolicy works via dfdlx:parseUnpaasePolicy option.
+       This is a parserTestCase, but the shcema is built only for unparsing -->
+  <tdml:parserTestCase name="dfdlxProperty2" root="root6"
+    model="PropertySyntax" description="dfdlx:parseUnparsePolicy setting"
     roundTrip="true">
     <tdml:document><![CDATA[118]]></tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>daf:parseUnparsePolicy</tdml:error>
+      <tdml:error>dfdlx:parseUnparsePolicy</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!-- This tests that parseUnparsePolicy works via the deprecated daf:parseUnparsePolicy option.
+       This is a parserTestCase, but the shcema is built only for unparsing -->
+  <tdml:parserTestCase name="dafProperty2" root="root6_deprecated"
+    model="PropertySyntax" description="daf:parseUnparsePolicy setting"
+    roundTrip="true">
+    <tdml:document><![CDATA[118]]></tdml:document>
+    <tdml:warnings>
+      <tdml:warning>deprecated</tdml:warning>
+      <tdml:warning>dfdlx:parseUnparsePolicy</tdml:warning>
+    </tdml:warnings>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>dfdlx:parseUnparsePolicy</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   

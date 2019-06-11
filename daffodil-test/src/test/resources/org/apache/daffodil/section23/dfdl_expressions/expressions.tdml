@@ -18,8 +18,11 @@
 
 <tdml:testSuite suiteName="expressions"
   description="lengthKind explicit and occursCountKind expression"
-  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
   xmlns:ex="http://example.com" 
   xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"  
   xmlns:fn="http://www.w3.org/2005/xpath-functions"
@@ -3294,7 +3297,7 @@
      <xs:complexType>
      <xs:sequence>
      <xs:element name="x" type="xs:int" dfdl:inputValueCalc="{ 0 }"/>
-     <xs:element name="f" type="xs:int" dfdl:inputValueCalc="{ if (xs:boolean(daf:trace((if (xs:int(../ex:x) eq 0) then fn:true() else fn:false()), 'predicate'))) then 2 else 3 }"/>
+     <xs:element name="f" type="xs:int" dfdl:inputValueCalc="{ if (xs:boolean(dfdlx:trace((if (xs:int(../ex:x) eq 0) then fn:true() else fn:false()), 'predicate'))) then 2 else 3 }"/>
      </xs:sequence>
      </xs:complexType>
      </xs:element>

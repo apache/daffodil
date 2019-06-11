@@ -19,9 +19,8 @@
 <tdml:testSuite xmlns:ex="http://example.com" xmlns="http://example.com"
   xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  xmlns:fn="http://www.w3.org/2005/xpath-functions"
-  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
-  >
+  xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
+  xmlns:fn="http://www.w3.org/2005/xpath-functions">
 
   <tdml:defineSchema name="inputTypeCalc-Embedded.dfdl.xsd">
 
@@ -35,65 +34,66 @@
     <xs:restriction base="xs:unsignedInt"/>
   </xs:simpleType>
 
-  <xs:simpleType name="AbstractIntTo1" dfdl:repType="xs:int" dfdl:inputTypeCalc="{ 1 }">
+  <xs:simpleType name="AbstractIntTo1" dfdlx:repType="xs:int" dfdlx:inputTypeCalc="{ 1 }">
     <xs:restriction base="xs:int"/>
   </xs:simpleType>
 
-  <xs:simpleType name="AbstractIntToXYZ" dfdl:repType="xs:int" dfdl:inputTypeCalc="{ 'xyz' }">
+  <xs:simpleType name="AbstractIntToXYZ" dfdlx:repType="xs:int" dfdlx:inputTypeCalc="{ 'xyz' }">
     <xs:restriction base="xs:string"/>
   </xs:simpleType>
 
-  <xs:simpleType name="Abstract1FromInt" dfdl:repType="xs:int" dfdl:outputTypeCalc="{ 1 }">
+  <xs:simpleType name="Abstract1FromInt" dfdlx:repType="xs:int" dfdlx:outputTypeCalc="{ 1 }">
     <xs:restriction base="xs:int"/>
   </xs:simpleType>
 
-  <xs:simpleType name="AbstractXYZFromInt" dfdl:repType="xs:string" dfdl:outputTypeCalc="{ 'xyz' }">
+  <xs:simpleType name="AbstractXYZFromInt" dfdlx:repType="xs:string" dfdlx:outputTypeCalc="{ 'xyz' }">
     <xs:restriction base="xs:int"/>
   </xs:simpleType>
 
-  <xs:simpleType name="AbstractIntToMulitiply2" dfdl:repType="xs:int" dfdl:inputTypeCalc="{ dfdl:repTypeValueInt() * 2 }">
+  <xs:simpleType name="AbstractIntToMulitiply2" dfdlx:repType="xs:int" dfdlx:inputTypeCalc="{ dfdlx:repTypeValueInt() * 2 }">
     <xs:restriction base="xs:int"/>
   </xs:simpleType>
 
-  <xs:simpleType name="AbstractStringToPrefixedString" dfdl:repType="xs:string" dfdl:inputTypeCalc="{ fn:concat('x',dfdl:repTypeValueString()) }">
+  <xs:simpleType name="AbstractStringToPrefixedString" dfdlx:repType="xs:string" dfdlx:inputTypeCalc="{ fn:concat('x',dfdlx:repTypeValueString()) }">
     <xs:restriction base="xs:string"/>
   </xs:simpleType>
 
-  <xs:simpleType name="AbstractMulitiply2FromInt" dfdl:repType="xs:int" dfdl:outputTypeCalc="{ dfdl:logicalTypeValueInt() * 2 }">
+  <xs:simpleType name="AbstractMulitiply2FromInt" dfdlx:repType="xs:int" dfdlx:outputTypeCalc="{ dfdlx:logicalTypeValueInt() * 2 }">
     <xs:restriction base="xs:int"/>
   </xs:simpleType>
 
-  <xs:simpleType name="AbstractPrefixedStringFromInt" dfdl:repType="xs:string" dfdl:outputTypeCalc="{ fn:concat('x',xs:string(dfdl:logicalTypeValueInt())) }">
+  <xs:simpleType name="AbstractPrefixedStringFromInt" dfdlx:repType="xs:string" dfdlx:outputTypeCalc="{ fn:concat('x',xs:string(dfdlx:logicalTypeValueInt())) }">
     <xs:restriction base="xs:int"/>
   </xs:simpleType>
 
-  <xs:simpleType name="AbstractIntToStringByKeyset" dfdl:repType="xs:int">
+  <xs:simpleType name="AbstractIntToStringByKeyset" dfdlx:repType="xs:int">
     <xs:restriction base="xs:string">
-      <xs:enumeration value="one" dfdl:repValues="1"/>
-      <xs:enumeration value="zero" dfdl:repValues="0"/>
+      <xs:enumeration value="one" dfdlx:repValues="1"/>
+      <xs:enumeration value="zero" dfdlx:repValues="0"/>
     </xs:restriction>
   </xs:simpleType>
 
-  <xs:element name="inputTypeCalcInt_01" type="xs:int" dfdl:inputValueCalc="{ dfdl:inputTypeCalcInt('tns:AbstractIntTo1', 7) }" />
-  <xs:element name="inputTypeCalcString_01" type="xs:string" dfdl:inputValueCalc="{ dfdl:inputTypeCalcString('tns:AbstractIntToXYZ', 7) }" />
+  <xs:element name="inputTypeCalcInt_01" type="xs:int" dfdl:inputValueCalc="{ dfdlx:inputTypeCalcInt('tns:AbstractIntTo1', 7) }" />
+  <xs:element name="inputTypeCalcString_01" type="xs:string" dfdl:inputValueCalc="{ dfdlx:inputTypeCalcString('tns:AbstractIntToXYZ', 7) }" />
+
   <xs:element name="outputTypeCalcInt_01">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="inner" type="tns:uint8" dfdl:outputValueCalc="{ dfdl:outputTypeCalcInt('tns:Abstract1FromInt', 7) }" />
+        <xs:element name="inner" type="tns:uint8" dfdl:outputValueCalc="{ dfdlx:outputTypeCalcInt('tns:Abstract1FromInt', 7) }" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-  <xs:element name="outputTypeCalcString_01" type="xs:string" dfdl:inputValueCalc="{ dfdl:outputTypeCalcString('tns:AbstractXYZFromInt', 7) }" />
-  <xs:element name="repTypeValueInt_01" type="xs:int" dfdl:inputValueCalc="{ dfdl:inputTypeCalcInt('tns:AbstractIntToMulitiply2', 7) }" />
-  <xs:element name="repTypeValueString_01" type="xs:string" dfdl:inputValueCalc="{ dfdl:inputTypeCalcString('tns:AbstractStringToPrefixedString', 'y') }" />
-  <xs:element name="logicalTypeValueInt_01" daf:parseUnparsePolicy="parseOnly" type="xs:int" 
-    dfdl:inputValueCalc="{ dfdl:outputTypeCalcInt('tns:AbstractMulitiply2FromInt', 7) }" />
-  <xs:element name="logicalTypeValueString_01" daf:parseUnparsePolicy="parseOnly" type="xs:string" 
-    dfdl:inputValueCalc="{ dfdl:outputTypeCalcString('tns:AbstractPrefixedStringFromInt', 7) }" />
+  <xs:element name="outputTypeCalcString_01" type="xs:string" dfdl:inputValueCalc="{ dfdlx:outputTypeCalcString('tns:AbstractXYZFromInt', 7) }" />
+  <xs:element name="repTypeValueInt_01" type="xs:int" dfdl:inputValueCalc="{ dfdlx:inputTypeCalcInt('tns:AbstractIntToMulitiply2', 7) }" />
+  <xs:element name="repTypeValueString_01" type="xs:string" dfdl:inputValueCalc="{ dfdlx:inputTypeCalcString('tns:AbstractStringToPrefixedString', 'y') }" />
+  <xs:element name="logicalTypeValueInt_01" dfdlx:parseUnparsePolicy="parseOnly" type="xs:int" 
+    dfdl:inputValueCalc="{ dfdlx:outputTypeCalcInt('tns:AbstractMulitiply2FromInt', 7) }" />
+  <xs:element name="logicalTypeValueString_01" dfdlx:parseUnparsePolicy="parseOnly" type="xs:string" 
+    dfdl:inputValueCalc="{ dfdlx:outputTypeCalcString('tns:AbstractPrefixedStringFromInt', 7) }" />
   <xs:element name="outputTypeCalcNextSiblingInt_01">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="raw" type="tns:uint8" dfdl:outputValueCalc="{ dfdl:outputTypeCalcNextSiblingInt() }"/>
+        <xs:element name="raw" type="tns:uint8" dfdl:outputValueCalc="{ dfdlx:outputTypeCalcNextSiblingInt() }"/>
         <xs:element name="logic" type="tns:AbstractMulitiply2FromInt" dfdl:length="1" dfdl:inputValueCalc="{ 0 }"/>
       </xs:sequence>
     </xs:complexType>
@@ -101,13 +101,13 @@
   <xs:element name="outputTypeCalcNextSiblingString_01">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="raw" type="xs:string" dfdl:outputValueCalc="{ dfdl:outputTypeCalcNextSiblingString() }"/>
+        <xs:element name="raw" type="xs:string" dfdl:outputValueCalc="{ dfdlx:outputTypeCalcNextSiblingString() }"/>
         <xs:element name="logic" type="tns:AbstractXYZFromInt" dfdl:length="1" dfdl:inputValueCalc="{ 0 }"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
 
-  <xs:element name="abstractIntToStringByKeyset_01" type="xs:string" dfdl:inputValueCalc="{dfdl:inputTypeCalcString('AbstractIntToStringByKeyset',0)}"/>
+  <xs:element name="abstractIntToStringByKeyset_01" type="xs:string" dfdl:inputValueCalc="{dfdlx:inputTypeCalcString('AbstractIntToStringByKeyset',0)}"/>
 
   </tdml:defineSchema>
 

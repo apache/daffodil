@@ -76,11 +76,11 @@ object ParseAttemptStatus {
    *
    * The EmptyRep for simpleTypes enables default values to be substituted at parse time.
    *
-   * For simple types xs:string and xs:hexBinary, the property daf:emptyElementParsePolicy controls
+   * For simple types xs:string and xs:hexBinary, the property dfdlx:emptyElementParsePolicy controls
    * whether the EmptyRep is allowed for strings and hexBinary. In required positions, when
-   * daf:emptyElementParsePolicy is 'treatAsMissing', a required string/hexBinary that has EmptyRep
+   * dfdlx:emptyElementParsePolicy is 'treatAsMissing', a required string/hexBinary that has EmptyRep
    * causes a Parse Error, and an optional EmptyRep causes nothing to be added to the infoset (the empty string
-   * or hexBinary value is suppressed). When daf:emptyElementParsePolicy is 'treatAsEmpty', a required
+   * or hexBinary value is suppressed). When dfdlx:emptyElementParsePolicy is 'treatAsEmpty', a required
    * string/hexBinary with EmptyRep creates an empty string or zero-length byte array in the infoset.
    * An optional EmptyRep behaves differently depending on whether the EmptyRep is truly zero-length, or
    * dfdl:emptyValueDelimiterPolicy is such that EmptyRep is non-zero-length. When truly zero-length, no
