@@ -33,8 +33,8 @@ class TestXMLUtils {
     val diffs = XMLUtils.computeTextDiff("", d1, d2, None)
     val Seq((p, a, b)) = diffs
     assertEquals(".charAt(1)", p)
-    assertEquals("a(%#x0061;)", a)
-    assertEquals("b(%#x0062;)", b)
+    assertEquals("a", a)
+    assertEquals("b", b)
   }
 
   @Test def testDiff1() {
@@ -43,8 +43,8 @@ class TestXMLUtils {
     val diffs = XMLUtils.computeDiff(d1, d2)
     val Seq((p1, a, b)) = diffs
     assertEquals("d.charAt(1)", p1)
-    assertEquals("a(%#x0061;)", a)
-    assertEquals("b(%#x0062;)", b)
+    assertEquals("a", a)
+    assertEquals("b", b)
   }
 
   @Test def testDiff2() {
@@ -53,8 +53,8 @@ class TestXMLUtils {
     val diffs = XMLUtils.computeDiff(d1, d2)
     val Seq((p1, a, b)) = diffs
     assertEquals("a/d[2].charAt(1)", p1)
-    assertEquals("x(%#x0078;)", a)
-    assertEquals("y(%#x0079;)", b)
+    assertEquals("x", a)
+    assertEquals("y", b)
   }
 
   @Test def testDiff3() {
@@ -63,11 +63,11 @@ class TestXMLUtils {
     val diffs = XMLUtils.computeDiff(d1, d2)
     val Seq((p1, e, f), (p2, x, y)) = diffs
     assertEquals("a/e[1].charAt(1)", p1)
-    assertEquals("e(%#x0065;)", e)
-    assertEquals("f(%#x0066;)", f)
+    assertEquals("e", e)
+    assertEquals("f", f)
     assertEquals("a/d[2].charAt(3)", p2)
-    assertEquals("x(%#x0078;)", x)
-    assertEquals("y(%#x0079;)", y)
+    assertEquals("x", x)
+    assertEquals("y", y)
 
   }
 

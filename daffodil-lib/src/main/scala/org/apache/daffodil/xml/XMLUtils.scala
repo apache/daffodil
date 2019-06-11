@@ -748,16 +748,13 @@ object XMLUtils {
 Comparison failed.
 Expected (attributes stripped)
           %s
-Actual (attributes stripped)
+Actual (attributes ignored for diff)
           %s
 Differences were (path, expected, actual):
-%s
-Actual with Attributes (needed for unparse)
 %s""".format(
         removeAttributes(expected).toString,
-        removeAttributes(actual).toString,
-        diffs.map { _.toString }.mkString("- ", "\n- ", "\n"),
-        actual))
+        actual,
+        diffs.map { _.toString }.mkString("- ", "\n- ", "\n")))
     }
   }
 
@@ -899,23 +896,28 @@ Actual with Attributes (needed for unparse)
     dataB: String,
     maybeType: Option[String]): Seq[(String, String, String)] = {
 
-    def quoteIt(str: String) = "'" + str + "'"
-
     if (textIsSame(dataA, dataB, maybeType)) Nil
-    else if (dataA.length != dataB.length) {
-      List((zPath, quoteIt(dataA), quoteIt(dataB)))
-    } else {
-      val ints = Stream.from(1).map { _.toString }
-      val z = dataA zip dataB zip ints
-      val res = z.flatMap {
-        case ((a1, b1), index) =>
-          if (a1 == b1) Nil
-          else {
-            val indexPath = zPath + ".charAt(" + index + ")"
-            List((indexPath, a1.toString + "(%%#x%04X;)".format(a1.toInt), b1.toString + "(%%#x%04X;)".format(b1.toInt)))
-          }
+    else {
+      // There must be some difference, so let's find just the first index of
+      // difference and we'll include that and some following characters for
+      // context.
+      val CHARS_TO_SHOW_AFTER_DIFF = 40
+
+      val lenA = dataA.length
+      val lenB = dataB.length
+      var index = 0
+      while (index < lenA && index < lenB && dataA(index) == dataB(index)) {
+        index += 1
       }
-      res
+
+      // We know there must be a diff once we got here. Either dataA/dataB is a
+      // prefix of the other and index is where the prefix ends, or index is
+      // the first difference found. Either way, we can safely use slice() to
+      // get at most some number of characters at that index for context.
+      val contextA = Misc.remapControlsAndLineEndingsToVisibleGlyphs(dataA.slice(index, index + CHARS_TO_SHOW_AFTER_DIFF))
+      val contextB = Misc.remapControlsAndLineEndingsToVisibleGlyphs(dataB.slice(index, index + CHARS_TO_SHOW_AFTER_DIFF))
+      val path = zPath + ".charAt(" + (index + 1) + ")"
+      Seq((path, contextA, contextB))
     }
   }
 
