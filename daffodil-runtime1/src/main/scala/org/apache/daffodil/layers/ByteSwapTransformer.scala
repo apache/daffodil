@@ -201,7 +201,7 @@ sealed abstract class ByteSwapTransformerFactory(wordsize: Int, name: String)
     trd: TermRuntimeData): LayerTransformer = {
 
     trd.schemaDefinitionUnless(maybeLayerLengthKind.isDefined,
-      "The propert dfdl:layerLengthKind must be defined.")
+      "The propert dfdlx:layerLengthKind must be defined.")
 
     val xformer =
       maybeLayerLengthKind.get match {
@@ -209,7 +209,7 @@ sealed abstract class ByteSwapTransformerFactory(wordsize: Int, name: String)
           new ByteSwapTransformer(wordsize, maybeLayerLengthInBytesEv.get)
         }
         case x =>
-          trd.SDE("Property dfdl:layerLengthKind can only be 'explicit', but was '%s'",
+          trd.SDE("Property dfdlx:layerLengthKind can only be 'explicit', but was '%s'",
             x.toString)
       }
     xformer

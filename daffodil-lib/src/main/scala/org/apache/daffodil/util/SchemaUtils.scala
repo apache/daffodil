@@ -92,6 +92,7 @@ object SchemaUtils {
     scope = XMLUtils.combineScopes(null, defaultNamespace, scope)
     scope = XMLUtils.combineScopes("tns", targetNamespace, scope)
     scope = XMLUtils.combineScopes("ex", targetNamespace, scope)
+    scope = XMLUtils.combineScopes("dfdlx", XMLUtils.DFDLX_NAMESPACE, scope)
 
     val schemaNode =
       <xs:schema elementFormDefault={ elementFormDefault }>

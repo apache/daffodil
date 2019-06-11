@@ -21,6 +21,7 @@
   xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" 
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
+  xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
   xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:ex="http://example.com"
@@ -298,7 +299,7 @@ a
         <xs:sequence dfdl:separator="," dfdl:separatorSuppressionPolicy="anyEmpty">
           <xs:element name="foo" type="xs:string" dfdl:lengthKind="delimited" />
           <xs:element name="bar" type="xs:string" dfdl:lengthKind="delimited"
-            minOccurs="0" dfdl:occursCountKind="implicit" daf:emptyElementParsePolicy="treatAsEmpty" />
+            minOccurs="0" dfdl:occursCountKind="implicit" dfdlx:emptyElementParsePolicy="treatAsEmpty" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>

@@ -19,8 +19,8 @@
 <tdml:testSuite xmlns:ex="http://example.com" xmlns="http://example.com"
   xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
   xmlns:fn="http://www.w3.org/2005/xpath-functions"
-  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
   >
 
   <tdml:defineSchema name="inputTypeCalc-Embedded.dfdl.xsd">
@@ -36,26 +36,26 @@
   </xs:simpleType>
 
 
-  <xs:element name="inputTypeCalc_expression_01" daf:parseUnparsePolicy="parseOnly">
-    <xs:simpleType dfdl:inputTypeCalc="{ 7 }" dfdl:repType="tns:uint8">
+  <xs:element name="inputTypeCalc_expression_01" dfdlx:parseUnparsePolicy="parseOnly">
+    <xs:simpleType dfdlx:inputTypeCalc="{ 7 }" dfdlx:repType="tns:uint8">
       <xs:restriction base="xs:int"/>
     </xs:simpleType>
   </xs:element>
 
-  <xs:element name="outputTypeCalc_expression_01" daf:parseUnparsePolicy="unparseOnly">
-    <xs:simpleType dfdl:outputTypeCalc="{ 7 }" dfdl:repType="tns:uint8">
+  <xs:element name="outputTypeCalc_expression_01" dfdlx:parseUnparsePolicy="unparseOnly">
+    <xs:simpleType dfdlx:outputTypeCalc="{ 7 }" dfdlx:repType="tns:uint8">
       <xs:restriction base="xs:int"/>
     </xs:simpleType>
   </xs:element>
 
   <xs:element name="inputTypeCalc_expression_02">
-    <xs:simpleType dfdl:inputTypeCalc="{ 7 }" dfdl:repType="tns:uint8">
+    <xs:simpleType dfdlx:inputTypeCalc="{ 7 }" dfdlx:repType="tns:uint8">
       <xs:restriction base="xs:int"/>
     </xs:simpleType>
   </xs:element>
 
   <xs:element name="outputTypeCalc_expression_02">
-    <xs:simpleType dfdl:outputTypeCalc="{ 7 }" dfdl:repType="tns:uint8">
+    <xs:simpleType dfdlx:outputTypeCalc="{ 7 }" dfdlx:repType="tns:uint8">
       <xs:restriction base="xs:int"/>
     </xs:simpleType>
   </xs:element>

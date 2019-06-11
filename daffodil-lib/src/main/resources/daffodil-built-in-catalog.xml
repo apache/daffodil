@@ -25,6 +25,7 @@
   <uri name="http://www.ibm.com/xmlns/dfdl/testData"
 	  uri="org/apache/daffodil/xsd/tdml.xsd" />
   <uri name="http://www.ogf.org/dfdl/dfdl-1.0/" uri="org/apache/daffodil/xsd/DFDL_part3_model.xsd" />
+  <uri name="http://www.ogf.org/dfdl/dfdl-1.0/extensions" uri="org/apache/daffodil/xsd/dfdlx.xsd" />
  <!-- <uri name="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
     uri="org/apache/daffodil/xsd/DFDLSubsetOfXMLSchema_v1_036.xsd" /> -->
   <uri name="http://www.w3.org/2001/XMLSchema"

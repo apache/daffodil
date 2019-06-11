@@ -163,7 +163,7 @@ sealed abstract class LineFoldedTransformerFactory(mode: LineFoldMode, name: Str
     trd: TermRuntimeData): LayerTransformer = {
 
     trd.schemaDefinitionUnless(maybeLayerLengthKind.isDefined,
-      "The propert dfdl:layerLengthKind must be defined.")
+      "The property dfdlx:layerLengthKind must be defined.")
 
     val xformer =
       maybeLayerLengthKind.get match {
@@ -174,7 +174,7 @@ sealed abstract class LineFoldedTransformerFactory(mode: LineFoldMode, name: Str
           new LineFoldedTransformerImplicit(mode)
         }
         case x =>
-          trd.SDE("Property dfdl:layerLengthKind can only be 'implicit' or 'boundaryMark', but was '%s'",
+          trd.SDE("Property dfdlx:layerLengthKind can only be 'implicit' or 'boundaryMark', but was '%s'",
             x.toString)
       }
     xformer

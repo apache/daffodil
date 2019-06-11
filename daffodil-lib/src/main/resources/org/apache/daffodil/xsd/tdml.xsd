@@ -32,6 +32,7 @@
   <xsd:import namespace="http://www.w3.org/2001/XMLSchema" schemaLocation="XMLSchema_for_DFDL.xsd"/>
   <xsd:import namespace="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext" schemaLocation="org/apache/daffodil/xsd/dafext.xsd"/>
   <xsd:import namespace="http://www.ogf.org/dfdl/dfdl-1.0/" schemaLocation="org/apache/daffodil/xsd/DFDL_part3_model.xsd"/>
+  <xsd:import namespace="http://www.ogf.org/dfdl/dfdl-1.0/extensions" schemaLocation="org/apache/daffodil/xsd/dfdlx.xsd"/>
 
   <xs:attribute name="tutorialInclude" type="xs:string" fixed="no"/>
   

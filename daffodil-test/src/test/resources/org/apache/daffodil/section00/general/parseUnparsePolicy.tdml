@@ -19,7 +19,7 @@
 <tdml:testSuite suiteName="General" description="Section 00 - General tests"
   xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  xmlns:ex="http://example.com" xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext">
+  xmlns:ex="http://example.com" xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions">
 
   <!-- This file is for general purpose tests that are not related 
        to any specific requirements. /!-->
@@ -30,12 +30,12 @@
         lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator=""
         separator="" ignoreCase="no" textNumberRep="standard" leadingSkip="0" />
 
-    <xs:element name="parseOnly" type="xs:int" daf:parseUnparsePolicy="parseOnly" />
-    <xs:element name="unparseOnly" type="xs:int" daf:parseUnparsePolicy="unparseOnly" />
-    <xs:element name="both" type="xs:int" daf:parseUnparsePolicy="both" />
+    <xs:element name="parseOnly" type="xs:int" dfdlx:parseUnparsePolicy="parseOnly" />
+    <xs:element name="unparseOnly" type="xs:int" dfdlx:parseUnparsePolicy="unparseOnly" />
+    <xs:element name="both" type="xs:int" dfdlx:parseUnparsePolicy="both" />
 
 
-    <xs:element name="pb" daf:parseUnparsePolicy="parseOnly">
+    <xs:element name="pb" dfdlx:parseUnparsePolicy="parseOnly">
       <xs:complexType>
         <xs:sequence>
           <xs:element ref="both" />
@@ -43,7 +43,7 @@
       </xs:complexType>
     </xs:element>
 
-    <xs:element name="pp" daf:parseUnparsePolicy="parseOnly">
+    <xs:element name="pp" dfdlx:parseUnparsePolicy="parseOnly">
       <xs:complexType>
         <xs:sequence>
           <xs:element ref="parseOnly" />
@@ -51,7 +51,7 @@
       </xs:complexType>
     </xs:element>
 
-    <xs:element name="pu" daf:parseUnparsePolicy="parseOnly">
+    <xs:element name="pu" dfdlx:parseUnparsePolicy="parseOnly">
       <xs:complexType>
         <xs:sequence>
           <xs:element ref="unparseOnly" />
@@ -60,7 +60,7 @@
     </xs:element>
 
 
-    <xs:element name="ub" daf:parseUnparsePolicy="unparseOnly">
+    <xs:element name="ub" dfdlx:parseUnparsePolicy="unparseOnly">
       <xs:complexType>
         <xs:sequence>
           <xs:element ref="both" />
@@ -68,7 +68,7 @@
       </xs:complexType>
     </xs:element>
 
-    <xs:element name="up" daf:parseUnparsePolicy="unparseOnly">
+    <xs:element name="up" dfdlx:parseUnparsePolicy="unparseOnly">
       <xs:complexType>
         <xs:sequence>
           <xs:element ref="parseOnly" />
@@ -76,7 +76,7 @@
       </xs:complexType>
     </xs:element>
 
-    <xs:element name="uu" daf:parseUnparsePolicy="unparseOnly">
+    <xs:element name="uu" dfdlx:parseUnparsePolicy="unparseOnly">
       <xs:complexType>
         <xs:sequence>
           <xs:element ref="unparseOnly" />
@@ -85,7 +85,7 @@
     </xs:element>
 
 
-    <xs:element name="bb" daf:parseUnparsePolicy="both">
+    <xs:element name="bb" dfdlx:parseUnparsePolicy="both">
       <xs:complexType>
         <xs:sequence>
           <xs:element ref="both" />
@@ -93,7 +93,7 @@
       </xs:complexType>
     </xs:element>
 
-    <xs:element name="bp" daf:parseUnparsePolicy="both">
+    <xs:element name="bp" dfdlx:parseUnparsePolicy="both">
       <xs:complexType>
         <xs:sequence>
           <xs:element ref="parseOnly" />
@@ -101,7 +101,7 @@
       </xs:complexType>
     </xs:element>
 
-    <xs:element name="bu" daf:parseUnparsePolicy="both">
+    <xs:element name="bu" dfdlx:parseUnparsePolicy="both">
       <xs:complexType>
         <xs:sequence>
           <xs:element ref="unparseOnly" />

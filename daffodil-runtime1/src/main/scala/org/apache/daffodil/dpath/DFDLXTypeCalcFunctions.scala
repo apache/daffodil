@@ -190,8 +190,8 @@ case class DFDLXRepTypeValueInt(a: CompiledDPath, b: NodeInfo.Kind)
   extends RecipeOp
   with DFDLXWithExtractTypedValue {
   override val returnType = Integer
-  override val functionName = "dfdl:repTypeValueInt()"
-  override val legalContext = "dfdl:inputTypeCalc"
+  override val functionName = "dfdlx:repTypeValueInt()"
+  override val legalContext = "dfdlx:inputTypeCalc"
   override val repOrLogicalType = "repType"
 
   override def run(dstate: DState): Unit = {
@@ -205,8 +205,8 @@ case class DFDLXRepTypeValueString(a: CompiledDPath, b: NodeInfo.Kind)
   with DFDLXWithExtractTypedValue {
 
   override val returnType = String
-  override val functionName = "dfdl:repTypeValueString()"
-  override val legalContext = "dfdl:inputTypeCalc"
+  override val functionName = "dfdlx:repTypeValueString()"
+  override val legalContext = "dfdlx:inputTypeCalc"
   override val repOrLogicalType = "repType"
 
   override def run(dstate: DState): Unit = {
@@ -220,8 +220,8 @@ case class DFDLXLogicalTypeValueInt(a: CompiledDPath, b: NodeInfo.Kind)
   with DFDLXWithExtractTypedValue {
 
   override val returnType = Integer
-  override val functionName = "dfdl:logicalTypeValueInt()"
-  override val legalContext = "dfdl:outputTypeCalc"
+  override val functionName = "dfdlx:logicalTypeValueInt()"
+  override val legalContext = "dfdlx:outputTypeCalc"
   override val repOrLogicalType = "logical type"
 
   override def run(dstate: DState): Unit = {
@@ -233,8 +233,8 @@ case class DFDLXLogicalTypeValueString(a: CompiledDPath, b: NodeInfo.Kind)
   extends RecipeOp
   with DFDLXWithExtractTypedValue {
   override val returnType = String
-  override val functionName = "dfdl:logicalTypeValueString()"
-  override val legalContext = "dfdl:outputTypeCalc"
+  override val functionName = "dfdlx:logicalTypeValueString()"
+  override val legalContext = "dfdlx:outputTypeCalc"
   override val repOrLogicalType = "logical type"
 
   override def run(dstate: DState): Unit = {

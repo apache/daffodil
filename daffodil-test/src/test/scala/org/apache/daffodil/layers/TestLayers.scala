@@ -41,6 +41,7 @@ class TestLayers {
   @Test def test_layers1() { runner.runOneTest("layers1") }
   @Test def test_layers2() { runner.runOneTest("layers2") }
   @Test def test_layers3() { runner.runOneTest("layers3") }
+  @Test def test_layers3_deprecated() { runner.runOneTest("layers3_deprecated") }
   @Test def test_layersErr1() { runner.runOneTest("layersErr1") }
   @Test def test_layers4() { runner.runOneTest("layers4") }
 

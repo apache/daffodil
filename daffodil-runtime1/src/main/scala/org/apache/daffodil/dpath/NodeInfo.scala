@@ -224,7 +224,7 @@ object NodeInfo extends Enum {
   /**
    * Nothing is the bottom of the type lattice.
    *
-   * It is the return type of the daf:error() function. It's a subtype of
+   * It is the return type of the dfdlx:error() function. It's a subtype of
    * every type (except some special singletons like ArrayType).
    */
   case object Nothing

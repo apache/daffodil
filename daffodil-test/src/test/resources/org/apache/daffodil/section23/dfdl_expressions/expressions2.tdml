@@ -21,10 +21,10 @@
  description="misc expression language tests"
  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
- xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+ xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+ xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
  xmlns:ex="http://example.com"
- xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
  xmlns:fn="http://www.w3.org/2005/xpath-functions"
  defaultRoundTrip="true">
 
@@ -239,14 +239,14 @@
             </xs:complexType>
           </xs:element>
           <xs:element name="f" type="xs:string"
-            dfdl:inputValueCalc="{ if (fn:exists(daf:trace(../aComplexElement, 'We can trace a complex element'))) then 'exists' else 'nope' }" />
+            dfdl:inputValueCalc="{ if (fn:exists(dfdlx:trace(../aComplexElement, 'We can trace a complex element'))) then 'exists' else 'nope' }" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
   </tdml:defineSchema>
 
   <tdml:parserTestCase name="traceComplex" model="traceComplex" root="e"
-    description="Test that daf:trace can take as argument a complex element.">
+    description="Test that dfdlx:trace can take as argument a complex element.">
     <tdml:document />
     <tdml:infoset>
       <tdml:dfdlInfoset>

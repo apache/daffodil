@@ -443,7 +443,7 @@ class ScalarOrderedSequenceChild(sq: SequenceTermBase, term: Term, groupIndex: I
 
   /**
    * Must deal with nils, emptyness and string/hexBinary exceptional behavior
-   * including the behavior for daf:emptyElementParsePolicy 'treatAsMissing' which special cases
+   * including the behavior for dfdlx:emptyElementParsePolicy 'treatAsMissing' which special cases
    * Required elements like scalars, iff they are emptyRep, emptyValueDelimiterPolicy,
    * nilValueDelimiterPolicy, complex elements that nillable, or fully defaultable.
    *

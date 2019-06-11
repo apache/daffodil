@@ -30,7 +30,7 @@ import org.apache.daffodil.processors.parsers.ParseError
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.processors.unparsers.UState
 
-case class DAFTrace(recipe: CompiledDPath, msg: String)
+case class DFDLXTrace(recipe: CompiledDPath, msg: String)
   extends RecipeOpWithSubRecipes(recipe) {
 
   private def asXMLString(ie: InfosetCommon) = {
@@ -79,7 +79,7 @@ case object DAFError extends RecipeOp {
   }
 }
 
-case class DAFLookAhead(recipes: List[CompiledDPath])
+case class DFDLXLookAhead(recipes: List[CompiledDPath])
   extends FNTwoArgs(recipes) {
 
   def computeValue(arg1: AnyRef, arg2: AnyRef, dstate: DState): AnyRef = {
@@ -87,7 +87,7 @@ case class DAFLookAhead(recipes: List[CompiledDPath])
     val lBitSize = arg2.asInstanceOf[JLong]
 
     /*
-     * Since daf:lookAhead is defined to take unsigned arguements, the DPath interperater
+     * Since dfdlx:lookAhead is defined to take unsigned arguements, the DPath interperater
      * will error out on the cast if a negative arguement is supplied, so we do not need to SDE here.
      */
 
@@ -119,7 +119,7 @@ case class DAFLookAhead(recipes: List[CompiledDPath])
           if (dstate.runtimeData.isDefined) One(dstate.runtimeData.get.schemaFileLocation)
           else Nope
         throw new ParseError(maybeSFL, dstate.contextLocation, Nope,
-          One("Insufficient bits available to satisfy daf:lookAhead(%s,%s)."),
+          One("Insufficient bits available to satisfy dfdlx:lookAhead(%s,%s)."),
           offset, bitSize, totalLookahead)
       }
       val mark = dis.markPos
@@ -135,7 +135,7 @@ case class DAFLookAhead(recipes: List[CompiledDPath])
       ans
     } else {
       Assert.invariant(dstate.parseOrUnparseState.get.isInstanceOf[UState])
-      dstate.SDE("Cannot call daf:lookAhead() during unparse")
+      dstate.SDE("Cannot call dfdlx:lookAhead() during unparse")
     }
   }
 }

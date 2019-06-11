@@ -19,8 +19,8 @@
 <tdml:testSuite xmlns:ex="http://example.com" xmlns="http://example.com"
   xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
   xmlns:fn="http://www.w3.org/2005/xpath-functions"
-  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
   >
 
   <tdml:defineSchema name="lookAhead-Embedded.dfdl.xsd">
@@ -28,18 +28,18 @@
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat"
       lengthUnits="bits"
-      daf:emptyElementParsePolicy="treatAsEmpty"
+      dfdlx:emptyElementParsePolicy="treatAsEmpty"
       />
 
    <xs:element name="lookAhead_01">
      <xs:complexType>
        <xs:sequence>
-         <xs:element type="xs:int" name="byte1" dfdl:inputValueCalc="{ daf:lookAhead(0,8) }" />
-         <xs:element type="xs:int" name="byte2" dfdl:inputValueCalc="{ daf:lookAhead(8,8) }" />
-         <xs:element type="xs:int" name="bit7" dfdl:inputValueCalc="{ daf:lookAhead(6,1) }" />
-         <xs:element type="xs:int" name="bit9" dfdl:inputValueCalc="{ daf:lookAhead(8,1) }" />
-         <xs:element type="xs:int" name="bit16" dfdl:inputValueCalc="{ daf:lookAhead(15,1) }" />
-         <xs:element type="xs:int" name="bits4to15" dfdl:inputValueCalc="{ daf:lookAhead(3,12) }" />
+         <xs:element type="xs:int" name="byte1" dfdl:inputValueCalc="{ dfdlx:lookAhead(0,8) }" />
+         <xs:element type="xs:int" name="byte2" dfdl:inputValueCalc="{ dfdlx:lookAhead(8,8) }" />
+         <xs:element type="xs:int" name="bit7" dfdl:inputValueCalc="{ dfdlx:lookAhead(6,1) }" />
+         <xs:element type="xs:int" name="bit9" dfdl:inputValueCalc="{ dfdlx:lookAhead(8,1) }" />
+         <xs:element type="xs:int" name="bit16" dfdl:inputValueCalc="{ dfdlx:lookAhead(15,1) }" />
+         <xs:element type="xs:int" name="bits4to15" dfdl:inputValueCalc="{ dfdlx:lookAhead(3,12) }" />
          <xs:element type="xs:hexBinary" name="data" dfdl:length="16" dfdl:lengthKind="explicit" />
        </xs:sequence>
      </xs:complexType>
@@ -48,7 +48,7 @@
    <xs:element name="lookAhead_03" >
      <xs:complexType>
        <xs:sequence>
-         <xs:element type="xs:int" name="bit512" dfdl:inputValueCalc="{ daf:lookAhead(511, 1) }" />
+         <xs:element type="xs:int" name="bit512" dfdl:inputValueCalc="{ dfdlx:lookAhead(511, 1) }" />
          <xs:element type="xs:hexBinary" name="data8Bytes" dfdl:length="64" minOccurs="8" maxOccurs="8" dfdl:lengthKind="explicit" />
          <xs:element type="xs:hexBinary" name="data1Byte" dfdl:length="8" dfdl:lengthKind="explicit" />
        </xs:sequence>
@@ -58,7 +58,7 @@
    <xs:element name="lookAhead_04" >
      <xs:complexType>
        <xs:sequence>
-         <xs:element type="xs:integer" name="bits0to62" dfdl:inputValueCalc="{ daf:lookAhead(0, 63) }" />
+         <xs:element type="xs:integer" name="bits0to62" dfdl:inputValueCalc="{ dfdlx:lookAhead(0, 63) }" />
          <xs:element type="xs:hexBinary" name="data" dfdl:length="64" dfdl:lengthKind="explicit" />
        </xs:sequence>
      </xs:complexType>
@@ -67,7 +67,7 @@
    <xs:element name="lookAhead_05" >
      <xs:complexType>
        <xs:sequence>
-         <xs:element type="xs:integer" name="bits0to63" dfdl:inputValueCalc="{ daf:lookAhead(0, 64) }" />
+         <xs:element type="xs:integer" name="bits0to63" dfdl:inputValueCalc="{ dfdlx:lookAhead(0, 64) }" />
          <xs:element type="xs:hexBinary" name="data" dfdl:length="64" dfdl:lengthKind="explicit" />
        </xs:sequence>
      </xs:complexType>
@@ -76,7 +76,7 @@
    <xs:element name="lookAhead_06" >
      <xs:complexType>
        <xs:sequence>
-         <xs:element type="xs:integer" name="bits0to64" dfdl:inputValueCalc="{ daf:lookAhead(0, 65) }" />
+         <xs:element type="xs:integer" name="bits0to64" dfdl:inputValueCalc="{ dfdlx:lookAhead(0, 65) }" />
          <xs:element type="xs:hexBinary" name="data" dfdl:length="72" dfdl:lengthKind="explicit" />
        </xs:sequence>
      </xs:complexType>
@@ -85,7 +85,7 @@
    <xs:element name="lookAhead_tooFar_01" >
      <xs:complexType>
        <xs:sequence>
-         <xs:element type="xs:int" name="byte65" dfdl:inputValueCalc="{ daf:lookAhead(512, 8) }" />
+         <xs:element type="xs:int" name="byte65" dfdl:inputValueCalc="{ dfdlx:lookAhead(512, 8) }" />
          <xs:element type="xs:hexBinary" name="data8Bytes" dfdl:length="64" minOccurs="8" maxOccurs="8" dfdl:lengthKind="explicit" />
          <xs:element type="xs:hexBinary" name="data1Byte" dfdl:length="8" dfdl:lengthKind="explicit" />
        </xs:sequence>
@@ -95,7 +95,7 @@
    <xs:element name="lookAhead_tooFar_02" >
      <xs:complexType>
        <xs:sequence>
-         <xs:element type="xs:int" name="bit513" dfdl:inputValueCalc="{ daf:lookAhead(512, 1) }" />
+         <xs:element type="xs:int" name="bit513" dfdl:inputValueCalc="{ dfdlx:lookAhead(512, 1) }" />
          <xs:element type="xs:hexBinary" name="data8Bytes" dfdl:length="64" minOccurs="8" maxOccurs="8" dfdl:lengthKind="explicit" />
          <xs:element type="xs:hexBinary" name="data1Byte" dfdl:length="8" dfdl:lengthKind="explicit" />
        </xs:sequence>
@@ -105,7 +105,7 @@
    <xs:element name="lookAhead_tooFar_03" >
      <xs:complexType>
        <xs:sequence>
-         <xs:element type="xs:int" name="bit9" dfdl:inputValueCalc=" { daf:lookAhead(8, 1) }" />
+         <xs:element type="xs:int" name="bit9" dfdl:inputValueCalc=" { dfdlx:lookAhead(8, 1) }" />
          <xs:element type="xs:hexBinary" name="data" dfdl:length="8" dfdl:lengthKind="explicit" />
        </xs:sequence>
      </xs:complexType>
@@ -114,7 +114,7 @@
    <xs:element name="lookAhead_negativeOffset_01" >
      <xs:complexType>
        <xs:sequence>
-         <xs:element type="xs:int" name="illegal" dfdl:inputValueCalc=" { daf:lookAhead(-1, 8) }" />
+         <xs:element type="xs:int" name="illegal" dfdl:inputValueCalc=" { dfdlx:lookAhead(-1, 8) }" />
          <xs:element type="xs:hexBinary" name="data" dfdl:length="8" dfdl:lengthKind="explicit" />
        </xs:sequence>
      </xs:complexType>
@@ -123,7 +123,7 @@
    <xs:element name="lookAhead_negativeBitsize_01" >
      <xs:complexType>
        <xs:sequence>
-         <xs:element type="xs:int" name="illegal" dfdl:inputValueCalc=" { daf:lookAhead(0, -1) }" />
+         <xs:element type="xs:int" name="illegal" dfdl:inputValueCalc=" { dfdlx:lookAhead(0, -1) }" />
          <xs:element type="xs:hexBinary" name="data" dfdl:length="8" dfdl:lengthKind="explicit" />
        </xs:sequence>
      </xs:complexType>
@@ -132,7 +132,7 @@
    <xs:element name="lookAhead_zeroBitsize_01" >
      <xs:complexType>
        <xs:sequence>
-         <xs:element type="xs:int" name="zero" dfdl:inputValueCalc=" { daf:lookAhead(0, 0) }" />
+         <xs:element type="xs:int" name="zero" dfdl:inputValueCalc=" { dfdlx:lookAhead(0, 0) }" />
          <xs:element type="xs:hexBinary" name="data" dfdl:length="8" dfdl:lengthKind="explicit" />
        </xs:sequence>
      </xs:complexType>

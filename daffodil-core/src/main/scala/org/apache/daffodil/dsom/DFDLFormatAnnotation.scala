@@ -19,12 +19,53 @@ package org.apache.daffodil.dsom
 
 import scala.collection.immutable.ListMap
 import scala.xml.Node
+
+import org.apache.daffodil.api.WarnID
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.schema.annotation.props.LookupLocation
 import org.apache.daffodil.util.LogLevel
 import org.apache.daffodil.xml.NS
 import org.apache.daffodil.xml.NoNamespace
-import org.apache.daffodil.xml.XMLUtils
 import org.apache.daffodil.xml.RefQName
-import org.apache.daffodil.schema.annotation.props.LookupLocation
+import org.apache.daffodil.xml.XMLUtils
+
+case class DeprecatedProperty(namespace: NS, property: String, replacement: String)
+
+object DeprecatedProperty {
+
+  private val deprecatedProperties: Seq[DeprecatedProperty] = Seq(
+    DeprecatedProperty(XMLUtils.DFDL_NAMESPACE, "layerTransform", "dfdlx:layerTransform"),
+    DeprecatedProperty(XMLUtils.DFDL_NAMESPACE, "layerEncoding", "dfdlx:layerEncoding"),
+    DeprecatedProperty(XMLUtils.DFDL_NAMESPACE, "layerLengthKind", "dfdlx:layerLengthKind"),
+    DeprecatedProperty(XMLUtils.DFDL_NAMESPACE, "layerLength", "dfdlx:layerLength"),
+    DeprecatedProperty(XMLUtils.DFDL_NAMESPACE, "layerLengthUnits", "dfdlx:layerLengthUnits"),
+    DeprecatedProperty(XMLUtils.DFDL_NAMESPACE, "layerBoundaryMark","dfdlx:layerBoundaryMark"),
+    DeprecatedProperty(XMLUtils.EXT_NS_APACHE, "parseUnparsePolicy", "dfdlx:parseUnparsePolicy"),
+    DeprecatedProperty(XMLUtils.EXT_NS_NCSA, "parseUnparsePolicy", "dfdlx:parseUnparsePolicy")
+  )
+
+  def warnIfDeprecated(
+    propertyName: String,
+    propertyNS: NS,
+    context: SchemaComponent): Unit = {
+
+    val deprecation = deprecatedProperties.find { dp =>
+      dp.property == propertyName && dp.namespace == propertyNS
+    }
+
+    if (deprecation.isDefined) {
+      val warnID = propertyNS match {
+        case XMLUtils.DFDL_NAMESPACE => WarnID.DeprecatedPropertyDFDLError
+        case XMLUtils.DFDLX_NAMESPACE => WarnID.DeprecatedPropertyDFDLXError
+        case XMLUtils.EXT_NS_APACHE => WarnID.DeprecatedPropertyDAFError
+        case XMLUtils.EXT_NS_NCSA => WarnID.DeprecatedPropertyDAFError
+        case _ => Assert.impossible()
+      }
+
+      context.SDW(warnID, "Property %s is deprecated. Use %s instead.", propertyName, deprecation.get.replacement)
+    }
+  }
+}
 
 /**
  * Base class for annotations that carry format properties
@@ -152,10 +193,23 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
     val dfdlKvPairs = XMLUtils.dfdlAttributes(annotatedSC.xml).asAttrMap.map {
       case (key: String, value: String) => (removePrefix(key), value)
     }
+    val dfdlxKvPairs = XMLUtils.dfdlxAttributes(annotatedSC.xml).asAttrMap.map {
+      case (key: String, value: String) => (removePrefix(key), value)
+    }
     val dafKvPairs = XMLUtils.dafAttributes(annotatedSC.xml).asAttrMap.map {
       case (key: String, value: String) => (removePrefix(key), value)
     }
-    val kvPairs = dfdlKvPairs ++ dafKvPairs
+    dfdlKvPairs.keys.foreach { propName =>
+      DeprecatedProperty.warnIfDeprecated(propName, XMLUtils.DFDL_NAMESPACE, this)
+    }
+    dfdlxKvPairs.keys.foreach { propName =>
+      DeprecatedProperty.warnIfDeprecated(propName, XMLUtils.DFDLX_NAMESPACE, this)
+    }
+    dafKvPairs.keys.foreach { propName =>
+      DeprecatedProperty.warnIfDeprecated(propName, XMLUtils.EXT_NS_APACHE, this)
+    }
+
+    val kvPairs = dfdlKvPairs ++ dfdlxKvPairs ++ dafKvPairs
     val kvPairsButNotRef = kvPairs.filterNot { _._1 == "ref" } // dfdl:ref is NOT a property
     val pairs = kvPairsButNotRef.map { case (k, v) => (k, (v, annotatedSC)).asInstanceOf[PropItem] }
     pairs.toSet
@@ -165,7 +219,10 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
     // longForm Properties are not prefixed by dfdl
     val dfdlAttrs = dfdlAttributes(xml).asAttrMap
     schemaDefinitionUnless(dfdlAttrs.isEmpty, "long form properties are not prefixed by dfdl:")
-    // however, daf extension properties are prefixed, even in long form
+    // however, extension properties are prefixed, even in long form
+    val dfdlxAttrMap = dfdlxAttributes(xml).asAttrMap.map {
+      case (key: String, value: String) => (removePrefix(key), value)
+    }
     val dafAttrMap = dafAttributes(xml).asAttrMap.map {
       case (key: String, value: String) => (removePrefix(key), value)
     }
@@ -178,8 +235,19 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
       case (k, v) if (!k.contains(":")) => (k, v)
     }
     val unqualifiedAttribs = kvPairs.filterNot { _._1 == "ref" } // get the ref off there. it is not a property.
-    val dfdlAndDafAttribs = unqualifiedAttribs ++ dafAttrMap
-    val res = dfdlAndDafAttribs.map { case (k, v) => (k, (v, this.asInstanceOf[LookupLocation])) }.toSet
+
+    unqualifiedAttribs.keys.foreach { propName =>
+      DeprecatedProperty.warnIfDeprecated(propName, XMLUtils.DFDL_NAMESPACE, this)
+    }
+    dfdlxAttrMap.keys.foreach { propName =>
+      DeprecatedProperty.warnIfDeprecated(propName, XMLUtils.DFDLX_NAMESPACE, this)
+    }
+    dafAttrMap.keys.foreach { propName =>
+      DeprecatedProperty.warnIfDeprecated(propName, XMLUtils.EXT_NS_APACHE, this)
+    }
+
+    val dfdlAndExtAttribs = unqualifiedAttribs ++ dfdlxAttrMap ++ dafAttrMap
+    val res = dfdlAndExtAttribs.map { case (k, v) => (k, (v, this.asInstanceOf[LookupLocation])) }.toSet
     res
   }.value
 
@@ -192,6 +260,10 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
   }
 
   private lazy val elementFormProperties: Set[PropItem] = LV[Set[PropItem]]('elementFormProperties) {
+    elementFormPropertyAnnotations.foreach { p =>
+      DeprecatedProperty.warnIfDeprecated(p.name, p.propertyNamespace, p)
+    }
+
     elementFormPropertyAnnotations.map { p => (p.name, (p.value, p)) }.toSet
   }.value
 

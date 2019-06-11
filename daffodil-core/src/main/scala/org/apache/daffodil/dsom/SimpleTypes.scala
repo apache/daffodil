@@ -68,7 +68,7 @@ sealed trait SimpleTypeBase extends TypeBase
 }
 
 /*
- * For components which can define dfdl:repValues and dfdl:repValueRanges
+ * For components which can define dfdlx:repValues and dfdlx:repValueRanges
  * Construct the repValueSet using only the above mentioned attributes on the element itself
  * Applies to simpleType and enumeration
  *

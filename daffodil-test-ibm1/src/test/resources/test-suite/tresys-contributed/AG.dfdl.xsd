@@ -17,11 +17,12 @@
 -->
 
 <schema xmlns="http://www.w3.org/2001/XMLSchema"
-  targetNamespace="http://example.com" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  targetNamespace="http://example.com"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="http://example.com"
-  xmlns:fn="http://www.w3.org/2005/xpath-functions"
-  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext">
+  xmlns:fn="http://www.w3.org/2005/xpath-functions">
 
 <include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
@@ -76,7 +77,7 @@
 if (fn:exists(../zone1)) then 1
 else if (fn:exists(../zone2)) then 2
 else if (fn:exists(../zone3)) then 3
-else daf:error()
+else dfdlx:error()
 }" />
     </sequence>
   </group>

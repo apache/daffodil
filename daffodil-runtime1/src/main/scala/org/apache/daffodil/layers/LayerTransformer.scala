@@ -63,7 +63,7 @@ abstract class LayerTransformerFactory(nom: String)
 
 /**
  * Transformers have factories. This lets you find the transformer factory
- * by the name obtained from dfdl:layerTransform.
+ * by the name obtained from dfdlx:layerTransform.
  */
 object LayerTransformerFactory {
 
@@ -81,7 +81,7 @@ object LayerTransformerFactory {
     val maybeFactory = transformerMap.get(name)
     if (maybeFactory.isEmpty) {
       val choices = transformerMap.keySet.mkString(", ")
-      state.SDE("The dfdl:layerTransform '%s' was not found. Available choices are: %s", name, choices)
+      state.SDE("The dfdlx:layerTransform '%s' was not found. Available choices are: %s", name, choices)
     } else {
       maybeFactory.get
     }

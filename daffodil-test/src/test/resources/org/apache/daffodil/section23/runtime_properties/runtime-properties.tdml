@@ -20,8 +20,8 @@
 	description="properties that can have expressions to compute their values from data"
 	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
 	xmlns:ex="http://example.com" 
-    xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
     xmlns:fn="http://www.w3.org/2005/xpath-functions"
     defaultRoundTrip="true">
 
@@ -47,7 +47,7 @@
           if (xs:unsignedByte(../ex:bom) eq 10) then 'bigEndian' 
           else (
                  if (xs:unsignedByte(../ex:bom) eq 20) then 'littleEndian'
-                 else daf:error()
+                 else dfdlx:error()
                )
       }]]></dfdl:property>
                 </dfdl:element>
@@ -70,7 +70,7 @@
           if (xs:unsignedByte(../ex:bom) eq 10) then 'bigEndian' 
           else (
                  if (xs:unsignedByte(fn:trace(../ex:bom,'bom')) eq 20) then 'littleEndian'
-                 else daf:error()
+                 else dfdlx:error()
                )
       }]]></dfdl:property>
                 </dfdl:element>
@@ -92,7 +92,7 @@
                   <dfdl:property name="byteOrder"><![CDATA[{
           if (xs:unsignedShort(../ex:bom) eq 65279) then 'bigEndian' 
           else if (xs:unsignedShort(../ex:bom) eq 65534) then 'littleEndian'
-          else daf:error()
+          else dfdlx:error()
       }]]></dfdl:property>
                 </dfdl:element>
               </xs:appinfo>
@@ -114,7 +114,7 @@
                 <dfdl:setVariable ref="ex:bom"><![CDATA[{
           if (xs:unsignedShort(.) eq 65279) then 'bigEndian' 
           else if (xs:unsignedShort(.) eq 65534) then 'littleEndian'
-          else daf:error()
+          else dfdlx:error()
       }]]></dfdl:setVariable>
               </xs:appinfo>
             </xs:annotation>
