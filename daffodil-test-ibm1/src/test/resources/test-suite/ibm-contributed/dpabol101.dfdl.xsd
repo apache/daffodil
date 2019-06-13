@@ -45,7 +45,6 @@
 		  <xs:sequence dfdl:sequenceKind="ordered" dfdl:initiatedContent="no">
                     <xs:element name="MyBoolean1"  type="xs:boolean" minOccurs="2" maxOccurs="2" 
                       dfdl:representation="text" 
-                      dfdl:textBooleanJustification="left" 
                       dfdl:lengthUnits="bytes" 
                       dfdl:length="5" 
                       dfdl:lengthKind="explicit"
@@ -61,7 +60,6 @@
 		  <xs:sequence  dfdl:sequenceKind="ordered" dfdl:initiatedContent="no">
                     <xs:element name="MyBoolean2"  type="xs:boolean" minOccurs="2" maxOccurs="2" 
                       dfdl:representation="text" 
-                      dfdl:textBooleanJustification="right" 
                       dfdl:lengthUnits="bytes" 
                       dfdl:length="1" 
                       dfdl:lengthKind="explicit"
@@ -77,7 +75,6 @@
 		  <xs:sequence  dfdl:sequenceKind="ordered" dfdl:initiatedContent="no">
                     <xs:element name="MyBoolean3" type="xs:boolean" minOccurs="2" maxOccurs="2" 
                       dfdl:representation="text" 
-                      dfdl:textBooleanJustification="right" 
                       dfdl:lengthUnits="bytes" 
                       dfdl:lengthKind="explicit"
                       dfdl:length="4"

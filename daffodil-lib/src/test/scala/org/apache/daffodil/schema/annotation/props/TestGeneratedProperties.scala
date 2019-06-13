@@ -81,7 +81,7 @@ class TestGeneratedProperties {
      * by using the DFDL property scoping rules to have the right set of property
      * definitions in it.
      */
-    def findPropertyOption(pname: String): PropertyLookupResult = {
+    def lookupProperty(pname: String): PropertyLookupResult = {
       val propNodeSeq = bagOfProps.attribute(pname)
       propNodeSeq match {
         case None => NotFound(Seq(this), Nil, pname) // attribute was not found

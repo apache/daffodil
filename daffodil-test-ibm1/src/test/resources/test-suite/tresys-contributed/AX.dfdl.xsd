@@ -55,13 +55,13 @@
       <sequence>
         <sequence dfdl:separator="," dfdl:terminator="%NL;">
           <element name="character" type="xsd:string" maxOccurs="unbounded"
-            dfdl:representation="text" dfdl:lengthKind="delimited"
+            dfdl:lengthKind="delimited"
             dfdl:encoding="US-ASCII"
             dfdl:escapeSchemeRef="tns:pound" />
         </sequence>
         <sequence dfdl:separator="," dfdl:terminator="%NL;">
           <element name="block" type="xsd:string" maxOccurs="unbounded"
-            dfdl:representation="text" dfdl:encoding="US-ASCII"
+            dfdl:encoding="US-ASCII"
             dfdl:lengthKind="delimited"
             dfdl:escapeSchemeRef="tns:cStyleComment" />
         </sequence>

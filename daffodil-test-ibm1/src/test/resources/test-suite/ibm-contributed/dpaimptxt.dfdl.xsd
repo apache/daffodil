@@ -39,7 +39,6 @@
 	</xs:annotation> 
 
 	<xs:element name="MyText" 
-		dfdl:representation="text" 
 		dfdl:lengthUnits="characters" 
 		dfdl:lengthKind="implicit">
 		<xs:simpleType>

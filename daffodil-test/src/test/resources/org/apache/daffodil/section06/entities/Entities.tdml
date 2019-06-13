@@ -1137,7 +1137,7 @@ is multiple bytes in UTF-8 encoding that is used"
     <xs:group name="tString50">
       <xs:sequence>
         <xs:element name="value" type="xs:string" dfdl:lengthKind="pattern"
-          dfdl:lengthPattern="[^END]{0,49}(?=END)|.{50}" dfdl:representation="text" />
+          dfdl:lengthPattern="[^END]{0,49}(?=END)|.{50}" />
           <xs:sequence
           dfdl:terminator="{if (fn:string-length(./ex:value) eq 50) then '%ES; %DEL;' else 'END'}" />
           <!-- %DEL is there because %ES cannot be alone in list. -->

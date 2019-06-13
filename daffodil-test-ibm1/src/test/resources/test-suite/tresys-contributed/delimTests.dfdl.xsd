@@ -77,7 +77,7 @@
     dfdl:lengthKind="explicit" dfdl:length="5">
     <xs:complexType>
       <xs:sequence dfdl:initiatedContent="no"
-        dfdl:separatorPosition="infix" dfdl:sequenceKind="ordered"
+        dfdl:sequenceKind="ordered"
         dfdl:separator="">
         <xs:element name="Test1" type="xs:string">
         </xs:element>

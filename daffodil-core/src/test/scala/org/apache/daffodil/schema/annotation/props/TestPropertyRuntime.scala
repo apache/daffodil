@@ -77,7 +77,7 @@ class HasMixin extends SchemaComponentImpl(<foo/>, None)
   with TheExamplePropMixin
   with NestingLexicalMixin {
 
-  override def findPropertyOption(pname: String) =
+  override def lookupProperty(pname: String) =
     Found("left", this, pname, false)
   lazy val fileName = "file:dummy"
   lazy val properties: PropMap = Map.empty

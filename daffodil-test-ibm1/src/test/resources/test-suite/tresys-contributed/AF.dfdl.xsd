@@ -43,9 +43,7 @@
         <complexType>
           <sequence>
             <element name="x" type="xsd:string" dfdl:initiator="%WSP*;x="
-              dfdl:representation="text" dfdl:terminator="%NL;"
-              dfdl:textStringJustification="right"
-              dfdl:textStringPadCharacter="%SP;" />
+              dfdl:terminator="%NL;" />
           </sequence>
         </complexType>
       </element>
@@ -54,9 +52,7 @@
         <complexType>
           <sequence>
             <element name="y" type="xsd:string" dfdl:initiator="%WSP*;y="
-              dfdl:terminator="%NL;" dfdl:representation="text"
-              dfdl:textStringJustification="right"
-              dfdl:textStringPadCharacter="%SP;" />
+              dfdl:terminator="%NL;" />
           </sequence>
         </complexType>
       </element>
@@ -65,9 +61,7 @@
         <complexType>
           <sequence>
             <element name="z" type="xsd:string" dfdl:initiator="%WSP*;z="
-              dfdl:terminator="%NL;" dfdl:representation="text"
-              dfdl:textStringJustification="right"
-              dfdl:textStringPadCharacter="%SP;" />
+              dfdl:terminator="%NL;" />
           </sequence>
         </complexType>
       </element>

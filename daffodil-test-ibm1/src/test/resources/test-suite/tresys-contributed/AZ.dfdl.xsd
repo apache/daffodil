@@ -49,7 +49,7 @@
     <complexType>
       <sequence dfdl:separator="," dfdl:terminator="%NL;">
         <element name="character" type="xsd:string" maxOccurs="unbounded"
-          dfdl:representation="text" dfdl:escapeSchemeRef="tns:mySweetEscape" />
+          dfdl:escapeSchemeRef="tns:mySweetEscape" />
       </sequence>
     </complexType>
   </element>

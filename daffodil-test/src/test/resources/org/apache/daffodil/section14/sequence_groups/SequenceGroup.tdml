@@ -771,11 +771,10 @@
     <xs:sequence>
       <xs:element name="Creator" type="xs:string" dfdl:terminator="%NL;"
         dfdl:initiator="Creator:" dfdl:encoding="ASCII"
-        dfdl:representation="text" dfdl:lengthKind="delimited"
+        dfdl:lengthKind="delimited"
         dfdl:outputValueCalc="{ ' NCSA' }" />
       <xs:element name="Date" type="xs:string" dfdl:terminator="%NL;"
         dfdl:initiator="Date:" dfdl:encoding="ASCII"
-        dfdl:representation="text"
         dfdl:outputValueCalc="{ ' Mon Feb 23 15:20:47 CST 2009' }" />
     </xs:sequence>
   </xs:complexType>
@@ -945,12 +944,10 @@
         <xs:sequence dfdl:separator="%NL;" dfdl:separatorPosition="postfix">
           <xs:sequence dfdl:hiddenGroupRef="ex:xCountGroup" />
           <xs:element name="x" type="xs:string" maxOccurs="unbounded"
-            dfdl:occursCountKind="expression" dfdl:occursCount="{ ../ex:xCount }"
-            dfdl:representation="text" />
+            dfdl:occursCountKind="expression" dfdl:occursCount="{ ../ex:xCount }" />
           <xs:sequence dfdl:hiddenGroupRef="ex:yCountGroup" />
           <xs:element name="y" type="xs:string" maxOccurs="unbounded"
-            dfdl:occursCountKind="expression" dfdl:occursCount="{ ../ex:yCount }"
-            dfdl:representation="text" />
+            dfdl:occursCountKind="expression" dfdl:occursCount="{ ../ex:yCount }" />
         </xs:sequence>
         <xs:sequence dfdl:hiddenGroupRef="ex:leftOver" />
       </xs:sequence>

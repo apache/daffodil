@@ -96,8 +96,7 @@
 
     <xs:element name="SG_04" dfdl:lengthKind="delimited">
       <xs:complexType>
-        <xs:sequence dfdl:separatorPosition="infix"
-          dfdl:separator="">
+        <xs:sequence dfdl:separator="">
           <xs:element name="s1" type="xs:string"
             dfdl:lengthKind="explicit" dfdl:length="3" />
           <xs:element name="s2" type="xs:string"

@@ -50,4 +50,5 @@ class TestPropertySyntax {
   @Test def test_dfdlxProperty1() { runner1.runOneTest("dfdlxProperty1") }
   @Test def test_dfdlxProperty2() { runner1.runOneTest("dfdlxProperty2") }
 
+  @Test def test_ignoredPropertiesWarning() { runner1.runOneTest("ignoredPropertiesWarning") }
 }

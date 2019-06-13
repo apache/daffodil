@@ -47,13 +47,12 @@
             maxOccurs="unbounded">
             <xs:annotation>
               <xs:appinfo source="http://www.ogf.org/dfdl/">
-                <dfdl:element representation="text"
-                  lengthKind="delimited" terminator="/" />
+                <dfdl:element lengthKind="delimited" terminator="/" />
               </xs:appinfo>
             </xs:annotation>
           </xs:element>
           <xs:element name="file" type="xs:string" minOccurs="0"
-            dfdl:representation="text" dfdl:terminator="%NL;"
+            dfdl:terminator="%NL;"
             dfdl:lengthKind="delimited" />
         </xs:sequence>
       </xs:complexType>

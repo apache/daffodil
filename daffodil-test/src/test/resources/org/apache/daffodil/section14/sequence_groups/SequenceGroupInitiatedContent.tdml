@@ -28,8 +28,7 @@
 
     <xs:element name="e1" dfdl:lengthKind="implicit">
       <xs:complexType>
-        <xs:sequence dfdl:initiatedContent="yes"
-          dfdl:separatorPosition="infix" dfdl:separator="">
+        <xs:sequence dfdl:initiatedContent="yes" dfdl:separator="">
           <xs:element name="s1" dfdl:initiator="[" type="xs:int"
             dfdl:terminator="]" minOccurs="0" dfdl:lengthKind="explicit"
             dfdl:length="{ 3 }" />
@@ -42,8 +41,7 @@
 
     <xs:element name="e2" dfdl:lengthKind="implicit">
       <xs:complexType>
-        <xs:sequence dfdl:initiatedContent="yes"
-          dfdl:separatorPosition="infix" dfdl:separator="">
+        <xs:sequence dfdl:initiatedContent="yes" dfdl:separator="">
           <xs:element name="s1" dfdl:initiator="[s1:" type="xs:int"
             dfdl:terminator="]" dfdl:lengthKind="explicit"
             dfdl:length="{ 3 }" />

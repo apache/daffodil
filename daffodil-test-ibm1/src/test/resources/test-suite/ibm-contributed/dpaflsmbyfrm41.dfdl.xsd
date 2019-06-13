@@ -52,7 +52,7 @@
 	</xs:annotation>
 
 	<xs:element name="multibytes" dfdl:ref="config" type="xs:string"
-		dfdl:representation="text" dfdl:textStringJustification="left"
+		dfdl:textStringJustification="left"
 		dfdl:lengthUnits="characters" dfdl:length="6" dfdl:lengthKind="explicit"
 		dfdl:textTrimKind="padChar" dfdl:textPadKind="padChar"
 		dfdl:textStringPadCharacter="%NUL;" />

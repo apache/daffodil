@@ -51,7 +51,7 @@
 
 				</xs:element>
 				<xs:element name="Test2" type="xs:unsignedShort" dfdl:representation="binary" 
-				dfdl:binaryNumberCheckPolicy="lax" dfdl:binaryNumberRep="binary"
+				dfdl:binaryNumberRep="binary"
 				dfdl:lengthKind="explicit" dfdl:length="2">
 
 				</xs:element>

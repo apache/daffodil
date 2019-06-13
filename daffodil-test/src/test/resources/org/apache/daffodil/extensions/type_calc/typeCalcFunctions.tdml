@@ -94,7 +94,7 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element name="raw" type="tns:uint8" dfdl:outputValueCalc="{ dfdlx:outputTypeCalcNextSiblingInt() }"/>
-        <xs:element name="logic" type="tns:AbstractMulitiply2FromInt" dfdl:length="1" dfdl:inputValueCalc="{ 0 }"/>
+        <xs:element name="logic" type="tns:AbstractMulitiply2FromInt" dfdl:inputValueCalc="{ 0 }"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -102,7 +102,7 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element name="raw" type="xs:string" dfdl:outputValueCalc="{ dfdlx:outputTypeCalcNextSiblingString() }"/>
-        <xs:element name="logic" type="tns:AbstractXYZFromInt" dfdl:length="1" dfdl:inputValueCalc="{ 0 }"/>
+        <xs:element name="logic" type="tns:AbstractXYZFromInt" dfdl:inputValueCalc="{ 0 }"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>

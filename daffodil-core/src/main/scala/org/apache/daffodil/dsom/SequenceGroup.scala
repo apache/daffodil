@@ -288,7 +288,8 @@ abstract class SequenceGroupTermBase(
  */
 trait SequenceDefMixin
   extends AnnotatedSchemaComponent
-  with GroupDefLike {
+  with GroupDefLike
+  with ResolvesProperties {
 
   protected final def isMyFormatAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLSequence]
 
@@ -310,7 +311,7 @@ trait SequenceDefMixin
   // So we retrieve it by this lower-level mechanism which only combines short and long form.
   //
   final lazy val hiddenGroupRefOption = LV('hiddenGroupRefOption) {
-    findPropertyOptionThisComponentOnly("hiddenGroupRef")
+    findPropertyOption("hiddenGroupRef")
   }.value
 
 }

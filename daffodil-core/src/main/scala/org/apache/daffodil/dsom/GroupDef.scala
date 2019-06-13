@@ -112,7 +112,8 @@ sealed abstract class GlobalGroupDef(
   extends AnnotatedSchemaComponentImpl(groupXML, schemaDocumentArg)
   with GroupDefLike
   with GlobalNonElementComponentMixin
-  with NestingTraversesToReferenceMixin {
+  with NestingTraversesToReferenceMixin
+  with ResolvesProperties {
 
   requiredEvaluations(groupMembers)
   requiredEvaluations(validateChoiceBranchKey)
@@ -121,7 +122,7 @@ sealed abstract class GlobalGroupDef(
 
   def validateChoiceBranchKey(): Unit = {
     // Ensure the model group of a global group def do not define choiceBranchKey.
-    val found = findPropertyOptionThisComponentOnly("choiceBranchKey")
+    val found = findPropertyOption("choiceBranchKey")
     if (found.isDefined) {
       SDE("dfdl:choiceBranchKey cannot be specified on the choice/sequence child of a global group definition")
     }

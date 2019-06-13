@@ -331,19 +331,19 @@
     </xs:complexType>
 
     <xs:element name="e6" type="xs:string" dfdl:lengthKind="delimited"
-      dfdl:terminator="" dfdl:representation="text" dfdl:alignmentUnits="bits" dfdl:alignment="4" />
+      dfdl:terminator="" dfdl:alignmentUnits="bits" dfdl:alignment="4" />
     
     <xs:element name="e7" type="xs:string" dfdl:lengthKind="delimited"
-      dfdl:terminator="" dfdl:representation="text" dfdl:alignmentUnits="bits" dfdl:alignment="6" dfdl:leadingSkip="5"/>
+      dfdl:terminator="" dfdl:alignmentUnits="bits" dfdl:alignment="6" dfdl:leadingSkip="5"/>
     
     <xs:element name="e8" type="xs:string" dfdl:lengthKind="delimited"
-      dfdl:terminator="" dfdl:representation="text" dfdl:alignmentUnits="bits" dfdl:alignment="1" />
+      dfdl:terminator="" dfdl:alignmentUnits="bits" dfdl:alignment="1" />
     
     <xs:element name="e9" type="xs:string" dfdl:lengthKind="delimited"
-      dfdl:terminator="" dfdl:representation="text" dfdl:alignmentUnits="bits" dfdl:alignment="2" dfdl:leadingSkip="1"/>
+      dfdl:terminator="" dfdl:alignmentUnits="bits" dfdl:alignment="2" dfdl:leadingSkip="1"/>
     
     <xs:element name="e10" type="xs:string" dfdl:lengthKind="delimited"
-      dfdl:terminator="" dfdl:representation="text" dfdl:alignmentUnits="bits" dfdl:alignment="5" />
+      dfdl:terminator="" dfdl:alignmentUnits="bits" dfdl:alignment="5" />
 
     <xs:element name="e11">
       <xs:complexType>
@@ -1100,7 +1100,7 @@
       dfdl:length="4" />
 
     <xs:element name="e6" type="xs:string" dfdl:lengthKind="delimited"
-      dfdl:terminator="" dfdl:representation="text" dfdl:alignmentUnits="bits" dfdl:alignment="4" />
+      dfdl:terminator="" dfdl:alignmentUnits="bits" dfdl:alignment="4" />
 
   </tdml:defineSchema>
 

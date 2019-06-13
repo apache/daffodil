@@ -522,8 +522,8 @@
     <xs:element name="e16">
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
-          <xs:element name="string1" type="xs:string" dfdl:representation="binary" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="5"/> 
-          <xs:element name="string2" type="xs:string" dfdl:representation="binary" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="5"/> 
+          <xs:element name="string1" type="xs:string" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="5"/> 
+          <xs:element name="string2" type="xs:string" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="5"/> 
           <xs:element name="oneEQtwo" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:string1 eq ../ex:string2 }"/>
         </xs:sequence>
       </xs:complexType>
@@ -532,8 +532,8 @@
     <xs:element name="e17">
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
-          <xs:element name="string1" type="xs:string" dfdl:representation="binary" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="5"/> 
-          <xs:element name="string2" type="xs:string" dfdl:representation="binary" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="5"/> 
+          <xs:element name="string1" type="xs:string" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="5"/> 
+          <xs:element name="string2" type="xs:string" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="5"/> 
           <xs:element name="oneLTtwo" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:string1 lt ../ex:string2 }"/>
         </xs:sequence>
       </xs:complexType>

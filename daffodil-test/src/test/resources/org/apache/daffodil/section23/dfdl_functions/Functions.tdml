@@ -238,8 +238,7 @@
     <xs:element name="stringLiteralFromString">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="str" type="xs:string"
-            dfdl:representation="text" />
+          <xs:element name="str" type="xs:string" />
           <xs:element name="literal" type="xs:string"
             dfdl:lengthKind="implicit"
             dfdl:inputValueCalc="{ dfdl:stringLiteralFromString( ../ex:str) }" />
@@ -250,8 +249,7 @@
     <xs:element name="encodeDFDLEntities">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="str" type="xs:string"
-            dfdl:representation="text" />
+          <xs:element name="str" type="xs:string" />
           <xs:element name="literal" type="xs:string"
             dfdl:lengthKind="implicit"
             dfdl:inputValueCalc="{ dfdl:encodeDFDLEntities( ../ex:str) }" />
@@ -262,8 +260,7 @@
     <xs:element name="containsEntity">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="str" type="xs:string"
-            dfdl:representation="text" />
+          <xs:element name="str" type="xs:string" />
           <xs:element name="hasEntity" type="xs:boolean"
             dfdl:lengthKind="implicit" dfdl:inputValueCalc="{ dfdl:containsEntity('TEST%NL;TEST') }" />
         </xs:sequence>
@@ -273,8 +270,7 @@
     <xs:element name="containsDFDLEntities">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="str" type="xs:string"
-            dfdl:representation="text" />
+          <xs:element name="str" type="xs:string" />
           <xs:element name="hasEntity" type="xs:boolean"
             dfdl:lengthKind="implicit" dfdl:inputValueCalc="{ dfdl:containsDFDLEntities('TEST%NL;TEST') }" />
         </xs:sequence>
@@ -284,7 +280,7 @@
     <xs:element name="containsDFDLEntities1">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="str" type="xs:string"  dfdl:representation="text" />
+          <xs:element name="str" type="xs:string" />
           <xs:element name="hasEntity" type="xs:boolean"
             dfdl:lengthKind="implicit" dfdl:inputValueCalc="{ dfdl:containsDFDLEntities(xs:string(/ex:containsDFDLEntities1/ex:str)) }" />
         </xs:sequence>
@@ -6854,7 +6850,7 @@
     <xs:element name="short04">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="string" type="xs:string" dfdl:representation="binary" dfdl:lengthKind="delimited"/>
+          <xs:element name="string" type="xs:string" dfdl:lengthKind="delimited"/>
           <xs:element name="shortified" type="xs:short" dfdl:inputValueCalc="{ xs:short(../ex:string) }"/>
         </xs:sequence>
       </xs:complexType>

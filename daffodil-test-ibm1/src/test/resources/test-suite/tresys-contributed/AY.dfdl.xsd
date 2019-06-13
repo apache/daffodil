@@ -53,10 +53,10 @@
     <complexType>
       <sequence dfdl:separator="SEPARATOR">
         <element name="character" type="xsd:string" maxOccurs="3" minOccurs="0"
-          dfdl:representation="text" dfdl:initiator="INITIATOR1" dfdl:escapeSchemeRef="tns:pound"
+          dfdl:initiator="INITIATOR1" dfdl:escapeSchemeRef="tns:pound"
           dfdl:terminator="TERMINATOR1" />
         <element name="block" type="xsd:string" maxOccurs="unbounded" minOccurs="0"
-          dfdl:representation="text" dfdl:initiator="INITIATOR2" dfdl:escapeSchemeRef="tns:StartEnd"
+          dfdl:initiator="INITIATOR2" dfdl:escapeSchemeRef="tns:StartEnd"
           dfdl:terminator="TERMINATOR2" />
       </sequence>
     </complexType>

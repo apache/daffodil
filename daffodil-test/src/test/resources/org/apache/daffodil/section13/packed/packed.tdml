@@ -45,10 +45,10 @@
     textNumberCheckPolicy="strict" textNumberPadCharacter="0" textNumberJustification="right"
     lengthUnits="bytes" binaryNumberRep="packed" binaryPackedSignCodes="C D F C" binaryNumberCheckPolicy="strict"/>
 
-    <xs:element name="int01" type="xs:int" dfdl:representation="binary" dfdl:length="3" dfdl:textNumberPattern="0000" />
-    <xs:element name="int02" type="xs:int" dfdl:representation="binary" dfdl:length="2" dfdl:textNumberPattern="0000" />
+    <xs:element name="int01" type="xs:int" dfdl:representation="binary" dfdl:length="3" />
+    <xs:element name="int02" type="xs:int" dfdl:representation="binary" dfdl:length="2" />
 
-    <xs:element name="dec01" type="xs:decimal" dfdl:representation="binary" dfdl:binaryDecimalVirtualPoint="2" dfdl:length="3" dfdl:textNumberPattern="0000" />
+    <xs:element name="dec01" type="xs:decimal" dfdl:representation="binary" dfdl:binaryDecimalVirtualPoint="2" dfdl:length="3" />
 
      <xs:element name="cal01" type="xs:date" dfdl:length="3"
        dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="MMddyy"/>
@@ -61,14 +61,14 @@
     textNumberCheckPolicy="strict" textNumberPadCharacter="0" textNumberJustification="right"
     lengthUnits="bytes" binaryNumberRep="bcd" binaryNumberCheckPolicy="strict"/>
 
-    <xs:element name="uint01" type="xs:unsignedInt" dfdl:representation="binary" dfdl:length="4" dfdl:textNumberPattern="0000" />
-    <xs:element name="uint02" type="xs:unsignedInt" dfdl:representation="binary" dfdl:length="2" dfdl:textNumberPattern="0000" />
-    <xs:element name="byte01" type="xs:byte" dfdl:representation="binary" dfdl:length="2" dfdl:textNumberPattern="0000" />
-    <xs:element name="short01" type="xs:short" dfdl:representation="binary" dfdl:length="2" dfdl:textNumberPattern="0000" />
-    <xs:element name="int01" type="xs:int" dfdl:representation="binary" dfdl:length="2" dfdl:textNumberPattern="0000" />
-    <xs:element name="long01" type="xs:long" dfdl:representation="binary" dfdl:length="2" dfdl:textNumberPattern="0000" />
+    <xs:element name="uint01" type="xs:unsignedInt" dfdl:representation="binary" dfdl:length="4" />
+    <xs:element name="uint02" type="xs:unsignedInt" dfdl:representation="binary" dfdl:length="2" />
+    <xs:element name="byte01" type="xs:byte" dfdl:representation="binary" dfdl:length="2" />
+    <xs:element name="short01" type="xs:short" dfdl:representation="binary" dfdl:length="2" />
+    <xs:element name="int01" type="xs:int" dfdl:representation="binary" dfdl:length="2" />
+    <xs:element name="long01" type="xs:long" dfdl:representation="binary" dfdl:length="2" />
 
-    <xs:element name="dec01" type="xs:decimal" dfdl:representation="binary" dfdl:binaryDecimalVirtualPoint="2" dfdl:length="2" dfdl:textNumberPattern="0000" />
+    <xs:element name="dec01" type="xs:decimal" dfdl:representation="binary" dfdl:binaryDecimalVirtualPoint="2" dfdl:length="2" />
 
      <xs:element name="cal01" type="xs:date" dfdl:length="3"
        dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="MMddyy"/>
@@ -81,10 +81,10 @@
     textNumberCheckPolicy="strict" textNumberPadCharacter="0" textNumberJustification="right"
     lengthUnits="bytes" binaryNumberRep="ibm4690Packed" binaryPackedSignCodes="C D F C" binaryNumberCheckPolicy="strict"/>
 
-    <xs:element name="int01" type="xs:int" dfdl:representation="binary" dfdl:length="2" dfdl:textNumberPattern="0000" />
-    <xs:element name="int02" type="xs:int" dfdl:representation="binary" dfdl:length="2" dfdl:textNumberPattern="0000" />
+    <xs:element name="int01" type="xs:int" dfdl:representation="binary" dfdl:length="2" />
+    <xs:element name="int02" type="xs:int" dfdl:representation="binary" dfdl:length="2" />
 
-    <xs:element name="dec01" type="xs:decimal" dfdl:representation="binary" dfdl:binaryDecimalVirtualPoint="2" dfdl:length="2" dfdl:textNumberPattern="0000" />
+    <xs:element name="dec01" type="xs:decimal" dfdl:representation="binary" dfdl:binaryDecimalVirtualPoint="2" dfdl:length="2" />
 
      <xs:element name="cal01" type="xs:date" dfdl:length="3"
        dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="MMddyy"/>
@@ -97,7 +97,7 @@
     textNumberCheckPolicy="strict" textNumberPadCharacter="0" textNumberJustification="right"
     lengthUnits="bytes" binaryNumberRep="packed" binaryPackedSignCodes="C D F C" binaryNumberCheckPolicy="strict"/>
 
-    <xs:element name="int01" type="xs:int" dfdl:representation="binary" dfdl:textNumberPattern="0000" />
+    <xs:element name="int01" type="xs:int" dfdl:representation="binary" />
 
   </tdml:defineSchema>
 
@@ -107,7 +107,7 @@
     textNumberCheckPolicy="strict" textNumberPadCharacter="0" textNumberJustification="right"
     lengthUnits="bytes" binaryNumberRep="bcd" binaryPackedSignCodes="C D F C" binaryNumberCheckPolicy="strict"/>
 
-    <xs:element name="uint01" type="xs:unsignedInt" dfdl:representation="binary" dfdl:textNumberPattern="0000" />
+    <xs:element name="uint01" type="xs:unsignedInt" dfdl:representation="binary" />
 
   </tdml:defineSchema>
 
@@ -117,7 +117,7 @@
     textNumberCheckPolicy="strict" textNumberPadCharacter="0" textNumberJustification="right"
     lengthUnits="bytes" binaryNumberRep="ibm4690Packed" binaryPackedSignCodes="C D F C" binaryNumberCheckPolicy="strict"/>
 
-    <xs:element name="int01" type="xs:int" dfdl:representation="binary" dfdl:textNumberPattern="0000" />
+    <xs:element name="int01" type="xs:int" dfdl:representation="binary" />
 
   </tdml:defineSchema>
 
@@ -127,7 +127,7 @@
     textNumberCheckPolicy="strict" textNumberPadCharacter="0" textNumberJustification="right"
     lengthUnits="bits" binaryNumberRep="packed" binaryPackedSignCodes="C D F C" binaryNumberCheckPolicy="strict"/>
 
-    <xs:element name="int01" type="xs:int" dfdl:representation="binary" dfdl:length="7" dfdl:textNumberPattern="0000" />
+    <xs:element name="int01" type="xs:int" dfdl:representation="binary" dfdl:length="7" />
 
   </tdml:defineSchema>
 
@@ -137,7 +137,7 @@
     textNumberCheckPolicy="strict" textNumberPadCharacter="0" textNumberJustification="right"
     lengthUnits="bits" binaryNumberRep="bcd" binaryPackedSignCodes="C D F C" binaryNumberCheckPolicy="strict"/>
 
-    <xs:element name="uint01" type="xs:unsignedInt" dfdl:representation="binary" dfdl:length="7" dfdl:textNumberPattern="0000" />
+    <xs:element name="uint01" type="xs:unsignedInt" dfdl:representation="binary" dfdl:length="7" />
 
   </tdml:defineSchema>
 
@@ -147,7 +147,7 @@
     textNumberCheckPolicy="strict" textNumberPadCharacter="0" textNumberJustification="right"
     lengthUnits="bits" binaryNumberRep="ibm4690Packed" binaryPackedSignCodes="C D F C" binaryNumberCheckPolicy="strict"/>
 
-    <xs:element name="int01" type="xs:int" dfdl:representation="binary" dfdl:length="7" dfdl:textNumberPattern="0000" />
+    <xs:element name="int01" type="xs:int" dfdl:representation="binary" dfdl:length="7" />
 
   </tdml:defineSchema>
 
@@ -158,7 +158,7 @@
     lengthUnits="bits" binaryNumberRep="packed" binaryPackedSignCodes="C D F C" binaryNumberCheckPolicy="strict"
     alignmentUnits="bits" alignment="1"/>
 
-    <xs:element name="int01" type="xs:int" dfdl:representation="binary" dfdl:length="8" dfdl:textNumberPattern="0000" />
+    <xs:element name="int01" type="xs:int" dfdl:representation="binary" dfdl:length="8" />
 
   </tdml:defineSchema>
 
@@ -169,7 +169,7 @@
     lengthUnits="bits" binaryNumberRep="bcd" binaryPackedSignCodes="C D F C" binaryNumberCheckPolicy="strict"
     alignmentUnits="bits" alignment="1"/>
 
-    <xs:element name="uint01" type="xs:unsignedInt" dfdl:representation="binary" dfdl:length="8" dfdl:textNumberPattern="0000" />
+    <xs:element name="uint01" type="xs:unsignedInt" dfdl:representation="binary" dfdl:length="8" />
 
   </tdml:defineSchema>
 
@@ -180,7 +180,7 @@
     lengthUnits="bits" binaryNumberRep="ibm4690Packed" binaryPackedSignCodes="C D F C" binaryNumberCheckPolicy="strict"
     alignmentUnits="bits" alignment="1"/>
 
-    <xs:element name="int01" type="xs:int" dfdl:representation="binary" dfdl:length="8" dfdl:textNumberPattern="0000" />
+    <xs:element name="int01" type="xs:int" dfdl:representation="binary" dfdl:length="8" />
 
   </tdml:defineSchema>
 

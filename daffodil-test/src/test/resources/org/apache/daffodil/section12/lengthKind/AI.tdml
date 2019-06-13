@@ -34,15 +34,12 @@
         <xs:sequence>
           <xs:element name="firstToken" type="xs:string"
             dfdl:lengthKind="pattern" dfdl:lengthPattern="[a-zA-Z]+"
-            dfdl:representation="text" dfdl:initiator="%WSP+;" />
+            dfdl:initiator="%WSP+;" />
           <xs:element name="secondToken" type="xs:string"
-            dfdl:lengthKind="pattern" dfdl:lengthPattern="[0-9]+"
-            dfdl:representation="text" dfdl:textStringJustification="center"
-            dfdl:textStringPadCharacter="%SP;" />
+            dfdl:lengthKind="pattern" dfdl:lengthPattern="[0-9]+" />
           <xs:element name="thirdToken" type="xs:string"
             dfdl:lengthKind="explicit" dfdl:length="5"
-            dfdl:representation="text" dfdl:textStringJustification="center"
-            dfdl:textStringPadCharacter="%SP;" dfdl:terminator="%NL;%WSP*;" />
+            dfdl:terminator="%NL;%WSP*;" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>

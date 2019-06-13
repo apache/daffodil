@@ -50,7 +50,7 @@
         dfdl:binaryPackedSignCodes="C B F C" dfdl:binaryNumberCheckPolicy="strict"
         dfdl:lengthKind="explicit" dfdl:length="2" />
       <element name="string" type="xsd:string"
-        dfdl:representation="text" dfdl:lengthKind="explicit"
+        dfdl:lengthKind="explicit"
         dfdl:encoding="ASCII" dfdl:length="16" />
     </sequence>
   </complexType>

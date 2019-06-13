@@ -26,7 +26,8 @@ final class GlobalElementDecl(
   extends AnnotatedSchemaComponentImpl(xmlArg, schemaDocument)
   with GlobalElementComponentMixin
   with ElementDeclMixin
-  with NestingTraversesToReferenceMixin {
+  with NestingTraversesToReferenceMixin
+  with ResolvesProperties {
   //   global elements combined with element references referring to them can
   //   be multiple occurring (aka arrays) hence, we have to have things
   //   that take root and referenced situation into account.
@@ -44,7 +45,7 @@ final class GlobalElementDecl(
     // findPropertyOption, since the later will also inspect the element ref.
     // The element ref is allowed to have the dfdl:choiceBranchKey option, so
     // we must not inspect it.
-    val found = findPropertyOptionThisComponentOnly("choiceBranchKey")
+    val found = findPropertyOption("choiceBranchKey")
     if (found.isDefined) {
       SDE("dfdl:choiceBranchKey cannot be specified on a global element declaration")
     }

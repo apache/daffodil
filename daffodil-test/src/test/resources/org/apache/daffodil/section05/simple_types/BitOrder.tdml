@@ -357,7 +357,7 @@
       lengthKind='explicit' alignmentUnits='bytes' alignment='1' binaryNumberRep='binary' />
 
       <xs:element name="littleLeast" type="xs:hexBinary" dfdl:byteOrder="littleEndian"
-        dfdl:representation="binary" dfdl:bitOrder='leastSignificantBitFirst' dfdl:length="3"/>
+        dfdl:bitOrder='leastSignificantBitFirst' dfdl:length="3"/>
 
   </tdml:defineSchema>
 

@@ -51,11 +51,36 @@ import org.apache.daffodil.api.WarnID
  * used to generate any processor (for instance, there may be a globalSimpleType whose
  * only purpose is to define a TypeCalculator for use in DPath expressions)
  */
+
+object ResolvesProperties {
+  /**
+   * List of properties that when looked up should only be found on the
+   * immediate element--properties on a reference or defaults should not be
+   * taken into account.
+   */
+  val localOnlyProperties = Seq(
+    "choiceBranchKey",
+    "hiddenGroupRef",
+    "inputTypeCalc",
+    "outputTypeCalc",
+    "repType",
+    "repValueRanges",
+    "repValues"
+  )
+}
+
 trait ResolvesProperties
   extends FindPropertyMixin { self: AnnotatedSchemaComponent =>
 
   private def findNonDefaultProperty(pname: String): PropertyLookupResult = {
-    val result = findDefaultOrNonDefaultProperty(pname, nonDefaultPropertySources)
+    val sources =
+      if (ResolvesProperties.localOnlyProperties.contains(pname)) {
+        Seq(nonDefaultFormatChain)
+      } else {
+        nonDefaultPropertySources
+      }
+
+    val result = findPropertyInSources(pname, sources)
     result match {
       case f: Found => f
       case NotFound(nd, d, _) =>
@@ -65,7 +90,7 @@ trait ResolvesProperties
   }
 
   private def findDefaultProperty(pname: String): PropertyLookupResult = {
-    val result = findDefaultOrNonDefaultProperty(pname, defaultPropertySources)
+    val result = findPropertyInSources(pname, defaultPropertySources)
     val fixup = result match {
       case Found(value, loc, pname, _) =>
         // found as a default property.
@@ -78,28 +103,62 @@ trait ResolvesProperties
     fixup
   }
 
+  private def findPropertyInSources(
+    pname: String,
+    sources: Seq[ChainPropProvider]): PropertyLookupResult = {
+    //
+    // Important - use of stream here insures we don't lookup
+    // properties down the chain once we have them here.
+    //
+    val str = sources.toStream.map { _.chainFindProperty(pname) }
+    val optFound = str.collectFirst { case found: Found => found }
+    val result = optFound match {
+      case Some(f: Found) => f
+      case None => {
+        val seq = str.toSeq
+        // merge all the NotFound stuff.
+        val nonDefaults = seq.flatMap {
+          case NotFound(nd, d, _) => nd
+          case _: Found => Assert.invariantFailed()
+        }
+        val defaults = seq.flatMap {
+          case NotFound(nd, d, _) => d
+          case _: Found => Assert.invariantFailed()
+        }
+        Assert.invariant(defaults.isEmpty)
+        val nf = NotFound(nonDefaults, defaults, pname)
+        nf
+      }
+    }
+    result
+  }
+
   /**
    * Does lookup of property using DFDL scoping rules, checking first non-default
    *  properties, then default property locations.
    */
-  override def findPropertyOption(pname: String): PropertyLookupResult = {
+  protected override def lookupProperty(pname: String): PropertyLookupResult = {
     ExecutionMode.requireCompilerMode
     // first try in regular properties
     val regularResult = findNonDefaultProperty(pname)
     regularResult match {
       case f: Found => f
-      case NotFound(nonDefaultLocsTried1, defaultLocsTried1, _) => {
-        Assert.invariant(defaultLocsTried1.isEmpty)
-        val defaultResult = findDefaultProperty(pname)
-        defaultResult match {
-          case f: Found => f
-          case NotFound(nonDefaultLocsTried2, defaultLocsTried2, _) => {
-            Assert.invariant(nonDefaultLocsTried2.isEmpty)
-            // did not find it at all. Return a NotFound with all the places we
-            // looked non-default and default.
-            val nonDefaultPlaces = nonDefaultLocsTried1
-            val defaultPlaces = defaultLocsTried2
-            NotFound(nonDefaultPlaces, defaultPlaces, pname)
+      case nf @ NotFound(nonDefaultLocsTried1, defaultLocsTried1, _) => {
+        if (ResolvesProperties.localOnlyProperties.contains(pname)) {
+          nf
+        } else {
+          Assert.invariant(defaultLocsTried1.isEmpty)
+          val defaultResult = findDefaultProperty(pname)
+          defaultResult match {
+            case f: Found => f
+            case NotFound(nonDefaultLocsTried2, defaultLocsTried2, _) => {
+              Assert.invariant(nonDefaultLocsTried2.isEmpty)
+              // did not find it at all. Return a NotFound with all the places we
+              // looked non-default and default.
+              val nonDefaultPlaces = nonDefaultLocsTried1
+              val defaultPlaces = defaultLocsTried2
+              NotFound(nonDefaultPlaces, defaultPlaces, pname)
+            }
           }
         }
       }
@@ -192,48 +251,6 @@ trait AnnotatedSchemaComponent
   final protected lazy val defaultFormatChain: ChainPropProvider = {
     val res = schemaDocument.formatAnnotation.formatChain
     res
-  }
-
-  protected final def findDefaultOrNonDefaultProperty(
-    pname: String,
-    sources: Seq[ChainPropProvider]): PropertyLookupResult = {
-    //
-    // Important - use of stream here insures we don't lookup
-    // properties down the chain once we have them here.
-    //
-    val str = sources.toStream.map { _.chainFindProperty(pname) }
-    val optFound = str.collectFirst { case found: Found => found }
-    val result = optFound match {
-      case Some(f: Found) => f
-      case None => {
-        val seq = str.toSeq
-        // merge all the NotFound stuff.
-        val nonDefaults = seq.flatMap {
-          case NotFound(nd, d, _) => nd
-          case _: Found => Assert.invariantFailed()
-        }
-        val defaults = seq.flatMap {
-          case NotFound(nd, d, _) => d
-          case _: Found => Assert.invariantFailed()
-        }
-        Assert.invariant(defaults.isEmpty)
-        val nf = NotFound(nonDefaults, defaults, pname)
-        nf
-      }
-    }
-    result
-  }
-
-  /**
-   * Use this when you want to know if a property is defined exactly on a
-   * component. This ignores any default properties or properties defined on
-   * element references. For example, if you want to know if a property was
-   * defined on a global element decl rather than an element reference to that
-   * decl.
-   */
-  final def findPropertyOptionThisComponentOnly(pname: String): PropertyLookupResult = {
-    val result = findDefaultOrNonDefaultProperty(pname, Seq(nonDefaultFormatChain))
-    result
   }
 }
 

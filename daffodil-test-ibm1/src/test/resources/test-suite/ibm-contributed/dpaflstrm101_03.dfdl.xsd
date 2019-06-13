@@ -39,7 +39,6 @@
 	</xs:annotation>
 
 	<xs:element name="Fixed_string_with_Pads_9" dfdl:ref="config"
-	dfdl:representation="text" 
 	dfdl:lengthUnits="characters" 
 	dfdl:length="9" 
 	dfdl:lengthKind="explicit">

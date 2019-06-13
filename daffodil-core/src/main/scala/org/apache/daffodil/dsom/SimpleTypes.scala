@@ -75,16 +75,18 @@ sealed trait SimpleTypeBase extends TypeBase
  * In the case of simpleType, it is possible that optRepValueSetFromAttribute will be none
  * but the element will still have an optRepValueSet for another source (eg. children elements)
  */
-sealed trait HasRepValueAttributes extends AnnotatedSchemaComponent {
+sealed trait HasRepValueAttributes extends AnnotatedSchemaComponent
+  with ResolvesProperties {
+
   def optRepType: Option[SimpleTypeBase]
   def optRepValueSet: Option[RepValueSet[AnyRef]]
 
   lazy val (repValuesAttrCooked: Seq[AnyRef], repValueRangesAttrCooked: Seq[(RangeBound[BigInt], RangeBound[BigInt])]) =
     optRepType match {
       case Some(repType) => {
-        val repValueSetRaw = findPropertyOptionThisComponentOnly("repValues").toOption
+        val repValueSetRaw = findPropertyOption("repValues").toOption
           .map(_.split("\\s+").toSeq).getOrElse(Seq())
-        val repValueRangesRaw = findPropertyOptionThisComponentOnly("repValueRanges").toOption
+        val repValueRangesRaw = findPropertyOption("repValueRanges").toOption
           .map(_.split("\\s+").toSeq).getOrElse(Seq())
         repType.primType match {
           case PrimType.String => {
@@ -321,8 +323,8 @@ abstract class SimpleTypeDefBase(xml: Node, lexicalParent: SchemaComponent)
     }
   }
 
-  lazy val optInputTypeCalc = findPropertyOptionThisComponentOnly("inputTypeCalc")
-  lazy val optOutputTypeCalc = findPropertyOptionThisComponentOnly("outputTypeCalc")
+  lazy val optInputTypeCalc = findPropertyOption("inputTypeCalc")
+  lazy val optOutputTypeCalc = findPropertyOption("outputTypeCalc")
 
   lazy val optTypeCalculator: Option[TypeCalculator[AnyRef, AnyRef]] = {
     optRepType.flatMap(repType => {
@@ -421,7 +423,7 @@ abstract class SimpleTypeDefBase(xml: Node, lexicalParent: SchemaComponent)
    */
   override lazy val optRepType: Option[SimpleTypeBase with NamedMixin] = LV('optRepType) {
     lazy val fromSelf: Option[SimpleTypeBase with NamedMixin] = {
-      val qName = findPropertyOptionThisComponentOnly("repType").toOption
+      val qName = findPropertyOption("repType").toOption
         .map(qn => {
           QName.resolveRef(qn, namespaces, tunable).toOption match {
             case Some(x) => x
