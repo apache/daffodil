@@ -109,6 +109,10 @@ final class ProcessorFactory(val sset: SchemaSet)
 
   lazy val rootElem = sset.root
 
+  lazy val checkUnusedProperties = LV('hasUnusedProperties) {
+    rootElem.checkUnusedProperties
+  }.value
+
   //
   // breaking this into these lines causes the order things are
   // evaluated in to be more rational than if pure demand-driven
@@ -135,8 +139,12 @@ final class ProcessorFactory(val sset: SchemaSet)
           // try to compile invalid schemas.
           val requiredErr = super.isError
           val ssetErr = sset.isError
-          val res = requiredErr || ssetErr
-          res
+          val hasErrors = requiredErr || ssetErr
+          if (!hasErrors) {
+            // only check for unused properties if there are no errors
+            checkUnusedProperties
+          }
+          hasErrors
         } else true
       }
     }

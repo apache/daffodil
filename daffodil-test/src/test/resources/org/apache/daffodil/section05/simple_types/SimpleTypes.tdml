@@ -7088,7 +7088,7 @@
     <xs:element name="hB_root05">
             <xs:complexType>
         <xs:sequence>
-          <xs:element name="str" type="xs:string" dfdl:lengthKind="explicit" dfdl:representation="text" dfdl:length="10" dfdl:lengthUnits="characters"/>
+          <xs:element name="str" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="10" dfdl:lengthUnits="characters"/>
           <xs:element name="hex" type="xs:hexBinary" dfdl:lengthKind="delimited" dfdl:inputValueCalc="{ xs:hexBinary(../ex:str) }" dfdl:encoding="ISO-8859-1" />
                 </xs:sequence>
             </xs:complexType>
@@ -7119,7 +7119,7 @@
       </xs:restriction>
     </xs:simpleType>
     
-    <xs:element name="hB_rep" dfdl:representation="text" type="xs:hexBinary" dfdl:lengthKind="delimited" dfdl:encoding="ISO-8859-1"/>
+    <xs:element name="hB_rep" type="xs:hexBinary" dfdl:lengthKind="delimited" dfdl:encoding="ISO-8859-1"/>
 
     <xs:element name="hB_fromString" type="xs:hexBinary" dfdl:encoding="ISO-8859-1" dfdl:inputValueCalc="{ xs:string('DEADBEEF') }" />
 

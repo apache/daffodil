@@ -80,11 +80,8 @@
 	<xs:element name="root" dfdl:lengthKind="implicit" dfdl:ref="config">
 		<xs:complexType>
 			<xs:sequence dfdl:ref="config">
-				<xs:element name="element1" type="xs:string" dfdl:ref="baseString"
-					dfdl:representation="text" />
-				<xs:element name="element2" type="xs:string" dfdl:ref="baseString"
-					dfdl:representation="text" />
-
+				<xs:element name="element1" type="xs:string" dfdl:ref="baseString" />
+				<xs:element name="element2" type="xs:string" dfdl:ref="baseString" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>

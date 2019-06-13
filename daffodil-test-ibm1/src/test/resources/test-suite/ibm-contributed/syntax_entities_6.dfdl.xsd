@@ -94,7 +94,7 @@
 				<xs:element name="binbyte" type="xs:byte"
 					dfdl:lengthUnits="bytes" dfdl:lengthKind="implicit"
 					dfdl:representation="binary" dfdl:binaryNumberRep="binary"
-					dfdl:binaryNumberCheckPolicy="lax" dfdl:alignment="4"
+					dfdl:alignment="4"
 					dfdl:alignmentUnits="bytes" dfdl:fillByte="%#r7e;"
 					dfdl:leadingSkip="0" dfdl:trailingSkip="0">
 
@@ -102,7 +102,7 @@
 				<xs:element name="binbyte2" type="xs:byte"
 					dfdl:lengthUnits="bytes" dfdl:lengthKind="implicit"
 					dfdl:representation="binary" dfdl:binaryNumberRep="binary"
-					dfdl:binaryNumberCheckPolicy="lax" dfdl:alignment="4"
+					dfdl:alignment="4"
 					dfdl:alignmentUnits="bytes" dfdl:fillByte="%#r7e;"
 					dfdl:leadingSkip="0" dfdl:trailingSkip="0">
 

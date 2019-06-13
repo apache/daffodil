@@ -64,7 +64,6 @@
 		</xs:appinfo>
 	</xs:annotation>
 	
-	<xs:element name="element1" type="xs:string" dfdl:ref="config"
-					dfdl:representation="text" />
+	<xs:element name="element1" type="xs:string" dfdl:ref="config" />
 				
 </xs:schema>

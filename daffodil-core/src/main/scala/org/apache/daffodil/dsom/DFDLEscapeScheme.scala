@@ -45,7 +45,7 @@ final class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: 
 
   final lazy val referringComponent: Option[SchemaComponent] = Some(defES)
 
-  final override def findPropertyOption(pname: String): PropertyLookupResult = {
+  protected final override def lookupProperty(pname: String): PropertyLookupResult = {
     ExecutionMode.requireCompilerMode // never get properties at runtime, only compile time.
     val propNodeSeq = xml.attribute(pname)
     propNodeSeq match {

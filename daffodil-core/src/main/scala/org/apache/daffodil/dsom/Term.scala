@@ -41,6 +41,7 @@ import org.apache.daffodil.schema.annotation.props.gen.Representation
 import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.schema.annotation.props.gen.OccursCountKind
 import org.apache.daffodil.schema.annotation.props.SeparatorSuppressionPolicy
+import org.apache.daffodil.api.WarnID
 
 /**
  * Mixin for objects that are shared, but have consistency checks to be run
@@ -107,10 +108,45 @@ trait Term
     statements.foreach { _.checkTerm(this) }
   }
 
+  /**
+   * Used to recursively go through Terms and look for DFDL properties that
+   * have not been accessed and record it as a warning. This function uses the
+   * property cache state to determine which properties have been access, so
+   * this function must only be called after all property accesses are complete
+   * (e.g. schema compilation has finished) to ensure there are no false
+   * positives.
+   */
+  final def checkUnusedProperties: Unit = {
+    // Get the properties defined on this term and what it refers to
+    val localProps = formatAnnotation.justThisOneProperties
+    val refProps = optReferredToComponent.map { _.formatAnnotation.justThisOneProperties }.getOrElse(Map.empty)
+
+    // If a term references a global simple type, we need to inspect the
+    // propCache of the simple type in addition to this terms propCache. This
+    // is because some property lookup results are cached on the global simple
+    // type, like in the case of type calc properties
+    val optSimpleTypeCached = optReferredToComponent.collect { case gstd: GlobalSimpleTypeDef => gstd.propCache }
+    val usedProperties = propCache ++ optSimpleTypeCached.getOrElse(Map.empty)
+
+    localProps.foreach { case (prop, (value, _)) =>
+      if (!usedProperties.contains(prop)) {
+        SDW(WarnID.IgnoreDFDLProperty, "DFDL property was ignored: %s=\"%s\"", prop, value)
+      }
+    }
+
+    refProps.foreach { case (prop, (value, _)) =>
+      if (!usedProperties.contains(prop)) {
+        optReferredToComponent.get.SDW(WarnID.IgnoreDFDLProperty, "DFDL property was ignored: %s=\"%s\"", prop, value)
+      }
+    }
+
+    termChildren.foreach { _.checkUnusedProperties }
+  }
+
   def position: Int
 
   def optIgnoreCase: Option[YesNo] = {
-    val ic = cachePropertyOption("ignoreCase")
+    val ic = findPropertyOption("ignoreCase")
     ic match {
       case Found(value, location, _, _) => Some(YesNo(value, location))
       case _ => None

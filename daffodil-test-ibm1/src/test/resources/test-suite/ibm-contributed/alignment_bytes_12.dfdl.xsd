@@ -140,7 +140,6 @@
 			dfdl:fillByte="%#r7e;"
 			dfdl:leadingSkip="0"
 			dfdl:trailingSkip="0"
-			dfdl:representation="text"
                      >
 	
 	</xs:element>

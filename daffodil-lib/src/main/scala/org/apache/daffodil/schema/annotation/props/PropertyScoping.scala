@@ -112,9 +112,28 @@ trait FindPropertyMixin extends PropTypes {
   def SDE(str: String, args: Any*): Nothing
 
   /**
-   * Implemented in various ways by users of the mixin.
+   * Implemented in various ways by users of the mixin to find a property. This
+   * should never be directly called to find a property. Instead one should use
+   * findPropertyOption and friends, which ensure that caching is consistent.
    */
-  def findPropertyOption(pname: String): PropertyLookupResult
+  protected def lookupProperty(pname: String): PropertyLookupResult
+  
+  val propCache = new scala.collection.mutable.LinkedHashMap[String, PropertyLookupResult]
+
+  final def findPropertyOption(pname: String): PropertyLookupResult = {
+
+    val propCacheResult = propCache.get(pname)
+    val propRes =
+      propCacheResult match {
+        case Some(res) => res
+        case None => {
+          val lr = lookupProperty(pname)
+          propCache.put(pname, lr)
+          lr
+        }
+      }
+    propRes
+  }
 
   /**
    * Call this to find/get a property.
@@ -204,38 +223,6 @@ trait FindPropertyMixin extends PropTypes {
       case Found(v, _, _, _) if (v == value) => true
       case _: Found => false
       case _: NotFound => false
-    }
-  }
-
-  private val propCache = new scala.collection.mutable.LinkedHashMap[String, PropertyLookupResult]
-
-  protected final def cachePropertyOption(name: String): PropertyLookupResult = {
-    val propCacheResult = propCache.get(name)
-    val propRes =
-      propCacheResult match {
-        case Some(res) => res
-        case None => {
-          val lr = findPropertyOption(name)
-          propCache.put(name, lr)
-          lr
-        }
-      }
-    propRes
-  }
-
-  protected final def cacheProperty(name: String): Found = {
-    val propCacheResult = cachePropertyOption(name)
-    propCacheResult match {
-      case f: Found => f
-      case nf: NotFound => requiredButNotFound(nf)
-    }
-  }
-
-  protected final def cacheGetPropertyOption(name: String): Option[String] = {
-    val pOpt = cachePropertyOption(name)
-    pOpt match {
-      case Found(v, l, _, _) => Some(v)
-      case _ => None
     }
   }
 }

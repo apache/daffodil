@@ -44,16 +44,14 @@
         <element name="x" type="xsd:hexBinary">
           <annotation>
             <appinfo source="http://www.ogf.org/dfdl/">
-              <dfdl:element representation="binary"
-                lengthKind="explicit" length="4" />
+              <dfdl:element lengthKind="explicit" length="4" />
             </appinfo>
           </annotation>
         </element>
         <element name="y">
           <annotation>
             <appinfo source="http://www.ogf.org/dfdl/">
-              <dfdl:element representation="binary"
-                lengthKind="implicit" />
+              <dfdl:element lengthKind="implicit" />
             </appinfo>
           </annotation>
           <simpleType>

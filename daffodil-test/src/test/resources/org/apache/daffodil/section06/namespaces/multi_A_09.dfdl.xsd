@@ -29,7 +29,7 @@
   <xs:element name="aElem" type="xs:string" dfdl:initiator="A:" dfdl:terminator=":A"/>   
 
   <!-- Note that explicit length is exclusive of initiator and terminator. It's the content length. -->
-  <xs:element name="aElem2" type="xs:string" dfdl:representation="binary" dfdl:lengthUnits="characters" dfdl:lengthKind="explicit" dfdl:length="3" dfdl:encoding="UTF-16BE" dfdl:initiator="A:" dfdl:terminator=":A"/>
-  <xs:element name="aElem3" type="xs:string" dfdl:representation="binary" dfdl:lengthUnits="characters" dfdl:lengthKind="explicit" dfdl:length="3" dfdl:encoding="UTF-16BE"/>
+  <xs:element name="aElem2" type="xs:string" dfdl:lengthUnits="characters" dfdl:lengthKind="explicit" dfdl:length="3" dfdl:encoding="UTF-16BE" dfdl:initiator="A:" dfdl:terminator=":A"/>
+  <xs:element name="aElem3" type="xs:string" dfdl:lengthUnits="characters" dfdl:lengthKind="explicit" dfdl:length="3" dfdl:encoding="UTF-16BE"/>
  
 </xs:schema>

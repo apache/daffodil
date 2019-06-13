@@ -42,24 +42,21 @@
 
   <group name="choiceGroup">
     <choice>
-      <element name="zone1" type="xsd:string" dfdl:terminator="%NL;"
-        dfdl:representation="text">
+      <element name="zone1" type="xsd:string" dfdl:terminator="%NL;">
         <annotation>
           <appinfo source="http://www.ogf.org/dfdl/">
             <dfdl:discriminator test="{ ../zoneNumber eq 1 }" />
           </appinfo>
         </annotation>
       </element>
-      <element name="zone2" type="xsd:string" dfdl:terminator="%NL;"
-        dfdl:representation="text">
+      <element name="zone2" type="xsd:string" dfdl:terminator="%NL;">
         <annotation>
           <appinfo source="http://www.ogf.org/dfdl/">
             <dfdl:discriminator test="{ ../zoneNumber eq 2 }" />
           </appinfo>
         </annotation>
       </element>
-      <element name="zone3" type="xsd:string" dfdl:terminator="%NL;"
-        dfdl:representation="text">
+      <element name="zone3" type="xsd:string" dfdl:terminator="%NL;">
         <annotation>
           <appinfo source="http://www.ogf.org/dfdl/">
             <dfdl:discriminator test="{ ../zoneNumber eq 3 }" />

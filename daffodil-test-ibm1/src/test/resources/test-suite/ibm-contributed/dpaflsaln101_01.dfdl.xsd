@@ -59,13 +59,13 @@
 				dfdl:initiatedContent="no" dfdl:alignment="8">
 
 				<xs:element name="Fixed_text_1" type="xs:string"
-					minOccurs="1" maxOccurs="1" dfdl:representation="text" dfdl:length="1"
+					minOccurs="1" maxOccurs="1" dfdl:length="1"
 					dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes">
 
 				</xs:element>
 
 				<xs:element name="Fixed_text_2a" type="xs:string"
-					minOccurs="1" maxOccurs="1" dfdl:representation="text" dfdl:length="2"
+					minOccurs="1" maxOccurs="1" dfdl:length="2"
 					dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:alignment="4"
 					dfdl:alignmentUnits="bytes" dfdl:fillByte="%#r66;"
 					dfdl:leadingSkip="0" dfdl:trailingSkip="0">
@@ -84,7 +84,7 @@
 				dfdl:initiatedContent="no" dfdl:alignment="8">
 
 				<xs:element name="Fixed_text_3" minOccurs="1" maxOccurs="1"
-					dfdl:representation="text" dfdl:length="3" dfdl:lengthKind="explicit"
+					dfdl:length="3" dfdl:lengthKind="explicit"
 					dfdl:lengthUnits="bytes">
 
 					<xs:simpleType>
@@ -95,7 +95,7 @@
 				</xs:element>
 
 				<xs:element name="Fixed_text_2a" minOccurs="1" maxOccurs="1"
-					dfdl:representation="text" dfdl:length="2" dfdl:lengthKind="explicit"
+					dfdl:length="2" dfdl:lengthKind="explicit"
 					dfdl:lengthUnits="bytes" dfdl:alignment="4" dfdl:alignmentUnits="bytes"
 					dfdl:fillByte="%#r66;" dfdl:leadingSkip="2" dfdl:trailingSkip="0">
 
@@ -117,7 +117,7 @@
 				dfdl:initiatedContent="no" dfdl:alignment="8">
 
 				<xs:element name="Fixed_text_3" minOccurs="1" maxOccurs="1"
-					dfdl:representation="text" dfdl:length="3" dfdl:lengthKind="explicit"
+					dfdl:length="3" dfdl:lengthKind="explicit"
 					dfdl:lengthUnits="bytes" dfdl:alignment="4" dfdl:alignmentUnits="bytes"
 					dfdl:fillByte="%#r65;" dfdl:leadingSkip="0" dfdl:trailingSkip="2">
 
@@ -129,7 +129,7 @@
 				</xs:element>
 
 				<xs:element name="Fixed_text_2a" minOccurs="1" maxOccurs="1"
-					dfdl:representation="text" dfdl:length="2" dfdl:lengthKind="explicit"
+					dfdl:length="2" dfdl:lengthKind="explicit"
 					dfdl:lengthUnits="bytes" dfdl:alignment="4" dfdl:alignmentUnits="bytes"
 					dfdl:fillByte="%#r66;" dfdl:leadingSkip="0" dfdl:trailingSkip="0">
 

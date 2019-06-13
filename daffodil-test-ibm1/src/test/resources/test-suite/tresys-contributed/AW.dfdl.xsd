@@ -53,11 +53,11 @@
       <sequence>
         <sequence dfdl:separator="," dfdl:terminator="%NL;">
           <element name="character" type="xsd:string" maxOccurs="unbounded"
-            dfdl:representation="text" dfdl:escapeSchemeRef="tns:pound" />
+            dfdl:escapeSchemeRef="tns:pound" />
         </sequence>
         <sequence dfdl:separator="," dfdl:terminator="%NL;">
           <element name="block" type="xsd:string" maxOccurs="unbounded"
-            dfdl:representation="text" dfdl:escapeSchemeRef="tns:cStyleComment" />
+            dfdl:escapeSchemeRef="tns:cStyleComment" />
         </sequence>
       </sequence>
     </complexType>

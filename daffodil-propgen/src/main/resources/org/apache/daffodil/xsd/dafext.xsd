@@ -341,7 +341,7 @@
             </xs:documentation>
           </xs:annotation>
         </xs:element>
-        <xs:element name="suppressSchemaDefinitionWarnings" type="daf:TunableSuppressSchemaDefinitionWarnings" default="" minOccurs="0">
+        <xs:element name="suppressSchemaDefinitionWarnings" type="daf:TunableSuppressSchemaDefinitionWarnings" default="emptyElementParsePolicyError" minOccurs="0">
           <xs:annotation>
             <xs:documentation>
               Space-separated list of schema definition warnings that should be ignored,
@@ -419,6 +419,7 @@
           <xs:enumeration value="facetExplicitLengthOutOfRange" />
           <xs:enumeration value="floatingError" />
           <xs:enumeration value="ignoreImport" />
+          <xs:enumeration value="ignoreDFDLProperty" />
           <xs:enumeration value="inconsistentLengthKind" />
           <xs:enumeration value="multipleChoiceBranches" />
           <xs:enumeration value="namespaceDifferencesOnly" />

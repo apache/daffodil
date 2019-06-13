@@ -137,6 +137,16 @@
 
     <xs:element name="root6_deprecated" type="xs:int" daf:parseUnparsePolicy="unparseOnly" />
 
+    <xs:element name="root7" type="xs:string" dfdl:textBooleanTrueRep="true">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
+          <dfdl:element textBooleanFalseRep="false">
+            <dfdl:property name="textBooleanJustification">center</dfdl:property>
+          </dfdl:element>
+        </xs:appinfo>
+      </xs:annotation>
+    </xs:element>
+    
 </tdml:defineSchema>
     
     <tdml:parserTestCase name="ShortAndLongForm" root="root"
@@ -329,6 +339,24 @@
       <tdml:error>dfdl:element</tdml:error>
       <tdml:error>badElementFormProperty2</tdml:error>
     </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!-- This test includes boolean properties that should all be ignored since the type is xs:string -->
+  <tdml:parserTestCase name="ignoredPropertiesWarning" root="root7"
+    model="PropertySyntax" description="warning due to unused properties"
+    roundTrip="true">
+    <tdml:document><![CDATA[1]]></tdml:document>
+    <tdml:warnings>
+      <tdml:warning>DFDL property was ignored</tdml:warning>
+      <tdml:warning>textBooleanTrueRep</tdml:warning>
+      <tdml:warning>textBooleanFalseRep</tdml:warning>
+      <tdml:warning>textBooleanJustification</tdml:warning>
+    </tdml:warnings>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root7>1</root7>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
 </tdml:testSuite>

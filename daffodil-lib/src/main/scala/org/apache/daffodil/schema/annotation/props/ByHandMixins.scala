@@ -421,7 +421,7 @@ trait EmptyElementParsePolicyMixin extends PropertyMixin {
    * using its name. E.g., if you need calendarTimeZone, just use
    * a.calendarTimeZone (where a is an AnnotatedSchemaComponent)
    */
-  private def optionEmptyElementPolicyRaw = cachePropertyOption("emptyElementParsePolicy")
+  private def optionEmptyElementPolicyRaw = findPropertyOption("emptyElementParsePolicy")
   private def emptyElementPolicyRaw =
     EmptyElementParsePolicy(requireProperty(optionEmptyElementPolicyRaw).value, this)
 

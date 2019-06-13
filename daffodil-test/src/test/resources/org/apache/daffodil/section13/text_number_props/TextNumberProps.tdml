@@ -182,32 +182,33 @@
      <xs:element name="decimalPad" type="xs:decimal" dfdl:lengthKind="delimited" dfdl:textTrimKind="padChar" dfdl:textNumberPattern="begin: # :end" 
        dfdl:textNumberCheckPolicy="strict" dfdl:textNumberPadCharacter="*" dfdl:textNumberJustification="center"/>
      <xs:element name="decimalNoPad" type="xs:decimal" dfdl:lengthKind="delimited" dfdl:textTrimKind="none" dfdl:textNumberPattern="begin: # :end" 
-       dfdl:textNumberCheckPolicy="strict" dfdl:textNumberPadCharacter="*" dfdl:textNumberJustification="center"/>
+       dfdl:textNumberCheckPolicy="strict" />
      <xs:element name="decimalPad2" type="xs:decimal" dfdl:lengthKind="delimited" dfdl:textTrimKind="padChar" 
        dfdl:textNumberPadCharacter="*" dfdl:textNumberJustification="center"/>
      <xs:element name="decimalPad3" type="xs:decimal" dfdl:lengthKind="delimited" dfdl:textTrimKind="none" dfdl:textNumberPattern="**begin: # :end" 
        dfdl:textNumberCheckPolicy="strict"/>
      <xs:element name="intPad" type="xs:int" dfdl:lengthKind="delimited" dfdl:textTrimKind="padChar" dfdl:textNumberPattern="begin: # :end" 
        dfdl:textNumberCheckPolicy="strict" dfdl:textNumberPadCharacter="*" dfdl:textNumberJustification="center"/>
+
      
      <xs:element name="nonNegIntPad" type="xs:nonNegativeInteger" dfdl:lengthKind="delimited" dfdl:textTrimKind="padChar" dfdl:textNumberPattern="begin: # :end" 
        dfdl:textNumberCheckPolicy="strict" dfdl:textNumberPadCharacter="*" dfdl:textNumberJustification="center"/>
      <xs:element name="nonNegIntNoPad" type="xs:nonNegativeInteger" dfdl:lengthKind="delimited" dfdl:textTrimKind="none" dfdl:textNumberPattern="begin: # :end" 
-       dfdl:textNumberCheckPolicy="strict" dfdl:textNumberPadCharacter="*" dfdl:textNumberJustification="center"/>
+       dfdl:textNumberCheckPolicy="strict"/>
      <xs:element name="nonNegIntPad2" type="xs:nonNegativeInteger" dfdl:lengthKind="delimited" dfdl:textTrimKind="padChar" 
        dfdl:textNumberPadCharacter="*" dfdl:textNumberJustification="center"/>
      <xs:element name="nonNegIntPad3" type="xs:nonNegativeInteger" dfdl:lengthKind="delimited" dfdl:textTrimKind="none" dfdl:textNumberPattern="**begin: # :end" 
        dfdl:textNumberCheckPolicy="strict"/>
      
-     <xs:element name="hexBinaryPad1" type="xs:hexBinary" dfdl:lengthKind="delimited" dfdl:textTrimKind="padChar" dfdl:textNumberPadCharacter="*" dfdl:textNumberJustification="center" 
-       dfdl:textNumberCheckPolicy="strict" dfdl:representation="binary" dfdl:encoding="ISO-8859-1"/>
+     <xs:element name="hexBinaryPad1" type="xs:hexBinary" dfdl:lengthKind="delimited" dfdl:textTrimKind="padChar"
+       dfdl:encoding="ISO-8859-1"/>
      
      <xs:element name="tnp69" type="xs:float" dfdl:textNumberRep="standard" dfdl:textNumberPattern="'+'###0.00" />
      <xs:element name="tnp70" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberPattern="'+'#;-#" />
      <xs:element name="tnp71" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberPattern="'E'#;-#" />
      <xs:element name="tnp72" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="2" dfdl:textNumberRep="standard" dfdl:textNumberPattern="'+'#;-#" />
      
-     <xs:element name="tnp73" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberPattern="the num: #;-#" dfdl:inputValueCalc="{ 500 }" />
+     <xs:element name="tnp73" type="xs:int" dfdl:textNumberPattern="the num: #;-#" dfdl:inputValueCalc="{ 500 }" />
      
      <xs:element name="tnp74">
        <xs:complexType>
@@ -2862,6 +2863,10 @@
     <tdml:document>
       <tdml:documentPart type="text"></tdml:documentPart>
     </tdml:document>
+    <tdml:warnings>
+      <tdml:warning>DFDL property was ignored</tdml:warning>
+      <tdml:warning>textNumberPattern</tdml:warning>
+    </tdml:warnings>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <tnp73>500</tnp73>
@@ -4027,6 +4032,11 @@
       <tdml:documentPart type="text"><![CDATA[NOTANUMBER]]]></tdml:documentPart>
     </tdml:document>
 
+    <tdml:warnings>
+      <tdml:warning>DFDL property was ignored</tdml:warning>
+      <tdml:warning>textStandardNaNRep</tdml:warning>
+    </tdml:warnings>
+
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
       <tdml:error>Unable to parse 'NOTANUMBER'</tdml:error>
@@ -4041,6 +4051,11 @@
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[INFINITY]]]></tdml:documentPart>
     </tdml:document>
+
+    <tdml:warnings>
+      <tdml:warning>DFDL property was ignored</tdml:warning>
+      <tdml:warning>textStandardInfinityRep</tdml:warning>
+    </tdml:warnings>
 
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>

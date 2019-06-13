@@ -70,14 +70,11 @@
       <xs:complexType>
         <xs:sequence>
           <xs:element name="firstToken" type="xs:string"
-            dfdl:lengthKind="pattern" dfdl:lengthPattern="[a-zA-Z]+"
-            dfdl:representation="text" />
+            dfdl:lengthKind="pattern" dfdl:lengthPattern="[a-zA-Z]+" />
           <xs:element name="secondToken" type="xs:string"
-            dfdl:lengthKind="pattern" dfdl:lengthPattern="[0-9]+"
-            dfdl:representation="text" />
+            dfdl:lengthKind="pattern" dfdl:lengthPattern="[0-9]+" />
           <xs:element name="thirdToken" type="xs:string"
-            dfdl:lengthKind="explicit" dfdl:length="5"
-            dfdl:representation="text" />
+            dfdl:lengthKind="explicit" dfdl:length="5" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -86,20 +83,18 @@
       <xs:complexType>
         <xs:sequence>
           <xs:element name="first" type="xs:string"
-            dfdl:lengthKind="pattern" dfdl:lengthPattern="(b|c|h)at"
-            dfdl:representation="text" />
+            dfdl:lengthKind="pattern" dfdl:lengthPattern="(b|c|h)at" />
           <xs:element name="second" type="xs:string"
-            dfdl:representation="text" dfdl:lengthKind="pattern"
+            dfdl:lengthKind="pattern"
             dfdl:lengthPattern="[^ab]z" />
           <xs:element name="third" type="xs:string"
-            dfdl:representation="text" dfdl:lengthKind="pattern"
+            dfdl:lengthKind="pattern"
             dfdl:lengthPattern="3&#x20;4" />
           <xs:element name="fourth" type="xs:string"
-            dfdl:encoding="ASCII" dfdl:representation="text"
+            dfdl:encoding="ASCII"
             dfdl:lengthKind="pattern" dfdl:lengthPattern="[ ]+" />
           <xs:element name="fifth" type="xs:string"
-            dfdl:lengthKind="explicit" dfdl:length="5"
-            dfdl:representation="text" />
+            dfdl:lengthKind="explicit" dfdl:length="5" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -108,11 +103,9 @@
       <xs:complexType>
         <xs:sequence>
           <xs:element name="first" type="xs:string"
-            dfdl:lengthKind="pattern" dfdl:lengthPattern="(b|c|h)at,"
-            dfdl:representation="text" />
+            dfdl:lengthKind="pattern" dfdl:lengthPattern="(b|c|h)at," />
           <xs:element name="fifth" type="xs:string"
-            dfdl:lengthKind="explicit" dfdl:length="5"
-            dfdl:representation="text" />
+            dfdl:lengthKind="explicit" dfdl:length="5" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -134,14 +127,11 @@
         <xs:sequence>
           <xs:element name="firstToken" type="xs:string"
             dfdl:lengthKind="pattern" dfdl:lengthPattern="[a-zA-Z]+"
-            dfdl:nilValue="nil" dfdl:nilKind="literalValue" nillable="true"
-            dfdl:representation="text" />
+            dfdl:nilValue="nil" dfdl:nilKind="literalValue" nillable="true" />
           <xs:element name="secondToken" type="xs:string"
-            dfdl:lengthKind="pattern" dfdl:lengthPattern="[0-9]+"
-            dfdl:representation="text" />
+            dfdl:lengthKind="pattern" dfdl:lengthPattern="[0-9]+" />
           <xs:element name="thirdToken" type="xs:string"
-            dfdl:lengthKind="explicit" dfdl:length="5"
-            dfdl:representation="text" />
+            dfdl:lengthKind="explicit" dfdl:length="5" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -151,14 +141,11 @@
         <xs:sequence>
           <xs:element name="firstToken" type="xs:string"
             dfdl:lengthKind="pattern" dfdl:lengthPattern="[a-zA-Z]*"
-            dfdl:nilValue="%ES;" dfdl:nilKind="literalValue" nillable="true"
-            dfdl:representation="text" />
+            dfdl:nilValue="%ES;" dfdl:nilKind="literalValue" nillable="true" />
           <xs:element name="secondToken" type="xs:string"
-            dfdl:lengthKind="pattern" dfdl:lengthPattern="[0-9]+"
-            dfdl:representation="text" />
+            dfdl:lengthKind="pattern" dfdl:lengthPattern="[0-9]+" />
           <xs:element name="thirdToken" type="xs:string"
-            dfdl:lengthKind="explicit" dfdl:length="5"
-            dfdl:representation="text" />
+            dfdl:lengthKind="explicit" dfdl:length="5" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -169,14 +156,11 @@
         <xs:sequence dfdl:separator="%NL;, ," dfdl:outputNewLine="%CR;%LF;"
           dfdl:separatorPosition="infix" dfdl:terminator=".">
           <xs:element name="firstToken" type="xs:string"
-            dfdl:lengthKind="pattern" dfdl:lengthPattern="cat"
-            dfdl:representation="text" />
+            dfdl:lengthKind="pattern" dfdl:lengthPattern="cat" />
           <xs:element name="secondToken" type="xs:string"
-            dfdl:lengthKind="pattern" dfdl:lengthPattern="dog"
-            dfdl:representation="text" />
+            dfdl:lengthKind="pattern" dfdl:lengthPattern="dog" />
           <xs:element name="thirdToken" type="xs:string"
-            dfdl:lengthKind="pattern" dfdl:lengthPattern="house"
-            dfdl:representation="text" />
+            dfdl:lengthKind="pattern" dfdl:lengthPattern="house" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -193,14 +177,11 @@
       <xs:sequence dfdl:separator="%NL;, ," dfdl:outputNewLine="%CR;%LF;"
         dfdl:separatorPosition="infix" dfdl:terminator=".">
         <xs:element name="firstToken" type="xs:string"
-          dfdl:lengthKind="pattern" dfdl:lengthPattern="cat"
-          dfdl:representation="text" />
+          dfdl:lengthKind="pattern" dfdl:lengthPattern="cat" />
         <xs:element name="secondToken" type="xs:string"
-          dfdl:lengthKind="pattern" dfdl:lengthPattern="dog"
-          dfdl:representation="text" />
+          dfdl:lengthKind="pattern" dfdl:lengthPattern="dog" />
         <xs:element name="thirdToken" type="xs:string"
-          dfdl:lengthKind="pattern" dfdl:lengthPattern="house"
-          dfdl:representation="text" />
+          dfdl:lengthKind="pattern" dfdl:lengthPattern="house" />
         <xs:choice>
           <xs:element ref="ex:data_01">
             <xs:annotation>
@@ -608,7 +589,7 @@
       encodingErrorPolicy="replace"/>
       
     <xs:element name="def_04" dfdl:lengthKind="pattern"
-      dfdl:lengthPattern="!!.*!!" dfdl:lengthUnits="characters"
+      dfdl:lengthPattern="!!.*!!"
       dfdl:encoding="utf-8">
       <xs:complexType>
         <xs:sequence>

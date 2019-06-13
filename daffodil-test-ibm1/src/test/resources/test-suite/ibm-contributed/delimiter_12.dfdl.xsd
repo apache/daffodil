@@ -54,14 +54,9 @@
 	</xs:annotation>
 
 	<xs:element name="Fixed_string_with_Pads_10_1" 
-	dfdl:representation="text" 
 	dfdl:lengthUnits="characters" 
 	dfdl:initiator="i"
 	dfdl:terminator="t"
-	
-	dfdl:nilValueDelimiterPolicy="both"
-	dfdl:nilKind="literalValue"
-	dfdl:nilValue="-"
 	dfdl:length="10" 
 	dfdl:lengthKind="explicit"
 	dfdl:ignoreCase="yes">
@@ -74,14 +69,9 @@
 	</xs:element>
 	
 	<xs:element name="Fixed_string_with_Pads_10_2" 
-	dfdl:representation="text" 
 	dfdl:lengthUnits="characters" 
 	dfdl:initiator="ST* i initiator :"
 	dfdl:terminator="*SE t terminator :"
-	
-	dfdl:nilValueDelimiterPolicy="both"
-	dfdl:nilKind="literalValue"
-	dfdl:nilValue="-"
 	dfdl:length="10" 
 	dfdl:lengthKind="explicit">
 	<xs:simpleType>
@@ -99,16 +89,11 @@
   
     <xs:element name="element1" 
 	minOccurs="1" maxOccurs="1" 
-	dfdl:representation="text"
 	dfdl:length="1" 
 	dfdl:lengthKind="explicit"
 	dfdl:lengthUnits="characters"
 	dfdl:initiator="%NL;"
-	dfdl:terminator=""
-	
-	dfdl:nilValueDelimiterPolicy="both"
-	dfdl:nilKind="literalValue"
-	dfdl:nilValue="-"> 
+	dfdl:terminator="">
 	
 	    <xs:simpleType>
 			<xs:restriction base="xs:string">
@@ -119,16 +104,11 @@
     
     <xs:element name="element2" 
 	minOccurs="1" maxOccurs="1" 
-	dfdl:representation="text"
 	dfdl:length="1" 
 	dfdl:lengthKind="explicit"
 	dfdl:lengthUnits="characters"
 	dfdl:initiator=""
-	dfdl:terminator="%NL;"
-		
-	dfdl:nilValueDelimiterPolicy="both"
-	dfdl:nilKind="literalValue"
-	dfdl:nilValue="-"> 
+	dfdl:terminator="%NL;">
 	
 	    <xs:simpleType>
 			<xs:restriction base="xs:string">

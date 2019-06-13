@@ -370,7 +370,7 @@ trait CurrencyMixin extends PropertyMixin {
    * using its name. E.g., if you need calendarTimeZone, just use
    * a.calendarTimeZone (where a is an AnnotatedSchemaComponent)
    */
-  private def optionCurrencyLookup = cachePropertyOption("currency")
+  private def optionCurrencyLookup = findPropertyOption("currency")
   final def optionCurrency = if (optionCurrencyLookup.isDefined) Some(currency) else None
   final def optionCurrency_location = if (optionCurrencyLookup.isDefined) Some(currency_location) else None
 
@@ -455,8 +455,8 @@ trait CurrencyMixin extends PropertyMixin {
   def generateEnumInstantiation(propName: String, typeName: String) = {
     val midTemplate =
       """
-      final def EUR = Currency(cacheProperty("EUR").value, this)
-      final def EUR_location = cacheProperty("EUR").location
+      final def EUR = Currency(findProperty("EUR").value, this)
+      final def EUR_location = findProperty("EUR").location
 """
     val mid =
       if (excludeRuntimeProperties(propName)) ""
@@ -523,11 +523,11 @@ object Currency {
   def generateNonEnumInstantiation(propName: String, typeName: String) = {
     val converterName = getConverterTypeName(typeName)
     val midTemplate = if (converterName != "QName") {
-      """  def EUR = convertToTYPE(cacheProperty("EUR").value)
+      """  def EUR = convertToTYPE(findProperty("EUR").value)
 """
     } else {
       """  def EUR = {
-    val cp = cacheProperty("EUR")
+    val cp = findProperty("EUR")
     convertToTYPE(cp.value, cp.location)
   }
 """
@@ -603,7 +603,7 @@ object Currency {
    */
   def generateNonEnumStringPropInit(propName: String) = {
     val template =
-      """registerToStringFunction(()=>{cacheGetPropertyOption("currency") match {
+      """registerToStringFunction(()=>{getPropertyOption("currency") match {
         case None => ""
         case Some(value) => "currency='" + value.toString + "'"
       }

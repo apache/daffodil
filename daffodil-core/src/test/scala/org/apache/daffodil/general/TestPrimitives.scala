@@ -154,13 +154,13 @@ class TestPrimitives {
       <xs:element name="root" dfdl:lengthKind="implicit" dfdl:ref="config" dfdl:initiator="{{">
         <xs:complexType>
           <xs:sequence dfdl:ref="config" dfdl:separator="," dfdl:terminator="::">
-            <xs:element name="e1" type="xs:string" dfdl:ref="baseString" dfdl:representation="text"/>
-            <xs:element name="e2" type="xs:string" dfdl:ref="baseString" dfdl:representation="text"/>
+            <xs:element name="e1" type="xs:string" dfdl:ref="baseString" />
+            <xs:element name="e2" type="xs:string" dfdl:ref="baseString" />
             <xs:element name="e3" dfdl:ref="baseString" dfdl:representation="text">
               <xs:complexType>
                 <xs:sequence dfdl:ref="config" dfdl:separator="/" dfdl:terminator="//">
-                  <xs:element name="e3_1" type="xs:string" dfdl:ref="baseString" dfdl:representation="text" dfdl:terminator="."/>
-                  <xs:element name="e3_2" type="xs:string" dfdl:ref="inheritance" dfdl:representation="text"/>
+                  <xs:element name="e3_1" type="xs:string" dfdl:ref="baseString" dfdl:terminator="."/>
+                  <xs:element name="e3_2" type="xs:string" dfdl:ref="inheritance" />
                 </xs:sequence>
               </xs:complexType>
             </xs:element>

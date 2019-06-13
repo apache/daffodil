@@ -48,7 +48,7 @@
       </appinfo>
     </annotation>
 
-    <xs:element name="one" type="xs:string" dfdl:lengthKind="delimited" dfdl:representation="binary" />
+    <xs:element name="one" type="xs:string" dfdl:lengthKind="delimited" />
     <xs:element name="two" type="xs:string" dfdl:encoding="ASCII"/>
     <xs:element name="leastFirst" dfdl:lengthKind='implicit' dfdl:alignmentUnits="bits" dfdl:representation="binary" dfdl:bitOrder="leastSignificantBitFirst">
       <xs:complexType>

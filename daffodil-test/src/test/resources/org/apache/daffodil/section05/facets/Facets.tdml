@@ -205,7 +205,7 @@
     <xs:complexType name="arrayOutter">
       <xs:sequence dfdl:separator=",">
         <xs:element name="array" type="ex:array" minOccurs="0"
-          maxOccurs="5" dfdl:textNumberRep="standard" dfdl:lengthKind="delimited" />
+          maxOccurs="5" dfdl:lengthKind="delimited" />
       </xs:sequence>
     </xs:complexType>
 
@@ -243,7 +243,7 @@
     <xs:complexType name="arrayOutter">
       <xs:sequence dfdl:separator=",">
         <xs:element name="array" type="ex:array" minOccurs="1"
-          maxOccurs="5" dfdl:textNumberRep="standard" dfdl:lengthKind="delimited" />
+          maxOccurs="5" dfdl:lengthKind="delimited" />
       </xs:sequence>
     </xs:complexType>
 
@@ -282,7 +282,7 @@
     <xs:complexType name="arrayOutter">
       <xs:sequence dfdl:separator=",">
         <xs:element name="array" type="ex:array" minOccurs="3"
-          maxOccurs="5" dfdl:textNumberRep="standard" dfdl:lengthKind="delimited" />
+          maxOccurs="5" dfdl:lengthKind="delimited" />
       </xs:sequence>
     </xs:complexType>
 
@@ -3292,7 +3292,7 @@
         </xs:restriction>
       </xs:simpleType>
     </xs:element>
-    <xs:element name="e10" dfdl:lengthKind="delimited" dfdl:lengthUnits="bits">
+    <xs:element name="e10" dfdl:lengthKind="delimited">
       <xs:annotation>
         <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:assert test="{ dfdl:checkConstraints(.) }"
