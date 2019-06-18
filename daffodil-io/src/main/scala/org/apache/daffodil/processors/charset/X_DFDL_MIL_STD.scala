@@ -15,6 +15,16 @@
  * limitations under the License.
  */
 
+/*
+ * This file contains special character encodings used by various US military data formats
+ * The DFI/DUI numbers may be used to lookup the definition of the encoding by those with access
+ * to the relevent specification. In cases where multiple DFI/DUI pairs make use of the same encoding,
+ * the decision of which pair to name the encoding after is arbitrary.
+ * 
+ * Unless otherwise stated, characters defined as "NO STATEMENT" are assumed to be padding characters.
+ * These characters are translated into a no-break space (U+00A0)
+ */
+
 package org.apache.daffodil.processors.charset
 
 import org.apache.daffodil.schema.annotation.props.gen.BitOrder
@@ -26,6 +36,14 @@ object BitsCharset6BitDFI264DUI001 extends {
   override val name = "X-DFDL-6-BIT-DFI-264-DUI-001"
   override val bitWidthOfACodeUnit = 6
   override val decodeString = """ 123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD0"""
+  override val replacementCharCode = 0x0
+  override val requiredBitOrder = BitOrder.LeastSignificantBitFirst
+} with BitsCharsetNonByteSize
+
+object BitsCharset6BitDFI311DUI002 extends {
+  override val name = "X-DFDL-6-BIT-DFI-311-DUI-002"
+  override val bitWidthOfACodeUnit = 6
+  override val decodeString = """\u00A0ABCDEFGHIJKLMNOPQRSTuVWXYZ\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD \uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD0123456789\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD"""
   override val replacementCharCode = 0x0
   override val requiredBitOrder = BitOrder.LeastSignificantBitFirst
 } with BitsCharsetNonByteSize
