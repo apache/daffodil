@@ -23,6 +23,9 @@ import org.apache.daffodil.grammar.GrammarMixin
 import org.apache.daffodil.grammar.primitives.InitiatedContent
 import org.apache.daffodil.grammar.primitives.Terminator
 import org.apache.daffodil.grammar.primitives.Initiator
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.compiler.ForParser
+import org.apache.daffodil.api.WarnID
 
 trait InitiatedTerminatedMixin
   extends GrammarMixin
@@ -61,7 +64,33 @@ trait InitiatedTerminatedMixin
     res
   }
 
-  private lazy val initiatorDiscriminator = prod("initiatorDiscriminator", parentSaysInitiatedContent) { InitiatedContent(this) }
+  private lazy val isInitiatedContentChoice: Boolean = {
+    immediatelyEnclosingModelGroup.map {
+      case c: ChoiceTermBase => true
+      case _ => false
+    }.getOrElse(false)
+  }
+
+  private lazy val shouldUseInitiatorDiscriminator: Boolean = {
+    parentSaysInitiatedContent &&
+      immediatelyEnclosingModelGroup.map {
+        case c: ChoiceTermBase => true
+        case s: SequenceTermBase => (isArray || isOptional) &&
+          isVariableOccurrences
+      }.getOrElse(false)
+  }
+
+  private lazy val initiatorDiscriminator = prod("initiatorDiscriminator", shouldUseInitiatorDiscriminator) {
+    this match {
+      case eb: ElementBase => {
+        if (eb.minOccurs < 1 && isInitiatedContentChoice) {
+          SDE("The minOccurs attribute should not be zero when dfdl:initiatedContent is 'yes'.")
+        }
+      }
+      case _ => // ok
+    }
+    InitiatedContent(immediatelyEnclosingModelGroup.get, this)
+  }
 
   lazy val initiatorRegion = prod("initiatorRegion", hasInitiator) { initiatorItself ~ initiatorDiscriminator }
   private lazy val initiatorItself = delimMTA ~ Initiator(this)

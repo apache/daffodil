@@ -40,4 +40,12 @@ class TestSequenceGroupInitiatedContent {
   @Test def test_2() { runner_01.runOneTest("initiatedContentSeq2") }
   @Test def test_3() { runner_01.runOneTest("initiatedContentSeq3") }
 
+  // Tests for DAFFODIL-2143
+  @Test def test_sequenceScalarChildDoesNotDiscriminateAnything1() { runner_01.runOneTest("sequenceScalarChildDoesNotDiscriminateAnything1") }
+  @Test def test_sequenceScalarChildDoesNotDiscriminateAnything2() { runner_01.runOneTest("sequenceScalarChildDoesNotDiscriminateAnything2") }
+  @Test def test_sequenceFixedOccursChildDoesNotDiscriminateAnything1() { runner_01.runOneTest("sequenceFixedOccursChildDoesNotDiscriminateAnything1") }
+  @Test def test_sequenceExpressionOccursChildDoesNotDiscriminateAnything1() { runner_01.runOneTest("sequenceExpressionOccursChildDoesNotDiscriminateAnything1") }
+  @Test def test_sequenceImplicitOccursLessThanMinOccursDoesNotDiscriminateAnything1() { runner_01.runOneTest("sequenceImplicitOccursLessThanMinOccursDoesNotDiscriminateAnything1") }
+  @Test def test_sequenceImplicitOccursZeroOrMoreDiscriminates1() { runner_01.runOneTest("sequenceImplicitOccursZeroOrMoreDiscriminates1") }
+
 }

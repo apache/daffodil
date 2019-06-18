@@ -321,6 +321,11 @@ trait Term
     optLexicalParent.flatMap { lexicalParent =>
       val res = lexicalParent match {
         case c: ChoiceTermBase => Some(c)
+        //
+        // skip past the implied sequence that is wrapped around choice branches
+        // to the actual choice
+        //
+        case c: ChoiceBranchImpliedSequence => c.immediatelyEnclosingModelGroup
         case s: SequenceTermBase => Some(s)
         case d: SchemaDocument => {
           // we must be the Root elementRef or a quasi node

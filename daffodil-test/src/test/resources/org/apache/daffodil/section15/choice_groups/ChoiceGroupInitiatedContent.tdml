@@ -17,9 +17,12 @@
 -->
 
 <tdml:testSuite suiteName="InitiatedContent" description="Section 15 - ChoiceGroups"
-  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  xmlns:ex="http://example.com" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:ex="http://example.com" 
   defaultRoundTrip="true">
 
   <tdml:defineSchema name="s1">
@@ -734,5 +737,43 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-
+  <tdml:defineSchema name="s4" elementFormDefault="unqualified">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    
+    <dfdl:format ref="ex:GeneralFormat" 
+      occursCountKind='parsed'
+      lengthKind="delimited"/>
+    
+    <xs:element name="r1" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:choice>
+          <xs:choice dfdl:initiatedContent="yes"> <!-- should be discriminated -->
+            <!-- This element is OCK 'implicit' minOccurs 1, So first 
+              element will discriminate the choice. There is no PoU for the first 
+              array element. This test is making sure we're not ALSO discriminating
+              the outer choice. -->
+              <xs:element name="e" dfdl:initiator="+" type="xs:int"
+                 dfdl:terminator=";"
+                 minOccurs="1" maxOccurs="2" dfdl:occursCountKind="implicit"/>
+            <xs:element name="incorrect" type="xs:string" dfdl:initiator="+"/>
+          </xs:choice>
+          <xs:element name="correct" type="xs:string"/>
+        </xs:choice>
+      </xs:complexType>
+    </xs:element>
+    
+  </tdml:defineSchema> 
+  
+  <tdml:parserTestCase name="arrayOptionalChildDiscriminatesElementAndChoice1"
+    model="s4"
+    description="Test array children's initiators discriminate enclosing choice properly.">
+    <tdml:document><![CDATA[+1;+a;]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <r1>
+          <correct>+1;+a;</correct>
+        </r1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>  
 </tdml:testSuite>

@@ -46,6 +46,9 @@ class TestChoiceGroupInitiatedContent {
   @Test def test_initiatedContentChoice9() { runner_01.runOneTest("initiatedContentChoice9") }
   @Test def test_initiatedContentChoice10() { runner_01.runOneTest("initiatedContentChoice10") }
 
+  // Test for DAFFODIL-2143
+  @Test def test_arrayOptionalChildDiscriminatesElementAndChoice1() { runner_01.runOneTest("arrayOptionalChildDiscriminatesElementAndChoice1") }
+
   @Test def test_arrayOfChoice() { runner_01.runOneTest("arrayOfChoice") }
   @Test def test_arrayOfChoice2() { runner_01.runOneTest("arrayOfChoice2") }
   @Test def test_discriminatorNesting1() { runner_01.runOneTest("discriminatorNesting1") }
