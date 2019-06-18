@@ -315,8 +315,17 @@ trait ElementSequenceChildParseResultHelper
         ParseAttemptStatus.EmptyRep
       case _: RequiredOptionalStatus.Required =>
         ParseAttemptStatus.NormalRep
-      case _: RequiredOptionalStatus.Optional if isZL =>
-        ParseAttemptStatus.AbsentRep // caller will backtrack this element but retain bit position
+      case _: RequiredOptionalStatus.Optional if isZL => {
+        //
+        // This should only happen if the complex type was entirely defaulted.
+        // If, for example, the complex type contained a nillable element, and populated
+        // that not by defaulting, but by parsing (E.g., if %ES; is a nilValue),
+        // then we should NOT treat this as Absent, but Normal.
+        if (elem.isDefaulted)
+          ParseAttemptStatus.AbsentRep // caller will backtrack this element but retain bit position
+        else
+          ParseAttemptStatus.NormalRep
+      }
       case _: RequiredOptionalStatus.Optional =>
         ParseAttemptStatus.NormalRep
     }

@@ -320,4 +320,44 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+
+  <tdml:defineSchema name="s2">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+    
+    <dfdl:format ref="ex:GeneralFormatPortable" 
+    lengthKind="delimited" 
+    useNilForDefault="no"/>
+    
+    <xs:element dfdl:terminator="%NL;" name="r">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element minOccurs="0" name="a">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="e" type="xs:string" nillable="true" 
+                   dfdl:nilKind="literalValue" dfdl:nilValue="%ES;"  />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="edifact1a" model="s2"
+    description="Test of nillable inside complex optional. Derived from edifact.">
+    <tdml:document>
+      <tdml:documentPart type="text" replaceDFDLEntities="true">%LF;</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:r>
+          <a>
+            <e xsi:nil="true" />
+          </a>
+        </ex:r>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 </tdml:testSuite>
