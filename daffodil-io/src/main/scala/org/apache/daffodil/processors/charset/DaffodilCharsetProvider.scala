@@ -24,6 +24,7 @@ object DaffodilCharsetProvider {
   lazy val charsets = Seq(
     BitsCharset5BitPackedLSBF,
     BitsCharset6BitDFI264DUI001,
+    BitsCharset6BitDFI311DUI002,
     BitsCharsetBinaryLSBF,
     BitsCharsetBinaryMSBF,
     BitsCharsetHexLSBF,
