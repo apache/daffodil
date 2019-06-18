@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<testSuite suiteName="annotations" xmlns="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:tns="http://example.com" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  defaultRoundTrip="true">
+
+  <defineSchema name="as1">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+    <dfdl:format ref="ex:GeneralFormat" />
+
+    <xs:element name="inElementContainerPassingAssert">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
+          <dfdl:assert>
+            {fn:true()}
+          </dfdl:assert>
+        </xs:appinfo>
+      </xs:annotation>
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" type="xs:int" dfdl:inputValueCalc="{42}" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="inElementContainerFailingAssert">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
+          <dfdl:assert>
+            {fn:false()}
+          </dfdl:assert>
+        </xs:appinfo>
+        <xs:appinfo>Hello, otherInfo</xs:appinfo>
+      </xs:annotation>
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" type="xs:int" dfdl:inputValueCalc="{42}" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="inComplexTypeContainer">
+      <xs:complexType>
+        <xs:annotation>
+          <xs:appinfo source="http://www.ogf.org/dfdl/">
+            <dfdl:assert>
+              {fn:false()}
+            </dfdl:assert>
+          </xs:appinfo>
+        </xs:annotation>
+        <xs:sequence>
+          <xs:element name="e1" type="xs:int" dfdl:inputValueCalc="{42}" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="inComplexTypeContainerMutltipleAi">
+      <xs:complexType>
+        <xs:annotation>
+          <xs:appinfo source="http://www.ogf.org/dfdl/">
+            <dfdl:assert>
+              {fn:false()}
+            </dfdl:assert>
+          </xs:appinfo>
+          <xs:appinfo source="http://www.w3.org/2001/XMLSchema">Hello, appInfo</xs:appinfo>
+          <xs:appinfo>Hello, otherInfo</xs:appinfo>
+        </xs:annotation>
+        <xs:sequence>
+          <xs:element name="e1" type="xs:int" dfdl:inputValueCalc="{42}" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="noAnnotationComplexType">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" type="xs:int" dfdl:inputValueCalc="{42}" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="noDFDLAnnotationComplexType">
+      <xs:complexType>
+        <xs:annotation>
+          <xs:appinfo source="http://www.w3.org/2001/XMLSchema">Hello, appInfo</xs:appinfo>
+          <xs:appinfo>Hello, otherInfo</xs:appinfo>
+        </xs:annotation>
+        <xs:sequence>
+          <xs:element name="e1" type="xs:int" dfdl:inputValueCalc="{42}" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </defineSchema>
+
+
+  <!--
+    Test name: annotationInElementPass
+    Schema: as1
+    Purpose: This document contains an annotation with a passing assert wrapped in an element.
+    The annotation should be properly recognized and thus return a proper element.
+  -->
+
+  <parserTestCase name="annotationInElementPass" root="inElementContainerPassingAssert"
+    model="as1" description="Passing Assert processed for annotation in element" roundTrip="false">
+    <document />
+    <infoset>
+      <dfdlInfoset>
+        <tns:inElementContainerPassingAssert>
+          <e1>42</e1>
+        </tns:inElementContainerPassingAssert>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+
+  <!--
+    Test name: annotationInElementFail
+    Schema: as1
+    Purpose: This document contains an annotation with a failing assert wrapped in an element.
+    The annotation should be properly recognized and thus return an Assertion error.
+  -->
+
+  <parserTestCase name="annotationInElementFail" root="inElementContainerFailingAssert"
+    model="as1" description="Failing Assert processed for annotation in element" roundTrip="false">
+    <document />
+    <errors>
+      <error>Assertion</error>
+    </errors>
+  </parserTestCase>
+
+  <!--
+    Test name: annotationInComplexTypeFail
+    Schema: as1
+    Purpose: This document contains an annotation with a failing DFDL assert wrapped in an complexType.
+    Since complexTypes are not DFDL annotation points, the DFDL annotation will be ignored with a warning.
+  -->
+
+  <parserTestCase name="annotationInComplexTypeWarn" root="inComplexTypeContainer"
+    model="as1" description="Annotation in ComplexType ignored with warning" roundTrip="false">
+    <document />
+    <warnings>
+      <warning>Schema Definition Warning</warning>
+      <warning>complexType is not a valid annotation point. Annotation ignored.</warning>
+    </warnings>
+    <infoset>
+      <dfdlInfoset>
+        <tns:inComplexTypeContainer>
+          <e1>42</e1>
+        </tns:inComplexTypeContainer>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+
+  <!--
+    Test name: multipleAppsInfosWarn
+    Schema: as1
+    Purpose: This document contains a complexType with a multi appInfo annotation. One of the appInfos
+    contains a failing DFDL assert. Since complexTypes are not DFDL annotation points, the DFDL annotation
+    should be ignored with a warning.
+  -->
+
+  <parserTestCase name="multipleAppsInfosWarn" root="inComplexTypeContainerMutltipleAi"
+    model="as1" description="Annotation in ComplexType ignored with warning" roundTrip="false">
+    <document />
+    <warnings>
+      <warning>Schema Definition Warning</warning>
+      <warning>complexType is not a valid annotation point. Annotation ignored.</warning>
+    </warnings>
+    <infoset>
+      <dfdlInfoset>
+        <tns:inComplexTypeContainerMutltipleAi>
+          <e1>42</e1>
+        </tns:inComplexTypeContainerMutltipleAi>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+
+  <!--
+    Test name: noAnnotationsInCTPass
+    Schema: as1
+    Purpose: This document contains a complexType without an annotation.
+    There should be no warning.
+  -->
+
+  <parserTestCase name="noAnnotationsInCTPass" root="noAnnotationComplexType" model="as1"
+    description="No annotation in ComplexType. No warning" roundTrip="false">
+    <document />
+    <infoset>
+      <dfdlInfoset>
+        <tns:noAnnotationComplexType>
+          <e1>42</e1>
+        </tns:noAnnotationComplexType>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+
+  <!--
+    Test name: noDFDLAnnotationsInCTPass
+    Schema: as1
+    Purpose: This document contains a complexType with multiple annotation but no DFDL annotations.
+    There should be no warning.
+  -->
+
+  <parserTestCase name="noDFDLAnnotationsInCTPass" root="noDFDLAnnotationComplexType" model="as1"
+    description="No DFDL annotation in ComplexType. Other annotations ignored without warning" roundTrip="false">
+    <document />
+    <infoset>
+      <dfdlInfoset>
+        <tns:noDFDLAnnotationComplexType>
+          <e1>42</e1>
+        </tns:noDFDLAnnotationComplexType>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+
+</testSuite>
