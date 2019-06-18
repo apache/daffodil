@@ -77,6 +77,8 @@ sealed trait DINode {
   }
   def isComplex: Boolean
 
+  def isDefaulted: Boolean
+
   def children: Stream[DINode]
   def totalElementCount: Long
   def namedQName: NamedQName
@@ -796,6 +798,11 @@ sealed trait DIElement
   override final def trd = erd
 
   /**
+   * Tells us if the element was entirely created by defaulting elements.
+   */
+  def isDefaulted: Boolean
+
+  /**
    * This is purely to make debugging easier.
    */
   override def toString = {
@@ -1025,6 +1032,8 @@ final class DIArray(
       handler.endArray(this)
     }
   }
+
+  final def isDefaulted: Boolean = children.forall { _.isDefaulted }
 }
 
 /**
@@ -1190,7 +1199,12 @@ sealed class DISimple(override val erd: ElementRuntimeData)
     if (_value == null)
       if (erd.optDefaultValue.isDefined) {
         val defaultVal = erd.optDefaultValue.get
-        _value = defaultVal
+        if (defaultVal eq UseNilForDefault) {
+          Assert.invariant(erd.isNillable)
+          this.setNilled()
+        } else {
+          _value = defaultVal
+        }
         _isDefaulted = true
       } else {
         throw new InfosetNoDataException(this, erd)
@@ -1252,7 +1266,8 @@ sealed class DISimple(override val erd: ElementRuntimeData)
   }
 
   override def isDefaulted: Boolean = {
-    dataValue // access this for side-effect that checks for default value.
+    if (!_isNilled)
+      dataValue // access this for side-effect that checks for default value.
     _isDefaulted
   }
 
@@ -1328,6 +1343,17 @@ sealed class DIComplex(override val erd: ElementRuntimeData, val tunable: Daffod
 
   final override def isSimple = false
   final override def isComplex = true
+
+  final override def isDefaulted: Boolean = {
+    val res =
+      if (erd.isNillable && isNilled)
+        false
+      else
+        childNodes.forall {
+          _.isDefaulted
+        }
+    res
+  }
 
   private lazy val nfe = new InfosetComplexElementNotFinalException(this)
 

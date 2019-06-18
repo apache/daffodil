@@ -55,6 +55,7 @@ class TestNillable {
   @Test def test_litNil7() { runnerAA.runOneTest("litNil7") }
   @Test def test_missing_scalar() { runnerAA.runOneTest("missing_scalar") }
   @Test def test_nillable1() { runnerAA.runOneTest("nillable1") }
+  @Test def test_edifact1a() { runnerAA.runOneTest("edifact1a") }
 
   @Test def test_text_nil_characterClass_04_parse() = { runnerLN.runOneTest("text_nil_characterClass_04_parse") }
 
@@ -67,13 +68,13 @@ class TestNillable {
   @Test def test_padded_nils() = { runnerLN.runOneTest("test_padded_nils") }
 
   @Test def test_nillable_ovc_01() = { runnerLN.runOneTest("nillable_ovc_01") }
-  
+
   /* These should demonstrate that:
-   * 	DFDL Char Classes are not allowed for literalCharacter
+   *   DFDL Char Classes are not allowed for literalCharacter
    *  DFDL Char Entities are allowed for literalCharacter
    *  Raw bytes entities are allowed for literalCharacter
    *  Only 1 character or byte are allowed for literalCharacter
-   * 
+   *
    *  According to analysis doc, should also work for numeric
    *  and hex entities.
    * */
