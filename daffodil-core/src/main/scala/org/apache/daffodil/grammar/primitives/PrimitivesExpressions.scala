@@ -47,6 +47,10 @@ import org.apache.daffodil.processors.TypeCalculator
 import org.apache.daffodil.processors.unparsers.NadaUnparser
 import org.apache.daffodil.processors.RuntimeData
 import org.apache.daffodil.processors.unparsers.TypeValueCalcUnparser
+import org.apache.daffodil.processors.parsers.NadaParser
+import org.apache.daffodil.processors.parsers.InitiatedContentDiscrimOnIndexGreaterThanMinParser
+import org.apache.daffodil.processors.parsers.InitiatedContentDiscrimChoiceParser
+import org.apache.daffodil.processors.parsers.InitiatedContentDiscrimChoiceAndIndexGreaterThanMinParser
 
 abstract class AssertBase(
   decl: AnnotatedSchemaComponent,
@@ -112,14 +116,46 @@ case class DiscriminatorBooleanPrim(
 // "resolve this point of uncertainty" without having to introduce
 // an XPath evaluator that runs fn:true() expression.
 case class InitiatedContent(
-  decl: AnnotatedSchemaComponent)
-  extends AssertBase(
-    decl,
-    "{ fn:true() }", <xml xmlns:fn={ XMLUtils.XPATH_FUNCTION_NAMESPACE }/>.scope, decl,
-    // always true. We're just an assertion that says an initiator was found.
-    None,
-    true,
-    "initiatedContent") {
+  mg: ModelGroup,
+  t: Term)
+  extends Terminal(t, true) {
+
+  override val forWhat = ForParser
+
+  override def parser = {
+    t match {
+      case eb: ElementBase => {
+        (mg, eb.optPoUMinOccurs) match {
+          case (sq: SequenceTermBase, Some(min)) => {
+            // no PoU if occursIndex is <= min. After that
+            // there is a PoU, so we set discriminator true
+            // if we evaluate this parser, since this parser is invoked
+            // only if the initiator's parser was successful.
+            new InitiatedContentDiscrimOnIndexGreaterThanMinParser(min, eb.erd)
+          }
+          case (ch: ChoiceTermBase, None) => {
+            // if any array elements initiators are parsed successfully we
+            // discriminate the choice. But there is only the choice PoU
+            // to set discriminator on.
+            new InitiatedContentDiscrimChoiceParser(eb.erd)
+          }
+          case (ch: ChoiceTermBase, Some(min)) => {
+            // When occursIndex is 1, then we set the choice discriminator
+            // which is 1 below the top of the discriminator stack.
+            // Note that the min is supposed to be 1 or greater.
+            //
+            // If the occursIndex is > min then we set the array discriminator
+            // which is top of discriminator stack.
+            new InitiatedContentDiscrimChoiceAndIndexGreaterThanMinParser(min, eb.erd)
+          }
+          case x => Assert.invariantFailed("Guard should exclude this case: " + x)
+        }
+      }
+      case _ => new InitiatedContentDiscrimChoiceParser(t.termRuntimeData)
+    }
+  }
+
+  override def unparser = hasNoUnparser
 }
 
 case class SetVariable(stmt: DFDLSetVariable)

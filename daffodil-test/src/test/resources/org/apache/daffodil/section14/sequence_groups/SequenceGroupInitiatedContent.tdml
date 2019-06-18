@@ -17,9 +17,12 @@
 -->
 
 <tdml:testSuite suiteName="InitiatedContent" description="Section 14 - SequenceGroups"
-  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  xmlns:ex="http://example.com" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset">
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
+  xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:ex="http://example.com">
 
   <tdml:defineSchema name="s1">
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
@@ -110,5 +113,234 @@
       <tdml:error>s1</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
+  
+  <tdml:defineSchema name="s2" elementFormDefault="unqualified">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    
+    <dfdl:format ref="ex:GeneralFormatPortable" 
+      occursCountKind='parsed'
+      lengthKind="delimited"/>
 
+    <xs:element name="e1" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:choice>
+          <xs:choice> <!-- should NOT be discriminated -->
+            <xs:sequence dfdl:initiatedContent="yes" dfdl:separator=",">
+              <xs:sequence dfdl:initiator="seqInit"> <!-- initiator found, but does NOT discriminate -->
+                <xs:annotation>
+                   <xs:appinfo source="http://www.ogf.org/dfdl/">
+                     <!-- this assert will cause backtracking to next choice alternative -->
+                     <dfdl:assert>{ fn:false() }</dfdl:assert>
+                   </xs:appinfo>
+                </xs:annotation>
+              </xs:sequence>
+            </xs:sequence>
+            <xs:element name="correct" type="xs:string"/>
+          </xs:choice>
+          <xs:element name="incorrect" type="xs:string"/>
+        </xs:choice>
+      </xs:complexType>
+    </xs:element>
+    
+   <xs:element name="e2" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:choice>
+          <xs:choice> <!-- should NOT be discriminated -->
+            <xs:sequence dfdl:initiatedContent="yes" dfdl:separator=",">
+              <xs:element name="elementThatFails" dfdl:initiator="elemInit" type="xs:string">
+                <!-- initiator found, but does NOT discriminate -->
+                <xs:annotation>
+                   <xs:appinfo source="http://www.ogf.org/dfdl/">
+                     <!-- this assert will cause backtracking to next choice alternative -->
+                     <dfdl:assert>{ fn:false() }</dfdl:assert>
+                   </xs:appinfo>
+                </xs:annotation>
+              </xs:element>
+            </xs:sequence>
+            <xs:element name="correct" type="xs:string"/>
+          </xs:choice>
+          <xs:element name="incorrect" type="xs:string"/>
+        </xs:choice>
+      </xs:complexType>
+    </xs:element>
+    
+   <xs:element name="e3" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:choice>
+          <xs:choice> <!-- should NOT be discriminated -->
+            <xs:sequence dfdl:initiatedContent="yes" dfdl:separator=",">
+              <xs:element name="e" dfdl:initiator="+" type="xs:string"
+                 minOccurs="2" maxOccurs="2" dfdl:occursCountKind="fixed">
+                <xs:annotation>
+                   <xs:appinfo source="http://www.ogf.org/dfdl/">
+                     <!-- this assert will cause backtracking to next choice alternative -->
+                     <dfdl:assert>{ fn:false() }</dfdl:assert>
+                   </xs:appinfo>
+                </xs:annotation>
+              </xs:element>
+            </xs:sequence>
+            <xs:element name="correct" type="xs:string"/>
+          </xs:choice>
+          <xs:element name="incorrect" type="xs:string"/>
+        </xs:choice>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e4" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+        <xs:element name="count" type="xs:int"/>
+        <xs:choice>
+          <xs:choice> <!-- should NOT be discriminated -->
+            <xs:sequence dfdl:initiatedContent="yes" dfdl:separator=",">
+              <xs:element name="e" dfdl:initiator="+" type="xs:string"
+                 minOccurs="2" maxOccurs="2" dfdl:occursCountKind="expression"
+                 dfdl:occursCount="{ ../count }">
+                <xs:annotation>
+                   <xs:appinfo source="http://www.ogf.org/dfdl/">
+                     <!-- this assert will cause backtracking to next choice alternative -->
+                     <dfdl:assert>{ fn:false() }</dfdl:assert>
+                   </xs:appinfo>
+                </xs:annotation>
+              </xs:element>
+            </xs:sequence>
+            <xs:element name="correct" type="xs:string"/>
+          </xs:choice>
+          <xs:element name="incorrect" type="xs:string"/>
+        </xs:choice>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e5" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:choice>
+          <xs:choice> <!-- should NOT be discriminated -->
+            <xs:sequence dfdl:initiatedContent="yes" dfdl:separator=",">
+            <!-- This element is OCK 'implicit' minOccurs 1, so there is no PoU
+            for the first element. So the initiator of the first element does NOT
+            discriminate anything. Only optional elements discriminate.  -->
+              <xs:element name="e" dfdl:initiator="+" type="xs:string"
+                 minOccurs="1" maxOccurs="2" dfdl:occursCountKind="implicit">
+                <xs:annotation>
+                   <xs:appinfo source="http://www.ogf.org/dfdl/">
+                     <!-- this assert will cause backtracking to next choice alternative -->
+                     <dfdl:assert>{ fn:false() }</dfdl:assert>
+                   </xs:appinfo>
+                </xs:annotation>
+              </xs:element>
+            </xs:sequence>
+            <xs:element name="correct" type="xs:string"/>
+          </xs:choice>
+          <xs:element name="incorrect" type="xs:string"/>
+        </xs:choice>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e6" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:choice>
+          <xs:choice> <!-- should NOT be discriminated -->
+            <xs:sequence dfdl:initiatedContent="yes" dfdl:separator=",">
+            <!-- This element is OCK 'implicit' minOccurs 0, all occurrences
+              are optional. Therefore once this initiator is found that discriminates
+              the element occurrence -->
+              <xs:element name="e" dfdl:initiator="+" type="xs:string"
+                 minOccurs="0" maxOccurs="2" dfdl:occursCountKind="implicit">
+                <xs:annotation>
+                   <xs:appinfo source="http://www.ogf.org/dfdl/">
+                     <!-- this assert will cause backtracking to next choice alternative -->
+                     <dfdl:assert>{ fn:false() }</dfdl:assert>
+                   </xs:appinfo>
+                </xs:annotation>
+              </xs:element>
+            </xs:sequence>
+            <xs:element name="correct" type="xs:string"/>
+          </xs:choice>
+          <xs:element name="incorrect" type="xs:string"/>
+        </xs:choice>
+      </xs:complexType>
+    </xs:element>
+    
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="sequenceScalarChildDoesNotDiscriminateAnything1"
+    model="s2"
+    description="Test that initiatedContent only applies to optional element sequence children.">
+    <tdml:document><![CDATA[seqInit]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e1>
+          <correct>seqInit</correct>
+        </e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="sequenceScalarChildDoesNotDiscriminateAnything2"
+    model="s2"
+    description="Test that initiatedContent only applies to optional element sequence children.">
+    <tdml:document><![CDATA[elemInit]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e2>
+          <correct>elemInit</correct>
+        </e2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="sequenceFixedOccursChildDoesNotDiscriminateAnything1"
+    model="s2"
+    description="Test that initiatedContent only applies to optional element sequence children.">
+    <tdml:document><![CDATA[+]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e3>
+          <correct>+</correct>
+        </e3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="sequenceExpressionOccursChildDoesNotDiscriminateAnything1"
+    model="s2"
+    description="Test that initiatedContent only applies to optional element sequence children.">
+    <tdml:document><![CDATA[2,+]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e4>
+          <count>2</count>
+          <correct>+</correct>
+        </e4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>  
+  
+  <tdml:parserTestCase name="sequenceImplicitOccursLessThanMinOccursDoesNotDiscriminateAnything1"
+    model="s2"
+    description="Test that initiatedContent only applies to optional element sequence children.">
+    <tdml:document><![CDATA[+]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e5>
+          <correct>+</correct>
+        </e5>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="sequenceImplicitOccursZeroOrMoreDiscriminates1"
+    model="s2"
+    description="Test that initiatedContent only applies to optional element sequence children.">
+    <tdml:document><![CDATA[+a]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e6>
+          <correct>+a</correct>
+        </e6>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>   
+     
 </tdml:testSuite>

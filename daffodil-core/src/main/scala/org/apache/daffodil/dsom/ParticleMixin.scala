@@ -60,6 +60,23 @@ trait RequiredOptionalMixin { self: ElementBase =>
   }
 
   /**
+   * For an array or optional, defined if there is a PoU for the element,
+   * the defined value being the effective minOccurs value.
+   */
+  final lazy val optPoUMinOccurs: Option[Int] = {
+    if (isScalar) None
+    else {
+      occursCountKind match {
+        case OccursCountKind.Parsed => Some(0)
+        case OccursCountKind.Fixed => None
+        case OccursCountKind.Expression => None
+        case OccursCountKind.Implicit => Some(minOccurs)
+        case OccursCountKind.StopValue => None
+      }
+    }
+  }
+
+  /**
    * True if the element is required to appear in the DFDL Infoset.
    *
    * This includes elements that have no representation in the
