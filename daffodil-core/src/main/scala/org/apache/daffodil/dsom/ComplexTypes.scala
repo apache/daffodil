@@ -20,6 +20,9 @@ package org.apache.daffodil.dsom
 import scala.xml.Node
 import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.xml.QName
+import org.apache.daffodil.api.WarnID
+import scala.xml.Text
+import scala.xml.Comment
 
 abstract class ComplexTypeBase(xmlArg: Node, parentArg: SchemaComponent)
   extends SchemaComponentImpl(xmlArg, parentArg)
@@ -52,8 +55,26 @@ abstract class ComplexTypeBase(xmlArg: Node, parentArg: SchemaComponent)
     xmlChildren.flatMap {
       xmlChild =>
         {
-          val g = ModelGroupFactory(xmlChild, this, 1, false) // discards unwanted text nodes also.
-          g
+          xmlChild match {
+            case <annotation>{ annotationChildren @ _* }</annotation> => {
+              val dais = annotationChildren.find { ai =>
+                ai.attribute("source") match {
+                  case Some(n) => n.text.contains("ogf") && n.text.contains("dfdl")
+                  case _ => false
+                }
+              }
+              if (dais != None) {
+                this.SDW(WarnID.InvalidAnnotationPoint, "complexType is not a valid annotation point. Annotation ignored.")
+              }
+              None
+            }
+            case textNode: Text => None
+            case _: Comment => None
+            case _ => {
+              val g = ModelGroupFactory(xmlChild, this, 1, false)
+              Some(g)
+            }
+          }
         }
     }
   }.value

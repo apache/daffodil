@@ -43,12 +43,13 @@ import org.apache.daffodil.schema.annotation.props.gen.YesNo
 object ModelGroupFactory {
 
   /**
-   * Because of the contexts where this is used, we return a list. That lets users
-   * flatmap it to get a collection of model groups. Nil for non-model groups, non-Nil for the model group
-   * object. There should be only one non-Nil.
+   * Returns a Model Group.
+   *
+   * Non Model Group types are/should be handled by the caller.
+   *
    */
   def apply(child: Node, lexicalParent: SchemaComponent, position: Int, isHidden: Boolean,
-    nodesAlreadyTrying: Set[Node] = Set()): List[ModelGroup] = {
+    nodesAlreadyTrying: Set[Node] = Set()): ModelGroup = {
     if (nodesAlreadyTrying.contains(child)) {
       //
       // We are chasing our tail. Circular reference among named model groups/terms.
@@ -57,7 +58,7 @@ object ModelGroupFactory {
     } else {
       val moreNodesAlreadyTrying = nodesAlreadyTrying + child
 
-      val childList: List[ModelGroup] = child match {
+      val childModelGroup: ModelGroup = child match {
         case <sequence>{ _* }</sequence> => {
           val seq = new Sequence(child, lexicalParent, position)
           if (seq.hiddenGroupRefOption.isDefined) {
@@ -68,10 +69,10 @@ object ModelGroupFactory {
             val hgrXML = seq.hiddenGroupRefXML
             ModelGroupFactory(hgrXML, lexicalParent, position, true, moreNodesAlreadyTrying)
           } else {
-            List(seq)
+            seq
           }
         }
-        case <choice>{ _* }</choice> => List(new Choice(child, lexicalParent, position))
+        case <choice>{ _* }</choice> => new Choice(child, lexicalParent, position)
         case <group>{ _* }</group> => {
           val pos = lexicalParent match {
             case ct: ComplexTypeBase => 1
@@ -81,16 +82,13 @@ object ModelGroupFactory {
           val isH = isHidden || lexicalParent.isHidden
           val groupRefFactory = new GroupRefFactory(child, lexicalParent, pos, isH)
           val groupRefInstance = groupRefFactory.groupRef
-          List(groupRefInstance.asModelGroup)
+          groupRefInstance.asModelGroup
         }
-        case <annotation>{ _* }</annotation> => Nil
-        case textNode: Text => Nil
-        case _: Comment => Nil
         case _ => {
-          lexicalParent.SDE("Unrecognized construct: %s", child)
+          Assert.invariantFailed("Unrecognized construct %s should be handled by caller.".format(child))
         }
       }
-      childList
+      childModelGroup
     }
   }
 
@@ -102,15 +100,13 @@ object ModelGroupFactory {
 object TermFactory {
 
   /**
-   * Returns a List of Term. There should be exactly one Term in the list.
+   * Returns a Term.
    *
-   * List, not one term, because of the context where this is used, non-Nil for
-   * an actual term. There should be only one non-Nil allows flattening to
-   * remove all the parts of the schema that are not relevant.
+   * Non Term/Model Group elements are/should be taken care of by the caller.
    *
    */
   def apply(child: Node, lexicalParent: GroupDefLike, position: Int, nodesAlreadyTrying: Set[Node] = Set()) = {
-    val childList: List[Term] = child match {
+    val childTerm: Term = child match {
       case <element>{ _* }</element> => {
         val refProp = child.attribute("ref").map { _.text }
         // must get an unprefixed attribute name, i.e. ref='foo:bar', and not
@@ -118,16 +114,14 @@ object TermFactory {
         refProp match {
           case None => {
             val eDecl = new LocalElementDecl(child, lexicalParent, position)
-            List(eDecl)
+            eDecl
           }
-          case Some(_) => List(new ElementRef(child, lexicalParent, position))
+          case Some(_) => new ElementRef(child, lexicalParent, position)
         }
       }
-      case <annotation>{ _* }</annotation> => Nil
-      case textNode: Text => Nil
       case _ => ModelGroupFactory(child, lexicalParent, position, false, nodesAlreadyTrying)
     }
-    childList
+    childTerm
   }
 }
 

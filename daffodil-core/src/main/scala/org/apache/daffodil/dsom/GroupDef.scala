@@ -70,15 +70,12 @@ trait GroupDefLike
 
   /** Returns the group members that are elements or model groups. */
   final lazy val groupMembers: Seq[Term] = LV('groupMembers) {
-    //
-    // So we have to flatMap, so that we can tolerate annotation objects (like documentation objects).
-    // and our ModelGroup factory has to return Nil for annotations and Text nodes.
-    //
     val positions = List.range(1, goodXmlChildren.length + 1) // range is exclusive on 2nd arg. So +1.
     val pairs = goodXmlChildren zip positions
-    pairs.flatMap {
+    pairs.map {
       case (n, i) =>
-        TermFactory(n, this, i)
+        val t = TermFactory(n, this, i)
+        t
     }
   }.value
 
@@ -86,13 +83,13 @@ trait GroupDefLike
    * XML is full of uninteresting text nodes. We just want the element children, not all children.
    */
   private def removeNonInteresting(child: Node) = {
-    val childList: List[Node] = child match {
-      case _: Text => Nil
-      case _: Comment => Nil
-      case <annotation>{ _* }</annotation> => Nil
-      case _ => List(child)
+    val childElem: Option[Node] = child match {
+      case _: Text => None
+      case _: Comment => None
+      case <annotation>{ _* }</annotation> => None
+      case _ => Some(child)
     }
-    childList
+    childElem
   }
 }
 
