@@ -53,7 +53,8 @@
       occursCountKind="implicit" nilValue="%ES;" 
       nilValueDelimiterPolicy="none" 
       nilKind="literalValue"
-      separatorSuppressionPolicy="anyEmpty"/>
+      separatorSuppressionPolicy="anyEmpty"
+      useNilForDefault="no" />
 
   <xs:element name="r1">
       <xs:complexType>
@@ -138,7 +139,8 @@
   </tdml:defineSchema>
 
   <tdml:parserTestCase name="nilled_ES_optional" root="r1" model="s1"
-    roundTrip="twoPass">
+    roundTrip="twoPass"
+    implementations="daffodil"><!-- uses dfdl:checkConstraints function -->
 
     <tdml:document>
       <tdml:documentPart type="text" replaceDFDLEntities="true">R/10%CR;%CR;%LF;//4%CR;%CR;%LF;S/11/ABCD/5</tdml:documentPart>

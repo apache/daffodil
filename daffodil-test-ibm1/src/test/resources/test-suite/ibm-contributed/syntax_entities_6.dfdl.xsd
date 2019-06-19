@@ -28,7 +28,8 @@
 				textStringPadCharacter="0" textTrimKind="none" textPadKind="none"
 				documentFinalTerminatorCanBeMissing="no" nilValueDelimiterPolicy="none"
 				emptyValueDelimiterPolicy="none" escapeSchemeRef="" textOutputMinLength="0" 
-        encodingErrorPolicy="error"/>
+        encodingErrorPolicy="error"
+        binaryNumberCheckPolicy="lax"/>
 
 		</xs:appinfo>
 	</xs:annotation>
