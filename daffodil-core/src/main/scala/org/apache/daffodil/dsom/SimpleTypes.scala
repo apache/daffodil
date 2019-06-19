@@ -44,7 +44,6 @@ import scala.xml.Elem
 import scala.xml.MetaData
 import scala.xml.UnprefixedAttribute
 import scala.xml.Null
-import org.apache.daffodil.processors.RangeBound
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.xml.GlobalQName
 import org.apache.daffodil.xml.XMLUtils
@@ -52,6 +51,8 @@ import scala.xml.NamespaceBinding
 import org.apache.daffodil.processors.IdentifyTypeCalculator
 import org.apache.daffodil.xml.NS
 import org.apache.daffodil.exceptions.SchemaFileLocation
+import org.apache.daffodil.cookers.IntRangeCooker
+import org.apache.daffodil.util.RangeBound
 
 trait TypeBase {
   def optRestriction: Option[Restriction] = None
@@ -86,33 +87,16 @@ sealed trait HasRepValueAttributes extends AnnotatedSchemaComponent
       case Some(repType) => {
         val repValueSetRaw = findPropertyOption("repValues").toOption
           .map(_.split("\\s+").toSeq).getOrElse(Seq())
-        val repValueRangesRaw = findPropertyOption("repValueRanges").toOption
-          .map(_.split("\\s+").toSeq).getOrElse(Seq())
+        val repValueRangesRaw = findPropertyOption("repValueRanges").toOption.getOrElse("")
         repType.primType match {
           case PrimType.String => {
             if (repValueRangesRaw.size > 0) SDE("repValueRanges set when using a string repType")
-            val repValueSetCooked = repValueRangesRaw.map(RepValueCooker.convertConstant(_, this, false))
+            val repValueSetCooked = repValueSetRaw.map(RepValueCooker.convertConstant(_, this, false))
             (repValueSetCooked, Seq())
           }
           case _: NodeInfo.Integer.Kind => {
-            if (repValueRangesRaw.size % 2 != 0) SDE("repValueRanges must have an even number of elements")
             val ans1 = repValueSetRaw.map(BigInt(_))
-            def cookRepValueRanges(xs: Seq[String]): Seq[(RangeBound[BigInt], RangeBound[BigInt])] = {
-              xs match {
-                case Seq() => Seq()
-                case a +: b +: rest => {
-                  val a2 = BigInt(a)
-                  val b2 = BigInt(b)
-                  if (a2.compare(b2) > 0) {
-                    SDE("min value must not be greater than max value")
-                  }
-                  val a3 = new RangeBound(Maybe(a2), true)
-                  val b3 = new RangeBound(Maybe(b2), true)
-                  (a3, b3) +: cookRepValueRanges(rest)
-                }
-              }
-            }
-            val ans2 = cookRepValueRanges(repValueRangesRaw)
+            val ans2 = IntRangeCooker.convertConstant(repValueRangesRaw, this, false)
             (ans1, ans2)
           }
           case x => SDE("repType must be either String or Integer type")

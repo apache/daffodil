@@ -31,11 +31,11 @@ import com.ibm.icu.util.TimeZone
 import org.apache.daffodil.dpath.NodeInfo.PrimType
 import org.apache.daffodil.processors.RepValueSet
 import org.apache.daffodil.processors.RepValueSetCompiler
-import org.apache.daffodil.processors.RangeBound
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.dsom.FacetTypes.ElemFacets
 import org.apache.daffodil.dsom.FacetTypes.FacetValue
 import org.apache.daffodil.processors.RepValueSet
+import org.apache.daffodil.util.RangeBound
 
 /**
  * A schema component for simple type restrictions

@@ -17,6 +17,11 @@
 
 package org.apache.daffodil.cookers
 
+import org.apache.daffodil.util.RangeBound
+import org.apache.daffodil.util.RangeBound.Range
+import org.apache.daffodil.exceptions.ThrowsSDE
+import org.apache.daffodil.util.Maybe
+
 object TextStandardInfinityRepCooker extends StringLiteralNonEmptyNoCharClassEntitiesNoByteEntities()
 
 object TextStandardNaNRepCooker extends StringLiteralNonEmptyNoCharClassEntitiesNoByteEntities()
@@ -84,3 +89,28 @@ object ChoiceBranchKeyCooker extends ListOfStringLiteralNonEmptyNoCharClassEntit
 object RepValueCooker extends ListOfStringLiteralNonEmptyNoCharClassEntitiesNoByteEntities()
 
 object UpperCaseTokenCooker extends UpperCaseToken
+
+object IntRangeCooker extends Converter[String, Seq[Range[BigInt]]] {
+  protected def convert(input: String, context: ThrowsSDE, forUnparse: Boolean): Seq[Range[BigInt]] = {
+    def run(xs: Seq[String]): Seq[(RangeBound[BigInt], RangeBound[BigInt])] = {
+      xs match {
+        case Seq() => Seq()
+        case a +: b +: rest => {
+          val a2 = BigInt(a)
+          val b2 = BigInt(b)
+          if (a2.compare(b2) > 0) {
+            context.SDE("min value (%s) is greater than max value (%s)", a2, b2)
+          }
+          val a3 = new RangeBound(Maybe(a2), true)
+          val b3 = new RangeBound(Maybe(b2), true)
+          (a3, b3) +: run(rest)
+        }
+      }
+    }
+    val asSeq = input.split("\\s+").toSeq.filter(!_.isEmpty)
+    if(asSeq.length % 2 != 0){
+      context.SDE("Integer range sets must specify an even number of endpoints")
+    }
+    run(asSeq)
+  }
+}

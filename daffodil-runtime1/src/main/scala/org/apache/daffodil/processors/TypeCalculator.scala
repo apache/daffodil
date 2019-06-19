@@ -38,6 +38,7 @@ import org.apache.daffodil.processors.parsers.ParseError
 import org.apache.daffodil.util.Maybe.One
 import org.apache.daffodil.dpath.NodeInfo.Kind
 import org.apache.daffodil.dpath.NodeInfo
+import org.apache.daffodil.util.RangeBound
 
 abstract class TypeCalculator[A <: AnyRef, B <: AnyRef](val srcType: NodeInfo.Kind, val dstType: NodeInfo.Kind)
   extends Serializable {
@@ -269,87 +270,6 @@ class UnionTypeCalculator[A <: AnyRef, B <: AnyRef](subCalculators: Seq[(RepValu
     } else {
       val subCalc = subCalcSeq.head._3
       subCalc.outputTypeCalc(x, xType)
-    }
-  }
-
-}
-
-class RangeBound[A <: AnyRef](val maybeBound: Maybe[A], val isInclusive: Boolean) extends Serializable {
-  lazy val isEmpty = maybeBound.isEmpty
-  lazy val isDefined = maybeBound.isDefined
-
-  override def toString(): String = {
-    if (maybeBound.isDefined) {
-      maybeBound.get.toString + "_" + (if (isInclusive) "inclusive" else "exclusive")
-    } else {
-      "Nope"
-    }
-  }
-
-  def intersectsWithOtherBounds(lower: RangeBound[A], upper: RangeBound[A]): Boolean = {
-    if (maybeBound.isEmpty) {
-      false
-    } else {
-      val bound = maybeBound.get
-      val inBounds = lower.testAsLower(bound) && upper.testAsUpper(bound)
-      val atBoundery = maybeBound == lower.maybeBound || maybeBound == upper.maybeBound
-      inBounds && (isInclusive || !atBoundery)
-    }
-  }
-
-  /*
-   * It should be the case that x is either a BigInt, or a Long
-   */
-
-  def testAsLower(x: A): Boolean = {
-    if (maybeBound.isEmpty) {
-      true
-    } else {
-      if (isInclusive) {
-        le(maybeBound.get, x)
-      } else {
-        lt(maybeBound.get, x)
-      }
-    }
-  }
-  def testAsUpper(x: A): Boolean = {
-    if (maybeBound.isEmpty) {
-      true
-    } else {
-      val bound = maybeBound.get
-      if (isInclusive) {
-        le(x, maybeBound.get)
-      } else {
-        lt(x, maybeBound.get)
-      }
-    }
-  }
-
-  private def le(x: A, y: A): Boolean = {
-    if (x.isInstanceOf[BigInt] && y.isInstanceOf[BigInt]) {
-      x.asInstanceOf[BigInt] <= y.asInstanceOf[BigInt]
-    } else if (x.isInstanceOf[JLong] && y.isInstanceOf[JLong]) {
-      x.asInstanceOf[JLong] <= y.asInstanceOf[JLong]
-    } else if (x.isInstanceOf[BigInt] && y.isInstanceOf[JLong]) {
-      x.asInstanceOf[BigInt] <= BigInt(y.asInstanceOf[JLong])
-    } else if (x.isInstanceOf[JLong] && y.isInstanceOf[BigInt]) {
-      BigInt(x.asInstanceOf[JLong]) <= y.asInstanceOf[BigInt]
-    } else {
-      Assert.invariantFailed("Illegal type passed to RangeBound.le")
-    }
-  }
-
-  private def lt(x: A, y: A): Boolean = {
-    if (x.isInstanceOf[BigInt] && y.isInstanceOf[BigInt]) {
-      x.asInstanceOf[BigInt] < y.asInstanceOf[BigInt]
-    } else if (x.isInstanceOf[JLong] && y.isInstanceOf[JLong]) {
-      x.asInstanceOf[JLong] < y.asInstanceOf[JLong]
-    } else if (x.isInstanceOf[BigInt] && y.isInstanceOf[JLong]) {
-      x.asInstanceOf[BigInt] < BigInt(y.asInstanceOf[JLong])
-    } else if (x.isInstanceOf[JLong] && y.isInstanceOf[BigInt]) {
-      BigInt(x.asInstanceOf[JLong]) < y.asInstanceOf[BigInt]
-    } else {
-      Assert.invariantFailed("Illegal type passed to RangeBound.lt")
     }
   }
 

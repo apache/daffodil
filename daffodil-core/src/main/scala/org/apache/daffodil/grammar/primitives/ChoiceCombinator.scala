@@ -34,9 +34,10 @@ import scala.util.Failure
 import scala.util.Success
 import scala.math.BigInt
 import org.apache.daffodil.cookers.RepValueCooker
-import org.apache.daffodil.processors.RangeBound
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.MaybeInt
+import org.apache.daffodil.util.RangeBound
+import org.apache.daffodil.cookers.IntRangeCooker
 
 /*
  * The purpose of the ChoiceCombinator (and the parsers it creates) is to
@@ -83,6 +84,15 @@ case class ChoiceCombinator(ch: ChoiceTermBase, alternatives: Seq[Gram])
         case ChoiceLengthKind.Explicit => new SpecifiedLengthChoiceParser(cp, ch.choiceRuntimeData, choiceLengthInBits.get)
       }
     } else {
+      //Verify that every alternative has some form of branch key
+      alternatives.map{ alt =>
+        val keyTerm = alt.context.asInstanceOf[Term]
+        val hasBranchKey = keyTerm.findPropertyOption("choiceBranchKey").isDefined
+        val hasBranchKeyRanges = keyTerm.findPropertyOption("choiceBranchKeyRanges").isDefined
+        if(!hasBranchKey && !hasBranchKeyRanges && ch.defaultableChoiceBranchKeyKind != ChoiceKeyKindType.ByType){
+          keyTerm.SDE("Neither dfdl:choiceBranchKey nor dfdlx:choiceBranchKeyRanges is defined.")
+        }
+      }
       val dispatchBranchKeyValueTuples: Seq[(String, Gram)] = alternatives.flatMap { alt =>
         val keyTerm = alt.context.asInstanceOf[Term]
         val uncookedBranchKeys =
@@ -95,9 +105,8 @@ case class ChoiceCombinator(ch: ChoiceTermBase, alternatives: Seq[Gram])
               val ans = repValueSet.valueSet.toSeq.map(_.toString).mkString(" ")
               ans
             }
-            case ChoiceKeyKindType.Explicit    => keyTerm.choiceBranchKey
-            case ChoiceKeyKindType.Implicit    => keyTerm.choiceBranchKey
-            case ChoiceKeyKindType.Speculative => keyTerm.choiceBranchKey
+            case ChoiceKeyKindType.Explicit | ChoiceKeyKindType.Implicit   => keyTerm.findPropertyOption("choiceBranchKey").toOption.getOrElse("")
+            case ChoiceKeyKindType.Speculative => Assert.invariantFailed("Cannot have choiceKeyKind==speculative with direct dispatch")
           }
         val cbks = {
           if(uncookedBranchKeys.isEmpty){
@@ -113,31 +122,39 @@ case class ChoiceCombinator(ch: ChoiceTermBase, alternatives: Seq[Gram])
       //Since there is not a choiceBranchKeyRanges attribute, this can only currently be populated by repType
       val dispatchBranchKeyRangeTuples: Seq[(RangeBound[BigInt], RangeBound[BigInt], Parser, Boolean)] = alternatives.flatMap { alt =>
         val keyTerm = alt.context.asInstanceOf[Term]
-        val branchKeyRanges:Set[(RangeBound[BigInt],RangeBound[BigInt])] = ch.defaultableChoiceBranchKeyKind match {
+        val branchKeyRanges:Seq[(RangeBound[BigInt],RangeBound[BigInt])] = ch.defaultableChoiceBranchKeyKind match {
           case ChoiceKeyKindType.ByType => {
             val keyTerm_ = keyTerm.asInstanceOf[ElementBase]
-            keyTerm_.simpleType.optRepValueSet.get.valueRanges.map(x=>{
+            keyTerm_.simpleType.optRepValueSet.get.valueRanges.toSeq.map(x=>{
               val x_ = x.asInstanceOf[(RangeBound[BigInt],RangeBound[BigInt])]
               (x_._1,x_._2)
             })
           }
-          case ChoiceKeyKindType.Explicit    => Set()
-          case ChoiceKeyKindType.Implicit    => Set()
-          case ChoiceKeyKindType.Speculative => Set()
+          case ChoiceKeyKindType.Explicit | ChoiceKeyKindType.Implicit    => 
+            IntRangeCooker.convertConstant(keyTerm.findPropertyOption("choiceBranchKeyRanges").toOption.getOrElse(""), context, false)
+          case ChoiceKeyKindType.Speculative => Assert.invariantFailed("Cannot have choiceKeyKind==speculative with direct dispatch")
         }
         branchKeyRanges.toSeq.map(x=>(x._1, x._2, alt.parser, alt.context.enclosingTerm.get.isRepresented))
       }
 
-      // check for duplicate dfdl:choiceBranchKeys
+      // check for duplicate branch keys
       // Our handling of ranges here is definantly suboptimal, but hopefully
       // we don't see enough distinct ranges on a single element for this to be an issue
+      // Additionally, at this point, the keys could be comming from either the choiceBranchKey family of attributes
+      // or the repValue family of attributes
+      val (branchKeyAttribute, branchKeyRangeAttribute) = ch.defaultableChoiceBranchKeyKind match{
+        case ChoiceKeyKindType.ByType => ("dfdlx:repValues","dfdlx:repValueRanges")
+        case ChoiceKeyKindType.Explicit | ChoiceKeyKindType.Implicit => ("dfdl:choiceBranchKey","dfdlx:choiceBranchKeyRanges")
+        case ChoiceKeyKindType.Speculative => Assert.invariantFailed("Cannot have choiceKeyKind==speculative with direct dispatch")
+      }
       val groupedByKey = dispatchBranchKeyValueTuples.groupBy(_._1)
       groupedByKey.foreach {
         case (k, kvs) =>
           if (kvs.length > 1) {
             SDE(
-              "dfdl:choiceBranchKey value (%s) is not unique across all branches of a direct dispatch choice. Offending branches are:\n%s",
-              k, kvs.map(_._2.context.runtimeData).map(rd => rd.diagnosticDebugName + " " + rd.schemaFileLocation.locationDescription).mkString("- ", "\n- ", ""))
+              "%s value (%s) is not unique across all branches of a direct dispatch choice. Offending branches are:\n%s",
+              branchKeyAttribute, k, 
+              kvs.map(_._2.context.runtimeData).map(rd => rd.diagnosticDebugName + " " + rd.schemaFileLocation.locationDescription).mkString("- ", "\n- ", ""))
           }
           Try(k.toLong) match {
             case Success(v) => {
@@ -145,8 +162,8 @@ case class ChoiceCombinator(ch: ChoiceTermBase, alternatives: Seq[Gram])
               val conflictingRanges = dispatchBranchKeyRangeTuples.filter({ case (min, max, _, _) => min.testAsLower(asBigInt) && max.testAsUpper(asBigInt) })
               if (conflictingRanges.length > 0) {
                 SDE(
-                  "dfdl:choiceBranchKey (%s) conflicts with dfdl:choiceBranchKeyRanges. Offending branches are:\n%s\n%s",
-                  k,
+                  "%s (%s) conflicts with %s. Offending branches are:\n%s\n%s",
+                  branchKeyAttribute, k, branchKeyRangeAttribute,
                   kvs.map(_._2.context.runtimeData).map(rd => rd.diagnosticDebugName + " " + rd.schemaFileLocation.locationDescription).mkString("- ", "\n- ", ""),
                   conflictingRanges.map(_._3.context).map(rd => rd.diagnosticDebugName + " " + rd.schemaFileLocation.locationDescription).mkString("- ", "\n- ", ""))
               }
@@ -167,7 +184,8 @@ case class ChoiceCombinator(ch: ChoiceTermBase, alternatives: Seq[Gram])
           val conflictingRanges = (conflictingRanges1 ++ conflictingRanges2).toSet
           if (conflictingRanges.size > 1) {
             SDE(
-              "dfdl:choiceBranchKeyRanges (%s, %s) conflicts with other ranges. Offending branches are:\n%s",
+              "%s (%s, %s) conflicts with other ranges. Offending branches are:\n%s",
+              branchKeyRangeAttribute,
               min, max,
               conflictingRanges.map(_._3.context).map(rd => rd.diagnosticDebugName + " " + rd.schemaFileLocation.locationDescription).mkString("- ", "\n- ", ""))
           }

@@ -1838,7 +1838,8 @@ it sure is/
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>choiceBranchKey</tdml:error>
-      <tdml:error>not defined</tdml:error>
+      <tdml:error>choiceBranchKeyRanges</tdml:error>
+      <tdml:error>defined</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

@@ -21,6 +21,7 @@ import org.apache.daffodil.processors._
 import org.apache.daffodil.util.LogLevel
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.util.RangeBound
 
 class ComplexTypeParser(rd: RuntimeData, bodyParser: Parser)
   extends CombinatorParser(rd) {
@@ -177,9 +178,13 @@ abstract class ChoiceDispatchCombinatorParserBase(rd: TermRuntimeData,
             parserOpt1
           } else{
             if(!dispatchKeyRangeMap.isEmpty){
-              val keyAsBigInt = BigInt(key)
-              val optAns1= dispatchKeyRangeMap.filter({case(min,max,_,_) => min.testAsLower(keyAsBigInt) && max.testAsUpper(keyAsBigInt)}).headOption
-              optAns1.map({case(_,_,parser,isRepresented)=>(parser,isRepresented)})
+              try{
+                val keyAsBigInt = BigInt(key)
+                val optAns1= dispatchKeyRangeMap.find({case(min,max,_,_) => min.testAsLower(keyAsBigInt) && max.testAsUpper(keyAsBigInt)})
+                optAns1.map({case(_,_,parser,isRepresented)=>(parser,isRepresented)})
+              } catch{
+                case _:NumberFormatException => None
+              }
             }else{
               None
             }
@@ -221,11 +226,16 @@ abstract class ChoiceDispatchCombinatorParserBase(rd: TermRuntimeData,
       }
     } finally {
       if (!freedInitialState) {
-        Assert.invariant(pstate.processorStatus ne Success)
         //Since we failed, it does not matter what state we are actually in, as our caller will backtrack anyway
         //What does matter is that we return the mark to the pool
         pstate.discard(initialState)
         freedInitialState = true
+        
+        /* It is important to put this check after cleaning up the initial state.
+         * If this check fails, before cleaning up the mark, then the error will be
+         * hidden by another error complaining about us not cleaning up the mark
+         */
+        Assert.invariant(pstate.processorStatus ne Success)
       }
     }
 

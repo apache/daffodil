@@ -108,6 +108,7 @@
     <xsd:attribute name="encodingErrorPolicy" type="dfdl:EncodingErrorPolicyEnum"/>
     <xsd:attribute name="ignoreCase" type="dfdl:YesNoEnum" />
     <xsd:attribute name="choiceBranchKey" type="dfdl:ListOfDFDLStringLiteral" />
+    <xsd:attribute ref="dfdlx:choiceBranchKeyRanges" />
     <xsd:attribute name="textBidi" type="dfdl:YesNoEnum"/>
   </xsd:attributeGroup>
 
@@ -680,6 +681,7 @@
       type="dfdl:YesNoEnum" />
     <xsd:attribute form="qualified" name="choiceBranchKey"
       type="dfdl:ListOfDFDLStringLiteral" />
+    <xsd:attribute ref="dfdlx:choiceBranchKeyRanges" />
   </xsd:attributeGroup>
 
   <!-- 12.1 Aligned Data -->
