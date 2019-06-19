@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<tdml:testSuite xmlns:ex="http://example.com" xmlns="http://example.com"
+  xmlns:tns="http://example.com"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
+  xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  >
+
+  <tdml:defineSchema name="choiceBranchKeyRanges-Embedded.dfdl.xsd">
+
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat"
+      lengthUnits="bits"
+      dfdlx:emptyElementParsePolicy="treatAsEmpty"
+      representation="binary"
+      />
+
+    <xs:simpleType name="uint8" dfdl:lengthKind="explicit" dfdl:length="8">
+      <xs:restriction base="xs:unsignedInt"/>
+    </xs:simpleType>
+
+    <xs:simpleType name="emptyElt" dfdl:lengthKind="explicit" dfdl:length="0">
+      <xs:restriction base="xs:hexBinary"/>
+    </xs:simpleType>
+
+    <xs:element name="choiceBranchKeyRanges_01">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="byte" maxOccurs="unbounded" dfdl:occursCountKind="parsed">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="tag" type="tns:uint8"/>
+                <xs:choice dfdl:choiceDispatchKey="{ tns:tag }" >
+                  <xs:element name="a" type="tns:emptyElt" dfdl:choiceBranchKey="0"/>
+                  <xs:element name="b" type="tns:emptyElt" dfdl:choiceBranchKey="1 5" dfdlx:choiceBranchKeyRanges="10 100 110 255"/>
+                  <xs:element name="c" type="tns:emptyElt" dfdl:choiceBranchKey="2 3 4"/>
+                  <xs:element name="d" type="tns:emptyElt" dfdlx:choiceBranchKeyRanges="6 9"/>
+                </xs:choice>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="choiceBranchKeyRanges_overlap_01">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="byte">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="tag" type="tns:uint8"/>
+                <xs:choice dfdl:choiceDispatchKey="{ tns:tag }" >
+                  <xs:element name="a" type="tns:emptyElt" dfdl:choiceBranchKey="0"/>
+                  <xs:element name="b" type="tns:emptyElt" dfdlx:choiceBranchKeyRanges="0 255"/>
+                </xs:choice>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="choiceBranchKeyRanges_overlap_02">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="byte">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="tag" type="tns:uint8"/>
+                <xs:choice dfdl:choiceDispatchKey="{ tns:tag }" >
+                  <xs:element name="a" type="tns:emptyElt" dfdl:choiceBranchKey="10"/>
+                  <xs:element name="b" type="tns:emptyElt" dfdlx:choiceBranchKeyRanges="0 4 7 20 25 100"/>
+                </xs:choice>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="choiceBranchKeyRanges_overlap_03">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="byte">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="tag" type="tns:uint8"/>
+                <xs:choice dfdl:choiceDispatchKey="{ tns:tag }" >
+                  <xs:element name="a" type="tns:emptyElt" dfdlx:choiceBranchKeyRanges="5 24 100 255"/>
+                  <xs:element name="b" type="tns:emptyElt" dfdlx:choiceBranchKeyRanges="0 4 25 100"/>
+                </xs:choice>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="choiceBranchKeyRanges_oddLength_01">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="byte">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="tag" type="tns:uint8"/>
+                <xs:choice dfdl:choiceDispatchKey="{ tns:tag }" >
+                  <xs:element name="a" type="tns:emptyElt" dfdlx:choiceBranchKeyRanges="5 24 25 100 255"/>
+                  <xs:element name="b" type="tns:emptyElt" dfdlx:choiceBranchKeyRanges="0 4 25 100"/>
+                </xs:choice>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="choiceBranchKeyRanges_badOrder_01">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="byte">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="tag" type="tns:uint8"/>
+                <xs:choice dfdl:choiceDispatchKey="{ tns:tag }" >
+                  <xs:element name="a" type="tns:emptyElt" dfdlx:choiceBranchKeyRanges="24 5 100 255"/>
+                  <xs:element name="b" type="tns:emptyElt" dfdlx:choiceBranchKeyRanges="0 4 25 100"/>
+                </xs:choice>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="choiceBranchKeyRanges_nonintDispatch_01">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="byte">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:choice dfdl:choiceDispatchKey="{ 'x' }" >
+                  <xs:element name="a" type="tns:emptyElt" dfdl:choiceBranchKey="x" dfdlx:choiceBranchKeyRanges="5 24 100 255"/>
+                  <xs:element name="b" type="tns:emptyElt" dfdlx:choiceBranchKeyRanges="0 4 25 99"/>
+                </xs:choice>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="choiceBranchKeyRanges_nonintDispatch_02">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="byte">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:choice dfdl:choiceDispatchKey="{ 'x' }" >
+                  <xs:element name="a" type="tns:emptyElt" dfdlx:choiceBranchKeyRanges="5 24 100 255"/>
+                  <xs:element name="b" type="tns:emptyElt" dfdlx:choiceBranchKeyRanges="0 4 25 99"/>
+                </xs:choice>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="choiceBranchKeyRanges_01"
+    root="choiceBranchKeyRanges_01" model="choiceBranchKeyRanges-Embedded.dfdl.xsd" description="Extensions - choiceBranchKeyRanges">
+
+    <tdml:document>
+    <tdml:documentPart type="byte">
+    00 
+    01 05 0a 32 64 6e c8 ff
+    02 03 04
+    06 07 08 09
+    </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <choiceBranchKeyRanges_01>
+          <byte><tag>0</tag><a/></byte>
+          
+          <byte><tag>1</tag><b/></byte>
+          <byte><tag>5</tag><b/></byte>
+          <byte><tag>10</tag><b/></byte>
+          <byte><tag>50</tag><b/></byte>
+          <byte><tag>100</tag><b/></byte>
+          <byte><tag>110</tag><b/></byte>
+          <byte><tag>200</tag><b/></byte>
+          <byte><tag>255</tag><b/></byte>
+          
+          <byte><tag>2</tag><c/></byte>
+          <byte><tag>3</tag><c/></byte>
+          <byte><tag>4</tag><c/></byte>
+
+          <byte><tag>6</tag><d/></byte>
+          <byte><tag>7</tag><d/></byte>
+          <byte><tag>8</tag><d/></byte>
+          <byte><tag>9</tag><d/></byte>
+        </choiceBranchKeyRanges_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="choiceBranchKeyRanges_overlap_01"
+    root="choiceBranchKeyRanges_overlap_01" model="choiceBranchKeyRanges-Embedded.dfdl.xsd" description="Extensions - choiceBranchKeyRanges">
+
+    <tdml:document>
+    <tdml:documentPart type="byte">
+    </tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>dfdl:choiceBranchKey</tdml:error>
+      <tdml:error>conflicts with</tdml:error>
+      <tdml:error>dfdlx:choiceBranchKeyRanges</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="choiceBranchKeyRanges_overlap_02"
+    root="choiceBranchKeyRanges_overlap_02" model="choiceBranchKeyRanges-Embedded.dfdl.xsd" description="Extensions - choiceBranchKeyRanges">
+
+    <tdml:document>
+    <tdml:documentPart type="byte">
+    </tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>dfdl:choiceBranchKey</tdml:error>
+      <tdml:error>conflicts with</tdml:error>
+      <tdml:error>dfdlx:choiceBranchKeyRanges</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="choiceBranchKeyRanges_overlap_03"
+    root="choiceBranchKeyRanges_overlap_03" model="choiceBranchKeyRanges-Embedded.dfdl.xsd" description="Extensions - choiceBranchKeyRanges">
+
+    <tdml:document>
+    <tdml:documentPart type="byte">
+    </tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>dfdlx:choiceBranchKeyRanges</tdml:error>
+      <tdml:error>conflicts with</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="choiceBranchKeyRanges_oddLength_01"
+    root="choiceBranchKeyRanges_oddLength_01" model="choiceBranchKeyRanges-Embedded.dfdl.xsd" description="Extensions - choiceBranchKeyRanges">
+
+    <tdml:document>
+    <tdml:documentPart type="byte">
+    </tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Integer range</tdml:error>
+      <tdml:error>even</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="choiceBranchKeyRanges_badOrder_01"
+    root="choiceBranchKeyRanges_badOrder_01" model="choiceBranchKeyRanges-Embedded.dfdl.xsd" description="Extensions - choiceBranchKeyRanges">
+
+    <tdml:document>
+    <tdml:documentPart type="byte">
+    </tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>min value (24)</tdml:error>
+      <tdml:error>max value (5)</tdml:error>
+      <tdml:error>greater</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="choiceBranchKeyRanges_nonintDispatch_01"
+    root="choiceBranchKeyRanges_nonintDispatch_01" model="choiceBranchKeyRanges-Embedded.dfdl.xsd" description="Extensions - choiceBranchKeyRanges">
+
+    <tdml:document>
+    <tdml:documentPart type="byte">
+    </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <choiceBranchKeyRanges_nonintDispatch_01>
+          <byte><a/></byte>
+        </choiceBranchKeyRanges_nonintDispatch_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="choiceBranchKeyRanges_nonintDispatch_02"
+    root="choiceBranchKeyRanges_nonintDispatch_02" model="choiceBranchKeyRanges-Embedded.dfdl.xsd" description="Extensions - choiceBranchKeyRanges">
+
+    <tdml:document>
+    <tdml:documentPart type="byte">
+    </tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Choice dispatch key (x) failed to match any of the branch keys</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+</tdml:testSuite>
