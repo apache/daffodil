@@ -82,4 +82,9 @@ class TestOutputValueCalc {
   @Test def test_ovcStringLSBF1() { runner3.runOneTest("rStringLSBF1") }
 
   @Test def test_ovcBitOrderChange() { runner3.runOneTest("ovc_bitOrderChange") }
+
+  // DAFFODIL-1701
+  @Test def test_refSimpleTypeElemWithOvc() { runner.runOneTest("refSimpleTypeElemWithOvc") }
+  @Test def test_refComplexTypeElemNoOvc() { runner.runOneTest("refComplexTypeElemNoOvc") }
+  @Test def test_refComplexTypeElemWithOvc() { runner.runOneTest("refComplexTypeElemWithOvc") }
 }

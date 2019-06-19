@@ -105,6 +105,7 @@ trait ElementBase
     val optOVC = findPropertyOption("outputValueCalc")
     schemaDefinitionWhen(optOVC.isDefined && isOptional, "dfdl:outputValueCalc cannot be defined on optional elements.")
     schemaDefinitionWhen(optOVC.isDefined && isArray, "dfdl:outputValueCalc cannot be defined on array elements.")
+    schemaDefinitionWhen(optOVC.isDefined && isComplexType, "dfdl:outputValueCalc cannot be defined on complexType elements.")
     // This should be an SDE, but is very useful for unit tests to be able to specify OVC on a single global element
     // self.schemaDefinitionWhen(optOVC.isDefined && self.isInstanceOf[GlobalElementDecl], "dfdl:outputValueCalc cannot be defined on global elements.")
 

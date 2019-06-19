@@ -315,6 +315,40 @@
 			</xs:complexType>
 		</xs:element>
 
+        <xs:element name="refSimpleElementWithOvc">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element ref="ex:st1" dfdl:outputValueCalc="{1}"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+
+        <xs:element name="st1" type="xs:int"/>
+
+        <xs:element name="refComplexElementNoOvc">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element ref="ex:ct1"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+
+        <xs:element name="refComplexElementWithOvc">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element ref="ex:ct1" dfdl:outputValueCalc="{1}"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+
+        <xs:element name="ct1">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="e1" type="xs:int"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+
 	</tdml:defineSchema>
 
 	<tdml:unparserTestCase name="binaryIntegerBigEndian"
@@ -708,4 +742,63 @@
 	    </tdml:errors>
 
 	</tdml:unparserTestCase>
+
+    <tdml:unparserTestCase name="refSimpleTypeElemWithOvc"
+      root="refSimpleElementWithOvc" model="outputValueCalc-Embedded.dfdl.xsd"
+      description="An element referencing a simpleType Elem with an OVC" roundTrip="false">
+      <tdml:infoset>
+        <tdml:dfdlInfoset>
+          <ex:refSimpleElementWithOvc>
+            <ex:st1>9</ex:st1>
+          </ex:refSimpleElementWithOvc>
+        </tdml:dfdlInfoset>
+      </tdml:infoset>
+
+      <tdml:document>
+        <tdml:documentPart type="text">1</tdml:documentPart>
+      </tdml:document>
+
+    </tdml:unparserTestCase>
+
+    <tdml:unparserTestCase name="refComplexTypeElemNoOvc"
+      root="refComplexElementNoOvc" model="outputValueCalc-Embedded.dfdl.xsd"
+      description="An element referencing a complexType Elem with no OVC" roundTrip="false">
+      <tdml:infoset>
+        <tdml:dfdlInfoset>
+          <ex:refComplexElementNoOvc>
+            <ex:ct1>
+              <e1>2</e1>
+            </ex:ct1>
+          </ex:refComplexElementNoOvc>
+        </tdml:dfdlInfoset>
+      </tdml:infoset>
+
+      <tdml:document>
+        <tdml:documentPart type="text">2</tdml:documentPart>
+      </tdml:document>
+
+    </tdml:unparserTestCase>
+
+    <tdml:unparserTestCase name="refComplexTypeElemWithOvc"
+      root="refComplexElementWithOvc" model="outputValueCalc-Embedded.dfdl.xsd"
+      description="An element referencing a complexType Elem with an OVC" roundTrip="false">
+      <tdml:infoset>
+        <tdml:dfdlInfoset>
+          <ex:refComplexElementWithOvc>
+            <ex:ct1>
+              <e1>2</e1>
+            </ex:ct1>
+          </ex:refComplexElementWithOvc>
+        </tdml:dfdlInfoset>
+      </tdml:infoset>
+
+      <tdml:document />
+
+      <tdml:errors>
+        <tdml:error>Schema Definition Error</tdml:error>
+        <tdml:error>dfdl:outputValueCalc cannot be defined on complexType elements.</tdml:error>
+      </tdml:errors>
+
+    </tdml:unparserTestCase>
+
 </tdml:testSuite>
