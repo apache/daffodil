@@ -67,8 +67,8 @@ class TestDump {
       Dump.dump(Dump.MixedHexLTR(Some("utf-8")), 1000 * 8, dateStringLengthInBytes * 8, bs,
         includeHeadingLine = true,
         indicatorInfo = Some(((1000 + 12) * 8), 6 * 8)).mkString("\n")
-    // 
-    // This is a bit hard to interpret. The indicator starts above a blank part 
+    //
+    // This is a bit hard to interpret. The indicator starts above a blank part
     // of the first row of data. That means it is pointing at the next row.
     //
     val expected = """
@@ -297,7 +297,27 @@ class TestDump {
     val dumpString = Dump.dump(Dump.MixedHexRTL(None), 50, 51, bs, includeHeadingLine = true).mkString("\n")
     val expected = """
 fedcba9876543210  ffee ddcc bbaa 9988 7766 5544 3322 1100  87654321
-  ␇␆␅␄␃␂␁␀             7060 5040 3020 1000                :00000000
+  ␇␆␅␄␃␂␁␀             0706 0504 0302 0100                :00000000
+""".replace("\r\n", "\n")
+    assertEquals(expected, "\n" + dumpString + "\n")
+  }
+
+  @Test def testDumpLSBFirst2() {
+
+    val bytes: Array[Byte] =
+      """E4 67 00 80 55
+        67 92 1A FC 77 00
+        00 00 80 F8 63 44 48 10 FE B6 9B 01 00 00"""
+        .split("\\s+")
+        .map { Integer.parseInt(_, 16).toByte }
+        .toArray
+    val bs = new BS(bytes)
+
+    val dumpString = Dump.dump(Dump.MixedHexRTL(None), 0, bytes.length * 8, bs, includeHeadingLine = true).mkString("\n")
+    val expected = """
+fedcba9876543210  ffee ddcc bbaa 9988 7766 5544 3322 1100  87654321
+cø€␀␀␀wü␚’gU€␀gä  63f8 8000 0000 77fc 1a92 6755 8000 67e4 :00000000
+       ␀␀␁›¶þ␐HD                   00 0001 9bb6 fe10 4844 :00000010
 """.replace("\r\n", "\n")
     assertEquals(expected, "\n" + dumpString + "\n")
   }
@@ -341,10 +361,10 @@ fedcba9876543210  ffee ddcc bbaa 9988 7766 5544 3322 1100  87654321
 
     //
     // Careful below.
-    // Eclipse seems to want to replace the consecutive dashes with 
+    // Eclipse seems to want to replace the consecutive dashes with
     // narrower characters, but seemingly only if it sees the .stripMargin('#') on the same line
     // after the rich string. WTF?
-    // Anyway, splitting it and putting stripMargin on the separate line seems 
+    // Anyway, splitting it and putting stripMargin on the separate line seems
     // to defeat this 'feature' of Eclipse.
     //
     val ex =
@@ -367,10 +387,10 @@ fedcba9876543210  ffee ddcc bbaa 9988 7766 5544 3322 1100  87654321
     val dumpString = dump.mkString("\n")
     //
     // Careful below.
-    // Eclipse seems to want to replace the consecutive dashes with 
+    // Eclipse seems to want to replace the consecutive dashes with
     // narrower characters, but seemingly only if it sees the .stripMargin('#') on the same line
     // after the rich string. WTF?
-    // Anyway, splitting it and putting stripMargin on the separate line seems 
+    // Anyway, splitting it and putting stripMargin on the separate line seems
     // to defeat this 'feature' of Eclipse.
     //
     val ex =
@@ -392,7 +412,7 @@ fedcba9876543210  ffee ddcc bbaa 9988 7766 5544 3322 1100  87654321
     //
     // Careful below.
     // That first line of the expected ends in a vertical box drawing character
-    // which is NOT the same as the pipe or | on the keyboard. 
+    // which is NOT the same as the pipe or | on the keyboard.
     //
     val expected =
       """#     │

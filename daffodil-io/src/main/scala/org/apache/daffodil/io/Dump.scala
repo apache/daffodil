@@ -450,7 +450,8 @@ class DataDumper {
   /**
    * Decoder must be setup for REPLACE on decode error.
    */
-  private def convertToChar(startingBytePos0b: Long,
+  private def convertToChar(
+    startingBytePos0b: Long,
     endingBytePos0b: Long,
     bs: ByteSource,
     decoder: Option[JavaCharsetDecoder]): (Char, Int, Int) = {
@@ -612,18 +613,25 @@ class DataDumper {
       byteSource, includeHeadingLine, optEncodingName, None)
     val ltrLines =
       ltrDump.filterNot { _.length() == 0 }
-    val rtlLines =
-      ltrLines.map { _.reverse }
-    val rtlLinesFixedUp = rtlLines.map {
-      rtlLine =>
-        val last8 = rtlLine.substring(rtlLine.length - 8)
-        val reversedLast8 = last8.reverse
-        val lineWithoutLast8 = rtlLine.substring(0, rtlLine.length - 8)
-        val rtl = lineWithoutLast8 + reversedLast8
-        rtl
+    val wholeLineRegex = """([0-9a-fA-F]{8})(:?\s+)([0-9a-fA-F ]+[0-9a-fA-F])(\s+)(.*)""".r
+    val rtlLines = ltrLines.map {
+      ltrLine =>
+        ltrLine match {
+          case wholeLineRegex(addr, sep1, hexlBytes, sep2, asciiText) => {
+            val hexlNibblesSwitch = hexlBytes
+              .split(" ").map { hexlGroup =>
+                hexlGroup
+                  .sliding(2, 2) // grab each incorrectly reversed (nibbles are switched) byte
+                  .map(_.reverse) // reverse the byte
+                  .mkString // and convert back to string
+              }.mkString(" ") //convert back to string
+            asciiText.reverse + sep2 + hexlNibblesSwitch.reverse + sep1.reverse + addr
+          }
+          case x => x
+        }
     }
     val rtlDump =
-      rtlLinesFixedUp
+      rtlLines
     rtlDump
   }
 
