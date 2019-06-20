@@ -26,6 +26,7 @@ object TestChoice2 {
 
   val runner = Runner(testDir, "choice1765.tdml")
   val runner1773 = Runner(testDir, "choice1773.tdml")
+  val runner2162 = Runner(testDir, "choice2162.tdml")
 
   @AfterClass def shutDown {
     runner.reset
@@ -50,4 +51,8 @@ class TestChoice2 {
   // DAFFODIL-1773
   @Test def test_queryStyle1(): Unit = { runner1773.runOneTest("queryStyle1") }
   @Test def test_queryStyle2(): Unit = { runner1773.runOneTest("queryStyle2") }
+
+  // DAFFODIL-2162
+  @Test def test_choiceArrayDirectDispatch1(): Unit = { runner2162.runOneTest("choiceArrayDirectDispatch1") }
+
 }
