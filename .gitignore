@@ -60,3 +60,7 @@ eclipse-projects/*/.tmpBin/
 \#*#
 .\#*
 .\#.*
+#
+# FOR VIM
+#
+.*.swp
