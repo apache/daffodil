@@ -302,7 +302,7 @@ trait SequenceDefMixin
 
   final lazy val <sequence>{ apparentXMLChildren @ _* }</sequence> = (xml \\ "sequence")(0)
 
-  final def xmlChildren = apparentXMLChildren
+  def xmlChildren = apparentXMLChildren
 
   // The dfdl:hiddenGroupRef property cannot be scoped, nor defaulted. It's really a special
   // attribute, not a format property in the usual sense.
@@ -356,7 +356,7 @@ class Sequence(xmlArg: Node, lexicalParent: SchemaComponent, position: Int)
  */
 final class ChoiceBranchImpliedSequence(rawGM: Term)
   extends SequenceTermBase(rawGM.xml, rawGM.optLexicalParent, rawGM.position)
-  with GroupDefLike {
+  with SequenceDefMixin {
 
   override def separatorSuppressionPolicy: SeparatorSuppressionPolicy = SeparatorSuppressionPolicy.TrailingEmptyStrict
 
@@ -406,19 +406,14 @@ final class ChoiceBranchImpliedSequence(rawGM: Term)
   /**
    * Implied sequence doesn't exist textually, so can't have properties on it.
    */
-  override lazy val nonDefaultPropertySources: Seq[ChainPropProvider] = groupMembers(0).nonDefaultPropertySources
-
-  // Members declared in AnnotatedMixin
-  protected def annotationFactory(node: scala.xml.Node): Option[DFDLAnnotation] = None
-  protected def emptyFormatFactory: DFDLFormatAnnotation = Assert.usageError("Not to be called on choice branches.")
-  protected def isMyFormatAnnotation(a: DFDLAnnotation): Boolean = false
+  override lazy val nonDefaultPropertySources: Seq[ChainPropProvider] = Seq()
 
   // Members declared in AnnotatedSchemaComponent
   protected def optReferredToComponent: Option[AnnotatedSchemaComponent] = None
 
   def modelGroupRuntimeData: ModelGroupRuntimeData = sequenceRuntimeData
 
-  def xmlChildren: Seq[scala.xml.Node] = Seq(xml)
+  final override def xmlChildren: Seq[scala.xml.Node] = Seq(xml)
 
   // Members declared in Term
   def hasKnownRequiredSyntax: Boolean = groupMembers(0).hasKnownRequiredSyntax
