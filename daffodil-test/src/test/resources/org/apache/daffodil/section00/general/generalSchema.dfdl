@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<dfdlx:schema 
+  xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.ogf.org/dfdl/dfdl-1.0/extensions org/apache/daffodil/xsd/dfdlx.xsd">
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+  targetNamespace="http://example.com" xmlns:tns="http://example.com"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  elementFormDefault="qualified">
+
+  <include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+
+  <annotation>
+    <appinfo source="http://www.ogf.org/dfdl/">
+      <dfdl:format ref="tns:GeneralFormat"/>
+    </appinfo>
+  </annotation>
+    
+  <element name="e1" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string" />
+  <element name="e2" dfdl:lengthKind="explicit" dfdl:length="1" type="xs:string" />
+      
+  <element name="e3" dfdl:lengthKind="implicit">
+    <complexType>
+      <sequence dfdl:initiator="[" dfdl:separator="," dfdl:terminator="]">
+        <element name="s1" type="xs:string" dfdl:lengthKind="delimited" />
+        <element name="s2" type="xs:string" dfdl:lengthKind="delimited" />
+      </sequence>
+    </complexType>
+  </element>
+  <xs:annotation></xs:annotation>
+
+</schema>
+</dfdlx:schema>

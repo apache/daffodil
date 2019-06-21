@@ -107,6 +107,29 @@
     <xs:attribute form="qualified" name="layerLengthUnits" type="dfdlx:LayerLengthUnitsEnum" />
     <xs:attribute form="qualified" name="layerBoundaryMark" type="dfdl:ListOfDFDLStringLiteral_Or_DFDLExpression" />
   </xs:attributeGroup>
+  
+  <!-- 
+    This lets you encapsulate an XSD schema with <dfdlx:schema>...</dfdlx:schema>
+    and then full GUI support for editing the DFDL schema can be provided 
+    by IDEs like eclipse. 
+    
+    This along with having to name the files with extension ".dfdl", not ".xsd", so
+    that the IDE will treat them as XML files, not XML Schema files.
+    
+    The IDE can then be setup to treat ".dfdl" files as XML files, and validation
+    and syntax support for XML editing will then work in the IDE.
+    
+    Daffodil will accept these ".dfdl" files with top level <dfdlx:schema> element
+    and ignore this wrapper, and treat them otherwise exactly like regular ".dfdl.xsd" 
+    DFDL schema files.
+     -->
+  <xs:element name="schema">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="xs:schema"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
 
 
   <xs:simpleType name="LayerTransformType">
