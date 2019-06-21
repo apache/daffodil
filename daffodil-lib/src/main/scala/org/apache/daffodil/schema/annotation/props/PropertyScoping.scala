@@ -120,8 +120,7 @@ trait FindPropertyMixin extends PropTypes {
   
   val propCache = new scala.collection.mutable.LinkedHashMap[String, PropertyLookupResult]
 
-  final def findPropertyOption(pname: String): PropertyLookupResult = {
-
+  def findPropertyOption(pname: String): PropertyLookupResult = {
     val propCacheResult = propCache.get(pname)
     val propRes =
       propCacheResult match {
