@@ -382,6 +382,8 @@ final class ChoiceBranchImpliedSequence(rawGM: Term)
 
   override def checkHiddenSequenceIsDefaultableOrOVC: Unit = ()
 
+  override def findPropertyOption(pname: String): PropertyLookupResult = rawGM.findPropertyOption(pname)
+
   override lazy val sequenceRuntimeData: SequenceRuntimeData = {
     new SequenceRuntimeData(
       schemaSet.variableMap,
