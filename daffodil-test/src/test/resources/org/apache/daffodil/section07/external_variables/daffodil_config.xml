@@ -17,8 +17,7 @@
 -->
 
 <daf:dfdlConfig
-	xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext">
 	<daf:externalVariableBindings xmlns="http://www.w3.org/2001/XMLSchema"
 		xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="http://example.com">
 		<daf:bind name="ex:v_no_default">1</daf:bind>

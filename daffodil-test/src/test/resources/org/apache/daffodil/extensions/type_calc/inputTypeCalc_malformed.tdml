@@ -17,9 +17,12 @@
 -->
 
 <tdml:testSuite xmlns:ex="http://example.com" xmlns="http://example.com"
-  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions" >
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
+  xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
+  xmlns:tns="http://example.com"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
   <tdml:defineSchema name="inputTypeCalc-Embedded.dfdl.xsd">
 
@@ -40,7 +43,7 @@
     </xs:element>
 
     <xs:simpleType name="keysetValue_01_repType" dfdl:lengthKind="explicit" dfdl:length="1">
-      <xs:restriction base="xs:unsignedInt"/>
+      <xs:restriction base="xs:unsignedInt" />
     </xs:simpleType>
 
     <xs:simpleType name="keysetValue_01" dfdlx:repType="tns:keysetValue_01_repType">

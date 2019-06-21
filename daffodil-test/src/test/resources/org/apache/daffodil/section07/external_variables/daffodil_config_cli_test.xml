@@ -16,10 +16,27 @@
   limitations under the License.
 -->
 
-<daf:dfdlConfig xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<!--
+  Note: Bug DAFFODIL-2339
+
+  We'd like to have these schemaLocation attributes on daf:dfdlConfig, but this breaks tests because
+  it tries to load the schema from the schemaLocation, and can't resolve org/apache/daffodil/xsd/dafext.xsd.
+
+  Simple things like adding an sbt dependency from daffodil-cli back to daffodil-lib, whether always or "it->test"
+  dependent, don't fix this.
+
+  The CLI is using DaffodilXMLLoader to load this config file, so the resolver should be doing the right thing by
+  finding this dafext.xsd on the class path inside of daffodil-lib's jar.
+
+  The failure seems to happen earlier. A SAX fatal error is invoked when looking up dfdl:anyOther a symbol
+  in the dfdl schema annotation schemas, from the XMLSchema_for_DFDL.
+
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext org/apache/daffodil/xsd/dafext.xsd"
+-->
+<daf:dfdlConfig xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext">
 	<daf:externalVariableBindings xmlns="http://www.w3.org/2001/XMLSchema"
-		xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="http://example.com">
+		xmlns:ex="http://example.com">
 		<daf:bind name="ex:var1">-9</daf:bind>
 		<daf:bind name="ex:var3">-8</daf:bind>
 	</daf:externalVariableBindings>

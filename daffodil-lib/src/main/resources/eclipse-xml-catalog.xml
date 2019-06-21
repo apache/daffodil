@@ -16,21 +16,19 @@
   limitations under the License.
 -->
 
-<catalog>
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
 	<uri name="http://www.ibm.com/xmlns/dfdl/testData"
-		uri="platform:/resource/daffodil-lib/src/main/resources/xsd/tdml.xsd" />
+		uri="platform:/resource/daffodil-lib/src/main/resources/org/apache/daffodil/xsd/tdml.xsd" />
 	<uri name="http://www.ogf.org/dfdl/dfdl-1.0/"
-		uri="platform:/resource/daffodil-lib/resource_managed/main/xsd/DFDL_part3_model.xsd" />
+		uri="platform:/resource/daffodil-lib/resource_managed/main/org/apache/daffodil/xsd/DFDL_part3_model.xsd" />
 	<uri name="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
-		uri="platform:/resource/daffodil-lib/resource_managed/main/xsd/dfdlx.xsd" />
+		uri="platform:/resource/daffodil-lib/resource_managed/main/org/apache/daffodil/xsd/dfdlx.xsd" />
 	<uri name="http://www.w3.org/2001/XMLSchema"
-		uri="platform:/resource/daffodil-lib/src/main/resources/xsd/XMLSchema_for_DFDL.xsd" />
-	<public publicId="-//W3C//DTD XMLSCHEMA 200102//EN"
-		uri="platform:/resource/daffodil-lib/src/main/resources/xsd/XMLSchema.dtd" />
+		uri="platform:/resource/daffodil-lib/src/main/resources/org/apache/daffodil/xsd/XMLSchema_for_DFDL.xsd" />
 	<public publicId="datatypes"
-		uri="platform:/resource/daffodil-lib/src/main/resources/xsd/datatypes.dtd" />
+		uri="platform:/resource/daffodil-lib/src/main/resources/org/apache/daffodil/xsd/datatypes.dtd" />
 	<uri name="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
-		uri="platform:/resource/daffodil-lib/src/main/resources/xsd/dafext.xsd" />
+		uri="platform:/resource/daffodil-lib/resource_managed/main/org/apache/daffodil/xsd/dafext.xsd" />
 	<uri name="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:int"
-		uri="platform:/resource/daffodil-lib/src/main/resources/xsd/dafint.xsd" />
+		uri="platform:/resource/daffodil-lib/src/main/resources/org/apache/daffodil/xsd/dafint.xsd" />
 </catalog>
