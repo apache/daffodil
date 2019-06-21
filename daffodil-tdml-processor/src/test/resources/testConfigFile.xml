@@ -16,7 +16,7 @@
   limitations under the License.
 -->
 
-<tdml:defineConfig name="myConfig" xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2012:ext" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData">
+<tdml:defineConfig name="myConfig" xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData">
   <daf:tunables>
     <daf:requireBitOrderProperty>true</daf:requireBitOrderProperty>
   </daf:tunables>

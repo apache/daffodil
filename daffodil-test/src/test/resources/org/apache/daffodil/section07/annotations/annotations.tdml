@@ -20,6 +20,7 @@
   xmlns:tns="http://example.com" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
   xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  xmlns:ex="http://example.com"
   defaultRoundTrip="true">
 
   <defineSchema name="as1">

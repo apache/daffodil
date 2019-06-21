@@ -21,6 +21,7 @@
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
   xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  xmlns:tns="http://example.com"
   >
 
   <tdml:defineSchema name="inputTypeCalc-Embedded.dfdl.xsd">

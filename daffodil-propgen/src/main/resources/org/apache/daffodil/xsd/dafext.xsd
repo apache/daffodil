@@ -18,6 +18,7 @@
 
 <xs:schema
   targetNamespace="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
+  xmlns:tns="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
@@ -479,5 +480,14 @@
       </xs:simpleType>
     </xs:list>
   </xs:simpleType>
+
+  <xs:element name="dfdlConfig">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="tns:externalVariableBindings" minOccurs="0" />
+        <xs:element ref="tns:tunables" minOccurs="0" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
 
 </xs:schema>
