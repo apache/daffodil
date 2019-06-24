@@ -138,7 +138,7 @@ trait UpdateEclipseClasspaths {
     xmlNodes.toSeq
   }
 
-  def updateOneClasspathFile(cpf: java.io.File) {
+  def updateOneClasspathFile(cpf: java.io.File): Unit = {
     val cpNode = scala.xml.XML.loadFile(cpf)
     val cpes = (cpNode \\ "classpathentry")
     val nonLibChildren = cpes.filterNot { e => (e \\ "@kind").text == "lib" }

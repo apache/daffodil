@@ -133,7 +133,7 @@ class TunableGenerator(schemaRootConfig: scala.xml.Node, schemaRootExt: scala.xm
     .filter { st => (st \@ "name").startsWith("Tunable") }
     .filter { st => !excludedSimpleTypes.contains(st \@ "name") }
 
-  def writeGeneratedCode(w: java.io.FileWriter) {
+  def writeGeneratedCode(w: java.io.FileWriter): Unit = {
     val tunables =
       tunableNodes.map { tunableNode =>
         val schemaName = tunableNode \@ "name"
@@ -225,7 +225,7 @@ class EnumListTunable(name: String, schemaType: String, schemaDefault: String, l
     if (trimmedDefault == "") {
       "Nil"
     } else {
-      val defaultSeq = trimmedDefault.split("\\s+").map(d => s"${listType}.${d.head.toUpper + d.tail}")
+      val defaultSeq = trimmedDefault.split("\\s+").map(d => s"${listType}.${"$d.head.toUpper$d.tail"}")
       s"""Seq(${defaultSeq.mkString(", ")})"""
     }
 
@@ -245,7 +245,7 @@ class EnumListTunable(name: String, schemaType: String, schemaDefault: String, l
 
 class TunableEnumDefinition(schemaRootConfig: scala.xml.Node, schemaRootExt: scala.xml.Node, simpleTypeNode: scala.xml.Node) {
   private val nodeName = (simpleTypeNode \@ "name").stripPrefix("Tunable")
-  private val scalaType = nodeName.head.toUpper + nodeName.tail
+  private val scalaType = "$nodeName.head.toUpper$nodeName.tail"
 
   /**
    * Returns a list of all string values of enumerations. If a simpletype is a
@@ -281,7 +281,7 @@ class TunableEnumDefinition(schemaRootConfig: scala.xml.Node, schemaRootExt: sca
 """.trim.stripMargin
 
   private val scalaEnums = {
-    val scalaEnumValues = allEnumerationValues.map { e => e.head.toUpper + e.tail }
+    val scalaEnumValues = allEnumerationValues.map { e => "$e.head.toUpper$e.tail" }
     scalaEnumValues.map { e => s"""  case object ${e} extends ${scalaType}; forceConstruction(${e})""" }
   }
 

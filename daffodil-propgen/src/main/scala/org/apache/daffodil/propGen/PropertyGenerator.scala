@@ -86,7 +86,7 @@ class PropertyGenerator(arg: Node) {
   //  }
 
   def genAll(): Seq[String] = {
-    val allTopLevel = dfdlSchema.child
+    val allTopLevel = dfdlSchema.child.toSeq
     //      val allNamed = allTopLevel.filter(st => {
     //      val name = attr(st, "name")
     //        name != None
@@ -642,12 +642,12 @@ object Currency {
     stripLast
   }
 
-  def initialUpperCase(s: String): String = s.head.toUpper + s.substring(1)
+  def initialUpperCase(s: String): String = Character.toString(s.head.toUpper) + s.substring(1)
   def initialLowerCase(s: String): String = {
     // special case for the way we lowercase the utf16Width property.
     if (s == "UTF16Width") "utf16Width"
     else
-      s.head.toLower + s.substring(1)
+      Character.toString(s.head.toLower) + s.substring(1)
   }
 
 } // end trait
@@ -694,7 +694,7 @@ import org.apache.daffodil.exceptions.ThrowsSDE
 
 """
 
-  def writeGeneratedCode(thunks: Seq[String], ow: java.io.FileWriter) {
+  def writeGeneratedCode(thunks: Seq[String], ow: java.io.FileWriter) : Unit = {
     ow.write(preamble)
     for (thunk <- thunks) {
       ow.write(thunk)
@@ -715,14 +715,14 @@ import org.apache.daffodil.exceptions.ThrowsSDE
   def getGeneratedFilePath(rootDir: String, pkg: String, filename: String): String = {
     val outDir = new java.io.File(rootDir + "/" + pkg.split('.').reduceLeft(_ + "/" + _))
     outDir.mkdirs()
-    val outPath = outDir + "/" + filename
+    val outPath = outDir.toString() + "/" + filename
     outPath
   }
 
   /**
    * Main - run as a scala application to actually create a new GeneratedCode.scala file in the gen directory.
    */
-  def main(args: Array[String]) {
+  def main(args: Array[String]) : Unit = {
     if (args.length != 1) {
       System.exit(1);
     }

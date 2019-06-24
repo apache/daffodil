@@ -68,13 +68,13 @@ class WarnIDGenerator(schema: scala.xml.Node) {
   val ssdwNode = (schema \ "simpleType").find( _ \@ "name" == "TunableSuppressSchemaDefinitionWarnings").get
   val enumerationNodes = (ssdwNode \\ "enumeration")
 
-  def writeGeneratedCode(w: java.io.FileWriter) {
+  def writeGeneratedCode(w: java.io.FileWriter) : Unit = {
     w.write(top)
     w.write("\n")
 
     enumerationNodes.foreach { node =>
       val enumName = node \@ "value"
-      val scalaName = enumName.head.toUpper + enumName.tail
+      val scalaName = "$enumName.head.toUpper$enumName.tail"
       w.write(s"  case object ${scalaName} extends WarnID; forceConstruction($scalaName)\n")
     }
 

@@ -22,8 +22,8 @@ object Dependencies {
   lazy val common = core ++ infoset ++ test
 
   lazy val core = Seq(
-    "org.scala-lang.modules" %% "scala-xml" % "1.1.0",
-    "org.scala-lang.modules" %% "scala-parser-combinators" % "1.1.1",
+    "org.scala-lang.modules" %% "scala-xml" % "1.2.0",
+    "org.scala-lang.modules" %% "scala-parser-combinators" % "1.1.2",
     "com.ibm.icu" % "icu4j" % "62.1",
     "xerces" % "xercesImpl" % "2.12.0",
     "xml-resolver" % "xml-resolver" % "1.2",
@@ -39,7 +39,7 @@ object Dependencies {
    
   lazy val cli = Seq( 
     "org.fusesource.jansi" % "jansi" % "1.17.1",
-    "org.rogach" %% "scallop" % "3.1.3",
+    "org.rogach" %% "scallop" % "3.3.1",
     "net.sf.expectit" % "expectit-core" % "0.9.0" % "it,test"
   )
 
