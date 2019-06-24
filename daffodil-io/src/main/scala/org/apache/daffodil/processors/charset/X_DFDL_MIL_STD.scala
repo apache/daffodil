@@ -43,7 +43,15 @@ object BitsCharset6BitDFI264DUI001 extends {
 object BitsCharset6BitDFI311DUI002 extends {
   override val name = "X-DFDL-6-BIT-DFI-311-DUI-002"
   override val bitWidthOfACodeUnit = 6
-  override val decodeString = """\u00A0ABCDEFGHIJKLMNOPQRSTuVWXYZ\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD \uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD0123456789\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD"""
+  override val decodeString = """\u00A0ABCDEFGHIJKLMNOPQRSTUVWXYZ\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD \uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD0123456789\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD"""
+  override val replacementCharCode = 0x0
+  override val requiredBitOrder = BitOrder.LeastSignificantBitFirst
+} with BitsCharsetNonByteSize
+
+object BitsCharset5BitDFI1661DUI001 extends {
+  override val name = "X-DFDL-5-BIT-DFI-1661-DUI-001"
+  override val bitWidthOfACodeUnit = 5
+  override val decodeString = """\u00A0ABCDEFGHIJKLMNOPQRSTUVWXYZ\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD"""
   override val replacementCharCode = 0x0
   override val requiredBitOrder = BitOrder.LeastSignificantBitFirst
 } with BitsCharsetNonByteSize

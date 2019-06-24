@@ -25,6 +25,7 @@ object DaffodilCharsetProvider {
     BitsCharset5BitPackedLSBF,
     BitsCharset6BitDFI264DUI001,
     BitsCharset6BitDFI311DUI002,
+    BitsCharset5BitDFI1661DUI001,
     BitsCharsetBinaryLSBF,
     BitsCharsetBinaryMSBF,
     BitsCharsetHexLSBF,

@@ -44,6 +44,9 @@ class TestRepProps2 {
   // fails Left-over data byte 1 limit(bytes) 2
   @Test def test_bitsTerm2() = { runner.runOneTest("bitsTerm2") }
   @Test def test_bitsTerm3() = { runner.runOneTest("bitsTerm3") }
+  
+  @Test def test_fiveBitDFI1661DUI001() = { runner.runOneTest("fiveBitDFI1661DUI001") }
+  @Test def test_fiveBitDFI1661DUI001_roundTrip() = { runner.runOneTest("fiveBitDFI1661DUI001_roundTrip") }
 
   @Test def test_sixBit1() = { runner.runOneTest("sixBit1") }
 
