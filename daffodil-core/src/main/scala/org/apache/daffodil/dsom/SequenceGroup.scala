@@ -358,6 +358,8 @@ final class ChoiceBranchImpliedSequence(rawGM: Term)
   extends SequenceTermBase(rawGM.xml, rawGM.optLexicalParent, rawGM.position)
   with SequenceDefMixin {
 
+  override final lazy val groupMembers: Seq[Term] = Seq(rawGM)
+
   override def separatorSuppressionPolicy: SeparatorSuppressionPolicy = SeparatorSuppressionPolicy.TrailingEmptyStrict
 
   override def sequenceKind: SequenceKind = SequenceKind.Ordered
