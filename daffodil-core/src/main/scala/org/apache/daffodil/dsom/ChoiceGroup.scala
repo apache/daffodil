@@ -344,26 +344,6 @@ abstract class ChoiceTermBase(
       maybeCheckByteAndBitOrderEv,
       maybeCheckBitOrderAndCharset)
   }
-
-  /**
-   * Examines all the children. Those that are non-scalar elements are
-   * encapsulated with a ChoiceBranchImpliedSequence, which is a kind of
-   * Sequence base.
-   *
-   * Thereafter daffodil can depend on the invariant that every recurring element is contained
-   * inside a sequence, and that sequence describes everything about how that
-   * element's occurrences are separated.
-   */
-  final lazy val groupMembersWithImpliedSequences = {
-    val rawGMs = groupMembers
-    val wrappedGMs = rawGMs.map {
-      gm =>
-        if (gm.isScalar) gm
-        else
-          new ChoiceBranchImpliedSequence(gm)
-    }
-    wrappedGMs
-  }
 }
 
 final class Choice(xmlArg: Node, lexicalParent: SchemaComponent, position: Int)

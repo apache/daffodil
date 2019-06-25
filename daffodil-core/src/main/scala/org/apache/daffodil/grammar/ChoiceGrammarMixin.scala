@@ -17,11 +17,12 @@
 
 package org.apache.daffodil.grammar
 
+import org.apache.daffodil.dsom.ChoiceBranchImpliedSequence
 import org.apache.daffodil.dsom.ChoiceTermBase
 import org.apache.daffodil.grammar.primitives.ChoiceCombinator
 import org.apache.daffodil.processors.parsers.NadaParser
-import org.apache.daffodil.processors.unparsers.Unparser
 import org.apache.daffodil.processors.unparsers.ChoiceUnusedUnparser
+import org.apache.daffodil.processors.unparsers.Unparser
 import org.apache.daffodil.util.Maybe
 
 trait ChoiceGrammarMixin extends GrammarMixin { self: ChoiceTermBase =>
@@ -30,5 +31,22 @@ trait ChoiceGrammarMixin extends GrammarMixin { self: ChoiceTermBase =>
     ChoiceCombinator(this, alternatives)
   }
 
-  private lazy val alternatives = groupMembersWithImpliedSequences.map{ _.termContentBody }
+  private lazy val alternatives = {
+    groupMembers.map { t =>
+      if (!t.isScalar) {
+        /**
+         * If this choice branch is a non-scalar, then we need to encapsulate
+         * it with a ChoiceBranchImpliedSequence, which is a kind of Sequence
+         * base. When compiling this this choice branch, Daffodil can then
+         * depend on the invariant that every recurring element is contained
+         * inside a sequence, and that sequence describes everything about how
+         * that elements occurrences are separated.
+         */
+        val cbis = new ChoiceBranchImpliedSequence(t)
+        cbis.termContentBody
+      } else {
+        t.termContentBody
+      }
+    }
+  }
 }

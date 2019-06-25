@@ -69,7 +69,7 @@ trait GroupDefLike
   private lazy val goodXmlChildren = LV('goodXMLChildren) { xmlChildren.flatMap { removeNonInteresting(_) } }.value
 
   /** Returns the group members that are elements or model groups. */
-  final lazy val groupMembers: Seq[Term] = LV('groupMembers) {
+  lazy val groupMembers: Seq[Term] = LV('groupMembers) {
     val positions = List.range(1, goodXmlChildren.length + 1) // range is exclusive on 2nd arg. So +1.
     val pairs = goodXmlChildren zip positions
     pairs.map {
