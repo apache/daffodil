@@ -91,6 +91,10 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
      * everything */
     var infosetLines: Int = -1
 
+    /* the number of parent elements to include when displaying the infoset. -1
+     * means show all parents. 0 or more means show 0 or more parent elements. */
+    var infosetParents: Int = -1
+
     /* the max number of bytes to display when displaying data */
     var dataLength: Int = 70
 
@@ -1499,8 +1503,18 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
         def act(args: Seq[String], prestate: StateForDebugger, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
           debugPrintln("%s:".format(name))
 
-          val infoset = state.infoset.toRootDoc
-          if (infoset.getRootElement != null) {
+          var infoset: DIElement = state.infoset
+          if (DebuggerConfig.infosetParents < 0) {
+            infoset = infoset.toRootDoc.getRootElement().asInstanceOf[DIElement]
+          } else {
+            (1 to DebuggerConfig.infosetParents).foreach { n =>
+              if (infoset.diParent != null) {
+                infoset = infoset.diParent
+              }
+            }
+          }
+
+          if (infoset != null) {
             val bos = new java.io.ByteArrayOutputStream()
             val xml = new XMLTextInfosetOutputter(bos, true)
             infoset.visit(xml, DebuggerConfig.removeHidden)
@@ -1576,7 +1590,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
                         |
                         |Example: set breakOnlyOnCreation false
                         |         set dataLength 100""".stripMargin
-      override val subcommands = Seq(SetBreakOnFailure, SetBreakOnlyOnCreation, SetDataLength, SetInfosetLines, SetRemoveHidden, SetRepresentation, SetWrapLength)
+      override val subcommands = Seq(SetBreakOnFailure, SetBreakOnlyOnCreation, SetDataLength, SetInfosetLines, SetInfosetParents, SetRemoveHidden, SetRepresentation, SetWrapLength)
       override lazy val short = "set"
 
       def act(args: Seq[String], prestate: StateForDebugger, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
@@ -1670,6 +1684,25 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
 
         def act(args: Seq[String], prestate: StateForDebugger, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
           DebuggerConfig.infosetLines = args.head.toInt
+          DebugState.Pause
+        }
+      }
+
+      object SetInfosetParents extends DebugCommand with DebugCommandValidateInt {
+        val name = "infosetParents"
+        val desc = "set the number of parent elements to show when displaying the infoset (default: -1)"
+        val longDesc = """|Usage: set infosetParents|ip <value>
+                          |
+                          |Set the number of parent elements to show when displaying the infoset.
+                          |This only affects the 'info infoset' command. A value of zero will only
+                          |show the current infoset element. A value of -1 will show the entire
+                          |infoset. Defaults to -1.
+                          |
+                          |Example: set infosetParents 2""".stripMargin
+        override lazy val short = "ip"
+
+        def act(args: Seq[String], prestate: StateForDebugger, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
+          DebuggerConfig.infosetParents = args.head.toInt
           DebugState.Pause
         }
       }
