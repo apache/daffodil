@@ -25,105 +25,32 @@ import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.dpath.NodeInfo.PrimType.IntegerKind
 import org.apache.daffodil.dpath.NodeInfo.PrimType.String
 import org.apache.daffodil.dpath.NodeInfo.PrimType.Integer
+import org.apache.daffodil.processors.TypeCalculator
 
-trait TypeCalculatorNamedDispatch { self: FNTwoArgs =>
-  val srcType: NodeInfo.Kind
-  val dstType: NodeInfo.Kind
+case class DFDLXInputTypeCalc(typedRecipes: List[(CompiledDPath, NodeInfo.Kind)], calc: TypeCalculator[AnyRef, AnyRef])
+  extends FNTwoArgs(typedRecipes.map(_._1)) {
 
-  /*
-   * Note the the src/dst type of the calculator are not nessasarily expected to match the src/dst type of the expression.
-   * In particular, there are 2 things to be aware of:
-   *
-   * 1) The src/dst type of the calculator refer to the type of the inputTypeCalc function
-   *       they will be swapped for the outputTypeCalc function
-   *
-   *    For clarity, "inputType" and "outputType" refer to the domain and codomain of calculator function that the caller plans on using.
-   *
-   * 2) It is possible for the srcType of the expression to be a subtype of inputType
-   *    it is possible for the dstType of the expression to be a subtype of outputType
-   */
-  def getCalculator(arg1: AnyRef, dstate: DState, expectedInputType: NodeInfo.Kind, expectedOutputType: NodeInfo.Kind, requireInputCalc: Boolean = false, requireOutputCalc: Boolean = false): TypeCalculator[AnyRef, AnyRef] = {
-    val qn = arg1.asInstanceOf[String]
-    val refType = QName.resolveRef(qn, dstate.compileInfo.namespaces, dstate.compileInfo.tunable).get.toGlobalQName
-    val maybeCalc = dstate.typeCalculators.get(refType)
-    if (!maybeCalc.isDefined) {
-      dstate.SDE("Simple type %s does not exist or does not have a repType", refType)
-    }
-    val calc = maybeCalc.get
-    if (!expectedInputType.isSubtypeOf(calc.srcType)) {
-      dstate.SDE(s"The type calculator defined by ${qn} has a source type of ${calc.srcType}, but its usage requires ${expectedInputType}")
-    }
-    if (!calc.dstType.isSubtypeOf(expectedOutputType)) {
-      dstate.SDE(s"The type calculator defined by ${qn} has a destination type of ${calc.dstType}, but its usage requires ${expectedOutputType}")
-    }
-
-    Assert.invariant(requireInputCalc || requireOutputCalc)
-    
-    if (requireInputCalc && !calc.supportsParse) {
-      dstate.SDE(s"${qn} does not define an inputValueCalc")
-    }
-    if (requireOutputCalc && !calc.supportsUnparse) {
-      dstate.SDE(s"${qn} does not define an outputValueCalc")
-    }
-    calc
-  }
-}
-
-case class DFDLXInputTypeCalcInt(typedRecipes: List[(CompiledDPath, NodeInfo.Kind)])
-  extends FNTwoArgs(typedRecipes.map(_._1))
-  with TypeCalculatorNamedDispatch {
-  
-  override val dstType = NodeInfo.Int
-  override val srcType = typedRecipes(1)._2
+  val srcType = typedRecipes(1)._2
 
   override def computeValue(arg1: AnyRef, arg2: AnyRef, dstate: DState): AnyRef = {
-    val calc = getCalculator(arg1, dstate, srcType, dstType, requireInputCalc=true)
     calc.inputTypeCalcRun(dstate, arg2, srcType)
     dstate.currentValue
   }
 
 }
 
-case class DFDLXInputTypeCalcString(typedRecipes: List[(CompiledDPath, NodeInfo.Kind)])
-  extends FNTwoArgs(typedRecipes.map(_._1))
-  with TypeCalculatorNamedDispatch {
-  
-  override val dstType = NodeInfo.String
-  override val srcType = typedRecipes(1)._2
-  
+case class DFDLXOutputTypeCalc(typedRecipes: List[(CompiledDPath, NodeInfo.Kind)], calc: TypeCalculator[AnyRef, AnyRef])
+  extends FNTwoArgs(typedRecipes.map(_._1)) {
+
+  val srcType = typedRecipes(1)._2
+
   def computeValue(arg1: AnyRef, arg2: AnyRef, dstate: DState): AnyRef = {
-    getCalculator(arg1, dstate, srcType, dstType, requireInputCalc=true).inputTypeCalcRun(dstate, arg2, srcType)
+    calc.outputTypeCalcRun(dstate, arg2, srcType)
     dstate.currentValue
   }
 }
 
-case class DFDLXOutputTypeCalcInt(typedRecipes: List[(CompiledDPath, NodeInfo.Kind)])
-  extends FNTwoArgs(typedRecipes.map(_._1))
-  with TypeCalculatorNamedDispatch {
-  
-  override val dstType = NodeInfo.Int
-  override val srcType = typedRecipes(1)._2
-  
-  def computeValue(arg1: AnyRef, arg2: AnyRef, dstate: DState): AnyRef = {
-    getCalculator(arg1, dstate, dstType, srcType, requireOutputCalc=true).outputTypeCalcRun(dstate, arg2, srcType)
-    dstate.currentValue
-  }
-}
-
-case class DFDLXOutputTypeCalcString(typedRecipes: List[(CompiledDPath, NodeInfo.Kind)])
-  extends FNTwoArgs(typedRecipes.map(_._1))
-  with TypeCalculatorNamedDispatch {
-  override val dstType = NodeInfo.String
-  override val srcType = typedRecipes(1)._2
-  
-  def computeValue(arg1: AnyRef, arg2: AnyRef, dstate: DState): AnyRef = {
-    getCalculator(arg1, dstate, dstType, srcType, requireOutputCalc=true).outputTypeCalcRun(dstate, arg2, srcType)
-    dstate.currentValue
-  }
-}
-
-trait DFDLXOutputTypeCalcNextSibling {
-  def dstType: NodeInfo.Kind
+case class DFDLXOutputTypeCalcNextSibling(a: CompiledDPath, b: NodeInfo.Kind) extends RecipeOp {
 
   def run(dstate: DState): Unit = {
     if (dstate.isCompile) {
@@ -134,110 +61,55 @@ trait DFDLXOutputTypeCalcNextSibling {
 
     val nextSibling = dstate.nextSibling.asSimple
     val typeCalculator = nextSibling.erd.optSimpleTypeRuntimeData.get.typeCalculator.get
-    if(!typeCalculator.supportsUnparse){
-      dstate.SDE(s"The type calculator defined by ${nextSibling.erd.diagnosticDebugName} does not define an outputCalc")
-    }
-    if (!typeCalculator.srcType.isSubtypeOf(dstType)) {
-      dstate.SDE(s"The type calculator defined by ${nextSibling.erd.diagnosticDebugName} has a source type of ${typeCalculator.srcType}, but its usage requires ${dstType}")
-    }
+    /*
+     * The compiler knows about all the potential typeCalculators we can see here
+     * so any validation of typeCalculator should go in Expression.scala as part of compilation
+     */
+
     val primType = nextSibling.erd.optPrimType.get
-    if (!primType.isSubtypeOf(typeCalculator.dstType)) {
-      dstate.SDE(s"The type calculator defined by ${nextSibling.erd.diagnosticDebugName} has a destination type of ${typeCalculator.dstType}, but its usage requires ${primType}")
-    }
+
     val x = nextSibling.dataValue
     typeCalculator.outputTypeCalcRun(dstate, x, primType)
   }
 }
 
-case class DFDLXOutputTypeCalcNextSiblingInt(a: CompiledDPath, b: NodeInfo.Kind) extends RecipeOp
-  with DFDLXOutputTypeCalcNextSibling {
-  override def dstType = NodeInfo.Int
-}
+case class DFDLXRepTypeValue(a: CompiledDPath, b: NodeInfo.Kind)
+  extends RecipeOp {
 
-case class DFDLXOutputTypeCalcNextSiblingString(a: CompiledDPath, b: NodeInfo.Kind) extends RecipeOp
-  with DFDLXOutputTypeCalcNextSibling {
-  override def dstType = NodeInfo.String
-}
-
-trait DFDLXWithExtractTypedValue { self: RecipeOp =>
-  def returnType: NodeInfo.Kind
-
-  //Below strings are to provide better diagnostic messages
-  def functionName: String
-  def legalContext: String
-  def repOrLogicalType: String
-
-  def extractVal(typedVal: Maybe[(AnyRef, NodeInfo.Kind)], dstate: DState): AnyRef = {
-    if (dstate.isCompile) {
-      //CompileDPath.runExpressionForConstant (in DPathRuntime.scala) determines
-      //that an expression is not constant by seeing if evalutating it throws an exception
+  override def run(dstate: DState): Unit = {
+    if (dstate.isCompile){
       throw new IllegalStateException()
     }
-    if (typedVal.isEmpty) {
-      dstate.SDE(s"${functionName} may only be called from within a ${legalContext} annotation")
+    
+    if (!dstate.repValue.isDefined) {
+      /*
+     * In theory, we should be able to detect this error at compile time. In practice
+     * the compiler does not provide sufficient details to the expression compiler for it
+     * to notice.
+     */
+      dstate.SDE("dfdlx:repTypeValue() may only be called from within dfdlx:inputTypeCalc")
     }
-    val (x, xKind) = typedVal.get
-    if (!xKind.isSubtypeOf(returnType)) {
-      xKind.isSubtypeOf(returnType)
-      dstate.SDE(s"${repOrLogicalType} is a(n) ${xKind} type, where ${returnType} is expected")
+    dstate.setCurrentValue(dstate.repValue.get)
+  }
+}
+
+case class DFDLXLogicalTypeValue(a: CompiledDPath, b: NodeInfo.Kind)
+  extends RecipeOp {
+
+  override def run(dstate: DState): Unit = {
+    
+    if (dstate.isCompile){
+      throw new IllegalStateException()
     }
-    x
-  }
-}
-
-case class DFDLXRepTypeValueInt(a: CompiledDPath, b: NodeInfo.Kind)
-  extends RecipeOp
-  with DFDLXWithExtractTypedValue {
-  override val returnType = Integer
-  override val functionName = "dfdlx:repTypeValueInt()"
-  override val legalContext = "dfdlx:inputTypeCalc"
-  override val repOrLogicalType = "repType"
-
-  override def run(dstate: DState): Unit = {
-    val repValue = extractVal(dstate.repValue, dstate)
-    dstate.setCurrentValue(repValue)
-  }
-}
-
-case class DFDLXRepTypeValueString(a: CompiledDPath, b: NodeInfo.Kind)
-  extends RecipeOp
-  with DFDLXWithExtractTypedValue {
-
-  override val returnType = String
-  override val functionName = "dfdlx:repTypeValueString()"
-  override val legalContext = "dfdlx:inputTypeCalc"
-  override val repOrLogicalType = "repType"
-
-  override def run(dstate: DState): Unit = {
-    val repValue = extractVal(dstate.repValue, dstate)
-    dstate.setCurrentValue(repValue)
-  }
-}
-
-case class DFDLXLogicalTypeValueInt(a: CompiledDPath, b: NodeInfo.Kind)
-  extends RecipeOp
-  with DFDLXWithExtractTypedValue {
-
-  override val returnType = Integer
-  override val functionName = "dfdlx:logicalTypeValueInt()"
-  override val legalContext = "dfdlx:outputTypeCalc"
-  override val repOrLogicalType = "logical type"
-
-  override def run(dstate: DState): Unit = {
-    val repValue = extractVal(dstate.logicalValue, dstate)
-    dstate.setCurrentValue(repValue)
-  }
-}
-case class DFDLXLogicalTypeValueString(a: CompiledDPath, b: NodeInfo.Kind)
-  extends RecipeOp
-  with DFDLXWithExtractTypedValue {
-  override val returnType = String
-  override val functionName = "dfdlx:logicalTypeValueString()"
-  override val legalContext = "dfdlx:outputTypeCalc"
-  override val repOrLogicalType = "logical type"
-
-  override def run(dstate: DState): Unit = {
-    val repValue = extractVal(dstate.logicalValue, dstate)
-    dstate.setCurrentValue(repValue)
+    
+    if (!dstate.logicalValue.isDefined) {
+      /*
+     * In theory, we should be able to detect this error at compile time. In practice
+     * the compiler does not provide sufficient details to the expression compiler for it
+     * to notice.
+     */
+      dstate.SDE("dfdlx:logicalTypeValue() may only be called from within dfdlx:outputTypeCalc")
+    }
+    dstate.setCurrentValue(dstate.logicalValue.get)
   }
 }

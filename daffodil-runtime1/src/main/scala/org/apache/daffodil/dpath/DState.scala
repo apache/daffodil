@@ -113,9 +113,9 @@ case class DState(val maybeSsrd: Maybe[SchemaSetRuntimeData]) {
    * (eg. to the runtime stack), and replaces the below fields.
    * At the end of the computation, it should restore the below fields.
    */
-  var logicalValue: Maybe[(AnyRef, NodeInfo.Kind)] = Maybe.Nope
+  var logicalValue: Maybe[AnyRef] = Maybe.Nope
 
-  var repValue: Maybe[(AnyRef, NodeInfo.Kind)] = Maybe.Nope
+  var repValue: Maybe[AnyRef] = Maybe.Nope
 
   /**
    * The currentValue is used when we have a value that is not

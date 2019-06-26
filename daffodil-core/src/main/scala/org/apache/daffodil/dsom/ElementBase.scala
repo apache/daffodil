@@ -301,7 +301,8 @@ trait ElementBase
       optPrimType,
       schemaFileLocation,
       tunable,
-      schemaSet.typeCalcMap)
+      schemaSet.typeCalcMap,
+      runtimeData)
     eci
   }
 

@@ -258,11 +258,7 @@ case class TypeValueCalc(e: ElementBase)
   extends Terminal(e, e.hasRepType) {
 
   private lazy val simpleTypeDefBase = e.simpleType.asInstanceOf[SimpleTypeDefBase]
-  private lazy val typeCalculator = {
-    val a = simpleTypeDefBase
-    val b = simpleTypeDefBase.optTypeCalculator
-    simpleTypeDefBase.optTypeCalculator.get
-  }
+  private lazy val typeCalculator = simpleTypeDefBase.optTypeCalculator.get
   private lazy val repTypeRuntimeData = simpleTypeDefBase.optRepTypeElement.get.elementRuntimeData
   private lazy val repTypeParser = simpleTypeDefBase.optRepTypeElement.get.enclosedElement.parser
   private lazy val repTypeUnparser = simpleTypeDefBase.optRepTypeElement.get.enclosedElement.unparser

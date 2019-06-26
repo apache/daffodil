@@ -51,6 +51,8 @@ trait NextElementResolver extends Serializable {
   //
   def nextElement(nqn: NamedQName, hasNamespace: Boolean): ElementRuntimeData =
     nextElement(nqn.local, if (hasNamespace) nqn.namespace.toStringOrNullIfNoNS else null, hasNamespace)
+    
+  def allPossibleNextElements: Seq[ElementRuntimeData]
 }
 
 sealed abstract class ResolverType(val name: String) extends Serializable
@@ -66,10 +68,12 @@ class NoNextElement(schemaFileLocation: SchemaFileLocation, resolverType: Resolv
   }
 
   override def toString() = "NoNextElement"
+  
+  override val allPossibleNextElements = Seq()
 
 }
 
-class OnlyOnePossibilityForNextElement(schemaFileLocation: SchemaFileLocation, nextERD: ElementRuntimeData, resolverType: ResolverType)
+class OnlyOnePossibilityForNextElement(schemaFileLocation: SchemaFileLocation, val nextERD: ElementRuntimeData, resolverType: ResolverType)
   extends NextElementResolver {
 
   override def nextElement(local: String, namespace: String, hasNamespace: Boolean): ElementRuntimeData = {
@@ -95,6 +99,8 @@ class OnlyOnePossibilityForNextElement(schemaFileLocation: SchemaFileLocation, n
   }
 
   override def toString() = "OnlyOne(" + nextERD.namedQName + ")"
+  
+  override lazy val allPossibleNextElements = Seq(nextERD)
 }
 
 /**
@@ -163,4 +169,6 @@ class SeveralPossibilitiesForNextElement(loc: SchemaFileLocation, nextERDMap: Ma
   }
 
   override def toString() = "Several(" + nextERDMap.keySet.mkString(", ") + ")"
+  
+  override lazy val allPossibleNextElements = nextERDMap.values.toSeq
 }

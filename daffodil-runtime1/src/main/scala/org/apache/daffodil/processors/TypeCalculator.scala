@@ -32,11 +32,15 @@ import org.apache.daffodil.util.Maybe.One
 import org.apache.daffodil.util.PreSerialization
 import org.apache.daffodil.util.RangeBound
 import org.apache.daffodil.util.TransientParam
-import org.apache.daffodil.xml.GlobalQName
+import org.apache.daffodil.xml.QNameBase
 
 abstract class TypeCalculator[A <: AnyRef, B <: AnyRef](val srcType: NodeInfo.Kind, val dstType: NodeInfo.Kind)
   extends PreSerialization {
   type Error = String
+
+  override def preSerialization: Any = {
+    super.preSerialization
+  }
 
   /*
    * We can be used from both a parser directly, and as part of a DPath expression.
@@ -172,11 +176,13 @@ class KeysetValueTypeCalculatorUnordered[A <: AnyRef, B <: AnyRef](valueMap: Has
 }
 
 class ExpressionTypeCalculator[A <: AnyRef, B <: AnyRef](
-  @TransientParam maybeInputTypeCalcArg: => Maybe[CompiledExpression[B]],
+  @TransientParam maybeInputTypeCalcArg: => Maybe[ CompiledExpression[B]],
   @TransientParam maybeOutputTypeCalcArg: => Maybe[CompiledExpression[A]],
-  srcType: NodeInfo.Kind, dstType: NodeInfo.Kind,
-  override val supportsParse: Boolean, override val supportsUnparse: Boolean)
+  srcType: NodeInfo.Kind, dstType: NodeInfo.Kind)
   extends TypeCalculator[A, B](srcType, dstType) {
+
+  override def supportsParse = maybeInputTypeCalcArg.isDefined
+  override def supportsUnparse = maybeOutputTypeCalcArg.isDefined
 
   /*
    * Compiling DPath expressions may need to evaluate typeCalculators in order to lookup their srcType and dstType.
@@ -188,7 +194,7 @@ class ExpressionTypeCalculator[A <: AnyRef, B <: AnyRef](
   lazy val maybeInputTypeCalc = maybeInputTypeCalcArg
   lazy val maybeOutputTypeCalc = maybeOutputTypeCalcArg
 
-  override protected def preSerialization: Any = {
+  override def preSerialization: Any = {
     super.preSerialization
     maybeInputTypeCalc
     maybeOutputTypeCalc
@@ -208,7 +214,7 @@ class ExpressionTypeCalculator[A <: AnyRef, B <: AnyRef](
     val dstate = state.dState
     val oldRepValue = dstate.repValue
     val oldLogicalValue = dstate.logicalValue
-    dstate.repValue = One((x, xType))
+    dstate.repValue = One(x)
     dstate.logicalValue = Maybe.Nope
 
     val ans = Maybe(maybeInputTypeCalc.get.evaluate(state))
@@ -222,7 +228,7 @@ class ExpressionTypeCalculator[A <: AnyRef, B <: AnyRef](
     val oldRepValue = dstate.repValue
     val oldLogicalValue = dstate.logicalValue
     dstate.repValue = Maybe.Nope
-    dstate.logicalValue = One((x, xType))
+    dstate.logicalValue = One(x)
 
     val ans = Maybe(maybeOutputTypeCalc.get.evaluate(state))
 
@@ -234,7 +240,7 @@ class ExpressionTypeCalculator[A <: AnyRef, B <: AnyRef](
   override def inputTypeCalcRun(dstate: DState, x: A, xType: NodeInfo.Kind): Unit = {
     val oldRepValue = dstate.repValue
     val oldLogicalValue = dstate.logicalValue
-    dstate.repValue = One((x, xType))
+    dstate.repValue = One(x)
     dstate.logicalValue = Maybe.Nope
 
     maybeInputTypeCalc.get.run(dstate)
@@ -247,7 +253,7 @@ class ExpressionTypeCalculator[A <: AnyRef, B <: AnyRef](
     val oldRepValue = dstate.repValue
     val oldLogicalValue = dstate.logicalValue
     dstate.repValue = Maybe.Nope
-    dstate.logicalValue = One((x, xType))
+    dstate.logicalValue = One(x)
 
     maybeOutputTypeCalc.get.run(dstate)
 
@@ -330,7 +336,7 @@ object RepValueSetCompiler {
 
 object TypeCalculatorCompiler {
 
-  type TypeCalcMap = Map[GlobalQName, TypeCalculator[AnyRef, AnyRef]]
+  type TypeCalcMap = Map[QNameBase, TypeCalculator[AnyRef, AnyRef]]
 
   // mappings: [(keySet, canonicalKey, value)]
   def compileKeysetValue[A <: AnyRef, B <: AnyRef](mappings: Seq[(RepValueSet[A], A, B)], srcType: NodeInfo.Kind, dstType: NodeInfo.Kind): TypeCalculator[A, B] = {
@@ -374,11 +380,10 @@ object TypeCalculatorCompiler {
   def compileTypeCalculatorFromExpression[A <: AnyRef, B <: AnyRef](
     optInputTypeCalc: => Option[CompiledExpression[B]],
     optOutputTypeCalc: => Option[CompiledExpression[A]],
-    srcType: NodeInfo.Kind, dstType: NodeInfo.Kind,
-    supportsParse: Boolean, supportsUnparse: Boolean): ExpressionTypeCalculator[A, B] = {
+    srcType: NodeInfo.Kind, dstType: NodeInfo.Kind): ExpressionTypeCalculator[A, B] = {
     lazy val maybeInputType: Maybe[CompiledExpression[B]] = optInputTypeCalc.map(Maybe(_)).getOrElse(Maybe.Nope)
     lazy val maybeOutputType: Maybe[CompiledExpression[A]] = optOutputTypeCalc.map(Maybe(_)).getOrElse(Maybe.Nope)
-    new ExpressionTypeCalculator(maybeInputType, maybeOutputType, srcType, dstType, supportsParse, supportsUnparse)
+    new ExpressionTypeCalculator(maybeInputType, maybeOutputType, srcType, dstType)
   }
   def compileIdentity[A <: AnyRef](srcType: NodeInfo.Kind): TypeCalculator[A, A] = new IdentifyTypeCalculator(srcType)
 

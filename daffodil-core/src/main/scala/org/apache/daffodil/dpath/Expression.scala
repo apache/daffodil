@@ -30,6 +30,9 @@ import org.apache.daffodil.equality._
 import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
 import org.apache.daffodil.util.Numbers
 import org.apache.daffodil.api.WarnID
+import org.apache.daffodil.infoset.NoNextElement
+import org.apache.daffodil.infoset.OnlyOnePossibilityForNextElement
+import org.apache.daffodil.infoset.SeveralPossibilitiesForNextElement
 
 /**
  * Root class of the type hierarchy for the AST nodes used when we
@@ -1553,46 +1556,91 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
       //Begin DFDLX functions
 
       //Begin TypeValueCalc related functions
-      case (RefQName(_, "inputTypeCalcInt", DFDLX), args) =>
+      case (RefQName(_, "inputTypeCalc", DFDLX), args) => {
+        val typeCalc = lookupTypeCalculator(args(0), true, false)
         FNTwoArgsExprInferedArgType(functionQNameString, functionQName, args,
-          NodeInfo.Int, NodeInfo.String, args(1).inherentType, DFDLXInputTypeCalcInt(_))
-
-      case (RefQName(_, "inputTypeCalcString", DFDLX), args) => {
-        FNTwoArgsExprInferedArgType(functionQNameString, functionQName, args,
-          NodeInfo.String, NodeInfo.String, args(1).inherentType, DFDLXInputTypeCalcString(_))
+          typeCalc.dstType, NodeInfo.String, typeCalc.srcType, DFDLXInputTypeCalc(_, typeCalc))
       }
 
-      case (RefQName(_, "outputTypeCalcInt", DFDLX), args) =>
+      case (RefQName(_, "outputTypeCalc", DFDLX), args) => {
+        val typeCalc = lookupTypeCalculator(args(0), false, true)
         FNTwoArgsExprInferedArgType(functionQNameString, functionQName, args,
-          NodeInfo.Int, NodeInfo.String, args(1).inherentType, DFDLXOutputTypeCalcInt(_))
+          typeCalc.srcType, NodeInfo.String, typeCalc.dstType, DFDLXOutputTypeCalc(_, typeCalc))
+      }
 
-      case (RefQName(_, "outputTypeCalcString", DFDLX), args) =>
-        FNTwoArgsExprInferedArgType(functionQNameString, functionQName, args,
-          NodeInfo.String, NodeInfo.String, args(1).inherentType, DFDLXOutputTypeCalcString(_))
-
-      case (RefQName(_, "outputTypeCalcNextSiblingInt", DFDLX), args) =>
+      case (RefQName(_, "outputTypeCalcNextSibling", DFDLX), args) => {
+        val erd = compileInfo.lexicalContextRuntimeData match {
+          case erd: ElementRuntimeData => erd
+          case _ => SDE("dfdlx:outputTypeCalcNextSibling can only be defined on an element")
+        }
+        val resolver = erd.nextElementResolver
+        //we keep the ERD to be able to produce better error messages
+        val dstTypes: Seq[(NodeInfo.Kind, ElementRuntimeData)] = resolver.allPossibleNextElements.map(erd => {
+          val strd = erd.optSimpleTypeRuntimeData match {
+            case Some(x) => x
+            case None => SDE("dfdlx:outputTypeCalcNextSibling: potential next sibling %s does not have a simple type def. This could be because it has a primitive type, or a complex type.", erd.namedQName)
+          }
+          val calc = strd.typeCalculator match {
+            case Some(x) => x
+            case None => SDE("dfdlx:outputTypeCalcNextSibling(): potential next sibling %s does not define a type calculator", erd.namedQName)
+          }
+          if (!calc.supportsUnparse) {
+            SDE("dfdlx:outputTypeCalcNextSibling(): potential next sibling %s does not have an outputTypeCalc", erd.namedQName)
+          }
+          (calc.srcType, erd)
+        })
+        val dstType = dstTypes match {
+          case Seq() => SDE("dfdlx:outputTypeCalcNextSibling() called where no next sibling exists")
+          case Seq(x) => x._1
+          case x +: xs => {
+            val (ans, headQName) = x
+            /*
+             * Verify that all next siblings have the same dstType
+             * In theory, we could loosen the requirement to having the same primitive type,
+             * but in the interest of being conservative, we will stick to the stricter interperatation for now
+             */
+            xs.map(other => {
+              val (otherAns, otherQName) = other
+              if (otherAns != ans) {
+                SDE(
+                  "dfdlx:outputTypeCalcNextSibling() requires that all the possible next siblings have the same " +
+                  "repType. However, the potential next siblings %s and %s have repTypes %s and %s respectively",
+                  headQName, otherQName, ans, otherAns)
+              }
+            })
+            ans
+          }
+        }
         FNZeroArgExpr(functionQNameString, functionQName,
-          NodeInfo.Int, NodeInfo.AnyAtomic, DFDLXOutputTypeCalcNextSiblingInt(_, _))
+          dstType, NodeInfo.AnyAtomic, DFDLXOutputTypeCalcNextSibling(_, _))
+      }
 
-      case (RefQName(_, "outputTypeCalcNextSiblingString", DFDLX), args) =>
+      case (RefQName(_, "repTypeValue", DFDLX), args) => {
+        val strd = compileInfo.lexicalContextRuntimeData match {
+          case strd: SimpleTypeRuntimeData => strd
+          case _ => {
+            SDE("dfdlx:repTypeValue() can only be defined on a simple type")
+          }
+        }
+        val repPrimType = strd.optRepPrimType match {
+          case Some(x) => x
+          case None => SDE("dfdlx:repTypeValue() used on type that does not have a repType.")
+        }
         FNZeroArgExpr(functionQNameString, functionQName,
-          NodeInfo.String, NodeInfo.AnyAtomic, DFDLXOutputTypeCalcNextSiblingString(_, _))
+          repPrimType, NodeInfo.AnyAtomic, DFDLXRepTypeValue(_, _))
+      }
 
-      case (RefQName(_, "repTypeValueInt", DFDLX), args) =>
+      case (RefQName(_, "logicalTypeValue", DFDLX), args) => {
+        val strd = compileInfo.lexicalContextRuntimeData match {
+          case strd: SimpleTypeRuntimeData => strd
+          case _ => {
+            SDE("dfdlx:logicalTypeValue() can only be defined on a simple type")
+          }
+        }
+        val logicalType = strd.primType
         FNZeroArgExpr(functionQNameString, functionQName,
-          NodeInfo.Integer, NodeInfo.AnyAtomic, DFDLXRepTypeValueInt(_, _))
-
-      case (RefQName(_, "repTypeValueString", DFDLX), args) =>
-        FNZeroArgExpr(functionQNameString, functionQName,
-          NodeInfo.String, NodeInfo.AnyAtomic, DFDLXRepTypeValueString(_, _))
-
-      case (RefQName(_, "logicalTypeValueInt", DFDLX), args) =>
-        FNZeroArgExpr(functionQNameString, functionQName,
-          NodeInfo.Integer, NodeInfo.AnyAtomic, DFDLXLogicalTypeValueInt(_, _))
-
-      case (RefQName(_, "logicalTypeValueString", DFDLX), args) =>
-        FNZeroArgExpr(functionQNameString, functionQName,
-          NodeInfo.String, NodeInfo.AnyAtomic, DFDLXLogicalTypeValueString(_, _))
+          logicalType, NodeInfo.AnyAtomic, DFDLXLogicalTypeValue(_, _))
+      }
 
       //End typeValueCalc related functions
 
@@ -1706,6 +1754,43 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
     funcObj.setOOLAGContext(this)
     funcObj
   }
+
+  def lookupTypeCalculator(typeCalcExpr: Expression, requiresParse: Boolean, requiresUnparse: Boolean): TypeCalculator[AnyRef, AnyRef] = {
+    /*
+     * Every function that currently uses this defines the type calculator
+     * as their first arguement.
+     * We still take the calculators name as an arguement to avoid relying on this
+     * fact.
+     */
+    Assert.invariant(typeCalcExpr == expressions(0))
+    /*
+     * This lookup needs to occur before the main type-checker runs, because it is
+     * used to determine the type of this expression.
+     * As a result, we must do some type checking manually
+     * Also, we insist that typeCalcExpr is a constant, which is not even
+     * a concept that the type checker has
+     */
+    if (typeCalcExpr.inherentType != NodeInfo.String) {
+      SDE("The type calculuator name arguement must be a constant string")
+    }
+    val qname = typeCalcExpr match {
+      case typeCalcName: LiteralExpression => typeCalcName.v.asInstanceOf[String]
+      case _ => SDE("The type calculuator name arguement must be a constant string")
+    }
+    val refType = QName.resolveRef(qname, compileInfo.namespaces, compileInfo.tunable).get.toGlobalQName
+    val typeCalculator = compileInfo.typeCalcMap.get(refType) match {
+      case None => SDE("Simple type %s does not exist or does not have a repType", refType)
+      case Some(x) => x
+    }
+    if (requiresParse && !typeCalculator.supportsParse) {
+      SDE("The type calculator defined by %s does not define an inputValueCalc.", qname)
+    }
+    if (requiresUnparse && !typeCalculator.supportsUnparse) {
+      SDE("The type calculator defined by %s does not define an outputValueCalc.", qname)
+    }
+    typeCalculator
+  }
+
 }
 
 abstract class FunctionCallBase(
@@ -1749,6 +1834,7 @@ abstract class FunctionCallBase(
   final def argCountTooManyErr(n: Int) = {
     SDE("The %s function requires no more than %s argument(s).", functionQName.toPrettyString, n)
   }
+
 }
 
 /**

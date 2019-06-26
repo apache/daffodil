@@ -85,14 +85,14 @@ class TestInputTypeValueCalc {
   @Test def test_typeCalcDispatch_typeError_06() { fnErrRunner.runOneTest("typeCalcDispatch_typeError_06") }
   @Test def test_typeCalcDispatch_typeError_07() { fnErrRunner.runOneTest("typeCalcDispatch_typeError_07") }
   @Test def test_typeCalcDispatch_typeError_08() { fnErrRunner.runOneTest("typeCalcDispatch_typeError_08") }
-  @Test def test_typeCalcDispatch_typeError_09() { fnErrRunner.runOneTest("typeCalcDispatch_typeError_09") }
-  @Test def test_typeCalcDispatch_typeError_10() { fnErrRunner.runOneTest("typeCalcDispatch_typeError_10") }
-  @Test def test_typeCalcDispatch_typeError_11() { fnErrRunner.runOneTest("typeCalcDispatch_typeError_11") }
-  @Test def test_typeCalcDispatch_typeError_12() { fnErrRunner.runOneTest("typeCalcDispatch_typeError_12") }
   @Test def test_repTypeValue_bad_context_01() { fnErrRunner.runOneTest("repTypeValue_bad_context_01") }
   @Test def test_repTypeValue_bad_context_02() { fnErrRunner.runOneTest("repTypeValue_bad_context_02") }
   @Test def test_logicalTypeValue_bad_context_01() { fnErrRunner.runOneTest("logicalTypeValue_bad_context_01") }
   @Test def test_logicalTypeValue_bad_context_02() { fnErrRunner.runOneTest("logicalTypeValue_bad_context_02") }
+  @Test def test_nextSibling_01() { fnErrRunner.runOneTest("nextSibling_01") }
+  @Test def test_nextSibling_02() { fnErrRunner.runOneTest("nextSibling_02") }
+  @Test def test_nextSibling_03() { fnErrRunner.runOneTest("nextSibling_03") }
+  @Test def test_nextSibling_04() { fnErrRunner.runOneTest("nextSibling_04") }
   @Test def test_nonexistant_reptype_01() { fnErrRunner.runOneTest("nonexistant_reptype_01") }
   @Test def test_nonexistantOutputTypeCalc_01() { fnErrRunner.runOneTest("nonexistantOutputTypeCalc_01") }
   @Test def test_nonexistantInputTypeCalc_01() { fnErrRunner.runOneTest("nonexistantInputTypeCalc_01") }
