@@ -197,6 +197,31 @@ class TestDump {
     assertEquals(expected, "\n" + dumpString + "\n")
   }
 
+  @Test def testDumpHexAndText4() {
+
+    val bytes =
+      """da8b f090 a487 f48b be8b be7a 1234 4567 f48b 8018 0156
+dada 0000 0101 0817 ece2 8017 ece2 dead beef cc7a 1234
+4567 f48b"""
+        .replaceAll("\\s+", "").grouped(2)
+        .map { Integer.parseInt(_, 16).toByte }.toArray
+    val lengthInBits = bytes.length * 8
+    val bs = new BS(bytes)
+    val dumpString = Dump.dump(Dump.MixedHexLTR(Some("utf-8")), 0, lengthInBits, bs,
+      includeHeadingLine = true).mkString("\n")
+    val u068b = Character.toChars(0x068b).mkString
+    val u10907 = Character.toChars(0x10907).mkString
+    val u10bf8b = Character.toChars(0x10bf8b).mkString
+    val u07ad = Character.toChars(0x07ad).mkString
+    val expected = s"""
+87654321  0011 2233 4455 6677 8899 aabb ccdd eeff  0~1~2~3~4~5~6~7~8~9~a~b~c~d~e~f~
+00000000: da8b f090 a487 f48b be8b be7a 1234 4567  ${u068b}~~~${u10907}~~~~~~~${u10bf8b}~~~~~~~�~z~␒~4~E~g~
+00000010: f48b 8018 0156 dada 0000 0101 0817 ece2  �~~~~~␘~␁~V~�~�~␀~␀~␁~␁~␈~␗~�~�~
+00000020: 8017 ece2 dead beef cc7a 1234 4567 f48b  ~~␗~�~�~${u07ad}~~~�~�~�~z~␒~4~E~g~�~~~
+""".replace("\r\n", "\n")
+    assertEquals(expected, "\n" + dumpString + "\n")
+  }
+
   @Test def testDump1() {
 
     val bs = new BS((0 to 255).map { _.toByte }.toArray)

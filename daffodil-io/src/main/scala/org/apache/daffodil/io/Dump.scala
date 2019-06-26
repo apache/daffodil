@@ -27,6 +27,7 @@ import org.apache.daffodil.util.Misc
 import org.apache.daffodil.equality._
 import java.nio.charset.{ CharsetDecoder => JavaCharsetDecoder }
 import java.nio.charset.{ Charset => JavaCharset }
+import java.nio.charset.CoderResult
 
 /**
  * Hex/Bits and text dump formats for debug/trace purposes.
@@ -147,7 +148,7 @@ class DataDumper {
     txtsb ++= paddingFromPriorLine
     while (i <= limit0b) {
       val bytePos0b = addr + i
-      val (char, nBytesConsumed, width) = convertToChar(bytePos0b, endByteAddress0b, byteSource, decoder)
+      val (charRep, nBytesConsumed, width) = convertToCharRepr(bytePos0b, endByteAddress0b, byteSource, decoder)
       Assert.invariant(nBytesConsumed > 0)
       // some characters will print double width. It is assumed all such
       // characters occupy at least one byte.
@@ -187,7 +188,7 @@ class DataDumper {
         case (n, x) => Assert.impossible()
       })
       val trimmedPadding = padding.take(padding.length - paddingFromPriorLine.length)
-      txtsb ++= char.toString + trimmedPadding
+      txtsb ++= charRep + trimmedPadding
       i += nBytesConsumed
     }
   }
@@ -422,8 +423,8 @@ class DataDumper {
    * relative to a regular monospaced font character. This is for trying to get
    * east asian and other double-wide characters to line up properly in columns.
    */
-  private def charNColumns(char: Char): Int = {
-    val charWidth = UCharacter.getIntPropertyValue(char, UProperty.EAST_ASIAN_WIDTH)
+  private def charNColumns(codepoint: Int): Int = {
+    val charWidth = UCharacter.getIntPropertyValue(codepoint, UProperty.EAST_ASIAN_WIDTH)
     charWidth match {
       //
       // see http://unicode.org/reports/tr11/tr11-8.html
@@ -440,27 +441,23 @@ class DataDumper {
   private def getReplacingDecoder(optEncodingName: Option[String]): Option[JavaCharsetDecoder] = {
     val cs = optEncodingName.map { JavaCharset.forName(_) }
     lazy val decoder = cs.map { _.newDecoder() }
-    decoder foreach { d =>
-      d.onMalformedInput(CodingErrorAction.REPLACE)
-      d.onUnmappableCharacter(CodingErrorAction.REPLACE)
-    }
     decoder
   }
 
   /**
    * Decoder must be setup for REPLACE on decode error.
    */
-  private def convertToChar(
+  private def convertToCharRepr(
     startingBytePos0b: Long,
     endingBytePos0b: Long,
     bs: ByteSource,
-    decoder: Option[JavaCharsetDecoder]): (Char, Int, Int) = {
+    decoder: Option[JavaCharsetDecoder]): (String, Int, Int) = {
 
     Assert.invariant(decoder.map { d => Misc.isAsciiBased(d.charset()) }.getOrElse(true))
     decoder match {
       case Some(dec) => {
         val bb = ByteBuffer.allocate(6)
-        val cb = CharBuffer.allocate(1)
+        var cb = CharBuffer.allocate(1)
         val lastAvailableBytePos0b = scala.math.min(endingBytePos0b, startingBytePos0b + 5) // widest possible char representation is 6 bytes.
         val nBytes = (lastAvailableBytePos0b - startingBytePos0b).toInt + 1
         Assert.invariant(nBytes > 0) // have to have at least 1 byte left
@@ -476,25 +473,62 @@ class DataDumper {
         }
         bb.flip()
         Assert.invariant(bb.remaining > 0)
-        val cr = dec.decode(bb, cb, true)
-        if (cr.isOverflow || cr.isUnderflow) {
-          // An overflow means that we got our one character, but there were more bytes available that could
-          // be decoded. We're not interested in those.
+        var cr = CoderResult.OVERFLOW
+        var nConsumedBytes = 0
+        var remapped = ""
+        var nCols = 0
+        do {
+          // An overflow means we were able to start to decode at least 1 sequence of characters, but there was either insufficient
+          // space in the output buffer to store said decoded char or there were left over bytes after parsing. If it is
+          // the former, we can proceed and we'll get the left over bytes on the next run, if it was the latter
+          // (as can be the case with decoding a 4 byte character sequence), we will call decode with a larger buffer
+          // until we consume something or the output buffer is at same capacity as input buffer
+          cr = dec.decode(bb, cb, true)
+          nConsumedBytes = bb.position()
+          if (cr.isOverflow && nConsumedBytes == 0) {
+            cb = CharBuffer.allocate(cb.capacity + 1)
+          }
+        } while (cr.isOverflow && nConsumedBytes == 0 && cb.capacity <= bb.capacity)
+
+        // Once we leave the loop, we will either have consumed bytes to process (with a variety of left over bytes that we
+        // don't care about) or malformed/unmappable results with no consumed bytes that we do care about so we will do a
+        // manual replace and set consumed bytes ourselves. We should not do an automatic replace as it creates ambiguity
+        // with the malformed/unmapped/consumed bytes with our current implementation of handling a decoded character at a time.
+
+        // We should never have an underflow condition with no bytes consumed. As that would indicate it needs more input than
+        // we've provided. Even if we only provide 1 byte of a 4 byte sequence, it will return a malformed[1]
+        Assert.invariant(!(cr.isUnderflow && nConsumedBytes == 0))
+
+        if ((cr.isMalformed || cr.isUnmappable) && nConsumedBytes == 0) {
+          //do manual replacement
+          remapped = dec.replacement()
+          // grab malformed/unmappable byte so we can keep decoding
+          nConsumedBytes = cr.length
+          nCols = charNColumns(remapped(0))
+        } else {
+          // An overflow, at this point, means that we got our one character, but there were more bytes available that could
+          // be decoded. We're not interested in those right now.
           //
           // An underflow means that we got our one character, but the bytes were exactly used up
           // by constructing that one character.
           //
           // Either way, we got our one character
-          // how many bytes did it consume?
-          val nConsumedBytes = bb.position()
           Assert.invariant(nConsumedBytes > 0)
-          val char = cb.get(0)
-          val nCols = charNColumns(char)
-          val charInt = cb.get(0)
-          val remapped = Misc.remapCodepointToVisibleGlyph(charInt).toChar
-          (remapped, nConsumedBytes, nCols)
-        } else
-          Assert.invariantFailed("decode should only terminate with OVERFLOW or UNDERFLOW. Was: " + cr)
+          Assert.invariant(cb.hasArray)
+          var allChars = cb.array
+          remapped = if (allChars.length > 1) allChars.mkString else Misc.remapCodepointToVisibleGlyph(allChars(0)).toChar.toString
+          nCols = if (allChars.length > 1) {
+            try {
+              var uCodePoint = UCharacter.getCodePoint(allChars(0), allChars(1))
+              charNColumns(uCodePoint)
+            } catch {
+              case e: IllegalArgumentException => {
+                allChars.mkString.length
+              }
+            }
+          } else charNColumns(allChars(0))
+        }
+        (remapped, nConsumedBytes, nCols)
       }
       case None => {
         // no encoding, so use the general one based on windows-1252 where
@@ -510,7 +544,7 @@ class DataDumper {
         // FIXME: This will be really broken for EBCDIC-based encodings. Pass the encoding
         // so that the glyph routine can be ascii/ebcdic sensitive.
         val remapped = Misc.remapByteToVisibleGlyph(byteValue)
-        (remapped.toChar, 1, 1)
+        (remapped.toChar.toString, 1, 1)
       }
     }
   }
@@ -568,8 +602,8 @@ class DataDumper {
     var i = startByteAddress0b
     val sb = new StringBuilder
     while (i <= endByteAddress0b) {
-      val (c, _, _) = convertToChar(i - startByteAddress0b, endByteAddress0b, byteSource, decoder)
-      sb += c
+      val (cR, _, _) = convertToCharRepr(i - startByteAddress0b, endByteAddress0b, byteSource, decoder)
+      sb += cR(0)
       i += 1
     }
     val s = sb.mkString
