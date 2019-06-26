@@ -18,7 +18,8 @@
 
 <tdml:testSuite xmlns:ex="http://example.com" xmlns="http://example.com"
   xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions" >
 
   <tdml:defineSchema name="inputTypeCalc-Embedded.dfdl.xsd">
 
@@ -28,7 +29,7 @@
       terminator="" occursCountKind="parsed" ignoreCase="no"
       textNumberRep="standard" representation="text" />
 
-    <xs:element name="keysetValue_00" type="tns:keysetValue_01">
+    <xs:element name="keysetValue_00" type="tns:keysetValue_01" />
 
     <xs:element name="keysetValue_01">
       <xs:complexType>

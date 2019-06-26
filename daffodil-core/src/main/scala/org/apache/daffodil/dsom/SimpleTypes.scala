@@ -209,6 +209,7 @@ abstract class SimpleTypeDefBase(xml: Node, lexicalParent: SchemaComponent)
   with HasRepValueAttributes {
 
   requiredEvaluations(simpleTypeRuntimeData.preSerialization)
+  requiredEvaluations(optTypeCalculator.map(_.preSerialization))
 
   override def typeNode = primType
 
@@ -249,8 +250,10 @@ abstract class SimpleTypeDefBase(xml: Node, lexicalParent: SchemaComponent)
       tunable,
       optRepTypeDef.map(_.simpleTypeRuntimeData),
       optRepValueSet,
-      optTypeCalculator)
+      optTypeCalculator,
+      optRepType.map(_.primType))
   }
+  override lazy val runtimeData = simpleTypeRuntimeData
 
   private lazy val noFacetChecks =
     optRestriction.map { r =>
@@ -310,7 +313,7 @@ abstract class SimpleTypeDefBase(xml: Node, lexicalParent: SchemaComponent)
   lazy val optInputTypeCalc = findPropertyOption("inputTypeCalc")
   lazy val optOutputTypeCalc = findPropertyOption("outputTypeCalc")
 
-  lazy val optTypeCalculator: Option[TypeCalculator[AnyRef, AnyRef]] = {
+  lazy val optTypeCalculator: Option[TypeCalculator[AnyRef, AnyRef]] = LV('optTypeCalculator) {
     optRepType.flatMap(repType => {
       val srcType = repType.primType
       val dstType = primType
@@ -369,7 +372,7 @@ abstract class SimpleTypeDefBase(xml: Node, lexicalParent: SchemaComponent)
         val supportsParse = optInputTypeCalc.isDefined
         val supportsUnparse = optOutputTypeCalc.isDefined
         if (supportsParse || supportsUnparse) {
-          Some(TypeCalculatorCompiler.compileTypeCalculatorFromExpression(optInputCompiled, optOutputCompiled, srcType, dstType, supportsParse, supportsUnparse))
+          Some(TypeCalculatorCompiler.compileTypeCalculatorFromExpression(optInputCompiled, optOutputCompiled, srcType, dstType))
         } else {
           None
         }
@@ -410,7 +413,7 @@ abstract class SimpleTypeDefBase(xml: Node, lexicalParent: SchemaComponent)
       ans
 
     })
-  }
+  }.value
 
   /*
    * We don't really need the NamedMixin. It is only used for detecting duplicates

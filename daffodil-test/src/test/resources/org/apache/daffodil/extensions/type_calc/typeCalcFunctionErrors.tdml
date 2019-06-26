@@ -49,65 +49,63 @@
       <xs:restriction base="xs:string"/>
     </xs:simpleType>
 
-    <!--
-    <xs:element name="typeCalcDispatch_typeError_baseline" type="xs:string" dfdl:inputValueCalc="{ dfdlx:inputTypeCalcString('tns:intToString', 0) }" />
-    -->
-    <xs:element name="typeCalcDispatch_typeError_01" type="xs:int" dfdl:inputValueCalc="{ dfdlx:inputTypeCalcString('tns:intToString', 0) }" />
-    <xs:element name="typeCalcDispatch_typeError_02" type="xs:int" dfdl:inputValueCalc="{ dfdlx:inputTypeCalcInt('tns:intToString', 0) }" />
-    <xs:element name="typeCalcDispatch_typeError_03" type="xs:int" dfdl:inputValueCalc="{ dfdlx:inputTypeCalcInt('tns:stringToInt', 0) }" />
-    <!--
-    <xs:element name="typeCalcDispatch_typeError_baseline" type="xs:string" dfdl:outputValueCalc="{ dfdlx:outputTypeCalcString('tns:stringToInt', 0) }" />
-    -->
-    <xs:element name="typeCalcDispatch_typeError_04" type="xs:int" dfdl:inputValueCalc="{ dfdlx:outputTypeCalcString('tns:stringToInt', 0) }" />
-    <xs:element name="typeCalcDispatch_typeError_05" type="xs:int" dfdl:inputValueCalc="{ dfdlx:outputTypeCalcInt('tns:stringToInt', 0) }" />
-    <xs:element name="typeCalcDispatch_typeError_06" type="xs:int" dfdl:inputValueCalc="{ dfdlx:outputTypeCalcInt('tns:intToString', 0) }" />
+    <xs:element name="typeCalcDispatch_typeError_01" type="xs:int" dfdl:inputValueCalc="{ dfdlx:inputTypeCalc('tns:intToString', 0) }" />
+    <xs:element name="typeCalcDispatch_typeError_02" type="xs:int" dfdl:inputValueCalc="{ dfdlx:outputTypeCalc('tns:stringToInt', 0) }" />
 
-    <xs:element name="typeCalcDispatch_typeError_07" dfdlx:parseUnparsePolicy="unparseOnly">
+    <xs:element name="typeCalcDispatch_typeError_03" dfdlx:parseUnparsePolicy="unparseOnly">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="raw" dfdl:outputValueCalc="{ dfdlx:outputTypeCalcNextSiblingInt() }" type="tns:uint8" dfdlx:parseUnparsePolicy="unparseOnly"/>
+          <xs:element name="raw" dfdl:outputValueCalc="{ dfdlx:outputTypeCalcNextSibling() }" type="tns:uint8" dfdlx:parseUnparsePolicy="unparseOnly"/>
           <xs:element name="stringToInt" type="stringToInt" dfdlx:parseUnparsePolicy="unparseOnly" dfdl:inputValueCalc="{ 0 }"/>
         </xs:sequence>
       </xs:complexType>
+    </xs:element>
+
+    <xs:element name="typeCalcDispatch_typeError_04" dfdlx:parseUnparsePolicy="unparseOnly">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="raw" dfdl:outputValueCalc="{ dfdlx:outputTypeCalcNextSibling() }" type="tns:uint8" dfdlx:parseUnparsePolicy="unparseOnly"/>
+          <xs:element name="stringToInt" type="stringToInt" dfdlx:parseUnparsePolicy="unparseOnly" dfdl:inputValueCalc="{ 0 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="typeCalcDispatch_typeError_05">
+      <xs:simpleType dfdlx:repType="tns:string8" dfdlx:inputTypeCalc="{ dfdlx:repTypeValue() }">
+        <xs:restriction base="xs:int"/>
+      </xs:simpleType>
+    </xs:element>
+
+    <xs:element name="typeCalcDispatch_typeError_06">
+      <xs:simpleType dfdlx:repType="tns:string8" dfdlx:inputTypeCalc="{ dfdlx:repTypeValue() }">
+        <xs:restriction base="xs:int"/>
+      </xs:simpleType>
+    </xs:element>
+
+    <xs:element name="typeCalcDispatch_typeError_07" dfdlx:parseUnparsePolicy="unparseOnly" >
+      <xs:simpleType dfdlx:repType="tns:uint8" dfdlx:outputTypeCalc="{ dfdlx:logicalTypeValue() }">
+        <xs:restriction base="xs:string"/>
+      </xs:simpleType>
     </xs:element>
 
     <xs:element name="typeCalcDispatch_typeError_08" dfdlx:parseUnparsePolicy="unparseOnly">
-      <xs:complexType>
-        <xs:sequence>
-          <xs:element name="raw" dfdl:outputValueCalc="{ dfdlx:outputTypeCalcNextSiblingString() }" type="tns:uint8" dfdlx:parseUnparsePolicy="unparseOnly"/>
-          <xs:element name="stringToInt" type="stringToInt" dfdlx:parseUnparsePolicy="unparseOnly" dfdl:inputValueCalc="{ 0 }"/>
-        </xs:sequence>
-      </xs:complexType>
-    </xs:element>
-
-    <xs:element name="typeCalcDispatch_typeError_09">
-      <xs:simpleType dfdlx:repType="tns:string8" dfdlx:inputTypeCalc="{ dfdlx:repTypeValueString() }">
-        <xs:restriction base="xs:int"/>
-      </xs:simpleType>
-    </xs:element>
-
-    <xs:element name="typeCalcDispatch_typeError_10">
-      <xs:simpleType dfdlx:repType="tns:string8" dfdlx:inputTypeCalc="{ dfdlx:repTypeValueInt() }">
-        <xs:restriction base="xs:int"/>
-      </xs:simpleType>
-    </xs:element>
-
-    <xs:element name="typeCalcDispatch_typeError_11" dfdlx:parseUnparsePolicy="unparseOnly" >
-      <xs:simpleType dfdlx:repType="tns:uint8" dfdlx:outputTypeCalc="{ dfdlx:logicalTypeValueInt() }">
+      <xs:simpleType dfdlx:repType="tns:uint8" dfdlx:outputTypeCalc="{ dfdlx:logicalTypeValue() }">
         <xs:restriction base="xs:string"/>
       </xs:simpleType>
     </xs:element>
 
-    <xs:element name="typeCalcDispatch_typeError_12" dfdlx:parseUnparsePolicy="unparseOnly">
-      <xs:simpleType dfdlx:repType="tns:uint8" dfdlx:outputTypeCalc="{ dfdlx:logicalTypeValueString() }">
-        <xs:restriction base="xs:string"/>
+    <xs:element name="repTypeValue_bad_context_01" type="xs:string" dfdl:inputValueCalc="{ dfdlx:repTypeValue() }"/>
+    <xs:element name="repTypeValue_bad_context_02" dfdlx:parseUnparsePolicy="unparseOnly">
+      <xs:simpleType dfdlx:repType="tns:uint8" dfdlx:outputTypeCalc="{ dfdlx:repTypeValue() }" dfdlx:inputTypeCalc="{ 0 }">
+        <xs:restriction base="xs:int"/>
       </xs:simpleType>
     </xs:element>
-
-    <xs:element name="repTypeValue_bad_context_01" type="xs:string" dfdl:inputValueCalc="{ dfdlx:repTypeValueString() }"/>
-    <xs:element name="repTypeValue_bad_context_02" type="xs:int" dfdl:inputValueCalc="{ dfdlx:repTypeValueInt() }"/>
-    <xs:element name="logicalTypeValue_bad_context_01" type="xs:string" dfdl:inputValueCalc="{ dfdlx:logicalTypeValueString() }"/>
-    <xs:element name="logicalTypeValue_bad_context_02" type="xs:int" dfdl:inputValueCalc="{ dfdlx:logicalTypeValueInt() }"/>
+    <xs:element name="logicalTypeValue_bad_context_01" type="xs:string" dfdl:inputValueCalc="{ dfdlx:logicalTypeValue() }"/>
+    <xs:element name="logicalTypeValue_bad_context_02">
+      <xs:simpleType dfdlx:repType="tns:uint8" dfdlx:inputTypeCalc="{ dfdlx:logicalTypeValue() }" dfdlx:outputTypeCalc="{ 0 }">
+        <xs:restriction base="xs:int"/>
+      </xs:simpleType>
+    </xs:element>
 
     <xs:element name="nonexistant_reptype_01">
       <xs:simpleType dfdlx:repType="tns:nonExistant" dfdlx:inputTypeCalc="{ 0 }">
@@ -119,13 +117,54 @@
       <xs:restriction base="xs:int"/>
     </xs:simpleType>
 
-    <xs:element name="nonexistantOutputTypeCalc_01" type="xs:int" dfdl:inputValueCalc="{dfdlx:outputTypeCalcInt('tns:inputConversionOnly', 7)}"/>
+    <xs:element name="nonexistantOutputTypeCalc_01" type="xs:int" dfdl:inputValueCalc="{dfdlx:outputTypeCalc('tns:inputConversionOnly', 7)}"/>
 
     <xs:simpleType name="outputConversionOnly" dfdlx:repType="tns:uint8" dfdlx:outputTypeCalc="{ 1 }">
       <xs:restriction base="xs:int"/>
     </xs:simpleType>
 
-    <xs:element name="nonexistantInputTypeCalc_01" type="xs:int" dfdl:inputValueCalc="{dfdlx:inputTypeCalcInt('tns:outputConversionOnly', 7)}"/>
+    <xs:element name="nonexistantInputTypeCalc_01" type="xs:int" dfdl:inputValueCalc="{dfdlx:inputTypeCalc('tns:outputConversionOnly', 7)}"/>
+
+    <xs:element name="nextSibling_01" dfdlx:parseUnparsePolicy="unparseOnly" >
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="raw" type="xs:int" dfdl:outputValueCalc="{ dfdlx:outputTypeCalcNextSibling() }" dfdlx:parseUnparsePolicy="unparseOnly" />
+          <xs:choice>
+            <xs:element name="a" type="tns:intToString" dfdlx:parseUnparsePolicy="unparseOnly" />
+            <xs:element name="b" type="tns:stringToInt" dfdlx:parseUnparsePolicy="unparseOnly" />
+          </xs:choice>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="nextSibling_02" dfdlx:parseUnparsePolicy="unparseOnly" >
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="raw" type="xs:int" dfdl:outputValueCalc="{ dfdlx:outputTypeCalcNextSibling() }" dfdlx:parseUnparsePolicy="unparseOnly" />
+          <xs:choice>
+            <xs:element name="a" type="tns:intToString" dfdlx:parseUnparsePolicy="unparseOnly" />
+            <xs:element name="b" type="tns:uint8" dfdlx:parseUnparsePolicy="unparseOnly" />
+          </xs:choice>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="nextSibling_03" dfdlx:parseUnparsePolicy="unparseOnly" >
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="raw" type="xs:int" dfdl:outputValueCalc="{ dfdlx:outputTypeCalcNextSibling() }" dfdlx:parseUnparsePolicy="unparseOnly" />
+          <xs:element name="b" type="tns:uint8" dfdlx:parseUnparsePolicy="unparseOnly" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="nextSibling_04" dfdlx:parseUnparsePolicy="unparseOnly" >
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="raw" type="xs:int" dfdl:outputValueCalc="{ dfdlx:outputTypeCalcNextSibling() }" dfdlx:parseUnparsePolicy="unparseOnly" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
   </tdml:defineSchema>
 
@@ -153,30 +192,6 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>tns:intToString has a destination type of String, but its usage requires Int</tdml:error>
-    </tdml:errors>
-  </tdml:parserTestCase>
-
-  <tdml:parserTestCase name="typeCalcDispatch_typeError_03"
-    root="typeCalcDispatch_typeError_03" model="inputTypeCalcFunctionErrors-Embedded.dfdl.xsd" description="Extensions - inputTypeCalc errors">
-    <tdml:document>
-    <tdml:documentPart type="byte">
-    </tdml:documentPart>
-    </tdml:document>
-    <tdml:errors>
-      <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>tns:stringToInt has a source type of String, but its usage requires Int</tdml:error>
-    </tdml:errors>
-  </tdml:parserTestCase>
-
-  <tdml:parserTestCase name="typeCalcDispatch_typeError_04"
-    root="typeCalcDispatch_typeError_04" model="inputTypeCalcFunctionErrors-Embedded.dfdl.xsd" description="Extensions - inputTypeCalc errors">
-    <tdml:document>
-    <tdml:documentPart type="byte">
-    </tdml:documentPart>
-    </tdml:document>
-    <tdml:errors>
-      <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>Cannot convert 'a' from String type to Long</tdml:error>
     </tdml:errors>
     <tdml:warnings>
@@ -185,52 +200,34 @@
     </tdml:warnings>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="typeCalcDispatch_typeError_05"
-    root="typeCalcDispatch_typeError_05" model="inputTypeCalcFunctionErrors-Embedded.dfdl.xsd" description="Extensions - inputTypeCalc errors">
-    <tdml:document>
-    <tdml:documentPart type="byte">
-    </tdml:documentPart>
-    </tdml:document>
-    <tdml:errors>
-      <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>tns:stringToInt has a source type of String, but its usage requires Int</tdml:error>
-    </tdml:errors>
-  </tdml:parserTestCase>
-
-  <tdml:parserTestCase name="typeCalcDispatch_typeError_06"
-    root="typeCalcDispatch_typeError_06" model="inputTypeCalcFunctionErrors-Embedded.dfdl.xsd" description="Extensions - inputTypeCalc errors">
-    <tdml:document>
-    <tdml:documentPart type="byte">
-    </tdml:documentPart>
-    </tdml:document>
-    <tdml:errors>
-      <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>tns:intToString has a destination type of String, but its usage requires Int</tdml:error>
-    </tdml:errors>
-  </tdml:parserTestCase>
-
-  <tdml:unparserTestCase name="typeCalcDispatch_typeError_07"
-    root="typeCalcDispatch_typeError_07" model="inputTypeCalcFunctionErrors-Embedded.dfdl.xsd" description="Extensions - inputTypeCalc errors">
+  <tdml:unparserTestCase name="typeCalcDispatch_typeError_03"
+    root="typeCalcDispatch_typeError_03" model="inputTypeCalcFunctionErrors-Embedded.dfdl.xsd" description="Extensions - inputTypeCalc errors">
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <typeCalcDispatch_typeError_07>
+        <typeCalcDispatch_typeError_03>
           <stringToInt>0</stringToInt>
-        </typeCalcDispatch_typeError_07>
+        </typeCalcDispatch_typeError_03>
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:errors>
-      <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>The type calculator defined by stringToInt has a source type of String, but its usage requires Int</tdml:error>
+      <tdml:error>Unparse Error</tdml:error>
+      <tdml:error>Cannot convert</tdml:error>
+      <tdml:error>from String type to Long</tdml:error>
     </tdml:errors>
+    <tdml:warnings>
+      <tdml:warning>Schema Definition Warning</tdml:warning>
+      <tdml:warning>Expression result type (String)</tdml:warning>
+      <tdml:warning>expected type (Int)</tdml:warning>
+    </tdml:warnings>
   </tdml:unparserTestCase>
 
-  <tdml:unparserTestCase name="typeCalcDispatch_typeError_08"
-    root="typeCalcDispatch_typeError_08" model="inputTypeCalcFunctionErrors-Embedded.dfdl.xsd" description="Extensions - inputTypeCalc errors">
+  <tdml:unparserTestCase name="typeCalcDispatch_typeError_04"
+    root="typeCalcDispatch_typeError_04" model="inputTypeCalcFunctionErrors-Embedded.dfdl.xsd" description="Extensions - inputTypeCalc errors">
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <typeCalcDispatch_typeError_08>
+        <typeCalcDispatch_typeError_04>
           <stringToInt>0</stringToInt>
-        </typeCalcDispatch_typeError_08>
+        </typeCalcDispatch_typeError_04>
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:errors>
@@ -242,8 +239,8 @@
     </tdml:warnings>
   </tdml:unparserTestCase>
 
-  <tdml:parserTestCase name="typeCalcDispatch_typeError_09"
-    root="typeCalcDispatch_typeError_09" model="inputTypeCalcFunctionErrors-Embedded.dfdl.xsd" description="Extensions - inputTypeCalc errors">
+  <tdml:parserTestCase name="typeCalcDispatch_typeError_05"
+    root="typeCalcDispatch_typeError_05" model="inputTypeCalcFunctionErrors-Embedded.dfdl.xsd" description="Extensions - inputTypeCalc errors">
     <tdml:document>
     <tdml:documentPart type="text">a</tdml:documentPart>
     </tdml:document>
@@ -254,35 +251,49 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="typeCalcDispatch_typeError_10"
-    root="typeCalcDispatch_typeError_10" model="inputTypeCalcFunctionErrors-Embedded.dfdl.xsd" description="Extensions - inputTypeCalc errors">
+  <tdml:parserTestCase name="typeCalcDispatch_typeError_06"
+    root="typeCalcDispatch_typeError_06" model="inputTypeCalcFunctionErrors-Embedded.dfdl.xsd" description="Extensions - inputTypeCalc errors">
     <tdml:document>
     <tdml:documentPart type="text">a</tdml:documentPart>
     </tdml:document>
     <tdml:errors>
-      <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Reptype is a(n) String type, where Integer is expected</tdml:error>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Cannot convert</tdml:error>
+      <tdml:error>From String type to Long</tdml:error>
     </tdml:errors>
+    <tdml:warnings>
+      <tdml:warning>Schema Definition Warning</tdml:warning>
+      <tdml:warning>Expression result type (String)</tdml:warning>
+      <tdml:warning>manually cast</tdml:warning>
+      <tdml:warning>Expected type (Int)</tdml:warning>
+    </tdml:warnings>
   </tdml:parserTestCase>
 
-  <tdml:unparserTestCase name="typeCalcDispatch_typeError_11"
-    root="typeCalcDispatch_typeError_11" model="inputTypeCalcFunctionErrors-Embedded.dfdl.xsd" description="Extensions - inputTypeCalc errors">
+  <tdml:unparserTestCase name="typeCalcDispatch_typeError_07"
+    root="typeCalcDispatch_typeError_07" model="inputTypeCalcFunctionErrors-Embedded.dfdl.xsd" description="Extensions - inputTypeCalc errors">
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <typeCalcDispatch_typeError_11>a</typeCalcDispatch_typeError_11>
+        <typeCalcDispatch_typeError_07>a</typeCalcDispatch_typeError_07>
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:errors>
-      <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>logical type is a(n) String type, where Integer is expected</tdml:error>
+      <tdml:error>Unparse Error</tdml:error>
+      <tdml:error>Cannot convert</tdml:error>
+      <tdml:error>From String type to Long</tdml:error>
     </tdml:errors>
+    <tdml:warnings>
+      <tdml:warning>Schema Definition Warning</tdml:warning>
+      <tdml:warning>Expression result type (String)</tdml:warning>
+      <tdml:warning>manually cast</tdml:warning>
+      <tdml:warning>Expected type (Int)</tdml:warning>
+    </tdml:warnings>
   </tdml:unparserTestCase>
 
-  <tdml:unparserTestCase name="typeCalcDispatch_typeError_12"
-    root="typeCalcDispatch_typeError_12" model="inputTypeCalcFunctionErrors-Embedded.dfdl.xsd" description="Extensions - inputTypeCalc errors">
+  <tdml:unparserTestCase name="typeCalcDispatch_typeError_08"
+    root="typeCalcDispatch_typeError_08" model="inputTypeCalcFunctionErrors-Embedded.dfdl.xsd" description="Extensions - inputTypeCalc errors">
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <typeCalcDispatch_typeError_12>a</typeCalcDispatch_typeError_12>
+        <typeCalcDispatch_typeError_08>a</typeCalcDispatch_typeError_08>
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:errors>
@@ -298,20 +309,22 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>dfdlx:repTypeValueString() may only be called from within a dfdlx:inputTypeCalc annotation</tdml:error>
+      <tdml:error>dfdlx:repTypeValue() can only be defined on a simple type</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="repTypeValue_bad_context_02"
+  <tdml:unparserTestCase name="repTypeValue_bad_context_02"
     root="repTypeValue_bad_context_02" model="inputTypeCalcFunctionErrors-Embedded.dfdl.xsd" description="Extensions - inputTypeCalc errors">
-    <tdml:document>
-    <tdml:documentPart type="byte"></tdml:documentPart>
-    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <repTypeValue_bad_context_02>0</repTypeValue_bad_context_02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>dfdlx:repTypeValueInt() may only be called from within a dfdlx:inputTypeCalc annotation</tdml:error>
+      <tdml:error>dfdlx:repTypeValue() may only be called from within dfdlx:inputTypeCalc</tdml:error>
     </tdml:errors>
-  </tdml:parserTestCase>
+  </tdml:unparserTestCase>
 
   <tdml:parserTestCase name="logicalTypeValue_bad_context_01"
     root="logicalTypeValue_bad_context_01" model="inputTypeCalcFunctionErrors-Embedded.dfdl.xsd" description="Extensions - inputTypeCalc errors">
@@ -320,18 +333,18 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>dfdlx:logicalTypeValueString() may only be called from within a dfdlx:outputTypeCalc annotation</tdml:error>
+      <tdml:error>dfdlx:logicalTypeValue() can only be defined on a simple type</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="logicalTypeValue_bad_context_02"
     root="logicalTypeValue_bad_context_02" model="inputTypeCalcFunctionErrors-Embedded.dfdl.xsd" description="Extensions - inputTypeCalc errors">
     <tdml:document>
-    <tdml:documentPart type="byte"></tdml:documentPart>
+    <tdml:documentPart type="byte">00</tdml:documentPart>
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>dfdlx:logicalTypeValueInt() may only be called from within a dfdlx:outputTypeCalc annotation</tdml:error>
+      <tdml:error>dfdlx:logicalTypeValue() may only be called from within dfdlx:outputTypeCalc</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -377,7 +390,7 @@
       dfdlx:parseUnparsePolicy="parseOnly"
       />
 
-     <xs:element name="root" type="xs:int" dfdl:inputValueCalc="{ dfdlx:inputTypeCalcInt('tns:nonExistant', 0) }"/>
+     <xs:element name="root" type="xs:int" dfdl:inputValueCalc="{ dfdlx:inputTypeCalc('tns:nonExistant', 0) }"/>
 
   </tdml:defineSchema>
 
@@ -405,7 +418,7 @@
      <xs:simpleType name="nonExistantTypeCalc">
        <xs:restriction base="xs:int"/>
      </xs:simpleType>
-     <xs:element name="root" type="xs:int" dfdl:inputValueCalc="{ dfdlx:inputTypeCalcInt('tns:nonExistantTypeCalc', 0) }"/>
+     <xs:element name="root" type="xs:int" dfdl:inputValueCalc="{ dfdlx:inputTypeCalc('tns:nonExistantTypeCalc', 0) }"/>
 
   </tdml:defineSchema>
 
@@ -420,5 +433,77 @@
       <tdml:error>does not have a repType</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
+
+  <tdml:unparserTestCase name="nextSibling_01"
+    root="nextSibling_01" model="inputTypeCalcFunctionErrors-Embedded.dfdl.xsd" description="Extensions - inputTypeCalc errors">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <nextSibling_01>
+          <raw>0</raw>
+          <a>a</a>
+        </nextSibling_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>dfdlx:outputTypeCalcNextSibling</tdml:error>
+      <tdml:error>all the possible next siblings have the same repType</tdml:error>
+      <tdml:error>potential next siblings a and b</tdml:error>
+      <tdml:error>have repTypes Int and String</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="nextSibling_02"
+    root="nextSibling_02" model="inputTypeCalcFunctionErrors-Embedded.dfdl.xsd" description="Extensions - inputTypeCalc errors">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <nextSibling_02>
+          <raw>0</raw>
+          <a>a</a>
+        </nextSibling_02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>dfdlx:outputTypeCalcNextSibling</tdml:error>
+      <tdml:error>potential next sibling</tdml:error>
+      <tdml:error>{http://example.com}b</tdml:error>
+      <tdml:error>does not define a type calculator</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="nextSibling_03"
+    root="nextSibling_03" model="inputTypeCalcFunctionErrors-Embedded.dfdl.xsd" description="Extensions - inputTypeCalc errors">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <nextSibling_03>
+          <raw>0</raw>
+          <b>0</b>
+        </nextSibling_03>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>dfdlx:outputTypeCalcNextSibling</tdml:error>
+      <tdml:error>potential next sibling</tdml:error>
+      <tdml:error>{http://example.com}b</tdml:error>
+      <tdml:error>does not define a type calculator</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="nextSibling_04"
+    root="nextSibling_04" model="inputTypeCalcFunctionErrors-Embedded.dfdl.xsd" description="Extensions - inputTypeCalc errors">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <nextSibling_04>
+          <raw>0</raw>
+        </nextSibling_04>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>dfdlx:outputTypeCalcNextSibling() called where no next sibling exists</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
 
 </tdml:testSuite>

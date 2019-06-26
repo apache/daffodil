@@ -33,6 +33,7 @@ import org.apache.daffodil.oolag.OOLAG._
 import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.xml.GetAttributesMixin
 import org.apache.daffodil.schema.annotation.props.PropTypes
+import org.apache.daffodil.util.Maybe
 
 abstract class SchemaComponentImpl(
   final override val xml: Node,
@@ -71,11 +72,10 @@ trait SchemaComponent
       path,
       schemaFileLocation,
       tunable,
-      schemaSet.typeCalcMap)
+      schemaSet.typeCalcMap,
+      runtimeData)
 
   /**
-   * ALl non-terms get runtimeData from this definition. All Terms
-   * which are elements and model-groups) override this.
    *
    * The Term class has a generic termRuntimeData => TermRuntimeData
    * function (useful since all Terms share things like having charset encoding)
@@ -84,7 +84,7 @@ trait SchemaComponent
    *
    * There is also VariableRuntimeData and SchemaSetRuntimeData.
    */
-  lazy val runtimeData: RuntimeData = nonTermRuntimeData // overrides in ModelGroup, ElementBase
+  lazy val runtimeData: RuntimeData = nonTermRuntimeData // overrides in ModelGroup, ElementBase, SimpleTypes
 
   final def nonTermRuntimeData = LV('nonTermRuntimeData) {
     new NonTermRuntimeData(

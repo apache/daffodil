@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.dsom
 
-import scala.runtime.ScalaRunTime.stringOf
+import scala.runtime.ScalaRunTime.stringOf // for printing arrays properly.
 
 import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.api.UnqualifiedPathStepPolicy
@@ -29,6 +29,7 @@ import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.exceptions.HasSchemaFileLocation
 import org.apache.daffodil.exceptions.SchemaFileLocation
 import org.apache.daffodil.processors.ParseOrUnparseState
+import org.apache.daffodil.processors.RuntimeData
 import org.apache.daffodil.processors.Suspension
 import org.apache.daffodil.processors.TypeCalculatorCompiler.TypeCalcMap
 import org.apache.daffodil.processors.VariableMap
@@ -205,7 +206,8 @@ class DPathCompileInfo(
   val path: String,
   override val schemaFileLocation: SchemaFileLocation,
   val tunable: DaffodilTunables,
-  @TransientParam typeCalcMapArg: => TypeCalcMap)
+  @TransientParam typeCalcMapArg: => TypeCalcMap,
+  val lexicalContextRuntimeData: RuntimeData)
   extends ImplementsThrowsSDE with PreSerialization
   with HasSchemaFileLocation {
 
@@ -316,8 +318,9 @@ class DPathElementCompileInfo(
   val optPrimType: Option[PrimType],
   sfl: SchemaFileLocation,
   override val tunable: DaffodilTunables,
-  typeCalcMap: TypeCalcMap)
-  extends DPathCompileInfo(parentArg, variableMap, namespaces, path, sfl, tunable, typeCalcMap)
+  typeCalcMap: TypeCalcMap,
+  lexicalContextRuntimeData: RuntimeData)
+  extends DPathCompileInfo(parentArg, variableMap, namespaces, path, sfl, tunable, typeCalcMap, lexicalContextRuntimeData)
   with HasSchemaFileLocation {
 
   lazy val elementChildrenCompileInfo = elementChildrenCompileInfoArg

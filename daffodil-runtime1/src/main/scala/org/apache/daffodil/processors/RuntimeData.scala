@@ -240,7 +240,8 @@ final class SimpleTypeRuntimeData(
   @TransientParam tunableArg: => DaffodilTunables,
   @TransientParam repTypeRuntimeDataArg: => Option[SimpleTypeRuntimeData],
   @TransientParam repValueSetArg: => Option[RepValueSet[AnyRef]],
-  @TransientParam typeCalculatorArg: => Option[TypeCalculator[AnyRef,AnyRef]]
+  @TransientParam typeCalculatorArg: => Option[TypeCalculator[AnyRef,AnyRef]],
+  @TransientParam optRepPrimTypeArg: => Option[PrimType]
 ) extends NonTermRuntimeData(variableMapArg, schemaFileLocationArg, diagnosticDebugNameArg,
   pathArg, namespacesArg, tunableArg) {
 
@@ -262,6 +263,7 @@ final class SimpleTypeRuntimeData(
   lazy val repTypeRuntimeData = repTypeRuntimeDataArg
   lazy val repValueSet = repValueSetArg
   lazy val typeCalculator = typeCalculatorArg
+  lazy val optRepPrimType = optRepPrimTypeArg
 
   override def preSerialization: Unit = {
     super.preSerialization
@@ -281,6 +283,7 @@ final class SimpleTypeRuntimeData(
     repTypeRuntimeData
     repValueSet
     typeCalculator
+    optRepPrimType
   }
 
   @throws(classOf[java.io.IOException])
