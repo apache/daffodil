@@ -152,22 +152,28 @@ abstract class InfosetInputter
     val res = priorOpKind match {
       case Advance => {
         priorOpKind = InspectPure
-        next() //advance the input stream so nextElementErd is pointing to the correct place
-        val eventKind = getEventType() match {
-          case StartElement  => StartKind
-          case EndElement    => EndKind
-          case StartDocument => StartKind
-          case EndDocument   => EndKind
-        }
-        accessor.kind = eventKind
-        if (eventKind == StartKind) {
-          accessor.erd = nextElementErd()
-          accessor.node = null
-        }else{
-          //accessor.kind == EndKind
-          val node = nodeStack.top
-          accessor.node=node
-          accessor.erd=node.erd
+        if (isPending) {
+          accessor.kind = pendingStartOrEnd(pendingCurIndex)
+          accessor.node = pendingNodes(pendingCurIndex)
+          accessor.erd = accessor.node.erd
+        } else {
+          next() //advance the input stream so nextElementErd is pointing to the correct place
+          val eventKind = getEventType() match {
+            case StartElement  => StartKind
+            case EndElement    => EndKind
+            case StartDocument => StartKind
+            case EndDocument   => EndKind
+          }
+          accessor.kind = eventKind
+          if (eventKind == StartKind) {
+            accessor.erd = nextElementErd()
+            accessor.node = null
+          } else {
+            //accessor.kind == EndKind
+            val node = nodeStack.top
+            accessor.node = node
+            accessor.erd = node.erd
+          }
         }
         true
       }

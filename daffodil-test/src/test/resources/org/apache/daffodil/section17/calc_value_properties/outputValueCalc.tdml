@@ -349,6 +349,19 @@
           </xs:complexType>
         </xs:element>
 
+    <xs:element name="arrayWithFollowingOVC">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="Arr" type="xs:string" minOccurs="0" maxOccurs="2"
+            dfdl:length="1" dfdl:lengthKind="explicit" />
+          <xs:element name="OVC" type="xs:string" dfdl:outputValueCalc="{ ../ex:Arr[1] }"
+            dfdl:length="1" dfdl:lengthKind="explicit" />
+          <xs:element name="End" type="xs:string"
+            dfdl:length="1" dfdl:lengthKind="explicit" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
 	</tdml:defineSchema>
 
 	<tdml:unparserTestCase name="binaryIntegerBigEndian"
@@ -799,6 +812,22 @@
         <tdml:error>dfdl:outputValueCalc cannot be defined on complexType elements.</tdml:error>
       </tdml:errors>
 
+    </tdml:unparserTestCase>
+
+    <tdml:unparserTestCase name="arrayWithFollowingOVC"
+      root="arrayWithFollowingOVC" model="outputValueCalc-Embedded.dfdl.xsd"
+      description="An OVC element that follows an array" roundTrip="false">
+      <tdml:infoset>
+        <tdml:dfdlInfoset>
+          <ex:arrayWithFollowingOVC xmlns:ex="http://example.com">
+            <Arr>1</Arr>
+            <Arr>2</Arr>
+            <OVC>8</OVC>
+            <End>9</End>
+          </ex:arrayWithFollowingOVC>
+        </tdml:dfdlInfoset>
+      </tdml:infoset>
+      <tdml:document>1219</tdml:document>
     </tdml:unparserTestCase>
 
 </tdml:testSuite>

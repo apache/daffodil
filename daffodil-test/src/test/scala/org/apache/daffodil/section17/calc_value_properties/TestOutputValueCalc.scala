@@ -87,4 +87,7 @@ class TestOutputValueCalc {
   @Test def test_refSimpleTypeElemWithOvc() { runner.runOneTest("refSimpleTypeElemWithOvc") }
   @Test def test_refComplexTypeElemNoOvc() { runner.runOneTest("refComplexTypeElemNoOvc") }
   @Test def test_refComplexTypeElemWithOvc() { runner.runOneTest("refComplexTypeElemWithOvc") }
+
+  // DAFFODIL-2167
+  @Test def test_arrayWithFollowingOVC() { runner.runOneTest("arrayWithFollowingOVC") }
 }
