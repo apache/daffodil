@@ -22,9 +22,9 @@ scala:
   - 2.12.6
   - 2.11.12
 jdk:
-  - oraclejdk8
-  - oraclejdk9
-  - oraclejdk11
+  - openjdk8
+  - openjdk9
+  - openjdk11
 sudo: required
 dist: trusty
 
