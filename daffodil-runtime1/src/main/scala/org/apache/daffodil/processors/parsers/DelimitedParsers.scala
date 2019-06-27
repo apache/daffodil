@@ -71,7 +71,7 @@ class StringDelimitedParser(
     //      gram.checkDelimiterDistinctness(esObj.escapeSchemeKind, optPadChar, finalOptEscChar,
     //        finalOptEscEscChar, optEscBlkStart, optEscBlkEnd, delimsCooked, postEscapeSchemeEvalState)
 
-    val delimIter = new AllTerminatingMarkupDelimiterIterator(start.mpstate.delimiters)
+    val delimIter = new AllTerminatingMarkupDelimiterIterator(start.mpstate.delimiters, start.mpstate.delimitersLocalIndexStack.top)
     val fieldDFA = fieldDFAEv.evaluate(start)
 
     start.clearDelimitedParseResult

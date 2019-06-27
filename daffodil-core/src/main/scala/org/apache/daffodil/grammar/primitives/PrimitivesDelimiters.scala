@@ -17,19 +17,20 @@
 
 package org.apache.daffodil.grammar.primitives
 
-import org.apache.daffodil.grammar.Terminal
 import org.apache.daffodil.Implicits._;
 import org.apache.daffodil.dsom._
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.exceptions.ThrowsSDE
 import org.apache.daffodil.grammar.Terminal
-import org.apache.daffodil.processors.parsers.{ Parser => DaffodilParser }
-import org.apache.daffodil.processors.unparsers.{ Unparser => DaffodilUnparser }
+import org.apache.daffodil.grammar.Terminal
 import org.apache.daffodil.processors.dfa.TextParser
 import org.apache.daffodil.processors.parsers.DelimiterTextParser
-import org.apache.daffodil.schema.annotation.props.gen.EscapeKind
 import org.apache.daffodil.processors.parsers.DelimiterTextType
+import org.apache.daffodil.processors.parsers.{ Parser => DaffodilParser }
 import org.apache.daffodil.processors.unparsers.DelimiterTextUnparser
+import org.apache.daffodil.processors.unparsers.{ Unparser => DaffodilUnparser }
+import org.apache.daffodil.schema.annotation.props.gen.EscapeKind
+import org.apache.daffodil.schema.annotation.props.gen.LengthKind
 
 object INoWarn5 { ImplicitsSuppressUnusedImportWarning() }
 
@@ -97,7 +98,12 @@ abstract class DelimiterText(e: Term, eb: Term, delimiterType: DelimiterTextType
 
   lazy val textParser = new TextParser(e.termRuntimeData)
 
-  override lazy val parser: DaffodilParser = new DelimiterTextParser(e.termRuntimeData, textParser, positionalInfo, delimiterType)
+  val isDelimited = e match {
+    case elemB: ElementBase => elemB.lengthKind == LengthKind.Delimited
+    case _ => false
+  }
+
+  override lazy val parser: DaffodilParser = new DelimiterTextParser(e.termRuntimeData, textParser, positionalInfo, delimiterType, isDelimited)
   override lazy val unparser: DaffodilUnparser = new DelimiterTextUnparser(e.termRuntimeData, delimiterType)
 }
 

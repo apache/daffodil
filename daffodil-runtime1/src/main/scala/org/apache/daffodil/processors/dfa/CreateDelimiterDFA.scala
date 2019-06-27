@@ -19,16 +19,17 @@ package org.apache.daffodil.processors.dfa
 
 import scala.collection.mutable.ArrayBuffer
 
+import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.processors.CharDelim
 import org.apache.daffodil.processors.DelimBase
 import org.apache.daffodil.processors.Delimiter
+import org.apache.daffodil.processors.ESDelim
 import org.apache.daffodil.processors.NLDelim
+import org.apache.daffodil.processors.RuntimeData
 import org.apache.daffodil.processors.WSPDelim
 import org.apache.daffodil.processors.WSPPlusDelim
 import org.apache.daffodil.processors.WSPStarDelim
-import org.apache.daffodil.processors.RuntimeData
 import org.apache.daffodil.processors.parsers.DelimiterTextType
-import org.apache.daffodil.exceptions.Assert
 
 object CreateDelimiterDFA {
 
@@ -118,6 +119,9 @@ object CreateDelimiterDFA {
       }
       case d: NLDelim => {
         new NLState(allStates, nextState, stateNum)
+      }
+      case d: ESDelim => {
+        new ESState(allStates, nextState, stateNum)
       }
     }
     theState

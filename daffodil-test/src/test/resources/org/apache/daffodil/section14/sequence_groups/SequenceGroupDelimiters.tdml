@@ -526,4 +526,92 @@
 
   </tdml:parserTestCase>
 
+  <tdml:defineSchema name="delimiterScanning">
+
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="implicit" separatorPosition="infix" />
+
+    <xs:element name="explicit">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=";">
+            <xs:element name="foo" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="3" />
+            <xs:sequence dfdl:separator =",">
+              <xs:element name="bar" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="3" />
+              <xs:element name="baz" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="3" />
+            </xs:sequence>
+           <xs:element name="qux" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="3" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="delimited">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=";">
+            <xs:element name="foo" type="xs:string" dfdl:lengthKind="delimited" />
+            <xs:sequence dfdl:separator =",">
+              <xs:element name="bar" type="xs:string" dfdl:lengthKind="delimited" />
+              <xs:element name="baz" type="xs:string" dfdl:lengthKind="delimited" />
+            </xs:sequence>
+           <xs:element name="qux" type="xs:string" dfdl:lengthKind="delimited" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="delimiterScanning_01" root="explicit"
+    model="delimiterScanning" description="test for correct delimiter scanning">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[foo;bar,b,z;qux]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tns:explicit>
+          <tns:foo>foo</tns:foo>
+          <tns:bar>bar</tns:bar>
+          <tns:baz>b,z</tns:baz>
+          <tns:qux>qux</tns:qux>
+        </tns:explicit>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="delimiterScanning_02" root="explicit"
+    model="delimiterScanning" description="test for correct delimiter scanning">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[foo;bar,b,z,qux]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Failed to parse infix separator</tdml:error>
+      <tdml:error>Separator ';' not found</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="delimiterScanning_03" root="delimited"
+    model="delimiterScanning" description="test for correct delimiter scanning. We should not scan for or find the second comma since bar is the last in the infix separated sequence">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[foo;bar,b,z;qux]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tns:delimited>
+          <tns:foo>foo</tns:foo>
+          <tns:bar>bar</tns:bar>
+          <tns:baz>b,z</tns:baz>
+          <tns:qux>qux</tns:qux>
+        </tns:delimited>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
 </tdml:testSuite>

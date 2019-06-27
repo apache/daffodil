@@ -89,7 +89,7 @@
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
           <xs:element name="a" type="xs:int" dfdl:lengthKind="explicit"
-            dfdl:length="1" dfdl:terminator=": %ES;" />
+            dfdl:length="1" dfdl:terminator="%ES; :" />
           <xs:element name="b" type="xs:int" dfdl:lengthKind="explicit"
             dfdl:length="1" />
         </xs:sequence>
@@ -97,11 +97,27 @@
     </xs:element>
   </tdml:defineSchema>
 
-  <tdml:parserTestCase name="entity_fail_03" root="root"
+  <tdml:parserTestCase name="entity_fail_03a" root="root"
     model="sch3"
     description="Terminator cannot contain ES. %ES; is used only in nilValue - DFDL-6-046R
     Note: Revised - DFDL Spec. now allows ES for Initiators as long as it is not the only entry in the list.">
     <tdml:document>0,1</tdml:document>
+     <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root>
+          <a>0</a>
+          <b>1</b>
+        </ex:root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="entity_fail_03b" root="root"
+    model="sch3"
+    roundTrip="twoPass"
+    description="Terminator cannot contain ES. %ES; is used only in nilValue - DFDL-6-046R
+    Note: Revised - DFDL Spec. now allows ES for Initiators as long as it is not the only entry in the list.">
+    <tdml:document>0:,1</tdml:document>
      <tdml:infoset>
       <tdml:dfdlInfoset>
         <ex:root>

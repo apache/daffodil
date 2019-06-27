@@ -91,4 +91,9 @@ class TestSequenceGroups {
 
   @Test def test_noDefaultSeqKind() { runner_02.runOneTest("noDefaultSeqKind") }
   @Test def test_sequenceWithComplexType() { runner_02.runOneTest("sequenceWithComplexType") }
+
+  // DAFFODIL-2171
+  @Test def test_delimiterScanning_01() { runner_01.runOneTest("delimiterScanning_01") }
+  @Test def test_delimiterScanning_02() { runner_01.runOneTest("delimiterScanning_02") }
+  //@Test def test_delimiterScanning_03() { runner_01.runOneTest("delimiterScanning_03") }
 }

@@ -17,85 +17,68 @@
 
 package org.apache.daffodil.processors
 
+import scala.collection.mutable
+
+import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.processors.dfa.DFADelimiter
 import org.apache.daffodil.processors.parsers.DelimiterTextType
-import scala.collection.mutable
 import org.apache.daffodil.util.MStackOfInt
 
-trait LocalDelimiters { this: DelimiterIterator =>
-  val delimiterIndexStack: MStackOfInt
-
+trait DelimitersRangeLocal { this: DelimiterIterator =>
   override def reset() {
-    currentIndex = delimiterIndexStack.top - 1
+    currentIndex = this.firstLocalIndex - 1
     indexLimit = this.delimiters.length
   }
 }
 
-trait RemoteDelimiters { this: DelimiterIterator =>
-  val delimiterIndexStack: MStackOfInt
-
+trait DelmitersRangeRemote { this: DelimiterIterator =>
   override def reset() {
     currentIndex = -1
-    indexLimit = delimiterIndexStack.top
+    indexLimit = this.firstLocalIndex
   }
 }
 
-trait RemoteAndLocalDelimiters { this: DelimiterIterator =>
+trait DelimitersRangeAll { this: DelimiterIterator =>
   override def reset() {
     currentIndex = -1
     indexLimit = this.delimiters.length
   }
 }
 
-trait TypedDelimiter { this: DelimiterIterator =>
-  protected def delimType: DelimiterTextType.Type
-
-  override def isOfInterest(delim: DFADelimiter): Boolean = {
-    delim.delimType == delimType
-  }
-}
-
-trait TerminatingMarkup { this: DelimiterIterator =>
-  override def isOfInterest(delim: DFADelimiter) = {
-    delim.delimType == DelimiterTextType.Terminator || delim.delimType == DelimiterTextType.Separator
-  }
-}
-
-trait Separators { this: DelimiterIterator =>
-  @inline
-  override def isOfInterest(delim: DFADelimiter) = {
-    delim.delimType == DelimiterTextType.Separator
-  }
-}
-
-trait Initiators { this: DelimiterIterator =>
-  @inline
-  override def isOfInterest(delim: DFADelimiter) = {
-    delim.delimType == DelimiterTextType.Initiator
-  }
-}
-
-trait Terminators { this: DelimiterIterator =>
-  @inline
-  override def isOfInterest(delim: DFADelimiter) = {
-    delim.delimType == DelimiterTextType.Terminator
-  }
-}
-
+/**
+ * It's important to note that this does not follow standard iterator
+ * practices.
+ *
+ * First, reset() must always be called before iteration beings. This is
+ * because this function initializes the indices so that only the correct
+ * proper range of delimiters are scanned for. Without calling this, the
+ * iterator will return nothing.
+ *
+ * Second, hasNext() is what moves the iterator to the next delimiter, not
+ * next(). next() simply returns the current index in the iterator. So calling
+ * next() twice in a row will return the same thing. Calling hasNext before
+ * calling next is standard iterator practice, though, and how we always use
+ * it, but it is actually required.
+ *
+ * So this DelmiterIterators should always be used like so:
+ *
+ *   val iter = new DelimiterIterator()
+ *   iter.reset()
+ *   while (iter.hasNext()) {
+ *     val delim = iter.next()
+ *     ...
+ *   }
+ *
+ */
 abstract class DelimiterIterator(val delimiters: mutable.ArrayBuffer[DFADelimiter]) {
 
   protected def isOfInterest(delim: DFADelimiter): Boolean
+  def firstLocalIndex: Int
   def reset(): Unit
 
   var currentIndex = -1
   var indexLimit = -1
 
-  // TODO: I'm a little concernece that this doesn't follow standard iterator
-  // practicies. For exmaple, if you called di.next() twice in a row without
-  // calling hasNext, the second next() call would give you the same delimiter.
-  // So for this to work, you really do need to call hasNext before ever
-  // calling next. Although one should follow that practice with iterators, it
-  // isn't usually required.
   def hasNext(): Boolean = {
     currentIndex += 1
     while (currentIndex >= 0 && currentIndex < indexLimit) {
@@ -110,30 +93,40 @@ abstract class DelimiterIterator(val delimiters: mutable.ArrayBuffer[DFADelimite
   def next(): DFADelimiter = {
     delimiters(currentIndex)
   }
+
+  def isRemote(): Boolean = currentIndex < firstLocalIndex
 }
 
-class AllTerminatingMarkupDelimiterIterator(d: mutable.ArrayBuffer[DFADelimiter])
+class AllTerminatingMarkupDelimiterIterator(d: mutable.ArrayBuffer[DFADelimiter], override val firstLocalIndex: Int)
   extends DelimiterIterator(d)
-  with RemoteAndLocalDelimiters
-  with TerminatingMarkup
-
-class LocalTypedDelimiterIterator(override val delimType: DelimiterTextType.Type, d: mutable.ArrayBuffer[DFADelimiter], override val delimiterIndexStack: MStackOfInt)
-  extends DelimiterIterator(d)
-  with LocalDelimiters
-  with TypedDelimiter
-
-class RemoteTypedDelimiterIterator(override val delimType: DelimiterTextType.Type, d: mutable.ArrayBuffer[DFADelimiter], override val delimiterIndexStack: MStackOfInt)
-  extends DelimiterIterator(d)
-  with RemoteDelimiters
-  with TypedDelimiter
-
-class RemoteTerminatingMarkupAndLocalTypedDelimiterIterator(localType: DelimiterTextType.Type, d: mutable.ArrayBuffer[DFADelimiter], delimiterIndexStack: MStackOfInt)
-    extends DelimiterIterator(d)
-    with RemoteAndLocalDelimiters {
+  with DelimitersRangeAll {
 
   override def isOfInterest(delim: DFADelimiter): Boolean = {
-    if (currentIndex < delimiterIndexStack.top) {
-      delim.delimType == DelimiterTextType.Terminator || delim.delimType == DelimiterTextType.Separator
+    // include only term/sep, ignore all ES
+    if (delim.isES) false
+    else delim.delimType == DelimiterTextType.Terminator || delim.delimType == DelimiterTextType.Separator
+  }
+}
+
+class LocalTypedDelimiterIterator(delimType: DelimiterTextType.Type, d: mutable.ArrayBuffer[DFADelimiter], override val firstLocalIndex: Int)
+  extends DelimiterIterator(d)
+  with DelimitersRangeLocal {
+
+  override def isOfInterest(delim: DFADelimiter): Boolean = {
+    // include ES's, the DelmiterRangeLocal will ensure we ignore remote delims
+    delim.delimType == delimType
+  }
+}
+
+class RemoteTerminatingMarkupAndLocalTypedDelimiterIterator(localType: DelimiterTextType.Type, d: mutable.ArrayBuffer[DFADelimiter], override val firstLocalIndex: Int)
+  extends DelimiterIterator(d)
+  with DelimitersRangeAll {
+
+  override def isOfInterest(delim: DFADelimiter): Boolean = {
+    // all remote term/sep excluding ES, or all local typed including ES
+    if (isRemote()) {
+      if (delim.isES) false
+      else delim.delimType == DelimiterTextType.Terminator || delim.delimType == DelimiterTextType.Separator
     } else {
       delim.delimType == localType
     }
@@ -141,8 +134,14 @@ class RemoteTerminatingMarkupAndLocalTypedDelimiterIterator(localType: Delimiter
 }
 
 class AllDelimiterIterator(d: mutable.ArrayBuffer[DFADelimiter])
-    extends DelimiterIterator(d)
-    with RemoteAndLocalDelimiters {
+  extends DelimiterIterator(d)
+  with DelimitersRangeAll {
 
-  override def isOfInterest(delim: DFADelimiter) = true
+  override val firstLocalIndex: Int = 0
+  override def isRemote(): Boolean = Assert.usageError("Not be used, no concept of local/remote here")
+
+  override def isOfInterest(delim: DFADelimiter) = {
+    // all delimiters except for ES
+    !delim.isES
+  }
 }

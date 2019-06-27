@@ -134,6 +134,10 @@ trait DFADelimiter extends DFA {
 
   final override def run(r: Registers): Unit = runLoop(r, DFA.FinalState, StateKind.Succeeded)
 
+  // We frequently want to know if a delimiter is ES or not when iterating over
+  // delimiters, so cache the result of this comparison
+  final val isES = lookingFor == "%ES;"
+
   def unparseValue: String
 }
 
