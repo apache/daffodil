@@ -24,7 +24,6 @@ import org.apache.daffodil.util.Enum
 import org.apache.daffodil.processors.TermRuntimeData
 import org.apache.daffodil.processors.DelimiterIterator
 import org.apache.daffodil.processors.LocalTypedDelimiterIterator
-import org.apache.daffodil.processors.RemoteTypedDelimiterIterator
 import org.apache.daffodil.processors.RemoteTerminatingMarkupAndLocalTypedDelimiterIterator
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe._
@@ -43,7 +42,8 @@ class DelimiterTextParser(
   rd: TermRuntimeData,
   textParser: TextParser,
   positionalInfo: String,
-  delimiterType: DelimiterTextType.Type)
+  delimiterType: DelimiterTextType.Type,
+  isDelimited: Boolean)
   extends TextPrimParser {
 
   override lazy val runtimeDependencies = rd.encodingInfo.runtimeDependencies
@@ -74,57 +74,20 @@ class DelimiterTextParser(
     return false
   }
 
-  private def findES(delimIter: DelimiterIterator): Maybe[DFADelimiter] = {
-    delimIter.reset()
-    while (delimIter.hasNext()) {
-      val d = delimIter.next()
-      if (d.lookingFor == "%ES;") {
-        return One(d)
-      }
-    }
-    Nope
-  }
-
-  private def findLocalES(state: PState): Maybe[DFADelimiter] = {
-    val delimIter = new LocalTypedDelimiterIterator(delimiterType, state.mpstate.delimiters, state.mpstate.delimitersLocalIndexStack)
-    findES(delimIter)
-  }
-
-  private def findRemoteES(state: PState): Maybe[DFADelimiter] = {
-    val delimIter = new RemoteTypedDelimiterIterator(delimiterType, state.mpstate.delimiters, state.mpstate.delimitersLocalIndexStack)
-    findES(delimIter)
-  }
-
   override def parse(start: PState): Unit = {
-    val foundDelimiter =
-      if (delimiterType == DelimiterTextType.Initiator || !start.delimitedParseResult.isDefined) {
-        //
-        // We are going to scan for delimiter text.
-        //
-        // FIXME: This is incorrect. It grabs all local delimiters even if we're last in a group so the
-        // prefix or infix separator cannot be relevant, or if we're in the middle of a group with required elements following so
-        // the sequence's (or any enclosing sequence's) terminator cannot be relevant.
-        //
-        // Fixing this is going to require the compiler to pre-compute the relevant delimiters for every
-        // Term. (relevant delimiters meaning the specific compiled expressions that are relevant.)
-        //
-        // TODO: PERFORMANCE: this should also help performance by eliminating the construction of lists/sets of
-        // these things at run time. We should try to not allocate objects here.
-        //
-        // FIXME: This is incorrect. It is going to get too many delimiters. See above.
-        // Nowever, code below does assume that we always find a match, even to incorrect markup, so fixing this is
-        // more than just getting the right set of remote delims here.
-        //
-        // Note: It isn't even as simple as precalculating all the delimiters
-        // (which isn't easy to start with). For example, sometimes we do not
-        // know if we're at the last in the group until runtime due to an
-        // expression that determines occursCount. So this functions needs to
-        // make a runtime calculation to determine if it is the last in a
-        // group, which might be difficult to do.
-        val delimIter = new RemoteTerminatingMarkupAndLocalTypedDelimiterIterator(delimiterType, start.mpstate.delimiters, start.mpstate.delimitersLocalIndexStack)
 
-        val result = textParser.parse(start, start.dataInputStream, delimIter, true)
-        result
+    val maybeDelimIter =
+      if (delimiterType == DelimiterTextType.Terminator && !isDelimited) {
+        Maybe(new LocalTypedDelimiterIterator(delimiterType, start.mpstate.delimiters, start.mpstate.delimitersLocalIndexStack.top))
+      } else if (delimiterType == DelimiterTextType.Initiator || !start.delimitedParseResult.isDefined) {
+        Maybe(new RemoteTerminatingMarkupAndLocalTypedDelimiterIterator(delimiterType, start.mpstate.delimiters, start.mpstate.delimitersLocalIndexStack.top))
+      } else {
+        Nope
+      }
+
+    val foundDelimiter =
+      if (maybeDelimIter.isDefined) {
+        textParser.parse(start, start.dataInputStream, maybeDelimIter.get, true)
       } else {
         start.delimitedParseResult
       }
@@ -144,30 +107,24 @@ class DelimiterTextParser(
       Assert.invariant(wasDelimiterTextSkipped)
       start.clearDelimitedParseResult()
     } else {
-      // Did not find delimiter.
-      //
-      // Still can be ok if ES is a delimiter. That's allowed when we're not lengthKind='delimited'
-      // That is, it is allowed if the delimiter is just part of the data syntax, but is not being
-      // used to determine length.
-      if (findLocalES(start).isDefined) {
-        // found local ES, nothing to consume
-        return
-      } else {
-        val rES = findRemoteES(start)
-        if (rES.isDefined) {
-          // has remote but not local (PE)
-          PE(start, "Found out of scope delimiter: %ES;")
-          return
-        } else {
-          //
-          // no match and no ES in delims
-          //
-          val optDelim = start.mpstate.delimiters.find { d => d.delimType == delimiterType }
-          Assert.invariant(optDelim.isDefined)
-          PE(start, "%s '%s' not found.", delimiterType.toString, optDelim.get.lookingFor)
-          return
-        }
+      // no match found, gather up the local typed delims for an error message
+
+      val scannedDelims = maybeDelimIter.get
+      scannedDelims.reset()
+
+      // skip remote delims
+      while (scannedDelims.hasNext() && scannedDelims.isRemote) {
+        // do nothing, hasNext will increment the iterator
       }
+
+      // gather local typed delims 
+      var localTypedDelims = scannedDelims.next().lookingFor
+      while (scannedDelims.hasNext()) {
+        localTypedDelims = localTypedDelims + " " + scannedDelims.next().lookingFor
+      }
+
+      PE(start, "%s '%s' not found", delimiterType.toString, localTypedDelims)
+      return
     }
   }
 }

@@ -735,3 +735,24 @@ class NLState(states: => ArrayBuffer[State], val nextState: Int, val stateNum: I
 
   def checkMatch(charIn: Char): Boolean = isNLNotCR(charIn) || isCR(charIn)
 }
+
+
+class ESState(states: => ArrayBuffer[State], val nextState: Int, val stateNum: Int)
+  extends NLBase(states) {
+
+  stateName = "ESState"
+
+  /**
+   * This contains a sortof degenerate rule that always succeeds to handle the
+   * empty-string corner case required by the %ES; character class. This will
+   * immediately match while consuming no characters.
+   */
+  lazy val rules = ArrayBuffer(
+    Rule { (r: Registers) => { true } } { (r: Registers) =>
+      {
+        r.status = StateKind.Succeeded
+      }
+    }
+  )
+  def checkMatch(charIn: Char): Boolean = Assert.impossible("We should never ask if a character matches an %ES;")
+}

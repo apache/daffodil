@@ -56,6 +56,7 @@ class Delimiter {
   private lazy val WSP = Pattern.compile("(WSP);", Pattern.MULTILINE)
   private lazy val WSP_Plus = Pattern.compile("(WSP\\+);", Pattern.MULTILINE)
   private lazy val WSP_Star = Pattern.compile("(WSP\\*);", Pattern.MULTILINE)
+  private lazy val ES = Pattern.compile("(ES);", Pattern.MULTILINE)
 
   override def toString(): String = {
     return "Delimiter[" + delimiterStr + "]"
@@ -232,6 +233,7 @@ class Delimiter {
                 "|\\u00A0|\\u1680|\\u180E|\\u2000|\\u2001|\\u2002|\\u2003|\\u2004|\\u2005|\\u2006|" +
                 "\\u2007|\\u2008|\\u2009|\\u200A|\\u2028|\\u2029|\\u202F|\\u205F|\\u3000)*")
             } // None or more spaces
+            case ws: ESDelim => // noop
             case char: CharDelim => { // Some character
               char.char match {
                 case '[' => sb.append("\\[")
@@ -264,12 +266,18 @@ class Delimiter {
     val mWSP: Matcher = WSP.matcher(str)
     val mWSP_Plus: Matcher = WSP_Plus.matcher(str)
     val mWSP_Star: Matcher = WSP_Star.matcher(str)
+    val mES: Matcher = ES.matcher(str)
+
     var length: Int = -1
 
     val classList: scala.collection.mutable.Map[String, (Int, Int)] = scala.collection.mutable.Map.empty
 
     if (mNL.find()) {
       classList += ("NL" -> (mNL.start() -> mNL.end()))
+    }
+
+    if (mES.find()) {
+      classList += ("ES" -> (mES.start() -> mES.end()))
     }
 
     if (mWSP.find()) {
@@ -292,6 +300,7 @@ class Delimiter {
         case "WSP" => (length, One(new WSPDelim()))
         case "WSP+" => (length, One(new WSPPlusDelim()))
         case "WSP*" => (length, One(new WSPStarDelim()))
+        case "ES" => (length, One(new ESDelim()))
       }
       return result
     }
@@ -381,14 +390,22 @@ class Delimiter {
         idx += 1
       }
     }
-    var resDelimBuf: Array[DelimBase] = null
-    if (numCharClass > 1) {
-      // More than one Char Class, reduction possible!
-      resDelimBuf = reduceDelimBuf(q.toArray[DelimBase])
-    } else {
-      // No need to reduce
-      resDelimBuf = q.toArray[DelimBase]
-    }
+
+    // filter out any %ES; delims, they do not have any effect
+    val delimsNoES = q.filterNot(_.isInstanceOf[ESDelim]).toArray
+
+    val resDelimBuf: Array[DelimBase] =
+      if (delimsNoES.length == 0) {
+        // if the delimiter was just one or more ES's, then make the delim buf
+        // a single ES
+        Array(new ESDelim)
+      } else if (numCharClass > 1) {
+        // More than one Char Class, reduction possible!
+        reduceDelimBuf(delimsNoES)
+      } else {
+        // No need to reduce
+        delimsNoES
+      }
     resDelimBuf
   }
 }
@@ -601,4 +618,25 @@ class WSPStarDelim extends WSPBase with WSP {
   }
 
   def unparseValue(outputNewLine: String): String = ""
+}
+
+/**
+ * This delimiter matches an empty space which effectively is always a
+ * successful match without moving the character position.
+ *
+ * This is useful since it allows us to use the exact same logic for
+ * consuming/matching %ES; as all other delimiters. This is necessary in the
+ * case when dfdl:terminator has %ES; when dfdl:lengthKind != "delimited".
+ * Being able to use the standard delimiter scanning for this makes our lives
+ * much easier and removes lots of special casing. This class establishes the
+ * invariant that there is always a DelimBase object used when "scanning", even
+ * when we're "scanning for nothing".
+ */
+class ESDelim extends DelimBase {
+  override def checkMatch(charIn: Char): Boolean = Assert.impossible("We should never ask if a character matches an %ES;")
+  override def allChars: Seq[Char] = Seq.empty
+  override def print: Unit = {}
+  override def printStr: String = typeName
+  override def typeName: String = "ES"
+  override def unparseValue(outputNewLine: String): String = ""
 }

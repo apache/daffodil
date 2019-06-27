@@ -1129,17 +1129,17 @@ is multiple bytes in UTF-8 encoding that is used"
     <xs:element name="root" dfdl:lengthKind="implicit">
       <xs:complexType>
 
-        <xs:group ref="ex:tString50" />
+        <xs:group ref="ex:tString10" />
 
       </xs:complexType>
     </xs:element>
     
-    <xs:group name="tString50">
+    <xs:group name="tString10">
       <xs:sequence>
         <xs:element name="value" type="xs:string" dfdl:lengthKind="pattern"
-          dfdl:lengthPattern="[^END]{0,49}(?=END)|.{50}" />
+          dfdl:lengthPattern="[^END]{0,9}(?=END)|.{10}" />
           <xs:sequence
-          dfdl:terminator="{if (fn:string-length(./ex:value) eq 50) then '%ES; %DEL;' else 'END'}" />
+          dfdl:terminator="{if (fn:string-length(./ex:value) eq 10) then '%ES;' else 'END'}" />
           <!-- %DEL is there because %ES cannot be alone in list. -->
       </xs:sequence>
     </xs:group>
@@ -1150,38 +1150,200 @@ is multiple bytes in UTF-8 encoding that is used"
     Test Name: emptyStringEntityTermInExpression_01
        Schema: EmptyStringEntityInExpression
       Purpose: This test demonstrates the ability for the %ES; entity to be used in an expression.
-               In this case, the value is 50 characters long so %ES; is a terminator.
+               In this case, the value is 10 characters long so %ES; is a terminator.
   -->
 
   <tdml:parserTestCase name="emptyStringEntityTermInExpression_01" root="root" model="EmptyStringEntityInExpression" description="">
     <tdml:document>
-      <tdml:documentPart type="text"><![CDATA[01234567890123456789012345678901234567890123456789]]></tdml:documentPart>
+      <tdml:documentPart type="text"><![CDATA[0123456789]]></tdml:documentPart>
     </tdml:document>
-    <tdml:errors>
-      <tdml:error>Illegal</tdml:error>
-      <tdml:error>%ES;</tdml:error>
-    </tdml:errors>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root>
+          <ex:value>0123456789</ex:value>
+        </ex:root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
   
   <!--
     Test Name: emptyStringEntityTermInExpression_02
        Schema: EmptyStringEntityInExpression
       Purpose: This test demonstrates the ability for the %ES; entity to be used in an expression.
-               In this case, the value is NOT 50 characters long so %ES; is NOT a terminator.
+               In this case, the value is NOT 10 characters long so %ES; is NOT a terminator.
   -->
 
   <tdml:parserTestCase name="emptyStringEntityTermInExpression_02" root="root" model="EmptyStringEntityInExpression"
     description="">
     <tdml:document>
-      <tdml:documentPart type="text"><![CDATA[012345678901234567890123456789012345678901END]]></tdml:documentPart>
+      <tdml:documentPart type="text"><![CDATA[01234END]]></tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <ex:root>
-          <ex:value>012345678901234567890123456789012345678901</ex:value>
+          <ex:value>01234</ex:value>
         </ex:root>
       </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
+  <tdml:defineSchema name="EmptyStringEntityInExpressionDelimited">
+  
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" representation="text" encoding="US-ASCII" 
+      separator="" byteOrder="bigEndian" ignoreCase="no" textNumberRep="standard"
+      initiator="" initiatedContent="no" terminator="" />
+
+    <xs:element name="root" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="key" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1" />
+          <xs:element name="value" type="xs:string" dfdl:lengthKind="delimited"
+            dfdl:terminator="{ if (../ex:key eq '1') then '%ES;' else 'END' }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <!--
+    Test Name: emptyStringEntityTermInExpressionDelimited_01
+       Schema: EmptyStringEntityInExpressionDelimited
+      Purpose: This test demonstrates the that a terminator cannot contain %ES; if lengthKind is delimited.
+  -->
+
+  <tdml:parserTestCase name="emptyStringEntityTermInExpressionDelimited_01" root="root" model="EmptyStringEntityInExpressionDelimited"
+    description="">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[1value]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>dfdl:terminator</tdml:error>
+      <tdml:error>cannot contain %ES;</tdml:error>
+      <tdml:error>dfdl:lengthKind="delimited"</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="EmptyStringEntityTermInComplex">
+  
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" representation="text" encoding="US-ASCII" 
+      separator="" byteOrder="bigEndian" ignoreCase="no" textNumberRep="standard"
+      initiator="" initiatedContent="no" terminator="" />
+
+    <xs:element name="root" dfdl:lengthKind="explicit" dfdl:length="10" dfdl:terminator="%ES; END">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="value" type="xs:string" dfdl:lengthKind="delimited" maxOccurs="unbounded" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <!--
+    Test Name: emptyStringEntityTermInComplex_01
+       Schema: EmptyStringEntityInExpressionDelimited
+      Purpose: This test demonstrates that a fixed length complex with ES terminator works, even if children are delimited
+  -->
+
+  <tdml:parserTestCase name="emptyStringEntityTermInComplex_01" root="root" model="EmptyStringEntityTermInComplex"
+    description="">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[1,3,5,7,10]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root>
+          <ex:value>1</ex:value>
+          <ex:value>3</ex:value>
+          <ex:value>5</ex:value>
+          <ex:value>7</ex:value>
+          <ex:value>10</ex:value>
+        </ex:root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test Name: emptyStringEntityTermInComplex_02
+       Schema: EmptyStringEntityInExpressionDelimited
+      Purpose: This test demonstrates that a fixed length complex with ES terminator works, even if children are delimited
+  -->
+
+  <tdml:parserTestCase name="emptyStringEntityTermInComplex_02" root="root" model="EmptyStringEntityTermInComplex"
+    description="" roundTrip="twoPass">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[1,3,5,7,10END]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root>
+          <ex:value>1</ex:value>
+          <ex:value>3</ex:value>
+          <ex:value>5</ex:value>
+          <ex:value>7</ex:value>
+          <ex:value>10</ex:value>
+        </ex:root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="EmptyStringEntityInitiator">
+  
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" representation="text" encoding="US-ASCII" 
+      separator="" byteOrder="bigEndian" ignoreCase="no" textNumberRep="standard"
+      initiator="" initiatedContent="no" terminator="" />
+
+    <xs:element name="root" dfdl:terminator="END">
+      <xs:complexType>
+        <xs:sequence >
+          <xs:element name="value" type="xs:string" dfdl:initiator="%ES; DATA=" dfdl:lengthKind="delimited" minOccurs="0" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="emptyStringEntityInitiator_01" root="root" model="EmptyStringEntityInitiator"
+    description="">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[dataEND]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root>
+          <ex:value>data</ex:value>
+        </ex:root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="emptyStringEntityInitiator_02" root="root" model="EmptyStringEntityInitiator"
+    description="" roundTrip="twoPass">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[DATA=dataEND]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root>
+          <ex:value>data</ex:value>
+        </ex:root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="emptyStringEntityInitiator_03" root="root" model="EmptyStringEntityInitiator"
+    description="">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[END]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root />
+      </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
 
