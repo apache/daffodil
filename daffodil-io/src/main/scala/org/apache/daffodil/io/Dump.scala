@@ -215,7 +215,7 @@ class DataDumper {
     Assert.usage(lengthInBytes >= 0)
 
     val (textDataHeader, textByteWidth, optEncName) = getTextParameters(optEncodingName)
-    val decoder = getReplacingDecoder(optEncName)
+    val decoder = getReportingDecoder(optEncName)
 
     val endByteAddress0b = math.max(startByteAddress0b + lengthInBytes - 1, 0)
     val addressHeader = """87654321  """
@@ -438,14 +438,15 @@ class DataDumper {
     }
   }
 
-  private def getReplacingDecoder(optEncodingName: Option[String]): Option[JavaCharsetDecoder] = {
+  private def getReportingDecoder(optEncodingName: Option[String]): Option[JavaCharsetDecoder] = {
     val cs = optEncodingName.map { JavaCharset.forName(_) }
     lazy val decoder = cs.map { _.newDecoder() }
     decoder
   }
 
   /**
-   * Decoder must be setup for REPLACE on decode error.
+   * Decoder must be setup for REPORT (default) on decode error.
+   * We will manually handle the replacing
    */
   private def convertToCharRepr(
     startingBytePos0b: Long,
@@ -598,13 +599,13 @@ class DataDumper {
 
     val endByteAddress0b = math.max(startByteAddress0b + lengthInBytes - 1, 0)
     // val cs = optEncodingName.map { Charset.forName(_) }
-    val decoder = getReplacingDecoder(optEncodingName)
+    val decoder = getReportingDecoder(optEncodingName)
     var i = startByteAddress0b
     val sb = new StringBuilder
     while (i <= endByteAddress0b) {
-      val (cR, _, _) = convertToCharRepr(i - startByteAddress0b, endByteAddress0b, byteSource, decoder)
-      sb += cR(0)
-      i += 1
+      val (cR, nBytesConsumed, _) = convertToCharRepr(i - startByteAddress0b, endByteAddress0b, byteSource, decoder)
+      sb ++= cR
+      i += nBytesConsumed
     }
     val s = sb.mkString
     val lines: Seq[String] = indicatorLine.toSeq :+ s
