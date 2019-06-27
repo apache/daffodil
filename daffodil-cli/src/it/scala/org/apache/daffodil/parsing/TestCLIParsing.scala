@@ -533,10 +533,10 @@ class TestCLIparsing {
       val cmd = String.format("echo 0,1,2| %s parse -P parserThatDoesNotExist", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       if (Util.isWindows) {
-	    shell.expect(contains("parserThatDoesNotExist (The system cannot find the file specified)"))
-	  } else {
+        shell.expect(contains("parserThatDoesNotExist (The system cannot find the file specified)"))
+      } else {
         shell.expect(contains("parserThatDoesNotExist (No such file or directory)"))
-	  }
+      }
       shell.sendLine("exit")
       shell.expect(eof)
     } finally {
@@ -816,6 +816,8 @@ class TestCLIparsing {
       val cmd = String.format("echo 0,1,2,3,,,,| %s -t parse -s %s", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expectIn(1, contains("Left over data. Consumed 56 bit(s) with at least"))
+      shell.expectIn(1, contains("Data (UTF-8) starting at byte 8 is: ("))
+      shell.expectIn(1, contains("Data (Hex) starting at byte 8 is: ("))
       shell.sendLine("exit")
       shell.expect(eof)
     } finally {
@@ -833,6 +835,8 @@ class TestCLIparsing {
       val cmd = String.format("echo 1,2,3,4,,,| %s parse -s %s -r matrix", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expect(contains("Left over data. Consumed 56 bit(s) with at least"))
+      shell.expect(contains("Data (UTF-8) starting at byte 8 is: ("))
+      shell.expect(contains("Data (Hex) starting at byte 8 is: ("))
       shell.sendLine("exit")
       shell.expect(eof)
     } finally {

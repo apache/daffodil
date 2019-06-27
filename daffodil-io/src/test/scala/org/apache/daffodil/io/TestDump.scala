@@ -460,4 +460,28 @@ cø€␀␀␀wü␚’gU€␀gä  63f8 8000 0000 77fc 1a92 6755 8000 67e4 :00
     assertEquals(expected, dumpString)
   }
 
+  @Test def testDumpTextLine7() {
+    val data = """da8b f090 a487 f48b be8b be7a 1234
+      4567 f48b 8018 0156 dada
+      0000 0101 0817 dead beef cc7a"""
+      .replaceAll("\\s+", "").grouped(2)
+      .map { Integer.parseInt(_, 16).toByte }.toArray
+    val bs = new BS(data)
+    val lengthInbits = data.length * 8
+    val dumpString = Dump.dump(Dump.TextOnly(Some("utf-8")), 0, lengthInbits, bs).mkString("\n")
+    val uUnknown = 0xfffd
+    val arrayOfDecodedChars1 =
+      Array(0x068b, 0x10907, 0x10bf8b, uUnknown, 0x007a)
+    val arrayOfDecodedChars2 = Array(0x0034, 0x0045, 0x0067, uUnknown)
+    val arrayOfDecodedChars3 = Array(0x0056, uUnknown, uUnknown)
+    val arrayOfDecodedChars4 = Array(0x07ad, uUnknown, uUnknown, uUnknown, 0x007a)
+    val expected =
+      s"""${arrayOfDecodedChars1.map(Character.toChars(_).mkString).mkString}␒""" +
+        s"""${arrayOfDecodedChars2.map(Character.toChars(_).mkString).mkString}␘␁""" +
+        s"""${arrayOfDecodedChars3.map(Character.toChars(_).mkString).mkString}␀␀␁␁␈␗""" +
+        s"""${arrayOfDecodedChars4.map(Character.toChars(_).mkString).mkString}"""
+        .replace("\r\n", "\n")
+    assertEquals(expected, dumpString)
+  }
+
 }

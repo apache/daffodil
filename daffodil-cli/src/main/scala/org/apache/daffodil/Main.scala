@@ -95,6 +95,8 @@ import org.apache.commons.io.IOUtils
 import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.tdml.TDMLTestNotCompatibleException
+import org.apache.daffodil.io.DataDumper
+import java.nio.ByteBuffer
 
 class NullOutputStream extends OutputStream {
   override def close() {}
@@ -905,13 +907,23 @@ object Main extends Logging {
                     }
                   } else {
                     // not streaming, show left over data warning
+                    val Dump = new DataDumper
+                    val curPositionInByte0b = inStream.inputSource.position
+                    val bytesAvailable = inStream.inputSource.bytesAvailable
+                    val bytesLimit = math.min(8, bytesAvailable).toInt
+                    val destArray = new Array[Byte](bytesLimit)
+                    val destArrayFilled = inStream.inputSource.get(destArray, 0, bytesLimit)
+                    val dumpString = if (destArrayFilled) Dump.dump(Dump.TextOnly(Some("utf-8")), 0, destArray.length * 8, ByteBuffer.wrap(destArray), includeHeadingLine = false).mkString("\n") else ""
+                    val dataText = if (destArrayFilled) s"\nData (UTF-8) starting at byte ${curPositionInByte0b + 1} is: (${dumpString}...)" else ""
+                    val dataHex = if (destArrayFilled) s"\nData (Hex) starting at byte ${curPositionInByte0b + 1} is: (0x${destArray.map { a => f"$a%02x" }.mkString}...)" else ""
                     val remainingBits =
                       if (loc.bitLimit0b.isDefined) {
                         (loc.bitLimit0b.get - loc.bitPos0b).toString
                       } else {
-                        "at least " + (inStream.inputSource.bytesAvailable * 8)
+                        "at least " + (bytesAvailable * 8)
                       }
-                    log(LogLevel.Warning, "Left over data. Consumed %s bit(s) with %s bit(s) remaining.", loc.bitPos0b, remainingBits)
+                    val leftOverDataWarning = s"Left over data. Consumed ${loc.bitPos0b} bit(s) with ${remainingBits} bit(s) remaining." + dataText + dataHex
+                    log(LogLevel.Warning, leftOverDataWarning)
                     keepParsing = false
                     error = true
                   }
