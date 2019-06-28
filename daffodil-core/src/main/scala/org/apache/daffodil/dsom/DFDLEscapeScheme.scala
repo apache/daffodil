@@ -41,7 +41,7 @@ final class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: 
   with EscapeScheme_AnnotationMixin
   with RawEscapeSchemeRuntimeValuedPropertiesMixin {
 
-  final protected override def enclosingComponentDef = Some(defES)
+  final protected override lazy val enclosingComponentDef = Some(defES)
 
   final lazy val referringComponent: Option[SchemaComponent] = Some(defES)
 
@@ -84,7 +84,8 @@ final class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: 
 
   final def escapeCharacterEv = LV('escapeCharacterEv) {
     val qn = this.qNameForProperty("escapeCharacter")
-    val expr = ExpressionCompilers.String.compileProperty(qn, NodeInfo.NonEmptyString, escapeCharacterRaw, this, dpathCompileInfo)
+    val expr = ExpressionCompilers.String.compileProperty(qn, NodeInfo.NonEmptyString, escapeCharacterRaw, this,
+      defES.pointOfUse.dpathCompileInfo)
     val ev = new EscapeCharEv(expr, runtimeData)
     ev.compile()
     ev
@@ -97,7 +98,8 @@ final class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: 
       case found @ Found(v, loc, _, _) => {
         val typeIfStaticallyKnown = NodeInfo.String
         val typeIfRuntimeKnown = NodeInfo.NonEmptyString
-        val expr = ExpressionCompilers.String.compileDelimiter(qn, typeIfStaticallyKnown, typeIfRuntimeKnown, found, this, dpathCompileInfo)
+        val expr = ExpressionCompilers.String.compileDelimiter(qn, typeIfStaticallyKnown, typeIfRuntimeKnown, found, this,
+          defES.pointOfUse.dpathCompileInfo)
         val ev = new EscapeEscapeCharEv(expr, runtimeData)
         ev.compile()
         One(ev)
@@ -137,12 +139,24 @@ final class DFDLDefineEscapeSchemeFactory(node: Node, decl: SchemaDocument)
   def forComponent(pointOfUse: SchemaComponent) = new DFDLDefineEscapeScheme(node, decl, pointOfUse)
 }
 
-final class DFDLDefineEscapeScheme(node: Node, decl: SchemaDocument, pointOfUse: SchemaComponent)
+/**
+ * Escape scheme definitions
+ *
+ * These cannot be shared easily, since they can contain expressions (for escapeCharacter and
+ * escapeEscapeCharacter) which must be evaluated in the context of a point of use location.
+ *
+ * These are copied for each point of use so that these properties behave the way regular properties
+ * that are not grouped together on a common structure, all work, which is that each term
+ * has its own expression compilation for these properties, as it would for any regular expression-valued
+ * property like byteOrder or encoding or a delimiter.
+ */
+final class DFDLDefineEscapeScheme(node: Node, decl: SchemaDocument,
+  val pointOfUse: SchemaComponent)
   extends DFDLDefiningAnnotation(node, decl) // Note: defineEscapeScheme isn't a format annotation itself.
   // with DefineEscapeScheme_AnnotationMixin
   {
 
-  final override protected def enclosingComponentDef = Some(pointOfUse)
+  final override protected lazy val enclosingComponentDef = Some(pointOfUse)
 
   /*
    * For diagnostic messages, we need the decl - because that's where the

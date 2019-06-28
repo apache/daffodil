@@ -26,7 +26,8 @@ object NodeInfoUtils {
   /**
    * For a comparison operator, compute type to which the args should be converted
    */
-  def generalizeArgTypesForComparisonOp(op: String,
+  def generalizeArgTypesForComparisonOp(
+    op: String,
     inherent1: Numeric.Kind,
     inherent2: Numeric.Kind): Numeric.Kind = {
 
@@ -72,7 +73,8 @@ object NodeInfoUtils {
    * For a numeric operation, compute types the args should be converted to, and the resulting type
    * from the operation on them.
    */
-  def generalizeArgAndResultTypesForNumericOp(op: String,
+  def generalizeArgAndResultTypesForNumericOp(
+    op: String,
     leftArgType: Numeric.Kind,
     rightArgType: Numeric.Kind): ( //
     Numeric.Kind, // first result is generalized arg type
@@ -83,13 +85,10 @@ object NodeInfoUtils {
      * Adjust for the Decimal result type when div/idiv is used
      */
     def divResult(resultType: NodeInfo.Numeric.Kind) = resultType match {
-      case Decimal => Decimal
-      case Integer => Decimal
-      case Double => Double
-      case Long => Decimal
-      case Float => Float
-      case Int => Decimal
       case ArrayIndex => ArrayIndex
+      case _: Decimal.Kind => Decimal
+      case Double => Double
+      case Float => Float
       case _ => Assert.usageError("Unsupported return type: %s".format(resultType))
     }
 
@@ -100,51 +99,21 @@ object NodeInfoUtils {
       case Long => Long
       case Float => Int
       case Int => Int
+      case Short => Short
       case ArrayIndex => ArrayIndex
       case _ => Assert.usageError("Unsupported return type: %s".format(resultType))
     }
 
-    val (argType: Numeric.Kind, resultType: Numeric.Kind) = (leftArgType, rightArgType) match {
-      case (_, Decimal) => (Decimal, Decimal)
-      case (Decimal, _) => (Decimal, Decimal)
-      case (_, Double) => (Double, Double)
-      case (Double, _) => (Double, Double)
-      case (_, Float) => (Float, Float)
-      case (Float, _) => (Float, Float)
-      case (_, Integer) => (Integer, Integer)
-      case (Integer, _) => (Integer, Integer)
-      case (_: SignedInteger.Kind, NonNegativeInteger) => (Integer, Integer)
-      case (_, NonNegativeInteger) => (NonNegativeInteger, Integer)
-      case (NonNegativeInteger, _: SignedInteger.Kind) => (Integer, Integer)
-      case (NonNegativeInteger, _) => (NonNegativeInteger, Integer)
-      case (_: SignedInteger.Kind, UnsignedLong) => (Integer, Integer)
-      case (_, UnsignedLong) => (UnsignedLong, Integer)
-      case (UnsignedLong, _: SignedInteger.Kind) => (Integer, Integer)
-      case (UnsignedLong, _) => (UnsignedLong, Integer)
-      case (_, ArrayIndex) => (ArrayIndex, ArrayIndex)
-      case (ArrayIndex, _) => (ArrayIndex, ArrayIndex)
-      case (_, Long) => (Long, Long)
-      case (Long, _) => (Long, Long)
-      case (_: SignedInteger.Kind, UnsignedInt) => (Long, Long)
-      case (_, UnsignedInt) => (UnsignedInt, Long)
-      case (UnsignedInt, _: SignedInteger.Kind) => (Long, Long)
-      case (UnsignedInt, _) => (UnsignedInt, Long)
-      case (_, Int) => (Int, Int)
-      case (Int, _) => (Int, Int)
-      case (_: SignedInteger.Kind, UnsignedShort) => (Int, Int)
-      case (_, UnsignedShort) => (UnsignedShort, Int)
-      case (UnsignedShort, _: SignedInteger.Kind) => (Int, Int)
-      case (UnsignedShort, _) => (UnsignedShort, Int)
-      case (_, Short) => (Short, Int)
-      case (Short, _) => (Short, Int)
-      case (_: SignedInteger.Kind, UnsignedByte) => (Short, Short)
-      case (_, UnsignedByte) => (UnsignedByte, Short)
-      case (UnsignedByte, _: SignedInteger.Kind) => (Short, Short)
-      case (UnsignedByte, _) => (UnsignedByte, Short)
-      case (_, Byte) => (Byte, Int)
-      case (Byte, _) => (Byte, Int)
-      case _ => Assert.usageError(
-        "Unsupported types for numeric op '%s' were %s and %s.".format(op, leftArgType, rightArgType))
+    val (argType: Numeric.Kind, resultType: Numeric.Kind) = {
+      val lub = NodeInfoUtils.typeLeastUpperBound(leftArgType, rightArgType)
+      //
+      // For each abstract type that could be the least upper bound of the two
+      // arg types, we must pick a concrete type to convert everything into.
+      val lubImplementationType = lub match {
+        case SignedNumeric => NodeInfo.Double
+        case _ => lub
+      }
+      (lubImplementationType, lubImplementationType)
     }
     val res = op match {
       case "div" => (argType, divResult(resultType))
@@ -152,5 +121,17 @@ object NodeInfoUtils {
       case _ => (argType, resultType)
     }
     res
+  }
+
+  def typeLeastUpperBound(left: NodeInfo.Kind, right: NodeInfo.Kind): NodeInfo.Kind = {
+    if (left.isSubtypeOf(right)) right
+    else if (right.isSubtypeOf(left)) left
+    else {
+      val leftParents = left.parents
+      val leftLubs = leftParents.map { typeLeastUpperBound(right, _) }
+      Assert.invariant(leftLubs.length == 1) // our type lattice has this property.
+      val res = leftLubs.head
+      res
+    }
   }
 }

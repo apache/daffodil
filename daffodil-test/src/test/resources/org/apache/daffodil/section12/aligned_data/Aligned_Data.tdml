@@ -2053,7 +2053,7 @@
     </tdml:infoset>
     <tdml:warnings>
       <tdml:warning>Schema Definition Warning</tdml:warning>
-      <tdml:warning>two is an optional element or a variable-occurrence array and its alignment (1) is not the same as three's alignment (4)</tdml:warning>
+      <tdml:warning>ex:two is an optional element or a variable-occurrence array and its alignment (1) is not the same as ex:three's alignment (4)</tdml:warning>
     </tdml:warnings>
   </tdml:parserTestCase>
   
@@ -2078,7 +2078,7 @@
   </tdml:infoset>
   <tdml:warnings>
     <tdml:warning>Schema Definition Warning</tdml:warning>
-    <tdml:warning>one is an optional element or a variable-occurrence array and its alignment (1) is not the same as two's alignment (2)</tdml:warning>
+    <tdml:warning>ex:one is an optional element or a variable-occurrence array and its alignment (1) is not the same as ex:two's alignment (2)</tdml:warning>
   </tdml:warnings>
   </tdml:parserTestCase>
   
@@ -2125,7 +2125,7 @@
   </tdml:infoset>
   <tdml:warnings>
     <tdml:warning>Schema Definition Warning</tdml:warning>
-    <tdml:warning>one is an optional element or a variable-occurrence array and its alignment (1) is not the same as two's alignment (2)</tdml:warning>
+    <tdml:warning>ex:one is an optional element or a variable-occurrence array and its alignment (1) is not the same as ex:two's alignment (2)</tdml:warning>
   </tdml:warnings>
   </tdml:parserTestCase>
   

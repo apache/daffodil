@@ -200,7 +200,7 @@ final case class ConstantExpression[+T <: AnyRef](
  * into "passes".
  */
 class DPathCompileInfo(
-  @TransientParam parentArg: => Option[DPathCompileInfo],
+  @TransientParam parentsArg: => Seq[DPathCompileInfo],
   @TransientParam variableMapArg: => VariableMap,
   val namespaces: scala.xml.NamespaceBinding,
   val path: String,
@@ -211,17 +211,17 @@ class DPathCompileInfo(
   extends ImplementsThrowsSDE with PreSerialization
   with HasSchemaFileLocation {
 
-  lazy val parent = parentArg
+  lazy val parents = parentsArg
   lazy val variableMap =
     variableMapArg
-    
+
   /*
    * This map(identity) pattern appears to work around an unidentified bug with serialization.
    */
   lazy val typeCalcMap: TypeCalcMap = typeCalcMapArg.map(identity)
-    
+
   override def preSerialization: Any = {
-    parent
+    parents
     variableMap
   }
 
@@ -240,21 +240,10 @@ class DPathCompileInfo(
    * Then we move outward to the enclosing element - and if there
    * isn't one we return None. (Which most likely will lead to an SDE.)
    */
-  final def enclosingElementCompileInfo: Option[DPathElementCompileInfo] = {
-    val eci = this.elementCompileInfo
-    eci match {
-      case None => None
-      case Some(eci) => {
-        val eci2 = eci.parent
-        eci2 match {
-          case None => None
-          case Some(ci) => {
-            val res = ci.elementCompileInfo
-            res
-          }
-        }
-      }
-    }
+  final def enclosingElementCompileInfos: Seq[DPathElementCompileInfo] = {
+    val eci = elementCompileInfos.flatMap { _.parents }
+    val res = eci.flatMap { _.elementCompileInfos }
+    res
   }
 
   /**
@@ -262,34 +251,17 @@ class DPathCompileInfo(
    *
    * If this is an element we're done. If not we move outward
    * until we reach an enclosing element.
+   *
+   * This is used because paths refer to elements, so we have to
+   * walk upward until we get elements. At that point we can
+   * then navigate element to element.
    */
-  final lazy val elementCompileInfo: Option[DPathElementCompileInfo] = this match {
-    case e: DPathElementCompileInfo => Some(e)
+  final lazy val elementCompileInfos: Seq[DPathElementCompileInfo] = this match {
+    case e: DPathElementCompileInfo => Seq(e)
     case d: DPathCompileInfo => {
-      val eci = d.parent
-      eci match {
-        case None => None
-        case Some(ci) => {
-          val res = ci.elementCompileInfo
-          res
-        }
-      }
+      val eci = d.parents
+      eci flatMap { ci => ci.elementCompileInfos }
     }
-  }
-
-  /**
-   * relative path - relative to enclosing element's path
-   * which by definition must be a prefix of this object's path.
-   */
-  final def relativePath: String = {
-    val rel = elementCompileInfo.map {
-      parentInfo =>
-        Assert.invariant(path.startsWith(parentInfo.path))
-        path.substring(parentInfo.path.length)
-    }
-    val s = rel.getOrElse(path)
-    val res = if (s.startsWith("::")) s.substring("::".length) else s
-    res
   }
 }
 
@@ -307,7 +279,7 @@ class DPathCompileInfo(
  * structures are created which reference these.
  */
 class DPathElementCompileInfo(
-  @TransientParam parentArg: => Option[DPathElementCompileInfo],
+  @TransientParam parentsArg: => Seq[DPathElementCompileInfo],
   @TransientParam variableMap: => VariableMap,
   @TransientParam elementChildrenCompileInfoArg: => Seq[DPathElementCompileInfo],
   namespaces: scala.xml.NamespaceBinding,
@@ -319,9 +291,9 @@ class DPathElementCompileInfo(
   sfl: SchemaFileLocation,
   override val tunable: DaffodilTunables,
   typeCalcMap: TypeCalcMap,
-  lexicalContextRuntimeData: RuntimeData)
-  extends DPathCompileInfo(parentArg, variableMap, namespaces, path, sfl, tunable, typeCalcMap, lexicalContextRuntimeData)
-  with HasSchemaFileLocation {
+  lexicalContextRuntimeData: RuntimeData,
+  val sscd: String)
+  extends DPathCompileInfo(parentsArg, variableMap, namespaces, path, sfl, tunable, typeCalcMap, lexicalContextRuntimeData) {
 
   lazy val elementChildrenCompileInfo = elementChildrenCompileInfoArg
 
@@ -329,6 +301,10 @@ class DPathElementCompileInfo(
     super.preSerialization
     elementChildrenCompileInfo
   }
+
+  final def typeNode: NodeInfo.Kind =
+    if (optPrimType.isDefined) optPrimType.get
+    else NodeInfo.Complex
 
   /**
    * Stores whether or not this element is used in any path step expressions
@@ -350,14 +326,10 @@ class DPathElementCompileInfo(
   final private def writeObject(out: java.io.ObjectOutputStream): Unit = serializeObject(out)
 
   final lazy val rootElement: DPathElementCompileInfo =
-    this.enclosingElementCompileInfo.map { _.rootElement }.getOrElse { this }
-
-  final def enclosingElementPath: Seq[DPathElementCompileInfo] = {
-    enclosingElementCompileInfo match {
-      case None => Seq()
-      case Some(e) => e.enclosingElementPath :+ e
-    }
-  }
+    if (elementCompileInfos.isEmpty) this
+    else if (enclosingElementCompileInfos.isEmpty) this
+    else
+      enclosingElementCompileInfos.head.rootElement
 
   /**
    * Marks compile info that element is referenced by an expression    //
@@ -423,6 +395,24 @@ class DPathElementCompileInfo(
     retryMatchesERD
   }
 
+  final def findNamedChildren(step: StepQName, possibles: Seq[DPathElementCompileInfo]): Seq[DPathElementCompileInfo] = {
+    val matchesERD = step.findMatches(possibles)
+    val retryMatchesERD =
+      if (matchesERD.isEmpty &&
+        tunable.unqualifiedPathStepPolicy == UnqualifiedPathStepPolicy.PreferDefaultNamespace &&
+        step.prefix.isEmpty && step.namespace != NoNamespace) {
+        // we failed to find a match with the default namespace. Since the
+        // default namespace was assumed but didn't match, the unqualified path
+        // step policy allows us to try to match NoNamespace elements.
+        val noNamespaceStep = step.copy(namespace = NoNamespace)
+        noNamespaceStep.findMatches(possibles)
+      } else {
+        matchesERD
+      }
+    indicateReferencedByExpression(retryMatchesERD)
+    retryMatchesERD
+  }
+
   /**
    * Issues a good diagnostic with suggestions about near-misses on names
    * like missing prefixes.
@@ -481,7 +471,7 @@ class DPathElementCompileInfo(
     }
   }
 
-  private def queryMatchWarning(step: StepQName, matches: Seq[DPathElementCompileInfo],
+  final def queryMatchWarning(step: StepQName, matches: Seq[DPathElementCompileInfo],
     expr: ImplementsThrowsOrSavesSDE) = {
     expr.SDW(WarnID.QueryStylePathExpression, "Statically ambiguous or query-style paths not supported in step path: '%s'. Matches are at locations:\n%s",
       step, matches.map(_.schemaFileLocation.locationDescription).mkString("- ", "\n- ", ""))

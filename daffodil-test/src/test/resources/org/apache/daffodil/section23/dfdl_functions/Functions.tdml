@@ -3891,7 +3891,7 @@
     <tdml:errors>
       <tdml:error>Runtime Schema Definition Error</tdml:error>
       <tdml:error>Value length unknown</tdml:error>
-      <tdml:error>{http://example.com}x</tdml:error>
+      <tdml:error>ex:x</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -4087,7 +4087,7 @@
     <tdml:errors>
       <tdml:error>Runtime Schema Definition Error</tdml:error>
       <tdml:error>Content length unknown</tdml:error>
-      <tdml:error>{http://example.com}x</tdml:error>
+      <tdml:error>ex:x</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

@@ -1838,7 +1838,7 @@
     <tdml:document />
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Expression result type</tdml:error>
+      <tdml:error>result type</tdml:error>
       <tdml:error>must be manually cast</tdml:error>
       <tdml:error>Double</tdml:error>
       <tdml:error>Int</tdml:error>
@@ -1880,7 +1880,7 @@
     <tdml:document />
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Expression result type</tdml:error>
+      <tdml:error>result type</tdml:error>
       <tdml:error>must be manually cast</tdml:error>
       <tdml:error>String</tdml:error>
       <tdml:error>Boolean</tdml:error>
@@ -1894,7 +1894,7 @@
     <tdml:document />
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Expression result type</tdml:error>
+      <tdml:error>result type</tdml:error>
       <tdml:error>must be manually cast</tdml:error>
       <tdml:error>Int</tdml:error>
       <tdml:error>String</tdml:error>
@@ -1908,7 +1908,7 @@
     <tdml:document />
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Expression result type</tdml:error>
+      <tdml:error>result type</tdml:error>
       <tdml:error>must be manually cast</tdml:error>
       <tdml:error>Double</tdml:error>
       <tdml:error>Float</tdml:error>
@@ -2012,7 +2012,10 @@
       <tdml:documentPart type="text">abcd</tdml:documentPart>
     </tdml:document>
     <tdml:errors>
-      <tdml:error />
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Relative path</tdml:error>
+      <tdml:error>past root</tdml:error>
+      <tdml:error>../../ex:reps * /ex:e1/ex:scale</tdml:error>
     </tdml:errors>
 
     <!-- <tdml:infoset> <tdml:dfdlInfoset> <ex:e1> <ex:reps>2</ex:reps> <ex:scale>2</ex:scale>
@@ -7200,7 +7203,7 @@
     config="cfg_errorOnResultCoercion">
     <tdml:document></tdml:document>
       <tdml:errors>
-        <tdml:error>Expression result type</tdml:error>
+        <tdml:error>result type</tdml:error>
         <tdml:error>Decimal</tdml:error>
         <tdml:error>must be manually cast</tdml:error>
         <tdml:error>Double</tdml:error>
@@ -7211,7 +7214,7 @@
     config="cfg_errorOnResultCoercion">
     <tdml:document></tdml:document>
       <tdml:errors>
-        <tdml:error>Expression result type</tdml:error>
+        <tdml:error>result type</tdml:error>
         <tdml:error>Decimal</tdml:error>
         <tdml:error>must be manually cast</tdml:error>
         <tdml:error>Float</tdml:error>

@@ -48,5 +48,4 @@ class GlobalElementDeclFactory(xmlArg: Node, schemaDocumentArg: SchemaDocument)
   def forElementRef(eRef: AbstractElementRef) = {
     new GlobalElementDecl(xml, schemaDocument, eRef, this)
   }
-
 }

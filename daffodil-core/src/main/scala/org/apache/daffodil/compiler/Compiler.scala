@@ -173,6 +173,9 @@ final class ProcessorFactory(val sset: SchemaSet)
         variables,
         validationMode,
         sset.typeCalcMap)
+      if (rootElem.numComponents > rootElem.numUniqueComponents)
+        log(LogLevel.Info, "Compiler: component counts: unique %s, actual %s.",
+          rootElem.numUniqueComponents, rootElem.numComponents)
       val dataProc = new DataProcessor(ssrd)
       if (dataProc.isError) {
         // NO longer printing anything here. Callers must do this.

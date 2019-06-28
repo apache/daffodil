@@ -243,6 +243,22 @@ object OOLAG extends Logging {
      * The factory for OOLAGValues is LV.
      */
     protected final def LV[T](sym: Symbol)(body: => T): OOLAGValue[T] = {
+      //
+      // TODO: This is very fragile. A simple cut/paste error where two LVs have the same symbol
+      // causes no scala compilation error, but results in the second definition to be evaluated
+      // getting the value of the first to be evaluated. This can be very hard to debug.
+      //
+      // Really we want the thunk itself's identity to be the key for lookup, not this
+      // hand maintained symbol.
+      //
+      // Once again this is why scala needs real lisp-style macros, not these quasi function things
+      // where a macro can only do what a function could have done.
+      //
+      // Fixing this problem likely requires one to go back to the older oolag design
+      // which didn't have this lvCache at all, just used actual lazy val for each LV.
+      // That would mean changing all def foo = LV('foo) {...} to be lazy val. But that would
+      // be much safer, because then the sym is only used for debugging info, and could even be optional.
+      //
       lvCache.get(sym).getOrElse {
         val lv = new OOLAGValue[T](this, sym.name, body)
         lvCache.put(sym, lv)

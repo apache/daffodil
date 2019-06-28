@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<xs:schema elementFormDefault="unqualified"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
+  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
+  targetNamespace="http://example.com"
+  xmlns:ex="http://example.com"
+  xmlns:fn="http://www.w3.org/2005/xpath-functions">
+
+  <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/">
+      <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
+    </xs:appinfo>
+  </xs:annotation>
+
+  <xs:group name="g">
+      <!-- 
+        The path expression below is going to have different type
+        elements for the different instances of this group in the 
+        final schema. 
+        
+        Ultimately they all are converted to string.
+       -->
+    <xs:sequence>
+      <xs:choice dfdl:choiceDispatchKey="{ ../foo/bar }">
+        <xs:element name="c1" type="xs:string" dfdl:choiceBranchKey="1" />
+        <xs:element name="c2" type="xs:string" dfdl:choiceBranchKey="2" />
+      </xs:choice>
+    </xs:sequence>
+  </xs:group>
+
+  <xs:element name="r">
+    <xs:complexType>
+      <xs:sequence dfdl:separator="|">
+        <xs:element name="e1">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="foo">
+                <xs:complexType>
+                  <xs:sequence dfdl:separator="|">
+                    <xs:element name="bar" type="xs:string" />
+                    <xs:group ref="ex:g" />
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="e2">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="foo">
+                <xs:complexType>
+                  <xs:sequence dfdl:separator="|">
+                    <xs:element name="bar" type="xs:int" />
+                    <xs:group ref="ex:g" />
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

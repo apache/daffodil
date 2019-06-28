@@ -153,6 +153,7 @@
             </xsd:appinfo>
           </annotation>
         </element>
+        <element ref="ex:obscure"/>
       </sequence>
     </complexType>
   </element>
@@ -231,6 +232,10 @@
           </restriction>
         </simpleType>
       </element>
+      
+      <group ref="ex:myGlobal3"/>
+      <group ref="ex:myGlobal2"/>
+      <group ref="ex:myGlobal1"/>
     </choice>
   </group>
 

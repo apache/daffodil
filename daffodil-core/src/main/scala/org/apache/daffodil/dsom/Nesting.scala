@@ -46,10 +46,12 @@ trait NestingMixin {
   // Uncomment this to chase down these usages and revise them.
   //
   //
-  // @deprecated("2019-06-03", "Use enclosingComponentDefs method, and deal with sharing.")
+  //@deprecated("2019-06-03", "Use enclosingComponentDefs method, and deal with sharing.")
   protected def enclosingComponentDef: Option[SchemaComponent]
 
   protected def enclosingComponentDefs: Seq[EnclosingComponentDef]
+
+  def shortSchemaComponentDesignator: String
 
   /**
    * The enclosing component, and follows back-references
@@ -65,11 +67,16 @@ trait NestingMixin {
   // Uncomment this to chase down these usages and revise them.
   //
   //
-  // @deprecated("2019-06-03", "Rewrite to use lexicalParent or enclosingComponents methods, and deal with sharing.")
+  //@deprecated("2019-06-03", "Rewrite to use lexicalParent or enclosingComponents methods, and deal with sharing.")
   final lazy val enclosingComponent: Option[SchemaComponent] = enclosingComponentDef
 
-  final lazy val enclosingComponents: Seq[EnclosingComponentDef] =
-    enclosingComponentDefs
+  final lazy val enclosingComponents: Seq[EnclosingComponentDef] = {
+    val res = enclosingComponentDefs
+    //    System.err.println("enclosingComponents: Component " + this.shortSchemaComponentDesignator + (
+    //      if (res.isEmpty) " has no enclosing component."
+    //      else " has enclosing components " + res.map { _.encloser.shortSchemaComponentDesignator }.mkString(", ")))
+    res
+  }
 }
 
 /**
@@ -80,8 +87,8 @@ trait NestingMixin {
 trait NestingLexicalMixin
   extends NestingMixin { self: SchemaComponent =>
 
-  @deprecated("2019-06-03", "Use enclosingComponentDefs method, and deal with sharing.")
-  override protected def enclosingComponentDef = optLexicalParent
+  //@deprecated("2019-06-03", "Use enclosingComponentDefs method, and deal with sharing.")
+  override protected lazy val enclosingComponentDef = optLexicalParent
 
   final override protected lazy val enclosingComponentDefs: Seq[EnclosingComponentDef] =
     optLexicalParent.map {
@@ -102,29 +109,28 @@ trait NestingTraversesToReferenceMixin
 
   def factory: SchemaComponentFactory
 
-  @deprecated("2019-06-03", "Use referringComponents method, and deal with sharing.")
+  //@deprecated("2019-06-03", "Use referringComponents method, and deal with sharing.")
   def referringComponent: Option[SchemaComponent]
 
-  @deprecated("2019-06-03", "Use enclosingComponentDefs method, and deal with sharing.")
-  final override protected def enclosingComponentDef: Option[SchemaComponent] = {
+  //@deprecated("2019-06-03", "Use enclosingComponentDefs method, and deal with sharing.")
+  final override protected lazy val enclosingComponentDef: Option[SchemaComponent] = LV('enclosingComponentDef) {
     Assert.invariant(optLexicalParent.isDefined &&
       optLexicalParent.get.isInstanceOf[SchemaDocument]) // global things have schema documents as their parents.
     referringComponent
-  }
+  }.value
 
   /**
    * Enables compilation to know all the points of use of a global
    * component.
    */
-  def referringComponents: Seq[(String, Seq[RefSpec])] = {
+  lazy val referringComponents: Seq[(String, Seq[RefSpec])] = {
     schemaSet.root.refMap.get(this.factory) match {
       case None => Assert.invariantFailed("There are no references to this component: " + this)
       case Some(seq) => seq
     }
-
   }
 
-  final override protected def enclosingComponentDefs: Seq[EnclosingComponentDef] = {
+  final override protected lazy val enclosingComponentDefs: Seq[EnclosingComponentDef] = LV('enclosingComponentDefs) {
     Assert.invariant(optLexicalParent.isDefined &&
       optLexicalParent.get.isInstanceOf[SchemaDocument]) // global things have schema documents as their parents.
     val res = referringComponents.flatMap {
@@ -134,5 +140,5 @@ trait NestingTraversesToReferenceMixin
         }
     }
     res
-  }
+  }.value
 }

@@ -281,12 +281,10 @@ trait ElementBase
   final override lazy val dpathCompileInfo = dpathElementCompileInfo
 
   /**
-   * This is the compile info for this element. Since this might be an
-   * element ref, we optionally carry the compile info for the referenced
-   * element in that case.
+   * This is the compile info for this element term.
    */
   lazy val dpathElementCompileInfo: DPathElementCompileInfo = {
-    val ee = enclosingElement
+    val ee = enclosingElements
     val eci = new DPathElementCompileInfo(
       ee.map {
         _.dpathElementCompileInfo
@@ -302,7 +300,8 @@ trait ElementBase
       schemaFileLocation,
       tunable,
       schemaSet.typeCalcMap,
-      runtimeData)
+      runtimeData,
+      shortSchemaComponentDesignator)
     eci
   }
 
@@ -318,7 +317,7 @@ trait ElementBase
     }
   }
 
-  private lazy val thisElementsRequiredNamespaceBindings: Set[(String, NS)] = {
+  private lazy val thisElementsRequiredNamespaceBindings: Set[(String, NS)] = LV('thisElementsRequiredNamespaceBindings) {
     val childrenRequiredNSBindings =
       this.elementChildren.flatMap { _.thisElementsRequiredNamespaceBindings }.toSet
 
@@ -373,15 +372,19 @@ trait ElementBase
     val res = bindings ++ myRequiredNSBinding
 
     res
-  }
+  }.value
 
-  private lazy val emptyNSPairs = nsBindingsToSet(scala.xml.TopScope)
+  private lazy val emptyNSPairs: Set[(String, NS)] = nsBindingsToSet(scala.xml.TopScope)
 
   private lazy val myOwnNSPairs: Set[(String, NS)] = thisElementsRequiredNamespaceBindings
-  private lazy val myParentNSPairs = enclosingElement match {
-    case None => emptyNSPairs
-    case Some(ee) => ee.myOwnNSPairs
-  }
+
+  private lazy val myParentNSPairs: Set[(String, NS)] = LV('myParentNSPairs) {
+    val ee: Option[ElementBase] = enclosingElement
+    ee match {
+      case None => emptyNSPairs
+      case Some(ee) => ee.myOwnNSPairs
+    }
+  }.value
 
   private lazy val myUniquePairs: Set[(String, NS)] = {
     val res = myOwnNSPairs -- myParentNSPairs
@@ -406,7 +409,7 @@ trait ElementBase
    * To be properly constructed, scala's xml Elems must share the scope (namespace bindings) of the enclosing
    * parent element, except when it adds more of its own bindings, in which case the tail is supposed to be shared.
    */
-  private lazy val minimizedScope: NamespaceBinding = {
+  private lazy val minimizedScope: NamespaceBinding = LV('minimizedScope) {
     val uniquePairs =
       if (this.isInstanceOf[Root]) {
         // If this is the root element and it contains xmlns="", then remove
@@ -426,7 +429,7 @@ trait ElementBase
       }
 
     pairsToNSBinding(uniquePairs, parentMinimizedScope)
-  }
+  }.value
 
   override lazy val runtimeData: RuntimeData = elementRuntimeData
   override lazy val termRuntimeData: TermRuntimeData = elementRuntimeData
@@ -662,7 +665,8 @@ trait ElementBase
 
   final override lazy val termChildren: Seq[Term] = {
     if (isSimpleType) Nil
-    else Seq(complexType.group)
+    else
+      Seq(complexType.group)
   }
 
   final lazy val isParentUnorderedSequence: Boolean = {
@@ -1149,8 +1153,8 @@ trait ElementBase
     typeDef.optRestriction.map { r =>
       // Can only be applied to decimal or any of the integer types, and
       // types derived from them
-      val isDerivedFromDecimal = NodeInfo.isXDerivedFromY(st.primType.name, "decimal")
-      val isDerivedFromInteger = NodeInfo.isXDerivedFromY(st.primType.name, "integer")
+      val isDerivedFromDecimal = st.primType.isSubtypeOf(NodeInfo.Decimal)
+      val isDerivedFromInteger = st.primType.isSubtypeOf(NodeInfo.Integer)
       if (isDerivedFromDecimal || isDerivedFromInteger) r.totalDigitsValue
       else {
         SDE("TotalDigits facet can only be applied to decimal or any of the integer types, and types derived from them. Restriction base is %s", st.primType.name)
@@ -1162,7 +1166,7 @@ trait ElementBase
     Assert.usage(hasFractionDigits)
     typeDef.optRestriction.map { r =>
       // Can only be applied to decimal
-      val isDerivedFromDecimal = NodeInfo.isXDerivedFromY(r.primType.name, "decimal")
+      val isDerivedFromDecimal = r.primType.isSubtypeOf(NodeInfo.Decimal)
       if (isDerivedFromDecimal) {
         if (r.hasTotalDigits) {
           val res = r.fractionDigitsValue.compareTo(r.totalDigitsValue)
@@ -1239,7 +1243,8 @@ trait ElementBase
     }
   }.value
 
-  protected final def possibleFirstChildTerms: Seq[Term] = termChildren
+  protected final lazy val possibleFirstChildTerms: Seq[Term] =
+    termChildren
 
   protected final def couldBeLastElementInModelGroup: Boolean = LV('couldBeLastElementInModelGroup) {
     val couldBeLast = enclosingTerm match {
@@ -1255,13 +1260,14 @@ trait ElementBase
     couldBeLast
   }.value
 
-  final lazy val nextParentElements: Seq[ElementBase] = {
-    if (enclosingTerm.isDefined && couldBeLastElementInModelGroup) {
-      enclosingTerm.get.possibleNextChildElementsInInfoset
-    } else {
-      Nil
+  final lazy val nextParentElements: Seq[ElementBase] =
+    enclosingTerms.flatMap { enclosingTerm =>
+      if (couldBeLastElementInModelGroup) {
+        enclosingTerm.possibleNextChildElementsInInfoset
+      } else {
+        Nil
+      }
     }
-  }
 
   final lazy val defaultParseUnparsePolicy = optionParseUnparsePolicy.getOrElse(ParseUnparsePolicy.Both)
 

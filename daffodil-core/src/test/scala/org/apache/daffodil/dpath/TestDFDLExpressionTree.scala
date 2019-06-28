@@ -47,7 +47,7 @@ class TestDFDLExpressionTree extends Parsers {
     val erd = decl.elementRuntimeData
 
     val exprCompiler = new DFDLPathExpressionParser(qn, NodeInfo.String, testSchema.scope, erd.dpathCompileInfo, false, sset)
-    val result = exprCompiler.getExpressionTree(expr, sset)
+    val result = exprCompiler.getExpressionTree(expr)
     body(result)
   }
 
@@ -60,7 +60,7 @@ class TestDFDLExpressionTree extends Parsers {
     val decl = declf.forRoot()
     val erd = decl
     val exprCompiler = new DFDLPathExpressionParser(qn, NodeInfo.AnyType, testSchema.scope, decl.dpathCompileInfo, false, sset)
-    val result = exprCompiler.getExpressionTree(expr, sset)
+    val result = exprCompiler.getExpressionTree(expr)
     body(result, erd.elementRuntimeData)
   }
 
@@ -89,14 +89,15 @@ class TestDFDLExpressionTree extends Parsers {
   @Test def test_a() = {
     testExpr2(aSchema, "{ /tns:a }") { (ce, erd) =>
       val WholeExpression(_, RootPathExpression(Some(RelativePathExpression(steps, _))), _, _, _) = ce
-      val List(n1) = steps
-      val n1p @ NamedStep("tns:a", None) = n1; assertNotNull(n1p)
+      val List(n1: DownStepExpression) = steps
+      val n1p @ NamedStep("tns:a", None) = n1;
+      assertNotNull(n1p)
       assertFalse(n1.isArray)
       assertEquals(NodeInfo.AnyType, n1.targetType)
       assertEquals(NodeInfo.String, n1.inherentType)
       assertTrue(n1.isLastStep)
-      val List(DownElement(erd)) = n1.compiledDPath.ops.toList
-      assertEquals(erd, n1.stepElement)
+      val List(DownElement(nqn: NamedQName)) = n1.compiledDPath.ops.toList
+      assertEquals(nqn, n1.stepElements.head.namedQName)
     }
   }
 
@@ -173,7 +174,7 @@ class TestDFDLExpressionTree extends Parsers {
   @Test def test_absolutePath() = {
     testExpr2(testSchema, "{ /tns:bookstore/book/title }") { (actual, erd) =>
       val WholeExpression(_, RootPathExpression(Some(RelativePathExpression(steps, _))), _, _, _) = actual
-      val List(n1, n2, n3) = steps
+      val List(n1, n2, n3) = steps.asInstanceOf[List[NamedStep]]
       val n1p @ NamedStep("tns:bookstore", None) = n1; assertNotNull(n1p)
       assertTrue(n1.isFirstStep)
       assertFalse(n1.isLastStep)
@@ -191,7 +192,7 @@ class TestDFDLExpressionTree extends Parsers {
       //
       val ex = NS("http://example.com")
       assertEquals(StepQName(Some("tns"), "bookstore", ex), n1.stepQName)
-      assertEquals(erd.dpathElementCompileInfo, n1.stepElement)
+      assertEquals(erd.dpathElementCompileInfo, n1.stepElements.head)
       assertEquals(NS("http://example.com"), erd.targetNamespace)
 
       val n2p @ NamedStep("book", None) = n2; assertNotNull(n2p)
@@ -201,7 +202,7 @@ class TestDFDLExpressionTree extends Parsers {
       assertTrue(n2.priorStep.isDefined)
       assertEquals(StepQName(None, "book", NoNamespace), n2.stepQName)
       val bookERD = erd.childERDs.find { _.name == "book" }.get
-      assertEquals(bookERD.dpathElementCompileInfo, n2.stepElement)
+      assertEquals(bookERD.dpathElementCompileInfo, n2.stepElements.head)
       val n3p @ NamedStep("title", None) = n3; assertNotNull(n3p)
       assertFalse(n3.isFirstStep)
       assertTrue(n3.isLastStep)
@@ -209,15 +210,15 @@ class TestDFDLExpressionTree extends Parsers {
       assertTrue(n3.priorStep.isDefined)
       assertEquals(StepQName(None, "title", NoNamespace), n3.stepQName)
       val titleERD = bookERD.childERDs.find { _.name == "title" }.get
-      assertEquals(titleERD.dpathElementCompileInfo, n3.stepElement)
+      assertEquals(titleERD.dpathElementCompileInfo, n3.stepElements.head)
     }
   }
 
   @Test def test_pathNoSuchElement1() {
     testExpr2(testSchema, "{ /thereIsNoElementWithThisName }") { (actual, erd) =>
-      val WholeExpression(_, RootPathExpression(Some(RelativePathExpression(List(step), _))), _, _, _) = actual
-      val exc = intercept[SchemaDefinitionError] {
-        step.stepElement
+      val WholeExpression(_, RootPathExpression(Some(RelativePathExpression(List(step: NamedStep), _))), _, _, _) = actual
+      val exc = intercept[Exception] {
+        step.stepElements
       }
       val msg = exc.getMessage()
       assertTrue(msg.contains("thereIsNoElementWithThisName")) // the error

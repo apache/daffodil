@@ -22,6 +22,7 @@ import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.infoset.DIArray
 import org.apache.daffodil.infoset.DIElement
 import org.apache.daffodil.infoset.InfosetNoSuchChildElementException
+import org.apache.daffodil.xml.NamedQName
 
 /**
  * Moves to above the root element so that an absolute path
@@ -62,18 +63,18 @@ case object UpMoveArray extends RecipeOp {
 /**
  * Down to a non-array element. Can be optional or scalar.
  */
-case class DownElement(info: DPathElementCompileInfo) extends RecipeOp {
+case class DownElement(nqn: NamedQName) extends RecipeOp {
 
   override def run(dstate: DState) {
     val now = dstate.currentComplex
     // TODO PE ? if doesn't exist should be a processing error.
     // It will throw and so will be a PE, but may be poor diagnostic.
-    val c = dstate.withRetryIfBlocking(now.getChild(info))
+    val c = dstate.withRetryIfBlocking(now.getChild(nqn))
     dstate.setCurrentNode(c.asInstanceOf[DIElement])
   }
 
   override def toXML = {
-    toXML(info.name)
+    toXML(nqn.toQNameString)
   }
 
 }
@@ -81,10 +82,10 @@ case class DownElement(info: DPathElementCompileInfo) extends RecipeOp {
 /**
  * Move down to an occurrence of an array element.
  */
-case class DownArrayOccurrence(info: DPathElementCompileInfo, indexRecipe: CompiledDPath)
+case class DownArrayOccurrence(nqn: NamedQName, indexRecipe: CompiledDPath)
   extends RecipeOpWithSubRecipes(indexRecipe) {
 
-  val childNamedQName = info.namedQName
+  val childNamedQName = nqn
 
   override def run(dstate: DState) {
     val savedCurrentElement = dstate.currentComplex
@@ -94,14 +95,14 @@ case class DownArrayOccurrence(info: DPathElementCompileInfo, indexRecipe: Compi
     // necessary since one of the following functions could throw, leaving the
     // current node to null. And future calls depend on a current node to be set
     dstate.setCurrentNode(savedCurrentElement)
-    val childArrayElementERD = dstate.withRetryIfBlocking(savedCurrentElement.getChildArray(info).asInstanceOf[DIArray].erd)
+    val childArrayElementERD = dstate.withRetryIfBlocking(savedCurrentElement.getChildArray(nqn).asInstanceOf[DIArray].erd)
     val arr = dstate.withRetryIfBlocking(savedCurrentElement.getChildArray(childArrayElementERD))
     val occurrence = dstate.withRetryIfBlocking(arr.getOccurrence(index)) // will throw on out of bounds
     dstate.setCurrentNode(occurrence.asInstanceOf[DIElement])
   }
 
   override def toXML = {
-    toXML(new scala.xml.Text(info.name) ++ indexRecipe.toXML)
+    toXML(new scala.xml.Text(nqn.toQNameString) ++ indexRecipe.toXML)
   }
 
 }
@@ -109,33 +110,33 @@ case class DownArrayOccurrence(info: DPathElementCompileInfo, indexRecipe: Compi
 /*
  * down to an array object containing all occurrences
  */
-case class DownArray(info: DPathElementCompileInfo) extends RecipeOp {
+case class DownArray(nqn: NamedQName) extends RecipeOp {
 
   override def run(dstate: DState) {
     val now = dstate.currentComplex
-    val arr = dstate.withRetryIfBlocking(now.getChildArray(info))
+    val arr = dstate.withRetryIfBlocking(now.getChildArray(nqn))
     Assert.invariant(arr ne null)
     dstate.setCurrentNode(arr.asInstanceOf[DIArray])
   }
 
   override def toXML = {
-    toXML(info.name)
+    toXML(nqn.toQNameString)
   }
 
 }
 
-case class DownArrayExists(info: DPathElementCompileInfo) extends RecipeOp {
+case class DownArrayExists(nqn: NamedQName) extends RecipeOp {
 
   override def run(dstate: DState) {
     val now = dstate.currentComplex
-    val arr = dstate.withRetryIfBlocking(now.getChildArray(info))
+    val arr = dstate.withRetryIfBlocking(now.getChildArray(nqn))
 
     if ((arr eq null) || arr.length == 0)
-      throw new InfosetNoSuchChildElementException(now, info)
+      throw new InfosetNoSuchChildElementException(now, nqn)
   }
 
   override def toXML = {
-    toXML(info.name)
+    toXML(nqn.toQNameString)
   }
 
 }

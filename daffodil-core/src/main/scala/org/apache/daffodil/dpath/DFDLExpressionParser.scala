@@ -46,7 +46,8 @@ import org.apache.daffodil.xml.QNameRegex
  * save it. So hopefully that discards all the state of the combinator
  * stuff as well.
  */
-class DFDLPathExpressionParser[T <: AnyRef](qn: NamedQName,
+class DFDLPathExpressionParser[T <: AnyRef](
+  qn: NamedQName,
   nodeInfoKind: NodeInfo.Kind,
   namespaces: NamespaceBinding,
   context: DPathCompileInfo,
@@ -54,7 +55,7 @@ class DFDLPathExpressionParser[T <: AnyRef](qn: NamedQName,
   host: OOLAGHost) extends RegexParsers {
 
   def compile(expr: String): CompiledExpression[T] = {
-    val tree = getExpressionTree(expr, host)
+    val tree = getExpressionTree(expr)
 
     val recipe = tree.compiledDPath // if we cannot get one this will fail by throwing out of here.
 
@@ -119,7 +120,7 @@ class DFDLPathExpressionParser[T <: AnyRef](qn: NamedQName,
       r
     }
 
-  def getExpressionTree(expr: String, host: OOLAGHost): WholeExpression = {
+  def getExpressionTree(expr: String): WholeExpression = {
     // This wrapping of phrase() prevents a memory leak in the scala parser
     // combinators in scala 2.10. See the following bug for more information:
     //
