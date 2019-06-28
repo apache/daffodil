@@ -257,7 +257,7 @@ abstract class OrderedSequenceParserBase(
 
     var wasThrow = true
     try {
-      checkN(pstate, parser) // check if arrayIndex exceeds tunable limit.
+      checkN(pstate, parser) // check if occursIndex exceeds tunable limit.
 
       if (hasPoU) pstate.pushDiscriminator
       val priorPos = pstate.bitPos0b

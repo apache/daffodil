@@ -255,29 +255,29 @@ class TestCLIdebugger {
       shell.sendLine("info breakpoints")
       shell.expect(contains("2: cell   { dfdl:occursIndex() mod 2 eq 0 }"))
 
-      shell.sendLine("display info arrayIndex")
+      shell.sendLine("display info occursIndex")
 
       shell.sendLine("continue")
-      shell.expect(contains("arrayIndex: 1"))
+      shell.expect(contains("occursIndex: 1"))
 
       shell.sendLine("continue")
-      shell.expect(contains("arrayIndex: 2"))
+      shell.expect(contains("occursIndex: 2"))
 
       shell.sendLine("continue")
-      shell.expect(contains("arrayIndex: 3"))
+      shell.expect(contains("occursIndex: 3"))
 
       shell.sendLine("disable breakpoint 2")
 
       shell.sendLine("continue")
-      shell.expect(contains("arrayIndex: 5"))
+      shell.expect(contains("occursIndex: 5"))
 
       shell.sendLine("continue")
-      shell.expect(contains("arrayIndex: 7"))
+      shell.expect(contains("occursIndex: 7"))
 
       shell.sendLine("enable breakpoint 2")
 
       shell.sendLine("continue")
-      shell.expect(contains("arrayIndex: 8"))
+      shell.expect(contains("occursIndex: 8"))
 
       shell.sendLine("disable breakpoint 1")
       shell.sendLine("disable breakpoint 2")
@@ -480,7 +480,7 @@ class TestCLIdebugger {
       shell.sendLine(cmd)
       shell.expect(contains("(debug)"))
 
-      shell.sendLine("display info arrayIndex")
+      shell.sendLine("display info occursIndex")
       shell.expect(contains("(debug)"))
       shell.sendLine("break cell")
       shell.expect(contains("(debug)"))
@@ -488,10 +488,10 @@ class TestCLIdebugger {
       shell.expect(contains("1: cell"))
 
       shell.sendLine("continue")
-      shell.expect(contains("arrayIndex: 1"))
+      shell.expect(contains("occursIndex: 1"))
 
       shell.sendLine("continue")
-      shell.expect(contains("arrayIndex: 2"))
+      shell.expect(contains("occursIndex: 2"))
 
       shell.sendLine("disable breakpoint 1")
       shell.sendLine("info breakpoints")
