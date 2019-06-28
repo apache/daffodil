@@ -29,7 +29,7 @@ import org.apache.daffodil.grammar.ModelGroupGrammarMixin
 import org.apache.daffodil.infoset.ChoiceBranchEvent
 import org.apache.daffodil.infoset.ChoiceBranchStartEvent
 import org.apache.daffodil.infoset.ChoiceBranchEndEvent
-import java.lang.{ Integer => JInt }
+import java.lang.{ Integer => JInt, Boolean => JBoolean }
 import org.apache.daffodil.schema.annotation.props.AlignmentType
 import org.apache.daffodil.schema.annotation.props.gen.AlignmentUnits
 import org.apache.daffodil.schema.annotation.props.gen.YesNo
@@ -57,41 +57,46 @@ object ModelGroupFactory {
       lexicalParent.schemaDefinitionError("Model group circular definitions. Group references, or hidden group references form a loop.")
     } else {
       val moreNodesAlreadyTrying = nodesAlreadyTrying + child
-
-      val childModelGroup: ModelGroup = child match {
-        case <sequence>{ _* }</sequence> => {
-          val seq = new Sequence(child, lexicalParent, position)
-          if (seq.hiddenGroupRefOption.isDefined) {
-            //
-            // construct the group ref XML, then recursively process that,
-            // but set flag so it will be hidden.
-            //
-            val hgrXML = seq.hiddenGroupRefXML
-            ModelGroupFactory(hgrXML, lexicalParent, position, true, moreNodesAlreadyTrying)
-          } else {
-            seq
-          }
-        }
-        case <choice>{ _* }</choice> => new Choice(child, lexicalParent, position)
-        case <group>{ _* }</group> => {
-          val pos = lexicalParent match {
-            case ct: ComplexTypeBase => 1
-            case mg: ModelGroup => position
-            case gd: GlobalGroupDef => position
-          }
-          val isH = isHidden || lexicalParent.isHidden
-          val groupRefFactory = new GroupRefFactory(child, lexicalParent, pos, isH)
-          val groupRefInstance = groupRefFactory.groupRef
-          groupRefInstance.asModelGroup
-        }
-        case _ => {
-          Assert.invariantFailed("Unrecognized construct %s should be handled by caller.".format(child))
-        }
-      }
-      childModelGroup
+      val res =
+        makeModelGroup(child, lexicalParent, position, isHidden, nodesAlreadyTrying)
+      res
     }
   }
 
+  private def makeModelGroup(child: Node, lexicalParent: SchemaComponent, position: JInt, isHidden: Boolean,
+    nodesAlreadyTrying: Set[Node]): ModelGroup = {
+    val childModelGroup: ModelGroup = child match {
+      case <sequence>{ _* }</sequence> => {
+        val seq = new Sequence(child, lexicalParent, position)
+        if (seq.hiddenGroupRefOption.isDefined) {
+          //
+          // construct the group ref XML, then recursively process that,
+          // but set flag so it will be hidden.
+          //
+          val hgrXML = seq.hiddenGroupRefXML
+          ModelGroupFactory(hgrXML, lexicalParent, position, true, nodesAlreadyTrying)
+        } else {
+          seq
+        }
+      }
+      case <choice>{ _* }</choice> => new Choice(child, lexicalParent, position)
+      case <group>{ _* }</group> => {
+        val pos: Int = lexicalParent match {
+          case ct: ComplexTypeBase => 1
+          case mg: ModelGroup => position
+          case gd: GlobalGroupDef => position
+        }
+        val isH = isHidden || lexicalParent.isHidden
+        val groupRefFactory = new GroupRefFactory(child, lexicalParent, pos, isH)
+        val groupRefInstance = groupRefFactory.groupRef
+        groupRefInstance.asModelGroup
+      }
+      case _ => {
+        Assert.invariantFailed("Unrecognized construct %s should be handled by caller.".format(child))
+      }
+    }
+    childModelGroup
+  }
 }
 
 /**
@@ -321,7 +326,7 @@ abstract class ModelGroup(index: Int)
   /*
    * Returns list of Terms that could contain the first child element in the infoset
    */
-  protected final def possibleFirstChildTerms: Seq[Term] = LV('possibleFirstChildTerms) {
+  protected final lazy val possibleFirstChildTerms: Seq[Term] = LV('possibleFirstChildTerms) {
     val firstTerms = this match {
       case c: ChoiceTermBase => groupMembers
       case s: SequenceTermBase if !s.isOrdered => groupMembers

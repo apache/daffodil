@@ -180,7 +180,7 @@
     </tdml:errors>
     <tdml:warnings>
       <tdml:warning>Schema Definition Warning</tdml:warning>
-      <tdml:warning>Expression result type (String) should be manually cast to the expected type (Int)</tdml:warning>
+      <tdml:warning>result type (String) should be manually cast to the expected type (Int)</tdml:warning>
     </tdml:warnings>
   </tdml:parserTestCase>
 
@@ -196,7 +196,7 @@
     </tdml:errors>
     <tdml:warnings>
       <tdml:warning>Schema Definition Warning</tdml:warning>
-      <tdml:warning>Expression result type (String) should be manually cast to the expected type (Int)</tdml:warning>
+      <tdml:warning>result type (String) should be manually cast to the expected type (Int)</tdml:warning>
     </tdml:warnings>
   </tdml:parserTestCase>
 
@@ -216,7 +216,7 @@
     </tdml:errors>
     <tdml:warnings>
       <tdml:warning>Schema Definition Warning</tdml:warning>
-      <tdml:warning>Expression result type (String)</tdml:warning>
+      <tdml:warning>result type (String)</tdml:warning>
       <tdml:warning>expected type (Int)</tdml:warning>
     </tdml:warnings>
   </tdml:unparserTestCase>
@@ -235,7 +235,7 @@
     </tdml:errors>
     <tdml:warnings>
       <tdml:warning>Schema Definition Warning</tdml:warning>
-      <tdml:warning>Expression result type (String) should be manually cast to the expected type (Int)</tdml:warning>
+      <tdml:warning>result type (String) should be manually cast to the expected type (Int)</tdml:warning>
     </tdml:warnings>
   </tdml:unparserTestCase>
 
@@ -263,7 +263,7 @@
     </tdml:errors>
     <tdml:warnings>
       <tdml:warning>Schema Definition Warning</tdml:warning>
-      <tdml:warning>Expression result type (String)</tdml:warning>
+      <tdml:warning>result type (String)</tdml:warning>
       <tdml:warning>manually cast</tdml:warning>
       <tdml:warning>Expected type (Int)</tdml:warning>
     </tdml:warnings>
@@ -283,7 +283,7 @@
     </tdml:errors>
     <tdml:warnings>
       <tdml:warning>Schema Definition Warning</tdml:warning>
-      <tdml:warning>Expression result type (String)</tdml:warning>
+      <tdml:warning>result type (String)</tdml:warning>
       <tdml:warning>manually cast</tdml:warning>
       <tdml:warning>Expected type (Int)</tdml:warning>
     </tdml:warnings>
@@ -448,7 +448,7 @@
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>dfdlx:outputTypeCalcNextSibling</tdml:error>
       <tdml:error>all the possible next siblings have the same repType</tdml:error>
-      <tdml:error>potential next siblings a and b</tdml:error>
+      <tdml:error>potential next siblings ex:a and ex:b</tdml:error>
       <tdml:error>have repTypes Int and String</tdml:error>
     </tdml:errors>
   </tdml:unparserTestCase>
@@ -467,7 +467,7 @@
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>dfdlx:outputTypeCalcNextSibling</tdml:error>
       <tdml:error>potential next sibling</tdml:error>
-      <tdml:error>{http://example.com}b</tdml:error>
+      <tdml:error>ex:b</tdml:error>
       <tdml:error>does not define a type calculator</tdml:error>
     </tdml:errors>
   </tdml:unparserTestCase>
@@ -486,7 +486,7 @@
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>dfdlx:outputTypeCalcNextSibling</tdml:error>
       <tdml:error>potential next sibling</tdml:error>
-      <tdml:error>{http://example.com}b</tdml:error>
+      <tdml:error>ex:b</tdml:error>
       <tdml:error>does not define a type calculator</tdml:error>
     </tdml:errors>
   </tdml:unparserTestCase>

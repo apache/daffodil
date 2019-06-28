@@ -38,6 +38,7 @@ import java.lang.{
 }
 import org.apache.daffodil.exceptions.Assert
 import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
+import org.apache.daffodil.xml.NoNamespace
 
 /**
  * We need to have a data structure that lets us represent a type, and
@@ -47,37 +48,16 @@ import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
  * can answer questions about how two types are related. It can find the
  * least general supertype, or most general subtype of two types.
  */
-sealed abstract class TypeNode(parent: TypeNode, childrenArg: => List[TypeNode]) extends Serializable {
-  def name: String
+sealed abstract class TypeNode(parentsArg: => Seq[NodeInfo.Kind], childrenArg: => Seq[NodeInfo.Kind])
+  extends Serializable
+  with NodeInfo.Kind {
+
+  def this(parentArg: NodeInfo.Kind, childrenArg: => Seq[NodeInfo.Kind]) = this(Seq(parentArg), childrenArg)
+  def this(parentArg: NodeInfo.Kind) = this(Seq(parentArg), Seq(NodeInfo.Nothing))
 
   // Eliminated a var here. Doing functional graph construction now below.
-  lazy val children = childrenArg
-  lazy val isHead: Boolean = parent == null
-  lazy val lcaseName = name.toLowerCase()
-
-  // names in lower case
-  lazy val parentList: List[String] = {
-    if (isHead) {
-      List(this.lcaseName)
-    } else {
-      lcaseName :: parent.parentList
-    }
-  }
-
-  def doesParentListContain(typeName: String): Boolean = {
-    val list = parentList.filter(n =>
-      n.toLowerCase() == typeName.toLowerCase())
-    list.size > 0
-  }
-
-  private val xsScope = <xs:documentation xmlns:xs={ XMLUtils.XSD_NAMESPACE.uri.toString() }/>.scope
-
-  // FIXME: this scope has xs prefix bound, but what if that's not the binding
-  // the user has in their DFDL schema? What if they use "xsd" or just "x" or
-  // whatever? We really need to display the name of primitive types using the
-  // prefix the user defines for the XSD namespace.
-  //
-  lazy val globalQName: GlobalQName = QName.createGlobal(name.toLowerCase(), XMLUtils.XSD_NAMESPACE, xsScope)
+  final override lazy val parents = parentsArg
+  final override lazy val children = childrenArg
 }
 
 /*
@@ -85,8 +65,11 @@ sealed abstract class TypeNode(parent: TypeNode, childrenArg: => List[TypeNode])
  * deal with just the primitive types exclusive of all the abstract
  * types (like AnyAtomic, or AnyDateTimeType) that surround them.
  */
-sealed abstract class PrimTypeNode(parent: TypeNode, childrenArg: => List[TypeNode])
-  extends TypeNode(parent, childrenArg) with NodeInfo.PrimType
+sealed abstract class PrimTypeNode(parent: NodeInfo.Kind, childrenArg: => Seq[NodeInfo.Kind])
+  extends TypeNode(parent, childrenArg) with NodeInfo.PrimType {
+
+  def this(parent: NodeInfo.Kind) = this(parent, Seq(NodeInfo.Nothing))
+}
 
 /**
  * A NodeInfo.Kind describes what kind of result we want from the expression.
@@ -168,19 +151,41 @@ object NodeInfo extends Enum {
   sealed trait Kind extends EnumValueType {
     def name: String = Misc.getNameFromClass(this)
 
-    def isSubtypeOf(other: NodeInfo.Kind): Boolean = {
-      //
-      // FIXME this is a temporary workaround so not all the property tests
-      // will fail - mostly the properties that take expressions
-      // take NonEmptyString, but we don't have a conversion
-      // yet
-      //
-      if (this eq other) true
-      else if (this.isInstanceOf[NodeInfo.String.Kind] &&
-        other.isInstanceOf[NodeInfo.String.Kind]) true
-      else if (NodeInfo.isXDerivedFromY(this.name, other.name)) true
-      else false
+    def parents: Seq[Kind]
+    def children: Seq[Kind]
+
+    final lazy val isHead: Boolean = parents.isEmpty
+    final lazy val lcaseName = name.toLowerCase()
+
+    final lazy val selfAndAllParents: Set[Kind] = parents.flatMap { _.selfAndAllParents }.toSet ++ parents
+
+    // names in lower case
+    lazy val parentList: List[String] = {
+      selfAndAllParents.map { _.lcaseName }.toList
     }
+
+    def isSubtypeOf(other: Kind) =
+      if (this eq other) true
+      else selfAndAllParents.contains(other)
+
+    def doesParentListContain(typeName: String): Boolean = {
+      val list = parentList.filter(n =>
+        n.toLowerCase() == typeName.toLowerCase())
+      list.size > 0
+    }
+
+    private val xsScope = <xs:documentation xmlns:xs={ XMLUtils.XSD_NAMESPACE.uri.toString() }/>.scope
+
+    // FIXME: this scope has xs prefix bound, but what if that's not the binding
+    // the user has in their DFDL schema? What if they use "xsd" or just "x" or
+    // whatever? We really need to display the name of primitive types using the
+    // prefix the user defines for the XSD namespace.
+    //
+    lazy val globalQName: GlobalQName = this match {
+      case pt: PrimTypeNode => QName.createGlobal(name.toLowerCase(), XMLUtils.XSD_NAMESPACE, xsScope)
+      case _ => QName.createGlobal(name, NoNamespace, scala.xml.TopScope)
+    }
+
   }
 
   def fromObject(a: Any) = {
@@ -208,7 +213,7 @@ object NodeInfo extends Enum {
    * the indexing operation.
    */
   protected sealed trait ArrayKind extends NodeInfo.Kind
-  case object Array extends TypeNode(null, Nil) with ArrayKind {
+  case object Array extends TypeNode(Nil, Nil) with ArrayKind {
     sealed trait Kind extends ArrayKind
   }
 
@@ -217,7 +222,7 @@ object NodeInfo extends Enum {
    * types except some special singleton types like ArrayType.
    */
   protected sealed trait AnyTypeKind extends NodeInfo.Kind
-  case object AnyType extends TypeNode(null, List(Nillable)) with AnyTypeKind {
+  case object AnyType extends TypeNode(Nil, Seq(AnySimpleType, Complex, Exists)) with AnyTypeKind {
     sealed trait Kind extends AnyTypeKind
   }
 
@@ -229,40 +234,30 @@ object NodeInfo extends Enum {
    */
   case object Nothing
     extends TypeNode(
-      AnyType, List(
+      List(
         Boolean,
-        Complex, Nillable, Array, ArrayIndex,
+        Complex, Array, ArrayIndex,
         Double, Float,
         Date, Time, DateTime,
         UnsignedByte, Byte,
         HexBinary,
-        String, NonEmptyString))
-    with Boolean.Kind with Complex.Kind with Nillable.Kind with Array.Kind
+        String, NonEmptyString), Nil)
+    with Boolean.Kind with Complex.Kind with Array.Kind
     with ArrayIndex.Kind with Double.Kind with Float.Kind with Date.Kind with Time.Kind with DateTime.Kind with UnsignedByte.Kind with Byte.Kind with HexBinary.Kind with NonEmptyString.Kind
 
   /**
    * All complex types are represented by this one type object.
    */
   protected sealed trait ComplexKind extends AnyType.Kind
-  case object Complex extends TypeNode(AnyType, Nil) with ComplexKind {
+  case object Complex extends TypeNode(AnyType) with ComplexKind {
     type Kind = ComplexKind
-  }
-
-  /**
-   * There is nothing corresponding to NillableKind in the DFDL/XML Schema type
-   * hierarchy. We have it as a parent of both complex type and simple type since
-   * both of them can be nillable.
-   */
-  protected sealed trait NillableKind extends AnyType.Kind
-  case object Nillable extends TypeNode(AnyType, List(Complex, AnySimpleType)) with NillableKind {
-    type Kind = NillableKind
   }
 
   /**
    * For things like fn:exists, fn:empty, dfdl:contenLength
    */
   protected sealed trait ExistsKind extends AnyType.Kind
-  case object Exists extends TypeNode(AnyType, Nil) with NillableKind {
+  case object Exists extends TypeNode(AnyType) with AnyTypeKind {
     type Kind = ExistsKind
   }
 
@@ -276,53 +271,33 @@ object NodeInfo extends Enum {
    * AnyAtomic and AnySimpleType is that AnySimpleType admits XSD unions and list types,
    * where AnyAtomic does not?
    */
-  protected sealed trait AnySimpleTypeKind extends Nillable.Kind
-  case object AnySimpleType extends TypeNode(Nillable, List(AnyAtomic, AnySimpleExists)) with AnySimpleTypeKind {
+  protected sealed trait AnySimpleTypeKind extends AnyType.Kind
+  case object AnySimpleType extends TypeNode(AnyType, Seq(AnyAtomic)) with AnySimpleTypeKind {
     type Kind = AnySimpleTypeKind
   }
 
-  /**
-   * Combines the constraint of Exists with AnySimpleType. I.e, must be an element that exists
-   * and is of simple type.
-   *
-   * This is intended to express the type that must be a path to a simple type element.
-   * That is, /foo/bar where bar is an element of simple type, but not "foobar" which is a string
-   * literal of simple type. The path /foo/bar might be to an element bar with string value "foobar", but
-   * we want to distinguish between a string like "foobar" the value and /foo/bar a path to an element of type string.
-   *
-   * Intended for use in dfdl:valueLength, which takes a path, but only to a simple element.
-   */
-  protected sealed trait AnySimpleExistsKind extends AnySimpleType.Kind with Exists.Kind
-  case object AnySimpleExists extends TypeNode(AnySimpleType, Nil) with AnySimpleExistsKind {
-    type Kind = AnySimpleExistsKind
-  }
-
   protected sealed trait AnyAtomicKind extends AnySimpleType.Kind
-  case object AnyAtomic extends TypeNode(AnySimpleType, List(String, Numeric, Boolean, Opaque, AnyDateTime)) with AnyAtomicKind {
+  case object AnyAtomic extends TypeNode(AnySimpleType, Seq(String, Numeric, Boolean, Opaque, AnyDateTime)) with AnyAtomicKind {
     type Kind = AnyAtomicKind
   }
 
   protected sealed trait NumericKind extends AnyAtomic.Kind
-  case object Numeric extends TypeNode(AnyAtomic, List(SignedNumeric, UnsignedNumeric)) with NumericKind {
+  case object Numeric extends TypeNode(AnyAtomic, Seq(SignedNumeric, UnsignedNumeric)) with NumericKind {
     type Kind = NumericKind
   }
 
   protected sealed trait SignedNumericKind extends Numeric.Kind
-  case object SignedNumeric extends TypeNode(Numeric, List(Float, Double, Decimal, SignedInteger)) with SignedNumericKind {
+  case object SignedNumeric extends TypeNode(Numeric, Seq(Float, Double, Decimal)) with SignedNumericKind {
     type Kind = SignedNumericKind
   }
 
   protected sealed trait UnsignedNumericKind extends Numeric.Kind
-  case object UnsignedNumeric extends TypeNode(Numeric, List(NonNegativeInteger)) with UnsignedNumericKind {
+  case object UnsignedNumeric extends TypeNode(Numeric, Seq(NonNegativeInteger)) with UnsignedNumericKind {
     type Kind = UnsignedNumericKind
   }
 
-  protected sealed trait SignedIntegerKind extends SignedNumeric.Kind
-  case object SignedInteger extends TypeNode(SignedNumeric, List(Integer)) with SignedIntegerKind {
-    type Kind = SignedIntegerKind
-  }
   protected sealed trait OpaqueKind extends AnyAtomic.Kind
-  case object Opaque extends TypeNode(AnyAtomic, List(HexBinary)) with OpaqueKind {
+  case object Opaque extends TypeNode(AnyAtomic, Seq(HexBinary)) with OpaqueKind {
     type Kind = OpaqueKind
   }
 
@@ -333,16 +308,16 @@ object NodeInfo extends Enum {
    * arent allowed to be empty strings (e.g. padChar).
    */
   protected sealed trait NonEmptyStringKind extends String.Kind
-  case object NonEmptyString extends TypeNode(String, Nil) with NonEmptyStringKind {
+  case object NonEmptyString extends TypeNode(String) with NonEmptyStringKind {
     type Kind = NonEmptyStringKind
   }
   protected sealed trait ArrayIndexKind extends UnsignedInt.Kind
-  case object ArrayIndex extends TypeNode(UnsignedInt, Nil) with ArrayIndexKind {
+  case object ArrayIndex extends TypeNode(UnsignedInt) with ArrayIndexKind {
     type Kind = ArrayIndexKind
   }
 
   protected sealed trait AnyDateTimeKind extends AnyAtomicKind
-  case object AnyDateTime extends TypeNode(AnyAtomic, List(Date, Time, DateTime)) with AnyDateTimeKind {
+  case object AnyDateTime extends TypeNode(AnyAtomic, Seq(Date, Time, DateTime)) with AnyDateTimeKind {
     type Kind = AnyDateTimeKind
   }
 
@@ -404,11 +379,13 @@ object NodeInfo extends Enum {
     }
 
     def fromNodeInfo(nodeInfo: NodeInfo.Kind): Option[PrimType] = {
-      allPrims.find { nodeInfo.isSubtypeOf(_) }
+      allPrims.find {
+        nodeInfo.isSubtypeOf(_)
+      }
     }
 
     protected sealed trait FloatKind extends SignedNumeric.Kind
-    case object Float extends PrimTypeNode(SignedNumeric, Nil) with FloatKind {
+    case object Float extends PrimTypeNode(SignedNumeric) with FloatKind {
       type Kind = FloatKind
       override def fromXMLString(s: String) = {
         val f: JFloat = s match {
@@ -422,7 +399,7 @@ object NodeInfo extends Enum {
     }
 
     protected sealed trait DoubleKind extends SignedNumeric.Kind
-    case object Double extends PrimTypeNode(SignedNumeric, Nil) with DoubleKind {
+    case object Double extends PrimTypeNode(SignedNumeric) with DoubleKind {
       type Kind = DoubleKind
       override def fromXMLString(s: String) = {
         val d: JDouble = s match {
@@ -441,7 +418,7 @@ object NodeInfo extends Enum {
       override def fromXMLString(s: String) = new JBigDecimal(s)
     }
 
-    protected sealed trait IntegerKind extends SignedInteger.Kind
+    protected sealed trait IntegerKind extends Decimal.Kind
     case object Integer extends PrimTypeNode(Decimal, List(Long, NonNegativeInteger)) with IntegerKind {
       type Kind = IntegerKind
       override def fromXMLString(s: String) = new JBigInt(s)
@@ -466,7 +443,7 @@ object NodeInfo extends Enum {
     }
 
     protected sealed trait ByteKind extends Short.Kind
-    case object Byte extends PrimTypeNode(Short, Nil) with ByteKind {
+    case object Byte extends PrimTypeNode(Short) with ByteKind {
       type Kind = ByteKind
       override def fromXMLString(s: String): JByte = s.toByte
     }
@@ -499,7 +476,7 @@ object NodeInfo extends Enum {
     }
 
     protected sealed trait UnsignedByteKind extends UnsignedShort.Kind
-    case object UnsignedByte extends PrimTypeNode(UnsignedShort, Nil) with UnsignedByteKind {
+    case object UnsignedByte extends PrimTypeNode(UnsignedShort) with UnsignedByteKind {
       type Kind = UnsignedByteKind
       val Max = 255
       override def fromXMLString(s: String): JShort = s.toShort
@@ -512,19 +489,19 @@ object NodeInfo extends Enum {
     }
 
     protected sealed trait BooleanKind extends AnySimpleType.Kind
-    case object Boolean extends PrimTypeNode(AnyAtomic, Nil) with BooleanKind {
+    case object Boolean extends PrimTypeNode(AnyAtomic) with BooleanKind {
       type Kind = BooleanKind
       override def fromXMLString(s: String): JBoolean = s.toBoolean
     }
 
     protected sealed trait HexBinaryKind extends Opaque.Kind
-    case object HexBinary extends PrimTypeNode(Opaque, Nil) with HexBinaryKind {
+    case object HexBinary extends PrimTypeNode(Opaque) with HexBinaryKind {
       type Kind = HexBinaryKind
       override def fromXMLString(s: String): AnyRef = Misc.hex2Bytes(s)
     }
 
     protected sealed trait DateKind extends AnyDateTimeKind
-    case object Date extends PrimTypeNode(AnyDateTime, Nil) with DateKind {
+    case object Date extends PrimTypeNode(AnyDateTime) with DateKind {
       type Kind = DateKind
       override def fromXMLString(s: String): AnyRef = {
         DFDLDateConversion.fromXMLString(s)
@@ -532,7 +509,7 @@ object NodeInfo extends Enum {
     }
 
     protected sealed trait DateTimeKind extends AnyDateTimeKind
-    case object DateTime extends PrimTypeNode(AnyDateTime, Nil) with DateTimeKind {
+    case object DateTime extends PrimTypeNode(AnyDateTime) with DateTimeKind {
       type Kind = DateTimeKind
       override def fromXMLString(s: String): AnyRef = {
         DFDLDateTimeConversion.fromXMLString(s)
@@ -540,7 +517,7 @@ object NodeInfo extends Enum {
     }
 
     protected sealed trait TimeKind extends AnyDateTimeKind
-    case object Time extends PrimTypeNode(AnyDateTime, Nil) with TimeKind {
+    case object Time extends PrimTypeNode(AnyDateTime) with TimeKind {
       type Kind = TimeKind
       override def fromXMLString(s: String): AnyRef = {
         DFDLTimeConversion.fromXMLString(s)
@@ -553,8 +530,8 @@ object NodeInfo extends Enum {
   // list and the definition of these type objects above.
   //
   private lazy val allAbstractTypes = List(
-    AnyType, Nillable, AnySimpleType, AnyAtomic, Exists, AnySimpleExists,
-    Numeric, SignedNumeric, UnsignedNumeric, SignedInteger,
+    AnyType, AnySimpleType, AnyAtomic, Exists,
+    Numeric, SignedNumeric, UnsignedNumeric,
     // There is no UnsignedInteger because the concrete type
     // NonNegativeInteger plays that role.
     Opaque, AnyDateTime, Nothing)

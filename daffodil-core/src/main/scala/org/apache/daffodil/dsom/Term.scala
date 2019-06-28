@@ -131,16 +131,18 @@ trait Term
     val optSimpleTypeCached = optReferredToComponent.collect { case gstd: GlobalSimpleTypeDef => gstd.propCache }
     val usedProperties = propCache ++ optSimpleTypeCached.getOrElse(Map.empty)
 
-    localProps.foreach { case (prop, (value, _)) =>
-      if (!usedProperties.contains(prop)) {
-        SDW(WarnID.IgnoreDFDLProperty, "DFDL property was ignored: %s=\"%s\"", prop, value)
-      }
+    localProps.foreach {
+      case (prop, (value, _)) =>
+        if (!usedProperties.contains(prop)) {
+          SDW(WarnID.IgnoreDFDLProperty, "DFDL property was ignored: %s=\"%s\"", prop, value)
+        }
     }
 
-    refProps.foreach { case (prop, (value, _)) =>
-      if (!usedProperties.contains(prop)) {
-        optReferredToComponent.get.SDW(WarnID.IgnoreDFDLProperty, "DFDL property was ignored: %s=\"%s\"", prop, value)
-      }
+    refProps.foreach {
+      case (prop, (value, _)) =>
+        if (!usedProperties.contains(prop)) {
+          optReferredToComponent.get.SDW(WarnID.IgnoreDFDLProperty, "DFDL property was ignored: %s=\"%s\"", prop, value)
+        }
     }
 
     termChildren.foreach { _.checkUnusedProperties }
@@ -300,23 +302,6 @@ trait Term
     case Some(_) => enclosingTerm.get.nearestEnclosingElement
   }
 
-  /**
-   * We want to determine if we're in an unordered sequence
-   * at any point along our parents.
-   */
-  final lazy val inUnorderedSequence: Boolean =
-    nearestEnclosingSequence match {
-      case None => {
-        false
-      }
-      case Some(s) => {
-        if (s.isOrdered) {
-          val result = s.inUnorderedSequence
-          result
-        } else true
-      }
-    }
-
   final lazy val immediatelyEnclosingModelGroup: Option[ModelGroup] = {
     optLexicalParent.flatMap { lexicalParent =>
       val res = lexicalParent match {
@@ -395,19 +380,6 @@ trait Term
   final lazy val priorSiblings = ListUtils.preceding(allSiblings, this)
   final lazy val laterSiblings = ListUtils.tailAfter(allSiblings, this)
   final lazy val laterElementSiblings = laterSiblings.collect { case elt: ElementBase => elt }
-
-  final lazy val laterSiblingsWithinEnclosingElement: Seq[Term] = {
-    enclosingElement.flatMap { ee =>
-      enclosingTerm.map { et =>
-        val eeGroup = ee.complexType.group
-        val res =
-          laterSiblings ++
-            (if (et eq eeGroup) Nil
-            else et.laterSiblingsWithinEnclosingElement)
-        res
-      }
-    }.getOrElse(Nil)
-  }
 
   final lazy val priorSibling = priorSiblings.lastOption
   final lazy val nextSibling = laterSiblings.headOption
@@ -824,29 +796,29 @@ trait Term
    * return any children of sibling Terms, or any siblings of the enclosingParent.
    */
   final def possibleNextSiblingTerms: Seq[Term] = LV('possibleNextSiblingTerms) {
-    val et = enclosingTerm
-    val listOfNextTerm = et match {
-      case None => Nil // root element, has no siblings
-      case Some(e: ElementBase) => Nil // complex element, cannot have another model group other than this one
-      case Some(c: ChoiceTermBase) => Nil // in choice, no other siblings could come after this one
-      case Some(s: SequenceTermBase) if !s.isOrdered => s.groupMembers // unorderd sequence, all siblings (and myself) could be next
-      case Some(s: SequenceTermBase) => {
-        // in a sequence, the next term could be any later sibling that is not
-        // or does not have a required element, up to and including the first
-        // term that is/has a required element
-        //        def isOutputValueCalc(term: Term) =
-        //          term match { case eb: ElementBase if eb.isOutputValueCalc => true; case _ => false }
-        val selfAndAllNextSiblings = s.groupMembers.dropWhile(_ != this)
-        val allNextSiblings = if (selfAndAllNextSiblings.length > 0) selfAndAllNextSiblings.tail else Nil
-        val nextSiblings = allNextSiblings // .dropWhile(isOutputValueCalc(_))
-        val (optional, firstRequiredAndLater) = nextSiblings.span {
-          case e: ElementBase => e.canBeAbsentFromUnparseInfoset
-          case mg: ModelGroup => !mg.mustHaveRequiredElement
+    enclosingTerms.flatMap { et =>
+      val listOfNextTerm = et match {
+        case e: ElementBase => Nil // complex element, cannot have another model group other than this one
+        case c: ChoiceTermBase => Nil // in choice, no other siblings could come after this one
+        case s: SequenceTermBase if !s.isOrdered => s.groupMembers // unorderd sequence, all siblings (and myself) could be next
+        case s: SequenceTermBase => {
+          // in a sequence, the next term could be any later sibling that is not
+          // or does not have a required element, up to and including the first
+          // term that is/has a required element
+          //        def isOutputValueCalc(term: Term) =
+          //          term match { case eb: ElementBase if eb.isOutputValueCalc => true; case _ => false }
+          val selfAndAllNextSiblings = s.groupMembers.dropWhile(_ != this)
+          val allNextSiblings = if (selfAndAllNextSiblings.length > 0) selfAndAllNextSiblings.tail else Nil
+          val nextSiblings = allNextSiblings // .dropWhile(isOutputValueCalc(_))
+          val (optional, firstRequiredAndLater) = nextSiblings.span {
+            case e: ElementBase => e.canBeAbsentFromUnparseInfoset
+            case mg: ModelGroup => !mg.mustHaveRequiredElement
+          }
+          optional ++ firstRequiredAndLater.take(1)
         }
-        optional ++ firstRequiredAndLater.take(1)
       }
+      listOfNextTerm
     }
-    listOfNextTerm
   }.value
 
   /**

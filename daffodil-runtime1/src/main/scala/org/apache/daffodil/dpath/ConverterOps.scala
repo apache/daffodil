@@ -235,6 +235,10 @@ case object LongToUnsignedLong extends Converter {
   }
 }
 
+case object NumericToDouble extends Converter {
+  override def computeValue(a: AnyRef, dstate: DState): AnyRef = asDouble(a)
+}
+
 case object StringToBoolean extends Converter {
   override def computeValue(a: AnyRef, dstate: DState): AnyRef = {
     val str = a.asInstanceOf[String]

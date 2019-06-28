@@ -33,6 +33,7 @@ import org.apache.daffodil.api.WarnID
 import org.apache.daffodil.infoset.NoNextElement
 import org.apache.daffodil.infoset.OnlyOnePossibilityForNextElement
 import org.apache.daffodil.infoset.SeveralPossibilitiesForNextElement
+import org.apache.daffodil.util.LogLevel
 
 /**
  * Root class of the type hierarchy for the AST nodes used when we
@@ -100,7 +101,10 @@ abstract class Expression extends OOLAGHostImpl()
   //
   // override for other checking beyond what is needed to do conversions
   //
-  protected def checkTypeCorrectness = true
+  protected lazy val checkTypeCorrectness =
+    children.forall { child =>
+      child.isTypeCorrect
+    }
 
   def text: String
 
@@ -151,17 +155,15 @@ abstract class Expression extends OOLAGHostImpl()
   lazy val compileInfo: DPathCompileInfo = // override in WholeExpression
     parent.compileInfo
 
-  final lazy val enclosingElementCompileInfo: Option[DPathElementCompileInfo] =
-    compileInfo.enclosingElementCompileInfo
+  final lazy val enclosingElementCompileInfos: Seq[DPathElementCompileInfo] =
+    compileInfo.enclosingElementCompileInfos
 
   final lazy val rootElement: DPathElementCompileInfo = {
-    enclosingElementCompileInfo.map {
-      _.rootElement
-    }.getOrElse {
-      compileInfo.elementCompileInfo.getOrElse {
-        Assert.invariantFailed("root doesn't have compile info")
-      }
+    val ecis = compileInfo.elementCompileInfos
+    if (ecis.length == 0) {
+      Assert.invariantFailed("Element doesn't have compile info")
     }
+    ecis.head.rootElement
   }
 
   lazy val namespaces: NamespaceBinding = parent.namespaces
@@ -250,7 +252,7 @@ trait BinaryExpMixin { self: ExpressionLists =>
   def left = children(0)
   def right = children(1)
   def op: String
-  def text = left.text + " " + op + " " + right
+  def text = left.text + " " + op + " " + right.text
 }
 
 trait BooleanExpression extends BinaryExpMixin {
@@ -616,18 +618,24 @@ case class WholeExpression(
     }
 
     if (!allowCoercion) {
+      val (relevantExpr: Expression, detailMsg: String) =
+        Conversion.polymorphicExpressionDiagnostics(inherentType, targetType, subExpr)
       if (tunable.allowExpressionResultCoercion) {
         SDW(
           WarnID.DeprecatedExpressionResultCoercion,
-          "Expression result type (%s) should be manually cast to the expected type (%s) with the appropriate constructor. " +
-            "Performing deprecated automatic conversion.",
+          "In expression %s, result type (%s) should be manually cast to the expected type (%s) with the appropriate constructor." +
+            "Performing deprecated automatic conversion.%s",
+          relevantExpr.text,
           inherentType,
-          targetType)
+          targetType,
+          detailMsg)
       } else {
         SDE(
-          "Expression result type (%s) must be manually cast to the expected type (%s) with the approrpriate constructor.",
+          "In expression %s, result type (%s) must be manually cast to the expected type (%s) with the approrpriate constructor.%s",
+          relevantExpr.text,
           inherentType,
-          targetType)
+          targetType,
+          detailMsg)
       }
     }
 
@@ -854,9 +862,28 @@ sealed abstract class StepExpression(val step: String, val pred: Option[Predicat
   }
   requiredEvaluations(priorStep)
   requiredEvaluations(compileInfo)
-  requiredEvaluations(stepElement)
+  requiredEvaluations(stepElements)
+
+  def verifyQNames(cis: Seq[DPathElementCompileInfo]): Unit = {
+    cis.foreach { ci =>
+      if (!ci.namedQName.matches(stepQName))
+        ci.noMatchError(stepQName)
+    }
+  }
 
   // override def toString = text
+
+  // Combination of lazy val and a protected def is an idiom
+  // that enables a lazy calculation to call super.
+  //
+  final lazy val stepElements = {
+    val res = stepElementDefs
+    //    log(LogLevel.Info, "DPath Compiler: path step elements for %s are %s.",
+    //      step, res.map { _.sscd }.mkString(", "))
+    res
+  }
+
+  protected def stepElementDefs: Seq[DPathElementCompileInfo]
 
   // Note: all instances are distinct regardless of contents.
   override def equals(x: Any) = x match {
@@ -866,8 +893,8 @@ sealed abstract class StepExpression(val step: String, val pred: Option[Predicat
 
   override def hashCode() = super.hashCode()
 
-  override def hasReferenceTo(elem: DPathElementCompileInfo): Boolean = {
-    stepElement =:= elem
+  final override def hasReferenceTo(elem: DPathElementCompileInfo): Boolean = {
+    stepElements.contains(elem)
   }
 
   lazy val stepQName = {
@@ -879,8 +906,6 @@ sealed abstract class StepExpression(val step: String, val pred: Option[Predicat
   }
 
   override lazy val children = pred.toList
-
-  def stepElement: DPathElementCompileInfo
 
   lazy val priorStep: Option[StepExpression] = {
     val res =
@@ -919,7 +944,16 @@ sealed abstract class StepExpression(val step: String, val pred: Option[Predicat
     res
   }
 
-  lazy val isArray: Boolean = stepElement.isArray
+  final lazy val isArray: Boolean = {
+    val (arrays, scalars) = stepElements.partition { _.isArray }
+    (arrays.length, scalars.length) match {
+      case (a, s) if (a > 0 && s > 0) =>
+        arrays.head.SDE("Path step is ambiguous. It can be to an array or a non-array element.\n" +
+          "One of the non-arrays is %s", scalars.head.schemaFileLocation.toString)
+      case (a, s) if (a == 0) => false
+      case _ => true
+    }
+  }
 
   /**
    * Used when there is no match as part of error diagnostic message.
@@ -943,155 +977,197 @@ sealed abstract class StepExpression(val step: String, val pred: Option[Predicat
     NodeInfo.ArrayIndex
   }
 
+}
+
+sealed abstract class DownStepExpression(s: String, predArg: Option[PredicateExpression])
+  extends StepExpression(s, predArg) {
+
+  /**
+   * Since an expresion can be in a reused group, type, or element, the downward path
+   * step may actually represent a step downward to distinct elements that happen to
+   * just have the same name/namespace, but they could be different types.
+   *
+   * If that is the case, for the expression to be meaningful, the path step must be
+   * ultimately result in an element of type suitable for the next operation that
+   * occurs on the element.
+   *
+   * To insure we have referential transparency, that requires that each distinct type
+   * result in its own compilation of the expression. In a complex expression involving
+   * multiple such paths.... gets complicated.
+   *
+   * For now, we just insist all the types are equal, and issue a SDE if they are not.
+   */
   override lazy val inherentType: NodeInfo.Kind = {
-    if (!isLastStep) NodeInfo.Complex
-    else {
-      if (stepElement.optPrimType.isDefined) {
-        // simple type, so
-        val pt = stepElement.optPrimType.get
-        pt
-      } else {
-        NodeInfo.Complex
-      }
+    //    stepElements.map { _.typeNode }.reduce {
+    //      (left, right) =>
+    //        NodeInfoUtils.typeLeastUpperBound(left, right)
+    //    }
+    val allTypes = stepElements.map { _.typeNode }.distinct
+    Assert.invariant(allTypes.length > 0)
+    if (allTypes.length > 1) {
+      val (relevantExpr, details) = polymorphicExpressionErrorDetails(this)
+      notYetImplemented(
+        "Expression %s has different types at different points of usage.%s",
+        relevantExpr.text, details)
+    } else {
+      allTypes.head
     }
   }
 
+  final def polymorphicExpressionErrorDetails(context: Expression): (Expression, String) = {
+    val (relevantExpr: Expression, detailMsg: String) =
+      context match {
+        case stepE: StepExpression => {
+          val typeNodeGroups = stepE.stepElements.groupBy { _.typeNode }
+          Assert.invariant(typeNodeGroups.size > 0)
+          val rpp = stepE.relPathParent
+          val wholePath =
+            if (rpp.isAbsolutePath)
+              rpp.parent.asInstanceOf[RootPathExpression]
+            else
+              rpp
+          if (typeNodeGroups.size > 1) {
+            //
+            // types are not consistent for all step elements
+            //
+            val detailStrings: Seq[String] = {
+              typeNodeGroups.flatMap {
+                case (tn, cis) =>
+                  val tname = tn.globalQName.toQNameString
+                  val perUsePointStrings = cis.map { ci =>
+                    val sfl = ci.schemaFileLocation.locationDescription
+                    val qn = ci.namedQName.toQNameString
+                    val msg = "element %s in expression %s with %s type at %s".format(
+                      qn, wholePath.text, tname, sfl)
+                    msg
+                  }
+                  perUsePointStrings
+              }
+            }.toSeq
+            val detailPart: Seq[String] =
+              if (detailStrings.length > 4)
+                detailStrings.take(4) :+ "..."
+              else
+                detailStrings
+            val detailMessage: String =
+              "\nThe inconsistent type usages are listed here:\n%s".format(
+                detailPart.mkString("\n"))
+            (wholePath, detailMessage)
+          } else {
+            (wholePath, "")
+          }
+        }
+        case _ => (context, "")
+      }
+    (relevantExpr, detailMsg)
+  }
 }
 
-//TODO: Is ".[i]" ever a valid expression in DFDL?
+// TODO: Is ".[i]" ever a valid expression in DFDL?
+// Perhaps. Doesn't work currently though. See DAFFODIL-2182
 
-case class Self(predArg: Option[PredicateExpression]) extends StepExpression(null, predArg) {
+sealed abstract class SelfStepExpression(s: String, predArg: Option[PredicateExpression])
+  extends DownStepExpression(s, predArg) {
 
   override lazy val compiledDPath = new CompiledDPath(SelfMove +: conversions)
-
   override def text = "."
 
-  override lazy val stepElement: DPathElementCompileInfo =
-    priorStep.map { _.stepElement }.getOrElse {
-      //  no prior step, so we're the first step
-      this.compileInfo.elementCompileInfo.getOrElse {
-        relPathErr()
+  protected def stepElementDefs: Seq[DPathElementCompileInfo] = {
+    if (this.isFirstStep) {
+      val ecs = compileInfo.elementCompileInfos
+      if (ecs.isEmpty) {
+        Assert.invariantFailed("Self expression step '.' but there is no enclosing element")
       }
-    }
+      ecs
+    } else
+      priorStep.get match {
+        case priorUp: UpStepExpression => SDE("Path '../.' is not allowed.")
+        case priorDown: DownStepExpression => priorDown.stepElements
+        case x => Assert.invariantFailed("Not recognized: " + x)
+      }
+  }
 }
+
+case class Self(predArg: Option[PredicateExpression])
+  extends SelfStepExpression(null, predArg)
 
 /**
  * Different from Self in that it verifies the qName (s) is
  * the name of the context.
  */
 case class Self2(s: String, predArg: Option[PredicateExpression])
-  extends StepExpression(s, predArg) {
+  extends SelfStepExpression(s, predArg) {
 
   requiredEvaluations(stepQName)
 
-  override lazy val compiledDPath = new CompiledDPath(SelfMove +: conversions)
-
-  override def text = "."
-
-  override lazy val stepElement: DPathElementCompileInfo = {
-    val ci = priorStep.map { _.stepElement }.getOrElse {
-      //  no prior step, so we're the first step
-      this.compileInfo.elementCompileInfo.getOrElse {
-        relPathErr()
-      }
-    }
-    if (!ci.namedQName.matches(stepQName))
-      ci.noMatchError(stepQName)
-    ci
+  override def stepElementDefs: Seq[DPathElementCompileInfo] = {
+    val cis = super.stepElementDefs
+    verifyQNames(cis)
+    cis
   }
-
 }
 
-case class Up(predArg: Option[PredicateExpression]) extends StepExpression(null, predArg) {
-  override lazy val compiledDPath = {
-    if (isLastStep && stepElement.isArray && targetType == NodeInfo.Array) {
+sealed abstract class UpStepExpression(s: String, predArg: Option[PredicateExpression])
+  extends StepExpression(s, predArg) {
+
+  override def text = ".."
+
+  final override lazy val compiledDPath = {
+    val areAllArrays = isLastStep && stepElements.forall { _.isArray } && targetType == NodeInfo.Array
+    if (areAllArrays) {
       new CompiledDPath(UpMoveArray)
     } else {
       new CompiledDPath(UpMove)
     }
   }
 
-  override def text = ".." // + "{" + stepElement.path + "}"
-
-  override lazy val stepElement: DPathElementCompileInfo = {
-    if (isFirstStep) {
-      Assert.invariant(!isAbsolutePath)
-      val sc = this.compileInfo
-      // if we are some component inside an element then we
-      // need to get the element surrounding first, then go up one.
-      val e = sc.elementCompileInfo
-      val e1 = e.getOrElse {
-        SDE("No enclosing element.")
+  protected def stepElementDefs: Seq[DPathElementCompileInfo] = {
+    val res =
+      if (isFirstStep) {
+        Assert.invariant(!isAbsolutePath)
+        //
+        // This looks like 2 hops up, but it is really 1 hop up.
+        // first position ourselves on nearest enclosing element, or self if
+        // we are an element.
+        // Then take the enclosing elements to get ".." upward move.
+        //
+        val p = compileInfo.elementCompileInfos.flatMap { _.enclosingElementCompileInfos }
+        if (p.isEmpty) relPathErr()
+        p
+      } else {
+        val ps = priorStep.get
+        ps.stepElements.flatMap { _.enclosingElementCompileInfos }
       }
-      val e2 = e1.enclosingElementCompileInfo
-      val e3 = e2.getOrElse {
-        relPathErr()
-      }
-      e3
-    } else {
-      // not first, so
-      val ps = priorStep
-      val ps2 = ps.map { _.stepElement }
-      val ps3 = ps2.getOrElse {
-        relPathErr()
-      }
-      val ps4 = ps3.enclosingElementCompileInfo
-      val ps5 = ps4.getOrElse {
-        relPathErr()
-      }
-      ps5
-    }
+    res
   }
+
+  override lazy val inherentType: NodeInfo.Kind = NodeInfo.Complex
 }
+
+case class Up(predArg: Option[PredicateExpression])
+  extends UpStepExpression(null, predArg)
 
 /**
  * Different from Up in that it verifies the qName (s) is the
  * name of the parent node.
  */
 case class Up2(s: String, predArg: Option[PredicateExpression])
-  extends StepExpression(s, predArg) {
-  override lazy val compiledDPath = new CompiledDPath(UpMove)
+  extends UpStepExpression(s, predArg) {
 
   requiredEvaluations(stepQName)
 
-  override def text = ".." // + "{" + stepElement.path + "}"
+  override def text = ".."
 
-  override lazy val stepElement: DPathElementCompileInfo = {
-    val ci = if (isFirstStep) {
-      Assert.invariant(!isAbsolutePath)
-      val sc = this.compileInfo
-      // if we are some component inside an element then we
-      // need to get the element surrounding first, then go up one.
-      val e = sc.elementCompileInfo
-      val e1 = e.getOrElse {
-        SDE("No enclosing element.")
-      }
-      val e2 = e1.enclosingElementCompileInfo
-      val e3 = e2.getOrElse {
-        relPathErr()
-      }
-      e3
-    } else {
-      // not first, so
-      val ps = priorStep
-      val ps2 = ps.map { _.stepElement }
-      val ps3 = ps2.getOrElse {
-        relPathErr()
-      }
-      val ps4 = ps3.enclosingElementCompileInfo
-      val ps5 = ps4.getOrElse {
-        relPathErr()
-      }
-      ps5
-    }
-    if (!ci.namedQName.matches(stepQName))
-      ci.noMatchError(stepQName)
-    ci
+  override protected def stepElementDefs: Seq[DPathElementCompileInfo] = {
+    val cis = super.stepElementDefs
+    verifyQNames(cis)
+    cis
   }
+
 }
 
 case class NamedStep(s: String, predArg: Option[PredicateExpression])
-  extends StepExpression(s, predArg) {
+  extends DownStepExpression(s, predArg) {
 
   requiredEvaluations(stepQName)
 
@@ -1103,63 +1179,108 @@ case class NamedStep(s: String, predArg: Option[PredicateExpression])
     res
   }
 
-  lazy val dpathElementCompileInfo = stepElement
+  lazy val dpathElementCompileInfos = stepElements
 
   lazy val downwardStep = {
-    if (stepElement.isArray && pred.isDefined) {
-      Assert.invariant(pred.get.targetType == NodeInfo.ArrayIndex)
-      val indexRecipe = pred.get.compiledDPath
-      new DownArrayOccurrence(dpathElementCompileInfo, indexRecipe)
-    } else if (stepElement.isArray && targetType == NodeInfo.Exists) {
-      new DownArrayExists(dpathElementCompileInfo)
-    } else if (stepElement.isArray) {
-      schemaDefinitionUnless(targetType == NodeInfo.Array, "Query-style paths not supported. Must have '[...]' after array-element's name. Offending path step: '%s'.", step)
-      new DownArray(dpathElementCompileInfo)
+    val nqn = dpathElementCompileInfos.head.namedQName
+    if (isArray) {
+      if (pred.isDefined) {
+        Assert.invariant(pred.get.targetType == NodeInfo.ArrayIndex)
+        val indexRecipe = pred.get.compiledDPath
+        new DownArrayOccurrence(nqn, indexRecipe)
+      } else if (targetType == NodeInfo.Exists) {
+        new DownArrayExists(nqn)
+      } else {
+        schemaDefinitionUnless(targetType == NodeInfo.Array, "Query-style paths not supported. Must have '[...]' after array-element's name. Offending path step: '%s'.", step)
+        new DownArray(nqn)
+      }
     } else {
       //
       // Note: DFDL spec allows a[exp] if a is not an array, but it's a processing
       // error if exp doesn't evaluate to 1.
       // TODO: Implement this.
       if (pred.isDefined) subsetError("Indexing is only allowed on arrays. Offending path step: '%s%s'.", step, pred.get.text)
-      new DownElement(dpathElementCompileInfo)
+      // the downward element step must be the same for all the possible elements, so
+      // we can pick the first one arbitrarily.
+      new DownElement(nqn)
     }
   }
 
   override def text = step
 
-  private def die = {
-    Assert.invariantFailed("should have thrown")
-  }
   /*
-   * The ERD of the element that corresponds to this path step
-   * (or SDE trying to find it.)
+   * The ERDs of the elements that correspond to this path step
+   * (or SDE trying to find them.)
+   *
+   * There are multiple step elements because an upward relative path can be say
+   * from an element inside a global group, upward to multiple group
+   * references where the relative path then steps downward to
+   * different elements having the same name.
+   *
+   * E.g., ../../b must type check for all possible b that this path
+   * can refer to. If that path appears inside a global group definition,
+   * then every place that group is used must have a corresponding b
+   * child element that satisfies this path, and which type-checks.
+   *
+   * So long as they all type check, the we can generate the
+   * downward step we need in a way that works universally for all
+   * uses of the path.
    */
-  override lazy val stepElement: DPathElementCompileInfo = {
-    val stepElem = if (isFirstStep) {
-      if (isAbsolutePath) {
-        // has to be the root element, but we have to make sure the name matches.
-        rootElement.findRoot(stepQName, this)
-        rootElement
+  override protected def stepElementDefs: Seq[DPathElementCompileInfo] = {
+    val res: Seq[DPathElementCompileInfo] =
+      if (isFirstStep) {
+        if (isAbsolutePath) {
+          // has to be the root element, but we have to make sure the name matches.
+          val re = rootElement
+          re.findRoot(stepQName, this)
+          Seq(re)
+        } else {
+          // Since we're first we start from the element, or nearest enclosing
+          // for this path expression.
+
+          // That can already be multiple such, because this expression could be
+          // say on the initiator property of an inner sequence inside a global sequence
+          // group def. That global def could be used inside the complex type of
+          // 3 different elements. So we would have 3 elementCompileInfos for this
+          // step.
+          //
+          // Also since we're the first step, and this is a named step, this has
+          // to be downward to a child. Assertion check here is just in case
+          // somebody refactors this code elsewhere, as it is a very strong
+          // assumption for this algorithm.
+          Assert.invariant(this.isInstanceOf[NamedStep])
+          //
+          // All enclosing elements for this path step must be able to
+          // find a named child that matches.
+          //
+          val nc = compileInfo.elementCompileInfos.map {
+            _.findNamedChild(stepQName, this) // will SDE on not found.
+          }
+          nc
+        }
       } else {
-        // since we're first we start from the element, or nearest enclosing
-        val nc = compileInfo.elementCompileInfo.getOrElse {
-          // happens for example if you have defaultValue="false" since false looks like a path step, but is really illegal. should be fn:false().
-          compileInfo.SDE("The expression path step '%s' has no defined enclosing element.", s)
-        }.findNamedChild(stepQName, this)
-        nc
+        // This is not first step so we are extension of prior step
+        val ps = priorStep.get
+        //
+        // Now our current step is one that we can start
+        // look for our downward named step.
+        //
+        // This downward step must make sense name and type-wise
+        val possibles = ps.stepElements.flatMap { d =>
+          val possibleChildren = d.elementChildrenCompileInfo
+          val matches = d.findNamedChildren(stepQName, possibleChildren)
+          if (matches.isEmpty)
+            d.noMatchError(stepQName)
+          if (matches.length > 1) {
+            // expression is ambiguous. A path like ../foo, but for one of the possible ".." there's multiple foo.
+            d.queryMatchWarning(stepQName, matches, this)
+          }
+          matches
+        }
+        if (possibles.isEmpty) relPathErr()
+        possibles
       }
-    } else {
-      // not first step so we are extension of prior step
-      val e = priorStep.map { ps =>
-        val psse = ps.stepElement
-        psse
-      }.map { se =>
-        val nc = se.findNamedChild(stepQName, this)
-        nc
-      }.getOrElse(die)
-      e
-    }
-    stepElem
+    res
   }
 }
 
@@ -1458,7 +1579,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
 
       case (RefQName(_, "nilled", FUNC), args) =>
         FNOneArgExpr(functionQNameString, functionQName, args,
-          NodeInfo.Boolean, NodeInfo.Nillable, FNNilled(_, _))
+          NodeInfo.Boolean, NodeInfo.AnyType, FNNilled(_, _))
 
       case (RefQName(_, "exists", FUNC), args) =>
         FNOneArgExpr(functionQNameString, functionQName, args,
@@ -1604,7 +1725,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
               if (otherAns != ans) {
                 SDE(
                   "dfdlx:outputTypeCalcNextSibling() requires that all the possible next siblings have the same " +
-                  "repType. However, the potential next siblings %s and %s have repTypes %s and %s respectively",
+                    "repType. However, the potential next siblings %s and %s have repTypes %s and %s respectively",
                   headQName, otherQName, ans, otherAns)
               }
             })
@@ -1771,11 +1892,11 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
      * a concept that the type checker has
      */
     if (typeCalcExpr.inherentType != NodeInfo.String) {
-      SDE("The type calculuator name arguement must be a constant string")
+      SDE("The type calculator name argument must be a constant string")
     }
     val qname = typeCalcExpr match {
       case typeCalcName: LiteralExpression => typeCalcName.v.asInstanceOf[String]
-      case _ => SDE("The type calculuator name arguement must be a constant string")
+      case _ => SDE("The type calculator name argument must be a constant string")
     }
     val refType = QName.resolveRef(qname, compileInfo.namespaces, compileInfo.tunable).get.toGlobalQName
     val typeCalculator = compileInfo.typeCalcMap.get(refType) match {
@@ -2104,8 +2225,7 @@ sealed abstract class LengthExprBase(nameAsParsed: String, fnQName: RefQName,
     val arg = args(0).asInstanceOf[PathExpression]
     val steps = arg.steps
     val lst = steps.last
-    val elem = lst.stepElement
-    val res = Set(elem)
+    val res = lst.stepElements.toSet
     res
   }
 

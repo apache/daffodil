@@ -24,7 +24,7 @@ import org.apache.daffodil.api.WarnID
 import scala.xml.Text
 import scala.xml.Comment
 
-abstract class ComplexTypeBase(xmlArg: Node, parentArg: SchemaComponent)
+sealed abstract class ComplexTypeBase(xmlArg: Node, parentArg: SchemaComponent)
   extends SchemaComponentImpl(xmlArg, parentArg)
   with TypeBase
   with NonPrimTypeMixin {
@@ -35,8 +35,6 @@ abstract class ComplexTypeBase(xmlArg: Node, parentArg: SchemaComponent)
 
   requiredEvaluations(modelGroup)
 
-  protected final lazy val <complexType>{ xmlChildren @ _* }</complexType> = xml
-
   final def group = modelGroup
 
   /**
@@ -45,13 +43,22 @@ abstract class ComplexTypeBase(xmlArg: Node, parentArg: SchemaComponent)
   final def sequence = group.asInstanceOf[Sequence]
   final def choice = group.asInstanceOf[Choice]
 
+  private lazy val <complexType>{ xmlChildren @ _* }</complexType> = xml
+
   final lazy val Seq(modelGroup) = {
     val s = smg
     schemaDefinitionUnless(s.length == 1, "A complex type must have exactly one model-group element child which is a sequence, choice, or group reference.")
     s
   }
 
-  private def smg = LV('smg) {
+  private lazy val smg = {
+    childrenForTerms.map {
+      xmlChild =>
+        ModelGroupFactory(xmlChild, this, 1, false)
+    }
+  }
+
+  private lazy val childrenForTerms = {
     xmlChildren.flatMap {
       xmlChild =>
         {
@@ -70,19 +77,10 @@ abstract class ComplexTypeBase(xmlArg: Node, parentArg: SchemaComponent)
             }
             case textNode: Text => None
             case _: Comment => None
-            case _ => {
-              val g = ModelGroupFactory(xmlChild, this, 1, false)
-              Some(g)
-            }
+            case _ => Some(xmlChild)
           }
         }
     }
-  }.value
-
-  // provides needed polymorphism across unannotated complex types, and
-  // the annotated objects.
-  lazy val localAndFormatRefProperties: Map[String, String] = {
-    Map.empty[String, String]
   }
 }
 
@@ -93,6 +91,7 @@ final class GlobalComplexTypeDefFactory(xmlArg: Node, schemaDocumentArg: SchemaD
   def forElement(elementDecl: ElementDeclMixin) = new GlobalComplexTypeDef(xml, schemaDocument, elementDecl, this)
 
   override lazy val namedQName = QName.createGlobal(name, targetNamespace, xml.scope)
+
 }
 
 /**

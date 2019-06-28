@@ -28,13 +28,8 @@ import org.apache.daffodil.calendar.DFDLDateTimeConversion
 import org.apache.daffodil.calendar.DFDLTime
 import org.apache.daffodil.calendar.DFDLTimeConversion
 
-case object AnyAtomicToString extends Converter {
-  override def computeValue(a: AnyRef, dstate: DState): AnyRef = {
-    a match {
-      case c: DFDLCalendar => c.toString
-      case _ => a.asInstanceOf[String]
-    }
-  }
+case object AnyAtomicToString extends ToString {
+  val name = "AnyAtomicToString"
 }
 
 case object StringToDate extends Converter {
@@ -79,7 +74,7 @@ case object StringToTime extends Converter {
   }
 }
 
-case object StringToHexBinary extends Converter with HexBinaryKind{
+case object StringToHexBinary extends Converter with HexBinaryKind {
   val name = "StringToHexBinary"
 
   override def computeValue(a: AnyRef, dstate: DState): AnyRef = {

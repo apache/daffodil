@@ -34,8 +34,6 @@ import org.apache.daffodil.processors.RepValueSet
 import org.apache.daffodil.processors.TypeCalculator
 import org.apache.daffodil.processors.TypeCalculatorCompiler
 import org.apache.daffodil.processors.RepValueSetCompiler
-import org.apache.daffodil.dpath.NodeInfo.SignedIntegerKind
-import org.apache.daffodil.dpath.NodeInfo.SignedInteger
 import org.apache.daffodil.dpath.NodeInfo.Numeric
 import org.apache.daffodil.dpath.NodeInfo.PrimType.UnsignedInt
 import org.apache.daffodil.cookers.RepValueCooker

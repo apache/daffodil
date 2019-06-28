@@ -18,6 +18,7 @@
 package org.apache.daffodil.dpath
 
 import org.apache.daffodil.exceptions.ThrowsSDE
+import org.apache.daffodil.exceptions.Assert
 
 /*
  * Casting chart taken from http://www.w3.org/TR/xpath-functions/#casting, with
@@ -43,22 +44,18 @@ object Conversion {
    * to convert the type. ST is the start type, the type the recipe has as its
    * output type. TT is the target type desired.
    */
-  def conversionOps(st: NodeInfo.Kind, tt: NodeInfo.Kind, context: ThrowsSDE): List[RecipeOp] = {
+  def conversionOps(st: NodeInfo.Kind, tt: NodeInfo.Kind, context: Expression): List[RecipeOp] = {
     import NodeInfo._
     val ops: List[RecipeOp] = (st, tt) match {
       case (_, Array) => Nil
       case (x, y) if (x == y) => Nil
-      case (x, Nillable) => {
-        // we don't have enough information here to check whether the
-        // item under scrutiny is nillable or not.
-        Nil
-      }
+
       case (Nothing, x) => Nil
       case (x, AnyType) => Nil
-      case (x: AnySimpleType.Kind, AnySimpleExists) => Nil
       case (x: AnyAtomic.Kind, AnyAtomic) => Nil
       case (x: Numeric.Kind, String) => List(NumericToString)
 
+      case (_: Numeric.Kind, Double) => List(NumericToDouble)
       case (Numeric, _) => NumericToString +: conversionOps(String, tt, context)
       //
       // Because of round-half-to-even, we need to know what the type of the original
@@ -75,6 +72,7 @@ object Conversion {
       case (HexBinary, String) => List(HexBinaryToString)
       case (String, NonEmptyString) => Nil
       case (x, NonEmptyString) => conversionOps(st, String, context)
+      case (x: AnyAtomic.Kind, String) => List(AnyAtomicToString)
       case (x, ArrayIndex) => conversionOps(st, Long, context) ++ List(LongToArrayIndex)
 
       case (Integer, Boolean) => IntegerToDecimal +: conversionOps(Decimal, tt, context)
@@ -96,7 +94,7 @@ object Conversion {
       case (Boolean, UnsignedShort) => BooleanToLong +: conversionOps(Long, tt, context)
       case (Boolean, Byte) => BooleanToLong +: conversionOps(Long, tt, context)
       case (Boolean, UnsignedByte) => BooleanToLong +: conversionOps(Long, tt, context)
-      case (Boolean, String) => List(BooleanToString)
+
       case (Date, DateTime) => List(DateToDateTime)
       case (Double, Decimal) => List(DoubleToDecimal)
       case (Double, Float) => List(DoubleToFloat)
@@ -111,7 +109,6 @@ object Conversion {
 
       case (Decimal, Integer) => List(DecimalToInteger)
       case (Decimal, NonNegativeInteger) => List(DecimalToNonNegativeInteger)
-      case (Decimal, Double) => List(DecimalToDouble)
       case (Decimal, Float) => DecimalToDouble +: conversionOps(Double, tt, context)
       case (Decimal, Long) => List(DecimalToLong)
       case (Decimal, UnsignedLong) => List(DecimalToUnsignedLong)
@@ -161,10 +158,8 @@ object Conversion {
       case (Long, UnsignedShort) => List(LongToUnsignedShort)
       case (Long, Byte) => List(LongToByte)
       case (Long, UnsignedByte) => List(LongToUnsignedByte)
-      case (Long, Double) => List(LongToDouble)
       case (Long, Float) => LongToDouble +: conversionOps(Double, tt, context)
 
-      case (Int, Double) => IntToLong +: conversionOps(Long, tt, context)
       case (Int, Decimal) => IntToLong +: conversionOps(Long, tt, context)
       case (Int, Float) => IntToLong +: conversionOps(Long, tt, context)
       case (Int, Integer) => IntToLong +: conversionOps(Long, tt, context)
@@ -177,7 +172,6 @@ object Conversion {
       case (Int, Byte) => IntToLong +: conversionOps(Long, tt, context)
       case (Int, UnsignedByte) => IntToLong +: conversionOps(Long, tt, context)
 
-      case (UnsignedInt, Double) => UnsignedIntToLong +: conversionOps(Long, tt, context)
       case (UnsignedInt, Decimal) => UnsignedIntToLong +: conversionOps(Long, tt, context)
       case (UnsignedInt, Float) => UnsignedIntToLong +: conversionOps(Long, tt, context)
       case (UnsignedInt, Integer) => UnsignedIntToLong +: conversionOps(Long, tt, context)
@@ -190,7 +184,6 @@ object Conversion {
       case (UnsignedInt, Byte) => UnsignedIntToLong +: conversionOps(Long, tt, context)
       case (UnsignedInt, UnsignedByte) => UnsignedIntToLong +: conversionOps(Long, tt, context)
 
-      case (UnsignedLong, Double) => UnsignedLongToLong +: conversionOps(Long, tt, context)
       case (UnsignedLong, Decimal) => UnsignedLongToLong +: conversionOps(Long, tt, context)
       case (UnsignedLong, Float) => UnsignedLongToLong +: conversionOps(Long, tt, context)
       case (UnsignedLong, Integer) => UnsignedLongToLong +: conversionOps(Long, tt, context)
@@ -202,7 +195,6 @@ object Conversion {
       case (UnsignedLong, Byte) => UnsignedLongToLong +: conversionOps(Long, tt, context)
       case (UnsignedLong, UnsignedByte) => UnsignedLongToLong +: conversionOps(Long, tt, context)
 
-      case (ArrayIndex, Double) => ArrayIndexToLong +: conversionOps(Long, tt, context)
       case (ArrayIndex, Decimal) => ArrayIndexToLong +: conversionOps(Long, tt, context)
       case (ArrayIndex, Float) => ArrayIndexToLong +: conversionOps(Long, tt, context)
       case (ArrayIndex, Integer) => ArrayIndexToLong +: conversionOps(Long, tt, context)
@@ -216,7 +208,6 @@ object Conversion {
       case (ArrayIndex, Byte) => ArrayIndexToLong +: conversionOps(Long, tt, context)
       case (ArrayIndex, UnsignedByte) => ArrayIndexToLong +: conversionOps(Long, tt, context)
 
-      case (Short, Double) => ShortToLong +: conversionOps(Long, tt, context)
       case (Short, Decimal) => ShortToLong +: conversionOps(Long, tt, context)
       case (Short, Float) => ShortToLong +: conversionOps(Long, tt, context)
       case (Short, Integer) => ShortToLong +: conversionOps(Long, tt, context)
@@ -229,7 +220,6 @@ object Conversion {
       case (Short, Byte) => ShortToLong +: conversionOps(Long, tt, context)
       case (Short, UnsignedByte) => ShortToLong +: conversionOps(Long, tt, context)
 
-      case (UnsignedShort, Double) => UnsignedShortToLong +: conversionOps(Long, tt, context)
       case (UnsignedShort, Decimal) => UnsignedShortToLong +: conversionOps(Long, tt, context)
       case (UnsignedShort, Float) => UnsignedShortToLong +: conversionOps(Long, tt, context)
       case (UnsignedShort, Integer) => UnsignedShortToLong +: conversionOps(Long, tt, context)
@@ -242,7 +232,6 @@ object Conversion {
       case (UnsignedShort, Byte) => UnsignedShortToLong +: conversionOps(Long, tt, context)
       case (UnsignedShort, UnsignedByte) => UnsignedShortToLong +: conversionOps(Long, tt, context)
 
-      case (Byte, Double) => ByteToLong +: conversionOps(Long, tt, context)
       case (Byte, Decimal) => ByteToLong +: conversionOps(Long, tt, context)
       case (Byte, Float) => ByteToLong +: conversionOps(Long, tt, context)
       case (Byte, Integer) => ByteToLong +: conversionOps(Long, tt, context)
@@ -255,7 +244,6 @@ object Conversion {
       case (Byte, Byte) => ByteToLong +: conversionOps(Long, tt, context)
       case (Byte, UnsignedByte) => ByteToLong +: conversionOps(Long, tt, context)
 
-      case (UnsignedByte, Double) => UnsignedByteToLong +: conversionOps(Long, tt, context)
       case (UnsignedByte, Decimal) => UnsignedByteToLong +: conversionOps(Long, tt, context)
       case (UnsignedByte, Float) => UnsignedByteToLong +: conversionOps(Long, tt, context)
       case (UnsignedByte, Integer) => UnsignedByteToLong +: conversionOps(Long, tt, context)
@@ -281,10 +269,75 @@ object Conversion {
       case (_, AnyAtomic) => Nil // is this correct?
 
       case (_, Exists) => Nil
-      case (_, other) =>
-        context.SDE("The type %s cannot be converted to %s.", st.name, tt.name)
+      case (_, other) => {
+        val (relevantExpr: Expression, detailMsg: String) =
+          polymorphicExpressionDiagnostics(st, tt, context)
+        context.SDE(
+          "In expression %s, the type %s cannot be converted to %s.%s",
+          relevantExpr.text,
+          st.globalQName.toQNameString,
+          tt.globalQName.toQNameString,
+          detailMsg)
+      }
     }
     ops
+  }
+
+  /**
+   * Determines a better expression for use in diagnostic messages, and computes
+   * a detailed diagnostic message with one line per use of the polymorphic expression
+   * up to 4 lines of detail. (Beyond that are suppressed/ignored.)
+   */
+  def polymorphicExpressionDiagnostics(
+    st: NodeInfo.Kind,
+    tt: NodeInfo.Kind,
+    context: Expression): (Expression, String) = {
+    val (relevantExpr: Expression, detailMsg: String) =
+      context match {
+        case stepE: StepExpression => {
+          val typeNodeGroups = stepE.stepElements.groupBy { _.typeNode }
+          Assert.invariant(typeNodeGroups.size > 0)
+          val rpp = stepE.relPathParent
+          val wholePath =
+            if (rpp.isAbsolutePath)
+              rpp.parent.asInstanceOf[RootPathExpression]
+            else
+              rpp
+          if (typeNodeGroups.size > 1) {
+            //
+            // types are not consistent for all step elements
+            //
+
+            val detailStrings: Seq[String] = {
+              typeNodeGroups.flatMap {
+                case (tn, cis) =>
+                  val tname = tn.globalQName.toQNameString
+                  val perUsePointStrings = cis.map { ci =>
+                    val sfl = ci.schemaFileLocation.locationDescription
+                    val qn = ci.namedQName.toQNameString
+                    val msg = "element %s in expression %s with %s type at %s".format(
+                      qn, wholePath.text, tname, sfl)
+                    msg
+                  }
+                  perUsePointStrings
+              }
+            }.toSeq
+            val detailPart: Seq[String] =
+              if (detailStrings.length > 4)
+                detailStrings.take(4) :+ "..."
+              else
+                detailStrings
+            val detailMessage: String =
+              "\nThe type is %s due to:\n%s".format(
+                st.name, detailPart.mkString("\n"))
+            (wholePath, detailMessage)
+          } else {
+            (wholePath, "")
+          }
+        }
+        case _ => (context, "")
+      }
+    (relevantExpr, detailMsg)
   }
 
 }

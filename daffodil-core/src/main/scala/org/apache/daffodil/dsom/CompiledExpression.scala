@@ -53,7 +53,7 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
     nodeInfoKind: NodeInfo.Kind,
     exprOrLiteral: String,
     namespaces: NamespaceBinding,
-    compileInfoWherePropertyWasLocated: DPathCompileInfo,
+    compileInfoWhereExpressionWasLocated: DPathCompileInfo,
     isEvaluatedAbove: Boolean,
     host: OOLAGHost,
     compileInfo: DPathCompileInfo): CompiledExpression[T] = {
@@ -65,7 +65,7 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
           nodeInfoKind,
           exprOrLiteral,
           namespaces,
-          compileInfoWherePropertyWasLocated,
+          compileInfoWhereExpressionWasLocated,
           isEvaluatedAbove,
           host,
           compileInfo)
@@ -75,9 +75,8 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
           nodeInfoKind,
           exprOrLiteral,
           namespaces,
-          compileInfoWherePropertyWasLocated,
-          isEvaluatedAbove,
-          host)
+          compileInfoWhereExpressionWasLocated,
+          isEvaluatedAbove)
       }
     res
   }
@@ -145,13 +144,13 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
     val isEvaluatedAbove = false
     val exprOrLiteral = property.value
     val namespacesForNamespaceResolution = property.location.namespaces
-    val compileInfoWherePropertyWasLocated = propertyCompileInfo(property)
+    val compileInfoWhereExpressionWasLocated = propertyCompileInfo(property)
     val compiled1 = compileExpression(
       qn,
       staticNodeInfoKind,
       exprOrLiteral,
       namespacesForNamespaceResolution,
-      compileInfo,
+      compileInfoWhereExpressionWasLocated,
       isEvaluatedAbove,
       host,
       compileInfo)
@@ -164,7 +163,7 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
         runtimeNodeInfoKind,
         exprOrLiteral,
         namespacesForNamespaceResolution,
-        compileInfo,
+        compileInfoWhereExpressionWasLocated,
         isEvaluatedAbove,
         host,
         compileInfo)
@@ -195,7 +194,7 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
     nodeInfoKind: NodeInfo.Kind,
     exprOrLiteral: String,
     namespaces: NamespaceBinding,
-    compileInfoWherePropertyWasLocated: DPathCompileInfo,
+    compileInfoWhereExpressionWasLocated: DPathCompileInfo,
     isEvaluatedAbove: Boolean,
     host: OOLAGHost,
     compileInfo: DPathCompileInfo): CompiledExpression[T] = {
@@ -205,7 +204,7 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
     val expr = exprOrLiteral.trim
     if (!expr.endsWith("}")) {
       val msg = "'%s' is an unterminated expression. Add missing closing brace, or escape opening brace with another opening brace."
-      compileInfoWherePropertyWasLocated.SDE(msg, exprOrLiteral)
+      compileInfoWhereExpressionWasLocated.SDE(msg, exprOrLiteral)
     }
 
     val compiler = new DFDLPathExpressionParser[T](
@@ -224,9 +223,8 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
     nodeInfoKind: NodeInfo.Kind,
     exprOrLiteral: String,
     namespaces: NamespaceBinding,
-    compileInfoWherePropertyWasLocated: DPathCompileInfo,
-    isEvaluatedAbove: Boolean,
-    host: OOLAGHost): CompiledExpression[T] = {
+    compileInfoWhereExpressionWasLocated: DPathCompileInfo,
+    isEvaluatedAbove: Boolean): CompiledExpression[T] = {
 
     // This string is not a real expression, we need to convert it to it's
     // logical type and set it as a constant expression. Not compilation
@@ -237,7 +235,7 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
     val maybePrimType = PrimType.fromNodeInfo(nodeInfoKind)
     if (maybePrimType.isEmpty) {
       val msg = "No known primitive type to convert logical value to: %s"
-      compileInfoWherePropertyWasLocated.SDE(msg, nodeInfoKind)
+      compileInfoWhereExpressionWasLocated.SDE(msg, nodeInfoKind)
     }
 
     // remove the leading escape curly brace if it exists
@@ -250,7 +248,7 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
     } catch {
       case e: Exception => {
         val msg = "Unable to convert logical value \"%s\" to %s: %s"
-        compileInfoWherePropertyWasLocated.SDE(msg, exprOrLiteral, nodeInfoKind, e.getMessage)
+        compileInfoWhereExpressionWasLocated.SDE(msg, exprOrLiteral, nodeInfoKind, e.getMessage)
       }
     }
 

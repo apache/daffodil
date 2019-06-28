@@ -460,7 +460,7 @@ class TestCLIdebugger {
       shell.sendLine("condition 1 fn:count(../cell) eq 3") // ../cell is wrong. Needs to be ../tns:cell
 
       shell.sendLine("continue")
-      shell.expect(allOf(contains("Schema Definition Error"), contains("{}cell"), contains("{http://www.example.org/example1/}cell")))
+      shell.expect(allOf(contains("Schema Definition Error"), contains("{}cell"), contains("tns:cell")))
 
       shell.sendLine("quit")
     } finally {

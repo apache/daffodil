@@ -167,12 +167,13 @@ object QName {
     //
     // But,... it is very likely to be an error.
     //
-    LocalDeclQName(None, name, ns)
+    LocalDeclQName(optPrefix(scope, ns), name, ns)
   }
 
-  def createGlobal(name: String, targetNamespace: NS, scope: scala.xml.NamespaceBinding) = {
-    val optPrefix =
+  private def optPrefix(scope: scala.xml.NamespaceBinding, targetNamespace:NS) =
       if (scope eq null) None
+      else if (targetNamespace == NoNamespace) None
+      else if (targetNamespace == UnspecifiedNamespace) None
       else {
         val prefixes = NS.allPrefixes(targetNamespace, scope)
         prefixes.length match {
@@ -196,7 +197,9 @@ object QName {
           }
         }
       }
-    GlobalQName(optPrefix, name, targetNamespace)
+
+  def createGlobal(name: String, targetNamespace: NS, scope: scala.xml.NamespaceBinding) = {
+    GlobalQName(optPrefix(scope, targetNamespace), name, targetNamespace)
   }
 }
 
@@ -224,7 +227,7 @@ class QNameSyntaxException(offendingSyntax: Option[String], cause: Option[Throwa
 class QNameUndefinedPrefixException(pre: String)
   extends Exception("Undefined QName prefix '%s'".format(pre))
 
-trait QNameBase {
+trait QNameBase extends Serializable {
 
   /**
    * The prefix is not generally involved in matching, but they
@@ -336,8 +339,12 @@ trait QNameBase {
 /**
  * common base trait for named things, both global and local
  */
-sealed trait NamedQName
+sealed abstract class NamedQName(
+    prefix: Option[String],
+    local: String,
+    namespace: NS)
   extends QNameBase {
+
   if (prefix.isDefined) {
     Assert.usage(!namespace.isNoNamespace)
     Assert.usage(!namespace.isUnspecified)
@@ -350,7 +357,7 @@ sealed trait NamedQName
  * QName for a local declaration.
  */
 final case class LocalDeclQName(prefix: Option[String], local: String, namespace: NS)
-  extends NamedQName {
+  extends NamedQName(prefix, local, namespace) {
 
   override def matches[Q <: QNameBase](other: Q): Boolean = {
     other match {
@@ -384,7 +391,7 @@ final case class LocalDeclQName(prefix: Option[String], local: String, namespace
  * QName for a global declaration or definition (of element, type, group, format, etc.)
  */
 final case class GlobalQName(prefix: Option[String], local: String, namespace: NS)
-  extends NamedQName {
+  extends NamedQName(prefix, local, namespace) {
 
   override def matches[Q <: QNameBase](other: Q): Boolean = {
     other match {

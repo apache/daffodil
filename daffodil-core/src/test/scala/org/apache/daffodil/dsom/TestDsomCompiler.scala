@@ -279,7 +279,7 @@ class TestDsomCompiler extends Logging {
     assertEquals("hiddenGroup", ggd2.namedQName.local)
 
     //Explore LocalSimpleTypeDef
-    val Seq(c1: LocalElementDecl, _: LocalElementDecl, c3: LocalElementDecl) = cgr.groupMembers
+    val Seq(c1: LocalElementDecl, _: LocalElementDecl, c3: LocalElementDecl, rest @ _*) = cgr.groupMembers
     val ist = c3.asInstanceOf[LocalElementDecl].immediateType.get.asInstanceOf[LocalSimpleTypeDef]
     val istBase = ist.optRestriction.get.baseQName.toQNameString
     assertEquals("tns:aType", istBase)
@@ -312,7 +312,7 @@ class TestDsomCompiler extends Logging {
     val Seq(_: ElementRef, gr: GroupRef) = seq1.groupMembers
     val cgd = gr.groupDef.asInstanceOf[GlobalChoiceGroupDef]
     val cgr = cgd.groupRef.asInstanceOf[ChoiceGroupRef]
-    val Seq(_, cd2: LocalElementDecl, _) = cgd.groupMembers // Children nodes of Choice-node, there are 3
+    val Seq(_, cd2: LocalElementDecl, rest @ _*) = cgd.groupMembers // Children nodes of Choice-node, there are 3
 
     // val Seq(a1: DFDLChoice) = ch1.annotationObjs // Obtain the annotation object that is a child
     // of the group node.

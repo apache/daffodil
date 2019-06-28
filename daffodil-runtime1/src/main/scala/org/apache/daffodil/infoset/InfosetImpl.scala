@@ -112,10 +112,10 @@ trait InfosetException {
  * Indicates that an expression evaluated to a node sequence of more than
  * one value. This results in a schema definition error at runtime.
  */
-case class InfosetAmbiguousNodeException(node: DIComplex, info: DPathElementCompileInfo)
-  extends Diagnostic(One(info.schemaFileLocation), Nope, Nope,
+case class InfosetAmbiguousNodeException(node: DIComplex, nqn: NamedQName)
+  extends Diagnostic(One(node.erd.schemaFileLocation), Nope, Nope,
     One("Path step '%s' ambiguous. More than one infoset node corresponds to this name.\n" +
-      "Query-style expressions are not supported."), info.namedQName.toExtendedSyntax)
+      "Query-style expressions are not supported."), nqn.toExtendedSyntax)
   with InfosetException {
   def isError = true
   def modeName = "Schema Definition"
@@ -157,8 +157,8 @@ case class InfosetWrongNodeType(expectedType: String, val node: DINode)
  * slot being probed. E.g., expression evaluation reaching to a forward
  * sibling that has not yet been parsed.
  */
-case class InfosetNoSuchChildElementException(val diComplex: DIComplex, val info: DPathElementCompileInfo)
-  extends ProcessingError("Expression Evaluation", Nope, Nope, "Child element %s does not exist.", info.namedQName)
+case class InfosetNoSuchChildElementException(val diComplex: DIComplex, nqn: NamedQName)
+  extends ProcessingError("Expression Evaluation", Nope, Nope, "Child element %s does not exist.", nqn)
   with InfosetException with RetryableException
 
 case class InfosetNoNextSiblingException(val diSimple: DISimple, val info: DPathElementCompileInfo)
@@ -1389,10 +1389,10 @@ sealed class DIComplex(override val erd: ElementRuntimeData, val tunable: Daffod
   var hasVisibleChildren = false
 
   final def getChild(erd: ElementRuntimeData): InfosetElement = {
-    getChild(erd.dpathElementCompileInfo)
+    getChild(erd.dpathElementCompileInfo.namedQName)
   }
 
-  private def noQuerySupportCheck(nodes: Seq[DINode], info: DPathElementCompileInfo) = {
+  private def noQuerySupportCheck(nodes: Seq[DINode], nqn: NamedQName) = {
     if (nodes.length > 1) {
       // might be more than one result
       // but we have to rule out there being an empty DIArray
@@ -1403,31 +1403,30 @@ sealed class DIComplex(override val erd: ElementRuntimeData, val tunable: Daffod
         }
       }
       if (withoutEmptyArrays.length > 1)
-        info.toss(InfosetAmbiguousNodeException(this, info))
+        erd.toss(InfosetAmbiguousNodeException(this, nqn))
     }
   }
 
-  final def getChild(info: DPathElementCompileInfo): InfosetElement = {
-    val maybeNode = findChild(info)
+  final def getChild(nqn: NamedQName): InfosetElement = {
+    val maybeNode = findChild(nqn)
     if (maybeNode.isDefined)
       maybeNode.get.asInstanceOf[InfosetElement]
     else
-      throw new InfosetNoSuchChildElementException(this, info)
+      throw new InfosetNoSuchChildElementException(this, nqn)
   }
 
   final def getChildArray(childERD: ElementRuntimeData): InfosetArray = {
     Assert.usage(childERD.isArray)
 
-    getChildArray(childERD.dpathElementCompileInfo)
+    getChildArray(childERD.dpathElementCompileInfo.namedQName)
   }
 
-  final def getChildArray(info: DPathElementCompileInfo): InfosetArray = {
-    Assert.usage(info.isArray)
-    val maybeNode = findChild(info)
+  final def getChildArray(nqn: NamedQName): InfosetArray = {
+    val maybeNode = findChild(nqn)
     if (maybeNode.isDefined) {
       maybeNode.get.asInstanceOf[InfosetArray]
     } else {
-      throw new InfosetNoSuchChildElementException(this, info)
+      throw new InfosetNoSuchChildElementException(this, nqn)
     }
   }
 
@@ -1489,13 +1488,12 @@ sealed class DIComplex(override val erd: ElementRuntimeData, val tunable: Daffod
     }
   }
 
-  def findChild(info: DPathElementCompileInfo): Maybe[DINode] = {
-    val qname = info.namedQName
+  def findChild(qname: NamedQName): Maybe[DINode] = {
     val fastSeq = nameToChildNodeLookup.get(qname)
     if (fastSeq != null) {
       // Daffodil does not support query expressions yet, so there should only
       // be one item in the list
-      noQuerySupportCheck(fastSeq, info)
+      noQuerySupportCheck(fastSeq, qname)
       One(fastSeq(0))
     } else if (tunable.allowExternalPathExpressions) {
       // Only DINodes used in expressions defined in the schema are added to
@@ -1509,7 +1507,7 @@ sealed class DIComplex(override val erd: ElementRuntimeData, val tunable: Daffod
 
       // Daffodil does not support query expressions yet, so there should be at
       // most one item found
-      noQuerySupportCheck(found, info)
+      noQuerySupportCheck(found, qname)
       Maybe.toMaybe(found.headOption)
     } else {
       Nope
