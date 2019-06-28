@@ -338,7 +338,7 @@ class UStateForSuspension(
   dos: DirectOrBufferedDataOutputStream,
   vbox: VariableBox,
   override val currentInfosetNode: DINode,
-  arrayIndex: Long,
+  occursIndex: Long,
   escapeSchemeEVCacheMaybe: Maybe[MStackOfMaybe[EscapeSchemeUnparserHelper]],
   delimiterStackMaybe: Maybe[MStackOf[DelimiterStackUnparseNode]],
   override val prior: UStateForSuspension,
@@ -375,7 +375,7 @@ class UStateForSuspension(
 
   override def arrayIndexStack = die
   override def moveOverOneArrayIndexOnly() = die
-  override def arrayPos = arrayIndex
+  override def arrayPos = occursIndex
 
   override def groupIndexStack = die
   override def moveOverOneGroupIndexOnly() = die

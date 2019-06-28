@@ -1189,7 +1189,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
                         |multiple times to display multiple pieces of information.
                         |
                         |Example: info data infoset""".stripMargin
-      override val subcommands = Seq(InfoArrayIndex, InfoBitLimit, InfoBitPosition, InfoBreakpoints, InfoChildIndex, InfoData, InfoDelimiterStack, InfoDiff, InfoDiscriminator, InfoDisplays, InfoFoundDelimiter, InfoGroupIndex, InfoInfoset, InfoParser, InfoUnparser, InfoPath)
+      override val subcommands = Seq(InfoBitLimit, InfoBitPosition, InfoBreakpoints, InfoChildIndex, InfoData, InfoDelimiterStack, InfoDiff, InfoDiscriminator, InfoDisplays, InfoFoundDelimiter, InfoGroupIndex, InfoInfoset, InfoOccursIndex, InfoParser, InfoUnparser, InfoPath)
 
       override def validate(args: Seq[String]) {
         if (args.size == 0) {
@@ -1229,9 +1229,9 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
         }
       }
 
-      object InfoArrayIndex extends DebugCommand with DebugCommandValidateZeroArgs {
-        val name = "arrayIndex"
-        override lazy val short = "ai"
+      object InfoOccursIndex extends DebugCommand with DebugCommandValidateZeroArgs {
+        val name = "occursIndex"
+        override lazy val short = "oi"
         val desc = "display the current array limit"
         val longDesc = desc
         def act(args: Seq[String], prestate: StateForDebugger, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
@@ -1396,7 +1396,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
             case (prestate: StateForDebugger, state: ParseOrUnparseState) => {
               if (prestate.bytePos != state.bytePos) { debugPrintln("position (bytes): %d -> %d".format(prestate.bytePos, state.bytePos), "  "); diff = true }
               if (prestate.bitLimit0b != state.bitLimit0b) { debugPrintln("bitLimit: %d -> %d".format(prestate.bitLimit0b, state.bitLimit0b), "  "); diff = true }
-              if (prestate.arrayPos != state.arrayPos) { debugPrintln("arrayIndex: %d -> %d".format(prestate.arrayPos, state.arrayPos), "  "); diff = true }
+              if (prestate.arrayPos != state.arrayPos) { debugPrintln("occursIndex: %d -> %d".format(prestate.arrayPos, state.arrayPos), "  "); diff = true }
               if (prestate.groupPos != state.groupPos) { debugPrintln("groupIndex: %d -> %d".format(prestate.groupPos, state.groupPos), "  "); diff = true }
               if (prestate.childPos != state.childPos) { debugPrintln("childIndex: %d -> %d".format(prestate.childPos, state.childPos), "  "); diff = true }
             }

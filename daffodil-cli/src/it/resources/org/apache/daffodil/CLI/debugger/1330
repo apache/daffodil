@@ -1,4 +1,4 @@
-display info arrayIndex
+display info occursIndex
 break element.cell
 info breakpoints
 continue
