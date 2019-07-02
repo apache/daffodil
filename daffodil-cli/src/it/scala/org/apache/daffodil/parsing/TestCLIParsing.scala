@@ -816,8 +816,8 @@ class TestCLIparsing {
       val cmd = String.format("echo 0,1,2,3,,,,| %s -t parse -s %s", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expectIn(1, contains("Left over data. Consumed 56 bit(s) with at least"))
-      shell.expectIn(1, contains("Data (UTF-8) starting at byte 8 is: ("))
-      shell.expectIn(1, contains("Data (Hex) starting at byte 8 is: ("))
+      shell.expectIn(1, contains("Left over data (Hex) starting at byte 8 is: ("))
+      shell.expectIn(1, contains("Left over data (UTF-8) starting at byte 8 is: ("))
       shell.sendLine("exit")
       shell.expect(eof)
     } finally {
@@ -835,8 +835,64 @@ class TestCLIparsing {
       val cmd = String.format("echo 1,2,3,4,,,| %s parse -s %s -r matrix", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expect(contains("Left over data. Consumed 56 bit(s) with at least"))
-      shell.expect(contains("Data (UTF-8) starting at byte 8 is: ("))
-      shell.expect(contains("Data (Hex) starting at byte 8 is: ("))
+      shell.expect(contains("Left over data (Hex) starting at byte 8 is: ("))
+      shell.expect(contains("Left over data (UTF-8) starting at byte 8 is: ("))
+      shell.sendLine("exit")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+    }
+  }
+
+  @Test def test_CLI_Parsing_BitParse_LSBPartialByte_leftOverData() {
+    val schemaFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/bits_parsing.dfdl.xsd")
+    val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
+    val shell = Util.start("", true)
+
+    try {
+      val cmd = String.format("echo -n stri| %s parse -s %s -r lsbPartialByte", Util.binPath, testSchemaFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("Left over data. Consumed 10 bit(s) with at least 16 bit(s) remaining."
+        + "\nLeft over data starts with partial byte. Left over data (Binary) at byte 2 is: (0b011101xx)"
+        + "\nLeft over data (Hex) starting at byte 3 is: (0x7269...)"
+        + "\nLeft over data (UTF-8) starting at byte 3 is: (ri...)"))
+      shell.sendLine("exit")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+    }
+  }
+
+  @Test def test_CLI_Parsing_BitParse_MSBPartialByte_leftOverData() {
+    val schemaFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/bits_parsing.dfdl.xsd")
+    val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
+    val shell = Util.start("", true)
+
+    try {
+      val cmd = String.format("echo -n stri| %s parse -s %s -r msbPartialByte", Util.binPath, testSchemaFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("Left over data. Consumed 10 bit(s) with at least 16 bit(s) remaining."
+        + "\nLeft over data starts with partial byte. Left over data (Binary) at byte 2 is: (0bxx110100)"
+        + "\nLeft over data (Hex) starting at byte 3 is: (0x7269...)"
+        + "\nLeft over data (UTF-8) starting at byte 3 is: (ri...)"))
+      shell.sendLine("exit")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+    }
+  }
+
+  @Test def test_CLI_Parsing_BitParse_MSBFullByte_leftOverData() {
+    val schemaFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/bits_parsing.dfdl.xsd")
+    val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
+    val shell = Util.start("", true)
+
+    try {
+      val cmd = String.format("echo -n stri| %s parse -s %s -r msbFullByte", Util.binPath, testSchemaFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("Left over data. Consumed 16 bit(s) with at least 16 bit(s) remaining."
+        + "\nLeft over data (Hex) starting at byte 3 is: (0x7269...)"
+        + "\nLeft over data (UTF-8) starting at byte 3 is: (ri...)"))
       shell.sendLine("exit")
       shell.expect(eof)
     } finally {

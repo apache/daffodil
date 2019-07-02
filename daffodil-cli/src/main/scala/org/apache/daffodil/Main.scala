@@ -97,6 +97,8 @@ import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.tdml.TDMLTestNotCompatibleException
 import org.apache.daffodil.io.DataDumper
 import java.nio.ByteBuffer
+import org.apache.daffodil.io.FormatInfo
+import org.apache.daffodil.schema.annotation.props.gen.BitOrder
 
 class NullOutputStream extends OutputStream {
   override def close() {}
@@ -848,6 +850,7 @@ object Main extends Logging {
               outputter.reset() // reset in case we are streaming
 
               val parseResult = Timer.getResult("parsing", processor.parse(inStream, outputter))
+              val finfo = parseResult.resultState.asInstanceOf[FormatInfo]
               val loc = parseResult.resultState.currentLocation.asInstanceOf[DataLoc]
               displayDiagnostics(parseResult)
 
@@ -908,21 +911,35 @@ object Main extends Logging {
                   } else {
                     // not streaming, show left over data warning
                     val Dump = new DataDumper
-                    val curPositionInByte0b = inStream.inputSource.position
+                    val bitsAlreadyConsumed = loc.bitPos0b % 8
+                    val firstByteString = if (bitsAlreadyConsumed != 0) {
+                      val bitsToDisplay = 8 - bitsAlreadyConsumed
+                      val pbp = inStream.inputSource.position + 1
+                      val firstByteBitArray = inStream.getByteArray(bitsToDisplay, finfo)
+                      val fbs = firstByteBitArray(0).toBinaryString.takeRight(8).reverse.padTo(8, '0').reverse
+                      val bits = if (finfo.bitOrder == BitOrder.MostSignificantBitFirst) {
+                        "x" * bitsAlreadyConsumed + fbs.dropRight(bitsAlreadyConsumed)
+                      } else {
+                        fbs.takeRight(bitsToDisplay) + "x" * bitsAlreadyConsumed
+                      }
+                      val dumpString = f"\nLeft over data starts with partial byte. Left over data (Binary) at byte $pbp is: (0b$bits)"
+                      dumpString
+                    } else ""
+                    val curBytePosition1b = inStream.inputSource.position + 1
                     val bytesAvailable = inStream.inputSource.bytesAvailable
                     val bytesLimit = math.min(8, bytesAvailable).toInt
                     val destArray = new Array[Byte](bytesLimit)
                     val destArrayFilled = inStream.inputSource.get(destArray, 0, bytesLimit)
                     val dumpString = if (destArrayFilled) Dump.dump(Dump.TextOnly(Some("utf-8")), 0, destArray.length * 8, ByteBuffer.wrap(destArray), includeHeadingLine = false).mkString("\n") else ""
-                    val dataText = if (destArrayFilled) s"\nData (UTF-8) starting at byte ${curPositionInByte0b + 1} is: (${dumpString}...)" else ""
-                    val dataHex = if (destArrayFilled) s"\nData (Hex) starting at byte ${curPositionInByte0b + 1} is: (0x${destArray.map { a => f"$a%02x" }.mkString}...)" else ""
+                    val dataText = if (destArrayFilled) s"\nLeft over data (UTF-8) starting at byte ${curBytePosition1b} is: (${dumpString}...)" else ""
+                    val dataHex = if (destArrayFilled) s"\nLeft over data (Hex) starting at byte ${curBytePosition1b} is: (0x${destArray.map { a => f"$a%02x" }.mkString}...)" else ""
                     val remainingBits =
                       if (loc.bitLimit0b.isDefined) {
                         (loc.bitLimit0b.get - loc.bitPos0b).toString
                       } else {
                         "at least " + (bytesAvailable * 8)
                       }
-                    val leftOverDataWarning = s"Left over data. Consumed ${loc.bitPos0b} bit(s) with ${remainingBits} bit(s) remaining." + dataText + dataHex
+                    val leftOverDataWarning = s"Left over data. Consumed ${loc.bitPos0b} bit(s) with ${remainingBits} bit(s) remaining." + firstByteString + dataHex + dataText
                     log(LogLevel.Warning, leftOverDataWarning)
                     keepParsing = false
                     error = true
