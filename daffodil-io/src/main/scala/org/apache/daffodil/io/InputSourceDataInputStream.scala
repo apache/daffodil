@@ -204,7 +204,7 @@ final class InputSourceDataInputStream private (val inputSource: InputSource)
     // eventually combine that into the array.
     inputSource.get(array, 0, bytesToFill)
 
-    if (isUnaligned) { 
+    if (isUnaligned) {
       // If we are not aligned, then we need to shift all the bits we just got
       // to the left, based on the bitOffset and the bitOrder. Do that shift
       // here.
@@ -237,7 +237,7 @@ final class InputSourceDataInputStream private (val inputSource: InputSource)
           if (isMSBF)
             (curBits << curShift) | (nxtBits >> nxtShift)
           else
-            (curBits >> curShift) | (nxtBits << nxtShift) 
+            (curBits >> curShift) | (nxtBits << nxtShift)
         Bits.asSignedByte(newByte)
       }
 
@@ -313,7 +313,7 @@ final class InputSourceDataInputStream private (val inputSource: InputSource)
   // used by the below function to get up to 8 bytes of data
   private val longArray = new Array[Byte](8)
 
-  /**    
+  /**
    * This method returns an unsigned long created from bitLengthFrom1To64 bits
    * of data.
    *
@@ -723,7 +723,6 @@ final class InputSourceDataInputStream private (val inputSource: InputSource)
     }
   }
 
-
   private val charIterator = new InputSourceDataInputStreamCharIterator(this)
   def asIteratorChar: CharIterator = {
     val ci = charIterator
@@ -758,7 +757,7 @@ final class InputSourceDataInputStream private (val inputSource: InputSource)
   def futureData(nBytesRequested: Int): ByteBuffer = {
     // threadCheck()
     if (!areDebugging)
-       throw new IllegalStateException("Must be debugging.")
+      throw new IllegalStateException("Must be debugging.")
     Assert.usage(nBytesRequested >= 0)
 
     if (nBytesRequested == 0) return ByteBuffer.allocate(0).asReadOnlyBuffer()
@@ -777,7 +776,7 @@ final class InputSourceDataInputStream private (val inputSource: InputSource)
 
 }
 
-class InputSourceDataInputStreamCharIteratorState  {
+class InputSourceDataInputStreamCharIteratorState {
   var bitPositionAtLastFetch0b = 0L
 
   // CharBuffer and LongBuffer for some amount of cache lookahead
@@ -812,7 +811,7 @@ class InputSourceDataInputStreamCharIteratorState  {
 
 class InputSourceDataInputStreamCharIterator(dis: InputSourceDataInputStream) extends DataInputStream.CharIterator {
 
-  private var finfo : FormatInfo = null
+  private var finfo: FormatInfo = null
 
   override def reset(): Unit = {
     dis.cst.charIteratorState.clear()

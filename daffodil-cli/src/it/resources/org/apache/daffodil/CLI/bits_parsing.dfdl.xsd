@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+  targetNamespace="http://www.example.org/example1/" xmlns:tns="http://www.example.org/example1/"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+  <annotation>
+    <appinfo source="http://www.ogf.org/dfdl/">
+        <dfdl:format alignment="1"
+          alignmentUnits="bytes" binaryFloatRep="ieee" binaryNumberRep="binary"
+          byteOrder="bigEndian" bitOrder="mostSignificantBitFirst" encodingErrorPolicy="replace"
+          documentFinalTerminatorCanBeMissing="no" emptyValueDelimiterPolicy="both"
+          encoding="US-ASCII" escapeSchemeRef="" ignoreCase="no"
+          initiatedContent="no" initiator="" leadingSkip="0" lengthKind="delimited"
+          lengthUnits="bytes" occursCountKind="parsed" representation="text"
+          separator="" separatorPosition="infix" separatorSuppressionPolicy="anyEmpty"
+          sequenceKind="ordered" terminator="" textNumberCheckPolicy="lax"
+          textNumberRep="standard" textStandardBase="10"
+          textStringJustification="left" textTrimKind="none" trailingSkip="0"
+          utf16Width="fixed" textStandardDecimalSeparator="."
+          textStandardGroupingSeparator="," textStandardExponentRep="E"
+          textStandardZeroRep="0" textStandardInfinityRep="Inf"
+          textStandardNaNRep="NaN" textNumberPattern="#,##0.###;-#,##0.###"
+          textNumberRounding="explicit" textNumberRoundingMode="roundUnnecessary"
+          textNumberRoundingIncrement="0"
+          calendarPatternKind='implicit' calendarFirstDayOfWeek='Sunday'
+          calendarDaysInFirstWeek='4' calendarTimeZone='UTC'
+          calendarCheckPolicy='strict' calendarLanguage='en' textPadKind="none"
+          fillByte="%SP;" textBidi="no" floating="no"
+          truncateSpecifiedLengthString="yes"/>
+      </appinfo>
+    </annotation>
+
+    <xs:element name="msbFullByte" dfdl:lengthKind='implicit' dfdl:alignmentUnits="bits" dfdl:representation="binary">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="A" type="xs:int" dfdl:length="3" dfdl:alignmentUnits="bits" dfdl:representation="binary" dfdl:lengthKind="explicit" dfdl:lengthUnits="bits" />
+          <xs:element name="B" type="xs:int" dfdl:length="13" dfdl:alignmentUnits="bits" dfdl:representation="binary" dfdl:lengthKind="explicit" dfdl:lengthUnits="bits"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+
+    <xs:element name="msbPartialByte" dfdl:lengthKind='implicit' dfdl:alignmentUnits="bits" dfdl:representation="binary">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="A" type="xs:int" dfdl:length="3" dfdl:alignmentUnits="bits" dfdl:representation="binary" dfdl:lengthKind="explicit" dfdl:lengthUnits="bits" />
+          <xs:element name="B" type="xs:int" dfdl:length="7" dfdl:alignmentUnits="bits" dfdl:representation="binary" dfdl:lengthKind="explicit" dfdl:lengthUnits="bits"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="lsbPartialByte" dfdl:lengthKind='implicit' dfdl:alignmentUnits="bits" dfdl:representation="binary" dfdl:byteOrder="littleEndian" dfdl:bitOrder="leastSignificantBitFirst">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="A" type="xs:int" dfdl:length="3" dfdl:alignmentUnits="bits" dfdl:representation="binary" dfdl:lengthKind="explicit" dfdl:byteOrder="littleEndian" dfdl:bitOrder="leastSignificantBitFirst" dfdl:lengthUnits="bits" />
+          <xs:element name="B" type="xs:int" dfdl:length="7" dfdl:alignmentUnits="bits" dfdl:representation="binary" dfdl:lengthKind="explicit" dfdl:byteOrder="littleEndian" dfdl:bitOrder="leastSignificantBitFirst" dfdl:lengthUnits="bits"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+</schema>
