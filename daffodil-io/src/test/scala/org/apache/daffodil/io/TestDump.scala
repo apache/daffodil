@@ -213,11 +213,12 @@ dada 0000 0101 0817 ece2 8017 ece2 dead beef cc7a 1234
     val u10907 = Character.toChars(0x10907).mkString
     val u10bf8b = Character.toChars(0x10bf8b).mkString
     val u07ad = Character.toChars(0x07ad).mkString
+    val u0020 = Character.toChars(0x0020).mkString
     val expected = s"""
 87654321  0011 2233 4455 6677 8899 aabb ccdd eeff  0~1~2~3~4~5~6~7~8~9~a~b~c~d~e~f~
 00000000: da8b f090 a487 f48b be8b be7a 1234 4567  ${u068b}~~~${u10907}~~~~~~~${u10bf8b}~~~~~~~�~z~␒~4~E~g~
 00000010: f48b 8018 0156 dada 0000 0101 0817 ece2  �~~~~~␘~␁~V~�~�~␀~␀~␁~␁~␈~␗~�~�~
-00000020: 8017 ece2 dead beef cc7a 1234 4567 f48b  ~~␗~�~�~${u07ad}~~~�~�~�~z~␒~4~E~g~�~~~
+00000020: 8017 ece2 dead beef cc7a 1234 4567 f48b  ~~␗~�~�~${u0020}${u07ad}${u0020}~~�~�~�~z~␒~4~E~g~�~~~
 """.replace("\r\n", "\n")
     assertEquals(expected, "\n" + dumpString + "\n")
   }
@@ -474,7 +475,7 @@ cø€␀␀␀wü␚’gU€␀gä  63f8 8000 0000 77fc 1a92 6755 8000 67e4 :00
       Array(0x068b, 0x10907, 0x10bf8b, uUnknown, 0x007a)
     val arrayOfDecodedChars2 = Array(0x0034, 0x0045, 0x0067, uUnknown)
     val arrayOfDecodedChars3 = Array(0x0056, uUnknown, uUnknown)
-    val arrayOfDecodedChars4 = Array(0x07ad, uUnknown, uUnknown, uUnknown, 0x007a)
+    val arrayOfDecodedChars4 = Array(0x0020, 0x07ad, 0x0020, uUnknown, uUnknown, uUnknown, 0x007a)
     val expected =
       s"""${arrayOfDecodedChars1.map(Character.toChars(_).mkString).mkString}␒""" +
         s"""${arrayOfDecodedChars2.map(Character.toChars(_).mkString).mkString}␘␁""" +

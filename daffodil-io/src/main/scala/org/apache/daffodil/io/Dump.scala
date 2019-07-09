@@ -22,6 +22,7 @@ import java.nio.CharBuffer
 import java.nio.charset.CodingErrorAction
 import org.apache.daffodil.exceptions.Assert
 import com.ibm.icu.lang.UCharacter
+import com.ibm.icu.lang.UCharacterEnums
 import com.ibm.icu.lang.UProperty
 import org.apache.daffodil.util.Misc
 import org.apache.daffodil.equality._
@@ -419,6 +420,32 @@ class DataDumper {
   }
 
   /**
+   * Some characters act as combining marks and modify characters surrounding them.
+   * In order for us to display these characters as they are, we need to combine them with
+   * the appropriate number of spaces so they don't disturb other characters around them
+   */
+  private def homogenizeChars(codepoint: Int): (String, Int) = {
+    val charType = UCharacter.getType(codepoint)
+    val nCols = charNColumns(codepoint)
+    // supposed to always modify preceding character,
+    // but sometimes appears to modify succeeding character
+    // e.g \u093f or \u064d. Dual spacing is here to protect from this
+    charType match {
+      case UCharacterEnums.ECharacterCategory.COMBINING_SPACING_MARK => {
+        // can occupy spacing position by themselves
+        (" " + Character.toChars(codepoint).mkString + " ", nCols + 2)
+      }
+      case UCharacterEnums.ECharacterCategory.NON_SPACING_MARK => {
+        // do not occupy spacing position by themselves
+        // (so 1 space should be consumed, leaving an extra 1 for padding)
+        (" " + Character.toChars(codepoint).mkString + " ", nCols + 1)
+      }
+      case _ => {
+        ("" + Character.toChars(codepoint).mkString, nCols)
+      }
+    }
+  }
+  /**
    * The width of the character in terms of how many "places" it uses up
    * relative to a regular monospaced font character. This is for trying to get
    * east asian and other double-wide characters to line up properly in columns.
@@ -473,6 +500,7 @@ class DataDumper {
           bb.put(theByte)
         }
         bb.flip()
+
         Assert.invariant(bb.remaining > 0)
         var cr = CoderResult.OVERFLOW
         var nConsumedBytes = 0
@@ -516,24 +544,41 @@ class DataDumper {
           // Either way, we got our one character
           Assert.invariant(nConsumedBytes > 0)
           Assert.invariant(cb.hasArray)
-          var allChars = cb.array
-          remapped = if (allChars.length > 1) allChars.mkString else Misc.remapCodepointToVisibleGlyph(allChars(0)).toChar.toString
-          nCols = if (allChars.length > 1) {
-            try {
-              var uCodePoint = UCharacter.getCodePoint(allChars(0), allChars(1))
-              charNColumns(uCodePoint)
-            } catch {
-              case e: IllegalArgumentException => {
-                allChars.mkString.length
+          val allChars = cb.array
+
+          val uCodePoint =
+            if (allChars.length > 1) {
+              try {
+                UCharacter.getCodePoint(allChars(0), allChars(1))
+              } catch {
+                case e: IllegalArgumentException => {
+                  -1
+                }
               }
+            } else allChars(0)
+
+          val (r: String, n: Int) =
+            if (allChars.length > 1) {
+              if (uCodePoint == -1) {
+                allChars.map(c => homogenizeChars(c)).foldLeft(("", 0)) {
+                  (accForRemappedNcols, tupResultRemappedNcols) =>
+                    (accForRemappedNcols._1 + tupResultRemappedNcols._1, //concat
+                      accForRemappedNcols._2 + tupResultRemappedNcols._2) // add
+                }
+              } else {
+                homogenizeChars(uCodePoint)
+              }
+            } else {
+              homogenizeChars(Misc.remapCodepointToVisibleGlyph(allChars(0)))
             }
-          } else charNColumns(allChars(0))
+          remapped = r
+          nCols = n
         }
         (remapped, nConsumedBytes, nCols)
       }
       case None => {
         // no encoding, so use the general one based on windows-1252 where
-        // every byte corresponds ot a character with a glyph.
+        // every byte corresponds to a character with a glyph.
         val byteValue = try {
           bs.get(startingBytePos0b.toInt)
         } catch {
