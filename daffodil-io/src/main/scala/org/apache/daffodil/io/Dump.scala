@@ -486,6 +486,11 @@ class DataDumper {
       case Some(dec) => {
         val bb = ByteBuffer.allocate(6)
         var cb = CharBuffer.allocate(1)
+        var cr = CoderResult.OVERFLOW
+        var nConsumedBytes = 0
+        var remapped = ""
+        var nCols = 0
+        val INVALID_CODEPOINT = -1
         val lastAvailableBytePos0b = scala.math.min(endingBytePos0b, startingBytePos0b + 5) // widest possible char representation is 6 bytes.
         val nBytes = (lastAvailableBytePos0b - startingBytePos0b).toInt + 1
         Assert.invariant(nBytes > 0) // have to have at least 1 byte left
@@ -502,10 +507,6 @@ class DataDumper {
         bb.flip()
 
         Assert.invariant(bb.remaining > 0)
-        var cr = CoderResult.OVERFLOW
-        var nConsumedBytes = 0
-        var remapped = ""
-        var nCols = 0
         do {
           // An overflow means we were able to start to decode at least 1 sequence of characters, but there was either insufficient
           // space in the output buffer to store said decoded char or there were left over bytes after parsing. If it is
@@ -548,22 +549,20 @@ class DataDumper {
 
           val uCodePoint =
             if (allChars.length > 1) {
-              try {
+              if (UCharacter.isSurrogatePair(allChars(0), allChars(1))) {
                 UCharacter.getCodePoint(allChars(0), allChars(1))
-              } catch {
-                case e: IllegalArgumentException => {
-                  -1
-                }
+              } else {
+                INVALID_CODEPOINT
               }
             } else allChars(0)
 
           val (r: String, n: Int) =
             if (allChars.length > 1) {
-              if (uCodePoint == -1) {
+              if (uCodePoint == INVALID_CODEPOINT) {
                 allChars.map(c => homogenizeChars(c)).foldLeft(("", 0)) {
-                  (accForRemappedNcols, tupResultRemappedNcols) =>
-                    (accForRemappedNcols._1 + tupResultRemappedNcols._1, //concat
-                      accForRemappedNcols._2 + tupResultRemappedNcols._2) // add
+                  (accForRemappedAndNcols, tupResultRemappedAndNcols) =>
+                    (accForRemappedAndNcols._1 + tupResultRemappedAndNcols._1, //concat remapped value for each char
+                      accForRemappedAndNcols._2 + tupResultRemappedAndNcols._2) // add width value for each char
                 }
               } else {
                 homogenizeChars(uCodePoint)
