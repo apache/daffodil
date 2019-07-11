@@ -282,6 +282,8 @@ trait Term
     case Some(_) => enclosingTerm.get.nearestEnclosingUnorderedSequence
   }
 
+  final lazy val isInUnorderedSequence: Boolean = !nearestEnclosingUnorderedSequence.isEmpty
+
   final lazy val nearestEnclosingUnorderedSequenceBeforeSequence: Option[SequenceTermBase] = enclosingTerm match {
     case None => None
     case Some(s: SequenceTermBase) if !s.isOrdered => Some(s)
@@ -564,13 +566,15 @@ trait Term
    * terms that could appear before this. The second item in the tuple is a
    * One(enclosingParent) if all prior siblings are optional or this element has no prior siblings
    */
-  lazy val potentialPriorTerms: (Seq[Term], Option[Term]) = {
+  lazy val potentialPriorTerms: (Seq[Term], Option[Term]) = LV('potentialPriorTerms) {
     val et = enclosingTerm
     val (potentialPrior, optEnclosingParent) = et match {
       case None => (Seq(), None)
       case Some(eb: ElementBase) => (Seq(), Some(eb))
       case Some(ch: ChoiceTermBase) => (Seq(), Some(ch))
-      case Some(sq: SequenceTermBase) if !sq.isOrdered => (sq.groupMembers, Some(sq))
+      case Some(sq: SequenceTermBase) if !sq.isOrdered => {
+        (sq.groupMembers, Some(sq))
+      }
       case Some(sq: SequenceTermBase) if sq.isOrdered => {
         val previousTerms = sq.groupMembers.takeWhile { _ != this }
         if (previousTerms.isEmpty) {
@@ -600,7 +604,7 @@ trait Term
       }
     }
     (potentialPriorRepresented, optEnclosingParent)
-  }
+  }.value
 
   /*
    * This function returns at list of simple elements that are descendents of

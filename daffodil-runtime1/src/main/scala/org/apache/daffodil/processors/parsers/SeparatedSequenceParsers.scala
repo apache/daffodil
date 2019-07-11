@@ -65,6 +65,17 @@ sealed abstract class ScalarOrderedSeparatedSequenceChildParser(
   with Separated
   with NonRepeatingSequenceChildParser
 
+sealed abstract class ScalarUnorderedSeparatedSequenceChildParser(
+  childParser: Parser,
+  srd: SequenceRuntimeData,
+  trd: TermRuntimeData,
+  override val sep: Parser,
+  override val spos: SeparatorPosition,
+  override val parseResultHelper: SeparatedSequenceChildParseResultHelper)
+  extends SequenceChildParser(childParser, srd, trd)
+  with Separated
+  with NonRepeatingUnorderedSequenceChildParser
+
 final class ScalarOrderedElementSeparatedSequenceChildParser(
   childParser: Parser,
   srd: SequenceRuntimeData,
@@ -82,6 +93,15 @@ final class GroupSeparatedSequenceChildParser(
   spos: SeparatorPosition,
   prh: SeparatedSequenceChildParseResultHelper)
   extends ScalarOrderedSeparatedSequenceChildParser(childParser, srd, mrd, sep, spos, prh)
+
+final class GroupSeparatedUnorderedSequenceChildParser(
+  childParser: Parser,
+  srd: SequenceRuntimeData,
+  val mrd: ModelGroupRuntimeData,
+  sep: Parser,
+  spos: SeparatorPosition,
+  prh: SeparatedSequenceChildParseResultHelper)
+  extends ScalarUnorderedSeparatedSequenceChildParser(childParser, srd, mrd, sep, spos, prh)
 
 final class RepOrderedExactlyNSeparatedSequenceChildParser(
   childParser: Parser,
@@ -119,7 +139,17 @@ final class OrderedSeparatedSequenceParser(
   spos: SeparatorPosition,
   sep: Parser,
   childrenArg: Vector[SequenceChildParser])
-  extends OrderedSequenceParserBase(rd, childrenArg) {
+  extends SequenceParserBase(rd, childrenArg) {
 
   override lazy val childProcessors = (sep +: childrenArg.asInstanceOf[Seq[Parser]]).toVector
+}
+
+final class UnorderedSeparatedSequenceParser(
+  rd: SequenceRuntimeData,
+  spos: SeparatorPosition,
+  sep: Parser,
+  choiceParser: Vector[SequenceChildParser])
+  extends SequenceParserBase(rd, choiceParser, false) {
+
+  override lazy val childProcessors = sep +: choiceParser
 }

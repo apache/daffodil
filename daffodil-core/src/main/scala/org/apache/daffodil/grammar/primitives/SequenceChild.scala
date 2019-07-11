@@ -407,7 +407,7 @@ class ScalarOrderedSequenceChild(sq: SequenceTermBase, term: Term, groupIndex: I
     }
     res
   }
-  lazy val sequenceChildUnparser: SequenceChildUnparser = {
+  override lazy val sequenceChildUnparser: SequenceChildUnparser = {
     val res =
       if (sq.hasSeparator) {
         new ScalarOrderedSeparatedSequenceChildUnparser(
@@ -487,7 +487,7 @@ sealed abstract class RepElementSequenceChild(
 
   Assert.usage(!e.isScalar)
 
-  lazy val sequenceChildUnparser: SequenceChildUnparser =
+  override lazy val sequenceChildUnparser: SequenceChildUnparser =
     sq.hasSeparator match {
       case true => {
         new RepOrderedSeparatedSequenceChildUnparser(

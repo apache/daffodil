@@ -603,6 +603,7 @@ final class ElementRuntimeData(
    * all transient elements must be added to the preSerialization method below
    * to allow parser serialization/deserialization to work.
    */
+  @TransientParam positionArg: => Int,
   @TransientParam childrenArg: => Seq[ElementRuntimeData],
   @TransientParam variableMapArg: => VariableMap,
   @TransientParam nextElementResolverArg: => NextElementResolver,
@@ -664,6 +665,7 @@ final class ElementRuntimeData(
 
   override def isRequiredScalar = !isArray && isRequiredOrOptional
 
+  lazy val position = positionArg
   lazy val children = childrenArg
   lazy val variableMap = variableMapArg
   lazy val nextElementResolver = nextElementResolverArg
@@ -701,6 +703,7 @@ final class ElementRuntimeData(
 
   override def preSerialization: Unit = {
     super.preSerialization
+    position
     children
     variableMap
     nextElementResolver

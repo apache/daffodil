@@ -541,6 +541,7 @@ trait ElementBase
       elementChildren.map { _.elementRuntimeData }
 
     val newERD: ElementRuntimeData = new ElementRuntimeData(
+      position,
       childrenERDs,
       schemaSet.variableMap,
       nextElementResolver,

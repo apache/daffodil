@@ -16,12 +16,18 @@
  */
 package org.apache.daffodil.processors.parsers
 
+import scala.collection.mutable.ArrayBuffer
+
 import org.apache.daffodil.processors.Evaluatable
-import java.io.PrintWriter
 import org.apache.daffodil.exceptions.UnsuppressableException
+import java.io.PrintWriter
 import java.io.StringWriter
+import java.util.Comparator
+import java.util.Arrays
 import org.apache.daffodil.dsom.SchemaDefinitionDiagnosticBase
 import org.apache.daffodil.dsom.TunableLimitExceededError
+import org.apache.daffodil.infoset.DIComplex
+import org.apache.daffodil.infoset.DIArray
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.processors.Success
 import org.apache.daffodil.processors.SequenceRuntimeData
@@ -36,18 +42,13 @@ import org.apache.daffodil.processors.ModelGroupRuntimeData
  */
 abstract class SequenceParserBase(
   srd: SequenceRuntimeData,
-  protected val childParsers: Vector[Parser])
+  childParsers: Vector[Parser],
+  isOrdered: Boolean = true)
   extends CombinatorParser(srd) {
   override def nom = "Sequence"
 
   override lazy val runtimeDependencies: Vector[Evaluatable[AnyRef]] = Vector()
   override lazy val childProcessors = childParsers
-}
-
-abstract class OrderedSequenceParserBase(
-  srd: SequenceRuntimeData,
-  childParsersArg: Vector[Parser])
-  extends SequenceParserBase(srd, childParsersArg) {
 
   import ParseAttemptStatus._
   import ArrayIndexStatus._
@@ -85,6 +86,8 @@ abstract class OrderedSequenceParserBase(
     val limit = children.length
 
     var resultOfTry: ParseAttemptStatus = ParseAttemptStatus.Uninitialized
+
+    val infosetIndexStart = pstate.infoset.asInstanceOf[DIComplex].childNodes.size
 
     /**
      * On exit from the sequence loop, if the last thing was Missing, we
@@ -224,12 +227,23 @@ abstract class OrderedSequenceParserBase(
               pstate.setSuccess()
               isDone = true
             }
+            case (MissingItem | MissingSeparator | FailureUnspecified) if (!isOrdered) => {
+              // We have hit the end of an unordered sequence, mask the failure and exit
+              // the sequence succesfully.
+              pstate.setSuccess()
+              isDone = true
+            }
             case _ => // ok.
           }
           pstate.mpstate.moveOverOneGroupIndexOnly()
         } // end case scalarParser
       } // end match case parser
-      scpIndex += 1
+      if (isOrdered)
+        scpIndex += 1
+      else if (isDone) {
+        val infoset = pstate.infoset.asInstanceOf[DIComplex]
+        infoset.flattenAndValidateChildNodes(pstate, infosetIndexStart)
+      }
     } // end while for each sequence child parser
 
     if (child ne null) child.finalChecks(pstate, resultOfTry, priorResultOfTry)

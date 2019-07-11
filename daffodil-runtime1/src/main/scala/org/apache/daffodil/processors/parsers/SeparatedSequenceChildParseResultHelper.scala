@@ -312,10 +312,22 @@ class NonPositionalGroupSeparatedSequenceChildParseResultHelper(
     isZL: Boolean,
     mgrd: ModelGroupRuntimeData,
     requiredOptional: RequiredOptionalStatus): ParseAttemptStatus = {
-    if (isZL)
-      ParseAttemptStatus.MissingItem // it is an error if ZL in NonPositional
-    else
-      ParseAttemptStatus.NormalRep
+    if (pstate.isSuccess) {
+      val maybeElem = pstate.infoset.asComplex.maybeMostRecentlyAddedChild()
+      Assert.invariant(maybeElem.isDefined)
+      val elem = maybeElem.get
+      val maybeIsNilled = elem.maybeIsNilled // can't just call isNilled because that throws exceptions on not defined
+      if (maybeIsNilled.isDefined && maybeIsNilled.get) {
+        ParseAttemptStatus.NilRep
+      } else {
+        ParseAttemptStatus.NormalRep
+      }
+    } else {
+      if (isZL)
+        ParseAttemptStatus.MissingItem // it is an error if ZL in NonPositional
+      else
+        ParseAttemptStatus.NormalRep
+    }
   }
 
 }

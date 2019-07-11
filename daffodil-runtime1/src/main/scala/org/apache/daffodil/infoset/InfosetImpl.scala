@@ -207,6 +207,9 @@ case class InfosetContentLengthUnknownException(lengthState: LengthState, overri
 case class InfosetValueLengthUnknownException(lengthState: LengthState, override val diElement: DIElement, override val erd: ElementRuntimeData)
   extends InfosetLengthUnknownException(lengthState, "Value", diElement, erd)
 
+case class InfosetMultipleScalarError(val erd: ElementRuntimeData)
+  extends ProcessingError("Scalar Element", Nope, Nope, "Multiple instances detected for scalar element %s", erd.namedQName)
+
 /**
  * Used to determine if expressions can be evaluated without any nodes.
  * They all save/restore the current node, so this is the placeholder
@@ -886,7 +889,6 @@ sealed trait DIElement
   private var _array: Maybe[InfosetArray] = Nope
   override def array = _array
   override def setArray(a: InfosetArray) = {
-    Assert.invariant(_array == Nope)
     _array = One(a)
   }
 
@@ -1002,6 +1004,14 @@ final class DIArray(
   def append(ie: InfosetElement): Unit = {
     _contents += ie.asInstanceOf[DIElement]
     ie.setArray(this)
+  }
+
+  def concat(array: DIArray) = {
+    val newContents = array.contents
+    newContents.foreach( ie => {
+      ie.asInstanceOf[InfosetElement].setArray(this)
+      append(ie.asInstanceOf[InfosetElement])
+    })
   }
 
   final def length: Long = _contents.length
@@ -1429,6 +1439,56 @@ sealed class DIComplex(override val erd: ElementRuntimeData, val tunable: Daffod
     } else {
       throw new InfosetNoSuchChildElementException(this, nqn)
     }
+  }
+
+  /*
+   * When parsing unordered sequences it is possible to have non-contiguous arrays.
+   * When parsed, these arrays show up as separate DIArrays in the infoset. We need
+   * to combine these separate arrays and sort the child nodes into schema definition
+   * order.
+   * */
+  final def flattenAndValidateChildNodes(pstate: ParseOrUnparseState, start: Int): Unit = {
+    val (ordered, unordered) = childNodes.splitAt(start)
+    childNodes.clear()
+    childNodes ++= ordered
+    val groups = unordered.groupBy(_.erd)
+    unordered.clear()
+    groups foreach {
+      case (erd, nodes) => {
+        // Check min/maxOccurs validity while iterating over childNodes
+        val min = erd.minOccurs
+        val max = erd.maxOccurs
+        val isUnbounded = max == -1
+
+        // Flatten multiple DIArrays into the first one
+        if (erd.isArray) {
+          val a = nodes(0).asInstanceOf[DIArray]
+          nodes.tail.foreach( b => a.concat(b.asInstanceOf[DIArray]))
+          nodes.reduceToSize(1)
+
+          // Need to also remove duplicates from fastLookup
+          val fastSeq = nameToChildNodeLookup.get(a.namedQName)
+          if (fastSeq != null)
+            fastSeq.reduceToSize(1)
+
+          // Validate min/maxOccurs for array
+          val occurrence = nodes(0).contents.length
+          if (isUnbounded && occurrence < min)
+            pstate.validationError("Element %s failed check of minOccurs='%s' and maxOccurs='unbounded', actual number of occurrences: %s", erd.namedQName, min, occurrence)
+          else if (!isUnbounded && (occurrence < min || occurrence > max))
+            pstate.validationError("Element %s failed check of minOccurs='%s' and maxOccurs='%s', actual number of occurrences: %s", erd.namedQName, min, max, occurrence)
+
+        } else {
+          if (nodes.length > 1) {
+            val diag = new InfosetMultipleScalarError(erd)
+            pstate.setFailed(diag)
+          }
+        }
+
+        unordered ++= nodes
+      }
+    }
+    childNodes ++= unordered.sortBy(_.erd.position)
   }
 
   override def addChild(e: InfosetElement): Unit = {

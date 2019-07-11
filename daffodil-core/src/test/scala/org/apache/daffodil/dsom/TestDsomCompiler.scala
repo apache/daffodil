@@ -588,7 +588,7 @@ class TestDsomCompiler extends Logging {
       </dfdl:defineEscapeScheme>,
       <xs:element name="list">
         <xs:complexType>
-          <xs:sequence>
+          <xs:sequence dfdl:sequenceKind="ordered">
             <xs:element name="character" type="xsd:string" maxOccurs="unbounded" dfdl:representation="text" dfdl:separator="," dfdl:terminator="%NL;"/>
             <xs:element name="block" type="xsd:string" maxOccurs="unbounded" dfdl:representation="text" dfdl:separator="," dfdl:terminator="%NL;" dfdl:escapeSchemeRef="cStyleComment"/>
           </xs:sequence>
