@@ -23,7 +23,6 @@ import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.grammar.Gram
 import org.apache.daffodil.grammar.NamedGram
 import org.apache.daffodil.grammar.Terminal
-import org.apache.daffodil.processors.parsers.ChoiceElementParser
 import org.apache.daffodil.processors.parsers.ElementParser
 import org.apache.daffodil.processors.parsers.ElementParserNoRep
 import org.apache.daffodil.processors.parsers.Parser
@@ -79,17 +78,10 @@ class ElementCombinator(
   extends NamedGram(context)
   with Padded {
 
-  override def toString = subComb.toString() // parse centric view of the world. Unparser doesn't use subComb at all.
+  override def toString = subComb.toString()
 
-  private lazy val subComb = {
-    if (context.isParentUnorderedSequence) {
-      new ChoiceElementCombinator(context, eBeforeContent,
-        eValue, eAfterValue)
-    } else {
-      new ElementParseAndUnspecifiedLength(context, eBeforeContent,
-        eValue, eAfterValue, repTypeElementGram)
-    }
-  }
+  private lazy val subComb = new ElementParseAndUnspecifiedLength(context, eBeforeContent,
+    eValue, eAfterValue, repTypeElementGram)
 
   override lazy val parser: Parser = {
     //
@@ -338,25 +330,6 @@ class ElementParseAndUnspecifiedLength(context: ElementBase, eBeforeGram: Gram, 
       new ElementUnparserNoRep(context.erd, uSetVar)
     }
   }
-}
-
-class ChoiceElementCombinator(context: ElementBase, eGramBefore: Gram, eGram: Gram, eAfterGram: Gram)
-  extends ElementCombinatorBase(context, eGramBefore, eGram, eAfterGram,  EmptyGram) {
-
-  lazy val parser: Parser = new ChoiceElementParser(
-    context.erd,
-    context.name,
-    patDiscrim,
-    patAssert,
-    pSetVar,
-    testDiscrim,
-    testAssert,
-    eBeforeParser,
-    eParser,
-    eAfterParser)
-
-  lazy val unparser = hasNoUnparser
-
 }
 
 abstract class ElementCombinatorBase(context: ElementBase, eGramBefore: Gram, eGram: Gram, eGramAfter: Gram, repTypeElementGram:Gram)

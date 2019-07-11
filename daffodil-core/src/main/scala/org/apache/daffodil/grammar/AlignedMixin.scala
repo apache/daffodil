@@ -52,7 +52,7 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
    * will be properly aligned by where the prior thing left us positioned.
    * Hence we are guaranteed to be properly aligned.
    */
-  final def isKnownToBeAligned: Boolean = LV('isKnownToBeAligned) {
+  final lazy val isKnownToBeAligned: Boolean = LV('isKnownToBeAligned) {
     if (!isRepresented) {
       true
     } else {
@@ -71,7 +71,7 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
    * This goes further TermEncodingMixin.hasTextAlignment because it
    * considers the surrounding context meeting the alignment needs.
    */
-  final lazy val isKnownToBeTextAligned: Boolean = {
+  final lazy val isKnownToBeTextAligned: Boolean = LV('isKnownToBeTextAligned) {
     if (self.encodingInfo.isKnownEncoding) {
       if (self.encodingInfo.knownEncodingAlignmentInBits == 1)
         true
@@ -83,7 +83,7 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
       true
     else
       false
-  }
+  }.value
 
   final lazy val isDelimiterKnownToBeTextAligned: Boolean = {
     if (self.encodingInfo.isKnownEncoding) {
@@ -123,13 +123,13 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
     }
   }
 
-  private lazy val trailingSkipApprox: LengthApprox = {
+  protected lazy val trailingSkipApprox: LengthApprox = {
     LengthExact(trailingSkipInBits)
   }
 
   private lazy val unaligned = AlignmentMultipleOf(1)
 
-  private lazy val priorAlignmentApprox: AlignmentMultipleOf = {
+  private lazy val priorAlignmentApprox: AlignmentMultipleOf = LV('priorAlignmentApprox) {
     if (this.isInstanceOf[Root] || this.isInstanceOf[QuasiElementDeclBase]) {
       AlignmentMultipleOf(0) // root and quasi elements are aligned with anything
     } else {
@@ -172,10 +172,21 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
           Seq()
         }
 
+      val unorderedSequenceSelfAlignment =
+        if (isInUnorderedSequence) {
+          Seq(alignmentApprox + (elementSpecifiedLengthApprox + trailingSkipApprox))
+        } else {
+          Seq()
+        }
+
       val priorSibsAlignmentsApprox = priorSibs.map { ps =>
-        val eaa = ps.endingAlignmentApprox
+        val eaa = if (isInUnorderedSequence) {
+          alignmentApprox + (ps.elementSpecifiedLengthApprox + ps.trailingSkipApprox)
+        } else {
+          ps.endingAlignmentApprox
+        }
         eaa
-      }
+      }.toSeq
       val parentAlignmentApprox = optEnclosingParent.map { p =>
         val csa = p.contentStartAlignment
         csa
@@ -186,7 +197,7 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
       else
         priorAlignmentsApprox.reduce(_ * _)
     }
-  }
+  }.value
 
   private lazy val priorAlignmentWithLeadingSkipApprox: AlignmentMultipleOf = {
     priorAlignmentApprox + leadingSkipApprox
@@ -233,7 +244,7 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
     }
   }
 
-  private lazy val elementSpecifiedLengthApprox: LengthApprox = {
+  protected lazy val elementSpecifiedLengthApprox: LengthApprox = {
     this match {
       case eb: ElementBase => {
         eb.lengthKind match {
@@ -265,6 +276,7 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
           case LengthKind.Prefixed => LengthMultipleOf(1) // NYI
         }
       }
+      case mg: ModelGroup => Assert.usageError("Only for elements")
     }
   }
 

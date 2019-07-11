@@ -22,6 +22,7 @@ import org.apache.daffodil.dsom._
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.grammar.primitives._
 import org.apache.daffodil.grammar.primitives.OrderedSequence
+import org.apache.daffodil.grammar.primitives.UnorderedSequence
 
 trait SequenceGrammarMixin extends GrammarMixin { self: SequenceTermBase =>
 
@@ -34,7 +35,7 @@ trait SequenceGrammarMixin extends GrammarMixin { self: SequenceTermBase =>
     import columnConstants._
     self.sequenceKind match {
       case Ordered__ => orderedSequence
-      case Unordered => subsetError("Unordered sequences are not supported.") // unorderedSequenceContent
+      case Unordered => unorderedSequence
     }
   }
 
@@ -55,6 +56,12 @@ trait SequenceGrammarMixin extends GrammarMixin { self: SequenceTermBase =>
 
   private lazy val orderedSequence = {
     val res = new OrderedSequence(this, seqChildren)
+    res
+  }
+
+  private lazy val unorderedSequence = {
+    val alternatives = groupMembers.map { _.termContentBody }
+    val res = new UnorderedSequence(this, seqChildren, alternatives)
     res
   }
 
@@ -117,9 +124,8 @@ trait SequenceGrammarMixin extends GrammarMixin { self: SequenceTermBase =>
         separatorSuppressionPolicy
 
     val res = (child, sequenceKind, ssp, ock, min, max) match {
-      case (e: EB, Ordered__, ___________, _________, ONE, ONE) => new ScalarOrderedSequenceChild(this, e, groupIndex)
+      case (e: EB, Ordered__, ___________, __________, ONE, ONE) => new ScalarOrderedSequenceChild(this, e, groupIndex)
       case (e: EB, _________, ___________, StopValue_, ___, __2) => e.subsetError("dfdl:occursCountKind 'stopValue' is not supported.")
-      case (_____, Unordered, ___________, __________, ___, __2) => this.subsetError("Unordered sequences are not supported.")
       case (e: EB, Ordered__, ___________, Parsed____, ___, __2) => new RepOrderedWithMinMaxSequenceChild(this, e, groupIndex)
       case (e: EB, Ordered__, ___________, Fixed_____, ___, UNB) => e.SDE("occursCountKind='fixed' not allowed with unbounded maxOccurs")
       case (e: EB, Ordered__, Never______, Implicit__, ___, UNB) if !e.isLastDeclaredRepresentedInSequence => unboundedPositionalError(e)
@@ -135,7 +141,11 @@ trait SequenceGrammarMixin extends GrammarMixin { self: SequenceTermBase =>
       case (e: EB, Ordered__, TrailingStr, Implicit__, ___, UNB) => new RepOrderedWithMinMaxSequenceChild(this, e, groupIndex)
       case (e: EB, Ordered__, TrailingStr, Implicit__, ___, max) => new RepOrderedWithMinMaxSequenceChild(this, e, groupIndex)
       case (e: EB, Ordered__, Always_____, Implicit__, ___, max) => new RepOrderedWithMinMaxSequenceChild(this, e, groupIndex)
-      case (m: MG, Ordered__, ___________, __________, ___, __2) => new ScalarOrderedSequenceChild(this, m, groupIndex)
+      case (e: EB, Unordered, ___________, __________, ___, ONE) => new ScalarOrderedSequenceChild(this, e, groupIndex)
+      case (e: EB, Unordered, ___________, Parsed____, ___, max) => new RepOrderedWithMinMaxSequenceChild(this, e, groupIndex)
+      case (e: EB, Unordered, ___________, __________, ___, __2) => e.SDE("When sequenceKind='unordered', occursCountKind must be 'parsed'")
+      case (m: MG, Unordered, ___________, __________, ___, __2) => child.SDE("All memebers of an unordered sequence must be Element or ElemenntRef")
+      case (m: MG, _________, ___________, __________, ___, __2) => new ScalarOrderedSequenceChild(this, m, groupIndex)
       case (_____, _________, policy /**/ , ock /**/ , ___, __2) => child.SDE("separatorSuppressionPolicy='" + policy + "' not allowed with occursCountKind='" + ock + "'.")
     }
     res

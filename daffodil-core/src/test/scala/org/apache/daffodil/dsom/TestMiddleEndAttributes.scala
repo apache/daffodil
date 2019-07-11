@@ -35,7 +35,7 @@ class TestMiddleEndAttributes {
       <dfdl:format representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator="" separator="" ignoreCase="no"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
-          <xs:sequence>
+          <xs:sequence dfdl:sequenceKind="ordered">
             <xs:element name="s1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
             <xs:element name="s2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
           </xs:sequence>
@@ -65,7 +65,7 @@ class TestMiddleEndAttributes {
       <dfdl:format representation="text" occursCountKind="parsed" lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator="" separator="" ignoreCase="no"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
-          <xs:sequence>
+          <xs:sequence dfdl:sequenceKind="ordered">
             <xs:element name="s1" type="xs:string" minOccurs="0" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
             <xs:element name="s2" type="xs:string" minOccurs="0" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
           </xs:sequence>
@@ -95,7 +95,7 @@ class TestMiddleEndAttributes {
       <dfdl:format representation="text" occursCountKind="parsed" lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator="" separator="" ignoreCase="no"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
-          <xs:sequence>
+          <xs:sequence dfdl:sequenceKind="ordered">
             <xs:element name="s1" type="xs:string" minOccurs="0" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
             <xs:element name="s2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
             <xs:element name="s3" type="xs:string" minOccurs="0" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
@@ -138,7 +138,7 @@ class TestMiddleEndAttributes {
       <dfdl:format representation="text" occursCountKind="parsed" lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator="" separator="" ignoreCase="no"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
-          <xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
+          <xs:sequence dfdl:sequenceKind="ordered" dfdl:separator="," dfdl:separatorPosition="infix">
             <xs:choice>
               <xs:element name="s1" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
               <xs:element name="s2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
@@ -180,7 +180,7 @@ class TestMiddleEndAttributes {
       <xs:element name="e1" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
       <xs:element name="e2" dfdl:lengthKind="implicit">
         <xs:complexType>
-          <xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
+          <xs:sequence dfdl:sequenceKind="ordered" dfdl:separator="," dfdl:separatorPosition="infix">
             <xs:element ref="e1"/>
           </xs:sequence>
         </xs:complexType>
@@ -214,7 +214,7 @@ class TestMiddleEndAttributes {
 
       <xs:element name="doc">
         <xs:complexType>
-          <xs:sequence>
+          <xs:sequence dfdl:sequenceKind="ordered">
             <xs:element name="msg" type="ex:msgType" maxOccurs="unbounded"/>
           </xs:sequence>
         </xs:complexType>
@@ -227,7 +227,7 @@ class TestMiddleEndAttributes {
       </xs:complexType>
       <xs:element name="fWithInitiator" dfdl:initiator="$">
         <xs:complexType>
-          <xs:sequence>
+          <xs:sequence dfdl:sequenceKind="ordered">
             <xs:element name="f" type="xs:string"/>
           </xs:sequence>
         </xs:complexType>

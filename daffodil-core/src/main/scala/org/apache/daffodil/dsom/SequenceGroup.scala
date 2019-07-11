@@ -275,7 +275,6 @@ abstract class SequenceGroupTermBase(
   }
 
   final def isLayered = maybeLayerTransformerEv.isDefined
-
 }
 
 /**
