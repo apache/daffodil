@@ -22,10 +22,17 @@ import org.apache.daffodil.exceptions.Assert
 object DaffodilCharsetProvider {
 
   lazy val charsets = Seq(
+    BitsCharset3BitDFI336DUI001,
+    BitsCharset3BitDFI746DUI002,
+    BitsCharset3BitDFI747DUI001,
+    BitsCharset4BitDFI746DUI002,
+    BitsCharset5BitDFI769DUI002,
+    BitsCharset5BitDFI1661DUI001,
     BitsCharset5BitPackedLSBF,
     BitsCharset6BitDFI264DUI001,
     BitsCharset6BitDFI311DUI002,
-    BitsCharset5BitDFI1661DUI001,
+    BitsCharsetBase4LSBF,
+    BitsCharsetBase4MSBF,
     BitsCharsetBinaryLSBF,
     BitsCharsetBinaryMSBF,
     BitsCharsetHexLSBF,
@@ -42,8 +49,7 @@ object DaffodilCharsetProvider {
     BitsCharsetUTF16LE,
     BitsCharsetUTF32BE,
     BitsCharsetUTF32LE,
-    BitsCharsetUTF8
-  )
+    BitsCharsetUTF8)
 
   private lazy val charsetMap = {
     val nameCharsetPairs = charsets.flatMap { cs =>

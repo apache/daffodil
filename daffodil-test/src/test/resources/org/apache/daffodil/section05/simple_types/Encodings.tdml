@@ -1,0 +1,446 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<tdml:testSuite suiteName="Encodings" description="Test obscure encodings. "
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
+  xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  xmlns:ex="http://example.com"
+  defaultRoundTrip="onePass">
+
+  <tdml:defineSchema name="s" elementFormDefault="unqualified">
+
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="implicit" representation="binary"
+        lengthUnits="bits" alignmentUnits="bits" alignment="1"
+        bitOrder="leastSignificantBitFirst" byteOrder="littleEndian"/>
+
+    <xs:element name="f293u003">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="ls" type="xs:string" dfdl:encoding="X-DFDL-OCTAL-LSBF" dfdl:lengthKind="explicit" dfdl:length="3"
+            dfdl:outputValueCalc="{ fn:substring(../value, 2, 1) }"/>
+          <xs:element name="ms" type="xs:string" dfdl:encoding="X-DFDL-BASE4-LSBF" dfdl:lengthKind="explicit" dfdl:length="2"
+            dfdl:outputValueCalc="{ fn:substring(../value, 1, 1) }"/>
+          <xs:element name="value" type="xs:string" dfdl:inputValueCalc="{ fn:concat(../ms, ../ls) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="f422u001">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="ls" type="xs:string" dfdl:encoding="X-DFDL-OCTAL-LSBF" dfdl:lengthKind="explicit" dfdl:length="15"
+            dfdl:outputValueCalc="{ fn:concat( 
+              fn:substring(../value,6,1), 
+              fn:substring(../value,5,1), 
+              fn:substring(../value,4,1), 
+              fn:substring(../value,3,1), 
+              fn:substring(../value,2,1) ) }"/>
+          <xs:element name="ms" type="xs:string" dfdl:encoding="X-DFDL-BITS-LSBF" dfdl:lengthKind="explicit" dfdl:length="1"
+            dfdl:outputValueCalc="{ fn:substring(../value, 1, 1) }"/>
+          <xs:element name="value" type="xs:string" 
+            dfdl:inputValueCalc="{ fn:concat(
+              ../ms, 
+              fn:substring(../ls,5,1), 
+              fn:substring(../ls,4,1), 
+              fn:substring(../ls,3,1), 
+              fn:substring(../ls,2,1), 
+              fn:substring(../ls,1,1) ) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="f746u002">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="ls" type="xs:string" dfdl:encoding="X-DFDL-OCTAL-LSBF" dfdl:lengthKind="explicit" dfdl:length="9"
+            dfdl:outputValueCalc="{ fn:concat( 
+              fn:substring(../value,5,1), 
+              fn:substring(../value,4,1), 
+              fn:substring(../value,3,1) ) }"/>
+          <xs:element name="mid" type="xs:string" dfdl:encoding="X-DFDL-3-BIT-DFI-746-DUI-002" dfdl:lengthKind="explicit" dfdl:length="3"
+            dfdl:outputValueCalc="{ fn:substring(../value, 2, 1) }"/>          
+            <xs:element name="ms" type="xs:string" dfdl:encoding="X-DFDL-4-BIT-DFI-746-DUI-002" dfdl:lengthKind="explicit" dfdl:length="4"
+            dfdl:outputValueCalc="{ fn:substring(../value, 1, 1) }"/>
+          <xs:element name="value" type="xs:string" 
+            dfdl:inputValueCalc="{ fn:concat(
+              ../ms, 
+              ../mid,
+              fn:substring(../ls,3,1), 
+              fn:substring(../ls,2,1), 
+              fn:substring(../ls,1,1) ) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>  
+    
+    <xs:element name="f747u001">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="ls" type="xs:string" dfdl:encoding="X-DFDL-OCTAL-LSBF" dfdl:lengthKind="explicit" dfdl:length="9"
+            dfdl:outputValueCalc="{ fn:concat( 
+              fn:substring(../value,5,1), 
+              fn:substring(../value,4,1), 
+              fn:substring(../value,3,1) ) }"/>      
+          <xs:element name="ms" type="xs:string" dfdl:encoding="X-DFDL-3-BIT-DFI-747-DUI-001" dfdl:lengthKind="explicit" dfdl:length="6"
+            dfdl:outputValueCalc="{ fn:concat(
+               fn:substring(../value, 2, 1),
+               fn:substring(../value, 1, 1) ) }"/>
+          <xs:element name="value" type="xs:string" 
+            dfdl:inputValueCalc="{ fn:concat(
+              fn:substring(../ms,2,1), 
+              fn:substring(../ms,1,1), 
+              fn:substring(../ls,3,1), 
+              fn:substring(../ls,2,1), 
+              fn:substring(../ls,1,1) ) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element> 
+    
+  <xs:element name="f769u002">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="ls" type="xs:string" dfdl:encoding="X-DFDL-OCTAL-LSBF" dfdl:lengthKind="explicit" dfdl:length="9"
+            dfdl:outputValueCalc="{ fn:concat(
+              fn:substring(../value, 5, 1),
+              fn:substring(../value, 4, 1),
+              fn:substring(../value, 3, 1) ) }"/>
+          <xs:element name="ms" type="xs:string" dfdl:encoding="X-DFDL-5-BIT-DFI-769-DUI-002" dfdl:lengthKind="explicit" dfdl:length="10"
+            dfdl:outputValueCalc="{ fn:concat(
+              fn:substring(../value, 2, 1),
+              fn:substring(../value, 1, 1) ) }"/>
+          <xs:element name="value" type="xs:string" dfdl:inputValueCalc="{ 
+            fn:concat(
+              fn:substring(../ms, 2, 1), 
+              fn:substring(../ms, 1, 1), 
+              fn:substring(../ls, 3, 1), 
+              fn:substring(../ls, 2, 1), 
+              fn:substring(../ls, 1, 1) ) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="f336u002">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="ls" type="xs:string" dfdl:encoding="X-DFDL-3-BIT-DFI-336-DUI-001" dfdl:lengthKind="explicit" dfdl:length="9"
+            dfdl:outputValueCalc="{ fn:concat(
+              fn:substring(../value, 3, 1),
+              fn:substring(../value, 2, 1),
+              fn:substring(../value, 1, 1) ) }"/>
+          <xs:element name="value" type="xs:string" dfdl:inputValueCalc="{ 
+            fn:concat(
+              fn:substring(../ls, 3, 1), 
+              fn:substring(../ls, 2, 1), 
+              fn:substring(../ls, 1, 1) ) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="f293u003_01"  model="s" >
+    <tdml:document>
+      <tdml:documentPart type="bits" bitOrder="LSBFirst">11111</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:f293u003>
+        <ls>7</ls>
+        <ms>3</ms>
+        <value>37</value>
+        </ex:f293u003>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="f293u003_02"  model="s" >
+    <tdml:document>
+      <tdml:documentPart type="bits" bitOrder="LSBFirst">10101</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:f293u003>
+        <ls>5</ls>
+        <ms>2</ms>
+        <value>25</value>
+        </ex:f293u003>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="f422u001_01"  model="s" >
+    <tdml:document bitOrder="LSBFirst">
+      <tdml:documentPart type="bits" bitOrder="LSBFirst" byteOrder="RTL">
+        0 000 000 000 000 000
+      </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:f422u001>
+          <ls>00000</ls>
+          <ms>0</ms>
+          <value>000000</value>
+        </ex:f422u001>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="f422u001_02"  model="s" >
+    <tdml:document bitOrder="LSBFirst">
+      <tdml:documentPart type="bits" bitOrder="LSBFirst" byteOrder="RTL">
+        1 010 011 100 101 110
+      </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:f422u001>
+          <ls>65432</ls>
+          <ms>1</ms>
+          <value>123456</value>
+        </ex:f422u001>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="f422u001_03"  model="s" >
+    <tdml:document bitOrder="LSBFirst">
+      <tdml:documentPart type="bits" bitOrder="LSBFirst" byteOrder="RTL">
+        1 111 111 111 111 111
+      </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:f422u001>
+          <ls>77777</ls>
+          <ms>1</ms>
+          <value>177777</value>
+        </ex:f422u001>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+    <tdml:parserTestCase name="f746u002_01"  model="s" >
+    <tdml:document bitOrder="LSBFirst">
+      <tdml:documentPart type="bits" bitOrder="LSBFirst" byteOrder="RTL">
+        0000 000 000 000 000
+      </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:f746u002>
+          <ls>000</ls>
+          <mid>A</mid>
+          <ms>A</ms>
+          <value>AA000</value>
+        </ex:f746u002>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="f746u002_02"  model="s" >
+    <tdml:document bitOrder="LSBFirst">
+      <tdml:documentPart type="bits" bitOrder="LSBFirst" byteOrder="RTL">
+        1010 011 100 101 110
+      </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:f746u002>
+          <ls>654</ls>
+          <mid>D</mid>
+          <ms>K</ms>
+          <value>KD456</value>
+        </ex:f746u002>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="f746u002_03"  model="s" >
+    <tdml:document bitOrder="LSBFirst">
+      <tdml:documentPart type="bits" bitOrder="LSBFirst" byteOrder="RTL">
+        1111 111 111 111 111
+      </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:f746u002>
+          <ls>777</ls>
+          <mid>H</mid>
+          <ms>Q</ms>
+        <value>QH777</value>
+        </ex:f746u002>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="f747u001_01"  model="s" >
+    <tdml:document bitOrder="LSBFirst">
+      <tdml:documentPart type="bits" bitOrder="LSBFirst" byteOrder="RTL">
+        000 000 000 000 000
+      </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:f747u001>
+          <ls>000</ls>
+          <ms>AA</ms>
+          <value>AA000</value>
+        </ex:f747u001>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="f747u001_02"  model="s" >
+    <tdml:document bitOrder="LSBFirst">
+      <tdml:documentPart type="bits" bitOrder="LSBFirst" byteOrder="RTL">
+         010 011 100 101 110
+      </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:f747u001>
+          <ls>654</ls>
+          <ms>HG</ms>
+          <value>GH456</value>
+        </ex:f747u001>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="f747u001_03"  model="s" >
+    <tdml:document bitOrder="LSBFirst">
+      <tdml:documentPart type="bits" bitOrder="LSBFirst" byteOrder="RTL">
+         111 111 111 111 111
+      </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:f747u001>
+          <ls>777</ls>
+          <ms>MM</ms>
+          <value>MM777</value>
+        </ex:f747u001>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="f769u002_01"  model="s" >
+    <tdml:document bitOrder="LSBFirst">
+      <tdml:documentPart type="bits" bitOrder="LSBFirst" byteOrder="RTL">
+        00000 00000 000 000 000
+      </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:f769u002>
+          <ls>000</ls>
+          <ms>00</ms>
+          <value>00000</value>
+        </ex:f769u002>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="f769u002_02"  model="s" >
+    <tdml:document bitOrder="LSBFirst">
+      <tdml:documentPart type="bits" bitOrder="LSBFirst" byteOrder="RTL">
+        00010 00011 100 101 110
+      </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:f769u002>
+          <ls>654</ls>
+          <ms>32</ms>
+          <value>23456</value>
+        </ex:f769u002>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="f769u002_03"  model="s" >
+    <tdml:document bitOrder="LSBFirst">
+      <tdml:documentPart type="bits" bitOrder="LSBFirst" byteOrder="RTL">
+        11111 11111 111 111 111
+      </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:f769u002>
+          <ls>777</ls>
+          <ms>ZZ</ms>
+          <value>ZZ777</value>
+        </ex:f769u002>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="f336u002_01"  model="s" >
+    <tdml:document bitOrder="LSBFirst">
+      <tdml:documentPart type="bits" bitOrder="LSBFirst" byteOrder="RTL">
+        000 000 000
+      </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:f336u002>
+          <ls>111</ls>
+          <value>111</value>
+        </ex:f336u002>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="f336u002_02"  model="s" >
+    <tdml:document bitOrder="LSBFirst">
+      <tdml:documentPart type="bits" bitOrder="LSBFirst" byteOrder="RTL">
+        100 101 110
+      </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:f336u002>
+          <ls>765</ls>
+          <value>567</value>
+        </ex:f336u002>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="f336u002_03"  model="s" >
+    <tdml:document bitOrder="LSBFirst">
+      <tdml:documentPart type="bits" bitOrder="LSBFirst" byteOrder="RTL">
+         111 111 111
+      </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:f336u002>
+          <ls>888</ls>
+          <value>888</value>
+        </ex:f336u002>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>  
+  
+</tdml:testSuite>
