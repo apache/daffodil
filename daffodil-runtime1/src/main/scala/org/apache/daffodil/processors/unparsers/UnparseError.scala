@@ -31,7 +31,7 @@ class UnparseAlternativeFailed(rd: TermRuntimeData, loc: DataLocation, val error
 object UnparseError {
   def apply(rd: Maybe[SchemaFileLocation], loc: Maybe[DataLocation], formatString: String, args: Any*) = {
     val ue = new UnparseError(rd, loc, Maybe.Nope, Maybe(formatString), args: _*)
-    Assert.toss(ue)
+    ue.toss
   }
 }
 
