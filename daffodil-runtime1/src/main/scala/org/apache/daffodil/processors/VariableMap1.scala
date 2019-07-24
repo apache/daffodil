@@ -28,6 +28,13 @@ import org.apache.daffodil.util.Maybe.Nope
 import org.apache.daffodil.util.Maybe.One
 import org.apache.daffodil.xml.GlobalQName
 import org.apache.daffodil.xml.NamedQName
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.infoset.DataValue
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveNullable
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
 
 sealed abstract class VariableState extends Serializable
 
@@ -49,7 +56,7 @@ case object VariableInProcess extends VariableState
 /**
  * Core tuple of a pure functional "state" for variables.
  */
-case class Variable(state: VariableState, value: Maybe[AnyRef], rd: VariableRuntimeData, defaultValueExpr: Maybe[CompiledExpression[AnyRef]]) extends Serializable
+case class Variable(state: VariableState, value: DataValuePrimitiveNullable, rd: VariableRuntimeData, defaultValueExpr: Maybe[CompiledExpression[AnyRef]]) extends Serializable
 
 object VariableUtils {
 
@@ -65,7 +72,7 @@ object VariableUtils {
     newVMap
   }
 
-  def convert(v: String, rd: VariableRuntimeData): AnyRef =
+  def convert(v: String, rd: VariableRuntimeData): DataValuePrimitive =
     rd.primType.fromXMLString(v)
   // Infoset.convertToInfosetRepType(rd.primType, v, rd)
 }
@@ -185,7 +192,7 @@ class VariableMap private (vTable: Map[GlobalQName, List[List[Variable]]])
    * shows that the variable has been read (state VariableRead), when the variable hadn't
    * previously been read yet.
    */
-  def readVariable(vrd: VariableRuntimeData, referringContext: ThrowsSDE): (AnyRef, VariableMap) = {
+  def readVariable(vrd: VariableRuntimeData, referringContext: ThrowsSDE): (DataValuePrimitive, VariableMap) = {
     val referringContext: VariableRuntimeData = vrd
     val varQName = vrd.globalQName
     val lists = vTable.get(varQName)
@@ -194,12 +201,12 @@ class VariableMap private (vTable: Map[GlobalQName, List[List[Variable]]])
       case Some(firstTier :: enclosingScopes) =>
         firstTier match {
 
-          case Variable(VariableRead, v, ctxt, _) :: rest if (v.isDefined) => (v.get, this)
+          case Variable(VariableRead, v, ctxt, _) :: rest if (v.isDefined) => (v.getNonNullable, this)
 
           case Variable(st, v, ctxt, defExpr) :: rest if ((v.isDefined) && (st == VariableDefined || st == VariableSet)) => {
-            val newVar = Variable(VariableRead, One(v.get), ctxt, defExpr)
+            val newVar = Variable(VariableRead, v, ctxt, defExpr)
             val vmap = mkVMap(newVar, firstTier, enclosingScopes)
-            val converted = v.get // already converted
+            val converted = v.getNonNullable // already converted
             (converted, vmap)
           }
 
@@ -223,7 +230,7 @@ class VariableMap private (vTable: Map[GlobalQName, List[List[Variable]]])
   /**
    * Assigns a variable, returning a new VariableMap which shows the state of the variable.
    */
-  def setVariable(vrd: VariableRuntimeData, newValue: Any, referringContext: ThrowsSDE, pstate: ParseOrUnparseState): VariableMap = {
+  def setVariable(vrd: VariableRuntimeData, newValue: DataValuePrimitive, referringContext: ThrowsSDE, pstate: ParseOrUnparseState): VariableMap = {
     val varQName = vrd.globalQName
 
     vTable.get(varQName) match {
@@ -235,23 +242,23 @@ class VariableMap private (vTable: Map[GlobalQName, List[List[Variable]]])
         firstTier match {
 
           case Variable(VariableDefined, v, ctxt, defaultExpr) :: rest if (v.isDefined) => {
-            val newVar = Variable(VariableSet, One(VariableUtils.convert(newValue.toString, ctxt)), ctxt, defaultExpr)
+            val newVar = Variable(VariableSet, VariableUtils.convert(newValue.getAnyRef.toString, ctxt), ctxt, defaultExpr)
             mkVMap(newVar, firstTier, enclosingScopes)
           }
 
-          case Variable(VariableUndefined, Nope, ctxt, defaultExpr) :: rest => {
-            val newVar = Variable(VariableSet, One(VariableUtils.convert(newValue.toString, ctxt)), ctxt, defaultExpr)
+          case Variable(VariableUndefined, DataValue.NoValue, ctxt, defaultExpr) :: rest => {
+            val newVar = Variable(VariableSet, VariableUtils.convert(newValue.getAnyRef.toString, ctxt), ctxt, defaultExpr)
             mkVMap(newVar, firstTier, enclosingScopes)
           }
 
           case Variable(VariableSet, v, ctxt, defaultExpr) :: rest if (v.isDefined) => {
-            referringContext.SDE("Cannot set variable %s twice. State was: %s. Existing value: %s", ctxt.globalQName, VariableSet, v.get)
+            referringContext.SDE("Cannot set variable %s twice. State was: %s. Existing value: %s", ctxt.globalQName, VariableSet, v)
           }
 
           case Variable(VariableRead, v, ctxt, defaultExpr) :: rest if (v.isDefined) => {
             // referringContext.SDE
-            pstate.SDW("Cannot set variable %s after reading the default value. State was: %s. Existing value: %s", ctxt.globalQName, VariableSet, v.get)
-            val newVar = Variable(VariableSet, One(VariableUtils.convert(newValue.toString, ctxt)), ctxt, defaultExpr)
+            pstate.SDW("Cannot set variable %s after reading the default value. State was: %s. Existing value: %s", ctxt.globalQName, VariableSet, v)
+            val newVar = Variable(VariableSet, VariableUtils.convert(newValue.getAnyRef.toString, ctxt), ctxt, defaultExpr)
             mkVMap(newVar, firstTier, enclosingScopes)
           }
 
@@ -265,7 +272,7 @@ class VariableMap private (vTable: Map[GlobalQName, List[List[Variable]]])
   /**
    * Assigns a variable, returning a new VariableMap which shows the state of the variable.
    */
-  def setExtVariable(varQName: GlobalQName, newValue: Any, referringContext: ThrowsSDE): VariableMap = {
+  def setExtVariable(varQName: GlobalQName, newValue: DataValuePrimitive, referringContext: ThrowsSDE): VariableMap = {
     vTable.get(varQName) match {
 
       case None => referringContext.schemaDefinitionError("unknown variable %s", varQName)
@@ -275,22 +282,22 @@ class VariableMap private (vTable: Map[GlobalQName, List[List[Variable]]])
         firstTier match {
 
           case Variable(VariableDefined, v, ctxt, defaultExpr) :: rest if (v.isDefined && ctxt.external) => {
-            val newVar = Variable(VariableDefined, One(VariableUtils.convert(newValue.toString, ctxt)), ctxt, defaultExpr)
+            val newVar = Variable(VariableDefined, VariableUtils.convert(newValue.getAnyRef.toString, ctxt), ctxt, defaultExpr)
             val newFirstTier = newVar :: rest
             mkVMap(varQName, newFirstTier, enclosingScopes)
           }
           case Variable(VariableDefined, v, ctxt, defaultExpr) :: rest if (v.isDefined) => {
-            referringContext.SDE("Cannot set variable %s externally. State was: %s. Existing value: %s.", ctxt.globalQName, VariableDefined, v.get)
+            referringContext.SDE("Cannot set variable %s externally. State was: %s. Existing value: %s.", ctxt.globalQName, VariableDefined, v)
             // this // Unaltered VMap
           }
 
-          case Variable(VariableUndefined, Nope, ctxt, defaultExpr) :: rest if ctxt.external => {
-            val newVar = Variable(VariableDefined, One(VariableUtils.convert(newValue.toString, ctxt)), ctxt, defaultExpr)
+          case Variable(VariableUndefined, DataValue.NoValue, ctxt, defaultExpr) :: rest if ctxt.external => {
+            val newVar = Variable(VariableDefined, VariableUtils.convert(newValue.getAnyRef.toString, ctxt), ctxt, defaultExpr)
             val newFirstTier = newVar :: rest
             mkVMap(varQName, newFirstTier, enclosingScopes)
           }
 
-          case Variable(VariableUndefined, Nope, ctxt, defaultExpr) :: rest => {
+          case Variable(VariableUndefined, DataValue.NoValue, ctxt, defaultExpr) :: rest => {
             referringContext.SDE("Cannot set variable %s externally. State was: %s.", ctxt.globalQName, VariableUndefined)
             // this // Unaltered VMap
           }
@@ -298,12 +305,12 @@ class VariableMap private (vTable: Map[GlobalQName, List[List[Variable]]])
           case Variable(VariableSet, v, ctxt, defaultExpr) :: rest if (v.isDefined) => {
             // Shouldn't this be an impossible case? External variables should be defined before parsing.
             // Parsing is the only point at which Set can be called?
-            referringContext.SDE("Cannot externally set variable %s twice. State was: %s. Existing value: %s", ctxt.globalQName, VariableSet, v.get)
+            referringContext.SDE("Cannot externally set variable %s twice. State was: %s. Existing value: %s", ctxt.globalQName, VariableSet, v)
             // this // Unaltered VMap
           }
 
           case Variable(VariableRead, v, ctxt, defaultExpr) :: rest if (v.isDefined) => {
-            referringContext.SDE("Cannot externally set variable %s after reading the default value. State was: %s. Existing value: %s", ctxt.globalQName, VariableSet, v.get)
+            referringContext.SDE("Cannot externally set variable %s after reading the default value. State was: %s. Existing value: %s", ctxt.globalQName, VariableSet, v)
             // this // Unaltered VMap
           }
 

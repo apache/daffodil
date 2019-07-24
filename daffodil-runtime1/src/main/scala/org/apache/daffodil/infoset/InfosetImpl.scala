@@ -54,6 +54,14 @@ import org.apache.daffodil.processors.parsers.PState
 import org.apache.daffodil.api.DaffodilTunables
 import java.util.HashMap
 import org.apache.daffodil.dsom.DPathElementCompileInfo
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveNullable
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveNullable
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveNullable
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveNullable
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveNullable
 
 sealed trait DINode {
 
@@ -232,8 +240,8 @@ final class FakeDINode extends DISimple(null) {
   override def valid = die
   override def setValid(validity: Boolean): Unit = die
 
-  override def dataValue: AnyRef = _value
-  override def setDataValue(s: AnyRef): Unit = { _value = asAnyRef(s) }
+  override def dataValue: DataValuePrimitiveNullable = _value
+  override def setDataValue(s: DataValuePrimitiveNullable): Unit = { _value = s }
 
   override def dataValueAsString: String = _value.toString
   override def isDefaulted: Boolean = die
@@ -742,7 +750,7 @@ sealed trait DISimpleSharedMembersMixin {
 
   protected var _isDefaulted: Boolean = false
 
-  protected var _value: AnyRef = null
+  protected var _value: DataValuePrimitiveNullable = DataValue.NoValue
 
   protected var _unionMemberRuntimeData: Maybe[SimpleTypeRuntimeData] = Nope
 }
@@ -770,7 +778,7 @@ sealed trait DISimpleSharedImplMixin
   abstract override def clear() {
     super.clear()
     _isDefaulted = false
-    _value = null
+    _value = DataValue.NoValue
     _unionMemberRuntimeData = Nope
   }
 }
@@ -1065,7 +1073,7 @@ sealed class DISimple(override val erd: ElementRuntimeData)
 
   override def children: Stream[DINode] = Stream.Empty
 
-  def setDefaultedDataValue(defaultedValue: AnyRef) = {
+  def setDefaultedDataValue(defaultedValue: DataValuePrimitive) = {
     setDataValue(defaultedValue)
     _isDefaulted = true
   }
@@ -1080,12 +1088,12 @@ sealed class DISimple(override val erd: ElementRuntimeData)
    * Parsing of a text number first does setDataValue to a string, then a conversion does overwrite data value
    * with a number. Unparsing does setDataValue to a value, then overwriteDataValue to a string.
    */
-  override def setDataValue(x: AnyRef) {
+  override def setDataValue(x: DataValuePrimitiveNullable) {
     Assert.invariant(!hasValue)
     overwriteDataValue(x)
   }
 
-  def overwriteDataValue(x: AnyRef) {
+  def overwriteDataValue(x: DataValuePrimitiveNullable) {
     //
     // let's find places where we're putting a string in the infoset
     // but the simple type is not string. That happens when parsing or unparsing text Numbers, text booleans, text Date/Times.
@@ -1109,7 +1117,7 @@ sealed class DISimple(override val erd: ElementRuntimeData)
     // for converting to XML, or for debugging print statements.
     //
     val nodeKind = erd.optPrimType.get
-    x match {
+    x.getAnyRef match {
       case xs: String => {
         if (nodeKind.isInstanceOf[NodeInfo.String.Kind]) {
           // the value is a string, and the type of the node is string.
@@ -1129,7 +1137,7 @@ sealed class DISimple(override val erd: ElementRuntimeData)
           // So we set the stringRep, but not the value. (The value might be there if unparsing, or not if parsing)
           // When the converter runs, it will ask for the dataValueAsString which will take
           // the stringRep because we have defined it here.
-          _stringRep = x.asInstanceOf[String]
+          _stringRep = xs
         }
       }
       case _ => {
@@ -1143,7 +1151,7 @@ sealed class DISimple(override val erd: ElementRuntimeData)
         //
         _stringRep = null
         _bdRep = null
-        _value = x match {
+        _value = x.getAnyRef match {
           case dc: DFDLCalendar => dc
           case arb: Array[Byte] => arb
           case b: JBoolean => b
@@ -1178,7 +1186,7 @@ sealed class DISimple(override val erd: ElementRuntimeData)
     _unionMemberRuntimeData = Nope
     _stringRep = null
     _bdRep = null
-    _value = null
+    _value = DataValue.NoValue
   }
 
   /**
@@ -1188,47 +1196,47 @@ sealed class DISimple(override val erd: ElementRuntimeData)
   override def valueStringForDebug: String = {
     val res =
       if (_isNilled) "nil"
-      else if (_value ne null) _value.toString()
+      else if (_value.isDefined) _value.toString()
       else if (_stringRep ne null) "stringRep(" + _stringRep + ")"
       else ""
     res
   }
 
-  def hasValue: Boolean = !_isNilled && _value != null
+  def hasValue: Boolean = !_isNilled && _value.isDefined
   /**
    * Obtain the data value. Implements default
    * values, and outputValueCalc for unparsing.
    */
-  override def dataValue: AnyRef = {
-    if (_value == null)
+  override def dataValue: DataValuePrimitiveNullable = {
+    if (_value.isEmpty)
       if (erd.optDefaultValue.isDefined) {
-        val defaultVal = erd.optDefaultValue.get
-        if (defaultVal eq UseNilForDefault) {
+        val defaultVal = erd.optDefaultValue
+        if (defaultVal == DataValue.UseNilForDefault) {
           Assert.invariant(erd.isNillable)
           this.setNilled()
         } else {
-          _value = defaultVal
+          _value = defaultVal.getNullablePrimitive
         }
         _isDefaulted = true
       } else {
         erd.toss(new InfosetNoDataException(this, erd))
       }
-    if (_value == null) {
+    if (_value.isEmpty) {
       this.erd.schemaDefinitionError("Value has not been set.")
     }
-    _value
+    _value.getNonNullable
   }
 
-  final def maybeDataValue: Maybe[AnyRef] = {
-    val mv = if (_value ne null)
-      Maybe(_value)
+  final def maybeDataValue: DataValuePrimitiveNullable = {
+    val mv = if (_value.isDefined)
+      _value
     else if (erd.optDefaultValue.isDefined) {
-      val defaultVal = erd.optDefaultValue.get
-      _value = defaultVal
+      val defaultVal = erd.optDefaultValue
+      _value = defaultVal.getNullablePrimitive
       _isDefaulted = true
-      Maybe(_value)
+      _value
     } else {
-      Maybe.Nope
+      DataValue.NoValue
     }
     mv
   }
@@ -1236,7 +1244,7 @@ sealed class DISimple(override val erd: ElementRuntimeData)
   override def dataValueAsString = {
     if (_stringRep ne null) _stringRep
     else {
-      dataValue match {
+      dataValue.getAnyRef match {
         case s: String => s
         case arr: Array[Byte] => Misc.bytes2Hex(arr)
         case d: java.lang.Double => {
@@ -1252,7 +1260,7 @@ sealed class DISimple(override val erd: ElementRuntimeData)
           else if (f == Float.NegativeInfinity) XMLUtils.NegativeInfinityString
           else f.toString
         }
-        case _ => dataValue.toString
+        case x => x.toString
       }
     }
   }
@@ -1260,7 +1268,7 @@ sealed class DISimple(override val erd: ElementRuntimeData)
   def dataValueAsBigDecimal: JBigDecimal = {
     if (_bdRep ne null) _bdRep
     else {
-      dataValue match {
+      dataValue.getAnyRef match {
         case n: JBigDecimal => n
         case n: JNumber => Numbers.asJBigDecimal(n)
         case dc: DFDLCalendar => dc.toJBigDecimal
@@ -1282,7 +1290,7 @@ sealed class DISimple(override val erd: ElementRuntimeData)
       if (nodeKind =:= NodeInfo.String) {
         dataValueAsString.length =#= 0
       } else if (nodeKind =:= NodeInfo.HexBinary) {
-        dataValue.asInstanceOf[Array[Byte]].length =#= 0
+        dataValue.getByteArray.length =#= 0
       } else false
     }
   }

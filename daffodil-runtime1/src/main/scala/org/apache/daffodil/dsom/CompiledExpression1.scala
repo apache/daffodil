@@ -41,6 +41,9 @@ import org.apache.daffodil.xml.NS
 import org.apache.daffodil.xml.NamedQName
 import org.apache.daffodil.xml.NoNamespace
 import org.apache.daffodil.xml.StepQName
+import org.apache.daffodil.infoset.DataValue
+import org.apache.daffodil.infoset.DataValue.DataValueAny
+import org.apache.daffodil.infoset.DataValue.DataValueAny
 
 trait ContentValueReferencedElementInfoMixin {
 
@@ -72,6 +75,8 @@ abstract class CompiledExpression[+T <: AnyRef](
   valueForDebugPrinting: AnyRef)
   extends ContentValueReferencedElementInfoMixin with Serializable {
 
+  DataValue.assertValueIsNotDataValue(valueForDebugPrinting)
+  
   final def toBriefXML(depth: Int = -1) = {
     "'" + prettyExpr + "'"
   }
@@ -147,10 +152,10 @@ final case class ConstantExpression[+T <: AnyRef](
   override def evaluate(state: ParseOrUnparseState) = value
 
   def evaluate(dstate: DState, state: ParseOrUnparseState) = {
-    dstate.setCurrentValue(value)
+    dstate.setCurrentValue(DataValue.unsafeFromAnyRef(value))
     value
   }
-  override def run(dstate: DState) = dstate.setCurrentValue(value)
+  override def run(dstate: DState) = dstate.setCurrentValue(DataValue.unsafeFromAnyRef(value))
 
   final def evaluateForwardReferencing(state: ParseOrUnparseState, whereBlockedLocation: Suspension): Maybe[T] = {
     // whereBlockedLocation is ignored since a constant expression cannot block.

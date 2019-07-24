@@ -22,6 +22,9 @@ import org.apache.daffodil.xml.NS
 import org.apache.daffodil.util.MaybeBoolean
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.processors.ElementRuntimeData
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveNullable
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveNullable
 import org.apache.daffodil.api.DaffodilTunables
 
 object INoWarn2 { ImplicitsSuppressUnusedImportWarning() }
@@ -80,13 +83,13 @@ trait InfosetComplexElement extends InfosetElement {
 
 trait InfosetSimpleElement extends InfosetElement {
 
-  def dataValue: Any
+  def dataValue: DataValuePrimitiveNullable
 
   /**
    * Caches the string so we're not allocating strings just to do facet checks
    */
   def dataValueAsString: String
-  def setDataValue(s: AnyRef): Unit
+  def setDataValue(s: DataValuePrimitiveNullable): Unit
   def isDefaulted: Boolean
 }
 

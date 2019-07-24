@@ -282,7 +282,7 @@ trait ElementSequenceChildParseResultHelper
                 ParseAttemptStatus.MissingItem
               }
               case EmptyElementParsePolicy.TreatAsEmpty => {
-                elem.dataValue match {
+                elem.dataValue.getAnyRef match {
                   case string: String if string.length == 0 => //ok
                   case byteArray: Array[Byte] if byteArray.length == 0 => //ok
                   case _ => Assert.invariant(!isZL) // must be nonZL empty rep.

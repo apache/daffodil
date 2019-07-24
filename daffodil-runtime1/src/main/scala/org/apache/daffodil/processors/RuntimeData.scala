@@ -60,6 +60,9 @@ import org.apache.daffodil.xml.NamedQName
 import org.apache.daffodil.processors.unparsers.UnparseError
 import org.apache.daffodil.util.Misc
 import org.apache.daffodil.api.UnqualifiedPathStepPolicy
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveNullable
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveNullable
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveOrUseNilForDefaultOrNull
 
 /*
  * NOTE: Any time you add a member to one of these objects, you must modify at least 3 places.
@@ -455,14 +458,14 @@ final class SimpleTypeRuntimeData(
     val minAsLong = minValue.longValueExact()
     primType match {
       case PrimType.String => {
-        val data = diNode.dataValue.asInstanceOf[String]
+        val data = diNode.dataValue.getString
         val dataLen = data.length.toLong
         val isDataLengthLess = dataLen.compareTo(minAsLong) < 0
         if (isDataLengthLess) java.lang.Boolean.FALSE
         else java.lang.Boolean.TRUE
       }
       case PrimType.HexBinary => {
-        val data = diNode.dataValue.asInstanceOf[Array[Byte]]
+        val data = diNode.dataValue.getByteArray
 
         val dataLen = data.length.toLong
         val isDataLengthEqual = dataLen.compareTo(minAsLong) == 0
@@ -478,14 +481,14 @@ final class SimpleTypeRuntimeData(
     val maxAsLong = maxValue.longValueExact()
     primType match {
       case PrimType.String => {
-        val data: String = diNode.dataValue.asInstanceOf[String]
+        val data: String = diNode.dataValue.getString
         val dataLen: Long = data.length.toLong
         val isDataLengthGreater = dataLen.compareTo(maxAsLong) > 0
         if (isDataLengthGreater) java.lang.Boolean.FALSE
         else java.lang.Boolean.TRUE
       }
       case PrimType.HexBinary => {
-        val data: Array[Byte] = diNode.dataValue.asInstanceOf[Array[Byte]]
+        val data: Array[Byte] = diNode.dataValue.getByteArray
         // Has to come through as a string in infoset
         // hex string is exactly twice as long as number of bytes
         // take length / 2 = length
@@ -655,7 +658,7 @@ sealed class ElementRuntimeData(
   @TransientParam hasNoSkipRegionsArg: => Boolean,
   @TransientParam impliedRepresentationArg: => Representation,
   @TransientParam optIgnoreCaseArg: => Option[YesNo],
-  @TransientParam optDefaultValueArg: => Option[AnyRef],
+  @TransientParam optDefaultValueArg: => DataValuePrimitiveOrUseNilForDefaultOrNull,
   //
   // Unparser-specific arguments
   //
@@ -840,7 +843,7 @@ sealed abstract class ErrorERD(local: String, namespaceURI: String)
     false, // hasNoSkipRegionsArg: => Boolean,
     null, // impliedRepresentationArg: => Representation,
     null, // optIgnoreCaseArg: => Option[YesNo],
-    null, // optDefaultValueArg: => Option[AnyRef],
+    DataValue.NoValue, // optDefaultValueArg: => DataValuePrimitiveOrUseNilForDefaultOrNull,
     null, // optTruncateSpecifiedLengthStringArg: => Option[Boolean],
     null, // outputValueCalcExprArg: => Option[CompiledExpression[AnyRef]],
     Nope, // maybeBinaryFloatRepEvArg: => Maybe[BinaryFloatRepEv],
@@ -1067,13 +1070,13 @@ final class VariableRuntimeData(
     if (!maybeDefaultValueExpr.isDefined) VariableUndefined
     else VariableDefined
 
-  private lazy val maybeValue: Maybe[AnyRef] =
-    if (maybeDefaultValueExpr.isEmpty) Nope
+  private lazy val maybeValue: DataValuePrimitiveNullable =
+    if (maybeDefaultValueExpr.isEmpty) DataValue.NoValue
     else {
       val defaultValueExpr = maybeDefaultValueExpr.get
       defaultValueExpr match {
-        case constExpr: ConstantExpression[_] => One(constExpr.constant.asInstanceOf[AnyRef])
-        case _ => Nope
+        case constExpr: ConstantExpression[_] => DataValue.unsafeFromAnyRef(constExpr.constant)
+        case _ => DataValue.NoValue
       }
     }
 

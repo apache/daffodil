@@ -103,16 +103,16 @@ class TestExternalVariablesLoader extends Logging {
 
     // Verify that v_with_default is defined and is 42.
     assertTrue(var_v_with_default.value.isDefined)
-    assertEquals("42", var_v_with_default.value.get.toString())
+    assertEquals("42", var_v_with_default.value.getAnyRef.toString())
 
     val vmap = ExternalVariablesLoader.loadVariables(extVarFile1, sd, initialVMap, tunable)
 
     // Verify that the external variables override the previous values
     // in the VariableMap
     val (value1, _) = vmap.readVariable(v_no_default_vrd, Fakes.fakeElem)
-    assertEquals(1, value1)
+    assertEquals(1, value1.getAnyRef)
     val (value2, _) = vmap.readVariable(v_with_default_vrd, Fakes.fakeElem)
-    assertEquals(2, value2)
+    assertEquals(2, value2.getAnyRef)
   }
 
   @Test def test_ext_var_not_match_defined_var() = {

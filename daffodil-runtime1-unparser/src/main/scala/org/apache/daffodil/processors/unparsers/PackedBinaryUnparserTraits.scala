@@ -32,6 +32,7 @@ import org.apache.daffodil.processors.ParseOrUnparseState
 import org.apache.daffodil.processors.Processor
 import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
 import org.apache.daffodil.util.Maybe._
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveNullable
 
 trait PackedBinaryConversion {
   def fromBigInteger(bigInt: JBigInteger, nBits: Int): Array[Byte]
@@ -55,13 +56,13 @@ abstract class PackedBinaryBaseUnparser(
     //   - using dataValue would give the Calendar value rather than that string. Since the Calendar value
     //   cannot be cast as a JNumber we need to use dataValueAsString and convert it to a JBigInteger.
     //   With packed numbers, dataValue is already a number so just use that.
-    val nodeValue =
+    val nodeValue:DataValuePrimitiveNullable=
       node.erd.optPrimType.get match {
       case NodeInfo.Date | NodeInfo.DateTime | NodeInfo.Time => new JBigInteger(node.dataValueAsString)
       case _ => node.dataValue
     }
 
-    val value = nodeValue.asInstanceOf[JNumber]
+    val value = nodeValue.getNumber
     value
   }
 

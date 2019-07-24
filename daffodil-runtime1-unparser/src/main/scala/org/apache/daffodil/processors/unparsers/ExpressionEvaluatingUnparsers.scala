@@ -31,6 +31,11 @@ import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.processors.Success
 import org.apache.daffodil.infoset.Infoset
 import org.apache.daffodil.infoset.DISimple
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveNullable
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveNullable
+import org.apache.daffodil.infoset.DataValue
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
 
 final class SetVariableSuspendableExpression(
   override val expr: CompiledExpression[AnyRef],
@@ -38,7 +43,7 @@ final class SetVariableSuspendableExpression(
   referencingContext: NonTermRuntimeData)
   extends SuspendableExpression {
 
-  override protected def processExpressionResult(ustate: UState, v: AnyRef) {
+  override protected def processExpressionResult(ustate: UState, v: DataValuePrimitive) {
     val newVMap =
       ustate.variableMap.setVariable(rd, v, referencingContext, ustate)
 
@@ -121,9 +126,13 @@ class TypeValueCalcUnparser(typeCalculator: TypeCalculator[AnyRef, AnyRef], repT
 
     val currentSimple = ustate.currentInfosetNode.asSimple
 
-    val logicalValue: AnyRef = currentSimple.dataValue
+    val logicalValue: DataValuePrimitiveNullable = currentSimple.dataValue
+    Assert.invariant(logicalValue.isDefined)
     val logicalValueType = currentSimple.erd.optPrimType.get
-    val repTypeValue: Maybe[AnyRef] = typeCalculator.outputTypeCalcUnparse(ustate, e, logicalValue, logicalValueType)
+    val repTypeValue: DataValuePrimitiveNullable = {
+      val ans = typeCalculator.outputTypeCalcUnparse(ustate, e, logicalValue.getAnyRef, logicalValueType)
+      DataValue.unsafeFromMaybeAnyRef(ans)
+    }
 
     val origInfosetElement = ustate.currentInfosetNode
     val tmpInfosetElement = Infoset.newElement(repTypeRuntimeData).asInstanceOf[DISimple]
@@ -131,7 +140,7 @@ class TypeValueCalcUnparser(typeCalculator: TypeCalculator[AnyRef, AnyRef], repT
     if (ustate.processorStatus == Success) {
 
       Assert.invariant(repTypeValue.isDefined)
-      tmpInfosetElement.setDataValue(repTypeValue.get)
+      tmpInfosetElement.setDataValue(repTypeValue)
       ustate.currentInfosetNodeStack.push(Maybe(tmpInfosetElement))
       repTypeUnparser.unparse1(ustate)
       ustate.currentInfosetNodeStack.pop

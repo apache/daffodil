@@ -23,6 +23,14 @@ import org.apache.daffodil.cookers.EntityReplacer
 import org.apache.daffodil.dsom._
 import org.apache.daffodil.exceptions._
 import org.apache.daffodil.util.Numbers._
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.infoset.DataValue.DataValueString
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.infoset.DataValue.DataValueString
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.infoset.DataValue.DataValueBool
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.infoset.DataValue.DataValueString
 
 case class DFDLCheckConstraints(recipe: CompiledDPath) extends RecipeOpWithSubRecipes(recipe) {
   override def run(dstate: DState) {
@@ -38,14 +46,14 @@ case class DFDLCheckConstraints(recipe: CompiledDPath) extends RecipeOpWithSubRe
 }
 
 case class DFDLDecodeDFDLEntities(recipe: CompiledDPath, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
-  override def computeValue(str: AnyRef, dstate: DState) = {
-    val dfdlString = EntityReplacer { _.replaceAll(str.asInstanceOf[String], None) }
+  override def computeValue(str: DataValuePrimitive, dstate: DState):DataValueString = {
+    val dfdlString = EntityReplacer { _.replaceAll(str.getString, None) }
     dfdlString
   }
 }
 
 case class DFDLEncodeDFDLEntities(recipe: CompiledDPath, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
-  override def computeValue(str: AnyRef, dstate: DState) = constructLiteral(str.asInstanceOf[String])
+  override def computeValue(str: DataValuePrimitive, dstate: DState):DataValueString = constructLiteral(str.getString)
 
   def constructLiteral(s: String) = {
     val sb = new StringBuilder
@@ -97,8 +105,8 @@ case class DFDLEncodeDFDLEntities(recipe: CompiledDPath, argType: NodeInfo.Kind)
 }
 
 case class DFDLContainsDFDLEntities(recipe: CompiledDPath, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
-  override def computeValue(str: AnyRef, dstate: DState) =
-    EntityReplacer { x => asAnyRef(x.hasDfdlEntity(str.asInstanceOf[String])) }
+  override def computeValue(str: DataValuePrimitive, dstate: DState):DataValueBool =
+    EntityReplacer { x => x.hasDfdlEntity(str.getString) }
 }
 
 /**
@@ -114,8 +122,8 @@ case class DFDLContainsDFDLEntities(recipe: CompiledDPath, argType: NodeInfo.Kin
 case class DFDLTimeZoneFromDFDLCalendar(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNOneArg(recipe, argType) {
 
-  override def computeValue(value: AnyRef, dstate: DState) = {
-    val dfdlcal = value.asInstanceOf[DFDLCalendar]
+  override def computeValue(value: DataValuePrimitive, dstate: DState):DataValueString = {
+    val dfdlcal = value.getCalendar
     DFDLCalendarConversion.timeZonePartToXMLString(dfdlcal)
   }
 }

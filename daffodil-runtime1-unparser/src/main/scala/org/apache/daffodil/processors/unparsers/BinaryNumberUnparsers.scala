@@ -42,7 +42,7 @@ abstract class BinaryNumberBaseUnparser(override val context: ElementRuntimeData
 
   protected def getNumberToPut(state: UState): JNumber = {
     val node = state.currentInfosetNode.asSimple
-    node.dataValue.asInstanceOf[JNumber]
+    node.dataValue.getNumber
   }
 
   protected def getBitLength(s: ParseOrUnparseState): Int
@@ -204,7 +204,7 @@ abstract class BinaryDecimalUnparserBase(e: ElementRuntimeData, signed: YesNo, b
 
   override def getNumberToPut(state: UState): JNumber = {
     val node = state.currentInfosetNode.asSimple
-    val value = node.dataValue.asInstanceOf[JNumber]
+    val value = node.dataValue.getNumber
 
     // We want to scale the bigInt by binaryDecimalVirtualPoint so that it is a BigInt
     val bigDec = asBigDecimal(value)

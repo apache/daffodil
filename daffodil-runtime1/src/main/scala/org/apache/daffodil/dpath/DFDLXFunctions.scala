@@ -29,6 +29,9 @@ import org.apache.daffodil.processors.parsers.PState
 import org.apache.daffodil.processors.parsers.ParseError
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.processors.unparsers.UState
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
 
 case class DFDLXTrace(recipe: CompiledDPath, msg: String)
   extends RecipeOpWithSubRecipes(recipe) {
@@ -82,9 +85,9 @@ case object DAFError extends RecipeOp {
 case class DFDLXLookAhead(recipes: List[CompiledDPath])
   extends FNTwoArgs(recipes) {
 
-  def computeValue(arg1: AnyRef, arg2: AnyRef, dstate: DState): AnyRef = {
-    val offset = arg1.asInstanceOf[JLong]
-    val lBitSize = arg2.asInstanceOf[JLong]
+  def computeValue(arg1: DataValuePrimitive, arg2: DataValuePrimitive, dstate: DState): DataValuePrimitive = {
+    val offset = arg1.getLong
+    val lBitSize = arg2.getLong
 
     /*
      * Since dfdlx:lookAhead is defined to take unsigned arguements, the DPath interperater
@@ -124,7 +127,7 @@ case class DFDLXLookAhead(recipes: List[CompiledDPath])
       }
       val mark = dis.markPos
       dis.skip(offset, pstate)
-      val ans: AnyRef = if (bitSize > 63) {
+      val ans: DataValuePrimitive = if (bitSize > 63) {
         dis.getUnsignedBigInt(bitSize, pstate)
       } else if (bitSize == 0) {
         JLong.valueOf(0)

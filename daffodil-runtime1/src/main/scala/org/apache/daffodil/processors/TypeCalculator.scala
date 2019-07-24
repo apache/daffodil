@@ -33,6 +33,9 @@ import org.apache.daffodil.util.PreSerialization
 import org.apache.daffodil.util.RangeBound
 import org.apache.daffodil.util.TransientParam
 import org.apache.daffodil.xml.QNameBase
+import org.apache.daffodil.infoset.DataValue
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveNullable
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveNullable
 
 abstract class TypeCalculator[A <: AnyRef, B <: AnyRef](val srcType: NodeInfo.Kind, val dstType: NodeInfo.Kind)
   extends PreSerialization {
@@ -55,7 +58,7 @@ abstract class TypeCalculator[A <: AnyRef, B <: AnyRef](val srcType: NodeInfo.Ki
   def inputTypeCalc(x: A, xType: NodeInfo.Kind): (Maybe[B], Maybe[Error])
   def outputTypeCalc(x: B, xType: NodeInfo.Kind): (Maybe[A], Maybe[Error])
 
-  def inputTypeCalcParse(pstate: PState, context: RuntimeData, x: A, xType: NodeInfo.Kind): Maybe[B] = {
+  def inputTypeCalcParse(pstate: PState, context: RuntimeData, x: A, xType: NodeInfo.Kind): DataValuePrimitiveNullable = {
     val (ans, err) = inputTypeCalc(x, xType)
     Assert.invariant(ans.isDefined ^ err.isDefined)
 
@@ -66,7 +69,11 @@ abstract class TypeCalculator[A <: AnyRef, B <: AnyRef](val srcType: NodeInfo.Ki
 
     //In event of an error, we still want to return Maybe.Nope, which happens
     //to be what ans would have
-    ans
+    if(ans.isDefined){
+      DataValue.unsafeFromAnyRef(ans.get)
+    }else{
+      DataValue.NoValue
+    }
   }
   def outputTypeCalcUnparse(ustate: UState, context: RuntimeData, x: B, xType: NodeInfo.Kind): Maybe[A] = {
     val (ans, err) = outputTypeCalc(x, xType)
@@ -97,7 +104,7 @@ abstract class TypeCalculator[A <: AnyRef, B <: AnyRef](val srcType: NodeInfo.Ki
       //      throw FNErrorFunctionException(Maybe(context.schemaFileLocation), dstate.contextLocation, err.get)
     }
 
-    dstate.setCurrentValue(ans.get)
+    dstate.setCurrentValue(DataValue.unsafeFromAnyRef(ans.get))
 
   }
   def outputTypeCalcRun(dstate: DState, x: B, xType: NodeInfo.Kind): Unit = {
@@ -110,7 +117,7 @@ abstract class TypeCalculator[A <: AnyRef, B <: AnyRef](val srcType: NodeInfo.Ki
       throw diag
     }
 
-    dstate.setCurrentValue(ans.get)
+    dstate.setCurrentValue(DataValue.unsafeFromAnyRef(ans.get))
 
   }
 
@@ -210,25 +217,29 @@ class ExpressionTypeCalculator[A <: AnyRef, B <: AnyRef](
   override def outputTypeCalc(x: B, xType: NodeInfo.Kind): (Maybe[A], Maybe[Error]) =
     Assert.invariantFailed("outputTypeCalc not implemented on ExpressionTypeCalculator. Call the more specialized forms directly")
 
-  override def inputTypeCalcParse(state: PState, context: RuntimeData, x: A, xType: NodeInfo.Kind): Maybe[B] = {
+  override def inputTypeCalcParse(state: PState, context: RuntimeData, x: A, xType: NodeInfo.Kind): DataValuePrimitiveNullable = {
     val dstate = state.dState
     val oldRepValue = dstate.repValue
     val oldLogicalValue = dstate.logicalValue
-    dstate.repValue = One(x)
-    dstate.logicalValue = Maybe.Nope
+    dstate.repValue = DataValue.unsafeFromAnyRef(x)
+    dstate.logicalValue = DataValue.NoValue
 
     val ans = Maybe(maybeInputTypeCalc.get.evaluate(state))
 
     dstate.repValue = oldRepValue
     dstate.logicalValue = oldLogicalValue
-    ans
+    if(ans.isDefined){
+      DataValue.unsafeFromAnyRef(ans.get)
+    }else{
+      DataValue.NoValue;
+    }
   }
   override def outputTypeCalcUnparse(state: UState, context: RuntimeData, x: B, xType: NodeInfo.Kind): Maybe[A] = {
     val dstate = state.dState
     val oldRepValue = dstate.repValue
     val oldLogicalValue = dstate.logicalValue
-    dstate.repValue = Maybe.Nope
-    dstate.logicalValue = One(x)
+    dstate.repValue = DataValue.NoValue
+    dstate.logicalValue = DataValue.unsafeFromAnyRef(x)
 
     val ans = Maybe(maybeOutputTypeCalc.get.evaluate(state))
 
@@ -240,8 +251,8 @@ class ExpressionTypeCalculator[A <: AnyRef, B <: AnyRef](
   override def inputTypeCalcRun(dstate: DState, x: A, xType: NodeInfo.Kind): Unit = {
     val oldRepValue = dstate.repValue
     val oldLogicalValue = dstate.logicalValue
-    dstate.repValue = One(x)
-    dstate.logicalValue = Maybe.Nope
+    dstate.repValue = DataValue.unsafeFromAnyRef(x)
+    dstate.logicalValue = DataValue.NoValue
 
     maybeInputTypeCalc.get.run(dstate)
 
@@ -252,8 +263,8 @@ class ExpressionTypeCalculator[A <: AnyRef, B <: AnyRef](
   override def outputTypeCalcRun(dstate: DState, x: B, xType: NodeInfo.Kind): Unit = {
     val oldRepValue = dstate.repValue
     val oldLogicalValue = dstate.logicalValue
-    dstate.repValue = Maybe.Nope
-    dstate.logicalValue = One(x)
+    dstate.repValue = DataValue.NoValue
+    dstate.logicalValue = DataValue.unsafeFromAnyRef(x)
 
     maybeOutputTypeCalc.get.run(dstate)
 

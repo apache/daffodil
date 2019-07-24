@@ -20,22 +20,28 @@ package org.apache.daffodil.dpath
 import org.apache.daffodil.util.Numbers._
 import org.apache.daffodil.calendar.DFDLDate
 import org.apache.daffodil.calendar.DFDLTime
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.infoset.DataValue.DataValueString
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.infoset.DataValue.DataValueDate
+import org.apache.daffodil.infoset.DataValue.DataValueString
+import org.apache.daffodil.infoset.DataValue.DataValueDateTime
+import org.apache.daffodil.infoset.DataValue.DataValueTime
 
 case class XSInt(recipe: CompiledDPath) extends RecipeOpWithSubRecipes(recipe) {
   override def run(dstate: DState) {
     recipe.run(dstate)
     val basicValue = dstate.currentValue
-    val value = asInt(basicValue)
+    val value = asInt(basicValue.getAnyRef)
     dstate.setCurrentValue(value)
   }
 }
 
 case class XSString(recipe: CompiledDPath, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
-  override def computeValue(value: AnyRef, dstate: DState) = {
-    val res = value match {
+  override def computeValue(value: DataValuePrimitive, dstate: DState):DataValueString = {
+    val res:DataValueString = value.getAnyRef match {
       case hb: Array[Byte] => HexBinaryToString.computeValue(hb, dstate)
-      case _ =>
-        value.toString
+      case x => x.toString()
     }
     res
   }
@@ -45,8 +51,8 @@ case class XSDateTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNOneArg(recipe, argType) {
   val name = "XSDateTime"
 
-  override def computeValue(a: AnyRef, dstate: DState): AnyRef = {
-    val result = a match {
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueDateTime = {
+    val result = a.getAnyRef match {
       case _: DFDLTime => throw new NumberFormatException("Casting from xs:time to xs:dateTime can never succeed.")
       case _ => StringToDateTime.computeValue(a, dstate)
     }
@@ -58,8 +64,8 @@ case class XSDate(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNOneArg(recipe, argType) {
   val name = "XSDate"
 
-  override def computeValue(a: AnyRef, dstate: DState): AnyRef = {
-    val result = a match {
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueDate = {
+    val result = a.getAnyRef match {
       case _: DFDLTime => throw new NumberFormatException("Casting from xs:time to xs:date can never succeed.")
       case _ => StringToDate.computeValue(a, dstate)
     }
@@ -71,8 +77,8 @@ case class XSTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNOneArg(recipe, argType) {
   val name = "XSTime"
 
-  override def computeValue(a: AnyRef, dstate: DState): AnyRef = {
-    val result = a match {
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueTime = {
+    val result = a.getAnyRef match {
       case _: DFDLDate => throw new NumberFormatException("Casting from xs:date to xs:time can never succeed")
       case _ => StringToTime.computeValue(a, dstate)
     }

@@ -34,6 +34,9 @@ import org.apache.daffodil.dpath.NodeInfo.PrimType
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.api.WarnID
 import java.lang.{ Integer => JInt }
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveOrUseNilForDefaultOrNull
+import org.apache.daffodil.infoset.DataValue
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveOrUseNilForDefaultOrNull
 
 /**
  * Note about DSOM design versus say XSOM or Apache XSD library.
@@ -327,11 +330,11 @@ trait ElementBase
    * nor any PUA-remapped characters. This insures the default/fixed value can still be
    * used for ordinary XML-schema validation outside of Daffodil/DFDL.
    */
-  final lazy val defaultValue: Option[AnyRef] = {
+  final lazy val defaultValue: DataValuePrimitiveOrUseNilForDefaultOrNull = {
     if (isDefaultable && (isScalar || isArraywithAtLeastOneRequiredArrayElement)) {
       val dv =
         if (isNillable && useNilForDefault =:= YesNo.Yes) {
-          Some(UseNilForDefault) // singleton object indicator
+          DataValue.UseNilForDefault
         } else {
           //
           // Note: no remapping PUA chars or otherwise messing with the text of the default value
@@ -342,8 +345,8 @@ trait ElementBase
           val value = primType.fromXMLString(str)
           value
         }
-      Some(dv)
-    } else None
+      dv
+    } else DataValue.NoValue
   }
 
   lazy val unparserInfosetElementDefaultingBehavior: UnparserInfo.InfosetEventBehavior = {

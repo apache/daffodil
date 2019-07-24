@@ -18,6 +18,8 @@
 package org.apache.daffodil.dpath
 
 import java.math.{ BigInteger => JBigInt, BigDecimal => JBigDecimal }
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.infoset.DataValue.DataValueByteArray
 
 trait HexBinaryKind {
 
@@ -89,7 +91,7 @@ case class XSHexBinary(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNOneArg(recipe, argType) {
   val name = "XSHexBinary"
 
-  override def computeValue(a: AnyRef, dstate: DState): AnyRef = {
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueByteArray = {
     StringToHexBinary.computeValue(a, dstate)
   }
 }

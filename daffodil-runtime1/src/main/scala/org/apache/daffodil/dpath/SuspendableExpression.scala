@@ -24,6 +24,9 @@ import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe._
 import org.apache.daffodil.processors.Suspension
 import org.apache.daffodil.util.LogLevel
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.infoset.DataValue
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveNullable
 
 /**
  * Base for unparse-time expression evaluation that can have forward reference.
@@ -40,10 +43,10 @@ trait SuspendableExpression
 
   override def toString = "SuspendableExpression(" + rd.diagnosticDebugName + ", expr=" + expr.prettyExpr + ")"
 
-  protected def processExpressionResult(ustate: UState, v: AnyRef): Unit
+  protected def processExpressionResult(ustate: UState, v: DataValuePrimitive): Unit
 
   override protected final def doTask(ustate: UState) {
-    var v: Maybe[AnyRef] = Nope
+    var v: DataValuePrimitiveNullable = DataValue.NoValue
     if (!isBlocked) {
       log(LogLevel.Debug, "Starting suspendable expression for %s, expr=%s", rd.diagnosticDebugName, expr.prettyExpr)
     } else {
@@ -51,7 +54,7 @@ trait SuspendableExpression
       log(LogLevel.Debug, "Retrying suspendable expression for %s, expr=%s", rd.diagnosticDebugName, expr.prettyExpr)
     }
     while (v.isEmpty && !this.isBlocked) {
-      v = expr.evaluateForwardReferencing(ustate, this)
+      v = DataValue.unsafeFromMaybeAnyRef(expr.evaluateForwardReferencing(ustate, this))
       if (v.isEmpty) {
         Assert.invariant(this.isBlocked)
         log(LogLevel.Debug, "UnparserBlocking suspendable expression for %s, expr=%s", rd.diagnosticDebugName, expr.prettyExpr)
@@ -59,7 +62,7 @@ trait SuspendableExpression
         Assert.invariant(this.isDone)
         Assert.invariant(ustate.currentInfosetNodeMaybe.isDefined)
         log(LogLevel.Debug, "Completed suspendable expression for %s, expr=%s", rd.diagnosticDebugName, expr.prettyExpr)
-        processExpressionResult(ustate, v.get)
+        processExpressionResult(ustate, v.getNonNullable)
       }
     }
   }

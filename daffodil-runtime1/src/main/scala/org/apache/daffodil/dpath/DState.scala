@@ -29,6 +29,13 @@ import org.apache.daffodil.api.WarnID
 import org.apache.daffodil.dsom.DPathCompileInfo
 import org.apache.daffodil.xml.GlobalQName
 import org.apache.daffodil.processors.TypeCalculatorCompiler.TypeCalcMap
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveNullable
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveNullable
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveNullable
 import org.apache.daffodil.api.DaffodilTunables
 
 /**
@@ -116,9 +123,9 @@ case class DState(
    * (eg. to the runtime stack), and replaces the below fields.
    * At the end of the computation, it should restore the below fields.
    */
-  var logicalValue: Maybe[AnyRef] = Maybe.Nope
+  var logicalValue: DataValuePrimitiveNullable = DataValue.NoValue
 
-  var repValue: Maybe[AnyRef] = Maybe.Nope
+  var repValue: DataValuePrimitiveNullable = DataValue.NoValue
 
   /**
    * The currentValue is used when we have a value that is not
@@ -126,7 +133,7 @@ case class DState(
    * the expression 5 + $x, then none of those literals, nor their
    * nor variable value, nor their sum, has an element associated with it.
    */
-  private var _currentValue: AnyRef = null
+  private var _currentValue: DataValuePrimitiveNullable = DataValue.NoValue
 
   private var _mode: EvalMode = ParserNonBlocking
 
@@ -184,39 +191,39 @@ case class DState(
   //  }
 
   def resetValue() {
-    _currentValue = null
+    _currentValue = DataValue.NoValue
   }
 
-  def currentValue: AnyRef = {
-    if (_currentValue eq null)
+  def currentValue: DataValuePrimitiveNullable = {
+    if (_currentValue.isEmpty)
       withRetryIfBlocking {
         currentSimple.dataValue
       }
     else _currentValue
   }
 
-  def setCurrentValue(v: AnyRef) {
+  def setCurrentValue(v: DataValuePrimitiveNullable) {
     _currentValue = v
     _currentNode = null
   }
   def setCurrentValue(v: Long) {
-    _currentValue = asAnyRef(v)
+    _currentValue = v
     _currentNode = null
   }
   def setCurrentValue(v: Boolean) {
-    _currentValue = asAnyRef(v)
+    _currentValue = v
     _currentNode = null
   }
 
-  def booleanValue: Boolean = currentValue.asInstanceOf[Boolean]
+  def booleanValue: Boolean = currentValue.getBoolean
 
-  def longValue: Long = asLong(currentValue)
+  def longValue: Long = asLong(currentValue.getAnyRef)
   def intValue: Int = longValue.toInt
-  def doubleValue: Double = asDouble(currentValue)
+  def doubleValue: Double = asDouble(currentValue.getAnyRef)
 
-  def integerValue: JBigInt = asBigInt(currentValue)
-  def decimalValue: JBigDecimal = asBigDecimal(currentValue)
-  def stringValue: String = currentValue.asInstanceOf[String]
+  def integerValue: JBigInt = asBigInt(currentValue.getAnyRef)
+  def decimalValue: JBigDecimal = asBigDecimal(currentValue.getAnyRef)
+  def stringValue: String = currentValue.getString
 
   def isNilled: Boolean = currentElement.isNilled
 
@@ -246,9 +253,9 @@ case class DState(
 
   def exists: Boolean = true // we're at a node, so it must exist.
 
-  def dateValue: DFDLCalendar = currentValue.asInstanceOf[DFDLCalendar]
-  def timeValue: DFDLCalendar = currentValue.asInstanceOf[DFDLCalendar]
-  def dateTimeValue: DFDLCalendar = currentValue.asInstanceOf[DFDLCalendar]
+  def dateValue: DFDLCalendar = currentValue.getCalendar
+  def timeValue: DFDLCalendar = currentValue.getCalendar
+  def dateTimeValue: DFDLCalendar = currentValue.getCalendar
 
   /**
    * Array index calculations (that is [expr], what XPath
@@ -261,7 +268,7 @@ case class DState(
   def currentNode = _currentNode
   def setCurrentNode(n: DINode) {
     _currentNode = n
-    _currentValue = null
+    _currentValue = DataValue.NoValue
   }
 
   def currentSimple = {

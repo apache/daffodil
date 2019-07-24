@@ -108,7 +108,7 @@ class TestSimpleTypeUnions {
   @Test def testUnionNoUnionMemberOK {
     val (result, _) = TestUtils.testString(testSchema1, "3")
     val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].root.asInstanceOf[DISimple]
-    val Some(dv: java.lang.Integer) = Some(i.dataValue)
+    val Some(dv: java.lang.Integer) = Some(i.dataValue.getInt)
     assertEquals(3, dv.intValue())
     assertTrue(i.unionMemberRuntimeData.isEmpty)
     assertFalse(i.valid.get)
@@ -185,7 +185,7 @@ class TestSimpleTypeUnions {
   @Test def testUnionNot3 {
     val (result, _) = TestUtils.testString(testSchema2, "3")
     val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].root.asInstanceOf[DISimple]
-    val Some(dv: java.lang.Integer) = Some(i.dataValue)
+    val Some(dv: java.lang.Integer) = Some(i.dataValue.getInt)
     assertEquals(3, dv.intValue())
     assertTrue(i.unionMemberRuntimeData.isEmpty)
     assertFalse(i.valid.get)
@@ -306,7 +306,7 @@ class TestSimpleTypeUnions {
   @Test def testRestrictionOnUnionFail_01 {
     val (result, _) = TestUtils.testString(testSchema3, "foo4bar")
     val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].root.asInstanceOf[DISimple]
-    val Some(dv: String) = Some(i.dataValue)
+    val Some(dv: String) = Some(i.dataValue.getString)
     assertEquals("foo4bar", dv)
     assertTrue(i.unionMemberRuntimeData.isEmpty)
     assertFalse(i.valid.get)
@@ -335,7 +335,7 @@ class TestSimpleTypeUnions {
   @Test def testRestrictionOnUnionFail_02 {
     val (result, _) = TestUtils.testString(testSchema3, "notfoo1bar")
     val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].root.asInstanceOf[DISimple]
-    val Some(dv: String) = Some(i.dataValue)
+    val Some(dv: String) = Some(i.dataValue.getString)
     assertEquals("notfoo1bar", dv)
     assertTrue(i.unionMemberRuntimeData.isEmpty)
     assertFalse(i.valid.get)

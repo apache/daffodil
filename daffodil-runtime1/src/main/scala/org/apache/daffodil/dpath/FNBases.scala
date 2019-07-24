@@ -24,9 +24,22 @@ import org.apache.daffodil.exceptions.Assert
 import java.lang.{ Integer => JInt, Long => JLong, Double => JDouble, Boolean => JBoolean }
 import java.math.{ BigInteger => JBigInt, BigDecimal => JBigDecimal }
 import org.apache.daffodil.util.Numbers
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.infoset.DataValue
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.infoset.DataValue.DataValueString
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.infoset.DataValue.DataValueBool
+import org.apache.daffodil.infoset.DataValue.DataValueInt
 
 trait CompareOpBase {
-  def operate(v1: AnyRef, v2: AnyRef): AnyRef
+  def operate(v1: DataValuePrimitive, v2: DataValuePrimitive): DataValuePrimitive
 }
 
 trait NumberCompareOp extends CompareOpBase {
@@ -34,7 +47,7 @@ trait NumberCompareOp extends CompareOpBase {
    * It is such a pain that there is no scala.math.Number base class above
    * all the numeric types.
    */
-  def operate(v1: AnyRef, v2: AnyRef): JBoolean
+  override def operate(v1: DataValuePrimitive, v2: DataValuePrimitive): DataValueBool
 }
 
 trait StringCompareOp extends CompareOpBase {
@@ -47,7 +60,7 @@ trait StringCompareOp extends CompareOpBase {
    *
    * This mimics the fn:compare method closely.
    */
-  def compare(v1: AnyRef, v2: AnyRef): Int = v1.asInstanceOf[String].compare(v2.asInstanceOf[String])
+  def compare(v1: DataValuePrimitive, v2: DataValuePrimitive): Int = v1.getString.compare(v2.getString)
 }
 
 abstract class CompareOp
@@ -56,16 +69,16 @@ abstract class CompareOp
   override def run(dstate: DState) {
     val savedNode = dstate.currentNode
     left.run(dstate)
-    val leftValue = dstate.currentValue
+    val leftValue = dstate.currentValue.getNonNullable
     // Now reset back to the original node to evaluate the right
     dstate.setCurrentNode(savedNode)
     right.run(dstate)
-    val rightValue = dstate.currentValue
+    val rightValue = dstate.currentValue.getNonNullable
     val result = compare(op, leftValue, rightValue)
     dstate.setCurrentValue(result)
   }
 
-  def compare(op: String, v1: AnyRef, v2: AnyRef): JBoolean
+  def compare(op: String, v1: DataValuePrimitive, v2: DataValuePrimitive): JBoolean
 }
 
 case class BooleanOp(op: String, left: CompiledDPath, right: CompiledDPath)
@@ -73,7 +86,7 @@ case class BooleanOp(op: String, left: CompiledDPath, right: CompiledDPath)
   override def run(dstate: DState) {
     val savedNode = dstate.currentNode
     left.run(dstate)
-    val leftValue = dstate.currentValue.asInstanceOf[Boolean] // convertToBoolean(dstate.currentValue, dstate.pstate)
+    val leftValue = dstate.currentValue.getBoolean // convertToBoolean(dstate.currentValue, dstate.pstate)
 
     val result =
       if ((op == "and" && leftValue == false) ||
@@ -82,7 +95,7 @@ case class BooleanOp(op: String, left: CompiledDPath, right: CompiledDPath)
       } else {
         dstate.setCurrentNode(savedNode)
         right.run(dstate)
-        val rightValue = dstate.currentValue.asInstanceOf[Boolean] // convertToBoolean(dstate.currentValue, dstate.pstate)
+        val rightValue = dstate.currentValue.getBoolean // convertToBoolean(dstate.currentValue, dstate.pstate)
         rightValue
       }
 
@@ -92,10 +105,10 @@ case class BooleanOp(op: String, left: CompiledDPath, right: CompiledDPath)
 case class NegateOp(recipe: CompiledDPath) extends RecipeOpWithSubRecipes(recipe) {
   override def run(dstate: DState) {
     recipe.run(dstate)
-    val value: AnyRef = dstate.currentValue match {
-      case i: JInt => Numbers.asAnyRef(i * -1)
-      case l: JLong => Numbers.asAnyRef(l * (-1L))
-      case d: JDouble => Numbers.asAnyRef(d * -1.0)
+    val value: DataValuePrimitive = dstate.currentValue.getAnyRef match {
+      case i: JInt => DataValue.unsafeFromAnyRef(Numbers.asAnyRef(i * -1))
+      case l: JLong => DataValue.unsafeFromAnyRef(Numbers.asAnyRef(l * (-1L)))
+      case d: JDouble => DataValue.unsafeFromAnyRef(Numbers.asAnyRef(d * -1.0))
       case bi: JBigInt => bi.negate()
       case bd: JBigDecimal => bd.negate()
       case bi: BigInt => bi.underlying().negate()
@@ -112,13 +125,13 @@ abstract class FNOneArg(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends RecipeOpWithSubRecipes(recipe) {
   override def run(dstate: DState) {
     recipe.run(dstate)
-    val arg = dstate.currentValue
+    val arg = dstate.currentValue.getNonNullable
     dstate.setCurrentValue(computeValue(arg, dstate))
   }
 
   override def toXML = toXML(recipe.toXML)
 
-  def computeValue(str: AnyRef, dstate: DState): AnyRef
+  def computeValue(str: DataValuePrimitive, dstate: DState): DataValuePrimitive
 }
 
 abstract class FNTwoArgs(recipes: List[CompiledDPath])
@@ -131,18 +144,18 @@ abstract class FNTwoArgs(recipes: List[CompiledDPath])
     val savedNode = dstate.currentNode
     dstate.resetValue()
     recipe1.run(dstate)
-    val arg1 = dstate.currentValue
+    val arg1 = dstate.currentValue.getNonNullable
 
     dstate.setCurrentNode(savedNode)
     recipe2.run(dstate)
-    val arg2 = dstate.currentValue
+    val arg2 = dstate.currentValue.getNonNullable
 
     val res = computeValue(arg1, arg2, dstate)
     
     dstate.setCurrentValue(res)
   }
 
-  def computeValue(arg1: AnyRef, arg2: AnyRef, dstate: DState): AnyRef
+  def computeValue(arg1: DataValuePrimitive, arg2: DataValuePrimitive, dstate: DState): DataValuePrimitive
 
   override def toXML = toXML(recipes.map { _.toXML })
 }
@@ -161,12 +174,12 @@ abstract class FNTwoArgsNodeAndValue(recipes: List[CompiledDPath])
 
     dstate.setCurrentNode(savedNode)
     recipe2.run(dstate)
-    val arg2 = dstate.currentValue
+    val arg2 = dstate.currentValue.getNonNullable
 
     dstate.setCurrentValue(computeValue(arg1, arg2, dstate))
   }
 
-  def computeValue(arg1: AnyRef, arg2: AnyRef, dstate: DState): AnyRef
+  def computeValue(arg1: DataValuePrimitive, arg2: DataValuePrimitive, dstate: DState): DataValuePrimitive
 
   override def toXML = toXML(recipes.map { _.toXML })
 }
@@ -180,19 +193,19 @@ abstract class FNThreeArgs(recipes: List[CompiledDPath]) extends RecipeOpWithSub
 
     val savedNode = dstate.currentNode
     recipe1.run(dstate)
-    val arg1 = dstate.currentValue
+    val arg1 = dstate.currentValue.getNonNullable
 
     dstate.setCurrentNode(savedNode)
     recipe2.run(dstate)
-    val arg2 = dstate.currentValue
+    val arg2 = dstate.currentValue.getNonNullable
 
     dstate.setCurrentNode(savedNode)
     recipe3.run(dstate)
-    val arg3 = dstate.currentValue
+    val arg3 = dstate.currentValue.getNonNullable
     dstate.setCurrentValue(computeValue(arg1, arg2, arg3, dstate))
   }
 
-  def computeValue(arg1: AnyRef, arg2: AnyRef, arg3: AnyRef, dstate: DState): AnyRef
+  def computeValue(arg1: DataValuePrimitive, arg2: DataValuePrimitive, arg3: DataValuePrimitive, dstate: DState): DataValuePrimitive
 
   override def toXML = toXML(recipes.map { _.toXML })
 }
@@ -204,12 +217,12 @@ abstract class FNArgsList(recipes: List[CompiledDPath]) extends RecipeOpWithSubR
 
     // FIXME: rewrite to use an OnStack ListBuffer, and
     // a while loop with index vs. the foreach.
-    val args: List[Any] = {
-      val list = new ListBuffer[Any]
+    val args: List[DataValuePrimitive] = {
+      val list = new ListBuffer[DataValuePrimitive]
 
       recipes.foreach { recipe =>
         recipe.run(dstate)
-        list += dstate.currentValue
+        list += dstate.currentValue.getNonNullable
         dstate.setCurrentNode(savedNode)
       }
       list.toList
@@ -218,5 +231,5 @@ abstract class FNArgsList(recipes: List[CompiledDPath]) extends RecipeOpWithSubR
     dstate.setCurrentValue(computeValue(args, dstate))
   }
 
-  def computeValue(args: List[Any], dstate: DState): AnyRef
+  def computeValue(args: List[DataValuePrimitive], dstate: DState): DataValuePrimitive
 }

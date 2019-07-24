@@ -26,15 +26,17 @@ import org.apache.daffodil.dpath.NodeInfo.PrimType.IntegerKind
 import org.apache.daffodil.dpath.NodeInfo.PrimType.String
 import org.apache.daffodil.dpath.NodeInfo.PrimType.Integer
 import org.apache.daffodil.processors.TypeCalculator
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
 
 case class DFDLXInputTypeCalc(typedRecipes: List[(CompiledDPath, NodeInfo.Kind)], calc: TypeCalculator[AnyRef, AnyRef])
   extends FNTwoArgs(typedRecipes.map(_._1)) {
 
   val srcType = typedRecipes(1)._2
 
-  override def computeValue(arg1: AnyRef, arg2: AnyRef, dstate: DState): AnyRef = {
-    calc.inputTypeCalcRun(dstate, arg2, srcType)
-    dstate.currentValue
+  override def computeValue(arg1: DataValuePrimitive, arg2: DataValuePrimitive, dstate: DState): DataValuePrimitive = {
+    calc.inputTypeCalcRun(dstate, arg2.getAnyRef, srcType)
+    dstate.currentValue.getNonNullable
   }
 
 }
@@ -44,9 +46,9 @@ case class DFDLXOutputTypeCalc(typedRecipes: List[(CompiledDPath, NodeInfo.Kind)
 
   val srcType = typedRecipes(1)._2
 
-  def computeValue(arg1: AnyRef, arg2: AnyRef, dstate: DState): AnyRef = {
-    calc.outputTypeCalcRun(dstate, arg2, srcType)
-    dstate.currentValue
+  def computeValue(arg1: DataValuePrimitive, arg2: DataValuePrimitive, dstate: DState): DataValuePrimitive = {
+    calc.outputTypeCalcRun(dstate, arg2.getAnyRef, srcType)
+    dstate.currentValue.getNonNullable
   }
 }
 
@@ -69,7 +71,7 @@ case class DFDLXOutputTypeCalcNextSibling(a: CompiledDPath, b: NodeInfo.Kind) ex
     val primType = nextSibling.erd.optPrimType.get
 
     val x = nextSibling.dataValue
-    typeCalculator.outputTypeCalcRun(dstate, x, primType)
+    typeCalculator.outputTypeCalcRun(dstate, x.getAnyRef, primType)
   }
 }
 
@@ -89,7 +91,7 @@ case class DFDLXRepTypeValue(a: CompiledDPath, b: NodeInfo.Kind)
      */
       dstate.SDE("dfdlx:repTypeValue() may only be called from within dfdlx:inputTypeCalc")
     }
-    dstate.setCurrentValue(dstate.repValue.get)
+    dstate.setCurrentValue(dstate.repValue)
   }
 }
 
@@ -110,6 +112,6 @@ case class DFDLXLogicalTypeValue(a: CompiledDPath, b: NodeInfo.Kind)
      */
       dstate.SDE("dfdlx:logicalTypeValue() may only be called from within dfdlx:outputTypeCalc")
     }
-    dstate.setCurrentValue(dstate.logicalValue.get)
+    dstate.setCurrentValue(dstate.logicalValue)
   }
 }

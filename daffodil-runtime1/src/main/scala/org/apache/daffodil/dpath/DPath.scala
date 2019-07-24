@@ -34,6 +34,14 @@ import org.apache.daffodil.api.Diagnostic
 import org.apache.daffodil.util.Numbers._
 import org.apache.daffodil.processors.parsers.DoSDEMixin
 import org.apache.daffodil.processors.parsers.PState
+import org.apache.daffodil.infoset.DataValue.DataValueNonEmpty
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveNullable
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveNullable
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveNullable
 import org.apache.daffodil.udf.UserDefinedFunctionProcessingErrorException
 
 class ExpressionEvaluationException(e: Throwable, s: ParseOrUnparseState)
@@ -159,12 +167,12 @@ final class RuntimeExpressionDPath[T <: AnyRef](qn: NamedQName, tt: NodeInfo.Kin
    * so as to detect deadlocks.
    */
   def evaluateForwardReferencing(state: ParseOrUnparseState, whereBlockedInfo: Suspension): Maybe[T] = {
-    var value: Maybe[AnyRef] = Nope
+    var value:Maybe[T] = Nope
     try {
       // TODO: This assumes a distinct state object (with its own dState) for every expression that
       // can be in evaluation simultaneously.
       val dstate = evaluateExpression(state, state.dState)
-      value = Maybe(processForwardExpressionResults(dstate))
+      value = processForwardExpressionResults(dstate)
       whereBlockedInfo.setDone
     } catch {
       case unfin: InfosetNodeNotFinalException =>
@@ -195,26 +203,26 @@ final class RuntimeExpressionDPath[T <: AnyRef](qn: NamedQName, tt: NodeInfo.Kin
     recipe.run(dstate)
   }
 
-  private def processForwardExpressionResults(dstate: DState): AnyRef = {
-    val v: AnyRef = {
+  private def processForwardExpressionResults(dstate: DState): Maybe[T] = {
+    val v = {
       dstate.currentNode match {
         case null => {
           // there is no element. Can happen if one evaluates say, 5 + 6 or 5 + $variable
-          Assert.invariant(dstate.currentValue != null)
-          dstate.currentValue
+          Assert.invariant(dstate.currentValue.isDefined)
+          One(dstate.currentValue.getAnyRef)
         }
-        case n: DIElement if n.isNilled => n
+        case n: DIElement if n.isNilled => One(n)
         case c: DIComplex => {
           Assert.invariant(!targetType.isInstanceOf[NodeInfo.AnyAtomic.Kind])
-          c
+          One(c)
         }
         case s: DISimple => {
-          s.dataValue
+          One(s.dataValue.getAnyRef)
         }
         case _ => Assert.invariantFailed("must be an element, simple or complex.")
       }
     }
-    v
+    v.asInstanceOf[Maybe[T]]
   }
 
   private def evaluateExpression(state: ParseOrUnparseState, dstate: DState): DState = {
@@ -236,9 +244,12 @@ final class RuntimeExpressionDPath[T <: AnyRef](qn: NamedQName, tt: NodeInfo.Kin
         val dstate = evaluateExpression(state, state.dState)
         processExpressionResults(dstate)
       } catch {
-        case th: Throwable => handleThrow(th, state)
+        case th: Throwable => {
+          handleThrow(th, state)
+          Nope
+        }
       }
-    val value1 = postProcess(Maybe(value), state)
+    val value1 = postProcess(value, state)
     value1
   }
 
@@ -256,22 +267,22 @@ final class RuntimeExpressionDPath[T <: AnyRef](qn: NamedQName, tt: NodeInfo.Kin
   def isConstant = false
   def constant: T = Assert.usageError("Not a constant.")
 
-  private def processExpressionResults(dstate: DState): AnyRef = {
+  private def processExpressionResults(dstate: DState): Maybe[T] = {
     val v = {
       dstate.currentNode match {
         case null => {
           // there is no element. Can happen if one evaluates say, 5 + 6 in the debugger in which case
           // there is a value, but no node.
-          dstate.currentValue
+          One(dstate.currentValue.getAnyRef)
         }
-        case n: DIElement if n.isNilled => n
+        case n: DIElement if n.isNilled => One(n)
         case c: DIComplex => {
           Assert.invariant(!targetType.isInstanceOf[NodeInfo.AnyAtomic.Kind])
-          c
+          One(c)
         }
         case s: DISimple => {
           try {
-            s.dataValue
+            One(s.dataValue.getAnyRef)
           } catch {
             case ovc: OutputValueCalcEvaluationException => {
               Assert.invariantFailed("OVC should always have a data value by the time it reaches here.")
@@ -281,7 +292,7 @@ final class RuntimeExpressionDPath[T <: AnyRef](qn: NamedQName, tt: NodeInfo.Kin
         case _ => Assert.invariantFailed("must be an element, simple or complex.")
       }
     }
-    v
+    v.asInstanceOf[Maybe[T]]
   }
 
   private def handleThrow(th: Throwable, state: ParseOrUnparseState): Null = {
@@ -324,7 +335,7 @@ final class RuntimeExpressionDPath[T <: AnyRef](qn: NamedQName, tt: NodeInfo.Kin
    * Note: Can't use a Maybe[T] here because T is required to be an AnyRef, and that would exclude
    * Long, Int, etc. from being used as values.
    */
-  private def postProcess(v: Maybe[AnyRef], state: ParseOrUnparseState): Maybe[T] = {
+  private def postProcess(v: Maybe[T], state: ParseOrUnparseState): Maybe[T] = {
     if (v.isEmpty) Nope
     else {
       val value = v.get

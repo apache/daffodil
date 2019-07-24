@@ -39,6 +39,7 @@ import org.apache.daffodil.infoset._
 import org.apache.daffodil.processors.parsers.DoSDEMixin
 import org.apache.daffodil.processors.parsers.PState
 import org.apache.daffodil.api.DaffodilTunables
+import org.apache.daffodil.dpath.RuntimeExpressionDPath
 
 /**
  * Generates unique int for use as key into EvalCache
@@ -440,6 +441,7 @@ trait ExprEvalMixin[T <: AnyRef]
           }
         }
       }
+    DataValue.assertValueIsNotDataValue(expressionResult)
     expressionResult
   }
 

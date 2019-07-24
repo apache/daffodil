@@ -30,7 +30,7 @@ import org.apache.daffodil.processors.Evaluatable
 import org.apache.daffodil.infoset.RetryableException
 import org.apache.daffodil.processors.TypeCalculator
 import org.apache.daffodil.util.MaybeBoolean
-
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
 /**
  * Elements that, when unparsing, have no length specified.
  *
@@ -320,7 +320,7 @@ class ElementOVCSpecifiedLengthUnparserSuspendableExpresion(
 
   override lazy val expr = rd.outputValueCalcExpr.get
 
-  override final protected def processExpressionResult(state: UState, v: AnyRef) {
+  override final protected def processExpressionResult(state: UState, v: DataValuePrimitive) {
     val diSimple = state.currentInfosetNode.asSimple
 
     diSimple.setDataValue(v)
