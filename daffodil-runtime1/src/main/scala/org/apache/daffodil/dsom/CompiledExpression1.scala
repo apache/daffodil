@@ -17,17 +17,16 @@
 
 package org.apache.daffodil.dsom
 
-import scala.runtime.ScalaRunTime.stringOf // for printing arrays properly.
+import scala.runtime.ScalaRunTime.stringOf
 
-import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.api.UnqualifiedPathStepPolicy
 import org.apache.daffodil.api.WarnID
 import org.apache.daffodil.dpath.DState
 import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.dpath.NodeInfo.PrimType
-import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.exceptions.HasSchemaFileLocation
 import org.apache.daffodil.exceptions.SchemaFileLocation
+import org.apache.daffodil.infoset.DataValue
 import org.apache.daffodil.processors.ParseOrUnparseState
 import org.apache.daffodil.processors.RuntimeData
 import org.apache.daffodil.processors.Suspension
@@ -72,6 +71,8 @@ abstract class CompiledExpression[+T <: AnyRef](
   valueForDebugPrinting: AnyRef)
   extends ContentValueReferencedElementInfoMixin with Serializable {
 
+  DataValue.assertValueIsNotDataValue(valueForDebugPrinting)
+  
   final def toBriefXML(depth: Int = -1) = {
     "'" + prettyExpr + "'"
   }
@@ -147,10 +148,10 @@ final case class ConstantExpression[+T <: AnyRef](
   override def evaluate(state: ParseOrUnparseState) = value
 
   def evaluate(dstate: DState, state: ParseOrUnparseState) = {
-    dstate.setCurrentValue(value)
+    dstate.setCurrentValue(DataValue.unsafeFromAnyRef(value))
     value
   }
-  override def run(dstate: DState) = dstate.setCurrentValue(value)
+  override def run(dstate: DState) = dstate.setCurrentValue(DataValue.unsafeFromAnyRef(value))
 
   final def evaluateForwardReferencing(state: ParseOrUnparseState, whereBlockedLocation: Suspension): Maybe[T] = {
     // whereBlockedLocation is ignored since a constant expression cannot block.

@@ -177,7 +177,7 @@ class TestInfosetInputter {
     ic.pushTRD(fooERD)
     assertTrue(ic.advance)
     val Start(foo: DISimple) = aacc
-    assertEquals("Hello", foo.dataValue)
+    assertEquals("Hello", foo.dataValue.getAnyRef)
 
     assertTrue(ic.inspect)
     val End(ifoo: DISimple) = iacc
@@ -237,9 +237,9 @@ class TestInfosetInputter {
     assertFalse(ic.inspect)
     assertTrue(bar_s eq bar_e) // exact same object
     assertTrue(foo_s eq foo_e)
-    assertTrue(foo_s.dataValue.isInstanceOf[String])
+    assertTrue(foo_s.dataValue.getAnyRef.isInstanceOf[String])
     assertTrue(foo_s.dataValueAsString =:= "Hello")
-    assertTrue(baz_s.dataValue.isInstanceOf[String])
+    assertTrue(baz_s.dataValue.getAnyRef.isInstanceOf[String])
     assertTrue(baz_s.dataValueAsString =:= "World")
   }
 
@@ -315,15 +315,15 @@ class TestInfosetInputter {
     assertFalse(ic.inspect)
     assertTrue(bar1_s eq bar1_e) // exact same object
     assertTrue(foo1_s eq foo1_e)
-    assertTrue(foo1_s.dataValue.isInstanceOf[String])
+    assertTrue(foo1_s.dataValue.getAnyRef.isInstanceOf[String])
     assertTrue(foo1_s.dataValueAsString =:= "Hello")
-    assertTrue(baz1_s.dataValue.isInstanceOf[String])
+    assertTrue(baz1_s.dataValue.getAnyRef.isInstanceOf[String])
     assertTrue(baz1_s.dataValueAsString =:= "World")
     assertTrue(bar2_s eq bar2_e) // exact same object
     assertTrue(foo2_s eq foo2_e)
-    assertTrue(foo2_s.dataValue.isInstanceOf[String])
+    assertTrue(foo2_s.dataValue.getAnyRef.isInstanceOf[String])
     assertTrue(foo2_s.dataValueAsString =:= "Hello")
-    assertTrue(baz2_s.dataValue.isInstanceOf[String])
+    assertTrue(baz2_s.dataValue.getAnyRef.isInstanceOf[String])
     assertTrue(baz2_s.dataValueAsString =:= "World")
     assertTrue(quux_s eq quux_e)
   }
@@ -363,10 +363,10 @@ class TestInfosetInputter {
     assertTrue(bar_s eq bar_e) // exact same object
     assertTrue(foo_arr_s eq foo_arr_e)
     assertTrue(foo_1_s eq foo_1_e)
-    assertTrue(foo_1_s.dataValue.isInstanceOf[String])
+    assertTrue(foo_1_s.dataValue.getAnyRef.isInstanceOf[String])
     assertTrue(foo_1_s.dataValueAsString =:= "Hello")
     assertTrue(foo_2_s eq foo_2_e)
-    assertTrue(foo_2_s.dataValue.isInstanceOf[String])
+    assertTrue(foo_2_s.dataValue.getAnyRef.isInstanceOf[String])
     assertTrue(foo_2_s.dataValueAsString =:= "World")
   }
 
@@ -409,12 +409,12 @@ class TestInfosetInputter {
     assertTrue(bar_s eq bar_e) // exact same object
     assertTrue(foo_arr_s eq foo_arr_e)
     assertTrue(foo_1_s eq foo_1_e)
-    assertTrue(foo_1_s.dataValue.isInstanceOf[String])
+    assertTrue(foo_1_s.dataValue.getAnyRef.isInstanceOf[String])
     assertTrue(foo_1_s.dataValueAsString =:= "Hello")
     assertTrue(foo_2_s eq foo_2_e)
-    assertTrue(foo_2_s.dataValue.isInstanceOf[String])
+    assertTrue(foo_2_s.dataValue.getAnyRef.isInstanceOf[String])
     assertTrue(foo_2_s.dataValueAsString =:= "World")
-    assertTrue(baz_s.dataValue.isInstanceOf[String])
+    assertTrue(baz_s.dataValue.getAnyRef.isInstanceOf[String])
     assertTrue(baz_s.dataValueAsString =:= "Yadda")
   }
 
@@ -459,12 +459,12 @@ class TestInfosetInputter {
     assertTrue(bar_s eq bar_e) // exact same object
     assertTrue(foo_arr_s eq foo_arr_e)
     assertTrue(foo_1_s eq foo_1_e)
-    assertTrue(foo_1_s.dataValue.isInstanceOf[String])
+    assertTrue(foo_1_s.dataValue.getAnyRef.isInstanceOf[String])
     assertTrue(foo_1_s.dataValueAsString =:= "Hello")
     assertTrue(foo_2_s eq foo_2_e)
-    assertTrue(foo_2_s.dataValue.isInstanceOf[String])
+    assertTrue(foo_2_s.dataValue.getAnyRef.isInstanceOf[String])
     assertTrue(foo_2_s.dataValueAsString =:= "World")
-    assertTrue(baz_s.dataValue.isInstanceOf[String])
+    assertTrue(baz_s.dataValue.getAnyRef.isInstanceOf[String])
     assertTrue(baz_s.dataValueAsString =:= "Yadda")
   }
 
@@ -512,12 +512,12 @@ class TestInfosetInputter {
     assertTrue(foo_arr_s eq foo_arr_e)
     assertTrue(baz_arr_s eq baz_arr_e)
     assertTrue(foo_1_s eq foo_1_e)
-    assertTrue(foo_1_s.dataValue.isInstanceOf[String])
+    assertTrue(foo_1_s.dataValue.getAnyRef.isInstanceOf[String])
     assertTrue(foo_1_s.dataValueAsString =:= "Hello")
     assertTrue(foo_2_s eq foo_2_e)
-    assertTrue(foo_2_s.dataValue.isInstanceOf[String])
+    assertTrue(foo_2_s.dataValue.getAnyRef.isInstanceOf[String])
     assertTrue(foo_2_s.dataValueAsString =:= "World")
-    assertTrue(baz_s.dataValue.isInstanceOf[String])
+    assertTrue(baz_s.dataValue.getAnyRef.isInstanceOf[String])
     assertTrue(baz_s.dataValueAsString =:= "Yadda")
   }
 
@@ -561,7 +561,7 @@ class TestInfosetInputter {
     assertTrue(bar_s1 eq bar_e1) // exact same object
     assertTrue(foo_s1 eq foo_s2)
     assertTrue(foo_s1 eq foo_e)
-    assertTrue(foo_s1.dataValue.isInstanceOf[String])
+    assertTrue(foo_s1.dataValue.getAnyRef.isInstanceOf[String])
     assertTrue(foo_s1.dataValueAsString =:= "Hello")
   }
 
@@ -614,9 +614,9 @@ class TestInfosetInputter {
     assertFalse(ic.inspect)
     assertTrue(as eq ase) // exact same object
     assertTrue(e eq ee)
-    assertTrue(c1.dataValue.isInstanceOf[String])
+    assertTrue(c1.dataValue.getAnyRef.isInstanceOf[String])
     assertTrue(c1.dataValueAsString =:= "Hello")
-    assertTrue(c2.dataValue.isInstanceOf[String])
+    assertTrue(c2.dataValue.getAnyRef.isInstanceOf[String])
     assertTrue(c2.dataValueAsString =:= "World")
   }
 

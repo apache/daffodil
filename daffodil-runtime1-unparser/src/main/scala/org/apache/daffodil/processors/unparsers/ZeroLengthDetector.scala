@@ -172,7 +172,7 @@ sealed trait HexBinaryZeroLengthMixin { self: ZeroLengthDetector =>
       } else {
         diElement match {
           case st: DISimple => {
-            val arr = st.dataValue.asInstanceOf[Array[Byte]]
+            val arr = st.dataValue.getByteArray
             val len = arr.length
             len > 0
           }
@@ -191,7 +191,7 @@ sealed trait HexBinaryZeroLengthMixin { self: ZeroLengthDetector =>
       else {
         diElement match {
           case st: DISimple => {
-            val arr = st.dataValue.asInstanceOf[Array[Byte]]
+            val arr = st.dataValue.getByteArray
             val len = arr.length
             len == 0
           }

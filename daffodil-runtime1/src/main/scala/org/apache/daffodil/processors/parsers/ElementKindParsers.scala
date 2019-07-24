@@ -259,7 +259,7 @@ class ChoiceDispatchCombinatorKeyByTypeParser(rd: TermRuntimeData, repTypeParser
   override def computeDispatchKey(pstate: PState): Maybe[String] = {
     val ans1 = runDetachedParser(pstate, repTypeParser, repTypeRuntimeData)
     if (ans1.isDefined) {
-      Maybe(ans1.get.toString())
+      Maybe(ans1.getAnyRef.toString())
     } else {
       Maybe.Nope
     }

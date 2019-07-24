@@ -40,7 +40,7 @@ abstract class HexBinaryUnparserBase(override val context: ElementRuntimeData)
   override def unparse(state: UState): Unit = {
 
     val node = state.currentInfosetNode.asSimple
-    val value = node.dataValue.asInstanceOf[Array[Byte]]
+    val value = node.dataValue.getByteArray
     val lengthInBits = getLengthInBits(state)
 
     val lengthInBytes = (lengthInBits + 7) / 8
@@ -84,7 +84,7 @@ class HexBinaryMinLengthInBytesUnparser(minLengthInBytes: Long, erd: ElementRunt
   extends HexBinaryUnparserBase(erd) {
 
   override def getLengthInBits(state: UState): Long = {
-    val len = state.currentNode.get.asSimple.dataValue.asInstanceOf[Array[Byte]].length * 8
+    val len = state.currentNode.get.asSimple.dataValue.getByteArray.length * 8
     val min = minLengthInBytes * 8
     scala.math.max(len, min)
   }
@@ -98,7 +98,7 @@ final class HexBinarySpecifiedLengthUnparser(erd: ElementRuntimeData, val length
       lengthEv.evaluate(state).getULong.toLong
     } catch {
       case e: RetryableException => {
-        val bytes = state.currentInfosetNode.asSimple.dataValue.asInstanceOf[Array[Byte]]
+        val bytes = state.currentInfosetNode.asSimple.dataValue.getByteArray
         val len = bytes.length * 8
         len
       }

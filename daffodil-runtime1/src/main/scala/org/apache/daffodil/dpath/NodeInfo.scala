@@ -17,22 +17,26 @@
 
 package org.apache.daffodil.dpath
 
-import java.lang.{ Boolean => JBoolean }
-import java.lang.{ Byte => JByte }
-import java.lang.{ Double => JDouble }
-import java.lang.{ Float => JFloat }
-import java.lang.{ Integer => JInt }
-import java.lang.{ Long => JLong }
-import java.lang.{ Short => JShort }
-import java.math.{ BigDecimal => JBigDecimal }
-import java.math.{ BigInteger => JBigInt }
+import java.lang.{ Boolean => JBoolean, Byte => JByte, Double => JDouble, Float => JFloat, Integer=> JInt, Long => JLong, Short => JShort }
+import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
 import java.net.URI
 
-import scala.BigDecimal
-import scala.BigInt
-
-import org.apache.daffodil.calendar._
+import org.apache.daffodil.calendar.DFDLCalendar
+import org.apache.daffodil.calendar.DFDLDateConversion
+import org.apache.daffodil.calendar.DFDLDateTimeConversion
+import org.apache.daffodil.calendar.DFDLTimeConversion
 import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.infoset.DataValue.DataValueBool
+import org.apache.daffodil.infoset.DataValue.DataValueByte
+import org.apache.daffodil.infoset.DataValue.DataValueByteArray
+import org.apache.daffodil.infoset.DataValue.DataValueDate
+import org.apache.daffodil.infoset.DataValue.DataValueDateTime
+import org.apache.daffodil.infoset.DataValue.DataValueInt
+import org.apache.daffodil.infoset.DataValue.DataValueLong
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.infoset.DataValue.DataValueShort
+import org.apache.daffodil.infoset.DataValue.DataValueTime
+import org.apache.daffodil.infoset.DataValue.DataValueURI
 import org.apache.daffodil.util.Enum
 import org.apache.daffodil.util.Misc
 import org.apache.daffodil.xml.GlobalQName
@@ -129,7 +133,7 @@ object NodeInfo extends Enum {
     def isError: Boolean = false
     def primType = this
 
-    def fromXMLString(s: String): AnyRef
+    def fromXMLString(s: String): DataValuePrimitive
   }
 
   private def getTypeNode(name: String) = {
@@ -480,25 +484,25 @@ object NodeInfo extends Enum {
     protected sealed trait LongKind extends Integer.Kind
     case object Long extends PrimTypeNode(Integer, List(Int)) with LongKind {
       type Kind = LongKind
-      override def fromXMLString(s: String): JLong = s.toLong
+      override def fromXMLString(s: String): DataValueLong = s.toLong
     }
 
     protected sealed trait IntKind extends Long.Kind
     case object Int extends PrimTypeNode(Long, List(Short)) with IntKind {
       type Kind = IntKind
-      override def fromXMLString(s: String): JInt = s.toInt
+      override def fromXMLString(s: String): DataValueInt = s.toInt
     }
 
     protected sealed trait ShortKind extends Int.Kind
     case object Short extends PrimTypeNode(Int, List(Byte)) with ShortKind {
       type Kind = ShortKind
-      override def fromXMLString(s: String): JShort = s.toShort
+      override def fromXMLString(s: String): DataValueShort = s.toShort
     }
 
     protected sealed trait ByteKind extends Short.Kind
     case object Byte extends PrimTypeNode(Short) with ByteKind {
       type Kind = ByteKind
-      override def fromXMLString(s: String): JByte = s.toByte
+      override def fromXMLString(s: String): DataValueByte = s.toByte
     }
 
     protected sealed trait NonNegativeIntegerKind extends Integer.Kind
@@ -518,21 +522,21 @@ object NodeInfo extends Enum {
     case object UnsignedInt extends PrimTypeNode(UnsignedLong, List(UnsignedShort, ArrayIndex)) with UnsignedIntKind {
       type Kind = UnsignedIntKind
       val Max = 4294967295L
-      override def fromXMLString(s: String): JLong = s.toLong
+      override def fromXMLString(s: String): DataValueLong = s.toLong
     }
 
     protected sealed trait UnsignedShortKind extends UnsignedInt.Kind
     case object UnsignedShort extends PrimTypeNode(UnsignedInt, List(UnsignedByte)) with UnsignedShortKind {
       type Kind = UnsignedShortKind
       val Max = 65535
-      override def fromXMLString(s: String): JInt = s.toInt
+      override def fromXMLString(s: String): DataValueInt = s.toInt
     }
 
     protected sealed trait UnsignedByteKind extends UnsignedShort.Kind
     case object UnsignedByte extends PrimTypeNode(UnsignedShort) with UnsignedByteKind {
       type Kind = UnsignedByteKind
       val Max = 255
-      override def fromXMLString(s: String): JShort = s.toShort
+      override def fromXMLString(s: String): DataValueShort = s.toShort
     }
 
     protected sealed trait StringKind extends AnyAtomic.Kind
@@ -544,25 +548,25 @@ object NodeInfo extends Enum {
     protected sealed trait BooleanKind extends AnySimpleType.Kind
     case object Boolean extends PrimTypeNode(AnyAtomic) with BooleanKind {
       type Kind = BooleanKind
-      override def fromXMLString(s: String): JBoolean = s.toBoolean
+      override def fromXMLString(s: String): DataValueBool = s.toBoolean
     }
 
     protected sealed trait AnyURIKind extends AnySimpleType.Kind
     case object AnyURI extends PrimTypeNode(AnyAtomic) with AnyURIKind {
       type Kind = AnyURIKind
-      override def fromXMLString(s: String): URI = new URI(s)
+      override def fromXMLString(s: String): DataValueURI = new URI(s)
     }
 
     protected sealed trait HexBinaryKind extends Opaque.Kind
     case object HexBinary extends PrimTypeNode(Opaque) with HexBinaryKind {
       type Kind = HexBinaryKind
-      override def fromXMLString(s: String): AnyRef = Misc.hex2Bytes(s)
+      override def fromXMLString(s: String): DataValueByteArray = Misc.hex2Bytes(s)
     }
 
     protected sealed trait DateKind extends AnyDateTimeKind
     case object Date extends PrimTypeNode(AnyDateTime) with DateKind {
       type Kind = DateKind
-      override def fromXMLString(s: String): AnyRef = {
+      override def fromXMLString(s: String): DataValueDate = {
         DFDLDateConversion.fromXMLString(s)
       }
     }
@@ -570,7 +574,7 @@ object NodeInfo extends Enum {
     protected sealed trait DateTimeKind extends AnyDateTimeKind
     case object DateTime extends PrimTypeNode(AnyDateTime) with DateTimeKind {
       type Kind = DateTimeKind
-      override def fromXMLString(s: String): AnyRef = {
+      override def fromXMLString(s: String): DataValueDateTime = {
         DFDLDateTimeConversion.fromXMLString(s)
       }
     }
@@ -578,7 +582,7 @@ object NodeInfo extends Enum {
     protected sealed trait TimeKind extends AnyDateTimeKind
     case object Time extends PrimTypeNode(AnyDateTime) with TimeKind {
       type Kind = TimeKind
-      override def fromXMLString(s: String): AnyRef = {
+      override def fromXMLString(s: String): DataValueTime = {
         DFDLTimeConversion.fromXMLString(s)
       }
     }

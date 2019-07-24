@@ -38,7 +38,7 @@ abstract class BlobUnparserBase(override val context: ElementRuntimeData)
   override def unparse(state: UState): Unit = {
 
     val node = state.currentInfosetNode.asSimple
-    val value = node.dataValue.asInstanceOf[URI]
+    val value = node.dataValue.getURI
     val lengthInBits = getLengthInBits(state)
 
     val lengthInBytes = (lengthInBits + 7) / 8
@@ -101,7 +101,7 @@ final class BlobSpecifiedLengthUnparser(erd: ElementRuntimeData, val lengthEv: U
       lengthEv.evaluate(state).getULong.toLong
     } catch {
       case e: RetryableException => {
-        val uri = state.currentInfosetNode.asSimple.dataValue.asInstanceOf[URI]
+        val uri = state.currentInfosetNode.asSimple.dataValue.getURI
         val path = Paths.get(uri)
         val len = Files.size(path) * 8
         len

@@ -49,7 +49,7 @@ case class ConvertBinaryCalendarSecMilliUnparser(
 
     val node = state.currentInfosetNode.asSimple
 
-    val calValue = node.dataValue match {
+    val calValue = node.dataValue.getAnyRef match {
       case dc: DFDLCalendar => dc.calendar
       case x => Assert.invariantFailed("ConvertBinaryCalendar received unsupported type. %s of type %s.".format(x, Misc.getNameFromClass(x)))
     }

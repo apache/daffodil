@@ -84,7 +84,7 @@ trait PrefixedLengthParserMixin {
       // evaluatable should check the processorStatus to see if anything
       // failed and ignore this zero. If there was no error, return the value
       // as a long.
-      if (state.processorStatus ne Success) 0 else Numbers.asLong(plElement.dataValue)
+      if (state.processorStatus ne Success) 0 else Numbers.asLong(plElement.dataValue.getAnyRef)
     } finally {
       // reset back to the original infoset and throw away the detatched
       // element

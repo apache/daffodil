@@ -3,6 +3,7 @@
 <classpath>
   <!-- This file is updated by the UpdateEclipseClasspath app. -->
   <classpathentry kind="src" path="src/main/scala"/>
+  <classpathentry kind="src" path="src/main/scala-2.12"/>
   <classpathentry kind="con" path="org.scala-ide.sdt.launching.SCALA_CONTAINER"/>
   <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
   <classpathentry combineaccessrules="false" kind="src" path="/daffodil-io"/>

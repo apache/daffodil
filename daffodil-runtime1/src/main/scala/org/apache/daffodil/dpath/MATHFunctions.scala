@@ -19,11 +19,13 @@ package org.apache.daffodil.dpath
 
 import org.apache.daffodil.util.Numbers._
 import java.lang.{ Double => JDouble }
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.infoset.DataValue.DataValueDouble
 
 case class MATHPow(recipes: List[CompiledDPath]) extends FNTwoArgs(recipes) {
-  override def computeValue(arg1: AnyRef, arg2: AnyRef, dstate: DState): AnyRef = {
-    val base = asDouble(arg1).doubleValue()
-    val exp = asDouble(arg2).doubleValue()
+  override def computeValue(arg1: DataValuePrimitive, arg2: DataValuePrimitive, dstate: DState): DataValueDouble = {
+    val base = asDouble(arg1.getAnyRef).doubleValue()
+    val exp = asDouble(arg2.getAnyRef).doubleValue()
     if (exp.isInfinite && (base == 1 || base == -1)) {
       // java pow(+-1, +-inf) returns NaN, XPath says it should be 1.0
       JDouble.valueOf(1.0)

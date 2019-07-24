@@ -20,13 +20,21 @@ package org.apache.daffodil.dpath
 import java.lang.{ Number => JNumber }
 import java.math.{ BigDecimal => JBigDecimal }
 import java.math.{ BigInteger => JBigInt }
+
 import scala.xml.NodeSeq.seqToNodeSeq
+
+import org.apache.daffodil.api.DaffodilTunables
+import org.apache.daffodil.dsom.DPathCompileInfo
 import org.apache.daffodil.dsom.SchemaDefinitionDiagnosticBase
 import org.apache.daffodil.dsom.SchemaDefinitionError
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.exceptions.SchemaFileLocation
 import org.apache.daffodil.exceptions.ThrowsSDE
 import org.apache.daffodil.infoset.DINode
+import org.apache.daffodil.infoset.DataValue
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveNullable
+import org.apache.daffodil.infoset.DataValue.DataValueString
 import org.apache.daffodil.infoset.InfosetException
 import org.apache.daffodil.processors.CompileState
 import org.apache.daffodil.processors.ParseOrUnparseState
@@ -34,11 +42,6 @@ import org.apache.daffodil.processors.ProcessingError
 import org.apache.daffodil.processors.VariableException
 import org.apache.daffodil.processors.VariableRuntimeData
 import org.apache.daffodil.util.Misc
-import org.apache.daffodil.dpath.NodeInfo.PrimType
-import org.apache.daffodil.dsom.DPathCompileInfo
-import org.apache.daffodil.xml.GlobalQName
-import org.apache.daffodil.processors.TypeCalculator
-import org.apache.daffodil.api.DaffodilTunables
 
 class CompiledDPath(val ops: RecipeOp*) extends Serializable {
 
@@ -78,7 +81,7 @@ class CompiledDPath(val ops: RecipeOp*) extends Serializable {
   def runExpressionForConstant(
     sfl: SchemaFileLocation,
     compileInfo: DPathCompileInfo,
-    tunable: DaffodilTunables): Option[AnyRef] = {
+    tunable: DaffodilTunables): DataValuePrimitiveNullable = {
 
     //
     // we use a special dummy dstate here that errors out via throw
@@ -90,7 +93,7 @@ class CompiledDPath(val ops: RecipeOp*) extends Serializable {
         run(dstate)
         // it ran, so must have produced a constant value
         val v = dstate.currentValue
-        Assert.invariant(v != null)
+        Assert.invariant(v.isDefined)
         // the only way dstate can have a value is if setCurrentValue was called
         // so this is redundant. Remove?
         // dstate.setCurrentValue(v) // side effect nulls out the current node
@@ -116,7 +119,7 @@ class CompiledDPath(val ops: RecipeOp*) extends Serializable {
         case e: ProcessingError => throw new SchemaDefinitionError(Some(sfl), None, e.getMessage())
       }
     val res =
-      if (isConstant) Some(dstate.currentValue) else None
+      if (isConstant) dstate.currentValue else DataValue.NoValue
     res
   }
 
@@ -186,7 +189,7 @@ case class VRef(vrd: VariableRuntimeData, context: ThrowsSDE)
 
 }
 
-case class Literal(v: AnyRef) extends RecipeOp {
+case class Literal(v: DataValuePrimitive) extends RecipeOp {
   override def run(dstate: DState) {
     dstate.setCurrentValue(v)
   }
@@ -200,7 +203,7 @@ case class IF(predRecipe: CompiledDPath, thenPartRecipe: CompiledDPath, elsePart
   override def run(dstate: DState) {
     val savedNode = dstate.currentNode
     predRecipe.run(dstate)
-    val predValue = dstate.currentValue.asInstanceOf[Boolean]
+    val predValue = dstate.currentValue.getBoolean
     dstate.setCurrentNode(savedNode)
     if (predValue) {
       thenPartRecipe.run(dstate)
@@ -209,7 +212,7 @@ case class IF(predRecipe: CompiledDPath, thenPartRecipe: CompiledDPath, elsePart
     }
     // should have a value now. IF-Then-Else is always
     // evaluated for a value.
-    Assert.invariant(dstate.currentValue != null)
+    Assert.invariant(dstate.currentValue.isDefined)
   }
 
   override def toXML =
@@ -237,10 +240,10 @@ case class CompareOperator(cop: CompareOpBase, left: CompiledDPath, right: Compi
   override def run(dstate: DState) {
     val savedNode = dstate.currentNode
     left.run(dstate)
-    val leftValue = dstate.currentValue
+    val leftValue = dstate.currentValue.getNonNullable
     dstate.setCurrentNode(savedNode)
     right.run(dstate)
-    val rightValue = dstate.currentValue
+    val rightValue = dstate.currentValue.getNonNullable
     val result = cop.operate(leftValue, rightValue)
     dstate.setCurrentValue(result)
   }
@@ -254,10 +257,10 @@ case class NumericOperator(nop: NumericOp, left: CompiledDPath, right: CompiledD
   override def run(dstate: DState) {
     val savedNode = dstate.currentNode
     left.run(dstate)
-    val leftValue = dstate.currentValue.asInstanceOf[JNumber]
+    val leftValue = dstate.currentValue.getNumber
     dstate.setCurrentNode(savedNode)
     right.run(dstate)
-    val rightValue = dstate.currentValue.asInstanceOf[JNumber]
+    val rightValue = dstate.currentValue.getNumber
     val result = nop.operate(leftValue, rightValue)
     dstate.setCurrentValue(result)
   }
@@ -288,7 +291,7 @@ abstract class Converter extends RecipeOp {
   }
 
   override def run(dstate: DState) {
-    val arg = dstate.currentValue
+    val arg = dstate.currentValue.getNonNullable
     val res =
       try {
         computeValue(arg, dstate)
@@ -298,16 +301,16 @@ abstract class Converter extends RecipeOp {
           val msg =
             if (e.getMessage() != null && e.getMessage() != "") e.getMessage()
             else "No other details are available."
-          val err = new NumberFormatException("Cannot convert '%s' from %s type to %s (%s).".format(arg.toString, fromTypeName, toTypeName, msg))
+          val err = new NumberFormatException("Cannot convert '%s' from %s type to %s (%s).".format(arg.getAnyRef.toString, fromTypeName, toTypeName, msg))
           throw err
         }
       }
     dstate.setCurrentValue(res)
   }
 
-  def computeValue(str: AnyRef, dstate: DState): AnyRef
+  def computeValue(str: DataValuePrimitive, dstate: DState): DataValuePrimitive
 }
 
 trait ToString extends Converter {
-  override def computeValue(a: AnyRef, dstate: DState): AnyRef = a.toString
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueString = a.getAnyRef.toString
 }

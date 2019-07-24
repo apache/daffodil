@@ -140,7 +140,7 @@ class TestExternalVariablesNew {
       case Success(None) => fail("Did not find " + keyToFind + " in the VariableMap.")
       case Success(Some(variab)) => {
         // Found var1 but is the value correct?
-        assertTrue(variab.toString.contains("Variable(VariableDefined,One(" + expectedValue + ")"))
+        assertTrue(variab.toString.contains("Variable(VariableDefined,DataValue(" + expectedValue + ")"))
       }
     }
   }
