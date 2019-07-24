@@ -38,7 +38,7 @@ case class ConvertTextBooleanUnparser(
 
     val node = state.currentInfosetNode.asSimple
 
-    val boolValue = node.dataValue match {
+    val boolValue = node.dataValue.getAnyRef match {
       case JTrue => {
         val textBooleanTrueReps: List[String] = textBooleanTrueRepEv.evaluate(state)
         Assert.invariant(textBooleanTrueReps.length >= 1)

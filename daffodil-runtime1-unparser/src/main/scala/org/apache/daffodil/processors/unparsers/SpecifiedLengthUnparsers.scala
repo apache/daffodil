@@ -118,7 +118,7 @@ final class SpecifiedLengthExplicitImplicitUnparser(
       //
       if (areTruncating) {
         val diSimple = state.currentInfosetNode.asSimple
-        val v = diSimple.dataValue.asInstanceOf[String]
+        val v = diSimple.dataValue.getString
         val tl = maybeTLBits.get
         val cs = getCharset(state)
         val newV = state.truncateToBits(v, cs, tl)
@@ -179,7 +179,7 @@ final class SpecifiedLengthExplicitImplicitUnparser(
       //
       if (areTruncating) {
         val diSimple = state.currentInfosetNode.asSimple
-        val v = diSimple.dataValue.asInstanceOf[String]
+        val v = diSimple.dataValue.getString
         val tl = tlChars.get
         if (v.length > tl) {
           // string is too long, truncate to target length

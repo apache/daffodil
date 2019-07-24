@@ -17,16 +17,17 @@
 
 package org.apache.daffodil.dpath
 
-import com.ibm.icu.text.SimpleDateFormat
-import com.ibm.icu.util.Calendar
-
-import org.apache.daffodil.calendar.DFDLCalendar
 import org.apache.daffodil.calendar.DFDLDate
 import org.apache.daffodil.calendar.DFDLDateConversion
 import org.apache.daffodil.calendar.DFDLDateTime
 import org.apache.daffodil.calendar.DFDLDateTimeConversion
 import org.apache.daffodil.calendar.DFDLTime
 import org.apache.daffodil.calendar.DFDLTimeConversion
+import org.apache.daffodil.infoset.DataValue.DataValueByteArray
+import org.apache.daffodil.infoset.DataValue.DataValueDate
+import org.apache.daffodil.infoset.DataValue.DataValueDateTime
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.infoset.DataValue.DataValueTime
 
 case object AnyAtomicToString extends ToString {
   val name = "AnyAtomicToString"
@@ -35,8 +36,8 @@ case object AnyAtomicToString extends ToString {
 case object StringToDate extends Converter {
   val name = "StringToDate"
 
-  override def computeValue(a: AnyRef, dstate: DState): AnyRef = {
-    val result = a match {
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueDate = {
+    val result = a.getAnyRef match {
       case cal: DFDLDateTime => cal.toDate
       case cal: DFDLDate => cal
       case str: String => DFDLDateConversion.fromXMLString(str)
@@ -49,8 +50,8 @@ case object StringToDate extends Converter {
 case object StringToDateTime extends Converter {
   val name = "StringToDateTime"
 
-  override def computeValue(a: AnyRef, dstate: DState): AnyRef = {
-    val result = a match {
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueDateTime = {
+    val result = a.getAnyRef match {
       case cal: DFDLDateTime => cal
       case cal: DFDLDate => cal.toDateTime
       case str: String => DFDLDateTimeConversion.fromXMLString(str)
@@ -63,8 +64,8 @@ case object StringToDateTime extends Converter {
 case object StringToTime extends Converter {
   val name = "StringToTime"
 
-  override def computeValue(a: AnyRef, dstate: DState): AnyRef = {
-    val result = a match {
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueTime = {
+    val result = a.getAnyRef match {
       case cal: DFDLDateTime => cal.toTime
       case cal: DFDLTime => cal
       case str: String => DFDLTimeConversion.fromXMLString(str)
@@ -77,8 +78,8 @@ case object StringToTime extends Converter {
 case object StringToHexBinary extends Converter with HexBinaryKind {
   val name = "StringToHexBinary"
 
-  override def computeValue(a: AnyRef, dstate: DState): AnyRef = {
-    val result = a match {
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueByteArray = {
+    val result = a.getAnyRef match {
       case s: String => hexStringToByteArray(s)
       case hb: Array[Byte] => hb
       case x => throw new NumberFormatException("%s cannot be cast to dfdl:hexBinary\ndfdl:hexBinary received an unrecognized type! Must be String or HexBinary.".format(x.toString))

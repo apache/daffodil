@@ -17,24 +17,44 @@
 
 package org.apache.daffodil.dpath
 
-import org.apache.daffodil.exceptions._
-import org.apache.daffodil.util._
-import org.apache.daffodil.xml.NamedQName
-import org.apache.daffodil.processors._
-import org.apache.daffodil.infoset._
-import org.apache.daffodil.dsom._
-import org.apache.daffodil.util.Maybe
-import org.apache.daffodil.util.Maybe._
 import org.apache.daffodil.calendar.DFDLCalendar
+import org.apache.daffodil.dsom.CompiledExpression
+import org.apache.daffodil.dsom.DPathCompileInfo
+import org.apache.daffodil.dsom.DPathElementCompileInfo
+import org.apache.daffodil.dsom.RuntimeSchemaDefinitionError
+import org.apache.daffodil.equality.EqualitySuppressUnusedImportWarning
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.infoset.DIComplex
+import org.apache.daffodil.infoset.DIElement
+import org.apache.daffodil.infoset.DISimple
+import org.apache.daffodil.infoset.InfosetArrayIndexOutOfBoundsException
+import org.apache.daffodil.infoset.InfosetException
+import org.apache.daffodil.infoset.InfosetLengthUnknownException
+import org.apache.daffodil.infoset.InfosetNoDataException
+import org.apache.daffodil.infoset.InfosetNoInfosetException
+import org.apache.daffodil.infoset.InfosetNoNextSiblingException
+import org.apache.daffodil.infoset.InfosetNoSuchChildElementException
+import org.apache.daffodil.infoset.InfosetNodeNotFinalException
+import org.apache.daffodil.infoset.OutputValueCalcEvaluationException
+import org.apache.daffodil.processors.CompileState
+import org.apache.daffodil.processors.Failure
+import org.apache.daffodil.processors.ParseOrUnparseState
+import org.apache.daffodil.processors.ProcessingError
+import org.apache.daffodil.processors.Success
+import org.apache.daffodil.processors.Suspension
+import org.apache.daffodil.processors.VariableException
 import org.apache.daffodil.processors.unparsers.UState
 import org.apache.daffodil.processors.unparsers.UnparseError
-import org.apache.daffodil.equality._; object EqualityNoWarn { EqualitySuppressUnusedImportWarning() }
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.Maybe.Nope
+import org.apache.daffodil.util.Maybe.One
+import org.apache.daffodil.xml.NamedQName; object EqualityNoWarn { EqualitySuppressUnusedImportWarning() }
 import org.apache.daffodil.api.DataLocation
 import org.apache.daffodil.api.Diagnostic
-import org.apache.daffodil.util.Numbers._
 import org.apache.daffodil.processors.parsers.DoSDEMixin
 import org.apache.daffodil.processors.parsers.PState
 import org.apache.daffodil.udf.UserDefinedFunctionProcessingErrorException
+import org.apache.daffodil.util.Numbers.asLong
 
 class ExpressionEvaluationException(e: Throwable, s: ParseOrUnparseState)
   extends ProcessingError(
@@ -159,12 +179,12 @@ final class RuntimeExpressionDPath[T <: AnyRef](qn: NamedQName, tt: NodeInfo.Kin
    * so as to detect deadlocks.
    */
   def evaluateForwardReferencing(state: ParseOrUnparseState, whereBlockedInfo: Suspension): Maybe[T] = {
-    var value: Maybe[AnyRef] = Nope
+    var value:Maybe[T] = Nope
     try {
       // TODO: This assumes a distinct state object (with its own dState) for every expression that
       // can be in evaluation simultaneously.
       val dstate = evaluateExpression(state, state.dState)
-      value = Maybe(processForwardExpressionResults(dstate))
+      value = One(processForwardExpressionResults(dstate))
       whereBlockedInfo.setDone
     } catch {
       case unfin: InfosetNodeNotFinalException =>
@@ -195,26 +215,26 @@ final class RuntimeExpressionDPath[T <: AnyRef](qn: NamedQName, tt: NodeInfo.Kin
     recipe.run(dstate)
   }
 
-  private def processForwardExpressionResults(dstate: DState): AnyRef = {
-    val v: AnyRef = {
+  private def processForwardExpressionResults(dstate: DState): T = {
+    val v = {
       dstate.currentNode match {
         case null => {
           // there is no element. Can happen if one evaluates say, 5 + 6 or 5 + $variable
-          Assert.invariant(dstate.currentValue != null)
-          dstate.currentValue
+          Assert.invariant(dstate.currentValue.isDefined)
+          dstate.currentValue.getAnyRef
         }
-        case n: DIElement if n.isNilled => n
+        case n: DIElement if n.isNilled => One(n)
         case c: DIComplex => {
           Assert.invariant(!targetType.isInstanceOf[NodeInfo.AnyAtomic.Kind])
           c
         }
         case s: DISimple => {
-          s.dataValue
+          s.dataValue.getAnyRef
         }
         case _ => Assert.invariantFailed("must be an element, simple or complex.")
       }
     }
-    v
+    v.asInstanceOf[T]
   }
 
   private def evaluateExpression(state: ParseOrUnparseState, dstate: DState): DState = {
@@ -234,11 +254,14 @@ final class RuntimeExpressionDPath[T <: AnyRef](qn: NamedQName, tt: NodeInfo.Kin
     val value =
       try {
         val dstate = evaluateExpression(state, state.dState)
-        processExpressionResults(dstate)
+        One(processExpressionResults(dstate))
       } catch {
-        case th: Throwable => handleThrow(th, state)
+        case th: Throwable => {
+          handleThrow(th, state)
+          Nope
+        }
       }
-    val value1 = postProcess(Maybe(value), state)
+    val value1 = postProcess(value, state)
     value1
   }
 
@@ -256,22 +279,22 @@ final class RuntimeExpressionDPath[T <: AnyRef](qn: NamedQName, tt: NodeInfo.Kin
   def isConstant = false
   def constant: T = Assert.usageError("Not a constant.")
 
-  private def processExpressionResults(dstate: DState): AnyRef = {
+  private def processExpressionResults(dstate: DState): T = {
     val v = {
       dstate.currentNode match {
         case null => {
           // there is no element. Can happen if one evaluates say, 5 + 6 in the debugger in which case
           // there is a value, but no node.
-          dstate.currentValue
+          dstate.currentValue.getAnyRef
         }
-        case n: DIElement if n.isNilled => n
+        case n: DIElement if n.isNilled => One
         case c: DIComplex => {
           Assert.invariant(!targetType.isInstanceOf[NodeInfo.AnyAtomic.Kind])
           c
         }
         case s: DISimple => {
           try {
-            s.dataValue
+            s.dataValue.getAnyRef
           } catch {
             case ovc: OutputValueCalcEvaluationException => {
               Assert.invariantFailed("OVC should always have a data value by the time it reaches here.")
@@ -281,7 +304,7 @@ final class RuntimeExpressionDPath[T <: AnyRef](qn: NamedQName, tt: NodeInfo.Kin
         case _ => Assert.invariantFailed("must be an element, simple or complex.")
       }
     }
-    v
+    v.asInstanceOf[T]
   }
 
   private def handleThrow(th: Throwable, state: ParseOrUnparseState): Null = {
@@ -324,7 +347,7 @@ final class RuntimeExpressionDPath[T <: AnyRef](qn: NamedQName, tt: NodeInfo.Kin
    * Note: Can't use a Maybe[T] here because T is required to be an AnyRef, and that would exclude
    * Long, Int, etc. from being used as values.
    */
-  private def postProcess(v: Maybe[AnyRef], state: ParseOrUnparseState): Maybe[T] = {
+  private def postProcess(v: Maybe[T], state: ParseOrUnparseState): Maybe[T] = {
     if (v.isEmpty) Nope
     else {
       val value = v.get

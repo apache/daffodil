@@ -61,7 +61,7 @@ class DFDLPathExpressionParser[T <: AnyRef](
     val recipe = tree.compiledDPath // if we cannot get one this will fail by throwing out of here.
 
     val value = recipe.runExpressionForConstant(context.schemaFileLocation, context, host.tunable)
-    val res: CompiledExpression[T] = value match {
+    val res: CompiledExpression[T] = value.getOptionAnyRef match {
       case Some(constantValue) => {
         Assert.invariant(constantValue != null)
         val res = new ConstantExpression[T](qn, nodeInfoKind, constantValue.asInstanceOf[T])

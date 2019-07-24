@@ -26,6 +26,8 @@ import org.apache.daffodil.udf.UserDefinedFunctionService.UserDefinedFunctionMet
 import java.lang.reflect.Method
 import java.lang.reflect.InvocationTargetException
 import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.infoset.DataValue
 
 /**
  * Both the serializable evaluate method and the User Defined Function instance are passed in,
@@ -38,11 +40,11 @@ case class UserDefinedFunctionCall(
   evaluateFxn: UserDefinedFunctionMethod)
   extends FNArgsList(recipes) {
 
-  override def computeValue(values: List[Any], dstate: DState) = {
-    val jValues = values.map { _.asInstanceOf[Object] }
+  override def computeValue(values: List[DataValuePrimitive], dstate: DState) = {
+    val jValues = values.map { _.getAnyRef.asInstanceOf[Object] }
     try {
       val res = evaluateFxn.method.invoke(userDefinedFunction, jValues: _*)
-      res
+      DataValue.unsafeFromAnyRef(res)
     } catch {
       case e: InvocationTargetException => {
         // wraps any error thrown by invoked method (i.e UDF.evaluate)

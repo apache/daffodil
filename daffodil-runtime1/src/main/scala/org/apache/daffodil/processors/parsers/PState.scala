@@ -65,6 +65,7 @@ import org.apache.daffodil.infoset.DIComplexState
 import org.apache.daffodil.infoset.DISimpleState
 import org.apache.daffodil.exceptions.UnsuppressableException
 import org.apache.daffodil.exceptions.Abort
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
 
 object MPState {
 
@@ -262,7 +263,7 @@ final class PState private (
     this.infoset = newParent
   }
 
-  def setVariable(vrd: VariableRuntimeData, newValue: Any, referringContext: VariableRuntimeData, pstate: PState) {
+  def setVariable(vrd: VariableRuntimeData, newValue: DataValuePrimitive, referringContext: VariableRuntimeData, pstate: PState) {
     this.setVariableMap(variableMap.setVariable(vrd, newValue, referringContext, pstate))
   }
 

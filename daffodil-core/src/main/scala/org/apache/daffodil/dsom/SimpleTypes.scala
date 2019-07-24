@@ -51,6 +51,7 @@ import org.apache.daffodil.xml.NS
 import org.apache.daffodil.exceptions.SchemaFileLocation
 import org.apache.daffodil.cookers.IntRangeCooker
 import org.apache.daffodil.util.RangeBound
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
 
 trait TypeBase {
   def optRestriction: Option[Restriction] = None
@@ -333,7 +334,7 @@ abstract class SimpleTypeDefBase(xml: Node, lexicalParent: SchemaComponent)
           if (enumerations.size != restriction.enumerations.size) {
             SDE("If one enumeration value defines a repValue, then all must define a repValue")
           }
-          val terms = enumerations.map(enum => (enum.optRepValueSet.get, enum.canonicalRepValue.get, enum.enumValueCooked))
+          val terms = enumerations.map(enum => (enum.optRepValueSet.get, enum.canonicalRepValue.get, enum.enumValueCooked.getAnyRef))
           Some(TypeCalculatorCompiler.compileKeysetValue(terms, srcType, dstType))
         }
       })
@@ -564,10 +565,10 @@ final class EnumerationDefFactory(
   override lazy val optRepType = parentType.optRepType
 
   lazy val enumValueRaw: String = (xml \ "@value").head.text
-  lazy val enumValueCooked: AnyRef = parentType.primType.fromXMLString(enumValueRaw)
+  lazy val enumValueCooked: DataValuePrimitive = parentType.primType.fromXMLString(enumValueRaw)
 
   override lazy val optRepValueSet: Option[RepValueSet[AnyRef]] = optRepValueSetFromAttribute
-  lazy val logicalValueSet: RepValueSet[AnyRef] = RepValueSetCompiler.compile(Seq(enumValueCooked), Seq())
+  lazy val logicalValueSet: RepValueSet[AnyRef] = RepValueSetCompiler.compile(Seq(enumValueCooked.getAnyRef), Seq())
   lazy val canonicalRepValue: Option[AnyRef] = {
     val ans1 = repValuesAttrCooked.headOption
     val ans2 = repValueRangesAttrCooked.headOption.map(_._1).flatMap(asBound => {

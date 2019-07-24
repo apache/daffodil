@@ -20,31 +20,19 @@ package org.apache.daffodil.processors.parsers
 import org.apache.daffodil.dpath.ParserDiscriminatorNonBlocking
 import org.apache.daffodil.dpath.ParserNonBlocking
 import org.apache.daffodil.dsom.CompiledExpression
-import org.apache.daffodil.dsom.SchemaDefinitionDiagnosticBase
 import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.infoset.DataValue
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveNullable
 import org.apache.daffodil.infoset.InfosetSimpleElement
 import org.apache.daffodil.processors.ElementRuntimeData
+import org.apache.daffodil.processors.Evaluatable
 import org.apache.daffodil.processors.Failure
 import org.apache.daffodil.processors.RuntimeData
 import org.apache.daffodil.processors.Success
+import org.apache.daffodil.processors.TypeCalculator
 import org.apache.daffodil.processors.VariableRuntimeData
 import org.apache.daffodil.util.LogLevel
-import org.apache.daffodil.infoset.Infoset
-import org.apache.daffodil.processors.TypeCalculator
-import org.apache.daffodil.infoset.DISimple
-import org.apache.daffodil.infoset.DISimple
-import org.apache.daffodil.processors.Evaluatable
-import org.apache.daffodil.infoset.DIComplex
-import org.apache.daffodil.infoset.DIDocument
-import org.apache.daffodil.util.Maybe
-import org.apache.daffodil.infoset.DIComplexState
-import org.apache.daffodil.infoset.DIComplex
-import org.apache.daffodil.infoset.DIComplex
-import org.apache.daffodil.infoset.DIElement
-import org.apache.daffodil.infoset.DIDocument
-import org.apache.daffodil.infoset.DIComplex
-import org.apache.daffodil.processors.ElementRuntimeData
-import org.apache.daffodil.processors.Processor
 
 // import java.lang.{ Boolean => JBoolean }
 
@@ -63,8 +51,9 @@ abstract class ExpressionEvaluationParser(
   /**
    * Modifies the PState
    */
-  protected def eval(start: PState): AnyRef = {
-    expr.evaluate(start)
+  protected def eval(start: PState): DataValuePrimitive = {
+    val res = expr.evaluate(start)
+    DataValue.unsafeFromAnyRef(res)
   }
 }
 
@@ -91,7 +80,7 @@ class IVCParser(expr: CompiledExpression[AnyRef], e: ElementRuntimeData)
  * Additionally, the dataValue of the element the parser parsed will be returned
  */
 trait WithDetachedParser {
-  def runDetachedParser(pstate: PState, detachedParser: Parser, erd: ElementRuntimeData): Maybe[AnyRef] = {
+  def runDetachedParser(pstate: PState, detachedParser: Parser, erd: ElementRuntimeData): DataValuePrimitiveNullable = {
     /*
      * The parse1 being called here is that of ElementCombinator1, which expects to begin and end in the parent
      * of whatever element it is parsing. parse1 will create the new element and append it to the end of the
@@ -119,11 +108,11 @@ trait WithDetachedParser {
 
     val priorState = pstate.mark("WithDetachedParser.runDetachedParser: About to run detachedParser")
 
-    val ans: Maybe[AnyRef] = try {
+    val ans: DataValuePrimitiveNullable = try {
       detachedParser.parse1(pstate)
       pstate.processorStatus match {
-        case Success => Maybe(pstate.infoset.children.last.asSimple.dataValue)
-        case _       => None
+        case Success => pstate.infoset.children.last.asSimple.dataValue
+        case _       => DataValue.NoValue
       }
     } finally {
       //Restore the infoset, but keep any other side effects
@@ -142,15 +131,15 @@ class TypeValueCalcParser(typeCalculator: TypeCalculator[AnyRef, AnyRef], repTyp
   override lazy val runtimeDependencies: Vector[Evaluatable[AnyRef]] = Vector()
   
   override def parse(pstate: PState): Unit = {
-    val repValue: Maybe[AnyRef] = runDetachedParser(pstate, repTypeParser, repTypeRuntimeData)
+    val repValue: DataValuePrimitiveNullable = runDetachedParser(pstate, repTypeParser, repTypeRuntimeData)
     val repValueType = repTypeRuntimeData.optPrimType.get
     pstate.dataProc.get.ssrd
     if (pstate.processorStatus == Success) {
       Assert.invariant(repValue.isDefined)
-      val logicalValue: Maybe[AnyRef] = typeCalculator.inputTypeCalcParse(pstate, context, repValue.get, repValueType)
+      val logicalValue: DataValuePrimitiveNullable = typeCalculator.inputTypeCalcParse(pstate, context, repValue.getAnyRef, repValueType)
       if (pstate.processorStatus == Success) {
         Assert.invariant(logicalValue.isDefined)
-        pstate.simpleElement.setDataValue(logicalValue.get)
+        pstate.simpleElement.setDataValue(logicalValue)
       }
     }
   }
@@ -163,9 +152,6 @@ class SetVariableParser(expr: CompiledExpression[AnyRef], decl: VariableRuntimeD
   def parse(start: PState): Unit = {
     log(LogLevel.Debug, "This is %s", toString) // important. Don't toString unless we have to log.
     val res = eval(start)
-    res match {
-      case ps: PState => return ;
-      case _ => /*fall through*/ }
     if (start.processorStatus.isInstanceOf[Failure]) return
     // val vmap = start.variableMap
     start.setVariable(decl, res, decl, start)
@@ -228,7 +214,7 @@ class AssertExpressionEvaluationParser(
       // Assert.invariant(res != null)
       if (start.processorStatus ne Success) return
 
-      val testResult = res.asInstanceOf[Boolean]
+      val testResult = res.getBoolean
       if (testResult) {
         start.setDiscriminator(discrim)
       } else {

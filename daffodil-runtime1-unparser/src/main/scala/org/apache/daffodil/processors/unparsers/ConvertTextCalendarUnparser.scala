@@ -47,7 +47,7 @@ case class ConvertTextCalendarUnparser(
 
     val dc = node.dataValue
 
-    val infosetCalendar = node.dataValue match {
+    val infosetCalendar = node.dataValue.getAnyRef match {
       case dc: DFDLCalendar => dc.calendar
       case x => Assert.invariantFailed("ConvertTextCalendar received unsupported type. %s of type %s.".format(x, Misc.getNameFromClass(x)))
     }

@@ -108,7 +108,7 @@ class TestInfosetInputterFromReader2 {
       val Start(foo_1_s: DISimple) = is.next
       val End(foo_1_e: DISimple) = is.next
       assertTrue(foo_1_s eq foo_1_e)
-      assertTrue(foo_1_s.dataValue.isInstanceOf[String])
+      assertTrue(foo_1_s.dataValue.getAnyRef.isInstanceOf[String])
       assertEquals("Hello", foo_1_s.dataValueAsString)
     }
     val EndArray(foo_arr_e) = is.next

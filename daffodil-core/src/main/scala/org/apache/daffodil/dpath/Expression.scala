@@ -26,13 +26,15 @@ import org.apache.daffodil.xml.RefQName
 import scala.util.{ Success, Failure }
 import org.apache.daffodil.dsom.RelativePathPastRootError
 import org.apache.daffodil.equality._
-import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
+import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt}
+import java.lang.{ Long => JLong, Integer => JInt, Boolean => JBoolean, Double => JDouble }
 import org.apache.daffodil.util.Numbers
 import org.apache.daffodil.api.WarnID
 import org.apache.daffodil.infoset.NoNextElement
 import org.apache.daffodil.infoset.OnlyOnePossibilityForNextElement
 import org.apache.daffodil.infoset.SeveralPossibilitiesForNextElement
 import org.apache.daffodil.util.LogLevel
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.udf.UserDefinedFunctionService
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.BasicComponent
@@ -1333,7 +1335,7 @@ abstract class LiteralExpressionBase(value: Any)
    * Convert to regular types from the pessimistic BigInt
    * and BigDecimal that come in from the parser.
    */
-  lazy val litValue = value match {
+  lazy val litValue:DataValuePrimitive = value match {
     case s: String => s
     case i: Int => i
     case i: BigInt => {
@@ -1367,20 +1369,21 @@ abstract class LiteralExpressionBase(value: Any)
   }
 
   override lazy val compiledDPath: CompiledDPath = {
-    new CompiledDPath(Literal(Numbers.asAnyRef(litValue)) +: conversions)
+    litValue
+    new CompiledDPath(Literal(litValue) +: conversions)
   }
 
   override lazy val inherentType = {
-    litValue match {
+    litValue.getAnyRef match {
       case s: String => NodeInfo.String
       case i: BigInt => Assert.usageError("Expected java.math.BigInteger but got BigInt.")
       case i: JBigInt => NodeInfo.Integer
       case d: BigDecimal => Assert.usageError("Expected java.math.BigDecimal but got package.BigDecimal.")
       case d: JBigDecimal => NodeInfo.Decimal
-      case df: Double => NodeInfo.Double
-      case l: Long => NodeInfo.Long
-      case i: Int => NodeInfo.Int
-      case b: Boolean => NodeInfo.Boolean
+      case df: JDouble => NodeInfo.Double
+      case l: JLong => NodeInfo.Long
+      case i: JInt => NodeInfo.Int
+      case b: JBoolean => NodeInfo.Boolean
       case _ => Assert.invariantFailed("value not one of the expected types " + litValue.getClass())
     }
   }

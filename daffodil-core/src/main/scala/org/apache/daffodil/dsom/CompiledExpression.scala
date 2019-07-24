@@ -24,6 +24,7 @@ import org.apache.daffodil.xml.NamedQName
 import java.lang.{ Long => JLong, Boolean => JBoolean }
 import org.apache.daffodil.schema.annotation.props.Found
 import org.apache.daffodil.oolag.OOLAG._
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.processors.HasTunable
 import org.apache.daffodil.BasicComponent
 
@@ -245,7 +246,7 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
       if (exprOrLiteral.startsWith("{{")) exprOrLiteral.tail
       else exprOrLiteral
 
-    val logical = try {
+    val logical:DataValuePrimitive = try {
       maybePrimType.get.fromXMLString(literal)
     } catch {
       case e: Exception => {
@@ -254,6 +255,6 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
       }
     }
 
-    new ConstantExpression[T](qn, nodeInfoKind, logical.asInstanceOf[T])
+    new ConstantExpression[T](qn, nodeInfoKind, logical.getAnyRef.asInstanceOf[T])
   }
 }

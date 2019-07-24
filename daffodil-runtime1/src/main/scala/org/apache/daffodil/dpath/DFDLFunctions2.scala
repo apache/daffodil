@@ -17,11 +17,15 @@
 
 package org.apache.daffodil.dpath
 
-import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
-import org.apache.daffodil.infoset.LengthState
 import java.lang.{ Long => JLong }
+
+import org.apache.daffodil.infoset.DIElement
+import org.apache.daffodil.infoset.DataValue.DataValueLong
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.infoset.LengthState
+import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
+
 import passera.unsigned.ULong
-import org.apache.daffodil.infoset._
 
 sealed abstract class DFDLLengthFunctionBase(kind: String, recipes: List[CompiledDPath]) extends FNTwoArgsNodeAndValue(recipes) {
 
@@ -55,14 +59,14 @@ sealed abstract class DFDLLengthFunctionBase(kind: String, recipes: List[Compile
     len
   }
 
-  override def computeValue(anyNode: AnyRef, str: AnyRef, dstate: DState): AnyRef = {
+  override def computeValue(anyNode: DataValuePrimitive, str: DataValuePrimitive, dstate: DState): DataValueLong = {
 
-    val elt = anyNode match {
+    val elt = anyNode.getAnyRef match {
       case e: DIElement => e
       case _ => throw new IllegalArgumentException("dfdl:%sLength's first argument must be an Infoset Element. Argument was: %s".format(kind, anyNode))
     }
 
-    val units = str match {
+    val units = str.getAnyRef match {
       case s: String => LengthUnits(s, elt.runtimeData)
       case _ => throw new IllegalArgumentException("dfdl:%sLength's second argument must be one of the strings 'bits', 'bytes', or 'characters', but was: %s.".format(kind, str))
     }

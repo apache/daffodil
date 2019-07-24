@@ -54,7 +54,7 @@ abstract class BinaryBooleanUnparserBase(
   def unparse(state: UState): Unit = {
     val nBits = getBitLength(state)
     val node = state.currentInfosetNode.asSimple
-    val value = node.dataValue.asInstanceOf[JBoolean]
+    val value = node.dataValue.getBoolean
     val dos = state.dataOutputStream
 
     if (nBits < 1 || nBits > 32) {

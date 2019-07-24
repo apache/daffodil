@@ -125,7 +125,7 @@ class TestInfoset1 {
     val Seq(w_erd) = list_erd.childERDs
     val wItem = infoset.getChild(w_erd, tunable).asInstanceOf[InfosetSimpleElement]
     assertEquals(infoset, wItem.parent)
-    assertEquals(4, wItem.dataValue)
+    assertEquals(4, wItem.dataValue.getAnyRef)
 
   }
 
@@ -152,9 +152,9 @@ class TestInfoset1 {
     val Seq(w_erd, _, _, c_erd) = list_erd.childERDs
     assertEquals(list_erd, infoset.runtimeData)
     val wItem = infoset.asComplex.getChild(w_erd, tunable).asInstanceOf[InfosetSimpleElement]
-    assertEquals(4, wItem.dataValue)
+    assertEquals(4, wItem.dataValue.getAnyRef)
     val cItem = infoset.asComplex.getChild(c_erd, tunable).asInstanceOf[InfosetSimpleElement]
-    assertEquals(7, cItem.dataValue)
+    assertEquals(7, cItem.dataValue.getAnyRef)
     assertEquals(infoset, cItem.parent)
   }
 
@@ -178,10 +178,10 @@ class TestInfoset1 {
         var a = arr(1).asInstanceOf[InfosetSimpleElement]
         assertEquals(w_erd, a.runtimeData)
 
-        assertEquals(4, a.dataValue)
+        assertEquals(4, a.dataValue.getAnyRef)
         assertEquals(infoset, a.parent)
         a = arr(2).asInstanceOf[InfosetSimpleElement] // 1-based
-        assertEquals(5, a.dataValue)
+        assertEquals(5, a.dataValue.getAnyRef)
         assertEquals(infoset, a.parent)
       }
     }
@@ -213,15 +213,15 @@ class TestInfoset1 {
         var a = arr(1).asInstanceOf[InfosetSimpleElement]
         assertEquals(2, arr.length)
         assertEquals(w_erd, a.runtimeData)
-        assertEquals(4, a.dataValue)
+        assertEquals(4, a.dataValue.getAnyRef)
         assertEquals(infoset, a.parent)
         a = arr(2).asInstanceOf[InfosetSimpleElement] // 1-based
-        assertEquals(5, a.dataValue)
+        assertEquals(5, a.dataValue.getAnyRef)
         assertEquals(infoset, a.parent)
       }
     }
     infoset.getChild(c_erd, tunable) match {
-      case s: DISimple => assertEquals(7, s.dataValue)
+      case s: DISimple => assertEquals(7, s.dataValue.getAnyRef)
     }
   }
 
@@ -327,7 +327,7 @@ class TestInfoset1 {
         xa = arr(2).asInstanceOf[InfosetComplexElement] // 1-based
         val c = xa.getChild(c_erd, tunable)
         c match {
-          case c: DISimple => assertEquals(7, c.dataValue)
+          case c: DISimple => assertEquals(7, c.dataValue.getAnyRef)
         }
       }
     }
@@ -376,12 +376,12 @@ class TestInfoset1 {
         assertEquals(x_erd, xa.runtimeData)
         val c = xa.getChild(c_erd, tunable)
         c match {
-          case c: DISimple => assertEquals(7, c.dataValue)
+          case c: DISimple => assertEquals(7, c.dataValue.getAnyRef)
         }
         xa = arr(2).asInstanceOf[InfosetComplexElement]
         val b = xa.getChild(b_erd, tunable)
         b match {
-          case c: DISimple => assertEquals(8, c.dataValue)
+          case c: DISimple => assertEquals(8, c.dataValue.getAnyRef)
         }
       }
     }

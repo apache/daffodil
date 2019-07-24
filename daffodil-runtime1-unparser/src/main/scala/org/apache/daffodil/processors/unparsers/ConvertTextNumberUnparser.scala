@@ -76,7 +76,7 @@ case class ConvertTextNumberUnparser[S](
     val df = nff.getNumFormat(state).get
     val dfs = df.getDecimalFormatSymbols
 
-    val strRep = value match {
+    val strRep = value.getAnyRef match {
       case n: Number if n == 0 && zeroRep.isDefined => zeroRep.get
       // We need to special case infinity and NaN because ICU4J has a bug and
       // will add an exponent to inf/nan (e.g. INFx10^0) if defined in the
@@ -98,7 +98,7 @@ case class ConvertTextNumberUnparser[S](
       case bi: scala.math.BigInt => Assert.usageError("Received scala.math.BigInt, expected java.math.BigInteger.")
       case _ =>
         try {
-          df.format(value)
+          df.format(value.getAnyRef)
         } catch {
           case e: java.lang.ArithmeticException => UE(state, "Unable to format number to pattern: %s", e.getMessage())
         }
