@@ -335,11 +335,11 @@ sealed trait TypeChecks { self: Restriction =>
       }
     }
 
-    // Don't need to range check String or HexBinary
+    // Don't need to range check String or HexBinary or blobs.
     // no point attempting a conversion to BigDecimal so
     // return early here.
     primType match {
-      case PrimType.String | PrimType.HexBinary => return (true, None)
+      case PrimType.String | PrimType.HexBinary | PrimType.AnyURI => return (true, None)
       case _ => /* Continue on below */
     }
 
@@ -373,6 +373,7 @@ sealed trait TypeChecks { self: Restriction =>
           case PrimType.Decimal => true // Unbounded Decimal
           case PrimType.HexBinary => Assert.impossibleCase // Handled earlier, shouldn't get here
           case PrimType.String => Assert.impossibleCase // Handled earlier, shouldn't get here
+          case PrimType.AnyURI => Assert.impossibleCase // Handled earlier, shouldn't get here
           case PrimType.NonNegativeInteger => isInNonNegativeIntegerRange(theValue)
         }
         val isValueWhole = {

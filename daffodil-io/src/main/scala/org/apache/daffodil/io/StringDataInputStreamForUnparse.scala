@@ -72,6 +72,7 @@ final class StringDataInputStreamForUnparse
   override def getUnsignedBigInt(bitLengthFrom1: Int, finfo: FormatInfo): BigInt = doNotUse
   override def getUnsignedLong(bitLengthFrom1To64: Int, finfo: FormatInfo): passera.unsigned.ULong = doNotUse
   override def getByteArray(bitLengthFrom1: Int, finfo: FormatInfo): Array[Byte] = doNotUse
+  override def getByteArray(bitLengthFrom1: Int, finfo: FormatInfo, array: Array[Byte]): Unit = doNotUse
   override def pastData(nBytesRequested: Int): java.nio.ByteBuffer = doNotUse
   override def setBitLimit0b(bitLimit0b: MaybeULong): Boolean = doNotUse
   override def setDebugging(setting: Boolean): Unit = doNotUse

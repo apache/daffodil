@@ -21,6 +21,7 @@ import java.io.File
 import java.io.ObjectOutputStream
 import java.nio.channels.Channels
 import java.nio.CharBuffer
+import java.nio.file.Files
 import java.nio.LongBuffer
 import java.util.zip.GZIPOutputStream
 
@@ -205,6 +206,14 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
         // so that we can start to throw away infoset nodes. When that happens
         // we can remove this line.
         state.infoset.visit(state.output)
+        state.output.setBlobPaths(state.blobPaths)
+      } else {
+        // failed, so delete all blobs that were created
+        state.blobPaths.foreach { path =>
+          Files.delete(path)
+        }
+        // ensure the blob paths are empty in case of outputter reuse
+        state.output.setBlobPaths(Seq.empty)
       }
       val s = state
       val dp = s.dataProc

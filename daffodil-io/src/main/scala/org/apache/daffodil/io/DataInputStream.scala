@@ -287,6 +287,17 @@ trait DataInputStream
   def getByteArray(bitLengthFrom1: Int, finfo: FormatInfo): Array[Byte]
 
   /**
+   * Same as getByteArray(Int, FormatInfo), except it accepts the array as a
+   * parameter and will fill that array with bytes. This can help to improve
+   * performance if an array can be reused to avoid allocations. But the caller
+   * must be careful upon return, since the array will not be cleared and may
+   * be bigger than the number of bits filled. It is the responsibility of the
+   * caller to know which bits in the array were set based on the bit length
+   * and format info.
+   */
+  def getByteArray(bitLengthFrom1: Int, finfo: FormatInfo, array: Array[Byte]): Unit
+
+  /**
    * Returns a long integer containing the bits between the current bit position
    * and that position plus the bitLength.
    * <p>

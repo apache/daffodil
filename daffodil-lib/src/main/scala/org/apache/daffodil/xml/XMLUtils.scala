@@ -18,6 +18,10 @@
 package org.apache.daffodil.xml
 
 import java.io.File
+import java.net.URI
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.nio.file.StandardOpenOption
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuilder
@@ -712,15 +716,20 @@ object XMLUtils {
               Assert.invariant(pre != "")
               false // drop dafint attributes.
             }
-            case xsiTypeAttr @ PrefixedAttribute(_, "type", _, _) if (NS(xsiTypeAttr.getNamespace(e)) == XMLUtils.XSI_NAMESPACE) =>
-              false // drop xsi:type attributes for now. Such time as we add
-            // support for them, we would need to not remove them.
-            // TODO: actually check xsi:type attributes are correct - but this
-            // requires schema-aware comparison.
-            case xsiTypeAttr @ PrefixedAttribute("xsi", "type", _, _) =>
-              false // drop xsi:type attributes for now. Even if prefix xsi is not defined.
-            // This just avoids having to edit many tests to add in the xmlns:xsi=....
-            // namespace declaration.
+            case xsiTypeAttr @ PrefixedAttribute(_, "type", _, _) if (NS(xsiTypeAttr.getNamespace(e)) == XMLUtils.XSI_NAMESPACE) => {
+              // TODO: actually check xsi:type attributes are correct according
+              // to the schema--requires schema-awareness in TDML Runner.
+              // Do not hide xsi:type since it is used for hints for type aware
+              // comparisons.
+              true
+            }
+            case xsiTypeAttr @ PrefixedAttribute("xsi", "type", _, _) => {
+              // TODO: actually check xsi:type attributes are correct according
+              // to the schema--requires schema-awareness in TDML Runner.
+              // Do not hide xsi:type since it is used for hints for type aware
+              // comparisons.
+              true
+            }
             case attr =>
               true // keep all other attributes
           }
@@ -898,13 +907,68 @@ Differences were (path, expected, actual):
     computeTextDiff(zPath, dataA, dataB, maybeType)
   }
 
+  def computeBlobDiff(zPath: String, dataA: String, dataB: String) = {
+    val uriA = Misc.searchResourceOption(dataA, None)
+    val uriB = Misc.searchResourceOption(dataB, None)
+
+    val pathA = uriA.map { u => Paths.get(u) }
+    val pathB = uriB.map { u => Paths.get(u) }
+
+    val canReadA = pathA.map { p => Files.isReadable(p) }.getOrElse(false)
+    val canReadB = pathB.map { p => Files.isReadable(p) }.getOrElse(false)
+
+    if (!canReadA || !canReadB) {
+      val path = zPath + ".canRead"
+      Seq((path, canReadA.toString, canReadB.toString))
+    } else {
+      val CHUNK_SIZE = 1024
+      val arrayA = new Array[Byte](CHUNK_SIZE)
+      val arrayB = new Array[Byte](CHUNK_SIZE)
+
+      val streamA = Files.newInputStream(pathA.get, StandardOpenOption.READ)
+      val streamB = Files.newInputStream(pathB.get, StandardOpenOption.READ)
+
+      var lenA: Int = 0
+      var lenB: Int = 0
+      var numSameBytes: Int = 0
+      var areSame: Boolean = true
+
+      while ({
+          lenA = streamA.read(arrayA)
+          lenB = streamB.read(arrayB)
+          areSame = lenA == lenB && arrayA.sameElements(arrayB)
+          areSame && lenA != -1 && lenB != -1
+      }) {
+        numSameBytes += lenA
+      }
+
+      if (!areSame) {
+        val zip = arrayA.zip(arrayB)
+        val firstDiffIndex = zip.indexWhere(z => z._1 != z._2)
+
+        val MAX_CONTEXT = 40
+        val contextA = arrayA.take(lenA).drop(firstDiffIndex).take(MAX_CONTEXT)
+        val contextB = arrayB.take(lenB).drop(firstDiffIndex).take(MAX_CONTEXT)
+        val hexA = Misc.bytes2Hex(contextA)
+        val hexB = Misc.bytes2Hex(contextB)
+
+        val absoluteIndex = numSameBytes + firstDiffIndex
+        val path = zPath + ".bytesAt(" + (absoluteIndex + 1) + ")"
+        Seq((path, hexA, hexB))
+      } else {
+        Nil
+      }
+    }
+  }
+
   def computeTextDiff(
     zPath: String,
     dataA: String,
     dataB: String,
     maybeType: Option[String]): Seq[(String, String, String)] = {
 
-    if (textIsSame(dataA, dataB, maybeType)) Nil
+    if (maybeType.isDefined && maybeType.get == "xs:anyURI") computeBlobDiff(zPath, dataA, dataB)
+    else if (textIsSame(dataA, dataB, maybeType)) Nil
     else {
       // There must be some difference, so let's find just the first index of
       // difference and we'll include that and some following characters for

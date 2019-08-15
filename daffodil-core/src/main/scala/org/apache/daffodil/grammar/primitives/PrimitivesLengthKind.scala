@@ -30,6 +30,7 @@ import org.apache.daffodil.processors.dfa.TextDelimitedParserWithEscapeBlock
 import org.apache.daffodil.processors.dfa.TextPaddingParser
 import org.apache.daffodil.processors.parsers.BCDDecimalDelimitedParser
 import org.apache.daffodil.processors.parsers.BCDIntegerDelimitedParser
+import org.apache.daffodil.processors.parsers.BlobSpecifiedLengthParser
 import org.apache.daffodil.processors.parsers.HexBinaryDelimitedParser
 import org.apache.daffodil.processors.parsers.HexBinaryEndOfBitLimitParser
 import org.apache.daffodil.processors.parsers.HexBinaryLengthPrefixedParser
@@ -44,6 +45,7 @@ import org.apache.daffodil.processors.parsers.StringOfSpecifiedLengthParser
 import org.apache.daffodil.processors.parsers.{ Parser => DaffodilParser }
 import org.apache.daffodil.processors.unparsers.BCDDecimalDelimitedUnparser
 import org.apache.daffodil.processors.unparsers.BCDIntegerDelimitedUnparser
+import org.apache.daffodil.processors.unparsers.BlobSpecifiedLengthUnparser
 import org.apache.daffodil.processors.unparsers.HexBinaryLengthPrefixedUnparser
 import org.apache.daffodil.processors.unparsers.HexBinaryMinLengthInBytesUnparser
 import org.apache.daffodil.processors.unparsers.HexBinarySpecifiedLengthUnparser
@@ -69,6 +71,13 @@ case class HexBinarySpecifiedLength(e: ElementBase) extends Terminal(e, true) {
   override lazy val parser: DaffodilParser = new HexBinarySpecifiedLengthParser(e.elementRuntimeData, e.elementLengthInBitsEv)
 
   override lazy val unparser: DaffodilUnparser = new HexBinarySpecifiedLengthUnparser(e.elementRuntimeData, e.unparseTargetLengthInBitsEv)
+}
+
+case class BlobSpecifiedLength(e: ElementBase) extends Terminal(e, true) {
+
+  override lazy val parser = new BlobSpecifiedLengthParser(e.elementRuntimeData, e.elementLengthInBitsEv)
+
+  override lazy val unparser = new BlobSpecifiedLengthUnparser(e.elementRuntimeData, e.unparseTargetLengthInBitsEv)
 }
 
 case class StringOfSpecifiedLength(e: ElementBase) extends Terminal(e, true) with Padded {

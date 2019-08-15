@@ -18,6 +18,8 @@
 package org.apache.daffodil.processors.parsers
 
 import java.nio.channels.Channels
+import java.nio.file.Files
+import java.nio.file.Path
 
 import scala.Right
 import scala.collection.mutable
@@ -153,6 +155,7 @@ final class PState private (
   val mpstate: MPState,
   dataProcArg: DataProcessor,
   var delimitedParseResult: Maybe[dfa.ParseResult],
+  var blobPaths: Seq[Path],
   tunable: DaffodilTunables) // Runtime tunables obtained from DataProcessor)
   extends ParseOrUnparseState(vmap, diagnosticsArg, One(dataProcArg), tunable) {
 
@@ -276,6 +279,10 @@ final class PState private (
     discriminatorStack.push(disc)
   }
 
+  def addBlobPath(path: Path) {
+    blobPaths = path +: blobPaths
+  }
+
   final def notifyDebugging(flag: Boolean) {
     // threadCheck()
     dataInputStream.setDebugging(flag)
@@ -392,6 +399,7 @@ object PState {
     var validationStatus: Boolean = _
     var diagnostics: List[Diagnostic] = _
     var delimitedParseResult: Maybe[dfa.ParseResult] = Nope
+    var blobPaths: Seq[Path] = Seq.empty
 
     val mpStateMark = new MPState.Mark
 
@@ -405,6 +413,7 @@ object PState {
       diagnostics = null
       delimitedParseResult = Nope
       mpStateMark.clear()
+      blobPaths = Seq.empty
       // DO NOT clear requestorId. It is there to help us debug if we try to repeatedly reset/discard a mark already discarded.
     }
 
@@ -420,6 +429,7 @@ object PState {
       this.validationStatus = ps.validationStatus
       this.diagnostics = ps.diagnostics
       this.mpStateMark.captureFrom(ps.mpstate)
+      this.blobPaths = ps.blobPaths
     }
 
     def restoreInfoset(ps: PState) = {
@@ -439,6 +449,20 @@ object PState {
       ps.diagnostics = this.diagnostics
       ps.delimitedParseResult = this.delimitedParseResult
       mpStateMark.restoreInto(ps.mpstate)
+
+      // We are backtracking here, potentially past blob files that have
+      // already been written, so we must delete them. Since we always prepend
+      // blobs to the blobPaths Seq as they are created, we can delete them by
+      // deleting all blob files that are in front of the blobsToKeep Seq. This
+      // also lets us do fast reference equality comparisons for determining
+      // when to stop deleting.
+      val blobsToKeep = this.blobPaths
+      var currentBlobs = ps.blobPaths
+      while (currentBlobs ne blobsToKeep) {
+          Files.delete(currentBlobs.head)
+          currentBlobs = currentBlobs.tail
+      }
+      ps.blobPaths = blobsToKeep
     }
 
   }
@@ -478,7 +502,7 @@ object PState {
 
     dis.cst.setPriorBitOrder(root.defaultBitOrder)
     val newState = new PState(doc.asInstanceOf[DIElement], dis, output, variables, diagnostics, mutablePState,
-      dataProc.asInstanceOf[DataProcessor], Nope, tunables)
+      dataProc.asInstanceOf[DataProcessor], Nope, Seq.empty, tunables)
     newState
   }
 
