@@ -119,6 +119,9 @@ trait PaddingInfoMixin {
       case PrimType.HexBinary => {
         (MaybeChar.Nope, TextJustificationType.None)
       }
+      case PrimType.AnyURI => {
+        (MaybeChar.Nope, TextJustificationType.None)
+      }
     }
     theJust
   }

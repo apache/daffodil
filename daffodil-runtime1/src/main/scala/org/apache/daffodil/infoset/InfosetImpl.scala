@@ -1146,6 +1146,7 @@ sealed class DISimple(override val erd: ElementRuntimeData)
           case b: JBoolean => b
           case _: AtomicLong | _: AtomicInteger => Assert.invariantFailed("Unsupported type. %s of type %s.".format(x, Misc.getNameFromClass(x)))
           case n: java.lang.Number => n
+          case u: java.net.URI => u
           case ar: AnyRef => Assert.invariantFailed("Unsupported type. %s of type %s.".format(x, Misc.getNameFromClass(x)))
         }
       }

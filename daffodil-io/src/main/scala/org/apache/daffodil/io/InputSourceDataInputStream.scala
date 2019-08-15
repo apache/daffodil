@@ -154,6 +154,18 @@ final class InputSourceDataInputStream private (val inputSource: InputSource)
     array
   }
 
+  def getByteArray(bitLengthFrom1: Int, finfo: FormatInfo, array: Array[Byte]): Unit = {
+    // threadCheck()
+    if (!isDefinedForLength(bitLengthFrom1)) throw DataInputStream.NotEnoughDataException(bitLengthFrom1)
+
+    val bytesNeeded = (bitLengthFrom1 + 7) / 8
+    Assert.usage(array.size >= bytesNeeded)
+
+    fillByteArray(array, bitLengthFrom1, finfo)
+
+    setBitPos0b(bitPos0b + bitLengthFrom1)
+  }
+
   /**
    * Accepts a preallocated array and a bitLength. Reads the specified number
    * of bits and stores them in the array consistent with bitOrder and

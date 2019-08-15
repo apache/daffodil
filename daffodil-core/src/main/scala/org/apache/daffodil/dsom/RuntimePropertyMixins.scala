@@ -256,8 +256,8 @@ trait ElementRuntimeValuedPropertiesMixin
   }
 
   final lazy val maybeByteOrderEv = {
-    if (isSimpleType && primType == PrimType.HexBinary) {
-      // xs:hexBinary types should ignore the byteOrder property and
+    if (isSimpleType && (primType == PrimType.HexBinary || primType == PrimType.AnyURI)) {
+      // xs:hexBinary and xs:anyURI types should ignore the byteOrder property and
       // effectively always use a bigEndian byteOrder. One way to accomplish
       // this would be to modify the byteOrderExpr to return a constant value
       // of "bigEndian" for hexBinary types. The problem with this is that
@@ -265,7 +265,7 @@ trait ElementRuntimeValuedPropertiesMixin
       // bitOrder="leastSignificantBitFirst", which is what would happen when
       // parsing hexBinary data with LSBF bitOrder, resulting in an SDE. So
       // instead, we just set this to Nope, and ensure we never try to get the
-      // byteOrder property when the type is xs:hexBinary. The IO layer will
+      // byteOrder property when the type is xs:hexBinary/anyURI. The IO layer will
       // see this Nope and do the right thing.
       Nope
     } else if (optionByteOrderRaw.isDefined) {
@@ -576,7 +576,7 @@ trait ElementRuntimeValuedPropertiesMixin
       }
 
     val byteOrderExprElts =
-      if (isSimpleType && primType =:= PrimType.HexBinary) {
+      if (isSimpleType && (primType =:= PrimType.HexBinary || primType =:= PrimType.AnyURI)) {
         ReferencedElementInfos.None
       } else {
         propExprElts(optionByteOrderRaw, byteOrderEv, f)

@@ -409,22 +409,7 @@ class DFDLTestSuite private[tdml] (
    * directory as the tdml file, and some other variations.
    */
   def findTDMLResource(resName: String): Option[URI] = {
-    val resPath = Paths.get(resName)
-    val resolvedURI =
-      if (Files.exists(resPath)) Some(resPath.toFile().toURI())
-      else Misc.getResourceRelativeOption(resName, Some(tsURI))
-    val res = resolvedURI.orElse {
-      // try ignoring the directory part
-      val parts = resName.split("/")
-      if (parts.length > 1) { // if there is one
-        val filePart = parts.last
-        val secondTry = findTDMLResource(filePart) // recursively
-        secondTry
-      } else {
-        None
-      }
-    }
-    res
+    Misc.searchResourceOption(resName, Some(tsURI))
   }
 
   def findEmbeddedSchema(modelName: String): Option[DefinedSchema] = {
@@ -869,6 +854,12 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
             case t: Throwable => toss(t, implString)
           }
 
+        // we should never need blobs if we're expecting an error even if we
+        // don't get errors. So clean them up immediately
+        actual.getBlobPaths.foreach { blobPath =>
+          Files.delete(blobPath)
+        }
+
         val isErr: Boolean =
           if (actual.isProcessingError) true
           else {
@@ -1109,6 +1100,13 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     roundTrip match {
       case NoRoundTrip => {
         // done. Do nothing else.
+
+        // Done with the first parse result, safe to clean up blobs if there
+        // was success. This won't get called on failure, which is fine--leave
+        // blobs around for debugging
+        firstParseResult.getBlobPaths.foreach { blobPath =>
+          Files.delete(blobPath)
+        }
       }
       case OnePassRoundTrip => {
         val outStream = new java.io.ByteArrayOutputStream()
@@ -1119,6 +1117,13 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         // directly back to the original input form.
 
         VerifyTestCase.verifyUnparserTestData(new ByteArrayInputStream(firstParseTestData), outStream, implString)
+
+        // Done with the first parse result, safe to clean up blobs if there
+        // was success. This won't get called on failure, which is fine--leave
+        // blobs around for debugging
+        firstParseResult.getBlobPaths.foreach { blobPath =>
+          Files.delete(blobPath)
+        }
       }
       case TwoPassRoundTrip => {
         //
@@ -1140,6 +1145,16 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         verifyParseResults(processor, actual, testInfoset, implString)
         verifyLeftOverData(actual, reParseTestDataLength, implString)
         // if it doesn't pass, it will throw out of here.
+
+        // Done with the first and second parse resultrs, safe to clean up
+        // blobs if there was success. This won't get called on failure, which
+        // is fine--leave blobs around for debugging
+        firstParseResult.getBlobPaths.foreach { blobPath =>
+          Files.delete(blobPath)
+        }
+        actual.getBlobPaths.foreach { blobPath =>
+          Files.delete(blobPath)
+        }
       }
       case ThreePassRoundTrip => {
         //
@@ -1180,8 +1195,19 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         val thirdPassOutStream = new java.io.ByteArrayOutputStream()
         doOnePassRoundTripUnparseExpectSuccess(processor, thirdPassOutStream, firstParseResult, implString)
         VerifyTestCase.verifyUnparserTestData(new ByteArrayInputStream(reParseTestData), thirdPassOutStream, implString)
+
+        // Done with the first parse result and second parse results. Safe to
+        // clean up blobs if there was success. Leave them around for debugging
+        // if there was a failure
+        firstParseResult.getBlobPaths.foreach { blobPath =>
+          Files.delete(blobPath)
+        }
+        secondParseResult.getBlobPaths.foreach { blobPath =>
+          Files.delete(blobPath)
+        }
       }
     }
+
   }
 }
 
@@ -1325,6 +1351,14 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       leftOverException.map {
         throw _
       } // if we get here, throw the left over data exception.
+
+      // Done with the parse results, safe to clean up blobs if there was
+      // success. This won't get called on failure, which is fine--leave blobs
+      // around for debugging
+      parseActual.getBlobPaths.foreach { blobPath =>
+        Files.delete(blobPath)
+      }
+
     }
   }
 

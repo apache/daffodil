@@ -17,7 +17,12 @@
 
 package org.apache.daffodil.tdml.processor
 
-import org.apache.daffodil.api.{ DaffodilSchemaSource, DataLocation, ValidationMode, Diagnostic }
+import java.nio.file.Path
+
+import org.apache.daffodil.api.DaffodilSchemaSource
+import org.apache.daffodil.api.DataLocation
+import org.apache.daffodil.api.Diagnostic
+import org.apache.daffodil.api.ValidationMode
 import org.apache.daffodil.externalvars.Binding
 
 object TDML {
@@ -85,6 +90,7 @@ trait TDMLResult {
 trait TDMLParseResult extends TDMLResult {
   def addDiagnostic(failure: Diagnostic): Unit
   def getResult: scala.xml.Node
+  def getBlobPaths: Seq[Path] = Seq.empty
   def currentLocation: DataLocation
 }
 

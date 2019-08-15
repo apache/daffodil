@@ -50,6 +50,7 @@ import org.apache.daffodil.grammar.primitives.BinaryFloat
 import org.apache.daffodil.grammar.primitives.BinaryIntegerKnownLength
 import org.apache.daffodil.grammar.primitives.BinaryIntegerPrefixedLength
 import org.apache.daffodil.grammar.primitives.BinaryIntegerRuntimeLength
+import org.apache.daffodil.grammar.primitives.BlobSpecifiedLength
 import org.apache.daffodil.grammar.primitives.CaptureContentLengthEnd
 import org.apache.daffodil.grammar.primitives.CaptureContentLengthStart
 import org.apache.daffodil.grammar.primitives.CaptureValueLengthEnd
@@ -692,6 +693,25 @@ trait ElementBaseGrammarMixin
     }
   }
 
+  private lazy val specifiedLengthBlob = prod("specifiedLengthBlob") {
+    lengthUnits match {
+      case LengthUnits.Bytes => BlobSpecifiedLength(this)
+      case LengthUnits.Bits => BlobSpecifiedLength(this)
+      case LengthUnits.Characters => SDE("lengthUnits='characters' is not valid for blob data.")
+    }
+  }
+
+  private lazy val blobValue = prod("blobValue") {
+    lengthKind match {
+      case LengthKind.Explicit => specifiedLengthBlob
+      case _ => SDE("objectKind='bytes' must have dfdl:lengthKind='explicit'")
+    }
+  }
+
+  private lazy val clobValue = prod("clobValue") {
+    notYetImplemented("objectKind='chars'")
+  }
+
   private lazy val textInt = prod("textInt", impliedRepresentation == Representation.Text) {
     standardTextInt || zonedTextInt
   }
@@ -1034,6 +1054,13 @@ trait ElementBaseGrammarMixin
       primType match {
         case PrimType.String => stringValue
         case PrimType.HexBinary => hexBinaryValue
+        case PrimType.AnyURI => {
+          val res = impliedRepresentation match {
+            case Representation.Binary => blobValue
+            case Representation.Text => clobValue
+          }
+          res
+        }
         case _ => {
           val res = impliedRepresentation match {
             case Representation.Binary => binaryValue

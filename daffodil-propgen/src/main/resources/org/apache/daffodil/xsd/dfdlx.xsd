@@ -39,6 +39,7 @@
       <xs:enumeration value="dfdlx:choiceDispatchKeyKind" />
       <xs:enumeration value="dfdlx:emptyElementParsePolicy"/>
       <xs:enumeration value="dfdlx:inputTypeCalc"/>
+      <xs:enumeration value="dfdlx:objectKind"/>
       <xs:enumeration value="dfdlx:outputTypeCalc"/>
       <xs:enumeration value="dfdlx:parseUnparsePolicy"/>
       <xs:enumeration value="dfdlx:repType"/>
@@ -118,5 +119,20 @@
     <xs:attribute form="qualified" name="layerLengthUnits" type="dfdl:LayerLengthUnitsEnum" />
     <xs:attribute form="qualified" name="layerBoundaryMark" type="dfdl:ListOfDFDLStringLiteral_Or_DFDLExpression" />
   </xs:attributeGroup>
+
+  <xs:attributeGroup name="ObjectAG">
+    <xs:attribute form="qualified" name="ObjectKind" type="dfdlx:ObjectKindType" />
+  </xs:attributeGroup>
+
+  <xs:attributeGroup name="ObjectAGQualified">
+    <xs:attribute form="qualified" name="objectKind" type="dfdlx:ObjectKindType" />
+  </xs:attributeGroup>
+
+  <xs:simpleType name="ObjectKindType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="bytes"/>
+      <xs:enumeration value="chars"/>
+    </xs:restriction>
+  </xs:simpleType>
 
 </xs:schema>

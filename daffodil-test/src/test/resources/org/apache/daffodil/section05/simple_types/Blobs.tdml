@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<tdml:testSuite suiteName="SimpleTypes" description="Section 5 - simple types"
+  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
+  xmlns:ex="http://example.com"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:tns="http://example.com"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  defaultRoundTrip="onePass"
+  defaultConfig="blobChunkSize">
+
+  <!-- set the blob chunking size to 1 hopefully catch edge cases -->
+  <tdml:defineConfig name="blobChunkSize">
+    <daf:tunables>
+      <daf:blobChunkSizeInBytes>1</daf:blobChunkSizeInBytes>
+    </daf:tunables>
+  </tdml:defineConfig>
+
+
+  <tdml:defineSchema name="Blob.dfdl.xsd">
+
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+
+    <dfdl:format ref="ex:GeneralFormatPortable"
+      representation="binary"
+      encodingErrorPolicy="replace" />
+
+    <xs:element name="blob_01" type="xs:anyURI"
+      dfdl:lengthKind="explicit" dfdl:length="4"
+      dfdlx:objectKind="bytes" />
+
+    <xs:element name="blob_02" type="xs:anyURI"
+      dfdl:lengthKind="explicit" dfdl:length="30" dfdl:lengthUnits="bits"
+      dfdl:bitOrder="mostSignificantBitFirst"
+      dfdlx:objectKind="bytes" />
+
+    <xs:element name="blob_03" type="xs:anyURI"
+      dfdl:lengthKind="explicit" dfdl:length="30" dfdl:lengthUnits="bits"
+      dfdl:bitOrder="leastSignificantBitFirst" dfdl:byteOrder="littleEndian"
+      dfdlx:objectKind="bytes" />
+
+    <xs:element name="blob_04">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="length" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="4"
+            dfdl:outputValueCalc="{ dfdl:valueLength(../ex:data, 'bytes') }" />
+          <xs:element name="data" type="xs:anyURI"
+            dfdl:lengthKind="explicit" dfdl:length="{ ../ex:length }"
+            dfdlx:objectKind="bytes" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="blob_05">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="length" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="4"
+            dfdl:outputValueCalc="{ dfdl:valueLength(../ex:data, 'bytes') }" />
+          <xs:element name="data" type="xs:anyURI"
+            dfdl:lengthKind="explicit" dfdl:length="{ ../ex:length }"
+            dfdlx:objectKind="bytes" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="blob_06" type="xs:anyURI"
+      dfdl:lengthKind="explicit" dfdl:length="4" dfdl:lengthUnits="characters"
+      dfdlx:objectKind="bytes" />
+
+    <xs:element name="blob_07" type="xs:anyURI"
+      dfdl:lengthKind="implicit"
+      dfdlx:objectKind="bytes" />
+
+    <xs:element name="blob_08">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="a" type="xs:anyURI"
+            dfdl:lengthKind="explicit" dfdl:length="1"
+            dfdlx:objectKind="bytes" />
+          <xs:choice>
+            <xs:sequence>
+              <xs:element name="b" type="xs:anyURI"
+                dfdl:lengthKind="explicit" dfdl:length="2"
+                dfdlx:objectKind="bytes" />
+              <xs:element name="c" type="xs:anyURI"
+                dfdl:lengthKind="explicit" dfdl:length="2"
+                dfdlx:objectKind="bytes" />
+            </xs:sequence>
+            <xs:element name="d" type="xs:anyURI"
+              dfdl:lengthKind="explicit" dfdl:length="3"
+              dfdlx:objectKind="bytes" />
+          </xs:choice>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="blob_09">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="a" type="xs:anyURI"
+            dfdl:lengthKind="explicit" dfdl:length="1"
+            dfdlx:objectKind="bytes" />
+          <xs:element name="len" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1" />
+          <xs:element name="b" type="xs:anyURI"
+            dfdl:lengthKind="explicit" dfdl:length="{ ../ex:len }"
+            dfdlx:objectKind="bytes" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="clob_01" type="xs:anyURI"
+      dfdl:lengthKind="explicit" dfdl:length="4"
+      dfdlx:objectKind="chars" />
+    
+  </tdml:defineSchema>
+
+
+  <!-- 4 bytes of blob data -->
+  <tdml:parserTestCase name="blob_01" root="blob_01" model="Blob.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte"><![CDATA[a1b1c1d1]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:blob_01 xsi:type="xs:anyURI">org/apache/daffodil/section05/simple_types/blobs/blob_01.bin</ex:blob_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!-- 30 bits of blob data, MSBF -->
+  <tdml:parserTestCase name="blob_02" root="blob_02" model="Blob.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="bits"><![CDATA[11011110 10101101 10111110 111011xx]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:blob_02 xsi:type="xs:anyURI">org/apache/daffodil/section05/simple_types/blobs/blob_02.bin</ex:blob_02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!-- 30 bits of blob data, LSBF -->
+  <tdml:parserTestCase name="blob_03" root="blob_03" model="Blob.dfdl.xsd">
+    <tdml:document bitOrder="LSBFirst">
+      <tdml:documentPart type="bits" byteOrder="RTL"><![CDATA[xx101111 10111110 10101101 11011110]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:blob_03 xsi:type="xs:anyURI">org/apache/daffodil/section05/simple_types/blobs/blob_03.bin</ex:blob_03>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!-- unparse 3 bytes of blob data with 1 fill byte -->
+  <tdml:unparserTestCase name="blob_04" root="blob_01" model="Blob.dfdl.xsd" roundTrip="none">
+    <tdml:document>
+      <tdml:documentPart type="byte"><![CDATA[a1b1c120]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:blob_01 xsi:type="xs:anyURI">org/apache/daffodil/section05/simple_types/blobs/blob_04.bin</ex:blob_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <!-- dynamic number of blob data, parse -->
+  <tdml:parserTestCase name="blob_05" root="blob_04" model="Blob.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte"><![CDATA[00 00 00 04 a1 b1 c1 d1]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:blob_04>
+          <ex:length>4</ex:length>
+          <ex:data xsi:type="xs:anyURI">org/apache/daffodil/section05/simple_types/blobs/blob_01.bin</ex:data>
+        </ex:blob_04>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!-- dynamic number of blob data, unparse -->
+  <tdml:unparserTestCase name="blob_06" root="blob_04" model="Blob.dfdl.xsd" roundTrip="false">
+    <tdml:document>
+      <tdml:documentPart type="byte"><![CDATA[00 00 00 04 a1 b1 c1 d1]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:blob_04>
+          <ex:length>0</ex:length>
+          <ex:data xsi:type="xs:anyURI">org/apache/daffodil/section05/simple_types/blobs/blob_01.bin</ex:data>
+        </ex:blob_04>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <!-- unparsed data longer that length -->
+  <tdml:unparserTestCase name="blob_07" root="blob_01" model="Blob.dfdl.xsd">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:blob_01 xsi:type="xs:anyURI">org/apache/daffodil/section05/simple_types/blobs/blob_07.bin</ex:blob_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Unparse Error</tdml:error>
+      <tdml:error>Blob length</tdml:error>
+      <tdml:error>40 bits</tdml:error>
+      <tdml:error>exceeds</tdml:error>
+      <tdml:error>32 bits</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
+  <!-- unparse, blob file not found -->
+  <tdml:unparserTestCase name="blob_08" root="blob_01" model="Blob.dfdl.xsd">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:blob_01 xsi:type="xs:anyURI">file:/this/file/does/not/exist</ex:blob_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Unparse Error</tdml:error>
+      <tdml:error>Unable to open blob for reading</tdml:error>
+      <tdml:error>file:/this/file/does/not/exist</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
+  <!-- unparse, blob must be a file -->
+  <tdml:unparserTestCase name="blob_09" root="blob_01" model="Blob.dfdl.xsd">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:blob_01 xsi:type="xs:anyURI">http://scheme/not/allowed</ex:blob_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Unparse Error</tdml:error>
+      <tdml:error>Blob URI must be a file</tdml:error>
+      <tdml:error>http://scheme/not/allowed</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
+  <!-- parse, not enough bits -->
+  <tdml:parserTestCase name="blob_10" root="blob_01" model="Blob.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte"><![CDATA[a1b1c1]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Insufficient bits in data</tdml:error>
+      <tdml:error>Needed 32 bit(s)</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!-- sde, invalid lengthUnits -->
+  <tdml:parserTestCase name="blob_11" root="blob_06" model="Blob.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte"><![CDATA[a1b1c1]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>lengthKind 'explicit'</tdml:error>
+      <tdml:error>lengthUnits 'characters'</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!-- sde, invalid lengthKind -->
+  <tdml:parserTestCase name="blob_12" root="blob_07" model="Blob.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte"><![CDATA[a1b1c1]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>objectKind='bytes'</tdml:error>
+      <tdml:error>must have dfdl:lengthKind='explicit'</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!-- 4 bytes of blob data split in multiple elements with a choice, backtracking should remove blobs -->
+  <tdml:parserTestCase name="blob_13" root="blob_08" model="Blob.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte"><![CDATA[a1b1c1d1]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:blob_08>
+          <ex:a xsi:type="xs:anyURI">org/apache/daffodil/section05/simple_types/blobs/blob_13a.bin</ex:a>
+          <ex:d xsi:type="xs:anyURI">org/apache/daffodil/section05/simple_types/blobs/blob_13d.bin</ex:d>
+        </ex:blob_08>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!-- 4 bytes of blob data split in multiple elements with a choice, no backtracking needed -->
+  <tdml:parserTestCase name="blob_14" root="blob_08" model="Blob.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte"><![CDATA[a1b1c1d1e1]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:blob_08>
+          <ex:a xsi:type="xs:anyURI">org/apache/daffodil/section05/simple_types/blobs/blob_13a.bin</ex:a>
+          <ex:b xsi:type="xs:anyURI">org/apache/daffodil/section05/simple_types/blobs/blob_13b.bin</ex:b>
+          <ex:c xsi:type="xs:anyURI">org/apache/daffodil/section05/simple_types/blobs/blob_13c.bin</ex:c>
+        </ex:blob_08>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!-- 1 byte of blob, length, 3 bytes of blob, but invalid len caused SDE, blob should all be deleted -->
+  <tdml:parserTestCase name="blob_15" root="blob_09" model="Blob.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte"><![CDATA[a1ffb1c1]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Runtime Schema Definition Error</tdml:error>
+      <tdml:error>dfdl:length expression result must be non-negative</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!-- clob unsupported -->
+  <tdml:parserTestCase name="clob_01" root="clob_01" model="Blob.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text">clobdata</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>objectKind='chars' is not supported.</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+
+</tdml:testSuite>

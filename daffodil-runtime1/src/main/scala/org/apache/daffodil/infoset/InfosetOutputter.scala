@@ -17,6 +17,8 @@
 
 package org.apache.daffodil.infoset
 
+import java.nio.file.Path
+import java.nio.file.Paths
 
 trait InfosetOutputter {
 
@@ -132,6 +134,38 @@ trait InfosetOutputter {
     val maybeIsNilled = diElement.maybeIsNilled
     maybeIsNilled.isDefined && maybeIsNilled.get == true
   }
+
+  /**
+   * Set the attributes for how to create blob files.
+   *
+   * @param dir the Path the the directory to create files. If the directory
+   *            does not exist, Daffodil will attempt to create it before
+   *            writing a blob.
+   * @param prefix the prefix string to be used in generating a blob file name
+   * @param suffix the suffix string to be used in generating a blob file name
+   */
+  final def setBlobAttributes(dir: Path, prefix: String, suffix: String): Unit = {
+    blobDirectory = dir
+    blobPrefix = prefix
+    blobSuffix = suffix
+  }
+
+  /**
+   * Get the list of blob paths that were output in the infoset.
+   *
+   * This is the same as what would be found by iterating over the infoset.
+   */
+  final def getBlobPaths(): Seq[Path] = blobPaths
+
+
+  final def getBlobDirectory(): Path = blobDirectory
+  final def getBlobPrefix(): String = blobPrefix
+  final def getBlobSuffix(): String = blobSuffix
+  final def setBlobPaths(paths: Seq[Path]): Unit = blobPaths = paths
+  private var blobDirectory: Path = Paths.get(System.getProperty("java.io.tmpdir"))
+  private var blobPrefix: String = "daffodil-"
+  private var blobSuffix: String = ".blob"
+  private var blobPaths: Seq[Path] = Seq.empty
 }
 
 object Status extends Enumeration {

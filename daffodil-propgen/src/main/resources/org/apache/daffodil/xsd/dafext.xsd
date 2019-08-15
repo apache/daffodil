@@ -112,6 +112,13 @@
             </xs:documentation>
           </xs:annotation>
         </xs:element>
+        <xs:element name="blobChunkSizeInBytes" type="xs:int" default="4096" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              When reading/writing blob data, the maximum number of bytes to read/write at a time.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
         <xs:element name="defaultInitialRegexMatchLimitInChars" type="xs:int" default="32" minOccurs="0">
           <xs:annotation>
             <xs:documentation>

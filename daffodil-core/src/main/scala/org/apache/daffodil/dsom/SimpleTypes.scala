@@ -170,6 +170,7 @@ object PrimitiveType {
       case PrimType.DateTime => DateTime
       case PrimType.Date => Date
       case PrimType.Time => Time
+      case PrimType.AnyURI => AnyURI
       case _ => Assert.usageError("Not a primitive type node: " + typeNode)
     }
   }
@@ -193,6 +194,7 @@ object PrimitiveType {
   val DateTime = new PrimitiveType(PrimType.DateTime)
   val Date = new PrimitiveType(PrimType.Date)
   val Time = new PrimitiveType(PrimType.Time)
+  val AnyURI = new PrimitiveType(PrimType.AnyURI)
 
 }
 

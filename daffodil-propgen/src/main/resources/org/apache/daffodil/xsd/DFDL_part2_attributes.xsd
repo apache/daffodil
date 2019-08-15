@@ -1066,6 +1066,7 @@
     <xsd:attributeGroup ref="dfdl:BooleanTextAGQualified" />
     <xsd:attributeGroup ref="dfdl:BooleanBinaryAGQualified" />
     <xsd:attributeGroup ref="dfdlx:SimpleTypeValueCalcAGQualified" />
+    <xsd:attributeGroup ref="dfdlx:ObjectAGQualified" />
   </xsd:attributeGroup>
 
   <xsd:attributeGroup name="LayeringAGQualified">

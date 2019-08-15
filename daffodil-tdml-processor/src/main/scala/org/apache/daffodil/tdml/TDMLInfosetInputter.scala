@@ -17,11 +17,14 @@
 
 package org.apache.daffodil.tdml
 
+import java.net.URI
+
 import org.apache.daffodil.infoset.InfosetInputter
 import org.apache.daffodil.infoset.ScalaXMLInfosetInputter
 import org.apache.daffodil.infoset.InfosetInputterEventType
 import org.apache.daffodil.infoset.JsonInfosetInputter
 import org.apache.daffodil.util.MaybeBoolean
+import org.apache.daffodil.util.Misc
 import org.apache.daffodil.dpath.NodeInfo
 
 class TDMLInfosetInputter(val scalaInputter: ScalaXMLInfosetInputter, others: Seq[InfosetInputter]) extends InfosetInputter {
@@ -83,7 +86,24 @@ class TDMLInfosetInputter(val scalaInputter: ScalaXMLInfosetInputter, others: Se
 
     if (!othersmatch)
       throw TDMLException("getSimpleText does not match", Some(implString))
-    res
+
+    if (primType.isInstanceOf[NodeInfo.AnyURI.Kind]) {
+      val uri = new URI(res)
+      if (!uri.getPath.startsWith("/")) {
+        // TDML files must allow blob URI's to be relative, but Daffodil
+        // requires them to be absolute with a scheme. So search for the file
+        // using TDML semantics and convert to an absolute URI
+        val abs = Misc.searchResourceOption(uri.getPath, None)
+        if (abs.isEmpty) {
+          throw TDMLException("Unable to find URI: " + res, Some(implString))
+        }
+        abs.get.toString
+      } else {
+        res
+      }
+    } else {
+      res
+    }
   }
 
   override def isNilled(): MaybeBoolean = {

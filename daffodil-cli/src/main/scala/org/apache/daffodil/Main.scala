@@ -28,6 +28,7 @@ import java.io.FileInputStream
 import java.io.ByteArrayInputStream
 import java.io.File
 import java.nio.channels.Channels
+import java.nio.file.Paths
 import java.net.URI
 import java.util.Scanner
 
@@ -720,8 +721,12 @@ object Main extends Logging {
     pf
   }
 
+  // write blobs to $PWD/daffodil-blobs/*.bin
+  val blobDir = Paths.get(System.getProperty("user.dir"), "daffodil-blobs")
+  val blobSuffix = ".bin"
+
   def getInfosetOutputter(infosetType: String, os: java.io.OutputStream): InfosetOutputter = {
-    infosetType match {
+    val outputter = infosetType match {
       case "xml" => new XMLTextInfosetOutputter(os, true)
       case "scala-xml" => new ScalaXMLInfosetOutputter()
       case "json" => new JsonInfosetOutputter(os, true)
@@ -729,6 +734,8 @@ object Main extends Logging {
       case "w3cdom" => new W3CDOMInfosetOutputter()
       case "null" => new NullInfosetOutputter()
     }
+    outputter.setBlobAttributes(blobDir, null, blobSuffix)
+    outputter
   }
 
   // Converts the data to whatever form the InfosetInputter will want. Note

@@ -17,20 +17,24 @@
 
 package org.apache.daffodil.util
 
-import java.io.InputStream
-import java.io.File
-import java.net.URL
-import java.net.URI
 import java.io.ByteArrayInputStream
-import java.nio.channels.ReadableByteChannel
-import java.nio.channels.WritableByteChannel
 import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.InputStream
+import java.net.URI
+import java.net.URL
 import java.net.URLClassLoader
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
-import java.nio.charset.{ Charset => JavaCharset }
+import java.nio.channels.ReadableByteChannel
+import java.nio.channels.WritableByteChannel
 import java.nio.charset.CodingErrorAction
+import java.nio.charset.{ Charset => JavaCharset }
+import java.nio.file.Files
+import java.nio.file.Paths
+
 import scala.collection.JavaConverters._
+
 import org.apache.daffodil.equality._
 
 /**
@@ -119,6 +123,41 @@ object Misc {
         res
       }
     }
+  }
+
+  /**
+   * Search for a resource name, trying a handful of heuristics.
+   *
+   * This is useful in cases where it's okay to be a little lax when searching
+   * for a resource name (e.g. testing). This is often needed in situations
+   * like directory structures not exactly match paths and we just want to try
+   * our best to find a file. Heuristics include things like ignoring leading
+   * directories in a resource, looking for a resource as a file, etc. This
+   * does mean that it's possible that this could find the wrong file if there
+   * are ambiguities, so be careful when using.
+   *
+   * If ambiguities would be a serious problem, use getResourceOption or
+   * getResourceRelativeOption.
+   */
+  def searchResourceOption(resName: String, relativeTo: Option[URI]): Option[URI] = {
+    val resAsURI = new URI(resName)
+    val resPath =
+      if (resAsURI.getScheme != null) Paths.get(resAsURI) else Paths.get(resName)
+    val resolvedURI =
+      if (Files.exists(resPath)) Some(resPath.toFile().toURI())
+      else Misc.getResourceRelativeOption(resName, relativeTo)
+    val res = resolvedURI.orElse {
+      // try ignoring the directory part
+      val parts = resName.split("/")
+      if (parts.length > 1) { // if there is one
+        val filePart = parts.last
+        val secondTry = searchResourceOption(filePart, relativeTo) // recursively
+        secondTry
+      } else {
+        None
+      }
+    }
+    res
   }
 
   private def tryURL(url: URL): Option[URI] = {

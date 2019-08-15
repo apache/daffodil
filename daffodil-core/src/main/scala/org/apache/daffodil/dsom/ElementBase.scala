@@ -643,6 +643,10 @@ trait ElementBase
       primType match {
         case PrimType.HexBinary => Representation.Binary
         case PrimType.String => Representation.Text
+        case PrimType.AnyURI => objectKind match {
+          case ObjectKindType.Bytes => Representation.Binary
+          case ObjectKindType.Chars => Representation.Text
+        }
         case _ => representation
       }
     } else {
@@ -650,7 +654,7 @@ trait ElementBase
     }
     rep match {
       case Representation.Binary =>
-        if (isComplexType || primType != PrimType.HexBinary) byteOrderEv // ensure defined
+        if (isComplexType || (primType != PrimType.HexBinary && primType != PrimType.AnyURI)) byteOrderEv // ensure defined
       case _ =>
         charsetEv // ensure defined
     }
@@ -680,6 +684,7 @@ trait ElementBase
 
   private def getImplicitAlignmentInBits(thePrimType: PrimType, theRepresentation: Representation): Int = {
     (theRepresentation, thePrimType) match {
+      case (Representation.Text, PrimType.AnyURI) => this.subsetError("Property value objectKind='chars' is not supported.")
       case (Representation.Text, PrimType.HexBinary) => Assert.impossible("type xs:hexBinary with representation='text'")
       case (Representation.Text, _) => knownEncodingAlignmentInBits
       case (Representation.Binary, PrimType.String) => Assert.impossible("type xs:string with representation='binary'")
@@ -687,6 +692,7 @@ trait ElementBase
       case (Representation.Binary, PrimType.Float | PrimType.Boolean) => 32
       case (Representation.Binary, PrimType.Double) => 64
       case (Representation.Binary, PrimType.HexBinary) => 8
+      case (Representation.Binary, PrimType.AnyURI) => 8
       // Handle 64 bit types
       case (Representation.Binary, PrimType.Long | PrimType.UnsignedLong) =>
         binaryNumberRep match {

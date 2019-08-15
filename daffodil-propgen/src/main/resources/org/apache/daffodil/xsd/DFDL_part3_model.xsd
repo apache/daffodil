@@ -365,6 +365,7 @@
     <xsd:attributeGroup ref="dfdl:BooleanTextAG" />
     <xsd:attributeGroup ref="dfdl:BooleanBinaryAG" />
     <xsd:attributeGroup ref="dfdlx:SimpleTypeValueCalcAG" />
+    <xsd:attributeGroup ref="dfdlx:ObjectAG" />
   </xsd:attributeGroup>
 
 </xsd:schema>

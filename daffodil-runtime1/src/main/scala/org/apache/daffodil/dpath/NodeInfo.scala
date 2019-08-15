@@ -17,28 +17,29 @@
 
 package org.apache.daffodil.dpath
 
+import java.lang.{ Boolean => JBoolean }
+import java.lang.{ Byte => JByte }
+import java.lang.{ Double => JDouble }
+import java.lang.{ Float => JFloat }
+import java.lang.{ Integer => JInt }
+import java.lang.{ Long => JLong }
+import java.lang.{ Short => JShort }
+import java.math.{ BigDecimal => JBigDecimal }
+import java.math.{ BigInteger => JBigInt }
+import java.net.URI
+
 import scala.BigDecimal
 import scala.BigInt
+
 import org.apache.daffodil.calendar._
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.util.Enum
 import org.apache.daffodil.util.Misc
 import org.apache.daffodil.xml.GlobalQName
+import org.apache.daffodil.xml.NoNamespace
 import org.apache.daffodil.xml.QName
 import org.apache.daffodil.xml.RefQName
 import org.apache.daffodil.xml.XMLUtils
-import java.lang.{
-  Long => JLong,
-  Double => JDouble,
-  Float => JFloat,
-  Integer => JInt,
-  Short => JShort,
-  Byte => JByte,
-  Boolean => JBoolean
-}
-import org.apache.daffodil.exceptions.Assert
-import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
-import org.apache.daffodil.xml.NoNamespace
 
 /**
  * We need to have a data structure that lets us represent a type, and
@@ -202,6 +203,7 @@ object NodeInfo extends Enum {
       case x: Double => NodeInfo.Double
       case x: Float => NodeInfo.Float
       case x: Array[Byte] => NodeInfo.HexBinary
+      case x: URI => NodeInfo.AnyURI
       case x: Boolean => NodeInfo.Boolean
       case x: DFDLCalendar => NodeInfo.DateTime
       case _ => Assert.usageError("Unsupported object representation type: %s".format(a))
@@ -241,9 +243,22 @@ object NodeInfo extends Enum {
         Date, Time, DateTime,
         UnsignedByte, Byte,
         HexBinary,
+        AnyURI,
         String, NonEmptyString), Nil)
-    with Boolean.Kind with Complex.Kind with Array.Kind
-    with ArrayIndex.Kind with Double.Kind with Float.Kind with Date.Kind with Time.Kind with DateTime.Kind with UnsignedByte.Kind with Byte.Kind with HexBinary.Kind with NonEmptyString.Kind
+    with Boolean.Kind
+    with Complex.Kind
+    with Array.Kind
+    with ArrayIndex.Kind
+    with Double.Kind
+    with Float.Kind
+    with Date.Kind
+    with Time.Kind
+    with DateTime.Kind
+    with UnsignedByte.Kind
+    with Byte.Kind
+    with HexBinary.Kind
+    with NonEmptyString.Kind
+    with AnyURI.Kind
 
   /**
    * All complex types are represented by this one type object.
@@ -277,7 +292,7 @@ object NodeInfo extends Enum {
   }
 
   protected sealed trait AnyAtomicKind extends AnySimpleType.Kind
-  case object AnyAtomic extends TypeNode(AnySimpleType, Seq(String, Numeric, Boolean, Opaque, AnyDateTime)) with AnyAtomicKind {
+  case object AnyAtomic extends TypeNode(AnySimpleType, Seq(String, Numeric, Boolean, Opaque, AnyDateTime, AnyURI)) with AnyAtomicKind {
     type Kind = AnyAtomicKind
   }
 
@@ -338,6 +353,7 @@ object NodeInfo extends Enum {
   val Double = PrimType.Double
   val Float = PrimType.Float
   val HexBinary = PrimType.HexBinary
+  val AnyURI = PrimType.AnyURI
   val Boolean = PrimType.Boolean
   val DateTime = PrimType.DateTime
   val Date = PrimType.Date
@@ -359,6 +375,7 @@ object NodeInfo extends Enum {
     Double,
     Float,
     HexBinary,
+    AnyURI,
     Boolean,
     DateTime,
     Date,
@@ -494,6 +511,12 @@ object NodeInfo extends Enum {
       override def fromXMLString(s: String): JBoolean = s.toBoolean
     }
 
+    protected sealed trait AnyURIKind extends AnySimpleType.Kind
+    case object AnyURI extends PrimTypeNode(AnyAtomic) with AnyURIKind {
+      type Kind = AnyURIKind
+      override def fromXMLString(s: String): URI = new URI(s)
+    }
+
     protected sealed trait HexBinaryKind extends Opaque.Kind
     case object HexBinary extends PrimTypeNode(Opaque) with HexBinaryKind {
       type Kind = HexBinaryKind
@@ -538,7 +561,7 @@ object NodeInfo extends Enum {
   private lazy val allDFDLTypes = List(
     Float, Double, Decimal, Integer, Long, Int, Short, Byte,
     NonNegativeInteger, UnsignedLong, UnsignedInt, UnsignedShort, UnsignedByte,
-    String, Boolean, HexBinary,
+    String, Boolean, HexBinary, AnyURI,
     Date, Time, DateTime)
 
   lazy val allTypes =

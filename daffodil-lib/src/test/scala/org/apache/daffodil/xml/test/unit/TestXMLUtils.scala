@@ -17,13 +17,21 @@
 
 package org.apache.daffodil.xml.test.unit
 
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
+import java.nio.file.StandardOpenOption
+
 import scala.xml._
-import org.apache.daffodil.xml.XMLUtils
-import org.apache.daffodil.xml.JDOMUtils
-import org.apache.daffodil.xml.NS
+
 import junit.framework.Assert._
 import org.junit.Test
+
 import org.apache.daffodil.Implicits._
+import org.apache.daffodil.util.Misc
+import org.apache.daffodil.xml.JDOMUtils
+import org.apache.daffodil.xml.NS
+import org.apache.daffodil.xml.XMLUtils
 
 class TestXMLUtils {
 
@@ -260,5 +268,69 @@ class TestXMLUtils {
     val actual = XMLUtils.escape(input).toString()
     val expected = "&#x80;&#x81;&#x82;&#x83;&#x84;&#x85;&#x86;&#x87;&#x88;&#x89;&#x8A;&#x8B;&#x8C;&#x8D;&#x8E;&#x8F;&#x90;&#x91;&#x92;&#x93;&#x94;&#x95;&#x96;&#x97;&#x98;&#x99;&#x9A;&#x9B;&#x9C;&#x9D;&#x9E;&#x9F;&#xA0;¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ"
     assertEquals(expected, actual)
+  }
+
+  private def createBlobFile(blob: String): Path = {
+    val dir = Paths.get(System.getProperty("java.io.tmpdir"), "daffodil-test", "blobs")
+    Files.createDirectories(dir)
+    val path = Files.createTempFile(dir, null, null)
+    val bytes = Misc.hex2Bytes(blob)
+    val stream = Files.newOutputStream(path, StandardOpenOption.WRITE)
+    stream.write(bytes)
+    stream.close()
+    path
+  }
+
+  @Test def testBlobDiff01() {
+    val path1 = createBlobFile("A1B2C3")
+    val path2 = createBlobFile("A1B2C3")
+    val diff = XMLUtils.computeBlobDiff("path", path1.toString, path2.toString)
+    assertEquals(diff, Nil)
+    Files.delete(path1)
+    Files.delete(path2)
+  }
+
+  @Test def testBlobDiff02() {
+    val path1 = createBlobFile("A1B2C3D4")
+    val path2 = createBlobFile("A1B1C3")
+    val diff = XMLUtils.computeBlobDiff("path", path1.toString, path2.toString)
+    assertEquals("path.bytesAt(2)", diff(0)._1)
+    assertEquals("B2C3D4", diff(0)._2)
+    assertEquals("B1C3", diff(0)._3)
+    Files.delete(path1)
+    Files.delete(path2)
+  }
+
+  @Test def testBlobDiff03() {
+    val path1 = createBlobFile("A1B2C3D4")
+    val path2 = createBlobFile("")
+    val diff = XMLUtils.computeBlobDiff("path", path1.toString, path2.toString)
+    assertEquals("path.bytesAt(1)", diff(0)._1)
+    assertEquals("A1B2C3D4", diff(0)._2)
+    assertEquals("", diff(0)._3)
+    Files.delete(path1)
+    Files.delete(path2)
+  }
+
+  @Test def testBlobDiff04() {
+    val path1 = createBlobFile("A1B2C3D4")
+    val path2 = Paths.get("file://does/not/exist")
+    val diff = XMLUtils.computeBlobDiff("path", path1.toString, path2.toString)
+    assertEquals("path.canRead", diff(0)._1)
+    assertEquals("true", diff(0)._2)
+    assertEquals("false", diff(0)._3)
+    Files.delete(path1)
+  }
+
+  @Test def testBlobDiff05() {
+    val path1 = createBlobFile(("00" * 1024) + ("A1" * 41))
+    val path2 = createBlobFile(("00" * 1024))
+    val diff = XMLUtils.computeBlobDiff("path", path1.toString, path2.toString)
+    println(diff)
+    assertEquals("path.bytesAt(1025)", diff(0)._1)
+    assertEquals("A1" * 40, diff(0)._2)
+    assertEquals("", diff(0)._3)
+    Files.delete(path1)
+    Files.delete(path2)
   }
 }

@@ -18,24 +18,28 @@
 package org.apache.daffodil.tdml.processor
 
 import java.nio.channels.Channels
+import java.nio.file.Path
+import java.nio.file.Paths
+
+import scala.xml.Node
 
 import org.apache.daffodil.api._
 import org.apache.daffodil.compiler.Compiler
 import org.apache.daffodil.debugger.Debugger
-import org.apache.daffodil.externalvars.Binding
-import org.apache.daffodil.infoset.ScalaXMLInfosetInputter
-import org.apache.daffodil.io.InputSourceDataInputStream
-import org.apache.daffodil.processors.unparsers.UState
-import org.apache.daffodil.processors.{ DataProcessor, UnparseResult }
-import org.apache.daffodil.tdml.{ SchemaDataProcessorCache, TDMLInfosetOutputter }
-import org.apache.daffodil.util.MaybeULong
-
-import scala.xml.Node
 import org.apache.daffodil.debugger.InteractiveDebugger
-import org.apache.daffodil.tdml.SchemaDataProcessorCache
 import org.apache.daffodil.debugger.TraceDebuggerRunner
 import org.apache.daffodil.dsom.ExpressionCompilers
 import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.externalvars.Binding
+import org.apache.daffodil.infoset.ScalaXMLInfosetInputter
+import org.apache.daffodil.io.InputSourceDataInputStream
+import org.apache.daffodil.processors.DataProcessor
+import org.apache.daffodil.processors.UnparseResult
+import org.apache.daffodil.processors.unparsers.UState
+import org.apache.daffodil.tdml.SchemaDataProcessorCache
+import org.apache.daffodil.tdml.TDMLInfosetInputter
+import org.apache.daffodil.tdml.TDMLInfosetOutputter
+import org.apache.daffodil.util.MaybeULong
 
 final class TDMLDFDLProcessorFactory() extends AbstractTDMLDFDLProcessorFactory {
 
@@ -130,6 +134,10 @@ class DaffodilTDMLDFDLProcessor(ddp: DFDL.DataProcessor) extends TDMLDFDLProcess
 
   private lazy val builtInTracer = new InteractiveDebugger(new TraceDebuggerRunner, ExpressionCompilers)
 
+  private val blobDir = Paths.get(System.getProperty("java.io.tmpdir"), "daffodil-tdml", "blobs")
+  private val blobPrefix = ""
+  private val blobSuffix = ".bin"
+
   override def setDebugging(b: Boolean) = dp.setDebugging(b)
 
   override def setTracing(bool: Boolean): Unit = {
@@ -154,7 +162,9 @@ class DaffodilTDMLDFDLProcessor(ddp: DFDL.DataProcessor) extends TDMLDFDLProcess
   override def getDiagnostics: Seq[Diagnostic] = dp.getDiagnostics
 
   override def parse(is: java.io.InputStream, lengthLimitInBits: Long): TDMLParseResult = {
+
     val outputter = new TDMLInfosetOutputter()
+    outputter.setBlobAttributes(blobDir, blobPrefix, blobSuffix)
 
     val dis = InputSourceDataInputStream(is)
     if (lengthLimitInBits >= 0 && lengthLimitInBits % 8 != 0) {
@@ -171,7 +181,12 @@ class DaffodilTDMLDFDLProcessor(ddp: DFDL.DataProcessor) extends TDMLDFDLProcess
   override def unparse(infosetXML: scala.xml.Node, outStream: java.io.OutputStream): TDMLUnparseResult = {
     val output = java.nio.channels.Channels.newChannel(outStream)
 
-    val inputter = new ScalaXMLInfosetInputter(infosetXML)
+    val scalaInputter = new ScalaXMLInfosetInputter(infosetXML)
+    // We can't compare against other inputters since we only have scala XML,
+    // but we still need to use the TDMLInfosetInputter since it may make TDML
+    // specific modifications to the input infoset (e.g. blob paths)
+    val otherInputters = Seq.empty
+    val inputter = new TDMLInfosetInputter(scalaInputter, otherInputters)
     val actual = dp.unparse(inputter, output).asInstanceOf[UnparseResult]
     output.close()
     new DaffodilTDMLUnparseResult(actual, outStream)
@@ -191,6 +206,8 @@ class DaffodilTDMLDFDLProcessor(ddp: DFDL.DataProcessor) extends TDMLDFDLProcess
 final class DaffodilTDMLParseResult(actual: DFDL.ParseResult, outputter: TDMLInfosetOutputter) extends TDMLParseResult {
 
   override def getResult: Node = outputter.getResult()
+
+  override def getBlobPaths: Seq[Path] = outputter.getBlobPaths()
 
   def inputter = outputter.toInfosetInputter()
 
