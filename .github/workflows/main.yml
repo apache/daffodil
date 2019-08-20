@@ -1,0 +1,127 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements. See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License. You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: Daffodil CI
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    name: Java ${{ matrix.java_version }}, Scala ${{ matrix.scala_version }}, ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        java_version: [ '8.x', '9.x', '11.x' ]
+        scala_version: [ '2.12.6', '2.11.12' ]
+        os: [ 'ubuntu-latest', 'windows-latest' ]
+    steps:
+
+      ############################################################
+      # Setup
+      ############################################################
+
+      - name: Checkout Repository
+        uses: actions/checkout@master
+
+      - name: Install Dependencies (Linux)
+        run: |
+          echo "deb https://dl.bintray.com/sbt/debian /" | sudo tee -a /etc/apt/sources.list.d/sbt.list
+          sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 2EE0EA64E40A89B84B2DF73499E82A75642AC823
+          sudo apt-get -y update
+          sudo apt-get -y install rpm sbt
+        if: runner.os == 'Linux'
+
+      - name: Install Dependencies (Windows)
+        run: |
+          choco install sbt
+          # choco doesn't update PATH, and SBT isn't in any of the default
+          # PATHs, and Github Actions doesn't have a built in way to modify
+          # PATH. So add a link to sbt in a directory that is in PATH and that
+          # should always exist (bit of a hack).
+          mklink "C:\ProgramData\Chocolatey\bin\sbt" "C:\Program Files (x86)\sbt\bin\sbt"
+        if: runner.os == 'Windows'
+
+      - name: Install Java
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{ matrix.java_version }}
+
+      ############################################################
+      # Build & Package
+      ############################################################
+
+      - name: Compile
+        run: $SBT compile test:compile it:compile
+        shell: bash
+        env:
+          SBT: sbt -J-Xms1024m -J-Xmx5120m -J-XX:ReservedCodeCacheSize=512m -J-XX:MaxMetaspaceSize=1024m ++${{ matrix.scala_version }} coverage
+
+      - name: Build Documentation
+        run: $SBT daffodil-japi/genjavadoc:doc daffodil-sapi/doc
+        continue-on-error: true
+        shell: bash
+        env:
+          SBT: sbt -J-Xms1024m -J-Xmx5120m -J-XX:ReservedCodeCacheSize=512m -J-XX:MaxMetaspaceSize=1024m ++${{ matrix.scala_version }} coverage
+
+      - name: Package Zip & Tar
+        run: $SBT daffodil-cli/universal:packageBin daffodil-cli/universal:packageZipTarball
+        continue-on-error: true
+        shell: bash
+        env:
+          SBT: sbt -J-Xms1024m -J-Xmx5120m -J-XX:ReservedCodeCacheSize=512m -J-XX:MaxMetaspaceSize=1024m ++${{ matrix.scala_version }} coverage
+
+      - name: Package RPM
+        run: $SBT daffodil-cli/rpm:packageBin
+        if: runner.os == 'Linux'
+        continue-on-error: true
+        shell: bash
+        env:
+          SBT: sbt -J-Xms1024m -J-Xmx5120m -J-XX:ReservedCodeCacheSize=512m -J-XX:MaxMetaspaceSize=1024m ++${{ matrix.scala_version }} coverage
+
+      ############################################################
+      # Test
+      ############################################################
+
+      - name: Run Rat Check
+        run: $SBT ratCheck || (cat target/rat.txt; exit 1)
+        continue-on-error: true
+        shell: bash
+        env:
+          SBT: sbt -J-Xms1024m -J-Xmx5120m -J-XX:ReservedCodeCacheSize=512m -J-XX:MaxMetaspaceSize=1024m ++${{ matrix.scala_version }} coverage
+
+      - name: Run Unit Tests
+        run: $SBT test
+        continue-on-error: true
+        shell: bash
+        env:
+          SBT: sbt -J-Xms1024m -J-Xmx5120m -J-XX:ReservedCodeCacheSize=512m -J-XX:MaxMetaspaceSize=1024m ++${{ matrix.scala_version }} coverage
+
+      - name: Run Integration Tests
+        run: $SBT it:test
+        continue-on-error: true
+        shell: bash
+        env:
+          SBT: sbt -J-Xms1024m -J-Xmx5120m -J-XX:ReservedCodeCacheSize=512m -J-XX:MaxMetaspaceSize=1024m ++${{ matrix.scala_version }} coverage
+
+      # Disabled until we switch from TravisCI to Github Actions
+      #- name: Generate Coverage Report
+      #  run: |
+      #    $SBT coverageReport
+      #    bash <(curl -s https://codecov.io/bash)
+      #  continue-on-error: true
+      #  env:
+      #    SBT: sbt -J-Xms1024m -J-Xmx5120m -J-XX:ReservedCodeCacheSize=512m -J-XX:MaxMetaspaceSize=1024m ++${{ matrix.scala_version }} coverage
+      #  shell: bash
