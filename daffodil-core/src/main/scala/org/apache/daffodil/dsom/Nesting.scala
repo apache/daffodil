@@ -125,7 +125,7 @@ trait NestingTraversesToReferenceMixin
    */
   lazy val referringComponents: Seq[(String, Seq[RefSpec])] = {
     schemaSet.root.refMap.get(this.factory) match {
-      case None => Assert.invariantFailed("There are no references to this component: " + this)
+      case None => Seq()
       case Some(seq) => seq
     }
   }
