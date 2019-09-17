@@ -1638,7 +1638,9 @@ object VerifyTestCase {
 
     lazy val expectedAndActualDisplayStrings = "\n" +
       "Excected data (as iso8859-1): " + displayableExpected + "\n" +
-      "Actual data                 : " + displayableActual
+      "Actual data   (as iso8859-1): " + displayableActual + "\n" +
+      "Expected data (as hex): " + Misc.bytes2Hex(expectedBytes) + "\n" +
+      "Actual data   (as hex): " + Misc.bytes2Hex(actualBytes)
 
     val readCount = expectedBytes.length
     expectedData.close()
