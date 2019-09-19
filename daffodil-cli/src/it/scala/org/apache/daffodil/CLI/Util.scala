@@ -139,20 +139,20 @@ object Util {
     val newstr = str.replaceAll("\r\n", "\n")
     return newstr
   }
-  
+
   def echoN(str: String): String = {
-	if (isWindows) {
-	  "echo|set /p=" + str
-	} else {
-	  "echo -n " + str
-	}
+    if (isWindows) {
+      "echo|set /p=" + str
+    } else {
+      "echo -n " + str
+    }
   }
-  
+
   def cat(str: String): String = {
-  	if (isWindows) {
-	  "type " + str
-	} else {
-	  "cat " + str
-	}
+    if (isWindows) {
+      "type " + str
+    } else {
+      "cat " + str
+    }
   }
 }

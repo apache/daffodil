@@ -1,0 +1,400 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<tdml:testSuite suiteName="udfs"
+  description="lengthKind explicit and occursCountKind expression"
+  xmlns="urn:example:com:javaudfs:stringfunctions"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
+  xmlns:tns="http://example.com" xmlns:ex="http://example.com"
+  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
+  xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  xmlns:nns="no.corresponding.ns"
+  xmlns:jgsu="urn:example:com:javaudfs:stringfunctions"
+  xmlns:sgsu="http://example.com/scala/sudfs"
+  xmlns:sgiu="http://example.com/scala/iudfs"
+  xmlns:sgau="http://example.com/scala/audfs" defaultRoundTrip="true">
+
+  <tdml:defineSchema name="udf-schema-Embedded.dfdl.xsd">
+    <xs:include
+      schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
+
+    <xs:element name="def_ns" type="xs:boolean"
+      dfdl:inputValueCalc="{ compare('Hello World. I am.', 'Hello World. I am.')}" />
+
+    <xs:element name="ns_unknown" type="xs:string"
+      dfdl:inputValueCalc="{ nns:replace('Hello World. I am.', ' ', '_')}" />
+
+    <xs:element name="incorrect_num_args" type="xs:string"
+      dfdl:inputValueCalc="{ jgsu:replace('Hello World. I am.')}" />
+
+    <xs:element name="incorrect_arg_type" type="xs:string"
+      dfdl:inputValueCalc="{ sgiu:addBoxed('Hello', 'world')}" />
+
+    <xs:element name="no_args" type="xs:string"
+      dfdl:inputValueCalc="{ sgsu:sayHello()}" />
+
+    <xs:element name="stringTest" type="xs:string"
+      dfdl:inputValueCalc="{ jgsu:replace('Hello World. I am.', 'I am.', 'We are.')}" />
+
+    <xs:element name="primInt" type="xs:int"
+      dfdl:inputValueCalc="{ sgiu:addPrimitive(31, 11)}" />
+
+    <xs:element name="boxedInt" type="xs:int"
+      dfdl:inputValueCalc="{ sgiu:addBoxed(31, 11)}" />
+
+    <xs:element name="primByte" type="xs:byte"
+      dfdl:inputValueCalc="{ sgau:primByteFunc(42)}" />
+
+    <xs:element name="boxedByte" type="xs:byte"
+      dfdl:inputValueCalc="{ sgau:boxedByteFunc(42)}" />
+
+    <xs:element name="primByteArray" type="xs:hexBinary"
+      dfdl:encoding="ISO-8859-1"
+      dfdl:inputValueCalc="{ sgau:primByteArrayFunc('FFFFFFFF')}" />
+
+    <xs:element name="primShort" type="xs:short"
+      dfdl:inputValueCalc="{ sgau:primShortFunc(42)}" />
+
+    <xs:element name="boxedShort" type="xs:short"
+      dfdl:inputValueCalc="{ sgau:boxedShortFunc(42)}" />
+
+    <xs:element name="primLong" type="xs:long"
+      dfdl:inputValueCalc="{ sgau:primLongFunc(42)}" />
+
+    <xs:element name="boxedLong" type="xs:long"
+      dfdl:inputValueCalc="{ sgau:boxedLongFunc(42)}" />
+
+    <xs:element name="primDouble" type="xs:double"
+      dfdl:inputValueCalc="{ sgau:primDoubleFunc(42.42)}" />
+
+    <xs:element name="boxedDouble" type="xs:double"
+      dfdl:inputValueCalc="{ sgau:boxedDoubleFunc(42.42)}" />
+
+    <xs:element name="primFloat" type="xs:float"
+      dfdl:inputValueCalc="{ sgau:primFloatFunc(42.42)}" />
+
+    <xs:element name="boxedFloat" type="xs:float"
+      dfdl:inputValueCalc="{ sgau:boxedFloatFunc(42.42)}" />
+
+    <xs:element name="primBoolean" type="xs:boolean"
+      dfdl:inputValueCalc="{ sgau:primBooleanFunc(fn:false())}" />
+
+    <xs:element name="boxedBoolean" type="xs:boolean"
+      dfdl:inputValueCalc="{ sgau:boxedBooleanFunc(fn:false())}" />
+
+    <xs:element name="javaBigDecimal" type="xs:decimal"
+      dfdl:inputValueCalc="{ sgau:javaBigDecimalFunc(1098491072963113850.743607693961454047)}" />
+
+    <xs:element name="javaBigInteger" type="xs:integer"
+      dfdl:inputValueCalc="{ sgau:javaBigIntegerFunc(2432902008176640000)}" />
+
+  </tdml:defineSchema>
+
+  <!-- Positive Tests -->
+
+  <tdml:parserTestCase name="test_udf_defaultNamespace"
+    root="def_ns" model="udf-schema-Embedded.dfdl.xsd"
+    description="Tests that UDF can still be identified with default namespace">
+    <tdml:document />
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="infoset">
+        <tns:def_ns>true</tns:def_ns>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="test_udf_noArgs" root="no_args"
+    model="udf-schema-Embedded.dfdl.xsd"
+    description="Tests that UDF with no args are accepted">
+    <tdml:document />
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="infoset">
+        <tns:no_args>Hello</tns:no_args>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="test_primitiveIntParamRetType"
+    root="primInt" model="udf-schema-Embedded.dfdl.xsd"
+    description="Tests UDF with primitive Int arg type">
+    <tdml:document />
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="infoset">
+        <tns:primInt>42</tns:primInt>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="test_boxedIntParamRetType"
+    root="boxedInt" model="udf-schema-Embedded.dfdl.xsd"
+    description="Tests UDF with Boxed Integer arg type">
+    <tdml:document />
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="infoset">
+        <tns:boxedInt>42</tns:boxedInt>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="test_primitiveByteParamRetType"
+    root="primByte" model="udf-schema-Embedded.dfdl.xsd"
+    description="Tests UDF with primitive Byte arg type">
+    <tdml:document />
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="infoset">
+        <tns:primByte>42</tns:primByte>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="test_boxedByteParamRetType"
+    root="boxedByte" model="udf-schema-Embedded.dfdl.xsd"
+    description="Tests UDF with Boxed Byte arg type">
+    <tdml:document />
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="infoset">
+        <tns:boxedByte>42</tns:boxedByte>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase
+    name="test_primitiveByteArrayParamRetType" root="primByteArray"
+    model="udf-schema-Embedded.dfdl.xsd"
+    description="Tests UDF with primitive Byte Array arg type">
+    <tdml:document />
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="infoset">
+        <tns:primByteArray>FFFFFFFF</tns:primByteArray>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase
+    name="test_primitiveShortParamRetType" root="primShort"
+    model="udf-schema-Embedded.dfdl.xsd"
+    description="Tests UDF with primitive Short arg type">
+    <tdml:document />
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="infoset">
+        <tns:primShort>42</tns:primShort>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="test_boxedShortParamRetType"
+    root="boxedShort" model="udf-schema-Embedded.dfdl.xsd"
+    description="Tests UDF with Boxed Short arg type">
+    <tdml:document />
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="infoset">
+        <tns:boxedShort>42</tns:boxedShort>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="test_primitiveLongParamRetType"
+    root="primLong" model="udf-schema-Embedded.dfdl.xsd"
+    description="Tests UDF with primitive Long arg type">
+    <tdml:document />
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="infoset">
+        <tns:primLong>42</tns:primLong>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="test_boxedLongParamRetType"
+    root="boxedLong" model="udf-schema-Embedded.dfdl.xsd"
+    description="Tests UDF with Boxed Long arg type">
+    <tdml:document />
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="infoset">
+        <tns:boxedLong>42</tns:boxedLong>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase
+    name="test_primitiveDoubleParamRetType" root="primDouble"
+    model="udf-schema-Embedded.dfdl.xsd"
+    description="Tests UDF with primitive Double arg type">
+    <tdml:document />
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="infoset">
+        <tns:primDouble>42.42</tns:primDouble>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="test_boxedDoubleParamRetType"
+    root="boxedDouble" model="udf-schema-Embedded.dfdl.xsd"
+    description="Tests UDF with Boxed Double arg type">
+    <tdml:document />
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="infoset">
+        <tns:boxedDouble>42.42</tns:boxedDouble>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase
+    name="test_primitiveFloatParamRetType" root="primFloat"
+    model="udf-schema-Embedded.dfdl.xsd"
+    description="Tests UDF with primitive Float arg type">
+    <tdml:document />
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="infoset">
+        <tns:primFloat>42.42</tns:primFloat>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="test_boxedFloatParamRetType"
+    root="boxedFloat" model="udf-schema-Embedded.dfdl.xsd"
+    description="Tests UDF with Boxed Float arg type">
+    <tdml:document />
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="infoset">
+        <tns:boxedFloat>42.42</tns:boxedFloat>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase
+    name="test_primitiveBooleanParamRetType" root="primBoolean"
+    model="udf-schema-Embedded.dfdl.xsd"
+    description="Tests UDF with primitive Boolean arg type">
+    <tdml:document />
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="infoset">
+        <tns:primBoolean>false</tns:primBoolean>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="test_boxedBooleanParamRetType"
+    root="boxedBoolean" model="udf-schema-Embedded.dfdl.xsd"
+    description="Tests UDF with Boxed Boolean arg type">
+    <tdml:document />
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="infoset">
+        <tns:boxedBoolean>false</tns:boxedBoolean>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase
+    name="test_javaBigIntegerParamRetType" root="javaBigInteger"
+    model="udf-schema-Embedded.dfdl.xsd"
+    description="Tests UDF with Java BigInteger arg type">
+    <tdml:document />
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="infoset">
+        <tns:javaBigInteger><![CDATA[2432902008176640000]]></tns:javaBigInteger>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase
+    name="test_javaBigDecimalParamRetType" root="javaBigDecimal"
+    model="udf-schema-Embedded.dfdl.xsd"
+    description="Tests UDF with java BigDecimal arg type">
+    <tdml:document />
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="infoset">
+        <tns:javaBigDecimal><![CDATA[1098491072963113850.743607693961454047]]></tns:javaBigDecimal>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="test_stringParamRetType"
+    root="stringTest" model="udf-schema-Embedded.dfdl.xsd"
+    description="Tests UDF with String arg type">
+    <tdml:document />
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="infoset">
+        <tns:stringTest>Hello World. We are.</tns:stringTest>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!-- end Positive Tests -->
+
+<!-- Negative Tests -->
+  <tdml:parserTestCase name="test_udf_fnNotFound"
+    root="ns_unknown" model="udf-schema-Embedded.dfdl.xsd"
+    description="Tests when a udf's namespace is declared, jars registered, but no matching function found">
+    <tdml:document />
+
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Unsupported function: nns:replace</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="test_udf_numArgsIncorrect"
+    root="incorrect_num_args" model="udf-schema-Embedded.dfdl.xsd"
+    description="Tests when a udf is called with incorrect arguments number">
+    <tdml:document />
+
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>The jgsu:replace function requires 3 argument(s).</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="test_udf_argsTypesIncorrect"
+    root="incorrect_arg_type" model="udf-schema-Embedded.dfdl.xsd"
+    description="Tests when a udf is called with incorrect arguments types">
+    <tdml:document />
+
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Cannot convert 'Hello' from String type to</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!-- end Negative Tests -->
+
+</tdml:testSuite>

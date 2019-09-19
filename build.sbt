@@ -21,7 +21,7 @@ lazy val genSchemas = taskKey[Seq[File]]("Generated DFDL schemas")
 
 
 lazy val daffodil         = Project("daffodil", file(".")).configs(IntegrationTest)
-                              .aggregate(macroLib, propgen, lib, io, runtime1, runtime1Unparser, core, japi, sapi, tdmlLib, tdmlProc, cli, test, testIBM1, tutorials, testStdLayout)
+                              .aggregate(macroLib, propgen, lib, io, runtime1, runtime1Unparser, core, japi, sapi, tdmlLib, tdmlProc, cli, udf, test, testIBM1, tutorials, testStdLayout)
                               .settings(commonSettings, nopublish, ratSettings)
 
 lazy val macroLib         = Project("daffodil-macro-lib", file("daffodil-macro-lib")).configs(IntegrationTest)
@@ -40,7 +40,7 @@ lazy val io               = Project("daffodil-io", file("daffodil-io")).configs(
                               .settings(commonSettings, usesMacros)
 
 lazy val runtime1         = Project("daffodil-runtime1", file("daffodil-runtime1")).configs(IntegrationTest)
-                              .dependsOn(io, lib % "test->test")
+                              .dependsOn(io, lib % "test->test", udf)
                               .settings(commonSettings)
 
 lazy val runtime1Unparser = Project("daffodil-runtime1-unparser", file("daffodil-runtime1-unparser")).configs(IntegrationTest)
@@ -48,7 +48,7 @@ lazy val runtime1Unparser = Project("daffodil-runtime1-unparser", file("daffodil
                               .settings(commonSettings)
 
 lazy val core             = Project("daffodil-core", file("daffodil-core")).configs(IntegrationTest)
-                              .dependsOn(runtime1Unparser, lib % "test->test", runtime1 % "test->test")
+                              .dependsOn(runtime1Unparser, udf, lib % "test->test", runtime1 % "test->test")
                               .settings(commonSettings)
 
 lazy val japi             = Project("daffodil-japi", file("daffodil-japi")).configs(IntegrationTest)
@@ -68,19 +68,21 @@ lazy val tdmlProc         = Project("daffodil-tdml-processor", file("daffodil-td
                               .settings(commonSettings)
 
 lazy val cli              = Project("daffodil-cli", file("daffodil-cli")).configs(IntegrationTest)
-                              .dependsOn(tdmlProc, sapi, japi) // causes sapi/japi to be pulled in to the helper zip/tar
+                              .dependsOn(tdmlProc, sapi, japi, udf % "it->test") // causes sapi/japi to be pulled in to the helper zip/tar
                               .settings(commonSettings, nopublish)
                               .settings(libraryDependencies ++= Dependencies.cli) 
 
+lazy val udf              = Project("daffodil-udf", file("daffodil-udf")).configs(IntegrationTest)
+                              .settings(commonSettings)
+
 lazy val test             = Project("daffodil-test", file("daffodil-test")).configs(IntegrationTest)
-                              .dependsOn(tdmlProc)
+                              .dependsOn(tdmlProc, udf % "test->test")
                               .settings(commonSettings, nopublish)
                               //
                               // Uncomment the following line to run these tests 
                               // against IBM DFDL using the Cross Tester
                               //
                               //.settings(IBMDFDLCrossTesterPlugin.settings)
-
 
 lazy val testIBM1         = Project("daffodil-test-ibm1", file("daffodil-test-ibm1")).configs(IntegrationTest)
                               .dependsOn(tdmlProc)

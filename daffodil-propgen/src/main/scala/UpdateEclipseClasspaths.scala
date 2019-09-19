@@ -16,10 +16,12 @@
  */
 
 import scala.xml._
+import java.io.PrintStream
+import scala.language.reflectiveCalls
 
 /**
  * Run this app if you change dependencies on libraries in the build.sbt file.
- * First do a 'sbt update-classifiers compile'. Then run this.
+ * First do a 'sbt updateClassifiers compile'. Then run this.
  * <p>
  * This will edit all the eclipse-project/.classpath files to reference the new
  * versions, setting up the source and javadoc links as well for eclipse.
@@ -63,9 +65,11 @@ trait UpdateEclipseClasspaths {
     // I modified my ~/.profile to also load .bash_aliases to fix this.
     //
     val s = System.getenv("DAFFODIL_HOME")
-    assert(s ne null)
+    assert(s ne null, "$DAFFODIL_HOME undefined")
     s
   }
+
+lazy val pp = new scala.xml.PrettyPrinter(3000, 2)
 
   def baseFile: java.io.File
   lazy val baseURI = baseFile.toURI
@@ -74,10 +78,15 @@ trait UpdateEclipseClasspaths {
 
   lazy val updatedLibChildren: Seq[Node] = {
     assert(libRoot.exists())
-    val bundlesDir = libRoot.listFiles().find { _.getName == "bundles" }.get
-    val jarsDir = libRoot.listFiles().find { _.getName == "jars" }.get
-    val srcsDir = libRoot.listFiles().find { _.getName == "srcs" }.get
-    val docsDir = libRoot.listFiles().find { _.getName == "docs" }.get
+    val libRootFiles = libRoot.listFiles()
+    val allDirs = List("bundles", "jars", "srcs","docs").map{dn => dn -> libRootFiles.find(_.getName == dn) }.toMap
+
+    assert(allDirs.values.forall(_.isDefined), "Missing some required directories. Try 'sbt updateClassifiers compile'." )
+
+    val bundlesDir = allDirs("bundles").get
+    val jarsDir = allDirs("jars").get
+    val srcsDir = allDirs("srcs").get
+    val docsDir = allDirs("docs").get
     val bundles = bundlesDir.listFiles().flatMap { _.listFiles().flatMap { _.listFiles() } }
     //
     // Exception for org.scala-lang as those are on the classpath because these
@@ -140,7 +149,12 @@ trait UpdateEclipseClasspaths {
 
   def updateOneClasspathFile(cpf: java.io.File) {
     val cpNode = scala.xml.XML.loadFile(cpf)
-    val cpes = (cpNode \\ "classpathentry")
+    /*
+     * There is an issue with the XML loader that reverses the order of the attributes
+     * when loaded. So we load it again to get the attributes back in the right order
+     */
+    val fixedCpNode = XML.loadString(pp.format(cpNode))
+    val cpes = (fixedCpNode \\ "classpathentry")
     val nonLibChildren = cpes.filterNot { e => (e \\ "@kind").text == "lib" }
     val newEntries = nonLibChildren ++
       new Comment("""
@@ -156,6 +170,22 @@ trait UpdateEclipseClasspaths {
         <!-- This file is updated by the UpdateEclipseClasspath app. -->
         { newEntries }
       </classpath>
-    scala.xml.XML.save(cpf.toString(), newCP)
+    writeXMLFile(newCP, cpf.toString)
+  }
+
+  def writeXML(xml: Node, out: { def print(s: String): Unit } = System.out) {
+    val formattedSpec = pp.format(xml)
+    out.print("<?xml version='1.0' encoding='UTF-8'?>\n")
+    out.print("\n")
+    out.print(formattedSpec)
+    out.print("\n")
+  }
+
+  def writeXMLFile(xml: Node, outputFilename: String) {
+    val f = new java.io.File(outputFilename)
+    f.getParentFile().mkdirs()
+    val ps = new PrintStream(f)
+    writeXML(xml, ps)
+    ps.close()
   }
 }

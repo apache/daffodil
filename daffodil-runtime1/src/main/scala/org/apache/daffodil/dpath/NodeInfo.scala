@@ -188,6 +188,24 @@ object NodeInfo extends Enum {
     }
 
   }
+  val ClassString = classOf[java.lang.String]
+  val ClassIntBoxed = classOf[java.lang.Integer]
+  val ClassIntPrim = classOf[scala.Int]
+  val ClassByteBoxed = classOf[java.lang.Byte]
+  val ClassBytePrim = classOf[scala.Byte]
+  val ClassShortBoxed = classOf[java.lang.Short]
+  val ClassShortPrim = classOf[scala.Short]
+  val ClassLongBoxed = classOf[java.lang.Long]
+  val ClassLongPrim = classOf[scala.Long]
+  val ClassJBigInt = classOf[java.math.BigInteger]
+  val ClassJBigDecimal = classOf[java.math.BigDecimal]
+  val ClassDoubleBoxed = classOf[java.lang.Double]
+  val ClassDoublePrim = classOf[scala.Double]
+  val ClassFloatBoxed = classOf[java.lang.Float]
+  val ClassFloatPrim = classOf[scala.Float]
+  val ClassPrimByteArray = classOf[Array[scala.Byte]]
+  val ClassBooleanBoxed = classOf[java.lang.Boolean]
+  val ClassBooleanPrim = classOf[scala.Boolean]
 
   def fromObject(a: Any) = {
     a match {
@@ -208,6 +226,24 @@ object NodeInfo extends Enum {
       case x: DFDLCalendar => NodeInfo.DateTime
       case _ => Assert.usageError("Unsupported object representation type: %s".format(a))
     }
+  }
+
+  def fromClass(jc: Class[_]) = {
+    val ni = jc match {
+      case ClassIntBoxed | ClassIntPrim => Some(NodeInfo.Int)
+      case ClassByteBoxed | ClassBytePrim => Some(NodeInfo.Byte)
+      case ClassShortBoxed | ClassShortPrim => Some(NodeInfo.Short)
+      case ClassLongBoxed | ClassLongPrim => Some(NodeInfo.Long)
+      case ClassDoubleBoxed | ClassDoublePrim => Some(NodeInfo.Double)
+      case ClassFloatBoxed | ClassFloatPrim => Some(NodeInfo.Float)
+      case ClassBooleanBoxed | ClassBooleanPrim => Some(NodeInfo.Boolean)
+      case ClassString => Some(NodeInfo.String)
+      case ClassJBigInt => Some(NodeInfo.Integer)
+      case ClassJBigDecimal => Some(NodeInfo.Decimal)
+      case ClassPrimByteArray => Some(NodeInfo.HexBinary)
+      case _ => None
+    }
+    ni
   }
 
   /**
