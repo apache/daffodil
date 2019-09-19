@@ -210,6 +210,26 @@ object NodeInfo extends Enum {
     }
   }
 
+  def fromClassTypeName(a: String) = {
+    a match {
+      // TODO figure out better solution
+      case "java.lang.String" => NodeInfo.String
+      case "java.lang.Int" => NodeInfo.Int
+      case "java.lang.Byte" => NodeInfo.Byte
+      case "java.lang.Short" => NodeInfo.Short
+      case "java.lang.Long" => NodeInfo.Long
+      case "java.marh.JBigInt" => NodeInfo.Integer
+      case "java.math.JBigDecimal" => NodeInfo.Decimal
+      case "java.lang.Double" => NodeInfo.Double
+      case "java.lang.Float" => NodeInfo.Float
+      case "java.lang.Byte[]" => NodeInfo.HexBinary
+      case "java.lang.URI" => NodeInfo.AnyURI
+      case "java.lang.Boolean" => NodeInfo.Boolean
+      case "java.lang.DFDLCalendar" => NodeInfo.DateTime
+      case _ => Assert.usageError("Unsupported object representation type: %s".format(a))
+    }
+  }
+
   /**
    * An isolated singleton "type" which is used as a target type for
    * the indexing operation.

@@ -34,6 +34,8 @@ import org.apache.daffodil.infoset.NoNextElement
 import org.apache.daffodil.infoset.OnlyOnePossibilityForNextElement
 import org.apache.daffodil.infoset.SeveralPossibilitiesForNextElement
 import org.apache.daffodil.util.LogLevel
+import org.apache.daffodil.udf.UDFService
+import org.apache.daffodil.util.Misc
 
 /**
  * Root class of the type hierarchy for the AST nodes used when we
@@ -1870,6 +1872,44 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
       case (RefQName(_, "unsignedByte", XSD), args) =>
         XSConverterExpr(functionQNameString, functionQName, args, NodeInfo.UnsignedByte)
 
+      case (_: RefQName, args) => {
+        val namespace = functionQName.namespace.toString()
+        val fName = functionQName.local
+
+        if (UDFService.udfs.getFunctionClasses.isEmpty()) {
+          // TODO JAR Registration errors object?
+          SDE("No user defined functions found. Check that UDF JARs are on classpath and that they are properly registerable by ServiceLoader." +
+            "\n\nCurrent classpath locations: %s", Misc.classPath.mkString("\n"))
+        }
+
+        val fcObject = UDFService.udfs.lookupFunctionClass(namespace, fName)
+
+        if (fcObject == null) {
+          SDE("Function not found: fname[%s] fnamespace[%s]. Currently registered UDFs:\n%s", fName, namespace, UDFService.allFunctionClasses)
+        }
+
+        val fcClassType = fcObject.getClass
+
+        val possibleEvaluate: Array[(Array[Class[_]], Class[_])] = fcClassType.getMethods.collect {
+          case p if p.getName == "evaluate" => (p.getParameterTypes, p.getReturnType)
+        }
+
+        if (possibleEvaluate.isEmpty) {
+          SDE("Missing evaluate method for function provided: name[%s] namespace[%s]", fName, namespace)
+        }
+
+        if (possibleEvaluate.length > 1) {
+          SDE("Only one evaluate method allowed per function class: name[%s] namespace[%s]", fName, namespace)
+        }
+
+        val paramTypes: Array[Class[_]] = possibleEvaluate.head._1
+        val retType: Class[_] = possibleEvaluate.head._2
+        val evaluateParamTypes: List[NodeInfo.Kind] = paramTypes.map { c => NodeInfo.fromClassTypeName(c.getTypeName) }.toList
+        val evaluateReturnType = NodeInfo.fromClassTypeName(retType.getTypeName)
+
+        UDFunctionCallExpr(functionQNameString, functionQName, args, evaluateParamTypes, evaluateReturnType, UDFunctionCall(_, fcObject))
+      }
+
       case _ => SDE("Unsupported function: %s", functionQName)
     }
     funcObj.setOOLAGContext(this)
@@ -2450,5 +2490,26 @@ case class DAFErrorExpr(nameAsParsed: String, fnQName: RefQName, args: List[Expr
     checkArgCount(0)
     Assert.invariant(conversions == Nil)
     new CompiledDPath(DAFError)
+  }
+}
+
+case class UDFunctionCallExpr(nameAsParsed: String, fnQName: RefQName, args: List[Expression], argTypes: List[NodeInfo.Kind], resultType: NodeInfo.Kind, constructor: List[CompiledDPath] => RecipeOp)
+  extends FunctionCallBase(nameAsParsed, fnQName, args) {
+
+  override lazy val inherentType = resultType
+
+  lazy val arg_to_argType = (args zip argTypes).toMap
+
+  override def targetTypeForSubexpression(childExpr: Expression): NodeInfo.Kind = {
+    arg_to_argType.get(childExpr) match {
+      case Some(tt) => tt
+      case None => Assert.invariantFailed("subexpression isn't one of the expected.")
+    }
+  }
+
+  override lazy val compiledDPath = {
+    val recipes = args.map { _.compiledDPath }
+    val res = new CompiledDPath(constructor(recipes) +: conversions)
+    res
   }
 }
