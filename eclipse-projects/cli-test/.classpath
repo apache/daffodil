@@ -1,117 +1,127 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
+
 <classpath>
-	<classpathentry kind="src" path="src/it/resources"/>
-	<classpathentry kind="src" path="src/it/scala"/>
-	<classpathentry kind="con" path="org.scala-ide.sdt.launching.SCALA_CONTAINER"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-cli"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-lib"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-core"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-runtime1"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-macro-lib"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-lib-unittest"/>
-	<classpathentry exported="true" kind="lib" path="lib_managed/bundles/org.scala-lang.modules/scala-parser-combinators_2.12/scala-parser-combinators_2.12-1.1.1.jar" sourcepath="lib_managed/srcs/org.scala-lang.modules/scala-parser-combinators_2.12/scala-parser-combinators_2.12-1.1.1-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/org.scala-lang.modules/scala-parser-combinators_2.12/scala-parser-combinators_2.12-1.1.1-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry exported="true" kind="lib" path="lib_managed/bundles/org.scala-lang.modules/scala-xml_2.12/scala-xml_2.12-1.1.0.jar" sourcepath="lib_managed/srcs/org.scala-lang.modules/scala-xml_2.12/scala-xml_2.12-1.1.0-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/org.scala-lang.modules/scala-xml_2.12/scala-xml_2.12-1.1.0-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry exported="true" kind="lib" path="lib_managed/bundles/org.scala-lang.modules/scala-xml_2.12/scala-xml_2.12-1.0.6.jar" sourcepath="lib_managed/srcs/org.scala-lang.modules/scala-xml_2.12/scala-xml_2.12-1.0.6-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/org.scala-lang.modules/scala-xml_2.12/scala-xml_2.12-1.0.6-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry exported="true" kind="lib" path="lib_managed/bundles/org.codehaus.woodstox/stax2-api/stax2-api-4.1.jar" sourcepath="lib_managed/srcs/org.codehaus.woodstox/stax2-api/stax2-api-4.1-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/org.codehaus.woodstox/stax2-api/stax2-api-4.1-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry exported="true" kind="lib" path="lib_managed/bundles/com.fasterxml.jackson.core/jackson-core/jackson-core-2.9.6.jar" sourcepath="lib_managed/srcs/com.fasterxml.jackson.core/jackson-core/jackson-core-2.9.6-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/com.fasterxml.jackson.core/jackson-core/jackson-core-2.9.6-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry exported="true" kind="lib" path="lib_managed/bundles/com.fasterxml.woodstox/woodstox-core/woodstox-core-5.1.0.jar" sourcepath="lib_managed/srcs/com.fasterxml.woodstox/woodstox-core/woodstox-core-5.1.0-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/com.fasterxml.woodstox/woodstox-core/woodstox-core-5.1.0-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry exported="true" kind="lib" path="lib_managed/jars/xml-resolver/xml-resolver/xml-resolver-1.2.jar" sourcepath="lib_managed/srcs/xml-resolver/xml-resolver/xml-resolver-1.2-sources.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib_managed/jars/com.novocode/junit-interface/junit-interface-0.11.jar" sourcepath="lib_managed/srcs/com.novocode/junit-interface/junit-interface-0.11-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/com.novocode/junit-interface/junit-interface-0.11-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry exported="true" kind="lib" path="lib_managed/jars/xml-apis/xml-apis/xml-apis-1.4.01.jar" sourcepath="lib_managed/srcs/xml-apis/xml-apis/xml-apis-1.4.01-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/xml-apis/xml-apis/xml-apis-1.4.01-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry exported="true" kind="lib" path="lib_managed/jars/org.hamcrest/hamcrest-core/hamcrest-core-1.3.jar" sourcepath="lib_managed/srcs/org.hamcrest/hamcrest-core/hamcrest-core-1.3-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/org.hamcrest/hamcrest-core/hamcrest-core-1.3-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry exported="true" kind="lib" path="lib_managed/jars/jline/jline/jline-2.14.6.jar" sourcepath="lib_managed/srcs/jline/jline/jline-2.14.6-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/jline/jline/jline-2.14.6-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry exported="true" kind="lib" path="lib_managed/jars/org.scala-sbt/test-interface/test-interface-1.0.jar" sourcepath="lib_managed/srcs/org.scala-sbt/test-interface/test-interface-1.0-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/org.scala-sbt/test-interface/test-interface-1.0-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry exported="true" kind="lib" path="lib_managed/jars/net.sf.expectit/expectit-core/expectit-core-0.9.0.jar" sourcepath="lib_managed/srcs/net.sf.expectit/expectit-core/expectit-core-0.9.0-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/net.sf.expectit/expectit-core/expectit-core-0.9.0-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry exported="true" kind="lib" path="lib_managed/jars/org.fusesource.jansi/jansi/jansi-1.17.1.jar" sourcepath="lib_managed/srcs/org.fusesource.jansi/jansi/jansi-1.17.1-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/org.fusesource.jansi/jansi/jansi-1.17.1-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry exported="true" kind="lib" path="lib_managed/jars/com.ibm.icu/icu4j/icu4j-62.1.jar" sourcepath="lib_managed/srcs/com.ibm.icu/icu4j/icu4j-62.1-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/com.ibm.icu/icu4j/icu4j-62.1-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry exported="true" kind="lib" path="lib_managed/jars/commons-io/commons-io/commons-io-2.6.jar" sourcepath="lib_managed/srcs/commons-io/commons-io/commons-io-2.6-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/commons-io/commons-io/commons-io-2.6-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry exported="true" kind="lib" path="lib_managed/jars/org.scalacheck/scalacheck_2.12/scalacheck_2.12-1.14.0.jar" sourcepath="lib_managed/srcs/org.scalacheck/scalacheck_2.12/scalacheck_2.12-1.14.0-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/org.scalacheck/scalacheck_2.12/scalacheck_2.12-1.14.0-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry exported="true" kind="lib" path="lib_managed/jars/junit/junit/junit-4.12.jar" sourcepath="lib_managed/srcs/junit/junit/junit-4.12-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/junit/junit/junit-4.12-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry exported="true" kind="lib" path="lib_managed/jars/org.rogach/scallop_2.12/scallop_2.12-3.1.3.jar" sourcepath="lib_managed/srcs/org.rogach/scallop_2.12/scallop_2.12-3.1.3-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/org.rogach/scallop_2.12/scallop_2.12-3.1.3-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry exported="true" kind="lib" path="lib_managed/jars/xerces/xercesImpl/xercesImpl-2.12.0.jar" sourcepath="lib_managed/srcs/xerces/xercesImpl/xercesImpl-2.12.0-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/xerces/xercesImpl/xercesImpl-2.12.0-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry exported="true" kind="lib" path="lib_managed/jars/org.jdom/jdom2/jdom2-2.0.6.jar" sourcepath="lib_managed/srcs/org.jdom/jdom2/jdom2-2.0.6-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/org.jdom/jdom2/jdom2-2.0.6-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-tdml-lib"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-tdml-processor"/>
-	<classpathentry kind="output" path="target/eclipse/classes"/>
+  <!-- This file is updated by the UpdateEclipseClasspath app. -->
+  <classpathentry path="src/it/resources" kind="src"/>
+  <classpathentry path="src/it/scala" kind="src"/>
+  <classpathentry path="org.scala-ide.sdt.launching.SCALA_CONTAINER" kind="con"/>
+  <classpathentry path="org.eclipse.jdt.launching.JRE_CONTAINER" kind="con"/>
+  <classpathentry path="/daffodil-cli" kind="src" combineaccessrules="false"/>
+  <classpathentry path="/daffodil-lib" kind="src" combineaccessrules="false"/>
+  <classpathentry path="/daffodil-core" kind="src" combineaccessrules="false"/>
+  <classpathentry path="/daffodil-runtime1" kind="src" combineaccessrules="false"/>
+  <classpathentry path="/daffodil-macro-lib" kind="src" combineaccessrules="false"/>
+  <classpathentry path="/daffodil-lib-unittest" kind="src" combineaccessrules="false"/>
+  <classpathentry path="/daffodil-udf-unittest" kind="src" combineaccessrules="false"/>
+  <classpathentry path="/daffodil-tdml-lib" kind="src" combineaccessrules="false"/>
+  <classpathentry path="/daffodil-tdml-processor" kind="src" combineaccessrules="false"/>
+  <classpathentry path="target/eclipse/classes" kind="output"/>
+  <!--
+***********
+*********** Entries below this comment are maintained using the UpdateEclipseClasspaths
+*********** Utility and should not be modified by hand or using the Eclipse
+*********** BuildPath... GUI dialog.
+***********
+-->
+  <classpathentry sourcepath="lib_managed/srcs/org.scala-lang.modules/scala-parser-combinators_2.12/scala-parser-combinators_2.12-1.1.1-sources.jar" exported="true" kind="lib" path="lib_managed/bundles/org.scala-lang.modules/scala-parser-combinators_2.12/scala-parser-combinators_2.12-1.1.1.jar">
+    <attributes>
+      <attribute name="javadoc_location" value="jar:file:lib_managed/docs/org.scala-lang.modules/scala-parser-combinators_2.12/scala-parser-combinators_2.12-1.1.1-javadoc.jar!/"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry sourcepath="lib_managed/srcs/org.scala-lang.modules/scala-xml_2.12/scala-xml_2.12-1.0.6-sources.jar" exported="true" kind="lib" path="lib_managed/bundles/org.scala-lang.modules/scala-xml_2.12/scala-xml_2.12-1.0.6.jar">
+    <attributes>
+      <attribute name="javadoc_location" value="jar:file:lib_managed/docs/org.scala-lang.modules/scala-xml_2.12/scala-xml_2.12-1.0.6-javadoc.jar!/"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry sourcepath="lib_managed/srcs/org.scala-lang.modules/scala-xml_2.12/scala-xml_2.12-1.1.0-sources.jar" exported="true" kind="lib" path="lib_managed/bundles/org.scala-lang.modules/scala-xml_2.12/scala-xml_2.12-1.1.0.jar">
+    <attributes>
+      <attribute name="javadoc_location" value="jar:file:lib_managed/docs/org.scala-lang.modules/scala-xml_2.12/scala-xml_2.12-1.1.0-javadoc.jar!/"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry sourcepath="lib_managed/srcs/org.codehaus.woodstox/stax2-api/stax2-api-4.1-sources.jar" exported="true" kind="lib" path="lib_managed/bundles/org.codehaus.woodstox/stax2-api/stax2-api-4.1.jar">
+    <attributes>
+      <attribute name="javadoc_location" value="jar:file:lib_managed/docs/org.codehaus.woodstox/stax2-api/stax2-api-4.1-javadoc.jar!/"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry sourcepath="lib_managed/srcs/com.fasterxml.jackson.core/jackson-core/jackson-core-2.9.6-sources.jar" exported="true" kind="lib" path="lib_managed/bundles/com.fasterxml.jackson.core/jackson-core/jackson-core-2.9.6.jar">
+    <attributes>
+      <attribute name="javadoc_location" value="jar:file:lib_managed/docs/com.fasterxml.jackson.core/jackson-core/jackson-core-2.9.6-javadoc.jar!/"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry sourcepath="lib_managed/srcs/com.fasterxml.woodstox/woodstox-core/woodstox-core-5.1.0-sources.jar" exported="true" kind="lib" path="lib_managed/bundles/com.fasterxml.woodstox/woodstox-core/woodstox-core-5.1.0.jar">
+    <attributes>
+      <attribute name="javadoc_location" value="jar:file:lib_managed/docs/com.fasterxml.woodstox/woodstox-core/woodstox-core-5.1.0-javadoc.jar!/"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry sourcepath="lib_managed/srcs/com.novocode/junit-interface/junit-interface-0.11-sources.jar" exported="true" kind="lib" path="lib_managed/jars/com.novocode/junit-interface/junit-interface-0.11.jar">
+    <attributes>
+      <attribute name="javadoc_location" value="jar:file:lib_managed/docs/com.novocode/junit-interface/junit-interface-0.11-javadoc.jar!/"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry sourcepath="lib_managed/srcs/org.jdom/jdom2/jdom2-2.0.6-sources.jar" exported="true" kind="lib" path="lib_managed/jars/org.jdom/jdom2/jdom2-2.0.6.jar">
+    <attributes>
+      <attribute name="javadoc_location" value="jar:file:lib_managed/docs/org.jdom/jdom2/jdom2-2.0.6-javadoc.jar!/"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry sourcepath="lib_managed/srcs/jline/jline/jline-2.14.6-sources.jar" exported="true" kind="lib" path="lib_managed/jars/jline/jline/jline-2.14.6.jar">
+    <attributes>
+      <attribute name="javadoc_location" value="jar:file:lib_managed/docs/jline/jline/jline-2.14.6-javadoc.jar!/"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry sourcepath="lib_managed/srcs/org.scalacheck/scalacheck_2.12/scalacheck_2.12-1.14.0-sources.jar" exported="true" kind="lib" path="lib_managed/jars/org.scalacheck/scalacheck_2.12/scalacheck_2.12-1.14.0.jar">
+    <attributes>
+      <attribute name="javadoc_location" value="jar:file:lib_managed/docs/org.scalacheck/scalacheck_2.12/scalacheck_2.12-1.14.0-javadoc.jar!/"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry sourcepath="lib_managed/srcs/junit/junit/junit-4.12-sources.jar" exported="true" kind="lib" path="lib_managed/jars/junit/junit/junit-4.12.jar">
+    <attributes>
+      <attribute name="javadoc_location" value="jar:file:lib_managed/docs/junit/junit/junit-4.12-javadoc.jar!/"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry sourcepath="lib_managed/srcs/xerces/xercesImpl/xercesImpl-2.12.0-sources.jar" exported="true" kind="lib" path="lib_managed/jars/xerces/xercesImpl/xercesImpl-2.12.0.jar">
+    <attributes>
+      <attribute name="javadoc_location" value="jar:file:lib_managed/docs/xerces/xercesImpl/xercesImpl-2.12.0-javadoc.jar!/"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry sourcepath="lib_managed/srcs/org.scala-sbt/test-interface/test-interface-1.0-sources.jar" exported="true" kind="lib" path="lib_managed/jars/org.scala-sbt/test-interface/test-interface-1.0.jar">
+    <attributes>
+      <attribute name="javadoc_location" value="jar:file:lib_managed/docs/org.scala-sbt/test-interface/test-interface-1.0-javadoc.jar!/"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry sourcepath="lib_managed/srcs/net.sf.expectit/expectit-core/expectit-core-0.9.0-sources.jar" exported="true" kind="lib" path="lib_managed/jars/net.sf.expectit/expectit-core/expectit-core-0.9.0.jar">
+    <attributes>
+      <attribute name="javadoc_location" value="jar:file:lib_managed/docs/net.sf.expectit/expectit-core/expectit-core-0.9.0-javadoc.jar!/"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry sourcepath="lib_managed/srcs/org.fusesource.jansi/jansi/jansi-1.17.1-sources.jar" exported="true" kind="lib" path="lib_managed/jars/org.fusesource.jansi/jansi/jansi-1.17.1.jar">
+    <attributes>
+      <attribute name="javadoc_location" value="jar:file:lib_managed/docs/org.fusesource.jansi/jansi/jansi-1.17.1-javadoc.jar!/"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry sourcepath="lib_managed/srcs/org.hamcrest/hamcrest-core/hamcrest-core-1.3-sources.jar" exported="true" kind="lib" path="lib_managed/jars/org.hamcrest/hamcrest-core/hamcrest-core-1.3.jar">
+    <attributes>
+      <attribute name="javadoc_location" value="jar:file:lib_managed/docs/org.hamcrest/hamcrest-core/hamcrest-core-1.3-javadoc.jar!/"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry sourcepath="lib_managed/srcs/org.rogach/scallop_2.12/scallop_2.12-3.1.3-sources.jar" exported="true" kind="lib" path="lib_managed/jars/org.rogach/scallop_2.12/scallop_2.12-3.1.3.jar">
+    <attributes>
+      <attribute name="javadoc_location" value="jar:file:lib_managed/docs/org.rogach/scallop_2.12/scallop_2.12-3.1.3-javadoc.jar!/"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry sourcepath="lib_managed/srcs/commons-io/commons-io/commons-io-2.6-sources.jar" exported="true" kind="lib" path="lib_managed/jars/commons-io/commons-io/commons-io-2.6.jar">
+    <attributes>
+      <attribute name="javadoc_location" value="jar:file:lib_managed/docs/commons-io/commons-io/commons-io-2.6-javadoc.jar!/"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry sourcepath="lib_managed/srcs/com.ibm.icu/icu4j/icu4j-62.1-sources.jar" exported="true" kind="lib" path="lib_managed/jars/com.ibm.icu/icu4j/icu4j-62.1.jar">
+    <attributes>
+      <attribute name="javadoc_location" value="jar:file:lib_managed/docs/com.ibm.icu/icu4j/icu4j-62.1-javadoc.jar!/"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry sourcepath="lib_managed/srcs/xml-resolver/xml-resolver/xml-resolver-1.2-sources.jar" exported="true" kind="lib" path="lib_managed/jars/xml-resolver/xml-resolver/xml-resolver-1.2.jar"> </classpathentry>
+  <classpathentry sourcepath="lib_managed/srcs/xml-apis/xml-apis/xml-apis-1.4.01-sources.jar" exported="true" kind="lib" path="lib_managed/jars/xml-apis/xml-apis/xml-apis-1.4.01.jar">
+    <attributes>
+      <attribute name="javadoc_location" value="jar:file:lib_managed/docs/xml-apis/xml-apis/xml-apis-1.4.01-javadoc.jar!/"/>
+    </attributes>
+  </classpathentry>
 </classpath>

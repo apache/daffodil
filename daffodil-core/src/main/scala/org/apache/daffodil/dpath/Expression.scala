@@ -34,6 +34,8 @@ import org.apache.daffodil.infoset.NoNextElement
 import org.apache.daffodil.infoset.OnlyOnePossibilityForNextElement
 import org.apache.daffodil.infoset.SeveralPossibilitiesForNextElement
 import org.apache.daffodil.util.LogLevel
+import org.apache.daffodil.udf.UserDefinedFunctionService
+import org.apache.daffodil.util.Maybe
 
 /**
  * Root class of the type hierarchy for the AST nodes used when we
@@ -239,7 +241,6 @@ abstract class Expression extends OOLAGHostImpl()
         SDE("The prefix of '%s' has no corresponding namespace definition.", qnameString)
     }.get
   }
-
 }
 
 abstract class ExpressionLists(val lst: List[Expression])
@@ -1870,7 +1871,23 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
       case (RefQName(_, "unsignedByte", XSD), args) =>
         XSConverterExpr(functionQNameString, functionQName, args, NodeInfo.UnsignedByte)
 
-      case _ => SDE("Unsupported function: %s", functionQName)
+      case (_: RefQName, args) => {
+        val namespace = functionQName.namespace.toString()
+        val fName = functionQName.local
+
+        val udfCallingInfo = UserDefinedFunctionService.lookupUserDefinedFunctionCallingInfo(namespace, fName)
+
+        if (udfCallingInfo.isEmpty) {
+          SDE("Unsupported function: %s", functionQName)
+        } else {
+          val UserDefinedFunctionService.UserDefinedFunctionCallingInfo(udf, ei) = udfCallingInfo.get
+          val UserDefinedFunctionService.EvaluateMethodInfo(evaluateMethod, evaluateParamTypes, evaluateReturnType) =
+            ei
+
+          UserDefinedFunctionCallExpr(functionQNameString, functionQName, args, evaluateParamTypes,
+            evaluateReturnType, UserDefinedFunctionCall(_, _, udf, evaluateMethod))
+        }
+      }
     }
     funcObj.setOOLAGContext(this)
     funcObj
@@ -2450,5 +2467,41 @@ case class DAFErrorExpr(nameAsParsed: String, fnQName: RefQName, args: List[Expr
     checkArgCount(0)
     Assert.invariant(conversions == Nil)
     new CompiledDPath(DAFError)
+  }
+}
+
+case class UserDefinedFunctionCallExpr(
+  nameAsParsed: String,
+  fnQName: RefQName,
+  args: List[Expression],
+  argTypes: List[NodeInfo.Kind],
+  resultType: NodeInfo.Kind,
+  constructor: (String, List[CompiledDPath]) => RecipeOp)
+  extends FunctionCallBase(nameAsParsed, fnQName, args) {
+
+  override lazy val inherentType = resultType
+
+  lazy val argToArgType = {
+    /*
+     * Note that this checkArgCount is necessary as zip will mask any length
+     * inconsistencies. Putting the check in $compiledDPath ought to, but doesn't
+     * result in an SDE being thrown.
+     */
+    checkArgCount(argTypes.length)
+    (args zip argTypes).toMap
+  }
+
+  override def targetTypeForSubexpression(childExpr: Expression): NodeInfo.Kind = {
+    argToArgType.get(childExpr) match {
+      case Some(tt) => tt
+      case None => Assert.invariantFailed("subexpression isn't of the expected type.")
+    }
+  }
+
+  override lazy val compiledDPath = {
+    checkArgCount(argTypes.length)
+    val recipes = args.map { _.compiledDPath }
+    val res = new CompiledDPath(constructor(nameAsParsed, recipes) +: conversions)
+    res
   }
 }

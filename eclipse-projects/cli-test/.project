@@ -17,11 +17,6 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>README_How_to_Debug.txt</name>
-			<type>1</type>
-			<locationURI>DAFFODIL_ROOT/daffodil-cli/README_How_to_Debug.txt</locationURI>
-		</link>
-		<link>
 			<name>lib_managed</name>
 			<type>2</type>
 			<locationURI>DAFFODIL_ROOT/lib_managed</locationURI>
