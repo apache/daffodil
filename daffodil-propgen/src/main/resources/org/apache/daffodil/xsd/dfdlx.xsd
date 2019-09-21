@@ -27,8 +27,8 @@
   attributeFormDefault="unqualified"
   elementFormDefault="qualified">
 
-  <xs:import namespace="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:int" schemaLocation="xsd/dafint.xsd" />
-  <xs:import namespace="http://www.ogf.org/dfdl/dfdl-1.0/" schemaLocation="xsd/DFDL_part3_model.xsd" />
+  <xs:import namespace="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:int" schemaLocation="dafint.xsd" />
+  <xs:import namespace="http://www.ogf.org/dfdl/dfdl-1.0/" schemaLocation="DFDL_part3_model.xsd" />
 
   <!-- dfdl:property="..." extension values. Extension properties must start with dfdlx: -->
 
