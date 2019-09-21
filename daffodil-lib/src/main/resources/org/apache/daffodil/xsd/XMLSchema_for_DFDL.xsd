@@ -39,11 +39,12 @@ this to validate when we load a DFDL Schema.
    "http://www.w3.org/2001/XMLSchema"
   -->
 
-  <xsd:import namespace="http://www.ogf.org/dfdl/dfdl-1.0/" />
+  <xsd:import namespace="http://www.ogf.org/dfdl/dfdl-1.0/"
+    schemaLocation="DFDL_part3_model.xsd" />
 
   <xsd:import namespace="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
     schemaLocation="dfdlx.xsd" />
-    
+
   <xsd:import namespace="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:int"
     schemaLocation="dafint.xsd"/>
 
