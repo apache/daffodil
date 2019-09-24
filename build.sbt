@@ -76,7 +76,7 @@ lazy val udf              = Project("daffodil-udf", file("daffodil-udf")).config
                               .settings(commonSettings)
 
 lazy val test             = Project("daffodil-test", file("daffodil-test")).configs(IntegrationTest)
-                              .dependsOn(tdmlProc)
+                              .dependsOn(tdmlProc, udf %"test->test")
                               .settings(commonSettings, nopublish)
                               //
                               // Uncomment the following line to run these tests 

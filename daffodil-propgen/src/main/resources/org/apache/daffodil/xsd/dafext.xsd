@@ -438,6 +438,7 @@
           <xs:enumeration value="regexPatternZeroLength" />
           <xs:enumeration value="textBidiError" />
           <xs:enumeration value="textOutputMinLengthOutOfRange" />
+          <xs:enumeration value="userDefinedFunction" />
           <xs:enumeration value="unsupportedAttributeBlockDefault" />
           <xs:enumeration value="unsupportedAttributeFinalDefault" />
           <xs:enumeration value="unsupportedAttributeFormDefault" />

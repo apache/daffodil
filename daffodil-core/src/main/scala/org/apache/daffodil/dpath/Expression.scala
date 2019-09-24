@@ -35,7 +35,6 @@ import org.apache.daffodil.infoset.OnlyOnePossibilityForNextElement
 import org.apache.daffodil.infoset.SeveralPossibilitiesForNextElement
 import org.apache.daffodil.util.LogLevel
 import org.apache.daffodil.udf.UDFService
-import org.apache.daffodil.util.Misc
 
 /**
  * Root class of the type hierarchy for the AST nodes used when we
@@ -1876,34 +1875,36 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
         val namespace = functionQName.namespace.toString()
         val fName = functionQName.local
 
-        if (UDFService.udfs.getFunctionClasses.isEmpty()) {
-          // TODO JAR Registration errors object?
-          SDE("No user defined functions found. Check that UDF JARs are on classpath and that they are properly registerable by ServiceLoader." +
-            "\n\nCurrent classpath locations: %s", Misc.classPath.mkString("\n"))
+        lazy val udfservice = {
+          val a = UDFService
+          a.warnings.map { w => SDW(WarnID.UserDefinedFunction, w) }
+          a.errors.map { e => SDE(s"Function unknown: fname[${fName}] fnamespace[${namespace}]. $e") }
+          a
         }
 
-        val fcObject = UDFService.udfs.lookupFunctionClass(namespace, fName)
+        val fcObject = udfservice.udfs.lookupFunctionClass(namespace, fName)
 
         if (fcObject == null) {
-          SDE("Function not found: fname[%s] fnamespace[%s]. Currently registered UDFs:\n%s", fName, namespace, UDFService.allFunctionClasses)
+          SDE("Function not found: fname[%s] fnamespace[%s]. Currently registered UDFs:\n%s", fName, namespace, udfservice.allFunctionClasses)
         }
 
         val fcClassType = fcObject.getClass
 
-        val possibleEvaluate: Array[(Array[Class[_]], Class[_])] = fcClassType.getMethods.collect {
+        val paramTypesReturnTypeTuple: Array[(Array[Class[_]], Class[_])] = fcClassType.getMethods.collect {
           case p if p.getName == "evaluate" => (p.getParameterTypes, p.getReturnType)
         }
 
-        if (possibleEvaluate.isEmpty) {
+        if (paramTypesReturnTypeTuple.isEmpty) {
           SDE("Missing evaluate method for function provided: name[%s] namespace[%s]", fName, namespace)
         }
 
-        if (possibleEvaluate.length > 1) {
+        if (paramTypesReturnTypeTuple.length > 1) {
           SDE("Only one evaluate method allowed per function class: name[%s] namespace[%s]", fName, namespace)
         }
 
-        val paramTypes: Array[Class[_]] = possibleEvaluate.head._1
-        val retType: Class[_] = possibleEvaluate.head._2
+        val paramTypes: Array[Class[_]] = paramTypesReturnTypeTuple.head._1
+        val retType: Class[_] = paramTypesReturnTypeTuple.head._2
+
         val evaluateParamTypes: List[NodeInfo.Kind] = paramTypes.map { c => NodeInfo.fromClassTypeName(c.getTypeName) }.toList
         val evaluateReturnType = NodeInfo.fromClassTypeName(retType.getTypeName)
 
