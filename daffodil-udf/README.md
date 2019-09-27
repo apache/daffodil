@@ -33,7 +33,7 @@ The JAR can have as many provider classes as desired as long as the classes are 
 
 The provider class will be an implementation of Daffodil's `UDFuntionProvider` class. This class must initialize its functionClasses array with all the classes it's providing. It must also implement a lookup function that returns an initialized function class object based on a supplied name and namespace. 
 
-This class will act as a traditional service provider as explained in the ServiceLoader API, and must have a *src/META-INF/services folder* in its JAVA project with a file named `org.apache.daffodil.udfs.UDFunctionProvider`. This file must contain the fully qualified name(s) of the provider class(es) in the JAR. Without that file, neither this class nor any of the function classes it provides will be made visible to Daffodil.
+This class will act as a traditional service provider as explained in the ServiceLoader API, and must have a *src/META-INF/services folder* in its JAVA project with a file named `org.apache.daffodil.udf.UDFunctionProvider`. This file must contain the fully qualified name(s) of the **provider class(es)** in the JAR. Without that file, neither this class nor any of the function classes it provides will be made visible to Daffodil.
 
 The class can provide as many function classes as it wishes, it only has to track them in the functionClasses array and initialize them in the lookup function.
 

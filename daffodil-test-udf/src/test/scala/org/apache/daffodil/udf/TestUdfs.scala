@@ -35,6 +35,14 @@ class TestUdfs {
   import TestUdfs._
 
   @Test def test_udf_undeclaredNamespace() { runner.runOneTest("udf_undeclaredNamespace") }
+  @Test def test_udf_noNamespace() { runner.runOneTest("udf_noNamespace") }
   @Test def test_udf_fnNotFound() { runner.runOneTest("udf_fnNotFound") }
+  @Test def test_udf_missingAnnotation() { runner.runOneTest("udf_missingAnnotation") }
+  @Test def test_udf_emptyAnnotation() { runner.runOneTest("udf_emptyAnnotation") }
+  @Test def test_udf_noEvaluateFunction() { runner.runOneTest("udf_noEvaluateFunction") }
+  @Test def test_udf_overloadedEvaluateFunction() { runner.runOneTest("udf_overloadedEvaluateFunction") }
+  @Test def test_udf_argsIncorrect() { runner.runOneTest("udf_argsIncorrect") }
+  @Test def test_udf_argsIncorrectType() { runner.runOneTest("udf_argsIncorrectType") }
+  @Test def test_udf_nonSerializables() { runner.runOneTest("udf_nonSerializables") }
 
 }

@@ -1871,14 +1871,14 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
       case (RefQName(_, "unsignedByte", XSD), args) =>
         XSConverterExpr(functionQNameString, functionQName, args, NodeInfo.UnsignedByte)
 
-      case (_: RefQName, args) => {
+      case (RefQName(Some(_), _, _), args) => {
         val namespace = functionQName.namespace.toString()
         val fName = functionQName.local
 
         lazy val udfservice = {
           val a = UDFService
           a.warnings.map { w => SDW(WarnID.UserDefinedFunction, w) }
-          a.errors.map { e => SDE(s"Function unknown: fname[${fName}] fnamespace[${namespace}]. $e") }
+          a.errors.map { e => SDE(s"Function unknown: fname[${fName}] fnamespace[${namespace}].\n$e") }
           a
         }
 

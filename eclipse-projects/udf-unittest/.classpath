@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="src/test/java"/>
-	<classpathentry kind="src" path="src/test/resources"/>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/daffodil-udf"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-udf"/>
 	<classpathentry kind="con" path="org.scala-ide.sdt.launching.SCALA_CONTAINER"/>
 	<classpathentry kind="lib" path="lib_managed/bundles/org.scala-lang.modules/scala-xml_2.12/scala-xml_2.12-1.1.0.jar" sourcepath="lib_managed/srcs/org.scala-lang.modules/scala-xml_2.12/scala-xml_2.12-1.1.0-sources.jar">
 		<attributes>

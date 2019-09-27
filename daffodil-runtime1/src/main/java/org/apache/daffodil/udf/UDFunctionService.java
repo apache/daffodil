@@ -19,6 +19,8 @@ package org.apache.daffodil.udf;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.ServiceConfigurationError;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.ServiceLoader;
@@ -30,21 +32,19 @@ public class UDFunctionService {
 	private ServiceLoader<UDFunctionProvider> loader;
 	private ArrayList<Class<?>> functionClasses = new ArrayList<>();
 	private HashMap<String, UDFunctionProvider> functionProviderLookup = new HashMap<>();
-	private ArrayList<String> errors = new ArrayList<>();;
-	private ArrayList<String> warnings = new ArrayList<>();;
+	private ArrayList<String> errors = new ArrayList<>();
+	private ArrayList<String> warnings = new ArrayList<>();
 
 	public UDFunctionService() {
-		loader = ServiceLoader.load(UDFunctionProvider.class);
+		try {
+			loader = ServiceLoader.load(UDFunctionProvider.class);
 
-		if (!loader.iterator().hasNext()) {
-			errors.add(String.format("No UDFs found."));
-		} else {
 			loader.forEach(fcp -> {
 				Class<?>[] fcpfc = fcp.getFunctionClasses();
 
 				if (fcpfc == null || fcpfc.length == 0) {
-					warnings.add(
-							String.format("Provider [%s] ignored. No Function Classes found.", fcp.getClass().getName()));
+					warnings.add(String.format("Provider ignored: [%s].\nNo Function Classes found.",
+							fcp.getClass().getName()));
 					return;
 				}
 
@@ -53,24 +53,45 @@ public class UDFunctionService {
 				List<Class<?>> missingAnnotations = fc.stream()
 						.filter(f -> !f.isAnnotationPresent(FunctionClassInfo.class)).collect(Collectors.toList());
 
-				if (missingAnnotations.isEmpty()) {
-					fc.stream().forEach(f -> {
-						FunctionClassInfo fInfo = f.getAnnotation(FunctionClassInfo.class);
-						String key = String.join("_", fInfo.namespace(), fInfo.name());
-						if (functionProviderLookup.containsKey(key)) {
-							warnings.add(String.format(
-									"FunctionClass [%s] ignored. Duplicate name[%s] and namespace[%s] found.",
-									f.getName(), key.split("_")[0], key.split("_")[1]));
-						} else {
-							functionProviderLookup.put(key, fcp);
-							functionClasses.add(f);
-						}
-					});
-				} else {
-					warnings.add(String.format("Provider [%s] ignored. Annotations missing for FunctionClass(es):\n%s",
-							fcp.getClass().getName(), missingAnnotations.stream().map(c -> c.getName())
-									.collect(Collectors.joining("\n", "\t[", "]"))));
+				List<Class<?>> nonSerializables = fc.stream().filter(f -> Serializable.class.isAssignableFrom(f))
+						.collect(Collectors.toList());
+
+				if (!missingAnnotations.isEmpty()) {
+					warnings.add(
+							String.format("Provider ignored: [%s].\nAnnotations missing for FunctionClass(es):\n%s",
+									fcp.getClass().getName(), missingAnnotations.stream().map(c -> c.getName())
+											.collect(Collectors.joining("\n", "\t[", "]"))));
+					return;
 				}
+
+				if (!nonSerializables.isEmpty()) {
+					warnings.add(String.format(
+							"Provider ignored: [%s].\nFunctionClass(es) must implement java.io.Serializable:\n%s",
+							fcp.getClass().getName(), nonSerializables.stream().map(c -> c.getName())
+									.collect(Collectors.joining("\n", "\t[", "]"))));
+					return;
+				}
+
+				fc.stream().forEach(f -> {
+					FunctionClassInfo fInfo = f.getAnnotation(FunctionClassInfo.class);
+					String ns = fInfo.namespace();
+					String fname = fInfo.name();
+					if (ns.isEmpty() || fname.isEmpty() || ns.matches("\\s+") || fname.matches("\\s+")) {
+						warnings.add(String.format("FunctionClass ignored: [%s].%s%s", f.getName(),
+								ns.isEmpty() ? "\nAnnotation namespace field is empty or invalid." : "",
+								fname.isEmpty() ? "\nAnnotation name field is empty or invalid." : ""));
+					}
+
+					String key = String.join("_", fInfo.namespace(), fInfo.name());
+					if (functionProviderLookup.containsKey(key)) {
+						warnings.add(String.format(
+								"FunctionClass ignored: [%s].\nDuplicate name [%s] and namespace[%s] found.",
+								f.getName(), key.split("_")[0], key.split("_")[1]));
+					} else {
+						functionProviderLookup.put(key, fcp);
+						functionClasses.add(f);
+					}
+				});
 			});
 
 			if (functionClasses.isEmpty()) {
@@ -80,6 +101,10 @@ public class UDFunctionService {
 						Arrays.asList(Misc.getClassPath()).stream().map(u -> u.toString())
 								.collect(Collectors.joining("\n"))));
 			}
+		} catch (ServiceConfigurationError | Exception e) {
+			e.printStackTrace();
+			errors.add(e.toString() + String.format("\nCurrent classpath locations:\n%s", Arrays
+					.asList(Misc.getClassPath()).stream().map(u -> u.toString()).collect(Collectors.joining("\n"))));
 		}
 	}
 
