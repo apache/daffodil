@@ -75,9 +75,10 @@ class TDMLInfosetInputter(val scalaInputter: ScalaXMLInfosetInputter, others: Se
         true
       } else {
         if (i.isInstanceOf[JsonInfosetInputter]) {
-          // the json infoset inputter maintains CRLF, but XML converts CRLF to
-          // LF. So if this is Json, then compare with the CRLF converted to LF
-          res == st.replace("\r\n", "\n")
+          // the json infoset inputter maintains CRLF/CR, but XML converts CRLF/CR to
+          // LF. So if this is Json, then compare with the CRLF/CR converted to LF
+          val replaced = st.replace("\r\n", "\n").replace("\r", "\n")
+          res == replaced
         } else {
           false
         }
