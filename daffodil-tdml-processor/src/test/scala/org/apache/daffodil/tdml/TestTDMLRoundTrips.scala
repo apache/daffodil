@@ -143,6 +143,106 @@ class TestTDMLRoundTrips {
     lazy val ts = new DFDLTestSuite(testSuite)
     ts.runOneTest("test1")
   }
+  /**
+   * Tests windows style (CRLF) line endings for two pass
+   */
+  @Test def testTwoPass2() {
+
+    val testSuite =
+      <ts:testSuite xmlns:dfdl={ dfdl } xmlns:xs={ xsd } xmlns:ex={ example } xmlns:ts={ tdml } suiteName="theSuiteName">
+        <ts:defineSchema name="s">
+          <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+          <dfdl:format ref="ex:GeneralFormat"/>
+          <xs:element name="all">
+            <xs:complexType>
+              <xs:sequence dfdl:separator="//%NL;">
+                <xs:element name="r" dfdl:lengthKind="implicit" dfdl:occursCountKind="parsed" maxOccurs="unbounded">
+                  <xs:complexType>
+                    <xs:sequence dfdl:separator="; ,">
+                      <xs:element name="foo" type="xs:string" dfdl:lengthKind="delimited"/>
+                      <xs:element name="bar" type="xs:string" dfdl:lengthKind="delimited"/>
+                    </xs:sequence>
+                  </xs:complexType>
+                </xs:element>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </ts:defineSchema>
+        <ts:parserTestCase ID="test1" name="test1" root="all" model="s" roundTrip="twoPass">
+          <ts:document>
+            <ts:documentPart type="text" replaceDFDLEntities="true"><![CDATA[Text,One%CR;%LF;New Line//%CR;%LF;Text following,Two%CR;%LF;New Line//%CR;%LF;]]></ts:documentPart>
+          </ts:document>
+          <ts:infoset>
+            <ts:dfdlInfoset>
+              <ex:all>
+                <ex:r>
+                  <foo>Text</foo>
+                  <bar><![CDATA[One
+New Line]]></bar>
+                </ex:r>
+                <ex:r>
+                  <foo>Text following</foo>
+                  <bar><![CDATA[Two
+New Line]]></bar>
+                </ex:r>
+              </ex:all>
+            </ts:dfdlInfoset>
+          </ts:infoset>
+        </ts:parserTestCase>
+      </ts:testSuite>
+    lazy val ts = new DFDLTestSuite(testSuite)
+    ts.runOneTest("test1")
+  }
+
+  /**
+   * Tests mac style (CR) line endings for two pass
+   */
+  @Test def testTwoPass3() {
+
+    val testSuite = <ts:testSuite xmlns:dfdl={ dfdl } xmlns:xs={ xsd } xmlns:ex={ example } xmlns:ts={ tdml } suiteName="theSuiteName">
+                      <ts:defineSchema name="s">
+                        <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+                        <dfdl:format ref="ex:GeneralFormat"/>
+                        <xs:element name="all">
+                          <xs:complexType>
+                            <xs:sequence dfdl:separator="//%NL;">
+                              <xs:element name="r" dfdl:occursCountKind="parsed" minOccurs="0" maxOccurs="unbounded">
+                                <xs:complexType>
+                                  <xs:sequence dfdl:separator="; ,">
+                                    <xs:element name="foo" type="xs:string" dfdl:lengthKind="delimited"/>
+                                    <xs:element name="bar" type="xs:string" dfdl:lengthKind="delimited"/>
+                                  </xs:sequence>
+                                </xs:complexType>
+                              </xs:element>
+                            </xs:sequence>
+                          </xs:complexType>
+                        </xs:element>
+                      </ts:defineSchema>
+                      <ts:parserTestCase ID="test1" name="test1" root="all" model="s" roundTrip="twoPass">
+                        <ts:document>
+                          <ts:documentPart type="text" replaceDFDLEntities="true"><![CDATA[Text,One%CR;New Line//%CR;%LF;Text following,Two%CR;New Line//%CR;%LF;]]></ts:documentPart>
+                        </ts:document>
+                        <ts:infoset>
+                          <ts:dfdlInfoset>
+                            <ex:all>
+                              <ex:r>
+                                <foo>Text</foo>
+                                <bar><![CDATA[One
+New Line]]></bar>
+                              </ex:r>
+                              <ex:r>
+                                <foo>Text following</foo>
+                                <bar><![CDATA[Two
+New Line]]></bar>
+                              </ex:r>
+                            </ex:all>
+                          </ts:dfdlInfoset>
+                        </ts:infoset>
+                      </ts:parserTestCase>
+                    </ts:testSuite>
+    lazy val ts = new DFDLTestSuite(testSuite)
+    ts.runOneTest("test1")
+  }
 
   def nPassNotNeededTDML(passesEnum: String) =
     <ts:testSuite xmlns:dfdl={ dfdl } xmlns:xs={ xsd } xmlns:ex={ example } xmlns:ts={ tdml } suiteName="theSuiteName">
