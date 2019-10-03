@@ -454,8 +454,7 @@ class TestDFDLExpressions {
   @Test def test_empty_02() { runner2.runOneTest("empty_02") }
   @Test def test_exists_02() { runner2.runOneTest("exists_02") }
 
-  //DFDL-1091
-  //@Test def test_count_05b() { runner2.runOneTest("count_05b") }
+  @Test def test_count_05b() { runner2.runOneTest("count_05b") }
 
   //DFDL-1097
   //@Test def test_local_name_06() { runner2.runOneTest("local_name_06") }
@@ -478,8 +477,7 @@ class TestDFDLExpressions {
   @Test def test_exists_08() { runner2.runOneTest("exists_08") }
   @Test def test_exists_09() { runner2.runOneTest("exists_09") }
 
-  //DFDL-1120
-  //@Test def test_exists_10() { runner2.runOneTest("exists_10") }
+  @Test def test_exists_10() { runner2.runOneTest("exists_10") }
 
   @Test def test_exists_11() { runner2.runOneTest("exists_11") }
   @Test def test_exists_12() { runner2.runOneTest("exists_12") }
@@ -502,9 +500,8 @@ class TestDFDLExpressions {
   @Test def test_count_07() { runner2.runOneTest("count_07") }
   @Test def test_count_08b() { runner2.runOneTest("count_08b") }
 
-  //DFDL-1159 (unordered sequences)
-  //@Test def test_count_05() { runner2.runOneTest("count_05") }
-  //@Test def test_count_06() { runner2.runOneTest("count_06") }
+  @Test def test_count_05() { runner2.runOneTest("count_05") }
+  @Test def test_count_06() { runner2.runOneTest("count_06") }
   @Test def test_count_08() { runner2.runOneTest("count_08") }
 
   @Test def test_local_name_01() { runner2.runOneTest("local_name_01") }
