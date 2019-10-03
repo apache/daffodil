@@ -2,6 +2,7 @@
 <classpath>
 	<classpathentry kind="src" path="src/test/resources"/>
 	<classpathentry kind="src" path="src/test/scala"/>
+	<classpathentry kind="src" path="src/test/java"/>
 	<classpathentry kind="con" path="org.scala-ide.sdt.launching.SCALA_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
@@ -110,5 +111,7 @@
 	</classpathentry>
 	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-tdml-lib"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-tdml-processor"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-udf"/>
+	<classpathentry kind="src" path="scala"/>
 	<classpathentry kind="output" path="target/eclipse/classes"/>
 </classpath>

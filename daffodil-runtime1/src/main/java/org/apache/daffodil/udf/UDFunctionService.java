@@ -35,9 +35,9 @@ public class UDFunctionService {
 	private ArrayList<String> errors = new ArrayList<>();
 	private ArrayList<String> warnings = new ArrayList<>();
 
-	public UDFunctionService() {
+	public UDFunctionService(ClassLoader cl) {
 		try {
-			loader = ServiceLoader.load(UDFunctionProvider.class);
+			loader = cl == null ? ServiceLoader.load(UDFunctionProvider.class) : ServiceLoader.load(UDFunctionProvider.class, cl);
 
 			loader.forEach(fcp -> {
 				Class<?>[] fcpfc = fcp.getFunctionClasses();
@@ -77,7 +77,7 @@ public class UDFunctionService {
 					String ns = fInfo.namespace();
 					String fname = fInfo.name();
 					if (ns.isEmpty() || fname.isEmpty() || ns.matches("\\s+") || fname.matches("\\s+")) {
-						warnings.add(String.format("FunctionClass ignored: [%s].%s%s", f.getName(),
+						warnings.add(String.format("FunctionClass ignored: [%s]. From Provider [%s].%s%s", f.getName(), fcp.getClass().getName(),
 								ns.isEmpty() ? "\nAnnotation namespace field is empty or invalid." : "",
 								fname.isEmpty() ? "\nAnnotation name field is empty or invalid." : ""));
 					}

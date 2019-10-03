@@ -14,19 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.badudfs.nonserializable.StringFunctions;
 
-package org.apache.daffodil.udf
+import java.io.Serializable;
 
-import collection.JavaConverters._
+import org.apache.daffodil.udf.FunctionClassInfo;
 
-object UDFService {
-  lazy val udfs = new UDFunctionService(null)
+@FunctionClassInfo(
+		name = "replace",
+		namespace = "com.ns.badudfs.StringFunctions"
+)
+public class Replace implements Serializable {
+	private static final long serialVersionUID = 2619376314947336164L;
 
-  lazy val warnings = udfs.getWarnings.asScala
-
-  lazy val errors = udfs.getErrors.asScala
-
-  lazy val allFunctionClasses = udfs.getFunctionClasses.asScala.map {
-    c => s"[${c.getName()} => ${c.getAnnotation(classOf[FunctionClassInfo])}]"
-  }.mkString("\n")
+	public String evaluate(String orig, String pre, String post) {
+		String ret = "";
+		if (orig.length() >= pre.length() ) {
+			ret = orig.replace(pre, post);
+		}
+		return ret;
+	}
 }

@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<tdml:testSuite suiteName="expressions"
+  description="lengthKind explicit and occursCountKind expression"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
+  xmlns:ex="http://example.com"
+  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
+  xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  xmlns:goodu="com.ext.goodudfs.StringFunctions"
+  defaultRoundTrip="true">
+
+	<tdml:defineSchema
+		name="udf-schema-Embedded.dfdl.xsd">
+		<xs:include
+			schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+		<dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
+
+        <xs:element name="ns_undeclared" type="xs:string" dfdl:inputValueCalc="{ undeclared:replace('Hello World. I am.', ' ', '_')}"/>
+
+        <xs:element name="no_ns" type="xs:string" dfdl:inputValueCalc="{ some_replace('Hello World. I am.', ' ', '_')}"/>
+
+        <xs:element name="ns_unknown" type="xs:string" dfdl:inputValueCalc="{ nns:replace('Hello World. I am.', ' ', '_')}"/>
+
+        <xs:element name="incorrect_args" type="xs:string" dfdl:inputValueCalc="{ goodu:replace('Hello World. I am.')}"/>
+
+        <xs:element name="incorrect_arg_type" type="xs:string" dfdl:inputValueCalc="{ goodu:replace(1, 2, 3)}"/>
+
+        <xs:element name="correct_args" type="xs:string" dfdl:inputValueCalc="{ goodu:replace('Hello World. I am.', ' ', '_')}"/>
+
+	</tdml:defineSchema>
+
+    <tdml:parserTestCase name="udf_undeclaredNamespace" root="ns_undeclared"
+      model="udf-schema-Embedded.dfdl.xsd" description="Tests when a udf's namespace isn't declared">
+      <tdml:document />
+
+      <tdml:errors>
+        <tdml:error>Schema Definition Error</tdml:error>
+        <tdml:error>no corresponding namespace definition</tdml:error>
+      </tdml:errors>
+    </tdml:parserTestCase>
+
+    <tdml:parserTestCase name="udf_noNamespace" root="no_ns" model="udf-schema-Embedded.dfdl.xsd"
+      description="Tests when a udf is called with no namespace">
+      <tdml:document />
+
+      <tdml:errors>
+        <tdml:error>Schema Definition Error</tdml:error>
+        <tdml:error>Unsupported function</tdml:error>
+      </tdml:errors>
+    </tdml:parserTestCase>
+
+    <tdml:parserTestCase name="udf_fnNotFound" root="ns_unknown" model="udf-schema-Embedded.dfdl.xsd"
+      description="Tests when a udf's namespace is declared, jars registered, but no matching function found">
+      <tdml:document />
+
+      <tdml:errors>
+        <tdml:error>Schema Definition Error</tdml:error>
+        <tdml:error>Function not found</tdml:error>
+      </tdml:errors>
+    </tdml:parserTestCase>
+
+    <tdml:parserTestCase name="udf_missingAnnotation" root="missing_annotation" model="udf-schema-Embedded.dfdl.xsd"
+      description="Tests when a udf with no annotation is called">
+      <tdml:document />
+
+      <tdml:warnings>
+        <tdml:warning>Schema Definition Warning</tdml:warning>
+        <tdml:warning>Provider ignored</tdml:warning>
+        <tdml:warning>Annotations missing for FunctionClass(es)</tdml:warning>
+      </tdml:warnings>
+
+      <tdml:errors>
+        <tdml:error>Schema Definition Error</tdml:error>
+        <tdml:error>Function not found</tdml:error>
+      </tdml:errors>
+    </tdml:parserTestCase>
+
+    <tdml:parserTestCase name="udf_emptyAnnotation" root="empty_annotation" model="udf-schema-Embedded.dfdl.xsd"
+      description="Tests when a udf with the annotation fields not filled in is called">
+      <tdml:document />
+
+      <tdml:warnings>
+        <tdml:warning>Schema Definition Warning</tdml:warning>
+        <tdml:warning>Provider ignored</tdml:warning>
+        <tdml:warning>Annotation namespace field is empty or invalid.</tdml:warning>
+        <tdml:warning>Annotation name field is empty or invalid.</tdml:warning>
+      </tdml:warnings>
+
+      <tdml:errors>
+        <tdml:error>Schema Definition Error</tdml:error>
+        <tdml:error>Function not found</tdml:error>
+      </tdml:errors>
+    </tdml:parserTestCase>
+
+    <tdml:parserTestCase name="udf_noEvaluateFunction" root="no_evaluate_fxn"
+      model="udf-schema-Embedded.dfdl.xsd" description="Tests when a udf doesn't have an evaluate method">
+      <tdml:document />
+
+      <tdml:errors>
+        <tdml:error>Schema Definition Error</tdml:error>
+        <tdml:error>Missing evaluate method for function provided</tdml:error>
+      </tdml:errors>
+    </tdml:parserTestCase>
+
+    <tdml:parserTestCase name="udf_overloadedEvaluateFunction" root="overloaded_evaluate"
+      model="udf-schema-Embedded.dfdl.xsd" description="Tests when a udf has overloaded their evaluate function">
+      <tdml:document />
+
+      <tdml:errors>
+        <tdml:error>Schema Definition Error</tdml:error>
+        <tdml:error>Only one evaluate method allowed per function class</tdml:error>
+      </tdml:errors>
+    </tdml:parserTestCase>
+
+    <tdml:parserTestCase name="udf_argsIncorrect" root="incorrect_args" model="udf-schema-Embedded.dfdl.xsd"
+      description="Tests when a udf is called with incorrect arguments number">
+      <tdml:document />
+
+      <tdml:errors>
+        <tdml:error>Schema Definition Error</tdml:error>
+        <tdml:error>No user declared functions found</tdml:error>
+      </tdml:errors>
+    </tdml:parserTestCase>
+
+    <tdml:parserTestCase name="udf_argsIncorrectType" root="incorrect_arg_type"
+      model="udf-schema-Embedded.dfdl.xsd" description="Tests when a udf is called with incorrect arguments type">
+      <tdml:document />
+
+      <tdml:errors>
+        <tdml:error>Schema Definition Error</tdml:error>
+        <tdml:error>No user declared functions found</tdml:error>
+      </tdml:errors>
+    </tdml:parserTestCase>
+
+    <tdml:parserTestCase name="udf_nonSerializables" root="non_serializable"
+      model="udf-schema-Embedded.dfdl.xsd" description="Tests when a udf doesn't implement Serializable">
+      <tdml:document />
+
+      <tdml:warnings>
+        <tdml:warning>Schema Definition Warning</tdml:warning>
+        <tdml:warning>Provider ignored</tdml:warning>
+        <tdml:warning>FunctionClass(es) must implement java.io.Serializable</tdml:warning>
+      </tdml:warnings>
+
+      <tdml:errors>
+        <tdml:error>Schema Definition Error</tdml:error>
+        <tdml:error>Function not found</tdml:error>
+      </tdml:errors>
+    </tdml:parserTestCase>
+
+</tdml:testSuite>

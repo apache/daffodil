@@ -14,19 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.badudfs.nonserializable.StringFunctions;
 
-package org.apache.daffodil.udf
+import org.apache.daffodil.udf.FunctionClassInfo;
 
-import collection.JavaConverters._
+@FunctionClassInfo(
+		name = "funcA",
+		namespace = "com.ns.badudfs.StringFunctions"
+)
+public class FuncA {
 
-object UDFService {
-  lazy val udfs = new UDFunctionService(null)
-
-  lazy val warnings = udfs.getWarnings.asScala
-
-  lazy val errors = udfs.getErrors.asScala
-
-  lazy val allFunctionClasses = udfs.getFunctionClasses.asScala.map {
-    c => s"[${c.getName()} => ${c.getAnnotation(classOf[FunctionClassInfo])}]"
-  }.mkString("\n")
+	public String evaluate(String orig, String pre, String post) {
+		String ret = "";
+		if (orig.length() >= pre.length() ) {
+			ret = orig.replace(pre, post);
+		}
+		return ret;
+	}
 }

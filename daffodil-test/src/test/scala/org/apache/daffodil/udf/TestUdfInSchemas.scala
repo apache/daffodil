@@ -14,19 +14,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.daffodil.udf
 
-import collection.JavaConverters._
+import org.apache.daffodil.tdml.Runner
+import org.junit.AfterClass
+import org.junit.Test
 
-object UDFService {
-  lazy val udfs = new UDFunctionService(null)
+object TestUdfInSchemas {
+  val testDir = "/org/apache/daffodil/udf/"
 
-  lazy val warnings = udfs.getWarnings.asScala
+  val runner = Runner(testDir, "udfs.tdml", validateTDMLFile = true)
 
-  lazy val errors = udfs.getErrors.asScala
+  @AfterClass def shutDown {
+    runner.reset
+  }
 
-  lazy val allFunctionClasses = udfs.getFunctionClasses.asScala.map {
-    c => s"[${c.getName()} => ${c.getAnnotation(classOf[FunctionClassInfo])}]"
-  }.mkString("\n")
+}
+
+class TestUdfInSchemas {
+  import TestUdfInSchemas._
+  @Test def test_udf_argsIncorrect() { runner.runOneTest("udf_argsIncorrect") }
+  @Test def test_udf_argsIncorrectType() { runner.runOneTest("udf_argsIncorrectType") }
+  @Test def test_udf_nonSerializables() { runner.runOneTest("udf_nonSerializables") }
+
 }

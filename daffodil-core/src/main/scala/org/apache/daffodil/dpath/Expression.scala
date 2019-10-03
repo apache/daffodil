@@ -1878,7 +1878,8 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
         lazy val udfservice = {
           val a = UDFService
           a.warnings.map { w => SDW(WarnID.UserDefinedFunction, w) }
-          a.errors.map { e => SDE(s"Function unknown: fname[${fName}] fnamespace[${namespace}].\n$e") }
+          val allErrors = a.errors.mkString("\n\n")
+          SDE(s"Function unknown: fname[${fName}] fnamespace[${namespace}].\n$allErrors")
           a
         }
 

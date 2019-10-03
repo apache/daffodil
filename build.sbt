@@ -21,7 +21,7 @@ lazy val genSchemas = taskKey[Seq[File]]("Generated DFDL schemas")
 
 
 lazy val daffodil         = Project("daffodil", file(".")).configs(IntegrationTest)
-                              .aggregate(macroLib, propgen, lib, io, runtime1, runtime1Unparser, core, japi, sapi, tdmlLib, tdmlProc, cli, udf, test, testUDF, testIBM1, tutorials, testStdLayout)
+                              .aggregate(macroLib, propgen, lib, io, runtime1, runtime1Unparser, core, japi, sapi, tdmlLib, tdmlProc, cli, udf, test, testIBM1, tutorials, testStdLayout)
                               .settings(commonSettings, nopublish, ratSettings)
 
 lazy val macroLib         = Project("daffodil-macro-lib", file("daffodil-macro-lib")).configs(IntegrationTest)
@@ -83,10 +83,6 @@ lazy val test             = Project("daffodil-test", file("daffodil-test")).conf
                               // against IBM DFDL using the Cross Tester
                               //
                               //.settings(IBMDFDLCrossTesterPlugin.settings)
-
-lazy val testUDF            = Project("daffodil-test-udf", file("daffodil-test-udf")).configs(IntegrationTest)
-                              .dependsOn(tdmlProc)
-                              .settings(commonSettings, nopublish)
 
 lazy val testIBM1         = Project("daffodil-test-ibm1", file("daffodil-test-ibm1")).configs(IntegrationTest)
                               .dependsOn(tdmlProc)

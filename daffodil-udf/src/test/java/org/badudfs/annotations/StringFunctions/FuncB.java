@@ -14,19 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.badudfs.annotations.StringFunctions;
 
-package org.apache.daffodil.udf
+import java.io.Serializable;
 
-import collection.JavaConverters._
-
-object UDFService {
-  lazy val udfs = new UDFunctionService(null)
-
-  lazy val warnings = udfs.getWarnings.asScala
-
-  lazy val errors = udfs.getErrors.asScala
-
-  lazy val allFunctionClasses = udfs.getFunctionClasses.asScala.map {
-    c => s"[${c.getName()} => ${c.getAnnotation(classOf[FunctionClassInfo])}]"
-  }.mkString("\n")
+public class FuncB implements Serializable {
+	public Boolean evaluate(String str1, String str2) {
+		Boolean ret = false;
+		ret = str1.contentEquals(str2);
+		return ret;
+	}
 }

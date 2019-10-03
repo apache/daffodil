@@ -14,19 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.badudfs.annotations.StringFunctions;
 
-package org.apache.daffodil.udf
+import java.io.Serializable;
 
-import collection.JavaConverters._
+import org.apache.daffodil.udf.FunctionClassInfo;
 
-object UDFService {
-  lazy val udfs = new UDFunctionService(null)
+@FunctionClassInfo(
+		name = "",
+		namespace = ""
+)
+public class Compare implements Serializable {
+	private static final long serialVersionUID = -2258860835472436275L;
 
-  lazy val warnings = udfs.getWarnings.asScala
-
-  lazy val errors = udfs.getErrors.asScala
-
-  lazy val allFunctionClasses = udfs.getFunctionClasses.asScala.map {
-    c => s"[${c.getName()} => ${c.getAnnotation(classOf[FunctionClassInfo])}]"
-  }.mkString("\n")
+	public Boolean evaluate(String str1, String str2) {
+		Boolean ret = false;
+		ret = str1.contentEquals(str2);
+		return ret;
+	}
 }
