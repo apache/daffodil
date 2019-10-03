@@ -55,4 +55,5 @@ class TestUnorderedSequencesNew {
   @Test def test_sde_optional_array_ock_parsed = { runner.runOneTest("test_sde_optional_array_ock_parsed") }
   @Test def test_sde_unique_names_in_ns = { runner.runOneTest("test_sde_unique_names_in_ns") }
 
+  @Test def test_empty_seq = { runner.runOneTest("test_empty_seq") }
 }

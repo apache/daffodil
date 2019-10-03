@@ -17,173 +17,173 @@
 -->
 
 <tdml:testSuite xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="http://example.com"
   xmlns:fn="http://www.w3.org/2005/xpath-functions">
 
-	<tdml:defineSchema name="simple">
-		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+  <tdml:defineSchema name="simple">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthUnits="characters"
-			lengthKind="implicit" occursCountKind="parsed" />
-		<xs:element name="USG_01">
-			<xs:complexType>
-				<xs:sequence dfdl:sequenceKind="unordered">
+      lengthKind="implicit" occursCountKind="parsed" />
+    <xs:element name="USG_01">
+      <xs:complexType>
+        <xs:sequence dfdl:sequenceKind="unordered">
 
-					<xs:element name="e1" type="ex:stNumStr"
-						dfdl:lengthKind="explicit" dfdl:length="2">
-						<xs:annotation>
-							<xs:appinfo source="http://www.ogf.org/dfdl/">
-								<dfdl:assert test="{ dfdl:checkConstraints(.) }"
-									message="Assertion failed for dfdl:checkConstraints(.)" />
-							</xs:appinfo>
-						</xs:annotation>
-					</xs:element>
-					<xs:element name="e2" type="ex:stHexStr"
-						dfdl:lengthKind="explicit" dfdl:length="2">
-						<xs:annotation>
-							<xs:appinfo source="http://www.ogf.org/dfdl/">
-								<dfdl:assert test="{ dfdl:checkConstraints(.) }"
-									message="Assertion failed for dfdl:checkConstraints(.)" />
-							</xs:appinfo>
-						</xs:annotation>
-					</xs:element>
-					<xs:element name="e3" type="xs:string" dfdl:lengthKind="explicit"
-						dfdl:length="2">
-						<xs:annotation>
-							<xs:appinfo source="http://www.ogf.org/dfdl/">
-								<dfdl:assert test="{ dfdl:checkConstraints(.) }"
-									message="Assertion failed for dfdl:checkConstraints(.)" />
-							</xs:appinfo>
-						</xs:annotation>
-					</xs:element>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-		<xs:simpleType name="stHexStr">
-			<xs:restriction base="xs:string">
-				<xs:pattern value="[a-fA-F0-9]+"></xs:pattern>
-			</xs:restriction>
-		</xs:simpleType>
-		<xs:simpleType name="stNumStr">
-			<xs:restriction base="xs:string">
-				<xs:pattern value="[0-9]+"></xs:pattern>
-			</xs:restriction>
-		</xs:simpleType>
-	</tdml:defineSchema>
+          <xs:element name="e1" type="ex:stNumStr"
+            dfdl:lengthKind="explicit" dfdl:length="2">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+                  message="Assertion failed for dfdl:checkConstraints(.)" />
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="e2" type="ex:stHexStr"
+            dfdl:lengthKind="explicit" dfdl:length="2">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+                  message="Assertion failed for dfdl:checkConstraints(.)" />
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="e3" type="xs:string" dfdl:lengthKind="explicit"
+            dfdl:length="2">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+                  message="Assertion failed for dfdl:checkConstraints(.)" />
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    <xs:simpleType name="stHexStr">
+      <xs:restriction base="xs:string">
+        <xs:pattern value="[a-fA-F0-9]+"></xs:pattern>
+      </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="stNumStr">
+      <xs:restriction base="xs:string">
+        <xs:pattern value="[0-9]+"></xs:pattern>
+      </xs:restriction>
+    </xs:simpleType>
+  </tdml:defineSchema>
 
-	<tdml:parserTestCase name="test_simple" model="simple"
-		root="USG_01">
-		<tdml:document><![CDATA[veba00]]></tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<USG_01>
-					<e1>00</e1>
-					<e2>ba</e2>
-					<e3>ve</e3>
-				</USG_01>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
+  <tdml:parserTestCase name="test_simple" model="simple"
+    root="USG_01">
+    <tdml:document><![CDATA[veba00]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <USG_01>
+          <e1>00</e1>
+          <e2>ba</e2>
+          <e3>ve</e3>
+        </USG_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
-	<tdml:parserTestCase name="test_simple_fail_scalar"
-		model="simple" root="USG_01" validation="limited">
-		<tdml:document><![CDATA[verybadf00d222]]></tdml:document>
+  <tdml:parserTestCase name="test_simple_fail_scalar"
+    model="simple" root="USG_01" validation="limited">
+    <tdml:document><![CDATA[verybadf00d222]]></tdml:document>
     <tdml:errors>
       <tdml:error>Scalar Element Error</tdml:error>
       <tdml:error>Multiple instances detected for scalar element</tdml:error>
     </tdml:errors>
-	</tdml:parserTestCase>
+  </tdml:parserTestCase>
 
-	<tdml:defineSchema name="simple_min_max_occurs">
-		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+  <tdml:defineSchema name="simple_min_max_occurs">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthUnits="characters"
-			lengthKind="implicit" occursCountKind="parsed" />
-		<xs:element name="USG_01">
-			<xs:complexType>
-				<xs:sequence dfdl:sequenceKind="unordered">
+      lengthKind="implicit" occursCountKind="parsed" />
+    <xs:element name="USG_01">
+      <xs:complexType>
+        <xs:sequence dfdl:sequenceKind="unordered">
 
-					<xs:element name="e1" type="ex:stNumStr"
-						dfdl:lengthKind="explicit" dfdl:length="2" minOccurs="1"
-						maxOccurs="2">
-						<xs:annotation>
-							<xs:appinfo source="http://www.ogf.org/dfdl/">
-								<dfdl:assert test="{ dfdl:checkConstraints(.) }"
-									message="Assertion failed for dfdl:checkConstraints(.)" />
-							</xs:appinfo>
-						</xs:annotation>
-					</xs:element>
-					<xs:element name="e2" type="ex:stHexStr"
-						dfdl:lengthKind="explicit" dfdl:length="2">
-						<xs:annotation>
-							<xs:appinfo source="http://www.ogf.org/dfdl/">
-								<dfdl:assert test="{ dfdl:checkConstraints(.) }"
-									message="Assertion failed for dfdl:checkConstraints(.)" />
-							</xs:appinfo>
-						</xs:annotation>
-					</xs:element>
-					<xs:element name="e3" type="xs:string" dfdl:lengthKind="explicit"
-						dfdl:length="2">
-						<xs:annotation>
-							<xs:appinfo source="http://www.ogf.org/dfdl/">
-								<dfdl:assert test="{ dfdl:checkConstraints(.) }"
-									message="Assertion failed for dfdl:checkConstraints(.)" />
-							</xs:appinfo>
-						</xs:annotation>
-					</xs:element>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-		<xs:simpleType name="stHexStr">
-			<xs:restriction base="xs:string">
-				<xs:pattern value="[a-fA-F0-9]+"></xs:pattern>
-			</xs:restriction>
-		</xs:simpleType>
-		<xs:simpleType name="stNumStr">
-			<xs:restriction base="xs:string">
-				<xs:pattern value="[0-9]+"></xs:pattern>
-			</xs:restriction>
-		</xs:simpleType>
-	</tdml:defineSchema>
+          <xs:element name="e1" type="ex:stNumStr"
+            dfdl:lengthKind="explicit" dfdl:length="2" minOccurs="1"
+            maxOccurs="2">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+                  message="Assertion failed for dfdl:checkConstraints(.)" />
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="e2" type="ex:stHexStr"
+            dfdl:lengthKind="explicit" dfdl:length="2">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+                  message="Assertion failed for dfdl:checkConstraints(.)" />
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="e3" type="xs:string" dfdl:lengthKind="explicit"
+            dfdl:length="2">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+                  message="Assertion failed for dfdl:checkConstraints(.)" />
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    <xs:simpleType name="stHexStr">
+      <xs:restriction base="xs:string">
+        <xs:pattern value="[a-fA-F0-9]+"></xs:pattern>
+      </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="stNumStr">
+      <xs:restriction base="xs:string">
+        <xs:pattern value="[0-9]+"></xs:pattern>
+      </xs:restriction>
+    </xs:simpleType>
+  </tdml:defineSchema>
 
-	<tdml:parserTestCase name="test_simple_min_max_occurs"
-		model="simple_min_max_occurs" root="USG_01" validation="on">
-		<tdml:document><![CDATA[veba0022]]></tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<USG_01>
-					<e1>00</e1>
-					<e1>22</e1>
-					<e2>ba</e2>
-					<e3>ve</e3>
-				</USG_01>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
+  <tdml:parserTestCase name="test_simple_min_max_occurs"
+    model="simple_min_max_occurs" root="USG_01" validation="on">
+    <tdml:document><![CDATA[veba0022]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <USG_01>
+          <e1>00</e1>
+          <e1>22</e1>
+          <e2>ba</e2>
+          <e3>ve</e3>
+        </USG_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
-	<tdml:parserTestCase name="test_simple_min_max_occurs_fail"
-		model="simple_min_max_occurs" root="USG_01" validation="limited" roundTrip="false">
-		<tdml:document><![CDATA[ve00ba2233]]></tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<USG_01>
-					<e1>00</e1>
-					<e1>22</e1>
-					<e1>33</e1>
-					<e2>ba</e2>
-					<e3>ve</e3>
-				</USG_01>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
+  <tdml:parserTestCase name="test_simple_min_max_occurs_fail"
+    model="simple_min_max_occurs" root="USG_01" validation="limited" roundTrip="false">
+    <tdml:document><![CDATA[ve00ba2233]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <USG_01>
+          <e1>00</e1>
+          <e1>22</e1>
+          <e1>33</e1>
+          <e2>ba</e2>
+          <e3>ve</e3>
+        </USG_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
     <tdml:validationErrors>
-			<tdml:error>Element ex:e1 failed check</tdml:error>
+      <tdml:error>Element ex:e1 failed check</tdml:error>
     </tdml:validationErrors>
   </tdml:parserTestCase>
 
-	<tdml:defineSchema name="array_reference">
-		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+  <tdml:defineSchema name="array_reference">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthUnits="characters"
-			lengthKind="implicit" occursCountKind="parsed" />
-		<xs:element name="USG_01">
+      lengthKind="implicit" occursCountKind="parsed" />
+    <xs:element name="USG_01">
       <xs:complexType>
         <xs:sequence>
           <xs:element name="uoseq">
@@ -227,23 +227,23 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
-		<xs:simpleType name="stHexStr">
-			<xs:restriction base="xs:string">
-				<xs:pattern value="[a-fA-F0-9]+"></xs:pattern>
-			</xs:restriction>
-		</xs:simpleType>
-		<xs:simpleType name="stNumStr">
-			<xs:restriction base="xs:string">
-				<xs:pattern value="[0-9]+"></xs:pattern>
-			</xs:restriction>
-		</xs:simpleType>
-	</tdml:defineSchema>
+    <xs:simpleType name="stHexStr">
+      <xs:restriction base="xs:string">
+        <xs:pattern value="[a-fA-F0-9]+"></xs:pattern>
+      </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="stNumStr">
+      <xs:restriction base="xs:string">
+        <xs:pattern value="[0-9]+"></xs:pattern>
+      </xs:restriction>
+    </xs:simpleType>
+  </tdml:defineSchema>
 
-	<tdml:parserTestCase name="test_array_reference"
-		model="array_reference" root="USG_01" validation="on">
-		<tdml:document><![CDATA[ve00ba22]]></tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
+  <tdml:parserTestCase name="test_array_reference"
+    model="array_reference" root="USG_01" validation="on">
+    <tdml:document><![CDATA[ve00ba22]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
         <USG_01>
           <uoseq>
             <e1>00</e1>
@@ -253,219 +253,219 @@
           </uoseq>
           <testRef>22</testRef>
         </USG_01>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
-
-	<tdml:defineSchema name="simple_delimited">
-		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
-    <dfdl:format ref="ex:GeneralFormat" lengthUnits="characters"
-			lengthKind="delimited" occursCountKind="parsed" />
-		<xs:element name="USG_01">
-			<xs:complexType>
-				<xs:sequence dfdl:sequenceKind="unordered"
-					dfdl:separator=",">
-
-					<xs:element name="e1" type="xs:int" dfdl:lengthKind="delimited"
-						dfdl:initiator="a">
-					</xs:element>
-
-					<xs:element name="e2" type="xs:int" dfdl:lengthKind="delimited"
-						dfdl:initiator="b">
-					</xs:element>
-
-					<xs:element name="e3" type="xs:int" dfdl:lengthKind="delimited"
-						dfdl:initiator="c">
-					</xs:element>
-
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-	</tdml:defineSchema>
-
-	<tdml:parserTestCase name="test_simple_delimited"
-		model="simple_delimited" root="USG_01">
-		<tdml:document><![CDATA[b2,a1,c3]]></tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<USG_01>
-					<e1>1</e1>
-					<e2>2</e2>
-					<e3>3</e3>
-				</USG_01>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
-	<tdml:defineSchema name="simple_nil">
-		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+  <tdml:defineSchema name="simple_delimited">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthUnits="characters"
-			lengthKind="implicit" nilValueDelimiterPolicy="none" occursCountKind="parsed"/>
-		<xs:element name="USG_01">
-			<xs:complexType>
-				<xs:sequence dfdl:sequenceKind="unordered"
-					dfdl:separator=",">
+      lengthKind="delimited" occursCountKind="parsed" />
+    <xs:element name="USG_01">
+      <xs:complexType>
+        <xs:sequence dfdl:sequenceKind="unordered"
+          dfdl:separator=",">
 
-					<xs:element name="e1" type="xs:int" dfdl:lengthKind="delimited" nillable="true" 
-						dfdl:nilKind="literalValue" dfdl:nilValue="%ES;" dfdl:initiator="a">
-					</xs:element>
+          <xs:element name="e1" type="xs:int" dfdl:lengthKind="delimited"
+            dfdl:initiator="a">
+          </xs:element>
 
-					<xs:element name="e2" type="xs:int" dfdl:lengthKind="delimited"
-						dfdl:initiator="b">
-					</xs:element>
+          <xs:element name="e2" type="xs:int" dfdl:lengthKind="delimited"
+            dfdl:initiator="b">
+          </xs:element>
 
-					<xs:element name="e3" type="xs:int" dfdl:lengthKind="delimited"
-						dfdl:initiator="c">
-					</xs:element>
+          <xs:element name="e3" type="xs:int" dfdl:lengthKind="delimited"
+            dfdl:initiator="c">
+          </xs:element>
 
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-	</tdml:defineSchema>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
 
-	<tdml:parserTestCase name="test_simple_nil"
-		model="simple_nil" root="USG_01">
-		<tdml:document><![CDATA[b2,,c3]]></tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<USG_01>
-					<e1 xsi:nil="true"></e1>
-					<e2>2</e2>
-					<e3>3</e3>
-				</USG_01>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
+  <tdml:parserTestCase name="test_simple_delimited"
+    model="simple_delimited" root="USG_01">
+    <tdml:document><![CDATA[b2,a1,c3]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <USG_01>
+          <e1>1</e1>
+          <e2>2</e2>
+          <e3>3</e3>
+        </USG_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="simple_nil">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthUnits="characters"
+      lengthKind="implicit" nilValueDelimiterPolicy="none" occursCountKind="parsed"/>
+    <xs:element name="USG_01">
+      <xs:complexType>
+        <xs:sequence dfdl:sequenceKind="unordered"
+          dfdl:separator=",">
+
+          <xs:element name="e1" type="xs:int" dfdl:lengthKind="delimited" nillable="true" 
+            dfdl:nilKind="literalValue" dfdl:nilValue="%ES;" dfdl:initiator="a">
+          </xs:element>
+
+          <xs:element name="e2" type="xs:int" dfdl:lengthKind="delimited"
+            dfdl:initiator="b">
+          </xs:element>
+
+          <xs:element name="e3" type="xs:int" dfdl:lengthKind="delimited"
+            dfdl:initiator="c">
+          </xs:element>
+
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="test_simple_nil"
+    model="simple_nil" root="USG_01">
+    <tdml:document><![CDATA[b2,,c3]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <USG_01>
+          <e1 xsi:nil="true"></e1>
+          <e2>2</e2>
+          <e3>3</e3>
+        </USG_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
 
-	<tdml:defineSchema name="simple_optional">
-		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+  <tdml:defineSchema name="simple_optional">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthUnits="characters"
-			lengthKind="implicit" nilValueDelimiterPolicy="none" occursCountKind="parsed"/>
-		<xs:element name="USG_01">
-			<xs:complexType>
-				<xs:sequence dfdl:sequenceKind="unordered"
-					dfdl:separator=",">
+      lengthKind="implicit" nilValueDelimiterPolicy="none" occursCountKind="parsed"/>
+    <xs:element name="USG_01">
+      <xs:complexType>
+        <xs:sequence dfdl:sequenceKind="unordered"
+          dfdl:separator=",">
 
-					<xs:element name="e1" type="xs:int" dfdl:lengthKind="delimited"
-						dfdl:initiator="a" minOccurs="0">
-					</xs:element>
+          <xs:element name="e1" type="xs:int" dfdl:lengthKind="delimited"
+            dfdl:initiator="a" minOccurs="0">
+          </xs:element>
 
-					<xs:element name="e2" type="xs:int" dfdl:lengthKind="delimited"
-						dfdl:initiator="b">
-					</xs:element>
+          <xs:element name="e2" type="xs:int" dfdl:lengthKind="delimited"
+            dfdl:initiator="b">
+          </xs:element>
 
-					<xs:element name="e3" type="xs:int" dfdl:lengthKind="delimited"
-						dfdl:initiator="c">
-					</xs:element>
+          <xs:element name="e3" type="xs:int" dfdl:lengthKind="delimited"
+            dfdl:initiator="c">
+          </xs:element>
 
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-	</tdml:defineSchema>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
 
-	<tdml:parserTestCase name="test_simple_optional_elem"
-		model="simple_optional" description="Verify that optional elements are handled correctly in unordered sequences"
-		root="USG_01">
-		<tdml:document><![CDATA[b2,c3]]></tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<USG_01>
-					<e2>2</e2>
-					<e3>3</e3>
-				</USG_01>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
+  <tdml:parserTestCase name="test_simple_optional_elem"
+    model="simple_optional" description="Verify that optional elements are handled correctly in unordered sequences"
+    root="USG_01">
+    <tdml:document><![CDATA[b2,c3]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <USG_01>
+          <e2>2</e2>
+          <e3>3</e3>
+        </USG_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
 
-	<tdml:defineSchema name="simple_invalid_path_to_branch">
-		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+  <tdml:defineSchema name="simple_invalid_path_to_branch">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthUnits="characters"
-			lengthKind="delimited" occursCountKind="parsed" />
-		<xs:element name="USG_01">
-			<xs:complexType>
-				<xs:sequence dfdl:sequenceKind="unordered"
-					dfdl:separator=",">
+      lengthKind="delimited" occursCountKind="parsed" />
+    <xs:element name="USG_01">
+      <xs:complexType>
+        <xs:sequence dfdl:sequenceKind="unordered"
+          dfdl:separator=",">
 
-					<xs:element name="e1" type="xs:int" dfdl:lengthKind="delimited"
-						dfdl:initiator="a">
-					</xs:element>
+          <xs:element name="e1" type="xs:int" dfdl:lengthKind="delimited"
+            dfdl:initiator="a">
+          </xs:element>
 
-					<xs:element name="e2" type="xs:int" dfdl:lengthKind="delimited"
-						dfdl:initiator="b">
-					</xs:element>
+          <xs:element name="e2" type="xs:int" dfdl:lengthKind="delimited"
+            dfdl:initiator="b">
+          </xs:element>
 
-					<xs:element name="e3" type="xs:int" dfdl:lengthKind="delimited"
-						dfdl:initiator="c">
-					</xs:element>
+          <xs:element name="e3" type="xs:int" dfdl:lengthKind="delimited"
+            dfdl:initiator="c">
+          </xs:element>
 
-					<xs:element name="e4" type="xs:string" dfdl:lengthKind="delimited"
-						dfdl:inputValueCalc="{ ../e3 }">
-					</xs:element>
+          <xs:element name="e4" type="xs:string" dfdl:lengthKind="delimited"
+            dfdl:inputValueCalc="{ ../e3 }">
+          </xs:element>
 
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-		<xs:element name="USG_02">
-			<xs:complexType>
-				<xs:sequence dfdl:sequenceKind="unordered"
-					dfdl:separator=",">
+    <xs:element name="USG_02">
+      <xs:complexType>
+        <xs:sequence dfdl:sequenceKind="unordered"
+          dfdl:separator=",">
 
-					<xs:element name="e1" type="xs:int" dfdl:lengthKind="delimited"
-						dfdl:initiator="a">
-					</xs:element>
+          <xs:element name="e1" type="xs:int" dfdl:lengthKind="delimited"
+            dfdl:initiator="a">
+          </xs:element>
 
-					<xs:element name="e2" type="xs:int" dfdl:lengthKind="delimited"
-						dfdl:initiator="b">
-					</xs:element>
+          <xs:element name="e2" type="xs:int" dfdl:lengthKind="delimited"
+            dfdl:initiator="b">
+          </xs:element>
 
-					<xs:element name="e3" type="xs:int" dfdl:lengthKind="delimited"
-						dfdl:initiator="c">
-					</xs:element>
+          <xs:element name="e3" type="xs:int" dfdl:lengthKind="delimited"
+            dfdl:initiator="c">
+          </xs:element>
 
-					<xs:element name="e4" type="xs:string" dfdl:lengthKind="delimited"
-						dfdl:inputValueCalc="{ ../doesNotExist }">
-					</xs:element>
+          <xs:element name="e4" type="xs:string" dfdl:lengthKind="delimited"
+            dfdl:inputValueCalc="{ ../doesNotExist }">
+          </xs:element>
 
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-	</tdml:defineSchema>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
 
-	<tdml:parserTestCase name="test_simple_invalid_path_to_branch"
-		model="simple_invalid_path_to_branch" description="Section 14 Sequence group with left over data - DFDL-14-001R"
-		root="USG_01">
-		<tdml:document><![CDATA[b2,a1,a4,c3,ruh-oh!]]></tdml:document>
-		<tdml:errors>
-			<tdml:error>Schema Definition Error</tdml:error>
-			<tdml:error>No element corresponding</tdml:error>
-		</tdml:errors>
-	</tdml:parserTestCase>
+  <tdml:parserTestCase name="test_simple_invalid_path_to_branch"
+    model="simple_invalid_path_to_branch" description="Section 14 Sequence group with left over data - DFDL-14-001R"
+    root="USG_01">
+    <tdml:document><![CDATA[b2,a1,a4,c3,ruh-oh!]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>No element corresponding</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
 
-	<!-- The XPath evaluation throws a PE. The failure is suppressed. This doesn't allow the actual error 
-		to come through. -->
-	<tdml:parserTestCase
-		name="test_simple_invalid_path_to_branch_does_not_exist" model="simple_invalid_path_to_branch"
-		description="Section 14 Sequence group with left over data - DFDL-14-001R"
-		root="USG_02">
-		<tdml:document><![CDATA[b2,a1,a4,c3,ruh-oh!]]></tdml:document>
-		<tdml:errors>
-			<tdml:error></tdml:error>
-		</tdml:errors>
-	</tdml:parserTestCase>
+  <!-- The XPath evaluation throws a PE. The failure is suppressed. This doesn't allow the actual error 
+    to come through. -->
+  <tdml:parserTestCase
+    name="test_simple_invalid_path_to_branch_does_not_exist" model="simple_invalid_path_to_branch"
+    description="Section 14 Sequence group with left over data - DFDL-14-001R"
+    root="USG_02">
+    <tdml:document><![CDATA[b2,a1,a4,c3,ruh-oh!]]></tdml:document>
+    <tdml:errors>
+      <tdml:error></tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
 
-	<tdml:defineSchema name="nested_paths">
-		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+  <tdml:defineSchema name="nested_paths">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthUnits="characters"
-			lengthKind="delimited" occursCountKind="parsed" />
-		<xs:element name="USG_01">
-			<xs:complexType>
-				<xs:sequence dfdl:sequenceKind="ordered" dfdl:separator=",">
+      lengthKind="delimited" occursCountKind="parsed" />
+    <xs:element name="USG_01">
+      <xs:complexType>
+        <xs:sequence dfdl:sequenceKind="ordered" dfdl:separator=",">
 
-					<xs:element name="e1" type="xs:int" dfdl:lengthKind="delimited"
-						dfdl:initiator="a" />
+          <xs:element name="e1" type="xs:int" dfdl:lengthKind="delimited"
+            dfdl:initiator="a" />
 
             <xs:sequence dfdl:sequenceKind="unordered"
               dfdl:separator=":">
@@ -483,372 +483,394 @@
               </xs:element>
             </xs:sequence>
 
-					<xs:element name="e2" type="xs:int" dfdl:lengthKind="delimited"
-						dfdl:initiator="c" />
+          <xs:element name="e2" type="xs:int" dfdl:lengthKind="delimited"
+            dfdl:initiator="c" />
 
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-		<!-- Test multiple valid paths in single expression -->
-		<xs:element name="USG_05">
-			<xs:complexType>
-				<xs:sequence dfdl:sequenceKind="ordered" dfdl:separator=",">
+    <!-- Test multiple valid paths in single expression -->
+    <xs:element name="USG_05">
+      <xs:complexType>
+        <xs:sequence dfdl:sequenceKind="ordered" dfdl:separator=",">
 
-					<xs:element name="e1" type="xs:int" dfdl:lengthKind="delimited"
-						dfdl:initiator="a" />
+          <xs:element name="e1" type="xs:int" dfdl:lengthKind="delimited"
+            dfdl:initiator="a" />
 
-					<xs:element name="e2" type="xs:int" dfdl:lengthKind="delimited"
-						dfdl:initiator="b" />
+          <xs:element name="e2" type="xs:int" dfdl:lengthKind="delimited"
+            dfdl:initiator="b" />
 
-					<xs:element name="uoSeq" dfdl:lengthKind="implicit"
-						dfdl:initiator="c">
-						<xs:complexType>
-							<xs:sequence dfdl:sequenceKind="unordered"
-								dfdl:separator=":">
-								<xs:element name="uoMember1" type="xs:int"
-									dfdl:lengthKind="delimited" dfdl:initiator="x" />
-								<xs:element name="uoMember2" type="xs:int"
-									dfdl:lengthKind="delimited" dfdl:initiator="y" />
-								<xs:element name="uoMember3" type="xs:int"
-									dfdl:lengthKind="delimited" dfdl:initiator="z">
-									<xs:annotation>
-										<xs:appinfo source="http://www.ogf.org/dfdl/">
-											<dfdl:assert test="{ (../../ex:e1 * ../../ex:e2) eq 2 }"
-												message="Assertion failed for ../../ex:e1" />
-										</xs:appinfo>
-									</xs:annotation>
-								</xs:element>
-							</xs:sequence>
-						</xs:complexType>
-					</xs:element>
+          <xs:element name="uoSeq" dfdl:lengthKind="implicit"
+            dfdl:initiator="c">
+            <xs:complexType>
+              <xs:sequence dfdl:sequenceKind="unordered"
+                dfdl:separator=":">
+                <xs:element name="uoMember1" type="xs:int"
+                  dfdl:lengthKind="delimited" dfdl:initiator="x" />
+                <xs:element name="uoMember2" type="xs:int"
+                  dfdl:lengthKind="delimited" dfdl:initiator="y" />
+                <xs:element name="uoMember3" type="xs:int"
+                  dfdl:lengthKind="delimited" dfdl:initiator="z">
+                  <xs:annotation>
+                    <xs:appinfo source="http://www.ogf.org/dfdl/">
+                      <dfdl:assert test="{ (../../ex:e1 * ../../ex:e2) eq 2 }"
+                        message="Assertion failed for ../../ex:e1" />
+                    </xs:appinfo>
+                  </xs:annotation>
+                </xs:element>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
 
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-		<!-- Test multiple invalid paths in single expression -->
-		<xs:element name="USG_06">
-			<xs:complexType>
-				<xs:sequence dfdl:sequenceKind="ordered" dfdl:separator=",">
+    <!-- Test multiple invalid paths in single expression -->
+    <xs:element name="USG_06">
+      <xs:complexType>
+        <xs:sequence dfdl:sequenceKind="ordered" dfdl:separator=",">
 
-					<xs:element name="e1" type="xs:int" dfdl:lengthKind="delimited"
-						dfdl:initiator="a" />
+          <xs:element name="e1" type="xs:int" dfdl:lengthKind="delimited"
+            dfdl:initiator="a" />
 
-					<xs:element name="e2" type="xs:int" dfdl:lengthKind="delimited"
-						dfdl:initiator="b" />
+          <xs:element name="e2" type="xs:int" dfdl:lengthKind="delimited"
+            dfdl:initiator="b" />
 
-					<xs:element name="uoSeq" dfdl:lengthKind="implicit"
-						dfdl:initiator="c">
-						<xs:complexType>
-							<xs:sequence dfdl:sequenceKind="unordered"
-								dfdl:separator=":">
-								<xs:element name="uoMember1" type="xs:int"
-									dfdl:lengthKind="delimited" dfdl:initiator="x" />
-								<xs:element name="uoMember2" type="xs:int"
-									dfdl:lengthKind="delimited" dfdl:initiator="y" />
-								<xs:element name="uoMember3" type="xs:int"
-									dfdl:lengthKind="delimited" dfdl:initiator="z">
-									<xs:annotation>
-										<xs:appinfo source="http://www.ogf.org/dfdl/">
-											<dfdl:assert test="{ (../ex:uoMember1[1] * ../ex:uoMember2[1]) eq 2 }"
-												message="Assertion failed for (../ex:uoMember1 * ../ex:uoMember2) eq 2" />
-										</xs:appinfo>
-									</xs:annotation>
-								</xs:element>
-							</xs:sequence>
-						</xs:complexType>
-					</xs:element>
+          <xs:element name="uoSeq" dfdl:lengthKind="implicit"
+            dfdl:initiator="c">
+            <xs:complexType>
+              <xs:sequence dfdl:sequenceKind="unordered"
+                dfdl:separator=":">
+                <xs:element name="uoMember1" type="xs:int"
+                  dfdl:lengthKind="delimited" dfdl:initiator="x" />
+                <xs:element name="uoMember2" type="xs:int"
+                  dfdl:lengthKind="delimited" dfdl:initiator="y" />
+                <xs:element name="uoMember3" type="xs:int"
+                  dfdl:lengthKind="delimited" dfdl:initiator="z">
+                  <xs:annotation>
+                    <xs:appinfo source="http://www.ogf.org/dfdl/">
+                      <dfdl:assert test="{ (../ex:uoMember1[1] * ../ex:uoMember2[1]) eq 2 }"
+                        message="Assertion failed for (../ex:uoMember1 * ../ex:uoMember2) eq 2" />
+                    </xs:appinfo>
+                  </xs:annotation>
+                </xs:element>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
 
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-	</tdml:defineSchema>
+  </tdml:defineSchema>
 
-	<tdml:parserTestCase name="test_nested_valid_path_to_branch"
-		model="nested_paths"
-		description="navigate from unordered branch to an element of an enclosing ordered sequence"
-		root="USG_01">
-		<tdml:document><![CDATA[a1,z10:y77:x20,c55]]></tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<USG_01>
-					<e1>1</e1>
-						<uoMember1>20</uoMember1>
-						<uoMember2>77</uoMember2>
-						<uoMember3>10</uoMember3>
-					<e2>55</e2>
-				</USG_01>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
-
-	<tdml:parserTestCase name="test_nested_multiple_valid_paths_to_branch"
-		model="nested_paths"
-		description="navigate from unordered branch to two elements of an enclosing ordered sequence from one expresison"
-		root="USG_05">
-		<tdml:document><![CDATA[a1,b2,cz10:x20:y99]]></tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<USG_05>
-					<e1>1</e1>
-					<e2>2</e2>
-					<uoSeq>
-						<uoMember1>20</uoMember1>
-						<uoMember2>99</uoMember2>
-						<uoMember3>10</uoMember3>
-					</uoSeq>
-				</USG_05>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
-
-	<!-- I've noticed that if you use expressions that evaluate to 'null' (meaning 
-		the node wasn't found) that Daffodil does not issue an error/warning stating 
-		such. This could be deceptive. -->
-	<tdml:parserTestCase name="test_nested_multiple_invalid_paths_to_branch"
-		model="nested_paths"
-		description="navigate from unordered branch to two elements of an enclosing ordered sequence from one expresison"
-		root="USG_06">
-		<tdml:document><![CDATA[a1,b2,cy99:x20:z10]]></tdml:document>
-		<tdml:errors>
-			<tdml:error>Schema Definition Error</tdml:error>
-			<tdml:error>Subset Indexing is only allowed on arrays</tdml:error>
-		</tdml:errors>
-	</tdml:parserTestCase>
-
-	<tdml:defineSchema name="simple_sdes_1">
-		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
-    <dfdl:format ref="ex:GeneralFormat" lengthUnits="characters"
-			lengthKind="delimited" occursCountKind="parsed" />
-
-		<!-- Immediate children of unordered sequence must be Element or ElementRef -->
-		<xs:element name="SDE_01">
-			<xs:complexType>
-				<xs:sequence dfdl:sequenceKind="unordered"
-					dfdl:separator=",">
-
-					<xs:element name="e1" type="xs:int" dfdl:lengthKind="delimited"
-						dfdl:initiator="a">
-					</xs:element>
-
-					<xs:element name="e2" type="xs:int" dfdl:lengthKind="delimited"
-						dfdl:initiator="b">
-					</xs:element>
-
-					<xs:choice>
-						<xs:element name="redPill" type="xs:int"
-							dfdl:lengthKind="delimited" dfdl:initiator="r" />
-						<xs:element name="bluePill" type="xs:int"
-							dfdl:lengthKind="delimited" dfdl:initiator="b" />
-					</xs:choice>
-
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-
-	</tdml:defineSchema>
-
-	<tdml:defineSchema name="simple_sdes_2">
-		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
-    <dfdl:format ref="ex:GeneralFormat" lengthUnits="characters"
-			lengthKind="delimited" />
-
-		<!-- Optional array/elements must be occursCountKind='parsed' -->
-		<xs:element name="SDE_02">
-			<xs:complexType>
-				<xs:sequence dfdl:sequenceKind="unordered"
-					dfdl:separator=",">
-
-					<xs:element name="e1" type="xs:int" dfdl:lengthKind="delimited"
-						dfdl:initiator="a">
-					</xs:element>
-
-					<xs:element name="e2" type="xs:int" dfdl:lengthKind="delimited"
-						dfdl:initiator="b">
-					</xs:element>
-
-					<xs:element name="ruh-oh" type="xs:int" minOccurs="0"
-						maxOccurs="1" dfdl:occursCountKind="implicit" />
-
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-
-	</tdml:defineSchema>
-
-	<tdml:defineSchema name="simple_sdes_3">
-		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
-    <dfdl:format ref="ex:GeneralFormat" lengthUnits="characters"
-			lengthKind="delimited" />
-
-		<!-- Immediate members of an unordered sequence cannot have the same name 
-			and namespace -->
-		<xs:element name="SDE_03">
-			<xs:complexType>
-				<xs:sequence dfdl:sequenceKind="unordered"
-					dfdl:separator=",">
-
-					<xs:element name="e1" type="xs:int" dfdl:lengthKind="delimited"
-						dfdl:initiator="a">
-					</xs:element>
-
-					<xs:element name="e2" type="xs:int" dfdl:lengthKind="delimited"
-						dfdl:initiator="b">
-					</xs:element>
-
-					<xs:element name="e2" type="xs:int" dfdl:lengthKind="delimited"
-						dfdl:initiator="c">
-					</xs:element>
-
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-	</tdml:defineSchema>
-
-	<tdml:parserTestCase name="test_sde_element_element_ref"
-		model="simple_sdes_1"
-		description="should sde, immediate children can only be element or element ref"
-		root="SDE_01">
-		<tdml:document><![CDATA[a1,bx20:y99:z,c55]]></tdml:document>
-		<tdml:errors>
-			<tdml:error>Members of an unordered sequence</tdml:error>
-			<tdml:error>must be Element or ElementRef</tdml:error>
-		</tdml:errors>
-	</tdml:parserTestCase>
-
-	<tdml:parserTestCase name="test_sde_optional_array_ock_parsed"
-		model="simple_sdes_2"
-		description="should sde, immediate children that are optional elements or arrays must be ock parsed"
-		root="SDE_02">
-		<tdml:document><![CDATA[a1,bx20:y99:z,c55]]></tdml:document>
-		<tdml:errors>
-			<tdml:error>Members of an unordered sequence</tdml:error>
-			<tdml:error>that are optional or array elements must have dfdl:occursCountKind='parsed'.</tdml:error>
-		</tdml:errors>
-	</tdml:parserTestCase>
-
-	<tdml:parserTestCase name="test_sde_unique_names_in_ns"
-		model="simple_sdes_3"
-		description="should sde, immediate children must have unique names in their namespace"
-		root="SDE_03">
-		<tdml:document><![CDATA[a1,bx20:y99:z,c55]]></tdml:document>
-		<tdml:errors>
-			<tdml:error>Two or more members of the unordered sequence</tdml:error>
-			<tdml:error>have the same name and the same namespace.</tdml:error>
-		</tdml:errors>
+  <tdml:parserTestCase name="test_nested_valid_path_to_branch"
+    model="nested_paths"
+    description="navigate from unordered branch to an element of an enclosing ordered sequence"
+    root="USG_01">
+    <tdml:document><![CDATA[a1,z10:y77:x20,c55]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <USG_01>
+          <e1>1</e1>
+            <uoMember1>20</uoMember1>
+            <uoMember2>77</uoMember2>
+            <uoMember3>10</uoMember3>
+          <e2>55</e2>
+        </USG_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
-	<tdml:defineSchema name="separated">
-		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+  <tdml:parserTestCase name="test_nested_multiple_valid_paths_to_branch"
+    model="nested_paths"
+    description="navigate from unordered branch to two elements of an enclosing ordered sequence from one expresison"
+    root="USG_05">
+    <tdml:document><![CDATA[a1,b2,cz10:x20:y99]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <USG_05>
+          <e1>1</e1>
+          <e2>2</e2>
+          <uoSeq>
+            <uoMember1>20</uoMember1>
+            <uoMember2>99</uoMember2>
+            <uoMember3>10</uoMember3>
+          </uoSeq>
+        </USG_05>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!-- I've noticed that if you use expressions that evaluate to 'null' (meaning 
+    the node wasn't found) that Daffodil does not issue an error/warning stating 
+    such. This could be deceptive. -->
+  <tdml:parserTestCase name="test_nested_multiple_invalid_paths_to_branch"
+    model="nested_paths"
+    description="navigate from unordered branch to two elements of an enclosing ordered sequence from one expresison"
+    root="USG_06">
+    <tdml:document><![CDATA[a1,b2,cy99:x20:z10]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Subset Indexing is only allowed on arrays</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="simple_sdes_1">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthUnits="characters"
-			lengthKind="delimited" occursCountKind="parsed" />
-		<xs:element name="infix">
-			<xs:complexType>
-				<xs:sequence dfdl:sequenceKind="unordered"
-					dfdl:separator="," dfdl:separatorPosition="infix">
+      lengthKind="delimited" occursCountKind="parsed" />
 
-					<xs:element name="e1" type="xs:int" dfdl:lengthKind="delimited"
-						dfdl:initiator="a">
-					</xs:element>
+    <!-- Immediate children of unordered sequence must be Element or ElementRef -->
+    <xs:element name="SDE_01">
+      <xs:complexType>
+        <xs:sequence dfdl:sequenceKind="unordered"
+          dfdl:separator=",">
 
-					<xs:element name="e2" type="xs:int" dfdl:lengthKind="delimited"
-						dfdl:initiator="b">
-					</xs:element>
+          <xs:element name="e1" type="xs:int" dfdl:lengthKind="delimited"
+            dfdl:initiator="a">
+          </xs:element>
 
-					<xs:element name="e3" type="xs:int" dfdl:lengthKind="delimited"
-						dfdl:initiator="c">
-					</xs:element>
+          <xs:element name="e2" type="xs:int" dfdl:lengthKind="delimited"
+            dfdl:initiator="b">
+          </xs:element>
 
-				</xs:sequence>
-			</xs:complexType>
+          <xs:choice>
+            <xs:element name="redPill" type="xs:int"
+              dfdl:lengthKind="delimited" dfdl:initiator="r" />
+            <xs:element name="bluePill" type="xs:int"
+              dfdl:lengthKind="delimited" dfdl:initiator="b" />
+          </xs:choice>
+
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:defineSchema name="simple_sdes_2">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthUnits="characters"
+      lengthKind="delimited" />
+
+    <!-- Optional array/elements must be occursCountKind='parsed' -->
+    <xs:element name="SDE_02">
+      <xs:complexType>
+        <xs:sequence dfdl:sequenceKind="unordered"
+          dfdl:separator=",">
+
+          <xs:element name="e1" type="xs:int" dfdl:lengthKind="delimited"
+            dfdl:initiator="a">
+          </xs:element>
+
+          <xs:element name="e2" type="xs:int" dfdl:lengthKind="delimited"
+            dfdl:initiator="b">
+          </xs:element>
+
+          <xs:element name="ruh-oh" type="xs:int" minOccurs="0"
+            maxOccurs="1" dfdl:occursCountKind="implicit" />
+
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:defineSchema name="simple_sdes_3">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthUnits="characters"
+      lengthKind="delimited" />
+
+    <!-- Immediate members of an unordered sequence cannot have the same name 
+      and namespace -->
+    <xs:element name="SDE_03">
+      <xs:complexType>
+        <xs:sequence dfdl:sequenceKind="unordered"
+          dfdl:separator=",">
+
+          <xs:element name="e1" type="xs:int" dfdl:lengthKind="delimited"
+            dfdl:initiator="a">
+          </xs:element>
+
+          <xs:element name="e2" type="xs:int" dfdl:lengthKind="delimited"
+            dfdl:initiator="b">
+          </xs:element>
+
+          <xs:element name="e2" type="xs:int" dfdl:lengthKind="delimited"
+            dfdl:initiator="c">
+          </xs:element>
+
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="test_sde_element_element_ref"
+    model="simple_sdes_1"
+    description="should sde, immediate children can only be element or element ref"
+    root="SDE_01">
+    <tdml:document><![CDATA[a1,bx20:y99:z,c55]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Members of an unordered sequence</tdml:error>
+      <tdml:error>must be Element or ElementRef</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="test_sde_optional_array_ock_parsed"
+    model="simple_sdes_2"
+    description="should sde, immediate children that are optional elements or arrays must be ock parsed"
+    root="SDE_02">
+    <tdml:document><![CDATA[a1,bx20:y99:z,c55]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Members of an unordered sequence</tdml:error>
+      <tdml:error>that are optional or array elements must have dfdl:occursCountKind='parsed'.</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="test_sde_unique_names_in_ns"
+    model="simple_sdes_3"
+    description="should sde, immediate children must have unique names in their namespace"
+    root="SDE_03">
+    <tdml:document><![CDATA[a1,bx20:y99:z,c55]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Two or more members of the unordered sequence</tdml:error>
+      <tdml:error>have the same name and the same namespace.</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="separated">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthUnits="characters"
+      lengthKind="delimited" occursCountKind="parsed" />
+    <xs:element name="infix">
+      <xs:complexType>
+        <xs:sequence dfdl:sequenceKind="unordered"
+          dfdl:separator="," dfdl:separatorPosition="infix">
+
+          <xs:element name="e1" type="xs:int" dfdl:lengthKind="delimited"
+            dfdl:initiator="a">
+          </xs:element>
+
+          <xs:element name="e2" type="xs:int" dfdl:lengthKind="delimited"
+            dfdl:initiator="b">
+          </xs:element>
+
+          <xs:element name="e3" type="xs:int" dfdl:lengthKind="delimited"
+            dfdl:initiator="c">
+          </xs:element>
+
+        </xs:sequence>
+      </xs:complexType>
     </xs:element>
 
     <xs:element name="prefix">
-			<xs:complexType>
-				<xs:sequence dfdl:sequenceKind="unordered"
-					dfdl:separator="," dfdl:separatorPosition="prefix">
+      <xs:complexType>
+        <xs:sequence dfdl:sequenceKind="unordered"
+          dfdl:separator="," dfdl:separatorPosition="prefix">
 
-					<xs:element name="e1" type="xs:int" dfdl:lengthKind="delimited"
-						dfdl:initiator="a">
-					</xs:element>
+          <xs:element name="e1" type="xs:int" dfdl:lengthKind="delimited"
+            dfdl:initiator="a">
+          </xs:element>
 
-					<xs:element name="e2" type="xs:int" dfdl:lengthKind="delimited"
-						dfdl:initiator="b">
-					</xs:element>
+          <xs:element name="e2" type="xs:int" dfdl:lengthKind="delimited"
+            dfdl:initiator="b">
+          </xs:element>
 
-					<xs:element name="e3" type="xs:int" dfdl:lengthKind="delimited"
-						dfdl:initiator="c">
-					</xs:element>
+          <xs:element name="e3" type="xs:int" dfdl:lengthKind="delimited"
+            dfdl:initiator="c">
+          </xs:element>
 
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
     <xs:element name="postfix">
-			<xs:complexType>
-				<xs:sequence dfdl:sequenceKind="unordered"
-					dfdl:separator="," dfdl:separatorPosition="postfix">
+      <xs:complexType>
+        <xs:sequence dfdl:sequenceKind="unordered"
+          dfdl:separator="," dfdl:separatorPosition="postfix">
 
-					<xs:element name="e1" type="xs:int" dfdl:lengthKind="delimited"
-						dfdl:initiator="a">
-					</xs:element>
+          <xs:element name="e1" type="xs:int" dfdl:lengthKind="delimited"
+            dfdl:initiator="a">
+          </xs:element>
 
-					<xs:element name="e2" type="xs:int" dfdl:lengthKind="delimited"
-						dfdl:initiator="b">
-					</xs:element>
+          <xs:element name="e2" type="xs:int" dfdl:lengthKind="delimited"
+            dfdl:initiator="b">
+          </xs:element>
 
-					<xs:element name="e3" type="xs:int" dfdl:lengthKind="delimited"
-						dfdl:initiator="c">
-					</xs:element>
+          <xs:element name="e3" type="xs:int" dfdl:lengthKind="delimited"
+            dfdl:initiator="c">
+          </xs:element>
 
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-	</tdml:defineSchema>
+  </tdml:defineSchema>
 
-	<tdml:parserTestCase name="test_separated_infix"
-		model="separated" root="infix">
-		<tdml:document><![CDATA[b2,a1,c3]]></tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<infix>
-					<e1>1</e1>
-					<e2>2</e2>
-					<e3>3</e3>
-				</infix>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
+  <tdml:parserTestCase name="test_separated_infix"
+    model="separated" root="infix">
+    <tdml:document><![CDATA[b2,a1,c3]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <infix>
+          <e1>1</e1>
+          <e2>2</e2>
+          <e3>3</e3>
+        </infix>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
-	<tdml:parserTestCase name="test_separated_prefix"
-		model="separated" root="prefix">
-		<tdml:document><![CDATA[,b2,a1,c3]]></tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<prefix>
-					<e1>1</e1>
-					<e2>2</e2>
-					<e3>3</e3>
-				</prefix>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
+  <tdml:parserTestCase name="test_separated_prefix"
+    model="separated" root="prefix">
+    <tdml:document><![CDATA[,b2,a1,c3]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <prefix>
+          <e1>1</e1>
+          <e2>2</e2>
+          <e3>3</e3>
+        </prefix>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
-	<tdml:parserTestCase name="test_separated_postfix"
-		model="separated" root="postfix">
-		<tdml:document><![CDATA[b2,a1,c3,]]></tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<postfix>
-					<e1>1</e1>
-					<e2>2</e2>
-					<e3>3</e3>
-				</postfix>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
+  <tdml:parserTestCase name="test_separated_postfix"
+    model="separated" root="postfix">
+    <tdml:document><![CDATA[b2,a1,c3,]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <postfix>
+          <e1>1</e1>
+          <e2>2</e2>
+          <e3>3</e3>
+        </postfix>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="empty_seq">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthUnits="characters"
+      lengthKind="delimited" occursCountKind="parsed" />
+    <xs:element name="empty">
+      <xs:complexType>
+        <xs:sequence dfdl:sequenceKind="unordered"
+          dfdl:separator="," dfdl:separatorPosition="infix">
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="test_empty_seq"
+    model="empty_seq" root="empty">
+    <tdml:document><![CDATA[]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Unordered sequences must not be empty</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
 </tdml:testSuite>

@@ -4703,9 +4703,9 @@
     
     <xs:group name="hiddenData">
       <xs:sequence dfdl:separator="|" dfdl:sequenceKind="unordered">
-        <xs:element name="password" type="xs:string" dfdl:initiator="pw:" minOccurs="0" maxOccurs="1" dfdl:lengthKind="delimited"/>
-        <xs:element name="ssn" type="xs:string" dfdl:initiator="ssn:" minOccurs="0" maxOccurs="1" dfdl:lengthKind="delimited"/>
-        <xs:element name="dob" type="xs:string" dfdl:initiator="dob:" minOccurs="0" maxOccurs="1" dfdl:lengthKind="delimited"/>
+        <xs:element name="password" type="xs:string" dfdl:initiator="pw:" minOccurs="0" maxOccurs="1" dfdl:lengthKind="delimited" dfdl:occursCountKind="parsed"/>
+        <xs:element name="ssn" type="xs:string" dfdl:initiator="ssn:" minOccurs="0" maxOccurs="1" dfdl:lengthKind="delimited" dfdl:occursCountKind="parsed"/>
+        <xs:element name="dob" type="xs:string" dfdl:initiator="dob:" minOccurs="0" maxOccurs="1" dfdl:lengthKind="delimited" dfdl:occursCountKind="parsed"/>
       </xs:sequence>
     </xs:group>    
     
@@ -4847,8 +4847,8 @@
           <xs:element name="scores">
             <xs:complexType>
               <xs:sequence dfdl:separator="," dfdl:sequenceKind="unordered">
-                <xs:element name="bobcats" type="xs:int" minOccurs="0" maxOccurs="10" dfdl:initiator="B:" dfdl:lengthKind="delimited"/>
-                <xs:element name="pirates" type="xs:int" minOccurs="0" maxOccurs="10" dfdl:initiator="P:" dfdl:lengthKind="delimited"/>
+                <xs:element name="bobcats" type="xs:int" minOccurs="0" maxOccurs="10" dfdl:initiator="B:" dfdl:lengthKind="delimited" dfdl:occursCountKind="parsed"/>
+                <xs:element name="pirates" type="xs:int" minOccurs="0" maxOccurs="10" dfdl:initiator="P:" dfdl:lengthKind="delimited" dfdl:occursCountKind="parsed"/>
               </xs:sequence>
             </xs:complexType>
           </xs:element>
@@ -4864,8 +4864,8 @@
           <xs:element name="scores">
             <xs:complexType>
               <xs:sequence dfdl:separator="," dfdl:sequenceKind="unordered">
-                <xs:element name="bobcats" type="xs:int" minOccurs="0" maxOccurs="unbounded" dfdl:initiator="B:" dfdl:lengthKind="delimited"/>
-                <xs:element name="pirates" type="xs:int" minOccurs="0" maxOccurs="unbounded" dfdl:initiator="P:" dfdl:lengthKind="delimited"/>
+                <xs:element name="bobcats" type="xs:int" minOccurs="0" maxOccurs="unbounded" dfdl:initiator="B:" dfdl:lengthKind="delimited" dfdl:occursCountKind="parsed"/>
+                <xs:element name="pirates" type="xs:int" minOccurs="0" maxOccurs="unbounded" dfdl:initiator="P:" dfdl:lengthKind="delimited" dfdl:occursCountKind="parsed"/>
               </xs:sequence>
             </xs:complexType>
           </xs:element>
@@ -4900,7 +4900,7 @@
           <xs:element name="ints">
             <xs:complexType>
               <xs:sequence dfdl:separator="," dfdl:sequenceKind="unordered">
-                <xs:element name="int" type="xs:int" minOccurs="0" maxOccurs="10" dfdl:lengthKind="delimited"/>
+                <xs:element name="int" type="xs:int" minOccurs="0" maxOccurs="10" dfdl:lengthKind="delimited" dfdl:occursCountKind="parsed"/>
               </xs:sequence>
             </xs:complexType>
           </xs:element>
@@ -10397,7 +10397,7 @@
       Purpose: This test demonstrates the exists() function when referencing hidden elements
 -->
 
-  <tdml:parserTestCase name="exists_10" root="exists07"
+  <tdml:parserTestCase name="exists_10" root="exists07" roundTrip="false"
     model="XPathFunctions" description="Section 23 - Functions - fn:exists - DFDL-23-122R">
 
     <tdml:document>
@@ -10801,7 +10801,7 @@
       Purpose: This test demonstrates the count() function.
 -->
 
-  <tdml:parserTestCase name="count_05" root="count03"
+  <tdml:parserTestCase name="count_05" root="count03" roundTrip="twoPass"
     model="XPathFunctions" description="Section 23 - Functions - fn:count - DFDL-23-124R">
 
     <tdml:document>
@@ -10833,7 +10833,7 @@
       Purpose: This test demonstrates the count() function.
 -->
 
-  <tdml:parserTestCase name="count_05b" root="count03b"
+  <tdml:parserTestCase name="count_05b" root="count03b" roundTrip="twoPass"
     model="XPathFunctions" description="Section 23 - Functions - fn:count - DFDL-23-124R">
 
     <tdml:document>
@@ -10841,7 +10841,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <count03>
+        <count03b>
           <scores>
             <bobcats>6</bobcats>
             <bobcats>1</bobcats>
@@ -10853,7 +10853,7 @@
           </scores>
           <bobcatScoreCount>4</bobcatScoreCount>
           <pirateScoreCount>3</pirateScoreCount>
-        </count03>
+        </count03b>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
