@@ -56,4 +56,7 @@ class TestUnorderedSequencesNew {
   @Test def test_sde_unique_names_in_ns = { runner.runOneTest("test_sde_unique_names_in_ns") }
 
   @Test def test_empty_seq = { runner.runOneTest("test_empty_seq") }
+
+  // DAFFODIL-1034
+  // @Test def test_initiated_unordered1 = { runner.runOneTest("test_initiated_unordered1") }
 }

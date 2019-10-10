@@ -19,8 +19,21 @@
 <tdml:testSuite xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="http://example.com"
-  xmlns:fn="http://www.w3.org/2005/xpath-functions">
+  xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
+  defaultConfig="cfg">
 
+  <tdml:defineConfig name="cfg">
+    <daf:tunables>
+      <daf:suppressSchemaDefinitionWarnings>
+        unsupportedAttributeFormDefault
+        encodingErrorPolicyError
+        emptyElementParsePolicyError
+        namespaceDifferencesOnly
+      </daf:suppressSchemaDefinitionWarnings>
+    </daf:tunables>
+  </tdml:defineConfig>
+  
   <tdml:defineSchema name="simple">
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthUnits="characters"
@@ -872,5 +885,40 @@
       <tdml:error>Unordered sequences must not be empty</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
+  
+  
+  <tdml:defineSchema name="initiated_content">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthUnits="characters"
+      lengthKind="delimited" occursCountKind="parsed" />
+    <xs:element name="R" dfdl:terminator="END">
+      <xs:complexType>
+        <xs:sequence dfdl:sequenceKind="unordered" dfdl:initiatedContent="yes"
+          dfdl:separator="|" dfdl:separatorPosition="infix">
+          <xs:element name="X" type="xs:string" maxOccurs="unbounded"
+            dfdl:initiator="X:">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:assert message="the expected message">{ . eq 'expected' }</dfdl:assert>
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="Y" type="xs:string" maxOccurs="unbounded"
+            dfdl:initiator="Y:"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="test_initiated_unordered1"
+    model="initiated_content" root="R">
+    <tdml:document><![CDATA[X:not expected|Y:something else]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Assertion</tdml:error>
+      <tdml:error>the expected message</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
 
 </tdml:testSuite>
