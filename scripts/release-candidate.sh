@@ -57,6 +57,17 @@ if [ -d "$DAFFODIL_DOCS_DIR" ]; then
     fi
 fi
 
+DAFFODIL_TUTORIALS_DIR=$DAFFODIL_SITE_DIR/tutorials/
+if [ -d "$DAFFODIL_TUTORIALS_DIR" ]; then 
+   read -p "Daffodil site tutorials directory already exists: '$DAFFODIL_TUTORIAL_DIR'. Remove it? (Y/n) " REMOVE
+   if [[ -z "$REMOVE" || "$REMOVE" == "Y" || "$REMOVE" == "y" ]]; then
+       rm -rf "$DAFFODIL_TUTORIALS_DIR"
+   else
+       echo "Exiting."
+       exit
+   fi
+fi
+
 read -p "Signing Key ID (long format): " PGP_SIGNING_KEY_ID
 read -p "Apache Username: " APACHE_USERNAME
 read -s -p "Apache Password: " APACHE_PASSWD
@@ -100,6 +111,7 @@ chmod -x $DAFFODIL_RELEASE_DIR/bin/$MSI_NAME
 cp -R daffodil-japi/target/scala-2.12/genjavadoc-api/* $DAFFODIL_DOCS_DIR/javadoc/
 cp -R daffodil-sapi/target/scala-2.12/api/* $DAFFODIL_DOCS_DIR/scaladoc/
 
+cp -R tutorials/src/main/resources/* $DAFFODIL_TUTORIALS_DIR
 
 echo "Calculating Checksums..."
 for i in src/ bin/
