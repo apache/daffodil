@@ -276,7 +276,9 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
           case LengthKind.Prefixed => LengthMultipleOf(1) // NYI
         }
       }
-      case mg: ModelGroup => Assert.usageError("Only for elements")
+      // used by unordered sequences which create a repeating element-like thing, but
+      // it's a group.
+      case mg: ModelGroup => LengthMultipleOf(mg.alignmentValueInBits.toLong)
     }
   }
 
