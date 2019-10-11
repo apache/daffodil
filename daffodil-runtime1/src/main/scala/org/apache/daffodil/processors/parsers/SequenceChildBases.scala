@@ -155,6 +155,14 @@ object ParseAttemptStatus {
   case object MissingItem extends Missing
 
   /**
+   * Means that a failure has occurred after succesfully parsing a discriminator.
+   * For example, in a choice with initiated content if an initiator is
+   * successfully parsed, but the content of the choice branch fails, we should
+   * not continue to attempt to parse the other branches.
+   */
+  case object UnorderedSeqDiscriminatedFailure extends FailedParseAttemptStatus
+
+  /**
    * Means the parsing failed but no particular information about
    * separators or the length the data was consuming is available.
    *

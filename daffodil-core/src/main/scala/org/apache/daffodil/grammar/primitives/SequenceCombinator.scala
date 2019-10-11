@@ -96,7 +96,7 @@ class UnorderedSequence(sq: SequenceTermBase, sequenceChildrenArg: Seq[SequenceC
 
   override lazy val parser: Parser = {
 
-    lazy val choiceParser = new ChoiceParser(srd, parsers.toVector)
+    lazy val choiceParser = new ChoiceParser(srd, parsers.toVector, unordered=true)
 
     sq.hasSeparator match {
       case true => {

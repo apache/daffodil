@@ -58,5 +58,5 @@ class TestUnorderedSequencesNew {
   @Test def test_empty_seq = { runner.runOneTest("test_empty_seq") }
 
   // DAFFODIL-1034
-  // @Test def test_initiated_unordered1 = { runner.runOneTest("test_initiated_unordered1") }
+  @Test def test_initiated_unordered1 = { runner.runOneTest("test_initiated_unordered1") }
 }
