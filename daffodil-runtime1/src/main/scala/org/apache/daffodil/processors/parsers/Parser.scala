@@ -200,7 +200,10 @@ final class SeqCompParser(context: RuntimeData, val childParsers: Vector[Parser]
 
 }
 
-class ChoiceParser(ctxt: RuntimeData, val childParsers: Vector[Parser])
+class ChoiceParser(
+  ctxt: RuntimeData,
+  val childParsers: Vector[Parser],
+  val unordered: Boolean = false)
   extends CombinatorParser(ctxt) {
   override lazy val runtimeDependencies = Vector()
   override lazy val childProcessors = childParsers
@@ -218,6 +221,7 @@ class ChoiceParser(ctxt: RuntimeData, val childParsers: Vector[Parser])
       var parser: Parser = null
       val limit = childParsers.length
       var returnFlag = false
+      var discriminatedFailure = false
       while (!returnFlag && i < limit) {
         parser = childParsers(i)
         i += 1
@@ -258,6 +262,14 @@ class ChoiceParser(ctxt: RuntimeData, val childParsers: Vector[Parser])
             pstate.discard(pBefore) // because disc set, we don't unwind side effects on input stream & infoset
             pBefore = null
             pstate.setFailed(allDiags)
+
+            // We are actually dealing with an unordered sequence, which uses ChoiceParser behind
+            // the scenes. Because a discriminator was set, but the discriminated content failed,
+            // we need to make sure that this discriminator information gets passed back up to the
+            // unordered sequence parser and will know to fail the entire unordered sequence.
+            if (unordered)
+              discriminatedFailure = true
+
             returnFlag = true
           } else {
             //
@@ -281,6 +293,16 @@ class ChoiceParser(ctxt: RuntimeData, val childParsers: Vector[Parser])
       }
 
       pstate.popDiscriminator
+
+      // This is only used for unordered sequences. If we hit a failure after parsing a discriminator,
+      // we need to pass this discriminator out of the make shift ChoiceParser and back to the
+      // unordered sequence parser. So, now that the inner choice discriminator is off the stack, we
+      // are setting the discriminator of the outer unordered sequence loop, ensuring that while we
+      // have two physical discriminators (outer for the loop, inner for the choice), this is making
+      // it behave as if there is only a single discriminator
+      if (discriminatedFailure)
+        pstate.setDiscriminator(true)
+
     } catch {
       // Similar try/catch/finally logic for returning marks is also used in
       // the Sequence parser base. The logic isn't

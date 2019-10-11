@@ -174,14 +174,19 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
 
       val unorderedSequenceSelfAlignment =
         if (isInUnorderedSequence) {
-          Seq(alignmentApprox + (elementSpecifiedLengthApprox + trailingSkipApprox))
+          if (isKnownToBeByteAlignedAndByteLength) {
+            Seq(AlignmentMultipleOf(8))
+          } else {
+            Seq(AlignmentMultipleOf(1))
+          }
         } else {
           Seq()
         }
 
       val priorSibsAlignmentsApprox = priorSibs.map { ps =>
         val eaa = if (isInUnorderedSequence) {
-          alignmentApprox + (ps.elementSpecifiedLengthApprox + ps.trailingSkipApprox)
+          // Return 0 here, unordered alignment will be handled by unorderedSequenceSelfAlignment
+          AlignmentMultipleOf(0)
         } else {
           ps.endingAlignmentApprox
         }
@@ -191,7 +196,7 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
         val csa = p.contentStartAlignment
         csa
       }.toSeq
-      val priorAlignmentsApprox = priorSibsAlignmentsApprox ++ parentAlignmentApprox ++ arraySelfAlignment
+      val priorAlignmentsApprox = priorSibsAlignmentsApprox ++ parentAlignmentApprox ++ arraySelfAlignment ++ unorderedSequenceSelfAlignment
       if (priorAlignmentsApprox.isEmpty)
         unaligned
       else
@@ -276,9 +281,7 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
           case LengthKind.Prefixed => LengthMultipleOf(1) // NYI
         }
       }
-      // used by unordered sequences which create a repeating element-like thing, but
-      // it's a group.
-      case mg: ModelGroup => LengthMultipleOf(mg.alignmentValueInBits.toLong)
+      case mg: ModelGroup => Assert.usageError("Only for elements")
     }
   }
 

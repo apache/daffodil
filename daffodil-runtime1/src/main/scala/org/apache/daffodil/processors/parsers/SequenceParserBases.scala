@@ -227,12 +227,18 @@ abstract class SequenceParserBase(
               pstate.setSuccess()
               isDone = true
             }
+
+            // We successfully parsed a discriminator, but failed to parse the discriminated content.
+            // Do not continue trying to parse other memebers of the unordered sequence.
+            case UnorderedSeqDiscriminatedFailure => isDone = true
+
             case (MissingItem | MissingSeparator | FailureUnspecified) if (!isOrdered) => {
               // We have hit the end of an unordered sequence, mask the failure and exit
-              // the sequence succesfully.
-              pstate.setSuccess()
+              // the sequence succesfully
               isDone = true
+              pstate.setSuccess()
             }
+
             case _ => // ok.
           }
           pstate.mpstate.moveOverOneGroupIndexOnly()
@@ -282,7 +288,7 @@ abstract class SequenceParserBase(
 
       val currentPos = pstate.bitPos0b
 
-      val wasDescriminatorSet = pstate.discriminator
+      val wasDiscriminatorSet = pstate.discriminator
       if (hasPoU) pstate.popDiscriminator
       //
       // Now we handle the result of the parse attempt.
@@ -304,17 +310,20 @@ abstract class SequenceParserBase(
         }
         case _: FailedParseAttemptStatus => { // MissingSeparator with failure will match here
           Assert.invariant(pstate.isFailure)
-          if (hasPoU && !wasDescriminatorSet &&
+          if (hasPoU && !wasDiscriminatorSet &&
             (roStatus.isInstanceOf[RequiredOptionalStatus.Optional])) {
             // we back up and finish the array at the prior element if any.
             pstate.reset(priorState)
             Assert.invariant(pstate.isSuccess)
+          } else if (hasPoU && wasDiscriminatorSet) {
+            resultOfTry = UnorderedSeqDiscriminatedFailure
           } else {
             val cause = pstate.processorStatus.asInstanceOf[Failure].cause
             parser.trd match {
-              case erd: ElementRuntimeData if (erd.isArray) =>
+              case erd: ElementRuntimeData if (erd.isArray) => {
                 parser.PE(pstate, "Failed to populate %s[%s]. Cause: %s",
                   erd.prefixedName, pstate.mpstate.arrayPos, cause)
+              }
               case _ => // ok
             }
           }
