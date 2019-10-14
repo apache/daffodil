@@ -16,26 +16,17 @@
  */
 package org.badudfs.evaluate.StringFunctions;
 
-import org.apache.daffodil.udf.*;
+import org.apache.daffodil.udf.UserDefinedFunctionProvider;
 
-public class StringFunctionsProvider extends UDFunctionProvider {
-	public StringFunctionsProvider() {
-		super.setFunctionClasses( new Class<?>[] { FuncA.class, Replace.class } );
-	}
-
-	public Object lookupFunctionClass(String namespace, String name) {
-		Object functionClass = null;
-
-		String nn = String.join("_", namespace, name);
-
-		switch (nn) {
-		case "com.ext.badudfs.StringFunctions_replace":
-			functionClass = new Replace();
-			break;
-		case "com.ext.badudfs.StringFunctions_funcA":
-			functionClass = new FuncA();
-			break;
-		}
-		return functionClass;
-	}
+/**
+ * UDF Provider for Negative Unit test
+ *
+ * Contains classes with invalid or missing evaluate functions
+ */
+public class StringFunctionsProvider extends UserDefinedFunctionProvider {
+  @Override
+  public Class<?>[] getUserDefinedFunctionClasses() {
+    // TODO Auto-generated method stub
+    return new Class<?>[] { FuncA.class, Replace.class, FuncB.class };
+  }
 }

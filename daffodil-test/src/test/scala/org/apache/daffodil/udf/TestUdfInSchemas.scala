@@ -21,20 +21,20 @@ import org.junit.AfterClass
 import org.junit.Test
 
 object TestUdfInSchemas {
-  val testDir = "/org/apache/daffodil/udf/"
+  /*  val testDir = "/org/apache/daffodil/udf/"
 
   val runner = Runner(testDir, "udfs.tdml", validateTDMLFile = true)
 
   @AfterClass def shutDown {
     runner.reset
-  }
+  }*/
 
 }
 
 class TestUdfInSchemas {
   import TestUdfInSchemas._
-  @Test def test_udf_argsIncorrect() { runner.runOneTest("udf_argsIncorrect") }
+  /*  @Test def test_udf_argsIncorrect() { runner.runOneTest("udf_argsIncorrect") }
   @Test def test_udf_argsIncorrectType() { runner.runOneTest("udf_argsIncorrectType") }
-  @Test def test_udf_nonSerializables() { runner.runOneTest("udf_nonSerializables") }
+  @Test def test_udf_nonSerializables() { runner.runOneTest("udf_nonSerializables") }*/
 
 }

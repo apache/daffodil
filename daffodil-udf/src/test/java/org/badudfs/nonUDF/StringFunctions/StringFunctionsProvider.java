@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.badudfs.annotations.StringFunctions;
+package org.badudfs.nonUDF.StringFunctions;
 
 import org.apache.daffodil.udf.UserDefinedFunction;
 import org.apache.daffodil.udf.UserDefinedFunctionProvider;
@@ -22,24 +22,21 @@ import org.apache.daffodil.udf.UserDefinedFunctionProvider;
 /**
  * UDF Provider for Negative Unit test
  *
- * Contains classes with invalid or missing annotations
+ * Contains classes that don't implement UserDefinedFunction interface
  */
 public class StringFunctionsProvider extends UserDefinedFunctionProvider {
 	@Override
-	public UserDefinedFunction lookupInitializedUserDefinedFunction (String namespace, String name) {
+	public UserDefinedFunction lookupInitializedUserDefinedFunction(String namespace, String name) {
 	  UserDefinedFunction functionClass = null;
 
 		String nn = String.join("_", namespace, name);
 
 		switch (nn) {
-		case "http://ext.badudfs.StringFunctions.com_":
-			functionClass = new Replace();
+		case "com.ns.badudfs.StringFunctions_replace":
+			functionClass = (UserDefinedFunction) new Replace();
 			break;
-		case "":
-			functionClass = new Compare();
-			break;
-		default:
-			functionClass = new FuncB();
+		case "com.ns.badudfs.StringFunctions_funcA":
+			functionClass = (UserDefinedFunction) new FuncA();
 			break;
 		}
 		return functionClass;
@@ -47,7 +44,6 @@ public class StringFunctionsProvider extends UserDefinedFunctionProvider {
 
   @Override
   public Class<?>[] getUserDefinedFunctionClasses() {
-    // TODO Auto-generated method stub
-    return new Class<?>[] { Compare.class, FuncB.class, Replace.class};
+    return  new Class<?>[] { FuncA.class, Replace.class };
   }
 }

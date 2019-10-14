@@ -16,15 +16,19 @@
  */
 package org.badudfs.annotations.StringFunctions;
 
-import java.io.Serializable;
+import org.apache.daffodil.udf.UserDefinedFunction;
+import org.apache.daffodil.udf.UserDefinedFunctionInfo;
 
-import org.apache.daffodil.udf.FunctionClassInfo;
-
-@FunctionClassInfo(
+/**
+ * UDF for Annotations Negative Unit test
+ *
+ * Contains annotation with blank name field
+ */
+@UserDefinedFunctionInfo(
 		name = "",
-		namespace = "com.ext.badudfs.StringFunctions"
+		namespaceURI = "http://ext.badudfs.StringFunctions.com"
 )
-public class Replace implements Serializable {
+public class Replace implements UserDefinedFunction {
 	public String evaluate(String orig, String pre, String post) {
 		String ret = "";
 		if (orig.length() >= pre.length() ) {

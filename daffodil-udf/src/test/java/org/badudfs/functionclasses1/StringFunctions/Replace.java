@@ -16,15 +16,17 @@
  */
 package org.badudfs.functionclasses1.StringFunctions;
 
-import java.io.Serializable;
+import org.apache.daffodil.udf.UserDefinedFunction;
+import org.apache.daffodil.udf.UserDefinedFunctionInfo;
 
-import org.apache.daffodil.udf.FunctionClassInfo;
-
-@FunctionClassInfo(
+/**
+ * UDF for userDefinedFunctionClasses array on Negative Unit test
+ */
+@UserDefinedFunctionInfo(
 		name = "replace",
-		namespace = "com.ns.badudfs.StringFunctions"
+		namespaceURI = "com.ns.badudfs.StringFunctions"
 )
-public class Replace implements Serializable {
+public class Replace implements UserDefinedFunction {
 	public String evaluate(String orig, String pre, String post) {
 		String ret = "";
 		if (orig.length() >= pre.length() ) {

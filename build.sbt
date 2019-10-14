@@ -48,7 +48,7 @@ lazy val runtime1Unparser = Project("daffodil-runtime1-unparser", file("daffodil
                               .settings(commonSettings)
 
 lazy val core             = Project("daffodil-core", file("daffodil-core")).configs(IntegrationTest)
-                              .dependsOn(runtime1Unparser, lib % "test->test", runtime1 % "test->test")
+                              .dependsOn(runtime1Unparser, udf, lib % "test->test", runtime1 % "test->test")
                               .settings(commonSettings)
 
 lazy val japi             = Project("daffodil-japi", file("daffodil-japi")).configs(IntegrationTest)

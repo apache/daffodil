@@ -14,28 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.badudfs.nonserializable.StringFunctions;
 
-import org.apache.daffodil.udf.*;
+package org.apache.daffodil.dpath
 
-public class StringFunctionsProvider extends UDFunctionProvider {
-	public StringFunctionsProvider() {
-		super.setFunctionClasses( new Class<?>[] { FuncA.class, Replace.class } );
-	}
+import org.apache.daffodil.exceptions.Assert
+import java.lang.reflect.Method
+import org.apache.daffodil.udf.UserDefinedFunction
 
-	public Object lookupFunctionClass(String namespace, String name) {
-		Object functionClass = null;
-
-		String nn = String.join("_", namespace, name);
-
-		switch (nn) {
-		case "com.ns.badudfs.StringFunctions_replace":
-			functionClass = new Replace();
-			break;
-		case "com.ns.badudfs.StringFunctions_funcA":
-			functionClass = new FuncA();
-			break;
-		}
-		return functionClass;
-	}
+/**
+ * Both the evaluate method and the User Defined Function instance are passed in, as both are needed by the Method.invoke
+ * function.
+ */
+case class UserDefinedFunctionCall(recipes: List[CompiledDPath], userDefinedFunction: UserDefinedFunction, evaluateFxn: Method)
+  extends FNArgsList(recipes) {
+  override def computeValue(values: List[Any], dstate: DState) = {
+    val jValues = values.map { _.asInstanceOf[Object] }
+    val res = evaluateFxn.invoke(userDefinedFunction, jValues: _*)
+    res
+  }
 }

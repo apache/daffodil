@@ -16,15 +16,17 @@
  */
 package org.badudfs.functionclasses2.StringFunctions;
 
-import java.io.Serializable;
+import org.apache.daffodil.udf.UserDefinedFunction;
+import org.apache.daffodil.udf.UserDefinedFunctionInfo;
 
-import org.apache.daffodil.udf.FunctionClassInfo;
-
-@FunctionClassInfo(
+/**
+ * UDF for userDefinedFunctionClasses array on Negative Unit test
+ */
+@UserDefinedFunctionInfo(
 		name = "funcA",
-		namespace = "com.ns.badudfs.StringFunctions"
+		namespaceURI = "http://ns.badudfs.StringFunctions.com"
 )
-public class FuncA implements Serializable{
+public class FuncA implements UserDefinedFunction{
 
 	public String evaluate(String orig, String pre, String post) {
 		String ret = "";

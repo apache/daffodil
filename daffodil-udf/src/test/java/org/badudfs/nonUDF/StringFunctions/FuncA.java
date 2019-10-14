@@ -14,19 +14,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.badudfs.nonUDF.StringFunctions;
 
-package org.apache.daffodil.udf;
+import org.apache.daffodil.udf.UserDefinedFunctionInfo;
 
-public abstract class UDFunctionProvider {
-	private Class<?>[] functionClasses;
+/**
+ * UDF for implementing UserDefinedFunction Negative Unit test
+ *
+ * Does not implement UserDefinedFunction or Serializable interface
+ */
+@UserDefinedFunctionInfo(
+		name = "funcA",
+		namespaceURI = "com.ns.badudfs.StringFunctions"
+)
+public class FuncA {
 
-	public Class<?>[] getFunctionClasses() {
-		return functionClasses;
+	public String evaluate(String orig, String pre, String post) {
+		String ret = "";
+		if (orig.length() >= pre.length() ) {
+			ret = orig.replace(pre, post);
+		}
+		return ret;
 	}
-
-	public void setFunctionClasses(Class<?>[] functionClasses) {
-		this.functionClasses = functionClasses;
-	}
-
-	public abstract Object lookupFunctionClass(String namespace, String name);
 }

@@ -15,17 +15,23 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.dpath
+package org.apache.daffodil.udf;
 
-case class UDFunctionCall(recipes: List[CompiledDPath], functionClassObject: Object)
-  extends FNArgsList(recipes) {
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-  lazy val maybeEvaluate = functionClassObject.getClass.getMethods.collect { case p if p.getName == "evaluate" => p }
-  lazy val udfEvaluate = maybeEvaluate.head
-
-  override def computeValue(values: List[Any], dstate: DState) = {
-    val jValues = values.map { _.asInstanceOf[Object] }
-    val res = udfEvaluate.invoke(functionClassObject, jValues: _*)
-    res
-  }
+/**
+ * Annotation that must be applied to every UDF in order for it to be considered valid.
+ *
+ * It must have the name and namespaceURI fields initialized with the namespace and name callers
+ * would be expected to use in the schema.
+ *
+ */
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface UserDefinedFunctionInfo {
+	String name();
+	String namespaceURI();
 }

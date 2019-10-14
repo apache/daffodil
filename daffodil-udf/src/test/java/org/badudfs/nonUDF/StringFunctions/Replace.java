@@ -14,17 +14,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.badudfs.nonUDF.StringFunctions;
 
-package org.apache.daffodil.udf;
+import java.io.Serializable;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.apache.daffodil.udf.UserDefinedFunction;
+import org.apache.daffodil.udf.UserDefinedFunctionInfo;
 
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface FunctionClassInfo {
-	String name() default "";
-	String namespace() default "";
+/**
+ * UDF for implementing UserDefinedFunction Negative Unit test
+ *
+ * Does not implement UserDefinedFunction interface but implements Serializable
+ */
+@UserDefinedFunctionInfo(
+		name = "replace",
+		namespaceURI = "com.ns.badudfs.StringFunctions"
+)
+public class Replace implements Serializable {
+	private static final long serialVersionUID = 2619376314947336164L;
+
+	public String evaluate(String orig, String pre, String post) {
+		String ret = "";
+		if (orig.length() >= pre.length() ) {
+			ret = orig.replace(pre, post);
+		}
+		return ret;
+	}
 }

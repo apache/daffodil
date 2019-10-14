@@ -188,6 +188,25 @@ object NodeInfo extends Enum {
     }
 
   }
+  val ClassString = classOf[java.lang.String]
+  val ClassIntBoxed = classOf[java.lang.Integer]
+  val ClassIntPrim = classOf[scala.Int]
+  val ClassByteBoxed = classOf[java.lang.Byte]
+  val ClassBytePrim = classOf[scala.Byte]
+  val ClassShortBoxed = classOf[java.lang.Short]
+  val ClassShortPrim = classOf[scala.Short]
+  val ClassLongBoxed = classOf[java.lang.Long]
+  val ClassLongPrim = classOf[scala.Long]
+  val ClassJBigInt = classOf[java.math.BigInteger]
+  val ClassJBigDecimal = classOf[java.math.BigDecimal]
+  val ClassDoubleBoxed = classOf[java.lang.Double]
+  val ClassDoublePrim = classOf[scala.Double]
+  val ClassFloatBoxed = classOf[java.lang.Float]
+  val ClassFloatPrim = classOf[scala.Float]
+  val ClassByteArray = classOf[Array[java.lang.Byte]]
+  val ClassURIBoxed = classOf[java.net.URI]
+  val ClassBooleanBoxed = classOf[java.lang.Boolean]
+  val ClassBooleanPrim = classOf[scala.Boolean]
 
   def fromObject(a: Any) = {
     a match {
@@ -210,21 +229,20 @@ object NodeInfo extends Enum {
     }
   }
 
-  def fromClassTypeName(a: String) = {
+  def fromClass(a: Class[_]) = {
     a match {
-      // TODO figure out better solution
-      case "java.lang.String" => NodeInfo.String
-      case "java.lang.Integer" | "int" => NodeInfo.Int
-      case "java.lang.Byte" | "byte" => NodeInfo.Byte
-      case "java.lang.Short" | "short" => NodeInfo.Short
-      case "java.lang.Long" | "long" => NodeInfo.Long
-      case "java.math.JBigInt" => NodeInfo.Integer
-      case "java.math.JBigDecimal" => NodeInfo.Decimal
-      case "java.lang.Double" | "double" => NodeInfo.Double
-      case "java.lang.Float" | "float" => NodeInfo.Float
-      case "java.lang.Byte[]" => NodeInfo.HexBinary
-      case "java.lang.URI" => NodeInfo.AnyURI
-      case "java.lang.Boolean" | "boolean" => NodeInfo.Boolean
+      case ClassIntBoxed | ClassIntPrim => NodeInfo.Int
+      case ClassByteBoxed | ClassBytePrim => NodeInfo.Byte
+      case ClassShortBoxed | ClassShortPrim => NodeInfo.Short
+      case ClassLongBoxed | ClassLongPrim => NodeInfo.Long
+      case ClassDoubleBoxed | ClassDoublePrim => NodeInfo.Double
+      case ClassFloatBoxed | ClassFloatPrim => NodeInfo.Float
+      case ClassBooleanBoxed | ClassBooleanPrim => NodeInfo.Boolean
+      case ClassString => NodeInfo.String
+      case ClassJBigInt => NodeInfo.Integer
+      case ClassJBigDecimal => NodeInfo.Decimal
+      case ClassByteArray => NodeInfo.HexBinary
+      case ClassURIBoxed => NodeInfo.AnyURI
       case _ => Assert.usageError("Unsupported object representation type: %s".format(a))
     }
   }

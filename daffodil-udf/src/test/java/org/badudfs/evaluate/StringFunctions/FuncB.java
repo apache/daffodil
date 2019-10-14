@@ -14,21 +14,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.badudfs.nonserializable.StringFunctions;
+package org.badudfs.evaluate.StringFunctions;
 
-import org.apache.daffodil.udf.FunctionClassInfo;
+import org.apache.daffodil.udf.UserDefinedFunction;
+import org.apache.daffodil.udf.UserDefinedFunctionInfo;
 
-@FunctionClassInfo(
-		name = "funcA",
-		namespace = "com.ns.badudfs.StringFunctions"
+/**
+ * UDF for Evaluate Function Negative Unit test
+ *
+ * Contains void evaluate function
+ */
+@UserDefinedFunctionInfo(
+    name = "funcB",
+    namespaceURI = "urn:com-ext-badudfs-StringFunctions"
 )
-public class FuncA {
+public class FuncB implements UserDefinedFunction {
 
-	public String evaluate(String orig, String pre, String post) {
-		String ret = "";
-		if (orig.length() >= pre.length() ) {
-			ret = orig.replace(pre, post);
-		}
-		return ret;
-	}
+  public void evaluate(String orig, String pre, String post) {
+    String ret = "";
+    if (orig.length() >= pre.length() ) {
+      ret = orig.replace(pre, post);
+    }
+  }
 }

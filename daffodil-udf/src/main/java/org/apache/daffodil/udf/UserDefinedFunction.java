@@ -14,24 +14,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.badudfs.nonserializable.StringFunctions;
+
+package org.apache.daffodil.udf;
 
 import java.io.Serializable;
 
-import org.apache.daffodil.udf.FunctionClassInfo;
+/**
+ * Interface that all User Defined Functions classes must implement.
+ *
+ * It implements the java.io.Serializable class and must have the UserDefinedFunctionInfo
+ * annotation applied and filled in with the values to be used in the schema.
+ *
+ * It must also have an evaluate method that contains the functionality it is offering
+ *
+ * Any "state" variables should be passed in during overloaded UserDefinedFunctionProvider
+ * initialization
+ *
+ */
 
-@FunctionClassInfo(
-		name = "replace",
-		namespace = "com.ns.badudfs.StringFunctions"
-)
-public class Replace implements Serializable {
-	private static final long serialVersionUID = 2619376314947336164L;
-
-	public String evaluate(String orig, String pre, String post) {
-		String ret = "";
-		if (orig.length() >= pre.length() ) {
-			ret = orig.replace(pre, post);
-		}
-		return ret;
-	}
-}
+@UserDefinedFunctionInfo(
+    name = "replace.me",
+    namespaceURI = "replace.me")
+public interface UserDefinedFunction extends Serializable {}

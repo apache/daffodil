@@ -16,9 +16,14 @@
  */
 package org.badudfs.annotations.StringFunctions;
 
-import java.io.Serializable;
+import org.apache.daffodil.udf.UserDefinedFunction;
 
-public class FuncB implements Serializable {
+/**
+ * UDF for Annotations Negative Unit test
+ *
+ * Missing @UserDefinedFunctionInfo annotation
+ */
+public class FuncB implements UserDefinedFunction {
 	public Boolean evaluate(String str1, String str2) {
 		Boolean ret = false;
 		ret = str1.contentEquals(str2);

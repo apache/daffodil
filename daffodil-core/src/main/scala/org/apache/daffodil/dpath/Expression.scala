@@ -34,7 +34,7 @@ import org.apache.daffodil.infoset.NoNextElement
 import org.apache.daffodil.infoset.OnlyOnePossibilityForNextElement
 import org.apache.daffodil.infoset.SeveralPossibilitiesForNextElement
 import org.apache.daffodil.util.LogLevel
-import org.apache.daffodil.udf.UDFService
+import org.apache.daffodil.udf.UserDefinedFunctionService
 
 /**
  * Root class of the type hierarchy for the AST nodes used when we
@@ -240,7 +240,6 @@ abstract class Expression extends OOLAGHostImpl()
         SDE("The prefix of '%s' has no corresponding namespace definition.", qnameString)
     }.get
   }
-
 }
 
 abstract class ExpressionLists(val lst: List[Expression])
@@ -1871,48 +1870,32 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
       case (RefQName(_, "unsignedByte", XSD), args) =>
         XSConverterExpr(functionQNameString, functionQName, args, NodeInfo.UnsignedByte)
 
-      case (RefQName(Some(_), _, _), args) => {
+      case (_: RefQName, args) => {
         val namespace = functionQName.namespace.toString()
         val fName = functionQName.local
 
-        lazy val udfservice = {
-          val a = UDFService
-          a.warnings.map { w => SDW(WarnID.UserDefinedFunction, w) }
-          val allErrors = a.errors.mkString("\n\n")
-          SDE(s"Function unknown: fname[${fName}] fnamespace[${namespace}].\n$allErrors")
-          a
+        val udfCallingInfo = UserDefinedFunctionService.lookupUDFCallingInfo(namespace, fName)
+
+        if (udfCallingInfo.isEmpty) {
+          SDE(s"Error calling $namespace:$fName")
+        } else {
+          /*
+           * Attempting assignnment by tuple matching results in a scala existentials error in SBT
+           * so we do it this way instead
+           */
+          val udfci = udfCallingInfo.get
+          val udf = udfci._1
+          val evaluateMethod = udfci._2
+          val paramTypes = udfci._3
+          val retType = udfci._4
+
+          val evaluateParamTypes: List[NodeInfo.Kind] = paramTypes.map { c => NodeInfo.fromClass(c) }.toList
+          val evaluateReturnType = NodeInfo.fromClass(retType)
+
+          UserDefinedFunctionCallExpr(functionQNameString, functionQName, args, evaluateParamTypes, evaluateReturnType,
+            UserDefinedFunctionCall(_, udf, evaluateMethod))
         }
-
-        val fcObject = udfservice.udfs.lookupFunctionClass(namespace, fName)
-
-        if (fcObject == null) {
-          SDE("Function not found: fname[%s] fnamespace[%s]. Currently registered UDFs:\n%s", fName, namespace, udfservice.allFunctionClasses)
-        }
-
-        val fcClassType = fcObject.getClass
-
-        val paramTypesReturnTypeTuple: Array[(Array[Class[_]], Class[_])] = fcClassType.getMethods.collect {
-          case p if p.getName == "evaluate" => (p.getParameterTypes, p.getReturnType)
-        }
-
-        if (paramTypesReturnTypeTuple.isEmpty) {
-          SDE("Missing evaluate method for function provided: name[%s] namespace[%s]", fName, namespace)
-        }
-
-        if (paramTypesReturnTypeTuple.length > 1) {
-          SDE("Only one evaluate method allowed per function class: name[%s] namespace[%s]", fName, namespace)
-        }
-
-        val paramTypes: Array[Class[_]] = paramTypesReturnTypeTuple.head._1
-        val retType: Class[_] = paramTypesReturnTypeTuple.head._2
-
-        val evaluateParamTypes: List[NodeInfo.Kind] = paramTypes.map { c => NodeInfo.fromClassTypeName(c.getTypeName) }.toList
-        val evaluateReturnType = NodeInfo.fromClassTypeName(retType.getTypeName)
-
-        UDFunctionCallExpr(functionQNameString, functionQName, args, evaluateParamTypes, evaluateReturnType, UDFunctionCall(_, fcObject))
       }
-
-      case _ => SDE("Unsupported function: %s", functionQName)
     }
     funcObj.setOOLAGContext(this)
     funcObj
@@ -2495,15 +2478,21 @@ case class DAFErrorExpr(nameAsParsed: String, fnQName: RefQName, args: List[Expr
   }
 }
 
-case class UDFunctionCallExpr(nameAsParsed: String, fnQName: RefQName, args: List[Expression], argTypes: List[NodeInfo.Kind], resultType: NodeInfo.Kind, constructor: List[CompiledDPath] => RecipeOp)
+case class UserDefinedFunctionCallExpr(
+  nameAsParsed: String,
+  fnQName: RefQName,
+  args: List[Expression],
+  argTypes: List[NodeInfo.Kind],
+  resultType: NodeInfo.Kind,
+  constructor: List[CompiledDPath] => RecipeOp)
   extends FunctionCallBase(nameAsParsed, fnQName, args) {
 
   override lazy val inherentType = resultType
 
-  lazy val arg_to_argType = (args zip argTypes).toMap
+  lazy val argToArgType = (args zip argTypes).toMap
 
   override def targetTypeForSubexpression(childExpr: Expression): NodeInfo.Kind = {
-    arg_to_argType.get(childExpr) match {
+    argToArgType.get(childExpr) match {
       case Some(tt) => tt
       case None => Assert.invariantFailed("subexpression isn't one of the expected.")
     }
