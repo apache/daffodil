@@ -284,7 +284,7 @@ class TestXMLUtils {
   @Test def testBlobDiff01() {
     val path1 = createBlobFile("A1B2C3")
     val path2 = createBlobFile("A1B2C3")
-    val diff = XMLUtils.computeBlobDiff("path", path1.toString, path2.toString)
+    val diff = XMLUtils.computeBlobDiff("path", path1.toUri.toString, path2.toUri.toString)
     assertEquals(diff, Nil)
     Files.delete(path1)
     Files.delete(path2)
@@ -293,7 +293,7 @@ class TestXMLUtils {
   @Test def testBlobDiff02() {
     val path1 = createBlobFile("A1B2C3D4")
     val path2 = createBlobFile("A1B1C3")
-    val diff = XMLUtils.computeBlobDiff("path", path1.toString, path2.toString)
+    val diff = XMLUtils.computeBlobDiff("path", path1.toUri.toString, path2.toUri.toString)
     assertEquals("path.bytesAt(2)", diff(0)._1)
     assertEquals("B2C3D4", diff(0)._2)
     assertEquals("B1C3", diff(0)._3)
@@ -304,7 +304,7 @@ class TestXMLUtils {
   @Test def testBlobDiff03() {
     val path1 = createBlobFile("A1B2C3D4")
     val path2 = createBlobFile("")
-    val diff = XMLUtils.computeBlobDiff("path", path1.toString, path2.toString)
+    val diff = XMLUtils.computeBlobDiff("path", path1.toUri.toString, path2.toUri.toString)
     assertEquals("path.bytesAt(1)", diff(0)._1)
     assertEquals("A1B2C3D4", diff(0)._2)
     assertEquals("", diff(0)._3)
@@ -314,8 +314,8 @@ class TestXMLUtils {
 
   @Test def testBlobDiff04() {
     val path1 = createBlobFile("A1B2C3D4")
-    val path2 = Paths.get("file://does/not/exist")
-    val diff = XMLUtils.computeBlobDiff("path", path1.toString, path2.toString)
+    val path2 = Paths.get("does/not/exist")
+    val diff = XMLUtils.computeBlobDiff("path", path1.toUri.toString, path2.toUri.toString)
     assertEquals("path.canRead", diff(0)._1)
     assertEquals("true", diff(0)._2)
     assertEquals("false", diff(0)._3)
@@ -325,7 +325,7 @@ class TestXMLUtils {
   @Test def testBlobDiff05() {
     val path1 = createBlobFile(("00" * 1024) + ("A1" * 41))
     val path2 = createBlobFile(("00" * 1024))
-    val diff = XMLUtils.computeBlobDiff("path", path1.toString, path2.toString)
+    val diff = XMLUtils.computeBlobDiff("path", path1.toUri.toString, path2.toUri.toString)
     println(diff)
     assertEquals("path.bytesAt(1025)", diff(0)._1)
     assertEquals("A1" * 40, diff(0)._2)

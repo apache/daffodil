@@ -317,18 +317,28 @@ class TestCLIdebugger {
       shell.expect(allOf(contains("breakpoints:"), contains("1: cell   { xsd:string(.) eq '3' }")))
 
       shell.sendLine("continue")
-      shell.expect(contains("<tns:cell>3</tns:cell>\n      </tns:row>\n    </tns:matrix>"))
+      shell.expect(contains("<tns:cell>3</tns:cell>"))
+      shell.expect(contains("</tns:row>"))
+      shell.expect(contains("</tns:matrix>"))
       shell.sendLine("continue")
-      shell.expect(contains("<tns:cell>3</tns:cell>\n      </tns:row>\n    </tns:matrix>"))
+      shell.expect(contains("<tns:cell>3</tns:cell>"))
+      shell.expect(contains("</tns:row>"))
+      shell.expect(contains("</tns:matrix>"))
       shell.sendLine("continue")
-      shell.expect(contains("<tns:cell>3</tns:cell>\n      </tns:row>\n    </tns:matrix>"))
+      shell.expect(contains("<tns:cell>3</tns:cell>"))
+      shell.expect(contains("</tns:row>"))
+      shell.expect(contains("</tns:matrix>"))
 
       shell.sendLine("continue")
       shell.expect(times(1, contains("<tns:cell>3</tns:cell>")))
-      shell.expect(contains("<tns:cell>3</tns:cell>\n      </tns:row>\n    </tns:matrix>"))
+      shell.expect(contains("<tns:cell>3</tns:cell>"))
+      shell.expect(contains("</tns:row>"))
+      shell.expect(contains("</tns:matrix>"))
       shell.sendLine("continue")
       shell.expect(times(1, contains("<tns:cell>3</tns:cell>")))
-      shell.expect(contains("<tns:cell>3</tns:cell>\n      </tns:row>\n    </tns:matrix>"))
+      shell.expect(contains("<tns:cell>3</tns:cell>"))
+      shell.expect(contains("</tns:row>"))
+      shell.expect(contains("</tns:matrix>"))
 
       shell.sendLine("quit")
     } finally {
@@ -769,9 +779,9 @@ class TestCLIdebugger {
       shell.sendLine("continue")
 
       // Gaak. Eclipse default font isn't monospaced. The visible space character is wider than a regular character!
-      shell.expect(contains("""#                                  │                                    │
-                               #    87654321  0011 2233 4455 6677 8899 aabb ccdd eeff  0~1~2~3~4~5~6~7~8~9~a~b~c~d~e~f~
-                               #    00000000: 302c 312c 322c 332c 342c 352c 36         0~,~1~,~2~,~3~,~4~,~5~,~6~      """.stripMargin('#')))
+      shell.expect(contains("""                                  │                                    │"""))
+      shell.expect(contains("""    87654321  0011 2233 4455 6677 8899 aabb ccdd eeff  0~1~2~3~4~5~6~7~8~9~a~b~c~d~e~f~"""))
+      shell.expect(contains("""    00000000: 302c 312c 322c 332c 342c 352c 36         0~,~1~,~2~,~3~,~4~,~5~,~6~      """))
       shell.sendLine("continue")
       shell.sendLine("quit")
     } finally {

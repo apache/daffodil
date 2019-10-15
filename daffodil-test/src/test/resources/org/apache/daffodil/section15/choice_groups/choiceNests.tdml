@@ -38,7 +38,7 @@
 
     <xs:element name="messages">
       <xs:complexType>
-        <xs:sequence dfdl:separator="%NL;">
+        <xs:sequence dfdl:separator=";">
           <xs:element name="message" maxOccurs="10" dfdl:occursCountKind="implicit">
             <xs:complexType>
               <xs:sequence dfdl:separator="|">
@@ -82,9 +82,7 @@
   
   <tdml:parserTestCase name="choiceNest1" root="messages" model="choiceNest"
     roundTrip="onePass">
-    <tdml:document><![CDATA[1|This is Type 1
-2|This is Type 2
-1|This is Type 1]]></tdml:document>
+    <tdml:document><![CDATA[1|This is Type 1;2|This is Type 2;1|This is Type 1]]></tdml:document>
 
     <tdml:infoset>
       <tdml:dfdlInfoset>

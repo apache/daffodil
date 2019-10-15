@@ -850,7 +850,7 @@ class TestCLIparsing {
     val shell = Util.start("", true)
 
     try {
-      val cmd = String.format("echo -n stri| %s parse -s %s -r lsbPartialByte", Util.binPath, testSchemaFile)
+      val cmd = String.format(Util.echoN("stri") + "| %s parse -s %s -r lsbPartialByte", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expect(contains("Left over data. Consumed 10 bit(s) with at least 16 bit(s) remaining."
         + "\nLeft over data starts with partial byte. Left over data (Binary) at byte 2 is: (0b011101xx)"
@@ -869,7 +869,7 @@ class TestCLIparsing {
     val shell = Util.start("", true)
 
     try {
-      val cmd = String.format("echo -n stri| %s parse -s %s -r msbPartialByte", Util.binPath, testSchemaFile)
+      val cmd = String.format(Util.echoN("stri") + "| %s parse -s %s -r msbPartialByte", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expect(contains("Left over data. Consumed 10 bit(s) with at least 16 bit(s) remaining."
         + "\nLeft over data starts with partial byte. Left over data (Binary) at byte 2 is: (0bxx110100)"
@@ -888,7 +888,7 @@ class TestCLIparsing {
     val shell = Util.start("", true)
 
     try {
-      val cmd = String.format("echo -n stri| %s parse -s %s -r msbFullByte", Util.binPath, testSchemaFile)
+      val cmd = String.format(Util.echoN("stri") + "| %s parse -s %s -r msbFullByte", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expect(contains("Left over data. Consumed 16 bit(s) with at least 16 bit(s) remaining."
         + "\nLeft over data (Hex) starting at byte 3 is: (0x7269...)"
