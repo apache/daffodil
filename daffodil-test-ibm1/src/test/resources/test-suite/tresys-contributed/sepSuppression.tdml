@@ -58,10 +58,10 @@
       for exploring when groups are 'potentially trailing' meaning their 
       separator (in enclosing sequence) might be suppressed/not-required.
      -->
-    <xs:element name="ptg1" dfdl:initiator="%NL;">
+    <xs:element name="ptg1" dfdl:initiator="|">
       <xs:complexType>
         <xs:sequence dfdl:separator="">
-          <xs:element name="record" dfdl:terminator="%NL;%WSP*;" maxOccurs="unbounded" >
+          <xs:element name="record" dfdl:terminator="|%WSP*;" maxOccurs="unbounded" >
             <xs:complexType>
               <xs:sequence dfdl:separator="," dfdl:separatorSuppressionPolicy="trailingEmpty">
                 <xs:element name="required1" type="xs:string" />
@@ -103,10 +103,7 @@
   <tdml:parserTestCase name="ptg1_1p" root="ptg1" model="s1"
     description="Test of potentially trailing groups.">
 
-    <tdml:document><![CDATA[
-a,b,c,7.1,e,1*2*3,g,h
-a,b,c,7.1,e,1*2*3,g,h
-]]></tdml:document>
+    <tdml:document><![CDATA[|a,b,c,7.1,e,1*2*3,g,h|a,b,c,7.1,e,1*2*3,g,h|]]></tdml:document>
 
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns="http://example.com">
@@ -144,10 +141,7 @@ a,b,c,7.1,e,1*2*3,g,h
   <tdml:parserTestCase name="ptg1_2p" root="ptg1" model="s1"
     description="Test of potentially trailing groups.">
 
-    <tdml:document><![CDATA[
-a,b,c,7.1,e,,g,h
-a,b,c,7.1,e
-]]></tdml:document>
+    <tdml:document><![CDATA[|a,b,c,7.1,e,,g,h|a,b,c,7.1,e|]]></tdml:document>
 
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns="http://example.com">
@@ -177,10 +171,7 @@ a,b,c,7.1,e
   <tdml:parserTestCase name="ptg1_3p" root="ptg1" model="s1"
     description="Test of potentially trailing groups.">
 
-    <tdml:document><![CDATA[
-a,b,c,7.1,e,,g,h
-a,b,c,7.1
-]]></tdml:document>
+    <tdml:document><![CDATA[|a,b,c,7.1,e,,g,h|a,b,c,7.1|]]></tdml:document>
 
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns="http://example.com">
@@ -210,10 +201,7 @@ a,b,c,7.1
     description="Test of potentially trailing groups."
     config="cfg_noEmptyElements">
 
-    <tdml:document><![CDATA[
-a,,,d,,,g,h
-a,,,d,,,g
-]]></tdml:document>
+    <tdml:document><![CDATA[|a,,,d,,,g,h|a,,,d,,,g|]]></tdml:document>
 
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns="http://example.com">
@@ -252,10 +240,7 @@ a,,,d,,,g
     roundTrip="none"
     config="cfg_noEmptyElements"><!-- twoPass if round tripping, since trailing final comma won't be unparsed. -->
 
-    <tdml:document><![CDATA[
-a,,,d,,,g,h
-a,,,d,,,g,
-]]></tdml:document>
+    <tdml:document><![CDATA[|a,,,d,,,g,h|a,,,d,,,g,|]]></tdml:document>
 
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns="http://example.com">
@@ -288,10 +273,7 @@ a,,,d,,,g,
   <tdml:parserTestCase name="ptg1_6p" root="ptg1" model="s1"
     description="Test of potentially trailing groups.">
 
-    <tdml:document><![CDATA[
-a,,,d
-a,,,d
-]]></tdml:document>
+    <tdml:document><![CDATA[|a,,,d|a,,,d|]]></tdml:document>
 
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns="http://example.com">
@@ -326,10 +308,7 @@ a,,,d
     <tdml:unparserTestCase name="ptg1_1u" root="ptg1" model="s1"
     description="Test of potentially trailing groups.">
 
-    <tdml:document><![CDATA[
-a,b,c,7.1,e,1*2*3,g,h
-a,b,c,7.1,e,1*2*3,g,h
-]]></tdml:document>
+    <tdml:document><![CDATA[|a,b,c,7.1,e,1*2*3,g,h|a,b,c,7.1,e,1*2*3,g,h|]]></tdml:document>
 
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns="http://example.com">
@@ -367,10 +346,7 @@ a,b,c,7.1,e,1*2*3,g,h
   <tdml:unparserTestCase name="ptg1_2u" root="ptg1" model="s1"
     description="Test of potentially trailing groups.">
 
-    <tdml:document><![CDATA[
-a,b,c,7.1,e,,g,h
-a,b,c,7.1,e
-]]></tdml:document>
+    <tdml:document><![CDATA[|a,b,c,7.1,e,,g,h|a,b,c,7.1,e|]]></tdml:document>
 
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns="http://example.com">
@@ -400,10 +376,7 @@ a,b,c,7.1,e
   <tdml:unparserTestCase name="ptg1_3u" root="ptg1" model="s1"
     description="Test of potentially trailing groups.">
 
-    <tdml:document><![CDATA[
-a,b,c,7.1,e,,g,h
-a,b,c,7.1
-]]></tdml:document>
+    <tdml:document><![CDATA[|a,b,c,7.1,e,,g,h|a,b,c,7.1|]]></tdml:document>
 
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns="http://example.com">
@@ -433,10 +406,7 @@ a,b,c,7.1
  <tdml:unparserTestCase name="ptg1_4u" root="ptg1" model="s1"
     description="Test of potentially trailing groups.">
 
-    <tdml:document><![CDATA[
-a,,,d,,,g,h
-a,,,d,,,g
-]]></tdml:document>
+    <tdml:document><![CDATA[|a,,,d,,,g,h|a,,,d,,,g|]]></tdml:document>
 
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns="http://example.com">
@@ -462,10 +432,7 @@ a,,,d,,,g
     description="Test of potentially trailing groups."
     roundTrip="none"> 
 
-    <tdml:document><![CDATA[
-a,,,d,,,g,h
-a,,,d,,,g
-]]></tdml:document><!-- Note: trailing final comma from the parse example ptg1_5 test removed here -->
+    <tdml:document><![CDATA[|a,,,d,,,g,h|a,,,d,,,g|]]></tdml:document><!-- Note: trailing final comma from the parse example ptg1_5 test removed here -->
 
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns="http://example.com">
@@ -493,10 +460,7 @@ a,,,d,,,g
     description="Test of potentially trailing groups."
     implementations="ibm daffodil">
 
-    <tdml:document><![CDATA[
-a,,,d
-a,,,d
-]]></tdml:document>
+    <tdml:document><![CDATA[|a,,,d|a,,,d|]]></tdml:document>
 
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns="http://example.com">
@@ -526,10 +490,10 @@ a,,,d
       ptg2 explores whether a choice can also become potentially trailing
       based on its content.
      -->
-    <xs:element name="ptg2" dfdl:initiator="%NL;">
+    <xs:element name="ptg2" dfdl:initiator="|">
       <xs:complexType>
         <xs:sequence dfdl:separator="">
-          <xs:element name="record" dfdl:terminator="%NL;%WSP*;" maxOccurs="unbounded" >
+          <xs:element name="record" dfdl:terminator="|%WSP*;" maxOccurs="unbounded" >
             <xs:complexType>
               <xs:sequence dfdl:separator="," dfdl:separatorSuppressionPolicy="trailingEmpty">
                 <xs:element name="required1" type="xs:string" />
@@ -579,10 +543,7 @@ a,,,d
     description="Test shows potentially trailing CHOICE group is missing, and that's ok."
     implementations="daffodil">
 
-    <tdml:document><![CDATA[
-a,,,
-a,,,
-]]></tdml:document>
+    <tdml:document><![CDATA[|a,,,|a,,,|]]></tdml:document>
 
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns="http://example.com">
@@ -604,10 +565,7 @@ a,,,
     description="Test shows potentially trailing CHOICE group is missing, and that's ok."
     config="cfg_noEmptyElements">
 
-    <tdml:document><![CDATA[
-a,,,
-a,,,
-]]></tdml:document>
+    <tdml:document><![CDATA[|a,,,|a,,,|]]></tdml:document>
 
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns="http://example.com">
@@ -635,10 +593,10 @@ a,,,
       ptg3 explores spoiling the choice's potentially trailing by just having
       a single branch that has required framing.
      -->
-    <xs:element name="ptg3" dfdl:initiator="%NL;">
+    <xs:element name="ptg3" dfdl:initiator="|">
       <xs:complexType>
         <xs:sequence dfdl:separator="">
-          <xs:element dfdl:occursCountKind="implicit" dfdl:terminator="%NL;%WSP*;"
+          <xs:element dfdl:occursCountKind="implicit" dfdl:terminator="|%WSP*;"
             maxOccurs="unbounded" name="record">
             <xs:complexType>
               <xs:sequence dfdl:separator="," dfdl:separatorSuppressionPolicy="trailingEmpty">
@@ -688,10 +646,7 @@ a,,,
     roundTrip="none"
     implementations="daffodil">
 
-    <tdml:document><![CDATA[
-a,,,,
-a,,,,
-]]></tdml:document>
+    <tdml:document><![CDATA[|a,,,,|a,,,,|]]></tdml:document>
 
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns="http://example.com">
@@ -730,10 +685,7 @@ a,,,,
     config="cfg_noEmptyElements"
     roundTrip="none">
 
-    <tdml:document><![CDATA[
-a,,,,
-a,,,,
-]]></tdml:document>
+    <tdml:document><![CDATA[|a,,,,|a,,,,|]]></tdml:document>
 
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns="http://example.com">
@@ -758,10 +710,7 @@ a,,,,
     description="Test of potentially trailing groups."
     implementations="ibm daffodil">
 
-    <tdml:document><![CDATA[
-a,,,
-a,,,
-]]></tdml:document>
+    <tdml:document><![CDATA[|a,,,|a,,,|]]></tdml:document>
 
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns="http://example.com">

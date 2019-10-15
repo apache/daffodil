@@ -44,10 +44,10 @@
       lengthKind="delimited"
       occursCountKind="implicit"/>
 
-    <xs:element name="ptLax0" dfdl:initiator="%NL;">
+    <xs:element name="ptLax0" dfdl:initiator="|">
       <xs:complexType>
         <xs:sequence dfdl:separator="">
-          <xs:element name="record" maxOccurs="unbounded" minOccurs="0"  dfdl:terminator="%NL;%WSP*;" >
+          <xs:element name="record" maxOccurs="unbounded" minOccurs="0"  dfdl:terminator="|%WSP*;" >
             <xs:complexType>
               <xs:sequence dfdl:separator="," dfdl:separatorSuppressionPolicy="trailingEmpty">
                 <xs:element name="required1" type="xs:string" />    
@@ -66,9 +66,7 @@
     description="Test of potentially trailing groups."
     roundTrip="none">
 
-    <tdml:document><![CDATA[
-a
-]]></tdml:document>   
+    <tdml:document><![CDATA[|a|]]></tdml:document>   
 
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns="http://example.com">
@@ -86,9 +84,7 @@ a
     description="Test of potentially trailing groups."
     roundTrip="none">
 
-    <tdml:document><![CDATA[
-a
-]]></tdml:document>   
+    <tdml:document><![CDATA[|a|]]></tdml:document>   
 
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns="http://example.com">
@@ -113,9 +109,7 @@ a
     description="Test of potentially trailing groups."
     roundTrip="none">
 
-    <tdml:document><![CDATA[
-a,,c
-]]></tdml:document>   
+    <tdml:document><![CDATA[|a,,c|]]></tdml:document>   
 
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns="http://example.com">
@@ -142,10 +136,10 @@ a,,c
       for exploring when groups are 'potentially trailing' meaning their 
       separator (in enclosing sequence) might be suppressed/not-required.
      -->
-    <xs:element name="ptLax" dfdl:initiator="%NL;">
+    <xs:element name="ptLax" dfdl:initiator="|">
       <xs:complexType>
         <xs:sequence dfdl:separator="">
-          <xs:element name="record" maxOccurs="unbounded" minOccurs="0"  dfdl:terminator="%NL;%WSP*;" >
+          <xs:element name="record" maxOccurs="unbounded" minOccurs="0"  dfdl:terminator="|%WSP*;" >
             <xs:complexType>
               <xs:sequence dfdl:separator="," dfdl:separatorSuppressionPolicy="trailingEmpty">
                 <xs:element name="required1" type="xs:string" />
@@ -170,9 +164,7 @@ a,,c
   <!-- should require twoPass to round trip, because unpasing won't produce the
     trailing comma.
    -->
-    <tdml:document><![CDATA[
-a,2,
-]]></tdml:document>
+    <tdml:document><![CDATA[|a,2,|]]></tdml:document>
 
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns="http://example.com">
@@ -206,9 +198,7 @@ a,2,
   <!-- 
   This should require two passes, because unparse won't produce the trailing comma.
  -->
-    <tdml:document><![CDATA[
-a,
-]]></tdml:document>   
+    <tdml:document><![CDATA[|a,|]]></tdml:document>   
 
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns="http://example.com">
@@ -229,9 +219,7 @@ a,
   <!-- 
   This should require two passes, because unparse won't produce the trailing comma.
  -->
-    <tdml:document><![CDATA[
-a
-]]></tdml:document>   
+    <tdml:document><![CDATA[|a|]]></tdml:document>   
 
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns="http://example.com">
@@ -252,9 +240,7 @@ a
   <!-- 
   This should require two passes, because unparse won't produce the trailing comma.
  -->
-    <tdml:document><![CDATA[
-a
-]]></tdml:document>   
+    <tdml:document><![CDATA[|a|]]></tdml:document>   
 
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns="http://example.com">
@@ -271,9 +257,7 @@ a
   <tdml:parserTestCase name="ptLax3rt" root="ptLax" model="s1"
     description="Test of potentially trailing groups.">
 
-    <tdml:document><![CDATA[
-a
-]]></tdml:document>   
+    <tdml:document><![CDATA[|a|]]></tdml:document>   
 
 
     <tdml:infoset>

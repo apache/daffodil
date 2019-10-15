@@ -51,7 +51,7 @@ class TestTDMLRunner {
     tmp.deleteOnExit()
     val path = tmp.getAbsolutePath()
     val testSuite = <testSuite xmlns={ tdml } suiteName="theSuiteName">
-                      <parserTestCase name="test3a" root="data" model={ path } validation="off">
+                      <parserTestCase name="test3a" root="data" model={ tmp.toURI.toString } validation="off">
                         <document>37</document>
                         <infoset>
                           <dfdlInfoset>
@@ -59,7 +59,7 @@ class TestTDMLRunner {
                           </dfdlInfoset>
                         </infoset>
                       </parserTestCase>
-                      <parserTestCase name="test3b" root="data" model={ path } validation="on">
+                      <parserTestCase name="test3b" root="data" model={ tmp.toURI.toString } validation="on">
                         <document>37</document>
                         <infoset>
                           <dfdlInfoset>
@@ -244,7 +244,7 @@ class TestTDMLRunner {
     val tmp = File.createTempFile(getClass.getName(), ".dfdl.xsd")
     tmp.deleteOnExit()
     val testSuite = <testSuite xmlns={ tdml } suiteName="theSuiteName">
-                      <parserTestCase name="testRunModelFile" root="data" model={ tmp.getAbsolutePath() }>
+                      <parserTestCase name="testRunModelFile" root="data" model={ tmp.toURI.toString }>
                         <document>37</document>
                         <infoset>
                           <dfdlInfoset>
