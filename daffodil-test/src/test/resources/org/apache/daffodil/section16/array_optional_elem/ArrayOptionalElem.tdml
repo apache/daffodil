@@ -822,7 +822,8 @@
 
     <tdml:document><![CDATA[1::::]]></tdml:document>
     <tdml:errors>
-        <tdml:error>strict</tdml:error>
+        <tdml:error>Parse Error</tdml:error>
+        <tdml:error>trailingEmptyStrict</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

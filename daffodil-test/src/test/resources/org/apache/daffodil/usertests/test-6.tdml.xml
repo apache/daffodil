@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<tdml:testSuite
+    suiteName="Bug Report test-6.dfdl.xsd" 
+    description="Bug in everything-you-ever-wanted-to-know-about/separator/test-6.dfdl.xsd"
+    xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:xml="http://www.w3.org/XML/1998/namespace"
+    xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:gpf="http://www.ibm.com/dfdl/GeneralPurposeFormat"
+    xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
+    xmlns:ex="http://example.com"
+    xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData tdml.xsd"
+    defaultRoundTrip="none">
+    
+    <!--
+    This example TDML file is for a self-contained bug report.
+   
+    It shows the definition of an inline schema and parse test and unparse test that use that schema.
+  -->
+    
+    <!-- 
+    A DFDL schema is defined inside the tdml:defineSchema element. The contents
+    are similar to a normal DFDL schema, allowing for imports, defining a
+    global format via dfdl:defineFormat and dfdl:format, and defining schema
+    xs:elements/groups/types/etc.
+  -->
+    
+    <tdml:defineSchema name="test-6-Schema" elementFormDefault="unqualified">
+        
+        <dfdl:defineFormat name="default-dfdl-properties">
+            <dfdl:format 
+                alignment="1" 
+                alignmentUnits="bytes"  
+                binaryFloatRep="ieee" 
+                binaryNumberRep="binary"  
+                bitOrder="mostSignificantBitFirst"
+                byteOrder="bigEndian"  
+                calendarPatternKind="implicit"
+                choiceLengthKind="implicit"
+                documentFinalTerminatorCanBeMissing="yes" 
+                emptyValueDelimiterPolicy="none"
+                encoding="ISO-8859-1"
+                encodingErrorPolicy="error" 
+                escapeSchemeRef=""  
+                fillByte="f" 
+                floating="no" 
+                ignoreCase="no" 
+                initiator="" 
+                initiatedContent="no" 
+                leadingSkip="0" 
+                lengthKind="delimited"
+                lengthUnits="characters"  
+                nilKind="literalValue"  
+                nilValueDelimiterPolicy="none"
+                occursCountKind="implicit"
+                outputNewLine="%CR;%LF;"
+                representation="text" 
+                separator=""
+                separatorPosition="infix"
+                separatorSuppressionPolicy="anyEmpty"  
+                sequenceKind="ordered" 
+                terminator=""   
+                textBidi="no" 
+                textNumberCheckPolicy="strict"
+                textNumberPattern="#,##0.###;-#,##0.###" 
+                textNumberRep="standard" 
+                textNumberRounding="explicit"  
+                textNumberRoundingIncrement="0"
+                textNumberRoundingMode="roundUnnecessary" 
+                textOutputMinLength="0" 
+                textPadKind="none" 
+                textStandardBase="10"
+                textStandardDecimalSeparator="."
+                textStandardExponentRep="E"
+                textStandardInfinityRep="Inf"  
+                textStandardNaNRep="NaN"
+                textStandardZeroRep="0" 
+                textStandardGroupingSeparator="," 
+                textTrimKind="none" 
+                trailingSkip="0" 
+                truncateSpecifiedLengthString="no" 
+                utf16Width="fixed" 
+            />
+        </dfdl:defineFormat>
+        
+        <dfdl:format ref="ex:default-dfdl-properties" />
+        
+        <xs:element name="input">
+            <xs:complexType>
+                <xs:sequence dfdl:sequenceKind="ordered"
+                    dfdl:separator="%NL;" dfdl:separatorPosition="infix" 
+                    dfdl:separatorSuppressionPolicy="trailingEmptyStrict">
+                    <xs:element name="A" type="xs:string" minOccurs="0" dfdl:occursCountKind="implicit" />
+                    <xs:element name="B" type="xs:string" minOccurs="0" dfdl:occursCountKind="implicit" />
+                    <xs:element name="C" type="xs:string" minOccurs="0" dfdl:occursCountKind="implicit" />
+                </xs:sequence>
+            </xs:complexType>
+        </xs:element>
+        
+    </tdml:defineSchema>
+    
+    <!--
+    Define a parse test case, using the above schema and root element. Input
+    data is defined along with the expected infoset.
+  -->
+    
+    <tdml:parserTestCase name="parse-test-6" root="input" model="test-6-Schema"
+        description="Test test-6.dfdl.xsd, in the parsing direction">
+        
+        <tdml:document>
+            <tdml:documentPart type="text"
+                replaceDFDLEntities="true"><![CDATA[Hello
+world
+]]></tdml:documentPart>
+        </tdml:document>
+        
+        <tdml:errors>
+            <tdml:error>Parse Error</tdml:error>
+            <tdml:error>TrailingEmptyStrict</tdml:error>
+        </tdml:errors>
+       
+        <!-- <tdml:infoset><tdml:dfdlInfoset>
+          <ex:input><A>Hello</A><B>world</B></ex:input>
+        </tdml:dfdlInfoset></tdml:infoset>
+        -->
+        
+    </tdml:parserTestCase>
+    
+</tdml:testSuite>
