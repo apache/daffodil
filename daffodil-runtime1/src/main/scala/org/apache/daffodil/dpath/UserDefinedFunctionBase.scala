@@ -18,6 +18,7 @@
 package org.apache.daffodil.dpath
 
 import org.apache.daffodil.udf.UserDefinedFunction
+import org.apache.daffodil.udf.UserDefinedFunctionService.UserDefinedFunctionMethod
 import java.lang.reflect.Method
 import java.lang.reflect.InvocationTargetException
 import org.apache.daffodil.udf.exceptions.UserDefinedFunctionFatalException
@@ -64,12 +65,12 @@ case class UserDefinedFunctionCall(
   functionQNameString: String,
   recipes: List[CompiledDPath],
   userDefinedFunction: UserDefinedFunction,
-  evaluateFxn: Method)
+  evaluateFxn: UserDefinedFunctionMethod)
   extends FNArgsList(recipes) {
   override def computeValue(values: List[Any], dstate: DState) = {
     val jValues = values.map { _.asInstanceOf[Object] }
     try {
-      val res = evaluateFxn.invoke(userDefinedFunction, jValues: _*)
+      val res = evaluateFxn.method.invoke(userDefinedFunction, jValues: _*)
       res
     } catch {
       case e: InvocationTargetException => {

@@ -26,6 +26,9 @@ import org.apache.daffodil.util.LogLevel
 import org.apache.daffodil.util.Logging
 import java.lang.reflect.Method
 import org.apache.daffodil.dpath.NodeInfo
+import java.io.ObjectOutputStream
+import java.io.Serializable
+import java.io.ObjectInputStream
 
 /**
  * Loads, validates and caches (for use at schema compile time) all User Defined Functions
@@ -34,7 +37,31 @@ import org.apache.daffodil.dpath.NodeInfo
  */
 object UserDefinedFunctionService extends Logging {
   lazy val evaluateMethodName = "evaluate"
-  case class EvaluateMethodInfo(evaluateMethod: Method, parameterTypes: List[NodeInfo.Kind], returnType: NodeInfo.Kind)
+
+  case class UserDefinedFunctionMethod(
+      decClass: Class[_],
+      methodName: String,
+      paramTypes: Array[Class[_]])
+      extends Serializable {
+    var method: Method = _
+
+    def getMethod = this.method
+
+    def writeObject(out: ObjectOutputStream) {
+      out.writeObject(decClass)
+      out.writeUTF(methodName)
+      out.writeObject(paramTypes)
+    }
+
+    def readObject(in: ObjectInputStream) {
+      val decClass: Class[_] = in.readObject().asInstanceOf[Class[_]]
+      val methodName = in.readUTF()
+      val paramTypes = in.readObject().asInstanceOf[Array[Class[_]]]
+
+      this.method = decClass.getMethod(methodName, paramTypes: _*)
+    }
+  }
+  case class EvaluateMethodInfo(evaluateMethod: UserDefinedFunctionMethod, parameterTypes: List[NodeInfo.Kind], returnType: NodeInfo.Kind)
   case class UserDefinedFunctionCallingInfo(udf: UserDefinedFunction, evalInfo: EvaluateMethodInfo)
   case class UserDefinedFunctionInfo(udfClass: Class[_], provider: UserDefinedFunctionProvider, evaluateMethodInfo: EvaluateMethodInfo)
   type NamespaceUriAndName = String
@@ -142,7 +169,9 @@ object UserDefinedFunctionService extends Logging {
                 log(LogLevel.Warning, "User Defined Function ignored: %s. Duplicate %s from %s found.",
                   fcClassName, key, udfInfo.udfClass.getName)
               } else {
-                val emi = EvaluateMethodInfo(evaluateMethod, evaluateParamTypes, evaluateReturnType)
+                val serializableEvaluate =
+                  UserDefinedFunctionMethod(evaluateMethod.getDeclaringClass, evaluateMethodName, paramTypes)
+                val emi = EvaluateMethodInfo(serializableEvaluate, evaluateParamTypes, evaluateReturnType)
                 udfInfoLookup += (key -> UserDefinedFunctionInfo(fc, provider, emi))
               }
 
@@ -182,9 +211,9 @@ object UserDefinedFunctionService extends Logging {
    * @param fname The function name from the schema function call
    *
    * @return Optional UserDefinedFunctionCallingInfo case class of initialized UserDefinedFunction
-   * and its associated EvaluateMethodInfo consisting of its evaluate Method, a list of the evaluate
-   * method's parameter types converted to NodeInfo.Kind and the evaluate method's return type
-   * converted to NodeInfo.Kind
+   * and its associated EvaluateMethodInfo consisting of its evaluate Method in a serializable
+   * wrapper class, a list of the evaluate method's parameter types converted to NodeInfo.Kind and
+   * the evaluate method's return type converted to NodeInfo.Kind
    *
    */
   def lookupUserDefinedFunctionCallingInfo(namespaceURI: String, fname: String): Option[UserDefinedFunctionCallingInfo] = {
