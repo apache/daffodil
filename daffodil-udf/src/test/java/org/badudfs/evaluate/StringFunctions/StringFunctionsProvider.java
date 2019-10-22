@@ -26,7 +26,6 @@ import org.apache.daffodil.udf.UserDefinedFunctionProvider;
 public class StringFunctionsProvider extends UserDefinedFunctionProvider {
   @Override
   public Class<?>[] getUserDefinedFunctionClasses() {
-    // TODO Auto-generated method stub
     return new Class<?>[] { FuncA.class, Replace.class, FuncB.class };
   }
 }

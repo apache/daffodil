@@ -71,6 +71,11 @@ object Misc {
     stripLast
   }
 
+  def isNullOrBlank(s: String) = {
+    val b = Option(s).isEmpty || s.trim.isEmpty
+    b
+  }
+
   def isFileURI(uri: URI) = {
     if (uri.isAbsolute()) {
       val protocol = uri.toURL.getProtocol()

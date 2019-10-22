@@ -17,14 +17,14 @@
 package org.badudfs.annotations.StringFunctions;
 
 import org.apache.daffodil.udf.UserDefinedFunction;
-import org.apache.daffodil.udf.UserDefinedFunctionInfo;
+import org.apache.daffodil.udf.UserDefinedFunctionIdentification;
 
 /**
  * UDF for Annotations Negative Unit test
  *
  * Contains annotation with blank fields
  */
-@UserDefinedFunctionInfo(
+@UserDefinedFunctionIdentification(
 		name = "",
 		namespaceURI = ""
 )

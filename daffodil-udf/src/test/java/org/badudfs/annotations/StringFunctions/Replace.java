@@ -16,24 +16,24 @@
  */
 package org.badudfs.annotations.StringFunctions;
 
+import org.apache.daffodil.udf.UserDefinedFunctionIdentification;
 import org.apache.daffodil.udf.UserDefinedFunction;
-import org.apache.daffodil.udf.UserDefinedFunctionInfo;
 
 /**
  * UDF for Annotations Negative Unit test
  *
  * Contains annotation with blank name field
  */
-@UserDefinedFunctionInfo(
-		name = "",
-		namespaceURI = "http://ext.badudfs.StringFunctions.com"
-)
+@UserDefinedFunctionIdentification(
+    name = "",
+    namespaceURI = "http://ext.badudfs.StringFunctions.com"
+    )
 public class Replace implements UserDefinedFunction {
-	public String evaluate(String orig, String pre, String post) {
-		String ret = "";
-		if (orig.length() >= pre.length() ) {
-			ret = orig.replace(pre, post);
-		}
-		return ret;
-	}
+  public String evaluate(String orig, String pre, String post) {
+    String ret = "";
+    if (orig.length() >= pre.length() ) {
+      ret = orig.replace(pre, post);
+    }
+    return ret;
+  }
 }

@@ -22,7 +22,7 @@ import java.io.Serializable;
 /**
  * Interface that all User Defined Functions classes must implement.
  *
- * It implements the java.io.Serializable class and must have the UserDefinedFunctionInfo
+ * It implements the java.io.Serializable class and must have the UserDefinedFunctionIdentification
  * annotation applied and filled in with the values to be used in the schema.
  *
  * It must also have an evaluate method that contains the functionality it is offering
@@ -32,7 +32,7 @@ import java.io.Serializable;
  *
  */
 
-@UserDefinedFunctionInfo(
+@UserDefinedFunctionIdentification(
     name = "replace.me",
     namespaceURI = "replace.me")
 public interface UserDefinedFunction extends Serializable {}

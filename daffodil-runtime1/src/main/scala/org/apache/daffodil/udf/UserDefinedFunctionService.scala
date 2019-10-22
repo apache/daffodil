@@ -22,163 +22,212 @@ import collection.mutable._;
 import java.util.ServiceLoader
 import java.util.ServiceConfigurationError
 import org.apache.daffodil.util.Misc
-import java.io.Serializable
 import org.apache.daffodil.util.LogLevel
 import org.apache.daffodil.util.Logging
 import java.lang.reflect.Method
+import org.apache.daffodil.dpath.NodeInfo
 
 /**
- * Loads all User Defined Function Providers on the classpath once and caches them in
- * following look up tables that'll be used to look up the UDFs during Schema compile time.
- *
- * "$namespaceURI:$fName" -> classOf[UserDefinedFunction]
- * "$namespaceURI:$fName" -> UserDefinedFunctionProvider
- *
- * It also does validation on the providers and classes and caches any warning and errors,
- * which are then reported during compile time.
+ * Loads, validates and caches (for use at schema compile time) all User Defined Functions
+ * and their Providers from the classpath.
  *
  */
 object UserDefinedFunctionService extends Logging {
-  val evaluateMethodName = "evaluate"
-  type EvaluateMethod = Method
-  type ParameterTypes = Array[Class[_]]
-  type ReturnType = Class[_]
-  type UdfCallingInfo = (UserDefinedFunction, EvaluateMethod, ParameterTypes, ReturnType)
-  type NamespaceNameKey = String
-  private val functionClassesLookup: HashMap[NamespaceNameKey, Class[_]] = HashMap()
-  private val functionProviderLookup: HashMap[NamespaceNameKey, UserDefinedFunctionProvider] = HashMap()
-  private val InitializedUserDefinedFunctionsCache: HashMap[NamespaceNameKey, Option[UdfCallingInfo]] = HashMap()
-  lazy val classUserDefinedFunctionInfo = classOf[UserDefinedFunctionInfo]
+  lazy val evaluateMethodName = "evaluate"
+  case class EvaluateMethodInfo(evaluateMethod: Method, parameterTypes: List[NodeInfo.Kind], returnType: NodeInfo.Kind)
+  case class UserDefinedFunctionCallingInfo(udf: UserDefinedFunction, evalInfo: EvaluateMethodInfo)
+  case class UserDefinedFunctionInfo(udfClass: Class[_], provider: UserDefinedFunctionProvider, evaluateMethodInfo: EvaluateMethodInfo)
+  type NamespaceUriAndName = String
+
+  private val udfInfoLookup: HashMap[NamespaceUriAndName, UserDefinedFunctionInfo] = HashMap()
+  private val initializedUserDefinedFunctionsCache: HashMap[NamespaceUriAndName, Option[UserDefinedFunctionCallingInfo]] = HashMap()
+
+  lazy val classUserDefinedFunctionIdentification = classOf[UserDefinedFunctionIdentification]
   lazy val classUserDefinedFunction = classOf[UserDefinedFunction]
-  lazy val classJSerializable = classOf[java.io.Serializable]
   lazy val currentClassPath = Misc.classPath.map(_.toString).mkString("\n")
 
   val loader: ServiceLoader[UserDefinedFunctionProvider] = ServiceLoader.load(classOf[UserDefinedFunctionProvider])
 
-  loader.asScala.map { provider =>
-    val providerfc = provider.getUserDefinedFunctionClasses
-    lazy val providerClassName = provider.getClass.getName
+  try {
+    loader.asScala.foreach { provider =>
+      lazy val providerClassName = provider.getClass.getName
+      val providerFunctionClasses =
+        /*
+         * This is to protect against any errors thrown when we are trying to load the
+         * UDFs. It will catch any exceptions and emit them as the reason the UDF was
+         * dropped
+         */
+        try {
+          provider.getUserDefinedFunctionClasses
+        } catch {
+          case e: Exception =>
+            log(LogLevel.Warning,
+              "User Defined Function Provider ignored: %s. Error loading User Defined Functions: %s",
+              providerClassName, e)
+            null
+        }
 
-    if (providerfc == null || providerfc.isEmpty) {
-      val wstr = s"User Defined Function Provider ignored: ${providerClassName}. No User Defined Functions found."
-      log(LogLevel.Warning, wstr)
-    } else {
-      val missingAnnotations = providerfc.filterNot(_.isAnnotationPresent(classUserDefinedFunctionInfo))
-      val nonUserDefinedFunction = providerfc.filterNot(classUserDefinedFunction.isAssignableFrom(_))
+      if (providerFunctionClasses == null || providerFunctionClasses.isEmpty) {
+        log(LogLevel.Warning, "User Defined Function Provider ignored: %s. No User Defined Functions found.",
+          providerClassName)
+      } else {
 
-      if (!missingAnnotations.isEmpty) {
-        val wstr = s"User Defined Function Provider ignored: ${providerClassName}. Below must be annotated with ${classUserDefinedFunctionInfo.getName}" +
-          s"\n${missingAnnotations.map(_.getName).mkString("\t", "\n\t", "")}"
-        log(LogLevel.Warning, wstr)
-      }
+        lazy val goodFunctionClasses = providerFunctionClasses.filter {
+          udfc =>
+            val nonAnn = if (!udfc.isAnnotationPresent(classUserDefinedFunctionIdentification)) {
+              log(LogLevel.Warning, "User Defined Function ignored: %s. Missing %s annotation",
+                udfc.getName, classUserDefinedFunctionIdentification.getName)
+              true
+            } else false
+            val nonUdf = if (!classUserDefinedFunction.isAssignableFrom(udfc)) {
+              log(LogLevel.Warning, "User Defined Function ignored: %s. Doesn't implement %s",
+                udfc.getName, classUserDefinedFunction.getName)
+              true
+            } else false
+            if (nonAnn || nonUdf) false
+            else true
+        }
 
-      if (!nonUserDefinedFunction.isEmpty) {
-        val wstr = s"User Defined Function Provider ignored: ${providerClassName}. Below must implement ${classUserDefinedFunction.getName}" +
-          s"\n${nonUserDefinedFunction.map(_.getName).mkString("\t", "\n\t", "")}"
-        log(LogLevel.Warning, wstr)
-      }
-
-      if (missingAnnotations.isEmpty && nonUserDefinedFunction.isEmpty) {
-        providerfc.map { fc =>
+        goodFunctionClasses.foreach { fc =>
           val fcClassName = fc.getName
-          val fInfo = fc.getDeclaredAnnotation(classUserDefinedFunctionInfo)
+          val fInfo = fc.getDeclaredAnnotation(classUserDefinedFunctionIdentification)
           val fns = fInfo.namespaceURI()
           val fname = fInfo.name()
-          if (List(fns, fname).exists { p => Option(p).isEmpty || p.trim.isEmpty }) {
-            val wstr = s"User Defined Function ignored: ${fcClassName} from provider ${providerClassName}." +
-              (if (Option(fns).isEmpty || fns.trim.isEmpty) " Annotation namespace field is empty or invalid." else "") +
-              (if (Option(fname).isEmpty || fname.trim.isEmpty) " Annotation namespace field is empty or invalid." else "")
-            log(LogLevel.Warning, wstr)
-          }
-          val key = s"$fns:$fname"
-          if (functionProviderLookup.contains(key)) {
-            val estr = s"User Defined Function ignored: ${fcClassName} from provider ${providerClassName}. Duplicate $key found."
-            log(LogLevel.Error, estr)
+          val invalidFns = Misc.isNullOrBlank(fns)
+          val invalidFname = Misc.isNullOrBlank(fname)
+          val evalMethods = fc.getMethods.filter(_.getName == evaluateMethodName)
+
+          if (invalidFns || invalidFname) {
+            if (invalidFns)
+              log(LogLevel.Warning,
+                "User Defined Function ignored: %s. Annotation namespace field is empty or invalid.",
+                fcClassName)
+            if (invalidFname)
+              log(LogLevel.Warning,
+                "User Defined Function ignored: %s. Annotation name field is empty or invalid.",
+                fcClassName)
+          } else if (evalMethods.isEmpty) {
+            log(LogLevel.Warning, "User Defined Function ignored: %s. Missing evaluate method: %s:%s",
+              fcClassName, fns, fname)
+          } else if (evalMethods.length > 1) {
+            log(LogLevel.Warning, "User Defined Function ignored: %s. Overloaded evaluate method: %s:%s",
+              fcClassName, fns, fname)
           } else {
-            functionProviderLookup += (key -> provider)
-            functionClassesLookup += (key -> fc)
+            val evaluateMethod = evalMethods.head
+            val paramTypes = evaluateMethod.getParameterTypes
+            val returnType = evaluateMethod.getReturnType
+
+            val initParamTypeConv = paramTypes.map { c => NodeInfo.fromClass(c) }
+            val initRetTypeConv = NodeInfo.fromClass(returnType)
+            val badParamIndex = initParamTypeConv.indexOf(None)
+            val invalidParamType = badParamIndex >= 0
+            val invalidRetType = initRetTypeConv.isEmpty
+
+            if (invalidParamType || invalidRetType) {
+              if (invalidParamType) {
+                log(LogLevel.Warning, "User Defined Function ignored: %s. Unsupported parameter type: %s",
+                  fcClassName, paramTypes(badParamIndex).getName)
+              }
+              if (invalidRetType) {
+                log(LogLevel.Warning, "User Defined Function ignored: %s. Unsupported return type: %s",
+                  fcClassName, returnType)
+              }
+            } else {
+              val evaluateParamTypes: List[NodeInfo.Kind] = initParamTypeConv.flatten.toList
+              val Some(evaluateReturnType: NodeInfo.Kind) = initRetTypeConv
+
+              val key = s"$fns:$fname"
+              if (udfInfoLookup.contains(key)) {
+                val Some(udfInfo) = udfInfoLookup.get(key)
+                log(LogLevel.Warning, "User Defined Function ignored: %s. Duplicate %s from %s found.",
+                  fcClassName, key, udfInfo.udfClass.getName)
+              } else {
+                val emi = EvaluateMethodInfo(evaluateMethod, evaluateParamTypes, evaluateReturnType)
+                udfInfoLookup += (key -> UserDefinedFunctionInfo(fc, provider, emi))
+              }
+
+            }
           }
         }
       }
     }
+  } catch {
+    /*
+     * We catch any errors thrown by the ServiceLoader here. This usually means UDFP
+     * loading was disrupted, so no UDFs would be loaded
+     */
+    case e: ServiceConfigurationError =>
+      val a = e.getCause.getStackTrace
+      log(LogLevel.Error, "Error loading User Defined Function Providers: Error thrown in: %s", e.getCause)
   }
 
-  if (functionClassesLookup.isEmpty) {
-    log(LogLevel.Warning, "No user defined functions found. Check that UDF JARs are on classpath and that they are properly registerable by ServiceLoader.")
-    log(LogLevel.Info, s"Current classpath locations:\n${currentClassPath}")
-  }
+  if (allFunctionClasses.nonEmpty)
+    log(LogLevel.Info, "User Defined Functions loaded: %s", UserDefinedFunctionService.allFunctionClasses)
+  else
+    log(LogLevel.Info, "No User Defined Functions loaded.")
 
-  def getUserDefinedFunctionClasses = functionClassesLookup.values.toArray
-
-  lazy val allFunctionClasses: String = getUserDefinedFunctionClasses.map {
-    c => s"[${c.getName()} => ${c.getAnnotation(classUserDefinedFunctionInfo)}]"
+  lazy val allFunctionClasses: String = udfInfoLookup.values.map {
+    udfi =>
+      s"${udfi.udfClass.getName()} => ${
+        val a = udfi.udfClass.getAnnotation(classUserDefinedFunctionIdentification);
+        a.namespaceURI() + ":" + a.name()
+      }"
   }.mkString("\n")
 
   /**
    * Returns an initialized UserDefinedFunction object from the UserDefinedFunctionProvider
    * based on namespaceURI and function name from the schema
    *
-   * @return Optional Tuple of initialized UserDefinedFunction, evaluate Method, array of
-   * the evaluate's parameter types and evaluate's return type
+   * @param namespaceUri The namespace associated with the schema function call
+   * @param fname The function name from the schema function call
+   *
+   * @return Optional UserDefinedFunctionCallingInfo case class of initialized UserDefinedFunction
+   * and its associated EvaluateMethodInfo consisting of its evaluate Method, a list of the evaluate
+   * method's parameter types converted to NodeInfo.Kind and the evaluate method's return type
+   * converted to NodeInfo.Kind
+   *
    */
-  def lookupUDFCallingInfo(namespaceURI: String, fname: String): Option[UdfCallingInfo] = {
+  def lookupUserDefinedFunctionCallingInfo(namespaceURI: String, fname: String): Option[UserDefinedFunctionCallingInfo] = {
     val udfid = s"$namespaceURI:$fname"
 
-    val udfFunctionCallingInfo = InitializedUserDefinedFunctionsCache.getOrElse(udfid, {
-      val provider = functionProviderLookup.get(udfid)
-      val fClass = functionClassesLookup.get(udfid)
-      if (!List(provider, fClass).exists(_.isEmpty)) {
-        val udf = provider.get.lookupInitializedUserDefinedFunction(namespaceURI, fname)
-        val expectedUdfClass = fClass.get
+    val udfFunctionCallingInfo = initializedUserDefinedFunctionsCache.getOrElse(udfid,
+      {
+        val maybeUdfInfo = udfInfoLookup.get(udfid)
+        if (maybeUdfInfo.isDefined) {
+          val Some(udfInfo) = maybeUdfInfo
 
-        if (udf != null) {
-          val actualUdfClass = udf.getClass
-          if (actualUdfClass != expectedUdfClass) {
-            log(LogLevel.Error, s"User Defined Function Class Mismatch: $udfid. Expected: $expectedUdfClass Actual: $actualUdfClass")
-            None
-          } else {
-
-            val evaluateMethodInfoTuples = expectedUdfClass.getMethods.collect {
-              case p if p.getName == evaluateMethodName => (p, p.getParameterTypes, p.getReturnType)
+          val maybeUdf =
+            try {
+              val udf = udfInfo.provider.createUserDefinedFunction(namespaceURI, fname)
+              Some(udf)
+            } catch {
+              case e: ReflectiveOperationException => {
+                log(LogLevel.Error, "Error initializing User Defined Function: %s. Error thrown: %s",
+                  udfid, e.getCause)
+                None
+              }
             }
 
-            if (evaluateMethodInfoTuples.isEmpty) {
-              log(LogLevel.Error, s"Missing evaluate method for function provided: $udfid")
-              None
-            } else if (evaluateMethodInfoTuples.length > 1) {
-              log(LogLevel.Error, s"Only one evaluate method allowed per function class: $udfid")
-              None
-            } else if (List(classOf[java.lang.Void], classOf[Unit]).exists(_ == evaluateMethodInfoTuples.head._3)) {
-              log(LogLevel.Error, s"Evaluate method for function provided cannot be void: $udfid")
+          if (maybeUdf.isDefined) {
+            val Some(udf) = maybeUdf
+            val expectedUdfClass = udfInfo.udfClass
+            val actualUdfClass = udf.getClass
+            if (actualUdfClass != expectedUdfClass) {
+              log(LogLevel.Error, "User Defined Function Class Mismatch: %s. Expected: %s Actual: %s",
+                udfid, expectedUdfClass, actualUdfClass)
               None
             } else {
-              val evaluateMethodInfo: (EvaluateMethod, ParameterTypes, ReturnType) = evaluateMethodInfoTuples.head
-              /*
-               * Attempting assignnment by tuple matching results in a scala existentials error in SBT
-               * so we do it this way instead
-               */
-              val evaluateMethod: EvaluateMethod = evaluateMethodInfo._1
-              val paramTypes: ParameterTypes = evaluateMethodInfo._2
-              val retType: ReturnType = evaluateMethodInfo._3
-              val udfci: Option[UdfCallingInfo] = Some((udf, evaluateMethod, paramTypes, retType))
-              InitializedUserDefinedFunctionsCache += (udfid -> udfci)
+              val udfci = Some(UserDefinedFunctionCallingInfo(udf, udfInfo.evaluateMethodInfo))
+              initializedUserDefinedFunctionsCache += (udfid -> udfci)
               udfci
             }
+          } else {
+            None
           }
         } else {
-          log(LogLevel.Error, s"Function not found: $udfid")
-          log(LogLevel.Info, s"Currently registered UDFs:\n${UserDefinedFunctionService.allFunctionClasses}")
           None
         }
-      } else {
-        val requiredThing = List(
-          (if (provider.isEmpty) "Provider" else ""),
-          (if (fClass.isEmpty) "User Defined Function" else ""))
-          .filter(s => !Option(s).isEmpty && s.trim.nonEmpty).mkString("/")
-        log(LogLevel.Error, s"$requiredThing not found: $udfid")
-        None
-      }
-    })
+      })
     udfFunctionCallingInfo
   }
 

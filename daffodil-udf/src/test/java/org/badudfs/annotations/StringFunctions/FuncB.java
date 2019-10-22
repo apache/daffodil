@@ -21,7 +21,7 @@ import org.apache.daffodil.udf.UserDefinedFunction;
 /**
  * UDF for Annotations Negative Unit test
  *
- * Missing @UserDefinedFunctionInfo annotation
+ * Missing @UserDefinedFunctionIdentification annotation
  */
 public class FuncB implements UserDefinedFunction {
 	public Boolean evaluate(String str1, String str2) {

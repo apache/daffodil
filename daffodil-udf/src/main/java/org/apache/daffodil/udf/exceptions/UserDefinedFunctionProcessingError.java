@@ -14,19 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.goodudfs.example.StringFunctions;
 
-import org.apache.daffodil.udf.UserDefinedFunction;
-import org.apache.daffodil.udf.UserDefinedFunctionInfo;
+package org.apache.daffodil.udf.exceptions;
 
-@UserDefinedFunctionInfo(
-		name = "compare",
-		namespaceURI = "http://goodudfs.StringFunctions"
-)
-public class Compare implements UserDefinedFunction {
-	public Boolean evaluate(String str1, String str2) {
-		Boolean ret = false;
-		ret = str1.contentEquals(str2);
-		return ret;
-	}
+/**
+ * Exception to throw to cause backtracking during parsing/unparsing.
+ */
+public class UserDefinedFunctionProcessingError extends Exception {
+  public UserDefinedFunctionProcessingError(String errorMessage) {
+    super(errorMessage);
+  }
+
+  public UserDefinedFunctionProcessingError(Throwable cause) {
+    super(cause);
+  }
+
+  public UserDefinedFunctionProcessingError(String errorMessage, Throwable cause) {
+    super(errorMessage, cause);
+  }
 }

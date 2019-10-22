@@ -26,7 +26,7 @@ import org.apache.daffodil.udf.UserDefinedFunctionProvider;
  */
 public class StringFunctionsProvider extends UserDefinedFunctionProvider {
 	@Override
-	public UserDefinedFunction lookupInitializedUserDefinedFunction(String namespace, String name) {
+	public UserDefinedFunction createUserDefinedFunction(String namespace, String name) {
 	  UserDefinedFunction functionClass = null;
 
 		String nn = String.join("_", namespace, name);

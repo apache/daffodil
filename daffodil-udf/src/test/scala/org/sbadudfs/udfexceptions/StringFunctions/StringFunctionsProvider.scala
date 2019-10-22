@@ -14,28 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.badudfs.evaluate.StringFunctions;
+package org.sbadudfs.udfexceptions.StringFunctions
 
-import org.apache.daffodil.udf.UserDefinedFunction;
-import org.apache.daffodil.udf.UserDefinedFunctionIdentification;
+import org.apache.daffodil.udf.UserDefinedFunctionProvider
 
 /**
- * UDF for Evaluate Function Negative Unit test
+ * UDF Provider for Negative Unit test
  *
- * Missing evaluate function
+ * Contains classes that throw exceptions
  */
-@UserDefinedFunctionIdentification(
-		name = "replace",
-		namespaceURI = "urn:com-ext-badudfs-StringFunctions"
-)
-public class Replace implements UserDefinedFunction {
-	private static final long serialVersionUID = 2619376314947336164L;
+class StringFunctionsProvider extends UserDefinedFunctionProvider {
 
-	public String replace(String orig, String pre, String post) {
-		String ret = "";
-		if (orig.length() >= pre.length() ) {
-			ret = orig.replace(pre, post);
-		}
-		return ret;
-	}
+  override def getUserDefinedFunctionClasses = {
+    Array(classOf[ReverseWords], classOf[Reverse])
+  }
 }

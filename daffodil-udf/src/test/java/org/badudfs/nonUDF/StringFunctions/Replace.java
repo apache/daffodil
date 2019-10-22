@@ -18,15 +18,14 @@ package org.badudfs.nonUDF.StringFunctions;
 
 import java.io.Serializable;
 
-import org.apache.daffodil.udf.UserDefinedFunction;
-import org.apache.daffodil.udf.UserDefinedFunctionInfo;
+import org.apache.daffodil.udf.UserDefinedFunctionIdentification;
 
 /**
  * UDF for implementing UserDefinedFunction Negative Unit test
  *
  * Does not implement UserDefinedFunction interface but implements Serializable
  */
-@UserDefinedFunctionInfo(
+@UserDefinedFunctionIdentification(
 		name = "replace",
 		namespaceURI = "com.ns.badudfs.StringFunctions"
 )

@@ -16,14 +16,14 @@
  */
 package org.badudfs.nonUDF.StringFunctions;
 
-import org.apache.daffodil.udf.UserDefinedFunctionInfo;
+import org.apache.daffodil.udf.UserDefinedFunctionIdentification;
 
 /**
  * UDF for implementing UserDefinedFunction Negative Unit test
  *
  * Does not implement UserDefinedFunction or Serializable interface
  */
-@UserDefinedFunctionInfo(
+@UserDefinedFunctionIdentification(
 		name = "funcA",
 		namespaceURI = "com.ns.badudfs.StringFunctions"
 )

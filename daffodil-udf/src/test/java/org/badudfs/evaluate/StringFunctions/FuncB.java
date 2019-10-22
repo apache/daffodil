@@ -17,14 +17,14 @@
 package org.badudfs.evaluate.StringFunctions;
 
 import org.apache.daffodil.udf.UserDefinedFunction;
-import org.apache.daffodil.udf.UserDefinedFunctionInfo;
+import org.apache.daffodil.udf.UserDefinedFunctionIdentification;
 
 /**
  * UDF for Evaluate Function Negative Unit test
  *
  * Contains void evaluate function
  */
-@UserDefinedFunctionInfo(
+@UserDefinedFunctionIdentification(
     name = "funcB",
     namespaceURI = "urn:com-ext-badudfs-StringFunctions"
 )

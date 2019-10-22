@@ -27,7 +27,6 @@ public class StringFunctionsProvider extends UserDefinedFunctionProvider {
 
   @Override
   public Class<?>[] getUserDefinedFunctionClasses() {
-    // TODO Auto-generated method stub
     return null;
   }
 }

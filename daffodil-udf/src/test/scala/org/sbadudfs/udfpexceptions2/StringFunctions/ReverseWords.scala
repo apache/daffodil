@@ -14,28 +14,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.badudfs.evaluate.StringFunctions;
+package org.sbadudfs.udfpexceptions2.StringFunctions
 
-import org.apache.daffodil.udf.UserDefinedFunction;
-import org.apache.daffodil.udf.UserDefinedFunctionIdentification;
-
+import org.apache.daffodil.udf.UserDefinedFunction
+import org.apache.daffodil.udf.UserDefinedFunctionIdentification
 /**
- * UDF for Evaluate Function Negative Unit test
+ * Example User Defined Function in Scala
  *
- * Missing evaluate function
  */
-@UserDefinedFunctionIdentification(
-		name = "replace",
-		namespaceURI = "urn:com-ext-badudfs-StringFunctions"
-)
-public class Replace implements UserDefinedFunction {
-	private static final long serialVersionUID = 2619376314947336164L;
-
-	public String replace(String orig, String pre, String post) {
-		String ret = "";
-		if (orig.length() >= pre.length() ) {
-			ret = orig.replace(pre, post);
-		}
-		return ret;
-	}
+@UserDefinedFunctionIdentification(name = "rev-words",
+  namespaceURI = "http://scala.udf.com")
+class ReverseWords extends UserDefinedFunction {
+  /**
+   * Reverses the order of words in a sentence
+   *
+   * @param strToRev string whose word order you wish to reverse
+   * @param sep Boundary to split your sentence on
+   * @return reversed sentence based on $sep boundary
+   */
+  def evaluate(strToRev: String, sep: String = " ") = {
+    val ret = strToRev.split(sep).reverse.mkString(sep)
+    ret
+  }
 }

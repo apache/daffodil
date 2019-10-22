@@ -14,15 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.goodudfs.example.StringFunctions;
+package org.jgoodudfs.example.StringFunctions;
 
-import org.apache.daffodil.udf.UserDefinedFunctionProvider;
+import org.apache.daffodil.udf.UserDefinedFunction;
+import org.apache.daffodil.udf.UserDefinedFunctionIdentification;
 
-public class StringFunctionsProvider extends UserDefinedFunctionProvider {
-
-  @Override
-  public Class<?>[] getUserDefinedFunctionClasses() {
-    // TODO Auto-generated method stub
-    return new Class<?>[] { Replace.class, Compare.class };
-  }
+@UserDefinedFunctionIdentification(
+		name = "replace",
+		namespaceURI = "urn:ext-goodudfs-stringFunctions"
+)
+public class Replace implements UserDefinedFunction {
+	public String evaluate(String orig, String pre, String post) {
+		String ret = "";
+		if (orig.length() >= pre.length() ) {
+			ret = orig.replace(pre, post);
+		}
+		return ret;
+	}
 }

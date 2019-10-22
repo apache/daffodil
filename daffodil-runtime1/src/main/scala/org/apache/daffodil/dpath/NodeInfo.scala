@@ -198,7 +198,9 @@ object NodeInfo extends Enum {
   val ClassLongBoxed = classOf[java.lang.Long]
   val ClassLongPrim = classOf[scala.Long]
   val ClassJBigInt = classOf[java.math.BigInteger]
+  val ClassBigInt = classOf[scala.math.BigInt]
   val ClassJBigDecimal = classOf[java.math.BigDecimal]
+  val ClassBigDecimal = classOf[scala.math.BigDecimal]
   val ClassDoubleBoxed = classOf[java.lang.Double]
   val ClassDoublePrim = classOf[scala.Double]
   val ClassFloatBoxed = classOf[java.lang.Float]
@@ -229,22 +231,23 @@ object NodeInfo extends Enum {
     }
   }
 
-  def fromClass(a: Class[_]) = {
-    a match {
-      case ClassIntBoxed | ClassIntPrim => NodeInfo.Int
-      case ClassByteBoxed | ClassBytePrim => NodeInfo.Byte
-      case ClassShortBoxed | ClassShortPrim => NodeInfo.Short
-      case ClassLongBoxed | ClassLongPrim => NodeInfo.Long
-      case ClassDoubleBoxed | ClassDoublePrim => NodeInfo.Double
-      case ClassFloatBoxed | ClassFloatPrim => NodeInfo.Float
-      case ClassBooleanBoxed | ClassBooleanPrim => NodeInfo.Boolean
-      case ClassString => NodeInfo.String
-      case ClassJBigInt => NodeInfo.Integer
-      case ClassJBigDecimal => NodeInfo.Decimal
-      case ClassByteArray => NodeInfo.HexBinary
-      case ClassURIBoxed => NodeInfo.AnyURI
-      case _ => Assert.usageError("Unsupported object representation type: %s".format(a))
+  def fromClass(jc: Class[_]) = {
+    val ni = jc match {
+      case ClassIntBoxed | ClassIntPrim => Some(NodeInfo.Int)
+      case ClassByteBoxed | ClassBytePrim => Some(NodeInfo.Byte)
+      case ClassShortBoxed | ClassShortPrim => Some(NodeInfo.Short)
+      case ClassLongBoxed | ClassLongPrim => Some(NodeInfo.Long)
+      case ClassDoubleBoxed | ClassDoublePrim => Some(NodeInfo.Double)
+      case ClassFloatBoxed | ClassFloatPrim => Some(NodeInfo.Float)
+      case ClassBooleanBoxed | ClassBooleanPrim => Some(NodeInfo.Boolean)
+      case ClassString => Some(NodeInfo.String)
+      case ClassJBigInt | ClassBigInt => Some(NodeInfo.Integer)
+      case ClassJBigDecimal | ClassBigDecimal => Some(NodeInfo.Decimal)
+      case ClassByteArray => Some(NodeInfo.HexBinary)
+      case ClassURIBoxed => Some(NodeInfo.AnyURI)
+      case _ => None
     }
+    ni
   }
 
   /**

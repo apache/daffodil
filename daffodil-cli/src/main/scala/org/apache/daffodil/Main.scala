@@ -100,6 +100,7 @@ import org.apache.daffodil.io.DataDumper
 import java.nio.ByteBuffer
 import org.apache.daffodil.io.FormatInfo
 import org.apache.daffodil.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.dpath.UserDefinedFunctionFatalErrorException
 
 class NullOutputStream extends OutputStream {
   override def close() {}
@@ -1408,6 +1409,10 @@ object Main extends Logging {
       }
       case e: OutOfMemoryError => {
         oomError(e)
+      }
+      case e: UserDefinedFunctionFatalErrorException => {
+        log(LogLevel.Error, "%s", e.getMessage())
+        1
       }
       case e: Exception => {
         bugFound(e)

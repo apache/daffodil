@@ -17,12 +17,12 @@
 package org.badudfs.functionclasses2.StringFunctions;
 
 import org.apache.daffodil.udf.UserDefinedFunction;
-import org.apache.daffodil.udf.UserDefinedFunctionInfo;
+import org.apache.daffodil.udf.UserDefinedFunctionIdentification;
 
 /**
  * UDF for userDefinedFunctionClasses array on Negative Unit test
  */
-@UserDefinedFunctionInfo(
+@UserDefinedFunctionIdentification(
 		name = "funcA",
 		namespaceURI = "http://ns.badudfs.StringFunctions.com"
 )

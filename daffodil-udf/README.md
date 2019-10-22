@@ -19,43 +19,61 @@
 
 ## Introduction
 
-Apache Daffodil (incubating) allows execution of Java external/user defined functions in DPath Expressions.
+Apache Daffodil (incubating) allows execution of Java/Scala external/user defined functions in DPath Expressions.
 
 ## Getting Started
 
-The implementer will be expected to provide a JAR via the classpath containing at least 2 classes: a provider class and its associated serializable function class(es).
+The implementer will be expected to provide a JAR via the classpath containing at least 2 classes: a provider class and its associated function class(es).
 
 The JAR can have as many provider classes as desired as long as the classes are registered in the *services* folder.
 
 ### UDF Implementation
 
-#### Provider Classes
+#### User Defined Function Provider Classes
 
-The provider class will be an implementation of Daffodil's `UDFuntionProvider` class. This class must initialize its functionClasses array with all the classes it's providing. It must also implement a lookup function that returns an initialized function class object based on a supplied name and namespace. 
+The provider class must extend Daffodil's `UserDefinedFuntionProvider` class. This class must implement the `getUserDefinedFunctionClasses` abstract method, and ensure it returns all the User Defined Functions this class is providing. The `UserDefinedFunctionProvider` class provides a `createUserDefinedFunction` to lookup and initialize User Defined Functions that have no-argument constructors, based on a supplied name and namespaceURI. If the User Defined Function has a constructor that takes arguments, then the default lookup function cannot be used, and the class must override the look up function with its own implementation for such UDFs.
 
-This class will act as a traditional service provider as explained in the ServiceLoader API, and must have a *src/META-INF/services folder* in its JAVA project with a file named `org.apache.daffodil.udf.UDFunctionProvider`. This file must contain the fully qualified name(s) of the **provider class(es)** in the JAR. Without that file, neither this class nor any of the function classes it provides will be made visible to Daffodil.
+This class will act as a traditional service provider as explained in the ServiceLoader API, and must have a *META-INF/services/org.apache.daffodil.udf.UserDefinedFunctionProvider* file in its project. This file must contain the fully qualified name(s) of the **provider class(es)** in the JAR. Without that file, neither this class nor any of the User Defined Function classes it provides will be visible to Daffodil.
 
-The class can provide as many function classes as it wishes, it only has to track them in the functionClasses array and initialize them in the lookup function.
+The class can provide as many User Defined Function classes as it wishes, as long as they are made available by the `getUserDefinedFunctionClasses` function.
 
-#### Function Classes
+#### User Defined Function Classes
 
-The function class will contain the functionality of the desired UDF. It must be annotated with the `FunctionClassInfo` annotation class, with its name and namespace filled in. It must also implement a function named *evaluate* that Daffodil will call to execute the desired UDF functionality. There is no support for overloaded evaluate functions.
-
-The function class must be serializable.
+The User Defined Function class must extend Daffodil's `UserDefinedFunction` class. This class will contain the actual functionality implementers wish to add to DPath Expressions. It must be annotated with the `UserDefinedFunctionIdentification` annotation class, with the name and namespaceURI fields filled in with how the UDF will be called from the schema. It must also implement a function named *evaluate* that Daffodil will call to execute the desired UDF functionality. *There is no support for overloaded or void evaluate functions*.
 
 ### UDF Usage
 
-To use within a DPATH expression, you will need to define a xsd namespace whose value matches the namespace of the function class's annotation. Then you can call the function with the name matching the function class's annotation. For example:
+To use within a DPATH expression, you will need to either define an xsd namespace or set as your default namespace a value that matches the namespaceURI of the UDF's annotation. Then you can call the function with the name field of the function class's annotation. For example:
 
-```
+```xml
+<!--
+For a UDF with the following annotation
+@UserDefinedFunctionIdentification(
+    name = "replace",
+    namespaceURI = "http://ext.StringFunctions.com")
+-->
+
 <!-- within the schema tag -->
-xmlns:sdf="com.ext.UDFunction.StringFunctions"
+xmlns:sdf="http://ext.StringFunctions.com"
 
 <!-- within the DPATH expression -->
 ..."{ sdf:replace(., ' ', '_') }"...
 ```
 
+## Supported Types
+* BigDecimal: Java or Scala
+* BigInteger: Java or Scala
+* Boolean: Boxed and Primitive
+* Byte: Boxed, Primitive, Array of Boxed
+* Double: Boxed and Primitive
+* Float: Boxed and Primitive
+* Integer: Boxed and Primitive
+* Long: Boxed and Primitive
+* Short: Boxed and Primitive
+* String
+* URI
+
 ## Restrictions
 
 - Overloading unsupported
-
+- Void functions unsupported

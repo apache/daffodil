@@ -14,24 +14,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.sgoodudfs.example.StringFunctions
 
-package org.apache.daffodil.udf;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.apache.daffodil.udf.UserDefinedFunction
+import org.apache.daffodil.udf.UserDefinedFunctionIdentification
+import com.sun.xml.internal.bind.v2.runtime.IllegalAnnotationsException
 
 /**
- * Annotation that must be applied to every UDF in order for it to be considered valid.
- *
- * It must have the name and namespaceURI fields initialized with the namespace and name callers
- * would be expected to use in the schema.
+ * Example User Defined Function in Scala
  *
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface UserDefinedFunctionInfo {
-	String name();
-	String namespaceURI();
+@UserDefinedFunctionIdentification(name = "reverse",
+  namespaceURI = "http://scala.udf.com")
+class Reverse extends UserDefinedFunction {
+  /**
+   * Reverses the order of chars in a string
+   *
+   * @param str string whose order you wish to reverse
+   * @return reversed str
+   */
+  def evaluate(str: String) = {
+    val ret = str.reverse
+    ret
+  }
 }

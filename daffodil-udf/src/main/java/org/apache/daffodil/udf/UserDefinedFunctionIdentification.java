@@ -14,28 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.badudfs.evaluate.StringFunctions;
 
-import org.apache.daffodil.udf.UserDefinedFunction;
-import org.apache.daffodil.udf.UserDefinedFunctionIdentification;
+package org.apache.daffodil.udf;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * UDF for Evaluate Function Negative Unit test
+ * Annotation that must be applied to every UDF in order for it to be considered valid.
  *
- * Missing evaluate function
+ * It must have the name and namespaceURI fields initialized with the namespace and name callers
+ * would be expected to use in the schema.
+ *
  */
-@UserDefinedFunctionIdentification(
-		name = "replace",
-		namespaceURI = "urn:com-ext-badudfs-StringFunctions"
-)
-public class Replace implements UserDefinedFunction {
-	private static final long serialVersionUID = 2619376314947336164L;
-
-	public String replace(String orig, String pre, String post) {
-		String ret = "";
-		if (orig.length() >= pre.length() ) {
-			ret = orig.replace(pre, post);
-		}
-		return ret;
-	}
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface UserDefinedFunctionIdentification {
+	String name();
+	String namespaceURI();
 }

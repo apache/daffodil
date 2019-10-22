@@ -14,28 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.badudfs.evaluate.StringFunctions;
 
-import org.apache.daffodil.udf.UserDefinedFunction;
-import org.apache.daffodil.udf.UserDefinedFunctionIdentification;
+package org.apache.daffodil.udf.exceptions;
 
 /**
- * UDF for Evaluate Function Negative Unit test
- *
- * Missing evaluate function
+ * Exception to throw to abort parsing/unparsing.
  */
-@UserDefinedFunctionIdentification(
-		name = "replace",
-		namespaceURI = "urn:com-ext-badudfs-StringFunctions"
-)
-public class Replace implements UserDefinedFunction {
-	private static final long serialVersionUID = 2619376314947336164L;
-
-	public String replace(String orig, String pre, String post) {
-		String ret = "";
-		if (orig.length() >= pre.length() ) {
-			ret = orig.replace(pre, post);
-		}
-		return ret;
-	}
+public class UserDefinedFunctionFatalException extends Exception {
+  public UserDefinedFunctionFatalException(String errorMessage) {
+    super(errorMessage);
+  }
 }

@@ -17,8 +17,6 @@
 
 package org.apache.daffodil.udf;
 
-import java.lang.reflect.InvocationTargetException;
-
 /**
  * Abstract class used by ServiceLoader to poll for UDF providers on classpath.
  *
@@ -29,8 +27,8 @@ import java.lang.reflect.InvocationTargetException;
  * userDefinedFunctionClasses array with all the UDF classes it is providing.
  *
  * If the UDFs being provided have constructors with arguments, the provider
- * subclass must also implement the lookup function to return an initialized
- * function class object based on the supplied namespace and name.
+ * subclass must also implement the createUserDefinedFunction to return an
+  initialized function class object based on the supplied namespace and name.
  *
  * Subclasses must also supply a
  * src/META-INF/services/org.apache.daffodil.udf.UserDefinedFunctionProvider
@@ -49,30 +47,29 @@ public abstract class UserDefinedFunctionProvider {
 
   /**
    * Finds and initializes User Defined Function class based on namespace and name
-   * provided. The UserDefinedFunctionInfo annotation applied to the function
-   * class must match name and namespaceURI field passed in from the schema.
+   * provided. The UserDefinedFunctionIdentification annotation applied to the
+   * function class must match name and namespaceURI field passed in from the
+   * schema.
    *
    * Must be overloaded if the function class's constructor takes arguments.
    * Otherwise it will throw exceptions.
    *
-   * @param namespaceURI XML namespace associated with schema function call
-   * @param fName function name called in schema
+   * @param namespaceURI
+   *          XML namespace associated with schema function call
+   * @param fName
+   *          function name called in schema
    * @return initialized UserDefinedFunction object that must contain evaluate
    *         function with functionality of UDF
    *
    * @throws SecurityException
-   * @throws NoSuchMethodException
-   * @throws InvocationTargetException
    * @throws IllegalArgumentException
-   * @throws IllegalAccessException
-   * @throws InstantiationException
+   * @throws ReflectiveOperationException
    */
-  public UserDefinedFunction lookupInitializedUserDefinedFunction(String namespaceURI, String fName)
-      throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException,
-      NoSuchMethodException, SecurityException {
+  public UserDefinedFunction createUserDefinedFunction(String namespaceURI, String fName)
+      throws IllegalArgumentException, SecurityException, ReflectiveOperationException {
     UserDefinedFunction fcObject = null;
     for (Class<?> udfc : getUserDefinedFunctionClasses()) {
-      UserDefinedFunctionInfo fInfo = udfc.getAnnotation(UserDefinedFunctionInfo.class);
+      UserDefinedFunctionIdentification fInfo = udfc.getAnnotation(UserDefinedFunctionIdentification.class);
       String ns = fInfo.namespaceURI();
       String fname = fInfo.name();
       if (namespaceURI.equals(ns) && fName.equals(fname)) {
