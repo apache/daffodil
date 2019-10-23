@@ -1412,6 +1412,7 @@ object Main extends Logging {
       }
       case e: UserDefinedFunctionFatalErrorException => {
         log(LogLevel.Error, "%s", e.getMessage())
+        e.printStackTrace()
         1
       }
       case e: Exception => {

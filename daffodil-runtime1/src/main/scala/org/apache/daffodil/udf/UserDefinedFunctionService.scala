@@ -39,26 +39,30 @@ object UserDefinedFunctionService extends Logging {
   lazy val evaluateMethodName = "evaluate"
 
   case class UserDefinedFunctionMethod(
-      decClass: Class[_],
-      methodName: String,
-      paramTypes: Array[Class[_]])
+      val decClass: Class[_],
+      val methodName: String,
+      val paramTypes: Array[Class[_]])
       extends Serializable {
-    var method: Method = _
 
-    def getMethod = this.method
-
-    def writeObject(out: ObjectOutputStream) {
-      out.writeObject(decClass)
-      out.writeUTF(methodName)
-      out.writeObject(paramTypes)
+    @transient lazy val method: Method = {
+      lookupMethod
     }
 
-    def readObject(in: ObjectInputStream) {
-      val decClass: Class[_] = in.readObject().asInstanceOf[Class[_]]
-      val methodName = in.readUTF()
-      val paramTypes = in.readObject().asInstanceOf[Array[Class[_]]]
+    def lookupMethod() = {
+     val m = decClass.getMethod(methodName, paramTypes: _*)
+     m
+    }
 
-      this.method = decClass.getMethod(methodName, paramTypes: _*)
+    @throws(classOf[java.io.IOException])
+    private def writeObject(out: ObjectOutputStream) : Unit = {
+      out.defaultWriteObject()
+    }
+
+    @throws(classOf[java.io.IOException])
+    @throws(classOf[java.lang.ClassNotFoundException])
+    private def readObject(in: ObjectInputStream): Unit = {
+      in.defaultReadObject()
+      this.method
     }
   }
   case class EvaluateMethodInfo(evaluateMethod: UserDefinedFunctionMethod, parameterTypes: List[NodeInfo.Kind], returnType: NodeInfo.Kind)

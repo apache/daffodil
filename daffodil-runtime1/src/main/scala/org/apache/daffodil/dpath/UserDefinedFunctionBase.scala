@@ -67,6 +67,7 @@ case class UserDefinedFunctionCall(
   userDefinedFunction: UserDefinedFunction,
   evaluateFxn: UserDefinedFunctionMethod)
   extends FNArgsList(recipes) {
+
   override def computeValue(values: List[Any], dstate: DState) = {
     val jValues = values.map { _.asInstanceOf[Object] }
     try {
