@@ -24,16 +24,15 @@ import org.apache.daffodil.udf.UserDefinedFunctionIdentification;
  * Does not implement UserDefinedFunction or Serializable interface
  */
 @UserDefinedFunctionIdentification(
-		name = "funcA",
-		namespaceURI = "com.ns.badudfs.StringFunctions"
-)
+    name = "funcA",
+    namespaceURI = "com.ns.badudfs.StringFunctions")
 public class FuncA {
 
-	public String evaluate(String orig, String pre, String post) {
-		String ret = "";
-		if (orig.length() >= pre.length() ) {
-			ret = orig.replace(pre, post);
-		}
-		return ret;
-	}
+  public String evaluate(String orig, String pre, String post) {
+    String ret = "";
+    if (orig.length() >= pre.length()) {
+      ret = orig.replace(pre, post);
+    }
+    return ret;
+  }
 }

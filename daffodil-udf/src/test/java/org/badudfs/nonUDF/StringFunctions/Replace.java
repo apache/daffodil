@@ -26,17 +26,16 @@ import org.apache.daffodil.udf.UserDefinedFunctionIdentification;
  * Does not implement UserDefinedFunction interface but implements Serializable
  */
 @UserDefinedFunctionIdentification(
-		name = "replace",
-		namespaceURI = "com.ns.badudfs.StringFunctions"
-)
+    name = "replace",
+    namespaceURI = "com.ns.badudfs.StringFunctions")
 public class Replace implements Serializable {
-	private static final long serialVersionUID = 2619376314947336164L;
+  private static final long serialVersionUID = 2619376314947336164L;
 
-	public String evaluate(String orig, String pre, String post) {
-		String ret = "";
-		if (orig.length() >= pre.length() ) {
-			ret = orig.replace(pre, post);
-		}
-		return ret;
-	}
+  public String evaluate(String orig, String pre, String post) {
+    String ret = "";
+    if (orig.length() >= pre.length()) {
+      ret = orig.replace(pre, post);
+    }
+    return ret;
+  }
 }

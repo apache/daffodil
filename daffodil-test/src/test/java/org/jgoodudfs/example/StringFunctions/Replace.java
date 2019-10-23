@@ -20,15 +20,14 @@ import org.apache.daffodil.udf.UserDefinedFunction;
 import org.apache.daffodil.udf.UserDefinedFunctionIdentification;
 
 @UserDefinedFunctionIdentification(
-		name = "replace",
-		namespaceURI = "urn:ext-goodudfs-stringFunctions"
-)
+    name = "replace",
+    namespaceURI = "urn:ext-goodudfs-stringFunctions")
 public class Replace implements UserDefinedFunction {
-	public String evaluate(String orig, String pre, String post) {
-		String ret = "";
-		if (orig.length() >= pre.length() ) {
-			ret = orig.replace(pre, post);
-		}
-		return ret;
-	}
+  public String evaluate(String orig, String pre, String post) {
+    String ret = "";
+    if (orig.length() >= pre.length()) {
+      ret = orig.replace(pre, post);
+    }
+    return ret;
+  }
 }

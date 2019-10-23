@@ -24,9 +24,9 @@ import org.apache.daffodil.udf.UserDefinedFunction;
  * Missing @UserDefinedFunctionIdentification annotation
  */
 public class FuncB implements UserDefinedFunction {
-	public Boolean evaluate(String str1, String str2) {
-		Boolean ret = false;
-		ret = str1.contentEquals(str2);
-		return ret;
-	}
+  public Boolean evaluate(String str1, String str2) {
+    Boolean ret = false;
+    ret = str1.contentEquals(str2);
+    return ret;
+  }
 }

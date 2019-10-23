@@ -193,9 +193,6 @@ object Misc {
     urls
   }
 
-  /** Make callable from Java **/
-  def getClassPath = classPath.toArray
-
   def getRequiredResource(resourcePath: String): URI = {
     getResourceOption(resourcePath) match {
       case (None, resPath) => {

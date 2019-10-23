@@ -20,13 +20,12 @@ import org.apache.daffodil.udf.UserDefinedFunction;
 import org.apache.daffodil.udf.UserDefinedFunctionIdentification;
 
 @UserDefinedFunctionIdentification(
-		name = "compare",
-		namespaceURI = "http://goodudfs.StringFunctions"
-)
+    name = "compare",
+    namespaceURI = "http://goodudfs.StringFunctions")
 public class Compare implements UserDefinedFunction {
-	public Boolean evaluate(String str1, String str2) {
-		Boolean ret = false;
-		ret = str1.contentEquals(str2);
-		return ret;
-	}
+  public Boolean evaluate(String str1, String str2) {
+    Boolean ret = false;
+    ret = str1.contentEquals(str2);
+    return ret;
+  }
 }

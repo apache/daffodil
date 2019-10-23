@@ -23,15 +23,14 @@ import org.apache.daffodil.udf.UserDefinedFunctionIdentification;
  * UDF for userDefinedFunctionClasses array on Negative Unit test
  */
 @UserDefinedFunctionIdentification(
-		name = "replace",
-		namespaceURI = "com.ns.badudfs.StringFunctions"
-)
+    name = "replace",
+    namespaceURI = "com.ns.badudfs.StringFunctions")
 public class Replace implements UserDefinedFunction {
-	public String evaluate(String orig, String pre, String post) {
-		String ret = "";
-		if (orig.length() >= pre.length() ) {
-			ret = orig.replace(pre, post);
-		}
-		return ret;
-	}
+  public String evaluate(String orig, String pre, String post) {
+    String ret = "";
+    if (orig.length() >= pre.length()) {
+      ret = orig.replace(pre, post);
+    }
+    return ret;
+  }
 }

@@ -26,12 +26,11 @@ import org.apache.daffodil.udf.UserDefinedFunction;
  */
 @UserDefinedFunctionIdentification(
     name = "",
-    namespaceURI = "http://ext.badudfs.StringFunctions.com"
-    )
+    namespaceURI = "http://ext.badudfs.StringFunctions.com")
 public class Replace implements UserDefinedFunction {
   public String evaluate(String orig, String pre, String post) {
     String ret = "";
-    if (orig.length() >= pre.length() ) {
+    if (orig.length() >= pre.length()) {
       ret = orig.replace(pre, post);
     }
     return ret;

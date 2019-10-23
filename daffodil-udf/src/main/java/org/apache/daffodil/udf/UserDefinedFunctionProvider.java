@@ -28,7 +28,7 @@ package org.apache.daffodil.udf;
  *
  * If the UDFs being provided have constructors with arguments, the provider
  * subclass must also implement the createUserDefinedFunction to return an
-  initialized function class object based on the supplied namespace and name.
+ * initialized function class object based on the supplied namespace and name.
  *
  * Subclasses must also supply a
  * src/META-INF/services/org.apache.daffodil.udf.UserDefinedFunctionProvider
@@ -69,7 +69,8 @@ public abstract class UserDefinedFunctionProvider {
       throws IllegalArgumentException, SecurityException, ReflectiveOperationException {
     UserDefinedFunction fcObject = null;
     for (Class<?> udfc : getUserDefinedFunctionClasses()) {
-      UserDefinedFunctionIdentification fInfo = udfc.getAnnotation(UserDefinedFunctionIdentification.class);
+      UserDefinedFunctionIdentification fInfo = udfc
+          .getAnnotation(UserDefinedFunctionIdentification.class);
       String ns = fInfo.namespaceURI();
       String fname = fInfo.name();
       if (namespaceURI.equals(ns) && fName.equals(fname)) {

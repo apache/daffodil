@@ -25,17 +25,16 @@ import org.apache.daffodil.udf.UserDefinedFunctionIdentification;
  * Missing evaluate function
  */
 @UserDefinedFunctionIdentification(
-		name = "replace",
-		namespaceURI = "urn:com-ext-badudfs-StringFunctions"
-)
+    name = "replace",
+    namespaceURI = "urn:com-ext-badudfs-StringFunctions")
 public class Replace implements UserDefinedFunction {
-	private static final long serialVersionUID = 2619376314947336164L;
+  private static final long serialVersionUID = 2619376314947336164L;
 
-	public String replace(String orig, String pre, String post) {
-		String ret = "";
-		if (orig.length() >= pre.length() ) {
-			ret = orig.replace(pre, post);
-		}
-		return ret;
-	}
+  public String replace(String orig, String pre, String post) {
+    String ret = "";
+    if (orig.length() >= pre.length()) {
+      ret = orig.replace(pre, post);
+    }
+    return ret;
+  }
 }

@@ -25,28 +25,28 @@ import org.apache.daffodil.udf.UserDefinedFunctionProvider;
  * Contains classes with invalid or missing annotations
  */
 public class StringFunctionsProvider extends UserDefinedFunctionProvider {
-	@Override
-	public UserDefinedFunction createUserDefinedFunction (String namespace, String name) {
-	  UserDefinedFunction functionClass = null;
+  @Override
+  public UserDefinedFunction createUserDefinedFunction(String namespace, String name) {
+    UserDefinedFunction functionClass = null;
 
-		String nn = String.join("_", namespace, name);
+    String nn = String.join("_", namespace, name);
 
-		switch (nn) {
-		case "http://ext.badudfs.StringFunctions.com_":
-			functionClass = new Replace();
-			break;
-		case "":
-			functionClass = new Compare();
-			break;
-		default:
-			functionClass = new FuncB();
-			break;
-		}
-		return functionClass;
-	}
+    switch (nn) {
+    case "http://ext.badudfs.StringFunctions.com_":
+      functionClass = new Replace();
+      break;
+    case "":
+      functionClass = new Compare();
+      break;
+    default:
+      functionClass = new FuncB();
+      break;
+    }
+    return functionClass;
+  }
 
   @Override
   public Class<?>[] getUserDefinedFunctionClasses() {
-    return new Class<?>[] { Compare.class, FuncB.class, Replace.class};
+    return new Class<?>[] { Compare.class, FuncB.class, Replace.class };
   }
 }

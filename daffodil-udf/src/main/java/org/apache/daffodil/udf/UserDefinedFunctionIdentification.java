@@ -23,15 +23,17 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation that must be applied to every UDF in order for it to be considered valid.
+ * Annotation that must be applied to every UDF in order for it to be considered
+ * valid.
  *
- * It must have the name and namespaceURI fields initialized with the namespace and name callers
- * would be expected to use in the schema.
+ * It must have the name and namespaceURI fields initialized with the namespace
+ * and name callers would be expected to use in the schema.
  *
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface UserDefinedFunctionIdentification {
-	String name();
-	String namespaceURI();
+  String name();
+
+  String namespaceURI();
 }

@@ -25,25 +25,25 @@ import org.apache.daffodil.udf.UserDefinedFunctionProvider;
  * Contains classes that don't implement UserDefinedFunction interface
  */
 public class StringFunctionsProvider extends UserDefinedFunctionProvider {
-	@Override
-	public UserDefinedFunction createUserDefinedFunction(String namespace, String name) {
-	  UserDefinedFunction functionClass = null;
+  @Override
+  public UserDefinedFunction createUserDefinedFunction(String namespace, String name) {
+    UserDefinedFunction functionClass = null;
 
-		String nn = String.join("_", namespace, name);
+    String nn = String.join("_", namespace, name);
 
-		switch (nn) {
-		case "com.ns.badudfs.StringFunctions_replace":
-			functionClass = (UserDefinedFunction) new Replace();
-			break;
-		case "com.ns.badudfs.StringFunctions_funcA":
-			functionClass = (UserDefinedFunction) new FuncA();
-			break;
-		}
-		return functionClass;
-	}
+    switch (nn) {
+    case "com.ns.badudfs.StringFunctions_replace":
+      functionClass = (UserDefinedFunction) new Replace();
+      break;
+    case "com.ns.badudfs.StringFunctions_funcA":
+      functionClass = (UserDefinedFunction) new FuncA();
+      break;
+    }
+    return functionClass;
+  }
 
   @Override
   public Class<?>[] getUserDefinedFunctionClasses() {
-    return  new Class<?>[] { FuncA.class, Replace.class };
+    return new Class<?>[] { FuncA.class, Replace.class };
   }
 }
