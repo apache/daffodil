@@ -21,6 +21,7 @@
 
 import argparse
 import hashlib
+import struct
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -29,15 +30,16 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     length_in_bytes = args.size * 1024000
+    chunk  = bytearray.fromhex('deadbeef' * 1000)
+    chunksize = len(chunk)
     bytes_written = 0
     hash_md5 = hashlib.md5()
-    chunk  = bytearray.fromhex('deadbeef')
     with open(args.output, 'wb') as fout:
-        fout.write(length_in_bytes.to_bytes(8, byteorder='big'))
+        fout.write(struct.pack(">Q", length_in_bytes)) # 8-bytes big-endian
         while (bytes_written < length_in_bytes):
             fout.write(chunk)
             hash_md5.update(chunk)
-            bytes_written += 4
+            bytes_written += chunksize
 
     print("Wrote %d bytes" % bytes_written)
     print("Blob md5 hash: %s" % hash_md5.hexdigest())

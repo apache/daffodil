@@ -55,6 +55,7 @@ import org.apache.daffodil.io.DirectOrBufferedDataOutputStream
 import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.util.LogLevel
 import org.apache.daffodil.io.BitOrderChangeException
+import org.apache.daffodil.io.BlobIOException
 import org.apache.daffodil.infoset._
 import org.apache.daffodil.processors.parsers.ParseError
 import org.apache.daffodil.processors.parsers.Parser
@@ -404,6 +405,8 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
     } catch {
       case boc: BitOrderChangeException =>
         state.SDE(boc)
+      case bio: BlobIOException =>
+        state.SDE(bio)
     }
     log(LogLevel.Debug, "%s final stream for %s finished.", this, state)
 

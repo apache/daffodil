@@ -17,17 +17,22 @@
 
 package org.apache.daffodil.io
 
-import org.apache.daffodil.exceptions.Assert
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.StandardOpenOption
+
+import passera.unsigned.ULong
+
 import org.apache.daffodil.equality._
-import org.apache.daffodil.util.Misc
-import org.apache.daffodil.util.MaybeULong
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.exceptions.ThinThrowable
+import org.apache.daffodil.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.util.Bits
+import org.apache.daffodil.util.LogLevel
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe._
-import passera.unsigned.ULong
-import org.apache.daffodil.util.Bits
-import org.apache.daffodil.exceptions.ThinThrowable
-import org.apache.daffodil.util.LogLevel
-import org.apache.daffodil.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.util.MaybeULong
+import org.apache.daffodil.util.Misc
 
 /**
  * This simple extension just gives us a public method for access to the underlying byte array.
@@ -89,7 +94,7 @@ private[io] class ByteArrayOutputStreamWithGetBuf() extends java.io.ByteArrayOut
  * from the user and it is the users responsibility to close it. The isLayer
  * provides the flag to know which streams should be closed or not.
  */
-final class DirectOrBufferedDataOutputStream private[io] (var splitFrom: DirectOrBufferedDataOutputStream, val isLayer: Boolean = false)
+class DirectOrBufferedDataOutputStream private[io] (var splitFrom: DirectOrBufferedDataOutputStream, val isLayer: Boolean = false)
   extends DataOutputStreamImplMixin {
   type ThisType = DirectOrBufferedDataOutputStream
 
@@ -178,13 +183,13 @@ final class DirectOrBufferedDataOutputStream private[io] (var splitFrom: DirectO
    *
    * If reused, this must be reset.
    */
-  private val bufferingJOS = new ByteArrayOutputStreamWithGetBuf()
+  protected val bufferingJOS = new ByteArrayOutputStreamWithGetBuf()
 
   /**
    * Switched to point a either the buffering or direct java output stream in order
    * to change modes from buffering to direct (and back if these objects get reused.)
    */
-  private var _javaOutputStream: java.io.OutputStream = bufferingJOS
+  protected var _javaOutputStream: java.io.OutputStream = bufferingJOS
 
   final def isBuffering: Boolean = {
     val res = getJavaOutputStream() _eq_ bufferingJOS
@@ -219,9 +224,47 @@ final class DirectOrBufferedDataOutputStream private[io] (var splitFrom: DirectO
    * Provides a new buffered data output stream. Note that this must
    * be completely configured (byteOrder, encoding, bitOrder, etc.)
    */
-  def addBuffered: DirectOrBufferedDataOutputStream = {
+  def addBuffered(): DirectOrBufferedDataOutputStream = {
+    val buffered = new DirectOrBufferedDataOutputStream(this, isLayer)
+    addBufferedDOS(buffered)
+    buffered
+  }
+
+  def addBufferedBlob(
+    path: Path,
+    lengthInBits: Long,
+    blobChunkSizeInBytes: Int,
+    finfo: FormatInfo): DirectOrBufferedDataOutputStream = {
+
+    // create a special buffered blob data outputstream and split the current
+    // DOS to it. When this normal DOS is finished, the blob DOS will handle
+    // delivering the blob data to it without loading the whole blob into
+    // memory all at once.
+    val bufferedBlob = new BufferedBlobDataOutputStream(
+      this,
+      path,
+      lengthInBits,
+      blobChunkSizeInBytes,
+      isLayer)
+    addBufferedDOS(bufferedBlob)
+
+    // we know the length of the blob as passed in, so adjust the bit position
+    // and mark it as finished.
+    bufferedBlob.setRelBitPos0b(bufferedBlob.relBitPos0b + ULong(lengthInBits))
+    if (lengthInBits > 0)
+      bufferedBlob.setNonZeroLength()
+    bufferedBlob.setFinished(finfo)
+
+    // now split the blob DOS to a normal buffered DOS, we'll return this and
+    // expect the caller to update the UState accordingly so that all future
+    // unparsed data is written to this DOS. This DOS will eventually be
+    // delivered to the blob DOS once it becomes direct
+    val buffered = bufferedBlob.addBuffered()
+    buffered
+  }
+
+  private def addBufferedDOS(newBufStr: DirectOrBufferedDataOutputStream): Unit = {
     Assert.usage(_following.isEmpty)
-    val newBufStr = new DirectOrBufferedDataOutputStream(this, isLayer)
     _following = One(newBufStr)
     //
     // TODO: PERFORMANCE: This is very pessimistic. It's making a complete clone of the state
@@ -240,9 +283,9 @@ final class DirectOrBufferedDataOutputStream private[io] (var splitFrom: DirectO
     //
     newBufStr.assignFrom(this)
     newBufStr.resetAllBitPos()
-    val savedBP = relBitPos0b.toLong
-    if (maybeRelBitLimit0b.isDefined) newBufStr.setMaybeRelBitLimit0b(MaybeULong(maybeRelBitLimit0b.get - savedBP))
-    newBufStr
+    if (maybeRelBitLimit0b.isDefined) {
+      newBufStr.setMaybeRelBitLimit0b(MaybeULong(maybeRelBitLimit0b.get - relBitPos0b.toLong))
+    }
   }
 
   /**
@@ -713,6 +756,135 @@ final class DirectOrBufferedDataOutputStream private[io] (var splitFrom: DirectO
    */
   // private def withBitLengthLimit(lengthLimitInBits: Long)(body: => Unit): Boolean = macro IOMacros.withBitLengthLimitMacroForOutput
 
+  protected def deliverContent(directDOS: DirectOrBufferedDataOutputStream, finfo: FormatInfo) = {
+
+    val ba = this.bufferingJOS.getBuf
+    val bufferNBits = this.relBitPos0b // don't have to subtract a starting offset. It's always zero in buffered case.
+
+    if (directDOS.isEndOnByteBoundary && this.isEndOnByteBoundary) {
+      // no fragment bytes anywhere - just take the bytes
+
+      val nBytes = (bufferNBits / 8).toInt
+      val nBytesPut = directDOS.putBytes(ba, 0, nBytes, finfo)
+      Assert.invariant(nBytesPut == nBytes)
+
+    } else {
+      // fragment byte on directDOS, fragment byte on bufDOS, or both.
+
+      val nFragBits = this.fragmentLastByteLimit
+      val byteCount = this.bufferingJOS.getCount()
+      val wholeBytesWritten = directDOS.putBytes(ba, 0, byteCount, finfo)
+      Assert.invariant(byteCount == wholeBytesWritten)
+      if (nFragBits > 0) {
+        if (directDOS.isEndOnByteBoundary) {
+          // We cannot use putLong like below because it's possible that
+          // the fragment byte has a different bitOrder than the finfo
+          // passed in, since that came from a suspension. However, if
+          // the directDOS ended on a byte boundary, that means that its
+          // new fragment byte should be exactly the same as the buffered
+          // DOS fragment byte. So in this case, just copy the frag byte
+          // information from buffered to direct.
+          directDOS.setFragmentLastByte(this.fragmentLastByte, this.fragmentLastByteLimit)
+        } else {
+          // If the direct DOS wasn't byte aligned, then we need logic to
+          // write the buffered DOS fragment after the direct DOS
+          // fragment. Fortunately, putLong has all of this logic. Like
+          // above, the call to putLong potentially uses the wrong finfo
+          // since it may have come from a suspension. However, all that
+          // putLong really uses from the finfo is the bitOrder. And
+          // because the directDOS isn't byte aligned we know it must
+          // have the same bitOrder as the buffered DOS. So even though
+          // it could be the wrong format info, it's safe to use in this
+          // case.
+          val origfrag = this.fragmentLastByte
+          val fragNum =
+            if (finfo.bitOrder eq BitOrder.MostSignificantBitFirst)
+              origfrag >> (8 - nFragBits)
+            else
+              origfrag
+          Assert.invariant(directDOS.putLongUnchecked(fragNum, nFragBits, finfo))
+        }
+      }
+    }
+  }
+
+}
+
+final class BufferedBlobDataOutputStream private[io] (
+  splitFrom: DirectOrBufferedDataOutputStream,
+  path: Path,
+  lengthInBits: Long,
+  blobChunkSizeInBytes: Int,
+  isLayer: Boolean = false)
+  extends DirectOrBufferedDataOutputStream(splitFrom, isLayer) {
+
+  // Data should never be written to a buffer in this BLOB DOS, so there is no
+  // need for a bufferingJOS that the parent class would allocate. However, the
+  // bufferJOS is used to determine if a DOS is buffering or not. In our case,
+  // this is buffering if the JavaOutputStream is the same as bufferingJOS
+  // (i.e. null).
+  override protected val bufferingJOS = null
+
+  // This function is exactly the same as the one it overrides in the parent
+  // except that it does not have the assertion that _javaOutputStream is never
+  // null. This is because when this BLOB DOS is not direct, the
+  // javaOutputStream is set to null (and should never be written to). Once
+  // this becomes direct, the _javaOutputStream variable is changed to the
+  // direct OutputStream.
+  override def getJavaOutputStream() = {
+     _javaOutputStream
+   }
+
+  protected override def deliverContent(directDOS: DirectOrBufferedDataOutputStream, finfo: FormatInfo) = {
+
+    val blobStream =
+      try {
+        Files.newInputStream(path, StandardOpenOption.READ)
+      } catch {
+        case e: Exception =>
+          throw new BlobIOException(
+            "Unable to open BLOB %s for reading: %s".format(
+              path.toString,
+              e.getMessage()))
+      }
+
+    val array = new Array[Byte](blobChunkSizeInBytes)
+
+    val blobChunkSizeInBits = blobChunkSizeInBytes * 8
+
+    var remainingBitsToPut = lengthInBits
+    var fileHasData = true
+    while (remainingBitsToPut > 0 && fileHasData) {
+      val bitsToRead = Math.min(remainingBitsToPut, blobChunkSizeInBits)
+      val bytesToRead = (bitsToRead + 7) / 8
+      val bytesRead = blobStream.read(array, 0, bytesToRead.toInt)
+      if (bytesRead == -1) {
+        fileHasData = false
+      } else {
+        val bitsToPut = Math.min(bytesRead * 8, bitsToRead)
+        val ret = directDOS.putByteArray(array, bitsToPut.toInt, finfo)
+        if (!ret) {
+          blobStream.close()
+          throw new BlobIOException(
+            "Failed to write BLOB data: %s".format(path.toString))
+        }
+        remainingBitsToPut -= bitsToPut
+      }
+    }
+
+    blobStream.close()
+
+    // calculate the skip bits
+    val nFillBits = remainingBitsToPut
+    if (nFillBits > 0) {
+      val ret = directDOS.skip(nFillBits, finfo)
+      if (!ret) {
+          throw new BlobIOException(
+            "Failed to skip %s bits after BLOB data: %s".format(nFillBits, path.toString))
+      }
+    }
+  }
+
 }
 
 /**
@@ -723,7 +895,7 @@ final class DirectOrBufferedDataOutputStream private[io] (var splitFrom: DirectO
  *
  * All calls to setFinished should, somewhere, be surrounded by a catch of this.
  */
-class BitOrderChangeException(directDOS: DirectOrBufferedDataOutputStream, finfo: FormatInfo) extends Exception with ThinThrowable {
+class BitOrderChangeException(directDOS: DirectOrBufferedDataOutputStream, finfo: FormatInfo) extends Exception {
 
   override def getMessage() = {
     "Data output stream %s with bitOrder '%s' which is not on a byte boundary (%s bits past last byte boundary), cannot be populated with bitOrder '%s'.".format(
@@ -733,6 +905,8 @@ class BitOrderChangeException(directDOS: DirectOrBufferedDataOutputStream, finfo
       finfo.bitOrder)
   }
 }
+
+class BlobIOException(message: String) extends Exception(message)
 
 object DirectOrBufferedDataOutputStream {
 
@@ -751,13 +925,10 @@ object DirectOrBufferedDataOutputStream {
     Assert.invariant(bufDOS.isBuffering)
     Assert.invariant(!directDOS.isBuffering)
 
-    val ba = bufDOS.bufferingJOS.getBuf
-    val bufferNBits = bufDOS.relBitPos0b // don't have to subtract a starting offset. It's always zero in buffered case.
-
     val finfoBitOrder = finfo.bitOrder // bit order we are supposed to write with
     val priorBitOrder = directDOS.cst.priorBitOrder // bit order that the directDOS had at last successful unparse. (prior is set after each unparser)
     if (finfoBitOrder ne priorBitOrder) {
-      if ((bufferNBits > ULong.Zero) &&
+      if ((bufDOS.relBitPos0b > ULong.Zero) &&
         !directDOS.isEndOnByteBoundary) {
         //
         // If the bit order changes, it has to be on a byte boundary
@@ -767,72 +938,21 @@ object DirectOrBufferedDataOutputStream {
       }
     }
 
-    // cases
-    // no fragment bytes anywhere - just take the bytes
-    // fragment byte on directDOS, fragment byte on bufDOS, or both.
+    val newLengthLimit = bufDOS.relBitPos0b.toLong
+    val savedLengthLimit = directDOS.maybeRelBitLimit0b
 
-    {
-      import org.apache.daffodil.util.MaybeULong
+    if (directDOS.setMaybeRelBitLimit0b(MaybeULong(directDOS.relBitPos0b + newLengthLimit))) {
 
-      val dStream = directDOS
-      val newLengthLimit = bufferNBits.toLong
-      val savedLengthLimit = dStream.maybeRelBitLimit0b
-
-      if (dStream.setMaybeRelBitLimit0b(MaybeULong(dStream.relBitPos0b + newLengthLimit))) {
-
-        try {
-          if (directDOS.isEndOnByteBoundary && bufDOS.isEndOnByteBoundary) {
-
-            val nBytes = (bufferNBits / 8).toInt
-            val nBytesPut = directDOS.putBytes(ba, 0, nBytes, finfo)
-            Assert.invariant(nBytesPut == nBytes)
-
-          } else {
-            val nFragBits = bufDOS.fragmentLastByteLimit
-            val byteCount = bufDOS.bufferingJOS.getCount()
-            val wholeBytesWritten = directDOS.putBytes(ba, 0, byteCount, finfo)
-            Assert.invariant(byteCount == wholeBytesWritten)
-            if (nFragBits > 0) {
-              if (directDOS.isEndOnByteBoundary) {
-                // We cannot use putLong like below because it's possible that
-                // the fragment byte has a different bitOrder than the finfo
-                // passed in, since that came from a suspension. However, if
-                // the directDOS ended on a byte boundary, that means that its
-                // new fragment byte should be exactly the same as the buffered
-                // DOS fragment byte. So in this case, just copy the frag byte
-                // information from buffered to direct.
-                directDOS.setFragmentLastByte(bufDOS.fragmentLastByte, bufDOS.fragmentLastByteLimit)
-              } else {
-                // If the direct DOS wasn't byte aligned, then we need logic to
-                // write the buffered DOS fragment after the direct DOS
-                // fragment. Fortunately, putLong has all of this logic. Like
-                // above, the call to putLong potentially uses the wrong finfo
-                // since it may have come from a suspension. However, all that
-                // putLong really uses from the finfo is the bitOrder. And
-                // because the directDOS isn't byte aligned we know it must
-                // have the same bitOrder as the buffered DOS. So even though
-                // it could be the wrong format info, it's safe to use in this
-                // case.
-                val origfrag = bufDOS.fragmentLastByte
-                val fragNum =
-                  if (finfoBitOrder eq BitOrder.MostSignificantBitFirst)
-                    origfrag >> (8 - nFragBits)
-                  else
-                    origfrag
-                Assert.invariant(directDOS.putLongUnchecked(fragNum, nFragBits, finfo))
-              }
-            }
-            //
-            // bufDOS contents have now been output into directDOS
-            // but we don't need to change it or set it up for
-            // reuse as a buffered DOS, because whether it is in finished state
-            // or active state, we're about to morph it into being the direct DOS
-            //
-          }
-
-        } finally {
-          dStream.resetMaybeRelBitLimit0b(savedLengthLimit)
-        }
+      try {
+        bufDOS.deliverContent(directDOS, finfo)
+        //
+        // the buffered contents have now been output into directDOS
+        // but we don't need to change it or set it up for
+        // reuse as a buffered DOS, because whether it is in finished state
+        // or active state, we're about to morph it into being the direct DOS
+        //
+      } finally {
+        directDOS.resetMaybeRelBitLimit0b(savedLengthLimit)
       }
     }
   }
