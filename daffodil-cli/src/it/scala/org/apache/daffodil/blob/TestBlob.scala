@@ -24,6 +24,7 @@ import org.apache.daffodil.CLI.Util
 import net.sf.expectit.matcher.Matchers.contains
 import net.sf.expectit.matcher.Matchers.eof
 import net.sf.expectit.Expect
+import scala.io.Source
 
 class TestBlob {
 
@@ -61,24 +62,40 @@ class TestBlob {
     val schemaFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/large_blob.dfdl.xsd")
     val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/1MB.bin")
     val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
+    val infosetFile = File.createTempFile("daffodil-1MB-", ".bin.xml")
+    val unparseFile = File.createTempFile("daffodil-1MB-", "bin.xml.bin")
+    infosetFile.deleteOnExit()
+    unparseFile.deleteOnExit()
 
     val shell = Util.start("")
 
     try {
-      val cmd = String.format("%s parse -s %s %s", Util.binPath, testSchemaFile, testInputFile)
-      shell.sendLine(cmd)
-      val result = shell.expect(contains("largeBlob")).toString
-      // Use +7 to drop the 'file://' to get the path of the file
-      val generated_blob = result.substring(result.indexOf("file://") + 7).takeWhile(_ != '<')
+      // parse to a file
+      val cmdP = String.format("%s parse -s %s -o %s %s && echo success", Util.binPath, testSchemaFile, infosetFile, testInputFile)
+      shell.sendLine(cmdP)
+      shell.expect(contains("success"))
 
+      val infosetContents = Source.fromFile(infosetFile).mkString
+
+      // Use +7 to drop the 'file://' to get the path of the file
+      val generated_blob = infosetContents.substring(infosetContents.indexOf("file://") + 7).takeWhile(_ != '<')
+
+      // unparse to a file
+      val cmdU = String.format("%s unparse -s %s -o %s %s && echo success", Util.binPath, testSchemaFile, unparseFile, infosetFile)
+      shell.sendLine(cmdU)
+      shell.expect(contains("success"))
+
+      // Compare blobs
       shell.sendLine(Util.md5sum(generated_blob))
       shell.expect(contains("bc8f9d01382bf12248747cd6faecbc59"))
 
-      // Clean up blobs
-      if (Util.isWindows)
-        shell.sendLine("rmdir /Q /S daffodil-blobs")
-      else
-        shell.sendLine("rm -rf daffodil-blobs")
+      shell.sendLine(Util.md5sum(unparseFile.toString))
+      shell.expect(contains("72d1f935d7fff766d011757ae03d5b1d"))
+
+      // Clean up files
+      shell.sendLine(Util.rmdir("daffodil-blobs"))
+      infosetFile.delete()
+      unparseFile.delete()
 
       shell.send("exit\n")
       shell.expect(eof)
@@ -100,23 +117,40 @@ class TestBlob {
     val schemaFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/large_blob.dfdl.xsd")
     val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/2049MB.bin")
     val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
+    val infosetFile = File.createTempFile("daffodil-2GB-", ".bin.xml")
+    val unparseFile = File.createTempFile("daffodil-2GB-", "bin.xml.bin")
+    infosetFile.deleteOnExit()
+    unparseFile.deleteOnExit()
 
     val shell = Util.startIncludeErrors("", envp = DAFFODIL_JAVA_OPTS)
 
     try {
-      // Execute Daffodil
-      val cmd = String.format("%s parse -s %s %s", Util.binPath, testSchemaFile, testInputFile)
-      shell.sendLine(cmd)
-      val result = shell.expect(contains("largeBlob")).toString
+      // Parse to a file
+      val cmdP = String.format("%s parse -s %s -o %s %s && echo success", Util.binPath, testSchemaFile, infosetFile, testInputFile)
+      shell.sendLine(cmdP)
+      shell.expect(contains("success"))
+
+      val infosetContents = Source.fromFile(infosetFile).mkString
+
       // Use +7 to drop the 'file://' to get the path of the file
-      val generated_blob = result.substring(result.indexOf("file://") + 7).takeWhile(_ != '<')
+      val generated_blob = infosetContents.substring(infosetContents.indexOf("file://") + 7).takeWhile(_ != '<')
+
+      // unparse to a file
+      val cmdU = String.format("%s unparse -s %s -o %s %s && echo success", Util.binPath, testSchemaFile, unparseFile, infosetFile)
+      shell.sendLine(cmdU)
+      shell.expect(contains("success"))
 
       // Compare blobs
       shell.sendLine(Util.md5sum(generated_blob))
       shell.expect(contains("c5675d3317725595d128af56a624c49f"))
 
-      // Clean up blobs
+      shell.sendLine(Util.md5sum(unparseFile.toString))
+      shell.expect(contains("2435c33e55aae043fc9b28f38f5cc2e9"))
+
+      // Clean up files
       shell.sendLine(Util.rmdir("daffodil-blobs"))
+      infosetFile.delete()
+      unparseFile.delete()
 
       shell.send("exit\n")
       shell.expect(eof)

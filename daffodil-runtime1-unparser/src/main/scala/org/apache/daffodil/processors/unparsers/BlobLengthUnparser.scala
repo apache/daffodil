@@ -22,7 +22,6 @@ import passera.unsigned.ULong
 import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Paths
-import java.nio.file.StandardOpenOption
 
 import org.apache.daffodil.infoset.RetryableException
 import org.apache.daffodil.processors.ElementRuntimeData
@@ -76,55 +75,21 @@ abstract class BlobUnparserBase(override val context: ElementRuntimeData)
         lengthInBits)
     }
 
-    val blobStream =
-      try {
-        Files.newInputStream(path, StandardOpenOption.READ)
-      } catch {
-        case e: Exception =>
-          UnparseError(
-            One(context.schemaFileLocation),
-            One(state.currentLocation),
-            "Unable to open blob for reading: %s",
-            value.toString)
-      }
-
+    // This adds two new buffered DataOutputStreams. The first is specific to a
+    // Blob, and contains all the logic for delivering the blob content to the
+    // current data output stream once it becomes direct without loading all
+    // the blob data into memory. The second is a buffered data output stream
+    // that Unparsers following this blob one will write data to. Note that if
+    // the current data stream is direct, the call to setFinished will cause
+    // Daffodil to immediately deliver the blob content to the direct output
+    // stream and make the blob data output stream the new direct. Since the
+    // blob data output stream is marked as finished in addBufferedBlob, the
+    // second data output stream will then be delivered, finally making it the
+    // direct stream.
     val dos = state.dataOutputStream
-
-    val array = new Array[Byte](state.tunable.blobChunkSizeInBytes)
-
-    var remainingBitsToPut = lengthInBits
-    var fileHasData = true
-    while (remainingBitsToPut > 0 && fileHasData) {
-      val bitsToRead = Math.min(remainingBitsToPut, state.tunable.blobChunkSizeInBytes * 8)
-      val bytesToRead = (bitsToRead + 7) / 8
-      val bytesRead = blobStream.read(array, 0, bytesToRead.toInt)
-      if (bytesRead == -1) {
-        fileHasData = false
-      } else {
-        val bitsToPut = Math.min(bytesRead * 8, bitsToRead)
-        val ret = dos.putByteArray(array, bitsToPut.toInt, state)
-        if (!ret) {
-          blobStream.close()
-          UnparseError(
-            One(context.schemaFileLocation),
-            One(state.currentLocation),
-            "Failed to write %d blob bits",
-            lengthInBits)
-        }
-        remainingBitsToPut -= bitsToPut
-      }
-    }
-
-    blobStream.close()
-
-    // calculate the skip bits
-    val nFillBits = remainingBitsToPut
-    if (nFillBits > 0) {
-      val ret = dos.skip(nFillBits, state)
-      if (!ret) {
-        UnparseError(Nope, One(state.currentLocation), "Failed to skip %d bits.", nFillBits)
-      }
-    }
+    val newDOS = dos.addBufferedBlob(path, lengthInBits, state.tunable.blobChunkSizeInBytes, state)
+    state.dataOutputStream = newDOS
+    dos.setFinished(state)
   }
 }
 
