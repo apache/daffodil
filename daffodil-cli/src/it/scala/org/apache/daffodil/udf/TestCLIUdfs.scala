@@ -41,7 +41,9 @@ class TestCLIUdfs {
           val filePath = fp.toString
           val indexOfOrg = filePath.indexOfSlice("org")
           if (indexOfOrg >= 0) {
-            val prefix = filePath.splitAt(indexOfOrg)._1
+            // use index - 1 to remove trailing slash, which can cause
+            // accidental escaping on windows
+            val prefix = filePath.splitAt(indexOfOrg - 1)._1
             Some(prefix)
           } else None
       }.toList.distinct
@@ -59,7 +61,7 @@ class TestCLIUdfs {
     val shell = Util.start("")
 
     try {
-      val cmd = String.format("echo -n strng| %s -v parse -s %s -r fn_func", Util.binPath, testSchemaFile)
+      val cmd = String.format(Util.echoN("strng") + "| %s -v parse -s %s -r fn_func", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expect(
         allOf(
@@ -87,7 +89,7 @@ class TestCLIUdfs {
     val shell = Util.startIncludeErrors("")
 
     try {
-      val cmd = String.format("echo -n strng| %s -v parse -s %s -r user_func1", Util.binPath, testSchemaFile)
+      val cmd = String.format(Util.echoN("strng") + "| %s -v parse -s %s -r user_func1", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expectIn(
         1,
@@ -118,12 +120,12 @@ class TestCLIUdfs {
 
     val dafClassPath =
       (testUdfsPaths :+ Util.daffodilPath(metaForNonExistentClass))
-        .mkString(":")
+        .mkString(java.io.File.pathSeparator)
 
     val shell = Util.startIncludeErrors("", envp = Map("DAFFODIL_CLASSPATH" -> dafClassPath))
 
     try {
-      val cmd = String.format("echo -n strng| %s -v parse -s %s -r user_func1", Util.binPath, testSchemaFile)
+      val cmd = String.format(Util.echoN("strng") + "| %s -v parse -s %s -r user_func1", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expectIn(
         1,
@@ -151,12 +153,12 @@ class TestCLIUdfs {
     val (testSchemaFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile)) else (schemaFile)
 
     val dafClassPath =
-      testUdfsPaths.mkString(":")
+      testUdfsPaths.mkString(java.io.File.pathSeparator)
 
     val shell = Util.startIncludeErrors("", envp = Map("DAFFODIL_CLASSPATH" -> dafClassPath))
 
     try {
-      val cmd = String.format("echo -n strng| %s -v parse -s %s -r user_func1", Util.binPath, testSchemaFile)
+      val cmd = String.format(Util.echoN("strng") + "| %s -v parse -s %s -r user_func1", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expectIn(
         1,
@@ -183,12 +185,12 @@ class TestCLIUdfs {
 
     val dafClassPath =
       (testUdfsPaths :+ Util.daffodilPath(metaInfForSomeUdfA))
-        .mkString(":")
+        .mkString(java.io.File.pathSeparator)
 
     val shell = Util.startIncludeErrors("", envp = Map("DAFFODIL_CLASSPATH" -> dafClassPath))
 
     try {
-      val cmd = String.format("echo -n strng| %s -v parse -s %s -r user_func1", Util.binPath, testSchemaFile)
+      val cmd = String.format(Util.echoN("strng") + "| %s -v parse -s %s -r user_func1", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expectIn(
         1,
@@ -218,12 +220,12 @@ class TestCLIUdfs {
 
     val dafClassPath =
       (testUdfsPaths :+ Util.daffodilPath(metaInfForSomeUdfA))
-        .mkString(":")
+        .mkString(java.io.File.pathSeparator)
 
     val shell = Util.startIncludeErrors("", envp = Map("DAFFODIL_CLASSPATH" -> dafClassPath))
 
     try {
-      val cmd = String.format("echo -n strng| %s -v parse -s %s -r user_func1", Util.binPath, testSchemaFile)
+      val cmd = String.format(Util.echoN("strng") + "| %s -v parse -s %s -r user_func1", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expectIn(
         1,
@@ -254,12 +256,12 @@ class TestCLIUdfs {
 
     val dafClassPath =
       (testUdfsPaths :+ Util.daffodilPath(metaInfForSomeUdfA))
-        .mkString(":")
+        .mkString(java.io.File.pathSeparator)
 
     val shell = Util.startIncludeErrors("", envp = Map("DAFFODIL_CLASSPATH" -> dafClassPath))
 
     try {
-      val cmd = String.format("echo -n strng| %s -v parse -s %s -r user_func1", Util.binPath, testSchemaFile)
+      val cmd = String.format(Util.echoN("strng") + "| %s -v parse -s %s -r user_func1", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expectIn(
         1,
@@ -293,12 +295,12 @@ class TestCLIUdfs {
 
     val dafClassPath =
       (testUdfsPaths :+ Util.daffodilPath(metaInfForSomeUdfA))
-        .mkString(":")
+        .mkString(java.io.File.pathSeparator)
 
     val shell = Util.startIncludeErrors("", envp = Map("DAFFODIL_CLASSPATH" -> dafClassPath))
 
     try {
-      val cmd = String.format("echo -n strng| %s -v parse -s %s -r user_func1", Util.binPath, testSchemaFile)
+      val cmd = String.format(Util.echoN("strng") + "| %s -v parse -s %s -r user_func1", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expectIn(
         1,
@@ -342,12 +344,12 @@ class TestCLIUdfs {
 
     val dafClassPath =
       (testUdfsPaths :+ Util.daffodilPath(metaInfForSomeUdfA))
-        .mkString(":")
+        .mkString(java.io.File.pathSeparator)
 
     val shell = Util.startIncludeErrors("", envp = Map("DAFFODIL_CLASSPATH" -> dafClassPath))
 
     try {
-      val cmd = String.format("echo -n strng| %s -v parse -s %s -r user_func1", Util.binPath, testSchemaFile)
+      val cmd = String.format(Util.echoN("strng") + "| %s -v parse -s %s -r user_func1", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expectIn(
         1,
@@ -393,12 +395,12 @@ class TestCLIUdfs {
 
     val dafClassPath =
       (testUdfsPaths :+ Util.daffodilPath(metaInfForSomeUdfA))
-        .mkString(":")
+        .mkString(java.io.File.pathSeparator)
 
     val shell = Util.startIncludeErrors("", envp = Map("DAFFODIL_CLASSPATH" -> dafClassPath))
 
     try {
-      val cmd = String.format("echo -n strng| %s parse -s %s -r user_func2", Util.binPath, testSchemaFile)
+      val cmd = String.format(Util.echoN("strng") + "| %s parse -s %s -r user_func2", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expectIn(
         1,
@@ -427,12 +429,12 @@ class TestCLIUdfs {
 
     val dafClassPath =
       (testUdfsPaths :+ Util.daffodilPath(metaInfForSomeUdfA))
-        .mkString(":")
+        .mkString(java.io.File.pathSeparator)
 
     val shell = Util.startIncludeErrors("", envp = Map("DAFFODIL_CLASSPATH" -> dafClassPath))
 
     try {
-      val cmd = String.format("echo -n strng| %s parse -s %s -r user_func3", Util.binPath, testSchemaFile)
+      val cmd = String.format(Util.echoN("strng") + "| %s parse -s %s -r user_func3", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expectIn(1, contains("[error] Schema Definition Error: User Defined Function 'ssudf:rev-words' Error: UDF PE!"))
 
@@ -456,12 +458,12 @@ class TestCLIUdfs {
 
     val dafClassPath =
       (testUdfsPaths :+ Util.daffodilPath(metaInfForSomeUdfA))
-        .mkString(":")
+        .mkString(java.io.File.pathSeparator)
 
     val shell = Util.startIncludeErrors("", envp = Map("DAFFODIL_CLASSPATH" -> dafClassPath))
 
     try {
-      val cmd = String.format("echo -n strng| %s -v parse -s %s -r user_func3", Util.binPath, testSchemaFile)
+      val cmd = String.format(Util.echoN("strng") + "| %s -v parse -s %s -r user_func3", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expectIn(
         1,
@@ -491,12 +493,12 @@ class TestCLIUdfs {
 
     val dafClassPath =
       (testUdfsPaths :+ Util.daffodilPath(metaInfForSomeUdfA))
-        .mkString(":")
+        .mkString(java.io.File.pathSeparator)
 
     val shell = Util.startIncludeErrors("", envp = Map("DAFFODIL_CLASSPATH" -> dafClassPath))
 
     try {
-      val cmd = String.format("echo -n strng| %s -v parse -s %s -r user_func3", Util.binPath, testSchemaFile)
+      val cmd = String.format(Util.echoN("strng") + "| %s -v parse -s %s -r user_func3", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expectIn(
         1,
@@ -527,12 +529,12 @@ class TestCLIUdfs {
 
     val dafClassPath =
       (testUdfsPaths :+ Util.daffodilPath(metaInfForSomeUdfA))
-        .mkString(":")
+        .mkString(java.io.File.pathSeparator)
 
     val shell = Util.startIncludeErrors("", envp = Map("DAFFODIL_CLASSPATH" -> dafClassPath))
 
     try {
-      val cmd = String.format("echo -n strng| %s -v parse -s %s -r user_func3", Util.binPath, testSchemaFile)
+      val cmd = String.format(Util.echoN("strng") + "| %s -v parse -s %s -r user_func3", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expectIn(
         1,
@@ -564,12 +566,12 @@ class TestCLIUdfs {
 
     val dafClassPath =
       (testUdfsPaths :+ Util.daffodilPath(metaInfForSomeUdfA))
-        .mkString(":")
+        .mkString(java.io.File.pathSeparator)
 
     val shell = Util.startIncludeErrors("", envp = Map("DAFFODIL_CLASSPATH" -> dafClassPath))
 
     try {
-      val cmd = String.format("echo -n strng| %s -v parse -s %s -r user_func3", Util.binPath, testSchemaFile)
+      val cmd = String.format(Util.echoN("strng") + "| %s -v parse -s %s -r user_func3", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expectIn(
         1,

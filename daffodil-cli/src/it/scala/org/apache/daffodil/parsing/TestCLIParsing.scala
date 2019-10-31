@@ -606,9 +606,7 @@ class TestCLIparsing {
 
     try {
       //val expected = """<tns:hcp2 xmlns:tns="http://www.example.org/example1/">12</tns:hcp2>"""
-      val cmdLinux = String.format("echo -ne '12' | %s parse -s %s -r hcp2 -p /", Util.binPath, testSchemaFile)
-      val cmdWindows = String.format("echo 12| %s parse -s %s -r hcp2 -p /", Util.binPath, testSchemaFile)
-      val cmd = if (Util.isWindows) cmdWindows else cmdLinux
+      val cmd = String.format(Util.echoN("12") + "| %s parse -s %s -r hcp2 -p /", Util.binPath, testSchemaFile)
 
       shell.sendLine(cmd)
       shell.expect(contains("<tns:hcp2 xmlns:tns=\"http://www.example.org/example1/\">"))
