@@ -22,6 +22,37 @@ import java.nio.ByteBuffer
 import scala.collection.mutable.ArrayBuffer
 
 import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.exceptions.ThinThrowable
+
+/**
+ * There is a finite limit to the distance one can backtrack which is given by
+ * the implementation's use of a finite array of finite fixed size buckets. If a
+ * vast amount of data is read in and is more than the ultimate backtrack limit
+ * (number of buckets times bucket size) in size, then that will cause data
+ * buckets to effectively spill off into parser history, and the ability to
+ * backtrack to the points in the data they stored is lost along with them. Any
+ * time there is a point-of-uncertainty to which the parser could backtrack, and
+ * then the parser advances through more data than the backtracking maximum
+ * limit, the ability to backtrack to that point of uncertainty will be lost.
+ * This will be detected, and is a fatal error (Runtime SDE).
+ *
+ * This situation is easiest to envision if BLOB objects are involved, but is
+ * not BLOB specific. A format with a choice, then in the first branch of the
+ * choice, a group and/or array of small data items, ultimately totaling in size
+ * to more than the backtrack limit, and then a branch failure, will cause this
+ * backtracking limit error with no BLOBs being used.
+ *
+ * There is no limit created by this module of code to the size of a any data
+ * item having to fit within JVM byte array maximums, nor the JVM memory
+ * footprint even. Only a limitation on backtracking distance is created.
+ *
+ * It is also worth noting that it is not the act of backtracking that directly
+ * cause an error. The error only occurs when someone tries to read from a
+ * bucket that has already been released.
+ */
+case class BacktrackingException(position: Long, maxBacktrackLength: Int)
+  extends Exception("Attempted to backtrack to byte %d, which exceeds maximum backtrack length of %d".format(position, maxBacktrackLength))
+  with ThinThrowable
 
 /**
  * The InputSource class is really just a mechanism to provide bytes an
@@ -125,9 +156,12 @@ abstract class InputSource {
   def compact(): Unit
 
   private var _debugging = false
+  protected var _isValid = true
 
   final def areDebugging: Boolean = _debugging
+  final def isValid: Boolean = _isValid
 
+  final def setInvalid: Unit = { _isValid = false }
   final def setDebugging(setting: Boolean): Unit = _debugging = setting
 }
 
@@ -142,14 +176,20 @@ abstract class InputSource {
  *
  * @param inputStream the java.io.Inputstream to read data from
  * @param bucketSize the size of each individual bucket
+ * @param maxCacheSizeInBytes the max memory allowed to be used for bucket storage (num buckets * bucketSize)
  */ 
-class BucketingInputSource(inputStream: java.io.InputStream, bucketSize: Int = 1 << 13)
+class BucketingInputSource(
+  inputStream: java.io.InputStream,
+  bucketSize: Int = 1 << 13,
+  maxCacheSizeInBytes: Int = 256 * (1 << 20))
   extends InputSource {
 
   private class Bucket {
     var refCount = 0
     val bytes = new Array[Byte](bucketSize)
   }
+
+  private val maxNumberOfBuckets = Math.max(maxCacheSizeInBytes / bucketSize, 2)
 
   /**
    * Array of buckets
@@ -237,9 +277,16 @@ class BucketingInputSource(inputStream: java.io.InputStream, bucketSize: Int = 1
           buckets += new Bucket()
           bytesFilledInLastBucket = 0
           lastBucketIndex += 1
+          if (buckets.size > maxNumberOfBuckets) {
+            // This frees the oldest bucket, allowing it to be garbage collected.
+            buckets(oldestBucketIndex.toInt) = null
+            oldestBucketIndex += 1
+          }
         }
 
-        if ((lastBucketIndex == goalBucketIndex && bytesNeededInBucket <= bytesFilledInLastBucket) || lastBucketIndex > goalBucketIndex) {
+        if (( lastBucketIndex == goalBucketIndex &&
+              bytesNeededInBucket <= bytesFilledInLastBucket) ||
+              lastBucketIndex > goalBucketIndex) {
           // Filled data at least to the target byte in the target bucket
           // We are done
           needsMoreData = false
@@ -316,6 +363,10 @@ class BucketingInputSource(inputStream: java.io.InputStream, bucketSize: Int = 1
       -1
     } else {
       val (bucketIndex, byteIndex) = bytePositionToIndicies(curBytePosition0b)
+
+      if ((bucketIndex < 0) || (buckets(bucketIndex.toInt) == null))
+        throw new BacktrackingException(curBytePosition0b, maxCacheSizeInBytes)
+
       val byte = buckets(bucketIndex.toInt).bytes(byteIndex.toInt)
       curBytePosition0b += 1
       byte & 0xFF
@@ -340,6 +391,9 @@ class BucketingInputSource(inputStream: java.io.InputStream, bucketSize: Int = 1
       while (bytesStillToGet > 0) {
         val bytesToGetFromCurrentBucket = Math.min(bucketSize - byteIndex, bytesStillToGet).toInt
 
+        if ((bucketIndex < 0) || (buckets(bucketIndex.toInt) == null))
+          throw new BacktrackingException(curBytePosition0b, maxCacheSizeInBytes)
+
         Array.copy(buckets(bucketIndex.toInt).bytes, byteIndex.toInt, dest, destOffset, bytesToGetFromCurrentBucket)
 
         destOffset += bytesToGetFromCurrentBucket
@@ -357,20 +411,24 @@ class BucketingInputSource(inputStream: java.io.InputStream, bucketSize: Int = 1
 
   def position(bytePos0b: Long): Unit = {
     val (bucketIndex, _) = bytePositionToIndicies(bytePos0b)
-    Assert.invariant(bucketIndex >= oldestBucketIndex && bucketIndex < buckets.length)
+    Assert.invariant(bucketIndex < buckets.length)
     curBytePosition0b = bytePos0b
   }
 
   def lockPosition(bytePos0b: Long): Unit = {
     val (bucketIndex, _) = bytePositionToIndicies(bytePos0b)
-    Assert.invariant(bucketIndex >= oldestBucketIndex && bucketIndex < buckets.length)
-    buckets(bucketIndex.toInt).refCount += 1
+    Assert.invariant(bucketIndex < buckets.length)
+    if (buckets(bucketIndex.toInt) != null)
+      buckets(bucketIndex.toInt).refCount += 1
   }
 
   def releasePosition(bytePos0b: Long): Unit = {
     val (bucketIndex, _) = bytePositionToIndicies(bytePos0b)
-    Assert.invariant(bucketIndex >= oldestBucketIndex && bucketIndex < buckets.length)
-    buckets(bucketIndex.toInt).refCount -= 1 
+
+    if (buckets(bucketIndex.toInt) != null) {
+      Assert.invariant(bucketIndex >= oldestBucketIndex && bucketIndex < buckets.length)
+      buckets(bucketIndex.toInt).refCount -= 1
+    }
 
     if (buckets(oldestBucketIndex.toInt).refCount == 0) {
       // We just freed the last reference to the oldest bucket (or the oldest

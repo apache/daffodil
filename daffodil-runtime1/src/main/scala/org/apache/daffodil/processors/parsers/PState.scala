@@ -37,6 +37,7 @@ import org.apache.daffodil.infoset.InfosetDocument
 import org.apache.daffodil.infoset.InfosetOutputter
 import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.io.DataInputStream
+import org.apache.daffodil.io.BacktrackingException
 import org.apache.daffodil.processors.DataLoc
 import org.apache.daffodil.processors.DataProcessor
 import org.apache.daffodil.processors.ElementRuntimeData
@@ -195,6 +196,8 @@ final class PState private (
   def isInUse(m: PState.Mark) = {
     markPool.isInUse(m)
   }
+
+  def dataInputStreamIsValid = dataInputStream.inputSource.isValid
 
   def reset(m: PState.Mark) {
     // threadCheck()
