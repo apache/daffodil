@@ -228,6 +228,8 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
     var optThrown: Maybe[Throwable] = None
     try {
       try {
+        Assert.usageErrorUnless(state.dataInputStreamIsValid, "Attempted to use an invalid input source. This can happen due to our position in the input source not being properly reset after failed parse could not backtrack to its original position")
+
         this.startElement(state, p)
         p.parse1(state)
         this.endElement(state, p)
@@ -270,9 +272,11 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
         // A SDE was detected at runtime (perhaps due to a runtime-valued property like byteOrder or encoding)
         // These are fatal, and there's no notion of backtracking them, so they propagate to top level
         // here.
+        state.dataInputStream.inputSource.setInvalid
         state.setFailed(sde)
       }
       case rsde: RuntimeSchemaDefinitionError => {
+        state.dataInputStream.inputSource.setInvalid
         state.setFailed(rsde)
       }
       case e: ErrorAlreadyHandled => {

@@ -969,4 +969,37 @@ public class TestJavaAPI {
       assertEquals("over", outputter.getResult().getRootElement().getText());
     }
 
+    @Test
+    public void testJavaAPI19() throws IOException, ClassNotFoundException {
+      // Demonstrate that we cannot use the API to continue a parse with an invalid InputSource
+      // ie. after a runtime SDE. This test needs to be run with an input file larger than 256MB
+      org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
+      c.setValidateDFDLSchemas(false);
+      java.io.File schemaFile = getResource("/test/japi/ambig_elt.dfdl.xsd");
+      c.setDistinguishedRootNode("root", null);
+      ProcessorFactory pf = c.compileFile(schemaFile);
+      DataProcessor dp = pf.onPath("/");
+      dp = reserializeDataProcessor(dp);
+
+      java.io.File file = getResource("/test/japi/myData19.dat");
+      java.io.FileInputStream fis = new java.io.FileInputStream(file);
+      InputSourceDataInputStream input = new InputSourceDataInputStream(fis);
+
+      JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+      ParseResult res = null;
+      boolean err = false;
+
+      res = dp.parse(input, outputter);
+      err = res.isError();
+      assertTrue(err);
+
+      outputter.reset();
+      try {
+		  res = dp.parse(input, outputter);
+      } catch (Exception e) {
+		  assertTrue(e.getMessage().contains("Usage error"));
+		  assertTrue(e.getMessage().contains("invalid input source"));
+      }
+    }
+
 }

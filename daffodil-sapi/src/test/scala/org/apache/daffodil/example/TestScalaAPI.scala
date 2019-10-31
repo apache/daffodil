@@ -38,6 +38,7 @@ import org.apache.daffodil.sapi.InvalidUsageException
 import org.apache.daffodil.sapi.infoset.ScalaXMLInfosetOutputter
 import org.apache.daffodil.sapi.infoset.ScalaXMLInfosetInputter
 import org.apache.daffodil.sapi.io.InputSourceDataInputStream
+import org.apache.daffodil.exceptions.Abort
 
 class TestScalaAPI {
 
@@ -943,6 +944,42 @@ class TestScalaAPI {
     assertTrue(res.location().isAtEnd())
     assertEquals(13, res.location().bytePos1b())
     assertEquals("over", outputter.getResult.text)
+  }
+
+  @Test
+  def testScalaAPI19() {
+    // Demonstrate that we cannot use the API to continue a parse with an invalid InputSource
+    // ie. after a runtime SDE. This test needs to be run with an input file larger than 256MB
+    val c = Daffodil.compiler()
+    c.setValidateDFDLSchemas(false)
+    val schemaFile = getResource("/test/sapi/ambig_elt.dfdl.xsd")
+    c.setDistinguishedRootNode("root", null)
+    val pf = c.compileFile(schemaFile)
+    val dp1 = pf.onPath("/")
+    val dp = reserializeDataProcessor(dp1)
+
+    val file = getResource("/test/sapi/myData19.dat")
+    val fis = new java.io.FileInputStream(file)
+    val input = new InputSourceDataInputStream(fis)
+
+    val outputter = new ScalaXMLInfosetOutputter()
+    var res: ParseResult = null
+    var err: Boolean = false
+
+    // First attempt at parsing should fail due to attempting to backtrack too far
+    res = dp.parse(input, outputter)
+    err = res.isError()
+    assertTrue(err)
+
+    outputter.reset()
+    try {
+      res = dp.parse(input, outputter)
+    } catch {
+      case e: Abort => {
+        assertTrue(e.getMessage().contains("Usage error"))
+        assertTrue(e.getMessage().contains("invalid input source"))
+      }
+    }
   }
 
 }

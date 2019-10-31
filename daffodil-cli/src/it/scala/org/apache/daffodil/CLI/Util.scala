@@ -148,6 +148,21 @@ object Util {
     }
   }
 
+  def md5sum(blob_path: String): String = {
+    if (isWindows) {
+      String.format("certutil -hashfile %s MD5", blob_path)
+    } else {
+      String.format("md5sum %s", blob_path)
+    }
+  }
+
+  def rmdir(path: String): String = {
+    if (Util.isWindows)
+      String.format("rmdir /Q /S %s", path)
+    else
+      String.format("rm -rf %s", path)
+  }
+
   def cat(str: String): String = {
     if (isWindows) {
       "type " + str
