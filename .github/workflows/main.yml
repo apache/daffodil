@@ -42,16 +42,18 @@ jobs:
           sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 2EE0EA64E40A89B84B2DF73499E82A75642AC823
           sudo apt-get -y update
           sudo apt-get -y install rpm sbt
+        shell: bash
         if: runner.os == 'Linux'
 
       - name: Install Dependencies (Windows)
         run: |
           choco install sbt
-          # choco doesn't update PATH, and SBT isn't in any of the default
-          # PATHs, and Github Actions doesn't have a built in way to modify
-          # PATH. So add a link to sbt in a directory that is in PATH and that
-          # should always exist (bit of a hack).
+          REM choco doesn't update PATH, and SBT isn't in any of the default
+          REM PATHs, and Github Actions doesn't have a built in way to modify
+          REM PATH. So add a link to sbt in a directory that is in PATH and that
+          REM should always exist (bit of a hack).
           mklink "C:\ProgramData\Chocolatey\bin\sbt" "C:\Program Files (x86)\sbt\bin\sbt"
+        shell: cmd
         if: runner.os == 'Windows'
 
       - name: Install Java
