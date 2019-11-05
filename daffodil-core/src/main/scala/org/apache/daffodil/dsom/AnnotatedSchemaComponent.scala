@@ -65,9 +65,20 @@ object ResolvesProperties {
     "outputTypeCalc",
     "repType",
     "repValueRanges",
-    "repValues"
-  )
+    "repValues")
 }
+
+// TODO: ResolvesProperties should really only be mixed-in by Term.
+// It is very easy to make the mistake of looking up properties on something like
+// a global def/decl, and then you aren't getting the combining of that with
+// the referencing object and its default format (from its containing schema document).
+//
+// We need to refactor and provide ResolvesScopedProperties, and ResolvesLocalProperties
+// mixins so that non-terms can use different method names (but similar idioms) to get local
+// properties. That way lookup of properties that is supposed to be scoped can't be accidently
+// called on non-terms. We really do not want OO-style polymorphism on property finding
+// across terms and non-terms. Only for the terms. Non-terms want their own local-only
+// method names.
 
 trait ResolvesProperties
   extends FindPropertyMixin { self: AnnotatedSchemaComponent =>

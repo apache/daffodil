@@ -28,7 +28,13 @@ final class GlobalElementDecl(
   with GlobalElementComponentMixin
   with ElementDeclFactoryDelegatingMixin
   with NestingTraversesToReferenceMixin
-  with ResolvesProperties {
+  with ResolvesProperties // 
+    // Technically, this is not a term, so shouldn't resolve scoped properties
+  // and doesn't take into account combining ref with def properties.
+  // But we need to get one local property: dfdl:choiceBranchKey. In order to 
+  // enforce that it is NOT specified on global defs/decls.
+  // So we mixin ResolvesProperties, but shouldn't use it except to probe dfdl:choiceBranchKey
+  {
 
   //   global elements combined with element references referring to them can
   //   be multiple occurring (aka arrays) hence, we have to have things
@@ -45,10 +51,6 @@ final class GlobalElementDecl(
 
   def validateChoiceBranchKey(): Unit = {
     // Ensure that the global element decl does not have choiceBranchKey set.
-    // We must use findPropertyOptionThisComponentOnly rather than
-    // findPropertyOption, since the later will also inspect the element ref.
-    // The element ref is allowed to have the dfdl:choiceBranchKey option, so
-    // we must not inspect it.
     val found = findPropertyOption("choiceBranchKey")
     if (found.isDefined) {
       SDE("dfdl:choiceBranchKey cannot be specified on a global element declaration")

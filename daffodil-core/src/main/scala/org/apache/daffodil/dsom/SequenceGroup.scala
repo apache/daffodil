@@ -286,7 +286,12 @@ abstract class SequenceGroupTermBase(
 trait SequenceDefMixin
   extends AnnotatedSchemaComponent
   with GroupDefLike
-  with ResolvesProperties {
+  with ResolvesProperties //
+  // Technically, this is not a term, so shouldn't resolve scoped properties
+  // and doesn't take into account combining ref with def properties.
+  // But we need to get one local property: dfdl:hiddenGroupRef.
+  // So we mixin ResolvesProperties, but shouldn't use it except to obtain dfdl:hiddenGroupRef.
+  {
 
   protected final def isMyFormatAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLSequence]
 
