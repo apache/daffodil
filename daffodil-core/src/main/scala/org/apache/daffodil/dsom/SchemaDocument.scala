@@ -178,7 +178,10 @@ final class XMLSchemaDocument(
 final class SchemaDocument(xmlSDoc: XMLSchemaDocument)
   extends AnnotatedSchemaComponent
   with SchemaDocumentMixin
-  with ResolvesProperties
+  with ResolvesProperties //
+  // Technically, this is not a term, so shouldn't resolve scoped properties
+  // This is mixed in to satisfy the contract of FindPropertyMixin, which requires
+  // a lookup method that is defined in ResolveProperties.
   with Format_AnnotationMixin
   with SeparatorSuppressionPolicyMixin {
 
