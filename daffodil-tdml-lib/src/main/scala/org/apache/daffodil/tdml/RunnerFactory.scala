@@ -76,7 +76,7 @@ object Runner {
    * Negative tests must fail, but error messages aren't compared.
    */
   def defaultShouldDoErrorComparisonOnCrossTests = false
-  
+
   /**
    * By default we don't cross test warning messages because they are too varied.
    */
@@ -97,6 +97,15 @@ class Runner private (elem: scala.xml.Elem, dir: String, file: String,
   defaultRoundTripDefault: RoundTrip = Runner.defaultRoundTripDefaultDefault,
   defaultValidationDefault: String = Runner.defaultValidationDefaultDefault,
   defaultImplementationsDefault: Seq[String] = Runner.defaultImplementationsDefaultDefault) {
+
+  /*
+   * these constructors are for use by Java programs
+   */
+  def this(dir: String, file:String) =
+    this(null, dir, file)
+
+  def this(elem: scala.xml.Elem) =
+    this(elem, null, null)
 
   if (elem ne null)
     Assert.usage((dir eq null) && (file eq null))
@@ -134,6 +143,10 @@ class Runner private (elem: scala.xml.Elem, dir: String, file: String,
     } finally {
       getTS.setDebugging(false)
     }
+
+  def runOneTest(testName: String) {
+    runOneTest(testName, None, false)
+  }
 
   /**
    *  Call this from an @AfterClass method

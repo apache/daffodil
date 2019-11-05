@@ -421,7 +421,7 @@ class TestCLIUdfs {
    * Tests the case when a function class:
    *   throws processing error on evaluate
    */
-  @Test def test_UDFClass_ProcessingErrroOnEvaluate() {
+  @Test def test_UDFClass_ProcessingErrorOnEvaluate() {
     val schemaFile = Util.daffodilPath("daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd")
     val (testSchemaFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile)) else (schemaFile)
 
