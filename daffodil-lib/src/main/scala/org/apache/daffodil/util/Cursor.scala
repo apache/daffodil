@@ -141,7 +141,7 @@ trait CursorImplMixin[AccessorType <: Accessor[AccessorType]] { self: Cursor[Acc
   /*
    * We are a bit of a state machine based on what the last operation was.
    * At all times, we have a "current" element, which is what future calls to advance/inspect/inspectPure provide information about.
-   * 
+   *
    * Our states our as follows:
    * priorOpKind == Advance - No work has been done for the current element. All work has been done on the prior element
    * priorOpKind == InspectPure - The input corresponding to the current element has been consumed, but no externally visable side effects have occured
@@ -156,7 +156,7 @@ trait CursorImplMixin[AccessorType <: Accessor[AccessorType]] { self: Cursor[Acc
 
   /**
    * Implement to fill in the accessor defined by the var`accessor`
-   * 
+   *
    * if advanceInput is false, then the relevent data from the underlying input stream has already been consumed,
    * and the prior value should be used.
    */
@@ -173,10 +173,10 @@ trait CursorImplMixin[AccessorType <: Accessor[AccessorType]] { self: Cursor[Acc
   final override def advance: Boolean = {
     accessor = advanceAccessor
     val res = priorOpKind match {
-      case Advance => doAdvance(false, advanceInput=true)
+      case Advance => doAdvance(false, advanceInput = true)
       case InspectPure => {
         priorOpKind = Advance
-        doAdvance(false, advanceInput=false)
+        doAdvance(false, advanceInput = false)
       }
       case Inspect => {
         // prior operation was inspect!
@@ -200,9 +200,9 @@ trait CursorImplMixin[AccessorType <: Accessor[AccessorType]] { self: Cursor[Acc
       }
       case InspectPure => {
         priorOpKind = Inspect
-        doAdvance(true, advanceInput=false)
+        doAdvance(true, advanceInput = false)
       }
-      case Inspect      => true // inspect again does nothing.
+      case Inspect => true // inspect again does nothing.
       case Unsuccessful => return false
     }
     // successful
@@ -214,13 +214,13 @@ trait CursorImplMixin[AccessorType <: Accessor[AccessorType]] { self: Cursor[Acc
 
   /*
    * Logically speaking, a Cursor may have 2 "streams": an input stream and an output stream.
-   *  
+   *
    * When calling inspect/inspectPure/advance, we observe the current element of the output stream.
    * We advance the input stream the first time we observe an element, but do not advance the output
    * stream until the last time we observe an element (eg. until we observe an elemnt through the advance() method).
-   * 
+   *
    * The advanceInput flag is needed so that calls to advance() can keep track if they are also the
-   * first observations of the elment, and therefore need to advance both the input stream and the output stream.
+   * first observations of the element, and therefore need to advance both the input stream and the output stream.
    */
   private def doAdvance(isFilledValue: Boolean, advanceInput: Boolean) = {
     val res = fill(advanceInput)
