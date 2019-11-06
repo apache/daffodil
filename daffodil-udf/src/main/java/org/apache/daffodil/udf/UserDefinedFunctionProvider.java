@@ -41,7 +41,7 @@ public abstract class UserDefinedFunctionProvider {
    * Must be implemented to return the classes of the User Defined Function this
    * provider is aware of/providing
    *
-   * Should return array of UserDefinedFunction classes
+   * @return array of the different UserDefinedFunction classes it provides
    */
   abstract public Class<?>[] getUserDefinedFunctionClasses();
 
@@ -59,14 +59,21 @@ public abstract class UserDefinedFunctionProvider {
    * @param fName
    *          function name called in schema
    * @return initialized UserDefinedFunction object that must contain evaluate
-   *         function with functionality of UDF
+   *         function with desired functionality
    *
    * @throws SecurityException
+   *           if security manager exists and disallows access
    * @throws IllegalArgumentException
+   *           if the UDF doesn't have a no-argument constructor
+   * @throws ExceptionInInitializerError
+   *           if there is an issue initializing the UDF object
    * @throws ReflectiveOperationException
+   *           if the UDF doesn't have a no-argument constructor or if there is an
+   *           issue initializing the UDF object
    */
   public UserDefinedFunction createUserDefinedFunction(String namespaceURI, String fName)
-      throws IllegalArgumentException, SecurityException, ReflectiveOperationException {
+      throws IllegalArgumentException, SecurityException, ExceptionInInitializerError,
+      ReflectiveOperationException {
     UserDefinedFunction fcObject = null;
     for (Class<?> udfc : getUserDefinedFunctionClasses()) {
       UserDefinedFunctionIdentification fInfo = udfc
