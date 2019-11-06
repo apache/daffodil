@@ -148,7 +148,7 @@ abstract class InfosetInputter
 
   override def inspectPure: Boolean = {
     accessor = inspectAccessor
-    
+
     val res = priorOpKind match {
       case Advance => {
         priorOpKind = InspectPure
@@ -159,10 +159,10 @@ abstract class InfosetInputter
         } else {
           next() //advance the input stream so nextElementErd is pointing to the correct place
           val eventKind = getEventType() match {
-            case StartElement  => StartKind
-            case EndElement    => EndKind
+            case StartElement => StartKind
+            case EndElement => EndKind
             case StartDocument => StartKind
-            case EndDocument   => EndKind
+            case EndDocument => EndKind
           }
           accessor.kind = eventKind
           if (eventKind == StartKind) {
@@ -190,14 +190,17 @@ abstract class InfosetInputter
    * in multiple infoset events. For each pull, the first event coming back is not
    * queued. Only additional extra events are queued.
    *
-   * Note that there should never be more than 3 events in the queue. This
+   * Note that there should never be more than 2 events in the queue. This
    * occurs when ending an array following by a new array of simple elements.
    * In this case, we get events 1) End Old DIArray 2) Start New DIArray 3)
-   * Start DISimple 4) End DISimple. The first event is stored in the cursor,
+   * Start new element. The first event is stored in the cursor,
    * the remaining events are queued. We also always empty the queue before
-   * enqueuing anything again. So implement this queue as an array of size 3,
+   * enqueuing anything again. So implement this queue as an array of size 2,
    * and when all items have been dequeued, reset the indices to start the next
    * enqueues at the beginning of the array.
+   *
+   * To avoid tuple allocation and overhead, this is done as a pair of arrays, not
+   * an array of pairs.
    */
   final private val MaxPendingQueueSize = 2
   private val pendingNodes = new Array[DINode](MaxPendingQueueSize)
@@ -259,8 +262,8 @@ abstract class InfosetInputter
     }
   }
 
-  private def reallyFill(advanceInput:Boolean): Boolean = {
-    if(advanceInput){
+  private def reallyFill(advanceInput: Boolean): Boolean = {
+    if (advanceInput) {
       next()
     }
 
