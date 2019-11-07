@@ -23,13 +23,11 @@ import org.junit.AfterClass
 
 object TestTutorials {
   val runner1 = Runner("/", "bitorder.tutorial.tdml.xml")
-  val runner2 = Runner("/", "exampleTDMLTutorial.tutorial.tdml.xml")
   val runner4 = Runner("/", "tdmlTutorial.tdml.xml")
   val runner5 = Runner("/", "bugReportTemplate.tdml.xml")
 
   @AfterClass def shutDown {
     runner1.reset
-    runner2.reset
     runner4.reset
     runner5.reset
   }
@@ -37,9 +35,6 @@ object TestTutorials {
 }
 class TestTutorials {
   import TestTutorials._
-
-  @Test def testTutorialElementsParse() { runner2.runOneTest("testTutorialElementsParse") }
-  @Test def testTutorialElementsUnparse() { runner2.runOneTest("testTutorialElementsUnparse") }
 
   // removed for now. This will probably go back into this tutorial
   // @Test def test_MIL2045_47001D_1() { runner1.runOneTest("TestMIL2045_47001D_1") }
