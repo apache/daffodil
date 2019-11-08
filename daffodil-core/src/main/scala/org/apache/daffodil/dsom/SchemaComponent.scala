@@ -65,9 +65,10 @@ trait SchemaComponent
 
   lazy val tunable: DaffodilTunables = optLexicalParent.get.tunable
 
-  lazy val dpathCompileInfo: DPathCompileInfo =
+  lazy val dpathCompileInfo: DPathCompileInfo = {
+    lazy val parents = enclosingComponent.map { _.dpathCompileInfo }.toSeq
     new DPathCompileInfo(
-      enclosingComponents.map { _.encloser.dpathCompileInfo },
+      parents,
       variableMap,
       namespaces,
       path,
@@ -75,6 +76,7 @@ trait SchemaComponent
       tunable,
       schemaSet.typeCalcMap,
       runtimeData)
+  }
 
   /**
    * All non-terms get runtimeData from this definition. All Terms

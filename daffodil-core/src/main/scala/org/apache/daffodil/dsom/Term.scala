@@ -42,6 +42,7 @@ import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.schema.annotation.props.gen.OccursCountKind
 import org.apache.daffodil.schema.annotation.props.SeparatorSuppressionPolicy
 import org.apache.daffodil.api.WarnID
+import org.apache.daffodil.infoset.PartialNextElementResolver
 
 /**
  * Mixin for objects that are shared, but have consistency checks to be run
@@ -119,7 +120,7 @@ trait Term
    * (e.g. schema compilation has finished) to ensure there are no false
    * positives.
    */
-  final def checkUnusedProperties: Unit = {
+  final lazy val checkUnusedProperties: Unit = {
     // Get the properties defined on this term and what it refers to
     val localProps = formatAnnotation.justThisOneProperties
     val refProps = optReferredToComponent.map { _.formatAnnotation.justThisOneProperties }.getOrElse(Map.empty)
@@ -581,7 +582,7 @@ trait Term
         } else {
           val firstNonOptional = previousTerms.reverse.find {
             _ match {
-              case eb: ElementBase if !eb.isRequiredInInfoset || !eb.isRepresented => false
+              case eb: ElementBase if !eb.isRequiredStreamingUnparserEvent || !eb.isRepresented => false
               case _ => true
             }
           }
@@ -648,36 +649,6 @@ trait Term
       }
     }
     res
-  }
-
-  lazy val couldHaveSuspensions: Boolean = {
-    val commonCouldHaveSuspensions =
-      !isKnownToBeAligned || // AlignmentFillUnparser
-        (if (hasDelimiters) !isDelimiterKnownToBeTextAligned else false) || // MandatoryTextAlignmentUnparser
-        needsBitOrderChange // BitOrderChangeUnparser
-
-    this match {
-      case eb: ElementBase => {
-        val elementCouldHaveSuspensions =
-          commonCouldHaveSuspensions ||
-            !isKnownToBeTextAligned || // MandatoryTextAlignmentUnparser
-            (if (eb.isSimpleType) eb.isOutputValueCalc else false) || // SimpleTypeRetryUnparser
-            eb.shouldAddFill || // ElementUnusedUnparser, RightFillUnparser
-            eb.shouldCheckExcessLength || // ElementUnusedUnparser, RightFillUnparser
-            eb.shouldAddPadding || // OnlyPaddingUnparser, RightCenteredPaddingUnparser, LeftCenteredPaddingUnparser
-            (eb.maybeUnparseTargetLengthInBitsEv.isDefined && eb.isNillable && eb.nilKind == NilKind.LiteralCharacter) || // NilLiteralCharacterUnparser
-            (if (eb.isComplexType) eb.complexType.group.couldHaveSuspensions else false)
-
-        elementCouldHaveSuspensions
-      }
-      case mg: ModelGroup => {
-        val modelGroupCouldHaveSuspensions =
-          commonCouldHaveSuspensions ||
-            mg.groupMembers.exists { _.couldHaveSuspensions }
-
-        modelGroupCouldHaveSuspensions
-      }
-    }
   }
 
   final lazy val possibleNextTerms: Seq[Term] = LV('possibleNextTerms) {

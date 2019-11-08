@@ -84,6 +84,7 @@ class JsonInfosetInputter private (input: Either[java.io.Reader, java.io.InputSt
   }
 
   override def getEventType(): InfosetInputterEventType = {
+    import InfosetInputterEventType._
     if (fakeElementEndEvent) {
       EndElement
     } else {
@@ -168,8 +169,10 @@ class JsonInfosetInputter private (input: Either[java.io.Reader, java.io.InputSt
           case JsonToken.END_ARRAY => arrayNameStack.pop
 
           // start end of a complex type
-          case JsonToken.START_OBJECT => objectDepth += 1; exitNow = true
-          case JsonToken.END_OBJECT => objectDepth -= 1; exitNow = true
+          case JsonToken.START_OBJECT =>
+            objectDepth += 1; exitNow = true
+          case JsonToken.END_OBJECT =>
+            objectDepth -= 1; exitNow = true
 
           // start of a simple type or null
           case JsonToken.VALUE_STRING | JsonToken.VALUE_NULL => exitNow = true

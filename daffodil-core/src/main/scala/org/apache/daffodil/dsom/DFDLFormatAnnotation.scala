@@ -39,10 +39,9 @@ object DeprecatedProperty {
     DeprecatedProperty(XMLUtils.DFDL_NAMESPACE, "layerLengthKind", "dfdlx:layerLengthKind"),
     DeprecatedProperty(XMLUtils.DFDL_NAMESPACE, "layerLength", "dfdlx:layerLength"),
     DeprecatedProperty(XMLUtils.DFDL_NAMESPACE, "layerLengthUnits", "dfdlx:layerLengthUnits"),
-    DeprecatedProperty(XMLUtils.DFDL_NAMESPACE, "layerBoundaryMark","dfdlx:layerBoundaryMark"),
+    DeprecatedProperty(XMLUtils.DFDL_NAMESPACE, "layerBoundaryMark", "dfdlx:layerBoundaryMark"),
     DeprecatedProperty(XMLUtils.EXT_NS_APACHE, "parseUnparsePolicy", "dfdlx:parseUnparsePolicy"),
-    DeprecatedProperty(XMLUtils.EXT_NS_NCSA, "parseUnparsePolicy", "dfdlx:parseUnparsePolicy")
-  )
+    DeprecatedProperty(XMLUtils.EXT_NS_NCSA, "parseUnparsePolicy", "dfdlx:parseUnparsePolicy"))
 
   def warnIfDeprecated(
     propertyName: String,
@@ -76,7 +75,6 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
 
   requiredEvaluations(hasConflictingPropertyError)
 
-  final lazy val ref = getLocalFormatRef()
   //
   // prefix of a QName as the value of this ref, must be referring
   // to a namespace binding that is in force right here on this object
@@ -91,7 +89,7 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
    * form format annotation (or we ARE a long form format annotation)
    * gets the ref long form attribute.
    */
-  private def getLocalFormatRef(): Option[String] = {
+  final lazy val ref: Option[String] = {
     // We have to check if the ref exists in long form (dfdl:ref)
     // or short form (ref).
     //

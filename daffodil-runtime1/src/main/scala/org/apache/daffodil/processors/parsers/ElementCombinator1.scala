@@ -142,12 +142,12 @@ abstract class ElementParserBase(
       // debugger of this so it can do things like check for break points
       if (pstate.dataProc.isDefined) pstate.dataProc.value.startElement(pstate, this)
 
-      if(eRepTypeParser.isDefined){
+      if (eRepTypeParser.isDefined) {
         eRepTypeParser.get.parse1(pstate)
-      }  else if (eParser.isDefined){
+      } else if (eParser.isDefined) {
         eParser.get.parse1(pstate)
       }
-      
+
       Assert.invariant(pstate.hasInfoset)
 
       var setVarFailureDiags: Seq[Diagnostic] = Nil
@@ -223,8 +223,7 @@ class ElementParser(
   eBeforeParser: Maybe[Parser],
   eParser: Maybe[Parser],
   eAfterParser: Maybe[Parser],
-  eRepTypeParser: Maybe[Parser]
-  )
+  eRepTypeParser: Maybe[Parser])
   extends ElementParserBase(
     erd,
     name,
@@ -236,8 +235,7 @@ class ElementParser(
     eBeforeParser,
     eParser,
     eAfterParser,
-    eRepTypeParser  
-  ) {
+    eRepTypeParser) {
 
   def move(start: PState) {
     start.mpstate.moveOverOneElementChildOnly
@@ -245,7 +243,7 @@ class ElementParser(
   }
 
   def parseBegin(pstate: PState): Unit = {
-    val currentElement = Infoset.newElement(erd, pstate.tunable).asInstanceOf[DIElement]
+    val currentElement = Infoset.newElement(erd).asInstanceOf[DIElement]
 
     log(LogLevel.Debug, "currentElement = %s", currentElement)
     val priorElement = pstate.infoset
@@ -259,6 +257,9 @@ class ElementParser(
         // It also comes up in tests where the root node is
         // a simple element.
         currentElement.setParent(st.parent)
+      }
+      case _ => {
+        Assert.invariantFailed("Unknown priorElement: " + priorElement)
       }
     }
     log(LogLevel.Debug, "priorElement = %s", priorElement)
@@ -312,8 +313,7 @@ class ElementParserNoRep(
     eBeforeParser,
     eParser,
     eAfterParser,
-    Maybe.Nope  
-  ) {
+    Maybe.Nope) {
 
   // if there is no rep (inputValueCalc), then we do create a new child so that index must advance,
   // but we don't create anything new as far as the group is concerned, and we don't want

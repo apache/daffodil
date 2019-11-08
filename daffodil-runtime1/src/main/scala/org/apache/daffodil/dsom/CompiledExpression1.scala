@@ -240,7 +240,7 @@ class DPathCompileInfo(
    * Then we move outward to the enclosing element - and if there
    * isn't one we return None. (Which most likely will lead to an SDE.)
    */
-  final def enclosingElementCompileInfos: Seq[DPathElementCompileInfo] = {
+  final lazy val enclosingElementCompileInfos: Seq[DPathElementCompileInfo] = {
     val eci = elementCompileInfos.flatMap { _.parents }
     val res = eci.flatMap { _.elementCompileInfos }
     res

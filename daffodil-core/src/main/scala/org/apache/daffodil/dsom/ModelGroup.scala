@@ -221,7 +221,7 @@ abstract class ModelGroup(index: Int)
           val last = maybeLast.get
           val lastIsOptional = last match {
             case mg: ModelGroup => false // model group is mandatory
-            case eb: ElementBase => !eb.isRequiredInInfoset || !eb.isRepresented
+            case eb: ElementBase => !eb.isRequiredStreamingUnparserEvent || !eb.isRepresented
           }
           if (lastIsOptional) {
             val (priorSibs, optPriorElementsIncludesThisParent) = last.potentialPriorTerms
@@ -249,13 +249,13 @@ abstract class ModelGroup(index: Int)
   }
 
   /**
-   * Package private as this is for testing only
+   * Package private as this is for testing only.
    */
   private[dsom] final def allSelfContainedTermsTerminatedByRequiredElement: Seq[Term] =
     LV('allSelfContainedTermsTerminatedByRequiredElement) {
       val listOfTerms = groupMembers.map(m => {
         m match {
-          case e: ElementBase if !e.isRequiredInInfoset => (Seq(e) ++ e.possibleNextTerms) // A LocalElement or ElementRef
+          case e: ElementBase if !e.isRequiredStreamingUnparserEvent => (Seq(e) ++ e.possibleNextTerms) // A LocalElement or ElementRef
           case e: ElementBase => Seq(e)
           case mg: ModelGroup => Seq(mg)
         }
@@ -334,7 +334,7 @@ abstract class ModelGroup(index: Int)
     firstTerms
   }.value
 
-  final lazy val nextParentElements: Seq[ElementBase] = {
+  final override lazy val nextParentElements: Seq[ElementBase] = {
     Assert.invariant(enclosingTerm.isDefined)
     val et = enclosingTerm.get
     et match {
@@ -366,7 +366,7 @@ abstract class ModelGroup(index: Int)
         // required next sibling if the last sibling element is required
         possibleNextSiblingTerms.lastOption match {
           case None => false
-          case Some(e: ElementBase) => e.isRequiredInInfoset
+          case Some(e: ElementBase) => e.isRequiredStreamingUnparserEvent
           case Some(mg: ModelGroup) => mg.mustHaveRequiredElement
           case Some(_) => Assert.invariantFailed()
         }

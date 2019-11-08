@@ -1225,7 +1225,8 @@ trait ElementBaseGrammarMixin
               schemaDefinitionUnless(impliedRepresentation != Representation.Text, "LiteralValue Nils with lengthKind='implicit' cannot have representation='text'.")
               LiteralValueNilOfSpecifiedLength(this)
             }
-            case LengthKind.Implicit if isComplexType => Assert.invariantFailed("literal nil complex types aren't handled here.")
+            case LengthKind.Implicit if isComplexType =>
+              LiteralValueNilOfSpecifiedLength(this)
             case LengthKind.Prefixed => LiteralValueNilOfSpecifiedLength(this)
             case LengthKind.EndOfParent if isComplexType => notYetImplemented("lengthKind='endOfParent' for complex type")
             case LengthKind.EndOfParent => notYetImplemented("lengthKind='endOfParent' for simple type")
@@ -1459,7 +1460,7 @@ trait ElementBaseGrammarMixin
     elem
   }
 
-  private def checkVariousPropertyconstraints {
+  private lazy val checkVariousPropertyconstraints: Unit = {
     //
     // check for consistency. If length units is bytes, and we're going to use the length facets
     // of xs:string for implicit length, the encoding must be SBCS. Otherwise validation could fail when the

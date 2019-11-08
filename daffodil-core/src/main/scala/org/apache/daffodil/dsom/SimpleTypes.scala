@@ -265,8 +265,8 @@ abstract class SimpleTypeDefBase(xml: Node, lexicalParent: SchemaComponent)
 
   // override def name = diagnosticDebugName // don't do this. names are used by diagnosticDebugName
 
-  override final def optReferredToComponent = optRestriction.flatMap { _.optBaseDef }
-  override final def emptyFormatFactory = new DFDLSimpleType(newDFDLAnnotationXML("simpleType"), this)
+  override final lazy val optReferredToComponent = optRestriction.flatMap { _.optBaseDef }
+  override final lazy val emptyFormatFactory = new DFDLSimpleType(newDFDLAnnotationXML("simpleType"), this)
 
   override final def isMyFormatAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLSimpleType]
 
@@ -277,7 +277,7 @@ abstract class SimpleTypeDefBase(xml: Node, lexicalParent: SchemaComponent)
     }
   }
 
-  def primType: NodeInfo.PrimType = {
+  lazy val primType: NodeInfo.PrimType = {
     optRestriction.map { _.primType }.getOrElse {
       optUnion.map { _.primType }.getOrElse {
         Assert.invariantFailed("must be either a restriction or union")
@@ -583,7 +583,7 @@ final class EnumerationDefFactory(
   override protected val optReferredToComponent = None
 
   protected def annotationFactory(node: Node): Option[DFDLAnnotation] = Assert.invariantFailed("Should not be called")
-  protected def emptyFormatFactory: DFDLFormatAnnotation = new DFDLEnumerationFactory(newDFDLAnnotationXML("enumeration"), this)
+  protected lazy val emptyFormatFactory: DFDLFormatAnnotation = new DFDLEnumerationFactory(newDFDLAnnotationXML("enumeration"), this)
   protected def isMyFormatAnnotation(a: DFDLAnnotation): Boolean = Assert.invariantFailed("Should not be called")
 
 }

@@ -60,6 +60,7 @@ class ScalaXMLInfosetInputter(rootNode: Node)
   private var doStartEvent = true
 
   override def getEventType(): InfosetInputterEventType = {
+    import InfosetInputterEventType._
     if (stack.top._1 == null) {
       if (doStartEvent) StartDocument else EndDocument
     } else {

@@ -1695,9 +1695,14 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           case erd: ElementRuntimeData => erd
           case _ => SDE("dfdlx:outputTypeCalcNextSibling can only be defined on an element")
         }
-        val resolver = erd.nextElementResolver
+        val resolver = erd.partialNextElementResolver
+        val followingERDs = resolver.currentPossibleNextElements.dropWhile { _ == erd }
+
+        // It is required that the next sibling be a peer "adjacent or downward", but not up-and-out
+        // from the location of the term where this resides.
+        //
         //we keep the ERD to be able to produce better error messages
-        val dstTypes: Seq[(NodeInfo.Kind, ElementRuntimeData)] = resolver.allPossibleNextElements.map(erd => {
+        val dstTypes: Seq[(NodeInfo.Kind, ElementRuntimeData)] = followingERDs.map(erd => {
           val strd = erd.optSimpleTypeRuntimeData match {
             case Some(x) => x
             case None => SDE("dfdlx:outputTypeCalcNextSibling: potential next sibling %s does not have a simple type def. This could be because it has a primitive type, or a complex type.", erd.namedQName)
@@ -1712,7 +1717,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           (calc.srcType, erd)
         })
         val dstType = dstTypes match {
-          case Seq() => SDE("dfdlx:outputTypeCalcNextSibling() called where no next sibling exists")
+          case Seq() => SDE("dfdlx:outputTypeCalcNextSibling() called where no suitable next sibling exists")
           case Seq(x) => x._1
           case x +: xs => {
             val (ans, headQName) = x

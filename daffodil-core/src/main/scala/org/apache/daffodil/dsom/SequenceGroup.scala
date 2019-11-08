@@ -39,6 +39,7 @@ import org.apache.daffodil.processors.ModelGroupRuntimeData
 import org.apache.daffodil.schema.annotation.props.gen.LayerLengthUnits
 import org.apache.daffodil.processors.SeparatorUnparseEv
 import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.runtime1.ChoiceBranchImpliedSequenceRuntime1Mixin
 
 /**
  * Base for anything sequence-like.
@@ -150,7 +151,7 @@ abstract class SequenceGroupTermBase(
   /**
    * Provides unordered sequence checks.  Will SDE if invalid.
    */
-  protected final def checkIfValidUnorderedSequence(): Unit = {
+  protected final lazy val checkIfValidUnorderedSequence: Unit = {
     if (!isOrdered) {
       checkMembersAreAllElementOrElementRef
       checkMembersHaveValidOccursCountKind
@@ -158,7 +159,7 @@ abstract class SequenceGroupTermBase(
     }
   }
 
-  private def checkMembersHaveValidOccursCountKind: Unit = {
+  private lazy val checkMembersHaveValidOccursCountKind: Unit = {
     val validChildren: Seq[ElementBase] =
       groupMembers.filter { m => m.isInstanceOf[LocalElementDecl] || m.isInstanceOf[ElementRef]
       }.map(_.asInstanceOf[ElementBase])
@@ -177,7 +178,7 @@ abstract class SequenceGroupTermBase(
         "\nThe offending members: %s.", this.path, invalidChildren.mkString(","))
   }
 
-  private def checkMembersAreAllElementOrElementRef: Unit = {
+  private lazy val checkMembersAreAllElementOrElementRef: Unit = {
     val invalidChildren = groupMembers.filterNot(child =>
       child.isInstanceOf[LocalElementDecl] || child.isInstanceOf[ElementRef])
     val hasInvalidChildren = invalidChildren.length > 0
@@ -186,7 +187,7 @@ abstract class SequenceGroupTermBase(
         "\nThe offending members: %s.", this.path, invalidChildren.mkString(","))
   }
 
-  private def checkMembersHaveUniqueNamesInNamespaces: Unit = {
+  private lazy val checkMembersHaveUniqueNamesInNamespaces: Unit = {
     val childrenGroupedByNamespace =
       groupMembers.filter(m => m.isInstanceOf[ElementBase]).map(_.asInstanceOf[ElementBase]).groupBy(_.targetNamespace)
 
@@ -208,7 +209,7 @@ abstract class SequenceGroupTermBase(
     }
   }
 
-  def checkHiddenSequenceIsDefaultableOrOVC: Unit = {
+  lazy val checkHiddenSequenceIsDefaultableOrOVC: Unit = {
     if (this.isHidden) {
       val nonDefaultableOrOVC =
         this.childrenInHiddenGroupNotDefaultableOrOVC
@@ -333,7 +334,8 @@ final class Sequence(xmlArg: Node, lexicalParent: SchemaComponent, position: Int
  */
 final class ChoiceBranchImpliedSequence(rawGM: Term)
   extends SequenceTermBase(rawGM.xml, rawGM.optLexicalParent, rawGM.position)
-  with SequenceDefMixin {
+  with SequenceDefMixin
+  with ChoiceBranchImpliedSequenceRuntime1Mixin {
 
   override final lazy val groupMembers: Seq[Term] = Seq(rawGM)
 

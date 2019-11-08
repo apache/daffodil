@@ -502,7 +502,7 @@
     </tdml:infoset>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>dfdlx:outputTypeCalcNextSibling() called where no next sibling exists</tdml:error>
+      <tdml:error>dfdlx:outputTypeCalcNextSibling() called where no suitable next sibling exists</tdml:error>
     </tdml:errors>
   </tdml:unparserTestCase>
 

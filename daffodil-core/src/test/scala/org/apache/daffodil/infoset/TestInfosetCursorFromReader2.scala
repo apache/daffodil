@@ -26,6 +26,8 @@ import org.apache.daffodil.processors.DataProcessor
 import org.apache.daffodil.compiler.Compiler
 import org.apache.daffodil.xml.XMLUtils
 import scala.collection.immutable.Stream.consWrapper
+import org.apache.daffodil.processors.SequenceRuntimeData
+import org.apache.daffodil.processors.ElementRuntimeData
 
 object INoWarnU1 { ImplicitsSuppressUnusedImportWarning() }
 
@@ -64,7 +66,7 @@ class TestInfosetInputterFromReader2 {
     val inputter = new XMLTextInfosetInputter(is)
     inputter.initialize(rootERD, u.getTunables())
     val ic = Adapter(inputter)
-    ic
+    (ic, rootERD, inputter)
   }
 
   class StreamInputStream(
@@ -90,9 +92,18 @@ class TestInfosetInputterFromReader2 {
 
   @Test def testStreamingBehavior1() {
     val count = 100
-    val is = infosetUnlimitedSource(count)
+    doTest(count)
+  }
+
+  def doTest(count: Int) {
+    val (is, rootERD, inp) = infosetUnlimitedSource(count)
+    val Some(barSeqTRD: SequenceRuntimeData) = rootERD.optComplexTypeModelGroupRuntimeData
+    val Seq(fooERD: ElementRuntimeData) = barSeqTRD.groupMembers
+    inp.pushTRD(rootERD)
     val Start(bar_s: DIComplex) = is.next
-    val Start(foo_arr_s: DIArray) = is.next
+    inp.pushTRD(barSeqTRD)
+    inp.pushTRD(fooERD)
+    val StartArray(foo_arr_s) = is.next
     1 to count foreach { i =>
       val Start(foo_1_s: DISimple) = is.next
       val End(foo_1_e: DISimple) = is.next
@@ -100,8 +111,11 @@ class TestInfosetInputterFromReader2 {
       assertTrue(foo_1_s.dataValue.isInstanceOf[String])
       assertEquals("Hello", foo_1_s.dataValueAsString)
     }
-    val End(foo_arr_e: DIArray) = is.next
+    val EndArray(foo_arr_e) = is.next
+    inp.popTRD()
+    inp.popTRD()
     val End(bar_e: DIComplex) = is.next
+    inp.popTRD()
     assertFalse(is.hasNext)
     assertTrue(bar_s eq bar_e) // exact same object
     assertTrue(foo_arr_s eq foo_arr_e)
@@ -110,26 +124,6 @@ class TestInfosetInputterFromReader2 {
   // @Test // uncomment to watch storage on jvisualvm to convince self of non-leaking.
   def testStreamingBehavior2() {
     val count = 100000000
-    val is = infosetUnlimitedSource(count)
-    val Start(bar_s: DIComplex) = is.next
-    val Start(foo_arr_s: DIArray) = is.next
-    1 to count foreach { i =>
-      val Start(foo_1_s: DISimple) = is.next
-      val End(foo_1_e: DISimple) = is.next
-      assertTrue(foo_1_s eq foo_1_e)
-      assertTrue(foo_1_s.dataValue.isInstanceOf[String])
-      assertTrue(foo_1_s.dataValueAsString =:= "Hello")
-      val arr = bar_s.getChildArray(foo_1_s.runtimeData)
-      if (arr.length % 100L =#= 0L) {
-        // println("array length is " + arr.length)
-        foo_arr_s.reduceToSize(0)
-      }
-      arr.asInstanceOf[DIArray].children
-    }
-    val End(foo_arr_e: DIArray) = is.next
-    val End(bar_e: DIComplex) = is.next
-    assertFalse(is.hasNext)
-    assertTrue(bar_s eq bar_e) // exact same object
-    assertTrue(foo_arr_s eq foo_arr_e)
+    doTest(count)
   }
 }

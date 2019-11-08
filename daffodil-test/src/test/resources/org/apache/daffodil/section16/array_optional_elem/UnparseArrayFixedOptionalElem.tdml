@@ -129,8 +129,9 @@
     </tdml:infoset>
     <tdml:errors>
       <tdml:error>Unparse Error</tdml:error>
-      <tdml:error>no element is expected</tdml:error>
-      <tdml:error>opt</tdml:error>
+      <tdml:error>expected element end</tdml:error>
+      <tdml:error>{http://example.com}r1</tdml:error>
+      <tdml:error>{http://example.com}opt</tdml:error>
     </tdml:errors>
 
   </tdml:unparserTestCase>

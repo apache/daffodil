@@ -25,7 +25,7 @@
   <tdml:defineSchema name="s1">
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
-    <dfdl:format lengthKind="explicit" length="1" ref="ex:GeneralFormatPortable"
+    <dfdl:format lengthKind="explicit" length="1" ref="ex:GeneralFormatPortable" encodingErrorPolicy="replace"
       separator="" initiator="" terminator="" occursCountKind="implicit"
       ignoreCase="no" textNumberRep="standard" representation="text" separatorSuppressionPolicy="anyEmpty" textPadKind="padChar" textStringPadCharacter="."/>
     <dfdl:defineFormat name="root">

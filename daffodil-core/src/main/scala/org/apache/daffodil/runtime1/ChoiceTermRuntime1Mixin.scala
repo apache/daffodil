@@ -47,6 +47,7 @@ trait ChoiceTermRuntime1Mixin { self: ChoiceTermBase =>
   }
 
   final def choiceBranchMap: Map[ChoiceBranchEvent, RuntimeData] = LV('choiceBranchMap) {
+
     val eventTuples = groupMembers.flatMap {
       case e: ElementBase => Seq((ChoiceBranchStartEvent(e.namedQName), e))
       case mg: ModelGroup => {
@@ -107,6 +108,8 @@ trait ChoiceTermRuntime1Mixin { self: ChoiceTermBase =>
 
   final lazy val choiceRuntimeData = {
     new ChoiceRuntimeData(
+      position,
+      partialNextElementResolver,
       schemaSet.variableMap,
       encodingInfo,
       // elementChildren.map { _.elementRuntimeData.dpathElementCompileInfo },

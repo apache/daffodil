@@ -25,6 +25,7 @@ import scala.Left
 import scala.collection.mutable
 
 import org.apache.daffodil.api.DFDL
+import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.api.DataLocation
 import org.apache.daffodil.api.Diagnostic
 import org.apache.daffodil.dpath.UnparserBlocking
@@ -34,8 +35,11 @@ import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.exceptions.SavesErrorsAndWarnings
 import org.apache.daffodil.exceptions.ThrowsSDE
 import org.apache.daffodil.infoset.DIArray
+import org.apache.daffodil.infoset.DIDocument
 import org.apache.daffodil.infoset.DIElement
 import org.apache.daffodil.infoset.DINode
+import org.apache.daffodil.infoset.InfosetAccessor
+import org.apache.daffodil.infoset.InfosetInputter
 import org.apache.daffodil.io.DirectOrBufferedDataOutputStream
 import org.apache.daffodil.io.StringDataInputStreamForUnparse
 import org.apache.daffodil.processors.DataLoc
@@ -43,11 +47,17 @@ import org.apache.daffodil.processors.DataProcessor
 import org.apache.daffodil.processors.DelimiterStackUnparseNode
 import org.apache.daffodil.processors.EscapeSchemeUnparserHelper
 import org.apache.daffodil.processors.Failure
+import org.apache.daffodil.processors.NonTermRuntimeData
 import org.apache.daffodil.processors.ParseOrUnparseState
+import org.apache.daffodil.processors.RuntimeData
 import org.apache.daffodil.processors.Suspension
+import org.apache.daffodil.processors.TermRuntimeData
 import org.apache.daffodil.processors.UnparseResult
 import org.apache.daffodil.processors.VariableBox
 import org.apache.daffodil.processors.VariableMap
+import org.apache.daffodil.processors.charset.BitsCharset
+import org.apache.daffodil.processors.charset.BitsCharsetDecoder
+import org.apache.daffodil.processors.charset.BitsCharsetEncoder
 import org.apache.daffodil.processors.dfa.DFADelimiter
 import org.apache.daffodil.util.Cursor
 import org.apache.daffodil.util.LocalStack
@@ -57,15 +67,6 @@ import org.apache.daffodil.util.MStackOfMaybe
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe.Nope
 import org.apache.daffodil.util.Maybe.One
-import org.apache.daffodil.infoset.InfosetAccessor
-import org.apache.daffodil.infoset.InfosetInputter
-import org.apache.daffodil.processors.ParseOrUnparseState
-import org.apache.daffodil.api.DaffodilTunables
-import org.apache.daffodil.processors.NonTermRuntimeData
-import org.apache.daffodil.processors.TermRuntimeData
-import org.apache.daffodil.processors.charset.BitsCharsetDecoder
-import org.apache.daffodil.processors.charset.BitsCharsetEncoder
-import org.apache.daffodil.processors.charset.BitsCharset
 
 object ENoWarn { EqualitySuppressUnusedImportWarning() }
 
@@ -77,6 +78,22 @@ abstract class UState(
   tunable: DaffodilTunables)
   extends ParseOrUnparseState(vbox, diagnosticsArg, dataProcArg, tunable)
   with Cursor[InfosetAccessor] with ThrowsSDE with SavesErrorsAndWarnings {
+
+  /**
+   * Push onto the dynamic TRD context stack
+   */
+  def pushTRD(trd: TermRuntimeData): Unit
+
+  /**
+   * Returns the top of the stack if it exists. No state change to stack contents.
+   */
+  def maybeTopTRD(): Maybe[TermRuntimeData]
+
+  /**
+   * Pop the dynamic TRD context stack. The popped TRD should be the same as the argument rd.
+   * The popped TRD is returned.
+   */
+  def popTRD(trd: TermRuntimeData): TermRuntimeData
 
   // def unparse1(unparser: Unparser): Unit
 
@@ -323,6 +340,8 @@ abstract class UState(
 
   def regexMatchBuffer: CharBuffer = Assert.usageError("Not to be used.")
   def regexMatchBitPositionBuffer: LongBuffer = Assert.usageError("Not to be used.")
+
+  def documentElement: DIDocument
 }
 
 /**
@@ -333,7 +352,7 @@ abstract class UState(
  * information isn't used and there's no need to copy it/take up valuable
  * memory.
  */
-class UStateForSuspension(
+final class UStateForSuspension(
   val mainUState: UStateMain,
   dos: DirectOrBufferedDataOutputStream,
   vbox: VariableBox,
@@ -363,7 +382,6 @@ class UStateForSuspension(
   override def advance: Boolean = die
   override def advanceAccessor: InfosetAccessor = die
   override def inspect: Boolean = die
-  override def inspectPure: Boolean = die
   override def inspectAccessor: InfosetAccessor = die
   override def fini: Unit = {}
   override def inspectOrError = die
@@ -397,6 +415,13 @@ class UStateForSuspension(
   override def escapeSchemeEVCache: MStackOfMaybe[EscapeSchemeUnparserHelper] = escapeSchemeEVCacheMaybe.get
 
   override def setVariables(newVariableMap: VariableMap) = die
+
+  override def pushTRD(trd: TermRuntimeData): Unit = die
+  override def maybeTopTRD() = die
+  override def popTRD(trd: TermRuntimeData): TermRuntimeData = die
+
+  override def documentElement = mainUState.documentElement
+
 }
 
 final class UStateMain private (
@@ -483,7 +508,6 @@ final class UStateMain private (
   override def advance: Boolean = inputter.advance
   override def advanceAccessor: InfosetAccessor = inputter.advanceAccessor
   override def inspect: Boolean = inputter.inspect
-  override def inspectPure: Boolean = inputter.inspectPure
   override def inspectAccessor: InfosetAccessor = inputter.inspectAccessor
   override def fini: Unit = { inputter.fini }
 
@@ -604,6 +628,20 @@ final class UStateMain private (
     }
   }
 
+  final override def pushTRD(trd: TermRuntimeData) =
+    inputter.pushTRD(trd)
+
+  final override def maybeTopTRD(): Maybe[TermRuntimeData] =
+    inputter.maybeTopTRD()
+
+  final override def popTRD(trd: TermRuntimeData) = {
+    val poppedTRD = inputter.popTRD()
+    if (poppedTRD ne trd)
+      Assert.invariantFailed("TRDs do not match. Expected: " + trd + " got " + poppedTRD)
+    poppedTRD
+  }
+
+  final override def documentElement = inputter.documentElement
 }
 
 class SuspensionDeadlockException(suspExprs: Seq[Suspension])
@@ -619,6 +657,7 @@ object UState {
     out: DirectOrBufferedDataOutputStream,
     dataProc: DFDL.DataProcessor,
     inputter: InfosetInputter): UStateMain = {
+    Assert.invariant(inputter.isInitialized)
 
     val variables = dataProc.getVariables
     val diagnostics = Nil

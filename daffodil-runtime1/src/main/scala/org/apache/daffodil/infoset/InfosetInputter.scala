@@ -26,34 +26,70 @@ import org.apache.daffodil.util.Accessor
 import org.apache.daffodil.util.Misc
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.util.CursorImplMixin
-import org.apache.daffodil.util.MStackOf
+import org.apache.daffodil.util.MStack
 import org.apache.daffodil.processors.unparsers.UnparseError
 import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.processors.ElementRuntimeData
+import org.apache.daffodil.processors.ErrorERD
+import org.apache.daffodil.util.MStackOfAnyRef
 
-class InfosetError(kind: String, args: String*) extends ProcessingError("Infoset", Nope, Nope, kind, args: _*)
+class InfosetError(kind: String, args: String*)
+  extends ProcessingError("Infoset", Nope, Nope, kind, args: _*)
 
+/**
+ * These are the events that a derived specific InfosetInputter
+ * creates.
+ *
+ * The InfosetInputter base class figures out Daffodil InfosetEvents from
+ * the call-backs providing these derived-class events types.
+ */
 sealed trait InfosetInputterEventType
-case object StartDocument extends InfosetInputterEventType
-case object EndDocument extends InfosetInputterEventType
-case object StartElement extends InfosetInputterEventType
-case object EndElement extends InfosetInputterEventType
-
-trait InfosetInputterCursor extends Cursor[InfosetAccessor] {
-  /**
-   * Override these further only if you want to say, delegate from one cursor implemtation
-   * to another one.
-   */
-  override lazy val advanceAccessor = InfosetAccessor(null, null, null)
-  override lazy val inspectAccessor = InfosetAccessor(null, null, null)
-
-  def initialize(rootElement: ElementRuntimeData, tunable: DaffodilTunables)
+object InfosetInputterEventType {
+  case object StartDocument extends InfosetInputterEventType
+  case object EndDocument extends InfosetInputterEventType
+  case object StartElement extends InfosetInputterEventType
+  case object EndElement extends InfosetInputterEventType
 }
 
+/**
+ * Base class for objects that create Unparser infoset events from
+ * some representation/source of infoset information like
+ * XML objects, DOM trees, or XML text, or JSON text, etc.
+ *
+ * Events are pulled from this object via the usual iterator
+ * hasNext()/next() idiom.
+ *
+ * However, next() does not return an object, but rather populates
+ * an accessor by side effect, so this is a Cursor-style API.
+ * You advance the cursor by calling next(), and the data appears under
+ * the accessor.
+ *
+ * Supports a peek-style of operation by having two ways of advancing
+ * and two accessors.
+ *
+ * Method advance is normal, and the advanceAccessor then has the data
+ * of the event.
+ *
+ * Method inspect is a "peek", and the inspectAccessor then has the data
+ * of the event, but the same data will be provided via the advanceAccessor
+ * after the next advance call.
+ *
+ * Besides pulling events via inspect or advance,
+ * the caller is responsible to maintain the TRD (TermRuntimeData) stack by
+ * calling pushTRD and popTRD for all Terms (model-groups, and elements).
+ * This is necessary so that the infoset inputter can resolve element
+ * name + namespace into the proper ERD based on the proper dynamic context.
+ */
 abstract class InfosetInputter
-  extends InfosetInputterCursor
-  with CursorImplMixin[InfosetAccessor] {
+  extends CursorImplMixin[InfosetAccessor]
+  with NextElementResolver {
+
+  type ERD = ElementRuntimeData
+
+  private var isInitialized_ : Boolean = false
+
+  def isInitialized = isInitialized_
 
   var tunable = DaffodilTunables()
 
@@ -112,83 +148,61 @@ abstract class InfosetInputter
    */
   val supportsNamespaces: Boolean
 
+  final override lazy val advanceAccessor = InfosetAccessor()
+  final override lazy val inspectAccessor = InfosetAccessor()
+
+  private var documentElement_ : DIDocument = _
+
+  /**
+   * Mostly this is for unit testing where we want to inspect
+   * the infoset the unparser constructed, as well as looking at
+   * the data that was output.
+   */
+  def documentElement = {
+    Assert.usage(isInitialized, "Must be initialized")
+    documentElement_
+  }
+
+  /**
+   * Initialize the infoset inputter, given the ERD of the root element, and
+   * the tunables.
+   */
   def initialize(rootElementInfo: ElementRuntimeData, tunableArg: DaffodilTunables): Unit = {
     tunable = tunableArg
-    nextElementResolver =
-      new OnlyOnePossibilityForNextElement(rootElementInfo.schemaFileLocation, rootElementInfo, RootResolver) // bootstrap
+    isInitialized_ = true
 
-    val diDoc = new DIDocument(rootElementInfo, tunable)
-    nodeStack.push(diDoc)
+    documentElement_ = new DIDocument(rootElementInfo, tunable)
+    infoStack.push(documentElement_)
 
     try {
-      if (!hasNext() || getEventType() != StartDocument) {
-        UnparseError(One(nodeStack.top.erd.schemaFileLocation), Nope, "Infoset does not start with StartDocument event")
+      if (!hasNext() || getEventType() != InfosetInputterEventType.StartDocument) {
+        UnparseError(One(infoStack.top.erd.schemaFileLocation), Nope, "Infoset does not start with StartDocument event")
       }
     } catch {
       case e: InvalidInfosetException =>
-        UnparseError(One(nodeStack.top.erd.schemaFileLocation), Nope, "Infoset does not start with StartDocument event: " + e.getMessage)
+        UnparseError(One(infoStack.top.erd.schemaFileLocation), Nope, "Infoset does not start with StartDocument event: " + e.getMessage)
     }
+
+    this.pushTRD(rootElementInfo) // TRD stack holds TRDs of model groups
   }
 
-  private type NodeStack = MStackOf[DINode]
-  private val nodeStack: NodeStack = new MStackOf[DINode]
+  private val infoStack = new Info.InfoStack
 
-  private var nextElementResolver: NextElementResolver = null
-
-  private def level = nodeStack.length
+  private def level = infoStack.length
 
   private def indent = ("  " * level) + "|"
 
   override def toString() = {
     indent + "************* STATE ************************\n" +
-      indent + "nextElementResolver = " + nextElementResolver + "\n" +
-      indent + "nodeStack = " + nodeStack + "\n" +
+      indent + "infoStack = " + infoStack + "\n" +
       indent + "********************************************"
-  }
-
-  override def inspectPure: Boolean = {
-    accessor = inspectAccessor
-
-    val res = priorOpKind match {
-      case Advance => {
-        priorOpKind = InspectPure
-        if (isPending) {
-          accessor.kind = pendingStartOrEnd(pendingCurIndex)
-          accessor.node = pendingNodes(pendingCurIndex)
-          accessor.erd = accessor.node.erd
-        } else {
-          next() //advance the input stream so nextElementErd is pointing to the correct place
-          val eventKind = getEventType() match {
-            case StartElement => StartKind
-            case EndElement => EndKind
-            case StartDocument => StartKind
-            case EndDocument => EndKind
-          }
-          accessor.kind = eventKind
-          if (eventKind == StartKind) {
-            accessor.erd = nextElementErd()
-            accessor.node = null
-          } else {
-            //accessor.kind == EndKind
-            val node = nodeStack.top
-            accessor.node = node
-            accessor.erd = node.erd
-          }
-        }
-        true
-      }
-      case InspectPure => true
-      case Inspect => true
-      case Unsuccessful => false
-    }
-
-    res
   }
 
   /**
    * Queues used to hold additional events, thereby allowing a single pull to result
    * in multiple infoset events. For each pull, the first event coming back is not
-   * queued. Only additional extra events are queued.
+   * queued, it is placed directly into the accessor for that type of pull.
+   * Only additional extra events are queued.
    *
    * Note that there should never be more than 2 events in the queue. This
    * occurs when ending an array following by a new array of simple elements.
@@ -203,31 +217,38 @@ abstract class InfosetInputter
    * an array of pairs.
    */
   final private val MaxPendingQueueSize = 2
-  private val pendingNodes = new Array[DINode](MaxPendingQueueSize)
+  private val pendingInfos = new Array[Info](MaxPendingQueueSize)
   private val pendingStartOrEnd = new Array[InfosetEventKind](MaxPendingQueueSize)
   private var pendingCurIndex: Int = 0
   private var pendingLength: Int = 0
 
-  private def queueAnotherEvent(kind: InfosetEventKind, node: DINode) {
+  private def queueElementStart(element: DIElement) =
+    queueEventInfo_(InfosetEventKind.StartElement, Info(element))
+  private def queueElementEnd(element: DIElement) =
+    queueEventInfo_(InfosetEventKind.EndElement, Info(element))
+
+  private def queueArrayStart(arrayERD: ERD) =
+    queueEventInfo_(InfosetEventKind.StartArray, Info(arrayERD))
+
+  private def queueEventInfo_(kind: InfosetEventKind, info: Info) {
     Assert.invariant(pendingLength < MaxPendingQueueSize)
-    pendingNodes(pendingLength) = node
+    pendingInfos(pendingLength) = info
     pendingStartOrEnd(pendingLength) = kind
     pendingLength += 1
-    if (kind eq EndKind) {
-      node match {
-        case f: DIFinalizable => f.setFinal()
-        case _ => // ok
-      }
-    }
   }
 
   private def isPending: Boolean = pendingCurIndex < pendingLength
 
-  private def dequeuePending(): (InfosetEventKind, DINode) = {
+  /**
+   * Scala compiler seems to avoid tuple allocation for 2-tuples
+   * that are directly deconstructed by the caller. So this shouldn't
+   * cause allocation of objects.
+   */
+  private def dequeuePending(): (InfosetEventKind, Info) = {
     Assert.invariant(pendingCurIndex >= 0)
     Assert.invariant(pendingCurIndex < pendingLength)
     Assert.usage(isPending)
-    val p = (pendingStartOrEnd(pendingCurIndex), pendingNodes(pendingCurIndex))
+    val p = (pendingStartOrEnd(pendingCurIndex), pendingInfos(pendingCurIndex))
     pendingCurIndex += 1
     if (pendingCurIndex == pendingLength) {
       // the last element of the queue has been removed. The queue is now
@@ -246,9 +267,12 @@ abstract class InfosetInputter
   protected final def fill(advanceInput: Boolean): Boolean = {
     if (isPending) {
       val (kind, n) = dequeuePending()
+      import InfosetEventKind._
       kind match {
-        case StartKind => start(n)
-        case EndKind => end(n)
+        case StartElement => startElement(n.element)
+        case EndElement => endElement(n.element)
+        case StartArray => startArray(n.arrayERD)
+        case EndArray => endArray(n.arrayERD)
       }
       true
     } else {
@@ -256,7 +280,7 @@ abstract class InfosetInputter
         reallyFill(advanceInput)
       } catch {
         case ex: InvalidInfosetException => {
-          UnparseError(One(nodeStack.top.erd.schemaFileLocation), Nope, ex.getMessage())
+          UnparseError(One(infoStack.top.erd.schemaFileLocation), Nope, ex.getMessage())
         }
       }
     }
@@ -266,7 +290,7 @@ abstract class InfosetInputter
     if (advanceInput) {
       next()
     }
-
+    import InfosetInputterEventType._
     getEventType() match {
       case StartElement => handleStartElement()
       case EndElement => handleEndElement()
@@ -276,95 +300,98 @@ abstract class InfosetInputter
 
     if (!hasNext()) {
       Assert.invariant(getEventType() == EndDocument)
-      Assert.invariant(nodeStack.top.isInstanceOf[DIDocument])
       fini
       false
     } else
       true
   }
 
-  private def handleStartElement() {
-    val e = createElement()
+  private def handleStartElement(): Unit = {
+    val erd = nextElementErd()
+    val node = createElement(erd)
     //
-    // There's state changes to the parent (which is complex or array)
-    // and to the nodeStack to be done, and we have to either
-    // populate the accessor with this node, or populate based on
-    // an array transition.
+    // An ERD can come back that indicates an error.
+    // We still want to create an infoset event, so that the consuming
+    // unparsers can look at it to see if it is a start/end and possibly
+    // correct the diagnostic from invalid element received, to
+    // "expected an end, but got a start".
     //
-    if (nodeStack.top.isInstanceOf[DIComplex]) {
-      val c = nodeStack.top.asInstanceOf[DIComplex]
+    // Furthermore, an ERD can come back from inspect, where we're not
+    // ready yet to attach to the infoset, because the ERD is for an
+    // element that is later, and in the mean time we have to augment
+    // the infoset with OutputValueCalc elements, or with defaultable
+    // required elements that have no corresponding events in the
+    // event stream.
+
+    val top = infoStack.top
+    if (top.isComplexElement) {
+      // An open complex element is on top of stack.
+      // This start event must be for a child element
+      val c = top.asComplex
       val optNilled = c.maybeIsNilled
       if (optNilled.isDefined && optNilled.get) {
         // cannot add content to a nilled complex element
-        UnparseError(One(c.erd.schemaFileLocation), Nope, "Nilled complex element %s has content", c.erd.namedQName.toExtendedSyntax)
+        UnparseError(One(c.erd.schemaFileLocation), Nope, "Nilled complex element %s has content %s.",
+          c.erd.namedQName.toExtendedSyntax,
+          erd.namedQName.toExtendedSyntax)
       }
-      if (!e.erd.isArray) {
-        c.addChild(e)
-        start(e)
+      if (erd.isArray) {
+        // start of child which is an array
+        startArray(erd)
+        infoStack.push(erd)
+        queueElementStart(node)
+        infoStack.push(node)
       } else {
-        c.addChild(e) // addChild here sets the 'array' value
-        val a = e.array.get.asInstanceOf[DIArray]
-        nodeStack.push(a)
-        //
-        // The first event is created (and passed back) via the start method
-        // Subsequent events that also need to be generated are queued by
-        // way of calling queueAnotherEvent.
-        //
-        // The queue is not used for the first event.
-        //
-        start(a)
-        queueAnotherEvent(StartKind, e)
+        Assert.invariant(!erd.isArray)
+        // start of child which is a scalar element
+        startElement(node)
+        infoStack.push(node)
       }
+    } else if (top.isSimpleElement) {
+      // If a simple element is top of stack, we can't start another simple element
+      // because that would be nesting them. We need an end-element first, which would pop the stack.
+      UnparseError(One(top.erd.schemaFileLocation), Nope, "Simple type element %s cannot have children elements %s.",
+        top.erd.namedQName.toExtendedSyntax,
+        node.erd.namedQName.toExtendedSyntax)
     } else {
-      // top must be an array
-      val a = nodeStack.top.asInstanceOf[DIArray]
-      if (!e.erd.isArray) {
-        //
-        // not an element of this array so we have to end this
-        // array, and then see what this element requires
-        //
-        end(a)
-        nodeStack.pop
-        // top of stack now has to be a DIComplex since it held an array
-        val c = nodeStack.top.asInstanceOf[DIComplex]
-        c.addChild(e)
-        queueAnotherEvent(StartKind, e)
-      } else {
-        // could be an element of this array, or start of the next one
-        if (a.erd eq e.erd) {
-          // same array
-          a.append(e)
-          start(e)
-          e.setParent(a.parent)
+      // Top of stack indicates an array
+      Assert.invariant(top.isArrayERD)
+      // This start event must be for this array, or a subsequent element after the array
+      if (erd.isArray) {
+        // start event is for an array element
+        if (top.erd eq erd) {
+          // another peer occurrence in same array
+          // leave the array on top of stack
+          startElement(node)
+          infoStack.push(node)
         } else {
-          // start of a different array
-          end(a)
-          nodeStack.pop
-          val c = nodeStack.top.asInstanceOf[DIComplex]
-          c.addChild(e) // addChild here sets the 'array' value
-          val nextA = e.array.get.asInstanceOf[DIArray]
-          nodeStack.push(nextA)
-          queueAnotherEvent(StartKind, nextA)
-          queueAnotherEvent(StartKind, e)
+          // end of current array, start of next array
+          endArray(top.erd)
+          val inv = infoStack.pop.isArrayERD
+          Assert.invariant(inv)
+          queueArrayStart(erd)
+          infoStack.push(erd)
+          queueElementStart(node)
+          infoStack.push(node)
         }
+      } else {
+        // array being ended by a scalar element after it.
+        Assert.invariant(!erd.isArray)
+        Assert.invariant(top.erd ne erd) // can't be same element
+        // end of current array, start of a scalar element
+        endArray(top.erd)
+        val inv = infoStack.pop().isArrayERD
+        Assert.invariant(inv)
+        queueElementStart(node)
+        infoStack.push(node)
       }
     }
-
-    nodeStack.push(e)
-
-    Assert.invariant(e.parent ne null)
-    nextElementResolver =
-      if (e.erd.isSimpleType)
-        e.erd.nextElementResolver
-      else
-        e.erd.childElementResolver
   }
 
-  private def nextElementErd() = nextElementResolver.nextElement(getLocalName(), getNamespaceURI(), supportsNamespaces)
+  private def nextElementErd() = nextElement(getLocalName(), getNamespaceURI(), supportsNamespaces)
 
-  private def createElement() = {
-    val erd = nextElementErd()
-    val elem = if (erd.isSimpleType) new DISimple(erd) else new DIComplex(erd, tunable)
+  private def createElement(erd: ERD) = {
+    val elem = if (erd.isSimpleType) new DISimple(erd) else new DIComplex(erd)
 
     val optNilled = isNilled()
 
@@ -400,114 +427,280 @@ abstract class InfosetInputter
   }
 
   private def handleEndElement() {
-    nodeStack.top match {
-      case e: DIElement => {
-        end(e)
-        nodeStack.pop
-        nextElementResolver = e.erd.nextElementResolver
-      }
-      case a: DIArray => {
-        end(a)
-        nodeStack.pop
-        val parent = nodeStack.top.asInstanceOf[DIComplex]
-        queueAnotherEvent(EndKind, parent)
-        nodeStack.pop
-        nextElementResolver = parent.erd.nextElementResolver
-      }
-      case node =>
-        Assert.invariantFailed("Unexpected end element: " + node)
+    val top = infoStack.top
+
+    if (top.isSimpleElement) {
+      endElement(top.element)
+      val inv = infoStack.pop().erd.isSimpleType
+      Assert.invariant(inv)
+      //
+      // Can't check that end matches start because getLocalName() and getNamespaceURI() are
+      // supposed to only be called during startElement(). Some/most infoset external representations
+      // aren't like XML, and don't repeat name+namespace on end indications.
+      //
+    } else if (top.isComplexElement) {
+      // This has to be end event for the current element
+      endElement(top.element)
+      val inv = infoStack.pop().erd.isComplexType
+      Assert.invariant(inv)
+    } else {
+      // Top is an array
+      Assert.invariant(top.isArrayERD)
+      // This end event must be for the enclosing complex element
+      val a = top.arrayERD
+      endArray(a)
+      val inv1 = infoStack.pop().isArrayERD
+      Assert.invariant(inv1)
+      Assert.invariant(infoStack.top.erd.isComplexType)
+      val c = infoStack.top.asComplex
+      queueElementEnd(c)
+      infoStack.pop()
     }
   }
 
-  private def start(node: DINode) {
-    accessor.kind = StartKind
-    accessor.node = node
-    accessor.erd = node.erd
+  /**
+   * Fill current accessor with appropriate event information
+   */
+  private def startElement(node: DIElement) {
+    accessor.kind = InfosetEventKind.StartElement
+    accessor.info = Info(node)
   }
 
-  private def end(node: DINode) {
-    accessor.kind = EndKind
-    accessor.node = node
-    accessor.erd = node.erd
-    node match {
-      case f: DIFinalizable => f.setFinal()
-      case _ => // ok
-    }
+  /**
+   * Fill current accessor with appropriate event information
+   */
+  private def endElement(node: DIElement) {
+    accessor.kind = InfosetEventKind.EndElement
+    accessor.info = Info(node)
   }
 
-}
+  /**
+   * Fill current accessor with appropriate event information
+   */
+  private def startArray(arrayERD: ERD) {
+    accessor.kind = InfosetEventKind.StartArray
+    accessor.info = Info(arrayERD)
+  }
 
-object NonUsableInfosetInputter extends InfosetInputterCursor {
-  private def doNotUse = Assert.usageError("Not to be called on " + Misc.getNameFromClass(this))
-  override lazy val advanceAccessor = doNotUse
-  override lazy val inspectAccessor = doNotUse
-  override def advance = doNotUse
-  override def inspect = doNotUse
-  override def inspectPure = doNotUse
-  override def fini = doNotUse
-  override def initialize(rootElement: ElementRuntimeData, tunable: DaffodilTunables) = doNotUse
+  /**
+   * Fill current accessor with appropriate event information
+   */
+  private def endArray(arrayERD: ERD) {
+    accessor.kind = InfosetEventKind.EndArray
+    accessor.info = Info(arrayERD)
+  }
+
 }
 
 // Performance Note - It's silly to use both a StartKind and EndKind accessor when
 // delivering a simple type node. Separate start/end for XML makes sense because there
 // are separate events for the contents between those tags, which can be widely separated.
-// In Daffodil, the two events will always be back-to-back.... except....
-// NOTE: for large blob/clob objects there's a reason for a start/end event
-// because we may want to open a stream to get the contents in between without
-// allocating a string to hold it.
+// In Daffodil, the two events will always be back-to-back.
 //
-sealed trait InfosetEventKind
-case object StartKind extends InfosetEventKind { override def toString = "start" }
-case object EndKind extends InfosetEventKind { override def toString = "end" }
+sealed trait InfosetEventKind {
+
+  /**
+   * Converts name like StartArray into "array start"
+   *
+   * Error messages depend on this word order.
+   */
+  override def toString() = {
+    val cn = Misc.getNameFromClass(this)
+    val initialLC = Misc.initialLowerCase(cn)
+    val (se, ea) = initialLC.span(_.isLower)
+    val res = ea.toLowerCase() + " " + se
+    res
+  }
+}
+
+/**
+ * InfosetEvents are of these kinds.
+ */
+object InfosetEventKind {
+  sealed trait StartKind extends InfosetEventKind
+  sealed trait EndKind extends InfosetEventKind
+  sealed trait ArrayKind extends InfosetEventKind
+  sealed trait ElementKind extends InfosetEventKind
+  case object StartElement extends StartKind with ElementKind
+  case object EndElement extends EndKind with ElementKind
+  case object StartArray extends StartKind with ArrayKind
+  case object EndArray extends EndKind with ArrayKind
+}
 
 /**
  * An infoset event accessor.
  *
  * Not a case class because we don't want pattern matching on this. (It allocates to pattern match)
  *
- * We have erd as a seperate field (instead of just using node.erd) since
- * the inspectPure method finds an erd without constructing the corresponding DINode (so as to avoid side effects)
+ * The info associated with an infoset event is either a DIElement (for elements), or
+ * an ElementRuntimeData for arrays. We don't want to use a DIArray object because those
+ * are the private managed storage of DIComplex elements.
  *
- * We maintaint the invariant that node==null || node.erd==erd
+ * At the time these info DIElements are created they are only to carry the infoset event information
+ * they are not attached to parents/children in the infoset.
  *
+ * We are effectively just using them as event "tuples" to carry the ERD and simple value
+ * information after having resolved the incoming event's local name + namespace (if we're using those)
+ * to get the ERD.
+ *
+ * By using our DIElement objects as the "tuples" of event information, we avoid having to
+ * allocate yet another separate object to represent events.
+ *
+ * The Unparsers will examine the incoming DIElement, and attach child to parent if
+ * they decide to keep them.
+ *
+ * Unparsers are also responsible for looking at the incoming event, and deciding if we
+ * should first fill in any defaultable elements, or compute any dfdl:outputValueCalc elements.
+ *
+ * The advance/inspect change the state of the infoset inputter itself, but have no side-effects
+ * on the Unparser's UState infoset.
  */
-class InfosetAccessor private (var kind: InfosetEventKind, var node: DINode, var erd: ElementRuntimeData) extends Accessor[InfosetAccessor] {
+class InfosetAccessor private (
+  var kind: InfosetEventKind,
+  var info: Info)
+  extends Accessor[InfosetAccessor] {
+
+  def erd = info.erd
+
   def namedQName = erd.namedQName
 
-  Assert.invariant(node == null || node.erd == erd)
-
+  /**
+   * This toString syntax is depended upon by diagnostic
+   * messages, and many tests verify that.
+   */
   override def toString = {
     val evLbl = if (kind eq null) "NullKind" else kind.toString
-    val nodeKind = node match {
-      case null => "?"
-      case _: DIArray => "array"
-      case _: DIElement => "element"
+    val erdString = erd match {
+      case errERD: ErrorERD => "(invalid) " + erd.namedQName.toExtendedSyntax
+      case _ => erd.namedQName.toExtendedSyntax
     }
-    nodeKind + " " + evLbl + " event for " + erd.namedQName
+    evLbl + " event for " + erdString
   }
 
   /*
    * Methods to use instead of pattern matching
    */
-  def isStart = kind == StartKind
-  def isEnd = kind == EndKind
-  def isElement = node.isInstanceOf[DIElement]
-  def asElement: DIElement = node.asInstanceOf[DIElement]
-  def isArray = node.isInstanceOf[DIArray]
-  def asArray: DIArray = node.asInstanceOf[DIArray]
-  def isComplex = node.isInstanceOf[DIComplex]
-  def asComplex: DIComplex = node.asInstanceOf[DIComplex]
-  def isSimple = node.isInstanceOf[DISimple]
-  def asSimple: DISimple = node.asInstanceOf[DISimple]
+  def isStart = kind.isInstanceOf[InfosetEventKind.StartKind]
+  def isEnd = kind.isInstanceOf[InfosetEventKind.EndKind]
+  def isElement = info.isElement
+  def isArray = erd.isArray
 
-  override def cpy() = new InfosetAccessor(kind, node, erd)
+  override def cpy() = new InfosetAccessor(kind, info)
   override def assignFrom(other: InfosetAccessor) {
     kind = other.kind
-    node = other.node
-    erd = other.erd
+    info = other.info
   }
 }
 
 object InfosetAccessor {
-  def apply(kind: InfosetEventKind, node: DINode, erd: ElementRuntimeData) = new InfosetAccessor(kind, node, erd)
+
+  /**
+   * Create an infoset accessor initialized to an element.
+   */
+  def apply(kind: InfosetEventKind.ElementKind, element: DIElement) =
+    new InfosetAccessor(kind, Info(element))
+
+  /**
+   * Create an infoset accessor initialized to an array ERD.
+   */
+  def apply(kind: InfosetEventKind.ArrayKind, arrayERD: ElementRuntimeData) =
+    new InfosetAccessor(kind, Info(arrayERD))
+
+  /**
+   * Construct an infoset accessor that is yet to be filled in.
+   */
+  def apply() =
+    new InfosetAccessor(null, Info())
+}
+
+/**
+ * AnyVal class that acts like a union type of DIElement and ERD.
+ *
+ * For arrays we just store an ERD. For elements we store the DIElement node
+ * as a way of capturing the event information.
+ */
+final class Info private (val v: AnyRef) extends AnyVal with Serializable {
+  def node = element
+  def element = {
+    Assert.usage(v ne null)
+    v.asInstanceOf[DIElement]
+  }
+  def isComplexElement = isElement && element.isInstanceOf[DIComplex]
+  def isSimpleElement = isElement && !isComplexElement
+  def asComplex = element.asInstanceOf[DIComplex]
+  def asSimple = element.asInstanceOf[DISimple]
+
+  def isNode = isElement
+  def isElement = {
+    Assert.usage(v ne null)
+    v.isInstanceOf[DIElement]
+  }
+  def arrayERD = {
+    Assert.usage(v ne null)
+    v.asInstanceOf[ElementRuntimeData]
+  }
+  def isArrayERD = {
+    Assert.usage(v ne null)
+    v.isInstanceOf[ElementRuntimeData]
+  }
+  def erd = v match {
+    case null => Assert.usageError("v ne null")
+    case arrayERD: ElementRuntimeData => arrayERD
+    case diElement: DIElement => diElement.erd
+  }
+
+}
+
+object Info {
+
+  /**
+   * Strongly typed stack that uses an AnyRef underneath.
+   *
+   * You can only store DIElement or ERD on this stack.
+   */
+  class InfoStack {
+    private val delegate = MStackOfAnyRef()
+
+    def push(e: DIElement): Unit = delegate.push(e)
+
+    def push(arrayERD: ElementRuntimeData): Unit = {
+      Assert.usage(arrayERD.isArray)
+      delegate.push(arrayERD)
+    }
+
+    def pop() = Info.fromAnyRef(delegate.pop)
+
+    def top() = Info.fromAnyRef(delegate.top)
+
+    def length = delegate.length
+
+    override def toString() = delegate.toString()
+  }
+
+  /**
+   * Creates an unusable Info. Used to initialize
+   * unpopulated accessors.
+   */
+  def apply() = nullValue
+
+  /**
+   * Create an ArrayERD Info
+   */
+  def apply(arrayERD: ElementRuntimeData): Info = {
+    Assert.usage(arrayERD.isArray)
+    new Info(arrayERD)
+  }
+
+  /**
+   * Create a DIElement Info
+   */
+  def apply(element: DIElement): Info = new Info(element)
+
+  private def fromAnyRef(anyRef: AnyRef): Info = anyRef match {
+    case erd: ElementRuntimeData => Info(erd)
+    case e: DIElement => Info(e)
+    case _ => Assert.usageError("not called on ERD or DIElement")
+  }
+
+  private val nullValue = new Info(null)
 }

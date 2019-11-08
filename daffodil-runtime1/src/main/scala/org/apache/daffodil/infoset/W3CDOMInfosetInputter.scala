@@ -50,7 +50,7 @@ class W3CDOMInfosetInputter(doc: Document)
    * Element.
    */
   private val stack = {
-    val s = new MStackOf[(Element,Iterator[Node])]
+    val s = new MStackOf[(Element, Iterator[Node])]
     val iterator = new IterableNodeList(doc.getChildNodes)
     if (!iterator.hasNext) {
       throw new InvalidInfosetException("Document does not contain a root element")
@@ -62,6 +62,7 @@ class W3CDOMInfosetInputter(doc: Document)
   private var doStartEvent = true
 
   override def getEventType(): InfosetInputterEventType = {
+    import InfosetInputterEventType._
     if (stack.top._1 == null) {
       if (doStartEvent) StartDocument else EndDocument
     } else {
@@ -78,11 +79,11 @@ class W3CDOMInfosetInputter(doc: Document)
       stack.top._1.getLocalName
     }
   }
-  
+
   override val supportsNamespaces = true
 
   override def getNamespaceURI(): String = stack.top._1.getNamespaceURI
-  
+
   override def getSimpleText(primType: NodeInfo.Kind): String = {
     val text =
       if (stack.top._2.hasNext) {
@@ -190,7 +191,7 @@ class W3CDOMInfosetInputter(doc: Document)
 
 }
 
-class IterableNodeList (n: NodeList) extends Iterator[Node] {
+class IterableNodeList(n: NodeList) extends Iterator[Node] {
 
   private var index = 0
 

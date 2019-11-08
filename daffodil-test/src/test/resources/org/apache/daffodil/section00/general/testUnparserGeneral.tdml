@@ -462,9 +462,9 @@
     </tdml:infoset>
     <tdml:errors>
       <tdml:error>Unparse Error</tdml:error>
-      <tdml:error>Found next element</tdml:error>
-      <tdml:error>s2</tdml:error>
-      <tdml:error>no element is expected</tdml:error>
+      <tdml:error>{http://example.com}s2</tdml:error>
+      <tdml:error>expected element end</tdml:error>
+      <tdml:error>{http://example.com}e1</tdml:error>
     </tdml:errors>
 
   </tdml:unparserTestCase>

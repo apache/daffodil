@@ -97,9 +97,9 @@
     <tdml:errors>
       <tdml:error>Unparse Error</tdml:error>
       <tdml:error>Expected 1 additional</tdml:error>
-      <tdml:error>bar</tdml:error>
-      <tdml:error>received element end event</tdml:error>
-      <tdml:error>ex:root1</tdml:error>
+      <tdml:error>{}bar</tdml:error>
+      <tdml:error>received element end</tdml:error>
+      <tdml:error>{http://example.com}root1</tdml:error>
     </tdml:errors>        
   </tdml:unparserTestCase>
   

@@ -258,7 +258,7 @@ final class SchemaDocument(xmlSDoc: XMLSchemaDocument)
     Some(res)
   }
 
-  protected def emptyFormatFactory = new DFDLFormat(newDFDLAnnotationXML("format"), this)
+  protected lazy val emptyFormatFactory = new DFDLFormat(newDFDLAnnotationXML("format"), this)
   protected def isMyFormatAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLFormat]
 
   /*

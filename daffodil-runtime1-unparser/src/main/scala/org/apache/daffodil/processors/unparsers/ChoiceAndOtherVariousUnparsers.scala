@@ -27,24 +27,6 @@ import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.MaybeInt
 import org.apache.daffodil.util.Maybe._
 
-class ComplexTypeUnparser(rd: RuntimeData, bodyUnparser: Unparser)
-  extends CombinatorUnparser(rd) {
-
-  override lazy val runtimeDependencies = Vector()
-
-  override def nom = "ComplexType"
-
-  override def isEmpty = bodyUnparser.isEmpty
-
-  override lazy val childProcessors = Vector(bodyUnparser)
-
-  def unparse(start: UState): Unit = {
-    start.childIndexStack.push(1L) // one-based indexing
-    bodyUnparser.unparse1(start)
-    start.childIndexStack.pop()
-  }
-}
-
 class ChoiceCombinatorUnparser(
   mgrd: ModelGroupRuntimeData,
   eventUnparserMap: Map[ChoiceBranchEvent, Unparser],
@@ -58,7 +40,7 @@ class ChoiceCombinatorUnparser(
   override lazy val childProcessors = eventUnparserMap.map { case (k, v) => v }.toSeq.toVector
 
   def unparse(state: UState): Unit = {
-
+    state.pushTRD(mgrd)
     val event: InfosetAccessor = state.inspectOrError
     val key: ChoiceBranchEvent = event match {
       //
@@ -66,17 +48,20 @@ class ChoiceCombinatorUnparser(
       // hash-table lookup for a cached value. This avoids constructing these
       // objects over and over again.
       //
-      case e if e.isStart && e.isElement => ChoiceBranchStartEvent(e.asElement.runtimeData.namedQName)
-      case e if e.isEnd && e.isElement => ChoiceBranchEndEvent(e.asElement.runtimeData.namedQName)
-      case e if e.isStart && e.isArray => ChoiceBranchStartEvent(e.asArray.erd.namedQName)
-      case e if e.isEnd && e.isArray => ChoiceBranchEndEvent(e.asArray.erd.namedQName)
+      case e if e.isStart && e.isElement => ChoiceBranchStartEvent(e.erd.namedQName)
+      case e if e.isEnd && e.isElement => ChoiceBranchEndEvent(e.erd.namedQName)
+      case e if e.isStart && e.isArray => ChoiceBranchStartEvent(e.erd.namedQName)
+      case e if e.isEnd && e.isArray => ChoiceBranchEndEvent(e.erd.namedQName)
     }
 
     val childUnparser = eventUnparserMap.get(key).getOrElse {
-      UnparseError(One(mgrd.schemaFileLocation), One(state.currentLocation), "Encountered event %s. Expected one of %s.",
-        key, eventUnparserMap.keys.mkString(", "))
+      UnparseError(One(mgrd.schemaFileLocation), One(state.currentLocation),
+        "Found next element %s, but expected one of %s.",
+        key.qname.toExtendedSyntax,
+        eventUnparserMap.keys.map { _.qname.toExtendedSyntax }.mkString(", "))
     }
-
+    state.popTRD(mgrd)
+    state.pushTRD(childUnparser.context.asInstanceOf[TermRuntimeData])
     if (choiceLengthInBits.isDefined) {
       val suspendableOp = new ChoiceUnusedUnparserSuspendableOperation(mgrd, choiceLengthInBits.get)
       val choiceUnusedUnparser = new ChoiceUnusedUnparser(mgrd, choiceLengthInBits.get, suspendableOp)
@@ -88,6 +73,7 @@ class ChoiceCombinatorUnparser(
     } else {
       childUnparser.unparse1(state)
     }
+    state.popTRD(childUnparser.context.asInstanceOf[TermRuntimeData])
   }
 }
 
@@ -171,4 +157,3 @@ class DynamicEscapeSchemeUnparser(escapeScheme: EscapeSchemeUnparseEv, ctxt: Ter
     escapeScheme.invalidateCache(state)
   }
 }
-

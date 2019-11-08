@@ -36,7 +36,7 @@ trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
 
   private lazy val optionTextBidi = findPropertyOption("textBidi")
 
-  private def checkTextBidi = (optionTextBidi.isDefined, self.tunable.requireTextBidiProperty) match {
+  private lazy val checkTextBidi = (optionTextBidi.isDefined, self.tunable.requireTextBidiProperty) match {
     case (false, false) => SDW(WarnID.TextBidiError, "Property 'dfdl:textBidi' is required but not defined.")
     case (false, true) => textBidi
     case (_, _) => this.subset((textBidi eq YesNo.No), "Property value textBidi='yes' is not supported.")

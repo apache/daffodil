@@ -178,8 +178,9 @@
     
     <tdml:errors>
       <tdml:error>Unparse Error</tdml:error>
-      <tdml:error>Found root element {}root</tdml:error>
+      <tdml:error>expected element start</tdml:error>
       <tdml:error>{http://example.com}root</tdml:error>
+      <tdml:error>{}root</tdml:error>
     </tdml:errors>
 
   </tdml:unparserTestCase>

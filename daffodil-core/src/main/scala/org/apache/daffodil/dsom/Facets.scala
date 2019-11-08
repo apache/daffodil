@@ -505,7 +505,7 @@ trait Facets { self: Restriction =>
     cValue
   }
 
-  protected def getCombinedValueEnum = {
+  protected lazy val getCombinedValueEnum = {
     val lValue = getLocalValue(Facet.enumeration)
     val rValue = getRemoteFacetValue(Facet.enumeration)
     lValue.foreach(e => {

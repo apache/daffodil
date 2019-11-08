@@ -55,7 +55,7 @@ class JDOMInfosetInputter(doc: Document)
    * Element.
    */
   private val stack = {
-    val s = new MStackOf[(Element,Iterator[Content])]
+    val s = new MStackOf[(Element, Iterator[Content])]
     val docChildren = doc.getContent.iterator
     if (!docChildren.hasNext) {
       throw new InvalidInfosetException("Document does not contain a root element")
@@ -67,6 +67,7 @@ class JDOMInfosetInputter(doc: Document)
   private var doStartEvent = true
 
   override def getEventType(): InfosetInputterEventType = {
+    import InfosetInputterEventType._
     if (stack.top._1 == null) {
       if (doStartEvent) StartDocument else EndDocument
     } else {
@@ -75,11 +76,11 @@ class JDOMInfosetInputter(doc: Document)
   }
 
   override def getLocalName(): String = stack.top._1.getName
-  
+
   override val supportsNamespaces = true
 
   override def getNamespaceURI(): String = stack.top._1.getNamespace.getURI
-  
+
   override def getSimpleText(primType: NodeInfo.Kind): String = {
     val text =
       if (stack.top._2.hasNext) {

@@ -60,9 +60,10 @@ sealed trait Unparser
       case af: AlignmentPrimUnparser => // ok. Don't check bitOrder before Aligning.
       case u: PrimUnparser => {
         u.context match {
-          case trd: TermRuntimeData =>
+          case trd: TermRuntimeData => {
             ustate.bitOrder // asking for bitOrder checks bit order changes.
-          // this splits DOS on bitOrder changes if absoluteBitPos not known
+            // this splits DOS on bitOrder changes if absoluteBitPos not known
+          }
           case rd: RuntimeData => Assert.invariantFailed("Primitive unparser " + u + " has non-Term runtime data: " + rd)
         }
       }
@@ -70,7 +71,6 @@ sealed trait Unparser
     }
     try {
       unparse(ustate)
-
     } finally {
       ustate.resetFormatInfoCaches()
     }

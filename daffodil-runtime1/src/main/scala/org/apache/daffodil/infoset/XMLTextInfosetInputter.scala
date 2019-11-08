@@ -91,6 +91,7 @@ class XMLTextInfosetInputter private (input: Either[java.io.Reader, java.io.Inpu
   private var fakeStartEvent = false
 
   override def getEventType(): InfosetInputterEventType = {
+    import InfosetInputterEventType._
     if (fakeStartEvent) {
       StartElement
     } else {
@@ -104,7 +105,7 @@ class XMLTextInfosetInputter private (input: Either[java.io.Reader, java.io.Inpu
   }
 
   override def getLocalName: String = {
-    xsr.getLocalName()  
+    xsr.getLocalName()
   }
 
   override val supportsNamespaces = true
