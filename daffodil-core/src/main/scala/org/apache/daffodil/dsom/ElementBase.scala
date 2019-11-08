@@ -17,32 +17,23 @@
 
 package org.apache.daffodil.dsom
 
-import scala.xml.NamespaceBinding
-import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.grammar._
-import org.apache.daffodil.schema.annotation.props._
-import org.apache.daffodil.schema.annotation.props.gen._
-import org.apache.daffodil.xml._
-import org.apache.daffodil.util.Misc
+import org.apache.daffodil.equality._
 import org.apache.daffodil.processors._
+import org.apache.daffodil.infoset._
+import org.apache.daffodil.schema.annotation.props._
+import org.apache.daffodil.xml._
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.grammar.ElementBaseGrammarMixin
+import org.apache.daffodil.schema.annotation.props.gen._
+import org.apache.daffodil.dsom._
+import org.apache.daffodil.util.Misc
+import scala.xml.NamespaceBinding
+import org.apache.daffodil.util.MaybeULong
 import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.dpath.NodeInfo.PrimType
-import org.apache.daffodil.grammar.ElementBaseGrammarMixin
-import org.apache.daffodil.equality._
-
-import org.apache.daffodil.processors.UseNilForDefault
-import org.apache.daffodil.util.MaybeULong
-import java.lang.{ Integer => JInt }
-import org.apache.daffodil.processors._
-import org.apache.daffodil.infoset.SiblingResolver
-import org.apache.daffodil.infoset.ResolverType
-import org.apache.daffodil.infoset.SeveralPossibilitiesForNextElement
-import org.apache.daffodil.infoset.NoNextElement
-import org.apache.daffodil.infoset.OnlyOnePossibilityForNextElement
-import org.apache.daffodil.infoset.NextElementResolver
-import org.apache.daffodil.infoset.ChildResolver
+import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.api.WarnID
-import org.apache.daffodil.util.Maybe
+import java.lang.{ Integer => JInt }
 
 /**
  * Note about DSOM design versus say XSOM or Apache XSD library.
@@ -93,7 +84,6 @@ trait ElementBase
   requiredEvaluations(if (hasMaxExclusive) maxExclusive)
   requiredEvaluations(if (hasTotalDigits) totalDigits)
   requiredEvaluations(if (hasFractionDigits) fractionDigits)
-  requiredEvaluations(erd.preSerialization)
   requiredEvaluations(checkForAlignmentAmbiguity)
   requiredEvaluations(checkFloating)
 
@@ -136,7 +126,7 @@ trait ElementBase
    * The DPathElementInfo objects referenced within an IVC
    * that calls dfdl:contentLength( thingy )
    */
-  override final protected def calcContentParserReferencedElementInfos =
+  override final protected lazy val calcContentParserReferencedElementInfos =
     if (this.inputValueCalcOption.isDefined)
       ivcCompiledExpression.contentReferencedElementInfos
     else
@@ -146,7 +136,7 @@ trait ElementBase
    * The DPathElementInfo objects referenced within an OVC
    * that calls dfdl:contentLength( thingy )
    */
-  override final protected def calcContentUnparserReferencedElementInfos =
+  override final protected lazy val calcContentUnparserReferencedElementInfos =
     if (this.outputValueCalcOption.isDefined)
       ovcCompiledExpression.contentReferencedElementInfos
     else
@@ -156,7 +146,7 @@ trait ElementBase
    * The DPathElementInfo objects referenced within an IVC
    * that calls dfdl:valueLength( thingy )
    */
-  override final protected def calcValueParserReferencedElementInfos =
+  override final protected lazy val calcValueParserReferencedElementInfos =
     if (this.inputValueCalcOption.isDefined) {
       val ivcCE = ivcCompiledExpression
       val setERs = ivcCE.valueReferencedElementInfos
@@ -168,7 +158,7 @@ trait ElementBase
    * The DPathElementInfo objects referenced within an IVC
    * that calls dfdl:valueLength( thingy )
    */
-  override final protected def calcValueUnparserReferencedElementInfos =
+  override final protected lazy val calcValueUnparserReferencedElementInfos =
     if (this.outputValueCalcOption.isDefined)
       ovcCompiledExpression.valueReferencedElementInfos
     else
@@ -374,10 +364,6 @@ trait ElementBase
 
   lazy val isQuasiElement: Boolean = false //overriden by RepTypeQuasiElementDecls
 
-  //  private lazy val mustBeAbsentFromUnparseInfoset: Boolean = {
-  //    isOutputValueCalc
-  //  }
-
   final protected lazy val optTruncateSpecifiedLengthString =
     Option(truncateSpecifiedLengthString =:= YesNo.Yes)
   // because of the way text numbers are unparsed, we don't know that
@@ -574,7 +560,7 @@ trait ElementBase
     // Also, things like packed and zoned decimal are usually fixed length, sometimes delimited.
   }
 
-  final def isImplicitLengthString = isSimpleType && primType =:= PrimType.String && lengthKind =:= LengthKind.Implicit
+  final lazy val isImplicitLengthString = isSimpleType && primType =:= PrimType.String && lengthKind =:= LengthKind.Implicit
 
   final lazy val fixedLengthValue: Long = {
     // FIXME: this calculation only good for string type.
@@ -1037,7 +1023,7 @@ trait ElementBase
       case None => true
       case Some(s: SequenceTermBase) if s.isOrdered => {
         !possibleNextSiblingTerms.exists {
-          case e: ElementBase => e.isRequiredInInfoset
+          case e: ElementBase => e.isRequiredStreamingUnparserEvent
           case mg: ModelGroup => mg.mustHaveRequiredElement
         }
       }
@@ -1046,7 +1032,7 @@ trait ElementBase
     couldBeLast
   }.value
 
-  final lazy val nextParentElements: Seq[ElementBase] =
+  final override lazy val nextParentElements: Seq[ElementBase] =
     enclosingTerms.flatMap { enclosingTerm =>
       if (couldBeLastElementInModelGroup) {
         enclosingTerm.possibleNextChildElementsInInfoset
@@ -1102,7 +1088,7 @@ trait ElementBase
    *
    * Part of the required evaluations for ElementBase.
    */
-  private def checkForAlignmentAmbiguity: Unit = {
+  private lazy val checkForAlignmentAmbiguity: Unit = {
     if (isOptional) {
       this.possibleNextTerms.filterNot(m => m == this).foreach { that =>
         val isSame = this.alignmentValueInBits == that.alignmentValueInBits
@@ -1116,7 +1102,7 @@ trait ElementBase
 
   private lazy val optionFloating = findPropertyOption("floating")
 
-  private def checkFloating = (optionFloating.isDefined, tunable.requireFloatingProperty) match {
+  private lazy val checkFloating = (optionFloating.isDefined, tunable.requireFloatingProperty) match {
     case (false, false) => SDW(WarnID.FloatingError, "Property 'dfdl:floating' is required but not defined.")
     case (false, true) => floating
     case (_, _) => this.subset((floating eq YesNo.No), "Property value floating='yes' is not supported.")

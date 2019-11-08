@@ -88,7 +88,7 @@ abstract class RepeatingChildUnparser(
     if (ev.erd.isArray) {
       // only pull start array event for a true array, not an optional.
       val event = state.advanceOrError
-      Assert.invariant(event.isStart && event.node.isInstanceOf[DIArray])
+      Assert.invariant(event.isStart && event.isArray)
       // pull the next event, so that nothing else sees or deals with array start events
       state.inspect
     }
@@ -102,8 +102,9 @@ abstract class RepeatingChildUnparser(
     if (currentArrayERD.isArray) {
       // only pull end array event for a true array, not an optional
       val event = state.advanceOrError
-      if (!(event.isEnd && event.node.isInstanceOf[DIArray])) {
-        UE(state, "Expected array end event for %s, but received %s.", erd.namedQName, event)
+      if (!(event.isEnd && event.isArray)) {
+        UE(state, "Expected array end event for %s, but received %s.",
+          erd.namedQName.toExtendedSyntax, event)
       }
     }
 
@@ -154,8 +155,7 @@ abstract class RepeatingChildUnparser(
           if (state.inspect) {
             val ev = state.inspectAccessor
             if (ev.isStart) {
-              val eventNQN = ev.node.namedQName
-              if (eventNQN =:= erd.namedQName) {
+              if (ev.erd eq erd) {
                 true
               } else {
                 // System.err.println("Stopping occurrences(1) of %s due to event %s".format(erd.namedQName, ev))
@@ -249,7 +249,7 @@ abstract class RepeatingChildUnparser(
       (ock ne Implicit)) {
       if (state.inspect) {
         val ev = state.inspectAccessor
-        if (ev.isStart && ev.node.namedQName == erd)
+        if (ev.isStart && ev.erd.namedQName == erd)
           // This is the error we get if there are more events in the infoset event stream
           // for an array, than are allowed by maxOccurs.
           UE(state, "More than maxOccurs %s occurrences of %s in Infoset input: Expected no more events for %s, but received %s.", maxReps, erd.namedQName, ev)

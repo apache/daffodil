@@ -22,7 +22,18 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	defaultRoundTrip="true"
-    defaultImplementations="ibm daffodil">
+    defaultImplementations="ibm daffodil"
+    defaultConfig="nowarn">
+    
+  <tdml:defineConfig name="nowarn"
+    xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext">
+    <daf:tunables>
+      <daf:suppressSchemaDefinitionWarnings>
+        encodingErrorPolicyError
+        unsupportedAttributeFormDefault
+      </daf:suppressSchemaDefinitionWarnings>
+    </daf:tunables>
+  </tdml:defineConfig>
 
 <!-- Section 13 - Simple Types
     First, some tests for padding/trimming, with properties common to simple types with Text representation

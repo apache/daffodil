@@ -2064,7 +2064,7 @@
           </xs:element>
           <xs:element name="cnt2" type="xs:int"
             dfdl:lengthKind="delimited" />
-          <xs:element name="a" minOccurs="0" maxOccurs="unbounded"
+          <xs:element name="b" minOccurs="0" maxOccurs="unbounded"
             dfdl:occursCountKind="expression" dfdl:occursCount="{ xs:int(../ex:cnt2) }">
             <xs:complexType>
               <xs:sequence>
@@ -2229,12 +2229,12 @@
             <v>2</v>
           </a>
           <cnt2>2</cnt2>
-          <a>
+          <b>
             <v>1</v>
-          </a>
-          <a>
+          </b>
+          <b>
             <v>2</v>
-          </a>
+          </b>
         </f>
       </tdml:dfdlInfoset>
     </tdml:infoset>

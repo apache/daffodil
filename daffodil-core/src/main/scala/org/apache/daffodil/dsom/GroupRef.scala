@@ -43,7 +43,7 @@ trait GroupRef { self: ModelGroup =>
     }
   }
 
-  override protected final def emptyFormatFactory: DFDLFormatAnnotation = new DFDLGroup(newDFDLAnnotationXML("group"), this)
+  override protected final lazy val emptyFormatFactory: DFDLFormatAnnotation = new DFDLGroup(newDFDLAnnotationXML("group"), this)
 
   override protected final def isMyFormatAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLAnnotation]
 
@@ -75,13 +75,15 @@ final class GroupRefFactory(refXMLArg: Node, val refLexicalParent: SchemaCompone
 }
 
 final class SequenceGroupRef(
-  globalGroupDef: => GlobalSequenceGroupDef,
+  globalGroupDefArg: => GlobalSequenceGroupDef,
   refXML: Node,
   refLexicalParent: SchemaComponent,
   positionArg: Int,
   isHiddenArg: Boolean)
   extends SequenceGroupTermBase(refXML, refLexicalParent, positionArg)
   with GroupRef {
+
+  private lazy val globalGroupDef = globalGroupDefArg // once only
 
   override def isHidden = isHiddenArg
 
@@ -100,7 +102,7 @@ final class SequenceGroupRef(
 }
 
 final class ChoiceGroupRef(
-  globalGroupDef: => GlobalChoiceGroupDef,
+  globalGroupDefArg: => GlobalChoiceGroupDef,
   refXML: Node,
   refLexicalParent: SchemaComponent,
   positionArg: Int,
@@ -109,6 +111,8 @@ final class ChoiceGroupRef(
   with GroupRef {
 
   requiredEvaluations(groupDef)
+
+  private lazy val globalGroupDef = globalGroupDefArg // once only
 
   override def isHidden = isHiddenArg
 

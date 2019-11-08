@@ -28,8 +28,10 @@ trait SequenceTermRuntime1Mixin { self: SequenceTermBase =>
 
   def modelGroupRuntimeData = sequenceRuntimeData
 
-  final lazy val sequenceRuntimeData = {
+  lazy val sequenceRuntimeData = {
     new SequenceRuntimeData(
+      position,
+      partialNextElementResolver,
       schemaSet.variableMap,
       encodingInfo,
       // elementChildren.map { _.elementRuntimeData.dpathElementCompileInfo },
@@ -56,6 +58,8 @@ trait ChoiceBranchImpliedSequenceRuntime1Mixin { self: ChoiceBranchImpliedSequen
 
   override lazy val sequenceRuntimeData: SequenceRuntimeData = {
     new SequenceRuntimeData(
+      position,
+      partialNextElementResolver,
       schemaSet.variableMap,
       encodingInfo,
       schemaFileLocation,

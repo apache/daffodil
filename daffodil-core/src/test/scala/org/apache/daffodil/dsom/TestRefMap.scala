@@ -191,7 +191,7 @@ class TestRefMap extends Logging {
       </xs:complexType>
       <xs:group name="g1">
         <xs:choice>
-          <xs:element name="e1" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit"/>
+          <xs:element name="e1" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit" dfdl:outputValueCalc="{ 0 }"/>
           <xs:element name="f1" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit"/>
         </xs:choice>
       </xs:group>)

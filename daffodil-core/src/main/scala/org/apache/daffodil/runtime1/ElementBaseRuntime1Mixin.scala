@@ -30,15 +30,11 @@ import org.apache.daffodil.processors.SimpleTypeRuntimeData
 import org.apache.daffodil.dsom.SimpleTypeDefBase
 import org.apache.daffodil.dsom.ComplexTypeBase
 import org.apache.daffodil.dsom.PrimitiveType
-import org.apache.daffodil.infoset.ResolverType
 import org.apache.daffodil.infoset.SeveralPossibilitiesForNextElement
 import org.apache.daffodil.xml.QNameBase
 import org.apache.daffodil.infoset.NoNextElement
 import org.apache.daffodil.infoset.OnlyOnePossibilityForNextElement
-import org.apache.daffodil.infoset.NextElementResolver
 import org.apache.daffodil.api.WarnID
-import org.apache.daffodil.infoset.ChildResolver
-import org.apache.daffodil.infoset.SiblingResolver
 
 trait ElementBaseRuntime1Mixin { self: ElementBase =>
 
@@ -129,11 +125,12 @@ trait ElementBaseRuntime1Mixin { self: ElementBase =>
    * This is the compile info for this element term.
    */
   lazy val dpathElementCompileInfo: DPathElementCompileInfo = {
-    val ee = enclosingElements
+    val ee = enclosingElement.toSeq
+    lazy val parents = ee.map {
+      _.dpathElementCompileInfo
+    }
     val eci = new DPathElementCompileInfo(
-      ee.map {
-        _.dpathElementCompileInfo
-      },
+      parents,
       variableMap,
       elementChildrenCompileInfo,
       namespaces,
@@ -168,8 +165,7 @@ trait ElementBaseRuntime1Mixin { self: ElementBase =>
       position,
       childrenERDs,
       schemaSet.variableMap,
-      nextElementResolver,
-      childElementResolver,
+      partialNextElementResolver,
       encodingInfo,
       dpathElementCompileInfo,
       schemaFileLocation,
@@ -182,6 +178,7 @@ trait ElementBaseRuntime1Mixin { self: ElementBase =>
       targetNamespace,
       thisElementsNamespace,
       optSimpleTypeRuntimeData,
+      optComplexTypeModelGroupRuntimeData,
       minOccurs,
       maxOccurs,
       Maybe.toMaybe(optionOccursCountKind),
@@ -192,7 +189,7 @@ trait ElementBaseRuntime1Mixin { self: ElementBase =>
       isNillable,
       isArray, // can have more than 1 occurrence
       isOptional, // can have exactly 0 or 1 occurrence
-      isRequiredInInfoset, // must have at least 1 occurrence
+      isRequiredStreamingUnparserEvent, // must have at least 1 occurrence
       namedQName,
       isRepresented,
       couldHaveText,
@@ -215,53 +212,13 @@ trait ElementBaseRuntime1Mixin { self: ElementBase =>
     newERD
   }
 
-  private lazy val optSimpleTypeRuntimeData: Option[SimpleTypeRuntimeData] =
+  private lazy val (optSimpleTypeRuntimeData,
+    optComplexTypeModelGroupRuntimeData) =
     typeDef match {
-      case _: PrimitiveType => None
-      case _: ComplexTypeBase => None
+      case _: PrimitiveType => (None, None)
+      case ctb: ComplexTypeBase => (None, Some(ctb.modelGroup.modelGroupRuntimeData))
       case s: SimpleTypeDefBase =>
-        Some(s.simpleTypeRuntimeData)
+        (Some(s.simpleTypeRuntimeData), None)
     }
 
-  /**
-   * The NextElementResolver is used to determine what infoset event comes next, and "resolves" which is to say
-   * determines the ElementRuntimeData for that infoset event. This can be used to construct the initial
-   * infoset from a stream of XML events.
-   */
-  final def computeNextElementResolver(possibles: Seq[ElementBase], resolverType: ResolverType): NextElementResolver = {
-    //
-    // Annoying, but scala's immutable Map is not covariant in its first argument
-    // the way one would normally expect a collection to be.
-    // So Map[NamedQName, ElementRuntimeData] is not a subtype of Map[QNameBase, ElementRuntimeData]
-    // So we need a cast upward to Map[QNameBase,ElementRuntimeData]
-    //
-    val eltMap = possibles.map {
-      e => (e.namedQName, e.elementRuntimeData)
-    }.toMap.asInstanceOf[Map[QNameBase, ElementRuntimeData]]
-    val resolver = eltMap.size match {
-      case 0 => new NoNextElement(schemaFileLocation, resolverType)
-      case 1 => new OnlyOnePossibilityForNextElement(schemaFileLocation, eltMap.values.head, resolverType)
-      case _ => {
-        val groupedByName = possibles.groupBy(_.namedQName.local)
-        var hasNamesDifferingOnlyByNS = false
-        groupedByName.foreach {
-          case (_, sameNamesEB) =>
-            if (sameNamesEB.length > 1) {
-              SDW(WarnID.NamespaceDifferencesOnly, "Neighboring QNames differ only by namespaces. Infoset representations that do not support namespacess cannot differentiate between these elements and may fail to unparse. QNames are: %s",
-                sameNamesEB.map(_.namedQName.toExtendedSyntax).mkString(", "))
-              hasNamesDifferingOnlyByNS = true
-            }
-        }
-        new SeveralPossibilitiesForNextElement(schemaFileLocation, eltMap, resolverType, hasNamesDifferingOnlyByNS)
-      }
-    }
-    resolver
-  }
-
-  final lazy val nextElementResolver: NextElementResolver = {
-    computeNextElementResolver(possibleNextChildElementsInInfoset, SiblingResolver)
-  }
-
-  final lazy val childElementResolver: NextElementResolver =
-    computeNextElementResolver(possibleFirstChildElementsInInfoset, ChildResolver)
 }

@@ -31,25 +31,24 @@ import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.infoset.DIDocument
 import org.apache.daffodil.infoset.NullInfosetOutputter
 import org.apache.daffodil.infoset.TestInfoset
+import org.apache.daffodil.processors.DataProcessor
+import org.apache.daffodil.infoset.InfosetDocument
 
 class TestDFDLExpressionEvaluation extends Parsers {
 
   def testExpr(testSchema: scala.xml.Elem, infosetAsXML: scala.xml.Elem, expr: String)(body: Any => Unit) {
     val schemaCompiler = Compiler()
+    schemaCompiler.setTunable("allowExternalPathExpressions", "true")
     val pf = schemaCompiler.compileNode(testSchema).asInstanceOf[ProcessorFactory]
-    if (pf.isError) fail("pf compile errors")
-    val dp = pf.onPath("/")
     val sset = pf.sset
-    val Seq(schema) = sset.schemas
-    val Seq(schemaDoc, _) = schema.schemaDocuments
-    val Seq(declf) = schemaDoc.globalElementDecls
-    val decl = declf.forRoot()
-    val erd = decl.elementRuntimeData
-    val infosetRootElem = TestInfoset.elem2Infoset(erd, infosetAsXML)
+    if (pf.isError) fail("pf compile errors")
+    val dp = pf.onPath("/").asInstanceOf[DataProcessor]
+    val infosetRootElem = TestInfoset.elem2Infoset(infosetAsXML, dp)
+    val erd = infosetRootElem.erd
     val qn = GlobalQName(Some("daf"), "testExpr", XMLUtils.dafintURI)
     val exprCompiler = new DFDLPathExpressionParser[AnyRef](qn, NodeInfo.AnyType, testSchema.scope, erd.dpathCompileInfo, false, sset)
     val compiledExpr = exprCompiler.compile(expr)
-    val doc = infosetRootElem.parent.asInstanceOf[DIDocument]
+    val doc = infosetRootElem.parent.asInstanceOf[InfosetDocument]
 
     val dis = InputSourceDataInputStream(java.nio.ByteBuffer.allocate(0)) // fake. Zero bits available.
     val outputter = new NullInfosetOutputter()

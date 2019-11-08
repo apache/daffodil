@@ -29,6 +29,7 @@ import org.apache.daffodil.util.MaybeULong
 import org.apache.daffodil.processors.Evaluatable
 import org.apache.daffodil.infoset.RetryableException
 import org.apache.daffodil.processors.TypeCalculator
+import org.apache.daffodil.util.MaybeBoolean
 
 /**
  * Elements that, when unparsing, have no length specified.
@@ -143,7 +144,7 @@ sealed abstract class ElementUnparserBase(
     if (depthLimit == 0) "..." else
       "<Element name='" + name + "'>" +
         (if (eBeforeUnparser.isDefined) eBeforeUnparser.value.toBriefXML(depthLimit - 1) else "") +
-        (if (eReptypeUnparser.isDefined) eReptypeUnparser.value.toBriefXML(depthLimit -1) else "") +
+        (if (eReptypeUnparser.isDefined) eReptypeUnparser.value.toBriefXML(depthLimit - 1) else "") +
         (if (eUnparser.isDefined) eUnparser.value.toBriefXML(depthLimit - 1) else "") +
         (if (eAfterUnparser.isDefined) eAfterUnparser.value.toBriefXML(depthLimit - 1) else "") +
         setVarUnparsers.map { _.toBriefXML(depthLimit - 1) }.mkString +
@@ -190,7 +191,18 @@ sealed abstract class ElementUnparserBase(
 
     doBeforeContentUnparser(state)
 
+    //
+    // We must push the TermRuntimeData for all model-groups.
+    // The starting point for this is the model-group of a complex type.
+    // Simple types don't have model groups, so no pushing those.
+    //
+    if (erd.isComplexType)
+      state.pushTRD(erd.optComplexTypeModelGroupRuntimeData.get)
+
     runContentUnparser(state)
+
+    if (erd.isComplexType)
+      state.popTRD(erd.optComplexTypeModelGroupRuntimeData.get)
 
     doAfterContentUnparser(state)
 
@@ -403,13 +415,32 @@ sealed trait RegularElementUnparserStartEndStrategy
           if (!event.isStart || event.erd != erd) {
             // it's not a start element event, or it's a start element event, but for a different element.
             // this indicates that the incoming infoset (as events) doesn't match the schema
-            UnparseError(Nope, One(state.currentLocation), "Expected element start event for %s, but received %s.", erd.namedQName, event)
+            UnparseError(Nope, One(state.currentLocation), "Expected element start event for %s, but received %s.",
+              erd.namedQName.toExtendedSyntax, event)
           }
-          event.asElement
+          val res = event.info.element
+          val mCurNode = state.currentInfosetNodeMaybe
+          if (mCurNode.isDefined) {
+            val c = mCurNode.get.asComplex
+            Assert.invariant(!c.isFinal)
+            if (c.maybeIsNilled == MaybeBoolean.True) {
+              // cannot add content to a nilled complex element
+              UnparseError(One(erd.schemaFileLocation), Nope, "Nilled complex element %s has content from %s",
+                c.erd.namedQName.toExtendedSyntax,
+                res.erd.namedQName.toExtendedSyntax)
+            }
+            c.addChild(res)
+          } else {
+            val doc = state.documentElement
+            doc.addChild(res) // DIDocument, which is never a current node, must have the child added
+            doc.setFinal() // that's the only child.
+          }
+          res
         } else {
+          Assert.invariant(erd.isHidden)
           // Since we never get events for hidden elements, their infoset elements
           // will have never been created. This means we need to manually create them
-          val e = if (erd.isComplexType) new DIComplex(erd, state.tunable) else new DISimple(erd)
+          val e = if (erd.isComplexType) new DIComplex(erd) else new DISimple(erd)
           state.currentInfosetNode.asComplex.addChild(e)
           e
         }
@@ -440,10 +471,13 @@ sealed trait RegularElementUnparserStartEndStrategy
         if (!event.isEnd || event.erd != erd) {
           // it's not an end-element event, or it's an end element event, but for a different element.
           // this indicates that the incoming infoset (as events) doesn't match the schema
-          UnparseError(Nope, One(state.currentLocation), "Expected element end event for %s, but received %s.", erd.namedQName, event)
+          UnparseError(Nope, One(state.currentLocation), "Expected element end event for %s, but received %s.",
+            erd.namedQName.toExtendedSyntax, event)
         }
       }
-
+      val cur = state.currentInfosetNode
+      if (cur.isComplex)
+        cur.asComplex.setFinal()
       state.currentInfosetNodeStack.pop
 
       move(state)
@@ -468,7 +502,7 @@ trait OVCStartEndStrategy
         // Otherwise, the next event is for a following element, and we do not want
         // to consume it. Don't even bother checking all this if it's hidden. It
         // definitely won't be in the infoset in that case.
-        val eventMaybe = state.inspectPureMaybe
+        val eventMaybe = state.inspectMaybe
         if (eventMaybe.isDefined && eventMaybe.get.erd == erd) {
           // Event existed for this OVC element, should be a start and end events
           val startEv = state.advanceOrError // Consume the start event
@@ -476,7 +510,8 @@ trait OVCStartEndStrategy
           val endEv = state.advanceOrError // Consume the end event
           Assert.invariant(endEv.isEnd && endEv.erd == erd)
 
-          val e = startEv.asSimple
+          val e = new DISimple(erd)
+          state.currentInfosetNode.asComplex.addChild(e)
           // Remove any state that was set by what created this event. Later
           // code asserts that OVC elements do not have a value
           e.resetValue

@@ -33,7 +33,8 @@ trait ResolvesDFDLStatementMixin
     optReferencedStatementSource.toSeq.flatMap { _.resolvedStatements } ++
       localStatements
 
-  private def getParserExprReferencedElements(s: DFDLStatement,
+  private def getParserExprReferencedElements(
+    s: DFDLStatement,
     f: ContentValueReferencedElementInfoMixin => Set[DPathElementCompileInfo]) = {
     s match {
       case a: DFDLAssertionBase if (a.testKind eq TestKind.Expression) => {
@@ -46,7 +47,8 @@ trait ResolvesDFDLStatementMixin
     }
   }
 
-  private def getUnparserExprReferencedElements(s: DFDLStatement,
+  private def getUnparserExprReferencedElements(
+    s: DFDLStatement,
     f: ContentValueReferencedElementInfoMixin => Set[DPathElementCompileInfo]) = {
     s match {
       case sv: DFDLSetVariable => {
@@ -151,7 +153,7 @@ trait ProvidesDFDLStatementMixin extends ThrowsSDE with HasTermCheck { self: Ann
    * reference.
    */
 
-  final def optReferencedStatementSource: Option[ProvidesDFDLStatementMixin] =
+  final lazy val optReferencedStatementSource: Option[ProvidesDFDLStatementMixin] =
     self.optReferredToComponent.asInstanceOf[Option[ProvidesDFDLStatementMixin]]
 
   final lazy val resolvedStatements: Seq[DFDLStatement] =
@@ -187,7 +189,8 @@ trait ProvidesDFDLStatementMixin extends ThrowsSDE with HasTermCheck { self: Ann
 
   private def checkDiscriminatorsAssertsDisjoint(discrims: Seq[DFDLDiscriminator], asserts: Seq[DFDLAssert]): (Seq[DFDLDiscriminator], Seq[DFDLAssert]) = {
     schemaDefinitionUnless(discrims.size <= 1, "At most one discriminator allowed at same location: %s", discrims)
-    schemaDefinitionUnless(asserts == Nil || discrims == Nil,
+    schemaDefinitionUnless(
+      asserts == Nil || discrims == Nil,
       "Cannot have both dfdl:discriminator annotations and dfdl:assert annotations at the same location.")
     (discrims, asserts)
   }

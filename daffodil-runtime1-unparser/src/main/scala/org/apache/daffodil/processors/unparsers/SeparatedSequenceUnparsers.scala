@@ -252,6 +252,7 @@ class OrderedSeparatedSequenceUnparser(
     while (index < limit) {
       val childUnparser = childUnparsers(index)
       val trd = childUnparser.trd
+      state.pushTRD(trd) // because we inspect before we call the unparse1 for the child unparser.
       val zlDetector = childUnparser.zeroLengthDetector
       childUnparser match {
         case unparser: RepOrderedSeparatedSequenceChildUnparser => {
@@ -276,8 +277,7 @@ class OrderedSeparatedSequenceUnparser(
             val ev = state.inspectAccessor
             val isArr = erd.isArray
             if (ev.isStart && (isArr || erd.isOptional)) {
-              val eventNQN = ev.node.namedQName
-              if (eventNQN =:= erd.namedQName) {
+              if (ev.erd eq erd) {
 
                 //
                 // Note: leaving in some of these println, since debugger for unparsing is so inadequate currently.
@@ -306,13 +306,11 @@ class OrderedSeparatedSequenceUnparser(
                   Assert.invariant(erd.isRepresented) // since this is an array, can't have inputValueCalc
 
                   if (isArr) if (state.dataProc.isDefined) state.dataProc.get.beforeRepetition(state, this)
-                  // System.err.println("Starting unparse of occurrence of %s. Array Index Stack is: %s".format(
-                  //   erd.namedQName, state.arrayIndexStack))
 
                   if (unparser.isKnownStaticallyNotToSuppressSeparator ||
                     {
                       val isKnownNonZeroLength =
-                        zlDetector.isKnownNonZeroLength(state.inspectAccessor.asElement)
+                        zlDetector.isKnownNonZeroLength(state.inspectAccessor.info.element)
                       isKnownNonZeroLength
                     }) {
                     unparseOne(unparser, erd, state)
@@ -324,8 +322,6 @@ class OrderedSeparatedSequenceUnparser(
                   Assert.invariant(state.arrayIndexStack.length == arrayIndexStackDepthBefore)
                   state.moveOverOneArrayIndexOnly()
                   Assert.invariant(state.arrayPos == arrayIndexBefore + 1)
-                  // System.err.println("Finished unparse of occurrence of %s. Array Index Stack is: %s".format(
-                  //   erd.namedQName, state.arrayIndexStack))
 
                   Assert.invariant(state.groupIndexStack.length == groupIndexStackDepthBefore)
                   state.moveOverOneGroupIndexOnly() // array elements are always represented.
@@ -334,8 +330,6 @@ class OrderedSeparatedSequenceUnparser(
                   if (isArr) if (state.dataProc.isDefined) state.dataProc.get.afterRepetition(state, this)
 
                 }
-                // System.err.println("Finished unparse of array/opt %s. Array Index Stack is: %s, maxReps %s, numOccurrences %s".format(
-                //   erd.namedQName, state.arrayIndexStack, maxReps, numOccurrences))
                 numOccurrences = unparsePositionallyRequiredSeps(unparser, erd, state, numOccurrences, trailingSuspendedOps)
                 unparser.checkFinalOccursCountBetweenMinAndMaxOccurs(state, unparser, numOccurrences, maxReps, state.arrayPos - 1)
                 unparser.endArrayOrOptional(erd, state)
@@ -349,7 +343,7 @@ class OrderedSeparatedSequenceUnparser(
 
             } else if (ev.isStart) {
               Assert.invariant(!ev.erd.isArray && !erd.isOptional)
-              val eventNQN = ev.node.namedQName
+              val eventNQN = ev.erd.namedQName
               Assert.invariant(eventNQN != erd.namedQName)
               //
               // start of scalar.
@@ -358,7 +352,7 @@ class OrderedSeparatedSequenceUnparser(
               //
               numOccurrences = unparsePositionallyRequiredSeps(unparser, erd, state, numOccurrences, trailingSuspendedOps)
             } else {
-              Assert.invariant(ev.isEnd && ev.isComplex)
+              Assert.invariant(ev.isEnd && ev.erd.isComplexType)
               unparser.checkFinalOccursCountBetweenMinAndMaxOccurs(state, unparser, numOccurrences, maxReps, 0)
               numOccurrences = unparsePositionallyRequiredSeps(unparser, erd, state, numOccurrences, trailingSuspendedOps)
             }
@@ -400,6 +394,7 @@ class OrderedSeparatedSequenceUnparser(
           }
         }
       }
+      state.popTRD(trd)
       index += 1
     }
     ssp match {
@@ -463,7 +458,7 @@ class OrderedSeparatedSequenceUnparser(
     while (index < limit) {
       val childUnparser = childUnparsers(index)
       val trd = childUnparser.trd
-
+      state.pushTRD(trd) // because we inspect before we invoke child unparser
       //
       // Unparsing an ordered sequence depends on the incoming
       // stream of infoset events matching up with the order that
@@ -489,17 +484,8 @@ class OrderedSeparatedSequenceUnparser(
             val ev = state.inspectAccessor
             val isArr = erd.isArray
             if (ev.isStart && (isArr || erd.isOptional)) {
-              val eventNQN = ev.node.namedQName
-              if (eventNQN =:= erd.namedQName) {
-
+              if (ev.erd eq erd) {
                 //
-                // Note: leaving in some of these println, since debugger for unparsing is so inadequate currently.
-                // This is the only way to figure out what is going on.
-                //
-                // System.err.println("Starting unparse of array/opt %s. Array Index Stack is: %s".format(
-                //   erd.namedQName, state.arrayIndexStack))
-                //
-
                 // StartArray for this unparser's array element
                 //
                 unparser.startArrayOrOptional(state)
@@ -508,15 +494,11 @@ class OrderedSeparatedSequenceUnparser(
                   doUnparser
                 }) {
                   if (isArr) if (state.dataProc.isDefined) state.dataProc.get.beforeRepetition(state, this)
-                  // System.err.println("Starting unparse of occurrence of %s. Array Index Stack is: %s".format(
-                  //   erd.namedQName, state.arrayIndexStack))
 
                   unparseOne(unparser, erd, state)
                   numOccurrences += 1
 
                   state.moveOverOneArrayIndexOnly()
-                  // System.err.println("Finished unparse of occurrence of %s. Array Index Stack is: %s".format(
-                  //   erd.namedQName, state.arrayIndexStack))
 
                   state.moveOverOneGroupIndexOnly() // array elements are always represented.
 
@@ -532,8 +514,6 @@ class OrderedSeparatedSequenceUnparser(
                     numExtraSeps -= 1
                   }
                 }
-                // System.err.println("Finished unparse of array/opt %s. Array Index Stack is: %s, maxReps %s, numOccurrences %s".format(
-                //   erd.namedQName, state.arrayIndexStack, maxReps, numOccurrences))
                 unparser.checkFinalOccursCountBetweenMinAndMaxOccurs(state, unparser, numOccurrences, maxReps, state.arrayPos - 1)
                 unparser.endArrayOrOptional(erd, state)
               } else {
@@ -550,10 +530,11 @@ class OrderedSeparatedSequenceUnparser(
               // start of scalar.
               // That has to be for a different element later in the sequence
               // since this one has a RepUnparser (i.e., is NOT scalar)
-              val eventNQN = ev.node.namedQName
+              //
+              val eventNQN = ev.erd.namedQName
               Assert.invariant(eventNQN != erd.namedQName)
             } else {
-              Assert.invariant(ev.isEnd && ev.isComplex)
+              Assert.invariant(ev.isEnd && ev.erd.isComplexType)
               unparser.checkFinalOccursCountBetweenMinAndMaxOccurs(state, unparser, numOccurrences, maxReps, 0)
             }
           } else {
@@ -571,6 +552,7 @@ class OrderedSeparatedSequenceUnparser(
           }
         }
       }
+      state.popTRD(trd)
       index += 1
     }
     state.groupIndexStack.pop()

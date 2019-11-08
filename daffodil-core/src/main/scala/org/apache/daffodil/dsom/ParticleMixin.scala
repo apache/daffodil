@@ -77,20 +77,25 @@ trait RequiredOptionalMixin { self: ElementBase =>
   }
 
   /**
-   * True if the element is required to appear in the DFDL Infoset.
+   * True if the element is required to appear in the stream of unparser infoset events.
+   * False means appears "maybe", may or may not appear.
    *
    * This includes elements that have no representation in the
-   * data stream. That is, an element with dfdl:inputValueCalc will be isRequiredInInfoset true.
+   * data stream. That is, an element with dfdl:inputValueCalc will be isRequiredStreamingUnparserEvent true.
    *
-   * Takes into account that some dfdl:occursCountKind can make
-   * seemingly required elements (based on minOccurs) optional or
-   * repeating.
+   * All arrays/optionals are treated as not required because we tolerate invalidity of the
+   * data here.
+   *
+   * OutputValueCalc elements are treated as optional. If present they are supposed to get their
+   * values ignored and overwritten by the computation.
    */
-  final lazy val isRequiredInInfoset: Boolean = {
+  final lazy val isRequiredStreamingUnparserEvent: Boolean = {
     val res = {
-      if (isScalar) true
+      if (isScalar) !this.isOutputValueCalc
       else if (isOptional) false
-      else if (isArray) isArraywithAtLeastOneRequiredArrayElement
+      // Treat all arrays as non-required so that we can tolerate invalid
+      // infosets where the number of events is fewer than the array minimum occurrences.
+      else if (isArray) false
       else false
     }
     res

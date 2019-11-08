@@ -108,10 +108,9 @@
     </tdml:infoset>
     <tdml:errors>
       <tdml:error>Unparse Error</tdml:error>
-      <tdml:error>found</tdml:error>
       <tdml:error>{}opt</tdml:error>
-      <tdml:error>expected</tdml:error>
-      <tdml:error>{http://example.com}opt</tdml:error>
+      <tdml:error>expected element end</tdml:error>
+      <tdml:error>{http://example.com}r1</tdml:error>
     </tdml:errors>
 
   </tdml:unparserTestCase>
@@ -180,9 +179,8 @@
     </tdml:infoset>
     <tdml:errors>
       <tdml:error>Unparse Error</tdml:error>
-      <tdml:error>found</tdml:error>
       <tdml:error>{}e1</tdml:error>
-      <tdml:error>expected</tdml:error>
+      <tdml:error>expected element start</tdml:error>
       <tdml:error>{http://example.com}e1</tdml:error>
     </tdml:errors>
 
@@ -206,9 +204,8 @@
     </tdml:infoset>
     <tdml:errors>
       <tdml:error>Error</tdml:error>
-      <tdml:error>found</tdml:error>
       <tdml:error>{}e0</tdml:error>
-      <tdml:error>expected</tdml:error>
+      <tdml:error>expected element start</tdml:error>
       <tdml:error>{http://example.com}e0</tdml:error>
     </tdml:errors>
 
@@ -256,10 +253,9 @@
     </tdml:infoset>
     <tdml:errors>
       <tdml:error>Unparse Error</tdml:error>
-      <tdml:error>Found</tdml:error>
-      <tdml:error>opt</tdml:error>
-      <tdml:error>expected</tdml:error>
-      <tdml:error>{}opt</tdml:error>
+      <tdml:error>{http://example.com}r1</tdml:error>
+      <tdml:error>expected element end</tdml:error>
+      <tdml:error>{http://example.com}opt</tdml:error>
     </tdml:errors>
 
   </tdml:unparserTestCase>
@@ -328,10 +324,9 @@
     </tdml:infoset>
     <tdml:errors>
       <tdml:error>Unparse Error</tdml:error>
-      <tdml:error>found</tdml:error>
-      <tdml:error>e1</tdml:error>
-      <tdml:error>expected</tdml:error>
       <tdml:error>{}e1</tdml:error>
+      <tdml:error>expected element start</tdml:error>
+      <tdml:error>{http://example.com}e1</tdml:error>
     </tdml:errors>
 
   </tdml:unparserTestCase>
@@ -373,9 +368,8 @@
     </tdml:infoset>
     <tdml:errors>
       <tdml:error>Unparse Error</tdml:error>
-      <tdml:error>Found</tdml:error>
       <tdml:error>{}e0</tdml:error>
-      <tdml:error>expected</tdml:error>
+      <tdml:error>expected element start</tdml:error>
       <tdml:error>{http://example.com}e0</tdml:error>
     </tdml:errors>
   </tdml:unparserTestCase>

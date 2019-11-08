@@ -191,7 +191,7 @@ abstract class SequenceChild(protected val sq: SequenceTermBase, child: Term, gr
     child.isLastDeclaredRepresentedInSequence
   }
 
-  final protected def isPositional: Boolean = {
+  final protected lazy val isPositional: Boolean = {
     separatedSequenceChildBehavior match {
       case _: SeparatedSequenceChildBehavior.PositionalLike => true
       case _ => false
@@ -349,7 +349,7 @@ abstract class SequenceChild(protected val sq: SequenceTermBase, child: Term, gr
 
         if (!e.isRepresented)
           NotRepresentedZeroLengthDetector
-        else if (e.isArray && !e.isRequiredInInfoset)
+        else if (e.isArray && !e.isRequiredStreamingUnparserEvent)
           PossiblyZeroArrayOccurrencesDetector
         else {
           Assert.invariant(e.isRepresented)

@@ -149,7 +149,9 @@ final class MStackOf[T <: AnyRef] {
   def clear() = delegate.clear()
   def toList = delegate.toList
 
-  def iterator = delegate.iterator.asInstanceOf[Iterator[T]]
+  def iterator = delegate.iterator.asInstanceOf[ResettableIterator[T]]
+
+  lazy val iter = delegate.iter.asInstanceOf[ResettableIterator[T]]
 
 }
 
@@ -279,12 +281,25 @@ protected abstract class MStack[@specialized T] private[util] (
   def toList = iterator.toList
 
   /**
-   * Creates and iterator over the stack in LIFO order.
+   * Creates an iterator over the stack in LIFO order.
    *  @return an iterator over the elements of the stack.
    */
-  def iterator: Iterator[T] = new Iterator[T] {
+  def iterator: Iterator[T] = new ResettableIterator[T] {
+    //
+    // index is the state of the stack, telling where top is.
+    //
+    // currentIndex and initialIndex are state of this iterator
+    //
+
+    /**
+     * Holds the current stack position we're iterating at.
+     */
     private var currentIndex = index
-    private val initialIndex = index
+
+    /**
+     * Holds the position of the top of stack
+     */
+    private var initialIndex = index
 
     def hasNext = currentIndex > 0
     def next() = {
@@ -293,6 +308,21 @@ protected abstract class MStack[@specialized T] private[util] (
       currentIndex -= 1
       table(currentIndex).asInstanceOf[T]
     }
+
+    /**
+     * Reset the iterator to start again at the current top of stack.
+     */
+    def reset() = {
+      currentIndex = index
+      initialIndex = index // top of stack for our iteration
+    }
   }
 
+  lazy val iter = iterator
+
+}
+
+abstract class ResettableIterator[@specialized T]
+  extends Iterator[T] {
+  def reset(): Unit
 }

@@ -45,7 +45,7 @@ import org.apache.daffodil.dsom.CompiledExpression
 import org.apache.daffodil.schema.annotation.props.gen.Representation
 import org.apache.daffodil.exceptions.SchemaFileLocation
 import org.apache.daffodil.dpath.NodeInfo.PrimType
-import org.apache.daffodil.infoset.NextElementResolver
+import org.apache.daffodil.infoset.PartialNextElementResolver
 import org.apache.daffodil.util.TransientParam
 import org.apache.daffodil.schema.annotation.props.gen.YesNo
 import org.apache.daffodil.exceptions._
@@ -56,6 +56,9 @@ import org.apache.daffodil.util.OKOrError
 import java.util.regex.Matcher
 import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.schema.annotation.props.gen.OccursCountKind
+import org.apache.daffodil.xml.NamedQName
+import org.apache.daffodil.processors.unparsers.UnparseError
+import org.apache.daffodil.util.Misc
 
 /*
  * NOTE: Any time you add a member to one of these objects, you must modify at least 3 places.
@@ -102,6 +105,8 @@ sealed abstract class TermRuntimeData(
    * hook these objects into a parent-child tree without
    * having to use an assignment to a var.
    */
+  @TransientParam positionArg: => Int,
+  @TransientParam partialNextElementResolverArg: => PartialNextElementResolver,
   @TransientParam encodingInfoArg: => EncodingRuntimeData,
   @TransientParam dpathCompileInfoArg: => DPathCompileInfo,
   @TransientParam isRepresentedArg: => Boolean,
@@ -144,6 +149,8 @@ sealed abstract class TermRuntimeData(
    */
   def tunable = dpathCompileInfo.tunable
 
+  lazy val position = positionArg
+  lazy val partialNextElementResolver = partialNextElementResolverArg
   lazy val encodingInfo = encodingInfoArg
   lazy val dpathCompileInfo = dpathCompileInfoArg
   lazy val isRepresented = isRepresentedArg
@@ -158,6 +165,8 @@ sealed abstract class TermRuntimeData(
 
   override def preSerialization: Unit = {
     super.preSerialization
+    position
+    partialNextElementResolver
     encodingInfo
     dpathCompileInfo
     isRepresented
@@ -240,10 +249,10 @@ final class SimpleTypeRuntimeData(
   @TransientParam tunableArg: => DaffodilTunables,
   @TransientParam repTypeRuntimeDataArg: => Option[SimpleTypeRuntimeData],
   @TransientParam repValueSetArg: => Option[RepValueSet[AnyRef]],
-  @TransientParam typeCalculatorArg: => Option[TypeCalculator[AnyRef,AnyRef]],
-  @TransientParam optRepPrimTypeArg: => Option[PrimType]
-) extends NonTermRuntimeData(variableMapArg, schemaFileLocationArg, diagnosticDebugNameArg,
-  pathArg, namespacesArg, tunableArg) {
+  @TransientParam typeCalculatorArg: => Option[TypeCalculator[AnyRef, AnyRef]],
+  @TransientParam optRepPrimTypeArg: => Option[PrimType])
+  extends NonTermRuntimeData(variableMapArg, schemaFileLocationArg, diagnosticDebugNameArg,
+    pathArg, namespacesArg, tunableArg) {
 
   import OKOrError._
 
@@ -596,7 +605,7 @@ final class SimpleTypeRuntimeData(
  * providing diagnostics.
  */
 
-final class ElementRuntimeData(
+sealed class ElementRuntimeData(
   /**
    * These transient by-name args are part of how we hook these objects into a
    * parent-child tree without having to use an assignment to a var. Note that
@@ -606,8 +615,7 @@ final class ElementRuntimeData(
   @TransientParam positionArg: => Int,
   @TransientParam childrenArg: => Seq[ElementRuntimeData],
   @TransientParam variableMapArg: => VariableMap,
-  @TransientParam nextElementResolverArg: => NextElementResolver,
-  @TransientParam childElementResolverArg: => NextElementResolver,
+  @TransientParam partialNextElementResolverArg: => PartialNextElementResolver,
   @TransientParam encInfoArg: => EncodingRuntimeData,
   @TransientParam dpathElementCompileInfoArg: => DPathElementCompileInfo,
   @TransientParam schemaFileLocationArg: => SchemaFileLocation,
@@ -620,6 +628,7 @@ final class ElementRuntimeData(
   @TransientParam targetNamespaceArg: => NS,
   @TransientParam thisElementsNamespaceArg: => NS,
   @TransientParam optSimpleTypeRuntimeDataArg: => Option[SimpleTypeRuntimeData],
+  @TransientParam optComplexTypeModelGroupRuntimeDataArg: => Option[ModelGroupRuntimeData],
   @TransientParam minOccursArg: => Long,
   @TransientParam maxOccursArg: => Long,
   @TransientParam maybeOccursCountKindArg: => Maybe[OccursCountKind],
@@ -630,7 +639,7 @@ final class ElementRuntimeData(
   @TransientParam isNillableArg: => Boolean,
   @TransientParam isArrayArg: => Boolean, // can have more than 1 occurrence
   @TransientParam isOptionalArg: => Boolean, // can have only 0 or 1 occurrence
-  @TransientParam isRequiredOrOptionalArg: => Boolean, // must have at least 1 occurrence
+  @TransientParam isRequiredInUnparseInfosetArg: => Boolean, // must have at least 1 occurrence
   /**
    * This is the properly qualified name for recognizing this
    * element.
@@ -658,18 +667,16 @@ final class ElementRuntimeData(
   @TransientParam maybeCheckByteAndBitOrderEvArg: => Maybe[CheckByteAndBitOrderEv],
   @TransientParam maybeCheckBitOrderAndCharsetEvArg: => Maybe[CheckBitOrderAndCharsetEv],
   @TransientParam isQuasiElementArg: => Boolean)
-  extends TermRuntimeData(encInfoArg, dpathElementCompileInfoArg, isRepresentedArg, couldHaveTextArg, alignmentValueInBitsArg, hasNoSkipRegionsArg,
+  extends TermRuntimeData(positionArg, partialNextElementResolverArg,
+    encInfoArg, dpathElementCompileInfoArg, isRepresentedArg, couldHaveTextArg, alignmentValueInBitsArg, hasNoSkipRegionsArg,
     defaultBitOrderArg, optIgnoreCaseArg, maybeFillByteEvArg,
     maybeCheckByteAndBitOrderEvArg,
     maybeCheckBitOrderAndCharsetEvArg) {
 
-  override def isRequiredScalar = !isArray && isRequiredOrOptional
+  override def isRequiredScalar = !isArray && isRequiredInUnparseInfoset
 
-  lazy val position = positionArg
   lazy val children = childrenArg
   lazy val variableMap = variableMapArg
-  lazy val nextElementResolver = nextElementResolverArg
-  lazy val childElementResolver = childElementResolverArg
   lazy val encInfo = encInfoArg
   lazy val dpathElementCompileInfo = dpathElementCompileInfoArg
   lazy val schemaFileLocation = schemaFileLocationArg
@@ -681,6 +688,7 @@ final class ElementRuntimeData(
   lazy val targetNamespace = targetNamespaceArg
   lazy val thisElementsNamespace = thisElementsNamespaceArg
   lazy val optSimpleTypeRuntimeData = optSimpleTypeRuntimeDataArg
+  lazy val optComplexTypeModelGroupRuntimeData = optComplexTypeModelGroupRuntimeDataArg
   lazy val minOccurs = minOccursArg
   lazy val maxOccurs = maxOccursArg
   lazy val maybeOccursCountKind = maybeOccursCountKindArg
@@ -691,7 +699,7 @@ final class ElementRuntimeData(
   lazy val isNillable = isNillableArg
   override lazy val isArray = isArrayArg
   lazy val isOptional = isOptionalArg
-  lazy val isRequiredOrOptional = isRequiredOrOptionalArg // if true, no uncertainty about number of occurrences.
+  lazy val isRequiredInUnparseInfoset = isRequiredInUnparseInfosetArg // if true, no uncertainty about number of occurrences.
   lazy val namedQName = namedQNameArg
   lazy val impliedRepresentation = impliedRepresentationArg
   lazy val optDefaultValue = optDefaultValueArg
@@ -703,11 +711,8 @@ final class ElementRuntimeData(
 
   override def preSerialization: Unit = {
     super.preSerialization
-    position
     children
     variableMap
-    nextElementResolver
-    childElementResolver
     encInfo
     dpathElementCompileInfo
     schemaFileLocation
@@ -719,6 +724,7 @@ final class ElementRuntimeData(
     targetNamespace
     thisElementsNamespace
     optSimpleTypeRuntimeData
+    optComplexTypeModelGroupRuntimeData
     minOccurs
     maxOccurs
     maybeOccursCountKind
@@ -729,7 +735,7 @@ final class ElementRuntimeData(
     isNillable
     isArray
     isOptional
-    isRequiredOrOptional
+    isRequiredInUnparseInfoset
     namedQName
     impliedRepresentation
     optDefaultValue
@@ -741,7 +747,7 @@ final class ElementRuntimeData(
   }
 
   @throws(classOf[java.io.IOException])
-  final private def writeObject(out: java.io.ObjectOutputStream): Unit = serializeObject(out)
+  private def writeObject(out: java.io.ObjectOutputStream): Unit = serializeObject(out)
 
   final def childERDs = children
 
@@ -763,12 +769,148 @@ final class ElementRuntimeData(
 
 }
 
+/**
+ * Used when unparsing to indicate that an expected ERD could not be created.
+ *
+ * Subclasses of this are for specific reasons why.
+ *
+ * The purposes of this is to allow the InfosetInputter to actually construct an
+ * infoset event including a full infoset DIElement node, yet indicating that the
+ * event is invalid.
+ *
+ * This enables improved diagnostic behavior. For example, a StartElement event
+ * can be created for a name and namespace where that name + namespace are not
+ * expected, the resulting infoset event will contain a DIElement having an
+ * ErrorERD. The unparser can then inspect the infoset event, and
+ * if it is expecting an EndElement event, it can issue a UnparseError that
+ * correctly identifies that an expected EndElement event was not received.
+ *
+ * In all cases, there is no recovering from these errors in the Unparser; hence,
+ * we don't really care if these bogus DIElement nodes having these Error ERDs are
+ * spliced into the infoset or not.
+ */
+sealed abstract class ErrorERD(local: String, namespaceURI: String)
+  extends ElementRuntimeData(
+    0, // position
+    Nil, // children
+    null, // VariableMap
+    null, // PartialNextElementResolver
+    null, // EncodingRuntimeData
+    new DPathElementCompileInfo(
+      Nil, // parentsArg: => Seq[DPathElementCompileInfo],
+      null, // variableMap: => VariableMap,
+      Nil, // elementChildrenCompileInfoArg: => Seq[DPathElementCompileInfo],
+      null, // namespaces: scala.xml.NamespaceBinding,
+      local, // path: String,
+      local, // val name: String,
+      false, // val isArray: Boolean,
+      LocalDeclQName(None, local, NS(namespaceURI)), // val namedQName: NamedQName,
+      None, // val optPrimType: Option[PrimType],
+      null, // sfl: SchemaFileLocation,
+      null, // override val tunable: DaffodilTunables,
+      null, // typeCalcMap: TypeCalcMap,
+      null, // lexicalContextRuntimeData: RuntimeData,
+      null), // val sscd: String),
+    null, // SchemaFileLocation
+    local, // diagnosticDebugName: String,
+    local, // pathArg: => String,
+    null, //  namespacesArg: => NamespaceBinding,
+    null, // minimizedScopeArg: => NamespaceBinding,
+    null, //defaultBitOrderArg: => BitOrder,
+    None, // optPrimTypeArg: => Option[PrimType],
+    null, // targetNamespaceArg: => NS,
+    NS(namespaceURI), // thisElementsNamespaceArg: => NS,
+    null, // optSimpleTypeRuntimeDataArg: => Option[SimpleTypeRuntimeData],
+    null, // optComplexTypeModelGroupRuntimeDataArg: => Option[ModelGroupRuntimeData],
+    0L, // minOccursArg: => Long,
+    0L, // maxOccursArg: => Long,
+    Nope, // maybeOccursCountKindArg: => Maybe[OccursCountKind],
+    local, // nameArg: => String,
+    null, // targetNamespacePrefixArg: => String,
+    null, // thisElementsNamespacePrefixArg: => String,
+    false, // isHiddenArg: => Boolean,
+    false, // isNillableArg: => Boolean,
+    false, // isArrayArg: => Boolean, // can have more than 1 occurrence
+    false, // isOptionalArg: => Boolean, // can have only 0 or 1 occurrence
+    false, // isRequiredInUnparseInfosetArg: => Boolean, // must have at least 1 occurrence
+    LocalDeclQName(None, local, NS(namespaceURI)), // namedQNameArg: => NamedQName,
+    false, // isRepresentedArg: => Boolean,
+    false, // couldHaveTextArg: => Boolean,
+    0, // alignmentValueInBitsArg: => Int,
+    false, // hasNoSkipRegionsArg: => Boolean,
+    null, // impliedRepresentationArg: => Representation,
+    null, // optIgnoreCaseArg: => Option[YesNo],
+    null, // optDefaultValueArg: => Option[AnyRef],
+    null, // optTruncateSpecifiedLengthStringArg: => Option[Boolean],
+    null, // outputValueCalcExprArg: => Option[CompiledExpression[AnyRef]],
+    Nope, // maybeBinaryFloatRepEvArg: => Maybe[BinaryFloatRepEv],
+    Nope, // maybeByteOrderEvArg: => Maybe[ByteOrderEv],
+    Nope, // maybeFillByteEvArg: => Maybe[FillByteEv],
+    Nope, // maybeCheckByteAndBitOrderEvArg: => Maybe[CheckByteAndBitOrderEv],
+    Nope, // maybeCheckBitOrderAndCharsetEvArg: => Maybe[CheckBitOrderAndCharsetEv],
+    false // isQuasiElementArg: => Boolean
+  ) {
+
+  override def toString() = Misc.getNameFromClass(this) + "(" + this.namedQName.toExtendedSyntax + ")"
+
+  @throws(classOf[java.io.IOException])
+  private def writeObject(out: java.io.ObjectOutputStream): Unit =
+    Assert.usageError("Not for serialization")
+}
+
+/**
+ * Used when unparsing to indicate that a next element event was detected that is
+ * unexpected.
+ */
+final class UnexpectedElementErrorERD(
+  optTRD: Option[TermRuntimeData],
+  local: String,
+  namespaceURI: String,
+  val allPossibleNQNs: Seq[QNameBase])
+  extends ErrorERD(local, namespaceURI) {
+}
+
+/**
+ * Used when unparsing to indicate that multiple elements could be next that
+ * differ only by namespace. This means for some event sources (like JSON) we
+ * don't know which element to create.
+ */
+final class NamespaceAmbiguousElementErrorERD(
+  optTRD: Option[TermRuntimeData],
+  local: String,
+  namespaceURI: String,
+  val allPossibleNQNs: Seq[QNameBase])
+  extends ErrorERD(local, namespaceURI) {
+
+  /**
+   * Causes unparse error with diagnostic about unexpected element.
+   *
+   * Pass argument true if the context is one where no element was expected
+   * (e.g., because an EndElement was expected.)
+   *
+   * Pass false if the Term's ordinary nextElementResolver list of possibilities
+   * is what was expected.
+   */
+  def toUnparseError(nothingWasExpected: Boolean = false) = {
+    val sqn = StepQName(None, name, thisElementsNamespace)
+    val sqnx = sqn.toExtendedSyntax
+    val allPossiblesString =
+      allPossibleNQNs.map { _.toExtendedSyntax }.mkString(", ")
+    val maybeLoc: Maybe[SchemaFileLocation] = Maybe.toMaybe(optTRD.map { _.schemaFileLocation })
+    UnparseError(maybeLoc, Nope,
+      "Found multiple matches for element %s because infoset implementation ignores namespaces. Matches are %s",
+      sqnx, allPossiblesString)
+  }
+}
+
 sealed abstract class ModelGroupRuntimeData(
   /**
    * These transient by-name args are part of how we
    * hook these objects into a parent-child tree without
    * having to use an assignment to a var.
    */
+  @TransientParam positionArg: => Int,
+  @TransientParam partialNextElementResolverArg: => PartialNextElementResolver,
   @TransientParam variableMapArg: => VariableMap,
   @TransientParam encInfoArg: => EncodingRuntimeData,
   @TransientParam schemaFileLocationArg: => SchemaFileLocation,
@@ -787,6 +929,7 @@ sealed abstract class ModelGroupRuntimeData(
   @TransientParam maybeCheckByteAndBitOrderEvArg: => Maybe[CheckByteAndBitOrderEv],
   @TransientParam maybeCheckBitOrderAndCharsetEvArg: => Maybe[CheckBitOrderAndCharsetEv])
   extends TermRuntimeData(
+    positionArg, partialNextElementResolverArg,
     encInfoArg, ciArg, isRepresentedArg, couldHaveTextArg, alignmentValueInBitsArg, hasNoSkipRegionsArg,
     defaultBitOrderArg, optIgnoreCaseArg, maybeFillByteEvArg,
     maybeCheckByteAndBitOrderEvArg,
@@ -825,6 +968,8 @@ final class SequenceRuntimeData(
    * hook these objects into a parent-child tree without
    * having to use an assignment to a var.
    */
+  @TransientParam positionArg: => Int,
+  @TransientParam partialNextElementResolverArg: => PartialNextElementResolver,
   @TransientParam variableMapArg: => VariableMap,
   @TransientParam encInfoArg: => EncodingRuntimeData,
   @TransientParam schemaFileLocationArg: => SchemaFileLocation,
@@ -842,7 +987,8 @@ final class SequenceRuntimeData(
   @TransientParam maybeFillByteEvArg: => Maybe[FillByteEv],
   @TransientParam maybeCheckByteAndBitOrderEvArg: => Maybe[CheckByteAndBitOrderEv],
   @TransientParam maybeCheckBitOrderAndCharsetEvArg: => Maybe[CheckBitOrderAndCharsetEv])
-  extends ModelGroupRuntimeData(variableMapArg, encInfoArg, schemaFileLocationArg, ciArg, diagnosticDebugNameArg, pathArg, namespacesArg, defaultBitOrderArg, groupMembersArg,
+  extends ModelGroupRuntimeData(positionArg, partialNextElementResolverArg,
+    variableMapArg, encInfoArg, schemaFileLocationArg, ciArg, diagnosticDebugNameArg, pathArg, namespacesArg, defaultBitOrderArg, groupMembersArg,
     isRepresentedArg, couldHaveTextArg, alignmentValueInBitsArg, hasNoSkipRegionsArg, optIgnoreCaseArg,
     maybeFillByteEvArg,
     maybeCheckByteAndBitOrderEvArg,
@@ -854,6 +1000,8 @@ final class ChoiceRuntimeData(
    * hook these objects into a parent-child tree without
    * having to use an assignment to a var.
    */
+  @TransientParam positionArg: => Int,
+  @TransientParam partialNextElementResolverArg: => PartialNextElementResolver,
   @TransientParam variableMapArg: => VariableMap,
   @TransientParam encInfoArg: => EncodingRuntimeData,
   @TransientParam schemaFileLocationArg: => SchemaFileLocation,
@@ -871,7 +1019,8 @@ final class ChoiceRuntimeData(
   @TransientParam maybeFillByteEvArg: => Maybe[FillByteEv],
   @TransientParam maybeCheckByteAndBitOrderEvArg: => Maybe[CheckByteAndBitOrderEv],
   @TransientParam maybeCheckBitOrderAndCharsetEvArg: => Maybe[CheckBitOrderAndCharsetEv])
-  extends ModelGroupRuntimeData(variableMapArg, encInfoArg, schemaFileLocationArg, ciArg, diagnosticDebugNameArg, pathArg, namespacesArg, defaultBitOrderArg, groupMembersArg,
+  extends ModelGroupRuntimeData(positionArg, partialNextElementResolverArg,
+    variableMapArg, encInfoArg, schemaFileLocationArg, ciArg, diagnosticDebugNameArg, pathArg, namespacesArg, defaultBitOrderArg, groupMembersArg,
     isRepresentedArg, couldHaveTextArg, alignmentValueInBitsArg, hasNoSkipRegionsArg, optIgnoreCaseArg, maybeFillByteEvArg,
     maybeCheckByteAndBitOrderEvArg,
     maybeCheckBitOrderAndCharsetEvArg)

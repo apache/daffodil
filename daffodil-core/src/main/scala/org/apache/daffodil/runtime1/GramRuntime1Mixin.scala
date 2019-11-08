@@ -51,7 +51,7 @@ trait GramRuntime1Mixin { self: Gram =>
    */
   def unparser: Unparser
 
-  final def maybeUnparser: Maybe[Unparser] = {
+  final lazy val maybeUnparser: Maybe[Unparser] = {
     if (this.isEmpty) Maybe.Nope
     else {
       val u = this.unparser

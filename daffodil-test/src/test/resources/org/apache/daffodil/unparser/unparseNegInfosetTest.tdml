@@ -110,9 +110,10 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:errors>
-      <tdml:error>Found next element</tdml:error>
+      <tdml:error>Unparse Error</tdml:error>
       <tdml:error>foo</tdml:error>
-      <tdml:error>no element is expected</tdml:error>
+      <tdml:error>expected element end</tdml:error>
+      <tdml:error>root1</tdml:error>
     </tdml:errors>
   </tdml:unparserTestCase>
 
@@ -126,9 +127,9 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:errors>
-      <tdml:error>Found next element</tdml:error>
+      <tdml:error>Unparse Error</tdml:error>
       <tdml:error>foo</tdml:error>
-      <tdml:error>expected</tdml:error>
+      <tdml:error>expected element start</tdml:error>
       <tdml:error>two</tdml:error>
     </tdml:errors>
   </tdml:unparserTestCase>
@@ -183,9 +184,9 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:errors>
-      <tdml:error>Found child element</tdml:error>
+      <tdml:error>Unparse Error</tdml:error>
       <tdml:error>foo</tdml:error>
-      <tdml:error>expected</tdml:error>
+      <tdml:error>expected element start</tdml:error>
       <tdml:error>one</tdml:error>
     </tdml:errors>
   </tdml:unparserTestCase>
@@ -216,7 +217,7 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:errors>
-      <tdml:error>Found child element</tdml:error>
+      <tdml:error>Found next element</tdml:error>
       <tdml:error>foo</tdml:error>
       <tdml:error>expected one of</tdml:error>
       <tdml:error>c1</tdml:error>

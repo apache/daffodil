@@ -75,29 +75,29 @@ class TestScalaAPI {
    * as one would normally do with a standard Object{Input,Output}Stream.
    */
   private def reserializeDataProcessor(dp: DataProcessor): DataProcessor = {
-      val baos = new ByteArrayOutputStream()
-      val oos = new ObjectOutputStream(baos)
-      oos.writeObject(dp)
-      oos.close()
+    val baos = new ByteArrayOutputStream()
+    val oos = new ObjectOutputStream(baos)
+    oos.writeObject(dp)
+    oos.close()
 
-      val bais = new ByteArrayInputStream(baos.toByteArray())
-      val ois = new ObjectInputStream(bais) {
-        /**
-         * This override is here because of a bug in sbt where the wrong class loader is being
-         * used when deserializing an object.
-         * For more information, see https://github.com/sbt/sbt/issues/163
-         */
-        override protected def resolveClass(desc: java.io.ObjectStreamClass): Class[_] = {
-          try {
-            Class.forName(desc.getName, false, getClass.getClassLoader)
-          } catch {
-            case e: ClassNotFoundException => super.resolveClass(desc);
-          }
+    val bais = new ByteArrayInputStream(baos.toByteArray())
+    val ois = new ObjectInputStream(bais) {
+      /**
+       * This override is here because of a bug in sbt where the wrong class loader is being
+       * used when deserializing an object.
+       * For more information, see https://github.com/sbt/sbt/issues/163
+       */
+      override protected def resolveClass(desc: java.io.ObjectStreamClass): Class[_] = {
+        try {
+          Class.forName(desc.getName, false, getClass.getClassLoader)
+        } catch {
+          case e: ClassNotFoundException => super.resolveClass(desc);
         }
       }
-
-      ois.readObject().asInstanceOf[DataProcessor]
     }
+
+    ois.readObject().asInstanceOf[DataProcessor]
+  }
 
   @Test
   def testScalaAPI1() {
@@ -830,7 +830,7 @@ class TestScalaAPI {
     assertEquals(1, diags.size)
     val d = diags(0);
     assertTrue(d.getMessage().contains("wrong"))
-    assertTrue(d.getMessage().contains("e1"))
+    assertTrue(d.getMessage().contains("e2"))
 
     // reset the global logging and debugger state
     Daffodil.setLogWriter(new ConsoleLogWriter())

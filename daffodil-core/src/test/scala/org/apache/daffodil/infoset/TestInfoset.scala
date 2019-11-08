@@ -26,6 +26,11 @@ import org.junit.Test
 import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.api.DaffodilTunables
+import org.apache.daffodil.io.DirectOrBufferedDataOutputStream
+import org.apache.daffodil.processors.DataProcessor
+import org.apache.daffodil.dsom.ElementBase
+import org.apache.daffodil.processors.unparsers.UStateMain
+import org.apache.commons.io.output.NullOutputStream
 
 object TestInfoset {
   /**
@@ -43,15 +48,55 @@ object TestInfoset {
 
   private val tunableForTests = DaffodilTunables("allowExternalPathExpressions", "true")
 
-  def elem2Infoset(erd: ElementRuntimeData, xmlElem: scala.xml.Node): InfosetElement = {
+  def elem2Infoset(
+    xmlElem: scala.xml.Node,
+    dp: DataProcessor): DIElement = {
     val ic = new ScalaXMLInfosetInputter(xmlElem)
-    ic.initialize(erd, tunableForTests)
-    val aacc = ic.advanceAccessor
-    Assert.invariant(ic.advance == true)
-    val infosetRootNode = aacc.node
-    while (ic.advance) {}
-    infosetRootNode.asInstanceOf[InfosetElement]
+    //
+    // A prior version of this code just pulled events to force the
+    // infoset to be constructed. That doesn't work anymore.
+    // The structure of the schema must be respected and the
+    // TermRuntimeData must be pushed/popped appropriately.
+    //
+    // Really the only way to do this is to invoke the unparser since that is
+    // what maintains the schema dynamic runtime context.
+    //
+    val inputter = new ScalaXMLInfosetInputter(xmlElem)
+    val dummyOutStream = new NullOutputStream
+    val unparseResult = dp.unparse(inputter, dummyOutStream)
+    val infosetRootNode = {
+      val ustate = unparseResult.resultState.asInstanceOf[UStateMain]
+      val diDocument: DIDocument = ustate.documentElement
+      val rootElement = diDocument.getRootElement().asInstanceOf[DIElement]
+      Assert.invariant(rootElement ne null)
+      rootElement
+    }
+    infosetRootNode
   }
+
+  /**
+   * Returns the root element of the infoset, along with
+   * the schema compiler Root object for examining schema-compiler
+   * computations for unit testing them.
+   */
+  def testInfoset(testSchema: scala.xml.Elem, infosetAsXML: scala.xml.Elem) = {
+    val schemaCompiler = Compiler()
+    schemaCompiler.setTunable("allowExternalPathExpressions", "true")
+    val pf = schemaCompiler.compileNode(testSchema).asInstanceOf[ProcessorFactory]
+    if (pf.isError) {
+      val msgs = pf.getDiagnostics.map { _.getMessage() }.mkString("\n")
+      fail("pf compile errors: " + msgs)
+    }
+    pf.rootElem.erd.preSerialization // force evaluation of all compile-time constructs
+    val dp = pf.onPath("/").asInstanceOf[DataProcessor]
+    if (dp.isError) {
+      val msgs = dp.getDiagnostics.map { _.getMessage() }.mkString("\n")
+      fail("dp compile errors: " + msgs)
+    }
+    val infosetRootElem = TestInfoset.elem2Infoset(infosetAsXML, dp)
+    (infosetRootElem, pf.rootElem)
+  }
+
 }
 
 class TestInfoset1 {
@@ -59,6 +104,7 @@ class TestInfoset1 {
   val dfdl = XMLUtils.dfdlAppinfoSource // XMLUtils.DFDL_NAMESPACE
   val xsi = XMLUtils.XSI_NAMESPACE
   val ex = XMLUtils.EXAMPLE_NAMESPACE
+  import TestInfoset._
 
   @Test def testXMLToInfoset1() {
     val testSchema = SchemaUtils.dfdlTestSchema(
@@ -73,19 +119,10 @@ class TestInfoset1 {
 
     val xmlInfoset = <list xmlns={ ex }><w>4</w></list>
 
-    val compiler = Compiler()
-    val sset = compiler.compileNode(testSchema).sset
-    val Seq(schema) = sset.schemas
-    val Seq(schemaDoc, _) = schema.schemaDocuments
-    val Seq(declf) = schemaDoc.globalElementDecls
-    val decl = declf.forRoot()
-    val list_erd = decl.elementRuntimeData
-    val Seq(w) = decl.elementChildren
-    val w_erd = w.elementRuntimeData
-    //    val wSlot = w.slotIndexInParent
-    val infoset = TestInfoset.elem2Infoset(decl.elementRuntimeData, xmlInfoset).asInstanceOf[InfosetComplexElement]
-    assertTrue(infoset.isInstanceOf[DIComplex])
+    val (infoset: DIComplex, _) = testInfoset(testSchema, xmlInfoset)
+    val list_erd = infoset.erd
     assertEquals(list_erd, infoset.runtimeData)
+    val Seq(w_erd) = list_erd.childERDs
     val wItem = infoset.getChild(w_erd).asInstanceOf[InfosetSimpleElement]
     assertEquals(infoset, wItem.parent)
     assertEquals(4, wItem.dataValue)
@@ -109,25 +146,14 @@ class TestInfoset1 {
       </xs:complexType>)
 
     val xmlInfoset = <list xmlns={ ex }><w>4</w><c>7</c></list>
-
-    val compiler = Compiler()
-    val sset = compiler.compileNode(testSchema).sset
-    val Seq(schema) = sset.schemas
-    val Seq(schemaDoc, _) = schema.schemaDocuments
-    val Seq(declf) = schemaDoc.globalElementDecls
-    val decl = declf.forRoot()
-    val list_erd = decl.elementRuntimeData
-    val Seq(w, _, _, _) = decl.elementChildren;
-    assertNotNull(w)
-    val Seq(w_erd, _, _, c_erd) = decl.elementRuntimeData.childERDs
-    //    val wSlot = w.slotIndexInParent
-    val infoset = TestInfoset.elem2Infoset(decl.elementRuntimeData, xmlInfoset).asInstanceOf[InfosetComplexElement]
-    assertTrue(infoset.isInstanceOf[DIComplex])
+    val (infoset, _) = testInfoset(testSchema, xmlInfoset)
     assertNotNull(infoset.parent)
+    val list_erd = infoset.erd
+    val Seq(w_erd, _, _, c_erd) = list_erd.childERDs
     assertEquals(list_erd, infoset.runtimeData)
-    val wItem = infoset.getChild(w_erd).asInstanceOf[InfosetSimpleElement]
+    val wItem = infoset.asComplex.getChild(w_erd).asInstanceOf[InfosetSimpleElement]
     assertEquals(4, wItem.dataValue)
-    val cItem = infoset.getChild(c_erd).asInstanceOf[InfosetSimpleElement]
+    val cItem = infoset.asComplex.getChild(c_erd).asInstanceOf[InfosetSimpleElement]
     assertEquals(7, cItem.dataValue)
     assertEquals(infoset, cItem.parent)
   }
@@ -144,19 +170,8 @@ class TestInfoset1 {
       </xs:complexType>)
 
     val xmlInfoset = <list xmlns={ ex }><w>4</w><w>5</w></list>
-
-    val compiler = Compiler()
-    val sset = compiler.compileNode(testSchema).sset
-    val Seq(schema) = sset.schemas
-    val Seq(schemaDoc, _) = schema.schemaDocuments
-    val Seq(declf) = schemaDoc.globalElementDecls
-    val decl = declf.forRoot()
-    decl.elementRuntimeData
-    val ec @ Seq(_) = decl.elementChildren; assertNotNull(ec)
-    val Seq(w_erd) = decl.elementRuntimeData.childERDs
-    //    val wSlot = w.slotIndexInParent
-    val infoset = TestInfoset.elem2Infoset(decl.elementRuntimeData, xmlInfoset).asInstanceOf[InfosetComplexElement]
-    assertTrue(infoset.isInstanceOf[DIComplex])
+    val (infoset: DIComplex, _) = testInfoset(testSchema, xmlInfoset)
+    val Seq(w_erd) = infoset.erd.childERDs
     infoset.getChildArray(w_erd) match {
       case arr: DIArray => {
         assertEquals(2, arr.length)
@@ -190,18 +205,9 @@ class TestInfoset1 {
 
     val xmlInfoset = <list xmlns={ ex }><w>4</w><w>5</w><c>7</c></list>
 
-    val compiler = Compiler()
-    val sset = compiler.compileNode(testSchema).sset
-    val Seq(schema) = sset.schemas
-    val Seq(schemaDoc, _) = schema.schemaDocuments
-    val Seq(declf) = schemaDoc.globalElementDecls
-    val decl = declf.forRoot()
-    decl.elementRuntimeData
-    val ec @ Seq(_, _, _, _) = decl.elementChildren; assertNotNull(ec)
-    val Seq(w_erd, _, _, c_erd) = decl.elementRuntimeData.childERDs
-    //    val wSlot = w.slotIndexInParent
-    val infoset = TestInfoset.elem2Infoset(decl.elementRuntimeData, xmlInfoset).asInstanceOf[InfosetComplexElement]
-    assertTrue(infoset.isInstanceOf[DIComplex])
+    val (infoset: DIComplex, _) = testInfoset(testSchema, xmlInfoset)
+    val list_erd = infoset.erd
+    val Seq(w_erd, _, _, c_erd) = list_erd.childERDs
     infoset.getChildArray(w_erd) match {
       case arr: DIArray => {
         var a = arr(1).asInstanceOf[InfosetSimpleElement]
@@ -233,17 +239,11 @@ class TestInfoset1 {
 
     val xmlInfoset = <list xmlns={ ex } xmlns:xsi={ xsi }><x xsi:nil='true'/></list>
 
-    val compiler = Compiler()
-    val sset = compiler.compileNode(testSchema).sset
-    val Seq(schema) = sset.schemas
-    val Seq(schemaDoc, _) = schema.schemaDocuments
-    val Seq(declf) = schemaDoc.globalElementDecls
-    val decl = declf.forRoot()
-    decl.elementRuntimeData
-    val ec @ Seq(_) = decl.elementChildren; assertNotNull(ec)
-    val Seq(x_erd) = decl.elementRuntimeData.childERDs
+    val (infoset: DIComplex, _) = testInfoset(testSchema, xmlInfoset)
+    val list_erd = infoset.erd
+    val Seq(x_erd) = list_erd.childERDs
     assertTrue(x_erd.isArray)
-    val infoset = TestInfoset.elem2Infoset(decl.elementRuntimeData, xmlInfoset).asInstanceOf[InfosetComplexElement]
+
     assertTrue(infoset.isInstanceOf[DIComplex])
     val xchild = infoset.getChildArray(x_erd)
     xchild match {
@@ -263,7 +263,7 @@ class TestInfoset1 {
       <xs:element name="list" type="tns:example1"/>
       <xs:complexType name="example1">
         <xs:sequence>
-          <xs:element name="x" minOccurs="0" maxOccurs="2" dfdl:occursCountKind="parsed" nillable='true' dfdl:nilKind="literalValue" dfdl:nilValue="-">
+          <xs:element name="x" minOccurs="0" maxOccurs="2" dfdl:occursCountKind="parsed" nillable='true' dfdl:nilKind="literalValue" dfdl:nilValue="%ES;">
             <xs:complexType>
               <xs:choice>
                 <xs:element name="a" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit"/>
@@ -277,20 +277,9 @@ class TestInfoset1 {
 
     val xmlInfoset = <list xmlns={ ex } xmlns:xsi={ xsi }><x xsi:nil='true'/></list>
 
-    val compiler = Compiler()
-    val sset = compiler.compileNode(testSchema).sset
-    val Seq(schema) = sset.schemas
-    val Seq(schemaDoc, _) = schema.schemaDocuments
-    val Seq(declf) = schemaDoc.globalElementDecls
-    val decl = declf.forRoot()
-    decl.elementRuntimeData
-    val ec @ Seq(_) = decl.elementChildren; assertNotNull(ec)
-    val Seq(x_erd) = decl.elementRuntimeData.childERDs
-    val Seq(_, _, c_erd) = x_erd.childERDs
-    assertTrue(x_erd.isArray)
-    assertFalse(c_erd.isArray)
-    val infoset = TestInfoset.elem2Infoset(decl.elementRuntimeData, xmlInfoset).asInstanceOf[InfosetComplexElement]
-    assertTrue(infoset.isInstanceOf[DIComplex])
+    val (infoset: DIComplex, _) = testInfoset(testSchema, xmlInfoset)
+    val list_erd = infoset.erd
+    val Seq(x_erd) = list_erd.childERDs
     infoset.getChildArray(x_erd) match {
       case xa: DIArray => {
         assertEquals(1, xa.length)
@@ -308,7 +297,7 @@ class TestInfoset1 {
       <xs:complexType name="example1">
         <xs:sequence>
           <xs:element name="w" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit" minOccurs="0" maxOccurs="2" dfdl:occursCountKind="parsed"/>
-          <xs:element name="x" minOccurs="0" maxOccurs="2" dfdl:occursCountKind="parsed" nillable='true' dfdl:nilKind="literalValue" dfdl:nilValue="-">
+          <xs:element name="x" minOccurs="0" maxOccurs="2" dfdl:occursCountKind="parsed" nillable='true' dfdl:nilKind="literalValue" dfdl:nilValue="%ES;">
             <xs:complexType>
               <xs:choice>
                 <xs:element name="a" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit"/>
@@ -322,21 +311,13 @@ class TestInfoset1 {
 
     val xmlInfoset = <list xmlns={ ex } xmlns:xsi={ xsi }><w>4</w><w>5</w><x xsi:nil='true'/><x><c>7</c></x></list>
 
-    val compiler = Compiler()
-    val sset = compiler.compileNode(testSchema).sset
-    val Seq(schema) = sset.schemas
-    val Seq(schemaDoc, _) = schema.schemaDocuments
-    val Seq(declf) = schemaDoc.globalElementDecls
-    val decl = declf.forRoot()
-    decl.elementRuntimeData
-    val ec @ Seq(_, _) = decl.elementChildren; assertNotNull(ec)
-    val Seq(w_erd, x_erd) = decl.elementRuntimeData.childERDs
-    val Seq(_, _, c_erd) = x_erd.childERDs
-    assertTrue(w_erd.isArray)
-    assertTrue(x_erd.isArray)
-    assertFalse(c_erd.isArray)
-    val infoset = TestInfoset.elem2Infoset(decl.elementRuntimeData, xmlInfoset).asInstanceOf[InfosetComplexElement]
-    assertTrue(infoset.isInstanceOf[DIComplex])
+    val (infoset: DIComplex, rootTerm) = testInfoset(testSchema, xmlInfoset)
+    val list_erd = infoset.erd
+    val rootPossibles = rootTerm.possibleNextLexicalSiblingStreamingUnparserElements
+    val Seq(wTerm: ElementBase, xTerm: ElementBase) = rootTerm.complexType.modelGroup.groupMembers
+    val xPossibles = xTerm.possibleNextLexicalSiblingStreamingUnparserElements
+    val Seq(w_erd, x_erd) = list_erd.childERDs
+    val Seq(a_erd, b_erd, c_erd) = x_erd.childERDs
     infoset.getChildArray(x_erd) match {
       case arr: DIArray => {
         assertEquals(2, arr.length)
@@ -360,7 +341,7 @@ class TestInfoset1 {
       <xs:complexType name="example1">
         <xs:sequence>
           <xs:element name="w" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit" minOccurs="0" maxOccurs="2" dfdl:occursCountKind="parsed"/>
-          <xs:element name="x" minOccurs="0" maxOccurs="2" dfdl:occursCountKind="parsed" nillable='true' dfdl:nilKind="literalValue" dfdl:nilValue="-">
+          <xs:element name="x" minOccurs="0" maxOccurs="2" dfdl:occursCountKind="parsed" nillable='true' dfdl:nilKind="literalValue" dfdl:nilValue="%ES;">
             <xs:complexType>
               <xs:choice>
                 <xs:element name="a" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit"/>
@@ -374,20 +355,10 @@ class TestInfoset1 {
 
     val xmlInfoset = <list xmlns={ ex }><x><c>7</c></x><x><b>8</b></x></list>
 
-    val compiler = Compiler()
-    val sset = compiler.compileNode(testSchema).sset
-    val Seq(schema) = sset.schemas
-    val Seq(schemaDoc, _) = schema.schemaDocuments
-    val Seq(declf) = schemaDoc.globalElementDecls
-    val decl = declf.forRoot()
-    decl.elementRuntimeData
-    val ec @ Seq(_, _) = decl.elementChildren; assertNotNull(ec)
-    val Seq(w_erd, x_erd) = decl.elementRuntimeData.childERDs
-    val Seq(_, b_erd, c_erd) = x_erd.childERDs; assertNotNull(b_erd)
-    assertTrue(w_erd.isArray)
-    assertTrue(x_erd.isArray)
-    assertFalse(c_erd.isArray)
-    val infoset = TestInfoset.elem2Infoset(decl.elementRuntimeData, xmlInfoset).asInstanceOf[InfosetComplexElement]
+    val (infoset: DIComplex, _) = testInfoset(testSchema, xmlInfoset)
+    val list_erd = infoset.erd
+    val Seq(w_erd, x_erd) = list_erd.childERDs
+    val Seq(a_erd, b_erd, c_erd) = x_erd.childERDs
 
     try {
       infoset.getChildArray(w_erd)

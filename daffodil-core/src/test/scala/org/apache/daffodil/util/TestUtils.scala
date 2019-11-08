@@ -96,6 +96,7 @@ object TestUtils {
 
   def testUnparsing(testSchema: scala.xml.Elem, infosetXML: Node, unparseTo: String, areTracing: Boolean = false): Seq[Diagnostic] = {
     val compiler = Compiler()
+    compiler.setTunable("allowExternalPathExpressions", "true")
     val pf = compiler.compileNode(testSchema)
     if (pf.isError) {
       val msgs = pf.getDiagnostics.map(_.getMessage()).mkString("\n")
@@ -209,6 +210,28 @@ object TestUtils {
     }
     (actual, outputter.getResult)
   }
+
+  private val defaultIncludeImports =
+     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+  private val defaultTopLevels =
+    <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" encoding="US-ASCII"/>
+  
+  /**
+   * For convenient unit testing of schema compiler attributes defined on Term types.
+   */
+  def getRoot(
+    contentElements: Seq[Node],
+    elementFormDefault: String = "unqualified",
+    includeImports : Seq[Node] = defaultIncludeImports,
+    topLevels: Seq[Node] = defaultTopLevels): Root = {
+    val testSchema = SchemaUtils.dfdlTestSchema(
+      includeImports,
+      topLevels,
+      contentElements,
+      elementFormDefault = elementFormDefault)
+    val sset = new SchemaSet(testSchema)
+    sset.root
+  }
 }
 /**
  * We need a schema document and such for unit testing, also our PrimType
@@ -229,7 +252,7 @@ object Fakes {
 
 class Fakes private () {
   lazy val sch = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
     <dfdl:format ref="tns:GeneralFormat"/>,
     <xs:element name="fake" type="xs:string" dfdl:lengthKind="delimited"/>
     <xs:element name="fake2" type="tns:fakeCT"/>

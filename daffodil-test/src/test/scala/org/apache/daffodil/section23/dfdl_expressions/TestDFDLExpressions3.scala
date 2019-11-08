@@ -34,13 +34,16 @@ object TestDFDLExpressions3 {
 class TestDFDLExpressions3 {
   import TestDFDLExpressions3._
 
-  @Test def test_polymorphic_expr_1() { runner.runOneTest("test_polymorphic_expr_1") }
-  @Test def test_polymorphic_expr_2a() { runner.runOneTest("test_polymorphic_expr_2a") }
-  @Test def test_polymorphic_expr_2b() { runner.runOneTest("test_polymorphic_expr_2b") }
-  @Test def test_polymorphic_expr_3() { runner.runOneTest("test_polymorphic_expr_3") }
-  @Test def test_polymorphic_expr_4() { runner.runOneTest("test_polymorphic_expr_4") }
-  @Test def test_polymorphic_expr_5() { runner.runOneTest("test_polymorphic_expr_5") }
-  @Test def test_polymorphic_expr_6() { runner.runOneTest("test_polymorphic_expr_6") }
+  // Fix to DAFFODIL-2192 removed the sharing of expression compilation across
+  // multiple points of use. So these polymorphic situations no longer cause errors.
+  //
+  //  @Test def test_polymorphic_expr_1() { runner.runOneTest("test_polymorphic_expr_1") }
+  //  @Test def test_polymorphic_expr_2a() { runner.runOneTest("test_polymorphic_expr_2a") }
+  //  @Test def test_polymorphic_expr_2b() { runner.runOneTest("test_polymorphic_expr_2b") }
+  //  @Test def test_polymorphic_expr_3() { runner.runOneTest("test_polymorphic_expr_3") }
+  //  @Test def test_polymorphic_expr_4() { runner.runOneTest("test_polymorphic_expr_4") }
+  //  @Test def test_polymorphic_expr_5() { runner.runOneTest("test_polymorphic_expr_5") }
+  //  @Test def test_polymorphic_expr_6() { runner.runOneTest("test_polymorphic_expr_6") }
 
   // DAFFODIL-2182
   // @Test def test_array_self_expr1() { runner.runOneTest("test_array_self_expr1") }

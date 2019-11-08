@@ -75,7 +75,7 @@ trait PrefixedLengthParserMixin {
 
     // create a "detached" element that the prefix length will be parsed to.
     // This temporarily removes to infoset.
-    val plElement = Infoset.newElement(prefixedLengthERD, state.tunable).asInstanceOf[DISimple]
+    val plElement = Infoset.newElement(prefixedLengthERD).asInstanceOf[DISimple]
     state.infoset = plElement
 
     val parsedLen: JLong = try {

@@ -300,7 +300,12 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
   def unparse(inputter: InfosetInputter, output: DFDL.Output): DFDL.UnparseResult = {
     Assert.usage(!this.isError)
     val outStream = java.nio.channels.Channels.newOutputStream(output)
+    unparse(inputter, outStream)
+  }
+
+  def unparse(inputter: InfosetInputter, outStream: java.io.OutputStream) = {
     val out = DirectOrBufferedDataOutputStream(outStream, null) // null means no other stream created this one.
+    inputter.initialize(ssrd.elementRuntimeData, getTunables())
     val unparserState =
       UState.createInitialUState(
         out,
@@ -312,7 +317,6 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
         addEventHandler(debugger)
         unparserState.notifyDebugging(true)
       }
-      inputter.initialize(ssrd.elementRuntimeData, unparserState.tunable)
       unparserState.dataProc.get.init(ssrd.unparser)
       out.setPriorBitOrder(ssrd.elementRuntimeData.defaultBitOrder)
       doUnparse(unparserState)
@@ -366,8 +370,15 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
 
   private def doUnparse(state: UState): Unit = {
     val rootUnparser = ssrd.unparser
-    // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
+
+    Assert.invariant {
+      // rootERD is pushed when the state is constructed and initialized.
+      val mtrd = state.maybeTopTRD()
+      mtrd.isDefined &&
+        (mtrd.get eq rootUnparser.context)
+    }
     rootUnparser.unparse1(state)
+    state.popTRD(rootUnparser.context.asInstanceOf[TermRuntimeData])
 
     // Restore invariant that there is always a processor.
     // Later when suspensions get evaluated, there are still times when
@@ -380,12 +391,14 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
     //
     state.setProcessor(rootUnparser)
 
-    /* Verify that all stacks are empty */
+    // Verify that all stacks are empty
     Assert.invariant(state.arrayIndexStack.length == 1)
     Assert.invariant(state.groupIndexStack.length == 1)
     Assert.invariant(state.childIndexStack.length == 1)
     Assert.invariant(state.currentInfosetNodeMaybe.isEmpty)
     Assert.invariant(state.escapeSchemeEVCache.isEmpty)
+    Assert.invariant(state.maybeTopTRD().isEmpty) // dynamic TRD stack is empty
+
     //
     // All the DOS that precede the last one
     // will get setFinished by the suspension that created them. The last one after the

@@ -61,7 +61,7 @@ sealed trait DINode {
     this match {
       case diSimple: DISimple => diSimple
       case _ => {
-        throw new InfosetWrongNodeType("simpleType", this) // see comment with exception class definition for why this can happen
+        erd.toss(new InfosetWrongNodeType("simpleType", this)) // see comment with exception class definition for why this can happen
       }
     }
   }
@@ -71,11 +71,15 @@ sealed trait DINode {
     this match {
       case diComplex: DIComplex => diComplex
       case _ => {
-        throw new InfosetWrongNodeType("complexType", this) // see comment with exception class definition for why this can happen
+        erd.toss(new InfosetWrongNodeType("complexType", this)) // see comment with exception class definition for why this can happen
       }
     }
   }
   def isComplex: Boolean
+
+  def asElement: DIElement =
+    if (isSimple) asSimple
+    else asComplex
 
   def isDefaulted: Boolean
 
@@ -554,7 +558,7 @@ class ContentLengthState(ie: DIElement) extends LengthState(ie) {
 
   override def throwUnknown = {
     Assert.invariant(ie ne null)
-    throw new InfosetContentLengthUnknownException(this, ie, ie.runtimeData)
+    ie.erd.toss(new InfosetContentLengthUnknownException(this, ie, ie.runtimeData))
   }
 
 }
@@ -565,7 +569,7 @@ class ValueLengthState(ie: DIElement) extends LengthState(ie) {
 
   override def throwUnknown = {
     Assert.invariant(ie ne null)
-    throw new InfosetValueLengthUnknownException(this, ie, ie.runtimeData)
+    ie.erd.toss(new InfosetValueLengthUnknownException(this, ie, ie.runtimeData))
   }
 
 }
@@ -844,17 +848,17 @@ sealed trait DIElement
     else {
       parent match {
         case null =>
-          throw new InfosetNoRootException(orig, erd)
+          orig.erd.toss(new InfosetNoRootException(orig, erd))
         case elt: DIElement => elt.toRootDoc1(orig)
         case _ =>
-          throw new InfosetNoRootException(orig, erd)
+          orig.erd.toss(new InfosetNoRootException(orig, erd))
       }
     }
   }
 
   def toParent = {
     if (parent eq null)
-      throw new InfosetNoParentException(this, erd)
+      erd.toss(new InfosetNoParentException(this, erd))
     diParent
   }
 
@@ -993,9 +997,9 @@ final class DIArray(
    */
   def getOccurrence(occursIndex1b: Long) = {
     if (occursIndex1b < 1)
-      throw new InfosetFatalArrayIndexOutOfBoundsException(this, occursIndex1b, length) // no blocking.
+      erd.toss(new InfosetFatalArrayIndexOutOfBoundsException(this, occursIndex1b, length)) // no blocking.
     if (occursIndex1b > length)
-      throw new InfosetArrayIndexOutOfBoundsException(this, occursIndex1b, length) // can be retried after blocking.
+      erd.toss(new InfosetArrayIndexOutOfBoundsException(this, occursIndex1b, length)) // can be retried after blocking.
     _contents(occursIndex1b.toInt - 1)
   }
 
@@ -1008,7 +1012,7 @@ final class DIArray(
 
   def concat(array: DIArray) = {
     val newContents = array.contents
-    newContents.foreach( ie => {
+    newContents.foreach(ie => {
       ie.asInstanceOf[InfosetElement].setArray(this)
       append(ie.asInstanceOf[InfosetElement])
     })
@@ -1173,7 +1177,7 @@ sealed class DISimple(override val erd: ElementRuntimeData)
     else if (_isNilledSet) {
       _isNilled
     } else {
-      throw new InfosetNoDataException(this, erd)
+      erd.toss(InfosetNoDataException(this, erd))
     }
   }
 
@@ -1218,7 +1222,7 @@ sealed class DISimple(override val erd: ElementRuntimeData)
         }
         _isDefaulted = true
       } else {
-        throw new InfosetNoDataException(this, erd)
+        erd.toss(new InfosetNoDataException(this, erd))
       }
     if (_value == null) {
       this.erd.schemaDefinitionError("Value has not been set.")
@@ -1345,12 +1349,14 @@ sealed trait DIFinalizable {
  * One[DIArray] means the slot is for a recurring element which can have 2+ instances.
  * The DIArray object's length gives the number of occurrences.
  */
-sealed class DIComplex(override val erd: ElementRuntimeData, val tunable: DaffodilTunables)
+sealed class DIComplex(override val erd: ElementRuntimeData)
   extends DIElement
   with DIComplexSharedImplMixin
   with InfosetComplexElement
   with DIFinalizable // with HasModelGroupMixin
   { diComplex =>
+
+  def tunable: DaffodilTunables = toRootDoc.tunable
 
   final override def isSimple = false
   final override def isComplex = true
@@ -1384,7 +1390,7 @@ sealed class DIComplex(override val erd: ElementRuntimeData, val tunable: Daffod
       // TODO: should we check that there are no children?
       false
     } else {
-      throw new InfosetNoDataException(this, erd)
+      erd.toss(new InfosetNoDataException(this, erd))
     }
   }
 
@@ -1423,7 +1429,7 @@ sealed class DIComplex(override val erd: ElementRuntimeData, val tunable: Daffod
     if (maybeNode.isDefined)
       maybeNode.get.asInstanceOf[InfosetElement]
     else
-      throw new InfosetNoSuchChildElementException(this, nqn)
+      erd.toss(new InfosetNoSuchChildElementException(this, nqn))
   }
 
   final def getChildArray(childERD: ElementRuntimeData): InfosetArray = {
@@ -1437,7 +1443,7 @@ sealed class DIComplex(override val erd: ElementRuntimeData, val tunable: Daffod
     if (maybeNode.isDefined) {
       maybeNode.get.asInstanceOf[InfosetArray]
     } else {
-      throw new InfosetNoSuchChildElementException(this, nqn)
+      erd.toss(new InfosetNoSuchChildElementException(this, nqn))
     }
   }
 
@@ -1463,7 +1469,7 @@ sealed class DIComplex(override val erd: ElementRuntimeData, val tunable: Daffod
         // Flatten multiple DIArrays into the first one
         if (erd.isArray) {
           val a = nodes(0).asInstanceOf[DIArray]
-          nodes.tail.foreach( b => a.concat(b.asInstanceOf[DIArray]))
+          nodes.tail.foreach(b => a.concat(b.asInstanceOf[DIArray]))
           nodes.reduceToSize(1)
 
           // Need to also remove duplicates from fastLookup
@@ -1636,8 +1642,10 @@ sealed class DIComplex(override val erd: ElementRuntimeData, val tunable: Daffod
  * Making this extend DIComplex eliminates a bunch of boundary
  * conditions having to do with the document root element.
  */
-final class DIDocument(erd: ElementRuntimeData, tunable: DaffodilTunables)
-  extends DIComplex(erd, tunable)
+final class DIDocument(
+  erd: ElementRuntimeData,
+  override val tunable: DaffodilTunables)
+  extends DIComplex(erd)
   with InfosetDocument {
   var root: DIElement = null
 
@@ -1686,9 +1694,9 @@ final class DIDocument(erd: ElementRuntimeData, tunable: DaffodilTunables)
 
 object Infoset {
 
-  def newElement(erd: ElementRuntimeData, tunable: DaffodilTunables): InfosetElement = {
+  def newElement(erd: ElementRuntimeData): InfosetElement = {
     if (erd.isSimpleType) new DISimple(erd)
-    else new DIComplex(erd, tunable)
+    else new DIComplex(erd)
   }
 
   def newDocument(erd: ElementRuntimeData, tunable: DaffodilTunables): InfosetDocument = {

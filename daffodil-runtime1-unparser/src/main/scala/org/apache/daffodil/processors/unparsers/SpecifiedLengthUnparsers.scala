@@ -335,7 +335,7 @@ trait KnownPrefixedLengthUnparserMixin {
     val adjustedLenInUnits = lenInUnits + prefixedLengthAdjustmentInUnits
 
     // create a "detached" element that the prefix length will be parsed to.
-    val plElement = Infoset.newElement(prefixedLengthERD, state.tunable).asInstanceOf[DISimple]
+    val plElement = Infoset.newElement(prefixedLengthERD).asInstanceOf[DISimple]
     plElement.setDataValue(java.lang.Integer.valueOf(adjustedLenInUnits.toInt))
 
     // unparse the prefixed length element
@@ -391,7 +391,7 @@ class SpecifiedLengthPrefixedUnparser(
 
   override def unparse(state: UState): Unit = {
     // create a "detached" element that the prefix length will be used to unparse
-    val plElem = Infoset.newElement(prefixedLengthERD, state.tunable).asInstanceOf[DISimple]
+    val plElem = Infoset.newElement(prefixedLengthERD).asInstanceOf[DISimple]
 
     // The prefixedLengthUnparser is going to end up creating a suspension
     // because plElem does not have a value yet. We will temporary push the

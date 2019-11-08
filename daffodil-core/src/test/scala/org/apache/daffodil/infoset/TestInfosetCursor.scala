@@ -25,18 +25,49 @@ import org.apache.daffodil.equality._
 import org.apache.daffodil.util.SchemaUtils
 import org.apache.daffodil.processors.DataProcessor
 import org.apache.daffodil.compiler.Compiler
+import org.apache.daffodil.processors.SequenceRuntimeData
+import org.apache.daffodil.processors.ChoiceRuntimeData
+
+import InfosetEventKind._
+import org.apache.daffodil.processors.ElementRuntimeData
 
 /**
  * Lets us pattern deconstruct infoset events, which is nice for unit testing
  */
 object Start {
-  def apply(node: DINode) = InfosetAccessor(StartKind, node, node.erd)
-  def unapply(ev: InfosetAccessor) = if (ev.kind eq StartKind) Some(ev.node) else None
+  def unapply(ev: InfosetAccessor) = if (ev.kind.isInstanceOf[StartKind]) Some(ev.info.element) else None
 }
 
 object End {
-  def apply(node: DINode) = InfosetAccessor(EndKind, node, node.erd)
-  def unapply(ev: InfosetAccessor) = if (ev.kind eq EndKind) Some(ev.node) else None
+  def unapply(ev: InfosetAccessor) = if (ev.kind.isInstanceOf[EndKind]) Some(ev.info.element) else None
+}
+
+object StartElement {
+  def apply(node: DIElement) = InfosetAccessor(InfosetEventKind.StartElement, node)
+  def unapply(ev: InfosetAccessor) = if (ev.kind eq InfosetEventKind.StartElement) Some(ev.info.element) else None
+}
+
+object EndElement {
+  def apply(node: DIElement) = InfosetAccessor(InfosetEventKind.EndElement, node)
+  def unapply(ev: InfosetAccessor) = if (ev.kind eq InfosetEventKind.EndElement) Some(ev.info.element) else None
+}
+
+object StartArray {
+  def apply(arrayERD: ElementRuntimeData) = InfosetAccessor(InfosetEventKind.StartArray, arrayERD)
+  def unapply(ev: InfosetAccessor) =
+    if (ev.kind eq InfosetEventKind.StartArray) {
+      assertTrue(ev.erd.isArray)
+      Some(ev.info.arrayERD)
+    } else None
+}
+
+object EndArray {
+  def apply(arrayERD: ElementRuntimeData) = InfosetAccessor(InfosetEventKind.EndArray, arrayERD)
+  def unapply(ev: InfosetAccessor) =
+    if (ev.kind eq InfosetEventKind.EndArray) {
+      assertTrue(ev.erd.isArray)
+      Some(ev.info.arrayERD)
+    } else None
 }
 
 class TestInfosetInputter {
@@ -61,7 +92,7 @@ class TestInfosetInputter {
     val rootERD = u.ssrd.elementRuntimeData
     val infosetInputter = new ScalaXMLInfosetInputter(infosetXML)
     infosetInputter.initialize(rootERD, u.getTunables())
-    infosetInputter
+    (infosetInputter, rootERD)
   }
 
   @Test def testInfosetInputterFromSimpleValue1() {
@@ -70,7 +101,7 @@ class TestInfosetInputter {
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="foo" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string"/>)
     val infosetXML = <foo xmlns={ XMLUtils.EXAMPLE_NAMESPACE }>Hello</foo>
-    val ic = infosetInputter(sch, infosetXML)
+    val (ic, rootERD) = infosetInputter(sch, infosetXML)
 
     val aacc: InfosetAccessor = ic.advanceAccessor
     val iicc: InfosetAccessor = ic.inspectAccessor
@@ -97,7 +128,7 @@ class TestInfosetInputter {
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element nillable="true" dfdl:nilValue="nil" dfdl:nilKind="literalValue" name="foo" dfdl:lengthKind="explicit" dfdl:length="3" type="xs:string"/>)
     val infosetXML = <foo xsi:nil="true" xmlns={ XMLUtils.EXAMPLE_NAMESPACE } xmlns:xsi={ XMLUtils.XSI_NAMESPACE }/>
-    val ic = infosetInputter(sch, infosetXML)
+    val (ic, rootERD) = infosetInputter(sch, infosetXML)
 
     val aacc = ic.advanceAccessor
     val iicc: InfosetAccessor = ic.inspectAccessor
@@ -131,14 +162,19 @@ class TestInfosetInputter {
       </xs:element>)
     val infosetXML = <bar xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><foo>Hello</foo></bar>
 
-    val ic = infosetInputter(sch, infosetXML)
+    val (ic, rootERD) = infosetInputter(sch, infosetXML)
 
     val aacc = ic.advanceAccessor
     val iacc = ic.inspectAccessor
 
+    val barERD = rootERD
+    val Some(barSeqTRD) = barERD.optComplexTypeModelGroupRuntimeData
+    val Seq(fooERD) = barERD.childERDs
+    ic.pushTRD(barERD)
     assertTrue(ic.advance)
     val Start(bar: DIComplex) = aacc
-
+    ic.pushTRD(barSeqTRD)
+    ic.pushTRD(fooERD)
     assertTrue(ic.advance)
     val Start(foo: DISimple) = aacc
     assertEquals("Hello", foo.dataValue)
@@ -151,6 +187,7 @@ class TestInfosetInputter {
     val End(eFoo: DISimple) = aacc
     assertTrue(foo eq eFoo)
 
+    ic.popTRD()
     assertTrue(ic.inspect)
     val End(ibar: DIComplex) = iacc
     assertTrue(bar eq ibar)
@@ -158,7 +195,8 @@ class TestInfosetInputter {
     assertTrue(ic.advance)
     val End(bar_e: DIComplex) = aacc
     assertTrue(bar eq bar_e)
-
+    ic.popTRD()
+    ic.popTRD()
     assertFalse(ic.inspect)
     assertFalse(ic.advance)
   }
@@ -176,14 +214,26 @@ class TestInfosetInputter {
         </xs:complexType>
       </xs:element>)
     val infosetXML = <bar xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><foo>Hello</foo><baz>World</baz></bar>
-    val ic = infosetInputter(sch, infosetXML)
+    val (ic, rootERD) = infosetInputter(sch, infosetXML)
     val aacc = ic.advanceAccessor
     val Start(bar_s: DIComplex) = { assertTrue(ic.advance); aacc }
+    val barERD = bar_s.erd
+    val Some(barSeqTRD) = barERD.optComplexTypeModelGroupRuntimeData
+    val Seq(fooERD, bazERD) = barERD.childERDs
+
+    ic.pushTRD(barSeqTRD)
+    ic.pushTRD(fooERD)
     val Start(foo_s: DISimple) = { assertTrue(ic.advance); aacc }
     val End(foo_e: DISimple) = { assertTrue(ic.advance); aacc }
+    ic.popTRD()
+    ic.pushTRD(bazERD)
     val Start(baz_s: DISimple) = { assertTrue(ic.advance); aacc }
-    val End(baz_e: DISimple) = { assertTrue(ic.advance); aacc }; assertNotNull(baz_e)
+    val End(baz_e: DISimple) = { assertTrue(ic.advance); aacc };
+    assertNotNull(baz_e)
+    ic.popTRD()
     val End(bar_e: DIComplex) = { assertTrue(ic.advance); aacc }
+    ic.popTRD()
+    ic.popTRD()
     assertFalse(ic.inspect)
     assertTrue(bar_s eq bar_e) // exact same object
     assertTrue(foo_s eq foo_e)
@@ -223,21 +273,44 @@ class TestInfosetInputter {
                        <bar1><foo1>Hello</foo1><baz1>World</baz1></bar1>
                        <bar2><foo2>Hello</foo2><baz2>World</baz2></bar2>
                      </quux>
-    val ic = infosetInputter(sch, infosetXML)
+    val (ic, rootERD) = infosetInputter(sch, infosetXML)
     val aacc = ic.advanceAccessor
     val Start(quux_s: DIComplex) = { assertTrue(ic.advance); aacc }
+    val quuxERD = quux_s.erd
+    val Some(quuxSeqTRD: SequenceRuntimeData) = quuxERD.optComplexTypeModelGroupRuntimeData
+    val Seq(bar1ERD, bar2ERD) = quuxERD.childERDs
+    val Some(bar1SeqTRD: SequenceRuntimeData) = bar1ERD.optComplexTypeModelGroupRuntimeData
+    val Some(bar2SeqTRD: SequenceRuntimeData) = bar2ERD.optComplexTypeModelGroupRuntimeData
+    val Seq(foo1ERD, baz1ERD) = bar1ERD.childERDs
+    val Seq(foo2ERD, baz2ERD) = bar2ERD.childERDs
+    ic.pushTRD(quuxSeqTRD)
+    ic.pushTRD(bar1ERD)
     val Start(bar1_s: DIComplex) = { assertTrue(ic.advance); aacc }
+    ic.pushTRD(bar1SeqTRD)
+    ic.pushTRD(foo1ERD)
     val Start(foo1_s: DISimple) = { assertTrue(ic.advance); aacc }
     val End(foo1_e: DISimple) = { assertTrue(ic.advance); aacc }
+    ic.popTRD()
+    ic.pushTRD(baz1ERD)
     val Start(baz1_s: DISimple) = { assertTrue(ic.advance); aacc }
     val End(baz1_e: DISimple) = { assertTrue(ic.advance); aacc }; assertNotNull(baz1_e)
+    ic.popTRD()
+    ic.popTRD()
     val End(bar1_e: DIComplex) = { assertTrue(ic.advance); aacc }
+    ic.pushTRD(bar2ERD)
     val Start(bar2_s: DIComplex) = { assertTrue(ic.advance); aacc }
+    ic.pushTRD(bar2SeqTRD)
+    ic.pushTRD(foo2ERD)
     val Start(foo2_s: DISimple) = { assertTrue(ic.advance); aacc }
     val End(foo2_e: DISimple) = { assertTrue(ic.advance); aacc }
+    ic.popTRD()
+    ic.pushTRD(baz2ERD)
     val Start(baz2_s: DISimple) = { assertTrue(ic.advance); aacc }
     val End(baz2_e: DISimple) = { assertTrue(ic.advance); aacc }; assertNotNull(baz2_e)
+    ic.popTRD()
+    ic.popTRD()
     val End(bar2_e: DIComplex) = { assertTrue(ic.advance); aacc }
+    ic.popTRD()
     val End(quux_e: DIComplex) = { assertTrue(ic.advance); aacc }
     assertFalse(ic.inspect)
     assertTrue(bar1_s eq bar1_e) // exact same object
@@ -267,16 +340,25 @@ class TestInfosetInputter {
         </xs:complexType>
       </xs:element>)
     val infosetXML = <bar xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><foo>Hello</foo><foo>World</foo></bar>
-    val ic = infosetInputter(sch, infosetXML)
+    val (ic, rootERD) = infosetInputter(sch, infosetXML)
     val aacc = ic.advanceAccessor
+    val barERD = rootERD
+    val Some(barSeqTRD: SequenceRuntimeData) = barERD.optComplexTypeModelGroupRuntimeData
+    val Seq(fooERD) = barERD.childERDs
+    ic.pushTRD(barERD)
     val Start(bar_s: DIComplex) = { assertTrue(ic.advance); aacc }
-    val Start(foo_arr_s: DIArray) = { assertTrue(ic.advance); aacc }
+    ic.pushTRD(barSeqTRD)
+    ic.pushTRD(fooERD)
+    val StartArray(foo_arr_s) = { assertTrue(ic.advance); aacc }
     val Start(foo_1_s: DISimple) = { assertTrue(ic.advance); aacc }
     val End(foo_1_e: DISimple) = { assertTrue(ic.advance); aacc }
     val Start(foo_2_s: DISimple) = { assertTrue(ic.advance); aacc }
     val End(foo_2_e: DISimple) = { assertTrue(ic.advance); aacc }
-    val End(foo_arr_e: DIArray) = { assertTrue(ic.advance); aacc }
+    val EndArray(foo_arr_e) = { assertTrue(ic.advance); aacc }
+    ic.popTRD()
     val End(bar_e: DIComplex) = { assertTrue(ic.advance); aacc }
+    ic.popTRD()
+    ic.popTRD()
     assertFalse(ic.inspect)
     assertTrue(bar_s eq bar_e) // exact same object
     assertTrue(foo_arr_s eq foo_arr_e)
@@ -301,19 +383,28 @@ class TestInfosetInputter {
         </xs:complexType>
       </xs:element>)
     val infosetXML = <bar xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><foo>Hello</foo><foo>World</foo><baz>Yadda</baz></bar>
-    val ic = infosetInputter(sch, infosetXML)
+    val (ic, rootERD) = infosetInputter(sch, infosetXML)
     val aacc = ic.advanceAccessor
     val Start(bar_s: DIComplex) = { assertTrue(ic.advance); aacc }
-    val Start(foo_arr_s: DIArray) = { assertTrue(ic.advance); aacc }
+    val barERD = bar_s.erd
+    val Some(barSeqTRD: SequenceRuntimeData) = barERD.optComplexTypeModelGroupRuntimeData
+    val Seq(fooERD, bazERD) = barERD.childERDs
+    ic.pushTRD(barSeqTRD)
+    ic.pushTRD(fooERD)
+    val StartArray(foo_arr_s) = { assertTrue(ic.advance); aacc }
     val Start(foo_1_s: DISimple) = { assertTrue(ic.advance); aacc }
     val End(foo_1_e: DISimple) = { assertTrue(ic.advance); aacc }
     val Start(foo_2_s: DISimple) = { assertTrue(ic.advance); aacc }
     val End(foo_2_e: DISimple) = { assertTrue(ic.advance); aacc }
-    val End(foo_arr_e: DIArray) = { assertTrue(ic.advance); aacc }
+    val EndArray(foo_arr_e) = { assertTrue(ic.advance); aacc }
+    ic.popTRD()
+    ic.pushTRD(bazERD)
     val Start(baz_s: DISimple) = { assertTrue(ic.advance); aacc }
     val End(baz_e: DISimple) = { assertTrue(ic.advance); aacc }
     assertNotNull(baz_e)
     val End(bar_e: DIComplex) = { assertTrue(ic.advance); aacc }
+    ic.popTRD()
+    ic.popTRD()
     assertFalse(ic.inspect)
     assertTrue(bar_s eq bar_e) // exact same object
     assertTrue(foo_arr_s eq foo_arr_e)
@@ -340,20 +431,30 @@ class TestInfosetInputter {
         </xs:complexType>
       </xs:element>)
     val infosetXML = <bar xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><baz>Yadda</baz><foo>Hello</foo><foo>World</foo></bar>
-    val ic = infosetInputter(sch, infosetXML)
+    val (ic, rootERD) = infosetInputter(sch, infosetXML)
     val aacc = ic.advanceAccessor
+    val barERD = rootERD
+    val Some(barSeqTRD: SequenceRuntimeData) = barERD.optComplexTypeModelGroupRuntimeData
+    ic.pushTRD(barERD)
     val Start(bar_s: DIComplex) = { assertTrue(ic.advance); aacc }
+    val Seq(bazERD, fooERD) = barERD.childERDs
+    ic.pushTRD(barSeqTRD)
+    ic.pushTRD(bazERD)
     val Start(baz_s: DISimple) = { assertTrue(ic.advance); aacc }
     val End(baz_e: DISimple) = { assertTrue(ic.advance); aacc }
     assertNotNull(baz_e)
-    val Start(foo_arr_s: DIArray) = { assertTrue(ic.advance); aacc }
+    ic.popTRD()
+    ic.pushTRD(fooERD)
+    val StartArray(foo_arr_s) = { assertTrue(ic.advance); aacc }
     val Start(foo_1_s: DISimple) = { assertTrue(ic.advance); aacc }
     val End(foo_1_e: DISimple) = { assertTrue(ic.advance); aacc }
     val Start(foo_2_s: DISimple) = { assertTrue(ic.advance); aacc }
     val End(foo_2_e: DISimple) = { assertTrue(ic.advance); aacc }
-    val End(foo_arr_e: DIArray) = { assertTrue(ic.advance); aacc }
-
+    val EndArray(foo_arr_e) = { assertTrue(ic.advance); aacc }
+    ic.popTRD()
     val End(bar_e: DIComplex) = { assertTrue(ic.advance); aacc }
+    ic.popTRD()
+    ic.popTRD()
     assertFalse(ic.inspect)
     assertTrue(bar_s eq bar_e) // exact same object
     assertTrue(foo_arr_s eq foo_arr_e)
@@ -380,21 +481,32 @@ class TestInfosetInputter {
         </xs:complexType>
       </xs:element>)
     val infosetXML = <bar xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><baz>Yadda</baz><foo>Hello</foo><foo>World</foo></bar>
-    val ic = infosetInputter(sch, infosetXML)
+    val (ic, rootERD) = infosetInputter(sch, infosetXML)
     val aacc = ic.advanceAccessor
+    val barERD = rootERD
+    val Some(barSeqTRD: SequenceRuntimeData) = barERD.optComplexTypeModelGroupRuntimeData
+    val Seq(bazERD, fooERD) = barERD.childERDs
+    ic.pushTRD(barERD)
     val Start(bar_s: DIComplex) = { assertTrue(ic.advance); aacc }
-    val Start(baz_arr_s: DIArray) = { assertTrue(ic.advance); aacc }
+    ic.pushTRD(barSeqTRD)
+    ic.pushTRD(bazERD)
+    val StartArray(baz_arr_s) = { assertTrue(ic.advance); aacc }
     val Start(baz_s: DISimple) = { assertTrue(ic.advance); aacc }
     val End(baz_e: DISimple) = { assertTrue(ic.advance); aacc }
     assertNotNull(baz_e)
-    val End(baz_arr_e: DIArray) = { assertTrue(ic.advance); aacc }
-    val Start(foo_arr_s: DIArray) = { assertTrue(ic.advance); aacc }
+    val EndArray(baz_arr_e) = { assertTrue(ic.advance); aacc }
+    ic.popTRD()
+    ic.pushTRD(fooERD)
+    val StartArray(foo_arr_s) = { assertTrue(ic.advance); aacc }
     val Start(foo_1_s: DISimple) = { assertTrue(ic.advance); aacc }
     val End(foo_1_e: DISimple) = { assertTrue(ic.advance); aacc }
     val Start(foo_2_s: DISimple) = { assertTrue(ic.advance); aacc }
     val End(foo_2_e: DISimple) = { assertTrue(ic.advance); aacc }
-    val End(foo_arr_e: DIArray) = { assertTrue(ic.advance); aacc }
+    val EndArray(foo_arr_e) = { assertTrue(ic.advance); aacc }
+    ic.popTRD()
     val End(bar_e: DIComplex) = { assertTrue(ic.advance); aacc }
+    ic.popTRD()
+    ic.popTRD()
     assertFalse(ic.inspect)
     assertTrue(bar_s eq bar_e) // exact same object
     assertTrue(foo_arr_s eq foo_arr_e)
@@ -421,18 +533,27 @@ class TestInfosetInputter {
         </xs:complexType>
       </xs:element>)
     val infosetXML = <bar xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><foo>Hello</foo></bar>
-    val ic = infosetInputter(sch, infosetXML)
+    val (ic, rootERD) = infosetInputter(sch, infosetXML)
     val aacc = ic.advanceAccessor
     val iacc = ic.inspectAccessor
+    val barERD = rootERD
+    val Some(barSeqTRD: SequenceRuntimeData) = barERD.optComplexTypeModelGroupRuntimeData
+    val Seq(fooERD) = barERD.childERDs
+    ic.pushTRD(barERD)
     val Start(bar_s1: DIComplex) = { assertTrue(ic.inspect); iacc }
     val Start(bar_s2: DIComplex) = { assertTrue(ic.inspect); iacc }
     val Start(bar_s3: DIComplex) = { assertTrue(ic.advance); aacc }
+    ic.pushTRD(barSeqTRD)
+    ic.pushTRD(fooERD)
     val Start(foo_s1: DISimple) = { assertTrue(ic.inspect); iacc }
     val Start(foo_s2: DISimple) = { assertTrue(ic.advance); aacc }
     val End(foo_e: DISimple) = { assertTrue(ic.advance); aacc }
     val End(bar_e1: DIComplex) = { assertTrue(ic.inspect); iacc }
     assertTrue(ic.inspect)
+    ic.popTRD()
     val End(bar_e2: DIComplex) = { assertTrue(ic.advance); aacc }
+    ic.popTRD()
+    ic.popTRD()
     assertFalse(ic.inspect)
     assertTrue(bar_s1 eq bar_s2)
     assertTrue(bar_s2 eq bar_s3)
@@ -463,20 +584,33 @@ class TestInfosetInputter {
         </xs:complexType>
       </xs:element>)
     val infosetXML = <e xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><s><c1>Hello</c1></s><s><c2>World</c2></s></e>
-    val ic = infosetInputter(sch, infosetXML)
+    val (ic, rootERD) = infosetInputter(sch, infosetXML)
     val aacc = ic.advanceAccessor
     val Start(e: DIComplex) = { assertTrue(ic.advance); aacc }
-    val Start(as: DIArray) = { assertTrue(ic.advance); aacc }
+    val eERD = e.erd
+    val Some(eSeqTRD: SequenceRuntimeData) = eERD.optComplexTypeModelGroupRuntimeData
+    val Seq(sERD) = eERD.childERDs
+    val Some(sChoTRD: ChoiceRuntimeData) = sERD.optComplexTypeModelGroupRuntimeData
+    val Seq(c1ERD, c2ERD) = sERD.childERDs
+    ic.pushTRD(eSeqTRD)
+    ic.pushTRD(sERD)
+    val StartArray(as) = { assertTrue(ic.advance); aacc }
     val Start(s1: DIComplex) = { assertTrue(ic.advance); aacc }; assertNotNull(s1)
+    ic.pushTRD(sChoTRD)
     val Start(c1: DISimple) = { assertTrue(ic.advance); aacc }
     val End(c1e: DISimple) = { assertTrue(ic.advance); aacc }; assertNotNull(c1e)
     val End(s1e: DIComplex) = { assertTrue(ic.advance); aacc }; assertNotNull(s1e)
+    ic.popTRD()
     val Start(s2: DIComplex) = { assertTrue(ic.advance); aacc }; assertNotNull(s2)
+    ic.pushTRD(sChoTRD)
     val Start(c2: DISimple) = { assertTrue(ic.advance); aacc }
     val End(c2e: DISimple) = { assertTrue(ic.advance); aacc }; ; assertNotNull(c2e)
     val End(s2e: DIComplex) = { assertTrue(ic.advance); aacc }; assertNotNull(s2e)
-    val End(ase: DIArray) = { assertTrue(ic.advance); aacc }
+    ic.popTRD()
+    val EndArray(ase) = { assertTrue(ic.advance); aacc }
     val End(ee: DIComplex) = { assertTrue(ic.advance); aacc }
+    ic.popTRD()
+    ic.popTRD()
     assertFalse(ic.inspect)
     assertTrue(as eq ase) // exact same object
     assertTrue(e eq ee)

@@ -21,7 +21,8 @@ import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.util.Maybe
 
-case class SimpleNilOrValueUnparser(ctxt: ElementRuntimeData,
+case class SimpleNilOrValueUnparser(
+  ctxt: ElementRuntimeData,
   nilUnparser: Unparser, valueUnparser: Unparser) extends CombinatorUnparser(ctxt) {
 
   override lazy val runtimeDependencies = Vector()
@@ -43,7 +44,8 @@ case class SimpleNilOrValueUnparser(ctxt: ElementRuntimeData,
   }
 }
 
-case class ComplexNilOrContentUnparser(ctxt: ElementRuntimeData,
+case class ComplexNilOrContentUnparser(
+  ctxt: ElementRuntimeData,
   nilUnparser: Unparser, contentUnparser: Unparser) extends CombinatorUnparser(ctxt) {
 
   override lazy val runtimeDependencies = Vector()
@@ -53,7 +55,10 @@ case class ComplexNilOrContentUnparser(ctxt: ElementRuntimeData,
   def unparse(state: UState): Unit = {
     Assert.invariant(Maybe.WithNulls.isDefined(state.currentInfosetNode))
     val inode = state.currentInfosetNode.asComplex
-    if (inode.isNilled) nilUnparser.unparse1(state)
-    else contentUnparser.unparse1(state)
+    val maybeIsNilled = inode.maybeIsNilled
+    if (maybeIsNilled.isDefined && maybeIsNilled.get)
+      nilUnparser.unparse1(state)
+    else
+      contentUnparser.unparse1(state)
   }
 }

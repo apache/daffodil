@@ -852,7 +852,7 @@ public class TestJavaAPI {
         assertEquals(1, diags.size());
         Diagnostic d = diags.get(0);
         assertTrue(d.getMessage().contains("wrong"));
-        assertTrue(d.getMessage().contains("e1"));
+        assertTrue(d.getMessage().contains("e2"));
 
         // reset the global logging state
         Daffodil.setLogWriter(new ConsoleLogWriter());

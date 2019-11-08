@@ -81,6 +81,7 @@ class OrderedUnseparatedSequenceUnparser(rd: SequenceRuntimeData, childUnparsers
     while (index < limit) {
       val childUnparser = childUnparsers(index)
       val trd = childUnparser.trd
+      state.pushTRD(trd) // because we inspect before we invoke the unparser
 
       //
       // Unparsing an ordered sequence depends on the incoming
@@ -109,8 +110,8 @@ class OrderedUnseparatedSequenceUnparser(rd: SequenceRuntimeData, childUnparsers
             val ev = state.inspectAccessor
             val isArr = ev.isArray
             if (ev.isStart && (isArr || ev.erd.isOptional)) {
-              val eventNQN = ev.node.namedQName
-              if (eventNQN =:= erd.namedQName) {
+              val eventNQN = ev.namedQName
+              if (ev.erd eq erd) {
                 //
                 // StartArray for this unparser's array element
                 //
@@ -150,16 +151,17 @@ class OrderedUnseparatedSequenceUnparser(rd: SequenceRuntimeData, childUnparsers
               // start of scalar.
               // That has to be for a different element later in the sequence
               // since this one has a RepUnparser (i.e., is NOT scalar)
-              val eventNQN = ev.node.namedQName
+              val eventNQN = ev.namedQName
               Assert.invariant(eventNQN != erd.namedQName)
             } else {
-              Assert.invariant(ev.isEnd && ev.isComplex)
+              Assert.invariant(ev.isEnd && ev.erd.isComplexType)
               unparser.checkFinalOccursCountBetweenMinAndMaxOccurs(state, unparser, numOccurrences, maxReps, 0)
             }
           } else {
             // no event (state.inspect returned false)
             Assert.invariantFailed("No event for unparing.")
           }
+
           state.arrayIndexStack.pop()
         }
         //
@@ -173,6 +175,8 @@ class OrderedUnseparatedSequenceUnparser(rd: SequenceRuntimeData, childUnparsers
           }
         }
       }
+
+      state.popTRD(trd)
       index += 1
       //
       // Note: the invariant is that unparsers move over 1 within their group themselves
