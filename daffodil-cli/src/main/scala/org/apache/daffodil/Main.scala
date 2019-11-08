@@ -621,7 +621,7 @@ object Main extends Logging {
         extVarBindingNodeOpt match {
           case None => Seq.empty
           case Some(extVarBindingsNode) => {
-            ExternalVariablesLoader.getVariables(extVarBindingsNode, tunables)
+            ExternalVariablesLoader.getVariables(extVarBindingsNode)
           }
         }
       }

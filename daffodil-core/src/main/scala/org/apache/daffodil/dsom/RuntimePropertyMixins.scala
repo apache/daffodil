@@ -109,7 +109,7 @@ trait TermRuntimeValuedPropertiesMixin
 
   final lazy val encodingEv = {
     val ev = new EncodingEv(encodingExpr, termRuntimeData)
-    ev.compile()
+    ev.compile(tunable)
     ev
   }
 
@@ -121,7 +121,7 @@ trait TermRuntimeValuedPropertiesMixin
   final lazy val maybeCharsetEv =
     if (optionEncodingRaw.isDefined) {
       val ev = new CharsetEv(encodingEv, termRuntimeData)
-      ev.compile()
+      ev.compile(tunable)
       One(ev)
     } else
       Nope
@@ -129,7 +129,7 @@ trait TermRuntimeValuedPropertiesMixin
   final lazy val maybeFillByteEv = {
     if (optionFillByteRaw.isDefined) {
       val ev = new FillByteEv(fillByte, charsetEv, termRuntimeData)
-      ev.compile()
+      ev.compile(tunable)
       One(ev)
     } else {
       Nope
@@ -146,7 +146,7 @@ trait TermRuntimeValuedPropertiesMixin
       ExpressionCompilers.String.compileProperty(qn, NodeInfo.NonEmptyString, outputNewLineRaw, decl, dpathCompileInfo)
     }
     val ev = new OutputNewLineEv(outputNewLineExpr, termRuntimeData)
-    ev.compile()
+    ev.compile(tunable)
     ev
   }
 
@@ -197,12 +197,12 @@ trait DelimitedRuntimeValuedPropertiesMixin
 
   lazy val initiatorParseEv = {
     val ev = new InitiatorParseEv(initiatorExpr, decl.ignoreCaseBool, decl.termRuntimeData)
-    ev.compile()
+    ev.compile(tunable)
     ev
   }
   lazy val initiatorUnparseEv = {
     val ev = new InitiatorUnparseEv(initiatorExpr, outputNewLineEv, decl.termRuntimeData)
-    ev.compile()
+    ev.compile(tunable)
     ev
   }
 
@@ -220,12 +220,12 @@ trait DelimitedRuntimeValuedPropertiesMixin
 
   lazy val terminatorParseEv = {
     val ev = new TerminatorParseEv(terminatorExpr, isLengthKindDelimited, decl.ignoreCaseBool, decl.termRuntimeData)
-    ev.compile()
+    ev.compile(tunable)
     ev
   }
   lazy val terminatorUnparseEv = {
     val ev = new TerminatorUnparseEv(terminatorExpr, isLengthKindDelimited, outputNewLineEv, decl.termRuntimeData)
-    ev.compile()
+    ev.compile(tunable)
     ev
   }
 
@@ -270,7 +270,7 @@ trait ElementRuntimeValuedPropertiesMixin
       Nope
     } else if (optionByteOrderRaw.isDefined) {
       val ev = new ByteOrderEv(byteOrderExpr, elementRuntimeData)
-      ev.compile()
+      ev.compile(tunable)
       One(ev)
     } else {
       Nope
@@ -285,7 +285,7 @@ trait ElementRuntimeValuedPropertiesMixin
   private lazy val explicitLengthEv: ExplicitLengthEv = {
     Assert.usage(lengthKind eq LengthKind.Explicit)
     val ev = new ExplicitLengthEv(lengthExpr, erd)
-    ev.compile()
+    ev.compile(tunable)
     ev
   }
 
@@ -301,7 +301,7 @@ trait ElementRuntimeValuedPropertiesMixin
       case (Text, _) =>
         SDE("Type %s with dfdl:representation='text' cannot have dfdl:lengthKind='implicit'", typeDef.typeNode.name)
     }
-    ev.compile()
+    ev.compile(tunable)
     ev
   }
 
@@ -355,7 +355,7 @@ trait ElementRuntimeValuedPropertiesMixin
         case _ => Assert.invariantFailed("not Implicit or Explicit")
       }
     val ev = new LengthInBitsEv(units, lengthKind, maybeCharsetEv, lenEv, erd)
-    ev.compile()
+    ev.compile(tunable)
     ev
   }
 
@@ -370,7 +370,7 @@ trait ElementRuntimeValuedPropertiesMixin
    */
   private lazy val minLengthInBitsEv: MinLengthInBitsEv = {
     val ev = new MinLengthInBitsEv(minLenUnits, lengthKind, maybeCharsetEv, minLen, erd)
-    ev.compile()
+    ev.compile(tunable)
     ev
   }
 
@@ -483,7 +483,7 @@ trait ElementRuntimeValuedPropertiesMixin
       this.simpleType.optRepTypeElement.get.unparseTargetLengthInBitsEv
     } else {
       val ev = new UnparseTargetLengthInBitsEv(elementLengthInBitsEv, minLengthInBitsEv, erd)
-      ev.compile()
+      ev.compile(tunable)
       ev
     }
   }
@@ -499,7 +499,7 @@ trait ElementRuntimeValuedPropertiesMixin
         val optCs = charsetEv.optConstant
         if (optCs.isEmpty || optCs.get.maybeFixedWidth.isEmpty) {
           val ev = new UnparseTargetLengthInCharactersEv(lengthEv, charsetEv, minLen, erd)
-          ev.compile()
+          ev.compile(tunable)
           One(ev)
         } else
           Nope
@@ -530,13 +530,13 @@ trait ElementRuntimeValuedPropertiesMixin
 
   lazy val occursCountEv = {
     val ev = new OccursCountEv(occursCountExpr, erd)
-    ev.compile()
+    ev.compile(tunable)
     ev
   }
 
   lazy val nilStringLiteralForUnparserEv = {
     val ev = new NilStringLiteralForUnparserEv(termRuntimeData, maybeOutputNewLineEv, rawNilValuesForUnparse.head)
-    ev.compile()
+    ev.compile(tunable)
     ev
   }
 
@@ -669,13 +669,13 @@ trait SequenceRuntimeValuedPropertiesMixin
 
   lazy val separatorParseEv = {
     val ev = new SeparatorParseEv(separatorExpr, decl.ignoreCaseBool, decl.termRuntimeData)
-    ev.compile()
+    ev.compile(tunable)
     ev
   }
 
   lazy val separatorUnparseEv = {
     val ev = new SeparatorUnparseEv(separatorExpr, outputNewLineEv, decl.termRuntimeData)
-    ev.compile()
+    ev.compile(tunable)
     ev
   }
 
@@ -713,7 +713,7 @@ trait LayeringRuntimeValuedPropertiesMixin
   final lazy val maybeLayerTransformEv = {
     if (optionLayerTransformRaw.isDefined) {
       val ev = new LayerTransformEv(layerTransformExpr, termRuntimeData)
-      ev.compile()
+      ev.compile(tunable)
       One(ev)
     } else {
       Nope
@@ -733,7 +733,7 @@ trait LayeringRuntimeValuedPropertiesMixin
   private final lazy val maybeLayerEncodingEv = {
     if (optionLayerEncodingRaw.isDefined) {
       val ev = new LayerEncodingEv(layerEncodingExpr, termRuntimeData)
-      ev.compile()
+      ev.compile(tunable)
       One(ev)
     } else {
       Nope
@@ -743,7 +743,7 @@ trait LayeringRuntimeValuedPropertiesMixin
   final lazy val maybeLayerCharsetEv =
     if (optionLayerEncodingRaw.isDefined) {
       val ev = new LayerCharsetEv(layerEncodingEv, termRuntimeData)
-      ev.compile()
+      ev.compile(tunable)
       One(ev)
     } else
       Nope
@@ -757,7 +757,7 @@ trait LayeringRuntimeValuedPropertiesMixin
     if (optionLayerLengthRaw.isDefined) {
       layerLengthUnits
       val ev = new LayerLengthInBytesEv(layerLengthExpr, termRuntimeData)
-      ev.compile()
+      ev.compile(tunable)
       One(ev)
     } else {
       Nope
@@ -777,7 +777,7 @@ trait LayeringRuntimeValuedPropertiesMixin
   final lazy val maybeLayerBoundaryMarkEv = {
     if (optionLayerBoundaryMarkRaw.isDefined) {
       val ev = new LayerBoundaryMarkEv(layerBoundaryMarkExpr, termRuntimeData)
-      ev.compile()
+      ev.compile(tunable)
       One(ev)
     } else {
       Nope
@@ -799,7 +799,7 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
 
   final lazy val textStandardDecimalSeparatorEv = {
     val ev = new TextStandardDecimalSeparatorEv(textStandardDecimalSeparatorExpr, erd)
-    ev.compile()
+    ev.compile(tunable)
     ev
   }
 
@@ -811,7 +811,7 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
 
   final lazy val textStandardGroupingSeparatorEv = {
     val ev = new TextStandardGroupingSeparatorEv(textStandardGroupingSeparatorExpr, erd)
-    ev.compile()
+    ev.compile(tunable)
     ev
   }
 
@@ -823,7 +823,7 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
 
   final lazy val textStandardExponentRepEv = {
     val ev = new TextStandardExponentRepEv(textStandardExponentRepExpr, erd)
-    ev.compile()
+    ev.compile(tunable)
     ev
   }
 
@@ -840,7 +840,7 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
   final lazy val maybeBinaryFloatRepEv = {
     if (optionBinaryFloatRepRaw.isDefined) {
       val ev = new BinaryFloatRepEv(binaryFloatRepExpr, erd)
-      ev.compile()
+      ev.compile(tunable)
       One(ev)
     } else {
       Nope
@@ -861,13 +861,13 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
     val mustBeSameLength = (((this.lengthKind eq LengthKind.Explicit) || (this.lengthKind eq LengthKind.Implicit)) &&
       ((this.textPadKind eq TextPadKind.None) || (this.textTrimKind eq TextTrimKind.None)))
     val ev = new TextBooleanTrueRepEv(textBooleanTrueRepExpr, textBooleanFalseRepEv, mustBeSameLength, erd)
-    ev.compile()
+    ev.compile(tunable)
     ev
   }
 
   final lazy val textBooleanFalseRepEv = {
     val ev = new TextBooleanFalseRepEv(textBooleanFalseRepExpr, erd)
-    ev.compile()
+    ev.compile(tunable)
     ev
   }
 

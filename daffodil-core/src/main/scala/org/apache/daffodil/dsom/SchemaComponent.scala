@@ -35,6 +35,7 @@ import org.apache.daffodil.xml.GetAttributesMixin
 import org.apache.daffodil.schema.annotation.props.PropTypes
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Misc
+import org.apache.daffodil.BasicComponent
 
 abstract class SchemaComponentImpl(
   final override val xml: Node,
@@ -51,7 +52,7 @@ abstract class SchemaComponentImpl(
  * Every schema component has a schema document, and a schema, and a namespace.
  */
 trait SchemaComponent
-  extends OOLAGHost
+  extends BasicComponent
   with ImplementsThrowsOrSavesSDE
   with GetAttributesMixin
   with SchemaComponentIncludesAndImportsMixin
@@ -63,7 +64,8 @@ trait SchemaComponent
 
   override def oolagContextViaArgs = optLexicalParent
 
-  lazy val tunable: DaffodilTunables = optLexicalParent.get.tunable
+  override lazy val tunable: DaffodilTunables = optLexicalParent.get.tunable
+  final override lazy val unqualifiedPathStepPolicy = tunable.unqualifiedPathStepPolicy
 
   lazy val dpathCompileInfo: DPathCompileInfo = {
     lazy val parents = enclosingComponent.map { _.dpathCompileInfo }.toSeq
@@ -73,7 +75,7 @@ trait SchemaComponent
       namespaces,
       path,
       schemaFileLocation,
-      tunable,
+      tunable.unqualifiedPathStepPolicy,
       schemaSet.typeCalcMap,
       runtimeData)
   }
@@ -98,7 +100,7 @@ trait SchemaComponent
       diagnosticDebugName,
       path,
       namespaces,
-      tunable)
+      tunable.unqualifiedPathStepPolicy)
   }.value
 
   def variableMap: VariableMap = LV('variableMap) {

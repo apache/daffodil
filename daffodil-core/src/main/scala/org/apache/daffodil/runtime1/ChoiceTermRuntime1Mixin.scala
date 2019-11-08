@@ -42,7 +42,7 @@ trait ChoiceTermRuntime1Mixin { self: ChoiceTermBase =>
   final lazy val choiceDispatchKeyEv = {
     Assert.invariant(isDirectDispatch)
     val ev = new ChoiceDispatchKeyEv(choiceDispatchKeyExpr, modelGroupRuntimeData)
-    ev.compile()
+    ev.compile(tunable)
     ev
   }
 

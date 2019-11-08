@@ -94,7 +94,7 @@ trait Cursor[AccessorType <: Accessor[AccessorType]] {
    * boolean indicates whether that happened successfully or there
    * was no more data.
    *
-   * This has no side-effects on the infoset. 
+   * This has no side-effects on the infoset.
    */
   def inspect: Boolean
 
@@ -123,7 +123,7 @@ trait CursorImplMixin[AccessorType <: Accessor[AccessorType]]
   extends Cursor[AccessorType] {
   /*
    * We are a bit of a state machine based on what the last operation was.
-   * At all times, we have a "current" element, which is what future calls to 
+   * At all times, we have a "current" element, which is what future calls to
    * advance/inspect provide information about.
    *
    * Our states our as follows:

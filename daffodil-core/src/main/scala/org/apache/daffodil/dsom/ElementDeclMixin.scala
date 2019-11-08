@@ -166,7 +166,7 @@ trait ElementDeclFactoryImplMixin
 
   final override lazy val namedTypeQName: Option[RefQName] = {
     typeName.map { tname =>
-      QName.resolveRef(tname, namespaces, tunable).get
+      QName.resolveRef(tname, namespaces, tunable.unqualifiedPathStepPolicy).get
     }
   }
 

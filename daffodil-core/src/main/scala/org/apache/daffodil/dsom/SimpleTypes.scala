@@ -248,7 +248,7 @@ abstract class SimpleTypeDefBase(xml: Node, lexicalParent: SchemaComponent)
       optRestriction.flatMap { r => toOpt(r.hasTotalDigits, r.totalDigitsValue) },
       optRestriction.flatMap { r => toOpt(r.hasFractionDigits, r.fractionDigitsValue) },
       optUnion.orElse(optRestriction.flatMap { _.optUnion }).toSeq.flatMap { _.unionMemberTypes.map { _.simpleTypeRuntimeData } },
-      tunable,
+      tunable.unqualifiedPathStepPolicy,
       optRepTypeDef.map(_.simpleTypeRuntimeData),
       optRepValueSet,
       optTypeCalculator,
@@ -425,7 +425,7 @@ abstract class SimpleTypeDefBase(xml: Node, lexicalParent: SchemaComponent)
     lazy val fromSelf: Option[SimpleTypeBase with NamedMixin] = {
       val qName = findPropertyOption("repType").toOption
         .map(qn => {
-          QName.resolveRef(qn, namespaces, tunable).toOption match {
+          QName.resolveRef(qn, namespaces, tunable.unqualifiedPathStepPolicy).toOption match {
             case Some(x) => x
             case None => SDE(s"Cannot resolve type ${qn}")
           }

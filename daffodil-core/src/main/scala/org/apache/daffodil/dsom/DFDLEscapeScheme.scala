@@ -87,7 +87,7 @@ final class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: 
     val expr = ExpressionCompilers.String.compileProperty(qn, NodeInfo.NonEmptyString, escapeCharacterRaw, this,
       defES.pointOfUse.dpathCompileInfo)
     val ev = new EscapeCharEv(expr, runtimeData)
-    ev.compile()
+    ev.compile(tunable)
     ev
   }.value
 
@@ -101,7 +101,7 @@ final class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: 
         val expr = ExpressionCompilers.String.compileDelimiter(qn, typeIfStaticallyKnown, typeIfRuntimeKnown, found, this,
           defES.pointOfUse.dpathCompileInfo)
         val ev = new EscapeEscapeCharEv(expr, runtimeData)
-        ev.compile()
+        ev.compile(tunable)
         One(ev)
       }
     }
@@ -119,7 +119,7 @@ final class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: 
       case EscapeKind.EscapeBlock => new EscapeSchemeBlockParseEv(escapeBlockStart, escapeBlockEnd, optionEscapeEscapeCharacterEv, runtimeData)
       case EscapeKind.EscapeCharacter => new EscapeSchemeCharParseEv(escapeCharacterEv, optionEscapeEscapeCharacterEv, runtimeData)
     }
-    espev.compile()
+    espev.compile(tunable)
     espev
   }
 
@@ -128,7 +128,7 @@ final class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: 
       case EscapeKind.EscapeBlock => new EscapeSchemeBlockUnparseEv(escapeBlockStart, escapeBlockEnd, optionEscapeEscapeCharacterEv, optionExtraEscapedCharacters, generateEscapeBlock, runtimeData)
       case EscapeKind.EscapeCharacter => new EscapeSchemeCharUnparseEv(escapeCharacterEv, optionEscapeEscapeCharacterEv, optionExtraEscapedCharacters, runtimeData)
     }
-    esuev.compile()
+    esuev.compile(tunable)
     esuev
   }
 

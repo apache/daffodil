@@ -58,7 +58,7 @@ class TestInfosetInputterFromReader {
     val inputter = new ScalaXMLInfosetInputter(infosetXML)
     inputter.initialize(rootERD, u.getTunables())
     val is = Adapter(inputter)
-    (is, rootERD, inputter)
+    (is, rootERD, inputter, u.tunable)
   }
 
   @Test def testUnparseFixedLengthString1() {
@@ -76,7 +76,7 @@ class TestInfosetInputterFromReader {
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="foo" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string"/>)
     val infosetXML = <foo xmlns={ XMLUtils.EXAMPLE_NAMESPACE }>Hello</foo>
-    val (ii, _, _) = infosetInputter(sch, infosetXML)
+    val (ii, _, _, _) = infosetInputter(sch, infosetXML)
     val is = ii.toStream.toList
     val List(Start(s: DISimple), End(e: DISimple)) = is
     assertTrue(s eq e) // exact same object
@@ -90,7 +90,7 @@ class TestInfosetInputterFromReader {
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element nillable="true" dfdl:nilValue="nil" dfdl:nilKind="literalValue" name="foo" dfdl:lengthKind="explicit" dfdl:length="3" type="xs:string"/>)
     val infosetXML = <foo xsi:nil="true" xmlns={ XMLUtils.EXAMPLE_NAMESPACE } xmlns:xsi={ XMLUtils.XSI_NAMESPACE }/>
-    val (ii, _, _) = infosetInputter(sch, infosetXML)
+    val (ii, _, _, _) = infosetInputter(sch, infosetXML)
     val is = ii.toStream.toList
     val List(Start(s: DISimple), End(e: DISimple)) = is
     assertTrue(s eq e) // exact same object
@@ -109,12 +109,13 @@ class TestInfosetInputterFromReader {
         </xs:complexType>
       </xs:element>)
     val infosetXML = <bar xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><foo>Hello</foo></bar>
-    val (is, rootERD, inp) = infosetInputter(sch, infosetXML)
+    val (is, rootERD, inp, tunable) = infosetInputter(sch, infosetXML)
     val Seq(fooERD) = rootERD.childERDs
     val Start(bar_s: DIComplex) = is.next
+
     inp.pushTRD(fooERD)
     val Start(foo_s: DISimple) = is.next
-    bar_s.addChild(foo_s)
+    bar_s.addChild(foo_s, tunable)
     val End(foo_e: DISimple) = is.next
     val poppedERD = inp.popTRD()
     assertEquals(fooERD, poppedERD)
@@ -139,7 +140,7 @@ class TestInfosetInputterFromReader {
         </xs:complexType>
       </xs:element>)
     val infosetXML = <bar xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><foo>Hello</foo><baz>World</baz></bar>
-    val (is, rootERD, inp) = infosetInputter(sch, infosetXML)
+    val (is, rootERD, inp, tunable) = infosetInputter(sch, infosetXML)
     val Start(bar_s: DIComplex) = is.next
     val Seq(fooERD, bazERD) = rootERD.childERDs
     inp.pushTRD(fooERD)
@@ -190,7 +191,7 @@ class TestInfosetInputterFromReader {
                        <bar1><foo1>Hello</foo1><baz1>World</baz1></bar1>
                        <bar2><foo2>Hello</foo2><baz2>World</baz2></bar2>
                      </quux>
-    val (is, rootERD, inp) = infosetInputter(sch, infosetXML)
+    val (is, rootERD, inp, tunable) = infosetInputter(sch, infosetXML)
     //
     // Get all the ERDs and Sequence TRDs
     //
@@ -273,7 +274,7 @@ class TestInfosetInputterFromReader {
         </xs:complexType>
       </xs:element>)
     val infosetXML = <bar xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><foo>Hello</foo><foo>World</foo></bar>
-    val (is, rootERD, inp) = infosetInputter(sch, infosetXML)
+    val (is, rootERD, inp, tunable) = infosetInputter(sch, infosetXML)
     val Some(barSeqTRD: SequenceRuntimeData) = rootERD.optComplexTypeModelGroupRuntimeData
     val Seq(fooERD: ElementRuntimeData) = barSeqTRD.groupMembers
     val doc = inp.documentElement
@@ -283,10 +284,10 @@ class TestInfosetInputterFromReader {
     inp.pushTRD(fooERD)
     val StartArray(foo_arr_s) = is.next
     val Start(foo_1_s: DISimple) = is.next
-    bar_s.addChild(foo_1_s)
+    bar_s.addChild(foo_1_s, tunable)
     val End(foo_1_e: DISimple) = is.next
     val Start(foo_2_s: DISimple) = is.next
-    bar_s.addChild(foo_2_s)
+    bar_s.addChild(foo_2_s, tunable)
     val End(foo_2_e: DISimple) = is.next
     val EndArray(foo_arr_e) = is.next
     assertEquals(fooERD, inp.popTRD())
@@ -316,7 +317,7 @@ class TestInfosetInputterFromReader {
         </xs:complexType>
       </xs:element>)
     val infosetXML = <bar xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><foo>Hello</foo><foo>World</foo><baz>Yadda</baz></bar>
-    val (is, rootERD, inp) = infosetInputter(sch, infosetXML)
+    val (is, rootERD, inp, tunable) = infosetInputter(sch, infosetXML)
     val Some(barSeqTRD: SequenceRuntimeData) = rootERD.optComplexTypeModelGroupRuntimeData
     val Seq(fooERD: ElementRuntimeData, bazERD: ElementRuntimeData) = barSeqTRD.groupMembers
     val Start(bar_s: DIComplex) = is.next
@@ -366,7 +367,7 @@ class TestInfosetInputterFromReader {
         </xs:complexType>
       </xs:element>)
     val infosetXML = <bar xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><baz>Yadda</baz><foo>Hello</foo><foo>World</foo></bar>
-    val (is, rootERD, inp) = infosetInputter(sch, infosetXML)
+    val (is, rootERD, inp, tunable) = infosetInputter(sch, infosetXML)
     val Some(barSeqTRD: SequenceRuntimeData) = rootERD.optComplexTypeModelGroupRuntimeData
     val Seq(bazERD: ElementRuntimeData, fooERD: ElementRuntimeData) = barSeqTRD.groupMembers
 
@@ -416,7 +417,7 @@ class TestInfosetInputterFromReader {
         </xs:complexType>
       </xs:element>)
     val infosetXML = <bar xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><baz>Yadda</baz><foo>Hello</foo><foo>World</foo></bar>
-    val (is, rootERD, inp) = infosetInputter(sch, infosetXML)
+    val (is, rootERD, inp, tunable) = infosetInputter(sch, infosetXML)
     val Some(barSeqTRD: SequenceRuntimeData) = rootERD.optComplexTypeModelGroupRuntimeData
     val Seq(bazERD: ElementRuntimeData, fooERD: ElementRuntimeData) = barSeqTRD.groupMembers
 
@@ -462,7 +463,7 @@ class TestInfosetInputterFromReader {
         </xs:complexType>
       </xs:element>)
     val infosetXML = <bar xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><foo>Hello</foo></bar>
-    val (is, rootERD, inp) = infosetInputter(sch, infosetXML)
+    val (is, rootERD, inp, tunable) = infosetInputter(sch, infosetXML)
     val Some(barSeqTRD: SequenceRuntimeData) = rootERD.optComplexTypeModelGroupRuntimeData
     val Seq(fooERD: ElementRuntimeData) = barSeqTRD.groupMembers
 
@@ -508,7 +509,7 @@ class TestInfosetInputterFromReader {
         </xs:complexType>
       </xs:element>)
     val infosetXML = <e xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><s><c1>Hello</c1></s><s><c2>World</c2></s></e>
-    val (is, eERD, inp) = infosetInputter(sch, infosetXML)
+    val (is, eERD, inp, tunable) = infosetInputter(sch, infosetXML)
     val Some(eSeqTRD: SequenceRuntimeData) = eERD.optComplexTypeModelGroupRuntimeData
     val Seq(sERD: ElementRuntimeData) = eSeqTRD.groupMembers
     val Some(sChoTRD: ChoiceRuntimeData) = sERD.optComplexTypeModelGroupRuntimeData

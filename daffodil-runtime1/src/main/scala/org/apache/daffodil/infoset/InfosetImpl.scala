@@ -830,7 +830,7 @@ sealed trait DIElement
 
   def valueStringForDebug: String
 
-  def isRoot = parent match {
+  def isRoot = toParent match {
     case doc: DIDocument => !doc.isCompileExprFalseRoot
     case _ => false
   }
@@ -840,20 +840,9 @@ sealed trait DIElement
     case _ => false
   }
 
-  def toRootDoc: DIDocument = toRootDoc1(this)
-
-  private def toRootDoc1(orig: DIElement): DIDocument = {
+  final def toRootDoc: DIDocument = {
     if (isRootDoc) this.asInstanceOf[DIDocument]
-    else if (isRoot) diParent.asInstanceOf[DIDocument]
-    else {
-      parent match {
-        case null =>
-          orig.erd.toss(new InfosetNoRootException(orig, erd))
-        case elt: DIElement => elt.toRootDoc1(orig)
-        case _ =>
-          orig.erd.toss(new InfosetNoRootException(orig, erd))
-      }
-    }
+    else toParent.toRootDoc
   }
 
   def toParent = {
@@ -939,7 +928,15 @@ sealed trait DIElement
 //
 final class DIArray(
   override val erd: ElementRuntimeData,
-  val parent: DIComplex)
+  val parent: DIComplex,
+  initialSize: Int //TODO: really this needs to be adaptive, and resize upwards reasonably.
+//A non-copying thing - list like, may be better, but we do need access to be
+//constant time.
+// FIXME: for streaming behavior, arrays are going to get elements removed from
+// them when no longer needed. However, the array itself would still be growing
+// without bound. So, replace this with a mutable map so that it can shrink
+// as well as grow. // not saved. Needed only to get initial size.
+)
   extends DINode with InfosetArray
   with DIFinalizable {
 
@@ -972,14 +969,6 @@ final class DIArray(
 
   def namedQName = erd.namedQName
 
-  private val initialSize = parent.tunable.initialElementOccurrencesHint.toInt
-  //TODO: really this needs to be adaptive, and resize upwards reasonably.
-  //A non-copying thing - list like, may be better, but we do need access to be
-  //constant time.
-  // FIXME: for streaming behavior, arrays are going to get elements removed from
-  // them when no longer needed. However, the array itself would still be growing
-  // without bound. So, replace this with a mutable map so that it can shrink
-  // as well as grow.
   protected final val _contents = new ArrayBuffer[DIElement](initialSize)
 
   override def children = _contents.toStream.asInstanceOf[Stream[DINode]]
@@ -1356,8 +1345,6 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
   with DIFinalizable // with HasModelGroupMixin
   { diComplex =>
 
-  def tunable: DaffodilTunables = toRootDoc.tunable
-
   final override def isSimple = false
   final override def isComplex = true
 
@@ -1405,8 +1392,8 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
 
   var hasVisibleChildren = false
 
-  final def getChild(erd: ElementRuntimeData): InfosetElement = {
-    getChild(erd.dpathElementCompileInfo.namedQName)
+  final def getChild(erd: ElementRuntimeData, tunable: DaffodilTunables): InfosetElement = {
+    getChild(erd.dpathElementCompileInfo.namedQName, tunable)
   }
 
   private def noQuerySupportCheck(nodes: Seq[DINode], nqn: NamedQName) = {
@@ -1424,22 +1411,22 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
     }
   }
 
-  final def getChild(nqn: NamedQName): InfosetElement = {
-    val maybeNode = findChild(nqn)
+  final def getChild(nqn: NamedQName, tunable: DaffodilTunables): InfosetElement = {
+    val maybeNode = findChild(nqn, tunable)
     if (maybeNode.isDefined)
       maybeNode.get.asInstanceOf[InfosetElement]
     else
       erd.toss(new InfosetNoSuchChildElementException(this, nqn))
   }
 
-  final def getChildArray(childERD: ElementRuntimeData): InfosetArray = {
+  final def getChildArray(childERD: ElementRuntimeData, tunable: DaffodilTunables): InfosetArray = {
     Assert.usage(childERD.isArray)
 
-    getChildArray(childERD.dpathElementCompileInfo.namedQName)
+    getChildArray(childERD.dpathElementCompileInfo.namedQName, tunable)
   }
 
-  final def getChildArray(nqn: NamedQName): InfosetArray = {
-    val maybeNode = findChild(nqn)
+  final def getChildArray(nqn: NamedQName, tunable: DaffodilTunables): InfosetArray = {
+    val maybeNode = findChild(nqn, tunable)
     if (maybeNode.isDefined) {
       maybeNode.get.asInstanceOf[InfosetArray]
     } else {
@@ -1497,14 +1484,14 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
     childNodes ++= unordered.sortBy(_.erd.position)
   }
 
-  override def addChild(e: InfosetElement): Unit = {
+  override def addChild(e: InfosetElement, tunable: DaffodilTunables): Unit = {
     if (!e.isHidden && !hasVisibleChildren) hasVisibleChildren = true
     if (e.runtimeData.isArray) {
       val childERD = e.runtimeData
       if (childNodes.isEmpty || childNodes.last.erd != childERD) {
         // no children, or last child is not a DIArray for
         // this element, create the DIArray
-        val ia = new DIArray(childERD, this)
+        val ia = new DIArray(childERD, this, tunable.initialElementOccurrencesHint.toInt)
         if (childERD.dpathElementCompileInfo.isReferencedByExpressions) {
           addChildToFastLookup(ia)
         }
@@ -1555,7 +1542,7 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
     }
   }
 
-  def findChild(qname: NamedQName): Maybe[DINode] = {
+  def findChild(qname: NamedQName, tunable: DaffodilTunables): Maybe[DINode] = {
     val fastSeq = nameToChildNodeLookup.get(qname)
     if (fastSeq != null) {
       // Daffodil does not support query expressions yet, so there should only
@@ -1643,8 +1630,7 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
  * conditions having to do with the document root element.
  */
 final class DIDocument(
-  erd: ElementRuntimeData,
-  override val tunable: DaffodilTunables)
+  erd: ElementRuntimeData)
   extends DIComplex(erd)
   with InfosetDocument {
   var root: DIElement = null
@@ -1656,12 +1642,15 @@ final class DIDocument(
    */
   var isCompileExprFalseRoot: Boolean = false
 
-  def setRootElement(rootElement: InfosetElement) {
+  def setRootElement(rootElement: InfosetElement, tunable: DaffodilTunables) {
     root = rootElement.asInstanceOf[DIElement]
-    addChild(root)
+    addChild(root, tunable)
   }
 
-  override def addChild(child: InfosetElement) {
+  override def addChild(child: InfosetElement, tunable: DaffodilTunables) =
+    addChild(child)
+
+  def addChild(child: InfosetElement) {
     /*
      * DIDocument normally only has a single child.
      * However, if said child wants to create a quasi-element (eg. if it is a simpleType with a typeCalc),
@@ -1699,13 +1688,13 @@ object Infoset {
     else new DIComplex(erd)
   }
 
-  def newDocument(erd: ElementRuntimeData, tunable: DaffodilTunables): InfosetDocument = {
-    new DIDocument(erd, tunable)
+  def newDocument(erd: ElementRuntimeData): InfosetDocument = {
+    new DIDocument(erd)
   }
 
   def newDocument(root: InfosetElement, tunable: DaffodilTunables): InfosetDocument = {
-    val doc = newDocument(root.runtimeData, tunable)
-    doc.setRootElement(root)
+    val doc = newDocument(root.runtimeData)
+    doc.setRootElement(root, tunable)
     doc
   }
 

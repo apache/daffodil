@@ -24,6 +24,8 @@ import org.apache.daffodil.xml.NamedQName
 import java.lang.{ Long => JLong, Boolean => JBoolean }
 import org.apache.daffodil.schema.annotation.props.Found
 import org.apache.daffodil.oolag.OOLAG._
+import org.apache.daffodil.processors.HasTunable
+import org.apache.daffodil.BasicComponent
 
 object ExpressionCompilers extends ExpressionCompilerClass {
   override val String = new ExpressionCompiler[String]
@@ -55,7 +57,7 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
     namespaces: NamespaceBinding,
     compileInfoWhereExpressionWasLocated: DPathCompileInfo,
     isEvaluatedAbove: Boolean,
-    host: OOLAGHost,
+    host: BasicComponent,
     compileInfo: DPathCompileInfo): CompiledExpression[T] = {
 
     val res =
@@ -99,7 +101,7 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
     qn: NamedQName,
     nodeInfoKind: NodeInfo.Kind,
     property: Found,
-    host: OOLAGHost,
+    host: BasicComponent,
     compileInfo: DPathCompileInfo,
     isEvaluatedAbove: Boolean = false): CompiledExpression[T] = {
 
@@ -138,7 +140,7 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
     staticNodeInfoKind: NodeInfo.Kind,
     runtimeNodeInfoKind: NodeInfo.Kind,
     property: Found,
-    host: OOLAGHost,
+    host: BasicComponent,
     compileInfo: DPathCompileInfo): CompiledExpression[T] = {
 
     val isEvaluatedAbove = false
@@ -196,7 +198,7 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
     namespaces: NamespaceBinding,
     compileInfoWhereExpressionWasLocated: DPathCompileInfo,
     isEvaluatedAbove: Boolean,
-    host: OOLAGHost,
+    host: BasicComponent,
     compileInfo: DPathCompileInfo): CompiledExpression[T] = {
 
     // Treat this as an expression--validate and compile it

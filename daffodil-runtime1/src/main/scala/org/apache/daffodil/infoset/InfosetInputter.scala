@@ -171,7 +171,7 @@ abstract class InfosetInputter
     tunable = tunableArg
     isInitialized_ = true
 
-    documentElement_ = new DIDocument(rootElementInfo, tunable)
+    documentElement_ = new DIDocument(rootElementInfo)
     infoStack.push(documentElement_)
 
     try {

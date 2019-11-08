@@ -205,7 +205,7 @@ class DPathCompileInfo(
   val namespaces: scala.xml.NamespaceBinding,
   val path: String,
   override val schemaFileLocation: SchemaFileLocation,
-  val tunable: DaffodilTunables,
+  val unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy,
   @TransientParam typeCalcMapArg: => TypeCalcMap,
   val lexicalContextRuntimeData: RuntimeData)
   extends ImplementsThrowsSDE with PreSerialization
@@ -289,11 +289,13 @@ class DPathElementCompileInfo(
   val namedQName: NamedQName,
   val optPrimType: Option[PrimType],
   sfl: SchemaFileLocation,
-  override val tunable: DaffodilTunables,
+  override val unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy,
   typeCalcMap: TypeCalcMap,
   lexicalContextRuntimeData: RuntimeData,
   val sscd: String)
-  extends DPathCompileInfo(parentsArg, variableMap, namespaces, path, sfl, tunable, typeCalcMap, lexicalContextRuntimeData) {
+  extends DPathCompileInfo(parentsArg, variableMap, namespaces, path, sfl,
+    unqualifiedPathStepPolicy,
+    typeCalcMap, lexicalContextRuntimeData) {
 
   lazy val elementChildrenCompileInfo = elementChildrenCompileInfoArg
 
@@ -376,7 +378,7 @@ class DPathElementCompileInfo(
 
     val retryMatchesERD =
       if (matchesERD.isEmpty &&
-        tunable.unqualifiedPathStepPolicy == UnqualifiedPathStepPolicy.PreferDefaultNamespace &&
+        unqualifiedPathStepPolicy == UnqualifiedPathStepPolicy.PreferDefaultNamespace &&
         step.prefix.isEmpty && step.namespace != NoNamespace) {
         // we failed to find a match with the default namespace. Since the
         // default namespace was assumed but didn't match, the unqualified path
@@ -399,7 +401,7 @@ class DPathElementCompileInfo(
     val matchesERD = step.findMatches(possibles)
     val retryMatchesERD =
       if (matchesERD.isEmpty &&
-        tunable.unqualifiedPathStepPolicy == UnqualifiedPathStepPolicy.PreferDefaultNamespace &&
+        unqualifiedPathStepPolicy == UnqualifiedPathStepPolicy.PreferDefaultNamespace &&
         step.prefix.isEmpty && step.namespace != NoNamespace) {
         // we failed to find a match with the default namespace. Since the
         // default namespace was assumed but didn't match, the unqualified path

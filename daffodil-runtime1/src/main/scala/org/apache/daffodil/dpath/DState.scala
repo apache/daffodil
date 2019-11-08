@@ -29,6 +29,7 @@ import org.apache.daffodil.api.WarnID
 import org.apache.daffodil.dsom.DPathCompileInfo
 import org.apache.daffodil.xml.GlobalQName
 import org.apache.daffodil.processors.TypeCalculatorCompiler.TypeCalcMap
+import org.apache.daffodil.api.DaffodilTunables
 
 /**
  * Modes for expression evaluation.
@@ -98,7 +99,9 @@ case object UnparserNonBlocking extends EvalMode
  * if used in a forward referencing expression the expression can block until the information
  * becomes available.
  */
-case class DState(val maybeSsrd: Maybe[SchemaSetRuntimeData]) {
+case class DState(
+  val maybeSsrd: Maybe[SchemaSetRuntimeData],
+  tunable: DaffodilTunables) {
   import org.apache.daffodil.util.Numbers._
 
   var isCompile = false
@@ -439,7 +442,8 @@ object DState {
 }
 
 class DStateForConstantFolding(
-  override val compileInfo: DPathCompileInfo) extends DState(Nope) {
+  override val compileInfo: DPathCompileInfo,
+  tunable: DaffodilTunables) extends DState(Nope, tunable) {
   private def die = throw new java.lang.IllegalStateException("No infoset at compile time.")
 
   override def currentSimple = currentNode.asInstanceOf[DISimple]

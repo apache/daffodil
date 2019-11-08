@@ -20,6 +20,7 @@ package org.apache.daffodil.xml
 import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.exceptions.ThrowsSDE
+import org.apache.daffodil.api.UnqualifiedPathStepPolicy
 
 /**
  * Element references and Group References use this.
@@ -59,14 +60,15 @@ object ResolvesQNames {
 
 trait ResolvesQNames
   extends ThrowsSDE {
+
   def namespaces: scala.xml.NamespaceBinding
-  protected def tunable: DaffodilTunables
+  def unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy
 
   /**
    * If prefix of name is unmapped, SDE
    */
   def resolveQName(qnString: String): RefQName = {
-    val eQN = QName.resolveRef(qnString, namespaces, tunable)
+    val eQN = QName.resolveRef(qnString, namespaces, unqualifiedPathStepPolicy)
     // we don't want to just throw the exception, we want to
     // convert to an SDE, so we use recover
     val res = eQN.recover { ThrowSDE }.get

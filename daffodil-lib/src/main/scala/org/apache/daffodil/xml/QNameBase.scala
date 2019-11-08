@@ -107,8 +107,9 @@ import org.apache.daffodil.exceptions.Assert
  */
 object QName {
 
-  def resolveRef(qnameString: String, scope: scala.xml.NamespaceBinding, tunable: DaffodilTunables): Try[RefQName] =
-    RefQNameFactory.resolveRef(qnameString, scope, tunable)
+  def resolveRef(qnameString: String, scope: scala.xml.NamespaceBinding,
+      unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy): Try[RefQName] =
+    RefQNameFactory.resolveRef(qnameString, scope, unqualifiedPathStepPolicy)
 
   /**
    * Specialized getQName function for handling
@@ -152,8 +153,9 @@ object QName {
     res
   }
 
-  def resolveStep(qnameString: String, scope: scala.xml.NamespaceBinding, tunable: DaffodilTunables): Try[StepQName] =
-    StepQNameFactory.resolveRef(qnameString, scope, tunable)
+  def resolveStep(qnameString: String, scope: scala.xml.NamespaceBinding,
+      unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy): Try[StepQName] =
+    StepQNameFactory.resolveRef(qnameString, scope, unqualifiedPathStepPolicy)
 
   def createLocal(name: String, targetNamespace: NS, isQualified: Boolean,
     scope: scala.xml.NamespaceBinding) = {
@@ -470,17 +472,19 @@ final case class StepQName(prefix: Option[String], local: String, namespace: NS)
 
 protected trait RefQNameFactoryBase[T] {
 
-  protected def resolveDefaultNamespace(scope: scala.xml.NamespaceBinding, tunable: DaffodilTunables): Option[String]
+  protected def resolveDefaultNamespace(scope: scala.xml.NamespaceBinding,
+      unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy): Option[String]
 
   protected def constructor(prefix: Option[String], local: String, namespace: NS): T
 
-  def resolveRef(qnameString: String, scope: scala.xml.NamespaceBinding, tunable: DaffodilTunables): Try[T] = Try {
+  def resolveRef(qnameString: String, scope: scala.xml.NamespaceBinding,
+      unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy): Try[T] = Try {
     qnameString match {
       case QNameRegex.QName(pre, local) => {
         val prefix = Option(pre)
         // note that the prefix, if defined, can never be ""
         val optURI = prefix match {
-          case None => resolveDefaultNamespace(scope, tunable)
+          case None => resolveDefaultNamespace(scope, unqualifiedPathStepPolicy)
           case Some(pre) => Option(scope.getURI(pre))
         }
         val ns = (prefix, optURI) match {
@@ -501,7 +505,9 @@ object RefQNameFactory extends RefQNameFactoryBase[RefQName] {
   override def constructor(prefix: Option[String], local: String, namespace: NS) =
     RefQName(prefix, local, namespace)
 
-  override def resolveDefaultNamespace(scope: scala.xml.NamespaceBinding, tunable: DaffodilTunables) =
+  override def resolveDefaultNamespace(
+      scope: scala.xml.NamespaceBinding,
+      unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy) =
     Option(scope.getURI(null)) // could be a default namespace
 }
 
@@ -511,8 +517,9 @@ object StepQNameFactory extends RefQNameFactoryBase[StepQName] {
     StepQName(prefix, local, namespace)
 
   /* This is what needs Tunables and propagates into Expression */
-  override def resolveDefaultNamespace(scope: scala.xml.NamespaceBinding, tunable: DaffodilTunables) = {
-    tunable.unqualifiedPathStepPolicy match {
+  override def resolveDefaultNamespace(scope: scala.xml.NamespaceBinding,
+      unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy) = {
+    unqualifiedPathStepPolicy match {
       case UnqualifiedPathStepPolicy.NoNamespace => None // don't consider default namespace
       case UnqualifiedPathStepPolicy.DefaultNamespace => Option(scope.getURI(null)) // could be a default namespace
       case UnqualifiedPathStepPolicy.PreferDefaultNamespace => Option(scope.getURI(null)) // could be a default namespace

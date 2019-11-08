@@ -350,7 +350,7 @@ final class PState private (
    * If for some reason parsing ends with a throw (not supposed to, but just if)
    * then all bets are off, so most checks are disabled.
    * Some checks are still done. If those fail, we include the original error (if present) as the cause.
-   * 
+   *
    * verifyFinalState may be called from within another try..catch block for which certain excepetions
    * are expected as control flow.
    * To avoid accidently creating such an exception, we wrap our generated exception in UnsuppressableException
@@ -462,8 +462,8 @@ object PState {
       val blobsToKeep = this.blobPaths
       var currentBlobs = ps.blobPaths
       while (currentBlobs ne blobsToKeep) {
-          Files.delete(currentBlobs.head)
-          currentBlobs = currentBlobs.tail
+        Files.delete(currentBlobs.head)
+        currentBlobs = currentBlobs.tail
       }
       ps.blobPaths = blobsToKeep
     }
@@ -484,7 +484,7 @@ object PState {
     dataProc: DFDL.DataProcessor): PState = {
 
     val tunables = dataProc.getTunables()
-    val doc = Infoset.newDocument(root, tunables).asInstanceOf[DIElement]
+    val doc = Infoset.newDocument(root).asInstanceOf[DIElement]
     createInitialPState(doc.asInstanceOf[InfosetDocument], root, dis, output, dataProc)
   }
 

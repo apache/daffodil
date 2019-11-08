@@ -17,7 +17,6 @@
 
 package org.apache.daffodil.dpath
 
-import org.apache.daffodil.oolag.OOLAG._
 import org.apache.daffodil.exceptions._
 import org.apache.daffodil.dsom._
 import scala.xml.NamespaceBinding
@@ -36,6 +35,10 @@ import org.apache.daffodil.infoset.SeveralPossibilitiesForNextElement
 import org.apache.daffodil.util.LogLevel
 import org.apache.daffodil.udf.UserDefinedFunctionService
 import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.BasicComponent
+import org.apache.daffodil.api.DaffodilTunables
+import org.apache.daffodil.oolag.OOLAG.OOLAGHostImpl
+import org.apache.daffodil.oolag.OOLAG.OOLAGHost
 
 /**
  * Root class of the type hierarchy for the AST nodes used when we
@@ -47,7 +50,7 @@ import org.apache.daffodil.util.Maybe
  * This is the OOLAG pattern again.
  */
 abstract class Expression extends OOLAGHostImpl()
-  with ImplementsThrowsOrSavesSDE {
+  with BasicComponent {
 
   /**
    * Use several calls instead of one, because then OOLAG will try them
@@ -59,8 +62,8 @@ abstract class Expression extends OOLAGHostImpl()
   requiredEvaluations(isTypeCorrect)
   requiredEvaluations(compiledDPath_)
 
-  def tunable = compileInfo.tunable
-
+  override lazy val tunable = parent.tunable
+  override lazy val unqualifiedPathStepPolicy = parent.unqualifiedPathStepPolicy
   /**
    * Override where we traverse/access elements.
    */
@@ -236,7 +239,7 @@ abstract class Expression extends OOLAGHostImpl()
   def inherentType: NodeInfo.Kind
 
   def resolveRef(qnameString: String) = {
-    QName.resolveRef(qnameString, namespaces, tunable).recover {
+    QName.resolveRef(qnameString, namespaces, tunable.unqualifiedPathStepPolicy).recover {
       case _: Throwable =>
         SDE("The prefix of '%s' has no corresponding namespace definition.", qnameString)
     }.get
@@ -569,8 +572,11 @@ case class WholeExpression(
   ifor: Expression,
   nsBindingForPrefixResolution: NamespaceBinding,
   ci: DPathCompileInfo,
-  host: OOLAGHost)
+  host: BasicComponent)
   extends Expression {
+
+  final override lazy val tunable = host.tunable
+  final override lazy val unqualifiedPathStepPolicy = host.unqualifiedPathStepPolicy
 
   def init() {
     this.setOOLAGContext(host) // we are the root of expression, but we propagate diagnostics further.
@@ -899,7 +905,7 @@ sealed abstract class StepExpression(val step: String, val pred: Option[Predicat
   }
 
   lazy val stepQName = {
-    val e = QName.resolveStep(step, namespaces, tunable)
+    val e = QName.resolveStep(step, namespaces, tunable.unqualifiedPathStepPolicy)
     e match {
       case Failure(th) => SDE("Step %s prefix has no corresponding namespace.", step)
       case Success(v) => v
@@ -1920,7 +1926,9 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
       case typeCalcName: LiteralExpression => typeCalcName.v.asInstanceOf[String]
       case _ => SDE("The type calculator name argument must be a constant string")
     }
-    val refType = QName.resolveRef(qname, compileInfo.namespaces, compileInfo.tunable).get.toGlobalQName
+    val refType = QName.resolveRef(
+      qname, compileInfo.namespaces,
+      tunable.unqualifiedPathStepPolicy).get.toGlobalQName
     val typeCalculator = compileInfo.typeCalcMap.get(refType) match {
       case None => SDE("Simple type %s does not exist or does not have a repType", refType)
       case Some(x) => x

@@ -69,7 +69,7 @@ case class DownElement(nqn: NamedQName) extends RecipeOp {
     val now = dstate.currentComplex
     // TODO PE ? if doesn't exist should be a processing error.
     // It will throw and so will be a PE, but may be poor diagnostic.
-    val c = dstate.withRetryIfBlocking(now.getChild(nqn))
+    val c = dstate.withRetryIfBlocking(now.getChild(nqn, dstate.tunable))
     dstate.setCurrentNode(c.asInstanceOf[DIElement])
   }
 
@@ -95,8 +95,9 @@ case class DownArrayOccurrence(nqn: NamedQName, indexRecipe: CompiledDPath)
     // necessary since one of the following functions could throw, leaving the
     // current node to null. And future calls depend on a current node to be set
     dstate.setCurrentNode(savedCurrentElement)
-    val childArrayElementERD = dstate.withRetryIfBlocking(savedCurrentElement.getChildArray(nqn).asInstanceOf[DIArray].erd)
-    val arr = dstate.withRetryIfBlocking(savedCurrentElement.getChildArray(childArrayElementERD))
+    val childArrayElementERD = 
+      dstate.withRetryIfBlocking(savedCurrentElement.getChildArray(nqn, dstate.tunable).asInstanceOf[DIArray].erd)
+    val arr = dstate.withRetryIfBlocking(savedCurrentElement.getChildArray(childArrayElementERD, dstate.tunable))
     val occurrence = dstate.withRetryIfBlocking(arr.getOccurrence(index)) // will throw on out of bounds
     dstate.setCurrentNode(occurrence.asInstanceOf[DIElement])
   }
@@ -114,7 +115,7 @@ case class DownArray(nqn: NamedQName) extends RecipeOp {
 
   override def run(dstate: DState) {
     val now = dstate.currentComplex
-    val arr = dstate.withRetryIfBlocking(now.getChildArray(nqn))
+    val arr = dstate.withRetryIfBlocking(now.getChildArray(nqn, dstate.tunable))
     Assert.invariant(arr ne null)
     dstate.setCurrentNode(arr.asInstanceOf[DIArray])
   }
@@ -129,7 +130,7 @@ case class DownArrayExists(nqn: NamedQName) extends RecipeOp {
 
   override def run(dstate: DState) {
     val now = dstate.currentComplex
-    val arr = dstate.withRetryIfBlocking(now.getChildArray(nqn))
+    val arr = dstate.withRetryIfBlocking(now.getChildArray(nqn, dstate.tunable))
 
     if ((arr eq null) || arr.length == 0)
       throw new InfosetNoSuchChildElementException(now, nqn)

@@ -38,6 +38,7 @@ import org.apache.daffodil.dsom.ContentValueReferencedElementInfoMixin
 import org.apache.daffodil.infoset._
 import org.apache.daffodil.processors.parsers.DoSDEMixin
 import org.apache.daffodil.processors.parsers.PState
+import org.apache.daffodil.api.DaffodilTunables
 
 /**
  * Generates unique int for use as key into EvalCache
@@ -305,8 +306,8 @@ abstract class Evaluatable[+T <: AnyRef](protected val rd: RuntimeData, qNameArg
     y
   }
 
-  final def compile(): Maybe[T] = {
-    val compState = new CompileState(rd, Nope)
+  final def compile(tunable: DaffodilTunables): Maybe[T] = {
+    val compState = new CompileState(rd, Nope, tunable)
     compile(compState)
   }
 
@@ -503,4 +504,3 @@ abstract class EvaluatableConvertedExpression[ExprType <: AnyRef, +ConvertedType
   rd: RuntimeData)
   extends Evaluatable[ConvertedType](rd)
   with EvaluatableConvertedExpressionMixin[ExprType, ConvertedType]
-

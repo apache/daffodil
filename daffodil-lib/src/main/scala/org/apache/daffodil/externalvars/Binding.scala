@@ -20,6 +20,7 @@ package org.apache.daffodil.externalvars
 import scala.xml.Node
 import org.apache.daffodil.xml._
 import org.apache.daffodil.api.DaffodilTunables
+import org.apache.daffodil.api.UnqualifiedPathStepPolicy
 
 class Binding(val varQName: RefQName, val varValue: String, scope: scala.xml.NamespaceBinding = null) {
 
@@ -64,10 +65,10 @@ object Binding {
     case e: Throwable => throw BindingException(e.getMessage)
   }
 
-  def apply(node: Node, tunable: DaffodilTunables): Binding = {
+  def apply(node: Node, unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy): Binding = {
     val name = (node \ "@name").head.text
     val refQName = try {
-      QName.resolveRef(name, node.scope, tunable)
+      QName.resolveRef(name, node.scope, unqualifiedPathStepPolicy)
     } catch {
       case e: Throwable => throw BindingException(e.getMessage)
     }
@@ -81,10 +82,10 @@ object Binding {
     case e: Throwable => throw BindingException(e.getMessage)
   }
 
-  def getBindings(extVarBindings: Node, tunableArg: DaffodilTunables) = {
+  def getBindings(extVarBindings: Node, unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy) = {
     val bindings = extVarBindings \ "bind"
     try {
-      bindings.map(b => Binding(b, tunableArg))
+      bindings.map(b => Binding(b, unqualifiedPathStepPolicy))
     } catch {
       case e: Throwable => throw BindingException(e.getMessage)
     }

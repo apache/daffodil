@@ -574,7 +574,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
   private def retrieveBindings(cfg: DefinedConfig, tunable: DaffodilTunables): Seq[Binding] = {
     val bindings: Seq[Binding] = cfg.externalVariableBindings match {
       case None => Seq.empty
-      case Some(bindingsNode) => Binding.getBindings(bindingsNode, tunable)
+      case Some(bindingsNode) => Binding.getBindings(bindingsNode, tunable.unqualifiedPathStepPolicy)
     }
     bindings
   }
