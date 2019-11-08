@@ -248,7 +248,7 @@ class ElementParser(
     log(LogLevel.Debug, "currentElement = %s", currentElement)
     val priorElement = pstate.infoset
     priorElement match {
-      case ct: DIComplex => ct.addChild(currentElement)
+      case ct: DIComplex => ct.addChild(currentElement, pstate.tunable)
       case st: DISimple => {
         // don't add as a child. This corner case
         // comes up with QuasiElements, which do not actually get inserted into the infoset

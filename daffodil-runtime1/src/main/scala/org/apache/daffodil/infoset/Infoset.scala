@@ -22,6 +22,7 @@ import org.apache.daffodil.xml.NS
 import org.apache.daffodil.util.MaybeBoolean
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.processors.ElementRuntimeData
+import org.apache.daffodil.api.DaffodilTunables
 
 object INoWarn2 { ImplicitsSuppressUnusedImportWarning() }
 
@@ -64,8 +65,8 @@ trait InfosetElement extends InfosetItem {
 
 trait InfosetComplexElement extends InfosetElement {
 
-  def getChild(erd: ElementRuntimeData): InfosetElement
-  def getChildArray(erd: ElementRuntimeData): InfosetArray
+  def getChild(erd: ElementRuntimeData, tunable: DaffodilTunables): InfosetElement
+  def getChildArray(erd: ElementRuntimeData, tunable: DaffodilTunables): InfosetArray
 
   /**
    * Determines slotInParent from the ERD of the infoset element arg.
@@ -73,7 +74,7 @@ trait InfosetComplexElement extends InfosetElement {
    *
    * When slot contains an array, this appends to the end of the array.
    */
-  def addChild(e: InfosetElement): Unit
+  def addChild(e: InfosetElement, tunable: DaffodilTunables): Unit
 
 }
 
@@ -91,7 +92,7 @@ trait InfosetSimpleElement extends InfosetElement {
 
 trait InfosetDocument extends InfosetItem {
   def getRootElement(): InfosetElement
-  def setRootElement(root: InfosetElement): Unit
+  def setRootElement(root: InfosetElement, tunable: DaffodilTunables): Unit
 }
 
 trait InfosetItem extends InfosetCommon {

@@ -23,13 +23,14 @@ import scala.xml.NamespaceBinding
 import java.lang.{ Long => JLong, Boolean => JBoolean }
 import org.apache.daffodil.oolag.OOLAG._
 import org.apache.daffodil.processors.TypeCalculatorCompiler.TypeCalcMap
+import org.apache.daffodil.BasicComponent
 
 trait ExpressionCompilerBase[T <: AnyRef] {
 
   def compileExpression(qn: NamedQName, nodeInfoKind: NodeInfo.Kind, exprWithBracesMaybe: String, namespaces: NamespaceBinding,
     compileInfoWherePropertyWasLocated: DPathCompileInfo,
     isEvaluatedAbove: Boolean,
-    host: OOLAGHost,
+    host: BasicComponent,
     compileInfo: DPathCompileInfo): CompiledExpression[T]
 }
 

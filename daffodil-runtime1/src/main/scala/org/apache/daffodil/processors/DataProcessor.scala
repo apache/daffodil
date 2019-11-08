@@ -80,8 +80,10 @@ class InvalidUsageException(msg: String, cause: Throwable = null) extends Except
 /**
  * This is the DataProcessor constructed from a saved Parser.
  */
-class SerializableDataProcessor(val data: SchemaSetRuntimeData)
-  extends DataProcessor(data) {
+class SerializableDataProcessor(
+  val data: SchemaSetRuntimeData,
+  tunable: DaffodilTunables)
+  extends DataProcessor(data, tunable) {
   override def setValidationMode(mode: ValidationMode.Type): Unit = {
     if (mode == ValidationMode.Full) { throw new InvalidUsageException("'Full' validation not allowed when using a restored parser.") }
     super.setValidationMode(mode)
@@ -92,12 +94,15 @@ class SerializableDataProcessor(val data: SchemaSetRuntimeData)
  * The very last aspects of compilation, and the start of the
  * back-end runtime.
  */
-class DataProcessor(val ssrd: SchemaSetRuntimeData)
+class DataProcessor(
+  val ssrd: SchemaSetRuntimeData,
+  protected var tunablesObj: DaffodilTunables // Compiler-set tunables
+)
   extends DFDL.DataProcessor with Logging
   with HasSetDebugger with Serializable
   with MultipleEventHandler {
 
-  protected var tunablesObj = ssrd.tunable // Compiler-set tunables
+  def tunable = getTunables
 
   // This thread local state is used by the PState when it needs buffers for
   // regex matching. This cannot be in PState because a PState does not last
@@ -163,7 +168,6 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
 
   def setTunable(tunable: String, value: String): Unit = tunablesObj = tunablesObj.setTunable(tunable, value)
   def setTunables(tunables: Map[String, String]): Unit = tunablesObj = tunablesObj.setTunables(tunables)
-  def resetTunables(): Unit = tunablesObj = ssrd.tunable // Compiler-set values
 
   override def isError = false // really there is no compiling at all currently, so there can be no errors.
 
@@ -171,7 +175,7 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
 
   def save(output: DFDL.Output): Unit = {
     val oos = new ObjectOutputStream(new GZIPOutputStream(Channels.newOutputStream(output)))
-    oos.writeObject(new SerializableDataProcessor(ssrd))
+    oos.writeObject(new SerializableDataProcessor(ssrd, tunablesObj))
     oos.close()
   }
 

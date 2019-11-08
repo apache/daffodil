@@ -59,6 +59,7 @@ import org.apache.daffodil.schema.annotation.props.gen.OccursCountKind
 import org.apache.daffodil.xml.NamedQName
 import org.apache.daffodil.processors.unparsers.UnparseError
 import org.apache.daffodil.util.Misc
+import org.apache.daffodil.api.UnqualifiedPathStepPolicy
 
 /*
  * NOTE: Any time you add a member to one of these objects, you must modify at least 3 places.
@@ -83,7 +84,7 @@ sealed trait RuntimeData
   def variableMap: VariableMap
   override def toString = diagnosticDebugName
 
-  def tunable: DaffodilTunables
+  def unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy
 
 }
 
@@ -147,7 +148,7 @@ sealed abstract class TermRuntimeData(
    * expressions at runtime (in the debugger, which is part of the runtime;
    * hence, need this info at runtime.)
    */
-  def tunable = dpathCompileInfo.tunable
+  def unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy = dpathCompileInfo.unqualifiedPathStepPolicy
 
   lazy val position = positionArg
   lazy val partialNextElementResolver = partialNextElementResolverArg
@@ -176,7 +177,6 @@ sealed abstract class TermRuntimeData(
     defaultBitOrder
     optIgnoreCase
     maybeFillByteEv
-    tunable
     maybeCheckByteAndBitOrderEv
     maybeCheckBitOrderAndCharsetEv
   }
@@ -196,7 +196,7 @@ sealed class NonTermRuntimeData(
   @TransientParam diagnosticDebugNameArg: => String,
   @TransientParam pathArg: => String,
   @TransientParam namespacesArg: => NamespaceBinding,
-  @TransientParam tunableArg: => DaffodilTunables)
+  @TransientParam unqualifiedPathStepPolicyArg: => UnqualifiedPathStepPolicy)
   extends RuntimeData
   with PreSerialization {
 
@@ -205,7 +205,7 @@ sealed class NonTermRuntimeData(
   lazy val diagnosticDebugName = diagnosticDebugNameArg
   lazy val path = pathArg
   lazy val namespaces = namespacesArg
-  lazy val tunable = tunableArg
+  lazy val unqualifiedPathStepPolicy = unqualifiedPathStepPolicyArg
 
   override def preSerialization: Unit = {
     super.preSerialization
@@ -214,7 +214,7 @@ sealed class NonTermRuntimeData(
     diagnosticDebugName
     path
     namespaces
-    tunable
+    unqualifiedPathStepPolicy
   }
   @throws(classOf[java.io.IOException])
   final private def writeObject(out: java.io.ObjectOutputStream): Unit = serializeObject(out)
@@ -246,13 +246,13 @@ final class SimpleTypeRuntimeData(
   @TransientParam totalDigitsArg: => Option[java.math.BigDecimal],
   @TransientParam fractionDigitsArg: => Option[java.math.BigDecimal],
   @TransientParam unionMemberTypesArg: => Seq[SimpleTypeRuntimeData],
-  @TransientParam tunableArg: => DaffodilTunables,
+  @TransientParam unqualifiedPathStepPolicyArg: => UnqualifiedPathStepPolicy,
   @TransientParam repTypeRuntimeDataArg: => Option[SimpleTypeRuntimeData],
   @TransientParam repValueSetArg: => Option[RepValueSet[AnyRef]],
   @TransientParam typeCalculatorArg: => Option[TypeCalculator[AnyRef, AnyRef]],
   @TransientParam optRepPrimTypeArg: => Option[PrimType])
   extends NonTermRuntimeData(variableMapArg, schemaFileLocationArg, diagnosticDebugNameArg,
-    pathArg, namespacesArg, tunableArg) {
+    pathArg, namespacesArg, unqualifiedPathStepPolicyArg) {
 
   import OKOrError._
 
@@ -807,7 +807,7 @@ sealed abstract class ErrorERD(local: String, namespaceURI: String)
       LocalDeclQName(None, local, NS(namespaceURI)), // val namedQName: NamedQName,
       None, // val optPrimType: Option[PrimType],
       null, // sfl: SchemaFileLocation,
-      null, // override val tunable: DaffodilTunables,
+      null, // override val unqualifiedPathStepPolicy : UnqualifiedPathStepPolicy,
       null, // typeCalcMap: TypeCalcMap,
       null, // lexicalContextRuntimeData: RuntimeData,
       null), // val sscd: String),
@@ -1035,14 +1035,14 @@ final class VariableRuntimeData(
   @TransientParam typeRefArg: => RefQName,
   @TransientParam globalQNameArg: => GlobalQName,
   @TransientParam primTypeArg: => NodeInfo.PrimType,
-  @TransientParam tunableArg: => DaffodilTunables)
+  @TransientParam unqualifiedPathStepPolicyArg: => UnqualifiedPathStepPolicy)
   extends NonTermRuntimeData(
     null, // no variable map
     schemaFileLocationArg,
     diagnosticDebugNameArg,
     pathArg,
     namespacesArg,
-    tunableArg)
+    unqualifiedPathStepPolicyArg)
   with Serializable {
 
   lazy val external = externalArg

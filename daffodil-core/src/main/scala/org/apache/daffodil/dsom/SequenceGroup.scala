@@ -244,7 +244,7 @@ abstract class SequenceGroupTermBase(
         Maybe.toMaybe(optionLayerLengthUnits),
         maybeLayerBoundaryMarkEv,
         termRuntimeData)
-      lt.compile()
+      lt.compile(tunable)
       Maybe.One(lt)
     }
   }

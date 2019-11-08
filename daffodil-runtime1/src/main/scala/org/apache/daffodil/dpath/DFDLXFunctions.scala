@@ -95,7 +95,7 @@ case class DFDLXLookAhead(recipes: List[CompiledDPath])
     Assert.invariant(lBitSize >= 0)
 
     val totalLookahead = offset + lBitSize
-    val maxLookahead = dstate.compileInfo.tunable.maxLookaheadFunctionBits
+    val maxLookahead = dstate.tunable.maxLookaheadFunctionBits
     if (totalLookahead > maxLookahead) {
       dstate.SDE("Look-ahead distance of %s bits exceeds implementation defined limit of %s bits", totalLookahead, maxLookahead)
     }

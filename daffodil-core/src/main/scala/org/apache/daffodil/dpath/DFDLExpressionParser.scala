@@ -31,6 +31,7 @@ import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.oolag.OOLAG.OOLAGHost
 import org.apache.daffodil.xml.NamedQName
 import org.apache.daffodil.xml.QNameRegex
+import org.apache.daffodil.BasicComponent
 
 /**
  * Parses DPath expressions. Most real analysis is done later. This is
@@ -52,14 +53,14 @@ class DFDLPathExpressionParser[T <: AnyRef](
   namespaces: NamespaceBinding,
   context: DPathCompileInfo,
   isEvaluatedAbove: Boolean,
-  host: OOLAGHost) extends RegexParsers {
+  host: BasicComponent) extends RegexParsers {
 
   def compile(expr: String): CompiledExpression[T] = {
     val tree = getExpressionTree(expr)
 
     val recipe = tree.compiledDPath // if we cannot get one this will fail by throwing out of here.
 
-    val value = recipe.runExpressionForConstant(context.schemaFileLocation, context)
+    val value = recipe.runExpressionForConstant(context.schemaFileLocation, context, host.tunable)
     val res: CompiledExpression[T] = value match {
       case Some(constantValue) => {
         Assert.invariant(constantValue != null)

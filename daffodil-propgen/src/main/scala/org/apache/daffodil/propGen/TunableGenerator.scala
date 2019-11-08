@@ -127,8 +127,7 @@ class TunableGenerator(schemaRootConfig: scala.xml.Node, schemaRootExt: scala.xm
 
   val excludedSimpleTypes = Seq(
     "TunableEmptyElementParsePolicy",
-    "TunableSuppressSchemaDefinitionWarnings"
-  )
+    "TunableSuppressSchemaDefinitionWarnings")
   val tunableSimpleTypeNodes = (schemaRootConfig \ "simpleType")
     .filter { st => (st \@ "name").startsWith("Tunable") }
     .filter { st => !excludedSimpleTypes.contains(st \@ "name") }
@@ -190,7 +189,7 @@ class PrimitiveTunable(name: String, schemaType: String, schemaDefault: String)
 
   private val scalaType = schemaType match {
     case "xs:boolean" => "Boolean"
-    case "xs:int" =>  "Int"
+    case "xs:int" => "Int"
     case "xs:long" => "Long"
     case "xs:string" => "String"
   }

@@ -429,7 +429,7 @@ sealed trait RegularElementUnparserStartEndStrategy
                 c.erd.namedQName.toExtendedSyntax,
                 res.erd.namedQName.toExtendedSyntax)
             }
-            c.addChild(res)
+            c.addChild(res, state.tunable)
           } else {
             val doc = state.documentElement
             doc.addChild(res) // DIDocument, which is never a current node, must have the child added
@@ -441,7 +441,7 @@ sealed trait RegularElementUnparserStartEndStrategy
           // Since we never get events for hidden elements, their infoset elements
           // will have never been created. This means we need to manually create them
           val e = if (erd.isComplexType) new DIComplex(erd) else new DISimple(erd)
-          state.currentInfosetNode.asComplex.addChild(e)
+          state.currentInfosetNode.asComplex.addChild(e, state.tunable)
           e
         }
 
@@ -511,7 +511,7 @@ trait OVCStartEndStrategy
           Assert.invariant(endEv.isEnd && endEv.erd == erd)
 
           val e = new DISimple(erd)
-          state.currentInfosetNode.asComplex.addChild(e)
+          state.currentInfosetNode.asComplex.addChild(e, state.tunable)
           // Remove any state that was set by what created this event. Later
           // code asserts that OVC elements do not have a value
           e.resetValue
@@ -519,13 +519,13 @@ trait OVCStartEndStrategy
         } else {
           // Event was optional and didn't exist, create a new InfosetElement and add it
           val e = new DISimple(erd)
-          state.currentInfosetNode.asComplex.addChild(e)
+          state.currentInfosetNode.asComplex.addChild(e, state.tunable)
           e
         }
       } else {
         // Event was hidden and will never exist, create a new InfosetElement and add it
         val e = new DISimple(erd)
-        state.currentInfosetNode.asComplex.addChild(e)
+        state.currentInfosetNode.asComplex.addChild(e, state.tunable)
         e
       }
 

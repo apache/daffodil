@@ -51,6 +51,8 @@ import org.apache.daffodil.infoset.XMLTextInfosetOutputter
 import org.apache.daffodil.processors.parsers.ConvertTextCombinatorParser
 import org.apache.daffodil.oolag.OOLAG._
 import scala.collection.JavaConverters._
+import org.apache.daffodil.api.DaffodilTunables
+import org.apache.daffodil.BasicComponent
 
 abstract class InteractiveDebuggerRunner {
   def init(id: InteractiveDebugger): Unit
@@ -301,7 +303,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
       // compile the expression
       //
       val compiledExpr = try {
-        val hostForDiags = new DebuggerHost()
+        val hostForDiags = new DebuggerHost(state.tunable)
         val ce = eCompilers.JBoolean.compileExpression(
           debuggerQName,
           NodeInfo.Boolean, expression, processor.context.namespaces, context.dpathCompileInfo, false,
@@ -1047,7 +1049,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
           else adjustedExpression
         val isEvaluatedAbove = false
         try {
-          val hostForDiags = new DebuggerHost()
+          val hostForDiags = new DebuggerHost(state.tunable)
           val compiledExpression = eCompilers.AnyRef.compileExpression(
             debuggerQName,
             NodeInfo.AnyType, expressionWithBraces, namespaces, context.dpathCompileInfo,
@@ -1817,4 +1819,17 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
  * A stub OOLAGHost is needed to accumulate warnings that may be created
  * during expression compilation in the debugger.
  */
-class DebuggerHost extends OOLAGHostImpl(null) // null means this is the root OOLAG Host
+class DebuggerHost(override val tunable: DaffodilTunables)
+  extends OOLAGHostImpl(null) // null means this is the root OOLAG Host
+  with BasicComponent {
+
+  /**
+   * As seen from class DebuggerHost, the missing signatures are as follows.
+   *  *  For convenience, these are usable as stub implementations.
+   */
+  // Members declared in org.apache.daffodil.xml.ResolvesQNames
+  def namespaces: scala.xml.NamespaceBinding = ???
+  def unqualifiedPathStepPolicy: org.apache.daffodil.api.UnqualifiedPathStepPolicy = ???
+  // Members declared in org.apache.daffodil.exceptions.ThrowsSDE
+  def schemaFileLocation: org.apache.daffodil.exceptions.SchemaFileLocation = ???
+}

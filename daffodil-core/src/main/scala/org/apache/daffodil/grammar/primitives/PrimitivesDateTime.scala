@@ -128,13 +128,13 @@ abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
 
   private lazy val localeEv = {
     val ev = new CalendarLanguageEv(e.calendarLanguage, e.erd)
-    ev.compile()
+    ev.compile(e.tunable)
     ev
   }
 
   private lazy val calendarEv = {
     val cev = new CalendarEv(localeEv, calendarTz, firstDay, calendarDaysInFirstWeek, calendarCheckPolicy, e.erd)
-    cev.compile()
+    cev.compile(e.tunable)
     cev
   }
 
@@ -147,7 +147,7 @@ abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
       }
     }
 
-    val patternToCheck : String = if (e.representation == Representation.Text) {
+    val patternToCheck: String = if (e.representation == Representation.Text) {
       val escapedText = "(''|'[^']+'|[^a-zA-Z])".r
       escapedText.replaceAllIn(p, "")
     } else {
@@ -276,9 +276,9 @@ case class ConvertBinaryDateTimeSecMilliPrim(e: ElementBase, lengthInBits: Long)
 
   override lazy val unparser =
     new ConvertBinaryCalendarSecMilliUnparser(
-    e.elementRuntimeData,
-    e.binaryCalendarRep,
-    epochCalendar.getTimeInMillis,
-    lengthInBits.toInt,
-    !epochCalendar.getTimeZone.equals(TimeZone.UNKNOWN_ZONE))
+      e.elementRuntimeData,
+      e.binaryCalendarRep,
+      epochCalendar.getTimeInMillis,
+      lengthInBits.toInt,
+      !epochCalendar.getTimeZone.equals(TimeZone.UNKNOWN_ZONE))
 }

@@ -28,6 +28,7 @@ import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.util.Misc._
 import org.apache.daffodil.exceptions.ThrowsSDE
 import org.apache.daffodil.api.DaffodilTunables
+import org.apache.daffodil.api.UnqualifiedPathStepPolicy
 
 /**
  * The purpose of this object is to be able to take
@@ -57,11 +58,12 @@ object ExternalVariablesLoader {
     bindings
   }
 
-  def getVariables(node: Node, tunableArg: DaffodilTunables): Seq[Binding] = Binding.getBindings(node, tunableArg)
+  def getVariables(node: Node): Seq[Binding] =
+    Binding.getBindings(node, UnqualifiedPathStepPolicy.DefaultNamespace)
 
-  def getVariables(varsFile: File, tunableArg: DaffodilTunables): Seq[Binding] = {
+  def getVariables(varsFile: File): Seq[Binding] = {
     val node = getVariablesAsNode(varsFile)
-    val bindings = Binding.getBindings(node, tunableArg)
+    val bindings = Binding.getBindings(node, UnqualifiedPathStepPolicy.DefaultNamespace)
     bindings
   }
 
@@ -121,7 +123,7 @@ object ExternalVariablesLoader {
     Assert.usage(node != null, "loadVariables expects 'node' to not be null!")
     Assert.usage(referringContext != null, "loadVariables expects 'referringContext' to not be null!")
     val bindings = try {
-      Binding.getBindings(node, tunableArg)
+      Binding.getBindings(node, tunableArg.unqualifiedPathStepPolicy)
     } catch {
       case e: Throwable => referringContext.SDE("Exception when processing external variable binding file: %s", e.getMessage)
     }

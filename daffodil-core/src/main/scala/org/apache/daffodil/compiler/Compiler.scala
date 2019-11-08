@@ -176,7 +176,7 @@ final class ProcessorFactory(val sset: SchemaSet)
       if (rootElem.numComponents > rootElem.numUniqueComponents)
         log(LogLevel.Info, "Compiler: component counts: unique %s, actual %s.",
           rootElem.numUniqueComponents, rootElem.numComponents)
-      val dataProc = new DataProcessor(ssrd)
+      val dataProc = new DataProcessor(ssrd, tunable)
       if (dataProc.isError) {
         // NO longer printing anything here. Callers must do this.
         //        val diags = dataProc.getDiagnostics
@@ -248,7 +248,7 @@ class Compiler(var validateDFDLSchemas: Boolean = true)
   def setExternalDFDLVariable(variable: Binding) = externalDFDLVariables.enqueue(variable)
   def setExternalDFDLVariables(variables: Seq[Binding]) = variables.foreach(b => setExternalDFDLVariable(b))
   def setExternalDFDLVariables(extVarsFile: File): Unit = {
-    val extVars = ExternalVariablesLoader.getVariables(extVarsFile, tunablesObj)
+    val extVars = ExternalVariablesLoader.getVariables(extVarsFile)
     setExternalDFDLVariables(extVars)
   }
 
@@ -258,10 +258,6 @@ class Compiler(var validateDFDLSchemas: Boolean = true)
 
   def setTunables(tunables: Map[String, String]): Unit = {
     tunablesObj = tunablesObj.setTunables(tunables)
-  }
-
-  def resetTunables(): Unit = {
-    tunablesObj = DaffodilTunables()
   }
 
   /**

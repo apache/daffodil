@@ -112,6 +112,10 @@ trait SetProcessorMixin {
     maybeProcessor_ = mp
   }
 }
+
+trait HasTunable {
+  def tunable: DaffodilTunables
+}
 /**
  * A parser takes a state, and returns an updated state
  *
@@ -127,7 +131,7 @@ abstract class ParseOrUnparseState protected (
   protected var variableBox: VariableBox,
   var diagnostics: List[Diagnostic],
   var dataProc: Maybe[DataProcessor],
-  val tunable: DaffodilTunables) extends DFDL.State
+  override val tunable: DaffodilTunables) extends DFDL.State
   with StateForDebugger
   with ThrowsSDE
   with SavesErrorsAndWarnings
@@ -135,7 +139,8 @@ abstract class ParseOrUnparseState protected (
   with EncoderDecoderMixin
   with Logging
   with FormatInfo
-  with SetProcessorMixin {
+  with SetProcessorMixin
+  with HasTunable {
 
   def this(vmap: VariableMap, diags: List[Diagnostic], dataProc: Maybe[DataProcessor], tunable: DaffodilTunables) =
     this(new VariableBox(vmap), diags, dataProc, tunable)
@@ -406,7 +411,7 @@ abstract class ParseOrUnparseState protected (
 
   private val maybeSsrd = if (dataProc.isDefined) { One(dataProc.get.ssrd) } else Maybe.Nope
 
-  private val _dState = new DState(maybeSsrd)
+  private val _dState = new DState(maybeSsrd, tunable)
 
   /**
    * Used when evaluating expressions. Holds state of expression
@@ -539,8 +544,8 @@ abstract class ParseOrUnparseState protected (
  *  inconsistent with constant-value are attempted to be extracted from the state. By "blow up" it throws
  *  a structured set of exceptions, typically children of InfosetException or VariableException.
  */
-final class CompileState(trd: RuntimeData, maybeDataProc: Maybe[DataProcessor])
-  extends ParseOrUnparseState(trd.variableMap, Nil, maybeDataProc, tunable = trd.tunable) {
+final class CompileState(trd: RuntimeData, maybeDataProc: Maybe[DataProcessor], tunable: DaffodilTunables)
+  extends ParseOrUnparseState(trd.variableMap, Nil, maybeDataProc, tunable) {
 
   def arrayPos: Long = 1L
   def bitLimit0b: MaybeULong = MaybeULong.Nope

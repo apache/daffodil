@@ -57,7 +57,7 @@ class TestGeneratedProperties {
     val xml = bagOfProps
     lazy val fileName = "file:dummy"
     lazy val properties: PropMap = Map.empty
-    lazy val tunable = DaffodilTunables()
+    lazy val unqualifiedPathStepPolicy = DaffodilTunables().unqualifiedPathStepPolicy
 
     def SDE(id: String, args: Any*): Nothing = {
       throw new Exception(id.format(args: _*))

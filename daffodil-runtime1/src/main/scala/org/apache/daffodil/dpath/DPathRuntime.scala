@@ -38,6 +38,7 @@ import org.apache.daffodil.dpath.NodeInfo.PrimType
 import org.apache.daffodil.dsom.DPathCompileInfo
 import org.apache.daffodil.xml.GlobalQName
 import org.apache.daffodil.processors.TypeCalculator
+import org.apache.daffodil.api.DaffodilTunables
 
 class CompiledDPath(val ops: RecipeOp*) extends Serializable {
 
@@ -75,14 +76,15 @@ class CompiledDPath(val ops: RecipeOp*) extends Serializable {
    * so that part of an expression can be constant, not necessarily the whole thing.
    */
   def runExpressionForConstant(
-      sfl: SchemaFileLocation, 
-      compileInfo: DPathCompileInfo ): Option[AnyRef] = {
+    sfl: SchemaFileLocation,
+    compileInfo: DPathCompileInfo,
+    tunable: DaffodilTunables): Option[AnyRef] = {
 
     //
     // we use a special dummy dstate here that errors out via throw
     // if the evaluation tries to get a processor state or node.
     //
-    val dstate = new DStateForConstantFolding(compileInfo)
+    val dstate = new DStateForConstantFolding(compileInfo, tunable)
     val isConstant: Boolean =
       try {
         run(dstate)
@@ -159,7 +161,7 @@ abstract class RecipeOp
    * there are children to display.
    */
   def toXML: scala.xml.Node = toXML(scala.xml.NodeSeq.Empty)
-  
+
 }
 
 abstract class RecipeOpWithSubRecipes(recipes: List[CompiledDPath]) extends RecipeOp {

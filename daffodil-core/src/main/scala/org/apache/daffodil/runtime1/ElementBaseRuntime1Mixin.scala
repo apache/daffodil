@@ -140,7 +140,7 @@ trait ElementBaseRuntime1Mixin { self: ElementBase =>
       namedQName,
       optPrimType,
       schemaFileLocation,
-      tunable,
+      tunable.unqualifiedPathStepPolicy,
       schemaSet.typeCalcMap,
       runtimeData,
       shortSchemaComponentDesignator)

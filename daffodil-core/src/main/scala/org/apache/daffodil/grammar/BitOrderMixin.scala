@@ -84,7 +84,7 @@ trait BitOrderMixin extends GrammarMixin with ByteOrderAnalysisMixin { self: Ter
     else {
       val checkByteAndBitOrder = {
         val ev = new CheckByteAndBitOrderEv(termRuntimeData, defaultBitOrder)
-        ev.compile()
+        ev.compile(tunable)
         ev
       }
       Maybe(checkByteAndBitOrder)
@@ -98,7 +98,7 @@ trait BitOrderMixin extends GrammarMixin with ByteOrderAnalysisMixin { self: Ter
     else {
       val checkBitOrderAndCharset = {
         val ev = new CheckBitOrderAndCharsetEv(termRuntimeData, defaultBitOrder, charsetEv)
-        ev.compile()
+        ev.compile(tunable)
         ev
       }
       Maybe(checkBitOrderAndCharset)

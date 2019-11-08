@@ -27,6 +27,7 @@ import org.apache.daffodil.compiler.BothParserAndUnparser
 import org.apache.daffodil.api.WarnID
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.runtime1.GramRuntime1Mixin
+import org.apache.daffodil.BasicComponent
 
 /**
  * Gram - short for "Grammar Term"
@@ -51,11 +52,18 @@ import org.apache.daffodil.runtime1.GramRuntime1Mixin
  */
 abstract class Gram(contextArg: SchemaComponent)
   extends OOLAGHostImpl(contextArg)
+  with BasicComponent
   with GramRuntime1Mixin {
 
-  final def SDE(str: String, args: Any*): Nothing = context.SDE(str, args: _*)
+  final override lazy val tunable = context.tunable
 
-  final def SDW(warnID: WarnID, str: String, args: Any*): Unit = context.SDW(warnID, str, args: _*)
+  final override def namespaces = context.namespaces
+  final override def unqualifiedPathStepPolicy = context.unqualifiedPathStepPolicy
+  final override def schemaFileLocation = context.schemaFileLocation
+
+  final override def SDE(str: String, args: Any*): Nothing = context.SDE(str, args: _*)
+
+  final override def SDW(warnID: WarnID, str: String, args: Any*): Unit = context.SDW(warnID, str, args: _*)
 
   val forWhat: ParserOrUnparser = BothParserAndUnparser
 
