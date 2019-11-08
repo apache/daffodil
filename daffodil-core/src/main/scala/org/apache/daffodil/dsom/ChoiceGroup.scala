@@ -325,6 +325,8 @@ abstract class ChoiceTermBase(
 
   final lazy val choiceRuntimeData = {
     new ChoiceRuntimeData(
+      position,
+      partialNextElementResolver,
       schemaSet.variableMap,
       encodingInfo,
       // elementChildren.map { _.elementRuntimeData.dpathElementCompileInfo },

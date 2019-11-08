@@ -53,7 +53,8 @@ trait InfosetInputterCursor extends Cursor[InfosetAccessor] {
 
 abstract class InfosetInputter
   extends InfosetInputterCursor
-  with CursorImplMixin[InfosetAccessor] {
+  with CursorImplMixin[InfosetAccessor]
+  with NextElementResolver {
 
   var tunable = DaffodilTunables()
 
@@ -114,8 +115,6 @@ abstract class InfosetInputter
 
   def initialize(rootElementInfo: ElementRuntimeData, tunableArg: DaffodilTunables): Unit = {
     tunable = tunableArg
-    nextElementResolver =
-      new OnlyOnePossibilityForNextElement(rootElementInfo.schemaFileLocation, rootElementInfo, RootResolver) // bootstrap
 
     val diDoc = new DIDocument(rootElementInfo, tunable)
     nodeStack.push(diDoc)
@@ -133,15 +132,12 @@ abstract class InfosetInputter
   private type NodeStack = MStackOf[DINode]
   private val nodeStack: NodeStack = new MStackOf[DINode]
 
-  private var nextElementResolver: NextElementResolver = null
-
   private def level = nodeStack.length
 
   private def indent = ("  " * level) + "|"
 
   override def toString() = {
     indent + "************* STATE ************************\n" +
-      indent + "nextElementResolver = " + nextElementResolver + "\n" +
       indent + "nodeStack = " + nodeStack + "\n" +
       indent + "********************************************"
   }
@@ -353,14 +349,9 @@ abstract class InfosetInputter
     nodeStack.push(e)
 
     Assert.invariant(e.parent ne null)
-    nextElementResolver =
-      if (e.erd.isSimpleType)
-        e.erd.nextElementResolver
-      else
-        e.erd.childElementResolver
   }
 
-  private def nextElementErd() = nextElementResolver.nextElement(getLocalName(), getNamespaceURI(), supportsNamespaces)
+  private def nextElementErd() = nextElement(getLocalName(), getNamespaceURI(), supportsNamespaces)
 
   private def createElement() = {
     val erd = nextElementErd()
@@ -404,7 +395,6 @@ abstract class InfosetInputter
       case e: DIElement => {
         end(e)
         nodeStack.pop
-        nextElementResolver = e.erd.nextElementResolver
       }
       case a: DIArray => {
         end(a)
@@ -412,7 +402,6 @@ abstract class InfosetInputter
         val parent = nodeStack.top.asInstanceOf[DIComplex]
         queueAnotherEvent(EndKind, parent)
         nodeStack.pop
-        nextElementResolver = parent.erd.nextElementResolver
       }
       case node =>
         Assert.invariantFailed("Unexpected end element: " + node)

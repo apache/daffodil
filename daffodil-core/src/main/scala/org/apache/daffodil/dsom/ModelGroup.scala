@@ -267,6 +267,10 @@ abstract class ModelGroup(index: Int)
     }
   }
 
+  /**
+   * Package private as this is for testing only.
+   */
+  private [dsom] 
   final def allSelfContainedTermsTerminatedByRequiredElement: Seq[Term] =
     LV('allSelfContainedTermsTerminatedByRequiredElement) {
       val listOfTerms = groupMembers.map(m => {

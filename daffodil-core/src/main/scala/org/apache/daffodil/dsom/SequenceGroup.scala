@@ -230,6 +230,8 @@ abstract class SequenceGroupTermBase(
 
   final lazy val sequenceRuntimeData = {
     new SequenceRuntimeData(
+      position,
+      partialNextElementResolver,
       schemaSet.variableMap,
       encodingInfo,
       // elementChildren.map { _.elementRuntimeData.dpathElementCompileInfo },
@@ -392,6 +394,8 @@ final class ChoiceBranchImpliedSequence(rawGM: Term)
 
   override lazy val sequenceRuntimeData: SequenceRuntimeData = {
     new SequenceRuntimeData(
+      position,
+      partialNextElementResolver,
       schemaSet.variableMap,
       encodingInfo,
       schemaFileLocation,

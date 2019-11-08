@@ -17,32 +17,24 @@
 
 package org.apache.daffodil.dsom
 
-import scala.xml.NamespaceBinding
-import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.grammar._
-import org.apache.daffodil.schema.annotation.props._
-import org.apache.daffodil.schema.annotation.props.gen._
-import org.apache.daffodil.xml._
-import org.apache.daffodil.util.Misc
+import org.apache.daffodil.equality._
 import org.apache.daffodil.processors._
+import org.apache.daffodil.infoset._
+import org.apache.daffodil.schema.annotation.props._
+import org.apache.daffodil.xml._
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.grammar.ElementBaseGrammarMixin
+import org.apache.daffodil.schema.annotation.props.gen._
+import org.apache.daffodil.dsom._
+import org.apache.daffodil.util.Misc
+import scala.xml.NamespaceBinding
+import org.apache.daffodil.util.MaybeULong
 import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.dpath.NodeInfo.PrimType
-import org.apache.daffodil.grammar.ElementBaseGrammarMixin
-import org.apache.daffodil.equality._
-
-import org.apache.daffodil.processors.UseNilForDefault
-import org.apache.daffodil.util.MaybeULong
-import java.lang.{ Integer => JInt }
-import org.apache.daffodil.processors._
-import org.apache.daffodil.infoset.SiblingResolver
-import org.apache.daffodil.infoset.ResolverType
-import org.apache.daffodil.infoset.SeveralPossibilitiesForNextElement
-import org.apache.daffodil.infoset.NoNextElement
-import org.apache.daffodil.infoset.OnlyOnePossibilityForNextElement
-import org.apache.daffodil.infoset.NextElementResolver
-import org.apache.daffodil.infoset.ChildResolver
+import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.api.WarnID
-import org.apache.daffodil.util.Maybe
+import java.lang.{ Integer => JInt }
+import org.apache.daffodil.runtime1.CompileNextElementResolver
 
 /**
  * Note about DSOM design versus say XSOM or Apache XSD library.
@@ -465,41 +457,6 @@ trait ElementBase
     } else None
   }
 
-  /**
-   * The NextElementResolver is used to determine what infoset event comes next, and "resolves" which is to say
-   * determines the ElementRuntimeData for that infoset event. This can be used to construct the initial
-   * infoset from a stream of XML events.
-   */
-  final def computeNextElementResolver(possibles: Seq[ElementBase], resolverType: ResolverType): NextElementResolver = {
-    //
-    // Annoying, but scala's immutable Map is not covariant in its first argument
-    // the way one would normally expect a collection to be.
-    // So Map[NamedQName, ElementRuntimeData] is not a subtype of Map[QNameBase, ElementRuntimeData]
-    // So we need a cast upward to Map[QNameBase,ElementRuntimeData]
-    //
-    val eltMap = possibles.map {
-      e => (e.namedQName, e.elementRuntimeData)
-    }.toMap.asInstanceOf[Map[QNameBase, ElementRuntimeData]]
-    val resolver = eltMap.size match {
-      case 0 => new NoNextElement(schemaFileLocation, resolverType)
-      case 1 => new OnlyOnePossibilityForNextElement(schemaFileLocation, eltMap.values.head, resolverType)
-      case _ => {
-        val groupedByName = possibles.groupBy(_.namedQName.local)
-        var hasNamesDifferingOnlyByNS = false
-        groupedByName.foreach {
-          case (_, sameNamesEB) =>
-            if (sameNamesEB.length > 1) {
-              SDW(WarnID.NamespaceDifferencesOnly, "Neighboring QNames differ only by namespaces. Infoset representations that do not support namespacess cannot differentiate between these elements and may fail to unparse. QNames are: %s",
-                sameNamesEB.map(_.namedQName.toExtendedSyntax).mkString(", "))
-              hasNamesDifferingOnlyByNS = true
-            }
-        }
-        new SeveralPossibilitiesForNextElement(schemaFileLocation, eltMap, resolverType, hasNamesDifferingOnlyByNS)
-      }
-    }
-    resolver
-  }
-
   lazy val unparserInfosetElementDefaultingBehavior: UnparserInfo.InfosetEventBehavior = {
     import UnparserInfo._
     //if (isScalar && isDefaultable) ScalarDefaultable
@@ -522,12 +479,8 @@ trait ElementBase
   //    isOutputValueCalc
   //  }
 
-  final lazy val nextElementResolver: NextElementResolver = {
-    computeNextElementResolver(possibleNextChildElementsInInfoset, SiblingResolver)
-  }
-
-  final lazy val childElementResolver: NextElementResolver =
-    computeNextElementResolver(possibleFirstChildElementsInInfoset, ChildResolver)
+  //  final lazy val childElementResolver: NextElementResolver =
+  //    computeNextElementResolver(possibleFirstChildElementsInInfoset, ChildResolver)
 
   final def erd = elementRuntimeData // just an abbreviation
 
@@ -544,8 +497,7 @@ trait ElementBase
       position,
       childrenERDs,
       schemaSet.variableMap,
-      nextElementResolver,
-      childElementResolver,
+      partialNextElementResolver,
       encodingInfo,
       dpathElementCompileInfo,
       schemaFileLocation,

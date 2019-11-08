@@ -42,6 +42,8 @@ import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.schema.annotation.props.gen.OccursCountKind
 import org.apache.daffodil.schema.annotation.props.SeparatorSuppressionPolicy
 import org.apache.daffodil.api.WarnID
+import org.apache.daffodil.infoset.PartialNextElementResolver
+import org.apache.daffodil.runtime1.CompileNextElementResolver
 
 /**
  * Mixin for objects that are shared, but have consistency checks to be run
@@ -82,6 +84,43 @@ trait HasTermCheck {
 }
 
 /**
+ * A set of possibilities for elements that can arrive as events
+ * in a valid infoset.
+ */
+sealed trait PossibleNextElements {
+  import PossibleNextElements._
+  def sibs: Seq[Sibling]
+}
+
+object PossibleNextElements {
+
+  /**
+   * allows overriding the isRequiredInInfoset characteristic
+   * of a term.
+   *
+   * Used when a required ERD appears in a child of a choice.
+   * In that case, that ERD is optional since we could be on
+   * another choice branch.
+   */
+  case class Sibling(e: ElementBase, isRequiredInInfoset: Boolean)
+
+  /**
+   * Indicates one of the possibilities must be found.
+   * Simplest case for this is a run of optional elements followed
+   * by a required element in a sequence. Can also occur if all
+   * branches of a choice are Closed. Then the resulting choice
+   * possibilities are also Closed.
+   */
+  case class Closed(override val sibs: Seq[Sibling]) extends PossibleNextElements
+
+  /**
+   * Indicates that these are possible, but all are optional
+   * so a surrounding sequence group on the stack could also provide
+   * a matching element.
+   */
+  case class Open(override val sibs: Seq[Sibling]) extends PossibleNextElements
+}
+/**
  * Term, and what is and isn't a Term, is a key concept in DSOM.
  *
  * From elements, ElementRef and LocalElementDecl are Term. A GlobalElementDecl is *not* a Term.
@@ -101,6 +140,8 @@ trait Term
   with InitiatedTerminatedMixin
   with TermEncodingMixin
   with EscapeSchemeRefMixin {
+
+  import PossibleNextElements._
 
   requiredEvaluations(annotationObjs)
   requiredEvaluations(nonDefaultPropertySources)
@@ -149,6 +190,10 @@ trait Term
   }
 
   def position: Int
+
+  final lazy val partialNextElementResolver: PartialNextElementResolver = {
+    CompileNextElementResolver(this, possibleNextLexicalSiblingElementsInInfoset)
+  }
 
   def optIgnoreCase: Option[YesNo] = {
     val ic = findPropertyOption("ignoreCase")
@@ -790,6 +835,92 @@ trait Term
     val res = arrayNext ++ nextSiblingElements ++ nextParentElts
     res
   }.value
+
+  /*
+   * Returns a list of Elements that could follow this Term, within its
+   * lexically enclosing model group.
+   *
+   * Does not follow backpointers from group defs to group refs.
+   *
+   * Within the lexically enclosing model group, if it is a sequence, then
+   * this involves subsequent siblings, children of those siblings.
+   */
+  lazy val possibleNextLexicalSiblingElementsInInfoset: PossibleNextElements =
+    LV('possibleNextLexicalSiblingElementsInInfoset) {
+      val thisItself: PossibleNextElements = this match {
+        case eb: ElementBase if (eb.isRequiredInInfoset) =>
+          Closed(Seq(Sibling(eb, true)))
+        case eb: ElementBase =>
+          Open(Seq(Sibling(eb, false)))
+        case ctb: ChoiceTermBase => {
+          val individualBranchPossibles = ctb.groupMembers.map {
+            _.possibleNextLexicalSiblingElementsInInfoset
+          }
+          val allBranchesFinite =
+            individualBranchPossibles.forall {
+              case c: Closed => true
+              case o: Open => false
+            }
+          val allSibsAsOptional = individualBranchPossibles.flatMap { poss =>
+            poss.sibs.map {
+              case Sibling(eb, true) => Sibling(eb, false)
+              case ok @ Sibling(eb, false) => ok
+            }
+          }
+          val res: PossibleNextElements =
+            if (allBranchesFinite) {
+              Closed(allSibsAsOptional)
+            } else {
+              Open(allSibsAsOptional)
+            }
+          res
+        }
+        case stb: SequenceTermBase => {
+          val subTerms = stb.groupMembers
+          val res =
+            subTerms.map { _.possibleNextLexicalSiblingElementsInInfoset }.head
+          res
+        }
+      }
+      Assert.invariant(optLexicalParent.isDefined)
+      val lexicalParent = optLexicalParent.get
+      val followingInLexicalEnclosingSequence =
+        lexicalParent match {
+          case c: ChoiceDefMixin => Open(Nil)
+          case s: SequenceDefMixin => {
+            val sibTerms = s.groupMembers.drop(position)
+            var isBeforeOrIncludingFirstClosed = true
+            val possibleFromSibs: Seq[PossibleNextElements] =
+              sibTerms.map { _.possibleNextLexicalSiblingElementsInInfoset }.takeWhile {
+                case Closed(sibs) => {
+                  isBeforeOrIncludingFirstClosed = false
+                  true
+                }
+                case Open(sibs) => isBeforeOrIncludingFirstClosed
+              }
+            val combinedSibs = possibleFromSibs.flatMap { _.sibs }
+            val res: PossibleNextElements =
+              if (isBeforeOrIncludingFirstClosed) {
+                // if true then we did find a closed one so this is closed
+                Closed(combinedSibs)
+              } else {
+                Open(combinedSibs)
+              }
+            res
+          }
+          case ct: ComplexTypeBase => Closed(Nil)
+          case sd: SchemaDocument => Closed(Nil)
+          case _ =>
+            Assert.invariantFailed(
+              "unexpected lexical parent type for term: " + lexicalParent)
+        }
+      val res: PossibleNextElements = (thisItself, followingInLexicalEnclosingSequence) match {
+        case (Closed(sibs1), poss2) => Closed(sibs1 ++ poss2.sibs)
+        case (poss1, Closed(sibs2)) => Closed(poss1.sibs ++ sibs2)
+        case (poss1, poss2) => Open(poss1.sibs ++ poss2.sibs)
+      }
+      res
+    }.value
 
   def nextParentElements: Seq[ElementBase]
 

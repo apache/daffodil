@@ -1695,7 +1695,12 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           case erd: ElementRuntimeData => erd
           case _ => SDE("dfdlx:outputTypeCalcNextSibling can only be defined on an element")
         }
-        val resolver = erd.nextElementResolver
+        val resolver = erd.partialNextElementResolver
+        //
+        // FIXME: This is broken because it is looking outward and upward for enclosing contexts
+        // all the possible elements. This isn't possible anymore statically, since a group can be
+        // shared. You can do the immediate lexical siblings of an element only. Maybe that's sufficient?
+        //
         //we keep the ERD to be able to produce better error messages
         val dstTypes: Seq[(NodeInfo.Kind, ElementRuntimeData)] = resolver.allPossibleNextElements.map(erd => {
           val strd = erd.optSimpleTypeRuntimeData match {
