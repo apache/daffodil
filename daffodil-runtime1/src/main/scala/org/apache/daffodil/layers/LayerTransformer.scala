@@ -154,7 +154,13 @@ abstract class LayerTransformer()
     val jos = wrapJavaOutputStream(s, state)
     val limitedJOS = wrapLimitingStream(jos, state)
     val encodedOutputStream = wrapLayerEncoder(limitedJOS)
-    val newDOS = DirectOrBufferedDataOutputStream(encodedOutputStream, null, isLayer = true)
+    val newDOS = DirectOrBufferedDataOutputStream(
+      encodedOutputStream,
+      null,
+      isLayer = true,
+      s.chunkSizeInBytes,
+      s.maxBufferSizeInBytes,
+      s.tempDirPath)
     newDOS.setPriorBitOrder(BitOrder.MostSignificantBitFirst)
     newDOS.setAbsStartingBitPos0b(ULong(0L))
     newDOS.setDebugging(s.areDebugging)

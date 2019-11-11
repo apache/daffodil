@@ -20,6 +20,7 @@ package org.apache.daffodil.processors.unparsers
 import java.io.ByteArrayOutputStream
 import java.nio.CharBuffer
 import java.nio.LongBuffer
+import java.nio.file.Paths
 
 import scala.Left
 import scala.collection.mutable
@@ -496,7 +497,13 @@ final class UStateMain private (
   override lazy val withByteArrayOutputStream = new LocalStack[(ByteArrayOutputStream, DirectOrBufferedDataOutputStream)](
     {
       val baos = new ByteArrayOutputStream() // TODO: PERFORMANCE: Allocates new object. Can reuse one from an onStack/pool via reset()
-      val dos = DirectOrBufferedDataOutputStream(baos, null)
+      val dos = DirectOrBufferedDataOutputStream(
+        baos,
+        null,
+        false,
+        tunable.outputStreamChunkSizeInBytes,
+        tunable.maxByteArrayOutputStreamBufferSizeInBytes,
+        tunable.tempFilePath)
       (baos, dos)
     },
     pair => pair match {

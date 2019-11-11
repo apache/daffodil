@@ -17,10 +17,12 @@
 
 package org.apache.daffodil.io
 
+import java.io.File
 import junit.framework.Assert._
 import org.junit.Test
 import passera.unsigned.ULong
 import org.apache.daffodil.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.util.Maybe
 
 class TestDataOutputStream4 {
 
@@ -28,8 +30,8 @@ class TestDataOutputStream4 {
   finfo.fillByte = 0.toByte
 
   def setup(setAbs: Boolean = true, bitOrd: BitOrder = BitOrder.MostSignificantBitFirst) = {
-    val baos = new ByteArrayOutputStreamWithGetBuf()
-    val direct = DirectOrBufferedDataOutputStream(baos, null)
+    val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
+    val direct = DirectOrBufferedDataOutputStream(baos, null, false, 4096, 2000 * (1 << 20), new File("."), Maybe.Nope)
     direct.setPriorBitOrder(bitOrd)
 
     direct.putLong(0x5a5a5, 19, finfo)
@@ -61,7 +63,7 @@ class TestDataOutputStream4 {
     (baos, direct, out, out2)
   }
 
-  private def checkResults(baos: ByteArrayOutputStreamWithGetBuf): Unit = {
+  private def checkResults(baos: ByteArrayOrFileOutputStream): Unit = {
     val buf = baos.getBuf()
 
     assertEquals(0xB4.toByte, buf(0))

@@ -17,9 +17,11 @@
 
 package org.apache.daffodil.io
 
+import java.io.File
 import junit.framework.Assert._
 import org.junit.Test
 import org.apache.daffodil.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.util.Maybe
 
 class TestDataOutputStream {
 
@@ -27,14 +29,14 @@ class TestDataOutputStream {
 
   def newDirectOrBufferedDataOutputStream(jos: java.io.OutputStream, creator: DirectOrBufferedDataOutputStream,
     bo: BitOrder = BitOrder.MostSignificantBitFirst) = {
-    val os = DirectOrBufferedDataOutputStream(jos, creator)
+    val os = DirectOrBufferedDataOutputStream(jos, creator, false, 4096, 2000 * (1 << 20), new File("."), Maybe.Nope)
     os.setPriorBitOrder(bo)
     os
   }
 
   @Test def testPutLongDirect1_BE_MSBF {
 
-    val baos = new ByteArrayOutputStreamWithGetBuf()
+    val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val out = newDirectOrBufferedDataOutputStream(baos, null)
 
     out.putLong(-1L, 32, beFinfo)
@@ -52,7 +54,7 @@ class TestDataOutputStream {
 
   @Test def testPutLongDirect1Bit_BE_MSBF {
 
-    val baos = new ByteArrayOutputStreamWithGetBuf()
+    val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val out = newDirectOrBufferedDataOutputStream(baos, null)
 
     out.putLong(1, 1, beFinfo)
@@ -68,7 +70,7 @@ class TestDataOutputStream {
   }
 
   @Test def testPutLongDirect2Bit_BE_MSBF {
-    val baos = new ByteArrayOutputStreamWithGetBuf()
+    val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val out = newDirectOrBufferedDataOutputStream(baos, null)
 
     out.putLong(3, 2, beFinfo)
@@ -84,7 +86,7 @@ class TestDataOutputStream {
   }
 
   @Test def testPutLongDirect7Bit_BE_MSBF {
-    val baos = new ByteArrayOutputStreamWithGetBuf()
+    val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val out = newDirectOrBufferedDataOutputStream(baos, null)
 
     out.putLong(0xA5, 7, beFinfo)
@@ -100,7 +102,7 @@ class TestDataOutputStream {
   }
 
   @Test def testPutLongDirect8Bit_BE_MSBF {
-    val baos = new ByteArrayOutputStreamWithGetBuf()
+    val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val out = newDirectOrBufferedDataOutputStream(baos, null)
 
     out.putLong(0xA5, 8, beFinfo)
@@ -116,7 +118,7 @@ class TestDataOutputStream {
   }
 
   @Test def testPutLongDirect9Bit_BE_MSBF {
-    val baos = new ByteArrayOutputStreamWithGetBuf()
+    val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val out = newDirectOrBufferedDataOutputStream(baos, null)
 
     out.putLong(0xA5A5, 9, beFinfo)
@@ -133,7 +135,7 @@ class TestDataOutputStream {
   }
 
   @Test def testPutLongDirect63Bit_BE_MSBF {
-    val baos = new ByteArrayOutputStreamWithGetBuf()
+    val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val out = newDirectOrBufferedDataOutputStream(baos, null)
 
     out.putLong(0xA5A5A5A5A5A5A5A5L, 63, beFinfo)
@@ -156,7 +158,7 @@ class TestDataOutputStream {
   }
 
   @Test def testPutLongDirect64Bit_BE_MSBF {
-    val baos = new ByteArrayOutputStreamWithGetBuf()
+    val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val out = newDirectOrBufferedDataOutputStream(baos, null)
 
     out.putLong(0xA5A5A5A5A5A5A5A5L, 64, beFinfo)
@@ -184,7 +186,7 @@ class TestDataOutputStream {
 
   @Test def testPutLongBuffered1_BE_MSBF {
 
-    val baos = new ByteArrayOutputStreamWithGetBuf()
+    val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val direct = newDirectOrBufferedDataOutputStream(baos, null)
 
     val out = direct.addBuffered
@@ -207,7 +209,7 @@ class TestDataOutputStream {
 
   @Test def testPutLongBuffered1Bit_BE_MSBF {
 
-    val baos = new ByteArrayOutputStreamWithGetBuf()
+    val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val direct = newDirectOrBufferedDataOutputStream(baos, null)
 
     val out = direct.addBuffered
@@ -226,7 +228,7 @@ class TestDataOutputStream {
   }
 
   @Test def testPutLongBuffered2Bit_BE_MSBF {
-    val baos = new ByteArrayOutputStreamWithGetBuf()
+    val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val direct = newDirectOrBufferedDataOutputStream(baos, null)
 
     val out = direct.addBuffered
@@ -245,7 +247,7 @@ class TestDataOutputStream {
   }
 
   @Test def testPutLongBuffered7Bit_BE_MSBF {
-    val baos = new ByteArrayOutputStreamWithGetBuf()
+    val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val direct = newDirectOrBufferedDataOutputStream(baos, null)
 
     val out = direct.addBuffered
@@ -264,7 +266,7 @@ class TestDataOutputStream {
   }
 
   @Test def testPutLongBuffered8Bit_BE_MSBF {
-    val baos = new ByteArrayOutputStreamWithGetBuf()
+    val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val direct = newDirectOrBufferedDataOutputStream(baos, null)
     direct.setPriorBitOrder(BitOrder.MostSignificantBitFirst)
 
@@ -284,7 +286,7 @@ class TestDataOutputStream {
   }
 
   @Test def testPutLongBuffered9Bit_BE_MSBF {
-    val baos = new ByteArrayOutputStreamWithGetBuf()
+    val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val direct = newDirectOrBufferedDataOutputStream(baos, null)
 
     val out = direct.addBuffered
@@ -304,7 +306,7 @@ class TestDataOutputStream {
   }
 
   @Test def testPutLongBuffered63Bit_BE_MSBF {
-    val baos = new ByteArrayOutputStreamWithGetBuf()
+    val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val direct = newDirectOrBufferedDataOutputStream(baos, null)
 
     val out = direct.addBuffered
@@ -330,7 +332,7 @@ class TestDataOutputStream {
   }
 
   @Test def testPutLongBuffered64Bit_BE_MSBF {
-    val baos = new ByteArrayOutputStreamWithGetBuf()
+    val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val direct = newDirectOrBufferedDataOutputStream(baos, null)
 
     val out = direct.addBuffered
@@ -361,7 +363,7 @@ class TestDataOutputStream {
 
   @Test def testPutLongDirectAndBuffered1_BE_MSBF {
 
-    val baos = new ByteArrayOutputStreamWithGetBuf()
+    val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val direct = newDirectOrBufferedDataOutputStream(baos, null)
 
     val out = direct.addBuffered
@@ -389,7 +391,7 @@ class TestDataOutputStream {
 
   @Test def testPutLongDirectAndBuffered1Bit_BE_MSBF {
 
-    val baos = new ByteArrayOutputStreamWithGetBuf()
+    val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val direct = newDirectOrBufferedDataOutputStream(baos, null)
 
     val out = direct.addBuffered
@@ -409,7 +411,7 @@ class TestDataOutputStream {
   }
 
   @Test def testPutLongDirectAndBuffered2Bit_BE_MSBF {
-    val baos = new ByteArrayOutputStreamWithGetBuf()
+    val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val direct = newDirectOrBufferedDataOutputStream(baos, null)
 
     val out = direct.addBuffered
@@ -429,7 +431,7 @@ class TestDataOutputStream {
   }
 
   @Test def testPutLongDirectAndBuffered7Bit_BE_MSBF {
-    val baos = new ByteArrayOutputStreamWithGetBuf()
+    val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val direct = newDirectOrBufferedDataOutputStream(baos, null)
 
     val out = direct.addBuffered
@@ -450,7 +452,7 @@ class TestDataOutputStream {
   }
 
   @Test def testPutLongDirectAndBuffered8Bit_BE_MSBF {
-    val baos = new ByteArrayOutputStreamWithGetBuf()
+    val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val direct = newDirectOrBufferedDataOutputStream(baos, null)
 
     val out = direct.addBuffered
@@ -471,7 +473,7 @@ class TestDataOutputStream {
   }
 
   @Test def testPutLongDirectAndBuffered9Bit_BE_MSBF {
-    val baos = new ByteArrayOutputStreamWithGetBuf()
+    val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val direct = newDirectOrBufferedDataOutputStream(baos, null)
 
     val out = direct.addBuffered
@@ -493,7 +495,7 @@ class TestDataOutputStream {
   }
 
   @Test def testPutLongDirectAndBuffered63BitPlus1Bit_BE_MSBF {
-    val baos = new ByteArrayOutputStreamWithGetBuf()
+    val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val direct = newDirectOrBufferedDataOutputStream(baos, null)
 
     val out = direct.addBuffered
@@ -520,7 +522,7 @@ class TestDataOutputStream {
   }
 
   @Test def testPutLongDirectAndBuffered63BitPlus63Bit_BE_MSBF {
-    val baos = new ByteArrayOutputStreamWithGetBuf()
+    val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val direct = newDirectOrBufferedDataOutputStream(baos, null)
 
     val out = direct.addBuffered
@@ -556,7 +558,7 @@ class TestDataOutputStream {
   }
 
   @Test def testPutLongDirectAndBuffered64BitPlus64Bit_BE_MSBF {
-    val baos = new ByteArrayOutputStreamWithGetBuf()
+    val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val direct = newDirectOrBufferedDataOutputStream(baos, null)
 
     val out = direct.addBuffered
@@ -593,7 +595,7 @@ class TestDataOutputStream {
 
   @Test def testPutLong5_4Bits_BE_MSBF {
 
-    val baos = new ByteArrayOutputStreamWithGetBuf()
+    val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val out = newDirectOrBufferedDataOutputStream(baos, null)
 
     out.putLong(5L, 4, beFinfo)

@@ -22,12 +22,14 @@ import junit.framework.Assert._
 
 import java.io.ByteArrayInputStream
 import java.io.InputStreamReader
+import java.io.File
 import org.apache.commons.io.IOUtils
 import org.apache.daffodil.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.util.Maybe
 
 class TestDirectOrBufferedDataOutputStream {
 
-  private def getString(baos: ByteArrayOutputStreamWithGetBuf) = {
+  private def getString(baos: ByteArrayOrFileOutputStream) = {
     val is = new ByteArrayInputStream(baos.getBuf)
     val ir = new InputStreamReader(is, "ascii")
     val line = IOUtils.toString(ir)
@@ -37,7 +39,7 @@ class TestDirectOrBufferedDataOutputStream {
 
   def newDirectOrBufferedDataOutputStream(jos: java.io.OutputStream, creator: DirectOrBufferedDataOutputStream,
     bo: BitOrder = BitOrder.MostSignificantBitFirst) = {
-    val os = DirectOrBufferedDataOutputStream(jos, creator)
+    val os = DirectOrBufferedDataOutputStream(jos, creator, false, 4096, 2000 * (1 << 20), new File("."), Maybe.Nope)
     os.setPriorBitOrder(bo)
     os
   }
@@ -46,7 +48,7 @@ class TestDirectOrBufferedDataOutputStream {
    * if that happens.
    */
   @Test def testToStringDoesNotThrow {
-    val baos = new ByteArrayOutputStreamWithGetBuf()
+    val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val layered = newDirectOrBufferedDataOutputStream(baos, null)
     assertFalse(layered.toString().isEmpty())
   }
@@ -55,7 +57,7 @@ class TestDirectOrBufferedDataOutputStream {
 
   @Test def testCollapsingBufferIntoDirect1 {
 
-    val baos = new ByteArrayOutputStreamWithGetBuf()
+    val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val layered = newDirectOrBufferedDataOutputStream(baos, null)
 
     val hw = "Hello World!"
@@ -82,7 +84,7 @@ class TestDirectOrBufferedDataOutputStream {
 
   @Test def testCollapsingFinishedBufferIntoLayered {
 
-    val baos = new ByteArrayOutputStreamWithGetBuf()
+    val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val layered = newDirectOrBufferedDataOutputStream(baos, null)
 
     val hw = "Hello World!"
@@ -111,7 +113,7 @@ class TestDirectOrBufferedDataOutputStream {
 
   @Test def testCollapsingTwoBuffersIntoDirect {
 
-    val baos = new ByteArrayOutputStreamWithGetBuf()
+    val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val layered = newDirectOrBufferedDataOutputStream(baos, null)
 
     val hw = "Hello World!"
