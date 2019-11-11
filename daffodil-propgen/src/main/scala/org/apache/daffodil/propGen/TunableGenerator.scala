@@ -147,6 +147,9 @@ class TunableGenerator(schemaRootConfig: scala.xml.Node, schemaRootExt: scala.xm
           } else if (!schemaType.startsWith("xs:")) {
             // non-primitive type, assume a single enum
             new EnumTunable(schemaName, schemaType, schemaDefault)
+          } else if (schemaName == "tempFilePath") {
+            // special case, creates actual file object instead of string
+            new TempFilePathTunable()
           } else {
             // primitive type
             new PrimitiveTunable(schemaName, schemaType, schemaDefault)
@@ -199,6 +202,11 @@ class PrimitiveTunable(name: String, schemaType: String, schemaDefault: String)
 
   override val scalaDefinition = s"""val ${name}: ${scalaType} = ${scalaDefault}"""
   override val scalaConversion = s"""case "${name}" => this.copy(${name} = value.to${scalaType})"""
+}
+
+class TempFilePathTunable() extends TunableBase {
+  override val scalaDefinition = s"""val tempFilePath: java.io.File = new java.io.File(System.getProperty(\"java.io.tmpdir\"))"""
+  override val scalaConversion = s"""case "tempFilePath" => this.copy(tempFilePath = new java.io.File(value))"""
 }
 
 class EnumTunable(name: String, schemaType: String, schemaDefault: String)

@@ -87,8 +87,8 @@ abstract class BlobUnparserBase(override val context: ElementRuntimeData)
     // second data output stream will then be delivered, finally making it the
     // direct stream.
     val dos = state.dataOutputStream
-    val newDOS = dos.addBufferedBlob(path, lengthInBits, state.tunable.blobChunkSizeInBytes, state)
-    state.dataOutputStream = newDOS
+    val newStream = dos.addBufferedBlob(path, lengthInBits, state.tunable.blobChunkSizeInBytes, state)
+    state.dataOutputStream = newStream
     dos.setFinished(state)
   }
 }

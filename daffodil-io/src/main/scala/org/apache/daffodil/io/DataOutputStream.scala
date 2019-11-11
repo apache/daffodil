@@ -19,6 +19,8 @@ package org.apache.daffodil.io
 
 import passera.unsigned.ULong
 import java.nio.CharBuffer
+import java.nio.file.Path
+import java.io.File
 import org.apache.daffodil.util.MaybeULong
 import org.apache.daffodil.util.Logging
 import org.apache.daffodil.util.Maybe
@@ -97,6 +99,20 @@ trait DataOutputStream extends DataStreamCommon
   def maybeAbsBitPos0b: MaybeULong
 
   /**
+   * These values are used for output streams that could change from
+   * ByteArray's to File based output streams.
+   */
+  def chunkSizeInBytes: Int
+  def maxBufferSizeInBytes: Long
+  def tempDirPath: File
+
+  /**
+   * maybeExistingFile is used in the case of blob files, where we already have an
+   * existing file containing the data. This is the path to said file.
+   */
+  def maybeExistingFile: Maybe[Path]
+
+  /**
    * Besides setting the relBitPos, it also maintains the value of
    * the absolute bit pos, if it is known.
    */
@@ -171,10 +187,15 @@ trait DataOutputStream extends DataStreamCommon
    *
    * If not enough bits are available, this writes nothing and returns false.
    *
+   * ignoreByteOrder is used when we are working with a FileOutputStream. Given
+   * that the bytes are already converted to BigEndian when they are written out
+   * to a file, we no longer need to convert little endian arrays so byte order
+   * can be ignored.
+   *
    * It is a usage error if bitLengthFrom1 is not greater than or equal to 1.
    *
    */
-  def putByteArray(ba: Array[Byte], bitLengthFrom1: Int, finfo: FormatInfo): Boolean
+  def putByteArray(ba: Array[Byte], bitLengthFrom1: Int, finfo: FormatInfo, ignoreByteOrder: Boolean = false): Boolean
 
   /**
    * Float and Double
@@ -198,6 +219,11 @@ trait DataOutputStream extends DataStreamCommon
    */
   def setFinished(finfo: FormatInfo): Unit
   def isFinished: Boolean
+
+  /**
+   * This function deletes any temnporary files that have been generated
+   */
+  def cleanUp(): Unit
 
   def zeroLengthStatus: ZeroLengthStatus
 }

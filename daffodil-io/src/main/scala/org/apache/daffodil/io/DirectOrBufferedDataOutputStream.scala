@@ -33,32 +33,98 @@ import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe._
 import org.apache.daffodil.util.MaybeULong
 import org.apache.daffodil.util.Misc
+import org.apache.daffodil.util.Logging
+import java.io.File
 
 /**
  * This simple extension just gives us a public method for access to the underlying byte array.
  * That way we don't have to make a copy just to access the bytes.
  */
 private[io] class ByteArrayOutputStreamWithGetBuf() extends java.io.ByteArrayOutputStream {
-  def getBuf() = buf
-  def getCount() = count
+  def getBuf = buf
+}
 
-  def toDebugContent = {
-    val content = toString("iso-8859-1")
-    val s = Misc.remapControlsAndLineEndingsToVisibleGlyphs(content)
-    s
+private[io] class ByteArrayOrFileOutputStream(
+  maxBufferSizeInBytes: Long,
+  tempDirPath: File,
+  maybeExistingFile: Maybe[Path])
+  extends java.io.OutputStream with Logging {
+
+  var isFile: Boolean = maybeExistingFile.isDefined
+
+  // This will be the file object that can represent either a generated
+  // temporary file or an existing blob file
+  var maybeFile: Maybe[File] = {
+    if (maybeExistingFile.isDefined)
+      Maybe(maybeExistingFile.get.toFile)
+    else
+      Maybe.Nope
   }
 
-  override def reset(): Unit = {
-    var i: Int = 0 // Performance. This clearing isn't necessary. Just makes debug easier.
-    while (i < count) {
-      buf(i) = 0
-      i += 1
-    }
-    super.reset()
+  // Keep track of whether or not this is a temporary file. If it is an existing
+  // file, i.e. a blob file, we do not want to delete it as that is handled
+  // elsewhere.
+  lazy val isTempFile = (!maybeExistingFile.isDefined && isFile)
+
+  // This is only used to determine if we need to switch to a file based output
+  // stream
+  var nBytes: Long = 0
+  var stream: java.io.OutputStream = new ByteArrayOutputStreamWithGetBuf()
+
+  /**
+   * Check to see if there is enough room in the ByteArrayOutputStream for the
+   * specified length. If there is not, switch to FileOutputStream.
+   */
+  @inline
+  private def checkBuffer(lengthInBytes: Long): Unit = {
+    if (!isFile && (nBytes + lengthInBytes > maxBufferSizeInBytes)) {
+      log(LogLevel.Info, "Switching to file based output stream. If this is performance critical, you may want to consider re-organizing your schema to avoid this if possible.")
+      maybeFile = try {
+        val file = File.createTempFile("daffodil-", ".tmp", tempDirPath)
+        file.deleteOnExit()
+        Maybe(file)
+      } catch {
+        case e: Exception =>
+          throw new FileIOException("Unable to create temporary file in %s: %s".format(tempDirPath.getPath, e.getMessage()))
+      }
+      val newStream: java.io.OutputStream = new java.io.FileOutputStream(maybeFile.get)
+      stream.flush
+      stream.asInstanceOf[ByteArrayOutputStreamWithGetBuf].writeTo(newStream)
+      stream = newStream
+      isFile = true
+    } else
+      nBytes += lengthInBytes
   }
 
-  def hexDump = {
-    (0 to (count - 1)).map { i => "%2x".format(buf(i).toInt & 0xFF) }.mkString(".")
+  override def write(b: Array[Byte]) = {
+    checkBuffer(b.length)
+    stream.write(b)
+  }
+
+  override def write(b: Array[Byte], off: Int, len: Int) = {
+    checkBuffer(len)
+    stream.write(b, off, len)
+  }
+
+  override def write(b: Int) = {
+    checkBuffer(1)
+    stream.write(b)
+  }
+
+  override def close() = stream.close()
+
+  def getBuf() = {
+    Assert.usage(!isFile, "Attempted to call getBuf on FileOutputStream")
+    stream.asInstanceOf[ByteArrayOutputStreamWithGetBuf].getBuf
+  }
+
+  def getFile: File = maybeFile.get
+
+  def hexDump: String = {
+    if (isFile)
+      maybeFile.get.toString
+    else
+      (0 to (nBytes.toInt - 1)).map { i => "%2x".format(getBuf()(i).toInt & 0xFF) }.mkString(".")
   }
 
   override def toString = hexDump
@@ -93,8 +159,28 @@ private[io] class ByteArrayOutputStreamWithGetBuf() extends java.io.ByteArrayOut
  * is not related to a layer, that means the associated Java OutputStream came
  * from the user and it is the users responsibility to close it. The isLayer
  * provides the flag to know which streams should be closed or not.
+ *
+ * chunkSizeInBytes is used when the buffered output stream is using a file as
+ * its buffer. This is the size of chunks that will be read into memory before
+ * being written to the direct output stream.
+ *
+ * maxBufferSizeInByte is the size that the ByteArrayOutputStream will grow to
+ * before switching over to a FileOutputStream
+ *
+ * tempDirPath is the path where temporary files will be created when switching
+ * to a file based buffer
+ *
+ * maybeExistingFile is used in the case of blob files, where we already have an
+ * existing file containing the data. This is the path to said file.
+ *
  */
-class DirectOrBufferedDataOutputStream private[io] (var splitFrom: DirectOrBufferedDataOutputStream, val isLayer: Boolean = false)
+class DirectOrBufferedDataOutputStream private[io] (
+  var splitFrom: DirectOrBufferedDataOutputStream,
+  val isLayer: Boolean = false,
+  val chunkSizeInBytes: Int,
+  val maxBufferSizeInBytes: Long,
+  val tempDirPath: File,
+  val maybeExistingFile: Maybe[Path])
   extends DataOutputStreamImplMixin {
   type ThisType = DirectOrBufferedDataOutputStream
 
@@ -183,7 +269,7 @@ class DirectOrBufferedDataOutputStream private[io] (var splitFrom: DirectOrBuffe
    *
    * If reused, this must be reset.
    */
-  protected val bufferingJOS = new ByteArrayOutputStreamWithGetBuf()
+  protected val bufferingJOS = new ByteArrayOrFileOutputStream(maxBufferSizeInBytes, tempDirPath, maybeExistingFile)
 
   /**
    * Switched to point a either the buffering or direct java output stream in order
@@ -225,7 +311,13 @@ class DirectOrBufferedDataOutputStream private[io] (var splitFrom: DirectOrBuffe
    * be completely configured (byteOrder, encoding, bitOrder, etc.)
    */
   def addBuffered(): DirectOrBufferedDataOutputStream = {
-    val buffered = new DirectOrBufferedDataOutputStream(this, isLayer)
+    val buffered = new DirectOrBufferedDataOutputStream(
+      this,
+      isLayer,
+      chunkSizeInBytes,
+      maxBufferSizeInBytes,
+      tempDirPath,
+      Maybe.Nope)
     addBufferedDOS(buffered)
     buffered
   }
@@ -240,12 +332,13 @@ class DirectOrBufferedDataOutputStream private[io] (var splitFrom: DirectOrBuffe
     // DOS to it. When this normal DOS is finished, the blob DOS will handle
     // delivering the blob data to it without loading the whole blob into
     // memory all at once.
-    val bufferedBlob = new BufferedBlobDataOutputStream(
+    val bufferedBlob = new DirectOrBufferedDataOutputStream(
       this,
-      path,
-      lengthInBits,
+      isLayer,
       blobChunkSizeInBytes,
-      isLayer)
+      0,
+      tempDirPath,
+      Maybe(path))
     addBufferedDOS(bufferedBlob)
 
     // we know the length of the blob as passed in, so adjust the bit position
@@ -407,6 +500,7 @@ class DirectOrBufferedDataOutputStream private[io] (var splitFrom: DirectOrBuffe
       // of buffers.
       //
       setDOSState(Finished)
+      this.getJavaOutputStream().close()
 
       if (_following.isDefined) {
         val f = _following.get
@@ -757,23 +851,51 @@ class DirectOrBufferedDataOutputStream private[io] (var splitFrom: DirectOrBuffe
   // private def withBitLengthLimit(lengthLimitInBits: Long)(body: => Unit): Boolean = macro IOMacros.withBitLengthLimitMacroForOutput
 
   protected def deliverContent(directDOS: DirectOrBufferedDataOutputStream, finfo: FormatInfo) = {
-
-    val ba = this.bufferingJOS.getBuf
     val bufferNBits = this.relBitPos0b // don't have to subtract a starting offset. It's always zero in buffered case.
+    val bufOS = this.bufferingJOS
 
     if (directDOS.isEndOnByteBoundary && this.isEndOnByteBoundary) {
       // no fragment bytes anywhere - just take the bytes
 
       val nBytes = (bufferNBits / 8).toInt
-      val nBytesPut = directDOS.putBytes(ba, 0, nBytes, finfo)
+      val nBytesPut = {
+        if (bufOS.isFile) {
+          bufOS.close
+          val nBitsPut = try {
+            directDOS.putFile(bufOS.getFile.toPath, bufferNBits.toLong, chunkSizeInBytes, finfo)
+          } finally {
+            // Make sure we delete the file after it was put in the directDOS or
+            // if we encountered an error
+            if (bufOS.isTempFile)
+              bufOS.getFile.delete()
+          }
+          nBitsPut / 8
+        } else
+          directDOS.putBytes(bufOS.getBuf, 0, nBytes, finfo)
+      }
       Assert.invariant(nBytesPut == nBytes)
 
     } else {
       // fragment byte on directDOS, fragment byte on bufDOS, or both.
 
       val nFragBits = this.fragmentLastByteLimit
-      val byteCount = this.bufferingJOS.getCount()
-      val wholeBytesWritten = directDOS.putBytes(ba, 0, byteCount, finfo)
+      val byteCount = bufferNBits / 8
+      val wholeBytesWritten = {
+        if (bufOS.isFile) {
+          bufOS.close
+          val nBitsPut = try {
+            directDOS.putFile(bufOS.getFile.toPath, bufferNBits.toLong, chunkSizeInBytes, finfo)
+          } finally {
+            // Make sure we delete the file after it was put in the directDOS or
+            // if we encountered an error
+            if (bufOS.isTempFile)
+              bufOS.getFile.delete()
+          }
+          nBitsPut / 8
+        } else
+          directDOS.putBytes(bufOS.getBuf, 0, byteCount.toInt, finfo)
+      }
+
       Assert.invariant(byteCount == wholeBytesWritten)
       if (nFragBits > 0) {
         if (directDOS.isEndOnByteBoundary) {
@@ -802,89 +924,27 @@ class DirectOrBufferedDataOutputStream private[io] (var splitFrom: DirectOrBuffe
               origfrag >> (8 - nFragBits)
             else
               origfrag
-          Assert.invariant(directDOS.putLongUnchecked(fragNum, nFragBits, finfo))
+
+          Assert.invariant(directDOS.putLongUnchecked(
+            fragNum, nFragBits, finfo,
+            ignoreByteOrder=this.bufferingJOS.isFile))
         }
       }
     }
+    bufOS.close()
   }
 
-}
+  /**
+   * Clean up any temporary files that were generated
+   */
+  def cleanUp(): Unit = {
+    if (isBuffering && bufferingJOS.isTempFile)
+      bufferingJOS.getFile.delete()
 
-final class BufferedBlobDataOutputStream private[io] (
-  splitFrom: DirectOrBufferedDataOutputStream,
-  path: Path,
-  lengthInBits: Long,
-  blobChunkSizeInBytes: Int,
-  isLayer: Boolean = false)
-  extends DirectOrBufferedDataOutputStream(splitFrom, isLayer) {
-
-  // Data should never be written to a buffer in this BLOB DOS, so there is no
-  // need for a bufferingJOS that the parent class would allocate. However, the
-  // bufferJOS is used to determine if a DOS is buffering or not. In our case,
-  // this is buffering if the JavaOutputStream is the same as bufferingJOS
-  // (i.e. null).
-  override protected val bufferingJOS = null
-
-  // This function is exactly the same as the one it overrides in the parent
-  // except that it does not have the assertion that _javaOutputStream is never
-  // null. This is because when this BLOB DOS is not direct, the
-  // javaOutputStream is set to null (and should never be written to). Once
-  // this becomes direct, the _javaOutputStream variable is changed to the
-  // direct OutputStream.
-  override def getJavaOutputStream() = {
-     _javaOutputStream
-   }
-
-  protected override def deliverContent(directDOS: DirectOrBufferedDataOutputStream, finfo: FormatInfo) = {
-
-    val blobStream =
-      try {
-        Files.newInputStream(path, StandardOpenOption.READ)
-      } catch {
-        case e: Exception =>
-          throw new BlobIOException(
-            "Unable to open BLOB %s for reading: %s".format(
-              path.toString,
-              e.getMessage()))
-      }
-
-    val array = new Array[Byte](blobChunkSizeInBytes)
-
-    val blobChunkSizeInBits = blobChunkSizeInBytes * 8
-
-    var remainingBitsToPut = lengthInBits
-    var fileHasData = true
-    while (remainingBitsToPut > 0 && fileHasData) {
-      val bitsToRead = Math.min(remainingBitsToPut, blobChunkSizeInBits)
-      val bytesToRead = (bitsToRead + 7) / 8
-      val bytesRead = blobStream.read(array, 0, bytesToRead.toInt)
-      if (bytesRead == -1) {
-        fileHasData = false
-      } else {
-        val bitsToPut = Math.min(bytesRead * 8, bitsToRead)
-        val ret = directDOS.putByteArray(array, bitsToPut.toInt, finfo)
-        if (!ret) {
-          blobStream.close()
-          throw new BlobIOException(
-            "Failed to write BLOB data: %s".format(path.toString))
-        }
-        remainingBitsToPut -= bitsToPut
-      }
-    }
-
-    blobStream.close()
-
-    // calculate the skip bits
-    val nFillBits = remainingBitsToPut
-    if (nFillBits > 0) {
-      val ret = directDOS.skip(nFillBits, finfo)
-      if (!ret) {
-          throw new BlobIOException(
-            "Failed to skip %s bits after BLOB data: %s".format(nFillBits, path.toString))
-      }
+    while (_following.isDefined) {
+      _following.get.cleanUp()
     }
   }
-
 }
 
 /**
@@ -906,7 +966,7 @@ class BitOrderChangeException(directDOS: DirectOrBufferedDataOutputStream, finfo
   }
 }
 
-class BlobIOException(message: String) extends Exception(message)
+class FileIOException(message: String) extends Exception(message)
 
 object DirectOrBufferedDataOutputStream {
 
@@ -961,8 +1021,21 @@ object DirectOrBufferedDataOutputStream {
    * Factory for creating new ones/
    * Passing creator as null indicates no other stream created this one.
    */
-  def apply(jos: java.io.OutputStream, creator: DirectOrBufferedDataOutputStream, isLayer: Boolean = false) = {
-    val dbdos = new DirectOrBufferedDataOutputStream(creator, isLayer)
+  def apply(
+    jos: java.io.OutputStream,
+    creator: DirectOrBufferedDataOutputStream,
+    isLayer: Boolean = false,
+    chunkSizeInBytes: Int,
+    maxBufferSizeInBytes: Long,
+    tempDirPath: File,
+    maybeExistingFile: Maybe[Path] = Maybe.Nope) = {
+    val dbdos = new DirectOrBufferedDataOutputStream(
+      creator,
+      isLayer,
+      chunkSizeInBytes,
+      maxBufferSizeInBytes,
+      tempDirPath,
+      maybeExistingFile)
     dbdos.setJavaOutputStream(jos)
 
     if (creator eq null) {

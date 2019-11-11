@@ -20,6 +20,8 @@ package org.apache.daffodil.io
 import junit.framework.Assert._
 import org.junit.Test
 import java.nio.ByteBuffer
+import java.io.File
+import org.apache.daffodil.util.Maybe
 
 class TestDataOutputStream2 {
 
@@ -31,8 +33,8 @@ class TestDataOutputStream2 {
 
   @Test def testPutBitBufferDirect0_BE_MSBF {
 
-    val baos = new ByteArrayOutputStreamWithGetBuf()
-    val out = DirectOrBufferedDataOutputStream(baos, null)
+    val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
+    val out = DirectOrBufferedDataOutputStream(baos, null, false, 4096, 2000 * (1 << 20), new File("."), Maybe.Nope)
 
     val bb = ByteBuffer.wrap(List(0xA5.toByte, 0xBE.toByte, 0xEF.toByte).toArray)
     bb.position(1)
@@ -51,8 +53,8 @@ class TestDataOutputStream2 {
 
   @Test def testPutBitBufferDirect1_BE_MSBF {
 
-    val baos = new ByteArrayOutputStreamWithGetBuf()
-    val out = DirectOrBufferedDataOutputStream(baos, null)
+    val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
+    val out = DirectOrBufferedDataOutputStream(baos, null, false, 4096, 2000 * (1 << 20), new File("."), Maybe.Nope)
 
     val bb = ByteBuffer.wrap(List(0xA5.toByte, 0xBE.toByte, 0xEF.toByte).toArray)
     bb.position(1)
@@ -71,8 +73,8 @@ class TestDataOutputStream2 {
 
   @Test def testPutBitBufferDirect7_BE_MSBF {
 
-    val baos = new ByteArrayOutputStreamWithGetBuf()
-    val out = DirectOrBufferedDataOutputStream(baos, null)
+    val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
+    val out = DirectOrBufferedDataOutputStream(baos, null, false, 4096, 2000 * (1 << 20), new File("."), Maybe.Nope)
 
     val bb = ByteBuffer.wrap(List(0xA5.toByte, 0xBE.toByte, 0xEF.toByte).toArray)
     bb.position(1)

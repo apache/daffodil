@@ -22,6 +22,7 @@ import java.io.ObjectOutputStream
 import java.nio.channels.Channels
 import java.nio.CharBuffer
 import java.nio.file.Files
+import java.nio.file.Paths
 import java.nio.LongBuffer
 import java.util.zip.GZIPOutputStream
 
@@ -55,7 +56,7 @@ import org.apache.daffodil.io.DirectOrBufferedDataOutputStream
 import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.util.LogLevel
 import org.apache.daffodil.io.BitOrderChangeException
-import org.apache.daffodil.io.BlobIOException
+import org.apache.daffodil.io.FileIOException
 import org.apache.daffodil.infoset._
 import org.apache.daffodil.processors.parsers.ParseError
 import org.apache.daffodil.processors.parsers.Parser
@@ -304,7 +305,14 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
   }
 
   def unparse(inputter: InfosetInputter, outStream: java.io.OutputStream) = {
-    val out = DirectOrBufferedDataOutputStream(outStream, null) // null means no other stream created this one.
+    val out = DirectOrBufferedDataOutputStream(
+      outStream,
+      null, // null means no other stream created this one.
+      isLayer=false,
+      tunablesObj.outputStreamChunkSizeInBytes,
+      tunablesObj.maxByteArrayOutputStreamBufferSizeInBytes,
+      tunablesObj.tempFilePath)
+
     inputter.initialize(ssrd.elementRuntimeData, getTunables())
     val unparserState =
       UState.createInitialUState(
@@ -364,6 +372,8 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
         unparserState.unparseResult
       }
       case th: Throwable => throw th
+    } finally {
+      unparserState.dataOutputStream.cleanUp
     }
     res
   }
@@ -418,8 +428,8 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
     } catch {
       case boc: BitOrderChangeException =>
         state.SDE(boc)
-      case bio: BlobIOException =>
-        state.SDE(bio)
+      case fio: FileIOException =>
+        state.SDE(fio)
     }
     log(LogLevel.Debug, "%s final stream for %s finished.", this, state)
 
