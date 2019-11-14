@@ -65,8 +65,6 @@ abstract class SequenceTermBase(
 
   def separatorUnparseEv: SeparatorUnparseEv
 
-  def sequenceRuntimeData: SequenceRuntimeData
-
   def layerLengthUnits: LayerLengthUnits
 
   def isOrdered: Boolean
@@ -93,7 +91,6 @@ abstract class SequenceGroupTermBase(
   with LayeringRuntimeValuedPropertiesMixin {
 
   requiredEvaluations(checkIfValidUnorderedSequence)
-  requiredEvaluations(modelGroupRuntimeData.preSerialization)
 
   protected def apparentXMLChildren: Seq[Node]
 
@@ -226,30 +223,6 @@ abstract class SequenceGroupTermBase(
     case SequenceKind.Unordered => false
   }
 
-  final lazy val modelGroupRuntimeData = sequenceRuntimeData
-
-  final lazy val sequenceRuntimeData = {
-    new SequenceRuntimeData(
-      schemaSet.variableMap,
-      encodingInfo,
-      // elementChildren.map { _.elementRuntimeData.dpathElementCompileInfo },
-      schemaFileLocation,
-      dpathCompileInfo,
-      diagnosticDebugName,
-      path,
-      namespaces,
-      defaultBitOrder,
-      groupMembersRuntimeData,
-      isRepresented,
-      couldHaveText,
-      alignmentValueInBits,
-      hasNoSkipRegions,
-      optIgnoreCase,
-      maybeFillByteEv,
-      maybeCheckByteAndBitOrderEv,
-      maybeCheckBitOrderAndCharset)
-  }
-
   private val layeredSequenceAllowedProps = Set("ref", "layerTransform", "layerEncoding", "layerLengthKind", "layerLength", "layerLengthUnits", "layerBoundaryMark")
 
   final lazy val maybeLayerTransformerEv: Maybe[LayerTransformerEv] = {
@@ -321,7 +294,7 @@ trait SequenceDefMixin
 /**
  * Represents a local sequence definition.
  */
-class Sequence(xmlArg: Node, lexicalParent: SchemaComponent, position: Int)
+final class Sequence(xmlArg: Node, lexicalParent: SchemaComponent, position: Int)
   extends SequenceGroupTermBase(xmlArg, lexicalParent, position)
   with SequenceDefMixin {
 
@@ -390,27 +363,6 @@ final class ChoiceBranchImpliedSequence(rawGM: Term)
 
   override def findPropertyOption(pname: String): PropertyLookupResult = rawGM.findPropertyOption(pname)
 
-  override lazy val sequenceRuntimeData: SequenceRuntimeData = {
-    new SequenceRuntimeData(
-      schemaSet.variableMap,
-      encodingInfo,
-      schemaFileLocation,
-      dpathCompileInfo,
-      diagnosticDebugName,
-      path,
-      namespaces,
-      defaultBitOrder,
-      groupMembersRuntimeData,
-      isRepresented,
-      couldHaveText,
-      alignmentValueInBits,
-      true,
-      None,
-      Maybe.Nope,
-      Maybe.Nope,
-      Maybe.Nope)
-  }
-
   /**
    * Implied sequence doesn't exist textually, so can't have properties on it.
    */
@@ -418,8 +370,6 @@ final class ChoiceBranchImpliedSequence(rawGM: Term)
 
   // Members declared in AnnotatedSchemaComponent
   protected def optReferredToComponent: Option[AnnotatedSchemaComponent] = None
-
-  def modelGroupRuntimeData: ModelGroupRuntimeData = sequenceRuntimeData
 
   final override def xmlChildren: Seq[scala.xml.Node] = Seq(xml)
 

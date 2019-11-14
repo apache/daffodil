@@ -24,8 +24,11 @@ import org.apache.daffodil.processors.parsers.NadaParser
 import org.apache.daffodil.processors.unparsers.ChoiceUnusedUnparser
 import org.apache.daffodil.processors.unparsers.Unparser
 import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.runtime1.ChoiceTermRuntime1Mixin
 
-trait ChoiceGrammarMixin extends GrammarMixin { self: ChoiceTermBase =>
+trait ChoiceGrammarMixin
+  extends GrammarMixin
+  with ChoiceTermRuntime1Mixin { self: ChoiceTermBase =>
 
   override lazy val groupContent = prod("choiceContent") {
     ChoiceCombinator(this, alternatives)

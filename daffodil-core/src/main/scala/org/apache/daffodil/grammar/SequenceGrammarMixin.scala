@@ -23,8 +23,11 @@ import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.grammar.primitives._
 import org.apache.daffodil.grammar.primitives.OrderedSequence
 import org.apache.daffodil.grammar.primitives.UnorderedSequence
+import org.apache.daffodil.runtime1.SequenceTermRuntime1Mixin
 
-trait SequenceGrammarMixin extends GrammarMixin { self: SequenceTermBase =>
+trait SequenceGrammarMixin
+  extends GrammarMixin
+  with SequenceTermRuntime1Mixin { self: SequenceTermBase =>
 
   final override lazy val groupContent = prod("groupContent") {
     if (isLayered) layerContent

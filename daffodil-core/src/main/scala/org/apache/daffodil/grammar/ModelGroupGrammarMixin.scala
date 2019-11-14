@@ -27,12 +27,16 @@ import org.apache.daffodil.grammar.primitives.DelimiterStackCombinatorSequence
 import org.apache.daffodil.grammar.primitives.DelimiterStackCombinatorChoice
 import org.apache.daffodil.dsom.SequenceTermBase
 import org.apache.daffodil.dsom.ChoiceTermBase
+import org.apache.daffodil.grammar.primitives.DelimiterStackCombinatorChoice
+import org.apache.daffodil.runtime1.ModelGroupRuntime1Mixin
+import org.apache.daffodil.grammar.primitives.LeadingSkipRegion
 
 trait ModelGroupGrammarMixin
   extends InitiatedTerminatedMixin
   with AlignedMixin
   with HasStatementsGrammarMixin
-  with GroupCommonAGMixin { self: ModelGroup =>
+  with GroupCommonAGMixin
+  with ModelGroupRuntime1Mixin { self: ModelGroup =>
 
   private lazy val groupLeftFraming = prod("groupLeftFraming") {
     LeadingSkipRegion(this) ~ AlignmentFill(this)

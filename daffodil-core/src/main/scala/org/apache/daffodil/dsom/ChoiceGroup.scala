@@ -148,18 +148,6 @@ abstract class ChoiceTermBase(
     isDD
   }
 
-  final protected lazy val choiceDispatchKeyExpr = {
-    val qn = this.qNameForProperty("choiceDispatchKey")
-    ExpressionCompilers.String.compileProperty(qn, NodeInfo.NonEmptyString, choiceDispatchKeyRaw, this, dpathCompileInfo)
-  }
-
-  final lazy val choiceDispatchKeyEv = {
-    Assert.invariant(isDirectDispatch)
-    val ev = new ChoiceDispatchKeyEv(choiceDispatchKeyExpr, modelGroupRuntimeData)
-    ev.compile()
-    ev
-  }
-
   // If choiceDispatchKeyKind is byType, verify that all our children share a repType,
   // and use that. Otherwise, there is no need to associate a repType with this choice
   override final lazy val optRepType: Option[SimpleTypeDefBase] = defaultableChoiceDispatchKeyKind match {
@@ -263,87 +251,6 @@ abstract class ChoiceTermBase(
     }
     assuming(branchesOk.forall { x => x })
   }.value
-
-  final def choiceBranchMap: Map[ChoiceBranchEvent, RuntimeData] = LV('choiceBranchMap) {
-    val eventTuples = groupMembers.flatMap {
-      case e: ElementBase => Seq((ChoiceBranchStartEvent(e.namedQName), e))
-      case mg: ModelGroup => {
-        val idEvents = mg.identifyingEventsForChoiceBranch
-        Assert.invariant(!idEvents.isEmpty)
-        idEvents.map { (_, mg) }
-      }
-    }
-
-    // converts a sequence of tuples into a multi-map
-    val eventMap = eventTuples.groupBy { _._1 }.mapValues { _.map(_._2) }
-
-    val noDupes = eventMap.map {
-      case (event, trds) =>
-        if (trds.length > 1) {
-          if (event.isInstanceOf[ChoiceBranchStartEvent] && trds.exists {
-            // any element children in any of the trds?
-            // because if so, we have a true ambiguity here.
-            case sg: SequenceTermBase => {
-              val nonOVCEltChildren = sg.elementChildren.filterNot { _.isOutputValueCalc }
-              nonOVCEltChildren.length > 0
-            }
-            case _ => false
-          }) {
-            // Possibly due to presence of a element with dfdl:outputValueCalc, XML Schema's
-            // UPA check may not catch this ambiguity. However, we need a real element
-            // with unique name, to unambiguously identify a branch.
-            // So if there is ambiguity at this point, we have to fail.
-            SDE(
-              "UPA violation. Multiple choice branches begin with %s.\n" +
-                "Note that elements with dfdl:outputValueCalc cannot be used to distinguish choice branches.\n" +
-                "Note that choice branches with entirely optional content are not allowed.\n" +
-                "The offending choice branches are:\n%s",
-              event.qname, trds.map { trd => "%s at %s".format(trd.diagnosticDebugName, trd.locationDescription) }.mkString("\n"))
-          } else {
-            val eventType = event match {
-              case _: ChoiceBranchEndEvent => "end"
-              case _: ChoiceBranchStartEvent => "start"
-            }
-            // there are no element children in any of the branches.
-            SDW(
-              WarnID.MultipleChoiceBranches,
-              "Multiple choice branches are associated with the %s of element %s.\n" +
-                "Note that elements with dfdl:outputValueCalc cannot be used to distinguish choice branches.\n" +
-                "Note that choice branches with entirely optional content are not allowed.\n" +
-                "The offending choice branches are:\n%s\n" +
-                "The first branch will be used during unparsing when an infoset ambiguity exists.",
-              eventType, event.qname, trds.map { trd => "%s at %s".format(trd.diagnosticDebugName, trd.locationDescription) }.mkString("\n"))
-          }
-        }
-        (event, trds(0).runtimeData)
-    }
-
-    noDupes
-  }.value
-
-  final lazy val modelGroupRuntimeData = choiceRuntimeData
-
-  final lazy val choiceRuntimeData = {
-    new ChoiceRuntimeData(
-      schemaSet.variableMap,
-      encodingInfo,
-      // elementChildren.map { _.elementRuntimeData.dpathElementCompileInfo },
-      schemaFileLocation,
-      dpathCompileInfo,
-      diagnosticDebugName,
-      path,
-      namespaces,
-      defaultBitOrder,
-      groupMembersRuntimeData,
-      isRepresented,
-      couldHaveText,
-      alignmentValueInBits,
-      hasNoSkipRegions,
-      optIgnoreCase,
-      maybeFillByteEv,
-      maybeCheckByteAndBitOrderEv,
-      maybeCheckBitOrderAndCharset)
-  }
 }
 
 final class Choice(xmlArg: Node, lexicalParent: SchemaComponent, position: Int)

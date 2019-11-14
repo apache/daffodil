@@ -198,25 +198,6 @@ abstract class ModelGroup(index: Int)
     echls
   }.value
 
-  final override lazy val runtimeData: RuntimeData = modelGroupRuntimeData
-
-  final override lazy val termRuntimeData: TermRuntimeData = modelGroupRuntimeData
-
-  protected lazy val groupMembersRuntimeData = {
-    val res = this match {
-      case mg: ModelGroup => mg.groupMembers.map {
-        _ match {
-          case eb: ElementBase => eb.erd
-          case t: Term => t.termRuntimeData
-        }
-      }
-      case _ => Nil
-    }
-    res
-  }
-
-  def modelGroupRuntimeData: ModelGroupRuntimeData
-
   protected final lazy val prettyBaseName = xml.label
 
   final lazy val sequenceChildren = groupMembers.collect { case s: SequenceTermBase => s }
@@ -267,7 +248,10 @@ abstract class ModelGroup(index: Int)
     }
   }
 
-  final def allSelfContainedTermsTerminatedByRequiredElement: Seq[Term] =
+  /**
+   * Package private as this is for testing only
+   */
+  private[dsom] final def allSelfContainedTermsTerminatedByRequiredElement: Seq[Term] =
     LV('allSelfContainedTermsTerminatedByRequiredElement) {
       val listOfTerms = groupMembers.map(m => {
         m match {
