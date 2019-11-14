@@ -26,6 +26,7 @@ import org.apache.daffodil.compiler.ParserOrUnparser
 import org.apache.daffodil.compiler.BothParserAndUnparser
 import org.apache.daffodil.api.WarnID
 import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.runtime1.GramRuntime1Mixin
 
 /**
  * Gram - short for "Grammar Term"
@@ -49,7 +50,8 @@ import org.apache.daffodil.util.Maybe
  * then it becomes the EmptyGram which other Gram combinators recognize and optimize out.
  */
 abstract class Gram(contextArg: SchemaComponent)
-  extends OOLAGHostImpl(contextArg) {
+  extends OOLAGHostImpl(contextArg)
+  with GramRuntime1Mixin {
 
   final def SDE(str: String, args: Any*): Nothing = context.SDE(str, args: _*)
 
@@ -112,41 +114,6 @@ abstract class Gram(contextArg: SchemaComponent)
     else if (q.isEmpty) self
     else
       Assert.invariantFailed("More than one alternative for || survived in the grammar")
-  }
-
-  /**
-   * Provides parser.
-   *
-   * Required to examine child parsers, and optimize itself out by propagating NadaParser if there is no parser.
-   */
-  def parser: Parser
-
-  final def maybeParser: Maybe[Parser] = {
-    if (this.isEmpty) Maybe.Nope
-    else {
-      val p = this.parser
-      if (p.isEmpty) Maybe.Nope
-      else Maybe(p)
-    }
-  }
-
-  protected final def hasNoParser: Parser = Assert.invariantFailed("Has no parser.")
-  protected final def hasNoUnparser: Unparser = Assert.invariantFailed("Has no unparser.")
-
-  /**
-   * Provides unparser.
-   *
-   * Required to examine child unparsers, and optimize itself out by propagating NadaUnparser if there is no unparser.
-   */
-  def unparser: Unparser
-
-  final def maybeUnparser: Maybe[Unparser] = {
-    if (this.isEmpty) Maybe.Nope
-    else {
-      val u = this.unparser
-      if (u.isEmpty) Maybe.Nope
-      else Maybe(u)
-    }
   }
 
 }

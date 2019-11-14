@@ -18,10 +18,8 @@
 package org.apache.daffodil.grammar
 
 import java.lang.{ Long => JLong }
-
 import scala.Boolean
 import scala.Long
-
 import org.apache.daffodil.api.WarnID
 import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.dpath.NodeInfo.PrimType
@@ -31,131 +29,17 @@ import org.apache.daffodil.dsom.ExpressionCompilers
 import org.apache.daffodil.dsom.InitiatedTerminatedMixin
 import org.apache.daffodil.dsom.TunableLimitExceededError
 import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.grammar.primitives.AlignmentFill
-import org.apache.daffodil.grammar.primitives.BCDDecimalDelimitedEndOfData
-import org.apache.daffodil.grammar.primitives.BCDDecimalKnownLength
-import org.apache.daffodil.grammar.primitives.BCDDecimalPrefixedLength
-import org.apache.daffodil.grammar.primitives.BCDDecimalRuntimeLength
-import org.apache.daffodil.grammar.primitives.BCDIntegerDelimitedEndOfData
-import org.apache.daffodil.grammar.primitives.BCDIntegerKnownLength
-import org.apache.daffodil.grammar.primitives.BCDIntegerPrefixedLength
-import org.apache.daffodil.grammar.primitives.BCDIntegerRuntimeLength
-import org.apache.daffodil.grammar.primitives.BinaryBoolean
-import org.apache.daffodil.grammar.primitives.BinaryBooleanPrefixedLength
-import org.apache.daffodil.grammar.primitives.BinaryDecimalKnownLength
-import org.apache.daffodil.grammar.primitives.BinaryDecimalPrefixedLength
-import org.apache.daffodil.grammar.primitives.BinaryDecimalRuntimeLength
-import org.apache.daffodil.grammar.primitives.BinaryDouble
-import org.apache.daffodil.grammar.primitives.BinaryFloat
-import org.apache.daffodil.grammar.primitives.BinaryIntegerKnownLength
-import org.apache.daffodil.grammar.primitives.BinaryIntegerPrefixedLength
-import org.apache.daffodil.grammar.primitives.BinaryIntegerRuntimeLength
-import org.apache.daffodil.grammar.primitives.BlobSpecifiedLength
-import org.apache.daffodil.grammar.primitives.CaptureContentLengthEnd
-import org.apache.daffodil.grammar.primitives.CaptureContentLengthStart
-import org.apache.daffodil.grammar.primitives.CaptureValueLengthEnd
-import org.apache.daffodil.grammar.primitives.CaptureValueLengthStart
-import org.apache.daffodil.grammar.primitives.ComplexNilOrContent
-import org.apache.daffodil.grammar.primitives.ConvertBinaryDateTimeSecMilliPrim
-import org.apache.daffodil.grammar.primitives.ConvertTextBooleanPrim
-import org.apache.daffodil.grammar.primitives.ConvertTextBytePrim
-import org.apache.daffodil.grammar.primitives.ConvertTextCombinator
-import org.apache.daffodil.grammar.primitives.ConvertTextDatePrim
-import org.apache.daffodil.grammar.primitives.ConvertTextDateTimePrim
-import org.apache.daffodil.grammar.primitives.ConvertTextDecimalPrim
-import org.apache.daffodil.grammar.primitives.ConvertTextDoublePrim
-import org.apache.daffodil.grammar.primitives.ConvertTextFloatPrim
-import org.apache.daffodil.grammar.primitives.ConvertTextIntPrim
-import org.apache.daffodil.grammar.primitives.ConvertTextIntegerPrim
-import org.apache.daffodil.grammar.primitives.ConvertTextLongPrim
-import org.apache.daffodil.grammar.primitives.ConvertTextNonNegativeIntegerPrim
-import org.apache.daffodil.grammar.primitives.ConvertTextShortPrim
-import org.apache.daffodil.grammar.primitives.ConvertTextTimePrim
-import org.apache.daffodil.grammar.primitives.ConvertTextUnsignedBytePrim
-import org.apache.daffodil.grammar.primitives.ConvertTextUnsignedIntPrim
-import org.apache.daffodil.grammar.primitives.ConvertTextUnsignedLongPrim
-import org.apache.daffodil.grammar.primitives.ConvertTextUnsignedShortPrim
-import org.apache.daffodil.grammar.primitives.ConvertZonedBytePrim
-import org.apache.daffodil.grammar.primitives.ConvertZonedCombinator
-import org.apache.daffodil.grammar.primitives.ConvertZonedDecimalPrim
-import org.apache.daffodil.grammar.primitives.ConvertZonedIntPrim
-import org.apache.daffodil.grammar.primitives.ConvertZonedIntegerPrim
-import org.apache.daffodil.grammar.primitives.ConvertZonedLongPrim
-import org.apache.daffodil.grammar.primitives.ConvertZonedNonNegativeIntegerPrim
-import org.apache.daffodil.grammar.primitives.ConvertZonedShortPrim
-import org.apache.daffodil.grammar.primitives.ConvertZonedUnsignedBytePrim
-import org.apache.daffodil.grammar.primitives.ConvertZonedUnsignedIntPrim
-import org.apache.daffodil.grammar.primitives.ConvertZonedUnsignedLongPrim
-import org.apache.daffodil.grammar.primitives.ConvertZonedUnsignedShortPrim
-import org.apache.daffodil.grammar.primitives.DelimiterStackCombinatorElement
-import org.apache.daffodil.grammar.primitives.DynamicEscapeSchemeCombinatorElement
-import org.apache.daffodil.grammar.primitives.ElementCombinator
-import org.apache.daffodil.grammar.primitives.ElementParseAndUnspecifiedLength
-import org.apache.daffodil.grammar.primitives.ElementUnused
-import org.apache.daffodil.grammar.primitives.HexBinaryDelimitedEndOfData
-import org.apache.daffodil.grammar.primitives.HexBinaryEndOfBitLimit
-import org.apache.daffodil.grammar.primitives.HexBinaryLengthPrefixed
-import org.apache.daffodil.grammar.primitives.HexBinarySpecifiedLength
-import org.apache.daffodil.grammar.primitives.IBM4690PackedDecimalDelimitedEndOfData
-import org.apache.daffodil.grammar.primitives.IBM4690PackedDecimalKnownLength
-import org.apache.daffodil.grammar.primitives.IBM4690PackedDecimalPrefixedLength
-import org.apache.daffodil.grammar.primitives.IBM4690PackedDecimalRuntimeLength
-import org.apache.daffodil.grammar.primitives.IBM4690PackedIntegerDelimitedEndOfData
-import org.apache.daffodil.grammar.primitives.IBM4690PackedIntegerKnownLength
-import org.apache.daffodil.grammar.primitives.IBM4690PackedIntegerPrefixedLength
-import org.apache.daffodil.grammar.primitives.IBM4690PackedIntegerRuntimeLength
-import org.apache.daffodil.grammar.primitives.Initiator
-import org.apache.daffodil.grammar.primitives.InputValueCalc
-import org.apache.daffodil.grammar.primitives.LeadingSkipRegion
-import org.apache.daffodil.grammar.primitives.LeftCenteredPadding
-import org.apache.daffodil.grammar.primitives.LiteralCharacterNilOfSpecifiedLength
-import org.apache.daffodil.grammar.primitives.LiteralNilDelimitedEndOfData
-import org.apache.daffodil.grammar.primitives.LiteralValueNilOfSpecifiedLength
-import org.apache.daffodil.grammar.primitives.LogicalNilValue
-import org.apache.daffodil.grammar.primitives.OnlyPadding
-import org.apache.daffodil.grammar.primitives.PackedDecimalDelimitedEndOfData
-import org.apache.daffodil.grammar.primitives.PackedDecimalKnownLength
-import org.apache.daffodil.grammar.primitives.PackedDecimalPrefixedLength
-import org.apache.daffodil.grammar.primitives.PackedDecimalRuntimeLength
-import org.apache.daffodil.grammar.primitives.PackedIntegerDelimitedEndOfData
-import org.apache.daffodil.grammar.primitives.PackedIntegerKnownLength
-import org.apache.daffodil.grammar.primitives.PackedIntegerPrefixedLength
-import org.apache.daffodil.grammar.primitives.PackedIntegerRuntimeLength
-import org.apache.daffodil.grammar.primitives.PaddingInfoMixin
-import org.apache.daffodil.grammar.primitives.RightCenteredPadding
-import org.apache.daffodil.grammar.primitives.RightFill
-import org.apache.daffodil.grammar.primitives.SimpleNilOrValue
-import org.apache.daffodil.grammar.primitives.SimpleTypeRetry
-import org.apache.daffodil.grammar.primitives.SpecifiedLengthExplicit
-import org.apache.daffodil.grammar.primitives.SpecifiedLengthExplicitCharacters
-import org.apache.daffodil.grammar.primitives.SpecifiedLengthImplicit
-import org.apache.daffodil.grammar.primitives.SpecifiedLengthImplicitCharacters
-import org.apache.daffodil.grammar.primitives.SpecifiedLengthPattern
-import org.apache.daffodil.grammar.primitives.SpecifiedLengthPrefixed
-import org.apache.daffodil.grammar.primitives.SpecifiedLengthPrefixedCharacters
-import org.apache.daffodil.grammar.primitives.StringDelimitedEndOfData
-import org.apache.daffodil.grammar.primitives.StringOfSpecifiedLength
-import org.apache.daffodil.grammar.primitives.Terminator
-import org.apache.daffodil.grammar.primitives.TrailingSkipRegion
+import org.apache.daffodil.grammar.primitives._ // there are too many to show individually
 import org.apache.daffodil.processors.TextJustificationType
 import org.apache.daffodil.schema.annotation.props.Found
 import org.apache.daffodil.schema.annotation.props.NotFound
-import org.apache.daffodil.schema.annotation.props.gen.BinaryCalendarRep
-import org.apache.daffodil.schema.annotation.props.gen.BinaryFloatRep
-import org.apache.daffodil.schema.annotation.props.gen.BinaryNumberRep
-import org.apache.daffodil.schema.annotation.props.gen.CalendarPatternKind
-import org.apache.daffodil.schema.annotation.props.gen.LengthKind
-import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
-import org.apache.daffodil.schema.annotation.props.gen.NilKind
-import org.apache.daffodil.schema.annotation.props.gen.Representation
-import org.apache.daffodil.schema.annotation.props.gen.TextNumberRep
-import org.apache.daffodil.schema.annotation.props.gen.YesNo
+import org.apache.daffodil.schema.annotation.props.gen._ // there are too many to show individually
 import org.apache.daffodil.util.PackedSignCodes
 import org.apache.daffodil.xml.GlobalQName
 import org.apache.daffodil.xml.QName
 import org.apache.daffodil.xml.XMLUtils
-import org.apache.daffodil.grammar.primitives.ElementCombinator
-import org.apache.daffodil.grammar.primitives.TypeValueCalc
+import org.apache.daffodil.dsom.ExpressionCompilers
+import org.apache.daffodil.runtime1.ElementBaseRuntime1Mixin
 
 /////////////////////////////////////////////////////////////////
 // Elements System
@@ -165,7 +49,8 @@ trait ElementBaseGrammarMixin
   extends InitiatedTerminatedMixin
   with AlignedMixin
   with HasStatementsGrammarMixin
-  with PaddingInfoMixin { self: ElementBase =>
+  with PaddingInfoMixin
+  with ElementBaseRuntime1Mixin { self: ElementBase =>
 
   private val context = this
 

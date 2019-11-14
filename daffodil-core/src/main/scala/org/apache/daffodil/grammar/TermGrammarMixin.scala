@@ -19,6 +19,8 @@ package org.apache.daffodil.grammar
 import org.apache.daffodil.dsom.DFDLNewVariableInstance
 import org.apache.daffodil.dsom.Term
 import org.apache.daffodil.grammar.primitives._
+import org.apache.daffodil.grammar.primitives.MandatoryTextAlignment
+import org.apache.daffodil.runtime1.TermRuntime1Mixin
 
 /////////////////////////////////////////////////////////////////
 // Common to all Terms (Elements and ModelGroups)
@@ -26,7 +28,8 @@ import org.apache.daffodil.grammar.primitives._
 
 trait TermGrammarMixin
   extends AlignedMixin
-  with BitOrderMixin { self: Term =>
+  with BitOrderMixin
+  with TermRuntime1Mixin { self: Term =>
 
   override protected final def grammarContext = this
 
