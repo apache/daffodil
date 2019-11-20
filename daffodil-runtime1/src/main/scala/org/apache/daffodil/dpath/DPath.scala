@@ -34,6 +34,7 @@ import org.apache.daffodil.api.Diagnostic
 import org.apache.daffodil.util.Numbers._
 import org.apache.daffodil.processors.parsers.DoSDEMixin
 import org.apache.daffodil.processors.parsers.PState
+import org.apache.daffodil.udf.UserDefinedFunctionProcessingErrorException
 
 class ExpressionEvaluationException(e: Throwable, s: ParseOrUnparseState)
   extends ProcessingError(

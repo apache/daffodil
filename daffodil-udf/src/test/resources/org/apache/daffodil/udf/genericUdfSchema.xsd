@@ -74,6 +74,28 @@
     </xs:complexType>
   </xs:element>
 
+  <xs:element name="user_func4">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="data" type="xs:string"
+          dfdl:lengthKind="pattern" dfdl:lengthPattern=".*\s*" />
+        <xs:element name="value" type="xs:string"
+          dfdl:inputValueCalc="{ ssudf:get-nonserializable-state() }" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="user_func5">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="data" type="xs:string"
+          dfdl:lengthKind="pattern" dfdl:lengthPattern=".*\s*" />
+        <xs:element name="value" type="xs:string"
+          dfdl:inputValueCalc="{ ssudf:get-serializable-state() }" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
   <xs:element name="fn_func">
     <xs:complexType>
       <xs:sequence>

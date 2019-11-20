@@ -148,6 +148,14 @@ object Util {
     }
   }
 
+  def makeMultipleCmds(cmds: Array[String]): String = {
+    if (isWindows) {
+      cmds.mkString(" & ")
+    } else {
+      cmds.mkString("; ")
+    }
+  }
+
   def md5sum(blob_path: String): String = {
     if (isWindows) {
       String.format("certutil -hashfile %s MD5", blob_path)

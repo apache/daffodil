@@ -18,51 +18,14 @@
 package org.apache.daffodil.dpath
 
 import org.apache.daffodil.udf.UserDefinedFunction
+import org.apache.daffodil.udf.UserDefinedFunctionProcessingErrorException
+import org.apache.daffodil.udf.exceptions.UserDefinedFunctionProcessingError
+import org.apache.daffodil.udf.UserDefinedFunctionFatalErrorException
+import org.apache.daffodil.udf.exceptions.UserDefinedFunctionFatalException
 import org.apache.daffodil.udf.UserDefinedFunctionService.UserDefinedFunctionMethod
 import java.lang.reflect.Method
 import java.lang.reflect.InvocationTargetException
-import org.apache.daffodil.udf.exceptions.UserDefinedFunctionFatalException
-import org.apache.daffodil.udf.exceptions.UserDefinedFunctionProcessingError
-import org.apache.daffodil.processors.ProcessingError
 import org.apache.daffodil.util.Maybe
-import org.apache.daffodil.exceptions.SchemaFileLocation
-import org.apache.daffodil.api.DataLocation
-import org.apache.daffodil.exceptions.Abort
-
-/**
- * User Defined Function Exception class to wrap processing errors from the UDF
- * into Daffodil Processing Errors
- */
-case class UserDefinedFunctionProcessingErrorException(
-  errorInfo: String,
-  schemaContext: Maybe[SchemaFileLocation],
-  dataContext: Maybe[DataLocation],
-  errorCause: Maybe[Throwable],
-  errorStr: Maybe[String])
-  extends ProcessingError(errorInfo, schemaContext, dataContext, errorCause, errorStr)
-
-/**
- * User Defined Function Exception class to wrap fatal errors from the UDF
- * into Daffodil Aborts
- */
-case class UserDefinedFunctionFatalErrorException(description: String = "", cause: Throwable, classOfInterest: String = "")
-  extends Abort(description + ": " + cause.getMessage) {
-
-  /*
-   * This will replace the stacktrace of the fatal error with just the UDF relevant
-   * portions; removing the Daffodil (incl our evaluate invocation) and the Method
-   * reflection portions.
-   *
-   */
-  if (classOfInterest.nonEmpty) {
-    val curStackTrace = cause.getStackTrace
-    val indexLastUdfEntry = curStackTrace.lastIndexWhere(_.getClassName == classOfInterest)
-    val finalStackTrace =
-      if (indexLastUdfEntry >= 0) curStackTrace.slice(0, indexLastUdfEntry + 1)
-      else curStackTrace
-    this.setStackTrace(finalStackTrace)
-  }
-}
 
 /**
  * Both the serializable evaluate method and the User Defined Function instance are passed in,

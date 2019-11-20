@@ -66,7 +66,7 @@ class TestCLIUdfs {
       shell.expect(
         allOf(
           contains("<fn_func>"),
-          contains("data>strng</data>"),
+          contains("<data>strng</data>"),
           contains("<value>Hello,strng</value>"),
           contains("</fn_func>")))
 
@@ -406,7 +406,7 @@ class TestCLIUdfs {
         1,
         allOf(
           contains("[error] User Defined Function 'ssudf:reverse' Error: UDF Error!"),
-          contains("org.apache.daffodil.dpath.UserDefinedFunctionFatalErrorException: "),
+          contains("org.apache.daffodil.udf.UserDefinedFunctionFatalErrorException: "),
           contains("at org.sbadudfs.udfexceptions.evaluating.StringFunctions.Reverse.evaluate")))
 
       shell.send("exit\n")
@@ -471,7 +471,9 @@ class TestCLIUdfs {
           contains("[error] Error initializing User Defined Function:"),
           contains("http://example.com/scala/udf:rev-words."),
           contains("Error thrown: org.sbadudfs.udfexceptions2.StringFunctions.ReverseWords$CustomException: UDF Error!"),
-          contains("[error] Schema Definition Error: Unsupported function: ssudf:rev-words")))
+          contains("[error] User Defined Function 'http://example.com/scala/udf:rev-words' Error: UDF Error!"),
+          contains("org.apache.daffodil.udf.UserDefinedFunctionFatalErrorException:"),
+          contains("at org.sbadudfs.udfexceptions2.StringFunctions.ReverseWords")))
 
       shell.send("exit\n")
       shell.expect(eof)
@@ -586,6 +588,115 @@ class TestCLIUdfs {
       shell.close()
     } finally {
       shell.close()
+    }
+  }
+
+  /**
+   * Tests the case when a provider class:
+   *   incorrectly implements createUserDefinedFunction that results in an exception
+   */
+  @Test def test_UDFPClass_incorrectUDFCreateImplementation() {
+    val schemaFile = Util.daffodilPath("daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd")
+    val (testSchemaFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile)) else (schemaFile)
+
+    val metaInfForSomeUdfA = "daffodil-udf/src/test/scala/org/sbadudfs/functionclasses/StringFunctions/"
+
+    val dafClassPath =
+      (testUdfsPaths :+ Util.daffodilPath(metaInfForSomeUdfA))
+        .mkString(java.io.File.pathSeparator)
+
+    val shell = Util.startIncludeErrors("", envp = Map("DAFFODIL_CLASSPATH" -> dafClassPath))
+
+    try {
+      val cmd = String.format(Util.echoN("strng") + "| %s -v parse -s %s -r user_func2", Util.binPath, testSchemaFile)
+      shell.sendLine(cmd)
+      shell.expectIn(
+        1,
+        allOf(
+          contains("[error] Error initializing User Defined Function:"),
+          contains("http://example.com/scala/udf:reverse."),
+          contains("Error thrown: scala.MatchError:"),
+          contains("org.apache.daffodil.udf.UserDefinedFunctionFatalErrorException:"),
+          contains("at org.sbadudfs.functionclasses.StringFunctions.StringFunctionsProvider.createUserDefinedFunction")))
+
+      shell.send("exit\n")
+      shell.expect(eof)
+      shell.close()
+    } finally {
+      shell.close()
+    }
+  }
+
+  /**
+   * Tests the case when a UDF class:
+   *    contains a non serializable member
+   */
+  @Test def test_UDFClass_serializability() {
+    val schemaFile = Util.daffodilPath("daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd")
+    val (testSchemaFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile)) else (schemaFile)
+
+    val metaInfForSomeUdfA = "daffodil-udf/src/test/scala/org/sbadudfs/functionclasses2/StringFunctions/"
+
+    val dafClassPath =
+      (testUdfsPaths :+ Util.daffodilPath(metaInfForSomeUdfA))
+        .mkString(java.io.File.pathSeparator)
+
+    val shell = Util.startIncludeErrors("", envp = Map("DAFFODIL_CLASSPATH" -> dafClassPath))
+
+    try {
+      val cmd = String.format("%s -v save-parser -s %s -r user_func4", Util.binPath, testSchemaFile)
+      shell.sendLine(cmd)
+      shell.expectIn(
+        1,
+        allOf(
+          contains("[error] Error serializing initialized User Defined Function: org.sbadudfs.functionclasses2.StringFunctions.GetNonSerializableState"),
+          contains("Could not serialize member of class: org.sbadudfs.functionclasses2.StringFunctions.SomeNonSerializableClass"),
+          contains("[error] Schema Definition Error: Unsupported function: ssudf:get-nonserializable-state")))
+      shell.send("exit\n")
+      shell.expect(eof)
+      shell.close()
+    } finally {
+      shell.close()
+    }
+  }
+
+  /**
+   * Tests the case when a UDF class:
+   *    contains serializable member
+   */
+  @Test def test_UDFClass_serializability2() {
+    val schemaFile = Util.daffodilPath("daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd")
+    val (testSchemaFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile)) else (schemaFile)
+
+    val savedParserFile = java.io.File.createTempFile("testParser_", ".tmp")
+    savedParserFile.deleteOnExit
+    val metaInfForSomeUdfA = "daffodil-udf/src/test/scala/org/sbadudfs/functionclasses2/StringFunctions/"
+
+    val dafClassPath =
+      (testUdfsPaths :+ Util.daffodilPath(metaInfForSomeUdfA))
+        .mkString(java.io.File.pathSeparator)
+
+    val shell = Util.startIncludeErrors("", envp = Map("DAFFODIL_CLASSPATH" -> dafClassPath))
+
+    try {
+      val cmds = Array(
+        String.format("%s -v save-parser -s %s -r user_func5 %s", Util.binPath, testSchemaFile, savedParserFile.getAbsolutePath),
+        String.format(Util.echoN("strng") + "| %s -v parse -P %s", Util.binPath, savedParserFile.getAbsolutePath))
+      val cmd = Util.makeMultipleCmds(cmds)
+      shell.sendLine(cmd)
+      shell.expectIn(
+        0,
+        allOf(
+          contains("<user_func5>"),
+          contains("<data>strng</data>"),
+          contains("<value>Serializable State</value>"),
+          contains("</user_func5>")))
+      shell.send("exit\n")
+      shell.expect(eof)
+      shell.close()
+    } finally {
+      shell.close()
+      savedParserFile.delete
     }
   }
 }
