@@ -100,7 +100,7 @@ import org.apache.daffodil.io.DataDumper
 import java.nio.ByteBuffer
 import org.apache.daffodil.io.FormatInfo
 import org.apache.daffodil.schema.annotation.props.gen.BitOrder
-import org.apache.daffodil.dpath.UserDefinedFunctionFatalErrorException
+import org.apache.daffodil.udf.UserDefinedFunctionFatalErrorException
 
 class NullOutputStream extends OutputStream {
   override def close() {}

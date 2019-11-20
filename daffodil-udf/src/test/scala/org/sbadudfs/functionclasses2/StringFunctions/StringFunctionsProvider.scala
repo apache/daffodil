@@ -14,69 +14,77 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sbadudfs.functionclasses.StringFunctions
+package org.sbadudfs.functionclasses2.StringFunctions
 
 import org.apache.daffodil.udf.UserDefinedFunction
 import org.apache.daffodil.udf.UserDefinedFunctionProvider
 import org.apache.daffodil.udf.UserDefinedFunctionIdentification
+import java.io.Serializable
 
 /**
  * UDF Provider for Negative Unit test
  *
- * Contains incorrect implementation of lookup function
+ * passes non serializable or serializable state member to UDF
  */
 class StringFunctionsProvider extends UserDefinedFunctionProvider {
+  val nonSerializable = new SomeNonSerializableClass
+  val serializable = new SomeSerializableClass
+
   override def getUserDefinedFunctionClasses = {
-    Array(classOf[ReverseWords], classOf[Reverse])
+    Array(classOf[GetNonSerializableState], classOf[GetSerializableState])
   }
 
   override def createUserDefinedFunction(namespaceURI: String, fName: String) = {
     val udf = s"$namespaceURI:$fName" match {
-      // incorrect object
-      case "http://example.com/scala/udf:rev-words" => new Reverse
-      // incorrect udfid
-      case "http://example.com/scala/udf:reversee" => new Reverse
+      case "http://example.com/scala/udf:get-nonserializable-state" => new GetNonSerializableState(nonSerializable)
+      case "http://example.com/scala/udf:get-serializable-state" => new GetSerializableState(serializable)
     }
     udf
   }
 }
 
 /**
- * Example User Defined Function in Scala
- *
+ * Non serializable class for serialization negative tests in Scala
  */
-@UserDefinedFunctionIdentification(name = "rev-words",
+class SomeNonSerializableClass {
+  val x = "Nonserializable State"
+}
+
+/**
+ * Serializable class for serialization tests in Scala
+ */
+class SomeSerializableClass extends Serializable {
+  val x = "Serializable State"
+}
+
+/**
+ * UDF for serialization negative tests in Scala
+ *
+ * contains a non serializable member
+ */
+@UserDefinedFunctionIdentification(
+  name = "get-nonserializable-state",
   namespaceURI = "http://example.com/scala/udf")
-class ReverseWords extends UserDefinedFunction {
-  /**
-   * Reverses the order of words in a sentence
-   *
-   * @param strToRev string whose word order you wish to reverse
-   * @param sep Boundary to split your sentence on
-   * @return reversed sentence based on $sep boundary
-   */
-  def evaluate(strToRev: String, sep: String = " ") = {
-    val ret = strToRev.split(sep).reverse.mkString(sep)
+class GetNonSerializableState(state: SomeNonSerializableClass) extends UserDefinedFunction {
+
+  def evaluate() = {
+    val ret = state.x
     ret
   }
 }
 
 /**
- * Example User Defined Function in Scala
+ * UDF for serialization tests in Scala
  *
+ * contains a serializable member
  */
-@UserDefinedFunctionIdentification(name = "reverse",
+@UserDefinedFunctionIdentification(
+  name = "get-serializable-state",
   namespaceURI = "http://example.com/scala/udf")
-class Reverse extends UserDefinedFunction {
-  /**
-   * Reverses the order of chars in a string
-   *
-   * @param str string whose order you wish to reverse
-   * @return reversed str
-   */
-  def evaluate(str: String) = {
-    val ret = str.reverse
+class GetSerializableState(state: SomeSerializableClass) extends UserDefinedFunction {
+
+  def evaluate() = {
+    val ret = state.x
     ret
   }
 }
-

@@ -29,6 +29,9 @@ import org.apache.daffodil.dpath.NodeInfo
 import java.io.Serializable
 import java.io.ObjectInputStream
 import scala.language.existentials
+import java.io.ByteArrayOutputStream
+import java.io.ObjectOutputStream
+import java.io.NotSerializableException
 
 /**
  * Loads, validates and caches (for use at schema compile time) all User Defined Functions
@@ -107,7 +110,6 @@ object UserDefinedFunctionService extends Logging {
           udfc =>
             val nonAnn = !udfc.isAnnotationPresent(classUserDefinedFunctionIdentification)
             val nonUdf = !classUserDefinedFunction.isAssignableFrom(udfc)
-
             if (nonAnn) {
               log(LogLevel.Warning, "User Defined Function ignored: %s. Missing %s annotation",
                 udfc.getName, classUserDefinedFunctionIdentification.getName)
@@ -226,12 +228,35 @@ object UserDefinedFunctionService extends Logging {
           val maybeUdf =
             try {
               val udf = udfInfo.provider.createUserDefinedFunction(namespaceURI, fname)
-              Option(udf)
+              /*
+               * This is to check for any errors thrown when if we try to serialize the
+               * UDF, such as when using save-parser
+               */
+              try {
+                new ObjectOutputStream(new ByteArrayOutputStream()).writeObject(udf)
+                Option(udf)
+              } catch {
+                case e: NotSerializableException =>
+                  log(LogLevel.Error, "Error serializing initialized User Defined Function: %s. Could not serialize member of class: %s",
+                    udf.getClass.getName, e.getMessage)
+                  None
+              }
             } catch {
-              case e: ReflectiveOperationException => {
+              /*
+               * This is to protect against any errors thrown when we are trying to
+               * initialize the UDFs. It will catch any exceptions and emit them as the reason the UDF
+               * is unsupported
+               */
+              case e: Exception => {
+                val actualCause = e match {
+                  case _: ReflectiveOperationException => e.getCause
+                  case x => x
+                }
                 log(LogLevel.Error, "Error initializing User Defined Function: %s. Error thrown: %s",
-                  udfid, e.getCause)
-                None
+                  udfid, actualCause)
+                throw new UserDefinedFunctionFatalErrorException(
+                  s"User Defined Function '$udfid' Error",
+                  actualCause, udfInfo.udfClass.getName, udfInfo.provider.getClass.getName)
               }
             }
 
