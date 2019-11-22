@@ -3,6 +3,7 @@
 <classpath>
   <!-- This file is updated by the UpdateEclipseClasspath app. -->
   <classpathentry kind="src" path="src/test/scala"/>
+  <classpathentry kind="src" path="src/test/java"/>
   <classpathentry kind="src" path="src/main/resources"/>
   <classpathentry kind="src" path="src/test/resources"/>
   <classpathentry kind="con" path="org.scala-ide.sdt.launching.SCALA_CONTAINER"/>
