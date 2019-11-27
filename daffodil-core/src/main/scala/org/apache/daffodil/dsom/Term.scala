@@ -94,7 +94,7 @@ trait HasTermCheck {
  */
 trait Term
   extends AnnotatedSchemaComponent
-  with ResolvesProperties
+  with ResolvesScopedProperties
   with ResolvesDFDLStatementMixin
   with TermRuntimeValuedPropertiesMixin
   with TermGrammarMixin
