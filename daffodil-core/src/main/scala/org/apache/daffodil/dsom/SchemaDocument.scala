@@ -177,13 +177,7 @@ final class XMLSchemaDocument(
  */
 final class SchemaDocument(xmlSDoc: XMLSchemaDocument)
   extends AnnotatedSchemaComponent
-  with SchemaDocumentMixin
-  with ResolvesProperties //
-  // Technically, this is not a term, so shouldn't resolve scoped properties
-  // This is mixed in to satisfy the contract of FindPropertyMixin, which requires
-  // a lookup method that is defined in ResolveProperties.
-  with Format_AnnotationMixin
-  with SeparatorSuppressionPolicyMixin {
+  with SchemaDocumentMixin {
 
   final override val xml = xmlSDoc.xml
   final override def optLexicalParent = Option(xmlSDoc)

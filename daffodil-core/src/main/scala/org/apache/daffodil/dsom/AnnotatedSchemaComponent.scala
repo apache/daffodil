@@ -31,13 +31,13 @@ import org.apache.daffodil.api.WarnID
 
 /**
  * Only objects from which we generate processors (parsers/unparsers)
- * can lookup property values.
+ * can lookup scoped property values.
  *
  * This avoids the possibility of a property being resolved incorrectly by
  * not looking at the complete chain of schema components contributing to the
  * property resolution.
  *
- * The only objects that should resolve properties are
+ * The only objects that should resolve properties are instances of Term
  * ElementRef, Root, LocalElementDecl, Sequence, Choice, SequenceRef, ChoiceRef,
  * EnumerationFactory, SimpleTypeDefFactory,
  *
@@ -47,7 +47,7 @@ import org.apache.daffodil.api.WarnID
  *
  * EnumerationFactory and SimpleTypeDefFactory are the oddballs out. In addition to
  * being used to generate processors, these classes our also used to generate abstract
- * TypeCalculators, which are not nessasarily attached to any particular element, nor
+ * TypeCalculators, which are not necessarily attached to any particular element, nor
  * used to generate any processor (for instance, there may be a globalSimpleType whose
  * only purpose is to define a TypeCalculator for use in DPath expressions)
  */
@@ -68,20 +68,33 @@ object ResolvesProperties {
     "repValues")
 }
 
-// TODO: ResolvesProperties should really only be mixed-in by Term.
-// It is very easy to make the mistake of looking up properties on something like
-// a global def/decl, and then you aren't getting the combining of that with
-// the referencing object and its default format (from its containing schema document).
-//
-// We need to refactor and provide ResolvesScopedProperties, and ResolvesLocalProperties
-// mixins so that non-terms can use different method names (but similar idioms) to get local
-// properties. That way lookup of properties that is supposed to be scoped can't be accidently
-// called on non-terms. We really do not want OO-style polymorphism on property finding
-// across terms and non-terms. Only for the terms. Non-terms want their own local-only
-// method names.
-
-trait ResolvesProperties
+/**
+ * Mixin for non-terms that need to lookup local properties
+ */
+trait ResolvesLocalProperties
   extends FindPropertyMixin { self: AnnotatedSchemaComponent =>
+
+  /**
+   * Does lookup of only local properties
+   */
+  protected override def lookupProperty(pname: String): PropertyLookupResult = {
+    ExecutionMode.requireCompilerMode
+    Assert.usage(
+      ResolvesProperties.localOnlyProperties.contains(pname),
+      "Property '%s' is not a valid local-only property.".format(pname))
+    val fa = formatAnnotation
+    val opt = fa.justThisOneProperties.get(pname)
+    val optFound = opt.map { case (value, location) => Found(value, location, pname, false) }
+    val res = optFound.getOrElse { NotFound(Seq(fa.annotatedSC), Nil, pname) }
+    res
+  }
+}
+
+/**
+ * Mixin for Term, which can lookup all properties using DFDL scoping rules.
+ */
+trait ResolvesScopedProperties
+  extends FindPropertyMixin { self: Term =>
 
   private def findNonDefaultProperty(pname: String): PropertyLookupResult = {
     val sources =

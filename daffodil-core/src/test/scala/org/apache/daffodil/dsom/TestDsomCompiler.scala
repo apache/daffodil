@@ -64,11 +64,8 @@ class TestDsomCompiler extends Logging {
     val Seq(declf) = schemaDoc.globalElementDecls
     val decl = declf.forRoot()
 
-    schemaDoc.defaultFormat
-    val tnr = schemaDoc.textNumberRep
+    val tnr = decl.textNumberRep
     assertEquals(TextNumberRep.Standard, tnr)
-    val tnr2 = decl.textNumberRep
-    assertEquals(TextNumberRep.Standard, tnr2)
   }
 
   @Test def testSchemaValidationSubset() {

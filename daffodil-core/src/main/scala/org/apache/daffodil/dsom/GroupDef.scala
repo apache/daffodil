@@ -111,12 +111,7 @@ sealed abstract class GlobalGroupDef(
   with GroupDefLike
   with GlobalNonElementComponentMixin
   with NestingTraversesToReferenceMixin
-  with ResolvesProperties // 
-    // Technically, this is not a term, so shouldn't resolve scoped properties
-  // and doesn't take into account combining ref with def properties.
-  // But we need to get one local property: dfdl:choiceBranchKey. In order to 
-  // enforce that it is NOT specified on global defs/decls.
-  // So we mixin ResolvesProperties, but shouldn't use it except to probe dfdl:choiceBranchKey
+  with ResolvesLocalProperties // for dfdl:choiceBranchKey
   {
 
   requiredEvaluations(groupMembers)

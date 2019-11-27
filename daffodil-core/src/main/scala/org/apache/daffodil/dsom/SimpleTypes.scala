@@ -75,7 +75,8 @@ sealed trait SimpleTypeBase extends TypeBase
  * but the element will still have an optRepValueSet for another source (eg. children elements)
  */
 sealed trait HasRepValueAttributes extends AnnotatedSchemaComponent
-  with ResolvesProperties {
+  with ResolvesLocalProperties // for repValues, repValueRanges, repType
+  {
 
   def optRepType: Option[SimpleTypeBase]
   def optRepValueSet: Option[RepValueSet[AnyRef]]
@@ -556,8 +557,7 @@ final class EnumerationDefFactory(
   parentType: SimpleTypeDefBase)
   extends SchemaComponentFactory(xml, parentType.schemaDocument)
   with NestingLexicalMixin
-  with HasRepValueAttributes
-  with ResolvesProperties {
+  with HasRepValueAttributes {
 
   Assert.invariant(xml.label == "enumeration")
 
