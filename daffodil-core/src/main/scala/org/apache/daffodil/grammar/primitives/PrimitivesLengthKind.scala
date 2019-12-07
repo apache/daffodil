@@ -130,7 +130,7 @@ abstract class StringDelimited(e: ElementBase)
 
   // TODO: move out of parser and into the dsom
   lazy val fieldDFAParseEv = {
-    val ev = new FieldDFAParseEv(escapeSchemeParseEvOpt, context.runtimeData)
+    val ev = new FieldDFAParseEv(escapeSchemeParseEvOpt, context.dpathCompileInfo)
     ev.compile(context.tunable)
     ev
   }
@@ -138,9 +138,9 @@ abstract class StringDelimited(e: ElementBase)
   val textDelimitedParser = {
     val isBlockEscapeScheme = es.isDefined && es.get.escapeKind == EscapeKind.EscapeBlock
     if (isBlockEscapeScheme) {
-      new TextDelimitedParserWithEscapeBlock(justificationTrim, parsingPadChar, e.elementRuntimeData)
+      new TextDelimitedParserWithEscapeBlock(justificationTrim, parsingPadChar, e.erd)
     } else {
-      new TextDelimitedParser(justificationTrim, parsingPadChar, e.elementRuntimeData)
+      new TextDelimitedParser(justificationTrim, parsingPadChar, e.erd)
     }
   }
 
@@ -165,7 +165,7 @@ abstract class StringDelimited(e: ElementBase)
 
   override lazy val unparser: DaffodilUnparser =
     new StringDelimitedUnparser(
-      e.elementRuntimeData,
+      e.erd,
       escapeSchemeUnparseEvOpt,
       isDelimRequired)
 

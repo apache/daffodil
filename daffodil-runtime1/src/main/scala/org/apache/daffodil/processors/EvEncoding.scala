@@ -48,11 +48,11 @@ import org.apache.daffodil.cookers.EncodingCooker
 /**
  * Encoding is a string, so there is no converter.
  */
-abstract class EncodingEvBase(override val expr: CompiledExpression[String], trd: TermRuntimeData)
+abstract class EncodingEvBase(override val expr: CompiledExpression[String], tci: DPathCompileInfo)
   extends EvaluatableConvertedExpression[String, String](
     expr,
     EncodingCooker, // cooker insures upper-case and trimmed of whitespace.
-    trd)
+    tci)
   with InfosetCachedEvaluatable[String] {
   override lazy val runtimeDependencies = Vector()
 
@@ -74,18 +74,18 @@ abstract class EncodingEvBase(override val expr: CompiledExpression[String], trd
   }
 }
 
-final class EncodingEv(expr: CompiledExpression[String], trd: TermRuntimeData)
-  extends EncodingEvBase(expr, trd)
+final class EncodingEv(expr: CompiledExpression[String], tci: DPathCompileInfo)
+  extends EncodingEvBase(expr, tci)
 
-abstract class CharsetEvBase(encodingEv: EncodingEvBase, val trd: TermRuntimeData)
-  extends Evaluatable[BitsCharset](trd)
+abstract class CharsetEvBase(encodingEv: EncodingEvBase, tci: DPathCompileInfo)
+  extends Evaluatable[BitsCharset](tci)
   with InfosetCachedEvaluatable[BitsCharset] {
 
   override lazy val runtimeDependencies = Seq(encodingEv)
 
   private def checkCharset(state: ParseOrUnparseState, bitsCharset: BitsCharset) {
     if (bitsCharset.bitWidthOfACodeUnit != 8) {
-      trd.schemaDefinitionError("Only encodings with byte-sized code units are allowed to be specified using a runtime-valued expression. " +
+      tci.schemaDefinitionError("Only encodings with byte-sized code units are allowed to be specified using a runtime-valued expression. " +
         "Encodings with 7 or fewer bits in their code units must be specified as a literal encoding name in the DFDL schema. " +
         "The encoding found was '%s'.", bitsCharset.name)
     }
@@ -95,18 +95,18 @@ abstract class CharsetEvBase(encodingEv: EncodingEvBase, val trd: TermRuntimeDat
     val encString = encodingEv.evaluate(state)
     val cs = CharsetUtils.getCharset(encString)
     if (cs == null) {
-      trd.schemaDefinitionError("Unsupported encoding: %s. Supported encodings: %s", encString, CharsetUtils.supportedEncodingsString)
+      tci.schemaDefinitionError("Unsupported encoding: %s. Supported encodings: %s", encString, CharsetUtils.supportedEncodingsString)
     }
     if (!encodingEv.isConstant) checkCharset(state, cs)
     cs
   }
 }
 
-final class CharsetEv(encodingEv: EncodingEv, trd: TermRuntimeData)
-  extends CharsetEvBase(encodingEv, trd)
+final class CharsetEv(encodingEv: EncodingEv, tci: DPathCompileInfo)
+  extends CharsetEvBase(encodingEv, tci)
 
-class FillByteEv(fillByteRaw: String, charsetEv: CharsetEv, val trd: TermRuntimeData)
-  extends Evaluatable[Integer](trd)
+class FillByteEv(fillByteRaw: String, charsetEv: CharsetEv, tci: DPathCompileInfo)
+  extends Evaluatable[Integer](tci)
   with InfosetCachedEvaluatable[Integer] {
 
   override lazy val runtimeDependencies = Seq(charsetEv)
@@ -128,7 +128,7 @@ class FillByteEv(fillByteRaw: String, charsetEv: CharsetEv, val trd: TermRuntime
         maybeSingleRawByteValue.get
       } else {
         // not a single raw byte, need to cook and encode it
-        val cookedFillByte = FillByteCooker.cook(fillByteRaw, trd, true)
+        val cookedFillByte = FillByteCooker.cook(fillByteRaw, tci, true)
         Assert.invariant(cookedFillByte.length == 1)
 
         val bitsCharset = charsetEv.evaluate(state)
@@ -154,4 +154,3 @@ class FillByteEv(fillByteRaw: String, charsetEv: CharsetEv, val trd: TermRuntime
   }
 
 }
-

@@ -30,6 +30,7 @@ import org.apache.daffodil.processors.WSPDelim
 import org.apache.daffodil.processors.WSPPlusDelim
 import org.apache.daffodil.processors.WSPStarDelim
 import org.apache.daffodil.processors.parsers.DelimiterTextType
+import org.apache.daffodil.dsom.DPathCompileInfo
 
 object CreateDelimiterDFA {
 
@@ -37,65 +38,65 @@ object CreateDelimiterDFA {
    * Constructs an Array of states reflecting the delimiters only.
    * StateNum is offset by stateOffset
    */
-  protected def apply(delimType: DelimiterTextType.Type, rd: RuntimeData, delimiter: Seq[DelimBase], delimiterStr: String, outputNewLine: String): DFADelimiter = {
+  protected def apply(delimType: DelimiterTextType.Type, ci: DPathCompileInfo, delimiter: Seq[DelimBase], delimiterStr: String, outputNewLine: String): DFADelimiter = {
 
     val allStates: ArrayBuffer[State] = ArrayBuffer.empty
 
     buildTransitions(delimiter, allStates, false)
 
     val unparseValue = delimiter.map { _.unparseValue(outputNewLine) }.mkString
-    new DFADelimiterImplUnparse(delimType, allStates.reverse.toArray, delimiterStr, unparseValue, rd.schemaFileLocation)
+    new DFADelimiterImplUnparse(delimType, allStates.reverse.toArray, delimiterStr, unparseValue, ci.schemaFileLocation)
   }
 
   /**
    * Constructs an Array of states reflecting the delimiters only.
    * StateNum is offset by stateOffset
    */
-  protected def apply(delimType: DelimiterTextType.Type, rd: RuntimeData, delimiter: Seq[DelimBase], delimiterStr: String, ignoreCase: Boolean): DFADelimiter = {
+  protected def apply(delimType: DelimiterTextType.Type, ci: DPathCompileInfo, delimiter: Seq[DelimBase], delimiterStr: String, ignoreCase: Boolean): DFADelimiter = {
 
     val allStates: ArrayBuffer[State] = ArrayBuffer.empty
 
     buildTransitions(delimiter, allStates, ignoreCase)
 
-    new DFADelimiterImpl(delimType, allStates.reverse.toArray, delimiterStr, rd.schemaFileLocation)
+    new DFADelimiterImpl(delimType, allStates.reverse.toArray, delimiterStr, ci.schemaFileLocation)
   }
 
   /**
    * Converts a String to a DFA representing
    * that string
    */
-  def apply(delimType: DelimiterTextType.Type, rd: RuntimeData, delimiterStr: String, ignoreCase: Boolean): DFADelimiter = {
+  def apply(delimType: DelimiterTextType.Type, ci: DPathCompileInfo, delimiterStr: String, ignoreCase: Boolean): DFADelimiter = {
     val d = new Delimiter()
     d.compileDelimiter(delimiterStr, ignoreCase)
     val db = d.delimBuf
-    apply(delimType, rd, db, delimiterStr, ignoreCase)
+    apply(delimType, ci, db, delimiterStr, ignoreCase)
   }
 
   /**
    * Converts a String to a DFA representing
    * that string
    */
-  def apply(delimType: DelimiterTextType.Type, rd: RuntimeData, delimiterStr: String, outputNewLine: String): DFADelimiter = {
+  def apply(delimType: DelimiterTextType.Type, ci: DPathCompileInfo, delimiterStr: String, outputNewLine: String): DFADelimiter = {
     val d = new Delimiter()
     d.compileDelimiter(delimiterStr, false)
     val db = d.delimBuf
-    apply(delimType, rd, db, delimiterStr, outputNewLine)
+    apply(delimType, ci, db, delimiterStr, outputNewLine)
   }
 
   /**
    * Converts a Seq of String to a Seq of
    * DFA's representing each String with outputNewLine.
    */
-  def apply(delimType: DelimiterTextType.Type, rd: RuntimeData, delimiters: Seq[String], outputNewLine: String): Array[DFADelimiter] = {
-    delimiters.map(d => apply(delimType, rd, d, outputNewLine)).toArray
+  def apply(delimType: DelimiterTextType.Type, ci: DPathCompileInfo, delimiters: Seq[String], outputNewLine: String): Array[DFADelimiter] = {
+    delimiters.map(d => apply(delimType, ci, d, outputNewLine)).toArray
   }
 
   /**
    * Converts a Seq of String to a Seq of
    * DFA's representing each String.
    */
-  def apply(delimType: DelimiterTextType.Type, rd: RuntimeData, delimiters: Seq[String], ignoreCase: Boolean): Array[DFADelimiter] = {
-    delimiters.map(d => apply(delimType, rd, d, ignoreCase)).toArray
+  def apply(delimType: DelimiterTextType.Type, ci: DPathCompileInfo, delimiters: Seq[String], ignoreCase: Boolean): Array[DFADelimiter] = {
+    delimiters.map(d => apply(delimType, ci, d, ignoreCase)).toArray
   }
 
   /**
@@ -127,7 +128,8 @@ object CreateDelimiterDFA {
     theState
   }
 
-  private def buildTransitions(delim: Seq[DelimBase],
+  private def buildTransitions(
+    delim: Seq[DelimBase],
     allStates: ArrayBuffer[State], ignoreCase: Boolean): State = {
     assert(!delim.isEmpty)
     buildTransitions(null, delim.reverse, allStates, ignoreCase)
@@ -142,7 +144,8 @@ object CreateDelimiterDFA {
       return nextState
     }
 
-    val currentState = getState(delim(0),
+    val currentState = getState(
+      delim(0),
       if (nextState == null) DFA.FinalState else nextState.stateNum,
       delim.length - 1, allStates, ignoreCase)
     val rest = delim.tail

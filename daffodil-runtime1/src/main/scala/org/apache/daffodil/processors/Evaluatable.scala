@@ -39,6 +39,8 @@ import org.apache.daffodil.infoset._
 import org.apache.daffodil.processors.parsers.DoSDEMixin
 import org.apache.daffodil.processors.parsers.PState
 import org.apache.daffodil.api.DaffodilTunables
+import org.apache.daffodil.dsom.DPathCompileInfo
+import org.apache.daffodil.dsom.DPathElementCompileInfo
 
 /**
  * Generates unique int for use as key into EvalCache
@@ -64,8 +66,8 @@ object EvalCache {
 trait InfosetCachedEvaluatable[T <: AnyRef] { self: Evaluatable[T] =>
 
   protected def getCachedOrComputeAndCache(state: State): T = {
-    self.rd match {
-      case erd: ElementRuntimeData if erd.outputValueCalcExpr.isDefined => {
+    ci match {
+      case eci: DPathElementCompileInfo if eci.isOutputValueCalc => {
         // we only care a about caching when an evaluatable is part of an
         // outputValueCalc since we need to maintain the state. Otherwise, it
         // is more memory efficient to just recalculate any evaluatables
@@ -160,7 +162,7 @@ trait NoCacheEvaluatable[T <: AnyRef] { self: Evaluatable[T] =>
  * Evaluatable - things that could be runtime-valued, but also could be compile-time constants
  * are instances of Ev.
  */
-abstract class Evaluatable[+T <: AnyRef](protected val rd: RuntimeData, qNameArg: NamedQName = null)
+abstract class Evaluatable[+T <: AnyRef](protected val ci: DPathCompileInfo, qNameArg: NamedQName = null)
   extends Serializable {
 
   type State = ParseOrUnparseState
@@ -307,7 +309,7 @@ abstract class Evaluatable[+T <: AnyRef](protected val rd: RuntimeData, qNameArg
   }
 
   final def compile(tunable: DaffodilTunables): Maybe[T] = {
-    val compState = new CompileState(rd, Nope, tunable)
+    val compState = new CompileState(ci, Nope, tunable)
     compile(compState)
   }
 
@@ -454,13 +456,13 @@ trait ExprEvalMixin[T <: AnyRef]
  */
 abstract class EvaluatableExpression[ExprType <: AnyRef](
   override protected val expr: CompiledExpression[ExprType],
-  rd: RuntimeData)
-  extends Evaluatable[ExprType](rd)
+  ci: DPathCompileInfo)
+  extends Evaluatable[ExprType](ci)
   with ExprEvalMixin[ExprType] {
 
   override lazy val runtimeDependencies = Vector()
 
-  override final def toBriefXML(depth: Int = -1) = "<EvaluatableExpression eName='" + rd.diagnosticDebugName + "' expr=" + expr.toBriefXML() + " />"
+  override final def toBriefXML(depth: Int = -1) = "<EvaluatableExpression eName='" + ci.diagnosticDebugName + "' expr=" + expr.toBriefXML() + " />"
 
   override protected def compute(state: ParseOrUnparseState): ExprType = eval(expr, state)
 
@@ -491,8 +493,8 @@ trait EvaluatableConvertedExpressionMixin[ExprType <: AnyRef, +ConvertedType <: 
       // However, the converters are also used in many static-only situations where there is no state
       // to use. Seems easier to just separate here.
       //
-      case cs: CompileState => converter.convertConstant(expressionResult, rd, forUnparse)
-      case _ => converter.convertRuntime(expressionResult, rd, forUnparse)
+      case cs: CompileState => converter.convertConstant(expressionResult, ci, forUnparse)
+      case _ => converter.convertRuntime(expressionResult, ci, forUnparse)
     }
     converterResult
   }
@@ -501,6 +503,6 @@ trait EvaluatableConvertedExpressionMixin[ExprType <: AnyRef, +ConvertedType <: 
 abstract class EvaluatableConvertedExpression[ExprType <: AnyRef, +ConvertedType <: AnyRef](
   val expr: CompiledExpression[ExprType],
   val converter: Converter[ExprType, ConvertedType],
-  rd: RuntimeData)
-  extends Evaluatable[ConvertedType](rd)
+  ci: DPathCompileInfo)
+  extends Evaluatable[ConvertedType](ci)
   with EvaluatableConvertedExpressionMixin[ExprType, ConvertedType]

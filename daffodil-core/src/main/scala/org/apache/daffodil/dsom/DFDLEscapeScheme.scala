@@ -86,7 +86,7 @@ final class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: 
     val qn = this.qNameForProperty("escapeCharacter")
     val expr = ExpressionCompilers.String.compileProperty(qn, NodeInfo.NonEmptyString, escapeCharacterRaw, this,
       defES.pointOfUse.dpathCompileInfo)
-    val ev = new EscapeCharEv(expr, runtimeData)
+    val ev = new EscapeCharEv(expr, ci)
     ev.compile(tunable)
     ev
   }.value
@@ -98,9 +98,9 @@ final class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: 
       case found @ Found(v, loc, _, _) => {
         val typeIfStaticallyKnown = NodeInfo.String
         val typeIfRuntimeKnown = NodeInfo.NonEmptyString
-        val expr = ExpressionCompilers.String.compileDelimiter(qn, typeIfStaticallyKnown, typeIfRuntimeKnown, found, this,
-          defES.pointOfUse.dpathCompileInfo)
-        val ev = new EscapeEscapeCharEv(expr, runtimeData)
+        val ci = defES.pointOfUse.dpathCompileInfo
+        val expr = ExpressionCompilers.String.compileDelimiter(qn, typeIfStaticallyKnown, typeIfRuntimeKnown, found, this, ci)
+        val ev = new EscapeEscapeCharEv(expr, ci)
         ev.compile(tunable)
         One(ev)
       }
@@ -116,8 +116,8 @@ final class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: 
 
   final lazy val escapeSchemeParseEv: EscapeSchemeParseEv = {
     val espev = escapeKind match {
-      case EscapeKind.EscapeBlock => new EscapeSchemeBlockParseEv(escapeBlockStart, escapeBlockEnd, optionEscapeEscapeCharacterEv, runtimeData)
-      case EscapeKind.EscapeCharacter => new EscapeSchemeCharParseEv(escapeCharacterEv, optionEscapeEscapeCharacterEv, runtimeData)
+      case EscapeKind.EscapeBlock => new EscapeSchemeBlockParseEv(escapeBlockStart, escapeBlockEnd, optionEscapeEscapeCharacterEv, ci)
+      case EscapeKind.EscapeCharacter => new EscapeSchemeCharParseEv(escapeCharacterEv, optionEscapeEscapeCharacterEv, ci)
     }
     espev.compile(tunable)
     espev
@@ -125,8 +125,8 @@ final class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: 
 
   final lazy val escapeSchemeUnparseEv: EscapeSchemeUnparseEv = {
     val esuev = escapeKind match {
-      case EscapeKind.EscapeBlock => new EscapeSchemeBlockUnparseEv(escapeBlockStart, escapeBlockEnd, optionEscapeEscapeCharacterEv, optionExtraEscapedCharacters, generateEscapeBlock, runtimeData)
-      case EscapeKind.EscapeCharacter => new EscapeSchemeCharUnparseEv(escapeCharacterEv, optionEscapeEscapeCharacterEv, optionExtraEscapedCharacters, runtimeData)
+      case EscapeKind.EscapeBlock => new EscapeSchemeBlockUnparseEv(escapeBlockStart, escapeBlockEnd, optionEscapeEscapeCharacterEv, optionExtraEscapedCharacters, generateEscapeBlock, ci)
+      case EscapeKind.EscapeCharacter => new EscapeSchemeCharUnparseEv(escapeCharacterEv, optionEscapeEscapeCharacterEv, optionExtraEscapedCharacters, ci)
     }
     esuev.compile(tunable)
     esuev

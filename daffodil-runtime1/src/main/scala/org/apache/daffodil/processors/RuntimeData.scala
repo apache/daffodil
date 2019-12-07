@@ -810,7 +810,8 @@ sealed abstract class ErrorERD(local: String, namespaceURI: String)
       null, // override val unqualifiedPathStepPolicy : UnqualifiedPathStepPolicy,
       null, // typeCalcMap: TypeCalcMap,
       null, // lexicalContextRuntimeData: RuntimeData,
-      null), // val sscd: String),
+      null, // val sscd: String),
+      false), // val hasOutputValueCalc: Boolean
     null, // SchemaFileLocation
     local, // diagnosticDebugName: String,
     local, // pathArg: => String,
