@@ -79,7 +79,7 @@ class OrderedSequence(sq: SequenceTermBase, sequenceChildrenArg: Seq[SequenceChi
   }
 }
 
-class UnorderedSequence(sq: SequenceTermBase, sequenceChildrenArg: Seq[SequenceChild], alternatives: Seq[Gram])
+class UnorderedSequence(sq: SequenceTermBase, sequenceChildrenArg: Seq[SequenceChild])
   extends SequenceCombinator(sq, sequenceChildrenArg) {
 
   import SeparatedSequenceChildBehavior._
@@ -90,20 +90,18 @@ class UnorderedSequence(sq: SequenceTermBase, sequenceChildrenArg: Seq[SequenceC
 
   private lazy val sequenceChildren = sequenceChildrenArg.toVector
 
-
-  private lazy val parsers = alternatives.map(_.parser)
-
+  private lazy val parsers = sequenceChildren.map(_.parser)
 
   override lazy val parser: Parser = {
 
-    lazy val choiceParser = new ChoiceParser(srd, parsers.toVector, unordered=true)
+    lazy val choiceParser = new ChoiceParser(srd, parsers.toVector, unordered = true)
 
     sq.hasSeparator match {
       case true => {
         lazy val groupHelper = new NonPositionalGroupSeparatedSequenceChildParseResultHelper(
           srd,
           NonPositional,
-          true,  // Due to the nature of UOSeqs, could potentially be empty
+          true, // Due to the nature of UOSeqs, could potentially be empty
           false) // and does not have required syntax
 
         lazy val groupParser = new GroupSeparatedUnorderedSequenceChildParser(
@@ -121,7 +119,7 @@ class UnorderedSequence(sq: SequenceTermBase, sequenceChildrenArg: Seq[SequenceC
       case false => {
         lazy val groupHelper = new GroupUnseparatedSequenceChildParseResultHelper(
           srd,
-          true,  // Due to the nature of UOSeqs, could potentially be empty
+          true, // Due to the nature of UOSeqs, could potentially be empty
           false) // and does not have required syntax
 
         lazy val groupParser = new ScalarUnorderedUnseparatedSequenceChildParser(

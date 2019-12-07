@@ -64,8 +64,7 @@ trait SequenceGrammarMixin
 
   private lazy val unorderedSequence = {
     schemaDefinitionUnless(groupMembers.length > 0, "Unordered sequences must not be empty")
-    val alternatives = groupMembers.map { _.termContentBody }
-    val res = new UnorderedSequence(this, seqChildren, alternatives)
+    val res = new UnorderedSequence(this, seqChildren)
     res
   }
 

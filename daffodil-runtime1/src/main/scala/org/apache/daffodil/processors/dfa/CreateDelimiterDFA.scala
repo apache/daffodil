@@ -30,6 +30,7 @@ import org.apache.daffodil.processors.WSPDelim
 import org.apache.daffodil.processors.WSPPlusDelim
 import org.apache.daffodil.processors.WSPStarDelim
 import org.apache.daffodil.processors.parsers.DelimiterTextType
+import org.apache.daffodil.dsom.DPathCompileInfo
 
 object CreateDelimiterDFA {
 
@@ -37,7 +38,7 @@ object CreateDelimiterDFA {
    * Constructs an Array of states reflecting the delimiters only.
    * StateNum is offset by stateOffset
    */
-  protected def apply(delimType: DelimiterTextType.Type, rd: RuntimeData, delimiter: Seq[DelimBase], delimiterStr: String, outputNewLine: String): DFADelimiter = {
+  protected def apply(delimType: DelimiterTextType.Type, rd: DPathCompileInfo, delimiter: Seq[DelimBase], delimiterStr: String, outputNewLine: String): DFADelimiter = {
 
     val allStates: ArrayBuffer[State] = ArrayBuffer.empty
 
@@ -51,7 +52,7 @@ object CreateDelimiterDFA {
    * Constructs an Array of states reflecting the delimiters only.
    * StateNum is offset by stateOffset
    */
-  protected def apply(delimType: DelimiterTextType.Type, rd: RuntimeData, delimiter: Seq[DelimBase], delimiterStr: String, ignoreCase: Boolean): DFADelimiter = {
+  protected def apply(delimType: DelimiterTextType.Type, rd: DPathCompileInfo, delimiter: Seq[DelimBase], delimiterStr: String, ignoreCase: Boolean): DFADelimiter = {
 
     val allStates: ArrayBuffer[State] = ArrayBuffer.empty
 
@@ -64,7 +65,7 @@ object CreateDelimiterDFA {
    * Converts a String to a DFA representing
    * that string
    */
-  def apply(delimType: DelimiterTextType.Type, rd: RuntimeData, delimiterStr: String, ignoreCase: Boolean): DFADelimiter = {
+  def apply(delimType: DelimiterTextType.Type, rd: DPathCompileInfo, delimiterStr: String, ignoreCase: Boolean): DFADelimiter = {
     val d = new Delimiter()
     d.compileDelimiter(delimiterStr, ignoreCase)
     val db = d.delimBuf
@@ -75,7 +76,7 @@ object CreateDelimiterDFA {
    * Converts a String to a DFA representing
    * that string
    */
-  def apply(delimType: DelimiterTextType.Type, rd: RuntimeData, delimiterStr: String, outputNewLine: String): DFADelimiter = {
+  def apply(delimType: DelimiterTextType.Type, rd: DPathCompileInfo, delimiterStr: String, outputNewLine: String): DFADelimiter = {
     val d = new Delimiter()
     d.compileDelimiter(delimiterStr, false)
     val db = d.delimBuf
@@ -86,7 +87,7 @@ object CreateDelimiterDFA {
    * Converts a Seq of String to a Seq of
    * DFA's representing each String with outputNewLine.
    */
-  def apply(delimType: DelimiterTextType.Type, rd: RuntimeData, delimiters: Seq[String], outputNewLine: String): Array[DFADelimiter] = {
+  def apply(delimType: DelimiterTextType.Type, rd: DPathCompileInfo, delimiters: Seq[String], outputNewLine: String): Array[DFADelimiter] = {
     delimiters.map(d => apply(delimType, rd, d, outputNewLine)).toArray
   }
 
@@ -94,7 +95,7 @@ object CreateDelimiterDFA {
    * Converts a Seq of String to a Seq of
    * DFA's representing each String.
    */
-  def apply(delimType: DelimiterTextType.Type, rd: RuntimeData, delimiters: Seq[String], ignoreCase: Boolean): Array[DFADelimiter] = {
+  def apply(delimType: DelimiterTextType.Type, rd: DPathCompileInfo, delimiters: Seq[String], ignoreCase: Boolean): Array[DFADelimiter] = {
     delimiters.map(d => apply(delimType, rd, d, ignoreCase)).toArray
   }
 
@@ -127,7 +128,8 @@ object CreateDelimiterDFA {
     theState
   }
 
-  private def buildTransitions(delim: Seq[DelimBase],
+  private def buildTransitions(
+    delim: Seq[DelimBase],
     allStates: ArrayBuffer[State], ignoreCase: Boolean): State = {
     assert(!delim.isEmpty)
     buildTransitions(null, delim.reverse, allStates, ignoreCase)
@@ -142,7 +144,8 @@ object CreateDelimiterDFA {
       return nextState
     }
 
-    val currentState = getState(delim(0),
+    val currentState = getState(
+      delim(0),
       if (nextState == null) DFA.FinalState else nextState.stateNum,
       delim.length - 1, allStates, ignoreCase)
     val rest = delim.tail

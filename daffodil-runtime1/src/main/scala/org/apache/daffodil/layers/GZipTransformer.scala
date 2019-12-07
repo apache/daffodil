@@ -27,6 +27,7 @@ import org.apache.daffodil.processors.LayerCharsetEv
 import org.apache.daffodil.processors.parsers.PState
 import org.apache.daffodil.io.ExplicitLengthLimitingStream
 import org.apache.daffodil.processors.unparsers.UState
+import org.apache.daffodil.dsom.DPathCompileInfo
 
 class GZIPTransformer(layerLengthInBytesEv: LayerLengthInBytesEv)
   extends LayerTransformer() {
@@ -57,12 +58,13 @@ class GZIPTransformer(layerLengthInBytesEv: LayerLengthInBytesEv)
 object GZIPTransformerFactory
   extends LayerTransformerFactory("gzip") {
 
-  override def newInstance(maybeLayerCharsetEv: Maybe[LayerCharsetEv],
+  override def newInstance(
+    maybeLayerCharsetEv: Maybe[LayerCharsetEv],
     maybeLayerLengthKind: Maybe[LayerLengthKind],
     maybeLayerLengthInBytesEv: Maybe[LayerLengthInBytesEv],
     maybeLayerLengthUnits: Maybe[LayerLengthUnits],
     maybeLayerBoundaryMarkEv: Maybe[LayerBoundaryMarkEv],
-    trd: TermRuntimeData): LayerTransformer = {
+    trd: DPathCompileInfo): LayerTransformer = {
 
     val xformer = new GZIPTransformer(maybeLayerLengthInBytesEv.get)
     xformer

@@ -23,6 +23,7 @@ import org.apache.daffodil.processors.CheckByteAndBitOrderEv
 import org.apache.daffodil.processors.CheckBitOrderAndCharsetEv
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.dsom.{ Binary, NoText }
+import org.apache.daffodil.dsom.ElementBase
 
 trait BitOrderMixin extends GrammarMixin with ByteOrderAnalysisMixin { self: Term =>
 
@@ -73,6 +74,11 @@ trait BitOrderMixin extends GrammarMixin with ByteOrderAnalysisMixin { self: Ter
         (isArray && !hasUniformBitOrderThroughout)))
   }
 
+  private lazy val maybeByteOrderEv = self match {
+    case eb: ElementBase => eb.maybeByteOrderEv
+    case _ => Maybe.Nope
+  }
+
   lazy val maybeCheckByteAndBitOrderEv = {
     //
     // TODO: Performance: could be improved, as there are situations where byteOrder
@@ -83,7 +89,8 @@ trait BitOrderMixin extends GrammarMixin with ByteOrderAnalysisMixin { self: Ter
       Maybe.Nope
     else {
       val checkByteAndBitOrder = {
-        val ev = new CheckByteAndBitOrderEv(termRuntimeData, defaultBitOrder)
+        val ev = new CheckByteAndBitOrderEv(ci, defaultBitOrder,
+          maybeByteOrderEv)
         ev.compile(tunable)
         ev
       }
@@ -97,7 +104,7 @@ trait BitOrderMixin extends GrammarMixin with ByteOrderAnalysisMixin { self: Ter
       Maybe.Nope
     else {
       val checkBitOrderAndCharset = {
-        val ev = new CheckBitOrderAndCharsetEv(termRuntimeData, defaultBitOrder, charsetEv)
+        val ev = new CheckBitOrderAndCharsetEv(ci, defaultBitOrder, charsetEv)
         ev.compile(tunable)
         ev
       }

@@ -20,11 +20,12 @@ package org.apache.daffodil.processors
 import org.apache.daffodil.schema.annotation.props.gen._
 import org.apache.daffodil.dsom._
 import org.apache.daffodil.equality._
+import org.apache.daffodil.util.Maybe
 
 /**
  * Runtime valued properties that are enums would all work like ByteOrder here.
  */
-class ByteOrderEv(override val expr: CompiledExpression[String], erd: ElementRuntimeData)
+class ByteOrderEv(override val expr: CompiledExpression[String], erd: DPathElementCompileInfo)
   extends EvaluatableConvertedExpression[String, ByteOrder](
     expr,
     ByteOrder,
@@ -43,7 +44,8 @@ class Ok private () extends Serializable {
 }
 object Ok extends Ok()
 
-class CheckByteAndBitOrderEv(t: TermRuntimeData, bitOrder: BitOrder)
+class CheckByteAndBitOrderEv(t: DPathCompileInfo, bitOrder: BitOrder,
+  maybeByteOrderEv: Maybe[ByteOrderEv])
   extends Evaluatable[Ok](t)
   with InfosetCachedEvaluatable[Ok] { // can't use unit here, not <: AnyRef
 
@@ -51,9 +53,9 @@ class CheckByteAndBitOrderEv(t: TermRuntimeData, bitOrder: BitOrder)
 
   override final protected def compute(state: ParseOrUnparseState): Ok = {
     t match {
-      case erd: ElementRuntimeData => {
-        if (erd.maybeByteOrderEv.isDefined) {
-          val byteOrderEv = erd.maybeByteOrderEv.get
+      case erd: DPathElementCompileInfo => {
+        if (maybeByteOrderEv.isDefined) {
+          val byteOrderEv = maybeByteOrderEv.get
           val byteOrder = byteOrderEv.evaluate(state)
           bitOrder match {
             case BitOrder.MostSignificantBitFirst => // ok
@@ -70,7 +72,7 @@ class CheckByteAndBitOrderEv(t: TermRuntimeData, bitOrder: BitOrder)
   }
 }
 
-class CheckBitOrderAndCharsetEv(t: TermRuntimeData, bitOrder: BitOrder, charsetEv: CharsetEv)
+class CheckBitOrderAndCharsetEv(t: DPathCompileInfo, bitOrder: BitOrder, charsetEv: CharsetEv)
   extends Evaluatable[Ok](t)
   with InfosetCachedEvaluatable[Ok] { // can't use unit here, not <: AnyRef
 

@@ -34,6 +34,7 @@ import java.io.InputStream
 import org.apache.daffodil.exceptions.ThrowsSDE
 import org.apache.daffodil.schema.annotation.props.Enum
 import org.apache.daffodil.io.RegexLimitingStream
+import org.apache.daffodil.dsom.DPathCompileInfo
 
 /*
  * This and related classes implement so called "line folding" from
@@ -155,14 +156,16 @@ class LineFoldedTransformerImplicit(mode: LineFoldMode)
 sealed abstract class LineFoldedTransformerFactory(mode: LineFoldMode, name: String)
   extends LayerTransformerFactory(name) {
 
-  override def newInstance(maybeLayerCharsetEv: Maybe[LayerCharsetEv],
+  override def newInstance(
+    maybeLayerCharsetEv: Maybe[LayerCharsetEv],
     maybeLayerLengthKind: Maybe[LayerLengthKind],
     maybeLayerLengthInBytesEv: Maybe[LayerLengthInBytesEv],
     maybeLayerLengthUnits: Maybe[LayerLengthUnits],
     maybeLayerBoundaryMarkEv: Maybe[LayerBoundaryMarkEv],
-    trd: TermRuntimeData): LayerTransformer = {
+    trd: DPathCompileInfo): LayerTransformer = {
 
-    trd.schemaDefinitionUnless(maybeLayerLengthKind.isDefined,
+    trd.schemaDefinitionUnless(
+      maybeLayerLengthKind.isDefined,
       "The property dfdlx:layerLengthKind must be defined.")
 
     val xformer =
@@ -174,7 +177,8 @@ sealed abstract class LineFoldedTransformerFactory(mode: LineFoldMode, name: Str
           new LineFoldedTransformerImplicit(mode)
         }
         case x =>
-          trd.SDE("Property dfdlx:layerLengthKind can only be 'implicit' or 'boundaryMark', but was '%s'",
+          trd.SDE(
+            "Property dfdlx:layerLengthKind can only be 'implicit' or 'boundaryMark', but was '%s'",
             x.toString)
       }
     xformer
@@ -472,4 +476,3 @@ class LineFoldedOutputStream(mode: LineFoldMode, jos: OutputStream)
     }
   }
 }
-

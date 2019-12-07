@@ -40,6 +40,7 @@ import org.apache.daffodil.processors.parsers.PState
 import org.apache.daffodil.processors.unparsers.UState
 import org.apache.daffodil.io.DirectOrBufferedDataOutputStream
 import passera.unsigned.ULong
+import org.apache.daffodil.dsom.DPathCompileInfo
 
 /**
  * Factory for a layer transformer.
@@ -53,12 +54,13 @@ abstract class LayerTransformerFactory(nom: String)
 
   val name = nom.toUpperCase()
 
-  def newInstance(maybeLayerCharsetEv: Maybe[LayerCharsetEv],
+  def newInstance(
+    maybeLayerCharsetEv: Maybe[LayerCharsetEv],
     maybeLayerLengthKind: Maybe[LayerLengthKind],
     maybeLayerLengthInBytesEv: Maybe[LayerLengthInBytesEv],
     maybeLayerLengthUnits: Maybe[LayerLengthUnits],
     maybeLayerBoundaryMarkEv: Maybe[LayerBoundaryMarkEv],
-    trd: TermRuntimeData): LayerTransformer
+    trd: DPathCompileInfo): LayerTransformer
 }
 
 /**

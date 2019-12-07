@@ -48,7 +48,7 @@ import org.apache.daffodil.cookers.EncodingCooker
 /**
  * Encoding is a string, so there is no converter.
  */
-abstract class EncodingEvBase(override val expr: CompiledExpression[String], trd: TermRuntimeData)
+abstract class EncodingEvBase(override val expr: CompiledExpression[String], trd: DPathCompileInfo)
   extends EvaluatableConvertedExpression[String, String](
     expr,
     EncodingCooker, // cooker insures upper-case and trimmed of whitespace.
@@ -74,10 +74,10 @@ abstract class EncodingEvBase(override val expr: CompiledExpression[String], trd
   }
 }
 
-final class EncodingEv(expr: CompiledExpression[String], trd: TermRuntimeData)
+final class EncodingEv(expr: CompiledExpression[String], trd: DPathCompileInfo)
   extends EncodingEvBase(expr, trd)
 
-abstract class CharsetEvBase(encodingEv: EncodingEvBase, val trd: TermRuntimeData)
+abstract class CharsetEvBase(encodingEv: EncodingEvBase, trd: DPathCompileInfo)
   extends Evaluatable[BitsCharset](trd)
   with InfosetCachedEvaluatable[BitsCharset] {
 
@@ -102,10 +102,10 @@ abstract class CharsetEvBase(encodingEv: EncodingEvBase, val trd: TermRuntimeDat
   }
 }
 
-final class CharsetEv(encodingEv: EncodingEv, trd: TermRuntimeData)
+final class CharsetEv(encodingEv: EncodingEv, trd: DPathCompileInfo)
   extends CharsetEvBase(encodingEv, trd)
 
-class FillByteEv(fillByteRaw: String, charsetEv: CharsetEv, val trd: TermRuntimeData)
+class FillByteEv(fillByteRaw: String, charsetEv: CharsetEv, trd: DPathCompileInfo)
   extends Evaluatable[Integer](trd)
   with InfosetCachedEvaluatable[Integer] {
 
@@ -154,4 +154,3 @@ class FillByteEv(fillByteRaw: String, charsetEv: CharsetEv, val trd: TermRuntime
   }
 
 }
-

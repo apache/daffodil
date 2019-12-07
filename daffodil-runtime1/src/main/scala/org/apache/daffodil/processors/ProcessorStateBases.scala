@@ -63,6 +63,7 @@ import org.apache.daffodil.processors.dfa.Registers
 import org.apache.daffodil.processors.dfa.RegistersPool
 import org.apache.daffodil.processors.dfa.RegistersPool
 import org.apache.daffodil.processors.dfa.RegistersPool
+import org.apache.daffodil.dsom.DPathCompileInfo
 
 /**
  * Trait mixed into the PState.Mark object class and the ParseOrUnparseState
@@ -131,7 +132,7 @@ abstract class ParseOrUnparseState protected (
   protected var variableBox: VariableBox,
   var diagnostics: List[Diagnostic],
   var dataProc: Maybe[DataProcessor],
-  override val tunable: DaffodilTunables) extends DFDL.State
+  val tunable: DaffodilTunables) extends DFDL.State
   with StateForDebugger
   with ThrowsSDE
   with SavesErrorsAndWarnings
@@ -139,8 +140,7 @@ abstract class ParseOrUnparseState protected (
   with EncoderDecoderMixin
   with Logging
   with FormatInfo
-  with SetProcessorMixin
-  with HasTunable {
+  with SetProcessorMixin {
 
   def this(vmap: VariableMap, diags: List[Diagnostic], dataProc: Maybe[DataProcessor], tunable: DaffodilTunables) =
     this(new VariableBox(vmap), diags, dataProc, tunable)
@@ -544,7 +544,7 @@ abstract class ParseOrUnparseState protected (
  *  inconsistent with constant-value are attempted to be extracted from the state. By "blow up" it throws
  *  a structured set of exceptions, typically children of InfosetException or VariableException.
  */
-final class CompileState(trd: RuntimeData, maybeDataProc: Maybe[DataProcessor], tunable: DaffodilTunables)
+final class CompileState(trd: DPathCompileInfo, maybeDataProc: Maybe[DataProcessor], tunable: DaffodilTunables)
   extends ParseOrUnparseState(trd.variableMap, Nil, maybeDataProc, tunable) {
 
   def arrayPos: Long = 1L

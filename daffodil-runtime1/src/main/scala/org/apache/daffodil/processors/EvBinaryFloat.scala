@@ -20,7 +20,7 @@ package org.apache.daffodil.processors
 import org.apache.daffodil.schema.annotation.props.gen._
 import org.apache.daffodil.dsom._
 
-class BinaryFloatRepEv(expr: CompiledExpression[String], erd: ElementRuntimeData)
+class BinaryFloatRepEv(expr: CompiledExpression[String], erd: DPathElementCompileInfo)
   extends EvaluatableConvertedExpression[String, BinaryFloatRep](
     expr,
     BinaryFloatRep,

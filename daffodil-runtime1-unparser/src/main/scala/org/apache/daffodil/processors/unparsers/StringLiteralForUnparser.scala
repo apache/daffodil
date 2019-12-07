@@ -26,8 +26,10 @@ import org.apache.daffodil.processors.ParseOrUnparseState
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.processors.TermRuntimeData
 import org.apache.daffodil.cookers.EntityReplacer
+import org.apache.daffodil.dsom.DPathCompileInfo
 
-class NilStringLiteralForUnparserEv(trd: TermRuntimeData,
+class NilStringLiteralForUnparserEv(
+  trd: DPathCompileInfo,
   maybeOutputNewLineEv: Maybe[OutputNewLineEv],
   stringLiteralRaw: String)
   extends Evaluatable[String](trd)
@@ -61,7 +63,8 @@ class NilStringLiteralForUnparserEv(trd: TermRuntimeData,
         // there are no NL entities. There is only a single chunk.
         chunks.head
       } else {
-        trd.schemaDefinitionUnless(maybeOutputNewLineEv.isDefined,
+        trd.schemaDefinitionUnless(
+          maybeOutputNewLineEv.isDefined,
           "Property dfdl:outputNewLine is required, but it is not defined.")
         val nl = maybeOutputNewLineEv.get.evaluate(state)
         val sl = chunks.mkString(nl)

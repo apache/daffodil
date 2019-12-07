@@ -20,9 +20,9 @@ package org.apache.daffodil.processors
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.processors.dfa.DFAField
 import org.apache.daffodil.processors.dfa.CreateFieldDFA
+import org.apache.daffodil.dsom.DPathCompileInfo
 
-
-class FieldDFAParseEv(val escapeSchemeEv: Maybe[EscapeSchemeParseEv], rd: RuntimeData)
+class FieldDFAParseEv(val escapeSchemeEv: Maybe[EscapeSchemeParseEv], rd: DPathCompileInfo)
   extends Evaluatable[DFAField](rd)
   with InfosetCachedEvaluatable[DFAField] {
 

@@ -29,23 +29,23 @@ import org.apache.daffodil.layers.LayerTransformerFactory
 /*
  * Layering-related Evaluatables
  */
-final class LayerTransformEv(override val expr: CompiledExpression[String], trd: TermRuntimeData)
+final class LayerTransformEv(override val expr: CompiledExpression[String], trd: DPathCompileInfo)
   extends EvaluatableConvertedExpression[String, String](
     expr,
     UpperCaseTokenCooker, // cooker insures upper-case and trimmed of whitespace.
     trd)
   with NoCacheEvaluatable[String]
 
-final class LayerEncodingEv(override val expr: CompiledExpression[String], trd: TermRuntimeData)
+final class LayerEncodingEv(override val expr: CompiledExpression[String], trd: DPathCompileInfo)
   extends EncodingEvBase(expr, trd)
 
-final class LayerCharsetEv(layerEncodingEv: LayerEncodingEv, override val trd: TermRuntimeData)
-  extends CharsetEvBase(layerEncodingEv, trd)
+final class LayerCharsetEv(layerEncodingEv: LayerEncodingEv, override val ci: DPathCompileInfo)
+  extends CharsetEvBase(layerEncodingEv, ci)
 
-final class LayerLengthInBytesEv(override val expr: CompiledExpression[JLong], override val rd: TermRuntimeData)
+final class LayerLengthInBytesEv(override val expr: CompiledExpression[JLong], override val ci: DPathCompileInfo)
   extends EvaluatableExpression[JLong](
     expr,
-    rd)
+    ci)
   with NoCacheEvaluatable[JLong] {
   override lazy val runtimeDependencies = Vector()
 
@@ -58,10 +58,10 @@ final class LayerLengthInBytesEv(override val expr: CompiledExpression[JLong], o
   }
 }
 
-final class LayerBoundaryMarkEv(override val expr: CompiledExpression[String], override val rd: TermRuntimeData)
+final class LayerBoundaryMarkEv(override val expr: CompiledExpression[String], override val ci: DPathCompileInfo)
   extends EvaluatableExpression[String](
     expr,
-    rd)
+    ci)
   with NoCacheEvaluatable[String] {
   override lazy val runtimeDependencies = Vector()
 }
@@ -73,8 +73,8 @@ final class LayerTransformerEv(
   maybeLayerLengthInBytesEv: Maybe[LayerLengthInBytesEv],
   maybeLayerLengthUnits: Maybe[LayerLengthUnits],
   maybeLayerBoundaryMarkEv: Maybe[LayerBoundaryMarkEv],
-  trd: TermRuntimeData)
-  extends Evaluatable[LayerTransformer](trd)
+  ci: DPathCompileInfo)
+  extends Evaluatable[LayerTransformer](ci)
   with NoCacheEvaluatable[LayerTransformer] {
 
   override lazy val runtimeDependencies = layerTransformEv +:
@@ -89,13 +89,13 @@ final class LayerTransformerEv(
   override def compute(state: State): LayerTransformer = {
     val layerTransform = layerTransformEv.evaluate(state)
     val factory = LayerTransformerFactory.find(layerTransform, state)
-    val xformer = factory.newInstance(maybeLayerCharsetEv,
+    val xformer = factory.newInstance(
+      maybeLayerCharsetEv,
       maybeLayerLengthKind,
       maybeLayerLengthInBytesEv,
       maybeLayerLengthUnits,
       maybeLayerBoundaryMarkEv,
-      trd)
+      ci)
     xformer
   }
 }
-

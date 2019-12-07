@@ -54,6 +54,7 @@ import org.apache.daffodil.processors.parsers.PState
 import org.apache.daffodil.api.DaffodilTunables
 import java.util.HashMap
 import org.apache.daffodil.dsom.DPathElementCompileInfo
+import org.apache.daffodil.dsom.DPathCompileInfo
 
 sealed trait DINode {
 
@@ -169,7 +170,7 @@ case class InfosetNoNextSiblingException(val diSimple: DISimple, val info: DPath
   extends ProcessingError("Expression Evaluation", Nope, Nope, "Element %s does not have a nextSibling", info.namedQName)
   with InfosetException with RetryableException
 
-case class InfosetNoInfosetException(val rd: Maybe[RuntimeData])
+case class InfosetNoInfosetException(val rd: Maybe[DPathCompileInfo])
   extends ProcessingError("Expression Evaluation", Nope, Nope, "There is no infoset%s", (if (rd.isEmpty) "." else " for path %s.".format(rd.get.path)))
   with InfosetException with RetryableException
 

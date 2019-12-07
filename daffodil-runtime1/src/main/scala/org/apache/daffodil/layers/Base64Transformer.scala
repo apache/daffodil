@@ -32,6 +32,7 @@ import org.apache.daffodil.processors.charset.BitsCharset
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.processors.unparsers.UState
 import org.apache.daffodil.io.LayerBoundaryMarkInsertingJavaOutputStream
+import org.apache.daffodil.dsom.DPathCompileInfo
 
 class Base64MIMETransformer(layerCharsetEv: LayerCharsetEv, layerBoundaryMarkEv: LayerBoundaryMarkEv)
   extends LayerTransformer() {
@@ -72,24 +73,29 @@ class Base64MIMETransformer(layerCharsetEv: LayerCharsetEv, layerBoundaryMarkEv:
 object Base64MIMETransformerFactory
   extends LayerTransformerFactory("base64_MIME") {
 
-  override def newInstance(maybeLayerCharsetEv: Maybe[LayerCharsetEv],
+  override def newInstance(
+    maybeLayerCharsetEv: Maybe[LayerCharsetEv],
     maybeLayerLengthKind: Maybe[LayerLengthKind],
     maybeLayerLengthInBytesEv: Maybe[LayerLengthInBytesEv],
     maybeLayerLengthUnits: Maybe[LayerLengthUnits],
     maybeLayerBoundaryMarkEv: Maybe[LayerBoundaryMarkEv],
-    trd: TermRuntimeData): LayerTransformer = {
+    trd: DPathCompileInfo): LayerTransformer = {
 
-    trd.schemaDefinitionUnless(scala.util.Properties.isJavaAtLeast("1.8"),
+    trd.schemaDefinitionUnless(
+      scala.util.Properties.isJavaAtLeast("1.8"),
       "Base64 layer support requires Java 8 (aka Java 1.8).")
 
-    trd.schemaDefinitionUnless(maybeLayerBoundaryMarkEv.isDefined,
+    trd.schemaDefinitionUnless(
+      maybeLayerBoundaryMarkEv.isDefined,
       "Property dfdlx:layerBoundaryMark was not defined.")
-    trd.schemaDefinitionUnless(maybeLayerLengthKind.isEmpty ||
+    trd.schemaDefinitionUnless(
+      maybeLayerLengthKind.isEmpty ||
       (maybeLayerLengthKind.get eq LayerLengthKind.BoundaryMark),
       "Only dfdlx:layerLengthKind 'boundaryMark' is supported, but '%s' was specified",
       maybeLayerLengthKind.get.toString)
 
-    trd.schemaDefinitionUnless(maybeLayerCharsetEv.isDefined,
+    trd.schemaDefinitionUnless(
+      maybeLayerCharsetEv.isDefined,
       "Property dfdlx:layerEncoding must be defined.")
 
     val xformer = new Base64MIMETransformer(maybeLayerCharsetEv.get, maybeLayerBoundaryMarkEv.get)

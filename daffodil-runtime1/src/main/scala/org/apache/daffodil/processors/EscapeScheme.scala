@@ -25,6 +25,7 @@ import org.apache.daffodil.util.Maybe._
 import org.apache.daffodil.schema.annotation.props.gen.GenerateEscape
 import org.apache.daffodil.util.MaybeChar
 import org.apache.daffodil.processors.parsers.DelimiterTextType
+import org.apache.daffodil.dsom.DPathCompileInfo
 
 sealed abstract class EscapeSchemeParserHelper
 case class EscapeSchemeCharParserHelper(val ec: Char, val eec: MaybeChar)
@@ -33,10 +34,11 @@ case class EscapeSchemeCharParserHelper(val ec: Char, val eec: MaybeChar)
   override def toString() = "<EscapeSchemeChar escapeChar='" + ec +
     "' escapeEscapeChar='" + (if (eec.isDefined) eec.get.toString else "") + "'/>"
 }
-case class EscapeSchemeBlockParserHelper(val eec: MaybeChar,
+case class EscapeSchemeBlockParserHelper(
+  val eec: MaybeChar,
   blockStart: String,
   blockEnd: String,
-  rd: RuntimeData)
+  rd: DPathCompileInfo)
   extends EscapeSchemeParserHelper {
   // Should note there that fieldDFA (not here) is dependent on
   // the whether or not the delimiters are constant or not.
@@ -53,7 +55,7 @@ case class EscapeSchemeBlockParserHelper(val eec: MaybeChar,
 sealed abstract class EscapeSchemeUnparserHelper {
   def lookingFor: Array[DFADelimiter]
 }
-case class EscapeSchemeCharUnparserHelper(val ec: Char, val eec: MaybeChar, extraEscChar: Seq[Char], rd: RuntimeData)
+case class EscapeSchemeCharUnparserHelper(val ec: Char, val eec: MaybeChar, extraEscChar: Seq[Char], rd: DPathCompileInfo)
   extends EscapeSchemeUnparserHelper {
 
   // We need to look for the escapeCharacter and the extraEscapedCharacters
@@ -72,12 +74,13 @@ case class EscapeSchemeCharUnparserHelper(val ec: Char, val eec: MaybeChar, extr
   override def toString() = "<EscapeSchemeChar escapeChar='" + ec +
     "' escapeEscapeChar='" + (if (eec.isDefined) eec.get.toString else "") + "' extraEscapedChars='" + extraEscChar.mkString(" ") + "'/>"
 }
-case class EscapeSchemeBlockUnparserHelper(val eec: MaybeChar,
+case class EscapeSchemeBlockUnparserHelper(
+  val eec: MaybeChar,
   blockStart: String,
   blockEnd: String,
   private val extraEscChar: Seq[Char],
   generateEscapeBlock: GenerateEscape,
-  rd: RuntimeData)
+  rd: DPathCompileInfo)
   extends EscapeSchemeUnparserHelper {
 
   // We need to look for the blockEnd

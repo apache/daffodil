@@ -45,6 +45,7 @@ import org.apache.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
 import org.apache.daffodil.schema.annotation.props.gen.UTF16Width
 import org.apache.daffodil.processors.charset.BitsCharsetDecoder
 import org.apache.daffodil.processors.charset.BitsCharsetEncoder
+import org.apache.daffodil.dsom.DPathCompileInfo
 
 object AISPayloadArmoringTransformer {
   val iso8859 = StandardCharsets.ISO_8859_1
@@ -142,7 +143,7 @@ class AISPayloadArmoringOutputStream(jos: java.io.OutputStream)
       val dis = InputSourceDataInputStream(ba)
       val finfo = new FormatInfoForAISDecode()
       val cb = CharBuffer.allocate(256)
-      while( { val numDecoded = dec.decode(dis, finfo, cb); numDecoded > 0 } ) {
+      while ({ val numDecoded = dec.decode(dis, finfo, cb); numDecoded > 0 }) {
         cb.flip()
         IOUtils.write(cb, jos, iso8859)
         cb.clear()
@@ -161,12 +162,13 @@ class AISPayloadArmoringOutputStream(jos: java.io.OutputStream)
 object AISPayloadArmoringTransformerFactory
   extends LayerTransformerFactory("aisPayloadArmor") {
 
-  override def newInstance(maybeLayerCharsetEv: Maybe[LayerCharsetEv],
+  override def newInstance(
+    maybeLayerCharsetEv: Maybe[LayerCharsetEv],
     maybeLayerLengthKind: Maybe[LayerLengthKind],
     maybeLayerLengthInBytesEv: Maybe[LayerLengthInBytesEv],
     maybeLayerLengthUnits: Maybe[LayerLengthUnits],
     maybeLayerBoundaryMarkEv: Maybe[LayerBoundaryMarkEv],
-    trd: TermRuntimeData): LayerTransformer = {
+    trd: DPathCompileInfo): LayerTransformer = {
 
     val xformer = new AISPayloadArmoringTransformer()
     xformer

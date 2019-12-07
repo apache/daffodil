@@ -113,6 +113,11 @@ trait Term
   }
 
   /**
+   * Abbreviation analogous to trd, tci is the compile-time counterpart.
+   */
+  final def tci = dpathCompileInfo
+
+  /**
    * Used to recursively go through Terms and look for DFDL properties that
    * have not been accessed and record it as a warning. This function uses the
    * property cache state to determine which properties have been access, so

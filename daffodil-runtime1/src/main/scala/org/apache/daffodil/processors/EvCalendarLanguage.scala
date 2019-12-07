@@ -24,7 +24,6 @@ import com.ibm.icu.util.TimeZone
 import com.ibm.icu.util.ULocale
 import org.apache.daffodil.cookers.Converter
 
-
 object LocaleConverter extends Converter[String, ULocale] {
 
   val regex = "([A-Za-z]{1,8}([-_][A-Za-z0-9]{1,8})*)"
@@ -43,7 +42,7 @@ object LocaleConverter extends Converter[String, ULocale] {
   }
 }
 
-class CalendarLanguageEv(calendarLanguageExpr: CompiledExpression[String], erd: ElementRuntimeData)
+class CalendarLanguageEv(calendarLanguageExpr: CompiledExpression[String], erd: DPathElementCompileInfo)
   extends EvaluatableConvertedExpression[String, ULocale](
     calendarLanguageExpr,
     LocaleConverter,
@@ -52,12 +51,13 @@ class CalendarLanguageEv(calendarLanguageExpr: CompiledExpression[String], erd: 
   override lazy val runtimeDependencies = Vector()
 }
 
-class CalendarEv(localeEv: CalendarLanguageEv,
+class CalendarEv(
+  localeEv: CalendarLanguageEv,
   calendarTz: Option[TimeZone],
   firstDay: Int,
   calendarDaysInFirstWeek: Int,
   calendarCheckPolicy: Boolean,
-  erd: ElementRuntimeData)
+  erd: DPathElementCompileInfo)
   extends Evaluatable[Calendar](erd)
   with InfosetCachedEvaluatable[Calendar] {
 
