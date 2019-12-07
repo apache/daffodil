@@ -24,38 +24,38 @@ import org.apache.daffodil.cookers.TextStandardExponentRepCooker
 import org.apache.daffodil.cookers.TextBooleanTrueRepCooker
 import org.apache.daffodil.cookers.TextStandardDecimalSeparatorCooker
 
-class TextStandardDecimalSeparatorEv(expr: CompiledExpression[String], trd: TermRuntimeData)
+class TextStandardDecimalSeparatorEv(expr: CompiledExpression[String], tci: DPathCompileInfo)
   extends EvaluatableConvertedExpression[String, List[String]](
     expr,
     TextStandardDecimalSeparatorCooker,
-    trd)
+    tci)
   with InfosetCachedEvaluatable[List[String]] {
   override lazy val runtimeDependencies = Vector()
 }
 
-class TextStandardGroupingSeparatorEv(expr: CompiledExpression[String], trd: TermRuntimeData)
+class TextStandardGroupingSeparatorEv(expr: CompiledExpression[String], tci: DPathCompileInfo)
   extends EvaluatableConvertedExpression[String, String](
     expr,
     TextStandardGroupingSeparatorCooker,
-    trd)
+    tci)
   with InfosetCachedEvaluatable[String] {
   override lazy val runtimeDependencies = Vector()
 }
 
-class TextStandardExponentRepEv(expr: CompiledExpression[String], trd: TermRuntimeData)
+class TextStandardExponentRepEv(expr: CompiledExpression[String], tci: DPathCompileInfo)
   extends EvaluatableConvertedExpression[String, String](
     expr,
     TextStandardExponentRepCooker,
-    trd)
+    tci)
   with InfosetCachedEvaluatable[String] {
   override lazy val runtimeDependencies = Vector()
 }
 
-class TextBooleanTrueRepEv(exprT: CompiledExpression[String], falseRepEv: TextBooleanFalseRepEv, mustBeSameLength: Boolean, trd: TermRuntimeData)
+class TextBooleanTrueRepEv(exprT: CompiledExpression[String], falseRepEv: TextBooleanFalseRepEv, mustBeSameLength: Boolean, tci: DPathCompileInfo)
   extends EvaluatableConvertedExpression[String, List[String]](
     exprT,
     TextBooleanTrueRepCooker,
-    trd)
+    tci)
   with InfosetCachedEvaluatable[List[String]] {
   override lazy val runtimeDependencies = Vector()
 
@@ -71,7 +71,7 @@ class TextBooleanTrueRepEv(exprT: CompiledExpression[String], falseRepEv: TextBo
       if (trueLength != falseLength ||
         textBooleanTrueReps.exists(x => x.length != trueLength) ||
         textBooleanFalseReps.exists(x => x.length != falseLength)) {
-        trd.schemaDefinitionError("If dfdl:lengthKind is 'explicit' or 'implicit' and either dfdl:textPadKind or dfdl:textTrimKind  is 'none' then both dfdl:textBooleanTrueRep and dfdl:textBooleanFalseRep must have the same length.")
+        tci.schemaDefinitionError("If dfdl:lengthKind is 'explicit' or 'implicit' and either dfdl:textPadKind or dfdl:textTrimKind  is 'none' then both dfdl:textBooleanTrueRep and dfdl:textBooleanFalseRep must have the same length.")
       }
       textBooleanTrueReps
     } else {
@@ -80,11 +80,11 @@ class TextBooleanTrueRepEv(exprT: CompiledExpression[String], falseRepEv: TextBo
   }
 }
 
-class TextBooleanFalseRepEv(expr: CompiledExpression[String], trd: TermRuntimeData)
+class TextBooleanFalseRepEv(expr: CompiledExpression[String], tci: DPathCompileInfo)
   extends EvaluatableConvertedExpression[String, List[String]](
     expr,
     TextBooleanFalseRepCooker,
-    trd)
+    tci)
   with InfosetCachedEvaluatable[List[String]] {
   override lazy val runtimeDependencies = Vector()
 }

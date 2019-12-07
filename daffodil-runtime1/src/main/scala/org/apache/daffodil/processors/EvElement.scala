@@ -42,10 +42,10 @@ import org.apache.daffodil.util.Numbers
 
 sealed trait LengthEv extends Evaluatable[JLong]
 
-class ExplicitLengthEv(expr: CompiledExpression[JLong], rd: RuntimeData)
+class ExplicitLengthEv(expr: CompiledExpression[JLong], ci: DPathCompileInfo)
   extends EvaluatableExpression[JLong](
     expr,
-    rd)
+    ci)
   with LengthEv
   with InfosetCachedEvaluatable[JLong] {
   override lazy val runtimeDependencies = Vector()
@@ -68,8 +68,8 @@ class ExplicitLengthEv(expr: CompiledExpression[JLong], rd: RuntimeData)
   }
 }
 
-class ImplicitLengthEv(lengthValue: Long, rd: ElementRuntimeData)
-  extends Evaluatable[JLong](rd)
+class ImplicitLengthEv(lengthValue: Long, ci: DPathElementCompileInfo)
+  extends Evaluatable[JLong](ci)
   with LengthEv
   with NoCacheEvaluatable[JLong] {
 
@@ -125,10 +125,11 @@ class ImplicitLengthEv(lengthValue: Long, rd: ElementRuntimeData)
  * In that case, the access to the infoset throws particular exceptions
  * descended from the RetryableException trait.
  */
-sealed abstract class LengthInBitsEvBase(rd: TermRuntimeData,
+sealed abstract class LengthInBitsEvBase(
+  ci: DPathCompileInfo,
   val lengthUnits: LengthUnits,
   val lengthKind: LengthKind)
-  extends Evaluatable[MaybeJULong](rd)
+  extends Evaluatable[MaybeJULong](ci)
   with InfosetCachedEvaluatable[MaybeJULong] {
 
   protected def maybeCharsetEv: Maybe[CharsetEv]
@@ -164,12 +165,13 @@ sealed abstract class LengthInBitsEvBase(rd: TermRuntimeData,
  * textOutputMinLength for unparsing of Explicit length elements.
  * See ElementTargetLengthInBitsEv.
  */
-class LengthInBitsEv(lengthUnits: LengthUnits,
+class LengthInBitsEv(
+  lengthUnits: LengthUnits,
   lengthKind: LengthKind,
   override val maybeCharsetEv: Maybe[CharsetEv],
   val lengthEv: LengthEv,
-  rd: TermRuntimeData)
-  extends LengthInBitsEvBase(rd, lengthUnits, lengthKind) {
+  ci: DPathCompileInfo)
+  extends LengthInBitsEvBase(ci, lengthUnits, lengthKind) {
 
   override lazy val runtimeDependencies = maybeCharsetEv.toList :+ lengthEv
 
@@ -185,11 +187,12 @@ class LengthInBitsEv(lengthUnits: LengthUnits,
  *
  * Hence, we have to compute this similarly at runtime.
  */
-class MinLengthInBitsEv(lengthUnits: LengthUnits,
+class MinLengthInBitsEv(
+  lengthUnits: LengthUnits,
   lengthKind: LengthKind,
   override val maybeCharsetEv: Maybe[CharsetEv],
-  minLen: Long, rd: TermRuntimeData)
-  extends LengthInBitsEvBase(rd, lengthUnits, lengthKind) {
+  minLen: Long, ci: DPathCompileInfo)
+  extends LengthInBitsEvBase(ci, lengthUnits, lengthKind) {
 
   override lazy val runtimeDependencies = maybeCharsetEv.toList
 
@@ -210,8 +213,8 @@ class MinLengthInBitsEv(lengthUnits: LengthUnits,
 class UnparseTargetLengthInBitsEv(
   val lengthInBitsEv: LengthInBitsEv,
   minLengthInBitsEv: MinLengthInBitsEv,
-  rd: RuntimeData)
-  extends Evaluatable[MaybeJULong](rd)
+  ci: DPathCompileInfo)
+  extends Evaluatable[MaybeJULong](ci)
   with InfosetCachedEvaluatable[MaybeJULong] {
 
   override lazy val runtimeDependencies = Vector(this.lengthInBitsEv, this.minLengthInBitsEv)
@@ -246,8 +249,8 @@ class UnparseTargetLengthInCharactersEv(
   val lengthEv: LengthEv,
   val charsetEv: CharsetEv,
   minLen: Long,
-  rd: ElementRuntimeData)
-  extends Evaluatable[MaybeJULong](rd)
+  ci: DPathElementCompileInfo)
+  extends Evaluatable[MaybeJULong](ci)
   with InfosetCachedEvaluatable[MaybeJULong] {
 
   override lazy val runtimeDependencies = Vector(this.lengthEv, charsetEv)
@@ -271,28 +274,28 @@ class UnparseTargetLengthInCharactersEv(
   }
 }
 
-class OccursCountEv(expr: CompiledExpression[JLong], rd: ElementRuntimeData)
+class OccursCountEv(expr: CompiledExpression[JLong], ci: DPathElementCompileInfo)
   extends EvaluatableExpression[JLong](
     expr,
-    rd)
+    ci)
   with InfosetCachedEvaluatable[JLong] {
   override lazy val runtimeDependencies = Vector()
 }
 
-class OutputNewLineEv(expr: CompiledExpression[String], rd: TermRuntimeData)
+class OutputNewLineEv(expr: CompiledExpression[String], ci: DPathCompileInfo)
   extends EvaluatableConvertedExpression[String, String](
     expr,
     OutputNewLineCooker,
-    rd)
+    ci)
   with InfosetCachedEvaluatable[String] {
   override lazy val runtimeDependencies = Vector()
 }
 
-class ChoiceDispatchKeyEv(expr: CompiledExpression[String], rd: TermRuntimeData)
+class ChoiceDispatchKeyEv(expr: CompiledExpression[String], ci: DPathCompileInfo)
   extends EvaluatableConvertedExpression[String, String](
     expr,
     ChoiceDispatchKeyCooker,
-    rd)
+    ci)
   with InfosetCachedEvaluatable[String] {
   override lazy val runtimeDependencies = Vector()
 }

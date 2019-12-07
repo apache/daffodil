@@ -81,6 +81,11 @@ trait SchemaComponent
   }
 
   /**
+   * Abbreviation. We use this very often.
+   */
+  final def ci = dpathCompileInfo
+
+  /**
    * All non-terms get runtimeData from this definition. All Terms
    * which are elements and model-groups) override this.
    *

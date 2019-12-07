@@ -120,6 +120,11 @@ trait ElementBaseRuntime1Mixin { self: ElementBase =>
   }
 
   final override lazy val dpathCompileInfo = dpathElementCompileInfo
+  
+  /**
+   * Just an abbrev. analogous to erd, trd, etc.
+   */
+  final def eci = dpathElementCompileInfo
 
   /**
    * This is the compile info for this element term.
@@ -143,7 +148,8 @@ trait ElementBaseRuntime1Mixin { self: ElementBase =>
       tunable.unqualifiedPathStepPolicy,
       schemaSet.typeCalcMap,
       runtimeData,
-      shortSchemaComponentDesignator)
+      shortSchemaComponentDesignator,
+      isOutputValueCalc)
     eci
   }
 

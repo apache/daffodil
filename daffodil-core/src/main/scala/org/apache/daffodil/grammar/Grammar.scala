@@ -27,15 +27,6 @@ import org.apache.daffodil.compiler.ForParser
 import org.apache.daffodil.processors.unparsers.NadaUnparser
 import org.apache.daffodil.processors.parsers.NadaParser
 
-abstract class UnaryGram(context: Term, rr: => Gram) extends NamedGram(context) {
-  private lazy val r = rr
-
-  final override lazy val gram = {
-    if (r.isEmpty) EmptyGram
-    else this
-  }
-}
-
 /**
  * BinaryGram isn't really 'binary' it's n-ary. It is called binary because it comes from
  * the binary grammar operations ~ and |, but in the abstract syntax tree we want

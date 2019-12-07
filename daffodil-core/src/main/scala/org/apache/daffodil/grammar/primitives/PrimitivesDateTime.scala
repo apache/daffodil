@@ -127,13 +127,13 @@ abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
   }
 
   private lazy val localeEv = {
-    val ev = new CalendarLanguageEv(e.calendarLanguage, e.erd)
+    val ev = new CalendarLanguageEv(e.calendarLanguage, e.eci)
     ev.compile(e.tunable)
     ev
   }
 
   private lazy val calendarEv = {
-    val cev = new CalendarEv(localeEv, calendarTz, firstDay, calendarDaysInFirstWeek, calendarCheckPolicy, e.erd)
+    val cev = new CalendarEv(localeEv, calendarTz, firstDay, calendarDaysInFirstWeek, calendarCheckPolicy, e.eci)
     cev.compile(e.tunable)
     cev
   }

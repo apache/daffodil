@@ -225,6 +225,8 @@ class DPathCompileInfo(
     variableMap
   }
 
+  def diagnosticDebugName = path
+
   @throws(classOf[java.io.IOException])
   final private def writeObject(out: java.io.ObjectOutputStream): Unit = serializeObject(out)
 
@@ -292,7 +294,8 @@ class DPathElementCompileInfo(
   override val unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy,
   typeCalcMap: TypeCalcMap,
   lexicalContextRuntimeData: RuntimeData,
-  val sscd: String)
+  val sscd: String,
+  val isOutputValueCalc: Boolean)
   extends DPathCompileInfo(parentsArg, variableMap, namespaces, path, sfl,
     unqualifiedPathStepPolicy,
     typeCalcMap, lexicalContextRuntimeData) {
