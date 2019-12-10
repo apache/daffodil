@@ -39,6 +39,7 @@ import org.apache.daffodil.BasicComponent
 import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.oolag.OOLAG.OOLAGHostImpl
 import org.apache.daffodil.oolag.OOLAG.OOLAGHost
+import org.apache.daffodil.api.UnqualifiedPathStepPolicy
 
 /**
  * Root class of the type hierarchy for the AST nodes used when we
@@ -62,8 +63,8 @@ abstract class Expression extends OOLAGHostImpl()
   requiredEvaluations(isTypeCorrect)
   requiredEvaluations(compiledDPath_)
 
-  override lazy val tunable = parent.tunable
-  override lazy val unqualifiedPathStepPolicy = parent.unqualifiedPathStepPolicy
+  override lazy val tunable: DaffodilTunables = parent.tunable
+  override lazy val unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy = parent.unqualifiedPathStepPolicy
   /**
    * Override where we traverse/access elements.
    */
@@ -575,8 +576,9 @@ case class WholeExpression(
   host: BasicComponent)
   extends Expression {
 
-  final override lazy val tunable = host.tunable
-  final override lazy val unqualifiedPathStepPolicy = host.unqualifiedPathStepPolicy
+  final override lazy val tunable: DaffodilTunables = host.tunable
+  final override lazy val unqualifiedPathStepPolicy : UnqualifiedPathStepPolicy
+     = host.unqualifiedPathStepPolicy
 
   def init() {
     this.setOOLAGContext(host) // we are the root of expression, but we propagate diagnostics further.
