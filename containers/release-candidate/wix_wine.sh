@@ -18,8 +18,9 @@
 # We use sbt-native-packager plugin to build a Windows MSI installer.
 # Unfortunately, that uses WiX toolset which requires Windows. It can be run
 # under Wine, but the plugin cannot be easily configured to use Wine. This
-# script is one part of getting that to work. The full steps for setting up the
-# environment are documented in the Daffodil Release Workflow wiki page.
+# script is one part of getting that to work and is setup within the container
+# environment as needed.
+
 
 # We run a few wine commands, let's disable all wine debug information since it
 # is interpreted by sbt as errors and makes the output look like something

@@ -1,0 +1,255 @@
+#!/bin/bash
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+set -e
+
+function usage {
+  BN=$(basename $0)
+  cat <<USAGE >&2
+usage: $BN [OPTION]...
+
+Options:
+  -n, --dry-run   Run all commands but do not actually publish anything
+  -h, --help      Display this help and exit
+USAGE
+}
+
+DRY_RUN=false
+
+while [[ $# -gt 0 ]]
+do
+  option=$1
+  case $option in
+    -n|--dry-run)
+      DRY_RUN=true
+      shift
+    ;;
+    -h|--help)
+      usage
+      exit 0
+    ;;
+    *)
+      echo "unknown option: $option" >&2
+      usage
+      exit 1
+    ;;
+  esac
+done
+
+
+read -p "Pre Release label (e.g. rc1): " PRE_RELEASE
+read -p "Signing Key ID (long format): " PGP_SIGNING_KEY_ID
+read -p "Git Commit Name: " GIT_COMMIT_NAME
+read -p "Git Commit Email: " GIT_COMMIT_EMAIL
+read -p "Apache Username: " APACHE_USERNAME
+read -s -p "Apache Password: " APACHE_PASSWD
+
+echo
+echo
+
+
+export GPG_TTY=$(tty)
+export WIX=/root/wix311/
+
+echo "test" | gpg --default-key $PGP_SIGNING_KEY_ID --detach-sign --armor --output /dev/null
+if [ $? -ne 0 ]; then
+   echo -e "\n!!! Unable to sign data with given key: $PGP_SIGNING_KEY !!!\n"
+   echo -e "\n!!! Ensure you have created a bind mount of your gpg directory, for example with -v ~/.gnupg/:/root/.gnupg/ !!!\n"
+   exit
+fi
+
+
+TEST_GIT_DIR=/tmp/test-git-sign
+mkdir -p $TEST_GIT_DIR
+pushd $TEST_GIT_DIR &> /dev/null
+git init .
+git commit --allow-empty --allow-empty-message -m "test"
+git tag -as -u $PGP_SIGNING_KEY_ID -m "Test Signed Tag"  test-tag
+if [ $? -ne 0 ]; then
+   echo -e "\n!!! Unable to sign git tag with given key: $PGP_SIGNING_KEY !!!\n"
+   echo -e "\n!!! Ensure you have created a bind mount of your gitconfig file, for example with -v ~/.gitconfig:/root/.gitconfig !!!\n"
+   exit
+fi
+popd
+rm -rf $TEST_GIT_DIR
+
+if [ ! -d /root/.ssh/ ]; then
+   echo -e "\n!!! SSH keys missing, needed to pull/push github repos !!!\n"
+   echo -e "\n!!! Ensure you have created a bind mount of your ssh directory, for example with -v ~/.ssh/:/root/.ssh/ !!!\n"
+   exit
+fi
+
+echo
+echo
+
+REPO_ROOT=`pwd`
+
+APACHE_DIST_DIR=$REPO_ROOT/apache-dist
+DAFFODIL_DIST_ROOT=$APACHE_DIST_DIR/dev/incubator/daffodil
+
+DAFFODIL_REPO="incubator-daffodil"
+DAFFODIL_SITE_REPO="incubator-daffodil-site"
+
+echo "Cloning repos..."
+
+echo
+echo git clone ssh://git@github.com/apache/$DAFODIL_REPO.git
+git clone ssh://git@github.com/apache/$DAFFODIL_REPO.git
+echo
+echo git clone ssh://git@github.com/apache/$DAFFODIL_SITE_REPO.git
+git clone ssh://git@github.com/apache/$DAFFODIL_SITE_REPO.git
+
+svn checkout https://dist.apache.org/repos/dist apache-dist --depth empty
+pushd apache-dist &> /dev/null
+svn update --set-depth empty dev
+svn update --set-depth empty dev/incubator
+svn update --set-depth infinity dev/incubator/daffodil
+popd &> /dev/null
+
+pushd $REPO_ROOT/$DAFFODIL_REPO &> /dev/null
+
+VERSION=$(grep 'version :=' build.sbt | cut -d\" -f2)
+if [[ $VERSION == *SNAPSHOT* ]]; then
+  echo -e "\n!!! Daffodil version ($VERSION) should not contain SNAPSHOT for a release !!!\n";
+  if [ "$DRY_RUN" = true ]; then
+    echo -e "!!! Ignoring because this is a dry run !!!\n";
+  else
+    exit
+  fi
+fi
+
+DAFFODIL_REPO_DIR=$REPO_ROOT/$DAFFODIL_REPO
+DAFFODIL_SITE_DIR=$REPO_ROOT/$DAFFODIL_SITE_REPO
+DAFFODIL_DOCS_DIR=$DAFFODIL_SITE_DIR/site/docs/$VERSION
+DAFFODIL_TUTORIALS_DIR=$DAFFODIL_SITE_DIR/site/tutorials
+DAFFODIL_RELEASE_DIR=$DAFFODIL_DIST_ROOT/$VERSION-$PRE_RELEASE
+
+if [ -d "$DAFFODIL_RELEASE_DIR" ]; then echo -e "\n!!! Daffodil release directory already exists: $DAFFODIL_RELEASE_DIR !!! "; exit; fi
+
+git -C $DAFFODIL_REPO_DIR config --local user.name  "$GIT_COMMIT_NAME"
+git -C $DAFFODIL_REPO_DIR config --local user.email "$GIT_COMMIT_EMAIL"
+git -C $DAFFODIL_SITE_DIR config --local user.name  "$GIT_COMMIT_NAME"
+git -C $DAFFODIL_SITE_DIR config --local user.email "$GIT_COMMIT_EMAIL"
+
+echo
+echo "!!! Making release $VERSION-$PRE_RELEASE in $DAFFODIL_RELEASE_DIR !!!"
+echo
+
+if [ "$DRY_RUN" = true ]; then
+  SBT_PUBLISH="publishLocalSigned"
+else
+  SBT_PUBLISH="publishSigned"
+fi
+
+echo "Building Convenience Binaries and Publishing to Apache Repository..."
+sbt \
+  "set updateOptions in ThisBuild := updateOptions.value.withGigahorse(false)" \
+  "set credentials in ThisBuild += Credentials(\"Sonatype Nexus Repository Manager\", \"repository.apache.org\", \"$APACHE_USERNAME\", \"$APACHE_PASSWD\")" \
+  "set publishTo in ThisBuild := Some(\"Apache Staging Distribution Repository\" at \"https://repository.apache.org/service/local/staging/deploy/maven2\")" \
+  "set pgpSigningKey := Some(new java.math.BigInteger(\"$PGP_SIGNING_KEY_ID\", 16).longValue)" \
+  "+compile" \
+  "+$SBT_PUBLISH" \
+  "daffodil-cli/rpm:packageBin" \
+  "daffodil-cli/windows:packageBin" \
+  "daffodil-cli/universal:packageBin" \
+  "daffodil-cli/universal:packageZipTarball" \
+  "daffodil-japi/genjavadoc:doc" \
+  "daffodil-sapi/doc" \
+
+
+echo "Installing Source and Convenience Binaries..."
+mkdir -p $DAFFODIL_RELEASE_DIR/{src,bin}/
+git archive --format=zip --prefix=apache-daffodil-$VERSION-incubating-src/ HEAD > $DAFFODIL_RELEASE_DIR/src/apache-daffodil-$VERSION-incubating-src.zip
+cp daffodil-cli/target/universal/apache-daffodil-*.tgz $DAFFODIL_RELEASE_DIR/bin/
+cp daffodil-cli/target/universal/apache-daffodil-*.zip $DAFFODIL_RELEASE_DIR/bin/
+cp daffodil-cli/target/rpm/RPMS/noarch/apache-daffodil-*.rpm $DAFFODIL_RELEASE_DIR/bin/
+MSI_NAME=$(basename $DAFFODIL_RELEASE_DIR/bin/*.zip .zip).msi
+cp daffodil-cli/target/windows/Daffodil.msi $DAFFODIL_RELEASE_DIR/bin/$MSI_NAME
+chmod -x $DAFFODIL_RELEASE_DIR/bin/$MSI_NAME
+
+echo "Calculating Checksums..."
+for i in src/ bin/
+do
+    pushd $DAFFODIL_RELEASE_DIR/$i > /dev/null
+    for file in *
+    do
+       sha256sum --binary $file > $file.sha256
+       sha512sum --binary $file > $file.sha512
+       gpg --default-key $PGP_SIGNING_KEY_ID --detach-sign --armor --output $file.asc $file
+    done
+    popd > /dev/null
+done
+
+echo "Installing Site Docs..."
+rm -rf $DAFFODIL_DOCS_DIR
+mkdir -p $DAFFODIL_DOCS_DIR/{javadoc,scaladoc}/
+cp -R daffodil-japi/target/scala-2.12/genjavadoc-api/* $DAFFODIL_DOCS_DIR/javadoc/
+cp -R daffodil-sapi/target/scala-2.12/api/* $DAFFODIL_DOCS_DIR/scaladoc/
+
+echo "Installing Site Tutorials..."
+rm -rf $DAFFODIL_TUTORIALS_DIR
+mkdir -p $DAFFODIL_TUTORIALS_DIR
+cp -R tutorials/src/main/resources/* $DAFFODIL_TUTORIALS_DIR
+
+echo "Creating Git Tag..."
+git tag -as -u $PGP_SIGNING_KEY_ID -m "Release v$VERSION-$PRE_RELEASE" v$VERSION-$PRE_RELEASE
+
+popd &> /dev/null
+
+pushd $DAFFODIL_SITE_DIR &> /dev/null
+echo "Comitting Site Changes..."
+git add .
+git commit -m "Stage release v$VERSION-$PRE_RELEASE"
+popd &> /dev/null
+
+echo
+echo
+echo
+echo
+echo "!!! Success: $VERSION-$PRE_RELEASE output to $DAFFODIL_RELEASE_DIR !!!"
+echo
+echo "Things to verify: "
+echo
+echo "- Files in $DAFFODIL_RELEASE_DIR"
+echo "- Files in $DAFFODIL_DOCS_DIR"
+echo "- Files in $DAFFODIL_TUTORIALS_DIR"
+echo "- Git tag created in $DAFFODIL_REPO_DIR for v$VERSION-$PRE_RELEASE"
+echo "- Staged published files at https://repository.apache.org/"
+echo
+
+if [ "$DRY_RUN" = true ]; then
+  echo "!!! This was a dry run do not push/publish any changes !!!"
+  echo
+  echo "Type 'exit' when done with the container"
+else
+  echo "If everything looks correct, do the following:"
+  echo
+  echo "- Run: cd $APACHE_DIST_DIR && svn ci -m 'Staging Apache Daffodil (incubating) $VERSION-$PRE_RELEASE'"
+  echo "- Run: cd $DAFFODIL_REPO_DIR && git push origin v$VERSION-$PRE_RELEASE"
+  echo "- Run: cd $DAFFODIL_SITE_DIR && git push origin master"
+  echo "- Close the staged files at https://repository.apache.org"
+  echo "- Type 'exit' and  start a VOTE!"
+  echo
+  echo "If anything looks incorrect, do the following:"
+  echo
+  echo "- Delete the staged files at https://repository.apache.org"
+  echo "- Type 'exit', fix the issues, and start over"
+fi
+
+echo
+
+bash
