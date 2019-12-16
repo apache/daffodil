@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.dsom
 
-import java.math.BigInteger
+import java.math.{BigInteger => JBigInt}
 import org.apache.daffodil.exceptions.ThrowsSDE
 import org.apache.daffodil.exceptions.UnsuppressableException
 import scala.xml.Node
@@ -35,7 +35,10 @@ import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.dsom.FacetTypes.ElemFacets
 import org.apache.daffodil.dsom.FacetTypes.FacetValue
 import org.apache.daffodil.processors.RepValueSet
-import org.apache.daffodil.util.RangeBound
+import org.apache.daffodil.processors.RangeBound
+import org.apache.daffodil.infoset.DataValue
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveNullable
+import org.apache.daffodil.infoset.DataValue.DataValueBigInt
 
 /**
  * A schema component for simple type restrictions
@@ -175,17 +178,17 @@ final class Restriction(xmlArg: Node, val simpleTypeDef: SimpleTypeDefBase)
 
   lazy val enumerations: Seq[EnumerationDefFactory] = (xml \ "enumeration").map(new EnumerationDefFactory(_, simpleTypeDef))
 
-  lazy val facetValueSet: RepValueSet[AnyRef] = {
-    val initAns: (RangeBound[BigInt], RangeBound[BigInt]) = (new RangeBound(Maybe.Nope, false), new RangeBound(Maybe.Nope, false))
+  lazy val facetValueSet: RepValueSet = {
+    val initAns: (RangeBound, RangeBound) = (new RangeBound(DataValue.NoValue, false), new RangeBound(DataValue.NoValue, false))
     val range = combinedBaseFacets.foldLeft(initAns)({
       case (acc, (facetType, facetValue)) =>
-        lazy val valueAsBigInt = BigInt(facetValue)
+        lazy val valueAsBigInt:DataValueBigInt = new JBigInt(facetValue)
         val (maybeBound, isMax, isInclusive) = facetType match {
-          case Facet.maxExclusive => (Maybe(valueAsBigInt), true, false)
-          case Facet.maxInclusive => (Maybe(valueAsBigInt), true, true)
-          case Facet.minExclusive => (Maybe(valueAsBigInt), false, false)
-          case Facet.minInclusive => (Maybe(valueAsBigInt), false, true)
-          case _ => (Maybe.Nope, false, false)
+          case Facet.maxExclusive => (valueAsBigInt, true, false)
+          case Facet.maxInclusive => (valueAsBigInt, true, true)
+          case Facet.minExclusive => (valueAsBigInt, false, false)
+          case Facet.minInclusive => (valueAsBigInt, false, true)
+          case _ => (DataValue.NoValue, false, false)
         }
         if (maybeBound.isEmpty) {
           acc
@@ -207,10 +210,10 @@ final class Restriction(xmlArg: Node, val simpleTypeDef: SimpleTypeDefBase)
           }
         }
     })
-    RepValueSetCompiler.compile(Seq(), Seq(range.asInstanceOf[(RangeBound[AnyRef], RangeBound[AnyRef])]))
+    RepValueSetCompiler.compile(Seq(), Seq(range.asInstanceOf[(RangeBound, RangeBound)]))
   }
 
-  lazy val repValueSet: RepValueSet[AnyRef] = {
+  lazy val repValueSet: RepValueSet = {
     val subsets = enumerations.map(_.optRepValueSet).filter(_.isDefined).map(_.get)
     if (subsets.length != 0 && subsets.length != enumerations.length) {
       SDE("If one enumeration value defines a repValue, then all must define a repValue")
@@ -226,7 +229,7 @@ final class Restriction(xmlArg: Node, val simpleTypeDef: SimpleTypeDefBase)
 
   lazy val optRepValueSet = if (repValueSet.isEmpty) None else Some(repValueSet)
 
-  lazy val logicalValueSet: RepValueSet[AnyRef] = {
+  lazy val logicalValueSet: RepValueSet = {
     val subsets = enumerations.map(_.logicalValueSet)
     val fromEnums = subsets.fold(RepValueSetCompiler.empty)((a, b) => a.merge(b))
     if (enumerations.length > 0) {
@@ -237,7 +240,7 @@ final class Restriction(xmlArg: Node, val simpleTypeDef: SimpleTypeDefBase)
     }
   }
 
-  lazy val optLogicalValueSet: Option[RepValueSet[AnyRef]] = if (logicalValueSet.isEmpty) None else Some(logicalValueSet)
+  lazy val optLogicalValueSet: Option[RepValueSet] = if (logicalValueSet.isEmpty) None else Some(logicalValueSet)
 }
 
 /**
@@ -487,7 +490,7 @@ sealed trait TypeChecks { self: Restriction =>
   protected def isInUnsignedXXXRange(value: java.math.BigDecimal, numBits: Int, typeName: String): Boolean = {
     Assert.usage(numBits <= 64, "isInUnsignedXXXRange: numBits must be <= 64.")
     // val min = java.math.BigDecimal.ZERO
-    val max = new java.math.BigDecimal(BigInteger.ONE.shiftLeft(numBits)).subtract(new java.math.BigDecimal(1))
+    val max = new java.math.BigDecimal(JBigInt.ONE.shiftLeft(numBits)).subtract(new java.math.BigDecimal(1))
     val isNegative = value.signum == -1
     if (isNegative) return false
     val checkMax = value.compareTo(max)

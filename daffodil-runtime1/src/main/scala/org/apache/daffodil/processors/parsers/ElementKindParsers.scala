@@ -17,11 +17,19 @@
 
 package org.apache.daffodil.processors.parsers
 
-import org.apache.daffodil.processors._
+import java.math.{ BigInteger => JBigInt }
+
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.processors.ChoiceDispatchKeyEv
+import org.apache.daffodil.processors.DelimiterParseEv
+import org.apache.daffodil.processors.ElementRuntimeData
+import org.apache.daffodil.processors.EscapeSchemeParseEv
+import org.apache.daffodil.processors.RangeBound
+import org.apache.daffodil.processors.RuntimeData
+import org.apache.daffodil.processors.Success
+import org.apache.daffodil.processors.TermRuntimeData
 import org.apache.daffodil.util.LogLevel
 import org.apache.daffodil.util.Maybe
-import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.util.RangeBound
 
 class ComplexTypeParser(rd: RuntimeData, bodyParser: Parser)
   extends CombinatorParser(rd) {
@@ -125,7 +133,7 @@ class DynamicEscapeSchemeParser(
 
 abstract class ChoiceDispatchCombinatorParserBase(rd: TermRuntimeData, 
                                                   dispatchBranchKeyMap: Map[String, (Parser, Boolean)], 
-                                                  dispatchKeyRangeMap:Vector[(RangeBound[BigInt],RangeBound[BigInt],Parser, Boolean)])
+                                                  dispatchKeyRangeMap:Vector[(RangeBound,RangeBound,Parser, Boolean)])
   extends CombinatorParser(rd) {
   override def nom = "ChoiceDispatch"
 
@@ -179,7 +187,7 @@ abstract class ChoiceDispatchCombinatorParserBase(rd: TermRuntimeData,
           } else{
             if(!dispatchKeyRangeMap.isEmpty){
               try{
-                val keyAsBigInt = BigInt(key)
+                val keyAsBigInt = new JBigInt(key)
                 val optAns1= dispatchKeyRangeMap.find({case(min,max,_,_) => min.testAsLower(keyAsBigInt) && max.testAsUpper(keyAsBigInt)})
                 optAns1.map({case(_,_,parser,isRepresented)=>(parser,isRepresented)})
               } catch{
@@ -243,13 +251,13 @@ abstract class ChoiceDispatchCombinatorParserBase(rd: TermRuntimeData,
 }
 
 class ChoiceDispatchCombinatorParser(rd: TermRuntimeData, dispatchKeyEv: ChoiceDispatchKeyEv, 
-  dispatchBranchKeyMap: Map[String, (Parser, Boolean)], dispatchKeyRangeMap:Vector[(RangeBound[BigInt],RangeBound[BigInt],Parser, Boolean)])
+  dispatchBranchKeyMap: Map[String, (Parser, Boolean)], dispatchKeyRangeMap:Vector[(RangeBound,RangeBound,Parser, Boolean)])
   extends ChoiceDispatchCombinatorParserBase(rd, dispatchBranchKeyMap, dispatchKeyRangeMap) {
   override def computeDispatchKey(pstate: PState): Maybe[String] = Maybe(dispatchKeyEv.evaluate(pstate))
 }
 
 class ChoiceDispatchCombinatorKeyByTypeParser(rd: TermRuntimeData, repTypeParser: Parser, repTypeRuntimeData: ElementRuntimeData, 
-                                              dispatchBranchKeyMap: Map[String, (Parser, Boolean)], dispatchKeyRangeMap:Vector[(RangeBound[BigInt],RangeBound[BigInt],Parser, Boolean)])
+                                              dispatchBranchKeyMap: Map[String, (Parser, Boolean)], dispatchKeyRangeMap:Vector[(RangeBound,RangeBound,Parser, Boolean)])
   extends ChoiceDispatchCombinatorParserBase(rd, dispatchBranchKeyMap, dispatchKeyRangeMap)
   with WithDetachedParser {
 

@@ -124,7 +124,7 @@ trait WithDetachedParser {
   }
 }
 
-class TypeValueCalcParser(typeCalculator: TypeCalculator[AnyRef, AnyRef], repTypeParser: Parser, e: ElementRuntimeData, repTypeRuntimeData: ElementRuntimeData)
+class TypeValueCalcParser(typeCalculator: TypeCalculator, repTypeParser: Parser, e: ElementRuntimeData, repTypeRuntimeData: ElementRuntimeData)
   extends CombinatorParser(e)
   with WithDetachedParser {
   override lazy val childProcessors = Vector(repTypeParser)
@@ -136,7 +136,7 @@ class TypeValueCalcParser(typeCalculator: TypeCalculator[AnyRef, AnyRef], repTyp
     pstate.dataProc.get.ssrd
     if (pstate.processorStatus == Success) {
       Assert.invariant(repValue.isDefined)
-      val logicalValue: DataValuePrimitiveNullable = typeCalculator.inputTypeCalcParse(pstate, context, repValue.getAnyRef, repValueType)
+      val logicalValue: DataValuePrimitiveNullable = typeCalculator.inputTypeCalcParse(pstate, context, repValue.getNonNullable, repValueType)
       if (pstate.processorStatus == Success) {
         Assert.invariant(logicalValue.isDefined)
         pstate.simpleElement.setDataValue(logicalValue)

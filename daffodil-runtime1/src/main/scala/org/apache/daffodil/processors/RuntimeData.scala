@@ -246,8 +246,8 @@ final class SimpleTypeRuntimeData(
   @TransientParam unionMemberTypesArg: => Seq[SimpleTypeRuntimeData],
   @TransientParam unqualifiedPathStepPolicyArg: => UnqualifiedPathStepPolicy,
   @TransientParam repTypeRuntimeDataArg: => Option[SimpleTypeRuntimeData],
-  @TransientParam repValueSetArg: => Option[RepValueSet[AnyRef]],
-  @TransientParam typeCalculatorArg: => Option[TypeCalculator[AnyRef, AnyRef]],
+  @TransientParam repValueSetArg: => Option[RepValueSet],
+  @TransientParam typeCalculatorArg: => Option[TypeCalculator],
   @TransientParam optRepPrimTypeArg: => Option[PrimType])
   extends NonTermRuntimeData(variableMapArg, schemaFileLocationArg, diagnosticDebugNameArg,
     pathArg, namespacesArg, unqualifiedPathStepPolicyArg) {

@@ -58,7 +58,7 @@ trait HasOptRepTypeMixin {
     case Some(x: SimpleTypeDefBase) => Some(x)
     case _ => None
   }
-  def optRepValueSet: Option[RepValueSet[AnyRef]]
+  def optRepValueSet: Option[RepValueSet]
 
   def optRepTypeElement: Option[RepTypeQuasiElementDecl]
 
