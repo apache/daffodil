@@ -17,8 +17,8 @@
 
 package org.apache.daffodil.cookers
 
-import org.apache.daffodil.util.RangeBound
-import org.apache.daffodil.util.RangeBound.Range
+import java.math.{ BigInteger => JBigInt }
+
 import org.apache.daffodil.exceptions.ThrowsSDE
 import org.apache.daffodil.util.Maybe
 
@@ -90,20 +90,18 @@ object RepValueCooker extends ListOfStringLiteralNonEmptyNoCharClassEntitiesNoBy
 
 object UpperCaseTokenCooker extends UpperCaseToken
 
-object IntRangeCooker extends Converter[String, Seq[Range[BigInt]]] {
-  protected def convert(input: String, context: ThrowsSDE, forUnparse: Boolean): Seq[Range[BigInt]] = {
-    def run(xs: Seq[String]): Seq[(RangeBound[BigInt], RangeBound[BigInt])] = {
+object IntRangeCooker extends Converter[String, Seq[(JBigInt, JBigInt)]] {
+  protected def convert(input: String, context: ThrowsSDE, forUnparse: Boolean): Seq[(JBigInt, JBigInt)] = {
+    def run(xs: Seq[String]): Seq[(JBigInt, JBigInt)] = {
       xs match {
         case Seq() => Seq()
         case a +: b +: rest => {
-          val a2 = BigInt(a)
-          val b2 = BigInt(b)
-          if (a2.compare(b2) > 0) {
+          val a2 = new JBigInt(a)
+          val b2 = new JBigInt(b)
+          if (a2.compareTo(b2) > 0) {
             context.SDE("min value (%s) is greater than max value (%s)", a2, b2)
           }
-          val a3 = new RangeBound(Maybe(a2), true)
-          val b3 = new RangeBound(Maybe(b2), true)
-          (a3, b3) +: run(rest)
+          (a2, b2) +: run(rest)
         }
       }
     }

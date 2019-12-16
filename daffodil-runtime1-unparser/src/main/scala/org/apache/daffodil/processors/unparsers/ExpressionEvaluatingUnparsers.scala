@@ -111,7 +111,7 @@ class NewVariableInstanceEndUnparser(override val context: RuntimeData)
   }
 }
 
-class TypeValueCalcUnparser(typeCalculator: TypeCalculator[AnyRef, AnyRef], repTypeUnparser: Unparser, e: ElementRuntimeData, repTypeRuntimeData: ElementRuntimeData)
+class TypeValueCalcUnparser(typeCalculator: TypeCalculator, repTypeUnparser: Unparser, e: ElementRuntimeData, repTypeRuntimeData: ElementRuntimeData)
   extends CombinatorUnparser(e) {
 
   override def childProcessors: Vector[Unparser] = Vector(repTypeUnparser)
@@ -124,12 +124,13 @@ class TypeValueCalcUnparser(typeCalculator: TypeCalculator[AnyRef, AnyRef], repT
 
     val currentSimple = ustate.currentInfosetNode.asSimple
 
-    val logicalValue: DataValuePrimitiveNullable = currentSimple.dataValue
-    Assert.invariant(logicalValue.isDefined)
+    val logicalValueNullable = currentSimple.dataValue
+    Assert.invariant(logicalValueNullable.isDefined)
+    val logicalValue=logicalValueNullable.getNonNullable
     val logicalValueType = currentSimple.erd.optPrimType.get
     val repTypeValue: DataValuePrimitiveNullable = {
-      val ans = typeCalculator.outputTypeCalcUnparse(ustate, e, logicalValue.getAnyRef, logicalValueType)
-      DataValue.unsafeFromMaybeAnyRef(ans)
+      val ans = typeCalculator.outputTypeCalcUnparse(ustate, e, logicalValue.getNonNullable, logicalValueType)
+      ans
     }
 
     val origInfosetElement = ustate.currentInfosetNode

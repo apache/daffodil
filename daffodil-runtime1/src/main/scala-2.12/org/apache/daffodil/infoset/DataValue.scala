@@ -67,7 +67,7 @@ sealed trait DataValuePrimitiveType
  * allow for automatic upcasting between these types where appropriate.
  *
  */
-final class DataValue[+T <: AnyRef, +X <: AnyRef] private (val v: T) extends AnyVal {
+final class DataValue[+T <: AnyRef, +X <: AnyRef] private (val v: T) extends AnyVal with Serializable {
   @inline def isEmpty = DataValue.NoValue.v eq v
   @inline def isDefined = !isEmpty
   @inline def value = v
@@ -89,8 +89,8 @@ final class DataValue[+T <: AnyRef, +X <: AnyRef] private (val v: T) extends Any
   @inline def getString = v.asInstanceOf[JString]
   @inline def getURI = v.asInstanceOf[URI]
 
-  @inline def getNonNullable = this.asInstanceOf[DataValue[T, X with NonNullable]]
-  @inline def getNullablePrimitive = this.asInstanceOf[DataValue.DataValuePrimitiveNullable]
+  @inline def getNonNullable:DataValue[T, X with NonNullable] = new DataValue(v)
+  @inline def getNullablePrimitive:DataValue.DataValuePrimitiveNullable = new DataValue(v)
 
   @inline def getOptionAnyRef = {
     if (isEmpty) {
@@ -178,6 +178,13 @@ object DataValue {
 
   @inline def unsafeFromAnyRef(v: AnyRef) = new DataValue(v)
   @inline def unsafeFromMaybeAnyRef(v: Maybe[AnyRef]) = {
+    if (v.isDefined) {
+      new DataValue(v.get)
+    } else {
+      NoValue
+    }
+  }  
+  @inline def unsafeFromOptionAnyRef(v: Option[AnyRef]) = {
     if (v.isDefined) {
       new DataValue(v.get)
     } else {

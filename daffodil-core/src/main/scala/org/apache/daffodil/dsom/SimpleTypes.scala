@@ -17,40 +17,35 @@
 
 package org.apache.daffodil.dsom
 
+import java.math.{ BigInteger => JBigInt }
+
 import scala.xml.Node
-import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.dpath.NodeInfo.PrimType
+
+import org.apache.daffodil.cookers.IntRangeCooker
+import org.apache.daffodil.cookers.RepValueCooker
 import org.apache.daffodil.dpath.NodeInfo
+import org.apache.daffodil.dpath.NodeInfo.PrimType
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.processors.IdentifyTypeCalculator
+import org.apache.daffodil.processors.RepValueSet
+import org.apache.daffodil.processors.RepValueSetCompiler
 import org.apache.daffodil.processors.SimpleTypeRuntimeData
-import org.apache.daffodil.util.Misc
-import org.apache.daffodil.schema.annotation.props.gen.Enumeration_AnnotationMixin
-import org.apache.daffodil.schema.annotation.props.PropertyLookupResult
-import org.apache.daffodil.ExecutionMode
-import org.apache.daffodil.schema.annotation.props.Found
-import org.apache.daffodil.xml.QName
-import org.apache.daffodil.schema.annotation.props.NotFound
-import org.apache.daffodil.processors.RepValueSet
-import org.apache.daffodil.processors.RepValueSet
 import org.apache.daffodil.processors.TypeCalculator
 import org.apache.daffodil.processors.TypeCalculatorCompiler
-import org.apache.daffodil.processors.RepValueSetCompiler
-import org.apache.daffodil.dpath.NodeInfo.Numeric
-import org.apache.daffodil.dpath.NodeInfo.PrimType.UnsignedInt
-import org.apache.daffodil.cookers.RepValueCooker
-import org.apache.daffodil.cookers.RepValueCooker
-import scala.xml.Elem
-import scala.xml.MetaData
-import scala.xml.UnprefixedAttribute
-import scala.xml.Null
-import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.schema.annotation.props.Found
+import org.apache.daffodil.util.Misc
 import org.apache.daffodil.xml.GlobalQName
+import org.apache.daffodil.xml.QName
 import org.apache.daffodil.xml.XMLUtils
-import scala.xml.NamespaceBinding
-import org.apache.daffodil.processors.IdentifyTypeCalculator
-import org.apache.daffodil.xml.NS
-import org.apache.daffodil.exceptions.SchemaFileLocation
-import org.apache.daffodil.cookers.IntRangeCooker
-import org.apache.daffodil.util.RangeBound
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.processors.RangeBound
+import org.apache.daffodil.util.Maybe.One
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveNullable
+import org.apache.daffodil.infoset.DataValue
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.infoset.DataValue.DataValueBigInt
+import org.apache.daffodil.infoset.DataValue.DataValueBigInt
+import org.apache.daffodil.infoset.DataValue.DataValueString
 import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
 
 trait TypeBase {
@@ -80,9 +75,9 @@ sealed trait HasRepValueAttributes extends AnnotatedSchemaComponent
   {
 
   def optRepType: Option[SimpleTypeBase]
-  def optRepValueSet: Option[RepValueSet[AnyRef]]
+  def optRepValueSet: Option[RepValueSet]
 
-  lazy val (repValuesAttrCooked: Seq[AnyRef], repValueRangesAttrCooked: Seq[(RangeBound[BigInt], RangeBound[BigInt])]) =
+  lazy val (repValuesAttrCooked:Seq[DataValuePrimitive], repValueRangesAttrCooked:Seq[(RangeBound,RangeBound)]) =
     optRepType match {
       case Some(repType) => {
         val repValueSetRaw = findPropertyOption("repValues").toOption
@@ -91,12 +86,16 @@ sealed trait HasRepValueAttributes extends AnnotatedSchemaComponent
         repType.primType match {
           case PrimType.String => {
             if (repValueRangesRaw.size > 0) SDE("repValueRanges set when using a string repType")
-            val repValueSetCooked = repValueSetRaw.map(RepValueCooker.convertConstant(_, this, false))
+            val repValueSetCooked = repValueSetRaw.flatMap(RepValueCooker.convertConstant(_, this, false)).map(DataValue.toDataValue)
             (repValueSetCooked, Seq())
           }
           case _: NodeInfo.Integer.Kind => {
-            val ans1 = repValueSetRaw.map(BigInt(_))
-            val ans2 = IntRangeCooker.convertConstant(repValueRangesRaw, this, false)
+            val ans1 = repValueSetRaw.map(new JBigInt(_):DataValueBigInt)
+            val ans2 = IntRangeCooker.convertConstant(repValueRangesRaw, this, false).map({case (lower, upper) =>
+              (new RangeBound(lower,true), new RangeBound(upper, true))
+            }
+            
+            )
             (ans1, ans2)
           }
           case x => SDE("repType must be either String or Integer type")
@@ -105,9 +104,9 @@ sealed trait HasRepValueAttributes extends AnnotatedSchemaComponent
       case None => (Seq(), Seq())
     }
 
-  lazy val optRepValueSetFromAttribute: Option[RepValueSet[AnyRef]] = optRepType.flatMap(repType => {
+  lazy val optRepValueSetFromAttribute: Option[RepValueSet] = optRepType.flatMap(repType => {
 
-    val ans = RepValueSetCompiler.compile(repValuesAttrCooked, repValueRangesAttrCooked.asInstanceOf[Seq[(RangeBound[AnyRef], RangeBound[AnyRef])]])
+    val ans = RepValueSetCompiler.compile(repValuesAttrCooked, repValueRangesAttrCooked.asInstanceOf[Seq[(RangeBound, RangeBound)]])
     if (ans.isEmpty) None else Some(ans)
 
   })
@@ -315,12 +314,12 @@ abstract class SimpleTypeDefBase(xml: Node, lexicalParent: SchemaComponent)
   lazy val optInputTypeCalc = findPropertyOption("inputTypeCalc")
   lazy val optOutputTypeCalc = findPropertyOption("outputTypeCalc")
 
-  lazy val optTypeCalculator: Option[TypeCalculator[AnyRef, AnyRef]] = LV('optTypeCalculator) {
+  lazy val optTypeCalculator: Option[TypeCalculator] = LV('optTypeCalculator) {
     optRepType.flatMap(repType => {
       val srcType = repType.primType
       val dstType = primType
 
-      val fromRestriction: Option[TypeCalculator[AnyRef, AnyRef]] = optRestriction.flatMap({ restriction =>
+      val fromRestriction: Option[TypeCalculator] = optRestriction.flatMap({ restriction =>
         val enumerations = restriction.enumerations.filter(_.optRepValueSet.isDefined)
         if (enumerations.isEmpty) {
           /*
@@ -334,16 +333,19 @@ abstract class SimpleTypeDefBase(xml: Node, lexicalParent: SchemaComponent)
           if (enumerations.size != restriction.enumerations.size) {
             SDE("If one enumeration value defines a repValue, then all must define a repValue")
           }
-          val terms = enumerations.map(enum => (enum.optRepValueSet.get, enum.canonicalRepValue.get, enum.enumValueCooked.getAnyRef))
+          val terms = enumerations.map(enum => {
+            Assert.invariant(enum.canonicalRepValue.isDefined)
+            (enum.optRepValueSet.get, enum.canonicalRepValue.getNonNullable, enum.enumValueCooked)
+          })
           Some(TypeCalculatorCompiler.compileKeysetValue(terms, srcType, dstType))
         }
       })
-      val fromUnion: Option[TypeCalculator[AnyRef, AnyRef]] = optUnion.map({ union =>
-        val subCalculators: Seq[(RepValueSet[AnyRef], RepValueSet[AnyRef], TypeCalculator[AnyRef, AnyRef])] =
+      val fromUnion: Option[TypeCalculator] = optUnion.map({ union =>
+        val subCalculators: Seq[(RepValueSet, RepValueSet, TypeCalculator)] =
           union.unionMemberTypes.map(subType => (subType.optRepValueSet.get, subType.optLogicalValueSet.get, subType.optTypeCalculator.get))
         TypeCalculatorCompiler.compileUnion(subCalculators)
       })
-      val fromExpression: Option[TypeCalculator[AnyRef, AnyRef]] = {
+      val fromExpression: Option[TypeCalculator] = {
         /*
          * This is a minefield for circular dependencies.
          * In order to compile expressions involve many typeCalc functions,
@@ -384,7 +386,7 @@ abstract class SimpleTypeDefBase(xml: Node, lexicalParent: SchemaComponent)
         case (Some(x), None, None) => Some(x)
         case (None, Some(x), None) => Some(x)
         case (None, None, Some(x)) => SDE("Usage of inputTypeCalc and outputTypeCalc requires an empty xs:restriction to determine the base type.")
-        case (Some(x), _, Some(y)) if x.isInstanceOf[IdentifyTypeCalculator[AnyRef]] => Some(y)
+        case (Some(x), _, Some(y)) if x.isInstanceOf[IdentifyTypeCalculator] => Some(y)
         case (None, None, None) => {
           if (dstType != srcType) {
             val repTypeName = optRepTypeDef match {
@@ -404,7 +406,7 @@ abstract class SimpleTypeDefBase(xml: Node, lexicalParent: SchemaComponent)
       }
 
       ans match {
-        case Some(idt: IdentifyTypeCalculator[AnyRef]) => {
+        case Some(idt: IdentifyTypeCalculator) => {
           if (srcType != dstType) {
             SDE("Identity transform requires that the basetype and reptype have a common primitive type")
           }
@@ -465,17 +467,17 @@ abstract class SimpleTypeDefBase(xml: Node, lexicalParent: SchemaComponent)
     fromSelf.orElse(fromUnion)
   }.toOption.flatten
 
-  override lazy val optRepValueSet: Option[RepValueSet[AnyRef]] = optRepTypeDef.flatMap(repType => {
+  override lazy val optRepValueSet: Option[RepValueSet] = optRepTypeDef.flatMap(repType => {
     val primType: PrimType = repType.primType
 
-    val fromRestriction: Option[RepValueSet[AnyRef]] = optRestriction.flatMap(_.optRepValueSet)
-    val fromUnion: Option[RepValueSet[AnyRef]] = {
+    val fromRestriction: Option[RepValueSet] = optRestriction.flatMap(_.optRepValueSet)
+    val fromUnion: Option[RepValueSet] = {
       val componentTypes = optUnion.map(_.unionMemberTypes).getOrElse(Seq())
       val componentValueSets = componentTypes.flatMap(_.optRepValueSet)
       val ans = componentValueSets.fold(RepValueSetCompiler.empty)((a, b) => a.merge(b))
       if (ans.isEmpty) None else Some(ans)
     }
-    val fromSelf: Option[RepValueSet[AnyRef]] = optRepValueSetFromAttribute
+    val fromSelf: Option[RepValueSet] = optRepValueSetFromAttribute
 
     (fromRestriction, fromUnion, fromSelf) match {
       case (None, None, None) => None
@@ -489,9 +491,9 @@ abstract class SimpleTypeDefBase(xml: Node, lexicalParent: SchemaComponent)
 
   })
 
-  lazy val optLogicalValueSet: Option[RepValueSet[AnyRef]] = {
-    val fromRestriction: Option[RepValueSet[AnyRef]] = optRestriction.map(_.logicalValueSet)
-    val fromUnion: Option[RepValueSet[AnyRef]] = optUnion.map(union => {
+  lazy val optLogicalValueSet: Option[RepValueSet] = {
+    val fromRestriction: Option[RepValueSet] = optRestriction.map(_.logicalValueSet)
+    val fromUnion: Option[RepValueSet] = optUnion.map(union => {
       val subsets = union.unionMemberTypes.map(_.optLogicalValueSet).filter(_.isDefined).map(_.get)
       subsets.fold(RepValueSetCompiler.empty)((a, b) => a.merge(b))
     })
@@ -567,16 +569,16 @@ final class EnumerationDefFactory(
   lazy val enumValueRaw: String = (xml \ "@value").head.text
   lazy val enumValueCooked: DataValuePrimitive = parentType.primType.fromXMLString(enumValueRaw)
 
-  override lazy val optRepValueSet: Option[RepValueSet[AnyRef]] = optRepValueSetFromAttribute
-  lazy val logicalValueSet: RepValueSet[AnyRef] = RepValueSetCompiler.compile(Seq(enumValueCooked.getAnyRef), Seq())
-  lazy val canonicalRepValue: Option[AnyRef] = {
-    val ans1 = repValuesAttrCooked.headOption
-    val ans2 = repValueRangesAttrCooked.headOption.map(_._1).flatMap(asBound => {
+  override lazy val optRepValueSet: Option[RepValueSet] = optRepValueSetFromAttribute
+  lazy val logicalValueSet: RepValueSet = RepValueSetCompiler.compile(Seq(enumValueCooked), Seq())
+  lazy val canonicalRepValue: DataValuePrimitiveNullable = {
+    val ans1 = repValuesAttrCooked.headOption.getOrElse(DataValue.NoValue)
+    val ans2 = repValueRangesAttrCooked.headOption.map(_._1).map(asBound => {
       //TODO, currently, if the first repValue comes from an exclusive restriction we cannot
       //infer a canonical repValue
-      if (asBound.isInclusive) (Some(asBound.maybeBound.get)) else None
-    })
-    val ans = ans1.orElse(ans2)
+      if (asBound.isInclusive) asBound.maybeBound else DataValue.NoValue
+    }).getOrElse(DataValue.NoValue)
+    val ans = if(ans1.isDefined) ans1 else ans2
     Assert.invariant(ans.isDefined == optRepValueSet.isDefined)
     ans
   }

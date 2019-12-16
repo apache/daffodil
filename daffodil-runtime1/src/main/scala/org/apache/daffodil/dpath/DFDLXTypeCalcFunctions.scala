@@ -19,26 +19,27 @@ package org.apache.daffodil.dpath
 
 import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.processors.TypeCalculator
+import org.apache.daffodil.exceptions.Assert
 
-case class DFDLXInputTypeCalc(typedRecipes: List[(CompiledDPath, NodeInfo.Kind)], calc: TypeCalculator[AnyRef, AnyRef])
+case class DFDLXInputTypeCalc(typedRecipes: List[(CompiledDPath, NodeInfo.Kind)], calc: TypeCalculator)
   extends FNTwoArgs(typedRecipes.map(_._1)) {
 
   val srcType = typedRecipes(1)._2
 
   override def computeValue(arg1: DataValuePrimitive, arg2: DataValuePrimitive, dstate: DState): DataValuePrimitive = {
-    calc.inputTypeCalcRun(dstate, arg2.getAnyRef, srcType)
+    calc.inputTypeCalcRun(dstate, arg2, srcType)
     dstate.currentValue.getNonNullable
   }
 
 }
 
-case class DFDLXOutputTypeCalc(typedRecipes: List[(CompiledDPath, NodeInfo.Kind)], calc: TypeCalculator[AnyRef, AnyRef])
+case class DFDLXOutputTypeCalc(typedRecipes: List[(CompiledDPath, NodeInfo.Kind)], calc: TypeCalculator)
   extends FNTwoArgs(typedRecipes.map(_._1)) {
 
   val srcType = typedRecipes(1)._2
 
   def computeValue(arg1: DataValuePrimitive, arg2: DataValuePrimitive, dstate: DState): DataValuePrimitive = {
-    calc.outputTypeCalcRun(dstate, arg2.getAnyRef, srcType)
+    calc.outputTypeCalcRun(dstate, arg2, srcType)
     dstate.currentValue.getNonNullable
   }
 }
@@ -62,7 +63,8 @@ case class DFDLXOutputTypeCalcNextSibling(a: CompiledDPath, b: NodeInfo.Kind) ex
     val primType = nextSibling.erd.optPrimType.get
 
     val x = nextSibling.dataValue
-    typeCalculator.outputTypeCalcRun(dstate, x.getAnyRef, primType)
+    Assert.invariant(x.isDefined)
+    typeCalculator.outputTypeCalcRun(dstate, x.getNonNullable, primType)
   }
 }
 

@@ -1119,6 +1119,7 @@ sealed class DISimple(override val erd: ElementRuntimeData)
     // for converting to XML, or for debugging print statements.
     //
     val nodeKind = erd.optPrimType.get
+    val y = x.getAnyRef
     x.getAnyRef match {
       case xs: String => {
         if (nodeKind.isInstanceOf[NodeInfo.String.Kind]) {

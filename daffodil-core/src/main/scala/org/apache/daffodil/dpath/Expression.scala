@@ -1909,7 +1909,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
     funcObj
   }
 
-  def lookupTypeCalculator(typeCalcExpr: Expression, requiresParse: Boolean, requiresUnparse: Boolean): TypeCalculator[AnyRef, AnyRef] = {
+  def lookupTypeCalculator(typeCalcExpr: Expression, requiresParse: Boolean, requiresUnparse: Boolean): TypeCalculator = {
     /*
      * Every function that currently uses this defines the type calculator
      * as their first arguement.
