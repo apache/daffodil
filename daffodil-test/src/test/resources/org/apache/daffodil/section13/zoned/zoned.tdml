@@ -137,7 +137,8 @@
       <tdml:documentPart type="text">1988</tdml:documentPart>
     </tdml:document>
     <tdml:errors>
-      <tdml:error>Zoned not supported for float and double</tdml:error>
+      <tdml:error>textNumberRep="zoned"</tdml:error>
+      <tdml:error>xs:float</tdml:error>
     </tdml:errors>
 
   </tdml:parserTestCase>
@@ -149,7 +150,8 @@
       <tdml:documentPart type="text">1988</tdml:documentPart>
     </tdml:document>
     <tdml:errors>
-      <tdml:error>Zoned not supported for float and double</tdml:error>
+      <tdml:error>textNumberRep="zoned"</tdml:error>
+      <tdml:error>xs:double</tdml:error>
     </tdml:errors>
 
   </tdml:parserTestCase>
@@ -189,7 +191,7 @@
       <tdml:documentPart type="text">z234567890</tdml:documentPart>
     </tdml:document>
     <tdml:errors>
-      <tdml:error>NumberFormatException: Invalid zoned digit</tdml:error>
+      <tdml:error>Invalid zoned digit</tdml:error>
     </tdml:errors>
 
   </tdml:parserTestCase>
@@ -257,7 +259,7 @@
       <tdml:documentPart type="text">z234567890</tdml:documentPart>
     </tdml:document>
     <tdml:errors>
-      <tdml:error>NumberFormatException: Invalid zoned digit</tdml:error>
+      <tdml:error>Invalid zoned digit</tdml:error>
     </tdml:errors>
 
   </tdml:parserTestCase>
@@ -325,7 +327,7 @@
       <tdml:documentPart type="text">z234567890</tdml:documentPart>
     </tdml:document>
     <tdml:errors>
-      <tdml:error>NumberFormatException: Invalid zoned digit</tdml:error>
+      <tdml:error>Invalid zoned digit</tdml:error>
     </tdml:errors>
 
   </tdml:parserTestCase>
@@ -393,7 +395,7 @@
       <tdml:documentPart type="text">z234567890</tdml:documentPart>
     </tdml:document>
     <tdml:errors>
-      <tdml:error>NumberFormatException: Invalid zoned digit</tdml:error>
+      <tdml:error>Invalid zoned digit</tdml:error>
     </tdml:errors>
 
   </tdml:parserTestCase>

@@ -92,9 +92,12 @@ final class DataValue[+T <: AnyRef, +X <: AnyRef] private (val v: T) extends Any
   @inline def getByteArray = v.asInstanceOf[BoxedByteArray].v
   @inline def getBoolean = v.asInstanceOf[JBoolean]
   @inline def getNumber = v.asInstanceOf[JNumber]
+  @inline def getByte = v.asInstanceOf[JByte]
+  @inline def getShort = v.asInstanceOf[JShort]
   @inline def getInt = v.asInstanceOf[JInt]
   @inline def getLong = v.asInstanceOf[JLong]
   @inline def getDouble = v.asInstanceOf[JDouble]
+  @inline def getFloat = v.asInstanceOf[JFloat]
   @inline def getBigInt = v.asInstanceOf[JBigInt]
   @inline def getString = v.asInstanceOf[JString]
   @inline def getURI = v.asInstanceOf[URI]

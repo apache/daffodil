@@ -468,9 +468,9 @@
     <tdml:document><![CDATA[450Item: Shirts]]></tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Convert to Integer (for xs:int)</tdml:error>
-      <tdml:error>Unable to parse '450Item: Shirts'</tdml:error>
-      <tdml:error>(using up all characters)</tdml:error>
+      <tdml:error>xs:int</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>450Item: Shirts</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

@@ -771,9 +771,9 @@ trait FNFromDateTimeKind {
 abstract class FNFromDateTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNOneArg(recipe, argType)
   with FNFromDateTimeKind {
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValuePrimitive = {
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueNumber = {
     a.getAnyRef match {
-      case dt: DFDLDateTime => dt.calendar.get(field)
+      case dt: DFDLDateTime => JLong.valueOf(dt.calendar.get(field))
       case _ => throw new NumberFormatException("fn:" + fieldName + "-from-dateTime only accepts xs:dateTime.")
     }
   }
@@ -782,9 +782,9 @@ abstract class FNFromDateTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
 abstract class FNFromDate(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNOneArg(recipe, argType)
   with FNFromDateTimeKind {
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueInt = {
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueNumber = {
     a.getAnyRef match {
-      case d: DFDLDate => d.calendar.get(field)
+      case d: DFDLDate => JLong.valueOf(d.calendar.get(field))
       case _ => throw new NumberFormatException("fn:" + fieldName + "-from-date only accepts xs:date.")
     }
   }
@@ -793,9 +793,9 @@ abstract class FNFromDate(recipe: CompiledDPath, argType: NodeInfo.Kind)
 abstract class FNFromTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNOneArg(recipe, argType)
   with FNFromDateTimeKind {
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValuePrimitive = {
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueNumber = {
     a.getAnyRef match {
-      case t: DFDLTime => t.calendar.get(field)
+      case t: DFDLTime => JLong.valueOf(t.calendar.get(field))
       case _ => throw new NumberFormatException("fn:" + fieldName + "-from-time only accepts xs:time.")
     }
   }
@@ -810,7 +810,7 @@ case class FNMonthFromDateTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNFromDateTime(recipe, argType) {
   val fieldName = "month"
   val field = Calendar.MONTH
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueInt = asInt(super.computeValue(a, dstate).getAnyRef).intValue() + 1 // JAN 0
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong = super.computeValue(a, dstate).getLong + 1 // JAN 0
 }
 case class FNDayFromDateTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNFromDateTime(recipe, argType) {
@@ -832,7 +832,7 @@ case class FNSecondsFromDateTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
   val fieldName = "seconds"
   val field = Calendar.SECOND
 
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueNumber = {
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueBigDecimal = {
     //
     // It matters that val res is declared to be type JNumber.
     //
@@ -861,7 +861,7 @@ case class FNSecondsFromDateTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
       }
       case _ => throw new NumberFormatException("fn:" + fieldName + "-from-dateTime only accepts xs:dateTime.")
     }
-    res
+    asBigDecimal(res)
   }
 }
 
@@ -874,7 +874,7 @@ case class FNMonthFromDate(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNFromDate(recipe, argType) {
   val fieldName = "month"
   val field = Calendar.MONTH
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueInt = asInt(super.computeValue(a, dstate).getAnyRef).intValue() + 1 // JAN 0
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong = super.computeValue(a, dstate).getLong + 1 // JAN 0
 }
 case class FNDayFromDate(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNFromDate(recipe, argType) {
@@ -895,7 +895,7 @@ case class FNSecondsFromTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNFromTime(recipe, argType) {
   val fieldName = "seconds"
   val field = Calendar.SECOND
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueNumber = {
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueBigDecimal = {
     //
     // Please see the block comment in FNSecondsFromDateTime.computeValue
     //
@@ -913,7 +913,7 @@ case class FNSecondsFromTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
       }
       case _ => throw new NumberFormatException("fn:" + fieldName + "-from-dateTime only accepts xs:dateTime.")
     }
-    res
+    asBigDecimal(res)
   }
 }
 

@@ -480,7 +480,7 @@
     <tdml:document><![CDATA[1.23]]></tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Convert to Unlimited Size Integer (for xs:integer)</tdml:error>
+      <tdml:error>xs:integer</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -511,8 +511,10 @@
 
     <tdml:document><![CDATA[-2147483649]]></tdml:document>
     <tdml:errors>
-      <tdml:error>Parse Error: Convert to Integer</tdml:error>
-      <tdml:error>Out of Range: '-2147483649' converted to -2147483649, is not in range for the type.</tdml:error>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>xs:int</tdml:error>
+      <tdml:error>out of range</tdml:error>
+      <tdml:error>-2147483649</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -521,8 +523,10 @@
 
     <tdml:document><![CDATA[2147483648]]></tdml:document>
     <tdml:errors>
-      <tdml:error>Parse Error: Convert to Integer</tdml:error>
-      <tdml:error>Out of Range: '2147483648' converted to 2147483648, is not in range for the type.</tdml:error>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>xs:int</tdml:error>
+      <tdml:error>out of range</tdml:error>
+      <tdml:error>2147483648</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -576,8 +580,10 @@
 
     <tdml:document><![CDATA[-1]]></tdml:document>
     <tdml:errors>
-      <tdml:error>Parse Error: Convert to Unsigned Long</tdml:error>
-      <tdml:error>Out of Range: '-1' converted to -1, is not in range for the type.</tdml:error>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>xs:unsignedLong</tdml:error>
+      <tdml:error>out of range</tdml:error>
+      <tdml:error>-1</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -586,8 +592,9 @@
 
     <tdml:document>a</tdml:document>
     <tdml:errors>
-      <tdml:error>Parse Error: Convert to Unsigned Long</tdml:error>
-      <tdml:error>Unable to parse 'a' (using up all characters).</tdml:error>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>xs:unsignedLong</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -625,8 +632,10 @@
 
     <tdml:document><![CDATA[5.01]]></tdml:document>
     <tdml:errors>
-      <tdml:error>Parse Error: Convert to Integer</tdml:error>
-      <tdml:error>Unable to parse '5.01' (using up all characters).</tdml:error>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>xs:int</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>5.01</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -635,8 +644,10 @@
 
     <tdml:document><![CDATA[70000]]></tdml:document>
     <tdml:errors>
-      <tdml:error>Parse Error: Convert to Short Integer</tdml:error>
-      <tdml:error>Out of Range: '70000' converted to 70000, is not in range for the type.</tdml:error>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>xs:short</tdml:error>
+      <tdml:error>out of range</tdml:error>
+      <tdml:error>70000</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -654,8 +665,10 @@
 
     <tdml:document><![CDATA[7018631476]]></tdml:document>
     <tdml:errors>
-      <tdml:error>Parse Error: Convert to Unsigned Integer</tdml:error>
-      <tdml:error>Out of Range: '7018631476' converted to 7018631476, is not in range for the type.</tdml:error>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>xs:unsignedInt</tdml:error>
+      <tdml:error>out of range</tdml:error>
+      <tdml:error>7018631476</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -679,8 +692,10 @@
     description="Section 05 - Simple Types - unsignedInt - DFDL-5-018R">
     <tdml:document><![CDATA[-999]]></tdml:document>
     <tdml:errors>
-      <tdml:error>Parse Error: Convert to Unsigned Integer</tdml:error>
-      <tdml:error>Out of Range: '-999' converted to -999, is not in range for the type.</tdml:error>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>xs:unsignedInt</tdml:error>
+      <tdml:error>out of range</tdml:error>
+      <tdml:error>-999</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -690,7 +705,9 @@
     <tdml:document><![CDATA[9a99]]></tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Convert to Unsigned Integer (for xs:unsignedInt): Unable to parse '9a99'</tdml:error>
+      <tdml:error>xs:unsignedInt</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>9a99</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -718,7 +735,8 @@
     <tdml:document><![CDATA[99 99]]></tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Unable to parse '99 9' (using up all characters).</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>99 9</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -781,7 +799,9 @@
     <tdml:document><![CDATA[9a99]]></tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Convert to Integer (for xs:int): Unable to parse '9a99'</tdml:error>
+      <tdml:error>xs:int</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>9a99</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -809,7 +829,8 @@
     <tdml:document><![CDATA[99 99]]></tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Unable to parse '99 9' (using up all characters).</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>99 9</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -872,7 +893,9 @@
     <tdml:document><![CDATA[9a99]]></tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Convert to Unlimited Size Integer (for xs:integer): Unable to parse '9a99'</tdml:error>
+      <tdml:error>xs:integer</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>9a99</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -900,7 +923,8 @@
     <tdml:document><![CDATA[99 99]]></tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Unable to parse '99 9' (using up all characters).</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>99 9</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -964,7 +988,9 @@
     <tdml:document><![CDATA[9a99]]></tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Convert to Long Integer (for xs:long): Unable to parse '9a99'</tdml:error>
+      <tdml:error>xs:long</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>9a99</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -992,7 +1018,8 @@
     <tdml:document><![CDATA[99 99]]></tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Unable to parse '99 9' (using up all characters).</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>99 9</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -1055,7 +1082,9 @@
     <tdml:document><![CDATA[9a991]]></tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Convert to Short Integer (for xs:short): Unable to parse '9a991'</tdml:error>
+      <tdml:error>xs:short</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>9a991</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -1136,7 +1165,8 @@
     <tdml:document><![CDATA[99 99]]></tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Unable to parse '99 9' (using up all characters).</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>99 9</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -1147,7 +1177,9 @@
     <tdml:document><![CDATA[1a27]]></tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Convert to Byte (for xs:byte): Unable to parse '1a27'</tdml:error>
+      <tdml:error>xs:byte</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>1a27</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -1175,7 +1207,8 @@
     <tdml:document><![CDATA[00 12]]></tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Unable to parse '00 1' (using up all characters).</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>00 1</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -1243,8 +1276,10 @@
     description="Section 5 - Simple Types - unsignedLong - DFDL-5-017R">
     <tdml:document><![CDATA[-123]]></tdml:document>
     <tdml:errors>
-      <tdml:error>Parse Error: Convert to Unsigned Long</tdml:error>
-      <tdml:error>Out of Range: '-123' converted to -123, is not in range for the type.</tdml:error>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>xs:unsignedLong</tdml:error>
+      <tdml:error>out of range</tdml:error>
+      <tdml:error>-123</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -1254,7 +1289,9 @@
     <tdml:document><![CDATA[9a99]]></tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Convert to Unsigned Long (for xs:unsignedLong): Unable to parse '9a99'</tdml:error>
+      <tdml:error>xs:unsignedLong</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>9a99</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -1282,7 +1319,8 @@
     <tdml:document><![CDATA[99 99]]></tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Unable to parse '99 9' (using up all characters).</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>99 9</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -1350,8 +1388,10 @@
     description="Section 5 - Simple Types - unsignedShort - DFDL-5-019R">
     <tdml:document><![CDATA[-999]]></tdml:document>
     <tdml:errors>
-      <tdml:error>Parse Error: Convert to Unsigned Short</tdml:error>
-      <tdml:error>Out of Range: '-999' converted to -999, is not in range for the type.</tdml:error>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>xs:unsignedShort</tdml:error>
+      <tdml:error>out of range</tdml:error>
+      <tdml:error>-999</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -1361,7 +1401,9 @@
     <tdml:document><![CDATA[9a99]]></tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Convert to Unsigned Short (for xs:unsignedShort): Unable to parse '9a99'</tdml:error>
+      <tdml:error>xs:unsignedShort</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>9a99</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -1389,7 +1431,8 @@
     <tdml:document><![CDATA[99 99]]></tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Unable to parse '99 9' (using up all characters).</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>99 9</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -1457,8 +1500,10 @@
     description="Section 5 - Simple Types - unsignedByte - DFDL-5-020R">
     <tdml:document><![CDATA[-99]]></tdml:document>
     <tdml:errors>
-      <tdml:error>Parse Error: Convert to Unsigned Byte</tdml:error>
-      <tdml:error>Out of Range: '-99' converted to -99, is not in range for the type.</tdml:error>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>xs:unsignedByte</tdml:error>
+      <tdml:error>out of range</tdml:error>
+      <tdml:error>-99</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -1468,7 +1513,9 @@
     <tdml:document><![CDATA[9a9]]></tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Convert to Unsigned Byte (for xs:unsignedByte): Unable to parse '9a9'</tdml:error>
+      <tdml:error>xs:unsignedByte</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>9a9</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -1496,7 +1543,8 @@
     <tdml:document><![CDATA[1 27]]></tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Unable to parse '1 2' (using up all characters).</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>1 2</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -1557,8 +1605,10 @@
 
     <tdml:document><![CDATA[-1]]></tdml:document>
     <tdml:errors>
-      <tdml:error>Parse Error: Convert to Unsigned Short</tdml:error>
-      <tdml:error>Out of Range: '-1' converted to -1, is not in range for the type.</tdml:error>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>xs:unsignedShort</tdml:error>
+      <tdml:error>out of range</tdml:error>
+      <tdml:error>-1</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -1847,7 +1897,8 @@
     <tdml:document><![CDATA[1.5]]></tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Convert to Unlimited Size Non Negative Integer</tdml:error>
+      <tdml:error>xs:nonNegativeInteger</tdml:error>
+      <tdml:error>1.5</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -2096,8 +2147,10 @@
 
     <tdml:document><![CDATA[9a9]]></tdml:document>
     <tdml:errors>
-      <tdml:error>Parse Error: Convert to Unlimited Size Decimal (for xs:decimal)</tdml:error>
-      <tdml:error>Unable to parse '9a9'</tdml:error>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>xs:decimal</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>9a9</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -3411,8 +3464,10 @@
 
     <tdml:document><![CDATA[9a99]]></tdml:document>
     <tdml:errors>
-      <tdml:error>Parse Error: Convert to Double (for xs:double)</tdml:error>
-      <tdml:error>Unable to parse '9a99'</tdml:error>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>xs:double</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>9a99</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -3467,8 +3522,10 @@
 
     <tdml:document><![CDATA[9a99]]></tdml:document>
     <tdml:errors>
-      <tdml:error>Parse Error: Convert to Float (for xs:float)</tdml:error>
-      <tdml:error>Unable to parse '9a99'</tdml:error>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>xs:float</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>9a99</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -4863,8 +4920,9 @@
     <tdml:document><![CDATA[1998-3-Mar]]></tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error:</tdml:error>
-      <tdml:error>Convert to Date (for xs:date)</tdml:error>
-      <tdml:error>Failed to parse '1998-3-Mar'</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>xs:date</tdml:error>
+      <tdml:error>1998-3-Mar</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -4901,9 +4959,10 @@
 
     <tdml:document><![CDATA[12:43.45 PM]]></tdml:document>
     <tdml:errors>
-      <tdml:error>Parse Error:</tdml:error>
-      <tdml:error>Convert to Time (for xs:time)</tdml:error>
-      <tdml:error>Failed to parse '12:43.45 PM'</tdml:error>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>xs:time</tdml:error>
+      <tdml:error>12:43.45 PM</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -4941,8 +5000,9 @@
     <tdml:document><![CDATA[2013.03.24 03:45:30]]></tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error:</tdml:error>
-      <tdml:error>Convert to DateTime (for xs:dateTime)</tdml:error>
-      <tdml:error>Failed to parse '2013.03.24 03:45:30'</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>xs:dateTime</tdml:error>
+      <tdml:error>2013.03.24 03:45:30</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -4960,7 +5020,8 @@
     <tdml:document><![CDATA[2013-03-24T03:45:30-00:00]]></tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error:</tdml:error>
-      <tdml:error>Convert to DateTime (for xs:dateTime)</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>xs:dateTime</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -4978,7 +5039,8 @@
     <tdml:document><![CDATA[2013-03-24T03:45:30 Pacific Standard Time]]></tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error:</tdml:error>
-      <tdml:error>Convert to DateTime (for xs:dateTime)</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>xs:dateTime</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -4996,7 +5058,8 @@
     <tdml:document><![CDATA[2013-03-24T03:45:30GMT]]></tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error:</tdml:error>
-      <tdml:error>Convert to DateTime (for xs:dateTime)</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>xs:dateTime</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -6073,7 +6136,9 @@
 
     <tdml:document><![CDATA[12:30AM]]></tdml:document>
     <tdml:errors>
-      <tdml:error>Parse Error: Convert to Time</tdml:error>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>xs:time</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -6090,7 +6155,9 @@
 
     <tdml:document><![CDATA[00:30AM]]></tdml:document>
     <tdml:errors>
-      <tdml:error>Parse Error: Convert to Time</tdml:error>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>xs:time</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -7714,10 +7781,10 @@
 ]]></tdml:documentPart>
     </tdml:document>
     <tdml:errors>
-      <tdml:error>Convert to Unlimited Size Non Negative Integer</tdml:error>
-      <tdml:error>Out of Range</tdml:error>
-      <tdml:error>converted to -2</tdml:error>
-      <tdml:error>not in range for the type</tdml:error>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>xs:nonNegativeInteger</tdml:error>
+      <tdml:error>out of range</tdml:error>
+      <tdml:error>-2</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   

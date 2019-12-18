@@ -48,7 +48,7 @@ abstract class BinaryBooleanParserBase(
   override def parse(start: PState): Unit = {
     val nBits = getBitLength(start)
     if (nBits < 1 || nBits > 32) {
-      PE(start, "Number of bits %d out of range, must be between 1 and 32 bits.", nBits)
+      PE(start, "Number of bits %d out of range for xs:boolean, must be between 1 and 32 bits.", nBits)
       return
     }
 
@@ -72,7 +72,7 @@ abstract class BinaryBooleanParserBase(
         if (binaryBooleanTrueRep.getULong == sl) true
         else if (binaryBooleanFalseRep == sl) false
         else {
-          PE(start, "Convert to xs:boolean: Cannot parse boolean from '%s'", sl)
+          PE(start, "Unable to parse xs:boolean from binary: %s", sl)
           return
         }
       }

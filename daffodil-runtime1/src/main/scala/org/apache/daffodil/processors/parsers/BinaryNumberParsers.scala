@@ -20,6 +20,7 @@ package org.apache.daffodil.processors.parsers
 import java.lang.{ Long => JLong, Number => JNumber, Double => JDouble, Float => JFloat }
 import java.math.{BigInteger => JBigInt, BigDecimal => JBigDecimal}
 
+import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.processors.Evaluatable
 import org.apache.daffodil.processors.ParseOrUnparseState
@@ -147,6 +148,8 @@ abstract class BinaryIntegerBaseParser(override val context: ElementRuntimeData,
 
   protected def getBitLength(s: ParseOrUnparseState): Int
 
+  private val primNumeric = context.optPrimType.get.asInstanceOf[NodeInfo.PrimType.PrimNumeric]
+
   def parse(start: PState): Unit = {
     val nBits = getBitLength(start)
     if (nBits == 0) return // zero length is used for outputValueCalc often.
@@ -156,7 +159,7 @@ abstract class BinaryIntegerBaseParser(override val context: ElementRuntimeData,
       return
     }
 
-    val int: JNumber =
+    val num: JNumber =
       if (signed) {
         if (nBits > 64) { dis.getSignedBigInt(nBits, start) }
         else { dis.getSignedLong(nBits, start) }
@@ -165,6 +168,14 @@ abstract class BinaryIntegerBaseParser(override val context: ElementRuntimeData,
         else { dis.getUnsignedLong(nBits, start).toLong }
       }
 
-    start.simpleElement.overwriteDataValue(int)
+    if (!primNumeric.isValidRange(num)) {
+      PE(start, "Parsed %s is out of range for type: %s",
+        context.optPrimType.get.globalQName, num)
+      return
+    }
+
+    val res = primNumeric.fromNumber(num)
+
+    start.simpleElement.overwriteDataValue(res)
   }
 }

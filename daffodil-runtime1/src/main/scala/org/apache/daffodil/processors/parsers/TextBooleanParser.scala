@@ -52,7 +52,7 @@ case class ConvertTextBooleanParser(
       if (textBooleanTrueReps.find(matches(_, str)).isDefined) true
       else if (textBooleanFalseReps.find(matches(_, str)).isDefined) false
       else {
-        PE(start, "Convert to xs:boolean: Cannot parse boolean from '%s'", str)
+        PE(start, "Unable to parse xs:boolean from text: %s", str)
         return
       }
 

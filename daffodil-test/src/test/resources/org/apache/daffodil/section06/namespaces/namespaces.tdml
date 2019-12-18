@@ -1651,8 +1651,9 @@
     <tdml:document>thisIsNotAnInteger</tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Convert to Integer (for xs:int)</tdml:error>
-      <tdml:error>Unable to parse 'thisIsNotAnInteger'</tdml:error>
+      <tdml:error>xs:int</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>thisIsNotAnInteger</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -1671,8 +1672,9 @@
     <tdml:document>thisIsNotAnInteger</tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Convert to Integer (for xs:int)</tdml:error>
-      <tdml:error>Unable to parse 'thisIsNotAnInteger'</tdml:error>
+      <tdml:error>xs:int</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>thisIsNotAnInteger</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

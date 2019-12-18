@@ -269,8 +269,8 @@
     <tdml:errors>
       <tdml:error>noi</tdml:error>
       <tdml:error>noi</tdml:error>
-      <tdml:error>convert</tdml:error>
-      <tdml:error>unable to parse</tdml:error>
+      <tdml:error>xs:int</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

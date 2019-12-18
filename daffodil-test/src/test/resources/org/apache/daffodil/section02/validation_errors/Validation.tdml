@@ -1691,7 +1691,9 @@
       
       <!-- Failure for branch1:e2  -->
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Cannot parse number from empty string</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>xs:nonNegativeInteger</tdml:error>
+      <tdml:error>empty string</tdml:error>
 
       <!-- Failure for branch2  -->
       <tdml:error>Parse Error</tdml:error>
@@ -1750,7 +1752,9 @@
       
       <!-- Failure for branch1:e2  -->
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Cannot parse number from empty string</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>xs:nonNegativeInteger</tdml:error>
+      <tdml:error>empty string</tdml:error>
 
       <!-- Failure for branch2  -->
       <tdml:error>Parse Error</tdml:error>
@@ -1778,7 +1782,9 @@
       
       <!-- Failure for branch1:e2  -->
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Convert to Unlimited Size Non Negative Integer (for xs:nonNegativeInteger): Cannot parse number from empty string</tdml:error>
+      <tdml:error>xs:nonNegativeInteger</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>empty string</tdml:error>
 
       <!-- Failure for branch2  -->
       <tdml:error>Parse Error</tdml:error>

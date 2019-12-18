@@ -334,7 +334,8 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Convert to xs:boolean: Cannot parse boolean from </tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>xs:boolean</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -569,7 +570,8 @@
     <tdml:document><![CDATA[yes,non;]]></tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Convert to xs:boolean: Cannot parse boolean from </tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>xs:boolean</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 </tdml:testSuite>
