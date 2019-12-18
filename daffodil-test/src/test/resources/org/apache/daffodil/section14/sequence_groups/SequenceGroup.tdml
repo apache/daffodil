@@ -874,8 +874,9 @@
       <tdml:documentPart type="text"><![CDATA[1:2,3]]></tdml:documentPart>
     </tdml:document>
     <tdml:errors>
-      <tdml:error>Parse Error: Convert to Integer</tdml:error>
-      <tdml:error>Unable to parse ':'</tdml:error>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>xs:int</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   

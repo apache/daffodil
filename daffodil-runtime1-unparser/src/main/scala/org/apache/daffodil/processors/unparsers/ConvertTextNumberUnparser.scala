@@ -23,10 +23,8 @@ import java.lang.{ Float => JFloat }
 import org.apache.daffodil.processors._
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe._
-import org.apache.daffodil.cookers.EntityReplacer
 import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.processors.parsers.NumberFormatFactoryBase
-import org.apache.daffodil.processors.parsers.ConvertTextNumberParserUnparserHelperBase
+import org.apache.daffodil.processors.TextNumberFormatEv
 
 case class ConvertTextCombinatorUnparser(
   rd: TermRuntimeData,
@@ -47,21 +45,14 @@ case class ConvertTextCombinatorUnparser(
   }
 }
 
-case class ConvertTextNumberUnparser[S](
-  helper: ConvertTextNumberParserUnparserHelperBase[S],
-  nff: NumberFormatFactoryBase[S],
+case class ConvertTextNumberUnparser(
+  textNumberFormatEv: TextNumberFormatEv,
+  zeroRep: Maybe[String],
   override val context: ElementRuntimeData)
   extends PrimUnparser
   with ToBriefXMLImpl {
 
-  override lazy val runtimeDependencies = Vector()
-
-  override def toString = "to(xs:" + helper.xsdType + ")"
-  override lazy val childProcessors = Vector()
-
-  lazy val zeroRep: Maybe[String] = helper.zeroRepListRaw.headOption.map { zr =>
-    EntityReplacer { _.replaceForUnparse(zr) }
-  }
+  override lazy val runtimeDependencies = Vector(textNumberFormatEv)
 
   override def unparse(state: UState): Unit = {
 
@@ -73,7 +64,7 @@ case class ConvertTextNumberUnparser[S](
     // if we find this is not the case. Want something akin to:
     // Assert.invariant(value.isInstanceOf[S])
         
-    val df = nff.getNumFormat(state).get
+    val df = textNumberFormatEv.evaluate(state).get
     val dfs = df.getDecimalFormatSymbols
 
     val strRep = value.getAnyRef match {

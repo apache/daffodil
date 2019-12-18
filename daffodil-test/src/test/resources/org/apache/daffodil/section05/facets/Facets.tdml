@@ -6252,7 +6252,9 @@
     <tdml:document>.75</tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Convert to Integer (for xs:int): Unable to parse '.75'</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>xs:int</tdml:error>
+      <tdml:error>.75</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   

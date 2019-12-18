@@ -144,7 +144,7 @@ case class ConvertTextCalendarParser(
     // Use pos to verify all characters consumed & check for errors
     if (pos.getIndex != str.length || pos.getErrorIndex >= 0) {
       val errIndex = if (pos.getErrorIndex >= 0) pos.getErrorIndex else pos.getIndex
-      PE(start, "Convert to %s (for xs:%s): Failed to parse '%s' at character %d.", prettyType, xsdType, str, errIndex + 1)
+      PE(start, "Unable to parse xs:%s from text: %s", xsdType, str)
       return
     }
 
@@ -160,7 +160,7 @@ case class ConvertTextCalendarParser(
           calendar.get(Calendar.YEAR), start.tunable.minValidYear, start.tunable.maxValidYear)
     } catch {
       case e: IllegalArgumentException => {
-        PE(start, "Convert to %s (for xs:%s): Failed to parse '%s': %s.", prettyType, xsdType, str, e.getMessage())
+        PE(start, "Unable to parse xs:%s from text: %s. %s", xsdType, str, e.getMessage())
         return
       }
     }

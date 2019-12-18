@@ -17,41 +17,30 @@
 
 package org.apache.daffodil.grammar.primitives
 
+import com.ibm.icu.text.DecimalFormat
+
+import java.math.{ BigDecimal => JBigDecimal }
+import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
+import java.math.{ BigInteger => JBigInt }
+
+import org.apache.daffodil.cookers.EntityReplacer
+import org.apache.daffodil.dpath.NodeInfo.PrimType
 import org.apache.daffodil.dsom._
 import org.apache.daffodil.grammar.Gram
 import org.apache.daffodil.grammar.Terminal
+import org.apache.daffodil.processors.Delimiter
+import org.apache.daffodil.processors.Evaluatable
+import org.apache.daffodil.processors.parsers.ConvertTextCombinatorParser
+import org.apache.daffodil.processors.parsers.ConvertTextNumberParser
+import org.apache.daffodil.processors.parsers.Parser
+import org.apache.daffodil.processors.TextNumberFormatEv
+import org.apache.daffodil.processors.unparsers.ConvertTextCombinatorUnparser
+import org.apache.daffodil.processors.unparsers.ConvertTextNumberUnparser
+import org.apache.daffodil.processors.unparsers.Unparser
 import org.apache.daffodil.schema.annotation.props.gen.TextNumberRounding
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe._
-import com.ibm.icu.text.DecimalFormat
-import org.apache.daffodil.processors.unparsers.Unparser
-import org.apache.daffodil.processors.unparsers.ConvertTextNumberUnparser
-import org.apache.daffodil.processors.unparsers.ConvertTextCombinatorUnparser
 import org.apache.daffodil.util.MaybeDouble
-import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
-import org.apache.daffodil.processors.parsers.ConvertTextByteParserUnparserHelper
-import org.apache.daffodil.processors.parsers.ConvertTextCombinatorParser
-import org.apache.daffodil.processors.parsers.ConvertTextDecimalParserUnparserHelper
-import org.apache.daffodil.processors.parsers.ConvertTextDoubleParserUnparserHelper
-import org.apache.daffodil.processors.parsers.ConvertTextFloatParserUnparserHelper
-import org.apache.daffodil.processors.parsers.ConvertTextIntParserUnparserHelper
-import org.apache.daffodil.processors.parsers.ConvertTextIntegerParserUnparserHelper
-import org.apache.daffodil.processors.parsers.ConvertTextLongParserUnparserHelper
-import org.apache.daffodil.processors.parsers.ConvertTextNonNegativeIntegerParserUnparserHelper
-import org.apache.daffodil.processors.parsers.ConvertTextNumberParser
-import org.apache.daffodil.processors.parsers.ConvertTextNumberParserUnparserHelperBase
-import org.apache.daffodil.processors.parsers.ConvertTextShortParserUnparserHelper
-import org.apache.daffodil.processors.parsers.ConvertTextUnsignedByteParserUnparserHelper
-import org.apache.daffodil.processors.parsers.ConvertTextUnsignedLongParserUnparserHelper
-import org.apache.daffodil.processors.parsers.ConvertTextUnsignedShortParserUnparserHelper
-import org.apache.daffodil.processors.Evaluatable
-import org.apache.daffodil.processors.parsers.NumberFormatFactoryBase
-import org.apache.daffodil.processors.parsers.NumberFormatFactoryDynamic
-import org.apache.daffodil.processors.parsers.NumberFormatFactoryStatic
-import java.math.{ BigDecimal => JBigDecimal }
-import java.math.{ BigInteger => JBigInt }
-import org.apache.daffodil.processors.parsers.ConvertTextUnsignedIntParserUnparserHelper
-import org.apache.daffodil.processors.parsers.Parser
 
 case class ConvertTextCombinator(e: ElementBase, value: Gram, converter: Gram)
   extends Terminal(e, !(value.isEmpty || converter.isEmpty)) {
@@ -61,14 +50,24 @@ case class ConvertTextCombinator(e: ElementBase, value: Gram, converter: Gram)
   override lazy val unparser = new ConvertTextCombinatorUnparser(e.termRuntimeData, value.unparser, converter.unparser)
 }
 
-abstract class ConvertTextNumberPrim[S](e: ElementBase)
+case class ConvertTextNumberPrim(e: ElementBase)
   extends Terminal(e, true) {
 
-  def helper: ConvertTextNumberParserUnparserHelperBase[S]
+  val zeroRepsRaw = e.textStandardZeroRep.filter { _ != "" }
+  val zeroRepsRegex = zeroRepsRaw.map { zr =>
+    val d = new Delimiter()
+    d.compileDelimiter(zr, e.ignoreCaseBool)
+    // add '^' and '$' to require the regular expression to match the entire
+    // string as a zero rep instead of just part of it
+    val ignoreCaseStr = if (e.ignoreCaseBool) "(?i)" else ""
+    val regex = (ignoreCaseStr + "^" + d.delimRegExParseDelim + "$").r
+    regex
+  }
+  val zeroRepUnparse: Maybe[String] = zeroRepsRaw.headOption.map { zr =>
+    EntityReplacer { _.replaceForUnparse(zr) }
+  }
 
-  def numFormatFactory: NumberFormatFactoryBase[S] = {
-    val h = helper
-
+  val textNumberFormatEv: TextNumberFormatEv = {
     val (pattern, patternStripped) = {
       val p = e.textNumberPattern
 
@@ -105,12 +104,10 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase)
         case TextNumberRounding.Pattern => (MaybeDouble.Nope, Nope)
       }
 
-    val (infRep, nanRep) =
-      if (h.allowInfNaN) {
-        (One(e.textStandardInfinityRep), One(e.textStandardNaNRep))
-      } else {
-        (Nope, Nope)
-      }
+    val (infRep, nanRep) = e.primType match {
+      case PrimType.Double | PrimType.Float => (One(e.textStandardInfinityRep), One(e.textStandardNaNRep))
+      case _ => (Nope, Nope)
+    }
 
     // If the pattern contains any of these characters, we need to set both
     // group and decimal separators, even if the pattern doesn't contain the
@@ -122,7 +119,7 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase)
       patternStripped.contains(",") || patternStripped.contains(".") ||
       patternStripped.contains("E") || patternStripped.contains("@")
 
-    val decSep: Maybe[Evaluatable[List[String]]] =
+    val decSep =
       if (requireDecGroupSeps) {
         One(e.textStandardDecimalSeparatorEv)
       } else {
@@ -136,91 +133,25 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase)
         Nope
       }
 
-    val isConstant = ((decSep.isEmpty || decSep.get.isConstant) &&
-      (groupSep.isEmpty || groupSep.get.isConstant) &&
-      e.textStandardExponentRepEv.isConstant)
-
-    val nff = if (isConstant) {
-      new NumberFormatFactoryStatic[S](e.termRuntimeData, h,
-        decSep,
-        groupSep,
-        One(e.textStandardExponentRepEv),
-        infRep,
-        nanRep,
-        e.textNumberCheckPolicy,
-        pattern,
-        e.textNumberRounding,
-        roundingMode,
-        roundingIncrement)
-    } else {
-      new NumberFormatFactoryDynamic[S](e.termRuntimeData, h,
-        decSep,
-        groupSep,
-        One(e.textStandardExponentRepEv),
-        infRep,
-        nanRep,
-        e.textNumberCheckPolicy,
-        pattern,
-        e.textNumberRounding,
-        roundingMode,
-        roundingIncrement)
-    }
-    nff
+    val ev = new TextNumberFormatEv(
+      e.tci,
+      decSep,
+      groupSep,
+      One(e.textStandardExponentRepEv),
+      infRep,
+      nanRep,
+      e.textNumberCheckPolicy,
+      pattern,
+      e.textNumberRounding,
+      roundingMode,
+      roundingIncrement,
+      zeroRepsRaw,
+      e.primType)
+    ev.compile(tunable)
+    ev
   }
 
-  lazy val parser: Parser = new ConvertTextNumberParser[S](helper, numFormatFactory, e.elementRuntimeData)
+  lazy val parser: Parser = new ConvertTextNumberParser(textNumberFormatEv, zeroRepsRegex, e.elementRuntimeData)
 
-  override lazy val unparser: Unparser = new ConvertTextNumberUnparser[S](helper, numFormatFactory, e.elementRuntimeData)
-}
-
-case class ConvertTextIntegerPrim(e: ElementBase) extends ConvertTextNumberPrim[JBigInt](e) {
-  val helper = new ConvertTextIntegerParserUnparserHelper[JBigInt](e.textStandardZeroRep, e.ignoreCaseBool)
-}
-
-case class ConvertTextDecimalPrim(e: ElementBase) extends ConvertTextNumberPrim[JBigDecimal](e) {
-  val helper = new ConvertTextDecimalParserUnparserHelper[JBigDecimal](e.textStandardZeroRep, e.ignoreCaseBool)
-}
-
-case class ConvertTextNonNegativeIntegerPrim(e: ElementBase) extends ConvertTextNumberPrim[JBigInt](e) {
-  val helper = new ConvertTextNonNegativeIntegerParserUnparserHelper[JBigDecimal](e.textStandardZeroRep, e.ignoreCaseBool)
-}
-
-case class ConvertTextLongPrim(e: ElementBase) extends ConvertTextNumberPrim[Long](e) {
-  val helper = new ConvertTextLongParserUnparserHelper[Long](e.textStandardZeroRep, e.ignoreCaseBool)
-}
-
-case class ConvertTextIntPrim(e: ElementBase) extends ConvertTextNumberPrim[Int](e) {
-  val helper = new ConvertTextIntParserUnparserHelper[Int](e.textStandardZeroRep, e.ignoreCaseBool)
-}
-
-case class ConvertTextShortPrim(e: ElementBase) extends ConvertTextNumberPrim[Short](e) {
-  val helper = new ConvertTextShortParserUnparserHelper[Short](e.textStandardZeroRep, e.ignoreCaseBool)
-}
-
-case class ConvertTextBytePrim(e: ElementBase) extends ConvertTextNumberPrim[Byte](e) {
-  val helper = new ConvertTextByteParserUnparserHelper[Byte](e.textStandardZeroRep, e.ignoreCaseBool)
-}
-
-case class ConvertTextUnsignedLongPrim(e: ElementBase) extends ConvertTextNumberPrim[JBigInt](e) {
-  val helper = new ConvertTextUnsignedLongParserUnparserHelper[JBigInt](e.textStandardZeroRep, e.ignoreCaseBool)
-}
-
-case class ConvertTextUnsignedIntPrim(e: ElementBase) extends ConvertTextNumberPrim[Long](e) {
-  val helper = ConvertTextUnsignedIntParserUnparserHelper[Long](e.textStandardZeroRep, e.ignoreCaseBool)
-}
-
-case class ConvertTextUnsignedShortPrim(e: ElementBase) extends ConvertTextNumberPrim[Int](e) {
-  val helper = new ConvertTextUnsignedShortParserUnparserHelper[Int](e.textStandardZeroRep, e.ignoreCaseBool)
-}
-
-case class ConvertTextUnsignedBytePrim(e: ElementBase) extends ConvertTextNumberPrim[Short](e) {
-  val helper = new ConvertTextUnsignedByteParserUnparserHelper[Short](e.textStandardZeroRep, e.ignoreCaseBool)
-}
-
-case class ConvertTextDoublePrim(e: ElementBase) extends ConvertTextNumberPrim[Double](e) {
-  val helper = new ConvertTextDoubleParserUnparserHelper[Double](e.textStandardZeroRep, e.ignoreCaseBool)
-}
-
-case class ConvertTextFloatPrim(e: ElementBase) extends ConvertTextNumberPrim[Float](e) {
-  val helper = new ConvertTextFloatParserUnparserHelper[Float](e.textStandardZeroRep, e.ignoreCaseBool)
+  override lazy val unparser: Unparser = new ConvertTextNumberUnparser(textNumberFormatEv, zeroRepUnparse, e.elementRuntimeData)
 }

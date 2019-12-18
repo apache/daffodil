@@ -17,11 +17,10 @@
 
 package org.apache.daffodil.processors.unparsers
 
-import org.apache.daffodil.schema.annotation.props.gen.TextZonedSignStyle
 import org.apache.daffodil.processors._
+import org.apache.daffodil.schema.annotation.props.gen.TextZonedSignStyle
 import org.apache.daffodil.util.DecimalUtils
 import org.apache.daffodil.util.DecimalUtils.OverpunchLocation
-import org.apache.daffodil.processors.parsers.ConvertTextNumberParserUnparserHelperBase
 
 case class ConvertZonedCombinatorUnparser(
   rd: TermRuntimeData,
@@ -42,8 +41,7 @@ case class ConvertZonedCombinatorUnparser(
   }
 }
 
-case class ConvertZonedNumberUnparser[S](
-  helper: ConvertTextNumberParserUnparserHelperBase[S],
+case class ConvertZonedNumberUnparser(
   opl: OverpunchLocation.Value,
   zonedSignStyle: TextZonedSignStyle,
   override val context: ElementRuntimeData)
@@ -51,9 +49,6 @@ case class ConvertZonedNumberUnparser[S](
   with ToBriefXMLImpl {
 
   override lazy val runtimeDependencies = Vector()
-
-  override def toString = "to(xs:" + helper.xsdType + ")"
-  override lazy val childProcessors = Vector()
 
   override def unparse(state: UState): Unit = {
 

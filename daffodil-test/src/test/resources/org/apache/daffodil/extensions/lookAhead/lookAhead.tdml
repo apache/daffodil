@@ -350,7 +350,9 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Negative value -1 cannot be converted to an unsigned int</tdml:error>
+      <tdml:error>out of range</tdml:error>
+      <tdml:error>xs:unsignedInt</tdml:error>
+      <tdml:error>-1</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -364,7 +366,9 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Negative value -1 cannot be converted to an unsigned int</tdml:error>
+      <tdml:error>out of range</tdml:error>
+      <tdml:error>xs:unsignedInt</tdml:error>
+      <tdml:error>-1</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

@@ -45,17 +45,19 @@ abstract class DFDLConstructorFunction(recipe: CompiledDPath, argType: NodeInfo.
   protected def convert(longValue: DataValueLong, dstate: DState): DataValuePrimitive
 
   override def computeValue(a: DataValuePrimitive, dstate: DState): DataValuePrimitive = {
-    val long:DataValueLong = a.getAnyRef match {
-      case _: JByte | _: JShort | _: JInt => IntToLong.computeValue(a, dstate)
+    val long: DataValueLong = a.getAnyRef match {
+      case _: JByte => ByteToLong.computeValue(a, dstate)
+      case _: JShort => ShortToLong.computeValue(a, dstate)
+      case _: JInt => IntToLong.computeValue(a, dstate)
       case l: JLong => l
       case s: String if s.startsWith("x") => {
         val hexStr = s.substring(1)
         if (hexStr.length > maxHexDigits) throw new NumberFormatException(hexMsg.format(hexStr.length))
         HexStringToLong.computeValue(hexStr, dstate)
       }
-      case s: String => StringToLong.computeValue(s, dstate)
-      case bi: JBigInt => BigIntToLong.computeValue(bi, dstate)
-      case bd: JBigDecimal if (bd.remainder(JBigDecimal.ONE) == JBigDecimal.ZERO) => BigIntToLong.computeValue(bd.toBigInteger(), dstate)
+      case _: String => StringToLong.computeValue(a, dstate)
+      case _: JBigInt => IntegerToLong.computeValue(a, dstate)
+      case _: JBigDecimal => DecimalToLong.computeValue(a, dstate)
       case hb: Array[Byte] => {
         val str = "0x" + HexBinaryToString.computeValue(hb, dstate).getString
         throw new NumberFormatException(nfeMsg.format(str))
@@ -198,15 +200,26 @@ case class DFDLUnsignedLong(recipe: CompiledDPath, argType: NodeInfo.Kind)
 
   override def computeValue(a: DataValuePrimitive, dstate: DState): DataValuePrimitive = {
     val ulong: DataValuePrimitive = a.getAnyRef match {
-      case _: JByte | _: JShort | _: JInt => IntegerToUnsignedLong.computeValue(a, dstate)
+      case _: JByte => {
+        val l = ByteToLong.computeValue(a, dstate)
+        LongToUnsignedLong.computeValue(l, dstate)
+      }
+      case _: JShort => {
+        val l = ShortToLong.computeValue(a, dstate)
+        LongToUnsignedLong.computeValue(l, dstate)
+      }
+      case _: JInt => {
+        val l = IntToLong.computeValue(a, dstate)
+        LongToUnsignedLong.computeValue(l, dstate)
+      }
       case s: String if s.startsWith("x") => {
         val hexStr = s.substring(1)
         if (hexStr.length > maxHexDigits) throw new NumberFormatException(hexMsg.format(hexStr.length))
         HexStringToUnsignedLong.computeValue(hexStr, dstate)
       }
-      case s: String => StringToUnsignedLong.computeValue(s, dstate)
-      case bi: JBigInt => IntegerToUnsignedLong.computeValue(bi, dstate)
-      case bd: JBigDecimal => IntegerToUnsignedLong.computeValue(bd, dstate)
+      case _: String => StringToUnsignedLong.computeValue(a, dstate)
+      case _: JBigInt => IntegerToUnsignedLong.computeValue(a, dstate)
+      case _: JBigDecimal => DecimalToUnsignedLong.computeValue(a, dstate)
       case x =>
         throw new NumberFormatException(nfeMsg.format(x))
     }

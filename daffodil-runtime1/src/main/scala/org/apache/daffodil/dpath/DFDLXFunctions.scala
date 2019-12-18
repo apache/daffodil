@@ -18,6 +18,7 @@
 package org.apache.daffodil.dpath
 
 import java.lang.{ Long => JLong }
+import java.math.{ BigInteger => JBigInt }
 
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.infoset.DISimple
@@ -128,9 +129,9 @@ case class DFDLXLookAhead(recipes: List[CompiledDPath])
       val ans: DataValuePrimitive = if (bitSize > 63) {
         dis.getUnsignedBigInt(bitSize, pstate)
       } else if (bitSize == 0) {
-        JLong.valueOf(0)
+        JBigInt.ZERO
       } else {
-        JLong.valueOf(dis.getUnsignedLong(bitSize, pstate).longValue)
+        JBigInt.valueOf(dis.getUnsignedLong(bitSize, pstate).longValue)
       }
       dis.resetPos(mark)
       ans

@@ -597,338 +597,85 @@ trait ElementBaseGrammarMixin
     notYetImplemented("objectKind='chars'")
   }
 
-  private lazy val textInt = prod("textInt", impliedRepresentation == Representation.Text) {
-    standardTextInt || zonedTextInt
+
+  private lazy val textNumber = textStandardNumber || textZonedNumber
+
+  private lazy val textNonNumber = {
+    ConvertTextCombinator(this, stringValue, textConverter)
   }
 
-  private lazy val textByte = prod("textByte", impliedRepresentation == Representation.Text) {
-    standardTextByte || zonedTextByte
+  private lazy val textStandardNumber = prod("textStandardNumber", textNumberRep == TextNumberRep.Standard) {
+    ConvertTextCombinator(this, stringValue, textConverter)
   }
 
-  private lazy val textShort = prod("textShort", impliedRepresentation == Representation.Text) {
-    standardTextShort || zonedTextShort
+  private lazy val textZonedNumber = prod("textZonedNumber", textNumberRep == TextNumberRep.Zoned) {
+    ConvertZonedCombinator(this, stringValue, textZonedConverter)
   }
 
-  private lazy val textLong = prod("textLong", impliedRepresentation == Representation.Text) {
-    standardTextLong || zonedTextLong
+  private lazy val textConverter = {
+    primType match {
+      case _: NodeInfo.Numeric.Kind => ConvertTextNumberPrim(this)
+      case PrimType.Boolean => ConvertTextBooleanPrim(this)
+      case PrimType.Date => ConvertTextDatePrim(this)
+      case PrimType.Time => ConvertTextTimePrim(this)
+      case PrimType.DateTime => ConvertTextDateTimePrim(this)
+
+      case PrimType.HexBinary | PrimType.String | PrimType.AnyURI =>
+        Assert.invariantFailed("textConverter not to be used for binary or string types")
+    }
   }
 
-  private lazy val textInteger = prod("textInteger", impliedRepresentation == Representation.Text) {
-    standardTextInteger || zonedTextInteger
+  private lazy val textZonedConverter = {
+    primType match {
+      case PrimType.Double | PrimType.Float =>
+        SDE("dfdl:textNumberRep=\"zoned\" is not allowed for %s", primType.globalQName)
+      case _: NodeInfo.Numeric.Kind => ConvertZonedNumberPrim(this)
+      case PrimType.HexBinary | PrimType.Boolean | PrimType.Date | PrimType.Time | PrimType.DateTime | PrimType.AnyURI | PrimType.String =>
+        Assert.invariantFailed("textZonedConverter only to be used for numeric types")
+    }
   }
-
-  private lazy val textDecimal = prod("textDecimal", impliedRepresentation == Representation.Text) {
-    standardTextDecimal || zonedTextDecimal
-  }
-
-  private lazy val textNonNegativeInteger = prod("textNonNegativeInteger", impliedRepresentation == Representation.Text) {
-    standardTextNonNegativeInteger || zonedTextNonNegativeInteger
-  }
-
-  private lazy val textUnsignedInt = prod("textUnsignedInt", impliedRepresentation == Representation.Text) {
-    standardTextUnsignedInt || zonedTextUnsignedInt
-  }
-
-  private lazy val textUnsignedByte = prod("textUnsignedByte", impliedRepresentation == Representation.Text) {
-    standardTextUnsignedByte || zonedTextUnsignedByte
-  }
-
-  private lazy val textUnsignedShort = prod("textUnsignedShort", impliedRepresentation == Representation.Text) {
-    standardTextUnsignedShort || zonedTextUnsignedShort
-  }
-
-  private lazy val textUnsignedLong = prod("textUnsignedLong", impliedRepresentation == Representation.Text) {
-    standardTextUnsignedLong || zonedTextUnsignedLong
-  }
-
-  //
-  // We could now break it down by lengthKind, and have specialized primitives
-  // depending on the length kind.
-  //
-  private lazy val standardTextInteger = prod(
-    "standardTextInteger",
-    textNumberRep == TextNumberRep.Standard) { ConvertTextCombinator(this, stringValue, ConvertTextIntegerPrim(this)) }
-  private lazy val standardTextDecimal = prod(
-    "standardTextDecimal",
-    textNumberRep == TextNumberRep.Standard) { ConvertTextCombinator(this, stringValue, ConvertTextDecimalPrim(this)) }
-  private lazy val standardTextNonNegativeInteger = prod(
-    "standardTextNonNegativeInteger",
-    textNumberRep == TextNumberRep.Standard) { ConvertTextCombinator(this, stringValue, ConvertTextNonNegativeIntegerPrim(this)) }
-  private lazy val standardTextLong = prod(
-    "standardTextLong",
-    textNumberRep == TextNumberRep.Standard) { ConvertTextCombinator(this, stringValue, ConvertTextLongPrim(this)) }
-  private lazy val standardTextInt = prod(
-    "standardTextInt",
-    textNumberRep == TextNumberRep.Standard) { ConvertTextCombinator(this, stringValue, ConvertTextIntPrim(this)) }
-  private lazy val standardTextShort = prod(
-    "standardTextShort",
-    textNumberRep == TextNumberRep.Standard) { ConvertTextCombinator(this, stringValue, ConvertTextShortPrim(this)) }
-  private lazy val standardTextByte = prod(
-    "standardTextByte",
-    textNumberRep == TextNumberRep.Standard) { ConvertTextCombinator(this, stringValue, ConvertTextBytePrim(this)) }
-  private lazy val standardTextUnsignedLong = prod(
-    "standardTextUnsignedLong",
-    textNumberRep == TextNumberRep.Standard) { ConvertTextCombinator(this, stringValue, ConvertTextUnsignedLongPrim(this)) }
-  private lazy val standardTextUnsignedInt = prod(
-    "standardTextUnsignedInt",
-    textNumberRep == TextNumberRep.Standard) { ConvertTextCombinator(this, stringValue, ConvertTextUnsignedIntPrim(this)) }
-  private lazy val standardTextUnsignedShort = prod(
-    "standardTextUnsignedShort",
-    textNumberRep == TextNumberRep.Standard) { ConvertTextCombinator(this, stringValue, ConvertTextUnsignedShortPrim(this)) }
-  private lazy val standardTextUnsignedByte = prod(
-    "standardTextUnsignedByte",
-    textNumberRep == TextNumberRep.Standard) { ConvertTextCombinator(this, stringValue, ConvertTextUnsignedBytePrim(this)) }
-
-  private lazy val zonedTextInteger = prod(
-    "zonedTextInteger",
-    textNumberRep == TextNumberRep.Zoned) { ConvertZonedCombinator(this, stringValue, ConvertZonedIntegerPrim(this)) }
-  private lazy val zonedTextDecimal = prod(
-    "zonedTextDecimal",
-    textNumberRep == TextNumberRep.Zoned) { ConvertZonedCombinator(this, stringValue, ConvertZonedDecimalPrim(this)) }
-  private lazy val zonedTextNonNegativeInteger = prod(
-    "zonedTextNonNegativeInteger",
-    textNumberRep == TextNumberRep.Zoned) { ConvertZonedCombinator(this, stringValue, ConvertZonedNonNegativeIntegerPrim(this)) }
-  private lazy val zonedTextLong = prod(
-    "zonedTextLong",
-    textNumberRep == TextNumberRep.Zoned) { ConvertZonedCombinator(this, stringValue, ConvertZonedLongPrim(this)) }
-  private lazy val zonedTextInt = prod(
-    "zonedTextInt",
-    textNumberRep == TextNumberRep.Zoned) { ConvertZonedCombinator(this, stringValue, ConvertZonedIntPrim(this)) }
-  private lazy val zonedTextShort = prod(
-    "zonedTextShort",
-    textNumberRep == TextNumberRep.Zoned) { ConvertZonedCombinator(this, stringValue, ConvertZonedShortPrim(this)) }
-  private lazy val zonedTextByte = prod(
-    "zonedTextByte",
-    textNumberRep == TextNumberRep.Zoned) { ConvertZonedCombinator(this, stringValue, ConvertZonedBytePrim(this)) }
-  private lazy val zonedTextUnsignedLong = prod(
-    "zonedTextUnsignedLong",
-    textNumberRep == TextNumberRep.Zoned) { ConvertZonedCombinator(this, stringValue, ConvertZonedUnsignedLongPrim(this)) }
-  private lazy val zonedTextUnsignedInt = prod(
-    "zonedTextUnsignedInt",
-    textNumberRep == TextNumberRep.Zoned) { ConvertZonedCombinator(this, stringValue, ConvertZonedUnsignedIntPrim(this)) }
-  private lazy val zonedTextUnsignedShort = prod(
-    "zonedTextUnsignedShort",
-    textNumberRep == TextNumberRep.Zoned) { ConvertZonedCombinator(this, stringValue, ConvertZonedUnsignedShortPrim(this)) }
-  private lazy val zonedTextUnsignedByte = prod(
-    "zonedTextUnsignedByte",
-    textNumberRep == TextNumberRep.Zoned) { ConvertZonedCombinator(this, stringValue, ConvertZonedUnsignedBytePrim(this)) }
 
   private lazy val bcdKnownLengthCalendar = prod("bcdKnownLengthCalendar", binaryCalendarRep == BinaryCalendarRep.Bcd) {
-    bcdDateKnownLength || bcdTimeKnownLength || bcdDateTimeKnownLength
+    ConvertZonedCombinator(this, new BCDIntegerKnownLength(this, binaryNumberKnownLengthInBits), textConverter)
   }
   private lazy val bcdRuntimeLengthCalendar = prod("bcdRuntimeLengthCalendar", binaryCalendarRep == BinaryCalendarRep.Bcd) {
-    bcdDateRuntimeLength || bcdTimeRuntimeLength || bcdDateTimeRuntimeLength
+    ConvertZonedCombinator(this, new BCDIntegerRuntimeLength(this), textConverter)
   }
   private lazy val bcdDelimitedLengthCalendar = prod("bcdDelimitedLengthCalendar", binaryCalendarRep == BinaryCalendarRep.Bcd) {
-    bcdDateDelimitedLength || bcdTimeDelimitedLength || bcdDateTimeDelimitedLength
+    ConvertZonedCombinator(this, new BCDIntegerDelimitedEndOfData(this), textConverter)
   }
   private lazy val bcdPrefixedLengthCalendar = prod("bcdPrefixedLengthCalendar", binaryCalendarRep == BinaryCalendarRep.Bcd) {
-    bcdDatePrefixedLength || bcdTimePrefixedLength || bcdDateTimePrefixedLength
+    ConvertZonedCombinator(this, new BCDIntegerPrefixedLength(this), textConverter)
   }
 
-  // BCD calendar with known length
-  private lazy val bcdDateKnownLength = prod("bcdDateKnownLength", primType == PrimType.Date) {
-    ConvertZonedCombinator(this, new BCDIntegerKnownLength(this, binaryNumberKnownLengthInBits), ConvertTextDatePrim(this))
-  }
-  private lazy val bcdDateTimeKnownLength = prod("bcdDateTimeKnownLength", primType == PrimType.DateTime) {
-    ConvertZonedCombinator(this, new BCDIntegerKnownLength(this, binaryNumberKnownLengthInBits), ConvertTextDateTimePrim(this))
-  }
-  private lazy val bcdTimeKnownLength = prod("bcdTimeKnownLength", primType == PrimType.Time) {
-    ConvertZonedCombinator(this, new BCDIntegerKnownLength(this, binaryNumberKnownLengthInBits), ConvertTextTimePrim(this))
-  }
-
-  // BCD calendar with runtime length
-  private lazy val bcdDateRuntimeLength = prod("bcdDateRuntimeLength", primType == PrimType.Date) {
-    ConvertZonedCombinator(this, new BCDIntegerRuntimeLength(this), ConvertTextDatePrim(this))
-  }
-  private lazy val bcdDateTimeRuntimeLength = prod("bcdDateTimeRuntimeLength", primType == PrimType.DateTime) {
-    ConvertZonedCombinator(this, new BCDIntegerRuntimeLength(this), ConvertTextDateTimePrim(this))
-  }
-  private lazy val bcdTimeRuntimeLength = prod("bcdTimeRuntimeLength", primType == PrimType.Time) {
-    ConvertZonedCombinator(this, new BCDIntegerRuntimeLength(this), ConvertTextTimePrim(this))
-  }
-
-  // BCD calendar with delimited length
-  private lazy val bcdDateDelimitedLength = prod("bcdDateDelimitedLength", primType == PrimType.Date) {
-    ConvertZonedCombinator(this, new BCDIntegerDelimitedEndOfData(this), ConvertTextDatePrim(this))
-  }
-  private lazy val bcdDateTimeDelimitedLength = prod("bcdDateTimeDelimitedLength", primType == PrimType.DateTime) {
-    ConvertZonedCombinator(this, new BCDIntegerDelimitedEndOfData(this), ConvertTextDateTimePrim(this))
-  }
-  private lazy val bcdTimeDelimitedLength = prod("bcdTimeDelimitedLength", primType == PrimType.Time) {
-    ConvertZonedCombinator(this, new BCDIntegerDelimitedEndOfData(this), ConvertTextTimePrim(this))
-  }
-
-  // BCD calendar with prefixed length
-  private lazy val bcdDatePrefixedLength = prod("bcdDatePrefixedLength", primType == PrimType.Date) {
-    ConvertZonedCombinator(this, new BCDIntegerPrefixedLength(this), ConvertTextDatePrim(this))
-  }
-  private lazy val bcdDateTimePrefixedLength = prod("bcdDateTimePrefixedLength", primType == PrimType.DateTime) {
-    ConvertZonedCombinator(this, new BCDIntegerPrefixedLength(this), ConvertTextDateTimePrim(this))
-  }
-  private lazy val bcdTimePrefixedLength = prod("bcdTimePrefixedLength", primType == PrimType.Time) {
-    ConvertZonedCombinator(this, new BCDIntegerPrefixedLength(this), ConvertTextTimePrim(this))
-  }
 
   private lazy val ibm4690PackedKnownLengthCalendar = prod("ibm4690PackedKnownLengthCalendar", binaryCalendarRep == BinaryCalendarRep.Ibm4690Packed) {
-    ibm4690PackedDateKnownLength || ibm4690PackedTimeKnownLength || ibm4690PackedDateTimeKnownLength
+    ConvertZonedCombinator(this, new IBM4690PackedIntegerKnownLength(this, false, binaryNumberKnownLengthInBits), textConverter)
   }
   private lazy val ibm4690PackedRuntimeLengthCalendar = prod("ibm4690PackedRuntimeLengthCalendar", binaryCalendarRep == BinaryCalendarRep.Ibm4690Packed) {
-    ibm4690PackedDateRuntimeLength || ibm4690PackedTimeRuntimeLength || ibm4690PackedDateTimeRuntimeLength
+    ConvertZonedCombinator(this, new IBM4690PackedIntegerRuntimeLength(this, false), textConverter)
   }
   private lazy val ibm4690PackedDelimitedLengthCalendar = prod("ibm4690PackedDelimitedLengthCalendar", binaryCalendarRep == BinaryCalendarRep.Ibm4690Packed) {
-    ibm4690PackedDateDelimitedLength || ibm4690PackedTimeDelimitedLength || ibm4690PackedDateTimeDelimitedLength
+    ConvertZonedCombinator(this, new IBM4690PackedIntegerDelimitedEndOfData(this, false), textConverter)
   }
   private lazy val ibm4690PackedPrefixedLengthCalendar = prod("ibm4690PackedPrefixedLengthCalendar", binaryCalendarRep == BinaryCalendarRep.Ibm4690Packed) {
-    ibm4690PackedDatePrefixedLength || ibm4690PackedTimePrefixedLength || ibm4690PackedDateTimePrefixedLength
+    ConvertZonedCombinator(this, new IBM4690PackedIntegerPrefixedLength(this, false), textConverter)
   }
 
-  // ibm4690Packed calendar with known length
-  private lazy val ibm4690PackedDateKnownLength = prod("ibm4690PackedDateKnownLength", primType == PrimType.Date) {
-    ConvertZonedCombinator(this, new IBM4690PackedIntegerKnownLength(this, false, binaryNumberKnownLengthInBits), ConvertTextDatePrim(this))
-  }
-  private lazy val ibm4690PackedDateTimeKnownLength = prod("ibm4690PackedDateTimeKnownLength", primType == PrimType.DateTime) {
-    ConvertZonedCombinator(this, new IBM4690PackedIntegerKnownLength(this, false, binaryNumberKnownLengthInBits), ConvertTextDateTimePrim(this))
-  }
-  private lazy val ibm4690PackedTimeKnownLength = prod("ibm4690PackedTimeKnownLength", primType == PrimType.Time) {
-    ConvertZonedCombinator(this, new IBM4690PackedIntegerKnownLength(this, false, binaryNumberKnownLengthInBits), ConvertTextTimePrim(this))
-  }
-
-  // ibm4690Packed calendar with runtime length
-  private lazy val ibm4690PackedDateRuntimeLength = prod("ibm4690PackedDateRuntimeLength", primType == PrimType.Date) {
-    ConvertZonedCombinator(this, new IBM4690PackedIntegerRuntimeLength(this, false), ConvertTextDatePrim(this))
-  }
-  private lazy val ibm4690PackedDateTimeRuntimeLength = prod("ibm4690PackedDateTimeRuntimeLength", primType == PrimType.DateTime) {
-    ConvertZonedCombinator(this, new IBM4690PackedIntegerRuntimeLength(this, false), ConvertTextDateTimePrim(this))
-  }
-  private lazy val ibm4690PackedTimeRuntimeLength = prod("ibm4690PackedTimeRuntimeLength", primType == PrimType.Time) {
-    ConvertZonedCombinator(this, new IBM4690PackedIntegerRuntimeLength(this, false), ConvertTextTimePrim(this))
-  }
-
-  // ibm4690Packed calendar with delimited length
-  private lazy val ibm4690PackedDateDelimitedLength = prod("ibm4690PackedDateDelimitedLength", primType == PrimType.Date) {
-    ConvertZonedCombinator(this, new IBM4690PackedIntegerDelimitedEndOfData(this, false), ConvertTextDatePrim(this))
-  }
-  private lazy val ibm4690PackedDateTimeDelimitedLength = prod("ibm4690PackedDateTimeDelimitedLength", primType == PrimType.DateTime) {
-    ConvertZonedCombinator(this, new IBM4690PackedIntegerDelimitedEndOfData(this, false), ConvertTextDateTimePrim(this))
-  }
-  private lazy val ibm4690PackedTimeDelimitedLength = prod("ibm4690PackedTimeDelimitedLength", primType == PrimType.Time) {
-    ConvertZonedCombinator(this, new IBM4690PackedIntegerDelimitedEndOfData(this, false), ConvertTextTimePrim(this))
-  }
-
-  // ibm4690Packed calendar with prefixed length
-  private lazy val ibm4690PackedDatePrefixedLength = prod("ibm4690PackedDatePrefixedLength", primType == PrimType.Date) {
-    ConvertZonedCombinator(this, new IBM4690PackedIntegerPrefixedLength(this, false), ConvertTextDatePrim(this))
-  }
-  private lazy val ibm4690PackedDateTimePrefixedLength = prod("ibm4690PackedDateTimePrefixedLength", primType == PrimType.DateTime) {
-    ConvertZonedCombinator(this, new IBM4690PackedIntegerPrefixedLength(this, false), ConvertTextDateTimePrim(this))
-  }
-  private lazy val ibm4690PackedTimePrefixedLength = prod("ibm4690PackedTimePrefixedLength", primType == PrimType.Time) {
-    ConvertZonedCombinator(this, new IBM4690PackedIntegerPrefixedLength(this, false), ConvertTextTimePrim(this))
-  }
 
   private lazy val packedKnownLengthCalendar = prod("packedKnownLengthCalendar", binaryCalendarRep == BinaryCalendarRep.Packed) {
-    packedDateKnownLength || packedTimeKnownLength || packedDateTimeKnownLength
+    ConvertZonedCombinator(this, new PackedIntegerKnownLength(this, false, packedSignCodes, binaryNumberKnownLengthInBits), textConverter)
   }
   private lazy val packedRuntimeLengthCalendar = prod("packedRuntimeLengthCalendar", binaryCalendarRep == BinaryCalendarRep.Packed) {
-    packedDateRuntimeLength || packedTimeRuntimeLength || packedDateTimeRuntimeLength
+    ConvertZonedCombinator(this, new PackedIntegerRuntimeLength(this, false, packedSignCodes), textConverter)
   }
   private lazy val packedDelimitedLengthCalendar = prod("packedDelimitedLengthCalendar", binaryCalendarRep == BinaryCalendarRep.Packed) {
-    packedDateDelimitedLength || packedTimeDelimitedLength || packedDateTimeDelimitedLength
+    ConvertZonedCombinator(this, new PackedIntegerDelimitedEndOfData(this, false, packedSignCodes), textConverter)
   }
   private lazy val packedPrefixedLengthCalendar = prod("packedPrefixedLengthCalendar", binaryCalendarRep == BinaryCalendarRep.Packed) {
-    packedDatePrefixedLength || packedTimePrefixedLength || packedDateTimePrefixedLength
+    ConvertZonedCombinator(this, new PackedIntegerPrefixedLength(this, false, packedSignCodes), textConverter)
   }
 
-  // Packed calendar with known length
-  private lazy val packedDateKnownLength = prod("packedDateKnownLength", primType == PrimType.Date) {
-    ConvertZonedCombinator(this, new PackedIntegerKnownLength(this, false, packedSignCodes, binaryNumberKnownLengthInBits), ConvertTextDatePrim(this))
-  }
-  private lazy val packedDateTimeKnownLength = prod("packedDateTimeKnownLength", primType == PrimType.DateTime) {
-    ConvertZonedCombinator(this, new PackedIntegerKnownLength(this, false, packedSignCodes, binaryNumberKnownLengthInBits), ConvertTextDateTimePrim(this))
-  }
-  private lazy val packedTimeKnownLength = prod("packedTimeKnownLength", primType == PrimType.Time) {
-    ConvertZonedCombinator(this, new PackedIntegerKnownLength(this, false, packedSignCodes, binaryNumberKnownLengthInBits), ConvertTextTimePrim(this))
-  }
-
-  // Packed calendar with runtime length
-  private lazy val packedDateRuntimeLength = prod("packedDateRuntimeLength", primType == PrimType.Date) {
-    ConvertZonedCombinator(this, new PackedIntegerRuntimeLength(this, false, packedSignCodes), ConvertTextDatePrim(this))
-  }
-  private lazy val packedDateTimeRuntimeLength = prod("packedDateTimeRuntimeLength", primType == PrimType.DateTime) {
-    ConvertZonedCombinator(this, new PackedIntegerRuntimeLength(this, false, packedSignCodes), ConvertTextDateTimePrim(this))
-  }
-  private lazy val packedTimeRuntimeLength = prod("packedTimeRuntimeLength", primType == PrimType.Time) {
-    ConvertZonedCombinator(this, new PackedIntegerRuntimeLength(this, false, packedSignCodes), ConvertTextTimePrim(this))
-  }
-
-  // Packed calendar with delimited length
-  private lazy val packedDateDelimitedLength = prod("packedDateDelimitedLength", primType == PrimType.Date) {
-    ConvertZonedCombinator(this, new PackedIntegerDelimitedEndOfData(this, false, packedSignCodes), ConvertTextDatePrim(this))
-  }
-  private lazy val packedDateTimeDelimitedLength = prod("packedDateTimeDelimitedLength", primType == PrimType.DateTime) {
-    ConvertZonedCombinator(this, new PackedIntegerDelimitedEndOfData(this, false, packedSignCodes), ConvertTextDateTimePrim(this))
-  }
-  private lazy val packedTimeDelimitedLength = prod("packedTimeDelimitedLength", primType == PrimType.Time) {
-    ConvertZonedCombinator(this, new PackedIntegerDelimitedEndOfData(this, false, packedSignCodes), ConvertTextTimePrim(this))
-  }
-
-  // Packed calendar with prefixed length
-  private lazy val packedDatePrefixedLength = prod("packedDatePrefixedLength", primType == PrimType.Date) {
-    ConvertZonedCombinator(this, new PackedIntegerPrefixedLength(this, false, packedSignCodes), ConvertTextDatePrim(this))
-  }
-  private lazy val packedDateTimePrefixedLength = prod("packedDateTimePrefixedLength", primType == PrimType.DateTime) {
-    ConvertZonedCombinator(this, new PackedIntegerPrefixedLength(this, false, packedSignCodes), ConvertTextDateTimePrim(this))
-  }
-  private lazy val packedTimePrefixedLength = prod("packedTimePrefixedLength", primType == PrimType.Time) {
-    ConvertZonedCombinator(this, new PackedIntegerPrefixedLength(this, false, packedSignCodes), ConvertTextTimePrim(this))
-  }
-
-  private lazy val textDouble = prod("textDouble", impliedRepresentation == Representation.Text) {
-    standardTextDouble || zonedTextDouble
-  }
-
-  //  private lazy val ibm390HexBinaryRepDouble = prod("ibm390HexBinaryRepDouble",
-  //    binaryFloatRep.isConstant &&
-  //      binaryFloatRep.constant == BinaryFloatRep.Ibm390Hex.toString) {
-  //      subsetError("ibm390Hex not supported")
-  //    }
-
-  private lazy val standardTextDouble = prod(
-    "standardTextDouble",
-    textNumberRep == TextNumberRep.Standard) { ConvertTextCombinator(this, stringValue, ConvertTextDoublePrim(this)) }
-
-  private lazy val zonedTextDouble = prod(
-    "zonedTextDouble",
-    textNumberRep == TextNumberRep.Zoned) { SDE("Zoned not supported for float and double") }
-
-  private lazy val textFloat = prod("textFloat", impliedRepresentation == Representation.Text) {
-    standardTextFloat || zonedTextFloat
-  }
-
-  private lazy val standardTextFloat = prod(
-    "standardTextFloat",
-    textNumberRep == TextNumberRep.Standard) { ConvertTextCombinator(this, stringValue, ConvertTextFloatPrim(this)) }
-
-  private lazy val zonedTextFloat = prod(
-    "zonedTextFloat",
-    textNumberRep == TextNumberRep.Zoned) { SDE("Zoned not supported for float and double") }
-
-  private lazy val textDate = prod("textDate", impliedRepresentation == Representation.Text) {
-    ConvertTextCombinator(this, stringValue, ConvertTextDatePrim(this))
-  }
-
-  private lazy val textTime = prod("textTime", impliedRepresentation == Representation.Text) {
-    ConvertTextCombinator(this, stringValue, ConvertTextTimePrim(this))
-  }
-
-  private lazy val textDateTime = prod("textDateTime", impliedRepresentation == Representation.Text) {
-    ConvertTextCombinator(this, stringValue, ConvertTextDateTimePrim(this))
-  }
-
-  private lazy val textBoolean = prod("textBoolean", impliedRepresentation == Representation.Text) {
-    ConvertTextCombinator(this, stringValue, ConvertTextBooleanPrim(this))
-  }
 
   def primType: PrimType
 
@@ -1133,31 +880,22 @@ trait ElementBaseGrammarMixin
     val pt = primType
     Assert.invariant(pt != PrimType.String)
     Assert.invariant(pt != PrimType.HexBinary)
+    Assert.invariant(pt != PrimType.AnyURI)
     Assert.invariant(impliedRepresentation == Representation.Text)
     schemaDefinitionWhen(
       lengthKind == LengthKind.Implicit,
       "Type %s cannot have lengthKind='implicit' when representation='text'",
       pt.name)
+
     val res = primType match {
-      case PrimType.Int => textInt
-      case PrimType.Byte => textByte
-      case PrimType.Short => textShort
-      case PrimType.Long => textLong
-      case PrimType.Integer => textInteger
-      case PrimType.Decimal => textDecimal
-      case PrimType.UnsignedInt => textUnsignedInt
-      case PrimType.UnsignedByte => textUnsignedByte
-      case PrimType.UnsignedShort => textUnsignedShort
-      case PrimType.UnsignedLong => textUnsignedLong
-      case PrimType.NonNegativeInteger => textNonNegativeInteger // Should be treated as unsigned xs:integer
-      case PrimType.Double => textDouble
-      case PrimType.Float => textFloat
-      case PrimType.HexBinary => Assert.invariantFailed("Primitive hexBinary must be representation='binary'.")
-      case PrimType.Boolean => textBoolean
-      case PrimType.Date => textDate
-      case PrimType.Time => textTime
-      case PrimType.DateTime => textDateTime
-      case _ => schemaDefinitionError("Unrecognized primitive type: " + primType.name)
+      case _: NodeInfo.Numeric.Kind => textNumber
+      case PrimType.Boolean => textNonNumber
+      case PrimType.Date => textNonNumber
+      case PrimType.Time => textNonNumber
+      case PrimType.DateTime => textNonNumber
+
+      case PrimType.HexBinary | PrimType.AnyURI | PrimType.String =>
+        Assert.invariantFailed("types handled in 'value' grammer element")
     }
     res
   }

@@ -17,40 +17,26 @@
 
 package org.apache.daffodil.grammar.primitives
 
-import org.apache.daffodil.dsom._
+
+import com.ibm.icu.text.DecimalFormat
+
 import org.apache.daffodil.dpath.NodeInfo.PrimType
+import org.apache.daffodil.dsom._
 import org.apache.daffodil.grammar.Gram
 import org.apache.daffodil.grammar.Terminal
-import com.ibm.icu.text.DecimalFormat
-import org.apache.daffodil.processors.unparsers.Unparser
-import org.apache.daffodil.processors.unparsers.ConvertZonedNumberUnparser
-import org.apache.daffodil.processors.unparsers.ConvertZonedCombinatorUnparser
-import org.apache.daffodil.processors.parsers.Parser
-import org.apache.daffodil.processors.parsers.ConvertZonedNumberParser
+import org.apache.daffodil.processors.TextNumberFormatEv
 import org.apache.daffodil.processors.parsers.ConvertZonedCombinatorParser
-import org.apache.daffodil.processors.parsers.ConvertTextByteParserUnparserHelper
-import org.apache.daffodil.processors.parsers.ConvertTextDecimalParserUnparserHelper
-import org.apache.daffodil.processors.parsers.ConvertTextIntParserUnparserHelper
-import org.apache.daffodil.processors.parsers.ConvertTextIntegerParserUnparserHelper
-import org.apache.daffodil.processors.parsers.ConvertTextLongParserUnparserHelper
-import org.apache.daffodil.processors.parsers.ConvertTextNonNegativeIntegerParserUnparserHelper
-import org.apache.daffodil.processors.parsers.ConvertTextNumberParserUnparserHelperBase
-import org.apache.daffodil.processors.parsers.ConvertTextShortParserUnparserHelper
-import org.apache.daffodil.processors.parsers.ConvertTextUnsignedByteParserUnparserHelper
-import org.apache.daffodil.processors.parsers.ConvertTextUnsignedLongParserUnparserHelper
-import org.apache.daffodil.processors.parsers.ConvertTextUnsignedShortParserUnparserHelper
-import org.apache.daffodil.processors.parsers.ConvertTextUnsignedIntParserUnparserHelper
-import org.apache.daffodil.processors.parsers.NumberFormatFactoryBase
-import org.apache.daffodil.processors.parsers.NumberFormatFactoryStatic
+import org.apache.daffodil.processors.parsers.ConvertZonedNumberParser
+import org.apache.daffodil.processors.parsers.Parser
+import org.apache.daffodil.processors.unparsers.ConvertZonedCombinatorUnparser
+import org.apache.daffodil.processors.unparsers.ConvertZonedNumberUnparser
+import org.apache.daffodil.processors.unparsers.Unparser
 import org.apache.daffodil.schema.annotation.props.gen.TextNumberCheckPolicy
 import org.apache.daffodil.schema.annotation.props.gen.TextNumberRounding
+import org.apache.daffodil.util.DecimalUtils.OverpunchLocation
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe._
 import org.apache.daffodil.util.MaybeDouble
-import org.apache.daffodil.util.DecimalUtils.OverpunchLocation
-
-import java.math.{ BigDecimal => JBigDecimal }
-import java.math.{ BigInteger => JBigInt }
 
 case class ConvertZonedCombinator(e: ElementBase, value: Gram, converter: Gram)
   extends Terminal(e, !(value.isEmpty || converter.isEmpty)) {
@@ -60,14 +46,10 @@ case class ConvertZonedCombinator(e: ElementBase, value: Gram, converter: Gram)
   override lazy val unparser = new ConvertZonedCombinatorUnparser(e.termRuntimeData, value.unparser, converter.unparser)
 }
 
-abstract class ConvertZonedNumberPrim[S](e: ElementBase)
+case class ConvertZonedNumberPrim(e: ElementBase)
   extends Terminal(e, true) {
 
-  def helper: ConvertTextNumberParserUnparserHelperBase[S]
-
-  def numFormatFactory: NumberFormatFactoryBase[S] = {
-    val h = helper
-
+  val textNumberFormatEv: TextNumberFormatEv = {
     val pattern = {
       val p = e.textNumberPattern
 
@@ -137,8 +119,8 @@ abstract class ConvertZonedNumberPrim[S](e: ElementBase)
         case TextNumberRounding.Pattern => (MaybeDouble.Nope, Nope)
       }
 
-    val nff = new NumberFormatFactoryStatic[S](
-      e.termRuntimeData, h,
+    val ev = new TextNumberFormatEv(
+      e.tci,
       Maybe.Nope,
       Maybe.Nope,
       Maybe.Nope,
@@ -148,8 +130,11 @@ abstract class ConvertZonedNumberPrim[S](e: ElementBase)
       zonedPattern,
       e.textNumberRounding,
       roundingMode,
-      roundingIncrement)
-    nff
+      roundingIncrement,
+      Nil,
+      e.primType)
+    ev.compile(tunable)
+    ev
   }
 
   val opindex = e.textNumberPattern.indexOf('+')
@@ -162,51 +147,7 @@ abstract class ConvertZonedNumberPrim[S](e: ElementBase)
       OverpunchLocation.None
   }
 
-  lazy val parser: Parser = new ConvertZonedNumberParser[S](helper, opl, numFormatFactory, e.textZonedSignStyle, e.elementRuntimeData)
+  lazy val parser: Parser = new ConvertZonedNumberParser(opl, textNumberFormatEv, e.textZonedSignStyle, e.elementRuntimeData)
 
-  override lazy val unparser: Unparser = new ConvertZonedNumberUnparser[S](helper, opl, e.textZonedSignStyle, e.elementRuntimeData)
-}
-
-case class ConvertZonedIntegerPrim(e: ElementBase) extends ConvertZonedNumberPrim[JBigInt](e) {
-  val helper = new ConvertTextIntegerParserUnparserHelper[JBigInt](List(), false)
-}
-
-case class ConvertZonedDecimalPrim(e: ElementBase) extends ConvertZonedNumberPrim[JBigDecimal](e) {
-  val helper = new ConvertTextDecimalParserUnparserHelper[JBigDecimal](List(), false)
-}
-
-case class ConvertZonedNonNegativeIntegerPrim(e: ElementBase) extends ConvertZonedNumberPrim[JBigInt](e) {
-  val helper = new ConvertTextNonNegativeIntegerParserUnparserHelper[JBigDecimal](List(), false)
-}
-
-case class ConvertZonedLongPrim(e: ElementBase) extends ConvertZonedNumberPrim[Long](e) {
-  val helper = new ConvertTextLongParserUnparserHelper[Long](List(), false)
-}
-
-case class ConvertZonedIntPrim(e: ElementBase) extends ConvertZonedNumberPrim[Int](e) {
-  val helper = new ConvertTextIntParserUnparserHelper[Int](List(), false)
-}
-
-case class ConvertZonedShortPrim(e: ElementBase) extends ConvertZonedNumberPrim[Short](e) {
-  val helper = new ConvertTextShortParserUnparserHelper[Short](List(), false)
-}
-
-case class ConvertZonedBytePrim(e: ElementBase) extends ConvertZonedNumberPrim[Byte](e) {
-  val helper = new ConvertTextByteParserUnparserHelper[Byte](List(), false)
-}
-
-case class ConvertZonedUnsignedLongPrim(e: ElementBase) extends ConvertZonedNumberPrim[JBigInt](e) {
-  val helper = new ConvertTextUnsignedLongParserUnparserHelper[JBigInt](List(), false)
-}
-
-case class ConvertZonedUnsignedIntPrim(e: ElementBase) extends ConvertZonedNumberPrim[Long](e) {
-  val helper = ConvertTextUnsignedIntParserUnparserHelper[Long](List(), false)
-}
-
-case class ConvertZonedUnsignedShortPrim(e: ElementBase) extends ConvertZonedNumberPrim[Int](e) {
-  val helper = new ConvertTextUnsignedShortParserUnparserHelper[Int](List(), false)
-}
-
-case class ConvertZonedUnsignedBytePrim(e: ElementBase) extends ConvertZonedNumberPrim[Short](e) {
-  val helper = new ConvertTextUnsignedByteParserUnparserHelper[Short](List(), false)
+  override lazy val unparser: Unparser = new ConvertZonedNumberUnparser(opl, e.textZonedSignStyle, e.elementRuntimeData)
 }

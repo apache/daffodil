@@ -26,13 +26,18 @@ import org.apache.daffodil.calendar.DFDLDateConversion
 import org.apache.daffodil.calendar.DFDLDateTimeConversion
 import org.apache.daffodil.calendar.DFDLTimeConversion
 import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.infoset.DataValue.DataValueBigDecimal
+import org.apache.daffodil.infoset.DataValue.DataValueBigInt
 import org.apache.daffodil.infoset.DataValue.DataValueBool
 import org.apache.daffodil.infoset.DataValue.DataValueByte
 import org.apache.daffodil.infoset.DataValue.DataValueByteArray
 import org.apache.daffodil.infoset.DataValue.DataValueDate
 import org.apache.daffodil.infoset.DataValue.DataValueDateTime
+import org.apache.daffodil.infoset.DataValue.DataValueDouble
+import org.apache.daffodil.infoset.DataValue.DataValueFloat
 import org.apache.daffodil.infoset.DataValue.DataValueInt
 import org.apache.daffodil.infoset.DataValue.DataValueLong
+import org.apache.daffodil.infoset.DataValue.DataValueNumber
 import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.infoset.DataValue.DataValueShort
 import org.apache.daffodil.infoset.DataValue.DataValueTime
@@ -123,8 +128,8 @@ object NodeInfo extends Enum {
     /**
      * When class name is isomorphic to the type name, compute automatically.
      */
-    protected lazy val pname = {
-      val cname = Misc.getNameFromClass(this)
+    override def name = {
+      val cname = super.name
       val first = cname(0).toLower
       val rest = cname.substring(1)
       first + rest
@@ -187,7 +192,7 @@ object NodeInfo extends Enum {
     // prefix the user defines for the XSD namespace.
     //
     lazy val globalQName: GlobalQName = this match {
-      case pt: PrimTypeNode => QName.createGlobal(name.toLowerCase(), XMLUtils.XSD_NAMESPACE, xsScope)
+      case pt: PrimTypeNode => QName.createGlobal(name, XMLUtils.XSD_NAMESPACE, xsScope)
       case _ => QName.createGlobal(name, NoNamespace, scala.xml.TopScope)
     }
 
@@ -430,7 +435,7 @@ object NodeInfo extends Enum {
     }
 
     def fromNameString(name: String): Option[PrimType] = {
-      allPrims.find { _.pname.toLowerCase == name.toLowerCase }
+      allPrims.find { _.name.toLowerCase == name.toLowerCase }
     }
 
     def fromNodeInfo(nodeInfo: NodeInfo.Kind): Option[PrimType] = {
@@ -439,8 +444,61 @@ object NodeInfo extends Enum {
       }
     }
 
+    trait PrimNumeric { self: Numeric.Kind =>
+      def isValidRange(n: Number): Boolean
+      def fromNumber(n: Number): DataValueNumber
+    }
+
+    // this should only be used for integer primitives that can fit inside a
+    // long (e.g. long, unsignedInt). Primitives larger than that should
+    // implement a custom isValidRange
+    trait PrimNumericInteger extends PrimNumeric { self: Numeric.Kind =>
+      val min: Long
+      val max: Long
+      private lazy val minBD = new JBigDecimal(min)
+      private lazy val maxBD = new JBigDecimal(max)
+
+      override def isValidRange(n: Number): Boolean = n match {
+        case bd: JBigDecimal => {
+          bd.compareTo(minBD) >= 0 && bd.compareTo(maxBD) <= 0
+        }
+        case bi: JBigInt => {
+          if (bi.bitLength > 63) {
+            // check against 63 since bitLength() doesn't count the sign bit
+            false
+          } else {
+            // bit length 63 or less means it can convert to a long without any
+            // truncation
+            val l = bi.longValue
+            l >= min && l <= max
+          }
+        }
+        case _ => {
+          val l = n.longValue
+          l >= min && l <= max
+        }
+      }
+    }
+
+    trait PrimNumericFloat extends PrimNumeric { self: Numeric.Kind =>
+      def min: Double
+      def max: Double
+      private lazy val minBD = new JBigDecimal(min)
+      private lazy val maxBD = new JBigDecimal(max)
+
+      def isValidRange(n: java.lang.Number): Boolean = n match {
+        case bd: JBigDecimal => {
+          bd.compareTo(minBD) >= 0 && bd.compareTo(maxBD) <= 0          
+        }
+        case _ => {
+          val d = n.doubleValue
+          !d.isNaN && d >= min && d <= max
+        }
+      }
+    }
+
     protected sealed trait FloatKind extends SignedNumeric.Kind
-    case object Float extends PrimTypeNode(SignedNumeric) with FloatKind {
+    case object Float extends PrimTypeNode(SignedNumeric) with FloatKind with PrimNumericFloat {
       type Kind = FloatKind
       override def fromXMLString(s: String) = {
         val f: JFloat = s match {
@@ -451,12 +509,15 @@ object NodeInfo extends Enum {
         }
         f
       }
+      override def fromNumber(n: Number): DataValueFloat = n.floatValue
+      override val min = -JFloat.MAX_VALUE.doubleValue
+      override val max = JFloat.MAX_VALUE.doubleValue
     }
 
     protected sealed trait DoubleKind extends SignedNumeric.Kind
-    case object Double extends PrimTypeNode(SignedNumeric) with DoubleKind {
+    case object Double extends PrimTypeNode(SignedNumeric) with DoubleKind with PrimNumericFloat {
       type Kind = DoubleKind
-      override def fromXMLString(s: String) = {
+      override def fromXMLString(s: String): DataValueDouble = {
         val d: JDouble = s match {
           case XMLUtils.PositiveInfinityString => scala.Double.PositiveInfinity
           case XMLUtils.NegativeInfinityString => scala.Double.NegativeInfinity
@@ -465,76 +526,113 @@ object NodeInfo extends Enum {
         }
         d
       }
+      override def fromNumber(n: Number): DataValueDouble = n.doubleValue
+      override val min = -JDouble.MAX_VALUE
+      override val max = JDouble.MAX_VALUE
     }
 
     protected sealed trait DecimalKind extends SignedNumeric.Kind
-    case object Decimal extends PrimTypeNode(SignedNumeric, List(Integer)) with DecimalKind {
+    case object Decimal extends PrimTypeNode(SignedNumeric, List(Integer)) with DecimalKind with PrimNumeric {
       type Kind = DecimalKind
-      override def fromXMLString(s: String) = new JBigDecimal(s)
+      override def fromXMLString(s: String): DataValueBigDecimal = new JBigDecimal(s)
+      override def fromNumber(n: Number): DataValueBigDecimal = new JBigDecimal(n.toString)
+      override def isValidRange(n: Number): Boolean = true
     }
 
     protected sealed trait IntegerKind extends Decimal.Kind
-    case object Integer extends PrimTypeNode(Decimal, List(Long, NonNegativeInteger)) with IntegerKind {
+    case object Integer extends PrimTypeNode(Decimal, List(Long, NonNegativeInteger)) with IntegerKind with PrimNumeric {
       type Kind = IntegerKind
-      override def fromXMLString(s: String) = new JBigInt(s)
+      override def fromXMLString(s: String): DataValueBigInt = new JBigInt(s)
+      override def fromNumber(n: Number): DataValueBigInt = new JBigInt(n.toString)
+      override def isValidRange(n: Number): Boolean = true
     }
 
     protected sealed trait LongKind extends Integer.Kind
-    case object Long extends PrimTypeNode(Integer, List(Int)) with LongKind {
+    case object Long extends PrimTypeNode(Integer, List(Int)) with LongKind with PrimNumericInteger {
       type Kind = LongKind
       override def fromXMLString(s: String): DataValueLong = s.toLong
+      override def fromNumber(n: Number): DataValueLong = n.longValue
+      override val min = JLong.MIN_VALUE
+      override val max = JLong.MAX_VALUE
     }
 
     protected sealed trait IntKind extends Long.Kind
-    case object Int extends PrimTypeNode(Long, List(Short)) with IntKind {
+    case object Int extends PrimTypeNode(Long, List(Short)) with IntKind with PrimNumericInteger {
       type Kind = IntKind
       override def fromXMLString(s: String): DataValueInt = s.toInt
+      override def fromNumber(n: Number): DataValueInt = n.intValue
+      override val min = JInt.MIN_VALUE.toLong
+      override val max = JInt.MAX_VALUE.toLong
     }
 
     protected sealed trait ShortKind extends Int.Kind
-    case object Short extends PrimTypeNode(Int, List(Byte)) with ShortKind {
+    case object Short extends PrimTypeNode(Int, List(Byte)) with ShortKind with PrimNumericInteger {
       type Kind = ShortKind
       override def fromXMLString(s: String): DataValueShort = s.toShort
+      override def fromNumber(n: Number): DataValueShort = n.shortValue
+      override val min = JShort.MIN_VALUE.toLong
+      override val max = JShort.MAX_VALUE.toLong
     }
 
     protected sealed trait ByteKind extends Short.Kind
-    case object Byte extends PrimTypeNode(Short) with ByteKind {
+    case object Byte extends PrimTypeNode(Short) with ByteKind with PrimNumericInteger {
       type Kind = ByteKind
       override def fromXMLString(s: String): DataValueByte = s.toByte
+      override def fromNumber(n: Number): DataValueByte = n.byteValue
+      override val min = JByte.MIN_VALUE.toLong
+      override val max = JByte.MAX_VALUE.toLong
     }
 
     protected sealed trait NonNegativeIntegerKind extends Integer.Kind
-    case object NonNegativeInteger extends PrimTypeNode(Integer, List(UnsignedLong)) with NonNegativeIntegerKind {
+    case object NonNegativeInteger extends PrimTypeNode(Integer, List(UnsignedLong)) with NonNegativeIntegerKind with PrimNumeric {
       type Kind = NonNegativeIntegerKind
-      override def fromXMLString(s: String) = new JBigInt(s)
+      override def fromXMLString(s: String): DataValueBigInt = new JBigInt(s)
+      override def fromNumber(n: Number): DataValueBigInt = new JBigInt(n.toString)
+      def isValidRange(n: Number): Boolean = n match {
+        case bi: JBigInt => bi.signum >= 0
+        case _ => n.longValue >= 0
+      }
     }
 
     protected sealed trait UnsignedLongKind extends NonNegativeInteger.Kind
-    case object UnsignedLong extends PrimTypeNode(NonNegativeInteger, List(UnsignedInt)) with UnsignedLongKind {
+    case object UnsignedLong extends PrimTypeNode(NonNegativeInteger, List(UnsignedInt)) with UnsignedLongKind with PrimNumeric {
       type Kind = UnsignedLongKind
-      val Max = new JBigInt("18446744073709551615")
-      override def fromXMLString(s: String) = new JBigInt(s)
+      override def fromXMLString(s: String): DataValueBigInt = new JBigInt(s)
+      override def fromNumber(n: Number): DataValueBigInt = new JBigInt(n.toString)
+      def isValidRange(n: Number): Boolean = n match {
+        case bd: JBigDecimal => bd.signum >= 0 && bd.compareTo(maxBD) <= 0
+        case bi: JBigInt => bi.signum >= 0 && bi.compareTo(max) <= 0
+        case _ => n.longValue >= 0
+      }
+      val max = new JBigInt(1, scala.Array.fill(8)(0xFF.toByte))
+      val maxBD = new JBigDecimal(max)
     }
 
     protected sealed trait UnsignedIntKind extends UnsignedLong.Kind
-    case object UnsignedInt extends PrimTypeNode(UnsignedLong, List(UnsignedShort, ArrayIndex)) with UnsignedIntKind {
+    case object UnsignedInt extends PrimTypeNode(UnsignedLong, List(UnsignedShort, ArrayIndex)) with UnsignedIntKind with PrimNumericInteger {
       type Kind = UnsignedIntKind
-      val Max = 4294967295L
       override def fromXMLString(s: String): DataValueLong = s.toLong
+      override def fromNumber(n: Number): DataValueLong = n.longValue
+      override val min = 0L
+      override val max = 0xFFFFFFFFL
     }
 
     protected sealed trait UnsignedShortKind extends UnsignedInt.Kind
-    case object UnsignedShort extends PrimTypeNode(UnsignedInt, List(UnsignedByte)) with UnsignedShortKind {
+    case object UnsignedShort extends PrimTypeNode(UnsignedInt, List(UnsignedByte)) with UnsignedShortKind with PrimNumericInteger {
       type Kind = UnsignedShortKind
-      val Max = 65535
       override def fromXMLString(s: String): DataValueInt = s.toInt
+      override def fromNumber(n: Number): DataValueInt = n.intValue
+      override val min = 0L
+      override val max = 0xFFFFL
     }
 
     protected sealed trait UnsignedByteKind extends UnsignedShort.Kind
-    case object UnsignedByte extends PrimTypeNode(UnsignedShort) with UnsignedByteKind {
+    case object UnsignedByte extends PrimTypeNode(UnsignedShort) with UnsignedByteKind with PrimNumericInteger {
       type Kind = UnsignedByteKind
-      val Max = 255
       override def fromXMLString(s: String): DataValueShort = s.toShort
+      override def fromNumber(n: Number): DataValueShort = n.shortValue
+      override val min = 0L
+      override val max = 0xFFL
     }
 
     protected sealed trait StringKind extends AnyAtomic.Kind

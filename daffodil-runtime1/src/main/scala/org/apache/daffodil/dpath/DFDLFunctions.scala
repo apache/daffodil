@@ -24,6 +24,7 @@ import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.infoset.DataValue.DataValueBool
 import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.infoset.DataValue.DataValueString
+import org.apache.daffodil.infoset.DataValue.DataValueShort
 
 case class DFDLCheckConstraints(recipe: CompiledDPath) extends RecipeOpWithSubRecipes(recipe) {
   override def run(dstate: DState) {
@@ -172,7 +173,8 @@ case class DFDLSetBits(bitRecipes: List[CompiledDPath]) extends RecipeOpWithSubR
       i += 1
       bitR = bitR.tail
     }
-    dstate.setCurrentValue(byteVal)
+    val res: DataValueShort = byteVal.toShort
+    dstate.setCurrentValue(res)
   }
 
   private def processValue(i: Int): Boolean = {

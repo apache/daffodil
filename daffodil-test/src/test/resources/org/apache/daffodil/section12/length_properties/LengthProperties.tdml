@@ -854,9 +854,9 @@
       dfdl:lengthKind="explicit" dfdl:length="16" dfdl:byteOrder="littleEndian" />
     <xs:element name="bit5" type="xs:unsignedInt"
       dfdl:lengthKind="explicit" dfdl:length="16" dfdl:byteOrder="bigEndian" />
-    <xs:element name="bit6" type="xs:unsignedShort"
+    <xs:element name="bit6" type="xs:unsignedInt"
       dfdl:lengthKind="explicit" dfdl:length="24" dfdl:alignment="1" dfdl:byteOrder="bigEndian" />
-    <xs:element name="bit7" type="xs:unsignedShort"
+    <xs:element name="bit7" type="xs:unsignedInt"
       dfdl:lengthKind="explicit" dfdl:length="24" dfdl:alignment="1" dfdl:byteOrder="littleEndian" />
     <xs:element name="bit8" type="xs:unsignedShort"
       dfdl:lengthKind="explicit" dfdl:length="9" dfdl:alignment="1" dfdl:byteOrder="bigEndian" />
@@ -866,8 +866,8 @@
     <xs:element name="s1">
       <xs:complexType>
         <xs:sequence dfdl:separator="">
-          <xs:element name="bit10" type="xs:unsignedByte" dfdl:lengthKind="explicit" dfdl:length="9" dfdl:byteOrder="bigEndian" />
-          <xs:element name="bit11" type="xs:unsignedByte" dfdl:lengthKind="explicit" dfdl:length="10" dfdl:byteOrder="littleEndian"/>
+          <xs:element name="bit10" type="xs:unsignedShort" dfdl:lengthKind="explicit" dfdl:length="9" dfdl:byteOrder="bigEndian" />
+          <xs:element name="bit11" type="xs:unsignedShort" dfdl:lengthKind="explicit" dfdl:length="10" dfdl:byteOrder="littleEndian"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>

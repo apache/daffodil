@@ -19,6 +19,7 @@ package org.apache.daffodil.dpath
 
 import java.math.{ BigInteger => JBigInt }
 
+import org.apache.daffodil.dpath.NodeInfo.PrimType
 import org.apache.daffodil.infoset.DataValue.DataValueBigInt
 import org.apache.daffodil.infoset.DataValue.DataValueLong
 import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
@@ -66,30 +67,28 @@ case object HexStringToUnsignedLong extends Converter {
     res
   }
 }
-case object BigIntToLong extends Converter {
-  val MAX_VALUE = JBigInt.valueOf(Long.MaxValue)
-  val MIN_VALUE = JBigInt.valueOf(Long.MinValue)
+case object IntegerToLong extends Converter with NumericRangeCheck {
   override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong = {
-    val res = asBigInt(a.getAnyRef)
-    if (res.compareTo(MIN_VALUE) == -1 || res.compareTo(MAX_VALUE) == 1) throw new NumberFormatException("Value %s out of range for Long type.".format(res))
+    val res = a.getBigInt
+    checkRange(res)
     asLong(res)
   }
+  override protected val rangePrim = PrimType.Long
 }
 case object IntToLong extends Converter {
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong = asLong(a.getAnyRef)
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong = asLong(a.getInt)
 }
-case object UnsignedLongToLong extends Converter {
-  val MAX_VALUE = JBigInt.valueOf(Long.MaxValue)
-  val MIN_VALUE = JBigInt.valueOf(Long.MinValue)
+case object UnsignedLongToLong extends Converter with NumericRangeCheck {
   override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong = {
-    val res = asBigInt(a.getAnyRef)
-    if (res.compareTo(MIN_VALUE) == -1 || res.compareTo(MAX_VALUE) == 1) throw new NumberFormatException("Value %s out of range for Long type.".format(res))
+    val res = a.getBigInt
+    checkRange(res)
     asLong(res)
   }
+  override protected val rangePrim = PrimType.Long
 }
 case object UnsignedIntToLong extends Converter {
   override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong = {
-    asLong(a.getAnyRef)
+    a.getLong
   }
 }
 case object ArrayIndexToLong extends Converter {
@@ -98,14 +97,14 @@ case object ArrayIndexToLong extends Converter {
   }
 }
 case object ShortToLong extends Converter {
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong = asLong(a.getAnyRef)
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong = asLong(a.getShort)
 }
 case object UnsignedShortToLong extends Converter {
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong = asLong(a.getAnyRef)
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong = asLong(a.getInt)
 }
 case object ByteToLong extends Converter {
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong = asLong(a.getAnyRef)
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong = asLong(a.getByte)
 }
 case object UnsignedByteToLong extends Converter {
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong = asLong(a.getAnyRef)
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong = asLong(a.getShort)
 }

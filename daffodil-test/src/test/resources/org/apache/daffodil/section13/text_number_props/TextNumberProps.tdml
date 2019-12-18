@@ -419,7 +419,9 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Unable to parse '(4,3,0.00)</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>xs:float</tdml:error>
+      <tdml:error>(4,3,0.00)</tdml:error>
     </tdml:errors>
 
   </tdml:parserTestCase>
@@ -2273,7 +2275,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Convert to Integer (for xs:int)</tdml:error>
+      <tdml:error>xs:int</tdml:error>
       <tdml:error>Unable to parse</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
@@ -2293,7 +2295,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Convert to Integer (for xs:int)</tdml:error>
+      <tdml:error>xs:int</tdml:error>
       <tdml:error>Unable to parse</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
@@ -3239,7 +3241,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Convert to Integer</tdml:error>
+      <tdml:error>xs:int</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -3258,8 +3260,9 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Convert to Integer (for xs:int)</tdml:error>
-      <tdml:error>Unable to parse '123'</tdml:error>
+      <tdml:error>xs:int</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>123</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -3278,8 +3281,9 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Convert to Integer (for xs:int)</tdml:error>
-      <tdml:error>Unable to parse '*****'</tdml:error>
+      <tdml:error>xs:int</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>*****</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -3300,8 +3304,9 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Convert to Unsigned Integer (for xs:unsignedInt)</tdml:error>
-      <tdml:error>Out of Range: '(123)' converted to -123, is not in range for the type</tdml:error>
+      <tdml:error>xs:unsignedInt</tdml:error>
+      <tdml:error>out of range</tdml:error>
+      <tdml:error>-123</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -3322,8 +3327,9 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Convert to Unsigned Short (for xs:unsignedShort)</tdml:error>
-      <tdml:error>Out of Range: '-123' converted to -123, is not in range for the type</tdml:error>
+      <tdml:error>xs:unsignedShort</tdml:error>
+      <tdml:error>out of range</tdml:error>
+      <tdml:error>-123</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -3759,7 +3765,9 @@
 
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Convert to Double (for xs:double): Unable to parse '1234567.89AbC2'</tdml:error>
+      <tdml:error>xs:double</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>1234567.89AbC2</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -4039,7 +4047,9 @@
 
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Unable to parse 'NOTANUMBER'</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>xs:long</tdml:error>
+      <tdml:error>NOTANUMBER</tdml:error>
     </tdml:errors>
 
   </tdml:parserTestCase>
@@ -4059,7 +4069,9 @@
 
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Unable to parse 'INFINITY'</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>xs:long</tdml:error>
+      <tdml:error>INFINITY</tdml:error>
     </tdml:errors>
 
   </tdml:parserTestCase>

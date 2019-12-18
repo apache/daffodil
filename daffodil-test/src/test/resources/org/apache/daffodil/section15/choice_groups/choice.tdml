@@ -300,9 +300,11 @@
     <tdml:document><![CDATA[AAA]]></tdml:document>
 
     <tdml:errors>
-      <tdml:error>Convert</tdml:error>
-      <tdml:error>float</tdml:error>
-      <tdml:error>int</tdml:error>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>xs:int</tdml:error>
+      <tdml:error>xs:float</tdml:error>
+      <tdml:error>AAA</tdml:error>
       <tdml:error>Alternative failed</tdml:error>
       <tdml:error>All choice alternatives failed</tdml:error>
 
@@ -1789,8 +1791,8 @@ it sure is/
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
       <tdml:error>Choice dispatch branch failed</tdml:error>
-      <tdml:error>Convert</tdml:error>
-      <tdml:error>integer</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>xs:int</tdml:error>
       <tdml:error>fail</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
