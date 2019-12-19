@@ -20,9 +20,7 @@ package org.apache.daffodil.io
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
 import java.util.regex.Pattern
-
-import scala.BigInt
-import scala.math.BigInt.int2bigInt
+import java.math.{BigInteger => JBigInt}
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -298,7 +296,7 @@ class TestInputSourceDataInputStream {
     val dis = InputSourceDataInputStream(List(0xFF).map { _.toByte }.toArray)
     val ml = dis.getSignedBigInt(1, finfo)
     assertEqualsTyped[Long](1, dis.bitPos0b)
-    val expected = BigInt(1)
+    val expected = JBigInt.ONE
     assertTrue(expected =:= ml)
   }
 
@@ -306,24 +304,24 @@ class TestInputSourceDataInputStream {
     val dis = InputSourceDataInputStream(List(0xC1, 0xC2, 0xC3, 0xC4, 0xC5).map { _.toByte }.toArray)
     val ml = dis.getSignedBigInt(40, finfo)
     assertEqualsTyped[Long](40, dis.bitPos0b)
-    val expected = BigInt(0xFFFFFFC1C2C3C4C5L)
-    assertEqualsTyped[BigInt](expected, ml)
+    val expected = JBigInt.valueOf(0xFFFFFFC1C2C3C4C5L)
+    assertEqualsTyped[JBigInt](expected, ml)
   }
 
   @Test def testUnsignedBigInt1 {
     val dis = InputSourceDataInputStream(List(0xFF).map { _.toByte }.toArray)
     val ml = dis.getUnsignedBigInt(2, finfo)
     assertEqualsTyped(2, dis.bitPos0b)
-    val expected = BigInt(3)
-    assertEqualsTyped[BigInt](expected, ml)
+    val expected = JBigInt.valueOf(3)
+    assertEqualsTyped[JBigInt](expected, ml)
   }
 
   @Test def testUnsignedBigInt2 {
     val dis = InputSourceDataInputStream(List(0xC1, 0xC2, 0xC3, 0xC4, 0xC5).map { _.toByte }.toArray)
     val ml = dis.getUnsignedBigInt(40, finfo)
     assertEqualsTyped(40, dis.bitPos0b)
-    val expected = BigInt(0xC1C2C3C4C5L)
-    assertEqualsTyped[BigInt](expected, ml)
+    val expected = JBigInt.valueOf(0xC1C2C3C4C5L)
+    assertEqualsTyped[JBigInt](expected, ml)
   }
 
   @Test def testUnsignedBigInt3 {
@@ -334,7 +332,7 @@ class TestInputSourceDataInputStream {
     finfo.byteOrder = ByteOrder.LittleEndian
     finfo.bitOrder = BitOrder.LeastSignificantBitFirst
     val mbi = dis.getUnsignedBigInt(dat.length * 4, finfo)
-    val expected = BigInt(dat.reverse, 16)
+    val expected = new JBigInt(dat.reverse, 16)
     val expectedHex = "%x".format(expected)
     val actualHex = "%x".format(mbi)
     assertEqualsTyped[String](expectedHex, actualHex)
@@ -343,12 +341,12 @@ class TestInputSourceDataInputStream {
   @Test def testUnsignedBigInt4 {
     val expectedHex = "00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff0011223344556677"
     assertEqualsTyped(720, expectedHex.length)
-    val expected = BigInt(expectedHex, 16)
-    val valueWithExtraLSByte = expected << 8
-    assertEqualsTyped[Long](0, (valueWithExtraLSByte & 0xFF).toInt)
+    val expected = new JBigInt(expectedHex, 16)
+    val valueWithExtraLSByte = expected.shiftLeft(8)
+    assertEqualsTyped[Long](0, (valueWithExtraLSByte.and(JBigInt.valueOf(0xFF))).intValue())
     assertEqualsTyped[Long](0x77, (valueWithExtraLSByte.toByteArray.dropRight(1).last & 0xFF).toInt)
-    val valueWith3BitsInLSByte = valueWithExtraLSByte >> 3
-    assertEqualsTyped[Long](0xE0, (valueWith3BitsInLSByte & 0xFF).toInt)
+    val valueWith3BitsInLSByte = valueWithExtraLSByte.shiftRight(3)
+    assertEqualsTyped[Long](0xE0, (valueWith3BitsInLSByte.and(JBigInt.valueOf(0xFF))).intValue())
     val valueWith3BitsInLSByteAsHexAsHexBytesLittleEndian = valueWith3BitsInLSByte.toByteArray.toList.reverse :+ 0.toByte
     val dat = valueWith3BitsInLSByteAsHexAsHexBytesLittleEndian.toArray
     assertEqualsTyped[Long](361, dat.length)

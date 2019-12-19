@@ -90,12 +90,6 @@ case class ConvertTextNumberUnparser[S](
         if (d > 0) df.getPositivePrefix + dfs.getInfinity + df.getPositiveSuffix
         else df.getNegativePrefix + dfs.getInfinity + df.getNegativeSuffix
       case d: JDouble if d.isNaN => dfs.getNaN
-      // Needed because the DecimalFormat class of ICU will call
-      // doubleValue on scala's BigInt and BigDecimal because it
-      // doesn't recognize it as Java's BigInteger and BigDecimal.
-      // This caused large numbers to be truncated silently.
-      case bd: scala.math.BigDecimal => Assert.usageError("Received scala.math.BigDecimal, expected java.math.BigDecimal.")
-      case bi: scala.math.BigInt => Assert.usageError("Received scala.math.BigInt, expected java.math.BigInteger.")
       case _ =>
         try {
           df.format(value.getAnyRef)

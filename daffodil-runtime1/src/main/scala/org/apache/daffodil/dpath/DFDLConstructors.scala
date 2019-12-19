@@ -54,8 +54,6 @@ abstract class DFDLConstructorFunction(recipe: CompiledDPath, argType: NodeInfo.
         HexStringToLong.computeValue(hexStr, dstate)
       }
       case s: String => StringToLong.computeValue(s, dstate)
-      case bi: BigInt => BigIntToLong.computeValue(bi, dstate)
-      case bd: BigDecimal if (bd.isWhole()) => BigIntToLong.computeValue(bd.toBigInt, dstate)
       case bi: JBigInt => BigIntToLong.computeValue(bi, dstate)
       case bd: JBigDecimal if (bd.remainder(JBigDecimal.ONE) == JBigDecimal.ZERO) => BigIntToLong.computeValue(bd.toBigInteger(), dstate)
       case hb: Array[Byte] => {
@@ -117,19 +115,12 @@ case class DFDLHexBinary(recipe: CompiledDPath, argType: NodeInfo.Kind)
       }
       case b: JByte => HexBinaryConversions.toByteArray(b)
       case s: JShort => HexBinaryConversions.toByteArray(s)
-      case bi: BigInt => {
-        // Literal number
-        reduce(bi)
-      }
       case i: JInt => {
         // Possibly a Literal Number, try to fit it into the smallest
         // value anyway.
         reduce(i)
       }
       case l: JLong => HexBinaryConversions.toByteArray(l)
-      case ul: BigDecimal => {
-        reduce(ul)
-      }
       case bi: JBigInt => reduce(bi)
       case bd: JBigDecimal => reduce(bd)
 
@@ -216,8 +207,6 @@ case class DFDLUnsignedLong(recipe: CompiledDPath, argType: NodeInfo.Kind)
       case s: String => StringToUnsignedLong.computeValue(s, dstate)
       case bi: JBigInt => IntegerToUnsignedLong.computeValue(bi, dstate)
       case bd: JBigDecimal => IntegerToUnsignedLong.computeValue(bd, dstate)
-      case bi: BigInt => IntegerToUnsignedLong.computeValue(bi, dstate)
-      case bd: BigDecimal => IntegerToUnsignedLong.computeValue(bd, dstate)
       case x =>
         throw new NumberFormatException(nfeMsg.format(x))
     }

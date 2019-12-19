@@ -27,6 +27,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
 import java.nio.ByteBuffer
+import java.math.{BigInteger => JBigInt}
 import org.apache.daffodil.exceptions.Assert
 import java.nio.charset.CoderResult
 import java.nio.channels.Channels
@@ -37,6 +38,7 @@ import org.apache.daffodil.equality._
 import org.apache.daffodil.util.Bits
 import org.apache.daffodil.util.LogLevel
 import org.apache.daffodil.processors.charset.BitsCharsetNonByteSizeEncoder
+import java.math.{BigInteger => JBigInt}
 
 import java.util.Arrays
 
@@ -366,15 +368,15 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
     }
   }
 
-  final override def putBigInt(bigInt: BigInt, bitLengthFrom1: Int, signed: Boolean, finfo: FormatInfo): Boolean = {
+  final override def putBigInt(bigInt: JBigInt, bitLengthFrom1: Int, signed: Boolean, finfo: FormatInfo): Boolean = {
     Assert.usage(isWritable)
     Assert.usage(bitLengthFrom1 > 0)
-    Assert.usage(signed || (!signed && bigInt >= 0))
+    Assert.usage(signed || (!signed && bigInt.signum() >= 0))
 
     val res = {
       if (bitLengthFrom1 <= 64) {
         // output as a long
-        val longInt = bigInt.toLong
+        val longInt = bigInt.longValue()
         putLongChecked(longInt, bitLengthFrom1, finfo)
       } else {
         // Note that we do not need to distinguish between signed and unsigned
@@ -418,7 +420,7 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
               // The most significant bit of the most significant byte was 1. That
               // means this was a negative number and these padding bytes must be
               // sign extended
-              Assert.invariant(bigInt < 0)
+              Assert.invariant(bigInt.signum() < 0)
               var i = 0
               while (i < numPaddingBytes) {
                 paddedArray(i) = 0xFF.toByte

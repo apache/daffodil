@@ -18,21 +18,21 @@
 package org.apache.daffodil.io
 
 import java.io.InputStream
+import java.math.{ BigInteger => JBigInt }
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
 import java.nio.LongBuffer
 
-import passera.unsigned.ULong
-
-import org.apache.daffodil.equality._
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.schema.annotation.props.gen.ByteOrder
 import org.apache.daffodil.util.Bits
+import org.apache.daffodil.util.MStackOf
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.MaybeULong
-import org.apache.daffodil.util.MStackOf
 import org.apache.daffodil.util.Pool
+
+import passera.unsigned.ULong
 
 /**
  * Factory for creating this type of DataInputStream
@@ -471,12 +471,12 @@ final class InputSourceDataInputStream private (val inputSource: InputSource)
     }
   }
 
-  def getSignedBigInt(bitLengthFrom1: Int, finfo: FormatInfo): BigInt = {
+  def getSignedBigInt(bitLengthFrom1: Int, finfo: FormatInfo): JBigInt = {
     // threadCheck()
     Assert.usage(bitLengthFrom1 >= 1)
 
     if (bitLengthFrom1 <= 64) {
-      BigInt(getSignedLong(bitLengthFrom1, finfo))
+      JBigInt.valueOf(getSignedLong(bitLengthFrom1, finfo))
     } else {
       val bytes = getByteArray(bitLengthFrom1, finfo)
       val fragmentLength = bitLengthFrom1 % 8
@@ -489,11 +489,11 @@ final class InputSourceDataInputStream private (val inputSource: InputSource)
         val shift = 8 - fragmentLength
         bytes(0) = ((bytes(0) << shift).toByte >> shift).toByte
       }
-      BigInt(bytes)
+      new JBigInt(bytes)
     }
   }
 
-  def getUnsignedBigInt(bitLengthFrom1: Int, finfo: FormatInfo): BigInt = {
+  def getUnsignedBigInt(bitLengthFrom1: Int, finfo: FormatInfo): JBigInt = {
     Assert.usage(bitLengthFrom1 >= 1)
     val bytes = getByteArray(bitLengthFrom1, finfo)
     val fragmentLength = bitLengthFrom1 % 8
@@ -501,7 +501,7 @@ final class InputSourceDataInputStream private (val inputSource: InputSource)
       adjustBigIntArrayWithFragmentByte(bytes, fragmentLength, finfo)
     }
 
-    BigInt(1, bytes)
+    new JBigInt(1, bytes)
   }
 
   /**

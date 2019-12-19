@@ -147,7 +147,7 @@ class TestDFDLExpressionTree extends Parsers {
       val List(n1, n2, n3) = steps
       val u @ Up(None) = n1; assertNotNull(u)
       val u2 @ Up(Some(PredicateExpression(LiteralExpression(two: JBigInt)))) = n2; assertNotNull(u2)
-      assertEquals(BigDecimal(2), BigDecimal(two))
+      assertEquals(JBigInt.valueOf(2), two)
       val n3p @ NamedStep("bookstore", None) = n3; assertNotNull(n3p)
     }
   }
@@ -244,8 +244,8 @@ class TestDFDLExpressionTree extends Parsers {
   @Test def testAddConstants() {
     testExpr(dummySchema, "{ 1 + 2 }") { actual =>
       val a @ WholeExpression(_, AdditiveExpression("+", List(LiteralExpression(one: JBigInt), LiteralExpression(two: JBigInt))), _, _, _) = actual; assertNotNull(a)
-      assertEquals(BigDecimal(1), BigDecimal(one))
-      assertEquals(BigDecimal(2), BigDecimal(two))
+      assertEquals(JBigInt.valueOf(1), one)
+      assertEquals(JBigInt.valueOf(2), two)
     }
   }
 
@@ -257,10 +257,9 @@ class TestDFDLExpressionTree extends Parsers {
 
   @Test def test_numbers1() = {
     testExpr(dummySchema, "{ 0. }") { actual: Expression =>
-      val res = BigDecimal("0.0")
-      val a @ WholeExpression(_, LiteralExpression(actualRes), _, _, _) = actual; assertNotNull(a)
-      val bd = BigDecimal(actualRes.asInstanceOf[JBigDecimal])
-      assertEquals(res, bd)
+      val res = JBigDecimal.ZERO
+      val a @ WholeExpression(_, LiteralExpression(actualRes: JBigDecimal), _, _, _) = actual; assertNotNull(a)
+      assertEquals(res, actualRes)
     }
   }
 
@@ -287,14 +286,14 @@ class TestDFDLExpressionTree extends Parsers {
     }
 
     testExpr(dummySchema, "{ 0 }") { actual =>
-      val res = scala.math.BigInt(0)
+      val res = JBigInt.ZERO
       val a @ WholeExpression(_, LiteralExpression(actualRes: JBigInt), _, _, _) = actual; assertNotNull(a)
-      assertEquals(res, BigInt(actualRes))
+      assertEquals(res, actualRes)
     }
     testExpr(dummySchema, "{ 9817239872193792873982173948739879128370982398723897921370 }") { actual =>
-      val res = scala.math.BigInt("9817239872193792873982173948739879128370982398723897921370")
+      val res = new JBigInt("9817239872193792873982173948739879128370982398723897921370")
       val a @ WholeExpression(_, LiteralExpression(actualRes: JBigInt), _, _, _) = actual; assertNotNull(a)
-      assertEquals(res, BigInt(actualRes))
+      assertEquals(res, actualRes)
     }
 
   }

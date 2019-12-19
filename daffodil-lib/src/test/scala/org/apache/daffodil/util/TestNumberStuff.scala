@@ -17,15 +17,18 @@
 
 package org.apache.daffodil.util
 
+import java.lang.{ Long => JLong, Number => JNumber }
+import java.math.{ BigInteger => JBigInt }
+import java.text.ParsePosition
+
+import org.apache.daffodil.Implicits.intercept
+import org.junit.Test
+
 import com.ibm.icu.text.DecimalFormat
 import com.ibm.icu.text.DecimalFormatSymbols
-import java.text.ParsePosition
-import junit.framework.Assert._
-import org.junit.Test
-import org.junit.Test
-import scala.math.BigInt.int2bigInt
 
-import org.apache.daffodil.Implicits._
+import junit.framework.Assert.assertEquals
+import junit.framework.Assert.assertTrue
 
 /**
  * Tests that characterize ICU number parsing specifically with respect
@@ -177,19 +180,19 @@ case class LongConverter() extends ConvertTo[Long] {
   def getNum(j: Number) = j.longValue
 }
 
-case class UnsignedLongConverter() extends ConvertTo[BigInt] {
+case class UnsignedLongConverter() extends ConvertTo[JBigInt] {
 
-  val maxUnsignedLong = new BigInt(new java.math.BigInteger("18446744073709551615"))
+  val maxUnsignedLong = new JBigInt("18446744073709551615")
 
-  def getNum(j: Number) = j match {
-    case l: java.lang.Long => {
-      if (l >= 0L) new BigInt(java.math.BigInteger.valueOf(l))
+  def getNum(j: JNumber) = j match {
+    case l: JLong => {
+      if (l >= 0L) JBigInt.valueOf(l)
       else throw new Exception("parsed as negative value")
     }
     case icubd: com.ibm.icu.math.BigDecimal => {
-      val ul = new BigInt(icubd.toBigIntegerExact)
-      if (ul > maxUnsignedLong) throw new Exception("too big for unsignedLong")
-      if (ul < 0) throw new Exception("parsed as negative value")
+      val ul = icubd.toBigIntegerExact
+      if (ul.compareTo(maxUnsignedLong)>0) throw new Exception("too big for unsignedLong")
+      if (ul.signum() < 0) throw new Exception("parsed as negative value")
       ul
     }
     case other => throw new Exception("not a valid unsignedLong: " + other + " : " + other.getClass.getName)

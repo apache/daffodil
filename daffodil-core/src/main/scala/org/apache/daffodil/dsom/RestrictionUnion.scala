@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.dsom
 
-import java.math.{BigInteger => JBigInt}
+import java.math.{BigInteger => JBigInt, BigDecimal => JBigDecimal}
 import org.apache.daffodil.exceptions.ThrowsSDE
 import org.apache.daffodil.exceptions.UnsuppressableException
 import scala.xml.Node
@@ -297,20 +297,20 @@ final class Union(val xmlArg: Node, simpleTypeDef: SimpleTypeDefBase)
 }
 
 sealed trait TypeChecks { self: Restriction =>
-  protected def dateToBigDecimal(date: String, format: String, dateType: String, context: ThrowsSDE): java.math.BigDecimal = {
+  protected def dateToBigDecimal(date: String, format: String, dateType: String, context: ThrowsSDE): JBigDecimal = {
     val df = new SimpleDateFormat(format)
     df.setCalendar(new GregorianCalendar())
     df.setTimeZone(TimeZone.GMT_ZONE)
     val bd = try {
       val dt = df.parse(date)
-      new java.math.BigDecimal(dt.getTime())
+      new JBigDecimal(dt.getTime())
     } catch {
       case s: scala.util.control.ControlThrowable => throw s
       case u: UnsuppressableException => throw u
       case e1: Exception => {
         try {
           // Could already be a BigDecimal
-          new java.math.BigDecimal(date)
+          new JBigDecimal(date)
         } catch {
           case s: scala.util.control.ControlThrowable => throw s
           case u: UnsuppressableException => throw u
@@ -321,16 +321,16 @@ sealed trait TypeChecks { self: Restriction =>
     bd
   }
 
-  private def convertStringToBigDecimal(value: String, primType: PrimType, context: ThrowsSDE): java.math.BigDecimal = {
+  private def convertStringToBigDecimal(value: String, primType: PrimType, context: ThrowsSDE): JBigDecimal = {
     primType match {
       case PrimType.DateTime => dateToBigDecimal(value, "uuuu-MM-dd'T'HH:mm:ss.SSSSSSxxx", PrimType.DateTime.toString(), context)
       case PrimType.Date => dateToBigDecimal(value, "uuuu-MM-ddxxx", PrimType.Date.toString(), context)
       case PrimType.Time => dateToBigDecimal(value, "HH:mm:ss.SSSSSSxxx", PrimType.Time.toString(), context)
-      case _ => new java.math.BigDecimal(value)
+      case _ => new JBigDecimal(value)
     }
   }
 
-  def checkRangeReturnsValue(value: String, primType: PrimType, theContext: ThrowsSDE): (Boolean, Option[BigDecimal]) = {
+  def checkRangeReturnsValue(value: String, primType: PrimType, theContext: ThrowsSDE): (Boolean, Option[JBigDecimal]) = {
     // EmptyString is only valid for hexBinary and String
     if ((value == null | value.length() == 0)) {
       return primType match {
@@ -349,8 +349,8 @@ sealed trait TypeChecks { self: Restriction =>
 
     // Check Boolean, and the Numeric types.
     (value.toLowerCase(), primType) match {
-      case ("true", PrimType.Boolean) => (true, Some(BigDecimal(1)))
-      case ("false", PrimType.Boolean) => (true, Some(BigDecimal(0)))
+      case ("true", PrimType.Boolean) => (true, Some(JBigDecimal.ONE))
+      case ("false", PrimType.Boolean) => (true, Some(JBigDecimal.ZERO))
       case (x, PrimType.Boolean) => theContext.SDE("%s is not a valid Boolean value. Expected 'true' or 'false'.", x)
       case (_, _) => {
         // Perform conversions once
@@ -403,49 +403,49 @@ sealed trait TypeChecks { self: Restriction =>
     boolResult
   }
 
-  protected def isNumInRange(num: java.math.BigDecimal, min: java.math.BigDecimal,
-    max: java.math.BigDecimal): Boolean = {
+  protected def isNumInRange(num: JBigDecimal, min: JBigDecimal,
+    max: JBigDecimal): Boolean = {
     val checkMin = num.compareTo(min)
     if (checkMin < 0) { return false } // num less than min
     val checkMax = num.compareTo(max)
     if (checkMax > 0) { return false } // num greater than max
     true
   }
-  protected def isInByteRange(value: java.math.BigDecimal): Boolean = {
-    val min = new java.math.BigDecimal(Byte.MinValue.toLong.toString())
-    val max = new java.math.BigDecimal(Byte.MaxValue.toLong.toString())
+  protected def isInByteRange(value: JBigDecimal): Boolean = {
+    val min = new JBigDecimal(Byte.MinValue.toLong.toString())
+    val max = new JBigDecimal(Byte.MaxValue.toLong.toString())
     isNumInRange(value, min, max)
   }
-  protected def isInShortRange(value: java.math.BigDecimal): Boolean = {
-    val min = new java.math.BigDecimal(Short.MinValue.toLong.toString())
-    val max = new java.math.BigDecimal(Short.MaxValue.toLong.toString())
+  protected def isInShortRange(value: JBigDecimal): Boolean = {
+    val min = new JBigDecimal(Short.MinValue.toLong.toString())
+    val max = new JBigDecimal(Short.MaxValue.toLong.toString())
     isNumInRange(value, min, max)
   }
-  protected def isInIntRange(value: java.math.BigDecimal): Boolean = {
-    val min = new java.math.BigDecimal(Int.MinValue.toString())
-    val max = new java.math.BigDecimal(Int.MaxValue.toString())
+  protected def isInIntRange(value: JBigDecimal): Boolean = {
+    val min = new JBigDecimal(Int.MinValue.toString())
+    val max = new JBigDecimal(Int.MaxValue.toString())
     isNumInRange(value, min, max)
   }
-  protected def isInIntegerRange(value: java.math.BigDecimal): Boolean = {
-    val min = new java.math.BigDecimal(Int.MinValue.toString())
+  protected def isInIntegerRange(value: JBigDecimal): Boolean = {
+    val min = new JBigDecimal(Int.MinValue.toString())
     // Unbounded Integer
     val checkMin = value.compareTo(min)
     if (checkMin < 0) { return false } // num less than min
     true
   }
-  protected def isInLongRange(value: java.math.BigDecimal): Boolean = {
-    val min = new java.math.BigDecimal(Long.MinValue.toString())
-    val max = new java.math.BigDecimal(Long.MaxValue.toString())
+  protected def isInLongRange(value: JBigDecimal): Boolean = {
+    val min = new JBigDecimal(Long.MinValue.toString())
+    val max = new JBigDecimal(Long.MaxValue.toString())
     isNumInRange(value, min, max)
   }
-  protected def isInDoubleRange(value: java.math.BigDecimal): Boolean = {
-    val min = new java.math.BigDecimal(Double.MinValue.toString())
-    val max = new java.math.BigDecimal(Double.MaxValue.toString())
+  protected def isInDoubleRange(value: JBigDecimal): Boolean = {
+    val min = new JBigDecimal(Double.MinValue.toString())
+    val max = new JBigDecimal(Double.MaxValue.toString())
     isNumInRange(value, min, max)
   }
-  protected def isInFloatRange(value: java.math.BigDecimal): Boolean = {
-    val min = new java.math.BigDecimal(Float.MinValue.toString())
-    val max = new java.math.BigDecimal(Float.MaxValue.toString())
+  protected def isInFloatRange(value: JBigDecimal): Boolean = {
+    val min = new JBigDecimal(Float.MinValue.toString())
+    val max = new JBigDecimal(Float.MaxValue.toString())
     isNumInRange(value, min, max)
   }
 
@@ -467,45 +467,45 @@ sealed trait TypeChecks { self: Restriction =>
    *
    * See http://stackoverflow.com/questions/35435691/bigdecimal-precision-and-scale
    */
-  protected def isInDecimalRange(value: java.math.BigDecimal): Boolean = {
+  protected def isInDecimalRange(value: JBigDecimal): Boolean = {
     true
   }
-  protected def isInNegativeIntegerRange(value: java.math.BigDecimal, context: ThrowsSDE): Boolean = {
+  protected def isInNegativeIntegerRange(value: JBigDecimal, context: ThrowsSDE): Boolean = {
     // TODO: NegativeInteger not supported in DFDL v1.0
-    val min = new java.math.BigDecimal(Int.MinValue.toString())
-    // val max = new java.math.BigDecimal(Int.MaxValue.toString())
+    val min = new JBigDecimal(Int.MinValue.toString())
+    // val max = new JBigDecimal(Int.MaxValue.toString())
     val isNegative = value.signum == -1
     if (!isNegative) context.SDE("Expected a negative integer for this value.")
     val checkMin = value.compareTo(min)
     if (checkMin < 0) context.SDE("Value (%s) was found to be more negative than allowed by Int.MinValue.", value.intValue())
     true
   }
-  protected def isInNonNegativeIntegerRange(value: java.math.BigDecimal): Boolean = {
+  protected def isInNonNegativeIntegerRange(value: JBigDecimal): Boolean = {
     // Should be treated as unsigned Integer (unbounded)
-    // val min = java.math.BigDecimal.ZERO
+    // val min = JBigDecimal.ZERO
     val isNegative = value.signum == -1
     if (isNegative) return false
     true
   }
-  protected def isInUnsignedXXXRange(value: java.math.BigDecimal, numBits: Int, typeName: String): Boolean = {
+  protected def isInUnsignedXXXRange(value: JBigDecimal, numBits: Int, typeName: String): Boolean = {
     Assert.usage(numBits <= 64, "isInUnsignedXXXRange: numBits must be <= 64.")
-    // val min = java.math.BigDecimal.ZERO
-    val max = new java.math.BigDecimal(JBigInt.ONE.shiftLeft(numBits)).subtract(new java.math.BigDecimal(1))
+    // val min = JBigDecimal.ZERO
+    val max = new JBigDecimal(JBigInt.ONE.shiftLeft(numBits)).subtract(new JBigDecimal(1))
     val isNegative = value.signum == -1
     if (isNegative) return false
     val checkMax = value.compareTo(max)
     if (checkMax > 0) return false
     true
   }
-  protected def isInUnsignedLongRange(value: java.math.BigDecimal): Boolean =
+  protected def isInUnsignedLongRange(value: JBigDecimal): Boolean =
     isInUnsignedXXXRange(value, 64, "ulong")
 
-  protected def isInUnsignedIntRange(value: java.math.BigDecimal): Boolean =
+  protected def isInUnsignedIntRange(value: JBigDecimal): Boolean =
     isInUnsignedXXXRange(value, 32, "uint")
 
-  protected def isInUnsignedShortRange(value: java.math.BigDecimal): Boolean =
+  protected def isInUnsignedShortRange(value: JBigDecimal): Boolean =
     isInUnsignedXXXRange(value, 16, "ushort")
 
-  protected def isInUnsignedByteRange(value: java.math.BigDecimal): Boolean =
+  protected def isInUnsignedByteRange(value: JBigDecimal): Boolean =
     isInUnsignedXXXRange(value, 8, "ubyte")
 }

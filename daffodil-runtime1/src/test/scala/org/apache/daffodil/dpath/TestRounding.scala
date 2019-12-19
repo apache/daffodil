@@ -17,9 +17,12 @@
 
 package org.apache.daffodil.dpath
 
-import junit.framework.Assert.assertEquals
+import org.apache.daffodil.Implicits.ImplicitsSuppressUnusedImportWarning
 import org.junit.Test
-import org.apache.daffodil.Implicits._; object INoWarn { ImplicitsSuppressUnusedImportWarning() }
+
+import junit.framework.Assert.assertEquals; object INoWarn { ImplicitsSuppressUnusedImportWarning() }
+import java.math.{ BigDecimal => JBigDecimal }
+import java.math.RoundingMode
 
 class TestRounding {
 
@@ -40,16 +43,16 @@ class TestRounding {
 
     //val bd0 = BigDecimal(f) // 3.4549999237060547 Deprecated
     //val bd1 = BigDecimal.valueOf(f) // 3.4549999237060547 Deprecated
-    val bd2 = BigDecimal(f.doubleValue()) // 3.4549999237060547
-    val bd3 = BigDecimal(f.toString) // 3.455
+    val bd2 = new JBigDecimal(f.doubleValue()) // 3.4549999237060547
+    val bd3 = new JBigDecimal(f.toString) // 3.455
 
-    def round(value: BigDecimal, precision: Int): BigDecimal = {
-      val rounded = value.setScale(precision, BigDecimal.RoundingMode.HALF_EVEN)
+    def round(value: JBigDecimal, precision: Int): JBigDecimal = {
+      val rounded = value.setScale(precision, RoundingMode.HALF_EVEN)
       rounded
     }
 
-    val expected0_to_2 = BigDecimal(3.45) // Incorrect/unexpected result
-    val expected3 = BigDecimal(3.46) // Correct result
+    val expected0_to_2 = new JBigDecimal("3.45") // Incorrect/unexpected result
+    val expected3 = new JBigDecimal("3.46") // Correct result
 
     //val res0 = round(bd0, 2) Deprecated
     //val res1 = round(bd1, 2) Deprecated
@@ -58,8 +61,8 @@ class TestRounding {
 
     //assertEquals(0, res0.compare(expected0_to_2)) Deprecated
     //assertEquals(0, res1.compare(expected0_to_2)) Deprecated
-    assertEquals(0, res2.compare(expected0_to_2))
-    assertEquals(0, res3.compare(expected3))
+    assertEquals(0, res2.compareTo(expected0_to_2))
+    assertEquals(0, res3.compareTo(expected3))
 
   }
 
