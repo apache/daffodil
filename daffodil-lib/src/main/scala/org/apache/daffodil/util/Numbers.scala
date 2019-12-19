@@ -98,8 +98,6 @@ object Numbers {
       case s: JShort => s.toInt
       case i: JInt => return i
       case l: JLong => l.toInt
-      case bi: BigInt => bi.toInt
-      case bd: BigDecimal => bd.toInt
       case bi: JBigInt => bi.intValue()
       case bd: JBigDecimal => bd.intValue()
       case _ => Assert.invariantFailed("Unsupported conversion to Int. %s of type %s".format(
@@ -115,8 +113,6 @@ object Numbers {
       case s: JShort => s.toByte
       case i: JInt => i.toByte
       case l: JLong => l.toByte
-      case bi: BigInt => bi.toByte
-      case bd: BigDecimal => bd.toByte
       case bi: JBigInt => bi.byteValue()
       case bd: JBigDecimal => bd.byteValue()
       case _ => Assert.invariantFailed("Unsupported conversion to Byte. %s of type %s".format(
@@ -132,8 +128,6 @@ object Numbers {
       case s: JShort => return s
       case i: JInt => i.toShort
       case l: JLong => l.toShort
-      case bi: BigInt => bi.toShort
-      case bd: BigDecimal => bd.toShort
       case bi: JBigInt => bi.shortValue()
       case bd: JBigDecimal => bd.shortValue()
       case _ => Assert.invariantFailed("Unsupported conversion to Short. %s of type %s".format(
@@ -150,8 +144,6 @@ object Numbers {
       case d: JDouble => d.toLong
       case f: JFloat => f.toLong
       case l: JLong => return l
-      case bi: BigInt => bi.toLong
-      case bd: BigDecimal => bd.toLong
       case bi: JBigInt => bi.longValue()
       case bd: JBigDecimal => bd.longValue()
       case _ => Assert.invariantFailed("Unsupported conversion to Long. %s of type %s".format(
@@ -172,8 +164,6 @@ object Numbers {
       case bd: JBigDecimal => bd.toBigInteger()
       case d: JDouble => new JBigDecimal(d).toBigInteger()
       case f: JFloat => new JBigDecimal(f.toDouble).toBigInteger()
-      case bi: BigInt => bi.underlying()
-      case bd: BigDecimal => bd.underlying().toBigInteger()
       // the rest of the JNumbers are integers long or smaller.
       case jn: JNumber => new JBigInt(jn.toString())
       case _ => Assert.invariantFailed("Unsupported conversion to BigInt. %s of type %s".format(
@@ -194,8 +184,6 @@ object Numbers {
       case bd: JBigDecimal => bd.toBigInteger()
       case d: JDouble => JBigDecimal.valueOf(d).toBigInteger()
       case f: JFloat => new JBigDecimal(f.toString()).toBigInteger()
-      case bi: BigInt => bi.bigInteger
-      case bd: BigDecimal => bd.toBigInt.bigInteger
       // the rest of the JNumbers are integers long or smaller.
       case jn: JNumber => JBigInt.valueOf(jn.longValue())
       case _ => Assert.invariantFailed("Unsupported conversion to BigInt. %s of type %s".format(
@@ -218,8 +206,6 @@ object Numbers {
       case s: JShort => s.toFloat
       case i: JInt => i.toFloat
       case l: JLong => l.toFloat
-      case bi: BigInt => bi.toFloat
-      case bd: BigDecimal => bd.toFloat
       case bi: JBigInt => bi.floatValue()
       case bd: JBigDecimal => bd.floatValue()
       case _ => Assert.invariantFailed("Unsupported conversion to Float. %s of type %s".format(
@@ -242,8 +228,6 @@ object Numbers {
       case s: JShort => s.toDouble
       case i: JInt => i.toDouble
       case l: JLong => l.toDouble
-      case bi: BigInt => bi.toDouble
-      case bd: BigDecimal => bd.toDouble
       case bi: JBigInt => bi.doubleValue()
       case bd: JBigDecimal => bd.doubleValue()
       case _ => Assert.invariantFailed("Unsupported conversion to Double. %s of type %s".format(
@@ -266,8 +250,6 @@ object Numbers {
       // HALF_EVEN rounding mode would round this to 3.45 rather than the desired 3.46.
       case f: JFloat => new java.math.BigDecimal(f.toString)
       case d: JDouble => java.math.BigDecimal.valueOf(d)
-      case bi: BigInt => new java.math.BigDecimal(bi.toString())
-      case bd: BigDecimal => bd.underlying()
       case bi: JBigInt => new java.math.BigDecimal(bi.toString())
       case bd: JBigDecimal => bd
       // The rest of the cases are integers long or smaller
@@ -292,8 +274,6 @@ object Numbers {
       // HALF_EVEN rounding mode would round this to 3.45 rather than the desired 3.46.
       case f: JFloat => new JBigDecimal(f.toString)
       case d: JDouble => JBigDecimal.valueOf(d)
-      case bi: BigInt => new JBigDecimal(bi.underlying())
-      case bd: BigDecimal => bd.bigDecimal
       case bi: JBigInt => new JBigDecimal(bi)
       case bd: JBigDecimal => bd
       // The rest of the cases are integers long or smaller
@@ -321,8 +301,6 @@ object Numbers {
       case l: Long => JLong.valueOf(l)
       case f: Float => JFloat.valueOf(f)
       case d: Double => JDouble.valueOf(d)
-      // case bi: BigInt => bi.bigInteger
-      // case bd: BigDecimal => bd.bigDecimal
       case jn: JNumber => jn
       case _ => Assert.invariantFailed("Unsupported conversion to Number. %s of type %s".format(
         n, Misc.getNameFromClass(n)))

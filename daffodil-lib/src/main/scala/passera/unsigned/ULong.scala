@@ -26,6 +26,7 @@
 
 package passera.unsigned
 
+import java.math.{BigInteger => JBigInt}
 
 case class ULong(override val longValue: Long) extends AnyVal with Unsigned[ULong, ULong, Long] with Serializable {
   private[unsigned] def rep = longValue
@@ -42,7 +43,7 @@ case class ULong(override val longValue: Long) extends AnyVal with Unsigned[ULon
   override def toLong: Long = rep
   override def toFloat: Float = (rep & 0x7fffffffffffffffL).toFloat
   override def toDouble: Double = (rep >>> 1).toDouble * 2.0 + (rep & 1L)
-  def toBigInt: BigInt = if (rep >= 0) BigInt(rep) else ULong.MaxValueAsBigInt - rep.abs + 1
+  def toBigInt: JBigInt = if (rep >= 0) JBigInt.valueOf(rep) else ULong.MaxValueAsBigInt.subtract(JBigInt.valueOf(rep.abs)).add(JBigInt.ONE)
 
   // override def intValue = rep
   override def byteValue = toByte
@@ -250,6 +251,6 @@ object ULong {
   val Zero = MinValue
   val MaxValue = ULong(~0L)
 
-  val MaxValueAsBigInt = BigInt(Long.MinValue).abs
+  val MaxValueAsBigInt = JBigInt.valueOf(Long.MinValue).abs
   private val maxULongString = MaxValueAsBigInt.toString()
 }

@@ -17,14 +17,15 @@
 
 package org.apache.daffodil.io
 
+import java.math.{ BigInteger => JBigInt }
 import java.util.regex.Matcher
-
-import passera.unsigned.ULong
 
 import org.apache.daffodil.exceptions.ThinThrowable
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.MaybeULong
 import org.apache.daffodil.util.Poolable
+
+import passera.unsigned.ULong
 
 /*
  * TODO:
@@ -353,7 +354,7 @@ trait DataInputStream
    * It is recommended that getUnsignedLong be used for any bit length 64 or less, as
    * that method does not require a heap allocated object to represent the value.
    */
-  def getUnsignedBigInt(bitLengthFrom1: Int, finfo: FormatInfo): BigInt
+  def getUnsignedBigInt(bitLengthFrom1: Int, finfo: FormatInfo): JBigInt
 
   /**
    * Constructs a big integer from the data. The current bit order and byte order are used.
@@ -373,7 +374,7 @@ trait DataInputStream
    * It is recommended that getSignedLong be used for any bit length 64 or less, as
    * that method does not require a heap allocated object to represent the value.
    */
-  def getSignedBigInt(bitLengthFrom1: Int, finfo: FormatInfo): BigInt
+  def getSignedBigInt(bitLengthFrom1: Int, finfo: FormatInfo): JBigInt
 
   /**
    * Float and Double

@@ -267,10 +267,6 @@ case class NumericOperator(nop: NumericOp, left: CompiledDPath, right: CompiledD
 }
 
 trait NumericOp {
-  import scala.language.implicitConversions
-
-  implicit def BigDecimalToJBigDecimal(bd: BigDecimal): JBigDecimal = bd.bigDecimal
-  implicit def BigIntToJBigInt(bi: BigInt): JBigInt = bi.bigInteger
 
   /**
    * It is such a pain that there is no scala.math.Number base class above

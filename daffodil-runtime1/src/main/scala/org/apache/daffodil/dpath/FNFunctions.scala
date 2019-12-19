@@ -340,15 +340,15 @@ case class FNRoundHalfToEven(recipeNum: CompiledDPath, recipePrecision: Compiled
     recipePrecision.run(dstate)
     val precision = dstate.intValue
     val bd = unrounded.getAnyRef match {
-      case s: String => BigDecimal(s) // TODO: Remove eventually. Holdover from JDOM where everything is a string.
-      case l: JLong => BigDecimal.valueOf(l)
-      case f: JFloat => BigDecimal.valueOf(f.toDouble)
-      case d: JDouble => BigDecimal.valueOf(d)
-      case bd: BigDecimal => bd
+      case s: String => new JBigDecimal(s) // TODO: Remove eventually. Holdover from JDOM where everything is a string.
+      case l: JLong => JBigDecimal.ONE
+      case f: JFloat => JBigDecimal.valueOf(f.toDouble)
+      case d: JDouble => JBigDecimal.valueOf(d)
+      case bd: JBigDecimal => bd
       case _ => Assert.invariantFailed("not a number")
     }
     val value = {
-      val rounded = bd.setScale(precision, BigDecimal.RoundingMode.HALF_EVEN)
+      val rounded = bd.setScale(precision, RoundingMode.HALF_EVEN)
       rounded
     }
     dstate.setCurrentValue(value)
@@ -396,9 +396,7 @@ trait FNRoundHalfToEvenKind {
       //
       case _: JFloat => roundIt
       case _: JDouble => roundIt
-      case _: BigDecimal => roundIt
       case _: JBigDecimal => roundIt
-      case _: BigInt => roundIt
       case _: JBigInt => roundIt
       case _: JLong => roundIt
       case _: JInt => roundIt
@@ -422,8 +420,8 @@ trait FNRoundHalfToEvenKind {
       // Any change in how asBigDecimal handles Float
       // will affect the correctness of this rounding operation.
       //
-      case _: JFloat | _: JDouble | _: BigDecimal | _: JBigDecimal => asBigDecimal(value.getAnyRef)
-      case _: BigInt | _: JBigInt | _: JLong | _: JInt | _: JByte | _: JShort => asBigDecimal(value.getAnyRef)
+      case _: JFloat | _: JDouble | _: JBigDecimal => asBigDecimal(value.getAnyRef)
+      case _: JBigInt | _: JLong | _: JInt | _: JByte | _: JShort => asBigDecimal(value.getAnyRef)
       case _ => Assert.usageError("Received a type other than xs:decimal, xs:double, xs:float, xs:integer or any of its sub-types.")
     }
     result
@@ -445,9 +443,7 @@ trait FNRoundHalfToEvenKind {
     val result:DataValuePrimitive = origValue.getAnyRef match {
       case _: JFloat => value.getBigDecimal.floatValue() // xs:float
       case _: JDouble => value.getBigDecimal.doubleValue() // xs:double
-      case _: BigDecimal => value // xs:decimal
       case _: JBigDecimal => value
-      case _: BigInt => value.getBigDecimal.toBigInteger()
       case _: JBigInt => value.getBigDecimal.toBigInteger()
       case _: JLong | _: JInt | _: JByte | _: JShort => value.getBigDecimal.toBigInteger() // xs:integer
       case _ => Assert.usageError("Received a type other than xs:decimal, xs:double, xs:float, xs:integer or any of its sub-types.")

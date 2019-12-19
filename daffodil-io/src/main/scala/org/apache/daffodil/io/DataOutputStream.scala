@@ -24,6 +24,7 @@ import java.io.File
 import org.apache.daffodil.util.MaybeULong
 import org.apache.daffodil.util.Logging
 import org.apache.daffodil.util.Maybe
+import java.math.{BigInteger => JBigInt}
 
 sealed abstract class ZeroLengthStatus
 object ZeroLengthStatus {
@@ -176,7 +177,7 @@ trait DataOutputStream extends DataStreamCommon
    * It is a usage error if bitLengthFrom1 is not greater than or equal to 1.
    *
    */
-  def putBigInt(bigInt: BigInt, bitLengthFrom1: Int, signed: Boolean, finfo: FormatInfo): Boolean
+  def putBigInt(bigInt: JBigInt, bitLengthFrom1: Int, signed: Boolean, finfo: FormatInfo): Boolean
 
   /**
    * If bitLengthFrom1 bits are available to be written before bitLimit0b (if

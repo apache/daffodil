@@ -106,8 +106,6 @@ case class NegateOp(recipe: CompiledDPath) extends RecipeOpWithSubRecipes(recipe
       case d: JDouble => d * -1.0
       case bi: JBigInt => bi.negate()
       case bd: JBigDecimal => bd.negate()
-      case bi: BigInt => bi.underlying().negate()
-      case bd: BigDecimal => bd.underlying().negate()
       case _ => Assert.invariantFailed("not a number: " + dstate.currentValue.toString)
     }
     dstate.setCurrentValue(value)

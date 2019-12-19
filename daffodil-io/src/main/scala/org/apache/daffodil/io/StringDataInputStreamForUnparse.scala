@@ -17,10 +17,12 @@
 
 package org.apache.daffodil.io
 
-import org.apache.daffodil.util.Misc
+import java.math.{ BigInteger => JBigInt }
+
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.MaybeULong
+import org.apache.daffodil.util.Misc
 
 /**
  * When unparsing, we reuse all the DFA logic to identify delimiters within
@@ -67,9 +69,9 @@ final class StringDataInputStreamForUnparse
   override def futureData(nBytesRequested: Int): java.nio.ByteBuffer = doNotUse
   override def getBinaryDouble(finfo: FormatInfo): Double = doNotUse
   override def getBinaryFloat(finfo: FormatInfo): Float = doNotUse
-  override def getSignedBigInt(bitLengthFrom1: Int, finfo: FormatInfo): BigInt = doNotUse
+  override def getSignedBigInt(bitLengthFrom1: Int, finfo: FormatInfo): JBigInt = doNotUse
   override def getSignedLong(bitLengthFrom1To64: Int, finfo: FormatInfo): Long = doNotUse
-  override def getUnsignedBigInt(bitLengthFrom1: Int, finfo: FormatInfo): BigInt = doNotUse
+  override def getUnsignedBigInt(bitLengthFrom1: Int, finfo: FormatInfo): JBigInt = doNotUse
   override def getUnsignedLong(bitLengthFrom1To64: Int, finfo: FormatInfo): passera.unsigned.ULong = doNotUse
   override def getByteArray(bitLengthFrom1: Int, finfo: FormatInfo): Array[Byte] = doNotUse
   override def getByteArray(bitLengthFrom1: Int, finfo: FormatInfo, array: Array[Byte]): Unit = doNotUse

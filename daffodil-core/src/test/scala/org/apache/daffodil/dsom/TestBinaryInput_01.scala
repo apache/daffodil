@@ -17,27 +17,29 @@
 
 package org.apache.daffodil.dsom
 
+import java.math.{ BigInteger => JBigInt }
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
 import java.nio.LongBuffer
 
-import junit.framework.Assert._
-import org.junit.Test
-import org.junit.After
 import org.apache.daffodil.api.DaffodilTunables
-import org.apache.daffodil.util.Misc
-import org.apache.daffodil.schema.annotation.props.gen.BitOrder
-import org.apache.daffodil.io.InputSourceDataInputStream
-import org.apache.daffodil.schema.annotation.props.gen.ByteOrder
 import org.apache.daffodil.io.DataInputStream
 import org.apache.daffodil.io.FormatInfo
-import org.apache.daffodil.util.Maybe
-import org.apache.daffodil.schema.annotation.props.gen.BinaryFloatRep
-import org.apache.daffodil.util.MaybeInt
-import org.apache.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
-import org.apache.daffodil.schema.annotation.props.gen.UTF16Width
+import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.processors.charset.BitsCharsetDecoder
 import org.apache.daffodil.processors.charset.BitsCharsetEncoder
+import org.apache.daffodil.schema.annotation.props.gen.BinaryFloatRep
+import org.apache.daffodil.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.schema.annotation.props.gen.ByteOrder
+import org.apache.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
+import org.apache.daffodil.schema.annotation.props.gen.UTF16Width
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.MaybeInt
+import org.apache.daffodil.util.Misc
+import org.junit.After
+import org.junit.Test
+
+import junit.framework.Assert.assertEquals
 
 // Do no harm number 16 of 626 fail in regression, 154 in total of 797
 
@@ -190,27 +192,27 @@ class TestBinaryInput_01 {
   @Test
   def testBufferLongBigEndianExtraction() {
     val (dis, finfo) = fromString("Harrison", BE, msbFirst)
-    assertEquals(BigInt(5215575679192756078L), getBigInt(finfo, dis, 0, 64))
+    assertEquals(JBigInt.valueOf(5215575679192756078L), getBigInt(finfo, dis, 0, 64))
   }
 
   @Test
   def testBufferLongLittleEndianExtraction() {
     val (dis, finfo) = fromString("Harrison", LE, msbFirst)
-    assertEquals(BigInt(7957705963315814728L), getBigInt(finfo, dis, 0, 64))
+    assertEquals(JBigInt.valueOf(7957705963315814728L), getBigInt(finfo, dis, 0, 64))
   }
 
   @Test
   def testBufferBigIntBigEndianExtraction() {
     val (dis, finfo) = fromString("Something in the way she moves, ", BE, msbFirst)
     val bigInt = getBigInt(finfo, dis, 0, 256)
-    assertEquals(BigInt("37738841482167102822784581157237036764884875846207476558974346160344516471840"),
+    assertEquals(new JBigInt("37738841482167102822784581157237036764884875846207476558974346160344516471840"),
       bigInt)
   }
 
   @Test
   def testBufferBigIntLittleEndianExtraction() {
     val (dis, finfo) = fromString("Something in the way she moves, ", LE, msbFirst)
-    assertEquals(BigInt("14552548861771956163454220823873430243364312915206513831353612029437431082835"),
+    assertEquals(new JBigInt("14552548861771956163454220823873430243364312915206513831353612029437431082835"),
       getBigInt(finfo, dis, 0, 256))
   }
 
@@ -302,7 +304,7 @@ class TestBinaryInput_01 {
   }
 
   @Test def testOneBit3LSBFirst() {
-    val (dis, finfo) = fromBytes(BigInt(0xE4567A).toByteArray, LE, lsbFirst)
+    val (dis, finfo) = fromBytes(JBigInt.valueOf(0xE4567A).toByteArray, LE, lsbFirst)
 
     val bit1 = getLong(finfo, dis, 13, 12)
     assertEquals(0x2B7, bit1)

@@ -26,6 +26,7 @@
 
 package passera.unsigned
 
+import java.math.{BigInteger => JBigInt}
 
 /**
  * Supertrait of UByte, UShort, UInt
@@ -39,7 +40,7 @@ trait SmallUInt[U <: Unsigned[U, UInt, Int]] extends Any with Unsigned[U, UInt, 
   override def toFloat = intValue.toFloat
   override def toDouble = intValue.toDouble
   override def toChar = intValue.toChar
-  def toBigInt = BigInt(intValue)
+  def toBigInt = JBigInt.valueOf(intValue)
 
   def toUByte = UByte(intValue.toByte)
   def toUShort = UShort(intValue.toShort)

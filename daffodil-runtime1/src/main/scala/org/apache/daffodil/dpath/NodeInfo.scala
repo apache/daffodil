@@ -218,9 +218,7 @@ object NodeInfo extends Enum {
       case x: Byte => NodeInfo.Byte
       case x: Short => NodeInfo.Short
       case x: Long => NodeInfo.Long
-      case x: BigInt => NodeInfo.Integer
       case x: JBigInt => NodeInfo.Integer
-      case x: BigDecimal => NodeInfo.Decimal
       case x: JBigDecimal => NodeInfo.Decimal
       case x: Double => NodeInfo.Double
       case x: Float => NodeInfo.Float

@@ -18,6 +18,7 @@
 package org.apache.daffodil.processors.parsers
 
 import java.lang.{ Long => JLong, Number => JNumber, Double => JDouble, Float => JFloat }
+import java.math.{BigInteger => JBigInt, BigDecimal => JBigDecimal}
 
 import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.processors.Evaluatable
@@ -103,11 +104,11 @@ abstract class BinaryDecimalParserBase(override val context: ElementRuntimeData,
       return
     }
 
-    val bigInt: BigInt =
+    val bigInt: JBigInt =
       if (signed == YesNo.Yes) { dis.getSignedBigInt(nBits, start) }
       else { dis.getUnsignedBigInt(nBits, start) }
 
-    val bigDec = BigDecimal(bigInt, binaryDecimalVirtualPoint)
+    val bigDec = new JBigDecimal(bigInt, binaryDecimalVirtualPoint)
     start.simpleElement.overwriteDataValue(bigDec)
   }
 }

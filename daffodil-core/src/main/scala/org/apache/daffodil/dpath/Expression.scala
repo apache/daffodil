@@ -1338,16 +1338,10 @@ abstract class LiteralExpressionBase(value: Any)
   lazy val litValue:DataValuePrimitive = value match {
     case s: String => s
     case i: Int => i
-    case i: BigInt => {
-      Assert.usageError("Expected java.math.BigInteger but received BigInt.")
-    }
     case i: JBigInt => {
       if (Numbers.isValidInt(i)) i.intValue()
       else if (Numbers.isValidLong(i)) i.longValue()
       else i
-    }
-    case bd: BigDecimal => {
-      Assert.usageError("Expected java.math.BigDecimal but received scala BigDecimal.")
     }
     case bd: JBigDecimal => {
       // since we got a JBigDecimal, we know it at least wasn't parsed
@@ -1376,9 +1370,7 @@ abstract class LiteralExpressionBase(value: Any)
   override lazy val inherentType = {
     litValue.getAnyRef match {
       case s: String => NodeInfo.String
-      case i: BigInt => Assert.usageError("Expected java.math.BigInteger but got BigInt.")
       case i: JBigInt => NodeInfo.Integer
-      case d: BigDecimal => Assert.usageError("Expected java.math.BigDecimal but got package.BigDecimal.")
       case d: JBigDecimal => NodeInfo.Decimal
       case df: JDouble => NodeInfo.Double
       case l: JLong => NodeInfo.Long

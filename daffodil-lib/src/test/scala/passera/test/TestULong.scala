@@ -26,8 +26,11 @@
 
 package passera.test
 
+import java.math.{ BigInteger => JBigInt }
+
+import org.junit.Assert.assertEquals
 import org.junit.Test
-import org.junit.Assert._
+
 import passera.unsigned.ULong
 
 class TestULong {
@@ -36,7 +39,7 @@ class TestULong {
     val mm1 = ULong(-1L)
     assertEquals("FFFFFFFFFFFFFFFF", mm1.toHexString.toUpperCase)
     assertEquals(ULong.MaxValueAsBigInt, mm1.toBigInt)
-    assertEquals(BigInt(Long.MinValue).abs.toString, mm1.toString)
+    assertEquals(JBigInt.valueOf(Long.MinValue).abs.toString, mm1.toString)
   }
 
   // DAFFODIL-1714
