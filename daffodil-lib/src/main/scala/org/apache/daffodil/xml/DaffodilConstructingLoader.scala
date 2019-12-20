@@ -17,11 +17,14 @@
 
 package org.apache.daffodil.xml
 
-import scala.xml.parsing.ConstructingParser
-import scala.xml._
+import java.io.BufferedInputStream
 import java.net.URI
+
 import scala.io.Source
-import org.apache.commons.io.input.XmlStreamReader
+import scala.xml._
+import scala.xml.include.sax.EncodingHeuristics
+import scala.xml.parsing.ConstructingParser
+
 import org.apache.daffodil.exceptions.Assert
 
 /**
@@ -74,16 +77,13 @@ object Position {
  */
 class DaffodilConstructingLoader(uri: URI, errorHandler: org.xml.sax.ErrorHandler)
   extends ConstructingParser({
-    //
     // Note: we must open the XML carefully since it might be in some non
     // default encoding (we have tests that have UTF-16 for example)
-    //
-    val is = uri.toURL.openStream()
-    val rdr = new XmlStreamReader(is) // apache has a good thing for determining XML charset
-    val csName = rdr.getEncoding
-    rdr.close()
-    val source = Source.fromURL(uri.toURL, csName) // tbd: can one create a Source somehow directly from the rdr?
-    source
+
+    // must be buffered to support mark(), needed by heuristics
+    val is = new BufferedInputStream(uri.toURL.openStream())
+    val enc = EncodingHeuristics.readEncodingFromStream(is)
+    Source.fromInputStream(is, enc)
   }, true) {
 
   // This one line is a bit of a hack to get consistent line numbers. The
