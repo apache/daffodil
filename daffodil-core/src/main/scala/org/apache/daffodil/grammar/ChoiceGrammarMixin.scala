@@ -34,7 +34,12 @@ trait ChoiceGrammarMixin
     ChoiceCombinator(this, alternatives)
   }
 
-  private lazy val alternatives = {
+  /**
+   * Establish the invariant is that if a direct child member is an array element,
+   * the child will have been encapsulated as a sequence, so that arrays always
+   * live within sequences.
+   */
+  final protected lazy val alternatives: Seq[Gram] = {
     groupMembers.map { t =>
       if (!t.isScalar) {
         /**

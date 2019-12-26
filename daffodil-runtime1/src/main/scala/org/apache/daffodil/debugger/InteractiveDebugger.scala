@@ -1505,13 +1505,16 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
         def act(args: Seq[String], prestate: StateForDebugger, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
           debugPrintln("%s:".format(name))
 
-          var infoset: DIElement = state.infoset
-          if (DebuggerConfig.infosetParents < 0) {
-            infoset = infoset.toRootDoc.getRootElement().asInstanceOf[DIElement]
-          } else {
-            (1 to DebuggerConfig.infosetParents).foreach { n =>
-              if (infoset.diParent != null) {
-                infoset = infoset.diParent
+          var infoset: DIElement = null
+          if (state.hasInfoset) {
+            infoset = state.infoset
+            if (DebuggerConfig.infosetParents < 0) {
+              infoset = infoset.toRootDoc.getRootElement().asInstanceOf[DIElement]
+            } else {
+              (1 to DebuggerConfig.infosetParents).foreach { n =>
+                if (infoset.diParent != null) {
+                  infoset = infoset.diParent
+                }
               }
             }
           }
