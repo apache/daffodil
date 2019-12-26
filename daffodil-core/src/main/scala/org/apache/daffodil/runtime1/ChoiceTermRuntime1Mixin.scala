@@ -31,8 +31,18 @@ import org.apache.daffodil.api.WarnID
 import org.apache.daffodil.processors.ChoiceDispatchKeyEv
 import org.apache.daffodil.dsom.ExpressionCompilers
 import org.apache.daffodil.dpath.NodeInfo
+import org.apache.daffodil.grammar.Gram
 
 trait ChoiceTermRuntime1Mixin { self: ChoiceTermBase =>
+
+  /**
+   * The members of the choice group with special treatment given to some kinds of members.
+   *
+   * An invariant is that if a direct child member is an array element, the child
+   * will have been encapsulated as a sequence, so that arrays always live within
+   * sequences.
+   */
+  protected def alternatives: Seq[Gram]
 
   final protected lazy val choiceDispatchKeyExpr = {
     val qn = this.qNameForProperty("choiceDispatchKey")
@@ -48,12 +58,15 @@ trait ChoiceTermRuntime1Mixin { self: ChoiceTermBase =>
 
   final def choiceBranchMap: Map[ChoiceBranchEvent, RuntimeData] = LV('choiceBranchMap) {
 
-    val eventTuples = groupMembers.flatMap {
-      case e: ElementBase => Seq((ChoiceBranchStartEvent(e.namedQName), e))
-      case mg: ModelGroup => {
-        val idEvents = mg.identifyingEventsForChoiceBranch
-        Assert.invariant(!idEvents.isEmpty)
-        idEvents.map { (_, mg) }
+    val eventTuples = alternatives.flatMap { alt =>
+      alt.context match {
+        case e: ElementBase => Seq((ChoiceBranchStartEvent(e.namedQName), e))
+        case mg: ModelGroup => {
+          val idEvents = mg.identifyingEventsForChoiceBranch
+          Assert.invariant(!idEvents.isEmpty)
+          idEvents.map { (_, mg) }
+        }
+        case _ => Assert.invariantFailed("must be a term")
       }
     }
 
