@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<testSuite suiteName="BE" xmlns="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"   
+  xmlns:ex="http://example.com"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  defaultImplementations="ibm daffodil"
+  defaultRoundTrip="onePass">
+
+  <parserTestCase name="BE000" root="seq" model="BE.dfdl.xsd" roundTrip="twoPass"
+    description="Unordered sequences">
+    <document>
+      <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[Z:z0%LF;X:x0%LF;X:x1%LF;X:x2%LF;Y:y0%LF;Z:z1%LF;Y:y1%LF;Y:y2%LF;]]></tdml:documentPart>
+    </document>
+    <infoset>
+      <dfdlInfoset>
+        <ex:seq>
+          <x>x0</x>
+          <x>x1</x>
+          <x>x2</x>
+          <y>y0</y>
+          <y>y1</y>
+          <y>y2</y>
+          <z>z0</z>
+          <z>z1</z>
+        </ex:seq>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+
+  <parserTestCase name="BE001" root="seq" model="BE.dfdl.xsd" roundTrip="twoPass"
+    description="Unordered sequences">
+    <document>
+      <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[Z:z0%LF;X:x0%LF;X:x1%LF;X:x2%LF;Y:y0%LF;Z:z1%LF;Y:y1%LF;Y:y2%LF;Z:z2%LF;Z:z3%LF;Y:y3%LF;X:x3%LF;]]></tdml:documentPart>
+    </document>
+    <infoset>
+      <dfdlInfoset>
+        <ex:seq>
+          <x>x0</x>
+          <x>x1</x>
+          <x>x2</x>
+          <x>x3</x>
+          <y>y0</y>
+          <y>y1</y>
+          <y>y2</y>
+          <y>y3</y>
+          <z>z0</z>
+          <z>z1</z>
+          <z>z2</z>
+          <z>z3</z>
+        </ex:seq>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+
+  <parserTestCase name="BE002" root="seq2" model="BE.dfdl.xsd"
+    description="Unordered sequences">
+    <document>
+      <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[X:x0%LF;Y:y0%LF;]]></tdml:documentPart>
+    </document>
+    <infoset>
+      <dfdlInfoset>
+        <ex:seq2>
+          <x>x0</x>
+          <y>y0</y>
+        </ex:seq2>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+
+  <parserTestCase name="BE003" root="seq2" model="BE.dfdl.xsd" roundTrip="twoPass"
+    description="Unordered sequences">
+  <document>
+    <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[Y:y0%LF;X:x0%LF;]]></tdml:documentPart>
+  </document>
+    <infoset>
+      <dfdlInfoset>
+        <ex:seq2>
+          <x>x0</x>
+          <y>y0</y>
+        </ex:seq2>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+
+  <parserTestCase name="BE004" root="seq2" model="BE.dfdl.xsd"
+    description="Unordered sequences">
+    <document>
+      <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[Y:y0%LF;]]></tdml:documentPart>
+    </document>
+    <infoset>
+      <dfdlInfoset>
+        <ex:seq2>
+          <y>y0</y>
+        </ex:seq2>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+
+  <parserTestCase name="BE004-A" root="seq2" model="BE.dfdl.xsd"
+    description="Unordered sequences">
+    <document>
+      <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[Y:y0%LF;]]></tdml:documentPart>
+    </document>
+    <infoset>
+      <dfdlInfoset>
+        <ex:seq2>
+          <y>y0</y>
+        </ex:seq2>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+ 
+  
+</testSuite>

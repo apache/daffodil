@@ -24,6 +24,7 @@ import org.apache.daffodil.tdml.Runner
 object TestUnorderedSequencesNew {
   val testDir = "/org/apache/daffodil/section14/unordered_sequences/"
   val runner = Runner(testDir, "UnorderedSequences.tdml")
+  val runnerBE = Runner(testDir, "BE.tdml")
 
   @AfterClass def shutDown {
     runner.reset
@@ -59,4 +60,11 @@ class TestUnorderedSequencesNew {
 
   // DAFFODIL-1034
   @Test def test_initiated_unordered1 = { runner.runOneTest("test_initiated_unordered1") }
+
+  @Test def test_BE000 = { runnerBE.runOneTest("BE000") }
+  @Test def test_BE001 = { runnerBE.runOneTest("BE001") }
+  @Test def test_BE002 = { runnerBE.runOneTest("BE002") }
+  @Test def test_BE003 = { runnerBE.runOneTest("BE003") }
+  @Test def test_BE004 = { runnerBE.runOneTest("BE004") }
+  @Test def test_BE004_A = { runnerBE.runOneTest("BE004-A") }
 }
