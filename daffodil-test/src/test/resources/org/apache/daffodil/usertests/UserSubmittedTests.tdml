@@ -116,6 +116,20 @@
 			<tdml:dfdlInfoset type="file">test_prefix_separator_as_variable.expected.xml
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
-	</tdml:parserTestCase>
+  </tdml:parserTestCase>
+
+  <!-- DFDL-2262: User test exposed in separator suppression when
+    occursCountKind="expression". Separators and empty elements should never be supressed
+  in this case. -->
+  <tdml:parserTestCase name="test_DFDL_2262" root="CSV" model="Book2.dfdl.xsd" roundTrip="twoPass"
+    description="Demonstrates that separators are not suppressed when OCK='expression'">
+    <tdml:document>
+      <tdml:documentPart type="file">Book2.csv</tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">test_Book2.expected.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
 </tdml:testSuite>

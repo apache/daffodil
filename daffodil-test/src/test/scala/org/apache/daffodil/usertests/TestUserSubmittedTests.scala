@@ -39,6 +39,7 @@ class TestUserSubmittedTests {
   @Test def test_prefix_separator_as_variable() {
     runner.runOneTest("test_prefix_separator_as_variable")
   }
+  @Test def test_DFDL_2262() { runner.runOneTest("test_DFDL_2262") }
 
   @Test def test_nameDOB_test2_pass() { runner2.runOneTest("nameDOB_test2_pass") }
   @Test def test_nameDOB_test2_fail() { runner2.runOneTest("nameDOB_test2_fail") }
