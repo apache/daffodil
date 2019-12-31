@@ -63,7 +63,7 @@ class RepOrderedExactlyNUnseparatedSequenceChildParser(
   extends OccursCountExactParser(childParser, srd, erd)
   with Unseparated
 
-class RepOrderedExactlyTotalOccursCountUnseparatedSequenceChildParser(
+class RepOrderedExpressionOccursCountUnseparatedSequenceChildParser(
   childParser: Parser,
   ocEv: OccursCountEv,
   srd: SequenceRuntimeData,

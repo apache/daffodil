@@ -532,14 +532,27 @@ class RepOrderedExactlyNSequenceChild(sq: SequenceTermBase, e: ElementBase, grou
 
 }
 
-class RepOrderedExactlyTotalOccursCountSequenceChild(sq: SequenceTermBase, e: ElementBase, groupIndex: Int)
+class RepOrderedExpressionOccursCountSequenceChild(sq: SequenceTermBase, e: ElementBase, groupIndex: Int)
   extends RepElementSequenceChild(sq, e, groupIndex) {
 
   lazy val sequenceChildParser: SequenceChildParser = sq.hasSeparator match {
-    case true => new RepOrderedExactlyTotalOccursCountSeparatedSequenceChildParser(
+    case true => new RepOrderedExpressionOccursCountSeparatedSequenceChildParser(
       childParser, e.occursCountEv, srd, erd, sepParser, sq.separatorPosition, separatedHelper)
-    case false => new RepOrderedExactlyTotalOccursCountUnseparatedSequenceChildParser(childParser, e.occursCountEv, srd, erd,
+    case false => new RepOrderedExpressionOccursCountUnseparatedSequenceChildParser(childParser, e.occursCountEv, srd, erd,
       unseparatedHelper)
+  }
+
+  // This class is only used for sequences with occursCountKind="expression",
+  // which means that the separatorSuppressionPolicy is not applicable and the
+  // implied behavior is separatorSuppresionPolicy="never"
+  override lazy val sequenceChildUnparser: SequenceChildUnparser = sq.hasSeparator match {
+    case true => {
+      new RepOrderedSeparatedSequenceChildUnparser(
+        childUnparser, srd, erd, sepUnparser, sq.separatorPosition, SeparatorSuppressionPolicy.Never,
+        zeroLengthDetector, e.isPotentiallyTrailing,
+        true, isPositional, isDeclaredLast)
+    }
+    case false => new RepOrderedUnseparatedSequenceChildUnparser(childUnparser, srd, erd)
   }
 }
 
