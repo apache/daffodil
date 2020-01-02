@@ -1070,4 +1070,56 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+ <tdml:defineSchema name="dfdl2263"  elementFormDefault="unqualified">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormatPortable" lengthKind="delimited"/>
+
+    <xs:element name="input">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="%NL;" dfdl:separatorPosition="infix">
+          <xs:element name="header">
+            <xs:complexType>
+              <xs:sequence dfdl:separator="," dfdl:separatorPosition="infix"  dfdl:separatorSuppressionPolicy="anyEmpty">
+                <xs:element name="title" maxOccurs="unbounded" type="xs:string" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="row" maxOccurs="unbounded">
+            <xs:complexType>
+              <xs:sequence dfdl:separator="," dfdl:separatorPosition="infix" dfdl:separatorSuppressionPolicy="never">
+                <xs:element name="field" maxOccurs="unbounded" type="xs:string"
+                  dfdl:occursCount="{ fn:count(../../header/title) }"
+                  dfdl:occursCountKind="expression" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="dfdl2263" root="input" model="dfdl2263">
+
+    <tdml:document>
+      <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[header1,header2%LF;a,]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:input>
+          <header>
+            <title>header1</title>
+            <title>header2</title>
+          </header>
+          <row>
+            <field>a</field>
+            <field></field>
+          </row>
+        </ex:input>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
 </tdml:testSuite>

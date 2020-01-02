@@ -87,4 +87,7 @@ class TestArrayOptionalElem {
   // DAFFODIL-1886
   @Test def test_manyAdjacentOptionals_01() { runner.runOneTest("manyAdjacentOptionals_01") }
 
+  // DAFFODIL-2263
+  @Test def test_dfdl2263() { runner.runOneTest("dfdl2263") }
+
 }
