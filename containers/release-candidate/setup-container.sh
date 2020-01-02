@@ -31,8 +31,6 @@ curl -L https://github.com/wixtoolset/wix3/releases/download/wix3111rtm/wix311-b
 mkdir wix311
 unzip wix311-binaries.zip -d wix311/
 rm wix311-binaries.zip
-ln -s $BUILD_DIR/incubator-daffodil/scripts/wix_wine.sh $BUILD_DIR/wix311/\\bin\\candle.exe
-ln -s $BUILD_DIR/incubator-daffodil/scripts/wix_wine.sh $BUILD_DIR/wix311/\\bin\\light.exe
 
 # enable sbt pgp
 mkdir -p /root/.sbt/1.0/plugins/
