@@ -22,6 +22,9 @@ WORKDIR /root
 COPY setup-container.sh /root/
 RUN /root/setup-container.sh
 
+COPY wix_wine.sh /root/wix311/\\bin\\candle.exe
+COPY wix_wine.sh /root/wix311/\\bin\\light.exe
+
 COPY daffodil-release-candidate /root/
 
 ENTRYPOINT ["/root/daffodil-release-candidate"]

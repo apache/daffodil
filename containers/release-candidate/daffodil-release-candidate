@@ -84,7 +84,7 @@ if [ $? -ne 0 ]; then
    echo -e "\n!!! Ensure you have created a bind mount of your gitconfig file, for example with -v ~/.gitconfig:/root/.gitconfig !!!\n"
    exit
 fi
-popd
+popd &> /dev/null
 rm -rf $TEST_GIT_DIR
 
 if [ ! -d /root/.ssh/ ]; then
@@ -98,11 +98,9 @@ echo
 
 REPO_ROOT=`pwd`
 
-APACHE_DIST_DIR=$REPO_ROOT/apache-dist
-DAFFODIL_DIST_ROOT=$APACHE_DIST_DIR/dev/incubator/daffodil
-
 DAFFODIL_REPO="incubator-daffodil"
 DAFFODIL_SITE_REPO="incubator-daffodil-site"
+DAFFODIL_DIST="incubator-daffodil-dist"
 
 echo "Cloning repos..."
 
@@ -113,12 +111,8 @@ echo
 echo git clone ssh://git@github.com/apache/$DAFFODIL_SITE_REPO.git
 git clone ssh://git@github.com/apache/$DAFFODIL_SITE_REPO.git
 
-svn checkout https://dist.apache.org/repos/dist apache-dist --depth empty
-pushd apache-dist &> /dev/null
-svn update --set-depth empty dev
-svn update --set-depth empty dev/incubator
-svn update --set-depth infinity dev/incubator/daffodil
-popd &> /dev/null
+echo svn checkout https://dist.apache.org/repos/dist/dev/incubator/daffodil $DAFFODIL_DIST
+svn checkout https://dist.apache.org/repos/dist/dev/incubator/daffodil $DAFFODIL_DIST
 
 pushd $REPO_ROOT/$DAFFODIL_REPO &> /dev/null
 
@@ -136,7 +130,8 @@ DAFFODIL_REPO_DIR=$REPO_ROOT/$DAFFODIL_REPO
 DAFFODIL_SITE_DIR=$REPO_ROOT/$DAFFODIL_SITE_REPO
 DAFFODIL_DOCS_DIR=$DAFFODIL_SITE_DIR/site/docs/$VERSION
 DAFFODIL_TUTORIALS_DIR=$DAFFODIL_SITE_DIR/site/tutorials
-DAFFODIL_RELEASE_DIR=$DAFFODIL_DIST_ROOT/$VERSION-$PRE_RELEASE
+DAFFODIL_DIST_DIR=$REPO_ROOT/$DAFFODIL_DIST
+DAFFODIL_RELEASE_DIR=$DAFFODIL_DIST_DIR/$VERSION-$PRE_RELEASE
 
 if [ -d "$DAFFODIL_RELEASE_DIR" ]; then echo -e "\n!!! Daffodil release directory already exists: $DAFFODIL_RELEASE_DIR !!! "; exit; fi
 
@@ -170,6 +165,8 @@ sbt \
   "daffodil-japi/genjavadoc:doc" \
   "daffodil-sapi/doc" \
 
+echo "Removing old release candidates..."
+find $DAFFODIL_DIST_DIR -maxdepth 1 -name $VERSION-\* -exec svn delete --force {} \;
 
 echo "Installing Source and Convenience Binaries..."
 mkdir -p $DAFFODIL_RELEASE_DIR/{src,bin}/
@@ -191,7 +188,7 @@ do
        sha512sum --binary $file > $file.sha512
        gpg --default-key $PGP_SIGNING_KEY_ID --detach-sign --armor --output $file.asc $file
     done
-    popd > /dev/null
+    popd &> /dev/null
 done
 
 echo "Installing Site Docs..."
@@ -216,6 +213,9 @@ git add .
 git commit -m "Stage release v$VERSION-$PRE_RELEASE"
 popd &> /dev/null
 
+echo "Adding Release Files..."
+svn add $DAFFODIL_RELEASE_DIR
+
 echo
 echo
 echo
@@ -224,7 +224,7 @@ echo "!!! Success: $VERSION-$PRE_RELEASE output to $DAFFODIL_RELEASE_DIR !!!"
 echo
 echo "Things to verify: "
 echo
-echo "- Files in $DAFFODIL_RELEASE_DIR"
+echo "- Files in $DAFFODIL_DIST_DIR"
 echo "- Files in $DAFFODIL_DOCS_DIR"
 echo "- Files in $DAFFODIL_TUTORIALS_DIR"
 echo "- Git tag created in $DAFFODIL_REPO_DIR for v$VERSION-$PRE_RELEASE"
@@ -236,11 +236,19 @@ if [ "$DRY_RUN" = true ]; then
   echo
   echo "Type 'exit' when done with the container"
 else
+
+  cat << EOF > /root/complete-release
+#!/bin/bash
+set -x
+cd $DAFFODIL_DIST_DIR && svn ci --username $APACHE_USERNAME -m 'Staging Apache Daffodil (incubating) $VERSION-$PRE_RELEASE'
+cd $DAFFODIL_REPO_DIR && git push origin v$VERSION-$PRE_RELEASE
+cd $DAFFODIL_SITE_DIR && git push origin master
+EOF
+  chmod +x /root/complete-release
+
   echo "If everything looks correct, do the following:"
   echo
-  echo "- Run: cd $APACHE_DIST_DIR && svn ci -m 'Staging Apache Daffodil (incubating) $VERSION-$PRE_RELEASE'"
-  echo "- Run: cd $DAFFODIL_REPO_DIR && git push origin v$VERSION-$PRE_RELEASE"
-  echo "- Run: cd $DAFFODIL_SITE_DIR && git push origin master"
+  echo "- Run: /root/complete-release"
   echo "- Close the staged files at https://repository.apache.org"
   echo "- Type 'exit' and  start a VOTE!"
   echo
