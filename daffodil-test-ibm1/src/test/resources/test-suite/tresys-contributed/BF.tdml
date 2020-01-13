@@ -51,7 +51,7 @@ X:x3
   </parserTestCase>
 
   <parserTestCase name="BF001" root="root" model="BF.dfdl.xsd"
-    description="Unordered sequences">
+    description="Unordered sequences" validation="limited">
     <document><![CDATA[Y:y0
 Y:y1
 Y:y2
@@ -65,17 +65,26 @@ X:beyond
     <infoset>
       <dfdlInfoset>
         <ex:root>
-          <plain><![CDATA[Y:y0
-Y:y1
-Y:y2
-Y:y3
-Y:y4
-X:x1
-X:x2
-X:x3
-X:beyond]]></plain>
+          <seq>
+            <x>x1</x>
+            <x>x2</x>
+            <x>x3</x>
+            <x>beyond</x>
+            <y>y0</y>
+            <y>y1</y>
+            <y>y2</y>
+            <y>y3</y>
+            <y>y4</y>
+          </seq>
         </ex:root>
       </dfdlInfoset>
     </infoset>
+    <validationErrors>
+      <error>Validation Error</error>
+      <error>{}y</error>
+      <error>minOccurs='2'</error>
+      <error>maxOccurs='4'</error>
+      <error>5</error>
+    </validationErrors>
   </parserTestCase>
 </testSuite>

@@ -69,6 +69,7 @@ trait ElementBase
   with BooleanTextMixin
   with TextNumberFormatMixin
   with EmptyElementParsePolicyMixin
+  with TextStandardBaseMixin
   with OverlapCheckMixin {
 
   override final def eBase = this

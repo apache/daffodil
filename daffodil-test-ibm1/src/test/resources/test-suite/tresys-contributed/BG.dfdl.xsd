@@ -67,10 +67,9 @@
           dfdl:ignoreCase="yes" />
       </sequence>
       <sequence dfdl:separator="***" dfdl:terminator="%NL;">
-        <element name="y" type="xsd:double" maxOccurs="unbounded"
+        <element name="y" type="xsd:integer" maxOccurs="unbounded"
           dfdl:lengthKind="delimited" dfdl:textNumberRep="standard"
           dfdl:textNumberJustification="right"
-          dfdl:textNumberPattern="####"
           dfdl:textNumberPadCharacter="%SP;" dfdl:textStandardBase="16" />
       </sequence>
       <sequence dfdl:separator="***" dfdl:terminator="%NL;">

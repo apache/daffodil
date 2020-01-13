@@ -32,6 +32,8 @@ object TestTextNumberProps {
 class TestTextNumberProps {
   import TestTextNumberProps._
 
+  @Test def test_textNumberPattern_baseConflict() { runner.runOneTest("textNumberPattern_baseConflict") }
+
   @Test def test_textNumberPattern_positiveMandatory() { runner.runOneTest("textNumberPattern_positiveMandatory") }
   @Test def test_textNumberPattern_negativeOptional() { runner.runOneTest("textNumberPattern_negativeOptional") }
 

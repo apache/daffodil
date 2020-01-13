@@ -605,7 +605,12 @@ trait ElementBaseGrammarMixin
   }
 
   private lazy val textStandardNumber = prod("textStandardNumber", textNumberRep == TextNumberRep.Standard) {
-    ConvertTextCombinator(this, stringValue, textConverter)
+    val converter = textStandardBaseDefaulted match {
+      case 10 => textConverter
+      case 2 | 8 | 16 =>  textStandardNonBaseTenConverter
+      case _ => Assert.impossible()
+    }
+    ConvertTextCombinator(this, stringValue, converter)
   }
 
   private lazy val textZonedNumber = prod("textZonedNumber", textNumberRep == TextNumberRep.Zoned) {
@@ -625,13 +630,17 @@ trait ElementBaseGrammarMixin
     }
   }
 
+  private lazy val textStandardNonBaseTenConverter = {
+    primType match {
+      case _: NodeInfo.Integer.Kind => ConvertNonBaseTenTextNumberPrim(this)
+      case _ => SDE("dfdl:textStandardBase=\"%s\" cannot be used with %s", textStandardBaseDefaulted, primType.globalQName)
+    }
+  }
+
   private lazy val textZonedConverter = {
     primType match {
-      case PrimType.Double | PrimType.Float =>
-        SDE("dfdl:textNumberRep=\"zoned\" is not allowed for %s", primType.globalQName)
-      case _: NodeInfo.Numeric.Kind => ConvertZonedNumberPrim(this)
-      case PrimType.HexBinary | PrimType.Boolean | PrimType.Date | PrimType.Time | PrimType.DateTime | PrimType.AnyURI | PrimType.String =>
-        Assert.invariantFailed("textZonedConverter only to be used for numeric types")
+      case _: NodeInfo.Decimal.Kind => ConvertZonedNumberPrim(this)
+      case _ => SDE("dfdl:textNumberRep=\"zoned\" cannot be used with %s", primType.globalQName)
     }
   }
 
