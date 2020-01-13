@@ -145,7 +145,7 @@
 
     <tdml:parserTestCase name="simple_type_properties_text_number_13_03" root="base_group"
 		model="./fvt/ext/dpa/dpanum_properties.dfdl.xsd" 
-		 description="Section 13.5 Specification of number base - 2,8, and 16">
+		 description="Section 13.5 Specification of number base - 2,8, and 16" roundTrip="twoPass">
 		<tdml:document>0101*127*10F</tdml:document>
 		<tdml:infoset>
 			<tdml:dfdlInfoset>

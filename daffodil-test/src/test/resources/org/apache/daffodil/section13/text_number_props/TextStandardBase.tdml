@@ -1,0 +1,1300 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<tdml:testSuite suiteName="text-standard-base"
+  description="Text Number Properties" 
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:ex="http://example.com" 
+  xmlns="http://example.com" 
+  xmlns:tns="http://example.com" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  defaultRoundTrip="onePass">
+
+  <tdml:defineSchema name="textStandardBase" elementFormDefault="qualified">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" occursCountKind="implicit"/>
+
+    <xs:element name="base2_integer" type="xs:integer" dfdl:textStandardBase="2" />
+    <xs:element name="base2_long" type="xs:long" dfdl:textStandardBase="2" />
+    <xs:element name="base2_int" type="xs:int" dfdl:textStandardBase="2" />
+    <xs:element name="base2_short" type="xs:short" dfdl:textStandardBase="2" />
+    <xs:element name="base2_byte" type="xs:byte" dfdl:textStandardBase="2" />
+
+    <xs:element name="base2_uinteger" type="xs:nonNegativeInteger" dfdl:textStandardBase="2" />
+    <xs:element name="base2_ulong" type="xs:unsignedLong" dfdl:textStandardBase="2" />
+    <xs:element name="base2_uint" type="xs:unsignedInt" dfdl:textStandardBase="2" />
+    <xs:element name="base2_ushort" type="xs:unsignedShort" dfdl:textStandardBase="2" />
+    <xs:element name="base2_ubyte" type="xs:unsignedByte" dfdl:textStandardBase="2" />
+ 
+    <xs:element name="base8_integer" type="xs:integer" dfdl:textStandardBase="8" />
+    <xs:element name="base8_long" type="xs:long" dfdl:textStandardBase="8" />
+    <xs:element name="base8_int" type="xs:int" dfdl:textStandardBase="8" />
+    <xs:element name="base8_short" type="xs:short" dfdl:textStandardBase="8" />
+    <xs:element name="base8_byte" type="xs:byte" dfdl:textStandardBase="8" />
+
+    <xs:element name="base8_uinteger" type="xs:nonNegativeInteger" dfdl:textStandardBase="8" />
+    <xs:element name="base8_ulong" type="xs:unsignedLong" dfdl:textStandardBase="8" />
+    <xs:element name="base8_uint" type="xs:unsignedInt" dfdl:textStandardBase="8" />
+    <xs:element name="base8_ushort" type="xs:unsignedShort" dfdl:textStandardBase="8" />
+    <xs:element name="base8_ubyte" type="xs:unsignedByte" dfdl:textStandardBase="8" />
+
+    <xs:element name="base16_integer" type="xs:integer" dfdl:textStandardBase="16" />
+    <xs:element name="base16_long" type="xs:long" dfdl:textStandardBase="16" />
+    <xs:element name="base16_int" type="xs:int" dfdl:textStandardBase="16" />
+    <xs:element name="base16_short" type="xs:short" dfdl:textStandardBase="16" />
+    <xs:element name="base16_byte" type="xs:byte" dfdl:textStandardBase="16" />
+
+    <xs:element name="base16_uinteger" type="xs:nonNegativeInteger" dfdl:textStandardBase="16" />
+    <xs:element name="base16_ulong" type="xs:unsignedLong" dfdl:textStandardBase="16" />
+    <xs:element name="base16_uint" type="xs:unsignedInt" dfdl:textStandardBase="16" />
+    <xs:element name="base16_ushort" type="xs:unsignedShort" dfdl:textStandardBase="16" />
+    <xs:element name="base16_ubyte" type="xs:unsignedByte" dfdl:textStandardBase="16" />
+
+    <xs:element name="base2_float_err" type="xs:float" dfdl:textStandardBase="2" />
+    <xs:element name="base8_float_err" type="xs:float" dfdl:textStandardBase="8" />
+    <xs:element name="base16_float_err" type="xs:float" dfdl:textStandardBase="16" />
+
+    <xs:element name="base2_double_err" type="xs:double" dfdl:textStandardBase="2" />
+    <xs:element name="base8_double_err" type="xs:double" dfdl:textStandardBase="8" />
+    <xs:element name="base16_double_err" type="xs:double" dfdl:textStandardBase="16" />
+
+    <xs:element name="base2_decimal_err" type="xs:decimal" dfdl:textStandardBase="2" />
+    <xs:element name="base8_decimal_err" type="xs:decimal" dfdl:textStandardBase="8" />
+    <xs:element name="base16_decimal_err" type="xs:decimal" dfdl:textStandardBase="16" />
+
+    <xs:element name="unsupported_base_err" type="xs:int" dfdl:textStandardBase="3" />
+
+  </tdml:defineSchema>
+  
+  <tdml:parserTestCase name="base2_integer_min" root="base2_integer" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">0</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base2_integer>0</base2_integer>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base8_integer_min" root="base8_integer" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">0</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base8_integer>0</base8_integer>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base16_integer_min" root="base16_integer" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">0</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base16_integer>0</base16_integer>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base2_integer_large" root="base2_integer" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">1000000000000000000000000000000000000000000000000000000000000000</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base2_integer>9223372036854775808</base2_integer>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base8_integer_large" root="base8_integer" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">1000000000000000000000</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base8_integer>9223372036854775808</base8_integer>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base16_integer_large" root="base16_integer" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">8000000000000000</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base16_integer>9223372036854775808</base16_integer>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+
+  <tdml:parserTestCase name="base2_long_min" root="base2_long" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">0</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base2_long>0</base2_long>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base8_long_min" root="base8_long" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">0</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base8_long>0</base8_long>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base16_long_min" root="base16_long" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">0</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base16_long>0</base16_long>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base2_long_max" root="base2_long" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">111111111111111111111111111111111111111111111111111111111111111</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base2_long>9223372036854775807</base2_long>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base8_long_max" root="base8_long" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">777777777777777777777</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base8_long>9223372036854775807</base8_long>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base16_long_max" root="base16_long" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">7fffffffffffffff</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base16_long>9223372036854775807</base16_long>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base2_long_max_plus_one" root="base2_long" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">1000000000000000000000000000000000000000000000000000000000000000</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>out of range</tdml:error>
+      <tdml:error>xs:long</tdml:error>
+      <tdml:error>9223372036854775808</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base8_long_max_plus_one" root="base8_long" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">1000000000000000000000</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>out of range</tdml:error>
+      <tdml:error>xs:long</tdml:error>
+      <tdml:error>9223372036854775808</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base16_long_max_plus_one" root="base16_long" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">8000000000000000</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>out of range</tdml:error>
+      <tdml:error>xs:long</tdml:error>
+      <tdml:error>9223372036854775808</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+
+  <tdml:parserTestCase name="base2_int_min" root="base2_int" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">0</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base2_int>0</base2_int>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base8_int_min" root="base8_int" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">0</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base8_int>0</base8_int>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base16_int_min" root="base16_int" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">0</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base16_int>0</base16_int>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base2_int_max" root="base2_int" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">1111111111111111111111111111111</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base2_int>2147483647</base2_int>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base8_int_max" root="base8_int" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">17777777777</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base8_int>2147483647</base8_int>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base16_int_max" root="base16_int" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">7fffffff</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base16_int>2147483647</base16_int>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base2_int_max_plus_one" root="base2_int" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">10000000000000000000000000000000</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>out of range</tdml:error>
+      <tdml:error>xs:int</tdml:error>
+      <tdml:error>2147483648</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base8_int_max_plus_one" root="base8_int" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">20000000000</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>out of range</tdml:error>
+      <tdml:error>xs:int</tdml:error>
+      <tdml:error>2147483648</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base16_int_max_plus_one" root="base16_int" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">80000000</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>out of range</tdml:error>
+      <tdml:error>xs:int</tdml:error>
+      <tdml:error>2147483648</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+
+  <tdml:parserTestCase name="base2_short_min" root="base2_short" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">0</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base2_short>0</base2_short>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base8_short_min" root="base8_short" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">0</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base8_short>0</base8_short>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base16_short_min" root="base16_short" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">0</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base16_short>0</base16_short>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base2_short_max" root="base2_short" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">111111111111111</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base2_short>32767</base2_short>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base8_short_max" root="base8_short" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">77777</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base8_short>32767</base8_short>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base16_short_max" root="base16_short" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">7fff</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base16_short>32767</base16_short>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base2_short_max_plus_one" root="base2_short" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">1000000000000000</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>out of range</tdml:error>
+      <tdml:error>xs:short</tdml:error>
+      <tdml:error>32768</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base8_short_max_plus_one" root="base8_short" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">100000</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>out of range</tdml:error>
+      <tdml:error>xs:short</tdml:error>
+      <tdml:error>32768</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base16_short_max_plus_one" root="base16_short" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">8000</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>out of range</tdml:error>
+      <tdml:error>xs:short</tdml:error>
+      <tdml:error>32768</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+
+  <tdml:parserTestCase name="base2_byte_min" root="base2_byte" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">0</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base2_byte>0</base2_byte>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base8_byte_min" root="base8_byte" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">0</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base8_byte>0</base8_byte>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base16_byte_min" root="base16_byte" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">0</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base16_byte>0</base16_byte>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base2_byte_max" root="base2_byte" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">1111111</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base2_byte>127</base2_byte>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base8_byte_max" root="base8_byte" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">177</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base8_byte>127</base8_byte>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base16_byte_max" root="base16_byte" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">7f</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base16_byte>127</base16_byte>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base2_byte_max_plus_one" root="base2_byte" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">10000000</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>out of range</tdml:error>
+      <tdml:error>xs:byte</tdml:error>
+      <tdml:error>128</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base8_byte_max_plus_one" root="base8_byte" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">200</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>out of range</tdml:error>
+      <tdml:error>xs:byte</tdml:error>
+      <tdml:error>128</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base16_byte_max_plus_one" root="base16_byte" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">80</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>out of range</tdml:error>
+      <tdml:error>xs:byte</tdml:error>
+      <tdml:error>128</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  
+  <tdml:parserTestCase name="base2_uinteger_min" root="base2_uinteger" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">0</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base2_uinteger>0</base2_uinteger>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base8_uinteger_min" root="base8_uinteger" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">0</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base8_uinteger>0</base8_uinteger>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base16_uinteger_min" root="base16_uinteger" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">0</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base16_uinteger>0</base16_uinteger>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base2_uinteger_large" root="base2_uinteger" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">1000000000000000000000000000000000000000000000000000000000000000</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base2_uinteger>9223372036854775808</base2_uinteger>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base8_uinteger_large" root="base8_uinteger" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">1000000000000000000000</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base8_uinteger>9223372036854775808</base8_uinteger>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base16_uinteger_large" root="base16_uinteger" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">8000000000000000</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base16_uinteger>9223372036854775808</base16_uinteger>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+
+
+  <tdml:parserTestCase name="base2_ulong_min" root="base2_ulong" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">0</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base2_ulong>0</base2_ulong>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base8_ulong_min" root="base8_ulong" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">0</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base8_ulong>0</base8_ulong>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base16_ulong_min" root="base16_ulong" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">0</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base16_ulong>0</base16_ulong>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base2_ulong_max" root="base2_ulong" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">1111111111111111111111111111111111111111111111111111111111111111</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base2_ulong>18446744073709551615</base2_ulong>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base8_ulong_max" root="base8_ulong" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">1777777777777777777777</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base8_ulong>18446744073709551615</base8_ulong>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base16_ulong_max" root="base16_ulong" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">ffffffffffffffff</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base16_ulong>18446744073709551615</base16_ulong>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base2_ulong_max_plus_one" root="base2_ulong" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">10000000000000000000000000000000000000000000000000000000000000000</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>out of range</tdml:error>
+      <tdml:error>xs:unsignedLong</tdml:error>
+      <tdml:error>18446744073709551616</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base8_ulong_max_plus_one" root="base8_ulong" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">2000000000000000000000</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>out of range</tdml:error>
+      <tdml:error>xs:unsignedLong</tdml:error>
+      <tdml:error>18446744073709551616</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base16_ulong_max_plus_one" root="base16_ulong" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">10000000000000000</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>out of range</tdml:error>
+      <tdml:error>xs:unsignedLong</tdml:error>
+      <tdml:error>18446744073709551616</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+
+  <tdml:parserTestCase name="base2_uint_min" root="base2_uint" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">0</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base2_uint>0</base2_uint>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base8_uint_min" root="base8_uint" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">0</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base8_uint>0</base8_uint>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base16_uint_min" root="base16_uint" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">0</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base16_uint>0</base16_uint>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base2_uint_max" root="base2_uint" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">11111111111111111111111111111111</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base2_uint>4294967295</base2_uint>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base8_uint_max" root="base8_uint" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">37777777777</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base8_uint>4294967295</base8_uint>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base16_uint_max" root="base16_uint" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">ffffffff</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base16_uint>4294967295</base16_uint>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base2_uint_max_plus_one" root="base2_uint" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">100000000000000000000000000000000</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>out of range</tdml:error>
+      <tdml:error>xs:unsignedInt</tdml:error>
+      <tdml:error>4294967296</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base8_uint_max_plus_one" root="base8_uint" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">40000000000</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>out of range</tdml:error>
+      <tdml:error>xs:unsignedInt</tdml:error>
+      <tdml:error>4294967296</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base16_uint_max_plus_one" root="base16_uint" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">100000000</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>out of range</tdml:error>
+      <tdml:error>xs:unsignedInt</tdml:error>
+      <tdml:error>4294967296</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+
+  <tdml:parserTestCase name="base2_ushort_min" root="base2_ushort" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">0</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base2_ushort>0</base2_ushort>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base8_ushort_min" root="base8_ushort" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">0</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base8_ushort>0</base8_ushort>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base16_ushort_min" root="base16_ushort" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">0</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base16_ushort>0</base16_ushort>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base2_ushort_max" root="base2_ushort" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">1111111111111111</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base2_ushort>65535</base2_ushort>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base8_ushort_max" root="base8_ushort" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">177777</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base8_ushort>65535</base8_ushort>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base16_ushort_max" root="base16_ushort" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">ffff</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base16_ushort>65535</base16_ushort>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base2_ushort_max_plus_one" root="base2_ushort" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">10000000000000000</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>out of range</tdml:error>
+      <tdml:error>xs:unsignedShort</tdml:error>
+      <tdml:error>65536</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base8_ushort_max_plus_one" root="base8_ushort" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">200000</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>out of range</tdml:error>
+      <tdml:error>xs:unsignedShort</tdml:error>
+      <tdml:error>65536</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base16_ushort_max_plus_one" root="base16_ushort" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">10000</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>out of range</tdml:error>
+      <tdml:error>xs:unsignedShort</tdml:error>
+      <tdml:error>65536</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+
+  <tdml:parserTestCase name="base2_ubyte_min" root="base2_ubyte" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">0</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base2_ubyte>0</base2_ubyte>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base8_ubyte_min" root="base8_ubyte" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">0</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base8_ubyte>0</base8_ubyte>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base16_ubyte_min" root="base16_ubyte" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">0</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base16_ubyte>0</base16_ubyte>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base2_ubyte_max" root="base2_ubyte" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">11111111</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base2_ubyte>255</base2_ubyte>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base8_ubyte_max" root="base8_ubyte" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">377</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base8_ubyte>255</base8_ubyte>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base16_ubyte_max" root="base16_ubyte" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">ff</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base16_ubyte>255</base16_ubyte>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base2_ubyte_max_plus_one" root="base2_ubyte" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">100000000</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>out of range</tdml:error>
+      <tdml:error>xs:unsignedByte</tdml:error>
+      <tdml:error>256</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base8_ubyte_max_plus_one" root="base8_ubyte" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">400</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>out of range</tdml:error>
+      <tdml:error>xs:unsignedByte</tdml:error>
+      <tdml:error>256</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base16_ubyte_max_plus_one" root="base16_ubyte" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">100</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>out of range</tdml:error>
+      <tdml:error>xs:unsignedByte</tdml:error>
+      <tdml:error>256</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base2_float_err" root="base2_float_err" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>dfdl:textStandardBase="2"</tdml:error>
+      <tdml:error>xs:float</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base8_float_err" root="base8_float_err" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>dfdl:textStandardBase="8"</tdml:error>
+      <tdml:error>xs:float</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base16_float_err" root="base16_float_err" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>dfdl:textStandardBase="16"</tdml:error>
+      <tdml:error>xs:float</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+
+  <tdml:parserTestCase name="base2_double_err" root="base2_double_err" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>dfdl:textStandardBase="2"</tdml:error>
+      <tdml:error>xs:double</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base8_double_err" root="base8_double_err" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>dfdl:textStandardBase="8"</tdml:error>
+      <tdml:error>xs:double</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base16_double_err" root="base16_double_err" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>dfdl:textStandardBase="16"</tdml:error>
+      <tdml:error>xs:double</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+
+  <tdml:parserTestCase name="base2_decimal_err" root="base2_decimal_err" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>dfdl:textStandardBase="2"</tdml:error>
+      <tdml:error>xs:decimal</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base8_decimal_err" root="base8_decimal_err" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>dfdl:textStandardBase="8"</tdml:error>
+      <tdml:error>xs:decimal</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base16_decimal_err" root="base16_decimal_err" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>dfdl:textStandardBase="16"</tdml:error>
+      <tdml:error>xs:decimal</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="non_base_10_empty_string_err" root="base2_int" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>empty string</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="non_base_10_leading_sign_negative_err" root="base2_int" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">-0</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>leading sign</tdml:error>
+      <tdml:error>-0</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="non_base_10_leading_sign_positive_err" root="base2_int" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">+0</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>leading sign</tdml:error>
+      <tdml:error>+0</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base2_invalid_char_err" root="base2_int" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">012</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>base-2</tdml:error>
+      <tdml:error>012</tdml:error>
+      <tdml:error>invalid characters</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base8_invalid_char_err" root="base8_int" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">012345678</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>base-8</tdml:error>
+      <tdml:error>012345678</tdml:error>
+      <tdml:error>invalid characters</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="base16_invalid_char_err" root="base16_int" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text">0123456789ABCDEFG</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>base-16</tdml:error>
+      <tdml:error>0123456789ABCDEFG</tdml:error>
+      <tdml:error>invalid characters</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="unsupported_base_err" root="unsupported_base_err" model="textStandardBase">
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>textStandardBase</tdml:error>
+      <tdml:error>3</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="base16_uppercase" root="base16_int" model="textStandardBase" roundTrip="twoPass">
+    <tdml:document>
+      <tdml:documentPart type="text">7FFFFFFF</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base16_int>2147483647</base16_int>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="non_base_10_leading_zeros_ignored" root="base16_int" model="textStandardBase" roundTrip="twoPass">
+    <tdml:document>
+      <tdml:documentPart type="text">0000000000000000000000000000000000000000000000000000000007FFFFFFF</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base16_int>2147483647</base16_int>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:unparserTestCase name="non_base_10_unparse_negative_int_err" root="base16_int" model="textStandardBase">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base16_int>-1</base16_int>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Unparse Error</tdml:error>
+      <tdml:error>Unable to unparse</tdml:error>
+      <tdml:error>negative</tdml:error>
+      <tdml:error>textStandardBase="16"</tdml:error>
+      <tdml:error>-1</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="non_base_10_unparse_negative_uinteger_err" root="base16_uinteger" model="textStandardBase">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base16_uinteger>-9223372036854775808</base16_uinteger>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Unparse Error</tdml:error>
+      <tdml:error>Unable to unparse</tdml:error>
+      <tdml:error>negative</tdml:error>
+      <tdml:error>textStandardBase="16"</tdml:error>
+      <tdml:error>-9223372036854775808</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="non_base_10_unparse_lower_case" root="base16_long" model="textStandardBase">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base16_long>9223372036854775807</base16_long>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="text">7fffffffffffffff</tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="non_base_10_unparse_out_of_range" root="base16_byte" model="textStandardBase">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base16_byte>9223372036854775807</base16_byte>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="text">7fffffffffffffff</tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+</tdml:testSuite>

@@ -374,6 +374,14 @@
             </xs:documentation>
           </xs:annotation>
         </xs:element>
+        <xs:element name="requireTextStandardBaseProperty" type="xs:boolean" default="false" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              If true, require that the dfdl:textStandardBase property is specified. If false
+              and the property is missing, behave as if the property is set to 10.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
         <xs:element name="suppressSchemaDefinitionWarnings" type="daf:TunableSuppressSchemaDefinitionWarnings" default="emptyElementParsePolicyError" minOccurs="0">
           <xs:annotation>
             <xs:documentation>
@@ -464,6 +472,7 @@
           <xs:enumeration value="regexPatternZeroLength" />
           <xs:enumeration value="textBidiError" />
           <xs:enumeration value="textOutputMinLengthOutOfRange" />
+          <xs:enumeration value="textStandardBaseUndefined" />
           <xs:enumeration value="unsupportedAttributeBlockDefault" />
           <xs:enumeration value="unsupportedAttributeFinalDefault" />
           <xs:enumeration value="unsupportedAttributeFormDefault" />

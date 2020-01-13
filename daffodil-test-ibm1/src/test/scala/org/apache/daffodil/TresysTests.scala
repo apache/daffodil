@@ -161,14 +161,14 @@ class TresysTests {
   //@Test def test_BB000() { runnerBB.runOneTest("BB000") } // occursCountKind stopValue
 
   //DFDL-1010
-  //@Test def test_BE000() { runnerBE.runOneTest("BE000") } // unordered sequences
-  //@Test def test_BE001() { runnerBE.runOneTest("BE001") }
+  @Test def test_BE000() { runnerBE.runOneTest("BE000") } // unordered sequences
+  @Test def test_BE001() { runnerBE.runOneTest("BE001") }
 
   //DFDL-1010
-  //@Test def test_BF000() { runnerBF1.runOneTest("BF000") } // unordered sequences
-  //@Test def test_BF001() { runnerBF1.runOneTest("BF001") }
+  @Test def test_BF000() { runnerBF1.runOneTest("BF000") } // unordered sequences
+  @Test def test_BF001() { runnerBF1.runOneTest("BF001") }
 
-  // @Test def test_BG000() { runnerBG.runOneTest("BG000") } // Nested delimiters - DAFFODIL-2101
+  @Test def test_BG000() { runnerBG.runOneTest("BG000") }
 
   @Test def test_BC000() { runnerBC.runOneTest("BC000") } // text boolean type
   @Test def test_BD000() { runnerBD.runOneTest("BD000") } // binary boolean type

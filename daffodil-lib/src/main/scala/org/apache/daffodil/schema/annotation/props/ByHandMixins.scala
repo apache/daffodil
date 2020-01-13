@@ -95,10 +95,34 @@ object TextNumberBase {
       case "8" => 8
       case "10" => 10
       case "16" => 16
-      case _ => self.schemaDefinitionError("Illegal number base: " + str) // validation will have checked. So this shoudn't happen.
+      case _ => self.schemaDefinitionError("For property textStandardBase, value must be 2, 8, 10, or 16. Found: %s", str)
     }
   }
+}
+trait TextStandardBaseMixin extends PropertyMixin {
 
+  def tunable: DaffodilTunables
+
+  private def optionTextStandardBase = findPropertyOption("textStandardBase")
+
+  /**
+   * Daffodil 2.5.0 and older ignored the textStandardBase property, behaving
+   * as if the value was always 10. Newer versions of Daffodil support this
+   * property, but we don't want to require it and potentially break old
+   * schemas that do not define it. So we check if we should require the
+   * property based on a tunable, and if we shouldn't require it and it's not
+   * defined, then we warn and default to 10.
+   */
+  final lazy val textStandardBaseDefaulted = {
+    val numStr =
+      if (tunable.requireTextStandardBaseProperty || optionTextStandardBase.isDefined) {
+        getProperty("textStandardBase")
+      } else {
+        SDW(WarnID.TextStandardBaseUndefined, "dfdl:textStandardBase property is undefined. Defaulting to 10.")
+        "10"
+      }
+    TextNumberBase(numStr, this)
+  }
 }
 
 sealed trait SeparatorSuppressionPolicy extends SeparatorSuppressionPolicy.Value

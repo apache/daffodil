@@ -25,25 +25,25 @@
     description="Text number properties">
     <document><![CDATA[    9#876#543#210!01***   12#345!6*** 123456789123456789*** INFINITO***    NNN***   ZERO*** NA*** NIL
   aabbccddeeff*** 0f0f0f*** 123456789
-  10.1 *** 20.3***   -912E-13
+  10.1*** 20.3***   -912^-13
 ]]></document>
     <infoset>
       <dfdlInfoset>
         <ex:list>
-          <x>9876543210.012345678</x>
+          <x>9.87654321001E9</x>
           <x>12345.6</x>
-          <x>123456789123456789</x>
-          <x>Infinity</x>
+          <x>1.23456789123456784E17</x>
+          <x>INF</x>
           <x>NaN</x>
-          <x>0</x>
-          <x>0</x>
-          <x>0</x>
+          <x>0.0</x>
+          <x>0.0</x>
+          <x>0.0</x>
           <y>187723572702975</y>
           <y>986895</y>
           <y>4886718345</y>
           <z>10.1</z>
           <z>20.3</z>
-          <z>-0.0000000000912</z>
+          <z>-9.12E-11</z>
         </ex:list>
       </dfdlInfoset>
     </infoset>

@@ -94,7 +94,7 @@ class IBMTestsThatPass {
   //@Test def test_simple_type_properties_text_number_13_01() { runner2.runOneTest("simple_type_properties_text_number_13_01") }
 
   // DAFFODIL-840 textStandardBase (base 16)
-  //@Test def test_simple_type_properties_text_number_13_03() { runner2.runOneTest("simple_type_properties_text_number_13_03") }
+  @Test def test_simple_type_properties_text_number_13_03() { runner2.runOneTest("simple_type_properties_text_number_13_03") }
 
   // DAFFODIL-551 Needs dfdl:utf16Width='variable' implementation
   //@Test def test_syntax_entities_6_03() { runner1.runOneTest("syntax_entities_6_03") }
