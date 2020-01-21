@@ -8315,7 +8315,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>"02-03-1998T12:30:34"</tdml:error>
+      <tdml:error>02-03-1998T12:30:34</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -8532,7 +8532,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>"03:61:00"</tdml:error>
+      <tdml:error>03:61:00</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -8552,7 +8552,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>"03:59:61"</tdml:error>
+      <tdml:error>03:59:61</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -8572,7 +8572,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>"five o'clock"</tdml:error>
+      <tdml:error>five o'clock</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   

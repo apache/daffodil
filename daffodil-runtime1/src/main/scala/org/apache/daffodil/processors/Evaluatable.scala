@@ -285,7 +285,7 @@ abstract class Evaluatable[+T <: AnyRef](protected val ci: DPathCompileInfo, qNa
   /**
    * Preferred for use in the runtime.
    */
-  @inline final def maybeConstant = constValue_.asInstanceOf[Maybe[T]]
+  @inline final def maybeConstant = Maybe.fromMaybeAnyRef[T](constValue_)
   @inline final def isConstant = constValue_.isDefined
   @inline final def constValue = maybeConstant.get
 

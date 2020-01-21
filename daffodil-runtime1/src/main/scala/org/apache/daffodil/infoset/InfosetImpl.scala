@@ -903,7 +903,7 @@ sealed trait DIElement
    */
   final def maybeIsNilled: MaybeBoolean = {
     if (!_isNilledSet) MaybeBoolean.Nope
-    MaybeBoolean(_isNilled)
+    else MaybeBoolean(_isNilled)
   }
 
   /**

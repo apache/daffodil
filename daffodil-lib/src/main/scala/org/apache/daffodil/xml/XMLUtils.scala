@@ -88,6 +88,20 @@ object XMLUtils {
     res
   }
 
+  def needsXMLToPUARemapping(s: String): Boolean = {
+    var i = 0
+    val len = s.length
+    while (i < len) {
+      val v = s.charAt(i).toInt
+      if ((v < 0x20 && !(v == 0xA || v == 0x9)) || (v > 0xD7FF && v < 0xE000) ||
+          (v >= 0xE000 && v <= 0xF8FF) || (v == 0xFFFE) || (v == 0xFFFF) || (v > 0x10FFFF)) {
+        return true
+      }
+      i += 1
+    }
+    false
+  }
+
   /**
    * Reverse of the above method
    */
@@ -104,6 +118,21 @@ object XMLUtils {
       case _ => c
     }
     res
+  }
+
+  def needsPUAToXMLRemapping(s: String): Boolean = {
+    var i = 0
+    val len = s.length
+    while (i < len) {
+      val v = s.charAt(i).toInt
+      if ((v == 0xD) || // not PUA, but string still needs remapping since CR must be mapped to LF
+          (v >= 0xE000 && v < 0xE020) || (v > 0xE7FF && v < 0xF000) ||
+          (v == 0xF0FE) || (v == 0xF0FF) || (v > 0x10FFFF)) {
+        return true
+      }
+      i += 1
+    }
+    false
   }
 
   def isLeadingSurrogate(c: Char) = {
@@ -214,11 +243,29 @@ object XMLUtils {
   }
 
   def remapXMLIllegalCharactersToPUA(dfdlString: String): String = {
-    remapXMLCharacters(dfdlString, remapXMLIllegalCharToPUA(false))
+    if (needsXMLToPUARemapping(dfdlString)) {
+      // This essentially doubles the work if remapping is needed (since we
+      // scan the string once to see if it's needed, then scan again for
+      // remapping). But the common case is that remapping is not needed, so we
+      // only need to scan the string once AND we avoid allocating a new string
+      // with characters remapped.
+      remapXMLCharacters(dfdlString, remapXMLIllegalCharToPUA(false))
+    } else {
+      dfdlString
+    }
   }
 
   def remapPUAToXMLIllegalCharacters(dfdlString: String): String = {
-    remapXMLCharacters(dfdlString, remapPUAToXMLIllegalChar(false))
+    if (needsPUAToXMLRemapping(dfdlString)) {
+      // This essentially doubles the work if remapping is needed (since we
+      // scan the string once to see if it's needed, then scan again for
+      // remapping). But the common case is that remapping is not needed, so we
+      // only need to scan the string once AND we avoid allocating a new string
+      // with characters remapped.
+      remapXMLCharacters(dfdlString, remapPUAToXMLIllegalChar(false))
+    } else {
+      dfdlString
+    }
   }
 
   def coalesceAllAdjacentTextNodes(node: Node): Node = {

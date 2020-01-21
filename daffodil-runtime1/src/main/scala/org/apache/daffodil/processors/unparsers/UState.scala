@@ -409,7 +409,7 @@ final class UStateForSuspension(
   override def localDelimiters = delimiterStackMaybe.get.top
   override def allTerminatingMarkup = {
     delimiterStackMaybe.get.iterator.flatMap { dnode =>
-      (dnode.separator.toList ++ dnode.terminator.toList)
+      dnode.separator ++ dnode.terminator
     }.toList
   }
 
@@ -581,7 +581,7 @@ final class UStateMain private (
   override def localDelimiters = delimiterStack.top
   override def allTerminatingMarkup = {
     delimiterStack.iterator.flatMap { dnode =>
-      (dnode.separator.toList ++ dnode.terminator.toList)
+      dnode.separator ++ dnode.terminator
     }.toList
   }
 
