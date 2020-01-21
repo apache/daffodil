@@ -140,7 +140,7 @@ object MaybeChar {
   val Nope = new MaybeChar(undefValue)
 }
 
-final case class MaybeBoolean private (__v: Int) extends AnyVal {
+final class MaybeBoolean private (val __v: Int) extends AnyVal {
   @inline final def get: Boolean = if (isEmpty) noneGet else __v == 1
   //@inline final def getOrElse(alternate: Boolean): Boolean = if (isDefined) get else alternate
   private def noneGet = throw new NoSuchElementException("Nope.get")
@@ -158,10 +158,10 @@ final case class MaybeBoolean private (__v: Int) extends AnyVal {
 object MaybeBoolean {
   private val undefValue = -1
 
-  @inline final def apply(v: Boolean) = new MaybeBoolean(if (v) 1 else 0)
+  @inline final def apply(v: Boolean) = if (v) MaybeBoolean.True else MaybeBoolean.False
 
   val Nope = new MaybeBoolean(undefValue)
-  val True = MaybeBoolean(true)
-  val False = MaybeBoolean(false)
+  val True = new MaybeBoolean(1)
+  val False = new MaybeBoolean(0)
   
 }

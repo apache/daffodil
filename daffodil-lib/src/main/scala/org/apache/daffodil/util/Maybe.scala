@@ -118,6 +118,9 @@ object Maybe {
   @inline
   final def apply[T <: AnyRef](value: T) = if (value == null) Nope else new Maybe[T](value)
 
+  @inline
+  final def fromMaybeAnyRef[T <: AnyRef](anyref: Maybe[AnyRef]) = Maybe(anyref.v.asInstanceOf[T])
+
   val Nope = new Maybe[Nothing](NopeValue)
 
   /**

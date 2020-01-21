@@ -91,7 +91,9 @@ abstract class InfosetInputter
 
   def isInitialized = isInitialized_
 
-  var tunable = DaffodilTunables()
+  // Should not need to be initialized for performance reasons, this will be
+  // set to an already allocated tunable when initialize() is called
+  var tunable: DaffodilTunables = _
 
   /**
    * Return the current infoset inputter event type
