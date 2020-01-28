@@ -319,11 +319,8 @@ class Compiler(var validateDFDLSchemas: Boolean = true)
         val cpString =
           if (Misc.classPath.length == 0) " empty."
           else ":\n" + Misc.classPath.mkString("\n\t")
-        val msg = "%s\nThe class may not exist in this Java JVM version (%s)," +
-          "or it is missing from the classpath which is%s".format(
-            cnf.getMessage(),
-            scala.util.Properties.javaVersion,
-            cpString)
+        val fmtMsg = "%s\nThe class may not exist in this Java JVM version (%s), or it is missing from the classpath which is%s"
+        val msg = fmtMsg.format(cnf.getMessage(), scala.util.Properties.javaVersion, cpString)
         throw new InvalidParserException(msg, cnf)
       }
     }
