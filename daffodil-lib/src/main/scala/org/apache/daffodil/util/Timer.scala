@@ -17,6 +17,8 @@
 
 package org.apache.daffodil.util
 
+import collection.JavaConverters._
+
 object Timer extends Logging {
 
   def printTime(message: String, nanos: Long, units: String) {
@@ -165,4 +167,97 @@ object TakTimer {
     nanos / takeon
   }
 
+}
+
+
+object TimeTracker extends Logging {
+
+  case class SectionTime(var time: Long, var count: Int)
+
+  /**
+   * A mapping of each section of code tracked
+   */
+  val sectionTimes = new java.util.HashMap[String,SectionTime]()
+
+  /**
+   * Used to track the time of child tracked sections so they can be excluded
+   * from the parents tracked time. When a tracked section begins, we will push
+   * a zero onto the top of the stack. As each child section finishes and
+   * calculates their time, they will add their time to the value at the top of
+   * the stack. This effectively keeps track of how long all child tracked
+   * sections take. Then when the parent tracked section ends it can pop and
+   * subtract the value on the top of the stack to determine how much time just
+   * that section took, excluding the nested child track sections. This is
+   * necessary since we often want to track the time each parser takes to
+   * complete, but our parsers are nested making that difficult with standard
+   * profilers. This makes that much easier.
+   */
+  val childrenTimeStack = scala.collection.mutable.Stack[Long]()
+
+  /**
+   * Used to measure a section of code that might get called multiple times.
+   * This keeps track of the total amount of time spent in that section and how
+   * many times that section was run. A name is provided by the caller to
+   * identify the section. Additionally, if a section that is being tracked
+   * calls another section that is being tracked (i.e. nested TimeTracker.track
+   * calls) the time spent in the inner section is not included in the outer
+   * section. Note that because of this feature, the use of the track function
+   * is not thread safe.
+   *
+   * For example,
+   *
+   *   TimeTracker.track("code section") {
+   *     // code to track goes here
+   *   }
+   *
+   * Once processing is complete, a call to logTimes will dispaly the stats
+   * about the tracked sections.
+   */
+  def track[A](name: String)(body: => A): A = macro TimeTrackerMacros.trackMacro
+
+  /**
+   * Output the results of the tracked sections in sorted columnar format.
+   */
+  def logTimes(logLevel: LogLevel.Type): Unit = {
+    val stats = sectionTimes.asScala.toSeq.map { case (name, SectionTime(timeNS, count)) => {
+      val average = timeNS / count
+      (name, timeNS / 1000000000.0, average, count)
+    }}.sortBy(_._2).reverse
+
+    val totalTime = stats.map { _._2 }.sum
+
+    val stringStats = stats.map { case (name, time, average, count) =>
+      (
+        name,
+        "%.3f".format(time),
+        "%.2f%%".format(time * 100 / totalTime),
+        average.toString,
+        count.toString
+      )
+    }
+
+    val nameLen = stringStats.map(_._1.length).max
+    val timeLen = stringStats.map(_._2.length).max
+    val percentLen = stringStats.map(_._3.length).max
+    val averageLen = stringStats.map(_._4.length).max
+    val countLen = stringStats.map(_._5.length).max
+
+    val formatString =
+      "%-" + nameLen + "s  " +
+      "%"  + timeLen + "s  " +
+      "%"  + percentLen + "s  " +
+      "%"  + averageLen + "s  " +
+      "%"  + countLen + "s"
+
+    log(logLevel, formatString, "Name", "Time", "Pct", "Average", "Count")
+    stringStats.foreach { stats =>
+      log(logLevel, formatString, stats.productIterator.toList: _*)
+    }
+    log(logLevel, "Total Time: %.3f", totalTime)
+  }
+
+  def clear(): Unit = {
+    sectionTimes.clear()
+    childrenTimeStack.clear()
+  }
 }

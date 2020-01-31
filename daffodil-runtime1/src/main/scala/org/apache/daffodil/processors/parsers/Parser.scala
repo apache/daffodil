@@ -54,7 +54,7 @@ sealed trait Parser
 
   def isEmpty = false // override in NadaParser
 
-  protected def parserName = Misc.getNameFromClass(this)
+  protected lazy val parserName = Misc.getNameFromClass(this)
 
   def PE(pstate: PState, s: String, args: Any*) = {
     pstate.setFailed(new ParseError(One(context.schemaFileLocation), One(pstate.currentLocation), s, args: _*))
