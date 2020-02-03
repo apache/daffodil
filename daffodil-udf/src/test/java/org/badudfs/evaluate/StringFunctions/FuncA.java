@@ -41,8 +41,8 @@ public class FuncA implements UserDefinedFunction {
   public String evaluate(char[] orig, char[] pre, char[] post) {
     String ret = "";
     if (orig.length >= pre.length) {
-      String newOrig = orig.toString();
-      ret = newOrig.replace(pre.toString(), post.toString());
+      String newOrig = new String(orig);
+      ret = newOrig.replace(new String(pre), new String(post));
     }
     return ret;
   }

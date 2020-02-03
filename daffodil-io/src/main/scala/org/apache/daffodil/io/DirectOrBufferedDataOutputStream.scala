@@ -235,9 +235,6 @@ class DirectOrBufferedDataOutputStream private[io] (
         val len = ULong(end - srt).longValue
         " Absolute from %d to %d (length %d)".format(srt, end, len)
       } else {
-        if (splitFrom ne null)
-          " at rel bit pos %d".format(relBitPos0b.longValue)
-        else
           " at rel bit pos %d".format(relBitPos0b.longValue)
       }) +
       (if (maybeAbsBitLimit0b.isDefined) {

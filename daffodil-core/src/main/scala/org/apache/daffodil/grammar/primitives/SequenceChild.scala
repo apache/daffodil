@@ -176,10 +176,7 @@ abstract class SequenceChild(protected val sq: SequenceTermBase, child: Term, gr
             case Never => Positional
           }
         } else {
-          ssp match {
-            // case AnyEmpty => NonPositional
-            case _ => Positional
-          }
+          Positional
         }
       }
       case _ => Positional // obscure cases like maxOccurs 0 with lengthKind 'implicit'

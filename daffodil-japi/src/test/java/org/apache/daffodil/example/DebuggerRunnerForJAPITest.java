@@ -17,49 +17,45 @@
 
 package org.apache.daffodil.example;
 
-import org.apache.daffodil.japi.debugger.*;
-
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 
+import org.apache.daffodil.japi.debugger.DebuggerRunner;
+
 public class DebuggerRunnerForJAPITest extends DebuggerRunner {
-	ArrayList<String> lines;
+  ArrayList<String> lines;
 
-	@SuppressWarnings("serial")
-	ArrayList<String> commands = new ArrayList<String>() {
-		{
-			add("display info parser");
-			add("display info bitPosition");
-			add("display info data");
-			add("display eval ..");
-			add("display info diff");
-			add("trace");
-		}
-	};
+  ArrayList<String> commands = new ArrayList<>( Arrays.asList("display info parser",
+      "display info bitPosition",
+      "display info data",
+      "display eval ..",
+      "display info diff",
+      "trace"));
 
-	Iterator<String> commandsIter;
+  Iterator<String> commandsIter;
 
-	public void init() {
-		lines = new ArrayList<String>();
-		commandsIter = commands.iterator();
-	}
+  public void init() {
+    lines = new ArrayList<String>();
+    commandsIter = commands.iterator();
+  }
 
-	public void fini() {
-	}
+  public void fini() {
+  }
 
-	public String getCommand() {
-		if (commandsIter.hasNext()) {
-			return commandsIter.next();
-		}
+  public String getCommand() {
+    if (commandsIter.hasNext()) {
+      return commandsIter.next();
+    }
 
-		// If the commandsIter commands are good this should never happen. The
-		// only time this would ever get hit is if something caused the
-		// debugger to break. But if this does happen, just keep running trace.
-		// We should eventually finish parsing.
-		return "trace";
-	}
+    // If the commandsIter commands are good this should never happen. The
+    // only time this would ever get hit is if something caused the
+    // debugger to break. But if this does happen, just keep running trace.
+    // We should eventually finish parsing.
+    return "trace";
+  }
 
-	public void lineOutput(String line) {
-		lines.add(line + "\n");
-	}
+  public void lineOutput(String line) {
+    lines.add(line + "\n");
+  }
 }
