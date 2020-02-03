@@ -73,7 +73,7 @@ class TestAssertMacros {
    * be something expensive that computes a message string.
    */
   @Test def testMacrosNotEvaluatedSecondArg() {
-    Assert.usage(if (1 == x) true else true, { fail(); "failed" })
+    Assert.usage(true, { fail(); "failed" })
   }
 
   @Test def testNotYetImplemented0Arg() {

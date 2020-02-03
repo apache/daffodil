@@ -31,8 +31,7 @@ import org.apache.daffodil.udf.UserDefinedFunctionIdentification;
 public class FuncB implements UserDefinedFunction {
 
   public void evaluate(String orig, String pre, String post) {
-    if (orig.length() >= pre.length()) {
-      orig.replace(pre, post);
-    }
+    // do nothing
+
   }
 }

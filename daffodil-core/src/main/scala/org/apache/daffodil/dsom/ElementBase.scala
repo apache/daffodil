@@ -491,11 +491,7 @@ trait ElementBase
         }
       // Handle 8 bit types
       case (Representation.Binary, PrimType.Integer | PrimType.Decimal | PrimType.Byte |
-        PrimType.UnsignedByte | PrimType.NonNegativeInteger) =>
-        binaryNumberRep match {
-          case BinaryNumberRep.Packed | BinaryNumberRep.Bcd | BinaryNumberRep.Ibm4690Packed => 8
-          case _ => 8
-        }
+        PrimType.UnsignedByte | PrimType.NonNegativeInteger) => 8
       // Handle date types
       case (Representation.Binary, PrimType.DateTime | PrimType.Date | PrimType.Time) =>
         binaryCalendarRep match {
