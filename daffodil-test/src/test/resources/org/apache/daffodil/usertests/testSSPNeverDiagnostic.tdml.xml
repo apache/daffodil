@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<tdml:testSuite
+  description="Bug report"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:xml="http://www.w3.org/XML/1998/namespace"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:gpf="http://www.ibm.com/dfdl/GeneralPurposeFormat"
+  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
+  xmlns:ex="http://example.com"
+  xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData tdml.xsd"
+  defaultRoundTrip="onePass"
+  
+  xmlns:ama="http://example.com"
+  >
+
+  <tdml:defineSchema name="s1" elementFormDefault="unqualified">
+
+  <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+
+  <!-- 
+  
+    In format below. Remove separatorSuppressionPolicy, or change
+    value to "never" to reproduce the problem. You will get an error 
+    about initiator "3" not found.
+    
+    separatorSuppressionPolicy="never" means the separators will be present.
+    It is generally for fixed-length arrays, or sequences that are fixed-length
+    tuples of elements.
+    
+    Using that in this format is a mistake, the bug here is about the 
+    really poor diagnostic message. 
+   -->
+     
+  <dfdl:format 
+    ref="ex:GeneralFormat" 
+    separatorSuppressionPolicy="never" 
+   />
+
+  <xs:element name="records" type="ama:Records" />
+
+  <xs:complexType name="Records">
+    <xs:sequence dfdl:separator="%NL;" dfdl:separatorPosition="postfix">
+      <xs:element name="it01" minOccurs="0" type="ama:IT01" dfdl:initiator="1" />
+      <xs:element name="record" type="ama:Record" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Record">
+    <xs:sequence dfdl:separator="%NL;">
+      <xs:element name="it02" type="ama:IT02" dfdl:initiator="2" />
+      <xs:element name="it03" minOccurs="0" type="ama:IT03" dfdl:initiator="3" />
+      <xs:element name="it05" minOccurs="0" type="ama:IT05" dfdl:initiator="5" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="delimString" dfdl:lengthKind="delimited">
+    <xs:restriction base="xs:string" />
+  </xs:simpleType>
+
+  <xs:simpleType name="IT01">
+    <xs:restriction base="ama:delimString" />
+  </xs:simpleType>
+
+  <xs:simpleType name="IT02">
+    <xs:restriction base="ama:delimString" />
+  </xs:simpleType>
+
+  <xs:simpleType name="IT03">
+    <xs:restriction base="ama:delimString" />
+  </xs:simpleType>
+
+  <xs:simpleType name="IT04">
+    <xs:restriction base="ama:delimString" />
+  </xs:simpleType>
+
+  <xs:simpleType name="IT05">
+    <xs:restriction base="ama:delimString" />
+  </xs:simpleType>
+
+  </tdml:defineSchema>
+  
+  <tdml:parserTestCase name="testSeparatorSuppressionNeverBadDiagnostic"  
+    root="records" model="s1">
+    <tdml:document><![CDATA[1aaa
+2bbb
+5eee
+]]></tdml:document>
+    
+    <!-- if you use ssp="anyEmpty" this will be the infoset -->
+    <!-- 
+    <tdml:infoset>
+    <tdml:dfdlInfoset>
+      <ama:records>
+      <it01>aaa</it01>
+      <record>
+        <it02>bbb</it02>
+        <it05>eee</it05>
+      </record>
+      </ama:records>
+    </tdml:dfdlInfoset>
+    </tdml:infoset>
+     -->
+    
+    <tdml:errors>
+      <tdml:error>it03</tdml:error>
+      <tdml:error>initiator</tdml:error>
+      <!--
+      The error message really needs to mention the separator also not
+      being found, not just the it03 initiator. 
+       -->
+      <tdml:error>separator</tdml:error>
+    </tdml:errors>
+    
+  </tdml:parserTestCase>
+  
+</tdml:testSuite>
