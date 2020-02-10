@@ -502,9 +502,9 @@ object NodeInfo extends Enum {
       type Kind = FloatKind
       override def fromXMLString(s: String) = {
         val f: JFloat = s match {
-          case XMLUtils.PositiveInfinityString => scala.Float.PositiveInfinity
-          case XMLUtils.NegativeInfinityString => scala.Float.NegativeInfinity
-          case XMLUtils.NaNString => scala.Float.NaN
+          case XMLUtils.PositiveInfinityString => JFloat.POSITIVE_INFINITY
+          case XMLUtils.NegativeInfinityString => JFloat.NEGATIVE_INFINITY
+          case XMLUtils.NaNString => JFloat.NaN
           case _ => s.toFloat
         }
         f
@@ -519,9 +519,9 @@ object NodeInfo extends Enum {
       type Kind = DoubleKind
       override def fromXMLString(s: String): DataValueDouble = {
         val d: JDouble = s match {
-          case XMLUtils.PositiveInfinityString => scala.Double.PositiveInfinity
-          case XMLUtils.NegativeInfinityString => scala.Double.NegativeInfinity
-          case XMLUtils.NaNString => scala.Double.NaN
+          case XMLUtils.PositiveInfinityString => JDouble.POSITIVE_INFINITY
+          case XMLUtils.NegativeInfinityString => JDouble.NEGATIVE_INFINITY
+          case XMLUtils.NaNString => JDouble.NaN
           case _ => s.toDouble
         }
         d

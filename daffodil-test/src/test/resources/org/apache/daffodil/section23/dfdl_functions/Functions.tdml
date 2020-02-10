@@ -6825,6 +6825,15 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    <xs:element name="ulong04">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="string" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="ulongified" type="xs:unsignedLong" dfdl:inputValueCalc="{ xs:unsignedLong(../ex:string) }"/>
+          <xs:element name="longified" type="xs:long" dfdl:inputValueCalc="{ xs:long(../ex:ulongified) }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
     
     <xs:element name="ushort01" type="xs:unsignedShort" dfdl:inputValueCalc="{ xs:unsignedShort(-50) }"/>
     <xs:element name="ushort02" type="xs:unsignedShort" dfdl:inputValueCalc="{ xs:unsignedShort(12345678987654321) }"/>
@@ -7636,6 +7645,39 @@
         <tdml:error>out of range</tdml:error>
         <tdml:error>unsignedLong</tdml:error>
       </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="ulong_constructor_06" root="ulong03" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:unsignedLong()  - DFDL-23-084R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">9223372036854775808</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ulong03>
+          <string>9223372036854775808</string>
+          <ulongified>9223372036854775808</ulongified>
+        </ulong03>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="ulong_constructor_07" root="ulong04" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:unsignedLong()  - DFDL-23-084R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">12345</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ulong04>
+          <string>12345</string>
+          <ulongified>12345</ulongified>
+          <longified>12345</longified>
+        </ulong04>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
   
   <!--

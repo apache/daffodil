@@ -853,6 +853,8 @@ class TestDFDLExpressions {
   @Test def test_ulong_constructor_03() { runner2.runOneTest("ulong_constructor_03") }
   @Test def test_ulong_constructor_04() { runner2.runOneTest("ulong_constructor_04") }
   @Test def test_ulong_constructor_05() { runner2.runOneTest("ulong_constructor_05") }
+  @Test def test_ulong_constructor_06() { runner2.runOneTest("ulong_constructor_06") }
+  @Test def test_ulong_constructor_07() { runner2.runOneTest("ulong_constructor_07") }
 
   @Test def test_long_constructor_01() { runner2.runOneTest("long_constructor_01") }
   @Test def test_long_constructor_02() { runner2.runOneTest("long_constructor_02") }

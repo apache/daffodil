@@ -17,6 +17,12 @@
 
 package org.apache.daffodil.dpath
 
+import java.lang.{ Boolean => JBoolean, Number => JNumber, Long => JLong, Double => JDouble, String => JString, Float => JFloat, Byte => JByte, Integer => JInt, Short => JShort }
+import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
+import java.net.URI
+
+import org.apache.daffodil.api.DataLocation
+import org.apache.daffodil.api.Diagnostic
 import org.apache.daffodil.calendar.DFDLCalendar
 import org.apache.daffodil.dsom.CompiledExpression
 import org.apache.daffodil.dsom.DPathCompileInfo
@@ -43,18 +49,16 @@ import org.apache.daffodil.processors.ProcessingError
 import org.apache.daffodil.processors.Success
 import org.apache.daffodil.processors.Suspension
 import org.apache.daffodil.processors.VariableException
+import org.apache.daffodil.processors.parsers.DoSDEMixin
+import org.apache.daffodil.processors.parsers.PState
 import org.apache.daffodil.processors.unparsers.UState
 import org.apache.daffodil.processors.unparsers.UnparseError
+import org.apache.daffodil.udf.UserDefinedFunctionProcessingErrorException
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe.Nope
 import org.apache.daffodil.util.Maybe.One
-import org.apache.daffodil.xml.NamedQName; object EqualityNoWarn { EqualitySuppressUnusedImportWarning() }
-import org.apache.daffodil.api.DataLocation
-import org.apache.daffodil.api.Diagnostic
-import org.apache.daffodil.processors.parsers.DoSDEMixin
-import org.apache.daffodil.processors.parsers.PState
-import org.apache.daffodil.udf.UserDefinedFunctionProcessingErrorException
 import org.apache.daffodil.util.Numbers.asLong
+import org.apache.daffodil.xml.NamedQName; object EqualityNoWarn { EqualitySuppressUnusedImportWarning() }
 
 class ExpressionEvaluationException(e: Throwable, s: ParseOrUnparseState)
   extends ProcessingError(
@@ -207,8 +211,8 @@ final class RuntimeExpressionDPath[T <: AnyRef](qn: NamedQName, tt: NodeInfo.Kin
         whereBlockedInfo.block(noLength.diElement, noLength.erd, 0, noLength)
       case th: Throwable => handleThrow(th, state)
     }
-    val value1 = postProcess(value, state)
-    value1
+    validateType(value, state)
+    value
   }
 
   override def run(dstate: DState) {
@@ -261,8 +265,8 @@ final class RuntimeExpressionDPath[T <: AnyRef](qn: NamedQName, tt: NodeInfo.Kin
           Nope
         }
       }
-    val value1 = postProcess(value, state)
-    value1
+    validateType(value, state)
+    value
   }
 
   final def evaluate(state: ParseOrUnparseState): T = {
@@ -342,53 +346,46 @@ final class RuntimeExpressionDPath[T <: AnyRef](qn: NamedQName, tt: NodeInfo.Kin
   }
 
   /**
-   * Accepts a value or null to mean there is no value.
-   *
-   * Note: Can't use a Maybe[T] here because T is required to be an AnyRef, and that would exclude
-   * Long, Int, etc. from being used as values.
+   * Verifies that the resulting type of an expression matches the target type
    */
-  private def postProcess(v: Maybe[T], state: ParseOrUnparseState): Maybe[T] = {
-    if (v.isEmpty) Nope
-    else {
+  private def validateType(v: Maybe[T], state: ParseOrUnparseState): Unit = {
+    if (v.isDefined) {
       val value = v.get
-      val value1 =
-        if (!value.isInstanceOf[DIElement]) {
-          targetType match {
-            case NodeInfo.AnyType => value // ok
-            case NodeInfo.Long => asLong(value)
-            case NodeInfo.UnsignedLong => asLong(value)
-            case NodeInfo.NonEmptyString => {
-              Assert.invariant(value.isInstanceOf[String])
-              if (value.asInstanceOf[String].length == 0) {
-                val e = new RuntimeSchemaDefinitionError(ci.schemaFileLocation, state, "Non-empty string required.")
-                doSDE(e, state)
-              }
-              value
+      if (!value.isInstanceOf[DIElement]) {
+        targetType match {
+          case NodeInfo.NonEmptyString => {
+            Assert.invariant(value.isInstanceOf[String])
+            if (value.asInstanceOf[String].length == 0) {
+              val e = new RuntimeSchemaDefinitionError(ci.schemaFileLocation, state, "Non-empty string required.")
+              doSDE(e, state)
             }
-            case NodeInfo.DateTime | NodeInfo.Date | NodeInfo.Time => {
-              Assert.invariant(value.isInstanceOf[DFDLCalendar])
-              value
-            }
-            case _: NodeInfo.String.Kind => {
-              Assert.invariant(value.isInstanceOf[String])
-              value
-            }
-            case NodeInfo.Boolean => {
-              Assert.invariant(value.isInstanceOf[Boolean])
-              value
-            }
-            case NodeInfo.HexBinary => {
-              Assert.invariant(value.isInstanceOf[Array[Byte]])
-              value
-            }
-            case _ => // TODO: add more checks. E.g., that proper type matching occurred for all the number
-              // and date types as well.
-              value
           }
-        } else {
-          value
+          case _: NodeInfo.String.Kind => Assert.invariant(value.isInstanceOf[String])
+          case NodeInfo.DateTime => Assert.invariant(value.isInstanceOf[DFDLCalendar])
+          case NodeInfo.Date => Assert.invariant(value.isInstanceOf[DFDLCalendar])
+          case NodeInfo.Time => Assert.invariant(value.isInstanceOf[DFDLCalendar])
+          case NodeInfo.Boolean => Assert.invariant(value.isInstanceOf[Boolean])
+          case NodeInfo.Byte => Assert.invariant(value.isInstanceOf[JByte])
+          case NodeInfo.UnsignedByte => Assert.invariant(value.isInstanceOf[JShort])
+          case NodeInfo.Short => Assert.invariant(value.isInstanceOf[JShort])
+          case NodeInfo.UnsignedShort => Assert.invariant(value.isInstanceOf[JInt])
+          case NodeInfo.Int => Assert.invariant(value.isInstanceOf[JInt])
+          case NodeInfo.UnsignedInt => Assert.invariant(value.isInstanceOf[JLong])
+          case NodeInfo.Long => Assert.invariant(value.isInstanceOf[JLong])
+          case NodeInfo.UnsignedLong => Assert.invariant(value.isInstanceOf[JBigInt])
+          case NodeInfo.Integer => Assert.invariant(value.isInstanceOf[JBigInt])
+          case NodeInfo.NonNegativeInteger => Assert.invariant(value.isInstanceOf[JBigInt])
+          case NodeInfo.Float => Assert.invariant(value.isInstanceOf[JFloat])
+          case NodeInfo.Double => Assert.invariant(value.isInstanceOf[JDouble])
+          case NodeInfo.Decimal => Assert.invariant(value.isInstanceOf[JBigDecimal])
+          case NodeInfo.HexBinary => Assert.invariant(value.isInstanceOf[Array[Byte]])
+          case NodeInfo.AnyURI => Assert.invariant(value.isInstanceOf[URI])
+          case _ => {
+            // All other NodeInfo.* types are non-primitives which can have
+            // many different kinds of types, not worth checking
+          }
         }
-      One(value1.asInstanceOf[T])
+      }
     }
   }
 
