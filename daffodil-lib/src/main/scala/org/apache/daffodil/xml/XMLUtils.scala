@@ -51,10 +51,6 @@ object XMLUtils {
    */
   val xmlNilAttribute = new PrefixedAttribute("xsi", "nil", "true", scala.xml.Null)
 
-  val PositiveInfinity = Double.PositiveInfinity
-  val NegativeInfinity = Double.NegativeInfinity
-  val NaN = Double.NaN
-
   val PositiveInfinityString = "INF"
   val NegativeInfinityString = "-INF"
   val NaNString = "NaN"

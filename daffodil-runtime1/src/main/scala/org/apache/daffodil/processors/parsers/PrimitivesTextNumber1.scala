@@ -21,6 +21,7 @@ package org.apache.daffodil.processors.parsers
 import com.ibm.icu.math.{ BigDecimal => ICUBigDecimal }
 import com.ibm.icu.text.DecimalFormat
 
+import java.lang.{ Double => JDouble }
 import java.text.ParsePosition
 
 import scala.util.matching.Regex
@@ -135,12 +136,13 @@ case class ConvertTextNumberParser(
 
         val numValue: DataValueNumber = num match {
           // if num is infRep, -infRep, or nanRep, then parse() returns
-          // Double.{POSINF, NEGINF, NAN}. otherwise, it returns some kind
-          // of boxed number that can hold the full contents of the number,
-          // which is one of Long, BigInteger, BigDecimal
-          case d: java.lang.Double if (d.isInfinite && d > 0) => XMLUtils.PositiveInfinity
-          case d: java.lang.Double if (d.isInfinite && d < 0) => XMLUtils.NegativeInfinity
-          case d: java.lang.Double if (d.isNaN) => XMLUtils.NaN
+          // Double.{POSINF, NEGINF, NAN}. In that case, we need to convert it
+          // to the appropriate Double or Float inifinity/nan. Otherwise,
+          // parse() returns some kind of boxed number that can hold the full
+          // contents of the number, which is one of Long, BigInteger,
+          // BigDecimal. In that case, we must check the range and convert it
+          // to the appropriate prim type.
+          case d: JDouble if (!JDouble.isFinite(d)) => primNumeric.fromNumber(d)
           case _ => {
             if (!primNumeric.isValidRange(num)) {
               PE(start, "Parsed %s is out of range for type: %s",

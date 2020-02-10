@@ -87,7 +87,7 @@ object Conversion {
       case (Boolean, Integer) => BooleanToLong +: conversionOps(Long, tt, context)
       case (Boolean, NonNegativeInteger) => BooleanToLong +: conversionOps(Long, tt, context)
       case (Boolean, Long) => List(BooleanToLong)
-      case (Boolean, UnsignedLong) => List(BooleanToLong) // no need to range check.
+      case (Boolean, UnsignedLong) => BooleanToLong +: conversionOps(Long, tt, context)
       case (Boolean, Int) => BooleanToLong +: conversionOps(Long, tt, context)
       case (Boolean, UnsignedInt) => BooleanToLong +: conversionOps(Long, tt, context)
       case (Boolean, Short) => BooleanToLong +: conversionOps(Long, tt, context)
@@ -101,7 +101,7 @@ object Conversion {
       case (Double, Integer) => DoubleToDecimal +: conversionOps(Decimal, tt, context)
       case (Double, NonNegativeInteger) => DoubleToDecimal +: conversionOps(Decimal, tt, context)
       case (Double, Long) => List(DoubleToLong)
-      case (Double, UnsignedLong) => List(DoubleToUnsignedLong)
+      case (Double, UnsignedLong) => DoubleToUnsignedLong +: conversionOps(Long, tt, context)
       case (Double, i: Int.Kind) => DoubleToLong +: conversionOps(Long, tt, context)
       case (Double, ui: UnsignedInt.Kind) => DoubleToUnsignedLong +: UnsignedLongToLong +: conversionOps(Long, tt, context)
 
@@ -177,7 +177,7 @@ object Conversion {
       case (UnsignedInt, Integer) => UnsignedIntToLong +: conversionOps(Long, tt, context)
       case (UnsignedInt, NonNegativeInteger) => UnsignedIntToLong +: conversionOps(Long, tt, context)
       case (UnsignedInt, Long) => List(UnsignedIntToLong)
-      case (UnsignedInt, UnsignedLong) => List(UnsignedIntToLong) // no need to range check.
+      case (UnsignedInt, UnsignedLong) => UnsignedIntToLong +: conversionOps(Long, tt, context)
       case (UnsignedInt, Int) => UnsignedIntToLong +: conversionOps(Long, tt, context)
       case (UnsignedInt, Short) => UnsignedIntToLong +: conversionOps(Long, tt, context)
       case (UnsignedInt, UnsignedShort) => UnsignedIntToLong +: conversionOps(Long, tt, context)
@@ -200,7 +200,7 @@ object Conversion {
       case (ArrayIndex, Integer) => ArrayIndexToLong +: conversionOps(Long, tt, context)
       case (ArrayIndex, NonNegativeInteger) => ArrayIndexToLong +: conversionOps(Long, tt, context)
       case (ArrayIndex, Long) => List(ArrayIndexToLong)
-      case (ArrayIndex, UnsignedLong) => List(ArrayIndexToLong) // no need to range check.
+      case (ArrayIndex, UnsignedLong) => ArrayIndexToLong +: conversionOps(Long, tt, context)
       case (ArrayIndex, Int) => ArrayIndexToLong +: conversionOps(Long, tt, context)
       case (ArrayIndex, UnsignedInt) => ArrayIndexToLong +: conversionOps(Long, tt, context)
       case (ArrayIndex, Short) => ArrayIndexToLong +: conversionOps(Long, tt, context)
@@ -213,7 +213,7 @@ object Conversion {
       case (Short, Integer) => ShortToLong +: conversionOps(Long, tt, context)
       case (Short, NonNegativeInteger) => ShortToLong +: conversionOps(Long, tt, context)
       case (Short, Long) => List(ShortToLong)
-      case (Short, UnsignedLong) => List(ShortToLong) // no need to range check.
+      case (Short, UnsignedLong) => ShortToLong +: conversionOps(Long, tt, context)
       case (Short, Int) => ShortToLong +: conversionOps(Long, tt, context)
       case (Short, UnsignedInt) => ShortToLong +: conversionOps(Long, tt, context)
       case (Short, UnsignedShort) => ShortToLong +: conversionOps(Long, tt, context)
@@ -225,7 +225,7 @@ object Conversion {
       case (UnsignedShort, Integer) => UnsignedShortToLong +: conversionOps(Long, tt, context)
       case (UnsignedShort, NonNegativeInteger) => UnsignedShortToLong +: conversionOps(Long, tt, context)
       case (UnsignedShort, Long) => List(UnsignedShortToLong)
-      case (UnsignedShort, UnsignedLong) => List(UnsignedShortToLong) // no need to range check.
+      case (UnsignedShort, UnsignedLong) => UnsignedShortToLong +: conversionOps(Long, tt, context)
       case (UnsignedShort, Int) => UnsignedShortToLong +: conversionOps(Long, tt, context)
       case (UnsignedShort, UnsignedInt) => UnsignedShortToLong +: conversionOps(Long, tt, context)
       case (UnsignedShort, Short) => UnsignedShortToLong +: conversionOps(Long, tt, context)
@@ -236,7 +236,7 @@ object Conversion {
       case (Byte, Float) => ByteToLong +: conversionOps(Long, tt, context)
       case (Byte, Integer) => ByteToLong +: conversionOps(Long, tt, context)
       case (Byte, NonNegativeInteger) => ByteToLong +: conversionOps(Long, tt, context)
-      case (Byte, UnsignedLong) => List(ByteToLong) // no need to range check.
+      case (Byte, UnsignedLong) => ByteToLong +: conversionOps(Long, tt, context)
       case (Byte, Int) => ByteToLong +: conversionOps(Long, tt, context)
       case (Byte, UnsignedInt) => ByteToLong +: conversionOps(Long, tt, context)
       case (Byte, Short) => ByteToLong +: conversionOps(Long, tt, context)
@@ -249,7 +249,7 @@ object Conversion {
       case (UnsignedByte, Integer) => UnsignedByteToLong +: conversionOps(Long, tt, context)
       case (UnsignedByte, NonNegativeInteger) => UnsignedByteToLong +: conversionOps(Long, tt, context)
       case (UnsignedByte, Long) => List(UnsignedByteToLong)
-      case (UnsignedByte, UnsignedLong) => List(UnsignedByteToLong) // no need to range check.
+      case (UnsignedByte, UnsignedLong) => UnsignedByteToLong +: conversionOps(Long, tt, context)
       case (UnsignedByte, Int) => UnsignedByteToLong +: conversionOps(Long, tt, context)
       case (UnsignedByte, UnsignedInt) => UnsignedByteToLong +: conversionOps(Long, tt, context)
       case (UnsignedByte, Short) => UnsignedByteToLong +: conversionOps(Long, tt, context)

@@ -40,6 +40,7 @@ import org.apache.daffodil.exceptions.UnsuppressableException
 import org.apache.daffodil.infoset.DIElement
 import org.apache.daffodil.infoset.DIFinalizable
 import org.apache.daffodil.infoset.DataValue.DataValueBigDecimal
+import org.apache.daffodil.infoset.DataValue.DataValueBigInt
 import org.apache.daffodil.infoset.DataValue.DataValueBool
 import org.apache.daffodil.infoset.DataValue.DataValueCalendar
 import org.apache.daffodil.infoset.DataValue.DataValueInt
@@ -713,7 +714,7 @@ case class FNCeiling(recipe: CompiledDPath, argType: NodeInfo.Kind) extends FNOn
       bd.setScale(0, RoundingMode.CEILING)
     }
     case NodeInfo.Float => asFloat(value.getAnyRef).floatValue().ceil
-    case NodeInfo.Double => asDouble(value.getAnyRef).floatValue().ceil
+    case NodeInfo.Double => asDouble(value.getAnyRef).doubleValue().ceil
     case _: NodeInfo.Numeric.Kind => value
     case _ => Assert.invariantFailed(String.format("Type %s is not a valid type for function ceiling.", argType))
   }
@@ -773,7 +774,7 @@ abstract class FNFromDateTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
   with FNFromDateTimeKind {
   override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueNumber = {
     a.getAnyRef match {
-      case dt: DFDLDateTime => JLong.valueOf(dt.calendar.get(field))
+      case dt: DFDLDateTime => JBigInt.valueOf(dt.calendar.get(field))
       case _ => throw new NumberFormatException("fn:" + fieldName + "-from-dateTime only accepts xs:dateTime.")
     }
   }
@@ -784,7 +785,7 @@ abstract class FNFromDate(recipe: CompiledDPath, argType: NodeInfo.Kind)
   with FNFromDateTimeKind {
   override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueNumber = {
     a.getAnyRef match {
-      case d: DFDLDate => JLong.valueOf(d.calendar.get(field))
+      case d: DFDLDate => JBigInt.valueOf(d.calendar.get(field))
       case _ => throw new NumberFormatException("fn:" + fieldName + "-from-date only accepts xs:date.")
     }
   }
@@ -795,7 +796,7 @@ abstract class FNFromTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
   with FNFromDateTimeKind {
   override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueNumber = {
     a.getAnyRef match {
-      case t: DFDLTime => JLong.valueOf(t.calendar.get(field))
+      case t: DFDLTime => JBigInt.valueOf(t.calendar.get(field))
       case _ => throw new NumberFormatException("fn:" + fieldName + "-from-time only accepts xs:time.")
     }
   }
@@ -810,7 +811,9 @@ case class FNMonthFromDateTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNFromDateTime(recipe, argType) {
   val fieldName = "month"
   val field = Calendar.MONTH
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong = super.computeValue(a, dstate).getLong + 1 // JAN 0
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueBigInt = {
+    super.computeValue(a, dstate).getBigInt.add(JBigInt.ONE) // JAN 0
+  }
 }
 case class FNDayFromDateTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNFromDateTime(recipe, argType) {
@@ -874,7 +877,9 @@ case class FNMonthFromDate(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNFromDate(recipe, argType) {
   val fieldName = "month"
   val field = Calendar.MONTH
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong = super.computeValue(a, dstate).getLong + 1 // JAN 0
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueBigInt = {
+    super.computeValue(a, dstate).getBigInt.add(JBigInt.ONE) // JAN 0
+  }
 }
 case class FNDayFromDate(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNFromDate(recipe, argType) {
