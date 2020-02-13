@@ -41,6 +41,7 @@ import scala.collection.immutable.Map
 import scala.collection.immutable.HashMap
 import org.apache.daffodil.compiler.ProcessorFactory
 import org.apache.daffodil.processors.TypeCalculatorCompiler.TypeCalcMap
+import org.apache.daffodil.grammar.Gram
 
 /**
  * A schema set is exactly that, a set of schemas. Each schema has
@@ -73,6 +74,18 @@ final class SchemaSet(
   tunableArg: DaffodilTunables)
   extends SchemaComponentImpl(<schemaSet/>, None)
   with SchemaSetIncludesAndImportsMixin {
+
+  /**
+   * Used to count instances of element base objects created by
+   * compiler - to be sure we're not duplicating them unnecessarily.
+   */
+  var elementBaseInstanceCount = 0L
+
+  lazy val sharedComplexContentFactory = new SharedFactory[Gram]
+  lazy val sharedNilLitFactory = new SharedFactory[Gram]
+  lazy val sharedSimpleValueFactory = new SharedFactory[Gram]
+  lazy val sharedGroupContentsFactory = new SharedFactory[Gram]
+  lazy val sharedGroupMembersFactory = new SharedFactory[Seq[Term]]
 
   private lazy val processorFactory = pfArg // insure this by name arg is evaluated exactly once.
 

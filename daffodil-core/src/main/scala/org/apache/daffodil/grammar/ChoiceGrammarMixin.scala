@@ -30,7 +30,7 @@ trait ChoiceGrammarMixin
   extends GrammarMixin
   with ChoiceTermRuntime1Mixin { self: ChoiceTermBase =>
 
-  override lazy val groupContent = prod("choiceContent") {
+  override lazy val groupContentDef = prod("choiceContent") {
     ChoiceCombinator(this, alternatives)
   }
 

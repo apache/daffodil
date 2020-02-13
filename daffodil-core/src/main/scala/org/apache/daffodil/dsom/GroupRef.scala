@@ -32,8 +32,8 @@ trait GroupRef { self: ModelGroup =>
 
   final override lazy val optReferredToComponent = Some(referredToComponent)
 
-  final override lazy val groupMembers = LV('groupMembers) {
-    groupDef.groupMembers
+  final override protected lazy val groupMembersDef = LV('groupMembers) {
+    groupDef.groupMembersNotShared
   }.value
 
   override protected def annotationFactory(node: Node): Option[DFDLAnnotation] = {

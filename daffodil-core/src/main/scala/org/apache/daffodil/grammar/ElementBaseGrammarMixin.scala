@@ -40,6 +40,12 @@ import org.apache.daffodil.xml.QName
 import org.apache.daffodil.xml.XMLUtils
 import org.apache.daffodil.dsom.ExpressionCompilers
 import org.apache.daffodil.runtime1.ElementBaseRuntime1Mixin
+import org.apache.daffodil.dsom.SchemaSet
+import org.apache.daffodil.dsom.SharedFactory
+import org.apache.daffodil.grammar.primitives.ConvertTextBooleanPrim
+import org.apache.daffodil.grammar.primitives.LeadingSkipRegion
+import org.apache.daffodil.grammar.primitives.SimpleNilOrValue
+import org.apache.daffodil.grammar.primitives.LiteralValueNilOfSpecifiedLength
 
 /////////////////////////////////////////////////////////////////
 // Elements System
@@ -443,9 +449,23 @@ trait ElementBaseGrammarMixin
   lazy val parsedValue = prod("parsedValue", isSimpleType) {
     initiatorRegion ~
       valueMTA ~
-      captureLengthRegions(leftPadding, retrySimpleType(value), rightPadding ~ rightFill) ~
-      terminatorRegion
+      sharedSimpleParsedValue
   }
+
+  /**
+   * We share the schema compilation objects for the sharable part of simple values
+   * which is the part inside the framing.
+   *
+   * This eliminates redundant computation when element references reuse elements.
+   *
+   * It is critical that the 2nd argument to getShared is passed by name, so not
+   * evaluated a second time when sharing opportunities are discovered (same shareKey).
+   */
+  lazy val sharedSimpleParsedValue =
+    schemaSet.sharedSimpleValueFactory.getShared(
+      shareKey,
+      captureLengthRegions(leftPadding, retrySimpleType(value), rightPadding ~ rightFill) ~
+        terminatorRegion)
 
   /**
    * Wrapped around the simple value unparsers where the simple type value is
@@ -597,7 +617,6 @@ trait ElementBaseGrammarMixin
     notYetImplemented("objectKind='chars'")
   }
 
-
   private lazy val textNumber = textStandardNumber || textZonedNumber
 
   private lazy val textNonNumber = {
@@ -607,7 +626,7 @@ trait ElementBaseGrammarMixin
   private lazy val textStandardNumber = prod("textStandardNumber", textNumberRep == TextNumberRep.Standard) {
     val converter = textStandardBaseDefaulted match {
       case 10 => textConverter
-      case 2 | 8 | 16 =>  textStandardNonBaseTenConverter
+      case 2 | 8 | 16 => textStandardNonBaseTenConverter
       case _ => Assert.impossible()
     }
     ConvertTextCombinator(this, stringValue, converter)
@@ -657,7 +676,6 @@ trait ElementBaseGrammarMixin
     ConvertZonedCombinator(this, new BCDIntegerPrefixedLength(this), textConverter)
   }
 
-
   private lazy val ibm4690PackedKnownLengthCalendar = prod("ibm4690PackedKnownLengthCalendar", binaryCalendarRep == BinaryCalendarRep.Ibm4690Packed) {
     ConvertZonedCombinator(this, new IBM4690PackedIntegerKnownLength(this, false, binaryNumberKnownLengthInBits), textConverter)
   }
@@ -671,7 +689,6 @@ trait ElementBaseGrammarMixin
     ConvertZonedCombinator(this, new IBM4690PackedIntegerPrefixedLength(this, false), textConverter)
   }
 
-
   private lazy val packedKnownLengthCalendar = prod("packedKnownLengthCalendar", binaryCalendarRep == BinaryCalendarRep.Packed) {
     ConvertZonedCombinator(this, new PackedIntegerKnownLength(this, false, packedSignCodes, binaryNumberKnownLengthInBits), textConverter)
   }
@@ -684,7 +701,6 @@ trait ElementBaseGrammarMixin
   private lazy val packedPrefixedLengthCalendar = prod("packedPrefixedLengthCalendar", binaryCalendarRep == BinaryCalendarRep.Packed) {
     ConvertZonedCombinator(this, new PackedIntegerPrefixedLength(this, false, packedSignCodes), textConverter)
   }
-
 
   def primType: PrimType
 
@@ -925,9 +941,23 @@ trait ElementBaseGrammarMixin
   private lazy val nilLit = prod("nilLit", isNilLit) {
     nilElementInitiator ~
       nilLitMTA ~
-      nilLitSimpleOrComplex ~
-      nilElementTerminator
+      sharedNilLit
   }
+
+  /**
+   * We share the schema compilation objects for the sharable part of nil literals
+   * which is the part inside the framing.
+   *
+   * This eliminates redundant computation when element references reuse elements.
+   *
+   * It is critical that the 2nd argument to getShared is passed by name, so not
+   * evaluated a second time when sharing opportunities are discovered (same shareKey).
+   */
+  private lazy val sharedNilLit: Gram =
+    schemaSet.sharedNilLitFactory.getShared(
+      shareKey,
+      nilLitSimpleOrComplex ~
+        nilElementTerminator)
 
   private lazy val nilLitSimpleOrComplex = prod("nilLitSimpleOrComplex") { nilLitSimple || nilLitComplex }
 
@@ -1072,13 +1102,26 @@ trait ElementBaseGrammarMixin
   }
 
   private lazy val complexContentSpecifiedLength = prod("complexContentSpecifiedLength", isComplexType) {
-    initiatorRegion ~
+    initiatorRegion ~ sharedComplexContentRegion
+  }
+
+  /**
+   * We share the schema compilation objects for the sharable part of complex elements
+   * which is the part inside the start framing.
+   *
+   * This eliminates redundant computation when element references reuse elements.
+   *
+   * It is critical that the 2nd argument to getShared is passed by name, so not
+   * evaluated a second time when sharing opportunities are discovered (same shareKey).
+   */
+  private lazy val sharedComplexContentRegion: Gram =
+    schemaSet.sharedComplexContentFactory.getShared(
+      shareKey,
       captureLengthRegions(
         EmptyGram,
         specifiedLength(complexContent),
         elementUnused) ~
-        terminatorRegion
-  }
+        terminatorRegion)
 
   private lazy val scalarComplexContent = prod("scalarComplexContent", isComplexType) {
     if (!nilLit.isEmpty) {

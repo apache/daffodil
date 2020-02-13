@@ -249,7 +249,7 @@ class TestRefMap extends Logging {
     val sset = compiler.compileNode(testSchema).sset
     val root = sset.root
     val comps = root.allComponents
-    assertEquals(25, comps.length)
+    assertEquals(13, comps.length)
     val refMap = root.refMap
     val numEntries = refMap.size
     assertEquals(4, numEntries)
@@ -262,7 +262,7 @@ class TestRefMap extends Logging {
     assertEquals(2, allERefsCount)
     val allCTRefsCount = root.allCTRefs.size
     assertEquals(1, allCTRefsCount)
-    assertEquals(25, root.numComponents)
+    assertEquals(13, root.numComponents)
     assertEquals(11, root.numUniqueComponents)
   }
 
@@ -303,14 +303,14 @@ class TestRefMap extends Logging {
     val sset = compiler.compileNode(testSchema).sset
     val root = sset.root
     val comps = root.allComponents
-    assertEquals(57, comps.length)
+    assertEquals(19, comps.length)
     val refMap = root.refMap
     val numEntries = refMap.size
     assertEquals(5, numEntries)
     val refPairsMap = root.refPairsMap.toSeq
     val numRefPairs = refPairsMap.map { _._2.length }.sum
     assertEquals(8, numRefPairs)
-    assertEquals(57, root.numComponents)
+    assertEquals(19, root.numComponents)
     assertEquals(15, root.numUniqueComponents)
   }
 
@@ -354,14 +354,14 @@ class TestRefMap extends Logging {
     val sset = compiler.compileNode(testSchema).sset
     val root = sset.root
     val comps = root.allComponents
-    assertEquals(61, comps.length)
+    assertEquals(23, comps.length)
     val refMap = root.refMap
     val numEntries = refMap.size
     assertEquals(4, numEntries)
     val refPairsMap = root.refPairsMap.toSeq
     val numRefPairs = refPairsMap.map { _._2.length }.sum
     assertEquals(7, numRefPairs)
-    assertEquals(61, root.numComponents)
+    assertEquals(23, root.numComponents)
     assertEquals(17, root.numUniqueComponents)
   }
 
@@ -413,14 +413,14 @@ class TestRefMap extends Logging {
     val sset = compiler.compileNode(testSchema).sset
     val root = sset.root
     val comps = root.allComponents
-    assertEquals(125, comps.length)
+    assertEquals(29, comps.length)
     val refMap = root.refMap
     val numEntries = refMap.size
     assertEquals(5, numEntries)
     val refPairsMap = root.refPairsMap.toSeq
     val numRefPairs = refPairsMap.map { _._2.length }.sum
     assertEquals(9, numRefPairs)
-    assertEquals(125, root.numComponents)
+    assertEquals(29, root.numComponents)
     assertEquals(21, root.numUniqueComponents)
   }
 
@@ -480,14 +480,14 @@ class TestRefMap extends Logging {
     val sset = compiler.compileNode(testSchema).sset
     val root = sset.root
     val comps = root.allComponents
-    assertEquals(253, comps.length)
+    assertEquals(35, comps.length)
     val refMap = root.refMap
     val numEntries = refMap.size
     assertEquals(6, numEntries)
     val refPairsMap = root.refPairsMap.toSeq
     val numRefPairs = refPairsMap.map { _._2.length }.sum
     assertEquals(11, numRefPairs)
-    assertEquals(253, root.numComponents)
+    assertEquals(35, root.numComponents)
     assertEquals(25, root.numUniqueComponents)
   }
 
@@ -555,14 +555,14 @@ class TestRefMap extends Logging {
     val sset = compiler.compileNode(testSchema).sset
     val root = sset.root
     val comps = root.allComponents
-    assertEquals(509, comps.length)
+    assertEquals(41, comps.length)
     val refMap = root.refMap
     val numEntries = refMap.size
     assertEquals(7, numEntries)
     val refPairsMap = root.refPairsMap.toSeq
     val numRefPairs = refPairsMap.map { _._2.length }.sum
     assertEquals(13, numRefPairs)
-    assertEquals(509, root.numComponents)
+    assertEquals(41, root.numComponents)
     assertEquals(29, root.numUniqueComponents)
   }
 
@@ -638,14 +638,14 @@ class TestRefMap extends Logging {
     val sset = compiler.compileNode(testSchema).sset
     val root = sset.root
     val comps = root.allComponents
-    assertEquals(1021, comps.length)
+    assertEquals(47, comps.length)
     val refMap = root.refMap
     val numEntries = refMap.size
     assertEquals(8, numEntries)
     val refPairsMap = root.refPairsMap.toSeq
     val numRefPairs = refPairsMap.map { _._2.length }.sum
     assertEquals(15, numRefPairs)
-    assertEquals(1021, root.numComponents)
+    assertEquals(47, root.numComponents)
     assertEquals(33, root.numUniqueComponents)
   }
 }

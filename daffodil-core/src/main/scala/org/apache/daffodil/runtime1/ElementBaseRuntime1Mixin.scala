@@ -120,7 +120,7 @@ trait ElementBaseRuntime1Mixin { self: ElementBase =>
   }
 
   final override lazy val dpathCompileInfo = dpathElementCompileInfo
-  
+
   /**
    * Just an abbrev. analogous to erd, trd, etc.
    */
@@ -130,7 +130,7 @@ trait ElementBaseRuntime1Mixin { self: ElementBase =>
    * This is the compile info for this element term.
    */
   lazy val dpathElementCompileInfo: DPathElementCompileInfo = {
-    val ee = enclosingElement.toSeq
+    val ee = enclosingElements
     lazy val parents = ee.map {
       _.dpathElementCompileInfo
     }

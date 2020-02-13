@@ -29,7 +29,7 @@ trait SequenceGrammarMixin
   extends GrammarMixin
   with SequenceTermRuntime1Mixin { self: SequenceTermBase =>
 
-  final override lazy val groupContent = prod("groupContent") {
+  final override lazy val groupContentDef = prod("groupContentDef") {
     if (isLayered) layerContent
     else sequenceContent
   }

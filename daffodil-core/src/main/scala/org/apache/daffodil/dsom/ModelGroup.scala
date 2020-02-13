@@ -160,7 +160,40 @@ abstract class ModelGroup(index: Int)
       groupMembers.forall { _.hasStaticallyRequiredOccurrencesInDataRepresentation }
   }
 
-  def groupMembers: Seq[Term]
+  /**
+   * The group members are shared across all instances of the group, when they
+   * are for groups with the same shareKey.
+   *
+   * This sharing is critical, because without it, we would be creating a new
+   * instance of all members recursively for every reference to a group.
+   * Recursively that would lead to a combinatorial explosion of copies.
+   *
+   * The public member to access group members, which insures sharing is preserved
+   * is this member.
+   *
+   * The various subclasses of this class define the group members by
+   * overrides of the protected groupMembersDef member.
+   *
+   * Note that the sharing depends on some scala subtleties here. Like that
+   * this is a lazy val, so evaluated exactly once, and that the 2nd argument
+   * to getShared is passed by name, so it is not necessarily evaluated at
+   * all. E.g., if the share-able item already exists, then it is returned and
+   * the 2nd arg isn't evaluated for that call.
+   *
+   * This also depends on groupMembersDef overrides all being lazy val.
+   */
+  final lazy val groupMembers: Seq[Term] =
+    schemaSet.sharedGroupMembersFactory.getShared(shareKey, groupMembersDef)
+
+  /**
+   * Override to define the group members. They are accessed by way of the public
+   * member groupMembers which insures these are properly shared across all
+   * references to the group.
+   *
+   * These *must* be overridden as lazy val to insure that we compute them only
+   * once and share them appropriately.
+   */
+  protected def groupMembersDef: Seq[Term]
 
   final lazy val representedMembers = groupMembers.filter { _.isRepresented }
 
