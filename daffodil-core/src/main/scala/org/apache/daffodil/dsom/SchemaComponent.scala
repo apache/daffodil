@@ -68,7 +68,7 @@ trait SchemaComponent
   final override lazy val unqualifiedPathStepPolicy = tunable.unqualifiedPathStepPolicy
 
   lazy val dpathCompileInfo: DPathCompileInfo = {
-    lazy val parents = enclosingComponent.map { _.dpathCompileInfo }.toSeq
+    lazy val parents = enclosingComponents.map { _.encloser.dpathCompileInfo }.toSeq
     new DPathCompileInfo(
       parents,
       variableMap,

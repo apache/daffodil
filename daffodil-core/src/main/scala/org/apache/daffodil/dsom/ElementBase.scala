@@ -46,14 +46,8 @@ import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveOrUseNilForDefaul
  *
  * Our approach is to provide common behaviors on base classes or traits/mixins, and to have distinct
  * classes for each instance type.
- */
-
-object ElementBase {
-  var count = 0
-}
-
-/**
- * Shared by all forms of elements, local or global or element reference.
+ *
+ * This base is shared by all forms of elements, local or global or element reference.
  */
 trait ElementBase
   extends Term
@@ -74,8 +68,11 @@ trait ElementBase
 
   override final def eBase = this
 
-  ElementBase.count += 1 // how many elements in this schema.
+  lazy val init: Unit = {
+    schemaSet.elementBaseInstanceCount += 1
+  }
 
+  requiredEvaluations(init)
   requiredEvaluations(typeDef)
   requiredEvaluations(isSimpleType)
   requiredEvaluations(if (hasPattern) patternValues)

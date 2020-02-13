@@ -263,6 +263,8 @@ trait SequenceDefMixin
   with GroupDefLike
   with FindPropertyMixin {
 
+  def groupMembersNotShared: Seq[Term]
+
   protected final def isMyFormatAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLSequence]
 
   protected final def annotationFactory(node: Node): Option[DFDLAnnotation] = {
@@ -333,7 +335,7 @@ final class ChoiceBranchImpliedSequence(rawGM: Term)
   with SequenceDefMixin
   with ChoiceBranchImpliedSequenceRuntime1Mixin {
 
-  override final lazy val groupMembers: Seq[Term] = Seq(rawGM)
+  override final protected lazy val groupMembersDef: Seq[Term] = Seq(rawGM)
 
   override def separatorSuppressionPolicy: SeparatorSuppressionPolicy = SeparatorSuppressionPolicy.TrailingEmptyStrict
 

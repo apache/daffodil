@@ -241,7 +241,7 @@ trait TermRuntime1Mixin { self: Term =>
           //
           // start after this term in the lexically enclosing sequence siblings
           //
-          val sibTerms = parentSeqDef.groupMembers.drop(position)
+          val sibTerms = parentSeqDef.groupMembersNotShared.drop(position)
           //
           // compute what is possible for each of them.
           //

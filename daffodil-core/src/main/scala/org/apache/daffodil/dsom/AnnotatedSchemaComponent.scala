@@ -28,6 +28,8 @@ import org.apache.daffodil.schema.annotation.props.NotFound
 import org.apache.daffodil.schema.annotation.props.Found
 import org.apache.daffodil.schema.annotation.props.FindPropertyMixin
 import org.apache.daffodil.api.WarnID
+import org.apache.daffodil.schema.annotation.props.PropTypes
+import scala.collection.mutable
 
 /**
  * Only objects from which we generate processors (parsers/unparsers)
@@ -201,6 +203,75 @@ abstract class AnnotatedSchemaComponentImpl(
 }
 
 /**
+ * Identifies the property environment of a term.
+ *
+ * If two terms have the same propEnv and same def/decl, then some things can be shared
+ * about their implementation.
+ *
+ * If they have different propEnv, then all bets are off.
+ *
+ * Can be used as a key for whether to create new instance in a factory, or whether one
+ * can be re-used because the property environment is the same.
+ *
+ * The trick is that the regular objects which carry properties have location information
+ * unique to where they originate (for diagnostic messaging purposes).
+ *
+ * What we want is pure value based - depends on the properties and their values only.
+ *
+ * The components are of type Seq[Set[String, String]] because the machinery below has
+ * alredy converted dfdl:ref="q:name" format references into references to objects having
+ * property resolvers. It is easiest just to extract the string-to-string information rather than
+ * trying to reuse the named format objects directly.
+ *
+ * These Seq[Set[String, String]] are conceptually equivalent to just property sets,
+ * but keeping them ordered like this preserves some information for us which
+ * might be useful in debugging/maintenance of the code. the first set in
+ * the sequence are the local properties excluding dfdl:ref, the next set is those from
+ * the dfdl:ref, and the next from the next dfdl:ref, and so on. For purposes of
+ * a hash key we don't care that they are flattened. that happens elsewhere. It will
+ * be much easier to see why two PropEnv objects are not equal looking at this than an
+ * entirely flattened set of properties, most of which aren't relevant.
+ *
+ * optNext is the optional next schema component. So for an element reference, it is the
+ * global element declaration. For a group reference, it is the group definition. It is the
+ * next place we would get properties from (and defaults from) for property resolution.
+ */
+case class PropEnv(
+  localProps: Seq[Set[(String, String)]],
+  defaultPropSource: Seq[Set[(String, String)]],
+  optNext: Option[scala.xml.Node])
+
+/**
+ * Shared object factory/cache.
+ *
+ * Creates objects for new keys, shares previously computed ones (and avoids
+ * recomputing them) for existing keys.
+ */
+final class SharedFactory[SharedType] {
+
+  private type KeyType = (scala.xml.Node, PropEnv)
+
+  private val vals = new mutable.HashMap[KeyType, SharedType]
+
+  /**
+   * The passing of the value argument by name is critical here, as
+   * we want to avoid evaluating that at all when the key is one
+   * we have already seen.
+   */
+  final def getShared(key: KeyType, value: => SharedType): SharedType = {
+    val opt = vals.get(key)
+    opt match {
+      case Some(y) => y
+      case None => {
+        val shared = value
+        vals.put(key, shared)
+        shared
+      }
+    }
+  }
+}
+
+/**
  * Shared characteristics of any annotated schema component.
  *
  * Not all components can carry DFDL annotations.
@@ -211,18 +282,31 @@ trait AnnotatedSchemaComponent
   with OverlapCheckMixin {
 
   /**
-   * Since validation of extra attributes on XML Schema elements is
-   * normally lax validation, we can't count on validation of DFDL schemas
-   * to tell us whether short-form annotations are correct or not.
-   *
-   * So, we have to do this check ourselves.
-   *
-   * TBD: change properties code generator to output the various lists of
-   * properties that we have to check against. (Might already be there...?)
-   *
+   * If two terms have the same propEnv, they have identical properties
+   * in scope.
    */
-  // TODO: Implement this - DFDL-598, DFDL-1512
-  // private def areShortFormAnnotationsValid: Boolean = true
+  private lazy val propEnv: PropEnv = {
+    val localPropsSets = this.nonDefaultFormatChain.propertyPairsSets
+    val defaultPropObj = this.defaultFormatChain.propertyPairsSets
+    val next = refersToForPropertyCombining
+    PropEnv(localPropsSets, defaultPropObj, next.map { _.xml })
+  }
+
+  /**
+   * The thing that provides the actual definition. If this is a local
+   * element decl or local sequence/choice, then this is the thing,
+   * if this is some sort of a ref, then the referenced definition is the thing.
+   */
+  private lazy val actualDef: AnnotatedSchemaComponent = {
+    this match {
+      case gr: GroupRef => gr.groupDef
+      case aer: AbstractElementRef => aer.referencedElement
+      case eb: ElementBase => eb
+      case grl: GroupDefLike => grl
+    }
+  }
+
+  protected final lazy val shareKey = (actualDef.xml, propEnv)
 
   /**
    * For property combining only. E.g., doesn't refer from an element

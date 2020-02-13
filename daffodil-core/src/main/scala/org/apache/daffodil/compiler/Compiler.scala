@@ -336,37 +336,36 @@ class Compiler(var validateDFDLSchemas: Boolean = true)
    * This is to avoid issues when TDML tests are running in parallel
    * and compiling schemas that are not in files, but just embedded in the tests.
    */
-  def compileSource(schemaSource: DaffodilSchemaSource): ProcessorFactory =
-    Compiler.synchronized {
-      //
-      // The SchemaSet object and the ProcessorFactory mutually refer to each other because
-      // the API allows the root to be specified by API calls on the processor factory, the compiler,
-      // or it can be inferred from the contents of the schema documents.
-      //
-      // The logic for assembling all those sources together is in the SchemaSet.
-      //
-      // To make these two objects refer to each other, we we create them lazily, and
-      // pass by name to SchemaSet constructor. This is the typical scala idiom
-      // for creating things that point mutually without using a side-effect which may or may not
-      // have happened a the time the information is demanded.
-      //
-      lazy val sset: SchemaSet = new SchemaSet(Some(pf), rootSpec, externalDFDLVariables, Seq(schemaSource), validateDFDLSchemas, checkAllTopLevel, tunablesObj)
-      lazy val pf: ProcessorFactory = new ProcessorFactory(sset)
-      val err = pf.isError
-      val diags = pf.getDiagnostics // might be warnings even if not isError
-      if (err) {
-        Assert.invariant(diags.length > 0)
-        log(LogLevel.Compile, "Compilation (ProcessorFactory) produced %d errors/warnings.", diags.length)
+  def compileSource(schemaSource: DaffodilSchemaSource): ProcessorFactory = {
+    //
+    // The SchemaSet object and the ProcessorFactory mutually refer to each other because
+    // the API allows the root to be specified by API calls on the processor factory, the compiler,
+    // or it can be inferred from the contents of the schema documents.
+    //
+    // The logic for assembling all those sources together is in the SchemaSet.
+    //
+    // To make these two objects refer to each other, we we create them lazily, and
+    // pass by name to SchemaSet constructor. This is the typical scala idiom
+    // for creating things that point mutually without using a side-effect which may or may not
+    // have happened a the time the information is demanded.
+    //
+    lazy val sset: SchemaSet = new SchemaSet(Some(pf), rootSpec, externalDFDLVariables, Seq(schemaSource), validateDFDLSchemas, checkAllTopLevel, tunablesObj)
+    lazy val pf: ProcessorFactory = new ProcessorFactory(sset)
+    val err = pf.isError
+    val diags = pf.getDiagnostics // might be warnings even if not isError
+    if (err) {
+      Assert.invariant(diags.length > 0)
+      log(LogLevel.Compile, "Compilation (ProcessorFactory) produced %d errors/warnings.", diags.length)
+    } else {
+      if (diags.length > 0) {
+        log(LogLevel.Compile, "Compilation (ProcessorFactory) produced %d warnings.", diags.length)
       } else {
-        if (diags.length > 0) {
-          log(LogLevel.Compile, "Compilation (ProcessorFactory) produced %d warnings.", diags.length)
-        } else {
-          log(LogLevel.Compile, "ProcessorFactory completed with no errors.")
-        }
+        log(LogLevel.Compile, "ProcessorFactory completed with no errors.")
       }
-      log(LogLevel.Compile, "Schema had %s elements.", ElementBase.count)
-      pf
     }
+    log(LogLevel.Compile, "Schema had %s elements.", sset.elementBaseInstanceCount)
+    pf
+  }
 
   /**
    * For convenient unit testing allow a literal XML node.

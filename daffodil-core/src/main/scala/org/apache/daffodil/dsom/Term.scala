@@ -43,6 +43,7 @@ import org.apache.daffodil.schema.annotation.props.gen.OccursCountKind
 import org.apache.daffodil.schema.annotation.props.SeparatorSuppressionPolicy
 import org.apache.daffodil.api.WarnID
 import org.apache.daffodil.infoset.PartialNextElementResolver
+import scala.collection.mutable
 
 /**
  * Mixin for objects that are shared, but have consistency checks to be run

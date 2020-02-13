@@ -309,7 +309,7 @@ class TestDsomCompiler extends Logging {
     val Seq(_: ElementRef, gr: GroupRef) = seq1.groupMembers
     val cgd = gr.groupDef.asInstanceOf[GlobalChoiceGroupDef]
     val cgr = cgd.groupRef.asInstanceOf[ChoiceGroupRef]
-    val Seq(_, cd2: LocalElementDecl, rest @ _*) = cgd.groupMembers // Children nodes of Choice-node, there are 3
+    val Seq(_, cd2: LocalElementDecl, rest @ _*) = cgd.groupMembersNotShared // Children nodes of Choice-node, there are 3
 
     // val Seq(a1: DFDLChoice) = ch1.annotationObjs // Obtain the annotation object that is a child
     // of the group node.

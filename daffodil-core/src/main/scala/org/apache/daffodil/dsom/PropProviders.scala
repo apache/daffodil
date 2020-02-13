@@ -69,6 +69,14 @@ trait LeafPropProvider
    */
   def justThisOneProperties: PropMap
 
+  /**
+   * Just the properties as string pairs, without any location information.
+   *
+   * Intended for use comparing to see if two prop providers are equivalent
+   * in terms of providing the same property values.
+   */
+  final lazy val justThisOnePropertyPairsSet = justThisOneProperties.map { case (s1, (s2, _)) => (s1, s2) }.toSet
+
   final def leafFindProperty(pname: String): PropertyLookupResult = {
     log(LogLevel.Debug, "%s leafFindProperty %s on %s", diagnosticDebugName, pname, this)
     val mine = justThisOneProperties.get(pname)
@@ -106,6 +114,16 @@ final class ChainPropProvider(leafProvidersArg: Seq[LeafPropProvider], forAnnota
   extends Logging with PropTypes {
 
   override def toString() = Misc.getNameFromClass(this) + "(" + forAnnotation + ")"
+
+  /**
+   * This is a sequence of sets basically for debug/maintenance reasons.
+   * Conceptually it could be flattened to just a set, but this way the contents of each set
+   * may be visibly meaningful when debugging, as the first set comes from the
+   * first leaf provider, second from the second (which comes from first dfdl:ref
+   * reference), etc.
+   */
+  final lazy val propertyPairsSets: Seq[Set[(String, String)]] =
+    leafProviders.map { _.justThisOnePropertyPairsSet }
 
   /**
    * for debug/test only

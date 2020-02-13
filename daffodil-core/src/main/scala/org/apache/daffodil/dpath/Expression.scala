@@ -26,7 +26,7 @@ import org.apache.daffodil.xml.RefQName
 import scala.util.{ Success, Failure }
 import org.apache.daffodil.dsom.RelativePathPastRootError
 import org.apache.daffodil.equality._
-import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt}
+import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
 import java.lang.{ Long => JLong, Integer => JInt, Boolean => JBoolean, Double => JDouble }
 import org.apache.daffodil.util.Numbers
 import org.apache.daffodil.api.WarnID
@@ -579,8 +579,7 @@ case class WholeExpression(
   extends Expression {
 
   final override lazy val tunable: DaffodilTunables = host.tunable
-  final override lazy val unqualifiedPathStepPolicy : UnqualifiedPathStepPolicy
-     = host.unqualifiedPathStepPolicy
+  final override lazy val unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy = host.unqualifiedPathStepPolicy
 
   def init() {
     this.setOOLAGContext(host) // we are the root of expression, but we propagate diagnostics further.
@@ -1017,7 +1016,7 @@ sealed abstract class DownStepExpression(s: String, predArg: Option[PredicateExp
     Assert.invariant(allTypes.length > 0)
     if (allTypes.length > 1) {
       val (relevantExpr, details) = polymorphicExpressionErrorDetails(this)
-      notYetImplemented(
+      subsetError(
         "Expression %s has different types at different points of usage.%s",
         relevantExpr.text, details)
     } else {
@@ -1335,7 +1334,7 @@ abstract class LiteralExpressionBase(value: Any)
    * Convert to regular types from the pessimistic BigInt
    * and BigDecimal that come in from the parser.
    */
-  lazy val litValue:DataValuePrimitive = value match {
+  lazy val litValue: DataValuePrimitive = value match {
     case s: String => s
     case i: Int => i
     case i: JBigInt => {

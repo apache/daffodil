@@ -72,7 +72,7 @@ abstract class CompiledExpression[+T <: AnyRef](
   extends ContentValueReferencedElementInfoMixin with Serializable {
 
   DataValue.assertValueIsNotDataValue(valueForDebugPrinting)
-  
+
   final def toBriefXML(depth: Int = -1) = {
     "'" + prettyExpr + "'"
   }
@@ -201,7 +201,7 @@ final case class ConstantExpression[+T <: AnyRef](
  * into "passes".
  */
 class DPathCompileInfo(
-  @TransientParam parentsArg: => Seq[DPathCompileInfo],
+  @TransientParam parentsArg: Seq[DPathCompileInfo],
   @TransientParam variableMapArg: => VariableMap,
   val namespaces: scala.xml.NamespaceBinding,
   val path: String,
@@ -282,7 +282,7 @@ class DPathCompileInfo(
  * structures are created which reference these.
  */
 class DPathElementCompileInfo(
-  @TransientParam parentsArg: => Seq[DPathElementCompileInfo],
+  @TransientParam parentsArg: Seq[DPathElementCompileInfo],
   @TransientParam variableMap: => VariableMap,
   @TransientParam elementChildrenCompileInfoArg: => Seq[DPathElementCompileInfo],
   namespaces: scala.xml.NamespaceBinding,

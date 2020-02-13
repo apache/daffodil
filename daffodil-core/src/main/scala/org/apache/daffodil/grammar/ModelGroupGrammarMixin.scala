@@ -20,6 +20,7 @@ package org.apache.daffodil.grammar
 import org.apache.daffodil.schema.annotation.props.gen._
 import org.apache.daffodil.dsom.InitiatedTerminatedMixin
 import org.apache.daffodil.dsom.ModelGroup
+import org.apache.daffodil.dsom.SharedFactory
 import org.apache.daffodil.grammar.primitives.TrailingSkipRegion
 import org.apache.daffodil.grammar.primitives.LeadingSkipRegion
 import org.apache.daffodil.grammar.primitives.AlignmentFill
@@ -30,6 +31,7 @@ import org.apache.daffodil.dsom.ChoiceTermBase
 import org.apache.daffodil.grammar.primitives.DelimiterStackCombinatorChoice
 import org.apache.daffodil.runtime1.ModelGroupRuntime1Mixin
 import org.apache.daffodil.grammar.primitives.LeadingSkipRegion
+import org.apache.daffodil.dsom.SchemaSet
 
 trait ModelGroupGrammarMixin
   extends InitiatedTerminatedMixin
@@ -45,10 +47,10 @@ trait ModelGroupGrammarMixin
   private lazy val groupRightFraming = prod("groupRightFraming") { TrailingSkipRegion(this) }
 
   final override lazy val termContentBody = prod("termContentBody") {
-    dfdlStatementEvaluations ~ groupLeftFraming ~ _content ~ groupRightFraming
+    dfdlStatementEvaluations ~ groupLeftFraming ~ groupContentWithInitiatorTerminator ~ groupRightFraming
   }
 
-  private lazy val _content = prod("_content") {
+  private lazy val groupContentWithInitiatorTerminator = prod("groupContentWithInitiatorTerminator") {
     val finalContent =
       if (hasDelimiters ||
         enclosingTerm.map(_.hasDelimiters).getOrElse(false) //
@@ -66,10 +68,31 @@ trait ModelGroupGrammarMixin
           case c: ChoiceTermBase => DelimiterStackCombinatorChoice(c, content)
           case s: SequenceTermBase => DelimiterStackCombinatorSequence(s, content)
         }
-      } else { groupContent }
+      } else { groupContentDef }
 
     finalContent
   }
 
-  protected def groupContent: Gram
+  /**
+   * groupContent is shared for all groups across all uses of the group
+   * that have the same shareKey. (e.g., by
+   * multiple group references if they have common properties).
+   * This eliminates redundant computation of the grammar
+   * structures and any runtime objects subsequently created.
+   *
+   * The framing and initiator/terminator are not shared, they surround the shared part.
+   *
+   * Subclasses define the group content by way of the protected groupContentDef override.
+   *
+   * It is crucial to efficiency (avoiding redundant computation) that the 2nd argument
+   * to getShared is passed by name, not evaluated unless necessary.
+   */
+  private lazy val groupContent = schemaSet.sharedGroupContentsFactory.getShared(shareKey, groupContentDef)
+
+  /**
+   * Override to define the actual group content.
+   *
+   * Must be overridden as a lazy val to avoid redundant computation.
+   */
+  protected def groupContentDef: Gram
 }
