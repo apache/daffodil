@@ -129,8 +129,7 @@ trait DFADelimiter extends DFA {
   def delimType: DelimiterTextType.Type
   def lookingFor: String
   def location: SchemaFileLocation
-  var indexInDelimiterStack: Int = -1
-  override def toString(): String = "<DFA type='%s' lookingFor='%s' index='%d' />".format(delimType, lookingFor, indexInDelimiterStack)
+  override def toString(): String = "<DFA type='%s' lookingFor='%s' />".format(delimType, lookingFor)
 
   final override def run(r: Registers): Unit = runLoop(r, DFA.FinalState, StateKind.Succeeded)
 
