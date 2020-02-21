@@ -51,27 +51,22 @@ class DelimiterTextParser(
 
   override val nom = delimiterType.toString
 
-  private def containsLocalMatch(delimiters: ArrayBuffer[DFADelimiter], state: PState): Boolean = {
-    var i = delimiters.length - 1
+  private def containsLocalMatch(matchedDelimiters: ArrayBuffer[DFADelimiter], state: PState): Boolean = {
+    val localIndexStart = state.mpstate.delimitersLocalIndexStack.top
+    val inScopeDelimiters = state.mpstate.delimiters
+
+    var foundLocalDFAIndex = -1
+
     // scan matches in reverse. local matches are going to be at the end
-    while (i >= 0) {
-      val dfa = delimiters(i)
-      if (dfa.indexInDelimiterStack < state.mpstate.delimitersLocalIndexStack.top) {
-        // we found a remote delim. since all remote delimiters are first, and
-        // we are traversing this in reverse, we know all remaining delims are
-        // remotes, so we can return early
-        return false
-      }
-      // note, it is possible for dfaIndex to be greater than the length of the
-      // found delimiters. This just means a found delimiter went out of scope
-      // (and thus, not a local delimiter)
-      if (dfa.delimType == delimiterType && dfa.indexInDelimiterStack < state.mpstate.delimiters.length) {
-        // found a local delim
-        return true
+    var i = matchedDelimiters.length - 1
+    while (foundLocalDFAIndex < 0 && i >= 0) {
+      val dfa = matchedDelimiters(i)
+      if (dfa.delimType == delimiterType) {
+        foundLocalDFAIndex = inScopeDelimiters.indexWhere(dfa eq _, localIndexStart)
       }
       i -= 1
     }
-    return false
+    foundLocalDFAIndex >= 0
   }
 
   override def parse(start: PState): Unit = {
