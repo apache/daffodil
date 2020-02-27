@@ -33,9 +33,9 @@
       <attribute name="javadoc_location" value="jar:file:lib_managed/docs/org.codehaus.woodstox/stax2-api/stax2-api-4.1-javadoc.jar!/"/>
     </attributes>
   </classpathentry>
-  <classpathentry sourcepath="lib_managed/srcs/com.fasterxml.jackson.core/jackson-core/jackson-core-2.9.6-sources.jar" exported="true" kind="lib" path="lib_managed/bundles/com.fasterxml.jackson.core/jackson-core/jackson-core-2.9.6.jar">
+  <classpathentry sourcepath="lib_managed/srcs/com.fasterxml.jackson.core/jackson-core/jackson-core-2.9.8-sources.jar" exported="true" kind="lib" path="lib_managed/bundles/com.fasterxml.jackson.core/jackson-core/jackson-core-2.9.8.jar">
     <attributes>
-      <attribute name="javadoc_location" value="jar:file:lib_managed/docs/com.fasterxml.jackson.core/jackson-core/jackson-core-2.9.6-javadoc.jar!/"/>
+      <attribute name="javadoc_location" value="jar:file:lib_managed/docs/com.fasterxml.jackson.core/jackson-core/jackson-core-2.9.8-javadoc.jar!/"/>
     </attributes>
   </classpathentry>
   <classpathentry sourcepath="lib_managed/srcs/com.fasterxml.woodstox/woodstox-core/woodstox-core-5.1.0-sources.jar" exported="true" kind="lib" path="lib_managed/bundles/com.fasterxml.woodstox/woodstox-core/woodstox-core-5.1.0.jar">
