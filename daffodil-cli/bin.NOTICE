@@ -60,7 +60,7 @@ Jansi (lib/org.fusesource.jansi.jansi-1.17.1.jar)
   Copyright (C) 2009, Progress Software Corporation and/or its
   subsidiaries or affiliates.  All rights reserved.
 
-Jackson JSON processor (lib/com.fasterxml.jackson.core.jackson-core-2.9.6.jar)
+Jackson JSON processor (lib/com.fasterxml.jackson.core.jackson-core-2.9.8.jar)
   # Jackson JSON processor
 
   Jackson is a high-performance, Free/Open Source JSON processing library.

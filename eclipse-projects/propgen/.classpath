@@ -2,13 +2,13 @@
 
 <classpath>
   <!-- This file is updated by the UpdateEclipseClasspath app. -->
-  <classpathentry path="src/main/resources" kind="src"/>
-  <classpathentry path="src/main/scala" kind="src"/>
-  <classpathentry path="src/test/scala" kind="src"/>
-  <classpathentry path="org.scala-ide.sdt.launching.SCALA_CONTAINER" kind="con"/>
-  <classpathentry path="org.eclipse.jdt.launching.JRE_CONTAINER" kind="con"/>
-  <classpathentry path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4" kind="con"/>
-  <classpathentry path="target/eclipse/classes" kind="output"/>
+  <classpathentry kind="src" path="src/main/resources"/>
+  <classpathentry kind="src" path="src/main/scala"/>
+  <classpathentry kind="src" path="src/test/scala"/>
+  <classpathentry kind="con" path="org.scala-ide.sdt.launching.SCALA_CONTAINER"/>
+  <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+  <classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+  <classpathentry kind="output" path="target/eclipse/classes"/>
   <!--
 ***********
 *********** Entries below this comment are maintained using the UpdateEclipseClasspaths
@@ -36,9 +36,9 @@
       <attribute name="javadoc_location" value="jar:file:lib_managed/docs/org.codehaus.woodstox/stax2-api/stax2-api-4.1-javadoc.jar!/"/>
     </attributes>
   </classpathentry>
-  <classpathentry sourcepath="lib_managed/srcs/com.fasterxml.jackson.core/jackson-core/jackson-core-2.9.6-sources.jar" exported="true" kind="lib" path="lib_managed/bundles/com.fasterxml.jackson.core/jackson-core/jackson-core-2.9.6.jar">
+  <classpathentry sourcepath="lib_managed/srcs/com.fasterxml.jackson.core/jackson-core/jackson-core-2.9.8-sources.jar" exported="true" kind="lib" path="lib_managed/bundles/com.fasterxml.jackson.core/jackson-core/jackson-core-2.9.8.jar">
     <attributes>
-      <attribute name="javadoc_location" value="jar:file:lib_managed/docs/com.fasterxml.jackson.core/jackson-core/jackson-core-2.9.6-javadoc.jar!/"/>
+      <attribute name="javadoc_location" value="jar:file:lib_managed/docs/com.fasterxml.jackson.core/jackson-core/jackson-core-2.9.8-javadoc.jar!/"/>
     </attributes>
   </classpathentry>
   <classpathentry sourcepath="lib_managed/srcs/com.fasterxml.woodstox/woodstox-core/woodstox-core-5.1.0-sources.jar" exported="true" kind="lib" path="lib_managed/bundles/com.fasterxml.woodstox/woodstox-core/woodstox-core-5.1.0.jar">
