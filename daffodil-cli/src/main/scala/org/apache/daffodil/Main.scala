@@ -307,6 +307,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
   val trace = opt[Boolean](descr = "run the debugger with verbose trace output")
   val verbose = tally(descr = "increment verbosity level, one level for each -v")
   val version = opt[Boolean](descr = "Show version of this program")
+  val noPretty = opt[Boolean](descr = "Don't pretty print XML and JSON")
 
   // Parse Subcommand Options
   val parse = new scallop.Subcommand("parse") {
@@ -726,11 +727,11 @@ object Main extends Logging {
   val blobDir = Paths.get(System.getProperty("user.dir"), "daffodil-blobs")
   val blobSuffix = ".bin"
 
-  def getInfosetOutputter(infosetType: String, os: java.io.OutputStream): InfosetOutputter = {
+  def getInfosetOutputter(infosetType: String, os: java.io.OutputStream, pretty: Boolean): InfosetOutputter = {
     val outputter = infosetType match {
-      case "xml" => new XMLTextInfosetOutputter(os, true)
+      case "xml" => new XMLTextInfosetOutputter(os, pretty)
       case "scala-xml" => new ScalaXMLInfosetOutputter()
-      case "json" => new JsonInfosetOutputter(os, true)
+      case "json" => new JsonInfosetOutputter(os, pretty)
       case "jdom" => new JDOMInfosetOutputter()
       case "w3cdom" => new W3CDOMInfosetOutputter()
       case "null" => new NullInfosetOutputter()
@@ -801,12 +802,12 @@ object Main extends Logging {
       case _ => LogLevel.OOLAGDebug
     }
     LoggingDefaults.setLoggingLevel(verboseLevel)
+    val prettyPrint = !conf.noPretty.getOrElse(false)
 
     val ret = conf.subcommand match {
 
       case Some(conf.parse) => {
         val parseOpts = conf.parse
-
         val validate = parseOpts.validate.toOption.get
 
         val cfgFileNode = parseOpts.config.toOption match {
@@ -847,7 +848,7 @@ object Main extends Logging {
               case Some("-") | None => System.out
               case Some(file) => new FileOutputStream(file)
             }
-            val outputter = getInfosetOutputter(parseOpts.infosetType.toOption.get, output)
+            val outputter = getInfosetOutputter(parseOpts.infosetType.toOption.get, output, prettyPrint)
 
             var lastParseBitPosition = 0L
             var keepParsing = true
@@ -1048,7 +1049,7 @@ object Main extends Logging {
                       })
                       case Right(data) => Timer.getTimeResult({
                         val input = InputSourceDataInputStream(data)
-                        val outputterForParse = getInfosetOutputter(infosetType, nullOutputStreamForParse)
+                        val outputterForParse = getInfosetOutputter(infosetType, nullOutputStreamForParse, prettyPrint)
                         processor.parse(input, outputterForParse)
                       })
                     }
