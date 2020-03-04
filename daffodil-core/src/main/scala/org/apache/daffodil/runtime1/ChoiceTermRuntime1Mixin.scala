@@ -17,26 +17,21 @@
 
 package org.apache.daffodil.runtime1
 
-import org.apache.daffodil.dsom.ChoiceTermBase
-import org.apache.daffodil.dsom.ModelGroup
+import org.apache.daffodil.dsom.{ChoiceGroupRef, ChoiceTermBase, ElementBase, ExpressionCompilers, ModelGroup, SequenceTermBase, Term}
 import org.apache.daffodil.infoset.ChoiceBranchStartEvent
 import org.apache.daffodil.processors.RuntimeData
 import org.apache.daffodil.processors.ChoiceRuntimeData
-import org.apache.daffodil.dsom.ElementBase
 import org.apache.daffodil.infoset.ChoiceBranchEvent
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.infoset.ChoiceBranchEndEvent
-import org.apache.daffodil.dsom.SequenceTermBase
 import org.apache.daffodil.api.WarnID
 import org.apache.daffodil.processors.ChoiceDispatchKeyEv
-import org.apache.daffodil.dsom.ExpressionCompilers
 import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.grammar.Gram
 import org.apache.daffodil.processors.TermRuntimeData
 import org.apache.daffodil.processors.SequenceRuntimeData
 import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.processors.unparsers.ChoiceBranchMap
-import org.apache.daffodil.dsom.Term
 import org.apache.daffodil.grammar.Gram
 
 trait ChoiceTermRuntime1Mixin { self: ChoiceTermBase =>
@@ -97,18 +92,21 @@ trait ChoiceTermRuntime1Mixin { self: ChoiceTermBase =>
       // in the arriving infoset for unparse.
       //
       val optDefaultBranch = {
-
         val optEmpty: Option[Term] =
           groupMembers.find { gm =>
             val ies = gm.identifyingEventsForChoiceBranch
             ies.pnes.isEmpty // empty event list makes it the default, not simply isOpen
-        }
-        val optDefault: Option[Term] =
+          }
+        val optOpen: Option[Term] =
           optEmpty.orElse {
             groupMembers.find { gm =>
               val ies = gm.identifyingEventsForChoiceBranch
               ies.isOpen // first open one is used if there is no branch that has empty event list. (test ptg_1u)
             }
+          }
+        val optDefault: Option[Term] =
+          optOpen.orElse {
+            groupMembers.find { _.canUnparseIfHidden } //optional, defaultable or OVC
           }
         optDefault
       }

@@ -496,7 +496,6 @@ trait Term
         case sq: SequenceTermBase if !sq.isOrdered =>
           sq.groupMembers.filter { _.isRepresented }
         case sq: SequenceDefMixin => {
-          // ??? Didin' check for ordered/unordered here.
           val psibs = priorSiblings
           val representedPriorSiblings = psibs.filter { _.isRepresented }
           val (optionalPotentialPriorReversed, requiredPotentialPriorReversed) =
@@ -512,52 +511,38 @@ trait Term
           val firstNonOptional = requiredPotentialPriorReversed.headOption
           optionalPotentialPrior ++ firstNonOptional
         }
-        case _ => Nil // ?? potentially wrong
+        case _ => Nil
       }
     }
   }
 
   /*
-   * This function returns at list of simple elements that are descendents of
-   * this term that are not defaultable or OVC. This is a requirement for terms
-   * inside a hidden group. Note that there is an exception for choices, in
-   * which only a single branch be all defaultable or OVC. If any elements in a
-   * hidden group are not defaultable or OVC, then it is an SDE. This function
-   * assumes it is only called on elements inside of a hidden group.
+   * This function returns a boolean if the values of the term can be figured
+   * out during unparsing or if they don't need to appear in the infoset at all.
    *
-   * Note that this currently only requires OVC since default's aren't
-   * implemented. This function may need to change when we support defaults.
+   * Usually this means the term/its descendants have a default value (i.e defaultable),
+   * have defined dfdl:outputValueCalc, or are optional (minOccurs=0)
+   *
+   * Note that this currently only requires OVC and Optionality since defaults
+   * aren't fully implemented everywhere. This function may need to change when
+   * defaults are fully implemented.
    */
-  lazy val childrenInHiddenGroupNotDefaultableOrOVC: Seq[ElementBase] = {
-    // this should only be called on hidden elements
-    val isH = isHidden
-    Assert.invariant(isH)
-
+  lazy val canUnparseIfHidden: Boolean = {
     val res = this match {
       case s: SequenceTermBase => {
-        s.groupMembers.flatMap { member =>
-          val res = member.childrenInHiddenGroupNotDefaultableOrOVC
+        s.groupMembers.forall { member =>
+          val res = member.canUnparseIfHidden
           res
         }
       }
       case c: ChoiceTermBase => {
-        val branches = c.groupMembers.map { _.childrenInHiddenGroupNotDefaultableOrOVC }
-        val countFullyDefaultableOrOVCBranches = branches.count { _.length == 0 }
-        if (countFullyDefaultableOrOVCBranches == 0) {
-          c.SDE("xs:choice inside a hidden group must contain a branch with all children having the dfdl:outputValueCalc property set.")
-          // TODO: Diagnostics to display which branches contained non-defaultable elements, and what those elements were
-        }
-        Nil
+        c.groupMembers.exists { _.canUnparseIfHidden }
       }
       case e: ElementBase if e.isComplexType => {
-        e.complexType.group.childrenInHiddenGroupNotDefaultableOrOVC
+        e.complexType.group.canUnparseIfHidden
       }
       case e: ElementBase => {
-        if (!e.canBeAbsentFromUnparseInfoset) {
-          Seq(e)
-        } else {
-          Nil
-        }
+        e.canBeAbsentFromUnparseInfoset
       }
     }
     res
@@ -578,14 +563,13 @@ trait Term
   protected def possibleFirstChildTerms: Seq[Term]
 
   /*
-     * Returns list of Elements that could be the first child in the infoset of this model group or element.
-     */
+   * Returns list of Elements that could be the first child in the infoset of this model group or element.
+   */
   final lazy val possibleFirstChildElementsInInfoset: Seq[ElementBase] = LV('possibleFirstChildElementsInInfoset) {
     val pfct = possibleFirstChildTerms
     val firstChildren = pfct.flatMap {
-      case e: ElementBase if e.isHidden => Nil
       case e: ElementBase => Seq(e)
-      case s: SequenceTermBase if s.isHidden => Nil
+      case gr: GroupRef if gr.isHidden => Nil
       case mg: ModelGroup => mg.possibleFirstChildElementsInInfoset
     }
     firstChildren.distinct

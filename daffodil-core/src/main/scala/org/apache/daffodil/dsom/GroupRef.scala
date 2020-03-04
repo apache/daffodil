@@ -30,6 +30,11 @@ trait GroupRef { self: ModelGroup =>
 
   final def referredToComponent = groupDef
 
+  /**
+   * Override in sequenceGroupRef and choiceGroupRef for hidden groups
+   */
+  def isHidden: Boolean
+
   final override lazy val optReferredToComponent = Some(referredToComponent)
 
   final override protected lazy val groupMembersDef = LV('groupMembers) {
@@ -101,14 +106,11 @@ final class SequenceGroupRef(
   refXML: Node,
   refLexicalParent: SchemaComponent,
   positionArg: Int,
-  isHiddenArg: Boolean)
+  override val isHidden: Boolean)
   extends SequenceGroupTermBase(refXML, refLexicalParent, positionArg)
   with GroupRef {
 
   private lazy val globalGroupDef = globalGroupDefArg // once only
-
-  override def isHidden = isHiddenArg
-  override def isHiddenGroupRef = isHiddenArg
 
   private lazy val sgd = groupDef.asInstanceOf[GlobalSequenceGroupDef]
 
@@ -129,7 +131,7 @@ final class ChoiceGroupRef(
   refXML: Node,
   refLexicalParent: SchemaComponent,
   positionArg: Int,
-  isHiddenArg: Boolean)
+  override val isHidden: Boolean)
   extends ChoiceTermBase(refXML, Option(refLexicalParent), positionArg)
   with GroupRef {
 
@@ -137,10 +139,7 @@ final class ChoiceGroupRef(
 
   private lazy val globalGroupDef = globalGroupDefArg // once only
 
-  override def isHidden = isHiddenArg
-  override def isHiddenGroupRef = isHiddenArg
-
-  override lazy val groupDef = globalGroupDef
+  override lazy val groupDef = LV('cgrGroupDef){ globalGroupDef }.value
 
   private lazy val cgd = groupDef.asInstanceOf[GlobalChoiceGroupDef]
 

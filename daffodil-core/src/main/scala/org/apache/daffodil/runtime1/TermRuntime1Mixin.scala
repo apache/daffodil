@@ -122,9 +122,9 @@ trait TermRuntime1Mixin { self: Term =>
         Closed(Seq(PNE(eb, true)))
       case eb: ElementBase =>
         Open(Seq(PNE(eb, false)))
-      case stb: SequenceTermBase if stb.isHiddenGroupRef =>
+      case sgr: SequenceGroupRef if sgr.isHidden =>
         Open(Nil)
-      case ctb: ChoiceTermBase if ctb.isHiddenGroupRef =>
+      case cgr: ChoiceGroupRef if cgr.isHidden =>
         Open(Nil)
       case ctb: ChoiceTermBase => {
         val gms = ctb.groupMembers
@@ -276,7 +276,8 @@ trait TermRuntime1Mixin { self: Term =>
             }
           res
         }
-        case stb: SequenceTermBase if !stb.isHidden => {
+        case gr: GroupRef if gr.isHidden => Open(Nil)
+        case stb: SequenceTermBase => {
           //
           // This case only applies to when we are analyzing a sequence, but it is
           // being considered as contributing possible elements that are after the
@@ -289,8 +290,6 @@ trait TermRuntime1Mixin { self: Term =>
             subTerms.headOption.map { _.possibleSelfPlusNextLexicalSiblingStreamingUnparserElements }
           res.getOrElse(Open(Nil))
         }
-        case stb: SequenceTermBase if stb.isHidden =>
-          Open(Nil)
       }
       val res = thisItself match {
         //

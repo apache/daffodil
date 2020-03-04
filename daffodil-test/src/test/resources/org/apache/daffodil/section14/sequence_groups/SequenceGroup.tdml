@@ -1406,9 +1406,10 @@
       <tdml:documentPart type="text"><![CDATA[145,2]]></tdml:documentPart>
     </tdml:document>
     <tdml:errors>
-      <tdml:error>choice</tdml:error>
-      <tdml:error>hidden group</tdml:error>
-      <tdml:error>outputValueCalc</tdml:error>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>hidden choice</tdml:error>
+      <tdml:error>defaultable</tdml:error>
+      <tdml:error>dfdl:outputValueCalc</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

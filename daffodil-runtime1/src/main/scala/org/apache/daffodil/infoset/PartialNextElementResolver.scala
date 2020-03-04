@@ -76,12 +76,8 @@ trait NextElementResolver { self: InfosetInputter =>
         // set of possible elements.
         //
         maybeERD = resolver.maybeNextElement(name, nameSpace, hasNamespace)
-        //
-        // If the ERD is marked hidden, then we never expect any events corresponding
-        // to its elements.
-        //
-        if (maybeERD.isDefined && maybeERD.get.isHidden)
-          maybeERD = Nope // clobber it back to Nope
+        // The cases where ERD is in a hidden context are addressed where the elements
+        // are assigned their value i.e ElementUnparser
       }
     } // end while
     //

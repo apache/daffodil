@@ -22,8 +22,10 @@ import net.sf.expectit.ExpectBuilder
 import net.sf.expectit.Expect
 import net.sf.expectit.filter.Filters.replaceInString
 import java.nio.file.Paths
+import java.io.{File, PrintWriter}
 import scala.collection.JavaConverters._
 import java.util.concurrent.TimeUnit
+
 import org.apache.daffodil.xml.XMLUtils
 
 object Util {
@@ -177,5 +179,17 @@ object Util {
     } else {
       "cat " + str
     }
+  }
+
+  def newTempFile(filePrefix: String, fileSuffix: String, optFileContents: Option[String] = None): File = {
+    val inputFile = File.createTempFile(filePrefix, fileSuffix)
+    inputFile.deleteOnExit
+    if( optFileContents.nonEmpty) {
+      val contents = optFileContents.get
+      val pw = new PrintWriter(inputFile)
+      pw.write(contents)
+      pw.close
+    }
+    inputFile
   }
 }

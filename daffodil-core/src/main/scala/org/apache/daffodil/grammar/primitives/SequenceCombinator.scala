@@ -61,7 +61,21 @@ class OrderedSequence(sq: SequenceTermBase, sequenceChildrenArg: Seq[SequenceChi
         sequenceChildren.flatMap { _.optSequenceChildParser })
   }
   override lazy val unparser: Unparser = {
-    sq.checkHiddenSequenceIsDefaultableOrOVC
+    sq match {
+      case sgr: SequenceGroupRef if sgr.isHidden =>
+        /*
+         * This is a requirement for all descendants of a hidden sequence, so we
+         * SDE if all descendants are not fully defaultable, optional or OVC.
+         */
+        val nonUnparseableIfHidden = sq.groupMembers.filter(!_.canUnparseIfHidden)
+        if (nonUnparseableIfHidden.nonEmpty) {
+          SDE("Element(s) of hidden group must define dfdl:outputValueCalc, be defaultable or be optional:\n%s",
+            nonUnparseableIfHidden.mkString("\n"))
+        }
+      case _ => {
+        //do nothing as only GroupRefs have the concept of hiddenness at compile time
+      }
+    }
     val childUnparsers = sequenceChildren.flatMap { _.optSequenceChildUnparser }
     if (childUnparsers.isEmpty) new NadaUnparser(null)
     else {
@@ -138,7 +152,21 @@ class UnorderedSequence(sq: SequenceTermBase, sequenceChildrenArg: Seq[SequenceC
   }
 
   override lazy val unparser: Unparser = {
-    sq.checkHiddenSequenceIsDefaultableOrOVC
+    sq match {
+      case sgr: SequenceGroupRef if sgr.isHidden =>
+        /*
+         * This is a requirement for all descendants of a hidden sequence, so we
+         * SDE if all descendants are not fully defaultable, optional or OVC.
+         */
+        val nonUnparseableIfHidden  = sq.groupMembers.filter( !_.canUnparseIfHidden)
+        if (nonUnparseableIfHidden.nonEmpty) {
+          SDE("Element(s) of hidden group must define dfdl:outputValueCalc, be defaultable or be optional:\n%s",
+            nonUnparseableIfHidden.mkString("\n"))
+        }
+      case _ => {
+        //do nothing as only GroupRefs have the concept of hiddenness at compile state
+      }
+    }
     val childUnparsers = sequenceChildren.flatMap { _.optSequenceChildUnparser }
     if (childUnparsers.isEmpty) new NadaUnparser(null)
     else {

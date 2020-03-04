@@ -423,6 +423,10 @@ final class UStateForSuspension(
 
   override def documentElement = mainUState.documentElement
 
+  override def incrementHiddenDef = Assert.usageError("Unparser suspended UStates need not be aware of hidden contexts")
+  override def decrementHiddenDef = Assert.usageError("Unparser suspended UStates need not be aware of hidden contexts")
+  override def withinHiddenNest = Assert.usageError("Unparser suspended UStates need not be aware of hidden contexts")
+
 }
 
 final class UStateMain private (
@@ -649,6 +653,12 @@ final class UStateMain private (
   }
 
   final override def documentElement = inputter.documentElement
+
+  override def toString = {
+    val elt = if (this.currentInfosetNodeMaybe.isDefined) "node=" + this.currentInfosetNode.toString else ""
+    val hidden = if (withinHiddenNest) " hidden" else ""
+    "UState(" + elt +  hidden + " DOS=" + dataOutputStream.toString() + ")"
+  }
 }
 
 class SuspensionDeadlockException(suspExprs: Seq[Suspension])

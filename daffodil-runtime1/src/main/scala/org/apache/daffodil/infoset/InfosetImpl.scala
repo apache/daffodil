@@ -863,18 +863,16 @@ sealed trait DIElement
   }
 
   /**
-   * Note: there is no infoset data member for isHidden. A hidden group is
-   * a DFDL schema characteristic for a model group. Elements inside it will
-   * have (their element base) isHidden statically on the schema. So there is
-   * no notion of creating an infoset element then making it hidden by marking
-   * it in some way. Rather, the corresponding elementRuntimeData tells you whether
-   * it is hidden or not.
-   *
-   * When we convert to XML, then if we want to preserve information about
-   * things being hidden (for inspection by looking at the XML) then we
-   * need to add an attribute. But for the infoset itself, we don't need it.
+   * If we are in a hidden context, isHidden should be true for the infoset
+   * data member. Therefore, when a new element is created in a hidden context
+   * we set isHidden to true.
    */
-  final def isHidden: Boolean = erd.isHidden
+  protected final var _isHidden = false
+  final def isHidden: Boolean = _isHidden
+
+  override def setHidden: Unit = {
+    _isHidden = true
+  }
 
   final def runtimeData = erd
   protected final var _parent: InfosetComplexElement = null

@@ -242,58 +242,66 @@ case class ChoiceCombinator(ch: ChoiceTermBase, alternatives: Seq[Gram])
   }
 
   override lazy val unparser: Unparser = {
-    if (!ch.isHiddenGroupRef) {
-      val (eventRDMap, optDefaultBranch) = ch.choiceBranchMap
-      val optDefaultUnparser: Option[Unparser] = optDefaultBranch.map { defaultBranch =>
-        val defaultBranchGram = defaultBranch.termContentBody
-        val defaultBranchUnparser = defaultBranchGram.unparser
-        if (defaultBranchUnparser.isEmpty) {
-          // This is a NadaUnparser, likely caused by a default choice branch
-          // that is just an empty sequence. NadaUnparsers throw an assertion
-          // when unparsed, but the ChoiceCombinatorUnparser still expects to
-          // have a something to unparse, so we have an unparser that just does
-          // nothing for this special case
-          new ChoiceBranchEmptyUnparser(defaultBranch.runtimeData)
-        } else {
-          defaultBranchUnparser
-        }
+    val (eventRDMap, optDefaultBranch) = ch.choiceBranchMap
+    /*
+     * Since it's impossible to know the hiddenness for terms at this level (unless
+     * they're a hiddenGroupRef), we always attempt to find a defaultable unparser.
+     * If we find one, and at runtime, we're in a hidden state, we can use that. If we
+     * are not in a hidden state, it doesn't get used. If we don't find a defaultable branch
+     * for a hidden group ref, we SDE because required elements must have a default value
+     * or dfdl:outputValueCalc defined during unparsing,
+     */
+    val optDefaultUnparser: Option[Unparser] = optDefaultBranch.map { defaultBranch =>
+      val defaultBranchGram = defaultBranch.termContentBody
+      val defaultBranchUnparser = defaultBranchGram.unparser
+      if (defaultBranchUnparser.isEmpty) {
+        // This is a NadaUnparser, likely caused by a default choice branch
+        // that is just an empty sequence. NadaUnparsers throw an assertion
+        // when unparsed, but the ChoiceCombinatorUnparser still expects to
+        // have a something to unparse, so we have an unparser that just does
+        // nothing for this special case
+        new ChoiceBranchEmptyUnparser(defaultBranch.runtimeData)
+      } else {
+        defaultBranchUnparser
       }
+    }
 
-      val eventUnparserMap = eventRDMap.map {
-        case (cbe, branchTerm) => (cbe, branchTerm.termContentBody.unparser)
-      }
-      val mapValues = eventUnparserMap.map { case (k, v) => v }.toSeq.filterNot(_.isEmpty)
-      if (mapValues.isEmpty)
-        if (optDefaultBranch.isEmpty)
-          new NadaUnparser(null)
-        else {
-          // just a default branch.
-          Assert.invariant(optDefaultUnparser.isDefined)
-          optDefaultUnparser.get
+    val branchForUnparse = if (optDefaultUnparser.isEmpty) {
+      ch match {
+        case cgr: ChoiceGroupRef if cgr.isHidden => {
+          /*
+           * This is a requirement for at least one term inside a hidden choice, we
+           * SDE if there is no descendant that is fully defaultable, optional or OVC.
+           */
+          cgr.SDE(
+            "At least one branch of hidden choice must be fully defaultable or define dfdl:outputValueCalc:\n%s",
+            ch.groupMembers.mkString("\n"))
         }
-      else {
-        val cbm = ChoiceBranchMap(eventUnparserMap, optDefaultUnparser)
-        new ChoiceCombinatorUnparser(ch.modelGroupRuntimeData, cbm, choiceLengthInBits)
+        /*
+         * empty unparser is fine as we have no expectations of hiddenness during
+         * compile time if it's not a hiddenGroupRef
+         */
+        case _ => optDefaultUnparser
       }
     } else {
-      // Choices inside a hidden group ref are slightly different because we
-      // will never see events for any of the branches. Instead, we will just
-      // always pick the branch in which every thing is defaultble or OVC. It
-      // is a warning if more than one of those branches exist. It is an SDE if
-      // such a branch does not exist, which is detected elsewhere
+      optDefaultUnparser
+    }
 
-      // this call is necessary since it will throw an SDE if no choice branch
-      // was defaultable
-      ch.childrenInHiddenGroupNotDefaultableOrOVC
-      val defaultableBranches = ch.groupMembers.filter { _.childrenInHiddenGroupNotDefaultableOrOVC.length == 0 }
-      Assert.invariant(defaultableBranches.length > 0)
-      if (defaultableBranches.length > 1) {
-        SDW(WarnID.ChoiceInsideHiddenGroup, "xs:choice inside a hidden group has unparse ambiguity: multiple branches exist with all children either defaulable or have the dfdl:outputValueCalc property set. The first branch will be chosen during unparse. Defaultable branches are:\n%s",
-          defaultableBranches.mkString("\n"))
+    val eventUnparserMap = eventRDMap.map {
+      case (cbe, branchTerm) => (cbe, branchTerm.termContentBody.unparser)
+    }
+    val mapValues = eventUnparserMap.map { case (k, v) => v }.toSeq.filterNot(_.isEmpty)
+    if (mapValues.isEmpty) {
+      if (branchForUnparse.isEmpty) {
+        new NadaUnparser(null)
+      } else {
+        // just a default branch.
+        Assert.invariant(branchForUnparse.isDefined)
+        branchForUnparse.get
       }
-      val defaultableBranchRD = defaultableBranches(0).runtimeData
-      val defaultableBranchUnparser = alternatives.find(_.context.runtimeData =:= defaultableBranchRD).get.unparser
-      new HiddenChoiceCombinatorUnparser(ch.modelGroupRuntimeData, defaultableBranchUnparser)
+    } else {
+      val cbm = ChoiceBranchMap(eventUnparserMap, branchForUnparse)
+      new ChoiceCombinatorUnparser(ch.modelGroupRuntimeData, cbm, choiceLengthInBits)
     }
   }
 }

@@ -62,6 +62,8 @@ trait InfosetElement extends InfosetItem {
   def namespace: NS
   def name: String
   def isHidden: Boolean
+  def setHidden(): Unit
+
 }
 
 trait InfosetComplexElement extends InfosetElement {

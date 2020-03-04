@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<tdml:testSuite xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="http://example.com"
+  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
+  xmlns:fn="http://www.w3.org/2005/xpath-functions" defaultRoundTrip="none">
+
+  <tdml:parserTestCase name="parseHiddenGroupRef" root="e1"
+    model="ChoicesInHiddenContexts.dfdl.xsd" description="hidden group ref">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[[string,3]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e1>
+          <g>3</g>
+        </e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="parseRegularGroupRef" root="e2"
+    model="ChoicesInHiddenContexts.dfdl.xsd" description="hidden group ref">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[[string,3]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e2>
+          <e>string</e>
+          <g>3</g>
+        </e2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="parseSeqOfHiddenAndRegularRef" root="e3"
+    model="ChoicesInHiddenContexts.dfdl.xsd" description="hidden group ref">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[2,3]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e3>
+          <g>
+            <f>3</f>
+          </g>
+        </e3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="parseNestedHiddenAndRegularRef" root="e4"
+    model="ChoicesInHiddenContexts.dfdl.xsd" description="hidden group ref">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[[6~]9]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e4>
+          <g>
+            <h>
+              <f>9</f>
+            </h>
+          </g>
+        </e4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="parseNestedHiddenGroupRefs" root="e9"
+    model="ChoicesInHiddenContexts.dfdl.xsd" description="hidden group ref">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[[6~]9]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e9>
+          <g>
+            <h />
+          </g>
+        </e9>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:unparserTestCase name="unparseHiddenGroupRef" root="e1"
+    model="ChoicesInHiddenContexts.dfdl.xsd" description="hidden group ref">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e1>
+          <g>3</g>
+        </ex:e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[[hello,3]]></tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="unparseRegularGroupRef" root="e2"
+    model="ChoicesInHiddenContexts.dfdl.xsd" description="hidden group ref">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e2>
+          <f>4</f>
+          <g>3</g>
+        </ex:e2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[1,3]]></tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="unparseSeqOfHiddenAndRegularRef" root="e3"
+    model="ChoicesInHiddenContexts.dfdl.xsd" description="hidden group ref">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e3>
+          <g>
+            <e>testing</e>
+          </g>
+        </ex:e3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[[hello,[hello]]></tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="unparseNestedHiddenAndRegularRef" root="e4"
+    model="ChoicesInHiddenContexts.dfdl.xsd" description="hidden group ref">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e4>
+          <g>
+            <h>
+              <f>3</f>
+            </h>
+          </g>
+        </ex:e4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[[[1~]1]]></tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="unparseNestedRegularAndHiddenRef"
+    model="ChoicesInHiddenContexts.dfdl.xsd" description="hidden group ref">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e5>
+          <g>
+            <h>
+              <f>3</f>
+            </h>
+          </g>
+        </ex:e5>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[]1~[[1]]></tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="unparseNestedHiddenGroupRefs"
+    model="ChoicesInHiddenContexts.dfdl.xsd" description="hidden group ref">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e9>
+          <g>
+            <h />
+          </g>
+        </ex:e9>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[[[1~][hello]]></tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="noOVCinHiddenContext" root="e6"
+    model="ChoicesInHiddenContexts.dfdl.xsd" description="hidden group ref">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e6/>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>hidden choice</tdml:error>
+      <tdml:error>defaultable</tdml:error>
+      <tdml:error>dfdl:outputValueCalc</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="nestedNoOVCinHiddenContext" root="e7"
+    model="ChoicesInHiddenContexts.dfdl.xsd" description="hidden group ref">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>)
+        <ex:e7/>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>hidden choice</tdml:error>
+      <tdml:error>defaultable</tdml:error>
+      <tdml:error>dfdl:outputValueCalc</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
+</tdml:testSuite>

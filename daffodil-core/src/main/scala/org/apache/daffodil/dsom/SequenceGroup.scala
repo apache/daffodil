@@ -73,8 +73,6 @@ abstract class SequenceTermBase(
 
   def maybeLayerTransformerEv: Maybe[LayerTransformerEv]
 
-  def checkHiddenSequenceIsDefaultableOrOVC: Unit
-
 }
 
 /**
@@ -207,16 +205,6 @@ abstract class SequenceGroupTermBase(
                   "\nNamespace: %s\tName: %s.",
                 this.path, ns, name)
         }
-      }
-    }
-  }
-
-  lazy val checkHiddenSequenceIsDefaultableOrOVC: Unit = {
-    if (this.isHidden) {
-      val nonDefaultableOrOVC =
-        this.childrenInHiddenGroupNotDefaultableOrOVC
-      if (nonDefaultableOrOVC.length > 0) {
-        this.SDE("Element(s) of hidden group must define dfdl:outputValueCalc:\n%s", nonDefaultableOrOVC.mkString("\n"))
       }
     }
   }
@@ -360,8 +348,6 @@ final class ChoiceBranchImpliedSequence(rawGM: Term)
   override def isOrdered = true
 
   override def maybeLayerTransformerEv: Maybe[LayerTransformerEv] = Maybe.Nope
-
-  override def checkHiddenSequenceIsDefaultableOrOVC: Unit = ()
 
   override def findPropertyOption(pname: String): PropertyLookupResult = rawGM.findPropertyOption(pname)
 

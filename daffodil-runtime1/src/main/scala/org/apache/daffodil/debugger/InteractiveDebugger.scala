@@ -1191,7 +1191,25 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
                         |multiple times to display multiple pieces of information.
                         |
                         |Example: info data infoset""".stripMargin
-      override val subcommands = Seq(InfoBitLimit, InfoBitPosition, InfoBreakpoints, InfoChildIndex, InfoData, InfoDelimiterStack, InfoDiff, InfoDiscriminator, InfoDisplays, InfoFoundDelimiter, InfoGroupIndex, InfoInfoset, InfoOccursIndex, InfoParser, InfoUnparser, InfoPath)
+      override val subcommands =
+        Seq(
+          InfoBitLimit,
+          InfoBitPosition,
+          InfoBreakpoints,
+          InfoChildIndex,
+          InfoData,
+          InfoDelimiterStack,
+          InfoDiff,
+          InfoDiscriminator,
+          InfoDisplays,
+          InfoFoundDelimiter,
+          InfoGroupIndex,
+          InfoHidden,
+          InfoInfoset,
+          InfoOccursIndex,
+          InfoPath,
+          InfoParser,
+          InfoUnparser)
 
       override def validate(args: Seq[String]) {
         if (args.size == 0) {
@@ -1228,21 +1246,6 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
               args.split("\\s+").last
             }
           lastInfoCommand
-        }
-      }
-
-      object InfoOccursIndex extends DebugCommand with DebugCommandValidateZeroArgs {
-        val name = "occursIndex"
-        override lazy val short = "oi"
-        val desc = "display the current array limit"
-        val longDesc = desc
-        def act(args: Seq[String], prestate: StateForDebugger, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
-          if (state.arrayPos != -1) {
-            debugPrintln("%s: %d".format(name, state.arrayPos))
-          } else {
-            debugPrintln("%s: not in an array".format(name))
-          }
-          DebugState.Pause
         }
       }
 
@@ -1497,6 +1500,17 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
         }
       }
 
+      object InfoHidden extends DebugCommand with DebugCommandValidateZeroArgs {
+        val name = "hidden"
+        override lazy val short = "h"
+        val desc = "display whether or not we're within the nesting context of a hidden group"
+        val longDesc = desc
+        def act(args: Seq[String], prestate: StateForDebugger, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
+          debugPrintln("%s: %b".format(name, state.withinHiddenNest))
+          DebugState.Pause
+        }
+      }
+
       object InfoInfoset extends DebugCommand with DebugCommandValidateZeroArgs {
         val name = "infoset"
         val desc = "display the current infoset"
@@ -1545,6 +1559,32 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
         }
       }
 
+      object InfoOccursIndex extends DebugCommand with DebugCommandValidateZeroArgs {
+        val name = "occursIndex"
+        override lazy val short = "oi"
+        val desc = "display the current array limit"
+        val longDesc = desc
+        def act(args: Seq[String], prestate: StateForDebugger, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
+          if (state.arrayPos != -1) {
+            debugPrintln("%s: %d".format(name, state.arrayPos))
+          } else {
+            debugPrintln("%s: not in an array".format(name))
+          }
+          DebugState.Pause
+        }
+      }
+
+      object InfoPath extends DebugCommand with DebugCommandValidateZeroArgs {
+        val name = "path"
+        override lazy val short = "path"
+        val desc = "display the current schema component designator/path"
+        val longDesc = desc
+        def act(args: Seq[String], prestate: StateForDebugger, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
+          debugPrintln("%s: %s".format(name, processor.context.path))
+          DebugState.Pause
+        }
+      }
+
       abstract class InfoProcessorBase extends DebugCommand with DebugCommandValidateZeroArgs {
         val desc = "display the current Daffodil " + name
         val longDesc = desc
@@ -1561,17 +1601,6 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
       object InfoUnparser extends {
         override val name = "unparser"
       } with InfoProcessorBase
-
-      object InfoPath extends DebugCommand with DebugCommandValidateZeroArgs {
-        val name = "path"
-        override lazy val short = "path"
-        val desc = "display the current schema component designator/path"
-        val longDesc = desc
-        def act(args: Seq[String], prestate: StateForDebugger, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
-          debugPrintln("%s: %s".format(name, processor.context.path))
-          DebugState.Pause
-        }
-      }
     }
 
     object Quit extends DebugCommand with DebugCommandValidateZeroArgs {
