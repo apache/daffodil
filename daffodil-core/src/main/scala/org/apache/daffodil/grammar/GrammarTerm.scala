@@ -102,8 +102,9 @@ abstract class Gram(contextArg: SchemaComponent)
         if (q.isEmpty)
           EmptyGram
         else q
-      } else if (q.isEmpty) self
-      else {
+      } else if (q.isEmpty) {
+        self
+      } else {
         Assert.invariant(!self.isEmpty)
         Assert.invariant(!q.isEmpty)
         SeqComp(context, self, q)

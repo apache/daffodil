@@ -115,21 +115,6 @@ trait SchemaComponent
     schemaSet.variableMap
   }.value
 
-  /**
-   * Whether the component is hidden.
-   *
-   * Override this in the components that can hide - SequenceGroupRef
-   * and ChoiceGroupRef
-   */
-  def isHidden: Boolean = isHiddenLV
-
-  private lazy val isHiddenLV = {
-    val optEC = enclosingTerms.headOption // FIXME: broken if there are hidden and non-hidden uses
-    optEC match {
-      case None => false
-      case Some(ec) => ec.isHidden
-    }
-  }
 
   lazy val schemaComponent: LookupLocation = this
 
@@ -229,9 +214,9 @@ trait SchemaComponent
         case ct: ComplexTypeBase => "ct"
         case st: SimpleTypeDefBase => "st=" + st.namedQName.toQNameString
         case st: SimpleTypeBase => "st=" + st.primType.globalQName.toQNameString
-        case cgr: ChoiceGroupRef => "cgr" + (if (cgr.position > 1) cgr.position else "") + "=" + cgr.groupDef.namedQName.toQNameString
+        case cgr: ChoiceGroupRef => "cgr" + (if (cgr.isHidden) "h" else "") + (if (cgr.position > 1) cgr.position else "") + "=" + cgr.groupDef.namedQName.toQNameString
         case cgd: GlobalChoiceGroupDef => "cgd=" + cgd.namedQName.toQNameString
-        case sgr: SequenceGroupRef => "sgr" + (if (sgr.isHiddenGroupRef) "h" else "") + (if (sgr.position > 1) sgr.position else "") + "=" + sgr.groupDef.namedQName
+        case sgr: SequenceGroupRef => "sgr" + (if (sgr.isHidden) "h" else "") + (if (sgr.position > 1) sgr.position else "") + "=" + sgr.groupDef.namedQName.toQNameString
         case sgd: GlobalSequenceGroupDef => "sgd=" + sgd.namedQName.toQNameString
         case cg: Choice => "c" + (if (cg.position > 1) cg.position else "")
         case sg: Sequence => "s" + (if (sg.position > 1) sg.position else "")

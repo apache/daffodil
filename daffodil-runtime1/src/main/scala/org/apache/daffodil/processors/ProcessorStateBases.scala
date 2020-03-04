@@ -480,6 +480,17 @@ abstract class ParseOrUnparseState protected (
     res
   }
 
+  private var _hiddenDepth = 0
+
+  def incrementHiddenDef = {
+    _hiddenDepth += 1
+  }
+  def decrementHiddenDef = {
+    _hiddenDepth -= 1
+  }
+
+  def withinHiddenNest: Boolean = _hiddenDepth > 0
+
   /**
    * The User API sets the debugger and debug on/off flag on the DataProcessor object.
    * When a PState or UState is created by the DataProcessor, the DataProcessor

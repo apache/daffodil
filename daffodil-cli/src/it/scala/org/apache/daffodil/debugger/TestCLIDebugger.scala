@@ -899,6 +899,207 @@ class TestCLIdebugger {
     }
   }
 
+  @Test def test_CLI_Debugger_InfoHidden_1() {
+    val schemaFile = Util.daffodilPath(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section14/sequence_groups/SequencesWithHiddenRefs.dfdl.xsd")
+    val inputFile = Util.newTempFile("testInput_", ".tmp", optFileContents = Some("2~3"))
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) {
+      (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile.getAbsolutePath))
+    } else {
+      (schemaFile, inputFile)
+    }
+
+    val shell = if (Util.isWindows) Util.start("", envp = DAFFODIL_JAVA_OPTS) else Util.start("")
+
+    try {
+      val cmd = String.format("%s -d parse -s %s -r e5 %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("(debug)"))
+
+      shell.sendLine("break f")
+      shell.sendLine("display info hidden")
+
+      shell.sendLine("continue")
+      shell.expect(contains("hidden: false"))
+
+      shell.sendLine("continue")
+      shell.expect(contains("hidden: false"))
+
+      shell.sendLine("continue")
+      shell.expect(contains("hidden: true"))
+
+      shell.sendLine("continue")
+      shell.expect(contains("hidden: true"))
+
+      shell.sendLine("continue")
+      shell.expect(contains("<f>2</f>"))
+      shell.sendLine("quit")
+    } finally {
+      shell.close()
+    }
+  }
+
+  @Test def test_CLI_Debugger_InfoHidden_2() {
+    val schemaFile = Util.daffodilPath(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section14/sequence_groups/SequencesWithHiddenRefs.dfdl.xsd")
+    val inputFile = Util.newTempFile("testInput_", ".tmp", optFileContents = Some("2~3"))
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) {
+      (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile.getAbsolutePath))
+    } else {
+      (schemaFile, inputFile)
+    }
+
+    val shell = if (Util.isWindows) Util.start("", envp = DAFFODIL_JAVA_OPTS) else Util.start("")
+
+    try {
+      val cmd = String.format("%s -d parse -s %s -r e4 %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("(debug)"))
+
+      shell.sendLine("break f")
+      shell.sendLine("display info hidden")
+
+      shell.sendLine("continue")
+      shell.expect(contains("hidden: true"))
+
+      shell.sendLine("continue")
+      shell.expect(contains("hidden: true"))
+
+      shell.sendLine("continue")
+      shell.expect(contains("hidden: false"))
+
+      shell.sendLine("continue")
+      shell.expect(contains("hidden: false"))
+
+      shell.sendLine("continue")
+      shell.expect(contains("<f>3</f>"))
+      shell.sendLine("quit")
+    } finally {
+      shell.close()
+    }
+  }
+
+  @Test def test_CLI_Debugger_InfoHidden_3() {
+    val schemaFile = Util.daffodilPath(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section15/choice_groups/ChoicesInHiddenContexts.dfdl.xsd")
+    val inputFile = Util.newTempFile("testInput_", ".tmp", optFileContents = Some("2,3"))
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) {
+      (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile.getAbsolutePath))
+    } else {
+      (schemaFile, inputFile)
+    }
+
+    val shell = if (Util.isWindows) Util.start("", envp = DAFFODIL_JAVA_OPTS) else Util.start("")
+
+    try {
+      val cmd = String.format("%s -d parse -s %s -r e8 %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("(debug)"))
+
+      shell.sendLine("break a")
+      shell.sendLine("break h")
+      shell.sendLine("break g")
+      shell.sendLine("break e")
+      shell.sendLine("break f")
+      shell.sendLine("display info hidden")
+
+      shell.sendLine("continue")
+      shell.expect(contains("hidden: false"))
+
+      shell.sendLine("continue")
+      shell.expect(contains("hidden: false"))
+
+      shell.sendLine("continue")
+      shell.expect(contains("hidden: false"))
+
+      shell.sendLine("continue")
+      shell.expect(contains("hidden: true"))
+
+      shell.sendLine("continue")
+      shell.expect(contains("hidden: true"))
+
+      shell.sendLine("continue")
+      shell.expect(contains("<a>2</a>"))
+      shell.expect(contains("<g />"))
+    } finally {
+      shell.close()
+    }
+  }
+
+  @Test def test_CLI_Debugger_InfoHidden_4() {
+    val schemaFile = Util.daffodilPath(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section15/choice_groups/ChoicesInHiddenContexts.dfdl.xsd")
+    val inputFile = Util.newTempFile("testInput_", ".tmp", optFileContents = Some("[6~]9"))
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) {
+      (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile.getAbsolutePath))
+    } else {
+      (schemaFile, inputFile)
+    }
+
+    val shell = if (Util.isWindows) Util.start("", envp = DAFFODIL_JAVA_OPTS) else Util.start("")
+
+    try {
+      val cmd = String.format("%s -d parse -s %s -r e9 %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("(debug)"))
+
+      shell.sendLine("break e")
+      shell.sendLine("break f")
+      shell.sendLine("break g")
+      shell.sendLine("break h")
+      shell.sendLine("break i")
+      shell.sendLine("display info path hidden")
+
+      shell.sendLine("continue")
+      shell.expect(contains(":f"))
+      shell.expect(contains("hidden: true"))
+
+      shell.sendLine("continue")
+      shell.expect(contains(":i"))
+      shell.expect(contains("hidden: true"))
+
+      shell.sendLine("continue")
+      shell.expect(contains(":h"))
+      shell.expect(contains("hidden: true"))
+
+      shell.sendLine("continue")
+      shell.expect(contains(":e"))
+      shell.expect(contains("hidden: true"))
+
+      shell.sendLine("continue")
+      shell.expect(contains(":f"))
+      shell.expect(contains("hidden: true"))
+
+      shell.sendLine("continue")
+      shell.expect(contains(":f"))
+      shell.expect(contains("hidden: false"))
+
+      shell.sendLine("continue")
+      shell.expect(contains(":g"))
+      shell.expect(contains("hidden: false"))
+
+      shell.sendLine("continue")
+      shell.expect(contains(":i"))
+      shell.expect(contains("hidden: false"))
+
+      shell.sendLine("continue")
+      shell.expect(contains(":h"))
+      shell.expect(contains("hidden: false"))
+
+      shell.sendLine("continue")
+      shell.expect(contains(":e"))
+      shell.expect(contains("hidden: true"))
+
+      shell.sendLine("continue")
+      shell.expect(contains(":f"))
+      shell.expect(contains("hidden: true"))
+
+      shell.sendLine("continue")
+      shell.expect(contains("<h />"))
+    } finally {
+      shell.close()
+    }
+  }
   /* See DFDL-1264
   @Test def test_3585_CLI_Debugger_simpleDebugger_unparse() {
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")

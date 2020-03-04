@@ -18,20 +18,15 @@
 package org.apache.daffodil.grammar
 
 import org.apache.daffodil.schema.annotation.props.gen._
-import org.apache.daffodil.dsom.InitiatedTerminatedMixin
-import org.apache.daffodil.dsom.ModelGroup
 import org.apache.daffodil.dsom.SharedFactory
+import org.apache.daffodil.dsom.{ChoiceTermBase, GroupRef, InitiatedTerminatedMixin, ModelGroup, SequenceTermBase, SchemaSet}
 import org.apache.daffodil.grammar.primitives.TrailingSkipRegion
 import org.apache.daffodil.grammar.primitives.LeadingSkipRegion
 import org.apache.daffodil.grammar.primitives.AlignmentFill
 import org.apache.daffodil.grammar.primitives.DelimiterStackCombinatorSequence
 import org.apache.daffodil.grammar.primitives.DelimiterStackCombinatorChoice
-import org.apache.daffodil.dsom.SequenceTermBase
-import org.apache.daffodil.dsom.ChoiceTermBase
-import org.apache.daffodil.grammar.primitives.DelimiterStackCombinatorChoice
 import org.apache.daffodil.runtime1.ModelGroupRuntime1Mixin
-import org.apache.daffodil.grammar.primitives.LeadingSkipRegion
-import org.apache.daffodil.dsom.SchemaSet
+import org.apache.daffodil.grammar.primitives.HiddenGroupCombinator
 
 trait ModelGroupGrammarMixin
   extends InitiatedTerminatedMixin
@@ -51,7 +46,7 @@ trait ModelGroupGrammarMixin
   }
 
   private lazy val groupContentWithInitiatorTerminator = prod("groupContentWithInitiatorTerminator") {
-    val finalContent =
+    val finalContent = {
       if (hasDelimiters ||
         immediatelyEnclosingModelGroup.map(_.hasDelimiters).getOrElse(false) //
         // The above reference to the delimiters of the enclosing term,
@@ -68,9 +63,15 @@ trait ModelGroupGrammarMixin
           case c: ChoiceTermBase => DelimiterStackCombinatorChoice(c, content)
           case s: SequenceTermBase => DelimiterStackCombinatorSequence(s, content)
         }
-      } else { groupContentDef }
+      } else {
+        groupContent
+      }
+    }
 
-    finalContent
+    this match {
+      case gr: GroupRef if gr.isHidden => new HiddenGroupCombinator(self, finalContent)
+      case _ => finalContent
+    }
   }
 
   /**

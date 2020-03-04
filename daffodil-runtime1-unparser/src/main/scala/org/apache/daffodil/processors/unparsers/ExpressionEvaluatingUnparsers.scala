@@ -135,6 +135,9 @@ class TypeValueCalcUnparser(typeCalculator: TypeCalculator, repTypeUnparser: Unp
 
     val origInfosetElement = ustate.currentInfosetNode
     val tmpInfosetElement = Infoset.newElement(repTypeRuntimeData).asInstanceOf[DISimple]
+    if (ustate.withinHiddenNest)
+      tmpInfosetElement.setHidden()
+
 
     if (ustate.processorStatus == Success) {
 

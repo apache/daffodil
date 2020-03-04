@@ -189,7 +189,6 @@ trait ElementBaseRuntime1Mixin { self: ElementBase =>
       name,
       targetNamespacePrefix,
       thisElementsNamespacePrefix,
-      isHidden,
       isNillable,
       isArray, // can have more than 1 occurrence
       isOptional, // can have exactly 0 or 1 occurrence

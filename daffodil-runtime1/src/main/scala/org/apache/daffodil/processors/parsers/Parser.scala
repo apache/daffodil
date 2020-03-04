@@ -42,6 +42,7 @@ import org.apache.daffodil.processors.CombinatorProcessor
 import org.apache.daffodil.processors.PrimProcessor
 import org.apache.daffodil.processors.TextProcessor
 import org.apache.daffodil.processors.PrimProcessorNoData
+import org.apache.daffodil.processors.ModelGroupRuntimeData
 
 /**
  * Encapsulates lower-level parsing with a uniform interface

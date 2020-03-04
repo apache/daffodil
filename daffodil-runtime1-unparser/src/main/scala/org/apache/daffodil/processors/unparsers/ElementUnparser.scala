@@ -408,8 +408,8 @@ sealed trait RegularElementUnparserStartEndStrategy
       ()
     } else {
       val elem =
-        if (!erd.isHidden) {
-          // Hidden elements are not in the infoset, so we will never get an event
+        if (!state.withinHiddenNest) {
+          // Elements in a hidden context are not in the infoset, so we will never get an event
           // for them. Only try to consume start events for non-hidden elements
           val event = state.advanceOrError
           if (!event.isStart || event.erd != erd) {
@@ -437,10 +437,11 @@ sealed trait RegularElementUnparserStartEndStrategy
           }
           res
         } else {
-          Assert.invariant(erd.isHidden)
-          // Since we never get events for hidden elements, their infoset elements
+          Assert.invariant(state.withinHiddenNest)
+          // Since we never get events for elements in hidden contexts, their infoset elements
           // will have never been created. This means we need to manually create them
           val e = if (erd.isComplexType) new DIComplex(erd) else new DISimple(erd)
+          e.setHidden()
           state.currentInfosetNode.asComplex.addChild(e, state.tunable)
           e
         }
@@ -464,7 +465,7 @@ sealed trait RegularElementUnparserStartEndStrategy
       Assert.invariant(state.currentInfosetNode.asSimple.erd eq erd)
       ()
     } else {
-      if (!erd.isHidden) {
+      if (!state.withinHiddenNest) {
         // Hidden elements are not in the infoset, so we will never get an event
         // for them. Only try to consume end events for non-hidden elements
         val event = state.advanceOrError
@@ -496,7 +497,7 @@ trait OVCStartEndStrategy
    */
   protected final override def unparseBegin(state: UState) {
     val elem =
-      if (!erd.isHidden) {
+      if (!state.withinHiddenNest) {
         // outputValueCalc elements are optional in the infoset. If the next event
         // is for this OVC element, then consume the start/end events.
         // Otherwise, the next event is for a following element, and we do not want
@@ -525,6 +526,7 @@ trait OVCStartEndStrategy
       } else {
         // Event was hidden and will never exist, create a new InfosetElement and add it
         val e = new DISimple(erd)
+        e.setHidden()
         state.currentInfosetNode.asComplex.addChild(e, state.tunable)
         e
       }

@@ -59,6 +59,8 @@ case class ChoiceBranchMap(
     res
   }
 
+  def defaultUnparser = unmappedDefault
+
   def childProcessors = lookupTable.values.toSeq ++ unmappedDefault
 
   def keys = lookupTable.keys
@@ -82,7 +84,7 @@ class ChoiceBranchEmptyUnparser(val context: RuntimeData)
 
 class ChoiceCombinatorUnparser(
   mgrd: ModelGroupRuntimeData,
-  eventUnparserMap: ChoiceBranchMap,
+  choiceBranchMap: ChoiceBranchMap,
   choiceLengthInBits: MaybeInt)
   extends CombinatorUnparser(mgrd)
   with ToBriefXMLImpl {
@@ -90,64 +92,52 @@ class ChoiceCombinatorUnparser(
 
   override val runtimeDependencies = Vector()
 
-  override val childProcessors = eventUnparserMap.childProcessors.toVector
+  override val childProcessors = choiceBranchMap.childProcessors.toVector
 
   def unparse(state: UState): Unit = {
-    state.pushTRD(mgrd)
-    val event: InfosetAccessor = state.inspectOrError
-    val key: ChoiceBranchEvent = event match {
-      //
-      // The ChoiceBranchStartEvent(...) is not a case class constructor. It is a
-      // hash-table lookup for a cached value. This avoids constructing these
-      // objects over and over again.
-      //
-      case e if e.isStart && e.isElement => ChoiceBranchStartEvent(e.erd.namedQName)
-      case e if e.isEnd && e.isElement => ChoiceBranchEndEvent(e.erd.namedQName)
-      case e if e.isStart && e.isArray => ChoiceBranchStartEvent(e.erd.namedQName)
-      case e if e.isEnd && e.isArray => ChoiceBranchEndEvent(e.erd.namedQName)
-    }
-
-    val maybeChildUnparser = eventUnparserMap.get(key)
-    if (maybeChildUnparser.isEmpty) {
-      UnparseError(One(mgrd.schemaFileLocation), One(state.currentLocation),
-        "Found next element %s, but expected one of %s.",
-        key.qname.toExtendedSyntax,
-        eventUnparserMap.keys.map { _.qname.toExtendedSyntax }.mkString(", "))
-    }
-    val childUnparser = maybeChildUnparser.get
-    state.popTRD(mgrd)
-    state.pushTRD(childUnparser.context.asInstanceOf[TermRuntimeData])
-    if (choiceLengthInBits.isDefined) {
-      val suspendableOp = new ChoiceUnusedUnparserSuspendableOperation(mgrd, choiceLengthInBits.get)
-      val choiceUnusedUnparser = new ChoiceUnusedUnparser(mgrd, choiceLengthInBits.get, suspendableOp)
-
-      suspendableOp.captureDOSStartForChoiceUnused(state)
-      childUnparser.unparse1(state)
-      suspendableOp.captureDOSEndForChoiceUnused(state)
-      choiceUnusedUnparser.unparse(state)
+    if (state.withinHiddenNest) {
+      val branchForUnparseIfHidden = choiceBranchMap.defaultUnparser
+      branchForUnparseIfHidden.get.unparse1(state)
     } else {
-      childUnparser.unparse1(state)
+      state.pushTRD(mgrd)
+      val event: InfosetAccessor = state.inspectOrError
+      val key: ChoiceBranchEvent = event match {
+        //
+        // The ChoiceBranchStartEvent(...) is not a case class constructor. It is a
+        // hash-table lookup for a cached value. This avoids constructing these
+        // objects over and over again.
+        //
+        case e if e.isStart && e.isElement => ChoiceBranchStartEvent(e.erd.namedQName)
+        case e if e.isEnd && e.isElement => ChoiceBranchEndEvent(e.erd.namedQName)
+        case e if e.isStart && e.isArray => ChoiceBranchStartEvent(e.erd.namedQName)
+        case e if e.isEnd && e.isArray => ChoiceBranchEndEvent(e.erd.namedQName)
+      }
+
+      val maybeChildUnparser = choiceBranchMap.get(key)
+      if (maybeChildUnparser.isEmpty) {
+        UnparseError(One(mgrd.schemaFileLocation), One(state.currentLocation),
+          "Found next element %s, but expected one of %s.",
+          key.qname.toExtendedSyntax,
+          choiceBranchMap.keys.map {
+            _.qname.toExtendedSyntax
+          }.mkString(", "))
+      }
+      val childUnparser = maybeChildUnparser.get
+      state.popTRD(mgrd)
+      state.pushTRD(childUnparser.context.asInstanceOf[TermRuntimeData])
+      if (choiceLengthInBits.isDefined) {
+        val suspendableOp = new ChoiceUnusedUnparserSuspendableOperation(mgrd, choiceLengthInBits.get)
+        val choiceUnusedUnparser = new ChoiceUnusedUnparser(mgrd, choiceLengthInBits.get, suspendableOp)
+
+        suspendableOp.captureDOSStartForChoiceUnused(state)
+        childUnparser.unparse1(state)
+        suspendableOp.captureDOSEndForChoiceUnused(state)
+        choiceUnusedUnparser.unparse(state)
+      } else {
+        childUnparser.unparse1(state)
+      }
+      state.popTRD(childUnparser.context.asInstanceOf[TermRuntimeData])
     }
-    state.popTRD(childUnparser.context.asInstanceOf[TermRuntimeData])
-  }
-}
-
-// Choices inside a hidden group ref (i.e. Hidden Choices) are slightly
-// different because we will never see events for any of the branches. Instead,
-// we will just always pick the branch in which every thing is defaultble or
-// OVC, so we can calculated exactly which branch to take in a hidden choice
-// statically at compile time. That logic is in ChoiceCombinator, and the
-// branch to take is passed into this HiddenChoiceCombinatorUnparser.
-class HiddenChoiceCombinatorUnparser(mgrd: ModelGroupRuntimeData, branchUnparser: Unparser)
-  extends CombinatorUnparser(mgrd)
-  with ToBriefXMLImpl {
-  override def nom = "HiddenChoice"
-  override lazy val runtimeDependencies = Vector()
-
-  override lazy val childProcessors = Vector(branchUnparser)
-
-  def unparse(state: UState): Unit = {
-    branchUnparser.unparse1(state)
   }
 }
 

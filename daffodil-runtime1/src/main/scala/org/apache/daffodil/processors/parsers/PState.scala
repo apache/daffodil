@@ -215,7 +215,8 @@ final class PState private (
 
   override def toString() = {
     // threadCheck()
-    "PState( bitPos=%s status=%s )".format(bitPos0b, processorStatus)
+    val hidden = if (withinHiddenNest) "hidden " else ""
+    "PState( bitPos=%s status=%s %s)".format(bitPos0b, processorStatus, hidden)
   }
 
   def currentLocation: DataLocation = {
@@ -360,6 +361,7 @@ final class PState private (
     try {
       if (optThrown.isEmpty) {
         Assert.invariant(this.discriminatorStack.length == 1)
+        Assert.invariant(!this.withinHiddenNest) //ensure we are not in hidden nest
         mpstate.verifyFinalState()
       }
       // These we check regardless of throw or not.

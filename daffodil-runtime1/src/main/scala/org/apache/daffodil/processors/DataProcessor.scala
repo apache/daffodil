@@ -437,6 +437,7 @@ class DataProcessor(
     Assert.invariant(state.currentInfosetNodeMaybe.isEmpty)
     Assert.invariant(state.escapeSchemeEVCache.isEmpty)
     Assert.invariant(state.maybeTopTRD().isEmpty) // dynamic TRD stack is empty
+    Assert.invariant(!state.withinHiddenNest) //ensure we are not in hidden nest
 
     //
     // All the DOS that precede the last one

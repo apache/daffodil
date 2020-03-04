@@ -71,7 +71,7 @@ object ModelGroupFactory {
         val seq = new Sequence(child, lexicalParent, position) // throwaway just so we can grab local properties to check for hidden
         if (seq.hiddenGroupRefOption.isDefined) {
           // explicit check here, because we're about to discard this, and construct
-          // a SequenceGroupRef or ChoiceGroupRef, with isHiddenGroupRef = true. So this
+          // a SequenceGroupRef or ChoiceGroupRef, with isHidden = true. So this
           // temporary sequence will be discarded after this.
           seq.checkHiddenGroupRefHasNoChildren
           //
@@ -147,8 +147,6 @@ abstract class ModelGroup(index: Int)
 
   requiredEvaluationsIfActivated(groupMembers)
   requiredEvaluationsIfActivated(initiatedContentCheck)
-
-  def isHiddenGroupRef: Boolean = false
 
   /**
    * FIXME: DAFFODIL-2132. This tells us if framing is expressed on the schema.
@@ -349,7 +347,7 @@ abstract class ModelGroup(index: Int)
             // follow it
             Seq(e) ++ e.possibleNextSiblingTerms
           }
-          case Some(s: SequenceTermBase) if s.isHiddenGroupRef => s.possibleNextSiblingTerms
+          case Some(gr: GroupRef) if gr.isHidden => gr.possibleNextSiblingTerms
           case Some(mg: ModelGroup) if !mg.mustHaveRequiredElement => Seq(mg) ++ mg.possibleNextSiblingTerms
           case Some(e: ElementBase) => Seq(e)
           case Some(mg: ModelGroup) => Seq(mg)
@@ -370,7 +368,7 @@ abstract class ModelGroup(index: Int)
    */
   final def mustHaveRequiredElement: Boolean = LV('mustHaveRequiredElement) {
     this match {
-      case s: SequenceTermBase if s.isHiddenGroupRef => false
+      case gr: GroupRef if gr.isHidden => false
       case s: SequenceTermBase if s.isOrdered =>
         groupMembers.exists {
           case e: ElementBase => !e.canBeAbsentFromUnparseInfoset

@@ -631,7 +631,6 @@ sealed class ElementRuntimeData(
   @TransientParam nameArg: => String,
   @TransientParam targetNamespacePrefixArg: => String,
   @TransientParam thisElementsNamespacePrefixArg: => String,
-  @TransientParam isHiddenArg: => Boolean,
   @TransientParam isNillableArg: => Boolean,
   @TransientParam isArrayArg: => Boolean, // can have more than 1 occurrence
   @TransientParam isOptionalArg: => Boolean, // can have only 0 or 1 occurrence
@@ -691,7 +690,6 @@ sealed class ElementRuntimeData(
   lazy val name = nameArg
   lazy val targetNamespacePrefix = targetNamespacePrefixArg
   lazy val thisElementsNamespacePrefix = thisElementsNamespacePrefixArg
-  lazy val isHidden = isHiddenArg
   lazy val isNillable = isNillableArg
   override lazy val isArray = isArrayArg
   lazy val isOptional = isOptionalArg
@@ -727,7 +725,6 @@ sealed class ElementRuntimeData(
     name
     targetNamespacePrefix
     thisElementsNamespacePrefix
-    isHidden
     isNillable
     isArray
     isOptional
@@ -825,7 +822,6 @@ sealed abstract class ErrorERD(local: String, namespaceURI: String)
     local, // nameArg: => String,
     null, // targetNamespacePrefixArg: => String,
     null, // thisElementsNamespacePrefixArg: => String,
-    false, // isHiddenArg: => Boolean,
     false, // isNillableArg: => Boolean,
     false, // isArrayArg: => Boolean, // can have more than 1 occurrence
     false, // isOptionalArg: => Boolean, // can have only 0 or 1 occurrence
