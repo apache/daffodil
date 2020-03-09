@@ -40,4 +40,14 @@ final class SchemaSetRuntimeData(
   override def schemaFileLocation = elementRuntimeData.schemaFileLocation
   override def SDE(str: String, args: Any*) = elementRuntimeData.SDE(str, args)
 
+  private def writeObject(oos: java.io.ObjectOutputStream): Unit = {
+    oos.defaultWriteObject()
+    elementRuntimeData.dpathElementCompileInfo.serializeParents(oos)
+  }
+
+  private def readObject(ois: java.io.ObjectInputStream): Unit = {
+    ois.defaultReadObject()
+    elementRuntimeData.dpathElementCompileInfo.deserializeParents(ois)
+  }
+
 }

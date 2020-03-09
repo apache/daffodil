@@ -212,7 +212,47 @@ class DPathCompileInfo(
   extends ImplementsThrowsSDE with PreSerialization
   with HasSchemaFileLocation {
 
-  lazy val parents = parentsArg
+
+  /**
+   * This "parents" val is a backpointer to all DPathCompileInfo's that
+   * reference this DPathCompileInfo. The problem with this is that when
+   * elements are shared, these backpointers create a highly connected graph
+   * that requires a large stack to serialize using the default java
+   * serialization as it jumps around parents and children. To avoid this large
+   * stack requirement, we make the parents backpointer transient. This
+   * prevents jumping back up to parents during serialization and results in
+   * only needing a stack depth relative to the schema depth. Once all that
+   * serialization is completed and all the DPathCompileInfo's are serialized,
+   * we then manually traverse all the DPathCompileInfo's again and serialize
+   * the parent sequences (via the serailizeParents method). Because all the
+   * DPathCompileInfo's are already serialized, this just serializes the
+   * Sequence objects and the stack depth is again relative to the schema
+   * depth.
+   */
+  @transient
+  val parents = parentsArg
+
+  def serializeParents(oos: java.io.ObjectOutputStream): Unit = {
+    oos.writeObject(parents)
+  }
+
+  def deserializeParents(ois: java.io.ObjectInputStream): Unit = {
+    val deserializedParents = ois.readObject().asInstanceOf[Seq[DPathCompileInfo]]
+
+    // Set the parents field via reflection so that it can be a val rather than a var
+    val clazz = this.getClass
+    val parentsField = try {
+      clazz.getDeclaredField("parents")
+    } catch {
+      case e: java.lang.NoSuchFieldException =>
+        clazz.getSuperclass.getDeclaredField("parents")
+    }
+    parentsField.setAccessible(true)
+    parentsField.set(this, deserializedParents) // set the value to the deserialized value
+    parentsField.setAccessible(false)
+  }
+
+
   lazy val variableMap =
     variableMapArg
 
@@ -222,7 +262,6 @@ class DPathCompileInfo(
   lazy val typeCalcMap: TypeCalcMap = typeCalcMapArg.map(identity)
 
   override def preSerialization: Any = {
-    parents
     variableMap
   }
 
@@ -300,6 +339,17 @@ class DPathElementCompileInfo(
   extends DPathCompileInfo(parentsArg, variableMap, namespaces, path, sfl,
     unqualifiedPathStepPolicy,
     typeCalcMap, lexicalContextRuntimeData) {
+
+  override def serializeParents(oos: java.io.ObjectOutputStream): Unit = {
+    super.serializeParents(oos)
+    elementChildrenCompileInfo.foreach { _.serializeParents(oos) }
+  }
+
+  override def deserializeParents(ois: java.io.ObjectInputStream): Unit = {
+    super.deserializeParents(ois)
+    elementChildrenCompileInfo.foreach { _.deserializeParents(ois) }
+  }
+
 
   lazy val elementChildrenCompileInfo = elementChildrenCompileInfoArg
 
