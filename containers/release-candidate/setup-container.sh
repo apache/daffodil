@@ -23,7 +23,7 @@ rm ~/*
 
 #install dependencies
 curl https://bintray.com/sbt/rpm/rpm -o /etc/yum.repos.d/bintray-sbt-rpm.repo
-microdnf install git svn sbt java-1.8.0-devel wine winetricks unzip rpm-build vim-minimal
+microdnf install git svn sbt java-1.8.0-devel wine winetricks unzip rpm-build rpm-sign vim-minimal
 winetricks --unattended dotnet45
 
 # install wix

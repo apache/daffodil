@@ -31,6 +31,7 @@ To use the container image to build a release run the following:
       -v ~/.gitconfig:/root/.gitconfig \
       -v ~/.gnupg/:/root/.gnupg/ \
       -v ~/.ssh/:/root/.ssh/ \
+      --hostname daffodil.build \
       daffodil-release-candidate
 
 When run, the container will periodically ask for user input (e.g. usernames,
