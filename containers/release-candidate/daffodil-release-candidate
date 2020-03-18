@@ -178,6 +178,9 @@ MSI_NAME=$(basename $DAFFODIL_RELEASE_DIR/bin/*.zip .zip).msi
 cp daffodil-cli/target/windows/Daffodil.msi $DAFFODIL_RELEASE_DIR/bin/$MSI_NAME
 chmod -x $DAFFODIL_RELEASE_DIR/bin/$MSI_NAME
 
+echo "Embedding RPM Signature..."
+rpmsign --define "_gpg_name $PGP_SIGNING_KEY_ID" --define "_binary_filedigest_algorithm 10" --addsign $DAFFODIL_RELEASE_DIR/bin/*.rpm
+
 echo "Calculating Checksums..."
 for i in src/ bin/
 do
@@ -232,7 +235,7 @@ echo "- Staged published files at https://repository.apache.org/"
 echo
 
 if [ "$DRY_RUN" = true ]; then
-  echo "!!! This was a dry run do not push/publish any changes !!!"
+  echo "!!! This was a dry run. Do not push/publish any changes !!!"
   echo
   echo "Type 'exit' when done with the container"
 else
