@@ -43,7 +43,7 @@ class TestDFDLExpressionTree extends Parsers {
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
-    val decl = declf.forRoot()
+    val decl = declf.asRoot
     val erd = decl.elementRuntimeData
 
     val exprCompiler = new DFDLPathExpressionParser(qn, NodeInfo.String, testSchema.scope, erd.dpathCompileInfo, false, sset)
@@ -57,7 +57,7 @@ class TestDFDLExpressionTree extends Parsers {
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
-    val decl = declf.forRoot()
+    val decl = declf.asRoot
     val erd = decl
     val exprCompiler = new DFDLPathExpressionParser(qn, NodeInfo.AnyType, testSchema.scope, decl.dpathCompileInfo, false, sset)
     val result = exprCompiler.getExpressionTree(expr)
@@ -318,7 +318,7 @@ class TestDFDLExpressionTree extends Parsers {
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
-    val decl = declf.forRoot()
+    val decl = declf.asRoot
     decl.elementRuntimeData
 
     def testFn(expr: String)(body: FunctionCallExpression => Unit) {

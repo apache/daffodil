@@ -141,7 +141,32 @@ case class ChoiceCombinator(ch: ChoiceTermBase, alternatives: Seq[Gram])
           }
           case ChoiceKeyKindType.Speculative => Assert.invariantFailed("Cannot have choiceKeyKind==speculative with direct dispatch")
         }
-        branchKeyRanges.toSeq.map(x => (x._1, x._2, alt.parser, alt.context.enclosingTerm.get.isRepresented))
+        //
+        // The choice alternative (aka branch) is either an element having
+        // the repType, or it is a computed (inputValueCalc) element that uses the
+        // repType.
+        //
+        // This creates a problem where we need to parse the repType but we need
+        // to avoid parsing it twice.
+        //
+        // If the branch alternatives are all elements having the repType as their type,
+        // then parsing the repType to compute the dispatch key would result in double
+        // parsing the repType when we then select a branch and parse that branch.
+        //
+        // So we determine if the choice branch is represented. If it is, we parse the repType
+        // in order to compute the dispatch key, then we backtrack that, so that when
+        // we parse the selected branch it appears to not be parsing twice, just once.
+        //
+        // For the case where the choice branch is computed (inputValueCalc), we can
+        // just parse the repType, and no backtracking is needed. So we pass this boolean
+        // down into the choice parser so that it can do the right thing depending on the
+        // nature of the branches.
+        //
+        // In all cases, we're looking for the characteristics here of the lexical
+        // object that is the choice branch.
+        //
+        val isRepresentedTerm = alt.term.isRepresented
+        branchKeyRanges.toSeq.map(x => (x._1, x._2, alt.parser, isRepresentedTerm))
       }
 
       // check for duplicate branch keys
@@ -199,7 +224,7 @@ case class ChoiceCombinator(ch: ChoiceTermBase, alternatives: Seq[Gram])
       })
 
       val dispatchBranchKeyMap = dispatchBranchKeyValueTuples.toMap.mapValues(gram => {
-        val isRepresented = gram.context.enclosingTerm.get.isRepresented
+        val isRepresented = true // FIXME: Verify is ok? Was: gram.context.enclosingTerm.get.isRepresented
         val parser = gram.parser
         (parser, isRepresented)
       })
@@ -217,26 +242,28 @@ case class ChoiceCombinator(ch: ChoiceTermBase, alternatives: Seq[Gram])
   }
 
   override lazy val unparser: Unparser = {
-    if (!ch.isHidden) {
-      val eventRDMap = ch.choiceBranchMap
-      val eventUnparserMap = eventRDMap.flatMap {
-        case (cbe, rd) =>
-          // if we don't find a matching RD for a term that's probably
-          // because the term is an empty sequence or empty choice (which do happen
-          // and we even have tests for them). Since those can never be chosen by
-          // means of an element event, they don't appear in the map.
-          val altGram = alternatives.find { alt =>
-            val crd = alt.context.runtimeData
-            val found = crd =:= rd
-            found
-          }
-          altGram.map { ag => (cbe, ag.unparser) }
+    if (!ch.isHiddenGroupRef) {
+      val (eventRDMap, optDefaultBranch) = ch.choiceBranchMap
+      val optDefaultUnparser: Option[Unparser] = optDefaultBranch.map { defaultBranch =>
+        val defaultBranchGram = defaultBranch.termContentBody
+        defaultBranchGram.unparser
+      }
+
+      val eventUnparserMap = eventRDMap.map {
+        case (cbe, branchTerm) => (cbe, branchTerm.termContentBody.unparser)
       }
       val mapValues = eventUnparserMap.map { case (k, v) => v }.toSeq.filterNot(_.isEmpty)
       if (mapValues.isEmpty)
-        new NadaUnparser(null)
+        if (optDefaultBranch.isEmpty)
+          new NadaUnparser(null)
+        else {
+          // just a default branch.
+          Assert.invariant(optDefaultUnparser.isDefined)
+          optDefaultUnparser.get
+        }
       else {
-        new ChoiceCombinatorUnparser(ch.modelGroupRuntimeData, eventUnparserMap, choiceLengthInBits)
+        val cbm = ChoiceBranchMap(eventUnparserMap, optDefaultUnparser)
+        new ChoiceCombinatorUnparser(ch.modelGroupRuntimeData, cbm, choiceLengthInBits)
       }
     } else {
       // Choices inside a hidden group ref are slightly different because we

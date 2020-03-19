@@ -19,6 +19,7 @@ package org.apache.daffodil.processors.parsers
 
 import org.apache.daffodil.api.DataLocation
 import org.apache.daffodil.api.Diagnostic
+import org.apache.daffodil.api.ThinDiagnostic
 import org.apache.daffodil.api.LocationInSchemaFile
 import org.apache.daffodil.dsom.RuntimeSchemaDefinitionError
 import org.apache.daffodil.dsom.SchemaDefinitionDiagnosticBase
@@ -77,7 +78,7 @@ class ChoiceDispatchNoMatch(rd: SchemaFileLocation, state: PState, val key: Stri
 class ChoiceDispatchFailed(rd: SchemaFileLocation, state: PState, val errors: Seq[Diagnostic])
   extends ParseError(One(rd), One(state.currentLocation), "Choice dispatch branch failed: %s", errors)
 
-class GeneralParseFailure(msg: String) extends Diagnostic(Nope, Nope, Nope, Maybe(msg)) {
+class GeneralParseFailure(msg: String) extends ThinDiagnostic(Nope, Nope, Nope, Maybe(msg)) {
   Assert.usage(msg != null && msg != "")
   override def isError = true
   override def modeName = "Parse"

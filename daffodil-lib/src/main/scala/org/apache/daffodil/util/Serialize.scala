@@ -25,8 +25,21 @@ trait PreSerialization extends Serializable {
   val me = this.getClass()
   Assert.usage(PreSerialization.classHasWriteObjectMethod(me), String.format("Class %s does not implement the method writeObject.", me.getName()))
 
+  /**
+   * If this is overridden by a def, there's a chance we call it
+   * multiple times. So we don't use this directly but by way
+   * of a lazy val preSerializationOnlyOnce.
+   */
   protected def preSerialization: Any = {
     // nothing by default
+  }
+
+  /**
+   * Use this to insure we pre-serialize only once.
+   */
+  final lazy val preSerializationOnlyOnce = {
+    // println("preSerializing " + this) // good place for a breakpoint
+    preSerialization
   }
 
   // painful, but you must explicitly put a private version of this in each
@@ -41,7 +54,7 @@ trait PreSerialization extends Serializable {
 
   protected final def serializeObject(out: java.io.ObjectOutputStream) {
     try {
-      preSerialization
+      preSerializationOnlyOnce
       out.defaultWriteObject()
     } catch {
       case ns: java.io.NotSerializableException => {

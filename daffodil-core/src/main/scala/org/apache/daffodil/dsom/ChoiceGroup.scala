@@ -110,9 +110,9 @@ abstract class ChoiceTermBase(
   with ChoiceAGMixin
   with HasOptRepTypeMixinImpl {
 
-  requiredEvaluations(branchesAreNonOptional)
-  requiredEvaluations(branchesAreNotIVCElements)
-  requiredEvaluations(modelGroupRuntimeData.preSerialization)
+  requiredEvaluationsIfActivated(branchesAreNonOptional)
+  requiredEvaluationsIfActivated(branchesAreNotIVCElements)
+  requiredEvaluationsIfActivated(modelGroupRuntimeData.preSerialization)
 
   final protected lazy val optionChoiceDispatchKeyRaw = findPropertyOption("choiceDispatchKey")
   final protected lazy val choiceDispatchKeyRaw = requireProperty(optionChoiceDispatchKeyRaw)

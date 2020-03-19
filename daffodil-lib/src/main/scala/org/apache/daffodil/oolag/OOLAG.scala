@@ -24,7 +24,7 @@ import org.apache.daffodil.exceptions.UnsuppressableException
 import org.apache.daffodil.api.Diagnostic
 import org.apache.daffodil.api.WithDiagnostics
 import org.apache.daffodil.util.Misc
-import org.apache.daffodil.exceptions.ThinThrowable
+import org.apache.daffodil.exceptions.ThinException
 import org.apache.daffodil.util.Maybe._
 
 /**
@@ -123,12 +123,16 @@ object OOLAG extends Logging {
    * evaluate the 'foo' LV otherwise we don't know if it has errors or not,
    * then we write:
    * {{{
-   *     requiredEvaluations(foo)
+   *     requiredEvaluationsAlways(foo)
    * }}}
    * This goes at the top of the class definition. When isError is invoked
    * the value of 'foo' will be computed if it has not been attempted
    * already. This insures that the value exists for 'foo', or any errors/warnings
    * to be determined by its calculation have been recorded.
+   *
+   * There is a variant called requiredEvaluationsIfActivated(...) which
+   * is similar, but the evaluations only occur if the object is marked as active
+   * via setRequiredEvaluationsActive().
    */
   trait OOLAGHost
     extends Logging with WithDiagnostics
@@ -144,10 +148,7 @@ object OOLAG extends Logging {
       if (oolagContextViaSet != None)
         Assert.usageError("Cannot set oolag context more than once.")
       oolagContextViaSet = Option(oolagContextArg) // Option since Option(null) is None
-      if (optOolagContext.isDefined) {
-        oolagRoot.requiredEvalFunctions = this.requiredEvalFunctions ::: oolagRoot.requiredEvalFunctions
-        this.requiredEvalFunctions = Nil
-      }
+      centralizeEvalFunctionsWhenReady()
     }
 
     final def hasOOLAGRootSetup: Boolean = {
@@ -266,35 +267,146 @@ object OOLAG extends Logging {
       }.asInstanceOf[OOLAGValue[T]]
     }
 
-    /**
+    /*
      * requiredEvaluations feature
+     *
+     * An object either uses requiredEvaluationsAlways, or requiredEvaluationsIfActivated.
+     * Some objects use both.
+     *
+     * They are maintained as two separate lists of eval functions aka thunks to be run.
+     *
+     * If it uses requiredEvaluationsAlways, then the expressions will be evaluated
+     * as part of compilation even if nothing else demands their values. Just constructing
+     * the object queues these thunks for evaluation.
+     *
+     * If it uses requiredEvaluationsIfActivated, then the expresions are ignored
+     * unless setRequiredEvaluationsActive() is called on the same object. After that
+     * call, all expressions from calls to requiredEvaluationsIfActivated are queued for
+     * evaluation, and any additional calls toe requiredEvaluationsIfActive will also be
+     * queued for evaluation, and all will be evaluated even if nothing else demands their
+     * values.
+     *
+     * If no call to setRequiredEvaluationsActive() occurs, then expression args for
+     * requiredEvaluationsIfActivated will not be evaluated.
      */
-    private var requiredEvalCount = 0
+
+    private var requiredEvalCount = 0 // used to generate unique names.
     private val requiredEvalName = Misc.getNameFromClass(this) + "_requiredEvaluation_"
 
-    private def accumulationPoint =
-      if (this.hasOOLAGRootSetup) oolagRoot
-      else this
+    private var requiredEvalFunctions: List[OOLAGValueBase] = Nil // for evaluation unconditionally
+    private var requiredEvalIfActivatedFunctions: List[OOLAGValueBase] = Nil // for evaluation only if activated.
 
-    protected final def requiredEvaluations(arg: => Any) {
+    /**
+     * Unconditionally, evaluate the expression arg in order to insure all checks for this
+     * object are performed.
+     */
+    protected final def requiredEvaluationsAlways(arg: => Any) {
+      requiredEvaluationsAlways(thunk(arg))
+    }
+
+    /**
+     * Unconditionally, evaluate the LV arg in order to insure all checks for this
+     * object are performed.
+     */
+    private def requiredEvaluationsAlways(lv: OOLAGValueBase) : Unit = {
+      val accumPoint =
+        if (this.hasOOLAGRootSetup)
+          oolagRoot
+        else
+          this
+      accumPoint.requiredEvalFunctions +:= lv
+   }
+
+    /**
+     * Wraps an LV around an expression that is a non LV
+     */
+    private def thunk(arg: => Any) : OOLAGValueBase = {
       val lv = LV(Symbol(requiredEvalName + requiredEvalCount)) {
         arg
       }
       requiredEvalCount += 1
-      accumulationPoint.requiredEvalFunctions +:= lv
+      lv
     }
 
-    protected final def requiredEvaluations(lv: OOLAGValueBase) {
-      accumulationPoint.requiredEvalFunctions +:= lv
+    private def centralizeEvalFunctionsWhenReady(): Unit = {
+      if (optOolagContext.isDefined) {
+        //
+        // If the context is now available centralize the required eval functions that are always
+        // to be evaluated.
+        //
+        oolagRoot.requiredEvalFunctions = this.requiredEvalFunctions ::: oolagRoot.requiredEvalFunctions
+        this.requiredEvalFunctions = Nil
+        //
+        // If this object is activated, then also centralize the conditional eval functions.
+        //
+        if (requiredEvalStatus eq Active) {
+          oolagRoot.requiredEvalFunctions = this.requiredEvalIfActivatedFunctions ::: oolagRoot.requiredEvalFunctions
+          this.requiredEvalIfActivatedFunctions = Nil
+        }
+      }
     }
 
-    private var requiredEvalFunctions: List[OOLAGValueBase] = Nil
+    private sealed trait ActivityStatus
+    private case object Active extends ActivityStatus
+    private case object Inactive extends ActivityStatus
 
+    private var requiredEvalStatus: ActivityStatus = Inactive
+
+    /**
+     * Saves the arg expression, and insures it is evaluated later only
+     * if setRequiredEvaluationActive() is called for this object.
+     */
+    protected final def requiredEvaluationsIfActivated(arg: => Any): Unit = {
+      requiredEvaluationsIfActivated(thunk(arg))
+    }
+
+    /**
+     * Saves the arg LV, and insures it is evaluated later only if
+     * setRequiredEvaluationActive() is called for this object.
+     */
+    private def requiredEvaluationsIfActivated(lv: OOLAGValueBase) : Unit = {
+      if (requiredEvalStatus eq Active)
+        if (hasOOLAGRootSetup)
+          oolagRoot.requiredEvalFunctions +:= lv // active. Rooted. Accumulate centrally.
+        else
+          requiredEvalIfActivatedFunctions +:= lv // active, but no root yet. Accumulate locally.
+      else
+        requiredEvalIfActivatedFunctions +:= lv // not active. Accumulate locally.
+  }
+
+
+    /**
+     * Call to activate an object so that deferred requiredEvaluationsIfActivated
+     * expressions are evaluated.
+     *
+     * Note that this can be called as part of a unconditional requiredEvaluationsAlways
+     * expression/LV, and if so, all the conditional evaluations will be captured and
+     * evaluated as part of the ongoing evaluation of requiredEvaluations expressions.
+     */
+    final def setRequiredEvaluationsActive() : Unit = setRequiredEvaluationsActiveOnceOnly
+    private lazy val setRequiredEvaluationsActiveOnceOnly = {
+      requiredEvalStatus = Active
+      centralizeEvalFunctionsWhenReady()
+    }
+
+    /**
+     * Evaluate all requiredEvaluation functions/expressions.
+     *
+     * Evaluates all currently activated (or always activated)
+     * required evaluations, as well as those for any objects that
+     * become activated during evaluation of required evaluations of
+     * any object recursively.
+     */
     final def checkErrors: Unit = {
       Assert.usage(this.isOOLAGRoot || requiredEvalFunctions == Nil)
-      while (oolagRoot.requiredEvalFunctions != Nil) {
+      while (oolagRoot.requiredEvalFunctions != Nil) { // while there is an accumulated crop of eval functions
+        // grab the current crop of eval functions
         var evFuncs = oolagRoot.requiredEvalFunctions
+        // and clear the current accumulation point
         oolagRoot.requiredEvalFunctions = Nil
+        // evaluate the current crop of eval functions.
+        // this evaluation may cause new eval functions to be accumulated.
+        // which will cause the outer loop to iterate again.
         while (evFuncs != Nil) {
           val lv = evFuncs.head
           evFuncs = evFuncs.tail
@@ -309,9 +421,6 @@ object OOLAG extends Logging {
      * Accumulate diagnostics on the root of the hierarchy.
      * (Likely the SchemaSet object.)
      */
-
-    //TODO: why store these on all the objects if the
-    //only one where they are used is the root object.
     private var errors_ : Seq[Diagnostic] = Nil
     private var warnings_ : Seq[Diagnostic] = Nil
 
@@ -352,9 +461,10 @@ object OOLAG extends Logging {
      * Currently we depend on being able to evaluate these
      * repeatedly, and get different answers.
      *
-     * because it forces evaluation of all the requiredEvaluations(...)
+     * because it forces evaluation of all the requiredEvaluationsAlways(...)
+     * or requiredEvaluationsIfActivated(...)
      * on all objects first, but that is only for the objects
-     * that have been created at the time this is called.
+     * that have been created and activated at the time this is called.
      */
 
     def isError = {
@@ -622,12 +732,14 @@ object OOLAG extends Logging {
  */
 // allow outside world to see this base, for maintainability catches
 //
-private[oolag] trait OOLAGException extends Exception with ThinThrowable {
+private[oolag] abstract class OOLAGException(th: Throwable) extends ThinException(th) {
   def lv: OOLAG.OOLAGValueBase
 }
 
-private[oolag] trait OOLAGRethrowException extends OOLAGException {
+private[oolag] abstract class OOLAGRethrowException(th: Throwable) extends OOLAGException(th) {
   def cause1: Option[Throwable]
+
+  def this() = this(null)
 }
 
 /**
@@ -660,7 +772,7 @@ private[oolag] case class AlreadyTried(val lv: OOLAG.OOLAGValueBase)
 // I'd like this package private, but they leak out due to compile time errors
 // that are not being seen until runtime.
 final case class ErrorAlreadyHandled(val th: Diagnostic, lv: OOLAG.OOLAGValueBase)
-  extends Exception(th) with OOLAGRethrowException {
+  extends OOLAGRethrowException(th) {
   override val cause1 = Some(th)
 }
 

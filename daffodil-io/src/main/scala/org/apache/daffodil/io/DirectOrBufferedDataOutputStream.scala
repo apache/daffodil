@@ -25,7 +25,6 @@ import passera.unsigned.ULong
 
 import org.apache.daffodil.equality._
 import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.exceptions.ThinThrowable
 import org.apache.daffodil.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.util.Bits
 import org.apache.daffodil.util.LogLevel
@@ -235,7 +234,7 @@ class DirectOrBufferedDataOutputStream private[io] (
         val len = ULong(end - srt).longValue
         " Absolute from %d to %d (length %d)".format(srt, end, len)
       } else {
-          " at rel bit pos %d".format(relBitPos0b.longValue)
+        " at rel bit pos %d".format(relBitPos0b.longValue)
       }) +
       (if (maybeAbsBitLimit0b.isDefined) {
         " limit %d.".format(maybeAbsBitLimit0b.get)
@@ -924,7 +923,7 @@ class DirectOrBufferedDataOutputStream private[io] (
 
           Assert.invariant(directDOS.putLongUnchecked(
             fragNum, nFragBits, finfo,
-            ignoreByteOrder=this.bufferingJOS.isFile))
+            ignoreByteOrder = this.bufferingJOS.isFile))
         }
       }
     }

@@ -73,7 +73,8 @@ import org.apache.daffodil.util.OKOrError
 
 sealed trait RuntimeData
   extends ImplementsThrowsSDE
-  with HasSchemaFileLocation {
+  with HasSchemaFileLocation
+  with PreSerialization {
   val schemaFileLocation: SchemaFileLocation
   val diagnosticDebugName: String
   val path: String
@@ -117,9 +118,7 @@ sealed abstract class TermRuntimeData(
   @TransientParam maybeFillByteEvArg: => Maybe[FillByteEv],
   @TransientParam maybeCheckByteAndBitOrderEvArg: => Maybe[CheckByteAndBitOrderEv],
   @TransientParam maybeCheckBitOrderAndCharsetEvArg: => Maybe[CheckBitOrderAndCharsetEv])
-  extends RuntimeData
-  with Serializable
-  with PreSerialization {
+  extends RuntimeData {
 
   private val termID = TermRuntimeData.generateTermID
 
@@ -195,8 +194,7 @@ sealed class NonTermRuntimeData(
   @TransientParam pathArg: => String,
   @TransientParam namespacesArg: => NamespaceBinding,
   @TransientParam unqualifiedPathStepPolicyArg: => UnqualifiedPathStepPolicy)
-  extends RuntimeData
-  with PreSerialization {
+  extends RuntimeData {
 
   override lazy val variableMap = variableMapArg
   lazy val schemaFileLocation = schemaFileLocationArg

@@ -361,8 +361,8 @@ abstract class AssertPatternPrimBase(decl: Term, stmt: DFDLAssertionBase, discri
   override def unparser: DaffodilUnparser = Assert.invariantFailed("should not request unparser for asserts/discriminators")
 }
 
-case class AssertPatternPrim(term: Term, stmt: DFDLAssert)
+case class AssertPatternPrim(override val term: Term, stmt: DFDLAssert)
   extends AssertPatternPrimBase(term, stmt, false)
 
-case class DiscriminatorPatternPrim(term: Term, stmt: DFDLDiscriminator)
+case class DiscriminatorPatternPrim(override val term: Term, stmt: DFDLDiscriminator)
   extends AssertPatternPrimBase(term, stmt, true)

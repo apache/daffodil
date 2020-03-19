@@ -51,7 +51,7 @@ final class DFDLSimpleType(node: Node, decl: SimpleTypeDefBase)
   extends DFDLNonDefaultFormatAnnotation(node, decl) {
 }
 
-final class DFDLEnumerationFactory(node: Node, decl: EnumerationDefFactory)
+final class DFDLEnumerationFactory(node: Node, decl: EnumerationDef)
   extends DFDLFormatAnnotation(node, decl)
 
 // Leave the below comments in place. These are not reproduced (currently)

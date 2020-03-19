@@ -18,6 +18,7 @@
 package org.apache.daffodil.dsom
 
 import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.compiler.ProcessorFactory
 
 /**
  * When a global schema component is referenced, the "backpointer" is represented by
@@ -28,117 +29,116 @@ import org.apache.daffodil.exceptions.Assert
  */
 case class EnclosingComponentDef(encloser: SchemaComponent, lexicalPosition: Int)
 
-trait NestingMixin {
+trait NestingLexicalMixin { self: SchemaComponent =>
 
   /** The lexically enclosing schema component */
   def optLexicalParent: Option[SchemaComponent]
 
-  /**
-   * Define this for schema components that have back-references to ref
-   * objects.
-   * So group def to group ref, globalelementdecl to element ref,
-   * type to element, base type to derived type.
-   *
-   * Not for format annotations however. We don't backpoint those to
-   * other format annotations that ref them.
-   */
-  //
-  // Uncomment this to chase down these usages and revise them.
-  //
-  //
-  //@deprecated("2019-06-03", "Use enclosingComponentDefs method, and deal with sharing.")
-  protected def enclosingComponentDef: Option[SchemaComponent]
-
-  protected def enclosingComponentDefs: Seq[EnclosingComponentDef]
-
   def shortSchemaComponentDesignator: String
 
+  private def usageErr(sc: SchemaComponent) =
+    Assert.usageError("Not to be called on " + sc)
+
   /**
-   * The enclosing component, and follows back-references
-   *  from types to their elements, from globalElementDef to
-   *  elementRefs, from simpleType defs to derived simpletype defs,
-   *  from global group defs to group refs
+   * Provides a sequence of the enclosing components. For shared global components, this
+   * includes all the referring components across the schema.
    *
-   *  Note: the enclosing component of a global element or global group
-   *  referenced from a element ref or group ref, is NOT the ref object, but the
-   *  component that contains the ref object
+   * The enclosing components are identified by the object, and the position of this
+   * object within that enclosing component by index.
    */
-  //
-  // Uncomment this to chase down these usages and revise them.
-  //
-  //
-  //@deprecated("2019-06-03", "Rewrite to use lexicalParent or enclosingComponents methods, and deal with sharing.")
-  final lazy val enclosingComponent: Option[SchemaComponent] = enclosingComponentDef
-
-  final lazy val enclosingComponents: Seq[EnclosingComponentDef] = {
-    val res = enclosingComponentDefs
-    //    System.err.println("enclosingComponents: Component " + this.shortSchemaComponentDesignator + (
-    //      if (res.isEmpty) " has no enclosing component."
-    //      else " has enclosing components " + res.map { _.encloser.shortSchemaComponentDesignator }.mkString(", ")))
-    res
-  }
-}
-
-/**
- * Mixin for all schema factories and schema components with no
- * backpointers, just a lexical parent. This means all the non-global
- * schema components.
- */
-trait NestingLexicalMixin
-  extends NestingMixin { self: SchemaComponent =>
-
-  //@deprecated("2019-06-03", "Use enclosingComponentDefs method, and deal with sharing.")
-  override protected lazy val enclosingComponentDef = optLexicalParent
-
-  final override protected lazy val enclosingComponentDefs: Seq[EnclosingComponentDef] =
-    optLexicalParent.map {
-      lp =>
-        val pos = self match {
-          case t: Term => t.position
-          case _ => 1
-        }
-        EnclosingComponentDef(lp, pos)
-    }.toSeq
-}
-
-/**
- * Mixin for all global schema components
- */
-trait NestingTraversesToReferenceMixin
-  extends NestingMixin { self: SchemaComponent =>
-
-  def factory: SchemaComponentFactory
-
-  //@deprecated("2019-06-03", "Use referringComponents method, and deal with sharing.")
-  def referringComponent: Option[SchemaComponent]
-
-  //@deprecated("2019-06-03", "Use enclosingComponentDefs method, and deal with sharing.")
-  final override protected lazy val enclosingComponentDef: Option[SchemaComponent] = LV('enclosingComponentDef) {
-    Assert.invariant(optLexicalParent.isDefined &&
-      optLexicalParent.get.isInstanceOf[SchemaDocument]) // global things have schema documents as their parents.
-    referringComponent
-  }.value
-
-  /**
-   * Enables compilation to know all the points of use of a global
-   * component.
-   */
-  lazy val referringComponents: Seq[(String, Seq[RefSpec])] = {
-    schemaSet.root.refMap.get(this.factory) match {
-      case None => Seq()
-      case Some(seq) => seq
+  final protected lazy val enclosingComponents: Seq[EnclosingComponentDef] = {
+    //
+    // enclosing components is not defined for some top-level schema component objects
+    //
+    this match {
+      case sd: SchemaDocument => usageErr(sd)
+      case ss: SchemaSet => usageErr(ss)
+      case s: Schema => usageErr(s)
+      case pf: ProcessorFactory => usageErr(pf)
+      case _ => // ok
     }
+    val result =
+      optLexicalParent.toSeq.flatMap {
+        lp =>
+          //
+          // If this is a term, then it has a position within its parent.
+          // otherwise just use 1.
+          //
+          val pos = this match {
+            case t: Term => t.position
+            case _ => 1
+          }
+          val components =
+            lp match {
+              case sd: SchemaDocument => {
+                // enclosing lexical component is schema document, so
+                // that means this is a global component, and we
+                // we need to determine the list of components that reference this global component
+                this match {
+                  case r: Root => Nil
+                  case gedecl: GlobalElementDecl if (schemaSet.root.referencedElement eq gedecl) => {
+                    // this is the global root element's declaration
+                    // in this case the enclosing component is the root, which is a
+                    // special kind of element reference.
+                    Seq(EnclosingComponentDef(schemaSet.root, 1))
+                  }
+                  case gc: GlobalComponent => {
+                    //
+                    // The root object builds up this refMap which contains all the
+                    // relationships of referencer to referencee.
+                    //
+                    val optRefList = schemaSet.root.refMap.get(gc)
+                    val refList =
+                      optRefList.toSeq.flatMap {
+                        pairList =>
+                          pairList.flatMap {
+                            pair =>
+                              pair match {
+                                case (scid, seqRefSpec) => seqRefSpec
+                              }
+                          }
+                      }
+                    val componentList = refList.map { refSpec =>
+                      val frm = refSpec.from
+                      //
+                      // Do checking that the referenced relationship is one we expect
+                      // to find. We only expect to deal with ElementRefs to GlobalElementDecls
+                      // GroupRefs to Global Group Definitions, or Elements referring to
+                      // Global type definitions.
+                      //
+                      // The other kinds of references (to escape schemes, to named formats, or
+                      // from derived types to their base types) shouldn't be encountered here.
+                      //
+                      frm match {
+                        case er: ElementRef => // ok
+                        case gr: GroupRef => // ok
+                        case ed: ElementDeclMixin if (ed.namedTypeQName.isDefined) => // ok
+                        case _ => Assert.invariantFailed("referring component is not a ref object: " + frm)
+                      }
+                      EnclosingComponentDef(refSpec.from, pos)
+                    }
+                    componentList
+                  } // end case of this being a global component
+                  //
+                  // we don't care about these other components for our purposes here
+                  //
+                  case es: DFDLEscapeScheme => Nil
+                  case f: DFDLFormat => Nil
+                  case p: DFDLProperty => Nil
+                  case _ => Assert.invariantFailed("non-global component has schema document as lexical parent: " + this)
+                } // end match
+              } // end case where lexical parent is SchemaDocument
+              case ec => {
+                //
+                // This case for the lexical parent is NOT the schema document. In that case
+                // the lexical parent *is* the enclosing component, and there is only one
+                // enclosing component.
+                //
+                Seq(EnclosingComponentDef(ec, pos))
+              }
+            } // end match
+          components
+      }
+    result
   }
-
-  final override protected lazy val enclosingComponentDefs: Seq[EnclosingComponentDef] = LV('enclosingComponentDefs) {
-    Assert.invariant(optLexicalParent.isDefined &&
-      optLexicalParent.get.isInstanceOf[SchemaDocument]) // global things have schema documents as their parents.
-    val res = referringComponents.flatMap {
-      case (_, seq: Seq[RefSpec]) =>
-        seq.map { rs =>
-          EnclosingComponentDef(rs.from, rs.index)
-        }
-    }
-    res
-  }.value
 }

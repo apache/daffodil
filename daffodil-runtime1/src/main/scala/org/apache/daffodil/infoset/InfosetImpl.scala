@@ -29,13 +29,14 @@ import scala.collection.mutable.ArrayBuffer
 
 import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.api.Diagnostic
+import org.apache.daffodil.api.ThinDiagnostic
 import org.apache.daffodil.calendar.DFDLCalendar
 import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.dsom.DPathElementCompileInfo
 import org.apache.daffodil.equality.TypeEqual
 import org.apache.daffodil.equality.ViewEqual
 import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.exceptions.ThinThrowableWithCause
+import org.apache.daffodil.exceptions.ThinException
 import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveNullable
 import org.apache.daffodil.io.DataOutputStream
@@ -127,7 +128,7 @@ trait InfosetException {
  * one value. This results in a schema definition error at runtime.
  */
 case class InfosetAmbiguousNodeException(node: DIComplex, nqn: NamedQName)
-  extends Diagnostic(One(node.erd.schemaFileLocation), Nope, Nope,
+  extends ThinDiagnostic(One(node.erd.schemaFileLocation), Nope, Nope,
     One("Path step '%s' ambiguous. More than one infoset node corresponds to this name.\n" +
       "Query-style expressions are not supported."), nqn.toExtendedSyntax)
   with InfosetException {
@@ -1057,8 +1058,8 @@ final class DIArray(
  * This should be caught in contexts that want to undertake on-demand
  * evaluation of the OVC expression.
  */
-case class OutputValueCalcEvaluationException(override val throwableCause: Exception)
-  extends Exception() with ThinThrowableWithCause
+case class OutputValueCalcEvaluationException(cause: Exception)
+  extends ThinException(cause)
 
 sealed class DISimple(override val erd: ElementRuntimeData)
   extends DIElement

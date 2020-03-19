@@ -19,7 +19,7 @@ package org.apache.daffodil.tdml
 
 import org.apache.daffodil.equality._;
 import scala.collection.mutable
-import org.apache.daffodil.exceptions.ThinThrowable
+import org.apache.daffodil.exceptions.ThinException
 import org.apache.daffodil.api.URISchemaSource
 import org.apache.daffodil.api.Diagnostic
 import org.apache.daffodil.api.DFDL
@@ -67,7 +67,7 @@ class SchemaCache[CachedType, DiagnosticType] {
 
   def numCacheEntries = compiledSchemaCache.keysIterator.toSeq.length
 
-  private class SchemaCompileFailed(val dp: CompileResult) extends Throwable with ThinThrowable
+  private class SchemaCompileFailed(val dp: CompileResult) extends ThinException
 
   /**
    * Uses thread-safe operation to populate cache that is potentially shared across

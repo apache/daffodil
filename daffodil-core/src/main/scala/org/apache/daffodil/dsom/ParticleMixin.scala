@@ -96,7 +96,11 @@ trait RequiredOptionalMixin { self: ElementBase =>
       // Treat all arrays as non-required so that we can tolerate invalid
       // infosets where the number of events is fewer than the array minimum occurrences.
       else if (isArray) false
-      else false
+      else if (minOccurs == 0 && maxOccurs == 0) false
+      else {
+        Assert.invariant(this.isOutputValueCalc)
+        false
+      }
     }
     res
   }
@@ -120,9 +124,14 @@ trait RequiredOptionalMixin { self: ElementBase =>
          * with these occursCountKinds is an array (so long as it isn't
          * scalar)
          */
-        case (_, 1) if (occursCountKind == OccursCountKind.Parsed ||
+        case (_, 1) | (0, 0) if (occursCountKind == OccursCountKind.Parsed ||
           occursCountKind == OccursCountKind.StopValue ||
           occursCountKind == OccursCountKind.Expression) => true
+        /**
+         * Special case for minoccurs 0 and maxOccurs 0 when OCK is 'implicit' in that
+         * case we treat as an array that cannot have any occurrences.
+         */
+        case (0, 0) if (occursCountKind == OccursCountKind.Implicit) => true
         case _ => false
       }
     }
@@ -133,7 +142,7 @@ trait RequiredOptionalMixin { self: ElementBase =>
    * on a minOccurs and a dfdl:occursCountKind that means that
    * minOccurs will be respected.
    */
-  override final lazy val isArraywithAtLeastOneRequiredArrayElement = {
+  override final lazy val isArrayWithAtLeastOneRequiredArrayElement = {
     isArray &&
       minOccurs > 0 &&
       (occursCountKind == OccursCountKind.Fixed ||
@@ -210,7 +219,7 @@ trait ParticleMixin extends RequiredOptionalMixin { self: ElementBase =>
       if (!isRepresented) false // if there's no rep, then it's not statically required.
       else if (isScalar) true
       else if (isFixedOccurrences) true
-      else if (isArraywithAtLeastOneRequiredArrayElement) true
+      else if (isArrayWithAtLeastOneRequiredArrayElement) true
       else false
     res
   }.value

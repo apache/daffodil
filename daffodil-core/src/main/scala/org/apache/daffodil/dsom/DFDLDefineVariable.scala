@@ -34,7 +34,7 @@ import org.apache.daffodil.exceptions.Assert
 class DFDLDefineVariable(node: Node, doc: SchemaDocument)
   extends DFDLDefiningAnnotation(node, doc) {
 
-  requiredEvaluations(variableRuntimeData.preSerialization)
+  requiredEvaluationsAlways(variableRuntimeData.preSerialization)
 
   final lazy val gram = EmptyGram // has to have because statements have parsers layed in by the grammar.
 
@@ -78,17 +78,20 @@ class DFDLDefineVariable(node: Node, doc: SchemaDocument)
     Maybe.toMaybe(defaultValExpr)
   }
 
-  final lazy val variableRuntimeData = new VariableRuntimeData(
-    this.schemaFileLocation,
-    this.diagnosticDebugName,
-    this.path,
-    this.namespaces,
-    this.external,
-    maybeDefaultValueExpr,
-    this.typeQName,
-    this.namedQName.asInstanceOf[GlobalQName],
-    this.primType,
-    this.tunable.unqualifiedPathStepPolicy)
+  final lazy val variableRuntimeData = {
+    val vrd = new VariableRuntimeData(
+      this.schemaFileLocation,
+      this.diagnosticDebugName,
+      this.path,
+      this.namespaces,
+      this.external,
+      maybeDefaultValueExpr,
+      this.typeQName,
+      this.namedQName.asInstanceOf[GlobalQName],
+      this.primType,
+      this.tunable.unqualifiedPathStepPolicy)
+    vrd
+  }
 }
 
 abstract class VariableReference(node: Node, decl: AnnotatedSchemaComponent)

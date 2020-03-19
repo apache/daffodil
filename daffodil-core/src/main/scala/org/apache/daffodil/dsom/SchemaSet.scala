@@ -94,21 +94,18 @@ final class SchemaSet(
   override lazy val tunable =
     tunableArg
 
-  requiredEvaluations(isValid)
-  requiredEvaluations(typeCalcMap)
+  requiredEvaluationsAlways(isValid)
+  requiredEvaluationsAlways(typeCalcMap)
 
   if (checkAllTopLevel) {
-    requiredEvaluations(checkForDuplicateTopLevels())
-    requiredEvaluations(this.allTopLevels)
+    requiredEvaluationsAlways(checkForDuplicateTopLevels())
+    requiredEvaluationsAlways(this.allTopLevels)
   }
-  requiredEvaluations(variableMap)
+  requiredEvaluationsAlways(variableMap)
 
   lazy val resolver = DFDLCatalogResolver.get
 
   override lazy val schemaSet = this
-  // These things are needed to satisfy the contract of being a schema component.
-  final override protected def enclosingComponentDef = None
-  final override protected def enclosingComponentDefs = Seq()
 
   override lazy val schemaDocument = Assert.usageError("schemaDocument should not be called on SchemaSet")
   override lazy val xmlSchemaDocument = Assert.usageError("xmlSchemaDocument should not be called on SchemaSet")
@@ -187,8 +184,24 @@ final class SchemaSet(
 
   lazy val globalSimpleTypeDefs: Seq[GlobalSimpleTypeDef] = schemas.flatMap(_.globalSimpleTypeDefs)
 
+  /**
+   * The global simple type definitions that are reachable from the root element.
+   */
+  lazy val inUseGlobalSimpleTypeDefs: Seq[GlobalSimpleTypeDef] =
+    // TODO: This isn't going to work for elements that reference a repType via
+    // a calculation such as dfdl:inputValueCalc expression that references a type name.
+    // Expressions need to be analyzed for these type names so that the reference can be
+    // added to the allComponents list, and the reverse mapping from shared types to uses of them
+    // also needs to be maintained.
+    // However.... since typeCalc is in flux, not clear we want to fix this.
+    root.allComponents.collect { case gstd: GlobalSimpleTypeDef => gstd }
+
+  /**
+   * For the in-use simple types defs, get those that particpate
+   * in type calculation.
+   */
   lazy val typeCalcMap: TypeCalcMap = {
-    val factories = globalSimpleTypeDefs
+    val factories = globalSimpleTypeDefs // inUseGlobalSimpleTypeDefs // FIXME: Hack to just take all global simple type defs for now. Not just "in use".
     val withCalc = factories.filter(_.optTypeCalculator.isDefined)
     val mappings = withCalc.map(st => (st.globalQName, st.optTypeCalculator.get))
     mappings.toMap
@@ -293,9 +306,8 @@ final class SchemaSet(
         }
       })
     Assert.invariant(candidates.length == 1)
-    val gef = candidates(0)
-    val re = gef.forRoot()
-    re
+    val ge = candidates(0)
+    ge
   }
 
   /**
@@ -306,11 +318,8 @@ final class SchemaSet(
     rootSpec match {
       case RootSpec(Some(rootNamespaceName), rootElementName) => {
         val qn = RefQName(None, rootElementName, rootNamespaceName)
-        val geFactory = getGlobalElementDecl(qn)
-        val ge = geFactory match {
-          case None => schemaDefinitionError("No global element found for %s", rootSpec)
-          case Some(f) => f.forRoot()
-        }
+        val optGE = getGlobalElementDecl(qn)
+        val ge = optGE.getOrElse { schemaDefinitionError("No global element found for %s", rootSpec) }
         ge
       }
       case RootSpec(None, rootElementName) => {
@@ -332,7 +341,7 @@ final class SchemaSet(
    */
   def rootElement(rootSpecFromProcessorFactory: Option[RootSpec]): Root = {
     val rootSpecFromCompiler = rootSpec
-    val re =
+    val re: GlobalElementDecl =
       (rootSpecFromCompiler, rootSpecFromProcessorFactory) match {
         case (Some(rs), None) =>
           getGlobalElement(rs)
@@ -346,17 +355,16 @@ final class SchemaSet(
           val sDocs = this.allSchemaDocuments
           assuming(sDocs.length > 0)
           val firstSchemaDocument = sDocs(0)
-          val gdeclf = firstSchemaDocument.globalElementDecls
+          val gdecl = firstSchemaDocument.globalElementDecls
           val firstElement = {
-            schemaDefinitionUnless(gdeclf.length >= 1, "No global elements in: " + firstSchemaDocument.uriString)
-            val root = gdeclf(0).forRoot()
-            root
+            schemaDefinitionUnless(gdecl.length >= 1, "No global elements in: " + firstSchemaDocument.uriString)
+            gdecl(0)
           }
           firstElement
         }
         case _ => Assert.invariantFailed("illegal combination of root element specifications")
       }
-    re
+    re.asRoot
   }
 
   /**

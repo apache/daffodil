@@ -25,7 +25,7 @@ final class DFDLDefineFormat(node: Node, sd: SchemaDocument)
   extends DFDLDefiningAnnotation(node, sd) // Note: DefineFormat is not a format annotation
   {
 
-  requiredEvaluations(formatAnnotation)
+  requiredEvaluationsAlways(formatAnnotation)
 
   // baseFormat was removed from the DFDL spec. Just use a ref from the
   // dfdl:format inside.

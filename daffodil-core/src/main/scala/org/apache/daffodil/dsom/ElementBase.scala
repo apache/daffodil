@@ -72,21 +72,21 @@ trait ElementBase
     schemaSet.elementBaseInstanceCount += 1
   }
 
-  requiredEvaluations(init)
-  requiredEvaluations(typeDef)
-  requiredEvaluations(isSimpleType)
-  requiredEvaluations(if (hasPattern) patternValues)
-  requiredEvaluations(if (hasEnumeration) enumerationValues)
-  requiredEvaluations(if (hasMinLength) minLength)
-  requiredEvaluations(if (hasMaxLength) maxLength)
-  requiredEvaluations(if (hasMinInclusive) minInclusive)
-  requiredEvaluations(if (hasMaxInclusive) maxInclusive)
-  requiredEvaluations(if (hasMinExclusive) minExclusive)
-  requiredEvaluations(if (hasMaxExclusive) maxExclusive)
-  requiredEvaluations(if (hasTotalDigits) totalDigits)
-  requiredEvaluations(if (hasFractionDigits) fractionDigits)
-  requiredEvaluations(checkForAlignmentAmbiguity)
-  requiredEvaluations(checkFloating)
+  requiredEvaluationsIfActivated(init)
+  requiredEvaluationsIfActivated(typeDef)
+  requiredEvaluationsIfActivated(isSimpleType)
+  requiredEvaluationsIfActivated(if (hasPattern) patternValues)
+  requiredEvaluationsIfActivated(if (hasEnumeration) enumerationValues)
+  requiredEvaluationsIfActivated(if (hasMinLength) minLength)
+  requiredEvaluationsIfActivated(if (hasMaxLength) maxLength)
+  requiredEvaluationsIfActivated(if (hasMinInclusive) minInclusive)
+  requiredEvaluationsIfActivated(if (hasMaxInclusive) maxInclusive)
+  requiredEvaluationsIfActivated(if (hasMinExclusive) minExclusive)
+  requiredEvaluationsIfActivated(if (hasMaxExclusive) maxExclusive)
+  requiredEvaluationsIfActivated(if (hasTotalDigits) totalDigits)
+  requiredEvaluationsIfActivated(if (hasFractionDigits) fractionDigits)
+  requiredEvaluationsIfActivated(checkForAlignmentAmbiguity)
+  requiredEvaluationsIfActivated(checkFloating)
 
   def name: String
 
@@ -188,7 +188,7 @@ trait ElementBase
    * An array element is required if its index is less than the minOccurs of the
    * array. For an array with a fixed number of elements, all elements are required.
    */
-  def isArraywithAtLeastOneRequiredArrayElement: Boolean
+  def isArrayWithAtLeastOneRequiredArrayElement: Boolean
 
   final protected lazy val thisElementsNamespace: NS = this.namedQName.namespace
   final protected lazy val thisElementsNamespacePrefix: String = this.namespaces.getPrefix(thisElementsNamespace.toString)
@@ -264,7 +264,7 @@ trait ElementBase
   private lazy val myOwnNSPairs: Set[(String, NS)] = thisElementsRequiredNamespaceBindings
 
   private lazy val myParentNSPairs: Set[(String, NS)] = LV('myParentNSPairs) {
-    val ee: Option[ElementBase] = enclosingElement
+    val ee: Option[ElementBase] = enclosingElements.headOption // FIXME: DAFFODIL-2282 works only if there is no difference among usages.
     ee match {
       case None => emptyNSPairs
       case Some(ee) => ee.myOwnNSPairs
@@ -272,10 +272,11 @@ trait ElementBase
   }.value
 
   private lazy val myUniquePairs: Set[(String, NS)] = {
-    val res = myOwnNSPairs -- myParentNSPairs
+    val res = myOwnNSPairs -- myParentNSPairs // FIXME: DAFFODIL-2282 works only if there is no difference among usages.
     res
   }
 
+  // FIXME: DAFFODIL-2282 works only if there is no difference among usages.
   private def pairsToNSBinding(pairs: Set[(String, NS)], parentNS: NamespaceBinding): NamespaceBinding = {
     if (pairs.isEmpty) parentNS
     else {
@@ -288,7 +289,10 @@ trait ElementBase
     }
   }
 
-  private lazy val parentMinimizedScope = enclosingElement.map { _.minimizedScope }.getOrElse(scala.xml.TopScope)
+  private lazy val parentMinimizedScope = {
+    val ee = enclosingElements.headOption // FIXME: bug DAFFODIL-2282 doesn't work unless all are same.
+    ee.map { _.minimizedScope }.getOrElse(scala.xml.TopScope)
+  }
 
   /**
    * To be properly constructed, scala's xml Elems must share the scope (namespace bindings) of the enclosing
@@ -329,7 +333,7 @@ trait ElementBase
    * used for ordinary XML-schema validation outside of Daffodil/DFDL.
    */
   final lazy val defaultValue: DataValuePrimitiveOrUseNilForDefaultOrNull = {
-    if (isDefaultable && (isScalar || isArraywithAtLeastOneRequiredArrayElement)) {
+    if (isDefaultable && (isScalar || isArrayWithAtLeastOneRequiredArrayElement)) {
       val dv =
         if (isNillable && useNilForDefault =:= YesNo.Yes) {
           DataValue.UseNilForDefault
@@ -354,7 +358,7 @@ trait ElementBase
     if (!isRepresented) MustExist
     else if (isOutputValueCalc) Computed
     else if (isOptional) Optional
-    else if (isArray && !isArraywithAtLeastOneRequiredArrayElement) Optional
+    else if (isArray && !isArrayWithAtLeastOneRequiredArrayElement) Optional
     else MustExist
   }
 
@@ -363,7 +367,7 @@ trait ElementBase
     unparserInfosetElementDefaultingBehavior !=:= MustExist
   }
 
-  lazy val isQuasiElement: Boolean = false //overriden by RepTypeQuasiElementDecls
+  lazy val isQuasiElement: Boolean = false //overriden by RepTypeQuasiElementDecl
 
   final protected lazy val optTruncateSpecifiedLengthString =
     Option(truncateSpecifiedLengthString =:= YesNo.Yes)
@@ -397,19 +401,6 @@ trait ElementBase
     elementChildren.map {
       _.dpathElementCompileInfo
     }
-
-  final override lazy val isRepresented = {
-    val isRep = inputValueCalcOption.isInstanceOf[NotFound]
-    if (!isRep) {
-      if (isOptional) {
-        SDE("inputValueCalc property can not appear on optional elements")
-      }
-      if (!isScalar) {
-        SDE("inputValueCalc property can not appear on array elements")
-      }
-    }
-    isRep
-  }
 
   final lazy val isOutputValueCalc = outputValueCalcOption.isInstanceOf[Found]
 
@@ -502,41 +493,82 @@ trait ElementBase
   private lazy val implicitAlignmentInBits: Int = getImplicitAlignmentInBits(primType, impliedRepresentation)
 
   final lazy val alignmentValueInBits: JInt = {
-    alignment match {
-      case AlignmentType.Implicit => {
-        if (this.isComplexType) this.complexType.modelGroup.alignmentValueInBits
-        else implicitAlignmentInBits
-      }
-      case align: JInt => {
-        val alignInBits: JInt = this.alignmentUnits match {
-          case AlignmentUnits.Bits => align
-          case AlignmentUnits.Bytes => 8 * align
+    //
+    // get the alignment, measured in bits based on the alignment property, units, and type (when applicable)
+    //
+    val alignInBits: JInt =
+      alignment match {
+        case AlignmentType.Implicit => {
+          if (this.isComplexType) this.complexType.modelGroup.alignmentValueInBits
+          else implicitAlignmentInBits
         }
-        if (this.isSimpleType) {
-          impliedRepresentation match {
-            case Representation.Text => {
-              if (isRepresented && (alignInBits % implicitAlignmentInBits) != 0)
-                SDE(
-                  "The given alignment (%s bits) must be a multiple of the encoding specified alignment (%s bits) for %s when representation='text'. Encoding: %s",
-                  alignInBits, implicitAlignmentInBits, primType.name, this.knownEncodingName)
-            }
-            case Representation.Binary => primType match {
-              case PrimType.Float | PrimType.Double | PrimType.Boolean | PrimType.HexBinary => /* Non textual data, no need to compare alignment to encoding's expected alignment */
-              case _ => binaryNumberRep match {
-                case BinaryNumberRep.Packed | BinaryNumberRep.Bcd | BinaryNumberRep.Ibm4690Packed => {
-                  if ((alignInBits % 4) != 0)
-                    SDE(
-                      "The given alignment (%s bits) must be a multiple of 4 for %s when using packed binary formats",
-                      alignInBits, primType.name)
-                }
-                case _ => /* Non textual data, no need to compare alignment to encoding's expected alignment */
+        case align: JInt => {
+          val alignInBits: JInt = this.alignmentUnits match {
+            case AlignmentUnits.Bits => align
+            case AlignmentUnits.Bytes => 8 * align
+          }
+          alignInBits
+        }
+      }
+    //
+    // Do checking of interactions of alignment with the rest of the representation
+    //
+    if ((alignment ne AlignmentType.Implicit) && this.isSimpleType) {
+      //
+      // For explicitly aligned simple types there are specific checks having to do with
+      // how explicit alignment interacts with text characters, or with binary packed decimal - as text chars
+      // and packed decimal digits come with alignment constraints of their own.
+      //
+      impliedRepresentation match {
+        case Representation.Text => {
+          //
+          // If they have text representation, alignment and the text encoding alignment must be compared.
+          //
+          if (isRepresented && (alignInBits % implicitAlignmentInBits) != 0)
+            SDE(
+              "The given alignment (%s bits) must be a multiple of the encoding specified alignment (%s bits) for %s when representation='text'. Encoding: %s",
+              alignInBits, implicitAlignmentInBits, primType.name, this.knownEncodingName)
+        }
+        case Representation.Binary => {
+          //
+          // if they have binary representation we must worry about packed digits, which require 4-bit alignment.
+          //
+          primType match {
+            case PrimType.Float | PrimType.Double | PrimType.Boolean | PrimType.HexBinary => /* Non textual data, no need to compare alignment to encoding's expected alignment */
+            case _ => binaryNumberRep match {
+              case BinaryNumberRep.Packed | BinaryNumberRep.Bcd | BinaryNumberRep.Ibm4690Packed => {
+                if ((alignInBits % 4) != 0)
+                  SDE(
+                    "The given alignment (%s bits) must be a multiple of 4 for %s when using packed binary formats",
+                    alignInBits, primType.name)
               }
+              case _ => /* Since this is non-textual data, no need to compare alignment to encoding's expected alignment */
             }
           }
         }
-        alignInBits
       }
+    } // end if explicit alignment and simple type
+    //
+    // Now regardless of type, check for whether the initiator interacts badly with
+    // the alignment.
+    //
+    if (hasInitiator) {
+      // Check for case where explicit alignment property and
+      // mandatory text alignment of initiator
+      // are not compatible.
+      val textAlign = knownEncodingAlignmentInBits
+      // the explicit alignment must be a multiple of the textAlign
+      if (textAlign < alignInBits || textAlign % alignInBits != 0)
+        SDW(
+          WarnID.AlignmentAndInitiatorTextAlignmentNotCompatible,
+          "Initiator text may leave the element incorrectly aligned. The text encoding of initiator characters is %s bits, " +
+            "but the element alignment requires %s bits. Suggest consider whether both dfdl:initiator and dfdl:alignment should be specified for this element.",
+          textAlign, alignInBits)
     }
+    //
+    // Having done the checks, just return the answer
+    //
+    alignInBits
   }
 
   /**
@@ -979,7 +1011,7 @@ trait ElementBase
         if (!isEmptyAnObservableConcept)
           SDW(WarnID.NoEmptyDefault, "Element with no empty representation. XSD default='%s' can only be used when unparsing.", defaultValueAsString)
         schemaDefinitionWhen(isOptional, "Optional elements cannot have default values but default='%s' was found.", defaultValueAsString)
-        if (isArray && !isArraywithAtLeastOneRequiredArrayElement) {
+        if (isArray && !isArrayWithAtLeastOneRequiredArrayElement) {
           (minOccurs, occursCountKind) match {
             case (_, OccursCountKind.Parsed) |
               (_, OccursCountKind.StopValue) =>
@@ -995,7 +1027,7 @@ trait ElementBase
         Assert.invariant(hasDefaultValue)
         !isOptional &&
           (isScalar ||
-            isArraywithAtLeastOneRequiredArrayElement)
+            isArrayWithAtLeastOneRequiredArrayElement)
       }
     } else {
       // TODO: Implement complex element defaulting
@@ -1016,7 +1048,7 @@ trait ElementBase
     termChildren
 
   protected final def couldBeLastElementInModelGroup: Boolean = LV('couldBeLastElementInModelGroup) {
-    val couldBeLast = enclosingTerm match {
+    val couldBeLast = this.immediatelyEnclosingGroupDef match {
       case None => true
       case Some(s: SequenceTermBase) if s.isOrdered => {
         !possibleNextSiblingTerms.exists {
@@ -1029,26 +1061,19 @@ trait ElementBase
     couldBeLast
   }.value
 
-  final override lazy val nextParentElements: Seq[ElementBase] =
-    enclosingTerms.flatMap { enclosingTerm =>
-      if (couldBeLastElementInModelGroup) {
-        enclosingTerm.possibleNextChildElementsInInfoset
-      } else {
-        Nil
-      }
-    }
-
   final lazy val defaultParseUnparsePolicy = optionParseUnparsePolicy.getOrElse(ParseUnparsePolicy.Both)
 
-  // This function ensures that all children have a compatable
-  // parseUnparsePolicy with the root. In other words, if the root policy is
-  // 'Both', all children must also be 'Both'. If the root policy is 'Parse' or
-  // 'Unparse', then all children must have either the same policy, or must be
-  // 'Both'.
-  //
-  // If the context is None, then that means the policy was determined by the
-  // user (e.g. a tunable), rather than by using the default value of the root
-  // element
+  /**
+   * This function ensures that all children have a compatable
+   * parseUnparsePolicy with the root. In other words, if the root policy is
+   * 'Both', all children must also be 'Both'. If the root policy is 'Parse' or
+   * 'Unparse', then all children must have either the same policy, or must be
+   * 'Both'.
+   *
+   * If the context is None, then that means the policy was determined by the
+   * user (e.g. a tunable), rather than by using the default value of the root
+   * element
+   */
   final def checkParseUnparsePolicyCompatibility(context: Option[ElementBase], policy: ParseUnparsePolicy): Unit = {
     elementChildren.foreach { child =>
       val childPolicy = child.defaultParseUnparsePolicy
@@ -1087,7 +1112,7 @@ trait ElementBase
    */
   private lazy val checkForAlignmentAmbiguity: Unit = {
     if (isOptional) {
-      this.possibleNextTerms.filterNot(m => m == this).foreach { that =>
+      this.laterSiblings.filterNot(m => m == this).foreach { that =>
         val isSame = this.alignmentValueInBits == that.alignmentValueInBits
         if (!isSame) {
           this.SDW(WarnID.AlignmentNotSame, "%s is an optional element or a variable-occurrence array and its alignment (%s) is not the same as %s's alignment (%s).",

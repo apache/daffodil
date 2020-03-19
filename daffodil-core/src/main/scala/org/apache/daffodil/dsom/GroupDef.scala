@@ -22,29 +22,17 @@ import org.apache.daffodil.exceptions.Assert
 import scala.xml.Text
 import scala.xml.Comment
 
-final class GlobalGroupDefFactory(defXML: Node, schemaDocument: SchemaDocument)
-  extends SchemaComponentFactory(defXML, schemaDocument)
-  with GlobalNonElementComponentMixin {
+object GlobalGroupDef {
 
-  def forGroupRef(refXML: Node, refLexicalParent: SchemaComponent, position: Int,
-    isHidden: Boolean): (GroupRef, GlobalGroupDef) = {
+  def apply(defXML: Node, schemaDocument: SchemaDocument) = {
     val trimmedXml = scala.xml.Utility.trim(defXML)
     trimmedXml match {
       case <group>{ contents @ _* }</group> => {
         val list = contents.collect {
-          case groupXML @ <sequence>{ _* }</sequence> => {
-            lazy val gref: SequenceGroupRef = new SequenceGroupRef(gdef, refXML, refLexicalParent, position, isHidden)
-            lazy val gdef: GlobalSequenceGroupDef = new GlobalSequenceGroupDef(defXML, groupXML, schemaDocument, gref, this)
-            gref.groupDef
-            gdef.groupRef
-            (gref, gdef)
-          }
+          case groupXML @ <sequence>{ _* }</sequence> =>
+            new GlobalSequenceGroupDef(defXML, groupXML, schemaDocument)
           case groupXML @ <choice>{ _* }</choice> =>
-            lazy val gref: ChoiceGroupRef = new ChoiceGroupRef(gdef, refXML, refLexicalParent, position, isHidden)
-            lazy val gdef: GlobalChoiceGroupDef = new GlobalChoiceGroupDef(defXML, groupXML, schemaDocument, gref, this)
-            gref.groupDef
-            gdef.groupRef
-            (gref, gdef)
+            new GlobalChoiceGroupDef(defXML, groupXML, schemaDocument)
         }
         val res = list(0)
         res
@@ -114,21 +102,20 @@ trait GroupDefLike
 sealed abstract class GlobalGroupDef(
   defXML: Node,
   groupXML: Node,
-  schemaDocumentArg: SchemaDocument,
-  grefArg: => GroupRef,
-  override val factory: GlobalGroupDefFactory)
+  schemaDocumentArg: SchemaDocument)
   extends AnnotatedSchemaComponentImpl(groupXML, schemaDocumentArg)
   with GroupDefLike
   with GlobalNonElementComponentMixin
-  with NestingTraversesToReferenceMixin
+  with NestingLexicalMixin
   with ResolvesLocalProperties // for dfdl:choiceBranchKey
   {
 
-  requiredEvaluations(validateChoiceBranchKey)
+  def groupMembers = {
+    validateChoiceBranchKey()
+    this.groupMembersNotShared
+  }
 
-  lazy val groupRef = grefArg // once only
-
-  def validateChoiceBranchKey(): Unit = {
+  private def validateChoiceBranchKey(): Unit = {
     // Ensure the model group of a global group def do not define choiceBranchKey.
     val found = findPropertyOption("choiceBranchKey")
     if (found.isDefined) {
@@ -140,20 +127,14 @@ sealed abstract class GlobalGroupDef(
     Assert.invariantFailed("Global group def without name attribute."))
 
   final override protected def optReferredToComponent = None
-
-  final override lazy val referringComponent = Some(groupRef.asModelGroup)
 }
 
 final class GlobalSequenceGroupDef(
-  defXMLArg: Node, seqXML: Node, schemaDocument: SchemaDocument, gref: => SequenceGroupRef,
-  factory: GlobalGroupDefFactory)
-  extends GlobalGroupDef(defXMLArg, seqXML, schemaDocument, gref, factory)
+  defXMLArg: Node, seqXML: Node, schemaDocument: SchemaDocument)
+  extends GlobalGroupDef(defXMLArg, seqXML, schemaDocument)
   with SequenceDefMixin
 
 final class GlobalChoiceGroupDef(
-  defXMLArg: Node, choiceXML: Node, schemaDocument: SchemaDocument, gref: => ChoiceGroupRef,
-  factory: GlobalGroupDefFactory)
-  extends GlobalGroupDef(defXMLArg, choiceXML, schemaDocument, gref, factory)
-  with ChoiceDefMixin {
-
-}
+  defXMLArg: Node, choiceXML: Node, schemaDocument: SchemaDocument)
+  extends GlobalGroupDef(defXMLArg, choiceXML, schemaDocument)
+  with ChoiceDefMixin

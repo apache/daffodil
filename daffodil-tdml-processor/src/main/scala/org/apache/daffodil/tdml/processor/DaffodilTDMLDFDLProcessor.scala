@@ -74,11 +74,12 @@ final class TDMLDFDLProcessorFactory() extends AbstractTDMLDFDLProcessorFactory 
    * through a serialize then unserialize path to get a processor as if
    * it were being fetched from a file.
    */
-  private def generateProcessor(pf: DFDL.ProcessorFactory, useSerializedProcessor: Boolean) = {
+  private def generateProcessor(pf: DFDL.ProcessorFactory, useSerializedProcessor: Boolean): SchemaDataProcessorCache.Types.CompileResult = {
     val p = pf.onPath("/")
-    val diags = p.getDiagnostics
-    if (p.isError) Left(diags)
-    else {
+    if (p.isError) {
+      val diags = p.getDiagnostics
+      Left(diags)
+    } else {
       val dp =
         if (useSerializedProcessor) {
           val os = new java.io.ByteArrayOutputStream()
@@ -89,12 +90,12 @@ final class TDMLDFDLProcessorFactory() extends AbstractTDMLDFDLProcessorFactory 
           val input = Channels.newChannel(is)
           compiler.reload(input)
         } else p
-
+      val diags = p.getDiagnostics
       Right((diags, dp))
     }
   }
 
-  private def compileProcessor(schemaSource: DaffodilSchemaSource, useSerializedProcessor: Boolean) = {
+  private def compileProcessor(schemaSource: DaffodilSchemaSource, useSerializedProcessor: Boolean): SchemaDataProcessorCache.Types.CompileResult = {
     val pf = compiler.compileSource(schemaSource)
     val diags = pf.getDiagnostics
     if (pf.isError) {

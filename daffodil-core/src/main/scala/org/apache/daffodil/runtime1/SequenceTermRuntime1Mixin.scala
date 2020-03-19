@@ -24,8 +24,6 @@ import org.apache.daffodil.util.Maybe
 
 trait SequenceTermRuntime1Mixin { self: SequenceTermBase =>
 
-  requiredEvaluations(modelGroupRuntimeData.preSerialization)
-
   def modelGroupRuntimeData = sequenceRuntimeData
 
   lazy val sequenceRuntimeData = {
@@ -49,7 +47,7 @@ trait SequenceTermRuntime1Mixin { self: SequenceTermBase =>
       optIgnoreCase,
       maybeFillByteEv,
       maybeCheckByteAndBitOrderEv,
-      maybeCheckBitOrderAndCharset)
+      maybeCheckBitOrderAndCharsetEv)
   }
 
 }

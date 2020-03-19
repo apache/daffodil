@@ -41,8 +41,6 @@ abstract class AbstractElementRef(
   final override lazy val optLexicalParent = Option(parentArg)
   final override lazy val position = positionArg
 
-  requiredEvaluations(referencedElement)
-
   def complexType: ComplexTypeBase = this.referencedElement.complexType
   def defaultValueAsString: String = this.referencedElement.defaultValueAsString
   def hasDefaultValue: Boolean = this.referencedElement.hasDefaultValue
@@ -86,7 +84,7 @@ abstract class AbstractElementRef(
         //
         SDE("Referenced element not found: %s.", this.refQName)
       }
-      case Some(x) => x.forElementRef(this)
+      case Some(x) => x
     }
     res
   }.value

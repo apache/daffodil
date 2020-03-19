@@ -140,8 +140,8 @@ abstract class IIBase( final override val xml: Node, xsdArg: XMLSchemaDocument, 
    * already been seen and result in duplicate effort and slower schema
    * compilation.
    */
-  requiredEvaluations(iiSchemaFileMaybe)
-  requiredEvaluations(iiSchemaFileMaybe.map(_.iiXMLSchemaDocument))
+  requiredEvaluationsAlways(iiSchemaFileMaybe)
+  requiredEvaluationsAlways(iiSchemaFileMaybe.map(_.iiXMLSchemaDocument))
 
   protected final def notSeenThisBefore = LV('notSeenThisBefore) {
     val mp = mapPair

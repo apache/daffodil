@@ -19,7 +19,7 @@ package org.apache.daffodil.processors
 
 import org.apache.daffodil.api.DataLocation
 import org.apache.daffodil.processors.unparsers.UnparseError
-import org.apache.daffodil.api.Diagnostic
+import org.apache.daffodil.api.ThinDiagnostic
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.exceptions.SchemaFileLocation
 import org.apache.daffodil.processors.parsers.ParseError
@@ -31,7 +31,7 @@ abstract class ProcessingError protected (
   val maybeCause: Maybe[Throwable], // use this OR the format string, Not both.
   val maybeFormatString: Maybe[String],
   val args: Any*)
-  extends Diagnostic(schemaContext, dataContext, maybeCause, maybeFormatString, args: _*) {
+  extends ThinDiagnostic(schemaContext, dataContext, maybeCause, maybeFormatString, args: _*) {
 
   override def isError = true
 

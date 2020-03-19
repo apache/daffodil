@@ -25,16 +25,16 @@ import org.apache.daffodil.dpath.NodeInfo.PrimType
 trait Facets { self: Restriction =>
   import org.apache.daffodil.dsom.FacetTypes._
 
-  requiredEvaluations(if (hasPattern) patternValues)
-  requiredEvaluations(if (hasEnumeration) enumerationValues)
-  requiredEvaluations(if (hasMinLength) minLengthValue)
-  requiredEvaluations(if (hasMaxLength) maxLengthValue)
-  requiredEvaluations(if (hasMinInclusive) minInclusiveValue)
-  requiredEvaluations(if (hasMaxInclusive) maxInclusiveValue)
-  requiredEvaluations(if (hasMinExclusive) minExclusiveValue)
-  requiredEvaluations(if (hasMaxExclusive) maxExclusiveValue)
-  requiredEvaluations(if (hasTotalDigits) totalDigitsValue)
-  requiredEvaluations(if (hasFractionDigits) fractionDigitsValue)
+  requiredEvaluationsAlways(if (hasPattern) patternValues)
+  requiredEvaluationsAlways(if (hasEnumeration) enumerationValues)
+  requiredEvaluationsAlways(if (hasMinLength) minLengthValue)
+  requiredEvaluationsAlways(if (hasMaxLength) maxLengthValue)
+  requiredEvaluationsAlways(if (hasMinInclusive) minInclusiveValue)
+  requiredEvaluationsAlways(if (hasMaxInclusive) maxInclusiveValue)
+  requiredEvaluationsAlways(if (hasMinExclusive) minExclusiveValue)
+  requiredEvaluationsAlways(if (hasMaxExclusive) maxExclusiveValue)
+  requiredEvaluationsAlways(if (hasTotalDigits) totalDigitsValue)
+  requiredEvaluationsAlways(if (hasFractionDigits) fractionDigitsValue)
 
   private def retrieveFacetValueFromRestrictionBase(xml: Node, facetName: Facet.Type): String = {
     val res = xml \\ "restriction" \ facetName.toString() \ "@value"

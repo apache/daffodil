@@ -21,7 +21,7 @@ import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.processors.unparsers.UState
 import org.apache.daffodil.util.Misc
 import org.apache.daffodil.util.LogLevel
-import org.apache.daffodil.api.Diagnostic
+import org.apache.daffodil.api.ThinDiagnostic
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe._
 import org.apache.daffodil.infoset.RetryableException
@@ -91,7 +91,7 @@ trait SuspendableOperation
 }
 
 class SuspendableOperationException(m: String)
-  extends Diagnostic(Nope, Nope, Nope, Maybe(m)) {
+  extends ThinDiagnostic(Nope, Nope, Nope, Maybe(m)) {
   override def isError = true
   override def modeName = "Unparse"
 }

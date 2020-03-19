@@ -17,41 +17,32 @@
 
 package org.apache.daffodil.exceptions
 
-trait ThinThrowable { self: Throwable =>
-  // Sometimes we want to use Exceptions/Throwables in try/catch as a form of
-  // flow control (yeah, usually not that great of an idea), for example with
-  // ProcessingError. Unfortunately, the problem
-  // with this is that Exceptions are pretty heavy to create, mostly do to the
-  // building of stack traces. But, in cases where we use Exceptions for flow
-  // control, we don't need all this extra baggage of the stack traces. So
-  // override the fillInStackTrace method so that stack traces aren't
-  // generated, resulting in a big performance gain when used.
-  override def fillInStackTrace(): Throwable = null
-}
+import org.apache.daffodil.util.Misc
 
-trait ThinThrowableWithCause extends ThinThrowable { self: Throwable =>
-  // The Throwable(cause: Throwable) constructor calls cause.toString and saves
-  // it in the private detailMessage variable. In our case, often times this
-  // detailedMessage will never even be accessed because of backtracking or
-  // suspensions. In these cases, we really only want to build the string when
-  // calling getMessage() to save memory and computation time.
-  //
-  // Note that this only applies when extending a Throwable(cause: Throwable)
-  // or the equivalent Exception. If extending an Exception accepts a a
-  // (message: String) or does not accept a (cause: Throwable), then using this
-  // is unnecessary.
+/**
+ * Lightweight exception that doesn't construct stack traces, and
+ * doesn't construct a format string unless the message is needed.
+ *
+ * It still has to allocate an argument list, if there are message args,
+ * but that may exist anyway.
+ *
+ * The dummy first argument in the protected constructor allows us to have
+ * the public constructors with the signatures we want.
+ */
+abstract class ThinException protected (dummy: Int, cause: Throwable, fmt: String, args: Any*)
+  extends Exception(null, cause, false, false) {
 
-  // The cause for this exception. Override this rather than passing the cause
-  // as an argument to the Throwable constructor.
-  def throwableCause: Throwable
+  private lazy val msg_ =
+    if (fmt ne null) fmt.format(args)
+    else if (cause ne null) cause.getMessage()
+    else Misc.getNameFromClass(this)
 
-  private lazy val message_ = throwableCause.getMessage()
+  override def getMessage() = msg_
 
-  override def getMessage(): String = message_
-
-  private lazy val cause_ = throwableCause
-
-  override def getCause(): Throwable = cause_
+  def this() = this(1, null, null)
+  def this(msg: String) = this(1, null, msg)
+  def this(fmt: String, args: Any*) = this(1, null, fmt, args: _*)
+  def this(cause: Throwable) = this(1, cause, null)
 }
 
 abstract class UnsuppressableException(m: String) extends Exception(m) {

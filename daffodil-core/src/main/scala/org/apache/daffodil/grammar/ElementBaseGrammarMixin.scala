@@ -109,7 +109,7 @@ trait ElementBaseGrammarMixin
       <element name={ name + " (prefixLength)" } type={ prefixLengthType.toQNameString }/>
         .copy(scope = prefixLengthTypeGSTD.xml.scope)
     val detachedElementDecl =
-      new PrefixLengthQuasiElementDecl(detachedNode, prefixLengthTypeGSTD.optLexicalParent.get)
+      new PrefixLengthQuasiElementDecl(detachedNode, prefixLengthTypeGSTD)
 
     val prefixedLengthKind = detachedElementDecl.lengthKind
     prefixedLengthKind match {
@@ -1028,7 +1028,7 @@ trait ElementBaseGrammarMixin
     }
 
   private def withDelimiterStack(body: => Gram) = {
-    if (hasDelimiters || enclosingTerm.map(_.hasDelimiters).getOrElse(false)) DelimiterStackCombinatorElement(this, body)
+    if (hasDelimiters || immediatelyEnclosingModelGroup.map(_.hasDelimiters).getOrElse(false)) DelimiterStackCombinatorElement(this, body)
     else body
   }
 

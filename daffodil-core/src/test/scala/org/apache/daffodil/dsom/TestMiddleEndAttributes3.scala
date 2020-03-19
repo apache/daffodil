@@ -55,8 +55,7 @@ class TestMiddleEndAttributes3 {
     val Seq(sd, _) = sch.schemaDocuments
 
     // Explore global element decl
-    val Seq(ef) = sd.globalElementDecls
-    val e = ef.forRoot()
+    val Seq(e) = sd.globalElementDecls
     val ect = e.complexType
     val seq = ect.sequence
     val mems = seq.groupMembers
@@ -68,15 +67,6 @@ class TestMiddleEndAttributes3 {
     val Seq(_: ElementBase, ipsrcle: ElementBase) = ilseq.groupMembers
     val nextSiblings = ipsrcle.nextSibling
     assertNotNull(nextSiblings)
-    val nextParents = ipsrcle.nextParentElements
-    assertNotNull(nextParents)
-    assertEquals(0, nextParents.length)
-    // assertEquals("TransportLayer", tlle.name)
-
-    //    val actual = TestUtils.testString(testSchema, "/5").result
-    //    actual.toString
-    //    val expected = <e1><x>5</x></e1>
-    //    TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
   @Test def testNextParentElements2() = {
@@ -115,8 +105,7 @@ class TestMiddleEndAttributes3 {
     val Seq(sd, _) = sch.schemaDocuments
 
     // Explore global element decl
-    val Seq(ef) = sd.globalElementDecls
-    val e = ef.forRoot()
+    val Seq(e) = sd.globalElementDecls
     val ect = e.complexType
     val seq = ect.sequence
     val mems = seq.groupMembers
@@ -128,13 +117,6 @@ class TestMiddleEndAttributes3 {
     val Seq(_: ElementBase, _: SequenceGroupRef, ipsrcle: ElementBase) = ilseq.groupMembers
     val nextSiblings = ipsrcle.nextSibling
     assertNotNull(nextSiblings)
-    val nextParents = ipsrcle.nextParentElements
-    // println("nextParents: " + nextParents)
-    assertEquals(0, nextParents.length)
-    //    val actual = TestUtils.testString(testSchema, "/5").result
-    //    actual.toString
-    //    val expected = <e1><x>5</x></e1>
-    //    TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
 }

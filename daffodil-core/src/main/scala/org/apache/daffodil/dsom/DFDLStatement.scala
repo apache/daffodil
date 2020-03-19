@@ -29,7 +29,5 @@ abstract class DFDLStatement(node: Node,
   with NestingLexicalMixin 
   with HasTermCheck {
 
-  /// requiredEvaluations(gram)
-
   def gram(term: Term): Gram
 }

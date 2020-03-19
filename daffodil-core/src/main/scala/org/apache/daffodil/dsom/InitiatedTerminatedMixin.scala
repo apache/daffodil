@@ -66,14 +66,14 @@ trait InitiatedTerminatedMixin
 
   private lazy val isInitiatedContentChoice: Boolean = {
     immediatelyEnclosingModelGroup.map {
-      case c: ChoiceTermBase => true
+      case c: ChoiceTermBase => c.initiatedContent == YesNo.Yes
       case _ => false
     }.getOrElse(false)
   }
 
   private lazy val shouldUseInitiatorDiscriminator: Boolean = {
     parentSaysInitiatedContent &&
-      immediatelyEnclosingModelGroup.map {
+      immediatelyEnclosingGroupDef.map {
         case c: ChoiceTermBase => true
         case s: SequenceTermBase => (isArray || isOptional) &&
           isVariableOccurrences
