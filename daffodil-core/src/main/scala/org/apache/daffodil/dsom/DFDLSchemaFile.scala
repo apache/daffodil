@@ -43,7 +43,7 @@ final class DFDLSchemaFile(
   extends SchemaComponentImpl(<file/>, sset)
   with org.xml.sax.ErrorHandler {
 
-  requiredEvaluations(isValid)
+  requiredEvaluationsAlways(isValid)
 
   private lazy val seenBefore = seenBeforeArg
 
@@ -72,9 +72,6 @@ final class DFDLSchemaFile(
   lazy val diagnosticChildren = Nil // no recursive descent. We just want the loader's validation errors.
 
   lazy val schemaSource = schemaSourceArg
-
-  final override protected def enclosingComponentDef = None
-  final override protected def enclosingComponentDefs = Seq()
 
   private var validationDiagnostics_ : Seq[Diagnostic] = Nil
 

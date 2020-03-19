@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.dpath
 
-import java.lang.{ Boolean => JBoolean, Byte => JByte, Double => JDouble, Float => JFloat, Integer=> JInt, Long => JLong, Short => JShort }
+import java.lang.{ Boolean => JBoolean, Byte => JByte, Double => JDouble, Float => JFloat, Integer => JInt, Long => JLong, Short => JShort }
 import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
 import java.net.URI
 
@@ -139,6 +139,8 @@ object NodeInfo extends Enum {
     def primType = this
 
     def fromXMLString(s: String): DataValuePrimitive
+
+    override def toString = name
   }
 
   private def getTypeNode(name: String) = {
@@ -488,7 +490,7 @@ object NodeInfo extends Enum {
 
       def isValidRange(n: java.lang.Number): Boolean = n match {
         case bd: JBigDecimal => {
-          bd.compareTo(minBD) >= 0 && bd.compareTo(maxBD) <= 0          
+          bd.compareTo(minBD) >= 0 && bd.compareTo(maxBD) <= 0
         }
         case _ => {
           val d = n.doubleValue

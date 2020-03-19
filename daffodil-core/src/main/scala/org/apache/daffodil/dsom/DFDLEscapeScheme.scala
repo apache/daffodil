@@ -41,8 +41,6 @@ final class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: 
   with EscapeScheme_AnnotationMixin
   with RawEscapeSchemeRuntimeValuedPropertiesMixin {
 
-  final protected override lazy val enclosingComponentDef = Some(defES)
-
   final lazy val referringComponent: Option[SchemaComponent] = Some(defES)
 
   protected final override def lookupProperty(pname: String): PropertyLookupResult = {
@@ -153,10 +151,7 @@ final class DFDLDefineEscapeSchemeFactory(node: Node, decl: SchemaDocument)
 final class DFDLDefineEscapeScheme(node: Node, decl: SchemaDocument,
   val pointOfUse: SchemaComponent)
   extends DFDLDefiningAnnotation(node, decl) // Note: defineEscapeScheme isn't a format annotation itself.
-  // with DefineEscapeScheme_AnnotationMixin
   {
-
-  final override protected lazy val enclosingComponentDef = Some(pointOfUse)
 
   /*
    * For diagnostic messages, we need the decl - because that's where the
@@ -166,7 +161,7 @@ final class DFDLDefineEscapeScheme(node: Node, decl: SchemaDocument,
    * nearest enclosing element. That will be made to happen by way of
    * the ExpressionCompiler - every schema component potentially has one.
    */
-  requiredEvaluations(escapeScheme)
+  requiredEvaluationsAlways(escapeScheme)
 
   lazy val referringComponent: Option[SchemaComponent] = Some(pointOfUse)
 

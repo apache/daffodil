@@ -21,7 +21,7 @@ import java.nio.CharBuffer
 import java.nio.LongBuffer
 
 import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.exceptions.ThinThrowable
+import org.apache.daffodil.exceptions.ThinException
 import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.io.DataInputStream.NotEnoughDataException
 import org.apache.daffodil.io.FormatInfo
@@ -30,7 +30,7 @@ import org.apache.daffodil.util.MaybeChar
 
 
 class BitsCharsetDecoderMalformedException(val malformedBits: Int)
-  extends Exception with ThinThrowable
+  extends ThinException
 
 trait BitsCharsetDecoderState
 

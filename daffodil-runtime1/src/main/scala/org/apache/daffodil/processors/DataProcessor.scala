@@ -64,6 +64,8 @@ import org.apache.daffodil.processors.parsers.PState
 import org.apache.daffodil.exceptions.UnsuppressableException
 import org.apache.daffodil.dsom.TunableLimitExceededError
 import org.apache.daffodil.api.DaffodilTunables
+import java.io.IOException
+import org.apache.daffodil.util.Misc
 
 /**
  * Implementation mixin - provides simple helper methods
@@ -175,7 +177,30 @@ class DataProcessor(
 
   def save(output: DFDL.Output): Unit = {
     val oos = new ObjectOutputStream(new GZIPOutputStream(Channels.newOutputStream(output)))
-    oos.writeObject(new SerializableDataProcessor(ssrd, tunablesObj))
+    val sdp = new SerializableDataProcessor(ssrd, tunablesObj)
+    try {
+      //
+      // The serialization system encapsulates exceptions or any throw really
+      // inside an IOException.
+      //
+      // We catch and undo this, and throw the original exception,
+      // which won't give us a breakpoint at the right place, but at least
+      // it will give us the right exception, and if it is a regular exception that
+      // contains a stack copy, a backtrace.
+      //
+      // Note that getting an SDE here is a bug, i.e., a mistake in Daffodil's code base.
+      //
+      // SDEs should all be detected before we start saving the processor definition, at the very latest by
+      // calling preSerialization methods explicitly first so any final computations that only
+      // get done before serialization do get done.
+      //
+      oos.writeObject(sdp)
+    } catch {
+      case e: IOException => {
+        val Some(cause) = Misc.getSomeCause(e)
+        throw cause
+      }
+    }
     oos.close()
   }
 
@@ -312,7 +337,7 @@ class DataProcessor(
     val out = DirectOrBufferedDataOutputStream(
       outStream,
       null, // null means no other stream created this one.
-      isLayer=false,
+      isLayer = false,
       tunablesObj.outputStreamChunkSizeInBytes,
       tunablesObj.maxByteArrayOutputStreamBufferSizeInBytes,
       tunablesObj.tempFilePath)

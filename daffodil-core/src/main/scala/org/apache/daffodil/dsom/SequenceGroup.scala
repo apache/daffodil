@@ -92,7 +92,8 @@ abstract class SequenceGroupTermBase(
   with SeparatorSuppressionPolicyMixin
   with LayeringRuntimeValuedPropertiesMixin {
 
-  requiredEvaluations(checkIfValidUnorderedSequence)
+
+  requiredEvaluationsIfActivated(checkIfValidUnorderedSequence)
 
   protected def apparentXMLChildren: Seq[Node]
 
@@ -297,11 +298,12 @@ final class Sequence(xmlArg: Node, lexicalParent: SchemaComponent, position: Int
   extends SequenceGroupTermBase(xmlArg, lexicalParent, position)
   with SequenceDefMixin {
 
-  requiredEvaluations(checkHiddenGroupRefHasNoChildren)
+
+  requiredEvaluationsIfActivated(checkHiddenGroupRefHasNoChildren)
 
   override lazy val optReferredToComponent = None
 
-  private lazy val checkHiddenGroupRefHasNoChildren = {
+  lazy val checkHiddenGroupRefHasNoChildren = {
     if (hiddenGroupRefOption.isDefined) {
       val axc = apparentXMLChildren
       val len = axc.length

@@ -163,11 +163,11 @@ class TestUnparseHidden {
         <xs:sequence>
           <xs:element name="a" type="xs:string" dfdl:length="3"/>
           <xs:choice>
+            <xs:sequence dfdl:hiddenGroupRef="ex:absentBit"/>
             <xs:sequence>
               <xs:sequence dfdl:hiddenGroupRef="ex:presentBit"/>
               <xs:element name="b" type="xs:string" dfdl:length="1" dfdl:outputValueCalc="{ dfdl:valueLength(../d, 'bytes') }"/>
             </xs:sequence>
-            <xs:sequence dfdl:hiddenGroupRef="ex:absentBit"/>
           </xs:choice>
           <xs:group ref="ex:arr"/>
           <xs:element name="d" type="xs:string" dfdl:length="3"/>
@@ -190,7 +190,13 @@ class TestUnparseHidden {
       </xs:sequence>
     </xs:group>
 
-  @Test def testUnparseHiddenGroupsPresenceFlags5() {
+  /**
+   * In this test note that the schema above has a choice where both branches can have no representation in the
+   * Infoset for unparsing. The infoset may or may not contain an element 'b' because that has dfdl:outputValueCalc
+   * so that element, if present, will be used to select the choice branch, but if absent, the other branch will be
+   * used.
+   */
+  @Test def testUnparseHiddenGroupsPresenceFlags5a() {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" lengthKind="explicit"/>,
@@ -203,7 +209,29 @@ class TestUnparseHidden {
         <arr>X</arr>
         <d>jkl</d>
       </ex:r>
-    val data = "abc13Xjkl"
+    val data = "abc0Xjkl" // the '0' is the absent flag indicating there is no 'b' element.
+    TestUtils.testUnparsing(testSchema, infoset, data)
+  }
+
+  /**
+   * In this test the 'b' element which has dfdl:outputValueCalc is found in the infoset, and so guides the
+   * selection of the choice branch. However its value is ignored and recomputed.
+   */
+  @Test def testUnparseHiddenGroupsPresenceFlags5b() {
+    val testSchema = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <dfdl:format ref="tns:GeneralFormat" lengthKind="explicit"/>,
+      schema3,
+      elementFormDefault = "unqualified")
+
+    val infoset =
+      <ex:r xmlns:ex={ example }>
+        <a>abc</a>
+        <b>42</b> <!-- value is ignored and recomputed as 3 -->
+        <arr>X</arr>
+        <d>jkl</d>
+      </ex:r>
+    val data = "abc13Xjkl" // 1 is the present flag indicating 'b' is present. 3 is the value of b as computed.
     TestUtils.testUnparsing(testSchema, infoset, data)
   }
 

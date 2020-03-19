@@ -38,49 +38,6 @@ abstract class Text(es: Term, e: Term, guard: Boolean) extends StringDelimBase(e
 
   lazy val eName = e.toString()
 
-  lazy val positionalInfo = {
-    if (e.isSequenceChild) {
-      e.nearestEnclosingSequence match {
-        case Some(es) => {
-          val pos = e.positionInNearestEnclosingSequence - 1
-          if (es.hasPrefixSep) {
-            if (e.hasPriorRequiredSiblings) {
-              val prior: Term = es.groupMembers(pos - 1)
-              "after " + prior.diagnosticDebugName + " and before " + eName
-            } else "before " + eName
-          } else if (es.hasInfixSep)
-            if (e.hasPriorRequiredSiblings && e.hasLaterRequiredSiblings) {
-              val prior: Term = es.groupMembers(pos - 1)
-
-              "after " + prior.diagnosticDebugName + " and before " + eName
-            } else if (e.hasPriorRequiredSiblings) {
-              val prior: Term = es.groupMembers(pos - 1)
-              "after " + prior.diagnosticDebugName + " and before " + eName
-            } else if (e.hasLaterRequiredSiblings) {
-              val later: Term = es.groupMembers(pos + 1)
-              "before " + later.diagnosticDebugName
-            } else { "" }
-          else if (es.hasPostfixSep)
-            if (e.hasPriorRequiredSiblings && e.hasLaterRequiredSiblings) {
-              val later: Term = es.groupMembers(pos + 1)
-
-              "after " + eName + " and before " + later.diagnosticDebugName
-            } else if (e.hasPriorRequiredSiblings) {
-              val prior: Term = es.groupMembers(pos - 1)
-              "after " + prior.diagnosticDebugName + " and before " + eName
-            } else if (e.hasLaterRequiredSiblings) {
-              val later: Term = es.groupMembers(pos + 1)
-              "before " + later.diagnosticDebugName
-            } else { "" }
-          else
-            ""
-        }
-        case None => ""
-      }
-    } else {
-      ""
-    }
-  }
 }
 
 // NOTE: LiteralNil still uses this as it can only be Static/Constant
@@ -103,7 +60,7 @@ abstract class DelimiterText(e: Term, eb: Term, delimiterType: DelimiterTextType
     case _ => false
   }
 
-  override lazy val parser: DaffodilParser = new DelimiterTextParser(e.termRuntimeData, textParser, positionalInfo, delimiterType, isDelimited)
+  override lazy val parser: DaffodilParser = new DelimiterTextParser(e.termRuntimeData, textParser, delimiterType, isDelimited)
   override lazy val unparser: DaffodilUnparser = new DelimiterTextUnparser(e.termRuntimeData, delimiterType)
 }
 

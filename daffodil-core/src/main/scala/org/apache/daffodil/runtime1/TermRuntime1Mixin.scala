@@ -18,21 +18,13 @@
 package org.apache.daffodil.runtime1
 
 import org.apache.daffodil.xml.QNameBase
-
-import org.apache.daffodil.infoset.PartialNextElementResolver
-import org.apache.daffodil.infoset.SeveralPossibilitiesForNextElement
-import org.apache.daffodil.processors.ElementRuntimeData
-import org.apache.daffodil.infoset.NoNextElement
-import org.apache.daffodil.infoset.OnlyOnePossibilityForNextElement
 import org.apache.daffodil.api.WarnID
 import org.apache.daffodil.dsom._
-import org.apache.daffodil.processors.TermRuntimeData
+import org.apache.daffodil.processors.{ByteOrderEv, ElementRuntimeData, CheckBitOrderAndCharsetEv, CheckByteAndBitOrderEv, TermRuntimeData}
 import org.apache.daffodil.schema.annotation.props.gen.NilKind
-import org.apache.daffodil.schema.annotation.props.gen.Representation
-import org.apache.daffodil.schema.annotation.props.gen.LengthKind
 import org.apache.daffodil.exceptions.Assert
-
-import org.apache.daffodil.infoset.DoNotUseThisResolver
+import org.apache.daffodil.infoset.{PartialNextElementResolver, SeveralPossibilitiesForNextElement, NoNextElement, OnlyOnePossibilityForNextElement, DoNotUseThisResolver}
+import org.apache.daffodil.util.Maybe
 
 /**
  * A set of possibilities for elements that can arrive as events
@@ -41,6 +33,8 @@ import org.apache.daffodil.infoset.DoNotUseThisResolver
 sealed trait PossibleNextElements {
   import PossibleNextElements._
   def pnes: Seq[PossibleNextElement]
+  final def isClosed = !isOpen
+  def isOpen: Boolean
 }
 
 object PossibleNextElements {
@@ -65,14 +59,18 @@ object PossibleNextElements {
    * branches of a choice are Closed. Then the resulting choice
    * possibilities are also Closed.
    */
-  case class Closed(override val pnes: Seq[PNE]) extends PossibleNextElements
+  case class Closed(override val pnes: Seq[PNE]) extends PossibleNextElements {
+    def isOpen = false
+  }
 
   /**
    * Indicates that these are possible, but all are optional
    * so a surrounding sequence group on the stack could also provide
    * a matching element.
    */
-  case class Open(override val pnes: Seq[PNE]) extends PossibleNextElements
+  case class Open(override val pnes: Seq[PNE]) extends PossibleNextElements {
+    def isOpen = true
+  }
 
   /**
    * Indicates that there should never be any use of possible next elements for
@@ -80,6 +78,7 @@ object PossibleNextElements {
    */
   case object DoNotUse extends PossibleNextElements {
     override def pnes = Assert.usageError("do not use")
+    override def isOpen = Assert.usageError("do not use")
   }
 }
 
@@ -101,6 +100,91 @@ trait TermRuntime1Mixin { self: Term =>
 
   import PossibleNextElements._
 
+  /**
+   * Finds possible next streaming unparser elements for this term itself.
+   *
+   * Disregards any surrounding structure,
+   */
+  lazy val possibleThisTermNextStreamingUnparserElements: PossibleNextElements =
+    LV('possibleThisTermNextStreamingUnparserElements) {
+      possibleThisTermNextStreamingUnparserElementsDef
+    }.value
+
+  // separate def assists breakpoint debugging
+  private lazy val possibleThisTermNextStreamingUnparserElementsDef: PossibleNextElements = {
+    val thisItself: PossibleNextElements = this match {
+      //
+      // An array may be required in the infoset, but the array
+      // may also be terminated by finding the next element after the array,
+      // so we get closed only if required and not an array.
+      //
+      case eb: ElementBase if (eb.isRequiredStreamingUnparserEvent) =>
+        Closed(Seq(PNE(eb, true)))
+      case eb: ElementBase =>
+        Open(Seq(PNE(eb, false)))
+      case stb: SequenceTermBase if stb.isHiddenGroupRef =>
+        Open(Nil)
+      case ctb: ChoiceTermBase if ctb.isHiddenGroupRef =>
+        Open(Nil)
+      case ctb: ChoiceTermBase => {
+        val gms = ctb.groupMembers
+        val individualBranchPossibles = gms.map {
+          _.possibleThisTermNextStreamingUnparserElements
+        }
+        //
+        // If all branches are closed, then the overall set will be
+        // closed for the whole choice. Some element from the choice will
+        // have to appear next. But no specific individual one is required.
+        //
+        val allBranchesClosed =
+          individualBranchPossibles.forall {
+            case c: Closed => true
+            case o: Open => false
+            case DoNotUse => Assert.invariantFailed("should never be DoNotUse")
+          }
+        //
+        // Individual possible next elements (aka sibs) come from
+        // various branches. Within those branches they may be required to appear
+        // in the stream of events, but as alternatives of a choice, none of
+        // them are specifically required, because you could always be
+        // unparsing some other branch.
+        // So in the PNE we override them to have false for
+        // the overrideIsRequiredStreamingUnparserEvent.
+        //
+        val allSibsAsOptional = individualBranchPossibles.flatMap { poss =>
+          poss.pnes.map {
+            case PNE(eb, true) =>
+              PNE(eb, false)
+            case ok @ PNE(eb, false) =>
+              ok
+          }
+        }
+        val res: PossibleNextElements =
+          if (allBranchesClosed) {
+            Closed(allSibsAsOptional)
+          } else {
+            Open(allSibsAsOptional)
+          }
+        res
+      }
+      case stb: SequenceTermBase => {
+        val subTerms = stb.groupMembers
+        val res =
+          subTerms.headOption.map {
+            //
+            // We headOption above, because here we only have to look at the first group member
+            // so long as we ask for self plus lexical following information
+            // as that will cover the other members.
+            // properly cutting off any that are after a Closed one.
+            //
+            _.possibleSelfPlusNextLexicalSiblingStreamingUnparserElements
+          }
+        res.getOrElse(Open(Nil))
+      }
+
+    }
+    thisItself
+  }
   /*
    * Returns a Closed or Open list of posslble elements that could follow this Term, within its
    * lexically enclosing model group.
@@ -305,18 +389,18 @@ trait TermRuntime1Mixin { self: Term =>
         new DoNotUseThisResolver(termRuntimeData) // Does an assert fail if used.
       }
       case _ => {
-        //
-        // Annoying, but scala's immutable Map is not covariant in its first argument
-        // the way one would normally expect a collection to be.
-        // So Map[NamedQName, ElementRuntimeData] is not a subtype of Map[QNameBase, ElementRuntimeData]
-        // So we need a cast upward to Map[QNameBase,ElementRuntimeData]
-        //
         val trd = context.termRuntimeData
         val (sibs, isRequiredStreamingUnparserEvent) = possibles match {
           case PossibleNextElements.Closed(sibs) => (sibs, true)
           case PossibleNextElements.Open(sibs) => (sibs, false)
           case PossibleNextElements.DoNotUse => Assert.invariantFailed("should never be DoNotUse")
         }
+        //
+        // Annoying, but scala's immutable Map is not covariant in its first argument
+        // the way one would normally expect a collection to be.
+        // So Map[NamedQName, ElementRuntimeData] is not a subtype of Map[QNameBase, ElementRuntimeData]
+        // So we need a cast upward to Map[QNameBase,ElementRuntimeData]
+        //
         val eltMap = sibs.map {
           sib => (sib.e.namedQName, sib.e.erd)
         }.toMap.asInstanceOf[Map[QNameBase, ElementRuntimeData]]
@@ -361,8 +445,7 @@ trait TermRuntime1Mixin { self: Term =>
   final protected lazy val couldHaveSuspensions: Boolean = {
     val commonCouldHaveSuspensions =
       !isKnownToBeAligned || // AlignmentFillUnparser
-        (if (hasDelimiters) !isDelimiterKnownToBeTextAligned else false) || // MandatoryTextAlignmentUnparser
-        needsBitOrderChange // BitOrderChangeUnparser
+        (if (hasDelimiters) !isDelimiterKnownToBeTextAligned else false)
 
     this match {
       case eb: ElementBase => {
@@ -387,6 +470,24 @@ trait TermRuntime1Mixin { self: Term =>
       }
     }
   }
+
+  /**
+   * For a choice branch, provides a collection (unordered) of events that indicate the
+   * selection of that branch.
+   *
+   * This can be an empty list, because a branch can contain no elements yet be legal (such
+   * as a branch containing only say, dfdl assertions, or just a hidden group).
+   * In that case the occurrence of an
+   * event that doesn't indicate any other branch implicitly indicates the first
+   * branch that has an empty list of identifying events.
+   *
+   * Note that this is NOT the same as the first branch with an Open list of events.
+   *
+   * Specifically, we don't search past the end of the choice to find out what is next.
+   * This analysis occurs within each choice branch only.
+   */
+  final def identifyingEventsForChoiceBranch: PossibleNextElements =
+    possibleThisTermNextStreamingUnparserElements
 
   /**
    * Set of elements referenced from an expression in the scope of this term.
@@ -448,6 +549,44 @@ trait TermRuntime1Mixin { self: Term =>
     val locRefs = propRefs ++ stmtRefs ++ calcRefs
     val res = realChildren.foldLeft(locRefs) { (s, i) => s.union(i.valueLengthUnparserReferencedElementInfos) }
     res
+  }
+
+  private lazy val mboEv: Maybe[ByteOrderEv] = self match {
+    case eb: ElementBase => eb.maybeByteOrderEv
+    case _ => Maybe.Nope
+  }
+
+  lazy val maybeCheckByteAndBitOrderEv: Maybe[CheckByteAndBitOrderEv] = {
+    //
+    // TODO: Performance: could be improved, as there are situations where byteOrder
+    // is defined, but still we know it will not be used and this could
+    // be Nope in those cases also. An example would be a 100% text-only item.
+    //
+    if (!isRepresented || !optionByteOrderRaw.isDefined)
+      Maybe.Nope
+    else {
+      val checkByteAndBitOrder = {
+        val ev = new CheckByteAndBitOrderEv(ci, defaultBitOrder,
+          mboEv)
+        ev.compile(tunable)
+        ev
+      }
+      Maybe(checkByteAndBitOrder)
+    }
+  }
+
+  lazy val maybeCheckBitOrderAndCharsetEv: Maybe[CheckBitOrderAndCharsetEv] = {
+    val se = summaryEncoding
+    if (!isRepresented || se == NoText || se == Binary)
+      Maybe.Nope
+    else {
+      val checkBitOrderAndCharset = {
+        val ev = new CheckBitOrderAndCharsetEv(ci, defaultBitOrder, charsetEv)
+        ev.compile(tunable)
+        ev
+      }
+      Maybe(checkBitOrderAndCharset)
+    }
   }
 
 }

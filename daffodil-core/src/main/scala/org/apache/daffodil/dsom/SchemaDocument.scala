@@ -47,17 +47,6 @@ import org.apache.daffodil.xml.XMLUtils
  */
 
 /**
- * Common to both types we use for dealing with
- * schema documents.
- */
-trait SchemaDocumentMixin { self: SchemaComponent =>
-
-  protected final override def enclosingComponentDef: Option[SchemaComponent] = None
-  protected final override def enclosingComponentDefs = Seq()
-
-}
-
-/**
  * Handles everything about schema documents that has nothing to
  * do with DFDL. Things like namespace, include, import, elementFormDefault
  * etc.
@@ -79,10 +68,9 @@ final class XMLSchemaDocument(
    */
   override val isBootStrapSD: Boolean)
   extends SchemaComponentImpl(xmlArg, sfArg.getOrElse(schemaSetArg))
-  with SchemaDocumentMixin
   with SchemaDocIncludesAndImportsMixin {
 
-  requiredEvaluations(checkUnsupportedAttributes)
+  requiredEvaluationsAlways(checkUnsupportedAttributes)
 
   final lazy val seenBefore = seenBeforeArg
 
@@ -176,8 +164,7 @@ final class XMLSchemaDocument(
  * I.e., default format properties, named format properties, etc.
  */
 final class SchemaDocument(xmlSDoc: XMLSchemaDocument)
-  extends AnnotatedSchemaComponent
-  with SchemaDocumentMixin {
+  extends AnnotatedSchemaComponent {
 
   final override val xml = xmlSDoc.xml
   final override def optLexicalParent = Option(xmlSDoc)
@@ -185,31 +172,17 @@ final class SchemaDocument(xmlSDoc: XMLSchemaDocument)
 
   override lazy val optReferredToComponent = None
 
-  // override def term = Assert.usageError("not to be called on SchemaDocument")
-
   /**
    * Implements the selectivity so that if you specify a root element
    * to the compiler, then only that root element (and things reached from it)
    * is compiled. Otherwise all top level elements are compiled.
    */
-  requiredEvaluations(defaultFormat)
+  requiredEvaluationsAlways(defaultFormat)
   if (schemaSet.checkAllTopLevel) {
-    requiredEvaluations(globalElementDecls.map { _.forRoot() })
-    requiredEvaluations(defineEscapeSchemes)
-    requiredEvaluations(defineFormats)
-    requiredEvaluations(defineVariables)
-    // TODO: about defineVariables:
-    // only include these if they have default values or external values.
-    // Those then have to be evaluated before any processing,
-    // and may depend on other variables with default values or external values.
-    // Not these, because we'll pick these up when elements reference them.
-    // And we don't compile them independently of that (since they could be very
-    // incomplete and would lead to many errors for missing this or that.)
-    //
-    // Note: don't include these. They get checked if used.
-    //    globalSimpleTypeDefs
-    //    globalComplexTypeDefs
-    //    globalGroupDefs
+    requiredEvaluationsAlways(globalElementDecls.foreach{ _.setRequiredEvaluationsActive() })
+    requiredEvaluationsAlways(defineEscapeSchemes)
+    requiredEvaluationsAlways(defineFormats)
+    requiredEvaluationsAlways(defineVariables)
   }
 
   override lazy val schemaDocument = this
@@ -217,24 +190,6 @@ final class SchemaDocument(xmlSDoc: XMLSchemaDocument)
   override lazy val schema = schemaSet.getSchema(targetNamespace).getOrElse {
     Assert.invariantFailed("schema not found for schema document's namespace.")
   }
-
-  //  lazy val shortFormAnnotationsAreValid: Boolean = {
-  //    val dfdlns = XMLUtils.DFDL_NAMESPACE
-  //    val attrs = xml.attributes
-  //
-  //
-  //    // Check that any prefixed properties in the DFDL namespace are allowed on
-  //    // this specific annotated schema component.
-  //
-  //    val dfdlAttrs = attrs.filter{ a => a.isPrefixed && a.}
-  //  }
-
-  //  def nonDefaultPropertySources = Seq()
-  //
-  //  def defaultPropertySources = LV('defaultPropertySources) {
-  //    val seq = Seq(this.defaultFormatChain)
-  //    seq
-  //  }.value
 
   protected def annotationFactory(node: Node): Option[DFDLAnnotation] = {
     val res = node match {
@@ -255,41 +210,14 @@ final class SchemaDocument(xmlSDoc: XMLSchemaDocument)
   protected lazy val emptyFormatFactory = new DFDLFormat(newDFDLAnnotationXML("format"), this)
   protected def isMyFormatAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLFormat]
 
-  /*
-   * Design note about factories for global elements, and recursive types.
-   *
-   * The point of these factories is that every local site that uses a global def/decl
-   * needs a copy so that the def/decl can have attributes which depend on the context
-   * where it is used. That is, we can't share global defs/decls because the contexts change
-   * their meaning.
-   *
-   * This works as is, so long as the DFDL Schema doesn't have recursion in it. Recursion would create
-   * an infinite tree of local sites and copies. (There's an issue: DFDL-80 in Jira about putting
-   * in the check to rule out recursion)
-   *
-   * But recursion would be a very cool experimental feature, potentially useful for investigations
-   * towards DFDL v2.0 in the future.
-   *
-   * What's cool: if these factories are changed to memoize. That is, return the exact same global def/decl
-   * object if they are called from the same local site, then recursion "just works". Nothing will diverge
-   * creating infinite structures, but furthermore, the "contextual" information will be right. That
-   * is to say, the first place some global structure is used is the "top" entry. It gets a copy.
-   * If that global ultimately has someplace that recurses back to that global structure, it has to be from some other
-   * local site inside it, so that's a different local site, so it will get a copy of the global. But
-   * that's where it ends because the next "unwind" of the recursion will be at this same local site, so
-   * would be returned the exact same def/decl object.
-   *
-   * Of course there are runtime/backend complexities also. Relative paths, variables with newVariableInstance
-   * all of which can go arbitrarily deep in the recursive case.
-   */
   lazy val globalElementDecls = {
     val xmlelts = (xml \ "element")
-    val factories = xmlelts.map { new GlobalElementDeclFactory(_, this) }
-    factories
+    val decls = xmlelts.map { new GlobalElementDecl(_, this) }
+    decls
   }
   lazy val globalSimpleTypeDefs = (xml \ "simpleType").map { new GlobalSimpleTypeDef(_, this) }
-  lazy val globalComplexTypeDefs = (xml \ "complexType").map { new GlobalComplexTypeDefFactory(_, this) }
-  lazy val globalGroupDefs = (xml \ "group").map { new GlobalGroupDefFactory(_, this) }
+  lazy val globalComplexTypeDefs = (xml \ "complexType").map { new GlobalComplexTypeDef(_, this) }
+  lazy val globalGroupDefs = (xml \ "group").map { GlobalGroupDef(_, this) }
 
   lazy val defaultFormat = formatAnnotation.asInstanceOf[DFDLFormat]
 

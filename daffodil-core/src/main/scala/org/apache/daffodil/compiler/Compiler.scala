@@ -78,9 +78,6 @@ final class ProcessorFactory(val sset: SchemaSet)
   with DFDL.ProcessorFactory
   with HavingRootSpec {
 
-  final override def enclosingComponentDef: Option[SchemaComponent] = None
-  final override def enclosingComponentDefs = Seq()
-
   lazy val (generateParser, generateUnparser) = {
     val (context, policy) = tunable.parseUnparsePolicy match {
       case ParseUnparsePolicyTunable.FromRoot => (Some(rootElem), rootElem.rootParseUnparsePolicy)
@@ -110,7 +107,7 @@ final class ProcessorFactory(val sset: SchemaSet)
 
   lazy val rootElem = sset.root
 
-  lazy val checkUnusedProperties = LV('hasUnusedProperties) {
+  private lazy val checkUnusedProperties = LV('hasUnusedProperties) {
     rootElem.checkUnusedProperties
   }.value
 
@@ -121,11 +118,11 @@ final class ProcessorFactory(val sset: SchemaSet)
   //
   // We want pretty much nothing to be done by the data processor
   //
-  requiredEvaluations(sset)
-  requiredEvaluations(rootElem)
-  requiredEvaluations(parser)
-  requiredEvaluations(unparser)
-  requiredEvaluations(rootElem.runtimeData)
+  requiredEvaluationsAlways(sset)
+  requiredEvaluationsAlways(rootElem)
+  requiredEvaluationsAlways(parser)
+  requiredEvaluationsAlways(unparser)
+  requiredEvaluationsAlways(rootElem.runtimeData)
 
   override def isError = {
     ExecutionMode.usingCompilerMode {

@@ -51,27 +51,49 @@ trait GroupRef { self: ModelGroup =>
 
 /**
  * A GroupRefFactory (group reference) is an indirection to
- * factories to create a SequenceGroupRef, or ChoiceGroupRef.
+ * create a SequenceGroupRef, or ChoiceGroupRef.
  *
- * The refXMLArg is the xml for the group reference.
+ * The refXML is the xml for the group reference.
  *
  * This factory exists in order to make error messages refer to the
- * right part of the schema.
+ * right part of the schema and to navigate the ref prior to creating
+ * the object so that we can create a more specific kind of group ref that
+ * knows if it is referring to a choice or a sequence.
  */
-final class GroupRefFactory(refXMLArg: Node, val refLexicalParent: SchemaComponent, position: Int, isHidden: Boolean)
-  extends SchemaComponentFactory(refXMLArg, Some(refLexicalParent.schemaDocument))
+object GroupRefFactory {
+
+  def apply(refXML: Node, refLexicalParent: SchemaComponent, position: Int, isHidden: Boolean) = {
+    val f = new GroupRefFactory(refXML, refLexicalParent, position, isHidden)
+    f.groupRef
+  }
+}
+
+/**
+ * This is a quasi schema component. Its purpose is simply to share a bunch of
+ * mechanism that schema components inherit, in a hassle free manner.
+ * (E.g., diagnostics mechanism that keeps track of file and line number). We
+ * want to be able to issue those before we've created the actual SequenceGroupRef or
+ * ChoiceGroupRef objects. Hence, a throwaway factory object.
+ *
+ * Private constructor insures it must be constructed by way of apply method of companion object.
+ */
+final class GroupRefFactory private (refXML: Node, val refLexicalParent: SchemaComponent, position: Int, isHidden: Boolean)
+  extends SchemaComponentImpl(refXML, refLexicalParent)
+  with NestingLexicalMixin
   with HasRefMixin {
 
   final def qname = this.refQName
 
-  lazy val groupRef = LV('groupRef) {
-    val gdefFactory = schemaSet.getGlobalGroupDef(qname).getOrElse {
+  lazy val groupRef = {
+    val gdef = refLexicalParent.schemaSet.getGlobalGroupDef(qname).getOrElse {
       SDE("Referenced group definition not found: %s", this.ref)
     }
-    val (gref, _) = gdefFactory.forGroupRef(refXMLArg, refLexicalParent, position, isHidden)
+    val gref = gdef match {
+      case gd: GlobalSequenceGroupDef => new SequenceGroupRef(gd, refXML, refLexicalParent, position, isHidden)
+      case gd: GlobalChoiceGroupDef => new ChoiceGroupRef(gd, refXML, refLexicalParent, position, isHidden)
+    }
     gref
-  }.value
-
+  }
 }
 
 final class SequenceGroupRef(
@@ -86,6 +108,7 @@ final class SequenceGroupRef(
   private lazy val globalGroupDef = globalGroupDefArg // once only
 
   override def isHidden = isHiddenArg
+  override def isHiddenGroupRef = isHiddenArg
 
   private lazy val sgd = groupDef.asInstanceOf[GlobalSequenceGroupDef]
 
@@ -102,7 +125,7 @@ final class SequenceGroupRef(
 }
 
 final class ChoiceGroupRef(
-  globalGroupDefArg: => GlobalChoiceGroupDef,
+  globalGroupDefArg: GlobalChoiceGroupDef,
   refXML: Node,
   refLexicalParent: SchemaComponent,
   positionArg: Int,
@@ -110,11 +133,12 @@ final class ChoiceGroupRef(
   extends ChoiceTermBase(refXML, Option(refLexicalParent), positionArg)
   with GroupRef {
 
-  requiredEvaluations(groupDef)
+  requiredEvaluationsIfActivated(groupDef)
 
   private lazy val globalGroupDef = globalGroupDefArg // once only
 
   override def isHidden = isHiddenArg
+  override def isHiddenGroupRef = isHiddenArg
 
   override lazy val groupDef = globalGroupDef
 

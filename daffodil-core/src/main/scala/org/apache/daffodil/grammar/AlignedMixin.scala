@@ -129,11 +129,16 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
 
   private lazy val unaligned = AlignmentMultipleOf(1)
 
+  // FIXME: DAFFODIL-2295
+  // Does not take into account that in a sequence, what may be prior may be a separator.
+  // The separator is text in some encoding, might not be the same as this term's encoding, and
+  // the alignment will be left where that text leaves it.
+  //
   private lazy val priorAlignmentApprox: AlignmentMultipleOf = LV('priorAlignmentApprox) {
     if (this.isInstanceOf[Root] || this.isInstanceOf[QuasiElementDeclBase]) {
-      AlignmentMultipleOf(0) // root and quasi elements are aligned with anything
+      AlignmentMultipleOf(0) // root and quasi elements are aligned with anything // TODO: really? Why quasi-elements - they should have implicit alignment ?
     } else {
-      val (priorSibs, optEnclosingParent) = potentialPriorTerms
+      val priorSibs = potentialPriorTerms
       val arraySelfAlignment =
         if (isArray) {
           val e = this.asInstanceOf[ElementBase]
@@ -173,7 +178,7 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
         }
 
       val unorderedSequenceSelfAlignment =
-        if (isInUnorderedSequence) {
+        if (isEverInUnorderedSequence) {
           if (isKnownToBeByteAlignedAndByteLength) {
             Seq(AlignmentMultipleOf(8))
           } else {
@@ -184,7 +189,7 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
         }
 
       val priorSibsAlignmentsApprox = priorSibs.map { ps =>
-        val eaa = if (isInUnorderedSequence) {
+        val eaa = if (isEverInUnorderedSequence) {
           // Return 0 here, unordered alignment will be handled by unorderedSequenceSelfAlignment
           AlignmentMultipleOf(0)
         } else {
@@ -192,13 +197,13 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
         }
         eaa
       }.toSeq
-      val parentAlignmentApprox = optEnclosingParent.map { p =>
+      val parentAlignmentApprox = immediatelyEnclosingModelGroup.map { p =>
         val csa = p.contentStartAlignment
         csa
       }.toSeq
       val priorAlignmentsApprox = priorSibsAlignmentsApprox ++ parentAlignmentApprox ++ arraySelfAlignment ++ unorderedSequenceSelfAlignment
       if (priorAlignmentsApprox.isEmpty)
-        unaligned
+        alignmentApprox // it will be the containing context's responsibility to insure this IS where we start.
       else
         priorAlignmentsApprox.reduce(_ * _)
     }
@@ -229,21 +234,40 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
         }
       }
       case mg: ModelGroup => {
+        //
+        // We're interested in how the model group ends. Whatever could be
+        // the last term, each individual such possibility has an endingAlignmentApprox,
+        // and we need to aggregate those to get the summary endingAlignmentApprox.
+        //
         val (lastChildren, couldBeLast) = mg.potentialLastChildren
-        val lastApprox = lastChildren.map {
+        val lastApproxesConsideringChildren: Seq[AlignmentMultipleOf] = lastChildren.map {
           lc =>
+            //
+            // for each possible last child, add its ending alignment
+            // to our trailing skip to get where it would leave off were
+            // it the actual last child.
+            //
             val lceaa = lc.endingAlignmentApprox
             val res = lceaa + trailingSkipApprox
             res
-        } ++ {
-          if (couldBeLast)
-            Seq(contentStartAlignment + trailingSkipApprox)
-          else
-            Seq()
         }
-
-        Assert.invariant(!lastApprox.isEmpty)
-        val res = lastApprox.reduce { _ * _ }
+        val optApproxIfNoChildren =
+          //
+          // gather possibilities for this item itself
+          //
+          if (couldBeLast)
+            //
+            // if this model group could be last, then consider
+            // if none of its content was present.
+            // We'd just have the contentStart, nothing, and the trailing Skip.
+            //
+            Some(contentStartAlignment + trailingSkipApprox)
+          else
+            // can't be last, no possibilities to gather.
+            None
+        val lastApproxes = lastApproxesConsideringChildren ++ optApproxIfNoChildren
+        Assert.invariant(!lastApproxes.isEmpty)
+        val res = lastApproxes.reduce { _ * _ }
         res
       }
     }

@@ -28,7 +28,8 @@ import org.apache.daffodil.processors.unparsers.Unparser
 
 class TestGrammar extends GrammarMixin {
 
-  val fakeTerm = new GlobalElementDeclFactory(<element name="foo" type="xs:int"/>, Fakes.fakeSD).forRoot()
+  val fakeDecl = new GlobalElementDecl(<element name="foo" type="xs:int"/>, Fakes.fakeSD)
+  val fakeTerm = fakeDecl.asRoot
 
   final override protected def grammarContext = fakeTerm
 

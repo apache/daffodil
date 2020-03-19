@@ -22,7 +22,7 @@ import java.nio.ByteBuffer
 import scala.collection.mutable.ArrayBuffer
 
 import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.exceptions.ThinThrowable
+import org.apache.daffodil.exceptions.ThinException
 
 /**
  * There is a finite limit to the distance one can backtrack which is given by
@@ -51,8 +51,7 @@ import org.apache.daffodil.exceptions.ThinThrowable
  * bucket that has already been released.
  */
 case class BacktrackingException(position: Long, maxBacktrackLength: Int)
-  extends Exception("Attempted to backtrack to byte %d, which exceeds maximum backtrack length of %d".format(position, maxBacktrackLength))
-  with ThinThrowable
+  extends ThinException("Attempted to backtrack to byte %d, which exceeds maximum backtrack length of %d", position, maxBacktrackLength)
 
 /**
  * The InputSource class is really just a mechanism to provide bytes an

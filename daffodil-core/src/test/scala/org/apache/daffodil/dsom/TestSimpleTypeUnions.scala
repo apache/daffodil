@@ -60,8 +60,7 @@ class TestSimpleTypeUnions {
     val Seq(sd, _) = sch.schemaDocuments
 
     // Explore global element decl
-    val Seq(e1f) = sd.globalElementDecls
-    val e1 = e1f.forRoot()
+    val Seq(e1) = sd.globalElementDecls
     val e1t = e1.simpleType
     val u = e1t.optUnion.get
     val e1tPrimType = u.primType

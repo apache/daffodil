@@ -68,7 +68,9 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="withManyErrors2">
-    <dfdl:format initiator="" leadingSkip="0" trailingSkip="0" sequenceKind="ordered" encoding="UTF-8"/>
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" 
+      initiator="" leadingSkip="0" trailingSkip="0" sequenceKind="ordered" encoding="UTF-8"/>
     <xs:element name="v1" type="xs:int" />
     <xs:element name="v2" type="xs:string" />
     <xs:element name="err1">
@@ -99,15 +101,29 @@
 
     <tdml:document />
 
+    <!-- This test is no-longer representative of what we're trying
+    to illustrate which is that we can gather more than one error up 
+    at a time. Some errors are now more severe, and cause more disruption
+    of our ability to keep going and gather more diagnostics.
+    
+    At some point in the future this test and others should be adapted to
+    enlarge again the scope of diagnostics we gather before failure. But for now
+    this isn't considered high priority (2020.02.22  Mike Beckerle)
+    -->
     <tdml:errors>
     <!-- this now gets the 3 most serious errors. Never gets around to 
          the properties as it has given up processing those constructs. -->
       <!-- <tdml:error>representation</tdml:error> -->
+      
+      <!-- Don't get this type-related error anymore
       <tdml:error>immediate type</tdml:error>
       <tdml:error>named type</tdml:error>
       <tdml:error>not both</tdml:error>
+      -->
+      <!-- Dont get invalidity error anymore. 
       <tdml:error>invalid</tdml:error>
       <tdml:error>dfdl:format</tdml:error>
+      -->
       <tdml:error>ex:err2</tdml:error>
       <tdml:error>referenced</tdml:error>
     </tdml:errors>

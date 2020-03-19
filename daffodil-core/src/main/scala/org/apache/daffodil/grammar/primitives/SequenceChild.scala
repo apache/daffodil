@@ -342,6 +342,8 @@ abstract class SequenceChild(protected val sq: SequenceTermBase, child: Term, gr
             (((e.impliedRepresentation eq Representation.Text) && e.hasTextAlignment) ||
               // binary data is allowed to be delimited... so long as the
               // separators are recognizably not confused with binary bytes.
+              // The initiator is AFTER the alignmentFill region. So those are checked
+              // elsewhere for compatibility.
               ((e.impliedRepresentation eq Representation.Binary) && e.isKnownToBeAligned))
 
         if (!e.isRepresented)

@@ -38,8 +38,6 @@ import org.apache.daffodil.api.WarnID
 
 trait ElementBaseRuntime1Mixin { self: ElementBase =>
 
-  requiredEvaluations(erd.preSerialization)
-
   /**
    * Tells us if, for this element, we need to capture its content length
    *  at unparse runtime, or we can ignore that.
@@ -213,7 +211,7 @@ trait ElementBaseRuntime1Mixin { self: ElementBase =>
       maybeByteOrderEv,
       maybeFillByteEv,
       maybeCheckByteAndBitOrderEv,
-      maybeCheckBitOrderAndCharset,
+      maybeCheckBitOrderAndCharsetEv,
       isQuasiElement)
     newERD
   }

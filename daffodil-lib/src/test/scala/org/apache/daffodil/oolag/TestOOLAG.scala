@@ -59,12 +59,12 @@ abstract class MyBase(parentArg: MyBase)
 
 class MySubHost(name: String, parent: MyBase)
   extends MyBase(parent) {
-  requiredEvaluations(a1)
+  requiredEvaluationsAlways(a1)
 }
 
 class MyHost extends MyBase(null) {
 
-  requiredEvaluations(a1)
+  requiredEvaluationsIfActivated(a1)
   // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
 
   lazy val subHostCreator = {
@@ -128,11 +128,13 @@ class TestOOLAG {
 
   @Test def testPrettyName() {
     val h = new MyHost
+    h.setRequiredEvaluationsActive()
     assertEquals("MyHost", h.diagnosticDebugName)
   }
 
   @Test def testSuccessLazyVal() {
     val h = new MyHost
+    h.setRequiredEvaluationsActive()
     // println("get the LV")
 
     val a1lv = h.a1_
@@ -149,6 +151,8 @@ class TestOOLAG {
 
   @Test def testFailLazyVal() {
     val h = new MyHost
+    h.setRequiredEvaluationsActive()
+
     OOLAG.keepGoing({}) {
       // println("ask host for the LV")
       h.a2
@@ -177,6 +181,7 @@ class TestOOLAG {
   //   */
   //  @Test def testLVName() {
   //    val h = new MyHost
+  //    h.setRequiredEvaluationsActive()
   //    // println("ask for the value")
   //    val a3: String = h.a3.value
   //    val a3Name = h.a3.name
@@ -189,6 +194,7 @@ class TestOOLAG {
    */
   @Test def testLVName2() {
     val h = new MyHost
+    h.setRequiredEvaluationsActive()
     var res: String = null
     OOLAG.keepGoing({}) {
       // println("ask for the value")
@@ -199,6 +205,7 @@ class TestOOLAG {
 
   @Test def testCircularDefinitionDetected() {
     val h = new MyHost
+    h.setRequiredEvaluationsActive()
     var e: Exception = null
     OOLAG.keepGoing({}) {
       e = intercept[CircularDefinition] {
@@ -213,6 +220,7 @@ class TestOOLAG {
 
   @Test def testAlreadyTried() {
     val h = new MyHost
+    h.setRequiredEvaluationsActive()
     assertTrue(h.a2_.isError)
     val e = intercept[AlreadyTried] {
       h.a2_.value
@@ -228,6 +236,7 @@ class TestOOLAG {
 
   @Test def testThrowToTopLevel() {
     val h = new MyHost
+    h.setRequiredEvaluationsActive()
     intercept[Abort] {
       OOLAG.keepGoing({}) {
         h.abortInside // should print useful lazy val nest messages to log
@@ -238,6 +247,7 @@ class TestOOLAG {
   @Test def testDivZeroInside() {
     // LoggingDefaults.setLoggingLevel(LogLevel.OOLAGDebug)
     val h = new MyHost
+    h.setRequiredEvaluationsActive()
     // println("done constructing MyHost")
     h.a1
     h.subHostCreator
@@ -259,6 +269,7 @@ class TestOOLAG {
 
   @Test def testAutoTreeCreate() {
     val h = new MyHost
+    h.setRequiredEvaluationsActive()
     OOLAG.keepGoing({}) {
       h.subHostCreator
       h.a2

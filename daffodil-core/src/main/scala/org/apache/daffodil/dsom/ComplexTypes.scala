@@ -33,7 +33,7 @@ sealed abstract class ComplexTypeBase(xmlArg: Node, parentArg: SchemaComponent)
   final override def optUnion = None
   final override def typeNode = NodeInfo.Complex
 
-  requiredEvaluations(modelGroup)
+  requiredEvaluationsIfActivated(modelGroup)
 
   final def group = modelGroup
 
@@ -84,34 +84,18 @@ sealed abstract class ComplexTypeBase(xmlArg: Node, parentArg: SchemaComponent)
   }
 }
 
-final class GlobalComplexTypeDefFactory(xmlArg: Node, schemaDocumentArg: SchemaDocument)
-  extends SchemaComponentFactory(xmlArg, schemaDocumentArg)
-  with GlobalNonElementComponentMixin {
-
-  def forElement(elementDecl: ElementDeclMixin) = new GlobalComplexTypeDef(xml, schemaDocument, elementDecl, this)
-
-  override lazy val namedQName = QName.createGlobal(name, targetNamespace, xml.scope)
-
-}
-
-/**
- * For unit testing purposes, the element argument might be supplied as null.
- */
 final class GlobalComplexTypeDef(
   xmlArg: Node,
-  schemaDocumentArg: SchemaDocument,
-  val elementDecl: ElementDeclMixin,
-  override val factory: GlobalComplexTypeDefFactory)
+  schemaDocumentArg: SchemaDocument)
   extends ComplexTypeBase(xmlArg, schemaDocumentArg)
   with GlobalNonElementComponentMixin
-  with NestingTraversesToReferenceMixin {
-
-  override lazy val referringComponent = Option(elementDecl)
+  with NestingLexicalMixin {
+  // Nothing needed here. The base class and mixins are providing all the functionality needed.
 }
 
 final class LocalComplexTypeDef(xmlArg: Node, val elementDecl: ElementDeclMixin)
   extends ComplexTypeBase(xmlArg, elementDecl)
   with LocalNonElementComponentMixin
   with NestingLexicalMixin {
-  // nothing
+  // Nothing needed here. The base class and mixins are providing all the functionality needed.
 }

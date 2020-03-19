@@ -31,8 +31,8 @@ import org.apache.daffodil.schema.annotation.props.gen.YesNo
  */
 trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
 
-  requiredEvaluations(encodingInfo.preSerialization)
-  requiredEvaluations(checkTextBidi)
+  requiredEvaluationsAlways(encodingInfo.preSerialization)
+  requiredEvaluationsAlways(checkTextBidi)
 
   private lazy val optionTextBidi = findPropertyOption("textBidi")
 

@@ -28,6 +28,7 @@ import org.apache.daffodil.api.WarnID
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.runtime1.GramRuntime1Mixin
 import org.apache.daffodil.BasicComponent
+import org.apache.daffodil.dsom.Term
 
 /**
  * Gram - short for "Grammar Term"
@@ -68,6 +69,8 @@ abstract class Gram(contextArg: SchemaComponent)
   val forWhat: ParserOrUnparser = BothParserAndUnparser
 
   final val context: SchemaComponent = contextArg
+
+  def term = context.asInstanceOf[Term]
 
   /**
    * Some grammar terms (productions specifically) have an indirection

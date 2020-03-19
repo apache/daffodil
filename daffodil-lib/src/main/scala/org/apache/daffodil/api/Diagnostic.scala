@@ -21,28 +21,63 @@ import org.apache.daffodil.util.Misc
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.exceptions.SchemaFileLocation
-import org.apache.daffodil.exceptions.ThinThrowableWithCause
+import org.apache.daffodil.exceptions.ThinException
 
 /**
- * Base class for all error, warning, info, and other sorts of objects
- * that capture diagnostic information.
+ * Base class for all "thin" (no stack trace) diagnostic objects.
+ * Such as processing errors.
+ */
+abstract class ThinDiagnostic(
+  schemaContext: Maybe[SchemaFileLocation],
+  dataContext: Maybe[DataLocation],
+  maybeCause: Maybe[Throwable],
+  maybeFormatString: Maybe[String],
+  args: Any*)
+  extends Diagnostic(
+    false, // thin, i.e., not isThick
+    schemaContext,
+    dataContext,
+    maybeCause,
+    maybeFormatString,
+    args: _*) {
+  Assert.invariant(maybeCause.isDefined || maybeFormatString.isDefined)
+}
+/**
+ * Base class for all thick or thin error, warning, info, and other sorts of objects
+ * that capture diagnostic information. Such as Schema Definition Errors/Warnings.
  *
  * Allows for lazy message creation, internationalization, etc.
  */
-abstract class Diagnostic(
+abstract class Diagnostic protected (
+  isThick: Boolean,
   private val schemaContext: Maybe[SchemaFileLocation],
   private val dataContext: Maybe[DataLocation],
   private val maybeCause: Maybe[Throwable],
   private val maybeFormatString: Maybe[String],
   private val args: Any*)
-  extends Exception() with ThinThrowableWithCause {
+  extends Exception(
+    null,
+    (if (maybeCause.isDefined) maybeCause.get else null),
+    isThick,
+    isThick) {
+
+  /**
+   * Constructor for Thick diagnostics (with stack trace).
+   * Use for fatal errors.
+   */
+  def this(
+    schemaContext: Maybe[SchemaFileLocation],
+    dataContext: Maybe[DataLocation],
+    maybeCause: Maybe[Throwable],
+    maybeFormatString: Maybe[String],
+    args: Any*) = this(
+    true, // isThick
+    schemaContext, dataContext, maybeCause, maybeFormatString, args: _*)
 
   final def toss =
     throw this // good place for a breakpoint.
 
   def isValidation = false
-
-  override val throwableCause = if (maybeCause.isDefined) maybeCause.get else null
 
   /**
    * These are put into a collection to remove duplicates so equals and hash

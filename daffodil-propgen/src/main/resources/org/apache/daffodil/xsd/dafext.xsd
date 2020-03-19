@@ -443,6 +443,7 @@
         <xs:restriction base="xs:token">
           <xs:enumeration value="all" />
           <xs:enumeration value="alignmentNotSame" />
+          <xs:enumeration value="alignmentAndInitiatorTextAlignmentNotCompatible" />
           <xs:enumeration value="appinfoDFDLSourceWrong" />
           <xs:enumeration value="appinfoNoSource" />
           <xs:enumeration value="choiceInsideHiddenGroup" />

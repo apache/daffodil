@@ -348,7 +348,7 @@ abstract class ElementCombinatorBase(context: ElementBase, eGramBefore: Gram, eG
   // - test discriminators (must be attempted even if the parsing of element or setVariable statements fail)
   // - test asserts
 
-  // requiredEvaluations(patDiscrim, patAssert, eGram, setVar, testDiscrim, testAssert)
+  // requiredEvaluationsAlways(patDiscrim, patAssert, eGram, setVar, testDiscrim, testAssert)
   // Note: above not needed as these are ALWAYS evaluated below.
 
   lazy val patDiscrim = {

@@ -45,6 +45,8 @@
   </xs:element>
 
   </tdml:defineSchema>
+
+
     
 <tdml:unparserTestCase name="choice_with_array_branch1" root="e" model="c">
 
@@ -87,6 +89,131 @@
     </tdml:dfdlInfoset>
   </tdml:infoset>
   
-</tdml:unparserTestCase>
+  </tdml:unparserTestCase>
+
+  <tdml:defineSchema name="c2" elementFormDefault="unqualified">
+
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="implicit" representation="binary"
+                 alignmentUnits="bits" lengthUnits="bits" alignment="1" occursCountKind="implicit"/>
+
+    <xs:element name="r">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:choice>
+            <xs:sequence>
+              <xs:sequence dfdl:hiddenGroupRef="ex:PI_true" />
+              <xs:element maxOccurs="unbounded" minOccurs="1" name="rag">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:sequence>
+                      <xs:annotation>
+                        <xs:appinfo source="http://www.ogf.org/dfdl/">
+                          <dfdl:discriminator>{ if (dfdl:occursIndex() eq 1) then
+                            fn:true() else
+                            ../rag[dfdl:occursIndex()-1]/GRI
+                            eq 1 }
+                          </dfdl:discriminator>
+                        </xs:appinfo>
+                      </xs:annotation>
+                    </xs:sequence>
+                    <xs:sequence dfdl:hiddenGroupRef="ex:GRI" />
+                    <xs:element name="value" type="ex:tIntField" dfdl:length="7" />
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+            <xs:sequence dfdl:hiddenGroupRef="ex:PI_false" />
+          </xs:choice>
+          <xs:element maxOccurs="unbounded" minOccurs="1" name="mhg">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:sequence>
+                  <xs:annotation>
+                    <xs:appinfo source="http://www.ogf.org/dfdl/">
+                      <dfdl:discriminator>{ if (dfdl:occursIndex() eq 1) then
+                        fn:true() else
+                        ../mhg[dfdl:occursIndex()-1]/GRI
+                        eq 1 }
+                      </dfdl:discriminator>
+                    </xs:appinfo>
+                  </xs:annotation>
+                </xs:sequence>
+                <xs:sequence dfdl:hiddenGroupRef="ex:GRI" />
+                <xs:element name="umf">
+                  <xs:complexType>
+                    <xs:sequence>
+                      <xs:element name="value" type="ex:tIntField" dfdl:length="6" />
+                    </xs:sequence>
+                  </xs:complexType>
+                </xs:element>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:simpleType name="tIntField" dfdl:lengthKind="explicit">
+      <xs:restriction base="xs:unsignedInt" />
+    </xs:simpleType>
+
+    <xs:simpleType name="presenceIndicator" dfdl:length="1" dfdl:lengthKind="explicit">
+      <xs:restriction base="xs:unsignedInt" />
+    </xs:simpleType>
+
+    <xs:simpleType name="repeatIndicator" dfdl:length="1" dfdl:lengthKind="explicit">
+      <xs:restriction base="xs:unsignedInt" />
+    </xs:simpleType>
+
+    <xs:group name="PI_true">
+      <xs:sequence>
+        <xs:element name="h_PI_true" type="ex:presenceIndicator" dfdl:outputValueCalc="{ 1 }">
+          <xs:annotation>
+            <xs:appinfo source="http://www.ogf.org/dfdl/">
+              <dfdl:discriminator test="{ . eq 1 }" />
+            </xs:appinfo>
+          </xs:annotation>
+        </xs:element>
+      </xs:sequence>
+    </xs:group>
+
+    <xs:group name="PI_false">
+      <xs:sequence>
+        <xs:element name="h_PI_false" type="ex:presenceIndicator" dfdl:outputValueCalc="{ 0 }" />
+      </xs:sequence>
+    </xs:group>
+
+    <xs:group name="GRI">
+      <xs:sequence>
+        <xs:element name="GRI" type="ex:repeatIndicator" dfdl:outputValueCalc="{ if (dfdl:occursIndex() lt fn:count(..)) then 1 else 0 }" />
+      </xs:sequence>
+    </xs:group>
+
+    <xs:group name="FRI">
+      <xs:sequence>
+        <xs:element name="FRI" type="ex:repeatIndicator" dfdl:outputValueCalc="{ if (dfdl:occursIndex() lt fn:count(..)) then 1 else 0 }" />
+      </xs:sequence>
+    </xs:group>
+
+
+  </tdml:defineSchema>
+
+  <tdml:unparserTestCase name="choice_with_presence_bits_followed_by_array" model="c2">
+    <tdml:document>
+      <tdml:documentPart type="bits">0 0 111110</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:r>
+          <mhg>
+            <umf>
+              <value>62</value>
+            </umf>
+          </mhg>
+        </ex:r>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
 
 </tdml:testSuite>

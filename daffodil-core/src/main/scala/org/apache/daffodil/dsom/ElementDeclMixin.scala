@@ -41,48 +41,16 @@ trait ElementLikeMixin
 /**
  * Shared by all element declarations local or global
  */
-sealed trait ElementDeclMixin
+trait ElementDeclMixin
   extends ElementLikeMixin {
-
-  def namedQName: NamedQName
-
-  def optReferredToComponent: Option[AnnotatedSchemaComponent]
-
-  def optImmediateSimpleType: Option[SimpleTypeBase]
-
-  def optImmediateComplexType: Option[ComplexTypeBase]
-
-  def immediateType: Option[TypeBase]
-
-  def typeName: Option[String]
-
-  def optNamedSimpleType: Option[SimpleTypeBase]
-
-  def optNamedComplexType: Option[GlobalComplexTypeDef]
-
-  def optSimpleType: Option[SimpleTypeBase]
-
-  def optComplexType: Option[ComplexTypeBase]
-
-  def namedTypeQName: Option[RefQName]
-
-  def namedType: Option[TypeBase]
-
-  def typeDef: TypeBase
 
   final def isSimpleType: Boolean = optSimpleType.isDefined
 
   final def isComplexType = !isSimpleType
 
-  def defaultAttr: Option[Seq[Node]]
-
-  def defaultValueAsString: String
-
   final def primType = optSimpleType.get.primType
 
   final def hasDefaultValue: Boolean = defaultAttr.isDefined
-
-  def isNillable: Boolean
 
   final def simpleType: SimpleTypeBase = optSimpleType.get
 
@@ -93,10 +61,6 @@ sealed trait ElementDeclMixin
    */
   final def sequence = complexType.sequence
   final def choice = complexType.choice
-}
-
-sealed trait ElementDeclInstanceImplMixin
-  extends ElementDeclMixin {
 
   final override lazy val optReferredToComponent = typeDef match {
     case std: SimpleTypeDefBase => Some(std)
@@ -104,15 +68,14 @@ sealed trait ElementDeclInstanceImplMixin
     case _ => None
   }
 
-  final override lazy val optNamedComplexType: Option[GlobalComplexTypeDef] = {
+  final lazy val optNamedComplexType: Option[GlobalComplexTypeDef] = {
     namedTypeQName.flatMap { qn =>
-      val gctdFactory = schemaSet.getGlobalComplexTypeDef(qn)
-      val res = gctdFactory.map { gctdf => gctdf.forElement(this) }
+      val res = schemaSet.getGlobalComplexTypeDef(qn)
       res
     }
   }
 
-  final override lazy val optImmediateComplexType: Option[ComplexTypeBase] = LV('optImmediateComplexType) {
+  final lazy val optImmediateComplexType: Option[ComplexTypeBase] = LV('optImmediateComplexType) {
     val ct = xml \ "complexType"
     val nt = typeName
     if (ct.length == 1)
@@ -123,10 +86,10 @@ sealed trait ElementDeclInstanceImplMixin
     }
   }.value
 
-  final override lazy val optComplexType =
+  final lazy val optComplexType =
     optNamedComplexType.orElse(optImmediateComplexType.collect { case ct: ComplexTypeBase => ct })
 
-  final override lazy val namedType: Option[TypeBase] = LV('namedTypeDef) {
+  final lazy val namedType: Option[TypeBase] = LV('namedTypeDef) {
     val res = optNamedSimpleType.orElse(optNamedComplexType).orElse {
       namedTypeQName.map { qn => SDE("No type definition found for '%s'.", qn.toPrettyString) }
     }
@@ -136,9 +99,9 @@ sealed trait ElementDeclInstanceImplMixin
     res
   }.value
 
-  final override lazy val immediateType = optImmediateSimpleType.orElse(optImmediateComplexType)
+  final lazy val immediateType = optImmediateSimpleType.orElse(optImmediateComplexType)
 
-  final override lazy val typeDef: TypeBase = LV('typeDef) {
+  final lazy val typeDef: TypeBase = LV('typeDef) {
     (immediateType, namedType) match {
       case (Some(ty), None) => ty
       case (None, Some(ty)) => ty
@@ -149,12 +112,7 @@ sealed trait ElementDeclInstanceImplMixin
     }
   }.value
 
-}
-
-trait ElementDeclFactoryImplMixin
-  extends ElementDeclMixin {
-
-  final override lazy val optImmediateSimpleType: Option[SimpleTypeBase] = LV('optImmediateSimpleType) {
+  final lazy val optImmediateSimpleType: Option[SimpleTypeBase] = LV('optImmediateSimpleType) {
     val st = xml \ "simpleType"
     if (st.length == 1) {
       val lstd = new LocalSimpleTypeDef(st(0), this)
@@ -162,9 +120,9 @@ trait ElementDeclFactoryImplMixin
     } else None
   }.value
 
-  final override lazy val typeName = getAttributeOption("type")
+  final lazy val typeName = getAttributeOption("type")
 
-  final override lazy val namedTypeQName: Option[RefQName] = {
+  final lazy val namedTypeQName: Option[RefQName] = {
     typeName.map { tname =>
       QName.resolveRef(tname, namespaces, tunable.unqualifiedPathStepPolicy).get
     }
@@ -176,12 +134,12 @@ trait ElementDeclFactoryImplMixin
     }
   }
 
-  final override lazy val optSimpleType =
+  final lazy val optSimpleType =
     optNamedSimpleType.orElse(optImmediateSimpleType.collect { case st: SimpleTypeBase => st })
 
-  final override lazy val defaultAttr = xml.attribute("default")
+  final lazy val defaultAttr = xml.attribute("default")
 
-  final override lazy val defaultValueAsString = {
+  final lazy val defaultValueAsString = {
     Assert.usage(hasDefaultValue)
     val dv = defaultAttr.get.text
     schemaDefinitionWhen(
@@ -191,39 +149,6 @@ trait ElementDeclFactoryImplMixin
     dv
   }
 
-  final override lazy val isNillable = (xml \ "@nillable").text == "true"
-
-  override def namedType: Option[TypeBase] = Assert.usageError("Not to be called on Element Decl Factories")
-  override def optComplexType: Option[ComplexTypeBase] = Assert.usageError("Not to be called on Element Decl Factories")
-  override def optNamedComplexType: Option[GlobalComplexTypeDef] = Assert.usageError("Not to be called on Element Decl Factories")
-  override def typeDef: TypeBase = Assert.usageError("Not to be called on Element Decl Factories")
-  override def immediateType: Option[TypeBase] = Assert.usageError("Not to be called on Element Decl Factories")
-  override def optImmediateComplexType: Option[ComplexTypeBase] = Assert.usageError("Not to be called on Element Decl Factories")
+  final lazy val isNillable = (xml \ "@nillable").text == "true"
 }
 
-trait ElementDeclNonFactoryDelegatingMixin
-  extends ElementDeclFactoryImplMixin
-  with ElementDeclInstanceImplMixin
-
-trait ElementDeclFactoryDelegatingMixin
-  extends ElementDeclInstanceImplMixin {
-
-  protected def delegate: ElementDeclFactoryImplMixin
-
-  final override def typeName: Option[String] = delegate.typeName
-
-  final override def namedTypeQName: Option[RefQName] = delegate.namedTypeQName
-
-  final override def optImmediateSimpleType: Option[SimpleTypeBase] = delegate.optImmediateSimpleType
-
-  final override def optNamedSimpleType: Option[SimpleTypeBase] = delegate.optNamedSimpleType
-
-  final override def optSimpleType: Option[SimpleTypeBase] = delegate.optSimpleType
-
-  final override def defaultAttr: Option[Seq[Node]] = delegate.defaultAttr
-
-  final override def defaultValueAsString: String = delegate.defaultValueAsString
-
-  final override def isNillable: Boolean = delegate.isNillable
-
-}

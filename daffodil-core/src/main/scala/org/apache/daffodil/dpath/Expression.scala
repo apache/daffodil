@@ -59,11 +59,11 @@ abstract class Expression extends OOLAGHostImpl()
    * Use several calls instead of one, because then OOLAG will try them
    * all separately, and perhaps if you're lucky report more errors.
    */
-  requiredEvaluations(parent)
-  requiredEvaluations(targetType)
-  requiredEvaluations(inherentType)
-  requiredEvaluations(isTypeCorrect)
-  requiredEvaluations(compiledDPath_)
+  requiredEvaluationsAlways(parent)
+  requiredEvaluationsAlways(targetType)
+  requiredEvaluationsAlways(inherentType)
+  requiredEvaluationsAlways(isTypeCorrect)
+  requiredEvaluationsAlways(compiledDPath_)
 
   override lazy val tunable: DaffodilTunables = parent.tunable
   override lazy val unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy = parent.unqualifiedPathStepPolicy
@@ -870,9 +870,9 @@ sealed abstract class StepExpression(val step: String, val pred: Option[Predicat
       "Relative path '%s' past root element.", this.wholeExpressionText)
     toss(err)
   }
-  requiredEvaluations(priorStep)
-  requiredEvaluations(compileInfo)
-  requiredEvaluations(stepElements)
+  requiredEvaluationsAlways(priorStep)
+  requiredEvaluationsAlways(compileInfo)
+  requiredEvaluationsAlways(stepElements)
 
   def verifyQNames(cis: Seq[DPathElementCompileInfo]): Unit = {
     cis.foreach { ci =>
@@ -1108,7 +1108,7 @@ case class Self(predArg: Option[PredicateExpression])
 case class Self2(s: String, predArg: Option[PredicateExpression])
   extends SelfStepExpression(s, predArg) {
 
-  requiredEvaluations(stepQName)
+  requiredEvaluationsAlways(stepQName)
 
   override def stepElementDefs: Seq[DPathElementCompileInfo] = {
     val cis = super.stepElementDefs
@@ -1164,7 +1164,7 @@ case class Up(predArg: Option[PredicateExpression])
 case class Up2(s: String, predArg: Option[PredicateExpression])
   extends UpStepExpression(s, predArg) {
 
-  requiredEvaluations(stepQName)
+  requiredEvaluationsAlways(stepQName)
 
   override def text = ".."
 
@@ -1179,7 +1179,7 @@ case class Up2(s: String, predArg: Option[PredicateExpression])
 case class NamedStep(s: String, predArg: Option[PredicateExpression])
   extends DownStepExpression(s, predArg) {
 
-  requiredEvaluations(stepQName)
+  requiredEvaluationsAlways(stepQName)
 
   override lazy val compiledDPath = {
     val d = downwardStep
@@ -2443,8 +2443,8 @@ case class ParenthesizedExpression(expression: Expression)
 case class DFDLXTraceExpr(nameAsParsed: String, fnQName: RefQName, args: List[Expression])
   extends FunctionCallBase(nameAsParsed, fnQName, args) {
 
-  requiredEvaluations(realArg)
-  requiredEvaluations(msgText)
+  requiredEvaluationsAlways(realArg)
+  requiredEvaluationsAlways(msgText)
 
   lazy val (realArg, msgText) = args match {
     case List(arg0, LiteralExpression(txt: String)) => (arg0, txt)

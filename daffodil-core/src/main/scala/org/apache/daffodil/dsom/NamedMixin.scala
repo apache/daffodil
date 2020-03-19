@@ -98,6 +98,7 @@ sealed trait GlobalComponent
   final lazy val globalQName =
     QName.createGlobal(name, namespace, xml.scope)
 
+  def shortSchemaComponentDesignator: String
 }
 
 trait GlobalNonElementComponentMixin
@@ -161,7 +162,7 @@ trait GlobalElementComponentMixin
  * Namely the local element declaration class.
  */
 trait ElementFormDefaultMixin {
-  
+
   def tunable: DaffodilTunables
 
   def xml: Node

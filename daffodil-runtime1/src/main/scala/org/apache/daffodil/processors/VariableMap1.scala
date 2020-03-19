@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.processors
 
-import org.apache.daffodil.api.Diagnostic
+import org.apache.daffodil.api.ThinDiagnostic
 import org.apache.daffodil.dsom.CompiledExpression
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.exceptions.ThrowsSDE
@@ -73,7 +73,7 @@ object VariableUtils {
 }
 
 abstract class VariableException(val qname: NamedQName, val context: VariableRuntimeData, msg: String)
-  extends Diagnostic(Maybe(context.schemaFileLocation), Nope, Nope, Maybe(msg)) {
+  extends ThinDiagnostic(Maybe(context.schemaFileLocation), Nope, Nope, Maybe(msg)) {
   def isError = true
   def modeName = "Variable"
 }

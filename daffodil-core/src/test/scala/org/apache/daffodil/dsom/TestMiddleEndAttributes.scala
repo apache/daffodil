@@ -47,8 +47,7 @@ class TestMiddleEndAttributes {
     val Seq(sd, _) = sch.schemaDocuments
 
     // Explore global element decl
-    val Seq(e1f) = sd.globalElementDecls
-    val e1 = e1f.forRoot()
+    val Seq(e1) = sd.globalElementDecls
     val e1ct = e1.complexType
     val seq = e1ct.sequence
     val Seq(s1, s2) = seq.groupMembers
@@ -77,8 +76,7 @@ class TestMiddleEndAttributes {
     val Seq(sd, _) = sch.schemaDocuments
 
     // Explore global element decl
-    val Seq(e1f) = sd.globalElementDecls
-    val e1 = e1f.forRoot()
+    val Seq(e1) = sd.globalElementDecls
     val e1ct = e1.complexType
     val seq = e1ct.sequence
     val Seq(s1, s2) = seq.groupMembers
@@ -110,8 +108,7 @@ class TestMiddleEndAttributes {
     val Seq(sd, _) = sch.schemaDocuments
 
     // Explore global element decl
-    val Seq(e1f) = sd.globalElementDecls
-    val e1 = e1f.forRoot()
+    val Seq(e1) = sd.globalElementDecls
     val e1ct = e1.complexType
     val seq = e1ct.sequence
     val Seq(s1, s2, s3, s4, s5) = seq.groupMembers
@@ -152,21 +149,20 @@ class TestMiddleEndAttributes {
     val Seq(sd, _) = sch.schemaDocuments
 
     // Explore global element decl
-    val Seq(e1f) = sd.globalElementDecls
-    val e1 = e1f.forRoot()
+    val Seq(e1) = sd.globalElementDecls
     val e1ct = e1.complexType
     val seq = e1ct.sequence
     val Seq(seqMem) = seq.groupMembers
     val cho = seqMem.asInstanceOf[Choice]
     val Seq(s1, s2) = cho.groupMembers
-    val es = s1.es
+    val es = s1.optLexicalParent.get.optLexicalParent.get.asInstanceOf[Sequence]
     assertTrue(es.hasInfixSep)
-    assertEquals(1, s1.positionInNearestEnclosingSequence)
+    assertEquals(1, s1.position)
     assertTrue(s1.isScalar)
     assertTrue(!s1.hasPriorRequiredSiblings)
-    val es2 = s2.es
+    val es2 = s2.optLexicalParent.get.optLexicalParent.get.asInstanceOf[Sequence]
     assertEquals(es, es2)
-    assertEquals(1, s2.positionInNearestEnclosingSequence)
+    assertEquals(2, s2.position)
     assertTrue(s2.isScalar)
     assertTrue(!s2.hasPriorRequiredSiblings)
   }
@@ -191,20 +187,14 @@ class TestMiddleEndAttributes {
     val Seq(sd, _) = sch.schemaDocuments
 
     // Explore global element decl
-    val Seq(_, e2f) = sd.globalElementDecls
-    val e2 = e2f.forRoot()
+    val Seq(_, e2) = sd.globalElementDecls
     val e2ct = e2.complexType
     val seq = e2ct.sequence
     val mems = seq.groupMembers
     val Seq(t1: Term) = mems
     val e1ref = t1.asInstanceOf[ElementRef]
-    val nes = e1ref.nearestEnclosingSequence
-    nes match {
-      case None => fail()
-      case Some(nes) => {
-        assertEquals(seq, nes)
-      }
-    }
+    val Some(nes: Sequence) = e1ref.optLexicalParent
+    assertEquals(seq, nes)
   }
 
   @Test def testImmediatelyEnclosingModelGroup1() {
@@ -238,8 +228,7 @@ class TestMiddleEndAttributes {
     val Seq(sd, _) = sch.schemaDocuments
 
     // Explore global element decl
-    val Seq(e1f, _) = sd.globalElementDecls
-    val e1 = e1f.forRoot()
+    val Seq(e1, _) = sd.globalElementDecls
     val e1ct = e1.complexType
     val e1seq = e1ct.sequence
     val Seq(t1: Term) = e1seq.groupMembers

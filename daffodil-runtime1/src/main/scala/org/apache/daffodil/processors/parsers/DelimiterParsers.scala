@@ -41,7 +41,6 @@ object DelimiterTextType extends Enum {
 class DelimiterTextParser(
   rd: TermRuntimeData,
   textParser: TextParser,
-  positionalInfo: String,
   delimiterType: DelimiterTextType.Type,
   isDelimited: Boolean)
   extends TextPrimParser {
@@ -112,7 +111,7 @@ class DelimiterTextParser(
         // do nothing, hasNext will increment the iterator
       }
 
-      // gather local typed delims 
+      // gather local typed delims
       var localTypedDelims = scannedDelims.next().lookingFor
       while (scannedDelims.hasNext()) {
         localTypedDelims = localTypedDelims + " " + scannedDelims.next().lookingFor

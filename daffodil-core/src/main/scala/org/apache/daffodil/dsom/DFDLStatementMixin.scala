@@ -27,7 +27,7 @@ trait ResolvesDFDLStatementMixin
   extends ThrowsSDE
   with ProvidesDFDLStatementMixin { self: Term =>
 
-  requiredEvaluations(statements)
+  requiredEvaluationsAlways(statements)
 
   final lazy val statements: Seq[DFDLStatement] =
     optReferencedStatementSource.toSeq.flatMap { _.resolvedStatements } ++

@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.dsom
 
-import java.math.{BigInteger => JBigInt, BigDecimal => JBigDecimal}
+import java.math.{ BigInteger => JBigInt, BigDecimal => JBigDecimal }
 import org.apache.daffodil.exceptions.ThrowsSDE
 import org.apache.daffodil.exceptions.UnsuppressableException
 import scala.xml.Node
@@ -176,13 +176,13 @@ final class Restriction(xmlArg: Node, val simpleTypeDef: SimpleTypeDefBase)
     }
   }.value
 
-  lazy val enumerations: Seq[EnumerationDefFactory] = (xml \ "enumeration").map(new EnumerationDefFactory(_, simpleTypeDef))
+  lazy val enumerations: Seq[EnumerationDef] = (xml \ "enumeration").map(new EnumerationDef(_, simpleTypeDef))
 
   lazy val facetValueSet: RepValueSet = {
     val initAns: (RangeBound, RangeBound) = (new RangeBound(DataValue.NoValue, false), new RangeBound(DataValue.NoValue, false))
     val range = combinedBaseFacets.foldLeft(initAns)({
       case (acc, (facetType, facetValue)) =>
-        lazy val valueAsBigInt:DataValueBigInt = new JBigInt(facetValue)
+        lazy val valueAsBigInt: DataValueBigInt = new JBigInt(facetValue)
         val (maybeBound, isMax, isInclusive) = facetType match {
           case Facet.maxExclusive => (valueAsBigInt, true, false)
           case Facet.maxInclusive => (valueAsBigInt, true, true)

@@ -17,26 +17,64 @@
 
 package org.apache.daffodil.processors.unparsers
 
+import org.apache.daffodil.processors._
 import org.apache.daffodil.infoset._
 import org.apache.daffodil.processors.RuntimeData
-import org.apache.daffodil.processors._
 import org.apache.daffodil.processors.dfa.DFADelimiter
 import org.apache.daffodil.schema.annotation.props.gen.ChoiceLengthKind
-import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe._
+import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.MaybeInt
+import org.apache.daffodil.util.Maybe._
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.util.PreSerialization
+
+case class ChoiceBranchMap(
+  lookupTable: Map[ChoiceBranchEvent, Unparser],
+  unmappedDefault: Option[Unparser])
+  extends PreSerialization {
+
+  /**
+   * On Scala 2.11 this declaration of writeObject seems to be required. Not on 2.12.
+   * @param out
+   * @throws java.io.IOException
+   */
+  @throws(classOf[java.io.IOException])
+  private def writeObject(out: java.io.ObjectOutputStream): Unit = serializeObject(out)
+
+  def get(cbe: ChoiceBranchEvent): Maybe[Unparser] = {
+    val fromTable = lookupTable.get(cbe)
+    val res =
+      if (fromTable.isDefined) One(fromTable.get)
+      else {
+        //
+        // There must be an unmapped default in this case
+        // because otherwise the map is incomplete.
+        //
+        if (unmappedDefault.isDefined)
+          One(unmappedDefault.get)
+        else
+          Nope
+      }
+    res
+  }
+
+  def childProcessors = lookupTable.values.toSeq ++ unmappedDefault
+
+  def keys = lookupTable.keys
+}
 
 class ChoiceCombinatorUnparser(
   mgrd: ModelGroupRuntimeData,
-  eventUnparserMap: Map[ChoiceBranchEvent, Unparser],
+  eventUnparserMap: ChoiceBranchMap,
   choiceLengthInBits: MaybeInt)
   extends CombinatorUnparser(mgrd)
   with ToBriefXMLImpl {
   override def nom = "Choice"
 
-  override lazy val runtimeDependencies = Vector()
+  override val runtimeDependencies = Vector()
 
-  override lazy val childProcessors = eventUnparserMap.map { case (k, v) => v }.toSeq.toVector
+  override val childProcessors = eventUnparserMap.childProcessors.toVector
 
   def unparse(state: UState): Unit = {
     state.pushTRD(mgrd)
@@ -53,12 +91,14 @@ class ChoiceCombinatorUnparser(
       case e if e.isEnd && e.isArray => ChoiceBranchEndEvent(e.erd.namedQName)
     }
 
-    val childUnparser = eventUnparserMap.get(key).getOrElse {
+    val maybeChildUnparser = eventUnparserMap.get(key)
+    if (maybeChildUnparser.isEmpty) {
       UnparseError(One(mgrd.schemaFileLocation), One(state.currentLocation),
         "Found next element %s, but expected one of %s.",
         key.qname.toExtendedSyntax,
         eventUnparserMap.keys.map { _.qname.toExtendedSyntax }.mkString(", "))
     }
+    val childUnparser = maybeChildUnparser.get
     state.popTRD(mgrd)
     state.pushTRD(childUnparser.context.asInstanceOf[TermRuntimeData])
     if (choiceLengthInBits.isDefined) {

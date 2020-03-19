@@ -76,7 +76,7 @@
   <xs:element name="inputTypeCalcInt_01" type="xs:int" dfdl:inputValueCalc="{ dfdlx:inputTypeCalc('tns:AbstractIntTo1', 7) }" />
   <xs:element name="inputTypeCalcString_01" type="xs:string" dfdl:inputValueCalc="{ dfdlx:inputTypeCalc('tns:AbstractIntToXYZ', 7) }" />
 
-  <xs:element name="outputTypeCalcInt_01">
+  <xs:element name="outputTypeCalcInt_01" dfdlx:parseUnparsePolicy="unparseOnly">
     <xs:complexType>
       <xs:sequence>
         <xs:element name="inner" type="tns:uint8" dfdl:outputValueCalc="{ dfdlx:outputTypeCalc('tns:Abstract1FromInt', 7) }" />

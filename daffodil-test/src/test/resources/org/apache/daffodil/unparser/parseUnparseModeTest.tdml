@@ -55,8 +55,8 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:errors>
-      <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>UPA</tdml:error>
+      <tdml:error>Schema Definition Warning</tdml:error>
+      <tdml:error>multiple choice</tdml:error>
     </tdml:errors>
   </tdml:unparserTestCase>
 
@@ -67,10 +67,15 @@
         <ex:entirelyOptionalChoice><a>1</a></ex:entirelyOptionalChoice>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+    <!--
+    We no longer produce this warning for this test.
+    Choices with entirely optional content are legal, so long as there is
+    no ambiguity nor UPA violation with things before/after the choice.
     <tdml:warnings>
       <tdml:warning>Schema Definition Warning</tdml:warning>
       <tdml:warning>entirely optional content</tdml:warning>
     </tdml:warnings>
+    -->
     <tdml:document>1</tdml:document>
   </tdml:unparserTestCase>
 

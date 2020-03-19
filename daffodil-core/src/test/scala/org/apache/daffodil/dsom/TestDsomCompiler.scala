@@ -61,8 +61,7 @@ class TestDsomCompiler extends Logging {
     val sset = compiler.compileNode(testSchema).sset
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc, _) = schema.schemaDocuments
-    val Seq(declf) = schemaDoc.globalElementDecls
-    val decl = declf.forRoot()
+    val Seq(decl) = schemaDoc.globalElementDecls.map { _.asRoot }
 
     val tnr = decl.textNumberRep
     assertEquals(TextNumberRep.Standard, tnr)
@@ -167,8 +166,7 @@ class TestDsomCompiler extends Logging {
 
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc, _) = schema.schemaDocuments
-    val Seq(declFactory) = schemaDoc.globalElementDecls
-    val decl = declFactory.forRoot()
+    val Seq(decl) = schemaDoc.globalElementDecls.map { _.asRoot }
     val Seq(ct) = schemaDoc.globalComplexTypeDefs
     assertEquals("example1", ct.name)
 
@@ -203,7 +201,7 @@ class TestDsomCompiler extends Logging {
     val Seq(ct) = schemaDoc.globalComplexTypeDefs
     assertEquals("example1", ct.name)
 
-    val mg = ct.forElement(null).modelGroup.asInstanceOf[Sequence]
+    val mg = ct.modelGroup.asInstanceOf[Sequence]
     assertTrue(mg.isInstanceOf[Sequence])
 
     val Seq(elem) = mg.groupMembers
@@ -222,23 +220,22 @@ class TestDsomCompiler extends Logging {
     assertNotNull(gct)
 
     // Explore global element decl
-    val Seq(e1f, e2f, e3f, _, _) = sd.globalElementDecls // there are 3 factories
-    val root1 = e1f.forRoot()
-    val e1 = root1.referencedElement
-    e2f.forRoot()
-    val e3 = e3f.forRoot()
+    val Seq(e1d, e2d, e3d, _, _) = sd.globalElementDecls // there are 3 factories
+    val e1 = e1d.asRoot
+    val e2 = e2d.asRoot
+    val e3 = e3d.asRoot
     assertEquals(
       ByteOrder.BigEndian.toString.toLowerCase(),
-      e1.formatAnnotation.asInstanceOf[DFDLElement].getPropertyForUnitTest("byteOrder").toLowerCase())
-    val Seq(_, a2) = e3.referencedElement.annotationObjs // third one has two annotations
+      e1d.formatAnnotation.asInstanceOf[DFDLElement].getPropertyForUnitTest("byteOrder").toLowerCase())
+    val Seq(_, a2) = e3d.annotationObjs // third one has two annotations
     assertTrue(a2.isInstanceOf[DFDLAssert]) // second annotation is newVariableInstance
     assertEquals(OccursCountKind.Implicit.toString, e3.getProperty("occursCountKind"))
     // Explore local complex type def
-    val seq = e1.sequence //... which is a sequence
+    val seq = e1.complexType.modelGroup.asInstanceOf[Sequence] //... which is a sequence
     seq.formatAnnotation.asInstanceOf[DFDLSequence] //...annotated with...
     assertEquals(YesNo.No, seq.initiatedContent) // initiatedContent="no"
 
-    val Seq(e1a: DFDLElement) = e1.annotationObjs
+    val Seq(e1a: DFDLElement) = e1d.annotationObjs
     assertEquals("UTF-8", e1a.getPropertyForUnitTest("encoding"))
 
     // Explore global simple type defs
@@ -265,8 +262,7 @@ class TestDsomCompiler extends Logging {
     assertEquals("%%", es) // has escapeCharacter="%%" (note: string literals not digested yet, so %% is %%, not %.
 
     // Explore global group defs
-    val Seq(_, gedf, _*) = sd.globalElementDecls
-    val root = gedf.forRoot()
+    val Seq(_, root, _*) = sd.globalElementDecls
     val seq1 = root.complexType.modelGroup.asInstanceOf[SequenceGroupRef]
 
     val Seq(e1r: ElementRef, cgr: ChoiceGroupRef) = seq1.groupMembers
@@ -302,13 +298,11 @@ class TestDsomCompiler extends Logging {
     val Seq(sd, _) = sch.schemaDocuments
 
     // Explore global group defs
-    val Seq(_, gedf, _*) = sd.globalElementDecls
-    val root = gedf.forRoot()
+    val Seq(_, root, _*) = sd.globalElementDecls
     val seq1 = root.complexType.modelGroup.asInstanceOf[SequenceGroupRef]
 
-    val Seq(_: ElementRef, gr: GroupRef) = seq1.groupMembers
-    val cgd = gr.groupDef.asInstanceOf[GlobalChoiceGroupDef]
-    val cgr = cgd.groupRef.asInstanceOf[ChoiceGroupRef]
+    val Seq(_: ElementRef, cgr: ChoiceGroupRef) = seq1.groupMembers
+    val cgd = cgr.groupDef
     val Seq(_, cd2: LocalElementDecl, rest @ _*) = cgd.groupMembersNotShared // Children nodes of Choice-node, there are 3
 
     // val Seq(a1: DFDLChoice) = ch1.annotationObjs // Obtain the annotation object that is a child
@@ -333,9 +327,8 @@ class TestDsomCompiler extends Logging {
     val Seq(sch) = sset.schemas
     val Seq(sd) = sch.schemaDocuments
 
-    val Seq(ge1f, _, _, _, _, _) = sd.globalElementDecls // Obtain global element nodes
-    val a1 = ge1f.forRoot()
-
+    val Seq(a1d, _, _, _, _, _) = sd.globalElementDecls // Obtain global element nodes
+    val a1 = a1d.asRoot
     assertEquals(true, a1.verifyPropValue("occursCountKind", "parsed"))
     assertEquals(true, a1.verifyPropValue("lengthKind", "pattern"))
     assertEquals(true, a1.verifyPropValue("representation", "text"))
@@ -352,9 +345,7 @@ class TestDsomCompiler extends Logging {
     val Seq(sch) = sset.schemas
     val Seq(sd) = sch.schemaDocuments
 
-    val Seq(_, ge2, _, _, _, _) = sd.globalElementDecls // Obtain global element nodes
-
-    val x = ge2.forRoot()
+    val Seq(_, x, _, _, _, _) = sd.globalElementDecls.map { _.asRoot } // Obtain global element nodes
 
     assertEquals(AlignmentUnits.Bytes, x.alignmentUnits)
   }
@@ -369,13 +360,7 @@ class TestDsomCompiler extends Logging {
     val Seq(sch) = sset.schemas
     val Seq(sd) = sch.schemaDocuments
 
-    val Seq(_, ge2f, ge3f, ge4f, ge5f, ge6f) = sd.globalElementDecls // Obtain global element nodes
-
-    val ge2 = ge2f.forRoot()
-    val ge3 = ge3f.forRoot()
-    val ge4 = ge4f.forRoot()
-    val ge5 = ge5f.forRoot()
-    val ge6 = ge6f.forRoot()
+    val Seq(_, ge2, ge3, ge4, ge5, ge6) = sd.globalElementDecls.map { _.asRoot } // Obtain global element nodes
 
     assertEquals(AlignmentUnits.Bytes, ge2.alignmentUnits)
 
@@ -411,9 +396,9 @@ class TestDsomCompiler extends Logging {
 
     // Explore global element decl
     val Seq(e1f, e2f, e3f, _, _) = sd.globalElementDecls // there are 3 factories
-    val e1 = e1f.forRoot()
-    e2f.forRoot()
-    e3f.forRoot()
+    val e1 = e1f.asRoot
+    e2f.asRoot
+    e3f.asRoot
 
     val Seq(gs1f, _, gs3f, _) = sd.globalSimpleTypeDefs
 
@@ -459,7 +444,7 @@ class TestDsomCompiler extends Logging {
     val Seq(_, _, _, e4f, e5f) = sd.globalElementDecls // there are 3 factories
 
     // GroupRefTest
-    val e4 = e4f.forRoot() // groupRefTest
+    val e4 = e4f.asRoot // groupRefTest
 
     val e4ct = e4.complexType
 
@@ -478,7 +463,7 @@ class TestDsomCompiler extends Logging {
 
     // GroupRefTestOverlap
 
-    val e5 = e5f.forRoot() // groupRefTestOverlap
+    val e5 = e5f.asRoot // groupRefTestOverlap
 
     val e5ct = e5.complexType
 
@@ -505,7 +490,7 @@ class TestDsomCompiler extends Logging {
     val Seq(sd) = sset.allSchemaDocuments
 
     val Seq(ge1f) = sd.globalElementDecls // Obtain global element nodes
-    val ge1 = ge1f.forRoot()
+    val ge1 = ge1f.asRoot
 
     val f1 = ge1
 
@@ -536,7 +521,7 @@ class TestDsomCompiler extends Logging {
     val Seq(sd, _) = sch.schemaDocuments
 
     val Seq(ge1f) = sd.globalElementDecls // Obtain global element nodes
-    val ge1 = ge1f.forRoot()
+    val ge1 = ge1f.asRoot
     ge1.formatAnnotation.properties
 
   }
@@ -554,7 +539,7 @@ class TestDsomCompiler extends Logging {
     val Seq(sd, _) = sch.schemaDocuments
 
     val Seq(ge1f) = sd.globalElementDecls // Obtain global element nodes
-    val ge1 = ge1f.forRoot().referencedElement
+    val ge1 = ge1f.asRoot.referencedElement
 
     val qn = ge1.formatAnnotation.resolveQName("tns:ref1")
     val nsURI = qn.namespace
@@ -596,7 +581,7 @@ class TestDsomCompiler extends Logging {
     val Seq(sd, _) = sch.schemaDocuments
 
     val Seq(ge1f) = sd.globalElementDecls // Obtain global element nodes
-    val ge1 = ge1f.forRoot().referencedElement
+    val ge1 = ge1f.asRoot.referencedElement
 
     val seq = ge1.sequence
 
@@ -624,7 +609,7 @@ class TestDsomCompiler extends Logging {
     val Seq(sd, _) = sch.schemaDocuments
 
     val Seq(_, gedf, _*) = sd.globalElementDecls
-    val root = gedf.forRoot()
+    val root = gedf.asRoot
     val sgr = root.complexType.modelGroup.asInstanceOf[SequenceGroupRef]
 
     val Seq(e1r: ElementRef, cgr: ChoiceGroupRef) = sgr.groupMembers
@@ -659,7 +644,7 @@ class TestDsomCompiler extends Logging {
     val Seq(sd, _) = sch.schemaDocuments
 
     val Seq(ge1f) = sd.globalElementDecls // Obtain global element nodes
-    val ge1 = ge1f.forRoot().referencedElement
+    val ge1 = ge1f.asRoot.referencedElement
 
     val seq = ge1.sequence
 
@@ -1053,7 +1038,7 @@ class TestDsomCompiler extends Logging {
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
-    val decl = declf.forRoot()
+    val decl = declf.asRoot
 
     assertEquals(1, decl.patternValues.length)
     val (_, pattern) = decl.patternValues(0)
@@ -1092,7 +1077,7 @@ class TestDsomCompiler extends Logging {
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
-    val decl = declf.forRoot()
+    val decl = declf.asRoot
 
     assertEquals(3, decl.patternValues.length)
     val (_, st1) = decl.patternValues(0)
@@ -1103,1580 +1088,5 @@ class TestDsomCompiler extends Logging {
     assertEquals("4|5|6", st2.toString())
     assertEquals("7|8|9", st3.toString())
   }
-
-  /**
-   * Here we just want to test that we can detect next
-   * elements across sequences.  All elements are 'required'.
-   */
-  @Test def test_could_be_next_method_01() {
-    val testSchema = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
-      <dfdl:format ref="tns:GeneralFormat"/>,
-      <xs:element name="root">
-        <xs:complexType>
-          <xs:sequence>
-            <xs:element name="one" dfdl:terminator=":">
-              <xs:complexType>
-                <xs:sequence dfdl:separator=",">
-                  <xs:element name="a" type="xs:string"/>
-                  <xs:element name="b" type="xs:string"/>
-                  <xs:element name="c" type="xs:string"/>
-                </xs:sequence>
-              </xs:complexType>
-            </xs:element>
-            <xs:element name="two" dfdl:terminator=":">
-              <xs:complexType>
-                <xs:sequence dfdl:separator=",">
-                  <xs:element name="d" type="xs:string"/>
-                  <xs:element name="e" type="xs:string"/>
-                  <xs:element name="f" type="xs:string"/>
-                </xs:sequence>
-              </xs:complexType>
-            </xs:element>
-            <xs:element name="three" dfdl:terminator=":">
-              <xs:complexType>
-                <xs:sequence dfdl:separator=",">
-                  <xs:element name="g" type="xs:string"/>
-                  <xs:element name="h" type="xs:string"/>
-                  <xs:element name="i" type="xs:string"/>
-                </xs:sequence>
-              </xs:complexType>
-            </xs:element>
-            <xs:sequence>
-              <xs:element name="four" dfdl:terminator=":">
-                <xs:complexType>
-                  <xs:sequence dfdl:separator=",">
-                    <xs:element name="j" type="xs:string"/>
-                    <xs:element name="k" type="xs:string"/>
-                    <xs:element name="l" type="xs:string"/>
-                  </xs:sequence>
-                </xs:complexType>
-              </xs:element>
-            </xs:sequence>
-          </xs:sequence>
-        </xs:complexType>
-      </xs:element>)
-
-    val compiler = Compiler()
-    val sset = compiler.compileNode(testSchema).sset
-    val Seq(schema) = sset.schemas
-    val Seq(schemaDoc, _) = schema.schemaDocuments
-    val Seq(declf) = schemaDoc.globalElementDecls
-    val root = declf.forRoot()
-    val rootCT = root.complexType
-
-    // Verify that nothing follows the root, as it is the root.
-    val elemsFollowingRoot = root.possibleNextTerms
-    assertEquals(0, elemsFollowingRoot.length)
-
-    val rootCTSeq = rootCT.sequence //... which is a sequence
-
-    // Verify that nothing follows the sequence of the root.
-    val elemsFollowingRootSeq = rootCTSeq.possibleNextTerms
-    assertEquals(0, elemsFollowingRootSeq.length)
-
-    val Seq(one: ElementBase, two: ElementBase, three: ElementBase, _: Sequence) =
-      rootCTSeq.groupMembers // has an element and a sub-sequence as its children.
-
-    val elemsFollowingOne = one.possibleNextTerms
-    assertEquals(1, elemsFollowingOne.length)
-    assertEquals("two", elemsFollowingOne(0).asInstanceOf[ElementBase].name)
-
-    val elemsFollowingTwo = two.possibleNextTerms
-    assertEquals(1, elemsFollowingTwo.length)
-    assertEquals("three", elemsFollowingTwo(0).asInstanceOf[ElementBase].name)
-
-    val elemsFollowingThree = three.possibleNextTerms
-    assertEquals(1, elemsFollowingThree.length)
-    val seqFollowingThree = elemsFollowingThree(0).asInstanceOf[Sequence]
-
-    val Seq(four: ElementBase) = seqFollowingThree.allSelfContainedTermsTerminatedByRequiredElement
-    assertEquals("four", four.name)
-
-  }
-
-  /**
-   * Here we want to detect that element 'three' is optional.
-   * As such, the list of possible elements after 'two' should
-   * contain 'three' and 'four'.
-   */
-  @Test def test_could_be_next_method_02() {
-    val testSchema = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
-      <dfdl:format ref="tns:GeneralFormat"/>,
-      <xs:element name="root">
-        <xs:complexType>
-          <xs:sequence>
-            <xs:element name="one" dfdl:terminator=":">
-              <xs:complexType>
-                <xs:sequence dfdl:separator=",">
-                  <xs:element name="a" type="xs:string"/>
-                  <xs:element name="b" type="xs:string"/>
-                  <xs:element name="c" type="xs:string"/>
-                </xs:sequence>
-              </xs:complexType>
-            </xs:element>
-            <xs:element name="two" dfdl:terminator=":">
-              <xs:complexType>
-                <xs:sequence dfdl:separator=",">
-                  <xs:element name="d" type="xs:string"/>
-                  <xs:element name="e" type="xs:string"/>
-                  <xs:element name="f" type="xs:string"/>
-                </xs:sequence>
-              </xs:complexType>
-            </xs:element>
-            <xs:element name="three" dfdl:terminator=":" minOccurs="0" maxOccurs="1">
-              <xs:complexType>
-                <xs:sequence dfdl:separator=",">
-                  <xs:element name="g" type="xs:string"/>
-                  <xs:element name="h" type="xs:string"/>
-                  <xs:element name="i" type="xs:string"/>
-                </xs:sequence>
-              </xs:complexType>
-            </xs:element>
-            <xs:sequence>
-              <xs:element name="four" dfdl:terminator=":">
-                <xs:complexType>
-                  <xs:sequence dfdl:separator=",">
-                    <xs:element name="j" type="xs:string"/>
-                    <xs:element name="k" type="xs:string"/>
-                    <xs:element name="l" type="xs:string"/>
-                  </xs:sequence>
-                </xs:complexType>
-              </xs:element>
-            </xs:sequence>
-          </xs:sequence>
-        </xs:complexType>
-      </xs:element>)
-
-    val compiler = Compiler()
-    val sset = compiler.compileNode(testSchema).sset
-    val Seq(schema) = sset.schemas
-    val Seq(schemaDoc, _) = schema.schemaDocuments
-    val Seq(declf) = schemaDoc.globalElementDecls
-    val root = declf.forRoot()
-    val rootCT = root.complexType
-
-    // Verify that nothing follows the root, as it is the root.
-    val elemsFollowingRoot = root.possibleNextTerms
-    assertEquals(0, elemsFollowingRoot.length)
-
-    val rootCTSeq = rootCT.sequence //... which is a sequence
-
-    // Verify that nothing follows the sequence of the root.
-    val elemsFollowingRootSeq = rootCTSeq.possibleNextTerms
-    assertEquals(0, elemsFollowingRootSeq.length)
-
-    val Seq(one: ElementBase, two: ElementBase, three: ElementBase, _: Sequence) =
-      rootCTSeq.groupMembers // has an element and a sub-sequence as its children.
-
-    val elemsFollowingOne = one.possibleNextTerms
-    assertEquals(1, elemsFollowingOne.length)
-    assertEquals("two", elemsFollowingOne(0).asInstanceOf[ElementBase].name)
-
-    val elemsFollowingTwo = two.possibleNextTerms
-    assertEquals(2, elemsFollowingTwo.length)
-    assertEquals("three", elemsFollowingTwo(0).asInstanceOf[ElementBase].name)
-    val seqFollowingThree = elemsFollowingTwo(1).asInstanceOf[Sequence]
-    val Seq(four: ElementBase) = seqFollowingThree.groupMembers
-    assertEquals("four", four.name)
-
-    val elemsFollowingThree = three.possibleNextTerms
-    assertEquals(1, elemsFollowingThree.length)
-    val seqFollowingThree2 = elemsFollowingThree(0).asInstanceOf[Sequence]
-    val Seq(four2: ElementBase) = seqFollowingThree2.groupMembers
-    assertEquals("four", four2.name)
-  }
-
-  /**
-   * Here because 'two' is optional, we expect to see
-   * 'two' and 'three' in 'one's possibleNextTerms list.
-   */
-  @Test def test_could_be_next_method_03() {
-    val testSchema = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
-      <dfdl:format ref="tns:GeneralFormat"/>,
-      <xs:element name="root">
-        <xs:complexType>
-          <xs:sequence>
-            <xs:element name="one" dfdl:terminator=":">
-              <xs:complexType>
-                <xs:sequence dfdl:separator=",">
-                  <xs:element name="a" type="xs:string"/>
-                  <xs:element name="b" type="xs:string"/>
-                  <xs:element name="c" type="xs:string"/>
-                </xs:sequence>
-              </xs:complexType>
-            </xs:element>
-            <xs:element name="two" dfdl:terminator=":" minOccurs="0" maxOccurs="1">
-              <xs:complexType>
-                <xs:sequence dfdl:separator=",">
-                  <xs:element name="d" type="xs:string"/>
-                  <xs:element name="e" type="xs:string"/>
-                  <xs:element name="f" type="xs:string"/>
-                </xs:sequence>
-              </xs:complexType>
-            </xs:element>
-            <xs:element name="three" dfdl:terminator=":">
-              <xs:complexType>
-                <xs:sequence dfdl:separator=",">
-                  <xs:element name="g" type="xs:string"/>
-                  <xs:element name="h" type="xs:string"/>
-                  <xs:element name="i" type="xs:string"/>
-                </xs:sequence>
-              </xs:complexType>
-            </xs:element>
-            <xs:sequence>
-              <xs:element name="four" dfdl:terminator=":">
-                <xs:complexType>
-                  <xs:sequence dfdl:separator=",">
-                    <xs:element name="j" type="xs:string"/>
-                    <xs:element name="k" type="xs:string"/>
-                    <xs:element name="l" type="xs:string"/>
-                  </xs:sequence>
-                </xs:complexType>
-              </xs:element>
-            </xs:sequence>
-          </xs:sequence>
-        </xs:complexType>
-      </xs:element>)
-
-    val compiler = Compiler()
-    val sset = compiler.compileNode(testSchema).sset
-    val Seq(schema) = sset.schemas
-    val Seq(schemaDoc, _) = schema.schemaDocuments
-    val Seq(declf) = schemaDoc.globalElementDecls
-    val root = declf.forRoot()
-    val rootCT = root.complexType
-
-    // Verify that nothing follows the root, as it is the root.
-    val elemsFollowingRoot = root.possibleNextTerms
-    assertEquals(0, elemsFollowingRoot.length)
-
-    val rootCTSeq = rootCT.sequence //... which is a sequence
-
-    // Verify that nothing follows the sequence of the root.
-    val elemsFollowingRootSeq = rootCTSeq.possibleNextTerms
-    assertEquals(0, elemsFollowingRootSeq.length)
-
-    val Seq(one: ElementBase, two: ElementBase, three: ElementBase, _: Sequence) =
-      rootCTSeq.groupMembers // has an element and a sub-sequence as its children.
-
-    val elemsFollowingOne = one.possibleNextTerms
-    assertEquals(2, elemsFollowingOne.length)
-    assertEquals("two", elemsFollowingOne(0).asInstanceOf[ElementBase].name)
-    assertEquals("three", elemsFollowingOne(1).asInstanceOf[ElementBase].name)
-
-    val elemsFollowingTwo = two.possibleNextTerms
-    assertEquals(1, elemsFollowingTwo.length)
-    assertEquals("three", elemsFollowingTwo(0).asInstanceOf[ElementBase].name)
-
-    val elemsFollowingThree = three.possibleNextTerms
-    assertEquals(1, elemsFollowingThree.length)
-    val seqFollowingThree = elemsFollowingThree(0).asInstanceOf[Sequence]
-    val Seq(four: ElementBase) = seqFollowingThree.groupMembers
-    assertEquals("four", four.name)
-
-  }
-
-  /**
-   * Here because 'one' is optional, we expect to see
-   * 'two' in 'one's possibleNextTerms list.
-   */
-  @Test def test_could_be_next_method_04() {
-    val testSchema = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
-      <dfdl:format ref="tns:GeneralFormat"/>,
-      <xs:element name="root">
-        <xs:complexType>
-          <xs:sequence>
-            <xs:element name="one" dfdl:terminator=":" minOccurs="0" maxOccurs="1">
-              <xs:complexType>
-                <xs:sequence dfdl:separator=",">
-                  <xs:element name="a" type="xs:string"/>
-                  <xs:element name="b" type="xs:string"/>
-                  <xs:element name="c" type="xs:string"/>
-                </xs:sequence>
-              </xs:complexType>
-            </xs:element>
-            <xs:element name="two" dfdl:terminator=":">
-              <xs:complexType>
-                <xs:sequence dfdl:separator=",">
-                  <xs:element name="d" type="xs:string"/>
-                  <xs:element name="e" type="xs:string"/>
-                  <xs:element name="f" type="xs:string"/>
-                </xs:sequence>
-              </xs:complexType>
-            </xs:element>
-            <xs:element name="three" dfdl:terminator=":">
-              <xs:complexType>
-                <xs:sequence dfdl:separator=",">
-                  <xs:element name="g" type="xs:string"/>
-                  <xs:element name="h" type="xs:string"/>
-                  <xs:element name="i" type="xs:string"/>
-                </xs:sequence>
-              </xs:complexType>
-            </xs:element>
-            <xs:sequence>
-              <xs:element name="four" dfdl:terminator=":">
-                <xs:complexType>
-                  <xs:sequence dfdl:separator=",">
-                    <xs:element name="j" type="xs:string"/>
-                    <xs:element name="k" type="xs:string"/>
-                    <xs:element name="l" type="xs:string"/>
-                  </xs:sequence>
-                </xs:complexType>
-              </xs:element>
-            </xs:sequence>
-          </xs:sequence>
-        </xs:complexType>
-      </xs:element>)
-
-    val compiler = Compiler()
-    val sset = compiler.compileNode(testSchema).sset
-    val Seq(schema) = sset.schemas
-    val Seq(schemaDoc, _) = schema.schemaDocuments
-    val Seq(declf) = schemaDoc.globalElementDecls
-    val root = declf.forRoot()
-    val rootCT = root.complexType
-
-    // Verify that nothing follows the root, as it is the root.
-    val elemsFollowingRoot = root.possibleNextTerms
-    assertEquals(0, elemsFollowingRoot.length)
-
-    val rootCTSeq = rootCT.sequence //... which is a sequence
-
-    // Verify that nothing follows the sequence of the root.
-    val elemsFollowingRootSeq = rootCTSeq.possibleNextTerms
-    assertEquals(0, elemsFollowingRootSeq.length)
-
-    val Seq(one: ElementBase, two: ElementBase, three: ElementBase, _: Sequence) =
-      rootCTSeq.groupMembers // has an element and a sub-sequence as its children.
-
-    val elemsFollowingOne = one.possibleNextTerms
-    assertEquals(1, elemsFollowingOne.length)
-    assertEquals("two", elemsFollowingOne(0).asInstanceOf[ElementBase].name)
-
-    val elemsFollowingTwo = two.possibleNextTerms
-    assertEquals(1, elemsFollowingTwo.length)
-    assertEquals("three", elemsFollowingTwo(0).asInstanceOf[ElementBase].name)
-
-    val elemsFollowingThree = three.possibleNextTerms
-    assertEquals(1, elemsFollowingThree.length)
-    val seqFollowingThree = elemsFollowingThree(0).asInstanceOf[Sequence]
-    val Seq(four: ElementBase) = seqFollowingThree.groupMembers
-    assertEquals("four", four.name)
-
-  }
-
-  /**
-   * Here because 'two', 'three', and 'four' are optional...
-   *
-   * name  possibleNextTerms
-   * =======================
-   * one    two, three, four
-   * two    three, four
-   * three  four
-   * four   -empty-
-   */
-  @Test def test_could_be_next_method_05() {
-    val testSchema = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
-      <dfdl:format ref="tns:GeneralFormat"/>,
-      <xs:element name="root">
-        <xs:complexType>
-          <xs:sequence>
-            <xs:element name="one" dfdl:terminator=":">
-              <xs:complexType>
-                <xs:sequence dfdl:separator=",">
-                  <xs:element name="a" type="xs:string"/>
-                  <xs:element name="b" type="xs:string"/>
-                  <xs:element name="c" type="xs:string"/>
-                </xs:sequence>
-              </xs:complexType>
-            </xs:element>
-            <xs:element name="two" dfdl:terminator=":" minOccurs="0" maxOccurs="1">
-              <xs:complexType>
-                <xs:sequence dfdl:separator=",">
-                  <xs:element name="d" type="xs:string"/>
-                  <xs:element name="e" type="xs:string"/>
-                  <xs:element name="f" type="xs:string"/>
-                </xs:sequence>
-              </xs:complexType>
-            </xs:element>
-            <xs:element name="three" dfdl:terminator=":" minOccurs="0" maxOccurs="1">
-              <xs:complexType>
-                <xs:sequence dfdl:separator=",">
-                  <xs:element name="g" type="xs:string"/>
-                  <xs:element name="h" type="xs:string"/>
-                  <xs:element name="i" type="xs:string"/>
-                </xs:sequence>
-              </xs:complexType>
-            </xs:element>
-            <xs:sequence>
-              <xs:element name="four" dfdl:terminator=":" minOccurs="0" maxOccurs="1">
-                <xs:complexType>
-                  <xs:sequence dfdl:separator=",">
-                    <xs:element name="j" type="xs:string"/>
-                    <xs:element name="k" type="xs:string"/>
-                    <xs:element name="l" type="xs:string"/>
-                  </xs:sequence>
-                </xs:complexType>
-              </xs:element>
-            </xs:sequence>
-          </xs:sequence>
-        </xs:complexType>
-      </xs:element>)
-
-    val compiler = Compiler()
-    val sset = compiler.compileNode(testSchema).sset
-    val Seq(schema) = sset.schemas
-    val Seq(schemaDoc, _) = schema.schemaDocuments
-    val Seq(declf) = schemaDoc.globalElementDecls
-    val root = declf.forRoot()
-    val rootCT = root.complexType
-
-    // Verify that nothing follows the root, as it is the root.
-    val elemsFollowingRoot = root.possibleNextTerms
-    assertEquals(0, elemsFollowingRoot.length)
-
-    val rootCTSeq = rootCT.sequence //... which is a sequence
-
-    // Verify that nothing follows the sequence of the root.
-    val elemsFollowingRootSeq = rootCTSeq.possibleNextTerms
-    assertEquals(0, elemsFollowingRootSeq.length)
-
-    val Seq(one: ElementBase, two: ElementBase, three: ElementBase, seq: Sequence) =
-      rootCTSeq.groupMembers // has an element and a sub-sequence as its children.
-
-    val Seq(four: ElementBase) = seq.groupMembers
-
-    val elemsFollowingOne = one.possibleNextTerms
-    val Seq(eTwo: ElementBase, eThree: ElementBase, seqFollowingThree: Sequence) = one.possibleNextTerms
-    assertEquals(3, elemsFollowingOne.length)
-    assertEquals("two", eTwo.name)
-    assertEquals("three", eThree.name)
-    val Seq(eFour: ElementBase) = seqFollowingThree.groupMembers
-    assertEquals("four", eFour.name)
-
-    val elemsFollowingTwo = two.possibleNextTerms
-    val Seq(eThree_2: ElementBase, seqFollowingThree_2: Sequence) = two.possibleNextTerms
-    assertEquals(2, elemsFollowingTwo.length)
-    assertEquals("three", eThree_2.name)
-    val Seq(eFour_2: ElementBase) = seqFollowingThree_2.groupMembers
-    assertEquals("four", eFour_2.name)
-
-    val elemsFollowingThree = three.possibleNextTerms
-    val Seq(seqFollowingThree_3: Sequence) = three.possibleNextTerms
-    assertEquals(1, elemsFollowingThree.length)
-    val Seq(eFour_3: ElementBase) = seqFollowingThree_3.groupMembers
-    assertEquals("four", eFour_3.name)
-
-    val elemsFollowingFour = four.possibleNextTerms
-    assertEquals(0, elemsFollowingFour.length)
-
-  }
-
-  /**
-   * Here because 'two', and 'three' are optional...
-   *
-   * name  possibleNextTerms
-   * =======================
-   * one   two, three, four
-   * two   three, four
-   * three four
-   * four  -empty-
-   */
-  @Test def test_could_be_next_method_06() {
-    val testSchema = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
-      <dfdl:format ref="tns:GeneralFormat"/>,
-      <xs:element name="root">
-        <xs:complexType>
-          <xs:sequence>
-            <xs:element name="one" dfdl:terminator=":">
-              <xs:complexType>
-                <xs:sequence dfdl:separator=",">
-                  <xs:element name="a" type="xs:string"/>
-                  <xs:element name="b" type="xs:string"/>
-                  <xs:element name="c" type="xs:string"/>
-                </xs:sequence>
-              </xs:complexType>
-            </xs:element>
-            <xs:element name="two" dfdl:terminator=":" minOccurs="0" maxOccurs="1">
-              <xs:complexType>
-                <xs:sequence dfdl:separator=",">
-                  <xs:element name="d" type="xs:string"/>
-                  <xs:element name="e" type="xs:string"/>
-                  <xs:element name="f" type="xs:string"/>
-                </xs:sequence>
-              </xs:complexType>
-            </xs:element>
-            <xs:element name="three" dfdl:terminator=":" minOccurs="0" maxOccurs="1">
-              <xs:complexType>
-                <xs:sequence dfdl:separator=",">
-                  <xs:element name="g" type="xs:string"/>
-                  <xs:element name="h" type="xs:string"/>
-                  <xs:element name="i" type="xs:string"/>
-                </xs:sequence>
-              </xs:complexType>
-            </xs:element>
-            <xs:sequence>
-              <xs:element name="four" dfdl:terminator=":">
-                <xs:complexType>
-                  <xs:sequence dfdl:separator=",">
-                    <xs:element name="j" type="xs:string"/>
-                    <xs:element name="k" type="xs:string"/>
-                    <xs:element name="l" type="xs:string"/>
-                  </xs:sequence>
-                </xs:complexType>
-              </xs:element>
-            </xs:sequence>
-          </xs:sequence>
-        </xs:complexType>
-      </xs:element>)
-
-    val compiler = Compiler()
-    val sset = compiler.compileNode(testSchema).sset
-    val Seq(schema) = sset.schemas
-    val Seq(schemaDoc, _) = schema.schemaDocuments
-    val Seq(declf) = schemaDoc.globalElementDecls
-    val root = declf.forRoot()
-    val rootCT = root.complexType
-
-    // Verify that nothing follows the root, as it is the root.
-    val elemsFollowingRoot = root.possibleNextTerms
-    assertEquals(0, elemsFollowingRoot.length)
-
-    val rootCTSeq = rootCT.sequence //... which is a sequence
-
-    // Verify that nothing follows the sequence of the root.
-    val elemsFollowingRootSeq = rootCTSeq.possibleNextTerms
-    assertEquals(0, elemsFollowingRootSeq.length)
-
-    val Seq(one: ElementBase, two: ElementBase, three: ElementBase, seq: Sequence) =
-      rootCTSeq.groupMembers // has an element and a sub-sequence as its children.
-
-    val Seq(four: ElementBase) = seq.groupMembers
-
-    val elemsFollowingOne = one.possibleNextTerms
-    val Seq(two_1: ElementBase, three_1: ElementBase, seqFollowingThree_1: Sequence) = one.possibleNextTerms
-    val Seq(four_1: ElementBase) = seqFollowingThree_1.groupMembers
-    assertEquals(3, elemsFollowingOne.length)
-    assertEquals("two", two_1.name)
-    assertEquals("three", three_1.name)
-    assertEquals("four", four_1.name)
-
-    val elemsFollowingTwo = two.possibleNextTerms
-    val Seq(three_2: ElementBase, seqFollowingThree_2: Sequence) = two.possibleNextTerms
-    val Seq(four_2: ElementBase) = seqFollowingThree_2.groupMembers
-    assertEquals(2, elemsFollowingTwo.length)
-    assertEquals("three", three_2.name)
-    assertEquals("four", four_2.name)
-
-    val elemsFollowingThree = three.possibleNextTerms
-    val Seq(seqFollowingThree_3: Sequence) = three.possibleNextTerms
-    val Seq(four_3: ElementBase) = seqFollowingThree_3.groupMembers
-    assertEquals(1, elemsFollowingThree.length)
-    assertEquals("four", four_3.name)
-
-    val elemsFollowingFour = four.possibleNextTerms
-    assertEquals(0, elemsFollowingFour.length)
-
-  }
-
-  //  /**
-  //   * Here because 'two', and 'three' are optional...
-  //   *
-  //   * name   possibleNextTerms
-  //   * =======================
-  //   * one    two, three, four
-  //   * a      b
-  //   * b      c
-  //   * c      two, three, four
-  //   * two    three, four
-  //   * three  four
-  //   * four   -empty-
-  //   */
-  //  @Test def test_could_be_next_method_07() {
-  //    val testSchema = SchemaUtils.dfdlTestSchema(
-  //      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
-  //      <dfdl:format ref="tns:GeneralFormat"/>,
-  //      <xs:element name="root">
-  //        <xs:complexType>
-  //          <xs:sequence>
-  //            <xs:element name="one" dfdl:terminator=":">
-  //              <xs:complexType>
-  //                <xs:sequence dfdl:separator=",">
-  //                  <xs:element name="a" type="xs:string"/>
-  //                  <xs:element name="b" type="xs:string"/>
-  //                  <xs:element name="c" type="xs:string"/>
-  //                </xs:sequence>
-  //              </xs:complexType>
-  //            </xs:element>
-  //            <xs:element name="two" dfdl:terminator=":" minOccurs="0" maxOccurs="1">
-  //              <xs:complexType>
-  //                <xs:sequence dfdl:separator=",">
-  //                  <xs:element name="d" type="xs:string"/>
-  //                  <xs:element name="e" type="xs:string"/>
-  //                  <xs:element name="f" type="xs:string"/>
-  //                </xs:sequence>
-  //              </xs:complexType>
-  //            </xs:element>
-  //            <xs:element name="three" dfdl:terminator=":" minOccurs="0" maxOccurs="1">
-  //              <xs:complexType>
-  //                <xs:sequence dfdl:separator=",">
-  //                  <xs:element name="g" type="xs:string"/>
-  //                  <xs:element name="h" type="xs:string"/>
-  //                  <xs:element name="i" type="xs:string"/>
-  //                </xs:sequence>
-  //              </xs:complexType>
-  //            </xs:element>
-  //            <xs:sequence>
-  //              <xs:element name="four" dfdl:terminator=":">
-  //                <xs:complexType>
-  //                  <xs:sequence dfdl:separator=",">
-  //                    <xs:element name="j" type="xs:string"/>
-  //                    <xs:element name="k" type="xs:string"/>
-  //                    <xs:element name="l" type="xs:string"/>
-  //                  </xs:sequence>
-  //                </xs:complexType>
-  //              </xs:element>
-  //            </xs:sequence>
-  //          </xs:sequence>
-  //        </xs:complexType>
-  //      </xs:element>)
-  //
-  //    val compiler = Compiler()
-  //    val sset = compiler.compileNode(testSchema).sset
-  //    val Seq(schema) = sset.schemas
-  //    val Seq(schemaDoc, _) = schema.schemaDocuments
-  //    val Seq(declf) = schemaDoc.globalElementDecls
-  //    val root = declf.forRoot()
-  //    val rootCT = root.complexType
-  //
-  //    // Verify that nothing follows the root, as it is the root.
-  //    val elemsFollowingRoot = root.possibleNextTerms
-  //    assertEquals(0, elemsFollowingRoot.length)
-  //
-  //    val rootCTSeq = rootCT.sequence //... which is a sequence
-  //
-  //    // Verify that nothing follows the sequence of the root.
-  //    val elemsFollowingRootSeq = rootCTSeq.possibleNextTerms
-  //    assertEquals(0, elemsFollowingRootSeq.length)
-  //
-  //    val Seq(one: LocalElementDecl, two: LocalElementDecl, three: LocalElementDecl, seq: Sequence) =
-  //      rootCTSeq.groupMembers // has an element and a sub-sequence as its children.
-  //
-  //    val Seq(four: LocalElementDecl) = seq.groupMembers
-  //
-  //    val oneCT = one.complexType
-  //    val oneCTSeq = oneCT.sequence
-  //    val elemsFollowingOneCTSeq = oneCTSeq.possibleNextTerms
-  //
-  //    val Seq(two_1: ElementBase, three_1: ElementBase, seqFollowingThree_1: Sequence) = oneCTSeq.possibleNextTerms
-  //    val Seq(four_1: ElementBase) = seqFollowingThree_1.groupMembers
-  //    assertEquals(3, elemsFollowingOneCTSeq.length)
-  //    assertEquals("two", two_1.name)
-  //    assertEquals("three", three_1.name)
-  //    assertEquals("four", four_1.name)
-  //
-  //    val Seq(a: LocalElementDecl, b: LocalElementDecl, c: LocalElementDecl) = oneCTSeq.groupMembers
-  //
-  //    val elemsFollowingA = a.possibleNextTerms
-  //    assertEquals(1, elemsFollowingA.length)
-  //    assertEquals("b", elemsFollowingA(0).asInstanceOf[ElementBase].name)
-  //
-  //    val elemsFollowingB = b.possibleNextTerms
-  //    assertEquals(1, elemsFollowingB.length)
-  //    assertEquals("c", elemsFollowingB(0).asInstanceOf[ElementBase].name)
-  //
-  //    val elemsFollowingC = c.possibleNextTerms
-  //    val Seq(two_2: ElementBase, three_2: ElementBase, seqFollowingThree_2: Sequence) = c.possibleNextTerms
-  //    val Seq(four_2: ElementBase) = seqFollowingThree_2.groupMembers
-  //    assertEquals(3, elemsFollowingC.length)
-  //    assertEquals("two", two_2.name)
-  //    assertEquals("three", three_2.name)
-  //    assertEquals("four", four_2.name)
-  //
-  //    val elemsFollowingTwo = two.possibleNextTerms
-  //    val Seq(three_3: ElementBase, seqFollowingThree_3: Sequence) = two.possibleNextTerms
-  //    val Seq(four_3: ElementBase) = seqFollowingThree_3.groupMembers
-  //    assertEquals(2, elemsFollowingTwo.length)
-  //    assertEquals("three", three_3.name)
-  //    assertEquals("four", four_3.name)
-  //
-  //    val elemsFollowingThree = three.possibleNextTerms
-  //    val Seq(seqFollowingThree_4: Sequence) = three.possibleNextTerms
-  //    val Seq(four_4: ElementBase) = seqFollowingThree_4.groupMembers
-  //    assertEquals(1, elemsFollowingThree.length)
-  //    assertEquals("four", four_4.name)
-  //
-  //    val elemsFollowingFour = four.possibleNextTerms
-  //    assertEquals(0, elemsFollowingFour.length)
-  //
-  //  }
-
-  //  /**
-  //   * Here we've added three levels of sequences
-  //   * that contain optional elements.
-  //   *
-  //   * The innermost sequence is in the last position.
-  //   *
-  //   * name  possibleNextTerms
-  //   * =======================
-  //   * one  two, three, four
-  //   * a    b, c, s-1, s-2, s-3
-  //   * b    c, s-1, s-2, s-3
-  //   * c    s-1, s-2, s-3
-  //   * two  three, four
-  //   * three  four
-  //   * four  -empty-
-  //   */
-  //  @Test def test_could_be_next_method_08() {
-  //    val testSchema = SchemaUtils.dfdlTestSchema(
-  //      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
-  //      <dfdl:format ref="tns:GeneralFormat"/>,
-  //      <xs:element name="root">
-  //        <xs:complexType>
-  //          <xs:sequence>
-  //            <xs:element name="one" dfdl:terminator=":">
-  //              <xs:complexType>
-  //                <xs:sequence dfdl:separator=",">
-  //                  <xs:element name="a" type="xs:string"/>
-  //                  <xs:element name="b" type="xs:string" minOccurs="0" maxOccurs="1"/>
-  //                  <xs:element name="c" type="xs:string" minOccurs="0" maxOccurs="1"/>
-  //                  <xs:sequence dfdl:separator="-">
-  //                    <xs:element name="s-1" type="xs:string" minOccurs="0" maxOccurs="1"/>
-  //                    <xs:element name="s-2" type="xs:string" minOccurs="0" maxOccurs="1"/>
-  //                    <xs:element name="s-3" type="xs:string"/>
-  //                  </xs:sequence>
-  //                </xs:sequence>
-  //              </xs:complexType>
-  //            </xs:element>
-  //            <xs:element name="two" dfdl:terminator=":" minOccurs="0" maxOccurs="1">
-  //              <xs:complexType>
-  //                <xs:sequence dfdl:separator=",">
-  //                  <xs:element name="d" type="xs:string"/>
-  //                  <xs:element name="e" type="xs:string"/>
-  //                  <xs:element name="f" type="xs:string"/>
-  //                </xs:sequence>
-  //              </xs:complexType>
-  //            </xs:element>
-  //            <xs:element name="three" dfdl:terminator=":" minOccurs="0" maxOccurs="1">
-  //              <xs:complexType>
-  //                <xs:sequence dfdl:separator=",">
-  //                  <xs:element name="g" type="xs:string"/>
-  //                  <xs:element name="h" type="xs:string"/>
-  //                  <xs:element name="i" type="xs:string"/>
-  //                </xs:sequence>
-  //              </xs:complexType>
-  //            </xs:element>
-  //            <xs:sequence>
-  //              <xs:element name="four" dfdl:terminator=":">
-  //                <xs:complexType>
-  //                  <xs:sequence dfdl:separator=",">
-  //                    <xs:element name="j" type="xs:string"/>
-  //                    <xs:element name="k" type="xs:string"/>
-  //                    <xs:element name="l" type="xs:string"/>
-  //                  </xs:sequence>
-  //                </xs:complexType>
-  //              </xs:element>
-  //            </xs:sequence>
-  //          </xs:sequence>
-  //        </xs:complexType>
-  //      </xs:element>)
-  //
-  //    val compiler = Compiler()
-  //    val sset = compiler.compileNode(testSchema).sset
-  //    val Seq(schema) = sset.schemas
-  //    val Seq(schemaDoc, _) = schema.schemaDocuments
-  //    val Seq(declf) = schemaDoc.globalElementDecls
-  //    val root = declf.forRoot()
-  //    val rootCT = root.complexType
-  //
-  //    // Verify that nothing follows the root, as it is the root.
-  //    val elemsFollowingRoot = root.possibleNextTerms
-  //    assertEquals(0, elemsFollowingRoot.length)
-  //
-  //    val rootCTSeq = rootCT.sequence //... which is a sequence
-  //
-  //    // Verify that nothing follows the sequence of the root.
-  //    val elemsFollowingRootSeq = rootCTSeq.possibleNextTerms
-  //    assertEquals(0, elemsFollowingRootSeq.length)
-  //
-  //    val Seq(one: LocalElementDecl, two: LocalElementDecl, three: LocalElementDecl, seq: Sequence) =
-  //      rootCTSeq.groupMembers // has an element and a sub-sequence as its children.
-  //
-  //    val Seq(four: LocalElementDecl) = seq.groupMembers
-  //
-  //    val oneCT = one.complexType
-  //    val oneCTSeq = oneCT.sequence
-  //    val elemsFollowingOneCTSeq = oneCTSeq.possibleNextTerms
-  //
-  //    val Seq(two_1: ElementBase, three_1: ElementBase, seqFollowingThree_1: Sequence) = oneCTSeq.possibleNextTerms
-  //    val Seq(four_1: ElementBase) = seqFollowingThree_1.groupMembers
-  //    assertEquals(3, elemsFollowingOneCTSeq.length)
-  //    assertEquals("two", two_1.name)
-  //    assertEquals("three", three_1.name)
-  //    assertEquals("four", four_1.name)
-  //
-  //    val Seq(a: LocalElementDecl, b: LocalElementDecl, c: LocalElementDecl, _: Sequence) = oneCTSeq.groupMembers
-  //
-  //    val elemsFollowingA = a.possibleNextTerms
-  //    val Seq(b_1: ElementBase, c_1: ElementBase, seqFollowingC_1: Sequence) = a.possibleNextTerms
-  //    val Seq(s1_1: ElementBase, s2_1: ElementBase, s3_1: ElementBase) = seqFollowingC_1.groupMembers
-  //    assertEquals(3, elemsFollowingA.length)
-  //    assertEquals("b", b_1.name)
-  //    assertEquals("c", c_1.name)
-  //    assertEquals("s-1", s1_1.name)
-  //    assertEquals("s-2", s2_1.name)
-  //    assertEquals("s-3", s3_1.name)
-  //
-  //    val elemsFollowingB = b.possibleNextTerms
-  //    val Seq(c_2: ElementBase, seqFollowingC_2: Sequence) = b.possibleNextTerms
-  //    val Seq(s1_2: ElementBase, s2_2: ElementBase, s3_2: ElementBase) = seqFollowingC_2.groupMembers
-  //    assertEquals(2, elemsFollowingB.length)
-  //    assertEquals("c", c_2.name)
-  //    assertEquals("s-1", s1_2.name)
-  //    assertEquals("s-2", s2_2.name)
-  //    assertEquals("s-3", s3_2.name)
-  //
-  //    val elemsFollowingC = c.possibleNextTerms
-  //    val Seq(seqFollowingC_3: Sequence) = c.possibleNextTerms
-  //    val Seq(s1_3: ElementBase, s2_3: ElementBase, s3_3: ElementBase) = seqFollowingC_3.groupMembers
-  //    assertEquals(1, elemsFollowingC.length)
-  //    assertEquals("s-1", s1_3.name)
-  //    assertEquals("s-2", s2_3.name)
-  //    assertEquals("s-3", s3_3.name)
-  //
-  //    val elemsFollowingTwo = two.possibleNextTerms
-  //    val Seq(three_2: ElementBase, seqFollowingThree_2: Sequence) = two.possibleNextTerms
-  //    val Seq(four_2: ElementBase) = seqFollowingThree_2.groupMembers
-  //    assertEquals(2, elemsFollowingTwo.length)
-  //    assertEquals("three", three_2.name)
-  //    assertEquals("four", four_2.name)
-  //
-  //    val elemsFollowingThree = three.possibleNextTerms
-  //    val Seq(seqFollowingThree_3: Sequence) = three.possibleNextTerms
-  //    val Seq(four_3: ElementBase) = seqFollowingThree_3.groupMembers
-  //    assertEquals(1, elemsFollowingThree.length)
-  //    assertEquals("four", four_3.name)
-  //
-  //    val elemsFollowingFour = four.possibleNextTerms
-  //    assertEquals(0, elemsFollowingFour.length)
-  //
-  //  }
-
-  //  /**
-  //   * Here we've added three levels of sequences
-  //   * that contain optional elements.
-  //   *
-  //   * The inner most sequence is in the middle.
-  //   *
-  //   * name  possibleNextTerms
-  //   * =======================
-  //   * one  two, three, four
-  //   * a    b, s-1, s-2, s-3
-  //   * b    s-1, s-2, s-3
-  //   * c    two, three, four
-  //   * two  three, four
-  //   * three  four
-  //   * four  -empty-
-  //   */
-  //  @Test def test_could_be_next_method_09() {
-  //    val testSchema = SchemaUtils.dfdlTestSchema(
-  //      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
-  //      <dfdl:format ref="tns:GeneralFormat"/>,
-  //      <xs:element name="root">
-  //        <xs:complexType>
-  //          <xs:sequence>
-  //            <xs:element name="one" dfdl:terminator=":">
-  //              <xs:complexType>
-  //                <xs:sequence dfdl:separator=",">
-  //                  <xs:element name="a" type="xs:string"/>
-  //                  <xs:element name="b" type="xs:string" minOccurs="0" maxOccurs="1"/>
-  //                  <xs:sequence dfdl:separator="-">
-  //                    <xs:element name="s-1" type="xs:string" minOccurs="0" maxOccurs="1"/>
-  //                    <xs:element name="s-2" type="xs:string" minOccurs="0" maxOccurs="1"/>
-  //                    <xs:element name="s-3" type="xs:string"/>
-  //                  </xs:sequence>
-  //                  <xs:element name="c" type="xs:string" minOccurs="0" maxOccurs="1"/>
-  //                </xs:sequence>
-  //              </xs:complexType>
-  //            </xs:element>
-  //            <xs:element name="two" dfdl:terminator=":" minOccurs="0" maxOccurs="1">
-  //              <xs:complexType>
-  //                <xs:sequence dfdl:separator=",">
-  //                  <xs:element name="d" type="xs:string"/>
-  //                  <xs:element name="e" type="xs:string"/>
-  //                  <xs:element name="f" type="xs:string"/>
-  //                </xs:sequence>
-  //              </xs:complexType>
-  //            </xs:element>
-  //            <xs:element name="three" dfdl:terminator=":" minOccurs="0" maxOccurs="1">
-  //              <xs:complexType>
-  //                <xs:sequence dfdl:separator=",">
-  //                  <xs:element name="g" type="xs:string"/>
-  //                  <xs:element name="h" type="xs:string"/>
-  //                  <xs:element name="i" type="xs:string"/>
-  //                </xs:sequence>
-  //              </xs:complexType>
-  //            </xs:element>
-  //            <xs:sequence>
-  //              <xs:element name="four" dfdl:terminator=":">
-  //                <xs:complexType>
-  //                  <xs:sequence dfdl:separator=",">
-  //                    <xs:element name="j" type="xs:string"/>
-  //                    <xs:element name="k" type="xs:string"/>
-  //                    <xs:element name="l" type="xs:string"/>
-  //                  </xs:sequence>
-  //                </xs:complexType>
-  //              </xs:element>
-  //            </xs:sequence>
-  //          </xs:sequence>
-  //        </xs:complexType>
-  //      </xs:element>)
-  //
-  //    val compiler = Compiler()
-  //    val sset = compiler.compileNode(testSchema).sset
-  //    val Seq(schema) = sset.schemas
-  //    val Seq(schemaDoc, _) = schema.schemaDocuments
-  //    val Seq(declf) = schemaDoc.globalElementDecls
-  //    val root = declf.forRoot()
-  //    val rootCT = root.complexType
-  //
-  //    // Verify that nothing follows the root, as it is the root.
-  //    val elemsFollowingRoot = root.possibleNextTerms
-  //    assertEquals(0, elemsFollowingRoot.length)
-  //
-  //    val rootCTSeq = rootCT.sequence //... which is a sequence
-  //
-  //    // Verify that nothing follows the sequence of the root.
-  //    val elemsFollowingRootSeq = rootCTSeq.possibleNextTerms
-  //    assertEquals(0, elemsFollowingRootSeq.length)
-  //
-  //    val Seq(one: LocalElementDecl, two: LocalElementDecl, three: LocalElementDecl, seq: Sequence) =
-  //      rootCTSeq.groupMembers // has an element and a sub-sequence as its children.
-  //
-  //    val Seq(four: LocalElementDecl) = seq.groupMembers
-  //
-  //    val oneCT = one.complexType
-  //    val oneCTSeq = oneCT.sequence
-  //    val elemsFollowingOneCTSeq = oneCTSeq.possibleNextTerms
-  //
-  //    val Seq(two_1: ElementBase, three_1: ElementBase, seqFollowingThree_1: Sequence) = oneCTSeq.possibleNextTerms
-  //    val Seq(four_1: ElementBase) = seqFollowingThree_1.groupMembers
-  //    assertEquals(3, elemsFollowingOneCTSeq.length)
-  //    assertEquals("two", two_1.name)
-  //    assertEquals("three", three_1.name)
-  //    assertEquals("four", four_1.name)
-  //
-  //    val Seq(a: LocalElementDecl, b: LocalElementDecl, _: Sequence, c: LocalElementDecl) = oneCTSeq.groupMembers
-  //
-  //    val elemsFollowingA = a.possibleNextTerms
-  //    val Seq(b_1: ElementBase, seqFollowingA: Sequence) = a.possibleNextTerms
-  //    val Seq(s1_1: ElementBase, s2_1: ElementBase, s3_1: ElementBase) = seqFollowingA.groupMembers
-  //    assertEquals(2, elemsFollowingA.length)
-  //    assertEquals("b", b_1.name)
-  //    assertEquals("s-1", s1_1.name)
-  //    assertEquals("s-2", s2_1.name)
-  //    assertEquals("s-3", s3_1.name)
-  //
-  //    val elemsFollowingB = b.possibleNextTerms
-  //    val Seq(seqFollowingB: Sequence) = b.possibleNextTerms
-  //    val Seq(s1_2: ElementBase, s2_2: ElementBase, s3_2: ElementBase) = seqFollowingB.groupMembers
-  //    assertEquals(1, elemsFollowingB.length)
-  //    assertEquals("s-1", s1_2.name)
-  //    assertEquals("s-2", s2_2.name)
-  //    assertEquals("s-3", s3_2.name)
-  //
-  //    val elemsFollowingC = c.possibleNextTerms
-  //    val Seq(two_2: ElementBase, three_2: ElementBase, seqFollowingThree_2: Sequence) = c.possibleNextTerms
-  //    val Seq(four_2: ElementBase) = seqFollowingThree_2.groupMembers
-  //    assertEquals(3, elemsFollowingC.length)
-  //    assertEquals("two", two_2.name)
-  //    assertEquals("three", three_2.name)
-  //    assertEquals("four", four_2.name)
-  //
-  //    val elemsFollowingTwo = two.possibleNextTerms
-  //    val Seq(three_3: ElementBase, seqFollowingThree_3: Sequence) = two.possibleNextTerms
-  //    val Seq(four_3: ElementBase) = seqFollowingThree_3.groupMembers
-  //    assertEquals(2, elemsFollowingTwo.length)
-  //    assertEquals("three", three_3.name)
-  //    assertEquals("four", four_3.name)
-  //
-  //    val elemsFollowingThree = three.possibleNextTerms
-  //    val Seq(seqFollowingThree_4: Sequence) = three.possibleNextTerms
-  //    val Seq(four_4: ElementBase) = seqFollowingThree_4.groupMembers
-  //    assertEquals(1, elemsFollowingThree.length)
-  //    assertEquals("four", four_4.name)
-  //
-  //    val elemsFollowingFour = four.possibleNextTerms
-  //    assertEquals(0, elemsFollowingFour.length)
-  //
-  //  }
-
-  //  /**
-  //   * Here we've added three levels of sequences
-  //   * that contain optional elements.
-  //   *
-  //   * The inner most sequence is in the beginning.
-  //   *
-  //   * name  possibleNextTerms
-  //   * =======================
-  //   * one  two, three, four
-  //   * a    b
-  //   * b    c
-  //   * c    two, three, four
-  //   * two  three, four
-  //   * three  four
-  //   * four  -empty-
-  //   */
-  //  @Test def test_could_be_next_method_10() {
-  //    val testSchema = SchemaUtils.dfdlTestSchema(
-  //      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
-  //      <dfdl:format ref="tns:GeneralFormat"/>,
-  //      <xs:element name="root">
-  //        <xs:complexType>
-  //          <xs:sequence>
-  //            <xs:element name="one" dfdl:terminator=":">
-  //              <xs:complexType>
-  //                <xs:sequence dfdl:separator=",">
-  //                  <xs:sequence dfdl:separator="-">
-  //                    <xs:element name="s-1" type="xs:string" minOccurs="0" maxOccurs="1"/>
-  //                    <xs:element name="s-2" type="xs:string" minOccurs="0" maxOccurs="1"/>
-  //                    <xs:element name="s-3" type="xs:string"/>
-  //                  </xs:sequence>
-  //                  <xs:element name="a" type="xs:string"/>
-  //                  <xs:element name="b" type="xs:string" minOccurs="0" maxOccurs="1"/>
-  //                  <xs:element name="c" type="xs:string" minOccurs="0" maxOccurs="1"/>
-  //                </xs:sequence>
-  //              </xs:complexType>
-  //            </xs:element>
-  //            <xs:element name="two" dfdl:terminator=":" minOccurs="0" maxOccurs="1">
-  //              <xs:complexType>
-  //                <xs:sequence dfdl:separator=",">
-  //                  <xs:element name="d" type="xs:string"/>
-  //                  <xs:element name="e" type="xs:string"/>
-  //                  <xs:element name="f" type="xs:string"/>
-  //                </xs:sequence>
-  //              </xs:complexType>
-  //            </xs:element>
-  //            <xs:element name="three" dfdl:terminator=":" minOccurs="0" maxOccurs="1">
-  //              <xs:complexType>
-  //                <xs:sequence dfdl:separator=",">
-  //                  <xs:element name="g" type="xs:string"/>
-  //                  <xs:element name="h" type="xs:string"/>
-  //                  <xs:element name="i" type="xs:string"/>
-  //                </xs:sequence>
-  //              </xs:complexType>
-  //            </xs:element>
-  //            <xs:sequence>
-  //              <xs:element name="four" dfdl:terminator=":">
-  //                <xs:complexType>
-  //                  <xs:sequence dfdl:separator=",">
-  //                    <xs:element name="j" type="xs:string"/>
-  //                    <xs:element name="k" type="xs:string"/>
-  //                    <xs:element name="l" type="xs:string"/>
-  //                  </xs:sequence>
-  //                </xs:complexType>
-  //              </xs:element>
-  //            </xs:sequence>
-  //          </xs:sequence>
-  //        </xs:complexType>
-  //      </xs:element>)
-  //
-  //    val compiler = Compiler()
-  //    val sset = compiler.compileNode(testSchema).sset
-  //    val Seq(schema) = sset.schemas
-  //    val Seq(schemaDoc, _) = schema.schemaDocuments
-  //    val Seq(declf) = schemaDoc.globalElementDecls
-  //    val root = declf.forRoot()
-  //    val rootCT = root.complexType
-  //
-  //    // Verify that nothing follows the root, as it is the root.
-  //    val elemsFollowingRoot = root.possibleNextTerms
-  //    assertEquals(0, elemsFollowingRoot.length)
-  //
-  //    val rootCTSeq = rootCT.sequence //... which is a sequence
-  //
-  //    // Verify that nothing follows the sequence of the root.
-  //    val elemsFollowingRootSeq = rootCTSeq.possibleNextTerms
-  //    assertEquals(0, elemsFollowingRootSeq.length)
-  //
-  //    val Seq(one: LocalElementDecl, two: LocalElementDecl, three: LocalElementDecl, seq: Sequence) =
-  //      rootCTSeq.groupMembers // has an element and a sub-sequence as its children.
-  //
-  //    val Seq(four: LocalElementDecl) = seq.groupMembers
-  //
-  //    val oneCT = one.complexType
-  //    val oneCTSeq = oneCT.sequence
-  //    val elemsFollowingOneCTSeq = oneCTSeq.possibleNextTerms
-  //
-  //    val Seq(two_1: ElementBase, three_1: ElementBase, seqFollowingThree_1: Sequence) = oneCTSeq.possibleNextTerms
-  //    val Seq(four_1: ElementBase) = seqFollowingThree_1.groupMembers
-  //    assertEquals(3, elemsFollowingOneCTSeq.length)
-  //    assertEquals("two", two_1.name)
-  //    assertEquals("three", three_1.name)
-  //    assertEquals("four", four_1.name)
-  //
-  //    val Seq(_: Sequence, a: LocalElementDecl, b: LocalElementDecl, c: LocalElementDecl) = oneCTSeq.groupMembers
-  //
-  //    val elemsFollowingA = a.possibleNextTerms
-  //    val Seq(b_2: ElementBase, c_2: ElementBase, two_2: ElementBase, three_2: ElementBase, seqFollowingThree_2: Sequence) = a.possibleNextTerms
-  //    val Seq(four_2: ElementBase) = seqFollowingThree_2.groupMembers
-  //    assertEquals(5, elemsFollowingA.length)
-  //    assertEquals("b", b_2.name)
-  //    assertEquals("c", c_2.name)
-  //    assertEquals("two", two_2.name)
-  //    assertEquals("three", three_2.name)
-  //    assertEquals("four", four_2.name)
-  //
-  //    val elemsFollowingB = b.possibleNextTerms
-  //    val Seq(c_3: ElementBase, two_3: ElementBase, three_3: ElementBase, seqFollowingThree_3: Sequence) = b.possibleNextTerms
-  //    val Seq(four_3: ElementBase) = seqFollowingThree_3.groupMembers
-  //    assertEquals(4, elemsFollowingB.length)
-  //    assertEquals("c", c_3.name)
-  //    assertEquals("two", two_3.name)
-  //    assertEquals("three", three_3.name)
-  //    assertEquals("four", four_3.name)
-  //
-  //    val elemsFollowingC = c.possibleNextTerms
-  //    val Seq(two_4: ElementBase, three_4: ElementBase, seqFollowingThree_4: Sequence) = c.possibleNextTerms
-  //    val Seq(four_4: ElementBase) = seqFollowingThree_4.groupMembers
-  //    assertEquals(3, elemsFollowingC.length)
-  //    assertEquals("two", two_4.name)
-  //    assertEquals("three", three_4.name)
-  //    assertEquals("four", four_4.name)
-  //
-  //    val elemsFollowingTwo = two.possibleNextTerms
-  //    val Seq(three_5: ElementBase, seqFollowingThree_5: Sequence) = two.possibleNextTerms
-  //    val Seq(four_5: ElementBase) = seqFollowingThree_5.groupMembers
-  //    assertEquals(2, elemsFollowingTwo.length)
-  //    assertEquals("three", three_5.name)
-  //    assertEquals("four", four_5.name)
-  //
-  //    val elemsFollowingThree = three.possibleNextTerms
-  //    val Seq(seqFollowingThree_6: Sequence) = three.possibleNextTerms
-  //    val Seq(four_6: ElementBase) = seqFollowingThree_6.groupMembers
-  //    assertEquals(1, elemsFollowingThree.length)
-  //    assertEquals("four", four_6.name)
-  //
-  //    val elemsFollowingFour = four.possibleNextTerms
-  //    assertEquals(0, elemsFollowingFour.length)
-  //
-  //  }
-
-  /**
-   * Here we just want to test that we can detect next
-   * elements across sequences (unordered).  All elements are 'required'.
-   * However, because these are unordered sequences optionality doesn't matter.
-   */
-  @Test def test_could_be_next_method_11() {
-    val testSchema = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
-      <dfdl:format ref="tns:GeneralFormat"/>,
-      <xs:element name="root">
-        <xs:complexType>
-          <xs:sequence dfdl:sequenceKind="unordered">
-            <xs:element name="one" dfdl:terminator=":">
-              <xs:complexType>
-                <xs:sequence dfdl:separator=",">
-                  <xs:element name="a" type="xs:string"/>
-                  <xs:element name="b" type="xs:string"/>
-                  <xs:element name="c" type="xs:string"/>
-                </xs:sequence>
-              </xs:complexType>
-            </xs:element>
-            <xs:element name="two" dfdl:terminator=":">
-              <xs:complexType>
-                <xs:sequence dfdl:separator="," dfdl:sequenceKind="unordered">
-                  <xs:element name="d" type="xs:string"/>
-                  <xs:element name="e" type="xs:string"/>
-                  <xs:element name="f" type="xs:string"/>
-                </xs:sequence>
-              </xs:complexType>
-            </xs:element>
-            <xs:element name="three" dfdl:terminator=":">
-              <xs:complexType>
-                <xs:sequence dfdl:separator="," dfdl:sequenceKind="unordered">
-                  <xs:element name="g" type="xs:string"/>
-                  <xs:element name="h" type="xs:string"/>
-                  <xs:element name="i" type="xs:string"/>
-                </xs:sequence>
-              </xs:complexType>
-            </xs:element>
-          </xs:sequence>
-        </xs:complexType>
-      </xs:element>)
-
-    val compiler = Compiler()
-    val sset = compiler.compileNode(testSchema).sset
-    val Seq(schema) = sset.schemas
-    val Seq(schemaDoc, _) = schema.schemaDocuments
-    val Seq(declf) = schemaDoc.globalElementDecls
-    val root = declf.forRoot()
-    val rootCT = root.complexType
-
-    // Verify that nothing follows the root, as it is the root.
-    val elemsFollowingRoot = root.possibleNextTerms
-    assertEquals(0, elemsFollowingRoot.length)
-
-    val rootCTSeq = rootCT.sequence //... which is a sequence
-
-    // Verify that nothing follows the sequence of the root.
-    val elemsFollowingRootSeq = rootCTSeq.possibleNextTerms
-    assertEquals(0, elemsFollowingRootSeq.length)
-
-    val Seq(one: ElementBase, two: ElementBase, three: ElementBase) =
-      rootCTSeq.groupMembers // has an element and a sub-sequence as its children.
-
-    val elemsFollowingOne = one.possibleNextTerms
-    assertEquals(3, elemsFollowingOne.length)
-    assertEquals("one", elemsFollowingOne(0).asInstanceOf[ElementBase].name)
-    assertEquals("two", elemsFollowingOne(1).asInstanceOf[ElementBase].name)
-    assertEquals("three", elemsFollowingOne(2).asInstanceOf[ElementBase].name)
-
-    val elemsFollowingTwo = two.possibleNextTerms
-    assertEquals(3, elemsFollowingTwo.length)
-    assertEquals("one", elemsFollowingTwo(0).asInstanceOf[ElementBase].name)
-    assertEquals("two", elemsFollowingTwo(1).asInstanceOf[ElementBase].name)
-    assertEquals("three", elemsFollowingTwo(2).asInstanceOf[ElementBase].name)
-
-    val elemsFollowingThree = three.possibleNextTerms
-    assertEquals(3, elemsFollowingThree.length)
-    assertEquals("one", elemsFollowingThree(0).asInstanceOf[ElementBase].name)
-    assertEquals("two", elemsFollowingThree(1).asInstanceOf[ElementBase].name)
-    assertEquals("three", elemsFollowingThree(2).asInstanceOf[ElementBase].name)
-  }
-
-  //  /**
-  //   * Unordered Sequences
-  //   *
-  //   * Here the fact that 'three' is optional doesn't matter.  The
-  //   * elements are in an unordered sequence, so any of the elements:
-  //   * one, two or three could be next.
-  //   */
-  //  @Test def test_could_be_next_method_12() {
-  //    val testSchema = SchemaUtils.dfdlTestSchema(
-  //      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
-  //      <dfdl:format ref="tns:GeneralFormat"/>,
-  //      <xs:element name="root">
-  //        <xs:complexType>
-  //          <xs:sequence dfdl:sequenceKind="unordered">
-  //            <xs:element name="one" dfdl:terminator=":">
-  //              <xs:complexType>
-  //                <xs:sequence dfdl:separator="," dfdl:sequenceKind="unordered">
-  //                  <xs:element name="a" type="xs:string"/>
-  //                  <xs:element name="b" type="xs:string"/>
-  //                  <xs:element name="c" type="xs:string"/>
-  //                </xs:sequence>
-  //              </xs:complexType>
-  //            </xs:element>
-  //            <xs:element name="two" dfdl:terminator=":">
-  //              <xs:complexType>
-  //                <xs:sequence dfdl:separator="," dfdl:sequenceKind="unordered">
-  //                  <xs:element name="d" type="xs:string"/>
-  //                  <xs:element name="e" type="xs:string"/>
-  //                  <xs:element name="f" type="xs:string"/>
-  //                </xs:sequence>
-  //              </xs:complexType>
-  //            </xs:element>
-  //            <xs:element name="three" dfdl:terminator=":" minOccurs="0" maxOccurs="1">
-  //              <xs:complexType>
-  //                <xs:sequence dfdl:separator="," dfdl:sequenceKind="unordered">
-  //                  <xs:element name="g" type="xs:string"/>
-  //                  <xs:element name="h" type="xs:string"/>
-  //                  <xs:element name="i" type="xs:string"/>
-  //                </xs:sequence>
-  //              </xs:complexType>
-  //            </xs:element>
-  //          </xs:sequence>
-  //        </xs:complexType>
-  //      </xs:element>)
-  //
-  //    val compiler = Compiler()
-  //    val sset = compiler.compileNode(testSchema).sset
-  //    val Seq(schema) = sset.schemas
-  //    val Seq(schemaDoc, _) = schema.schemaDocuments
-  //    val Seq(declf) = schemaDoc.globalElementDecls
-  //    val root = declf.forRoot()
-  //    val rootCT = root.complexType
-  //
-  //    // Verify that nothing follows the root, as it is the root.
-  //    val elemsFollowingRoot = root.possibleNextTerms
-  //    assertEquals(0, elemsFollowingRoot.length)
-  //
-  //    val rootCTSeq = rootCT.sequence //... which is a sequence
-  //
-  //    // Verify that nothing follows the sequence of the root.
-  //    val elemsFollowingRootSeq = rootCTSeq.possibleNextTerms
-  //    assertEquals(0, elemsFollowingRootSeq.length)
-  //
-  //    val Seq(one: ElementBase, two: ElementBase, three: ElementBase) =
-  //      rootCTSeq.groupMembers
-  //
-  //    val elemsFollowingOne = one.possibleNextTerms
-  //    assertEquals(3, elemsFollowingOne.length)
-  //    assertEquals("one", elemsFollowingOne(0).asInstanceOf[ElementBase].name)
-  //    assertEquals("two", elemsFollowingOne(1).asInstanceOf[ElementBase].name)
-  //    assertEquals("three", elemsFollowingOne(2).asInstanceOf[ElementBase].name)
-  //
-  //    val elemsFollowingTwo = two.possibleNextTerms
-  //    assertEquals(3, elemsFollowingTwo.length)
-  //    assertEquals("one", elemsFollowingTwo(0).asInstanceOf[ElementBase].name)
-  //    assertEquals("two", elemsFollowingTwo(1).asInstanceOf[ElementBase].name)
-  //    assertEquals("three", elemsFollowingTwo(2).asInstanceOf[ElementBase].name)
-  //
-  //    val elemsFollowingThree = three.possibleNextTerms
-  //    assertEquals(3, elemsFollowingThree.length)
-  //    assertEquals("one", elemsFollowingThree(0).asInstanceOf[ElementBase].name)
-  //    assertEquals("two", elemsFollowingThree(1).asInstanceOf[ElementBase].name)
-  //    assertEquals("three", elemsFollowingThree(2).asInstanceOf[ElementBase].name)
-  //  }
-
-  //  /**
-  //   * Unordered Sequences
-  //   *
-  //   * Here because 'two', and 'three' are optional...
-  //   *
-  //   * name  possibleNextTerms
-  //   * =======================
-  //   * one   two, three
-  //   * a     b, c
-  //   * b     a, c
-  //   * c     a, b, one, two, three
-  //   * two   one, three
-  //   * three  one, two
-  //   */
-  //  @Test def test_could_be_next_method_13() {
-  //    val testSchema = SchemaUtils.dfdlTestSchema(
-  //      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
-  //      <dfdl:format ref="tns:GeneralFormat"/>,
-  //      <xs:element name="root">
-  //        <xs:complexType>
-  //          <xs:sequence dfdl:sequenceKind="unordered">
-  //            <xs:element name="one" dfdl:terminator=":">
-  //              <xs:complexType>
-  //                <xs:sequence dfdl:separator="," dfdl:sequenceKind="unordered">
-  //                  <xs:element name="a" type="xs:string"/>
-  //                  <xs:element name="b" type="xs:string"/>
-  //                  <xs:element name="c" type="xs:string"/>
-  //                </xs:sequence>
-  //              </xs:complexType>
-  //            </xs:element>
-  //            <xs:element name="two" dfdl:terminator=":" minOccurs="0" maxOccurs="1">
-  //              <xs:complexType>
-  //                <xs:sequence dfdl:separator="," dfdl:sequenceKind="unordered">
-  //                  <xs:element name="d" type="xs:string"/>
-  //                  <xs:element name="e" type="xs:string"/>
-  //                  <xs:element name="f" type="xs:string"/>
-  //                </xs:sequence>
-  //              </xs:complexType>
-  //            </xs:element>
-  //            <xs:element name="three" dfdl:terminator=":" minOccurs="0" maxOccurs="1">
-  //              <xs:complexType>
-  //                <xs:sequence dfdl:separator="," dfdl:sequenceKind="unordered">
-  //                  <xs:element name="g" type="xs:string"/>
-  //                  <xs:element name="h" type="xs:string"/>
-  //                  <xs:element name="i" type="xs:string"/>
-  //                </xs:sequence>
-  //              </xs:complexType>
-  //            </xs:element>
-  //          </xs:sequence>
-  //        </xs:complexType>
-  //      </xs:element>)
-  //
-  //    val compiler = Compiler()
-  //    val sset = compiler.compileNode(testSchema).sset
-  //    val Seq(schema) = sset.schemas
-  //    val Seq(schemaDoc, _) = schema.schemaDocuments
-  //    val Seq(declf) = schemaDoc.globalElementDecls
-  //    val root = declf.forRoot()
-  //    val rootCT = root.complexType
-  //
-  //    // Verify that nothing follows the root, as it is the root.
-  //    val elemsFollowingRoot = root.possibleNextTerms
-  //    assertEquals(0, elemsFollowingRoot.length)
-  //
-  //    val rootCTSeq = rootCT.sequence //... which is a sequence
-  //
-  //    // Verify that nothing follows the sequence of the root.
-  //    val elemsFollowingRootSeq = rootCTSeq.possibleNextTerms
-  //    assertEquals(0, elemsFollowingRootSeq.length)
-  //
-  //    val Seq(one: LocalElementDecl, two: LocalElementDecl, three: LocalElementDecl) =
-  //      rootCTSeq.groupMembers // has an element and a sub-sequence as its children.
-  //
-  //    val oneCT = one.complexType
-  //    val oneCTSeq = oneCT.sequence
-  //    val elemsFollowingOneCTSeq = oneCTSeq.possibleNextTerms
-  //
-  //    val Seq(one_1: ElementBase, two_1: ElementBase, three_1: ElementBase) = oneCTSeq.possibleNextTerms
-  //    assertEquals(3, elemsFollowingOneCTSeq.length)
-  //    assertEquals("one", one_1.name)
-  //    assertEquals("two", two_1.name)
-  //    assertEquals("three", three_1.name)
-  //
-  //    val Seq(a: LocalElementDecl, b: LocalElementDecl, c: LocalElementDecl) = oneCTSeq.groupMembers
-  //
-  //    val elemsFollowingA = a.possibleNextTerms
-  //    assertEquals(6, elemsFollowingA.length)
-  //    assertEquals("a", elemsFollowingA(0).asInstanceOf[ElementBase].name)
-  //    assertEquals("b", elemsFollowingA(1).asInstanceOf[ElementBase].name)
-  //    assertEquals("c", elemsFollowingA(2).asInstanceOf[ElementBase].name)
-  //    assertEquals("one", elemsFollowingA(3).asInstanceOf[ElementBase].name)
-  //    assertEquals("two", elemsFollowingA(4).asInstanceOf[ElementBase].name)
-  //    assertEquals("three", elemsFollowingA(5).asInstanceOf[ElementBase].name)
-  //
-  //    val elemsFollowingB = b.possibleNextTerms
-  //    assertEquals(6, elemsFollowingB.length)
-  //    assertEquals("a", elemsFollowingB(0).asInstanceOf[ElementBase].name)
-  //    assertEquals("b", elemsFollowingB(1).asInstanceOf[ElementBase].name)
-  //    assertEquals("c", elemsFollowingB(2).asInstanceOf[ElementBase].name)
-  //    assertEquals("one", elemsFollowingB(3).asInstanceOf[ElementBase].name)
-  //    assertEquals("two", elemsFollowingB(4).asInstanceOf[ElementBase].name)
-  //    assertEquals("three", elemsFollowingB(5).asInstanceOf[ElementBase].name)
-  //
-  //    val elemsFollowingC = c.possibleNextTerms
-  //    val Seq(a_2: ElementBase, b_2: ElementBase, c_2: ElementBase, one_2: ElementBase, two_2: ElementBase, three_2: ElementBase) = c.possibleNextTerms
-  //    assertEquals(6, elemsFollowingC.length)
-  //    assertEquals("a", a_2.name)
-  //    assertEquals("b", b_2.name)
-  //    assertEquals("c", c_2.name)
-  //    assertEquals("one", one_2.name)
-  //    assertEquals("two", two_2.name)
-  //    assertEquals("three", three_2.name)
-  //
-  //    val elemsFollowingTwo = two.possibleNextTerms
-  //    val Seq(one_3: ElementBase, two_3: ElementBase, three_3: ElementBase) = two.possibleNextTerms
-  //    assertEquals(3, elemsFollowingTwo.length)
-  //    assertEquals("one", one_3.name)
-  //    assertEquals("two", two_3.name)
-  //    assertEquals("three", three_3.name)
-  //
-  //    val elemsFollowingThree = three.possibleNextTerms
-  //    val Seq(one_4: ElementBase, two_4: ElementBase, three_4: ElementBase) = three.possibleNextTerms
-  //    assertEquals(3, elemsFollowingThree.length)
-  //    assertEquals("one", one_4.name)
-  //    assertEquals("two", two_4.name)
-  //    assertEquals("three", three_4.name)
-  //  }
-
-  //  /**
-  //   * Unordered Sequences
-  //   *
-  //   * Here because 'two', and 'three' are optional...
-  //   *
-  //   * name  possibleNextTerms
-  //   * =======================
-  //   * one   two, three
-  //   * a     b
-  //   * b     c
-  //   * c     one, two, three
-  //   * two   one, three
-  //   * three one, two
-  //   */
-  //  @Test def test_could_be_next_method_13_1() {
-  //    val testSchema = SchemaUtils.dfdlTestSchema(
-  //      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
-  //      <dfdl:format ref="tns:GeneralFormat"/>,
-  //      <xs:element name="root">
-  //        <xs:complexType>
-  //          <xs:sequence dfdl:sequenceKind="unordered">
-  //            <xs:element name="one" dfdl:terminator=":">
-  //              <xs:complexType>
-  //                <xs:sequence dfdl:separator="," dfdl:sequenceKind="ordered">
-  //                  <xs:element name="a" type="xs:string"/>
-  //                  <xs:element name="b" type="xs:string"/>
-  //                  <xs:element name="c" type="xs:string"/>
-  //                </xs:sequence>
-  //              </xs:complexType>
-  //            </xs:element>
-  //            <xs:element name="two" dfdl:terminator=":" minOccurs="0" maxOccurs="1">
-  //              <xs:complexType>
-  //                <xs:sequence dfdl:separator="," dfdl:sequenceKind="unordered">
-  //                  <xs:element name="d" type="xs:string"/>
-  //                  <xs:element name="e" type="xs:string"/>
-  //                  <xs:element name="f" type="xs:string"/>
-  //                </xs:sequence>
-  //              </xs:complexType>
-  //            </xs:element>
-  //            <xs:element name="three" dfdl:terminator=":" minOccurs="0" maxOccurs="1">
-  //              <xs:complexType>
-  //                <xs:sequence dfdl:separator="," dfdl:sequenceKind="unordered">
-  //                  <xs:element name="g" type="xs:string"/>
-  //                  <xs:element name="h" type="xs:string"/>
-  //                  <xs:element name="i" type="xs:string"/>
-  //                </xs:sequence>
-  //              </xs:complexType>
-  //            </xs:element>
-  //          </xs:sequence>
-  //        </xs:complexType>
-  //      </xs:element>)
-  //
-  //    val compiler = Compiler()
-  //    val sset = compiler.compileNode(testSchema).sset
-  //    val Seq(schema) = sset.schemas
-  //    val Seq(schemaDoc, _) = schema.schemaDocuments
-  //    val Seq(declf) = schemaDoc.globalElementDecls
-  //    val root = declf.forRoot()
-  //    val rootCT = root.complexType
-  //
-  //    // Verify that nothing follows the root, as it is the root.
-  //    val elemsFollowingRoot = root.possibleNextTerms
-  //    assertEquals(0, elemsFollowingRoot.length)
-  //
-  //    val rootCTSeq = rootCT.sequence //... which is a sequence
-  //
-  //    // Verify that nothing follows the sequence of the root.
-  //    val elemsFollowingRootSeq = rootCTSeq.possibleNextTerms
-  //    assertEquals(0, elemsFollowingRootSeq.length)
-  //
-  //    val Seq(one: LocalElementDecl, two: LocalElementDecl, three: LocalElementDecl) =
-  //      rootCTSeq.groupMembers // has an element and a sub-sequence as its children.
-  //
-  //    val oneCT = one.complexType
-  //    val oneCTSeq = oneCT.sequence
-  //    val elemsFollowingOneCTSeq = oneCTSeq.possibleNextTerms
-  //
-  //    val Seq(one_1: ElementBase, two_1: ElementBase, three_1: ElementBase) = oneCTSeq.possibleNextTerms
-  //    assertEquals(3, elemsFollowingOneCTSeq.length)
-  //    assertEquals("one", one_1.name)
-  //    assertEquals("two", two_1.name)
-  //    assertEquals("three", three_1.name)
-  //
-  //    val Seq(a: LocalElementDecl, b: LocalElementDecl, c: LocalElementDecl) = oneCTSeq.groupMembers
-  //
-  //    val elemsFollowingA = a.possibleNextTerms
-  //    assertEquals(1, elemsFollowingA.length)
-  //    assertEquals("b", elemsFollowingA(0).asInstanceOf[ElementBase].name)
-  //
-  //    val elemsFollowingB = b.possibleNextTerms
-  //    assertEquals(1, elemsFollowingB.length)
-  //    assertEquals("c", elemsFollowingB(0).asInstanceOf[ElementBase].name)
-  //
-  //    val elemsFollowingC = c.possibleNextTerms
-  //    val Seq(one_2: ElementBase, two_2: ElementBase, three_2: ElementBase) = c.possibleNextTerms
-  //    assertEquals(3, elemsFollowingC.length)
-  //    assertEquals("one", one_2.name)
-  //    assertEquals("two", two_2.name)
-  //    assertEquals("three", three_2.name)
-  //
-  //    val elemsFollowingTwo = two.possibleNextTerms
-  //    val Seq(one_3: ElementBase, two_3: ElementBase, three_3: ElementBase) = two.possibleNextTerms
-  //    assertEquals(3, elemsFollowingTwo.length)
-  //    assertEquals("one", one_3.name)
-  //    assertEquals("two", two_3.name)
-  //    assertEquals("three", three_3.name)
-  //
-  //    val elemsFollowingThree = three.possibleNextTerms
-  //    val Seq(one_4: ElementBase, two_4: ElementBase, three_4: ElementBase) = three.possibleNextTerms
-  //    assertEquals(3, elemsFollowingThree.length)
-  //    assertEquals("one", one_4.name)
-  //    assertEquals("two", two_4.name)
-  //    assertEquals("three", three_4.name)
-  //  }
 
 }

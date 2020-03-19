@@ -57,8 +57,7 @@ class TestIsScannable extends Logging {
 
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc, _) = schema.schemaDocuments
-    val listDecl = schemaDoc.globalElementDecls.head
-    val list = listDecl.forRoot()
+    val list = schemaDoc.globalElementDecls.head.asRoot
     assertTrue(list.isScannable)
     val Seq(child) = list.termChildren
     assertTrue(child.isScannable)
@@ -89,8 +88,7 @@ class TestIsScannable extends Logging {
 
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc, _) = schema.schemaDocuments
-    val listDecl = schemaDoc.globalElementDecls.head
-    val list = listDecl.forRoot()
+    val list = schemaDoc.globalElementDecls.head.asRoot
     assertFalse(list.isScannable)
     val Seq(child) = list.termChildren
     assertFalse(child.isScannable)
@@ -124,8 +122,7 @@ class TestIsScannable extends Logging {
 
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc, _) = schema.schemaDocuments
-    val listDecl = schemaDoc.globalElementDecls.head
-    val list = listDecl.forRoot()
+    val list = schemaDoc.globalElementDecls.head.asRoot
     assertFalse(list.isScannable)
     val Seq(child) = list.termChildren
     assertFalse(child.isScannable)

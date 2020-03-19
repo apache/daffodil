@@ -72,8 +72,7 @@ class TestDsomCompiler3 {
       //
       val Seq(schema) = sset.schemas
       val Seq(schemaDoc, _) = schema.schemaDocuments
-      val Seq(declFactory) = schemaDoc.globalElementDecls
-      val decl = declFactory.forRoot()
+      val Seq(decl) = schemaDoc.globalElementDecls.map{ _.asRoot }
       val Seq(ct) = schemaDoc.globalComplexTypeDefs
       assertEquals("example1", ct.name)
 

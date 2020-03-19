@@ -47,6 +47,7 @@ import org.apache.daffodil.infoset.DataValue.DataValueBigInt
 import org.apache.daffodil.infoset.DataValue.DataValueBigInt
 import org.apache.daffodil.infoset.DataValue.DataValueString
 import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.schema.annotation.props.gen.ParseUnparsePolicy
 
 trait TypeBase {
   def optRestriction: Option[Restriction] = None
@@ -77,7 +78,7 @@ sealed trait HasRepValueAttributes extends AnnotatedSchemaComponent
   def optRepType: Option[SimpleTypeBase]
   def optRepValueSet: Option[RepValueSet]
 
-  lazy val (repValuesAttrCooked:Seq[DataValuePrimitive], repValueRangesAttrCooked:Seq[(RangeBound,RangeBound)]) =
+  lazy val (repValuesAttrCooked: Seq[DataValuePrimitive], repValueRangesAttrCooked: Seq[(RangeBound, RangeBound)]) =
     optRepType match {
       case Some(repType) => {
         val repValueSetRaw = findPropertyOption("repValues").toOption
@@ -90,12 +91,11 @@ sealed trait HasRepValueAttributes extends AnnotatedSchemaComponent
             (repValueSetCooked, Seq())
           }
           case _: NodeInfo.Integer.Kind => {
-            val ans1 = repValueSetRaw.map(new JBigInt(_):DataValueBigInt)
-            val ans2 = IntRangeCooker.convertConstant(repValueRangesRaw, this, false).map({case (lower, upper) =>
-              (new RangeBound(lower,true), new RangeBound(upper, true))
-            }
-            
-            )
+            val ans1 = repValueSetRaw.map(new JBigInt(_): DataValueBigInt)
+            val ans2 = IntRangeCooker.convertConstant(repValueRangesRaw, this, false).map({
+              case (lower, upper) =>
+                (new RangeBound(lower, true), new RangeBound(upper, true))
+            })
             (ans1, ans2)
           }
           case x => SDE("repType must be either String or Integer type")
@@ -146,6 +146,8 @@ final class PrimitiveType private (tn: PrimType)
    */
   override def SDE(id: String, args: Any*) = Assert.invariantFailed("Primitive types shouldn't ever have an SDE")
   override def schemaFileLocation = Assert.invariantFailed("Primitive types don't have a schemaFileLocation")
+
+  override def toString = namedQName.toQNameString
 }
 
 object PrimitiveType {
@@ -209,50 +211,63 @@ abstract class SimpleTypeDefBase(xml: Node, lexicalParent: SchemaComponent)
   with NamedMixin
   with HasRepValueAttributes {
 
-  requiredEvaluations(simpleTypeRuntimeData.preSerialization)
-  requiredEvaluations(optTypeCalculator.map(_.preSerialization))
-
   override def typeNode = primType
 
   def toOpt[R <: AnyRef](b: Boolean, v: => R) = Misc.boolToOpt(b, v)
 
   //Perfoming this validation on construction causes infinite loops
   //So we defer it to later
-  def validate: Unit = {
-    if (optRepType.isDefined
-      && optRepType.get.isInstanceOf[PrimitiveType]
-      && enclosingElement.isDefined
-      && enclosingElement.get.isRepresented) {
-      SDE("Primitive types can only be used as repTypes when the enclosing element is computed with inputValueCalc")
+  private lazy val validate: Unit = {
+    if (optRepType.isDefined && optRepType.get.isInstanceOf[PrimitiveType]) {
+      val ees = enclosingElements
+      //
+      // for all enclosing elements (if this is a named type, there could be several),
+      // they all have to be inputValueCalc.
+      //
+      val areNotAllIVC = ees.exists { ee => ee.isRepresented }
+      if (areNotAllIVC) {
+        //
+        // Also, we don't care about this parsing check if all uses of the type
+        // are unparse-only usages.
+        //
+        val isAtLeastOneUsageForParsing =
+        ees.exists { ee => ee.defaultParseUnparsePolicy != ParseUnparsePolicy.UnparseOnly }
+        if (isAtLeastOneUsageForParsing) {
+          SDE("Primitive types can only be used as repTypes for parsing when the enclosing element is computed with inputValueCalc")
+        }
+      }
     }
   }
 
   lazy val simpleTypeRuntimeData: SimpleTypeRuntimeData = {
     validate
-    new SimpleTypeRuntimeData(
-      variableMap,
-      schemaFileLocation,
-      diagnosticDebugName,
-      path,
-      namespaces,
-      primType,
-      noFacetChecks,
-      optRestriction.toSeq.flatMap { r => if (r.hasPattern) r.patternValues else Nil },
-      optRestriction.flatMap { r => toOpt(r.hasEnumeration, r.enumerationValues.get) },
-      optRestriction.flatMap { r => toOpt(r.hasMinLength, r.minLengthValue) },
-      optRestriction.flatMap { r => toOpt(r.hasMaxLength, r.maxLengthValue) },
-      optRestriction.flatMap { r => toOpt(r.hasMinInclusive, r.minInclusiveValue) },
-      optRestriction.flatMap { r => toOpt(r.hasMaxInclusive, r.maxInclusiveValue) },
-      optRestriction.flatMap { r => toOpt(r.hasMinExclusive, r.minExclusiveValue) },
-      optRestriction.flatMap { r => toOpt(r.hasMaxExclusive, r.maxExclusiveValue) },
-      optRestriction.flatMap { r => toOpt(r.hasTotalDigits, r.totalDigitsValue) },
-      optRestriction.flatMap { r => toOpt(r.hasFractionDigits, r.fractionDigitsValue) },
-      optUnion.orElse(optRestriction.flatMap { _.optUnion }).toSeq.flatMap { _.unionMemberTypes.map { _.simpleTypeRuntimeData } },
-      tunable.unqualifiedPathStepPolicy,
-      optRepTypeDef.map(_.simpleTypeRuntimeData),
-      optRepValueSet,
-      optTypeCalculator,
-      optRepType.map(_.primType))
+    val strd =
+      new SimpleTypeRuntimeData(
+        variableMap,
+        schemaFileLocation,
+        diagnosticDebugName,
+        path,
+        namespaces,
+        primType,
+        noFacetChecks,
+        optRestriction.toSeq.flatMap { r => if (r.hasPattern) r.patternValues else Nil },
+        optRestriction.flatMap { r => toOpt(r.hasEnumeration, r.enumerationValues.get) },
+        optRestriction.flatMap { r => toOpt(r.hasMinLength, r.minLengthValue) },
+        optRestriction.flatMap { r => toOpt(r.hasMaxLength, r.maxLengthValue) },
+        optRestriction.flatMap { r => toOpt(r.hasMinInclusive, r.minInclusiveValue) },
+        optRestriction.flatMap { r => toOpt(r.hasMaxInclusive, r.maxInclusiveValue) },
+        optRestriction.flatMap { r => toOpt(r.hasMinExclusive, r.minExclusiveValue) },
+        optRestriction.flatMap { r => toOpt(r.hasMaxExclusive, r.maxExclusiveValue) },
+        optRestriction.flatMap { r => toOpt(r.hasTotalDigits, r.totalDigitsValue) },
+        optRestriction.flatMap { r => toOpt(r.hasFractionDigits, r.fractionDigitsValue) },
+        optUnion.orElse(optRestriction.flatMap { _.optUnion }).toSeq.flatMap { _.unionMemberTypes.map { _.simpleTypeRuntimeData } },
+        tunable.unqualifiedPathStepPolicy,
+        optRepTypeDef.map(_.simpleTypeRuntimeData),
+        optRepValueSet,
+        optTypeCalculator,
+        optRepType.map(_.primType))
+    strd.preSerialization // we can get away with this for simple types.
+    strd
   }
   override lazy val runtimeData = simpleTypeRuntimeData
 
@@ -530,13 +545,6 @@ final class LocalSimpleTypeDef(
   }
 }
 
-/**
- * Call forElement, and supply an element using this globalSimpalType, and you
- * get back an instance that is one-to-one with the element.
- *
- * Call forDeriviedType, and supply a different simpleType that uses this one,
- * and you get back an instance that is one-to-one with that other type
- */
 final class GlobalSimpleTypeDef(xmlArg: Node, schemaDocumentArg: SchemaDocument)
   extends SimpleTypeDefBase(xmlArg, schemaDocumentArg)
   with GlobalNonElementComponentMixin
@@ -555,10 +563,10 @@ final class GlobalSimpleTypeDef(xmlArg: Node, schemaDocumentArg: SchemaDocument)
  * computes additional information based on the context in the schema where it is being used.
  * In this sense, all usages of EnumerationDefs are using them as a "factory".
  */
-final class EnumerationDefFactory(
+final class EnumerationDef(
   xml: Node,
   parentType: SimpleTypeDefBase)
-  extends SchemaComponentFactory(xml, parentType.schemaDocument)
+  extends SchemaComponentImpl(xml, parentType.schemaDocument)
   with NestingLexicalMixin
   with HasRepValueAttributes {
 
@@ -578,7 +586,7 @@ final class EnumerationDefFactory(
       //infer a canonical repValue
       if (asBound.isInclusive) asBound.maybeBound else DataValue.NoValue
     }).getOrElse(DataValue.NoValue)
-    val ans = if(ans1.isDefined) ans1 else ans2
+    val ans = if (ans1.isDefined) ans1 else ans2
     Assert.invariant(ans.isDefined == optRepValueSet.isDefined)
     ans
   }
