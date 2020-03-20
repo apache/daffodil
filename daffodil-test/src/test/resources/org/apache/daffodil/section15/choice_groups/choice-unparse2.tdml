@@ -216,4 +216,35 @@
     </tdml:infoset>
   </tdml:unparserTestCase>
 
+  <tdml:defineSchema name="c3" elementFormDefault="unqualified">
+
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"/>
+
+    <xs:element name="choice" dfdl:terminator=";">
+      <xs:complexType>
+        <xs:choice>
+          <xs:sequence>
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:assert>{ fn:true() eq fn:true() }</dfdl:assert>
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:sequence>
+          <xs:element name="impossible" type="xs:int" />
+        </xs:choice>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:unparserTestCase name="choice_default_branch_is_empty" model="c3" root="choice">
+    <tdml:document>;</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:choice />
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
 </tdml:testSuite>

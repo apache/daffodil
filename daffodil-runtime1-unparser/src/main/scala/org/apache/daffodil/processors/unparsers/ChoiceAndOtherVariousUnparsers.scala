@@ -64,6 +64,22 @@ case class ChoiceBranchMap(
   def keys = lookupTable.keys
 }
 
+/*
+ * Sometimes choices will have an empty branch (e.g. a sequence that just has
+ * an assert in it) that optimize to a NadaUnparser. NadaUnparsers should all
+ * be optimized out, but the ChoiceCombinatorUnparser still expects to have
+ * something in this cases. So we have a special empty branch unparser that
+ * does nothing, but gives the ChoiceCombinatorUnparsering an unparse that it
+ * can use.
+ */
+class ChoiceBranchEmptyUnparser(val context: RuntimeData)
+  extends PrimUnparser {
+
+  override lazy val runtimeDependencies = Vector()
+
+  def unparse(state: UState): Unit = {}
+}
+
 class ChoiceCombinatorUnparser(
   mgrd: ModelGroupRuntimeData,
   eventUnparserMap: ChoiceBranchMap,

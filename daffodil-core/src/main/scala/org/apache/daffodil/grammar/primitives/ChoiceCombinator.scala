@@ -246,7 +246,17 @@ case class ChoiceCombinator(ch: ChoiceTermBase, alternatives: Seq[Gram])
       val (eventRDMap, optDefaultBranch) = ch.choiceBranchMap
       val optDefaultUnparser: Option[Unparser] = optDefaultBranch.map { defaultBranch =>
         val defaultBranchGram = defaultBranch.termContentBody
-        defaultBranchGram.unparser
+        val defaultBranchUnparser = defaultBranchGram.unparser
+        if (defaultBranchUnparser.isEmpty) {
+          // This is a NadaUnparser, likely caused by a default choice branch
+          // that is just an empty sequence. NadaUnparsers throw an assertion
+          // when unparsed, but the ChoiceCombinatorUnparser still expects to
+          // have a something to unparse, so we have an unparser that just does
+          // nothing for this special case
+          new ChoiceBranchEmptyUnparser(defaultBranch.runtimeData)
+        } else {
+          defaultBranchUnparser
+        }
       }
 
       val eventUnparserMap = eventRDMap.map {

@@ -40,4 +40,6 @@ class TestUnparseChoice2 {
   @Test def test_choice_with_array_branch2() { runner.runOneTest("choice_with_array_branch2") }
   @Test def test_choice_with_array_branch3() { runner.runOneTest("choice_with_array_branch3") }
   @Test def test_choice_with_presence_bits_followed_by_array() { runner.runOneTest("choice_with_presence_bits_followed_by_array")}
+
+  @Test def test_choice_defaultable_branch_is_empty() { runner.runOneTest("choice_default_branch_is_empty")}
 }
