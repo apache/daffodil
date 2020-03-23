@@ -197,10 +197,20 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
         }
         eaa
       }.toSeq
-      val parentAlignmentApprox = immediatelyEnclosingModelGroup.map { p =>
-        val csa = p.contentStartAlignment
-        csa
-      }.toSeq
+
+      val parentAlignmentApprox =
+        if (priorSibs.isEmpty || isEverInUnorderedSequence) {
+          // we only care about the parent alignment if we are the first child
+          // in a model group, or if we are in an unordered sequence and we
+          // could be first when parsing
+          immediatelyEnclosingModelGroup.map { p =>
+            val csa = p.contentStartAlignment
+            csa
+          }.toSeq
+        } else {
+          Seq()
+        }
+
       val priorAlignmentsApprox = priorSibsAlignmentsApprox ++ parentAlignmentApprox ++ arraySelfAlignment ++ unorderedSequenceSelfAlignment
       if (priorAlignmentsApprox.isEmpty)
         alignmentApprox // it will be the containing context's responsibility to insure this IS where we start.
