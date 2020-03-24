@@ -30,7 +30,7 @@ jobs:
       ############################################################
 
       - name: Checkout Repository
-        uses: actions/checkout@master
+        uses: actions/checkout@v2.0.0
 
       ############################################################
       # Build & Scan
