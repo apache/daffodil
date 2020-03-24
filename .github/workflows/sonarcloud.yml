@@ -17,6 +17,7 @@ name: SonarCloud Workflow
 on: [push]
 jobs:
   sonarCloudTrigger:
+    if: github.repository == 'apache/incubator-daffodil'
     name: SonarCloud Trigger
     runs-on: ubuntu-latest
     strategy:
