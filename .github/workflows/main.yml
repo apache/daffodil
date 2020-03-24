@@ -34,7 +34,7 @@ jobs:
       ############################################################
 
       - name: Checkout Repository
-        uses: actions/checkout@v1.0.0
+        uses: actions/checkout@v2.0.0
 
       - name: Install Dependencies (Windows)
         run: |
