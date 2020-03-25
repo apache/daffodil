@@ -358,9 +358,6 @@ trait Term
   final lazy val priorSibling = priorSiblings.lastOption
   final lazy val nextSibling = laterSiblings.headOption
 
-  final lazy val hasLaterRequiredSiblings = laterSiblings.exists(_.hasStaticallyRequiredOccurrencesInDataRepresentation)
-  final lazy val hasPriorRequiredSiblings = priorSiblings.exists(_.hasStaticallyRequiredOccurrencesInDataRepresentation)
-
   /**
    * Does this term have always have statically required instances in the data stream.
    *
@@ -386,12 +383,6 @@ trait Term
    * Overridden for elements. See [[ParticleMixin.isVariableOccurrences]]
    */
   def isVariableOccurrences: Boolean = false
-
-  /**
-   * True when a term's immediately enclosing model group is a Sequence.
-   */
-  final lazy val isSequenceChild: Boolean =
-    immediatelyEnclosingGroupDef.map { _.isInstanceOf[SequenceDefMixin] }.getOrElse(false)
 
   /**
    * The concept of potentially trailing is defined in the DFDL specification.
@@ -559,51 +550,6 @@ trait Term
     val res = laterSiblings.forall(!_.isRepresented)
     res
   }
-
-  protected def possibleFirstChildTerms: Seq[Term]
-
-  /*
-   * Returns list of Elements that could be the first child in the infoset of this model group or element.
-   */
-  final lazy val possibleFirstChildElementsInInfoset: Seq[ElementBase] = LV('possibleFirstChildElementsInInfoset) {
-    val pfct = possibleFirstChildTerms
-    val firstChildren = pfct.flatMap {
-      case e: ElementBase => Seq(e)
-      case gr: GroupRef if gr.isHidden => Nil
-      case mg: ModelGroup => mg.possibleFirstChildElementsInInfoset
-    }
-    firstChildren.distinct
-  }.value
-
-  protected def couldBeLastElementInModelGroup: Boolean
-
-  /*
-   * Returns a list of sibling Terms that could follow this term. This will not
-   * return any children of sibling Terms, or any siblings of the enclosingParent.
-   */
-  final def possibleNextSiblingTerms: Seq[Term] = LV('possibleNextSiblingTerms) {
-    enclosingTerms.flatMap { et =>
-      val listOfNextTerm = et match {
-        case e: ElementBase => Nil // complex element, cannot have another model group other than this one
-        case c: ChoiceTermBase => Nil // in choice, no other siblings could come after this one
-        case s: SequenceTermBase if !s.isOrdered => s.groupMembers // unorderd sequence, all siblings (and myself) could be next
-        case s: SequenceTermBase => {
-          // in a sequence, the next term could be any later sibling that is not
-          // or does not have a required element, up to and including the first
-          // term that is/has a required element
-          val selfAndAllNextSiblings = s.groupMembers.dropWhile(_ != this)
-          val allNextSiblings = if (selfAndAllNextSiblings.length > 0) selfAndAllNextSiblings.tail else Nil
-          val nextSiblings = allNextSiblings // .dropWhile(isOutputValueCalc(_))
-          val (optional, firstRequiredAndLater) = nextSiblings.span {
-            case e: ElementBase => e.canBeAbsentFromUnparseInfoset
-            case mg: ModelGroup => !mg.mustHaveRequiredElement
-          }
-          optional ++ firstRequiredAndLater.take(1)
-        }
-      }
-      listOfNextTerm
-    }
-  }.value
 
   final protected lazy val realChildren: Seq[Term] = {
     this match {

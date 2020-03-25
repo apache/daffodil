@@ -29,7 +29,7 @@ class TestMiddleEndAttributes {
   val xsi = XMLUtils.XSI_NAMESPACE
   val example = XMLUtils.EXAMPLE_NAMESPACE
 
-  @Test def testHasPriorRequiredSiblings {
+  @Test def test_hasStaticallyRequiredOccurrencesInDataRepresentation_1 {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator="" separator="" ignoreCase="no"/>,
@@ -53,12 +53,9 @@ class TestMiddleEndAttributes {
     val Seq(s1, s2) = seq.groupMembers
     assertTrue(s1.hasStaticallyRequiredOccurrencesInDataRepresentation)
     assertTrue(s2.hasStaticallyRequiredOccurrencesInDataRepresentation)
-    assertTrue(s1.hasLaterRequiredSiblings)
-    assertTrue(s2.hasPriorRequiredSiblings)
-
   }
 
-  @Test def testDoesNotHavePriorRequiredSiblings {
+  @Test def test_hasStaticallyRequiredOccurrencesInDataRepresentation_2 {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format representation="text" occursCountKind="parsed" lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator="" separator="" ignoreCase="no"/>,
@@ -82,9 +79,6 @@ class TestMiddleEndAttributes {
     val Seq(s1, s2) = seq.groupMembers
     assertFalse(s1.hasStaticallyRequiredOccurrencesInDataRepresentation)
     assertFalse(s2.hasStaticallyRequiredOccurrencesInDataRepresentation)
-    assertFalse(s1.hasLaterRequiredSiblings)
-    assertFalse(s2.hasPriorRequiredSiblings)
-
   }
 
   @Test def testRequiredSiblings {
@@ -117,16 +111,6 @@ class TestMiddleEndAttributes {
     assertFalse(s3.hasStaticallyRequiredOccurrencesInDataRepresentation)
     assertTrue(s4.hasStaticallyRequiredOccurrencesInDataRepresentation)
     assertFalse(s5.hasStaticallyRequiredOccurrencesInDataRepresentation)
-    assertTrue(s1.hasLaterRequiredSiblings)
-    assertTrue(s2.hasLaterRequiredSiblings)
-    assertTrue(s3.hasLaterRequiredSiblings)
-    assertFalse(s4.hasLaterRequiredSiblings)
-    assertFalse(s5.hasLaterRequiredSiblings)
-    assertFalse(s1.hasPriorRequiredSiblings)
-    assertFalse(s2.hasPriorRequiredSiblings)
-    assertTrue(s3.hasPriorRequiredSiblings)
-    assertTrue(s4.hasPriorRequiredSiblings)
-    assertTrue(s5.hasPriorRequiredSiblings)
   }
 
   @Test def testStaticallyFirstWithChoice {
@@ -159,12 +143,10 @@ class TestMiddleEndAttributes {
     assertTrue(es.hasInfixSep)
     assertEquals(1, s1.position)
     assertTrue(s1.isScalar)
-    assertTrue(!s1.hasPriorRequiredSiblings)
     val es2 = s2.optLexicalParent.get.optLexicalParent.get.asInstanceOf[Sequence]
     assertEquals(es, es2)
     assertEquals(2, s2.position)
     assertTrue(s2.isScalar)
-    assertTrue(!s2.hasPriorRequiredSiblings)
   }
 
   @Test def testNearestEnclosingSequenceElementRef() {
