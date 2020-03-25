@@ -1044,23 +1044,6 @@ trait ElementBase
     }
   }.value
 
-  protected final lazy val possibleFirstChildTerms: Seq[Term] =
-    termChildren
-
-  protected final def couldBeLastElementInModelGroup: Boolean = LV('couldBeLastElementInModelGroup) {
-    val couldBeLast = this.immediatelyEnclosingGroupDef match {
-      case None => true
-      case Some(s: SequenceTermBase) if s.isOrdered => {
-        !possibleNextSiblingTerms.exists {
-          case e: ElementBase => e.isRequiredStreamingUnparserEvent
-          case mg: ModelGroup => mg.mustHaveRequiredElement
-        }
-      }
-      case _ => true
-    }
-    couldBeLast
-  }.value
-
   final lazy val defaultParseUnparsePolicy = optionParseUnparsePolicy.getOrElse(ParseUnparsePolicy.Both)
 
   /**

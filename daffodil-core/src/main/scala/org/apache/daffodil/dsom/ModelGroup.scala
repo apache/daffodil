@@ -331,36 +331,6 @@ abstract class ModelGroup(index: Int)
   }
 
   /*
-   * Returns list of Terms that could contain the first child element in the infoset
-   */
-  protected final lazy val possibleFirstChildTerms: Seq[Term] = LV('possibleFirstChildTerms) {
-    val firstTerms = this match {
-      case c: ChoiceTermBase => groupMembers
-      case s: SequenceTermBase if !s.isOrdered => groupMembers
-      case s: SequenceTermBase => {
-        groupMembers.headOption match {
-          case None => Nil
-          case Some(e: ElementBase) if e.canBeAbsentFromUnparseInfoset => {
-            // this case covers optional elements, arrrays with minOccurs = 0,
-            // and elements with outputValueCalc. In each of these cases, the
-            // first child could be first, but so could any siblings that
-            // follow it
-            Seq(e) ++ e.possibleNextSiblingTerms
-          }
-          case Some(gr: GroupRef) if gr.isHidden => gr.possibleNextSiblingTerms
-          case Some(mg: ModelGroup) if !mg.mustHaveRequiredElement => Seq(mg) ++ mg.possibleNextSiblingTerms
-          case Some(e: ElementBase) => Seq(e)
-          case Some(mg: ModelGroup) => Seq(mg)
-        }
-      }
-    }
-    firstTerms
-  }.value
-
-  /** Always false as model groups can't be elements.*/
-  protected final def couldBeLastElementInModelGroup: Boolean = false
-
-  /*
    * Determines if this model group must have at least one required element, or
    * if everything in the model group is optional and thus, might not cause
    * any unparse events. This is used to determine next children/sibling
