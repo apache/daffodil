@@ -19,7 +19,7 @@ addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.3.17")
 
 addSbtPlugin("org.musigma" % "sbt-rat" % "0.6.0")
 
-addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.5.1")
+addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.6.1")
 
 // Both sbt and the sbt-native-pacakger plugin have transitive dependencies to
 // different versions of plexus-utils and guava, but with different major
