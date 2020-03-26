@@ -67,15 +67,15 @@ case class ChoiceBranchMap(
 }
 
 /*
- * Sometimes choices will have an empty branch (e.g. a sequence that just has
- * an assert in it) that optimize to a NadaUnparser. NadaUnparsers should all
- * be optimized out, but the ChoiceCombinatorUnparser still expects to have
- * something in this cases. So we have a special empty branch unparser that
- * does nothing, but gives the ChoiceCombinatorUnparsering an unparse that it
- * can use.
+ * Sometimes choices have an empty branch (e.g. a sequence that just has an
+ * assert in it) that optimizes to a NadaUnparser. NadaUnparsers should all
+ * optimize out, but the ChoiceCombinatorUnparser still expects to have
+ * something in these cases. So we have a special empty branch unparser that
+ * does nothing, but gives the ChoiceCombinatorUnparser something that it can
+ * use.
  */
 class ChoiceBranchEmptyUnparser(val context: RuntimeData)
-  extends PrimUnparser {
+  extends PrimUnparserNoData {
 
   override lazy val runtimeDependencies = Vector()
 

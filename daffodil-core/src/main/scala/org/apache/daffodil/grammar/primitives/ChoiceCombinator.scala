@@ -61,7 +61,7 @@ case class ChoiceCombinator(ch: ChoiceTermBase, alternatives: Seq[Gram])
       val p = alt.parser
       val res =
         if (p.isEmpty)
-          new EmptyChoiceBranchParser(alt.context.runtimeData)
+          new ChoiceBranchEmptyParser(alt.context.runtimeData)
         else p
       res
     }
@@ -225,7 +225,13 @@ case class ChoiceCombinator(ch: ChoiceTermBase, alternatives: Seq[Gram])
 
       val dispatchBranchKeyMap = dispatchBranchKeyValueTuples.toMap.mapValues(gram => {
         val isRepresented = true // FIXME: Verify is ok? Was: gram.context.enclosingTerm.get.isRepresented
-        val parser = gram.parser
+        val gramParser = gram.parser
+        val parser =
+          if (gramParser.isEmpty) {
+            new ChoiceBranchEmptyParser(gram.context.runtimeData)
+          } else {
+            gramParser
+          }
         (parser, isRepresented)
       })
       val serializableMap: Map[String, (Parser, Boolean)] = dispatchBranchKeyMap.map(identity)
