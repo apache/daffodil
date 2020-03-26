@@ -120,6 +120,21 @@ class DynamicEscapeSchemeParser(
 }
 
 /*
+ * Sometimes choices will have an empty branch (e.g. an empty <xs:sequence />)
+ * that optimizes to a NadaParser. NadaParsers should all optimize out, but the
+ * ChoiceCombinatorParsers still expect to have a parser to use in these cases.
+ * So we have a special empty branch parser that does nothing and always
+ * succeeds, but gives the ChoiceCombinatorParsers something that they can use.
+ */
+class ChoiceBranchEmptyParser(val context: RuntimeData)
+  extends PrimParserNoData {
+
+  override lazy val runtimeDependencies = Vector()
+
+  def parse(state: PState): Unit = {}
+}
+
+/*
  * dispatchBranchKeyMap: choiceBranchKey -> (Parser, hasRepresentation)
  */
 

@@ -1754,6 +1754,18 @@ it sure is/
       </xs:sequence>
     </xs:group>
 
+    <xs:element name="dd8">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="branch" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1" />
+          <xs:choice dfdl:choiceDispatchKey="{ ./ex:branch }">
+            <xs:sequence dfdl:choiceBranchKey="0" />
+            <xs:element ref="inty1" dfdl:choiceBranchKey="1" />
+          </xs:choice>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
   </tdml:defineSchema>
 
   <tdml:parserTestCase name="direct_dispatch_01" root="dd1"
@@ -1961,6 +1973,19 @@ it sure is/
           <ex:branch>2</ex:branch>
           <ex:stringy1>5</ex:stringy1>
         </ex:dd7>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="direct_dispatch_17" root="dd8"
+    model="direct_dispatch_1"
+    description="direct dispatch to empty branch">
+    <tdml:document><![CDATA[0]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com">
+        <ex:dd8>
+          <ex:branch>0</ex:branch>
+        </ex:dd8>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
