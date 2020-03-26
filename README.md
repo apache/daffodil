@@ -95,7 +95,6 @@ Generate an [sbt-scoverage] test coverage report located in
 
 ```text
 $ sbt clean coverage test it:test
-$ sbt coverageReport
 $ sbt coverageAggregate
 ```
 

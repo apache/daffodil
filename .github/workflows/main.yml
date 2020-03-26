@@ -27,6 +27,8 @@ jobs:
         java_version: [ '8.x', '9.x', '11.x' ]
         scala_version: [ '2.12.6', '2.11.12' ]
         os: [ 'ubuntu-latest', 'windows-latest' ]
+    env:
+      SBT: sbt -J-Xms1024m -J-Xmx5120m -J-XX:ReservedCodeCacheSize=512m -J-XX:MaxMetaspaceSize=1024m ++${{ matrix.scala_version }} coverage
     steps:
 
       ############################################################
@@ -59,27 +61,19 @@ jobs:
       - name: Compile
         run: $SBT compile test:compile it:compile
         shell: bash
-        env:
-          SBT: sbt -J-Xms1024m -J-Xmx5120m -J-XX:ReservedCodeCacheSize=512m -J-XX:MaxMetaspaceSize=1024m ++${{ matrix.scala_version }} coverage
 
       - name: Build Documentation
         run: $SBT daffodil-japi/genjavadoc:doc daffodil-sapi/doc
         shell: bash
-        env:
-          SBT: sbt -J-Xms1024m -J-Xmx5120m -J-XX:ReservedCodeCacheSize=512m -J-XX:MaxMetaspaceSize=1024m ++${{ matrix.scala_version }} coverage
 
       - name: Package Zip & Tar
         run: $SBT daffodil-cli/universal:packageBin daffodil-cli/universal:packageZipTarball
         shell: bash
-        env:
-          SBT: sbt -J-Xms1024m -J-Xmx5120m -J-XX:ReservedCodeCacheSize=512m -J-XX:MaxMetaspaceSize=1024m ++${{ matrix.scala_version }} coverage
 
       - name: Package RPM
         run: $SBT daffodil-cli/rpm:packageBin
         if: runner.os == 'Linux'
         shell: bash
-        env:
-          SBT: sbt -J-Xms1024m -J-Xmx5120m -J-XX:ReservedCodeCacheSize=512m -J-XX:MaxMetaspaceSize=1024m ++${{ matrix.scala_version }} coverage
 
       ############################################################
       # Test
@@ -88,26 +82,18 @@ jobs:
       - name: Run Rat Check
         run: $SBT ratCheck || (cat target/rat.txt; exit 1)
         shell: bash
-        env:
-          SBT: sbt -J-Xms1024m -J-Xmx5120m -J-XX:ReservedCodeCacheSize=512m -J-XX:MaxMetaspaceSize=1024m ++${{ matrix.scala_version }} coverage
 
       - name: Run Unit Tests
         run: $SBT test
         shell: bash
-        env:
-          SBT: sbt -J-Xms1024m -J-Xmx5120m -J-XX:ReservedCodeCacheSize=512m -J-XX:MaxMetaspaceSize=1024m ++${{ matrix.scala_version }} coverage
 
       - name: Run Integration Tests
         run: $SBT it:test
         shell: bash
-        env:
-          SBT: sbt -J-Xms1024m -J-Xmx5120m -J-XX:ReservedCodeCacheSize=512m -J-XX:MaxMetaspaceSize=1024m ++${{ matrix.scala_version }} coverage
 
-      # Disabled until we switch from TravisCI to Github Actions
-      #- name: Generate Coverage Report
-      #  run: |
-      #    $SBT coverageReport
-      #    bash <(curl -s https://codecov.io/bash)
-      #  env:
-      #    SBT: sbt -J-Xms1024m -J-Xmx5120m -J-XX:ReservedCodeCacheSize=512m -J-XX:MaxMetaspaceSize=1024m ++${{ matrix.scala_version }} coverage
-      #  shell: bash
+      - name: Generate Coverage Report
+        run: $SBT coverageAggregate
+        shell: bash
+
+      - name: Upload Coverage Report
+        uses: codecov/codecov-action@v1
