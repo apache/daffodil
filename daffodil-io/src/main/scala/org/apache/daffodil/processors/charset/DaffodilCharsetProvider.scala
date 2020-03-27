@@ -45,6 +45,8 @@ object DaffodilCharsetProvider {
     BitsCharsetUSASCII6BitPackedLSBF,
     BitsCharsetUSASCII6BitPackedMSBF,
     BitsCharsetUSASCII7BitPacked,
+    BitsCharsetISO885918BitPackedLSBF,
+    BitsCharsetISO885918BitPackedMSBF,
     BitsCharsetUTF16BE,
     BitsCharsetUTF16LE,
     BitsCharsetUTF32BE,
