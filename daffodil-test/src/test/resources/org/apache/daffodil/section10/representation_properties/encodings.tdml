@@ -28,6 +28,28 @@
   
   <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited"/>
     
+	<xs:simpleType name="bit" dfdl:lengthKind="explicit" dfdl:lengthUnits="bits" dfdl:alignmentUnits="bits" dfdl:representation="binary" >
+		<xs:restriction base="xs:unsignedInt" />
+	</xs:simpleType>	
+	
+  <xs:element name="isoMsb">
+	<xs:complexType>
+		<xs:sequence>
+			<xs:element name="a" type="ex:bit" dfdl:length="3" />
+			<xs:element name="b" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="8" dfdl:lengthUnits="bits" dfdl:alignmentUnits="bits" dfdl:representation="text" dfdl:encoding="X-DFDL-ISO-88591-8-BIT-PACKED-MSB-FIRST"/>			
+		</xs:sequence>
+	</xs:complexType>	
+  </xs:element>
+  
+  <xs:element name="isoLsb">
+	<xs:complexType>
+		<xs:sequence>
+			<xs:element name="a" type="ex:bit" dfdl:length="3" dfdl:bitOrder="leastSignificantBitFirst" dfdl:byteOrder="littleEndian" />
+			<xs:element name="b" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="8" dfdl:lengthUnits="bits" dfdl:alignmentUnits="bits" dfdl:representation="text" dfdl:bitOrder="leastSignificantBitFirst" dfdl:byteOrder="littleEndian" dfdl:encoding="X-DFDL-ISO-88591-8-BIT-PACKED-LSB-FIRST"/>			
+		</xs:sequence>
+	</xs:complexType>	
+  </xs:element>
+  
   <xs:element name="eString" type="xs:string" dfdl:encoding="ebcdic-cp-us"/>
   
   <xs:element name="bString" type="xs:string" dfdl:encoding="x-dfdl-bits-lsbf"
@@ -49,6 +71,37 @@
     
 </tdml:defineSchema>
 
+
+  <tdml:parserTestCase name="iso88591msbbitsmisaligned" root="isoMsb" model="enc1" 
+    description="ISO-8859-1 testcase (MSB) Bits (misaligned)">
+    <tdml:document>
+		<tdml:documentPart type="bits">10100110111</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tns:isoMsb>
+			<ex:a>5</ex:a>
+			<ex:b>7</ex:b>
+		</tns:isoMsb>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="iso88591lsbbitsmisaligned" root="isoLsb" model="enc1" 
+    description="ISO-8859-1 testcase (LSB) Bits (misaligned)">
+    <tdml:document>
+		<tdml:documentPart type="bits" bitOrder="LSBFirst" byteOrder="RTL">001 10111101</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tns:isoLsb>
+			<ex:a>5</ex:a>
+			<ex:b>7</ex:b>
+		</tns:isoLsb>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+    
   <tdml:parserTestCase name="ebcdic1" root="eString" model="enc1" 
     description="EBCDIC basic test">
     <tdml:document>

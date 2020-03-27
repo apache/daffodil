@@ -32,7 +32,7 @@ object TestRepProps2 {
 
 class TestRepProps2 {
   import TestRepProps2._
-
+  
   @Test def test_ebcdic1() = { runner.runOneTest("ebcdic1") }
   @Test def test_bits1() = { runner.runOneTest("bits1") }
   @Test def test_bits1a() = { runner.runOneTest("bits1a") }
@@ -50,4 +50,6 @@ class TestRepProps2 {
 
   @Test def test_sixBit1() = { runner.runOneTest("sixBit1") }
 
+  @Test def test_iso88591msbbitsmisaligned() = { runner.runOneTest("iso88591msbbitsmisaligned") }  
+  @Test def test_iso88591lsbbitsmisaligned() = { runner.runOneTest("iso88591lsbbitsmisaligned") }
 }
