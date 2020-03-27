@@ -108,13 +108,13 @@ class TestScalaAPI {
     Daffodil.setLoggingLevel(LogLevel.Debug)
 
     val c = Daffodil.compiler()
-    c.setValidateDFDLSchemas(false)
     val schemaFile = getResource("/test/sapi/mySchema1.dfdl.xsd")
     val pf = c.compileFile(schemaFile)
     val dp1 = pf.onPath("/")
     val dp = reserializeDataProcessor(dp1)
-    dp.setDebugger(debugger)
-    dp.setDebugging(true)
+      .withDebugger(debugger)
+      .withDebugging(true)
+      .withValidationMode(ValidationMode.Off)
 
     val file = getResource("/test/sapi/myData.dat")
     val fis = new java.io.FileInputStream(file)
@@ -158,7 +158,7 @@ class TestScalaAPI {
     Daffodil.setLoggingLevel(LogLevel.Debug)
 
     val c = Daffodil.compiler()
-    c.setValidateDFDLSchemas(false)
+
     val schemaFile = getResource("/test/sapi/mySchema1.dfdl.xsd")
     val pf = c.compileFile(schemaFile)
     val dp = pf.onPath("/")
@@ -172,8 +172,9 @@ class TestScalaAPI {
     val savedParser = Channels.newChannel(is)
     val compiler = Daffodil.compiler()
     val parser = compiler.reload(savedParser)
-    parser.setDebugger(debugger)
-    parser.setDebugging(true)
+    .withDebugger(debugger)
+    .withDebugging(true)
+    .withValidationMode(ValidationMode.Off)
     val file = getResource("/test/sapi/myData.dat")
     val fis = new java.io.FileInputStream(file)
     val input = new InputSourceDataInputStream(fis)
@@ -215,7 +216,7 @@ class TestScalaAPI {
     Daffodil.setLoggingLevel(LogLevel.Info)
 
     val c = Daffodil.compiler()
-    c.setValidateDFDLSchemas(false)
+
     val schemaFile = getResource("/test/sapi/mySchema1.dfdl.xsd")
     val pf = c.compileFile(schemaFile)
     val dp1 = pf.onPath("/")
@@ -258,10 +259,10 @@ class TestScalaAPI {
   @Test
   def testScalaAPI3() {
     val c = Daffodil.compiler()
-    c.setValidateDFDLSchemas(false)
+
     val schemaFile = getResource("/test/sapi/mySchema3.dfdl.xsd")
     val pf = c.compileFile(schemaFile)
-    pf.setDistinguishedRootNode("e3", null)
+      .withDistinguishedRootNode("e3", null)
     val dp1 = pf.onPath("/")
     val dp = reserializeDataProcessor(dp1)
 
@@ -290,10 +291,10 @@ class TestScalaAPI {
   @Test
   def testScalaAPI3_A() {
     val c = Daffodil.compiler()
-    c.setValidateDFDLSchemas(false)
+
     val schemaFile = getResource("/test/sapi/mySchema3.dfdl.xsd")
     val pf = c.compileFile(schemaFile)
-    pf.setDistinguishedRootNode("e3", null)
+      .withDistinguishedRootNode("e3", null)
     val dp = pf.onPath("/")
 
     // Serialize the parser to memory, then deserialize for parsing.
@@ -329,10 +330,9 @@ class TestScalaAPI {
   @Test
   def testScalaAPI4b() {
     val c = Daffodil.compiler()
-    c.setValidateDFDLSchemas(false)
+
     val schemaFileName = getResource("/test/sapi/mySchema3.dfdl.xsd")
-    c.setDistinguishedRootNode("e4", null)
-    val pf = c.compileFile(schemaFileName)
+    val pf = c.compileFile(schemaFileName, Some("e4"), None)
     val dp1 = pf.onPath("/")
     val dp = reserializeDataProcessor(dp1)
 
@@ -359,11 +359,10 @@ class TestScalaAPI {
   @Test
   def testScalaAPI5() {
     val c = Daffodil.compiler()
-    c.setValidateDFDLSchemas(false)
+
     val schemaFileName = getResource("/test/sapi/mySchema3.dfdl.xsd")
-    c.setDistinguishedRootNode("e4", null); // e4 is a 4-byte long string
     // element
-    val pf = c.compileFile(schemaFileName)
+    val pf = c.compileFile(schemaFileName, Some("e4"), None) // e4 is a 4-byte long string
     val dp1 = pf.onPath("/")
     val dp = reserializeDataProcessor(dp1)
 
@@ -403,17 +402,13 @@ class TestScalaAPI {
     Daffodil.setLoggingLevel(LogLevel.Debug)
 
     val c = Daffodil.compiler()
-    c.setValidateDFDLSchemas(false)
+
     val schemaFile = new java.io.File("/test/sapi/notHere1.dfdl.xsd")
     val pf = c.compileFile(schemaFile)
     assertTrue(pf.isError())
     val diags = pf.getDiagnostics
-    var found1 = false
-    diags.foreach { d =>
-      if (d.getMessage().contains("notHere1")) {
-        found1 = true
-      }
-    }
+    val found1 = diags.exists{ _.getMessage().contains("notHere1") }
+
     assertTrue(found1)
 
     // reset the global logging state
@@ -439,10 +434,9 @@ class TestScalaAPI {
     Daffodil.setLoggingLevel(LogLevel.Debug)
 
     val c = Daffodil.compiler()
-    c.setValidateDFDLSchemas(false)
+
     val schemaFile = getResource("/test/sapi/TopLevel.dfdl.xsd")
-    c.setDistinguishedRootNode("TopLevel", null)
-    val pf = c.compileFile(schemaFile)
+    val pf = c.compileFile(schemaFile, Some("TopLevel"), None)
     val dp1 = pf.onPath("/")
     val dp = reserializeDataProcessor(dp1)
 
@@ -484,10 +478,9 @@ class TestScalaAPI {
     Daffodil.setLoggingLevel(LogLevel.Debug)
 
     val c = Daffodil.compiler()
-    c.setValidateDFDLSchemas(false)
+
     val schemaFile = getResource("/test/sapi/TopLevel.dfdl.xsd")
-    c.setDistinguishedRootNode("TopLevel2", null)
-    val pf = c.compileFile(schemaFile)
+    val pf = c.compileFile(schemaFile, Some("TopLevel2"), None)
     val dp1 = pf.onPath("/")
     val dp = reserializeDataProcessor(dp1)
 
@@ -525,10 +518,9 @@ class TestScalaAPI {
     Daffodil.setLoggingLevel(LogLevel.Debug)
 
     val c = Daffodil.compiler()
-    c.setValidateDFDLSchemas(false)
+
     val schemaFile = getResource("/test/sapi/TopLevel.dfdl.xsd")
-    c.setDistinguishedRootNode("TopLevel2", null)
-    val pf = c.compileFile(schemaFile)
+    val pf = c.compileFile(schemaFile, Some("TopLevel2"), None)
     val dp1 = pf.onPath("/")
     val dp = reserializeDataProcessor(dp1)
 
@@ -572,7 +564,7 @@ class TestScalaAPI {
   def testScalaAPI10() {
 
     val c = Daffodil.compiler()
-    c.setValidateDFDLSchemas(false)
+
     val schemaFile = getResource("/test/sapi/mySchema4.dfdl.xsd")
     val pf = c.compileFile(schemaFile)
     val dp1 = pf.onPath("/")
@@ -598,7 +590,7 @@ class TestScalaAPI {
   def testScalaAPI11() {
 
     val c = Daffodil.compiler()
-    c.setValidateDFDLSchemas(false)
+
     val schemaFile = getResource("/test/sapi/mySchema5.dfdl.xsd")
     val pf = c.compileFile(schemaFile)
     val dp1 = pf.onPath("/")
@@ -634,15 +626,16 @@ class TestScalaAPI {
     Daffodil.setLoggingLevel(LogLevel.Debug)
 
     val c = Daffodil.compiler()
-    c.setValidateDFDLSchemas(false)
+
 
     val schemaFile = getResource("/test/sapi/mySchema1.dfdl.xsd")
     val pf = c.compileFile(schemaFile)
     val dp1 = pf.onPath("/")
     val dp = reserializeDataProcessor(dp1)
+      .withDebugger(debugger)
+      .withDebugging(true)
+      .withValidationMode(ValidationMode.Off)
 
-    dp.setDebugger(debugger)
-    dp.setDebugging(true)
     val file = getResource("/test/sapi/myData.dat")
     val fis = new java.io.FileInputStream(file)
     val input = new InputSourceDataInputStream(fis)
@@ -678,17 +671,18 @@ class TestScalaAPI {
     Daffodil.setLoggingLevel(LogLevel.Debug)
 
     val c = Daffodil.compiler()
-    c.setValidateDFDLSchemas(false)
+
     val extVarsFile = getResource("/test/sapi/external_vars_1.xml")
     val schemaFile = getResource("/test/sapi/mySchemaWithVars.dfdl.xsd")
-    c.setExternalDFDLVariables(extVarsFile)
     val pf = c.compileFile(schemaFile)
 
     val dp1 = pf.onPath("/")
     val dp = reserializeDataProcessor(dp1)
+      .withExternalVariables(extVarsFile)
+      .withDebugger(debugger)
+      .withDebugging(true)
+      .withValidationMode(ValidationMode.Off)
 
-    dp.setDebugger(debugger)
-    dp.setDebugging(true)
     val file = getResource("/test/sapi/myData.dat")
     val fis = new java.io.FileInputStream(file)
     val input = new InputSourceDataInputStream(fis)
@@ -719,16 +713,16 @@ class TestScalaAPI {
     Daffodil.setLoggingLevel(LogLevel.Debug)
 
     val c = Daffodil.compiler()
-    c.setValidateDFDLSchemas(false)
+
     val extVarFile = getResource("/test/sapi/external_vars_1.xml")
     val schemaFile = getResource("/test/sapi/mySchemaWithVars.dfdl.xsd")
     val pf = c.compileFile(schemaFile)
     val dp1 = pf.onPath("/")
-    dp1.setExternalVariables(extVarFile)
     val dp = reserializeDataProcessor(dp1)
-
-    dp.setDebugger(debugger)
-    dp.setDebugging(true)
+      .withExternalVariables(extVarFile)
+      .withDebugger(debugger)
+      .withDebugging(true)
+      .withValidationMode(ValidationMode.Off)
 
     val file = getResource("/test/sapi/myData.dat")
     val fis = new java.io.FileInputStream(file)
@@ -772,12 +766,12 @@ class TestScalaAPI {
     Daffodil.setLoggingLevel(LogLevel.Debug)
 
     val c = Daffodil.compiler()
-    c.setValidateDFDLSchemas(false)
+
     val schemaFile = getResource("/test/sapi/mySchema1.dfdl.xsd")
     val pf = c.compileFile(schemaFile)
     val dp = pf.onPath("/")
-    dp.setDebugger(debugger)
-    dp.setDebugging(true)
+      .withDebugger(debugger)
+      .withDebugging(true)
     // Serialize the parser to memory, then deserialize for parsing.
     val os = new ByteArrayOutputStream()
     val output = Channels.newChannel(os)
@@ -789,7 +783,7 @@ class TestScalaAPI {
     val parser = compiler.reload(input)
 
     try {
-      parser.setValidationMode(ValidationMode.Full)
+      parser.withValidationMode(ValidationMode.Full)
       fail()
     } catch { case e: InvalidUsageException => assertEquals("'Full' validation not allowed when using a restored parser.", e.getMessage()) }
 
@@ -808,13 +802,13 @@ class TestScalaAPI {
     Daffodil.setLoggingLevel(LogLevel.Debug)
 
     val c = Daffodil.compiler()
-    c.setValidateDFDLSchemas(false)
+
     val schemaFile = getResource("/test/sapi/mySchema1.dfdl.xsd")
     val pf = c.compileFile(schemaFile)
     val dp1 = pf.onPath("/")
     val dp = reserializeDataProcessor(dp1)
-    dp.setDebugger(debugger)
-    dp.setDebugging(true)
+      .withDebugger(debugger)
+      .withDebugging(true)
 
     val file = getResource("/test/sapi/myInfosetBroken.xml")
     val xml = scala.xml.XML.loadFile(file)
@@ -840,13 +834,12 @@ class TestScalaAPI {
   @Test
   def testScalaAPI16() {
     val c = Daffodil.compiler()
-    c.setValidateDFDLSchemas(false)
+
     val schemaFile = getResource("/test/sapi/mySchema1.dfdl.xsd")
     val pf = c.compileFile(schemaFile)
     val dp1 = pf.onPath("/")
-    dp1.setValidationMode(ValidationMode.Limited)
     val dp = reserializeDataProcessor(dp1)
-
+      .withValidationMode(ValidationMode.Limited)
     val file = getResource("/test/sapi/myData.dat")
     val fis = new java.io.FileInputStream(file)
     val input = new InputSourceDataInputStream(fis)
@@ -868,13 +861,11 @@ class TestScalaAPI {
   @Test
   def testScalaAPI17() {
     val c = Daffodil.compiler()
-    c.setValidateDFDLSchemas(false)
+
     val schemaFile = getResource("/test/sapi/mySchema1.dfdl.xsd")
     val pf = c.compileFile(schemaFile)
-    val dp1 = pf.onPath("/")
-    dp1.setValidationMode(ValidationMode.Full)
-    val dp = reserializeDataProcessor(dp1)
-
+    val dp = pf.onPath("/")
+      .withValidationMode(ValidationMode.Full)
     val file = getResource("/test/sapi/myData.dat")
     val fis = new java.io.FileInputStream(file)
     val input = new InputSourceDataInputStream(fis)
@@ -907,10 +898,9 @@ class TestScalaAPI {
   def testScalaAPI18() {
     // Demonstrate that we can use the API to continue a parse where we left off
     val c = Daffodil.compiler()
-    c.setValidateDFDLSchemas(false)
+
     val schemaFile = getResource("/test/sapi/mySchema3.dfdl.xsd")
-    c.setDistinguishedRootNode("e4", null)
-    val pf = c.compileFile(schemaFile)
+    val pf = c.compileFile(schemaFile, Some("e4"), None)
     val dp1 = pf.onPath("/")
     val dp = reserializeDataProcessor(dp1)
 
@@ -951,10 +941,9 @@ class TestScalaAPI {
     // Demonstrate that we cannot use the API to continue a parse with an invalid InputSource
     // ie. after a runtime SDE. This test needs to be run with an input file larger than 256MB
     val c = Daffodil.compiler()
-    c.setValidateDFDLSchemas(false)
+
     val schemaFile = getResource("/test/sapi/ambig_elt.dfdl.xsd")
-    c.setDistinguishedRootNode("root", null)
-    val pf = c.compileFile(schemaFile)
+    val pf = c.compileFile(schemaFile, Some("root"), None)
     val dp1 = pf.onPath("/")
     val dp = reserializeDataProcessor(dp1)
 

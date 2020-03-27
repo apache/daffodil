@@ -54,7 +54,6 @@ trait NestingLexicalMixin { self: SchemaComponent =>
       case sd: SchemaDocument => usageErr(sd)
       case ss: SchemaSet => usageErr(ss)
       case s: Schema => usageErr(s)
-      case pf: ProcessorFactory => usageErr(pf)
       case _ => // ok
     }
     val result =

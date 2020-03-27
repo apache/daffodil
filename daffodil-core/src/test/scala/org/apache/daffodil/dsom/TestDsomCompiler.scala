@@ -80,8 +80,7 @@ class TestDsomCompiler extends Logging {
         </xs:complexType>
       </xs:element>)
 
-    val compiler = Compiler()
-    compiler.setCheckAllTopLevel(true)
+    val compiler = Compiler().withCheckAllTopLevel(true)
     val sset = compiler.compileNode(sch).sset
     assertTrue(sset.isError)
     val diagnostics = sset.getDiagnostics.asInstanceOf[Seq[Diagnostic]]
@@ -133,8 +132,7 @@ class TestDsomCompiler extends Logging {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-    val compiler = Compiler()
-    compiler.setCheckAllTopLevel(true)
+    val compiler = Compiler().withCheckAllTopLevel(true)
     val sset = Compiler().compileNode(s).sset
     sset.isError // forces compilation
     val diags = sset.getDiagnostics

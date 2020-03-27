@@ -17,6 +17,8 @@
 
 package org.apache.daffodil.compiler
 
+import org.apache.daffodil.api.UnqualifiedPathStepPolicy.NoNamespace
+import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.xml.NS
 
 /**
@@ -32,5 +34,15 @@ case class RootSpec(ns: Option[NS], name: String) {
   override def toString() = {
     val nsStr = ns.getOrElse("")
     "{" + nsStr + "}" + name
+  }
+}
+
+object RootSpec {
+  def makeRootSpec(optName: Option[String], optNamespace:Option[String]) = {
+    val ns = optNamespace.map{ NS(_) }
+    if (optNamespace.isDefined && optName.isEmpty)
+      Assert.usageError("Cannot specify only a namespace without a name. Namespace argument was: "
+        + (if (ns eq NoNamespace) "\"\" " + ns else ns))
+    optName.map{ RootSpec(ns, _) }
   }
 }

@@ -28,14 +28,18 @@ import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveNullable
 import org.apache.daffodil.infoset.RetryableException
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe.Nope
-import org.apache.daffodil.xml.GlobalQName
-import org.apache.daffodil.xml.NamedQName
+import org.apache.daffodil.xml.{GlobalQName, UnspecifiedNamespace, NamedQName, QNameBase, RefQName}
+
+import scala.collection.immutable
 
 sealed abstract class VariableState extends Serializable
 
 case object VariableUndefined extends VariableState
+
 case object VariableDefined extends VariableState
+
 case object VariableSet extends VariableState
+
 case object VariableRead extends VariableState
 
 /**
@@ -59,9 +63,9 @@ object VariableUtils {
     var newVMap = currentVMap
     bindings.foreach { b =>
       val vm = newVMap
-      val vqn = b.globalQName
+      val vqn = b.varQName
       val vv = b.varValue
-      val res = vm.setExtVariable(vqn, vv, referringContext) // NoSuchMethodError thrown here!
+      val res = vm.setExtVariable(vqn, vv, referringContext)
       newVMap = res
     }
     newVMap
@@ -69,12 +73,14 @@ object VariableUtils {
 
   def convert(v: String, rd: VariableRuntimeData): DataValuePrimitive =
     rd.primType.fromXMLString(v)
+
   // Infoset.convertToInfosetRepType(rd.primType, v, rd)
 }
 
 abstract class VariableException(val qname: NamedQName, val context: VariableRuntimeData, msg: String)
   extends ThinDiagnostic(Maybe(context.schemaFileLocation), Nope, Nope, Maybe(msg)) {
   def isError = true
+
   def modeName = "Variable"
 }
 
@@ -103,6 +109,7 @@ final class VariableBox(initialVMap: VariableMap) {
   private var vmap_ : VariableMap = initialVMap
 
   def vmap = vmap_
+
   def setVMap(newMap: VariableMap) {
     vmap_ = newMap
   }
@@ -122,7 +129,7 @@ final class VariableBox(initialVMap: VariableMap) {
  * The DPath implementation must be made to implement the
  * no-set-after-default-value-has-been-read behavior. This requires that reading the variables causes a state transition.
  */
-class VariableMap private (vTable: Map[GlobalQName, List[List[Variable]]])
+class VariableMap private(vTable: Map[GlobalQName, List[List[Variable]]])
   extends Serializable {
 
   def this(topLevelVRDs: Seq[VariableRuntimeData] = Nil) =
@@ -139,7 +146,10 @@ class VariableMap private (vTable: Map[GlobalQName, List[List[Variable]]])
   def find(qName: GlobalQName): Option[Variable] = {
     val optVrd = getVariableRuntimeData(qName)
     val optLists = optVrd.flatMap { vrd => vTable.get(vrd.globalQName) }
-    val variab = optLists.flatMap { lists => lists.flatMap { _.toStream }.headOption }
+    val variab = optLists.flatMap { lists => lists.flatMap {
+      _.toStream
+    }.headOption
+    }
     variab
   }
 
@@ -158,18 +168,9 @@ class VariableMap private (vTable: Map[GlobalQName, List[List[Variable]]])
 
   lazy val context = Assert.invariantFailed("unused.")
 
-  private def mkVMap(newVar: Variable, firstTier: List[Variable], enclosingScopes: List[List[Variable]]) = {
+  private def mkVMapForNewVariable(newVar: Variable, firstTier: List[Variable], enclosingScopes: List[List[Variable]]) = {
     val newMap = vTable + ((newVar.rd.globalQName, (newVar :: firstTier) :: enclosingScopes))
     new VariableMap(newMap)
-  }
-
-  /**
-   * Convenient method of updating the entry of the Variable and returning a new VMap.
-   */
-  private def mkVMap(varQName: GlobalQName, updatedFirstTier: List[Variable], enclosingScopes: List[List[Variable]]) = {
-    val updatableMap = scala.collection.mutable.Map(vTable.toSeq: _*)
-    updatableMap(varQName) = updatedFirstTier :: enclosingScopes
-    new VariableMap(updatableMap.toMap)
   }
 
   /**
@@ -178,9 +179,6 @@ class VariableMap private (vTable: Map[GlobalQName, List[List[Variable]]])
   def getVariableBindings(qn: GlobalQName): List[List[Variable]] = {
     vTable.get(qn).get
   }
-  //  def getVariableBindings(vrd: VariableRuntimeData): List[List[Variable]] = {
-  //    vTable.get(vrd.globalQName).get
-  //  }
 
   /**
    * Returns the value of a variable, constructing also a modified variable map which
@@ -200,7 +198,7 @@ class VariableMap private (vTable: Map[GlobalQName, List[List[Variable]]])
 
           case Variable(st, v, ctxt, defExpr) :: rest if ((v.isDefined) && (st == VariableDefined || st == VariableSet)) => {
             val newVar = Variable(VariableRead, v, ctxt, defExpr)
-            val vmap = mkVMap(newVar, firstTier, enclosingScopes)
+            val vmap = mkVMapForNewVariable(newVar, firstTier, enclosingScopes)
             val converted = v.getNonNullable // already converted
             (converted, vmap)
           }
@@ -238,12 +236,12 @@ class VariableMap private (vTable: Map[GlobalQName, List[List[Variable]]])
 
           case Variable(VariableDefined, v, ctxt, defaultExpr) :: rest if (v.isDefined) => {
             val newVar = Variable(VariableSet, VariableUtils.convert(newValue.getAnyRef.toString, ctxt), ctxt, defaultExpr)
-            mkVMap(newVar, firstTier, enclosingScopes)
+            mkVMapForNewVariable(newVar, firstTier, enclosingScopes)
           }
 
           case Variable(VariableUndefined, DataValue.NoValue, ctxt, defaultExpr) :: rest => {
             val newVar = Variable(VariableSet, VariableUtils.convert(newValue.getAnyRef.toString, ctxt), ctxt, defaultExpr)
-            mkVMap(newVar, firstTier, enclosingScopes)
+            mkVMapForNewVariable(newVar, firstTier, enclosingScopes)
           }
 
           case Variable(VariableSet, v, ctxt, defaultExpr) :: rest if (v.isDefined) => {
@@ -254,7 +252,7 @@ class VariableMap private (vTable: Map[GlobalQName, List[List[Variable]]])
             // referringContext.SDE
             pstate.SDW("Cannot set variable %s after reading the default value. State was: %s. Existing value: %s", ctxt.globalQName, VariableSet, v)
             val newVar = Variable(VariableSet, VariableUtils.convert(newValue.getAnyRef.toString, ctxt), ctxt, defaultExpr)
-            mkVMap(newVar, firstTier, enclosingScopes)
+            mkVMapForNewVariable(newVar, firstTier, enclosingScopes)
           }
 
           case _ => Assert.invariantFailed("variable map internal list structure not as expected: " + x)
@@ -264,14 +262,42 @@ class VariableMap private (vTable: Map[GlobalQName, List[List[Variable]]])
     }
   }
 
+  private lazy val externalVarGlobalQNames: Seq[GlobalQName] =
+    vTable.map { pair => pair match {
+      case (gqn, firstTier :: _) => firstTier match {
+        case (variable@Variable(_, v, ctxt, _)) :: _ if (ctxt.external) => variable.rd.globalQName
+      }
+      case (_, Nil) => Assert.invariantFailed("empty tier")
+    }
+    }.toSeq
+
   /**
    * Assigns a variable, returning a new VariableMap which shows the state of the variable.
    */
-  def setExtVariable(varQName: GlobalQName, newValue: DataValuePrimitive, referringContext: ThrowsSDE): VariableMap = {
-    vTable.get(varQName) match {
-
+  def setExtVariable(bindingQName: RefQName, newValue: DataValuePrimitive, referringContext: ThrowsSDE): VariableMap = {
+    val varQName: RefQName =
+      if (bindingQName.namespace == UnspecifiedNamespace) {
+        // The external variable binding was hoping to get away with not specifying a namespace.
+        val candidateExtVarsQNames = externalVarGlobalQNames.filter {
+          _.local == bindingQName.local
+        }
+        candidateExtVarsQNames match {
+          case Seq() => bindingQName // just pass through. Will fail below when it isn't found
+          case Seq(candidate) => candidate.toRefQName
+          case _ => {
+            // ambiguous. There's multiple such.
+            referringContext.SDE(
+              "The externally defined variable binding %s is ambiguous.  " +
+                "A namespace is required to resolve the ambiguity.\nFound:\t%s",
+              bindingQName, candidateExtVarsQNames.mkString(", "))
+          }
+        }
+      } else {
+        bindingQName
+      }
+    val optMapTiers = vTable.get(varQName.toGlobalQName)
+    optMapTiers match {
       case None => referringContext.schemaDefinitionError("unknown variable %s", varQName)
-
       // There should always be a list with at least one tier in it (the global tier).
       case x @ Some(firstTier :: enclosingScopes) => {
         firstTier match {
@@ -279,7 +305,7 @@ class VariableMap private (vTable: Map[GlobalQName, List[List[Variable]]])
           case Variable(VariableDefined, v, ctxt, defaultExpr) :: rest if (v.isDefined && ctxt.external) => {
             val newVar = Variable(VariableDefined, VariableUtils.convert(newValue.getAnyRef.toString, ctxt), ctxt, defaultExpr)
             val newFirstTier = newVar :: rest
-            mkVMap(varQName, newFirstTier, enclosingScopes)
+            mkVMapForNewVariable(newVar, newFirstTier, enclosingScopes)
           }
           case Variable(VariableDefined, v, ctxt, defaultExpr) :: rest if (v.isDefined) => {
             referringContext.SDE("Cannot set variable %s externally. State was: %s. Existing value: %s.", ctxt.globalQName, VariableDefined, v)
@@ -289,7 +315,7 @@ class VariableMap private (vTable: Map[GlobalQName, List[List[Variable]]])
           case Variable(VariableUndefined, DataValue.NoValue, ctxt, defaultExpr) :: rest if ctxt.external => {
             val newVar = Variable(VariableDefined, VariableUtils.convert(newValue.getAnyRef.toString, ctxt), ctxt, defaultExpr)
             val newFirstTier = newVar :: rest
-            mkVMap(varQName, newFirstTier, enclosingScopes)
+            mkVMapForNewVariable(newVar, newFirstTier, enclosingScopes)
           }
 
           case Variable(VariableUndefined, DataValue.NoValue, ctxt, defaultExpr) :: rest => {

@@ -18,7 +18,6 @@
 package org.apache.daffodil.dsom
 
 import scala.xml.Node
-import org.apache.daffodil.externalvars.{ Binding, BindingException }
 import org.apache.daffodil.compiler.RootSpec
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.xml._
@@ -27,21 +26,21 @@ import org.apache.daffodil.xml.XMLUtils
 import org.apache.daffodil.xml.NS
 import org.apache.daffodil.oolag.OOLAG
 import org.apache.daffodil.exceptions.ThrowsSDE
-import org.apache.daffodil.grammar.primitives.VariableMapFactory
-import org.apache.daffodil.externalvars.ExternalVariablesLoader
 import org.apache.daffodil.dpath.NodeInfo
 import java.io.File
+
+import org.apache.daffodil.ExecutionMode
 import org.apache.daffodil.xml.DFDLCatalogResolver
 import org.apache.daffodil.api.DaffodilSchemaSource
 import org.apache.daffodil.api.UnitTestSchemaSource
 import org.apache.daffodil.schema.annotation.props.LookupLocation
 import org.apache.daffodil.api.DaffodilTunables
-import org.apache.daffodil.processors.TypeCalculator
-import scala.collection.immutable.Map
-import scala.collection.immutable.HashMap
-import org.apache.daffodil.compiler.ProcessorFactory
+import org.apache.daffodil.externalvars.Binding
 import org.apache.daffodil.processors.TypeCalculatorCompiler.TypeCalcMap
 import org.apache.daffodil.grammar.Gram
+import org.apache.daffodil.grammar.SchemaSetGrammarMixin
+
+import scala.collection.immutable.Queue
 
 /**
  * A schema set is exactly that, a set of schemas. Each schema has
@@ -65,15 +64,15 @@ import org.apache.daffodil.grammar.Gram
  */
 
 final class SchemaSet(
-  pfArg: => Option[ProcessorFactory],
-  rootSpec: Option[RootSpec],
-  externalVariables: Seq[Binding],
-  schemaSourcesArg: Seq[DaffodilSchemaSource],
+  optPFRootSpec: Option[RootSpec],
+  val schemaSource: DaffodilSchemaSource,
   val validateDFDLSchemas: Boolean,
-  checkAllTopLevelArg: Boolean,
-  tunableArg: DaffodilTunables)
+  val checkAllTopLevel: Boolean,
+  val tunables: DaffodilTunables,
+  protected val compilerExternalVarSettings: Queue[Binding])
   extends SchemaComponentImpl(<schemaSet/>, None)
-  with SchemaSetIncludesAndImportsMixin {
+  with SchemaSetIncludesAndImportsMixin
+  with SchemaSetGrammarMixin {
 
   /**
    * Used to count instances of element base objects created by
@@ -87,21 +86,17 @@ final class SchemaSet(
   lazy val sharedGroupContentsFactory = new SharedFactory[Gram]
   lazy val sharedGroupMembersFactory = new SharedFactory[Seq[Term]]
 
-  private lazy val processorFactory = pfArg // insure this by name arg is evaluated exactly once.
-
-  lazy val root = rootElement(processorFactory.flatMap { _.rootSpec })
-
-  override lazy val tunable =
-    tunableArg
+  override lazy val tunable = tunables
 
   requiredEvaluationsAlways(isValid)
   requiredEvaluationsAlways(typeCalcMap)
+  requiredEvaluationsAlways(root)
 
   if (checkAllTopLevel) {
     requiredEvaluationsAlways(checkForDuplicateTopLevels())
     requiredEvaluationsAlways(this.allTopLevels)
   }
-  requiredEvaluationsAlways(variableMap)
+
 
   lazy val resolver = DFDLCatalogResolver.get
 
@@ -112,17 +107,13 @@ final class SchemaSet(
 
   override lazy val lineAttribute: Option[String] = None
 
-  lazy val schemaSources = schemaSourcesArg
-
   /**
    * Let's use the uri for the first schema document, rather than giving no information at all.
    *
    * It would appear that this is only used for informational purposes
    * and as such, doesn't need to be a URL.  Can just be String.
    */
-  override lazy val uriString: String = schemaSources(0).uriForLoading.toString
-
-  lazy val checkAllTopLevel = checkAllTopLevelArg
+  override lazy val uriString: String = schemaSource.uriForLoading.toString
 
   override def warn(th: Diagnostic) = oolagWarn(th)
   override def error(th: Diagnostic) = oolagError(th)
@@ -130,20 +121,19 @@ final class SchemaSet(
   /**
    * This constructor for unit testing only
    */
-  def this(sch: Node, rootNamespace: String = null, root: String = null, extVars: Seq[Binding] = Seq.empty, optTmpDir: Option[File] = None, tunableOpt: Option[DaffodilTunables] = None) =
+  def this(sch: Node, rootNamespace: String = null, root: String = null, optTmpDir: Option[File] = None, tunableOpt: Option[DaffodilTunables] = None) =
     this(
-      None,
       {
         if (root == null) None else {
           if (rootNamespace == null) Some(RootSpec(None, root))
           else Some(RootSpec(Some(NS(rootNamespace)), root))
         }
       },
-      extVars,
-      List(UnitTestSchemaSource(sch, Option(root).getOrElse("anon"), optTmpDir)),
+      UnitTestSchemaSource(sch, Option(root).getOrElse("anon"), optTmpDir),
       false,
       false,
-      tunableOpt.getOrElse(DaffodilTunables()))
+      tunableOpt.getOrElse(DaffodilTunables()),
+      Queue.empty)
 
   lazy val schemaFileList = schemas.map(s => s.uriString)
 
@@ -330,26 +320,21 @@ final class SchemaSet(
   }
 
   /**
-   * Since the root element can be specified by an API call on the
-   * Compiler class, or by an API call on the ProcessorFactory, this
-   * method reconciles the two. E.g., you can't specify the root both
-   * places, it's one or the other.
+   * The root element can be specified by a deprecated API call on the compiler
+   * object or the ProcessorFactory class, but the call on the ProcessorFactory class
+   * just overrides anything coming from the compiler object.
    *
-   * Also, if you don't specify a root element at all, this
-   * grabs the first element declaration of the first schema file
-   * to use as the root.
+   * The right way is to pass the root specification to the Compiler.compileX method.
+   *
+   * Or, you can leave it unspecified, and this method will determine from the
+   * first element declaration of the first schema file.
    */
-  def rootElement(rootSpecFromProcessorFactory: Option[RootSpec]): Root = {
-    val rootSpecFromCompiler = rootSpec
+  lazy val root: Root = {
     val re: GlobalElementDecl =
-      (rootSpecFromCompiler, rootSpecFromProcessorFactory) match {
-        case (Some(rs), None) =>
+      optPFRootSpec match {
+        case Some(rs) =>
           getGlobalElement(rs)
-
-        case (None, Some(rs)) =>
-          getGlobalElement(rs)
-
-        case (None, None) => {
+        case None => {
           // if the root element and rootNamespace aren't provided at all, then
           // the first element of the first schema document is the root
           val sDocs = this.allSchemaDocuments
@@ -480,68 +465,36 @@ final class SchemaSet(
     Seq(encDFV, boDFV, binDFV, outDFV)
   }
 
-  /**
-   * Determines if any of the externally defined variables
-   * were specified expecting Daffodil to figure out the
-   * namespace.  If so, Daffodil attempts to guess the
-   * namespace and will SDE if there is any ambiguity.
-   *
-   * @param allDefinedVariables The list of all DFDLDefineVariables in the SchemaSet.
-   *
-   * @return A list of external variables updated with any found namespaces.
-   */
-  private def resolveExternalVariableNamespaces(allDefinedVariables: Seq[DFDLDefineVariable]) = {
-    val finalExternalVariables: scala.collection.mutable.Queue[Binding] = scala.collection.mutable.Queue.empty
+  lazy val allDefinedVariables = schemas.flatMap{ _.defineVariables }
+  lazy val allExternalVariables = allDefinedVariables.filter{ _.external }
 
-    val extVarsWithoutNS = externalVariables.filterNot(b => b.hasNamespaceSpecified)
-
-    val extVarsWithNS = externalVariables.filter(b => b.hasNamespaceSpecified)
-
-    extVarsWithNS.foreach(b => finalExternalVariables.enqueue(b))
-
-    extVarsWithoutNS.foreach(v => {
-      Assert.invariant(v.varQName.namespace.isUnspecified)
-      val matchingDVs = allDefinedVariables.filter { dv =>
-        // just compare local names. We're searching for an unambiguous match
-        v.varQName.local == dv.namedQName.local
-      }
-
-      matchingDVs.length match {
-        case 0 => this.SDE("Could not find the externally defined variable %s.", v.varQName)
-        case x: Int if x > 1 =>
-          this.SDE(
-            "The externally defined variable %s is ambiguous.  " +
-              "A namespace is required to resolve the ambiguity.\nFound:\t%s",
-            v.varQName, matchingDVs.mkString(", "))
-        case _ => // This is OK, we have exactly 1 match
-      }
-
-      val newNS = matchingDVs.head.namespace
-      val newBinding = try {
-        Binding(v.varQName.local, Some(newNS), v.varValue)
-      } catch {
-        case e: BindingException => this.SDE("Exception when processing external variable %s: %s", v.varQName, e.getMessage)
-      }
-      finalExternalVariables.enqueue(newBinding)
-    })
-    finalExternalVariables
-  }
-
-  override def variableMap = LV('variableMap) {
-    val dvs = allSchemaDocuments.flatMap { _.defineVariables }
-    val alldvs = dvs.union(predefinedVars)
-    val vmap = VariableMapFactory.create(alldvs)
-
-    // At this point we want to try to figure out which, if any, external
-    // variables did not have a namespace specified.
-    val finalExternalVariables = resolveExternalVariableNamespaces(alldvs)
-
-    val finalVMap =
-      ExternalVariablesLoader.loadVariables(finalExternalVariables, this, vmap)
-
-    finalVMap
+  private lazy val checkUnusedProperties = LV('hasUnusedProperties) {
+    root.checkUnusedProperties
   }.value
+
+  override def isError = {
+    ExecutionMode.usingCompilerMode {
+      OOLAG.keepGoing(true) {
+        val valid = isValid
+        if (valid) {
+          // no point in going forward with more
+          // checks if the schema isn't valid
+          // The code base is written assuming valid
+          // schema input. It's just going to hit
+          // assertion failures and such if we
+          // try to compile invalid schemas.
+          val hasErrors = super.isError
+          if (!hasErrors) {
+            // only check for unused properties if there are no errors
+            checkUnusedProperties
+          }
+          hasErrors
+        } else true
+      }
+    }
+  }
 }
+
 
 class ValidateSchemasErrorHandler(sset: SchemaSet) extends org.xml.sax.ErrorHandler {
 

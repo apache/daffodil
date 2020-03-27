@@ -110,13 +110,13 @@ class TestCLIparsing {
     val shell = Util.startIncludeErrors("")
 
     try {
-      var cmd = String.format("%s -v save-parser -s %s -r row -D\"{http://example.com}var1=99\" -c %s %s", Util.binPath, testSchemaFile, testConfigFile, savedParser)
+      var cmd = String.format("%s -v save-parser -s %s -r row -c %s %s", Util.binPath, testSchemaFile, testConfigFile, savedParser)
       shell.sendLine(cmd)
       shell.expectIn(1, (contains("[info] Time (saving)")))
       assertTrue("save-parser failed", parserFile.exists())
 
       shell.sendLine();
-      cmd = String.format("echo 0| %s parse --parser %s\n", Util.binPath, savedParser)
+      cmd = String.format("echo 0| %s parse --parser %s -D\"{http://example.com}var1=99\"\n", Util.binPath, savedParser)
       shell.sendLine(cmd)
       shell.expect(contains("<tns:row xmlns:tns=\"http://example.com\">"))
       shell.expect(contains("<cell>99</cell>"))

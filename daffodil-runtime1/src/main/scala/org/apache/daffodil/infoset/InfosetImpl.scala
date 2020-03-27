@@ -1502,9 +1502,7 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
         // no children, or last child is not a DIArray for
         // this element, create the DIArray
         val ia = new DIArray(childERD, this, tunable.initialElementOccurrencesHint.toInt)
-        if (childERD.dpathElementCompileInfo.isReferencedByExpressions) {
-          addChildToFastLookup(ia)
-        }
+        addChildToFastLookup(ia)
         childNodes += ia
         _numChildren = childNodes.length
         ia
@@ -1512,9 +1510,7 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
       // Array is now always last, add the new child to it
       childNodes.last.asInstanceOf[DIArray].append(e)
     } else {
-      if (e.runtimeData.dpathElementCompileInfo.isReferencedByExpressions) {
-        addChildToFastLookup(e.asInstanceOf[DINode])
-      }
+      addChildToFastLookup(e.asInstanceOf[DINode])
       childNodes += e.asInstanceOf[DINode]
       _numChildren = childNodes.length
     }
@@ -1541,14 +1537,16 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
   }
 
   def addChildToFastLookup(node: DINode): Unit = {
-    val name = node.namedQName
-    val fastSeq = nameToChildNodeLookup.get(name)
-    if (fastSeq != null) {
-      fastSeq += node
-    } else {
-      val ab = new ArrayBuffer[DINode]()
-      ab += node
-      nameToChildNodeLookup.put(name, ab)
+    if (node.erd.dpathElementCompileInfo.isReferencedByExpressions) {
+      val name = node.namedQName
+      val fastSeq = nameToChildNodeLookup.get(name)
+      if (fastSeq != null) {
+        fastSeq += node
+      } else {
+        val ab = new ArrayBuffer[DINode]()
+        ab += node
+        nameToChildNodeLookup.put(name, ab)
+      }
     }
   }
 

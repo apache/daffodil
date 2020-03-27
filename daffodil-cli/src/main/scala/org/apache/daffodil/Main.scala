@@ -32,33 +32,35 @@ import java.nio.file.Paths
 import java.net.URI
 import java.util.Scanner
 
-import scala.xml.SAXParseException
+import scala.xml.{SAXParseException, Node}
 import org.rogach.scallop
-import org.apache.daffodil.debugger.{ InteractiveDebugger, TraceDebuggerRunner, CLIDebuggerRunner }
+import org.apache.daffodil.debugger.{InteractiveDebugger, CLIDebuggerRunner, TraceDebuggerRunner}
 import org.apache.daffodil.util.Misc
 import org.apache.daffodil.util.Timer
 import org.apache.daffodil.xml._
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.compiler.Compiler
-import org.apache.daffodil.api.WithDiagnostics
+import org.apache.daffodil.api.{WithDiagnostics, URISchemaSource, ValidationMode, DFDL, DaffodilTunables}
 import org.apache.daffodil.util.Logging
 import org.apache.daffodil.util.LogLevel
 import org.apache.daffodil.util.LogWriter
 import org.apache.daffodil.util.LoggingDefaults
 import org.apache.daffodil.exceptions.NotYetImplementedException
 import java.io.File
+
 import org.apache.daffodil.tdml.DFDLTestSuite
-import org.apache.daffodil.api.ValidationMode
-import scala.xml.Node
-import org.apache.daffodil.externalvars.{ Binding, BindingException }
+import org.apache.daffodil.externalvars.{Binding, BindingException}
 import org.apache.daffodil.externalvars.ExternalVariablesLoader
 import org.apache.daffodil.configuration.ConfigurationLoader
 import org.apache.daffodil.api.ValidationMode
+
 import scala.language.reflectiveCalls
 import scala.concurrent.Future
 import java.util.concurrent.Executors
+
 import scala.concurrent.ExecutionContext
 import org.rogach.scallop.ScallopOption
+
 import scala.concurrent.duration.Duration
 import scala.concurrent.Await
 import org.apache.daffodil.xml.QName
@@ -66,7 +68,7 @@ import org.apache.daffodil.compiler._
 import org.apache.daffodil.dsom.ExpressionCompilers
 import org.apache.daffodil.compiler.InvalidParserException
 import java.net.URI
-import org.apache.daffodil.api.URISchemaSource
+
 import org.apache.daffodil.tdml.TDMLException
 import org.apache.daffodil.xml.RefQName
 import org.rogach.scallop.ArgType
@@ -93,11 +95,11 @@ import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
 import javax.xml.parsers.DocumentBuilderFactory
 import org.apache.commons.io.IOUtils
-import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.tdml.TDMLTestNotCompatibleException
 import org.apache.daffodil.io.DataDumper
 import java.nio.ByteBuffer
+
 import org.apache.daffodil.io.FormatInfo
 import org.apache.daffodil.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.udf.UserDefinedFunctionFatalErrorException
@@ -611,7 +613,7 @@ object Main extends Logging {
    * @param vars The individual variables input via the command line using the -D command.
    * @param configFileNode The Node representing the configuration file if there is one.
    */
-  def retrieveExternalVariables(vars: Map[String, String], configFileNode: Option[Node], tunables: DaffodilTunables): Seq[Binding] = {
+  def retrieveExternalVariables(vars: Map[String, String], configFileNode: Option[Node]): Seq[Binding] = {
     val configFileVars: Seq[Binding] = configFileNode match {
       case None => Seq.empty
       case Some(configNode) => {
@@ -621,13 +623,13 @@ object Main extends Logging {
         extVarBindingNodeOpt match {
           case None => Seq.empty
           case Some(extVarBindingsNode) => {
-            ExternalVariablesLoader.getVariables(extVarBindingsNode)
+            Binding.getBindings(extVarBindingsNode)
           }
         }
       }
     }
 
-    val individualVars = ExternalVariablesLoader.getVariables(vars)
+    val individualVars = ExternalVariablesLoader.mapToBindings(vars)
 
     val bindings = overrideBindings(individualVars, configFileVars)
     bindings
@@ -638,8 +640,7 @@ object Main extends Logging {
     val processor = Timer.getResult("reloading", compiler.reload(savedParser))
     displayDiagnostics(processor)
     if (!processor.isError) {
-      processor.setValidationMode(mode)
-      Some(processor)
+      Some(processor.withValidationMode(mode))
     } else None
   }
 
@@ -686,17 +687,14 @@ object Main extends Logging {
   }
 
   def createProcessorFromSchema(schema: URI, rootNS: Option[RefQName], path: Option[String],
-    extVars: Seq[Binding],
     tunables: Map[String, String],
     mode: ValidationMode.Type) = {
-    val compiler = Compiler()
-
-    compiler.setExternalDFDLVariables(extVars)
-    compiler.setTunables(tunables)
-
-    rootNS match {
-      case None => // nothing
-      case Some(RefQName(_, root, ns)) => compiler.setDistinguishedRootNode(root, ns.toStringOrNullIfNoNS)
+    val compiler = {
+      val c = Compiler().withTunables(tunables)
+      rootNS match {
+        case None => c
+        case Some(RefQName(_, root, ns)) => c.withDistinguishedRootNode(root, ns.toStringOrNullIfNoNS)
+      }
     }
 
     // Wrap timing around the whole of compilation
@@ -709,9 +707,8 @@ object Main extends Logging {
     val pf = Timer.getResult("compiling", {
       val processorFactory = compiler.compileSource(schemaSource)
       if (!processorFactory.isError) {
-        val processor = processorFactory.onPath(path.getOrElse("/"))
+        val processor = processorFactory.onPath(path.getOrElse("/")).withValidationMode(mode)
         displayDiagnostics(processor)
-        processor.setValidationMode(mode)
         Some(processor) // note: processor could still be isError == true
         // but we do definitely get a processor.
       } else {
@@ -809,28 +806,23 @@ object Main extends Logging {
 
         val validate = parseOpts.validate.toOption.get
 
-        val cfgFileNode = parseOpts.config.toOption match {
+        val cfgFileNode: Option[Node] = parseOpts.config.toOption match {
           case None => None
           case Some(pathToConfig) => Some(this.loadConfigurationFile(pathToConfig))
         }
 
-        val processor = {
+        val processor: Option[DFDL.DataProcessor] = {
           if (parseOpts.parser.isDefined) {
-            val p = createProcessorFromParser(parseOpts.parser(), parseOpts.path.toOption, validate)
-            p.get.setExternalVariables(retrieveExternalVariables(parseOpts.vars, cfgFileNode, p.get.getTunables()))
-            p
+            createProcessorFromParser(parseOpts.parser(), parseOpts.path.toOption, validate)
           } else {
             val tunables = retrieveTunables(parseOpts.tunables, cfgFileNode)
-            val tunablesObj = DaffodilTunables(tunables)
-            val extVarsBindings = retrieveExternalVariables(parseOpts.vars, cfgFileNode, tunablesObj)
-
-            //val schema = new URI(parseOpts.schemaString())
-            createProcessorFromSchema(parseOpts.schema(), parseOpts.rootNS.toOption, parseOpts.path.toOption, extVarsBindings, tunables, validate)
+            createProcessorFromSchema(parseOpts.schema(), parseOpts.rootNS.toOption, parseOpts.path.toOption, tunables, validate)
           }
-        }
+        }.map{ _.withExternalVariables(retrieveExternalVariables(parseOpts.vars, cfgFileNode))}
 
         val rc = processor match {
-          case Some(processor) if (!processor.isError) => {
+          case Some(proc) if (!proc.isError) => {
+            var processor = proc
             val input = parseOpts.infile.toOption match {
               case Some("-") | None => System.in
               case Some(file) => {
@@ -840,7 +832,8 @@ object Main extends Logging {
             }
             val inStream = InputSourceDataInputStream(input)
 
-            processor.setValidationMode(validate)
+            processor = processor.withValidationMode(validate)
+
             setupDebugOrTrace(processor.asInstanceOf[DataProcessor], conf)
 
             val output = parseOpts.output.toOption match {
@@ -975,17 +968,13 @@ object Main extends Logging {
 
         val processor = {
           if (performanceOpts.parser.isDefined) {
-            val p = createProcessorFromParser(performanceOpts.parser(), performanceOpts.path.toOption, validate)
-            p.get.setExternalVariables(retrieveExternalVariables(performanceOpts.vars, cfgFileNode, p.get.getTunables()))
-            p
+            createProcessorFromParser(performanceOpts.parser(), performanceOpts.path.toOption, validate)
           } else {
             val tunables = retrieveTunables(performanceOpts.tunables, cfgFileNode)
-            val tunablesObj = DaffodilTunables(tunables)
-            val extVarsBindings = retrieveExternalVariables(performanceOpts.vars, cfgFileNode, tunablesObj)
-
-            createProcessorFromSchema(performanceOpts.schema(), performanceOpts.rootNS.toOption, performanceOpts.path.toOption, extVarsBindings, tunables, validate)
+            createProcessorFromSchema(performanceOpts.schema(), performanceOpts.rootNS.toOption, performanceOpts.path.toOption, tunables, validate)
           }
-        }
+        }.map{ _.withExternalVariables(retrieveExternalVariables(performanceOpts.vars, cfgFileNode)) }
+         .map{ _.withValidationMode(validate) }
 
         val rc = processor match {
           case Some(processor: DataProcessor) if (!processor.isError) => {
@@ -1018,8 +1007,6 @@ object Main extends Logging {
               dataSeq(index)
             }
             val inputsWithIndex = inputs.zipWithIndex
-
-            processor.setValidationMode(validate)
 
             implicit val executionContext = new ExecutionContext {
               val threadPool = Executors.newFixedThreadPool(performanceOpts.threads())
@@ -1103,17 +1090,12 @@ object Main extends Logging {
 
         val processor = {
           if (unparseOpts.parser.isDefined) {
-            val p = createProcessorFromParser(unparseOpts.parser(), unparseOpts.path.toOption, validate)
-            p.get.setExternalVariables(retrieveExternalVariables(unparseOpts.vars, cfgFileNode, p.get.getTunables()))
-            p
+            createProcessorFromParser(unparseOpts.parser(), unparseOpts.path.toOption, validate)
           } else {
             val tunables = retrieveTunables(unparseOpts.tunables, cfgFileNode)
-            val tunablesObj = DaffodilTunables(tunables)
-            val extVarsBindings = retrieveExternalVariables(unparseOpts.vars, cfgFileNode, tunablesObj)
-
-            createProcessorFromSchema(unparseOpts.schema(), unparseOpts.rootNS.toOption, unparseOpts.path.toOption, extVarsBindings, tunables, validate)
+            createProcessorFromSchema(unparseOpts.schema(), unparseOpts.rootNS.toOption, unparseOpts.path.toOption, tunables, validate)
           }
-        }
+        }.map{ _.withExternalVariables(retrieveExternalVariables(unparseOpts.vars, cfgFileNode)) }
 
         val output = unparseOpts.output.toOption match {
           case Some("-") | None => System.out
@@ -1190,9 +1172,8 @@ object Main extends Logging {
         }
         val tunables = retrieveTunables(saveOpts.tunables, cfgFileNode)
         val tunablesObj = DaffodilTunables(tunables)
-        val extVarsBindings = retrieveExternalVariables(saveOpts.vars, cfgFileNode, tunablesObj)
 
-        val processor = createProcessorFromSchema(saveOpts.schema(), saveOpts.rootNS.toOption, saveOpts.path.toOption, extVarsBindings, tunables, validate)
+        val processor = createProcessorFromSchema(saveOpts.schema(), saveOpts.rootNS.toOption, saveOpts.path.toOption, tunables, validate)
 
         val output = saveOpts.outfile.toOption match {
           case Some("-") | None => Channels.newChannel(System.out)

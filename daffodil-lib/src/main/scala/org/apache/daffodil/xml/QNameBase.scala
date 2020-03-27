@@ -22,11 +22,12 @@ import java.net.URISyntaxException
 
 import scala.language.reflectiveCalls
 import scala.util.Try
-
 import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.api.UnqualifiedPathStepPolicy
 import org.apache.daffodil.equality.TypeEqual
 import org.apache.daffodil.exceptions.Assert
+
+import scala.xml.NamespaceBinding
 
 /**
  * Please centralize QName handling here.
@@ -107,9 +108,42 @@ import org.apache.daffodil.exceptions.Assert
  */
 object QName {
 
+  /**
+   * Construct a RefQName from a QName string, and a scope.
+   */
   def resolveRef(qnameString: String, scope: scala.xml.NamespaceBinding,
       unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy): Try[RefQName] =
     RefQNameFactory.resolveRef(qnameString, scope, unqualifiedPathStepPolicy)
+
+  def parseExtSyntax(extSyntax: String): (Option[String], NS, String) = {
+    val res = try {
+      extSyntax match {
+      case QNameRegex.ExtQName(prefix, uriString, local) => {
+        val pre = if (prefix eq null) None else Some(prefix)
+        val ns = (pre, uriString) match {
+          case (Some(pre), "") => throw new ExtendedQNameSyntaxException(Some(extSyntax), None)
+          case (Some(pre), null) => UnspecifiedNamespace
+          case (Some(pre), s) => NS(s)
+          case (None, "") => NoNamespace
+          case (None, null) => UnspecifiedNamespace
+          case (None, s) => NS(s)
+        }
+        (pre, ns, local)
+      }
+        case _ => throw new ExtendedQNameSyntaxException(Some(extSyntax), None)
+      }
+  } catch {
+      case ex: URISyntaxException => throw new ExtendedQNameSyntaxException(Some(extSyntax), Some(ex))
+      case ia: IllegalArgumentException => {
+        val ex = ia.getCause()
+        if (ex ne null)
+          throw new ExtendedQNameSyntaxException(Some(extSyntax), Some(ex))
+        else
+          throw ia
+      }
+    }
+    res
+  }
 
   /**
    * Specialized getQName function for handling
@@ -122,34 +156,8 @@ object QName {
    * 3. varName=value         // unspecified namespace, i.e., might default
    */
   def refQNameFromExtendedSyntax(extSyntax: String): Try[RefQName] = Try {
-    val res =
-      try {
-        extSyntax match {
-          case QNameRegex.ExtQName(prefix, uriString, local) => {
-            val pre = if (prefix eq null) None else Some(prefix)
-            val ns = (pre, uriString) match {
-              case (Some(pre), "") => throw new ExtendedQNameSyntaxException(Some(extSyntax), None)
-              case (Some(pre), null) => UnspecifiedNamespace
-              case (Some(pre), s) => NS(s)
-              case (None, "") => NoNamespace
-              case (None, null) => UnspecifiedNamespace
-              case (None, s) => NS(s)
-            }
-            val rqn = RefQName(pre, local, ns)
-            rqn
-          }
-          case _ => throw new ExtendedQNameSyntaxException(Some(extSyntax), None)
-        }
-      } catch {
-        case ex: URISyntaxException => throw new ExtendedQNameSyntaxException(Some(extSyntax), Some(ex))
-        case ia: IllegalArgumentException => {
-          val ex = ia.getCause()
-          if (ex ne null)
-            throw new ExtendedQNameSyntaxException(Some(extSyntax), Some(ex))
-          else
-            throw ia
-        }
-      }
+    val (pre, ns, local) = parseExtSyntax(extSyntax)
+    val res = RefQName(pre, local, ns)
     res
   }
 
@@ -318,6 +326,10 @@ trait QNameBase extends Serializable {
   /**
    * Creates a string suitable for use in an XML attribute as in 'dfdl:terminator="..."' or
    * 'xsi:nil="true"'
+   *
+   * This does not know about the scope, so it cannot decide that a namespace is the default namespace
+   * so that just a local name is ok. That distinction actually requires you to know what kind of
+   * name it is. RefQName or StepQName, so you can know whether it needs unqualifiedPathStepPolicy or not.
    */
   def toAttributeNameString: String = {
     (prefix, local, namespace) match {
@@ -477,6 +489,10 @@ protected trait RefQNameFactoryBase[T] {
 
   protected def constructor(prefix: Option[String], local: String, namespace: NS): T
 
+  /**
+   * This variant to resolve normal QNames such as in a ref="pre:local" syntax, or
+   * a path step like these steps .../foo/bar:baz/quux.
+   */
   def resolveRef(qnameString: String, scope: scala.xml.NamespaceBinding,
       unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy): Try[T] = Try {
     qnameString match {
@@ -509,6 +525,32 @@ object RefQNameFactory extends RefQNameFactoryBase[RefQName] {
       scope: scala.xml.NamespaceBinding,
       unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy) =
     Option(scope.getURI(null)) // could be a default namespace
+
+  /**
+   * Variant used to deal with extended syntax, e.g., from specifying names at the CLI
+   * or for variable binding mechanisms like from the command line options of Daffodil CLI which
+   * accept the extended syntax.
+   */
+  def resolveExtendedSyntaxRef(extSyntax: String, scope: scala.xml.NamespaceBinding, unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy): Try[RefQName] = Try {
+    val (pre, ns, local) = QName.parseExtSyntax(extSyntax)
+    // note that the prefix, if defined, can never be ""
+    val optURI = pre match {
+      case None => resolveDefaultNamespace(scope, unqualifiedPathStepPolicy)
+      case Some(prefix) => Option(scope.getURI(prefix))
+    }
+    val optNS = (pre, optURI, ns) match {
+      case (None, None, UnspecifiedNamespace) =>
+        resolveDefaultNamespace(scope, unqualifiedPathStepPolicy).map { NS(_) }
+      case (_, Some(uriString), UnspecifiedNamespace) => Some(NS(uriString))
+      case (Some(pre), None, _) => throw new QNameUndefinedPrefixException(pre)
+      case (Some(pre), Some(uriString), n) if (n.toString != uriString) =>
+        Assert.invariantFailed("namespace from prefix and scope, and ns argument are inconsitent.")
+      case (_, _, n) => Some(n)
+    }
+    val resolvedNS = optNS.getOrElse(UnspecifiedNamespace)
+    val res = constructor(pre, local, resolvedNS)
+    res
+  }
 }
 
 object StepQNameFactory extends RefQNameFactoryBase[StepQName] {

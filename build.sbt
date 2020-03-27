@@ -113,7 +113,13 @@ lazy val commonSettings = Seq(
     "-language:experimental.macros",
     "-unchecked",
     "-Xfatal-warnings",
-    "-Xxml:-coalescing",
+    "-Xxml:-coalescing"
+  ),
+  // Workaround issue that some options are valid for javac, not javadoc.
+  // These javacOptions are for code compilation only. (Issue sbt/sbt#355)
+  javacOptions in Compile in compile ++= Seq(
+    "-Werror",
+    "-Xlint:deprecation"
   ),
   logBuffered := true,
   transitiveClassifiers := Seq("sources", "javadoc"),

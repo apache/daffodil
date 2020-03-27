@@ -105,7 +105,8 @@ class TestExternalVariablesLoader extends Logging {
     assertTrue(var_v_with_default.value.isDefined)
     assertEquals("42", var_v_with_default.value.getAnyRef.toString())
 
-    val vmap = ExternalVariablesLoader.loadVariables(extVarFile1, sd, initialVMap, tunable)
+    val bindings = ExternalVariablesLoader.uriToBindings(extVarFile1)
+    val vmap = ExternalVariablesLoader.loadVariables(bindings, sd, initialVMap)
 
     // Verify that the external variables override the previous values
     // in the VariableMap
@@ -121,7 +122,8 @@ class TestExternalVariablesLoader extends Logging {
     val e = intercept[SchemaDefinitionError] {
       // fakeSD does not contain any defineVariables
       // Because we are trying to load external variables and none are defined we should SDE.
-      ExternalVariablesLoader.loadVariables(extVarFile1, Fakes.fakeSD, new VariableMap(), tunable)
+      val bindings = ExternalVariablesLoader.uriToBindings((extVarFile1))
+      ExternalVariablesLoader.loadVariables(bindings, Fakes.fakeSD, new VariableMap())
     }
     val err = e.getMessage()
     assertTrue(err.contains("unknown variable ex:v_no_default"))

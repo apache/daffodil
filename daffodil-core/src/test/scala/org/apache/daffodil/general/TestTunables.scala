@@ -56,21 +56,20 @@ class TestTunables extends Logging {
       </xs:complexType>)
 
     val c = Compiler()
+    val c1 = c.withTunable("maxSkipLengthInBytes", "1026")
+    val pf1 = c1.compileNode(testSchema)
 
-    c.setTunable("maxSkipLengthInBytes", "1026")
-    val pf1 = c.compileNode(testSchema)
-
-    c.setTunable("maxSkipLengthInBytes", "2048")
-    val pf2 = c.compileNode(testSchema)
+    val c2 = c.withTunable("maxSkipLengthInBytes", "2048")
+    val pf2 = c2.compileNode(testSchema)
 
     val dp1 = pf1.onPath("/")
-    val dp2 = pf2.onPath("/")
+    var dp2 = pf2.onPath("/")
 
     val t1 = dp1.getTunables()
     val t2 = dp2.getTunables()
 
     /* Set tunable at run-time via data processor */
-    dp2.setTunable("maxSkipLengthInBytes", "50")
+    dp2 = dp2.withTunable("maxSkipLengthInBytes", "50")
 
     val t3 = dp2.getTunables() // modified tunables at 'run-time'
     val t4 = dp1.getTunables() // obtain first data processor to see if anything changed

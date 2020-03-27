@@ -58,7 +58,7 @@ class TestInfosetInputterFromReader {
     val inputter = new ScalaXMLInfosetInputter(infosetXML)
     inputter.initialize(rootERD, u.getTunables())
     val is = Adapter(inputter)
-    (is, rootERD, inputter, u.tunable)
+    (is, rootERD, inputter, u.tunables)
   }
 
   @Test def testUnparseFixedLengthString1() {

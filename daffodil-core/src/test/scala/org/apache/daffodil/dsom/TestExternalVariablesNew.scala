@@ -89,7 +89,8 @@ class TestExternalVariablesNew {
     sch
   }
 
-  def generateTestSchemaWithTarget(topLevelAnnotations: Seq[Node], theTargetNS: String, importSchemaLocation: String) = {
+  def generateTestSchemaWithTarget(topLevelAnnotations: Seq[Node], theTargetNS: String, importSchemaLocation: String,
+    hasDefaultNamespace : Boolean = true) = {
     val sch = SchemaUtils.dfdlTestSchemaWithTarget(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       topLevelAnnotations,
@@ -107,7 +108,8 @@ class TestExternalVariablesNew {
           <xs:sequence/>
         </xs:choice>
       </xs:group>,
-      theTargetNS)
+      theTargetNS,
+      hasDefaultNamespace = hasDefaultNamespace)
     sch
   }
 
@@ -174,28 +176,26 @@ class TestExternalVariablesNew {
       ("{}var2", "value2"), // NoNamespace
       ("var3", "value3")) // Figure out the namespace
 
-    val variables = ExternalVariablesLoader.getVariables(vars)
+    val variables = ExternalVariablesLoader.mapToBindings(vars)
 
-    val c = new Compiler()
-    // c.setLoggingLevel(LogLevel.Debug)
-    c.setExternalDFDLVariables(variables)
-    c.setValidateDFDLSchemas(false)
+    val c = Compiler(validateDFDLSchemas = false)
     val pf = c.compileSource(source)
     pf.isError
     pf.diagnostics.foreach { d => println(d) }
     assertFalse(pf.isError)
+    val dp = pf.onPath("/").withExternalVariables(variables)
 
     val sset = pf.sset
 
     // var1's namespace was htp://example.com, so we expect to find it
-    checkResult(sset.variableMap, "{http://example.com}var1", "value1")
+    checkResult(dp.variableMap, "{http://example.com}var1", "value1")
 
     // var2's namespace was NoNamespace, so we expect to find it
-    checkResult(sset.variableMap, "{}var2", "value2")
+    checkResult(dp.variableMap, "{}var2", "value2")
 
     // var3's namespace was not given so we needed to figure it out.
     // We need to determine if we successfully figured out the namespace
-    checkResult(sset.variableMap, "{http://example.com}var3", "value3")
+    checkResult(dp.variableMap, "{http://example.com}var3", "value3")
 
   }
 
@@ -223,24 +223,24 @@ class TestExternalVariablesNew {
       ("{http://example.com}var1", "value1"), // Namespace defined
       ("{}var2", "value2")) // NoNamespace
 
-    val variables = ExternalVariablesLoader.getVariables(vars)
+    val variables = ExternalVariablesLoader.mapToBindings(vars)
 
-    val c = new Compiler
-    c.setExternalDFDLVariables(variables)
-    c.setValidateDFDLSchemas(false)
+    val c = Compiler(validateDFDLSchemas = false)
 
     val pf = c.compileSource(source)
     val sset = pf.sset
 
+    val dp = pf.onPath("/").withExternalVariables(variables)
+
     // var1's namespace was htp://example.com, so we expect to find it
-    checkResult(sset.variableMap, "{http://example.com}var1", "value1")
+    checkResult(dp.variableMap, "{http://example.com}var1", "value1")
 
     // var2's namespace was NoNamespace, so we expect to find it
-    checkResult(sset.variableMap, "{}var2", "value2")
+    checkResult(dp.variableMap, "{}var2", "value2")
 
     // The other var2's namespace was http://example.com, so we expect
     // it to be unchanged.
-    checkResult(sset.variableMap, "{http://example.com}var2", "default2.1")
+    checkResult(dp.variableMap, "{http://example.com}var2", "default2.1")
 
   }
 
@@ -262,7 +262,8 @@ class TestExternalVariablesNew {
       <dfdl:defineVariable name="var1" type="xs:string" external="true" defaultValue="default1"/>
       <dfdl:defineVariable name="var3" type="xs:string" external="true" defaultValue="default3.1"/>
     }
-    val sch = generateTestSchemaWithTarget(tla, XMLUtils.EXAMPLE_NAMESPACE, source_no_ns.uriForLoading.toString)
+    val sch = generateTestSchemaWithTarget(tla, XMLUtils.EXAMPLE_NAMESPACE, source_no_ns.uriForLoading.toString,
+      hasDefaultNamespace = false)
     val source = UnitTestSchemaSource(sch, "test_figures_out_namespace_failure")
 
     val vars = Map(
@@ -270,14 +271,17 @@ class TestExternalVariablesNew {
       ("{}var2", "value2"), // NoNamespace
       ("var3", "value3")) // Figure out the namespace
 
-    val variables = ExternalVariablesLoader.getVariables(vars)
 
-    val c = new Compiler()
-    c.setExternalDFDLVariables(variables)
-    c.setValidateDFDLSchemas(false)
+
+    val c = Compiler(validateDFDLSchemas = false)
     val pf = c.compileSource(source)
     val sset = pf.sset
-    val msg = sset.getDiagnostics.mkString
+    val variables = ExternalVariablesLoader.mapToBindings(vars)
+
+    val sde = intercept[SchemaDefinitionError] {
+      pf.onPath("/").withExternalVariables(variables)
+    }
+    val msg = sde.getMessage()
     if (!msg.contains("var3 is ambiguous")) {
       println(msg)
       fail()

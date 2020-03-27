@@ -37,8 +37,7 @@ import org.apache.daffodil.infoset.InfosetDocument
 class TestDFDLExpressionEvaluation extends Parsers {
 
   def testExpr(testSchema: scala.xml.Elem, infosetAsXML: scala.xml.Elem, expr: String)(body: Any => Unit) {
-    val schemaCompiler = Compiler()
-    schemaCompiler.setTunable("allowExternalPathExpressions", "true")
+    val schemaCompiler = Compiler().withTunable("allowExternalPathExpressions", "true")
     val pf = schemaCompiler.compileNode(testSchema).asInstanceOf[ProcessorFactory]
     val sset = pf.sset
     if (pf.isError) fail("pf compile errors")

@@ -45,9 +45,9 @@ object SchemaDataProcessorCache extends SchemaCache[(Seq[Diagnostic], DFDL.DataP
 class SchemaCache[CachedType, DiagnosticType] {
 
   private class Cache
-    extends mutable.HashMap[(URISchemaSource, Boolean, Boolean, String, String), (URISchemaSource, CachedType)] {
+    extends mutable.HashMap[(URISchemaSource, Boolean, Boolean, Option[String], Option[String]), (URISchemaSource, CachedType)] {
 
-    override def getOrElseUpdate(key: (URISchemaSource, Boolean, Boolean, String, String), body: => (URISchemaSource, CachedType)) = synchronized {
+    override def getOrElseUpdate(key: (URISchemaSource, Boolean, Boolean, Option[String], Option[String]), body: => (URISchemaSource, CachedType)) = synchronized {
       super.getOrElseUpdate(key, body)
     }
 
@@ -90,10 +90,10 @@ class SchemaCache[CachedType, DiagnosticType] {
    */
   def compileAndCache(uss: URISchemaSource, useSerializedProcessor: Boolean,
     compileAllTopLevels: Boolean,
-    rootElementName: String,
-    rootElementNamespace: String)(doCompileByName: => CompileResult): CompileResult = {
+    optRootName: Option[String],
+    optRootNamespace: Option[String])(doCompileByName: => CompileResult): CompileResult = {
     lazy val doCompile = doCompileByName // exactly once
-    val key = (uss, useSerializedProcessor, compileAllTopLevels, rootElementName, rootElementNamespace)
+    val key = (uss, useSerializedProcessor, compileAllTopLevels, optRootName, optRootNamespace)
     synchronized {
       // if the file is newer then when last compiled, drop from the cache.
       val optExistingEntry = compiledSchemaCache.get(key)

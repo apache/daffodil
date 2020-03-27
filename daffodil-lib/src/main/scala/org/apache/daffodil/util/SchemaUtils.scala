@@ -52,11 +52,15 @@ object SchemaUtils {
     topLevelAnnotations: Seq[Node],
     contentElements: Seq[Node],
     theTargetNS: String,
-    elementFormDefault: String = "qualified"): Elem = {
+    elementFormDefault: String = "qualified",
+    hasDefaultNamespace: Boolean = true): Elem = {
     val tns = if (theTargetNS == "" || theTargetNS == null) NoNamespace else NS(theTargetNS)
     val sch =
       dfdlTestSchema(includeImports, topLevelAnnotations, contentElements,
-        targetNamespace = tns, defaultNamespace = tns, elementFormDefault = elementFormDefault)
+        targetNamespace = tns,
+        defaultNamespace = tns,
+        elementFormDefault = elementFormDefault,
+        hasDefaultNamespace = hasDefaultNamespace)
     sch
   }
 
@@ -78,7 +82,8 @@ object SchemaUtils {
     fileName: String = "",
     targetNamespace: NS = XMLUtils.targetNS,
     defaultNamespace: NS = XMLUtils.targetNS,
-    elementFormDefault: String = "qualified"): Elem = {
+    elementFormDefault: String = "qualified",
+    hasDefaultNamespace: Boolean = true): Elem = {
     val fileAttrib =
       if (fileName == "") Null
       else Attribute(XMLUtils.INT_PREFIX, "file", Text(fileName), Null)
@@ -92,7 +97,9 @@ object SchemaUtils {
         <ignore xmlns:xsd={ xsdURI } xmlns:dfdl={ dfdlURI } xmlns:xsi={ xsiURI } xmlns:fn={ fnURI } xmlns:math={ mathURI } xmlns:dafint={ dafintURI }/>.scope
       }
     scope = XMLUtils.combineScopes("xs", XMLUtils.xsdURI, scope) // always need this one
-    scope = XMLUtils.combineScopes(null, defaultNamespace, scope)
+    if (hasDefaultNamespace) {
+      scope = XMLUtils.combineScopes(null, defaultNamespace, scope)
+    }
     scope = XMLUtils.combineScopes("tns", targetNamespace, scope)
     scope = XMLUtils.combineScopes("ex", targetNamespace, scope)
     scope = XMLUtils.combineScopes("dfdlx", XMLUtils.DFDLX_NAMESPACE, scope)
