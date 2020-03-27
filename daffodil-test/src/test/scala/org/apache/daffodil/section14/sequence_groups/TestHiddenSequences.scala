@@ -54,10 +54,5 @@ class TestHiddenSequences {
   @Test def test_noOVCinHiddenContext() { runner.runOneTest("noOVCinHiddenContext") }
   @Test def test_nestedNoOVCinHiddenContext() { runner.runOneTest("nestedNoOVCinHiddenContext") }
 
-  /*
-   * FIXME DAFFODIL-2304; Dropped hiddenGroupRef
-   * This will fail once fixed, as no warrning will be generated and the output data will changed
-   */
-  @Test def test_ignoredHiddenGroupRefWithNoSequenceParent() { runner.runOneTest("ignoredHiddenGroupRefWithNoSequenceParent") }
-
+  @Test def test_invalidGroupDefWithHiddenSequenceModelGroup() { runner.runOneTest("invalidGroupDefWithHiddenSequenceModelGroup") }
 }
