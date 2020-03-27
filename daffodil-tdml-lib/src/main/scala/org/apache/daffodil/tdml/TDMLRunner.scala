@@ -29,13 +29,8 @@ import scala.xml.NodeSeq
 import scala.xml.NodeSeq.seqToNodeSeq
 import scala.xml.SAXParseException
 import scala.xml.transform._
-import org.apache.daffodil.api.DataLocation
-import org.apache.daffodil.api.ValidationMode
-import org.apache.daffodil.api.DaffodilSchemaSource
-import org.apache.daffodil.api.UnitTestSchemaSource
-import org.apache.daffodil.api.URISchemaSource
-import org.apache.daffodil.api.EmbeddedSchemaSource
-import org.apache.daffodil.exceptions.{ Assert, UnsuppressableException }
+import org.apache.daffodil.api.{DataLocation, UnitTestSchemaSource, URISchemaSource, EmbeddedSchemaSource, ValidationMode, Diagnostic, DaffodilTunables, DaffodilSchemaSource}
+import org.apache.daffodil.exceptions.{Assert, UnsuppressableException}
 import org.apache.daffodil.externalvars.Binding
 import org.apache.daffodil.util.LogLevel
 import org.apache.daffodil.util.Logging
@@ -68,14 +63,13 @@ import org.apache.daffodil.schema.annotation.props.gen.UTF16Width
 import org.apache.daffodil.util.MaybeBoolean
 import org.apache.daffodil.util.MaybeInt
 import org.apache.daffodil.util.Maybe
-import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.processors.charset.BitsCharsetDecoder
 import org.apache.daffodil.processors.charset.BitsCharsetEncoder
 import org.apache.daffodil.processors.charset.BitsCharsetNonByteSize
 import org.apache.daffodil.processors.charset.BitsCharsetNonByteSizeEncoder
 import org.apache.daffodil.io.FormatInfo
 import org.apache.daffodil.io.InputSourceDataInputStream
-import java.nio.charset.{ Charset => JavaCharset }
+import java.nio.charset.{Charset => JavaCharset}
 import java.io.OutputStream
 
 import org.apache.daffodil.tdml.processor.TDMLParseResult
@@ -574,7 +568,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
   private def retrieveBindings(cfg: DefinedConfig, tunable: DaffodilTunables): Seq[Binding] = {
     val bindings: Seq[Binding] = cfg.externalVariableBindings match {
       case None => Seq.empty
-      case Some(bindingsNode) => Binding.getBindings(bindingsNode, tunable.unqualifiedPathStepPolicy)
+      case Some(bindingsNode) => Binding.getBindings(bindingsNode)
     }
     bindings
   }
@@ -687,35 +681,40 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
     throw exceptionToThrow
   }
 
+  lazy val cfg: Option[DefinedConfig] = {
+    (config, parent.defaultConfig) match {
+      case ("", "") => None
+      case (configName, "") => configFromName(configName, "config")
+      case ("", defaultConfigName) => configFromName(defaultConfigName, "defaultConfig")
+      case (configName, defaultConfigName) => {
+        // check defaultConfigName for errors, but we'll use the configName
+        configFromName(defaultConfigName, "defaultConfig")
+        configFromName(configName, "config")
+      }
+    }
+  }
+
+  lazy val defaultTunables: Map[String, String] = cfg match {
+    case None => Map.empty
+    case Some(definedConfig) => retrieveTunables(definedConfig)
+  }
+
+  lazy val tunables: Map[String, String] = cfg match {
+    case None => defaultTunables
+    case Some(embeddedConfig) => retrieveTunablesCombined(defaultTunables, embeddedConfig)
+  }
+
+  lazy val tunableObj = DaffodilTunables(tunables)
+
+  lazy val externalVarBindings: Seq[Binding] = cfg match {
+    case None => Seq.empty
+    case Some(definedConfig) => retrieveBindings(definedConfig, tunableObj)
+  }
+
   def run(schemaArg: Option[Node] = None): Unit = {
     val suppliedSchema = getSuppliedSchema(schemaArg)
 
-    val cfg: Option[DefinedConfig] = {
-      (config, parent.defaultConfig) match {
-        case ("", "") => None
-        case (configName, "") => configFromName(configName, "config")
-        case ("", defaultConfigName) => configFromName(defaultConfigName, "defaultConfig")
-        case (configName, defaultConfigName) => {
-          // check defaultConfigName for errors, but we'll use the configName
-          configFromName(defaultConfigName, "defaultConfig")
-          configFromName(configName, "config")
-        }
-      }
-    }
-
-    val defaultTunables: Map[String, String] = cfg match {
-      case None => Map.empty
-      case Some(definedConfig) => retrieveTunables(definedConfig)
-    }
-
-    val tunables: Map[String, String] = cfg match {
-      case None => defaultTunables
-      case Some(embeddedConfig) => retrieveTunablesCombined(defaultTunables, embeddedConfig)
-    }
-
-    val tunableObj = DaffodilTunables(tunables)
-
-    val impl = this.tdmlDFDLProcessorFactory
+    var impl: AbstractTDMLDFDLProcessorFactory = this.tdmlDFDLProcessorFactory
     val implString = Some(impl.implementationName)
     //
     // Should we run the test?
@@ -729,18 +728,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
     } else {
       // run the test.
 
-      impl.setValidateDFDLSchemas(parent.validateDFDLSchemas)
-
-      impl.setTunables(tunables)
-
-      val externalVarBindings: Seq[Binding] = cfg match {
-        case None => Seq.empty
-        case Some(definedConfig) => retrieveBindings(definedConfig, tunableObj)
-      }
-
-      impl.setDistinguishedRootNode(rootName, rootNamespaceString)
-      impl.setCheckAllTopLevel(parent.checkAllTopLevel)
-      impl.setExternalDFDLVariables(externalVarBindings)
+      impl = impl.withValidateDFDLSchemas(parent.validateDFDLSchemas).withTunables(tunables).withCheckAllTopLevel(parent.checkAllTopLevel)
 
       val optInputOrExpectedData = document.map {
         _.data
@@ -754,19 +742,22 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
         else if (optExpectedWarnings.isDefined) false
         else true
 
-      val compileResult: TDML.CompileResult = impl.getProcessor(suppliedSchema, useSerializedProcessor)
-      compileResult.right.foreach {
-        case (_, proc) =>
+      val compileResult: TDML.CompileResult = impl.getProcessor(suppliedSchema, useSerializedProcessor, Option(rootName), Option(rootNamespaceString))
+      val newCompileResult : TDML.CompileResult = compileResult.right.map {
+        case (diags, proc: TDMLDFDLProcessor) =>
           // warnings are checked elsewhere for expected ones.
-
-          proc.setDebugging(parent.areDebugging)
-          proc.setTracing(parent.areTracing)
-          if (parent.areDebugging) {
-            if (parent.daffodilDebugger ne null)
-              proc.setDebugger(parent.daffodilDebugger)
+          val newProc: TDMLDFDLProcessor =
+            proc.withDebugging(parent.areDebugging).withTracing(parent.areTracing)
+          val newNewProc =
+            if (parent.areDebugging &&
+              (parent.daffodilDebugger ne null)) {
+              newProc.withDebugger(parent.daffodilDebugger)
+          } else {
+             newProc
           }
+          (diags, newNewProc)
       }
-      runProcessor(compileResult, optInputOrExpectedData, nBits, optExpectedErrors, optExpectedWarnings, optExpectedValidationErrors, validationMode,
+      runProcessor(newCompileResult, optInputOrExpectedData, nBits, optExpectedErrors, optExpectedWarnings, optExpectedValidationErrors, validationMode,
         roundTrip, implString)
 
     }
@@ -833,7 +824,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   }
 
   def runParseExpectErrors(
-    processor: TDMLDFDLProcessor,
+    processorArg: TDMLDFDLProcessor,
     dataToParse: InputStream,
     lengthLimitInBits: Long,
     errors: ExpectedErrors,
@@ -842,10 +833,22 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     validationMode: ValidationMode.Type,
     implString: Option[String]): Unit = {
 
-    val (parseResult: TDMLParseResult, diagnostics, isError: Boolean) = {
-      if (processor.isError) {
+    var processor = processorArg
+
+    val optExtVarDiag =
+      try {
+        processor = processor.withExternalDFDLVariables(externalVarBindings)
+        None
+      } catch {
+        case diag: Diagnostic =>
+          Some(diag)
+      }
+
+    val (parseResult, diagnostics, isError) = {
+      if (processor.isError || optExtVarDiag.isDefined) {
         val noParseResult: TDMLParseResult = null
-        (noParseResult, processor.getDiagnostics, true)
+        val allDiags: Seq[Diagnostic] = processor.getDiagnostics ++ optExtVarDiag
+        (noParseResult, allDiags , true)
       } else {
         val actual =
           try {
@@ -895,22 +898,36 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   private def doParseExpectSuccess(
     testData: Array[Byte],
     testInfoset: Infoset,
-    processor: TDMLDFDLProcessor,
+    processorArg: TDMLDFDLProcessor,
     lengthLimitInBits: Long,
     implString: Option[String]): TDMLParseResult = {
 
+    var processor = processorArg
+
     val testDataLength = lengthLimitInBits
 
-    val actual = processor.parse(new ByteArrayInputStream(testData), testDataLength)
+    val optExtVarDiag =
+      try {
+        processor = processor.withExternalDFDLVariables(externalVarBindings)
+        None
+      } catch {
+        case diag: Diagnostic =>
+          Some(diag)
+      }
+    if (optExtVarDiag.isDefined) {
+      toss(optExtVarDiag.get, implString)
+    } else {
+      val actual = processor.parse(new ByteArrayInputStream(testData), testDataLength)
 
-    if (actual.isProcessingError) {
-      // Means there was an error, not just warnings.
-      val diagObjs = actual.getDiagnostics
-      if (diagObjs.length == 1) throw TDMLException(diagObjs.head, implString)
-      val diags = actual.getDiagnostics.map(_.getMessage()).mkString("\n")
-      throw TDMLException(diags, implString)
+      if (actual.isProcessingError) {
+        // Means there was an error, not just warnings.
+        val diagObjs = actual.getDiagnostics
+        if (diagObjs.length == 1) throw TDMLException(diagObjs.head, implString)
+        val diags = actual.getDiagnostics.map(_.getMessage()).mkString("\n")
+        throw TDMLException(diags, implString)
+      }
+      actual
     }
-    actual
   }
 
   private def verifyLeftOverData(actual: TDMLParseResult, lengthLimitInBits: Long, implString: Option[String]) = {
@@ -1019,7 +1036,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   }
 
   def runParseExpectSuccess(
-    processor: TDMLDFDLProcessor,
+    processorArg: TDMLDFDLProcessor,
     dataToParse: InputStream,
     lengthLimitInBits: Long,
     warnings: Option[ExpectedWarnings],
@@ -1028,6 +1045,8 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     roundTripArg: RoundTrip,
     implString: Option[String]) {
 
+    var processor = processorArg
+
     val roundTrip = roundTripArg // change to OnePassRoundTrip to force all parse tests to round trip (to see which fail to round trip)
 
     if (processor.isError) {
@@ -1035,7 +1054,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       if (diagObjs.length == 1) throw diagObjs.head
       throw TDMLException(diagObjs, implString)
     }
-    processor.setValidationMode(validationMode)
+    processor = processor.withValidationMode(validationMode)
 
     val firstParseTestData = IOUtils.toByteArray(dataToParse)
     val testInfoset = optExpectedInfoset.get
@@ -1253,11 +1272,13 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   }
 
   def runUnparserExpectSuccess(
-    processor: TDMLDFDLProcessor,
+    processorArg: TDMLDFDLProcessor,
     expectedData: InputStream,
     optWarnings: Option[ExpectedWarnings],
     roundTrip: RoundTrip,
     implString: Option[String]) {
+
+    var processor = processorArg
 
     Assert.usage(roundTrip ne TwoPassRoundTrip) // not supported for unparser test cases.
 
@@ -1268,9 +1289,11 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         this.inputInfoset.dfdlInfoset.contents
       }
     }
+
     val outStream = new java.io.ByteArrayOutputStream()
     val actual =
       try {
+        processor = processor.withExternalDFDLVariables(externalVarBindings)
         processor.unparse(infosetXML, outStream)
       } catch {
         case t: Throwable => toss(t, implString)
@@ -1363,14 +1386,26 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   }
 
   def runUnparserExpectErrors(
-    processor: TDMLDFDLProcessor,
+    processorArg: TDMLDFDLProcessor,
     optExpectedData: Option[InputStream],
     errors: ExpectedErrors,
     optWarnings: Option[ExpectedWarnings],
     implString: Option[String]) {
 
+    var processor = processorArg
+
+    val optExtVarDiag =
+      try {
+        processor = processor.withExternalDFDLVariables(externalVarBindings)
+        None
+      } catch {
+        case diag: Diagnostic =>
+          Some(diag)
+      }
+
     val diagnostics = {
-      if (processor.isError) processor.getDiagnostics
+      if (processor.isError || optExtVarDiag.isDefined)
+        processor.getDiagnostics ++ optExtVarDiag
       else {
         val outStream = new java.io.ByteArrayOutputStream()
         val infosetXML = {

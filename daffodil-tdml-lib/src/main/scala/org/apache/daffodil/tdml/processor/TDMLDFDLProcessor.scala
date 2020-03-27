@@ -38,35 +38,75 @@ object TDML {
  *
  * This interface/trait can depend on Daffodil utilities and libraries, but *cannot* depend on anything
  * about any particular DFDL implementation.
+ *
+ * This object is stateful. It cannot be shared across threads.
  */
 trait AbstractTDMLDFDLProcessorFactory {
+
+  protected type R <: AbstractTDMLDFDLProcessorFactory
 
   def implementationName: String
 
   def validateDFDLSchemas: Boolean
 
+  @deprecated("Use withValidateDFDLSchemas.", "2.6.0")
   def setValidateDFDLSchemas(bool: Boolean): Unit
 
+  def withValidateDFDLSchemas(bool: Boolean): R
+
+  @deprecated("Use withCheckAllTopLevel.", "2.6.0")
   def setCheckAllTopLevel(checkAllTopLevel: Boolean): Unit
 
+  def withCheckAllTopLevel(checkAllTopLevel: Boolean): R
+
+  @deprecated("Use withTunables.", "2.6.0")
   def setTunables(tunables: Map[String, String]): Unit
 
+  def withTunables(tunables: Map[String, String]): R
+
+  @deprecated("Use TDMLDFDLProcessor.withExternalDFDLVariables", "2.6.0")
   def setExternalDFDLVariables(externalVarBindings: Seq[Binding]): Unit
 
+  def withExternalDFDLVariables(externalVarBindings: Seq[Binding]): R
+
+  @deprecated("Use arguments to getProcessor()", "2.6.0")
   def setDistinguishedRootNode(name: String, namespace: String): Unit
 
-  def getProcessor(schemaSource: DaffodilSchemaSource, useSerializedProcessor: Boolean): TDML.CompileResult
+  def getProcessor(schemaSource: DaffodilSchemaSource, useSerializedProcessor: Boolean,
+    optRootName: Option[String] = None, optRootNamespace: Option[String] = None): TDML.CompileResult
 }
 
+/**
+ *  This object is stateful. It cannot be shared across threads.
+ */
 trait TDMLDFDLProcessor {
 
+  protected type R <: TDMLDFDLProcessor
+
+  @deprecated("Use withDebugging.", "2.6.0")
   def setDebugging(onOff: Boolean): Unit
 
+  def withDebugging(onOff: Boolean): R
+
+  @deprecated("Use withTracing.", "2.6.0")
   def setTracing(onOff: Boolean): Unit
 
+  def withTracing(onOff: Boolean): R
+
+  @deprecated("Use withDebugger.", "2.6.0")
   def setDebugger(db: AnyRef): Unit
 
+  def withDebugger(db: AnyRef): R
+
+  @deprecated("Use withValidationMode.", "2.6.0")
   def setValidationMode(validationMode: ValidationMode.Type): Unit
+
+  def withValidationMode(validationMode: ValidationMode.Type): R
+
+  @deprecated("Use withExternalDFDLVariables.", "2.6.0")
+  def setExternalDFDLVariables(externalVarBindings: Seq[Binding]): Unit
+
+  def withExternalDFDLVariables(externalVarBindings: Seq[Binding]): R
 
   def isError: Boolean
 

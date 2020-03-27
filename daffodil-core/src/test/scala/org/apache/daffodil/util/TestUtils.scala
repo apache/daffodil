@@ -21,13 +21,15 @@ import scala.xml._
 import org.apache.daffodil.xml.XMLUtils
 import java.io.File
 import java.io.FileNotFoundException
-import org.apache.daffodil.Implicits._; object INoWarnU2 { ImplicitsSuppressUnusedImportWarning() }
+
+import org.apache.daffodil.Implicits._
+import org.apache.daffodil.grammar.VariableMapFactory
+object INoWarnU2 { ImplicitsSuppressUnusedImportWarning() }
 import org.apache.daffodil.compiler.Compiler
 import java.nio.channels.ReadableByteChannel
 import org.junit.Assert.assertEquals
 import org.apache.daffodil.dsom._
 import org.apache.daffodil.xml._
-import org.apache.daffodil.grammar.primitives.VariableMapFactory
 import org.apache.daffodil.api._
 import org.apache.daffodil.externalvars.Binding
 import org.apache.daffodil.api.DFDL
@@ -97,24 +99,22 @@ object TestUtils {
   val useSerializedProcessor = true
 
   def testUnparsing(testSchema: scala.xml.Elem, infosetXML: Node, unparseTo: String, areTracing: Boolean = false): Seq[Diagnostic] = {
-    val compiler = Compiler()
-    compiler.setTunable("allowExternalPathExpressions", "true")
+    val compiler = Compiler().withTunable("allowExternalPathExpressions", "true")
     val pf = compiler.compileNode(testSchema)
     if (pf.isError) {
       val msgs = pf.getDiagnostics.map(_.getMessage()).mkString("\n")
       throw new Exception(msgs)
     }
-    val u = saveAndReload(pf.onPath("/").asInstanceOf[DataProcessor])
+    var u = saveAndReload(pf.onPath("/").asInstanceOf[DataProcessor])
     if (u.isError) {
       val msgs = u.getDiagnostics.map(_.getMessage()).mkString("\n")
       throw new Exception(msgs)
     }
     val outputStream = new java.io.ByteArrayOutputStream()
     val out = java.nio.channels.Channels.newChannel(outputStream)
-    if (areTracing) {
-      u.setDebugger(builtInTracer)
-      u.setDebugging(true)
-    }
+    u = if (areTracing) {
+      u.withDebugger(builtInTracer).withDebugging(true)
+    } else u
     val inputter = new ScalaXMLInfosetInputter(infosetXML)
     val actual = u.unparse(inputter, out)
     if (actual.isProcessingError) {
@@ -141,15 +141,14 @@ object TestUtils {
     val compiler = Compiler()
     val pf = compiler.compileNode(testSchema)
     if (pf.isError) throwDiagnostics(pf.diagnostics)
-    val u = pf.onPath("/").asInstanceOf[DataProcessor]
+    var u = pf.onPath("/").asInstanceOf[DataProcessor]
     if (u.isError) throwDiagnostics(u.getDiagnostics)
     val outputStream = new java.io.ByteArrayOutputStream()
     val out = java.nio.channels.Channels.newChannel(outputStream)
     val inputter = new ScalaXMLInfosetInputter(infoset)
-    if (areTracing) {
-      u.setDebugger(builtInTracer)
-      u.setDebugging(true)
-    }
+    u = if (areTracing) {
+      u.withDebugger(builtInTracer).withDebugging(true)
+    } else u
     val actual = u.unparse(inputter, out)
     if (actual.isProcessingError) throwDiagnostics(actual.getDiagnostics)
     val unparsed = outputStream.toByteArray()
@@ -189,17 +188,16 @@ object TestUtils {
     if (isError) {
       throw new Exception(msgs)
     }
-    val p = saveAndReload(pf.onPath("/").asInstanceOf[DataProcessor])
+    var p = saveAndReload(pf.onPath("/").asInstanceOf[DataProcessor])
     val pIsError = p.isError
     if (pIsError) {
       val msgs = pf.getDiagnostics.map(_.getMessage()).mkString("\n")
       throw new Exception(msgs)
     }
-    if (areTracing) {
-      p.setDebugger(builtInTracer)
-      p.setDebugging(true)
-    }
-    p.setValidationMode(ValidationMode.Limited)
+    p = if (areTracing) {
+      p.withDebugger(builtInTracer).withDebugging(true)
+    } else p
+    p = p.withValidationMode(ValidationMode.Limited)
 
     val outputter = new ScalaXMLInfosetOutputter()
     val input = InputSourceDataInputStream(Channels.newInputStream(data))
@@ -303,7 +301,7 @@ class Fakes private () {
       </xs:sequence>
     </xs:group>)
   val DummyPrimitiveFactory = null
-  val tunable = DaffodilTunables()
+  val tunables = DaffodilTunables()
   lazy val xsd_sset: SchemaSet = new SchemaSet(sch, "http://example.com", "fake")
   lazy val xsd_schema = xsd_sset.getSchema(NS("http://example.com")).get
   lazy val fakeSD = xsd_schema.schemaDocuments(0)
@@ -318,23 +316,37 @@ class Fakes private () {
   lazy val fakeGroupRefFactory = GroupRefFactory(fs1.xml, fs1, 1, false)
 
   class FakeDataProcessor extends DFDL.DataProcessor {
-    protected var tunablesObj = DaffodilTunables()
-    def setValidationMode(mode: ValidationMode.Type): Unit = {}
+    @deprecated("Use withValidationMode.", "2.6.0")
+    override def setValidationMode(mode: ValidationMode.Type): Unit = {}
     def getValidationMode(): ValidationMode.Type = { ValidationMode.Full }
-    def save(output: DFDL.Output): Unit = {}
-    def setExternalVariables(extVars: Map[String, String]): Unit = {}
-    def setExternalVariables(extVars: Seq[Binding]): Unit = {}
-    def setExternalVariables(extVars: File): Unit = {}
-    def setExternalVariables(extVars: File, tunable: DaffodilTunables): Unit = {}
+    override def save(output: DFDL.Output): Unit = {}
+    @deprecated("Use withExternalVariables.", "2.6.0")
+    override def setExternalVariables(extVars: Map[String, String]): Unit = {}
+    @deprecated("Use withExternalVariables.", "2.6.0")
+    override def setExternalVariables(extVars: Seq[Binding]): Unit = {}
+    @deprecated("Use withExternalVariables.", "2.6.0")
+    override def setExternalVariables(extVars: File): Unit = {}
+    @deprecated("Use withExternalVariables.", "2.6.0")
+    override def setExternalVariables(extVars: File, tunable: DaffodilTunables): Unit = {}
     def getVariables(): VariableMap = VariableMapFactory.create(Nil)
-    def parse(input: InputSourceDataInputStream, output: InfosetOutputter): DFDL.ParseResult = null
-    def unparse(inputter: InfosetInputter, output: DFDL.Output): DFDL.UnparseResult = null
-    def getDiagnostics: Seq[Diagnostic] = Seq.empty
-    def isError: Boolean = false
-    def setTunables(tunables: DaffodilTunables): Unit = {}
-    def setTunable(tunable: String, value: String): Unit = {}
-    def setTunables(tunables: Map[String, String]): Unit = {}
-    def getTunables(): DaffodilTunables = { tunablesObj }
+    override def parse(input: InputSourceDataInputStream, output: InfosetOutputter): DFDL.ParseResult = null
+    override def unparse(inputter: InfosetInputter, output: DFDL.Output): DFDL.UnparseResult = null
+    override def getDiagnostics: Seq[Diagnostic] = Seq.empty
+    override def isError: Boolean = false
+    @deprecated("Use withTunables.", "2.6.0")
+    override def setTunable(tunable: String, value: String): Unit = {}
+    @deprecated("Use withTunables.", "2.6.0")
+    override def setTunables(tunables: Map[String, String]): Unit = {}
+    override def getTunables(): DaffodilTunables = { tunables }
+
+    override def validationMode: ValidationMode.Type = ValidationMode.Full
+    override def variableMap: VariableMap = VariableMapFactory.create(Nil)
+    override def withExternalVariables(extVars: Seq[Binding]): DFDL.DataProcessor = this
+    override def withExternalVariables(extVars: java.io.File): DFDL.DataProcessor = this
+    override def withExternalVariables(extVars: Map[String,String]): DFDL.DataProcessor = this
+    override def withTunable(tunable: String, value: String): DFDL.DataProcessor = this
+    override def withTunables(tunables: Map[String,String]): DFDL.DataProcessor = this
+    override def withValidationMode(mode: ValidationMode.Type): DFDL.DataProcessor = this
 
   }
   lazy val fakeDP = new FakeDataProcessor

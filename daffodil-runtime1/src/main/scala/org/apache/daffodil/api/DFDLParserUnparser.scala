@@ -98,14 +98,20 @@ object DFDL {
      * it will search for a unique element with your root element name, and
      * if that is unambiguous, it will use it as the root.
      */
+    @deprecated("Use arguments to compileSource, or compileFile method.", "2.6.0")
     def setDistinguishedRootNode(name: String, namespace: String)
+
+    @deprecated("Use DataProcessor.withExternalVariables.", "2.6.0")
     def setExternalDFDLVariable(name: String, namespace: String, value: String)
 
     /**
      * Compilation returns a parser factory, which must be interrogated for diagnostics
      * to see if compilation was successful or not.
      */
-    def compileSource(schemaSource: DaffodilSchemaSource): ProcessorFactory
+    def compileSource(
+      schemaSource: DaffodilSchemaSource,
+      optRootNodeName: Option[String] = None,
+      optRootNodeNamespace: Option[String] = None): ProcessorFactory
 
     def reload(savedParser: File): DataProcessor
   }
@@ -132,22 +138,48 @@ object DFDL {
      * To explicitly specify that there is no-namespace, pass "" as
      * the namespace argument.
      */
-    def setDistinguishedRootNode(name: String, namespace: String = null)
+    @deprecated("Use arguments to Compiler.compileSource or compileFile.", "2.6.0")
+    def setDistinguishedRootNode(name: String, namespace: String = null): Unit
+
     def onPath(xpath: String): DataProcessor
   }
 
   trait DataProcessor extends WithDiagnostics {
-    def setValidationMode(mode: ValidationMode.Type): Unit
-    def getValidationMode(): ValidationMode.Type
-    def save(output: DFDL.Output): Unit
-    def setExternalVariables(extVars: Map[String, String]): Unit
-    def setExternalVariables(extVars: File): Unit
-    def setExternalVariables(extVars: File, tunable: DaffodilTunables): Unit
-    def setExternalVariables(extVars: Seq[Binding]): Unit
-    def getVariables(): VariableMap
-    def setTunable(tunable: String, value: String): Unit
-    def setTunables(tunables: Map[String,String]): Unit
+
+    /**
+     * Returns a data processor with all the same state, but the validation mode changed to that of the argument.
+     *
+     * Note that the default validation mode is "off", that is, no validation is performed.
+     */
+    def withValidationMode(mode:ValidationMode.Type): DataProcessor
+    def withTunable(name: String, value: String): DataProcessor
+    def withTunables(tunables: Map[String, String]): DataProcessor
+    def withExternalVariables(extVars: Map[String, String]): DataProcessor
+    def withExternalVariables(extVars: File): DataProcessor
+    def withExternalVariables(extVars: Seq[Binding]): DataProcessor
+
+    def validationMode: ValidationMode.Type
+
     def getTunables(): DaffodilTunables
+    def save(output: DFDL.Output): Unit
+    def variableMap: VariableMap
+
+    @deprecated("Use withValidationMode.", "2.6.0")
+    def setValidationMode(mode: ValidationMode.Type): Unit
+    @deprecated("Use DataProcessor.withExternalVariables.", "2.6.0")
+    def setExternalVariables(extVars: Map[String, String]): Unit
+    @deprecated("Use DataProcessor.withExternalVariables.", "2.6.0")
+    def setExternalVariables(extVars: File): Unit
+    @deprecated("Use DataProcessor.withExternalVariables.", "2.6.0")
+    def setExternalVariables(extVars: File, tunable: DaffodilTunables): Unit
+    @deprecated("Use DataProcessor.withExternalVariables.", "2.6.0")
+    def setExternalVariables(extVars: Seq[Binding]): Unit
+    @deprecated("Use withTunables.", "2.6.0")
+    def setTunable(tunable: String, value: String): Unit
+    @deprecated("Use withTunables.", "2.6.0")
+    def setTunables(tunables: Map[String,String]): Unit
+
+
 
     /**
      * Unparses (that is, serializes) data to the output, returns an object which contains any diagnostics.

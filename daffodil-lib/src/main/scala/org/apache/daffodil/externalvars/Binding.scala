@@ -19,9 +19,21 @@ package org.apache.daffodil.externalvars
 
 import scala.xml.Node
 import org.apache.daffodil.xml._
-import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.api.UnqualifiedPathStepPolicy
 
+/**
+ * Represents a variable binding expressed in a config file as a bind element, or specified
+ * as options to the CLI (pairs of extendedSyntaxName + value).
+ *
+ * scope is only relevant for a config file, which can have QNames with prefixes that need to
+ * be resolved locally relative to that XML document.
+ *
+ * For a binding coming from a config file, we require the QName to be "correct".
+ *
+ * For bindings coming from the CLI options, we may construct bindings and RefQName objects here
+ * that do not in fact connect to anything. It is the caller/user of these objects in the runtime
+ * system or schema compiler that decides if these names actually refer to any variables.
+ */
 class Binding(val varQName: RefQName, val varValue: String, scope: scala.xml.NamespaceBinding = null) {
 
   override def toString() = {
@@ -56,6 +68,8 @@ case class BindingException(message: String)
 object Binding {
 
   /**
+   * Make a binding for extended syntax (typically comes from command line options to the CLI).
+   *
    * extSyntax is {uri}ncName, or {}ncName, or ncName
    */
   def apply(extSyntax: String, value: String): Binding = try {
@@ -65,28 +79,49 @@ object Binding {
     case e: Throwable => throw BindingException(e.getMessage)
   }
 
-  def apply(node: Node, unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy): Binding = {
+  /**
+   * Parses one XML bind element like <daf:bind name="foo:bar">baz</daf:bind>
+   */
+  def apply(node: Node): Binding = {
     val name = (node \ "@name").head.text
-    val refQName = try {
-      QName.resolveRef(name, node.scope, unqualifiedPathStepPolicy)
-    } catch {
-      case e: Throwable => throw BindingException(e.getMessage)
-    }
     val value = node.text
-    new Binding(refQName.get, value, node.scope)
+    val scope = node.scope
+    //
+    // Variable names are always resolved like names which may refer to a default namespace
+    // if one is defined.
+    //
+    val rqn = RefQNameFactory.resolveRef(name, scope, UnqualifiedPathStepPolicy.DefaultNamespace)
+    new Binding(rqn.get, value)
   }
 
-  def apply(name: String, namespace: Option[NS], value: String): Binding = try {
-    new Binding(RefQName(None, name, namespace.getOrElse(UnspecifiedNamespace)), value)
+  /**
+   * Supports API construction of external variable bindings.
+   *
+   * These are allowed to leave out the namespace information if the variable reference
+   * would be unambiguous across the names of the defined variables of the schema
+   * just based on the local name part alone.
+   */
+  def apply(local: String, optNamespace: Option[NS], value: String): Binding = try {
+    new Binding(RefQName(None, local, optNamespace.getOrElse(UnspecifiedNamespace)), value)
   } catch {
     case e: Throwable => throw BindingException(e.getMessage)
   }
 
-  def getBindings(extVarBindings: Node, unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy) = {
-    val bindings = extVarBindings \ "bind"
+  /**
+   * Parses an XML element containing multiple "bind" nodes.
+   */
+  def getBindings(externalVarBindingsNode: Node): Seq[Binding] = {
+    val bindings = externalVarBindingsNode \ "bind"
     try {
-      bindings.map(b => Binding(b, unqualifiedPathStepPolicy))
+      bindings.map(b => Binding(b))
     } catch {
+      // FIXME: Should not be catching throwable here.
+      // Figure out what might be thrown and catch more specific things.
+      // Or consider whether this encapsulation is even needed.
+      // Encapsulations that do this really should just pass the cause, not
+      // invoke getMessage to create strings.
+      // Note that if this encapsulation is removed, unit and other tests that look
+      // for binding exception text in negative tests may fail.
       case e: Throwable => throw BindingException(e.getMessage)
     }
   }

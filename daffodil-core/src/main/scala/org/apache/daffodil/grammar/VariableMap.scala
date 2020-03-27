@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.grammar.primitives
+package org.apache.daffodil.grammar
 
 import org.apache.daffodil.dsom._
 import org.apache.daffodil.externalvars.Binding
@@ -32,7 +32,7 @@ object VariableMapFactory {
 
   def setExternalVariables(currentVMap: VariableMap, bindings: Seq[Binding], referringContext: ThrowsSDE) = {
     var newVMap = currentVMap
-    bindings.foreach(b => newVMap = newVMap.setExtVariable(b.globalQName, b.varValue, referringContext))
+    bindings.foreach(b => newVMap = newVMap.setExtVariable(b.varQName, b.varValue, referringContext))
     newVMap
   }
 }

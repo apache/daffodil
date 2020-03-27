@@ -31,6 +31,7 @@ import org.apache.daffodil.processors.DataProcessor
 import org.apache.daffodil.dsom.ElementBase
 import org.apache.daffodil.processors.unparsers.UStateMain
 import org.apache.commons.io.output.NullOutputStream
+import org.apache.daffodil.dsom.Root
 
 object TestInfoset {
   /**
@@ -79,22 +80,21 @@ object TestInfoset {
    * the schema compiler Root object for examining schema-compiler
    * computations for unit testing them.
    */
-  def testInfoset(testSchema: scala.xml.Elem, infosetAsXML: scala.xml.Elem) = {
-    val schemaCompiler = Compiler()
-    schemaCompiler.setTunable("allowExternalPathExpressions", "true")
+  def testInfoset(testSchema: scala.xml.Elem, infosetAsXML: scala.xml.Elem): (DIElement, Root, DaffodilTunables) = {
+    val schemaCompiler = Compiler().withTunable("allowExternalPathExpressions", "true")
     val pf = schemaCompiler.compileNode(testSchema).asInstanceOf[ProcessorFactory]
     if (pf.isError) {
       val msgs = pf.getDiagnostics.map { _.getMessage() }.mkString("\n")
       fail("pf compile errors: " + msgs)
     }
-    pf.rootElem.erd.preSerialization // force evaluation of all compile-time constructs
+    pf.sset.root.erd.preSerialization // force evaluation of all compile-time constructs
     val dp = pf.onPath("/").asInstanceOf[DataProcessor]
     if (dp.isError) {
       val msgs = dp.getDiagnostics.map { _.getMessage() }.mkString("\n")
       fail("dp compile errors: " + msgs)
     }
     val infosetRootElem = TestInfoset.elem2Infoset(infosetAsXML, dp)
-    (infosetRootElem, pf.rootElem, dp.tunable)
+    (infosetRootElem, pf.sset.root, dp.tunables)
   }
 
 }

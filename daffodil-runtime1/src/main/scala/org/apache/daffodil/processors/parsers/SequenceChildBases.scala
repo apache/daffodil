@@ -355,7 +355,7 @@ abstract class RepeatingChildParser(
     if (state.processorStatus eq Success) {
 
       val shouldValidate =
-        state.dataProc.isDefined && state.dataProc.value.getValidationMode != ValidationMode.Off
+        state.dataProc.isDefined && state.dataProc.value.validationMode != ValidationMode.Off
 
       if (shouldValidate) {
         val minO = erd.minOccurs

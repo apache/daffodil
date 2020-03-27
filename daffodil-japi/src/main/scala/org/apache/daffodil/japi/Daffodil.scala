@@ -25,13 +25,13 @@ import org.apache.daffodil.japi.infoset._
 import org.apache.daffodil.japi.io.InputSourceDataInputStream
 import org.apache.daffodil.debugger.{ InteractiveDebugger => SInteractiveDebugger }
 import org.apache.daffodil.debugger.{ TraceDebuggerRunner => STraceDebuggerRunner }
-import org.apache.daffodil.api.{ Diagnostic => SDiagnostic }
+
 import scala.collection.JavaConverters._
 import java.io.File
 import java.nio.channels.Channels
 import java.nio.channels.ReadableByteChannel
 import java.nio.channels.WritableByteChannel
-import scala.collection.JavaConversions.seqAsJavaList
+
 import org.apache.daffodil.api.{ DataLocation => SDataLocation }
 import org.apache.daffodil.api.{ Diagnostic => SDiagnostic }
 import org.apache.daffodil.api.{ LocationInSchemaFile => SLocationInSchemaFile }
@@ -45,15 +45,18 @@ import org.apache.daffodil.util.{ FileWriter => SFileWriter }
 import org.apache.daffodil.util.{ LogWriter => SLogWriter }
 import org.apache.daffodil.util.{ LoggingDefaults => SLoggingDefaults }
 import org.apache.daffodil.util.{ NullLogWriter => SNullLogWriter }
+import org.apache.daffodil.externalvars.Binding
 import org.apache.daffodil.externalvars.ExternalVariablesLoader
 import org.apache.daffodil.dsom.ExpressionCompilers
 import org.apache.daffodil.compiler.{ InvalidParserException => SInvalidParserException }
 import org.apache.daffodil.processors.{ InvalidUsageException => SInvalidUsageException }
 import java.net.URI
+
 import org.apache.daffodil.api.URISchemaSource
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe._
 import org.apache.daffodil.util.MaybeULong
+import org.apache.daffodil.xml.NS
 
 /**
  * API Suitable for Java programmers to use.
@@ -73,7 +76,7 @@ object Daffodil {
    */
   def compiler(): Compiler = {
     new Daffodil // silence warning about unused private constructor
-    new Compiler()
+    new Compiler(SCompiler())
   }
 
   /**
@@ -107,10 +110,9 @@ object Daffodil {
  *
  * Do not use the Compiler constructor to create a Compiler. Instead, use [[Daffodil#compiler()]].
  */
-class Compiler private[japi] () {
+class Compiler private[japi] (private var sCompiler: SCompiler) {
 
-  private val sCompiler = SCompiler()
-
+  private def copy(sCompiler: SCompiler = sCompiler) = new Compiler(sCompiler)
   /**
    * Compile DFDL schema file into a [[ProcessorFactory]]
    *
@@ -122,8 +124,27 @@ class Compiler private[japi] () {
    * @throws java.io.IOException if an I/O error occurs while reading the schemaFile
    */
   @throws(classOf[java.io.IOException])
-  def compileFile(schemaFile: File): ProcessorFactory = {
-    val pf = sCompiler.compileFile(schemaFile)
+  def compileFile(schemaFile: File): ProcessorFactory = compileFile(schemaFile, null, null)
+
+
+  /**
+   * Compile DFDL schema file into a [[ProcessorFactory]]
+   *
+   * To allow jar-file packaging, (where schema files might be part of a jar),
+   * it is recommended to use [[Compiler#compileSource]] instead.
+   *
+   * @param schemaFile DFDL schema file used to create a [[ProcessorFactory]].
+   * @param rootName name of root element, or null to choose automatically from first element of schema.
+   * @param rootNamespace String of namespace of the root element, or null to infer automatically when unambiguous. Pass "" (empty string) for No Namespace.*
+   * @return [[ProcessorFactory]] used to create [[DataProcessor]](s). Must check [[ProcessorFactory#isError]] before using it.
+   * @throws java.io.IOException if an I/O error occurs while reading the schemaFile
+   */
+  @throws(classOf[java.io.IOException])
+  def compileFile(schemaFile: File,
+    rootName: String,
+    rootNamespace: String): ProcessorFactory = {
+
+    val pf = sCompiler.compileFile(schemaFile, Option(rootName), Option(rootNamespace))
     pf.isError
     new ProcessorFactory(pf)
   }
@@ -136,9 +157,23 @@ class Compiler private[japi] () {
    * @throws java.io.IOException if an I/O error occurs while reading the uri
    */
   @throws(classOf[java.io.IOException])
-  def compileSource(uri: URI): ProcessorFactory = {
+  def compileSource(uri: URI): ProcessorFactory = compileSource(uri, null, null)
+
+  /**
+   * Compile DFDL schema source into a [[ProcessorFactory]]
+   *
+   * @param uri URI of DFDL schema file used to create a [[ProcessorFactory]].
+   * @param rootName name of root element, or null to choose automatically from first element of schema.
+   * @param rootNamespace String of namespace of the root element, or null to infer automatically when unambiguous. Pass "" (empty string) for No Namespace.
+   * @return [[ProcessorFactory]] used to create [[DataProcessor]](s). Must check [[ProcessorFactory#isError]] before using it.
+   * @throws java.io.IOException if an I/O error occurs while reading the uri
+   */
+  @throws(classOf[java.io.IOException])
+  def compileSource(uri: URI,
+    rootName: String,
+    rootNamespace: String): ProcessorFactory = {
     val source = URISchemaSource(uri)
-    val pf = sCompiler.compileSource(source)
+    val pf = sCompiler.compileSource(source, Option(rootName), Option(rootNamespace))
     new ProcessorFactory(pf.asInstanceOf[SProcessorFactory])
   }
 
@@ -189,8 +224,9 @@ class Compiler private[japi] () {
    * @param namespace namespace of the root node. Set to empty string to specify
    *                  no namespace. Set to to NULL to figure out the namespace.
    */
+  @deprecated("Pass arguments to compileSource, or compileFile.", "2.6.0")
   def setDistinguishedRootNode(name: String, namespace: String): Unit =
-    sCompiler.setDistinguishedRootNode(name, namespace)
+    sCompiler = sCompiler.withDistinguishedRootNode(name, namespace)
 
   /**
    * Set the value of a DFDL variable
@@ -200,8 +236,10 @@ class Compiler private[japi] () {
    *                  no namespace. Set to to NULL to figure out the namespace.
    * @param value value to so the variable to
    */
+  @deprecated("Use DataProcessor.withExternalVariable.", "2.6.0")
   def setExternalDFDLVariable(name: String, namespace: String, value: String): Unit = {
-    sCompiler.setExternalDFDLVariable(name, namespace, value)
+    val bindings = Seq(Binding(name, Some(NS(namespace)), value))
+    sCompiler = sCompiler.withExternalDFDLVariablesImpl(bindings)
   }
 
   /**
@@ -214,9 +252,10 @@ class Compiler private[japi] () {
    *                   then no namespace is used. With not preceded by "{namespace}",
    *                   then Daffodil will figure out the namespace.
    */
+  @deprecated("Use DataProcessor.withExternalVariables.", "2.6.0")
   def setExternalDFDLVariables(extVarsMap: java.util.AbstractMap[String, String]): Unit = {
-    val extVars = ExternalVariablesLoader.getVariables(extVarsMap.asScala.toMap)
-    sCompiler.setExternalDFDLVariables(extVars)
+    val extVars = ExternalVariablesLoader.mapToBindings(extVarsMap.asScala.toMap)
+    sCompiler = sCompiler.withExternalDFDLVariablesImpl(extVars)
   }
 
   /**
@@ -226,8 +265,10 @@ class Compiler private[japi] () {
    *
    * @param extVarsFile file to read DFDL variables from.
    */
+  @deprecated("Use DataProcessor.withExternalVariables.", "2.6.0")
   def setExternalDFDLVariables(extVarsFile: File): Unit = {
-    sCompiler.setExternalDFDLVariables(extVarsFile)
+    val extVars = ExternalVariablesLoader.fileToBindings(extVarsFile)
+    sCompiler = sCompiler.withExternalDFDLVariablesImpl(extVars)
   }
 
   /**
@@ -235,7 +276,10 @@ class Compiler private[japi] () {
    *
    * @param value true to enable validation, false to disabled
    */
-  def setValidateDFDLSchemas(value: Boolean): Unit = sCompiler.setValidateDFDLSchemas(value)
+  @deprecated("Do not use this method. DFDL schema validation should be performed.", "2.6.0")
+  def setValidateDFDLSchemas(value: Boolean): Unit =
+    sCompiler = sCompiler.withValidateDFDLSchemas(value)
+
 
   /**
    * Set a Daffodil tunable parameter
@@ -245,8 +289,21 @@ class Compiler private[japi] () {
    * @param tunable name of the tunable parameter to set.
    * @param value value of the tunable parameter to set
    */
+  @deprecated("Use withTunable.", "2.6.0")
   def setTunable(tunable: String, value: String): Unit = {
-    sCompiler.setTunable(tunable, value)
+    sCompiler = sCompiler.withTunable(tunable, value)
+  }
+
+  /**
+   * Create a new Compiler instance having a specific Daffodil tunable parameter value.
+   *
+   * @see <a target="_blank" href='https://daffodil.apache.org/configuration/#tunable-parameters'>Tunable Parameters</a> - list of tunables names of default values
+   *
+   * @param tunable name of the tunable parameter
+   * @param value value of the tunable parameter
+   */
+  def withTunable(tunable: String, value: String): Compiler = {
+    copy(sCompiler = sCompiler.withTunable(tunable, value))
   }
 
   /**
@@ -256,8 +313,20 @@ class Compiler private[japi] () {
    *
    * @param tunables a map of key/value pairs, where the key is the tunable name and the value is the value to set it to
    */
+  @deprecated("Use withTunables.", "2.6.0")
   def setTunables(tunables: java.util.AbstractMap[String, String]): Unit = {
-    sCompiler.setTunables(tunables.asScala.toMap)
+    sCompiler = sCompiler.withTunables(tunables.asScala.toMap)
+  }
+
+  /**
+   * Create a new Compiler instance having specific Daffodil tunable parameter values.
+   *
+   * @see <a target="_blank" href='https://daffodil.apache.org/configuration/#tunable-parameters'>Tunable Parameters</a> - list of tunables names of default values
+   *
+   * @param tunables a map of key/value pairs, where the key is the tunable name and the value is the value it will get.
+   */
+  def withTunables(tunables: java.util.AbstractMap[String, String]): Compiler = {
+    copy(sCompiler = sCompiler.withTunables(tunables.asScala.toMap))
   }
 }
 
@@ -267,8 +336,10 @@ class Compiler private[japi] () {
  * Do not use the ProcessorFactry constructor to create a [[ProcessorFactory]].
  * Instead, use [[Compiler#compileFile(java.io.File)]]
  */
-class ProcessorFactory private[japi] (pf: SProcessorFactory)
+class ProcessorFactory private[japi] (private var pf: SProcessorFactory)
   extends WithDiagnostics(pf) {
+
+  private def copy(pf: SProcessorFactory = pf) = new ProcessorFactory(pf)
 
   /**
    * Specify a global element to be the root of DFDL Schema to start parsing
@@ -277,8 +348,19 @@ class ProcessorFactory private[japi] (pf: SProcessorFactory)
    * @param namespace namespace of the root node. Set to empty string to specify
    *                  no namespace. Set to to NULL to figure out the namespace.
    */
+  @deprecated("Use withDistinguishedRootNode.", "2.6.0")
   def setDistinguishedRootNode(name: String, namespace: String): Unit =
-    pf.setDistinguishedRootNode(name, namespace)
+    pf = pf.withDistinguishedRootNode(name, namespace)
+
+  /**
+   * Get a new [[ProcessorFactory]] having a global element specified as the root of DFDL Schema to start parsing.
+   *
+   * @param name name of the root node
+   * @param namespace namespace of the root node. Set to empty string to specify
+   *                  no namespace. Set to to NULL to figure out the namespace.
+   */
+  def withDistinguishedRootNode(name: String, namespace: String): ProcessorFactory =
+    copy(pf = pf.withDistinguishedRootNode(name, namespace))
 
   /**
    * Create a [[DataProcessor]]
@@ -419,9 +501,11 @@ class LocationInSchemaFile private[japi] (lsf: SLocationInSchemaFile) {
 /**
  * Compiled version of a DFDL Schema, used to parse data and get the DFDL infoset
  */
-class DataProcessor private[japi] (dp: SDataProcessor)
+class DataProcessor private[japi] (private var dp: SDataProcessor)
   extends WithDiagnostics(dp)
   with Serializable {
+
+  private def copy(dp: SDataProcessor = dp) = new DataProcessor(dp)
 
   /**
    * Enable/disable debugging.
@@ -430,28 +514,55 @@ class DataProcessor private[japi] (dp: SDataProcessor)
    *
    * @param flag true to enable debugging, false to disabled
    */
+  @deprecated("Use withDebugging.", "2.6.0")
   def setDebugging(flag: Boolean) {
-    dp.setDebugging(flag)
+    dp = dp.withDebugging(flag)
   }
 
   /**
-   * Set the debugger runer
+   * Obtain a new [[DataProcessor]] instance with debugging enabled or disabled.
+   *
+   * Before enabling, [[DataProcessor#withDebugger(DebuggerRunner)]] must be called to obtain a [[DataProcessor]] with a non-null debugger.
+   *
+   * @param flag true to enable debugging, false to disabled
+   */
+  def withDebugging(flag: Boolean): DataProcessor = {
+    copy(dp = dp.withDebugging(flag))
+  }
+
+  /**
+   * Set the debugger runner
    *
    * @param dr debugger runner
    */
+  @deprecated("Use withDebugger.", "2.6.0")
   def setDebugger(dr: DebuggerRunner) {
+    val debugger = newDebugger(dr)
+    dp = dp.withDebugger(debugger)
+  }
+
+  /**
+   * Obtain a new [[DataProcessor]] with a specified debugger runner.
+   *
+   * @param dr debugger runner
+   */
+  def withDebugger(dr: DebuggerRunner): DataProcessor = {
+    val debugger = newDebugger(dr)
+    copy(dp = dp.withDebugger(debugger))
+  }
+
+  private def newDebugger(dr: DebuggerRunner) = {
     val runner = dr match {
       case tdr: TraceDebuggerRunner => new STraceDebuggerRunner()
       case dr: DebuggerRunner => new JavaInteractiveDebuggerRunner(dr)
       case null => null
     }
-
     val debugger = if (runner != null) {
       new SInteractiveDebugger(runner, ExpressionCompilers)
     } else {
       null
     }
-    dp.setDebugger(debugger)
+    debugger
   }
 
   /**
@@ -460,9 +571,22 @@ class DataProcessor private[japi] (dp: SDataProcessor)
    * @param mode mode to control validation
    * @throws InvalidUsageException if mode is not a valid ValidateMode value
    */
+  @deprecated("Use withValidationMode.", "2.6.0")
   @throws(classOf[InvalidUsageException])
   def setValidationMode(mode: ValidationMode): Unit = {
-    try { dp.setValidationMode(ValidationConversions.modeToScala(mode)) }
+    try { dp = dp.withValidationMode(ValidationConversions.modeToScala(mode)) }
+    catch { case e: SInvalidUsageException => throw new InvalidUsageException(e) }
+  }
+
+  /**
+   * Obtain a new [[DataProcessor]] having a specific validation mode
+   *
+   * @param mode mode to control validation
+   * @throws InvalidUsageException if mode is not a valid ValidateMode value
+   */
+  @throws(classOf[InvalidUsageException])
+  def withValidationMode(mode: ValidationMode): DataProcessor = {
+    try { copy(dp = dp.withValidationMode(ValidationConversions.modeToScala(mode))) }
     catch { case e: SInvalidUsageException => throw new InvalidUsageException(e) }
   }
 
@@ -473,7 +597,19 @@ class DataProcessor private[japi] (dp: SDataProcessor)
    *
    * @param extVars file to read DFDL variables from.
    */
-  def setExternalVariables(extVars: File): Unit = dp.setExternalVariables(extVars)
+  @deprecated("Use withExternalVariables.", "2.6.0")
+  def setExternalVariables(extVars: File): Unit =
+    dp = dp.withExternalVariables(extVars)
+
+  /**
+   * Obtain a new [[DataProcessor]] with external variables read from a Daffodil configuration file
+   *
+   * @see <a target="_blank" href='https://daffodil.apache.org/configuration/'>Daffodil Configuration File</a> - Daffodil configuration file format
+   *
+   * @param extVars file to read DFDL variables from.
+   */
+  def withExternalVariables(extVars: File): DataProcessor =
+    copy(dp = dp.withExternalVariables(extVars))
 
   /**
    * Set the value of multiple DFDL variables
@@ -485,12 +621,28 @@ class DataProcessor private[japi] (dp: SDataProcessor)
    *                then no namespace is used. If not preceded by anything,
    *                then Daffodil will figure out the namespace.
    */
-  def setExternalVariables(extVars: Map[String, String]) = dp.setExternalVariables(extVars)
+  @deprecated("Use withExternalVariables.", "2.6.0")
+  def setExternalVariables(extVars: Map[String, String]) =
+    dp = dp.withExternalVariables(extVars)
+
+  /**
+   * Obtain a new [[DataProcessor]] with multiple DFDL variables set.
+   *
+   * @param extVars a map of key/value pairs, where the key is the variable
+   *                name, and the value is the value of the variable. The key
+   *                may be preceded by a string of the form "{namespace}" to
+   *                define a namespace for the variable. If preceded with "{}",
+   *                then no namespace is used. If not preceded by anything,
+   *                then Daffodil will figure out the namespace.
+   */
+  def withExternalVariables(extVars: Map[String, String]): DataProcessor  =
+    copy(dp = dp.withExternalVariables(extVars))
 
   /**
    * Save the DataProcessor
    *
    * The resulting output can be reloaded by [[Compiler#reload(java.nio.channels.ReadableByteChannel)]].
+   * Note that external variable bindings are not saved, and will not be restored upon reloading.
    *
    * @param output the byte channel to write the [[DataProcessor]] to
    */

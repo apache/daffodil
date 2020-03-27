@@ -20,15 +20,19 @@ package org.apache.daffodil.externalvars
 import scala.xml.parsing.ConstructingParser
 import java.io.File
 import java.net.URI
+
 import scala.xml.Node
 import scala.io.Codec.string2codec
-import org.apache.daffodil.processors.VariableMap
-import org.apache.daffodil.processors.VariableUtils
+import org.apache.daffodil.processors.{ VariableUtils, VariableMap, VariableRuntimeData }
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.util.Misc._
 import org.apache.daffodil.exceptions.ThrowsSDE
 import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.api.UnqualifiedPathStepPolicy
+import org.apache.daffodil.xml.UnspecifiedNamespace
+
+import scala.collection.immutable
+import scala.collection.immutable.Queue
 
 /**
  * The purpose of this object is to be able to take
@@ -41,100 +45,48 @@ import org.apache.daffodil.api.UnqualifiedPathStepPolicy
  */
 object ExternalVariablesLoader {
 
-  // The following are methods that retrieve and transform variables
-  // into Seq[Binding] or Node.
-
-  private def createBindings(vars: Map[String, String]): Seq[Binding] = {
-    val varsKVP = vars.map {
-      case (name, value) => {
-        Binding(name, value)
-      }
-    }.toSeq
-    varsKVP
-  }
-
-  def getVariables(vars: Map[String, String]): Seq[Binding] = {
-    val bindings = createBindings(vars)
-    bindings
-  }
-
-  def getVariables(node: Node): Seq[Binding] =
-    Binding.getBindings(node, UnqualifiedPathStepPolicy.DefaultNamespace)
-
-  def getVariables(varsFile: File): Seq[Binding] = {
-    val node = getVariablesAsNode(varsFile)
-    val bindings = Binding.getBindings(node, UnqualifiedPathStepPolicy.DefaultNamespace)
-    bindings
-  }
-
-  private def getVariablesAsNode(file: File): Node = {
-    Assert.usage(file != null, "getVariablesAsNode expects 'file' to not be null!")
-    // The difference here is that we want to validate
-    // if variables are loaded from a file.
-    ExternalVariablesValidator.validate(file) match {
-      case Left(ex) => Assert.abort(ex)
-      case Right(_) => // Success
-    }
-    val enc = determineEncoding(file) // The encoding is needed for ConstructingParser
-    val input = scala.io.Source.fromURI(file.toURI)(enc)
-    val node = ConstructingParser.fromSource(input, true).document.docElem
-    node
-  }
-
-  // The following are methods that load the variables into the VariableMap and
-  // return the mutated map.
-
-  def loadVariables(vars: Map[String, String], referringContext: ThrowsSDE, vmap: VariableMap): VariableMap = {
-    val bindings = try {
-      getVariables(vars)
-    } catch {
-      case e: Throwable => referringContext.SDE("Exception when processing external variable binding file: %s", e.getMessage)
-    }
-
-    val finalVMap = this.loadVariables(bindings, referringContext, vmap)
-    finalVMap
-  }
-
-  def loadVariables(fileName: String, referringContext: ThrowsSDE, vmap: VariableMap, tunableArg: DaffodilTunables): VariableMap = {
-    Assert.usage(fileName != null, "loadVariables expects 'fileName' to not be null!")
-    val f = new File(fileName)
-    loadVariables(f, referringContext, vmap, tunableArg)
-  }
-
-  def loadVariables(uri: URI, referringContext: ThrowsSDE, vmap: VariableMap, tunableArg: DaffodilTunables): VariableMap = {
-    Assert.usage(uri != null, "loadVariables expects 'uri' to not be null!")
-    val file = new File(uri)
-    loadVariables(file, referringContext, vmap, tunableArg)
-  }
-
-  def loadVariables(file: File, referringContext: ThrowsSDE, vmap: VariableMap, tunableArg: DaffodilTunables): VariableMap = {
-    Assert.usage(file != null, "loadVariables expects 'file' to not be null!")
-    ExternalVariablesValidator.validate(file) match {
-      case Left(ex) => Assert.abort(ex)
-      case Right(_) => // Success
-    }
-    val enc = determineEncoding(file) // The encoding is needed for ConstructingParser
-    val input = scala.io.Source.fromURI(file.toURI)(enc)
-    val node = ConstructingParser.fromSource(input, true).document.docElem
-    loadVariables(node, referringContext, vmap, tunableArg)
-  }
-
-  def loadVariables(node: Node, referringContext: ThrowsSDE, vmap: VariableMap, tunableArg: DaffodilTunables): VariableMap = {
-    Assert.usage(node != null, "loadVariables expects 'node' to not be null!")
-    Assert.usage(referringContext != null, "loadVariables expects 'referringContext' to not be null!")
-    val bindings = try {
-      Binding.getBindings(node, tunableArg.unqualifiedPathStepPolicy)
-    } catch {
-      case e: Throwable => referringContext.SDE("Exception when processing external variable binding file: %s", e.getMessage)
-    }
-
-    loadVariables(bindings, referringContext, vmap)
-  }
-
   def loadVariables(bindings: Seq[Binding], referringContext: ThrowsSDE, vmap: VariableMap): VariableMap = {
     Assert.usage(referringContext != null, "loadVariables expects 'referringContext' to not be null!")
     val finalVMap = VariableUtils.setExternalVariables(vmap, bindings, referringContext)
     finalVMap
   }
 
+  // The following are methods that retrieve and transform variables into Seq[Binding]
+
+  def mapToBindings(vars: Map[String, String]): Queue[Binding] = {
+    val varsKVP = vars.map {
+      case (name, value) => {
+        Binding(name, value)
+      }
+    }
+    Queue.empty.enqueue(varsKVP)
+  }
+
+  def uriToBindings(uri: URI): Queue[Binding] = {
+    Assert.usage(uri ne null)
+    val file = new File(uri)
+    fileToBindings(file)
+  }
+
+  def fileToBindings(file: File): Queue[Binding] = {
+    Assert.usage(file ne null)
+    ExternalVariablesValidator.validate(file) match {
+      case Left(ex) => Assert.abort(ex)
+      case Right(_) => // Success
+    }
+    val enc = determineEncoding(file) // The encoding is needed for ConstructingParser
+    val input = scala.io.Source.fromURI(file.toURI)(enc)
+    val node = ConstructingParser.fromSource(input, true).document.docElem
+    nodeToBindings(node)
+  }
+
+  def nodeToBindings(node: Node): Queue[Binding] = {
+    Assert.usage(node ne null)
+    val newBindings = Binding.getBindings(node)
+    var res = Queue.empty[Binding]
+    // couldn't get the enqueue(iterable) method overload to resolve.
+    // So just doing this one by one
+    newBindings.foreach{ b => res = res.enqueue(b) }
+    res
+  }
 }

@@ -36,9 +36,6 @@ class TestExternalVariables {
 
   import TestExternalVariables._
 
-  // It's important to note here that external variables
-  // via the TDMLRunner are currently passed in during
-  // compilation.
   @Test def test_override_define_vars_01() {
     runner.runOneTest("override_define_vars_01")
   }
@@ -66,5 +63,4 @@ class TestExternalVariables {
   @Test def test_set_predefined_var() {
     runner.runOneTest("set_predefined_var")
   }
-
 }

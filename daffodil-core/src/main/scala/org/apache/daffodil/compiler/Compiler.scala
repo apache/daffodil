@@ -25,7 +25,7 @@ import java.nio.channels.Channels
 import java.util.zip.GZIPInputStream
 import java.util.zip.ZipException
 
-import scala.collection.mutable.Queue
+import scala.collection.immutable.Queue
 import scala.xml.Node
 
 import org.apache.daffodil.ExecutionMode
@@ -47,7 +47,6 @@ import org.apache.daffodil.oolag.OOLAG
 import org.apache.daffodil.processors.DataProcessor
 import org.apache.daffodil.processors.Processor
 import org.apache.daffodil.processors.SchemaSetRuntimeData
-import org.apache.daffodil.processors.SerializableDataProcessor
 import org.apache.daffodil.processors.VariableMap
 import org.apache.daffodil.processors.parsers.NotParsableParser
 import org.apache.daffodil.processors.unparsers.NotUnparsableUnparser
@@ -73,189 +72,168 @@ object ForParser extends ParserOrUnparser
 object ForUnparser extends ParserOrUnparser
 object BothParserAndUnparser extends ParserOrUnparser
 
-final class ProcessorFactory(val sset: SchemaSet)
-  extends SchemaComponentImpl(<pf/>, sset)
-  with DFDL.ProcessorFactory
-  with HavingRootSpec {
+final class ProcessorFactory private(
+  private var optRootSpec: Option[RootSpec],
+  /*
+   * compilerExternalVarSettings supports the deprecated API
+   * where external variable settings can be supplied to the compiler
+   * instance.
+   *
+   * The non-deprecated API is to deal with external variable settings
+   * on the data processor instance. This is passed here so that
+   * the PF can propagate it to the DP.
+   */
+  var compilerExternalVarSettings: Queue[Binding],
+  schemaSource: DaffodilSchemaSource,
+  val validateDFDLSchemas: Boolean,
+  checkAllTopLevel: Boolean,
+  tunables: DaffodilTunables,
+  optSchemaSet: Option[SchemaSet])
+  extends DFDL.ProcessorFactory {
 
-  lazy val (generateParser, generateUnparser) = {
-    val (context, policy) = tunable.parseUnparsePolicy match {
-      case ParseUnparsePolicyTunable.FromRoot => (Some(rootElem), rootElem.rootParseUnparsePolicy)
-      case ParseUnparsePolicyTunable.ParseOnly => (None, ParseUnparsePolicy.ParseOnly)
-      case ParseUnparsePolicyTunable.UnparseOnly => (None, ParseUnparsePolicy.UnparseOnly)
-      case ParseUnparsePolicyTunable.Both => (None, ParseUnparsePolicy.Both)
-    }
-    rootElem.checkParseUnparsePolicyCompatibility(context, policy)
-    policy match {
-      case ParseUnparsePolicy.Both => (true, true)
-      case ParseUnparsePolicy.ParseOnly => (true, false)
-      case ParseUnparsePolicy.UnparseOnly => (false, true)
-    }
+  def this(optRootName: Option[String],
+    optRootNamespace: Option[String],
+    compilerExternalVarSettings: Queue[Binding],
+    schemaSource: DaffodilSchemaSource,
+    validateDFDLSchemas: Boolean,
+    checkAllTopLevel: Boolean,
+    tunables: DaffodilTunables) =
+    this(
+      RootSpec.makeRootSpec(optRootName, optRootNamespace), // compute root-spec object
+      compilerExternalVarSettings, schemaSource, validateDFDLSchemas, checkAllTopLevel, tunables, None)
+
+  private def copy(
+    optRootSpec: Option[RootSpec] = optRootSpec,
+    compilerExternalVarSettings: Queue[Binding] = compilerExternalVarSettings): ProcessorFactory =
+    new ProcessorFactory(optRootSpec, compilerExternalVarSettings, schemaSource, validateDFDLSchemas, checkAllTopLevel, tunables, Some(sset))
+
+  lazy val sset: SchemaSet =
+    optSchemaSet.getOrElse(
+      new SchemaSet(optRootSpec, schemaSource, validateDFDLSchemas, checkAllTopLevel, tunables,
+        compilerExternalVarSettings))
+
+  def elementBaseInstanceCount = sset.elementBaseInstanceCount
+
+  def diagnostics = sset.diagnostics
+  def getDiagnostics = diagnostics
+
+  override def onPath(xpath: String) = sset.onPath(xpath)
+
+  override def isError = sset.isError
+
+  @deprecated("Use arguments to Compiler.compileSource or compileFile.", "2.6.0")
+  override def setDistinguishedRootNode(name: String, namespace: String): Unit = {
+    Assert.usage(name ne null)
+    optRootSpec = RootSpec.makeRootSpec(Option(name), Option(namespace))
   }
 
-  lazy val parser = LV('parser) {
-    val par = if (generateParser) rootElem.document.parser else new NotParsableParser(rootElem.erd)
-    Processor.initialize(par)
-    par
-  }.value
-
-  lazy val unparser = LV('unparser) {
-    val unp = if (generateUnparser) rootElem.document.unparser else new NotUnparsableUnparser(rootElem.erd)
-    Processor.initialize(unp)
-    unp
-  }.value
-
-  lazy val rootElem = sset.root
-
-  private lazy val checkUnusedProperties = LV('hasUnusedProperties) {
-    rootElem.checkUnusedProperties
-  }.value
-
-  //
-  // breaking this into these lines causes the order things are
-  // evaluated in to be more rational than if pure demand-driven
-  // lazy evaluation was followed.
-  //
-  // We want pretty much nothing to be done by the data processor
-  //
-  requiredEvaluationsAlways(sset)
-  requiredEvaluationsAlways(rootElem)
-  requiredEvaluationsAlways(parser)
-  requiredEvaluationsAlways(unparser)
-  requiredEvaluationsAlways(rootElem.runtimeData)
-
-  override def isError = {
-    ExecutionMode.usingCompilerMode {
-      OOLAG.keepGoing(true) {
-        val valid = sset.isValid
-        if (valid) {
-          // no point in going forward with more
-          // checks if the schema isn't valid
-          // The code base is written assuming valid
-          // schema input. It's just going to hit
-          // assertion failures and such if we
-          // try to compile invalid schemas.
-          val requiredErr = super.isError
-          val ssetErr = sset.isError
-          val hasErrors = requiredErr || ssetErr
-          if (!hasErrors) {
-            // only check for unused properties if there are no errors
-            checkUnusedProperties
-          }
-          hasErrors
-        } else true
-      }
-    }
-  }
-
-  override def diagnostics = sset.diagnostics
-
-  def onPath(xpath: String): DFDL.DataProcessor = {
-    ExecutionMode.usingCompilerMode {
-      Assert.usage(!isError)
-      if (xpath != "/") rootElem.notYetImplemented("""Path must be "/". Other path support is not yet implemented.""")
-      val rootERD = rootElem.elementRuntimeData
-      rootElem.schemaDefinitionUnless(
-        rootERD.outputValueCalcExpr.isEmpty,
-        "The root element cannot have the dfdl:outputValueCalc property.")
-      val validationMode = ValidationMode.Off
-      val variables: VariableMap = rootElem.schemaDocument.schemaSet.variableMap
-      val p = if (!rootElem.isError) parser else null
-      val u = if (!rootElem.isError) unparser else null
-      val ssrd = new SchemaSetRuntimeData(
-        p,
-        u,
-        this.diagnostics,
-        rootERD,
-        variables,
-        validationMode,
-        sset.typeCalcMap)
-      if (rootElem.numComponents > rootElem.numUniqueComponents)
-        log(LogLevel.Info, "Compiler: component counts: unique %s, actual %s.",
-          rootElem.numUniqueComponents, rootElem.numComponents)
-      val dataProc = new DataProcessor(ssrd, tunable)
-      if (dataProc.isError) {
-        // NO longer printing anything here. Callers must do this.
-        //        val diags = dataProc.getDiagnostics
-        //        log(LogLevel.Error,"Compilation (DataProcessor) reports %s compile errors/warnings.", diags.length)
-        //        diags.foreach { diag => log(LogLevel.Error, diag.toString()) }
-      } else {
-        log(LogLevel.Compile, "Parser = %s.", ssrd.parser.toString)
-        //log(LogLevel.Error, "Unparser = %s.", ssrd.unparser.toString)
-        log(LogLevel.Compile, "Compilation (DataProcesor) completed with no errors.")
-      }
-      dataProc
-    }
+  def withDistinguishedRootNode(name: String, namespace: String) : ProcessorFactory = {
+    Assert.usage(name ne null)
+    copy(optRootSpec = RootSpec.makeRootSpec(Option(name), Option(namespace)))
   }
 }
 
-/**
- * Both Compiler and ProcessorFactory share this same API call.
- */
-trait HavingRootSpec extends Logging {
-  var rootSpec: Option[RootSpec] = None
-
-  def setDistinguishedRootNode(name: String, namespace: String): Unit = {
-    val ns =
-      if (namespace != null) Some(NS(namespace))
-      else None
-    rootSpec = Some(RootSpec(ns, name))
-    // log(Info("%s setDistinguishedRootNode to %s", Misc.getNameFromClass(this), rootSpec))
-    //
-    // null means we search for the namespace
-    // Must be only one answer.
-    //
-
-  }
-}
 class InvalidParserException(msg: String, cause: Throwable = null) extends Exception(msg, cause)
 
-class Compiler(var validateDFDLSchemas: Boolean = true)
+class Compiler private (var validateDFDLSchemas: Boolean,
+  var tunables : DaffodilTunables,
+  /*
+   * Supports deprecated feature of establishing external vars on the compiler object.
+   * These are just saved and passed to the processor factory which incorporates them into
+   * the variable map of the data processor.
+   *
+   * This argument can be removed once this deprecated feature is removed.
+   */
+  private var externalDFDLVariables: Queue[Binding],
+  private var checkAllTopLevel : Boolean,
+  private var optRootName: Option[String],
+  private var optRootNamespace: Option[String])
   extends DFDL.Compiler
-  with Logging
-  with HavingRootSpec {
+  with Logging {
 
+  private def this(validateDFDLSchemas: Boolean = true) = this(validateDFDLSchemas, DaffodilTunables(), Queue.empty, true, None, None)
+
+  private def copy(validateDFDLSchemas: Boolean = validateDFDLSchemas,
+    tunables : DaffodilTunables = tunables,
+    externalDFDLVariables: Queue[Binding] = externalDFDLVariables,
+    checkAllTopLevel : Boolean = checkAllTopLevel,
+    optRootName: Option[String] = optRootName,
+    optRootNamespace: Option[String] = optRootNamespace) =
+    new Compiler(validateDFDLSchemas, tunables, externalDFDLVariables, checkAllTopLevel, optRootName, optRootNamespace)
+
+  @deprecated("Pass arguments to compileSource, or compileFile.", "2.6.0")
+  override def setDistinguishedRootNode(name: String, namespace: String): Unit = {
+    Assert.usage(name ne null)
+    optRootName = Option(name)
+    optRootNamespace = Option(namespace)
+  }
+
+  def withDistinguishedRootNode(name: String, namespace: String) : Compiler = {
+    Assert.usage(name ne null)
+    copy(optRootName = Option(name), optRootNamespace = Option(namespace))
+  }
+
+  @deprecated("Use constructor argument.", "2.6.0")
   def setValidateDFDLSchemas(value: Boolean) = validateDFDLSchemas = value
 
-  private var tunablesObj = DaffodilTunables()
+  def withValidateDFDLSchemas(value: Boolean) = copy(validateDFDLSchemas = value)
 
-  private val externalDFDLVariables: Queue[Binding] = Queue.empty
+  @deprecated("Use DataProcessor.withExternalVariables.", "2.6.0")
+  override def setExternalDFDLVariable(name: String, namespace: String, value: String): Unit = {
+    externalDFDLVariables = externalDFDLVariables.enqueue(getBinding(name, namespace, value))
+  }
 
   /**
-   * Sets externally defined variables.
-   *
-   * @param name The variable name excluding the namespace or namespace prefix.
-   *
-   * @param namespace The namespace where empty string is interpreted as NoNamespace and null
-   * is interpreted as 'figure out the namespace'.
-   *
-   * @param value The variable's value.
-   *
+   * Supports binding external variables programatically from the API.
    */
-  def setExternalDFDLVariable(name: String, namespace: String, value: String): Unit = {
+  private def getBinding(name: String, namespace: String, value: String): Binding = {
     // We must tolerate null here for namespace in order to be compatible with Java
     val ns = namespace match {
       case null => None // Figure out the namespace
       case _ => Some(NS(namespace))
     }
     val b = Binding(name, ns, value)
-    externalDFDLVariables.enqueue(b)
+    b
   }
 
-  def setExternalDFDLVariable(variable: Binding) = externalDFDLVariables.enqueue(variable)
-  def setExternalDFDLVariables(variables: Seq[Binding]) = variables.foreach(b => setExternalDFDLVariable(b))
+  @deprecated("Use DataProcessor.withExternalVariables.", "2.6.0")
+  def setExternalDFDLVariable(variable: Binding): Unit =
+    externalDFDLVariables = externalDFDLVariables.enqueue(variable)
+
+  @deprecated("Use DataProcessor.withExternalVariables.", "2.6.0")
+  def setExternalDFDLVariables(variables: Seq[Binding]): Unit =
+    variables.foreach(b => externalDFDLVariables = externalDFDLVariables.enqueue(b))
+
+  //
+  // Not deprecated so that we can implement the deprecated things
+  // and reuse code.
+  // When the deprecated methods go away, so should this.
+  //
+  def withExternalDFDLVariablesImpl(variables: Seq[Binding]): Compiler = {
+    var extVars = externalDFDLVariables
+    variables.foreach(b => extVars = extVars.enqueue(b))
+    copy(externalDFDLVariables = extVars)
+  }
+
+  @deprecated("Use DataProcessor.withExternalVariables.", "2.6.0")
   def setExternalDFDLVariables(extVarsFile: File): Unit = {
-    val extVars = ExternalVariablesLoader.getVariables(extVarsFile)
-    setExternalDFDLVariables(extVars)
+    val extVars: Seq[Binding] = ExternalVariablesLoader.fileToBindings(extVarsFile)
+    extVars.foreach(b => externalDFDLVariables = externalDFDLVariables.enqueue(b))
   }
 
-  def setTunable(tunable: String, value: String): Unit = {
-    tunablesObj = tunablesObj.setTunable(tunable, value)
-  }
+  @deprecated("Use withTunable.", "2.6.0")
+  def setTunable(tunable: String, value: String): Unit =
+    tunables = tunables.setTunable(tunable, value)
 
-  def setTunables(tunables: Map[String, String]): Unit = {
-    tunablesObj = tunablesObj.setTunables(tunables)
-  }
+  def withTunable(tunable: String, value: String): Compiler =
+    copy(tunables = tunables.setTunable(tunable, value))
+
+  @deprecated("Use withTunables.", "2.6.0")
+  def setTunables(tunablesArg: Map[String, String]): Unit =
+    tunables = tunables.setTunables(tunablesArg)
+
+  def withTunables(tunablesArg: Map[String, String]): Compiler =
+    copy(tunables = tunables.setTunables(tunablesArg))
 
   /**
    * Controls whether we check everything in the schema, or just the element
@@ -265,10 +243,12 @@ class Compiler(var validateDFDLSchemas: Boolean = true)
    * in them, some of which use unimplemented features. Each time we run exactly one
    * test from the set, we want to ignore errors in compilation of the others.
    */
-  private var checkAllTopLevel = false
-  def setCheckAllTopLevel(flag: Boolean) {
+  @deprecated("Use withCheckAllTopLevel.", "2.6.0")
+  def setCheckAllTopLevel(flag: Boolean): Unit =
     checkAllTopLevel = flag
-  }
+
+  def withCheckAllTopLevel(flag: Boolean): Compiler =
+    copy(checkAllTopLevel = flag)
 
   def reload(savedParser: File) = reload(new FileInputStream(savedParser).getChannel())
 
@@ -289,7 +269,7 @@ class Compiler(var validateDFDLSchemas: Boolean = true)
 
       val dpObj = objInput.readObject()
       objInput.close()
-      val dp = dpObj.asInstanceOf[SerializableDataProcessor]
+      val dp = dpObj.asInstanceOf[DataProcessor]
       dp
     } catch {
       case ex: ZipException => {
@@ -322,9 +302,11 @@ class Compiler(var validateDFDLSchemas: Boolean = true)
    * Compilation returns a parser factory, which must be interrogated for diagnostics
    * to see if compilation was successful or not.
    */
-  def compileFile(file: File): ProcessorFactory = {
+  def compileFile(file: File,
+    optRootName: Option[String] = None,
+    optRootNamespace: Option[String] = None): ProcessorFactory = {
     val source = URISchemaSource(file.toURI)
-    compileSource(source)
+    compileSource(source, optRootName, optRootNamespace)
   }
 
   /**
@@ -332,22 +314,29 @@ class Compiler(var validateDFDLSchemas: Boolean = true)
    *
    * This is to avoid issues when TDML tests are running in parallel
    * and compiling schemas that are not in files, but just embedded in the tests.
+   *
+   * The optRootName and optRootNamespace supplied here supercede any provided via
+   * a setter/with-er method.
    */
-  def compileSource(schemaSource: DaffodilSchemaSource): ProcessorFactory = {
-    //
-    // The SchemaSet object and the ProcessorFactory mutually refer to each other because
-    // the API allows the root to be specified by API calls on the processor factory, the compiler,
-    // or it can be inferred from the contents of the schema documents.
-    //
-    // The logic for assembling all those sources together is in the SchemaSet.
-    //
-    // To make these two objects refer to each other, we we create them lazily, and
-    // pass by name to SchemaSet constructor. This is the typical scala idiom
-    // for creating things that point mutually without using a side-effect which may or may not
-    // have happened a the time the information is demanded.
-    //
-    lazy val sset: SchemaSet = new SchemaSet(Some(pf), rootSpec, externalDFDLVariables, Seq(schemaSource), validateDFDLSchemas, checkAllTopLevel, tunablesObj)
-    lazy val pf: ProcessorFactory = new ProcessorFactory(sset)
+  def compileSource(
+    schemaSource: DaffodilSchemaSource,
+    optRootName: Option[String] = None,
+    optRootNamespace: Option[String] = None): ProcessorFactory = {
+    Compiler.compileSourceSynchronizer(this, schemaSource, optRootName, optRootNamespace)
+  }
+
+  private def compileSourceInternal(
+    schemaSource: DaffodilSchemaSource,
+    optRootNameArg: Option[String],
+    optRootNamespaceArg: Option[String]): ProcessorFactory = {
+
+    val pf: ProcessorFactory = {
+      val rootName = optRootNameArg.orElse(optRootName) // arguments override things set with setters
+      val rootNamespace = optRootNamespaceArg.orElse(optRootNamespace)
+      new ProcessorFactory(
+        rootName, rootNamespace, externalDFDLVariables, schemaSource, validateDFDLSchemas, checkAllTopLevel, tunables)
+    }
+
     val err = pf.isError
     val diags = pf.getDiagnostics // might be warnings even if not isError
     if (err) {
@@ -360,7 +349,7 @@ class Compiler(var validateDFDLSchemas: Boolean = true)
         log(LogLevel.Compile, "ProcessorFactory completed with no errors.")
       }
     }
-    log(LogLevel.Compile, "Schema had %s elements.", sset.elementBaseInstanceCount)
+    log(LogLevel.Compile, "Schema had %s elements.", pf.elementBaseInstanceCount)
     pf
   }
 
@@ -368,7 +357,7 @@ class Compiler(var validateDFDLSchemas: Boolean = true)
    * For convenient unit testing allow a literal XML node.
    */
   def compileNode(xml: Node, optTmpDir: Option[File] = None): ProcessorFactory = {
-    compileSource(UnitTestSchemaSource(xml, "anon", optTmpDir))
+    compileSource(UnitTestSchemaSource(xml, "anon", optTmpDir), None, None)
   }
 
 }
@@ -378,7 +367,16 @@ class Compiler(var validateDFDLSchemas: Boolean = true)
  */
 object Compiler {
 
-  def apply(validateDFDLSchemas: Boolean) = new Compiler(validateDFDLSchemas)
-  def apply() = new Compiler()
+  def apply(validateDFDLSchemas: Boolean = true) = new Compiler(validateDFDLSchemas)
+
+  private def compileSourceSynchronizer(
+    c: Compiler,
+    schemaSource: DaffodilSchemaSource,
+    optRootName: Option[String],
+    optRootNamespace: Option[String]) : ProcessorFactory = {
+    synchronized {
+      c.compileSourceInternal(schemaSource, optRootName, optRootNamespace)
+    }
+  }
 
 }

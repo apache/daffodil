@@ -41,33 +41,63 @@ import org.apache.daffodil.tdml.TDMLInfosetInputter
 import org.apache.daffodil.tdml.TDMLInfosetOutputter
 import org.apache.daffodil.util.MaybeULong
 
-final class TDMLDFDLProcessorFactory() extends AbstractTDMLDFDLProcessorFactory {
+final class TDMLDFDLProcessorFactory private (
+  private var compiler: Compiler,
+  private var checkAllTopLevel: Boolean,
+  validateDFDLSchemasArg: Boolean)
+  extends AbstractTDMLDFDLProcessorFactory {
+
+  override def validateDFDLSchemas = validateDFDLSchemasArg
+
+  override type R = TDMLDFDLProcessorFactory
 
   override def implementationName = "daffodil"
 
-  private lazy val compiler = Compiler(validateDFDLSchemas)
+  def this() = this(compiler = Compiler(validateDFDLSchemas = true),
+    checkAllTopLevel = false,
+    validateDFDLSchemasArg = true)
 
-  private var checkAllTopLevel: Boolean = false
+  private def copy(
+    compiler: Compiler = compiler,
+    checkAllTopLevel: Boolean = checkAllTopLevel,
+    validateDFDLSchemas: Boolean = validateDFDLSchemas) =
+    new TDMLDFDLProcessorFactory(compiler, checkAllTopLevel, validateDFDLSchemas)
 
-  private var validateDFDLSchemas_ : Boolean = true
-
-  override def validateDFDLSchemas = validateDFDLSchemas_
-
+  @deprecated("Use withValidateDFDLSchemas.", "2.6.0")
   override def setValidateDFDLSchemas(bool: Boolean): Unit = {
-    this.validateDFDLSchemas_ = bool
-    compiler.setValidateDFDLSchemas(bool)
+    compiler = compiler.withValidateDFDLSchemas(bool)
   }
 
+  def withValidateDFDLSchemas(bool: Boolean): TDMLDFDLProcessorFactory = {
+    copy(compiler = compiler.withValidateDFDLSchemas(bool))
+  }
+
+  @deprecated("Use withCheckAllTopLevel.", "2.6.0")
   override def setCheckAllTopLevel(checkAllTopLevel: Boolean): Unit = {
-    this.checkAllTopLevel = checkAllTopLevel
-    compiler.setCheckAllTopLevel(checkAllTopLevel)
+    compiler = compiler.withCheckAllTopLevel(checkAllTopLevel)
   }
 
-  override def setTunables(tunables: Map[String, String]): Unit = compiler.setTunables(tunables)
+  override def withCheckAllTopLevel(checkAllTopLevel: Boolean): TDMLDFDLProcessorFactory = {
+    copy(compiler = compiler.withCheckAllTopLevel(checkAllTopLevel))
+  }
 
-  override def setExternalDFDLVariables(externalVarBindings: Seq[Binding]): Unit = compiler.setExternalDFDLVariables(externalVarBindings)
+  @deprecated("Use withTunables.", "2.6.0")
+  override def setTunables(tunables: Map[String, String]): Unit =
+    compiler = compiler.withTunables(tunables)
 
-  override def setDistinguishedRootNode(name: String, namespace: String): Unit = compiler.setDistinguishedRootNode(name, namespace)
+  override def withTunables(tunables: Map[String, String]): TDMLDFDLProcessorFactory =
+    copy(compiler = compiler.withTunables(tunables))
+
+  @deprecated("Use DaffodilTDMLDFDLProcessor.setExternalDFDLVariables.", "2.6.0")
+  override def setExternalDFDLVariables(externalVarBindings: Seq[Binding]): Unit =
+    compiler = compiler.withExternalDFDLVariablesImpl(externalVarBindings)
+
+  override def withExternalDFDLVariables(externalVarBindings: Seq[Binding]): TDMLDFDLProcessorFactory =
+    copy(compiler = compiler.withExternalDFDLVariablesImpl(externalVarBindings))
+
+  @deprecated("Use arguments to getProcessor()", "2.6.0")
+  override def setDistinguishedRootNode(name: String, namespace: String): Unit =
+    compiler = compiler.withDistinguishedRootNode(name, namespace)
 
   /**
    * This doesn't fetch a serialized processor, it runs whatever the processor is
@@ -95,8 +125,12 @@ final class TDMLDFDLProcessorFactory() extends AbstractTDMLDFDLProcessorFactory 
     }
   }
 
-  private def compileProcessor(schemaSource: DaffodilSchemaSource, useSerializedProcessor: Boolean): SchemaDataProcessorCache.Types.CompileResult = {
-    val pf = compiler.compileSource(schemaSource)
+  private def compileProcessor(
+    schemaSource: DaffodilSchemaSource,
+    useSerializedProcessor: Boolean,
+    optRootName: Option[String],
+    optRootNamespace: Option[String]): SchemaDataProcessorCache.Types.CompileResult = {
+    val pf = compiler.compileSource(schemaSource, optRootName, optRootNamespace)
     val diags = pf.getDiagnostics
     if (pf.isError) {
       Left(diags) // throw new TDMLException(diags)
@@ -106,18 +140,21 @@ final class TDMLDFDLProcessorFactory() extends AbstractTDMLDFDLProcessorFactory 
     }
   }
 
-  override def getProcessor(schemaSource: DaffodilSchemaSource, useSerializedProcessor: Boolean): TDML.CompileResult = {
-    val rootSpec = compiler.rootSpec.get
+  override def getProcessor(
+    schemaSource: DaffodilSchemaSource,
+    useSerializedProcessor: Boolean,
+    optRootName: Option[String] = None,
+    optRootNamespace: Option[String] = None): TDML.CompileResult = {
     val cacheResult: SchemaDataProcessorCache.Types.CompileResult = schemaSource match {
       case uss: URISchemaSource =>
         SchemaDataProcessorCache.compileAndCache(uss, useSerializedProcessor,
           checkAllTopLevel,
-          rootSpec.name,
-          rootSpec.ns.toString) {
-            compileProcessor(uss, useSerializedProcessor)
+          optRootName,
+          optRootNamespace) {
+            compileProcessor(uss, useSerializedProcessor, optRootName, optRootNamespace)
           }
       case _ => {
-        compileProcessor(schemaSource, useSerializedProcessor)
+        compileProcessor(schemaSource, useSerializedProcessor, optRootName, optRootNamespace)
       }
     }
     val res = cacheResult match {
@@ -129,34 +166,69 @@ final class TDMLDFDLProcessorFactory() extends AbstractTDMLDFDLProcessorFactory 
 
 }
 
-class DaffodilTDMLDFDLProcessor(ddp: DFDL.DataProcessor) extends TDMLDFDLProcessor {
+class DaffodilTDMLDFDLProcessor private (private var dp: DataProcessor) extends TDMLDFDLProcessor {
 
-  private val dp = ddp.asInstanceOf[DataProcessor]
+  override type R = DaffodilTDMLDFDLProcessor
+
+  def this(ddp: DFDL.DataProcessor) = this(ddp.asInstanceOf[DataProcessor])
+
+  private def copy(dp: DataProcessor = dp) = new DaffodilTDMLDFDLProcessor(dp)
 
   private lazy val builtInTracer = new InteractiveDebugger(new TraceDebuggerRunner, ExpressionCompilers)
 
-  private val blobDir = Paths.get(System.getProperty("java.io.tmpdir"), "daffodil-tdml", "blobs")
-  private val blobPrefix = ""
-  private val blobSuffix = ".bin"
+  private lazy val blobDir = Paths.get(System.getProperty("java.io.tmpdir"), "daffodil-tdml", "blobs")
+  private def blobPrefix = ""
+  private def blobSuffix = ".bin"
 
-  override def setDebugging(b: Boolean) = dp.setDebugging(b)
+  @deprecated("Use withDebugging.", "2.6.0")
+  override def setDebugging(b: Boolean) =
+    dp = dp.withDebugging(b)
 
+  override def withDebugging(b: Boolean): DaffodilTDMLDFDLProcessor =
+    copy(dp = dp.withDebugging(b))
+
+  @deprecated("Use withTracing.", "2.6.0")
   override def setTracing(bool: Boolean): Unit = {
-    if (bool) {
-      dp.setDebugger(builtInTracer)
-      dp.setDebugging(true)
-    } else {
-      dp.setDebugging(false)
-    }
+     dp = newTracing(bool)
   }
 
+  override def withTracing(bool: Boolean): DaffodilTDMLDFDLProcessor = {
+    copy(dp = newTracing(bool))
+  }
+
+  private def newTracing(bool: Boolean) =
+    if (bool) {
+      dp.withDebugger(builtInTracer).withDebugging(true)
+    } else {
+      dp.withDebugging(false)
+    }
+
+  @deprecated("Use withDebugger.", "2.6.0")
   override def setDebugger(db: AnyRef): Unit = {
     Assert.usage(dp ne null)
     val d = dp.asInstanceOf[Debugger]
-    dp.setDebugger(d)
+    dp = dp.withDebugger(d)
   }
 
-  override def setValidationMode(validationMode: ValidationMode.Type): Unit = dp.setValidationMode(validationMode)
+  override def withDebugger(db: AnyRef): DaffodilTDMLDFDLProcessor = {
+    Assert.usage(dp ne null)
+    val d = dp.asInstanceOf[Debugger]
+    copy(dp = dp.withDebugger(d))
+  }
+
+  @deprecated("Use withValidationMode.", "2.6.0")
+  override def setValidationMode(validationMode: ValidationMode.Type): Unit =
+    dp = dp.withValidationMode(validationMode)
+
+  override def withValidationMode(validationMode: ValidationMode.Type): DaffodilTDMLDFDLProcessor =
+    copy(dp = dp.withValidationMode(validationMode))
+
+  @deprecated("Use withExternalDFDLVariables.", "2.6.0")
+  override def setExternalDFDLVariables(externalVarBindings: Seq[Binding]): Unit =
+    dp = dp.withExternalVariables(externalVarBindings)
+
+  override def withExternalDFDLVariables(externalVarBindings: Seq[Binding]): DaffodilTDMLDFDLProcessor =
+    copy(dp = dp.withExternalVariables(externalVarBindings))
 
   override def isError: Boolean = dp.isError
 

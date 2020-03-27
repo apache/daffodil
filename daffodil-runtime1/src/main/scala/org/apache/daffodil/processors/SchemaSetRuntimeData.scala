@@ -28,17 +28,23 @@ import org.apache.daffodil.processors.TypeCalculatorCompiler.TypeCalcMap
 final class SchemaSetRuntimeData(
   val parser: Parser,
   val unparser: Unparser,
+  /*
+   * Memory of the compiler's warnings. If we save a processor, it's useful to be able
+   * to have these warnings.
+   */
   val diagnostics: Seq[Diagnostic],
   val elementRuntimeData: ElementRuntimeData,
-  var variables: VariableMap,
-  var validationMode: ValidationMode.Type,
+  /*
+   * The original variables determined by the schema compiler.
+   */
+  val originalVariables: VariableMap,
   val typeCalculators: TypeCalcMap)
   extends Serializable with ThrowsSDE {
 
   def unqualifiedPathStepPolicy = elementRuntimeData.unqualifiedPathStepPolicy
   def encodingInfo = elementRuntimeData.encodingInfo
   override def schemaFileLocation = elementRuntimeData.schemaFileLocation
-  override def SDE(str: String, args: Any*) = elementRuntimeData.SDE(str, args)
+  override def SDE(str: String, args: Any*) = elementRuntimeData.SDE(str, args: _*)
 
   private def writeObject(oos: java.io.ObjectOutputStream): Unit = {
     oos.defaultWriteObject()

@@ -103,7 +103,7 @@ class TestCLISaveParser {
       val saveCmd = String.format("%s save-parser -s %s -r row2 -c %s %s", Util.binPath, testSchemaFile, testConfigFile, savedParserFile.getName())
       shell.sendLine(saveCmd)
 
-      val cmd = String.format("echo 0,1,2| %s parse --parser %s", Util.binPath, savedParserFile.getName())
+      val cmd = String.format("echo 0,1,2| %s parse --parser %s -c %s", Util.binPath, savedParserFile.getName(), testConfigFile)
       shell.sendLine(cmd)
       shell.expect(contains(output12))
 
@@ -262,6 +262,10 @@ class TestCLISaveParser {
     }
   }
 
+  /**
+   * Note that in Daffodil 2.6.0 behavior of external variables changed. They are not saved as part of binary
+   * compiling. They are a runtime-thing only.
+   */
   @Test def test_3508_CLI_Saving_SaveParser_extVars() {
 
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section07/external_variables/external_variables.dfdl.xsd")
@@ -273,13 +277,13 @@ class TestCLISaveParser {
     val shell = Util.startIncludeErrors("")
 
     try {
-      var cmd = String.format("%s -v save-parser -s %s -r row2 -D\"{http://example.com}var1=25\" \"{http://example.com}var3=7\" %s", Util.binPath, testSchemaFile, savedParser)
+      var cmd = String.format("%s -v save-parser -s %s -r row2  %s", Util.binPath, testSchemaFile, savedParser)
       shell.sendLine(cmd)
       shell.expectIn(1, (contains("[info] Time (saving)")))
       assertTrue("save-parser failed", parserFile.exists())
 
       shell.sendLine();
-      cmd = String.format("echo 0| %s parse --parser %s\n", Util.binPath, savedParser)
+      cmd = String.format("""echo 0| %s parse --parser %s -D"{http://example.com}var1=25" "{http://example.com}var3=7" """, Util.binPath, savedParser)
       shell.sendLine(cmd)
       shell.expect(contains("<tns:row2 xmlns:tns=\"http://example.com\">"))
       shell.expect(contains("<cell>25</cell>"))

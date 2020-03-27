@@ -501,7 +501,7 @@ object PState {
     output: InfosetOutputter,
     dataProc: DFDL.DataProcessor): PState = {
 
-    val variables = dataProc.getVariables
+    val variables = dataProc.variableMap
     val diagnostics = Nil
     val mutablePState = MPState()
     val tunables = dataProc.getTunables()

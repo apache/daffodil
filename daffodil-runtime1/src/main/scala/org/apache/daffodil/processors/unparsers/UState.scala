@@ -676,7 +676,7 @@ object UState {
     inputter: InfosetInputter): UStateMain = {
     Assert.invariant(inputter.isInitialized)
 
-    val variables = dataProc.getVariables
+    val variables = dataProc.variableMap
     val diagnostics = Nil
     val newState = new UStateMain(inputter, variables, diagnostics, dataProc.asInstanceOf[DataProcessor], out,
       new mutable.Queue[Suspension], dataProc.getTunables()) // null means no prior UState

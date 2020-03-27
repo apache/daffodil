@@ -275,7 +275,7 @@ class ElementParser(
 
     if (pstate.processorStatus eq Success) {
       val shouldValidate =
-        (pstate.dataProc.isDefined) && pstate.dataProc.value.getValidationMode != ValidationMode.Off
+        (pstate.dataProc.isDefined) && pstate.dataProc.value.validationMode != ValidationMode.Off
       if (shouldValidate && erd.isSimpleType) {
         // Execute checkConstraints
         validate(pstate)
