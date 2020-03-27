@@ -263,9 +263,9 @@
     </tdml:errors>
   </tdml:unparserTestCase>
 
-  <tdml:unparserTestCase name="ignoredHiddenGroupRefWithNoSequenceParent" root="e9"
+  <tdml:unparserTestCase name="invalidGroupDefWithHiddenSequenceModelGroup" root="e9"
     model="SequencesWithHiddenRefs.dfdl.xsd"
-    description="the hiddenGroupRef is not wrapped in a sequence and is ignored by daffodil">
+    description="a group definition is used where the model group is a hidden group ref">
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <ex:e9>
@@ -273,13 +273,13 @@
         </ex:e9>
       </tdml:dfdlInfoset>
     </tdml:infoset>
-    <tdml:warnings>
-      <tdml:warning>Schema Definition Warning</tdml:warning>
-      <tdml:warning>DFDL property was ignored: hiddenGroupRef</tdml:warning>
-    </tdml:warnings>
-    <tdml:document>
-      <tdml:documentPart type="text"><![CDATA[7]]></tdml:documentPart>
-    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>model group</tdml:error>
+      <tdml:error>group definition</tdml:error>
+      <tdml:error>sequence</tdml:error>
+      <tdml:error>dfdl:hiddenGroupRef</tdml:error>
+    </tdml:errors>
   </tdml:unparserTestCase>
 
 </tdml:testSuite>

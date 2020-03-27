@@ -132,7 +132,16 @@ sealed abstract class GlobalGroupDef(
 final class GlobalSequenceGroupDef(
   defXMLArg: Node, seqXML: Node, schemaDocument: SchemaDocument)
   extends GlobalGroupDef(defXMLArg, seqXML, schemaDocument)
-  with SequenceDefMixin
+  with SequenceDefMixin {
+
+  requiredEvaluationsIfActivated(checkGroupDefIsNotHiddenSequence)
+
+  private def checkGroupDefIsNotHiddenSequence: Unit = {
+    if (hiddenGroupRefOption.isDefined) {
+      SDE("the model group of a group definition cannot be a sequence with dfdl:hiddenGroupRef")
+    }
+  }
+}
 
 final class GlobalChoiceGroupDef(
   defXMLArg: Node, choiceXML: Node, schemaDocument: SchemaDocument)
