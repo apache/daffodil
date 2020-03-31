@@ -241,6 +241,27 @@ case class PropEnv(
   defaultPropSource: Seq[Set[(String, String)]],
   optNext: Option[scala.xml.Node])
 
+case class ShareKey(
+  xml: scala.xml.Node,
+  env: PropEnv) {
+
+  /**
+   * It is critical here that we perform reference equality on the XML. This is
+   * because it is possible that the same piece of XML with the same properties
+   * could appear in two completely different contexts. If we perform object
+   * equality, then we might end up sharing parts of the grammar that shouldn't
+   * be shared just because they look the same. By performing reference
+   * equality on the XML, we ensure that we only share parts of grammar that
+   * are actually the same.
+   */
+  override def equals(that: Any): Boolean = {
+    that match {
+      case that: ShareKey => (this.xml eq that.xml) && (this.env == that.env)
+      case _ => false
+    }
+  }
+}
+
 /**
  * Shared object factory/cache.
  *
@@ -249,16 +270,14 @@ case class PropEnv(
  */
 final class SharedFactory[SharedType] {
 
-  private type KeyType = (scala.xml.Node, PropEnv)
-
-  private val vals = new mutable.HashMap[KeyType, SharedType]
+  private val vals = new mutable.HashMap[ShareKey, SharedType]
 
   /**
    * The passing of the value argument by name is critical here, as
    * we want to avoid evaluating that at all when the key is one
    * we have already seen.
    */
-  final def getShared(key: KeyType, value: => SharedType): SharedType = {
+  final def getShared(key: ShareKey, value: => SharedType): SharedType = {
     val opt = vals.get(key)
     opt match {
       case Some(y) => y
@@ -306,7 +325,7 @@ trait AnnotatedSchemaComponent
     }
   }
 
-  protected final lazy val shareKey = (actualDef.xml, propEnv)
+  protected final lazy val shareKey = ShareKey(actualDef.xml, propEnv)
 
   /**
    * For property combining only. E.g., doesn't refer from an element
