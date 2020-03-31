@@ -1480,4 +1480,25 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+  <tdml:parserTestCase name="similar_model_groups_01" root="root"
+    model="SimilarModelGroupRoot.dfdl.xsd" description="Section 14 - Groups - DFDL-14-042R">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[0a0b]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root>
+          <similarElement1>
+            <field>0</field>
+            <differentElement1>a</differentElement1>
+          </similarElement1>
+          <similarElement2>
+            <field>0</field>
+            <differentElement2>b</differentElement2>
+          </similarElement2>
+        </root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>

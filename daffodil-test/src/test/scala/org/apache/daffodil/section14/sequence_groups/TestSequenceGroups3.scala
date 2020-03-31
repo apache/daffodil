@@ -46,4 +46,5 @@ class TestSequenceGroups3 {
   @Test def test_sequence_group_with_annotation_01() { runner_02.runOneTest("sequence_group_with_annotation_01") }
   @Test def test_choice_group_with_annotation_01() { runner_02.runOneTest("choice_group_with_annotation_01") }
 
+  @Test def test_similar_model_groups_01() { runner_02.runOneTest("similar_model_groups_01") }
 }
