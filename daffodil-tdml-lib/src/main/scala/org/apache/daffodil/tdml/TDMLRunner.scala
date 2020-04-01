@@ -429,6 +429,17 @@ class DFDLTestSuite private[tdml] (
 abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
   extends Logging {
 
+  /**
+   * Test case execution is strongly sequentialized due to this central var.
+   *
+   * Whenever we compute a new processor we just side-effect this state.
+   *
+   * Note getting rid of this var would require substantial code restructuring, which is why
+   * that wasn't done when this code was updated to call the processor.withXYZ methods which return a
+   * new processor.
+   */
+  protected final var processor: TDMLDFDLProcessor = null
+
   lazy val defaultRoundTrip: RoundTrip = parent.defaultRoundTrip
   lazy val defaultValidation: String = parent.defaultValidation
 
@@ -804,8 +815,10 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       case (Some(_), None) => {
         compileResult.left.foreach { diags => throw TDMLException(diags, implString) }
         compileResult.right.foreach {
-          case (_, processor) =>
-            runParseExpectSuccess(processor, dataToParse, nBits, optExpectedWarnings, optExpectedValidationErrors, validationMode, roundTrip, implString)
+          case (_, proc) => {
+            processor = proc
+            runParseExpectSuccess(dataToParse, nBits, optExpectedWarnings, optExpectedValidationErrors, validationMode, roundTrip, implString)
+          }
         }
       }
 
@@ -814,8 +827,10 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
           checkDiagnosticMessages(diags, errors, optExpectedWarnings, implString)
         }
         compileResult.right.foreach {
-          case (_, processor) =>
-            runParseExpectErrors(processor, dataToParse, nBits, optExpectedErrors.get, optExpectedWarnings, optExpectedValidationErrors, validationMode, implString)
+          case (_, proc) => {
+            processor = proc
+            runParseExpectErrors(dataToParse, nBits, optExpectedErrors.get, optExpectedWarnings, optExpectedValidationErrors, validationMode, implString)
+          }
         }
       }
 
@@ -824,7 +839,6 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   }
 
   def runParseExpectErrors(
-    processorArg: TDMLDFDLProcessor,
     dataToParse: InputStream,
     lengthLimitInBits: Long,
     errors: ExpectedErrors,
@@ -832,8 +846,6 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     optValidationErrors: Option[ExpectedValidationErrors],
     validationMode: ValidationMode.Type,
     implString: Option[String]): Unit = {
-
-    var processor = processorArg
 
     val optExtVarDiag =
       try {
@@ -898,11 +910,8 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   private def doParseExpectSuccess(
     testData: Array[Byte],
     testInfoset: Infoset,
-    processorArg: TDMLDFDLProcessor,
     lengthLimitInBits: Long,
     implString: Option[String]): TDMLParseResult = {
-
-    var processor = processorArg
 
     val testDataLength = lengthLimitInBits
 
@@ -945,7 +954,6 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   }
 
   private def verifyParseResults(
-    processor: TDMLDFDLProcessor,
     actual: TDMLParseResult,
     testInfoset: Infoset,
     implString: Option[String]) = {
@@ -976,7 +984,6 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
    * the unparsed data output.
    */
   private def doOnePassRoundTripUnparseExpectSuccess(
-    processor: TDMLDFDLProcessor,
     outStream: OutputStream, // stream where unparsed data is written
     parseResult: TDMLParseResult, // result from prior parse.
     implString: Option[String]): TDMLUnparseResult = {
@@ -996,13 +1003,12 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
   private def doTwoPassRoundTripExpectSuccess(
     implString: Option[String],
-    processor: TDMLDFDLProcessor,
     parseResult: TDMLParseResult,
     firstParseTestData: Array[Byte],
     testInfoset: Infoset,
     passesLabel: String = TwoPassRoundTrip.propValueName): (TDMLParseResult, Array[Byte], Long) = {
     val outStream = new java.io.ByteArrayOutputStream()
-    val unparseResult: TDMLUnparseResult = doOnePassRoundTripUnparseExpectSuccess(processor, outStream, parseResult, implString)
+    val unparseResult: TDMLUnparseResult = doOnePassRoundTripUnparseExpectSuccess(outStream, parseResult, implString)
     val isUnparseOutputDataMatching =
       try {
         VerifyTestCase.verifyUnparserTestData(new ByteArrayInputStream(firstParseTestData), outStream, implString)
@@ -1031,12 +1037,11 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
           reParseTestData.length, reParseTestDataLength, fullBytesNeeded), implString)
       }
     }
-    val actual = doParseExpectSuccess(reParseTestData, testInfoset, processor, reParseTestDataLength, implString)
+    val actual = doParseExpectSuccess(reParseTestData, testInfoset, reParseTestDataLength, implString)
     (actual, reParseTestData, reParseTestDataLength)
   }
 
   def runParseExpectSuccess(
-    processorArg: TDMLDFDLProcessor,
     dataToParse: InputStream,
     lengthLimitInBits: Long,
     warnings: Option[ExpectedWarnings],
@@ -1044,8 +1049,6 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     validationMode: ValidationMode.Type,
     roundTripArg: RoundTrip,
     implString: Option[String]) {
-
-    var processor = processorArg
 
     val roundTrip = roundTripArg // change to OnePassRoundTrip to force all parse tests to round trip (to see which fail to round trip)
 
@@ -1059,11 +1062,11 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     val firstParseTestData = IOUtils.toByteArray(dataToParse)
     val testInfoset = optExpectedInfoset.get
 
-    val firstParseResult = doParseExpectSuccess(firstParseTestData, testInfoset, processor, lengthLimitInBits, implString)
+    val firstParseResult = doParseExpectSuccess(firstParseTestData, testInfoset, lengthLimitInBits, implString)
 
     roundTrip match {
       case NoRoundTrip | OnePassRoundTrip => {
-        verifyParseResults(processor, firstParseResult, testInfoset, implString)
+        verifyParseResults(firstParseResult, testInfoset, implString)
         verifyLeftOverData(firstParseResult, lengthLimitInBits, implString)
       }
       case TwoPassRoundTrip => {
@@ -1130,7 +1133,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       case OnePassRoundTrip => {
         val outStream = new java.io.ByteArrayOutputStream()
 
-        doOnePassRoundTripUnparseExpectSuccess(processor, outStream, firstParseResult, implString)
+        doOnePassRoundTripUnparseExpectSuccess(outStream, firstParseResult, implString)
 
         // It has to work, as this is one pass round trip. We expect it to unparse
         // directly back to the original input form.
@@ -1157,11 +1160,10 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         val (actual, _, reParseTestDataLength) =
           doTwoPassRoundTripExpectSuccess(
             implString,
-            processor,
             firstParseResult,
             firstParseTestData,
             testInfoset)
-        verifyParseResults(processor, actual, testInfoset, implString)
+        verifyParseResults(actual, testInfoset, implString)
         verifyLeftOverData(actual, reParseTestDataLength, implString)
         // if it doesn't pass, it will throw out of here.
 
@@ -1192,7 +1194,6 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         val (secondParseResult, reParseTestData, reParseTestDataLength) =
           doTwoPassRoundTripExpectSuccess(
             implString,
-            processor,
             firstParseResult,
             firstParseTestData,
             testInfoset,
@@ -1204,7 +1205,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         //
         // So we just verify normally here.
         //
-        verifyParseResults(processor, secondParseResult, testInfoset, implString)
+        verifyParseResults(secondParseResult, testInfoset, implString)
         verifyLeftOverData(secondParseResult, reParseTestDataLength, implString)
         //
         // So now we do the third pass unparse and compare this output with the
@@ -1212,7 +1213,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         //
         // We get to reuse the one-pass code here.
         val thirdPassOutStream = new java.io.ByteArrayOutputStream()
-        doOnePassRoundTripUnparseExpectSuccess(processor, thirdPassOutStream, firstParseResult, implString)
+        doOnePassRoundTripUnparseExpectSuccess(thirdPassOutStream, firstParseResult, implString)
         VerifyTestCase.verifyUnparserTestData(new ByteArrayInputStream(reParseTestData), thirdPassOutStream, implString)
 
         // Done with the first parse result and second parse results. Safe to
@@ -1252,8 +1253,10 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       case (Some(expectedData), None) => {
         compileResult.left.foreach { diags => throw TDMLException(diags, implString) }
         compileResult.right.foreach {
-          case (warnings, processor) =>
-            runUnparserExpectSuccess(processor, expectedData, optWarnings, roundTrip, implString)
+          case (warnings, proc) => {
+            processor = proc
+            runUnparserExpectSuccess(expectedData, optWarnings, roundTrip, implString)
+          }
         }
       }
 
@@ -1262,8 +1265,10 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
           checkDiagnosticMessages(diags, errors, optWarnings, implString)
         }
         compileResult.right.foreach {
-          case (_, processor) =>
-            runUnparserExpectErrors(processor, optExpectedData, errors, optWarnings, implString)
+          case (_, proc) => {
+            processor = proc
+            runUnparserExpectErrors(optExpectedData, errors, optWarnings, implString)
+          }
         }
       }
       case _ => Assert.impossibleCase()
@@ -1272,13 +1277,10 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   }
 
   def runUnparserExpectSuccess(
-    processorArg: TDMLDFDLProcessor,
     expectedData: InputStream,
     optWarnings: Option[ExpectedWarnings],
     roundTrip: RoundTrip,
     implString: Option[String]) {
-
-    var processor = processorArg
 
     Assert.usage(roundTrip ne TwoPassRoundTrip) // not supported for unparser test cases.
 
@@ -1386,13 +1388,10 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   }
 
   def runUnparserExpectErrors(
-    processorArg: TDMLDFDLProcessor,
     optExpectedData: Option[InputStream],
     errors: ExpectedErrors,
     optWarnings: Option[ExpectedWarnings],
     implString: Option[String]) {
-
-    var processor = processorArg
 
     val optExtVarDiag =
       try {
