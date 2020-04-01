@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<tdml:testSuite xmlns:ex="http://example.com"
+                xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+                xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
+                defaultRoundTrip="onePass">
+
+  <tdml:defineConfig name="littleEndian">
+    <daf:externalVariableBindings>
+      <daf:bind name="dfdl:byteOrder">littleEndian</daf:bind>
+    </daf:externalVariableBindings>
+  </tdml:defineConfig>
+
+  <tdml:defineConfig name="bigEndian">
+    <daf:externalVariableBindings>
+      <daf:bind name="dfdl:byteOrder">bigEndian</daf:bind>
+    </daf:externalVariableBindings>
+  </tdml:defineConfig>
+
+  <tdml:defineSchema name="s1" elementFormDefault="unqualified">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+    <dfdl:format ref="ex:GeneralFormat"
+                 binaryNumberRep="binary"
+                 representation="binary"
+                 byteOrder="{ $dfdl:byteOrder }"/>
+
+    <xs:element name="r">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="MagicNumber" type="xs:unsignedInt" dfdl:lengthKind="explicit" dfdl:length="4"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="configLittleEndian" model="s1" config="littleEndian"
+                       description="This test shows that we can set the dfdl:byteOrder variable in a config.">
+    <tdml:document>
+      <tdml:documentPart type="byte">01000000</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:r><MagicNumber>1</MagicNumber></ex:r><!-- D4C3B2A1 = 3569595041 --><!-- A1B2C3D4 = 2712847316 -->
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:unparserTestCase name="unparseConfigLittleEndian" model="s1" config="littleEndian"
+                       description="This test shows that we can set the dfdl:byteOrder variable in a config.">
+    <tdml:document>
+      <tdml:documentPart type="byte">01000000</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:r><MagicNumber>1</MagicNumber></ex:r>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="unparseConfigBigEndian" model="s1" config="bigEndian"
+                         description="This test shows that we can set the dfdl:byteOrder variable in a config.">
+    <tdml:document>
+      <tdml:documentPart type="byte">00000002</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:r><MagicNumber>2</MagicNumber></ex:r>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <tdml:parserTestCase name="configDefaultBigEndian" model="s1"
+                       description="This test shows that the default dfdl:byteOrder variable is used.">
+    <tdml:document>
+      <tdml:documentPart type="byte">00000002</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:r><MagicNumber>2</MagicNumber></ex:r>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:unparserTestCase name="unparseConfigDefaultBigEndian" model="s1"
+                       description="This test shows that the default dfdl:byteOrder variable is used.">
+    <tdml:document>
+      <tdml:documentPart type="byte">00000002</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:r><MagicNumber>2</MagicNumber></ex:r>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+</tdml:testSuite>
