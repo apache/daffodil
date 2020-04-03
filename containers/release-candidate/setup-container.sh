@@ -34,7 +34,7 @@ rm wix311-binaries.zip
 
 # enable sbt pgp
 mkdir -p /root/.sbt/1.0/plugins/
-sh -c "echo 'addSbtPlugin(\"com.jsuereth\" % \"sbt-pgp\" % \"1.1.1\")' >> /root/.sbt/1.0/plugins/pgp.sbt"
+sh -c "echo 'addSbtPlugin(\"com.jsuereth\" % \"sbt-pgp\" % \"2.0.1\")' >> /root/.sbt/1.0/plugins/pgp.sbt"
 
 # pre-download sbt version used by daffodil
 TMP_SBT_PROJECT=/tmp/sbt-project/
