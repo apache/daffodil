@@ -22,8 +22,8 @@ import org.apache.daffodil.util._
 import org.apache.daffodil.Implicits._
 import org.apache.daffodil.compiler._
 import org.apache.daffodil.schema.annotation.props.gen._
-import junit.framework.Assert.assertEquals
-import junit.framework.Assert.assertTrue
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import java.io.File
 import org.junit.Test
 import org.apache.daffodil.dsom.DFDLElement

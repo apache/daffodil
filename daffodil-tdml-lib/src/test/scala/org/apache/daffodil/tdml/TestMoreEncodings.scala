@@ -19,7 +19,7 @@ package org.apache.daffodil.tdml
 
 import org.junit.Test
 
-import junit.framework.Assert.assertEquals
+import org.junit.Assert.assertEquals
 
 class TestMoreEncodings {
 

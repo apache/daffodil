@@ -18,7 +18,7 @@
 package org.apache.daffodil.tdml
 
 import java.io.File
-import junit.framework.Assert.assertEquals
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.apache.daffodil.Implicits._
 import java.io.FileOutputStream

@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.api
 
-import junit.framework.Assert._
+import org.junit.Assert._
 import scala.xml._
 import org.apache.daffodil.util._
 import org.junit.Test

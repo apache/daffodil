@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.dpath
 
-import junit.framework.Assert._
+import org.junit.Assert._
 import org.junit.Test
 import org.apache.daffodil.util.SchemaUtils
 import org.apache.daffodil.compiler._

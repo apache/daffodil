@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.oolag
 
-import junit.framework.Assert._
+import org.junit.Assert._
 import org.apache.daffodil.oolag.OOLAG._
 import org.junit.Test
 import org.apache.daffodil.exceptions.Assert

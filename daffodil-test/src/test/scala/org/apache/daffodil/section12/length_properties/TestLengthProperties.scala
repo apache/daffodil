@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.section12.length_properties
 
-import junit.framework.Assert._
+import org.junit.Assert._
 import org.junit.Test
 import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass

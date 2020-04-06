@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.propGen
 
-import junit.framework.Assert._
+import org.junit.Assert._
 import org.junit.Test
 
 class TestPropertyGenerator {

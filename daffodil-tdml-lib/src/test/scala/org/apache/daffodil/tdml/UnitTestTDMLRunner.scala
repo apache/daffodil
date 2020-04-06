@@ -20,9 +20,9 @@ package org.apache.daffodil.tdml
 import java.io.File
 import org.apache.daffodil.Implicits.using
 import org.apache.daffodil.xml.XMLUtils
-import junit.framework.Assert.assertEquals
-import junit.framework.Assert.assertTrue
-import junit.framework.Assert.assertFalse
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Assert.assertFalse
 import org.apache.daffodil.util._
 import org.junit.Test
 import org.apache.daffodil.Implicits._

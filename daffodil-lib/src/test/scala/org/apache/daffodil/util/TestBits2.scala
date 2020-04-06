@@ -18,7 +18,7 @@
 package org.apache.daffodil.util
 
 import org.junit.Test
-import junit.framework.Assert._
+import org.junit.Assert._
 import java.nio.ByteBuffer
 import org.apache.daffodil.schema.annotation.props.gen.BitOrder
 

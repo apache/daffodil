@@ -40,6 +40,6 @@ sh -c "echo 'addSbtPlugin(\"com.jsuereth\" % \"sbt-pgp\" % \"1.1.1\")' >> /root/
 TMP_SBT_PROJECT=/tmp/sbt-project/
 mkdir -p $TMP_SBT_PROJECT
 pushd $TMP_SBT_PROJECT &> /dev/null
-sbt --sbt-version 1.2.7 exit
+sbt --sbt-version 1.3.9 exit
 popd &> /dev/null
 rm -rf $TMP_SBT_PROJECT

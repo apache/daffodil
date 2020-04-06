@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.util
 
-import junit.framework.Assert.assertEquals
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import scala.collection.immutable.ListMap
 import scala.util.Random

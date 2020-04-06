@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.io
 
-import junit.framework.Assert._
+import org.junit.Assert._
 import org.junit.Test
 import java.nio.ByteBuffer
 import java.io.File

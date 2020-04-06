@@ -21,7 +21,7 @@ import org.apache.daffodil.xml.XMLUtils
 import org.apache.daffodil.util._
 import org.apache.daffodil.Implicits._
 import org.apache.daffodil.compiler._
-import junit.framework.Assert._
+import org.junit.Assert._
 import org.junit.Test
 import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.exceptions.Assert

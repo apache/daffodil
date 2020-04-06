@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.performance
 
-import junit.framework.Assert._
+import org.junit.Assert._
 import org.junit.Test
 import org.apache.daffodil.CLI.Util
 import net.sf.expectit.ExpectIOException

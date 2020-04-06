@@ -18,7 +18,7 @@
 package org.apache.daffodil.io
 
 import org.junit.Test
-import junit.framework.Assert._
+import org.junit.Assert._
 
 import java.io.ByteArrayInputStream
 import java.io.InputStreamReader

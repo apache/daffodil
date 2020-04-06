@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.executing
 
-import junit.framework.Assert._
+import org.junit.Assert._
 import org.junit.Test
 import scala.language.postfixOps
 import scala.sys.process._

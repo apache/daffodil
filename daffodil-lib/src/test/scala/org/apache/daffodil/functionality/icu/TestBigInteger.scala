@@ -18,7 +18,7 @@
 package org.apache.daffodil.functionality.icu
 
 import org.junit.Test
-import junit.framework.Assert._
+import org.junit.Assert._
 import com.ibm.icu.text.DecimalFormat
 import com.ibm.icu.text.DecimalFormatSymbols
 import java.text.ParsePosition

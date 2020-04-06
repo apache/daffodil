@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.processors.input
 
-import junit.framework.Assert._
+import org.junit.Assert._
 import scala.util.parsing.combinator._
 import java.io.StringReader
 import org.junit.Test

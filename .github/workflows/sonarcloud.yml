@@ -23,7 +23,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        scala_version: [ '2.12.6', '2.11.12' ]
+        scala_version: [ '2.12.11', '2.11.12' ]
     steps:
 
       ############################################################

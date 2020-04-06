@@ -19,7 +19,7 @@ package org.apache.daffodil.externalvars
 
 import org.apache.daffodil.util._
 
-import junit.framework.Assert._
+import org.junit.Assert._
 import org.junit.Test
 import org.apache.daffodil.Implicits._; object INoWarn2 { ImplicitsSuppressUnusedImportWarning() }
 import org.junit.Test

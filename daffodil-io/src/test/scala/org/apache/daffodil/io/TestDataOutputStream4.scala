@@ -18,7 +18,7 @@
 package org.apache.daffodil.io
 
 import java.io.File
-import junit.framework.Assert._
+import org.junit.Assert._
 import org.junit.Test
 import passera.unsigned.ULong
 import org.apache.daffodil.schema.annotation.props.gen.BitOrder

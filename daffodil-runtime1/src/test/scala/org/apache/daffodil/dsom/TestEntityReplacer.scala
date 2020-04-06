@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.dsom
 
-import junit.framework.Assert._
+import org.junit.Assert._
 import org.junit.Test
 import org.apache.daffodil.Implicits._
 import org.apache.daffodil.cookers.EntityReplacer

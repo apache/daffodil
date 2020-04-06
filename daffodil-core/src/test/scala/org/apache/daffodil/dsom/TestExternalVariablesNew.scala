@@ -23,9 +23,9 @@ import org.apache.daffodil.compiler.Compiler
 import org.apache.daffodil.processors.VariableMap
 import org.apache.daffodil.util.SchemaUtils
 import org.apache.daffodil.xml.XMLUtils
-import junit.framework.Assert.assertFalse
-import junit.framework.Assert.assertTrue
-import junit.framework.Assert._
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
+import org.junit.Assert._
 import org.junit.Test
 import org.apache.daffodil.xml.NS
 import scala.xml.Node

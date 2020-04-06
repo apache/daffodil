@@ -20,7 +20,7 @@ package org.apache.daffodil.tdml
 import org.junit.Test
 import org.junit.AfterClass
 import org.apache.daffodil.Implicits._
-import junit.framework.Assert.fail
+import org.junit.Assert.fail
 
 object TestTDMLRunnerWarnings {
   val runner = Runner("/test/tdml/", "testWarnings.tdml")

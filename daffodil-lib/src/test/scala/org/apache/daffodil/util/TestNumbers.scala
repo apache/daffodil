@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.util
 
-import junit.framework.Assert._
+import org.junit.Assert._
 import org.junit.Test
 import org.apache.daffodil.Implicits._; object INoWarn { ImplicitsSuppressUnusedImportWarning() }
 import java.math.{ BigDecimal => JBigDecimal }
@@ -59,7 +59,7 @@ class TestNumbers {
     val m = (new JBigDecimal("1048575.0")).doubleValue()
     val quotient = n / m
     val expected1 = 8.583077033116372E-5
-    assertEquals(expected1, quotient)
+    assertEquals(expected1, quotient, 1e-15)
     val decimalQuotient = new JBigDecimal(quotient)
     //
     // The giant number of digits below is in fact what you get as the
@@ -73,7 +73,7 @@ class TestNumbers {
     assertEquals(expected2, decimalQuotient)
 
     val double2 = expected2.doubleValue()
-    assertEquals(expected1, double2)
+    assertEquals(expected1, double2, 1e-15)
   }
 
   @Test def testDecimalAsDoubleDivision2() {
@@ -81,7 +81,7 @@ class TestNumbers {
     val m = (new JBigDecimal("1048575.0000000000")).doubleValue()
     val quotient = n / m
     val expected1 = 8.583077033116372E-5
-    assertEquals(expected1, quotient)
+    assertEquals(expected1, quotient, 1e-15)
     //
     // Must have a rounding mode here, or we get a ArithmeticException
     // rounding-necessary

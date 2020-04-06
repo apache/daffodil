@@ -17,9 +17,9 @@
 
 package org.apache.daffodil.processors.input
 
-import junit.framework.Assert._
-import org.junit.Test
+import org.junit.Assert._
 import java.text.ParsePosition
+
 import com.ibm.icu.text.SimpleDateFormat
 import com.ibm.icu.util.Calendar
 import com.ibm.icu.text.DecimalFormat
@@ -146,7 +146,7 @@ class TestICU {
     val df = new DecimalFormat("##.##E+0", dfs)
     val pp = new ParsePosition(0)
     val num = df.parse("12.34+2", pp)
-    assertEquals(12.34, num.doubleValue)
+    assertEquals(12.34, num.doubleValue, 1e-15)
     assertEquals(5, pp.getIndex)
     //assertEquals(1234L, num)
     //assertEquals(7, pp.getIndex)
@@ -177,6 +177,6 @@ class TestICU {
     val pp = new ParsePosition(0)
     val num = df.parse("123,456", pp)
     assertEquals(7, pp.getIndex)
-    assertEquals(123.456, num.doubleValue)
+    assertEquals(123.456, num.doubleValue, 1e-15)
   }
 }

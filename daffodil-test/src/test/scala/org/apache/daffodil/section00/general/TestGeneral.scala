@@ -21,7 +21,7 @@ package org.apache.daffodil.section00.general
  * not related to any specific requirement
  */
 
-import junit.framework.Assert._
+import org.junit.Assert._
 import org.junit.Test
 import org.apache.daffodil.Implicits.intercept
 import org.apache.daffodil.tdml.Runner

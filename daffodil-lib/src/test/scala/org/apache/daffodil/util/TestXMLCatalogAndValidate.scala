@@ -26,7 +26,7 @@ import org.apache.xml.resolver.{ CatalogManager, Catalog }
 import org.junit.Test
 import Implicits.using
 import javax.xml.parsers.{ SAXParserFactory, SAXParser }
-import junit.framework.Assert.{ fail, assertTrue }
+import org.junit.Assert.{ fail, assertTrue }
 import scala.xml.NamespaceBinding
 import scala.xml.MetaData
 import org.apache.daffodil.exceptions.Assert

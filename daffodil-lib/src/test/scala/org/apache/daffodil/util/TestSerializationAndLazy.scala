@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.util
 
-import junit.framework.Assert._
+import org.junit.Assert._
 import java.io.ByteArrayOutputStream
 import java.io.ObjectOutputStream
 import java.io.ByteArrayInputStream
