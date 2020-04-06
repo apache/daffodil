@@ -124,6 +124,7 @@ lazy val commonSettings = Seq(
   logBuffered := true,
   transitiveClassifiers := Seq("sources", "javadoc"),
   retrieveManaged := true,
+  useCoursier := false, // disabled because it breaks retrieveManaged (sbt issue #5078)
   exportJars := true,
   exportJars in Test := false,
   publishMavenStyle := true,
