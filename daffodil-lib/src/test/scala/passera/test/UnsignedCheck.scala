@@ -245,7 +245,7 @@ class UnsignedCheck {
 
   @Test def testLshiftLong = {
     assertTrue(
-      forAll { (a: Int, b: Long) => a.toUInt << (b & 0x1f) == (a << (b & 0x1f)).toUInt }
+      forAll { (a: Int, b: Long) => a.toUInt << (b & 0x1f) == (a << (b & 0x1f).toInt).toUInt }
     )
   }
 
@@ -257,7 +257,7 @@ class UnsignedCheck {
 
   @Test def testLshiftULong = {
     assertTrue(
-      forAll { (a: Int, b: Long) => a.toUInt << (b & 0x1f).toULong == (a << (b & 0x1f)).toUInt }
+      forAll { (a: Int, b: Long) => a.toUInt << (b & 0x1f).toULong == (a << (b & 0x1f).toInt).toUInt }
     )
   }
 
@@ -270,7 +270,7 @@ class UnsignedCheck {
 
   @Test def testRshiftLong = {
     assertTrue(
-      forAll { (a: Int, b: Long) => a.toUInt >> (b & 0x1f) == (a >>> (b & 0x1f)).toUInt }
+      forAll { (a: Int, b: Long) => a.toUInt >> (b & 0x1f) == (a >>> (b & 0x1f).toInt).toUInt }
     )
   }
 
@@ -282,7 +282,7 @@ class UnsignedCheck {
 
   @Test def testRshiftULong = {
     assertTrue(
-      forAll { (a: Int, b: Long) => a.toUInt >> (b & 0x1f).toULong == (a >>> (b & 0x1f)).toUInt }
+      forAll { (a: Int, b: Long) => a.toUInt >> (b & 0x1f).toULong == (a >>> (b & 0x1f).toInt).toUInt }
     )
   }
 
@@ -295,7 +295,7 @@ class UnsignedCheck {
 
   @Test def testZrshiftLong = {
     assertTrue(
-      forAll { (a: Int, b: Long) => a.toUInt >>> (b & 0x1f) == (a >>> (b & 0x1f)).toUInt }
+      forAll { (a: Int, b: Long) => a.toUInt >>> (b & 0x1f).toInt == (a >>> (b & 0x1f).toInt).toUInt }
     )
   }
 
@@ -307,7 +307,7 @@ class UnsignedCheck {
 
   @Test def testZrshiftULong = {
     assertTrue(
-      forAll { (a: Int, b: Long) => a.toUInt >>> (b & 0x1f).toULong == (a >>> (b & 0x1f)).toUInt }
+      forAll { (a: Int, b: Long) => a.toUInt >>> (b & 0x1f).toULong == (a >>> (b & 0x1f).toInt).toUInt }
     )
   }
 

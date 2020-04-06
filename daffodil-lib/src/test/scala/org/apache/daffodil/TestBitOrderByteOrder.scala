@@ -17,7 +17,7 @@
 
 package org.apache.daffodil
 
-import junit.framework.Assert.assertEquals
+import org.junit.Assert.assertEquals
 import org.apache.daffodil.util._
 import org.junit.Test
 import org.apache.daffodil.util._

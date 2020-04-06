@@ -25,7 +25,7 @@ import org.apache.daffodil.schema.annotation.props.gen.{ YesNo, TextNumberRep, S
 import org.apache.daffodil.schema.annotation.props.AlignmentType
 import org.apache.daffodil.util.{ Misc, Logging }
 import org.apache.daffodil.xml.XMLUtils
-import junit.framework.Assert._
+import org.junit.Assert._
 import org.apache.daffodil.api.Diagnostic
 import org.apache.daffodil.util._
 import org.junit.Test

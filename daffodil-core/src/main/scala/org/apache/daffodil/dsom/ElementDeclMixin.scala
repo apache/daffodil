@@ -81,7 +81,7 @@ trait ElementDeclMixin
     if (ct.length == 1)
       Some(new LocalComplexTypeDef(ct(0), this))
     else {
-      Assert.invariant(nt != "")
+      nt.foreach{ s => Assert.invariant(s != "") }
       None
     }
   }.value

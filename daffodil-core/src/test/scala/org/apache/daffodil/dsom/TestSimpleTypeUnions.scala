@@ -18,7 +18,7 @@
 package org.apache.daffodil.dsom
 
 import org.apache.daffodil.xml.XMLUtils
-import junit.framework.Assert._
+import org.junit.Assert._
 import org.apache.daffodil.util._
 import org.apache.daffodil.dpath.NodeInfo._
 import org.junit.Test

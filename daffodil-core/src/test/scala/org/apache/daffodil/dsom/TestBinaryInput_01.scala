@@ -39,7 +39,7 @@ import org.apache.daffodil.util.Misc
 import org.junit.After
 import org.junit.Test
 
-import junit.framework.Assert.assertEquals
+import org.junit.Assert.assertEquals
 
 // Do no harm number 16 of 626 fail in regression, 154 in total of 797
 

@@ -18,7 +18,7 @@
 package org.apache.daffodil.tdml
 
 import org.apache.daffodil.xml.XMLUtils
-import junit.framework.Assert.assertTrue
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.apache.daffodil.Implicits._
 

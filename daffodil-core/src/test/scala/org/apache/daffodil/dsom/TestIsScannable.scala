@@ -22,7 +22,7 @@ import org.apache.daffodil.compiler._
 
 import org.apache.daffodil.util.Logging
 import org.apache.daffodil.xml.XMLUtils
-import junit.framework.Assert._
+import org.junit.Assert._
 import org.apache.daffodil.util.SchemaUtils
 import org.junit.Test
 

@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.parser
 
-import junit.framework.Assert._
+import org.junit.Assert._
 import java.io._
 import java.nio._
 import java.nio.charset._

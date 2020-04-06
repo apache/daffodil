@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.unparsing
 
-import junit.framework.Assert._
+import org.junit.Assert._
 import org.junit.Test
 import java.io.File
 import org.apache.daffodil.CLI.Util

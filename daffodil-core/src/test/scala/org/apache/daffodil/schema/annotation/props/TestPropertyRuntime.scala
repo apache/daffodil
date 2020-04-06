@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.schema.annotation.props
 
-import junit.framework.Assert._
+import org.junit.Assert._
 import org.apache.daffodil.exceptions.ThrowsSDE
 import org.junit.Test
 import org.apache.daffodil.dsom.SchemaComponentImpl

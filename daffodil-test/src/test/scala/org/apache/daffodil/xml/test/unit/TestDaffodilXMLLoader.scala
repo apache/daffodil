@@ -20,7 +20,7 @@ package org.apache.daffodil.xml.test.unit
 import scala.xml._
 import org.apache.daffodil.xml.XMLUtils
 import org.apache.daffodil.xml.DaffodilXMLLoader
-import junit.framework.Assert._
+import org.junit.Assert._
 import org.junit.Test
 import java.io.File
 import org.apache.daffodil.Implicits._

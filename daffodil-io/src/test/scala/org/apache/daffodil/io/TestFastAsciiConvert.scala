@@ -18,7 +18,7 @@
 package org.apache.daffodil.io
 
 import java.nio.ByteBuffer
-import junit.framework.Assert._
+import org.junit.Assert._
 import org.junit.Test
 
 class TestFastAsciiConvert {

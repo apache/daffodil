@@ -20,7 +20,7 @@ package org.apache.daffodil.dpath
 import org.apache.daffodil.Implicits.ImplicitsSuppressUnusedImportWarning
 import org.junit.Test
 
-import junit.framework.Assert.assertEquals; object INoWarn { ImplicitsSuppressUnusedImportWarning() }
+import org.junit.Assert.assertEquals; object INoWarn { ImplicitsSuppressUnusedImportWarning() }
 import java.math.{ BigDecimal => JBigDecimal }
 import java.math.RoundingMode
 

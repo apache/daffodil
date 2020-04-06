@@ -26,7 +26,7 @@ import org.apache.daffodil.util.Fakes
 import org.apache.daffodil.util.Logging
 import org.apache.daffodil.util.SchemaUtils
 import org.apache.daffodil.xml.XMLUtils
-import junit.framework.Assert.assertEquals
+import org.junit.Assert.assertEquals
 import org.apache.daffodil.api.DaffodilTunables
 
 class TestTunables extends Logging {

@@ -22,7 +22,7 @@ import org.junit.Test
 import org.apache.daffodil.Implicits._
 import org.apache.daffodil.exceptions._
 import java.io.FileNotFoundException
-import junit.framework.Assert._
+import org.junit.Assert._
 
 class TestImplicits {
 

@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.processors.input
 
-import junit.framework.Assert._
+import org.junit.Assert._
 import org.junit.Test
 import org.apache.daffodil.processors.DFDLRegularExpressions
 import org.apache.daffodil.schema.annotation.props.gen.TextStringJustification

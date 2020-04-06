@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.grammar
 
-import junit.framework.Assert._
+import org.junit.Assert._
 import org.apache.daffodil.Implicits._; object INoWarnG1 { ImplicitsSuppressUnusedImportWarning() }
 import org.apache.daffodil.dsom._
 import org.apache.daffodil.exceptions.Assert

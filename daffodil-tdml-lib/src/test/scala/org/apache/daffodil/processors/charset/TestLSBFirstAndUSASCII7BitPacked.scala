@@ -19,7 +19,7 @@ package org.apache.daffodil.processors.charset
 
 import java.nio.CharBuffer
 
-import junit.framework.Assert.assertEquals
+import org.junit.Assert.assertEquals
 
 import org.junit.Test
 import org.apache.daffodil.util.Misc

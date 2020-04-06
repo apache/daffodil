@@ -20,7 +20,7 @@ package org.apache.daffodil.externalvars
 import org.apache.daffodil.xml._
 import org.apache.daffodil.util._
 import scala.xml._
-import junit.framework.Assert._
+import org.junit.Assert._
 import org.junit.Test
 import org.apache.daffodil.dsom.SchemaSet
 import org.apache.daffodil.xml.NS

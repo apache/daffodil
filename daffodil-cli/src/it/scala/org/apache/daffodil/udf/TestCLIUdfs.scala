@@ -19,7 +19,7 @@ package org.apache.daffodil.udf
 
 import org.junit.AfterClass
 import org.junit.Test
-import junit.framework.Assert._
+import org.junit.Assert._
 import org.apache.daffodil.CLI.Util
 import net.sf.expectit.matcher.Matchers.contains
 import net.sf.expectit.matcher.Matchers.anyOf

@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.layers
 
-import junit.framework.Assert._
+import org.junit.Assert._
 import java.io._
 import org.junit.Test
 import java.nio.charset.StandardCharsets
