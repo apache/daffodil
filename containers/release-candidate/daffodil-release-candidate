@@ -61,6 +61,12 @@ read -s -p "Apache Password: " APACHE_PASSWD
 echo
 echo
 
+gpg-agent --daemon --default-cache-ttl 3000 --max-cache-ttl 3000
+if [ $? -ne 0 ]; then
+   echo -e "\n!!! Unable to change timeout of the gpg-agent !!!\n"
+   echo -e "\n!!! Try updating it manually at ~/.gnupg/gpg-agent.conf for 3000 seconds each !!!\n"
+   exit
+fi
 
 export GPG_TTY=$(tty)
 export WIX=/root/wix311/
@@ -262,5 +268,7 @@ EOF
 fi
 
 echo
+
+gpgconf --kill gpg-agent
 
 bash
