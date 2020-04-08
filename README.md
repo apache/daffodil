@@ -44,13 +44,6 @@ For more information about Daffodil, see https://daffodil.apache.org/.
 [SBT] is the officially supported tool to build Daffodil, run all tests, create packages,
 and more. Below are some of the more common commands used for Daffodil development.
 
-> :exclamation: **SBT Memory Requirements**
->
-> *Compiling and running all Daffodil tests works best with at least 6GB of memory, more
-> than is usually provided by default. We recommended that you supply ``-mem 6144`` either
-> as an sbt option (e.g. ``sbt -mem 6144 test``) or edit ``/etc/sbt/sbtopts`` to increase
-> the available memory when running the below commands.*
-
 ### Compile
 
 ```text
