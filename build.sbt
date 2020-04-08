@@ -33,47 +33,47 @@ lazy val propgen          = Project("daffodil-propgen", file("daffodil-propgen")
 
 lazy val lib              = Project("daffodil-lib", file("daffodil-lib")).configs(IntegrationTest)
                               .dependsOn(macroLib % "compile-internal, test-internal")
-                              .settings(commonSettings, libManagedSettings, usesMacros)
+                              .settings(commonSettings, libManagedSettings, usesMacros, GenJarLicense.settings)
 
 lazy val io               = Project("daffodil-io", file("daffodil-io")).configs(IntegrationTest)
                               .dependsOn(lib, macroLib % "compile-internal, test-internal")
-                              .settings(commonSettings, usesMacros)
+                              .settings(commonSettings, usesMacros, GenJarLicense.settings)
 
 lazy val runtime1         = Project("daffodil-runtime1", file("daffodil-runtime1")).configs(IntegrationTest)
                               .dependsOn(io, lib % "test->test", udf)
-                              .settings(commonSettings)
+                              .settings(commonSettings, GenJarLicense.settings)
 
 lazy val runtime1Unparser = Project("daffodil-runtime1-unparser", file("daffodil-runtime1-unparser")).configs(IntegrationTest)
                               .dependsOn(runtime1, lib % "test->test", runtime1 % "test->test")
-                              .settings(commonSettings)
+                              .settings(commonSettings, GenJarLicense.settings)
 
 lazy val core             = Project("daffodil-core", file("daffodil-core")).configs(IntegrationTest)
                               .dependsOn(runtime1Unparser, udf, lib % "test->test", runtime1 % "test->test")
-                              .settings(commonSettings)
+                              .settings(commonSettings, GenJarLicense.settings)
 
 lazy val japi             = Project("daffodil-japi", file("daffodil-japi")).configs(IntegrationTest)
                               .dependsOn(core)
-                              .settings(commonSettings)
+                              .settings(commonSettings, GenJarLicense.settings)
 
 lazy val sapi             = Project("daffodil-sapi", file("daffodil-sapi")).configs(IntegrationTest)
                               .dependsOn(core)
-                              .settings(commonSettings)
+                              .settings(commonSettings, GenJarLicense.settings)
 
 lazy val tdmlLib             = Project("daffodil-tdml-lib", file("daffodil-tdml-lib")).configs(IntegrationTest)
                               .dependsOn(macroLib % "compile-internal", lib, io, io % "test->test")
-                              .settings(commonSettings)
+                              .settings(commonSettings, GenJarLicense.settings)
 
 lazy val tdmlProc         = Project("daffodil-tdml-processor", file("daffodil-tdml-processor")).configs(IntegrationTest)
                               .dependsOn(tdmlLib, core)
-                              .settings(commonSettings)
+                              .settings(commonSettings, GenJarLicense.settings)
 
 lazy val cli              = Project("daffodil-cli", file("daffodil-cli")).configs(IntegrationTest)
                               .dependsOn(tdmlProc, sapi, japi, udf % "it->test") // causes sapi/japi to be pulled in to the helper zip/tar
-                              .settings(commonSettings, nopublish)
+                              .settings(commonSettings, nopublish, GenJarLicense.settings)
                               .settings(libraryDependencies ++= Dependencies.cli) 
 
 lazy val udf              = Project("daffodil-udf", file("daffodil-udf")).configs(IntegrationTest)
-                              .settings(commonSettings)
+                              .settings(commonSettings, GenJarLicense.settings)
 
 lazy val test             = Project("daffodil-test", file("daffodil-test")).configs(IntegrationTest)
                               .dependsOn(tdmlProc, udf % "test->test")
@@ -137,8 +137,6 @@ lazy val commonSettings = Seq(
     )
   ),
   licenses := Seq("Apache License, Version 2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0")),
-  mappings in (Compile, packageBin) += baseDirectory.value / ".." / "LICENSE" -> "META-INF/LICENSE",
-  mappings in (Compile, packageBin) += baseDirectory.value / ".." / "NOTICE" -> "META-INF/NOTICE",
   mappings in (Compile, packageBin) += baseDirectory.value / ".." / "DISCLAIMER" -> "META-INF/DISCLAIMER",
   homepage := Some(url("https://daffodil.apache.org")),
   unmanagedBase := baseDirectory.value / "lib" / "jars",
