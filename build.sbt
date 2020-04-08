@@ -137,8 +137,6 @@ lazy val commonSettings = Seq(
     )
   ),
   licenses := Seq("Apache License, Version 2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0")),
-  mappings in (Compile, packageBin) += baseDirectory.value / ".." / "LICENSE" -> "META-INF/LICENSE",
-  mappings in (Compile, packageBin) += baseDirectory.value / ".." / "NOTICE" -> "META-INF/NOTICE",
   mappings in (Compile, packageBin) += baseDirectory.value / ".." / "DISCLAIMER" -> "META-INF/DISCLAIMER",
   homepage := Some(url("https://daffodil.apache.org")),
   unmanagedBase := baseDirectory.value / "lib" / "jars",
