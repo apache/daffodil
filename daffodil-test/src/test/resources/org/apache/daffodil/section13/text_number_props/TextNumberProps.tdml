@@ -296,6 +296,10 @@
       </xs:complexType>
     </xs:element>
 
+    <xs:element name="tnp96" type="xs:float" dfdl:textNumberPattern="####"
+      dfdl:textStandardGroupingSeparator="." dfdl:textStandardDecimalSeparator=","
+      dfdl:textNumberRoundingIncrement="0.1" dfdl:textNumberRoundingMode="roundHalfEven" />
+
   </tdml:defineSchema>
   
   <tdml:defineSchema name="textNumberPattern2"  elementFormDefault="qualified">
@@ -4261,4 +4265,27 @@
     </tdml:errors>
 
   </tdml:parserTestCase>
+
+  <!--
+     Test Name: textStandardFloatPatternNoSeparators
+        Schema: textNumberPattern
+          Root: tnp96
+          Purpose: This test shows what even if the textNumberPattern contains
+            no grouping/decimal separators, we still require and use the
+            properties because ICU uses them for non-integer types
+  -->
+
+  <tdml:parserTestCase name="textStandardFloatPatternNoSeparators1" root="tnp96" model="textNumberPattern">
+
+    <tdml:document>
+      <tdml:documentPart type="text">10,1</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp96>10.1</tnp96>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
 </tdml:testSuite>

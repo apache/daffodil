@@ -132,6 +132,7 @@ case class ConvertZonedNumberPrim(e: ElementBase)
       roundingMode,
       roundingIncrement,
       Nil,
+      isInt = true,
       e.primType)
     ev.compile(tunable)
     ev

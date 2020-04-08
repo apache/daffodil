@@ -109,15 +109,23 @@ case class ConvertTextNumberPrim(e: ElementBase)
       case _ => (Nope, Nope)
     }
 
+    val isInt = e.primType match {
+      case PrimType.Double | PrimType.Float | PrimType.Decimal => false
+      case _ => true
+    }
+
     // If the pattern contains any of these characters, we need to set both
     // group and decimal separators, even if the pattern doesn't contain the
     // associated character. This is because even when the pattern does not
     // contain the grouping/decimal separators, ICU stills seems to take the
     // separators into account. And since ICU provides defaut values based on
-    // locales, not setting them can cause subtle locale related bugs.
+    // locales, not setting them can cause subtle locale related bugs. We must
+    // also require the separators if the prim type is not an integer type,
+    // since ICU will use them even if the pattern does not specify them.
     val requireDecGroupSeps =
       patternStripped.contains(",") || patternStripped.contains(".") ||
-      patternStripped.contains("E") || patternStripped.contains("@")
+      patternStripped.contains("E") || patternStripped.contains("@") ||
+      !isInt
 
     val decSep =
       if (requireDecGroupSeps) {
@@ -146,6 +154,7 @@ case class ConvertTextNumberPrim(e: ElementBase)
       roundingMode,
       roundingIncrement,
       zeroRepsRaw,
+      isInt,
       e.primType)
     ev.compile(tunable)
     ev
