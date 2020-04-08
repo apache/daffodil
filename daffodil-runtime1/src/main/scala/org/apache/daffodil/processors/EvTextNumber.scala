@@ -79,16 +79,12 @@ class TextNumberFormatEv(
   roundingMode: Maybe[TextNumberRoundingMode],
   roundingIncrement: MaybeDouble,
   zeroRepsRaw: List[String],
+  isInt: Boolean,
   primType: PrimType)
   extends Evaluatable[ThreadLocal[DecimalFormat]](tci)
   with InfosetCachedEvaluatable[ThreadLocal[DecimalFormat]] {
 
   override lazy val runtimeDependencies = (decimalSepEv.toList ++ groupingSepEv.toList ++ exponentRepEv.toList).toVector
-
-  private val isInt = primType match {
-    case PrimType.Double | PrimType.Float | PrimType.Decimal => false
-    case _ => true
-  }
 
   private def checkUnique(
     decimalSep: MaybeChar,

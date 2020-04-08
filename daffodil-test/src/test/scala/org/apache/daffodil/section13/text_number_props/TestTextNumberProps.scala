@@ -237,4 +237,6 @@ class TestTextNumberProps {
   @Test def test_textStandardDistinctValues() { runner.runOneTest("textStandardDistinctValues") }
   @Test def test_textStandardDistinctValues2() { runner.runOneTest("textStandardDistinctValues2") }
   @Test def test_textStandardDistinctValues3() { runner.runOneTest("textStandardDistinctValues3") }
+
+  @Test def test_textStandardFloatPatternNoSeparators1() { runner.runOneTest("textStandardFloatPatternNoSeparators1") }
 }
