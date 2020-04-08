@@ -21,7 +21,6 @@ object Rat {
 
   lazy val excludes = Seq(
     file(".git"),
-    file(".gitignore"),
     file(".keep"),
 
     // eclispe related files
