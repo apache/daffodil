@@ -279,7 +279,7 @@ abstract class SequenceParserBase(
     try {
       checkN(pstate, parser) // check if occursIndex exceeds tunable limit.
 
-      if (hasPoU) pstate.pushDiscriminator
+      if (hasPoU) pstate.pushPointOfUncertainty
       val priorPos = pstate.bitPos0b
 
       resultOfTry = parser.parseOne(pstate, roStatus)
@@ -289,7 +289,7 @@ abstract class SequenceParserBase(
       val currentPos = pstate.bitPos0b
 
       val wasDiscriminatorSet = pstate.discriminator
-      if (hasPoU) pstate.popDiscriminator
+      if (hasPoU) pstate.popPointOfUncertainty
       //
       // Now we handle the result of the parse attempt.
       //

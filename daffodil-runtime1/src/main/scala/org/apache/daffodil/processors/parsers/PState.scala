@@ -55,6 +55,7 @@ import org.apache.daffodil.util.MStackOfBoolean
 import org.apache.daffodil.util.MStackOfInt
 import org.apache.daffodil.util.MStackOfLong
 import org.apache.daffodil.util.MStackOfMaybe
+import org.apache.daffodil.util.MStackOf
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe.Nope
 import org.apache.daffodil.util.Maybe.One
@@ -66,6 +67,7 @@ import org.apache.daffodil.infoset.DISimpleState
 import org.apache.daffodil.exceptions.UnsuppressableException
 import org.apache.daffodil.exceptions.Abort
 import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.xml.GlobalQName
 
 object MPState {
 
@@ -166,6 +168,14 @@ final class PState private (
   private val discriminatorStack = MStackOfBoolean()
   discriminatorStack.push(false)
 
+  /**
+   * This stack tracks variables that have changed within the current point of
+   * uncertainty. This tracking is necessary to revert changes made to variables
+   * when the parser needs to backtrack.
+   */
+  private val changedVariablesStack = new MStackOf[mutable.MutableList[GlobalQName]]()
+  changedVariablesStack.push(mutable.MutableList[GlobalQName]())
+
   override def dataStream = One(dataInputStream)
 
   def saveDelimitedParseResult(result: Maybe[dfa.ParseResult]) {
@@ -205,6 +215,11 @@ final class PState private (
     m.restoreInto(this)
     m.clear()
     markPool.returnToPool(m)
+    changedVariablesStack.top.foreach { v => {
+      val variable = variableMap.find(v)
+      if (variable.isDefined)
+        variable.get.reset
+    }}
   }
 
   def discard(m: PState.Mark) {
@@ -265,17 +280,37 @@ final class PState private (
   }
 
   def setVariable(vrd: VariableRuntimeData, newValue: DataValuePrimitive, referringContext: VariableRuntimeData, pstate: PState) {
-    this.setVariableMap(variableMap.setVariable(vrd, newValue, referringContext, pstate))
+    variableMap.setVariable(vrd, newValue, referringContext, pstate)
+    changedVariablesStack.top += vrd.globalQName
   }
 
-  def pushDiscriminator {
+  /**
+   * Note that this function does not actually read the variable, it is used
+   * just to track that the variable was read in case we need to backtrack.
+   */
+  def variableRead(vrd: VariableRuntimeData) {
+    changedVariablesStack.top += vrd.globalQName
+  }
+
+  def newVariableInstance(vrd: VariableRuntimeData) {
+    variableMap.newVariableInstance(vrd)
+    changedVariablesStack.top += vrd.globalQName
+  }
+
+  def removeVariableInstance(vrd: VariableRuntimeData) {
+    variableMap.removeVariableInstance(vrd)
+  }
+
+  def pushPointOfUncertainty {
     // threadCheck()
     discriminatorStack.push(false)
+    changedVariablesStack.push(mutable.MutableList[GlobalQName]())
   }
 
-  def popDiscriminator {
+  def popPointOfUncertainty {
     // threadCheck()
     discriminatorStack.pop
+    changedVariablesStack.pop
   }
 
   def setDiscriminator(disc: Boolean) {
@@ -501,7 +536,12 @@ object PState {
     output: InfosetOutputter,
     dataProc: DFDL.DataProcessor): PState = {
 
-    val variables = dataProc.variableMap
+    /**
+     * This is a full deep copy as variableMap is mutable. Reusing
+     * dataProc.VariableMap without a copy would not be thread safe.
+     */
+    val variables = dataProc.variableMap.copy
+
     val diagnostics = Nil
     val mutablePState = MPState()
     val tunables = dataProc.getTunables()

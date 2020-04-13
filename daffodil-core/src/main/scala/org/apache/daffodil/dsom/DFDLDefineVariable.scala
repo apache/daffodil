@@ -27,7 +27,7 @@ import org.apache.daffodil.xml.GlobalQName
 import org.apache.daffodil.xml.QName
 import org.apache.daffodil.dpath.NodeInfo.PrimType
 import org.apache.daffodil.util.Maybe
-import org.apache.daffodil.grammar.primitives.SetVariable
+import org.apache.daffodil.grammar.primitives.{ SetVariable, NewVariableInstanceStart, NewVariableInstanceEnd }
 import org.apache.daffodil.schema.annotation.props.Found
 import org.apache.daffodil.exceptions.Assert
 
@@ -100,7 +100,7 @@ abstract class VariableReference(node: Node, decl: AnnotatedSchemaComponent)
   final lazy val ref = getAttributeRequired("ref")
   final lazy val varQName = resolveQName(ref)
 
-  final def variableRuntimeData = defv.runtimeData
+  def variableRuntimeData = defv.runtimeData
 
   final lazy val defv = decl.schemaSet.getDefineVariable(varQName).getOrElse(
     this.schemaDefinitionError("Variable definition not found: %s", ref))
@@ -109,13 +109,73 @@ abstract class VariableReference(node: Node, decl: AnnotatedSchemaComponent)
 final class DFDLNewVariableInstance(node: Node, decl: AnnotatedSchemaComponent)
   extends VariableReference(node, decl) // with NewVariableInstance_AnnotationMixin
   {
-  lazy val defaultValue = getAttributeOption("defaultValue")
+  // newVariableInstance only allowed within group ref, sequence, or choice
+  decl match {
+    case gr: GroupRef =>
+    case grl: GroupDefLike =>
+    case _ => decl.SDE("newVariableInstance may only be used on group reference, sequence or choice")
+  }
 
-  def gram(term: Term): Gram = Assert.nyi("dfdl:newVariableInstance")
-  def endGram(term: Term): Gram = Assert.nyi("dfdl:newVariableInstance")
+  private lazy val attrValue = getAttributeOption("value")
 
-  lazy val newVariableInstance = defv.newVariableInstance
+  private lazy val <dfdl:setVariable>{ eltChildren @ _* }</dfdl:setVariable> = node
 
+  private lazy val eltValue = eltChildren.text.trim
+
+  private lazy val defaultValueAsAttribute = getAttributeOption("defaultValue")
+  private lazy val defaultValueAsElement = node.child.text.trim
+
+  final lazy val defaultValue = (defaultValueAsAttribute, defaultValueAsElement) match {
+    case (None, "") => defv.defaultValue
+    case (None, str) => Some(str)
+    case (Some(str), "") => Some(str)
+    case (Some(str), v) => schemaDefinitionError("Default value of variable was supplied both as attribute and element value: %s", node.toString)
+  }
+
+  final lazy val value = (attrValue, eltValue) match {
+    case (None, v) if (v != "") => v
+    case (Some(v), "") => v
+    case (Some(v), ev) if (ev != "") => decl.SDE("Cannot have both a value attribute and an element value: %s", node)
+    case (None, "") => decl.SDE("Must have either a value attribute or an element value: %s", node)
+  }
+
+  lazy val maybeDefaultValueExpr = {
+    val compilationTargetType = defv.primType
+    val qn = this.qNameForProperty("defaultValue", XMLUtils.dafintURI)
+    val defaultValExpr = defaultValue.map { e =>
+      ExpressionCompilers.AnyRef.compileProperty(qn, compilationTargetType, Found(e, this.dpathCompileInfo, "defaultValue", false), this, dpathCompileInfo)
+    }
+
+    Maybe.toMaybe(defaultValExpr)
+  }
+
+  /* Need to override variableRuntimeData so that defaultValues
+   * are read from newVariableInstance instead of the original
+   * variable definition. Also allows diagnostic messages to
+   * point to this location instead of the original definition
+   */
+  final override lazy val variableRuntimeData = {
+    val vrd = new VariableRuntimeData(
+      this.schemaFileLocation,
+      this.diagnosticDebugName,
+      this.path,
+      this.namespaces,
+      defv.external,
+      maybeDefaultValueExpr,
+      defv.typeQName,
+      defv.namedQName.asInstanceOf[GlobalQName],
+      defv.primType,
+      this.tunable.unqualifiedPathStepPolicy)
+    vrd
+  }
+
+  final def gram(term: Term) = LV('gram) {
+    NewVariableInstanceStart(decl, this)
+  }.value
+
+  final def endGram(term: Term) = LV('endGram) {
+    NewVariableInstanceEnd(decl, this)
+  }.value
 }
 
 final class DFDLSetVariable(node: Node, decl: AnnotatedSchemaComponent)

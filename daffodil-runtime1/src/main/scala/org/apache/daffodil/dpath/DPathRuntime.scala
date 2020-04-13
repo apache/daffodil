@@ -41,6 +41,7 @@ import org.apache.daffodil.processors.ParseOrUnparseState
 import org.apache.daffodil.processors.ProcessingError
 import org.apache.daffodil.processors.VariableException
 import org.apache.daffodil.processors.VariableRuntimeData
+import org.apache.daffodil.processors.parsers.PState
 import org.apache.daffodil.util.Misc
 
 class CompiledDPath(val ops: RecipeOp*) extends Serializable {
@@ -180,9 +181,10 @@ case class VRef(vrd: VariableRuntimeData, context: ThrowsSDE)
 
   override def run(dstate: DState) {
     Assert.invariant(dstate.vmap != null)
-    val (res, newVMap) = dstate.vmap.readVariable(vrd, context)
-    dstate.setVMap(newVMap)
-    dstate.setCurrentValue(res)
+    if (dstate.parseOrUnparseState.isDefined)
+      if (dstate.parseOrUnparseState.get.isInstanceOf[PState])
+        dstate.parseOrUnparseState.get.asInstanceOf[PState].variableRead(vrd)
+    dstate.setCurrentValue(dstate.vmap.readVariable(vrd, context))
   }
 
   override def toXML = toXML("$" + vrd.globalQName.toPrettyString)

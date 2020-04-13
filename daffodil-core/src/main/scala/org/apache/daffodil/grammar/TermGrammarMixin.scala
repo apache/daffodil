@@ -35,9 +35,7 @@ trait TermGrammarMixin
 
   def termContentBody: Gram
 
-  private lazy val newVars = this.annotationObjs.filter { st =>
-    st.isInstanceOf[DFDLNewVariableInstance]
-  }.asInstanceOf[Seq[DFDLNewVariableInstance]]
+  private lazy val newVars = this.newVariableInstanceStatements
 
   private lazy val newVarStarts = newVars.map { _.gram(self) }
   private lazy val newVarEnds = newVars.map { _.endGram(self) }

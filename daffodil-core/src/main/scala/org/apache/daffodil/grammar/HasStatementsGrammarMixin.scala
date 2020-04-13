@@ -18,13 +18,23 @@
 package org.apache.daffodil.grammar
 
 import org.apache.daffodil.dsom.Term
+import org.apache.daffodil.dsom.{ DFDLNewVariableInstance, DFDLDiscriminator, DFDLAssert }
+import org.apache.daffodil.schema.annotation.props.gen.TestKind
 
 trait HasStatementsGrammarMixin extends GrammarMixin { self: Term =>
 
-  private lazy val statementGrams = statements.map { _.gram(self) }
-  // TODO: statements (but specifically not newVariableInstance) can appear on simple type definitions as well as terms.
+  // Includes setVariable as well as assert/discriminator statements that
+  // are not testKind="pattern"
+  private lazy val lowPriorityStatementGrams = lowPriorityStatements.map { _.gram(self) }
 
-  final lazy val dfdlStatementEvaluations = prod("dfdlStatementEvaluations", statementGrams.length > 0) {
-    statementGrams.fold(mt) { _ ~ _ }
+  final lazy val dfdlLowPriorityStatementEvaluations = prod("dfdlStatementEvaluations", lowPriorityStatementGrams.length > 0) {
+    lowPriorityStatementGrams.fold(mt) { _ ~ _ }
+  }
+
+  // assert/discriminator statements with testKind="pattern"
+  private lazy val patternStatementGrams = patternStatements.map { _.gram(self) }
+
+  final lazy val dfdlPatternStatementEvaluations = prod("dfdlPatternStatementEvaluations", patternStatementGrams.length > 0) {
+    patternStatementGrams.fold(mt) { _ ~ _ }
   }
 }

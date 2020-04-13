@@ -89,11 +89,11 @@ class TestExternalVariablesLoader extends Logging {
     val (sd, sset) = generateSD(topLevelAnnotations)
     val initialVMap = sset.variableMap
 
-    val lst_v_no_default = initialVMap.getVariableBindings(v_no_default)
-    val lst_v_with_default = initialVMap.getVariableBindings(v_with_default)
+    val stk_v_no_default = initialVMap.getVariableBindings(v_no_default)
+    val stk_v_with_default = initialVMap.getVariableBindings(v_with_default)
 
-    val var_v_no_default = lst_v_no_default.head.head
-    val var_v_with_default = lst_v_with_default.head.head
+    val var_v_no_default = stk_v_no_default.top
+    val var_v_with_default = stk_v_with_default.top
 
     val v_no_default_vrd = var_v_no_default.rd
     val v_with_default_vrd = var_v_with_default.rd
@@ -110,9 +110,9 @@ class TestExternalVariablesLoader extends Logging {
 
     // Verify that the external variables override the previous values
     // in the VariableMap
-    val (value1, _) = vmap.readVariable(v_no_default_vrd, Fakes.fakeElem)
+    val value1 = vmap.readVariable(v_no_default_vrd, Fakes.fakeElem)
     assertEquals(1, value1.getAnyRef)
-    val (value2, _) = vmap.readVariable(v_with_default_vrd, Fakes.fakeElem)
+    val value2 = vmap.readVariable(v_with_default_vrd, Fakes.fakeElem)
     assertEquals(2, value2.getAnyRef)
   }
 

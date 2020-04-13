@@ -42,7 +42,11 @@ trait ModelGroupGrammarMixin
   private lazy val groupRightFraming = prod("groupRightFraming") { TrailingSkipRegion(this) }
 
   final override lazy val termContentBody = prod("termContentBody") {
-    dfdlStatementEvaluations ~ groupLeftFraming ~ groupContentWithInitiatorTerminator ~ groupRightFraming
+    // See 9.5 Evaluation Order for Statement Annotations
+    dfdlPatternStatementEvaluations ~ // Assert and Discriminator statements with testKind="pattern"
+    dfdlScopeBegin ~ // newVariableInstance
+    dfdlLowPriorityStatementEvaluations ~ // setVariable and the rest of the Assert and Discriminator statements
+    groupLeftFraming ~ groupContentWithInitiatorTerminator ~ groupRightFraming ~ dfdlScopeEnd
   }
 
   private lazy val groupContentWithInitiatorTerminator = prod("groupContentWithInitiatorTerminator") {

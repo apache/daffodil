@@ -196,7 +196,7 @@ class ChoiceParser(
     var markLeakCausedByException = false;
 
     try {
-      pstate.pushDiscriminator
+      pstate.pushPointOfUncertainty
       var diagnostics: Seq[Diagnostic] = Nil
       var i = 0
       var parser: Parser = null
@@ -273,7 +273,7 @@ class ChoiceParser(
         log(LogLevel.Debug, "All Choice alternatives failed.")
       }
 
-      pstate.popDiscriminator
+      pstate.popPointOfUncertainty
 
       // This is only used for unordered sequences. If we hit a failure after parsing a discriminator,
       // we need to pass this discriminator out of the make shift ChoiceParser and back to the

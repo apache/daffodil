@@ -29,6 +29,10 @@
       defaultValue="42" />
     <dfdl:defineVariable name="myVar1" type="xs:int"
       defaultValue="6" />
+    <dfdl:defineVariable name="myVar2" type="xs:int"
+      defaultValue="16" />
+    <dfdl:defineVariable name="myVar3" type="xs:int"
+      defaultValue="26" />
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
     <xs:element name="c">
@@ -97,7 +101,7 @@
       </xs:complexType>
     </xs:element>
 
-    <xs:element name="a">
+    <xs:element name="nvi1">
       <xs:complexType>
         <xs:sequence>
           <xs:annotation>
@@ -106,7 +110,299 @@
                 defaultValue="7" />
             </xs:appinfo>
           </xs:annotation>
+          <xs:element name="a" type="xsd:int"
+            dfdl:inputValueCalc="{ $ex:myVar1 }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="nvi2">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:annotation>
+            <xs:appinfo source="http://www.ogf.org/dfdl/">
+              <dfdl:newVariableInstance ref="ex:myVar1"
+                defaultValue="7" />
+            </xs:appinfo>
+          </xs:annotation>
+          <xs:element name="a" type="xsd:int"
+            dfdl:inputValueCalc="{ $ex:myVar1 }" />
+          <xs:element name="nest1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:annotation>
+                  <xs:appinfo source="http://www.ogf.org/dfdl/">
+                    <dfdl:newVariableInstance ref="ex:myVar1"
+                      defaultValue="8" />
+                  </xs:appinfo>
+                </xs:annotation>
+                <xs:element name="b" type="xsd:int"
+                  dfdl:inputValueCalc="{ $ex:myVar1 }" />
+                <xs:element name="nest2">
+                  <xs:complexType>
+                    <xs:sequence>
+                      <xs:annotation>
+                        <xs:appinfo source="http://www.ogf.org/dfdl/">
+                          <dfdl:newVariableInstance ref="ex:myVar1"
+                            defaultValue="9" />
+                        </xs:appinfo>
+                      </xs:annotation>
+                      <xs:element name="c" type="xsd:int"
+                        dfdl:inputValueCalc="{ $ex:myVar1 }" />
+                    </xs:sequence>
+                  </xs:complexType>
+                </xs:element>
+                <xs:element name="d" type="xsd:int"
+                  dfdl:inputValueCalc="{ $ex:myVar1 }" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="e" type="xsd:int"
+            dfdl:inputValueCalc="{ $ex:myVar1 }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="nvi3">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:annotation>
+            <xs:appinfo source="http://www.ogf.org/dfdl/">
+              <dfdl:newVariableInstance ref="ex:myVar1"
+                defaultValue="7" />
+              <dfdl:newVariableInstance ref="ex:myVar2"
+                defaultValue="17" />
+              <dfdl:newVariableInstance ref="ex:myVar3"
+                defaultValue="27" />
+            </xs:appinfo>
+          </xs:annotation>
+          <xs:element name="a" type="xsd:int"
+            dfdl:inputValueCalc="{ $ex:myVar1 }" />
           <xs:element name="b" type="xsd:int"
+            dfdl:inputValueCalc="{ $ex:myVar2 }" />
+          <xs:element name="c" type="xsd:int"
+            dfdl:inputValueCalc="{ $ex:myVar3 }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="nvi4">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:annotation>
+            <xs:appinfo source="http://www.ogf.org/dfdl/">
+              <dfdl:newVariableInstance ref="ex:myVar1"
+                defaultValue="7">8</dfdl:newVariableInstance>
+            </xs:appinfo>
+          </xs:annotation>
+          <xs:element name="a" type="xsd:int"
+            dfdl:inputValueCalc="{ $ex:myVar1 }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="nvi5">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:annotation>
+            <xs:appinfo source="http://www.ogf.org/dfdl/">
+              <dfdl:newVariableInstance ref="ex:myVar1"
+                defaultValue="7" />
+              <dfdl:newVariableInstance ref="ex:myVar1"
+                defaultValue="8" />
+            </xs:appinfo>
+          </xs:annotation>
+          <xs:element name="a" type="xsd:int"
+            dfdl:inputValueCalc="{ $ex:myVar1 }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="nvi6">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
+          <dfdl:newVariableInstance ref="ex:myVar1"
+            defaultValue="7" />
+        </xs:appinfo>
+      </xs:annotation>
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="a" type="xsd:int"
+            dfdl:inputValueCalc="{ $ex:myVar1 }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="nvi7">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:annotation>
+            <xs:appinfo source="http://www.ogf.org/dfdl/">
+              <dfdl:newVariableInstance ref="ex:myVar1" />
+            </xs:appinfo>
+          </xs:annotation>
+          <xs:element name="a" type="xsd:int"
+            dfdl:inputValueCalc="{ $ex:myVar1 }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <dfdl:defineVariable name="s1" type="xs:string" defaultValue="global_default1" />
+    <dfdl:defineVariable name="s2" type="xs:string" defaultValue="global_default2" />
+    <xs:element name="nvi8">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:annotation>
+            <xs:appinfo source="http://www.ogf.org/dfdl/">
+              <dfdl:setVariable ref="ex:s1">{ "global_set1" }</dfdl:setVariable>
+            </xs:appinfo>
+          </xs:annotation>
+          <xs:element name="nest1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:annotation>
+                  <xs:appinfo source="http://www.ogf.org/dfdl/">
+                    <dfdl:newVariableInstance ref="ex:s1"
+                      defaultValue="nest1_nvi1_default1" />
+                    <dfdl:newVariableInstance ref="ex:s2"
+                      defaultValue="nest1_nvi1_default2" />
+                    <dfdl:setVariable ref="ex:s1">{ "nest1_nvi1_set1" }</dfdl:setVariable>
+                  </xs:appinfo>
+                </xs:annotation>
+                <xs:element name="nest2">
+                  <xs:complexType>
+                    <xs:sequence>
+                      <xs:annotation>
+                        <xs:appinfo source="http://www.ogf.org/dfdl/">
+                          <dfdl:newVariableInstance ref="ex:s1"
+                            defaultValue="nest2_nvi2_default1" />
+                          <dfdl:newVariableInstance ref="ex:s2"
+                            defaultValue="nest2_nvi2_default2" />
+                        </xs:appinfo>
+                      </xs:annotation>
+                      <xs:element name="choice">
+                        <xs:complexType>
+                          <xs:choice>
+                            <xs:element name="c1_s2" type="xs:string" dfdl:lengthKind="delimited">
+                              <xs:annotation>
+                                <xs:appinfo source="http://www.ogf.org/dfdl/">
+                                  <dfdl:setVariable ref="ex:s1">{ "c1_s1_set1" }</dfdl:setVariable>
+                                  <dfdl:assert><![CDATA[{ xs:string(.) eq "fail" }]]></dfdl:assert>
+                                </xs:appinfo>
+                              </xs:annotation>
+                            </xs:element>
+                            <xs:element name="c2_s2" type="xs:string" dfdl:lengthKind="delimited">
+                              <xs:annotation>
+                                <xs:appinfo source="http://www.ogf.org/dfdl/">
+                                  <dfdl:setVariable ref="ex:s1">{ "c2_s1_set1" }</dfdl:setVariable>
+                                  <dfdl:assert><![CDATA[{ xs:string(.) eq "fail" }]]></dfdl:assert>
+                                </xs:appinfo>
+                              </xs:annotation>
+                            </xs:element>
+                            <xs:element name="c3_s2" type="xs:string" dfdl:lengthKind="delimited">
+                              <xs:annotation>
+                                <xs:appinfo source="http://www.ogf.org/dfdl/">
+                                  <dfdl:setVariable ref="ex:s1">{ "c3_s1_set1" }</dfdl:setVariable>
+                                  <dfdl:assert><![CDATA[{ xs:string(.) eq "nest2_nvi2_default2" }]]></dfdl:assert>
+                                </xs:appinfo>
+                              </xs:annotation>
+                            </xs:element>
+                          </xs:choice>
+                        </xs:complexType>
+                      </xs:element>
+                      <xs:element name="d" type="xs:string"
+                        dfdl:inputValueCalc="{ $ex:s1 }" />
+                      <xs:element name="e" type="xs:string"
+                        dfdl:inputValueCalc="{ $ex:s2 }" />
+                    </xs:sequence>
+                  </xs:complexType>
+                </xs:element>
+                <xs:element name="f" type="xs:string"
+                  dfdl:inputValueCalc="{ $ex:s1 }">
+                </xs:element>
+                <xs:element name="g" type="xs:string"
+                  dfdl:inputValueCalc="{ $ex:s2 }" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="h" type="xs:string"
+            dfdl:inputValueCalc="{ $ex:s1 }" />
+          <xs:element name="i" type="xs:string"
+            dfdl:inputValueCalc="{ $ex:s2 }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="nvi9">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="original" type="xsd:int"
+            dfdl:inputValueCalc="{ $ex:myVar1 }" />
+          <xs:element name="choice">
+            <xs:complexType>
+              <xs:choice>
+                <xs:annotation>
+                  <xs:appinfo source="http://www.ogf.org/dfdl/">
+                    <dfdl:newVariableInstance ref="ex:myVar1"
+                      defaultValue="7" />
+                  </xs:appinfo>
+                </xs:annotation>
+                <xs:element name="new" type="xsd:int" dfdl:lengthKind="explicit" dfdl:length="1">
+                  <xs:annotation>
+                    <xs:appinfo source="http://www.ogf.org/dfdl/">
+                      <dfdl:assert><![CDATA[{ xs:int(.) eq $ex:myVar1 }]]></dfdl:assert>
+                    </xs:appinfo>
+                  </xs:annotation>
+                </xs:element>
+              </xs:choice>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="nvi10">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="before">
+            <xs:complexType>
+              <xs:group ref="ex:g5">
+                <xs:annotation>
+                  <xs:appinfo source="http://www.ogf.org/dfdl/">
+                    <dfdl:setVariable ref="ex:v1_no_default">{ "January" }</dfdl:setVariable>
+                  </xs:appinfo>
+                </xs:annotation>
+              </xs:group>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="after">
+            <xs:complexType>
+              <xs:group ref="ex:g5">
+                <xs:annotation>
+                  <xs:appinfo source="http://www.ogf.org/dfdl/">
+                    <dfdl:newVariableInstance ref="ex:v1_no_default" />
+                    <dfdl:setVariable ref="ex:v1_no_default">{ "February" }</dfdl:setVariable>
+                  </xs:appinfo>
+                </xs:annotation>
+              </xs:group>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="nvi11">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:annotation>
+            <xs:appinfo source="http://www.ogf.org/dfdl/">
+              <dfdl:newVariableInstance ref="ex:myVar1"
+                defaultValue="10" />
+              <dfdl:assert testKind="pattern" testPattern="\d"
+                message="Assertion failed for pattern \d" />
+            </xs:appinfo>
+          </xs:annotation>
+          <xs:element name="a" type="xsd:int"
             dfdl:inputValueCalc="{ $ex:myVar1 }" />
         </xs:sequence>
       </xs:complexType>
@@ -348,9 +644,9 @@
 
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>variable</tdml:error>
-      <tdml:error>twice</tdml:error>
-      <tdml:error>v_no_default</tdml:error>
+      <tdml:error>Variables</tdml:error>
+      <tdml:error>distinct</tdml:error>
+      <tdml:error>same location</tdml:error>
     </tdml:errors>
 
   </tdml:parserTestCase>
@@ -363,9 +659,9 @@
 
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>variable</tdml:error>
-      <tdml:error>twice</tdml:error>
-      <tdml:error>v_no_default</tdml:error>
+      <tdml:error>Variables</tdml:error>
+      <tdml:error>distinct</tdml:error>
+      <tdml:error>same location</tdml:error>
     </tdml:errors>
 
   </tdml:parserTestCase>
@@ -384,18 +680,191 @@
 
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="varInstance" root="a"
-    model="v">
+  <tdml:parserTestCase name="varInstance_01" root="nvi1"
+    model="v"
+    description="Simple demonstration of newVariableInstance">
 
     <tdml:document />
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <a xmlns="http://example.com">
-          <b xsi:type="xsd:int">7</b>
-        </a>
+        <nvi1 xmlns="http://example.com">
+          <a xsi:type="xsd:int">7</a>
+        </nvi1>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="varInstance_02" root="nvi2"
+    model="v"
+    description="Demonstrates that newVariableInstance correctly goes into and out of scope">
+
+    <tdml:document />
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <nvi2 xmlns="http://example.com">
+          <a xsi:type="xsd:int">7</a>
+          <nest1>
+            <b xsi:type="xsd:int">8</b>
+            <nest2>
+              <c xsi:type="xsd:int">9</c>
+            </nest2>
+            <d xsi:type="xsd:int">8</d>
+          </nest1>
+          <e xsi:type="xsd:int">7</e>
+        </nvi2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="varInstance_03" root="nvi3"
+    model="v"
+    description="Demonstrates using multiple newVariableInstance statements within a sequence">
+
+    <tdml:document />
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <nvi3 xmlns="http://example.com">
+          <a xsi:type="xsd:int">7</a>
+          <b xsi:type="xsd:int">17</b>
+          <c xsi:type="xsd:int">27</c>
+        </nvi3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="varInstance_04" root="nvi4"
+    model="v"
+    description="SDE due to default value being set both as attribute and element value">
+
+    <tdml:document />
+
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>value of variable was supplied both as attribute and element value</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="varInstance_05" root="nvi5"
+    model="v"
+    description="SDE due to multiple newVariableInstance calls within the same scope to the same variable">
+
+    <tdml:document />
+
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>newVariableInstances must all be distinct within the same scope</tdml:error>
+      <tdml:error>ex:myVar1</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="varInstance_06" root="nvi6"
+    model="v"
+    description="SDE due to newVariableInstance being declared on an element instead of group reference, sequence or choice">
+
+    <tdml:document />
+
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>newVariableInstance may only be used on group reference, sequence or choice</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="varInstance_07" root="nvi7"
+    model="v"
+    description="Demonstrates that newVariableInstance inherits default value from original definition">
+
+    <tdml:document />
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <nvi7 xmlns="http://example.com">
+          <a xsi:type="xsd:int">6</a>
+        </nvi7>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="varInstance_08" root="nvi8"
+    model="v"
+    description="Demonstrates that newVariableInstance correctly goes into and out of scope with backtracking">
+
+    <tdml:document><![CDATA[nest2_nvi2_default2]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <nvi8 xmlns="http://example.com">
+          <nest1>
+            <nest2>
+              <choice>
+                <c3_s2>nest2_nvi2_default2</c3_s2>
+              </choice>
+              <d>c3_s1_set1</d>
+              <e>nest2_nvi2_default2</e>
+            </nest2>
+            <f>nest1_nvi1_set1</f>
+            <g>nest1_nvi1_default2</g>
+          </nest1>
+          <h>global_set1</h>
+          <i>global_default2</i>
+        </nvi8>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="varInstance_09" root="nvi9"
+    model="v"
+    description="Simple demonstration of newVariableInstance on a choice">
+
+    <tdml:document><![CDATA[7]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <nvi9 xmlns="http://example.com">
+          <original xsi:type="xsd:int">6</original>
+          <choice>
+            <new xsi:type="xsd:int">7</new>
+          </choice>
+        </nvi9>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="varInstance_10" root="nvi10"
+    model="v" description="setVariable on a group reference - DFDL-7-121R">
+    <tdml:document><![CDATA[2324]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <nvi10 xmlns="http://example.com">
+          <before>
+            <month>January</month>
+            <day>23</day>
+          </before>
+          <after>
+            <month>February</month>
+            <day>24</day>
+          </after>
+        </nvi10>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="varInstance_11" root="nvi11"
+    model="v"
+    description="Demonstrates correct statement order is observed with newVariableInstance">
+
+    <tdml:document />
+
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Assertion failed: Assertion failed for pattern \d</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="varAsSeparator" root="e1"

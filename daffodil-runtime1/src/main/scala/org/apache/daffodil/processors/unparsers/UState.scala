@@ -56,6 +56,7 @@ import org.apache.daffodil.processors.TermRuntimeData
 import org.apache.daffodil.processors.UnparseResult
 import org.apache.daffodil.processors.VariableBox
 import org.apache.daffodil.processors.VariableMap
+import org.apache.daffodil.processors.VariableRuntimeData
 import org.apache.daffodil.processors.charset.BitsCharset
 import org.apache.daffodil.processors.charset.BitsCharsetDecoder
 import org.apache.daffodil.processors.charset.BitsCharsetEncoder
@@ -343,6 +344,14 @@ abstract class UState(
   def regexMatchBitPositionBuffer: LongBuffer = Assert.usageError("Not to be used.")
 
   def documentElement: DIDocument
+
+  def newVariableInstance(vrd: VariableRuntimeData) {
+    variableMap.newVariableInstance(vrd)
+  }
+
+  def removeVariableInstance(vrd: VariableRuntimeData) {
+    variableMap.removeVariableInstance(vrd)
+  }
 }
 
 /**
@@ -678,7 +687,12 @@ object UState {
     inputter: InfosetInputter): UStateMain = {
     Assert.invariant(inputter.isInitialized)
 
-    val variables = dataProc.variableMap
+    /**
+     * This is a full deep copy as variableMap is mutable. Reusing
+     * dataProc.VariableMap without a copy would not be thread safe.
+     */
+    val variables = dataProc.variableMap.copy
+
     val diagnostics = Nil
     val newState = new UStateMain(inputter, variables, diagnostics, dataProc.asInstanceOf[DataProcessor], out,
       new mutable.Queue[Suspension], dataProc.getTunables()) // null means no prior UState

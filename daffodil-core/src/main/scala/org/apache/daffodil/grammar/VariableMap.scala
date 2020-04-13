@@ -31,8 +31,6 @@ object VariableMapFactory {
   }
 
   def setExternalVariables(currentVMap: VariableMap, bindings: Seq[Binding], referringContext: ThrowsSDE) = {
-    var newVMap = currentVMap
-    bindings.foreach(b => newVMap = newVMap.setExtVariable(b.varQName, b.varValue, referringContext))
-    newVMap
+    bindings.foreach(b => currentVMap.setExtVariable(b.varQName, b.varValue, referringContext))
   }
 }

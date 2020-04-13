@@ -984,7 +984,7 @@ final class VariableRuntimeData(
     if (!maybeDefaultValueExpr.isDefined) VariableUndefined
     else VariableDefined
 
-  private lazy val maybeValue: DataValuePrimitiveNullable =
+  private lazy val value: DataValuePrimitiveNullable =
     if (maybeDefaultValueExpr.isEmpty) DataValue.NoValue
     else {
       val defaultValueExpr = maybeDefaultValueExpr.get
@@ -994,6 +994,6 @@ final class VariableRuntimeData(
       }
     }
 
-  def newVariableInstance: Variable = Variable(state, maybeValue, this, maybeDefaultValueExpr)
+  def newVariableInstance: VariableInstance = VariableInstance(state, value, this, maybeDefaultValueExpr)
 
 }
