@@ -49,9 +49,9 @@ final class InitiatedContentDiscrimChoiceAndIndexGreaterThanMinParser(
 
   def parse(start: PState): Unit = {
     val top = start.discriminator
-    start.popDiscriminator // pop array discriminator off of stack
+    start.popPointOfUncertainty // pop array discriminator off of stack and any changed variables
     start.setDiscriminator(true) // set the choice discriminator
-    start.pushDiscriminator
+    start.pushPointOfUncertainty
     start.setDiscriminator(top) // restore the array discriminator to top of stack
     if (start.arrayPos > min)
       start.setDiscriminator(true) // set array discriminator only if

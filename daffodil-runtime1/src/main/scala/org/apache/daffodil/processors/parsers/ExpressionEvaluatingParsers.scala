@@ -153,25 +153,21 @@ class SetVariableParser(expr: CompiledExpression[AnyRef], decl: VariableRuntimeD
   }
 }
 
-class NewVariableInstanceStartParser(
-  override val context: RuntimeData)
+class NewVariableInstanceStartParser(override val context: VariableRuntimeData)
   extends PrimParser {
-  context.notYetImplemented("newVariableInstance")
   override lazy val runtimeDependencies = Vector()
 
-  def parse(pstate: PState) = {
-    context.notYetImplemented("newVariableInstance")
+  def parse(start: PState): Unit = {
+    start.newVariableInstance(context)
   }
 }
 
-class NewVariableInstanceEndParser(
-  override val context: RuntimeData)
+class NewVariableInstanceEndParser(override val context: VariableRuntimeData)
   extends PrimParser {
-  context.notYetImplemented("newVariableInstance")
   override lazy val runtimeDependencies = Vector()
 
-  def parse(pstate: PState) = {
-    context.notYetImplemented("newVariableInstance")
+  def parse(start: PState) = {
+    start.removeVariableInstance(context)
   }
 }
 

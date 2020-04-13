@@ -128,7 +128,8 @@ final class MStackOfMaybe[T <: AnyRef] {
  * an object reference or null, and call Maybe(thing) explicitly outside the
  * iteration. Maybe(null) is Nope, and Maybe(thing) is One(thing) if thing is not null.
  */
-final class MStackOf[T <: AnyRef] {
+final class MStackOf[T <: AnyRef]
+  extends Serializable {
 
   override def toString = delegate.toString
 
@@ -176,7 +177,7 @@ object MStackOfAnyRef {
  * things.
  */
 protected abstract class MStack[@specialized T] private[util] (
-  arrayAllocator: (Int) => Array[T], nullValue: T) {
+  arrayAllocator: (Int) => Array[T], nullValue: T) extends Serializable {
 
   private var index = 0
   private var table: Array[T] = null

@@ -92,7 +92,7 @@ trait GroupDefLike
 }
 
 /**
- * Global Group Defs carry annotations that are combined wiht those
+ * Global Group Defs carry annotations that are combined with those
  * of the corresponding group reference that refers to them.
  *
  * These are not carried on the xs:group element itself, but the xs:sequence

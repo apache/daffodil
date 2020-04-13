@@ -47,8 +47,8 @@ object ExternalVariablesLoader {
 
   def loadVariables(bindings: Seq[Binding], referringContext: ThrowsSDE, vmap: VariableMap): VariableMap = {
     Assert.usage(referringContext != null, "loadVariables expects 'referringContext' to not be null!")
-    val finalVMap = VariableUtils.setExternalVariables(vmap, bindings, referringContext)
-    finalVMap
+    VariableUtils.setExternalVariables(vmap, bindings, referringContext)
+    vmap
   }
 
   // The following are methods that retrieve and transform variables into Seq[Binding]

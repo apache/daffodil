@@ -59,8 +59,11 @@ trait ResolvesDFDLStatementMixin
           ReferencedElementInfos.None
       }
       case nv: DFDLNewVariableInstance => {
-        // nv.defaultValueExpr.contentReferencedElementInfos
-        s.notYetImplemented("dfdl:newVariableInstance")
+        val mdv = nv.maybeDefaultValueExpr
+        if (mdv.isDefined)
+          f(mdv.get)
+        else
+          ReferencedElementInfos.None
       }
       case _ => ReferencedElementInfos.None
     }
@@ -177,9 +180,22 @@ trait ProvidesDFDLStatementMixin extends ThrowsSDE with HasTermCheck { self: Ann
     checkDistinctVariableNames(combinedSvs)
   }
 
+  private lazy val patternAsserts: Seq[DFDLAssert] = combinedAsserts.filter{ st => st.testKind == TestKind.Pattern }
+  private lazy val nonPatternAsserts: Seq[DFDLAssert] = combinedAsserts.filter{ st => st.testKind != TestKind.Pattern }
+
+  private lazy val patternDiscrims: Seq[DFDLDiscriminator] = combinedDiscrims.filter{ st => st.testKind == TestKind.Pattern }
+  private lazy val nonPatternDiscrims: Seq[DFDLDiscriminator] = combinedDiscrims.filter{ st => st.testKind != TestKind.Pattern }
+
+  final lazy val patternStatements: Seq[DFDLStatement] = patternAsserts ++ patternDiscrims
+
+  final lazy val lowPriorityStatements: Seq[DFDLStatement] = setVariableStatements ++ nonPatternAsserts ++ nonPatternDiscrims
+
   final protected lazy val localStatements = this.annotationObjs.collect { case st: DFDLStatement => st }
 
-  private lazy val localNewVariableInstanceStatements = localStatements.collect { case nve: DFDLNewVariableInstance => nve }
+  private lazy val localNewVariableInstanceStatements = {
+    val nvis = localStatements.collect { case nve: DFDLNewVariableInstance => nve }
+    checkDistinctNewVariableInstances(nvis)
+  }
 
   final protected lazy val (localDiscriminatorStatements, localAssertStatements) = {
     val discrims = localStatements.collect { case disc: DFDLDiscriminator => disc }
@@ -198,8 +214,15 @@ trait ProvidesDFDLStatementMixin extends ThrowsSDE with HasTermCheck { self: Ann
   private def checkDistinctVariableNames(svs: Seq[DFDLSetVariable]) = {
     val names = svs.map { _.defv.globalQName }
     val areAllDistinct = names.distinct.size == names.size
-    schemaDefinitionUnless(areAllDistinct, "Variable names must all be distinct at the same location: %s", names)
+    schemaDefinitionUnless(areAllDistinct, "Variables referenced by setVariable must all be distinct at the same location: %s", names.distinct)
     svs
+  }
+
+  private def checkDistinctNewVariableInstances(nvis: Seq[DFDLNewVariableInstance]) = {
+    val names = nvis.map { _.defv.globalQName }
+    val areAllDistinct = names.distinct.size == names.size
+    schemaDefinitionUnless(areAllDistinct, "Variables referenced by newVariableInstances must all be distinct within the same scope: %s", names.distinct)
+    nvis
   }
 
   final protected lazy val localSetVariableStatements = {

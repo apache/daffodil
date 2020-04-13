@@ -48,6 +48,17 @@ class TestVariables {
   @Test def test_multiSetErr() { runner.runOneTest("multiSetErr") }
   // DFDL-1443 & DFDL-1448
   // @Test def test_setAfterReadErr() { runner.runOneTest("setAfterReadErr") }
+  @Test def test_varInstance_01() { runner.runOneTest("varInstance_01") }
+  @Test def test_varInstance_02() { runner.runOneTest("varInstance_02") }
+  @Test def test_varInstance_03() { runner.runOneTest("varInstance_03") }
+  @Test def test_varInstance_04() { runner.runOneTest("varInstance_04") }
+  @Test def test_varInstance_05() { runner.runOneTest("varInstance_05") }
+  @Test def test_varInstance_06() { runner.runOneTest("varInstance_06") }
+  @Test def test_varInstance_07() { runner.runOneTest("varInstance_07") }
+  @Test def test_varInstance_08() { runner.runOneTest("varInstance_08") }
+  @Test def test_varInstance_09() { runner.runOneTest("varInstance_09") }
+  @Test def test_varInstance_10() { runner.runOneTest("varInstance_10") }
+  @Test def test_varInstance_11() { runner.runOneTest("varInstance_11") }
   @Test def test_setVarChoice() { runner.runOneTest("setVarChoice") }
   @Test def test_unparse_setVarChoice() { runner.runOneTest("unparse_setVarChoice") }
   @Test def test_setVarOnSeqAndElemRef() { runner.runOneTest("setVarOnSeqAndElemRef") }

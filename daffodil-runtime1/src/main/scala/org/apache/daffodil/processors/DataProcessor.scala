@@ -186,10 +186,8 @@ class DataProcessor private (
     tunables:DaffodilTunables,
     compilerExternalVars: Queue[Binding] = Queue.empty,
     validationMode: ValidationMode.Type = ValidationMode.Off) =
-    this(ssrd, tunables,
-      ExternalVariablesLoader.loadVariables(compilerExternalVars, ssrd, ssrd.originalVariables),
-      false, None, validationMode,
-      compilerExternalVars)
+    this(ssrd, tunables, ExternalVariablesLoader.loadVariables(compilerExternalVars, ssrd, ssrd.originalVariables),
+      false, None, validationMode, compilerExternalVars)
 
   private def copy(
     ssrd: SchemaSetRuntimeData = ssrd,
@@ -260,48 +258,46 @@ class DataProcessor private (
     copy(areDebugging = flag, tunables = newTunables)
   }
 
-  private def newVariableMap(extVars: Map[String, String]): (VariableMap, Queue[Binding]) = {
+  private def loadExternalVariables(extVars: Map[String, String]): Queue[Binding] = {
     val bindings = ExternalVariablesLoader.mapToBindings(extVars)
     val newVars = externalVars ++ bindings
-    val newMap = ExternalVariablesLoader.loadVariables(bindings, ssrd, variableMap)
-    (newMap, newVars)
+    ExternalVariablesLoader.loadVariables(bindings, ssrd, variableMap)
+    newVars
   }
 
-  private def newVariableMap(extVars: File): (VariableMap, Queue[Binding])  = {
+  private def loadExternalVariables(extVars: File): Queue[Binding]  = {
     val bindings = ExternalVariablesLoader.fileToBindings(extVars)
     val newVars = externalVars ++ bindings
-    val newMap = ExternalVariablesLoader.loadVariables(bindings, ssrd, variableMap)
-    (newMap, newVars)
+    ExternalVariablesLoader.loadVariables(bindings, ssrd, variableMap)
+    newVars
   }
 
-  private def newVariableMap(bindings: Seq[Binding]): (VariableMap, Queue[Binding])  = {
+  private def loadExternalVariables(bindings: Seq[Binding]): Queue[Binding]  = {
     val newVars = externalVars ++ bindings
-    val newMap = ExternalVariablesLoader.loadVariables(bindings, ssrd, variableMap)
-    (newMap, newVars)
+    ExternalVariablesLoader.loadVariables(bindings, ssrd, variableMap)
+    newVars
   }
 
   @deprecated("Use withExternalVariables.", "2.6.0")
   def setExternalVariables(extVars: Map[String, String]): Unit = {
-    val (newMap, newBindings) = newVariableMap(extVars)
-    variableMap = newMap
+    val newBindings = loadExternalVariables(extVars)
     externalVars = newBindings
   }
 
   def withExternalVariables(extVars: Map[String, String]): DataProcessor = {
-    val (newMap, newBindings) = newVariableMap(extVars)
-    copy(variableMap = newMap, externalVars = newBindings)
+    val newBindings = loadExternalVariables(extVars)
+    copy(externalVars = newBindings)
   }
 
   @deprecated("Use withExternalVariables.", "2.6.0")
   def setExternalVariables(extVars: File): Unit = {
-    val (newMap, newBindings) = newVariableMap(extVars)
-    variableMap = newMap
+    val  newBindings = loadExternalVariables(extVars)
     externalVars = newBindings
   }
 
   def withExternalVariables(extVars: File): DataProcessor = {
-    val (newMap, newBindings) = newVariableMap(extVars)
-    copy(variableMap = newMap, externalVars = newBindings)
+    val newBindings = loadExternalVariables(extVars)
+    copy(externalVars = newBindings)
   }
 
   /**
@@ -313,21 +309,19 @@ class DataProcessor private (
    */
   @deprecated("Use withExternalVariables.", "2.6.0")
   def setExternalVariables(extVars: File, tunable: DaffodilTunables): Unit = {
-    val (newMap, newBindings) = newVariableMap(extVars)
-    variableMap = newMap
+    val newBindings = loadExternalVariables(extVars)
     externalVars = newBindings
   }
 
   @deprecated("Use withExternalVariables.", "2.6.0")
   def setExternalVariables(extVars: Seq[Binding]): Unit = {
-    val (newMap, newBindings) = newVariableMap(extVars)
-    variableMap = newMap
+    val newBindings = loadExternalVariables(extVars)
     externalVars = newBindings
   }
 
   def withExternalVariables(extVars: Seq[Binding]): DataProcessor = {
-    val (newMap, newBindings) = newVariableMap(extVars)
-    copy(variableMap = newMap, externalVars = newBindings)
+    val newBindings = loadExternalVariables(extVars)
+    copy(externalVars = newBindings)
   }
 
   @deprecated("Use withTunables.", "2.6.0")

@@ -180,15 +180,15 @@ abstract class NewVariableInstanceBase(decl: AnnotatedSchemaComponent, stmt: DFD
 case class NewVariableInstanceStart(decl: AnnotatedSchemaComponent, stmt: DFDLNewVariableInstance)
   extends NewVariableInstanceBase(decl, stmt) {
 
-  lazy val parser: DaffodilParser = new NewVariableInstanceStartParser(decl.runtimeData)
-  override lazy val unparser: DaffodilUnparser = new NewVariableInstanceStartUnparser(decl.runtimeData)
+  lazy val parser: DaffodilParser = new NewVariableInstanceStartParser(stmt.variableRuntimeData)
+  override lazy val unparser: DaffodilUnparser = new NewVariableInstanceStartUnparser(stmt.variableRuntimeData)
 }
 
 case class NewVariableInstanceEnd(decl: AnnotatedSchemaComponent, stmt: DFDLNewVariableInstance)
   extends NewVariableInstanceBase(decl, stmt) {
 
-  lazy val parser: DaffodilParser = new NewVariableInstanceEndParser(decl.runtimeData)
-  override lazy val unparser: DaffodilUnparser = new NewVariableInstanceEndUnparser(decl.runtimeData)
+  lazy val parser: DaffodilParser = new NewVariableInstanceEndParser(stmt.variableRuntimeData)
+  override lazy val unparser: DaffodilUnparser = new NewVariableInstanceEndUnparser(stmt.variableRuntimeData)
 }
 
 /**
