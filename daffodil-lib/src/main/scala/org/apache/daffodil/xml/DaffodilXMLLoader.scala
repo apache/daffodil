@@ -338,11 +338,21 @@ class InputStreamLSInput(var pubId: String, var sysId: String, inputStream: Inpu
   def getEncoding = null
   def getStringData = null
 
-  def setByteStream(byteStream: InputStream) = {}
-  def setCertifiedText(certifiedText: Boolean) = {}
-  def setCharacterStream(characterStream: Reader) = {}
-  def setEncoding(encoding: String) = {}
-  def setStringData(stringData: String) = {}
+  def setByteStream(byteStream: InputStream) = {
+    //do nothing
+  }
+  def setCertifiedText(certifiedText: Boolean) = {
+    //do nothing
+  }
+  def setCharacterStream(characterStream: Reader) = {
+    //do nothing
+  }
+  def setEncoding(encoding: String) = {
+    //do nothing
+  }
+  def setStringData(stringData: String) = {
+    //do nothing
+  }
 }
 
 /**

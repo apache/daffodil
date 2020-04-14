@@ -384,7 +384,9 @@ final class UStateForSuspension(
   override def advanceAccessor: InfosetAccessor = die
   override def inspect: Boolean = die
   override def inspectAccessor: InfosetAccessor = die
-  override def fini: Unit = {}
+  override def fini: Unit = {
+    //do nothing
+  }
   override def inspectOrError = die
   override def advanceOrError = die
   override def isInspectArrayEnd = die

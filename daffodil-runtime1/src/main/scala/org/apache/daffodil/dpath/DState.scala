@@ -414,8 +414,12 @@ case class DState(
   // exist at constant fold time. But we don't want fn:exists to say the result
   // is always a constant (false) because at constant folding time, hey, nothing
   // exists... this hook lets us change behavior for constant folding to throw.
-  def selfMove(): Unit = {}
-  def fnExists(): Unit = {}
+  def selfMove(): Unit = {
+    //do nothing
+  }
+  def fnExists(): Unit = {
+    //do nothing
+  }
 
   // @inline // TODO: Performance maybe this won't allocate a closure if this is inline? If not replace with macro
   final def withRetryIfBlocking[T](body: => T): T =

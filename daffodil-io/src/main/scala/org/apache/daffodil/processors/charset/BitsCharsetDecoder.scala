@@ -142,7 +142,9 @@ abstract class BitsCharsetDecoderByteSize
     }
   }
 
-  override def reset(): Unit = {}
+  override def reset(): Unit = {
+    //do nothing
+  }
 }
 
 
@@ -194,5 +196,7 @@ final class BitsCharsetNonByteSizeDecoder(charset: BitsCharsetNonByteSize)
     charset.codeToChar(code)
   }
 
-  override def reset(): Unit = {}
+  override def reset(): Unit = {
+    //do nothing
+  }
 }

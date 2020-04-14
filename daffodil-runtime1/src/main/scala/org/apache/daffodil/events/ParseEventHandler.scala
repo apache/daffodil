@@ -34,48 +34,88 @@ trait EventHandler {
   /**
    * Parser Events
    */
-  def init(processor: Parser) {}
+  def init(processor: Parser): Unit = {
+    //do nothing
+  }
 
-  def before(state: PState, processor: Parser) {}
+  def before(state: PState, processor: Parser): Unit = {
+    //do nothing
+  }
 
-  def after(after: PState, processor: Parser) {}
+  def after(after: PState, processor: Parser): Unit = {
+    //do nothing
+  }
 
-  def beforeRepetition(state: PState, processor: Parser) {}
+  def beforeRepetition(state: PState, processor: Parser): Unit = {
+    //do nothing
+  }
 
-  def afterRepetition(after: PState, processor: Parser) {}
+  def afterRepetition(after: PState, processor: Parser): Unit = {
+    //do nothing
+  }
 
-  def startElement(state: PState, processor: Parser) {}
+  def startElement(state: PState, processor: Parser): Unit = {
+    //do nothing
+  }
 
-  def endElement(state: PState, processor: Parser) {}
+  def endElement(state: PState, processor: Parser): Unit = {
+    //do nothing
+  }
 
-  def startArray(state: PState, processor: Parser) {}
+  def startArray(state: PState, processor: Parser): Unit = {
+    //do nothing
+  }
 
-  def endArray(state: PState, processor: Parser) {}
+  def endArray(state: PState, processor: Parser): Unit = {
+    //do nothing
+  }
 
-  def fini(processor: Parser) {}
+  def fini(processor: Parser): Unit = {
+    //do nothing
+  }
 
   /**
    * Unparser Events
    */
-  def init(processor: Unparser) {}
+  def init(processor: Unparser): Unit = {
+    //do nothing
+  }
 
-  def before(state: UState, processor: Unparser) {}
+  def before(state: UState, processor: Unparser): Unit = {
+    //do nothing
+  }
 
-  def after(after: UState, processor: Unparser) {}
+  def after(after: UState, processor: Unparser): Unit = {
+    //do nothing
+  }
 
-  def beforeRepetition(state: UState, processor: Unparser) {}
+  def beforeRepetition(state: UState, processor: Unparser): Unit = {
+    //do nothing
+  }
 
-  def afterRepetition(after: UState, processor: Unparser) {}
+  def afterRepetition(after: UState, processor: Unparser): Unit = {
+    //do nothing
+  }
 
-  def startElement(state: UState, processor: Unparser) {}
+  def startElement(state: UState, processor: Unparser): Unit = {
+    //do nothing
+  }
 
-  def endElement(state: UState, processor: Unparser) {}
+  def endElement(state: UState, processor: Unparser): Unit = {
+    //do nothing
+  }
 
-  def startArray(state: UState, processor: Unparser) {}
+  def startArray(state: UState, processor: Unparser): Unit = {
+    //do nothing
+  }
 
-  def endArray(state: UState, processor: Unparser) {}
+  def endArray(state: UState, processor: Unparser): Unit = {
+    //do nothing
+  }
 
-  def fini(processor: Unparser) {}
+  def fini(processor: Unparser): Unit = {
+    //do nothing
+  }
 }
 
 /**

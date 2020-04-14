@@ -635,7 +635,9 @@ class WSPStarDelim extends WSPBase with WSP {
 class ESDelim extends DelimBase {
   override def checkMatch(charIn: Char): Boolean = Assert.impossible("We should never ask if a character matches an %ES;")
   override def allChars: Seq[Char] = Seq.empty
-  override def print: Unit = {}
+  override def print: Unit = {
+    //do nothing
+  }
   override def printStr: String = typeName
   override def typeName: String = "ES"
   override def unparseValue(outputNewLine: String): String = ""

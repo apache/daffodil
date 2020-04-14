@@ -105,11 +105,21 @@ import org.apache.daffodil.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.udf.UserDefinedFunctionFatalErrorException
 
 class NullOutputStream extends OutputStream {
-  override def close() {}
-  override def flush() {}
-  override def write(b: Array[Byte]) {}
-  override def write(b: Array[Byte], off: Int, len: Int) {}
-  override def write(b: Int) {}
+  override def close(): Unit = {
+    //do nothing
+  }
+  override def flush(): Unit = {
+    //do nothing
+  }
+  override def write(b: Array[Byte]): Unit = {
+    //do nothing
+  }
+  override def write(b: Array[Byte], off: Int, len: Int): Unit = {
+    //do nothing
+  }
+  override def write(b: Int): Unit = {
+    //do nothing
+  }
 }
 
 class CommandLineXMLLoaderErrorHandler() extends org.xml.sax.ErrorHandler with Logging {
@@ -1015,7 +1025,9 @@ object Main extends Logging {
                 threadPool.submit(runnable)
               }
 
-              def reportFailure(t: Throwable) {}
+              def reportFailure(t: Throwable): Unit = {
+                //do nothing
+              }
             }
 
             val nullChannelForUnparse = java.nio.channels.Channels.newChannel(new NullOutputStream)
