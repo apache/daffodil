@@ -528,9 +528,15 @@ sealed abstract class StringLiteralBase(propNameArg: String,
     cooked
   }
 
-  protected def testRaw(raw: String, context: ThrowsSDE): Unit = {}
-  protected def testThawed(thawed: String, context: ThrowsSDE): Unit = {}
-  protected def testCooked(cooked: String, context: ThrowsSDE): Unit = {}
+  protected def testRaw(raw: String, context: ThrowsSDE): Unit = {
+    //do nothing
+  }
+  protected def testThawed(thawed: String, context: ThrowsSDE): Unit = {
+    //do nothing
+  }
+  protected def testCooked(cooked: String, context: ThrowsSDE): Unit = {
+    //do nothing
+  }
 }
 
 class StringLiteral(pn: String, allowByteEntities: Boolean)
@@ -671,7 +677,9 @@ sealed abstract class ListOfStringLiteralBase(propNameArg: String,
 
   protected def oneLiteralCooker: StringLiteralBase
 
-  protected def testCooked(cooked: List[String], context: ThrowsSDE): Unit = {}
+  protected def testCooked(cooked: List[String], context: ThrowsSDE): Unit = {
+    //do nothing
+  }
 }
 
 sealed trait ListOfSingleCharacterMixin { self: ListOfStringLiteralBase =>

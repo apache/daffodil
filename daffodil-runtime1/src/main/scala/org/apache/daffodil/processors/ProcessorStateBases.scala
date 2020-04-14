@@ -576,7 +576,9 @@ final class CompileState(tci: DPathCompileInfo, maybeDataProc: Maybe[DataProcess
 
   def currentNode = Maybe(infoset.asInstanceOf[DINode])
 
-  def notifyDebugging(flag: Boolean): Unit = {}
+  def notifyDebugging(flag: Boolean): Unit = {
+    //do nothing
+  }
   private val occursBoundsStack_ = MStackOfLong()
 
   def thisElement = infoset
@@ -584,7 +586,9 @@ final class CompileState(tci: DPathCompileInfo, maybeDataProc: Maybe[DataProcess
   // Members declared in org.apache.daffodil.processors.StateForDebugger
   def currentLocation: DataLocation = Assert.usageError("Not to be used.")
 
-  protected def checkBitOrder(): Unit = {}
+  protected def checkBitOrder(): Unit = {
+    //do nothing
+  }
 
   def regexMatchBuffer: CharBuffer = Assert.usageError("Not to be used.")
   def regexMatchBitPositionBuffer: LongBuffer = Assert.usageError("Not to be used.")

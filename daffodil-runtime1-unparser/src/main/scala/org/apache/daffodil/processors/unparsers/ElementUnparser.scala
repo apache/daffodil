@@ -485,7 +485,9 @@ sealed trait RegularElementUnparserStartEndStrategy
     }
   }
 
-  final override protected def captureRuntimeValuedExpressionValues(ustate: UState): Unit = {}
+  final override protected def captureRuntimeValuedExpressionValues(ustate: UState): Unit = {
+    //do nothing
+  }
 
 }
 

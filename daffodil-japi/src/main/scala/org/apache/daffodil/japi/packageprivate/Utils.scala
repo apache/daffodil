@@ -93,7 +93,9 @@ private[japi] object ValidationConversions {
 private[japi] class JavaLogWriter(logWriter: LogWriter)
     extends SLogWriter {
 
-  protected def write(msg: String): Unit = {}
+  protected def write(msg: String): Unit = {
+    //do nothing
+  }
 
   override def log(lvl: SLogLevel.Type, logID: String, msg: String, args: Seq[Any]) {
     if (logWriter != null) {

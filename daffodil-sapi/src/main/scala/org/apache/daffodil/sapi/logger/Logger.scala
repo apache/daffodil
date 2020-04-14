@@ -115,14 +115,18 @@ abstract class LogWriter {
  * [[LogWriter]] that writes log messages to stdout
  */
 final class ConsoleLogWriter extends LogWriter {
-  protected def write(level: LogLevel.Value, logID: String, msg: String): Unit = {}
+  protected def write(level: LogLevel.Value, logID: String, msg: String): Unit = {
+    //do nothing
+  }
 }
 
 /**
  * [[LogWriter]] that drops all log messages
  */
 final class NullLogWriter extends LogWriter {
-  protected def write(level: LogLevel.Value, logID: String, msg: String): Unit = {}
+  protected def write(level: LogLevel.Value, logID: String, msg: String): Unit = {
+    //do nothing
+  }
 }
 
 /**
@@ -135,5 +139,7 @@ final class FileLogWriter(file: File) extends LogWriter {
    * Retrieve the file the log writer writes to
    */
   def getFile = file
-  protected def write(level: LogLevel.Value, logID: String, msg: String): Unit = {}
+  protected def write(level: LogLevel.Value, logID: String, msg: String): Unit = {
+    //do nothing
+  }
 }

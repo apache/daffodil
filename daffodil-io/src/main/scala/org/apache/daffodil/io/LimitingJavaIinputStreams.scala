@@ -209,7 +209,8 @@ class RegexLimitingStream(inputStream: InputStream,
   override def available(): Int =
     if (charsIter.hasNext) 1 else 0
 
-  override def close() {
+  override def close(): Unit = {
+    //do nothing
   }
 
   private var noMoreChunks = false

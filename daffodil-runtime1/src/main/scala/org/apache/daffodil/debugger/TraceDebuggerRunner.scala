@@ -27,7 +27,9 @@ class TraceDebuggerRunner extends InteractiveDebuggerRunner {
     "display info diff",
     "trace").iterator
 
-  def init(id: InteractiveDebugger): Unit = {}
+  def init(id: InteractiveDebugger): Unit = {
+    //do nothing
+  }
 
   def getCommand: String = {
     if (traceIter.hasNext) {
@@ -45,5 +47,7 @@ class TraceDebuggerRunner extends InteractiveDebuggerRunner {
     println(line)
   }
 
-  def fini(): Unit = {}
+  def fini(): Unit = {
+    //do nothing
+  }
 }

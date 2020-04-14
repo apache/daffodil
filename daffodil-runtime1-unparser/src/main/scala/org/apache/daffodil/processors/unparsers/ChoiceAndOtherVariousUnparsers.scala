@@ -79,7 +79,9 @@ class ChoiceBranchEmptyUnparser(val context: RuntimeData)
 
   override lazy val runtimeDependencies = Vector()
 
-  def unparse(state: UState): Unit = {}
+  def unparse(state: UState): Unit = {
+    //do nothing
+  }
 }
 
 class ChoiceCombinatorUnparser(

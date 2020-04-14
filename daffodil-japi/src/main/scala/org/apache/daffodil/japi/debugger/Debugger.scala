@@ -66,9 +66,15 @@ abstract class DebuggerRunner {
  * [[DebuggerRunner]] that writes verbose information about parsing to stdout
  */
 final class TraceDebuggerRunner extends DebuggerRunner {
-  def init(): Unit = {}
+  def init(): Unit = {
+    //do nothing
+  }
   def getCommand(): String = ""
-  def lineOutput(line: String) = {}
-  def fini(): Unit = {}
+  def lineOutput(line: String) = {
+    //do nothing
+  }
+  def fini(): Unit = {
+    //do nothing
+  }
 }
 

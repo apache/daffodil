@@ -131,7 +131,9 @@ class ChoiceBranchEmptyParser(val context: RuntimeData)
 
   override lazy val runtimeDependencies = Vector()
 
-  def parse(state: PState): Unit = {}
+  def parse(state: PState): Unit = {
+    //do nothing
+  }
 }
 
 /*
