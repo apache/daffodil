@@ -58,17 +58,12 @@ class DataDumper {
   protected sealed class TextKind(val optCharset: Option[String]) extends Kind
   protected sealed trait BinaryKind extends Kind
   protected sealed trait HexKind extends BinaryKind // hexadecimal
-  // sealed trait BitsKind extends BinaryKind // individual ones and zeros
   protected sealed trait Direction
   protected sealed trait RTL extends Direction // used with least-signif-bit first data like mil-std-2045
   protected sealed trait LTR extends Direction
-  // case object HexLTR extends HexKind with LTR
-  // case object BitsLTR extends BitsKind with LTR
-  // case object HexRTL extends HexKind with RTL
   case class TextOnly(override val optCharset: Option[String] = None) extends TextKind(optCharset)
   case class MixedHexLTR(override val optCharset: Option[String] = None) extends TextKind(optCharset) with HexKind with LTR
   case class MixedHexRTL(override val optCharset: Option[String] = None) extends TextKind(optCharset) with HexKind with RTL
-  // case class MixedBits(optCharset: Option[String] = None) extends TextKind(optCharset) with BitsKind
 
   def convertBitsToBytesUnits(startBitAddress0b: Long, lengthInBits: Long): (Long, Int, Long) = {
     Assert.usage(startBitAddress0b >= 0)
@@ -642,7 +637,6 @@ class DataDumper {
     }
 
     val endByteAddress0b = math.max(startByteAddress0b + lengthInBytes - 1, 0)
-    // val cs = optEncodingName.map { Charset.forName(_) }
     val decoder = getReportingDecoder(optEncodingName)
     var i = startByteAddress0b
     val sb = new StringBuilder

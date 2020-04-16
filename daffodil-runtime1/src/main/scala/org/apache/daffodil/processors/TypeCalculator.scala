@@ -98,7 +98,6 @@ abstract class TypeCalculator(val srcType: NodeInfo.Kind, val dstType: NodeInfo.
     if (err.isDefined) {
       val diag = new ParseError(Maybe(context.schemaFileLocation), dstate.contextLocation, err.get)
       throw diag
-      //      throw FNErrorFunctionException(Maybe(context.schemaFileLocation), dstate.contextLocation, err.get)
     }
 
     dstate.setCurrentValue(ans)

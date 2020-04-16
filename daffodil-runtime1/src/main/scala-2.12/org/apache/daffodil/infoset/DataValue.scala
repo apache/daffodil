@@ -230,16 +230,15 @@ object DataValue {
    * As such, is issues a warning on the naive typecheck since it can "never" fail. We silence this warning,
    * by first casting to Any.
    *
-   * Ideally, we could compare against our DataValueAny type alias. However, Scala (correctly) points out,
-   * that type erasure means that DataValueAny contains information that Scala cannot actually verify at runtime.
-   * To silence this warning, we explictly check against the underlying DataValue type.
-   *
-   * The commented out assertion below shows what we are trying to accomplish.
-   *
-   * The actual assertion below is equivalent, but does not result in warnings.
-   *
    */
     Assert.invariant(!v.asInstanceOf[Any].isInstanceOf[DataValue[AnyRef, AnyRef]])
+
+    // Ideally, we could compare against our DataValueAny type alias. However, Scala (correctly) points out,
+    // that type erasure means that DataValueAny contains information that Scala cannot actually verify at runtime.
+    // To silence this warning, we explictly check against the underlying DataValue type.
+    //
+    // The commented out assertion below shows what we are trying to accomplish.
+    // The actual assertion above is equivalent, but does not result in warnings.
     //  Assert.invariant(!v.isInstanceOf[DataValueAny])
   }
 }

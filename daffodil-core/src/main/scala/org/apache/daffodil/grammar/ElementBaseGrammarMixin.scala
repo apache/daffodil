@@ -243,10 +243,6 @@ trait ElementBaseGrammarMixin
           isSpecifiedLengthForUnparsing &&
           couldBeVariableLengthInfoset &&
           (lengthUnits ne LengthUnits.Characters))
-    //    if (res)
-    //      println("%s should add fill.".format(this.diagnosticDebugName))
-    //    else
-    //      println("%s NOT adding fill.".format(this.diagnosticDebugName))
     res
   }
 
@@ -416,10 +412,6 @@ trait ElementBaseGrammarMixin
       couldBeVariableLengthInfoset &&
         !isTruncatable &&
         isSpecifiedLengthForUnparsing
-    //    if (res)
-    //      println("%s should check excess length.".format(this.diagnosticDebugName))
-    //    else
-    //      println("%s NOT checking excess length.".format(this.diagnosticDebugName))
     res
   }
 
@@ -993,7 +985,6 @@ trait ElementBaseGrammarMixin
 
       nilKind match {
         case NilKind.LiteralValue => {
-          // if (impliedRepresentation != Representation.Text) this.SDE("LiteralValue Nils require representation='text'.")
           lengthKind match {
             case LengthKind.Delimited => LiteralNilDelimitedEndOfData(this)
             case LengthKind.Pattern => LiteralValueNilOfSpecifiedLength(this)

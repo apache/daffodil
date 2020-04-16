@@ -321,7 +321,6 @@ final class Schema(val namespace: NS, schemaDocs: Seq[SchemaDocument], schemaSet
    * This just scans each schema document in the schema, checking each one.
    */
   def getGlobalElementDecl(name: String) = {
-    // noneOrOne(schemaDocuments.flatMap { _.getGlobalElementDecl(name) }, name)
     val sds = schemaDocuments
     val res = sds.flatMap {
       sd =>

@@ -73,8 +73,6 @@ object VariableUtils {
 
   def convert(v: String, rd: VariableRuntimeData): DataValuePrimitive =
     rd.primType.fromXMLString(v)
-
-  // Infoset.convertToInfosetRepType(rd.primType, v, rd)
 }
 
 abstract class VariableException(val qname: NamedQName, val context: VariableRuntimeData, msg: String)

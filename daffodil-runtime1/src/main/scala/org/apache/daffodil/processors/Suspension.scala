@@ -178,18 +178,6 @@ trait Suspension
     val cloneUState = ustate.asInstanceOf[UStateMain].cloneForSuspension(original)
     if (isReadOnly && didSplit) {
       Assert.invariantFailed("Shouldn't have split. read-only case")
-      //      try {
-      //        // We did a DOS split, but we know we'll not be writing to it
-      //        //
-      //        // So we set finished immediately
-      //        //
-      //        // TODO: Begs the question of why we needed the split to begin with in that
-      //        // case. Figure out why and document it!
-      //        //
-      //        original.setFinished(cloneUState)
-      //      } catch {
-      //        case boc: BitOrderChangeException => ustate.SDE(boc)
-      //      }
     }
 
     savedUstate_ = cloneUState

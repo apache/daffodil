@@ -32,9 +32,6 @@ object Processor {
   private def ensureCompiled(proc: Processor) {
     if (!proc.isInitialized) {
       proc.isInitialized = true
-      //      proc.childProcessors.foreach { cp =>
-      //        Assert.invariant(!cp.isEmpty)
-      //      }
       proc.runtimeDependencies.foreach { ensureCompiled }
       proc.childProcessors.foreach { ensureCompiled }
     }

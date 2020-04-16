@@ -138,9 +138,6 @@ abstract class LayerTransformer()
     val jis = wrapJavaInputStream(s, state)
     val limitedJIS = wrapLimitingStream(jis, state)
     val decodedInputStream = wrapLayerDecoder(limitedJIS)
-    //    val str = Iterator.continually { decodedInputStream.read() }.takeWhile { _ != -1 }.toStream.mkString
-    //    println(str)
-    //    val bais = new ByteArrayInputStream(str.getBytes("ascii"))
 
     val newDIS = InputSourceDataInputStream(decodedInputStream)
     newDIS.cst.setPriorBitOrder(BitOrder.MostSignificantBitFirst) // must initialize priorBitOrder
@@ -177,13 +174,12 @@ abstract class LayerTransformer()
     //
   }
 
-  /**
-   * These were very useful for debugging. Note that they stop with a ???
-   * error. That's because dumping streams changes their state.
-   *
-   * Keeping these around commented out, for now. While this feature is still
-   * new and may need further debugging.
-   */
+  // These were very useful for debugging. Note that they stop with a ???
+  // error. That's because dumping streams changes their state.
+  //
+  // Keeping these around commented out, for now. While this feature is still
+  // new and may need further debugging.
+  //
   //  def dumpLayer(is: InputStream) {
   //    val str = Stream.continually(is.read).takeWhile(_ != -1).map(_.toChar).mkString
   //    println("dump length " + str.length + " = " + str)

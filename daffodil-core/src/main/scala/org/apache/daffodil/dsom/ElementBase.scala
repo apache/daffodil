@@ -353,8 +353,6 @@ trait ElementBase
 
   lazy val unparserInfosetElementDefaultingBehavior: UnparserInfo.InfosetEventBehavior = {
     import UnparserInfo._
-    //if (isScalar && isDefaultable) ScalarDefaultable
-    //else if (isArray && isDefaultable) ArrayDefaultable
     if (!isRepresented) MustExist
     else if (isOutputValueCalc) Computed
     else if (isOptional) Optional
@@ -816,9 +814,6 @@ trait ElementBase
   private lazy val enumerationValues: Option[String] = {
     Assert.invariant(hasEnumeration)
     typeDef.optRestriction.flatMap { _.enumerationValues }
-    //    .getOrElse {
-    //      Assert.invariantFailed("must have an enumeration value")
-    //    }
   }
 
   /**

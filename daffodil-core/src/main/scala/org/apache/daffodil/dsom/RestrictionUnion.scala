@@ -119,9 +119,6 @@ final class Restriction(xmlArg: Node, val simpleTypeDef: SimpleTypeDefBase)
   }
 
   final lazy val combinedBaseFacets: Seq[FacetValue] = {
-    //    val localF = localBaseFacets
-    //    val remoteF = remoteBaseFacets
-
     val combined: Queue[FacetValue] = Queue.empty
 
     if (hasEnumeration) {
@@ -473,7 +470,6 @@ sealed trait TypeChecks { self: Restriction =>
   protected def isInNegativeIntegerRange(value: JBigDecimal, context: ThrowsSDE): Boolean = {
     // TODO: NegativeInteger not supported in DFDL v1.0
     val min = new JBigDecimal(Int.MinValue.toString())
-    // val max = new JBigDecimal(Int.MaxValue.toString())
     val isNegative = value.signum == -1
     if (!isNegative) context.SDE("Expected a negative integer for this value.")
     val checkMin = value.compareTo(min)
@@ -482,14 +478,12 @@ sealed trait TypeChecks { self: Restriction =>
   }
   protected def isInNonNegativeIntegerRange(value: JBigDecimal): Boolean = {
     // Should be treated as unsigned Integer (unbounded)
-    // val min = JBigDecimal.ZERO
     val isNegative = value.signum == -1
     if (isNegative) return false
     true
   }
   protected def isInUnsignedXXXRange(value: JBigDecimal, numBits: Int, typeName: String): Boolean = {
     Assert.usage(numBits <= 64, "isInUnsignedXXXRange: numBits must be <= 64.")
-    // val min = JBigDecimal.ZERO
     val max = new JBigDecimal(JBigInt.ONE.shiftLeft(numBits)).subtract(new JBigDecimal(1))
     val isNegative = value.signum == -1
     if (isNegative) return false

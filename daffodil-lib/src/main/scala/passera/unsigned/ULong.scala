@@ -132,15 +132,6 @@ case class ULong(override val longValue: Long) extends AnyVal with Unsigned[ULon
       else
         ULong(q)
     }
-
-    //    val t = d >> 63
-    //    val n1 = n & ~t
-    //    val a = n1 >>> 1
-    //    val b = a / d
-    //    val q0 = b << 1
-    //    val r = n - q0 * d
-    //    val q = q0 + (if (ULong(r) >= x) 1l else 0l)
-    //    ULong(q.toLong)
   }
 
   def %(x: ULong): ULong = {
@@ -179,14 +170,12 @@ case class ULong(override val longValue: Long) extends AnyVal with Unsigned[ULon
   def ==(x: Int)(implicit d: DummyImplicit) = intValue == x
   def ==(x: Long)(implicit d: DummyImplicit) = longValue == x
   def ==(x: UInt) = longValue == x.longValue
-  // def ==(x: ULong) = longValue == x.longValue
   def ==(x: Float) = floatValue == x
   def ==(x: Double) = doubleValue == x
 
   def !=(x: Int)(implicit d: DummyImplicit) = intValue != x
   def !=(x: Long)(implicit d: DummyImplicit) = longValue != x
   def !=(x: UInt) = longValue != x.longValue
-  // def !=(x: ULong) = longValue != x.longValue
   def !=(x: Float) = floatValue != x
   def !=(x: Double) = doubleValue != x
 

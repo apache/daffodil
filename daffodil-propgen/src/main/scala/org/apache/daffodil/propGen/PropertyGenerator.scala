@@ -77,20 +77,8 @@ class PropertyGenerator(arg: Node) {
     res
   }
 
-  //  def getDFDLSchemaCollection() :XmlSchemaCollection = {
-  //    val is = SchemaCompiler.getInternalXSDStream()
-  //    val saxSrc = new InputSource(is)
-  //    val dfdlsc = new XmlSchemaCollection()
-  //    dfdlsc.read(saxSrc)
-  //    dfdlsc
-  //  }
-
   def genAll(): Seq[String] = {
     val allTopLevel = dfdlSchema.child
-    //      val allNamed = allTopLevel.filter(st => {
-    //      val name = attr(st, "name")
-    //        name != None
-    //      })
     val thunks = allTopLevel.map(node => {
       node.label match {
         case "element" => genElement(node)
@@ -259,8 +247,6 @@ class PropertyGenerator(arg: Node) {
           "textStandardExponentRep", "textStandardExponentCharacter",
           "textOutputMinLength")
       val exclusions = notFormatProperties ++ notScopedFormatProperties ++ excludedBecauseDoneByHand
-      if (rawName == "binaryFloatRep") {
-      }
       if (exclusions.contains(rawName)) {
         Nil
       } else {
@@ -547,9 +533,6 @@ object Currency {
 
   def generatePropertyGroup(pgName: String, pgList: Seq[(String, String)], agList: Seq[String], enumList: Seq[String]) = {
     val traitName = initialUpperCase(pgName)
-    //    if (traitName == "TextNumberFormatAG") {
-    //      println("stop here in breakpoint")
-    //    }
     val traitNames = (enumList ++ agList).map(initialUpperCase(_) + "Mixin")
     val extendsClause = "extends PropertyMixin" + traitNames.foldLeft("")(_ + "\n  with " + _)
     val mixinName = traitName + "Mixin"
@@ -559,13 +542,6 @@ object Currency {
         isEnumQName(attrName)
       }
     }
-    //    val enumAttribsList = enumAttrList.map {
-    //      case (attrName, attrTypeName) =>
-    //        val propName = initialLowerCase(attrName)
-    //        val res =
-    //          generateEnumInstantiation(propName, attrTypeName)
-    //        res
-    //    }
     val (primAttrList, nonPrimAttrList) = nonEnumAttrList.partition { case (attrName, attrTypeName) => isXSDTypeName(attrTypeName) }
     val primAttribsList = primAttrList.map {
       case (attrName, attrTypeName) => {

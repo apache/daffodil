@@ -85,19 +85,6 @@ class Registers() extends Poolable with Serializable {
   }
 
   /**
-   * Use to set reader position to resume from.
-   */
-  //  def setResume(resumeReader: DFDLCharReader) {
-  //    Registers.this.reader = resumeReader
-  //  }
-  //
-  //  def resumeForUnparse(resumeReader: DFDLCharReader) {
-  //    Registers.this.reader = resumeReader
-  //    data0 = nextChar()
-  //    data1 = nextChar()
-  //  }
-
-  /**
    * Copy an existing Registers' reader position information
    * to this Registers.
    *

@@ -284,7 +284,6 @@ final class SchemaSet(
    * unambiguous, it is used as the root.
    */
   private def findRootElement(name: String) = {
-    // log(Info("%s searching for root element with name %s", Misc.getNameFromClass(this), name))
     val candidates = schemas.flatMap { _.getGlobalElementDecl(name) }
     schemaDefinitionUnless(candidates.length != 0, "No root element found for %s in any available namespace", name)
     schemaDefinitionUnless(candidates.length <= 1, "Root element %s is ambiguous. Candidates are %s.",

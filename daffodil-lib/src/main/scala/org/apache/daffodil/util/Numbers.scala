@@ -160,7 +160,7 @@ object Numbers {
    * */
   def asBigInt(n: AnyRef): JBigInt = {
     val value: JBigInt = n match {
-      case b: JBigInt => b //BigInt(b)
+      case b: JBigInt => b
       case bd: JBigDecimal => bd.toBigInteger()
       case d: JDouble => new JBigDecimal(d).toBigInteger()
       case f: JFloat => new JBigDecimal(f.toDouble).toBigInteger()
@@ -307,20 +307,8 @@ object Numbers {
     }
   }
 
-  @inline 
+  @inline
   def asAnyRef(n: Any): AnyRef = {
     n.asInstanceOf[AnyRef]
-    /*
-     * Attempting to match on the type is pointless.
-     * Simply doing the match will box the value, so
-     * it will always match against AnyRef
-     */
-//    n match {
-//      // case bi: BigInt => bi.bigInteger
-//      // case bd: BigDecimal => bd.bigDecimal
-//      case ar: AnyRef => ar
-//      case b: Boolean => JBoolean.valueOf(b)
-//      case _ => asNumber(n)
-//    }
   }
 }

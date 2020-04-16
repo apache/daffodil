@@ -71,9 +71,6 @@ object ExecutionMode {
   private final def isUnrestrictedMode = executionMode.value == UnrestrictedMode
 
   private def notUnknown = {
-    // val msg = "Warning code is not wrapped with either usingCompilerMode or usingRuntimeMode"
-    // Assert.usageErrorUnless(!isUnknownMode, msg)
-    // if (isUnknownMode) System.err.println(msg)
     !isUnknownMode
   }
 

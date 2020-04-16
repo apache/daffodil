@@ -349,38 +349,6 @@ abstract class Evaluatable[+T <: AnyRef](protected val ci: DPathCompileInfo, qNa
   }
 }
 
-/**
- * Rv is a "runtime value" as in, it is *always* evaluated, never cached, never
- * even considered as a possibility for a constant.
- */
-
-//abstract class Rv[+T <: AnyRef](rd: RuntimeData) extends Evaluatable[T](rd) {
-//
-//  final override def isConstant = false // this is always to be computed
-//
-//  final override def compile(state: CompileState) = {
-//    //
-//    // Just because this can't be constant ever, doesn't mean it doesn't
-//    // call other things that might be folded into constants. So we have to call super.compile().
-//    //
-//    val y = super.compile(state)
-//    if (y.isDefined) {
-//      // println("Compiling Done for %s.".format(qName))
-//    } else {
-//      // interesting that we got a value back from compiling, but since this is a Rv we're going to
-//      // disregard it anyway.
-//    }
-//    None // we never get a value back from compile().
-//  }
-//
-//  final override def apply(state: State): T = {
-//    if (!isCompiled) {
-//      compileIt(state)
-//    }
-//    compute(state)
-//  }
-//}
-
 final class EvalCache {
   private val ht = new java.util.LinkedHashMap[Evaluatable[AnyRef], AnyRef] // linked so we can depend on order in unit tests.
 

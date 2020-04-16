@@ -96,11 +96,6 @@ object Maybe {
   import scala.language.implicitConversions
 
   /**
-   *  implicitly treat as iterator/sequence/list (Scala's Option type has this)
-   */
-  // implicit def toIterator[T <: AnyRef](m: Maybe[T]) = m.toList
-
-  /**
    * implicitly convert Option type to Maybe type.
    *
    * The conversion the other way must be explicit by calling toScalaOption

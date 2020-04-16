@@ -139,7 +139,7 @@ trait Facets { self: Restriction =>
     if (values.size > 0) {
       val (_, value) = values(0)
       Some(value)
-    } else None // SDE("Enumeration was not found in this context.")
+    } else None
   }
   // TODO: Tidy up.  Can likely replace getFacetValue with a similar call to combinedBaseFacets
   // as combinedBaseFacets should contain the 'narrowed' values.
@@ -309,7 +309,6 @@ trait Facets { self: Restriction =>
     // Necessary for min/max Inclusive/Exclusive Facets
 
     // Perform conversions once
-    //val theLocalFacet = new java.math.BigDecimal(localFacet)
     val theLocalFacet = convertFacetToBigDecimal(localFacet)
 
     facetType match {
@@ -432,7 +431,7 @@ trait Facets { self: Restriction =>
     // been done in the base. --TRW
 
     // Perform conversions once
-    val theRemoteFacet = checkValueSpaceFacetRange(remoteFacet, facetType) //new java.math.BigDecimal(remoteFacet)
+    val theRemoteFacet = checkValueSpaceFacetRange(remoteFacet, facetType)
     val theLocalFacet = checkValueSpaceFacetRange(localFacet, facetType)
 
     (theLocalFacet, theRemoteFacet)

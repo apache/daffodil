@@ -136,14 +136,12 @@ trait SmallUInt[U <: Unsigned[U, UInt, Int]] extends Any with Unsigned[U, UInt, 
 
   def ==(x: Int)(implicit d: DummyImplicit) = intValue == x
   def ==(x: Long)(implicit d: DummyImplicit) = longValue == x
-  // def ==(x: UInt) = longValue == x.longValue
   def ==(x: ULong) = longValue == x.longValue
   def ==(x: Float) = floatValue == x
   def ==(x: Double) = doubleValue == x
 
   def !=(x: Int)(implicit d: DummyImplicit) = intValue != x
   def !=(x: Long)(implicit d: DummyImplicit) = longValue != x
-  // def !=(x: UInt) = longValue != x.longValue
   def !=(x: ULong) = longValue != x.longValue
   def !=(x: Float) = floatValue != x
   def !=(x: Double) = doubleValue != x

@@ -55,12 +55,4 @@ object DFDLCheckConstraintsFunction {
       res
     }
   }
-
-  //  def checkOccurrence(minOccurs: Int, maxOccurs: Int, position: Long): Boolean = {
-  //    // A maxOccurs of -1 signifies unbounded
-  //    if ( // position > minOccurs && // DON"T CHECK MIN OCCURS.
-  //    // That can't work. If minOccurs is 5 the first element at position 1 will fail this check.
-  //    ((position <= maxOccurs) || (maxOccurs == -1))) { return true }
-  //    return false
-  //  }
 }

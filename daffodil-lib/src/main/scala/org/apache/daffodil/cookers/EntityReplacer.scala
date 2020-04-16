@@ -187,7 +187,7 @@ final class EntityReplacer {
         val trimmedStr = rawStr.replace(prefix, "").replace(";", "")
         val upperNibble: Int = Byte.parseByte(trimmedStr.substring(0, 1), 16) << 4
         val lowerNibble: Byte = Byte.parseByte(trimmedStr.substring(1, 2), 16)
-        val byteStr: Int = upperNibble | lowerNibble //Byte.parseByte(trimmedStr, 16)
+        val byteStr: Int = upperNibble | lowerNibble
 
         res = res.replaceAll(rawStr, byteStr.toChar.toString)
       }
