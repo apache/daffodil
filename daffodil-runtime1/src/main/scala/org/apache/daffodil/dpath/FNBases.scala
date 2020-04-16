@@ -81,7 +81,7 @@ case class BooleanOp(op: String, left: CompiledDPath, right: CompiledDPath)
   override def run(dstate: DState) {
     val savedNode = dstate.currentNode
     left.run(dstate)
-    val leftValue = dstate.currentValue.getBoolean // convertToBoolean(dstate.currentValue, dstate.pstate)
+    val leftValue = dstate.currentValue.getBoolean
 
     val result =
       if ((op == "and" && leftValue == false) ||
@@ -90,7 +90,7 @@ case class BooleanOp(op: String, left: CompiledDPath, right: CompiledDPath)
       } else {
         dstate.setCurrentNode(savedNode)
         right.run(dstate)
-        val rightValue = dstate.currentValue.getBoolean // convertToBoolean(dstate.currentValue, dstate.pstate)
+        val rightValue = dstate.currentValue.getBoolean
         rightValue
       }
 

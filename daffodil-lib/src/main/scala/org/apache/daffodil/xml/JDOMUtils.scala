@@ -74,14 +74,8 @@ object JDOMUtils {
         }
 
         if (attribute.isPrefixed && attrNS != "") {
-          //          println("THE ATTRIBUTE IS: " + name)
-          //          println("THE NAMESPACE SHOULD BE: " + attrNS)
-          //          println("IT ACTUALLY IS:" + Namespace.getNamespace(name, attrNS))
-
-          // jdomNode setAttribute (name, value, ns)
           new org.jdom2.Attribute(name, value, ns)
         } else
-          // jdomNode setAttribute (name, value)
           new org.jdom2.Attribute(name, value)
       }
     }

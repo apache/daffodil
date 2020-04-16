@@ -381,7 +381,7 @@ class DFDLTestSuite private[tdml] (
       Thread.sleep(1) // needed to give tools like jvisualvm ability to "grab on" quickly
     }
     if (isTDMLFileValid) {
-      val testCase = testCases.find(_.tcName == testName) // Map.get(testName)
+      val testCase = testCases.find(_.tcName == testName)
       testCase match {
         case None => throw TDMLException("test " + testName + " was not found.", None)
         case Some(tc) => {
@@ -1893,7 +1893,6 @@ case class Document(d: NodeSeq, parent: TestCase) {
     val transitions = docPartBitOrders zip docPartBitOrders.tail zip cumulativeDocumentPartLengthsInBits.tail zip dps
     transitions.foreach {
       case (((bitOrderPrior, bitOrderHere), cumulativeLength), docPart) => {
-        // println("transition " + bitOrderPrior + " " + bitOrderHere + " " + cumulativeLength)
         Assert.usage(
           (bitOrderPrior == bitOrderHere) || ((cumulativeLength % 8) == 0),
           "bitOrder can only change on a byte boundary.")
@@ -1966,7 +1965,6 @@ case class Document(d: NodeSeq, parent: TestCase) {
       // assemble the input from the various pieces, having lowered
       // everything to bits.
       val bytes = documentBytes
-      // println("data size is " + bytes.length)
       new java.io.ByteArrayInputStream(bytes)
     }
   }
@@ -2040,7 +2038,6 @@ class TextDocumentPart(part: Node, parent: Document) extends DataDocumentPart(pa
   }
 
   def encodeWithNonByteSizeEncoder(s: String, byteSize: Int): Seq[String] = {
-    //System.out.println("encodeWith3BitEncoder")
     val bb = ByteBuffer.allocate(4 * s.length)
     val cb = CharBuffer.wrap(s)
     val coderResult = encoder.encode(cb, bb, true)
@@ -2049,7 +2046,6 @@ class TextDocumentPart(part: Node, parent: Document) extends DataDocumentPart(pa
     val res = (0 to bb.limit() - 1).map {
       bb.get(_)
     }
-    // val bitsAsString = bytes2Bits(res.toArray)
     val enc = encoder.asInstanceOf[BitsCharsetNonByteSizeEncoder]
     val nBits = s.length * enc.bitsCharset.bitWidthOfACodeUnit
     val bitStrings = res.map { b => (b & 0xFF).toBinaryString.reverse.padTo(8, '0').reverse }.toList
@@ -2061,7 +2057,6 @@ class TextDocumentPart(part: Node, parent: Document) extends DataDocumentPart(pa
   }
 
   def encodeWith8BitEncoder(s: String): Seq[String] = {
-    //System.out.println("encodeWith8BitEncoder")
     val bb = ByteBuffer.allocate(4 * s.length)
     val cb = CharBuffer.wrap(s)
     val coderResult = encoder.encode(cb, bb, true)
@@ -2070,8 +2065,6 @@ class TextDocumentPart(part: Node, parent: Document) extends DataDocumentPart(pa
     val res = (0 to bb.limit() - 1).map {
       bb.get(_)
     }
-    // val bitsAsString = bytes2Bits(res.toArray)
-    // val nBits = bb.limit() * 8
     val bitStrings = res.map { b => (b & 0xFF).toBinaryString.reverse.padTo(8, '0').reverse }.toList
     bitStrings
   }
@@ -2120,10 +2113,6 @@ class ByteDocumentPart(part: Node, parent: Document) extends DataDocumentPart(pa
 }
 
 class BitsDocumentPart(part: Node, parent: Document) extends DataDocumentPart(part, parent) {
-  // val validBinaryDigits = "01"
-
-  // lazy val bitContentToBytes = bits2Bytes(bitDigits).toList
-
   lazy val bitDigits = {
     val res = partRawContent.split("[^01]").mkString
     res
@@ -2235,15 +2224,6 @@ sealed abstract class DocumentPart(part: Node, parent: Document) {
     childNode match {
       case scala.xml.PCData(s) => Some(childNode)
       case scala.xml.Text(s) => Some(childNode)
-      //      {
-      //        // can't just use s.trim here as that would remove explicit
-      //        // carriage returns like &#x0D; if they have already been
-      //        // replaced by the corresponding character.
-      //        val trimmedEnd = s.replaceFirst("\\ +$", "") // spaces only
-      //        val trimmed = trimmedEnd.replaceFirst("^\\ +", "") // spaces only
-      //        if (trimmed.length == 0) None
-      //        else Some(scala.xml.Text(trimmed))
-      //      }
       case scala.xml.Comment(_) => None
       case scala.xml.EntityRef(_) => Some(childNode)
       case _: scala.xml.Atom[_] => Some(childNode) // Things like &lt; come through as this. Should be EntityRef
@@ -2352,7 +2332,6 @@ object UTF8Encoder {
     // or next codepoint.
     //
     val bytes = XMLUtils.walkUnicodeString(s)(utf8LikeEncoding).flatten
-    // val bytes = tuples.flatMap { case ((prevcp, cp), nextcp) => utf8LikeEncoding(prevcp, cp, nextcp) }
     bytes
   }
 
@@ -2397,7 +2376,6 @@ object UTF8Encoder {
       val h = leadingSurrogate.toInt // aka 'h for high surrogate'
       val l = trailingSurrogate.toInt // aka 'l for low surrogate'
       val cp = 0x10000 + ((h - 0xD800) * 0x400) + (l - 0xDC00)
-      // val byte1 = (cp >> 24) & 0xFF
       val byte2 = (cp >> 16) & 0xFF
       val byte3 = (cp >> 8) & 0xFF
       val byte4 = cp & 0xFF

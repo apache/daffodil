@@ -214,11 +214,6 @@ trait Logging extends Identity {
     getLogWriter.log(lvl, logID, msg, args)
 
   final def log(lvl: LogLevel.Type, msg: String, args: Any*): Unit = macro LoggerMacros.logMacro
-  //    {
-  //      val l = level.lvl
-  //      if (getLoggingLevel().lvl >= l)
-  //        doLogging(level, msg, args.toSeq)
-  //    }
 
   /**
    * Use to make debug printing over small code regions convenient. Turns on

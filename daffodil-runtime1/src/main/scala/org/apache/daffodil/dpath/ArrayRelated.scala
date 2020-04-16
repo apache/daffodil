@@ -51,30 +51,29 @@ case class FNCount(recipe: CompiledDPath, argType: NodeInfo.Kind)
 case object FNExactlyOne extends RecipeOp {
   override def run(dstate: DState) {
 
-    //      // Original implementation with boolean return-type
-    ////    val bool = dstate.arrayLength == 1
-    ////    dstate.setCurrentValue(bool)
+    // This was commented out in 6c9612e9f711beb1d8e4239ef9a473eb9c64a32f, which as the commit message:
     //
-    //    // New implementation as stated in tickets DFDL-1085/1087
-    //    val hasExactlyOne = dstate.arrayLength == 1
-    //    if (hasExactlyOne) {
-    //      val array = dstate.currentArray
-    //      val item = array.getOccurrence(1).asInstanceOf[DINode]
+    //  Implements fn:exactly-one function, but comments out the functionality as the function
+    //  is useless until query-style path expressions are allowed/implemented. Yields a subsetError
+    //  until such time.
     //
-    //      dstate.setCurrentNode(item)
-    //    }
-    //    else { throw new Exception("fn:exactly-one called with a sequence containing zero or more than one item.") }
+    //  // Original implementation with boolean return-type
+    //  //    val bool = dstate.arrayLength == 1
+    //  //    dstate.setCurrentValue(bool)
+    //
+    //  // New implementation as stated in tickets DFDL-1085/1087
+    //  val hasExactlyOne = dstate.arrayLength == 1
+    //  if (hasExactlyOne) {
+    //    val array = dstate.currentArray
+    //    val item = array.getOccurrence(1).asInstanceOf[DINode]
+    //
+    //    dstate.setCurrentNode(item)
+    //  }
+    //  else { throw new Exception("fn:exactly-one called with a sequence containing zero or more than one item.") }
 
-    //
-    //This was commented out in 6c9612e9f711beb1d8e4239ef9a473eb9c64a32f, which as the commit message:
-    //
-    //    Implements fn:exactly-one function, but comments out the functionality as the function
-    //    is useless until query-style path expressions are allowed/implemented. Yields a subsetError
-    //    until such time.
 
     // The reason queries are needed is that without them, well, the answer to this has to be true, as
     // there are no functions which return zero nor more than one node.
-    //
     dstate.SDE("Subset - fn:exactly-one is not implemented by Daffodil.")
   }
 }

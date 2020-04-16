@@ -103,7 +103,7 @@ final class Import(importNode: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
     }
   }.value
 
-  private lazy val resolver = xsd.schemaSet.resolver // iiSchemaFileMaybe.map { _.resolver }
+  private lazy val resolver = xsd.schemaSet.resolver
   private lazy val catFiles = resolver.catalogFiles.mkString(", ")
 
   /**

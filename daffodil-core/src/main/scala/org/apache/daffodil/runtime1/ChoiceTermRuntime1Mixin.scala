@@ -63,110 +63,115 @@ trait ChoiceTermRuntime1Mixin { self: ChoiceTermBase =>
   private lazy val allBranchesClosed =
     identifyingEventsForAllChoiceBranches.forall { _.isClosed }
 
-  final lazy val choiceBranchMap: (Map[ChoiceBranchEvent, Term], Option[Term]) =
-    // LV('choiceBranchMap)
-    {
+  final lazy val choiceBranchMap: (Map[ChoiceBranchEvent, Term], Option[Term]) = {
 
-      import PossibleNextElements._
+    import PossibleNextElements._
 
-      val eventTuples = alternatives.flatMap { alt =>
-        alt.context match {
-          case t: Term => {
-            val poss = t.identifyingEventsForChoiceBranch
-            poss.pnes.flatMap {
-              case PNE(e, ovr) =>
-                Seq((
-                  ChoiceBranchStartEvent(e.namedQName).asInstanceOf[ChoiceBranchEvent],
-                  t))
-            }
+    val eventTuples = alternatives.flatMap { alt =>
+      alt.context match {
+        case t: Term => {
+          val poss = t.identifyingEventsForChoiceBranch
+          poss.pnes.flatMap {
+            case PNE(e, ovr) =>
+              Seq((
+                ChoiceBranchStartEvent(e.namedQName).asInstanceOf[ChoiceBranchEvent],
+                t))
           }
-          case _ => Assert.invariantFailed("must be a term")
         }
+        case _ => Assert.invariantFailed("must be a term")
       }
-      //
-      // The default branch is the one to be taken if the incoming unparser event isn't one
-      // identified with any branch. This can happen even if every branch has required elements
-      // if those required elements have dfdl:outputValueCalc because we allow an OVC
-      // element event to be in the infoset (for round-tripping from parse). It's value will
-      // get recomputed, but it can appear with a stale value (left-over from parse)
-      // in the arriving infoset for unparse.
-      //
-      val optDefaultBranch = {
-        val optEmpty: Option[Term] =
+    }
+    //
+    // The default branch is the one to be taken if the incoming unparser event isn't one
+    // identified with any branch. This can happen even if every branch has required elements
+    // if those required elements have dfdl:outputValueCalc because we allow an OVC
+    // element event to be in the infoset (for round-tripping from parse). It's value will
+    // get recomputed, but it can appear with a stale value (left-over from parse)
+    // in the arriving infoset for unparse.
+    //
+    val optDefaultBranch = {
+      val optEmpty: Option[Term] =
+        groupMembers.find { gm =>
+          val ies = gm.identifyingEventsForChoiceBranch
+          ies.pnes.isEmpty // empty event list makes it the default, not simply isOpen
+        }
+      val optOpen: Option[Term] =
+        optEmpty.orElse {
           groupMembers.find { gm =>
             val ies = gm.identifyingEventsForChoiceBranch
-            ies.pnes.isEmpty // empty event list makes it the default, not simply isOpen
+            ies.isOpen // first open one is used if there is no branch that has empty event list. (test ptg_1u)
           }
-        val optOpen: Option[Term] =
-          optEmpty.orElse {
-            groupMembers.find { gm =>
-              val ies = gm.identifyingEventsForChoiceBranch
-              ies.isOpen // first open one is used if there is no branch that has empty event list. (test ptg_1u)
-            }
-          }
-        val optDefault: Option[Term] =
-          optOpen.orElse {
-            groupMembers.find { _.canUnparseIfHidden } //optional, defaultable or OVC
-          }
-        optDefault
-      }
-
-      // converts a sequence of tuples into a multi-map
-      val eventMap = eventTuples.groupBy { _._1 }.mapValues { _.map(_._2) }
-
-      // Now we examine the event map looking for cases where a given input event corresponds to
-      // more than one branch.
-
-      val noDupes = eventMap.map {
-        case (event, terms) => {
-          Assert.invariant(terms.length > 0)
-          if (terms.length > 1) {
-            if (terms.exists { term =>
-              term match {
-                // any element children in any of the trds?
-                // because if so, we have a true ambiguity here.
-                case sg: SequenceTermBase => {
-                  val nonOVCEltChildren = sg.groupMembers.filter {
-                    case erd: ElementRuntimeData => erd.outputValueCalcExpr.isEmpty
-                    case _ => false
-                  }
-                  nonOVCEltChildren.length > 0
-                }
-                case _ => false
-              }
-            }) {
-              // Possibly due to presence of a element with dfdl:outputValueCalc, XML Schema's
-              // UPA check may not catch this ambiguity. However, we need a real element
-              // with unique name, to unambiguously identify a branch.
-              // So if there is ambiguity at this point, we have to fail.
-              SDE(
-                "UPA violation. Multiple choice branches begin with %s.\n" +
-                  "Note that elements with dfdl:outputValueCalc cannot be used to distinguish choice branches.\n" +
-                  "Note that choice branches with entirely optional content are not allowed.\n" +
-                  "The offending choice branches are:\n%s",
-                event.qname, terms.map { trd => "%s at %s".format(trd.diagnosticDebugName, trd.locationDescription) }.mkString("\n"))
-            } else {
-              val eventType = event match {
-                case _: ChoiceBranchEndEvent => "end"
-                case _: ChoiceBranchStartEvent => "start"
-              }
-              // there are no element children in any of the branches.
-              SDW(
-                WarnID.MultipleChoiceBranches,
-                "Multiple choice branches are associated with the %s of element %s.\n" +
-                  "Note that elements with dfdl:outputValueCalc cannot be used to distinguish choice branches.\n" +
-                  "Note that choice branches with entirely optional content are not allowed.\n" +
-                  "The offending choice branches are:\n%s\n" +
-                  "The first branch will be used during unparsing when an infoset ambiguity exists.",
-                eventType, event.qname, terms.map { trd => "%s at %s".format(trd.diagnosticDebugName, trd.locationDescription) }.mkString("\n"))
-            }
-          }
-          (event, terms(0))
         }
-      }
-      (noDupes, optDefaultBranch)
+      val optDefault: Option[Term] =
+        optOpen.orElse {
+          groupMembers.find {
+            _.canUnparseIfHidden
+          } //optional, defaultable or OVC
+        }
+      optDefault
     }
-  //.value
+
+    // converts a sequence of tuples into a multi-map
+    val eventMap = eventTuples.groupBy {
+      _._1
+    }.mapValues {
+      _.map(_._2)
+    }
+
+    // Now we examine the event map looking for cases where a given input event corresponds to
+    // more than one branch.
+
+    val noDupes = eventMap.map {
+      case (event, terms) => {
+        Assert.invariant(terms.length > 0)
+        if (terms.length > 1) {
+          if (terms.exists { term =>
+            term match {
+              // any element children in any of the trds?
+              // because if so, we have a true ambiguity here.
+              case sg: SequenceTermBase => {
+                val nonOVCEltChildren = sg.groupMembers.filter {
+                  case erd: ElementRuntimeData => erd.outputValueCalcExpr.isEmpty
+                  case _ => false
+                }
+                nonOVCEltChildren.length > 0
+              }
+              case _ => false
+            }
+          }) {
+            // Possibly due to presence of a element with dfdl:outputValueCalc, XML Schema's
+            // UPA check may not catch this ambiguity. However, we need a real element
+            // with unique name, to unambiguously identify a branch.
+            // So if there is ambiguity at this point, we have to fail.
+            SDE(
+              "UPA violation. Multiple choice branches begin with %s.\n" +
+                "Note that elements with dfdl:outputValueCalc cannot be used to distinguish choice branches.\n" +
+                "Note that choice branches with entirely optional content are not allowed.\n" +
+                "The offending choice branches are:\n%s",
+              event.qname,
+              terms.map { trd => "%s at %s".format(trd.diagnosticDebugName, trd.locationDescription) }.mkString("\n"))
+          } else {
+            val eventType = event match {
+              case _: ChoiceBranchEndEvent => "end"
+              case _: ChoiceBranchStartEvent => "start"
+            }
+            // there are no element children in any of the branches.
+            SDW(
+              WarnID.MultipleChoiceBranches,
+              "Multiple choice branches are associated with the %s of element %s.\n" +
+                "Note that elements with dfdl:outputValueCalc cannot be used to distinguish choice branches.\n" +
+                "Note that choice branches with entirely optional content are not allowed.\n" +
+                "The offending choice branches are:\n%s\n" +
+                "The first branch will be used during unparsing when an infoset ambiguity exists.",
+              eventType, event.qname,
+              terms.map { trd => "%s at %s".format(trd.diagnosticDebugName, trd.locationDescription) }.mkString("\n"))
+          }
+        }
+        (event, terms(0))
+      }
+    }
+    (noDupes, optDefaultBranch)
+  }
 
   final lazy val modelGroupRuntimeData = choiceRuntimeData
 

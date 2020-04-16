@@ -232,7 +232,6 @@ abstract class RepeatingChildUnparser(
     // (Per DFDL Spec 16.1)
     //
     val ock = erd.maybeOccursCountKind.get
-    // System.err.println("Checking for events consistent with Array index:\n ==> Array Index Stack is:" + state.arrayIndexStack)
 
     // check against maxReps + 1 since we incremented to the next array position
     // before calling this check.

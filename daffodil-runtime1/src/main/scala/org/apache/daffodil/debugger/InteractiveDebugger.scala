@@ -225,7 +225,6 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
     if (isInteresting(parser)) {
       parseStack.push((before.copyStateForDebugger, parser))
     }
-    // debugStep(before, before, parser, false)
   }
   override def after(after: PState, parser: Parser) {
     if (isInteresting(parser)) {
@@ -237,13 +236,11 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
 
   override def beforeRepetition(before: PState, processor: Parser) {
     parseStack.push((before.copyStateForDebugger, processor))
-    // debugStep(before, before, processor, false)
   }
 
   override def afterRepetition(after: PState, processor: Parser) {
     val (_, beforeParser) = parseStack.pop
     Assert.invariant(beforeParser eq processor)
-    // debugStep(before.get, after, processor, false)
   }
 
   private def isInteresting(unparser: Unparser): Boolean = {
@@ -348,8 +345,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
         // Most errors are coming back here as RSDE because that's what they get upconverted into.
         // Most expression problems are considered SDE.
         //
-        case rsde: RuntimeSchemaDefinitionError => {
-          // println(rsde.getMessage())
+        case _: RuntimeSchemaDefinitionError => {
           state.setSuccess()
           false
         }
@@ -1320,7 +1316,6 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
         val longDesc = desc
 
         def printData(rep: Option[Representation], l: Int, prestate: StateForDebugger, state: ParseOrUnparseState, processor: Processor) {
-          // val length = if (l <= 0) Int.MaxValue - 1 else l
           val dataLoc = prestate.currentLocation.asInstanceOf[DataLoc]
           val lines = dataLoc.dump(rep, prestate.currentLocation, state)
           debugPrintln(lines, "  ")

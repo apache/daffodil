@@ -34,8 +34,6 @@ import org.apache.daffodil.processors.TypeCalculator
 import org.apache.daffodil.processors.VariableRuntimeData
 import org.apache.daffodil.util.LogLevel
 
-// import java.lang.{ Boolean => JBoolean }
-
 /**
  * Common parser base class for any parser that evaluates an expression.
  */
@@ -61,15 +59,13 @@ class IVCParser(expr: CompiledExpression[AnyRef], e: ElementRuntimeData)
   extends ExpressionEvaluationParser(expr, e) {
   Assert.invariant(e.isSimpleType)
 
-  def parse(start: PState): Unit =
-    // withLoggingLevel(LogLevel.Info)
-    {
-      log(LogLevel.Debug, "This is %s", toString)
-      val currentElement: InfosetSimpleElement = start.simpleElement
-      val res = eval(start)
-      currentElement.setDataValue(res)
-      if (start.processorStatus ne Success) return
-    }
+  def parse(start: PState): Unit = {
+    log(LogLevel.Debug, "This is %s", toString)
+    val currentElement: InfosetSimpleElement = start.simpleElement
+    val res = eval(start)
+    currentElement.setDataValue(res)
+    if (start.processorStatus ne Success) return
+  }
 }
 
 /*
@@ -153,7 +149,6 @@ class SetVariableParser(expr: CompiledExpression[AnyRef], decl: VariableRuntimeD
     log(LogLevel.Debug, "This is %s", toString) // important. Don't toString unless we have to log.
     val res = eval(start)
     if (start.processorStatus.isInstanceOf[Failure]) return
-    // val vmap = start.variableMap
     start.setVariable(decl, res, decl, start)
   }
 }
@@ -188,39 +183,38 @@ class AssertExpressionEvaluationParser(
   extends ExpressionEvaluationParser(expr, decl)
   with AssertMessageEvaluationMixin {
 
-  def parse(start: PState): Unit =
-    // withLoggingLevel(LogLevel.Info)
-    {
-      log(LogLevel.Debug, "This is %s", toString)
-      //
-      // This now informs us of the success/failure of the expression
-      // evaluation via side-effect on the start state passed here.
-      //
-      val res =
-        try {
-          if (discrim)
-            start.dState.setMode(ParserDiscriminatorNonBlocking)
-          eval(start)
-        } finally {
-          start.dState.setMode(ParserNonBlocking)
-        }
-      //
-      // a PE during evaluation of an assertion is a PE
-      //
-      // Removed this assert check because eval now side-effects start to
-      // contain the result status.
-      // Assert.invariant(!start.processorStatus.isInstanceOf[Failure])
-      //
-      // Assert.invariant(res != null)
-      if (start.processorStatus ne Success) return
-
-      val testResult = res.getBoolean
-      if (testResult) {
-        start.setDiscriminator(discrim)
-      } else {
-        val message = getAssertFailureMessage(start)
-        val diag = new AssertionFailed(decl.schemaFileLocation, start, message)
-        start.setFailed(diag)
+  def parse(start: PState): Unit = {
+    log(LogLevel.Debug, "This is %s", toString)
+    //
+    // This now informs us of the success/failure of the expression
+    // evaluation via side-effect on the start state passed here.
+    //
+    val res =
+    try {
+      if (discrim) {
+        start.dState.setMode(ParserDiscriminatorNonBlocking)
       }
+      eval(start)
+    } finally {
+      start.dState.setMode(ParserNonBlocking)
     }
+    //
+    // a PE during evaluation of an assertion is a PE
+    //
+    // Removed this assert check because eval now side-effects start to
+    // contain the result status.
+    // Assert.invariant(!start.processorStatus.isInstanceOf[Failure])
+    //
+    // Assert.invariant(res != null)
+    if (start.processorStatus ne Success) return
+
+    val testResult = res.getBoolean
+    if (testResult) {
+      start.setDiscriminator(discrim)
+    } else {
+      val message = getAssertFailureMessage(start)
+      val diag = new AssertionFailed(decl.schemaFileLocation, start, message)
+      start.setFailed(diag)
+    }
+  }
 }

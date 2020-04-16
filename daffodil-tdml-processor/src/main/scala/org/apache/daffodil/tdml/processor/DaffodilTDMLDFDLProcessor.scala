@@ -133,7 +133,7 @@ final class TDMLDFDLProcessorFactory private (
     val pf = compiler.compileSource(schemaSource, optRootName, optRootNamespace)
     val diags = pf.getDiagnostics
     if (pf.isError) {
-      Left(diags) // throw new TDMLException(diags)
+      Left(diags)
     } else {
       val res = this.generateProcessor(pf, useSerializedProcessor)
       res

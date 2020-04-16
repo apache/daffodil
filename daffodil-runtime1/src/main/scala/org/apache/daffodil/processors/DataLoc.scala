@@ -85,22 +85,6 @@ class DataLoc(val bitPos1b: Long, bitLimit1b: MaybeULong, val isAtEnd: Boolean, 
       }
     }.getOrElse(Dump.MixedHexLTR(optEncodingName))
 
-    //    def text: Dump.Kind = optERD.map { erd =>
-    //      val rootERD = erd.parent
-    //      if (erd.rootERD.encodingInfo.isScannable) Dump.TextOnly(optEncodingName)
-    //      else binary
-    //    }.getOrElse(binary)
-
-    //    val dumpKind: Dump.Kind = (rep, optERD.toScalaOption) match {
-    //      case (None, None) => binary
-    //      case (Some(Representation.Binary), _) => binary
-    //      case (Some(Representation.Text), _) => text
-    //      case (None, Some(erd)) => erd.impliedRepresentation match {
-    //        case Representation.Text => text
-    //        case Representation.Binary => binary
-    //      }
-    //    }
-    // dumpStream(dumpKind, prestate, state)
     dumpStream(binary, prestate, state) // for now. Let's require the hex+text dumps always.
   }
 

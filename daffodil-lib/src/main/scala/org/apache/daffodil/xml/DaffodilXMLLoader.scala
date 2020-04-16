@@ -285,7 +285,6 @@ class DFDLCatalogResolver private ()
       case None => null
       case Some(uri) => {
         val xis = new InputSource(uri.toURL().openStream())
-        // xis.setPublicId(uri.toString())
         xis.setSystemId(uri.toString())
         xis
       }
@@ -592,18 +591,15 @@ class BasicErrorHandler extends org.xml.sax.ErrorHandler {
 
   def warning(exception: SAXParseException) = {
     diagnostics :+= exception
-    // System.err.println("Warning " + exception.getMessage())
   }
 
   def error(exception: SAXParseException) = {
     diagnostics :+= exception
     hasError = true
-    // System.err.println("Error: " + exception.getMessage())
   }
   def fatalError(exception: SAXParseException) = {
     diagnostics :+= exception
     hasError = true
-    // System.err.println("Fatal: " + exception.getMessage())
   }
 }
 

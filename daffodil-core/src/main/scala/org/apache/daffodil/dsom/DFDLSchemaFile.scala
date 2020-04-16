@@ -99,7 +99,6 @@ final class DFDLSchemaFile(
   }
 
   def error(exception: SAXParseException) = {
-    // val ex = exception
     val sde = new SchemaDefinitionError(this.schemaFileLocation, "Error loading schema due to %s", exception)
     error(sde)
     validationDiagnostics_ :+= sde

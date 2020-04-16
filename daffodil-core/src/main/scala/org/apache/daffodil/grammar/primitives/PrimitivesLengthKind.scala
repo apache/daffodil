@@ -144,17 +144,6 @@ abstract class StringDelimited(e: ElementBase)
     }
   }
 
-  //  /**
-  //   * Called at compile time in static case, at runtime for dynamic case.
-  //   */
-  //  def errorIfDelimsHaveWSPStar(delims: List[String]): Unit = {
-  //    if (delims.filter(x => x == "%WSP*;").length > 0) {
-  //      // We cannot detect this error until expressions have been evaluated!
-  //      log(LogLevel.Debug, "%s - Failed due to WSP* detected as a delimiter for lengthKind=delimited.", eName)
-  //      context.schemaDefinitionError("WSP* cannot be used as a delimiter when lengthKind=delimited.")
-  //    }
-  //  }
-
   override lazy val parser: DaffodilParser = new StringDelimitedParser(
     e.elementRuntimeData,
     justificationTrim,

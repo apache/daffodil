@@ -278,60 +278,6 @@ case class TypeValueCalc(e: ElementBase)
 
 }
 
-//case class OutputValueCalcStaticLength(e: ElementBase,
-//  property: PropertyLookupResult,
-//  ovcRepUnparserGram: Gram,
-//  knownLengthInBits: Long)
-//  extends ValueCalcBase(e, property) {
-//
-//  override def baseName = "outputValueCalc"
-//
-//  override lazy val parser = Assert.usageError("Not to be called on OutputValueCalc class.")
-//
-//  override lazy val unparser = {
-//    val ovcRepUnparser = ovcRepUnparserGram.unparser
-//    val unp = new ElementOutputValueCalcStaticLengthUnparser(e.elementRuntimeData, ovcRepUnparser, MaybeULong(knownLengthInBits))
-//    unp
-//  }
-//}
-//
-//case class OutputValueCalcRuntimeLength(e: ElementBase,
-//  property: PropertyLookupResult,
-//  ovcRepUnparserGram: Gram,
-//  lengthEv: LengthEv,
-//  lengthUnits: LengthUnits)
-//  extends ValueCalcBase(e, property) {
-//
-//  override def baseName = "outputValueCalc"
-//
-//  override lazy val parser = Assert.usageError("Not to be called on OutputValueCalc class.")
-//
-//  override lazy val unparser = {
-//    val ovcRepUnparser = ovcRepUnparserGram.unparser
-//    val unp = new ElementOutputValueCalcRuntimeLengthUnparser(e.elementRuntimeData, ovcRepUnparser, lengthEv, lengthUnits)
-//    unp
-//  }
-//}
-//
-//case class OutputValueCalcVariableLength(e: ElementBase,
-//  property: PropertyLookupResult,
-//  ovcRepUnparserGram: Gram)
-//  extends ValueCalcBase(e, property) {
-//
-//  override def baseName = "outputValueCalc"
-//
-//  override lazy val parser = Assert.usageError("Not to be called on OutputValueCalc class.")
-//
-//  override lazy val unparser = {
-//    val ovcRepUnparser = ovcRepUnparserGram.unparser
-//    //
-//    // same "static length" unparser, but the length is optional, so in this case we don't provide it.
-//    //
-//    val unp = new ElementOutputValueCalcStaticLengthUnparser(e.elementRuntimeData, ovcRepUnparser, MaybeULong.Nope)
-//    unp
-//  }
-//}
-
 abstract class AssertPatternPrimBase(decl: Term, stmt: DFDLAssertionBase, discrim: Boolean)
   extends ExpressionEvaluatorBase(decl) {
 

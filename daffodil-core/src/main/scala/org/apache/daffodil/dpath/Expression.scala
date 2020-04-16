@@ -880,16 +880,10 @@ sealed abstract class StepExpression(val step: String, val pred: Option[Predicat
         ci.noMatchError(stepQName)
     }
   }
-
-  // override def toString = text
-
   // Combination of lazy val and a protected def is an idiom
   // that enables a lazy calculation to call super.
-  //
   final lazy val stepElements = {
     val res = stepElementDefs
-    //    log(LogLevel.Info, "DPath Compiler: path step elements for %s are %s.",
-    //      step, res.map { _.sscd }.mkString(", "))
     res
   }
 
@@ -993,7 +987,7 @@ sealed abstract class DownStepExpression(s: String, predArg: Option[PredicateExp
   extends StepExpression(s, predArg) {
 
   /**
-   * Since an expresion can be in a reused group, type, or element, the downward path
+   * Since an expression can be in a reused group, type, or element, the downward path
    * step may actually represent a step downward to distinct elements that happen to
    * just have the same name/namespace, but they could be different types.
    *
@@ -1008,10 +1002,6 @@ sealed abstract class DownStepExpression(s: String, predArg: Option[PredicateExp
    * For now, we just insist all the types are equal, and issue a SDE if they are not.
    */
   override lazy val inherentType: NodeInfo.Kind = {
-    //    stepElements.map { _.typeNode }.reduce {
-    //      (left, right) =>
-    //        NodeInfoUtils.typeLeastUpperBound(left, right)
-    //    }
     val allTypes = stepElements.map { _.typeNode }.distinct
     Assert.invariant(allTypes.length > 0)
     if (allTypes.length > 1) {
@@ -2035,7 +2025,6 @@ case class FNExactlyOneExpr(nameAsParsed: String, fnQName: RefQName, args: List[
   override lazy val compiledDPath = {
     checkArgCount(1)
     subsetError("fn:exactly-one is not supported.")
-    //new CompiledDPath((arrPath.compiledDPath.ops.toList :+ FNExactlyOne) ++ conversions)
   }
 }
 

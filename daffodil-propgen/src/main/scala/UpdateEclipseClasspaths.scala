@@ -120,7 +120,6 @@ lazy val pp = new scala.xml.PrettyPrinter(3000, 2)
       val doc = docs.find(_.getName.startsWith(jar.getName.split(".jar")(0)))
       (jar, src, doc)
     }
-    // triples.foreach { println(_) }
 
     val xmlNodes = triples map {
       case (jar, optSrc, optDoc) =>

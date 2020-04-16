@@ -411,7 +411,6 @@ sealed abstract class LengthState(ie: DIElement)
     val res = maybeStartDataOutputStream.isDefined
     if (res) {
       Assert.invariant(maybeStartPos0bInBits.isDefined)
-      // Assert.invariant(maybeStartDataOutputStream.get.maybeAbsBitPos0b.isEmpty)
     }
     res
   }
@@ -420,7 +419,6 @@ sealed abstract class LengthState(ie: DIElement)
     val res = maybeEndDataOutputStream.isDefined
     if (res) {
       Assert.invariant(maybeEndPos0bInBits.isDefined)
-      //  Assert.invariant(maybeEndDataOutputStream.get.maybeAbsBitPos0b.isEmpty)
     }
     res
   }

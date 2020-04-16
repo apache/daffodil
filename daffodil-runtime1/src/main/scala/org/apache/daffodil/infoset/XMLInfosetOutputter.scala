@@ -32,11 +32,9 @@ trait XMLInfosetOutputter {
    * The text is a pseudo-XML string.
    */
   protected final def fmtInfo(diTerm: DITerm): Maybe[String] = {
-    // val mgXML = modelGroupsPseudoXML
     val pecXML = diTerm.parserEvalCache.toPseudoXML()
     val uecXML = diTerm.unparserEvalCache.toPseudoXML()
     val puxml = {
-      // mgXML +
       (if (pecXML =:= "") "" else "\n" + pecXML) +
         (if (uecXML =:= "") "" else "\n" + uecXML)
     }

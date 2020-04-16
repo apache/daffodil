@@ -103,7 +103,6 @@ trait SchemaSetRuntime1Mixin { self : SchemaSet =>
         //        diags.foreach { diag => log(LogLevel.Error, diag.toString()) }
       } else {
         log(LogLevel.Compile, "Parser = %s.", ssrd.parser.toString)
-        //log(LogLevel.Error, "Unparser = %s.", ssrd.unparser.toString)
         log(LogLevel.Compile, "Compilation (DataProcesor) completed with no errors.")
       }
       dataProc

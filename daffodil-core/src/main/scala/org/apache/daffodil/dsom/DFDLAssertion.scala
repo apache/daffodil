@@ -66,9 +66,7 @@ abstract class DFDLAssertionBase(node: Node, decl: AnnotatedSchemaComponent)
     val optPattern = getAttributeOption("testPattern")
     optPattern.foreach { thePattern =>
       try {
-        // val icu =
         UnicodeRegex.compile(thePattern) // Check against ICU
-        // val java =
         Pattern.compile(thePattern) // Check against Java
       } catch { case e: PatternSyntaxException => SDE("The pattern contained invalid syntax: %s", e.getMessage()) }
     }

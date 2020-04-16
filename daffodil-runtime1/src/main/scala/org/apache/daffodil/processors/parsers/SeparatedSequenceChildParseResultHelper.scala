@@ -94,7 +94,6 @@ trait SeparatedSequenceChildParseResultHelper
     pstate: PState,
     isZL: Boolean,
     requiredOptional: RequiredOptionalStatus): ParseAttemptStatus = {
-    // computeFailedParseAttemptStatus(parser, prevBitPosBeforeChild, pstate, isZL, requiredOptional)
     ParseAttemptStatus.MissingSeparator
   }
 

@@ -29,9 +29,6 @@ package passera
 import scala.language.implicitConversions
 
 package object unsigned {
-  // implicit def s2u(x: Int) = UInt(x)
-  // implicit def u2s(x: UInt) = x.rep
-
   implicit def ubyte2uint(x: UByte) = UInt(x.toInt)
   implicit def ushort2uint(x: UShort) = UInt(x.toInt)
   implicit def ubyte2ulong(x: UByte) = ULong(x.toLong)
@@ -123,8 +120,6 @@ package object unsigned {
   class SignedRichIntOps(x: Int) {
     def to(y: UInt): Range.Inclusive = x to y.toInt
     def until(y: UInt): Range = x until y.toInt
-    // def max(that: UInt) = if (x < that) that else x
-    // def min(that: UInt) = if (x > that) that else x
   }
 
   trait UByteOrdering extends Ordering[UByte] {

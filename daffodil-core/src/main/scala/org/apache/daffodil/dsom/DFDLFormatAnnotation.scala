@@ -289,7 +289,6 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
       "Short, long, and element form properties overlap: %s at %s",
       locallyConflictingProperties.mkString(", "),
       this.locationDescription)
-    // jto = "just this one"
     val jtoSet = shortFormProperties.union(longFormProperties).union(elementFormProperties)
     val jto = jtoSet.toMap
     jto

@@ -48,12 +48,11 @@ object Misc {
 
   def getNameFromClass(obj: Any): String = {
     if (obj == null) return "null"
-    // val hexHash = obj.hashCode.formatted("%x")
     val nonPackageClassName = obj.getClass.getName.split("""\.""").toList.reverse.head
     val nonDollarsParts = nonPackageClassName.split("""\$""").toList.reverse
     val nonNumericParts = nonDollarsParts.filterNot { _.matches("""\d*""") }
     val nameToken = nonNumericParts.head
-    nameToken // + "@" + hexHash
+    nameToken
   }
 
   /**
@@ -181,10 +180,6 @@ object Misc {
   }
 
   lazy val classPath = {
-    //    val props = System.getProperties()
-    //    val cp = props.getProperty("java.class.path", null)
-    //    val lines = cp.split(":").toSeq
-    //    lines
     val cl = this.getClass().getClassLoader()
     val urls = cl match {
       case url: URLClassLoader => url.getURLs().toSeq
@@ -199,7 +194,6 @@ object Misc {
         val msg = "Required resource " + resPath + " was not found.\nClasspath is " +
           (if (classPath.length == 0) "unknown."
           else ": " + classPath.mkString("\n"))
-        // System.err.println(msg)
         throw new java.io.FileNotFoundException(msg)
       }
       case (Some(res), _) => res
@@ -213,7 +207,6 @@ object Misc {
    * Convert FooBar to fooBar, but leave FOOBAR as FOOBAR.
    */
   def toInitialLowerCaseUnlessAllUpperCase(s: String): String = {
-    // Assert.usage(s.length > 0)
     if (s(0).isLower) return s
     //
     // At this point we know the first letter is uppercase
