@@ -175,7 +175,6 @@ trait ElementBaseRuntime1Mixin { self: ElementBase =>
       schemaFileLocation,
       diagnosticDebugName,
       path,
-      namespaces,
       minimizedScope,
       defaultBitOrder,
       optPrimType,

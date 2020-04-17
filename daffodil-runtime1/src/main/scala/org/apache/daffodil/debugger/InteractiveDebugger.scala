@@ -303,7 +303,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
         val hostForDiags = new DebuggerHost(state.tunable)
         val ce = eCompilers.JBoolean.compileExpression(
           debuggerQName,
-          NodeInfo.Boolean, expression, processor.context.namespaces, context.dpathCompileInfo, false,
+          NodeInfo.Boolean, expression, context.dpathCompileInfo.namespaces, context.dpathCompileInfo, false,
           hostForDiags, context.dpathCompileInfo)
         val warnings = hostForDiags.getDiagnostics.filterNot(_.isError)
         warnings.foreach {
@@ -1039,7 +1039,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
           if ((element.parent eq null) && (expression == "..")) "."
           else expression
         val context = state.getContext()
-        val namespaces = context.namespaces
+        val namespaces = context.dpathCompileInfo.namespaces
         val expressionWithBraces =
           if (!DPathUtil.isExpression(adjustedExpression)) "{ " + adjustedExpression + " }"
           else adjustedExpression
