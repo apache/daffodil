@@ -282,7 +282,8 @@ abstract class RepeatingChildParser(
   val erd: ElementRuntimeData,
   baseName: String)
   extends SequenceChildParser(childParser, srd, erd)
-  with MinMaxRepeatsMixin {
+  with MinMaxRepeatsMixin
+  with EndArrayChecksMixin {
 
   final def maybeStaticRequiredOptionalStatus: Maybe[RequiredOptionalStatus] = Maybe.Nope
 
@@ -351,31 +352,7 @@ abstract class RepeatingChildParser(
    */
   def endArray(state: PState): Unit = {
     val actualOccurs = state.mpstate.arrayIndexStack.pop()
-
-    if (state.processorStatus eq Success) {
-
-      val shouldValidate =
-        state.dataProc.isDefined && state.dataProc.value.validationMode != ValidationMode.Off
-
-      if (shouldValidate) {
-        val minO = erd.minOccurs
-        val maxO = erd.maxOccurs
-        val isUnbounded = maxO == -1
-        val occurrence = actualOccurs - 1
-
-        if (isUnbounded && occurrence < minO)
-          state.validationError("%s occurred '%s' times when it was expected to be a " +
-            "minimum of '%s' and a maximum of 'UNBOUNDED' times.", erd.diagnosticDebugName,
-            occurrence, minO)
-        else if (!isUnbounded && (occurrence < minO || occurrence > maxO))
-          state.validationError("%s occurred '%s' times when it was expected to be a " +
-            "minimum of '%s' and a maximum of '%s' times.", erd.diagnosticDebugName,
-            occurrence, minO, maxO)
-        else {
-          //ok
-        }
-      }
-    }
+    super.endArray(state, actualOccurs)
   }
 
 }
@@ -534,6 +511,42 @@ trait MinMaxRepeatsMixin {
 
   def isBoundedMax: Boolean = isBoundedMax_
 
+}
+
+/**
+ * Trait shared by both repeating sequence child parser and unparsers
+ * for things that must be done at the end of an array
+ */
+trait EndArrayChecksMixin {
+
+  def erd: ElementRuntimeData
+
+  def endArray(state: ParseOrUnparseState, actualOccurs: Long): Unit = {
+    if (state.processorStatus eq Success) {
+
+      val shouldValidate =
+        state.dataProc.isDefined && state.dataProc.value.validationMode != ValidationMode.Off
+
+      if (shouldValidate) {
+        val minO = erd.minOccurs
+        val maxO = erd.maxOccurs
+        val isUnbounded = maxO == -1
+        val occurrence = actualOccurs - 1
+
+        if (isUnbounded && occurrence < minO)
+          state.validationError("%s occurred '%s' times when it was expected to be a " +
+            "minimum of '%s' and a maximum of 'UNBOUNDED' times.", erd.diagnosticDebugName,
+            occurrence, minO)
+        else if (!isUnbounded && (occurrence < minO || occurrence > maxO))
+          state.validationError("%s occurred '%s' times when it was expected to be a " +
+            "minimum of '%s' and a maximum of '%s' times.", erd.diagnosticDebugName,
+            occurrence, minO, maxO)
+        else {
+          //ok
+        }
+      }
+    }
+  }
 }
 
 /**
