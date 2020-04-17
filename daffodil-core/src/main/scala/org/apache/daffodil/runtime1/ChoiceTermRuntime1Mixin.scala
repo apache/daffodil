@@ -186,7 +186,6 @@ trait ChoiceTermRuntime1Mixin { self: ChoiceTermBase =>
       dpathCompileInfo,
       diagnosticDebugName,
       path,
-      namespaces,
       defaultBitOrder,
       groupMembersRuntimeData,
       isRepresented,

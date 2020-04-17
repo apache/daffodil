@@ -78,7 +78,6 @@ sealed trait RuntimeData
   def schemaFileLocation: SchemaFileLocation
   def diagnosticDebugName: String
   def path: String
-  def namespaces: NamespaceBinding
 
   def variableMap: VariableMap
   override def toString = diagnosticDebugName
@@ -557,7 +556,6 @@ sealed class ElementRuntimeData(
   val schemaFileLocation: SchemaFileLocation,
   val diagnosticDebugName: String,
   val path: String,
-  val namespaces: NamespaceBinding,
   @TransientParam minimizedScopeArg: => NamespaceBinding,
   defaultBitOrderArg: BitOrder,
   @TransientParam optPrimTypeArg: => Option[PrimType],
@@ -609,6 +607,7 @@ sealed class ElementRuntimeData(
     maybeCheckBitOrderAndCharsetEvArg) {
 
   override def isRequiredScalar = !isArray && isRequiredInUnparseInfoset
+  override def namespaces: NamespaceBinding = dpathElementCompileInfo.namespaces
 
   lazy val children = childrenArg
   lazy val variableMap = variableMapArg
@@ -740,7 +739,6 @@ sealed abstract class ErrorERD(local: String, namespaceURI: String)
     null, // SchemaFileLocation
     local, // diagnosticDebugName: String,
     local, // pathArg: => String,
-    null, //  namespacesArg: => NamespaceBinding,
     null, // minimizedScopeArg: => NamespaceBinding,
     null, //defaultBitOrderArg: => BitOrder,
     None, // optPrimTypeArg: => Option[PrimType],
@@ -846,7 +844,6 @@ sealed abstract class ModelGroupRuntimeData(
   @TransientParam ciArg: => DPathCompileInfo,
   val diagnosticDebugName:  String,
   val path:  String,
-  val namespaces:  NamespaceBinding,
   defaultBitOrderArg: BitOrder,
   @TransientParam groupMembersArg: => Seq[TermRuntimeData],
   isRepresentedArg: Boolean,
@@ -866,6 +863,7 @@ sealed abstract class ModelGroupRuntimeData(
 
   final override def isRequiredScalar = true
   final override def isArray = false
+  override def namespaces: NamespaceBinding = ci.namespaces
 
   lazy val variableMap = variableMapArg
   lazy val encInfo = encInfoArg
@@ -901,7 +899,6 @@ final class SequenceRuntimeData(
   @TransientParam ciArg: => DPathCompileInfo,
   diagnosticDebugNameArg: String,
   pathArg:  String,
-  namespacesArg: NamespaceBinding,
   defaultBitOrderArg: BitOrder,
   @TransientParam groupMembersArg: => Seq[TermRuntimeData],
   isRepresentedArg: Boolean,
@@ -913,7 +910,7 @@ final class SequenceRuntimeData(
   @TransientParam maybeCheckByteAndBitOrderEvArg: => Maybe[CheckByteAndBitOrderEv],
   @TransientParam maybeCheckBitOrderAndCharsetEvArg: => Maybe[CheckBitOrderAndCharsetEv])
   extends ModelGroupRuntimeData(positionArg, partialNextElementResolverArg,
-    variableMapArg, encInfoArg, schemaFileLocationArg, ciArg, diagnosticDebugNameArg, pathArg, namespacesArg, defaultBitOrderArg, groupMembersArg,
+    variableMapArg, encInfoArg, schemaFileLocationArg, ciArg, diagnosticDebugNameArg, pathArg, defaultBitOrderArg, groupMembersArg,
     isRepresentedArg, couldHaveTextArg, alignmentValueInBitsArg, hasNoSkipRegionsArg, optIgnoreCaseArg,
     maybeFillByteEvArg,
     maybeCheckByteAndBitOrderEvArg,
@@ -937,7 +934,6 @@ final class ChoiceRuntimeData(
   @TransientParam ciArg: => DPathCompileInfo,
   diagnosticDebugNameArg: String,
   pathArg: String,
-  namespacesArg: NamespaceBinding,
   defaultBitOrderArg: BitOrder,
   @TransientParam groupMembersArg: => Seq[TermRuntimeData],
   isRepresentedArg: Boolean,
@@ -949,7 +945,7 @@ final class ChoiceRuntimeData(
   @TransientParam maybeCheckByteAndBitOrderEvArg: => Maybe[CheckByteAndBitOrderEv],
   @TransientParam maybeCheckBitOrderAndCharsetEvArg: => Maybe[CheckBitOrderAndCharsetEv])
   extends ModelGroupRuntimeData(positionArg, partialNextElementResolverArg,
-    variableMapArg, encInfoArg, schemaFileLocationArg, ciArg, diagnosticDebugNameArg, pathArg, namespacesArg, defaultBitOrderArg, groupMembersArg,
+    variableMapArg, encInfoArg, schemaFileLocationArg, ciArg, diagnosticDebugNameArg, pathArg, defaultBitOrderArg, groupMembersArg,
     isRepresentedArg, couldHaveTextArg, alignmentValueInBitsArg, hasNoSkipRegionsArg, optIgnoreCaseArg, maybeFillByteEvArg,
     maybeCheckByteAndBitOrderEvArg,
     maybeCheckBitOrderAndCharsetEvArg)
