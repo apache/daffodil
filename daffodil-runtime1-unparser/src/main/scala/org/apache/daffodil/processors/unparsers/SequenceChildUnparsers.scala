@@ -24,7 +24,7 @@ import org.apache.daffodil.api.ValidationMode
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.infoset.DIArray
 import org.apache.daffodil.equality._
-import org.apache.daffodil.processors.parsers.MinMaxRepeatsMixin
+import org.apache.daffodil.processors.parsers.{EndArrayChecksMixin, MinMaxRepeatsMixin}
 import org.apache.daffodil.schema.annotation.props.gen.OccursCountKind
 import org.apache.daffodil.processors.ModelGroupRuntimeData
 
@@ -58,7 +58,8 @@ abstract class RepeatingChildUnparser(
   override val srd: SequenceRuntimeData,
   val erd: ElementRuntimeData)
   extends SequenceChildUnparser(childUnparser, srd, erd)
-  with MinMaxRepeatsMixin {
+  with MinMaxRepeatsMixin
+  with EndArrayChecksMixin {
 
   /**
    * Unparse exactly one occurrence of an array/optional element.
@@ -112,27 +113,7 @@ abstract class RepeatingChildUnparser(
 
     Assert.invariant(state.processorStatus eq Success)
 
-    val shouldValidate =
-      state.dataProc.isDefined && state.dataProc.value.validationMode != ValidationMode.Off
-
-    if (shouldValidate) {
-      val minO = erd.minOccurs
-      val maxO = erd.maxOccurs
-      val isUnbounded = maxO == -1
-      val occurrence = actualOccurs - 1
-
-      if (isUnbounded && occurrence < minO)
-        state.validationError("%s occurred '%s' times when it was expected to be a " +
-          "minimum of '%s' and a maximum of 'UNBOUNDED' times.", erd.diagnosticDebugName,
-          occurrence, minO)
-      else if (!isUnbounded && (occurrence < minO || occurrence > maxO))
-        state.validationError("%s occurred '%s' times when it was expected to be a " +
-          "minimum of '%s' and a maximum of '%s' times.", erd.diagnosticDebugName,
-          occurrence, minO, maxO)
-      else {
-        //ok
-      }
-    }
+    endArray(state, actualOccurs)
   }
 
   /**
