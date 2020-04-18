@@ -207,7 +207,19 @@ class DPathCompileInfo(
   val path: String,
   override val schemaFileLocation: SchemaFileLocation,
   val unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy,
-  @TransientParam typeCalcMapArg: => TypeCalcMap,
+  typeCalcMapArg: TypeCalcMap,
+  //
+  // lexicalContextRuntimeData is used to get the partialNextElementResolver which is used
+  // to get the next sibling info to support the outputTypeCalcNextSibling function.
+  //
+  // TODO: DAFFODIL-2326 do not pass runtime data as argment to DPathCompileInfo. The point
+  // is for DPathCompileInfo to NOT have all of the runtime data for the term, but just what
+  // is needed to compile DPath. If functions need info about next sibling, then we should
+  // compute what it needs and pass that here (e.g, sequence of possible next sibling DPathCompileInfos,
+  // or if this applies only to elements, then it should be on that object.
+  //
+  // We should not hook in the whole runtime data object here. This should be runtime independent code.
+  //
   val lexicalContextRuntimeData: RuntimeData)
   extends ImplementsThrowsSDE with PreSerialization
   with HasSchemaFileLocation {
@@ -322,7 +334,7 @@ class DPathCompileInfo(
  */
 class DPathElementCompileInfo(
   @TransientParam parentsArg: Seq[DPathElementCompileInfo],
-  @TransientParam variableMap: => VariableMap,
+  variableMap: VariableMap,
   @TransientParam elementChildrenCompileInfoArg: => Seq[DPathElementCompileInfo],
   namespaces: scala.xml.NamespaceBinding,
   path: String,

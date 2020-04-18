@@ -19,21 +19,16 @@ package org.apache.daffodil.dsom
 
 import scala.xml.Node
 import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.xml.GetAttributesMixin
 import org.apache.daffodil.xml.NS
 import org.apache.daffodil.xml.XMLUtils
-import org.apache.daffodil.processors.NonTermRuntimeData
 import org.apache.daffodil.processors.RuntimeData
 import org.apache.daffodil.processors.VariableMap
 import org.apache.daffodil.processors.NonTermRuntimeData
 import org.apache.daffodil.xml.ResolvesQNames
 import org.apache.daffodil.schema.annotation.props.LookupLocation
-import org.apache.daffodil.schema.annotation.props.PropTypes
-import org.apache.daffodil.oolag.OOLAG._
 import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.xml.GetAttributesMixin
 import org.apache.daffodil.schema.annotation.props.PropTypes
-import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Misc
 import org.apache.daffodil.BasicComponent
 
