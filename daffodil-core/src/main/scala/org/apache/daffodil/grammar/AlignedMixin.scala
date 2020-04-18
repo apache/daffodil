@@ -17,17 +17,16 @@
 
 package org.apache.daffodil.grammar
 
-import org.apache.daffodil.dsom.Term
 import org.apache.daffodil.dsom.ElementBase
 import org.apache.daffodil.dsom.ModelGroup
-import org.apache.daffodil.dsom.PrefixLengthQuasiElementDecl
 import org.apache.daffodil.schema.annotation.props.gen.AlignmentUnits
 import org.apache.daffodil.schema.annotation.props.gen.LengthKind
 import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
 import org.apache.daffodil.util.Math
-import org.apache.daffodil.dsom.Root
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.dsom.QuasiElementDeclBase
+import org.apache.daffodil.dsom.Root
+import org.apache.daffodil.dsom.Term
 
 case class AlignmentMultipleOf(nBits: Long) {
   def *(that: AlignmentMultipleOf) = AlignmentMultipleOf(Math.gcd(nBits, that.nBits))
@@ -46,6 +45,8 @@ case class LengthExact(nBits: Long) extends LengthApprox
 case class LengthMultipleOf(nBits: Long) extends LengthApprox
 
 trait AlignedMixin extends GrammarMixin { self: Term =>
+
+  requiredEvaluationsIfActivated(hasNoSkipRegions)
 
   /**
    * true if we can statically determine that the start of this
@@ -72,10 +73,10 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
    * considers the surrounding context meeting the alignment needs.
    */
   final lazy val isKnownToBeTextAligned: Boolean = LV('isKnownToBeTextAligned) {
-    if (self.encodingInfo.isKnownEncoding) {
-      if (self.encodingInfo.knownEncodingAlignmentInBits == 1)
+    if (isKnownEncoding) {
+      if (knownEncodingAlignmentInBits == 1)
         true
-      else if (priorAlignmentWithLeadingSkipApprox.nBits % self.encodingInfo.knownEncodingAlignmentInBits == 0)
+      else if (priorAlignmentWithLeadingSkipApprox.nBits % knownEncodingAlignmentInBits == 0)
         true
       else
         false
@@ -86,10 +87,10 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
   }.value
 
   final lazy val isDelimiterKnownToBeTextAligned: Boolean = {
-    if (self.encodingInfo.isKnownEncoding) {
-      if (self.encodingInfo.knownEncodingAlignmentInBits == 1)
+    if (isKnownEncoding) {
+      if (knownEncodingAlignmentInBits == 1)
         true
-      else if (endingAlignmentApprox.nBits % self.encodingInfo.knownEncodingAlignmentInBits == 0)
+      else if (endingAlignmentApprox.nBits % knownEncodingAlignmentInBits == 0)
         true
       else
         false
@@ -99,7 +100,7 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
       false
   }
 
-  final lazy val hasNoSkipRegions = leadingSkip == 0 && trailingSkip == 0
+  final lazy val hasNoSkipRegions = LV('hasNoSkipRegions) { leadingSkip == 0 && trailingSkip == 0 }.value
 
   private lazy val alignmentApprox: AlignmentMultipleOf = {
     AlignmentMultipleOf(alignmentValueInBits.toLong)

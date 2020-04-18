@@ -31,7 +31,7 @@ import org.apache.daffodil.schema.annotation.props.gen.YesNo
  */
 trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
 
-  requiredEvaluationsAlways(encodingInfo.preSerialization)
+  // requiredEvaluationsAlways(encodingInfo.preSerialization)
   requiredEvaluationsAlways(checkTextBidi)
 
   private lazy val optionTextBidi = findPropertyOption("textBidi")
@@ -93,8 +93,10 @@ trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
   }
 
   lazy val encodingInfo =
-    new EncodingRuntimeData(termRuntimeData, charsetEv, schemaFileLocation, optionUTF16Width, defaultEncodingErrorPolicy,
-      summaryEncoding, isKnownEncoding, isScannable, knownEncodingAlignmentInBits)
+    new EncodingRuntimeData(charsetEv, schemaFileLocation, optionUTF16Width, defaultEncodingErrorPolicy,
+      summaryEncoding, isKnownEncoding, isScannable, knownEncodingAlignmentInBits, hasTextAlignment)
+
+
 
   /**
    * True if this element itself consists only of text. No binary stuff like alignment

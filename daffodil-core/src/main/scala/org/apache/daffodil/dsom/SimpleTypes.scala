@@ -17,10 +17,9 @@
 
 package org.apache.daffodil.dsom
 
-import java.math.{ BigInteger => JBigInt }
+import java.math.{BigInteger => JBigInt}
 
 import scala.xml.Node
-
 import org.apache.daffodil.cookers.IntRangeCooker
 import org.apache.daffodil.cookers.RepValueCooker
 import org.apache.daffodil.dpath.NodeInfo
@@ -37,15 +36,10 @@ import org.apache.daffodil.util.Misc
 import org.apache.daffodil.xml.GlobalQName
 import org.apache.daffodil.xml.QName
 import org.apache.daffodil.xml.XMLUtils
-import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.processors.RangeBound
-import org.apache.daffodil.util.Maybe.One
 import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveNullable
 import org.apache.daffodil.infoset.DataValue
-import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.infoset.DataValue.DataValueBigInt
-import org.apache.daffodil.infoset.DataValue.DataValueBigInt
-import org.apache.daffodil.infoset.DataValue.DataValueString
 import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.schema.annotation.props.gen.ParseUnparsePolicy
 
@@ -266,7 +260,6 @@ abstract class SimpleTypeDefBase(xml: Node, lexicalParent: SchemaComponent)
         optRepValueSet,
         optTypeCalculator,
         optRepType.map(_.primType))
-    strd.preSerialization // we can get away with this for simple types.
     strd
   }
   override lazy val runtimeData = simpleTypeRuntimeData
