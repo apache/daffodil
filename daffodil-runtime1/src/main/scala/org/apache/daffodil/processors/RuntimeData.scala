@@ -186,8 +186,8 @@ sealed class NonTermRuntimeData(
   val unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy)
   extends RuntimeData {
 
-//  @throws(classOf[java.io.IOException])
-//  final private def writeObject(out: java.io.ObjectOutputStream): Unit = serializeObject(out)
+  @throws(classOf[java.io.IOException])
+  final private def writeObject(out: java.io.ObjectOutputStream): Unit = serializeObject(out)
 
 }
 
@@ -226,8 +226,8 @@ final class SimpleTypeRuntimeData(
 
   import org.apache.daffodil.util.OKOrError._
 
-//  @throws(classOf[java.io.IOException])
-//  final private def writeObject(out: java.io.ObjectOutputStream): Unit = serializeObject(out)
+  @throws(classOf[java.io.IOException])
+  final private def writeObject(out: java.io.ObjectOutputStream): Unit = serializeObject(out)
 
   /**
    * These are creators of regex pattern matcher objects. we want to avoid
