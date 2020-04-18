@@ -34,10 +34,8 @@ import org.apache.daffodil.util.LogLevel
 
 trait SchemaSetRuntime1Mixin { self : SchemaSet =>
 
-  requiredEvaluationsAlways(variableMap)
   requiredEvaluationsAlways(parser)
   requiredEvaluationsAlways(unparser)
-  requiredEvaluationsAlways(root.runtimeData)
 
   override def variableMap: VariableMap = LV('variableMap) {
     val dvs = allSchemaDocuments.flatMap { _.defineVariables }

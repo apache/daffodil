@@ -21,7 +21,6 @@ import org.apache.daffodil.xml.XMLUtils
 import org.junit.Assert._
 import org.apache.daffodil.util._
 import org.junit.Test
-import org.junit.Test
 
 class TestMiddleEndAttributes {
   val xsd = XMLUtils.XSD_NAMESPACE
@@ -116,7 +115,8 @@ class TestMiddleEndAttributes {
   @Test def testStaticallyFirstWithChoice {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
-      <dfdl:format representation="text" occursCountKind="parsed" lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator="" separator="" ignoreCase="no"/>,
+      <dfdl:format representation="text" occursCountKind="parsed" lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator="" separator="" ignoreCase="no"
+        alignment="1" alignmentUnits="bytes" leadingSkip="0" trailingSkip="0"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence dfdl:sequenceKind="ordered" dfdl:separator="," dfdl:separatorPosition="infix">

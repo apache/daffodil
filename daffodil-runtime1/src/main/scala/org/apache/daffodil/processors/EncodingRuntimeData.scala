@@ -121,7 +121,6 @@ trait KnownEncodingMixin { self: ThrowsSDE =>
  */
 
 final class EncodingRuntimeData(
-  @TransientParam termRuntimeDataArg: => TermRuntimeData,
   @TransientParam charsetEvArg: => CharsetEv,
   override val schemaFileLocation: SchemaFileLocation,
   optionUTF16WidthArg: Option[UTF16Width],
@@ -129,14 +128,14 @@ final class EncodingRuntimeData(
   val summaryEncoding: EncodingLattice,
   val isKnownEncoding: Boolean,
   val isScannable: Boolean,
-  override val knownEncodingAlignmentInBits: Int)
+  override val knownEncodingAlignmentInBits: Int,
+  val hasTextAlignment: Boolean)
   extends KnownEncodingMixin with ImplementsThrowsSDE with PreSerialization {
 
   private val maybeUTF16Width_ = Maybe.toMaybe[UTF16Width](optionUTF16WidthArg)
 
   def maybeUTF16Width = maybeUTF16Width_
 
-  lazy val termRuntimeData = termRuntimeDataArg
   lazy val charsetEv = charsetEvArg
 
   lazy val runtimeDependencies = Vector(charsetEv)
@@ -165,19 +164,10 @@ final class EncodingRuntimeData(
 
   override def preSerialization: Any = {
     super.preSerialization
-    termRuntimeData
     charsetEv
   }
 
   @throws(classOf[java.io.IOException])
   private def writeObject(out: java.io.ObjectOutputStream): Unit = serializeObject(out)
 
-  /**
-   * no alignment properties that would explicitly create
-   * a need to align in a way that is not on a suitable boundary
-   * for a character.
-   */
-  lazy val hasTextAlignment = {
-    this.knownEncodingAlignmentInBits == termRuntimeData.alignmentValueInBits
-  }
 }

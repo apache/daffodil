@@ -19,22 +19,20 @@ package org.apache.daffodil.dsom
 
 import org.apache.daffodil.equality._
 import org.apache.daffodil.processors._
-import org.apache.daffodil.infoset._
 import org.apache.daffodil.schema.annotation.props._
 import org.apache.daffodil.xml._
-import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.grammar.ElementBaseGrammarMixin
 import org.apache.daffodil.schema.annotation.props.gen._
-import org.apache.daffodil.dsom._
 import org.apache.daffodil.util.Misc
+
 import scala.xml.NamespaceBinding
 import org.apache.daffodil.util.MaybeULong
 import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.dpath.NodeInfo.PrimType
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.api.WarnID
-import java.lang.{ Integer => JInt }
-import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveOrUseNilForDefaultOrNull
+import java.lang.{Integer => JInt}
+
 import org.apache.daffodil.infoset.DataValue
 import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveOrUseNilForDefaultOrNull
 
@@ -420,7 +418,7 @@ trait ElementBase
       case Representation.Binary =>
         if (isComplexType || (primType != PrimType.HexBinary && primType != PrimType.AnyURI)) byteOrderEv // ensure defined
       case _ =>
-        charsetEv // ensure defined
+        encodingRaw // ensure defined
     }
     rep
   }
