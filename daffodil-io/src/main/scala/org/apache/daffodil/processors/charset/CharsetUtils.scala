@@ -271,13 +271,9 @@ trait EncoderDecoderMixin
                 val truncString = cb.toString()
                 truncString
               }
-              case _ if cr.isMalformed() => {
+              case _ if cr.isMalformed() || cr.isUnmappable=> {
                 cr.throwException()
-                ""
-              }
-              case _ if cr.isUnmappable() => {
-                cr.throwException()
-                ""
+                Assert.impossible()
               }
             }
           truncString

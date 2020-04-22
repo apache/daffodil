@@ -124,16 +124,7 @@ abstract class SequenceChild(protected val sq: SequenceTermBase, child: Term, gr
     import SeparatedSequenceChildBehavior._
     child match {
       case m: ModelGroup => {
-        if (child.isPotentiallyTrailing) {
-          ssp match {
-            case AnyEmpty => NonPositional
-            case TrailingEmpty => PositionalTrailingLax
-            case TrailingEmptyStrict => PositionalTrailingStrict
-            case Never => Positional
-          }
-        } else {
-          Positional
-        }
+        handleIfPotentiallyTrailingElseDefaultBehavior
       }
       case eb: ElementBase if (eb.isArray || eb.isOptional) => {
         import OccursCountKind._
@@ -168,20 +159,25 @@ abstract class SequenceChild(protected val sq: SequenceTermBase, child: Term, gr
         }
       }
       case eb: ElementBase if eb.isScalar => {
-        if (child.isPotentiallyTrailing) {
-          ssp match {
-            case AnyEmpty => NonPositional
-            case TrailingEmpty => PositionalTrailingLax
-            case TrailingEmptyStrict => PositionalTrailingStrict
-            case Never => Positional
-          }
-        } else {
-          Positional
-        }
+        handleIfPotentiallyTrailingElseDefaultBehavior
       }
       case _ => Positional // obscure cases like maxOccurs 0 with lengthKind 'implicit'
     }
   }
+
+  protected def handleIfPotentiallyTrailingElseDefaultBehavior: SeparatedSequenceChildBehavior = {
+    if (child.isPotentiallyTrailing) {
+      ssp match {
+        case AnyEmpty => NonPositional
+        case TrailingEmpty => PositionalTrailingLax
+        case TrailingEmptyStrict => PositionalTrailingStrict
+        case Never => Positional
+      }
+    } else {
+      Positional
+    }
+  }
+
   protected final def sscb = separatedSequenceChildBehavior
 
   final protected def isDeclaredLast: Boolean = {

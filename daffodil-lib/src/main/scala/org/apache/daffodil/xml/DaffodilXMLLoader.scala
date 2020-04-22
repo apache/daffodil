@@ -598,8 +598,7 @@ class BasicErrorHandler extends org.xml.sax.ErrorHandler {
     hasError = true
   }
   def fatalError(exception: SAXParseException) = {
-    diagnostics :+= exception
-    hasError = true
+    error(exception)
   }
 }
 
