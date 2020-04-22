@@ -134,8 +134,7 @@ class CommandLineXMLLoaderErrorHandler() extends org.xml.sax.ErrorHandler with L
   }
 
   def fatalError(exception: SAXParseException) = {
-    log(LogLevel.Error, "loading schema: " + exception.getMessage())
-    System.exit(1)
+    error(exception)
   }
 }
 

@@ -296,10 +296,6 @@ class LineFoldedInputStream(mode: LineFoldMode, jis: InputStream)
         case GotCRLF => {
           c = jis.read()
           c match {
-            case -1 => {
-              state = Buf2 // buffering up the LF
-              return '\r'
-            }
             case ' ' | '\t' => {
               if (mode eq LineFoldMode.IMF) {
                 state = Start // absorb the CR, LF, but not the sp/tab
@@ -312,7 +308,8 @@ class LineFoldedInputStream(mode: LineFoldMode, jis: InputStream)
               }
             }
             case _ => {
-              // CRLF followed by other not sp/tab
+              // CRLF followed by other not sp/tab, or end of data.
+              // Buffer up to LF.
               state = Buf2
               return '\r'
             }

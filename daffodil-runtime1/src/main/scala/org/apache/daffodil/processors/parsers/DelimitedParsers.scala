@@ -120,10 +120,7 @@ class LiteralNilDelimitedEndOfDataParser(
       val isFieldEmpty = field.length() == 0 // Note: field has been stripped of padChars
 
       lazy val isNilLiteral = isFieldNilLiteralValue(field)
-      if (isFieldEmpty && !isEmptyAllowed && !isNilLiteral) {
-        doPE(state)
-        return
-      } else if ((isFieldEmpty && isEmptyAllowed) || // Empty, but must advance past padChars if there were any.
+      if ((isFieldEmpty && isEmptyAllowed) || // Empty, but must advance past padChars if there were any.
         isNilLiteral) { // Not empty, but matches.
         // Contains a nilValue, Success!
         state.thisElement.setNilled()

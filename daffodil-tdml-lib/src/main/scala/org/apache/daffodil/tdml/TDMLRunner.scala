@@ -236,8 +236,7 @@ class DFDLTestSuite private[tdml] (
     }
 
     def fatalError(exception: SAXParseException) = {
-      loadingExceptions = exception :: loadingExceptions
-      isLoadingError = true
+      error(exception)
     }
   }
 
