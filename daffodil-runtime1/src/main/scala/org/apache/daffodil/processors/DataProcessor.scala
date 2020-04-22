@@ -104,8 +104,8 @@ object DataProcessor {
     val data: SchemaSetRuntimeData,
     tunable: DaffodilTunables,
     externalVars: Queue[Binding], // must be explicitly set to empty by save method
-    validationMode: ValidationMode.Type) // must be explicitly set from Full to Limited by save method.
-    extends DataProcessor(data, tunable, externalVars, validationMode) {
+    validationModeArg: ValidationMode.Type) // must be explicitly set from Full to Limited by save method.
+    extends DataProcessor(data, tunable, externalVars, validationModeArg) {
 
     override def withValidationMode(mode: ValidationMode.Type): DataProcessor = {
       if (mode == ValidationMode.Full) {
@@ -119,7 +119,7 @@ object DataProcessor {
       if (mode == ValidationMode.Full) {
         throw new InvalidUsageException("'Full' validation not allowed when using a restored parser.")
       }
-      super.withValidationMode(mode)
+      validationMode = mode
     }
   }
 }
@@ -141,8 +141,8 @@ class DataProcessor private (
   // The values these will have (since this is a base class) are the correct default values that we want
   // back when the object is re-initialized.
   //
-  var areDebugging : Boolean,
-  var optDebugger : Option[Debugger],
+  protected var areDebugging : Boolean,
+  protected var optDebugger : Option[Debugger],
   var validationMode: ValidationMode.Type,
   private var externalVars: Queue[Binding])
   extends DFDL.DataProcessor with Logging
