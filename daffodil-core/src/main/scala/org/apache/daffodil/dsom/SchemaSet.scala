@@ -286,7 +286,7 @@ final class SchemaSet(
   private def findRootElement(name: String) = {
     val candidates = schemas.flatMap { _.getGlobalElementDecl(name) }
     schemaDefinitionUnless(candidates.length != 0, "No root element found for %s in any available namespace", name)
-    schemaDefinitionUnless(candidates.length <= 1, "Root element %s is ambiguous. Candidates are %s.",
+    schemaDefinitionUnless(candidates.length <= 1, "Root element %s is ambiguous. Candidates are %s.", name,
       candidates.map { gef =>
         {
           val tns = gef.schemaDocument.targetNamespace
