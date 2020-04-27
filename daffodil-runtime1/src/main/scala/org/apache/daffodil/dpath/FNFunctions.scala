@@ -43,11 +43,11 @@ import org.apache.daffodil.infoset.DataValue.DataValueBigDecimal
 import org.apache.daffodil.infoset.DataValue.DataValueBigInt
 import org.apache.daffodil.infoset.DataValue.DataValueBool
 import org.apache.daffodil.infoset.DataValue.DataValueCalendar
-import org.apache.daffodil.infoset.DataValue.DataValueInt
 import org.apache.daffodil.infoset.DataValue.DataValueLong
 import org.apache.daffodil.infoset.DataValue.DataValueNumber
 import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.infoset.DataValue.DataValueString
+import org.apache.daffodil.infoset.DataValue.DataValueURI
 import org.apache.daffodil.infoset.InfosetArrayIndexOutOfBoundsException
 import org.apache.daffodil.infoset.InfosetNoSuchChildElementException
 import org.apache.daffodil.infoset.InfosetNodeNotFinalException
@@ -683,26 +683,96 @@ case class FNLocalName1(recipe: CompiledDPath, argType: NodeInfo.Kind)
   }
 
   override def run(dstate: DState) {
-    // Save off original state, which is the original
-    // element/node that calls inputValueCalc with fn:local-name
-    //
-    val origState = dstate
+    // Save off original node, which is the original
+    // element/node that calls fn:local-name
+    val savedNode = dstate.currentNode
 
     // Execute the recipe/expression which should
-    // return a node/element whose local-name we want.
-    //
+    // return a node/element whose local-name we want
     recipe.run(dstate)
 
     val localName = dstate.currentElement.name
+    dstate.setCurrentNode(savedNode)
 
     if (localName.contains(":"))
       throw new IllegalArgumentException("fn:local-name failed. " + localName + " is not a valid NCName as it contains ':'.")
 
-    // The original state contains the node/element upon which
-    // fn:local-name was called.  This is where we should set
-    // the value.
-    //
-    origState.setCurrentValue(localName)
+    dstate.setCurrentValue(localName)
+  }
+}
+
+/**
+ * Returns the namespace URI of the expanded-QName of the context
+ * node as an xs:string value.
+ *
+ * If the context node is in no namespace, then the function returns
+ * the zero-length xs:string value instead.
+ *
+ * The following error may be raised:
+ * - If the context node is not an element, type error [err:XPTY004]
+ *
+ * This function is called when 0 arguments are provided.  We
+ * treat this as if the argument passed was "." to denote self.
+ */
+case class FNNamespaceUri0(recipe: CompiledDPath, argType: NodeInfo.Kind)
+  extends RecipeOpWithSubRecipes(recipe) {
+  override def run(dstate: DState) {
+    // Insist this is non-constant at compile time (to avoid a NPE)
+    if (dstate.isCompile)
+      throw new IllegalStateException()
+
+    // Check that the context node is really present
+    if (dstate.currentNode eq null)
+      dstate.SDE("Context node for fn:namespace-uri is not an element")
+
+    // Same as using "." to denote self.
+    val value = dstate.currentNode.namedQName.namespace.optURI match {
+      case Nope => ""
+      case uri => uri.get.toString
+    }
+    dstate.setCurrentValue(value)
+  }
+}
+
+/**
+ * Returns the namespace URI of the expanded-QName of \$arg as an
+ * xs:string value.
+ *
+ * If the element identified by \$arg is in no namespace, then the
+ * function returns the zero-length xs:string value instead.
+ *
+ * The following error may be raised:
+ * - If \$arg is not an element, type error [err:XPTY004]
+ */
+case class FNNamespaceUri1(recipe: CompiledDPath, argType: NodeInfo.Kind)
+  extends FNOneArg(recipe, argType) {
+  override def computeValue(value: DataValuePrimitive, dstate: DState) = {
+    Assert.usageError("not to be called. DPath compiler should be answering this without runtime calls.")
+  }
+
+  override def run(dstate: DState) {
+    // Insist this is non-constant at compile time (to avoid a NPE)
+    if (dstate.isCompile)
+      throw new IllegalStateException()
+
+    // Save original node that calls fn:namespace-uri and execute the
+    // recipe/expression which should return a node/element whose
+    // namespace-uri we want
+    val savedNode = dstate.currentNode
+    recipe.run(dstate)
+    val resultNode = dstate.currentNode
+    dstate.setCurrentNode(savedNode)
+
+    // Check that the expression returned an element, not a value
+    if (resultNode eq null)
+      dstate.SDE("Argument %s for fn:namespace-uri is not an element", recipe)
+
+    // Find and return the namespace-uri we want
+    val value = resultNode.namedQName.namespace.optURI match {
+      case Nope => ""
+      case uri => uri.get.toString
+    }
+    dstate.setCurrentValue(value)
   }
 }
 

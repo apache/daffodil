@@ -516,10 +516,12 @@ class TestDFDLExpressions {
   //@Test def test_namespace_uri_01() { runner2.runOneTest("namespace_uri_01") }
   //@Test def test_namespace_uri_02() { runner2.runOneTest("namespace_uri_02") }
   //DFDL-1114
-  //@Test def test_namespace_uri_03() { runner2.runOneTest("namespace_uri_03") }
-  //@Test def test_namespace_uri_04() { runner2.runOneTest("namespace_uri_04") }
-  //@Test def test_namespace_uri_05() { runner2.runOneTest("namespace_uri_05") }
-  //@Test def test_namespace_uri_06() { runner2.runOneTest("namespace_uri_06") }
+  @Test def test_namespace_uri_03() { runner2.runOneTest("namespace_uri_03") }
+  @Test def test_namespace_uri_04() { runner2.runOneTest("namespace_uri_04") }
+  @Test def test_namespace_uri_05() { runner2.runOneTest("namespace_uri_05") }
+  @Test def test_namespace_uri_06() { runner2.runOneTest("namespace_uri_06") }
+  @Test def test_namespace_uri_07() { runner2.runOneTest("namespace_uri_07") }
+  @Test def test_namespace_uri_08() { runner2.runOneTest("namespace_uri_08") }
 
   //DFDL-1233
   @Test def test_nilled_02() { runner2.runOneTest("nilled_02") }

@@ -11370,13 +11370,55 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
-  
-<!--
-    Test Name: nilled_01
-       Schema: booleanFunctions
-         Root: nilled01
-      Purpose: This test demonstrates that the fn:nilled function returns true if arg is a node with xsi:nil = true
--->
+
+  <!--
+      Test Name: namespace_uri_07
+         Schema: home_schema.dfdl.xsd
+           Root: e5
+        Purpose: This test demonstrates the namespace-uri() function causes a SDE if given a non-element arg
+  -->
+
+  <tdml:parserTestCase name="namespace_uri_07" root="e5"
+                       model="home_schema.dfdl.xsd" description="Section 23 - Functions - fn:namespace-uri() - DFDL-23-126R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>fn:namespace-uri</tdml:error>
+      <tdml:error>is not an element</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+      Test Name: namespace_uri_08
+         Schema: home_schema.dfdl.xsd
+           Root: e6
+        Purpose: This test demonstrates the namespace-uri() function on an element with no namespace
+  -->
+
+  <tdml:parserTestCase name="namespace_uri_08" root="e6"
+                       model="home_schema.dfdl.xsd" description="Section 23 - Functions - fn:namespace-uri() - DFDL-23-126R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e6>
+          <uri xmlns=""></uri>
+        </e6>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+      Test Name: nilled_01
+         Schema: booleanFunctions
+           Root: nilled01
+        Purpose: This test demonstrates that the fn:nilled function returns true if arg is a node with xsi:nil = true
+  -->
 
   <tdml:parserTestCase name="nilled_01" root="nilled01"
     model="booleanFunctions" description="Section 23 - Functions - fn:nilled - DFDL-23-129R">

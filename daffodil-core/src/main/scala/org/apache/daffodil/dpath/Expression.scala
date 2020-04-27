@@ -1504,11 +1504,19 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
 
       case (RefQName(_, "local-name", FUNC), args) if args.length == 0 =>
         FNZeroArgExpr(functionQNameString, functionQName,
-          NodeInfo.String, NodeInfo.AnyAtomic, FNLocalName0(_, _))
+          NodeInfo.String, NodeInfo.Exists, FNLocalName0(_, _))
 
       case (RefQName(_, "local-name", FUNC), args) if args.length == 1 =>
         FNOneArgExpr(functionQNameString, functionQName, args,
-          NodeInfo.String, NodeInfo.AnyAtomic, FNLocalName1(_, _))
+          NodeInfo.String, NodeInfo.Exists, FNLocalName1(_, _))
+
+      case (RefQName(_, "namespace-uri", FUNC), args) if args.length == 0 =>
+        FNZeroArgExpr(functionQNameString, functionQName,
+          NodeInfo.String, NodeInfo.Exists, FNNamespaceUri0(_, _))
+
+      case (RefQName(_, "namespace-uri", FUNC), args) if args.length == 1 =>
+        FNOneArgExpr(functionQNameString, functionQName, args,
+          NodeInfo.String, NodeInfo.Exists, FNNamespaceUri1(_, _))
 
       case (RefQName(_, "string", XSD), args) =>
         FNOneArgExpr(functionQNameString, functionQName, args,
