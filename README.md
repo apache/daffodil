@@ -16,7 +16,7 @@
 -->
 
 [<img src="https://daffodil.apache.org/assets/themes/apache/img/apache-daffodil-logo.svg" height="85" align="left" alt="Apache Daffodil"/>][Website]
-[<img src="https://img.shields.io/travis/apache/incubator-daffodil/master.svg" align="right"/>][TravisCI]
+[<img src="https://img.shields.io/github/workflow/status/apache/incubator-daffodil/Daffodil%20CI/master.svg" align="right"/>][GitHub Actions]
 <br clear="right" />
 [<img src="https://img.shields.io/codecov/c/github/apache/incubator-daffodil/master.svg" align="right"/>][CodeCov]
 <br clear="right" />
@@ -122,6 +122,6 @@ the ASF.
 [Open Grid Forum]: http://www.ogf.org
 [Releases]: http://daffodil.apache.org/releases/
 [SBT]: http://www.scala-sbt.org
-[TravisCI]: https://travis-ci.org/apache/incubator-daffodil
+[Github Actions]: https://github.com/apache/incubator-daffodil/actions?query=branch%3Amaster+
 [Website]: https://daffodil.apache.org
 [sbt-scoverage]: https://github.com/scoverage/sbt-scoverage
