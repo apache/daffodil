@@ -63,4 +63,14 @@
     </xs:complexType>
   </xs:element>
 
+  <xs:element name="e5" type="xs:string" dfdl:inputValueCalc="{ fn:namespace-uri(0) }"/>
+
+  <xs:element name="e6">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="uri" type="xs:string" dfdl:inputValueCalc="{ fn:namespace-uri(/home:e6/uri) }"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
 </xs:schema>
