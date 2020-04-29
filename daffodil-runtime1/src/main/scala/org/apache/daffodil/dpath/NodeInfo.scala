@@ -404,21 +404,27 @@ object NodeInfo extends Enum {
   val Date = PrimType.Date
   val Time = PrimType.Time
 
+  /**
+   * This list of types must be in order of most specific to least, i.e. Byte
+   * inherits from Short, which inherits from Int etc. This is becasue
+   * fromNodeInfo does a find on this list based on isSubtypeOf, which will
+   * return the first successful result.
+   */
   val allPrims = List(
     String,
-    Int,
     Byte,
     Short,
+    Int,
     Long,
-    Integer,
-    Decimal,
-    UnsignedInt,
     UnsignedByte,
     UnsignedShort,
+    UnsignedInt,
     UnsignedLong,
     NonNegativeInteger,
-    Double,
+    Integer,
     Float,
+    Double,
+    Decimal,
     HexBinary,
     AnyURI,
     Boolean,

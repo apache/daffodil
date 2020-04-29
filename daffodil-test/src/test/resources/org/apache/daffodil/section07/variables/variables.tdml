@@ -312,6 +312,16 @@
 
     <dfdl:defineVariable name="badscope" type="xs:int" defaultValue="70"/>
 
+    <dfdl:defineVariable name="unsignedLen" type="xs:unsignedInt" defaultValue="2"/>
+    <xs:element name="u1">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="a" type="xs:string"
+            dfdl:lengthKind="explicit" dfdl:length="{ $ex:unsignedLen }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
   </tdml:defineSchema>
 
   <tdml:parserTestCase name="setVar1" root="c"
@@ -511,7 +521,21 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
-  
+
+  <tdml:parserTestCase name="unsignedIntVarCast" root="u1"
+    model="v"
+    description="Variable of type unsignedInt used to indicate element length">
+    <tdml:document><![CDATA[ab]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <u1>
+          <a xsi:type="xs:string">ab</a>
+        </u1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
   <tdml:defineSchema name="setVarSchema">
     <dfdl:defineVariable name="v_no_default" type="xs:int" />
     <dfdl:defineVariable name="v_with_default" type="xs:int"

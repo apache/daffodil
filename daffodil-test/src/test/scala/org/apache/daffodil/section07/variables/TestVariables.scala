@@ -77,6 +77,8 @@ class TestVariables {
   @Test def test_logical_default_values() { runner.runOneTest("logical_default_values") }
   @Test def test_logical_default_values_err() { runner.runOneTest("logical_default_values_err") }
 
+  @Test def test_unsignedIntVarCast() { runner.runOneTest("unsignedIntVarCast") }
+
   @Test def test_doubleSetErr_d() { runner_01.runOneTest("doubleSetErr_d") }
   @Test def test_setVar1_d() { runner_01.runOneTest("setVar1_d") }
   // DFDL-1443 & DFDL-1448
