@@ -78,6 +78,9 @@ class TestVariables {
   @Test def test_varAsSeparator2() { runner.runOneTest("varAsSeparator2") }
   @Test def test_setVarBadScope2() { runner.runOneTest("setVarBadScope2") }
 
+  @Test def test_resetVar_01() { runner.runOneTest("resetVar_01") }
+  @Test def test_resetVar_02() { runner.runOneTest("resetVar_02") }
+
   @Test def test_doubleEmptyDefault() { runner.runOneTest("doubleEmptyDefault") }
   @Test def test_emptyDefault() { runner.runOneTest("emptyDefault") }
   @Test def test_emptyDefault2() { runner.runOneTest("emptyDefault2") }
