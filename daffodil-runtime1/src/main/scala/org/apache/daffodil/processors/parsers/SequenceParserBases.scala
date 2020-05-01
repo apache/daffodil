@@ -289,7 +289,6 @@ abstract class SequenceParserBase(
       val currentPos = pstate.bitPos0b
 
       val wasDiscriminatorSet = pstate.discriminator
-      if (hasPoU) pstate.popPointOfUncertainty
       //
       // Now we handle the result of the parse attempt.
       //
@@ -331,6 +330,8 @@ abstract class SequenceParserBase(
         }
         case other => Assert.invariantFailed("Unexpected parse attempt status: " + other)
       }
+
+      if (hasPoU) pstate.popPointOfUncertainty
 
     } catch {
       // Similar try/catch/finally logic for returning marks is also used in

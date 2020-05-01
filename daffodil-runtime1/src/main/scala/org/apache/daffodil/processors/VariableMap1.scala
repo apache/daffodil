@@ -30,6 +30,7 @@ import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe.Nope
 import org.apache.daffodil.util.MStackOf
 import org.apache.daffodil.xml.{GlobalQName, UnspecifiedNamespace, NamedQName, QNameBase, RefQName}
+import org.apache.daffodil.processors.parsers.PState
 
 import scala.collection.mutable.Map
 
@@ -86,10 +87,15 @@ case class VariableInstance(
 
   def reset() = {
     Assert.invariant(this.state != VariableUndefined)
-    this.value = this.priorValue
-    this.state = this.priorState
-    this.priorValue = DataValue.NoValue
-    this.priorState = VariableUndefined
+    (this.state, this.priorState, this.defaultValueExpr.isDefined) match {
+      case (VariableRead, VariableSet, _) => this.state = VariableSet
+      case (VariableRead, _, true) => this.state = VariableDefined
+      case (VariableSet, _, _) => {
+        this.state = this.priorState
+        this.value = this.priorValue
+      }
+      case (_, _, _) => Assert.impossible("Should have SDE before reaching this")
+    }
   }
 }
 
@@ -159,7 +165,7 @@ class VariableMap private(vTable: Map[GlobalQName, MStackOf[VariableInstance]])
   def this(topLevelVRDs: Seq[VariableRuntimeData] = Nil) =
     this(Map(topLevelVRDs.map {
       vrd =>
-        val variab = vrd.newVariableInstance
+        val variab = vrd.createVariableInstance
         val stack = new MStackOf[VariableInstance]
         stack.push(variab)
         (vrd.globalQName, stack)
@@ -216,8 +222,7 @@ class VariableMap private(vTable: Map[GlobalQName, MStackOf[VariableInstance]])
    * Returns the value of a variable and sets the state of the variable to be
    * VariableRead.
    */
-  def readVariable(vrd: VariableRuntimeData, referringContext: ThrowsSDE): DataValuePrimitive = {
-    val referringContext: VariableRuntimeData = vrd
+  def readVariable(vrd: VariableRuntimeData, referringContext: ThrowsSDE, maybePstate: Maybe[ParseOrUnparseState]): DataValuePrimitive = {
     val varQName = vrd.globalQName
     val stack = vTable.get(varQName)
     if (stack.isDefined) {
@@ -225,10 +230,13 @@ class VariableMap private(vTable: Map[GlobalQName, MStackOf[VariableInstance]])
       variable.state match {
         case VariableRead if (variable.value.isDefined) => variable.value.getNonNullable
         case VariableDefined | VariableSet if (variable.value.isDefined) => {
+          if (maybePstate.isDefined && maybePstate.get.isInstanceOf[PState])
+            maybePstate.get.asInstanceOf[PState].markVariableRead(vrd)
+
           variable.setState(VariableRead)
           variable.value.getNonNullable
         }
-        case _ => throw new VariableHasNoValue(varQName, referringContext)
+        case _ => throw new VariableHasNoValue(varQName, vrd)
       }
     } else
       referringContext.SDE("Variable map (compilation): unknown variable %s", varQName) // Fix DFDL-766
@@ -249,8 +257,14 @@ class VariableMap private(vTable: Map[GlobalQName, MStackOf[VariableInstance]])
         }
 
         case VariableRead => {
-          referringContext.SDE("Cannot set variable %s after reading the default value. State was: %s. Existing value: %s",
+          /**
+           * TODO: This should be an SDE, but due to a bug (DAFFODIL-1443) in
+           * the way we evaluate escapeSchemes it could lead us to setting the
+           * variable read too early */
+          pstate.SDW("Cannot set variable %s after reading the default value. State was: %s. Existing value: %s",
           variable.rd.globalQName, VariableSet, variable.value)
+          variable.setValue(VariableUtils.convert(newValue.getAnyRef.toString, variable.rd))
+          variable.setState(VariableSet)
         }
 
         case _ => {
@@ -268,7 +282,7 @@ class VariableMap private(vTable: Map[GlobalQName, MStackOf[VariableInstance]])
     val varQName = vrd.globalQName
     val stack = vTable.get(varQName)
     Assert.invariant(stack.isDefined)
-    stack.get.push(vrd.newVariableInstance)
+    stack.get.push(vrd.createVariableInstance)
   }
 
   def removeVariableInstance(vrd: VariableRuntimeData) {

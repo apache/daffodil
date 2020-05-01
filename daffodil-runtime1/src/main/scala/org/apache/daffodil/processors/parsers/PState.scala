@@ -47,6 +47,7 @@ import org.apache.daffodil.processors.ParseOrUnparseState
 import org.apache.daffodil.processors.ProcessorResult
 import org.apache.daffodil.processors.TermRuntimeData
 import org.apache.daffodil.processors.VariableMap
+import org.apache.daffodil.processors.VariableRead
 import org.apache.daffodil.processors.VariableRuntimeData
 import org.apache.daffodil.processors.dfa
 import org.apache.daffodil.processors.dfa.DFADelimiter
@@ -220,6 +221,13 @@ final class PState private (
       if (variable.isDefined)
         variable.get.reset
     }}
+    /* When parsing choices or unordered sequences it is necessary to clear the
+     * list at the top of the stack because it is possible for multiple
+     * PState.reset calls to occur withing the same point of uncertainty. If we
+     * do not clear the list, the changes made in failed branches of the choice
+     * will accumulate even though their effects have already been reset.
+     */
+    changedVariablesStack.top.clear
   }
 
   def discard(m: PState.Mark) {
@@ -288,7 +296,7 @@ final class PState private (
    * Note that this function does not actually read the variable, it is used
    * just to track that the variable was read in case we need to backtrack.
    */
-  def variableRead(vrd: VariableRuntimeData) {
+  def markVariableRead(vrd: VariableRuntimeData) {
     changedVariablesStack.top += vrd.globalQName
   }
 

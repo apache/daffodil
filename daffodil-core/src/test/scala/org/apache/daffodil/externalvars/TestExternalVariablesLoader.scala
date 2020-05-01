@@ -110,9 +110,9 @@ class TestExternalVariablesLoader extends Logging {
 
     // Verify that the external variables override the previous values
     // in the VariableMap
-    val value1 = vmap.readVariable(v_no_default_vrd, Fakes.fakeElem)
+    val value1 = vmap.readVariable(v_no_default_vrd, Fakes.fakeElem, Maybe.Nope)
     assertEquals(1, value1.getAnyRef)
-    val value2 = vmap.readVariable(v_with_default_vrd, Fakes.fakeElem)
+    val value2 = vmap.readVariable(v_with_default_vrd, Fakes.fakeElem, Maybe.Nope)
     assertEquals(2, value2.getAnyRef)
   }
 

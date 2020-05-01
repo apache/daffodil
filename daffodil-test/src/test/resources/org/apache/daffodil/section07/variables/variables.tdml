@@ -606,6 +606,51 @@
       </xs:complexType>
     </xs:element>
 
+    <dfdl:defineVariable name="s_with_default" type="xs:string" defaultValue="default" />
+    <dfdl:defineVariable name="s_no_default" type="xs:string" />
+    <xs:element name="e10" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:choice>
+            <xs:element name="branch1" type="xs:string"
+              dfdl:lengthKind="delimited">
+              <xs:annotation>
+                <xs:appinfo source="http://www.ogf.org/dfdl/">
+                  <dfdl:setVariable ref="ex:s_no_default">{ "variableSet_branch1" }</dfdl:setVariable>
+                  <dfdl:assert><![CDATA[{ $s_with_default eq "branch1" }]]></dfdl:assert>
+                </xs:appinfo>
+              </xs:annotation>
+            </xs:element>
+            <xs:element name="branch2" type="xs:string"
+              dfdl:lengthKind="delimited">
+              <xs:annotation>
+                <xs:appinfo source="http://www.ogf.org/dfdl/">
+                  <dfdl:setVariable ref="ex:s_no_default">{ "s_no_branch2" }</dfdl:setVariable>
+                  <dfdl:setVariable ref="ex:s_with_default">{ "s_def_branch2" }</dfdl:setVariable>
+                  <dfdl:assert><![CDATA[{ xs:string($ex:s_with_default) eq "s_def_branch2" }]]></dfdl:assert>
+                  <dfdl:assert><![CDATA[{ xs:string($ex:s_with_default) eq "s_def_branch2" }]]></dfdl:assert>
+                  <dfdl:assert><![CDATA[{ xs:string(.) eq "branch2" }]]></dfdl:assert>
+                </xs:appinfo>
+              </xs:annotation>
+            </xs:element>
+            <xs:element name="branch3" type="xs:string"
+              dfdl:lengthKind="delimited">
+              <xs:annotation>
+                <xs:appinfo source="http://www.ogf.org/dfdl/">
+                  <dfdl:setVariable ref="ex:s_no_default">{ "s_no_branch3" }</dfdl:setVariable>
+                  <dfdl:assert><![CDATA[{ xs:string(.) eq "branch3" }]]></dfdl:assert>
+                </xs:appinfo>
+              </xs:annotation>
+            </xs:element>
+          </xs:choice>
+          <xsd:element name="s_no_default" type="xs:string"
+            dfdl:inputValueCalc="{ $ex:s_no_default }" />
+          <xsd:element name="s_with_default" type="xs:string"
+            dfdl:inputValueCalc="{ $ex:s_with_default }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
     <dfdl:defineVariable name="badscope" type="xs:int" defaultValue="70"/>
 
     <dfdl:defineVariable name="unsignedLen" type="xs:unsignedInt" defaultValue="2"/>
@@ -987,6 +1032,36 @@
           <e1>23</e1>
           <e2>41</e2>
         </e6>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="resetVar_01" root="e10"
+    model="v"
+    description="Demonstrates that a variables state is properly reset after a read">
+    <tdml:document><![CDATA[branch2]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e10 xmlns="http://example.com">
+          <branch2>branch2</branch2>
+          <s_no_default>s_no_branch2</s_no_default>
+          <s_with_default>s_def_branch2</s_with_default>
+        </e10>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="resetVar_02" root="e10"
+    model="v"
+    description="Demonstrates that a variables state is properly reset after a set and read">
+    <tdml:document><![CDATA[branch3]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e10 xmlns="http://example.com">
+          <branch3>branch3</branch3>
+          <s_no_default>s_no_branch3</s_no_default>
+          <s_with_default>default</s_with_default>
+        </e10>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
