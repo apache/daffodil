@@ -19,6 +19,7 @@ package org.apache.daffodil.processors
 
 import org.apache.daffodil.api.ThinDiagnostic
 import org.apache.daffodil.dsom.CompiledExpression
+import org.apache.daffodil.dpath.InvalidPrimitiveDataException
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.exceptions.ThrowsSDE
 import org.apache.daffodil.externalvars.Binding
@@ -105,8 +106,15 @@ object VariableUtils {
     bindings.foreach { b => currentVMap.setExtVariable(b.varQName, b.varValue, referringContext) }
   }
 
-  def convert(v: String, rd: VariableRuntimeData): DataValuePrimitive =
-    rd.primType.fromXMLString(v)
+  def convert(v: String, rd: VariableRuntimeData, referringContext: ThrowsSDE): DataValuePrimitive = {
+    try {
+      rd.primType.fromXMLString(v)
+    } catch {
+      case e: InvalidPrimitiveDataException =>
+        referringContext.SDE("Error processing variable %s: %s", rd.globalQName, e.getMessage)
+    }
+  }
+
 }
 
 abstract class VariableException(val qname: NamedQName, val context: VariableRuntimeData, msg: String)
@@ -263,12 +271,12 @@ class VariableMap private(vTable: Map[GlobalQName, MStackOf[VariableInstance]])
            * variable read too early */
           pstate.SDW("Cannot set variable %s after reading the default value. State was: %s. Existing value: %s",
           variable.rd.globalQName, VariableSet, variable.value)
-          variable.setValue(VariableUtils.convert(newValue.getAnyRef.toString, variable.rd))
+          variable.setValue(VariableUtils.convert(newValue.getAnyRef.toString, variable.rd, referringContext))
           variable.setState(VariableSet)
         }
 
         case _ => {
-          variable.setValue(VariableUtils.convert(newValue.getAnyRef.toString, variable.rd))
+          variable.setValue(VariableUtils.convert(newValue.getAnyRef.toString, variable.rd, referringContext))
           variable.setState(VariableSet)
         }
       }
@@ -347,7 +355,7 @@ class VariableMap private(vTable: Map[GlobalQName, MStackOf[VariableInstance]])
         }
 
         case _ => {
-          variable.setValue(VariableUtils.convert(newValue.getAnyRef.toString, variable.rd))
+          variable.setValue(VariableUtils.convert(newValue.getAnyRef.toString, variable.rd, referringContext))
           variable.setState(VariableDefined)
         }
       }

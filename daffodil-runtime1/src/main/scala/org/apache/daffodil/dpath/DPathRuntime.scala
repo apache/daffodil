@@ -113,6 +113,7 @@ class CompiledDPath(val ops: RecipeOp*) extends Serializable {
         // are typically typographical errors so it is good to pick them up here.
         case e: java.lang.ArithmeticException => throw new SchemaDefinitionError(Some(sfl), None, e.getMessage())
         case e: java.lang.NumberFormatException => throw new SchemaDefinitionError(Some(sfl), None, e.getMessage())
+        case e: InvalidPrimitiveDataException => throw new SchemaDefinitionError(Some(sfl), None, e.getMessage())
         case e: java.lang.IndexOutOfBoundsException => false
         case e: java.lang.IllegalArgumentException => false
         case e: FNErrorException => false
@@ -291,7 +292,7 @@ abstract class Converter extends RecipeOp {
       try {
         computeValue(arg, dstate)
       } catch {
-        case e: NumberFormatException => {
+        case e: InvalidPrimitiveDataException => {
           val (fromTypeName, toTypeName) = typeNames
           val msg =
             if (e.getMessage() != null && e.getMessage() != "") e.getMessage()

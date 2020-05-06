@@ -27,6 +27,7 @@ import java.text.ParsePosition
 import scala.util.matching.Regex
 
 import org.apache.daffodil.dpath.NodeInfo
+import org.apache.daffodil.dpath.InvalidPrimitiveDataException
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.infoset.DISimple
 import org.apache.daffodil.infoset.DataValue.DataValueNumber
@@ -134,24 +135,12 @@ case class ConvertTextNumberParser(
           }
         }
 
-        val numValue: DataValueNumber = num match {
-          // if num is infRep, -infRep, or nanRep, then parse() returns
-          // Double.{POSINF, NEGINF, NAN}. In that case, we need to convert it
-          // to the appropriate Double or Float inifinity/nan. Otherwise,
-          // parse() returns some kind of boxed number that can hold the full
-          // contents of the number, which is one of Long, BigInteger,
-          // BigDecimal. In that case, we must check the range and convert it
-          // to the appropriate prim type.
-          case d: JDouble if (!JDouble.isFinite(d)) => primNumeric.fromNumber(d)
-          case _ => {
-            if (!primNumeric.isValidRange(num)) {
-              PE(start, "Parsed %s is out of range for type: %s",
-                context.optPrimType.get.globalQName, num)
-              return
-            }
-
-            // convert to proper type
-            primNumeric.fromNumber(num)
+        val numValue: DataValueNumber = try {
+          primNumeric.fromNumber(num)
+        } catch {
+          case e: InvalidPrimitiveDataException => {
+            PE(start, "%s", e.getMessage)
+            return
           }
         }
         numValue

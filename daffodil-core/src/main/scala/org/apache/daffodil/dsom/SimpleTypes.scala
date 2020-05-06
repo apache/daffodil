@@ -24,6 +24,7 @@ import org.apache.daffodil.cookers.IntRangeCooker
 import org.apache.daffodil.cookers.RepValueCooker
 import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.dpath.NodeInfo.PrimType
+import org.apache.daffodil.dpath.InvalidPrimitiveDataException
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.processors.IdentifyTypeCalculator
 import org.apache.daffodil.processors.RepValueSet
@@ -568,7 +569,11 @@ final class EnumerationDef(
   override lazy val optRepType = parentType.optRepType
 
   lazy val enumValueRaw: String = (xml \ "@value").head.text
-  lazy val enumValueCooked: DataValuePrimitive = parentType.primType.fromXMLString(enumValueRaw)
+  lazy val enumValueCooked: DataValuePrimitive = try {
+    parentType.primType.fromXMLString(enumValueRaw)
+  } catch {
+    case e: InvalidPrimitiveDataException => SDE("Invalid data for enumeration: %s", e.getMessage)
+  }
 
   override lazy val optRepValueSet: Option[RepValueSet] = optRepValueSetFromAttribute
   lazy val logicalValueSet: RepValueSet = RepValueSetCompiler.compile(Seq(enumValueCooked), Seq())

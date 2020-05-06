@@ -57,6 +57,7 @@ class TestBoolean2 {
   @Test def test_textBoolean_sde_4() { runner.runOneTest("textBoolean_sde_4") }
   @Test def test_textBoolean_sde_5() { runner.runOneTest("textBoolean_sde_5") }
   @Test def test_textBoolean_pe_0() { runner.runOneTest("textBoolean_pe_0") }
+  @Test def test_textBoolean_unparseError() { runner.runOneTest("textBoolean_unparseError") }
 
   @Test def test_textBoolean_IgnoreCase() { runner.runOneTest("textBoolean_IgnoreCase") }
 }

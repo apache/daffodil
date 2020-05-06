@@ -256,6 +256,18 @@
     </tdml:errors>
   </tdml:unparserTestCase>
 
+  <tdml:unparserTestCase name="blob_unparseError" root="blob_01" model="Blob.dfdl.xsd">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:blob_01 xsi:type="xs:anyURI">this isn't a URI</ex:blob_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Unparse Error</tdml:error>
+      <tdml:error>Illegal character</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
   <!-- parse, not enough bits -->
   <tdml:parserTestCase name="blob_10" root="blob_01" model="Blob.dfdl.xsd">
     <tdml:document>

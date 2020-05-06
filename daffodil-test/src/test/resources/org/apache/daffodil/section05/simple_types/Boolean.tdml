@@ -537,6 +537,21 @@
     </tdml:errors>
   </tdml:unparserTestCase>
 
+  <tdml:unparserTestCase name="textBoolean_unparseError" root="textList_pe" model="boolean"
+    description="Text boolean" roundTrip="false">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:textList_pe>
+          <ex:x>garbage</ex:x>
+        </ex:textList_pe>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Unparse Error</tdml:error>
+      <tdml:error>not a valid xs:boolean</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
   <tdml:parserTestCase name="textBoolean_sde_3" root="textList_sde4" model="boolean"
     description="Text boolean" roundTrip="false">
     <tdml:document><![CDATA[yes,non;]]></tdml:document>

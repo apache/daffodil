@@ -20,6 +20,7 @@ package org.apache.daffodil.dpath
 import java.lang.{ Boolean => JBoolean, Byte => JByte, Double => JDouble, Float => JFloat, Integer => JInt, Long => JLong, Short => JShort }
 import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
 import java.net.URI
+import java.net.URISyntaxException
 
 import org.apache.daffodil.calendar.DFDLCalendar
 import org.apache.daffodil.calendar.DFDLDateConversion
@@ -44,6 +45,8 @@ import org.apache.daffodil.infoset.DataValue.DataValueTime
 import org.apache.daffodil.infoset.DataValue.DataValueURI
 import org.apache.daffodil.util.Enum
 import org.apache.daffodil.util.Misc
+import org.apache.daffodil.util.Numbers.asBigInt
+import org.apache.daffodil.util.Numbers.asBigDecimal
 import org.apache.daffodil.xml.GlobalQName
 import org.apache.daffodil.xml.NoNamespace
 import org.apache.daffodil.xml.QName
@@ -80,6 +83,8 @@ sealed abstract class PrimTypeNode(parent: NodeInfo.Kind, childrenArg: => Seq[No
 
   def this(parent: NodeInfo.Kind) = this(parent, Seq(NodeInfo.Nothing))
 }
+
+class InvalidPrimitiveDataException(msg: String, cause: Throwable = null) extends Exception(msg, cause)
 
 /**
  * A NodeInfo.Kind describes what kind of result we want from the expression.
@@ -452,21 +457,56 @@ object NodeInfo extends Enum {
       }
     }
 
+    trait PrimNonNumeric { self: AnyAtomic.Kind =>
+      protected def fromString(s: String): DataValuePrimitive
+      def fromXMLString(s: String): DataValuePrimitive = {
+        try {
+          fromString(s)
+        } catch {
+          case iae: IllegalArgumentException =>
+            throw new InvalidPrimitiveDataException("Value '%s' is not a valid %s: %s".format(s, this.globalQName, iae.getMessage))
+          case uri: URISyntaxException =>
+            throw new InvalidPrimitiveDataException("Value '%s' is not a valid %s: %s".format(s, this.globalQName, uri.getMessage))
+        }
+      }
+    }
+
     trait PrimNumeric { self: Numeric.Kind =>
-      def isValidRange(n: Number): Boolean
-      def fromNumber(n: Number): DataValueNumber
+      def isValid(n: Number): Boolean
+      protected def fromNumberNoCheck(n: Number): DataValueNumber
+      def fromNumber(n: Number): DataValueNumber = {
+        if (!isValid(n))
+          throw new InvalidPrimitiveDataException("Value '%s' is out of range for type: %s".format(n, this.globalQName))
+        val num = fromNumberNoCheck(n)
+        num
+      }
+
+      protected def fromString(s: String): DataValueNumber
+      def fromXMLString(s: String): DataValueNumber = {
+        val num = try {
+          fromString(s)
+        } catch {
+          case nfe: NumberFormatException =>
+            throw new InvalidPrimitiveDataException("Value '%s' is not a valid %s".format(s, this.globalQName))
+        }
+
+        if (!isValid(num.getNumber))
+          throw new InvalidPrimitiveDataException("Value '%s' is out of range for type: %s".format(s, this.globalQName))
+
+        num
+      }
     }
 
     // this should only be used for integer primitives that can fit inside a
     // long (e.g. long, unsignedInt). Primitives larger than that should
-    // implement a custom isValidRange
+    // implement a custom isValid
     trait PrimNumericInteger extends PrimNumeric { self: Numeric.Kind =>
       val min: Long
       val max: Long
       private lazy val minBD = new JBigDecimal(min)
       private lazy val maxBD = new JBigDecimal(max)
 
-      override def isValidRange(n: Number): Boolean = n match {
+      override def isValid(n: Number): Boolean = n match {
         case bd: JBigDecimal => {
           bd.compareTo(minBD) >= 0 && bd.compareTo(maxBD) <= 0
         }
@@ -494,13 +534,13 @@ object NodeInfo extends Enum {
       private lazy val minBD = new JBigDecimal(min)
       private lazy val maxBD = new JBigDecimal(max)
 
-      def isValidRange(n: java.lang.Number): Boolean = n match {
+      def isValid(n: java.lang.Number): Boolean = n match {
         case bd: JBigDecimal => {
           bd.compareTo(minBD) >= 0 && bd.compareTo(maxBD) <= 0
         }
         case _ => {
           val d = n.doubleValue
-          !d.isNaN && d >= min && d <= max
+          (d.isNaN || d.isInfinite) || (d >= min && d <= max)
         }
       }
     }
@@ -508,7 +548,7 @@ object NodeInfo extends Enum {
     protected sealed trait FloatKind extends SignedNumeric.Kind
     case object Float extends PrimTypeNode(SignedNumeric) with FloatKind with PrimNumericFloat {
       type Kind = FloatKind
-      override def fromXMLString(s: String) = {
+      protected override def fromString(s: String) = {
         val f: JFloat = s match {
           case XMLUtils.PositiveInfinityString => JFloat.POSITIVE_INFINITY
           case XMLUtils.NegativeInfinityString => JFloat.NEGATIVE_INFINITY
@@ -517,7 +557,7 @@ object NodeInfo extends Enum {
         }
         f
       }
-      override def fromNumber(n: Number): DataValueFloat = n.floatValue
+      protected override def fromNumberNoCheck(n: Number): DataValueFloat = n.floatValue
       override val min = -JFloat.MAX_VALUE.doubleValue
       override val max = JFloat.MAX_VALUE.doubleValue
     }
@@ -525,7 +565,7 @@ object NodeInfo extends Enum {
     protected sealed trait DoubleKind extends SignedNumeric.Kind
     case object Double extends PrimTypeNode(SignedNumeric) with DoubleKind with PrimNumericFloat {
       type Kind = DoubleKind
-      override def fromXMLString(s: String): DataValueDouble = {
+      protected override def fromString(s: String): DataValueDouble = {
         val d: JDouble = s match {
           case XMLUtils.PositiveInfinityString => JDouble.POSITIVE_INFINITY
           case XMLUtils.NegativeInfinityString => JDouble.NEGATIVE_INFINITY
@@ -534,7 +574,7 @@ object NodeInfo extends Enum {
         }
         d
       }
-      override def fromNumber(n: Number): DataValueDouble = n.doubleValue
+      protected override def fromNumberNoCheck(n: Number): DataValueDouble = n.doubleValue
       override val min = -JDouble.MAX_VALUE
       override val max = JDouble.MAX_VALUE
     }
@@ -542,24 +582,24 @@ object NodeInfo extends Enum {
     protected sealed trait DecimalKind extends SignedNumeric.Kind
     case object Decimal extends PrimTypeNode(SignedNumeric, List(Integer)) with DecimalKind with PrimNumeric {
       type Kind = DecimalKind
-      override def fromXMLString(s: String): DataValueBigDecimal = new JBigDecimal(s)
-      override def fromNumber(n: Number): DataValueBigDecimal = new JBigDecimal(n.toString)
-      override def isValidRange(n: Number): Boolean = true
+      protected override def fromString(s: String): DataValueBigDecimal = new JBigDecimal(s)
+      protected override def fromNumberNoCheck(n: Number): DataValueBigDecimal = asBigDecimal(n)
+      override def isValid(n: Number): Boolean = true
     }
 
     protected sealed trait IntegerKind extends Decimal.Kind
     case object Integer extends PrimTypeNode(Decimal, List(Long, NonNegativeInteger)) with IntegerKind with PrimNumeric {
       type Kind = IntegerKind
-      override def fromXMLString(s: String): DataValueBigInt = new JBigInt(s)
-      override def fromNumber(n: Number): DataValueBigInt = new JBigInt(n.toString)
-      override def isValidRange(n: Number): Boolean = true
+      protected override def fromString(s: String): DataValueBigInt = new JBigInt(s)
+      protected override def fromNumberNoCheck(n: Number): DataValueBigInt = asBigInt(n)
+      override def isValid(n: Number): Boolean = true
     }
 
     protected sealed trait LongKind extends Integer.Kind
     case object Long extends PrimTypeNode(Integer, List(Int)) with LongKind with PrimNumericInteger {
       type Kind = LongKind
-      override def fromXMLString(s: String): DataValueLong = s.toLong
-      override def fromNumber(n: Number): DataValueLong = n.longValue
+      protected override def fromString(s: String): DataValueLong = s.toLong
+      protected override def fromNumberNoCheck(n: Number): DataValueLong = n.longValue
       override val min = JLong.MIN_VALUE
       override val max = JLong.MAX_VALUE
     }
@@ -567,8 +607,8 @@ object NodeInfo extends Enum {
     protected sealed trait IntKind extends Long.Kind
     case object Int extends PrimTypeNode(Long, List(Short)) with IntKind with PrimNumericInteger {
       type Kind = IntKind
-      override def fromXMLString(s: String): DataValueInt = s.toInt
-      override def fromNumber(n: Number): DataValueInt = n.intValue
+      protected override def fromString(s: String): DataValueInt = s.toInt
+      protected override def fromNumberNoCheck(n: Number): DataValueInt = n.intValue
       override val min = JInt.MIN_VALUE.toLong
       override val max = JInt.MAX_VALUE.toLong
     }
@@ -576,8 +616,8 @@ object NodeInfo extends Enum {
     protected sealed trait ShortKind extends Int.Kind
     case object Short extends PrimTypeNode(Int, List(Byte)) with ShortKind with PrimNumericInteger {
       type Kind = ShortKind
-      override def fromXMLString(s: String): DataValueShort = s.toShort
-      override def fromNumber(n: Number): DataValueShort = n.shortValue
+      protected override def fromString(s: String): DataValueShort = s.toShort
+      protected override def fromNumberNoCheck(n: Number): DataValueShort = n.shortValue
       override val min = JShort.MIN_VALUE.toLong
       override val max = JShort.MAX_VALUE.toLong
     }
@@ -585,8 +625,8 @@ object NodeInfo extends Enum {
     protected sealed trait ByteKind extends Short.Kind
     case object Byte extends PrimTypeNode(Short) with ByteKind with PrimNumericInteger {
       type Kind = ByteKind
-      override def fromXMLString(s: String): DataValueByte = s.toByte
-      override def fromNumber(n: Number): DataValueByte = n.byteValue
+      protected override def fromString(s: String): DataValueByte = s.toByte
+      protected override def fromNumberNoCheck(n: Number): DataValueByte = n.byteValue
       override val min = JByte.MIN_VALUE.toLong
       override val max = JByte.MAX_VALUE.toLong
     }
@@ -594,9 +634,9 @@ object NodeInfo extends Enum {
     protected sealed trait NonNegativeIntegerKind extends Integer.Kind
     case object NonNegativeInteger extends PrimTypeNode(Integer, List(UnsignedLong)) with NonNegativeIntegerKind with PrimNumeric {
       type Kind = NonNegativeIntegerKind
-      override def fromXMLString(s: String): DataValueBigInt = new JBigInt(s)
-      override def fromNumber(n: Number): DataValueBigInt = new JBigInt(n.toString)
-      def isValidRange(n: Number): Boolean = n match {
+      protected override def fromString(s: String): DataValueBigInt = new JBigInt(s)
+      protected override def fromNumberNoCheck(n: Number): DataValueBigInt = asBigInt(n)
+      def isValid(n: Number): Boolean = n match {
         case bi: JBigInt => bi.signum >= 0
         case _ => n.longValue >= 0
       }
@@ -605,9 +645,9 @@ object NodeInfo extends Enum {
     protected sealed trait UnsignedLongKind extends NonNegativeInteger.Kind
     case object UnsignedLong extends PrimTypeNode(NonNegativeInteger, List(UnsignedInt)) with UnsignedLongKind with PrimNumeric {
       type Kind = UnsignedLongKind
-      override def fromXMLString(s: String): DataValueBigInt = new JBigInt(s)
-      override def fromNumber(n: Number): DataValueBigInt = new JBigInt(n.toString)
-      def isValidRange(n: Number): Boolean = n match {
+      protected override def fromString(s: String): DataValueBigInt = new JBigInt(s)
+      protected override def fromNumberNoCheck(n: Number): DataValueBigInt = asBigInt(n)
+      def isValid(n: Number): Boolean = n match {
         case bd: JBigDecimal => bd.signum >= 0 && bd.compareTo(maxBD) <= 0
         case bi: JBigInt => bi.signum >= 0 && bi.compareTo(max) <= 0
         case _ => n.longValue >= 0
@@ -619,8 +659,8 @@ object NodeInfo extends Enum {
     protected sealed trait UnsignedIntKind extends UnsignedLong.Kind
     case object UnsignedInt extends PrimTypeNode(UnsignedLong, List(UnsignedShort, ArrayIndex)) with UnsignedIntKind with PrimNumericInteger {
       type Kind = UnsignedIntKind
-      override def fromXMLString(s: String): DataValueLong = s.toLong
-      override def fromNumber(n: Number): DataValueLong = n.longValue
+      protected override def fromString(s: String): DataValueLong = s.toLong
+      protected override def fromNumberNoCheck(n: Number): DataValueLong = n.longValue
       override val min = 0L
       override val max = 0xFFFFFFFFL
     }
@@ -628,8 +668,8 @@ object NodeInfo extends Enum {
     protected sealed trait UnsignedShortKind extends UnsignedInt.Kind
     case object UnsignedShort extends PrimTypeNode(UnsignedInt, List(UnsignedByte)) with UnsignedShortKind with PrimNumericInteger {
       type Kind = UnsignedShortKind
-      override def fromXMLString(s: String): DataValueInt = s.toInt
-      override def fromNumber(n: Number): DataValueInt = n.intValue
+      protected override def fromString(s: String): DataValueInt = s.toInt
+      protected override def fromNumberNoCheck(n: Number): DataValueInt = n.intValue
       override val min = 0L
       override val max = 0xFFFFL
     }
@@ -637,8 +677,8 @@ object NodeInfo extends Enum {
     protected sealed trait UnsignedByteKind extends UnsignedShort.Kind
     case object UnsignedByte extends PrimTypeNode(UnsignedShort) with UnsignedByteKind with PrimNumericInteger {
       type Kind = UnsignedByteKind
-      override def fromXMLString(s: String): DataValueShort = s.toShort
-      override def fromNumber(n: Number): DataValueShort = n.shortValue
+      protected override def fromString(s: String): DataValueShort = s.toShort
+      protected override def fromNumberNoCheck(n: Number): DataValueShort = n.shortValue
       override val min = 0L
       override val max = 0xFFL
     }
@@ -650,43 +690,43 @@ object NodeInfo extends Enum {
     }
 
     protected sealed trait BooleanKind extends AnySimpleType.Kind
-    case object Boolean extends PrimTypeNode(AnyAtomic) with BooleanKind {
+    case object Boolean extends PrimTypeNode(AnyAtomic) with BooleanKind with PrimNonNumeric {
       type Kind = BooleanKind
-      override def fromXMLString(s: String): DataValueBool = s.toBoolean
+      protected override def fromString(s: String): DataValueBool = s.toBoolean
     }
 
     protected sealed trait AnyURIKind extends AnySimpleType.Kind
-    case object AnyURI extends PrimTypeNode(AnyAtomic) with AnyURIKind {
+    case object AnyURI extends PrimTypeNode(AnyAtomic) with AnyURIKind with PrimNonNumeric {
       type Kind = AnyURIKind
-      override def fromXMLString(s: String): DataValueURI = new URI(s)
+      protected override def fromString(s: String): DataValueURI = new URI(s)
     }
 
     protected sealed trait HexBinaryKind extends Opaque.Kind
-    case object HexBinary extends PrimTypeNode(Opaque) with HexBinaryKind {
+    case object HexBinary extends PrimTypeNode(Opaque) with HexBinaryKind with PrimNonNumeric {
       type Kind = HexBinaryKind
-      override def fromXMLString(s: String): DataValueByteArray = Misc.hex2Bytes(s)
+      protected override def fromString(s: String): DataValueByteArray = Misc.hex2Bytes(s)
     }
 
     protected sealed trait DateKind extends AnyDateTimeKind
-    case object Date extends PrimTypeNode(AnyDateTime) with DateKind {
+    case object Date extends PrimTypeNode(AnyDateTime) with DateKind with PrimNonNumeric {
       type Kind = DateKind
-      override def fromXMLString(s: String): DataValueDate = {
+      protected override def fromString(s: String): DataValueDate = {
         DFDLDateConversion.fromXMLString(s)
       }
     }
 
     protected sealed trait DateTimeKind extends AnyDateTimeKind
-    case object DateTime extends PrimTypeNode(AnyDateTime) with DateTimeKind {
+    case object DateTime extends PrimTypeNode(AnyDateTime) with DateTimeKind with PrimNonNumeric {
       type Kind = DateTimeKind
-      override def fromXMLString(s: String): DataValueDateTime = {
+      protected override def fromString(s: String): DataValueDateTime = {
         DFDLDateTimeConversion.fromXMLString(s)
       }
     }
 
     protected sealed trait TimeKind extends AnyDateTimeKind
-    case object Time extends PrimTypeNode(AnyDateTime) with TimeKind {
+    case object Time extends PrimTypeNode(AnyDateTime) with TimeKind with PrimNonNumeric {
       type Kind = TimeKind
-      override def fromXMLString(s: String): DataValueTime = {
+      protected override def fromString(s: String): DataValueTime = {
         DFDLTimeConversion.fromXMLString(s)
       }
     }

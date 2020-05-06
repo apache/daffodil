@@ -29,10 +29,13 @@ import org.apache.daffodil.util.CursorImplMixin
 import org.apache.daffodil.util.MStack
 import org.apache.daffodil.processors.unparsers.UnparseError
 import org.apache.daffodil.dpath.NodeInfo
+import org.apache.daffodil.dpath.InvalidPrimitiveDataException
 import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.processors.ErrorERD
 import org.apache.daffodil.util.MStackOfAnyRef
+
+import java.net.URISyntaxException
 
 class InfosetError(kind: String, args: String*)
   extends ProcessingError("Infoset", Nope, Nope, kind, args: _*)
@@ -420,7 +423,12 @@ abstract class InfosetInputter
         }
       } else if (erd.outputValueCalcExpr.isEmpty) {
         val primType = elem.erd.optPrimType.get
-        val obj = primType.fromXMLString(txt)
+        val obj = try {
+          primType.fromXMLString(txt)
+        } catch {
+          case ipd: InvalidPrimitiveDataException =>
+            UnparseError(One(elem.erd.schemaFileLocation), Nope, ipd.getMessage)
+        }
         elem.asInstanceOf[DISimple].setDataValue(obj)
       }
     }
