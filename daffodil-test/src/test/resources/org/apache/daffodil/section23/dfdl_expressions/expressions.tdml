@@ -6778,7 +6778,7 @@
 
     <tdml:document><![CDATA[cray,false]]></tdml:document>
     <tdml:errors>
-        <tdml:error>Value 'cray' is not a valid boolean value {true, false, 1, 0}.</tdml:error>
+        <tdml:error>Value 'cray' is not a valid xs:boolean</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

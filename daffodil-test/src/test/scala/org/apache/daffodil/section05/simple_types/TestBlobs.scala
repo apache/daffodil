@@ -51,6 +51,8 @@ class TestBlobs {
   @Test def test_blob_14() { runner.runOneTest("blob_14") }
   @Test def test_blob_15() { runner.runOneTest("blob_15") }
 
+  @Test def test_blob_unparseError() { runner.runOneTest("blob_unparseError") }
+
   @Test def test_clob_01() { runner.runOneTest("clob_01") }
 
 }

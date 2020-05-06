@@ -18,6 +18,7 @@
 package org.apache.daffodil.tdml
 
 import java.net.URI
+import java.net.URISyntaxException
 
 import org.apache.daffodil.infoset.InfosetInputter
 import org.apache.daffodil.infoset.ScalaXMLInfosetInputter
@@ -89,18 +90,22 @@ class TDMLInfosetInputter(val scalaInputter: ScalaXMLInfosetInputter, others: Se
       throw TDMLException("getSimpleText does not match", Some(implString))
 
     if (primType.isInstanceOf[NodeInfo.AnyURI.Kind]) {
-      val uri = new URI(res)
-      if (!uri.getPath.startsWith("/")) {
-        // TDML files must allow blob URI's to be relative, but Daffodil
-        // requires them to be absolute with a scheme. So search for the file
-        // using TDML semantics and convert to an absolute URI
-        val abs = Misc.searchResourceOption(uri.getPath, None)
-        if (abs.isEmpty) {
-          throw TDMLException("Unable to find URI: " + res, Some(implString))
+      try {
+        val uri = new URI(res)
+        if (!uri.getPath.startsWith("/")) {
+          // TDML files must allow blob URI's to be relative, but Daffodil
+          // requires them to be absolute with a scheme. So search for the file
+          // using TDML semantics and convert to an absolute URI
+          val abs = Misc.searchResourceOption(uri.getPath, None)
+          if (abs.isEmpty) {
+            throw TDMLException("Unable to find URI: " + res, Some(implString))
+          }
+          abs.get.toString
+        } else {
+          res
         }
-        abs.get.toString
-      } else {
-        res
+      } catch {
+        case uri: URISyntaxException => res
       }
     } else {
       res

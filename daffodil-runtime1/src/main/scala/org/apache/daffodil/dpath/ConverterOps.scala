@@ -56,22 +56,14 @@ import org.apache.daffodil.util.Numbers.asLong
 import org.apache.daffodil.util.Numbers.asShort
 import org.apache.daffodil.xml.XMLUtils
 
-trait NumericRangeCheck {
-  protected val rangePrim: PrimNumeric
-  final protected def checkRange(num: Number) = {
-    if (!rangePrim.isValidRange(num)) {
-      val msg = "Value is out of range for %s type: %s".format(rangePrim.asInstanceOf[PrimType].globalQName, num)
-      throw new NumberFormatException(msg)
-    }
-  }
-}
-
 case object BooleanToLong extends Converter {
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong = JLong.valueOf(if (asBoolean(a.getAnyRef) == true) 1L else 0L)
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong =
+    JLong.valueOf(if (asBoolean(a.getAnyRef) == true) 1L else 0L)
 }
 
 case object BooleanToString extends Converter {
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueString = if (asBoolean(a.getAnyRef) == true) "true" else "false"
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueString =
+    if (asBoolean(a.getAnyRef) == true) "true" else "false"
 }
 
 case object DateTimeToDate extends Converter {
@@ -99,38 +91,24 @@ case object DateToDateTime extends Converter {
   }
 }
 case object DecimalToInteger extends Converter {
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueBigInt = asBigInt(a.getBigDecimal)
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueBigInt =
+    PrimType.Integer.fromNumber(a.getBigDecimal).getBigInt
 }
-case object DecimalToLong extends Converter with NumericRangeCheck {
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong = {
-    val res = a.getBigDecimal
-    checkRange(res)
-    asLong(res)
-  }
-  override protected val rangePrim = PrimType.Long
+case object DecimalToLong extends Converter {
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong =
+    PrimType.Long.fromNumber(a.getBigDecimal).getLong
 }
 case object DecimalToDouble extends Converter {
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueDouble = {
-    val res = a.getBigDecimal
-    // TODO: why no range check here?
-    asDouble(res)
-  }
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueDouble =
+    PrimType.Double.fromNumber(a.getBigDecimal).getDouble
 }
-case object DecimalToNonNegativeInteger extends Converter with NumericRangeCheck {
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueBigInt = {
-    val res = a.getBigDecimal
-    checkRange(res)
-    asBigInt(res)
-  }
-  override protected val rangePrim = PrimType.NonNegativeInteger
+case object DecimalToNonNegativeInteger extends Converter {
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueBigInt =
+    PrimType.NonNegativeInteger.fromNumber(a.getBigDecimal).getBigInt
 }
-case object DecimalToUnsignedLong extends Converter with NumericRangeCheck {
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueBigInt = {
-    val res = a.getBigDecimal
-    checkRange(res)
-    asBigInt(res)
-  }
-  override protected val rangePrim = PrimType.UnsignedLong
+case object DecimalToUnsignedLong extends Converter {
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueBigInt =
+    PrimType.UnsignedLong.fromNumber(a.getBigDecimal).getBigInt
 }
 case object DecimalToBoolean extends Converter {
   override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueBool = {
@@ -143,30 +121,20 @@ case object DecimalToBoolean extends Converter {
   }
 }
 case object DoubleToDecimal extends Converter {
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueBigDecimal = JBigDecimal.valueOf(a.getDouble)
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueBigDecimal =
+    PrimType.Decimal.fromNumber(a.getDouble).getBigDecimal
 }
 case object DoubleToFloat extends Converter {
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueFloat = {
-    val res = a.getDouble
-    // TODO: why no range check here?
-    asFloat(res)
-  }
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueFloat =
+    PrimType.Float.fromNumber(a.getDouble).getFloat
 }
-case object DoubleToLong extends Converter with NumericRangeCheck {
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong = {
-    val res = a.getDouble
-    checkRange(res)
-    asLong(res)
-  }
-  override protected val rangePrim = PrimType.Long
+case object DoubleToLong extends Converter {
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong =
+    PrimType.Long.fromNumber(a.getDouble).getLong
 }
-case object DoubleToUnsignedLong extends Converter with NumericRangeCheck {
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueBigInt = {
-    val res = a.getDouble
-    checkRange(res)
-    asBigInt(res)
-  }
-  override protected val rangePrim = PrimType.UnsignedLong
+case object DoubleToUnsignedLong extends Converter {
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueBigInt =
+    asBigInt(PrimType.UnsignedLong.fromNumber(a.getDouble).getAnyRef)
 }
 case object DoubleToBoolean extends Converter {
   override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueBool = {
@@ -179,159 +147,103 @@ case object DoubleToBoolean extends Converter {
   }
 }
 case object FloatToDouble extends Converter {
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueDouble = asDouble(a.getFloat)
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueDouble =
+    PrimType.Double.fromNumber(a.getFloat).getDouble
 }
 case object IntegerToDecimal extends Converter {
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueBigDecimal = new JBigDecimal(a.getBigInt)
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueBigDecimal =
+    PrimType.Decimal.fromNumber(a.getBigInt).getBigDecimal
 }
-case object IntegerToUnsignedLong extends Converter with NumericRangeCheck {
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueBigInt = {
-    val res = a.getBigInt
-    checkRange(res)
-    asBigInt(res)
-  }
-  override protected val rangePrim = PrimType.UnsignedLong
+case object IntegerToUnsignedLong extends Converter {
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueBigInt =
+    PrimType.UnsignedLong.fromNumber(a.getBigInt).getBigInt
 }
 case object LongToBoolean extends Converter {
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueBool = asBoolean(if (a.getLong == 0) false else true)
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueBool =
+    asBoolean(if (a.getLong == 0) false else true)
 }
-case object LongToByte extends Converter with NumericRangeCheck {
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueByte = {
-    val res = a.getLong
-    checkRange(res)
-    asByte(res)
-  }
-  override protected val rangePrim = PrimType.Byte
+case object LongToByte extends Converter {
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueByte =
+    PrimType.Byte.fromNumber(a.getLong).getByte
 }
 case object LongToDecimal extends Converter {
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueBigDecimal = asBigDecimal(a.getLong)
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueBigDecimal =
+    PrimType.Decimal.fromNumber(a.getLong).getBigDecimal
 }
 case object LongToDouble extends Converter {
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueDouble = asDouble(a.getLong)
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueDouble =
+    PrimType.Double.fromNumber(a.getLong).getDouble
 }
 case object LongToFloat extends Converter {
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueFloat = asFloat(a.getLong)
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueFloat =
+    PrimType.Float.fromNumber(a.getLong).getFloat
 }
-case object LongToInt extends Converter with NumericRangeCheck {
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueInt = {
-    val res = a.getLong
-    checkRange(res)
-    asInt(res)
-  }
-  override protected val rangePrim = PrimType.Int
+case object LongToInt extends Converter {
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueInt =
+    PrimType.Int.fromNumber(a.getLong).getInt
 }
 
 case object LongToInteger extends Converter {
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueBigInt = asBigInt(a.getLong)
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueBigInt =
+    PrimType.Integer.fromNumber(a.getLong).getBigInt
 }
 
-case object LongToShort extends Converter with NumericRangeCheck {
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueShort = {
-    val res = a.getLong
-    checkRange(res)
-    asShort(res)
-  }
-  override protected val rangePrim = PrimType.Short
+case object LongToShort extends Converter {
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueShort =
+    PrimType.Short.fromNumber(a.getLong).getShort
 }
 
 case object LongToArrayIndex extends Converter {
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong = {
-    val res = a.getLong
-    res
-  }
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong =
+    PrimType.Long.fromNumber(a.getLong).getLong
 }
-case object LongToUnsignedByte extends Converter with NumericRangeCheck {
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueShort = {
-    val res = a.getLong
-    checkRange(res)
-    asShort(res)
-  }
-  override protected val rangePrim = PrimType.UnsignedByte
+case object LongToUnsignedByte extends Converter {
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueShort =
+    PrimType.UnsignedByte.fromNumber(a.getLong).getShort
 }
-case object LongToUnsignedInt extends Converter with NumericRangeCheck {
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong = {
-    val res = a.getLong
-    checkRange(res)
-    res
-  }
-  override protected val rangePrim = PrimType.UnsignedInt
+case object LongToUnsignedInt extends Converter {
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong =
+    PrimType.UnsignedInt.fromNumber(a.getLong).getLong
 }
-case object LongToUnsignedShort extends Converter with NumericRangeCheck {
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueInt = {
-    val res = a.getLong
-    checkRange(res)
-    asInt(res)
-  }
-  override protected val rangePrim = PrimType.UnsignedShort
+case object LongToUnsignedShort extends Converter {
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueInt =
+    PrimType.UnsignedShort.fromNumber(a.getLong).getInt
 }
 
-case object LongToNonNegativeInteger extends Converter with NumericRangeCheck {
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueBigInt = {
-    val res = a.getLong
-    checkRange(res)
-    asBigInt(res)
-  }
-  override protected val rangePrim = PrimType.NonNegativeInteger
+case object LongToNonNegativeInteger extends Converter {
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueBigInt =
+    PrimType.NonNegativeInteger.fromNumber(a.getLong).getBigInt
 }
 
-case object LongToUnsignedLong extends Converter with NumericRangeCheck {
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueBigInt = {
-    val res = a.getLong
-    checkRange(res)
-    asBigInt(res)
-  }
-  override protected val rangePrim = PrimType.UnsignedLong
+case object LongToUnsignedLong extends Converter {
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueBigInt =
+    PrimType.UnsignedLong.fromNumber(a.getLong).getBigInt
 }
 
 case object NumericToDouble extends Converter {
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueDouble = asDouble(a.getAnyRef)
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueDouble =
+    asDouble(a.getAnyRef)
 }
 
 case object StringToBoolean extends Converter {
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueBool = {
-    val str = a.getString
-    val res =
-      if (str == "true" || str == "1") true
-      else if (str == "false" || str == "0") false
-      else throw new NumberFormatException("Value '%s' is not a valid boolean value {true, false, 1, 0}.".format(str))
-    asBoolean(res)
-  }
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueBool =
+    PrimType.Boolean.fromXMLString(a.getString).getBoolean
 }
 case object StringToDecimal extends Converter {
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueBigDecimal = new JBigDecimal(a.getString)
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueBigDecimal =
+    PrimType.Decimal.fromXMLString(a.getString).getBigDecimal
 }
 case object StringToDouble extends Converter {
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueDouble = {
-    val str = a.getString
-    val d =
-      if (str == XMLUtils.PositiveInfinityString) JDouble.POSITIVE_INFINITY
-      else if (str == XMLUtils.NegativeInfinityString) JDouble.NEGATIVE_INFINITY
-      else if (str == XMLUtils.NaNString) JDouble.NaN
-      else str.toDouble
-    d
-  }
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueDouble =
+    PrimType.Double.fromXMLString(a.getString).getDouble
 }
 case object StringToLong extends Converter {
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong = {
-    val res =
-      try {
-        a.getString.toLong
-      } catch {
-        case nfe: NumberFormatException => {
-          val e = new NumberFormatException("Cannot convert to type long: " + nfe.getMessage())
-          throw e
-        }
-      }
-    res
-  }
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong =
+    PrimType.Long.fromXMLString(a.getString).getLong
 }
-case object StringToUnsignedLong extends Converter with NumericRangeCheck {
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueBigInt = {
-    val res = new JBigInt(a.getString)
-    checkRange(res)
-    res
-  }
-  override protected val rangePrim = PrimType.UnsignedLong
+case object StringToUnsignedLong extends Converter {
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueBigInt =
+    PrimType.UnsignedLong.fromXMLString(a.getString).getBigInt
 }
 
 /**

@@ -29,6 +29,7 @@ import scala.xml.NamespaceBinding
 import org.apache.daffodil.util.MaybeULong
 import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.dpath.NodeInfo.PrimType
+import org.apache.daffodil.dpath.InvalidPrimitiveDataException
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.api.WarnID
 import java.lang.{Integer => JInt}
@@ -342,7 +343,12 @@ trait ElementBase
           // will work.
           //
           val str = defaultValueAsString
-          val value = primType.fromXMLString(str)
+          val value = try {
+            primType.fromXMLString(str)
+          } catch {
+            case ipd: InvalidPrimitiveDataException =>
+              SDE("Invalid default value: %s", ipd.getMessage)
+          }
           value
         }
       dv

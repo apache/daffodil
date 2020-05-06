@@ -164,8 +164,7 @@ class TestDFDLParser {
     val e = intercept[Exception] {
       TestUtils.testString(sch, "70,000")
     }
-    // println("ERROR!!!!!" + e.getMessage())
-    assertTrue(e.getMessage().contains("xs:short"))
+    assertTrue(e.getMessage().contains("short"))
   }
 
   @Test def testByte1() {
@@ -228,7 +227,7 @@ class TestDFDLParser {
     val e = intercept[Exception] {
       TestUtils.testString(sch, "-3")
     }
-    assertTrue(e.getMessage().contains("xs:unsignedLong"))
+    assertTrue(e.getMessage().contains("unsignedLong"))
   }
 
   @Test def testUnsignedInt1() {
@@ -240,7 +239,7 @@ class TestDFDLParser {
       // As of 18:31 UTC (EST+5) Jun 8, 2012
       TestUtils.testString(sch, "7,018,631,476")
     }
-    assertTrue(e.getMessage().contains("xs:unsignedInt"))
+    assertTrue(e.getMessage().contains("unsignedInt"))
   }
 
   @Test def testUnsignedShort1() {
@@ -251,7 +250,7 @@ class TestDFDLParser {
     val e = intercept[Exception] {
       TestUtils.testString(sch, "-1")
     }
-    assertTrue(e.getMessage().contains("xs:unsignedShort"))
+    assertTrue(e.getMessage().contains("unsignedShort"))
   }
 
   @Test def testUnsignedByte1() {
@@ -262,7 +261,7 @@ class TestDFDLParser {
     val e = intercept[Exception] {
       TestUtils.testString(sch, "256")
     }
-    assertTrue(e.getMessage().contains("xs:unsignedByte"))
+    assertTrue(e.getMessage().contains("unsignedByte"))
   }
 
   @Test def testIntTooLong() {
@@ -279,7 +278,7 @@ class TestDFDLParser {
     val e = intercept[Exception] {
       TestUtils.testString(sch, "55555555555555555555")
     }
-    assertTrue(e.getMessage().contains("xs:int"))
+    assertTrue(e.getMessage().contains("int"))
   }
 
   @Test def testParseSequenceInt() {

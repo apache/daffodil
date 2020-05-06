@@ -5317,7 +5317,7 @@
       <tdml:error>Parse Error</tdml:error>
       <tdml:error>convert</tdml:error>
       <tdml:error>string</tdml:error>
-      <tdml:error>"string"</tdml:error>
+      <tdml:error>'string'</tdml:error>
       <tdml:error>double</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
@@ -5513,7 +5513,7 @@
       <tdml:error>Parse Error</tdml:error>
       <tdml:error>convert</tdml:error>
       <tdml:error>string</tdml:error>
-      <tdml:error>"string"</tdml:error>
+      <tdml:error>'string'</tdml:error>
       <tdml:error>double</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
@@ -5712,7 +5712,6 @@
       <tdml:error>Parse Error</tdml:error>
       <tdml:error>convert</tdml:error>
       <tdml:error>string</tdml:error>
-      <tdml:error>"string"</tdml:error>
       <tdml:error>double</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
@@ -8289,9 +8288,9 @@
       <tdml:errors>
         <tdml:error>Parse Error</tdml:error>
         <tdml:error>convert</tdml:error>
-        <tdml:error>string</tdml:error>
+        <tdml:error>String</tdml:error>
         <tdml:error>double</tdml:error>
-        <tdml:error>"1.23E"</tdml:error>
+        <tdml:error>'1.23E'</tdml:error>
       </tdml:errors>
   </tdml:parserTestCase>
   
@@ -13172,7 +13171,8 @@
     </tdml:document>
     <tdml:errors>
     	<tdml:error>Schema Definition Error</tdml:error>
-    	<tdml:error>Cannot convert to type long: For input string: "9223372036854775808"</tdml:error>
+      <tdml:error>'9223372036854775808'</tdml:error>
+      <tdml:error>not a valid xs:long</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   

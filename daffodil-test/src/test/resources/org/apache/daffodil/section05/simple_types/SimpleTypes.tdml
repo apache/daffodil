@@ -150,12 +150,18 @@
     <xs:element name="nonNegIntBin5" type="xs:nonNegativeInteger" 
       dfdl:representation="binary" dfdl:lengthKind="implicit" dfdl:inputValueCalc="{ -30 }"/>
 
-  <xs:element name="dateText" type="xs:date" dfdl:calendarPattern="EEEE, MMM d, ''yy" dfdl:calendarPatternKind="explicit"
+    <xs:element name="dateText" type="xs:date" dfdl:calendarPattern="EEEE, MMM d, ''yy" dfdl:calendarPatternKind="explicit"
       dfdl:lengthKind="explicit" dfdl:length="{ 23 }" />
     <xs:element name="timeText" type="xs:time" dfdl:calendarPattern="h:mm a" dfdl:calendarPatternKind="explicit"
       dfdl:lengthKind="explicit" dfdl:length="{ 8 }" />
     <xs:element name="dateTimeText" type="xs:dateTime" dfdl:calendarPattern="yyyy.MM.dd G 'at' HH:mm:ss ZZZZ" dfdl:calendarPatternKind="explicit"
       dfdl:lengthKind="explicit" dfdl:length="{ 35 }" />
+    <xs:element name="dateTextInvalid" type="xs:date" dfdl:calendarPattern="EEEE, MMM d, ''yy" dfdl:calendarPatternKind="explicit"
+      dfdl:lengthKind="implicit" dfdl:inputValueCalc="{ xs:string('Wday, July 10, 1996') }" />
+    <xs:element name="timeTextInvalid" type="xs:time" dfdl:calendarPattern="h:mm a" dfdl:calendarPatternKind="explicit"
+      dfdl:lengthKind="implicit" dfdl:inputValueCalc="{ xs:string('not a time') }" />
+    <xs:element name="dateTimeTextInvalid" type="xs:dateTime" dfdl:calendarPattern="yyyy.MM.dd G 'at' HH:mm:ss ZZZZ" dfdl:calendarPatternKind="explicit"
+      dfdl:lengthKind="implicit" dfdl:inputValueCalc="{ xs:string('not a date time') }" />
 
     <xs:element name="limits" dfdl:lengthKind="implicit">
       <xs:complexType>
@@ -209,6 +215,7 @@
 
     <xs:element name="posint01" type="xs:nonNegativeInteger" />
     <xs:element name="int01" type="xs:int" />
+    <xs:element name="int02" type="xs:int" dfdl:lengthKind="explicit" dfdl:lengthUnits="bits" dfdl:length="65" />
     <xs:element name="l_1" type="xs:long" />
     <xs:element name="s_1" type="xs:short" />
     <xs:element name="b_01" type="xs:byte" />
@@ -512,7 +519,7 @@
     <tdml:document><![CDATA[-2147483649]]></tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>xs:int</tdml:error>
+      <tdml:error>int</tdml:error>
       <tdml:error>out of range</tdml:error>
       <tdml:error>-2147483649</tdml:error>
     </tdml:errors>
@@ -524,7 +531,7 @@
     <tdml:document><![CDATA[2147483648]]></tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>xs:int</tdml:error>
+      <tdml:error>int</tdml:error>
       <tdml:error>out of range</tdml:error>
       <tdml:error>2147483648</tdml:error>
     </tdml:errors>
@@ -581,7 +588,7 @@
     <tdml:document><![CDATA[-1]]></tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>xs:unsignedLong</tdml:error>
+      <tdml:error>unsignedLong</tdml:error>
       <tdml:error>out of range</tdml:error>
       <tdml:error>-1</tdml:error>
     </tdml:errors>
@@ -645,7 +652,7 @@
     <tdml:document><![CDATA[70000]]></tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>xs:short</tdml:error>
+      <tdml:error>short</tdml:error>
       <tdml:error>out of range</tdml:error>
       <tdml:error>70000</tdml:error>
     </tdml:errors>
@@ -666,7 +673,7 @@
     <tdml:document><![CDATA[7018631476]]></tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>xs:unsignedInt</tdml:error>
+      <tdml:error>unsignedInt</tdml:error>
       <tdml:error>out of range</tdml:error>
       <tdml:error>7018631476</tdml:error>
     </tdml:errors>
@@ -693,7 +700,7 @@
     <tdml:document><![CDATA[-999]]></tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>xs:unsignedInt</tdml:error>
+      <tdml:error>unsignedInt</tdml:error>
       <tdml:error>out of range</tdml:error>
       <tdml:error>-999</tdml:error>
     </tdml:errors>
@@ -710,6 +717,20 @@
       <tdml:error>9a99</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
+
+  <tdml:unparserTestCase name="unsignedInt_unparseError"
+    root="uI_03" model="SimpleTypes-Embedded.dfdl.xsd"
+    description="Test unparsing when encountering a non numeric character during a valid unsigned int - DFDL-5-018R">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:uI_03>9a99</ex:uI_03>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Unparse Error</tdml:error>
+      <tdml:error>not a valid xs:unsignedInt</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
 
   <tdml:parserTestCase name="whiteSpaceAfterLengthExceededUnsignedInt"
     root="uI_03" model="SimpleTypes-Embedded.dfdl.xsd"
@@ -805,6 +826,20 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
+  <tdml:unparserTestCase name="int_unparseError"
+    root="int05" model="SimpleTypes-Embedded.dfdl.xsd"
+    description="Test unparsing when encountering a non numeric character during a valid int - DFDL-5-018R">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:int05>9a99</ex:int05>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Unparse Error</tdml:error>
+      <tdml:error>not a valid xs:int</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
   <tdml:parserTestCase name="whiteSpaceAfterLengthExceededInt"
     root="int05" model="SimpleTypes-Embedded.dfdl.xsd"
     description="Test parsing when encountering a whitespace character after an invalid int - DFDL-5-013R">
@@ -898,6 +933,20 @@
       <tdml:error>9a99</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
+
+  <tdml:unparserTestCase name="integer_unparseError"
+    root="integer02" model="SimpleTypes-Embedded.dfdl.xsd"
+    description="Test unparsing when encountering a non numeric character during a valid integer - DFDL-5-018R">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:integer02>9a99</ex:integer02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Unparse Error</tdml:error>
+      <tdml:error>not a valid xs:integer</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
 
   <tdml:parserTestCase name="whiteSpaceAfterLengthExceededInteger"
     root="integer02" model="SimpleTypes-Embedded.dfdl.xsd"
@@ -994,6 +1043,20 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
+  <tdml:unparserTestCase name="long_unparseError"
+    root="l_4" model="SimpleTypes-Embedded.dfdl.xsd"
+    description="Test unparsing when encountering a non numeric character during a valid long - DFDL-5-018R">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:l_4>9a99</ex:l_4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Unparse Error</tdml:error>
+      <tdml:error>not a valid xs:long</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
   <tdml:parserTestCase name="whiteSpaceAfterLengthExceededLong"
     root="l_4" model="SimpleTypes-Embedded.dfdl.xsd"
     description="Test parsing when encountering a whitespace character after an invalid long - DFDL-5-012R">
@@ -1087,6 +1150,20 @@
       <tdml:error>9a991</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
+
+  <tdml:unparserTestCase name="short_unparseError"
+    root="s_1" model="SimpleTypes-Embedded.dfdl.xsd"
+    description="Test unparsing when encountering a non numeric character during a valid short - DFDL-5-018R">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:s_1>9a99</ex:s_1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Unparse Error</tdml:error>
+      <tdml:error>not a valid xs:short</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
 
   <tdml:parserTestCase name="whiteSpaceAfterLengthExceededShort"
     root="s_1" model="SimpleTypes-Embedded.dfdl.xsd"
@@ -1183,6 +1260,20 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
+  <tdml:unparserTestCase name="byte_unparseError"
+    root="b_01" model="SimpleTypes-Embedded.dfdl.xsd"
+    description="Test unparsing when encountering a non numeric character during a valid byte - DFDL-5-018R">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:b_01>9a99</ex:b_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Unparse Error</tdml:error>
+      <tdml:error>not a valid xs:byte</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
   <tdml:parserTestCase name="whiteSpaceAfterLengthExceededByte"
     root="b_01" model="SimpleTypes-Embedded.dfdl.xsd"
     description="Test parsing when encountering a whitespace character after an invalid byte - DFDL-5-015R">
@@ -1277,7 +1368,7 @@
     <tdml:document><![CDATA[-123]]></tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>xs:unsignedLong</tdml:error>
+      <tdml:error>unsignedLong</tdml:error>
       <tdml:error>out of range</tdml:error>
       <tdml:error>-123</tdml:error>
     </tdml:errors>
@@ -1294,6 +1385,20 @@
       <tdml:error>9a99</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
+
+  <tdml:unparserTestCase name="unsignedLong_unparseError"
+    root="uL_04" model="SimpleTypes-Embedded.dfdl.xsd"
+    description="Test unparsing when encountering a non numeric character during a valid unsigned long - DFDL-5-018R">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:uL_04>9a99</ex:uL_04>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Unparse Error</tdml:error>
+      <tdml:error>not a valid xs:unsignedLong</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
 
   <tdml:parserTestCase name="whiteSpaceAfterLengthExceededUnsignedLong"
     root="uL_04" model="SimpleTypes-Embedded.dfdl.xsd"
@@ -1389,7 +1494,7 @@
     <tdml:document><![CDATA[-999]]></tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>xs:unsignedShort</tdml:error>
+      <tdml:error>unsignedShort</tdml:error>
       <tdml:error>out of range</tdml:error>
       <tdml:error>-999</tdml:error>
     </tdml:errors>
@@ -1406,6 +1511,20 @@
       <tdml:error>9a99</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
+
+  <tdml:unparserTestCase name="unsignedShort_unparseError"
+    root="uS_02" model="SimpleTypes-Embedded.dfdl.xsd"
+    description="Test unparsing when encountering a non numeric character during a valid unsigned short - DFDL-5-018R">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:uS_02>9a99</ex:uS_02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Unparse Error</tdml:error>
+      <tdml:error>not a valid xs:unsignedShort</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
 
   <tdml:parserTestCase name="whiteSpaceAfterLengthExceededUnsignedShort"
     root="uS_02" model="SimpleTypes-Embedded.dfdl.xsd"
@@ -1501,7 +1620,7 @@
     <tdml:document><![CDATA[-99]]></tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>xs:unsignedByte</tdml:error>
+      <tdml:error>unsignedByte</tdml:error>
       <tdml:error>out of range</tdml:error>
       <tdml:error>-99</tdml:error>
     </tdml:errors>
@@ -1518,6 +1637,20 @@
       <tdml:error>9a9</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
+
+  <tdml:unparserTestCase name="unsignedByte_unparseError"
+    root="uB_01" model="SimpleTypes-Embedded.dfdl.xsd"
+    description="Test unparsing when encountering a non numeric character during a valid unsigned byte - DFDL-5-018R">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:uB_01>9a99</ex:uB_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Unparse Error</tdml:error>
+      <tdml:error>not a valid xs:unsignedByte</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
 
   <tdml:parserTestCase name="whiteSpaceAfterLengthExceededUnsignedByte"
     root="uB_01" model="SimpleTypes-Embedded.dfdl.xsd"
@@ -1606,7 +1739,7 @@
     <tdml:document><![CDATA[-1]]></tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>xs:unsignedShort</tdml:error>
+      <tdml:error>unsignedShort</tdml:error>
       <tdml:error>out of range</tdml:error>
       <tdml:error>-1</tdml:error>
     </tdml:errors>
@@ -1912,6 +2045,20 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
+  <tdml:unparserTestCase name="nonNegativeInteger_unparseError"
+    root="nonNegIntText" model="SimpleTypes-Embedded.dfdl.xsd"
+    description="Test unparsing when encountering a non numeric character during a valid nonNegativeInteger - DFDL-5-018R">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:nonNegIntText>9a99</ex:nonNegIntText>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Unparse Error</tdml:error>
+      <tdml:error>not a valid xs:nonNegativeInteger</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
 <!--
     Test name: nonNegativeInteger_bin
     Schema: SimpleTypes-Embedded.dfdl.xsd
@@ -2154,6 +2301,20 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
+  <tdml:unparserTestCase name="decimal_unparseError"
+    root="decimalText2" model="SimpleTypes-Embedded.dfdl.xsd"
+    description="Test unparsing when encountering a non numeric character during a valid decimal - DFDL-5-018R">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:decimalText2>9a99</ex:decimalText2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Unparse Error</tdml:error>
+      <tdml:error>not a valid xs:decimal</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
   <tdml:parserTestCase name="dateText" root="dateText"
     model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-date - DFDL-5-016R"
     roundTrip="twoPass">
@@ -2164,6 +2325,18 @@
         <dateText xsi:type="xs:date">1996-07-10+00:00</dateText>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="dateTextInvalid" root="dateTextInvalid"
+    model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-date - DFDL-5-016R"
+    roundTrip="twoPass">
+
+    <tdml:document></tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Failed to parse xs:date</tdml:error>
+      <tdml:error>Wday</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="timeText" root="timeText"
@@ -2177,6 +2350,18 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+  <tdml:parserTestCase name="timeTextInvalid" root="timeTextInvalid"
+    model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-date - DFDL-5-016R"
+    roundTrip="twoPass">
+
+    <tdml:document></tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Failed to parse xs:time</tdml:error>
+      <tdml:error>not a time</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
   <tdml:parserTestCase name="dateTimeText" root="dateTimeText"
     model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-dateTime - DFDL-5-016R"
     roundTrip="true">
@@ -2187,6 +2372,18 @@
         <dateTimeText>1996-07-10T15:08:56-05:00</dateTimeText>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="dateTimeTextInvalid" root="dateTimeTextInvalid"
+    model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-date - DFDL-5-016R"
+    roundTrip="twoPass">
+
+    <tdml:document></tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Failed to parse xs:dateTime</tdml:error>
+      <tdml:error>not a date time</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
   <!-- xs:dateTime with binaryCalendarRep='binarySeconds' -->
@@ -3471,6 +3668,20 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
+  <tdml:unparserTestCase name="double_unparseError" root="doubleText"
+    model="SimpleTypes-Embedded.dfdl.xsd" description="Test unparsing when encountering a non numeric character during a valid double - DFDL-5-009R">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:doubleText>9a99</ex:doubleText>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Unparse Error</tdml:error>
+      <tdml:error>not a valid xs:double</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
   <tdml:parserTestCase name="float_text" root="floatText"
     model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Simple type-float - DFDL-5-008R"
     roundTrip="false">
@@ -3528,6 +3739,19 @@
       <tdml:error>9a99</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
+
+  <tdml:unparserTestCase name="float_unparseError" root="floatText" roundTrip="false"
+      model="SimpleTypes-Embedded.dfdl.xsd" description="Test unparsing when encountering a non numeric character during a valid float">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:floatText>9a99</ex:floatText>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Unparse Error</tdml:error>
+      <tdml:error>not a valid xs:float</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
 
   <!--
     Test name: float_binary_01
@@ -3981,7 +4205,26 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+
+   <!--
+    Test name: binaryInt_unparseError
+    Schema: SimpleTypes-binary
+    Purpose: Unparse a binary int with a value that is too large to be an xs:int
+  -->
   
+  <tdml:unparserTestCase name="binaryInt_unparseError" root="int02" roundTrip="false"
+      model="SimpleTypes-binary" description="Section 5 Schema types - int - DFDL-5-013R">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:int02>7089904312036126320</ex:int02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Unparse Error</tdml:error>
+      <tdml:error>not a valid xs:int</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
   <!--
     Test name: int_implicit
     Schema: SimpleTypes-Embedded.dfdl.xsd
@@ -4091,6 +4334,25 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+
+   <!--
+    Test name: hexBinary_unparseError
+    Schema: SimpleTypes-binary
+    Purpose: Attempt to unparse an invalid hexBinary value
+  -->
+
+  <tdml:unparserTestCase name="hexBinary_unparseError" root="hB_fromString" roundTrip="false"
+      model="HexBinary" description="Section 5 Schema types - int - DFDL-5-013R">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:hB_fromString>DEADBEE</ex:hB_fromString>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Unparse Error</tdml:error>
+      <tdml:error>even number of characters</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
 
   <tdml:defineSchema name="SimpleTypes-padding">
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
@@ -7072,6 +7334,25 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+   <!--
+    Test name: calendar_unparseError
+    Schema: dateTimeSchema
+    Purpose: Attempt to unparse an invalid calendar
+  -->
+
+  <tdml:unparserTestCase name="calendar_unparseError" root="date" roundTrip="false"
+      model="dateTimeSchemaTNR" description="Section 5 Schema types - int - DFDL-5-013R">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:date>Not a calendar</ex:date>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Unparse Error</tdml:error>
+      <tdml:error>not a calendar</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
 <!--
      Test Name: dateTextNumberRep
         Schema: dateTimeSchemaTNR
@@ -7782,7 +8063,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>xs:nonNegativeInteger</tdml:error>
+      <tdml:error>nonNegativeInteger</tdml:error>
       <tdml:error>out of range</tdml:error>
       <tdml:error>-2</tdml:error>
     </tdml:errors>

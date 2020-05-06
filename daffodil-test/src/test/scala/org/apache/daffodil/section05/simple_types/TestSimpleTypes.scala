@@ -171,8 +171,11 @@ class TestSimpleTypes {
   //DAFFODIL-1945 @Test def test_dateCalendarFirstDayOfWeek04() { runner.runOneTest("dateCalendarFirstDayOfWeek04") }
   @Test def test_timeFractionalSeconds01() { runner.runOneTest("timeFractionalSeconds01") }
   @Test def test_dateText() { runner.runOneTest("dateText") }
+  @Test def test_dateTextInvalid() { runner.runOneTest("dateTextInvalid") }
   @Test def test_timeText() { runner.runOneTest("timeText") }
+  @Test def test_timeTextInvalid() { runner.runOneTest("timeTextInvalid") }
   @Test def test_dateTimeText() { runner.runOneTest("dateTimeText") }
+  @Test def test_dateTimeTextInvalid() { runner.runOneTest("dateTimeTextInvalid") }
   @Test def test_dateImplicitPattern() { runner.runOneTest("dateImplicitPattern") }
   @Test def test_dateImplicitPatternFail() { runner.runOneTest("dateImplicitPatternFail") }
   @Test def test_timeImplicitPattern() { runner.runOneTest("timeImplicitPattern") }
@@ -324,23 +327,28 @@ class TestSimpleTypes {
   @Test def test_whiteSpaceAfterValidInteger() { runner.runOneTest("whiteSpaceAfterValidInteger") }
 
   @Test def test_characterDuringValidInt() { runner.runOneTest("characterDuringValidInt") }
+  @Test def test_int_unparseError() { runner.runOneTest("int_unparseError") }
   @Test def test_whiteSpaceAfterLengthExceededInt() { runner.runOneTest("whiteSpaceAfterLengthExceededInt") }
   @Test def test_whiteSpaceBeforeLengthExceededInt() { runner.runOneTest("whiteSpaceBeforeLengthExceededInt") }
   @Test def test_whiteSpaceDuringLengthExceededInt() { runner.runOneTest("whiteSpaceDuringLengthExceededInt") }
   @Test def test_characterDuringValidInteger() { runner.runOneTest("characterDuringValidInteger") }
+  @Test def test_integer_unparseError() { runner.runOneTest("integer_unparseError") }
   @Test def test_whiteSpaceAfterLengthExceededInteger() { runner.runOneTest("whiteSpaceAfterLengthExceededInteger") }
   @Test def test_whiteSpaceBeforeLengthExceededInteger() { runner.runOneTest("whiteSpaceBeforeLengthExceededInteger") }
   @Test def test_whiteSpaceDuringLengthExceededInteger() { runner.runOneTest("whiteSpaceDuringLengthExceededInteger") }
   @Test def test_characterDuringValidLong() { runner.runOneTest("characterDuringValidLong") }
+  @Test def test_long_unparseError() { runner.runOneTest("long_unparseError") }
   @Test def test_whiteSpaceAfterLengthExceededLong() { runner.runOneTest("whiteSpaceAfterLengthExceededLong") }
   @Test def test_whiteSpaceBeforeLengthExceededLong() { runner.runOneTest("whiteSpaceBeforeLengthExceededLong") }
   @Test def test_whiteSpaceDuringLengthExceededLong() { runner.runOneTest("whiteSpaceDuringLengthExceededLong") }
 
   @Test def test_characterDuringValidShort() { runner.runOneTest("characterDuringValidShort") }
+  @Test def test_short_unparseError() { runner.runOneTest("short_unparseError") }
   @Test def test_whiteSpaceAfterLengthExceededShort() { runner.runOneTest("whiteSpaceAfterLengthExceededShort") }
   @Test def test_whiteSpaceBeforeLengthExceededShort() { runner.runOneTest("whiteSpaceBeforeLengthExceededShort") }
   @Test def test_whiteSpaceDuringLengthExceededShort() { runner.runOneTest("whiteSpaceDuringLengthExceededShort") }
   @Test def test_characterDuringValidByte() { runner.runOneTest("characterDuringValidByte") }
+  @Test def test_byte_unparseError() { runner.runOneTest("byte_unparseError") }
   @Test def test_whiteSpaceAfterLengthExceededByte() { runner.runOneTest("whiteSpaceAfterLengthExceededByte") }
   @Test def test_whiteSpaceBeforeLengthExceededByte() { runner.runOneTest("whiteSpaceBeforeLengthExceededByte") }
   @Test def test_whiteSpaceDuringLengthExceededByte() { runner.runOneTest("whiteSpaceDuringLengthExceededByte") }
@@ -350,17 +358,20 @@ class TestSimpleTypes {
   @Test def test_whiteSpaceBeforeLengthExceededUnsignedInt() { runner.runOneTest("whiteSpaceBeforeLengthExceededUnsignedInt") }
   @Test def test_whiteSpaceDuringLengthExceededUnsignedInt() { runner.runOneTest("whiteSpaceDuringLengthExceededUnsignedInt") }
   @Test def test_characterDuringValidUnsignedByte() { runner.runOneTest("characterDuringValidUnsignedByte") }
+  @Test def test_unsignedByte_unparseError() { runner.runOneTest("unsignedByte_unparseError") }
   @Test def test_negativeUnsignedByte() { runner.runOneTest("negativeUnsignedByte") }
   @Test def test_whiteSpaceAfterLengthExceededUnsignedByte() { runner.runOneTest("whiteSpaceAfterLengthExceededUnsignedByte") }
   @Test def test_whiteSpaceBeforeLengthExceededUnsignedByte() { runner.runOneTest("whiteSpaceBeforeLengthExceededUnsignedByte") }
   @Test def test_whiteSpaceDuringLengthExceededUnsignedByte() { runner.runOneTest("whiteSpaceDuringLengthExceededUnsignedByte") }
   @Test def test_characterDuringValidUnsignedLong() { runner.runOneTest("characterDuringValidUnsignedLong") }
+  @Test def test_unsignedLong_unparseError() { runner.runOneTest("unsignedLong_unparseError") }
   @Test def test_negativeUnsignedLong() { runner.runOneTest("negativeUnsignedLong") }
   @Test def test_whiteSpaceAfterLengthExceededUnsignedLong() { runner.runOneTest("whiteSpaceAfterLengthExceededUnsignedLong") }
   @Test def test_whiteSpaceBeforeLengthExceededUnsignedLong() { runner.runOneTest("whiteSpaceBeforeLengthExceededUnsignedLong") }
   @Test def test_whiteSpaceDuringLengthExceededUnsignedLong() { runner.runOneTest("whiteSpaceDuringLengthExceededUnsignedLong") }
 
   @Test def test_characterDuringValidUnsignedShort() { runner.runOneTest("characterDuringValidUnsignedShort") }
+  @Test def test_unsignedShort_unparseError() { runner.runOneTest("unsignedShort_unparseError") }
   @Test def test_negativeUnsignedShort() { runner.runOneTest("negativeUnsignedShort") }
   @Test def test_whiteSpaceAfterLengthExceededUnsignedShort() { runner.runOneTest("whiteSpaceAfterLengthExceededUnsignedShort") }
   @Test def test_whiteSpaceBeforeLengthExceededUnsignedShort() { runner.runOneTest("whiteSpaceBeforeLengthExceededUnsignedShort") }
@@ -421,6 +432,10 @@ class TestSimpleTypes {
   @Test def test_int_binary_04() { runner.runOneTest("int_binary_04") }
   @Test def test_int_binary_05() { runner.runOneTest("int_binary_05") }
 
+  @Test def test_binaryInt_unparseError() { runner.runOneTest("binaryInt_unparseError") }
+  @Test def test_hexBinary_unparseError() { runner.runOneTest("hexBinary_unparseError") }
+  @Test def test_calendar_unparseError() { runner.runOneTest("calendar_unparseError") }
+
   @Test def test_int_implicit() { runner.runOneTest("int_implicit") }
 
   @Test def test_posinteger_binary_01() { runner.runOneTest("nonNegInt_binary_01") }
@@ -454,6 +469,7 @@ class TestSimpleTypes {
   @Test def test_nonNegativeInteger_text_fail() { runner.runOneTest("nonNegativeInteger_text_fail") }
   @Test def test_nonNegativeInteger_text_fail2() { runner.runOneTest("nonNegativeInteger_text_fail2") }
   @Test def test_nonNegativeInteger_text_fail3() { runner.runOneTest("nonNegativeInteger_text_fail3") }
+  @Test def test_nonNegativeInteger_unparseError() { runner.runOneTest("nonNegativeInteger_unparseError") }
 
   @Test def test_nonNegativeInteger_bin() { runner.runOneTest("nonNegativeInteger_bin") }
   @Test def test_nonNegativeInteger_bin2() { runner.runOneTest("nonNegativeInteger_bin2") }
@@ -473,6 +489,7 @@ class TestSimpleTypes {
   @Test def test_decimal_text3() { runner.runOneTest("decimal_text3") }
   @Test def test_decimal_text_fail() { runner.runOneTest("decimal_text_fail") }
   @Test def test_characterDuringValidDecimal() { runner.runOneTest("characterDuringValidDecimal") }
+  @Test def test_decimal_unparseError() { runner.runOneTest("decimal_unparseError") }
 
   @Test def test_decimal_binary() { runner.runOneTest("decimal_binary") }
   @Test def test_decimal_binary_01() { runner.runOneTest("decimal_binary_01") }
@@ -502,12 +519,14 @@ class TestSimpleTypes {
   @Test def test_double_text3() { runner.runOneTest("double_text3") }
   @Test def test_double_text4() { runner.runOneTest("double_text4") }
   @Test def test_characterDuringValidDouble() { runner.runOneTest("characterDuringValidDouble") }
+  @Test def test_double_unparseError() { runner.runOneTest("double_unparseError") }
 
   @Test def test_float_text() { runner.runOneTest("float_text") }
   @Test def test_float_text2() { runner.runOneTest("float_text2") }
   @Test def test_float_text3() { runner.runOneTest("float_text3") }
   @Test def test_float_text_fail() { runner.runOneTest("float_text_fail") }
   @Test def test_characterDuringValidFloat() { runner.runOneTest("characterDuringValidFloat") }
+  @Test def test_float_unparseError() { runner.runOneTest("float_unparseError") }
   @Test def test_float_binary_01() { runner.runOneTest("float_binary_01") }
   @Test def test_float_binary_02() { runner.runOneTest("float_binary_02") }
   @Test def test_float_binary_03() { runner.runOneTest("float_binary_03") }

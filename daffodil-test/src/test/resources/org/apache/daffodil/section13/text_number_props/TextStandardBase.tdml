@@ -1268,10 +1268,9 @@
     </tdml:infoset>
     <tdml:errors>
       <tdml:error>Unparse Error</tdml:error>
-      <tdml:error>Unable to unparse</tdml:error>
-      <tdml:error>negative</tdml:error>
-      <tdml:error>textStandardBase="16"</tdml:error>
       <tdml:error>-9223372036854775808</tdml:error>
+      <tdml:error>out of range for type</tdml:error>
+      <tdml:error>xs:nonNegativeInteger</tdml:error>
     </tdml:errors>
   </tdml:unparserTestCase>
 

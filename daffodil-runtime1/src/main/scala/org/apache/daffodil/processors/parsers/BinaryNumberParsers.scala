@@ -21,6 +21,7 @@ import java.lang.{ Long => JLong, Number => JNumber, Double => JDouble, Float =>
 import java.math.{BigInteger => JBigInt, BigDecimal => JBigDecimal}
 
 import org.apache.daffodil.dpath.NodeInfo
+import org.apache.daffodil.dpath.InvalidPrimitiveDataException
 import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.processors.Evaluatable
 import org.apache.daffodil.processors.ParseOrUnparseState
@@ -168,13 +169,14 @@ abstract class BinaryIntegerBaseParser(override val context: ElementRuntimeData,
         else { dis.getUnsignedLong(nBits, start).toLong }
       }
 
-    if (!primNumeric.isValidRange(num)) {
-      PE(start, "Parsed %s is out of range for type: %s",
-        context.optPrimType.get.globalQName, num)
-      return
+    val res = try {
+      primNumeric.fromNumber(num)
+    } catch {
+      case e: InvalidPrimitiveDataException => {
+        PE(start, "%s", e.getMessage)
+        return
+      }
     }
-
-    val res = primNumeric.fromNumber(num)
 
     start.simpleElement.overwriteDataValue(res)
   }

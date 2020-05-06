@@ -21,6 +21,7 @@ import java.math.{ BigInteger => JBigInt }
 import java.lang.{ Number => JNumber }
 
 import org.apache.daffodil.dpath.NodeInfo
+import org.apache.daffodil.dpath.InvalidPrimitiveDataException
 import org.apache.daffodil.processors.ElementRuntimeData
 
 class ConvertNonBaseTenTextNumberParser(
@@ -65,13 +66,14 @@ class ConvertNonBaseTenTextNumberParser(
         return
     }
 
-    if (!primNumeric.isValidRange(bi)) {
-      PE(state, "Parsed %s is out of range for the type: %s",
-        context.optPrimType.get.globalQName, bi.toString)
-      return
+    val num = try {
+      primNumeric.fromNumber(bi)
+    } catch {
+      case e: InvalidPrimitiveDataException => {
+        PE(state, "%s", e.getMessage)
+        return
+      }
     }
-    
-    val num = primNumeric.fromNumber(bi)
     node.overwriteDataValue(num)
   }
 }

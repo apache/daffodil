@@ -19,6 +19,7 @@ package org.apache.daffodil.processors.parsers
 
 import java.text.ParsePosition
 import org.apache.daffodil.dpath.NodeInfo
+import org.apache.daffodil.dpath.InvalidPrimitiveDataException
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.exceptions.UnsuppressableException
 import org.apache.daffodil.infoset.DISimple
@@ -95,17 +96,13 @@ case class ConvertZonedNumberParser(
         return
       }
 
-      val numValue = {
-        if (!primNumeric.isValidRange(num)) {
-          PE(start, "Parsed %s is out of range for type: %s",
-            context.optPrimType.get.globalQName, str, num)
+      val numValue = try {
+        primNumeric.fromNumber(num)
+      } catch {
+        case e: InvalidPrimitiveDataException => {
+          PE(start, "%s", e.getMessage)
           return
         }
-
-        // convert to proper type
-        val asNumber = primNumeric.fromNumber(num)
-
-        asNumber
       }
       numValue
     }

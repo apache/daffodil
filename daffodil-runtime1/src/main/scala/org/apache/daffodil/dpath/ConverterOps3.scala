@@ -67,34 +67,20 @@ case object HexStringToUnsignedLong extends Converter {
     res
   }
 }
-case object IntegerToLong extends Converter with NumericRangeCheck {
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong = {
-    val res = a.getBigInt
-    checkRange(res)
-    asLong(res)
-  }
-  override protected val rangePrim = PrimType.Long
+case object IntegerToLong extends Converter {
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong = PrimType.Long.fromNumber(a.getBigInt).getLong
 }
 case object IntToLong extends Converter {
   override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong = asLong(a.getInt)
 }
-case object UnsignedLongToLong extends Converter with NumericRangeCheck {
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong = {
-    val res = a.getBigInt
-    checkRange(res)
-    asLong(res)
-  }
-  override protected val rangePrim = PrimType.Long
+case object UnsignedLongToLong extends Converter {
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong = PrimType.Long.fromNumber(a.getBigInt).getLong
 }
 case object UnsignedIntToLong extends Converter {
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong = {
-    a.getLong
-  }
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong = a.getLong
 }
 case object ArrayIndexToLong extends Converter {
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong = {
-    asLong(a.getAnyRef)
-  }
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong = asLong(a.getAnyRef)
 }
 case object ShortToLong extends Converter {
   override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong = asLong(a.getShort)
