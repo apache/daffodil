@@ -19,7 +19,6 @@ lazy val genManaged = taskKey[Unit]("Generate managed sources and resources")
 lazy val genProps = taskKey[Seq[File]]("Generate properties scala source")
 lazy val genSchemas = taskKey[Seq[File]]("Generated DFDL schemas")
 
-
 lazy val daffodil         = Project("daffodil", file(".")).configs(IntegrationTest)
                               .aggregate(macroLib, propgen, lib, io, runtime1, runtime1Unparser, core, japi, sapi, tdmlLib, tdmlProc, cli, udf, test, testIBM1, tutorials, testStdLayout)
                               .settings(commonSettings, nopublish, ratSettings)
@@ -229,3 +228,13 @@ lazy val ratSettings = Seq(
   ratExcludes := Rat.excludes
 )
 
+
+//
+// To create a set of eclipse projects (one for each subproject of daffodil), you
+// need the sbtEclipse plugin and this task below which is run after 'sbt eclipse'.
+// Directions for setup are on the Daffodil Wiki.
+//
+
+lazy val updateEclipseClasspaths = taskKey[Unit]("Updates eclipse classpaths with daffodil-macro-lib. Used after sbt eclipse.")
+
+updateEclipseClasspaths := UpdateEclipseClasspaths.main()

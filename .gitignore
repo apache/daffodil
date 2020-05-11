@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#
+# In general we don't want the litter files for every IDE/environment
+# in the Daffodil source tree.
+#
 *.sbt
 !build.sbt
 .cache-main
@@ -35,7 +39,6 @@ project/errors
 testData_OnClassPath
 out
 .scala_dependencies
-.settings
 daffodil-extra/*
 # ignore all emacs backup files
 *~
@@ -49,25 +52,6 @@ daffodil-extra/*
 .idea_modules
 *.iml
 #
-# For ECLIPSE
-#
-# This is a bit odd. These files for the patterns below
-# don't exist in the file system
-# but eclipse has its own kind of internal resource links to them
-# and when EGit (eclipse's git interface) looks for files to say, commit
-# it constructs paths using its own resource links, and then 
-# uses .gitignore to work out the ones it isn't to use.
-# so this helps with using git from eclipse.
-#
-# The eclipse-projects directories are supposed to just be 
-# eclipse project .project and .classpath files as far as
-# git is concerned. However, they will have src folders
-# if they are split into main and unittest projects.
-eclipse-projects/*/src/main
-eclipse-projects/*/src/test
-eclipse-projects/*/bin/
-eclipse-projects/*/.tmpBin/
-#
 # FOR EMACS ENSIME
 #
 .ensime_cache
@@ -79,3 +63,12 @@ eclipse-projects/*/.tmpBin/
 # FOR VIM
 #
 .*.swp
+#
+# For Eclipse
+#
+.classpath
+.project
+bin/    
+/eclipse-projects
+.settings/
+
