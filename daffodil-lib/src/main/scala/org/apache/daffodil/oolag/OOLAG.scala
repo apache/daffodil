@@ -600,7 +600,6 @@ object OOLAG extends Logging {
     private def initialize = {
       val now = oolagContext.currentOVList
       oolagContext.currentOVList = this +: oolagContext.currentOVList
-      // log(LogLevel.OOLAGDebug, " " * indent + "push: " + thisThing))
       setIndent(indent + 2)
       now
     }

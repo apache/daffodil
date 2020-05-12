@@ -192,9 +192,6 @@ class TestCLISaveParser {
       shell.sendLine(String.format("%s -vvv save-parser -s %s -r matrix %s", Util.binPath, testSchemaFile, savedParserFile.getName()))
       shell.expect(contains("[debug]"))
 
-      shell.sendLine(String.format("%s -vvvv save-parser -s %s -r matrix %s", Util.binPath, testSchemaFile, savedParserFile.getName()))
-      shell.expect(contains("[oolagdebug]"))
-
       shell.send("exit\n")
       shell.expect(eof())
     } finally {

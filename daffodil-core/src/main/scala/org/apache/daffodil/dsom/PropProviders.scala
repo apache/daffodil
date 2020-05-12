@@ -78,7 +78,6 @@ trait LeafPropProvider
   final lazy val justThisOnePropertyPairsSet = justThisOneProperties.map { case (s1, (s2, _)) => (s1, s2) }.toSet
 
   final def leafFindProperty(pname: String): PropertyLookupResult = {
-    log(LogLevel.Debug, "%s leafFindProperty %s on %s", diagnosticDebugName, pname, this)
     val mine = justThisOneProperties.get(pname)
     val res = mine match {
       case Some((value, loc)) => {
@@ -97,7 +96,6 @@ trait LeafPropProvider
       }
       case None => NotFound(List(this), Nil, pname)
     }
-    log(LogLevel.Debug, "%s leafFindProperty %s ", diagnosticDebugName, res)
     res
   }
 
@@ -135,7 +133,6 @@ final class ChainPropProvider(leafProvidersArg: Seq[LeafPropProvider], forAnnota
   final lazy val diagnosticDebugName: String = "ChainPropProvider(" + forAnnotation + ")"
 
   final def chainFindProperty(pname: String): PropertyLookupResult = {
-    log(LogLevel.Debug, "%s chainFindProperty %s.", diagnosticDebugName, pname)
     lookupPropertyInSources(leafProviders, pname)
   }
 

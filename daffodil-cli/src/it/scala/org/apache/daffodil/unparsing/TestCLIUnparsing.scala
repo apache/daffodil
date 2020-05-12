@@ -257,8 +257,6 @@ class TestCLIunparsing {
       shell.sendLine(String.format("""echo '<tns:e1 xmlns:tns="http://example.com">Hello</tns:e1>' | %s -vvv unparse -s %s --root e1""", Util.binPath, testSchemaFile))
       shell.expect(contains("[debug]"))
 
-      shell.sendLine(String.format("""echo '<tns:e1 xmlns:tns="http://example.com">Hello</tns:e1>' | %s -vvvv unparse -s %s --root e1""", Util.binPath, testSchemaFile))
-      shell.expect(contains("[oolagdebug]"))
       shell.send("exit\n")
       shell.expect(eof)
     } finally {
