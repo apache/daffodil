@@ -410,8 +410,6 @@ class TestCLIparsing {
       shell.sendLine(String.format("echo 0,1| %s -vvv parse -s %s -r matrix -", Util.binPath, testSchemaFile))
       shell.expect(contains("[debug]"))
 
-      shell.sendLine(String.format("echo 0,1| %s -vvvv parse -s %s -r matrix -", Util.binPath, testSchemaFile))
-      shell.expect(contains("[oolagdebug]"))
       shell.send("exit\n")
       shell.expect(eof)
     } finally {

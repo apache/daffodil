@@ -155,7 +155,6 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
         lazy val seenStrings = seen.map {
           case (qn, v) => qn.local // + " is " + v.xml
         }.toSeq
-        log(LogLevel.Debug, "Property sources are: %s", seenStrings.mkString("\n"))
         seen
       })
     res
@@ -304,7 +303,6 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
    */
   final lazy val justThisOneProperties: PropMap = LV('justThisOneProperties) {
     val res = combinedJustThisOneProperties
-    log(LogLevel.Debug, "%s::%s justThisOneProperties are: %s", annotatedSC.diagnosticDebugName, diagnosticDebugName, res)
     res
   }.toOption.getOrElse(emptyPropMap)
 
