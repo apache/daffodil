@@ -19,8 +19,6 @@ package org.apache.daffodil.tdml
 
 import java.io.File
 import java.io.FileNotFoundException
-import java.io.StringWriter
-import java.io.StringReader
 import java.net.URI
 
 import scala.xml.Node
@@ -29,8 +27,16 @@ import scala.xml.NodeSeq
 import scala.xml.NodeSeq.seqToNodeSeq
 import scala.xml.SAXParseException
 import scala.xml.transform._
-import org.apache.daffodil.api.{DataLocation, UnitTestSchemaSource, URISchemaSource, EmbeddedSchemaSource, ValidationMode, Diagnostic, DaffodilTunables, DaffodilSchemaSource}
-import org.apache.daffodil.exceptions.{Assert, UnsuppressableException}
+import org.apache.daffodil.api.DaffodilSchemaSource
+import org.apache.daffodil.api.DaffodilTunables
+import org.apache.daffodil.api.DataLocation
+import org.apache.daffodil.api.Diagnostic
+import org.apache.daffodil.api.EmbeddedSchemaSource
+import org.apache.daffodil.api.URISchemaSource
+import org.apache.daffodil.api.UnitTestSchemaSource
+import org.apache.daffodil.api.ValidationMode
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.exceptions.UnsuppressableException
 import org.apache.daffodil.externalvars.Binding
 import org.apache.daffodil.util.LogLevel
 import org.apache.daffodil.util.Logging
@@ -48,7 +54,6 @@ import java.nio.charset.CoderResult
 import java.io.ByteArrayInputStream
 
 import scala.language.postfixOps
-import java.nio.file.Paths
 import java.nio.file.Files
 import java.io.InputStream
 
@@ -60,7 +65,6 @@ import org.apache.daffodil.schema.annotation.props.gen.ByteOrder
 import org.apache.daffodil.schema.annotation.props.gen.BinaryFloatRep
 import org.apache.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
 import org.apache.daffodil.schema.annotation.props.gen.UTF16Width
-import org.apache.daffodil.util.MaybeBoolean
 import org.apache.daffodil.util.MaybeInt
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.processors.charset.BitsCharsetDecoder
@@ -80,8 +84,6 @@ import org.apache.daffodil.tdml.processor.TDML
 import org.apache.daffodil.tdml.processor.AbstractTDMLDFDLProcessorFactory
 
 import scala.util.Try
-import scala.util.Failure
-import scala.util.Success
 import org.apache.daffodil.processors.HasSetDebugger
 
 /**
@@ -380,6 +382,7 @@ class DFDLTestSuite private[tdml] (
       Thread.sleep(1) // needed to give tools like jvisualvm ability to "grab on" quickly
     }
     if (isTDMLFileValid) {
+      loadingExceptions.foreach { le =>  log(LogLevel.Warning, le.toString) }
       val testCase = testCases.find(_.tcName == testName)
       testCase match {
         case None => throw TDMLException("test " + testName + " was not found.", None)

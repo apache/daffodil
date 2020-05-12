@@ -30,23 +30,18 @@ this to validate when we load a DFDL Schema.
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   blockDefault="#all" elementFormDefault="qualified" version="1.0"
   xml:lang="EN" xmlns:xml="http://www.w3.org/XML/1998/namespace"
-  xmlns:sub="http://www.w3.org/2001/XMLSchema"
   xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-  xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
-  xsi:schemaLocation="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:int dafint.xsd">
+  xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions">
   <!-- Use the real URI for this, not the subset URI
    "http://www.w3.org/2001/XMLSchema"
   -->
 
-  <xsd:import namespace="http://www.ogf.org/dfdl/dfdl-1.0/"
-    schemaLocation="DFDL_part3_model.xsd" />
+  <xsd:import namespace="http://www.ogf.org/dfdl/dfdl-1.0/"/>
 
-  <xsd:import namespace="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
-    schemaLocation="dfdlx.xsd" />
+  <xsd:import namespace="http://www.ogf.org/dfdl/dfdl-1.0/extensions"/>
 
-  <xsd:import namespace="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:int"
-    schemaLocation="dafint.xsd"/>
+  <xsd:import namespace="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:int"/>
 
   <xsd:annotation>
     <xsd:documentation>
@@ -95,7 +90,7 @@ this to validate when we load a DFDL Schema.
     </xsd:annotation>
     <xsd:complexContent>
       <xsd:restriction base="xsd:anyType">
-        <xsd:attributeGroup ref="sub:anyOther" />
+        <xsd:attributeGroup ref="xsd:anyOther" />
       </xsd:restriction>
     </xsd:complexContent>
   </xsd:complexType>
@@ -108,9 +103,9 @@ this to validate when we load a DFDL Schema.
       </xsd:documentation>
     </xsd:annotation>
     <xsd:complexContent>
-      <xsd:extension base="sub:openAttrs">
+      <xsd:extension base="xsd:openAttrs">
         <xsd:sequence>
-          <xsd:element ref="sub:annotation" minOccurs="0" />
+          <xsd:element ref="xsd:annotation" minOccurs="0" />
         </xsd:sequence>
         <xsd:attribute name="id" type="xsd:ID" />
       </xsd:extension>
@@ -126,10 +121,10 @@ this to validate when we load a DFDL Schema.
       </xsd:documentation>
     </xsd:annotation>
     <xsd:choice>
-      <xsd:group ref="sub:redefinable" />
-      <xsd:element ref="sub:element" />
-      <!-- <xsd:element ref="sub:attribute"/> -->
-      <!-- <xsd:element ref="sub:notation"/> -->
+      <xsd:group ref="xsd:redefinable" />
+      <xsd:element ref="xsd:element" />
+      <!-- <xsd:element ref="xsd:attribute"/> -->
+      <!-- <xsd:element ref="xsd:notation"/> -->
     </xsd:choice>
   </xsd:group>
 
@@ -141,10 +136,10 @@ this to validate when we load a DFDL Schema.
       </xsd:documentation>
     </xsd:annotation>
     <xsd:choice>
-      <xsd:element ref="sub:simpleType" />
-      <xsd:element ref="sub:complexType" />
-      <xsd:element ref="sub:group" />
-      <!-- <xsd:element ref="sub:attributeGroup"/> -->
+      <xsd:element ref="xsd:simpleType" />
+      <xsd:element ref="xsd:complexType" />
+      <xsd:element ref="xsd:group" />
+      <!-- <xsd:element ref="xsd:attributeGroup"/> -->
     </xsd:choice>
   </xsd:group>
 
@@ -166,7 +161,7 @@ this to validate when we load a DFDL Schema.
         A utility type, not for public use
       </xsd:documentation>
     </xsd:annotation>
-    <xsd:restriction base="sub:derivationControl">
+    <xsd:restriction base="xsd:derivationControl">
       <!-- <xsd:enumeration value="extension"/> -->
       <xsd:enumeration value="restriction" />
     </xsd:restriction>
@@ -188,7 +183,7 @@ this to validate when we load a DFDL Schema.
         </xsd:restriction>
       </xsd:simpleType>
       <xsd:simpleType>
-        <xsd:list itemType="sub:reducedDerivationControl" />
+        <xsd:list itemType="xsd:reducedDerivationControl" />
       </xsd:simpleType>
     </xsd:union>
   </xsd:simpleType>
@@ -199,7 +194,7 @@ this to validate when we load a DFDL Schema.
         A utility type, not for public use
       </xsd:documentation>
     </xsd:annotation>
-    <xsd:restriction base="sub:derivationControl">
+    <xsd:restriction base="xsd:derivationControl">
       <!-- <xsd:enumeration value="extension"/> -->
       <xsd:enumeration value="restriction" />
       <!-- <xsd:enumeration value="list"/> -->
@@ -223,7 +218,7 @@ this to validate when we load a DFDL Schema.
         </xsd:restriction>
       </xsd:simpleType>
       <xsd:simpleType>
-        <xsd:list itemType="sub:typeDerivationControl" />
+        <xsd:list itemType="xsd:typeDerivationControl" />
       </xsd:simpleType>
     </xsd:union>
   </xsd:simpleType>
@@ -235,30 +230,30 @@ this to validate when we load a DFDL Schema.
     </xsd:annotation>
     <xsd:complexType>
       <xsd:complexContent>
-        <xsd:extension base="sub:openAttrs">
+        <xsd:extension base="xsd:openAttrs">
           <xsd:sequence>
             <xsd:choice minOccurs="0" maxOccurs="unbounded">
-              <xsd:element ref="sub:include" />
-              <xsd:element ref="sub:import" />
-              <!-- <xsd:element ref="sub:redefine"/> -->
-              <xsd:element ref="sub:annotation" />
+              <xsd:element ref="xsd:include" />
+              <xsd:element ref="xsd:import" />
+              <!-- <xsd:element ref="xsd:redefine"/> -->
+              <xsd:element ref="xsd:annotation" />
             </xsd:choice>
             <xsd:sequence minOccurs="0" maxOccurs="unbounded">
-              <xsd:group ref="sub:schemaTop" />
-              <xsd:element ref="sub:annotation" minOccurs="0"
+              <xsd:group ref="xsd:schemaTop" />
+              <xsd:element ref="xsd:annotation" minOccurs="0"
                 maxOccurs="unbounded" />
             </xsd:sequence>
           </xsd:sequence>
           <xsd:attribute name="targetNamespace" type="xsd:anyURI" />
           <xsd:attribute name="version" type="xsd:token" />
-          <!-- <xsd:attribute name="finalDefault" type="sub:fullDerivationSet" 
+          <!-- <xsd:attribute name="finalDefault" type="xsd:fullDerivationSet" 
             use="optional" default=""/>
-            <xsd:attribute name="blockDefault" type="sub:blockSet" use="optional" 
+            <xsd:attribute name="blockDefault" type="xsd:blockSet" use="optional" 
             default=""/>
           -->
-          <xsd:attribute name="attributeFormDefault" type="sub:formChoice"
+          <xsd:attribute name="attributeFormDefault" type="xsd:formChoice"
             use="optional" default="unqualified" />
-          <xsd:attribute name="elementFormDefault" type="sub:formChoice"
+          <xsd:attribute name="elementFormDefault" type="xsd:formChoice"
             use="optional" default="unqualified" />
           <xsd:attribute name="id" type="xsd:ID" />
           <xsd:attribute ref="xml:lang" />
@@ -267,33 +262,33 @@ this to validate when we load a DFDL Schema.
     </xsd:complexType>
 
     <xsd:key name="element">
-      <xsd:selector xpath="sub:element" />
+      <xsd:selector xpath="xsd:element" />
       <xsd:field xpath="@name" />
     </xsd:key>
 
     <xsd:key name="attribute">
-      <xsd:selector xpath="sub:attribute" />
+      <xsd:selector xpath="xsd:attribute" />
       <xsd:field xpath="@name" />
     </xsd:key>
 
     <xsd:key name="type">
-      <xsd:selector xpath="sub:complexType|sub:simpleType" />
+      <xsd:selector xpath="xsd:complexType|xsd:simpleType" />
       <xsd:field xpath="@name" />
     </xsd:key>
 
     <xsd:key name="group">
-      <xsd:selector xpath="sub:group" />
+      <xsd:selector xpath="xsd:group" />
       <xsd:field xpath="@name" />
     </xsd:key>
 
     <xsd:key name="attributeGroup">
-      <xsd:selector xpath="sub:attributeGroup" />
+      <xsd:selector xpath="xsd:attributeGroup" />
       <xsd:field xpath="@name" />
     </xsd:key>
 
     <!-- not in DFDL v1.0
       <xsd:key name="notation">
-      <xsd:selector xpath="sub:notation"/>
+      <xsd:selector xpath="xsd:notation"/>
       <xsd:field xpath="@name"/>
       </xsd:key>
 
@@ -328,7 +323,7 @@ this to validate when we load a DFDL Schema.
     </xsd:annotation>
     <xsd:attribute name="minOccurs" type="xsd:nonNegativeInteger"
       use="optional" default="1" />
-    <xsd:attribute name="maxOccurs" type="sub:allNNI" use="optional"
+    <xsd:attribute name="maxOccurs" type="xsd:allNNI" use="optional"
       default="1" />
   </xsd:attributeGroup>
 
@@ -350,10 +345,10 @@ this to validate when we load a DFDL Schema.
       </xsd:documentation>
     </xsd:annotation>
     <xsd:choice>
-      <xsd:element name="group" type="sub:groupRef" />
+      <xsd:element name="group" type="xsd:groupRef" />
       <!-- <xsd:element ref="xsd:all"/> -->
-      <xsd:element ref="sub:choice" />
-      <xsd:element ref="sub:sequence" />
+      <xsd:element ref="xsd:choice" />
+      <xsd:element ref="xsd:sequence" />
     </xsd:choice>
   </xsd:group>
 
@@ -361,33 +356,33 @@ this to validate when we load a DFDL Schema.
 
   <xsd:group name="nestedParticle">
     <xsd:choice>
-      <xsd:element name="element" type="sub:localElement" />
-      <xsd:element name="group" type="sub:groupRef" />
-      <xsd:element ref="sub:choice" />
-      <xsd:element ref="sub:sequence" />
-      <!-- <xsd:element ref="sub:any"/> -->
+      <xsd:element name="element" type="xsd:localElement" />
+      <xsd:element name="group" type="xsd:groupRef" />
+      <xsd:element ref="xsd:choice" />
+      <xsd:element ref="xsd:sequence" />
+      <!-- <xsd:element ref="xsd:any"/> -->
     </xsd:choice>
   </xsd:group>
 
   <xsd:group name="particle">
     <xsd:choice>
-      <xsd:element name="element" type="sub:localElement" />
-      <xsd:element name="group" type="sub:groupRef" />
+      <xsd:element name="element" type="xsd:localElement" />
+      <xsd:element name="group" type="xsd:groupRef" />
       <!-- <xsd:element ref="xsd:all"/> -->
-      <xsd:element ref="sub:choice" />
-      <xsd:element ref="sub:sequence" />
-      <!-- <xsd:element ref="sub:any"/> -->
+      <xsd:element ref="xsd:choice" />
+      <xsd:element ref="xsd:sequence" />
+      <!-- <xsd:element ref="xsd:any"/> -->
     </xsd:choice>
   </xsd:group>
 
   <!-- No attributes in DFDL v1.0
     <xsd:complexType name="attribute">
     <xsd:complexContent>
-    <xsd:extension base="sub:annotated">
+    <xsd:extension base="xsd:annotated">
     <xsd:sequence>
-    <xsd:element name="simpleType" minOccurs="0" type="sub:localSimpleType"/>
+    <xsd:element name="simpleType" minOccurs="0" type="xsd:localSimpleType"/>
     </xsd:sequence>
-    <xsd:attributeGroup ref="sub:defRef"/>
+    <xsd:attributeGroup ref="xsd:defRef"/>
     <xsd:attribute name="type" type="xsd:QName"/>
     <xsd:attribute name="use" use="optional" default="optional">
     <xsd:simpleType>
@@ -400,23 +395,23 @@ this to validate when we load a DFDL Schema.
     </xsd:attribute>
     <xsd:attribute name="default" type="xsd:string"/>
     <xsd:attribute name="fixed" type="xsd:string"/>
-    <xsd:attribute name="form" type="sub:formChoice"/>
+    <xsd:attribute name="form" type="xsd:formChoice"/>
     </xsd:extension>
     </xsd:complexContent>
     </xsd:complexType>
 
     <xsd:complexType name="topLevelAttribute">
     <xsd:complexContent>
-    <xsd:restriction base="sub:attribute">
+    <xsd:restriction base="xsd:attribute">
     <xsd:sequence>
-    <xsd:element ref="sub:annotation" minOccurs="0"/>
-    <xsd:element name="simpleType" minOccurs="0" type="sub:localSimpleType"/>
+    <xsd:element ref="xsd:annotation" minOccurs="0"/>
+    <xsd:element name="simpleType" minOccurs="0" type="xsd:localSimpleType"/>
     </xsd:sequence>
     <xsd:attribute name="ref" use="prohibited"/>
     <xsd:attribute name="form" use="prohibited"/>
     <xsd:attribute name="use" use="prohibited"/>
     <xsd:attribute name="name" use="required" type="xsd:NCName"/>
-    <xsd:attributeGroup ref="sub:anyOther"/>
+    <xsd:attributeGroup ref="xsd:anyOther"/>
     </xsd:restriction>
     </xsd:complexContent>
     </xsd:complexType>
@@ -426,15 +421,15 @@ this to validate when we load a DFDL Schema.
     <xsd:group name="attrDecls">
     <xsd:sequence>
     <xsd:choice minOccurs="0" maxOccurs="unbounded">
-    <xsd:element name="attribute" type="sub:attribute"/>
-    <xsd:element name="attributeGroup" type="sub:attributeGroupRef"/>
+    <xsd:element name="attribute" type="xsd:attribute"/>
+    <xsd:element name="attributeGroup" type="xsd:attributeGroupRef"/>
     </xsd:choice>
-    <xsd:element ref="sub:anyAttribute" minOccurs="0"/>
+    <xsd:element ref="xsd:anyAttribute" minOccurs="0"/>
     </xsd:sequence>
     </xsd:group>
   -->
   <!--
-    <xsd:element name="anyAttribute" type="sub:wildcard" id="anyAttribute">
+    <xsd:element name="anyAttribute" type="xsd:wildcard" id="anyAttribute">
     <xsd:annotation>
     <xsd:documentation source="http://www.w3.org/TR/xmlschema-1/#element-anyAttribute"/>
     </xsd:annotation>
@@ -442,8 +437,8 @@ this to validate when we load a DFDL Schema.
   -->
   <xsd:group name="complexTypeModel">
     <xsd:choice>
-      <!-- <xsd:element ref="sub:simpleContent"/> Not DFDL v1.0 -->
-      <!-- <xsd:element ref="sub:complexContent"/> Not DFDL v1.0 -->
+      <!-- <xsd:element ref="xsd:simpleContent"/> Not DFDL v1.0 -->
+      <!-- <xsd:element ref="xsd:complexContent"/> Not DFDL v1.0 -->
       <xsd:sequence>
         <xsd:annotation>
           <xsd:documentation>
@@ -454,16 +449,16 @@ this to validate when we load a DFDL Schema.
             &lt;/restriction>
             &lt;/complexContent></xsd:documentation>
         </xsd:annotation>
-        <xsd:group ref="sub:typeDefParticle" minOccurs="0" />
-        <!-- <xsd:group ref="sub:attrDecls"/> --> <!-- no attributes in DFDL -->
+        <xsd:group ref="xsd:typeDefParticle" minOccurs="0" />
+        <!-- <xsd:group ref="xsd:attrDecls"/> --> <!-- no attributes in DFDL -->
       </xsd:sequence>
     </xsd:choice>
   </xsd:group>
 
   <xsd:complexType name="complexType" abstract="true">
     <xsd:complexContent>
-      <xsd:extension base="sub:annotated">
-        <xsd:group ref="sub:complexTypeModel" />
+      <xsd:extension base="xsd:annotated">
+        <xsd:group ref="xsd:complexTypeModel" />
         <xsd:attribute name="name" type="xsd:NCName">
           <xsd:annotation>
             <xsd:documentation>
@@ -483,9 +478,9 @@ this to validate when we load a DFDL Schema.
         <!-- none of these make sense in DFDL v1.0. Changed to "prohibited" -->
         <xsd:attribute name="abstract" type="xsd:boolean"
           use="prohibited" /> <!-- default="false" -->
-        <xsd:attribute name="final" type="sub:derivationSet"
+        <xsd:attribute name="final" type="xsd:derivationSet"
           use="prohibited" />
-        <xsd:attribute name="block" type="sub:derivationSet"
+        <xsd:attribute name="block" type="xsd:derivationSet"
           use="prohibited" />
       </xsd:extension>
     </xsd:complexContent>
@@ -495,13 +490,13 @@ this to validate when we load a DFDL Schema.
   <!--
     <xsd:complexType name="restrictionType">
     <xsd:complexContent>
-    <xsd:extension base="sub:annotated">
+    <xsd:extension base="xsd:annotated">
     <xsd:sequence>
     <xsd:choice minOccurs="0">
-    <xsd:group ref="sub:typeDefParticle"/>
-    <xsd:group ref="sub:simpleRestrictionModel"/>
+    <xsd:group ref="xsd:typeDefParticle"/>
+    <xsd:group ref="xsd:simpleRestrictionModel"/>
     </xsd:choice>
-    <xsd:group ref="sub:attrDecls"/>
+    <xsd:group ref="xsd:attrDecls"/>
     </xsd:sequence>
     <xsd:attribute name="base" type="xsd:QName" use="required"/>
     </xsd:extension>
@@ -512,10 +507,10 @@ this to validate when we load a DFDL Schema.
 
     <xsd:complexType name="extensionType">
     <xsd:complexContent>
-    <xsd:extension base="sub:annotated">
+    <xsd:extension base="xsd:annotated">
     <xsd:sequence>
-    <xsd:group ref="sub:typeDefParticle" minOccurs="0"/>
-    <xsd:group ref="sub:attrDecls"/>
+    <xsd:group ref="xsd:typeDefParticle" minOccurs="0"/>
+    <xsd:group ref="xsd:attrDecls"/>
     </xsd:sequence>
     <xsd:attribute name="base" type="xsd:QName" use="required"/>
     </xsd:extension>
@@ -527,16 +522,16 @@ this to validate when we load a DFDL Schema.
   <!--
     <xsd:complexType name="simpleExtensionType">
     <xsd:complexContent>
-    <xsd:restriction base="sub:extensionType">
+    <xsd:restriction base="xsd:extensionType">
     <xsd:sequence>
     <xsd:annotation>
     <xsd:documentation>
     No typeDefParticle group reference</xsd:documentation>
     </xsd:annotation>
-    <xsd:element ref="sub:annotation" minOccurs="0"/>
-    <xsd:group ref="sub:attrDecls"/>
+    <xsd:element ref="xsd:annotation" minOccurs="0"/>
+    <xsd:group ref="xsd:attrDecls"/>
     </xsd:sequence>
-    <xsd:attributeGroup ref="sub:anyOther"/>
+    <xsd:attributeGroup ref="xsd:anyOther"/>
     </xsd:restriction>
     </xsd:complexContent>
     </xsd:complexType>
@@ -548,10 +543,10 @@ this to validate when we load a DFDL Schema.
     </xsd:annotation>
     <xsd:complexType>
     <xsd:complexContent>
-    <xsd:extension base="sub:annotated">
+    <xsd:extension base="xsd:annotated">
     <xsd:choice>
-    <xsd:element name="restriction" type="sub:simpleRestrictionType"/>
-    <xsd:element name="extension" type="sub:simpleExtensionType"/>
+    <xsd:element name="restriction" type="xsd:simpleRestrictionType"/>
+    <xsd:element name="extension" type="xsd:simpleExtensionType"/>
     </xsd:choice>
     </xsd:extension>
     </xsd:complexContent>
@@ -584,29 +579,29 @@ this to validate when we load a DFDL Schema.
 
   <xsd:complexType name="topLevelComplexType">
     <xsd:complexContent>
-      <xsd:restriction base="sub:complexType">
+      <xsd:restriction base="xsd:complexType">
         <xsd:sequence>
-          <xsd:element ref="sub:annotation" minOccurs="0" />
-          <xsd:group ref="sub:complexTypeModel" />
+          <xsd:element ref="xsd:annotation" minOccurs="0" />
+          <xsd:group ref="xsd:complexTypeModel" />
         </xsd:sequence>
         <xsd:attribute name="name" type="xsd:NCName" use="required" />
-        <xsd:attributeGroup ref="sub:anyOther" />
+        <xsd:attributeGroup ref="xsd:anyOther" />
       </xsd:restriction>
     </xsd:complexContent>
   </xsd:complexType>
 
   <xsd:complexType name="localComplexType">
     <xsd:complexContent>
-      <xsd:restriction base="sub:complexType">
+      <xsd:restriction base="xsd:complexType">
         <xsd:sequence>
-          <xsd:element ref="sub:annotation" minOccurs="0" />
-          <xsd:group ref="sub:complexTypeModel" />
+          <xsd:element ref="xsd:annotation" minOccurs="0" />
+          <xsd:group ref="xsd:complexTypeModel" />
         </xsd:sequence>
         <xsd:attribute name="name" use="prohibited" />
         <xsd:attribute name="abstract" use="prohibited" />
         <xsd:attribute name="final" use="prohibited" />
         <xsd:attribute name="block" use="prohibited" />
-        <xsd:attributeGroup ref="sub:anyOther" />
+        <xsd:attributeGroup ref="xsd:anyOther" />
       </xsd:restriction>
     </xsd:complexContent>
   </xsd:complexType>
@@ -615,19 +610,19 @@ this to validate when we load a DFDL Schema.
   <!--
     <xsd:complexType name="complexRestrictionType">
     <xsd:complexContent>
-    <xsd:restriction base="sub:restrictionType">
+    <xsd:restriction base="xsd:restrictionType">
     <xsd:sequence>
-    <xsd:element ref="sub:annotation" minOccurs="0"/>
+    <xsd:element ref="xsd:annotation" minOccurs="0"/>
     <xsd:choice minOccurs="0">
     <xsd:annotation>
     <xsd:documentation>This choice is added simply to
     make this a valid restriction per the REC</xsd:documentation>
     </xsd:annotation>
-    <xsd:group ref="sub:typeDefParticle"/>
+    <xsd:group ref="xsd:typeDefParticle"/>
     </xsd:choice>
-    <xsd:group ref="sub:attrDecls"/>
+    <xsd:group ref="xsd:attrDecls"/>
     </xsd:sequence>
-    <xsd:attributeGroup ref="sub:anyOther"/>
+    <xsd:attributeGroup ref="xsd:anyOther"/>
     </xsd:restriction>
     </xsd:complexContent>
     </xsd:complexType>
@@ -640,11 +635,11 @@ this to validate when we load a DFDL Schema.
     </xsd:annotation>
     <xsd:complexType>
     <xsd:complexContent>
-    <xsd:extension base="sub:annotated">
+    <xsd:extension base="xsd:annotated">
 
     <xsd:choice>
-    <xsd:element name="restriction" type="sub:complexRestrictionType"/>
-    <xsd:element name="extension" type="sub:extensionType"/>
+    <xsd:element name="restriction" type="xsd:complexRestrictionType"/>
+    <xsd:element name="extension" type="xsd:extensionType"/>
     </xsd:choice>
 
     No mixed content in DFDL v1.0
@@ -663,25 +658,25 @@ this to validate when we load a DFDL Schema.
   <!--
     <xsd:complexType name="simpleRestrictionType">
     <xsd:complexContent>
-    <xsd:restriction base="sub:restrictionType">
+    <xsd:restriction base="xsd:restrictionType">
     <xsd:sequence>
-    <xsd:element ref="sub:annotation" minOccurs="0"/>
+    <xsd:element ref="xsd:annotation" minOccurs="0"/>
     <xsd:choice minOccurs="0">
     <xsd:annotation>
     <xsd:documentation>This choice is added simply to
     make this a valid restriction per the REC</xsd:documentation>
     </xsd:annotation>
-    <xsd:group ref="sub:simpleRestrictionModel"/>
+    <xsd:group ref="xsd:simpleRestrictionModel"/>
     </xsd:choice>
-    <xsd:group ref="sub:attrDecls"/>
+    <xsd:group ref="xsd:attrDecls"/>
     </xsd:sequence>
-    <xsd:attributeGroup ref="sub:anyOther"/>
+    <xsd:attributeGroup ref="xsd:anyOther"/>
     </xsd:restriction>
     </xsd:complexContent>
     </xsd:complexType>
   -->
 
-  <xsd:element name="complexType" type="sub:topLevelComplexType"
+  <xsd:element name="complexType" type="xsd:topLevelComplexType"
     id="complexType">
     <xsd:annotation>
       <xsd:documentation
@@ -708,7 +703,7 @@ this to validate when we load a DFDL Schema.
       <xsd:simpleType>
         <xsd:list>
           <xsd:simpleType>
-            <xsd:restriction base="sub:derivationControl">
+            <xsd:restriction base="xsd:derivationControl">
               <!-- <xsd:enumeration value="extension"/> -->
               <xsd:enumeration value="restriction" />
               <!-- <xsd:enumeration value="substitution"/> -->
@@ -731,20 +726,20 @@ this to validate when we load a DFDL Schema.
     </xsd:annotation>
 
     <xsd:complexContent>
-      <xsd:extension base="sub:annotated">
+      <xsd:extension base="xsd:annotated">
         <xsd:sequence>
           <xsd:choice minOccurs="0" maxOccurs="1">
-            <xsd:element name="simpleType" type="sub:localSimpleType" />
-            <xsd:element name="complexType" type="sub:localComplexType" />
+            <xsd:element name="simpleType" type="xsd:localSimpleType" />
+            <xsd:element name="complexType" type="xsd:localComplexType" />
           </xsd:choice>
-          <!-- <xsd:group ref="sub:identityConstraint" minOccurs="0" maxOccurs="unbounded"/> 
+          <!-- <xsd:group ref="xsd:identityConstraint" minOccurs="0" maxOccurs="unbounded"/> 
             Not in DFDL v1.0 -->
         </xsd:sequence>
-        <xsd:attributeGroup ref="sub:defRef" />
+        <xsd:attributeGroup ref="xsd:defRef" />
         <xsd:attribute name="type" type="xsd:QName" />
         <!-- <xsd:attribute name="substitutionGroup" type="xsd:QName"/> Not 
           in DFDL v1.0 -->
-        <xsd:attributeGroup ref="sub:occurs" />
+        <xsd:attributeGroup ref="xsd:occurs" />
         <xsd:attribute name="default" type="xsd:string" />
         <xsd:attribute name="fixed" type="xsd:string" />
         <!-- remove default="false" because Xerces is inserting that
@@ -754,9 +749,9 @@ this to validate when we load a DFDL Schema.
         <!-- Not in DFDL v1.0
           <xsd:attribute name="abstract" type="xsd:boolean" use="optional" 
           default="false"/>
-          <xsd:attribute name="final" type="sub:derivationSet"/>
-          <xsd:attribute name="block" type="sub:blockSet"/>
-          <xsd:attribute name="form" type="sub:formChoice"/>
+          <xsd:attribute name="final" type="xsd:derivationSet"/>
+          <xsd:attribute name="block" type="xsd:blockSet"/>
+          <xsd:attribute name="form" type="xsd:formChoice"/>
         -->
         <!--
           Include short-form DFDL Attributes.
@@ -773,14 +768,14 @@ this to validate when we load a DFDL Schema.
 
   <xsd:complexType name="topLevelElement">
     <xsd:complexContent>
-      <xsd:restriction base="sub:element">
+      <xsd:restriction base="xsd:element">
         <xsd:sequence>
-          <xsd:element ref="sub:annotation" minOccurs="0" />
+          <xsd:element ref="xsd:annotation" minOccurs="0" />
           <xsd:choice minOccurs="0">
-            <xsd:element name="simpleType" type="sub:localSimpleType" />
-            <xsd:element name="complexType" type="sub:localComplexType" />
+            <xsd:element name="simpleType" type="xsd:localSimpleType" />
+            <xsd:element name="complexType" type="xsd:localComplexType" />
           </xsd:choice>
-          <!-- <xsd:group ref="sub:identityConstraint" minOccurs="0" maxOccurs="unbounded"/> 
+          <!-- <xsd:group ref="xsd:identityConstraint" minOccurs="0" maxOccurs="unbounded"/> 
             Not in DFDL v1.0 -->
         </xsd:sequence>
         <xsd:attribute name="ref" use="prohibited" />
@@ -788,7 +783,7 @@ this to validate when we load a DFDL Schema.
         <xsd:attribute name="minOccurs" use="prohibited" />
         <xsd:attribute name="maxOccurs" use="prohibited" />
         <xsd:attribute name="name" use="required" type="xsd:NCName" />
-        <xsd:attributeGroup ref="sub:anyOther" />
+        <xsd:attributeGroup ref="xsd:anyOther" />
 
       </xsd:restriction>
     </xsd:complexContent>
@@ -796,25 +791,25 @@ this to validate when we load a DFDL Schema.
 
   <xsd:complexType name="localElement">
     <xsd:complexContent>
-      <xsd:restriction base="sub:element">
+      <xsd:restriction base="xsd:element">
         <xsd:sequence>
-          <xsd:element ref="sub:annotation" minOccurs="0" />
+          <xsd:element ref="xsd:annotation" minOccurs="0" />
           <xsd:choice minOccurs="0">
-            <xsd:element name="simpleType" type="sub:localSimpleType" />
-            <xsd:element name="complexType" type="sub:localComplexType" />
+            <xsd:element name="simpleType" type="xsd:localSimpleType" />
+            <xsd:element name="complexType" type="xsd:localComplexType" />
           </xsd:choice>
-          <!-- <xsd:group ref="sub:identityConstraint" minOccurs="0" maxOccurs="unbounded"/> 
+          <!-- <xsd:group ref="xsd:identityConstraint" minOccurs="0" maxOccurs="unbounded"/> 
             Not in DFDL v1.0 -->
         </xsd:sequence>
         <xsd:attribute name="substitutionGroup" use="prohibited" />
         <xsd:attribute name="final" use="prohibited" />
         <xsd:attribute name="abstract" use="prohibited" />
-        <xsd:attributeGroup ref="sub:anyOther" />
+        <xsd:attributeGroup ref="xsd:anyOther" />
       </xsd:restriction>
     </xsd:complexContent>
   </xsd:complexType>
 
-  <xsd:element name="element" type="sub:topLevelElement" id="element">
+  <xsd:element name="element" type="xsd:topLevelElement" id="element">
     <xsd:annotation>
       <xsd:documentation
         source="http://www.w3.org/TR/xmlschema-1/#element-element" />
@@ -829,11 +824,11 @@ this to validate when we load a DFDL Schema.
       </xsd:documentation>
     </xsd:annotation>
     <xsd:complexContent>
-      <xsd:extension base="sub:annotated">
-        <xsd:group ref="sub:particle" minOccurs="0" maxOccurs="unbounded" />
-        <xsd:attributeGroup ref="sub:defRef" />
+      <xsd:extension base="xsd:annotated">
+        <xsd:group ref="xsd:particle" minOccurs="0" maxOccurs="unbounded" />
+        <xsd:attributeGroup ref="xsd:defRef" />
         <!-- No Occurs except on elements in DFDL v1.0
-          <xsd:attributeGroup ref="sub:occurs"/>
+          <xsd:attributeGroup ref="xsd:occurs"/>
         -->
       </xsd:extension>
     </xsd:complexContent>
@@ -841,37 +836,37 @@ this to validate when we load a DFDL Schema.
 
   <xsd:complexType name="realGroup">
     <xsd:complexContent>
-      <xsd:restriction base="sub:group">
+      <xsd:restriction base="xsd:group">
         <xsd:sequence>
-          <xsd:element ref="sub:annotation" minOccurs="0" />
+          <xsd:element ref="xsd:annotation" minOccurs="0" />
           <xsd:choice minOccurs="0" maxOccurs="1">
-            <xsd:element ref="sub:choice" />
-            <xsd:element ref="sub:sequence" />
+            <xsd:element ref="xsd:choice" />
+            <xsd:element ref="xsd:sequence" />
           </xsd:choice>
         </xsd:sequence>
-        <xsd:attributeGroup ref="sub:anyOther" />
+        <xsd:attributeGroup ref="xsd:anyOther" />
       </xsd:restriction>
     </xsd:complexContent>
   </xsd:complexType>
 
   <xsd:complexType name="namedGroup">
     <xsd:complexContent>
-      <xsd:extension base="sub:realGroup">
+      <xsd:extension base="xsd:realGroup">
         <!-- <xsd:attribute name="name" use="required" type="xsd:NCName"/> -->
         <xsd:attribute name="ref" use="prohibited" />
         <xsd:attribute name="minOccurs" use="prohibited" />
         <xsd:attribute name="maxOccurs" use="prohibited" />
-        <xsd:attributeGroup ref="sub:anyOther" />
+        <xsd:attributeGroup ref="xsd:anyOther" />
       </xsd:extension>
     </xsd:complexContent>
   </xsd:complexType>
 
   <xsd:complexType name="groupRef">
     <xsd:complexContent>
-      <xsd:extension base="sub:annotated">
+      <xsd:extension base="xsd:annotated">
         <xsd:attribute name="ref" use="required" type="xsd:QName" />
         <xsd:attribute name="name" use="prohibited" />
-        <xsd:attributeGroup ref="sub:anyOther" />
+        <xsd:attributeGroup ref="xsd:anyOther" />
 
         <!-- DFDL -->
 
@@ -892,11 +887,11 @@ this to validate when we load a DFDL Schema.
       </xsd:documentation>
     </xsd:annotation>
     <xsd:sequence>
-      <xsd:element ref="sub:annotation" minOccurs="0" />
-      <xsd:group ref="sub:nestedParticle" minOccurs="0"
+      <xsd:element ref="xsd:annotation" minOccurs="0" />
+      <xsd:group ref="xsd:nestedParticle" minOccurs="0"
         maxOccurs="unbounded" />
     </xsd:sequence>
-    <xsd:attributeGroup ref="sub:anyOther" />
+    <xsd:attributeGroup ref="xsd:anyOther" />
 
     <!-- DFDL attributes for short form -->
     <xsd:attributeGroup ref="dfdl:BaseAGQualified" />
@@ -908,15 +903,15 @@ this to validate when we load a DFDL Schema.
 
   <xsd:complexType name="simpleExplicitGroup">
     <xsd:complexContent>
-      <xsd:restriction base="sub:explicitGroup">
+      <xsd:restriction base="xsd:explicitGroup">
         <xsd:sequence>
-          <xsd:element ref="sub:annotation" minOccurs="0" />
-          <xsd:group ref="sub:nestedParticle" minOccurs="0"
+          <xsd:element ref="xsd:annotation" minOccurs="0" />
+          <xsd:group ref="xsd:nestedParticle" minOccurs="0"
             maxOccurs="unbounded" />
         </xsd:sequence>
         <xsd:attribute name="minOccurs" use="prohibited" />
         <xsd:attribute name="maxOccurs" use="prohibited" />
-        <xsd:attributeGroup ref="sub:anyOther" />
+        <xsd:attributeGroup ref="xsd:anyOther" />
       </xsd:restriction>
     </xsd:complexContent>
   </xsd:complexType>
@@ -924,14 +919,14 @@ this to validate when we load a DFDL Schema.
   <!-- No ALL groups in DFDL v1.0
     <xsd:group name="allModel">
     <xsd:sequence>
-    <xsd:element ref="sub:annotation" minOccurs="0"/>
+    <xsd:element ref="xsd:annotation" minOccurs="0"/>
     <xsd:choice minOccurs="0" maxOccurs="unbounded">
     <xsd:annotation>
     <xsd:documentation>This choice with min/max is here to
     avoid a pblm with the Elt:All/Choice/Seq
     Particle derivation constraint</xsd:documentation>
     </xsd:annotation>
-    <xsd:element name="element" type="sub:narrowMaxMin"/>
+    <xsd:element name="element" type="xsd:narrowMaxMin"/>
     </xsd:choice>
     </xsd:sequence>
     </xsd:group>
@@ -942,14 +937,14 @@ this to validate when we load a DFDL Schema.
       <xsd:documentation>restricted max/min</xsd:documentation>
     </xsd:annotation>
     <xsd:complexContent>
-      <xsd:restriction base="sub:localElement">
+      <xsd:restriction base="xsd:localElement">
         <xsd:sequence>
-          <xsd:element ref="sub:annotation" minOccurs="0" />
+          <xsd:element ref="xsd:annotation" minOccurs="0" />
           <xsd:choice minOccurs="0">
-            <xsd:element name="simpleType" type="sub:localSimpleType" />
-            <xsd:element name="complexType" type="sub:localComplexType" />
+            <xsd:element name="simpleType" type="xsd:localSimpleType" />
+            <xsd:element name="complexType" type="xsd:localComplexType" />
           </xsd:choice>
-          <!-- <xsd:group ref="sub:identityConstraint" minOccurs="0" maxOccurs="unbounded"/> 
+          <!-- <xsd:group ref="xsd:identityConstraint" minOccurs="0" maxOccurs="unbounded"/> 
             Not in DFDL v1.0 -->
         </xsd:sequence>
         <xsd:attribute name="minOccurs" use="optional"
@@ -964,27 +959,27 @@ this to validate when we load a DFDL Schema.
         <xsd:attribute name="maxOccurs" use="optional"
           default="1">
           <xsd:simpleType>
-            <xsd:restriction base="sub:allNNI">
+            <xsd:restriction base="xsd:allNNI">
               <xsd:enumeration value="0" />
               <xsd:enumeration value="1" />
             </xsd:restriction>
           </xsd:simpleType>
         </xsd:attribute>
-        <xsd:attributeGroup ref="sub:anyOther" />
+        <xsd:attributeGroup ref="xsd:anyOther" />
       </xsd:restriction>
     </xsd:complexContent>
   </xsd:complexType>
 
   <xsd:complexType name="explicitChoiceGroup">
     <xsd:complexContent>
-      <xsd:extension base="sub:explicitGroup">
+      <xsd:extension base="xsd:explicitGroup">
         <!-- DFDL -->
         <xsd:attributeGroup ref="dfdl:ChoiceAGQualified" />
       </xsd:extension>
     </xsd:complexContent>
   </xsd:complexType>
 
-  <xsd:element name="choice" type="sub:explicitChoiceGroup"
+  <xsd:element name="choice" type="xsd:explicitChoiceGroup"
     id="choice">
     <xsd:annotation>
       <xsd:documentation
@@ -994,7 +989,7 @@ this to validate when we load a DFDL Schema.
 
   <xsd:complexType name="explicitSequenceGroup">
     <xsd:complexContent>
-      <xsd:extension base="sub:explicitGroup">
+      <xsd:extension base="xsd:explicitGroup">
         <!-- DFDL -->
         <xsd:attributeGroup ref="dfdl:SequenceAGQualified" />
         <xsd:attributeGroup ref="dfdl:SeparatorAGQualified" />
@@ -1003,7 +998,7 @@ this to validate when we load a DFDL Schema.
     </xsd:complexContent>
   </xsd:complexType>
 
-  <xsd:element name="sequence" type="sub:explicitSequenceGroup"
+  <xsd:element name="sequence" type="xsd:explicitSequenceGroup"
     id="sequence">
     <xsd:annotation>
       <xsd:documentation
@@ -1011,7 +1006,7 @@ this to validate when we load a DFDL Schema.
     </xsd:annotation>
   </xsd:element>
 
-  <xsd:element name="group" type="sub:namedGroup" id="group">
+  <xsd:element name="group" type="xsd:namedGroup" id="group">
     <xsd:annotation>
       <xsd:documentation
         source="http://www.w3.org/TR/xmlschema-1/#element-group" />
@@ -1020,8 +1015,8 @@ this to validate when we load a DFDL Schema.
 
   <!-- <xsd:complexType name="wildcard">
     <xsd:complexContent>
-    <xsd:extension base="sub:annotated">
-    <xsd:attribute name="namespace" type="sub:namespaceList" use="optional" 
+    <xsd:extension base="xsd:annotated">
+    <xsd:attribute name="namespace" type="xsd:namespaceList" use="optional" 
     default="##any"/>
   -->
   <!-- Chapter 21: processContents not allowed in v1
@@ -1046,9 +1041,9 @@ this to validate when we load a DFDL Schema.
     </xsd:annotation>
     <xsd:complexType>
     <xsd:complexContent>
-    <xsd:extension base="sub:wildcard">
-    <xsd:attributeGroup ref="sub:occurs"/>
-    <xsd:attributeGroup ref="sub:anyOther"/>
+    <xsd:extension base="xsd:wildcard">
+    <xsd:attributeGroup ref="xsd:occurs"/>
+    <xsd:attributeGroup ref="xsd:anyOther"/>
     </xsd:extension>
     </xsd:complexContent>
     </xsd:complexType>
@@ -1110,7 +1105,7 @@ this to validate when we load a DFDL Schema.
     </xsd:simpleType>
   -->
   <!--
-    <xsd:element name="attribute" type="sub:topLevelAttribute" id="attribute">
+    <xsd:element name="attribute" type="xsd:topLevelAttribute" id="attribute">
     <xsd:annotation>
     <xsd:documentation source="http://www.w3.org/TR/xmlschema-1/#element-attribute"/>
     </xsd:annotation>
@@ -1118,41 +1113,41 @@ this to validate when we load a DFDL Schema.
 
     <xsd:complexType name="attributeGroup" abstract="true">
     <xsd:complexContent>
-    <xsd:extension base="sub:annotated">
-    <xsd:group ref="sub:attrDecls"/>
-    <xsd:attributeGroup ref="sub:defRef"/>
+    <xsd:extension base="xsd:annotated">
+    <xsd:group ref="xsd:attrDecls"/>
+    <xsd:attributeGroup ref="xsd:defRef"/>
     </xsd:extension>
     </xsd:complexContent>
     </xsd:complexType>
 
     <xsd:complexType name="namedAttributeGroup">
     <xsd:complexContent>
-    <xsd:restriction base="sub:attributeGroup">
+    <xsd:restriction base="xsd:attributeGroup">
     <xsd:sequence>
-    <xsd:element ref="sub:annotation" minOccurs="0"/>
-    <xsd:group ref="sub:attrDecls"/>
+    <xsd:element ref="xsd:annotation" minOccurs="0"/>
+    <xsd:group ref="xsd:attrDecls"/>
     </xsd:sequence>
     <xsd:attribute name="name" use="required" type="xsd:NCName"/>
     <xsd:attribute name="ref" use="prohibited"/>
-    <xsd:attributeGroup ref="sub:anyOther"/>
+    <xsd:attributeGroup ref="xsd:anyOther"/>
     </xsd:restriction>
     </xsd:complexContent>
     </xsd:complexType>
 
     <xsd:complexType name="attributeGroupRef">
     <xsd:complexContent>
-    <xsd:restriction base="sub:attributeGroup">
+    <xsd:restriction base="xsd:attributeGroup">
     <xsd:sequence>
-    <xsd:element ref="sub:annotation" minOccurs="0"/>
+    <xsd:element ref="xsd:annotation" minOccurs="0"/>
     </xsd:sequence>
     <xsd:attribute name="ref" use="required" type="xsd:QName"/>
     <xsd:attribute name="name" use="prohibited"/>
-    <xsd:attributeGroup ref="sub:anyOther"/>
+    <xsd:attributeGroup ref="xsd:anyOther"/>
     </xsd:restriction>
     </xsd:complexContent>
     </xsd:complexType>
 
-    <xsd:element name="attributeGroup" type="sub:namedAttributeGroup" id="attributeGroup">
+    <xsd:element name="attributeGroup" type="xsd:namedAttributeGroup" id="attributeGroup">
     <xsd:annotation>
     <xsd:documentation source="http://www.w3.org/TR/xmlschema-1/#element-attributeGroup"/>
     </xsd:annotation>
@@ -1166,7 +1161,7 @@ this to validate when we load a DFDL Schema.
     </xsd:annotation>
     <xsd:complexType>
       <xsd:complexContent>
-        <xsd:extension base="sub:annotated">
+        <xsd:extension base="xsd:annotated">
           <xsd:attribute name="schemaLocation" type="xsd:anyURI"
             use="required" />
         </xsd:extension>
@@ -1181,10 +1176,10 @@ this to validate when we load a DFDL Schema.
     </xsd:annotation>
     <xsd:complexType>
     <xsd:complexContent>
-    <xsd:extension base="sub:openAttrs">
+    <xsd:extension base="xsd:openAttrs">
     <xsd:choice minOccurs="0" maxOccurs="unbounded">
-    <xsd:element ref="sub:annotation"/>
-    <xsd:group ref="sub:redefinable"/>
+    <xsd:element ref="xsd:annotation"/>
+    <xsd:group ref="xsd:redefinable"/>
     </xsd:choice>
     <xsd:attribute name="schemaLocation" type="xsd:anyURI" use="required"/>
     <xsd:attribute name="id" type="xsd:ID"/>
@@ -1201,7 +1196,7 @@ this to validate when we load a DFDL Schema.
     </xsd:annotation>
     <xsd:complexType>
       <xsd:complexContent>
-        <xsd:extension base="sub:annotated">
+        <xsd:extension base="xsd:annotated">
           <xsd:attribute name="namespace" type="xsd:anyURI" />
           <xsd:attribute name="schemaLocation" type="xsd:anyURI" />
         </xsd:extension>
@@ -1216,7 +1211,7 @@ this to validate when we load a DFDL Schema.
     </xsd:annotation>
     <xsd:complexType>
     <xsd:complexContent>
-    <xsd:extension base="sub:annotated">
+    <xsd:extension base="xsd:annotated">
     <xsd:attribute name="xpath" use="required">
     <xsd:simpleType>
     <xsd:annotation>
@@ -1252,7 +1247,7 @@ this to validate when we load a DFDL Schema.
     </xsd:annotation>
     <xsd:complexType>
     <xsd:complexContent>
-    <xsd:extension base="sub:annotated">
+    <xsd:extension base="xsd:annotated">
     <xsd:attribute name="xpath" use="required">
     <xsd:simpleType>
     <xsd:annotation>
@@ -1281,10 +1276,10 @@ this to validate when we load a DFDL Schema.
 
     <xsd:complexType name="__keybase">
     <xsd:complexContent>
-    <xsd:extension base="sub:annotated">
+    <xsd:extension base="xsd:annotated">
     <xsd:sequence>
-    <xsd:element ref="sub:selector"/>
-    <xsd:element ref="sub:field" minOccurs="1" maxOccurs="unbounded"/>
+    <xsd:element ref="xsd:selector"/>
+    <xsd:element ref="xsd:field" minOccurs="1" maxOccurs="unbounded"/>
     </xsd:sequence>
     <xsd:attribute name="name" type="xsd:NCName" use="required"/>
     </xsd:extension>
@@ -1298,18 +1293,18 @@ this to validate when we load a DFDL Schema.
     </xsd:documentation>
     </xsd:annotation>
     <xsd:choice>
-    <xsd:element ref="sub:unique"/>
-    <xsd:element ref="sub:key"/>
-    <xsd:element ref="sub:keyref"/>
+    <xsd:element ref="xsd:unique"/>
+    <xsd:element ref="xsd:key"/>
+    <xsd:element ref="xsd:keyref"/>
     </xsd:choice>
     </xsd:group>
 
-    <xsd:element name="__unique" type="sub:keybase" id="unique">
+    <xsd:element name="__unique" type="xsd:keybase" id="unique">
     <xsd:annotation>
     <xsd:documentation source="http://www.w3.org/TR/xmlschema-1/#element-unique"/>
     </xsd:annotation>
     </xsd:element>
-    <xsd:element name="__key" type="sub:keybase" id="key">
+    <xsd:element name="__key" type="xsd:keybase" id="key">
     <xsd:annotation>
     <xsd:documentation source="http://www.w3.org/TR/xmlschema-1/#element-key"/>
     </xsd:annotation>
@@ -1320,7 +1315,7 @@ this to validate when we load a DFDL Schema.
     </xsd:annotation>
     <xsd:complexType>
     <xsd:complexContent>
-    <xsd:extension base="sub:keybase">
+    <xsd:extension base="xsd:keybase">
     <xsd:attribute name="refer" type="xsd:QName" use="required"/>
     </xsd:extension>
     </xsd:complexContent>
@@ -1333,9 +1328,9 @@ this to validate when we load a DFDL Schema.
     </xsd:annotation>
     <xsd:complexType>
     <xsd:complexContent>
-    <xsd:extension base="sub:annotated">
+    <xsd:extension base="xsd:annotated">
     <xsd:attribute name="name" type="xsd:NCName" use="required"/>
-    <xsd:attribute name="public" type="sub:public"/>
+    <xsd:attribute name="public" type="xsd:public"/>
     <xsd:attribute name="system" type="xsd:anyURI"/>
     </xsd:extension>
     </xsd:complexContent>
@@ -1374,7 +1369,7 @@ this to validate when we load a DFDL Schema.
         <xsd:group ref="dfdl:anyOther" />
       </xsd:choice>
       <xsd:attribute name="source" type="xsd:anyURI" />
-      <xsd:attributeGroup ref="sub:anyOther" />
+      <xsd:attributeGroup ref="xsd:anyOther" />
     </xsd:complexType>
   </xsd:element>
 
@@ -1389,7 +1384,7 @@ this to validate when we load a DFDL Schema.
       </xsd:sequence>
       <xsd:attribute name="source" type="xsd:anyURI" />
       <xsd:attribute ref="xml:lang" />
-      <xsd:attributeGroup ref="sub:anyOther" />
+      <xsd:attributeGroup ref="xsd:anyOther" />
     </xsd:complexType>
   </xsd:element>
 
@@ -1400,10 +1395,10 @@ this to validate when we load a DFDL Schema.
     </xsd:annotation>
     <xsd:complexType>
       <xsd:complexContent>
-        <xsd:extension base="sub:openAttrs">
+        <xsd:extension base="xsd:openAttrs">
           <xsd:choice minOccurs="0" maxOccurs="unbounded">
-            <xsd:element ref="sub:appinfo" />
-            <xsd:element ref="sub:documentation" />
+            <xsd:element ref="xsd:appinfo" />
+            <xsd:element ref="xsd:documentation" />
           </xsd:choice>
           <xsd:attribute name="id" type="xsd:ID" />
         </xsd:extension>
@@ -1430,9 +1425,9 @@ this to validate when we load a DFDL Schema.
 
   <xsd:group name="simpleDerivation">
     <xsd:choice>
-      <xsd:element ref="sub:restriction" />
-      <!-- <xsd:element ref="sub:list"/> Not in DFDL v1.0 -->
-      <xsd:element ref="sub:union" />
+      <xsd:element ref="xsd:restriction" />
+      <!-- <xsd:element ref="xsd:list"/> Not in DFDL v1.0 -->
+      <xsd:element ref="xsd:union" />
     </xsd:choice>
   </xsd:group>
 
@@ -1456,7 +1451,7 @@ this to validate when we load a DFDL Schema.
       <xsd:simpleType>
         <xsd:list>
           <xsd:simpleType>
-            <xsd:restriction base="sub:derivationControl">
+            <xsd:restriction base="xsd:derivationControl">
               <!-- <xsd:enumeration value="list"/> -->
               <xsd:enumeration value="union" />
               <xsd:enumeration value="restriction" />
@@ -1469,9 +1464,9 @@ this to validate when we load a DFDL Schema.
 
   <xsd:complexType name="simpleType" abstract="true">
     <xsd:complexContent>
-      <xsd:extension base="sub:annotated">
-        <xsd:group ref="sub:simpleDerivation" />
-        <xsd:attribute name="final" type="sub:simpleDerivationSet" />
+      <xsd:extension base="xsd:annotated">
+        <xsd:group ref="xsd:simpleDerivation" />
+        <xsd:attribute name="final" type="xsd:simpleDerivationSet" />
         <xsd:attribute name="name" type="xsd:NCName">
           <xsd:annotation>
             <xsd:documentation>
@@ -1494,10 +1489,10 @@ this to validate when we load a DFDL Schema.
 
   <xsd:complexType name="topLevelSimpleType">
     <xsd:complexContent>
-      <xsd:restriction base="sub:simpleType">
+      <xsd:restriction base="xsd:simpleType">
         <xsd:sequence>
-          <xsd:element ref="sub:annotation" minOccurs="0" />
-          <xsd:group ref="sub:simpleDerivation" />
+          <xsd:element ref="xsd:annotation" minOccurs="0" />
+          <xsd:group ref="xsd:simpleDerivation" />
         </xsd:sequence>
         <xsd:attribute name="name" use="required" type="xsd:NCName">
           <xsd:annotation>
@@ -1506,17 +1501,17 @@ this to validate when we load a DFDL Schema.
             </xsd:documentation>
           </xsd:annotation>
         </xsd:attribute>
-        <xsd:attributeGroup ref="sub:anyOther" />
+        <xsd:attributeGroup ref="xsd:anyOther" />
       </xsd:restriction>
     </xsd:complexContent>
   </xsd:complexType>
 
   <xsd:complexType name="localSimpleType">
     <xsd:complexContent>
-      <xsd:restriction base="sub:simpleType">
+      <xsd:restriction base="xsd:simpleType">
         <xsd:sequence>
-          <xsd:element ref="sub:annotation" minOccurs="0" />
-          <xsd:group ref="sub:simpleDerivation" />
+          <xsd:element ref="xsd:annotation" minOccurs="0" />
+          <xsd:group ref="xsd:simpleDerivation" />
         </xsd:sequence>
         <xsd:attribute name="name" use="prohibited">
           <xsd:annotation>
@@ -1526,12 +1521,12 @@ this to validate when we load a DFDL Schema.
           </xsd:annotation>
         </xsd:attribute>
         <xsd:attribute name="final" use="prohibited" />
-        <xsd:attributeGroup ref="sub:anyOther" />
+        <xsd:attributeGroup ref="xsd:anyOther" />
       </xsd:restriction>
     </xsd:complexContent>
   </xsd:complexType>
 
-  <xsd:element name="simpleType" type="sub:topLevelSimpleType"
+  <xsd:element name="simpleType" type="xsd:topLevelSimpleType"
     id="simpleType">
     <xsd:annotation>
       <xsd:documentation
@@ -1548,26 +1543,26 @@ this to validate when we load a DFDL Schema.
       </xsd:documentation>
     </xsd:annotation>
     <xsd:choice>
-      <xsd:element ref="sub:minExclusive" />
-      <xsd:element ref="sub:minInclusive" />
-      <xsd:element ref="sub:maxExclusive" />
-      <xsd:element ref="sub:maxInclusive" />
-      <xsd:element ref="sub:totalDigits" />
-      <xsd:element ref="sub:fractionDigits" />
-      <xsd:element ref="sub:length" />
-      <xsd:element ref="sub:minLength" />
-      <xsd:element ref="sub:maxLength" />
-      <xsd:element ref="sub:enumeration" />
-      <!-- <xsd:element ref="sub:whiteSpace"/> -->
-      <xsd:element ref="sub:pattern" />
+      <xsd:element ref="xsd:minExclusive" />
+      <xsd:element ref="xsd:minInclusive" />
+      <xsd:element ref="xsd:maxExclusive" />
+      <xsd:element ref="xsd:maxInclusive" />
+      <xsd:element ref="xsd:totalDigits" />
+      <xsd:element ref="xsd:fractionDigits" />
+      <xsd:element ref="xsd:length" />
+      <xsd:element ref="xsd:minLength" />
+      <xsd:element ref="xsd:maxLength" />
+      <xsd:element ref="xsd:enumeration" />
+      <!-- <xsd:element ref="xsd:whiteSpace"/> -->
+      <xsd:element ref="xsd:pattern" />
     </xsd:choice>
   </xsd:group>
 
   <xsd:group name="simpleRestrictionModel">
     <xsd:sequence>
-      <xsd:element name="simpleType" type="sub:localSimpleType"
+      <xsd:element name="simpleType" type="xsd:localSimpleType"
         minOccurs="0" />
-      <xsd:group ref="sub:facets" minOccurs="0" maxOccurs="unbounded" />
+      <xsd:group ref="xsd:facets" minOccurs="0" maxOccurs="unbounded" />
     </xsd:sequence>
   </xsd:group>
 
@@ -1581,8 +1576,8 @@ this to validate when we load a DFDL Schema.
         </xsd:documentation>
       </xsd:annotation>
       <xsd:complexContent>
-        <xsd:extension base="sub:annotated">
-          <xsd:group ref="sub:simpleRestrictionModel" />
+        <xsd:extension base="xsd:annotated">
+          <xsd:group ref="xsd:simpleRestrictionModel" />
           <xsd:attribute name="base" type="xsd:QName" use="optional" />
         </xsd:extension>
       </xsd:complexContent>
@@ -1600,9 +1595,9 @@ this to validate when we load a DFDL Schema.
     </xsd:documentation>
     </xsd:annotation>
     <xsd:complexContent>
-    <xsd:extension base="sub:annotated">
+    <xsd:extension base="xsd:annotated">
     <xsd:sequence>
-    <xsd:element name="simpleType" type="sub:localSimpleType"
+    <xsd:element name="simpleType" type="xsd:localSimpleType"
     minOccurs="0"/>
     </xsd:sequence>
     <xsd:attribute name="itemType" type="xsd:QName" use="optional"/>
@@ -1622,9 +1617,9 @@ this to validate when we load a DFDL Schema.
         </xsd:documentation>
       </xsd:annotation>
       <xsd:complexContent>
-        <xsd:extension base="sub:annotated">
+        <xsd:extension base="xsd:annotated">
           <xsd:sequence>
-            <xsd:element name="simpleType" type="sub:localSimpleType"
+            <xsd:element name="simpleType" type="xsd:localSimpleType"
               minOccurs="0" maxOccurs="unbounded" />
           </xsd:sequence>
           <xsd:attribute name="memberTypes" use="optional">
@@ -1639,7 +1634,7 @@ this to validate when we load a DFDL Schema.
 
   <xsd:complexType name="facet">
     <xsd:complexContent>
-      <xsd:extension base="sub:annotated">
+      <xsd:extension base="xsd:annotated">
         <xsd:attribute name="value" use="required" />
         <xsd:attribute name="fixed" type="xsd:boolean"
           use="optional" default="false" />
@@ -1649,36 +1644,36 @@ this to validate when we load a DFDL Schema.
 
   <xsd:complexType name="noFixedFacet">
     <xsd:complexContent>
-      <xsd:restriction base="sub:facet">
+      <xsd:restriction base="xsd:facet">
         <xsd:sequence>
-          <xsd:element ref="sub:annotation" minOccurs="0" />
+          <xsd:element ref="xsd:annotation" minOccurs="0" />
         </xsd:sequence>
         <xsd:attribute name="fixed" use="prohibited" />
-        <xsd:attributeGroup ref="sub:anyOther" />
+        <xsd:attributeGroup ref="xsd:anyOther" />
       </xsd:restriction>
     </xsd:complexContent>
   </xsd:complexType>
 
-  <xsd:element name="minExclusive" id="minExclusive" type="sub:facet">
+  <xsd:element name="minExclusive" id="minExclusive" type="xsd:facet">
     <xsd:annotation>
       <xsd:documentation
         source="http://www.w3.org/TR/xmlschema-2/#element-minExclusive" />
     </xsd:annotation>
   </xsd:element>
-  <xsd:element name="minInclusive" id="minInclusive" type="sub:facet">
+  <xsd:element name="minInclusive" id="minInclusive" type="xsd:facet">
     <xsd:annotation>
       <xsd:documentation
         source="http://www.w3.org/TR/xmlschema-2/#element-minInclusive" />
     </xsd:annotation>
   </xsd:element>
 
-  <xsd:element name="maxExclusive" id="maxExclusive" type="sub:facet">
+  <xsd:element name="maxExclusive" id="maxExclusive" type="xsd:facet">
     <xsd:annotation>
       <xsd:documentation
         source="http://www.w3.org/TR/xmlschema-2/#element-maxExclusive" />
     </xsd:annotation>
   </xsd:element>
-  <xsd:element name="maxInclusive" id="maxInclusive" type="sub:facet">
+  <xsd:element name="maxInclusive" id="maxInclusive" type="xsd:facet">
     <xsd:annotation>
       <xsd:documentation
         source="http://www.w3.org/TR/xmlschema-2/#element-maxInclusive" />
@@ -1687,13 +1682,13 @@ this to validate when we load a DFDL Schema.
 
   <xsd:complexType name="numFacet">
     <xsd:complexContent>
-      <xsd:restriction base="sub:facet">
+      <xsd:restriction base="xsd:facet">
         <xsd:sequence>
-          <xsd:element ref="sub:annotation" minOccurs="0" />
+          <xsd:element ref="xsd:annotation" minOccurs="0" />
         </xsd:sequence>
         <xsd:attribute name="value" type="xsd:nonNegativeInteger"
           use="required" />
-        <xsd:attributeGroup ref="sub:anyOther" />
+        <xsd:attributeGroup ref="xsd:anyOther" />
       </xsd:restriction>
     </xsd:complexContent>
   </xsd:complexType>
@@ -1705,38 +1700,38 @@ this to validate when we load a DFDL Schema.
     </xsd:annotation>
     <xsd:complexType>
       <xsd:complexContent>
-        <xsd:restriction base="sub:numFacet">
+        <xsd:restriction base="xsd:numFacet">
           <xsd:sequence>
-            <xsd:element ref="sub:annotation" minOccurs="0" />
+            <xsd:element ref="xsd:annotation" minOccurs="0" />
           </xsd:sequence>
           <xsd:attribute name="value" type="xsd:positiveInteger"
             use="required" />
-          <xsd:attributeGroup ref="sub:anyOther" />
+          <xsd:attributeGroup ref="xsd:anyOther" />
         </xsd:restriction>
       </xsd:complexContent>
     </xsd:complexType>
   </xsd:element>
   <xsd:element name="fractionDigits" id="fractionDigits"
-    type="sub:numFacet">
+    type="xsd:numFacet">
     <xsd:annotation>
       <xsd:documentation
         source="http://www.w3.org/TR/xmlschema-2/#element-fractionDigits" />
     </xsd:annotation>
   </xsd:element>
 
-  <xsd:element name="length" id="length" type="sub:numFacet">
+  <xsd:element name="length" id="length" type="xsd:numFacet">
     <xsd:annotation>
       <xsd:documentation
         source="http://www.w3.org/TR/xmlschema-2/#element-length" />
     </xsd:annotation>
   </xsd:element>
-  <xsd:element name="minLength" id="minLength" type="sub:numFacet">
+  <xsd:element name="minLength" id="minLength" type="xsd:numFacet">
     <xsd:annotation>
       <xsd:documentation
         source="http://www.w3.org/TR/xmlschema-2/#element-minLength" />
     </xsd:annotation>
   </xsd:element>
-  <xsd:element name="maxLength" id="maxLength" type="sub:numFacet">
+  <xsd:element name="maxLength" id="maxLength" type="xsd:numFacet">
     <xsd:annotation>
       <xsd:documentation
         source="http://www.w3.org/TR/xmlschema-2/#element-maxLength" />
@@ -1750,9 +1745,9 @@ this to validate when we load a DFDL Schema.
     </xsd:annotation>
     <xsd:complexType>
       <xsd:complexContent>
-        <xsd:extension base="sub:facet">
+        <xsd:extension base="xsd:facet">
           <xsd:attributeGroup ref="dfdlx:RepValuesAGQualified" />
-          <xsd:attributeGroup ref="sub:anyOther" />
+          <xsd:attributeGroup ref="xsd:anyOther" />
         </xsd:extension>
       </xsd:complexContent>
     </xsd:complexType>
@@ -1766,9 +1761,9 @@ this to validate when we load a DFDL Schema.
     </xsd:annotation>
     <xsd:complexType>
     <xsd:complexContent>
-    <xsd:restriction base="sub:facet">
+    <xsd:restriction base="xsd:facet">
     <xsd:sequence>
-    <xsd:element ref="sub:annotation" minOccurs="0"/>
+    <xsd:element ref="xsd:annotation" minOccurs="0"/>
     </xsd:sequence>
     <xsd:attribute name="value" use="required">
     <xsd:simpleType>
@@ -1779,7 +1774,7 @@ this to validate when we load a DFDL Schema.
     </xsd:restriction>
     </xsd:simpleType>
     </xsd:attribute>
-    <xsd:attributeGroup ref="sub:anyOther"/>
+    <xsd:attributeGroup ref="xsd:anyOther"/>
     </xsd:restriction>
     </xsd:complexContent>
     </xsd:complexType>
@@ -1792,13 +1787,13 @@ this to validate when we load a DFDL Schema.
     </xsd:annotation>
     <xsd:complexType>
       <xsd:complexContent>
-        <xsd:restriction base="sub:noFixedFacet">
+        <xsd:restriction base="xsd:noFixedFacet">
           <xsd:sequence>
-            <xsd:element ref="sub:annotation" minOccurs="0" />
+            <xsd:element ref="xsd:annotation" minOccurs="0" />
           </xsd:sequence>
           <xsd:attribute name="value" type="xsd:string"
             use="required" />
-          <xsd:attributeGroup ref="sub:anyOther" />
+          <xsd:attributeGroup ref="xsd:anyOther" />
         </xsd:restriction>
       </xsd:complexContent>
     </xsd:complexType>

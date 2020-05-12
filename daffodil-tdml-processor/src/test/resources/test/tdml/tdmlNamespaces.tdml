@@ -22,8 +22,16 @@
   xmlns:ex="http://example.com"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd"
+  xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData incorrect/path/on/purpose/tdml.xsd"
   >
+  <!--
+  The above xsi:schemaLocation is incorrect on purpose. This is for verification that DAFFODIL-2340 is fixed.
+  A message about not being able to find the incorrect/path/on/purpose/tdml.xsd will be displayed.
+
+  Note: this isn't a TDML test case validation error, because it's not daffodil validating parsed data against a schema
+  it's the TDML runner validating this file against the schema for TDML.
+  -->
+
   <!-- the above does not have a prefix for xsd at all on purpose -->
 
 <t:defineSchema name="s1" xmlns="http://www.w3.org/2001/XMLSchema">

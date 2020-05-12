@@ -21,7 +21,6 @@
   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:ex="http://example.com"
-  xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd"
   defaultRoundTrip="true">
 
   <parserTestCase name="AK000" root="list" model="AK.dfdl.xsd"

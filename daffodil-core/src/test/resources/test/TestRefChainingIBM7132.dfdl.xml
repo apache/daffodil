@@ -19,9 +19,7 @@
 <xsd:schema xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.ogf.org/dfdl/dfdl-1.0/ xsd/DFDL_part3_model.xsd 
-  http://www.w3.org/2001/XMLSchema xsd/XMLSchema_for_DFDL.xsd">
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
   <!--
     7.1.3.2 Representation Property Binding Syntax: Element Form spec v.40

@@ -19,7 +19,6 @@
 <tdml:testSuite suiteName="multiFile" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
   xmlns:tns="http://www.example.org/example1/"
-  xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd"
   defaultRoundTrip="true">
 
 

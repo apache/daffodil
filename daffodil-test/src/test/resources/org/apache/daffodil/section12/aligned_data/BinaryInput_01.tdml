@@ -19,8 +19,7 @@
 <tdml:testSuite suiteName="binaryInput"
 	description="Section 13 - Simple Types of Binary Format" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-	xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://example.com"
-	xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+	xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://example.com">
 
 	<tdml:defineSchema
 		name="DFDL-362-skip-alignments-leading-skip-bytes.dfdl.xsd">
