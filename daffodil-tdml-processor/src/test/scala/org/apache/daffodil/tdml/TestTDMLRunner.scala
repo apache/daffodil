@@ -18,11 +18,12 @@
 package org.apache.daffodil.tdml
 
 import java.io.File
+import java.nio.charset.Charset
+
 import org.apache.daffodil.Implicits.using
 import org.apache.daffodil.xml.XMLUtils
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
-import org.junit.Assert.assertFalse
 import org.apache.daffodil.util._
 import org.junit.Test
 import org.apache.daffodil.Implicits._
@@ -515,11 +516,28 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
     assertEquals(9, bytes.length)
     ts.runOneTest("testNilCompare")
   }
+
   @Test def test_tdmlNamespaces1() {
     val testDir = "/test/tdml/"
     val t0 = testDir + "tdmlNamespaces.tdml"
     lazy val r = new DFDLTestSuite(Misc.getRequiredResource(t0))
-    r.runOneTest("tdmlNamespaces1")
+    //
+    // This is going to write in the default charset.
+    //
+    val out = new java.io.ByteArrayOutputStream()
+    Console.withErr(out) {
+      r.runOneTest("tdmlNamespaces1")
+    }
+    out.close()
+    //
+    // verify fix for DAFFODIL-2340
+    //
+    val msgs =
+      new String(out.toByteArray(),
+        Charset.defaultCharset()) // read back in default charset as well
+        .toLowerCase()
+    assertTrue(msgs.contains("incorrect/path/on/purpose/tdml.xsd"))
+    assertTrue(msgs.contains("unable to resolve"))
   }
 
 

@@ -24,10 +24,7 @@
   xmlns:dafint="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:int"
   xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
   attributeFormDefault="unqualified"
-  elementFormDefault="qualified"
-  xsi:schemaLocation="http://www.w3.org/2001/XMLSchema XMLSchema.xsd
-  http://www.ogf.org/dfdl/dfdl-1.0/extensions xsd/dfdlx.xsd
-  urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:int xsd/dafint.xsd">
+  elementFormDefault="qualified">
   
   <xs:import namespace="http://www.ogf.org/dfdl/dfdl-1.0/extensions"/>
   <xs:import namespace="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:int"/>

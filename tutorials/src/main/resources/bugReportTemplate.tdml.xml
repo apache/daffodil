@@ -29,7 +29,6 @@
   xmlns:gpf="http://www.ibm.com/dfdl/GeneralPurposeFormat"
   xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext" 
   xmlns="http://www.w3.org/1999/xhtml" 
-  xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData tdml.xsd"
   defaultRoundTrip="false">
   
   <!-- 

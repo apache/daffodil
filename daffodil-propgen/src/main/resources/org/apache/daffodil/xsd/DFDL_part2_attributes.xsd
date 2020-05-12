@@ -22,13 +22,11 @@
   xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
-  attributeFormDefault="unqualified" elementFormDefault="qualified"
-  xsi:schemaLocation="http://www.w3.org/2001/XMLSchema XMLSchema.xsd">
-
-<xsd:import namespace="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext" schemaLocation="org/apache/daffodil/xsd/dafext.xsd"/>
-<xsd:import namespace="http://www.ogf.org/dfdl/dfdl-1.0/extensions" schemaLocation="org/apache/daffodil/xsd/dfdlx.xsd"/>
+  attributeFormDefault="unqualified" elementFormDefault="qualified">
 
   <xsd:include schemaLocation="DFDL_part1_simpletypes.xsd" />
+  <xsd:import namespace="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"/>
+  <xsd:import namespace="http://www.ogf.org/dfdl/dfdl-1.0/extensions"/>
 
   <!-- ==================================================================== -->
   <!-- Basic Attributes and Attribute Groups representing DFDL properties -->

@@ -23,8 +23,7 @@
 	xmlns:tns="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
 	elementFormDefault="unqualified" 
     xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.w3.org/2001/XMLSchema XMLSchema.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
 	<xsd:import namespace="http://www.w3.org/2001/XMLSchema" />
 	<xsd:include schemaLocation="dafext.xsd" /> 

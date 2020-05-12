@@ -23,17 +23,13 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
   xmlns:dafint="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:int"
-  attributeFormDefault="unqualified" elementFormDefault="qualified"
-  xsi:schemaLocation="http://www.w3.org/2001/XMLSchema XMLSchema.xsd 
-  urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:int org/apache/daffodil/xsd/dafint.xsd
-  urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:int org/apache/daffodil/xsd/dafext.xsd>
-  http://www.ogf.org/dfdl/dfdl-1.0/extensions org/apache/daffodil/xsd/dfdlx.xsd">
-  
+  attributeFormDefault="unqualified" elementFormDefault="qualified">
 
-  <xsd:import namespace="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:int" schemaLocation="org/apache/daffodil/xsd/dafint.xsd" />
-  <xsd:import namespace="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext" schemaLocation="org/apache/daffodil/xsd/dafext.xsd" />
-  <xsd:import namespace="http://www.ogf.org/dfdl/dfdl-1.0/extensions" schemaLocation="org/apache/daffodil/xsd/dfdlx.xsd" />
   <xsd:include schemaLocation="DFDL_part2_attributes.xsd" />
+  <xsd:import namespace="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:int"/>
+  <xsd:import namespace="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"/>
+  <xsd:import namespace="http://www.ogf.org/dfdl/dfdl-1.0/extensions"/>
+
 
   <!-- all the dfdl: elements that can appear inside an xs:appinfo element -->
   <xsd:group name="DFDLAppInfoGroup">
