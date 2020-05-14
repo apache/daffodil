@@ -34,6 +34,9 @@ import org.apache.daffodil.Implicits._
 import org.apache.daffodil.api.UnitTestSchemaSource
 import org.apache.daffodil.xml.QName
 import org.apache.daffodil.util.Misc
+import org.apache.daffodil.infoset.ScalaXMLInfosetOutputter
+import org.apache.daffodil.io.InputSourceDataInputStream
+import java.nio.channels.Channels
 
 /**
  * Tests for compiler-oriented XPath interface aka CompiledExpression
@@ -131,6 +134,16 @@ class TestExternalVariablesNew {
         </xs:choice>
       </xs:group>,
       "")
+    sch
+  }
+
+  def generateTestSchemaVmap(topLevelAnnotations: Seq[Node], theTargetNS: String) = {
+    val sch = SchemaUtils.dfdlTestSchemaWithTarget(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      topLevelAnnotations,
+      <xs:element name="fake" type="xs:string" dfdl:lengthKind="delimited"
+        dfdl:inputValueCalc="{ $ex:var1 }" />,
+      theTargetNS)
     sch
   }
 
@@ -286,6 +299,47 @@ class TestExternalVariablesNew {
       println(msg)
       fail()
     }
+  }
+
+  @Test def test_data_processor_vmap_copy() {
+    // Here we want to test that even when multiple var2's
+    // are defined with different namespaces that we can
+    // set the correct one.
+    //
+    val tla = {
+      <dfdl:format ref="tns:GeneralFormat"/>
+      <dfdl:defineVariable name="var1" type="xs:string" external="true" defaultValue="default1"/>
+    }
+    val sch = generateTestSchemaVmap(tla, XMLUtils.EXAMPLE_NAMESPACE)
+    val source = UnitTestSchemaSource(sch, "test_data_processor_vmap_copy")
+
+    val vars = Map(("{http://example.com}var1", "value1"))
+
+    val variables = ExternalVariablesLoader.mapToBindings(vars)
+
+    val c = Compiler(validateDFDLSchemas = false)
+
+    val pf = c.compileSource(source)
+    val sset = pf.sset
+
+    val dp1 = pf.onPath("/")
+    val dp2 = pf.onPath("/").withExternalVariables(variables)
+
+    val outputter = new ScalaXMLInfosetOutputter()
+    val input = InputSourceDataInputStream(Channels.newInputStream(Misc.stringToReadableByteChannel("")))
+
+    val res1 = dp1.parse(input, outputter)
+    assertTrue(outputter.getResult.toString.contains("default1"))
+
+    val res2 = dp2.parse(input, outputter)
+    assertTrue(outputter.getResult.toString.contains("value1"))
+
+    val res3 = dp1.parse(input, outputter)
+    assertTrue(outputter.getResult.toString.contains("default1"))
+
+    checkResult(dp1.variableMap, "{http://example.com}var1", "default1")
+    checkResult(dp2.variableMap, "{http://example.com}var1", "value1")
+    checkResult(dp1.variableMap, "{http://example.com}var1", "default1")
   }
 
 }
