@@ -37,7 +37,7 @@ final class SchemaSetRuntimeData(
   /*
    * The original variables determined by the schema compiler.
    */
-  val originalVariables: VariableMap,
+  variables: VariableMap,
   val typeCalculators: TypeCalcMap)
   extends Serializable with ThrowsSDE {
 
@@ -55,5 +55,11 @@ final class SchemaSetRuntimeData(
     ois.defaultReadObject()
     elementRuntimeData.dpathElementCompileInfo.deserializeParents(ois)
   }
+
+  /**
+   * Always return a copy when original variables is requested, thus preserving
+   * the state of the actual original variables
+   */
+  def originalVariables = variables.copy
 
 }

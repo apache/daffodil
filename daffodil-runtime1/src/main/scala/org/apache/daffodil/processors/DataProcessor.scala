@@ -195,7 +195,7 @@ class DataProcessor private (
     areDebugging : Boolean = areDebugging,
     optDebugger : Option[Debugger] = optDebugger,
     validationMode: ValidationMode.Type = validationMode,
-    variableMap : VariableMap = variableMap,
+    variableMap : VariableMap = variableMap.copy,
     externalVars: Queue[Binding] = externalVars) =
     new DataProcessor(ssrd, tunables, variableMap, areDebugging, optDebugger, validationMode,  externalVars)
 
