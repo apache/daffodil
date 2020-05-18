@@ -31,6 +31,9 @@ object TestInputTypeValueCalc {
 
   @AfterClass def shutDown {
     runner.reset
+    exprRunner.reset
+    fnRunner.reset
+    fnErrRunner.reset
   }
 
 }

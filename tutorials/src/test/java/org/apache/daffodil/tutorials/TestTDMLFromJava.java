@@ -27,7 +27,7 @@ public class TestTDMLFromJava {
 
   // DAFFODIL-2241 Java Junit Test TDML - invoke TDML from Java
   @Test
-  void test_canInvokeRunOneTestFromJava() {
+  public void test_canInvokeRunOneTestFromJava() {
     runner.runOneTest("dateTimeTest");
   }
 

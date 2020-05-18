@@ -19,7 +19,7 @@ package org.apache.daffodil
 
 import org.apache.daffodil.tdml.DFDLTestSuite
 import org.apache.daffodil.util.Misc
-import org.junit.Test
+import org.junit.{ AfterClass, Test }
 import org.apache.daffodil.tdml.Runner
 
 object TresysTests {
@@ -50,8 +50,6 @@ object TresysTests {
 
   val ap = testDir + "AP.tdml"
   lazy val runnerAP = new DFDLTestSuite(Misc.getRequiredResource(ap))
-  val at = testDir + "AT.tdml"
-  lazy val runnerAT = new DFDLTestSuite(Misc.getRequiredResource(at))
   val ax = testDir + "AX.tdml"
   lazy val runnerAX = new DFDLTestSuite(Misc.getRequiredResource(ax))
   val av0 = testDir + "AV000.tdml"
@@ -93,6 +91,13 @@ object TresysTests {
   lazy val runnerBC = new DFDLTestSuite(Misc.getRequiredResource(bc))
   val bd = testDir + "BD.tdml"
   lazy val runnerBD = new DFDLTestSuite(Misc.getRequiredResource(bd))
+
+  @AfterClass def shutDown {
+    runnerDelimited.reset
+    runnerMD.reset
+    runnerMD_NV.reset
+    runnerRD.reset
+  }
 }
 
 class TresysTests {
@@ -174,8 +179,5 @@ class TresysTests {
   @Test def test_BD000() { runnerBD.runOneTest("BD000") } // binary boolean type
 
   // @Test def test_AP000() { runnerAP.runOneTest("AP000") } // lengthKind endOfParent - DAFFODIL-567
-
-  // @Test def test_AT000() { runnerAT.runOneTest("AT000") } // needs newVariableInstance - DAFFODIL-341
-  // @Test def test_AT001() { runnerAT.runOneTest("AT001") } // needs newVariableInstance - DAFFODIL-341
 
 }

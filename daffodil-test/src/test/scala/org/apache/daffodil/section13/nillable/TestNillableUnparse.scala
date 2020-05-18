@@ -28,6 +28,7 @@ object TestNillableUnparse {
 
   @AfterClass def tearDown() {
     runnerLN.reset
+    runnerLC.reset
   }
 }
 

@@ -31,6 +31,7 @@ object TestChoice2 {
   @AfterClass def shutDown {
     runner.reset
     runner1773.reset
+    runner2162.reset
   }
 }
 

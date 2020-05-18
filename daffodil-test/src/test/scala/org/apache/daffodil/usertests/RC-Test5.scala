@@ -28,6 +28,7 @@ object RCTest5 {
 
   @AfterClass def shutDown {
     runner.reset
+    runner6.reset
   }
 
 }

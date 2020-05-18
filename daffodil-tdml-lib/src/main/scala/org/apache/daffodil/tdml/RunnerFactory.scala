@@ -45,11 +45,14 @@ object Runner {
     defaultRoundTripDefault: RoundTrip = defaultRoundTripDefaultDefault,
     defaultValidationDefault: String = defaultValidationDefaultDefault,
     defaultImplementationsDefault: Seq[String] = defaultImplementationsDefaultDefault): Runner =
-    new Runner(null, dir, file, validateTDMLFile, validateDFDLSchemas, compileAllTopLevel,
+    new Runner(elem = null, dir, file, validateTDMLFile, validateDFDLSchemas, compileAllTopLevel,
       defaultRoundTripDefault, defaultValidationDefault, defaultImplementationsDefault)
 
   def apply(elem: scala.xml.Elem): Runner =
-    new Runner(elem, null, null)
+    new Runner(elem, dir = null, file = null)
+
+  def apply(elem: scala.xml.Elem, validateTDMLFile: Boolean): Runner =
+    new Runner(elem, dir = null, file = null, validateTDMLFile)
 
   // Yes, that's a lot of defaults.....
   // but really it is 3-tiers deep:

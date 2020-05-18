@@ -25,14 +25,13 @@ object TestDFDLExpressions2 {
 
   val testDir = "org/apache/daffodil/section23/dfdl_expressions/"
   val runner = Runner(testDir, "expressions.tdml")
-
-  val testDir3 = "/org/apache/daffodil/section23/runtime_properties/"
-  val runner3 = Runner(testDir3, "runtime-properties.tdml")
+  val runner_fun = Runner(testDir, "functions.tdml")
 
   val testDir2 = "/org/apache/daffodil/section23/dfdl_functions/"
   val runner2 = Runner(testDir2, "Functions.tdml")
 
-  val runner_fun = Runner(testDir, "functions.tdml")
+  val testDir3 = "/org/apache/daffodil/section23/runtime_properties/"
+  val runner3 = Runner(testDir3, "runtime-properties.tdml")
 
   val testDir4 = "/org/apache/daffodil/section23/dfdl_expressions/"
   val runner4 = Runner(testDir4, "expressions.tdml")
@@ -45,9 +44,10 @@ object TestDFDLExpressions2 {
 
   @AfterClass def shutdown = {
     runner.reset
-    runner2.reset
-    runner4.reset
     runner_fun.reset
+    runner2.reset
+    runner3.reset
+    runner4.reset
     runner5.reset
     runner6.reset
     runner7.reset

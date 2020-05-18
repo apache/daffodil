@@ -17,9 +17,9 @@
 -->
 
 <xsd:schema targetNamespace="http://www.ogf.org/dfdl/dfdl-1.0/"
-  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  attributeFormDefault="unqualified" elementFormDefault="qualified">
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+            attributeFormDefault="unqualified" elementFormDefault="qualified">
 
   <!-- ============================================================= -->
   <!-- Base DFDL Data types -->
@@ -83,8 +83,12 @@
   </xsd:simpleType>
 
   <xsd:simpleType name="NonEmptyStringLiteral">
+    <xsd:annotation>
+      <xsd:documentation>Matches a non-empty string only. No toleration of
+        whitespace in the string.</xsd:documentation>
+    </xsd:annotation>
     <xsd:restriction base="xsd:string">
-      <xsd:minLength value="1"/>
+      <xsd:pattern value="\S+"/>
     </xsd:restriction>
   </xsd:simpleType>
 

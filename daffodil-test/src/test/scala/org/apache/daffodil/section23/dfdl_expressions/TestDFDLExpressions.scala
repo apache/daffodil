@@ -47,15 +47,16 @@ object TestDFDLExpressions {
   val runner7 = Runner(testDir, "expressions2.tdml", compileAllTopLevel = true)
 
   @AfterClass def shutDown() {
-    runner4.reset
     runner.reset
     runnerNV.reset
-    runner_fun.reset
     runner2.reset
     runner2_utf8.reset
     runner2b.reset
     runner3.reset
+    runner4.reset
+    runner_fun.reset
     runner5.reset
+    runner6.reset
     runner7.reset
   }
 }

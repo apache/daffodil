@@ -18,11 +18,15 @@
 package org.apache.daffodil
 
 import org.apache.daffodil.tdml.Runner
-import org.junit.Test
+import org.junit.{ AfterClass, Test }
 
 object TestNilled {
   val testDir = "/test-suite/tresys-contributed/"
   lazy val runner = Runner(testDir, "nilled.tdml")
+
+  @AfterClass def shutDown {
+    runner.reset
+  }
 }
 
 class TestNilled {

@@ -176,6 +176,7 @@
     <sequence dfdl:initiator="{{" dfdl:terminator="}"> <!-- {{ begins with { but is self escaping -->
       <annotation>
         <appinfo source="http://www.ogf.org/dfdl/">
+          <dfdl:newVariableInstance ref="tns:myVar1" defaultValue="7" />
           <dfdl:sequence separatorPosition="infix" />
         </appinfo>
       </annotation>
@@ -249,10 +250,7 @@
     <annotation>
       <appinfo source="http://www.ogf.org/dfdl/">
         <dfdl:element nilKind="literalValue" />
-       <!--  Gives a not yet implemented, so commented out.
-       <dfdl:newVariableInstance ref="tns:myVar1"
-          defaultValue="7" /> -->
-          <dfdl:assert>{ fn:true() }</dfdl:assert>
+        <dfdl:assert>{ fn:true() }</dfdl:assert>
       </appinfo>
     </annotation>
   </element>

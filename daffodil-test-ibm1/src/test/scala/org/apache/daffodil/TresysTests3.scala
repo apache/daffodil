@@ -18,7 +18,7 @@
 package org.apache.daffodil
 
 import org.apache.daffodil.tdml.Runner
-import org.junit.Test
+import org.junit.{ AfterClass, Test }
 
 object TresysTests3 {
   val testDir = "/test-suite/tresys-contributed/"
@@ -36,6 +36,15 @@ object TresysTests3 {
 
   lazy val runnerBC = Runner(testDir, "BC.tdml")
   lazy val runnerBD = Runner(testDir, "BD.tdml")
+
+  @AfterClass def shutDown {
+    runnerBF.reset
+    runnerAH.reset
+    runnerAM.reset
+    runnerAU.reset
+    runnerBC.reset
+    runnerBD.reset
+  }
 }
 
 class TresysTests3 {
