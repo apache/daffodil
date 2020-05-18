@@ -28,6 +28,7 @@ object TestUserSubmittedTests {
 
   @AfterClass def shutDown {
     runner.reset
+    runner2.reset
   }
 
 }

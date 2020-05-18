@@ -4455,7 +4455,15 @@
     </xs:element>    
 
     <!-- intentional invalid " " for textStringPadCharacter -->
-    <xs:element name="string11" dfdl:textStringPadCharacter=" " dfdl:lengthKind="delimited" type="xs:string" />
+    <xs:element name="string11" dfdl:lengthKind="delimited" type="xs:string">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
+          <dfdl:element>
+            <dfdl:property name="textStringPadCharacter"><![CDATA[ ]]></dfdl:property>
+          </dfdl:element>
+        </xs:appinfo>
+      </xs:annotation>
+    </xs:element>
     <!-- intentional invalid "%" for textStringPadCharacter -->
     <xs:element name="string12" dfdl:textStringPadCharacter="%" dfdl:lengthKind="delimited" type="xs:string" />
 

@@ -27,16 +27,7 @@ import org.junit.Test
 import org.apache.daffodil.Implicits._
 import org.junit.AfterClass
 
-object TestTDMLRunner2 {
-  val runner = Runner("/test/tdml/", "tdmlQuoting.tdml")
-
-  @AfterClass def shutDown {
-    runner.reset
-  }
-}
-
 class TestTDMLRunner2 {
-  import TestTDMLRunner2._
 
   val tdml = XMLUtils.TDML_NAMESPACE
   val dfdl = XMLUtils.DFDL_NAMESPACE
@@ -93,10 +84,11 @@ class TestTDMLRunner2 {
         </tdml:parserTestCase>
       </tdml:testSuite>
 
-    lazy val ts = new DFDLTestSuite(testSuite)
+    val runner = Runner(testSuite)
     val e = intercept[Exception] {
-      ts.runOneTest("testValidation")
+      runner.runOneTest("testValidation")
     }
+    runner.reset
     val msg = e.getMessage()
     if (!msg.contains("Test case invalid")) {
       println(msg)
@@ -152,8 +144,9 @@ class TestTDMLRunner2 {
         </tdml:parserTestCase>
       </tdml:testSuite>
 
-    lazy val ts = new DFDLTestSuite(testSuite)
-    ts.runOneTest("testValidation")
+    val runner = Runner(testSuite)
+    runner.runOneTest("testValidation")
+    runner.reset
   }
 
   /**
@@ -200,8 +193,9 @@ class TestTDMLRunner2 {
         </tdml:parserTestCase>
       </tdml:testSuite>
 
-    lazy val ts = new DFDLTestSuite(testSuite)
-    ts.runOneTest("testValidation")
+    val runner = Runner(testSuite)
+    runner.runOneTest("testValidation")
+    runner.reset
   }
 
   /**
@@ -249,10 +243,11 @@ class TestTDMLRunner2 {
         </tdml:parserTestCase>
       </tdml:testSuite>
 
-    lazy val ts = new DFDLTestSuite(testSuite)
+    val runner = Runner(testSuite)
     val e = intercept[Exception] {
-      ts.runOneTest("testValidation")
+      runner.runOneTest("testValidation")
     }
+    runner.reset
     val msg = e.getMessage()
     assertTrue(msg.contains("Validation errors found where none were expected"))
   }
@@ -303,8 +298,9 @@ abc # a comment
         </tdml:parserTestCase>
       </tdml:testSuite>
 
-    lazy val ts = new DFDLTestSuite(testSuite)
-    ts.runOneTest("testRegex")
+    val runner = Runner(testSuite)
+    runner.runOneTest("testRegex")
+    runner.reset
   }
 
   @Test def testRegexWithFreeFormAndComments2() = {
@@ -334,8 +330,9 @@ abc # a comment
         </tdml:parserTestCase>
       </tdml:testSuite>
 
-    lazy val ts = new DFDLTestSuite(testSuite)
-    ts.runOneTest("testRegex")
+    val runner = Runner(testSuite)
+    runner.runOneTest("testRegex")
+    runner.reset
   }
 
   /**
@@ -345,7 +342,6 @@ abc # a comment
    *
    */
   @Test def testRegexWithFreeFormAndComments3() = {
-
     val testSuite =
       <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
         <tdml:defineSchema name="mySchema">
@@ -371,8 +367,10 @@ abc # a comment
           </tdml:infoset>
         </tdml:parserTestCase>
       </tdml:testSuite>
-    val ts = new DFDLTestSuite(testSuite)
-    ts.runOneTest("testRegex")
+
+    val runner = Runner(testSuite)
+    runner.runOneTest("testRegex")
+    runner.reset
   }
 
   @Test def testRegexWithFreeFormAndComments4() = {
@@ -405,8 +403,10 @@ abc # a comment
           </tdml:errors>
         </tdml:parserTestCase>
       </tdml:testSuite>
-    val ts = new DFDLTestSuite(testSuite)
-    ts.runOneTest("testRegex")
+
+    val runner = Runner(testSuite)
+    runner.runOneTest("testRegex")
+    runner.reset
   }
 
   @Test def testComplexDocument() = {
@@ -424,11 +424,28 @@ abc # a comment
   }
 
   @Test def testTDMLWithInvalidDFDLSchemaEmbedded() = {
+    val testSuite =
+      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xs={ xsd }>
+        <!-- This embedded schema has validation errors. -->
+        <tdml:defineSchema name="mySchema">
+          <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+          <xs:format ref="tns:GeneralFormat" />
+          <xs:element name="data" type="fn:string" dfdl:lengthKind="delimited" />
+        </tdml:defineSchema>
+        <tdml:parserTestCase name="test1" root="data" model="mySchema">
+          <tdml:document>
+            <tdml:documentPart type="text"><![CDATA[abcdef]]></tdml:documentPart>
+          </tdml:document>
+          <tdml:errors>
+            <tdml:error>resolve</tdml:error>
+            <tdml:error>fn:string</tdml:error>
+          </tdml:errors>
+        </tdml:parserTestCase>
+      </tdml:testSuite>
 
-    val testDir = ""
-    val aa = testDir + "tdml-with-embedded-schema-errors.tdml"
-    lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa), validateTDMLFile = false, validateDFDLSchemas = true)
+    val runner = Runner(testSuite, validateTDMLFile = false)
     runner.runOneTest("test1")
+    runner.reset
   }
 
   @Test def testTDMLUnparse() {
@@ -447,12 +464,16 @@ abc # a comment
                         <ts:document>123456789</ts:document>
                       </ts:unparserTestCase>
                     </ts:testSuite>
-    lazy val ts = new DFDLTestSuite(testSuite)
-    ts.runOneTest("testTDMLUnparse")
+
+    val runner = Runner(testSuite)
+    runner.runOneTest("testTDMLUnparse")
+    runner.reset
   }
 
   @Test def test_quote_test1() = {
+    val runner = Runner("/test/tdml/", "tdmlQuoting.tdml")
     runner.runOneTest("quote_test1")
+    runner.reset
   }
 
   val tdmlWithEmbeddedSchema =
@@ -481,7 +502,7 @@ abc # a comment
         fw =>
           fw.write(testSuite.toString())
       }
-      lazy val ts = new DFDLTestSuite(new java.io.File(tmpTDMLFileName))
+      val ts = new DFDLTestSuite(new java.io.File(tmpTDMLFileName))
       ts.trace
       ts.runAllTests()
     } finally {

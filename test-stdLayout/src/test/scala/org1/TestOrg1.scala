@@ -27,6 +27,7 @@ object TestOrg1 {
 
   @AfterClass def shutDown {
     runner.reset
+    runner2.reset
   }
 }
 

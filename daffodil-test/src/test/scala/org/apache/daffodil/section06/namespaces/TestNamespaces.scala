@@ -35,6 +35,7 @@ object TestNamespaces {
 
   @AfterClass def shutDown {
     runner.reset
+    runnerV.reset
     runner2.reset
     runner3.reset
     runnerWithSchemaValidation.reset
