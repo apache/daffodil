@@ -908,4 +908,96 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
+  <tdml:defineSchema name="emptyInitiator">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" />
+
+    <xs:element name="zeroLengthString">
+      <xs:complexType>
+        <xs:sequence dfdl:initiatedContent="yes">
+          <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited" dfdl:initiator="" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="emptyEntity">
+      <xs:complexType>
+        <xs:sequence dfdl:initiatedContent="yes">
+          <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited" dfdl:initiator="%ES;"  />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="emptyOrWhitespaceEntity">
+      <xs:complexType>
+        <xs:sequence dfdl:initiatedContent="yes">
+          <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited" dfdl:initiator="%WSP*;" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="runtimeEvaluatedInitiator">
+      <xs:complexType>
+        <xs:sequence dfdl:initiatedContent="yes">
+          <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited" dfdl:initiator="{ if (fn:nilled(.)) then '%ES;' else '%WSP*;' }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="emptyInitiator1"
+                       model="emptyInitiator"
+                       description="An initiator that is '' causes an error"
+                       root="zeroLengthString">
+    <tdml:document><![CDATA[foo]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>initiatedContent</tdml:error>
+      <tdml:error>yes</tdml:error>
+      <tdml:error>initiator</tdml:error>
+      <tdml:error>not defined</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="emptyInitiator2"
+                       model="emptyInitiator"
+                       description="An initiator that is '%ES;' causes an error"
+                       root="emptyEntity">
+    <tdml:document><![CDATA[foo]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>initiatedContent</tdml:error>
+      <tdml:error>yes</tdml:error>
+      <tdml:error>initiator</tdml:error>
+      <tdml:error>zero</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="emptyInitiator3"
+                       model="emptyInitiator"
+                       description="An initiator that is '%WSP*;' causes an error"
+                       root="emptyOrWhitespaceEntity">
+    <tdml:document><![CDATA[foo]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>initiatedContent</tdml:error>
+      <tdml:error>yes</tdml:error>
+      <tdml:error>initiator</tdml:error>
+      <tdml:error>zero</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="emptyInitiator4"
+                       model="emptyInitiator"
+                       description="A runtime-evaluated initiator that matches zero-length data causes an error"
+                       root="runtimeEvaluatedInitiator">
+    <tdml:document><![CDATA[foo]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>initiatedContent</tdml:error>
+      <tdml:error>yes</tdml:error>
+      <tdml:error>initiator</tdml:error>
+      <tdml:error>zero</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
 </tdml:testSuite>

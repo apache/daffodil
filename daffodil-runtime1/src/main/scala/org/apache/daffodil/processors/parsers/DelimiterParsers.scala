@@ -42,7 +42,8 @@ class DelimiterTextParser(
   rd: TermRuntimeData,
   textParser: TextParser,
   delimiterType: DelimiterTextType.Type,
-  isDelimited: Boolean)
+  isDelimited: Boolean,
+  mustMatchNonZeroData: Boolean)
   extends TextPrimParser {
 
   override lazy val runtimeDependencies = rd.encodingInfo.runtimeDependencies
@@ -95,8 +96,12 @@ class DelimiterTextParser(
         return
       }
 
-      // Consume the found local delimiter
+      // Consume the found local delimiter but also check if it was supposed to match
+      // a non-zero number of bits and throw a runtime SDE if necessary
       val nChars = foundDelimiter.get.matchedDelimiterValue.get.length
+      if (mustMatchNonZeroData && nChars == 0) {
+        start.SDE("The initiator must match non-zero length data when dfdl:initiatedContent is 'yes'.")
+      }
       val wasDelimiterTextSkipped = start.dataInputStream.skipChars(nChars, start)
       Assert.invariant(wasDelimiterTextSkipped)
       start.clearDelimitedParseResult()

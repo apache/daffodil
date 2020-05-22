@@ -44,13 +44,29 @@ trait InitiatedTerminatedMixin
    * True if the term has an initiator expressed on it.
    *
    * Do not confuse with the concept of the delimiter being able to match or not match zero-length data.
-   * Whether the representation of a term in the data stream "has an initiator", as in the initator
+   * Whether the representation of a term in the data stream "has an initiator", as in the initiator
    * occupies a non-zero number of bits in the data stream, is an entirely different question.
    */
   lazy val hasInitiator = {
-    val hasOne = initiatorExpr.isKnownNonEmpty
+    val hasOne = !initiatorExpr.isConstantEmptyString
     hasOne
   }
+
+  /**
+   * True if the term's initiator cannot match zero-length data. This answers the entirely different
+   * question of whether the initiator occupies a non-zero number of bits in the data stream.
+   */
+  lazy val hasNonZeroLengthInitiator = {
+    val hasOne = !initiatorExpr.isKnownCanMatchEmptyString
+    hasOne
+  }
+
+  /**
+   * True if the term is inside an immediately enclosing model group which has the initiatedContent
+   * property set to "yes". This tells us whether we need to verify that a runtime expression defining
+   * the initiator matches a non-zero number of bits in the data stream.
+   */
+  lazy val mustMatchNonZeroData = parentSaysInitiatedContent
 
   /**
    * True if the term has a terminator expressed on it.
@@ -60,8 +76,8 @@ trait InitiatedTerminatedMixin
    * occupies a non-zero number of bits, is an entirely different question.
    */
   lazy val hasTerminator = {
-    val res = terminatorExpr.isKnownNonEmpty
-    res
+    val hasOne = !terminatorExpr.isConstantEmptyString
+    hasOne
   }
 
   private lazy val isInitiatedContentChoice: Boolean = {

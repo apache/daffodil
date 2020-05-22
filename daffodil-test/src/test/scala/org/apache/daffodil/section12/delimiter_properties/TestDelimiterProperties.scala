@@ -79,4 +79,9 @@ class TestDelimiterProperties {
   @Test def test_percentTerminator() = { runner_02.runOneTest("percentTerminator") }
   @Test def test_percentTerminator2() = { runner_02.runOneTest("percentTerminator2") }
   @Test def test_percentExpression() = { runner_02.runOneTest("percentExpression") }
+
+  @Test def test_emptyInitiator1() = { runner_02.runOneTest("emptyInitiator1") }
+  @Test def test_emptyInitiator2() = { runner_02.runOneTest("emptyInitiator2") }
+  @Test def test_emptyInitiator3() = { runner_02.runOneTest("emptyInitiator3") }
+  @Test def test_emptyInitiator4() = { runner_02.runOneTest("emptyInitiator4") }
 }

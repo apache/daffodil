@@ -181,7 +181,7 @@ trait SequenceGrammarMixin
    * Whether the representation of a term in the data stream "has a separator", as in a specific separator
    * occupies a non-zero number of bits, is an entirely different question.
    */
-  lazy val hasSeparator = separatorParseEv.isKnownNonEmpty
+  lazy val hasSeparator = !separatorParseEv.isConstantEmptyString
 
   lazy val sequenceSeparator = prod("separator", hasSeparator) {
     delimMTA ~ SequenceSeparator(this)
