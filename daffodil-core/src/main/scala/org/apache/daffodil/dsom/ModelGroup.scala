@@ -354,8 +354,13 @@ abstract class ModelGroup(index: Int)
 
   lazy val initiatedContentCheck: Unit = {
     if (initiatedContent eq YesNo.Yes) {
-      groupMembers.foreach { term =>
-        term.schemaDefinitionUnless(term.hasInitiator, "Enclosing group has initiatedContent='yes', but initiator is not defined.")
+      groupMembers.foreach {
+        term => {
+          term.schemaDefinitionUnless(term.hasInitiator,
+            "Enclosing group has initiatedContent='yes', but initiator is not defined.")
+          term.schemaDefinitionUnless(term.hasNonZeroLengthInitiator,
+            "Enclosing group has initiatedContent='yes', but initiator can match zero-length data.")
+        }
       }
     }
   }

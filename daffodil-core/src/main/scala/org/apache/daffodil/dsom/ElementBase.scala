@@ -686,8 +686,8 @@ trait ElementBase
   private def NVDP = NilValueDelimiterPolicy
   private def EVDP = EmptyValueDelimiterPolicy
 
-  protected final lazy val hasNilValueInitiator = initTermTestExpression(initiatorParseEv, nilValueDelimiterPolicy, NVDP.Both, NVDP.Initiator)
-  protected final lazy val hasNilValueTerminator = initTermTestExpression(terminatorParseEv, nilValueDelimiterPolicy, NVDP.Both, NVDP.Terminator)
+  protected final lazy val hasNilValueInitiator = hasNonEmptyDelimiter(initiatorParseEv, nilValueDelimiterPolicy, NVDP.Both, NVDP.Initiator)
+  protected final lazy val hasNilValueTerminator = hasNonEmptyDelimiter(terminatorParseEv, nilValueDelimiterPolicy, NVDP.Both, NVDP.Terminator)
 
   /**
    * We need the nil values in raw form for diagnostic messages.
@@ -729,19 +729,19 @@ trait ElementBase
       // cause a nil value to be created.
       (isDefinedNilValue && (isSimpleType && (simpleType.primType =:= PrimType.String || simpleType.primType =:= PrimType.HexBinary) && !hasESNilValue)))
 
-  final lazy val hasEmptyValueInitiator = initTermTestExpression(initiatorParseEv, emptyValueDelimiterPolicy, EVDP.Both, EVDP.Initiator)
-  final lazy val hasEmptyValueTerminator = initTermTestExpression(terminatorParseEv, emptyValueDelimiterPolicy, EVDP.Both, EVDP.Terminator)
+  final lazy val hasEmptyValueInitiator = hasNonEmptyDelimiter(initiatorParseEv, emptyValueDelimiterPolicy, EVDP.Both, EVDP.Initiator)
+  final lazy val hasEmptyValueTerminator = hasNonEmptyDelimiter(terminatorParseEv, emptyValueDelimiterPolicy, EVDP.Both, EVDP.Terminator)
 
   // See how this function takes the prop: => Any that is pass by name (aka lazy pass).
   // That allows us to not require the property to exist at all if
-  // expr.isKnownNotEmpty turns out to be false.
-  private def initTermTestExpression(expr: DelimiterParseEv, prop: => Any, true1: Any, true2: Any): Boolean = {
+  // expr.isConstantEmptyString turns out to be true.
+  private def hasNonEmptyDelimiter(expr: DelimiterParseEv, prop: => Any, true1: Any, true2: Any): Boolean = {
     // changed from a match on a 2-tuple to if-then-else logic because we don't even want to ask for
-    // prop's value at all unless the first test is true.
-    if (expr.isKnownNonEmpty)
-      if (prop == true1 || prop == true2) true
-      else false
-    else false
+    // prop's value at all unless the first test is false.
+    if (expr.isConstantEmptyString)
+      false
+    else
+      prop == true1 || prop == true2
   }
 
   /**

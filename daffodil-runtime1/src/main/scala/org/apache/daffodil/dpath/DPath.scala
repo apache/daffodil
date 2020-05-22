@@ -80,8 +80,8 @@ final class RuntimeExpressionDPath[T <: AnyRef](qn: NamedQName, tt: NodeInfo.Kin
 
   override def targetType = tt
 
-  // TODO: fix this check below. There is a unierse of target types which is
-  // muuch smaller than the set of all types, so some check is useful to be sure
+  // TODO: fix this check below. There is a universe of target types which is
+  // much smaller than the set of all types, so some check is useful to be sure
   // we stay within the subset of types that are actually used as target types.
   //  Assert.usage(targetType == NodeInfo.AnyType // used by debugger eval stmt
   //    || targetType == NodeInfo.NonEmptyString // string-valued properties
@@ -92,8 +92,6 @@ final class RuntimeExpressionDPath[T <: AnyRef](qn: NamedQName, tt: NodeInfo.Kin
   //    , "not an accepted targetType")
 
   override lazy val prettyExpr = dpathText
-
-  def isKnownNonEmpty = true // expressions are not allowed to return empty string
 
   private def UE(e: Throwable, maybeCL: Maybe[DataLocation]) =
     throw new UnparseError(One(ci.schemaFileLocation), maybeCL, e)

@@ -30,13 +30,13 @@ import org.apache.daffodil.util.Misc
 import org.apache.daffodil.xml.XMLUtils
 
 case class DelimiterStackCombinatorSequence(sq: SequenceTermBase, body: Gram) extends Terminal(sq, !body.isEmpty) {
-  lazy val pInit = if (sq.initiatorParseEv.isKnownNonEmpty) One(sq.initiatorParseEv) else Nope
-  lazy val pSep = if (sq.hasSeparator && sq.separatorParseEv.isKnownNonEmpty) One(sq.separatorParseEv) else Nope
-  lazy val pTerm = if (sq.terminatorParseEv.isKnownNonEmpty) One(sq.terminatorParseEv) else Nope
+  lazy val pInit = if (sq.initiatorParseEv.isConstantEmptyString) Nope else One(sq.initiatorParseEv)
+  lazy val pSep = if (sq.hasSeparator && !sq.separatorParseEv.isConstantEmptyString) One(sq.separatorParseEv) else Nope
+  lazy val pTerm = if (sq.terminatorParseEv.isConstantEmptyString) Nope else One(sq.terminatorParseEv)
 
-  lazy val uInit = if (sq.initiatorParseEv.isKnownNonEmpty) One(sq.initiatorUnparseEv) else Nope
-  lazy val uSep = if (sq.hasSeparator && sq.separatorParseEv.isKnownNonEmpty) One(sq.separatorUnparseEv) else Nope
-  lazy val uTerm = if (sq.terminatorParseEv.isKnownNonEmpty) One(sq.terminatorUnparseEv) else Nope
+  lazy val uInit = if (sq.initiatorParseEv.isConstantEmptyString) Nope else One(sq.initiatorUnparseEv)
+  lazy val uSep = if (sq.hasSeparator && !sq.separatorParseEv.isConstantEmptyString) One(sq.separatorUnparseEv) else Nope
+  lazy val uTerm = if (sq.terminatorParseEv.isConstantEmptyString) Nope else One(sq.terminatorUnparseEv)
 
   lazy val parser: DaffodilParser = new DelimiterStackParser((pInit.toList ++ pSep.toList ++ pTerm.toList).toArray, sq.runtimeData, body.parser)
 
@@ -44,11 +44,11 @@ case class DelimiterStackCombinatorSequence(sq: SequenceTermBase, body: Gram) ex
 }
 
 case class DelimiterStackCombinatorChoice(ch: ChoiceTermBase, body: Gram) extends Terminal(ch, !body.isEmpty) {
-  lazy val pInit = if (ch.initiatorParseEv.isKnownNonEmpty) One(ch.initiatorParseEv) else Nope
-  lazy val pTerm = if (ch.terminatorParseEv.isKnownNonEmpty) One(ch.terminatorParseEv) else Nope
+  lazy val pInit = if (ch.initiatorParseEv.isConstantEmptyString) Nope else One(ch.initiatorParseEv)
+  lazy val pTerm = if (ch.terminatorParseEv.isConstantEmptyString) Nope else One(ch.terminatorParseEv)
 
-  lazy val uInit = if (ch.initiatorParseEv.isKnownNonEmpty) One(ch.initiatorUnparseEv) else Nope
-  lazy val uTerm = if (ch.terminatorParseEv.isKnownNonEmpty) One(ch.terminatorUnparseEv) else Nope
+  lazy val uInit = if (ch.initiatorParseEv.isConstantEmptyString) Nope else One(ch.initiatorUnparseEv)
+  lazy val uTerm = if (ch.terminatorParseEv.isConstantEmptyString) Nope else One(ch.terminatorUnparseEv)
 
   lazy val parser: DaffodilParser = new DelimiterStackParser((pInit.toList ++ pTerm.toList).toArray, ch.runtimeData, body.parser)
 
@@ -56,11 +56,11 @@ case class DelimiterStackCombinatorChoice(ch: ChoiceTermBase, body: Gram) extend
 }
 
 case class DelimiterStackCombinatorElement(e: ElementBase, body: Gram) extends Terminal(e, !body.isEmpty) {
-  lazy val pInit = if (e.initiatorParseEv.isKnownNonEmpty) One(e.initiatorParseEv) else Nope
-  lazy val pTerm = if (e.terminatorParseEv.isKnownNonEmpty) One(e.terminatorParseEv) else Nope
+  lazy val pInit = if (e.initiatorParseEv.isConstantEmptyString) Nope else One(e.initiatorParseEv)
+  lazy val pTerm = if (e.terminatorParseEv.isConstantEmptyString) Nope else One(e.terminatorParseEv)
 
-  lazy val uInit = if (e.initiatorParseEv.isKnownNonEmpty) One(e.initiatorUnparseEv) else Nope
-  lazy val uTerm = if (e.terminatorParseEv.isKnownNonEmpty) One(e.terminatorUnparseEv) else Nope
+  lazy val uInit = if (e.initiatorParseEv.isConstantEmptyString) Nope else One(e.initiatorUnparseEv)
+  lazy val uTerm = if (e.terminatorParseEv.isConstantEmptyString) Nope else One(e.terminatorUnparseEv)
 
   lazy val delims = (pInit.toList ++ pTerm.toList)
 

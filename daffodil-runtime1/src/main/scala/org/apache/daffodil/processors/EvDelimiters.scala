@@ -33,7 +33,7 @@ import org.apache.daffodil.processors.parsers.PState
 trait DelimiterEvMixin[+T <: AnyRef]
   extends ExprEvalMixin[String] { self: Evaluatable[T] =>
 
-  final def isKnownNonEmpty = expr.isKnownNonEmpty
+  final def isConstantEmptyString = expr.isConstantEmptyString
 
   def expr: CompiledExpression[String]
   def converter: Converter[String, List[String]]

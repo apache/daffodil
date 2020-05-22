@@ -68,10 +68,10 @@ trait ContentValueReferencedElementInfoMixin {
  */
 abstract class CompiledExpression[+T <: AnyRef](
   val qName: NamedQName,
-  valueForDebugPrinting: AnyRef)
+  value: AnyRef)
   extends ContentValueReferencedElementInfoMixin with Serializable {
 
-  DataValue.assertValueIsNotDataValue(valueForDebugPrinting)
+  DataValue.assertValueIsNotDataValue(value)
 
   final def toBriefXML(depth: Int = -1) = {
     "'" + prettyExpr + "'"
@@ -83,17 +83,19 @@ abstract class CompiledExpression[+T <: AnyRef](
    * particularly for `Array[Byte]`. It prints a useless thing like "[@0909280".
    * Use of `stringOf` prints "Array(....)".
    */
-  lazy val prettyExpr = stringOf(valueForDebugPrinting)
+  lazy val prettyExpr = stringOf(value)
 
   /**
-   * tells us if the property is non-empty. This is true if it is a constant non-empty expression
-   * (that is, is not ""), but it is also true if it is evaluated as a runtime expression that it is
-   * not allowed to return "".
-   *
-   * Issue: are there properties which are string-valued, and where "" can in fact be returned at run time?
-   * Assumed no. This was clarified in an errata to the DFDL spec.
+   * Tells us if the expression is the constant empty string (that is, it is "").
    */
-  def isKnownNonEmpty: Boolean
+  final lazy val isConstantEmptyString = value == ""
+
+  /**
+   * Tells us if the expression can match the empty string. We know it can if the expression
+   * is a DFDL entity like %ES; or %WSP*. We do not know whether it can if it is a more
+   * complicated constant or runtime expression.
+   */
+  final lazy val isKnownCanMatchEmptyString = value == "%ES;" || value == "%WSP*;"
 
   /**
    * used to obtain a constant value.
@@ -124,7 +126,7 @@ abstract class CompiledExpression[+T <: AnyRef](
    */
   def evaluateForwardReferencing(state: ParseOrUnparseState, whereBlockedLocation: Suspension): Maybe[T]
 
-  override def toString(): String = "CompiledExpression(" + valueForDebugPrinting.toString + ")"
+  override def toString(): String = "CompiledExpression(" + value.toString + ")"
 
 }
 
@@ -142,8 +144,6 @@ final case class ConstantExpression[+T <: AnyRef](
   def targetType = kind
 
   lazy val sourceType: NodeInfo.Kind = NodeInfo.fromObject(value)
-
-  def isKnownNonEmpty = value != ""
 
   override def evaluate(state: ParseOrUnparseState) = value
 
