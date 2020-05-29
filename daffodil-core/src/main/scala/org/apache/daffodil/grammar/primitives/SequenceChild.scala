@@ -20,7 +20,6 @@ package org.apache.daffodil.grammar.primitives
 import org.apache.daffodil.grammar._
 import org.apache.daffodil.dsom._
 import org.apache.daffodil.processors.unparsers._
-import org.apache.daffodil.processors.parsers._
 import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.schema.annotation.props.gen.OccursCountKind
@@ -28,6 +27,7 @@ import org.apache.daffodil.schema.annotation.props.SeparatorSuppressionPolicy
 import org.apache.daffodil.schema.annotation.props.gen.LengthKind
 import org.apache.daffodil.schema.annotation.props.gen.Representation
 import org.apache.daffodil.processors.parsers._
+import org.apache.daffodil.runtime2.generators.CodeGeneratorState
 
 /**
  * A SequenceChild is exactly that, a child Term of a Sequence
@@ -467,6 +467,11 @@ class ScalarOrderedSequenceChild(sq: SequenceTermBase, term: Term, groupIndex: I
 
   private lazy val unsepScalarElementHelper: UnseparatedHelper = {
     new ScalarElementUnseparatedSequenceChildParseResultHelper(erd, eep, isEmptyRepZeroLength, isEmptyRepNonZeroLength)
+  }
+
+  override def generateCode(cgState: CodeGeneratorState) = {
+    val childGen = term.termContentBody.generateCode(cgState)
+    childGen
   }
 }
 

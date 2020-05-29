@@ -38,6 +38,7 @@ import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.externalvars.Binding
 import org.apache.daffodil.externalvars.ExternalVariablesLoader
 import org.apache.daffodil.processors.DataProcessor
+import org.apache.daffodil.runtime2.generators.CodeGeneratorState
 import org.apache.daffodil.util.LogLevel
 import org.apache.daffodil.util.Logging
 import org.apache.daffodil.util.Misc
@@ -119,6 +120,10 @@ final class ProcessorFactory private(
   def withDistinguishedRootNode(name: String, namespace: String) : ProcessorFactory = {
     Assert.usage(name ne null)
     copy(optRootSpec = RootSpec.makeRootSpec(Option(name), Option(namespace)))
+  }
+
+  final def generateCode(cgState: CodeGeneratorState): CodeGeneratorState = {
+    sset.root.document.generateCode(cgState)
   }
 }
 

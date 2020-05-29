@@ -38,6 +38,8 @@ import org.apache.daffodil.processors.unparsers.BinaryIntegerKnownLengthUnparser
 import org.apache.daffodil.processors.unparsers.BinaryIntegerRuntimeLengthUnparser
 import org.apache.daffodil.processors.unparsers.BinaryIntegerPrefixedLengthUnparser
 import org.apache.daffodil.processors.unparsers.Unparser
+import org.apache.daffodil.runtime2.generators.BinaryIntegerKnownLengthParserGenerator
+import org.apache.daffodil.runtime2.generators.CodeGeneratorState
 import org.apache.daffodil.util.MaybeInt
 
 class BinaryIntegerRuntimeLength(val e: ElementBase, signed: Boolean) extends Terminal(e, true) {
@@ -54,6 +56,20 @@ class BinaryIntegerKnownLength(val e: ElementBase, signed: Boolean, lengthInBits
   }
 
   override lazy val unparser: Unparser = new BinaryIntegerKnownLengthUnparser(e.elementRuntimeData, signed, lengthInBits.toInt)
+
+    override def generateCode(cgState: CodeGeneratorState): CodeGeneratorState = {
+      val isSigned = e.primType.isSubtypeOf(NodeInfo.SignedNumeric)
+      val generator = new BinaryIntegerKnownLengthParserGenerator(
+        e,
+        isSigned,
+        e.elementLengthInBitsEv,
+        e.alignmentValueInBits.intValue(),
+        e.byteOrderEv,
+        e.bitOrder,
+        e.name)
+      val code = generator.generateCode(cgState)
+      code
+    }
 }
 
 class BinaryIntegerPrefixedLength(val e: ElementBase, signed: Boolean) extends Terminal(e, true) {

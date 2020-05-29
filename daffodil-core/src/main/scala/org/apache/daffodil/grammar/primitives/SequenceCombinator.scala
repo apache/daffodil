@@ -24,6 +24,7 @@ import org.apache.daffodil.processors.parsers._
 import org.apache.daffodil.schema.annotation.props.SeparatorSuppressionPolicy
 import org.apache.daffodil.processors.unparsers._
 import org.apache.daffodil.util.Misc
+import org.apache.daffodil.runtime2.generators.CodeGeneratorState
 
 /**
  * Base class for all kinds of sequences.
@@ -91,6 +92,16 @@ class OrderedSequence(sq: SequenceTermBase, sequenceChildrenArg: Seq[SequenceChi
       }
     }
   }
+
+  override def generateCode(cgState: CodeGeneratorState) = {
+    //
+    // To lift this draconian restriction, we have to
+    // generate code for each of the children, and combine them into a block
+    //
+    sq.schemaDefinitionUnless(sequenceChildren.length == 1, "Only a single child of a sequence is supported.")
+    val child1 = sequenceChildren(0)
+    child1.generateCode(cgState)
+  }
 }
 
 class UnorderedSequence(sq: SequenceTermBase, sequenceChildrenArg: Seq[SequenceChild], alternatives: Seq[Gram])
@@ -104,9 +115,7 @@ class UnorderedSequence(sq: SequenceTermBase, sequenceChildrenArg: Seq[SequenceC
 
   private lazy val sequenceChildren = sequenceChildrenArg.toVector
 
-
   private lazy val parsers = alternatives.map(_.parser)
-
 
   override lazy val parser: Parser = {
 

@@ -26,6 +26,7 @@ import org.apache.daffodil.api.WarnID
 import org.apache.daffodil.runtime1.GramRuntime1Mixin
 import org.apache.daffodil.BasicComponent
 import org.apache.daffodil.dsom.Term
+import org.apache.daffodil.runtime2.GramRuntime2Mixin
 
 /**
  * Gram - short for "Grammar Term"
@@ -51,7 +52,8 @@ import org.apache.daffodil.dsom.Term
 abstract class Gram(contextArg: SchemaComponent)
   extends OOLAGHostImpl(contextArg)
   with BasicComponent
-  with GramRuntime1Mixin {
+  with GramRuntime1Mixin
+  with GramRuntime2Mixin {
 
   final override lazy val tunable = context.tunable
 
