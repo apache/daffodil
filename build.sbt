@@ -21,7 +21,7 @@ lazy val genSchemas = taskKey[Seq[File]]("Generated DFDL schemas")
 
 lazy val daffodil         = Project("daffodil", file(".")).configs(IntegrationTest)
                               .enablePlugins(JavaUnidocPlugin, ScalaUnidocPlugin)
-                              .aggregate(macroLib, propgen, lib, io, runtime1, runtime1Unparser, core, japi, sapi, tdmlLib, tdmlProc, cli, udf, test, testIBM1, tutorials, testStdLayout)
+                              .aggregate(macroLib, propgen, lib, io, runtime1, runtime1Unparser, codegen, core, japi, sapi, tdmlLib, tdmlProc, cli, udf, test, testIBM1, tutorials, testStdLayout)
                               .settings(commonSettings, nopublish, ratSettings, unidocSettings)
 
 lazy val macroLib         = Project("daffodil-macro-lib", file("daffodil-macro-lib")).configs(IntegrationTest)
@@ -42,13 +42,23 @@ lazy val io               = Project("daffodil-io", file("daffodil-io")).configs(
 lazy val runtime1         = Project("daffodil-runtime1", file("daffodil-runtime1")).configs(IntegrationTest)
                               .dependsOn(io, lib % "test->test", udf, macroLib % "compile-internal, test-internal")
                               .settings(commonSettings, usesMacros)
+                              .settings(libraryDependencies += "com.fasterxml.jackson.core" % "jackson-annotations" % "2.9.8")
+
+lazy val runtime2         = Project("daffodil-runtime2", file("daffodil-runtime2")).configs(IntegrationTest)
+                              .dependsOn(io, lib % "test->test")
+                              .settings(commonSettings)
+                              .settings(publishArtifact in (Compile, packageDoc) := false)
 
 lazy val runtime1Unparser = Project("daffodil-runtime1-unparser", file("daffodil-runtime1-unparser")).configs(IntegrationTest)
                               .dependsOn(runtime1, lib % "test->test", runtime1 % "test->test")
                               .settings(commonSettings)
 
+// Code generation library by J. Feinauer - used for Runtime 2.
+lazy val codegen          = Project("daffodil-codegen", file("daffodil-codegen")).configs(IntegrationTest)
+                              .settings(commonSettings)
+
 lazy val core             = Project("daffodil-core", file("daffodil-core")).configs(IntegrationTest)
-                              .dependsOn(runtime1Unparser, udf, lib % "test->test", runtime1 % "test->test")
+                              .dependsOn(runtime1Unparser, udf, lib % "test->test", runtime1 % "test->test", codegen) // , runtime2,  runtime2 % "test->test")
                               .settings(commonSettings)
 
 lazy val japi             = Project("daffodil-japi", file("daffodil-japi")).configs(IntegrationTest)
