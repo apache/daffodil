@@ -38,6 +38,7 @@ import org.apache.daffodil.processors.unparsers.NewVariableInstanceStartUnparser
 import org.apache.daffodil.compiler.ForParser
 import org.apache.daffodil.schema.annotation.props.PropertyLookupResult
 import org.apache.daffodil.schema.annotation.props.Found
+import org.apache.daffodil.schema.annotation.props.gen.FailureType
 import org.apache.daffodil.dsom.ExpressionCompilers
 import org.apache.daffodil.dsom.DFDLSetVariable
 import org.apache.daffodil.dsom.DFDLNewVariableInstance
@@ -59,7 +60,8 @@ abstract class AssertBase(
   scWherePropertyWasLocated: AnnotatedSchemaComponent,
   msgOpt: Option[String],
   discrim: Boolean, // are we a discriminator or not.
-  assertKindName: String)
+  assertKindName: String,
+  failureType: FailureType)
   extends ExpressionEvaluatorBase(scWherePropertyWasLocated) {
 
   def this(
@@ -67,8 +69,9 @@ abstract class AssertBase(
     foundProp: Found,
     msgOpt: Option[String],
     discrim: Boolean, // are we a discriminator or not.
-    assertKindName: String) =
-    this(decl, foundProp.value, foundProp.location.namespaces, decl, msgOpt, discrim, assertKindName)
+    assertKindName: String,
+    failureType: FailureType) =
+    this(decl, foundProp.value, foundProp.location.namespaces, decl, msgOpt, discrim, assertKindName, failureType)
 
   override val baseName = assertKindName
   override lazy val exprText = exprWithBraces
@@ -88,7 +91,7 @@ abstract class AssertBase(
     }
   }
 
-  lazy val parser: DaffodilParser = new AssertExpressionEvaluationParser(msgExpr, discrim, decl.runtimeData, expr)
+  lazy val parser: DaffodilParser = new AssertExpressionEvaluationParser(msgExpr, discrim, decl.runtimeData, expr, failureType)
 
   override def unparser: DaffodilUnparser = hasNoUnparser
 
@@ -98,7 +101,7 @@ abstract class AssertBooleanPrimBase(
   decl: AnnotatedSchemaComponent,
   stmt: DFDLAssertionBase,
   discrim: Boolean, // are we a discriminator or not.
-  assertKindName: String) extends AssertBase(decl, Found(stmt.testTxt, stmt, "test", false), stmt.messageAttrib, discrim, assertKindName)
+  assertKindName: String) extends AssertBase(decl, Found(stmt.testTxt, stmt, "test", false), stmt.messageAttrib, discrim, assertKindName, stmt.failureType)
 
 case class AssertBooleanPrim(
   decl: AnnotatedSchemaComponent,
@@ -302,7 +305,7 @@ abstract class AssertPatternPrimBase(decl: Term, stmt: DFDLAssertionBase, discri
 
   override val forWhat = ForParser
 
-  lazy val parser: DaffodilParser = new AssertPatternParser(decl.termRuntimeData, discrim, testPattern, msgExpr)
+  lazy val parser: DaffodilParser = new AssertPatternParser(decl.termRuntimeData, discrim, testPattern, msgExpr, stmt.failureType)
 
   override def unparser: DaffodilUnparser = Assert.invariantFailed("should not request unparser for asserts/discriminators")
 }

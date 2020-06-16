@@ -587,6 +587,13 @@
     </xsd:restriction>
   </xsd:simpleType>
   
+  <xsd:simpleType name="FailureTypeEnum">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="processingError" />
+      <xsd:enumeration value="recoverableError" />
+    </xsd:restriction>
+  </xsd:simpleType>
+
   <!-- A pattern is used instead of an enumeration for compactness -->
   <xsd:simpleType name="BinaryPackedSignCodes">
     <xsd:restriction base="dfdl:DFDLStringLiteral">

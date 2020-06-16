@@ -24,6 +24,7 @@ import org.apache.daffodil.dsom.SchemaDefinitionDiagnosticBase
 import org.apache.daffodil.processors._
 import org.apache.daffodil.util.LogLevel
 import org.apache.daffodil.util.OnStack
+import org.apache.daffodil.schema.annotation.props.gen.FailureType
 
 trait AssertMessageEvaluationMixin {
   def messageExpr: CompiledExpression[AnyRef]
@@ -53,7 +54,8 @@ class AssertPatternParser(
   override val context: TermRuntimeData,
   override val discrim: Boolean,
   testPattern: String,
-  override val messageExpr: CompiledExpression[AnyRef])
+  override val messageExpr: CompiledExpression[AnyRef],
+  failureType: FailureType)
   extends PrimParser
   with AssertMessageEvaluationMixin {
   override lazy val runtimeDependencies = Vector()
@@ -75,8 +77,11 @@ class AssertPatternParser(
       val isMatch = dis.lookingAt(m, start)
       if (!isMatch) {
         val message = getAssertFailureMessage(start)
-        val diag = new AssertionFailed(context.schemaFileLocation, start, message)
-        start.setFailed(diag)
+        if (failureType == FailureType.ProcessingError) {
+          val diag = new AssertionFailed(context.schemaFileLocation, start, message)
+          start.setFailed(diag)
+        } else
+          start.SDW(message)
       } else if (discrim) {
         // Only want to set the discriminator if there was a match.
         start.setDiscriminator(true)

@@ -190,6 +190,7 @@
     <xsd:attribute name="testKind" type="dfdl:TestKindEnum" />
     <xsd:attribute name="testPattern" type="dfdl:DFDLRegularExpression" />
     <xsd:attribute name="message" type="xsd:string" />
+    <xsd:attribute name="failureType" type="dfdl:FailureTypeEnum" />
   </xsd:attributeGroup>
 
   <xsd:complexType name="TestCondition">
