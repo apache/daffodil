@@ -33,6 +33,7 @@ import org.apache.daffodil.processors.Success
 import org.apache.daffodil.processors.TypeCalculator
 import org.apache.daffodil.processors.VariableRuntimeData
 import org.apache.daffodil.util.LogLevel
+import org.apache.daffodil.schema.annotation.props.gen.FailureType
 
 /**
  * Common parser base class for any parser that evaluates an expression.
@@ -175,7 +176,8 @@ class AssertExpressionEvaluationParser(
   override val messageExpr: CompiledExpression[String],
   override val discrim: Boolean, // are we a discriminator or not.
   decl: RuntimeData,
-  expr: CompiledExpression[AnyRef])
+  expr: CompiledExpression[AnyRef],
+  failureType: FailureType)
   extends ExpressionEvaluationParser(expr, decl)
   with AssertMessageEvaluationMixin {
 
@@ -209,8 +211,11 @@ class AssertExpressionEvaluationParser(
       start.setDiscriminator(discrim)
     } else {
       val message = getAssertFailureMessage(start)
-      val diag = new AssertionFailed(decl.schemaFileLocation, start, message)
-      start.setFailed(diag)
+      if (failureType == FailureType.ProcessingError) {
+        val diag = new AssertionFailed(decl.schemaFileLocation, start, message)
+        start.setFailed(diag)
+      } else
+        start.SDW("Assertion " + message)
     }
   }
 }

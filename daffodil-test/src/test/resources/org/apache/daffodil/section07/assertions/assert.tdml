@@ -76,6 +76,25 @@
       </xs:complexType>
     </xs:element>
 
+    <xs:element name="e3r"><!-- like e2, but assert uses a path to a
+        peer element and should just issue a warning -->
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="v" type="xs:int"
+            dfdl:inputValueCalc="{ 42 }" />
+          <xs:element name="a" type="xs:string"
+            dfdl:inputValueCalc="{ 'ok' }">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:assert failureType="recoverableError"><![CDATA[{ xs:int(../ex:v) ne 42 }]]></dfdl:assert>
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+
     <xs:element name="e4" type="xs:int" dfdl:lengthKind="delimited">
       <xs:annotation>
         <xs:appinfo source="http://www.ogf.org/dfdl/">
@@ -100,6 +119,17 @@
           <dfdl:assert testKind="pattern" testPattern="\d\d"
             message="Assertion failed for pattern '\d\d'" />
           <dfdl:assert testKind="pattern" testPattern="\d\d:"
+            message="Assertion failed for pattern '\d\d:'" />
+        </xs:appinfo>
+      </xs:annotation>
+    </xs:element>
+    <xs:element name="e6r" type="xs:int" dfdl:lengthKind="pattern"
+      dfdl:lengthPattern="\d\d" dfdl:terminator=": ,">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
+          <dfdl:assert testKind="pattern" testPattern="\d\d" failureType="recoverableError"
+            message="Assertion failed for pattern '\d\d'" />
+          <dfdl:assert testKind="pattern" testPattern="\d\d:" failureType="recoverableError"
             message="Assertion failed for pattern '\d\d:'" />
         </xs:appinfo>
       </xs:annotation>
@@ -355,6 +385,23 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
+  <tdml:parserTestCase name="assertFail2_recoverable" root="e3r"
+    model="s1" roundTrip="false"
+    description="Section 7 - negative test for assert expression - DFDL-7-043R">
+    <tdml:document />
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e3r>
+          <v>42</v>
+          <a>ok</a>
+        </e3r>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:warnings>
+      <tdml:warning>Assertion</tdml:warning>
+    </tdml:warnings>
+  </tdml:parserTestCase>
+
   <!--
     Test name: assertFailShowsValue
     Schema: s1
@@ -600,6 +647,28 @@
       <tdml:error>Assert</tdml:error>
       <tdml:error>pattern</tdml:error>
     </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: assertPatternFail2_recoverable
+    Schema: s1
+    Purpose: This document demonstrates the use of multiple pattern assertions
+    regarding a value in a document and should parse with a warning.
+  -->
+
+  <tdml:parserTestCase name="assertPatternFail2_recoverable"
+    root="e6r" model="s1" roundTrip="false"
+    description="Section 7 - assert pattern fail multiple assert - DFDL-7-053R">
+    <tdml:document>43,</tdml:document>
+    <tdml:warnings>
+      <tdml:warning>Assert</tdml:warning>
+      <tdml:warning>pattern</tdml:warning>
+    </tdml:warnings>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e6r>43</e6r>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
   <!--

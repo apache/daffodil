@@ -38,6 +38,7 @@ class TestAssertions {
   @Test def test_assertPass(): Unit = { runner.runOneTest("assertPass") }
   @Test def test_assertFail1(): Unit = { runner.runOneTest("assertFail1") }
   @Test def test_assertFail2(): Unit = { runner.runOneTest("assertFail2") }
+  @Test def test_assertFail2_recoverable(): Unit = { runner.runOneTest("assertFail2_recoverable") }
 
   // DAFFODIL-752
   //@Test def test_assertFailShowsValue() { runner.runOneTest("assertFailShowsValue") }
@@ -59,6 +60,7 @@ class TestAssertions {
   @Test def test_assertPatternPass2(): Unit = { runner.runOneTest("assertPatternPass2") }
   @Test def test_assertPatternPass3(): Unit = { runner.runOneTest("assertPatternPass3") }
   @Test def test_assertPatternFail2(): Unit = { runner.runOneTest("assertPatternFail2") }
+  @Test def test_assertPatternFail2_recoverable(): Unit = { runner.runOneTest("assertPatternFail2_recoverable") }
   @Test def test_assertPatternInitsTerms(): Unit = { runner.runOneTest("assertPatternInitsTerms") }
   @Test def test_assertOnSequence(): Unit = { runner.runOneTest("assertOnSequence") }
 

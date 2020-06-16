@@ -21,6 +21,7 @@ import scala.xml.Node
 import scala.xml.NodeSeq.seqToNodeSeq
 import org.apache.daffodil.exceptions._
 import org.apache.daffodil.schema.annotation.props.gen.TestKind
+import org.apache.daffodil.schema.annotation.props.gen.FailureType
 import com.ibm.icu.impl.UnicodeRegex
 import java.util.regex.PatternSyntaxException
 import java.util.regex.Pattern
@@ -103,6 +104,11 @@ abstract class DFDLAssertionBase(node: Node, decl: AnnotatedSchemaComponent)
   final lazy val testKind = getAttributeOption("testKind") match {
     case Some(str) => TestKind(str, decl)
     case None => TestKind.Expression
+  }
+
+  final lazy val failureType = getAttributeOption("failureType") match {
+    case Some(str) => FailureType(str, decl)
+    case None => FailureType.ProcessingError
   }
 
   lazy val messageAttrib = getAttributeOption("message")
