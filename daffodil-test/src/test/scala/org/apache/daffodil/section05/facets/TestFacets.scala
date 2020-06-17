@@ -205,7 +205,9 @@ class TestFacets {
 
   @Test def test_testBinary(): Unit = { runner.runOneTest("testBinary") }
   @Test def test_totalDigits_Pass_Decimal: Unit = { runner.runOneTest("checkTotalDigits_Pass_Decimal") }
+  @Test def test_totalDigits_Pass_Negative: Unit = { runner.runOneTest("test_totalDigits_Pass_Negative") }
   @Test def test_totalDigits_Fail_Decimal: Unit = { runner.runOneTest("checkTotalDigits_Fail_Decimal") }
+  @Test def test_totalDigits_Fail_Negative: Unit = { runner.runOneTest("test_totalDigits_Fail_Negative") }
   @Test def test_fractionDigits_Pass: Unit = { runner.runOneTest("checkFractionDigits_Pass") }
   @Test def test_fractionDigits_Fail: Unit = { runner.runOneTest("checkFractionDigits_Fail") }
   @Test def test_fractionDigits_Pass_LessDigits: Unit = { runner.runOneTest("checkFractionDigits_Pass_LessDigits") }
@@ -224,6 +226,7 @@ class TestFacets {
 
   @Test def test_totalDigits05b(): Unit = { runner.runOneTest("totalDigits05b") }
   @Test def test_totalDigits09(): Unit = { runnerV.runOneTest("totalDigits09") }
+  @Test def test_totalDigits10(): Unit = { runnerV.runOneTest("totalDigits10") }
 
   @Test def test_patternRegexDFDL708_01(): Unit = { runner.runOneTest("patternRegexDFDL708_01") }
   @Test def test_patternRegexDFDL708_02(): Unit = { runner.runOneTest("patternRegexDFDL708_02") }

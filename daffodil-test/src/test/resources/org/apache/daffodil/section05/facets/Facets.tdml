@@ -3999,7 +3999,7 @@
         </xs:restriction>
       </xs:simpleType>
     </xs:element>
-    <xs:element name="e4_1_1" dfdl:lengthKind="delimited" dfdl:textNumberPattern="#,##0.#####;-#,##0.#####">
+    <xs:element name="e4_1_1" dfdl:lengthKind="delimited" dfdl:textNumberPattern="###0.#####;-###0.#####">
       <xs:annotation>
         <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:assert test="{ dfdl:checkConstraints(.) }"
@@ -4513,6 +4513,17 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="test_totalDigits_Pass_Negative"
+                       root="e4_1_1" model="TestFacets">
+
+    <tdml:document>-12345</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e4_1_1>-12345</e4_1_1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>  
   
   <!--
     Test name: checkTotalDigits_Fail_Decimal
@@ -4523,6 +4534,15 @@
     root="e4_1_1" model="TestFacets">
 
     <tdml:document>9.12345</tdml:document>
+    <tdml:errors>
+      <tdml:error>Assertion failed: Assertion failed for dfdl:checkConstraints(.)</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="test_totalDigits_Fail_Negative"
+                       root="e4_1_1" model="TestFacets">
+
+    <tdml:document>-123456</tdml:document>
     <tdml:errors>
       <tdml:error>Assertion failed: Assertion failed for dfdl:checkConstraints(.)</tdml:error>
     </tdml:errors>
@@ -6499,6 +6519,25 @@
         </xs:restriction>
       </xs:simpleType>
     </xs:element>
+
+    <xs:simpleType name="tD_st10">
+      <xs:restriction base="xs:decimal">
+        <xs:totalDigits value="10" />
+      </xs:restriction>
+    </xs:simpleType>
+
+    <xs:element name="tD_e10" dfdl:lengthKind="delimited" dfdl:textNumberPattern="###0.#####;-###0.#####">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
+          <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+                       message="Assertion failed for dfdl:checkConstraints(.)" />
+        </xs:appinfo>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="ex:tD_st10">
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
     
     <xs:element name="tD_e5" dfdl:representation="binary" dfdl:lengthKind="explicit" dfdl:lengthUnits="bits" dfdl:length="4">
       <xs:annotation>
@@ -6636,7 +6675,17 @@
         <tdml:error>totalDigits</tdml:error>
       </tdml:errors>
   </tdml:parserTestCase>
-  
+
+  <tdml:parserTestCase name="totalDigits10" root="tD_e10"
+                       model="totalDigitsSchema" description="Section 5 - Facets - totalDigits - DFDL-5-056R">
+    <tdml:document>9999999999</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tD_e10>9999999999</tD_e10>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
   <!--
     Test name: totalDigits04
     Schema: totalDigitsSchemaIsolate2 
