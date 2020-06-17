@@ -455,11 +455,12 @@ final class SimpleTypeRuntimeData(
     // Per http://www.w3.org/TR/xmlschema-2/#rf-totalDigits
     // |i| < 10^totalDigits
 
-    val number = new java.math.BigDecimal(scala.math.pow(10.0, digits.doubleValue()))
-    val biNumber = new java.math.BigInteger(number.intValueExact().toString())
-    val bdData = diNode.dataValueAsBigDecimal.unscaledValue()
-    val isDataLessThanNumber = bdData.compareTo(biNumber) < 0
-    isDataLessThanNumber
+    val bd = diNode.dataValueAsBigDecimal.stripTrailingZeros
+    val totalDigits =
+      if (bd.scale <= 0) bd.precision - bd.scale
+      else Math.max(bd.precision, bd.scale)
+    
+    totalDigits <= digits
   }
 
   private def checkFractionDigits(diNode: DISimple, digits: Long): Boolean = {
