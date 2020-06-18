@@ -17,10 +17,6 @@
 
 package org.apache.daffodil.runtime2.generators
 
-import org.apache.daffodil.codegen.ast._
-import java.util
-import java.util.Collections
-
 import org.apache.daffodil.exceptions.ThrowsSDE
 import org.apache.daffodil.schema.annotation.props.gen.{BitOrder, ByteOrder}
 import org.apache.daffodil.processors.{ByteOrderEv, LengthInBitsEv}
@@ -35,13 +31,13 @@ class BinaryIntegerKnownLengthParserGenerator(
   elementName: String)
   extends ParserGenerator {
 
-  val lengthInBits = {
+  val lengthInBits: Long = {
     e.schemaDefinitionUnless(lengthInBitsEv.isConstant, "Runtime dfdl:length expressions not supported.")
     val len = lengthInBitsEv.constValue.get
     len
   }
 
-  val byteOrder = {
+  val byteOrder: ByteOrder = {
         e.schemaDefinitionUnless(byteOrderEv.isConstant, "Runtime dfdl:byteOrder expressions not supported.")
     val bo = byteOrderEv.constValue
     bo
@@ -96,7 +92,7 @@ class  BinaryIntegerKnownLengthParserGeneratorImpl(
     if (bitOrder ne BitOrder.MostSignificantBitFirst)
       e.SDE("Only dfdl:bitOrder 'mostSignificantBitFirst' is supported.")
 
-    if (signed != true)
+    if (!signed)
       e.SDE("Only signed integers are supported.")
 
     /* This code uses Julian Feinauer's code gen library so as to be independent of
@@ -113,31 +109,7 @@ class  BinaryIntegerKnownLengthParserGeneratorImpl(
        * A DSL for SQL in Scala exists, and the idea is you write this quasi-SQL,
        * fairly naturally, but what happens really is synthesis (and execution) of real SQL.
        */
-
-    val state: Expression = cgState.stateExp
-
-    val expressions: util.List[Node] = new util.ArrayList[Node]()
-    val nBits_ = Expressions.parameter("nBits", Primitive.INTEGER)
-    val n = Expressions.constant(Primitive.LONG, lengthInBits)
-
-    expressions.add(
-      Expressions.declaration(nBits_, n))
-
-    val inputStreamType = Expressions.typeOf("org.apache.daffodil.runtime2.parser.DataInputStream")
-    val dataInputStream_ = Expressions.method(null.asInstanceOf[TypeDefinition], "dataInputStream", inputStreamType, Collections.emptyList(), Collections.emptyList())
-
-    val dis_ = Expressions.parameter("dis", inputStreamType)
-    expressions.add(
-      Expressions.declaration(dis_, Expressions.call(state, dataInputStream_)))
-    val int: Expression = Expressions.constant(-1)
-
-    val simpleElement_ = Expressions.method(null, "simpleElement", null, Collections.emptyList(), Collections.emptyList())
-    val overwriteDataValue_ = Expressions.method(null, "overwriteDataValue", null, Collections.emptyList(), Collections.emptyList())
-
-    val exp = Expressions.block(
-      Expressions.call(Expressions.call(state, simpleElement_), overwriteDataValue_,
-        Expressions.call(dis_, Expressions.method(null, "getSignedBigInt", Primitive.INTEGER, util.Arrays.asList(null, null), Collections.emptyList()), nBits_, state)))
-    val newCGState = new CodeGeneratorState(exp)
+    val newCGState = new CodeGeneratorState()
     newCGState
   }
 }

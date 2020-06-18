@@ -16,9 +16,9 @@
  */
 package org.apache.daffodil.runtime2.generators
 
-import scala.collection.mutable.ArrayBuffer
-import org.apache.daffodil.codegen.ast.{Node, ClassDeclaration, WriterFactory, Expressions, Block}
-import org.apache.daffodil.codegen.cpp.CppGenerator
+import org.apache.daffodil.dpath.NodeInfo
+import org.apache.daffodil.dsom.ElementBase
+import org.apache.daffodil.exceptions.ThrowsSDE
 
 trait ParserGenerator {
   // TBD: if the code-generator state builds up content by side-effect, there's no
@@ -28,44 +28,50 @@ trait ParserGenerator {
 
 /**
  * Builds up the state of generated code.
- *
- * Contains declarations of object classes corresponding to the
- * schema-described object - that is, the POJO object definitions.
  */
-class CodeGeneratorState(nodeArg: Node) {
+class CodeGeneratorState() {
+  private val declarations: StringBuilder = new StringBuilder()
+  private val statements: StringBuilder = new StringBuilder()
+  private var code: String = _
 
-  val node: Node = nodeArg
-
-  def block: Block = nodeArg.asInstanceOf[Block]
-
-  /**
-   * The expression that gives access to the current state.
-   */
-  val pStateType = Expressions.typeOf("org.apache.daffodil.runtime2.parser.PState")
-  val stateExp = Expressions.parameter("state", pStateType)
-
-  /**
-   * Allocates an initial code generator state
-   */
-  def this() = this(null)
-
-  private val classDecls_ = new ArrayBuffer[ClassDeclaration]
-
-  def addClassDecl(classDecl: ClassDeclaration): Unit = {
-    classDecls_ += classDecl
+  def toPrimitive(primType: NodeInfo.PrimType, context: ThrowsSDE): String = {
+    import NodeInfo.PrimType
+    primType match {
+      case PrimType.Long => "long"
+      case PrimType.Int => "int"
+      case _ => context.SDE("Unsupported primitive type: " + primType)
+    }
   }
 
-  private var codeString: String = _
+  def toComplexType(child: ElementBase): String = {
+    child.complexType.diagnosticDebugName // for now?
+  }
+
+  def newFieldDeclaration(definition: String, name: String): Unit = {
+    // Need a C or C++ definition style declaration here
+    // First pass: typeDefinition.toString() + name
+    declarations.append(s"$definition $name;\n")
+  }
+
+  def newAssignment(name: String, str: String): Unit = {
+    statements.append(s"$name = $str;\n")
+  }
+
+  def newAllocation(name: String, typeDeclaration: String): Unit = {
+    declarations.append(s"$name = new $typeDeclaration();\n")
+  }
+
+  def newRecursiveCall(name: String, method: String): Unit = {
+    statements.append("$name->$method;\n")
+  }
+
+  def closeDefinition(): Unit = {
+    declarations.append("\n")
+  }
 
   def finalGenerate(): Unit = {
-    val factory = new WriterFactory(4)
-    val generator = new CppGenerator(factory)
-    val strings =
-      classDecls_.map { cd =>
-        generator.generateOutput(cd).get(0)
-      }
-    codeString = strings.mkString("\n")
+    code = declarations.toString() + statements.toString()
   }
 
-  def viewCode: String = codeString
+  def viewCode: String = code
 }

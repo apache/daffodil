@@ -47,69 +47,40 @@ class ElementParserGenerator(context: ElementBase, contentParserGenerator: Parse
 
   override def generateCode(cgState: CodeGeneratorState): CodeGeneratorState = {
 
-    val childDecls =
-      context.elementChildren.map { child =>
+    context.elementChildren.foreach { child =>
         if (child.optPrimType.isDefined)
-          new FieldDeclaration(toPrimitive(child.optPrimType.get), child.name)
+          cgState.newFieldDeclaration(cgState.toPrimitive(child.optPrimType.get, context), child.name)
         else
-          new FieldDeclaration(toComplexType(child), child.name)
+          ???
+          //cgState.newFieldDeclaration(toComplexType(child), child.name) // struct, union, maybe array
       }
 
-    val statements: Seq[Node] = (childDecls zip context.elementChildren).map {
-      case (childFD, child) if (child.optPrimType.isDefined) => {
-        Expressions.assignment(
-          Expressions.field(child.name), // bug: Something wrong here. We get NPE due to this field expression object not having a target
-          // but the target should be this object... ???
-          Expressions.call(
-            Expressions.call(
-              cgState.stateExp,
-              Expressions.method(
-                cgState.pStateType, // object
-                "dataInputStream", // method name
-                Primitive.VOID, // return type (We don't care about this in this case)
-                Nil.asJava, // parameters
-                Nil.asJava // exceptions
-              )),
-            toParseMethod(child),
-            toPrimitive(child.optPrimType.get)))
+    context.elementChildren.foreach {
+      case child if (child.optPrimType.isDefined) => {
+        cgState.newAssignment(
+          // Let's avoid the ASTs, just use the child.name?
+          child.name,
+          // child = dataInputStream.parseSInt32();
+          // Shall we literally just assemble that?
+          "dataInputStream.parseSInt32()")
       }
-      case (childFD, child) => {
+      // What is this code doing?  Oh, if this is the complex type case, let's use ??? for now
+      case child => {
         Assert.invariant(child.optPrimType.isEmpty)
         //
         // generate the allocation of new object, and assignment to variable
-        //
-        Expressions.assignment(
-          Expressions.field(child.name),
-          Expressions.new_(toComplexType(child)))
+        // childName = new ChildType();
+        cgState.newAllocation(child.name, cgState.toComplexType(child).toString)
         //
         // generate recursive call to parseSelf
-        //
-        Expressions.call(
-          Expressions.field(child.name),
-          Expressions.method(
-            toComplexType(child),
-            "parseSelf", Primitive.VOID,
-            Nil.asJava,
-            Nil.asJava))
+        // childName.parseSelf(state);
+        // What you typed is the definition of parseSelf and the class,
+        // are we generating the call to parseSelf here or not?
+        cgState.newRecursiveCall(child.name, "parseSelf(state)")
       }
     }
 
-    val body = {
-      val bb = new BlockBuilder
-      statements.foreach { bb.add(_) }
-      Seq(
-        new MethodDefinition("parseSelf", Primitive.VOID, Seq(cgState.stateExp).asJava,
-          bb.toBlock()))
-    }
-
-    val classDecl = new ClassDeclaration("org.apache.daffodil", context.name + "_Type",
-      childDecls.asJava,
-      Nil.asJava, // constructors
-      body.asJava, // statements
-      Nil.asJava // inner classes
-    )
-
-    cgState.addClassDecl(classDecl)
+    cgState.closeDefinition()
     cgState
   }
   // Pseudo-Scala code for this idea is here:
