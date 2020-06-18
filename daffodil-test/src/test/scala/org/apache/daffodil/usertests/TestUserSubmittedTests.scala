@@ -26,7 +26,7 @@ object TestUserSubmittedTests {
   val runner = Runner(testDir, "UserSubmittedTests.tdml")
   val runner2 = Runner(testDir, "nameDOB_test.tdml")
 
-  @AfterClass def shutDown {
+  @AfterClass def shutDown: Unit = {
     runner.reset
     runner2.reset
   }
@@ -37,13 +37,13 @@ class TestUserSubmittedTests {
 
   import TestUserSubmittedTests._
 
-  @Test def test_prefix_separator_as_variable() {
+  @Test def test_prefix_separator_as_variable(): Unit = {
     runner.runOneTest("test_prefix_separator_as_variable")
   }
-  @Test def test_DFDL_2262() { runner.runOneTest("test_DFDL_2262") }
+  @Test def test_DFDL_2262(): Unit = { runner.runOneTest("test_DFDL_2262") }
 
-  @Test def test_nameDOB_test2_pass() { runner2.runOneTest("nameDOB_test2_pass") }
-  @Test def test_nameDOB_test2_fail() { runner2.runOneTest("nameDOB_test2_fail") }
+  @Test def test_nameDOB_test2_pass(): Unit = { runner2.runOneTest("nameDOB_test2_pass") }
+  @Test def test_nameDOB_test2_fail(): Unit = { runner2.runOneTest("nameDOB_test2_fail") }
 
   /*//DFDL-1118
   @Test def test_dfdl_782() = {

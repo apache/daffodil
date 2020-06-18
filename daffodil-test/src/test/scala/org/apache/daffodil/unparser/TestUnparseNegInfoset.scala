@@ -27,7 +27,7 @@ object TestUnparseNegInfoset {
   val aa = testDir + "unparseNegInfosetTest.tdml"
   var runner = new DFDLTestSuite(Misc.getRequiredResource(aa), validateTDMLFile = false)
 
-  @AfterClass def tearDown() {
+  @AfterClass def tearDown(): Unit = {
     runner = null
   }
 }
@@ -35,21 +35,21 @@ object TestUnparseNegInfoset {
 class TestUnparseNegInfoset {
   import TestUnparseNegInfoset._
 
-  @Test def test_schemaElementRoot1Good() { runner.runOneTest("schemaElementRoot1Good") }
-  @Test def test_schemaElementRoot2Good() { runner.runOneTest("schemaElementRoot2Good") }
+  @Test def test_schemaElementRoot1Good(): Unit = { runner.runOneTest("schemaElementRoot1Good") }
+  @Test def test_schemaElementRoot2Good(): Unit = { runner.runOneTest("schemaElementRoot2Good") }
 
-  @Test def test_unexpectedNextNone() { runner.runOneTest("unexpectedNextNone") }
-  @Test def test_unexpectedNextSingle() { runner.runOneTest("unexpectedNextSingle") }
-  @Test def test_unexpectedNextMultiple() { runner.runOneTest("unexpectedNextMultiple") }
+  @Test def test_unexpectedNextNone(): Unit = { runner.runOneTest("unexpectedNextNone") }
+  @Test def test_unexpectedNextSingle(): Unit = { runner.runOneTest("unexpectedNextSingle") }
+  @Test def test_unexpectedNextMultiple(): Unit = { runner.runOneTest("unexpectedNextMultiple") }
 
-  @Test def test_uenxpectedChildNone() { runner.runOneTest("unexpectedChildNone") }
-  @Test def test_unexpectedChildSingle() { runner.runOneTest("unexpectedChildSingle") }
-  @Test def test_unexpectedChildMultiple() { runner.runOneTest("unexpectedChildMultiple") }
-  @Test def test_unexpectedChildSameAsSibling() { runner.runOneTest("unexpectedChildSameAsSibling") }
+  @Test def test_uenxpectedChildNone(): Unit = { runner.runOneTest("unexpectedChildNone") }
+  @Test def test_unexpectedChildSingle(): Unit = { runner.runOneTest("unexpectedChildSingle") }
+  @Test def test_unexpectedChildMultiple(): Unit = { runner.runOneTest("unexpectedChildMultiple") }
+  @Test def test_unexpectedChildSameAsSibling(): Unit = { runner.runOneTest("unexpectedChildSameAsSibling") }
 
-  @Test def test_nilledTrueNonNillable() { runner.runOneTest("nilledTrueNonNillable") }
-  @Test def test_nilledFalseNonNillable() { runner.runOneTest("nilledFalseNonNillable") }
-  @Test def test_nilledSimpleWithContent() { runner.runOneTest("nilledSimpleWithContent") }
-  @Test def test_nilledComplexWithContent() { runner.runOneTest("nilledComplexWithContent") }
-  @Test def test_nilledBadValue() { runner.runOneTest("nilledBadValue") }
+  @Test def test_nilledTrueNonNillable(): Unit = { runner.runOneTest("nilledTrueNonNillable") }
+  @Test def test_nilledFalseNonNillable(): Unit = { runner.runOneTest("nilledFalseNonNillable") }
+  @Test def test_nilledSimpleWithContent(): Unit = { runner.runOneTest("nilledSimpleWithContent") }
+  @Test def test_nilledComplexWithContent(): Unit = { runner.runOneTest("nilledComplexWithContent") }
+  @Test def test_nilledBadValue(): Unit = { runner.runOneTest("nilledBadValue") }
 }

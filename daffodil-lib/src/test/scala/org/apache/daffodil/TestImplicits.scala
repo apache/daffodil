@@ -27,14 +27,14 @@ import org.junit.Assert._
 class TestImplicits {
 
   @Test
-  def testIntercept1() {
+  def testIntercept1(): Unit = {
     intercept[Abort] {
       Assert.abort("yadda")
     }
   }
 
   @Test
-  def testIntercept2() {
+  def testIntercept2(): Unit = {
     val e = intercept[InterceptFailedException] {
       intercept[Abort] {
         // this will not cause an abort exception
@@ -45,7 +45,7 @@ class TestImplicits {
   }
 
   @Test
-  def testIntercept3() {
+  def testIntercept3(): Unit = {
     val e = intercept[InterceptFailedException] {
       intercept[FileNotFoundException] {
         // an exception is caught, but not the right kind

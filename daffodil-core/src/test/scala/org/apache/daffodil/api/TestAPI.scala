@@ -24,7 +24,7 @@ import org.apache.daffodil.util.TestUtils
 
 class TestDFDLParser_New {
 
-  @Test def testParseOccursCountKindOfParsedDelimitedBySeparatorImplicitWithMaxOccurs() {
+  @Test def testParseOccursCountKindOfParsedDelimitedBySeparatorImplicitWithMaxOccurs(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -40,7 +40,7 @@ class TestDFDLParser_New {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
-  @Test def testParseOccursCountKindOfParsedDelimitedBySeparatorImplicitWithMaxOccurs2() {
+  @Test def testParseOccursCountKindOfParsedDelimitedBySeparatorImplicitWithMaxOccurs2(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,

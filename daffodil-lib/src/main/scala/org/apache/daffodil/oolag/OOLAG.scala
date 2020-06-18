@@ -143,7 +143,7 @@ object OOLAG extends Logging {
 
     private var oolagContextViaSet: Option[OOLAGHost] = None
 
-    final def setOOLAGContext(oolagContextArg: OOLAGHost) {
+    final def setOOLAGContext(oolagContextArg: OOLAGHost): Unit = {
       Assert.usage(nArgs == ZeroArgs, "Cannot set oolag context if it was provided as a constructor arg.")
       if (oolagContextViaSet != None)
         Assert.usageError("Cannot set oolag context more than once.")
@@ -300,7 +300,7 @@ object OOLAG extends Logging {
      * Unconditionally, evaluate the expression arg in order to insure all checks for this
      * object are performed.
      */
-    protected final def requiredEvaluationsAlways(arg: => Any) {
+    protected final def requiredEvaluationsAlways(arg: => Any): Unit = {
       requiredEvaluationsAlways(thunk(arg))
     }
 
@@ -447,12 +447,12 @@ object OOLAG extends Logging {
      * objects (Anything that ThrowsSDE)
      */
 
-    protected def oolagWarn(th: Diagnostic) {
+    protected def oolagWarn(th: Diagnostic): Unit = {
       if (!warnings_.contains(th))
         warnings_ :+= th
     }
 
-    protected def oolagError(th: Diagnostic) {
+    protected def oolagError(th: Diagnostic): Unit = {
       if (!errors_.contains(th))
         errors_ :+= th
     }
@@ -624,7 +624,7 @@ object OOLAG extends Logging {
       log(LogLevel.OOLAGDebug, " " * indent + "Evaluating %s", thisThing)
     }
 
-    protected final def oolagAfterValue(res: AnyRef) {
+    protected final def oolagAfterValue(res: AnyRef): Unit = {
       log(LogLevel.OOLAGDebug, " " * indent + "Evaluated %s", thisThing)
       value_ = Maybe(res)
     }

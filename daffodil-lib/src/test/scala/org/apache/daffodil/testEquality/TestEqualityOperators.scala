@@ -24,7 +24,7 @@ import org.apache.daffodil.equality._
 class TestEqualityOperators {
 
   @Test
-  def testConveribleNumberEquality() {
+  def testConveribleNumberEquality(): Unit = {
     val x = 5
     val y = 6L
     assertFalse(x.toLong =#= y)
@@ -33,7 +33,7 @@ class TestEqualityOperators {
   }
 
   @Test
-  def testStronglyTypedEquality() {
+  def testStronglyTypedEquality(): Unit = {
     val x = List(1, 2, 3)
     val y = Seq(1, 2, 3)
     assertTrue(x =:= y) // allowed since they're subtypes
@@ -46,7 +46,7 @@ class TestEqualityOperators {
   val yObj = if (scala.math.random == -0.0) "bar" else "foo"
 
   @Test
-  def testStronglyTypedEqualityInlineAnyRef() {
+  def testStronglyTypedEqualityInlineAnyRef(): Unit = {
     if (TestEqualityOperators.compare(xObj, yObj))
       fail("equal")
   }
@@ -54,7 +54,7 @@ class TestEqualityOperators {
   private val ylong = scala.math.random.toLong
 
   @Test
-  def testStronglyTypedEqualityInline() {
+  def testStronglyTypedEqualityInline(): Unit = {
     val x = 5
     val y = ylong
     if (TestEqualityOperators.compareIntLong(x, y))

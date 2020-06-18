@@ -27,7 +27,7 @@ object TestSimpleTypesNew {
   val runner = Runner(testDir, "SimpleTypes.tdml")
   val runner1 = Runner(testDir, "BitOrder.tdml")
   val runner2 = Runner(testDir, "SimpleTypes2.tdml")
-  @AfterClass def shutdown {
+  @AfterClass def shutdown: Unit = {
     runner.reset
     runner1.reset
     runner2.reset
@@ -37,18 +37,18 @@ object TestSimpleTypesNew {
 class TestSimpleTypesNew {
   import TestSimpleTypesNew._
 
-  @Test def test_time_calendarTimeZone_EmptyString() { runner.runOneTest("time_calendarTimeZone_EmptyString") }
-  @Test def test_time_calendarTimeZone_EST() { runner.runOneTest("time_calendarTimeZone_EST") }
-  @Test def test_date_calendarTimeZone_EmptyString() { runner.runOneTest("date_calendarTimeZone_EmptyString") }
-  @Test def test_date_calendarTimeZone_EST() { runner.runOneTest("date_calendarTimeZone_EST") }
-  @Test def test_dateTime_calendarTimeZone_EmptyString() { runner.runOneTest("dateTime_calendarTimeZone_EmptyString") }
-  @Test def test_dateTime_calendarTimeZone_EST() { runner.runOneTest("dateTime_calendarTimeZone_EST") }
+  @Test def test_time_calendarTimeZone_EmptyString(): Unit = { runner.runOneTest("time_calendarTimeZone_EmptyString") }
+  @Test def test_time_calendarTimeZone_EST(): Unit = { runner.runOneTest("time_calendarTimeZone_EST") }
+  @Test def test_date_calendarTimeZone_EmptyString(): Unit = { runner.runOneTest("date_calendarTimeZone_EmptyString") }
+  @Test def test_date_calendarTimeZone_EST(): Unit = { runner.runOneTest("date_calendarTimeZone_EST") }
+  @Test def test_dateTime_calendarTimeZone_EmptyString(): Unit = { runner.runOneTest("dateTime_calendarTimeZone_EmptyString") }
+  @Test def test_dateTime_calendarTimeZone_EST(): Unit = { runner.runOneTest("dateTime_calendarTimeZone_EST") }
 
-  @Test def test_hexBinary_specifiedLengthUnaligned() { runner.runOneTest("hexBinary_specifiedLengthUnaligned") }
+  @Test def test_hexBinary_specifiedLengthUnaligned(): Unit = { runner.runOneTest("hexBinary_specifiedLengthUnaligned") }
 
   // DAFFODIL-1001 fixed.
-  @Test def test_bigEndianLeastFirst() { runner1.runOneTest("bigEndianLeastFirst") }
+  @Test def test_bigEndianLeastFirst(): Unit = { runner1.runOneTest("bigEndianLeastFirst") }
 
   // DAFFODIL-2204
-  @Test def test_terminatorErrorMessage() { runner2.runOneTest("terminatorErrorMessage") }
+  @Test def test_terminatorErrorMessage(): Unit = { runner2.runOneTest("terminatorErrorMessage") }
 }

@@ -150,7 +150,7 @@ trait CLILogPrefix extends LogWriter {
 
 object CLILogWriter extends CLILogPrefix {
 
-  def write(msg: String) {
+  def write(msg: String): Unit = {
     Console.err.println(msg)
     Console.flush
   }
@@ -159,11 +159,11 @@ object CLILogWriter extends CLILogPrefix {
 object TDMLLogWriter extends CLILogPrefix {
   var logs: scala.collection.mutable.Queue[String] = scala.collection.mutable.Queue.empty
 
-  def write(msg: String) {
+  def write(msg: String): Unit = {
     logs += msg
   }
 
-  def reset() {
+  def reset(): Unit = {
     logs = scala.collection.mutable.Queue.empty
   }
 }
@@ -224,7 +224,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
       override def argFormat(name: String): String = "[" + name + "]"
     }
 
-  def validateConf(c1: => Option[scallop.ScallopConfBase])(fn: (Option[scallop.ScallopConfBase]) => Either[String, Unit]) {
+  def validateConf(c1: => Option[scallop.ScallopConfBase])(fn: (Option[scallop.ScallopConfBase]) => Either[String, Unit]): Unit = {
     validations :+= new Function0[Either[String, Unit]] {
       def apply = {
         fn(c1)
@@ -609,7 +609,7 @@ object Main extends Logging {
     bindingsWithUpdates
   }
 
-  def displayDiagnostics(pr: WithDiagnostics) {
+  def displayDiagnostics(pr: WithDiagnostics): Unit = {
     pr.getDiagnostics.foreach { d =>
       val lvl = if (d.isError) LogLevel.Error else LogLevel.Warning
       log(lvl, d.getMessage())
@@ -1019,7 +1019,7 @@ object Main extends Logging {
             implicit val executionContext = new ExecutionContext {
               val threadPool = Executors.newFixedThreadPool(performanceOpts.threads())
 
-              def execute(runnable: Runnable) {
+              def execute(runnable: Runnable): Unit = {
                 threadPool.submit(runnable)
               }
 

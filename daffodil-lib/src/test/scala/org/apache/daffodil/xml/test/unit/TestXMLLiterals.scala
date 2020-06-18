@@ -25,7 +25,7 @@ class TestXMLLiterals {
   /**
    * Characterize behavior of scala's xml literals w.r.t. CDATA preservation
    */
-  @Test def test_scala_literals_cdata_bug() {
+  @Test def test_scala_literals_cdata_bug(): Unit = {
     //
     // because we know scala's XML literals don't preserve CDATA as PCData nodes
     // we force it to have a PCData node by constructing one explicitly here.

@@ -333,7 +333,7 @@ case class FNDateTime(recipes: List[CompiledDPath]) extends FNTwoArgs(recipes) {
 case class FNRoundHalfToEven(recipeNum: CompiledDPath, recipePrecision: CompiledDPath)
   extends RecipeOpWithSubRecipes(recipeNum, recipePrecision) {
 
-  override def run(dstate: DState) {
+  override def run(dstate: DState): Unit = {
     val savedNode = dstate.currentNode
     recipeNum.run(dstate)
     val unrounded = dstate.currentValue
@@ -507,7 +507,7 @@ case class FNNot(recipe: CompiledDPath, argType: NodeInfo.Kind = null)
 case class FNNilled(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends RecipeOpWithSubRecipes(recipe) {
 
-  override def run(dstate: DState) {
+  override def run(dstate: DState): Unit = {
     // FNNilled wants to use FNOneArg. However, the run() method in FNOneArg
     // attempts to get currentValue of the argument, and then it calls
     // computeValue() passing in the value. However, with FNNilled, we cannot
@@ -624,7 +624,7 @@ trait ExistsKind {
 case class FNExists(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends RecipeOpWithSubRecipes(recipe)
   with ExistsKind {
-  override def run(dstate: DState) {
+  override def run(dstate: DState): Unit = {
     val res = exists(recipe, dstate)
     dstate.setCurrentValue(res)
   }
@@ -636,7 +636,7 @@ case class FNExists(recipe: CompiledDPath, argType: NodeInfo.Kind)
 case class FNEmpty(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends RecipeOpWithSubRecipes(recipe)
   with ExistsKind {
-  override def run(dstate: DState) {
+  override def run(dstate: DState): Unit = {
     val res = exists(recipe, dstate)
     dstate.setCurrentValue(!res)
   }
@@ -660,7 +660,7 @@ case class FNEmpty(recipe: CompiledDPath, argType: NodeInfo.Kind)
  */
 case class FNLocalName0(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends RecipeOpWithSubRecipes(recipe) {
-  override def run(dstate: DState) {
+  override def run(dstate: DState): Unit = {
     // Same as using "." to denote self.
     val localName = dstate.currentElement.name
 
@@ -682,7 +682,7 @@ case class FNLocalName1(recipe: CompiledDPath, argType: NodeInfo.Kind)
     Assert.usageError("not to be called. DPath compiler should be answering this without runtime calls.")
   }
 
-  override def run(dstate: DState) {
+  override def run(dstate: DState): Unit = {
     // Save off original node, which is the original
     // element/node that calls fn:local-name
     val savedNode = dstate.currentNode
@@ -716,7 +716,7 @@ case class FNLocalName1(recipe: CompiledDPath, argType: NodeInfo.Kind)
  */
 case class FNNamespaceUri0(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends RecipeOpWithSubRecipes(recipe) {
-  override def run(dstate: DState) {
+  override def run(dstate: DState): Unit = {
     // Insist this is non-constant at compile time (to avoid a NPE)
     if (dstate.isCompile)
       throw new IllegalStateException()
@@ -750,7 +750,7 @@ case class FNNamespaceUri1(recipe: CompiledDPath, argType: NodeInfo.Kind)
     Assert.usageError("not to be called. DPath compiler should be answering this without runtime calls.")
   }
 
-  override def run(dstate: DState) {
+  override def run(dstate: DState): Unit = {
     // Insist this is non-constant at compile time (to avoid a NPE)
     if (dstate.isCompile)
       throw new IllegalStateException()

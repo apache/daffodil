@@ -41,7 +41,7 @@ object TestGeneral {
 
   lazy val tunables_runner = Runner(testDir, "tunables.tdml")
 
-  @AfterClass def shutDown() {
+  @AfterClass def shutDown(): Unit = {
     runner.reset
     runner1.reset
     runnerA_B.reset
@@ -54,20 +54,20 @@ class TestGeneral {
 
   import TestGeneral._
 
-  @Test def test_check_no_namespace_message() { runner.runOneTest("check_no_namespace_message") }
+  @Test def test_check_no_namespace_message(): Unit = { runner.runOneTest("check_no_namespace_message") }
 
-  @Test def test_capitalization() { runner.runOneTest("capitalization") }
+  @Test def test_capitalization(): Unit = { runner.runOneTest("capitalization") }
 
-  @Test def test_litNil1() { runner.runOneTest("litNil1") }
-  @Test def test_litNil1FullPath() { runner.runOneTest("litNil1FullPath") }
-  @Test def test_referentialIntegrity() { runner.runOneTest("referentialIntegrity") }
+  @Test def test_litNil1(): Unit = { runner.runOneTest("litNil1") }
+  @Test def test_litNil1FullPath(): Unit = { runner.runOneTest("litNil1FullPath") }
+  @Test def test_referentialIntegrity(): Unit = { runner.runOneTest("referentialIntegrity") }
 
   // Test causes exception as the file is not found
   // @Test def test_fileDNE() { runner.runOneTest("fileDNE") }
 
-  @Test def test_largeInput_01() { runner1.runOneTest("largeInput_01") }
+  @Test def test_largeInput_01(): Unit = { runner1.runOneTest("largeInput_01") }
 
-  @Test def test_dir_and_file_with_spaces() {
+  @Test def test_dir_and_file_with_spaces(): Unit = {
     try {
       val e = intercept[Exception] {
         runnerA_B.runOneTest("AB006")
@@ -82,7 +82,7 @@ class TestGeneral {
     }
   }
 
-  @Test def test_no_namespace_02() {
+  @Test def test_no_namespace_02(): Unit = {
     val e = intercept[Exception] {
       runner_ns.runOneTest("no_namespace_02")
     }
@@ -93,19 +93,19 @@ class TestGeneral {
   }
 
   // DFDL-1143
-  @Test def test_unqualifiedPathStepPolicy_defaultNamespace_test_01() { tunables_runner.runOneTest("unqualifiedPathStepPolicy_defaultNamespace_test_01") }
-  @Test def test_unqualifiedPathStepPolicy_noNamespace_test_02() { tunables_runner.runOneTest("unqualifiedPathStepPolicy_noNamespace_test_02") }
-  @Test def test_unqualifiedPathStepPolicy_defaultNamespace_test_02() { tunables_runner.runOneTest("unqualifiedPathStepPolicy_defaultNamespace_test_02") }
+  @Test def test_unqualifiedPathStepPolicy_defaultNamespace_test_01(): Unit = { tunables_runner.runOneTest("unqualifiedPathStepPolicy_defaultNamespace_test_01") }
+  @Test def test_unqualifiedPathStepPolicy_noNamespace_test_02(): Unit = { tunables_runner.runOneTest("unqualifiedPathStepPolicy_noNamespace_test_02") }
+  @Test def test_unqualifiedPathStepPolicy_defaultNamespace_test_02(): Unit = { tunables_runner.runOneTest("unqualifiedPathStepPolicy_defaultNamespace_test_02") }
   
-  @Test def test_maxOccursBoundsExceeded() { tunables_runner.runOneTest("maxOccursBoundsExceeded") }
-  @Test def test_textBidiYes() { tunables_runner.runOneTest("textBidiYes") }
-  @Test def test_requireTextBidiTrue() { tunables_runner.runOneTest("requireTextBidiTrue") }
-  @Test def test_requireTextBidiFalse() { tunables_runner.runOneTest("requireTextBidiFalse") }
-  @Test def test_floatingYes() { tunables_runner.runOneTest("floatingYes") }
-  @Test def test_requireFloatingTrue() { tunables_runner.runOneTest("requireFloatingTrue") }
-  @Test def test_requireFloatingFalse() { tunables_runner.runOneTest("requireFloatingFalse") }
-  @Test def test_encodingErrorPolicyError() { tunables_runner.runOneTest("encodingErrorPolicyError") }
-  @Test def test_requireEncodingErrorPolicyTrue() { tunables_runner.runOneTest("requireEncodingErrorPolicyTrue") }
-  @Test def test_requireEncodingErrorPolicyFalse() { tunables_runner.runOneTest("requireEncodingErrorPolicyFalse") }
+  @Test def test_maxOccursBoundsExceeded(): Unit = { tunables_runner.runOneTest("maxOccursBoundsExceeded") }
+  @Test def test_textBidiYes(): Unit = { tunables_runner.runOneTest("textBidiYes") }
+  @Test def test_requireTextBidiTrue(): Unit = { tunables_runner.runOneTest("requireTextBidiTrue") }
+  @Test def test_requireTextBidiFalse(): Unit = { tunables_runner.runOneTest("requireTextBidiFalse") }
+  @Test def test_floatingYes(): Unit = { tunables_runner.runOneTest("floatingYes") }
+  @Test def test_requireFloatingTrue(): Unit = { tunables_runner.runOneTest("requireFloatingTrue") }
+  @Test def test_requireFloatingFalse(): Unit = { tunables_runner.runOneTest("requireFloatingFalse") }
+  @Test def test_encodingErrorPolicyError(): Unit = { tunables_runner.runOneTest("encodingErrorPolicyError") }
+  @Test def test_requireEncodingErrorPolicyTrue(): Unit = { tunables_runner.runOneTest("requireEncodingErrorPolicyTrue") }
+  @Test def test_requireEncodingErrorPolicyFalse(): Unit = { tunables_runner.runOneTest("requireEncodingErrorPolicyFalse") }
 
 }

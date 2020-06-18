@@ -195,7 +195,7 @@ class SimpleTypeRetryUnparserSuspendableOperation(
     state.currentInfosetNode.asSimple.hasValue
   }
 
-  protected def continuation(state: UState) {
+  protected def continuation(state: UState): Unit = {
     vUnparser.unparse1(state)
   }
 }
@@ -220,7 +220,7 @@ class CaptureStartOfContentLengthUnparser(override val context: ElementRuntimeDa
 
   override lazy val runtimeDependencies = Vector()
 
-  override def unparse(state: UState) {
+  override def unparse(state: UState): Unit = {
     val dos = state.dataOutputStream
     val elem = state.currentInfosetNode.asInstanceOf[DIElement]
     if (dos.maybeAbsBitPos0b.isDefined) {
@@ -236,7 +236,7 @@ class CaptureEndOfContentLengthUnparser(override val context: ElementRuntimeData
 
   override lazy val runtimeDependencies = Vector()
 
-  override def unparse(state: UState) {
+  override def unparse(state: UState): Unit = {
     val dos = state.dataOutputStream.asInstanceOf[DirectOrBufferedDataOutputStream]
     val elem = state.currentInfosetNode.asInstanceOf[DIElement]
 
@@ -265,7 +265,7 @@ class CaptureStartOfValueLengthUnparser(override val context: ElementRuntimeData
 
   override lazy val runtimeDependencies = Vector()
 
-  override def unparse(state: UState) {
+  override def unparse(state: UState): Unit = {
     val dos = state.dataOutputStream
     val elem = state.currentInfosetNode.asInstanceOf[DIElement]
     if (dos.maybeAbsBitPos0b.isDefined) {
@@ -281,7 +281,7 @@ class CaptureEndOfValueLengthUnparser(override val context: ElementRuntimeData)
 
   override lazy val runtimeDependencies = Vector()
 
-  override def unparse(state: UState) {
+  override def unparse(state: UState): Unit = {
     val dos = state.dataOutputStream
     val elem = state.currentInfosetNode.asInstanceOf[DIElement]
     if (dos.maybeAbsBitPos0b.isDefined) {
@@ -324,7 +324,7 @@ class TargetLengthOperation(
     true
   }
 
-  override def continuation(state: UState) {
+  override def continuation(state: UState): Unit = {
     // once we have evaluated the targetLengthEv, nothing else to do
     // here
   }
@@ -413,7 +413,7 @@ trait SkipTheBits { self: SuspendableOperation =>
 
   protected val rd: RuntimeData
 
-  protected final def skipTheBits(ustate: UState, skipInBits: Long) {
+  protected final def skipTheBits(ustate: UState, skipInBits: Long): Unit = {
     if (skipInBits > 0) {
       val dos = ustate.dataOutputStream
       if (!dos.skip(skipInBits, ustate))
@@ -444,7 +444,7 @@ class ElementUnusedUnparserSuspendableOperation(
    *
    * and skip that many bits.
    */
-  override def continuation(ustate: UState) {
+  override def continuation(ustate: UState): Unit = {
     val skipInBits = getSkipBits(ustate)
     if (skipInBits < 0)
       UE(ustate, "Data too long by %s bits. Unable to truncate.", -skipInBits)
@@ -538,7 +538,7 @@ class ChoiceUnusedUnparserSuspendableOperation(
    *
    * and skip that many bits.
    */
-  override def continuation(ustate: UState) {
+  override def continuation(ustate: UState): Unit = {
     val startPos0b = dosToCheck_(0).relBitPos0b
     val endPos0b = dosToCheck_.last.relBitPos0b + startPos0b
     val vl = (endPos0b - startPos0b).toLong
@@ -588,7 +588,7 @@ trait PaddingUnparserMixin
     res
   }
 
-  override def continuation(state: UState) {
+  override def continuation(state: UState): Unit = {
     val skipInBits = getSkipBits(state)
     if (skipInBits <= 0) return // padding doesn't worry about data too long. RightFill and ElementUnused do.
     val cs = charset(state)
@@ -765,7 +765,7 @@ class RightFillUnparserSuspendableOperation(
   extends ElementUnusedUnparserSuspendableOperation(rd, targetLengthEv, maybeLengthEv, maybeCharsetEv, maybeLiteralNilEv)
   with PaddingUnparserMixin {
 
-  override def continuation(state: UState) {
+  override def continuation(state: UState): Unit = {
     val skipInBits = getSkipBits(state)
     if (skipInBits == 0L) return
     if (skipInBits > 0) {
@@ -824,7 +824,7 @@ class PrefixLengthSuspendableOperation(
     elem.valueLength.maybeLengthInBits.isDefined
   }
 
-  override def continuation(state: UState) {
+  override def continuation(state: UState): Unit = {
     val len = elem.valueLength.maybeLengthInBits.isDefined
     assignPrefixLength(elem, plElem)
   }

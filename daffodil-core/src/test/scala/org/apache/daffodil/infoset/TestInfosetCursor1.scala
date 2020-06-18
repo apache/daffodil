@@ -46,7 +46,7 @@ class TestInfosetInputter1 {
     ic
   }
 
-  @Test def testInfosetInputterOnBadData() {
+  @Test def testInfosetInputterOnBadData(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -62,7 +62,7 @@ class TestInfosetInputter1 {
     assertTrue(msg.contains("prolog")) // content not allowed in prolog of an XML document.
   }
 
-  @Test def testInfosetInputterOnBadData2() {
+  @Test def testInfosetInputterOnBadData2(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -79,7 +79,7 @@ class TestInfosetInputter1 {
     assertTrue(msg.contains("Unexpected character")) // expects an equal sign for an attribute
   }
 
-  @Test def testInfosetInputterOnBadData3() {
+  @Test def testInfosetInputterOnBadData3(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,

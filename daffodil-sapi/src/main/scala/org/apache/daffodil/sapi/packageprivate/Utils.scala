@@ -95,7 +95,7 @@ private[sapi] class JavaLogWriter(logWriter: LogWriter)
     //do nothing
   }
 
-  override def log(lvl: SLogLevel.Type, logID: String, msg: String, args: Seq[Any]) {
+  override def log(lvl: SLogLevel.Type, logID: String, msg: String, args: Seq[Any]): Unit = {
     if (logWriter != null) {
       logWriter.log(LoggingConversions.levelFromScala(lvl), logID, msg, args)
     }

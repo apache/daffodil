@@ -121,7 +121,7 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
 
   private var maybeAbsStartingBitPos0b_ : MaybeULong = MaybeULong.Nope
 
-  private def checkInvariants() {
+  private def checkInvariants(): Unit = {
     // nothing right now
   }
 
@@ -163,14 +163,14 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
     Assert.usage(maybeAbsStartingBitPos0b.isDefined)
     maybeAbsStartingBitPos0b.getULong + relBitPos0b
   }
-  def resetAllBitPos() {
+  def resetAllBitPos(): Unit = {
     this.maybeAbsolutizedRelativeStartingBitPosInBits_ = MaybeULong.Nope
     maybeAbsStartingBitPos0b_ = MaybeULong.Nope
     relBitPos0b_ = ULong(0)
     zlStatus_ = ZeroLengthStatus.Unknown
   }
 
-  def setAbsStartingBitPos0b(newStartingBitPos0b: ULong) {
+  def setAbsStartingBitPos0b(newStartingBitPos0b: ULong): Unit = {
     checkInvariants()
     val mv = MaybeULong(newStartingBitPos0b.longValue)
     //
@@ -190,7 +190,7 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
     checkInvariants()
   }
 
-  protected final def setRelBitPos0b(newRelBitPos0b: ULong) {
+  protected final def setRelBitPos0b(newRelBitPos0b: ULong): Unit = {
     Assert.usage(isWritable)
     checkInvariants()
     relBitPos0b_ = newRelBitPos0b
@@ -292,7 +292,7 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
   private var fragmentLastByteLimit_ : Int = 0
   def fragmentLastByteLimit = fragmentLastByteLimit_
 
-  def setFragmentLastByte(newFragmentByte: Int, nBitsInUse: Int) {
+  def setFragmentLastByte(newFragmentByte: Int, nBitsInUse: Int): Unit = {
     Assert.usage(nBitsInUse >= 0 && nBitsInUse <= 7)
     Assert.usage(newFragmentByte >= 0 && newFragmentByte <= 255) // no bits above first byte are in use.
     if (nBitsInUse == 0) {
@@ -308,7 +308,7 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
 
   @inline final def dosState = _dosState
 
-  @inline protected final def setDOSState(newState: DOSState) { _dosState = newState }
+  @inline protected final def setDOSState(newState: DOSState): Unit = { _dosState = newState }
 
   private[io] def isBuffering: Boolean
 
@@ -335,7 +335,7 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
 
   final protected def cst = this
 
-  protected def assignFrom(other: DataOutputStreamImplMixin) {
+  protected def assignFrom(other: DataOutputStreamImplMixin): Unit = {
     Assert.usage(isWritable)
     super.assignFrom(other)
     this.maybeAbsStartingBitPos0b_ = other.maybeAbsStartingBitPos0b_
@@ -352,7 +352,7 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
    */
   protected final def realStream = getJavaOutputStream()
 
-  final override def setDebugging(setting: Boolean) {
+  final override def setDebugging(setting: Boolean): Unit = {
     Assert.usage(isWritable)
     if (setting) {
       Assert.usage(!areDebugging)
@@ -1078,7 +1078,7 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
     setMaybeRelBitLimit0b(savedBitLimit0b, true)
   }
 
-  final override def validateFinalStreamState {
+  final override def validateFinalStreamState: Unit = {
     // nothing to validate
   }
 

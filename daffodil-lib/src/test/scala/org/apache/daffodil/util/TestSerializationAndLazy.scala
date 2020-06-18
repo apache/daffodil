@@ -46,7 +46,7 @@ class ToSerialize extends Serializable {
 class TestSerializationAndLazy {
 
   @Test
-  def testSerializeBeforeLazyEval() {
+  def testSerializeBeforeLazyEval(): Unit = {
     val instance = new ToSerialize
     val baos = new ByteArrayOutputStream
     val stream = new ObjectOutputStream(baos)

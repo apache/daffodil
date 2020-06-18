@@ -44,7 +44,7 @@ class PrettyPrinter(step: Int) {
    * @param n    the node to be serialized
    * @param sb   the stringbuffer to append to
    */
-  def format(n: Node, sb: StringBuilder) { // entry point
+  def format(n: Node, sb: StringBuilder): Unit = { // entry point
     val c = minimizeScopes(n)
     format(c, sb, 0)
   }
@@ -122,7 +122,7 @@ class PrettyPrinter(step: Int) {
 
   private val mtChild = <foo></foo>.child
 
-  private def format(n: Node, sb: StringBuilder, cur: Int) { // entry point
+  private def format(n: Node, sb: StringBuilder, cur: Int): Unit = { // entry point
     n match {
       case e: Elem => {
         sb.append(" " * cur)

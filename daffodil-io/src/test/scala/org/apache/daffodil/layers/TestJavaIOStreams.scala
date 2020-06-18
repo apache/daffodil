@@ -80,7 +80,7 @@ ZSBzaG9ydCB2ZWhlbWVuY2Ugb2YgYW55IGNhcm5hbCBwbGVhc3VyZS4="""
    * If the data happens to decode precisely (multiple of 3 characters long) without
    * any needed padding, then the decoder doesn't know to stop.
    */
-  @Test def testBase64MIMEDecoderWrapDoesNotPreBuffer() {
+  @Test def testBase64MIMEDecoderWrapDoesNotPreBuffer(): Unit = {
     val inputStream = IOUtils.toInputStream(b64Text + additionalText, StandardCharsets.ISO_8859_1)
     val expected = text
     val decodedStream = java.util.Base64.getMimeDecoder().wrap(inputStream)
@@ -98,7 +98,7 @@ ZSBzaG9ydCB2ZWhlbWVuY2Ugb2YgYW55IGNhcm5hbCBwbGVhc3VyZS4="""
    * bytes. Again however, this only works because the base64 data happened
    * to end with an "=". That won't necessarily be the case.
    */
-  @Test def testBase64MIMEDecoderDetectsEndRobustly1() {
+  @Test def testBase64MIMEDecoderDetectsEndRobustly1(): Unit = {
     val inputStream = IOUtils.toInputStream(b64Text + b64Text, StandardCharsets.ISO_8859_1)
     val expected = text
     val decodedStream = java.util.Base64.getMimeDecoder().wrap(inputStream)
@@ -109,7 +109,7 @@ ZSBzaG9ydCB2ZWhlbWVuY2Ugb2YgYW55IGNhcm5hbCBwbGVhc3VyZS4="""
     assertEquals(expected, additionalLines(0))
   }
 
-  @Test def testBase64ScanningForDelimiter1() {
+  @Test def testBase64ScanningForDelimiter1(): Unit = {
     val data = "cGxl" // encoding of "ple"
     val terminator = ";"
     val afterTerminator = "afterTerminator"
@@ -129,7 +129,7 @@ ZSBzaG9ydCB2ZWhlbWVuY2Ugb2YgYW55IGNhcm5hbCBwbGVhc3VyZS4="""
    * It doesn't have precise ending behavior. It reads
    * ahead at least two bytes beyond the data it needs.
    */
-  @Test def testGZIPDecoderDoesPreBuffer1() {
+  @Test def testGZIPDecoderDoesPreBuffer1(): Unit = {
     val inputData = zipped ++ additionalText.getBytes(StandardCharsets.ISO_8859_1)
     val inputStream = new ByteArrayInputStream(inputData)
     val expected = text
@@ -158,7 +158,7 @@ ZSBzaG9ydCB2ZWhlbWVuY2Ugb2YgYW55IGNhcm5hbCBwbGVhc3VyZS4="""
    * the length of the compressed data so that we can limit how many bytes the gzip
    * stream can read.
    */
-  @Test def testGZIPDecoderDoesPreBuffer2() {
+  @Test def testGZIPDecoderDoesPreBuffer2(): Unit = {
     val inputData = zipped ++ additionalText.getBytes(StandardCharsets.ISO_8859_1)
     val rawInput = new ByteArrayInputStream(inputData)
     val inputStream = new BufferedInputStream(rawInput)

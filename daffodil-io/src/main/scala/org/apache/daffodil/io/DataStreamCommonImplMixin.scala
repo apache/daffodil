@@ -31,7 +31,7 @@ trait DataStreamCommonState {
    */
   private var maybePriorBitOrder_ : Maybe[BitOrder] = Maybe.Nope
 
-  def setPriorBitOrder(pbo: BitOrder) {
+  def setPriorBitOrder(pbo: BitOrder): Unit = {
     maybePriorBitOrder_ = One(pbo)
   }
 
@@ -55,7 +55,7 @@ trait DataStreamCommonState {
   var maybeTrailingSurrogateForUTF8: MaybeChar = MaybeChar.Nope
   var priorBitPos: Long = 0L
 
-  def resetUTF8SurrogatePairCapture {
+  def resetUTF8SurrogatePairCapture: Unit = {
     this.priorBitPos = -1
   }
 

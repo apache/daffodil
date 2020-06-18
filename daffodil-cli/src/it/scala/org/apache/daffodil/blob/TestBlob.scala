@@ -57,7 +57,7 @@ class TestBlob {
    * python gen_blob.py -s 1 -o 1MB.bin
    *
    ***/
-  /*@Test*/ def test_1MB_blob() {
+  /*@Test*/ def test_1MB_blob(): Unit = {
 
     val schemaFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/large_blob.dfdl.xsd")
     val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/1MB.bin")
@@ -111,7 +111,7 @@ class TestBlob {
    * python gen_blob.py -s 2049 -o 2049MB.bin
    *
    ***/
-  /*@Test*/ def test_2GB_blob() {
+  /*@Test*/ def test_2GB_blob(): Unit = {
 
     val DAFFODIL_JAVA_OPTS = Map("DAFFODIL_JAVA_OPTS" -> "-Xms256m -Xmx512m")
     val schemaFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/large_blob.dfdl.xsd")
@@ -168,7 +168,7 @@ class TestBlob {
    * python gen_blob.py -s 2049 -o 2049MB.bin
    *
    ***/
-  /*@Test*/ def test_blob_backtracking() {
+  /*@Test*/ def test_blob_backtracking(): Unit = {
 
     val DAFFODIL_JAVA_OPTS = Map("DAFFODIL_JAVA_OPTS" -> "-Xms256m -Xmx512m")
     val schemaFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/blob_backtracking.dfdl.xsd")
@@ -202,7 +202,7 @@ class TestBlob {
    * python gen_blob.py -s 2049 -o 2049MB.bin
    *
    ***/
-  /*@Test*/ def test_blob_backtracking_streaming_fail() {
+  /*@Test*/ def test_blob_backtracking_streaming_fail(): Unit = {
 
     val DAFFODIL_JAVA_OPTS = Map("DAFFODIL_JAVA_OPTS" -> "-Xms256m -Xmx512m")
     val schemaFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/blob_backtracking.dfdl.xsd")

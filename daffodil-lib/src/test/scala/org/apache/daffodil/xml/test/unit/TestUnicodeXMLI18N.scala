@@ -29,7 +29,7 @@ class TestUnicodeXMLI18N {
   /**
    * Let's characterize the behavior of XML Literals in Scala.
    */
-  @Test def testXMLEntities() {
+  @Test def testXMLEntities(): Unit = {
     val fragment = <x>abc&amp;def</x> // XML Entities disappear for us. We never see them. 
     val txt = fragment.text
     assertEquals("abc&def", txt)
@@ -38,7 +38,7 @@ class TestUnicodeXMLI18N {
   /**
    * Obscure corner about XML. XML isn't allowed to contain character code 0 no way no how, not even as an entity.
    */
-  @Test def testNUL1() {
+  @Test def testNUL1(): Unit = {
     val fragment = <x>abc&#x0000;def</x> // This isn't supposed to work in XML. character code 0 is never allowed in XML documents.
     // TODO: implement our own enforcement of disallowing NUL in XML infoset strings.
     // TODO: consider XML v1.0 versus v1.1 - infosets allow different character codes. 1.1 only disallows 0.
@@ -51,7 +51,7 @@ class TestUnicodeXMLI18N {
    * if this test doesn't pass, your environment is not adequately set up for Unicode and internationalized
    * characters
    */
-  @Test def testUnicodeElementAndAttributeNames() {
+  @Test def testUnicodeElementAndAttributeNames(): Unit = {
     //    val fragment = <Date 年月日="2003年08月27日">2003年08月27日<SUB2003年08月27日>hi</SUB2003年08月27日></Date> // <!-- element contains unicode in its name -->
     //    val txt = fragment.text
     //    assertEquals("2003年08月27日hi", txt)
@@ -74,37 +74,37 @@ class TestUnicodeXMLI18N {
   def isElement(elem: Node) = elem.label == "element" && isXS(elem)
 
   val xmlnsURI = XMLUtils.XSD_NAMESPACE
-  @Test def testRightElementRightPrefixRightNS() {
+  @Test def testRightElementRightPrefixRightNS(): Unit = {
     val xsSequence = <xs:sequence xmlns:xs={ xmlnsURI }/>
     assertTrue(isSequence(xsSequence))
   }
 
-  @Test def testRightElementWrongPrefixRightNS() {
+  @Test def testRightElementWrongPrefixRightNS(): Unit = {
     val xsSequence = <wrong:sequence xmlns:wrong={ xmlnsURI }/>
     assertTrue(isSequence(xsSequence))
   }
 
-  @Test def testRightElementRightPrefixWrongNS() {
+  @Test def testRightElementRightPrefixWrongNS(): Unit = {
     val xsSequence = <xs:sequence xmlns:xs="http://Not.the.right.namespace"/>
     assertFalse(isSequence(xsSequence))
   }
 
-  @Test def testRightElementWrongPrefixWrongNS() {
+  @Test def testRightElementWrongPrefixWrongNS(): Unit = {
     val xsSequence = <wrong:sequence xmlns:wrong="http://Not.the.right.namespace"/>
     assertFalse(isSequence(xsSequence))
   }
 
-  @Test def testWrongElementRightPrefixRightNS() {
+  @Test def testWrongElementRightPrefixRightNS(): Unit = {
     val xsSequence = <xs:idaho xmlns:xs={ xmlnsURI }/>
     assertFalse(isSequence(xsSequence))
   }
 
-  @Test def testIsSchema() {
+  @Test def testIsSchema(): Unit = {
     val xsSchema = <xs:schema xmlns:xs={ xmlnsURI }/>
     assertTrue(isSchema(xsSchema))
   }
 
-  @Test def testIsElement() {
+  @Test def testIsElement(): Unit = {
     val xsElement = <xs:element xmlns:xs={ xmlnsURI }/>
     assertTrue(isElement(xsElement))
   }

@@ -63,7 +63,7 @@ class TestSchemaUtils {
     }
   }
 
-  @Test def testDFDLTestSchema1() {
+  @Test def testDFDLTestSchema1(): Unit = {
     val incl = test1 \\ "include"
     val anns = test1 \\ "format"
     val elems = test1 \\ "element"

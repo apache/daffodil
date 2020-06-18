@@ -26,7 +26,7 @@ import org.apache.daffodil.util.SchemaUtils
 
 class TestPrimitives {
 
-  @Test def testInitiator {
+  @Test def testInitiator: Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" representation="text" lengthUnits="bytes" encoding="US-ASCII" terminator="" separator="" ignoreCase="no"/>,
@@ -39,7 +39,7 @@ class TestPrimitives {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
-  @Test def testTerminator {
+  @Test def testTerminator: Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" separator="" ignoreCase="no"/>,
@@ -52,7 +52,7 @@ class TestPrimitives {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
-  @Test def testSeparator() {
+  @Test def testSeparator(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" separator="" terminator="" ignoreCase="no"/>,
@@ -71,7 +71,7 @@ class TestPrimitives {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
-  @Test def testLengthKindDelimited {
+  @Test def testLengthKindDelimited: Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
 
@@ -91,7 +91,7 @@ class TestPrimitives {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
-  @Test def testLengthKindDelimited2 {
+  @Test def testLengthKindDelimited2: Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
 
@@ -110,7 +110,7 @@ class TestPrimitives {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
-  @Test def testLengthKindDelimited3 {
+  @Test def testLengthKindDelimited3: Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
 
@@ -137,7 +137,7 @@ class TestPrimitives {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
-  @Test def testDelimiterInheritance {
+  @Test def testDelimiterInheritance: Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:defineFormat name="config">
@@ -177,7 +177,7 @@ class TestPrimitives {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
-  @Test def testEntityReplacementSeparator {
+  @Test def testEntityReplacementSeparator: Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
 
@@ -197,7 +197,7 @@ class TestPrimitives {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
-  @Test def testEntityReplacementInitiator {
+  @Test def testEntityReplacementInitiator: Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
 
@@ -210,7 +210,7 @@ class TestPrimitives {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
-  @Test def testEntityReplacementTerminator {
+  @Test def testEntityReplacementTerminator: Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
 

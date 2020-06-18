@@ -25,7 +25,7 @@ object TestLookAhead {
 
   val runner = Runner(testDir, "lookAhead.tdml", validateTDMLFile = true)
 
-  @AfterClass def shutDown {
+  @AfterClass def shutDown: Unit = {
     runner.reset
   }
 
@@ -34,16 +34,16 @@ object TestLookAhead {
 class TestLookAhead {
   import TestLookAhead._
 
-  @Test def test_lookAhead_01() { runner.runOneTest("lookAhead_01") }
-  @Test def test_lookAhead_02() { runner.runOneTest("lookAhead_02") }
-  @Test def test_lookAhead_03() { runner.runOneTest("lookAhead_03") }
-  @Test def test_lookAhead_04() { runner.runOneTest("lookAhead_04") }
-  @Test def test_lookAhead_05() { runner.runOneTest("lookAhead_05") }
-  @Test def test_lookAhead_06() { runner.runOneTest("lookAhead_06") }
-  @Test def test_lookAhead_tooFar_01() { runner.runOneTest("lookAhead_tooFar_01") }
-  @Test def test_lookAhead_tooFar_02() { runner.runOneTest("lookAhead_tooFar_02") }
-  @Test def test_lookAhead_tooFar_03() { runner.runOneTest("lookAhead_tooFar_03") }
-  @Test def test_lookAhead_negativeOffset_01() { runner.runOneTest("lookAhead_negativeOffset_01") }
-  @Test def test_lookAhead_negativeBitsize_01() { runner.runOneTest("lookAhead_negativeBitsize_01") }
-  @Test def test_lookAhead_zeroBitsize_01() { runner.runOneTest("lookAhead_zeroBitsize_01") }
+  @Test def test_lookAhead_01(): Unit = { runner.runOneTest("lookAhead_01") }
+  @Test def test_lookAhead_02(): Unit = { runner.runOneTest("lookAhead_02") }
+  @Test def test_lookAhead_03(): Unit = { runner.runOneTest("lookAhead_03") }
+  @Test def test_lookAhead_04(): Unit = { runner.runOneTest("lookAhead_04") }
+  @Test def test_lookAhead_05(): Unit = { runner.runOneTest("lookAhead_05") }
+  @Test def test_lookAhead_06(): Unit = { runner.runOneTest("lookAhead_06") }
+  @Test def test_lookAhead_tooFar_01(): Unit = { runner.runOneTest("lookAhead_tooFar_01") }
+  @Test def test_lookAhead_tooFar_02(): Unit = { runner.runOneTest("lookAhead_tooFar_02") }
+  @Test def test_lookAhead_tooFar_03(): Unit = { runner.runOneTest("lookAhead_tooFar_03") }
+  @Test def test_lookAhead_negativeOffset_01(): Unit = { runner.runOneTest("lookAhead_negativeOffset_01") }
+  @Test def test_lookAhead_negativeBitsize_01(): Unit = { runner.runOneTest("lookAhead_negativeBitsize_01") }
+  @Test def test_lookAhead_zeroBitsize_01(): Unit = { runner.runOneTest("lookAhead_zeroBitsize_01") }
 }

@@ -33,10 +33,10 @@ class DebuggerRunnerForSAPITest extends DebuggerRunner {
     "trace"
   ).iterator
 
-  def init() {
+  def init(): Unit = {
   }
 
-  def fini() {
+  def fini(): Unit = {
   }
 
   def getCommand(): String = {
@@ -52,7 +52,7 @@ class DebuggerRunnerForSAPITest extends DebuggerRunner {
     cmd
   }
 
-  def lineOutput(line: String) {
+  def lineOutput(line: String): Unit = {
     lines.append(line + "\n")
   }
 }

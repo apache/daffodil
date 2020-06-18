@@ -28,7 +28,7 @@ object TestLengthKindDelimited {
   val runnerAB = Runner(testDir, "AB.tdml")
   val runnerAN = Runner(testDir, "AN.tdml")
 
-  @AfterClass def shutDown {
+  @AfterClass def shutDown: Unit = {
     runner.reset
     runnerAB.reset
     runnerAN.reset
@@ -50,46 +50,46 @@ class TestLengthKindDelimited {
   @Test def test_NumSeq_00nl() = { runner.runOneTest("NumSeq_00nl") }
   @Test def test_NumSeq_01() = { runner.runOneTest("NumSeq_01") }
   @Test def test_nested_NumSeq_01() = { runner.runOneTest("nested_NumSeq_01") }
-  @Test def test_eofTest1() { runner.runOneTest("eofTest1") }
-  @Test def test_NumSeq_03() { runner.runOneTest("NumSeq_03") }
-  @Test def test_NumSeq_04() { runner.runOneTest("NumSeq_04") }
-  @Test def test_NumSeq_05() { runner.runOneTest("NumSeq_05") }
-  @Test def test_NumSeq_06() { runner.runOneTest("NumSeq_06") }
-  @Test def test_NumSeq_07() { runner.runOneTest("NumSeq_07") }
-  @Test def test_NumSeq_08() { runner.runOneTest("NumSeq_08") }
-  @Test def test_NumSeq_09() { runner.runOneTest("NumSeq_09") }
+  @Test def test_eofTest1(): Unit = { runner.runOneTest("eofTest1") }
+  @Test def test_NumSeq_03(): Unit = { runner.runOneTest("NumSeq_03") }
+  @Test def test_NumSeq_04(): Unit = { runner.runOneTest("NumSeq_04") }
+  @Test def test_NumSeq_05(): Unit = { runner.runOneTest("NumSeq_05") }
+  @Test def test_NumSeq_06(): Unit = { runner.runOneTest("NumSeq_06") }
+  @Test def test_NumSeq_07(): Unit = { runner.runOneTest("NumSeq_07") }
+  @Test def test_NumSeq_08(): Unit = { runner.runOneTest("NumSeq_08") }
+  @Test def test_NumSeq_09(): Unit = { runner.runOneTest("NumSeq_09") }
   // DAFFODIL-230 dfdl:documentFinalTerminatorCanBeMissing
   //  @Test def test_NumSeq_10() { runner.runOneTest("NumSeq_10") }
-  @Test def test_delimsCheck() { runner.runOneTest("delimsCheck") }
-  @Test def test_lengthKindDelimited_01() { runner.runOneTest("lengthKindDelimited_01") }
-  @Test def test_lengthKindDelimited_02() { runner.runOneTest("lengthKindDelimited_02") }
-  @Test def test_lengthKindDelimited_03() { runner.runOneTest("lengthKindDelimited_03") }
-  @Test def test_lengthKindDelimited_04() { runner.runOneTest("lengthKindDelimited_04") }
-  @Test def test_NumSeq_11() { runner.runOneTest("NumSeq_11") }
-  @Test def test_NumSeq_12() { runner.runOneTest("NumSeq_12") }
-  @Test def test_NumSeq_13() { runner.runOneTest("NumSeq_13") }
+  @Test def test_delimsCheck(): Unit = { runner.runOneTest("delimsCheck") }
+  @Test def test_lengthKindDelimited_01(): Unit = { runner.runOneTest("lengthKindDelimited_01") }
+  @Test def test_lengthKindDelimited_02(): Unit = { runner.runOneTest("lengthKindDelimited_02") }
+  @Test def test_lengthKindDelimited_03(): Unit = { runner.runOneTest("lengthKindDelimited_03") }
+  @Test def test_lengthKindDelimited_04(): Unit = { runner.runOneTest("lengthKindDelimited_04") }
+  @Test def test_NumSeq_11(): Unit = { runner.runOneTest("NumSeq_11") }
+  @Test def test_NumSeq_12(): Unit = { runner.runOneTest("NumSeq_12") }
+  @Test def test_NumSeq_13(): Unit = { runner.runOneTest("NumSeq_13") }
   // DAFFODIL-1975
   // @Test def test_NumSeq_13a() { runner.runOneTest("NumSeq_13a") }
-  @Test def test_NumSeq_13Fail() { runner.runOneTest("NumSeq_13Fail") }
-  @Test def test_NumSeq_14() { runner.runOneTest("NumSeq_14") }
+  @Test def test_NumSeq_13Fail(): Unit = { runner.runOneTest("NumSeq_13Fail") }
+  @Test def test_NumSeq_14(): Unit = { runner.runOneTest("NumSeq_14") }
   // Tests that initiator is found when on ElementRef
-  @Test def test_refInitiator() { runner.runOneTest("refInitiator") }
+  @Test def test_refInitiator(): Unit = { runner.runOneTest("refInitiator") }
   // Tests that initiator is found when on GlobalElmentDecl
-  @Test def test_refInitiator2() { runner.runOneTest("refInitiator2") }
-  @Test def test_binary_delimited_fail() { runner.runOneTest("binary_delimited_fail") }
-  @Test def test_Lesson1_lengthKind_delimited() { runner.runOneTest("Lesson1_lengthKind_delimited") }
-  @Test def test_Lesson4_delimited_fixed_length() { runner.runOneTest("Lesson4_delimited_fixed_length") }
-  @Test def test_delimited_construct() { runner.runOneTest("delimited_construct") }
+  @Test def test_refInitiator2(): Unit = { runner.runOneTest("refInitiator2") }
+  @Test def test_binary_delimited_fail(): Unit = { runner.runOneTest("binary_delimited_fail") }
+  @Test def test_Lesson1_lengthKind_delimited(): Unit = { runner.runOneTest("Lesson1_lengthKind_delimited") }
+  @Test def test_Lesson4_delimited_fixed_length(): Unit = { runner.runOneTest("Lesson4_delimited_fixed_length") }
+  @Test def test_delimited_construct(): Unit = { runner.runOneTest("delimited_construct") }
 
-  @Test def test_AB000() { runnerAB.runOneTest("AB000") }
-  @Test def test_AB001() { runnerAB.runOneTest("AB001") }
-  @Test def test_AB002() { runnerAB.runOneTest("AB002") }
-  @Test def test_AB003() { runnerAB.runOneTest("AB003") }
-  @Test def test_AB004() { runnerAB.runOneTest("AB004") }
-  @Test def test_AB005_parse() { runnerAB.runOneTest("AB005_parse") }
-  @Test def test_AB005_unparse() { runnerAB.runOneTest("AB005_unparse") }
+  @Test def test_AB000(): Unit = { runnerAB.runOneTest("AB000") }
+  @Test def test_AB001(): Unit = { runnerAB.runOneTest("AB001") }
+  @Test def test_AB002(): Unit = { runnerAB.runOneTest("AB002") }
+  @Test def test_AB003(): Unit = { runnerAB.runOneTest("AB003") }
+  @Test def test_AB004(): Unit = { runnerAB.runOneTest("AB004") }
+  @Test def test_AB005_parse(): Unit = { runnerAB.runOneTest("AB005_parse") }
+  @Test def test_AB005_unparse(): Unit = { runnerAB.runOneTest("AB005_unparse") }
 
-  @Test def test_AN000() { runnerAN.runOneTest("AN000") }
-  @Test def test_AN001() { runnerAN.runOneTest("AN001") }
+  @Test def test_AN000(): Unit = { runnerAN.runOneTest("AN000") }
+  @Test def test_AN001(): Unit = { runnerAN.runOneTest("AN001") }
 
 }

@@ -46,7 +46,7 @@ class TestISO8859_1 {
    * non-whitespace glyph. That transformation does NOT preserve the 256 codepoint values. E.g., all the
    * CO Control characters are mapped to the Unicode CO Control "picture" characters.
    */
-  @Test def test_ISO_8859_1_has256CodepointsIsomorphicToUnicodeCodepointsU0000toU00FF() {
+  @Test def test_ISO_8859_1_has256CodepointsIsomorphicToUnicodeCodepointsU0000toU00FF(): Unit = {
     val byteArray = (0 to 255).map { _.toByte }.toArray
     val bb = ByteBuffer.wrap(byteArray)
     val cs = Charset.forName("iso-8859-1")

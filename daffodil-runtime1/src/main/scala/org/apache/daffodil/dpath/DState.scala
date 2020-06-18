@@ -148,7 +148,7 @@ case class DState(
   /**
    * Set to UnparserBlocking for forward-referencing expressions during unparsing.
    */
-  def setMode(m: EvalMode) {
+  def setMode(m: EvalMode): Unit = {
     _mode = m
   }
   def mode = _mode
@@ -198,7 +198,7 @@ case class DState(
   //    coroutineToResumeIfBlocked_
   //  }
 
-  def resetValue() {
+  def resetValue(): Unit = {
     _currentValue = DataValue.NoValue
   }
 
@@ -210,15 +210,15 @@ case class DState(
     else _currentValue
   }
 
-  def setCurrentValue(v: DataValuePrimitiveNullable) {
+  def setCurrentValue(v: DataValuePrimitiveNullable): Unit = {
     _currentValue = v
     _currentNode = null
   }
-  def setCurrentValue(v: Long) {
+  def setCurrentValue(v: Long): Unit = {
     _currentValue = v
     _currentNode = null
   }
-  def setCurrentValue(v: Boolean) {
+  def setCurrentValue(v: Boolean): Unit = {
     _currentValue = v
     _currentNode = null
   }
@@ -274,7 +274,7 @@ case class DState(
   private var _currentNode: DINode = null
 
   def currentNode = _currentNode
-  def setCurrentNode(n: DINode) {
+  def setCurrentNode(n: DINode): Unit = {
     _currentNode = n
     _currentValue = DataValue.NoValue
   }
@@ -326,7 +326,7 @@ case class DState(
    * changes to the vmap easy. Just don't copy the vmap back from the DState
    * into the PState, and the changes are gone.
    */
-  def setVMap(m: VariableMap) {
+  def setVMap(m: VariableMap): Unit = {
     if (_vbox eq null) {
       _vbox = new VariableBox(m)
     } else {
@@ -338,7 +338,7 @@ case class DState(
    * Used by UState, where we want to shared the vmap as modified by the
    * expression evaluations that use the DState.
    */
-  def setVBox(box: VariableBox) {
+  def setVBox(box: VariableBox): Unit = {
     _vbox = box
   }
 
@@ -353,7 +353,7 @@ case class DState(
 
   private var _contextNode: Maybe[DINode] = Nope
   def contextNode = _contextNode
-  def setContextNode(node: DINode) {
+  def setContextNode(node: DINode): Unit = {
     _contextNode = One(node)
   }
 
@@ -381,19 +381,19 @@ case class DState(
 
   private var _savesErrorsAndWarnings: Maybe[SavesErrorsAndWarnings] = Nope
   def errorOrWarn = _savesErrorsAndWarnings
-  def setErrorOrWarn(s: SavesErrorsAndWarnings) {
+  def setErrorOrWarn(s: SavesErrorsAndWarnings): Unit = {
     _savesErrorsAndWarnings = One(s)
   }
 
   private var _arrayPos: Long = -1L // init to -1L so that we must set before use.
   def arrayPos = _arrayPos
-  def setArrayPos(arrayPos1b: Long) {
+  def setArrayPos(arrayPos1b: Long): Unit = {
     _arrayPos = arrayPos1b
   }
 
   private var _parseOrUnparseState: Maybe[ParseOrUnparseState] = Nope
   def parseOrUnparseState = _parseOrUnparseState
-  def setParseOrUnparseState(state: ParseOrUnparseState) {
+  def setParseOrUnparseState(state: ParseOrUnparseState): Unit = {
     _parseOrUnparseState = One(state)
   }
 

@@ -37,7 +37,7 @@ import org.junit.Assert.assertTrue
 class TestNumberStuff {
 
   @Test
-  def test1() {
+  def test1(): Unit = {
     val dl = UnsignedLongConverter()
     val p = dl.parser
     val maxUL = "18446744073709551615"
@@ -46,7 +46,7 @@ class TestNumberStuff {
   }
 
   @Test
-  def test2() {
+  def test2(): Unit = {
     val dl = UnsignedLongConverter()
     val p = dl.parser
     val maxUL = "-18446744073709551615"
@@ -57,7 +57,7 @@ class TestNumberStuff {
   }
 
   @Test
-  def test3() {
+  def test3(): Unit = {
     val dl = UnsignedLongConverter()
     val p = dl.parser
     val tooBig = "18446744073709551616" // one larger than maxUL
@@ -70,7 +70,7 @@ class TestNumberStuff {
   }
 
   @Test
-  def test4() {
+  def test4(): Unit = {
     val dl = UnsignedLongConverter()
     val p = dl.parser
     val v = "1"
@@ -79,7 +79,7 @@ class TestNumberStuff {
   }
 
   @Test
-  def test5() {
+  def test5(): Unit = {
     val dl = UnsignedLongConverter()
     val p = dl.parser
     val maxUL = "-1"
@@ -90,7 +90,7 @@ class TestNumberStuff {
   }
 
   @Test
-  def test6() {
+  def test6(): Unit = {
     val dl = UnsignedLongConverter()
     val p = dl.parser
     val maxUL = "18446744073709551615"
@@ -100,7 +100,7 @@ class TestNumberStuff {
   }
 
   @Test
-  def test7() {
+  def test7(): Unit = {
     val dl = UnsignedLongConverter()
     val p = dl.parser
     val v = "definitelyNotANumber"
@@ -110,7 +110,7 @@ class TestNumberStuff {
     assertTrue(exc.getMessage().contains("not a valid"))
   }
 
-  @Test def test8() {
+  @Test def test8(): Unit = {
     val dl = LongConverter()
     val p = dl.parser
     val v = "definitelyNotANumber"
@@ -120,7 +120,7 @@ class TestNumberStuff {
     assertTrue(exc.getMessage().contains("not a valid"))
   }
 
-  @Test def test9() {
+  @Test def test9(): Unit = {
     val dl = LongConverter()
     val p = dl.parser
     val v = "1              " // lots of spaces after
@@ -130,12 +130,12 @@ class TestNumberStuff {
     assertTrue(exc.getMessage().contains("consume all"))
   }
 
-  @Test def testHex2Bits() {
+  @Test def testHex2Bits(): Unit = {
     val actual = Misc.hex2Bits("ab3")
     assertEquals("101010110011", actual)
   }
 
-  @Test def testBytesToBits() {
+  @Test def testBytesToBits(): Unit = {
     val xml = <foo>&#xA2;</foo>
     val bytes = xml.child(0).text.getBytes("utf-8")
     val actual = Misc.bytes2Bits(bytes)

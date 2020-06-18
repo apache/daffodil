@@ -132,7 +132,7 @@ class TunableGenerator(schemaRootConfig: scala.xml.Node, schemaRootExt: scala.xm
     .filter { st => (st \@ "name").startsWith("Tunable") }
     .filter { st => !excludedSimpleTypes.contains(st \@ "name") }
 
-  def writeGeneratedCode(w: java.io.FileWriter) {
+  def writeGeneratedCode(w: java.io.FileWriter): Unit = {
     val tunables =
       tunableNodes.map { tunableNode =>
         val schemaName = tunableNode \@ "name"

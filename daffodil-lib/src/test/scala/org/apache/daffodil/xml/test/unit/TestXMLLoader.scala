@@ -28,7 +28,7 @@ class TestXMLLoader {
    * At the time of this testing. The basic scala xml loader uses Xerces (java)
    * under the hood. It seems hopelessly broken w.r.t CDATA region preservation.
    */
-  @Test def test_scala_loader_cdata_bug() {
+  @Test def test_scala_loader_cdata_bug(): Unit = {
 
     val data = """<x><![CDATA[a
 b&"<>]]></x>"""

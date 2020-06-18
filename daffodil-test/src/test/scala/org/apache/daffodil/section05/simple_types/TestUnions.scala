@@ -26,7 +26,7 @@ object TestUnions {
 
   val runner = Runner(testDir, "unions.tdml")
 
-  @AfterClass def shutdown {
+  @AfterClass def shutdown: Unit = {
     runner.reset
   }
 }
@@ -34,12 +34,12 @@ object TestUnions {
 class TestUnions {
   import TestUnions._
 
-  @Test def test_unionOf1() { runner.runOneTest("unionOf1") }
-  @Test def test_unionOf1b() { runner.runOneTest("unionOf1b") }
-  @Test def test_uu1() { runner.runOneTest("uu1") }
-  @Test def test_uu2() { runner.runOneTest("uu2") }
-  @Test def test_uu3() { runner.runOneTest("uu3") }
-  @Test def test_uu1neg() { runner.runOneTest("uu1neg") }
-  @Test def test_uu2neg() { runner.runOneTest("uu2neg") }
+  @Test def test_unionOf1(): Unit = { runner.runOneTest("unionOf1") }
+  @Test def test_unionOf1b(): Unit = { runner.runOneTest("unionOf1b") }
+  @Test def test_uu1(): Unit = { runner.runOneTest("uu1") }
+  @Test def test_uu2(): Unit = { runner.runOneTest("uu2") }
+  @Test def test_uu3(): Unit = { runner.runOneTest("uu3") }
+  @Test def test_uu1neg(): Unit = { runner.runOneTest("uu1neg") }
+  @Test def test_uu2neg(): Unit = { runner.runOneTest("uu2neg") }
 
 }

@@ -24,7 +24,7 @@ import org.apache.daffodil.Implicits._
 class TestExceptions {
 
   @Test
-  def testAssert() {
+  def testAssert(): Unit = {
     intercept[Abort] {
       Assert.abort("yadda")
     }

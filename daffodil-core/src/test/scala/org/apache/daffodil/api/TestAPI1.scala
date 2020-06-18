@@ -25,7 +25,7 @@ import org.apache.daffodil.Implicits._
 
 class TestDFDLParser {
 
-  @Test def testParseSimple1() {
+  @Test def testParseSimple1(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -35,7 +35,7 @@ class TestDFDLParser {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
-  @Test def testParseSequenceOfJustOneScalar() {
+  @Test def testParseSequenceOfJustOneScalar(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -51,7 +51,7 @@ class TestDFDLParser {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
-  @Test def testParseSequence1() {
+  @Test def testParseSequence1(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -68,7 +68,7 @@ class TestDFDLParser {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
-  @Test def testParseSequence2() {
+  @Test def testParseSequence2(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -84,7 +84,7 @@ class TestDFDLParser {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
-  @Test def testParseSequence3() {
+  @Test def testParseSequence3(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format separatorSuppressionPolicy="never" separatorPosition="infix" ref="tns:GeneralFormat"/>,
@@ -100,7 +100,7 @@ class TestDFDLParser {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
-  @Test def testInt1() {
+  @Test def testInt1(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -116,7 +116,7 @@ class TestDFDLParser {
     TestUtils.assertEqualsXMLElements(<e1><s1>5</s1><s2>5000</s2></e1>, actual)
   }
 
-  @Test def testInt2() {
+  @Test def testInt2(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -134,7 +134,7 @@ class TestDFDLParser {
     assertTrue(e.getMessage().contains("xs:int"))
   }
 
-  @Test def testShort1() {
+  @Test def testShort1(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -150,7 +150,7 @@ class TestDFDLParser {
     TestUtils.assertEqualsXMLElements(<e1><s1>5</s1><s2>5000</s2></e1>, actual)
   }
 
-  @Test def testShort2() {
+  @Test def testShort2(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -167,7 +167,7 @@ class TestDFDLParser {
     assertTrue(e.getMessage().contains("short"))
   }
 
-  @Test def testByte1() {
+  @Test def testByte1(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -183,7 +183,7 @@ class TestDFDLParser {
     TestUtils.assertEqualsXMLElements(<e1><s1>55</s1><s2>123</s2></e1>, actual)
   }
 
-  @Test def testNumber1() {
+  @Test def testNumber1(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -201,7 +201,7 @@ class TestDFDLParser {
     TestUtils.assertEqualsXMLElements(<e1><country>1</country><area>-800</area><region>-555</region><number>-1212</number></e1>, actual)
   }
 
-  @Test def testNumber2() {
+  @Test def testNumber2(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -210,7 +210,7 @@ class TestDFDLParser {
     TestUtils.assertEqualsXMLElements(<mersenne>-127</mersenne>, actual)
   }
 
-  @Test def testNumber3() {
+  @Test def testNumber3(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -219,7 +219,7 @@ class TestDFDLParser {
     TestUtils.assertEqualsXMLElements(<perfect>3</perfect>, actual)
   }
 
-  @Test def testUnsignedLong1() {
+  @Test def testUnsignedLong1(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -230,7 +230,7 @@ class TestDFDLParser {
     assertTrue(e.getMessage().contains("unsignedLong"))
   }
 
-  @Test def testUnsignedInt1() {
+  @Test def testUnsignedInt1(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -242,7 +242,7 @@ class TestDFDLParser {
     assertTrue(e.getMessage().contains("unsignedInt"))
   }
 
-  @Test def testUnsignedShort1() {
+  @Test def testUnsignedShort1(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -253,7 +253,7 @@ class TestDFDLParser {
     assertTrue(e.getMessage().contains("unsignedShort"))
   }
 
-  @Test def testUnsignedByte1() {
+  @Test def testUnsignedByte1(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -264,7 +264,7 @@ class TestDFDLParser {
     assertTrue(e.getMessage().contains("unsignedByte"))
   }
 
-  @Test def testIntTooLong() {
+  @Test def testIntTooLong(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -281,7 +281,7 @@ class TestDFDLParser {
     assertTrue(e.getMessage().contains("int"))
   }
 
-  @Test def testParseSequenceInt() {
+  @Test def testParseSequenceInt(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format separatorSuppressionPolicy="never" separatorPosition="infix" ref="tns:GeneralFormat"/>,
@@ -297,7 +297,7 @@ class TestDFDLParser {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
-  @Test def testParseSequenceInt3Operands() {
+  @Test def testParseSequenceInt3Operands(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format separatorSuppressionPolicy="never" separatorPosition="infix" ref="tns:GeneralFormat"/>,
@@ -313,7 +313,7 @@ class TestDFDLParser {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
-  @Test def testBadInt() {
+  @Test def testBadInt(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -324,7 +324,7 @@ class TestDFDLParser {
     assertTrue(e.getMessage().contains("xs:int"))
   }
 
-  @Test def testParseOccursCountKindOfParsed() {
+  @Test def testParseOccursCountKindOfParsed(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -341,7 +341,7 @@ class TestDFDLParser {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
-  @Test def testParseOccursCountKindOfParsedWithTerminator() {
+  @Test def testParseOccursCountKindOfParsedWithTerminator(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -358,7 +358,7 @@ class TestDFDLParser {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
-  @Test def testParseOccursCountKindOfParsedDelimitedByTerminator() {
+  @Test def testParseOccursCountKindOfParsedDelimitedByTerminator(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -376,7 +376,7 @@ class TestDFDLParser {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
-  @Test def testParseOccursCountKindOfParsedDelimitedByTerminator2() {
+  @Test def testParseOccursCountKindOfParsedDelimitedByTerminator2(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -393,7 +393,7 @@ class TestDFDLParser {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
-  @Test def testParseOccursCountKindOfParsedDelimitedBySeparator() {
+  @Test def testParseOccursCountKindOfParsedDelimitedBySeparator(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -411,7 +411,7 @@ class TestDFDLParser {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
-  @Test def testParseOccursCountKindOfParsedDelimitedBySeparator3() {
+  @Test def testParseOccursCountKindOfParsedDelimitedBySeparator3(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -429,7 +429,7 @@ class TestDFDLParser {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
-  @Test def testBinaryIntMinusOne() {
+  @Test def testBinaryIntMinusOne(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format representation="binary" byteOrder="bigEndian" binaryNumberRep="binary" ref="tns:GeneralFormat"/>,
@@ -445,7 +445,7 @@ class TestDFDLParser {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
-  @Test def testBinaryInts() {
+  @Test def testBinaryInts(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format representation="binary" byteOrder="bigEndian" binaryNumberRep="binary" ref="tns:GeneralFormat"/>,
@@ -463,7 +463,7 @@ class TestDFDLParser {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
-  @Test def testBinaryDoubleOne() {
+  @Test def testBinaryDoubleOne(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format representation="binary" byteOrder="bigEndian" binaryNumberRep="binary" binaryFloatRep="ieee" ref="tns:GeneralFormat"/>,
@@ -473,7 +473,7 @@ class TestDFDLParser {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
-  @Test def testBinaryDoubleMinusOne() {
+  @Test def testBinaryDoubleMinusOne(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format representation="binary" byteOrder="bigEndian" binaryNumberRep="binary" binaryFloatRep="ieee" ref="tns:GeneralFormat"/>,
@@ -483,7 +483,7 @@ class TestDFDLParser {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
-  @Test def testBinaryDoubleLSB() {
+  @Test def testBinaryDoubleLSB(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format representation="binary" byteOrder="bigEndian" binaryNumberRep="binary" binaryFloatRep="ieee" ref="tns:GeneralFormat"/>,
@@ -493,7 +493,7 @@ class TestDFDLParser {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
-  @Test def testBinaryDoubles() {
+  @Test def testBinaryDoubles(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format representation="binary" byteOrder="bigEndian" binaryNumberRep="binary" binaryFloatRep="ieee" ref="tns:GeneralFormat"/>,
@@ -510,7 +510,7 @@ class TestDFDLParser {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
-  @Test def testTextDoubles() {
+  @Test def testTextDoubles(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -528,7 +528,7 @@ class TestDFDLParser {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
-  @Test def testBinaryFloats() {
+  @Test def testBinaryFloats(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format representation="binary" byteOrder="bigEndian" binaryNumberRep="binary" binaryFloatRep="ieee" ref="tns:GeneralFormat"/>,
@@ -545,7 +545,7 @@ class TestDFDLParser {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
-  @Test def testTextFloats() {
+  @Test def testTextFloats(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,

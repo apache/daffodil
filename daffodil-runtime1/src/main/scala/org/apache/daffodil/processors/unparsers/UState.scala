@@ -183,11 +183,11 @@ abstract class UState(
 
   def charPos = -1L
 
-  final def notifyDebugging(flag: Boolean) {
+  final def notifyDebugging(flag: Boolean): Unit = {
     dataOutputStream.setDebugging(flag)
   }
 
-  def addUnparseError(ue: UnparseError) {
+  def addUnparseError(ue: UnparseError): Unit = {
     diagnostics = ue :: diagnostics
     _processorStatus = new Failure(ue)
   }
@@ -345,11 +345,11 @@ abstract class UState(
 
   def documentElement: DIDocument
 
-  def newVariableInstance(vrd: VariableRuntimeData) {
+  def newVariableInstance(vrd: VariableRuntimeData): Unit = {
     variableMap.newVariableInstance(vrd)
   }
 
-  def removeVariableInstance(vrd: VariableRuntimeData) {
+  def removeVariableInstance(vrd: VariableRuntimeData): Unit = {
     variableMap.removeVariableInstance(vrd)
   }
 }
@@ -613,11 +613,11 @@ final class UStateMain private (
    */
   private val suspensions = initialSuspendedExpressions
 
-  def addSuspension(se: Suspension) {
+  def addSuspension(se: Suspension): Unit = {
     suspensions.enqueue(se)
   }
 
-  def evalSuspensions(ustate: UState) {
+  def evalSuspensions(ustate: UState): Unit = {
     var countOfNotMakingProgress = 0
     while (!suspensions.isEmpty &&
       countOfNotMakingProgress < suspensions.length) {

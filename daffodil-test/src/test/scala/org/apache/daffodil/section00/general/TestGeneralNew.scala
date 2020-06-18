@@ -30,7 +30,7 @@ object TestGeneralNew {
   val testDir = "/org/apache/daffodil/section00/general/"
   val runner = Runner(testDir, "general.tdml")
 
-  @AfterClass def shutDown {
+  @AfterClass def shutDown: Unit = {
     runner.reset
   }
 }

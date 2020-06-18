@@ -34,7 +34,7 @@ import org.junit.Test
 
 class TestUTF8AndUTF16Conversions {
 
-  @Test def testDecoding() {
+  @Test def testDecoding(): Unit = {
     // This is dollar sign, cents sign, euro symbol,
     // and a 3-byte unicode whitespace character (which has been problematic
     // some places we think)
@@ -45,13 +45,13 @@ class TestUTF8AndUTF16Conversions {
     assertEquals(9, bytes.length)
   }
 
-  @Test def testEquality() {
+  @Test def testEquality(): Unit = {
     val data = <data><d>&#x24;</d></data>
     val data2 = <data><d>$</d></data>
     assertEquals(data2, data)
   }
 
-  @Test def testSupplementalCharSurrogates() {
+  @Test def testSupplementalCharSurrogates(): Unit = {
     // U+1d420 is a script capital A which is part of the unicode supplemental characters
     // which requires a surrogate pair in the JVM/Java/Scala, and 4 bytes of UTF-8 representation.
     val data = <data>&#x1d420;</data>
@@ -71,7 +71,7 @@ class TestUTF8AndUTF16Conversions {
    * (total of 6 bytes for the character) instead of the more modern
    * (and required!) 4-byte utf-8 encoding.
    */
-  @Test def testReadSurrogateCodePointsLikeCharacters() {
+  @Test def testReadSurrogateCodePointsLikeCharacters(): Unit = {
 
     val data = <data>&#xd835;&#xdcd0;</data> //technically, this is illegal.
     val str = data.child.text

@@ -30,7 +30,7 @@ object TestArrayOptionalElem {
   val rBack = Runner(testDir, "backtracking.tdml")
   val runnerAC = Runner(testDir, "ArrayComb.tdml")
 
-  @AfterClass def shutDown {
+  @AfterClass def shutDown: Unit = {
     runner.reset
     runner01.reset
     rBack.reset
@@ -47,47 +47,47 @@ class TestArrayOptionalElem {
   @Test def test_arrayComb1() = { runnerAC.runOneTest("arrayComb1") }
   @Test def test_arrayComb2() = { runnerAC.runOneTest("arrayComb2") }
 
-  @Test def test_arrayExpressions01() { runner.runOneTest("arrayExpressions01") }
-  @Test def test_arrayExpressions02() { runner.runOneTest("arrayExpressions02") }
-  @Test def test_arrayExpressions02b() { runner.runOneTest("arrayExpressions02b") }
-  @Test def test_arrayExpressions02c() { runner.runOneTest("arrayExpressions02c") }
-  @Test def test_arrayExpressions02d() { runner.runOneTest("arrayExpressions02d") }
-  @Test def test_arrayExpressions03() { runner.runOneTest("arrayExpressions03") }
-  @Test def test_arrayExpressions04() { runner.runOneTest("arrayExpressions04") }
-  @Test def test_arrayExpressions05() { runner.runOneTest("arrayExpressions05") }
+  @Test def test_arrayExpressions01(): Unit = { runner.runOneTest("arrayExpressions01") }
+  @Test def test_arrayExpressions02(): Unit = { runner.runOneTest("arrayExpressions02") }
+  @Test def test_arrayExpressions02b(): Unit = { runner.runOneTest("arrayExpressions02b") }
+  @Test def test_arrayExpressions02c(): Unit = { runner.runOneTest("arrayExpressions02c") }
+  @Test def test_arrayExpressions02d(): Unit = { runner.runOneTest("arrayExpressions02d") }
+  @Test def test_arrayExpressions03(): Unit = { runner.runOneTest("arrayExpressions03") }
+  @Test def test_arrayExpressions04(): Unit = { runner.runOneTest("arrayExpressions04") }
+  @Test def test_arrayExpressions05(): Unit = { runner.runOneTest("arrayExpressions05") }
 
-  @Test def test_error01() { runner.runOneTest("error01") }
-  @Test def test_postfixNoErr() { runner.runOneTest("postfixNoErr") }
+  @Test def test_error01(): Unit = { runner.runOneTest("error01") }
+  @Test def test_postfixNoErr(): Unit = { runner.runOneTest("postfixNoErr") }
 
-  @Test def test_optionalElem() { runner.runOneTest("optionalElem") }
-  @Test def test_optionalWithSeparators() { runner.runOneTest("optionalWithSeparators") }
-  @Test def test_Lesson6_optional_element() { runner.runOneTest("Lesson6_optional_element") }
-  @Test def test_Lesson6_optional_element_01() { runner.runOneTest("Lesson6_optional_element_01") }
-  @Test def test_Lesson6_fixed_array() { runner.runOneTest("Lesson6_fixed_array") }
-  @Test def test_Lesson6_variable_array() { runner.runOneTest("Lesson6_variable_array") }
-  @Test def test_Lesson6_variable_array_01() { runner.runOneTest("Lesson6_variable_array_01") }
-  @Test def test_Lesson6_variable_array_02() { runner.runOneTest("Lesson6_variable_array_02") }
+  @Test def test_optionalElem(): Unit = { runner.runOneTest("optionalElem") }
+  @Test def test_optionalWithSeparators(): Unit = { runner.runOneTest("optionalWithSeparators") }
+  @Test def test_Lesson6_optional_element(): Unit = { runner.runOneTest("Lesson6_optional_element") }
+  @Test def test_Lesson6_optional_element_01(): Unit = { runner.runOneTest("Lesson6_optional_element_01") }
+  @Test def test_Lesson6_fixed_array(): Unit = { runner.runOneTest("Lesson6_fixed_array") }
+  @Test def test_Lesson6_variable_array(): Unit = { runner.runOneTest("Lesson6_variable_array") }
+  @Test def test_Lesson6_variable_array_01(): Unit = { runner.runOneTest("Lesson6_variable_array_01") }
+  @Test def test_Lesson6_variable_array_02(): Unit = { runner.runOneTest("Lesson6_variable_array_02") }
 
-  @Test def test_leftOverData_Neg() { runner01.runOneTest("leftOverData_Neg") }
+  @Test def test_leftOverData_Neg(): Unit = { runner01.runOneTest("leftOverData_Neg") }
 
   @Test def test_backtrack1Text() = { rBack.runOneTest("backtrack1Text") }
 
-  @Test def test_occursCountKindImplicitSeparators01a() { runner.runOneTest("occursCountKindImplicitSeparators01a") }
-  @Test def test_occursCountKindImplicitSeparators01b() { runner.runOneTest("occursCountKindImplicitSeparators01b") }
-  @Test def test_occursCountKindImplicitSeparators02() { runner.runOneTest("occursCountKindImplicitSeparators02") }
-  @Test def test_occursCountKindImplicitSeparators03() { runner.runOneTest("occursCountKindImplicitSeparators03") }
-  @Test def test_occursCountKindImplicitSeparators04() { runner.runOneTest("occursCountKindImplicitSeparators04") }
-  @Test def test_occursCountKindImplicitSeparators05() { runner.runOneTest("occursCountKindImplicitSeparators05") }
-  @Test def test_occursCountKindImplicitSeparators05Strict() { runner.runOneTest("occursCountKindImplicitSeparators05Strict") }
-  @Test def test_occursCountKindImplicitSeparatorsUnparser() { runner.runOneTest("occursCountKindImplicitSeparatorsUnparser") }
+  @Test def test_occursCountKindImplicitSeparators01a(): Unit = { runner.runOneTest("occursCountKindImplicitSeparators01a") }
+  @Test def test_occursCountKindImplicitSeparators01b(): Unit = { runner.runOneTest("occursCountKindImplicitSeparators01b") }
+  @Test def test_occursCountKindImplicitSeparators02(): Unit = { runner.runOneTest("occursCountKindImplicitSeparators02") }
+  @Test def test_occursCountKindImplicitSeparators03(): Unit = { runner.runOneTest("occursCountKindImplicitSeparators03") }
+  @Test def test_occursCountKindImplicitSeparators04(): Unit = { runner.runOneTest("occursCountKindImplicitSeparators04") }
+  @Test def test_occursCountKindImplicitSeparators05(): Unit = { runner.runOneTest("occursCountKindImplicitSeparators05") }
+  @Test def test_occursCountKindImplicitSeparators05Strict(): Unit = { runner.runOneTest("occursCountKindImplicitSeparators05Strict") }
+  @Test def test_occursCountKindImplicitSeparatorsUnparser(): Unit = { runner.runOneTest("occursCountKindImplicitSeparatorsUnparser") }
 
-  @Test def test_ambigSep1() { runner.runOneTest("ambigSep1") }
-  @Test def test_ambigSep2() { runner.runOneTest("ambigSep2") }
+  @Test def test_ambigSep1(): Unit = { runner.runOneTest("ambigSep1") }
+  @Test def test_ambigSep2(): Unit = { runner.runOneTest("ambigSep2") }
 
   // DAFFODIL-1886
-  @Test def test_manyAdjacentOptionals_01() { runner.runOneTest("manyAdjacentOptionals_01") }
+  @Test def test_manyAdjacentOptionals_01(): Unit = { runner.runOneTest("manyAdjacentOptionals_01") }
 
   // DAFFODIL-2263
-  @Test def test_dfdl2263() { runner.runOneTest("dfdl2263") }
+  @Test def test_dfdl2263(): Unit = { runner.runOneTest("dfdl2263") }
 
 }

@@ -26,7 +26,7 @@ object TestParseUnparseMode {
   val runner = Runner(testDir, "parseUnparseModeTest.tdml",
     validateDFDLSchemas = false) // there are UPA errors in some test schemas
 
-  @AfterClass def shutDown {
+  @AfterClass def shutDown: Unit = {
     runner.reset
   }
 
@@ -36,11 +36,11 @@ class TestParseUnparseMode {
 
   import TestParseUnparseMode._
 
-  @Test def test_parse1() { runner.runOneTest("parse1") }
+  @Test def test_parse1(): Unit = { runner.runOneTest("parse1") }
 
-  @Test def test_unparse1() { runner.runOneTest("unparse1") }
+  @Test def test_unparse1(): Unit = { runner.runOneTest("unparse1") }
 
-  @Test def test_unparse2() { runner.runOneTest("unparse2") }
+  @Test def test_unparse2(): Unit = { runner.runOneTest("unparse2") }
 
-  @Test def test_unparse3() { runner.runOneTest("unparse3") }
+  @Test def test_unparse3(): Unit = { runner.runOneTest("unparse3") }
 }

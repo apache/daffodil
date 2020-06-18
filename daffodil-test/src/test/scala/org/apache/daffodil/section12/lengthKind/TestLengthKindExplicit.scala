@@ -25,7 +25,7 @@ object TestLengthKindExplicit {
   val testDir = "/org/apache/daffodil/section12/lengthKind/"
   val runner = Runner(testDir, "ExplicitTests.tdml")
 
-  @AfterClass def shutDown {
+  @AfterClass def shutDown: Unit = {
     runner.reset
   }
 
@@ -35,7 +35,7 @@ class TestLengthKindExplicit {
 
   import TestLengthKindExplicit._
 
-  @Test def test_Lesson1_lengthKind_explicit() { runner.runOneTest("Lesson1_lengthKind_explicit") }
+  @Test def test_Lesson1_lengthKind_explicit(): Unit = { runner.runOneTest("Lesson1_lengthKind_explicit") }
   @Test def test_ExplicitLengthBytesNotFixed() = { runner.runOneTest("test_ExplicitLengthBytesNotFixed") }
   @Test def test_ExplicitLengthBitsFixed() = { runner.runOneTest("ExplicitLengthBitsFixed") }
   @Test def test_ExplicitLengthBytesFixed() = { runner.runOneTest("test_ExplicitLengthBytesFixed") }
@@ -61,7 +61,7 @@ class TestLengthKindExplicit {
   @Test def test_explicitBytes_int_02() = { runner.runOneTest("explicitBytes_int_02") }
 
   // Added for issue related to DFDL-1674
-  @Test def test_denseBit_lengthKind_explicit() { runner.runOneTest("denseBit_lengthKind_explicit") }
+  @Test def test_denseBit_lengthKind_explicit(): Unit = { runner.runOneTest("denseBit_lengthKind_explicit") }
 
 
 }

@@ -42,7 +42,7 @@ class TestDPath {
       </xs:complexType>
     </xs:element>)
 
-  @Test def test_twoUpwardSteps() {
+  @Test def test_twoUpwardSteps(): Unit = {
     TestUtils.testString(testSchemaNoRef, "")
   }
 
@@ -65,7 +65,7 @@ class TestDPath {
       </xs:complexType>
     </xs:element>)
 
-  @Test def test_twoUpwardStepsAcrossElementReference() {
+  @Test def test_twoUpwardStepsAcrossElementReference(): Unit = {
     TestUtils.testString(testSchema, "")
   }
 
@@ -82,7 +82,7 @@ class TestDPath {
     </xs:element>
     <xs:element name="c" type="xs:int" dfdl:inputValueCalc="{ ../b }"/>)
 
-  @Test def test_oneUpwardStepsAcrossElementReference() {
+  @Test def test_oneUpwardStepsAcrossElementReference(): Unit = {
     TestUtils.testString(testSchema2, "")
   }
 

@@ -105,11 +105,11 @@ trait SetProcessorMixin {
    * information and that has to be obtained via the runtime data for the
    * term - whether element or model group. The
    */
-  final def setProcessor(p: Processor) {
+  final def setProcessor(p: Processor): Unit = {
     maybeProcessor_ = One(p)
   }
 
-  final def setMaybeProcessor(mp: Maybe[Processor]) {
+  final def setMaybeProcessor(mp: Maybe[Processor]): Unit = {
     maybeProcessor_ = mp
   }
 }
@@ -351,7 +351,7 @@ abstract class ParseOrUnparseState protected (
    * Variable map provides access to variable bindings.
    */
   final def variableMap = variableBox.vmap
-  final def setVariableMap(newMap: VariableMap) {
+  final def setVariableMap(newMap: VariableMap): Unit = {
     variableBox.setVMap(newMap)
   }
 
@@ -364,7 +364,7 @@ abstract class ParseOrUnparseState protected (
   final def isSuccess = processorStatus.isSuccess
   final def isFailure = processorStatus.isFailure
 
-  final def setFailed(failureDiagnostic: Diagnostic) {
+  final def setFailed(failureDiagnostic: Diagnostic): Unit = {
     // threadCheck()
     if (!diagnostics.contains(failureDiagnostic)) {
       _processorStatus = new Failure(failureDiagnostic)
@@ -374,7 +374,7 @@ abstract class ParseOrUnparseState protected (
     }
   }
 
-  final def validationError(msg: String, args: Any*) {
+  final def validationError(msg: String, args: Any*): Unit = {
     val ctxt = getContext()
     val vde = new ValidationError(Maybe(ctxt.schemaFileLocation), this, msg, args: _*)
     _validationStatus = false
@@ -393,7 +393,7 @@ abstract class ParseOrUnparseState protected (
    *
    * This happens, for example, in the debugger when it is evaluating expressions.
    */
-  final def setSuccess() {
+  final def setSuccess(): Unit = {
     _processorStatus = Success
   }
 
@@ -401,7 +401,7 @@ abstract class ParseOrUnparseState protected (
    * Used when errors are caught by interactive debugger expression evaluation.
    * We don't want to accumulate the diagnostics that we're suppressing.
    */
-  final def suppressDiagnosticAndSucceed(d: Diagnostic) {
+  final def suppressDiagnosticAndSucceed(d: Diagnostic): Unit = {
     Assert.usage(diagnostics.contains(d))
     diagnostics = diagnostics.filterNot { _ eq d }
     setSuccess()

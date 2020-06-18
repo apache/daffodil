@@ -33,7 +33,7 @@ class TestIsScannable extends Logging {
   val xsi = XMLUtils.XSI_NAMESPACE
   val example = XMLUtils.EXAMPLE_NAMESPACE
 
-  @Test def testIsScannableAllText1() {
+  @Test def testIsScannableAllText1(): Unit = {
     val sc = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" encoding="utf-8"/>,
@@ -64,7 +64,7 @@ class TestIsScannable extends Logging {
     assertEquals(NamedEncoding("UTF-8"), child.summaryEncoding)
   }
 
-  @Test def testIsScannableHasBinary1() {
+  @Test def testIsScannableHasBinary1(): Unit = {
     val sc = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -99,7 +99,7 @@ class TestIsScannable extends Logging {
     assertEquals(NamedEncoding("US-ASCII"), e2.summaryEncoding)
   }
 
-  @Test def testIsScannableDifferentEncodings1() {
+  @Test def testIsScannableDifferentEncodings1(): Unit = {
     val sc = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" encoding="utf-8"/>,

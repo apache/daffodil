@@ -46,7 +46,7 @@ class TestDsomCompiler extends Logging {
   // is any problem in the Fakes, the whole class can't be constructed, and None
   // of the tests will run. Lazy lets this class be constructed no matter what.
 
-  @Test def testHasProps() {
+  @Test def testHasProps(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -67,7 +67,7 @@ class TestDsomCompiler extends Logging {
     assertEquals(TextNumberRep.Standard, tnr)
   }
 
-  @Test def testSchemaValidationSubset() {
+  @Test def testSchemaValidationSubset(): Unit = {
     val sch: Node = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -93,7 +93,7 @@ class TestDsomCompiler extends Logging {
   // FIXME: convert this test to TDML or discard. It is testing internal APIs
   // and not defending itself from thrown exceptions the way the real APIs do (or
   // are supposed to anyway.
-  @Test def testTypeReferentialError() {
+  @Test def testTypeReferentialError(): Unit = {
     // LoggingDefaults.setLoggingLevel(LogLevel.OOLAGDebug)
     val sch: Node = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
@@ -107,7 +107,7 @@ class TestDsomCompiler extends Logging {
   }
 
   // FIXME - convert this test to TDML or drop if there is coverage other places.
-  @Test def testTypeReferentialError2() {
+  @Test def testTypeReferentialError2(): Unit = {
     val sch: Node = <schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://example.com" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
                       <element name="foo" type="bar"/><!-- Illegal: no prefix on name of the type. -->
                       <complexType name="bar">
@@ -121,7 +121,7 @@ class TestDsomCompiler extends Logging {
     if (!hasErrorText) fail("Didn't get expected error. Got: " + msg)
   }
 
-  @Test def testSchemaValidationPropertyChecking() {
+  @Test def testSchemaValidationPropertyChecking(): Unit = {
     val s: Node = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -142,7 +142,7 @@ class TestDsomCompiler extends Logging {
     if (!hasErrorText) fail("Didn't get expected error. Got: " + msg)
   }
 
-  @Test def test2() {
+  @Test def test2(): Unit = {
     val sc = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -172,7 +172,7 @@ class TestDsomCompiler extends Logging {
     assertEquals(AlignmentUnits.Bytes, decl.alignmentUnits)
   }
 
-  @Test def testSequence1() {
+  @Test def testSequence1(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -206,7 +206,7 @@ class TestDsomCompiler extends Logging {
     assertTrue(elem.isInstanceOf[LocalElementDecl])
   }
 
-  @Test def test3 {
+  @Test def test3: Unit = {
     val testSchema = XML.load(Misc.getRequiredResource("/test/example-of-most-dfdl-constructs.dfdl.xml").toURL)
 
     val sset = new SchemaSet(testSchema)
@@ -288,7 +288,7 @@ class TestDsomCompiler extends Logging {
     assertEquals("ex:a", e1r.ref)
   }
 
-  @Test def test4 {
+  @Test def test4: Unit = {
     val testSchema = XML.load(Misc.getRequiredResource("/test/example-of-most-dfdl-constructs.dfdl.xml").toURL)
 
     val sset = new SchemaSet(testSchema)
@@ -315,7 +315,7 @@ class TestDsomCompiler extends Logging {
     assertEquals("{ $myVar1 eq xs:int(xs:string(fn:round-half-to-even(8.5))) }", asrt1.testTxt)
   }
 
-  @Test def test_named_format_chaining {
+  @Test def test_named_format_chaining: Unit = {
     val testSchema =
       XML.load(
         Misc.getRequiredResource(
@@ -333,7 +333,7 @@ class TestDsomCompiler extends Logging {
     assertEquals(true, a1.verifyPropValue("binaryNumberRep", "packed"))
   }
 
-  @Test def test_simple_types_access_works {
+  @Test def test_simple_types_access_works: Unit = {
     val testSchema =
       XML.load(
         Misc.getRequiredResource(
@@ -348,7 +348,7 @@ class TestDsomCompiler extends Logging {
     assertEquals(AlignmentUnits.Bytes, x.alignmentUnits)
   }
 
-  @Test def test_simple_types_property_combining {
+  @Test def test_simple_types_property_combining: Unit = {
     val testSchema =
       XML.load(
         Misc.getRequiredResource(
@@ -380,7 +380,7 @@ class TestDsomCompiler extends Logging {
     assertEquals(BinaryNumberRep.Packed, ge6.binaryNumberRep)
   }
 
-  @Test def test_simpleType_base_combining {
+  @Test def test_simpleType_base_combining: Unit = {
     val testSchema = XML.load(Misc.getRequiredResource("/test/example-of-most-dfdl-constructs.dfdl.xml").toURL)
 
     val sset = new SchemaSet(testSchema)
@@ -427,7 +427,7 @@ class TestDsomCompiler extends Logging {
     assertTrue(msgs.contains("initiator".toLowerCase))
   }
 
-  @Test def test_group_references {
+  @Test def test_group_references: Unit = {
     val testSchema = XML.load(Misc.getRequiredResource("/test/example-of-most-dfdl-constructs.dfdl.xml").toURL)
 
     val sset = new SchemaSet(testSchema)
@@ -480,7 +480,7 @@ class TestDsomCompiler extends Logging {
 
   }
 
-  @Test def test_ibm_7132 {
+  @Test def test_ibm_7132: Unit = {
     val ibm7132Schema = XML.load(Misc.getRequiredResource("/test/TestRefChainingIBM7132.dfdl.xml").toURL)
     // val ibm7132Schema = "test/TestRefChainingIBM7132.dfdl.xml"
     val sset = new SchemaSet(ibm7132Schema)
@@ -508,7 +508,7 @@ class TestDsomCompiler extends Logging {
     e1.lengthKind
   }
 
-  @Test def testDfdlRef() {
+  @Test def testDfdlRef(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:defineFormat name="ref1"> <dfdl:format initiator=":"/> </dfdl:defineFormat>,
@@ -547,7 +547,7 @@ class TestDsomCompiler extends Logging {
     assertEquals(XMLUtils.EXAMPLE_NAMESPACE, nsURI)
   }
 
-  @Test def testGetAllNamespaces() {
+  @Test def testGetAllNamespaces(): Unit = {
     val xml = <bar xmlns:foo="fooNS" xmlns:bar="barNS">
                 <quux xmlns:baz="bazNS" attr1="x"/>
               </bar>
@@ -599,7 +599,7 @@ class TestDsomCompiler extends Logging {
     assertEquals("cStyleComment", e2f_esref)
   }
 
-  @Test def test_element_references {
+  @Test def test_element_references: Unit = {
     val testSchema = XML.load(Misc.getRequiredResource("/test/example-of-most-dfdl-constructs.dfdl.xml").toURL)
 
     val sset = new SchemaSet(testSchema)
@@ -623,7 +623,7 @@ class TestDsomCompiler extends Logging {
     assertEquals(NilKind.LiteralValue, e1r.nilKind)
   }
 
-  @Test def testPathWithIndexes() {
+  @Test def testPathWithIndexes(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -663,7 +663,7 @@ class TestDsomCompiler extends Logging {
     found
   }
 
-  @Test def testInitiator() {
+  @Test def testInitiator(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -677,7 +677,7 @@ class TestDsomCompiler extends Logging {
     TestUtils.testUnparsing(testSchema, infoset, "*word")
   }
 
-  @Test def testTerminator() {
+  @Test def testTerminator(): Unit = {
     // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
@@ -692,7 +692,7 @@ class TestDsomCompiler extends Logging {
     TestUtils.testUnparsing(testSchema, infoset, "37!")
   }
 
-  @Test def testDelims() {
+  @Test def testDelims(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -735,7 +735,7 @@ class TestDsomCompiler extends Logging {
   //    TestUtils.testUnparsing(testSchema, infoset, "943.281")
   //  }
 
-  @Test def testUnparseMultiElem2() {
+  @Test def testUnparseMultiElem2(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -963,7 +963,7 @@ class TestDsomCompiler extends Logging {
   //    TestUtils.testUnparsing(testSchema, infoset, "567,word,choice2:2038.67")
   //  }
 
-  @Test def testUnparseBinaryIntBE() {
+  @Test def testUnparseBinaryIntBE(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -978,7 +978,7 @@ class TestDsomCompiler extends Logging {
     TestUtils.testUnparsingBinary(testSchema, infoset, bytes)
   }
 
-  @Test def testUnparseBinaryIntLE() {
+  @Test def testUnparseBinaryIntLE(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -1018,7 +1018,7 @@ class TestDsomCompiler extends Logging {
   //    TestUtils.testUnparsingBinary(testSchema, infoset, bytes)
   //  }
 
-  @Test def testHasPatternFacets() {
+  @Test def testHasPatternFacets(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -1043,7 +1043,7 @@ class TestDsomCompiler extends Logging {
     assertEquals("1|2|3", pattern.toString())
   }
 
-  @Test def testPatternFacetsInheritance() {
+  @Test def testPatternFacetsInheritance(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,

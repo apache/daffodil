@@ -26,7 +26,7 @@ object TestAlignedData {
   val runner1 = Runner(testDir_01, "Aligned_Data.tdml")
   val runner2 = Runner(testDir_01, "BinaryInput_01.tdml")
 
-  @AfterClass def shutDown {
+  @AfterClass def shutDown: Unit = {
     runner1.reset
     runner2.reset
   }
@@ -174,14 +174,14 @@ class TestAlignedData {
   @Test def test_alignmentLSBFirst() = { runner1.runOneTest("alignmentLSBFirst") }
   @Test def test_alignmentMSBFirst() = { runner1.runOneTest("alignmentMSBFirst") }
 
-  @Test def test_LeadingSkipBytes() { runner2.runOneTest("LeadingSkipBytes") }
-  @Test def test_LeadingSkipBits() { runner2.runOneTest("LeadingSkipBits") }
-  @Test def test_TrailingSkipBytes() { runner2.runOneTest("TrailingSkipBytes") }
-  @Test def test_TrailingSkipBits() { runner2.runOneTest("TrailingSkipBits") }
-  @Test def test_AligningSkipBytes() { runner2.runOneTest("AligningSkipBytes") }
-  @Test def test_AligningSkipBytes2() { runner2.runOneTest("AligningSkipBytes2") }
-  @Test def test_AligningSkipBits() { runner2.runOneTest("AligningSkipBits") }
-  @Test def test_AligningSkipBits2() { runner2.runOneTest("AligningSkipBits2") }
+  @Test def test_LeadingSkipBytes(): Unit = { runner2.runOneTest("LeadingSkipBytes") }
+  @Test def test_LeadingSkipBits(): Unit = { runner2.runOneTest("LeadingSkipBits") }
+  @Test def test_TrailingSkipBytes(): Unit = { runner2.runOneTest("TrailingSkipBytes") }
+  @Test def test_TrailingSkipBits(): Unit = { runner2.runOneTest("TrailingSkipBits") }
+  @Test def test_AligningSkipBytes(): Unit = { runner2.runOneTest("AligningSkipBytes") }
+  @Test def test_AligningSkipBytes2(): Unit = { runner2.runOneTest("AligningSkipBytes2") }
+  @Test def test_AligningSkipBits(): Unit = { runner2.runOneTest("AligningSkipBits") }
+  @Test def test_AligningSkipBits2(): Unit = { runner2.runOneTest("AligningSkipBits2") }
 
   @Test def test_alignmentArray() = { runner1.runOneTest("alignmentArray") }
 

@@ -278,7 +278,7 @@ class DirectOrBufferedDataOutputStream private[io] (
     res
   }
 
-  override def setJavaOutputStream(newOutputStream: java.io.OutputStream) {
+  override def setJavaOutputStream(newOutputStream: java.io.OutputStream): Unit = {
     Assert.usage(newOutputStream ne null)
     _javaOutputStream = newOutputStream
     Assert.usage(newOutputStream ne bufferingJOS) // these are born buffering, and evolve into direct.
@@ -381,7 +381,7 @@ class DirectOrBufferedDataOutputStream private[io] (
    * A buffering stream, when preceded by a direct stream, can become a
    * direct stream when the preceding direct stream is finished.
    */
-  private def convertToDirect(oldDirectDOS: ThisType) {
+  private def convertToDirect(oldDirectDOS: ThisType): Unit = {
     Assert.usage(isBuffering)
     Assert.usage(oldDirectDOS.isDirect)
 
@@ -413,7 +413,7 @@ class DirectOrBufferedDataOutputStream private[io] (
     Assert.invariant(isDirect)
   }
 
-  override def setFinished(finfo: FormatInfo) {
+  override def setFinished(finfo: FormatInfo): Unit = {
     Assert.usage(!isFinished)
     // if we are direct, and there's a buffer following this one
     //
@@ -977,7 +977,7 @@ object DirectOrBufferedDataOutputStream {
   private def deliverBufferContent(
     directDOS: DirectOrBufferedDataOutputStream,
     bufDOS: DirectOrBufferedDataOutputStream,
-    finfo: FormatInfo) {
+    finfo: FormatInfo): Unit = {
     Assert.invariant(bufDOS.isBuffering)
     Assert.invariant(!directDOS.isBuffering)
 

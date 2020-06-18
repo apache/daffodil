@@ -25,7 +25,7 @@ object TestDiscriminators2 {
   val testDir = "/org/apache/daffodil/section07/discriminators/"
   val runner2 = Runner(testDir, "discriminator2.tdml")
 
-  @AfterClass def shutDown() {
+  @AfterClass def shutDown(): Unit = {
     runner2.reset
   }
 

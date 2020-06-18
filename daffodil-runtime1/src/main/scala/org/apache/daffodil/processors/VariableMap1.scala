@@ -150,7 +150,7 @@ final class VariableBox(initialVMap: VariableMap) {
 
   def vmap = vmap_
 
-  def setVMap(newMap: VariableMap) {
+  def setVMap(newMap: VariableMap): Unit = {
     vmap_ = newMap
   }
 }
@@ -293,7 +293,7 @@ class VariableMap private(vTable: Map[GlobalQName, MStackOf[VariableInstance]])
     stack.get.push(vrd.createVariableInstance)
   }
 
-  def removeVariableInstance(vrd: VariableRuntimeData) {
+  def removeVariableInstance(vrd: VariableRuntimeData): Unit = {
     val varQName = vrd.globalQName
     val stack = vTable.get(varQName)
     Assert.invariant(stack.isDefined)

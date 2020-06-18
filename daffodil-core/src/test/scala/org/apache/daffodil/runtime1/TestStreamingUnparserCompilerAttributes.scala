@@ -552,7 +552,7 @@ class TestStreamingUnparserCompilerAttributes {
       </xs:sequence>
     </xs:group>
 
-  @Test def testUnparseHiddenGroupsPresenceFlags6() {
+  @Test def testUnparseHiddenGroupsPresenceFlags6(): Unit = {
     val r = getRoot(
       schemaX,
       topLevels =

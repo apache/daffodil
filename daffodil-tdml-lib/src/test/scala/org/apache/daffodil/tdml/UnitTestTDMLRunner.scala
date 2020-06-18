@@ -37,7 +37,7 @@ class UnitTestTDMLRunner {
   val tns = example
   // val sub = XMLUtils.DFDL_XMLSCHEMASUBSET_NAMESPACE
 
-  @Test def testDocPart1() {
+  @Test def testDocPart1(): Unit = {
     val xml = <documentPart type="text">abcde</documentPart>
     val dp = new TextDocumentPart(xml, null)
     val actual = Misc.bits2Bytes(dp.dataBits).toList
@@ -45,7 +45,7 @@ class UnitTestTDMLRunner {
     assertEquals(expected, actual)
   }
 
-  @Test def testDocPart2() {
+  @Test def testDocPart2(): Unit = {
     val xml = <document><documentPart type="byte">123abc</documentPart></document>
     val doc = new Document(xml, null)
     val dp = doc.documentParts.collect { case x: ByteDocumentPart => x }
@@ -56,7 +56,7 @@ class UnitTestTDMLRunner {
     assertEquals(expected, actual)
   }
 
-  @Test def testHexOddNumberOfNibbles() {
+  @Test def testHexOddNumberOfNibbles(): Unit = {
     val xml = <document><documentPart type="byte">123</documentPart></document>
     val doc = new Document(xml, null)
     val dp = doc.documentParts.collect { case x: ByteDocumentPart => x }
@@ -68,7 +68,7 @@ class UnitTestTDMLRunner {
     assertEquals(12, doc.nBits)
   }
 
-  @Test def testDocPart3() {
+  @Test def testDocPart3(): Unit = {
     val xml = <document>
                 <documentPart type="byte">12</documentPart>
                 <documentPart type="byte">3abc</documentPart>
@@ -85,7 +85,7 @@ class UnitTestTDMLRunner {
     assertEquals(expected, actual)
   }
 
-  @Test def testDocWithMultiByteUnicode() {
+  @Test def testDocWithMultiByteUnicode(): Unit = {
     val xml = <document>
                 <documentPart type="text">&#x24;&#xA2;&#x20AC;&#x2028;</documentPart>
               </document>
@@ -98,7 +98,7 @@ class UnitTestTDMLRunner {
     assertEquals("$¢€\u2028", str)
   }
 
-  @Test def testDocWithDFDLEntities() {
+  @Test def testDocWithDFDLEntities(): Unit = {
     val xml = <document>
                 <documentPart replaceDFDLEntities="true" type="text">\%#x24;%#xA2;%#x20AC;%%%NUL;%LS;%%#IGNORED;</documentPart>
               </document>
@@ -111,7 +111,7 @@ class UnitTestTDMLRunner {
     assertEquals("\\$¢€%%\u0000\u2028%%#IGNORED;", orig)
   }
 
-  @Test def testDocWithTextFile() {
+  @Test def testDocWithTextFile(): Unit = {
     val xml = <testSuite xmlns={ tdml } ID="suite identifier" suiteName="theSuiteName" description="Some Test Suite Description">
                 <parserTestCase name="test1" root="byte1" model="test-suite/ibm-contributed/dpanum.dfdl.xsd" description="Some test case description.">
                   <document>
@@ -134,7 +134,7 @@ class UnitTestTDMLRunner {
     assertEquals("test\n1\n2\n3\n", actual)
   }
 
-  @Test def testDocWithBinaryFile() {
+  @Test def testDocWithBinaryFile(): Unit = {
     val xml = <testSuite xmlns={ tdml } ID="suite identifier" suiteName="theSuiteName" description="Some Test Suite Description">
                 <parserTestCase name="test1" root="byte1" model="test-suite/ibm-contributed/dpanum.dfdl.xsd" description="Some test case description.">
                   <document>
@@ -158,7 +158,7 @@ class UnitTestTDMLRunner {
     assertEquals(expected, actual)
   }
 
-  @Test def test1() {
+  @Test def test1(): Unit = {
     val xml = <testSuite xmlns={ tdml } ID="suite identifier" suiteName="theSuiteName" description="Some Test Suite Description">
                 <parserTestCase name="test1" root="byte1" model="test-suite/ibm-contributed/dpanum.dfdl.xsd" description="Some test case description.">
                   <document>0123</document>
@@ -187,7 +187,7 @@ class UnitTestTDMLRunner {
     assertEquals(expected, trimmed)
   }
 
-  @Test def test2() {
+  @Test def test2(): Unit = {
     val xml = <testSuite xmlns={ tdml } suiteName="theSuiteName">
                 <parserTestCase ID="some identifier" name="test2" root="byte1" model="test-suite/ibm-contributed/dpanum.dfdl.xsd">
                   <document>0123</document>
@@ -219,7 +219,7 @@ class UnitTestTDMLRunner {
     assertEquals(expected, trimmed)
   }
   /////////////////////////////////////////////////////////////////////////////////////////////////////
-  @Test def testTDMLResource() {
+  @Test def testTDMLResource(): Unit = {
     lazy val res = Misc.getRequiredResource("/test-suite/ibm-contributed/dpaext1-2.tdml")
     lazy val ts = new DFDLTestSuite(new File(res))
     val mf = ts.findTDMLResource("./fvt/ext/dpa/dpaspc121_01.dfdl.xsd")
@@ -242,7 +242,7 @@ class UnitTestTDMLRunner {
       </parserTestCase>
     </tdml:testSuite>
 
-  @Test def testEmbeddedSchemaValidates() {
+  @Test def testEmbeddedSchemaValidates(): Unit = {
     val testSuite = tdmlWithEmbeddedSchemaInvalid
     assertFalse(ts.isTDMLFileValid)
     lazy val ts = new DFDLTestSuite(testSuite)
@@ -253,7 +253,7 @@ class UnitTestTDMLRunner {
     assertTrue(hasMsg)
     assertFalse(ts.isTDMLFileValid)
   }
-  @Test def testTDMLSelfContainedFileValidates() {
+  @Test def testTDMLSelfContainedFileValidates(): Unit = {
     val tmpTDMLFileName = getClass.getName() + ".tdml"
     val testSuite = tdmlWithEmbeddedSchemaInvalid
     try {
@@ -273,7 +273,7 @@ class UnitTestTDMLRunner {
     }
   }
 
-  @Test def testBits() {
+  @Test def testBits(): Unit = {
     val doc = new Document(<document><documentPart type="bits">111</documentPart></document>, null)
     // val bits = doc.documentParts(0)
     val bytes = doc.documentBytes.toList
@@ -288,7 +288,7 @@ class UnitTestTDMLRunner {
    * sees the CR in that case because the XML loader being used to load the
    * tdml file has removed the CRLF and replaced it with just LF.
    */
-  @Test def testDocWithDoubleNewlines() {
+  @Test def testDocWithDoubleNewlines(): Unit = {
     val xml = <tdml:document>
                 <tdml:documentPart type="text">ab</tdml:documentPart>
                 <tdml:documentPart type="byte">0d0a0d0a</tdml:documentPart>
@@ -304,7 +304,7 @@ class UnitTestTDMLRunner {
     assertEquals(expected, actual.toList)
   }
 
-  @Test def testLSB1() {
+  @Test def testLSB1(): Unit = {
     val xml = <document bitOrder="LSBFirst">
                 <documentPart type="bits">00000010</documentPart>
               </document>
@@ -318,7 +318,7 @@ class UnitTestTDMLRunner {
     assertEquals(expected, actual)
   }
 
-  @Test def testLSB2() {
+  @Test def testLSB2(): Unit = {
     val xml = <document>
                 <documentPart type="bits" bitOrder="LSBFirst">010</documentPart>
               </document>
@@ -330,7 +330,7 @@ class UnitTestTDMLRunner {
     assertEquals(expected, actual)
   }
 
-  @Test def testLSB3_utf8_1char() {
+  @Test def testLSB3_utf8_1char(): Unit = {
     val xml = <document>
                 <documentPart type="text" bitOrder="LSBFirst">1</documentPart>
               </document>
@@ -342,7 +342,7 @@ class UnitTestTDMLRunner {
     assertEquals(expected, actual)
   }
 
-  @Test def testLSB3_7bit_1char() {
+  @Test def testLSB3_7bit_1char(): Unit = {
     val xml = <document>
                 <documentPart type="text" bitOrder="LSBFirst" encoding="X-DFDL-US-ASCII-7-BIT-PACKED">1</documentPart>
               </document>
@@ -354,7 +354,7 @@ class UnitTestTDMLRunner {
     assertEquals(expected, actual)
   }
 
-  @Test def testLSB3_7bit_2char() {
+  @Test def testLSB3_7bit_2char(): Unit = {
     val xml = <document>
                 <documentPart type="text" bitOrder="LSBFirst" encoding="X-DFDL-US-ASCII-7-BIT-PACKED">12</documentPart>
               </document>
@@ -366,7 +366,7 @@ class UnitTestTDMLRunner {
     assertEquals(expected, actual)
   }
 
-  @Test def testLSB4() {
+  @Test def testLSB4(): Unit = {
     val xml = <document>
                 <documentPart type="bits" bitOrder="LSBFirst">00110011 110</documentPart>
               </document>
@@ -378,7 +378,7 @@ class UnitTestTDMLRunner {
     assertEquals(expected, actual)
   }
 
-  @Test def testCheckForBadBitOrderTransitions1() {
+  @Test def testCheckForBadBitOrderTransitions1(): Unit = {
     val xml = <document>
                 <documentPart type="bits" bitOrder="LSBFirst">1</documentPart>
                 <documentPart type="bits" bitOrder="MSBFirst">1</documentPart>
@@ -390,7 +390,7 @@ class UnitTestTDMLRunner {
     assertTrue(exc.getMessage().contains("bitOrder"))
   }
 
-  @Test def testCheckForBadBitOrderTransitions2() {
+  @Test def testCheckForBadBitOrderTransitions2(): Unit = {
     val xml = <document>
                 <documentPart type="bits" bitOrder="LSBFirst">1</documentPart>
                 <documentPart type="bits" bitOrder="LSBFirst">111 1111</documentPart>
@@ -402,7 +402,7 @@ class UnitTestTDMLRunner {
     assertEquals(3, dp.length)
   }
 
-  @Test def testCheckForBadBitOrderTransitions3() {
+  @Test def testCheckForBadBitOrderTransitions3(): Unit = {
     val xml = <document>
                 <documentPart type="bits" bitOrder="LSBFirst">1111 1111</documentPart>
                 <documentPart type="bits" bitOrder="MSBFirst">111 1111</documentPart>
@@ -414,7 +414,7 @@ class UnitTestTDMLRunner {
     assertEquals(3, dp.length)
   }
 
-  @Test def testCheckForBadBitOrderTransitions4() {
+  @Test def testCheckForBadBitOrderTransitions4(): Unit = {
     val xml = <document>
                 <documentPart type="text" encoding="X-DFDL-US-ASCII-7-BIT-PACKED" bitOrder="LSBFirst">abcdefgh</documentPart>
                 <documentPart type="bits" bitOrder="MSBFirst">111 1111</documentPart>
@@ -426,7 +426,7 @@ class UnitTestTDMLRunner {
     assertEquals(3, dp.length)
   }
 
-  @Test def testCheckForBadBitOrderTransitions5() {
+  @Test def testCheckForBadBitOrderTransitions5(): Unit = {
     val xml = <document>
                 <documentPart type="text" encoding="X-DFDL-US-ASCII-7-BIT-PACKED" bitOrder="LSBFirst">abc</documentPart>
                 <documentPart type="bits" bitOrder="MSBFirst">111 1111</documentPart>

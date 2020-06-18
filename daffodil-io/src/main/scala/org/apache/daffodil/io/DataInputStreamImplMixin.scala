@@ -24,7 +24,7 @@ trait DataInputStreamImplMixin extends DataInputStream
   with DataStreamCommonImplMixin
   with LocalBufferMixin {
 
-  override def setDebugging(setting: Boolean) {
+  override def setDebugging(setting: Boolean): Unit = {
     if (bitPos0b > 0) throw new IllegalStateException("Must call before any access to data")
     cst.debugging = setting
   }

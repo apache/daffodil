@@ -44,7 +44,7 @@ class TestTunables extends Logging {
   // of the tests will run. Lazy lets this class be constructed no matter what.
   lazy val dummyGroupRef = Fakes.fakeGroupRef
 
-  @Test def testTunableCopy() {
+  @Test def testTunableCopy(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -83,7 +83,7 @@ class TestTunables extends Logging {
     assertEquals(1026, t4.maxSkipLengthInBytes)
   }
 
-  @Test def testTunableSuppressionListCopying() {
+  @Test def testTunableSuppressionListCopying(): Unit = {
     val t1 = DaffodilTunables("suppressSchemaDefinitionWarnings", "escapeSchemeRefUndefined")
     val t2 = DaffodilTunables("suppressSchemaDefinitionWarnings", "all")
 

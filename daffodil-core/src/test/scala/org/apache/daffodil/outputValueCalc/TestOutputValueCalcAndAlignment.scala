@@ -42,7 +42,7 @@ class TestOutputValueCalcAndAlignment {
    * Test verifies that if the OVC's length is known, the alignment afterwards
    * works.
    */
-  @Test def testOutputValueCalcAlignmentFixed() {
+  @Test def testOutputValueCalcAlignmentFixed(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" encoding="ascii" lengthUnits="bytes" alignmentUnits="bytes" fillByte="X"/>,
@@ -65,7 +65,7 @@ class TestOutputValueCalcAndAlignment {
    * point then the absolute position is known, the alignment can proceed,
    * and the unparsing will complete.
    */
-  @Test def testOutputValueCalcVariableLengthThenAlignment() {
+  @Test def testOutputValueCalcVariableLengthThenAlignment(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" encoding="ascii" lengthUnits="bytes" alignmentUnits="bytes" fillByte="X"/>,
@@ -104,7 +104,7 @@ class TestOutputValueCalcAndAlignment {
    *
    * This is supposed to deadlock.
    */
-  @Test def testOutputValueCalcVariableLengthThenAlignmentDeadlock() {
+  @Test def testOutputValueCalcVariableLengthThenAlignmentDeadlock(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" encoding="ascii" lengthUnits="bytes" alignmentUnits="bytes" fillByte="X"/>,

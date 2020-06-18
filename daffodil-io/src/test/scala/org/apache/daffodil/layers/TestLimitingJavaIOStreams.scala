@@ -71,7 +71,7 @@ ZSBzaG9ydCB2ZWhlbWVuY2Ugb2YgYW55IGNhcm5hbCBwbGVhc3VyZS4="""
 
   val additionalText = "This is text that shouldn't be read."
 
-  @Test def testBase64DecodeFromDelimitedStream1() {
+  @Test def testBase64DecodeFromDelimitedStream1(): Unit = {
     val data = "cGxlYXN1cmUu" // encoding of "pleasure."
     val terminator = "terminator"
     val afterTerminator = "afterTerminator"
@@ -87,7 +87,7 @@ ZSBzaG9ydCB2ZWhlbWVuY2Ugb2YgYW55IGNhcm5hbCBwbGVhc3VyZS4="""
     assertEquals(afterTerminator, actualAfterData)
   }
 
-  @Test def testBase64DecodeFromDelimitedStream2() {
+  @Test def testBase64DecodeFromDelimitedStream2(): Unit = {
     val data = "cGxlYXN1cmUu" // encoding of "pleasure."
     val terminator = ";;;"
     val afterTerminator = "afterTerminator"
@@ -101,7 +101,7 @@ ZSBzaG9ydCB2ZWhlbWVuY2Ugb2YgYW55IGNhcm5hbCBwbGVhc3VyZS4="""
     assertEquals(afterTerminator, actualAfterData)
   }
 
-  @Test def testBase64DecodeFromDelimitedStream3() {
+  @Test def testBase64DecodeFromDelimitedStream3(): Unit = {
     val data = "cGxl" // encoding of "ple"
     val terminator = ";"
     val afterTerminator = "afterTerminator"
@@ -124,7 +124,7 @@ ZSBzaG9ydCB2ZWhlbWVuY2Ugb2YgYW55IGNhcm5hbCBwbGVhc3VyZS4="""
    * encoded data, GZIP doesn't do that. It seems to always read past the end. This
    * may be an artifact of the implementation, or inherent in the GZIP data format.
    */
-  @Test def testGZIPDecoderWithLimit1() {
+  @Test def testGZIPDecoderWithLimit1(): Unit = {
     val inputData = zipped ++ additionalText.getBytes(iso8859)
     val inputStream = new ByteArrayInputStream(inputData)
     val limitedStream = new ExplicitLengthLimitingStream(inputStream,

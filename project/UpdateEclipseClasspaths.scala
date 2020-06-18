@@ -70,7 +70,7 @@ object UpdateEclipseClasspaths extends App {
 
   lazy val baseURI = baseFile.toURI
 
-  def updateOneClasspathFile(cpf: java.io.File) {
+  def updateOneClasspathFile(cpf: java.io.File): Unit = {
     val cpNode = scala.xml.XML.loadFile(cpf)
     /*
      * There is an issue with the XML loader that reverses the order of the attributes
@@ -88,7 +88,7 @@ object UpdateEclipseClasspaths extends App {
     writeXMLFile(newCP, cpf.toString)
   }
 
-  def writeXML(xml: Node, out: { def print(s: String): Unit } = System.out) {
+  def writeXML(xml: Node, out: { def print(s: String): Unit } = System.out): Unit = {
     val formattedSpec = pp.format(xml)
     out.print("<?xml version='1.0' encoding='UTF-8'?>\n")
     out.print("\n")
@@ -96,7 +96,7 @@ object UpdateEclipseClasspaths extends App {
     out.print("\n")
   }
 
-  def writeXMLFile(xml: Node, outputFilename: String) {
+  def writeXMLFile(xml: Node, outputFilename: String): Unit = {
     val f = new java.io.File(outputFilename)
     f.getParentFile().mkdirs()
     val ps = new PrintStream(f)

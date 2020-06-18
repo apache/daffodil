@@ -31,7 +31,7 @@ class TestTDMLUnparseCases {
   val example = XMLUtils.EXAMPLE_NAMESPACE
   val tns = example
 
-  @Test def testUnparseSuite1() {
+  @Test def testUnparseSuite1(): Unit = {
 
     val testSuite = <ts:testSuite xmlns:dfdl={ dfdl } xmlns:xs={ xsd } xmlns:ex={ example } xmlns:ts={ tdml } suiteName="theSuiteName">
                       <ts:defineSchema name="s">

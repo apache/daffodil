@@ -25,21 +25,21 @@ import org.apache.daffodil.processors.parsers.DelimiterTextType
 import org.apache.daffodil.util.MStackOfInt
 
 trait DelimitersRangeLocal { this: DelimiterIterator =>
-  override def reset() {
+  override def reset(): Unit = {
     currentIndex = this.firstLocalIndex - 1
     indexLimit = this.delimiters.length
   }
 }
 
 trait DelmitersRangeRemote { this: DelimiterIterator =>
-  override def reset() {
+  override def reset(): Unit = {
     currentIndex = -1
     indexLimit = this.firstLocalIndex
   }
 }
 
 trait DelimitersRangeAll { this: DelimiterIterator =>
-  override def reset() {
+  override def reset(): Unit = {
     currentIndex = -1
     indexLimit = this.delimiters.length
   }

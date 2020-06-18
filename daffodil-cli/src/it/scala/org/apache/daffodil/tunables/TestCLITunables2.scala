@@ -27,7 +27,7 @@ class TestCLITunables2 {
   /**
    * Suppresses SDW messages.
    */
-  @Test def test_CLI_Parsing_SuppressSDEWarnings1() {
+  @Test def test_CLI_Parsing_SuppressSDEWarnings1(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/suppressWarnTest.dfdl.xsd")
     val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
     val shell = Util.start("")
@@ -51,7 +51,7 @@ class TestCLITunables2 {
   /**
    * Will display SDW warnings. Does not set the tunable that suppresses them.
    */
-  @Test def test_CLI_Parsing_SuppressSDEWarnings2() {
+  @Test def test_CLI_Parsing_SuppressSDEWarnings2(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/suppressWarnTest.dfdl.xsd")
     val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
     val shell = Util.start("")

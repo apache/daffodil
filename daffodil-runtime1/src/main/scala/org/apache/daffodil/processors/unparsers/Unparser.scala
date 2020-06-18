@@ -144,7 +144,7 @@ final class ErrorUnparser(override val context: TermRuntimeData = null) extends 
 
   override lazy val runtimeDependencies = Vector()
 
-  def unparse(ustate: UState) {
+  def unparse(ustate: UState): Unit = {
     Assert.abort("Error Unparser")
   }
   override lazy val childProcessors = Vector()

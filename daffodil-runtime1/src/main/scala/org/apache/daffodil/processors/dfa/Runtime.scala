@@ -63,7 +63,7 @@ trait DFA {
    */
   def run(r: Registers): Unit
 
-  final protected def runLoop(r: Registers, terminateLoopOnState: Int, finalStatus: StateKind.StateKind) {
+  final protected def runLoop(r: Registers, terminateLoopOnState: Int, finalStatus: StateKind.StateKind): Unit = {
     Assert.invariant(r.actionNum >= 0)
     r.status = StateKind.Parsing
     while (r.state != terminateLoopOnState) { // Terminates on FinalState

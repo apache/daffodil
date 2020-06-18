@@ -54,7 +54,7 @@ trait SuspendableOperation
    */
   protected def continuation(ustate: UState): Unit
 
-  override protected final def doTask(ustate: UState) {
+  override protected final def doTask(ustate: UState): Unit = {
     if (isBlocked) {
       setUnblocked()
       log(LogLevel.Debug, "retrying %s", this)

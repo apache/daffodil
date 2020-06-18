@@ -26,7 +26,7 @@ object TestTutorials {
   val runner4 = Runner("/", "tdmlTutorial.tdml.xml")
   val runner5 = Runner("/", "bugReportTemplate.tdml.xml")
 
-  @AfterClass def shutDown {
+  @AfterClass def shutDown: Unit = {
     runner1.reset
     runner4.reset
     runner5.reset
@@ -38,16 +38,16 @@ class TestTutorials {
 
   // removed for now. This will probably go back into this tutorial
   // @Test def test_MIL2045_47001D_1() { runner1.runOneTest("TestMIL2045_47001D_1") }
-  @Test def test_leastSignificantBitFirst() { runner1.runOneTest("leastSignificantBitFirst") }
-  @Test def test_leastSignificantBitFirstRTL() { runner1.runOneTest("leastSignificantBitFirstRTL") }
-  @Test def test_mostSignificantBitFirst() { runner1.runOneTest("mostSignificantBitFirst") }
-  @Test def test_littleEndianLeastFirstLTR() { runner1.runOneTest("littleEndianLeastFirstLTR") }
-  @Test def test_littleEndianLeastFirstRTL() { runner1.runOneTest("littleEndianLeastFirstRTL") }
+  @Test def test_leastSignificantBitFirst(): Unit = { runner1.runOneTest("leastSignificantBitFirst") }
+  @Test def test_leastSignificantBitFirstRTL(): Unit = { runner1.runOneTest("leastSignificantBitFirstRTL") }
+  @Test def test_mostSignificantBitFirst(): Unit = { runner1.runOneTest("mostSignificantBitFirst") }
+  @Test def test_littleEndianLeastFirstLTR(): Unit = { runner1.runOneTest("littleEndianLeastFirstLTR") }
+  @Test def test_littleEndianLeastFirstRTL(): Unit = { runner1.runOneTest("littleEndianLeastFirstRTL") }
 
-  @Test def test_bugReportParse1() { runner4.runOneTest("dateTimeTest") }
-  @Test def test_bugReportUnparse1() { runner4.runOneTest("unparseDateTimeTest") }
+  @Test def test_bugReportParse1(): Unit = { runner4.runOneTest("dateTimeTest") }
+  @Test def test_bugReportUnparse1(): Unit = { runner4.runOneTest("unparseDateTimeTest") }
 
-  @Test def test_bugReportTemplateParse1() { runner5.runOneTest("dateTimeTest") }
-  @Test def test_bugReportTemplateUnparse1() { runner5.runOneTest("unparseDateTimeTest") }
+  @Test def test_bugReportTemplateParse1(): Unit = { runner5.runOneTest("dateTimeTest") }
+  @Test def test_bugReportTemplateUnparse1(): Unit = { runner5.runOneTest("unparseDateTimeTest") }
 
 }

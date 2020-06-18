@@ -515,7 +515,7 @@ class DataProcessor private[japi] (private var dp: SDataProcessor)
    * @param flag true to enable debugging, false to disabled
    */
   @deprecated("Use withDebugging.", "2.6.0")
-  def setDebugging(flag: Boolean) {
+  def setDebugging(flag: Boolean): Unit = {
     dp = dp.withDebugging(flag)
   }
 
@@ -536,7 +536,7 @@ class DataProcessor private[japi] (private var dp: SDataProcessor)
    * @param dr debugger runner
    */
   @deprecated("Use withDebugger.", "2.6.0")
-  def setDebugger(dr: DebuggerRunner) {
+  def setDebugger(dr: DebuggerRunner): Unit = {
     val debugger = newDebugger(dr)
     dp = dp.withDebugger(debugger)
   }

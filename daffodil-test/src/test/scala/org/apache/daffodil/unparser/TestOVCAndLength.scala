@@ -27,7 +27,7 @@ object TestOVCAndLength {
   val aa = testDir + "OVCAndLengthTest.tdml"
   var runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
-  @AfterClass def tearDown() {
+  @AfterClass def tearDown(): Unit = {
     runner = null
   }
 }
@@ -35,8 +35,8 @@ object TestOVCAndLength {
 class TestOVCAndLength {
   import TestOVCAndLength._
 
-  @Test def test_ovcContentLengthCycle1() { runner.runOneTest("ovcContentLengthCycle1") }
+  @Test def test_ovcContentLengthCycle1(): Unit = { runner.runOneTest("ovcContentLengthCycle1") }
 
-  @Test def test_ovcContentLengthCycle2() { runner.runOneTest("ovcContentLengthCycle2") }
+  @Test def test_ovcContentLengthCycle2(): Unit = { runner.runOneTest("ovcContentLengthCycle2") }
 
 }

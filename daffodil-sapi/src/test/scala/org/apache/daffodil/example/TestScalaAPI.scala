@@ -100,7 +100,7 @@ class TestScalaAPI {
   }
 
   @Test
-  def testScalaAPI1() {
+  def testScalaAPI1(): Unit = {
     val lw = new LogWriterForSAPITest()
     val debugger = new DebuggerRunnerForSAPITest()
 
@@ -150,7 +150,7 @@ class TestScalaAPI {
   // This is a duplicate of test testScalaAPI1 that serializes the parser
   // before executing the test.
   @Test
-  def testScalaAPI1_A() {
+  def testScalaAPI1_A(): Unit = {
     val lw = new LogWriterForSAPITest()
     val debugger = new DebuggerRunnerForSAPITest()
 
@@ -209,7 +209,7 @@ class TestScalaAPI {
   }
 
   @Test
-  def testScalaAPI2() {
+  def testScalaAPI2(): Unit = {
     val lw = new LogWriterForSAPITest()
 
     Daffodil.setLogWriter(lw)
@@ -257,7 +257,7 @@ class TestScalaAPI {
    * @throws IOException
    */
   @Test
-  def testScalaAPI3() {
+  def testScalaAPI3(): Unit = {
     val c = Daffodil.compiler()
 
     val schemaFile = getResource("/test/sapi/mySchema3.dfdl.xsd")
@@ -289,7 +289,7 @@ class TestScalaAPI {
   // This is a duplicate of test testScalaAPI3 that serializes the parser
   // before executing the test.
   @Test
-  def testScalaAPI3_A() {
+  def testScalaAPI3_A(): Unit = {
     val c = Daffodil.compiler()
 
     val schemaFile = getResource("/test/sapi/mySchema3.dfdl.xsd")
@@ -328,7 +328,7 @@ class TestScalaAPI {
   }
 
   @Test
-  def testScalaAPI4b() {
+  def testScalaAPI4b(): Unit = {
     val c = Daffodil.compiler()
 
     val schemaFileName = getResource("/test/sapi/mySchema3.dfdl.xsd")
@@ -357,7 +357,7 @@ class TestScalaAPI {
   }
 
   @Test
-  def testScalaAPI5() {
+  def testScalaAPI5(): Unit = {
     val c = Daffodil.compiler()
 
     val schemaFileName = getResource("/test/sapi/mySchema3.dfdl.xsd")
@@ -395,7 +395,7 @@ class TestScalaAPI {
    * @throws IOException
    */
   @Test
-  def testScalaAPI6() {
+  def testScalaAPI6(): Unit = {
     val lw = new LogWriterForSAPITest()
 
     Daffodil.setLogWriter(lw)
@@ -423,7 +423,7 @@ class TestScalaAPI {
    * @throws IOException
    */
   @Test
-  def testScalaAPI7() {
+  def testScalaAPI7(): Unit = {
     // TODO: This is due to the fact that we are doing several conversions
     // back and forth between Scala.xml.Node and JDOM. And the conversions
     // both use XMLOutputter to format the result (which escapes the
@@ -471,7 +471,7 @@ class TestScalaAPI {
    * @throws IOException
    */
   @Test
-  def testScalaAPI8() {
+  def testScalaAPI8(): Unit = {
     val lw = new LogWriterForSAPITest()
 
     Daffodil.setLogWriter(lw)
@@ -511,7 +511,7 @@ class TestScalaAPI {
    * error.
    */
   @Test
-  def testScalaAPI9() {
+  def testScalaAPI9(): Unit = {
     val lw = new LogWriterForSAPITest()
 
     Daffodil.setLogWriter(lw)
@@ -561,7 +561,7 @@ class TestScalaAPI {
    * Verify that hidden elements do not appear in the resulting infoset
    */
   @Test
-  def testScalaAPI10() {
+  def testScalaAPI10(): Unit = {
 
     val c = Daffodil.compiler()
 
@@ -587,7 +587,7 @@ class TestScalaAPI {
    * Verify that nested elements do not appear as duplicates
    */
   @Test
-  def testScalaAPI11() {
+  def testScalaAPI11(): Unit = {
 
     val c = Daffodil.compiler()
 
@@ -618,7 +618,7 @@ class TestScalaAPI {
   }
 
   @Test
-  def testScalaAPI12() {
+  def testScalaAPI12(): Unit = {
     val lw2 = new LogWriterForSAPITest2()
     val debugger = new DebuggerRunnerForSAPITest()
 
@@ -661,7 +661,7 @@ class TestScalaAPI {
   }
 
   @Test
-  def testScalaAPI13() {
+  def testScalaAPI13(): Unit = {
     // Demonstrates here that we can set external variables
     // after compilation but before parsing via Compiler.
     val lw = new LogWriterForSAPITest()
@@ -703,7 +703,7 @@ class TestScalaAPI {
   }
 
   @Test
-  def testScalaAPI14() {
+  def testScalaAPI14(): Unit = {
     // Demonstrates here that we can set external variables
     // after compilation but before parsing via DataProcessor.
     val lw = new LogWriterForSAPITest()
@@ -758,7 +758,7 @@ class TestScalaAPI {
   // Demonstrates that setting validation to Full for a saved parser fails.
   //
   @Test
-  def testScalaAPI1_A_FullFails() {
+  def testScalaAPI1_A_FullFails(): Unit = {
     val lw = new LogWriterForSAPITest()
     val debugger = new DebuggerRunnerForSAPITest()
 
@@ -794,7 +794,7 @@ class TestScalaAPI {
   }
 
   @Test
-  def testScalaAPI15() {
+  def testScalaAPI15(): Unit = {
     val lw = new LogWriterForSAPITest()
     val debugger = new DebuggerRunnerForSAPITest()
 
@@ -832,7 +832,7 @@ class TestScalaAPI {
   }
 
   @Test
-  def testScalaAPI16() {
+  def testScalaAPI16(): Unit = {
     val c = Daffodil.compiler()
 
     val schemaFile = getResource("/test/sapi/mySchema1.dfdl.xsd")
@@ -859,7 +859,7 @@ class TestScalaAPI {
   }
 
   @Test
-  def testScalaAPI17() {
+  def testScalaAPI17(): Unit = {
     val c = Daffodil.compiler()
 
     val schemaFile = getResource("/test/sapi/mySchema1.dfdl.xsd")
@@ -895,7 +895,7 @@ class TestScalaAPI {
   }
 
   @Test
-  def testScalaAPI18() {
+  def testScalaAPI18(): Unit = {
     // Demonstrate that we can use the API to continue a parse where we left off
     val c = Daffodil.compiler()
 
@@ -937,7 +937,7 @@ class TestScalaAPI {
   }
 
   @Test
-  def testScalaAPI19() {
+  def testScalaAPI19(): Unit = {
     // Demonstrate that we cannot use the API to continue a parse with an invalid InputSource
     // ie. after a runtime SDE. This test needs to be run with an input file larger than 256MB
     val c = Daffodil.compiler()

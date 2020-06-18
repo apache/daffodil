@@ -31,7 +31,7 @@ class TestNamespaces {
   /**
    * basic namespace access from prefix.
    */
-  @Test def testScalaNamespace1() {
+  @Test def testScalaNamespace1(): Unit = {
     val xml = <bar xmlns:foo="fooNamespaceID">
                 <quux attr1="x"/>
               </bar>
@@ -42,7 +42,7 @@ class TestNamespaces {
   /**
    * Pass null (not "") to retrieve the default NS
    */
-  @Test def testScalaNamespace2() {
+  @Test def testScalaNamespace2(): Unit = {
     val xml = <bar xmlns="defaultNamespaceID">
                 <quux attr1="x"/>
               </bar>
@@ -54,7 +54,7 @@ class TestNamespaces {
    * When the prefix doesn't correspond to any ns definition
    * you get null back.
    */
-  @Test def testScalaNamespace3() {
+  @Test def testScalaNamespace3(): Unit = {
     val xml = <bar>
                 <quux attr1="x"/>
               </bar>
@@ -66,7 +66,7 @@ class TestNamespaces {
    * Pass null in order to retrieve the default namespace.
    * If there isn't one, you get null back.
    */
-  @Test def testScalaNamespace4() {
+  @Test def testScalaNamespace4(): Unit = {
     val xml = <bar>
                 <quux attr1="x"/>
               </bar>
@@ -77,7 +77,7 @@ class TestNamespaces {
   /**
    * Passing "" to getNamespace() is problematic.
    */
-  @Test def testScalaNamespace5() {
+  @Test def testScalaNamespace5(): Unit = {
     val xml = <bar>
                 <quux attr1="x"/>
               </bar>
@@ -88,7 +88,7 @@ class TestNamespaces {
   /**
    * Illustrates that you cannot use "" to access the default namespace.
    */
-  @Test def testScalaNamespace6() {
+  @Test def testScalaNamespace6(): Unit = {
     val xml = <bar xmlns="defaultNS">
                 <quux attr1="x"/>
               </bar>
@@ -100,7 +100,7 @@ class TestNamespaces {
    * This test illustrates the technique for constructing a new
    * xml element that has the same namespaces as some other XML context.
    */
-  @Test def testNewElementWithNamespaces() {
+  @Test def testNewElementWithNamespaces(): Unit = {
     val xml = <bar xmlns="defaultNS" xmlns:foo="fooNS" xmlns:bar="barNS">
                 <quux xmlns:baz="bazNS" attr1="x"/>
               </bar>

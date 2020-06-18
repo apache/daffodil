@@ -53,7 +53,7 @@ class TestSimpleTypeUnions {
     </xs:simpleType>
     <xs:element name="e1" dfdl:lengthKind="delimited" type="ex:oneOrTwo"/>)
 
-  @Test def testUnion01 {
+  @Test def testUnion01: Unit = {
 
     val sset = new SchemaSet(testSchema1)
     val Seq(sch) = sset.schemas
@@ -84,7 +84,7 @@ class TestSimpleTypeUnions {
     assertEquals("ex:int2Type", st2rd.diagnosticDebugName)
   }
 
-  @Test def testUnionFirstUnionMemberOk {
+  @Test def testUnionFirstUnionMemberOk: Unit = {
     val (result, actual) = TestUtils.testString(testSchema1, "1")
     val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].root.asInstanceOf[DISimple]
     val umstrd = i.unionMemberRuntimeData.get
@@ -94,7 +94,7 @@ class TestSimpleTypeUnions {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
-  @Test def testUnionSecondUnionMemberOk {
+  @Test def testUnionSecondUnionMemberOk: Unit = {
     val (result, actual) = TestUtils.testString(testSchema1, "2")
     val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].root.asInstanceOf[DISimple]
     val umstrd = i.unionMemberRuntimeData.get
@@ -104,7 +104,7 @@ class TestSimpleTypeUnions {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
-  @Test def testUnionNoUnionMemberOK {
+  @Test def testUnionNoUnionMemberOK: Unit = {
     val (result, _) = TestUtils.testString(testSchema1, "3")
     val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].root.asInstanceOf[DISimple]
     val Some(dv: java.lang.Integer) = Some(i.dataValue.getInt)
@@ -181,7 +181,7 @@ class TestSimpleTypeUnions {
     </xs:simpleType>
     <xs:element name="e1" dfdl:lengthKind="delimited" type="ex:eType"/>)
 
-  @Test def testUnionNot3 {
+  @Test def testUnionNot3: Unit = {
     val (result, _) = TestUtils.testString(testSchema2, "3")
     val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].root.asInstanceOf[DISimple]
     val Some(dv: java.lang.Integer) = Some(i.dataValue.getInt)
@@ -206,7 +206,7 @@ class TestSimpleTypeUnions {
       die
   }
 
-  @Test def testUnionNot3_01 {
+  @Test def testUnionNot3_01: Unit = {
     val (result, actual) = TestUtils.testString(testSchema2, "1")
     val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].root.asInstanceOf[DISimple]
     val umstrd = i.unionMemberRuntimeData.get
@@ -216,7 +216,7 @@ class TestSimpleTypeUnions {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
-  @Test def testUnionNot3_02 {
+  @Test def testUnionNot3_02: Unit = {
     val (result, actual) = TestUtils.testString(testSchema2, "2")
     val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].root.asInstanceOf[DISimple]
     val umstrd = i.unionMemberRuntimeData.get
@@ -226,7 +226,7 @@ class TestSimpleTypeUnions {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
-  @Test def testUnionNot3_03 {
+  @Test def testUnionNot3_03: Unit = {
     val (result, actual) = TestUtils.testString(testSchema2, "-1")
     val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].root.asInstanceOf[DISimple]
     val umstrd = i.unionMemberRuntimeData.get
@@ -272,7 +272,7 @@ class TestSimpleTypeUnions {
     </xs:simpleType>
     <xs:element name="e1" dfdl:lengthKind="delimited" type="ex:foo3bar"/>)
 
-  @Test def testRestrictionOnUnion_01 {
+  @Test def testRestrictionOnUnion_01: Unit = {
     val (result, actual) = TestUtils.testString(testSchema3, "foo3bar")
     val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].root.asInstanceOf[DISimple]
     val umstrd = i.unionMemberRuntimeData.get
@@ -282,7 +282,7 @@ class TestSimpleTypeUnions {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
-  @Test def testRestrictionOnUnion_02 {
+  @Test def testRestrictionOnUnion_02: Unit = {
     val (result, actual) = TestUtils.testString(testSchema3, "foo1bar")
     val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].root.asInstanceOf[DISimple]
     val umstrd = i.unionMemberRuntimeData.get
@@ -292,7 +292,7 @@ class TestSimpleTypeUnions {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
-  @Test def testRestrictionOnUnion_03 {
+  @Test def testRestrictionOnUnion_03: Unit = {
     val (result, actual) = TestUtils.testString(testSchema3, "foo2bar")
     val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].root.asInstanceOf[DISimple]
     val umstrd = i.unionMemberRuntimeData.get
@@ -302,7 +302,7 @@ class TestSimpleTypeUnions {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
-  @Test def testRestrictionOnUnionFail_01 {
+  @Test def testRestrictionOnUnionFail_01: Unit = {
     val (result, _) = TestUtils.testString(testSchema3, "foo4bar")
     val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].root.asInstanceOf[DISimple]
     val Some(dv: String) = Some(i.dataValue.getString)
@@ -331,7 +331,7 @@ class TestSimpleTypeUnions {
    * This test shows that the union isn't even attempted if the
    * restriction on the union fails.
    */
-  @Test def testRestrictionOnUnionFail_02 {
+  @Test def testRestrictionOnUnionFail_02: Unit = {
     val (result, _) = TestUtils.testString(testSchema3, "notfoo1bar")
     val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].root.asInstanceOf[DISimple]
     val Some(dv: String) = Some(i.dataValue.getString)

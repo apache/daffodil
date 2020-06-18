@@ -139,7 +139,7 @@ class DataDumper {
 
   private def textDump(addr: Long, rowStart0b: Int, txtsb: StringBuilder,
     limit0b: Int, endByteAddress0b: Long, byteSource: ByteSource, decoder: Option[JavaCharsetDecoder],
-    textByteWidth: Int) {
+    textByteWidth: Int): Unit = {
     var i = rowStart0b + nPadBytesFromPriorLine
     txtsb ++= paddingFromPriorLine
     while (i <= limit0b) {

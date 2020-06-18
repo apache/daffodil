@@ -33,7 +33,7 @@ class TestTDMLCrossTest {
   val tns = example
   val fn = XMLUtils.XPATH_FUNCTION_NAMESPACE
 
-  @Test def testUnrecognizedImpl1() {
+  @Test def testUnrecognizedImpl1(): Unit = {
 
     val testSuite =
       <ts:testSuite xmlns:dfdl={ dfdl } xmlns:xs={ xsd } xmlns:ex={ example } xmlns:ts={ tdml } suiteName="theSuiteName" defaultImplementations="notAnImplName">

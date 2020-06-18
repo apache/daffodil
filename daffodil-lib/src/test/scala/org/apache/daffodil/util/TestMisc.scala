@@ -22,7 +22,7 @@ import org.junit.Assert._
 
 class TestMisc {
 
-  @Test def testIsAllUpper() {
+  @Test def testIsAllUpper(): Unit = {
     assertTrue(Misc.isAllUpper("A", 0))
     assertFalse(Misc.isAllUpper("a", 0))
     assertTrue(Misc.isAllUpper("AB", 0))
@@ -36,7 +36,7 @@ class TestMisc {
     assertFalse(Misc.isAllUpper("ABc", 1))
   }
 
-  @Test def testToInitialLowerUnlessAllUpper() {
+  @Test def testToInitialLowerUnlessAllUpper(): Unit = {
     assertEquals("fooBar", Misc.toInitialLowerCaseUnlessAllUpperCase("FooBar"))
     assertEquals("FOOBAR", Misc.toInitialLowerCaseUnlessAllUpperCase("FOOBAR"))
     assertEquals("fOOBAR", Misc.toInitialLowerCaseUnlessAllUpperCase("fOOBAR"))

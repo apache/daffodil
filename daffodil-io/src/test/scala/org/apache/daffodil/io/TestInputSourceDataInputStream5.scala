@@ -28,7 +28,7 @@ class TestInputSourceDataInputStream5 {
   leFinfo.byteOrder = ByteOrder.LittleEndian
   leFinfo.bitOrder = BitOrder.LeastSignificantBitFirst
 
-  @Test def testLittleEndianLSBFirstLong1() {
+  @Test def testLittleEndianLSBFirstLong1(): Unit = {
     val bb = ByteBuffer.allocate(8)
     bb.order(java.nio.ByteOrder.LITTLE_ENDIAN)
     val fb = bb.asLongBuffer()
@@ -42,7 +42,7 @@ class TestInputSourceDataInputStream5 {
     assertEquals(64, dis.bitPos0b)
   }
 
-  @Test def testLittleEndianLSBFirstLong2() {
+  @Test def testLittleEndianLSBFirstLong2(): Unit = {
     val bb = ByteBuffer.allocate(8)
     bb.order(java.nio.ByteOrder.LITTLE_ENDIAN)
     val fb = bb.asLongBuffer()
@@ -56,7 +56,7 @@ class TestInputSourceDataInputStream5 {
     assertEquals(32, dis.bitPos0b)
   }
 
-  @Test def testLittleEndianLSBFirstLong3() {
+  @Test def testLittleEndianLSBFirstLong3(): Unit = {
     val bb = ByteBuffer.allocate(8)
     bb.order(java.nio.ByteOrder.LITTLE_ENDIAN)
     val fb = bb.asLongBuffer()
@@ -70,7 +70,7 @@ class TestInputSourceDataInputStream5 {
     assertEquals(64, dis.bitPos0b)
   }
 
-  @Test def testLittleEndianLong4() {
+  @Test def testLittleEndianLong4(): Unit = {
     val bb = ByteBuffer.allocate(8)
     bb.order(java.nio.ByteOrder.LITTLE_ENDIAN)
     val fb = bb.asLongBuffer()
@@ -84,7 +84,7 @@ class TestInputSourceDataInputStream5 {
     assertEquals(32, dis.bitPos0b)
   }
 
-  @Test def testLittleEndianLong5() {
+  @Test def testLittleEndianLong5(): Unit = {
     val bb = ByteBuffer.allocate(8)
     bb.order(java.nio.ByteOrder.BIG_ENDIAN)
     val fb = bb.asLongBuffer()

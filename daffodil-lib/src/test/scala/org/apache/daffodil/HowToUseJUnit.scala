@@ -36,18 +36,18 @@ import org.apache.daffodil.Implicits._
  */
 class HowToUseJUnit {
 
-  @Test def test() {
+  @Test def test(): Unit = {
     assertEquals(42, 6 * 7)
     assertTrue(42 == 6 * 7)
     if (42 != 6 * 7)
       fail("wrong answer")
   }
 
-  def somethingThatThrows() {
+  def somethingThatThrows(): Unit = {
     throw new NumberFormatException()
   }
 
-  @Test def testOfInterceptToTestExpectedThrows() {
+  @Test def testOfInterceptToTestExpectedThrows(): Unit = {
     intercept[NumberFormatException] {
       //println("here we are")
       somethingThatThrows()
@@ -55,7 +55,7 @@ class HowToUseJUnit {
   }
 
   // @Test
-  def testOfInterceptReturnedValue() {
+  def testOfInterceptReturnedValue(): Unit = {
     val nfe = intercept[NumberFormatException] {
       //println("here we are")
       somethingThatThrows()

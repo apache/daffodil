@@ -43,7 +43,7 @@ trait SuspendableExpression
 
   protected def processExpressionResult(ustate: UState, v: DataValuePrimitive): Unit
 
-  override protected final def doTask(ustate: UState) {
+  override protected final def doTask(ustate: UState): Unit = {
     var v: DataValuePrimitiveNullable = DataValue.NoValue
     if (!isBlocked) {
       log(LogLevel.Debug, "Starting suspendable expression for %s, expr=%s", rd.diagnosticDebugName, expr.prettyExpr)

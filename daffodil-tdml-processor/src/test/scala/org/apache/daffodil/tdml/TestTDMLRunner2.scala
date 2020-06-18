@@ -448,7 +448,7 @@ abc # a comment
     runner.reset
   }
 
-  @Test def testTDMLUnparse() {
+  @Test def testTDMLUnparse(): Unit = {
     val testSuite = <ts:testSuite xmlns:ts={ tdml } xmlns:tns={ tns } xmlns:dfdl={ dfdl } xmlns:xs={ xsd } xmlns:xsi={ xsi } suiteName="theSuiteName">
                       <ts:defineSchema name="unparseTestSchema1">
                         <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
@@ -494,7 +494,7 @@ abc # a comment
     </tdml:testSuite>
 
   // @Test // other places should test tracing.
-  def testTrace() {
+  def testTrace(): Unit = {
     val tmpTDMLFileName = getClass.getName() + ".tdml"
     val testSuite = tdmlWithEmbeddedSchema
     try {

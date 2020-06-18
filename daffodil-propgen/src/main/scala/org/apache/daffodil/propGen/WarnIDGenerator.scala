@@ -68,7 +68,7 @@ class WarnIDGenerator(schema: scala.xml.Node) {
   val ssdwNode = (schema \ "simpleType").find( _ \@ "name" == "TunableSuppressSchemaDefinitionWarnings").get
   val enumerationNodes = (ssdwNode \\ "enumeration")
 
-  def writeGeneratedCode(w: java.io.FileWriter) {
+  def writeGeneratedCode(w: java.io.FileWriter): Unit = {
     w.write(top)
     w.write("\n")
 

@@ -23,7 +23,7 @@ import org.junit.Assert.assertEquals
 
 class TestMoreEncodings {
 
-  @Test def testBitsEncoding1() {
+  @Test def testBitsEncoding1(): Unit = {
     val xml = <document>
                 <documentPart type="text" bitOrder="LSBFirst" encoding="X-DFDL-BITS-LSBF">1</documentPart>
               </document>
@@ -34,7 +34,7 @@ class TestMoreEncodings {
     assertEquals(1, doc.nBits)
   }
 
-  @Test def testBitsEncoding2() {
+  @Test def testBitsEncoding2(): Unit = {
     val xml = <document>
                 <documentPart type="text" bitOrder="LSBFirst" encoding="X-DFDL-BITS-LSBF">10</documentPart>
               </document>
@@ -45,7 +45,7 @@ class TestMoreEncodings {
     assertEquals(2, doc.nBits)
   }
 
-  @Test def testBitsEncoding8() {
+  @Test def testBitsEncoding8(): Unit = {
     val xml = <document>
                 <documentPart type="text" bitOrder="LSBFirst" encoding="X-DFDL-BITS-LSBF">00110101</documentPart>
               </document>
@@ -56,7 +56,7 @@ class TestMoreEncodings {
     assertEquals(8, doc.nBits)
   }
 
-  @Test def testBitsEncoding9() {
+  @Test def testBitsEncoding9(): Unit = {
     val xml = <document>
                 <documentPart type="text" bitOrder="LSBFirst" encoding="X-DFDL-BITS-LSBF">001101011</documentPart>
               </document>
@@ -67,7 +67,7 @@ class TestMoreEncodings {
     assertEquals(9, doc.nBits)
   }
 
-  @Test def testSixBitEncoding1() {
+  @Test def testSixBitEncoding1(): Unit = {
     val xml = <document>
                 <documentPart type="text" bitOrder="LSBFirst" encoding="X-DFDL-6-BIT-DFI-264-DUI-001"><![CDATA[0]]></documentPart>
               </document>
@@ -78,7 +78,7 @@ class TestMoreEncodings {
     assertEquals(6, doc.nBits)
   }
 
-  @Test def testSixBitEncoding2() {
+  @Test def testSixBitEncoding2(): Unit = {
     val xml = <document>
                 <documentPart type="text" bitOrder="LSBFirst" encoding="X-DFDL-6-BIT-DFI-264-DUI-001"><![CDATA[00]]></documentPart>
               </document>
@@ -89,7 +89,7 @@ class TestMoreEncodings {
     assertEquals(12, doc.nBits)
   }
 
-  @Test def testSixBitEncoding40() {
+  @Test def testSixBitEncoding40(): Unit = {
     val xml = <document>
                 <documentPart type="text" bitOrder="LSBFirst" encoding="X-DFDL-6-BIT-DFI-264-DUI-001"><![CDATA[0123456789 ABCDEFGHIJKLMNOPQRSTUVWXYZ012]]></documentPart>
               </document>
@@ -98,7 +98,7 @@ class TestMoreEncodings {
     assertEquals(30, actual.length)
   }
 
-  @Test def testSixBitEncoding39() {
+  @Test def testSixBitEncoding39(): Unit = {
     val xml = <document>
                 <documentPart type="text" bitOrder="LSBFirst" encoding="X-DFDL-6-BIT-DFI-264-DUI-001"><![CDATA[0123456789 ABCDEFGHIJKLMNOPQRSTUVWXYZ00]]></documentPart>
               </document>

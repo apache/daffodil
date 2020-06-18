@@ -25,7 +25,7 @@ import org.apache.daffodil.api.URISchemaSource
 
 class TestXMLLoaderWithLocation {
 
-  @Test def testFile1() {
+  @Test def testFile1(): Unit = {
     val tmpXMLFileName = getClass.getName() + ".xml"
     // Our loader looks for xs:schema node, and appends a file attribute
     // if it can.
@@ -47,7 +47,7 @@ class TestXMLLoaderWithLocation {
     }
   }
 
-  @Test def testCatalogResolver() {
+  @Test def testCatalogResolver(): Unit = {
     val baseURI: String = new File(".").toURI().toString
     // val ldr = new DaffodilXMLLoader(BasicErrorHandler)
     val pId: String = null
@@ -58,7 +58,7 @@ class TestXMLLoaderWithLocation {
     // println(resolved)
   }
 
-  @Test def testFileValidation() {
+  @Test def testFileValidation(): Unit = {
     val tmpXMLFileName = getClass.getName() + ".xml"
     // Our loader looks for xs:schema node, and appends a file attribute
     // if it can.

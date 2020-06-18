@@ -46,7 +46,7 @@ class RealObject extends MyPropMixin
 class TestPropertyRuntime {
 
   @Test
-  def testConstructed() {
+  def testConstructed(): Unit = {
     // val myPropUser = new RealObject
     val av = MyProp.allValues
     val pv1 = MyProp.PropVal1
@@ -56,13 +56,13 @@ class TestPropertyRuntime {
   }
 
   @Test
-  def testCanCreateProp() {
+  def testCanCreateProp(): Unit = {
     val propVal1 = MyProp("propVal1")
     assertEquals(MyProp.PropVal1, propVal1)
   }
 
   @Test
-  def testMixin() {
+  def testMixin(): Unit = {
     val m = new HasMixin
     assertTrue(m.initWasCalled)
     m.theExampleProp

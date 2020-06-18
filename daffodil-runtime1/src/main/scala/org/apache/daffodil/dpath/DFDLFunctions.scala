@@ -27,7 +27,7 @@ import org.apache.daffodil.infoset.DataValue.DataValueString
 import org.apache.daffodil.infoset.DataValue.DataValueShort
 
 case class DFDLCheckConstraints(recipe: CompiledDPath) extends RecipeOpWithSubRecipes(recipe) {
-  override def run(dstate: DState) {
+  override def run(dstate: DState): Unit = {
     recipe.run(dstate)
     if (dstate.currentElement.valid.isDefined) {
       dstate.setCurrentValue(dstate.currentElement.valid.get)
@@ -125,7 +125,7 @@ case class DFDLTimeZoneFromDFDLCalendar(recipe: CompiledDPath, argType: NodeInfo
 case class DFDLTestBit(dataRecipe: CompiledDPath, bitPos1bRecipe: CompiledDPath)
   extends RecipeOpWithSubRecipes(dataRecipe, bitPos1bRecipe) {
 
-  override def run(dstate: DState) {
+  override def run(dstate: DState): Unit = {
     val saved = dstate.currentNode
     dataRecipe.run(dstate)
     val dataVal = dstate.intValue
@@ -155,7 +155,7 @@ case class DFDLTestBit(dataRecipe: CompiledDPath, bitPos1bRecipe: CompiledDPath)
 
 case class DFDLSetBits(bitRecipes: List[CompiledDPath]) extends RecipeOpWithSubRecipes(bitRecipes) {
 
-  override def run(dstate: DState) {
+  override def run(dstate: DState): Unit = {
     var byteVal: Int = 0
 
     Assert.invariant(bitRecipes.length == 8)

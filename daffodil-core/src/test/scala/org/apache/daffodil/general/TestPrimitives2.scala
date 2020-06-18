@@ -29,7 +29,7 @@ class TestPrimitives2 {
   val xsi = XMLUtils.XSI_NAMESPACE
   val example = XMLUtils.EXAMPLE_NAMESPACE
 
-  @Test def testUnparseNilValueEntities() {
+  @Test def testUnparseNilValueEntities(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" encoding="ascii" lengthUnits="bytes"/>,
@@ -39,7 +39,7 @@ class TestPrimitives2 {
     TestUtils.testUnparsing(sch, infoset, " nil\u000a")
   }
 
-  @Test def testUnparseNilValueEntities2() {
+  @Test def testUnparseNilValueEntities2(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" encoding="ascii" lengthUnits="bytes"/>,

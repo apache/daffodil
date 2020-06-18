@@ -34,7 +34,7 @@ class TestCLIexecuting {
   val output15 = Util.getExpectedString("output15.txt", true)
   val output16 = Util.getExpectedString("output16.txt", true)
 
-  @Test def test_995_CLI_Executing_Listing_negativeTest01() {
+  @Test def test_995_CLI_Executing_Listing_negativeTest01(): Unit = {
     val tdmlFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section31/escape_characters/Escapes.tdml")
     val testTdmlFile = if (Util.isWindows) Util.cmdConvert(tdmlFile) else tdmlFile
 
@@ -50,7 +50,7 @@ class TestCLIexecuting {
     }
   }
 
-  @Test def test_1001_CLI_Executing_Listing_execRegex01() {
+  @Test def test_1001_CLI_Executing_Listing_execRegex01(): Unit = {
     val tdmlFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section31/escape_characters/Escapes.tdml")
     val testTdmlFile = if (Util.isWindows) Util.cmdConvert(tdmlFile) else tdmlFile
 
@@ -66,7 +66,7 @@ class TestCLIexecuting {
     }
   }
 
-  @Test def test_1000_CLI_Executing_Listing_listRegex02() {
+  @Test def test_1000_CLI_Executing_Listing_listRegex02(): Unit = {
     val tdmlFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section31/escape_characters/Escapes.tdml")
     val testTdmlFile = if (Util.isWindows) Util.cmdConvert(tdmlFile) else tdmlFile
 
@@ -85,7 +85,7 @@ class TestCLIexecuting {
     }
   }
 
-  @Test def test_999_CLI_Executing_Listing_listRegex01() {
+  @Test def test_999_CLI_Executing_Listing_listRegex01(): Unit = {
     val tdmlFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section31/escape_characters/Escapes.tdml")
     val testTdmlFile = if (Util.isWindows) Util.cmdConvert(tdmlFile) else tdmlFile
 
@@ -123,7 +123,7 @@ class TestCLIexecuting {
   //    }
   //  }
 
-  @Test def test_993_CLI_Executing_Listing_listAll() {
+  @Test def test_993_CLI_Executing_Listing_listAll(): Unit = {
     val tdmlFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/Entities.tdml")
     val testTdmlFile = if (Util.isWindows) Util.cmdConvert(tdmlFile) else tdmlFile
 
@@ -138,7 +138,7 @@ class TestCLIexecuting {
     }
   }
 
-  @Test def test_992_CLI_Executing_Listing_singleTestList() {
+  @Test def test_992_CLI_Executing_Listing_singleTestList(): Unit = {
     val tdmlFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/Entities.tdml")
     val testTdmlFile = if (Util.isWindows) Util.cmdConvert(tdmlFile) else tdmlFile
 
@@ -154,7 +154,7 @@ class TestCLIexecuting {
     }
   }
 
-  @Test def test_990_CLI_Executing_Listing_singleTest() {
+  @Test def test_990_CLI_Executing_Listing_singleTest(): Unit = {
     val tdmlFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/Entities.tdml")
     val testTdmlFile = if (Util.isWindows) Util.cmdConvert(tdmlFile) else tdmlFile
 

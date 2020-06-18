@@ -79,7 +79,7 @@ trait Suspension
    *
    * This status is needed to implement circular deadlock detection
    */
-  final def runSuspension() {
+  final def runSuspension(): Unit = {
     doTask(savedUstate)
     if (isDone && !isReadOnly) {
       try {
@@ -100,14 +100,14 @@ trait Suspension
    * Run the first time.
    *
    */
-  final def run(ustate: UState) {
+  final def run(ustate: UState): Unit = {
     doTask(ustate)
     if (!isDone) {
       prepareToSuspend(ustate)
     }
   }
 
-  private def prepareToSuspend(ustate: UState) {
+  private def prepareToSuspend(ustate: UState): Unit = {
     val mkl = maybeKnownLengthInBits(ustate)
     //
     // It seems like we have too many splits going on.
@@ -132,7 +132,7 @@ trait Suspension
   private def splitDOS(
     ustate: UState,
     maybeKnownLengthInBits: MaybeULong,
-    original: DirectOrBufferedDataOutputStream) {
+    original: DirectOrBufferedDataOutputStream): Unit = {
     Assert.usage(ustate.currentInfosetNodeMaybe.isDefined)
 
     val buffered = original.addBuffered
@@ -167,7 +167,7 @@ trait Suspension
     ustate.dataOutputStream = buffered
   }
 
-  private def suspend(ustate: UState, original: DirectOrBufferedDataOutputStream) {
+  private def suspend(ustate: UState, original: DirectOrBufferedDataOutputStream): Unit = {
     //
     // clone the ustate for use when evaluating the expression
     //
@@ -185,7 +185,7 @@ trait Suspension
     ustate.asInstanceOf[UStateMain].addSuspension(this)
   }
 
-  final def explain() {
+  final def explain(): Unit = {
     val t = this
     Assert.invariant(t.isBlocked)
     log(LogLevel.Warning, "%s", t.blockedLocation)
@@ -204,7 +204,7 @@ trait Suspension
   private var done_ : Boolean = false
   private var isBlocked_ = false
 
-  final def setDone {
+  final def setDone: Unit = {
     done_ = true
   }
 
@@ -212,7 +212,7 @@ trait Suspension
 
   final def isBlocked = isBlocked_
 
-  final def setUnblocked() {
+  final def setUnblocked(): Unit = {
     isBlocked_ = false
   }
 
@@ -224,7 +224,7 @@ trait Suspension
 
   final def isMakingProgress = isMakingProgress_
 
-  final def block(nodeOrVar: AnyRef, info: AnyRef, index: Long, exc: AnyRef) {
+  final def block(nodeOrVar: AnyRef, info: AnyRef, index: Long, exc: AnyRef): Unit = {
     log(LogLevel.Debug, "blocking %s due to %s", this, exc)
 
     Assert.usage(nodeOrVar ne null)

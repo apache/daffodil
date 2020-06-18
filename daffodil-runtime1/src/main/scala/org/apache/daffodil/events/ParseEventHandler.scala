@@ -134,7 +134,7 @@ trait MultipleEventHandler extends EventHandler with Serializable {
     handlers_
   }
 
-  final def addEventHandler(h: EventHandler) {
+  final def addEventHandler(h: EventHandler): Unit = {
     if (!handlers.contains(h))
       handlers_ = h +: handlers
   }
@@ -142,54 +142,54 @@ trait MultipleEventHandler extends EventHandler with Serializable {
   /**
    * Parser Events
    */
-  override def init(processor: Parser) { if (!(handlers eq Nil)) handlers.foreach { _.init(processor) } }
+  override def init(processor: Parser): Unit = { if (!(handlers eq Nil)) handlers.foreach { _.init(processor) } }
 
-  override def before(state: PState, processor: Parser) { if (!(handlers eq Nil)) handlers.foreach { _.before(state, processor) } }
+  override def before(state: PState, processor: Parser): Unit = { if (!(handlers eq Nil)) handlers.foreach { _.before(state, processor) } }
 
-  override def after(state: PState, processor: Parser) { if (!(handlers eq Nil)) handlers.foreach { _.after(state, processor) } }
+  override def after(state: PState, processor: Parser): Unit = { if (!(handlers eq Nil)) handlers.foreach { _.after(state, processor) } }
 
-  override def beforeRepetition(state: PState, processor: Parser) { if (!(handlers eq Nil)) handlers.foreach { _.beforeRepetition(state, processor) } }
+  override def beforeRepetition(state: PState, processor: Parser): Unit = { if (!(handlers eq Nil)) handlers.foreach { _.beforeRepetition(state, processor) } }
 
-  override def afterRepetition(state: PState, processor: Parser) { if (!(handlers eq Nil)) handlers.foreach { _.afterRepetition(state, processor) } }
+  override def afterRepetition(state: PState, processor: Parser): Unit = { if (!(handlers eq Nil)) handlers.foreach { _.afterRepetition(state, processor) } }
 
-  override def startElement(state: PState, processor: Parser) {
+  override def startElement(state: PState, processor: Parser): Unit = {
     if (!(handlers eq Nil)) handlers.foreach {
       _.startElement(state, processor)
     }
   }
 
-  override def endElement(state: PState, processor: Parser) {
+  override def endElement(state: PState, processor: Parser): Unit = {
     if (!(handlers eq Nil)) handlers.foreach {
       _.endElement(state, processor)
     }
   }
 
-  override def startArray(state: PState, processor: Parser) { if (!(handlers eq Nil)) handlers.foreach { _.startArray(state, processor) } }
+  override def startArray(state: PState, processor: Parser): Unit = { if (!(handlers eq Nil)) handlers.foreach { _.startArray(state, processor) } }
 
-  override def endArray(state: PState, processor: Parser) { if (!(handlers eq Nil)) handlers.foreach { _.endArray(state, processor) } }
+  override def endArray(state: PState, processor: Parser): Unit = { if (!(handlers eq Nil)) handlers.foreach { _.endArray(state, processor) } }
 
-  override def fini(processor: Parser) { if (!(handlers eq Nil)) handlers.foreach { _.fini(processor) } }
+  override def fini(processor: Parser): Unit = { if (!(handlers eq Nil)) handlers.foreach { _.fini(processor) } }
 
   /**
    * Unparser Events
    */
-  override def init(processor: Unparser) { if (!(handlers eq Nil)) handlers.foreach { _.init(processor) } }
+  override def init(processor: Unparser): Unit = { if (!(handlers eq Nil)) handlers.foreach { _.init(processor) } }
 
-  override def before(state: UState, processor: Unparser) { if (!(handlers eq Nil)) handlers.foreach { _.before(state, processor) } }
+  override def before(state: UState, processor: Unparser): Unit = { if (!(handlers eq Nil)) handlers.foreach { _.before(state, processor) } }
 
-  override def after(state: UState, processor: Unparser) { if (!(handlers eq Nil)) handlers.foreach { _.after(state, processor) } }
+  override def after(state: UState, processor: Unparser): Unit = { if (!(handlers eq Nil)) handlers.foreach { _.after(state, processor) } }
 
-  override def beforeRepetition(state: UState, processor: Unparser) { if (!(handlers eq Nil)) handlers.foreach { _.beforeRepetition(state, processor) } }
+  override def beforeRepetition(state: UState, processor: Unparser): Unit = { if (!(handlers eq Nil)) handlers.foreach { _.beforeRepetition(state, processor) } }
 
-  override def afterRepetition(state: UState, processor: Unparser) { if (!(handlers eq Nil)) handlers.foreach { _.afterRepetition(state, processor) } }
+  override def afterRepetition(state: UState, processor: Unparser): Unit = { if (!(handlers eq Nil)) handlers.foreach { _.afterRepetition(state, processor) } }
 
-  override def startElement(state: UState, processor: Unparser) { if (!(handlers eq Nil)) handlers.foreach { _.startElement(state, processor) } }
+  override def startElement(state: UState, processor: Unparser): Unit = { if (!(handlers eq Nil)) handlers.foreach { _.startElement(state, processor) } }
 
-  override def endElement(state: UState, processor: Unparser) { if (!(handlers eq Nil)) handlers.foreach { _.endElement(state, processor) } }
+  override def endElement(state: UState, processor: Unparser): Unit = { if (!(handlers eq Nil)) handlers.foreach { _.endElement(state, processor) } }
 
-  override def startArray(state: UState, processor: Unparser) { if (!(handlers eq Nil)) handlers.foreach { _.startArray(state, processor) } }
+  override def startArray(state: UState, processor: Unparser): Unit = { if (!(handlers eq Nil)) handlers.foreach { _.startArray(state, processor) } }
 
-  override def endArray(state: UState, processor: Unparser) { if (!(handlers eq Nil)) handlers.foreach { _.endArray(state, processor) } }
+  override def endArray(state: UState, processor: Unparser): Unit = { if (!(handlers eq Nil)) handlers.foreach { _.endArray(state, processor) } }
 
-  override def fini(processor: Unparser) { if (!(handlers eq Nil)) handlers.foreach { _.fini(processor) } }
+  override def fini(processor: Unparser): Unit = { if (!(handlers eq Nil)) handlers.foreach { _.fini(processor) } }
 }

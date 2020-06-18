@@ -38,7 +38,7 @@ class TestAppinfoSyntax {
   /**
    * Test that non-native attributes can be placed on DFDL appinfo annotations.
    */
-  @Test def testAppinfoWithNonNativeAttributes() {
+  @Test def testAppinfoWithNonNativeAttributes(): Unit = {
     val expected = "this is a non-native attribute"
     val nnURI = "urn:nonNativeAttributeNamespaceURN"
     val sc = <xs:schema xmlns:xs={ xsd } xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:foo={ nnURI }>
@@ -72,7 +72,7 @@ class TestAppinfoSyntax {
    * Test that more than one DFDL appinfo at the same point causes
    * an exception.
    */
-  @Test def testMultipleAppinfos() {
+  @Test def testMultipleAppinfos(): Unit = {
     val expected = "this is a non-native attribute"
     val nnURI = "urn:nonNativeAttributeNamespaceURN"
     val sc = <xs:schema xmlns:xs={ xsd } xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:foo={ nnURI }>
@@ -117,7 +117,7 @@ class TestAppinfoSyntax {
    * This is not allowed as it would impact our ability to provide good
    * diagnostics around the DFDL annotation elements.
    */
-  @Test def testMixedAnnotationElementsInsideDFDLAppinfo() {
+  @Test def testMixedAnnotationElementsInsideDFDLAppinfo(): Unit = {
     val expected = "this is a non-native attribute"
     val nnURI = "urn:nonNativeAttributeNamespaceURN"
     val sc = <xs:schema xmlns:xs={ xsd } xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:foo={ nnURI }>
@@ -152,7 +152,7 @@ class TestAppinfoSyntax {
   /**
    * Test that non-DFDL appinfos do not interact with DFDL.
    */
-  @Test def testNonDFDLAppinfos() {
+  @Test def testNonDFDLAppinfos(): Unit = {
     val expected = "this is a non-native attribute"
     val nnURI = "urn:nonNativeAttributeNamespaceURN"
     val nnURI2 = "urn:anotherNonNativeURI"
@@ -196,7 +196,7 @@ class TestAppinfoSyntax {
    * Test that XML comments are allowed at all places in and around appinfo
    * elements.
    */
-  @Test def testAppinfoWithComments() {
+  @Test def testAppinfoWithComments(): Unit = {
     val expected = "this is a non-native attribute"
     val nnURI = "urn:nonNativeAttributeNamespaceURN"
     val sc = <xs:schema xmlns:xs={ xsd } xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:foo={ nnURI }>

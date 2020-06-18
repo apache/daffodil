@@ -89,7 +89,7 @@ object Converter {
 
 class TestUnicodeErrorTolerance {
 
-  @Test def testIntArrayToByteArray() {
+  @Test def testIntArrayToByteArray(): Unit = {
     val ia = Array[Int](1, 127, 128, 255, 0)
     val actualByteArray = Converter.intArrayToByteArray(ia)
     val expectedByteArray = Array[Byte](1, 127, -128, -1, 0)
@@ -102,7 +102,7 @@ class TestUnicodeErrorTolerance {
   /**
    * Scala, like Java, tolerates isolated broken surrogate halves.
    */
-  @Test def testScalaAllowsBadUnicode() {
+  @Test def testScalaAllowsBadUnicode(): Unit = {
     val exp = "@@@\udcd0@@@" // that's the 2nd half of a surrogate pair for U+1d4d0 sandwiched between @@@
     val codepoint = exp.charAt(3)
     assertEquals(0xdcd0, codepoint)
@@ -112,7 +112,7 @@ class TestUnicodeErrorTolerance {
    * This test shows that we're not tolerating 3-byte encodings of surrogates if they are
    * isolated.
    */
-  @Test def testUTF8Decode3ByteSurrogateIsMalformed() {
+  @Test def testUTF8Decode3ByteSurrogateIsMalformed(): Unit = {
     //    val exp = "\udcd0" // that's the trailing surrogate in the surrogate pair for U+1d4d0
     val cs = Charset.forName("utf-8")
     val dn = cs.displayName()
@@ -133,7 +133,7 @@ class TestUnicodeErrorTolerance {
    * This test shows that Java isn't tolerating 3-byte encodings of surrogates if they are
    * isolated. It is substituting for them.
    */
-  @Test def testUTF8Decode3ByteSurrogateReplacement() {
+  @Test def testUTF8Decode3ByteSurrogateReplacement(): Unit = {
     val inBuf = Array[Int](0xED, 0xB3, 0x90)
     val act = replaceBadCharacters(inBuf)
     assertEquals("\uFFFD", act)
@@ -143,7 +143,7 @@ class TestUnicodeErrorTolerance {
    * This test shows that Java substitutes on encoding/output also when an isolated surrogate
    * is presented to the encoder.
    */
-  @Test def testUTF8Encode3ByteSurrogateReplacement() {
+  @Test def testUTF8Encode3ByteSurrogateReplacement(): Unit = {
     val s = "\ud800"
     val act = replaceBadCharactersEncoding(s)
     val exp = Array[Int](0xEF, 0xBF, 0xBD) // the 3-byte UTF-8 replacement sequence
@@ -163,7 +163,7 @@ class TestUnicodeErrorTolerance {
    * Also, the "length" of the malformed input is 1, as in one character that we're encoding.
    * I.e., not measured in bytes here.
    */
-  @Test def testUTF8Encode3ByteSurrogateIsMalformed() {
+  @Test def testUTF8Encode3ByteSurrogateIsMalformed(): Unit = {
     val s = "\udcd0\udcd0\udcd0\udcd0" // that's the 2nd half of a surrogate pair for U+1d4d0
     val cs = Charset.forName("utf-8")
     val dn = cs.displayName()
@@ -182,7 +182,7 @@ class TestUnicodeErrorTolerance {
   /**
    * shows that the codepoints that require surrogate pairs do in fact create two Java/Scala string codepoints.
    */
-  @Test def testUTF8ToSurrogatePair() {
+  @Test def testUTF8ToSurrogatePair(): Unit = {
     val exp = "\ud800\udc00" // surrogate pair for U+010000
     val cs = Charset.forName("utf-8")
     val dn = cs.displayName()
@@ -203,7 +203,7 @@ class TestUnicodeErrorTolerance {
    * Of course this is really extreme as there is clearly no surrogate pair represntation
    * of this code point possible.
    */
-  @Test def testUTF8Extreme6ByteToSurrogatePair() {
+  @Test def testUTF8Extreme6ByteToSurrogatePair(): Unit = {
     val cs = Charset.forName("utf-8")
     val dn = cs.displayName()
     assertEquals("UTF-8", dn)
@@ -218,7 +218,7 @@ class TestUnicodeErrorTolerance {
     assertEquals(1, e.getInputLength()) // However, it doesn't say there are 6 bad bytes here.
   }
 
-  @Test def testUTF8Extreme4ByteToSurrogatePair() {
+  @Test def testUTF8Extreme4ByteToSurrogatePair(): Unit = {
     val cs = Charset.forName("utf-8")
     val dn = cs.displayName()
     assertEquals("UTF-8", dn)
@@ -237,7 +237,7 @@ class TestUnicodeErrorTolerance {
    * This test shows that Java isn't tolerating 3-byte encodings (CESU-8 encoding) of surrogates at all, it's not
    * accepting them if they are properly matched even.
    */
-  @Test def testUTF8Decode6ByteSurrogatePairIsMalformed() {
+  @Test def testUTF8Decode6ByteSurrogatePairIsMalformed(): Unit = {
     // val exp = "\ud4d0" // that's the 2nd half of a surrogate pair for U+1d4d0
     val cs = Charset.forName("utf-8")
     val dn = cs.displayName()
@@ -269,7 +269,7 @@ class TestUnicodeErrorTolerance {
    * ICU string handling functions (including append, substring, etc.) do not automatically protect
    * against producing malformed UTF-16 strings.
    */
-  @Test def testUTF16DecodeBadSurrogate() {
+  @Test def testUTF16DecodeBadSurrogate(): Unit = {
     val exp = "\ud4d0" // that's the 2nd half of a surrogate pair for U+1d4d0
     val cs = Charset.forName("utf-16BE")
     val dn = cs.displayName()
@@ -284,7 +284,7 @@ class TestUnicodeErrorTolerance {
   /**
    * BOM's in middle of UTF-16 strings cause no problems.
    */
-  @Test def testUTF16DecodeBOMsInMidString() {
+  @Test def testUTF16DecodeBOMsInMidString(): Unit = {
     val exp = "\uFEFF@\uFEFF@" // BOM, then @ then ZWNBS (aka BOM), then @
     val cs = Charset.forName("utf-16BE")
     val dn = cs.displayName()
@@ -317,25 +317,25 @@ class TestUnicodeErrorTolerance {
     counter
   }
 
-  @Test def testHowManyBadBytes1() {
+  @Test def testHowManyBadBytes1(): Unit = {
     val inBuf = Array[Int](0xFF, 0xFF, 0xFF) // 0xFF is always illegal utf-8
     val count = howManyBadBytes(inBuf)
     assertEquals(1, count)
   }
 
-  @Test def testHowManyBadBytes2() {
+  @Test def testHowManyBadBytes2(): Unit = {
     val inBuf = Array[Int](0xC2, 0x00) // a bad 2-byte sequence 2nd byte bad = 1 error
     val count = howManyBadBytes(inBuf)
     assertEquals(1, count)
   }
 
-  @Test def testHowManyBadBytes3() {
+  @Test def testHowManyBadBytes3(): Unit = {
     val inBuf = Array[Int](0xE2, 0xA2, 0xCC) // a bad 3-byte sequence 3rd byte bad = 1 error
     val count = howManyBadBytes(inBuf)
     assertEquals(2, count)
   }
 
-  @Test def testHowManyBadBytes4() {
+  @Test def testHowManyBadBytes4(): Unit = {
     val inBuf = Array[Int](0xF0, 0xA4, 0xAD, 0xC2) // a bad 4-byte sequence - 4th byte bad = 1 error
     val count = howManyBadBytes(inBuf)
     assertEquals(3, count)
@@ -349,7 +349,7 @@ class TestUnicodeErrorTolerance {
    * Then it should pick up at the last byte. BF by itself is not valid alone or as first byte of
    * a multi-byte character, so that's an error also. Two errors total.
    */
-  @Test def testHowManyBadBytes5() { // That's character U+10FFFF, but with an error
+  @Test def testHowManyBadBytes5(): Unit = { // That's character U+10FFFF, but with an error
     val inBuf = Array[Int](0xF4, 0xCF, 0xBF, 0xBF)
     val count = howManyBadBytes(inBuf)
     assertEquals(1, count)
@@ -378,31 +378,31 @@ class TestUnicodeErrorTolerance {
     act
   }
 
-  @Test def testHowManyReplacements1() {
+  @Test def testHowManyReplacements1(): Unit = {
     val inBuf = Array[Int](0xFF, 0xFF, 0xFF) // 0xFF is always illegal utf-8
     val act = replaceBadCharacters(inBuf)
     assertEquals("\uFFFD\uFFFD\uFFFD", act)
   }
 
-  @Test def testHowManyReplacements2() {
+  @Test def testHowManyReplacements2(): Unit = {
     val inBuf = Array[Int](0xC2, 0x40) // a bad 2-byte sequence 2nd byte bad = 1 error
     val act = replaceBadCharacters(inBuf)
     assertEquals("\uFFFD@", act)
   }
 
-  @Test def testHowManyReplacements3() {
+  @Test def testHowManyReplacements3(): Unit = {
     val inBuf = Array[Int](0xE2, 0xA2, 0xCC) // a bad 3-byte sequence. 3rd byte bad
     val act = replaceBadCharacters(inBuf)
     assertEquals("\uFFFD\uFFFD", act)
   }
 
-  @Test def testHowManyReplacements4() {
+  @Test def testHowManyReplacements4(): Unit = {
     val inBuf = Array[Int](0xF0, 0xA4, 0xAD, 0xC2) // a bad 4-byte sequence - 4th byte bad
     val act = replaceBadCharacters(inBuf)
     assertEquals("\uFFFD\uFFFD", act)
   }
 
-  @Test def testHowManyReplacements5() {
+  @Test def testHowManyReplacements5(): Unit = {
     // That's character U+10FFFF, but with an error
     // a bad 4-byte sequence, 2nd byte doesn't go with first.
     // 2nd and 3rd bytes go together, but fourth is illegal on its own.
@@ -412,7 +412,7 @@ class TestUnicodeErrorTolerance {
     assertEquals("\uFFFD\u03ff\uFFFD", act)
   }
 
-  @Test def testHowManyReplacements6() {
+  @Test def testHowManyReplacements6(): Unit = {
     // Gibberish. 1st byte of a 3-byte sequence, 2nd byte doesn't go with it,
     // but the sequence of 2nd and 3rd byte is valid (U+03FF). 4th byte invalid alone.
     val inBuf = Array[Int](0xE2, 0xCF, 0xBF, 0xBF) // a bad 4-byte sequence, but bad in 2nd byte. = 3 errors
@@ -423,7 +423,7 @@ class TestUnicodeErrorTolerance {
   /**
    * This test shows that Java ISO-8859-1 can decode any byte at all.
    */
-  @Test def testISO8859HandlesAllBytes() {
+  @Test def testISO8859HandlesAllBytes(): Unit = {
     val cs = Charset.forName("iso-8859-1")
     val decoder = cs.newDecoder()
 

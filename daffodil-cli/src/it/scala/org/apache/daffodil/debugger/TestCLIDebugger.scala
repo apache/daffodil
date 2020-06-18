@@ -32,7 +32,7 @@ class TestCLIdebugger {
   //  the use of an unsupported terminal: -Djline.terminal=jline.UnsupportedTerminal
   //  Also added a Java option to specify the character encoding: -Dfile.encoding=UTF-8
 
-  @Test def test_3385_CLI_Debugger_invalidExpressions() {
+  @Test def test_3385_CLI_Debugger_invalidExpressions(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
     val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input1.txt")
     val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
@@ -71,7 +71,7 @@ class TestCLIdebugger {
     }
   }
 
-  @Test def test_1591_CLI_Debugger_invalidCommandError() {
+  @Test def test_1591_CLI_Debugger_invalidCommandError(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
     val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input1.txt")
     val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
@@ -90,7 +90,7 @@ class TestCLIdebugger {
     }
   }
 
-  @Test def test_1335_CLI_Debugger_dataAndWrapLength() {
+  @Test def test_1335_CLI_Debugger_dataAndWrapLength(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
     val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input2.txt")
     val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
@@ -124,7 +124,7 @@ class TestCLIdebugger {
     }
   }
 
-  @Test def test_982_CLI_Debugger_simpleDebugger() {
+  @Test def test_982_CLI_Debugger_simpleDebugger(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
     val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input1.txt")
     val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
@@ -142,7 +142,7 @@ class TestCLIdebugger {
     }
   }
 
-  @Test def test_1326_CLI_Debugger_displaysTesting() {
+  @Test def test_1326_CLI_Debugger_displaysTesting(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
     val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input1.txt")
     val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
@@ -185,7 +185,7 @@ class TestCLIdebugger {
     }
   }
 
-  @Test def test_1339_CLI_Debugger_removeHidden() {
+  @Test def test_1339_CLI_Debugger_removeHidden(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/cli_schema.dfdl.xsd")
     val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input6.txt")
     val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
@@ -208,7 +208,7 @@ class TestCLIdebugger {
     }
   }
 
-  @Test def test_3268_CLI_Debugger_removeHidden2() {
+  @Test def test_3268_CLI_Debugger_removeHidden2(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/cli_schema.dfdl.xsd")
     val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input6.txt")
     val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
@@ -234,7 +234,7 @@ class TestCLIdebugger {
     }
   }
 
-  @Test def test_1331_CLI_Debugger_breakpointTesting4() {
+  @Test def test_1331_CLI_Debugger_breakpointTesting4(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
     val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input3.txt")
     val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
@@ -290,7 +290,7 @@ class TestCLIdebugger {
     }
   }
 
-  @Test def test_1463_CLI_Debugger_breakOnValueOfElement() {
+  @Test def test_1463_CLI_Debugger_breakOnValueOfElement(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
     val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input3.txt")
     val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
@@ -346,7 +346,7 @@ class TestCLIdebugger {
     }
   }
 
-  @Test def test_1338_CLI_Debugger_discriminatorInfo() {
+  @Test def test_1338_CLI_Debugger_discriminatorInfo(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/cli_schema.dfdl.xsd")
     val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input5.txt")
     val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
@@ -376,7 +376,7 @@ class TestCLIdebugger {
     }
   }
 
-  @Test def test_1328_CLI_Debugger_breakpointTesting() {
+  @Test def test_1328_CLI_Debugger_breakpointTesting(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
     val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input1.txt")
     val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
@@ -417,7 +417,7 @@ class TestCLIdebugger {
     }
   }
 
-  @Test def test_1329_CLI_Debugger_breakpointTesting2() {
+  @Test def test_1329_CLI_Debugger_breakpointTesting2(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
     val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input2.txt")
     val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
@@ -453,7 +453,7 @@ class TestCLIdebugger {
     }
   }
 
-  @Test def test_CLI_Debugger_SDE_message() {
+  @Test def test_CLI_Debugger_SDE_message(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
     val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input2.txt")
     val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
@@ -478,7 +478,7 @@ class TestCLIdebugger {
     }
   }
 
-  @Test def test_1330_CLI_Debugger_breakpointTesting3() {
+  @Test def test_1330_CLI_Debugger_breakpointTesting3(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
     val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input2.txt")
     val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
@@ -520,7 +520,7 @@ class TestCLIdebugger {
     }
   }
 
-  @Test def test_1333_CLI_Debugger_settingInfosetLines() {
+  @Test def test_1333_CLI_Debugger_settingInfosetLines(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
     val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input3.txt")
     val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
@@ -563,7 +563,7 @@ class TestCLIdebugger {
     }
   }
 
-  @Test def test_1334_CLI_Debugger_infoBitPosition() {
+  @Test def test_1334_CLI_Debugger_infoBitPosition(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
     val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input1.txt")
     val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
@@ -595,7 +595,7 @@ class TestCLIdebugger {
     }
   }
 
-  @Test def test_1337_CLI_Debugger_childIndex() {
+  @Test def test_1337_CLI_Debugger_childIndex(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
     val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input4.txt")
     val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
@@ -628,7 +628,7 @@ class TestCLIdebugger {
     }
   }
 
-  @Test def test_1340_CLI_Debugger_infoPath() {
+  @Test def test_1340_CLI_Debugger_infoPath(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
     val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input1.txt")
     val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
@@ -657,7 +657,7 @@ class TestCLIdebugger {
     }
   }
 
-  @Test def test_1382_CLI_Debugger_dataAndWrapLength2() {
+  @Test def test_1382_CLI_Debugger_dataAndWrapLength2(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
     val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input2.txt")
     val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
@@ -700,7 +700,7 @@ class TestCLIdebugger {
     }
   }
 
-  @Test def test_1863_CLI_Debugger_groupIndex01() {
+  @Test def test_1863_CLI_Debugger_groupIndex01(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/cli_schema_03.dfdl.xsd")
     val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input9.txt")
     val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
@@ -733,7 +733,7 @@ class TestCLIdebugger {
     }
   }
 
-  @Test def test_1029_CLI_Debugger_validation1() {
+  @Test def test_1029_CLI_Debugger_validation1(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/cli_schema_03.dfdl.xsd")
     val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input9.txt")
     val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
@@ -757,7 +757,7 @@ class TestCLIdebugger {
     }
   }
 
-  @Test def test_3258_CLI_Debugger_infodata() {
+  @Test def test_3258_CLI_Debugger_infodata(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
     val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input2.txt")
     val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
@@ -789,7 +789,7 @@ class TestCLIdebugger {
     }
   }
 
-  @Test def test_3264_CLI_Debugger_undefined_command() {
+  @Test def test_3264_CLI_Debugger_undefined_command(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
     val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input2.txt")
     val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
@@ -814,7 +814,7 @@ class TestCLIdebugger {
     }
   }
 
-  @Test def test_CLI_Debugger_delimiterStack() {
+  @Test def test_CLI_Debugger_delimiterStack(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
     val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input2.txt")
     val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
@@ -853,7 +853,7 @@ class TestCLIdebugger {
     }
   }
 
-  @Test def test_CLI_Debugger_utf16_encoding() {
+  @Test def test_CLI_Debugger_utf16_encoding(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/utf16schema.dfdl.xsd")
     val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/hextest.txt")
     val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
@@ -874,7 +874,7 @@ class TestCLIdebugger {
     }
   }
 
-  @Test def test_1337_CLI_Debugger_info_infoset() {
+  @Test def test_1337_CLI_Debugger_info_infoset(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
     val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input1.txt")
     val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
@@ -899,7 +899,7 @@ class TestCLIdebugger {
     }
   }
 
-  @Test def test_CLI_Debugger_InfoHidden_1() {
+  @Test def test_CLI_Debugger_InfoHidden_1(): Unit = {
     val schemaFile = Util.daffodilPath(
       "daffodil-test/src/test/resources/org/apache/daffodil/section14/sequence_groups/SequencesWithHiddenRefs.dfdl.xsd")
     val inputFile = Util.newTempFile("testInput_", ".tmp", optFileContents = Some("2~3"))
@@ -939,7 +939,7 @@ class TestCLIdebugger {
     }
   }
 
-  @Test def test_CLI_Debugger_InfoHidden_2() {
+  @Test def test_CLI_Debugger_InfoHidden_2(): Unit = {
     val schemaFile = Util.daffodilPath(
       "daffodil-test/src/test/resources/org/apache/daffodil/section14/sequence_groups/SequencesWithHiddenRefs.dfdl.xsd")
     val inputFile = Util.newTempFile("testInput_", ".tmp", optFileContents = Some("2~3"))
@@ -979,7 +979,7 @@ class TestCLIdebugger {
     }
   }
 
-  @Test def test_CLI_Debugger_InfoHidden_3() {
+  @Test def test_CLI_Debugger_InfoHidden_3(): Unit = {
     val schemaFile = Util.daffodilPath(
       "daffodil-test/src/test/resources/org/apache/daffodil/section15/choice_groups/ChoicesInHiddenContexts.dfdl.xsd")
     val inputFile = Util.newTempFile("testInput_", ".tmp", optFileContents = Some("2,3"))
@@ -1026,7 +1026,7 @@ class TestCLIdebugger {
     }
   }
 
-  @Test def test_CLI_Debugger_InfoHidden_4() {
+  @Test def test_CLI_Debugger_InfoHidden_4(): Unit = {
     val schemaFile = Util.daffodilPath(
       "daffodil-test/src/test/resources/org/apache/daffodil/section15/choice_groups/ChoicesInHiddenContexts.dfdl.xsd")
     val inputFile = Util.newTempFile("testInput_", ".tmp", optFileContents = Some("[6~]9"))

@@ -26,7 +26,7 @@ object TestPropertySyntax2 {
   val testDir1 = "/org/apache/daffodil/section07/property_syntax/"
   val runner = Runner(testDir1, "PropertySyntax.tdml", false, false)
 
-  @AfterClass def shutDown {
+  @AfterClass def shutDown: Unit = {
     runner.reset
   }
 
@@ -37,9 +37,9 @@ class TestPropertySyntax2 {
   import TestPropertySyntax2._
 
   // JIRA DFDL-1722
-  @Test def test_badElementFormProperty() { runner.runOneTest("badElementFormProperty") }
+  @Test def test_badElementFormProperty(): Unit = { runner.runOneTest("badElementFormProperty") }
 
   // DAFFODIL-2202
-  @Test def test_badElementFormProperty2() { runner.runOneTest("badElementFormProperty2") }
+  @Test def test_badElementFormProperty2(): Unit = { runner.runOneTest("badElementFormProperty2") }
 
 }

@@ -26,7 +26,7 @@ object TestDelimiterProperties {
   val testDir_02 = "/org/apache/daffodil/section12/delimiter_properties/"
   val runner_02 = Runner(testDir_02, "DelimiterProperties.tdml")
 
-  @AfterClass def shutDown {
+  @AfterClass def shutDown: Unit = {
     runner_02.reset
   }
 
@@ -37,16 +37,16 @@ class TestDelimiterProperties {
   import TestDelimiterProperties._
 
   @Test def test_DelimProp_01() = { runner_02.runOneTest("DelimProp_01") }
-  @Test def test_ParseSequence4() { runner_02.runOneTest("ParseSequence4") }
-  @Test def test_ParseSequence5() { runner_02.runOneTest("ParseSequence5") }
-  @Test def test_DelimProp_02() { runner_02.runOneTest("DelimProp_02") }
-  @Test def test_DelimProp_03() { runner_02.runOneTest("DelimProp_03") }
-  @Test def test_DelimProp_04() { runner_02.runOneTest("DelimProp_04") }
-  @Test def test_DelimProp_05() { runner_02.runOneTest("DelimProp_05") }
-  @Test def test_DelimProp_06() { runner_02.runOneTest("DelimProp_06") }
-  @Test def test_DelimProp_07() { runner_02.runOneTest("DelimProp_07") }
-  @Test def test_initiatedContentSimple1() { runner_02.runOneTest("initiatedContentSimple1") }
-  @Test def test_Lesson4_initiators_terminators() { runner_02.runOneTest("Lesson4_initiators_terminators") }
+  @Test def test_ParseSequence4(): Unit = { runner_02.runOneTest("ParseSequence4") }
+  @Test def test_ParseSequence5(): Unit = { runner_02.runOneTest("ParseSequence5") }
+  @Test def test_DelimProp_02(): Unit = { runner_02.runOneTest("DelimProp_02") }
+  @Test def test_DelimProp_03(): Unit = { runner_02.runOneTest("DelimProp_03") }
+  @Test def test_DelimProp_04(): Unit = { runner_02.runOneTest("DelimProp_04") }
+  @Test def test_DelimProp_05(): Unit = { runner_02.runOneTest("DelimProp_05") }
+  @Test def test_DelimProp_06(): Unit = { runner_02.runOneTest("DelimProp_06") }
+  @Test def test_DelimProp_07(): Unit = { runner_02.runOneTest("DelimProp_07") }
+  @Test def test_initiatedContentSimple1(): Unit = { runner_02.runOneTest("initiatedContentSimple1") }
+  @Test def test_Lesson4_initiators_terminators(): Unit = { runner_02.runOneTest("Lesson4_initiators_terminators") }
 
   @Test def test_DelimProp_10() = { runner_02.runOneTest("DelimProp_10") }
   @Test def test_DelimProp_10_01() = { runner_02.runOneTest("DelimProp_10_01") }

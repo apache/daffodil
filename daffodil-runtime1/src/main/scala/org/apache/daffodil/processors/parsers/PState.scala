@@ -87,19 +87,19 @@ object MPState {
 
     clear()
 
-    def clear() {
+    def clear(): Unit = {
       arrayIndexStackMark = MStack.nullMark
       groupIndexStackMark = MStack.nullMark
       childIndexStackMark = MStack.nullMark
       occursBoundsStackMark = MStack.nullMark
     }
 
-    def captureFrom(mp: MPState) {
+    def captureFrom(mp: MPState): Unit = {
       arrayIndexStackMark = mp.arrayIndexStack.mark
       groupIndexStackMark = mp.groupIndexStack.mark
       childIndexStackMark = mp.childIndexStack.mark
     }
-    def restoreInto(mp: MPState) {
+    def restoreInto(mp: MPState): Unit = {
       mp.arrayIndexStack.reset(this.arrayIndexStackMark)
       mp.groupIndexStack.reset(this.groupIndexStackMark)
       mp.childIndexStack.reset(this.childIndexStackMark)
@@ -134,7 +134,7 @@ class MPState private () {
 
   val escapeSchemeEVCache = new MStackOfMaybe[EscapeSchemeParserHelper]
 
-  private def init {
+  private def init: Unit = {
     arrayIndexStack.push(1L)
     groupIndexStack.push(1L)
     childIndexStack.push(1L)
@@ -179,12 +179,12 @@ final class PState private (
 
   override def dataStream = One(dataInputStream)
 
-  def saveDelimitedParseResult(result: Maybe[dfa.ParseResult]) {
+  def saveDelimitedParseResult(result: Maybe[dfa.ParseResult]): Unit = {
     // threadCheck()
     this.delimitedParseResult = result
   }
 
-  def clearDelimitedParseResult() {
+  def clearDelimitedParseResult(): Unit = {
     // threadCheck()
     this.delimitedParseResult = Nope
   }
@@ -211,7 +211,7 @@ final class PState private (
 
   def dataInputStreamIsValid = dataInputStream.inputSource.isValid
 
-  def reset(m: PState.Mark) {
+  def reset(m: PState.Mark): Unit = {
     // threadCheck()
     m.restoreInto(this)
     m.clear()
@@ -230,7 +230,7 @@ final class PState private (
     changedVariablesStack.top.clear
   }
 
-  def discard(m: PState.Mark) {
+  def discard(m: PState.Mark): Unit = {
     dataInputStream.discard(m.disMark)
     m.clear()
     markPool.returnToPool(m)
@@ -269,7 +269,7 @@ final class PState private (
   }
   def parentDocument = infoset.asInstanceOf[InfosetDocument]
 
-  def setEndBitLimit(bitLimit0b: Long) {
+  def setEndBitLimit(bitLimit0b: Long): Unit = {
     dataInputStream.setBitLimit0b(MaybeULong(bitLimit0b))
   }
 
@@ -283,11 +283,11 @@ final class PState private (
    * Document which is the parent of the root element. So there's no time when there
    * isn't a parent there.
    */
-  def setParent(newParent: DIElement) {
+  def setParent(newParent: DIElement): Unit = {
     this.infoset = newParent
   }
 
-  def setVariable(vrd: VariableRuntimeData, newValue: DataValuePrimitive, referringContext: VariableRuntimeData, pstate: PState) {
+  def setVariable(vrd: VariableRuntimeData, newValue: DataValuePrimitive, referringContext: VariableRuntimeData, pstate: PState): Unit = {
     variableMap.setVariable(vrd, newValue, referringContext, pstate)
     changedVariablesStack.top += vrd.globalQName
   }
@@ -296,42 +296,42 @@ final class PState private (
    * Note that this function does not actually read the variable, it is used
    * just to track that the variable was read in case we need to backtrack.
    */
-  def markVariableRead(vrd: VariableRuntimeData) {
+  def markVariableRead(vrd: VariableRuntimeData): Unit = {
     changedVariablesStack.top += vrd.globalQName
   }
 
-  def newVariableInstance(vrd: VariableRuntimeData) {
+  def newVariableInstance(vrd: VariableRuntimeData): Unit = {
     variableMap.newVariableInstance(vrd)
     changedVariablesStack.top += vrd.globalQName
   }
 
-  def removeVariableInstance(vrd: VariableRuntimeData) {
+  def removeVariableInstance(vrd: VariableRuntimeData): Unit = {
     variableMap.removeVariableInstance(vrd)
   }
 
-  def pushPointOfUncertainty {
+  def pushPointOfUncertainty: Unit = {
     // threadCheck()
     discriminatorStack.push(false)
     changedVariablesStack.push(mutable.MutableList[GlobalQName]())
   }
 
-  def popPointOfUncertainty {
+  def popPointOfUncertainty: Unit = {
     // threadCheck()
     discriminatorStack.pop
     changedVariablesStack.pop
   }
 
-  def setDiscriminator(disc: Boolean) {
+  def setDiscriminator(disc: Boolean): Unit = {
     // threadCheck()
     discriminatorStack.pop()
     discriminatorStack.push(disc)
   }
 
-  def addBlobPath(path: Path) {
+  def addBlobPath(path: Path): Unit = {
     blobPaths = path +: blobPaths
   }
 
-  final def notifyDebugging(flag: Boolean) {
+  final def notifyDebugging(flag: Boolean): Unit = {
     // threadCheck()
     dataInputStream.setDebugging(flag)
   }
@@ -452,7 +452,7 @@ object PState {
 
     val mpStateMark = new MPState.Mark
 
-    def clear() {
+    def clear(): Unit = {
       simpleElementState.clear()
       complexElementState.clear()
       disMark = null
@@ -466,7 +466,7 @@ object PState {
       // DO NOT clear requestorId. It is there to help us debug if we try to repeatedly reset/discard a mark already discarded.
     }
 
-    def captureFrom(ps: PState, requestorID: String) {
+    def captureFrom(ps: PState, requestorID: String): Unit = {
       val e = ps.thisElement
       if (e.isSimple)
         simpleElementState.captureFrom(e)
@@ -489,7 +489,7 @@ object PState {
       }
     }
 
-    def restoreInto(ps: PState) {
+    def restoreInto(ps: PState): Unit = {
       restoreInfoset(ps)
       ps.dataInputStream.reset(this.disMark)
       ps.setVariableMap(this.variableMap)

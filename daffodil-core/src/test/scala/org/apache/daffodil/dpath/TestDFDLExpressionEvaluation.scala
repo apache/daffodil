@@ -36,7 +36,7 @@ import org.apache.daffodil.infoset.InfosetDocument
 
 class TestDFDLExpressionEvaluation extends Parsers {
 
-  def testExpr(testSchema: scala.xml.Elem, infosetAsXML: scala.xml.Elem, expr: String)(body: Any => Unit) {
+  def testExpr(testSchema: scala.xml.Elem, infosetAsXML: scala.xml.Elem, expr: String)(body: Any => Unit): Unit = {
     val schemaCompiler = Compiler().withTunable("allowExternalPathExpressions", "true")
     val pf = schemaCompiler.compileNode(testSchema).asInstanceOf[ProcessorFactory]
     val sset = pf.sset
@@ -68,7 +68,7 @@ class TestDFDLExpressionEvaluation extends Parsers {
     }
   }
 
-  @Test def test_ba() {
+  @Test def test_ba(): Unit = {
     val schema = SchemaUtils.dfdlTestSchemaUnqualified(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -86,7 +86,7 @@ class TestDFDLExpressionEvaluation extends Parsers {
     }
   }
 
-  @Test def test_arrayCount1() {
+  @Test def test_arrayCount1(): Unit = {
     val schema = SchemaUtils.dfdlTestSchemaUnqualified(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -103,7 +103,7 @@ class TestDFDLExpressionEvaluation extends Parsers {
     }
   }
 
-  @Test def test_arrayIndex1() {
+  @Test def test_arrayIndex1(): Unit = {
     val schema = SchemaUtils.dfdlTestSchemaUnqualified(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -120,7 +120,7 @@ class TestDFDLExpressionEvaluation extends Parsers {
     }
   }
 
-  @Test def test_absPathWithArrayIndex1() {
+  @Test def test_absPathWithArrayIndex1(): Unit = {
     val schema = SchemaUtils.dfdlTestSchemaUnqualified(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -137,7 +137,7 @@ class TestDFDLExpressionEvaluation extends Parsers {
     }
   }
 
-  @Test def test_ivc1() {
+  @Test def test_ivc1(): Unit = {
     val schema = SchemaUtils.dfdlTestSchemaUnqualified(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,

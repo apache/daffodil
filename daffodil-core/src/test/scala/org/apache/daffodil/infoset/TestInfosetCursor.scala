@@ -95,7 +95,7 @@ class TestInfosetInputter {
     (infosetInputter, rootERD)
   }
 
-  @Test def testInfosetInputterFromSimpleValue1() {
+  @Test def testInfosetInputterFromSimpleValue1(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -122,7 +122,7 @@ class TestInfosetInputter {
     assertFalse(ic.advance)
   }
 
-  @Test def testInfosetInputterFromTreeNil() {
+  @Test def testInfosetInputterFromTreeNil(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -149,7 +149,7 @@ class TestInfosetInputter {
     assertFalse(ic.advance)
   }
 
-  @Test def testInfosetInputterFromTreeComplex1() {
+  @Test def testInfosetInputterFromTreeComplex1(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -201,7 +201,7 @@ class TestInfosetInputter {
     assertFalse(ic.advance)
   }
 
-  @Test def testInfosetComplex2() {
+  @Test def testInfosetComplex2(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -243,7 +243,7 @@ class TestInfosetInputter {
     assertTrue(baz_s.dataValueAsString =:= "World")
   }
 
-  @Test def testInfosetComplex3() {
+  @Test def testInfosetComplex3(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -328,7 +328,7 @@ class TestInfosetInputter {
     assertTrue(quux_s eq quux_e)
   }
 
-  @Test def testInfosetArray1() {
+  @Test def testInfosetArray1(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -370,7 +370,7 @@ class TestInfosetInputter {
     assertTrue(foo_2_s.dataValueAsString =:= "World")
   }
 
-  @Test def testInfosetArray2() {
+  @Test def testInfosetArray2(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -418,7 +418,7 @@ class TestInfosetInputter {
     assertTrue(baz_s.dataValueAsString =:= "Yadda")
   }
 
-  @Test def testInfosetArray3() {
+  @Test def testInfosetArray3(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -468,7 +468,7 @@ class TestInfosetInputter {
     assertTrue(baz_s.dataValueAsString =:= "Yadda")
   }
 
-  @Test def testInfosetArray4() {
+  @Test def testInfosetArray4(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -521,7 +521,7 @@ class TestInfosetInputter {
     assertTrue(baz_s.dataValueAsString =:= "Yadda")
   }
 
-  @Test def testInfosetComplexPeek1() {
+  @Test def testInfosetComplexPeek1(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -565,7 +565,7 @@ class TestInfosetInputter {
     assertTrue(foo_s1.dataValueAsString =:= "Hello")
   }
 
-  @Test def testInfosetArrayComplex1() {
+  @Test def testInfosetArrayComplex1(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,

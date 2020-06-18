@@ -106,7 +106,7 @@ class TestInfoset1 {
   val ex = XMLUtils.EXAMPLE_NAMESPACE
   import TestInfoset._
 
-  @Test def testXMLToInfoset1() {
+  @Test def testXMLToInfoset1(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -129,7 +129,7 @@ class TestInfoset1 {
 
   }
 
-  @Test def testXMLToInfoset2() {
+  @Test def testXMLToInfoset2(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -158,7 +158,7 @@ class TestInfoset1 {
     assertEquals(infoset, cItem.parent)
   }
 
-  @Test def testXMLToInfoset2a() {
+  @Test def testXMLToInfoset2a(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -187,7 +187,7 @@ class TestInfoset1 {
     }
   }
 
-  @Test def testXMLToInfoset3() {
+  @Test def testXMLToInfoset3(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -225,7 +225,7 @@ class TestInfoset1 {
     }
   }
 
-  @Test def testXMLToInfosetNil1() {
+  @Test def testXMLToInfosetNil1(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -256,7 +256,7 @@ class TestInfoset1 {
     }
   }
 
-  @Test def testXMLToInfoset4() {
+  @Test def testXMLToInfoset4(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -289,7 +289,7 @@ class TestInfoset1 {
     }
   }
 
-  @Test def testXMLToInfoset5() {
+  @Test def testXMLToInfoset5(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -333,7 +333,7 @@ class TestInfoset1 {
     }
   }
 
-  @Test def testXMLToInfoset6() {
+  @Test def testXMLToInfoset6(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,

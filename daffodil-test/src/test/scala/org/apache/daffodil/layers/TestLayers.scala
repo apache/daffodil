@@ -29,7 +29,7 @@ object TestLayers {
   lazy val testDir = "/org/apache/daffodil/layers/"
   lazy val runner = Runner(testDir, "layers.tdml")
 
-  @AfterClass def shutDown() {
+  @AfterClass def shutDown(): Unit = {
     runner.reset
   }
 }
@@ -38,11 +38,11 @@ class TestLayers {
 
   import TestLayers._
 
-  @Test def test_layers1() { runner.runOneTest("layers1") }
-  @Test def test_layers2() { runner.runOneTest("layers2") }
-  @Test def test_layers3() { runner.runOneTest("layers3") }
-  @Test def test_layers3_deprecated() { runner.runOneTest("layers3_deprecated") }
-  @Test def test_layersErr1() { runner.runOneTest("layersErr1") }
-  @Test def test_layers4() { runner.runOneTest("layers4") }
+  @Test def test_layers1(): Unit = { runner.runOneTest("layers1") }
+  @Test def test_layers2(): Unit = { runner.runOneTest("layers2") }
+  @Test def test_layers3(): Unit = { runner.runOneTest("layers3") }
+  @Test def test_layers3_deprecated(): Unit = { runner.runOneTest("layers3_deprecated") }
+  @Test def test_layersErr1(): Unit = { runner.runOneTest("layersErr1") }
+  @Test def test_layers4(): Unit = { runner.runOneTest("layers4") }
 
 }

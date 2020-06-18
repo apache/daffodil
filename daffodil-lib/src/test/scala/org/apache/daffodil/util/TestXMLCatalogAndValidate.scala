@@ -86,7 +86,7 @@ class TestXMLCatalogAndValidate {
     new File(fn)
   }
 
-  @Test def test1() {
+  @Test def test1(): Unit = {
 
     // lets make sure we're not using files that would naturally be on the classpath
     val tmpSchemaFileName = tempFileName("_sch.xsd")
@@ -146,7 +146,7 @@ class TestXMLCatalogAndValidate {
     }
   }
 
-  @Test def test2() {
+  @Test def test2(): Unit = {
 
     val tmpSchema1FileName = tempFileName("_sch1.xsd")
     val tmpSchema2FileName = tempFileName("_sch2.xsd")
@@ -223,7 +223,7 @@ class TestXMLCatalogAndValidate {
     }
   }
 
-  @Test def test3() {
+  @Test def test3(): Unit = {
     // lets make sure we're not using files that would naturally be on the classpath
     System.setProperty("xml.catalog.ignoreMissing", "true")
 
@@ -251,7 +251,7 @@ class TestXMLCatalogAndValidate {
     }
   }
 
-  @Test def test4() {
+  @Test def test4(): Unit = {
     // lets make sure we're not using files that would naturally be on the classpath
     System.setProperty("xml.catalog.ignoreMissing", "true")
 
@@ -309,7 +309,7 @@ class SchemaAwareFactoryAdapter()
   var saxLocator: org.xml.sax.Locator = _
 
   // Get location
-  override def setDocumentLocator(locator: org.xml.sax.Locator) {
+  override def setDocumentLocator(locator: org.xml.sax.Locator): Unit = {
     //    println("setDocumentLocator line=%s col=%s sysID=%s, pubID=%s".format(
     //      locator.getLineNumber, locator.getColumnNumber,
     //      locator.getSystemId, locator.getPublicId))

@@ -48,7 +48,7 @@ class AlignmentFillUnparserSuspendableOperation(
     dos.maybeAbsBitPos0b.isDefined
   }
 
-  override def continuation(state: UState) {
+  override def continuation(state: UState): Unit = {
     val dos = state.dataOutputStream
     val b4 = dos.relBitPos0b
     if (!dos.align(alignmentInBits, state))

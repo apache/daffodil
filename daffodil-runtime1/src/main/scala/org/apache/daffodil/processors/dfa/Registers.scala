@@ -58,7 +58,7 @@ class Registers() extends Poolable with Serializable {
    * and then reset before first use. I.e.,
    * reset() is also init().
    */
-  def reset(finfo: FormatInfo, input: DataInputStream, delimIter: DelimiterIterator, m: DataInputStream.MarkPos = DataInputStream.MarkPos.NoMarkPos) {
+  def reset(finfo: FormatInfo, input: DataInputStream, delimIter: DelimiterIterator, m: DataInputStream.MarkPos = DataInputStream.MarkPos.NoMarkPos): Unit = {
     dataInputStream = input
     if (m !=#= DataInputStream.MarkPos.NoMarkPos)
       dataInputStream.resetPos(m)
@@ -77,7 +77,7 @@ class Registers() extends Poolable with Serializable {
     delimitersIter = delimIter
   }
 
-  def resetChars(finfo: FormatInfo) {
+  def resetChars(finfo: FormatInfo): Unit = {
     charIterator = dataInputStream.asIteratorChar
     charIterator.setFormatInfo(finfo)
     data0 = charIterator.peek()
@@ -91,7 +91,7 @@ class Registers() extends Poolable with Serializable {
    * This allows this Registers to pick-up where the other
    * left off.
    */
-  def copy1(that: Registers) {
+  def copy1(that: Registers): Unit = {
     Registers.this.dataInputStream = that.dataInputStream
     Registers.this.data0 = that.data0
     Registers.this.data1 = that.data1
@@ -131,7 +131,7 @@ class Registers() extends Poolable with Serializable {
     data1 = charIterator.peek2()
   }
 
-  def commitOneChar {
+  def commitOneChar: Unit = {
     if (charIterator.hasNext) charIterator.next()
   }
 

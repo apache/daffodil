@@ -55,7 +55,7 @@ object TestUtils {
   /**
    * Compares two XML Elements, after having (optionally) stripped off all attributes.
    */
-  def assertEqualsXMLElements(expected: Node, actual: Node) {
+  def assertEqualsXMLElements(expected: Node, actual: Node): Unit = {
     XMLUtils.compareAndReport(expected, actual)
   }
 
@@ -129,7 +129,7 @@ object TestUtils {
     actual.getDiagnostics
   }
 
-  def throwDiagnostics(ds: Seq[Diagnostic]) {
+  def throwDiagnostics(ds: Seq[Diagnostic]): Unit = {
     if (ds.length == 1) throw (ds(0))
     else {
       val msgs = ds.map(_.getMessage()).mkString("\n")
@@ -137,7 +137,7 @@ object TestUtils {
     }
   }
 
-  def testUnparsingBinary(testSchema: scala.xml.Elem, infoset: Node, unparseTo: Array[Byte], areTracing: Boolean = false) {
+  def testUnparsingBinary(testSchema: scala.xml.Elem, infoset: Node, unparseTo: Array[Byte], areTracing: Boolean = false): Unit = {
     val compiler = Compiler()
     val pf = compiler.compileNode(testSchema)
     if (pf.isError) throwDiagnostics(pf.diagnostics)

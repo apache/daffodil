@@ -29,7 +29,7 @@ object TestProcessingErrors {
   val runner02 = Runner(testDir, "ProcessingErrors.tdml", validateTDMLFile = false, validateDFDLSchemas = false)
   val runner02Validate = Runner(testDir, "ProcessingErrors.tdml", validateTDMLFile = true, validateDFDLSchemas = true)
 
-  @AfterClass def shutDown {
+  @AfterClass def shutDown: Unit = {
     runner.reset
     runner02.reset
     runner02Validate.reset
@@ -41,12 +41,12 @@ class TestProcessingErrors {
 
   import TestProcessingErrors._
 
-  @Test def test_twoDFDLSchemaValidationErrors() { runner.runOneTest("twoDFDLSchemaValidationErrors") }
-  @Test def test_twoDFDLSchemaValidationErrors2() { runner.runOneTest("twoDFDLSchemaValidationErrors2") }
-  @Test def test_fiveDFDLSchemaValidationErrors() { runner.runOneTest("fiveDFDLSchemaValidationErrors") }
+  @Test def test_twoDFDLSchemaValidationErrors(): Unit = { runner.runOneTest("twoDFDLSchemaValidationErrors") }
+  @Test def test_twoDFDLSchemaValidationErrors2(): Unit = { runner.runOneTest("twoDFDLSchemaValidationErrors2") }
+  @Test def test_fiveDFDLSchemaValidationErrors(): Unit = { runner.runOneTest("fiveDFDLSchemaValidationErrors") }
 
-  @Test def test_upaInvalidSchema() { runner02Validate.runOneTest("upaInvalidSchema") }
-  @Test def test_upaInvalidSchema2() { runner02Validate.runOneTest("upaInvalidSchema2") }
+  @Test def test_upaInvalidSchema(): Unit = { runner02Validate.runOneTest("upaInvalidSchema") }
+  @Test def test_upaInvalidSchema2(): Unit = { runner02Validate.runOneTest("upaInvalidSchema2") }
 
   //  DFDL-756
   //  @Test def test_delimiterNotFound01() { runner02.runOneTest("delimiterNotFound01") }

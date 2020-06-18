@@ -35,5 +35,5 @@ class TestDynamicSeparator {
   import TestDynamicSeparator._
 
   // DAFFODIL-2092
-  @Test def test_dynSepAllWhitespace() { runner.runOneTest("dynSepAllWhitespace") }
+  @Test def test_dynSepAllWhitespace(): Unit = { runner.runOneTest("dynSepAllWhitespace") }
 }

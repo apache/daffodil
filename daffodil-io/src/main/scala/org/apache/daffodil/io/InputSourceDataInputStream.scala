@@ -117,7 +117,7 @@ final class InputSourceDataInputStream private (val inputSource: InputSource)
   @inline
   override final def bitLimit0b: MaybeULong = cst.bitLimit0b
 
-  def setBitPos0b(newBitPos0b: Long) {
+  def setBitPos0b(newBitPos0b: Long): Unit = {
     // threadCheck()
     Assert.invariant(newBitPos0b >= 0)
     Assert.invariant(bitLimit0b.isEmpty || newBitPos0b <= bitLimit0b.get)
@@ -566,11 +566,11 @@ final class InputSourceDataInputStream private (val inputSource: InputSource)
   }
 
   override def markPos: MarkPos = bitPos0b
-  override def resetPos(m: MarkPos) {
+  override def resetPos(m: MarkPos): Unit = {
     setBitPos0b(m)
   }
 
-  def validateFinalStreamState {
+  def validateFinalStreamState: Unit = {
     // threadCheck()
     markPool.finalCheck
   }
@@ -742,7 +742,7 @@ final class InputSourceDataInputStream private (val inputSource: InputSource)
     ci
   }
 
-  override def setDebugging(setting: Boolean) {
+  override def setDebugging(setting: Boolean): Unit = {
     super.setDebugging(setting)
     inputSource.setDebugging(setting)
   }
@@ -807,7 +807,7 @@ class InputSourceDataInputStreamCharIteratorState {
     bitPositionAtLastFetch0b = 0L
   }
 
-  def assignFrom(other: InputSourceDataInputStreamCharIteratorState) {
+  def assignFrom(other: InputSourceDataInputStreamCharIteratorState): Unit = {
     // We are intentionally not saving/restoring any state here. This is
     // because saving state requires duplicating the long and charbuffers,
     // which is fairly expensive and can use up alot of memory, especially when

@@ -26,7 +26,7 @@ object TestUnorderedSequencesNew {
   val runner = Runner(testDir, "UnorderedSequences.tdml")
   val runnerBE = Runner(testDir, "BE.tdml")
 
-  @AfterClass def shutDown {
+  @AfterClass def shutDown: Unit = {
     runner.reset
   }
 }

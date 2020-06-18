@@ -25,7 +25,7 @@ object TestChoiceGroupInitiatedContent {
   val testDir_01 = "/org/apache/daffodil/section15/choice_groups/"
   val runner_01 = Runner(testDir_01, "ChoiceGroupInitiatedContent.tdml")
 
-  @AfterClass def shutDown {
+  @AfterClass def shutDown: Unit = {
     runner_01.reset
   }
 
@@ -35,29 +35,29 @@ class TestChoiceGroupInitiatedContent {
 
   import TestChoiceGroupInitiatedContent._
 
-  @Test def test_initiatedContentChoice1() { runner_01.runOneTest("initiatedContentChoice1") }
-  @Test def test_initiatedContentChoice2() { runner_01.runOneTest("initiatedContentChoice2") }
-  @Test def test_initiatedContentChoice3() { runner_01.runOneTest("initiatedContentChoice3") }
-  @Test def test_initiatedContentChoice4() { runner_01.runOneTest("initiatedContentChoice4") }
-  @Test def test_initiatedContentChoice5() { runner_01.runOneTest("initiatedContentChoice5") }
-  @Test def test_initiatedContentChoice6() { runner_01.runOneTest("initiatedContentChoice6") }
-  @Test def test_initiatedContentChoice7() { runner_01.runOneTest("initiatedContentChoice7") }
-  @Test def test_initiatedContentChoice8() { runner_01.runOneTest("initiatedContentChoice8") }
-  @Test def test_initiatedContentChoice9() { runner_01.runOneTest("initiatedContentChoice9") }
-  @Test def test_initiatedContentChoice10() { runner_01.runOneTest("initiatedContentChoice10") }
+  @Test def test_initiatedContentChoice1(): Unit = { runner_01.runOneTest("initiatedContentChoice1") }
+  @Test def test_initiatedContentChoice2(): Unit = { runner_01.runOneTest("initiatedContentChoice2") }
+  @Test def test_initiatedContentChoice3(): Unit = { runner_01.runOneTest("initiatedContentChoice3") }
+  @Test def test_initiatedContentChoice4(): Unit = { runner_01.runOneTest("initiatedContentChoice4") }
+  @Test def test_initiatedContentChoice5(): Unit = { runner_01.runOneTest("initiatedContentChoice5") }
+  @Test def test_initiatedContentChoice6(): Unit = { runner_01.runOneTest("initiatedContentChoice6") }
+  @Test def test_initiatedContentChoice7(): Unit = { runner_01.runOneTest("initiatedContentChoice7") }
+  @Test def test_initiatedContentChoice8(): Unit = { runner_01.runOneTest("initiatedContentChoice8") }
+  @Test def test_initiatedContentChoice9(): Unit = { runner_01.runOneTest("initiatedContentChoice9") }
+  @Test def test_initiatedContentChoice10(): Unit = { runner_01.runOneTest("initiatedContentChoice10") }
 
   // Test for DAFFODIL-2143
-  @Test def test_arrayOptionalChildDiscriminatesElementAndChoice1() { runner_01.runOneTest("arrayOptionalChildDiscriminatesElementAndChoice1") }
+  @Test def test_arrayOptionalChildDiscriminatesElementAndChoice1(): Unit = { runner_01.runOneTest("arrayOptionalChildDiscriminatesElementAndChoice1") }
 
-  @Test def test_arrayOfChoice() { runner_01.runOneTest("arrayOfChoice") }
-  @Test def test_arrayOfChoice2() { runner_01.runOneTest("arrayOfChoice2") }
-  @Test def test_discriminatorNesting1() { runner_01.runOneTest("discriminatorNesting1") }
-  @Test def test_discriminatorNesting2() { runner_01.runOneTest("discriminatorNesting2") }
-  @Test def test_Lesson5_choice_state() { runner_01.runOneTest("Lesson5_choice_state") }
-  @Test def test_Lesson5_choice_county() { runner_01.runOneTest("Lesson5_choice_county") }
-  @Test def test_Lesson5_choice_province() { runner_01.runOneTest("Lesson5_choice_province") }
+  @Test def test_arrayOfChoice(): Unit = { runner_01.runOneTest("arrayOfChoice") }
+  @Test def test_arrayOfChoice2(): Unit = { runner_01.runOneTest("arrayOfChoice2") }
+  @Test def test_discriminatorNesting1(): Unit = { runner_01.runOneTest("discriminatorNesting1") }
+  @Test def test_discriminatorNesting2(): Unit = { runner_01.runOneTest("discriminatorNesting2") }
+  @Test def test_Lesson5_choice_state(): Unit = { runner_01.runOneTest("Lesson5_choice_state") }
+  @Test def test_Lesson5_choice_county(): Unit = { runner_01.runOneTest("Lesson5_choice_county") }
+  @Test def test_Lesson5_choice_province(): Unit = { runner_01.runOneTest("Lesson5_choice_province") }
 
-  @Test def test_unparse_initiatedContentChoice1() { runner_01.runOneTest("unparse_initiatedContentChoice1") }
-  @Test def test_initiatedContentNestedChoices1() { runner_01.runOneTest("initiatedContentNestedChoices1") }
-  @Test def test_initiatedContentNestedChoices2() { runner_01.runOneTest("initiatedContentNestedChoices2") }
+  @Test def test_unparse_initiatedContentChoice1(): Unit = { runner_01.runOneTest("unparse_initiatedContentChoice1") }
+  @Test def test_initiatedContentNestedChoices1(): Unit = { runner_01.runOneTest("initiatedContentNestedChoices1") }
+  @Test def test_initiatedContentNestedChoices2(): Unit = { runner_01.runOneTest("initiatedContentNestedChoices2") }
 }

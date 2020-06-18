@@ -25,7 +25,7 @@ import org.junit.Assert.fail
 object TestTDMLRunnerWarnings {
   val runner = Runner("/test/tdml/", "testWarnings.tdml")
 
-  @AfterClass def shutDown {
+  @AfterClass def shutDown: Unit = {
     runner.reset
   }
 }

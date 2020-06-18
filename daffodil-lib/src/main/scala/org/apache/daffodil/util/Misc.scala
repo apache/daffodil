@@ -431,7 +431,7 @@ object Misc {
    * characters will not look like spaces, nor all look like the same unicde replacement
    * character.
    */
-  def remapBytesToVisibleGlyphs(bb: ByteBuffer, cb: CharBuffer) {
+  def remapBytesToVisibleGlyphs(bb: ByteBuffer, cb: CharBuffer): Unit = {
     val numBytes = bb.remaining()
     bytesDecoder.decode(bb, cb, true)
     cb.flip

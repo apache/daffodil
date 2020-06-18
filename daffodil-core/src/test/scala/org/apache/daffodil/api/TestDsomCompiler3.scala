@@ -35,7 +35,7 @@ class TestDsomCompiler3 {
   val xsi = XMLUtils.XSI_NAMESPACE
   val example = XMLUtils.EXAMPLE_NAMESPACE
 
-  @Test def testTmpDirProvided() {
+  @Test def testTmpDirProvided(): Unit = {
     val sc = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,

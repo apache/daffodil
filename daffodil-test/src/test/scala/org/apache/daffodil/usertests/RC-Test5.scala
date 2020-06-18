@@ -26,7 +26,7 @@ object RCTest5 {
   val runner = Runner(testDir, "test-5.tdml.xml")
   val runner6 = Runner(testDir, "test-6.tdml.xml")
 
-  @AfterClass def shutDown {
+  @AfterClass def shutDown: Unit = {
     runner.reset
     runner6.reset
   }
@@ -37,7 +37,7 @@ class RCTest5 {
 
   import RCTest5._
 
-  @Test def test5p() { runner.runOneTest("parse-test-5") }
+  @Test def test5p(): Unit = { runner.runOneTest("parse-test-5") }
 
   // DAFFODIL-2217
   // @Test def test5u() { runner.runOneTest("unparse-test-5") }

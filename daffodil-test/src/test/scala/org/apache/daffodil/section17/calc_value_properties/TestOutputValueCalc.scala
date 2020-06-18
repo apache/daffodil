@@ -28,7 +28,7 @@ object TestOutputValueCalc {
   val runner2 = Runner(testDir, "outputValueCalc2.tdml")
   val runner3 = Runner(testDir, "outputValueCalc3.tdml")
 
-  @AfterClass def shutdown {
+  @AfterClass def shutdown: Unit = {
     runner.reset
     runner2.reset
     runner3.reset
@@ -38,56 +38,56 @@ object TestOutputValueCalc {
 class TestOutputValueCalc {
   import TestOutputValueCalc._
 
-  @Test def test_OutputValueCalc_01() { runner.runOneTest("OutputValueCalc_01") }
-  @Test def test_OutputValueCalc_02() { runner.runOneTest("OutputValueCalc_02") }
-  @Test def test_OutputValueCalc_03() { runner.runOneTest("OutputValueCalc_03") }
-  @Test def test_OutputValueCalc_04() { runner.runOneTest("OutputValueCalc_04") }
-  @Test def test_OutputValueCalc_05() { runner.runOneTest("OutputValueCalc_05") }
-  @Test def test_OutputValueCalc_06() { runner.runOneTest("OutputValueCalc_06") }
-  @Test def test_OutputValueCalc_07() { runner.runOneTest("OutputValueCalc_07") }
-  @Test def test_OutputValueCalc_08() { runner.runOneTest("OutputValueCalc_08") }
+  @Test def test_OutputValueCalc_01(): Unit = { runner.runOneTest("OutputValueCalc_01") }
+  @Test def test_OutputValueCalc_02(): Unit = { runner.runOneTest("OutputValueCalc_02") }
+  @Test def test_OutputValueCalc_03(): Unit = { runner.runOneTest("OutputValueCalc_03") }
+  @Test def test_OutputValueCalc_04(): Unit = { runner.runOneTest("OutputValueCalc_04") }
+  @Test def test_OutputValueCalc_05(): Unit = { runner.runOneTest("OutputValueCalc_05") }
+  @Test def test_OutputValueCalc_06(): Unit = { runner.runOneTest("OutputValueCalc_06") }
+  @Test def test_OutputValueCalc_07(): Unit = { runner.runOneTest("OutputValueCalc_07") }
+  @Test def test_OutputValueCalc_08(): Unit = { runner.runOneTest("OutputValueCalc_08") }
 
-  @Test def test_binaryInteger_BigEndian() { runner.runOneTest("binaryIntegerBigEndian") }
-  @Test def test_binaryInteger_LittleEndian() { runner.runOneTest("binaryIntegerLittleEndian") }
+  @Test def test_binaryInteger_BigEndian(): Unit = { runner.runOneTest("binaryIntegerBigEndian") }
+  @Test def test_binaryInteger_LittleEndian(): Unit = { runner.runOneTest("binaryIntegerLittleEndian") }
 
-  @Test def test_ovcHiddenCalculations1() { runner2.runOneTest("ovcHiddenCalculations1") }
-  @Test def test_ovcHiddenCalculations2() { runner2.runOneTest("ovcHiddenCalculations2") }
-  @Test def test_ovcHiddenCalculations3() { runner2.runOneTest("ovcHiddenCalculations3") }
-  @Test def test_hiddenGroupOvcError() { runner2.runOneTest("hiddenGroupOvcError") }
-  @Test def test_hiddenGroupArrayWithOvc() { runner2.runOneTest("hiddenGroupArrayWithOvc") }
-  @Test def test_optionalWithOvc() { runner2.runOneTest("optionalWithOvc") }
+  @Test def test_ovcHiddenCalculations1(): Unit = { runner2.runOneTest("ovcHiddenCalculations1") }
+  @Test def test_ovcHiddenCalculations2(): Unit = { runner2.runOneTest("ovcHiddenCalculations2") }
+  @Test def test_ovcHiddenCalculations3(): Unit = { runner2.runOneTest("ovcHiddenCalculations3") }
+  @Test def test_hiddenGroupOvcError(): Unit = { runner2.runOneTest("hiddenGroupOvcError") }
+  @Test def test_hiddenGroupArrayWithOvc(): Unit = { runner2.runOneTest("hiddenGroupArrayWithOvc") }
+  @Test def test_optionalWithOvc(): Unit = { runner2.runOneTest("optionalWithOvc") }
 
-  @Test def test_ovcAllowMissingOVCElem() { runner2.runOneTest("ovcAllowMissingOVCElem") }
-  @Test def test_ovcIgnoreOVCElem() { runner2.runOneTest("ovcIgnoreOVCElem") }
+  @Test def test_ovcAllowMissingOVCElem(): Unit = { runner2.runOneTest("ovcAllowMissingOVCElem") }
+  @Test def test_ovcIgnoreOVCElem(): Unit = { runner2.runOneTest("ovcIgnoreOVCElem") }
 
-  @Test def test_ovc_w_runtime_initiator() { runner2.runOneTest("ovc_w_runtime_initiator") }
-  @Test def test_ovc_w_runtime_dec_sep() { runner2.runOneTest("ovc_w_runtime_dec_sep") }
-  @Test def test_ovc_w_runtime_group_sep() { runner2.runOneTest("ovc_w_runtime_group_sep") }
-  @Test def test_ovc_w_runtime_exp_rep() { runner2.runOneTest("ovc_w_runtime_exp_rep") }
-  @Test def test_ovc_w_runtime_cal_lang() { runner2.runOneTest("ovc_w_runtime_cal_lang") }
-  @Test def test_ovc_w_runtime_escape_char() { runner2.runOneTest("ovc_w_runtime_escape_char") }
-  @Test def test_ovc_w_runtime_escape_escape_char() { runner2.runOneTest("ovc_w_runtime_escape_escape_char") }
+  @Test def test_ovc_w_runtime_initiator(): Unit = { runner2.runOneTest("ovc_w_runtime_initiator") }
+  @Test def test_ovc_w_runtime_dec_sep(): Unit = { runner2.runOneTest("ovc_w_runtime_dec_sep") }
+  @Test def test_ovc_w_runtime_group_sep(): Unit = { runner2.runOneTest("ovc_w_runtime_group_sep") }
+  @Test def test_ovc_w_runtime_exp_rep(): Unit = { runner2.runOneTest("ovc_w_runtime_exp_rep") }
+  @Test def test_ovc_w_runtime_cal_lang(): Unit = { runner2.runOneTest("ovc_w_runtime_cal_lang") }
+  @Test def test_ovc_w_runtime_escape_char(): Unit = { runner2.runOneTest("ovc_w_runtime_escape_char") }
+  @Test def test_ovc_w_runtime_escape_escape_char(): Unit = { runner2.runOneTest("ovc_w_runtime_escape_escape_char") }
 
-  @Test def test_OutputValueCalc_09() { runner.runOneTest("OutputValueCalc_09") }
-  @Test def test_OutputValueCalc_10() { runner.runOneTest("OutputValueCalc_10") }
+  @Test def test_OutputValueCalc_09(): Unit = { runner.runOneTest("OutputValueCalc_09") }
+  @Test def test_OutputValueCalc_10(): Unit = { runner.runOneTest("OutputValueCalc_10") }
 
-  @Test def test_errorZeroArg() { runner.runOneTest("errorZeroArg") }
-  @Test def test_errorOneArg() { runner.runOneTest("errorOneArg") }
-  @Test def test_errorTwoArg() { runner.runOneTest("errorTwoArg") }
-  @Test def test_errorThreeArg() { runner.runOneTest("errorThreeArg") }
+  @Test def test_errorZeroArg(): Unit = { runner.runOneTest("errorZeroArg") }
+  @Test def test_errorOneArg(): Unit = { runner.runOneTest("errorOneArg") }
+  @Test def test_errorTwoArg(): Unit = { runner.runOneTest("errorTwoArg") }
+  @Test def test_errorThreeArg(): Unit = { runner.runOneTest("errorThreeArg") }
 
   // DAFFODIL-2069
-  @Test def test_ovcHexBinaryLSBF1() { runner3.runOneTest("rHexBinaryLSBF1") }
-  @Test def test_ovcHexBinaryLSBF2() { runner3.runOneTest("rHexBinaryLSBF2") }
-  @Test def test_ovcStringLSBF1() { runner3.runOneTest("rStringLSBF1") }
+  @Test def test_ovcHexBinaryLSBF1(): Unit = { runner3.runOneTest("rHexBinaryLSBF1") }
+  @Test def test_ovcHexBinaryLSBF2(): Unit = { runner3.runOneTest("rHexBinaryLSBF2") }
+  @Test def test_ovcStringLSBF1(): Unit = { runner3.runOneTest("rStringLSBF1") }
 
-  @Test def test_ovcBitOrderChange() { runner3.runOneTest("ovc_bitOrderChange") }
+  @Test def test_ovcBitOrderChange(): Unit = { runner3.runOneTest("ovc_bitOrderChange") }
 
   // DAFFODIL-1701
-  @Test def test_refSimpleTypeElemWithOvc() { runner.runOneTest("refSimpleTypeElemWithOvc") }
-  @Test def test_refComplexTypeElemNoOvc() { runner.runOneTest("refComplexTypeElemNoOvc") }
-  @Test def test_refComplexTypeElemWithOvc() { runner.runOneTest("refComplexTypeElemWithOvc") }
+  @Test def test_refSimpleTypeElemWithOvc(): Unit = { runner.runOneTest("refSimpleTypeElemWithOvc") }
+  @Test def test_refComplexTypeElemNoOvc(): Unit = { runner.runOneTest("refComplexTypeElemNoOvc") }
+  @Test def test_refComplexTypeElemWithOvc(): Unit = { runner.runOneTest("refComplexTypeElemWithOvc") }
 
   // DAFFODIL-2167
-  @Test def test_arrayWithFollowingOVC() { runner.runOneTest("arrayWithFollowingOVC") }
+  @Test def test_arrayWithFollowingOVC(): Unit = { runner.runOneTest("arrayWithFollowingOVC") }
 }

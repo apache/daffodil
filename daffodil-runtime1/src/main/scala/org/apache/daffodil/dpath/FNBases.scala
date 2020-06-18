@@ -61,7 +61,7 @@ trait StringCompareOp extends CompareOpBase {
 abstract class CompareOp
   extends RecipeOp with BinaryOpMixin {
 
-  override def run(dstate: DState) {
+  override def run(dstate: DState): Unit = {
     val savedNode = dstate.currentNode
     left.run(dstate)
     val leftValue = dstate.currentValue.getNonNullable
@@ -78,7 +78,7 @@ abstract class CompareOp
 
 case class BooleanOp(op: String, left: CompiledDPath, right: CompiledDPath)
   extends RecipeOp with BinaryOpMixin {
-  override def run(dstate: DState) {
+  override def run(dstate: DState): Unit = {
     val savedNode = dstate.currentNode
     left.run(dstate)
     val leftValue = dstate.currentValue.getBoolean
@@ -98,7 +98,7 @@ case class BooleanOp(op: String, left: CompiledDPath, right: CompiledDPath)
   }
 }
 case class NegateOp(recipe: CompiledDPath) extends RecipeOpWithSubRecipes(recipe) {
-  override def run(dstate: DState) {
+  override def run(dstate: DState): Unit = {
     recipe.run(dstate)
     val value: DataValuePrimitive = dstate.currentValue.getAnyRef match {
       case i: JInt => i * -1
@@ -116,7 +116,7 @@ case class NegateOp(recipe: CompiledDPath) extends RecipeOpWithSubRecipes(recipe
 
 abstract class FNOneArg(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends RecipeOpWithSubRecipes(recipe) {
-  override def run(dstate: DState) {
+  override def run(dstate: DState): Unit = {
     recipe.run(dstate)
     val arg = dstate.currentValue.getNonNullable
     dstate.setCurrentValue(computeValue(arg, dstate))
@@ -129,7 +129,7 @@ abstract class FNOneArg(recipe: CompiledDPath, argType: NodeInfo.Kind)
 
 abstract class FNTwoArgs(recipes: List[CompiledDPath])
   extends RecipeOpWithSubRecipes(recipes) {
-  override def run(dstate: DState) {
+  override def run(dstate: DState): Unit = {
 
     val recipe1 = recipes(0)
     val recipe2 = recipes(1)
@@ -155,7 +155,7 @@ abstract class FNTwoArgs(recipes: List[CompiledDPath])
 
 abstract class FNTwoArgsNodeAndValue(recipes: List[CompiledDPath])
   extends RecipeOpWithSubRecipes(recipes) {
-  override def run(dstate: DState) {
+  override def run(dstate: DState): Unit = {
 
     val recipe1 = recipes(0)
     val recipe2 = recipes(1)
@@ -178,7 +178,7 @@ abstract class FNTwoArgsNodeAndValue(recipes: List[CompiledDPath])
 }
 
 abstract class FNThreeArgs(recipes: List[CompiledDPath]) extends RecipeOpWithSubRecipes(recipes) {
-  override def run(dstate: DState) {
+  override def run(dstate: DState): Unit = {
 
     val recipe1 = recipes(0)
     val recipe2 = recipes(1)
@@ -204,7 +204,7 @@ abstract class FNThreeArgs(recipes: List[CompiledDPath]) extends RecipeOpWithSub
 }
 
 abstract class FNArgsList(recipes: List[CompiledDPath]) extends RecipeOpWithSubRecipes(recipes) {
-  override def run(dstate: DState) {
+  override def run(dstate: DState): Unit = {
 
     val savedNode = dstate.currentNode
 

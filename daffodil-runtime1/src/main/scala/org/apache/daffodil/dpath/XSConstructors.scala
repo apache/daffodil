@@ -27,7 +27,7 @@ import org.apache.daffodil.infoset.DataValue.DataValueTime
 import org.apache.daffodil.util.Numbers.asInt
 
 case class XSInt(recipe: CompiledDPath) extends RecipeOpWithSubRecipes(recipe) {
-  override def run(dstate: DState) {
+  override def run(dstate: DState): Unit = {
     recipe.run(dstate)
     val basicValue = dstate.currentValue
     val value = asInt(basicValue.getAnyRef)

@@ -36,7 +36,7 @@ class MyClass extends Logging {
   lazy val bombArg: String = Assert.abort("bombArg should not be evaluated")
   lazy val bombMsg: String = Assert.abort("bombMsg should not be evaluated")
 
-  def logSomething() {
+  def logSomething(): Unit = {
 
     ForUnitTestLogWriter.loggedMsg = null
 
@@ -67,7 +67,7 @@ class MyClass extends Logging {
 
 class TestLogger {
 
-  @Test def test1() {
+  @Test def test1(): Unit = {
     val c = new MyClass
     c.setLoggingLevel(LogLevel.Error)
     c.logSomething()

@@ -28,5 +28,5 @@ class TestTextNumberPropsNew {
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
   // DFDL-861
-  @Test def test_standardZeroRep03() { runner.runOneTest("standardZeroRep03") }
+  @Test def test_standardZeroRep03(): Unit = { runner.runOneTest("standardZeroRep03") }
 }

@@ -109,7 +109,7 @@ class TestGeneratedProperties {
   }
 
   @Test
-  def testProps1() {
+  def testProps1(): Unit = {
     val hasProps = new HasLotsOfProperties
 
     //    comparePropValue(hasProps.encoding, "UTF-8")
@@ -219,7 +219,7 @@ class TestGeneratedProperties {
    * that's a schema definition error always.
    */
   @Test
-  def testPropsToString() {
+  def testPropsToString(): Unit = {
     val h = new HasLotsOfProperties
     h.ignoreCase
     val fl = h.toStringFunctionList

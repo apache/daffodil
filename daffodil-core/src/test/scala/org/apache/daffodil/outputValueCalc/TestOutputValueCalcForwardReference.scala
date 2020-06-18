@@ -36,7 +36,7 @@ class TestOutputValueCalcForwardReference {
   val xsi = XMLUtils.XSI_NAMESPACE
   val example = XMLUtils.EXAMPLE_NAMESPACE
 
-  @Test def testOutputValueCalcForwardReference1() {
+  @Test def testOutputValueCalcForwardReference1(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" encoding="ascii" lengthUnits="bytes"/>,
@@ -53,7 +53,7 @@ class TestOutputValueCalcForwardReference {
     TestUtils.testUnparsing(sch, infoset, "22", areTracing)
   }
 
-  @Test def testOutputValueCalcForwardReference2() {
+  @Test def testOutputValueCalcForwardReference2(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" encoding="ascii" lengthUnits="bytes" textTrimKind="padChar" textStringPadCharacter="%SP;"/>,
@@ -71,7 +71,7 @@ class TestOutputValueCalcForwardReference {
     TestUtils.testUnparsing(sch, infoset, "333", areTracing)
   }
 
-  @Test def testOutputValueCalcForwardReference3() {
+  @Test def testOutputValueCalcForwardReference3(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" encoding="ascii" lengthUnits="bytes"/>,
@@ -89,7 +89,7 @@ class TestOutputValueCalcForwardReference {
     TestUtils.testUnparsing(sch, infoset, "222", areTracing)
   }
 
-  @Test def testOutputValueCalcDeadlock() {
+  @Test def testOutputValueCalcDeadlock(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" encoding="ascii" lengthUnits="bytes"/>,
@@ -118,7 +118,7 @@ class TestOutputValueCalcForwardReference {
 
   }
 
-  @Test def testOutputValueCalcConstant() {
+  @Test def testOutputValueCalcConstant(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -135,7 +135,7 @@ class TestOutputValueCalcForwardReference {
     TestUtils.testUnparsing(sch, infoset, "abcdefghij", areTracing)
   }
 
-  @Test def testOutputValueCalcAfterOptional() {
+  @Test def testOutputValueCalcAfterOptional(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -153,7 +153,7 @@ class TestOutputValueCalcForwardReference {
     TestUtils.testUnparsing(sch, infoset, "beforeFoo=12345, foo=abcde, afterFoo=67890", areTracing)
   }
 
-  @Test def testMultipleOutputValueCalcAndDefaultablePresent() {
+  @Test def testMultipleOutputValueCalcAndDefaultablePresent(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,

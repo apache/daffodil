@@ -38,7 +38,7 @@ final class StringDataInputStreamForUnparse
   var str: String = null
   var dis: DataInputStream = null
 
-  def reset(str: String, finfo: FormatInfo) {
+  def reset(str: String, finfo: FormatInfo): Unit = {
     this.str = str
     // TODO: This only works for Java charsets, we should really use our own
     // encoders to convert the string to bytes and support non-byte-size
@@ -81,5 +81,5 @@ final class StringDataInputStreamForUnparse
   override def isDefinedForLength(length: Long): Boolean = doNotUse
   override def skip(nBits: Long, finfo: FormatInfo): Boolean = doNotUse
   override def resetBitLimit0b(savedBitLimit0b: MaybeULong): Unit = doNotUse
-  override def validateFinalStreamState {} // does nothing
+  override def validateFinalStreamState: Unit = {} // does nothing
 }
