@@ -25,7 +25,7 @@ case class FNCount(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends RecipeOpWithSubRecipes(recipe)
   with ExistsKind {
 
-  override def run(dstate: DState) {
+  override def run(dstate: DState): Unit = {
     val res = exists(recipe, dstate)
     if (res) {
       dstate.mode match {
@@ -49,7 +49,7 @@ case class FNCount(recipe: CompiledDPath, argType: NodeInfo.Kind)
  * Returns \$arg if it contains exactly one item. Otherwise, raises an error
  */
 case object FNExactlyOne extends RecipeOp {
-  override def run(dstate: DState) {
+  override def run(dstate: DState): Unit = {
 
     // This was commented out in 6c9612e9f711beb1d8e4239ef9a473eb9c64a32f, which as the commit message:
     //
@@ -79,7 +79,7 @@ case object FNExactlyOne extends RecipeOp {
 }
 
 case object DFDLOccursIndex extends RecipeOp {
-  override def run(dstate: DState) {
+  override def run(dstate: DState): Unit = {
     Assert.invariant(dstate.arrayPos >= 1)
     if (dstate.isCompile)
       throw new InfosetNoInfosetException(Nope)

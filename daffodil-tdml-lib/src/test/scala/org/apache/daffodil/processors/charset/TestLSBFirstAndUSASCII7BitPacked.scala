@@ -35,7 +35,7 @@ class TestLSBFirstAndUSASCII7BitPacked {
   lsbfFinfo.byteOrder = ByteOrder.BigEndian
   lsbfFinfo.bitOrder = BitOrder.LeastSignificantBitFirst
 
-  @Test def testOne7Bit() {
+  @Test def testOne7Bit(): Unit = {
     val dec = BitsCharsetUSASCII7BitPacked.newDecoder()
     val doc = new Document(
       <document>
@@ -52,7 +52,7 @@ class TestLSBFirstAndUSASCII7BitPacked {
     assertEquals("4", outstr)
   }
 
-  @Test def test7Bit42() {
+  @Test def test7Bit42(): Unit = {
     val dec = BitsCharsetUSASCII7BitPacked.newDecoder()
     val doc = new Document(
       <document>
@@ -69,7 +69,7 @@ class TestLSBFirstAndUSASCII7BitPacked {
     assertEquals("42", outstr)
   }
 
-  @Test def test7Bit1234567890() {
+  @Test def test7Bit1234567890(): Unit = {
     val dec = BitsCharsetUSASCII7BitPacked.newDecoder()
     val doc = new Document(
       <document>
@@ -86,7 +86,7 @@ class TestLSBFirstAndUSASCII7BitPacked {
     assertEquals("1234567890", outstr)
   }
 
-  @Test def testEncode7Bit12345678() {
+  @Test def testEncode7Bit12345678(): Unit = {
     val doc = new Document(
       <document>
         <documentPart type="text" encoding="X-DFDL-US-ASCII-7-BIT-PACKED" bitOrder="LSBFirst"><![CDATA[12345678]]></documentPart>
@@ -95,7 +95,7 @@ class TestLSBFirstAndUSASCII7BitPacked {
     assertEquals("31D98C56B3DD70", hex)
   }
 
-  @Test def testEncode7Bit123456789() {
+  @Test def testEncode7Bit123456789(): Unit = {
     val doc = new Document(
       <document bitOrder="LSBFirst">
         <documentPart type="text" encoding="X-DFDL-US-ASCII-7-BIT-PACKED"><![CDATA[123456789]]></documentPart>
@@ -104,7 +104,7 @@ class TestLSBFirstAndUSASCII7BitPacked {
     assertEquals("31D98C56B3DD7039", hex)
   }
 
-  @Test def testEncode7Bit1234567899() {
+  @Test def testEncode7Bit1234567899(): Unit = {
     val doc = new Document(
       <document bitOrder="LSBFirst">
         <documentPart type="text" encoding="X-DFDL-US-ASCII-7-BIT-PACKED" bitOrder="LSBFirst"><![CDATA[1234567899]]></documentPart>
@@ -113,7 +113,7 @@ class TestLSBFirstAndUSASCII7BitPacked {
     assertEquals("31D98C56B3DD70B91C", hex)
   }
 
-  @Test def testEncode7Bit1234567899RTL() {
+  @Test def testEncode7Bit1234567899RTL(): Unit = {
     val doc = new Document(
       <document bitOrder="LSBFirst">
         <documentPart type="bits" bitOrder="LSBFirst" byteOrder="RTL"><![CDATA[
@@ -124,7 +124,7 @@ class TestLSBFirstAndUSASCII7BitPacked {
     assertEquals("31D98C56B3DD70B91C", hex)
   }
 
-  @Test def testEncode7Bit1234567899RTLHex() {
+  @Test def testEncode7Bit1234567899RTLHex(): Unit = {
     val doc = new Document(
       <document bitOrder="LSBFirst">
         <documentPart type="byte" bitOrder="LSBFirst" byteOrder="RTL"><![CDATA[
@@ -135,7 +135,7 @@ class TestLSBFirstAndUSASCII7BitPacked {
     assertEquals("31D98C56B3DD70B91C", hex)
   }
 
-  @Test def test7Bit42LSBFirst() {
+  @Test def test7Bit42LSBFirst(): Unit = {
     val dec = BitsCharsetUSASCII7BitPacked.newDecoder()
     val doc = new Document(
       <document bitOrder="LSBFirst">
@@ -152,7 +152,7 @@ class TestLSBFirstAndUSASCII7BitPacked {
     assertEquals("42", outstr)
   }
 
-  @Test def test7Bit1234567890LSBFirst() {
+  @Test def test7Bit1234567890LSBFirst(): Unit = {
     val dec = BitsCharsetUSASCII7BitPacked.newDecoder()
     val doc = new Document(
       <document bitOrder="LSBFirst">
@@ -169,7 +169,7 @@ class TestLSBFirstAndUSASCII7BitPacked {
     assertEquals("1234567890", outstr)
   }
 
-  @Test def testEncode7Bit12345678LSBFirst() {
+  @Test def testEncode7Bit12345678LSBFirst(): Unit = {
     val doc = new Document(
       <document>
         <documentPart type="text" encoding="X-DFDL-US-ASCII-7-BIT-PACKED" bitOrder="LSBFirst"><![CDATA[12345678]]></documentPart>
@@ -178,7 +178,7 @@ class TestLSBFirstAndUSASCII7BitPacked {
     assertEquals("31D98C56B3DD70", hex)
   }
 
-  @Test def testEncode7Bit123456789LSBFirst() {
+  @Test def testEncode7Bit123456789LSBFirst(): Unit = {
     val doc = new Document(
       <document>
         <documentPart type="text" encoding="X-DFDL-US-ASCII-7-BIT-PACKED" bitOrder="LSBFirst"><![CDATA[123456789]]></documentPart>
@@ -187,7 +187,7 @@ class TestLSBFirstAndUSASCII7BitPacked {
     assertEquals("31D98C56B3DD7039", hex)
   }
 
-  @Test def testMix1() {
+  @Test def testMix1(): Unit = {
     val doc = new Document(
       <document>
         <documentPart type="bits" bitOrder="LSBFirst" byteOrder="RTL"><![CDATA[110]]></documentPart>
@@ -206,7 +206,7 @@ class TestLSBFirstAndUSASCII7BitPacked {
     assertEquals(doc2bits, doc1bits)
   }
 
-  @Test def testMIL2045_47001D_Page70_TableB_I() {
+  @Test def testMIL2045_47001D_Page70_TableB_I(): Unit = {
     val doc = new Document(
       <document bitOrder="LSBFirst">
         <documentPart type="bits" byteOrder="RTL">Version                         XXXX 0011</documentPart>
@@ -244,7 +244,7 @@ class TestLSBFirstAndUSASCII7BitPacked {
     assertEquals(doc2bits, doc1bits)
   }
 
-  @Test def testMIL2045_47001D_Page70_TableB_I_with_string() {
+  @Test def testMIL2045_47001D_Page70_TableB_I_with_string(): Unit = {
     val doc = new Document(
       <document bitOrder="LSBFirst">
         <documentPart type="bits" byteOrder="RTL">Version                         XXXX 0011</documentPart>

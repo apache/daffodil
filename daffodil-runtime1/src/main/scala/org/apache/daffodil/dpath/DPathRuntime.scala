@@ -56,7 +56,7 @@ class CompiledDPath(val ops: RecipeOp*) extends Serializable {
   /**
    * For parsing or for backward-referencing expressions when unparsing.
    */
-  def runExpression(state: ParseOrUnparseState, dstate: DState) {
+  def runExpression(state: ParseOrUnparseState, dstate: DState): Unit = {
     dstate.opIndex = 0
     dstate.setCurrentNode(state.thisElement.asInstanceOf[DINode])
     dstate.setVMap(state.variableMap)
@@ -125,7 +125,7 @@ class CompiledDPath(val ops: RecipeOp*) extends Serializable {
     res
   }
 
-  def run(dstate: DState) {
+  def run(dstate: DState): Unit = {
     // We are running a subexpression. The currentNode may have been changed by
     // previous expressions, so we need to reset the currentNode back to the
     // original contextNode. It is up to the caller of this subexpression to
@@ -180,7 +180,7 @@ abstract class RecipeOpWithSubRecipes(recipes: List[CompiledDPath]) extends Reci
 case class VRef(vrd: VariableRuntimeData, context: ThrowsSDE)
   extends RecipeOp {
 
-  override def run(dstate: DState) {
+  override def run(dstate: DState): Unit = {
     Assert.invariant(dstate.vmap != null)
     dstate.setCurrentValue(dstate.vmap.readVariable(vrd, context, dstate.parseOrUnparseState))
   }
@@ -190,7 +190,7 @@ case class VRef(vrd: VariableRuntimeData, context: ThrowsSDE)
 }
 
 case class Literal(v: DataValuePrimitive) extends RecipeOp {
-  override def run(dstate: DState) {
+  override def run(dstate: DState): Unit = {
     dstate.setCurrentValue(v)
   }
   override def toXML = toXML(v.toString)
@@ -200,7 +200,7 @@ case class Literal(v: DataValuePrimitive) extends RecipeOp {
 case class IF(predRecipe: CompiledDPath, thenPartRecipe: CompiledDPath, elsePartRecipe: CompiledDPath)
   extends RecipeOpWithSubRecipes(predRecipe, thenPartRecipe, elsePartRecipe) {
 
-  override def run(dstate: DState) {
+  override def run(dstate: DState): Unit = {
     val savedNode = dstate.currentNode
     predRecipe.run(dstate)
     val predValue = dstate.currentValue.getBoolean
@@ -237,7 +237,7 @@ case class CompareOperator(cop: CompareOpBase, left: CompiledDPath, right: Compi
 
   override def op = Misc.getNameFromClass(cop)
 
-  override def run(dstate: DState) {
+  override def run(dstate: DState): Unit = {
     val savedNode = dstate.currentNode
     left.run(dstate)
     val leftValue = dstate.currentValue.getNonNullable
@@ -254,7 +254,7 @@ case class NumericOperator(nop: NumericOp, left: CompiledDPath, right: CompiledD
 
   override def op = Misc.getNameFromClass(nop)
 
-  override def run(dstate: DState) {
+  override def run(dstate: DState): Unit = {
     val savedNode = dstate.currentNode
     left.run(dstate)
     val leftValue = dstate.currentValue.getNumber
@@ -286,7 +286,7 @@ abstract class Converter extends RecipeOp {
     (fromTypeName, toTypeName)
   }
 
-  override def run(dstate: DState) {
+  override def run(dstate: DState): Unit = {
     val arg = dstate.currentValue.getNonNullable
     val res =
       try {

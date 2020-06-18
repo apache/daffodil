@@ -26,7 +26,7 @@ object TestLengthPropertiesNew {
 
   val runner_02 = Runner(testDir_02, "LengthProperties.tdml")
 
-  @AfterClass def shutDown {
+  @AfterClass def shutDown: Unit = {
     runner_02.reset
   }
 

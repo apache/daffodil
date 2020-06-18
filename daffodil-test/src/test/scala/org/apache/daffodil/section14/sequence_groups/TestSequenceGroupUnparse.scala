@@ -27,19 +27,19 @@ object TestSequenceGroupUnparse {
   val aa = testDir + "SequenceGroupUnparse.tdml"
   val res = Misc.getRequiredResource(aa)
   var runner = new DFDLTestSuite(res)
-  @AfterClass def shutDown {
+  @AfterClass def shutDown: Unit = {
     runner = null
   }
 }
 class TestSequenceGroupUnparse {
   import TestSequenceGroupUnparse._
 
-  @Test def test_seqWithOptionals1() { runner.runOneTest("seqWithOptionals1") }
-  @Test def test_seqWithOptionals2() { runner.runOneTest("seqWithOptionals2") }
-  @Test def test_seqWithOptionals3() { runner.runOneTest("seqWithOptionals3") }
-  @Test def test_seqWithOptionals4() { runner.runOneTest("seqWithOptionals4") }
-  @Test def test_seqWithOptionals5() { runner.runOneTest("seqWithOptionals5") }
+  @Test def test_seqWithOptionals1(): Unit = { runner.runOneTest("seqWithOptionals1") }
+  @Test def test_seqWithOptionals2(): Unit = { runner.runOneTest("seqWithOptionals2") }
+  @Test def test_seqWithOptionals3(): Unit = { runner.runOneTest("seqWithOptionals3") }
+  @Test def test_seqWithOptionals4(): Unit = { runner.runOneTest("seqWithOptionals4") }
+  @Test def test_seqWithOptionals5(): Unit = { runner.runOneTest("seqWithOptionals5") }
 
-  @Test def test_seqWithHiddenGroupContainingComplex() { runner.runOneTest("seqWithHiddenGroupContainingComplex") }
+  @Test def test_seqWithHiddenGroupContainingComplex(): Unit = { runner.runOneTest("seqWithHiddenGroupContainingComplex") }
 
 }

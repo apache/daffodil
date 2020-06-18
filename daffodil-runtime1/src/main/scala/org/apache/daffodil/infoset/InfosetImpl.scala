@@ -106,7 +106,7 @@ sealed trait DINode {
   def contents: IndexedSeq[DINode]
   final def numChildren = contents.length
 
-  def visit(handler: InfosetOutputter, removeHidden: Boolean = true)
+  def visit(handler: InfosetOutputter, removeHidden: Boolean = true): Unit
 
 }
 
@@ -330,7 +330,7 @@ sealed abstract class LengthState(ie: DIElement)
   var maybeEndPos0bInBits: MaybeULong = MaybeULong.Nope
   var maybeComputedLength: MaybeULong = MaybeULong.Nope
 
-  def copyFrom(other: LengthState) {
+  def copyFrom(other: LengthState): Unit = {
     this.maybeStartDataOutputStream = other.maybeStartDataOutputStream
     this.maybeStartPos0bInBits = other.maybeStartPos0bInBits
     this.maybeEndDataOutputStream = other.maybeEndDataOutputStream
@@ -338,7 +338,7 @@ sealed abstract class LengthState(ie: DIElement)
     this.maybeComputedLength = other.maybeComputedLength
   }
 
-  def clear() {
+  def clear(): Unit = {
     maybeStartDataOutputStream = Nope
     maybeStartPos0bInBits = MaybeULong.Nope
     maybeEndDataOutputStream = Nope
@@ -354,7 +354,7 @@ sealed abstract class LengthState(ie: DIElement)
    * position information, then we bring that up here so that it can be used
    * to compute the value or content length.
    */
-  private def recheckStreams() {
+  private def recheckStreams(): Unit = {
     if (maybeStartDataOutputStream.isDefined) {
       Assert.invariant(maybeStartPos0bInBits.isDefined)
       val dos = this.maybeStartDataOutputStream.get.asInstanceOf[DirectOrBufferedDataOutputStream]
@@ -521,22 +521,22 @@ sealed abstract class LengthState(ie: DIElement)
     else throwUnknown
   }
 
-  def setAbsStartPos0bInBits(absPosInBits0b: ULong) {
+  def setAbsStartPos0bInBits(absPosInBits0b: ULong): Unit = {
     maybeStartPos0bInBits = MaybeULong(absPosInBits0b.longValue)
     maybeStartDataOutputStream = Nope
   }
 
-  def setRelStartPos0bInBits(relPosInBits0b: ULong, dos: DataOutputStream) {
+  def setRelStartPos0bInBits(relPosInBits0b: ULong, dos: DataOutputStream): Unit = {
     maybeStartPos0bInBits = MaybeULong(relPosInBits0b.longValue)
     maybeStartDataOutputStream = One(dos)
   }
 
-  def setAbsEndPos0bInBits(absPosInBits0b: ULong) {
+  def setAbsEndPos0bInBits(absPosInBits0b: ULong): Unit = {
     maybeEndPos0bInBits = MaybeULong(absPosInBits0b.longValue)
     maybeStartDataOutputStream = Nope
   }
 
-  def setRelEndPos0bInBits(relPosInBits0b: ULong, dos: DataOutputStream) {
+  def setRelEndPos0bInBits(relPosInBits0b: ULong, dos: DataOutputStream): Unit = {
     maybeEndPos0bInBits = MaybeULong(relPosInBits0b.longValue)
     maybeEndDataOutputStream = One(dos)
   }
@@ -606,7 +606,7 @@ sealed trait DIElementSharedMembersMixin {
    * Copy method keeps these objects null
    * to avoid allocation unless they are really needed.
    */
-  final protected def copyContentLengthFrom(e: DIElementSharedMembersMixin) {
+  final protected def copyContentLengthFrom(e: DIElementSharedMembersMixin): Unit = {
     if (e._contentLength eq null)
       if (this._contentLength eq null) {
         // do nothing
@@ -625,7 +625,7 @@ sealed trait DIElementSharedMembersMixin {
    * Copy method keeps these objects null
    * to avoid allocation unless they are really needed.
    */
-  final protected def copyValueLengthFrom(e: DIElementSharedMembersMixin) {
+  final protected def copyValueLengthFrom(e: DIElementSharedMembersMixin): Unit = {
     if (e._valueLength eq null)
       if (this._valueLength eq null) {
         // do nothing
@@ -682,7 +682,7 @@ sealed trait DIElementSharedImplMixin
   extends DIElementSharedInterface
   with DIElementSharedMembersMixin {
 
-  override def restoreInto(e: DIElement) {
+  override def restoreInto(e: DIElement): Unit = {
     e._isNilled = this._isNilled
     e._validity = this._validity
 
@@ -690,7 +690,7 @@ sealed trait DIElementSharedImplMixin
     e.copyValueLengthFrom(this)
   }
 
-  override def captureFrom(e: DIElement) {
+  override def captureFrom(e: DIElement): Unit = {
     this._isNilled = e._isNilled
     this._validity = e._validity
 
@@ -698,7 +698,7 @@ sealed trait DIElementSharedImplMixin
     this.copyValueLengthFrom(e)
   }
 
-  override def clear() {
+  override def clear(): Unit = {
     this._isNilled = false
     this._validity = MaybeBoolean.Nope
     clearContentLength()
@@ -717,21 +717,21 @@ sealed trait DIComplexSharedImplMixin
   extends DIElementSharedInterface
   with DIComplexSharedMembersMixin {
 
-  abstract override def restoreInto(e: DIElement) {
+  abstract override def restoreInto(e: DIElement): Unit = {
     val c = e.asInstanceOf[DIComplex]
     c.restoreFrom(this)
     c._numChildren = this._numChildren
     super.restoreInto(e)
   }
 
-  abstract override def captureFrom(e: DIElement) {
+  abstract override def captureFrom(e: DIElement): Unit = {
     val c = e.asInstanceOf[DIComplex]
     c.captureInto(this)
     this._numChildren = c._numChildren
     super.captureFrom(e)
   }
 
-  abstract override def clear() {
+  abstract override def clear(): Unit = {
     _numChildren = 0
     _arraySize = MaybeInt.Nope
     super.clear()
@@ -760,7 +760,7 @@ sealed trait DISimpleSharedImplMixin
   extends DIElementSharedInterface
   with DISimpleSharedMembersMixin {
 
-  abstract override def restoreInto(e: DIElement) {
+  abstract override def restoreInto(e: DIElement): Unit = {
     super.restoreInto(e)
     val s = e.asInstanceOf[DISimple]
     s._isDefaulted = this._isDefaulted
@@ -768,7 +768,7 @@ sealed trait DISimpleSharedImplMixin
     s._unionMemberRuntimeData = this._unionMemberRuntimeData
   }
 
-  abstract override def captureFrom(e: DIElement) {
+  abstract override def captureFrom(e: DIElement): Unit = {
     super.captureFrom(e)
     val s = e.asInstanceOf[DISimple]
     this._isDefaulted = s._isDefaulted
@@ -776,7 +776,7 @@ sealed trait DISimpleSharedImplMixin
     this._unionMemberRuntimeData = s._unionMemberRuntimeData
   }
 
-  abstract override def clear() {
+  abstract override def clear(): Unit = {
     super.clear()
     _isDefaulted = false
     _value = DataValue.NoValue
@@ -881,7 +881,7 @@ sealed trait DIElement
 
   def diParent = _parent.asInstanceOf[DIComplex]
 
-  override def setParent(p: InfosetComplexElement) {
+  override def setParent(p: InfosetComplexElement): Unit = {
     Assert.invariant(_parent eq null)
     _parent = p
   }
@@ -925,7 +925,7 @@ sealed trait DIElement
    * valid = One(false) means invalid
    */
   override def valid = _validity
-  override def setValid(validity: Boolean) { _validity = MaybeBoolean(validity) }
+  override def setValid(validity: Boolean): Unit = { _validity = MaybeBoolean(validity) }
 }
 
 // This is not a mutable collection class on purpose.
@@ -949,7 +949,7 @@ final class DIArray(
 
   private lazy val nfe = new InfosetArrayNotFinalException(this)
 
-  override def requireFinal {
+  override def requireFinal: Unit = {
     if (!isFinal) {
       // If this DIArray isn't final, either we haven't gotten all of its
       // children yet, or the array is empty and we'll never get its children.
@@ -982,7 +982,7 @@ final class DIArray(
   /**
    * Used to shorten array when backtracking out of having appended elements.
    */
-  def reduceToSize(n: Int) {
+  def reduceToSize(n: Int): Unit = {
     _contents.reduceToSize(n)
   }
 
@@ -1031,7 +1031,7 @@ final class DIArray(
     a
   }
 
-  final def visit(handler: InfosetOutputter, removeHidden: Boolean = true) {
+  final def visit(handler: InfosetOutputter, removeHidden: Boolean = true): Unit = {
     // Do not create an event if there's nothing in the array or if the array
     // is hidden. Unfortunately, there is no way to tell if an array is hidden,
     // only its elements. But if the first element is hidden, they are all
@@ -1087,12 +1087,12 @@ sealed class DISimple(override val erd: ElementRuntimeData)
    * Parsing of a text number first does setDataValue to a string, then a conversion does overwrite data value
    * with a number. Unparsing does setDataValue to a value, then overwriteDataValue to a string.
    */
-  override def setDataValue(x: DataValuePrimitiveNullable) {
+  override def setDataValue(x: DataValuePrimitiveNullable): Unit = {
     Assert.invariant(!hasValue)
     overwriteDataValue(x)
   }
 
-  def overwriteDataValue(x: DataValuePrimitiveNullable) {
+  def overwriteDataValue(x: DataValuePrimitiveNullable): Unit = {
     //
     // let's find places where we're putting a string in the infoset
     // but the simple type is not string. That happens when parsing or unparsing text Numbers, text booleans, text Date/Times.
@@ -1297,7 +1297,7 @@ sealed class DISimple(override val erd: ElementRuntimeData)
 
   override def totalElementCount = 1L
 
-  final def visit(handler: InfosetOutputter, removeHidden: Boolean = true) {
+  final def visit(handler: InfosetOutputter, removeHidden: Boolean = true): Unit = {
     if (!this.isHidden || !removeHidden) {
       handler.startSimple(this)
       handler.endSimple(this)
@@ -1315,7 +1315,7 @@ sealed class DISimple(override val erd: ElementRuntimeData)
 sealed trait DIFinalizable {
   private var _isFinal: Boolean = false
 
-  def setFinal() { _isFinal = true }
+  def setFinal(): Unit = { _isFinal = true }
   def isFinal = _isFinal
 
   /**
@@ -1369,7 +1369,7 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
 
   private lazy val nfe = new InfosetComplexElementNotFinalException(this)
 
-  override def requireFinal {
+  override def requireFinal: Unit = {
     if (!isFinal) throw nfe
   }
 
@@ -1574,7 +1574,7 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
     }
   }
 
-  final def captureInto(cs: DIComplexSharedImplMixin) {
+  final def captureInto(cs: DIComplexSharedImplMixin): Unit = {
     Assert.invariant(_arraySize == MaybeInt.Nope)
     Assert.invariant(cs._arraySize == MaybeInt.Nope)
 
@@ -1586,7 +1586,7 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
     } else { MaybeInt.Nope }
   }
 
-  final def restoreFrom(cs: DIComplexSharedImplMixin) {
+  final def restoreFrom(cs: DIComplexSharedImplMixin): Unit = {
     var i = childNodes.length - 1
 
     // for each child we will remove, remove it from the fastLookup map.
@@ -1622,7 +1622,7 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
     a
   }
 
-  override def visit(handler: InfosetOutputter, removeHidden: Boolean = true) {
+  override def visit(handler: InfosetOutputter, removeHidden: Boolean = true): Unit = {
     if (!this.isHidden || !removeHidden) {
       handler.startComplex(this)
       childNodes.foreach(node => node.visit(handler, removeHidden))
@@ -1648,7 +1648,7 @@ final class DIDocument(
    */
   var isCompileExprFalseRoot: Boolean = false
 
-  def setRootElement(rootElement: InfosetElement, tunable: DaffodilTunables) {
+  def setRootElement(rootElement: InfosetElement, tunable: DaffodilTunables): Unit = {
     root = rootElement.asInstanceOf[DIElement]
     addChild(root, tunable)
   }
@@ -1656,7 +1656,7 @@ final class DIDocument(
   override def addChild(child: InfosetElement, tunable: DaffodilTunables) =
     addChild(child)
 
-  def addChild(child: InfosetElement) {
+  def addChild(child: InfosetElement): Unit = {
     /*
      * DIDocument normally only has a single child.
      * However, if said child wants to create a quasi-element (eg. if it is a simpleType with a typeCalc),
@@ -1679,7 +1679,7 @@ final class DIDocument(
     root
   }
 
-  override def visit(handler: InfosetOutputter, removeHidden: Boolean = true) {
+  override def visit(handler: InfosetOutputter, removeHidden: Boolean = true): Unit = {
     assert(root != null)
     handler.startDocument()
     root.visit(handler, removeHidden)

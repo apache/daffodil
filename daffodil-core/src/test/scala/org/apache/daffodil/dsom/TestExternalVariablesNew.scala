@@ -160,7 +160,7 @@ class TestExternalVariablesNew {
     }
   }
 
-  @Test def test_figures_out_namespace_success() {
+  @Test def test_figures_out_namespace_success(): Unit = {
     // Here we want to test that if we do not give
     // a namespace that Daffodil is able to figure
     // out what it should be if there is no ambiguity.
@@ -212,7 +212,7 @@ class TestExternalVariablesNew {
 
   }
 
-  @Test def test_no_namespace_success() {
+  @Test def test_no_namespace_success(): Unit = {
     // Here we want to test that even when multiple var2's
     // are defined with different namespaces that we can
     // set the correct one.
@@ -257,7 +257,7 @@ class TestExternalVariablesNew {
 
   }
 
-  @Test def test_figures_out_namespace_failure() {
+  @Test def test_figures_out_namespace_failure(): Unit = {
     // We are purposefully defining multiple var3's but
     // in separate namespaces.  This test should fail
     // stating that var3 is ambiguous.
@@ -301,7 +301,7 @@ class TestExternalVariablesNew {
     }
   }
 
-  @Test def test_data_processor_vmap_copy() {
+  @Test def test_data_processor_vmap_copy(): Unit = {
     // Here we want to test that even when multiple var2's
     // are defined with different namespaces that we can
     // set the correct one.

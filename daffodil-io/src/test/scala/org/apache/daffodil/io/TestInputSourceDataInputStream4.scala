@@ -27,7 +27,7 @@ class TestInputSourceDataInputStream4 {
   val leFinfo = FormatInfoForUnitTest()
   leFinfo.byteOrder = ByteOrder.LittleEndian
 
-  @Test def testLittleEndianFloat1() {
+  @Test def testLittleEndianFloat1(): Unit = {
     val bb = ByteBuffer.allocate(4)
     bb.order(java.nio.ByteOrder.LITTLE_ENDIAN)
     val fb = bb.asFloatBuffer()
@@ -42,7 +42,7 @@ class TestInputSourceDataInputStream4 {
     assertEquals(32, dis.bitPos0b)
   }
 
-  @Test def testLittleEndianDouble1() {
+  @Test def testLittleEndianDouble1(): Unit = {
     val bb = ByteBuffer.allocate(8)
     bb.order(java.nio.ByteOrder.LITTLE_ENDIAN)
     val fb = bb.asDoubleBuffer()
@@ -56,7 +56,7 @@ class TestInputSourceDataInputStream4 {
     assertEquals(64, dis.bitPos0b)
   }
 
-  @Test def testLittleEndianLong1() {
+  @Test def testLittleEndianLong1(): Unit = {
     val bb = ByteBuffer.allocate(8)
     bb.order(java.nio.ByteOrder.LITTLE_ENDIAN)
     val fb = bb.asLongBuffer()
@@ -70,7 +70,7 @@ class TestInputSourceDataInputStream4 {
     assertEquals(64, dis.bitPos0b)
   }
 
-  @Test def testLittleEndianLong2() {
+  @Test def testLittleEndianLong2(): Unit = {
     val bb = ByteBuffer.allocate(8)
     bb.order(java.nio.ByteOrder.LITTLE_ENDIAN)
     val fb = bb.asLongBuffer()
@@ -84,7 +84,7 @@ class TestInputSourceDataInputStream4 {
     assertEquals(32, dis.bitPos0b)
   }
 
-  @Test def testLittleEndianLong3() {
+  @Test def testLittleEndianLong3(): Unit = {
     val bb = ByteBuffer.allocate(8)
     bb.order(java.nio.ByteOrder.LITTLE_ENDIAN)
     val fb = bb.asLongBuffer()
@@ -98,7 +98,7 @@ class TestInputSourceDataInputStream4 {
     assertEquals(64, dis.bitPos0b)
   }
 
-  @Test def testLittleEndianLong4() {
+  @Test def testLittleEndianLong4(): Unit = {
     val bb = ByteBuffer.allocate(8)
     bb.order(java.nio.ByteOrder.LITTLE_ENDIAN)
     val fb = bb.asLongBuffer()
@@ -112,7 +112,7 @@ class TestInputSourceDataInputStream4 {
     assertEquals(32, dis.bitPos0b)
   }
 
-  @Test def testLittleEndianLong5() {
+  @Test def testLittleEndianLong5(): Unit = {
     val bb = ByteBuffer.allocate(8)
     bb.order(java.nio.ByteOrder.BIG_ENDIAN)
     val fb = bb.asLongBuffer()

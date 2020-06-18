@@ -37,7 +37,7 @@ object TresysTests3 {
   lazy val runnerBC = Runner(testDir, "BC.tdml")
   lazy val runnerBD = Runner(testDir, "BD.tdml")
 
-  @AfterClass def shutDown {
+  @AfterClass def shutDown: Unit = {
     runnerBF.reset
     runnerAH.reset
     runnerAM.reset
@@ -51,12 +51,12 @@ class TresysTests3 {
   import TresysTests3._
 
   @Test def test_testNone() = { runnerBF.runOneTest("testNone") }
-  @Test def test_testOne() { runnerBF.runOneTest("testOne") }
-  @Test def test_testMany() { runnerBF.runOneTest("testMany") }
+  @Test def test_testOne(): Unit = { runnerBF.runOneTest("testOne") }
+  @Test def test_testMany(): Unit = { runnerBF.runOneTest("testMany") }
 
-  @Test def test_AH000() { runnerAH.runOneTest("AH000") }
-  @Test def test_AH001() { runnerAH.runOneTest("AH001") }
-  @Test def test_AH002() { runnerAH.runOneTest("AH002") }
+  @Test def test_AH000(): Unit = { runnerAH.runOneTest("AH000") }
+  @Test def test_AH001(): Unit = { runnerAH.runOneTest("AH001") }
+  @Test def test_AH002(): Unit = { runnerAH.runOneTest("AH002") }
 
   // AM is a MIME style example
   // Wasn't working for lack of occursCountKind, and
@@ -73,9 +73,9 @@ class TresysTests3 {
   // dfdlx:parseUnparsePolicy="parseOnly", which suppresses the check for this
   // constraint.
 
-  @Test def test_AM000() { runnerAM.runOneTest("AM000") }
-  @Test def test_AM001() { runnerAM.runOneTest("AM001") }
+  @Test def test_AM000(): Unit = { runnerAM.runOneTest("AM000") }
+  @Test def test_AM001(): Unit = { runnerAM.runOneTest("AM001") }
 
-  @Test def test_AU000() { runnerAU.runOneTest("AU000") } // packed and bcd
+  @Test def test_AU000(): Unit = { runnerAU.runOneTest("AU000") } // packed and bcd
 
 }

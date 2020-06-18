@@ -139,23 +139,23 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
 
   var debugState: DebugState.Type = DebugState.Pause
 
-  override def init(parser: Parser) {
+  override def init(parser: Parser): Unit = {
     runner.init(this)
   }
 
-  override def init(unparser: Unparser) {
+  override def init(unparser: Unparser): Unit = {
     runner.init(this)
   }
 
-  override def fini(parser: Parser) {
+  override def fini(parser: Parser): Unit = {
     runner.fini
   }
 
-  override def fini(unparser: Unparser) {
+  override def fini(unparser: Unparser): Unit = {
     runner.fini
   }
 
-  def debugStep(before: StateForDebugger, after: ParseOrUnparseState, processor: Processor, ignoreBreakpoints: Boolean) {
+  def debugStep(before: StateForDebugger, after: ParseOrUnparseState, processor: Processor, ignoreBreakpoints: Boolean): Unit = {
     ExecutionMode.usingUnrestrictedMode {
       debugState = debugState match {
         case _ if ((after.processorStatus ne Success) && DebuggerConfig.breakOnFailure) => DebugState.Pause
@@ -211,22 +211,22 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
     interesting
   }
 
-  override def startElement(state: PState, parser: Parser) {
+  override def startElement(state: PState, parser: Parser): Unit = {
     debugStep(state, state, parser, false)
   }
 
-  override def endElement(state: UState, unparser: Unparser) {
+  override def endElement(state: UState, unparser: Unparser): Unit = {
     debugStep(state, state, unparser, false)
   }
 
   private val parseStack = new mutable.ArrayStack[(StateForDebugger, Parser)]
 
-  override def before(before: PState, parser: Parser) {
+  override def before(before: PState, parser: Parser): Unit = {
     if (isInteresting(parser)) {
       parseStack.push((before.copyStateForDebugger, parser))
     }
   }
-  override def after(after: PState, parser: Parser) {
+  override def after(after: PState, parser: Parser): Unit = {
     if (isInteresting(parser)) {
       val (before, beforeParser) = parseStack.pop
       Assert.invariant(beforeParser eq parser)
@@ -234,11 +234,11 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
     }
   }
 
-  override def beforeRepetition(before: PState, processor: Parser) {
+  override def beforeRepetition(before: PState, processor: Parser): Unit = {
     parseStack.push((before.copyStateForDebugger, processor))
   }
 
-  override def afterRepetition(after: PState, processor: Parser) {
+  override def afterRepetition(after: PState, processor: Parser): Unit = {
     val (_, beforeParser) = parseStack.pop
     Assert.invariant(beforeParser eq processor)
   }
@@ -249,7 +249,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
 
   private val unparseStack = new mutable.ArrayStack[(StateForDebugger, Unparser)]
 
-  override def before(before: UState, unparser: Unparser) {
+  override def before(before: UState, unparser: Unparser): Unit = {
     if (isInteresting(unparser)) {
       unparseStack.push((before.copyStateForDebugger, unparser))
     }
@@ -259,7 +259,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
     }
   }
 
-  override def after(after: UState, unparser: Unparser) {
+  override def after(after: UState, unparser: Unparser): Unit = {
     if (isInteresting(unparser)) {
       val (before, beforeUnparser) = unparseStack.pop
       Assert.invariant(beforeUnparser eq unparser)
@@ -442,7 +442,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
     }
   }
 
-  private def debugPrintln(obj: Any = "", prefix: String = "") {
+  private def debugPrintln(obj: Any = "", prefix: String = ""): Unit = {
     obj.toString.split("\n").foreach { line =>
       {
         val out = "%s%s".format(prefix, line)
@@ -451,7 +451,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
     }
   }
 
-  private def debugPrettyPrintXML(ie: InfosetElement) {
+  private def debugPrettyPrintXML(ie: InfosetElement): Unit = {
     val bos = new java.io.ByteArrayOutputStream()
     val xml = new XMLTextInfosetOutputter(bos, true)
     ie.visit(xml, DebuggerConfig.removeHidden)
@@ -606,7 +606,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
   //DebugCommandBase.checkNameConflicts
 
   trait DebugCommandValidateSubcommands { self: DebugCommand =>
-    override def validate(args: Seq[String]) {
+    override def validate(args: Seq[String]): Unit = {
       if (args.size == 0) {
         throw new DebugException("no command specified")
       }
@@ -622,7 +622,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
   }
 
   trait DebugCommandValidateZeroArgs { self: DebugCommand =>
-    override def validate(args: Seq[String]) {
+    override def validate(args: Seq[String]): Unit = {
       if (args.length != 0) {
         throw new DebugException("%s command requires zero arguments".format(name))
       }
@@ -630,7 +630,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
   }
 
   trait DebugCommandValidateSingleArg { self: DebugCommand =>
-    override def validate(args: Seq[String]) {
+    override def validate(args: Seq[String]): Unit = {
       if (args.length != 1) {
         throw new DebugException("%s command requires a single argument".format(name))
       }
@@ -638,7 +638,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
   }
 
   trait DebugCommandValidateBoolean { self: DebugCommand =>
-    override def validate(args: Seq[String]) {
+    override def validate(args: Seq[String]): Unit = {
       if (args.size != 1) {
         throw new DebugException("%s command requires a single argument".format(name))
       } else {
@@ -651,7 +651,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
   }
 
   trait DebugCommandValidateInt { self: DebugCommand =>
-    override def validate(args: Seq[String]) {
+    override def validate(args: Seq[String]): Unit = {
       if (args.size != 1) {
         throw new DebugException("%s command requires a single argument".format(name))
       } else {
@@ -665,7 +665,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
   }
 
   trait DebugCommandValidateOptionalArg { self: DebugCommand =>
-    override def validate(args: Seq[String]) {
+    override def validate(args: Seq[String]): Unit = {
       if (args.size > 1) {
         throw new DebugException("%s command zero or one arguments".format(name))
       }
@@ -768,7 +768,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
                         |Example: condition 1 dfdl:occursIndex() eq 3""".stripMargin
       override lazy val short = "cond"
 
-      override def validate(args: Seq[String]) {
+      override def validate(args: Seq[String]): Unit = {
         if (args.length < 2) {
           throw new DebugException("condition command requires a breakpoint id and a DFDL expression")
         }
@@ -1018,7 +1018,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
                         |
                         |Example: eval dfdl:occursIndex()""".stripMargin
 
-      override def validate(args: Seq[String]) {
+      override def validate(args: Seq[String]): Unit = {
         if (args.size == 0) {
           throw new DebugException("eval requires a DFDL expression")
         }
@@ -1118,7 +1118,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
                         |Example: help info""".stripMargin
       override val subcommands = Seq(Break, Clear, Complete, Condition, Continue, Delete, Disable, Display, Enable, Eval, History, Info, Quit, Set, Step, Trace)
 
-      override def validate(args: Seq[String]) {
+      override def validate(args: Seq[String]): Unit = {
         // no validation
       }
 
@@ -1207,7 +1207,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
           InfoParser,
           InfoUnparser)
 
-      override def validate(args: Seq[String]) {
+      override def validate(args: Seq[String]): Unit = {
         if (args.size == 0) {
           throw new DebugException("one or more commands are required")
         }
@@ -1315,7 +1315,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
         val desc = "display the input/output data"
         val longDesc = desc
 
-        def printData(rep: Option[Representation], l: Int, prestate: StateForDebugger, state: ParseOrUnparseState, processor: Processor) {
+        def printData(rep: Option[Representation], l: Int, prestate: StateForDebugger, state: ParseOrUnparseState, processor: Processor): Unit = {
           val dataLoc = prestate.currentLocation.asInstanceOf[DataLoc]
           val lines = dataLoc.dump(rep, prestate.currentLocation, state)
           debugPrintln(lines, "  ")
@@ -1773,7 +1773,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
                           |Example: set representation binary""".stripMargin
         override lazy val short = "rp"
 
-        override def validate(args: Seq[String]) {
+        override def validate(args: Seq[String]): Unit = {
           if (args.size != 1) {
             throw new DebugException("a single argument is required")
           } else {

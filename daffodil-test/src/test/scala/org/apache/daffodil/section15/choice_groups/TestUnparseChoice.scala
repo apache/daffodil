@@ -25,7 +25,7 @@ object TestUnparseChoice {
   val testDir = "/org/apache/daffodil/section15/choice_groups/"
   val runnerCH = Runner(testDir, "choice-unparse.tdml")
 
-  @AfterClass def tearDown() {
+  @AfterClass def tearDown(): Unit = {
     runnerCH.reset
   }
 }
@@ -33,10 +33,10 @@ object TestUnparseChoice {
 class TestUnparseChoice {
   import TestUnparseChoice._
 
-  @Test def test_choice1() { runnerCH.runOneTest("choice1") }
-  @Test def test_choice2() { runnerCH.runOneTest("choice2") }
-  @Test def test_choice3() { runnerCH.runOneTest("choice3") }
-  @Test def test_choice4() { runnerCH.runOneTest("choice4") }
-  @Test def test_choice5() { runnerCH.runOneTest("choice5") }
-  @Test def test_choice6() { runnerCH.runOneTest("choice6") }
+  @Test def test_choice1(): Unit = { runnerCH.runOneTest("choice1") }
+  @Test def test_choice2(): Unit = { runnerCH.runOneTest("choice2") }
+  @Test def test_choice3(): Unit = { runnerCH.runOneTest("choice3") }
+  @Test def test_choice4(): Unit = { runnerCH.runOneTest("choice4") }
+  @Test def test_choice5(): Unit = { runnerCH.runOneTest("choice5") }
+  @Test def test_choice6(): Unit = { runnerCH.runOneTest("choice6") }
 }

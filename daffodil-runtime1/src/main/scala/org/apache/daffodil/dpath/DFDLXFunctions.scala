@@ -66,7 +66,7 @@ case class DFDLXTrace(recipe: CompiledDPath, msg: String)
 
 case object DAFError extends RecipeOp {
 
-  override def run(dstate: DState) {
+  override def run(dstate: DState): Unit = {
     val maybeSFL =
       if (dstate.runtimeData.isDefined) One(dstate.runtimeData.get.schemaFileLocation)
       else Nope

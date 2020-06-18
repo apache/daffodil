@@ -87,15 +87,15 @@ class TestInfosetInputterFromReader2 {
       }
     }
 
-    override def close() { bytes = Nil.toStream }
+    override def close(): Unit = { bytes = Nil.toStream }
   }
 
-  @Test def testStreamingBehavior1() {
+  @Test def testStreamingBehavior1(): Unit = {
     val count = 100
     doTest(count)
   }
 
-  def doTest(count: Int) {
+  def doTest(count: Int): Unit = {
     val (is, rootERD, inp) = infosetUnlimitedSource(count)
     val Some(barSeqTRD: SequenceRuntimeData) = rootERD.optComplexTypeModelGroupRuntimeData
     val Seq(fooERD: ElementRuntimeData) = barSeqTRD.groupMembers
@@ -122,7 +122,7 @@ class TestInfosetInputterFromReader2 {
   }
 
   // @Test // uncomment to watch storage on jvisualvm to convince self of non-leaking.
-  def testStreamingBehavior2() {
+  def testStreamingBehavior2(): Unit = {
     val count = 100000000
     doTest(count)
   }

@@ -32,7 +32,7 @@ import java.net.URISyntaxException
 
 class TestQName {
 
-  @Test def testQNameLongPrefix() {
+  @Test def testQNameLongPrefix(): Unit = {
     val bigPrefix = ("a" * 6000)
     val data = <xs:element name="one" type={ bigPrefix + ":b" }/>
     val qntext = (data \ "@type").text
@@ -47,7 +47,7 @@ class TestQName {
     }
   }
 
-  @Test def testExtQName1() {
+  @Test def testExtQName1(): Unit = {
     val tryrqn = QName.refQNameFromExtendedSyntax("local")
     tryrqn match {
       case Success(RefQName(None, "local", UnspecifiedNamespace)) => // ok
@@ -55,7 +55,7 @@ class TestQName {
     }
   }
 
-  @Test def testExtQName2() {
+  @Test def testExtQName2(): Unit = {
     val tryrqn = QName.refQNameFromExtendedSyntax("{}local")
     tryrqn match {
       case Success(RefQName(None, "local", NoNamespace)) => // ok
@@ -63,7 +63,7 @@ class TestQName {
     }
   }
 
-  @Test def testExtQName3() {
+  @Test def testExtQName3(): Unit = {
     val tryrqn = QName.refQNameFromExtendedSyntax("{uri}local")
     tryrqn match {
       case Success(RefQName(None, "local", ns)) => assertEquals("uri", ns.uri.toString)
@@ -71,7 +71,7 @@ class TestQName {
     }
   }
 
-  @Test def testExtQName4() {
+  @Test def testExtQName4(): Unit = {
     val tryrqn = QName.refQNameFromExtendedSyntax("pre:local")
     tryrqn match {
       case Success(RefQName(Some("pre"), "local", UnspecifiedNamespace)) => //ok
@@ -79,7 +79,7 @@ class TestQName {
     }
   }
 
-  @Test def testExtQName5() {
+  @Test def testExtQName5(): Unit = {
     val tryrqn = QName.refQNameFromExtendedSyntax("pre:{}local")
     tryrqn match {
       case Failure(exc: ExtendedQNameSyntaxException) => // ok
@@ -87,7 +87,7 @@ class TestQName {
     }
   }
 
-  @Test def testExtQName6() {
+  @Test def testExtQName6(): Unit = {
     val tryrqn = QName.refQNameFromExtendedSyntax("{http://<<notValidURI>>}local")
     tryrqn match {
       case Failure(exc: ExtendedQNameSyntaxException) => {

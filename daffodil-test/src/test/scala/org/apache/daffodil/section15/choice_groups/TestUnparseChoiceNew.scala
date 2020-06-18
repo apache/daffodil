@@ -27,7 +27,7 @@ object TestUnparseChoiceNew {
   val aa = testDir + "choice-unparse.tdml"
   var runnerCH = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
-  @AfterClass def tearDown() {
+  @AfterClass def tearDown(): Unit = {
     runnerCH = null
   }
 }
@@ -35,8 +35,8 @@ object TestUnparseChoiceNew {
 class TestUnparseChoiceNew {
   import TestUnparseChoiceNew._
 
-  @Test def test_choice7() { runnerCH.runOneTest("choice7") }
-  @Test def test_choice8() { runnerCH.runOneTest("choice8") }
-  @Test def test_choice9() { runnerCH.runOneTest("choice9") }
-  @Test def test_choice10() { runnerCH.runOneTest("choice10") }
+  @Test def test_choice7(): Unit = { runnerCH.runOneTest("choice7") }
+  @Test def test_choice8(): Unit = { runnerCH.runOneTest("choice8") }
+  @Test def test_choice9(): Unit = { runnerCH.runOneTest("choice9") }
+  @Test def test_choice10(): Unit = { runnerCH.runOneTest("choice10") }
 }

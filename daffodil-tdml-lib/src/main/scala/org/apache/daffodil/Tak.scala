@@ -57,7 +57,7 @@ object Tak {
       z
   }
 
-  def testTak {
+  def testTak: Unit = {
     println("Calibrating takeon units")
     callCount = 0
     val nanos = Timer.getTimeNS { tak(21, 3, 21) }
@@ -68,7 +68,7 @@ object Tak {
     println("Done calibrating")
   }
 
-  def main(args: Array[String]) {
+  def main(args: Array[String]): Unit = {
     testTak
   }
 }

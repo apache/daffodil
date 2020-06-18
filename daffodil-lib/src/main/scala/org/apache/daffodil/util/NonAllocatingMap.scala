@@ -43,7 +43,7 @@ class NonAllocatingMap[K, V <: AnyRef](javaMap: java.util.Map[K, V]) {
   /**
    * We do not allow null to be put into the map as key nor value.
    */
-  def put(k: K, v: V) {
+  def put(k: K, v: V): Unit = {
     k match {
       case ar: AnyRef => Assert.usage(ar ne null)
       case _ => //ok

@@ -109,7 +109,7 @@ final class SpecifiedLengthExplicitImplicitUnparser(
    * of the string's characters fit within the available target length
    * bits.
    */
-  def unparseVarWidthCharactersInBits(state: UState) {
+  def unparseVarWidthCharactersInBits(state: UState): Unit = {
     val maybeTLBits = getMaybeTL(state, targetLengthInBitsEv)
 
     if (maybeTLBits.isDefined) {
@@ -157,7 +157,7 @@ final class SpecifiedLengthExplicitImplicitUnparser(
    * Encoding is variable width (e.g., utf-8). The target
    * length is expressed in characters.
    */
-  def unparseVarWidthCharactersInCharacters(state: UState) {
+  def unparseVarWidthCharactersInCharacters(state: UState): Unit = {
 
     //
     // variable-width encodings and lengthUnits characters, and lengthKind explicit
@@ -225,7 +225,7 @@ final class SpecifiedLengthExplicitImplicitUnparser(
    * Regardless of the type (text or binary), the target length
    * will be provided in bits.
    */
-  def unparseBits(state: UState) {
+  def unparseBits(state: UState): Unit = {
 
     val maybeTLBits = getMaybeTL(state, targetLengthInBitsEv)
 
@@ -290,7 +290,7 @@ final class SpecifiedLengthExplicitImplicitUnparser(
 // TODO: implement the capture length unparsers as just using this trait?
 trait CaptureUnparsingValueLength {
 
-  def captureValueLengthStart(state: UState, elem: DIElement) {
+  def captureValueLengthStart(state: UState, elem: DIElement): Unit = {
     val dos = state.dataOutputStream
     if (dos.maybeAbsBitPos0b.isDefined) {
       elem.valueLength.setAbsStartPos0bInBits(dos.maybeAbsBitPos0b.getULong)
@@ -299,7 +299,7 @@ trait CaptureUnparsingValueLength {
     }
   }
 
-  def captureValueLengthEnd(state: UState, elem: DIElement) {
+  def captureValueLengthEnd(state: UState, elem: DIElement): Unit = {
     val dos = state.dataOutputStream
     if (dos.maybeAbsBitPos0b.isDefined) {
       elem.valueLength.setAbsEndPos0bInBits(dos.maybeAbsBitPos0b.getULong)

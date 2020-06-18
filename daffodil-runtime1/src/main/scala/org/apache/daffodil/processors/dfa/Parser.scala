@@ -38,7 +38,7 @@ class LongestMatchTracker {
   var longestMatchedStartPos: Int = Int.MaxValue
   var longestMatchedString: String = null
 
-  def successfulMatch(matchedStartPos: Int, matchedString: StringBuilder, dfa: DFADelimiter, dfaIndex: Int) {
+  def successfulMatch(matchedStartPos: Int, matchedString: StringBuilder, dfa: DFADelimiter, dfaIndex: Int): Unit = {
     if (longestMatches.isEmpty) {
       // first match, make it the longest
       longestMatchedStartPos = matchedStartPos

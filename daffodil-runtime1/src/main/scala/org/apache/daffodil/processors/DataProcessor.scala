@@ -237,7 +237,7 @@ class DataProcessor private (
   }
 
   @deprecated("Use withDebugger.", "2.6.0")
-  def setDebugger(dbg: AnyRef) {
+  def setDebugger(dbg: AnyRef): Unit = {
     val optDbg = if (dbg eq null) None else Some(dbg.asInstanceOf[Debugger])
     optDebugger = optDbg
   }
@@ -248,7 +248,7 @@ class DataProcessor private (
   }
 
   @deprecated("Use withDebugging.", "2.6.0")
-  def setDebugging(flag: Boolean) {
+  def setDebugging(flag: Boolean): Unit = {
     areDebugging = flag
     tunables = tunables.setTunable("allowExternalPathExpressions", flag.toString)
   }
@@ -437,7 +437,7 @@ class DataProcessor private (
     }
   }
 
-  private def doParse(p: Parser, state: PState) {
+  private def doParse(p: Parser, state: PState): Unit = {
     var optThrown: Maybe[Throwable] = None
     try {
       try {

@@ -29,7 +29,7 @@ object TestInputTypeValueCalc {
   val fnRunner = Runner(testDir, "typeCalcFunctions.tdml", validateTDMLFile = false)
   val fnErrRunner = Runner(testDir, "typeCalcFunctionErrors.tdml", validateTDMLFile = false)
 
-  @AfterClass def shutDown {
+  @AfterClass def shutDown: Unit = {
     runner.reset
     exprRunner.reset
     fnRunner.reset
@@ -40,67 +40,67 @@ object TestInputTypeValueCalc {
 
 class TestInputTypeValueCalc {
   import TestInputTypeValueCalc._
-  @Test def test_InputTypeCalc_keysetValue_00() { runner.runOneTest("InputTypeCalc_keysetValue_00") }
-  @Test def test_InputTypeCalc_keysetValue_01() { runner.runOneTest("InputTypeCalc_keysetValue_01") }
-  @Test def test_InputTypeCalc_keysetValue_02() { runner.runOneTest("InputTypeCalc_keysetValue_02") }
+  @Test def test_InputTypeCalc_keysetValue_00(): Unit = { runner.runOneTest("InputTypeCalc_keysetValue_00") }
+  @Test def test_InputTypeCalc_keysetValue_01(): Unit = { runner.runOneTest("InputTypeCalc_keysetValue_01") }
+  @Test def test_InputTypeCalc_keysetValue_02(): Unit = { runner.runOneTest("InputTypeCalc_keysetValue_02") }
 
-  @Test def test_InputTypeCalc_unparse_keysetValue_00() { runner.runOneTest("InputTypeCalc_unparse_keysetValue_00") }
-  @Test def test_InputTypeCalc_unparse_keysetValue_01() { runner.runOneTest("InputTypeCalc_unparse_keysetValue_01") }
-  @Test def test_InputTypeCalc_unparse_keysetValue_02() { runner.runOneTest("InputTypeCalc_unparse_keysetValue_02") }
+  @Test def test_InputTypeCalc_unparse_keysetValue_00(): Unit = { runner.runOneTest("InputTypeCalc_unparse_keysetValue_00") }
+  @Test def test_InputTypeCalc_unparse_keysetValue_01(): Unit = { runner.runOneTest("InputTypeCalc_unparse_keysetValue_01") }
+  @Test def test_InputTypeCalc_unparse_keysetValue_02(): Unit = { runner.runOneTest("InputTypeCalc_unparse_keysetValue_02") }
 
-  @Test def test_InputTypeCalc_choiceDispatchByType_01() { runner.runOneTest("InputTypeCalc_choiceDispatchByType_01") }
-  @Test def test_InputTypeCalc_choiceDispatchByType_02() { runner.runOneTest("InputTypeCalc_choiceDispatchByType_02") }
-  @Test def test_InputTypeCalc_choiceDispatchByType_03() { runner.runOneTest("InputTypeCalc_choiceDispatchByType_03") }
+  @Test def test_InputTypeCalc_choiceDispatchByType_01(): Unit = { runner.runOneTest("InputTypeCalc_choiceDispatchByType_01") }
+  @Test def test_InputTypeCalc_choiceDispatchByType_02(): Unit = { runner.runOneTest("InputTypeCalc_choiceDispatchByType_02") }
+  @Test def test_InputTypeCalc_choiceDispatchByType_03(): Unit = { runner.runOneTest("InputTypeCalc_choiceDispatchByType_03") }
 
-  @Test def test_InputTypeCalc_unparse_choiceDispatchByType_01() { runner.runOneTest("InputTypeCalc_unparse_choiceDispatchByType_01") }
-  @Test def test_InputTypeCalc_unparse_choiceDispatchByType_02() { runner.runOneTest("InputTypeCalc_unparse_choiceDispatchByType_02") }
+  @Test def test_InputTypeCalc_unparse_choiceDispatchByType_01(): Unit = { runner.runOneTest("InputTypeCalc_unparse_choiceDispatchByType_01") }
+  @Test def test_InputTypeCalc_unparse_choiceDispatchByType_02(): Unit = { runner.runOneTest("InputTypeCalc_unparse_choiceDispatchByType_02") }
 
-  @Test def test_InputTypeCalc_choiceBranchKeyByType_01() { runner.runOneTest("InputTypeCalc_choiceBranchKeyByType_01") }
+  @Test def test_InputTypeCalc_choiceBranchKeyByType_01(): Unit = { runner.runOneTest("InputTypeCalc_choiceBranchKeyByType_01") }
 
-  @Test def test_InputTypeCalc_unionOfKeysetValueCalcs_01() { runner.runOneTest("InputTypeCalc_unionOfKeysetValueCalcs_01") }
-  @Test def test_InputTypeCalc_unparse_unionOfKeysetValueCalcs_01() { runner.runOneTest("InputTypeCalc_unparse_unionOfKeysetValueCalcs_01") }
+  @Test def test_InputTypeCalc_unionOfKeysetValueCalcs_01(): Unit = { runner.runOneTest("InputTypeCalc_unionOfKeysetValueCalcs_01") }
+  @Test def test_InputTypeCalc_unparse_unionOfKeysetValueCalcs_01(): Unit = { runner.runOneTest("InputTypeCalc_unparse_unionOfKeysetValueCalcs_01") }
 
-  @Test def test_InputTypeCalc_unionOfKeysetValueCalcs_02() { runner.runOneTest("InputTypeCalc_unionOfKeysetValueCalcs_02") }
-  @Test def test_InputTypeCalc_unparse_unionOfKeysetValueCalcs_02() { runner.runOneTest("InputTypeCalc_unparse_unionOfKeysetValueCalcs_02") }
+  @Test def test_InputTypeCalc_unionOfKeysetValueCalcs_02(): Unit = { runner.runOneTest("InputTypeCalc_unionOfKeysetValueCalcs_02") }
+  @Test def test_InputTypeCalc_unparse_unionOfKeysetValueCalcs_02(): Unit = { runner.runOneTest("InputTypeCalc_unparse_unionOfKeysetValueCalcs_02") }
 
-  @Test def test_InputTypeCalc_expression_01() { exprRunner.runOneTest("InputTypeCalc_expression_01") }
-  @Test def test_OutputTypeCalc_expression_01() { exprRunner.runOneTest("OutputTypeCalc_expression_01") }
-  @Test def test_InputTypeCalc_expression_02() { exprRunner.runOneTest("InputTypeCalc_expression_02") }
-  @Test def test_OutputTypeCalc_expression_02() { exprRunner.runOneTest("OutputTypeCalc_expression_02") }
+  @Test def test_InputTypeCalc_expression_01(): Unit = { exprRunner.runOneTest("InputTypeCalc_expression_01") }
+  @Test def test_OutputTypeCalc_expression_01(): Unit = { exprRunner.runOneTest("OutputTypeCalc_expression_01") }
+  @Test def test_InputTypeCalc_expression_02(): Unit = { exprRunner.runOneTest("InputTypeCalc_expression_02") }
+  @Test def test_OutputTypeCalc_expression_02(): Unit = { exprRunner.runOneTest("OutputTypeCalc_expression_02") }
 
-  @Test def test_inputTypeCalcInt_01() { fnRunner.runOneTest("inputTypeCalcInt_01") }
-  @Test def test_inputTypeCalcString_01() { fnRunner.runOneTest("inputTypeCalcString_01") }
-  @Test def test_outputTypeCalcInt_01() { fnRunner.runOneTest("outputTypeCalcInt_01") }
-  @Test def test_outputTypeCalcString_01() { fnRunner.runOneTest("outputTypeCalcString_01") }
-  @Test def test_repTypeValueInt_01() { fnRunner.runOneTest("repTypeValueInt_01") }
-  @Test def test_logicalTypeValueInt_01() { fnRunner.runOneTest("logicalTypeValueInt_01") }
-  @Test def test_repTypeValueString_01() { fnRunner.runOneTest("repTypeValueString_01") }
-  @Test def test_logicalTypeValueString_01() { fnRunner.runOneTest("logicalTypeValueString_01") }
-  @Test def test_outputTypeCalcNextSiblingInt_01() { fnRunner.runOneTest("outputTypeCalcNextSiblingInt_01") }
-  @Test def test_outputTypeCalcNextSiblingString_01() { fnRunner.runOneTest("outputTypeCalcNextSiblingString_01") }
-  @Test def test_abstractIntToStringByKeyset_01() { fnRunner.runOneTest("abstractIntToStringByKeyset_01") }
-  @Test def test_sparse_enum_01() { fnRunner.runOneTest("sparse_enum_01") }
+  @Test def test_inputTypeCalcInt_01(): Unit = { fnRunner.runOneTest("inputTypeCalcInt_01") }
+  @Test def test_inputTypeCalcString_01(): Unit = { fnRunner.runOneTest("inputTypeCalcString_01") }
+  @Test def test_outputTypeCalcInt_01(): Unit = { fnRunner.runOneTest("outputTypeCalcInt_01") }
+  @Test def test_outputTypeCalcString_01(): Unit = { fnRunner.runOneTest("outputTypeCalcString_01") }
+  @Test def test_repTypeValueInt_01(): Unit = { fnRunner.runOneTest("repTypeValueInt_01") }
+  @Test def test_logicalTypeValueInt_01(): Unit = { fnRunner.runOneTest("logicalTypeValueInt_01") }
+  @Test def test_repTypeValueString_01(): Unit = { fnRunner.runOneTest("repTypeValueString_01") }
+  @Test def test_logicalTypeValueString_01(): Unit = { fnRunner.runOneTest("logicalTypeValueString_01") }
+  @Test def test_outputTypeCalcNextSiblingInt_01(): Unit = { fnRunner.runOneTest("outputTypeCalcNextSiblingInt_01") }
+  @Test def test_outputTypeCalcNextSiblingString_01(): Unit = { fnRunner.runOneTest("outputTypeCalcNextSiblingString_01") }
+  @Test def test_abstractIntToStringByKeyset_01(): Unit = { fnRunner.runOneTest("abstractIntToStringByKeyset_01") }
+  @Test def test_sparse_enum_01(): Unit = { fnRunner.runOneTest("sparse_enum_01") }
 
-  @Test def test_typeCalcDispatch_typeError_01() { fnErrRunner.runOneTest("typeCalcDispatch_typeError_01") }
-  @Test def test_typeCalcDispatch_typeError_02() { fnErrRunner.runOneTest("typeCalcDispatch_typeError_02") }
-  @Test def test_typeCalcDispatch_typeError_03() { fnErrRunner.runOneTest("typeCalcDispatch_typeError_03") }
-  @Test def test_typeCalcDispatch_typeError_04() { fnErrRunner.runOneTest("typeCalcDispatch_typeError_04") }
-  @Test def test_typeCalcDispatch_typeError_05() { fnErrRunner.runOneTest("typeCalcDispatch_typeError_05") }
-  @Test def test_typeCalcDispatch_typeError_06() { fnErrRunner.runOneTest("typeCalcDispatch_typeError_06") }
-  @Test def test_typeCalcDispatch_typeError_07() { fnErrRunner.runOneTest("typeCalcDispatch_typeError_07") }
-  @Test def test_typeCalcDispatch_typeError_08() { fnErrRunner.runOneTest("typeCalcDispatch_typeError_08") }
-  @Test def test_repTypeValue_bad_context_01() { fnErrRunner.runOneTest("repTypeValue_bad_context_01") }
-  @Test def test_repTypeValue_bad_context_02() { fnErrRunner.runOneTest("repTypeValue_bad_context_02") }
-  @Test def test_logicalTypeValue_bad_context_01() { fnErrRunner.runOneTest("logicalTypeValue_bad_context_01") }
-  @Test def test_logicalTypeValue_bad_context_02() { fnErrRunner.runOneTest("logicalTypeValue_bad_context_02") }
-  @Test def test_nextSibling_01() { fnErrRunner.runOneTest("nextSibling_01") }
-  @Test def test_nextSibling_02() { fnErrRunner.runOneTest("nextSibling_02") }
-  @Test def test_nextSibling_03() { fnErrRunner.runOneTest("nextSibling_03") }
-  @Test def test_nextSibling_04() { fnErrRunner.runOneTest("nextSibling_04") }
-  @Test def test_nonexistant_reptype_01() { fnErrRunner.runOneTest("nonexistant_reptype_01") }
-  @Test def test_nonexistantOutputTypeCalc_01() { fnErrRunner.runOneTest("nonexistantOutputTypeCalc_01") }
-  @Test def test_nonexistantInputTypeCalc_01() { fnErrRunner.runOneTest("nonexistantInputTypeCalc_01") }
-  @Test def test_nonexistantTypeCalcType_01() { fnErrRunner.runOneTest("nonexistantTypeCalcType_01") }
-  @Test def test_nonexistantTypeCalcType_02() { fnErrRunner.runOneTest("nonexistantTypeCalcType_02") }
+  @Test def test_typeCalcDispatch_typeError_01(): Unit = { fnErrRunner.runOneTest("typeCalcDispatch_typeError_01") }
+  @Test def test_typeCalcDispatch_typeError_02(): Unit = { fnErrRunner.runOneTest("typeCalcDispatch_typeError_02") }
+  @Test def test_typeCalcDispatch_typeError_03(): Unit = { fnErrRunner.runOneTest("typeCalcDispatch_typeError_03") }
+  @Test def test_typeCalcDispatch_typeError_04(): Unit = { fnErrRunner.runOneTest("typeCalcDispatch_typeError_04") }
+  @Test def test_typeCalcDispatch_typeError_05(): Unit = { fnErrRunner.runOneTest("typeCalcDispatch_typeError_05") }
+  @Test def test_typeCalcDispatch_typeError_06(): Unit = { fnErrRunner.runOneTest("typeCalcDispatch_typeError_06") }
+  @Test def test_typeCalcDispatch_typeError_07(): Unit = { fnErrRunner.runOneTest("typeCalcDispatch_typeError_07") }
+  @Test def test_typeCalcDispatch_typeError_08(): Unit = { fnErrRunner.runOneTest("typeCalcDispatch_typeError_08") }
+  @Test def test_repTypeValue_bad_context_01(): Unit = { fnErrRunner.runOneTest("repTypeValue_bad_context_01") }
+  @Test def test_repTypeValue_bad_context_02(): Unit = { fnErrRunner.runOneTest("repTypeValue_bad_context_02") }
+  @Test def test_logicalTypeValue_bad_context_01(): Unit = { fnErrRunner.runOneTest("logicalTypeValue_bad_context_01") }
+  @Test def test_logicalTypeValue_bad_context_02(): Unit = { fnErrRunner.runOneTest("logicalTypeValue_bad_context_02") }
+  @Test def test_nextSibling_01(): Unit = { fnErrRunner.runOneTest("nextSibling_01") }
+  @Test def test_nextSibling_02(): Unit = { fnErrRunner.runOneTest("nextSibling_02") }
+  @Test def test_nextSibling_03(): Unit = { fnErrRunner.runOneTest("nextSibling_03") }
+  @Test def test_nextSibling_04(): Unit = { fnErrRunner.runOneTest("nextSibling_04") }
+  @Test def test_nonexistant_reptype_01(): Unit = { fnErrRunner.runOneTest("nonexistant_reptype_01") }
+  @Test def test_nonexistantOutputTypeCalc_01(): Unit = { fnErrRunner.runOneTest("nonexistantOutputTypeCalc_01") }
+  @Test def test_nonexistantInputTypeCalc_01(): Unit = { fnErrRunner.runOneTest("nonexistantInputTypeCalc_01") }
+  @Test def test_nonexistantTypeCalcType_01(): Unit = { fnErrRunner.runOneTest("nonexistantTypeCalcType_01") }
+  @Test def test_nonexistantTypeCalcType_02(): Unit = { fnErrRunner.runOneTest("nonexistantTypeCalcType_02") }
 
 }

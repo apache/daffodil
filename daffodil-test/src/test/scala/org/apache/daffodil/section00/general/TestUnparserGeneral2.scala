@@ -25,7 +25,7 @@ object TestUnparserGeneral2 {
   val testDir = "/org/apache/daffodil/section00/general/"
   val runner2 = Runner(testDir, "testUnparserBitOrderOVC.tdml")
 
-  @AfterClass def shutDown {
+  @AfterClass def shutDown: Unit = {
     runner2.reset
   }
 }

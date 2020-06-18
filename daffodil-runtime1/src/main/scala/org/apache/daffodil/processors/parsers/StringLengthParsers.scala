@@ -49,7 +49,7 @@ final class StringOfSpecifiedLengthParser(
     "<" + eName + " parser='" + Misc.getNameFromClass(this) + "' />"
   }
 
-  override def parse(start: PState) {
+  override def parse(start: PState): Unit = {
     val field = parseString(start)
     start.simpleElement.setDataValue(field)
   }
@@ -59,13 +59,13 @@ final class StringOfSpecifiedLengthParser(
 trait CaptureParsingValueLength {
   def charsetEv: CharsetEv
 
-  final def captureValueLength(state: PState, startBitPos0b: ULong, endBitPos0b: ULong) {
+  final def captureValueLength(state: PState, startBitPos0b: ULong, endBitPos0b: ULong): Unit = {
     val elem = state.infoset
     elem.valueLength.setAbsStartPos0bInBits(startBitPos0b)
     elem.valueLength.setAbsEndPos0bInBits(endBitPos0b)
   }
 
-  final def captureValueLengthOfString(state: PState, str: String) {
+  final def captureValueLengthOfString(state: PState, str: String): Unit = {
     val lengthInBits = state.lengthInBits(str, charsetEv.evaluate(state))
     // TODO: this is a hack, it doesn't actually set the correct start/end
     // pos due to padding. But it does set the correct information so that

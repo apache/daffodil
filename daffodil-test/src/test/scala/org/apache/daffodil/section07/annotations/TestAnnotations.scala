@@ -25,7 +25,7 @@ object TestAnnotations {
   val testDir = "/org/apache/daffodil/section07/annotations/"
   val runner = Runner(testDir, "annotations.tdml", validateTDMLFile = false)
 
-  @AfterClass def tearDown {
+  @AfterClass def tearDown: Unit = {
     runner.reset
   }
 }
@@ -34,13 +34,13 @@ class TestAnnotations {
 
   import TestAnnotations._
 
-  @Test def test_annotationInElementPass() { runner.runOneTest("annotationInElementPass") }
-  @Test def test_annotationInElementFail() { runner.runOneTest("annotationInElementFail") }
+  @Test def test_annotationInElementPass(): Unit = { runner.runOneTest("annotationInElementPass") }
+  @Test def test_annotationInElementFail(): Unit = { runner.runOneTest("annotationInElementFail") }
 
   //DAFFODIL-2142
-  @Test def test_annotationInComplexTypeWarn() { runner.runOneTest("annotationInComplexTypeWarn") }
-  @Test def test_multipleAppsInfosWarn() { runner.runOneTest("multipleAppsInfosWarn") }
-  @Test def test_noAnnotationsInCTPass() { runner.runOneTest("noAnnotationsInCTPass") }
-  @Test def test_noDFDLAnnotationsInCTPass() { runner.runOneTest("noAnnotationsInCTPass") }
+  @Test def test_annotationInComplexTypeWarn(): Unit = { runner.runOneTest("annotationInComplexTypeWarn") }
+  @Test def test_multipleAppsInfosWarn(): Unit = { runner.runOneTest("multipleAppsInfosWarn") }
+  @Test def test_noAnnotationsInCTPass(): Unit = { runner.runOneTest("noAnnotationsInCTPass") }
+  @Test def test_noDFDLAnnotationsInCTPass(): Unit = { runner.runOneTest("noAnnotationsInCTPass") }
 
 }

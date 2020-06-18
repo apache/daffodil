@@ -52,7 +52,7 @@ trait PreSerialization extends Serializable {
   @throws(classOf[java.io.IOException])
   final private def writeObject(out: java.io.ObjectOutputStream): Unit = serializeObject(out)
 
-  protected final def serializeObject(out: java.io.ObjectOutputStream) {
+  protected final def serializeObject(out: java.io.ObjectOutputStream): Unit = {
     try {
       preSerializationOnlyOnce
       out.defaultWriteObject()

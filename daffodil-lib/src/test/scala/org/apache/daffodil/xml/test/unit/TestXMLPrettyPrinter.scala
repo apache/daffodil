@@ -26,7 +26,7 @@ class TestXMLPrettyPrinter {
    * Characterize behavior of scala's xml pretty printer with respect to
    * CDATA region preservation.
    */
-  @Test def test_scala_xml_pretty_printer_normalizes_whitespace_inside_cdata_bug() {
+  @Test def test_scala_xml_pretty_printer_normalizes_whitespace_inside_cdata_bug(): Unit = {
     //
     // because we know scala's XML literals don't preserve CDATA as PCData nodes
     // we force it to have a PCData node by constructing one explicitly here.
@@ -50,7 +50,7 @@ class TestXMLPrettyPrinter {
    * Characterize behavior of daffodil's fixed pretty printer with respect to
    * CDATA region preservation.
    */
-  @Test def test_daffodil_pretty_printer_preserves_whitespace_inside_cdata_properly() {
+  @Test def test_daffodil_pretty_printer_preserves_whitespace_inside_cdata_properly(): Unit = {
     //
     // because we know scala's XML literals don't preserve CDATA as PCData nodes
     // we force it to have a PCData node by constructing one explicitly here.
@@ -67,7 +67,7 @@ class TestXMLPrettyPrinter {
     assertTrue(xmlString.contains("<x><![CDATA[a\nb]]></x>")) // right. Should preserve the newline.
   }
 
-  @Test def test_daffodil_pretty_printer_preserves_whitespace_inside_text() {
+  @Test def test_daffodil_pretty_printer_preserves_whitespace_inside_text(): Unit = {
 
     val str = """aaaaa
 bbbbb""".replace("\r\n", "\n")
@@ -82,7 +82,7 @@ bbbbb</zzzzz>
 </xxxxx>""".replace("\r\n", "\n"), xmlString)
   }
 
-  @Test def test_daffodil_pretty_printer_preserves_whitespace_inside_cdata_properly2() {
+  @Test def test_daffodil_pretty_printer_preserves_whitespace_inside_cdata_properly2(): Unit = {
     //
     // because we know scala's XML literals don't preserve CDATA as PCData nodes
     // we force it to have a PCData node by constructing one explicitly here.
@@ -103,7 +103,7 @@ bbbbb ]]></zzzzz>
 </xxxxx>""".replace("\r\n", "\n")))
   }
 
-  @Test def test_daffodil_pretty_printer_preserves_whitespace_inside_cdata_properly3() {
+  @Test def test_daffodil_pretty_printer_preserves_whitespace_inside_cdata_properly3(): Unit = {
     //
     // because we know scala's XML literals don't preserve CDATA as PCData nodes
     // we force it to have a PCData node by constructing one explicitly here.
@@ -143,7 +143,7 @@ bbbbb ]]></zzzzz>
     }
   }
 
-  @Test def test_daffodil_pretty_printer_preserves_simple_values1() {
+  @Test def test_daffodil_pretty_printer_preserves_simple_values1(): Unit = {
 
     val fragment = <xxxxx><yyyyy><zzzzz>aaaaa bbbbb ccccc ddddd eeeee fffff ggggg</zzzzz></yyyyy></xxxxx>
     val pp = new org.apache.daffodil.xml.PrettyPrinter(2)
@@ -158,7 +158,7 @@ bbbbb ]]></zzzzz>
     assertEquals(expected, actual)
   }
 
-  @Test def test_daffodil_pretty_printer_removes_redundant_xmlns_bindings() {
+  @Test def test_daffodil_pretty_printer_removes_redundant_xmlns_bindings(): Unit = {
 
     val fragment = <xxxxx xmlns="foobar"><yyyyy><zzzzz xmlns="foobar">aaaaa bbbbb ccccc ddddd eeeee fffff ggggg</zzzzz></yyyyy></xxxxx>
     val pp = new org.apache.daffodil.xml.PrettyPrinter(2)
@@ -172,7 +172,7 @@ bbbbb ]]></zzzzz>
     assertEquals(expected, xmlString)
   }
 
-  @Test def test_daffodil_pretty_printer_newlines_and_indents1() {
+  @Test def test_daffodil_pretty_printer_newlines_and_indents1(): Unit = {
 
     val fragment = <tns:row2 xmlns:tns="http://example.com"><cell>-9</cell><cell>-2</cell><cell>-8</cell></tns:row2>
     val pp = new org.apache.daffodil.xml.PrettyPrinter(2)

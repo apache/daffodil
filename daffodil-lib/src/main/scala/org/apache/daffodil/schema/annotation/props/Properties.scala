@@ -141,7 +141,7 @@ abstract class Enum[A] extends EnumBase with Converter[String, A] {
    * We need to force creation of our inner property case objects because constructing them also has
    * the side-effect of registering them in the _values list.
    */
-  def forceConstruction(obj: Any) {
+  def forceConstruction(obj: Any): Unit = {
     //Assert.invariant(obj.toString() != "") // TODO: is forceConstruction needed at all?
   }
 
@@ -185,7 +185,7 @@ trait PropertyMixin
     str
   }
 
-  def registerToStringFunction(f: (() => String)) {
+  def registerToStringFunction(f: (() => String)): Unit = {
     toStringFunctionList +:= f
   }
 

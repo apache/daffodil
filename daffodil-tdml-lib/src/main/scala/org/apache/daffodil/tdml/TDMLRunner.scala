@@ -292,7 +292,7 @@ class DFDLTestSuite private[tdml] (
 
   var checkAllTopLevel: Boolean = compileAllTopLevel
 
-  def setCheckAllTopLevel(flag: Boolean) {
+  def setCheckAllTopLevel(flag: Boolean): Unit = {
     checkAllTopLevel = flag
   }
 
@@ -352,7 +352,7 @@ class DFDLTestSuite private[tdml] (
     embeddedSchemasRaw
   }
 
-  def runAllTests(schema: Option[Node] = None) {
+  def runAllTests(schema: Option[Node] = None): Unit = {
     if (isTDMLFileValid)
       testCases.map { _.run(schema) }
     else {
@@ -376,7 +376,7 @@ class DFDLTestSuite private[tdml] (
     daffodilDebugger = db
   }
 
-  def runOneTest(testName: String, schema: Option[Node] = None, leakCheck: Boolean = false) {
+  def runOneTest(testName: String, schema: Option[Node] = None, leakCheck: Boolean = false): Unit = {
     if (leakCheck) {
       System.gc()
       Thread.sleep(1) // needed to give tools like jvisualvm ability to "grab on" quickly
@@ -780,7 +780,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
     diagnostics: Seq[Throwable],
     errors: ExpectedErrors,
     optWarnings: Option[ExpectedWarnings],
-    implString: Option[String]) {
+    implString: Option[String]): Unit = {
     Assert.usage(this.isNegativeTest)
 
     // check for any test-specified errors or warnings
@@ -1050,7 +1050,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     validationErrors: Option[ExpectedValidationErrors],
     validationMode: ValidationMode.Type,
     roundTripArg: RoundTrip,
-    implString: Option[String]) {
+    implString: Option[String]): Unit = {
 
     val roundTrip = roundTripArg // change to OnePassRoundTrip to force all parse tests to round trip (to see which fail to round trip)
 
@@ -1282,7 +1282,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     expectedData: InputStream,
     optWarnings: Option[ExpectedWarnings],
     roundTrip: RoundTrip,
-    implString: Option[String]) {
+    implString: Option[String]): Unit = {
 
     Assert.usage(roundTrip ne TwoPassRoundTrip) // not supported for unparser test cases.
 
@@ -1393,7 +1393,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     optExpectedData: Option[InputStream],
     errors: ExpectedErrors,
     optWarnings: Option[ExpectedWarnings],
-    implString: Option[String]) {
+    implString: Option[String]): Unit = {
 
     val optExtVarDiag =
       try {
@@ -1461,7 +1461,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 }
 
 object VerifyTestCase {
-  def verifyParserTestData(actual: Node, infoset: Infoset, implString: Option[String]) {
+  def verifyParserTestData(actual: Node, infoset: Infoset, implString: Option[String]): Unit = {
 
     val expected = infoset.contents
 
@@ -1474,7 +1474,7 @@ object VerifyTestCase {
   }
 
   def verifyUnparserTestData(expectedData: InputStream, actualOutStream: java.io.ByteArrayOutputStream,
-    implString: Option[String]) {
+    implString: Option[String]): Unit = {
     val actualBytes = actualOutStream.toByteArray
 
     val expectedBytes = IOUtils.toByteArray(expectedData)
@@ -1607,7 +1607,7 @@ object VerifyTestCase {
   }
 
   def verifyTextData(expectedData: InputStream, actualOutStream: java.io.ByteArrayOutputStream, encodingName: String,
-    implString: Option[String]) {
+    implString: Option[String]): Unit = {
     // Getting this decoder and decoding the bytes to text this way is
     // necessary, as opposed to toString(encodingName), because it is possible
     // that encodingName is a custom DFDL specific decoder (e.g. 7-bit ASCII)
@@ -1663,7 +1663,7 @@ object VerifyTestCase {
   private val cs8859 = JavaCharset.forName("iso-8859-1")
 
   def verifyBinaryOrMixedData(expectedData: InputStream, actualOutStream: java.io.ByteArrayOutputStream,
-    implString: Option[String]) {
+    implString: Option[String]): Unit = {
     val actualBytes = actualOutStream.toByteArray
     lazy val actual8859String = cs8859.newDecoder().decode(ByteBuffer.wrap(actualBytes)).toString()
     lazy val displayableActual = Misc.remapControlsAndLineEndingsToVisibleGlyphs(actual8859String)
@@ -1882,7 +1882,7 @@ case class Document(d: NodeSeq, parent: TestCase) {
   /**
    * A method because it is easier to unit test it
    */
-  private def checkForBadBitOrderTransitions(dps: Seq[DataDocumentPart]) {
+  private def checkForBadBitOrderTransitions(dps: Seq[DataDocumentPart]): Unit = {
     if (dps.length <= 1) return
     // these are the total lengths BEFORE the component
     val lengths = dps.map {

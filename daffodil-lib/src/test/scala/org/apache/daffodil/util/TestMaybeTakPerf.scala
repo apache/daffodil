@@ -132,7 +132,7 @@ class TestMaybeTakPerf {
    * every time we run regression testing.
    */
   // @Test // can run as Scala application using companion object App below.
-  def testTak() {
+  def testTak(): Unit = {
 
     /**
      * We're going to use the same Tak arguments that are used to

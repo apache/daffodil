@@ -24,12 +24,12 @@ import org.apache.daffodil.Implicits._
 
 class TestUtil {
 
-  @Test def testGetRequiredResourceSucceeds() {
+  @Test def testGetRequiredResourceSucceeds(): Unit = {
     val res = Misc.getRequiredResource("org/apache/daffodil/xsd/XMLSchema.xsd")
     assertNotNull(res)
   }
 
-  @Test def testGetRequiredResourceFails() {
+  @Test def testGetRequiredResourceFails(): Unit = {
     val e = intercept[Exception] {
       Misc.getRequiredResource("org/apache/daffodil/xsd/NotAResourceName.foo")
     }
@@ -37,12 +37,12 @@ class TestUtil {
   }
 
   @Test
-  def testStripQuotes() {
+  def testStripQuotes(): Unit = {
     assertEquals("foo", Misc.stripQuotes("\"foo\""))
   }
 
   @Test
-  def testAssert() {
+  def testAssert(): Unit = {
     try {
       Assert.abort("yadda")
       // fail()
@@ -53,14 +53,14 @@ class TestUtil {
   }
 
   @Test
-  def testBitsConverters1() {
+  def testBitsConverters1(): Unit = {
     val bytes = Misc.bits2Bytes("11")
     val theByte = bytes(0)
     assertEquals(3, theByte.toInt)
   }
 
   @Test
-  def testBitsConverters2() {
+  def testBitsConverters2(): Unit = {
     val bytes = Misc.bits2Bytes("110110110110")
     val byte0 = bytes(0)
     val byte1 = bytes(1)

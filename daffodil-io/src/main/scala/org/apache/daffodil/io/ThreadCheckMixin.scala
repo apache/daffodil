@@ -27,7 +27,7 @@ trait ThreadCheckMixin {
 
   private lazy val myFirstThread = Thread.currentThread()
 
-  protected final def threadCheck() {
+  protected final def threadCheck(): Unit = {
     Assert.invariant(Thread.currentThread eq myFirstThread)
   }
 }

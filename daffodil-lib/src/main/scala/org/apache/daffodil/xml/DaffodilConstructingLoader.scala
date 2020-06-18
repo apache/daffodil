@@ -112,7 +112,7 @@ class DaffodilConstructingLoader(uri: URI, errorHandler: org.xml.sax.ErrorHandle
     exc
   }
 
-  override def reportSyntaxError(pos: Int, msg: String) {
+  override def reportSyntaxError(pos: Int, msg: String): Unit = {
     val exc = makeSAXParseException(pos, msg)
     errorHandler.error(exc)
   }

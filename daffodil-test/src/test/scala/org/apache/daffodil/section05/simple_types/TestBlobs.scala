@@ -27,7 +27,7 @@ object TestBlobs {
 
   val runner = Runner(testDir, "Blobs.tdml")
 
-  @AfterClass def shutDown() {
+  @AfterClass def shutDown(): Unit = {
     runner.reset
   }
 }
@@ -35,24 +35,24 @@ object TestBlobs {
 class TestBlobs {
   import TestBlobs._
 
-  @Test def test_blob_01() { runner.runOneTest("blob_01") }
-  @Test def test_blob_02() { runner.runOneTest("blob_02") }
-  @Test def test_blob_03() { runner.runOneTest("blob_03") }
-  @Test def test_blob_04() { runner.runOneTest("blob_04") }
-  @Test def test_blob_05() { runner.runOneTest("blob_05") }
-  @Test def test_blob_06() { runner.runOneTest("blob_06") }
-  @Test def test_blob_07() { runner.runOneTest("blob_07") }
-  @Test def test_blob_08() { runner.runOneTest("blob_08") }
-  @Test def test_blob_09() { runner.runOneTest("blob_09") }
-  @Test def test_blob_10() { runner.runOneTest("blob_10") }
-  @Test def test_blob_11() { runner.runOneTest("blob_11") }
-  @Test def test_blob_12() { runner.runOneTest("blob_12") }
-  @Test def test_blob_13() { runner.runOneTest("blob_13") }
-  @Test def test_blob_14() { runner.runOneTest("blob_14") }
-  @Test def test_blob_15() { runner.runOneTest("blob_15") }
+  @Test def test_blob_01(): Unit = { runner.runOneTest("blob_01") }
+  @Test def test_blob_02(): Unit = { runner.runOneTest("blob_02") }
+  @Test def test_blob_03(): Unit = { runner.runOneTest("blob_03") }
+  @Test def test_blob_04(): Unit = { runner.runOneTest("blob_04") }
+  @Test def test_blob_05(): Unit = { runner.runOneTest("blob_05") }
+  @Test def test_blob_06(): Unit = { runner.runOneTest("blob_06") }
+  @Test def test_blob_07(): Unit = { runner.runOneTest("blob_07") }
+  @Test def test_blob_08(): Unit = { runner.runOneTest("blob_08") }
+  @Test def test_blob_09(): Unit = { runner.runOneTest("blob_09") }
+  @Test def test_blob_10(): Unit = { runner.runOneTest("blob_10") }
+  @Test def test_blob_11(): Unit = { runner.runOneTest("blob_11") }
+  @Test def test_blob_12(): Unit = { runner.runOneTest("blob_12") }
+  @Test def test_blob_13(): Unit = { runner.runOneTest("blob_13") }
+  @Test def test_blob_14(): Unit = { runner.runOneTest("blob_14") }
+  @Test def test_blob_15(): Unit = { runner.runOneTest("blob_15") }
 
-  @Test def test_blob_unparseError() { runner.runOneTest("blob_unparseError") }
+  @Test def test_blob_unparseError(): Unit = { runner.runOneTest("blob_unparseError") }
 
-  @Test def test_clob_01() { runner.runOneTest("clob_01") }
+  @Test def test_clob_01(): Unit = { runner.runOneTest("clob_01") }
 
 }

@@ -21,7 +21,7 @@ import collection.JavaConverters._
 
 object Timer extends Logging {
 
-  def printTime(message: String, nanos: Long, units: String) {
+  def printTime(message: String, nanos: Long, units: String): Unit = {
     val msg = message match {
       case null | "" => ""
       case s => " (%s)".format(s)

@@ -70,7 +70,7 @@ abstract class LogWriter {
     "]"
   }
 
-  def log(lvl: LogLevel.Type, logID: String, msg: String, args: Seq[Any]) {
+  def log(lvl: LogLevel.Type, logID: String, msg: String, args: Seq[Any]): Unit = {
     try {
       val mess = Glob.stringify(msg, args)
       val p = prefix(lvl, logID)
@@ -103,21 +103,21 @@ object ForUnitTestLogWriter extends LogWriter {
   //    Console.out.println("Was Logged: " + loggedMsg)
   //    Console.out.flush()
   //    } } }
-  def write(msg: String) {
+  def write(msg: String): Unit = {
     loggedMsg = msg
   }
 }
 
 object NullLogWriter extends LogWriter {
   //protected val writer = actor { loop { react { case msg : String => } } }
-  def write(msg: String) {
+  def write(msg: String): Unit = {
     // do nothing.
   }
 }
 
 object ConsoleWriter extends LogWriter {
 
-  def write(msg: String) {
+  def write(msg: String): Unit = {
     Console.err.println(msg)
     Console.flush
   }
@@ -128,7 +128,7 @@ class FileWriter(val file: File) extends LogWriter {
   require(file.canWrite)
 
   // protected val writer = actor { loop { react { case msg : String => destFile.println(msg); destFile.flush case _ => } } }
-  def write(msg: String) {
+  def write(msg: String): Unit = {
     destFile.println(msg)
     destFile.flush
   }
@@ -191,14 +191,14 @@ trait Logging extends Identity {
   var logWriter: Maybe[LogWriter] = Nope
   var logLevel: Maybe[LogLevel.Type] = Nope
 
-  def setLoggingLevel(level: LogLevel.Type) { logLevel = One(level) }
+  def setLoggingLevel(level: LogLevel.Type): Unit = { logLevel = One(level) }
 
   final def getLoggingLevel(): LogLevel.Type = {
     if (logLevel.isDefined) logLevel.get
     else LoggingDefaults.logLevel
   }
 
-  def setLogWriter(lw: LogWriter) { logWriter = One(lw) }
+  def setLogWriter(lw: LogWriter): Unit = { logWriter = One(lw) }
 
   def getLogWriter(): LogWriter = {
     if (logWriter.isDefined) logWriter.get
@@ -232,9 +232,9 @@ object LoggingDefaults {
   var logLevel: LogLevel.Type = LogLevel.Info
   var logWriter: LogWriter = ConsoleWriter
 
-  def setLoggingLevel(level: LogLevel.Type) { logLevel = level }
+  def setLoggingLevel(level: LogLevel.Type): Unit = { logLevel = level }
 
-  def setLogWriter(lw: LogWriter) {
+  def setLogWriter(lw: LogWriter): Unit = {
     Assert.usage(lw != null)
     logWriter = lw
   }

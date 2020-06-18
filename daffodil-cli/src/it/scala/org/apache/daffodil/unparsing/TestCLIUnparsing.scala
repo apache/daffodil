@@ -26,7 +26,7 @@ import net.sf.expectit.matcher.Matchers.eof
 
 class TestCLIunparsing {
 
-  @Test def test_3525_CLI_Unparsing_SimpleUnparse_inFile() {
+  @Test def test_3525_CLI_Unparsing_SimpleUnparse_inFile(): Unit = {
 
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
     val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input12.txt")
@@ -47,7 +47,7 @@ class TestCLIunparsing {
     }
   }
 
-  @Test def test_3526_CLI_Unparsing_SimpleUnparse_inFile2() {
+  @Test def test_3526_CLI_Unparsing_SimpleUnparse_inFile2(): Unit = {
 
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
     val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input13.txt")
@@ -68,7 +68,7 @@ class TestCLIunparsing {
     }
   }
 
-  @Test def test_3527_CLI_Unparsing_SimpleUnparse_stdin() {
+  @Test def test_3527_CLI_Unparsing_SimpleUnparse_stdin(): Unit = {
 
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
     val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input14.txt")
@@ -89,7 +89,7 @@ class TestCLIunparsing {
     }
   }
 
-  @Test def test_3528_CLI_Unparsing_SimpleUnparse_stdin2() {
+  @Test def test_3528_CLI_Unparsing_SimpleUnparse_stdin2(): Unit = {
 
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
     val (testSchemaFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile)) else (schemaFile)
@@ -109,7 +109,7 @@ class TestCLIunparsing {
     }
   }
 
-  @Test def test_3529_CLI_Unparsing_SimpleUnparse_stdin3() {
+  @Test def test_3529_CLI_Unparsing_SimpleUnparse_stdin3(): Unit = {
 
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
     val (testSchemaFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile)) else (schemaFile)
@@ -129,7 +129,7 @@ class TestCLIunparsing {
     }
   }
 
-  @Test def test_3584_CLI_Unparsing_SimpleUnparse_stdin4() {
+  @Test def test_3584_CLI_Unparsing_SimpleUnparse_stdin4(): Unit = {
 
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
     val (testSchemaFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile)) else (schemaFile)
@@ -151,7 +151,7 @@ class TestCLIunparsing {
     }
   }
 
-  @Test def test_3574_CLI_Unparsing_SimpleUnparse_extVars() {
+  @Test def test_3574_CLI_Unparsing_SimpleUnparse_extVars(): Unit = {
 
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section07/external_variables/external_variables.dfdl.xsd")
     val configFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section07/external_variables/daffodil_config_cli_test.xml")
@@ -173,7 +173,7 @@ class TestCLIunparsing {
     }
   }
 
-  @Test def test_3575_CLI_Unparsing_SimpleUnparse_extVars2() {
+  @Test def test_3575_CLI_Unparsing_SimpleUnparse_extVars2(): Unit = {
 
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section07/external_variables/external_variables.dfdl.xsd")
     val configFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section07/external_variables/daffodil_config_cli_test.xml")
@@ -195,7 +195,7 @@ class TestCLIunparsing {
     }
   }
 
-  @Test def test_3582_CLI_Unparsing_SimpleUnparse_outFile() {
+  @Test def test_3582_CLI_Unparsing_SimpleUnparse_outFile(): Unit = {
     val tmp_filename: String = (System.currentTimeMillis / 1000).toString()
     val file = new File(tmp_filename)
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
@@ -221,7 +221,7 @@ class TestCLIunparsing {
     }
   }
 
-  @Test def test_3581_CLI_Unparsing_SimpleUnparse_stOutDash() {
+  @Test def test_3581_CLI_Unparsing_SimpleUnparse_stOutDash(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
     val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input13.txt")
     val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
@@ -240,7 +240,7 @@ class TestCLIunparsing {
     }
   }
 
-  @Test def test_3580_CLI_Unparsing_SimpleUnparse_verboseMode() {
+  @Test def test_3580_CLI_Unparsing_SimpleUnparse_verboseMode(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
     val (testSchemaFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile)) else (schemaFile)
 
@@ -264,7 +264,7 @@ class TestCLIunparsing {
     }
   }
 
-  @Test def test_3579_CLI_Unparsing_negativeTest() {
+  @Test def test_3579_CLI_Unparsing_negativeTest(): Unit = {
     val shell = Util.start("", true)
 
     try {
@@ -278,7 +278,7 @@ class TestCLIunparsing {
     }
   }
 
-  @Test def test_3578_CLI_Unparsing_SimpleUnparse_defaultRoot() {
+  @Test def test_3578_CLI_Unparsing_SimpleUnparse_defaultRoot(): Unit = {
 
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
     val (testSchemaFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile)) else (schemaFile)
@@ -298,7 +298,7 @@ class TestCLIunparsing {
     }
   }
 
-  @Test def test_3583_CLI_Unparsing_SimpleUnparse_rootPath() {
+  @Test def test_3583_CLI_Unparsing_SimpleUnparse_rootPath(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
     val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
 
@@ -371,7 +371,7 @@ class TestCLIunparsing {
   }
 */
 
-  @Test def test_3662_CLI_Unparsing_badSchemaPath() {
+  @Test def test_3662_CLI_Unparsing_badSchemaPath(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/doesnotexist.dfdl.xsd")
     val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
 
@@ -389,7 +389,7 @@ class TestCLIunparsing {
     }
   }
 
-  @Test def test_xxxx_CLI_Unparsing_SimpleUnparse_w3cdom() {
+  @Test def test_xxxx_CLI_Unparsing_SimpleUnparse_w3cdom(): Unit = {
 
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
     val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input18.txt")
@@ -410,7 +410,7 @@ class TestCLIunparsing {
     }
   }
 
-  @Test def test_XXX_CLI_Unparsing_Stream_01() {
+  @Test def test_XXX_CLI_Unparsing_Stream_01(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/cli_schema_02.dfdl.xsd")
     val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input19.txt")
     val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)

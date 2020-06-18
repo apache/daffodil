@@ -52,7 +52,7 @@ class TestDaffodilXMLLoader {
    * If the error is detected, then it must have found and used the
    * user-specified catalog.
    */
-  @Test def testThisTestRig() {
+  @Test def testThisTestRig(): Unit = {
 
     // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
 
@@ -120,7 +120,7 @@ class TestDaffodilXMLLoader {
    * so if the built-in schema is used, it will find this error. So the
    * test passes if the error is detected.
    */
-  @Test def testThatUserCatalogCannotOverrideDaffodilInternalCatalog1() {
+  @Test def testThatUserCatalogCannotOverrideDaffodilInternalCatalog1(): Unit = {
 
     // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
 
@@ -185,7 +185,7 @@ class TestDaffodilXMLLoader {
    *
    * Test passes if there is no invalid data error.
    */
-  @Test def testThatUserCatalogCannotOverrideDaffodilInternalCatalog2() {
+  @Test def testThatUserCatalogCannotOverrideDaffodilInternalCatalog2(): Unit = {
 
     // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
 

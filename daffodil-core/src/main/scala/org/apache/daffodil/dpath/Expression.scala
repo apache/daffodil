@@ -178,7 +178,7 @@ abstract class Expression extends OOLAGHostImpl()
 
   def children: Seq[Expression]
 
-  def setContextsForChildren(context: OOLAGHost = this) {
+  def setContextsForChildren(context: OOLAGHost = this): Unit = {
     children.foreach {
       c =>
         c.setOOLAGContext(context);
@@ -581,7 +581,7 @@ case class WholeExpression(
   final override lazy val tunable: DaffodilTunables = host.tunable
   final override lazy val unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy = host.unqualifiedPathStepPolicy
 
-  def init() {
+  def init(): Unit = {
     this.setOOLAGContext(host) // we are the root of expression, but we propagate diagnostics further.
     this.setContextsForChildren()
   }
@@ -1949,7 +1949,7 @@ abstract class FunctionCallBase(
     res
   }
 
-  final def checkArgCount(n: Int) {
+  final def checkArgCount(n: Int): Unit = {
     if (expressions.length != n) argCountErr(n)
   }
   final def argCountErr(n: Int) = {

@@ -24,7 +24,7 @@ object TestNilled {
   val testDir = "/test-suite/tresys-contributed/"
   lazy val runner = Runner(testDir, "nilled.tdml")
 
-  @AfterClass def shutDown {
+  @AfterClass def shutDown: Unit = {
     runner.reset
   }
 }

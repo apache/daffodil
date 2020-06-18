@@ -65,7 +65,7 @@ class TestDecoder {
    * It seems they don't check for the decode error until after they've
    * checked for enough room for a surrogate pair.
    */
-  @Test def testDecoder1 {
+  @Test def testDecoder1: Unit = {
     val originalDecoder = JavaCharset.forName("utf-8").newDecoder()
     originalDecoder.onMalformedInput(CodingErrorAction.REPORT)
     originalDecoder.onUnmappableCharacter(CodingErrorAction.REPORT)
@@ -132,7 +132,7 @@ class TestDecoder {
     assertEquals(0, bb.position())
   }
 
-  @Test def testDecoderWorkaround1 {
+  @Test def testDecoderWorkaround1: Unit = {
     val originalDecoder = JavaCharset.forName("utf-8").newDecoder()
     originalDecoder.onMalformedInput(CodingErrorAction.REPORT)
     originalDecoder.onUnmappableCharacter(CodingErrorAction.REPORT)

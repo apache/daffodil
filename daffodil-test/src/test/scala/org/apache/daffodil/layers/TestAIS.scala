@@ -29,7 +29,7 @@ object TestAISPayloadArmoring {
   lazy val testDir = "/org/apache/daffodil/layers/"
   lazy val runner = Runner(testDir, "ais.tdml")
 
-  @AfterClass def shutDown() {
+  @AfterClass def shutDown(): Unit = {
     runner.reset
   }
 }
@@ -38,6 +38,6 @@ class TestAISPayloadArmoring {
 
   import TestAISPayloadArmoring._
 
-  @Test def test_ais1() { runner.runOneTest("ais1") }
+  @Test def test_ais1(): Unit = { runner.runOneTest("ais1") }
 
 }

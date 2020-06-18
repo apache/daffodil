@@ -23,43 +23,43 @@ import java.nio.ByteBuffer
 
 class TestBits {
 
-  @Test def testShiftLeftByteArray1() {
+  @Test def testShiftLeftByteArray1(): Unit = {
     val bb = ByteBuffer.wrap(List(0x7C.toByte).toArray)
     Bits.shiftLeft(bb, 3)
     assertEquals(List(0xE0.toByte), bb.array.toList)
   }
 
-  @Test def testShiftLeftByteArray2() {
+  @Test def testShiftLeftByteArray2(): Unit = {
     val bb = ByteBuffer.wrap(List(0x7C.toByte, 0x3D.toByte).toArray)
     Bits.shiftLeft(bb, 3)
     assertEquals(List(0xE1.toByte, 0xE8.toByte), bb.array.toList)
   }
 
-  @Test def testShiftLeftByteArray3() {
+  @Test def testShiftLeftByteArray3(): Unit = {
     val bb = ByteBuffer.wrap(List(0x7C.toByte).toArray)
     Bits.shiftLeft(bb, 0)
     assertEquals(List(0x7c.toByte), bb.array.toList)
   }
 
-  @Test def testShiftRightByteArray1() {
+  @Test def testShiftRightByteArray1(): Unit = {
     val bb = ByteBuffer.wrap(List(0x7C.toByte).toArray)
     Bits.shiftRight(bb, 3)
     assertEquals(List(0x0F.toByte), bb.array.toList)
   }
 
-  @Test def testShiftRightByteArray2() {
+  @Test def testShiftRightByteArray2(): Unit = {
     val bb = ByteBuffer.wrap(List(0x7C.toByte).toArray)
     Bits.shiftRight(bb, 0)
     assertEquals(List(0x7C.toByte), bb.array.toList)
   }
 
-  @Test def testShiftRightByteArray3() {
+  @Test def testShiftRightByteArray3(): Unit = {
     val bb = ByteBuffer.wrap(List(0x7C.toByte, 0x3D.toByte).toArray)
     Bits.shiftRight(bb, 3)
     assertEquals(List(0x0F.toByte, 0x87.toByte), bb.array.toList)
   }
 
-  @Test def testShiftRightByteArray4() {
+  @Test def testShiftRightByteArray4(): Unit = {
     val bb = ByteBuffer.wrap(List(0x7C.toByte, 0x3D.toByte, 0x42.toByte).toArray)
     Bits.shiftRight(bb, 3)
     assertEquals(List(0x0F.toByte, 0x87.toByte, 0xA8.toByte), bb.array.toList)

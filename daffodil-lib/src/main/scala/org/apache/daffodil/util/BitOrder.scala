@@ -79,12 +79,12 @@ object Bits {
     asSignedByte(LSBitTable(asUnsignedByte(b)))
   }
 
-  def reverseBytesAndReverseBits(bb: ByteBuffer) {
+  def reverseBytesAndReverseBits(bb: ByteBuffer): Unit = {
     reverseBytes(bb)
     reverseBitsWithinBytes(bb)
   }
 
-  def reverseBitsWithinBytes(bb: ByteBuffer) {
+  def reverseBitsWithinBytes(bb: ByteBuffer): Unit = {
     Assert.usage(bb.position() == 0)
     var i: Int = 0
     val len = bb.remaining()
@@ -94,7 +94,7 @@ object Bits {
     }
   }
 
-  def reverseBytes(a: Array[Byte], length: Int) {
+  def reverseBytes(a: Array[Byte], length: Int): Unit = {
     var i: Int = 0
     var lowerIndex = 0
     var upperIndex = length - 1
@@ -107,7 +107,7 @@ object Bits {
     }
   }
 
-  def reverseBytes(bb: ByteBuffer) {
+  def reverseBytes(bb: ByteBuffer): Unit = {
     Assert.usage(bb.position() == 0)
     var i: Int = 0
     var lowerIndex = bb.position()
@@ -155,7 +155,7 @@ object Bits {
    * for non-negative values, etc. So we operate on byte buffers
    * instead.
    */
-  def shiftLeft(bb: ByteBuffer, n: Int) {
+  def shiftLeft(bb: ByteBuffer, n: Int): Unit = {
     Assert.usage(n < 8)
     Assert.usage(bb.position() == 0)
     var leftBits: Int = 0
@@ -175,7 +175,7 @@ object Bits {
    * Assumes MostSignificantBitFirst bit order. Shifts "right" meaning
    * Bits increase in position.
    */
-  def shiftRight(bb: ByteBuffer, n: Int) {
+  def shiftRight(bb: ByteBuffer, n: Int): Unit = {
     Assert.usage(n < 8 && n >= 0)
     Assert.usage(bb.position() == 0)
     if (n == 0) return // nothing to do
@@ -205,7 +205,7 @@ object Bits {
    * For LSBF, if you write the bytes in order right-to-left, then shiftToHigherBitPosition
    * becomes a leftward movement of the bits displayed this way.
    */
-  def shiftToHigherBitPosition(bitOrder: BitOrder, bb: ByteBuffer, n: Int) {
+  def shiftToHigherBitPosition(bitOrder: BitOrder, bb: ByteBuffer, n: Int): Unit = {
     if (bitOrder eq BitOrder.MostSignificantBitFirst) {
       shiftRight(bb, n)
     } else {

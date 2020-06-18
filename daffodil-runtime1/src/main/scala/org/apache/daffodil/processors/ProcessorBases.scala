@@ -25,11 +25,11 @@ object Processor {
    * This insures that it is not, for example, being multi-threaded. If called from the runtime module, compilation might
    * actually end up happening at run time.
    */
-  def initialize(proc: Processor) {
+  def initialize(proc: Processor): Unit = {
     ensureCompiled(proc)
   }
 
-  private def ensureCompiled(proc: Processor) {
+  private def ensureCompiled(proc: Processor): Unit = {
     if (!proc.isInitialized) {
       proc.isInitialized = true
       proc.runtimeDependencies.foreach { ensureCompiled }
@@ -37,7 +37,7 @@ object Processor {
     }
   }
 
-  private def ensureCompiled(ev: Evaluatable[AnyRef]) {
+  private def ensureCompiled(ev: Evaluatable[AnyRef]): Unit = {
     ev.ensureCompiled
     ev.runtimeDependencies.foreach { ensureCompiled }
   }

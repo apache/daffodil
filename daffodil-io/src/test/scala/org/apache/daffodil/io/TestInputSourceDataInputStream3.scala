@@ -24,7 +24,7 @@ class TestInputSourceDataInputStream3 {
 
   val Dump = new DataDumper
 
-  @Test def dumpVisible1 {
+  @Test def dumpVisible1: Unit = {
     val bytes = "Date 年月日=2003年08月27日".getBytes("utf-8")
     val lengthInBits = bytes.length * 8
     val dis = InputSourceDataInputStream(bytes)
@@ -42,7 +42,7 @@ class TestInputSourceDataInputStream3 {
     assertEquals(expected, "\n" + dumpString + "\n")
   }
 
-  @Test def dumpVisible2 {
+  @Test def dumpVisible2: Unit = {
     val bytes = "Date 年月日=2003年08月27日".getBytes("utf-8")
     val lengthInBits = bytes.length * 8
     val dis = InputSourceDataInputStream(bytes)
@@ -61,7 +61,7 @@ class TestInputSourceDataInputStream3 {
     assertEquals(expected, "\n" + dumpString + "\n")
   }
 
-  @Test def dumpVisible3 {
+  @Test def dumpVisible3: Unit = {
     val bytes = "Date 年月日=2003年08月27日".getBytes("utf-8")
     val lengthInBits = bytes.length * 8
     val dis = InputSourceDataInputStream(bytes)

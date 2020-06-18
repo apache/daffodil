@@ -26,7 +26,7 @@ import org.junit.Assert._
 
 class TestDecimalUtils {
 
-  @Test def packedInt1StrictPos() {
+  @Test def packedInt1StrictPos(): Unit = {
     val num = new Array[Byte](1)
     val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.Strict)
 
@@ -36,7 +36,7 @@ class TestDecimalUtils {
     assertArrayEquals(packedFromBigInteger(bignum, num.length*8, signCodes), num)
   }
 
-  @Test def packedInt2StrictPos() {
+  @Test def packedInt2StrictPos(): Unit = {
     val num = new Array[Byte](2)
     val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.Strict)
 
@@ -47,7 +47,7 @@ class TestDecimalUtils {
     assertArrayEquals(packedFromBigInteger(bignum, num.length*8, signCodes), num)
   }
 
-  @Test def packedInt3StrictPos() {
+  @Test def packedInt3StrictPos(): Unit = {
     val num = new Array[Byte](2)
     val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.Strict)
 
@@ -58,7 +58,7 @@ class TestDecimalUtils {
     assertArrayEquals(packedFromBigInteger(bignum, num.length*8, signCodes), num)
   }
 
-  @Test def packedInt4StrictPos() {
+  @Test def packedInt4StrictPos(): Unit = {
     val num = new Array[Byte](6)
     val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.Strict)
 
@@ -73,7 +73,7 @@ class TestDecimalUtils {
     assertArrayEquals(packedFromBigInteger(bignum, num.length*8, signCodes), num)
   }
 
-  @Test def packedInt5StrictPos() {
+  @Test def packedInt5StrictPos(): Unit = {
     val num = new Array[Byte](11)
     val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.Strict)
 
@@ -93,7 +93,7 @@ class TestDecimalUtils {
     assertArrayEquals(packedFromBigInteger(bignum, num.length*8, signCodes), num)
   }
 
-  @Test def packedInt1StrictNeg() {
+  @Test def packedInt1StrictNeg(): Unit = {
     val num = new Array[Byte](1)
     val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.Strict)
 
@@ -103,7 +103,7 @@ class TestDecimalUtils {
     assertArrayEquals(packedFromBigInteger(bignum, num.length*8, signCodes), num)
   }
 
-  @Test def packedInt2StrictNeg() {
+  @Test def packedInt2StrictNeg(): Unit = {
     val num = new Array[Byte](2)
     val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.Strict)
 
@@ -114,7 +114,7 @@ class TestDecimalUtils {
     assertArrayEquals(packedFromBigInteger(bignum, num.length*8, signCodes), num)
   }
 
-  @Test def packedInt3StrictNeg() {
+  @Test def packedInt3StrictNeg(): Unit = {
     val num = new Array[Byte](2)
     val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.Strict)
 
@@ -125,7 +125,7 @@ class TestDecimalUtils {
     assertArrayEquals(packedFromBigInteger(bignum, num.length*8, signCodes), num)
   }
 
-  @Test def packedInt4StrictNeg() {
+  @Test def packedInt4StrictNeg(): Unit = {
     val num = new Array[Byte](6)
     val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.Strict)
 
@@ -140,7 +140,7 @@ class TestDecimalUtils {
     assertArrayEquals(packedFromBigInteger(bignum, num.length*8, signCodes), num)
   }
 
-  @Test def packedInt5StrictNeg() {
+  @Test def packedInt5StrictNeg(): Unit = {
     val num = new Array[Byte](11)
     val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.Strict)
 
@@ -160,7 +160,7 @@ class TestDecimalUtils {
     assertArrayEquals(packedFromBigInteger(bignum, num.length*8, signCodes), num)
   }
 
-  @Test def packedInt1LaxPos() {
+  @Test def packedInt1LaxPos(): Unit = {
     val num = new Array[Byte](1)
     val expected = new Array[Byte](1)
     val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.Lax)
@@ -172,7 +172,7 @@ class TestDecimalUtils {
     assertArrayEquals(packedFromBigInteger(bignum, num.length*8, signCodes), expected)
   }
 
-  @Test def packedInt2LaxPos() {
+  @Test def packedInt2LaxPos(): Unit = {
     val num = new Array[Byte](2)
     val expected = new Array[Byte](2)
     val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.Lax)
@@ -186,7 +186,7 @@ class TestDecimalUtils {
     assertArrayEquals(packedFromBigInteger(bignum, num.length*8, signCodes), expected)
   }
 
-  @Test def packedInt3LaxPos() {
+  @Test def packedInt3LaxPos(): Unit = {
     val num = new Array[Byte](2)
     val expected = new Array[Byte](2)
     val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.Lax)
@@ -200,7 +200,7 @@ class TestDecimalUtils {
     assertArrayEquals(packedFromBigInteger(bignum, num.length*8, signCodes), expected)
   }
 
-  @Test def packedInt4LaxPos() {
+  @Test def packedInt4LaxPos(): Unit = {
     val num = new Array[Byte](6)
     val expected = new Array[Byte](6)
     val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.Lax)
@@ -222,7 +222,7 @@ class TestDecimalUtils {
     assertArrayEquals(packedFromBigInteger(bignum, num.length*8, signCodes), expected)
   }
 
-  @Test def packedInt5LaxPos() {
+  @Test def packedInt5LaxPos(): Unit = {
     val num = new Array[Byte](11)
     val expected = new Array[Byte](11)
     val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.Lax)
@@ -254,7 +254,7 @@ class TestDecimalUtils {
     assertArrayEquals(packedFromBigInteger(bignum, num.length*8, signCodes), expected)
   }
 
-  @Test def packedInt1LaxNeg() {
+  @Test def packedInt1LaxNeg(): Unit = {
     val num = new Array[Byte](1)
     val expected = new Array[Byte](1)
     val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.Lax)
@@ -266,7 +266,7 @@ class TestDecimalUtils {
     assertArrayEquals(packedFromBigInteger(bignum, num.length*8, signCodes), expected)
   }
 
-  @Test def packedInt2LaxNeg() {
+  @Test def packedInt2LaxNeg(): Unit = {
     val num = new Array[Byte](2)
     val expected = new Array[Byte](2)
     val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.Lax)
@@ -280,7 +280,7 @@ class TestDecimalUtils {
     assertArrayEquals(packedFromBigInteger(bignum, num.length*8, signCodes), expected)
   }
 
-  @Test def packedInt3LaxNeg() {
+  @Test def packedInt3LaxNeg(): Unit = {
     val num = new Array[Byte](2)
     val expected = new Array[Byte](2)
     val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.Lax)
@@ -294,7 +294,7 @@ class TestDecimalUtils {
     assertArrayEquals(packedFromBigInteger(bignum, num.length*8, signCodes), expected)
   }
 
-  @Test def packedInt4LaxNeg() {
+  @Test def packedInt4LaxNeg(): Unit = {
     val num = new Array[Byte](6)
     val expected = new Array[Byte](6)
     val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.Lax)
@@ -316,7 +316,7 @@ class TestDecimalUtils {
     assertArrayEquals(packedFromBigInteger(bignum, num.length*8, signCodes), expected)
   }
 
-  @Test def packedInt5LaxNeg() {
+  @Test def packedInt5LaxNeg(): Unit = {
     val num = new Array[Byte](11)
     val expected = new Array[Byte](11)
     val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.Lax)
@@ -348,7 +348,7 @@ class TestDecimalUtils {
     assertArrayEquals(packedFromBigInteger(bignum, num.length*8, signCodes), expected)
   }
 
-  @Test def packedDec1StrictPos() {
+  @Test def packedDec1StrictPos(): Unit = {
     val num = new Array[Byte](1)
     val scale = 0
     val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.Strict)
@@ -359,7 +359,7 @@ class TestDecimalUtils {
     assertArrayEquals(packedFromBigInteger(bignum.unscaledValue, num.length*8, signCodes), num)
   }
 
-  @Test def packedDec2StrictPos() {
+  @Test def packedDec2StrictPos(): Unit = {
     val num = new Array[Byte](2)
     val scale = 1
     val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.Strict)
@@ -371,7 +371,7 @@ class TestDecimalUtils {
     assertArrayEquals(packedFromBigInteger(bignum.unscaledValue, num.length*8, signCodes), num)
   }
 
-  @Test def packedDec3StrictPos() {
+  @Test def packedDec3StrictPos(): Unit = {
     val num = new Array[Byte](2)
     val scale = 3
     val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.Strict)
@@ -383,7 +383,7 @@ class TestDecimalUtils {
     assertArrayEquals(packedFromBigInteger(bignum.unscaledValue, num.length*8, signCodes), num)
   }
 
-  @Test def packedDec4StrictPos() {
+  @Test def packedDec4StrictPos(): Unit = {
     val num = new Array[Byte](6)
     val scale = 5
     val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.Strict)
@@ -399,7 +399,7 @@ class TestDecimalUtils {
     assertArrayEquals(packedFromBigInteger(bignum.unscaledValue, num.length*8, signCodes), num)
   }
 
-  @Test def packedDec5StrictPos() {
+  @Test def packedDec5StrictPos(): Unit = {
     val num = new Array[Byte](11)
     val scale = 19
     val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.Strict)
@@ -420,7 +420,7 @@ class TestDecimalUtils {
     assertArrayEquals(packedFromBigInteger(bignum.unscaledValue, num.length*8, signCodes), num)
   }
 
-  @Test def packedDec1StrictNeg() {
+  @Test def packedDec1StrictNeg(): Unit = {
     val num = new Array[Byte](1)
     val scale = 0
     val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.Strict)
@@ -431,7 +431,7 @@ class TestDecimalUtils {
     assertArrayEquals(packedFromBigInteger(bignum.unscaledValue, num.length*8, signCodes), num)
   }
 
-  @Test def packedDec2StrictNeg() {
+  @Test def packedDec2StrictNeg(): Unit = {
     val num = new Array[Byte](2)
     val scale = 1
     val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.Strict)
@@ -443,7 +443,7 @@ class TestDecimalUtils {
     assertArrayEquals(packedFromBigInteger(bignum.unscaledValue, num.length*8, signCodes), num)
   }
 
-  @Test def packedDec3StrictNeg() {
+  @Test def packedDec3StrictNeg(): Unit = {
     val num = new Array[Byte](2)
     val scale = 3
     val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.Strict)
@@ -455,7 +455,7 @@ class TestDecimalUtils {
     assertArrayEquals(packedFromBigInteger(bignum.unscaledValue, num.length*8, signCodes), num)
   }
 
-  @Test def packedDec4StrictNeg() {
+  @Test def packedDec4StrictNeg(): Unit = {
     val num = new Array[Byte](6)
     val scale = 5
     val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.Strict)
@@ -471,7 +471,7 @@ class TestDecimalUtils {
     assertArrayEquals(packedFromBigInteger(bignum.unscaledValue, num.length*8, signCodes), num)
   }
 
-  @Test def packedDec5StrictNeg() {
+  @Test def packedDec5StrictNeg(): Unit = {
     val num = new Array[Byte](11)
     val scale = 19
     val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.Strict)
@@ -492,7 +492,7 @@ class TestDecimalUtils {
     assertArrayEquals(packedFromBigInteger(bignum.unscaledValue, num.length*8, signCodes), num)
   }
 
-  @Test def packedDec1LaxPos() {
+  @Test def packedDec1LaxPos(): Unit = {
     val num = new Array[Byte](1)
     val expected = new Array[Byte](1)
     val scale = 0
@@ -505,7 +505,7 @@ class TestDecimalUtils {
     assertArrayEquals(packedFromBigInteger(bignum.unscaledValue, num.length*8, signCodes), expected)
   }
 
-  @Test def packedDec2LaxPos() {
+  @Test def packedDec2LaxPos(): Unit = {
     val num = new Array[Byte](2)
     val expected = new Array[Byte](2)
     val scale = 1
@@ -520,7 +520,7 @@ class TestDecimalUtils {
     assertArrayEquals(packedFromBigInteger(bignum.unscaledValue, num.length*8, signCodes), expected)
   }
 
-  @Test def packedDec3LaxPos() {
+  @Test def packedDec3LaxPos(): Unit = {
     val num = new Array[Byte](2)
     val expected = new Array[Byte](2)
     val scale = 3
@@ -535,7 +535,7 @@ class TestDecimalUtils {
     assertArrayEquals(packedFromBigInteger(bignum.unscaledValue, num.length*8, signCodes), expected)
   }
 
-  @Test def packedDec4LaxPos() {
+  @Test def packedDec4LaxPos(): Unit = {
     val num = new Array[Byte](6)
     val expected = new Array[Byte](6)
     val scale = 5
@@ -558,7 +558,7 @@ class TestDecimalUtils {
     assertArrayEquals(packedFromBigInteger(bignum.unscaledValue, num.length*8, signCodes), expected)
   }
 
-  @Test def packedDec5LaxPos() {
+  @Test def packedDec5LaxPos(): Unit = {
     val num = new Array[Byte](11)
     val expected = new Array[Byte](11)
     val scale = 19
@@ -591,7 +591,7 @@ class TestDecimalUtils {
     assertArrayEquals(packedFromBigInteger(bignum.unscaledValue, num.length*8, signCodes), expected)
   }
 
-  @Test def packedDec1LaxNeg() {
+  @Test def packedDec1LaxNeg(): Unit = {
     val num = new Array[Byte](1)
     val expected = new Array[Byte](1)
     val scale = 0
@@ -604,7 +604,7 @@ class TestDecimalUtils {
     assertArrayEquals(packedFromBigInteger(bignum.unscaledValue, num.length*8, signCodes), expected)
   }
 
-  @Test def packedDec2LaxNeg() {
+  @Test def packedDec2LaxNeg(): Unit = {
     val num = new Array[Byte](2)
     val expected = new Array[Byte](2)
     val scale = 1
@@ -619,7 +619,7 @@ class TestDecimalUtils {
     assertArrayEquals(packedFromBigInteger(bignum.unscaledValue, num.length*8, signCodes), expected)
   }
 
-  @Test def packedDec3LaxNeg() {
+  @Test def packedDec3LaxNeg(): Unit = {
     val num = new Array[Byte](2)
     val expected = new Array[Byte](2)
     val scale = 3
@@ -634,7 +634,7 @@ class TestDecimalUtils {
     assertArrayEquals(packedFromBigInteger(bignum.unscaledValue, num.length*8, signCodes), expected)
   }
 
-  @Test def packedDec4LaxNeg() {
+  @Test def packedDec4LaxNeg(): Unit = {
     val num = new Array[Byte](6)
     val expected = new Array[Byte](6)
     val scale = 5
@@ -657,7 +657,7 @@ class TestDecimalUtils {
     assertArrayEquals(packedFromBigInteger(bignum.unscaledValue, num.length*8, signCodes), expected)
   }
 
-  @Test def packedDec5LaxNeg() {
+  @Test def packedDec5LaxNeg(): Unit = {
     val num = new Array[Byte](11)
     val expected = new Array[Byte](11)
     val scale = 19
@@ -690,7 +690,7 @@ class TestDecimalUtils {
     assertArrayEquals(packedFromBigInteger(bignum.unscaledValue, num.length*8, signCodes), expected)
   }
 
-  @Test def ibm4690Int1Pos() {
+  @Test def ibm4690Int1Pos(): Unit = {
     val num = new Array[Byte](1)
 
     num(0) = 0xF1.toByte
@@ -699,7 +699,7 @@ class TestDecimalUtils {
     assertArrayEquals(ibm4690FromBigInteger(bignum, num.length*8), num)
   }
 
-  @Test def ibm4690Int2Pos() {
+  @Test def ibm4690Int2Pos(): Unit = {
     val num = new Array[Byte](1)
 
     num(0) = 0x12.toByte
@@ -708,7 +708,7 @@ class TestDecimalUtils {
     assertArrayEquals(ibm4690FromBigInteger(bignum, num.length*8), num)
   }
 
-  @Test def ibm4690Int3Pos() {
+  @Test def ibm4690Int3Pos(): Unit = {
     val num = new Array[Byte](2)
 
     num(0) = 0xF1.toByte
@@ -718,7 +718,7 @@ class TestDecimalUtils {
     assertArrayEquals(ibm4690FromBigInteger(bignum, num.length*8), num)
   }
 
-  @Test def ibm4690Int4Pos() {
+  @Test def ibm4690Int4Pos(): Unit = {
     val num = new Array[Byte](5)
 
     num(0) = 0x12.toByte
@@ -731,7 +731,7 @@ class TestDecimalUtils {
     assertArrayEquals(ibm4690FromBigInteger(bignum, num.length*8), num)
   }
 
-  @Test def ibm4690Int5Pos() {
+  @Test def ibm4690Int5Pos(): Unit = {
     val num = new Array[Byte](10)
 
     num(0) = 0xFF.toByte
@@ -749,7 +749,7 @@ class TestDecimalUtils {
     assertArrayEquals(ibm4690FromBigInteger(bignum, num.length*8), num)
   }
 
-  @Test def ibm4690Int1Neg() {
+  @Test def ibm4690Int1Neg(): Unit = {
     val num = new Array[Byte](1)
 
     num(0) = 0xD1.toByte
@@ -758,7 +758,7 @@ class TestDecimalUtils {
     assertArrayEquals(ibm4690FromBigInteger(bignum, num.length*8), num)
   }
 
-  @Test def ibm4690Int2Neg() {
+  @Test def ibm4690Int2Neg(): Unit = {
     val num = new Array[Byte](2)
 
     num(0) = 0xFD.toByte
@@ -768,7 +768,7 @@ class TestDecimalUtils {
     assertArrayEquals(ibm4690FromBigInteger(bignum, num.length*8), num)
   }
 
-  @Test def ibm4690Int3Neg() {
+  @Test def ibm4690Int3Neg(): Unit = {
     val num = new Array[Byte](2)
 
     num(0) = 0xD1.toByte
@@ -778,7 +778,7 @@ class TestDecimalUtils {
     assertArrayEquals(ibm4690FromBigInteger(bignum, num.length*8), num)
   }
 
-  @Test def ibm4690Int4Neg() {
+  @Test def ibm4690Int4Neg(): Unit = {
     val num = new Array[Byte](6)
 
     num(0) = 0xFD.toByte
@@ -792,7 +792,7 @@ class TestDecimalUtils {
     assertArrayEquals(ibm4690FromBigInteger(bignum, num.length*8), num)
   }
 
-  @Test def ibm4690Int5Neg() {
+  @Test def ibm4690Int5Neg(): Unit = {
     val num = new Array[Byte](11)
 
     num(0) = 0xFF.toByte
@@ -811,7 +811,7 @@ class TestDecimalUtils {
     assertArrayEquals(ibm4690FromBigInteger(bignum, num.length*8), num)
   }
 
-  @Test def ibm4690Dec1Pos() {
+  @Test def ibm4690Dec1Pos(): Unit = {
     val num = new Array[Byte](1)
     val scale = 0
 
@@ -821,7 +821,7 @@ class TestDecimalUtils {
     assertArrayEquals(ibm4690FromBigInteger(bignum.unscaledValue, num.length*8), num)
   }
 
-  @Test def ibm4690Dec2Pos() {
+  @Test def ibm4690Dec2Pos(): Unit = {
     val num = new Array[Byte](1)
     val scale = 1
 
@@ -831,7 +831,7 @@ class TestDecimalUtils {
     assertArrayEquals(ibm4690FromBigInteger(bignum.unscaledValue, num.length*8), num)
   }
 
-  @Test def ibm4690Dec3Pos() {
+  @Test def ibm4690Dec3Pos(): Unit = {
     val num = new Array[Byte](2)
     val scale = 3
 
@@ -842,7 +842,7 @@ class TestDecimalUtils {
     assertArrayEquals(ibm4690FromBigInteger(bignum.unscaledValue, num.length*8), num)
   }
 
-  @Test def ibm4690Dec4Pos() {
+  @Test def ibm4690Dec4Pos(): Unit = {
     val num = new Array[Byte](5)
     val scale = 5
 
@@ -856,7 +856,7 @@ class TestDecimalUtils {
     assertArrayEquals(ibm4690FromBigInteger(bignum.unscaledValue, num.length*8), num)
   }
 
-  @Test def ibm4690Dec5Pos() {
+  @Test def ibm4690Dec5Pos(): Unit = {
     val num = new Array[Byte](10)
     val scale = 19
 
@@ -875,7 +875,7 @@ class TestDecimalUtils {
     assertArrayEquals(ibm4690FromBigInteger(bignum.unscaledValue, num.length*8), num)
   }
 
-  @Test def ibm4690Dec1Neg() {
+  @Test def ibm4690Dec1Neg(): Unit = {
     val num = new Array[Byte](1)
     val scale = 0
 
@@ -885,7 +885,7 @@ class TestDecimalUtils {
     assertArrayEquals(ibm4690FromBigInteger(bignum.unscaledValue, num.length*8), num)
   }
 
-  @Test def ibm4690Dec2Neg() {
+  @Test def ibm4690Dec2Neg(): Unit = {
     val num = new Array[Byte](2)
     val scale = 1
 
@@ -896,7 +896,7 @@ class TestDecimalUtils {
     assertArrayEquals(ibm4690FromBigInteger(bignum.unscaledValue, num.length*8), num)
   }
 
-  @Test def ibm4690Dec3Neg() {
+  @Test def ibm4690Dec3Neg(): Unit = {
     val num = new Array[Byte](2)
     val scale = 3
 
@@ -907,7 +907,7 @@ class TestDecimalUtils {
     assertArrayEquals(ibm4690FromBigInteger(bignum.unscaledValue, num.length*8), num)
   }
 
-  @Test def ibm4690Dec4Neg() {
+  @Test def ibm4690Dec4Neg(): Unit = {
     val num = new Array[Byte](6)
     val scale = 5
 
@@ -922,7 +922,7 @@ class TestDecimalUtils {
     assertArrayEquals(ibm4690FromBigInteger(bignum.unscaledValue, num.length*8), num)
   }
 
-  @Test def ibm4690Dec5Neg() {
+  @Test def ibm4690Dec5Neg(): Unit = {
     val num = new Array[Byte](11)
     val scale = 19
 
@@ -942,7 +942,7 @@ class TestDecimalUtils {
     assertArrayEquals(ibm4690FromBigInteger(bignum.unscaledValue, num.length*8), num)
   }
 
-  @Test def bcdInt1Pos() {
+  @Test def bcdInt1Pos(): Unit = {
     val num = new Array[Byte](1)
 
     num(0) = 0x01.toByte
@@ -951,7 +951,7 @@ class TestDecimalUtils {
     assertArrayEquals(bcdFromBigInteger(bignum, num.length*8), num)
   }
 
-  @Test def bcdInt2Pos() {
+  @Test def bcdInt2Pos(): Unit = {
     val num = new Array[Byte](1)
 
     num(0) = 0x12.toByte
@@ -960,7 +960,7 @@ class TestDecimalUtils {
     assertArrayEquals(bcdFromBigInteger(bignum, num.length*8), num)
   }
 
-  @Test def bcdInt3Pos() {
+  @Test def bcdInt3Pos(): Unit = {
     val num = new Array[Byte](2)
 
     num(0) = 0x01.toByte
@@ -970,7 +970,7 @@ class TestDecimalUtils {
     assertArrayEquals(bcdFromBigInteger(bignum, num.length*8), num)
   }
 
-  @Test def bcdInt4Pos() {
+  @Test def bcdInt4Pos(): Unit = {
     val num = new Array[Byte](5)
 
     num(0) = 0x12.toByte
@@ -983,7 +983,7 @@ class TestDecimalUtils {
     assertArrayEquals(bcdFromBigInteger(bignum, num.length*8), num)
   }
 
-  @Test def bcdInt5Pos() {
+  @Test def bcdInt5Pos(): Unit = {
     val num = new Array[Byte](10)
 
     num(0) = 0x00.toByte
@@ -1001,7 +1001,7 @@ class TestDecimalUtils {
     assertArrayEquals(bcdFromBigInteger(bignum, num.length*8), num)
   }
 
-  @Test def bcdDec1Pos() {
+  @Test def bcdDec1Pos(): Unit = {
     val num = new Array[Byte](1)
     val scale = 0
 
@@ -1011,7 +1011,7 @@ class TestDecimalUtils {
     assertArrayEquals(bcdFromBigInteger(bignum.unscaledValue, num.length*8), num)
   }
 
-  @Test def bcdDec2Pos() {
+  @Test def bcdDec2Pos(): Unit = {
     val num = new Array[Byte](1)
     val scale = 1
 
@@ -1021,7 +1021,7 @@ class TestDecimalUtils {
     assertArrayEquals(bcdFromBigInteger(bignum.unscaledValue, num.length*8), num)
   }
 
-  @Test def bcdDec3Pos() {
+  @Test def bcdDec3Pos(): Unit = {
     val num = new Array[Byte](2)
     val scale = 3
 
@@ -1032,7 +1032,7 @@ class TestDecimalUtils {
     assertArrayEquals(bcdFromBigInteger(bignum.unscaledValue, num.length*8), num)
   }
 
-  @Test def bcdDec4Pos() {
+  @Test def bcdDec4Pos(): Unit = {
     val num = new Array[Byte](5)
     val scale = 5
 
@@ -1046,7 +1046,7 @@ class TestDecimalUtils {
     assertArrayEquals(bcdFromBigInteger(bignum.unscaledValue, num.length*8), num)
   }
 
-  @Test def bcdDec5Pos() {
+  @Test def bcdDec5Pos(): Unit = {
     val num = new Array[Byte](10)
     val scale = 19
 
@@ -1065,7 +1065,7 @@ class TestDecimalUtils {
     assertArrayEquals(bcdFromBigInteger(bignum.unscaledValue, num.length*8), num)
   }
 
-  @Test def packedInvalidHighNibble1() {
+  @Test def packedInvalidHighNibble1(): Unit = {
     val num = new Array[Byte](1)
     val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.Strict)
     val scale = 0
@@ -1079,7 +1079,7 @@ class TestDecimalUtils {
     }
   }
 
-  @Test def packedInvalidHighNibble2() {
+  @Test def packedInvalidHighNibble2(): Unit = {
     val num = new Array[Byte](6)
     val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.Strict)
     val scale = 5
@@ -1098,7 +1098,7 @@ class TestDecimalUtils {
     }
   }
 
-  @Test def packedInvalidLowNibble1() {
+  @Test def packedInvalidLowNibble1(): Unit = {
     val num = new Array[Byte](1)
     val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.Strict)
 
@@ -1111,7 +1111,7 @@ class TestDecimalUtils {
     }
   }
 
-  @Test def packedInvalidLowNibble2() {
+  @Test def packedInvalidLowNibble2(): Unit = {
     val num = new Array[Byte](6)
     val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.Strict)
     val scale = 5
@@ -1130,7 +1130,7 @@ class TestDecimalUtils {
     }
   }
 
-  @Test def bcdInvalidHighNibble1() {
+  @Test def bcdInvalidHighNibble1(): Unit = {
     val num = new Array[Byte](1)
     val scale = 0
 
@@ -1143,7 +1143,7 @@ class TestDecimalUtils {
     }
   }
 
-  @Test def bcdInvalidHighNibble2() {
+  @Test def bcdInvalidHighNibble2(): Unit = {
     val num = new Array[Byte](5)
     val scale = 5
 
@@ -1160,7 +1160,7 @@ class TestDecimalUtils {
     }
   }
 
-  @Test def bcdInvalidLowNibble1() {
+  @Test def bcdInvalidLowNibble1(): Unit = {
     val num = new Array[Byte](1)
     val scale = 0
 
@@ -1173,7 +1173,7 @@ class TestDecimalUtils {
     }
   }
 
-  @Test def bcdInvalidLowNibble2() {
+  @Test def bcdInvalidLowNibble2(): Unit = {
     val num = new Array[Byte](5)
     val scale = 5
 
@@ -1190,7 +1190,7 @@ class TestDecimalUtils {
     }
   }
 
-  @Test def ibm4690InvalidHighNibble1() {
+  @Test def ibm4690InvalidHighNibble1(): Unit = {
     val num = new Array[Byte](1)
     val scale = 0
 
@@ -1203,7 +1203,7 @@ class TestDecimalUtils {
     }
   }
 
-  @Test def ibm4690InvalidHighNibble2() {
+  @Test def ibm4690InvalidHighNibble2(): Unit = {
     val num = new Array[Byte](5)
     val scale = 5
 
@@ -1220,7 +1220,7 @@ class TestDecimalUtils {
     }
   }
 
-  @Test def ibm4690InvalidLowNibble1() {
+  @Test def ibm4690InvalidLowNibble1(): Unit = {
     val num = new Array[Byte](1)
     val scale = 0
 
@@ -1233,7 +1233,7 @@ class TestDecimalUtils {
     }
   }
 
-  @Test def ibm4690InvalidLowNibble2() {
+  @Test def ibm4690InvalidLowNibble2(): Unit = {
     val num = new Array[Byte](5)
     val scale = 5
 
@@ -1250,14 +1250,14 @@ class TestDecimalUtils {
     }
   }
 
-  @Test def zonedIntAsciiStandardPos1() {
+  @Test def zonedIntAsciiStandardPos1(): Unit = {
     val num = "1"
     val result = zonedToNumber(num, TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start)
     assertEquals(result, "1")
     assertEquals(zonedFromNumber(result, TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start), num)
   }
 
-  @Test def zonedIntAsciiStandardPos2() {
+  @Test def zonedIntAsciiStandardPos2(): Unit = {
     val num = "12"
     val result = zonedToNumber(num, TextZonedSignStyle.AsciiStandard, OverpunchLocation.End)
     System.out.println("Result: " + result)
@@ -1265,63 +1265,63 @@ class TestDecimalUtils {
     assertEquals(zonedFromNumber(result, TextZonedSignStyle.AsciiStandard, OverpunchLocation.End), num)
   }
 
-  @Test def zonedIntAsciiStandardPos3() {
+  @Test def zonedIntAsciiStandardPos3(): Unit = {
     val num = "123"
     val result = zonedToNumber(num, TextZonedSignStyle.AsciiStandard, OverpunchLocation.None)
     assertEquals(result, "123")
     assertEquals(zonedFromNumber(result, TextZonedSignStyle.AsciiStandard, OverpunchLocation.None), num)
   }
 
-  @Test def zonedIntAsciiStandardPos4() {
+  @Test def zonedIntAsciiStandardPos4(): Unit = {
     val num = "1234567890"
     val result = zonedToNumber(num, TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start)
     assertEquals(result, "1234567890")
     assertEquals(zonedFromNumber(result, TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start), num)
   }
 
-  @Test def zonedIntAsciiStandardPos5() {
+  @Test def zonedIntAsciiStandardPos5(): Unit = {
     val num = "000000000001234567890"
     val result = zonedToNumber(num, TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start)
     assertEquals(result, "000000000001234567890")
     assertEquals(zonedFromNumber(result, TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start), "000000000001234567890")
   }
 
-  @Test def zonedIntAsciiStandardNeg1() {
+  @Test def zonedIntAsciiStandardNeg1(): Unit = {
     val num = "q"
     val result = zonedToNumber(num, TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start)
     assertEquals(result, "-1")
     assertEquals(zonedFromNumber(result, TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start), num)
   }
 
-  @Test def zonedIntAsciiStandardNeg2() {
+  @Test def zonedIntAsciiStandardNeg2(): Unit = {
     val num = "1r"
     val result = zonedToNumber(num, TextZonedSignStyle.AsciiStandard, OverpunchLocation.End)
     assertEquals(result, "-12")
     assertEquals(zonedFromNumber(result, TextZonedSignStyle.AsciiStandard, OverpunchLocation.End), num)
   }
 
-  @Test def zonedIntAsciiStandardNeg3() {
+  @Test def zonedIntAsciiStandardNeg3(): Unit = {
     val num = "q23"
     val result = zonedToNumber(num, TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start)
     assertEquals(result, "-123")
     assertEquals(zonedFromNumber(result, TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start), num)
   }
 
-  @Test def zonedIntAsciiStandardNeg4() {
+  @Test def zonedIntAsciiStandardNeg4(): Unit = {
     val num = "123456789p"
     val result = zonedToNumber(num, TextZonedSignStyle.AsciiStandard, OverpunchLocation.End)
     assertEquals(result, "-1234567890")
     assertEquals(zonedFromNumber(result, TextZonedSignStyle.AsciiStandard, OverpunchLocation.End), num)
   }
 
-  @Test def zonedIntAsciiStandardNeg5() {
+  @Test def zonedIntAsciiStandardNeg5(): Unit = {
     val num = "p00000000001234567890"
     val result = zonedToNumber(num, TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start)
     assertEquals(result, "-000000000001234567890")
     assertEquals(zonedFromNumber(result, TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start), num)
   }
 
-  @Test def zonedIntAsciiStandardInvalidDigit() {
+  @Test def zonedIntAsciiStandardInvalidDigit(): Unit = {
     val num = "z123"
     try {
       val result = zonedToNumber(num, TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start)
@@ -1331,77 +1331,77 @@ class TestDecimalUtils {
     }
   }
 
-  @Test def zonedIntAsciiTranslatedEBCDICPos1() {
+  @Test def zonedIntAsciiTranslatedEBCDICPos1(): Unit = {
     val num = "A"
     val result = zonedToNumber(num, TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start)
     assertEquals(result, "1")
     assertEquals(zonedFromNumber(result, TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start), num)
   }
 
-  @Test def zonedIntAsciiTranslatedEBCDICPos2() {
+  @Test def zonedIntAsciiTranslatedEBCDICPos2(): Unit = {
     val num = "1B"
     val result = zonedToNumber(num, TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.End)
     assertEquals(result, "12")
     assertEquals(zonedFromNumber(result, TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.End), num)
   }
 
-  @Test def zonedIntAsciiTranslatedEBCDICPos3() {
+  @Test def zonedIntAsciiTranslatedEBCDICPos3(): Unit = {
     val num = "123"
     val result = zonedToNumber(num, TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.None)
     assertEquals(result, "123")
     assertEquals(zonedFromNumber(result, TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.None), num)
   }
 
-  @Test def zonedIntAsciiTranslatedEBCDICPos4() {
+  @Test def zonedIntAsciiTranslatedEBCDICPos4(): Unit = {
     val num = "A234567890"
     val result = zonedToNumber(num, TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start)
     assertEquals(result, "1234567890")
     assertEquals(zonedFromNumber(result, TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start), num)
   }
 
-  @Test def zonedIntAsciiTranslatedEBCDICPos5() {
+  @Test def zonedIntAsciiTranslatedEBCDICPos5(): Unit = {
     val num = "00000000000123456789{"
     val result = zonedToNumber(num, TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.End)
     assertEquals(result, "000000000001234567890")
     assertEquals(zonedFromNumber(result, TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.End), num)
   }
 
-  @Test def zonedIntAsciiTranslatedEBCDICNeg1() {
+  @Test def zonedIntAsciiTranslatedEBCDICNeg1(): Unit = {
     val num = "J"
     val result = zonedToNumber(num, TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start)
     assertEquals(result, "-1")
     assertEquals(zonedFromNumber(result, TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start), num)
   }
 
-  @Test def zonedIntAsciiTranslatedEBCDICNeg2() {
+  @Test def zonedIntAsciiTranslatedEBCDICNeg2(): Unit = {
     val num = "1K"
     val result = zonedToNumber(num, TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.End)
     assertEquals(result, "-12")
     assertEquals(zonedFromNumber(result, TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.End), num)
   }
 
-  @Test def zonedIntAsciiTranslatedEBCDICNeg3() {
+  @Test def zonedIntAsciiTranslatedEBCDICNeg3(): Unit = {
     val num = "J23"
     val result = zonedToNumber(num, TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start)
     assertEquals(result, "-123")
     assertEquals(zonedFromNumber(result, TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start), num)
   }
 
-  @Test def zonedIntAsciiTranslatedEBCDICNeg4() {
+  @Test def zonedIntAsciiTranslatedEBCDICNeg4(): Unit = {
     val num = "123456789}"
     val result = zonedToNumber(num, TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.End)
     assertEquals(result, "-1234567890")
     assertEquals(zonedFromNumber(result, TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.End), num)
   }
 
-  @Test def zonedIntAsciiTranslatedEBCDICNeg5() {
+  @Test def zonedIntAsciiTranslatedEBCDICNeg5(): Unit = {
     val num = "}00000000001234567890"
     val result = zonedToNumber(num, TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start)
     assertEquals(result, "-000000000001234567890")
     assertEquals(zonedFromNumber(result, TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start), num)
   }
 
-  @Test def zonedIntAsciiTranslatedEBCDICInvalidDigit() {
+  @Test def zonedIntAsciiTranslatedEBCDICInvalidDigit(): Unit = {
     val num = "z123"
     try {
       val result = zonedToNumber(num, TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start)
@@ -1411,77 +1411,77 @@ class TestDecimalUtils {
     }
   }
 
-  @Test def zonedIntAsciiCARealiaModifiedPos1() {
+  @Test def zonedIntAsciiCARealiaModifiedPos1(): Unit = {
     val num = "1"
     val result = zonedToNumber(num, TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start)
     assertEquals(result, "1")
     assertEquals(zonedFromNumber(result, TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start), num)
   }
 
-  @Test def zonedIntAsciiCARealiaModifiedPos2() {
+  @Test def zonedIntAsciiCARealiaModifiedPos2(): Unit = {
     val num = "12"
     val result = zonedToNumber(num, TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.End)
     assertEquals(result, "12")
     assertEquals(zonedFromNumber(result, TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.End), num)
   }
 
-  @Test def zonedIntAsciiCARealiaModifiedPos3() {
+  @Test def zonedIntAsciiCARealiaModifiedPos3(): Unit = {
     val num = "123"
     val result = zonedToNumber(num, TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.None)
     assertEquals(result, "123")
     assertEquals(zonedFromNumber(result, TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.None), num)
   }
 
-  @Test def zonedIntAsciiCARealiaModifiedPos4() {
+  @Test def zonedIntAsciiCARealiaModifiedPos4(): Unit = {
     val num = "1234567890"
     val result = zonedToNumber(num, TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start)
     assertEquals(result, "1234567890")
     assertEquals(zonedFromNumber(result, TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start), num)
   }
 
-  @Test def zonedIntAsciiCARealiaModifiedPos5() {
+  @Test def zonedIntAsciiCARealiaModifiedPos5(): Unit = {
     val num = "000000000001234567890"
     val result = zonedToNumber(num, TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.End)
     assertEquals(result, "000000000001234567890")
     assertEquals(zonedFromNumber(result, TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.End), num)
   }
 
-  @Test def zonedIntAsciiCARealiaModifiedNeg1() {
+  @Test def zonedIntAsciiCARealiaModifiedNeg1(): Unit = {
     val num = "!"
     val result = zonedToNumber(num, TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start)
     assertEquals(result, "-1")
     assertEquals(zonedFromNumber(result, TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start), num)
   }
 
-  @Test def zonedIntAsciiCARealiaModifiedNeg2() {
+  @Test def zonedIntAsciiCARealiaModifiedNeg2(): Unit = {
     val num = "1\""
     val result = zonedToNumber(num, TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.End)
     assertEquals(result, "-12")
     assertEquals(zonedFromNumber(result, TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.End), num)
   }
 
-  @Test def zonedIntAsciiCARealiaModifiedNeg3() {
+  @Test def zonedIntAsciiCARealiaModifiedNeg3(): Unit = {
     val num = "!23"
     val result = zonedToNumber(num, TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start)
     assertEquals(result, "-123")
     assertEquals(zonedFromNumber(result, TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start), num)
   }
 
-  @Test def zonedIntAsciiCARealiaModifiedNeg4() {
+  @Test def zonedIntAsciiCARealiaModifiedNeg4(): Unit = {
     val num = "123456789 "
     val result = zonedToNumber(num, TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.End)
     assertEquals(result, "-1234567890")
     assertEquals(zonedFromNumber(result, TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.End), num)
   }
 
-  @Test def zonedIntAsciiCARealiaModifiedNeg5() {
+  @Test def zonedIntAsciiCARealiaModifiedNeg5(): Unit = {
     val num = " 00000000001234567890"
     val result = zonedToNumber(num, TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start)
     assertEquals(result, "-000000000001234567890")
     assertEquals(zonedFromNumber(result, TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start), num)
   }
 
-  @Test def zonedIntAsciiCARealiaModifiedInvalidDigit() {
+  @Test def zonedIntAsciiCARealiaModifiedInvalidDigit(): Unit = {
     val num = "z123"
     try {
       val result = zonedToNumber(num, TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start)
@@ -1491,77 +1491,77 @@ class TestDecimalUtils {
     }
   }
 
-  @Test def zonedIntAsciiTandemModifiedPos1() {
+  @Test def zonedIntAsciiTandemModifiedPos1(): Unit = {
     val num = "1"
     val result = zonedToNumber(num, TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start)
     assertEquals(result, "1")
     assertEquals(zonedFromNumber(result, TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start), num)
   }
 
-  @Test def zonedIntAsciiTandemModifiedPos2() {
+  @Test def zonedIntAsciiTandemModifiedPos2(): Unit = {
     val num = "12"
     val result = zonedToNumber(num, TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.End)
     assertEquals(result, "12")
     assertEquals(zonedFromNumber(result, TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.End), num)
   }
 
-  @Test def zonedIntAsciiTandemModifiedPos3() {
+  @Test def zonedIntAsciiTandemModifiedPos3(): Unit = {
     val num = "123"
     val result = zonedToNumber(num, TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.None)
     assertEquals(result, "123")
     assertEquals(zonedFromNumber(result, TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.None), num)
   }
 
-  @Test def zonedIntAsciiTandemModifiedPos4() {
+  @Test def zonedIntAsciiTandemModifiedPos4(): Unit = {
     val num = "1234567890"
     val result = zonedToNumber(num, TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start)
     assertEquals(result, "1234567890")
     assertEquals(zonedFromNumber(result, TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start), num)
   }
 
-  @Test def zonedIntAsciiTandemModifiedPos5() {
+  @Test def zonedIntAsciiTandemModifiedPos5(): Unit = {
     val num = "000000000001234567890"
     val result = zonedToNumber(num, TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.End)
     assertEquals(result, "000000000001234567890")
     assertEquals(zonedFromNumber(result, TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.End), num)
   }
 
-  @Test def zonedIntAsciiTandemModifiedNeg1() {
+  @Test def zonedIntAsciiTandemModifiedNeg1(): Unit = {
     val num = ""
     val result = zonedToNumber(num, TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start)
     assertEquals(result, "-1")
     assertEquals(zonedFromNumber(result, TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start), num)
   }
 
-  @Test def zonedIntAsciiTandemModifiedNeg2() {
+  @Test def zonedIntAsciiTandemModifiedNeg2(): Unit = {
     val num = "1"
     val result = zonedToNumber(num, TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.End)
     assertEquals(result, "-12")
     assertEquals(zonedFromNumber(result, TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.End), num)
   }
 
-  @Test def zonedIntAsciiTandemModifiedNeg3() {
+  @Test def zonedIntAsciiTandemModifiedNeg3(): Unit = {
     val num = "23"
     val result = zonedToNumber(num, TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start)
     assertEquals(result, "-123")
     assertEquals(zonedFromNumber(result, TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start), num)
   }
 
-  @Test def zonedIntAsciiTandemModifiedNeg4() {
+  @Test def zonedIntAsciiTandemModifiedNeg4(): Unit = {
     val num = "123456789"
     val result = zonedToNumber(num, TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.End)
     assertEquals(result, "-1234567890")
     assertEquals(zonedFromNumber(result, TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.End), num)
   }
 
-  @Test def zonedIntAsciiTandemModifiedNeg5() {
+  @Test def zonedIntAsciiTandemModifiedNeg5(): Unit = {
     val num = "00000000001234567890"
     val result = zonedToNumber(num, TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start)
     assertEquals(result, "-000000000001234567890")
     assertEquals(zonedFromNumber(result, TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start), num)
   }
 
-  @Test def zonedIntAsciiTandemModifiedInvalidDigit() {
+  @Test def zonedIntAsciiTandemModifiedInvalidDigit(): Unit = {
     val num = "z123"
     try {
       val result = zonedToNumber(num, TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start)
@@ -1571,7 +1571,7 @@ class TestDecimalUtils {
     }
   }
 
-  @Test def zonedIntAsciiStandardAllDigits() {
+  @Test def zonedIntAsciiStandardAllDigits(): Unit = {
     assertEquals(zonedToNumber("0", TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start), "0")
     assertEquals(zonedFromNumber("0", TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start), "0")
     assertEquals(zonedToNumber("1", TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start), "1")
@@ -1614,7 +1614,7 @@ class TestDecimalUtils {
     assertEquals(zonedFromNumber("-9", TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start), "y")
   }
 
-  @Test def zonedIntAsciiTranslatedEBCDICAllDigits() {
+  @Test def zonedIntAsciiTranslatedEBCDICAllDigits(): Unit = {
     assertEquals(zonedToNumber("0", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.None), "0")
     assertEquals(zonedFromNumber("0", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.None), "0")
     assertEquals(zonedToNumber("1", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.None), "1")
@@ -1677,7 +1677,7 @@ class TestDecimalUtils {
     assertEquals(zonedFromNumber("-9", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start), "R")
   }
 
-  @Test def zonedIntAsciiCARealiaModifiedAllDigits() {
+  @Test def zonedIntAsciiCARealiaModifiedAllDigits(): Unit = {
     assertEquals(zonedToNumber("0", TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start), "0")
     assertEquals(zonedFromNumber("0", TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start), "0")
     assertEquals(zonedToNumber("1", TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start), "1")
@@ -1720,7 +1720,7 @@ class TestDecimalUtils {
     assertEquals(zonedFromNumber("-9", TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start), ")")
   }
 
-  @Test def zonedIntAsciiTandemModifiedAllDigits() {
+  @Test def zonedIntAsciiTandemModifiedAllDigits(): Unit = {
     assertEquals(zonedToNumber("0", TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start), "0")
     assertEquals(zonedFromNumber("0", TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start), "0")
     assertEquals(zonedToNumber("1", TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start), "1")

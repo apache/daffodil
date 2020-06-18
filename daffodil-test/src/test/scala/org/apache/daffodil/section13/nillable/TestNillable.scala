@@ -30,7 +30,7 @@ object TestNillable {
   val runnerLC = Runner(testDir, "literal-character-nils.tdml")
   val runnerEntity = Runner(testDir_01, "entities_01.tdml")
 
-  @AfterClass def shutDown {
+  @AfterClass def shutDown: Unit = {
     runnerAA.reset
     runnerLN.reset
     runnerEntity.reset
@@ -43,26 +43,26 @@ class TestNillable {
 
   import TestNillable._
 
-  @Test def test_complex_nil() { runnerLN.runOneTest("test_complex_nil") }
+  @Test def test_complex_nil(): Unit = { runnerLN.runOneTest("test_complex_nil") }
 
-  @Test def test_litNil1() { runnerAA.runOneTest("litNil1") }
-  @Test def test_litNil2() { runnerAA.runOneTest("litNil2") }
-  @Test def test_litNil3() { runnerAA.runOneTest("litNil3") }
-  @Test def test_litNil4() { runnerAA.runOneTest("litNil4") }
-  @Test def test_litNil4b() { runnerAA.runOneTest("litNil4b") }
-  @Test def test_litNil5() { runnerAA.runOneTest("litNil5") }
-  @Test def test_litNil6() { runnerAA.runOneTest("litNil6") }
-  @Test def test_litNil7() { runnerAA.runOneTest("litNil7") }
-  @Test def test_missing_scalar() { runnerAA.runOneTest("missing_scalar") }
-  @Test def test_nillable1() { runnerAA.runOneTest("nillable1") }
-  @Test def test_edifact1a() { runnerAA.runOneTest("edifact1a") }
+  @Test def test_litNil1(): Unit = { runnerAA.runOneTest("litNil1") }
+  @Test def test_litNil2(): Unit = { runnerAA.runOneTest("litNil2") }
+  @Test def test_litNil3(): Unit = { runnerAA.runOneTest("litNil3") }
+  @Test def test_litNil4(): Unit = { runnerAA.runOneTest("litNil4") }
+  @Test def test_litNil4b(): Unit = { runnerAA.runOneTest("litNil4b") }
+  @Test def test_litNil5(): Unit = { runnerAA.runOneTest("litNil5") }
+  @Test def test_litNil6(): Unit = { runnerAA.runOneTest("litNil6") }
+  @Test def test_litNil7(): Unit = { runnerAA.runOneTest("litNil7") }
+  @Test def test_missing_scalar(): Unit = { runnerAA.runOneTest("missing_scalar") }
+  @Test def test_nillable1(): Unit = { runnerAA.runOneTest("nillable1") }
+  @Test def test_edifact1a(): Unit = { runnerAA.runOneTest("edifact1a") }
 
   @Test def test_text_nil_characterClass_04_parse() = { runnerLN.runOneTest("text_nil_characterClass_04_parse") }
 
-  @Test def test_text_03() { runnerLN.runOneTest("text_03") }
-  @Test def test_text_03ic() { runnerLN.runOneTest("text_03ic") }
-  @Test def test_text_04() { runnerLN.runOneTest("text_04") }
-  @Test def test_text_05() { runnerLN.runOneTest("text_05") }
+  @Test def test_text_03(): Unit = { runnerLN.runOneTest("text_03") }
+  @Test def test_text_03ic(): Unit = { runnerLN.runOneTest("text_03ic") }
+  @Test def test_text_04(): Unit = { runnerLN.runOneTest("text_04") }
+  @Test def test_text_05(): Unit = { runnerLN.runOneTest("text_05") }
   @Test def test_text_06() = { runnerLN.runOneTest("text_06") }
   @Test def test_binary_01() = { runnerLN.runOneTest("binary_01") }
   @Test def test_padded_nils() = { runnerLN.runOneTest("test_padded_nils") }
@@ -78,16 +78,16 @@ class TestNillable {
    *  According to analysis doc, should also work for numeric
    *  and hex entities.
    * */
-  @Test def test_text_lit_char_01() { runnerLC.runOneTest("text_01") }
-  @Test def test_text_lit_char_01ic() { runnerLC.runOneTest("text_01ic") }
-  @Test def test_text_lit_char_02() { runnerLC.runOneTest("text_02") }
-  @Test def test_text_lit_char_03() { runnerLC.runOneTest("text_03") }
-  @Test def test_text_lit_char_04() { runnerLC.runOneTest("text_04") }
-  @Test def test_binary_lit_char_01() { runnerLC.runOneTest("binary_01") }
+  @Test def test_text_lit_char_01(): Unit = { runnerLC.runOneTest("text_01") }
+  @Test def test_text_lit_char_01ic(): Unit = { runnerLC.runOneTest("text_01ic") }
+  @Test def test_text_lit_char_02(): Unit = { runnerLC.runOneTest("text_02") }
+  @Test def test_text_lit_char_03(): Unit = { runnerLC.runOneTest("text_03") }
+  @Test def test_text_lit_char_04(): Unit = { runnerLC.runOneTest("text_04") }
+  @Test def test_binary_lit_char_01(): Unit = { runnerLC.runOneTest("binary_01") }
 
-  @Test def test_entity_fail_05() { runnerEntity.runOneTest("entity_fail_05") }
-  @Test def test_entity_fail_06() { runnerEntity.runOneTest("entity_fail_06") }
-  @Test def test_entity_success_05() { runnerEntity.runOneTest("entity_success_05") }
-  @Test def test_entity_success_06() { runnerEntity.runOneTest("entity_success_06") }
+  @Test def test_entity_fail_05(): Unit = { runnerEntity.runOneTest("entity_fail_05") }
+  @Test def test_entity_fail_06(): Unit = { runnerEntity.runOneTest("entity_fail_06") }
+  @Test def test_entity_success_05(): Unit = { runnerEntity.runOneTest("entity_success_05") }
+  @Test def test_entity_success_06(): Unit = { runnerEntity.runOneTest("entity_success_06") }
 
 }

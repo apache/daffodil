@@ -118,7 +118,7 @@ private[util] object An_example_of_OnStack_use {
 
   object withMatcher extends OnStack[Matcher](pattern.matcher(""))
 
-  def foo(str: String) {
+  def foo(str: String): Unit = {
     withMatcher { m =>
       //
       // we reset it here in our own code

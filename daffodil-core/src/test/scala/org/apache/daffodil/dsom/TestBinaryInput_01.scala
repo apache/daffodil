@@ -79,7 +79,7 @@ class TestBinaryInput_01 {
     (dis, finfo)
   }
 
-  @After def shutDown {
+  @After def shutDown: Unit = {
     dis.discard(startOver)
   }
 
@@ -104,7 +104,7 @@ class TestBinaryInput_01 {
   val BE = ByteOrder.BigEndian
   val LE = ByteOrder.LittleEndian
 
-  @Test def testOneBit1() {
+  @Test def testOneBit1(): Unit = {
     val (dis, finfo) = fromBytes(Misc.bits2Bytes(Seq("00000011")), BE, msbFirst)
 
     val bit1 = getLong(finfo, dis, 6, 2)
@@ -113,7 +113,7 @@ class TestBinaryInput_01 {
     assertEquals(0, bit2)
   }
 
-  @Test def testOneBit2() {
+  @Test def testOneBit2(): Unit = {
     val (dis, finfo) = fromBytes(Misc.bits2Bytes(Seq("11000000")), BE, msbFirst)
 
     val bit1 = getLong(finfo, dis, 0, 2)
@@ -122,7 +122,7 @@ class TestBinaryInput_01 {
     assertEquals(0, bit2)
   }
 
-  @Test def testOneBit3() {
+  @Test def testOneBit3(): Unit = {
     val (dis, finfo) = fromBytes(Misc.bits2Bytes(Seq("00000011")), BE, msbFirst)
 
     val n = getLong(finfo, dis, 6, 2)
@@ -130,21 +130,21 @@ class TestBinaryInput_01 {
   }
 
   @Test
-  def testBufferBitExtraction() {
+  def testBufferBitExtraction(): Unit = {
     val (dis, finfo) = fromString("3", BE, msbFirst)
 
     assertEquals(3, getLong(finfo, dis, 1, 3))
   }
 
   @Test
-  def testBufferBitExtractionShift() {
+  def testBufferBitExtractionShift(): Unit = {
     val (dis, finfo) = fromString("3", BE, msbFirst)
 
     assertEquals(12, getLong(finfo, dis, 2, 4))
   }
 
   @Test
-  def testBufferLeastSignificantBitExtractionShift() {
+  def testBufferLeastSignificantBitExtractionShift(): Unit = {
     val (dis, finfo) = fromString("4", BE, msbFirst)
 
     assertEquals(4, getLong(finfo, dis, 5, 3))
@@ -152,57 +152,57 @@ class TestBinaryInput_01 {
 
   // Verify aligned byte/short/int/long/bigint extraction
   @Test
-  def testBufferByteBigEndianExtraction() {
+  def testBufferByteBigEndianExtraction(): Unit = {
     val (dis, finfo) = fromString("3", BE, msbFirst)
 
     assertEquals(51, getLong(finfo, dis, 0, 8))
   }
 
   @Test
-  def testBufferByteLittleEndianExtraction() {
+  def testBufferByteLittleEndianExtraction(): Unit = {
     val (dis, finfo) = fromString("3", LE, msbFirst)
 
     assertEquals(51, getLong(finfo, dis, 0, 8))
   }
 
   @Test
-  def testBufferShortBigEndianExtraction() {
+  def testBufferShortBigEndianExtraction(): Unit = {
     val (dis, finfo) = fromString("Om", BE, msbFirst)
     assertEquals(20333, getLong(finfo, dis, 0, 16))
   }
 
   @Test
-  def testBufferShortLittleEndianExtraction() {
+  def testBufferShortLittleEndianExtraction(): Unit = {
     val (dis, finfo) = fromString("Om", LE, msbFirst)
     assertEquals(27983, getLong(finfo, dis, 0, 16))
   }
 
   @Test
-  def testBufferIntBigEndianExtraction() {
+  def testBufferIntBigEndianExtraction(): Unit = {
     val (dis, finfo) = fromString("Help", BE, msbFirst)
     assertEquals(1214606448, getLong(finfo, dis, 0, 32))
   }
 
   @Test
-  def testBufferIntLittleEndianExtraction() {
+  def testBufferIntLittleEndianExtraction(): Unit = {
     val (dis, finfo) = fromString("Help", LE, msbFirst)
     assertEquals(1886152008, getLong(finfo, dis, 0, 32))
   }
 
   @Test
-  def testBufferLongBigEndianExtraction() {
+  def testBufferLongBigEndianExtraction(): Unit = {
     val (dis, finfo) = fromString("Harrison", BE, msbFirst)
     assertEquals(JBigInt.valueOf(5215575679192756078L), getBigInt(finfo, dis, 0, 64))
   }
 
   @Test
-  def testBufferLongLittleEndianExtraction() {
+  def testBufferLongLittleEndianExtraction(): Unit = {
     val (dis, finfo) = fromString("Harrison", LE, msbFirst)
     assertEquals(JBigInt.valueOf(7957705963315814728L), getBigInt(finfo, dis, 0, 64))
   }
 
   @Test
-  def testBufferBigIntBigEndianExtraction() {
+  def testBufferBigIntBigEndianExtraction(): Unit = {
     val (dis, finfo) = fromString("Something in the way she moves, ", BE, msbFirst)
     val bigInt = getBigInt(finfo, dis, 0, 256)
     assertEquals(new JBigInt("37738841482167102822784581157237036764884875846207476558974346160344516471840"),
@@ -210,7 +210,7 @@ class TestBinaryInput_01 {
   }
 
   @Test
-  def testBufferBigIntLittleEndianExtraction() {
+  def testBufferBigIntLittleEndianExtraction(): Unit = {
     val (dis, finfo) = fromString("Something in the way she moves, ", LE, msbFirst)
     assertEquals(new JBigInt("14552548861771956163454220823873430243364312915206513831353612029437431082835"),
       getBigInt(finfo, dis, 0, 256))
@@ -218,53 +218,53 @@ class TestBinaryInput_01 {
 
   // Aligned but not full string
   @Test
-  def testBufferPartialIntBigEndianExtraction() {
+  def testBufferPartialIntBigEndianExtraction(): Unit = {
     val (dis, finfo) = fromString("SBT", BE, msbFirst)
     assertEquals(5456468, getLong(finfo, dis, 0, 24))
   }
 
   @Test
-  def testBufferPartialIntLittleEndianExtraction() {
+  def testBufferPartialIntLittleEndianExtraction(): Unit = {
     val (dis, finfo) = fromString("SBT", LE, msbFirst)
     assertEquals(5522003, getLong(finfo, dis, 0, 24))
   }
 
   // Non-Aligned 1 Byte or less
   @Test
-  def testBufferBitNumberBigEndianExtraction() {
+  def testBufferBitNumberBigEndianExtraction(): Unit = {
     val (dis, finfo) = fromString("3", BE, msbFirst)
 
     assertEquals(3, getLong(finfo, dis, 1, 3))
   }
 
   @Test
-  def testBufferBitNumberLittleEndianExtraction() {
+  def testBufferBitNumberLittleEndianExtraction(): Unit = {
     val (dis, finfo) = fromString("3", LE, msbFirst)
 
     assertEquals(3, getLong(finfo, dis, 1, 3))
   }
 
   @Test
-  def testBufferBitByteBigEndianExtraction() {
+  def testBufferBitByteBigEndianExtraction(): Unit = {
     val (dis, finfo) = fromString("3>", BE, msbFirst)
     assertEquals(204, getLong(finfo, dis, 2, 8))
   }
 
   @Test
-  def testBufferBitByteLittleEndianExtraction() {
+  def testBufferBitByteLittleEndianExtraction(): Unit = {
     val (dis, finfo) = fromString("3>", LE, msbFirst)
     assertEquals(0xCC, getLong(finfo, dis, 2, 8))
   }
 
   // Non-Aligned multi-byte
   @Test
-  def testBufferPartialInt22At0BigEndianExtraction() {
+  def testBufferPartialInt22At0BigEndianExtraction(): Unit = {
     val (dis, finfo) = fromString("SBT", BE, msbFirst)
     assertEquals(1364117, getLong(finfo, dis, 0, 22))
   }
 
   @Test
-  def testBufferPartialInt22At0LittleEndianExtraction() {
+  def testBufferPartialInt22At0LittleEndianExtraction(): Unit = {
     val (dis, finfo) = fromString("SBT", LE, msbFirst)
     assertEquals(0x154253, getLong(finfo, dis, 0, 22))
     // Corrected. Was 544253, but that omits shifting the most significant byte left 2
@@ -272,20 +272,20 @@ class TestBinaryInput_01 {
   }
 
   @Test
-  def testBufferPartialInt22At2BigEndianExtraction() {
+  def testBufferPartialInt22At2BigEndianExtraction(): Unit = {
     val (dis, finfo) = fromString("SBT", BE, msbFirst)
     assertEquals(0x134254, getLong(finfo, dis, 2, 22))
   }
 
   @Test
-  def testBufferPartialInt22At2LittleEndianExtraction() {
+  def testBufferPartialInt22At2LittleEndianExtraction(): Unit = {
     val (dis, finfo) = fromString("SBT", LE, msbFirst)
     assertEquals(0x14094d, getLong(finfo, dis, 2, 22)) // Corrected.
     // Was 0x50094d, but that omits shifting the most significant byte >> 2 to
     // add the bits on the most significant side, not the least significant side.
   }
 
-  @Test def testOneBit1LSBFirst() {
+  @Test def testOneBit1LSBFirst(): Unit = {
     val (dis, finfo) = fromBytes(Misc.bits2Bytes(Seq("01100000")), LE, lsbFirst)
 
     val bit1 = getLong(finfo, dis, 5, 2)
@@ -294,7 +294,7 @@ class TestBinaryInput_01 {
     assertEquals(2, bit2)
   }
 
-  @Test def testOneBit2LSBFirst() {
+  @Test def testOneBit2LSBFirst(): Unit = {
     val (dis, finfo) = fromBytes(Misc.bits2Bytes(Seq("01010000")), LE, lsbFirst)
 
     val bit1 = getLong(finfo, dis, 5, 2)
@@ -303,7 +303,7 @@ class TestBinaryInput_01 {
     assertEquals(1, bit2)
   }
 
-  @Test def testOneBit3LSBFirst() {
+  @Test def testOneBit3LSBFirst(): Unit = {
     val (dis, finfo) = fromBytes(JBigInt.valueOf(0xE4567A).toByteArray, LE, lsbFirst)
 
     val bit1 = getLong(finfo, dis, 13, 12)

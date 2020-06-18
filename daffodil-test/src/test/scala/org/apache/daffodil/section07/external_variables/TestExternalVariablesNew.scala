@@ -34,7 +34,7 @@ class TestExternalVariablesNew {
 
   // Tests that we can specify a file in the parser
   // test case.
-  @Test def test_read_config_from_file() {
+  @Test def test_read_config_from_file(): Unit = {
     runner.runOneTest("read_config_from_file")
   }
 

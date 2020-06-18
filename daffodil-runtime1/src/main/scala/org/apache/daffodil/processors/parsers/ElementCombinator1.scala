@@ -238,7 +238,7 @@ class ElementParser(
     eAfterParser,
     eRepTypeParser) {
 
-  def move(start: PState) {
+  def move(start: PState): Unit = {
     start.mpstate.moveOverOneElementChildOnly
     ()
   }
@@ -322,7 +322,7 @@ class ElementParserNoRep(
   // but we don't create anything new as far as the group is concerned, and we don't want
   // the group 'thinking' that there's a prior sibling inside the group and placing a
   // separator after it. So in the case of NoRep, we don't advance group child, just element child.
-  override def move(state: PState) {
+  override def move(state: PState): Unit = {
     state.mpstate.moveOverOneElementChildOnly
   }
 }

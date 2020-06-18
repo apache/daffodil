@@ -28,7 +28,7 @@ object TestProcessingErrorsUnparse {
   val runner02Validate = Runner(testDir, "ProcessingErrorsUnparse.tdml", validateTDMLFile = true, validateDFDLSchemas = true,
     compileAllTopLevel = true)
 
-  @AfterClass def shutDown {
+  @AfterClass def shutDown: Unit = {
     runner02.reset
     runner02Validate.reset
   }
@@ -39,12 +39,12 @@ class TestProcessingErrorsUnparse {
 
   import TestProcessingErrorsUnparse._
 
-  @Test def test_roundTripErrorHalfwayThrough() { runner02Validate.runOneTest("roundTripErrorHalfwayThrough") }
+  @Test def test_roundTripErrorHalfwayThrough(): Unit = { runner02Validate.runOneTest("roundTripErrorHalfwayThrough") }
 
-  @Test def test_upaInvalidSchemaUnparse() { runner02Validate.runOneTest("upaInvalidSchemaUnparse") }
-  @Test def test_upaInvalidSchemaUnparse2() { runner02Validate.runOneTest("upaInvalidSchemaUnparse2") }
-  @Test def test_missingNamespacePrefixUnparse() { runner02.runOneTest("missingNamespacePrefixUnparse") }
+  @Test def test_upaInvalidSchemaUnparse(): Unit = { runner02Validate.runOneTest("upaInvalidSchemaUnparse") }
+  @Test def test_upaInvalidSchemaUnparse2(): Unit = { runner02Validate.runOneTest("upaInvalidSchemaUnparse2") }
+  @Test def test_missingNamespacePrefixUnparse(): Unit = { runner02.runOneTest("missingNamespacePrefixUnparse") }
 
-  @Test def test_incorrectNamespaceUnparse() { runner02.runOneTest("incorrectNamespaceUnparse") }
+  @Test def test_incorrectNamespaceUnparse(): Unit = { runner02.runOneTest("incorrectNamespaceUnparse") }
 
 }

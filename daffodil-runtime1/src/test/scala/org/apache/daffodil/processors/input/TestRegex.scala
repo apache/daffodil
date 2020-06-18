@@ -1348,7 +1348,7 @@ class TestRegex extends RegexParsers {
 
   lazy val parsed0 = parseAll(t0, rdr0)
 
-  @Test def testParsingDelims() {
+  @Test def testParsingDelims(): Unit = {
     skipWS = false // keep all the whitespace
     assertTrue(parsed0.successful)
     val a = parsed0.get
@@ -1378,7 +1378,7 @@ class TestRegex extends RegexParsers {
 
   lazy val parsed1 = parseAll(t1, rdr1)
 
-  @Test def testRegexNoWSLongestMatch() {
+  @Test def testRegexNoWSLongestMatch(): Unit = {
     skipWS = true // this is the default setting for scala comb. parsers, but we have no ws so it doesn't matter really.
     assertTrue(parsed1.successful)
     val a = parsed1.get
@@ -1409,7 +1409,7 @@ class TestRegex extends RegexParsers {
 
   lazy val parsed2 = parseAll(t2, rdr2)
 
-  @Test def testRegexWSLongestMatch() {
+  @Test def testRegexWSLongestMatch(): Unit = {
     skipWS = false // we want our delimiters to contain the whitespace.
     // (parsed2)
     assertTrue(parsed2.successful)
@@ -1433,7 +1433,7 @@ class TestRegex extends RegexParsers {
    * Tests a regular experssion to match a delimiter but taking
    * into account escape characters and padChar trimming.
    */
-  @Test def testRegexToMatchOneDelimiterWithEscapeChars() {
+  @Test def testRegexToMatchOneDelimiterWithEscapeChars(): Unit = {
 
     /**
      * tester regexps and postprocessing algorithms are different
@@ -1555,7 +1555,7 @@ class TestRegex extends RegexParsers {
    *
    * Special case for when EEC and EC are same.
    */
-  @Test def testRegexToMatchOneDelimiterWithEscapeCharsWhenEECAndECAreSame() {
+  @Test def testRegexToMatchOneDelimiterWithEscapeCharsWhenEECAndECAreSame(): Unit = {
 
     /**
      * tester regexps and postprocessing algorithms are different
@@ -1676,7 +1676,7 @@ class TestRegex extends RegexParsers {
    * Also illustrates how one would add padChar absorbing into the mix on the left, right, or both
    *
    */
-  @Test def testRegexToMatchOneDelimiterWithBlockEscapesAndPaddingCharacters() {
+  @Test def testRegexToMatchOneDelimiterWithBlockEscapesAndPaddingCharacters(): Unit = {
 
     def tester(bStart: String, bEnd: String, escapeEscape: String, escape: String, delim: String, padChar: String) = {
       Assert.usage(padChar.length == 1)

@@ -38,7 +38,7 @@ class TestGrammar extends GrammarMixin {
     def unparser: Unparser = Assert.notYetImplemented()
   }
 
-  @Test def testBasicTripleSequential() {
+  @Test def testBasicTripleSequential(): Unit = {
 
     object first extends Primitive1(fakeTerm)
     object mid extends Primitive1(fakeTerm)
@@ -60,7 +60,7 @@ class TestGrammar extends GrammarMixin {
     assertTrue(s.contains(" ~ "))
   }
 
-  @Test def testMiddleSplicedOut() {
+  @Test def testMiddleSplicedOut(): Unit = {
 
     object first extends Primitive1(fakeTerm)
     object mid extends Primitive1(fakeTerm, false)
@@ -79,7 +79,7 @@ class TestGrammar extends GrammarMixin {
 
   }
 
-  @Test def testTopProdSplicedOut() {
+  @Test def testTopProdSplicedOut(): Unit = {
 
     object first extends Primitive1(fakeTerm)
     object mid extends Primitive1(fakeTerm, false)

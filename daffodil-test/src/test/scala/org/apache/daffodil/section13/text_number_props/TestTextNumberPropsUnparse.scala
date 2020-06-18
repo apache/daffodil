@@ -26,7 +26,7 @@ object TestTextNumberPropsUnparse {
 
   val runner = Runner(testDir, "TextNumberPropsUnparse.tdml")
 
-  @AfterClass def shutDown {
+  @AfterClass def shutDown: Unit = {
     runner.reset
   }
 }
@@ -34,38 +34,38 @@ class TestTextNumberPropsUnparse {
 
   import TestTextNumberPropsUnparse._
 
-  @Test def test_unparseDelimitedPaddedString01() { runner.runOneTest("unparseDelimitedPaddedString01") }
-  @Test def test_unparseDelimitedPaddedString02() { runner.runOneTest("unparseDelimitedPaddedString02") }
-  @Test def test_unparseDelimitedPaddedString03() { runner.runOneTest("unparseDelimitedPaddedString03") }
-  @Test def test_unparseDelimitedPaddedString04() { runner.runOneTest("unparseDelimitedPaddedString04") }
-  @Test def test_unparseDelimitedPaddedString05() { runner.runOneTest("unparseDelimitedPaddedString05") }
-  @Test def test_unparseDelimitedPaddedString06() { runner.runOneTest("unparseDelimitedPaddedString06") }
-  @Test def test_unparseDelimitedPaddedString07() { runner.runOneTest("unparseDelimitedPaddedString07") }
-  @Test def test_unparseDelimitedPaddedString08() { runner.runOneTest("unparseDelimitedPaddedString08") }
-  @Test def test_unparseDelimitedPaddedString09() { runner.runOneTest("unparseDelimitedPaddedString09") }
-  @Test def test_unparseDelimitedPaddedString11() { runner.runOneTest("unparseDelimitedPaddedString11") }
-  @Test def test_unparseDelimitedPaddedString12() { runner.runOneTest("unparseDelimitedPaddedString12") }
-  @Test def test_unparseDelimitedPaddedString13() { runner.runOneTest("unparseDelimitedPaddedString13") }
-  @Test def test_unparseDelimitedPaddedString14() { runner.runOneTest("unparseDelimitedPaddedString14") }
+  @Test def test_unparseDelimitedPaddedString01(): Unit = { runner.runOneTest("unparseDelimitedPaddedString01") }
+  @Test def test_unparseDelimitedPaddedString02(): Unit = { runner.runOneTest("unparseDelimitedPaddedString02") }
+  @Test def test_unparseDelimitedPaddedString03(): Unit = { runner.runOneTest("unparseDelimitedPaddedString03") }
+  @Test def test_unparseDelimitedPaddedString04(): Unit = { runner.runOneTest("unparseDelimitedPaddedString04") }
+  @Test def test_unparseDelimitedPaddedString05(): Unit = { runner.runOneTest("unparseDelimitedPaddedString05") }
+  @Test def test_unparseDelimitedPaddedString06(): Unit = { runner.runOneTest("unparseDelimitedPaddedString06") }
+  @Test def test_unparseDelimitedPaddedString07(): Unit = { runner.runOneTest("unparseDelimitedPaddedString07") }
+  @Test def test_unparseDelimitedPaddedString08(): Unit = { runner.runOneTest("unparseDelimitedPaddedString08") }
+  @Test def test_unparseDelimitedPaddedString09(): Unit = { runner.runOneTest("unparseDelimitedPaddedString09") }
+  @Test def test_unparseDelimitedPaddedString11(): Unit = { runner.runOneTest("unparseDelimitedPaddedString11") }
+  @Test def test_unparseDelimitedPaddedString12(): Unit = { runner.runOneTest("unparseDelimitedPaddedString12") }
+  @Test def test_unparseDelimitedPaddedString13(): Unit = { runner.runOneTest("unparseDelimitedPaddedString13") }
+  @Test def test_unparseDelimitedPaddedString14(): Unit = { runner.runOneTest("unparseDelimitedPaddedString14") }
 
-  @Test def test_unparsePaddedString10() { runner.runOneTest("unparsePaddedString10") }
+  @Test def test_unparsePaddedString10(): Unit = { runner.runOneTest("unparsePaddedString10") }
 
-  @Test def test_unparsePaddedStringTruncate01() { runner.runOneTest("unparsePaddedStringTruncate01") }
-  @Test def test_unparsePaddedStringTruncate02() { runner.runOneTest("unparsePaddedStringTruncate02") }
-  @Test def test_unparsePaddedStringTruncate03() { runner.runOneTest("unparsePaddedStringTruncate03") }
-  @Test def test_unparsePaddedStringTruncate04() { runner.runOneTest("unparsePaddedStringTruncate04") }
-  @Test def test_unparsePaddedStringTruncate05() { runner.runOneTest("unparsePaddedStringTruncate05") }
-  @Test def test_unparsePaddedStringTruncate06() { runner.runOneTest("unparsePaddedStringTruncate06") }
+  @Test def test_unparsePaddedStringTruncate01(): Unit = { runner.runOneTest("unparsePaddedStringTruncate01") }
+  @Test def test_unparsePaddedStringTruncate02(): Unit = { runner.runOneTest("unparsePaddedStringTruncate02") }
+  @Test def test_unparsePaddedStringTruncate03(): Unit = { runner.runOneTest("unparsePaddedStringTruncate03") }
+  @Test def test_unparsePaddedStringTruncate04(): Unit = { runner.runOneTest("unparsePaddedStringTruncate04") }
+  @Test def test_unparsePaddedStringTruncate05(): Unit = { runner.runOneTest("unparsePaddedStringTruncate05") }
+  @Test def test_unparsePaddedStringTruncate06(): Unit = { runner.runOneTest("unparsePaddedStringTruncate06") }
 
-  @Test def test_parseDelimitedPaddedString01() { runner.runOneTest("parseDelimitedPaddedString01") }
+  @Test def test_parseDelimitedPaddedString01(): Unit = { runner.runOneTest("parseDelimitedPaddedString01") }
 
-  @Test def test_unparse_int_01() { runner.runOneTest("unparse_int_01") }
-  @Test def test_parse_int_01() { runner.runOneTest("parse_int_01") }
+  @Test def test_unparse_int_01(): Unit = { runner.runOneTest("unparse_int_01") }
+  @Test def test_parse_int_01(): Unit = { runner.runOneTest("parse_int_01") }
 
-  @Test def test_unparse_tnp_01() { runner.runOneTest("unparse_tnp_01") }
-  @Test def test_unparse_tnp_02() { runner.runOneTest("unparse_tnp_02") }
-  @Test def test_unparse_tnp_03() { runner.runOneTest("unparse_tnp_03") }
-  @Test def test_unparse_tnp_04() { runner.runOneTest("unparse_tnp_04") }
-  @Test def test_unparse_tnp_05a() { runner.runOneTest("unparse_tnp_05a") }
-  @Test def test_unparse_tnp_05b() { runner.runOneTest("unparse_tnp_05b") }
+  @Test def test_unparse_tnp_01(): Unit = { runner.runOneTest("unparse_tnp_01") }
+  @Test def test_unparse_tnp_02(): Unit = { runner.runOneTest("unparse_tnp_02") }
+  @Test def test_unparse_tnp_03(): Unit = { runner.runOneTest("unparse_tnp_03") }
+  @Test def test_unparse_tnp_04(): Unit = { runner.runOneTest("unparse_tnp_04") }
+  @Test def test_unparse_tnp_05a(): Unit = { runner.runOneTest("unparse_tnp_05a") }
+  @Test def test_unparse_tnp_05b(): Unit = { runner.runOneTest("unparse_tnp_05b") }
 }

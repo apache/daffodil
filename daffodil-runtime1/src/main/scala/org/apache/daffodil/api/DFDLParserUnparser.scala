@@ -99,10 +99,10 @@ object DFDL {
      * if that is unambiguous, it will use it as the root.
      */
     @deprecated("Use arguments to compileSource, or compileFile method.", "2.6.0")
-    def setDistinguishedRootNode(name: String, namespace: String)
+    def setDistinguishedRootNode(name: String, namespace: String): Unit
 
     @deprecated("Use DataProcessor.withExternalVariables.", "2.6.0")
-    def setExternalDFDLVariable(name: String, namespace: String, value: String)
+    def setExternalDFDLVariable(name: String, namespace: String, value: String): Unit
 
     /**
      * Compilation returns a parser factory, which must be interrogated for diagnostics
@@ -233,7 +233,7 @@ object DFDL {
       (diagnostics.toSet ++ resultState.diagnostics.toSet ++ resultStatusDiagnostics.toSet).toSeq
     }
 
-    def addDiagnostic(d: Diagnostic) {
+    def addDiagnostic(d: Diagnostic): Unit = {
       diagnostics = d +: diagnostics
     }
 

@@ -56,7 +56,7 @@ class TestUnparseHidden {
       </xs:sequence>
     </xs:group>
 
-  @Test def testUnparseHiddenGroupsPresenceFlags1() {
+  @Test def testUnparseHiddenGroupsPresenceFlags1(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" lengthKind="explicit"/>,
@@ -73,7 +73,7 @@ class TestUnparseHidden {
     TestUtils.testUnparsing(testSchema, infoset, data)
   }
 
-  @Test def testUnparseHiddenGroupsPresenceFlags2() {
+  @Test def testUnparseHiddenGroupsPresenceFlags2(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" lengthKind="explicit"/>,
@@ -123,7 +123,7 @@ class TestUnparseHidden {
       </xs:sequence>
     </xs:group>
 
-  @Test def testUnparseHiddenGroupsPresenceFlags3() {
+  @Test def testUnparseHiddenGroupsPresenceFlags3(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" lengthKind="explicit"/>,
@@ -141,7 +141,7 @@ class TestUnparseHidden {
     TestUtils.testUnparsing(testSchema, infoset, data)
   }
 
-  @Test def testUnparseHiddenGroupsPresenceFlags4() {
+  @Test def testUnparseHiddenGroupsPresenceFlags4(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" lengthKind="explicit"/>,
@@ -196,7 +196,7 @@ class TestUnparseHidden {
    * so that element, if present, will be used to select the choice branch, but if absent, the other branch will be
    * used.
    */
-  @Test def testUnparseHiddenGroupsPresenceFlags5a() {
+  @Test def testUnparseHiddenGroupsPresenceFlags5a(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" lengthKind="explicit"/>,
@@ -217,7 +217,7 @@ class TestUnparseHidden {
    * In this test the 'b' element which has dfdl:outputValueCalc is found in the infoset, and so guides the
    * selection of the choice branch. However its value is ignored and recomputed.
    */
-  @Test def testUnparseHiddenGroupsPresenceFlags5b() {
+  @Test def testUnparseHiddenGroupsPresenceFlags5b(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" lengthKind="explicit"/>,
@@ -267,7 +267,7 @@ class TestUnparseHidden {
       </xs:sequence>
     </xs:group>
 
-  @Test def testUnparseHiddenGroupsPresenceFlags6() {
+  @Test def testUnparseHiddenGroupsPresenceFlags6(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" lengthKind="explicit"/>,

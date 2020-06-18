@@ -549,7 +549,7 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler) {
   //
   final var doValidation: Boolean = true
 
-  def setValidation(flag: Boolean) {
+  def setValidation(flag: Boolean): Unit = {
     doValidation = flag
   }
 

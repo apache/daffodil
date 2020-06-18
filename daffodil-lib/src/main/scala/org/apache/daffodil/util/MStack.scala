@@ -182,12 +182,12 @@ protected abstract class MStack[@specialized T] private[util] (
   private var index = 0
   private var table: Array[T] = null
 
-  def init {
+  def init: Unit = {
     index = 0
     table = arrayAllocator(32)
   }
 
-  def copyFrom(other: MStack[T]) {
+  def copyFrom(other: MStack[T]): Unit = {
     this.index = other.index
     if (this.table.length < other.index) {
       // the other table has too many items to fit into this table, so just
@@ -230,7 +230,7 @@ protected abstract class MStack[@specialized T] private[util] (
   /**
    *  resets stack top to where it was when mark was called.
    */
-  @inline final def reset(m: MStack.Mark) {
+  @inline final def reset(m: MStack.Mark): Unit = {
     index = m.v
   }
 
@@ -242,7 +242,7 @@ protected abstract class MStack[@specialized T] private[util] (
    *
    *  @param x The element to push
    */
-  @inline final def push(x: T) {
+  @inline final def push(x: T): Unit = {
     if (index == table.length) table = growArray(table)
     table(index) = x
     index += 1

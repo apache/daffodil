@@ -29,7 +29,7 @@ class TestCLITunables {
   val unqualifiedPathStep03 = Util.getExpectedString("unqualified_path_step_03.txt")
   val unqualifiedPathStep04 = Util.getExpectedString("unqualified_path_step_04.txt")
 
-  @Test def test_CLI_Parsing_unqualifiedPathStepPolicy_noNamespace_test_01() {
+  @Test def test_CLI_Parsing_unqualifiedPathStepPolicy_noNamespace_test_01(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/unqualified_path_step.dfdl.xsd")
     val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
     val shell = Util.start("")
@@ -45,7 +45,7 @@ class TestCLITunables {
     }
   }
 
-  @Test def test_CLI_Parsing_unqualifiedPathStepPolicy_noNamespace_test_02() {
+  @Test def test_CLI_Parsing_unqualifiedPathStepPolicy_noNamespace_test_02(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/unqualified_path_step.dfdl.xsd")
     val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
     val shell = Util.start("", true)
@@ -62,7 +62,7 @@ class TestCLITunables {
     }
   }
 
-  @Test def test_CLI_Parsing_unqualifiedPathStepPolicy_noNamespace_test_03() {
+  @Test def test_CLI_Parsing_unqualifiedPathStepPolicy_noNamespace_test_03(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/unqualified_path_step.dfdl.xsd")
     val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
     val shell = Util.start("", true)
@@ -79,7 +79,7 @@ class TestCLITunables {
     }
   }
 
-  @Test def test_CLI_Parsing_unqualifiedPathStepPolicy_noNamespace_test_04() {
+  @Test def test_CLI_Parsing_unqualifiedPathStepPolicy_noNamespace_test_04(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/unqualified_path_step.dfdl.xsd")
     val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
     val shell = Util.start("")
@@ -97,7 +97,7 @@ class TestCLITunables {
 
 
 
-  @Test def test_CLI_Parsing_unqualifiedPathStepPolicy_defaultNamespace_test_01() {
+  @Test def test_CLI_Parsing_unqualifiedPathStepPolicy_defaultNamespace_test_01(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/unqualified_path_step.dfdl.xsd")
     val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
     val shell = Util.start("")
@@ -113,7 +113,7 @@ class TestCLITunables {
     }
   }
 
-  @Test def test_CLI_Parsing_unqualifiedPathStepPolicy_defaultNamespace_test_02() {
+  @Test def test_CLI_Parsing_unqualifiedPathStepPolicy_defaultNamespace_test_02(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/unqualified_path_step.dfdl.xsd")
     val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
     val shell = Util.start("")
@@ -129,7 +129,7 @@ class TestCLITunables {
     }
   }
 
-  @Test def test_CLI_Parsing_unqualifiedPathStepPolicy_defaultNamespace_test_03() {
+  @Test def test_CLI_Parsing_unqualifiedPathStepPolicy_defaultNamespace_test_03(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/unqualified_path_step.dfdl.xsd")
     val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
     val shell = Util.start("", true)
@@ -146,7 +146,7 @@ class TestCLITunables {
     }
   }
 
-  @Test def test_CLI_Parsing_unqualifiedPathStepPolicy_defaultNamespace_test_04() {
+  @Test def test_CLI_Parsing_unqualifiedPathStepPolicy_defaultNamespace_test_04(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/unqualified_path_step.dfdl.xsd")
     val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
     val shell = Util.start("", true)
@@ -165,7 +165,7 @@ class TestCLITunables {
 
 
 
-  @Test def test_CLI_Parsing_unqualifiedPathStepPolicy_preferDefaultNamespace_test_01() {
+  @Test def test_CLI_Parsing_unqualifiedPathStepPolicy_preferDefaultNamespace_test_01(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/unqualified_path_step.dfdl.xsd")
     val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
     val shell = Util.start("")
@@ -181,7 +181,7 @@ class TestCLITunables {
     }
   }
 
-  @Test def test_CLI_Parsing_unqualifiedPathStepPolicy_preferDefaultNamespace_test_02() {
+  @Test def test_CLI_Parsing_unqualifiedPathStepPolicy_preferDefaultNamespace_test_02(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/unqualified_path_step.dfdl.xsd")
     val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
     val shell = Util.start("")
@@ -197,7 +197,7 @@ class TestCLITunables {
     }
   }
 
-  @Test def test_CLI_Parsing_unqualifiedPathStepPolicy_preferDefaultNamespace_test_03() {
+  @Test def test_CLI_Parsing_unqualifiedPathStepPolicy_preferDefaultNamespace_test_03(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/unqualified_path_step.dfdl.xsd")
     val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
     val shell = Util.start("", true)
@@ -214,7 +214,7 @@ class TestCLITunables {
     }
   }
 
-  @Test def test_CLI_Parsing_unqualifiedPathStepPolicy_preferDefaultNamespace_test_04() {
+  @Test def test_CLI_Parsing_unqualifiedPathStepPolicy_preferDefaultNamespace_test_04(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/unqualified_path_step.dfdl.xsd")
     val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
     val shell = Util.start("")

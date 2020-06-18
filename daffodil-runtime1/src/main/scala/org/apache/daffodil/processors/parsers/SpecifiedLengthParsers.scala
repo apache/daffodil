@@ -273,7 +273,7 @@ class CaptureStartOfContentLengthParser(override val context: ElementRuntimeData
 
   override val runtimeDependencies = Vector()
 
-  override def parse(state: PState) {
+  override def parse(state: PState): Unit = {
     val dis = state.dataInputStream
     val elem = state.infoset
     elem.contentLength.setAbsStartPos0bInBits(ULong(dis.bitPos0b))
@@ -285,7 +285,7 @@ class CaptureEndOfContentLengthParser(override val context: ElementRuntimeData)
 
   override val runtimeDependencies = Vector()
 
-  override def parse(state: PState) {
+  override def parse(state: PState): Unit = {
     val dis = state.dataInputStream
     val elem = state.infoset
     elem.contentLength.setAbsEndPos0bInBits(ULong(dis.bitPos0b))
@@ -297,7 +297,7 @@ class CaptureStartOfValueLengthParser(override val context: ElementRuntimeData)
 
   override val runtimeDependencies = Vector()
 
-  override def parse(state: PState) {
+  override def parse(state: PState): Unit = {
     val dis = state.dataInputStream
     val elem = state.infoset
     elem.valueLength.setAbsStartPos0bInBits(ULong(dis.bitPos0b))
@@ -309,7 +309,7 @@ class CaptureEndOfValueLengthParser(override val context: ElementRuntimeData)
 
   override val runtimeDependencies = Vector()
 
-  override def parse(state: PState) {
+  override def parse(state: PState): Unit = {
     val dis = state.dataInputStream
     val elem = state.infoset
     elem.valueLength.setAbsEndPos0bInBits(ULong(dis.bitPos0b))

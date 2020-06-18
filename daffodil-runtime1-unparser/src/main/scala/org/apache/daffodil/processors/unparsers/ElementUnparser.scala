@@ -58,7 +58,7 @@ class ElementUnspecifiedLengthUnparser(
 }
 
 sealed trait RepMoveMixin {
-  def move(start: UState) {
+  def move(start: UState): Unit = {
     val childIndex = start.childIndexStack.pop()
     start.childIndexStack.push(childIndex + 1)
   }
@@ -91,7 +91,7 @@ class ElementUnparserNoRep(
    * Move over in the element children, but not in the group.
    * This avoids separators for this IVC element.
    */
-  override def move(state: UState) {
+  override def move(state: UState): Unit = {
     val childIndex = state.childIndexStack.pop()
     state.childIndexStack.push(childIndex + 1)
   }
@@ -151,7 +151,7 @@ sealed abstract class ElementUnparserBase(
         "</Element>"
   }
 
-  final def computeSetVariables(state: UState) {
+  final def computeSetVariables(state: UState): Unit = {
     // variable assignment. Always after the element value, but
     // also still with this element itself as the context, so before
     // we end element.
@@ -164,17 +164,17 @@ sealed abstract class ElementUnparserBase(
     }
   }
 
-  protected def doBeforeContentUnparser(state: UState) {
+  protected def doBeforeContentUnparser(state: UState): Unit = {
     if (eBeforeUnparser.isDefined)
       eBeforeUnparser.get.unparse1(state)
   }
 
-  protected def doAfterContentUnparser(state: UState) {
+  protected def doAfterContentUnparser(state: UState): Unit = {
     if (eAfterUnparser.isDefined)
       eAfterUnparser.get.unparse1(state)
   }
 
-  protected def runContentUnparser(state: UState) {
+  protected def runContentUnparser(state: UState): Unit = {
     if (eReptypeUnparser.isDefined) {
       eReptypeUnparser.get.unparse1(state)
     } else if (eUnparser.isDefined)
@@ -264,7 +264,7 @@ trait ElementSpecifiedLengthMixin {
   //    mtlop
   //  }
 
-  protected def computeTargetLength(state: UState) {
+  protected def computeTargetLength(state: UState): Unit = {
     if (maybeTargetLengthEv.isDefined) {
       val tlEv = maybeTargetLengthEv.get
       if (tlEv.isConstant) {
@@ -302,7 +302,7 @@ class ElementSpecifiedLengthUnparser(
 
   override lazy val runtimeDependencies = maybeTargetLengthEv.toList.toVector
 
-  override def runContentUnparser(state: UState) {
+  override def runContentUnparser(state: UState): Unit = {
     computeTargetLength(state) // must happen before run() so that we can take advantage of knowing the length
     super.runContentUnparser(state) // setup unparsing, which will block for no valu
   }
@@ -320,7 +320,7 @@ class ElementOVCSpecifiedLengthUnparserSuspendableExpresion(
 
   override lazy val expr = rd.outputValueCalcExpr.get
 
-  override final protected def processExpressionResult(state: UState, v: DataValuePrimitive) {
+  override final protected def processExpressionResult(state: UState, v: DataValuePrimitive): Unit = {
     val diSimple = state.currentInfosetNode.asSimple
 
     diSimple.setDataValue(v)
@@ -360,7 +360,7 @@ class ElementOVCSpecifiedLengthUnparser(
 
   Assert.invariant(context.outputValueCalcExpr.isDefined)
 
-  override def runContentUnparser(state: UState) {
+  override def runContentUnparser(state: UState): Unit = {
     computeTargetLength(state) // must happen before run() so that we can take advantage of knowing the length
     suspendableExpression.run(state) // run the expression. It might or might not have a value.
     super.runContentUnparser(state) // setup unparsing, which will block for no valu
@@ -385,7 +385,7 @@ sealed trait ElementUnparserStartEndStrategy {
 
   protected def captureRuntimeValuedExpressionValues(ustate: UState): Unit
 
-  protected def move(start: UState)
+  protected def move(start: UState): Unit
 
   protected def erd: ElementRuntimeData
 
@@ -497,7 +497,7 @@ trait OVCStartEndStrategy
   /**
    * For OVC, the behavior w.r.t. consuming infoset events is different.
    */
-  protected final override def unparseBegin(state: UState) {
+  protected final override def unparseBegin(state: UState): Unit = {
     val elem =
       if (!state.withinHiddenNest) {
         // outputValueCalc elements are optional in the infoset. If the next event
@@ -537,7 +537,7 @@ trait OVCStartEndStrategy
     state.currentInfosetNodeStack.push(e)
   }
 
-  protected final override def unparseEnd(state: UState) {
+  protected final override def unparseEnd(state: UState): Unit = {
     state.currentInfosetNodeStack.pop
 
     // if an OVC element existed, the start AND end events were consumed in
@@ -597,7 +597,7 @@ trait OVCStartEndStrategy
   // delimiter stack, but probably could get a way with only top of stack for
   // many other things.
 
-  final override protected def captureRuntimeValuedExpressionValues(state: UState) {
+  final override protected def captureRuntimeValuedExpressionValues(state: UState): Unit = {
     //
     // Forces the evaluation of runtime-valued things, and this will cause those
     // that actually are runtime-expressions to be cached on the infoset element.

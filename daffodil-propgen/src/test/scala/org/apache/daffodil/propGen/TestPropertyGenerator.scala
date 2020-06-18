@@ -22,7 +22,7 @@ import org.junit.Test
 
 class TestPropertyGenerator {
 
-  @Test def testGenEnum() {
+  @Test def testGenEnum(): Unit = {
     val sch = <xsd:simpleType name="NilKindEnum">
                 <xsd:restriction base="xsd:string">
                   <xsd:enumeration value="literalValue"/>
@@ -46,7 +46,7 @@ class TestPropertyGenerator {
    *
    * Test also looks for the registration of the toString function for the property.
    */
-  @Test def testGenPropMixins() {
+  @Test def testGenPropMixins(): Unit = {
     val sch =
       <xsd:attributeGroup name="LengthPropertiesAG">
         <xsd:attribute name="lengthKind" type="dfdl:LengthKindEnum"/>
@@ -71,7 +71,7 @@ class TestPropertyGenerator {
   /**
    * make sure we generate trait mixin for referenced attribute groups.
    */
-  @Test def testGenPropMixins2() {
+  @Test def testGenPropMixins2(): Unit = {
     val sch =
       <xsd:attributeGroup name="ElementAG">
         <xsd:attributeGroup ref="dfdl:SimpleTypeAG"></xsd:attributeGroup>
@@ -89,7 +89,7 @@ class TestPropertyGenerator {
    * verify that the right thing is generated when the type is xsd:NCName, i.e., a built-in type
    * not one defined in the XML Schema for DFDL annotations.
    */
-  @Test def testGenPropMixins3() {
+  @Test def testGenPropMixins3(): Unit = {
     val sch =
       <xsd:attributeGroup name="TextNumberFormatAG1">
         <xsd:attribute name="textNumberFormatRef" type="xsd:NCName"/>
@@ -99,7 +99,7 @@ class TestPropertyGenerator {
     assertTrue(mx.contains("""convertToNCName(findProperty("textNumberFormatRef")"""))
   }
 
-  @Test def testGenCT() {
+  @Test def testGenCT(): Unit = {
     val sch =
       <xsd:complexType name="DFDLSequenceType">
         <xsd:complexContent>
@@ -116,7 +116,7 @@ class TestPropertyGenerator {
     assertTrue(mx.contains("""with SequenceGroupsWithDelimitersAGMixin"""))
   }
 
-  @Test def testGenCT2() {
+  @Test def testGenCT2(): Unit = {
     val sch =
       <xsd:complexType name="DFDLDefineFormat">
         <xsd:all>
@@ -132,7 +132,7 @@ class TestPropertyGenerator {
     assertTrue(mx.contains("""convertToQName"""))
   }
 
-  @Test def testElement1() {
+  @Test def testElement1(): Unit = {
     val sch =
       <xsd:element name="defineFormat" type="dfdl:DFDLDefineFormat"/>
     val pg = new PropertyGenerator(sch)
@@ -140,7 +140,7 @@ class TestPropertyGenerator {
     assertTrue(mx.contains("""with DFDLDefineFormatMixin"""))
   }
 
-  @Test def testElementWithImmediateComplexType1() {
+  @Test def testElementWithImmediateComplexType1(): Unit = {
     val sch =
       <xsd:element name="defineVariable">
         <xsd:complexType>

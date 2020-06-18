@@ -25,7 +25,7 @@ object TestEscapeSchemeUnparseNew {
   val testDir = "/org/apache/daffodil/section07/escapeScheme/"
   val runner = Runner(testDir, "escapeSchemeUnparse.tdml")
 
-  @AfterClass def tearDown() {
+  @AfterClass def tearDown(): Unit = {
     runner.reset
   }
 }
@@ -33,5 +33,5 @@ class TestEscapeSchemeUnparseNew {
 
   import TestEscapeSchemeUnparse._
 
-  @Test def test_unparseInvalidExtraEscapedCharacters() { runner.runOneTest("unparseInvalidExtraEscapedCharacters") }
+  @Test def test_unparseInvalidExtraEscapedCharacters(): Unit = { runner.runOneTest("unparseInvalidExtraEscapedCharacters") }
 }

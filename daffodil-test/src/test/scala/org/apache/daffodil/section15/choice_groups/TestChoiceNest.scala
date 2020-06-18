@@ -26,7 +26,7 @@ object TestChoiceNest {
 
   val runner = Runner(testDir, "choiceNests.tdml")
 
-  @AfterClass def shutDown {
+  @AfterClass def shutDown: Unit = {
     runner.reset
   }
 
@@ -36,10 +36,10 @@ class TestChoiceNest {
 
   import TestChoiceNest._
 
-  @Test def test_choiceNest1() { runner.runOneTest("choiceNest1") }
-  @Test def test_choiceNest2() { runner.runOneTest("choiceNest2") }
-  @Test def test_choiceNest2a() { runner.runOneTest("choiceNest2a") }
-  @Test def test_choiceNest3() { runner.runOneTest("choiceNest3") }
-  @Test def test_choiceNest4() { runner.runOneTest("choiceNest4") }
+  @Test def test_choiceNest1(): Unit = { runner.runOneTest("choiceNest1") }
+  @Test def test_choiceNest2(): Unit = { runner.runOneTest("choiceNest2") }
+  @Test def test_choiceNest2a(): Unit = { runner.runOneTest("choiceNest2a") }
+  @Test def test_choiceNest3(): Unit = { runner.runOneTest("choiceNest3") }
+  @Test def test_choiceNest4(): Unit = { runner.runOneTest("choiceNest4") }
 
 }

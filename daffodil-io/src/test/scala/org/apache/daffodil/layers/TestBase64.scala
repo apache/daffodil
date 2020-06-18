@@ -55,7 +55,7 @@ W1vdXMgcXVvdGVzIG9yIHNvbmcgbHlyaWNzIG9yIGFueXRoaW5nIGxpa2UgdGhhdCBpbnRyb2R1Y
    */
   val b64TextExtraLFs = b64Text.split("Z").mkString("Z\r\n")
 
-  @Test def testBase64_01() {
+  @Test def testBase64_01(): Unit = {
     val input = text
     val expected = b64Text
     val encoded = java.util.Base64.getMimeEncoder.encodeToString(input.getBytes("ascii"))
@@ -77,7 +77,7 @@ W1vdXMgcXVvdGVzIG9yIHNvbmcgbHlyaWNzIG9yIGFueXRoaW5nIGxpa2UgdGhhdCBpbnRyb2R1Y
     if (failed) fail()
   }
 
-  @Test def testBase64_broken_data_01() {
+  @Test def testBase64_broken_data_01(): Unit = {
 
     val data = b64Text.tail
 
@@ -87,7 +87,7 @@ W1vdXMgcXVvdGVzIG9yIHNvbmcgbHlyaWNzIG9yIGFueXRoaW5nIGxpa2UgdGhhdCBpbnRyb2R1Y
 
   }
 
-  @Test def testBase64_broken_data_02() {
+  @Test def testBase64_broken_data_02(): Unit = {
 
     val data = b64Text.dropRight(3)
 
@@ -97,13 +97,13 @@ W1vdXMgcXVvdGVzIG9yIHNvbmcgbHlyaWNzIG9yIGFueXRoaW5nIGxpa2UgdGhhdCBpbnRyb2R1Y
 
   }
 
-  @Test def testBase64_tolerates_extra_CRLFs() {
+  @Test def testBase64_tolerates_extra_CRLFs(): Unit = {
     val data = b64TextExtraLFs
     val textDecoded = new String(java.util.Base64.getMimeDecoder.decode(data))
     assertEquals(text, textDecoded)
   }
 
-  @Test def testBase64_decode_consumes_final_CRLF() {
+  @Test def testBase64_decode_consumes_final_CRLF(): Unit = {
 
     val data = b64Text ++ "\r\n" // add extra CRLF
 
@@ -112,7 +112,7 @@ W1vdXMgcXVvdGVzIG9yIHNvbmcgbHlyaWNzIG9yIGFueXRoaW5nIGxpa2UgdGhhdCBpbnRyb2R1Y
     assertEquals(text, actual)
   }
 
-  @Test def testBase64_decode_consumes_final_LF() {
+  @Test def testBase64_decode_consumes_final_LF(): Unit = {
 
     val data = b64Text ++ "\n" // add extra LF
 
@@ -125,7 +125,7 @@ W1vdXMgcXVvdGVzIG9yIHNvbmcgbHlyaWNzIG9yIGFueXRoaW5nIGxpa2UgdGhhdCBpbnRyb2R1Y
    * Base64 decoder that decodes strings consumes any trailing CRLFs or LFs
    * and ignores them.
    */
-  @Test def testBase64_decode_consumes_final_LFLFLFLF() {
+  @Test def testBase64_decode_consumes_final_LFLFLFLF(): Unit = {
 
     val data = b64Text ++ "\n\n\n\n" // add extra LF
 
@@ -139,7 +139,7 @@ W1vdXMgcXVvdGVzIG9yIHNvbmcgbHlyaWNzIG9yIGFueXRoaW5nIGxpa2UgdGhhdCBpbnRyb2R1Y
    * java input stream, and read as much as we can from it, that it will stop
    * at an equals sign, and tolerates additional equals signs even.
    */
-  @Test def testBase64_decode_from_stream_consumes_nothing_extra() {
+  @Test def testBase64_decode_from_stream_consumes_nothing_extra(): Unit = {
 
     val additional = "====ABCD"
     val data = b64Text ++ additional // add extra characters
@@ -162,7 +162,7 @@ W1vdXMgcXVvdGVzIG9yIHNvbmcgbHlyaWNzIG9yIGFueXRoaW5nIGxpa2UgdGhhdCBpbnRyb2R1Y
    *
    * This tells us that base64 is, generally speaking, not self-delimiting.
    */
-  @Test def testBase64_decode_from_stream_does_not_stop_by_itself() {
+  @Test def testBase64_decode_from_stream_does_not_stop_by_itself(): Unit = {
 
     val data = "cGxlYXN1cmUu" ++ "=" // encoding of "pleasure."
 
@@ -181,7 +181,7 @@ W1vdXMgcXVvdGVzIG9yIHNvbmcgbHlyaWNzIG9yIGFueXRoaW5nIGxpa2UgdGhhdCBpbnRyb2R1Y
    *
    * It behaves as if it removes all the line endings first, and then decodes.
    */
-  @Test def testBase64_decode_from_stream_does_not_stop_by_itself2() {
+  @Test def testBase64_decode_from_stream_does_not_stop_by_itself2(): Unit = {
 
     val data = "cGxlYXN1cmUu" ++ "\n=" // encoding of "pleasure."
 
@@ -217,28 +217,28 @@ W1vdXMgcXVvdGVzIG9yIHNvbmcgbHlyaWNzIG9yIGFueXRoaW5nIGxpa2UgdGhhdCBpbnRyb2R1Y
   /**
    * Zero-length string encodes to zero length string.
    */
-  @Test def testBase64_0Byte() {
+  @Test def testBase64_0Byte(): Unit = {
     compare("", "")
   }
 
   /**
    * If length is 1 mod 3, then there will be "==" after.
    */
-  @Test def testBase64_1Byte() {
+  @Test def testBase64_1Byte(): Unit = {
     compare("Q", "UQ==")
   }
 
   /**
    * If length is 2 mod 3, then there will be "=" after.
    */
-  @Test def testBase64_2Byte() {
+  @Test def testBase64_2Byte(): Unit = {
     compare("QQ", "UVE=")
   }
 
   /**
    * If length is 0 mod 3, then there will be no trailing characters.
    */
-  @Test def testBase64_3Byte() {
+  @Test def testBase64_3Byte(): Unit = {
     compare("QQQ", "UVFR")
   }
 

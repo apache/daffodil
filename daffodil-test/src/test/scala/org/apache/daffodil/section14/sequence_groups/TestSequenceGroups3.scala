@@ -28,7 +28,7 @@ object TestSequenceGroups3 {
   val runner_01 = Runner(testDir_01, "SequenceGroupDelimiters.tdml")
   val runner_02 = Runner(testDir_01, "SequenceGroup.tdml", validateTDMLFile = false)
 
-  @AfterClass def shutDown {
+  @AfterClass def shutDown: Unit = {
     runner_01.reset
     runner_02.reset
   }
@@ -38,13 +38,13 @@ object TestSequenceGroups3 {
 class TestSequenceGroups3 {
   import TestSequenceGroups3._
 
-  @Test def test_lastElts() { runner_01.runOneTest("lastElts") }
+  @Test def test_lastElts(): Unit = { runner_01.runOneTest("lastElts") }
 
-  @Test def test_hiddenGroupSeqWithRequiredElements() { runner_02.runOneTest("hiddenGroupSeqWithRequiredElements") }
-  @Test def test_hiddenGroupChoiceWithAllRequiredBranches() { runner_02.runOneTest("hiddenGroupChoiceWithAllRequiredBranches") }
+  @Test def test_hiddenGroupSeqWithRequiredElements(): Unit = { runner_02.runOneTest("hiddenGroupSeqWithRequiredElements") }
+  @Test def test_hiddenGroupChoiceWithAllRequiredBranches(): Unit = { runner_02.runOneTest("hiddenGroupChoiceWithAllRequiredBranches") }
 
-  @Test def test_sequence_group_with_annotation_01() { runner_02.runOneTest("sequence_group_with_annotation_01") }
-  @Test def test_choice_group_with_annotation_01() { runner_02.runOneTest("choice_group_with_annotation_01") }
+  @Test def test_sequence_group_with_annotation_01(): Unit = { runner_02.runOneTest("sequence_group_with_annotation_01") }
+  @Test def test_choice_group_with_annotation_01(): Unit = { runner_02.runOneTest("choice_group_with_annotation_01") }
 
-  @Test def test_similar_model_groups_01() { runner_02.runOneTest("similar_model_groups_01") }
+  @Test def test_similar_model_groups_01(): Unit = { runner_02.runOneTest("similar_model_groups_01") }
 }

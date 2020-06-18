@@ -26,7 +26,7 @@ object TestSimpleTypesUnparse {
 
   val runner = Runner(testDir, "SimpleTypesUnparse.tdml")
 
-  @AfterClass def shutDown() {
+  @AfterClass def shutDown(): Unit = {
     runner.reset
   }
 }
@@ -38,31 +38,31 @@ class TestSimpleTypesUnparse {
   //dfdl:hexBinary not behaving like xs:hexBinary 
   //@Test def test_hexBinary_unparse_13() { runner.runOneTest("hexBinary_unparse_13") }
   
-  @Test def test_hexBinary_unparse_01() { runner.runOneTest("hexBinary_unparse_01") }
-  @Test def test_hexBinary_unparse_02() { runner.runOneTest("hexBinary_unparse_02") }
-  @Test def test_hexBinary_unparse_03() { runner.runOneTest("hexBinary_unparse_03") }
-  @Test def test_hexBinary_unparse_04() { runner.runOneTest("hexBinary_unparse_04") }
-  @Test def test_hexBinary_unparse_05() { runner.runOneTest("hexBinary_unparse_05") }
-  @Test def test_hexBinary_unparse_06() { runner.runOneTest("hexBinary_unparse_06") }
-  @Test def test_hexBinary_unparse_07() { runner.runOneTest("hexBinary_unparse_07") }
-  @Test def test_hexBinary_unparse_08() { runner.runOneTest("hexBinary_unparse_08") }
-  @Test def test_hexBinary_unparse_09() { runner.runOneTest("hexBinary_unparse_09") }
-  @Test def test_hexBinary_unparse_10() { runner.runOneTest("hexBinary_unparse_10") }
-  @Test def test_hexBinary_unparse_11() { runner.runOneTest("hexBinary_unparse_11") }
-  @Test def test_hexBinary_unparse_12() { runner.runOneTest("hexBinary_unparse_12") }
-  @Test def test_hexBinary_unparse_14() { runner.runOneTest("hexBinary_unparse_14") }
-  @Test def test_hexBinary_unparse_15() { runner.runOneTest("hexBinary_unparse_15") }
-  @Test def test_hexBinary_unparse_16() { runner.runOneTest("hexBinary_unparse_16") }
-  @Test def test_hexBinary_unparse_17() { runner.runOneTest("hexBinary_unparse_17") }
-  @Test def test_hexBinary_unparse_18() { runner.runOneTest("hexBinary_unparse_18") }
-  @Test def test_hexBinary_unparse_19() { runner.runOneTest("hexBinary_unparse_19") }
+  @Test def test_hexBinary_unparse_01(): Unit = { runner.runOneTest("hexBinary_unparse_01") }
+  @Test def test_hexBinary_unparse_02(): Unit = { runner.runOneTest("hexBinary_unparse_02") }
+  @Test def test_hexBinary_unparse_03(): Unit = { runner.runOneTest("hexBinary_unparse_03") }
+  @Test def test_hexBinary_unparse_04(): Unit = { runner.runOneTest("hexBinary_unparse_04") }
+  @Test def test_hexBinary_unparse_05(): Unit = { runner.runOneTest("hexBinary_unparse_05") }
+  @Test def test_hexBinary_unparse_06(): Unit = { runner.runOneTest("hexBinary_unparse_06") }
+  @Test def test_hexBinary_unparse_07(): Unit = { runner.runOneTest("hexBinary_unparse_07") }
+  @Test def test_hexBinary_unparse_08(): Unit = { runner.runOneTest("hexBinary_unparse_08") }
+  @Test def test_hexBinary_unparse_09(): Unit = { runner.runOneTest("hexBinary_unparse_09") }
+  @Test def test_hexBinary_unparse_10(): Unit = { runner.runOneTest("hexBinary_unparse_10") }
+  @Test def test_hexBinary_unparse_11(): Unit = { runner.runOneTest("hexBinary_unparse_11") }
+  @Test def test_hexBinary_unparse_12(): Unit = { runner.runOneTest("hexBinary_unparse_12") }
+  @Test def test_hexBinary_unparse_14(): Unit = { runner.runOneTest("hexBinary_unparse_14") }
+  @Test def test_hexBinary_unparse_15(): Unit = { runner.runOneTest("hexBinary_unparse_15") }
+  @Test def test_hexBinary_unparse_16(): Unit = { runner.runOneTest("hexBinary_unparse_16") }
+  @Test def test_hexBinary_unparse_17(): Unit = { runner.runOneTest("hexBinary_unparse_17") }
+  @Test def test_hexBinary_unparse_18(): Unit = { runner.runOneTest("hexBinary_unparse_18") }
+  @Test def test_hexBinary_unparse_19(): Unit = { runner.runOneTest("hexBinary_unparse_19") }
 
-  @Test def test_hexBinary_variable_unparse_01() { runner.runOneTest("hexBinary_variable_unparse_01") }
-  @Test def test_hexBinary_variable_unparse_02() { runner.runOneTest("hexBinary_variable_unparse_02") }
-  @Test def test_hexBinary_variable_unparse_03() { runner.runOneTest("hexBinary_variable_unparse_03") }
-  @Test def test_hexBinary_variable_unparse_04() { runner.runOneTest("hexBinary_variable_unparse_04") }
+  @Test def test_hexBinary_variable_unparse_01(): Unit = { runner.runOneTest("hexBinary_variable_unparse_01") }
+  @Test def test_hexBinary_variable_unparse_02(): Unit = { runner.runOneTest("hexBinary_variable_unparse_02") }
+  @Test def test_hexBinary_variable_unparse_03(): Unit = { runner.runOneTest("hexBinary_variable_unparse_03") }
+  @Test def test_hexBinary_variable_unparse_04(): Unit = { runner.runOneTest("hexBinary_variable_unparse_04") }
 
-  @Test def test_float_binary_unparse_01() { runner.runOneTest("float_binary_unparse_01") }
-  @Test def test_double_binary_unparse_01() { runner.runOneTest("double_binary_unparse_01") }
-  @Test def test_integer_binary_unparse_01() { runner.runOneTest("integer_binary_unparse_01") }
+  @Test def test_float_binary_unparse_01(): Unit = { runner.runOneTest("float_binary_unparse_01") }
+  @Test def test_double_binary_unparse_01(): Unit = { runner.runOneTest("double_binary_unparse_01") }
+  @Test def test_integer_binary_unparse_01(): Unit = { runner.runOneTest("integer_binary_unparse_01") }
 }

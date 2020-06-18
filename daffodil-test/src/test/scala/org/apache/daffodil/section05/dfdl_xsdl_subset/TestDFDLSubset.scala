@@ -27,7 +27,7 @@ object TestDFDLSubset {
   val runner = Runner(testDir, "DFDLSubset.tdml")
   val runnerNV = Runner(testDir, "DFDLSubset.tdml", validateDFDLSchemas=false)
 
-  @AfterClass def tearDown() {
+  @AfterClass def tearDown(): Unit = {
     runner.reset
     runnerNV.reset
   }
@@ -38,12 +38,12 @@ class TestDFDLSubset {
 
   import TestDFDLSubset._
 
-  @Test def test_groupRefGroupRef() { { runner.runOneTest("groupRefGroupRef") } }
-  @Test def test_refInitiator3() { { runner.runOneTest("refInitiator3") } }
-  @Test def test_groupRef() { { runnerNV.runOneTest("groupRef") } }
-  @Test def test_groupRefChoice() { runnerNV.runOneTest("groupRefChoice") }
-  @Test def test_badGroupRef() { { runner.runOneTest("badGroupRef") } }
-  @Test def test_badSeq() { { runner.runOneTest("badSeq") } }
+  @Test def test_groupRefGroupRef(): Unit = { { runner.runOneTest("groupRefGroupRef") } }
+  @Test def test_refInitiator3(): Unit = { { runner.runOneTest("refInitiator3") } }
+  @Test def test_groupRef(): Unit = { { runnerNV.runOneTest("groupRef") } }
+  @Test def test_groupRefChoice(): Unit = { runnerNV.runOneTest("groupRefChoice") }
+  @Test def test_badGroupRef(): Unit = { { runner.runOneTest("badGroupRef") } }
+  @Test def test_badSeq(): Unit = { { runner.runOneTest("badSeq") } }
 
-  @Test def test_groupRefDFDL() { runner.runOneTest("groupRefDFDL") }
+  @Test def test_groupRefDFDL(): Unit = { runner.runOneTest("groupRefDFDL") }
 }

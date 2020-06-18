@@ -26,7 +26,7 @@ object TestEncodings {
 
   val runner = Runner(testDir, "Encodings.tdml")
 
-  @AfterClass def shutdown {
+  @AfterClass def shutdown: Unit = {
     runner.reset
   }
 }
@@ -34,21 +34,21 @@ object TestEncodings {
 class TestEncodings {
   import TestEncodings._
 
-  @Test def test_f293u003_01() { runner.runOneTest("f293u003_01") }
-  @Test def test_f293u003_02() { runner.runOneTest("f293u003_02") }
-  @Test def test_f422u001_01() { runner.runOneTest("f422u001_01") }
-  @Test def test_f422u001_02() { runner.runOneTest("f422u001_02") }
-  @Test def test_f422u001_03() { runner.runOneTest("f422u001_03") }
-  @Test def test_f746u002_01() { runner.runOneTest("f746u002_01") }
-  @Test def test_f746u002_02() { runner.runOneTest("f746u002_02") }
-  @Test def test_f746u002_03() { runner.runOneTest("f746u002_03") }
-  @Test def test_f747u001_01() { runner.runOneTest("f747u001_01") }
-  @Test def test_f747u001_02() { runner.runOneTest("f747u001_02") }
-  @Test def test_f747u001_03() { runner.runOneTest("f747u001_03") }
-  @Test def test_f769u002_01() { runner.runOneTest("f769u002_01") }
-  @Test def test_f769u002_02() { runner.runOneTest("f769u002_02") }
-  @Test def test_f769u002_03() { runner.runOneTest("f769u002_03") }
-  @Test def test_f336u002_01() { runner.runOneTest("f336u002_01") }
-  @Test def test_f336u002_02() { runner.runOneTest("f336u002_02") }
-  @Test def test_f336u002_03() { runner.runOneTest("f336u002_03") }
+  def test_f293u003_01(): Unit = { runner.runOneTest("f293u003_01") }
+  @Test def test_f293u003_02(): Unit = { runner.runOneTest("f293u003_02") }
+  @Test def test_f422u001_01(): Unit = { runner.runOneTest("f422u001_01") }
+  @Test def test_f422u001_02(): Unit = { runner.runOneTest("f422u001_02") }
+  @Test def test_f422u001_03(): Unit = { runner.runOneTest("f422u001_03") }
+  @Test def test_f746u002_01(): Unit = { runner.runOneTest("f746u002_01") }
+  @Test def test_f746u002_02(): Unit = { runner.runOneTest("f746u002_02") }
+  @Test def test_f746u002_03(): Unit = { runner.runOneTest("f746u002_03") }
+  @Test def test_f747u001_01(): Unit = { runner.runOneTest("f747u001_01") }
+  @Test def test_f747u001_02(): Unit = { runner.runOneTest("f747u001_02") }
+  @Test def test_f747u001_03(): Unit = { runner.runOneTest("f747u001_03") }
+  @Test def test_f769u002_01(): Unit = { runner.runOneTest("f769u002_01") }
+  @Test def test_f769u002_02(): Unit = { runner.runOneTest("f769u002_02") }
+  @Test def test_f769u002_03(): Unit = { runner.runOneTest("f769u002_03") }
+  @Test def test_f336u002_01(): Unit = { runner.runOneTest("f336u002_01") }
+  @Test def test_f336u002_02(): Unit = { runner.runOneTest("f336u002_02") }
+  @Test def test_f336u002_03(): Unit = { runner.runOneTest("f336u002_03") }
 }

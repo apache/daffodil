@@ -26,7 +26,7 @@ object TestExternalVariables {
   val testDir = "/org/apache/daffodil/section07/external_variables/"
   val runner = Runner(testDir, "external_variables.tdml")
 
-  @AfterClass def tearDown() {
+  @AfterClass def tearDown(): Unit = {
     runner.reset
   }
 
@@ -36,31 +36,31 @@ class TestExternalVariables {
 
   import TestExternalVariables._
 
-  @Test def test_override_define_vars_01() {
+  @Test def test_override_define_vars_01(): Unit = {
     runner.runOneTest("override_define_vars_01")
   }
 
-  @Test def test_override_define_vars_02() {
+  @Test def test_override_define_vars_02(): Unit = {
     runner.runOneTest("override_define_vars_02")
   }
 
-  @Test def test_override_define_vars_03() {
+  @Test def test_override_define_vars_03(): Unit = {
     runner.runOneTest("override_define_vars_03")
   }
 
-  @Test def test_override_define_vars_04() {
+  @Test def test_override_define_vars_04(): Unit = {
     runner.runOneTest("override_define_vars_04")
   }
 
-  @Test def test_override_define_vars_05() {
+  @Test def test_override_define_vars_05(): Unit = {
     runner.runOneTest("override_define_vars_05")
   }
 
-  @Test def test_access_default_predefined_vars() {
+  @Test def test_access_default_predefined_vars(): Unit = {
     runner.runOneTest("access_default_predefined_vars")
   }
 
-  @Test def test_set_predefined_var() {
+  @Test def test_set_predefined_var(): Unit = {
     runner.runOneTest("set_predefined_var")
   }
 }

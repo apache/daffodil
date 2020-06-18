@@ -40,7 +40,7 @@ abstract class LiteralNilOfSpecifiedLengthParserBase(
 
   def isFieldNilLit(field: String): Boolean
 
-  override def parse(start: PState) {
+  override def parse(start: PState): Unit = {
 
     val field = parseString(start)
 

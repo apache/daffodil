@@ -26,7 +26,7 @@ class LogWriterForSAPITest extends LogWriter {
   val infos = new ListBuffer[String]()
   val others = new ListBuffer[String]()
 
-  def write(level: LogLevel.Value, logID: String, msg: String) {
+  def write(level: LogLevel.Value, logID: String, msg: String): Unit = {
     level match {
       case LogLevel.Error => errors.append(msg)
       case LogLevel.Warning => warnings.append(msg)
@@ -53,7 +53,7 @@ class LogWriterForSAPITest extends LogWriter {
     " [END]"
   }
 
-  override def log(level: LogLevel.Value, logID: String, msg: String, args: Seq[Any]) {
+  override def log(level: LogLevel.Value, logID: String, msg: String, args: Seq[Any]): Unit = {
     val message = if (args.size > 0) {
       msg.format(args:_*)
     } else {

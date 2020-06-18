@@ -39,7 +39,7 @@ class TestDump {
     }
   }
 
-  @Test def testDumpHexAndText1() {
+  @Test def testDumpHexAndText1(): Unit = {
 
     val bytes = "Date 年月日=2003年08月27日".getBytes("utf-8")
     val lengthInBits = bytes.length * 8
@@ -56,7 +56,7 @@ class TestDump {
     assertEquals(expected, "\n" + dumpString + "\n")
   }
 
-  @Test def testDumpHexAndText1a() {
+  @Test def testDumpHexAndText1a(): Unit = {
 
     val dateString = "Date 年月日=2003年08月27日"
     val dateStringLengthInBytes = dateString.getBytes("utf-8").length
@@ -81,7 +81,7 @@ class TestDump {
     assertEquals(expected, "\n" + dumpString + "\n")
   }
 
-  @Test def testDumpHexAndText1WithIndicator1() {
+  @Test def testDumpHexAndText1WithIndicator1(): Unit = {
 
     val bytes = "Date 年月日=2003年08月27日".getBytes("utf-8")
     val lengthInBits = bytes.length * 8
@@ -100,7 +100,7 @@ class TestDump {
     assertEquals(expected, "\n" + dumpString + "\n")
   }
 
-  @Test def testDumpHexAndText1WithIndicator2() {
+  @Test def testDumpHexAndText1WithIndicator2(): Unit = {
 
     val bytes = "Date 年月日=2003年08月27日".getBytes("utf-8")
     val lengthInBits = bytes.length * 8
@@ -119,7 +119,7 @@ class TestDump {
     assertEquals(expected, "\n" + dumpString + "\n")
   }
 
-  @Test def testDumpHexAndText2() {
+  @Test def testDumpHexAndText2(): Unit = {
 
     val bytes = "Date 年月日=2003年08月27日".getBytes("utf-32BE")
     val lengthInBits = bytes.length * 8
@@ -138,7 +138,7 @@ class TestDump {
     assertEquals(expected, "\n" + dumpString + "\n")
   }
 
-  @Test def testDumpHexAndText2WithIndicator1() {
+  @Test def testDumpHexAndText2WithIndicator1(): Unit = {
 
     val bytes = "Date 年月日=2003年08月27日".getBytes("utf-32BE")
     val lengthInBits = bytes.length * 8
@@ -159,7 +159,7 @@ class TestDump {
     assertEquals(expected, "\n" + dumpString + "\n")
   }
 
-  @Test def testDumpHexAndText2WithIndicator2() {
+  @Test def testDumpHexAndText2WithIndicator2(): Unit = {
 
     val bytes = "Date 年月日=2003年08月27日".getBytes("utf-32BE")
     val lengthInBits = bytes.length * 8
@@ -180,7 +180,7 @@ class TestDump {
     assertEquals(expected, "\n" + dumpString + "\n")
   }
 
-  @Test def testDumpHexAndText3() {
+  @Test def testDumpHexAndText3(): Unit = {
 
     val bytes = "Date 年月日=2003年08月27日".getBytes("utf-16LE")
     val lengthInBits = bytes.length * 8
@@ -197,7 +197,7 @@ class TestDump {
     assertEquals(expected, "\n" + dumpString + "\n")
   }
 
-  @Test def testDumpHexAndText4() {
+  @Test def testDumpHexAndText4(): Unit = {
 
     val bytes =
       """da8b f090 a487 f48b be8b be7a 1234 4567 f48b 8018 0156
@@ -223,7 +223,7 @@ dada 0000 0101 0817 ece2 8017 ece2 dead beef cc7a 1234
     assertEquals(expected, "\n" + dumpString + "\n")
   }
 
-  @Test def testDump1() {
+  @Test def testDump1(): Unit = {
 
     val bs = new BS((0 to 255).map { _.toByte }.toArray)
 
@@ -250,7 +250,7 @@ dada 0000 0101 0817 ece2 8017 ece2 dead beef cc7a 1234
     assertEquals(expected, "\n" + dumpString + "\n")
   }
 
-  @Test def testDump2() {
+  @Test def testDump2(): Unit = {
 
     val bs = new BS((0 to 255).map { _.toByte }.toArray)
 
@@ -279,7 +279,7 @@ dada 0000 0101 0817 ece2 8017 ece2 dead beef cc7a 1234
     assertEquals(expected, "\n" + dumpString + "\n")
   }
 
-  @Test def testDump3() {
+  @Test def testDump3(): Unit = {
 
     val bs = new BS((0 to 255).map { _.toByte }.toArray)
 
@@ -304,7 +304,7 @@ dada 0000 0101 0817 ece2 8017 ece2 dead beef cc7a 1234
     assertEquals(expected, "\n" + dumpString + "\n")
   }
 
-  @Test def testDump4() {
+  @Test def testDump4(): Unit = {
 
     val bs = new BS((0 to 255).map { _.toByte }.toArray)
 
@@ -316,7 +316,7 @@ dada 0000 0101 0817 ece2 8017 ece2 dead beef cc7a 1234
     assertEquals(expected, "\n" + dumpString + "\n")
   }
 
-  @Test def testDumpLSBFirst1() {
+  @Test def testDumpLSBFirst1(): Unit = {
 
     val bs = new BS((0 to 255).map { _.toByte }.toArray)
 
@@ -328,7 +328,7 @@ fedcba9876543210  ffee ddcc bbaa 9988 7766 5544 3322 1100  87654321
     assertEquals(expected, "\n" + dumpString + "\n")
   }
 
-  @Test def testDumpLSBFirst2() {
+  @Test def testDumpLSBFirst2(): Unit = {
 
     val bytes: Array[Byte] =
       """E4 67 00 80 55
@@ -348,7 +348,7 @@ cø€␀␀␀wü␚’gU€␀gä  63f8 8000 0000 77fc 1a92 6755 8000 67e4 :00
     assertEquals(expected, "\n" + dumpString + "\n")
   }
 
-  @Test def testDumpTextLine1() {
+  @Test def testDumpTextLine1(): Unit = {
     val data = (0 to 255).map { _.toByte }.toArray
     val bs = new BS(data)
     val lengthInbits = data.length * 8
@@ -359,7 +359,7 @@ cø€␀␀␀wü␚’gU€␀gä  63f8 8000 0000 77fc 1a92 6755 8000 67e4 :00
     assertEquals(expected, dumpString)
   }
 
-  @Test def testDumpTextLine2() {
+  @Test def testDumpTextLine2(): Unit = {
     val data = (0 to 255).map { _.toByte }.toArray
     val bs = new BS(data)
     val lengthInbits = data.length * 8
@@ -375,7 +375,7 @@ cø€␀␀␀wü␚’gU€␀gä  63f8 8000 0000 77fc 1a92 6755 8000 67e4 :00
     assertEquals(expected, dumpString)
   }
 
-  @Test def testDumpTextLine3() {
+  @Test def testDumpTextLine3(): Unit = {
     val data = (32 to 255).map { _.toByte }.toArray
     val bs = new BS(data)
     val lengthInbits = data.length * 8
@@ -402,7 +402,7 @@ cø€␀␀␀wü␚’gU€␀gä  63f8 8000 0000 77fc 1a92 6755 8000 67e4 :00
     assertEquals(expected, dumpString)
   }
 
-  @Test def testDumpTextLine4() {
+  @Test def testDumpTextLine4(): Unit = {
     val data = (32 to 63).map { _.toByte }.toArray
     val bs = new BS(data)
     val lengthInbits = data.length * 8
@@ -426,7 +426,7 @@ cø€␀␀␀wü␚’gU€␀gä  63f8 8000 0000 77fc 1a92 6755 8000 67e4 :00
     assertEquals(expected, dumpString)
   }
 
-  @Test def testDumpTextLine5() {
+  @Test def testDumpTextLine5(): Unit = {
     val data = (32 to 63).map { _.toByte }.toArray
     val bs = new BS(data)
     val lengthInbits = data.length * 8
@@ -446,7 +446,7 @@ cø€␀␀␀wü␚’gU€␀gä  63f8 8000 0000 77fc 1a92 6755 8000 67e4 :00
     assertEquals(expected, dumpString)
   }
 
-  @Test def testDumpTextLine6() {
+  @Test def testDumpTextLine6(): Unit = {
     val data = (32 to 63).map { _.toByte }.toArray
     val bs = new BS(data)
     val lengthInbits = data.length * 8
@@ -461,7 +461,7 @@ cø€␀␀␀wü␚’gU€␀gä  63f8 8000 0000 77fc 1a92 6755 8000 67e4 :00
     assertEquals(expected, dumpString)
   }
 
-  @Test def testDumpTextLine7() {
+  @Test def testDumpTextLine7(): Unit = {
     val data = """da8b f090 a487 f48b be8b be7a 1234
       4567 f48b 8018 0156 dada
       0000 0101 0817 dead beef cc7a"""

@@ -24,7 +24,7 @@ import java.math.{ BigDecimal => JBigDecimal }
 import java.math.RoundingMode
 
 class TestNumbers {
-  @Test def testDecimalDivision1() {
+  @Test def testDecimalDivision1(): Unit = {
     val n = new JBigDecimal("90.0")
     assertEquals(1, n.scale())
     val m = new JBigDecimal("1048575.0")
@@ -34,7 +34,7 @@ class TestNumbers {
     assertEquals(expected, quotient)
   }
 
-  @Test def testDecimalDivision2() {
+  @Test def testDecimalDivision2(): Unit = {
     val n = new JBigDecimal("90.0000000000")
     assertEquals(10, n.scale())
     val m = new JBigDecimal("1048575.0000000000")
@@ -44,7 +44,7 @@ class TestNumbers {
     assertEquals(expected, quotient)
   }
 
-  @Test def testDoubleToDecimal1() {
+  @Test def testDoubleToDecimal1(): Unit = {
     val bd = new JBigDecimal(java.lang.Double.MIN_VALUE)
     // val bdString = bd.toPlainString()
     //
@@ -54,7 +54,7 @@ class TestNumbers {
     assertEquals(expected, bd)
   }
 
-  @Test def testDecimalAsDoubleDivision1() {
+  @Test def testDecimalAsDoubleDivision1(): Unit = {
     val n = (new JBigDecimal("90.0")).doubleValue()
     val m = (new JBigDecimal("1048575.0")).doubleValue()
     val quotient = n / m
@@ -76,7 +76,7 @@ class TestNumbers {
     assertEquals(expected1, double2, 1e-15)
   }
 
-  @Test def testDecimalAsDoubleDivision2() {
+  @Test def testDecimalAsDoubleDivision2(): Unit = {
     val n = (new JBigDecimal("90.0000000000")).doubleValue()
     val m = (new JBigDecimal("1048575.0000000000")).doubleValue()
     val quotient = n / m
@@ -91,14 +91,14 @@ class TestNumbers {
     assertEquals(expected2, decimalQuotient)
   }
 
-  @Test def testIsDecimalDouble() {
+  @Test def testIsDecimalDouble(): Unit = {
     val foo = new JBigDecimal("0.2")
     val bar = new JBigDecimal("0.200000000000")
     assertTrue(Numbers.isDecimalDouble(foo))
     assertFalse(Numbers.isDecimalDouble(bar))
   }
 
-  @Test def testIsDecimalDouble2() {
+  @Test def testIsDecimalDouble2(): Unit = {
     assertTrue(Numbers.isDecimalDouble(new JBigDecimal("90.0")))
     assertTrue(Numbers.isDecimalDouble(new JBigDecimal("1048575.0")))
     assertFalse(Numbers.isDecimalDouble(new JBigDecimal("90.0000000000")))

@@ -35,7 +35,7 @@ class TestSchemaCache {
   var newUSS: URISchemaSource = null
   var tempFile: File = null
 
-  @Before def setup {
+  @Before def setup: Unit = {
     compileCount = 0
     SCache.resetCache
     tempFile = java.io.File.createTempFile("tdml", "tdml")
@@ -51,7 +51,7 @@ class TestSchemaCache {
    * Touches the file, insures it happens far enough in the future
    * that the file modification times are different.
    */
-  def touchFile() {
+  def touchFile(): Unit = {
     val startingModTime = tempFile.lastModified()
     var iters = 0
     while (tempFile.lastModified() <= startingModTime) {
@@ -65,7 +65,7 @@ class TestSchemaCache {
     // println("iters = " + iters)
   }
 
-  def compileTheSchema(uss: URISchemaSource) {
+  def compileTheSchema(uss: URISchemaSource): Unit = {
     SCache.compileAndCache(uss, false, false, null, null) {
       compileCount += 1
       uss.newInputSource().getByteStream().close()
@@ -73,19 +73,19 @@ class TestSchemaCache {
     }
   }
 
-  @Test def testReset {
+  @Test def testReset: Unit = {
     compileTheSchema(originalUSS)
     SCache.resetCache
   }
 
-  @Test def testSameFileCompiledOnce {
+  @Test def testSameFileCompiledOnce: Unit = {
     compileTheSchema(originalUSS)
     assertEquals(1, compileCount)
     compileTheSchema(newUSS) // file has not been touched, so this should hit the cache.
     assertEquals(1, compileCount)
   }
 
-  @Test def testSameFileCompiledTwice {
+  @Test def testSameFileCompiledTwice: Unit = {
     compileTheSchema(originalUSS)
     assertEquals(1, compileCount)
 

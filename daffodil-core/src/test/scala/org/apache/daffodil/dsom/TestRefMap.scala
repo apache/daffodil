@@ -38,7 +38,7 @@ class TestRefMap extends Logging {
   val xsi = XMLUtils.XSI_NAMESPACE
   val example = XMLUtils.EXAMPLE_NAMESPACE
 
-  @Test def testRefMapEmpty() {
+  @Test def testRefMapEmpty(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -55,7 +55,7 @@ class TestRefMap extends Logging {
     assertEquals(1, numRefPairs) // good proxy for schema size
   }
 
-  @Test def testRefMapComplex1() {
+  @Test def testRefMapComplex1(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -80,7 +80,7 @@ class TestRefMap extends Logging {
     assertEquals(root.referencedElement.shortSchemaComponentDesignator, edecl)
   }
 
-  @Test def testRefMapGroupRefSeq1() {
+  @Test def testRefMapGroupRefSeq1(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -114,7 +114,7 @@ class TestRefMap extends Logging {
     assertEquals(6, root.numUniqueComponents)
   }
 
-  @Test def testRefMapGroupRefChoice1() {
+  @Test def testRefMapGroupRefChoice1(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -149,7 +149,7 @@ class TestRefMap extends Logging {
     assertEquals(7, root.numUniqueComponents)
   }
 
-  @Test def testRefMapGroupRefNest1() {
+  @Test def testRefMapGroupRefNest1(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -195,7 +195,7 @@ class TestRefMap extends Logging {
     assertEquals(14, root.numUniqueComponents)
   }
 
-  @Test def testRefMapNonExplosion1() {
+  @Test def testRefMapNonExplosion1(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -241,7 +241,7 @@ class TestRefMap extends Logging {
     assertEquals(14, root.numUniqueComponents)
   }
 
-  @Test def testRefMapExplosion2() {
+  @Test def testRefMapExplosion2(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -289,7 +289,7 @@ class TestRefMap extends Logging {
     assertEquals(19, root.numUniqueComponents)
   }
 
-  @Test def testRefMapExplosion3() {
+  @Test def testRefMapExplosion3(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -340,7 +340,7 @@ class TestRefMap extends Logging {
     assertEquals(21, root.numUniqueComponents)
   }
 
-  @Test def testRefMapExplosion4() {
+  @Test def testRefMapExplosion4(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -399,7 +399,7 @@ class TestRefMap extends Logging {
     assertEquals(26, root.numUniqueComponents)
   }
 
-  @Test def testRefMapExplosion5() {
+  @Test def testRefMapExplosion5(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -466,7 +466,7 @@ class TestRefMap extends Logging {
     assertEquals(31, root.numUniqueComponents)
   }
 
-  @Test def testRefMapExplosion6() {
+  @Test def testRefMapExplosion6(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -541,7 +541,7 @@ class TestRefMap extends Logging {
     assertEquals(36, root.numUniqueComponents)
   }
 
-  @Test def testRefMapExplosion7() {
+  @Test def testRefMapExplosion7(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,

@@ -54,7 +54,7 @@ class TestCLIUdfs {
    * Tests the case when no User Defined Functions on classpath, and a schema makes
    * no User Defined Function calls, so they don't get loaded
    */
-  @Test def test_noUdfsLoaded_regular_schema() {
+  @Test def test_noUdfsLoaded_regular_schema(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd")
     val (testSchemaFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile)) else (schemaFile)
 
@@ -82,7 +82,7 @@ class TestCLIUdfs {
    * Tests the case when no User Defined Function are loaded, but a schema makes a
    * User Defined Function call
    */
-  @Test def test_noUdfsLoaded_udf_schema() {
+  @Test def test_noUdfsLoaded_udf_schema(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd")
     val (testSchemaFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile)) else (schemaFile)
 
@@ -112,7 +112,7 @@ class TestCLIUdfs {
    *
    * The schema makes a User Defined Function call
    */
-  @Test def test_noUdfsLoaded_MissingClassInMetaInfFile() {
+  @Test def test_noUdfsLoaded_MissingClassInMetaInfFile(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd")
     val (testSchemaFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile)) else (schemaFile)
 
@@ -148,7 +148,7 @@ class TestCLIUdfs {
    * Tests the case when no User Defined Function are loaded, due to absent META-INF
    * file, but a schema makes a User Defined Function call
    */
-  @Test def test_noUdfsLoaded_MissingMetaInfFile() {
+  @Test def test_noUdfsLoaded_MissingMetaInfFile(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd")
     val (testSchemaFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile)) else (schemaFile)
 
@@ -177,7 +177,7 @@ class TestCLIUdfs {
   /**
    * Tests the case when a User Defined Function Provider returns null for its list of UDFs
    */
-  @Test def test_UDFPClass_NoUdfClasses() {
+  @Test def test_UDFPClass_NoUdfClasses(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd")
     val (testSchemaFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile)) else (schemaFile)
 
@@ -212,7 +212,7 @@ class TestCLIUdfs {
   /**
    * Tests the case when a User Defined Function Provider returns an empty list of UDFs
    */
-  @Test def test_UDFPClass_emptyUdfClasses() {
+  @Test def test_UDFPClass_emptyUdfClasses(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd")
     val (testSchemaFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile)) else (schemaFile)
 
@@ -248,7 +248,7 @@ class TestCLIUdfs {
    * Tests the case when a function class from the UDFP doesn't implement the UDF
    * interface
    */
-  @Test def test_UDFClass_nonUDF() {
+  @Test def test_UDFClass_nonUDF(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd")
     val (testSchemaFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile)) else (schemaFile)
 
@@ -287,7 +287,7 @@ class TestCLIUdfs {
    * Tests the case when a function class doesn't have annotations or have empty/invalid
    * annotstion fields
    */
-  @Test def test_UDFClass_nonAnn() {
+  @Test def test_UDFClass_nonAnn(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd")
     val (testSchemaFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile)) else (schemaFile)
 
@@ -336,7 +336,7 @@ class TestCLIUdfs {
    *   has unsupported param types
    *   has unsupported return type
    */
-  @Test def test_UDFClass_noEvaluate() {
+  @Test def test_UDFClass_noEvaluate(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd")
     val (testSchemaFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile)) else (schemaFile)
 
@@ -387,7 +387,7 @@ class TestCLIUdfs {
    * Tests the case when a function class:
    *   throws custom error on evaluate
    */
-  @Test def test_UDFClass_CustomExceptionOnEvaluate() {
+  @Test def test_UDFClass_CustomExceptionOnEvaluate(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd")
     val (testSchemaFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile)) else (schemaFile)
 
@@ -421,7 +421,7 @@ class TestCLIUdfs {
    * Tests the case when a function class:
    *   throws processing error on evaluate
    */
-  @Test def test_UDFClass_ProcessingErrorOnEvaluate() {
+  @Test def test_UDFClass_ProcessingErrorOnEvaluate(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd")
     val (testSchemaFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile)) else (schemaFile)
 
@@ -450,7 +450,7 @@ class TestCLIUdfs {
    * Tests the case when a function class:
    *   throws an error while being loaded
    */
-  @Test def test_UDFClass_exceptionOnLoad() {
+  @Test def test_UDFClass_exceptionOnLoad(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd")
     val (testSchemaFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile)) else (schemaFile)
 
@@ -487,7 +487,7 @@ class TestCLIUdfs {
    * Tests the case when a provider class:
    *   throws an error while loading its UDFs
    */
-  @Test def test_UDFPClass_exceptionOnLoadingUDFs() {
+  @Test def test_UDFPClass_exceptionOnLoadingUDFs(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd")
     val (testSchemaFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile)) else (schemaFile)
 
@@ -523,7 +523,7 @@ class TestCLIUdfs {
    * Tests the case when a provider class:
    *   throws an error while being loaded
    */
-  @Test def test_UDFPClass_exceptionOnLoad() {
+  @Test def test_UDFPClass_exceptionOnLoad(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd")
     val (testSchemaFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile)) else (schemaFile)
 
@@ -560,7 +560,7 @@ class TestCLIUdfs {
    *   incorrectly implements createUserDefinedFunction and returns the incorrect function
    *   class object
    */
-  @Test def test_UDFPClass_incorrectUDFObject() {
+  @Test def test_UDFPClass_incorrectUDFObject(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd")
     val (testSchemaFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile)) else (schemaFile)
 
@@ -595,7 +595,7 @@ class TestCLIUdfs {
    * Tests the case when a provider class:
    *   incorrectly implements createUserDefinedFunction that results in an exception
    */
-  @Test def test_UDFPClass_incorrectUDFCreateImplementation() {
+  @Test def test_UDFPClass_incorrectUDFCreateImplementation(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd")
     val (testSchemaFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile)) else (schemaFile)
 
@@ -631,7 +631,7 @@ class TestCLIUdfs {
    * Tests the case when a UDF class:
    *    contains a non serializable member
    */
-  @Test def test_UDFClass_serializability() {
+  @Test def test_UDFClass_serializability(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd")
     val (testSchemaFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile)) else (schemaFile)
 
@@ -664,7 +664,7 @@ class TestCLIUdfs {
    * Tests the case when a UDF class:
    *    contains serializable member
    */
-  @Test def test_UDFClass_serializability2() {
+  @Test def test_UDFClass_serializability2(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd")
     val (testSchemaFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile)) else (schemaFile)
 

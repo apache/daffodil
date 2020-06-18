@@ -26,7 +26,7 @@ object TestRuntimeCalendarLanguage {
 
   val runner = Runner(testDir, "RuntimeCalendarLanguage.tdml")
 
-  @AfterClass def shutdown {
+  @AfterClass def shutdown: Unit = {
     runner.reset
   }
 }
@@ -34,8 +34,8 @@ object TestRuntimeCalendarLanguage {
 class TestRuntimeCalendarLanguage {
   import TestRuntimeCalendarLanguage._
 
-  @Test def test_runtimeCalendarLanguage1() { runner.runOneTest("runtimeCalendarLanguage1") }
-  @Test def test_invalidCalendarLanguage1() { runner.runOneTest("invalidCalendarLanguage1") }
-  @Test def test_unparseRuntimeCalendarLanguageOVC() { runner.runOneTest("unparseRuntimeCalendarLanguageOVC") }
-  @Test def test_unparseRuntimeCalendarLanguageOVCCacheCheck() { runner.runOneTest("unparseRuntimeCalendarLanguageOVCCacheCheck") }
+  @Test def test_runtimeCalendarLanguage1(): Unit = { runner.runOneTest("runtimeCalendarLanguage1") }
+  @Test def test_invalidCalendarLanguage1(): Unit = { runner.runOneTest("invalidCalendarLanguage1") }
+  @Test def test_unparseRuntimeCalendarLanguageOVC(): Unit = { runner.runOneTest("unparseRuntimeCalendarLanguageOVC") }
+  @Test def test_unparseRuntimeCalendarLanguageOVCCacheCheck(): Unit = { runner.runOneTest("unparseRuntimeCalendarLanguageOVCCacheCheck") }
 }

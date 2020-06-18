@@ -29,7 +29,7 @@ class TestDsomCompilerUnparse1 {
   val xsi = XMLUtils.XSI_NAMESPACE
   val example = XMLUtils.EXAMPLE_NAMESPACE
 
-  @Test def testUnparse1() {
+  @Test def testUnparse1(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" encoding="ascii" lengthUnits="bytes"/>,
@@ -49,7 +49,7 @@ class TestDsomCompilerUnparse1 {
   /**
    * Test emphasis on delimiter unparsers
    */
-  @Test def testUnparse2() {
+  @Test def testUnparse2(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" encoding="ascii" lengthUnits="bytes" outputNewLine="%CR;%LF;"/>,
@@ -68,7 +68,7 @@ class TestDsomCompilerUnparse1 {
   /**
    * Test emphasis on StringDelimitedUnparser
    */
-  @Test def testUnparse3() {
+  @Test def testUnparse3(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" encoding="ascii" lengthUnits="bytes" outputNewLine="%CR;%LF;"/>,
@@ -87,7 +87,7 @@ class TestDsomCompilerUnparse1 {
   /**
    * Test emphasis on StringDelimitedUnparser w/ padding
    */
-  @Test def testUnparse4() {
+  @Test def testUnparse4(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" encoding="ascii" lengthUnits="bytes" outputNewLine="%CR;%LF;" truncateSpecifiedLengthString="no"/>,
@@ -113,7 +113,7 @@ class TestDsomCompilerUnparse1 {
   /**
    * Test emphasis on StringDelimitedUnparser w/ escape scheme
    */
-  @Test def testUnparse5() {
+  @Test def testUnparse5(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" encoding="ascii" lengthUnits="bytes" outputNewLine="%CR;%LF;"/>

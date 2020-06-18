@@ -24,7 +24,7 @@ import org.apache.daffodil.tdml.Runner
 object TestEnvelopePayload {
   var runner = Runner("/org/apache/daffodil/unparser/", "envelopePayload.tdml")
 
-  @AfterClass def tearDown() {
+  @AfterClass def tearDown(): Unit = {
     runner.reset
   }
 }
@@ -32,8 +32,8 @@ object TestEnvelopePayload {
 class TestEnvelopePayload {
   import TestEnvelopePayload._
 
-  @Test def test_ep1() { runner.runOneTest("ep1") }
-  @Test def test_ep2() { runner.runOneTest("ep2") }
-  @Test def test_ep3() { runner.runOneTest("ep3") }
+  @Test def test_ep1(): Unit = { runner.runOneTest("ep1") }
+  @Test def test_ep2(): Unit = { runner.runOneTest("ep2") }
+  @Test def test_ep3(): Unit = { runner.runOneTest("ep3") }
 
 }

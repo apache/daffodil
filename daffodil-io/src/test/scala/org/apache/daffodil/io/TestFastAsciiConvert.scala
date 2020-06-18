@@ -25,21 +25,21 @@ class TestFastAsciiConvert {
 
   val cvt = FastAsciiToUnicodeConverter
 
-  @Test def testConvertByte1() {
+  @Test def testConvertByte1(): Unit = {
     assertEquals(cvt.UnicodeReplacementCharacter, cvt.convertByte(-1.toByte))
     assertEquals(0.toChar, cvt.convertByte(0.toByte))
     assertEquals(127.toChar, cvt.convertByte(127.toByte))
     assertEquals(cvt.UnicodeReplacementCharacter, cvt.convertByte(128.toByte))
   }
 
-  @Test def testConvertInt1() {
+  @Test def testConvertInt1(): Unit = {
     assertEquals(cvt.UnicodeReplacementCharacter, cvt.convertInt(-1.toByte))
     assertEquals(0.toChar, cvt.convertInt(0.toByte))
     assertEquals(127.toChar, cvt.convertInt(127.toByte))
     assertEquals(cvt.UnicodeReplacementCharacter, cvt.convertInt(128.toByte))
   }
 
-  @Test def testConvertLong1() {
+  @Test def testConvertLong1(): Unit = {
     assertEquals(0xFFFDFFFDFFFDFFFDL, cvt.convertLong(-1))
     assertEquals(0x0L, cvt.convertLong(0))
     assertEquals(0xFFFDL, cvt.convertLong(128))
@@ -49,7 +49,7 @@ class TestFastAsciiConvert {
     assertEquals(0x002c002c002c002cL, cvt.convertLong(0x2c2c2c2c))
   }
 
-  @Test def testConvert1() {
+  @Test def testConvert1(): Unit = {
     val data = "abcdefg".toList.map { _.toByte }.toArray
     val bb = ByteBuffer.wrap(data)
     val cb = cvt.convert(bb)
@@ -57,7 +57,7 @@ class TestFastAsciiConvert {
     assertEquals("abcdefg", str)
   }
 
-  @Test def testConvert2() {
+  @Test def testConvert2(): Unit = {
     val data = "12345678abcdefg".toList.map { _.toByte }.toArray
     val bb = ByteBuffer.wrap(data)
     val cb = cvt.convert(bb)
@@ -65,7 +65,7 @@ class TestFastAsciiConvert {
     assertEquals("12345678abcdefg", str)
   }
 
-  @Test def testConvert2a() {
+  @Test def testConvert2a(): Unit = {
     val data = "12345678a".toList.map { _.toByte }.toArray
     val bb = ByteBuffer.wrap(data)
     val cb = cvt.convert(bb)
@@ -73,7 +73,7 @@ class TestFastAsciiConvert {
     assertEquals("12345678a", str)
   }
 
-  @Test def testConvert3() {
+  @Test def testConvert3(): Unit = {
     val data = "\u00802345\u007F78abcdefg".toList.map { _.toByte }.toArray
     val bb = ByteBuffer.wrap(data)
     val cb = cvt.convert(bb)
@@ -81,7 +81,7 @@ class TestFastAsciiConvert {
     assertEquals("\uFFFD2345\u007F78abcdefg", str)
   }
 
-  @Test def testConvert4() {
+  @Test def testConvert4(): Unit = {
     val data = "\u00802345\u007F78\u00802345\u007F78abcdefg".toList.map { _.toByte }.toArray
     val bb = ByteBuffer.wrap(data)
     val cb = cvt.convert(bb)

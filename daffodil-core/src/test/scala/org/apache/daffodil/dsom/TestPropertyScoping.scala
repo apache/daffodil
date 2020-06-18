@@ -28,7 +28,7 @@ class HasProps(xml: Node) extends DFDLFormatAnnotation(xml, Fakes.fakeElem)
 class TestPropertyScoping {
   val x1 = new HasProps(<fake alignmentUnits="bytes"/>)
 
-  @Test def test1() {
+  @Test def test1(): Unit = {
     LogLevel
     //    println(x1.formatRefs)
     //    println(x1.shortFormProperties)

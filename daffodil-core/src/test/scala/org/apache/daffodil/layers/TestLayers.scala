@@ -45,7 +45,7 @@ class TestLayers {
         </xs:complexType>
       </xs:element>, elementFormDefault = "unqualified")
 
-  @Test def testParseB64Layer1() {
+  @Test def testParseB64Layer1(): Unit = {
     val sch = B64Layer1Schema
     val data = "cGxl!" // encoding of "ple" + "!"
     val infoset = <ex:e1 xmlns:ex={ example }><s1>ple</s1></ex:e1>
@@ -68,7 +68,7 @@ class TestLayers {
         </xs:complexType>
       </xs:element>, elementFormDefault = "unqualified")
 
-  @Test def testParseB64Layer2() {
+  @Test def testParseB64Layer2(): Unit = {
     val sch = B64Layer2Schema
     val data = "cGxl!" // encoding of "ple" + "!"
     val infoset = <ex:e1 xmlns:ex={ example }><s1>ple</s1></ex:e1>
@@ -94,7 +94,7 @@ class TestLayers {
         </xs:complexType>
       </xs:element>, elementFormDefault = "unqualified")
 
-  @Test def testParseB64Layer3() {
+  @Test def testParseB64Layer3(): Unit = {
     val sch = B64Layer3Schema
     val data = "cGxl" + "!" + "moreDataAfter"
     val infoset = <ex:e1 xmlns:ex={ example }><s1>ple</s1><s2>moreDataAfter</s2></ex:e1>
@@ -120,7 +120,7 @@ so boring to read. Use of famous quotes or song lyrics or anything like that
 introduces copyright notice issues, so it is easier to simply make up
 a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", " ")
 
-  @Test def testGZIPRoundTrips() {
+  @Test def testGZIPRoundTrips(): Unit = {
     val bais = new ByteArrayInputStream(makeGZIPData(text))
     val gzis = new java.util.zip.GZIPInputStream(bais)
     val rdr = new InputStreamReader(gzis, StandardCharsets.UTF_8)
@@ -163,7 +163,7 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
     (data, dataLength)
   }
 
-  @Test def testGZIPLayer1() {
+  @Test def testGZIPLayer1(): Unit = {
     val sch = GZIPLayer1Schema
     val (data, dataLength) = makeGZIPLayer1Data()
     val infoset = <ex:e1 xmlns:ex={ example }><len>{ dataLength }</len><x1><s1>{ text }</s1></x1><s2>afterGzip</s2></ex:e1>
@@ -223,7 +223,7 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
     (baos2.toByteArray(), dataLength)
   }
 
-  @Test def testParseB64GZIPLayer1() {
+  @Test def testParseB64GZIPLayer1(): Unit = {
     val term = ";"
     val layerTerm = "=_END_="
     val sch = makeB64GZIPSchema(term, layerTerm)
@@ -259,7 +259,7 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
 
   val ipsumLorem1Unfolded = s"""Lorem ipsum dolor sit amet"""
 
-  @Test def testParseLineFoldIMF1() {
+  @Test def testParseLineFoldIMF1(): Unit = {
     val sch = lineFoldLayer1Schema
     val data = ipsumLorem1
     val infoset = <e1 xmlns={ example }><s1>{ ipsumLorem1Unfolded }</s1></e1>
@@ -272,7 +272,7 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
   /////////////////////          1         2         3         4         5         6         7           8
   val ipsumLorem2Unfolded = s"""Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad"""
 
-  @Test def testUnparseLineFoldIMF1() {
+  @Test def testUnparseLineFoldIMF1(): Unit = {
     val sch = lineFoldLayer1Schema
     val data = ipsumLorem2
     val infoset = <e1 xmlns={ example }><s1>{ ipsumLorem2Unfolded }</s1></e1>
@@ -302,7 +302,7 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
 
   val ipsumLorem3Unfolded = s"""Lorem ipsum dolor sit amet,"""
 
-  @Test def testParseLineFoldIMF2() {
+  @Test def testParseLineFoldIMF2(): Unit = {
     val sch = lineFoldLayer2Schema
     val data = ipsumLorem3
     val infoset = <e1 xmlns={ example }><s1>{ ipsumLorem3Unfolded }</s1></e1>
@@ -315,7 +315,7 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
   /////////////////////          1         2         3         4         5         6         7           8
   val ipsumLorem4Unfolded = s"""Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt"""
 
-  @Test def testUnparseLineFoldIMF2() {
+  @Test def testUnparseLineFoldIMF2(): Unit = {
     val sch = lineFoldLayer2Schema
     val data = ipsumLorem4
     val infoset = <e1 xmlns={ example }><s1>{ ipsumLorem4Unfolded }</s1></e1>
@@ -345,7 +345,7 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
 
   val ipsumLorem5Unfolded = s"""Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labor"""
 
-  @Test def testParseLineFoldIMF3() {
+  @Test def testParseLineFoldIMF3(): Unit = {
     val sch = lineFoldLayer3Schema
     val data = ipsumLorem5
     val infoset = <e1 xmlns={ example }><s1>{ ipsumLorem5Unfolded }</s1></e1>
@@ -359,7 +359,7 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
 
   val ipsumLorem6Unfolded = s"""Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labor"""
 
-  @Test def testUnparseLineFoldIMF3() {
+  @Test def testUnparseLineFoldIMF3(): Unit = {
     val sch = lineFoldLayer3Schema
     val data = ipsumLorem6
     val infoset = <e1 xmlns={ example }><s1>{ ipsumLorem6Unfolded }</s1></e1>
@@ -397,7 +397,7 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
         </xs:complexType>
       </xs:element>, elementFormDefault = "qualified")
 
-  @Test def testFourByteSwapLayer() {
+  @Test def testFourByteSwapLayer(): Unit = {
     val sch = le32BitSchema
     val data = le32BitData
     val infoset =

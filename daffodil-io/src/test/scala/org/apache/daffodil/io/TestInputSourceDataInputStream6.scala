@@ -36,7 +36,7 @@ class TestInputSourceDataInputStream6 {
   lsbfFinfo.byteOrder = ByteOrder.LittleEndian
   lsbfFinfo.bitOrder = BitOrder.LeastSignificantBitFirst
 
-  @Test def testUnalignedByteArrayMSBFirst() {
+  @Test def testUnalignedByteArrayMSBFirst(): Unit = {
     val bb = ByteBuffer.allocate(8)
     bb.order(java.nio.ByteOrder.BIG_ENDIAN)
     val fb = bb.asLongBuffer()
@@ -59,7 +59,7 @@ class TestInputSourceDataInputStream6 {
     assertEquals(64, dis.bitPos0b)
   }
 
-  @Test def testUnalignedByteArrayLittleEndianMSBFirst() {
+  @Test def testUnalignedByteArrayLittleEndianMSBFirst(): Unit = {
     val bb = ByteBuffer.allocate(8)
     bb.order(java.nio.ByteOrder.LITTLE_ENDIAN)
     val fb = bb.asLongBuffer()
@@ -83,7 +83,7 @@ class TestInputSourceDataInputStream6 {
     assertEquals(64, dis.bitPos0b)
   }
 
-  @Test def testUnalignedByteArrayLittleEndianLSBFirst() {
+  @Test def testUnalignedByteArrayLittleEndianLSBFirst(): Unit = {
     val bb = ByteBuffer.allocate(8)
     bb.order(java.nio.ByteOrder.LITTLE_ENDIAN)
     val fb = bb.asLongBuffer()
@@ -112,7 +112,7 @@ class TestInputSourceDataInputStream6 {
    * These just ensure that we move over to the mandatory alignment before decoding
    * any characters.
    */
-  @Test def testGetSomeString1 {
+  @Test def testGetSomeString1: Unit = {
     val dis = InputSourceDataInputStream("01".getBytes())
     dis.getSignedLong(1, beFinfo)
     val ms = dis.getSomeString(1, beFinfo)
@@ -123,7 +123,7 @@ class TestInputSourceDataInputStream6 {
     assertEquals('1', s(0))
   }
 
-  @Test def testgetSomeString2 {
+  @Test def testgetSomeString2: Unit = {
     val dis = InputSourceDataInputStream("0年月日".getBytes("utf-8"))
     dis.getSignedLong(4, beFinfo)
     val ms = dis.getSomeString(3, beFinfo)
@@ -136,7 +136,7 @@ class TestInputSourceDataInputStream6 {
     assertEquals(80, dis.bitPos0b)
   }
 
-  @Test def testGetSomeStringDataEndsMidByte {
+  @Test def testGetSomeStringDataEndsMidByte: Unit = {
     val dis = InputSourceDataInputStream("年月日".getBytes("utf-8"))
     dis.setBitLimit0b(MaybeULong((8 * 6) + 2)) // 2 extra bits after first 2 chars
     val ms = dis.getSomeString(3, beFinfo)
@@ -148,7 +148,7 @@ class TestInputSourceDataInputStream6 {
     assertEquals(8 * 6, dis.bitPos0b)
   }
 
-  @Test def testGetSomeStringDataEndsMidByte2 {
+  @Test def testGetSomeStringDataEndsMidByte2: Unit = {
     val dis = InputSourceDataInputStream("年月日".getBytes("utf-8"))
     dis.setBitLimit0b(MaybeULong((8 * 6) + 2)) // 2 extra bits after first 2 chars
     val ms = dis.getSomeString(3, beFinfo)
@@ -162,7 +162,7 @@ class TestInputSourceDataInputStream6 {
     assertEquals(Maybe.Nope, ms2)
   }
 
-  @Test def testGetSomeStringDataEndsMidByte3 {
+  @Test def testGetSomeStringDataEndsMidByte3: Unit = {
     val dis = InputSourceDataInputStream("年月日".getBytes("utf-8"))
     dis.setBitLimit0b(MaybeULong((8 * 6) + 10)) // 1 more byte plus 2 extra bits after first 2 chars
     val ms = dis.getSomeString(3, beFinfo)
@@ -185,7 +185,7 @@ class TestInputSourceDataInputStream6 {
    * any characters.
    */
 
-  @Test def testCharIteratorWithInterruptingBitSkips1 {
+  @Test def testCharIteratorWithInterruptingBitSkips1: Unit = {
     val dis = InputSourceDataInputStream("0年1月2日".getBytes("utf-8"))
     val iter = dis.asIteratorChar
     iter.setFormatInfo(beFinfo)
@@ -215,7 +215,7 @@ class TestInputSourceDataInputStream6 {
    * Also shows that hasNext() doesn't ever move the bitPos even
    * if it has to align to a mandatory character alignment boundary.
    */
-  @Test def testCharIteratorWithInterruptingBitSkipsBetweenHasNextAndNext {
+  @Test def testCharIteratorWithInterruptingBitSkipsBetweenHasNextAndNext: Unit = {
     val dis = InputSourceDataInputStream("0年1月2日".getBytes("utf-8"))
     val iter = dis.asIteratorChar
     iter.setFormatInfo(beFinfo)

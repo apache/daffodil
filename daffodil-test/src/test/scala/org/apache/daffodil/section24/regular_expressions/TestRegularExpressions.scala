@@ -25,7 +25,7 @@ object TestRegularExpressions {
   val testDir = "/org/apache/daffodil/section24/regular_expressions/"
   val runner = Runner(testDir, "RegularExpressions.tdml")
 
-  @AfterClass def shutDown {
+  @AfterClass def shutDown: Unit = {
     runner.reset
   }
 
@@ -35,14 +35,14 @@ class TestRegularExpressions {
 
   import TestRegularExpressions._
 
-  @Test def test_entity_in_regex_fail() { runner.runOneTest("entity_in_regex_fail") }
-  @Test def test_entity_in_regex_fail_2() { runner.runOneTest("entity_in_regex_fail_2") }
-  @Test def test_entity_in_regex_fail_3() { runner.runOneTest("entity_in_regex_fail_3") }
-  @Test def test_entity_in_regex_fail_4() { runner.runOneTest("entity_in_regex_fail_4") }
+  @Test def test_entity_in_regex_fail(): Unit = { runner.runOneTest("entity_in_regex_fail") }
+  @Test def test_entity_in_regex_fail_2(): Unit = { runner.runOneTest("entity_in_regex_fail_2") }
+  @Test def test_entity_in_regex_fail_3(): Unit = { runner.runOneTest("entity_in_regex_fail_3") }
+  @Test def test_entity_in_regex_fail_4(): Unit = { runner.runOneTest("entity_in_regex_fail_4") }
 
-  @Test def test_testRegEx_01() { runner.runOneTest("testRegEx_01") }
-  @Test def test_testRegEx_02() { runner.runOneTest("testRegEx_02") }
-  @Test def test_testRegEx_03() { runner.runOneTest("testRegEx_03") }
+  @Test def test_testRegEx_01(): Unit = { runner.runOneTest("testRegEx_01") }
+  @Test def test_testRegEx_02(): Unit = { runner.runOneTest("testRegEx_02") }
+  @Test def test_testRegEx_03(): Unit = { runner.runOneTest("testRegEx_03") }
 
   // DFDL-517
   // // Unsupported Java 7 features (should return Schema Definition Errors)
@@ -52,9 +52,9 @@ class TestRegularExpressions {
   // @Test def test_testRegEx_07() { runner.runOneTest("testRegEx_07") }
 
   // DFDL-922
-  @Test def test_testRegEx_08() { runner.runOneTest("testDFDL-922") }
-  @Test def test_testRegEx_09() { runner.runOneTest("testDFDL-922_2") }
+  @Test def test_testRegEx_08(): Unit = { runner.runOneTest("testDFDL-922") }
+  @Test def test_testRegEx_09(): Unit = { runner.runOneTest("testDFDL-922_2") }
 
   // DAFFODIL-809
-  @Test def test_assertWithPattern1() { runner.runOneTest("testAssertWithPattern1") }
+  @Test def test_assertWithPattern1(): Unit = { runner.runOneTest("testAssertWithPattern1") }
 }

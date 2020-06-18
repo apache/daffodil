@@ -235,7 +235,7 @@ abstract class InfosetInputter
   private def queueArrayStart(arrayERD: ERD) =
     queueEventInfo_(InfosetEventKind.StartArray, Info(arrayERD))
 
-  private def queueEventInfo_(kind: InfosetEventKind, info: Info) {
+  private def queueEventInfo_(kind: InfosetEventKind, info: Info): Unit = {
     Assert.invariant(pendingLength < MaxPendingQueueSize)
     pendingInfos(pendingLength) = info
     pendingStartOrEnd(pendingLength) = kind
@@ -436,7 +436,7 @@ abstract class InfosetInputter
     elem
   }
 
-  private def handleEndElement() {
+  private def handleEndElement(): Unit = {
     val top = infoStack.top
 
     if (top.isSimpleElement) {
@@ -471,7 +471,7 @@ abstract class InfosetInputter
   /**
    * Fill current accessor with appropriate event information
    */
-  private def startElement(node: DIElement) {
+  private def startElement(node: DIElement): Unit = {
     accessor.kind = InfosetEventKind.StartElement
     accessor.info = Info(node)
   }
@@ -479,7 +479,7 @@ abstract class InfosetInputter
   /**
    * Fill current accessor with appropriate event information
    */
-  private def endElement(node: DIElement) {
+  private def endElement(node: DIElement): Unit = {
     accessor.kind = InfosetEventKind.EndElement
     accessor.info = Info(node)
   }
@@ -487,7 +487,7 @@ abstract class InfosetInputter
   /**
    * Fill current accessor with appropriate event information
    */
-  private def startArray(arrayERD: ERD) {
+  private def startArray(arrayERD: ERD): Unit = {
     accessor.kind = InfosetEventKind.StartArray
     accessor.info = Info(arrayERD)
   }
@@ -495,7 +495,7 @@ abstract class InfosetInputter
   /**
    * Fill current accessor with appropriate event information
    */
-  private def endArray(arrayERD: ERD) {
+  private def endArray(arrayERD: ERD): Unit = {
     accessor.kind = InfosetEventKind.EndArray
     accessor.info = Info(arrayERD)
   }
@@ -596,7 +596,7 @@ class InfosetAccessor private (
   def isArray = erd.isArray
 
   override def cpy() = new InfosetAccessor(kind, info)
-  override def assignFrom(other: InfosetAccessor) {
+  override def assignFrom(other: InfosetAccessor): Unit = {
     kind = other.kind
     info = other.info
   }

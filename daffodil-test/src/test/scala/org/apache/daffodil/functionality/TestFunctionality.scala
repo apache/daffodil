@@ -28,7 +28,7 @@ import com.ibm.icu.util.GregorianCalendar
 
 class TestFunctionality {
 
-  @Test def test_calendar_format_timezone() {
+  @Test def test_calendar_format_timezone(): Unit = {
     /* Test where bug was found:
      * TestSimpleTypes.scala -> test_timeZoneFormats6
      * Modify the test to be roundTrip="true"

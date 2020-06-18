@@ -49,7 +49,7 @@ class TestBigInteger {
    * PrimitivesTextNumber1.scala's CovnertTextNumberParser.parse method, the
    * line containing df.get.parse(str,pos).
    */
-  @Test def testBigInteger() {
+  @Test def testBigInteger(): Unit = {
     val pattern = "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000,000"
     
     val dfs = new DecimalFormatSymbols()

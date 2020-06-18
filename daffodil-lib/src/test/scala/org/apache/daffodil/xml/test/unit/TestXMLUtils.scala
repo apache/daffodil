@@ -35,7 +35,7 @@ import org.apache.daffodil.xml.XMLUtils
 
 class TestXMLUtils {
 
-  @Test def testDiff0() {
+  @Test def testDiff0(): Unit = {
     val d1 = new Text("a")
     val d2 = new Text("b")
     val diffs = XMLUtils.computeTextDiff("", d1, d2, None)
@@ -45,7 +45,7 @@ class TestXMLUtils {
     assertEquals("b", b)
   }
 
-  @Test def testDiff1() {
+  @Test def testDiff1(): Unit = {
     val d1 = <d>a</d>
     val d2 = <d>b</d>
     val diffs = XMLUtils.computeDiff(d1, d2)
@@ -55,7 +55,7 @@ class TestXMLUtils {
     assertEquals("b", b)
   }
 
-  @Test def testDiff2() {
+  @Test def testDiff2(): Unit = {
     val d1 = <a><d>a</d><d>x</d></a>
     val d2 = <a><d>a</d><d>y</d></a>
     val diffs = XMLUtils.computeDiff(d1, d2)
@@ -65,7 +65,7 @@ class TestXMLUtils {
     assertEquals("y", b)
   }
 
-  @Test def testDiff3() {
+  @Test def testDiff3(): Unit = {
     val d1 = <a><d>a</d><e>e</e><d>xxx</d><e>e</e></a>
     val d2 = <a><d>a</d><e>f</e><d>xxy</d><e>e</e></a>
     val diffs = XMLUtils.computeDiff(d1, d2)
@@ -79,7 +79,7 @@ class TestXMLUtils {
 
   }
 
-  @Test def testNilDiff1() {
+  @Test def testNilDiff1(): Unit = {
     val d1 = <a xmlns:xsi={ XMLUtils.XSI_NAMESPACE } xsi:nil="true" foo="bar"/>
     val d2 = <a dafint:col="30" xmlns:dafint={ XMLUtils.INT_NS }/>
     val diffs = XMLUtils.computeDiff(d1, d2)
@@ -91,42 +91,42 @@ class TestXMLUtils {
     assertEquals("", d2attribs)
   }
 
-  @Test def testIsNil() {
+  @Test def testIsNil(): Unit = {
     val d1 = JDOMUtils.elem2Element(<a xmlns:xsi={ XMLUtils.XSI_NAMESPACE } xsi:nil="true"/>)
     val d2 = JDOMUtils.elem2Element(<a xmlns:xsi={ XMLUtils.XSI_NAMESPACE }>foo</a>)
     assertTrue(JDOMUtils.isNil(d1))
     assertFalse(JDOMUtils.isNil(d2))
   }
 
-  @Test def testRemapXMLIllegalCharToPUA() {
+  @Test def testRemapXMLIllegalCharToPUA(): Unit = {
     val ec = XMLUtils.remapXMLIllegalCharToPUA(false)(0x0)
     assertEquals(0xE000, ec)
     val ed = XMLUtils.remapXMLIllegalCharToPUA(false)(0xd880)
     assertEquals(0xE880, ed)
   }
 
-  @Test def testRemapPUAToXMLIllegalChar() {
+  @Test def testRemapPUAToXMLIllegalChar(): Unit = {
     val ec = XMLUtils.remapPUAToXMLIllegalChar(false)(0xE000)
     assertEquals(0x0, ec)
     val ed = XMLUtils.remapPUAToXMLIllegalChar(false)(0xE880)
     assertEquals(0xD880, ed)
   }
 
-  @Test def testWalkUnicodeString1() {
+  @Test def testWalkUnicodeString1(): Unit = {
     val s = "abc"
     val Seq((ab, 'a', 'b'), ('a', 'b', 'c'), ('b', 'c', ca)) = XMLUtils.walkUnicodeString(s)((p, c, n) => (p, c, n))
     assertEquals(0.toChar, ab)
     assertEquals(0.toChar, ca)
   }
 
-  @Test def testWalkUnicodeString2() {
+  @Test def testWalkUnicodeString2(): Unit = {
     val s = ""
     XMLUtils.walkUnicodeString(s)((p, c, n) => (p, c, n)) match {
       case Seq() => // ok
     }
   }
 
-  @Test def testRemoveAttributes1() {
+  @Test def testRemoveAttributes1(): Unit = {
     val xml = <test:bar xmlns:test="http://test/" xmlns:test2="http://test2/" xmlns:dafint={ XMLUtils.INT_NS } xmlns:xsi={ XMLUtils.XSI_NAMESPACE }>
                 <test2:foo dafint:qaz="qaz" dafint:line="300" xsi:nil="true"/>
               </test:bar>
@@ -134,7 +134,7 @@ class TestXMLUtils {
     assertEquals(<bar><foo xsi:nil="true"/></bar>, Utility.trim(res))
   }
 
-  @Test def testRemoveAttributes2() {
+  @Test def testRemoveAttributes2(): Unit = {
     val xml = <test:bar xmlns:test="http://test/" xmlns:test2="http://test2/" xmlns:dafint={ XMLUtils.INT_NS } xmlns:xsi={ XMLUtils.XSI_NAMESPACE }>
                 <test2:foo dafint:qaz="qaz" test:raz="raz" xsi:nil="true"/>
               </test:bar>
@@ -142,7 +142,7 @@ class TestXMLUtils {
     assertEquals(<test:bar xmlns:test="http://test/" xmlns:xsi={ XMLUtils.XSI_NAMESPACE }><foo test:raz="raz" xsi:nil="true"/></test:bar>, Utility.trim(res))
   }
 
-  @Test def testRemoveAttributes3() {
+  @Test def testRemoveAttributes3(): Unit = {
     val xml = <foo xsi:nil="true"/>
 
     val res = XMLUtils.removeAttributes(xml)
@@ -155,7 +155,7 @@ class TestXMLUtils {
    * Turns out different ways of acquiring XML result in some
    * different behaviors.
    */
-  @Test def testScalaLiteralXMLCoalesceText() {
+  @Test def testScalaLiteralXMLCoalesceText(): Unit = {
     val xml = <foo>abc<![CDATA[&&&]]>def&#xE000;ghi</foo>
     assertEquals(5, xml.child.length)
     assertTrue(xml.child(0).isInstanceOf[Text])
@@ -176,7 +176,7 @@ class TestXMLUtils {
     assertEquals("def" + 0xE000.toChar + "ghi", res(2).text)
   }
 
-  @Test def testConstructingParserCoalesceText() {
+  @Test def testConstructingParserCoalesceText(): Unit = {
     val xmlRaw = """<foo>abc<![CDATA[&&&]]>def&#xE000;ghi</foo>"""
     import scala.xml.parsing.ConstructingParser
     //
@@ -202,7 +202,7 @@ class TestXMLUtils {
     assertEquals("abc&&&def" + 0xE000.toChar + "ghi", res.text)
   }
 
-  @Test def testStandardLoaderCoalesceText() {
+  @Test def testStandardLoaderCoalesceText(): Unit = {
     val xmlRaw = """<foo>abc<![CDATA[&&&]]>def&#xE000;ghi</foo>"""
     // This is the way we load XML for DFDL Schemas
     val xml = scala.xml.XML.loadString(xmlRaw)
@@ -217,7 +217,7 @@ class TestXMLUtils {
     assertEquals("abc&&&def" + 0xE000.toChar + "ghi", res(0).text)
   }
 
-  @Test def testOnePCData() {
+  @Test def testOnePCData(): Unit = {
     val xmlRaw = """<foo><![CDATA[&&&]]></foo>"""
     import scala.xml.parsing.ConstructingParser
     //
@@ -237,13 +237,13 @@ class TestXMLUtils {
     assertEquals("&&&", res(0).text)
   }
 
-  @Test def testEscapeLineEndings() {
+  @Test def testEscapeLineEndings(): Unit = {
     val input = "abc\r\ndef\rghi\njkl\tmno\u0085pqr"
     val actual = XMLUtils.escape(input).toString()
     assertEquals("abc&#xE00D;&#xA;def&#xE00D;ghi&#xA;jkl&#x9;mno&#x85;pqr", actual)
   }
 
-  @Test def testEscape0To127() {
+  @Test def testEscape0To127(): Unit = {
     val input = (0 to 127).map { _.toChar }.mkString
     val actual = XMLUtils.escape(input).toString()
     val expected = "&#xE000;&#xE001;&#xE002;&#xE003;&#xE004;&#xE005;&#xE006;&#xE007;&#xE008;" + // first batch of C0 controls
@@ -263,7 +263,7 @@ class TestXMLUtils {
     assertEquals(expected, actual)
   }
 
-  @Test def testEscape128To255() {
+  @Test def testEscape128To255(): Unit = {
     val input = (128 to 255).map { _.toChar }.mkString
     val actual = XMLUtils.escape(input).toString()
     val expected = "&#x80;&#x81;&#x82;&#x83;&#x84;&#x85;&#x86;&#x87;&#x88;&#x89;&#x8A;&#x8B;&#x8C;&#x8D;&#x8E;&#x8F;&#x90;&#x91;&#x92;&#x93;&#x94;&#x95;&#x96;&#x97;&#x98;&#x99;&#x9A;&#x9B;&#x9C;&#x9D;&#x9E;&#x9F;&#xA0;¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ"
@@ -281,7 +281,7 @@ class TestXMLUtils {
     path
   }
 
-  @Test def testBlobDiff01() {
+  @Test def testBlobDiff01(): Unit = {
     val path1 = createBlobFile("A1B2C3")
     val path2 = createBlobFile("A1B2C3")
     val diff = XMLUtils.computeBlobDiff("path", path1.toUri.toString, path2.toUri.toString)
@@ -290,7 +290,7 @@ class TestXMLUtils {
     Files.delete(path2)
   }
 
-  @Test def testBlobDiff02() {
+  @Test def testBlobDiff02(): Unit = {
     val path1 = createBlobFile("A1B2C3D4")
     val path2 = createBlobFile("A1B1C3")
     val diff = XMLUtils.computeBlobDiff("path", path1.toUri.toString, path2.toUri.toString)
@@ -301,7 +301,7 @@ class TestXMLUtils {
     Files.delete(path2)
   }
 
-  @Test def testBlobDiff03() {
+  @Test def testBlobDiff03(): Unit = {
     val path1 = createBlobFile("A1B2C3D4")
     val path2 = createBlobFile("")
     val diff = XMLUtils.computeBlobDiff("path", path1.toUri.toString, path2.toUri.toString)
@@ -312,7 +312,7 @@ class TestXMLUtils {
     Files.delete(path2)
   }
 
-  @Test def testBlobDiff04() {
+  @Test def testBlobDiff04(): Unit = {
     val path1 = createBlobFile("A1B2C3D4")
     val path2 = Paths.get("does/not/exist")
     val diff = XMLUtils.computeBlobDiff("path", path1.toUri.toString, path2.toUri.toString)
@@ -322,7 +322,7 @@ class TestXMLUtils {
     Files.delete(path1)
   }
 
-  @Test def testBlobDiff05() {
+  @Test def testBlobDiff05(): Unit = {
     val path1 = createBlobFile(("00" * 1024) + ("A1" * 41))
     val path2 = createBlobFile(("00" * 1024))
     val diff = XMLUtils.computeBlobDiff("path", path1.toUri.toString, path2.toUri.toString)

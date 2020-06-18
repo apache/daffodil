@@ -25,7 +25,7 @@ object TestSequenceGroupInitiatedContent {
   val testDir_01 = "/org/apache/daffodil/section14/sequence_groups/"
   val runner_01 = Runner(testDir_01, "SequenceGroupInitiatedContent.tdml")
 
-  @AfterClass def shutDown {
+  @AfterClass def shutDown: Unit = {
     runner_01.reset
   }
 
@@ -35,17 +35,17 @@ class TestSequenceGroupInitiatedContent {
 
   import TestSequenceGroupInitiatedContent._
 
-  @Test def test_baseline() { runner_01.runOneTest("initiatedContentSeqBaseline") }
-  @Test def test_1() { runner_01.runOneTest("initiatedContentSeq1") }
-  @Test def test_2() { runner_01.runOneTest("initiatedContentSeq2") }
-  @Test def test_3() { runner_01.runOneTest("initiatedContentSeq3") }
+  @Test def test_baseline(): Unit = { runner_01.runOneTest("initiatedContentSeqBaseline") }
+  @Test def test_1(): Unit = { runner_01.runOneTest("initiatedContentSeq1") }
+  @Test def test_2(): Unit = { runner_01.runOneTest("initiatedContentSeq2") }
+  @Test def test_3(): Unit = { runner_01.runOneTest("initiatedContentSeq3") }
 
   // Tests for DAFFODIL-2143
-  @Test def test_sequenceScalarChildDoesNotDiscriminateAnything1() { runner_01.runOneTest("sequenceScalarChildDoesNotDiscriminateAnything1") }
-  @Test def test_sequenceScalarChildDoesNotDiscriminateAnything2() { runner_01.runOneTest("sequenceScalarChildDoesNotDiscriminateAnything2") }
-  @Test def test_sequenceFixedOccursChildDoesNotDiscriminateAnything1() { runner_01.runOneTest("sequenceFixedOccursChildDoesNotDiscriminateAnything1") }
-  @Test def test_sequenceExpressionOccursChildDoesNotDiscriminateAnything1() { runner_01.runOneTest("sequenceExpressionOccursChildDoesNotDiscriminateAnything1") }
-  @Test def test_sequenceImplicitOccursLessThanMinOccursDoesNotDiscriminateAnything1() { runner_01.runOneTest("sequenceImplicitOccursLessThanMinOccursDoesNotDiscriminateAnything1") }
-  @Test def test_sequenceImplicitOccursZeroOrMoreDiscriminates1() { runner_01.runOneTest("sequenceImplicitOccursZeroOrMoreDiscriminates1") }
+  @Test def test_sequenceScalarChildDoesNotDiscriminateAnything1(): Unit = { runner_01.runOneTest("sequenceScalarChildDoesNotDiscriminateAnything1") }
+  @Test def test_sequenceScalarChildDoesNotDiscriminateAnything2(): Unit = { runner_01.runOneTest("sequenceScalarChildDoesNotDiscriminateAnything2") }
+  @Test def test_sequenceFixedOccursChildDoesNotDiscriminateAnything1(): Unit = { runner_01.runOneTest("sequenceFixedOccursChildDoesNotDiscriminateAnything1") }
+  @Test def test_sequenceExpressionOccursChildDoesNotDiscriminateAnything1(): Unit = { runner_01.runOneTest("sequenceExpressionOccursChildDoesNotDiscriminateAnything1") }
+  @Test def test_sequenceImplicitOccursLessThanMinOccursDoesNotDiscriminateAnything1(): Unit = { runner_01.runOneTest("sequenceImplicitOccursLessThanMinOccursDoesNotDiscriminateAnything1") }
+  @Test def test_sequenceImplicitOccursZeroOrMoreDiscriminates1(): Unit = { runner_01.runOneTest("sequenceImplicitOccursZeroOrMoreDiscriminates1") }
 
 }

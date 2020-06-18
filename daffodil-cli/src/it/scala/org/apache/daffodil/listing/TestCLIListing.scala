@@ -24,7 +24,7 @@ import net.sf.expectit.matcher.Matchers.eof
 
 class TestCLIlisting {
 
-  @Test def test_992_CLI_Executing_Listing_singleTestList() {
+  @Test def test_992_CLI_Executing_Listing_singleTestList(): Unit = {
     val tdmlFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/Entities.tdml")
     val testTdmlFile = if (Util.isWindows) Util.cmdConvert(tdmlFile) else tdmlFile
     val shell = Util.start("")
@@ -71,7 +71,7 @@ class TestCLIlisting {
   }
 */
 
-  @Test def test_1016_CLI_Executing_Listing_listVerbose() {
+  @Test def test_1016_CLI_Executing_Listing_listVerbose(): Unit = {
     val tdmlFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section07/assertions/assert.tdml")
     val testTdmlFile = if (Util.isWindows) Util.cmdConvert(tdmlFile) else tdmlFile
     val shell = Util.start("")

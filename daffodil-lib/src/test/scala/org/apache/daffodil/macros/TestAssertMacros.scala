@@ -27,7 +27,7 @@ class TestAssertMacros {
 
   var x = 0
 
-  @Test def testInvariant1Arg() {
+  @Test def testInvariant1Arg(): Unit = {
     val e = intercept[Abort] {
       Assert.invariant(if (1 == x) true else false)
     }
@@ -40,7 +40,7 @@ class TestAssertMacros {
     assertTrue(msg.contains("false"))
   }
 
-  @Test def testUsage1Arg() {
+  @Test def testUsage1Arg(): Unit = {
     val e = intercept[Abort] {
       Assert.usage(if (1 == x) true else false)
     }
@@ -53,7 +53,7 @@ class TestAssertMacros {
     assertTrue(msg.contains("false"))
   }
 
-  @Test def testUsage2Arg() {
+  @Test def testUsage2Arg(): Unit = {
     val e = intercept[Abort] {
       Assert.usage(if (1 == x) true else false, "foobar")
     }
@@ -72,11 +72,11 @@ class TestAssertMacros {
    * the 2nd argument is never evaluated at all and so can
    * be something expensive that computes a message string.
    */
-  @Test def testMacrosNotEvaluatedSecondArg() {
+  @Test def testMacrosNotEvaluatedSecondArg(): Unit = {
     Assert.usage(true, { fail(); "failed" })
   }
 
-  @Test def testNotYetImplemented0Arg() {
+  @Test def testNotYetImplemented0Arg(): Unit = {
     val e = intercept[NotYetImplementedException] {
       Assert.notYetImplemented()
     }
@@ -84,7 +84,7 @@ class TestAssertMacros {
     assertTrue(msg.contains("Not yet implemented"))
   }
 
-  @Test def testNotYetImplemented1Arg() {
+  @Test def testNotYetImplemented1Arg(): Unit = {
     val e = intercept[NotYetImplementedException] {
       Assert.notYetImplemented(if (0 == x) true else false)
     }
@@ -97,7 +97,7 @@ class TestAssertMacros {
     assertTrue(msg.contains("false"))
   }
 
-  @Test def testNotYetImplemented2Arg() {
+  @Test def testNotYetImplemented2Arg(): Unit = {
     val e = intercept[NotYetImplementedException] {
       Assert.notYetImplemented(if (0 == x) true else false, "foobar")
     }

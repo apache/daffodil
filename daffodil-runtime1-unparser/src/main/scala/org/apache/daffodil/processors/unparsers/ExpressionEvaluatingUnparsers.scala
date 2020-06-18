@@ -41,7 +41,7 @@ final class SetVariableSuspendableExpression(
   referencingContext: NonTermRuntimeData)
   extends SuspendableExpression {
 
-  override protected def processExpressionResult(ustate: UState, v: DataValuePrimitive) {
+  override protected def processExpressionResult(ustate: UState, v: DataValuePrimitive): Unit = {
       ustate.variableMap.setVariable(rd, v, referencingContext, ustate)
   }
 

@@ -25,7 +25,7 @@ object TestImportOtherAnnotationSchema {
   val testDir = "/org/apache/daffodil/section00/general/"
   val runner = Runner(testDir, "testImportOtherAnnotationSchema.tdml")
 
-  @AfterClass def shutDown {
+  @AfterClass def shutDown: Unit = {
     runner.reset
   }
 }
@@ -35,7 +35,7 @@ class TestImportOtherAnnotationSchema {
   import TestImportOtherAnnotationSchema._
 
   //DFDL-1907
-  @Test def test_importOtherAnnotationSchema1() { runner.runOneTest("importOtherAnnotationSchema1") }
-  @Test def test_importOtherAnnotationSchema2() { runner.runOneTest("importOtherAnnotationSchema2") }
+  @Test def test_importOtherAnnotationSchema1(): Unit = { runner.runOneTest("importOtherAnnotationSchema1") }
+  @Test def test_importOtherAnnotationSchema2(): Unit = { runner.runOneTest("importOtherAnnotationSchema2") }
 
 }

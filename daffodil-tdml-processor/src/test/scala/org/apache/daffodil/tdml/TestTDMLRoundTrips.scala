@@ -33,7 +33,7 @@ class TestTDMLRoundTrips {
   val tns = example
   val fn = XMLUtils.XPATH_FUNCTION_NAMESPACE
 
-  @Test def testOnePassPass1() {
+  @Test def testOnePassPass1(): Unit = {
 
     val testSuite = <ts:testSuite xmlns:dfdl={ dfdl } xmlns:xs={ xsd } xmlns:ex={ example } xmlns:ts={ tdml } suiteName="theSuiteName">
                       <ts:defineSchema name="s">
@@ -71,7 +71,7 @@ class TestTDMLRoundTrips {
    * The output from the one pass unparse will have the semicolon, and so will fail
    * to match the original input.
    */
-  @Test def testOnePassFail1() {
+  @Test def testOnePassFail1(): Unit = {
 
     val testSuite = <ts:testSuite xmlns:dfdl={ dfdl } xmlns:xs={ xsd } xmlns:ex={ example } xmlns:ts={ tdml } suiteName="theSuiteName">
                       <ts:defineSchema name="s">
@@ -137,7 +137,7 @@ class TestTDMLRoundTrips {
    * A test defined to show that we need two-passes, so that we re-parse
    * the canonical data from the unparse and then get a matching infoset.
    */
-  @Test def testTwoPass1() {
+  @Test def testTwoPass1(): Unit = {
 
     val testSuite = needsTwoPassesOnlyTDML("twoPass")
     lazy val ts = new DFDLTestSuite(testSuite)
@@ -146,7 +146,7 @@ class TestTDMLRoundTrips {
   /**
    * Tests windows style (CRLF) line endings for two pass
    */
-  @Test def testTwoPass2() {
+  @Test def testTwoPass2(): Unit = {
 
     val testSuite =
       <ts:testSuite xmlns:dfdl={ dfdl } xmlns:xs={ xsd } xmlns:ex={ example } xmlns:ts={ tdml } suiteName="theSuiteName">
@@ -197,7 +197,7 @@ New Line]]></bar>
   /**
    * Tests mac style (CR) line endings for two pass
    */
-  @Test def testTwoPass3() {
+  @Test def testTwoPass3(): Unit = {
 
     val testSuite = <ts:testSuite xmlns:dfdl={ dfdl } xmlns:xs={ xsd } xmlns:ex={ example } xmlns:ts={ tdml } suiteName="theSuiteName">
                       <ts:defineSchema name="s">
@@ -278,7 +278,7 @@ New Line]]></bar>
    * This means test authors have to know if the test is parse-only, one pass parse/unparse round trip,
    * or two-pass, and label the test accordingly.
    */
-  @Test def testTwoPassNotNeeded1() {
+  @Test def testTwoPassNotNeeded1(): Unit = {
     val testSuite = nPassNotNeededTDML("twoPass")
     lazy val ts = new DFDLTestSuite(testSuite)
     val e = intercept[TDMLException] {
@@ -293,7 +293,7 @@ New Line]]></bar>
    * the canonical data from the unparse and then still do not get a matching infoset,
    * but unparsing that infoset finally does give us matching unparsed data.
    */
-  @Test def testThreePass1() {
+  @Test def testThreePass1(): Unit = {
     val testSuite = <ts:testSuite xmlns:dfdl={ dfdl } xmlns:xs={ xsd } xmlns:xsi={ xsi } xmlns:fn={ fn } xmlns:ex={ example } xmlns:ts={ tdml } xmlns:daf={ daf } suiteName="theSuiteName">
                       <ts:defineSchema name="s" elementFormDefault="unqualified">
                         <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
@@ -337,7 +337,7 @@ New Line]]></bar>
    * unparse data in fact matches the original (i.e., we didn't
    * even really need two passes, that it is detected and reported.
    */
-  @Test def testThreePassNotNeeded1() {
+  @Test def testThreePassNotNeeded1(): Unit = {
     val testSuite = nPassNotNeededTDML("threePass")
     lazy val ts = new DFDLTestSuite(testSuite)
     val e = intercept[TDMLException] {

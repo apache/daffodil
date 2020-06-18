@@ -26,6 +26,6 @@ class TestSDENew {
   val aa = testDir + "SchemaDefinitionErrors.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
-  @Test def test_schema_component_err() { runner.runOneTest("schema_component_err") }
+  @Test def test_schema_component_err(): Unit = { runner.runOneTest("schema_component_err") }
 
 }

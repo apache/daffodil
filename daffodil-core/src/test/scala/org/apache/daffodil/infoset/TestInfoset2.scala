@@ -31,7 +31,7 @@ class TestInfoset2 {
   val xsi = XMLUtils.XSI_NAMESPACE
   val ex = XMLUtils.EXAMPLE_NAMESPACE
 
-  @Test def testXMLToInfoset1() {
+  @Test def testXMLToInfoset1(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchemaUnqualified(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,

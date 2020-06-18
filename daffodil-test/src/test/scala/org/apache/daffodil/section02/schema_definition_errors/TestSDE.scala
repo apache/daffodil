@@ -26,7 +26,7 @@ object TestSDE {
   val testDir = "/org/apache/daffodil/section02/schema_definition_errors/"
   val runner = Runner(testDir, "SchemaDefinitionErrors.tdml")
 
-  @AfterClass def tearDown() {
+  @AfterClass def tearDown(): Unit = {
     runner.reset
   }
 
@@ -36,13 +36,13 @@ class TestSDE {
 
   import TestSDE._
 
-  @Test def test_AS000_rev() { runner.runOneTest("AS000_rev") }
+  @Test def test_AS000_rev(): Unit = { runner.runOneTest("AS000_rev") }
 
-  @Test def test_schema_component_err() { runner.runOneTest("schema_component_err") }
+  @Test def test_schema_component_err(): Unit = { runner.runOneTest("schema_component_err") }
 
-  @Test def test_schema_line_number() { runner.runOneTest("schema_line_number") }
-  @Test def test_schema_warning() { runner.runOneTest("schema_warning") }
-  @Test def test_missing_appinfo_source() { runner.runOneTest("missing_appinfo_source") }
-  @Test def test_missing_closing_tag() { runner.runOneTest("missing_closing_tag") }
-  @Test def test_ignoreAttributeFormDefault() { runner.runOneTest("ignoreAttributeFormDefault") }
+  @Test def test_schema_line_number(): Unit = { runner.runOneTest("schema_line_number") }
+  @Test def test_schema_warning(): Unit = { runner.runOneTest("schema_warning") }
+  @Test def test_missing_appinfo_source(): Unit = { runner.runOneTest("missing_appinfo_source") }
+  @Test def test_missing_closing_tag(): Unit = { runner.runOneTest("missing_closing_tag") }
+  @Test def test_ignoreAttributeFormDefault(): Unit = { runner.runOneTest("ignoreAttributeFormDefault") }
 }

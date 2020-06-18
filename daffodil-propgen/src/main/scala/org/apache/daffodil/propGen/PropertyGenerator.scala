@@ -670,7 +670,7 @@ import org.apache.daffodil.exceptions.ThrowsSDE
 
 """
 
-  def writeGeneratedCode(thunks: Seq[String], ow: java.io.FileWriter) {
+  def writeGeneratedCode(thunks: Seq[String], ow: java.io.FileWriter): Unit = {
     ow.write(preamble)
     for (thunk <- thunks) {
       ow.write(thunk)
@@ -698,7 +698,7 @@ import org.apache.daffodil.exceptions.ThrowsSDE
   /**
    * Main - run as a scala application to actually create a new GeneratedCode.scala file in the gen directory.
    */
-  def main(args: Array[String]) {
+  def main(args: Array[String]): Unit = {
     if (args.length != 1) {
       System.exit(1);
     }

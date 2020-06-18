@@ -30,13 +30,13 @@ import org.apache.daffodil.xml.NamedQName
  * the root element.
  */
 case object ToRoot extends RecipeOp {
-  override def run(dstate: DState) {
+  override def run(dstate: DState): Unit = {
     val rootDoc = dstate.currentElement.toRootDoc
     dstate.setCurrentNode(rootDoc)
   }
 }
 case object SelfMove extends RecipeOp {
-  override def run(dstate: DState) {
+  override def run(dstate: DState): Unit = {
     // do this entirely so it will fail at constant compile time
     // also serves as a sort of assertion check.
     dstate.selfMove()
@@ -44,7 +44,7 @@ case object SelfMove extends RecipeOp {
 }
 
 case object UpMove extends RecipeOp {
-  override def run(dstate: DState) {
+  override def run(dstate: DState): Unit = {
     val now = dstate.currentElement
     val n = now.toParent
     dstate.setCurrentNode(n)
@@ -52,7 +52,7 @@ case object UpMove extends RecipeOp {
 }
 
 case object UpMoveArray extends RecipeOp {
-  override def run(dstate: DState) {
+  override def run(dstate: DState): Unit = {
     val now = dstate.currentElement
     Assert.invariant(now.toParent.array.isDefined)
     val n = now.toParent.array.get
@@ -65,7 +65,7 @@ case object UpMoveArray extends RecipeOp {
  */
 case class DownElement(nqn: NamedQName) extends RecipeOp {
 
-  override def run(dstate: DState) {
+  override def run(dstate: DState): Unit = {
     val now = dstate.currentComplex
     // TODO PE ? if doesn't exist should be a processing error.
     // It will throw and so will be a PE, but may be poor diagnostic.
@@ -87,7 +87,7 @@ case class DownArrayOccurrence(nqn: NamedQName, indexRecipe: CompiledDPath)
 
   val childNamedQName = nqn
 
-  override def run(dstate: DState) {
+  override def run(dstate: DState): Unit = {
     val savedCurrentElement = dstate.currentComplex
     indexRecipe.run(dstate)
     val index = dstate.index
@@ -113,7 +113,7 @@ case class DownArrayOccurrence(nqn: NamedQName, indexRecipe: CompiledDPath)
  */
 case class DownArray(nqn: NamedQName) extends RecipeOp {
 
-  override def run(dstate: DState) {
+  override def run(dstate: DState): Unit = {
     val now = dstate.currentComplex
     val arr = dstate.withRetryIfBlocking(now.getChildArray(nqn, dstate.tunable))
     Assert.invariant(arr ne null)
@@ -128,7 +128,7 @@ case class DownArray(nqn: NamedQName) extends RecipeOp {
 
 case class DownArrayExists(nqn: NamedQName) extends RecipeOp {
 
-  override def run(dstate: DState) {
+  override def run(dstate: DState): Unit = {
     val now = dstate.currentComplex
     val arr = dstate.withRetryIfBlocking(now.getChildArray(nqn, dstate.tunable))
 

@@ -144,11 +144,11 @@ trait ManuallyCachedEvaluatable[T <: AnyRef] { self: Evaluatable[T] =>
     }
   }
 
-  def newCache(state: State) {
+  def newCache(state: State): Unit = {
     getCacheStack(state).push(Nope)
   }
 
-  def invalidateCache(state: State) {
+  def invalidateCache(state: State): Unit = {
     getCacheStack(state).pop
   }
 }
@@ -181,7 +181,7 @@ abstract class Evaluatable[+T <: AnyRef](protected val ci: DPathCompileInfo, qNa
 
   @inline final def isCompiled = isCompiled_
 
-  @inline final def ensureCompiled {
+  @inline final def ensureCompiled: Unit = {
     if (!isCompiled)
       Assert.invariantFailed("not compiled Ev: " + this.qName)
   }
@@ -358,7 +358,7 @@ final class EvalCache {
     res
   }
 
-  def put[T <: AnyRef](ev: Evaluatable[T], thing: T) {
+  def put[T <: AnyRef](ev: Evaluatable[T], thing: T): Unit = {
     if (thing.isInstanceOf[DINode]) return // happens in the interactive debugger due to expression ".." being compiled & run.
     Assert.usage(!thing.isInstanceOf[DINode])
     Assert.usage(thing ne null)

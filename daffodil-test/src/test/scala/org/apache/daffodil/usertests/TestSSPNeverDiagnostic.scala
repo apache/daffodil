@@ -25,7 +25,7 @@ object TestSSPNeverDiagnostic {
   val testDir = "/org/apache/daffodil/usertests/"
   val runner = Runner(testDir, "testSSPNeverDiagnostic.tdml.xml")
 
-  @AfterClass def shutDown {
+  @AfterClass def shutDown: Unit = {
     runner.reset
   }
 

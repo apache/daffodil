@@ -230,7 +230,7 @@ class JavaIOInputStream(s: InputSourceDataInputStream, finfo: FormatInfo)
 
   private var maybeSavedMark: Maybe[Mark] = Nope
 
-  override def reset() {
+  override def reset(): Unit = {
     Assert.usage(maybeSavedMark.isDefined)
     s.reset(maybeSavedMark.get)
     maybeSavedMark = Nope
@@ -253,7 +253,7 @@ class JavaIOOutputStream(dos: DataOutputStream, finfo: FormatInfo)
     if (wasWritten) nBytes += 1
   }
 
-  override def close() {
+  override def close(): Unit = {
     if (!closed) {
       dos.setFinished(finfo)
       closed = true

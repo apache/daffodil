@@ -206,7 +206,7 @@ object DataValue {
     override def toString = "UseNilForDefault"
   }
 
-  @inline def assertValueIsNotDataValue(v: AnyRef) {
+  @inline def assertValueIsNotDataValue(v: AnyRef): Unit = {
 
     /*
    *

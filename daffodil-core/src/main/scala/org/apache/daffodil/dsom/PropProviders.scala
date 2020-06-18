@@ -237,7 +237,7 @@ trait OverlapCheckMixin {
    * iterate through all properties of the a-arg, checking each for
    * whether it appears in the b-arg. If so, SDE.
    */
-  private def checkNonOverlap3(a: ChainPropProvider, b: ChainPropProvider) {
+  private def checkNonOverlap3(a: ChainPropProvider, b: ChainPropProvider): Unit = {
     val aLeaves = a.leafProviders
     aLeaves.foreach { aLeaf =>
       val propMap = aLeaf.justThisOneProperties

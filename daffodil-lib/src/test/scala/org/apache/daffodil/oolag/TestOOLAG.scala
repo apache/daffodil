@@ -126,13 +126,13 @@ class MyHost extends MyBase(null) {
 
 class TestOOLAG {
 
-  @Test def testPrettyName() {
+  @Test def testPrettyName(): Unit = {
     val h = new MyHost
     h.setRequiredEvaluationsActive()
     assertEquals("MyHost", h.diagnosticDebugName)
   }
 
-  @Test def testSuccessLazyVal() {
+  @Test def testSuccessLazyVal(): Unit = {
     val h = new MyHost
     h.setRequiredEvaluationsActive()
     // println("get the LV")
@@ -149,7 +149,7 @@ class TestOOLAG {
     assertFalse(h.isError)
   }
 
-  @Test def testFailLazyVal() {
+  @Test def testFailLazyVal(): Unit = {
     val h = new MyHost
     h.setRequiredEvaluationsActive()
 
@@ -192,7 +192,7 @@ class TestOOLAG {
   /**
    * Make sure one LV calling another doesn't confuse things.
    */
-  @Test def testLVName2() {
+  @Test def testLVName2(): Unit = {
     val h = new MyHost
     h.setRequiredEvaluationsActive()
     var res: String = null
@@ -203,7 +203,7 @@ class TestOOLAG {
     assertEquals("a3 valuea3 value", res)
   }
 
-  @Test def testCircularDefinitionDetected() {
+  @Test def testCircularDefinitionDetected(): Unit = {
     val h = new MyHost
     h.setRequiredEvaluationsActive()
     var e: Exception = null
@@ -218,7 +218,7 @@ class TestOOLAG {
     assertTrue(msg.toLowerCase().contains("circ1"))
   }
 
-  @Test def testAlreadyTried() {
+  @Test def testAlreadyTried(): Unit = {
     val h = new MyHost
     h.setRequiredEvaluationsActive()
     assertTrue(h.a2_.isError)
@@ -234,7 +234,7 @@ class TestOOLAG {
     }
   }
 
-  @Test def testThrowToTopLevel() {
+  @Test def testThrowToTopLevel(): Unit = {
     val h = new MyHost
     h.setRequiredEvaluationsActive()
     intercept[Abort] {
@@ -244,7 +244,7 @@ class TestOOLAG {
     }
   }
 
-  @Test def testDivZeroInside() {
+  @Test def testDivZeroInside(): Unit = {
     // LoggingDefaults.setLoggingLevel(LogLevel.OOLAGDebug)
     val h = new MyHost
     h.setRequiredEvaluationsActive()
@@ -267,7 +267,7 @@ class TestOOLAG {
     // assertTrue(d.length == 1)
   }
 
-  @Test def testAutoTreeCreate() {
+  @Test def testAutoTreeCreate(): Unit = {
     val h = new MyHost
     h.setRequiredEvaluationsActive()
     OOLAG.keepGoing({}) {

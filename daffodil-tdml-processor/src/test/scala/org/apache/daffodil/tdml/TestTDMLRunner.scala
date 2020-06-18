@@ -38,7 +38,7 @@ class TestTDMLRunner {
   val tns = example
   // val sub = XMLUtils.DFDL_XMLSCHEMASUBSET_NAMESPACE
 
-  @Test def test3() {
+  @Test def test3(): Unit = {
     // This tests when there are parseTestCases in the same suite that use the
     // same DFDL schema but have different validation modes. The non-validation
     // test should compile the processor, serialize it, and cache it.
@@ -94,7 +94,7 @@ class TestTDMLRunner {
     <dfdl:format ref="tns:GeneralFormat"/>,
     <xs:element name="data" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ xs:unsignedInt(2) }"/>)
 
-  @Test def testTDMLParseSuccess() {
+  @Test def testTDMLParseSuccess(): Unit = {
 
     val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName">
                       <ts:parserTestCase ID="some identifier" name="testTDMLParseSuccess" root="data">
@@ -110,7 +110,7 @@ class TestTDMLRunner {
     ts.runOneTest("testTDMLParseSuccess", Some(testSchema))
   }
 
-  @Test def testTDMLParseDetectsErrorWithSpecificMessage() {
+  @Test def testTDMLParseDetectsErrorWithSpecificMessage(): Unit = {
 
     val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName">
                       <ts:parserTestCase ID="some identifier" name="testTDMLParseDetectsErrorWithSpecificMessage" root="data">
@@ -125,7 +125,7 @@ class TestTDMLRunner {
     ts.runOneTest("testTDMLParseDetectsErrorWithSpecificMessage", Some(testSchema))
   }
 
-  @Test def testTDMLParseDetectsErrorWithPartMessage() {
+  @Test def testTDMLParseDetectsErrorWithPartMessage(): Unit = {
 
     val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName">
                       <ts:parserTestCase ID="some identifier" name="testTDMLParseDetectsErrorWithPartMessage" root="data">
@@ -143,7 +143,7 @@ class TestTDMLRunner {
     assertTrue(exc.getMessage().contains("""message "xs:float""""))
   }
 
-  @Test def testTDMLParseDetectsErrorAnyMessage() {
+  @Test def testTDMLParseDetectsErrorAnyMessage(): Unit = {
 
     val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName">
                       <ts:parserTestCase ID="some identifier" name="testTDMLParseDetectsErrorAnyMessage" root="data">
@@ -157,7 +157,7 @@ class TestTDMLRunner {
     ts.runOneTest("testTDMLParseDetectsErrorAnyMessage", Some(testSchema))
   }
 
-  @Test def testTDMLParseDetectsNoError() {
+  @Test def testTDMLParseDetectsNoError(): Unit = {
 
     val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName">
                       <ts:parserTestCase ID="some identifier" name="testTDMLParseDetectsNoError" root="data">
@@ -199,7 +199,7 @@ class TestTDMLRunner {
   //    assertTrue(exc.getMessage().contains("Did not find"))
   //  }
 
-  @Test def testTDMLParseRunAll() {
+  @Test def testTDMLParseRunAll(): Unit = {
     val testSuite = <testSuite xmlns={ tdml } suiteName="theSuiteName" xmlns:tns={ example }>
                       <parserTestCase name="testTDMLParseRunAll1" root="data">
                         <document>37</document>
@@ -222,7 +222,7 @@ class TestTDMLRunner {
     ts.runAllTests(Some(testSchema))
   }
 
-  @Test def testInfosetFromFile() {
+  @Test def testInfosetFromFile(): Unit = {
     val xml = <testSuite xmlns={ tdml } ID="suite identifier" suiteName="theSuiteName" description="Some Test Suite Description">
                 <parserTestCase name="test1" root="byte1" model="test-suite/ibm-contributed/dpanum.dfdl.xsd" description="Some test case description.">
                   <document>
@@ -241,7 +241,7 @@ class TestTDMLRunner {
     assertEquals(expected, actual)
   }
 
-  @Test def testRunModelFile() {
+  @Test def testRunModelFile(): Unit = {
     val tmp = File.createTempFile(getClass.getName(), ".dfdl.xsd")
     tmp.deleteOnExit()
     val testSuite = <testSuite xmlns={ tdml } suiteName="theSuiteName">
@@ -263,7 +263,7 @@ class TestTDMLRunner {
     ts.runOneTest("testRunModelFile")
   }
 
-  @Test def testRunTDMLFileReferencingModelFile() {
+  @Test def testRunTDMLFileReferencingModelFile(): Unit = {
     val tmpFileName = getClass.getName() + ".dfdl.xsd"
     val tmpTDMLFileName = getClass.getName() + ".tdml"
     val testSuite = <testSuite xmlns={ tdml } suiteName="theSuiteName">
@@ -315,13 +315,13 @@ class TestTDMLRunner {
       </parserTestCase>
     </tdml:testSuite>
 
-  @Test def testEmbeddedSchemaWorks() {
+  @Test def testEmbeddedSchemaWorks(): Unit = {
     val testSuite = tdmlWithEmbeddedSchema
     lazy val ts = new DFDLTestSuite(testSuite)
     ts.runOneTest("testEmbeddedSchemaWorks")
   }
 
-  @Test def testRunTDMLSelfContainedFile() {
+  @Test def testRunTDMLSelfContainedFile(): Unit = {
     val tmpTDMLFileName = getClass.getName() + ".tdml"
     val testSuite = tdmlWithEmbeddedSchema
     try {
@@ -355,7 +355,7 @@ class TestTDMLRunner {
       </parserTestCase>
     </tdml:testSuite>
 
-  @Test def testMultiByteUnicodeWorks() {
+  @Test def testMultiByteUnicodeWorks(): Unit = {
     val testSuite = tdmlWithUnicode2028
     lazy val ts = new DFDLTestSuite(testSuite)
     ts.runOneTest("testMultiByteUnicodeWorks")
@@ -378,7 +378,7 @@ class TestTDMLRunner {
       </parserTestCase>
     </tdml:testSuite>
 
-  @Test def testMultiByteUnicodeWithCDATAWorks() {
+  @Test def testMultiByteUnicodeWithCDATAWorks(): Unit = {
     val testSuite = tdmlWithUnicode5E74AndCDATA
     lazy val ts = new DFDLTestSuite(testSuite)
     ts.runOneTest("testMultiByteUnicodeWithCDATAWorks")
@@ -517,7 +517,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
     ts.runOneTest("testNilCompare")
   }
 
-  @Test def test_tdmlNamespaces1() {
+  @Test def test_tdmlNamespaces1(): Unit = {
     val testDir = "/test/tdml/"
     val t0 = testDir + "tdmlNamespaces.tdml"
     lazy val r = new DFDLTestSuite(Misc.getRequiredResource(t0))
@@ -546,7 +546,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
     <dfdl:format ref="tns:GeneralFormat"/>,
     <xs:element name="data" type="xs:hexBinary" dfdl:lengthKind="explicit" dfdl:length="4"/>)
 
-  @Test def testTDMLHexBinaryTypeAwareSuccess_01() {
+  @Test def testTDMLHexBinaryTypeAwareSuccess_01(): Unit = {
     val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName">
                       <ts:parserTestCase ID="some identifier" name="testTDMLHexBinaryTypeAwareSuccess"
                         root="data">
@@ -565,7 +565,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
     ts.runOneTest("testTDMLHexBinaryTypeAwareSuccess", Some(testHexBinarySchema))
   }
 
-  @Test def testTDMLHexBinaryTypeAwareSuccess_02() {
+  @Test def testTDMLHexBinaryTypeAwareSuccess_02(): Unit = {
     val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName">
                       <ts:parserTestCase ID="some identifier" name="testTDMLHexBinaryTypeAwareSuccess"
                         root="data">
@@ -584,7 +584,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
     ts.runOneTest("testTDMLHexBinaryTypeAwareSuccess", Some(testHexBinarySchema))
   }
 
-  @Test def testTDMLHexBinaryTypeAwareFailure() {
+  @Test def testTDMLHexBinaryTypeAwareFailure(): Unit = {
     val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName">
                       <ts:parserTestCase ID="some identifier" name="testTDMLHexBinaryTypeAwareFailure"
                         root="data">
@@ -617,7 +617,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
       dfdl:calendarPatternKind="explicit"
       dfdl:calendarPattern="uuuu-MM-dd'T'HH:mm:ss.SSSSSSxxxxx" />)
 
-  @Test def testTDMLDateTimeTypeAwareSuccess_01() {
+  @Test def testTDMLDateTimeTypeAwareSuccess_01(): Unit = {
     val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName">
                       <ts:parserTestCase ID="some identifier" name="testTDMLDateTimeTypeAwareSuccess"
                         root="data">
@@ -634,7 +634,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
     ts.runOneTest("testTDMLDateTimeTypeAwareSuccess", Some(testDateTimeSchema))
   }
 
-  @Test def testTDMLDateTimeTypeAwareSuccess_02() {
+  @Test def testTDMLDateTimeTypeAwareSuccess_02(): Unit = {
     val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName">
                       <ts:parserTestCase ID="some identifier" name="testTDMLDateTimeTypeAwareSuccess"
                         root="data">
@@ -651,7 +651,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
     ts.runOneTest("testTDMLDateTimeTypeAwareSuccess", Some(testDateTimeSchema))
   }
 
-  @Test def testTDMLDateTimeTypeAwareSuccess_03() {
+  @Test def testTDMLDateTimeTypeAwareSuccess_03(): Unit = {
     val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName">
                       <ts:parserTestCase ID="some identifier" name="testTDMLDateTimeTypeAwareSuccess"
                         root="data">
@@ -668,7 +668,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
     ts.runOneTest("testTDMLDateTimeTypeAwareSuccess", Some(testDateTimeSchema))
   }
 
-  @Test def testTDMLDateTimeTypeAwareSuccess_04() {
+  @Test def testTDMLDateTimeTypeAwareSuccess_04(): Unit = {
     val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName">
                       <ts:parserTestCase ID="some identifier" name="testTDMLDateTimeTypeAwareSuccess"
                         root="data">
@@ -685,7 +685,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
     ts.runOneTest("testTDMLDateTimeTypeAwareSuccess", Some(testDateTimeSchema))
   }
 
-  @Test def testTDMLDateTimeTypeAwareFailure() {
+  @Test def testTDMLDateTimeTypeAwareFailure(): Unit = {
     val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName">
                       <ts:parserTestCase ID="some identifier" name="testTDMLDateTimeTypeAwareFailure"
                         root="data">

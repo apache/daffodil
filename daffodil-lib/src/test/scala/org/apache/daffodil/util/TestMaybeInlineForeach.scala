@@ -35,21 +35,21 @@ final class TestMaybeInlineForeach {
   /**
    * Disassemble to see that scala/java byte code does/does-not have a function object involved.
    */
-  def usesForeach(m: Maybe[String]) {
+  def usesForeach(m: Maybe[String]): Unit = {
     m._foreach { bar(_) }
   }
 
   /**
    * We want using foreach to behave exactly like this piece of code.
    */
-  def usesIfDefined(m: Maybe[String]) {
+  def usesIfDefined(m: Maybe[String]): Unit = {
     if (m.isDefined) bar(m.value)
   }
 
   /**
    * And that ifDefined test should behave exactly like this code.
    */
-  def usesIfNull(m: String) {
+  def usesIfNull(m: String): Unit = {
     if (m != null) bar(m)
   }
   /**
@@ -65,7 +65,7 @@ final class TestMaybeInlineForeach {
    */
   @inline private def limit = 1000000000L // 50000000000L runs for about a minute
 
-  def testForeach {
+  def testForeach: Unit = {
     var i: Long = 0
     while (i < limit) {
       i += 1
@@ -73,7 +73,7 @@ final class TestMaybeInlineForeach {
     }
   }
 
-  def testIfDefined {
+  def testIfDefined: Unit = {
     var i: Long = 0
     i = 0
     while (i < limit) {
@@ -82,7 +82,7 @@ final class TestMaybeInlineForeach {
     }
   }
 
-  def testIfNull {
+  def testIfNull: Unit = {
     var i: Long = 0
     i = 0
     while (i < limit) {
@@ -97,7 +97,7 @@ final class TestMaybeInlineForeach {
    * but there's no point waiting 2 seconds for this test to run all the time.
    */
   // @Test
-  def testForeachVersusIfDefined {
+  def testForeachVersusIfDefined: Unit = {
     val foreachNanos: Double = time(testForeach)
     val ifDefinedNanos: Double = time(testIfDefined)
     val ifNullNanos: Double = time(testIfNull)
@@ -134,7 +134,7 @@ final class TestMaybeInlineForeach {
     }
   }
 
-  def bar(s: String) {
+  def bar(s: String): Unit = {
     if (s == "won't equal this") println(s)
   }
 

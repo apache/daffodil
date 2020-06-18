@@ -412,7 +412,7 @@ class Delimiter {
 
 abstract class DelimBase extends Base {
   def typeName: String
-  def print
+  def print: Unit
   def printStr: String
   def allChars: Seq[Char]
   override def toString(): String = {

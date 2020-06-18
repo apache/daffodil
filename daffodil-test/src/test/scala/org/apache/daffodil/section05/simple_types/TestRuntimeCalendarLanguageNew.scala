@@ -25,7 +25,7 @@ object TestRuntimeCalendarLanguageNew {
 
   val runner = Runner(testDir, "RuntimeCalendarLanguage.tdml")
 
-  @AfterClass def shutdown {
+  @AfterClass def shutdown: Unit = {
     runner.reset
   }
 }

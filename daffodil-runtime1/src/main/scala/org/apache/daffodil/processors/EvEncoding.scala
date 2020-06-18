@@ -83,7 +83,7 @@ abstract class CharsetEvBase(encodingEv: EncodingEvBase, tci: DPathCompileInfo)
 
   override lazy val runtimeDependencies = Seq(encodingEv)
 
-  private def checkCharset(state: ParseOrUnparseState, bitsCharset: BitsCharset) {
+  private def checkCharset(state: ParseOrUnparseState, bitsCharset: BitsCharset): Unit = {
     if (bitsCharset.bitWidthOfACodeUnit != 8) {
       tci.schemaDefinitionError("Only encodings with byte-sized code units are allowed to be specified using a runtime-valued expression. " +
         "Encodings with 7 or fewer bits in their code units must be specified as a literal encoding name in the DFDL schema. " +

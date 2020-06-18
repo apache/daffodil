@@ -49,7 +49,7 @@ class StringNoTruncateUnparser(
 
   override def runtimeDependencies: Vector[Evaluatable[AnyRef]] = Vector()
 
-  override def unparse(state: UState) {
+  override def unparse(state: UState): Unit = {
     val dos = state.dataOutputStream
     val valueToWrite = contentString(state)
     val nCharsWritten = try {
@@ -162,7 +162,7 @@ class StringMaybeTruncateBitsUnparser(
     res
   }
 
-  override def unparse(state: UState) {
+  override def unparse(state: UState): Unit = {
 
     //
     // We have to stage the bits of the value just so as to be able to count them
@@ -249,7 +249,7 @@ class StringMaybeTruncateCharactersUnparser(
 
   override lazy val runtimeDependencies = Vector(lengthInCharactersEv)
 
-  override def unparse(state: UState) {
+  override def unparse(state: UState): Unit = {
     val dos = state.dataOutputStream
     val valueString = contentString(state)
     val targetLengthInCharacters =

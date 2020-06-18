@@ -213,7 +213,7 @@ final class RuntimeExpressionDPath[T <: AnyRef](qn: NamedQName, tt: NodeInfo.Kin
     value
   }
 
-  override def run(dstate: DState) {
+  override def run(dstate: DState): Unit = {
     recipe.run(dstate)
   }
 

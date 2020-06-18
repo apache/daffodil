@@ -35,7 +35,7 @@ import passera.unsigned.ULong
 
 class TestULong {
 
-  @Test def testULongToString1 {
+  @Test def testULongToString1: Unit = {
     val mm1 = ULong(-1L)
     assertEquals("FFFFFFFFFFFFFFFF", mm1.toHexString.toUpperCase)
     assertEquals(ULong.MaxValueAsBigInt, mm1.toBigInt)
@@ -43,7 +43,7 @@ class TestULong {
   }
 
   // DAFFODIL-1714
-  @Test def testULongModulus1 {
+  @Test def testULongModulus1: Unit = {
     for (i <- 0 to 16 ) {
       val numerator = ULong(i)
       val denominator = ULong(8)
@@ -52,13 +52,13 @@ class TestULong {
     }
   }
 
-  @Test def testULongModulus2 {
+  @Test def testULongModulus2: Unit = {
     val mm1 = ULong(-1L)
     val remainder = mm1 % ULong(65536)
     assertEquals(ULong(0x0000FFFF), remainder)
   }
   
-  @Test def testULongModulus3 {
+  @Test def testULongModulus3: Unit = {
     val mm1 = ULong(-1L)
     val mm2 = ULong(-2L)
     val remainder = mm1 % mm2

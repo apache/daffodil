@@ -47,6 +47,6 @@ class TestDFDLExpressions3 {
 
   // DAFFODIL-2182
   // @Test def test_array_self_expr1() { runner.runOneTest("test_array_self_expr1") }
-  @Test def test_array_self_expr2() { runner.runOneTest("test_array_self_expr2") }
+  @Test def test_array_self_expr2(): Unit = { runner.runOneTest("test_array_self_expr2") }
 
 }

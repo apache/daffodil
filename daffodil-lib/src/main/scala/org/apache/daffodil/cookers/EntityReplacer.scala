@@ -316,13 +316,13 @@ final class EntityReplacer {
     result
   }
 
-  private def errBadEntityLonePercent(ent: String, orig: String, context: Maybe[ThrowsSDE]) {
+  private def errBadEntityLonePercent(ent: String, orig: String, context: Maybe[ThrowsSDE]): Unit = {
     val msg = "Invalid DFDL Entity (%s) found in \"%s\". If a single percent was intended instead of a DFDL Entity, it must be self escaped (%%%%).".format(ent, orig)
     if (context.isDefined) context.get.SDE(msg)
     else throw new EntitySyntaxException(msg)
   }
 
-  private def errBadEntityNoSemi(ent: String, orig: String, context: Maybe[ThrowsSDE]) {
+  private def errBadEntityNoSemi(ent: String, orig: String, context: Maybe[ThrowsSDE]): Unit = {
     val msg = "Invalid DFDL Entity (%%%s) found in \"%s\". Missing semicolon at end of entity name?".format(stripLeadingPercent(ent), orig)
     if (context.isDefined) context.get.SDE(msg)
     else throw new EntitySyntaxException(msg)
@@ -544,14 +544,14 @@ class StringLiteral(pn: String, allowByteEntities: Boolean)
 
 sealed trait NonEmptyMixin { self: StringLiteralBase =>
 
-  protected def testCooked(cooked: String, context: ThrowsSDE) {
+  protected def testCooked(cooked: String, context: ThrowsSDE): Unit = {
     context.schemaDefinitionUnless(cooked.length > 0, "Cannot be an empty string.")
   }
 }
 
 sealed trait SingleCharacterMixin { self: StringLiteralBase =>
 
-  override protected def testCooked(cooked: String, context: ThrowsSDE) {
+  override protected def testCooked(cooked: String, context: ThrowsSDE): Unit = {
     context.schemaDefinitionUnless(cooked.length == 1 ||
       cooked =:= "%%", "For property dfdl:%s the length of string must be exactly 1 character.", propName)
   }
@@ -567,7 +567,7 @@ trait NoCharClassEntitiesMixin {
   /**
    * Override if set of prohibited class entities is different
    */
-  protected def noCharClassEntities(raw: String, context: ThrowsSDE) {
+  protected def noCharClassEntities(raw: String, context: ThrowsSDE): Unit = {
     context.schemaDefinitionUnless(!raw.contains("%NL;"), "Property dfdl:%s cannot contain %%NL;", propName)
     context.schemaDefinitionUnless(!raw.contains("%ES;"), "Property dfdl:%s cannot contain %%ES;", propName)
     context.schemaDefinitionUnless(!raw.contains("%WSP;"), "Property dfdl:%s cannot contain %%WSP;", propName)
@@ -575,7 +575,7 @@ trait NoCharClassEntitiesMixin {
     context.schemaDefinitionUnless(!raw.contains("%WSP*;"), "Property dfdl:%s cannot contain %%WSP*;", propName)
   }
 
-  protected def testRaw(raw: String, context: ThrowsSDE) {
+  protected def testRaw(raw: String, context: ThrowsSDE): Unit = {
     noCharClassEntities(raw, context)
   }
 }
@@ -621,7 +621,7 @@ class StringLiteralESEntityWithByteEntities(pn: String)
   /**
    * Override Because ES is allowed.
    */
-  override protected def noCharClassEntities(raw: String, context: ThrowsSDE) {
+  override protected def noCharClassEntities(raw: String, context: ThrowsSDE): Unit = {
     context.schemaDefinitionUnless(!raw.contains("%NL;"), "Property dfdl:%s cannot contain %%NL;", propName)
     // ES is allowed
     context.schemaDefinitionUnless(!raw.contains("%WSP;"), "Property dfdl:%s cannot contain %%WSP;", propName)
@@ -706,7 +706,7 @@ class ListOfString1OrMoreLiteral(pn: String, allowByteEntities: Boolean)
 
   override protected val oneLiteralCooker: StringLiteralBase = new StringLiteral(propName, allowByteEntities)
 
-  override protected def testCooked(cooked: List[String], context: ThrowsSDE) {
+  override protected def testCooked(cooked: List[String], context: ThrowsSDE): Unit = {
     context.schemaDefinitionUnless(cooked.length > 0, "Property %s cannot be empty string.", propName)
   }
 }
@@ -753,7 +753,7 @@ class ListOfStringLiteralNoCharClass_NL_ES_EntitiesNoByteEntities(pn: String = n
       /**
        * fewer prohibited char class entities
        */
-      override protected def noCharClassEntities(raw: String, context: ThrowsSDE) {
+      override protected def noCharClassEntities(raw: String, context: ThrowsSDE): Unit = {
         context.schemaDefinitionUnless(!raw.contains("%NL;"), "Property dfdl:%s cannot contain %%NL;", propName)
         context.schemaDefinitionUnless(!raw.contains("%ES;"), "Property dfdl:%s cannot contain %%ES;", propName)
       }
@@ -772,7 +772,7 @@ class SingleCharacterLineEndingOrCRLF_NoCharClassEntitiesNoByteEntities(pn: Stri
   /**
    * Check that length is 1 (single char) except for CRLF case, and that it's a line ending char.
    */
-  override protected def testCooked(cooked: String, context: ThrowsSDE) {
+  override protected def testCooked(cooked: String, context: ThrowsSDE): Unit = {
     context.schemaDefinitionUnless(cooked.length == 1 || cooked =:= "\r\n",
       "For property dfdl:%s, the length of string must be exactly 1 character, except for CRLF case when it can be 2 characters.", propName)
     context.schemaDefinitionUnless(validNLs.contains(cooked(0)),
@@ -786,7 +786,7 @@ class NonEmptyListOfStringLiteralCharClass_ES_WithByteEntities(pn: String)
   override protected val oneLiteralCooker =
     new StringLiteral(propName, allowByteEntities = true) with NoCharClassEntitiesMixin {
 
-      override protected def noCharClassEntities(raw: String, context: ThrowsSDE) {
+      override protected def noCharClassEntities(raw: String, context: ThrowsSDE): Unit = {
         context.schemaDefinitionUnless(!raw.contains("%NL;"), "Property dfdl:%s cannot contain %%NL;", propName)
         context.schemaDefinitionUnless(!raw.contains("%WSP;"), "Property dfdl:%s cannot contain %%WSP;", propName)
         context.schemaDefinitionUnless(!raw.contains("%WSP+;"), "Property dfdl:%s cannot contain %%WSP+;", propName)
@@ -808,7 +808,7 @@ class DelimiterCookerNoES(pn: String) extends ListOfString1OrMoreLiteral(pn, tru
   override val oneLiteralCooker: StringLiteralBase =
     new StringLiteralNoCharClassEntities(propName, true) {
 
-      override protected def noCharClassEntities(raw: String, context: ThrowsSDE) {
+      override protected def noCharClassEntities(raw: String, context: ThrowsSDE): Unit = {
         // TODO: this isn't quite right, as it will allow combined delimiters
         // that still match the empty string, e.g. "%ES;%WSP*;". We could check
         // if raw.contains("%WSP*;"), but that is too general, preventing valid
