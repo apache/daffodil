@@ -82,6 +82,39 @@ Jackson JSON processor (lib/com.fasterxml.jackson.core.jackson-core-2.10.2.jar)
   in some artifacts (usually source distributions); but is always available
   from the source code management (SCM) system project uses.
 
+Scala (lib/org.scala-lang.scala-library-2.12.11.jar)
+      (org/apache/daffodil/util/UniquenessCache.class in lib/org.apache.daffodil.daffodil-lib-3.0.0.jar)
+  Scala parser combinators
+  Copyright (c) 2002-2020 EPFL
+  Copyright (c) 2011-2020 Lightbend, Inc.
+
+  Scala includes software developed at
+  LAMP/EPFL (https://lamp.epfl.ch/) and
+  Lightbend, Inc. (https://www.lightbend.com/).
+
+  The derived work is adapted from scala/src/library/scala/Symbol.scala:
+    https://github.com/scala/scala/blob/904e3a5d2b9616b9c533d77d0c51652b138e8659/src/library/scala/Symbol.scala
+  and can be found in:
+    daffodil-lib/src/main/scala/org/apache/daffodil/util/UniquenessCache.scala
+
+Scala Parser Combinators (lib/org.scala-lang.modules.scala-parser-combinators_2.12-1.1.1.jar)
+  Scala parser combinators
+  Copyright (c) 2002-2020 EPFL
+  Copyright (c) 2011-2020 Lightbend, Inc.
+
+  Scala includes software developed at
+  LAMP/EPFL (https://lamp.epfl.ch/) and
+  Lightbend, Inc. (https://www.lightbend.com/).
+
+Scala XML (lib/org.scala-lang.modules.scala-xml_2.12-1.1.0.jar)
+  scala-xml
+  Copyright (c) 2002-2020 EPFL
+  Copyright (c) 2011-2020 Lightbend, Inc.
+
+  scala-xml includes software developed at
+  LAMP/EPFL (https://lamp.epfl.ch/) and
+  Lightbend, Inc. (https://www.lightbend.com/).
+
 Woodstox (lib/com.fasterxml.woodstox.woodstox-core-5.1.0.jar)
   This product currently only contains code developed by authors
   of specific components, as identified by the source code files.
