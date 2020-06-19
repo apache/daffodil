@@ -1,67 +1,36 @@
 /*
- * Copyright (c) 2002-  EPFL
- * Copyright (c) 2011-  Lightbend, Inc.
+ * Scala (https://www.scala-lang.org)
  *
- * All rights reserved.
+ * Copyright EPFL and Lightbend, Inc.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
+ * Licensed under Apache License 2.0
+ * (http://www.apache.org/licenses/LICENSE-2.0).
  *
- * * Redistributions of source code must retain the above copyright notice,
- *   this list of conditions and the following disclaimer.
- *
- * * Redistributions in binary form must reproduce the above copyright notice,
- *   this list of conditions and the following disclaimer in the documentation
- *   and/or other materials provided with the distribution.
- *
- * * Neither the name of the EPFL nor the names of its contributors may be
- *   used to endorse or promote products derived from this software without
- *   specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
+ * See the NOTICE file distributed with this work for
+ * additional information regarding copyright ownership.
  */
-
-/*                     __                                               *\
-**     ________ ___   / /  ___     Scala API                            **
-**    / __/ __// _ | / /  / _ |    (c) 2003-2013, LAMP/EPFL             **
-**  __\ \/ /__/ __ |/ /__/ __ |    http://scala-lang.org/               **
-** /____/\___/_/ |_/____/_/ | |                                         **
-**                          |/                                          **
-\*                                                                      */
 
 package org.apache.daffodil.util
 
 /**
- * The following code was taken from the scala tree:
- *   scala/v2.11.7/src/library/scala/Symbol.scala
+ * The following code was copied unmodified from Scala source:
+ *   https://github.com/scala/scala/blob/904e3a5d2b9616b9c533d77d0c51652b138e8659/src/library/scala/Symbol.scala
  *
- * The UniquenessCache class provides a simple way to cache/intern unique
- * objects. Since they are interened, they can be compared using reference
- * equality. Below is the Symbol class from scala which shows a simple example
- * of how to use this. See also Namespaces.scala for a slightly more complex
- * usage.
+ * This class provides a simple way to get unique objects for equal strings.
+ * Because they are interned, they can be compared using reference equality.
+ * This is normally used for scala Symbols. See also Namespaces.scala for a
+ * slightly more comple xusage.
  */
-
 abstract class UniquenessCache[K, V >: Null]
 {
   import java.lang.ref.WeakReference
   import java.util.WeakHashMap
   import java.util.concurrent.locks.ReentrantReadWriteLock
 
-  private val rwl = new ReentrantReadWriteLock()
-  private val rlock = rwl.readLock
-  private val wlock = rwl.writeLock
-  private val map = new WeakHashMap[K, WeakReference[V]]
+  private[this] val rwl = new ReentrantReadWriteLock()
+  private[this] val rlock = rwl.readLock
+  private[this] val wlock = rwl.writeLock
+  private[this] val map = new WeakHashMap[K, WeakReference[V]]
 
   protected def valueFromKey(k: K): V
   protected def keyFromValue(v: V): Option[K]
@@ -84,8 +53,8 @@ abstract class UniquenessCache[K, V >: Null]
         else {
           // If we don't remove the old String key from the map, we can
           // wind up with one String as the key and a different String as
-          // as the name field in the Symbol, which can lead to surprising
-          // GC behavior and duplicate Symbols. See SI-6706.
+          // the name field in the Symbol, which can lead to surprising GC
+          // behavior and duplicate Symbols. See scala/bug#6706.
           map remove name
           val sym = valueFromKey(name)
           map.put(name, new WeakReference(sym))
