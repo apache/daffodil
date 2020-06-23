@@ -83,7 +83,7 @@ Jackson JSON processor (lib/com.fasterxml.jackson.core.jackson-core-2.10.2.jar)
   from the source code management (SCM) system project uses.
 
 Scala (lib/org.scala-lang.scala-library-2.12.11.jar)
-      (org/apache/daffodil/util/UniquenessCache.class in lib/org.apache.daffodil.daffodil-lib-3.0.0.jar)
+      (org/apache/daffodil/util/UniquenessCache.class in lib/org.apache.daffodil.daffodil-lib-2.7.0.jar)
   Scala parser combinators
   Copyright (c) 2002-2020 EPFL
   Copyright (c) 2011-2020 Lightbend, Inc.
