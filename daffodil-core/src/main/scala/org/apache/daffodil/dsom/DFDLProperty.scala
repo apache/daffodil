@@ -20,7 +20,6 @@ package org.apache.daffodil.dsom
 import scala.xml.Node
 import scala.xml.NodeSeq
 
-import org.apache.daffodil.api.WarnID
 import org.apache.daffodil.xml.NamedQName
 import org.apache.daffodil.xml.NS
 import org.apache.daffodil.xml.QName

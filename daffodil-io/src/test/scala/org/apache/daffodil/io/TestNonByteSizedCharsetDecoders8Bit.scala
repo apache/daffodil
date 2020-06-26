@@ -25,7 +25,6 @@ import org.junit.Test
 
 import org.apache.daffodil.processors.charset.CharsetUtils
 import org.apache.daffodil.util.Misc
-import org.apache.daffodil.util.MaybeULong
 import org.apache.daffodil.schema.annotation.props.gen.ByteOrder
 import org.apache.daffodil.schema.annotation.props.gen.BitOrder
 

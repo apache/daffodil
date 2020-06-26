@@ -45,7 +45,6 @@ import org.apache.daffodil.schema.annotation.props.gen.NilValueDelimiterPolicyMi
 import org.apache.daffodil.schema.annotation.props.gen.Representation
 import org.apache.daffodil.schema.annotation.props.gen.RepresentationMixin
 import org.apache.daffodil.util.MaybeULong
-import org.apache.daffodil.util.Misc
 
 import passera.unsigned.ULong
 

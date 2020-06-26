@@ -36,12 +36,9 @@ import org.apache.daffodil.schema.annotation.props.NotFound
 import org.apache.daffodil.schema.annotation.props.gen._ // there are too many to show individually
 import org.apache.daffodil.util.PackedSignCodes
 import org.apache.daffodil.xml.GlobalQName
-import org.apache.daffodil.xml.QName
 import org.apache.daffodil.xml.XMLUtils
 import org.apache.daffodil.dsom.ExpressionCompilers
 import org.apache.daffodil.runtime1.ElementBaseRuntime1Mixin
-import org.apache.daffodil.dsom.SchemaSet
-import org.apache.daffodil.dsom.SharedFactory
 import org.apache.daffodil.grammar.primitives.ConvertTextBooleanPrim
 import org.apache.daffodil.grammar.primitives.LeadingSkipRegion
 import org.apache.daffodil.grammar.primitives.SimpleNilOrValue

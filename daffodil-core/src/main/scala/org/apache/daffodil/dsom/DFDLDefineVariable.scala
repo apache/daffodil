@@ -20,7 +20,6 @@ package org.apache.daffodil.dsom
 import scala.xml.Node
 import scala.xml.NodeSeq.seqToNodeSeq
 import org.apache.daffodil.grammar.EmptyGram
-import org.apache.daffodil.grammar.Gram
 import org.apache.daffodil.processors._
 import org.apache.daffodil.xml.XMLUtils
 import org.apache.daffodil.xml.GlobalQName
@@ -29,7 +28,6 @@ import org.apache.daffodil.dpath.NodeInfo.PrimType
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.grammar.primitives.{ SetVariable, NewVariableInstanceStart, NewVariableInstanceEnd }
 import org.apache.daffodil.schema.annotation.props.Found
-import org.apache.daffodil.exceptions.Assert
 
 class DFDLDefineVariable(node: Node, doc: SchemaDocument)
   extends DFDLDefiningAnnotation(node, doc) {

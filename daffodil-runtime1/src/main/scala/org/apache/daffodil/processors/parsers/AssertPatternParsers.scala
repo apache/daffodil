@@ -22,7 +22,6 @@ import java.util.regex.Matcher
 import org.apache.daffodil.dsom.CompiledExpression
 import org.apache.daffodil.dsom.SchemaDefinitionDiagnosticBase
 import org.apache.daffodil.processors._
-import org.apache.daffodil.util.LogLevel
 import org.apache.daffodil.util.OnStack
 import org.apache.daffodil.schema.annotation.props.gen.FailureType
 

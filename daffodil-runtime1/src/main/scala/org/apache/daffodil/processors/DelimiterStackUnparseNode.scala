@@ -18,8 +18,6 @@
 package org.apache.daffodil.processors
 
 import org.apache.daffodil.processors.dfa.DFADelimiter
-import org.apache.daffodil.util.Maybe
-import org.apache.daffodil.util.Maybe.Nope
 
 object EmptyDelimiterStackUnparseNode {
   val empty = Array[DFADelimiter]()

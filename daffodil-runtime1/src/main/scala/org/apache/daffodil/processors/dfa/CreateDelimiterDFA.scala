@@ -19,13 +19,11 @@ package org.apache.daffodil.processors.dfa
 
 import scala.collection.mutable.ArrayBuffer
 
-import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.processors.CharDelim
 import org.apache.daffodil.processors.DelimBase
 import org.apache.daffodil.processors.Delimiter
 import org.apache.daffodil.processors.ESDelim
 import org.apache.daffodil.processors.NLDelim
-import org.apache.daffodil.processors.RuntimeData
 import org.apache.daffodil.processors.WSPDelim
 import org.apache.daffodil.processors.WSPPlusDelim
 import org.apache.daffodil.processors.WSPStarDelim

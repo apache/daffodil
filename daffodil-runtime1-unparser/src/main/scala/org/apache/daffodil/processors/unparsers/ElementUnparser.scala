@@ -28,7 +28,6 @@ import org.apache.daffodil.processors.UnparseTargetLengthInBitsEv
 import org.apache.daffodil.util.MaybeULong
 import org.apache.daffodil.processors.Evaluatable
 import org.apache.daffodil.infoset.RetryableException
-import org.apache.daffodil.processors.TypeCalculator
 import org.apache.daffodil.util.MaybeBoolean
 import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
 /**

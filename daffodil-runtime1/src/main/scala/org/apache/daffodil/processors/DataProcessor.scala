@@ -22,7 +22,6 @@ import java.io.ObjectOutputStream
 import java.nio.channels.Channels
 import java.nio.CharBuffer
 import java.nio.file.Files
-import java.nio.file.Paths
 import java.nio.LongBuffer
 import java.util.zip.GZIPOutputStream
 
@@ -30,9 +29,6 @@ import org.xml.sax.ErrorHandler
 import org.xml.sax.SAXException
 import org.xml.sax.SAXParseException
 import org.apache.daffodil.Implicits._
-import org.apache.daffodil.api.UnqualifiedPathStepPolicy
-import org.apache.daffodil.util.TransientParam
-import org.apache.daffodil.xml.UnspecifiedNamespace
 
 import scala.collection.immutable.Queue; object INoWarn4 { ImplicitsSuppressUnusedImportWarning() }
 import org.apache.daffodil.equality._; object EqualityNoWarn3 { EqualitySuppressUnusedImportWarning() }

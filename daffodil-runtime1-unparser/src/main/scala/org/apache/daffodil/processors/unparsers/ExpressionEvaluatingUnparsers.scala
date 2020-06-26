@@ -21,7 +21,6 @@ import org.apache.daffodil.dpath.SuspendableExpression
 import org.apache.daffodil.dsom.CompiledExpression
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.infoset.DISimple
-import org.apache.daffodil.infoset.DataValue
 import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveNullable
 import org.apache.daffodil.infoset.Infoset

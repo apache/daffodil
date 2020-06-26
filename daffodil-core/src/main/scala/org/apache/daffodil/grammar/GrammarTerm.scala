@@ -18,14 +18,11 @@
 package org.apache.daffodil.grammar
 
 import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.processors.parsers.Parser
-import org.apache.daffodil.processors.unparsers.Unparser
 import org.apache.daffodil.dsom.SchemaComponent
 import org.apache.daffodil.oolag.OOLAG.OOLAGHostImpl
 import org.apache.daffodil.compiler.ParserOrUnparser
 import org.apache.daffodil.compiler.BothParserAndUnparser
 import org.apache.daffodil.api.WarnID
-import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.runtime1.GramRuntime1Mixin
 import org.apache.daffodil.BasicComponent
 import org.apache.daffodil.dsom.Term

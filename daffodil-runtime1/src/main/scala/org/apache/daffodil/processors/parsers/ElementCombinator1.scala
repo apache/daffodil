@@ -29,7 +29,6 @@ import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.processors.Processor
 import org.apache.daffodil.processors.Success
 import org.apache.daffodil.processors.TermRuntimeData
-import org.apache.daffodil.processors.ModelGroupRuntimeData
 
 abstract class ElementParserBase(
   rd: TermRuntimeData,

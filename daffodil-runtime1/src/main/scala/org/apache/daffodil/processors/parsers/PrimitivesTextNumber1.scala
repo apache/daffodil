@@ -21,7 +21,6 @@ package org.apache.daffodil.processors.parsers
 import com.ibm.icu.math.{ BigDecimal => ICUBigDecimal }
 import com.ibm.icu.text.DecimalFormat
 
-import java.lang.{ Double => JDouble }
 import java.text.ParsePosition
 
 import scala.util.matching.Regex
@@ -35,13 +34,6 @@ import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.processors.Success
 import org.apache.daffodil.processors.TermRuntimeData
 import org.apache.daffodil.processors.TextNumberFormatEv
-import org.apache.daffodil.schema.annotation.props.gen.TextNumberCheckPolicy
-import org.apache.daffodil.schema.annotation.props.gen.TextNumberRounding
-import org.apache.daffodil.schema.annotation.props.gen.TextNumberRoundingMode
-import org.apache.daffodil.util.Maybe
-import org.apache.daffodil.util.Maybe._
-import org.apache.daffodil.util.MaybeDouble
-import org.apache.daffodil.xml.XMLUtils
 
 case class ConvertTextCombinatorParser(
   rd: TermRuntimeData,

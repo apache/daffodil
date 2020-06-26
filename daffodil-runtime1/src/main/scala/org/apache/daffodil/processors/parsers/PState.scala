@@ -37,7 +37,6 @@ import org.apache.daffodil.infoset.InfosetDocument
 import org.apache.daffodil.infoset.InfosetOutputter
 import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.io.DataInputStream
-import org.apache.daffodil.io.BacktrackingException
 import org.apache.daffodil.processors.DataLoc
 import org.apache.daffodil.processors.DataProcessor
 import org.apache.daffodil.processors.ElementRuntimeData
@@ -47,7 +46,6 @@ import org.apache.daffodil.processors.ParseOrUnparseState
 import org.apache.daffodil.processors.ProcessorResult
 import org.apache.daffodil.processors.TermRuntimeData
 import org.apache.daffodil.processors.VariableMap
-import org.apache.daffodil.processors.VariableRead
 import org.apache.daffodil.processors.VariableRuntimeData
 import org.apache.daffodil.processors.dfa
 import org.apache.daffodil.processors.dfa.DFADelimiter
@@ -65,7 +63,6 @@ import org.apache.daffodil.util.Pool
 import org.apache.daffodil.util.Poolable
 import org.apache.daffodil.infoset.DIComplexState
 import org.apache.daffodil.infoset.DISimpleState
-import org.apache.daffodil.exceptions.UnsuppressableException
 import org.apache.daffodil.exceptions.Abort
 import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.xml.GlobalQName

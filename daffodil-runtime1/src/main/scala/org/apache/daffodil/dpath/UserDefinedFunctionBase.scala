@@ -21,9 +21,7 @@ import org.apache.daffodil.udf.UserDefinedFunction
 import org.apache.daffodil.udf.UserDefinedFunctionProcessingErrorException
 import org.apache.daffodil.udf.exceptions.UserDefinedFunctionProcessingError
 import org.apache.daffodil.udf.UserDefinedFunctionFatalErrorException
-import org.apache.daffodil.udf.exceptions.UserDefinedFunctionFatalException
 import org.apache.daffodil.udf.UserDefinedFunctionService.UserDefinedFunctionMethod
-import java.lang.reflect.Method
 import java.lang.reflect.InvocationTargetException
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.infoset.DataValue.DataValuePrimitive

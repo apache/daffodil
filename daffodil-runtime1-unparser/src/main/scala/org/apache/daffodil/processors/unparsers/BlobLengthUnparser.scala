@@ -17,9 +17,7 @@
 
 package org.apache.daffodil.processors.unparsers
 
-import passera.unsigned.ULong
 
-import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Paths
 

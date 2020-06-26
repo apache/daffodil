@@ -22,15 +22,11 @@ import java.math.{ BigInteger => JBigInteger, BigDecimal => JBigDecimal }
 
 import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.infoset.Infoset
-import org.apache.daffodil.infoset.DISimple
 import org.apache.daffodil.io.DataOutputStream
 import org.apache.daffodil.io.FormatInfo
 import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.processors.Evaluatable
 import org.apache.daffodil.processors.ParseOrUnparseState
-import org.apache.daffodil.processors.Processor
-import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
 import org.apache.daffodil.util.Maybe._
 import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveNullable
 

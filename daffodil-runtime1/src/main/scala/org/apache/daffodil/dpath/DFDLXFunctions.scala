@@ -17,7 +17,6 @@
 
 package org.apache.daffodil.dpath
 
-import java.lang.{ Long => JLong }
 import java.math.{ BigInteger => JBigInt }
 
 import org.apache.daffodil.exceptions.Assert

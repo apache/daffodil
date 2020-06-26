@@ -32,7 +32,6 @@ import org.apache.daffodil.processors.unparsers.IBM4690PackedIntegerKnownLengthU
 import org.apache.daffodil.processors.unparsers.IBM4690PackedIntegerPrefixedLengthUnparser
 import org.apache.daffodil.processors.unparsers.IBM4690PackedIntegerRuntimeLengthUnparser
 import org.apache.daffodil.processors.unparsers.Unparser
-import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
 
 class IBM4690PackedIntegerRuntimeLength(val e: ElementBase, signed: Boolean) extends Terminal(e, true) {
   override lazy val parser = new IBM4690PackedIntegerRuntimeLengthParser(e.elementRuntimeData, signed, e.lengthEv, e.lengthUnits)

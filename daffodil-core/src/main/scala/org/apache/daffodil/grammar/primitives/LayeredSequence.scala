@@ -24,8 +24,6 @@ import org.apache.daffodil.processors.unparsers.{ Unparser => DaffodilUnparser }
 import org.apache.daffodil.util.Misc
 import org.apache.daffodil.processors.parsers.LayeredSequenceParser
 import org.apache.daffodil.processors.unparsers.LayeredSequenceUnparser
-import org.apache.daffodil.processors.parsers.ScalarOrderedUnseparatedSequenceChildParser
-import org.apache.daffodil.processors.unparsers.ScalarOrderedUnseparatedSequenceChildUnparser
 
 case class LayeredSequence(sq: SequenceTermBase, bodyTerm: SequenceChild)
   extends Terminal(sq, true) {

@@ -23,7 +23,6 @@ import org.apache.daffodil.processors.TermRuntimeData
 import org.apache.daffodil.processors.DelimiterIterator
 import org.apache.daffodil.io.DataInputStream
 import scala.collection.mutable.ArrayBuffer
-import org.apache.daffodil.io.FormatInfo
 import org.apache.daffodil.processors.parsers.PState
 
 class TextPaddingParser(val padChar: Char,

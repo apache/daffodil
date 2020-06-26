@@ -45,7 +45,6 @@ import org.apache.daffodil.exceptions.UnsuppressableException
 import scala.collection.mutable
 import org.apache.daffodil.dsom.RuntimeSchemaDefinitionError
 import org.apache.daffodil.util.Misc
-import org.apache.daffodil.infoset.InfosetItem
 import org.apache.daffodil.infoset.InfosetElement
 import org.apache.daffodil.infoset.XMLTextInfosetOutputter
 import org.apache.daffodil.processors.parsers.ConvertTextCombinatorParser

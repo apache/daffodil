@@ -21,7 +21,6 @@ import org.apache.daffodil.util.Misc
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.exceptions.SchemaFileLocation
-import org.apache.daffodil.exceptions.ThinException
 
 /**
  * Base class for all "thin" (no stack trace) diagnostic objects.

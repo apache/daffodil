@@ -20,7 +20,6 @@ package org.apache.daffodil.tdml
 import java.io.File
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import org.apache.daffodil.Implicits._
 import java.io.FileOutputStream
 import org.apache.daffodil.api.URISchemaSource
 import org.junit.Before

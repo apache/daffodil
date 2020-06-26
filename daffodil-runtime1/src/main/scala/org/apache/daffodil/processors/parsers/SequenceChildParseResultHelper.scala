@@ -16,14 +16,11 @@
  */
 package org.apache.daffodil.processors.parsers
 
-import org.apache.daffodil.processors.Success
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.schema.annotation.props.EmptyElementParsePolicy
 import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.processors.ModelGroupRuntimeData
-import org.apache.daffodil.processors.Failure
 import org.apache.daffodil.infoset.DIElement
 import org.apache.daffodil.infoset.DISimple
 import org.apache.daffodil.infoset.DIComplex
@@ -457,7 +454,6 @@ trait ModelGroupSequenceChildParseResultHelper
 trait ScalarElementSequenceChildParseResultHelper
   extends ElementSequenceChildParseResultHelper {
 
-  import ParseAttemptStatus._
 
   /**
    * a scalar element is always required.

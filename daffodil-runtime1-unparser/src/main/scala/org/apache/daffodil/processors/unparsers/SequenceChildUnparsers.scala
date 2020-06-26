@@ -20,13 +20,9 @@ import org.apache.daffodil.processors.Success
 import org.apache.daffodil.processors.SequenceRuntimeData
 import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.processors.TermRuntimeData
-import org.apache.daffodil.api.ValidationMode
 import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.infoset.DIArray
-import org.apache.daffodil.equality._
 import org.apache.daffodil.processors.parsers.{EndArrayChecksMixin, MinMaxRepeatsMixin}
 import org.apache.daffodil.schema.annotation.props.gen.OccursCountKind
-import org.apache.daffodil.processors.ModelGroupRuntimeData
 
 /**
  * base for unparsers for the children of sequences.

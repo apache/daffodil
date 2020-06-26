@@ -27,7 +27,6 @@ import org.apache.daffodil.schema.annotation.props.gen.OccursCountKind
 import org.apache.daffodil.schema.annotation.props.gen.SequenceKind
 import org.apache.daffodil.Implicits.ns2String
 import org.apache.daffodil.grammar.SequenceGrammarMixin
-import org.apache.daffodil.processors.SequenceRuntimeData
 import org.apache.daffodil.schema.annotation.props.Found
 import org.apache.daffodil.schema.annotation.props.PropertyLookupResult
 import org.apache.daffodil.processors.LayerTransformerEv
@@ -35,7 +34,6 @@ import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.schema.annotation.props.SeparatorSuppressionPolicy
 import org.apache.daffodil.schema.annotation.props.gen.SeparatorPosition
 import org.apache.daffodil.processors.SeparatorParseEv
-import org.apache.daffodil.processors.ModelGroupRuntimeData
 import org.apache.daffodil.schema.annotation.props.gen.LayerLengthUnits
 import org.apache.daffodil.processors.SeparatorUnparseEv
 import org.apache.daffodil.exceptions.Assert

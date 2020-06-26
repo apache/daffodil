@@ -23,9 +23,7 @@ import scala.xml.NamespaceBinding
 import org.apache.daffodil.xml.NamedQName
 import java.lang.{ Long => JLong, Boolean => JBoolean }
 import org.apache.daffodil.schema.annotation.props.Found
-import org.apache.daffodil.oolag.OOLAG._
 import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
-import org.apache.daffodil.processors.HasTunable
 import org.apache.daffodil.BasicComponent
 
 object ExpressionCompilers extends ExpressionCompilerClass {

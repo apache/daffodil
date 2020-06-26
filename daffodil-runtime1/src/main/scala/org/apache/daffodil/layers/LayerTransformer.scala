@@ -19,7 +19,6 @@ package org.apache.daffodil.layers
 
 import org.apache.daffodil.schema.annotation.props.gen.LayerLengthKind
 import org.apache.daffodil.schema.annotation.props.gen.LayerLengthUnits
-import org.apache.daffodil.processors.TermRuntimeData
 import org.apache.daffodil.processors.LayerLengthInBytesEv
 import org.apache.daffodil.processors.LayerBoundaryMarkEv
 import org.apache.daffodil.processors.LayerCharsetEv

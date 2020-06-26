@@ -19,7 +19,6 @@ package org.apache.daffodil.dsom
 
 import scala.xml.Node
 import org.apache.daffodil.dpath.NodeInfo
-import org.apache.daffodil.xml.QName
 import org.apache.daffodil.api.WarnID
 import scala.xml.Text
 import scala.xml.Comment

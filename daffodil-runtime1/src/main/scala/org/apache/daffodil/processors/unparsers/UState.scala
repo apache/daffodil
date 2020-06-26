@@ -20,7 +20,6 @@ package org.apache.daffodil.processors.unparsers
 import java.io.ByteArrayOutputStream
 import java.nio.CharBuffer
 import java.nio.LongBuffer
-import java.nio.file.Paths
 
 import scala.Left
 import scala.collection.mutable
@@ -50,7 +49,6 @@ import org.apache.daffodil.processors.EscapeSchemeUnparserHelper
 import org.apache.daffodil.processors.Failure
 import org.apache.daffodil.processors.NonTermRuntimeData
 import org.apache.daffodil.processors.ParseOrUnparseState
-import org.apache.daffodil.processors.RuntimeData
 import org.apache.daffodil.processors.Suspension
 import org.apache.daffodil.processors.TermRuntimeData
 import org.apache.daffodil.processors.UnparseResult

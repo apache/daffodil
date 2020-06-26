@@ -19,7 +19,6 @@ package org.apache.daffodil.io
 
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
-import java.nio.charset.CodingErrorAction
 import org.apache.daffodil.exceptions.Assert
 import com.ibm.icu.lang.UCharacter
 import com.ibm.icu.lang.UCharacterEnums

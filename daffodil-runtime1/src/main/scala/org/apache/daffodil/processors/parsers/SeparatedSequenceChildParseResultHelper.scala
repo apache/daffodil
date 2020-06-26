@@ -16,17 +16,10 @@
  */
 package org.apache.daffodil.processors.parsers
 
-import org.apache.daffodil.processors.Success
-import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.schema.annotation.props.EmptyElementParsePolicy
 import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.processors.ModelGroupRuntimeData
-import org.apache.daffodil.processors.Failure
-import org.apache.daffodil.infoset.DIElement
-import org.apache.daffodil.infoset.DISimple
-import org.apache.daffodil.infoset.DIComplex
 
 /**
  * Define the kinds of behaviors for terms in a sequence.
@@ -103,7 +96,6 @@ trait SeparatedSequenceChildParseResultHelper
    */
   final override def finalChecks(parser: SequenceChildParser, pstate: PState, resultOfTry: ParseAttemptStatus,
     priorResultOfTry: ParseAttemptStatus): Unit = {
-    import ParseAttemptStatus._
 
     if ((sscb eq PositionalTrailingStrict)) {
       val resultToTest = priorResultOfTry

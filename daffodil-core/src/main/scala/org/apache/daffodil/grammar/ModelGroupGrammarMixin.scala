@@ -18,8 +18,7 @@
 package org.apache.daffodil.grammar
 
 import org.apache.daffodil.schema.annotation.props.gen._
-import org.apache.daffodil.dsom.SharedFactory
-import org.apache.daffodil.dsom.{ChoiceTermBase, GroupRef, InitiatedTerminatedMixin, ModelGroup, SequenceTermBase, SchemaSet}
+import org.apache.daffodil.dsom.{ChoiceTermBase, GroupRef, InitiatedTerminatedMixin, ModelGroup, SequenceTermBase}
 import org.apache.daffodil.grammar.primitives.TrailingSkipRegion
 import org.apache.daffodil.grammar.primitives.LeadingSkipRegion
 import org.apache.daffodil.grammar.primitives.AlignmentFill

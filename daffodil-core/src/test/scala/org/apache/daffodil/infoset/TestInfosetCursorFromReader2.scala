@@ -20,7 +20,6 @@ package org.apache.daffodil.infoset
 import org.junit.Test
 import org.junit.Assert._
 import org.apache.daffodil.Implicits._
-import org.apache.daffodil.equality._
 import org.apache.daffodil.util.SchemaUtils
 import org.apache.daffodil.processors.DataProcessor
 import org.apache.daffodil.compiler.Compiler

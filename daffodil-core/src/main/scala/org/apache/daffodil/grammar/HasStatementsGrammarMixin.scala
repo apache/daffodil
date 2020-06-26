@@ -18,8 +18,6 @@
 package org.apache.daffodil.grammar
 
 import org.apache.daffodil.dsom.Term
-import org.apache.daffodil.dsom.{ DFDLNewVariableInstance, DFDLDiscriminator, DFDLAssert }
-import org.apache.daffodil.schema.annotation.props.gen.TestKind
 
 trait HasStatementsGrammarMixin extends GrammarMixin { self: Term =>
 

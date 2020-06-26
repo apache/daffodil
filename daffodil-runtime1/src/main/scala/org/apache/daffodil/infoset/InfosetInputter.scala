@@ -21,12 +21,10 @@ import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.processors.ProcessingError
 import org.apache.daffodil.util.Maybe._
 import org.apache.daffodil.util.MaybeBoolean
-import org.apache.daffodil.util.Cursor
 import org.apache.daffodil.util.Accessor
 import org.apache.daffodil.util.Misc
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.util.CursorImplMixin
-import org.apache.daffodil.util.MStack
 import org.apache.daffodil.processors.unparsers.UnparseError
 import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.dpath.InvalidPrimitiveDataException
@@ -35,7 +33,6 @@ import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.processors.ErrorERD
 import org.apache.daffodil.util.MStackOfAnyRef
 
-import java.net.URISyntaxException
 
 class InfosetError(kind: String, args: String*)
   extends ProcessingError("Infoset", Nope, Nope, kind, args: _*)

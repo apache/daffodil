@@ -30,7 +30,6 @@ import java.math.{ BigInteger => JBigInt }
 import org.apache.daffodil.calendar.DFDLDate
 import org.apache.daffodil.calendar.DFDLDateTime
 import org.apache.daffodil.dpath.NodeInfo.PrimType
-import org.apache.daffodil.dpath.NodeInfo.PrimType.PrimNumeric
 import org.apache.daffodil.infoset.DataValue.DataValueBigDecimal
 import org.apache.daffodil.infoset.DataValue.DataValueBigInt
 import org.apache.daffodil.infoset.DataValue.DataValueBool
@@ -45,16 +44,9 @@ import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.infoset.DataValue.DataValueShort
 import org.apache.daffodil.infoset.DataValue.DataValueString
 import org.apache.daffodil.infoset.DataValue.DataValueTime
-import org.apache.daffodil.util.Numbers.asBigDecimal
 import org.apache.daffodil.util.Numbers.asBigInt
 import org.apache.daffodil.util.Numbers.asBoolean
-import org.apache.daffodil.util.Numbers.asByte
 import org.apache.daffodil.util.Numbers.asDouble
-import org.apache.daffodil.util.Numbers.asFloat
-import org.apache.daffodil.util.Numbers.asInt
-import org.apache.daffodil.util.Numbers.asLong
-import org.apache.daffodil.util.Numbers.asShort
-import org.apache.daffodil.xml.XMLUtils
 
 case object BooleanToLong extends Converter {
   override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong =

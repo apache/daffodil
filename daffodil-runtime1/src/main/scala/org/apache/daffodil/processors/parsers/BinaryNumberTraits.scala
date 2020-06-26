@@ -18,7 +18,6 @@
 package org.apache.daffodil.processors.parsers
 
 import java.lang.{ Long => JLong }
-import java.lang.{ Number => JNumber }
 
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.infoset.DISimple

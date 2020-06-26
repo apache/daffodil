@@ -40,7 +40,6 @@ sealed abstract class SeparatorParseHelper(
   scParserArg: Separated)
   extends Serializable {
 
-  import ParseAttemptStatus._
 
   protected val scParser = scParserArg.asInstanceOf[SequenceChildParser with Separated]
 
@@ -64,7 +63,6 @@ sealed abstract class SeparatorParseHelper(
 final class PrefixSeparatorHelper(sep: Parser, childParser: Parser, scParserArg: Separated)
   extends SeparatorParseHelper(sep, childParser, scParserArg)
   with InfixPrefixSeparatorHelperMixin {
-  import ParseAttemptStatus._
 
   override def kind = "prefix"
 
@@ -75,7 +73,6 @@ final class PrefixSeparatorHelper(sep: Parser, childParser: Parser, scParserArg:
 final class InfixSeparatorHelper(sep: Parser, childParser: Parser, scParserArg: Separated)
   extends SeparatorParseHelper(sep, childParser, scParserArg)
   with InfixPrefixSeparatorHelperMixin {
-  import ParseAttemptStatus._
 
   override def kind = "infix"
 
@@ -89,7 +86,6 @@ final class InfixSeparatorHelper(sep: Parser, childParser: Parser, scParserArg: 
 }
 
 trait InfixPrefixSeparatorHelperMixin { self: SeparatorParseHelper =>
-  import ParseAttemptStatus._
 
   protected def kind: String
 

@@ -19,7 +19,6 @@ package org.apache.daffodil.section15.choice_groups
 
 import org.junit.Test
 import org.junit.AfterClass
-import org.apache.daffodil.util._
 import org.apache.daffodil.tdml.Runner
 
 object TestUnparseChoice2 {

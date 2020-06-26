@@ -32,7 +32,6 @@ import org.apache.daffodil.processors.unparsers.PackedIntegerKnownLengthUnparser
 import org.apache.daffodil.processors.unparsers.PackedIntegerPrefixedLengthUnparser
 import org.apache.daffodil.processors.unparsers.PackedIntegerRuntimeLengthUnparser
 import org.apache.daffodil.processors.unparsers.Unparser
-import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
 import org.apache.daffodil.util.PackedSignCodes
 
 class PackedIntegerRuntimeLength(val e: ElementBase, signed: Boolean, packedSignCodes: PackedSignCodes) extends Terminal(e, true) {

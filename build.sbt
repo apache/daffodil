@@ -114,7 +114,9 @@ lazy val commonSettings = Seq(
     "-Xfatal-warnings",
     "-Xxml:-coalescing",
     "-Xfuture"
-  ),
+),
+  // add scalac options that are version specific
+  scalacOptions ++= scalacCrossOptions(scalaVersion.value),
   // Workaround issue that some options are valid for javac, not javadoc.
   // These javacOptions are for code compilation only. (Issue sbt/sbt#355)
   javacOptions in Compile in compile ++= Seq(
@@ -145,6 +147,18 @@ lazy val commonSettings = Seq(
   libraryDependencies ++= Dependencies.common,
   parallelExecution in IntegrationTest := false
 ) ++ Defaults.itSettings
+
+def scalacCrossOptions(scalaVersion: String) =
+  CrossVersion.partialVersion(scalaVersion) match {
+    case Some((2, 11)) => Seq(
+      "-language:existentials",
+      "-Ywarn-unused-import"
+    )
+    case Some((2, 12)) => Seq(
+      "-Ywarn-unused:imports"
+    )
+    case _ => Seq.empty
+  }
 
 lazy val nopublish = Seq(
   publish := {},

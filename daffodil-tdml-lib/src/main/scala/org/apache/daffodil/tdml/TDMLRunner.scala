@@ -479,7 +479,6 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
   final def isNegativeTest = optExpectedErrors.isDefined
 
   lazy val tdmlDFDLProcessorFactory: AbstractTDMLDFDLProcessorFactory = {
-    import scala.language.reflectiveCalls
     import scala.language.existentials
 
     val className = "org.apache.daffodil.tdml.processor.TDMLDFDLProcessorFactory"
@@ -676,7 +675,6 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
   // just throw a standard "not compatible" exception and let the caller figure
   // out the right way to handle it.
   private def testNotCompatible(testName: String, implementationName: Option[String]) = {
-    import scala.language.reflectiveCalls
     import scala.language.existentials
 
     val tdmlException = new TDMLTestNotCompatibleException(testName, implementationName)

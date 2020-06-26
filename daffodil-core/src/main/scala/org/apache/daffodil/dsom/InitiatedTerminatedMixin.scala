@@ -23,9 +23,6 @@ import org.apache.daffodil.grammar.GrammarMixin
 import org.apache.daffodil.grammar.primitives.InitiatedContent
 import org.apache.daffodil.grammar.primitives.Terminator
 import org.apache.daffodil.grammar.primitives.Initiator
-import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.compiler.ForParser
-import org.apache.daffodil.api.WarnID
 
 trait InitiatedTerminatedMixin
   extends GrammarMixin

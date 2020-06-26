@@ -25,7 +25,6 @@ import org.apache.daffodil.xml.GlobalQName
 import org.apache.daffodil.processors.parsers.{ Parser => DaffodilParser }
 import org.apache.daffodil.processors.unparsers.{ Unparser => DaffodilUnparser }
 import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.Implicits._
 import org.apache.daffodil.processors.parsers.NewVariableInstanceStartParser
 import org.apache.daffodil.processors.parsers.AssertExpressionEvaluationParser
 import org.apache.daffodil.dsom.ElementBase
@@ -44,11 +43,7 @@ import org.apache.daffodil.dsom.DFDLSetVariable
 import org.apache.daffodil.dsom.DFDLNewVariableInstance
 import org.apache.daffodil.processors.parsers.AssertPatternParser
 import org.apache.daffodil.processors.parsers.TypeValueCalcParser
-import org.apache.daffodil.processors.TypeCalculator
-import org.apache.daffodil.processors.unparsers.NadaUnparser
-import org.apache.daffodil.processors.RuntimeData
 import org.apache.daffodil.processors.unparsers.TypeValueCalcUnparser
-import org.apache.daffodil.processors.parsers.NadaParser
 import org.apache.daffodil.processors.parsers.InitiatedContentDiscrimOnIndexGreaterThanMinParser
 import org.apache.daffodil.processors.parsers.InitiatedContentDiscrimChoiceParser
 import org.apache.daffodil.processors.parsers.InitiatedContentDiscrimChoiceAndIndexGreaterThanMinParser

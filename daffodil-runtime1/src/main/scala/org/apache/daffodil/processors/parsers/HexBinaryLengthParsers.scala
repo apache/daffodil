@@ -17,14 +17,11 @@
 
 package org.apache.daffodil.processors.parsers
 
-import java.lang.{ Long => JLong }
 
 import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.processors.LengthInBitsEv
 import org.apache.daffodil.processors.Processor
-import org.apache.daffodil.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
-import org.apache.daffodil.util.Numbers
 
 sealed abstract class HexBinaryLengthParser(override val context: ElementRuntimeData)
   extends PrimParser {

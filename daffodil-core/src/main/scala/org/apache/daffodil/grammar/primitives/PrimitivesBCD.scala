@@ -32,7 +32,6 @@ import org.apache.daffodil.processors.unparsers.BCDIntegerKnownLengthUnparser
 import org.apache.daffodil.processors.unparsers.BCDIntegerPrefixedLengthUnparser
 import org.apache.daffodil.processors.unparsers.BCDIntegerRuntimeLengthUnparser
 import org.apache.daffodil.processors.unparsers.Unparser
-import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
 
 class BCDIntegerRuntimeLength(val e: ElementBase) extends Terminal(e, true) {
   override lazy val parser = new BCDIntegerRuntimeLengthParser(e.elementRuntimeData, e.lengthEv, e.lengthUnits)

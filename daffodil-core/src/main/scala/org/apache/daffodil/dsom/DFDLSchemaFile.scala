@@ -25,10 +25,8 @@ import org.apache.daffodil.api._
 import org.apache.daffodil.dsom.IIUtils._
 import org.apache.daffodil.api.Diagnostic
 import org.apache.daffodil.oolag.OOLAG
-import org.xml.sax.SAXException
 import org.apache.daffodil.util.LogLevel
 import org.apache.daffodil.util.Misc
-import org.apache.daffodil.exceptions.Assert
 
 /**
  * represents one schema document file

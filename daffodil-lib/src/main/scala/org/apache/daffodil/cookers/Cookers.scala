@@ -20,7 +20,6 @@ package org.apache.daffodil.cookers
 import java.math.{ BigInteger => JBigInt }
 
 import org.apache.daffodil.exceptions.ThrowsSDE
-import org.apache.daffodil.util.Maybe
 
 object TextStandardInfinityRepCooker extends StringLiteralNonEmptyNoCharClassEntitiesNoByteEntities()
 

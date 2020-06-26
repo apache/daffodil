@@ -17,13 +17,10 @@
 
 package org.apache.daffodil.blob
 
-import org.junit.Assert._
-import org.junit.Test
 import java.io.File
 import org.apache.daffodil.CLI.Util
 import net.sf.expectit.matcher.Matchers.contains
 import net.sf.expectit.matcher.Matchers.eof
-import net.sf.expectit.Expect
 import scala.io.Source
 
 class TestBlob {

@@ -16,7 +16,6 @@
  */
 
 package org.apache.daffodil.grammar
-import org.apache.daffodil.dsom.DFDLNewVariableInstance
 import org.apache.daffodil.dsom.Term
 import org.apache.daffodil.grammar.primitives._
 import org.apache.daffodil.grammar.primitives.MandatoryTextAlignment

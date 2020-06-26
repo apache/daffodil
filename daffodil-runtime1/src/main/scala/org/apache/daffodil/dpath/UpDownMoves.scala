@@ -17,7 +17,6 @@
 
 package org.apache.daffodil.dpath
 
-import org.apache.daffodil.dsom.DPathElementCompileInfo
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.infoset.DIArray
 import org.apache.daffodil.infoset.DIElement

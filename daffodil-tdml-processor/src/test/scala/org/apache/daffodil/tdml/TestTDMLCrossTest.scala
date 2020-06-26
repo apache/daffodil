@@ -21,7 +21,6 @@ import org.apache.daffodil.xml.XMLUtils
 import org.junit.Assert._
 import org.junit.Test
 import org.apache.daffodil.Implicits._
-import org.junit.AssumptionViolatedException
 
 class TestTDMLCrossTest {
 

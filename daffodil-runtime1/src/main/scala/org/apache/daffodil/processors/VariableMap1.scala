@@ -30,7 +30,7 @@ import org.apache.daffodil.infoset.RetryableException
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe.Nope
 import org.apache.daffodil.util.MStackOf
-import org.apache.daffodil.xml.{GlobalQName, UnspecifiedNamespace, NamedQName, QNameBase, RefQName}
+import org.apache.daffodil.xml.{GlobalQName, UnspecifiedNamespace, NamedQName, RefQName}
 import org.apache.daffodil.processors.parsers.PState
 
 import scala.collection.mutable.Map

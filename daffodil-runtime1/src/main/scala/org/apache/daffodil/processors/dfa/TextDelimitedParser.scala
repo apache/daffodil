@@ -28,7 +28,6 @@ import org.apache.daffodil.io.DataInputStream
 import org.apache.daffodil.equality._
 import org.apache.daffodil.util.MaybeChar
 import org.apache.daffodil.processors.DelimiterIterator
-import org.apache.daffodil.io.FormatInfo
 import org.apache.daffodil.processors.parsers.PState
 
 abstract class TextDelimitedParserBase(override val justificationTrim: TextJustificationType.Type,

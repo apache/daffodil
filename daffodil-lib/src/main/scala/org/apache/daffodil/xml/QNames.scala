@@ -17,7 +17,6 @@
 
 package org.apache.daffodil.xml
 
-import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.exceptions.ThrowsSDE
 import org.apache.daffodil.api.UnqualifiedPathStepPolicy

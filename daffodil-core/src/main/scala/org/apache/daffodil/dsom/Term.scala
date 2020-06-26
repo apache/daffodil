@@ -19,32 +19,15 @@ package org.apache.daffodil.dsom
 
 import java.util.UUID
 import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.processors.TermRuntimeData
 import org.apache.daffodil.grammar.TermGrammarMixin
 import org.apache.daffodil.schema.annotation.props.gen.YesNo
 import java.lang.{ Integer => JInt }
 import org.apache.daffodil.schema.annotation.props.Found
 import org.apache.daffodil.schema.annotation.props.NotFound
-import org.apache.daffodil.schema.annotation.props.gen.NilKind
-import org.apache.daffodil.util.ListUtils
-import org.apache.daffodil.processors.unparsers.NeverZeroLengthDetector
-import org.apache.daffodil.processors.unparsers.PossiblyZeroArrayOccurrencesDetector
-import org.apache.daffodil.processors.unparsers.PossiblyZeroLengthModelGroupDetector
-import org.apache.daffodil.processors.unparsers.HexBinaryZeroLengthDetector
-import org.apache.daffodil.processors.unparsers.NillableStringZeroLengthDetector
-import org.apache.daffodil.processors.unparsers.NillableZeroLengthDetector
-import org.apache.daffodil.processors.unparsers.NillableHexBinaryZeroLengthDetector
-import org.apache.daffodil.processors.unparsers.StringZeroLengthDetector
-import org.apache.daffodil.processors.unparsers.NotRepresentedZeroLengthDetector
-import org.apache.daffodil.processors.unparsers.ZeroLengthDetector
 import org.apache.daffodil.schema.annotation.props.gen.LengthKind
-import org.apache.daffodil.schema.annotation.props.gen.Representation
-import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.schema.annotation.props.gen.OccursCountKind
 import org.apache.daffodil.schema.annotation.props.SeparatorSuppressionPolicy
 import org.apache.daffodil.api.WarnID
-import org.apache.daffodil.infoset.PartialNextElementResolver
-import scala.collection.mutable
 
 /**
  * Mixin for objects that are shared, but have consistency checks to be run

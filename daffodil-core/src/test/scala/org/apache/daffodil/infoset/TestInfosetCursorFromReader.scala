@@ -29,7 +29,6 @@ import org.apache.daffodil.compiler.Compiler
 import org.apache.daffodil.util.IteratorFromCursor
 import org.apache.daffodil.processors.SequenceRuntimeData
 import org.apache.daffodil.processors.ElementRuntimeData
-import org.apache.daffodil.processors.unparsers.UnparseError
 import org.apache.daffodil.processors.ChoiceRuntimeData
 import org.apache.daffodil.processors.ErrorERD
 

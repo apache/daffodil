@@ -21,7 +21,6 @@ import java.text.ParsePosition
 import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.dpath.InvalidPrimitiveDataException
 import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.exceptions.UnsuppressableException
 import org.apache.daffodil.infoset.DISimple
 import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.processors.Success

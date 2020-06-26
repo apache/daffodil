@@ -21,8 +21,6 @@ import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.xml.NamedQName
 import scala.xml.NamespaceBinding
 import java.lang.{ Long => JLong, Boolean => JBoolean }
-import org.apache.daffodil.oolag.OOLAG._
-import org.apache.daffodil.processors.TypeCalculatorCompiler.TypeCalcMap
 import org.apache.daffodil.BasicComponent
 
 trait ExpressionCompilerBase[T <: AnyRef] {

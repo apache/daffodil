@@ -22,10 +22,8 @@ import org.apache.daffodil.xml.XMLUtils
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
-import org.apache.daffodil.util._
 import org.junit.Test
 import org.apache.daffodil.Implicits._
-import org.junit.AfterClass
 
 class TestTDMLRunner2 {
 
