@@ -19,21 +19,13 @@ package org.apache.daffodil.dsom
 
 import scala.xml.Node
 import scala.xml.NodeSeq.seqToNodeSeq
-import scala.xml.Text
 import scala.xml._
 import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.processors.ModelGroupRuntimeData
-import org.apache.daffodil.processors.RuntimeData
-import org.apache.daffodil.processors.TermRuntimeData
 import org.apache.daffodil.grammar.ModelGroupGrammarMixin
-import org.apache.daffodil.infoset.ChoiceBranchEvent
-import org.apache.daffodil.infoset.ChoiceBranchStartEvent
-import org.apache.daffodil.infoset.ChoiceBranchEndEvent
-import java.lang.{ Integer => JInt, Boolean => JBoolean }
+import java.lang.{ Integer => JInt }
 import org.apache.daffodil.schema.annotation.props.AlignmentType
 import org.apache.daffodil.schema.annotation.props.gen.AlignmentUnits
 import org.apache.daffodil.schema.annotation.props.gen.YesNo
-import org.apache.daffodil.runtime1.PossibleNextElements
 
 /**
  * A factory for model groups.

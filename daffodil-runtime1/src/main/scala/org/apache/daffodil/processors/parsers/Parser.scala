@@ -19,7 +19,6 @@ package org.apache.daffodil.processors.parsers
 
 import java.io.StringWriter
 import java.io.PrintWriter
-import java.lang.{ Long => JLong }
 
 import org.apache.daffodil.api.Diagnostic
 import org.apache.daffodil.dsom.RuntimeSchemaDefinitionError
@@ -42,7 +41,6 @@ import org.apache.daffodil.processors.CombinatorProcessor
 import org.apache.daffodil.processors.PrimProcessor
 import org.apache.daffodil.processors.TextProcessor
 import org.apache.daffodil.processors.PrimProcessorNoData
-import org.apache.daffodil.processors.ModelGroupRuntimeData
 
 /**
  * Encapsulates lower-level parsing with a uniform interface

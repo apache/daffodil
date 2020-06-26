@@ -22,7 +22,6 @@ import org.apache.daffodil.processors.dfa.TextParser
 import org.apache.daffodil.processors.dfa.DFADelimiter
 import org.apache.daffodil.util.Enum
 import org.apache.daffodil.processors.TermRuntimeData
-import org.apache.daffodil.processors.DelimiterIterator
 import org.apache.daffodil.processors.LocalTypedDelimiterIterator
 import org.apache.daffodil.processors.RemoteTerminatingMarkupAndLocalTypedDelimiterIterator
 import org.apache.daffodil.util.Maybe

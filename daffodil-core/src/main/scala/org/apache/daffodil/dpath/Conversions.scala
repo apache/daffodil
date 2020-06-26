@@ -17,7 +17,6 @@
 
 package org.apache.daffodil.dpath
 
-import org.apache.daffodil.exceptions.ThrowsSDE
 import org.apache.daffodil.exceptions.Assert
 
 /*

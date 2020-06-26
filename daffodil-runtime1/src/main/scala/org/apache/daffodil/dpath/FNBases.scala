@@ -28,10 +28,8 @@ import scala.collection.mutable.ListBuffer
 import scala.xml.NodeSeq.seqToNodeSeq
 
 import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.infoset.DataValue
 import org.apache.daffodil.infoset.DataValue.DataValueBool
 import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
-import org.apache.daffodil.util.Numbers
 
 trait CompareOpBase {
   def operate(v1: DataValuePrimitive, v2: DataValuePrimitive): DataValuePrimitive

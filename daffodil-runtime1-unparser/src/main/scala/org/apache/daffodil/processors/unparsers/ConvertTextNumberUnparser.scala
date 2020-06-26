@@ -22,8 +22,6 @@ import java.lang.{ Float => JFloat }
 
 import org.apache.daffodil.processors._
 import org.apache.daffodil.util.Maybe
-import org.apache.daffodil.util.Maybe._
-import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.processors.TextNumberFormatEv
 
 case class ConvertTextCombinatorUnparser(

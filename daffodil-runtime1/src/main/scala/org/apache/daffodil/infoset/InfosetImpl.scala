@@ -45,7 +45,6 @@ import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.processors.EvalCache
 import org.apache.daffodil.processors.ParseOrUnparseState
 import org.apache.daffodil.processors.ProcessingError
-import org.apache.daffodil.processors.RuntimeData
 import org.apache.daffodil.processors.SimpleTypeRuntimeData
 import org.apache.daffodil.processors.TermRuntimeData
 import org.apache.daffodil.processors.parsers.PState

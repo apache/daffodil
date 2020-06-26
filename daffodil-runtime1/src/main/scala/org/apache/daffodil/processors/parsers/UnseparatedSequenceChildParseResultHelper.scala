@@ -16,10 +16,7 @@
  */
 package org.apache.daffodil.processors.parsers
 
-import org.apache.daffodil.processors.Success
-import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.processors.ElementRuntimeData
-import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.schema.annotation.props.EmptyElementParsePolicy
 import org.apache.daffodil.processors.ModelGroupRuntimeData
 

@@ -18,7 +18,6 @@
 package org.apache.daffodil.processors.unparsers
 
 import org.apache.daffodil.processors.ElementRuntimeData
-import org.apache.daffodil.processors.Evaluatable
 
 class LiteralValueNilOfSpecifiedLengthUnparser(
   override val erd: ElementRuntimeData,

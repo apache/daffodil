@@ -17,7 +17,6 @@
 
 package org.apache.daffodil.processors.unparsers
 
-import passera.unsigned.ULong
 
 import org.apache.daffodil.dpath.NodeInfo.PrimType
 import org.apache.daffodil.exceptions.Assert
@@ -25,12 +24,8 @@ import org.apache.daffodil.infoset.DIElement
 import org.apache.daffodil.infoset.DISimple
 import org.apache.daffodil.infoset.Infoset
 import org.apache.daffodil.infoset.RetryableException
-import org.apache.daffodil.io.DataOutputStream
-import org.apache.daffodil.io.ZeroLengthStatus
 import org.apache.daffodil.processors.CharsetEv
 import org.apache.daffodil.processors.ElementRuntimeData
-import org.apache.daffodil.processors.TermRuntimeData
-import org.apache.daffodil.processors.ChoiceRuntimeData
 import org.apache.daffodil.processors.Evaluatable
 import org.apache.daffodil.processors.ParseOrUnparseState
 import org.apache.daffodil.processors.Success

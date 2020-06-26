@@ -20,8 +20,6 @@ package org.apache.daffodil.processors.unparsers
 import java.lang.{ Long => JLong }
 import java.math.{ BigInteger => JBigInteger }
 
-import org.apache.daffodil.infoset.Infoset
-import org.apache.daffodil.infoset.DISimple
 import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.processors.Evaluatable
 import org.apache.daffodil.processors.ParseOrUnparseState
@@ -30,7 +28,6 @@ import org.apache.daffodil.processors.parsers.HasKnownLengthInBits
 import org.apache.daffodil.processors.parsers.HasRuntimeExplicitLength
 import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
 import org.apache.daffodil.util.DecimalUtils
-import org.apache.daffodil.util.Maybe._
 
 abstract class IBM4690PackedIntegerBaseUnparser(
   e: ElementRuntimeData)

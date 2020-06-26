@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.dpath
 
-import java.lang.{ Boolean => JBoolean, Number => JNumber, Long => JLong, Double => JDouble, String => JString, Float => JFloat, Byte => JByte, Integer => JInt, Short => JShort }
+import java.lang.{ Long => JLong, Double => JDouble, Float => JFloat, Byte => JByte, Integer => JInt, Short => JShort }
 import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
 import java.net.URI
 
@@ -57,7 +57,6 @@ import org.apache.daffodil.udf.UserDefinedFunctionProcessingErrorException
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe.Nope
 import org.apache.daffodil.util.Maybe.One
-import org.apache.daffodil.util.Numbers.asLong
 import org.apache.daffodil.xml.NamedQName; object EqualityNoWarn { EqualitySuppressUnusedImportWarning() }
 
 class ExpressionEvaluationException(e: Throwable, s: ParseOrUnparseState)

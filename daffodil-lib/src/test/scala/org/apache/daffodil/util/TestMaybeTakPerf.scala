@@ -16,7 +16,6 @@
  */
 package org.apache.daffodil.util
 
-import org.junit.Test
 
 /**
  * Below is a performance study of Long vs. MaybeULong vs. Maybe[JLong] vs. Option[Long]

@@ -19,7 +19,6 @@ package org.apache.daffodil.tdml
 
 import org.apache.daffodil.util.Misc
 import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.tdml.processor.AbstractTDMLDFDLProcessorFactory
 
 /**
  * Creates the DFDLTestSuite object lazily, so the file isn't read into memory

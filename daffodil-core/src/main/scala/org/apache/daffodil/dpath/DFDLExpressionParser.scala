@@ -28,7 +28,6 @@ import org.apache.daffodil.dsom.CompiledExpression
 import org.apache.daffodil.dsom.ConstantExpression
 import org.apache.daffodil.dsom.DPathCompileInfo
 import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.oolag.OOLAG.OOLAGHost
 import org.apache.daffodil.xml.NamedQName
 import org.apache.daffodil.xml.QNameRegex
 import org.apache.daffodil.BasicComponent

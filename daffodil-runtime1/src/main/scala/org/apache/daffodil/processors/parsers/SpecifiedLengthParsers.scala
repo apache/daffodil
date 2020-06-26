@@ -29,7 +29,6 @@ import org.apache.daffodil.processors.RuntimeData
 import org.apache.daffodil.processors.Evaluatable
 import org.apache.daffodil.processors.Success
 import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
-import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.MaybeULong
 import org.apache.daffodil.util.Numbers
 import org.apache.daffodil.util.OnStack

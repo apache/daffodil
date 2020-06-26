@@ -17,16 +17,12 @@
 package org.apache.daffodil.processors.unparsers
 
 import org.apache.daffodil.processors.SuspendableOperation
-import org.apache.daffodil.util.LogLevel
 import org.apache.daffodil.processors.TermRuntimeData
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.util.Maybe
-import org.apache.daffodil.util.Maybe._
 import org.apache.daffodil.io.DataOutputStream
 import org.apache.daffodil.io.ZeroLengthStatus
-import scala.collection.mutable.Buffer
 import org.apache.daffodil.processors.Processor
-import org.apache.daffodil.io.DirectOrBufferedDataOutputStream
 
 /**
  * Performance Note: This can be a very special purpose suspension. Unlike the

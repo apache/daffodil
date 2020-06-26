@@ -38,7 +38,6 @@ import org.apache.daffodil.processors.unparsers.BinaryIntegerKnownLengthUnparser
 import org.apache.daffodil.processors.unparsers.BinaryIntegerRuntimeLengthUnparser
 import org.apache.daffodil.processors.unparsers.BinaryIntegerPrefixedLengthUnparser
 import org.apache.daffodil.processors.unparsers.Unparser
-import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
 import org.apache.daffodil.util.MaybeInt
 
 class BinaryIntegerRuntimeLength(val e: ElementBase, signed: Boolean) extends Terminal(e, true) {

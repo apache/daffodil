@@ -19,11 +19,8 @@ package org.apache.daffodil.dsom
 
 import org.apache.daffodil.exceptions.SchemaFileLocatable
 import org.apache.daffodil.xml.XMLUtils
-import org.apache.daffodil.exceptions.ThrowsSDE
 import scala.xml.NamespaceBinding
 import org.apache.daffodil.xml.NS
-import org.apache.daffodil.oolag.OOLAG.OOLAGHost
-import scala.xml.Node
 
 trait SchemaFileLocatableImpl
   extends SchemaFileLocatable {

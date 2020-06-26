@@ -23,11 +23,9 @@ import org.apache.daffodil.processors.SequenceRuntimeData
 import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.processors.TermRuntimeData
 import org.apache.daffodil.api.ValidationMode
-import org.apache.daffodil.processors.Failure
 import org.apache.daffodil.processors.OccursCountEv
 import org.apache.daffodil.schema.annotation.props.gen.OccursCountKind
 import org.apache.daffodil.processors.ParseOrUnparseState
-import org.apache.daffodil.processors.ModelGroupRuntimeData
 import org.apache.daffodil.processors.Processor
 import org.apache.daffodil.util.Maybe
 
@@ -295,7 +293,6 @@ abstract class RepeatingChildParser(
    */
   def arrayIndexStatus(minRepeats: Long, maxRepeats: Long,
     pstate: PState): ArrayIndexStatus = {
-    import ParseAttemptStatus._
     import ArrayIndexStatus._
     Assert.invariant(pstate.processorStatus eq Success)
     val apos = pstate.arrayPos

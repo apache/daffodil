@@ -17,8 +17,6 @@
 package org.apache.daffodil.processors.unparsers
 
 import org.apache.daffodil.io.DataOutputStream
-import org.apache.daffodil.io.ZeroLengthStatus
-import org.apache.daffodil.io.DirectOrBufferedDataOutputStream
 import org.apache.daffodil.processors.TermRuntimeData
 import org.apache.daffodil.processors.Processor
 import org.apache.daffodil.processors.SuspendableOperation

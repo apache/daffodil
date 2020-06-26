@@ -18,7 +18,6 @@
 package org.apache.daffodil.processors.parsers
 
 import java.math.{ BigInteger => JBigInt }
-import java.lang.{ Number => JNumber }
 
 import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.dpath.InvalidPrimitiveDataException

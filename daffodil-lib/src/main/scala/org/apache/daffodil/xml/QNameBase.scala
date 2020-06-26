@@ -22,12 +22,10 @@ import java.net.URISyntaxException
 
 import scala.language.reflectiveCalls
 import scala.util.Try
-import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.api.UnqualifiedPathStepPolicy
 import org.apache.daffodil.equality.TypeEqual
 import org.apache.daffodil.exceptions.Assert
 
-import scala.xml.NamespaceBinding
 
 /**
  * Please centralize QName handling here.

@@ -29,7 +29,6 @@ import org.apache.daffodil.util.Maybe._
 import org.apache.daffodil.util.MaybeInt
 import org.apache.daffodil.processors.unparsers.UnparseError
 import org.apache.daffodil.io.BitOrderChangeException
-import org.apache.daffodil.io.DataOutputStream
 
 /**
  * The suspension object keeps track of the state of the task, i.e., whether it

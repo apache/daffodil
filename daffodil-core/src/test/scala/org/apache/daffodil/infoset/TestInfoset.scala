@@ -23,10 +23,8 @@ import org.apache.daffodil.Implicits._
 import org.apache.daffodil.compiler._
 import org.junit.Assert._
 import org.junit.Test
-import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.api.DaffodilTunables
-import org.apache.daffodil.io.DirectOrBufferedDataOutputStream
 import org.apache.daffodil.processors.DataProcessor
 import org.apache.daffodil.dsom.ElementBase
 import org.apache.daffodil.processors.unparsers.UStateMain

@@ -17,11 +17,7 @@
 
 package org.apache.daffodil.dpath
 
-import java.lang.{ Boolean => JBoolean }
 import org.apache.daffodil.util.Numbers._
-import org.apache.daffodil.calendar.DFDLDateTime
-import org.apache.daffodil.calendar.DFDLTime
-import org.apache.daffodil.calendar.DFDLDate
 import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.infoset.DataValue.DataValueBool
 

@@ -20,10 +20,8 @@ package org.apache.daffodil.performance
 import org.junit.Assert._
 import org.junit.Test
 import org.apache.daffodil.CLI.Util
-import net.sf.expectit.ExpectIOException
 import net.sf.expectit.matcher.Matchers.contains
 import net.sf.expectit.matcher.Matchers.eof
-import net.sf.expectit.matcher.Matchers.anyString
 
 class TestCLIPerformance {
 

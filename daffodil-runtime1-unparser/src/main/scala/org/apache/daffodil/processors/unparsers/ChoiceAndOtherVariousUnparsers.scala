@@ -20,13 +20,10 @@ package org.apache.daffodil.processors.unparsers
 import org.apache.daffodil.processors._
 import org.apache.daffodil.infoset._
 import org.apache.daffodil.processors.RuntimeData
-import org.apache.daffodil.processors.dfa.DFADelimiter
-import org.apache.daffodil.schema.annotation.props.gen.ChoiceLengthKind
 import org.apache.daffodil.util.Maybe._
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.MaybeInt
 import org.apache.daffodil.util.Maybe._
-import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.util.PreSerialization
 
 case class ChoiceBranchMap(

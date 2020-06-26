@@ -19,8 +19,6 @@ package org.apache.daffodil.executing
 
 import org.junit.Assert._
 import org.junit.Test
-import scala.language.postfixOps
-import scala.sys.process._
 import org.apache.daffodil.CLI.Util
 import net.sf.expectit.matcher.Matchers.contains
 import net.sf.expectit.matcher.Matchers.matches

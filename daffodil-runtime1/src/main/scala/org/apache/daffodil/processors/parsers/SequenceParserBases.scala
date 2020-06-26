@@ -16,25 +16,19 @@
  */
 package org.apache.daffodil.processors.parsers
 
-import scala.collection.mutable.ArrayBuffer
 
 import org.apache.daffodil.processors.Evaluatable
 import org.apache.daffodil.exceptions.UnsuppressableException
 import java.io.PrintWriter
 import java.io.StringWriter
-import java.util.Comparator
-import java.util.Arrays
 import org.apache.daffodil.dsom.SchemaDefinitionDiagnosticBase
 import org.apache.daffodil.dsom.TunableLimitExceededError
 import org.apache.daffodil.infoset.DIComplex
-import org.apache.daffodil.infoset.DIArray
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.processors.Success
 import org.apache.daffodil.processors.SequenceRuntimeData
 import org.apache.daffodil.processors.ElementRuntimeData
-import org.apache.daffodil.processors.TermRuntimeData
 import org.apache.daffodil.processors.Failure
-import org.apache.daffodil.processors.ModelGroupRuntimeData
 
 /**
  * Base class for all sequence parsers, which are the combinators that coordinate

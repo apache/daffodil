@@ -16,15 +16,8 @@
  */
 package org.apache.daffodil.processors.parsers
 
-import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.processors._
-import org.apache.daffodil.schema.annotation.props.SeparatorSuppressionPolicy
 import org.apache.daffodil.schema.annotation.props.gen.SeparatorPosition
-import ArrayIndexStatus._
-import org.apache.daffodil.dpath.NodeInfo
-import org.apache.daffodil.infoset.DIElement
-import org.apache.daffodil.infoset.DIComplex
-import org.apache.daffodil.schema.annotation.props.gen.LengthKind
 
 trait Separated { self: SequenceChildParser =>
 

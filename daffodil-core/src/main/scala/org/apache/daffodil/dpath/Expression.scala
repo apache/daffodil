@@ -30,13 +30,8 @@ import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
 import java.lang.{ Long => JLong, Integer => JInt, Boolean => JBoolean, Double => JDouble }
 import org.apache.daffodil.util.Numbers
 import org.apache.daffodil.api.WarnID
-import org.apache.daffodil.infoset.NoNextElement
-import org.apache.daffodil.infoset.OnlyOnePossibilityForNextElement
-import org.apache.daffodil.infoset.SeveralPossibilitiesForNextElement
-import org.apache.daffodil.util.LogLevel
 import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.udf.UserDefinedFunctionService
-import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.BasicComponent
 import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.oolag.OOLAG.OOLAGHostImpl

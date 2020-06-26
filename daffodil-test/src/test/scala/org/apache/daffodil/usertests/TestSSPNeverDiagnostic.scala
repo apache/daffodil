@@ -17,7 +17,6 @@
 
 package org.apache.daffodil.usertests
 
-import org.junit.Test
 import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 
@@ -33,7 +32,6 @@ object TestSSPNeverDiagnostic {
 
 class TestSSPNeverDiagnostic {
 
-  import TestSSPNeverDiagnostic._
 
   // DAFFODIL-2274
   //  @Test def testSeparatorSuppressionNeverBadDiagnostic() {

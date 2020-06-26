@@ -47,7 +47,6 @@ import org.apache.daffodil.infoset.DataValue.DataValueLong
 import org.apache.daffodil.infoset.DataValue.DataValueNumber
 import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.infoset.DataValue.DataValueString
-import org.apache.daffodil.infoset.DataValue.DataValueURI
 import org.apache.daffodil.infoset.InfosetArrayIndexOutOfBoundsException
 import org.apache.daffodil.infoset.InfosetNoSuchChildElementException
 import org.apache.daffodil.infoset.InfosetNodeNotFinalException

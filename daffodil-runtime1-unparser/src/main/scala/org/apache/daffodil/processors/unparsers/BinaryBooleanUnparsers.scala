@@ -17,13 +17,11 @@
 
 package org.apache.daffodil.processors.unparsers
 
-import java.lang.{ Long => JLong, Boolean => JBoolean }
+import java.lang.{ Long => JLong }
 
 import passera.unsigned.ULong
 
 import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.infoset.DISimple
-import org.apache.daffodil.infoset.Infoset
 import org.apache.daffodil.io.DataOutputStream
 import org.apache.daffodil.io.FormatInfo
 import org.apache.daffodil.processors.ElementRuntimeData

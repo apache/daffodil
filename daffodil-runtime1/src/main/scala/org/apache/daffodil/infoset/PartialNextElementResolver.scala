@@ -18,23 +18,19 @@
 package org.apache.daffodil.infoset
 
 import org.apache.daffodil.processors.ElementRuntimeData
-import org.apache.daffodil.processors.unparsers.UnparseError
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe._
 import org.apache.daffodil.xml.NS
 import org.apache.daffodil.xml.StepQName
 import org.apache.daffodil.xml.QNameBase
 import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.exceptions.SchemaFileLocation
 import org.apache.daffodil.xml.NamedQName
 import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.util.MStackOf
 import org.apache.daffodil.processors.TermRuntimeData
 import org.apache.daffodil.util.ResettableIterator
-import scala.language.implicitConversions
 import org.apache.daffodil.processors.UnexpectedElementErrorERD
 import org.apache.daffodil.processors.NamespaceAmbiguousElementErrorERD
-import org.apache.daffodil.processors.ErrorERD
 
 /**
  * Mixin for InfosetInputter

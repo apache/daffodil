@@ -18,8 +18,6 @@
 package org.apache.daffodil.dpath
 
 import java.lang.{ Number => JNumber }
-import java.math.{ BigDecimal => JBigDecimal }
-import java.math.{ BigInteger => JBigInt }
 
 import scala.xml.NodeSeq.seqToNodeSeq
 
@@ -41,7 +39,6 @@ import org.apache.daffodil.processors.ParseOrUnparseState
 import org.apache.daffodil.processors.ProcessingError
 import org.apache.daffodil.processors.VariableException
 import org.apache.daffodil.processors.VariableRuntimeData
-import org.apache.daffodil.processors.parsers.PState
 import org.apache.daffodil.util.Misc
 
 class CompiledDPath(val ops: RecipeOp*) extends Serializable {

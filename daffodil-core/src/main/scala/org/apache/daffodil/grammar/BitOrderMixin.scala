@@ -17,13 +17,7 @@
 
 package org.apache.daffodil.grammar
 import org.apache.daffodil.dsom.Term
-import org.apache.daffodil.equality.TypeEqual
 import org.apache.daffodil.schema.annotation.props.gen.BitOrder
-import org.apache.daffodil.processors.CheckByteAndBitOrderEv
-import org.apache.daffodil.processors.CheckBitOrderAndCharsetEv
-import org.apache.daffodil.util.Maybe
-import org.apache.daffodil.dsom.{ Binary, NoText }
-import org.apache.daffodil.dsom.ElementBase
 
 trait BitOrderMixin extends GrammarMixin with ByteOrderAnalysisMixin { self: Term =>
 

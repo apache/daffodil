@@ -22,7 +22,6 @@ import scala.collection.mutable
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.processors.dfa.DFADelimiter
 import org.apache.daffodil.processors.parsers.DelimiterTextType
-import org.apache.daffodil.util.MStackOfInt
 
 trait DelimitersRangeLocal { this: DelimiterIterator =>
   override def reset(): Unit = {

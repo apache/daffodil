@@ -28,7 +28,6 @@ import org.apache.daffodil.Implicits._; object INoWarn2 { ImplicitsSuppressUnuse
 import org.apache.daffodil.processors.parsers.PState
 import org.apache.daffodil.util.TestUtils
 import org.apache.daffodil.io.InputSourceDataInputStream
-import org.apache.daffodil.infoset.DIDocument
 import org.apache.daffodil.infoset.NullInfosetOutputter
 import org.apache.daffodil.infoset.TestInfoset
 import org.apache.daffodil.processors.DataProcessor

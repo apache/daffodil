@@ -28,7 +28,6 @@ import java.lang.reflect.Method
 import org.apache.daffodil.dpath.NodeInfo
 import java.io.Serializable
 import java.io.ObjectInputStream
-import scala.language.existentials
 import java.io.ByteArrayOutputStream
 import java.io.ObjectOutputStream
 import java.io.NotSerializableException

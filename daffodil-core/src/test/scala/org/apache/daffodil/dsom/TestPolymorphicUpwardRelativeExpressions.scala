@@ -17,19 +17,13 @@
 
 package org.apache.daffodil.dsom
 
-import scala.xml.{ XML, Utility, Node }
 import org.junit.Test
-import org.apache.daffodil.compiler._
 import org.apache.daffodil.Implicits._;
-import org.apache.daffodil.schema.annotation.props.gen.{ YesNo, TextNumberRep, SeparatorPosition, Representation, OccursCountKind, NilKind, LengthKind, ChoiceLengthKind, ByteOrder, BinaryNumberRep, AlignmentUnits }
-import org.apache.daffodil.schema.annotation.props.AlignmentType
-import org.apache.daffodil.util.{ Misc, Logging }
+import org.apache.daffodil.util.Logging
 import org.apache.daffodil.xml.XMLUtils
 import org.junit.Assert._
-import org.apache.daffodil.api.Diagnostic
 import org.apache.daffodil.util._
 import org.junit.Test
-import org.apache.daffodil.schema.annotation.props.Found
 
 class TestPolymorphicUpwardRelativeExpressions extends Logging {
 

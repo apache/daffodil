@@ -16,12 +16,9 @@
  */
 package org.apache.daffodil.processors.parsers
 
-import org.apache.daffodil.processors.{ SequenceRuntimeData, Success, TermRuntimeData }
+import org.apache.daffodil.processors.{ SequenceRuntimeData, TermRuntimeData }
 import org.apache.daffodil.processors.ElementRuntimeData
-import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.processors.Failure
 import org.apache.daffodil.processors.OccursCountEv
-import org.apache.daffodil.processors.ModelGroupRuntimeData
 
 trait Unseparated { self: SequenceChildParser =>
 

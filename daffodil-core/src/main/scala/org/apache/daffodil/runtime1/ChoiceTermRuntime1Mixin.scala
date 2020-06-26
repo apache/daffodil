@@ -17,9 +17,8 @@
 
 package org.apache.daffodil.runtime1
 
-import org.apache.daffodil.dsom.{ChoiceGroupRef, ChoiceTermBase, ElementBase, ExpressionCompilers, ModelGroup, SequenceTermBase, Term}
+import org.apache.daffodil.dsom.{ChoiceTermBase, ExpressionCompilers, SequenceTermBase, Term}
 import org.apache.daffodil.infoset.ChoiceBranchStartEvent
-import org.apache.daffodil.processors.RuntimeData
 import org.apache.daffodil.processors.ChoiceRuntimeData
 import org.apache.daffodil.infoset.ChoiceBranchEvent
 import org.apache.daffodil.exceptions.Assert
@@ -28,10 +27,7 @@ import org.apache.daffodil.api.WarnID
 import org.apache.daffodil.processors.ChoiceDispatchKeyEv
 import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.grammar.Gram
-import org.apache.daffodil.processors.TermRuntimeData
-import org.apache.daffodil.processors.SequenceRuntimeData
 import org.apache.daffodil.processors.ElementRuntimeData
-import org.apache.daffodil.processors.unparsers.ChoiceBranchMap
 import org.apache.daffodil.grammar.Gram
 
 trait ChoiceTermRuntime1Mixin { self: ChoiceTermBase =>

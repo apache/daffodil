@@ -40,7 +40,6 @@ import org.apache.daffodil.util.LogLevel
 import org.apache.daffodil.processors.charset.BitsCharsetNonByteSizeEncoder
 import java.math.{BigInteger => JBigInt}
 
-import java.util.Arrays
 
 sealed trait DOSState
 private[io] case object Active extends DOSState

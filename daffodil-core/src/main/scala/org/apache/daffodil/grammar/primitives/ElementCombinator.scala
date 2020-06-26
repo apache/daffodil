@@ -52,9 +52,7 @@ import org.apache.daffodil.schema.annotation.props.gen.TestKind
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.processors.parsers.NadaParser
 import org.apache.daffodil.processors.unparsers.NadaUnparser
-import org.apache.daffodil.dsom.LocalElementDecl
 import org.apache.daffodil.grammar.EmptyGram
-import org.apache.daffodil.processors.unparsers.TypeValueCalcUnparser
 
 /**
  * This uber combinator exists because we (currently) do quite different things

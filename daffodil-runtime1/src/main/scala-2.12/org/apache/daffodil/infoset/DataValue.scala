@@ -25,17 +25,13 @@ package org.apache.daffodil.infoset
 import java.lang.{ Boolean => JBoolean, Number => JNumber, Long => JLong, Double => JDouble, String => JString, Float => JFloat, Byte => JByte, Integer => JInt, Short => JShort }
 import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
 import org.apache.daffodil.calendar.DFDLCalendar
-import scala.language.implicitConversions
 import org.apache.daffodil.calendar.DFDLDateTime
 import org.apache.daffodil.calendar.DFDLDate
 import org.apache.daffodil.calendar.DFDLTime
 import org.apache.daffodil.util.Maybe
-import org.apache.daffodil.processors.UseNilForDefault
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.util.Maybe.One
 import org.apache.daffodil.util.Maybe.Nope
-import java.io.ObjectOutputStream
-import java.io.ObjectInputStream
 import java.net.URI
 
 /*

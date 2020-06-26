@@ -17,7 +17,6 @@
 
 package org.apache.daffodil.grammar.primitives
 
-import java.math.{ BigInteger => JBigInt }
 
 import org.apache.daffodil.dsom.ElementBase
 import org.apache.daffodil.grammar.Terminal
@@ -26,7 +25,6 @@ import org.apache.daffodil.processors.unparsers.Unparser
 import org.apache.daffodil.processors.parsers.ConvertNonBaseTenTextNumberParser
 import org.apache.daffodil.processors.unparsers.ConvertNonBaseTenTextNumberUnparser
 
-import org.apache.daffodil.processors.unparsers.NadaUnparser
 
 
 case class ConvertNonBaseTenTextNumberPrim(e: ElementBase)

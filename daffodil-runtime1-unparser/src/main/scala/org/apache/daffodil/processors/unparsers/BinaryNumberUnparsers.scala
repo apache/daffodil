@@ -20,8 +20,6 @@ package org.apache.daffodil.processors.unparsers
 import java.lang.{ Number => JNumber, Long => JLong }
 
 import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.infoset.DISimple
-import org.apache.daffodil.infoset.Infoset
 import org.apache.daffodil.io.DataOutputStream
 import org.apache.daffodil.io.FormatInfo
 import org.apache.daffodil.processors.ElementRuntimeData
@@ -35,7 +33,6 @@ import org.apache.daffodil.schema.annotation.props.gen.YesNo
 import org.apache.daffodil.util.Maybe._
 import org.apache.daffodil.util.MaybeInt
 import org.apache.daffodil.util.Numbers._
-import org.apache.daffodil.util.Bits
 
 abstract class BinaryNumberBaseUnparser(override val context: ElementRuntimeData)
   extends PrimUnparser {

@@ -26,15 +26,9 @@ import org.apache.daffodil.processors.RuntimeData
 import org.apache.daffodil.processors.TermRuntimeData
 import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.util.Maybe
-import org.apache.daffodil.processors.SimpleTypeRuntimeData
 import org.apache.daffodil.dsom.SimpleTypeDefBase
 import org.apache.daffodil.dsom.ComplexTypeBase
 import org.apache.daffodil.dsom.PrimitiveType
-import org.apache.daffodil.infoset.SeveralPossibilitiesForNextElement
-import org.apache.daffodil.xml.QNameBase
-import org.apache.daffodil.infoset.NoNextElement
-import org.apache.daffodil.infoset.OnlyOnePossibilityForNextElement
-import org.apache.daffodil.api.WarnID
 
 trait ElementBaseRuntime1Mixin { self: ElementBase =>
 

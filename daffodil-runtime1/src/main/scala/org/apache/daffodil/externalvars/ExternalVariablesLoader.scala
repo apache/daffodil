@@ -23,15 +23,11 @@ import java.net.URI
 
 import scala.xml.Node
 import scala.io.Codec.string2codec
-import org.apache.daffodil.processors.{ VariableUtils, VariableMap, VariableRuntimeData }
+import org.apache.daffodil.processors.{ VariableUtils, VariableMap }
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.util.Misc._
 import org.apache.daffodil.exceptions.ThrowsSDE
-import org.apache.daffodil.api.DaffodilTunables
-import org.apache.daffodil.api.UnqualifiedPathStepPolicy
-import org.apache.daffodil.xml.UnspecifiedNamespace
 
-import scala.collection.immutable
 import scala.collection.immutable.Queue
 
 /**

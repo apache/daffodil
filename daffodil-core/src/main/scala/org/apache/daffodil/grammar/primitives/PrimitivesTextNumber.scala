@@ -19,9 +19,6 @@ package org.apache.daffodil.grammar.primitives
 
 import com.ibm.icu.text.DecimalFormat
 
-import java.math.{ BigDecimal => JBigDecimal }
-import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
-import java.math.{ BigInteger => JBigInt }
 
 import org.apache.daffodil.cookers.EntityReplacer
 import org.apache.daffodil.dpath.NodeInfo.PrimType
@@ -29,7 +26,6 @@ import org.apache.daffodil.dsom._
 import org.apache.daffodil.grammar.Gram
 import org.apache.daffodil.grammar.Terminal
 import org.apache.daffodil.processors.Delimiter
-import org.apache.daffodil.processors.Evaluatable
 import org.apache.daffodil.processors.parsers.ConvertTextCombinatorParser
 import org.apache.daffodil.processors.parsers.ConvertTextNumberParser
 import org.apache.daffodil.processors.parsers.Parser

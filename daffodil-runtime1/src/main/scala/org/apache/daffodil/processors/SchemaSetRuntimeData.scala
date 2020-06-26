@@ -18,11 +18,9 @@
 package org.apache.daffodil.processors
 
 import org.apache.daffodil.exceptions.ThrowsSDE
-import org.apache.daffodil.api.ValidationMode
 import org.apache.daffodil.api.Diagnostic
 import org.apache.daffodil.processors.unparsers.Unparser
 import org.apache.daffodil.processors.parsers.Parser
-import org.apache.daffodil.xml.GlobalQName
 import org.apache.daffodil.processors.TypeCalculatorCompiler.TypeCalcMap
 
 final class SchemaSetRuntimeData(

@@ -27,11 +27,7 @@ import org.apache.daffodil.schema.annotation.props.gen.OccursCountKind
 import org.apache.daffodil.schema.annotation.props.SeparatorSuppressionPolicy
 import org.apache.daffodil.schema.annotation.props.gen.LengthKind
 import org.apache.daffodil.schema.annotation.props.gen.Representation
-import SeparatorSuppressionPolicy._
-import org.apache.daffodil.util.Maybe
-import org.apache.daffodil.schema.annotation.props.EmptyElementParsePolicy
 import org.apache.daffodil.processors.parsers._
-import org.apache.daffodil.processors.TerminatorParseEv
 
 /**
  * A SequenceChild is exactly that, a child Term of a Sequence

@@ -21,12 +21,10 @@ import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
 
-import org.apache.daffodil.api.WarnID
 import org.apache.daffodil.cookers.ChoiceBranchKeyCooker
 import org.apache.daffodil.cookers.IntRangeCooker
 import org.apache.daffodil.dsom._
 import org.apache.daffodil.dsom.ChoiceTermBase
-import org.apache.daffodil.equality._
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.grammar.Gram
 import org.apache.daffodil.grammar.Terminal
@@ -38,8 +36,6 @@ import org.apache.daffodil.util.MaybeInt
 
 import java.math.{ BigInteger => JBigInt }
 import org.apache.daffodil.processors.RangeBound
-import org.apache.daffodil.util.Maybe.One
-import org.apache.daffodil.infoset.DataValue.DataValueString
 
 /*
  * The purpose of the ChoiceCombinator (and the parsers it creates) is to

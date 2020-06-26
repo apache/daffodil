@@ -17,7 +17,6 @@
 
 package org.apache.daffodil.calendar
 
-import com.ibm.icu.text.SimpleDateFormat
 import com.ibm.icu.util.Calendar
 import com.ibm.icu.util.TimeZone
 

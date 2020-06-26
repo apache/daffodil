@@ -20,7 +20,6 @@ package org.apache.daffodil.util
 import javax.xml.transform.stream.StreamSource
 import javax.xml.XMLConstants
 import scala.xml.parsing.NoBindingFactoryAdapter
-import java.io.StringReader
 import java.net.URI
 import org.apache.daffodil.xml.DFDLCatalogResolver
 import scala.collection.mutable

@@ -25,7 +25,6 @@ import org.apache.daffodil.infoset.DataValue.DataValueLong
 import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.infoset.DataValue.DataValueString
 import org.apache.daffodil.util.Misc
-import org.apache.daffodil.util.Numbers.asBigInt
 import org.apache.daffodil.util.Numbers.asLong
 
 case object NumericToString extends ToString

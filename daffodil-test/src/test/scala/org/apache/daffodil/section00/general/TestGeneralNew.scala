@@ -21,7 +21,6 @@ package org.apache.daffodil.section00.general
  * not related to any specific requirement
  */
 
-import org.junit.Test
 import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 
@@ -36,7 +35,6 @@ object TestGeneralNew {
 }
 
 class TestGeneralNew {
-  import TestGeneralNew._
 
   // TODO: DFDL-451 - After speaking with Mike B. about this we are putting this functionality on the backburner
   // until we can figure out the appropriate behavior here.

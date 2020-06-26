@@ -22,21 +22,9 @@ import scala.xml._
 import org.apache.daffodil.schema.annotation.props.gen.Choice_AnnotationMixin
 import org.apache.daffodil.schema.annotation.props.gen.ChoiceAGMixin
 import org.apache.daffodil.grammar.ChoiceGrammarMixin
-import org.apache.daffodil.processors.RuntimeData
-import org.apache.daffodil.processors.ChoiceRuntimeData
-import org.apache.daffodil.processors.ElementRuntimeData
-import org.apache.daffodil.infoset.ChoiceBranchEvent
-import org.apache.daffodil.infoset.ChoiceBranchStartEvent
-import org.apache.daffodil.infoset.ChoiceBranchEndEvent
 import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.dpath.NodeInfo
-import org.apache.daffodil.processors.ChoiceDispatchKeyEv
 import org.apache.daffodil.schema.annotation.props.gen.YesNo
-import org.apache.daffodil.api.WarnID
 import org.apache.daffodil.schema.annotation.props.gen.ChoiceKeyKindType
-import org.apache.daffodil.schema.annotation.props.Found
-import org.apache.daffodil.processors.SimpleTypeRuntimeData
-import org.apache.daffodil.schema.annotation.props.NotFound
 
 /**
  *

@@ -17,14 +17,12 @@
 
 package org.apache.daffodil.processors.unparsers
 
-import org.apache.daffodil.processors.TermRuntimeData
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.processors.OutputNewLineEv
 import org.apache.daffodil.processors.InfosetCachedEvaluatable
 import org.apache.daffodil.processors.Evaluatable
 import org.apache.daffodil.processors.ParseOrUnparseState
 import org.apache.daffodil.util.Maybe
-import org.apache.daffodil.processors.TermRuntimeData
 import org.apache.daffodil.cookers.EntityReplacer
 import org.apache.daffodil.dsom.DPathCompileInfo
 

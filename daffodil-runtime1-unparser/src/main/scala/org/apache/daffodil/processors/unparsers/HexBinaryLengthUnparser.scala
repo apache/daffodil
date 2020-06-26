@@ -17,7 +17,6 @@
 
 package org.apache.daffodil.processors.unparsers
 
-import passera.unsigned.ULong
 
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.infoset.RetryableException
@@ -25,9 +24,7 @@ import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.processors.ParseOrUnparseState
 import org.apache.daffodil.processors.Processor
 import org.apache.daffodil.processors.UnparseTargetLengthInBitsEv
-import org.apache.daffodil.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
-import org.apache.daffodil.util.Bits
 import org.apache.daffodil.util.Maybe._
 
 abstract class HexBinaryUnparserBase(override val context: ElementRuntimeData)

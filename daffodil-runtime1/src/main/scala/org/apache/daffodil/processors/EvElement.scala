@@ -22,23 +22,13 @@ import java.lang.{ Long => JLong }
 import org.apache.daffodil.cookers.ChoiceDispatchKeyCooker
 import org.apache.daffodil.cookers.OutputNewLineCooker
 import org.apache.daffodil.dpath.EvalMode
-import org.apache.daffodil.dpath.ExpressionEvaluationException
-import org.apache.daffodil.dpath.NodeInfo.PrimType
 import org.apache.daffodil.dpath.UnparserBlocking
 import org.apache.daffodil.dsom._
 import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.infoset.DISimple
-import org.apache.daffodil.infoset.Infoset
-import org.apache.daffodil.processors.parsers.Parser
-import org.apache.daffodil.processors.parsers.PState
-import org.apache.daffodil.processors.unparsers.Unparser
-import org.apache.daffodil.processors.unparsers.UState
 import org.apache.daffodil.schema.annotation.props.gen.LengthKind
 import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
 import org.apache.daffodil.util.Maybe
-import org.apache.daffodil.util.Maybe.Nope
 import org.apache.daffodil.util.MaybeJULong
-import org.apache.daffodil.util.Numbers
 
 sealed trait LengthEv extends Evaluatable[JLong]
 

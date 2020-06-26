@@ -18,18 +18,11 @@
 package org.apache.daffodil
 
 import java.io.FileOutputStream
-import java.io.BufferedWriter
-import java.io.BufferedReader
-import java.io.OutputStreamWriter
 import java.io.OutputStream
-import java.io.InputStreamReader
-import java.io.Writer
 import java.io.FileInputStream
 import java.io.ByteArrayInputStream
-import java.io.File
 import java.nio.channels.Channels
 import java.nio.file.Paths
-import java.net.URI
 import java.util.Scanner
 
 import scala.xml.{SAXParseException, Node}
@@ -40,7 +33,7 @@ import org.apache.daffodil.util.Timer
 import org.apache.daffodil.xml._
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.compiler.Compiler
-import org.apache.daffodil.api.{WithDiagnostics, URISchemaSource, ValidationMode, DFDL, DaffodilTunables}
+import org.apache.daffodil.api.{WithDiagnostics, URISchemaSource, DFDL, DaffodilTunables}
 import org.apache.daffodil.util.Logging
 import org.apache.daffodil.util.LogLevel
 import org.apache.daffodil.util.LogWriter
@@ -64,7 +57,6 @@ import org.rogach.scallop.ScallopOption
 import scala.concurrent.duration.Duration
 import scala.concurrent.Await
 import org.apache.daffodil.xml.QName
-import org.apache.daffodil.compiler._
 import org.apache.daffodil.dsom.ExpressionCompilers
 import org.apache.daffodil.compiler.InvalidParserException
 import java.net.URI

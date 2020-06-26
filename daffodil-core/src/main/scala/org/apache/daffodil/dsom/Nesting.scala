@@ -18,7 +18,6 @@
 package org.apache.daffodil.dsom
 
 import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.compiler.ProcessorFactory
 
 /**
  * When a global schema component is referenced, the "backpointer" is represented by
