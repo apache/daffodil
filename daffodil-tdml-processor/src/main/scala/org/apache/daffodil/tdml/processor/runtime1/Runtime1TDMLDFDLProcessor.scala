@@ -15,31 +15,26 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.tdml.processor
+package org.apache.daffodil.tdml.processor.runtime1
 
 import java.nio.channels.Channels
-import java.nio.file.Path
-import java.nio.file.Paths
-
-import scala.xml.Node
+import java.nio.file.{ Path, Paths }
 
 import org.apache.daffodil.api._
 import org.apache.daffodil.compiler.Compiler
-import org.apache.daffodil.debugger.Debugger
-import org.apache.daffodil.debugger.InteractiveDebugger
-import org.apache.daffodil.debugger.TraceDebuggerRunner
+import org.apache.daffodil.debugger.{ Debugger, InteractiveDebugger, TraceDebuggerRunner }
 import org.apache.daffodil.dsom.ExpressionCompilers
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.externalvars.Binding
 import org.apache.daffodil.infoset.ScalaXMLInfosetInputter
 import org.apache.daffodil.io.InputSourceDataInputStream
-import org.apache.daffodil.processors.DataProcessor
-import org.apache.daffodil.processors.UnparseResult
 import org.apache.daffodil.processors.unparsers.UState
-import org.apache.daffodil.tdml.SchemaDataProcessorCache
-import org.apache.daffodil.tdml.TDMLInfosetInputter
-import org.apache.daffodil.tdml.TDMLInfosetOutputter
+import org.apache.daffodil.processors.{ DataProcessor, UnparseResult }
+import org.apache.daffodil.tdml.processor._
+import org.apache.daffodil.tdml.{ SchemaDataProcessorCache, TDMLInfosetInputter, TDMLInfosetOutputter }
 import org.apache.daffodil.util.MaybeULong
+
+import scala.xml.Node
 
 final class TDMLDFDLProcessorFactory private (
   private var compiler: Compiler,

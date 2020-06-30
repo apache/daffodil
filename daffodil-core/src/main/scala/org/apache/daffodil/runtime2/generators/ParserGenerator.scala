@@ -16,6 +16,7 @@
  */
 package org.apache.daffodil.runtime2.generators
 
+import org.apache.daffodil.api.DFDL
 import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.dsom.ElementBase
 import org.apache.daffodil.exceptions.ThrowsSDE
@@ -29,7 +30,7 @@ trait ParserGenerator {
 /**
  * Builds up the state of generated code.
  */
-class CodeGeneratorState() {
+class CodeGeneratorState() extends DFDL.CodeGeneratorState {
   private val declarations: StringBuilder = new StringBuilder()
   private val statements: StringBuilder = new StringBuilder()
   private var code: String = _

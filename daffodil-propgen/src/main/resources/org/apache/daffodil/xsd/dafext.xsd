@@ -176,6 +176,14 @@
             </xs:documentation>
           </xs:annotation>
         </xs:element>
+        <xs:element name="tdmlImplementation" type="xs:string" default="daffodil" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              TDMLDFDLProcessorFactory implementation to use when running TDML tests.  Allowed
+              values are "daffodil" (default), "codegen", and "ibm".
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
         <xs:element name="initialElementOccurrencesHint" type="xs:int" default="10" minOccurs="0">
           <xs:annotation>
             <xs:documentation>

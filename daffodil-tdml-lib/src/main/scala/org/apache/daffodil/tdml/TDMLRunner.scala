@@ -481,7 +481,12 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
   lazy val tdmlDFDLProcessorFactory: AbstractTDMLDFDLProcessorFactory = {
     import scala.language.existentials
 
-    val className = "org.apache.daffodil.tdml.processor.TDMLDFDLProcessorFactory"
+    // Our TDMLDFDLProcessorFactory implementation is a tunable choice with three values.
+    val className = tunableObj.tdmlImplementation match {
+      case "daffodil" => "org.apache.daffodil.tdml.processor.runtime1.TDMLDFDLProcessorFactory"
+      case "codegen" => "org.apache.daffodil.tdml.processor.runtime2.TDMLDFDLProcessorFactory"
+      case "ibm" => "org.apache.daffodil.tdml.processor.ibm.TDMLDFDLProcessorFactory"
+    }
 
     //
     // If you haven't seen it before. Check out this Try(...) idiom.

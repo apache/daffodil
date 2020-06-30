@@ -179,7 +179,10 @@ object DFDL {
     @deprecated("Use withTunables.", "2.6.0")
     def setTunables(tunables: Map[String,String]): Unit
 
-
+    /**
+     * Generates code in memory or to a temporary file, returns an object which contains any diagnostics.
+     */
+    def generateCode(): CodeGeneratorState
 
     /**
      * Unparses (that is, serializes) data to the output, returns an object which contains any diagnostics.
@@ -190,6 +193,10 @@ object DFDL {
      * Returns an object which contains the result, and/or diagnostic information.
      */
     def parse(input: InputSourceDataInputStream, output: InfosetOutputter): ParseResult
+  }
+
+  trait CodeGeneratorState {
+    // Will be extended in runtime2 package
   }
 
   trait ParseResult extends Result with WithDiagnostics {
