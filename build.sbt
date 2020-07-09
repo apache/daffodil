@@ -45,7 +45,7 @@ lazy val runtime1         = Project("daffodil-runtime1", file("daffodil-runtime1
                               .settings(libraryDependencies += "com.fasterxml.jackson.core" % "jackson-annotations" % "2.9.8")
 
 lazy val runtime2         = Project("daffodil-runtime2", file("daffodil-runtime2")).configs(IntegrationTest)
-                              .dependsOn(io, lib % "test->test")
+                              .dependsOn(io, lib % "test->test", runtime1)
                               .settings(commonSettings)
                               .settings(publishArtifact in (Compile, packageDoc) := false)
 

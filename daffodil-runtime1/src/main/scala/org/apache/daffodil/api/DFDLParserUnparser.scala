@@ -180,11 +180,6 @@ object DFDL {
     def setTunables(tunables: Map[String,String]): Unit
 
     /**
-     * Generates code in memory or to a temporary file, returns an object which contains any diagnostics.
-     */
-    def generateCode(): CodeGeneratorState
-
-    /**
      * Unparses (that is, serializes) data to the output, returns an object which contains any diagnostics.
      */
     def unparse(input: InfosetInputter, output: DFDL.Output): UnparseResult

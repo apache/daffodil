@@ -17,24 +17,22 @@
 
 package org.apache.daffodil.tdml.processor.runtime2
 
-import java.nio.channels.Channels
-import java.nio.file.{ Path, Paths }
+import java.nio.file.Path
+import java.nio.file.Paths
 
 import org.apache.daffodil.api._
 import org.apache.daffodil.compiler.Compiler
-import org.apache.daffodil.debugger.{ Debugger, InteractiveDebugger, TraceDebuggerRunner }
+import org.apache.daffodil.debugger.InteractiveDebugger
+import org.apache.daffodil.debugger.TraceDebuggerRunner
 import org.apache.daffodil.dsom.ExpressionCompilers
-import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.externalvars.Binding
-import org.apache.daffodil.infoset.ScalaXMLInfosetInputter
-import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.processors.unparsers.UState
-import org.apache.daffodil.processors.{ DataProcessor, UnparseResult }
-import org.apache.daffodil.runtime2.GeneratedCodeCompiler
 import org.apache.daffodil.runtime2.generators.CodeGeneratorState
+import org.apache.daffodil.runtime2.GeneratedCodeCompiler
+import org.apache.daffodil.runtime2.Runtime2DataProcessor
 import org.apache.daffodil.tdml.processor._
-import org.apache.daffodil.tdml.{ SchemaDataProcessorCache, TDMLInfosetInputter, TDMLInfosetOutputter }
-import org.apache.daffodil.util.MaybeULong
+import org.apache.daffodil.tdml.SchemaDataProcessorCache
+import org.apache.daffodil.tdml.TDMLInfosetOutputter
 
 import scala.xml.Node
 
@@ -104,8 +102,7 @@ final class TDMLDFDLProcessorFactory private(
    * through a serialize then unserialize path to get a processor as if
    * it were being fetched from a file.
    */
-  private def generateProcessor(pf: DFDL.ProcessorFactory, useSerializedProcessor: Boolean): SchemaDataProcessorCache.Types.CompileResult = {
-  }
+  private def generateProcessor(pf: DFDL.ProcessorFactory, useSerializedProcessor: Boolean): SchemaDataProcessorCache.Types.CompileResult = ???
 
   private def compileProcessor(
     schemaSource: DaffodilSchemaSource,
@@ -136,7 +133,7 @@ final class TDMLDFDLProcessorFactory private(
       Left(compilerSourceDiags)
     } else {
       val p = pf.onPath("/")
-      val codeGeneratorState = p.generateCode().asInstanceOf[CodeGeneratorState]
+      val codeGeneratorState: CodeGeneratorState = ??? //p.generateCode().asInstanceOf[CodeGeneratorState]
       // actually compile C code in this line.  Do we do it in CodeGeneratorState,
       // or a separate object?  I like a separate object we can plug in, different
       // implementations depending on platform, etc.
@@ -156,7 +153,14 @@ final class TDMLDFDLProcessorFactory private(
 
 }
 
-class Runtime2TDMLDFDLProcessor(dp: DataProcessor) extends TDMLDFDLProcessor {
+/**
+ * Delegates all execution, error gathering, error access to the Runtime2DataProcessor object.
+ * The responsibility of this class is just for TDML matching up. That is dealing with TDML
+ * XML Infosets, feeding to the unparser, creating XML from the result created by the
+ * Runtime2DataProcessor object. All the "real work" is done by Runtime2DataProcessor.
+ * @param dp Object to delegate to
+ */
+class Runtime2TDMLDFDLProcessor(dp: Runtime2DataProcessor) extends TDMLDFDLProcessor {
 
   override type R = Runtime2TDMLDFDLProcessor
   type CodegenResult = Either[Seq[Diagnostic], (Seq[Diagnostic], CodeGeneratorState)]
@@ -192,18 +196,17 @@ class Runtime2TDMLDFDLProcessor(dp: DataProcessor) extends TDMLDFDLProcessor {
 
   override def withExternalDFDLVariables(externalVarBindings: Seq[Binding]): Runtime2TDMLDFDLProcessor = ???
 
-  override def isError: Boolean = {
-    // Actually run the C code and save the error to be returned here
-  }
+  // Actually run the C code and save the error to be returned here
+  override def isError: Boolean = ???
 
-  override def getDiagnostics: Seq[Diagnostic] = cg.getDiagnostics
+  override def getDiagnostics: Seq[Diagnostic] = ???
 
   // This part will change a lot (it will execute C code instead).
   // Whatever the parse produces needs to be converted into XML for comparison.
   // We'll need a way to convert, say, a C struct to XML, and XML to C struct.
   // The C code will need a bunch of toXML methods so it can produce output
   // for comparison.
-  override def parse(is: java.io.InputStream, lengthLimitInBits: Long): TDMLParseResult = {
+  override def parse(is: java.io.InputStream, lengthLimitInBits: Long): TDMLParseResult = ???
     // We will run the generated and compiled C code, collect and save any errors
     // and diagnostics to be returned in isError and getDiagnostics, and build an
     // infoset.  Our context here is TDML-related, so we need to move that functionality
@@ -223,33 +226,30 @@ class Runtime2TDMLDFDLProcessor(dp: DataProcessor) extends TDMLDFDLProcessor {
     // lines without that prefix are captured as generic errors
 
     // pass lengthLimitInBits to the C program to tell it how big the data is
-    val (stdErrorLines, stdOutputLines) = doParse(cg, lengthLimitInBits)
 
-    new Runtime2TDMLParseResult(stdErrorLines, stdOutputLines)
-  }
 
-  override def unparse(infosetXML: scala.xml.Node, outStream: java.io.OutputStream): TDMLUnparseResult = {
-    val output = java.nio.channels.Channels.newChannel(outStream)
+  override def unparse(infosetXML: scala.xml.Node, outStream: java.io.OutputStream): TDMLUnparseResult = ???
+//    val output = java.nio.channels.Channels.newChannel(outStream)
+//
+//    val scalaInputter = new ScalaXMLInfosetInputter(infosetXML)
+//    // We can't compare against other inputters since we only have scala XML,
+//    // but we still need to use the TDMLInfosetInputter since it may make TDML
+//    // specific modifications to the input infoset (e.g. blob paths)
+//    val otherInputters = Seq.empty
+//    val inputter = new TDMLInfosetInputter(scalaInputter, otherInputters)
+//    val actual = cg.unparse(inputter, output).asInstanceOf[UnparseResult]
+//    output.close()
+//    new DaffodilTDMLUnparseResult(actual, outStream)
+//  }
 
-    val scalaInputter = new ScalaXMLInfosetInputter(infosetXML)
-    // We can't compare against other inputters since we only have scala XML,
-    // but we still need to use the TDMLInfosetInputter since it may make TDML
-    // specific modifications to the input infoset (e.g. blob paths)
-    val otherInputters = Seq.empty
-    val inputter = new TDMLInfosetInputter(scalaInputter, otherInputters)
-    val actual = cg.unparse(inputter, output).asInstanceOf[UnparseResult]
-    output.close()
-    new DaffodilTDMLUnparseResult(actual, outStream)
-  }
-
-  def unparse(parseResult: TDMLParseResult, outStream: java.io.OutputStream): TDMLUnparseResult = {
-    val dafpr = parseResult.asInstanceOf[Runtime2TDMLParseResult]
-    val inputter = dafpr.inputter
-    val output = java.nio.channels.Channels.newChannel(outStream)
-    val actual = cg.unparse(inputter, output)
-    output.close()
-    new DaffodilTDMLUnparseResult(actual, outStream)
-  }
+  def unparse(parseResult: TDMLParseResult, outStream: java.io.OutputStream): TDMLUnparseResult = ???
+//    val dafpr = parseResult.asInstanceOf[Runtime2TDMLParseResult]
+//    val inputter = dafpr.inputter
+//    val output = java.nio.channels.Channels.newChannel(outStream)
+//    val actual = cg.unparse(inputter, output)
+//    output.close()
+//    new DaffodilTDMLUnparseResult(actual, outStream)
+//  }
 
 }
 

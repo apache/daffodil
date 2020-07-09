@@ -126,6 +126,8 @@ final class ProcessorFactory private(
     //sset.root.document.generateCode(cgState)
     new CodeGeneratorState(
       """
+        |#include <stdio.h>
+        |
         |int main() {
         |  printf("Hello World\n");
         |  return 0;

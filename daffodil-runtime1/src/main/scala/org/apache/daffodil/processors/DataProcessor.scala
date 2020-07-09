@@ -646,7 +646,6 @@ class DataProcessor private (
       UnparseError(Nope, One(state.currentLocation), "Expected no remaining events, but received %s.", ev.get)
     }
   }
-
 }
 
 class ParseResult(dp: DataProcessor, override val resultState: PState)
