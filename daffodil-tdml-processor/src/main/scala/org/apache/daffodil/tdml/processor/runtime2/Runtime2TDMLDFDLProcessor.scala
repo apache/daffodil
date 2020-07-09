@@ -30,6 +30,7 @@ import org.apache.daffodil.infoset.ScalaXMLInfosetInputter
 import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.processors.unparsers.UState
 import org.apache.daffodil.processors.{ DataProcessor, UnparseResult }
+import org.apache.daffodil.runtime2.GeneratedCodeCompiler
 import org.apache.daffodil.runtime2.generators.CodeGeneratorState
 import org.apache.daffodil.tdml.processor._
 import org.apache.daffodil.tdml.{ SchemaDataProcessorCache, TDMLInfosetInputter, TDMLInfosetOutputter }
@@ -136,13 +137,17 @@ final class TDMLDFDLProcessorFactory private(
     } else {
       val p = pf.onPath("/")
       val codeGeneratorState = p.generateCode().asInstanceOf[CodeGeneratorState]
-      // actually compile C code here
-      val compileResult = if (p.isError) {
-        val codeGeneratorDiags = p.getDiagnostics
+      // actually compile C code in this line.  Do we do it in CodeGeneratorState,
+      // or a separate object?  I like a separate object we can plug in, different
+      // implementations depending on platform, etc.
+      val compiler = new GeneratedCodeCompiler(pf)
+      compiler.compile(codeGeneratorState)
+      val compileResult = if (pf.isError) {
+        val codeGeneratorDiags = pf.getDiagnostics
         Left(codeGeneratorDiags)
       } else {
-        val compilerGenDiags = p.getDiagnostics
-        Right((compilerGenDiags, new Runtime2TDMLDFDLProcessor(codeGeneratorState)))
+        val compilerGenDiags = pf.getDiagnostics
+        Right((compilerGenDiags, new Runtime2TDMLDFDLProcessor(compiler.dataProcessor)))
       }
       compileResult
     }
@@ -151,7 +156,7 @@ final class TDMLDFDLProcessorFactory private(
 
 }
 
-class Runtime2TDMLDFDLProcessor(cg: CodeGeneratorState) extends TDMLDFDLProcessor {
+class Runtime2TDMLDFDLProcessor(dp: DataProcessor) extends TDMLDFDLProcessor {
 
   override type R = Runtime2TDMLDFDLProcessor
   type CodegenResult = Either[Seq[Diagnostic], (Seq[Diagnostic], CodeGeneratorState)]

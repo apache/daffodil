@@ -30,10 +30,11 @@ trait ParserGenerator {
 /**
  * Builds up the state of generated code.
  */
-class CodeGeneratorState() extends DFDL.CodeGeneratorState {
+class CodeGeneratorState(private var code: String) extends DFDL.CodeGeneratorState {
   private val declarations: StringBuilder = new StringBuilder()
   private val statements: StringBuilder = new StringBuilder()
-  private var code: String = _
+
+  def this() = this(null)
 
   def toPrimitive(primType: NodeInfo.PrimType, context: ThrowsSDE): String = {
     import NodeInfo.PrimType

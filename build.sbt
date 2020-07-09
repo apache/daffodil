@@ -58,7 +58,7 @@ lazy val codegen          = Project("daffodil-codegen", file("daffodil-codegen")
                               .settings(commonSettings)
 
 lazy val core             = Project("daffodil-core", file("daffodil-core")).configs(IntegrationTest)
-                              .dependsOn(runtime1Unparser, udf, lib % "test->test", runtime1 % "test->test", codegen) // , runtime2,  runtime2 % "test->test")
+                              .dependsOn(runtime1Unparser, udf, lib % "test->test", runtime1 % "test->test", codegen, runtime2,  runtime2 % "test->test")
                               .settings(commonSettings)
 
 lazy val japi             = Project("daffodil-japi", file("daffodil-japi")).configs(IntegrationTest)

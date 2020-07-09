@@ -123,7 +123,14 @@ final class ProcessorFactory private(
   }
 
   final def generateCode(cgState: CodeGeneratorState): CodeGeneratorState = {
-    sset.root.document.generateCode(cgState)
+    //sset.root.document.generateCode(cgState)
+    new CodeGeneratorState(
+      """
+        |int main() {
+        |  printf("Hello World\n");
+        |  return 0;
+        |}
+        |""".stripMargin)
   }
 }
 
