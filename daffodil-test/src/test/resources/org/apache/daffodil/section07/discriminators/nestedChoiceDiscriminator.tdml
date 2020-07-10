@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<tdml:testSuite
+  xmlns:ex="http://example.com"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  defaultRoundTrip="true"
+  defaultValidation="on">
+
+  <tdml:defineSchema name="s0" elementFormDefault="unqualified">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"/>
+
+    <!-- <![CDATA[
+
+    This idiom where we capture unrecognized messages under control of a variable is common and
+    there are issues with discriminators that need testing relative to it.
+
+    ]]> -->
+
+    <dfdl:defineVariable name="capture" type="xs:boolean" external="true" defaultValue="false"/>
+
+    <xs:element name="checkVar" type="xs:string"
+                dfdl:inputValueCalc='{ xs:string($ex:capture) }'/>
+
+    <xs:group name="discriminate">
+      <xs:sequence>
+        <xs:annotation>
+          <xs:appinfo source="http://www.ogf.org/dfdl/">
+            <dfdl:discriminator>{ fn:true() }</dfdl:discriminator>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:sequence>
+    </xs:group>
+
+    <xs:complexType name="messageType">
+      <xs:sequence dfdl:separator="|">
+        <xs:element name="num" type="xs:int"/>
+        <xs:element name="text" type="xs:string"/>
+      </xs:sequence>
+    </xs:complexType>
+
+    <xs:element name="root">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element ref="ex:checkVar"/>
+          <xs:element name="msg" minOccurs="1" maxOccurs="unbounded">
+            <xs:complexType>
+              <xs:sequence dfdl:initiator="%WSP*;[" dfdl:terminator="]%WSP*;">
+                <xs:element name="messageID" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
+                <xs:sequence dfdl:initiator="|">
+                  <xs:choice>
+                    <xs:choice dfdl:choiceDispatchKey="{ ./messageID }">
+                      <xs:sequence dfdl:choiceBranchKey="1">
+                        <!--
+                        This techique, where we discriminate the outer choice if the choice dispatch
+                        is successful, is better during DFDL schema development because we won't backtrack
+                        and create unrecognized messages that suppress errors during the parsing of a recognized
+                        message type.
+                        -->
+                        <xs:group ref="ex:discriminate"/>
+                        <xs:element name="message1" type="ex:messageType"/>
+                      </xs:sequence>
+                      <xs:sequence dfdl:choiceBranchKey="2">
+                        <xs:group ref="ex:discriminate"/>
+                        <!--
+                        This shows the technique for coping with parse errors of recognized message types if we
+                        want to capture them anyway.
+
+                        This is not necessarily desirable. The reason why the message failed is masked by this.
+                        -->
+                        <xs:choice>
+                          <xs:element name="message2" type="ex:messageType"/>
+                          <xs:group ref="ex:messageParseError"/>
+                        </xs:choice>
+                      </xs:sequence>
+                    </xs:choice>
+                    <xs:sequence>
+                      <!--
+                      default case for completely unrecognized message
+                      -->
+                      <xs:sequence>
+                        <xs:annotation>
+                          <xs:appinfo source="http://www.ogf.org/dfdl/">
+                            <!--
+                            If capture variable not set, then just fail here, and report an error.
+                            -->
+                            <dfdl:discriminator message='{ fn:concat("Unrecognized messageID: ", ./messageID) }'
+                                                test='{ $ex:capture }'/>
+                          </xs:appinfo>
+                        </xs:annotation>
+                      </xs:sequence>
+                      <!--
+                       Otherwise, create this unrecognized capture element.
+
+                       Notice that maxOccurs="0" so valid data never contains these.
+                       Validation checking will reject data that contains these.
+
+                       This tells us that the same DFDL schema, with these capture elements expressed in it
+                       can be used for both parse/unparse and for separate validation of the data.
+                       -->
+                      <xs:element name="unrecognizedMessage" minOccurs="0" maxOccurs="0"
+                                  dfdl:occursCountKind="expression"
+                                  dfdl:occursCount='{ if ($ex:capture) then 1 else 0 }'
+                                  type="xs:string"/>
+                    </xs:sequence>
+                  </xs:choice>
+                </xs:sequence>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:group name="messageParseError">
+      <xs:sequence>
+        <!-- default case for failure to parse a message -->
+        <xs:sequence>
+          <xs:annotation>
+            <xs:appinfo source="http://www.ogf.org/dfdl/">
+              <!--
+              If capture variable not set, then just fail here, and report an error.
+              -->
+              <dfdl:discriminator message='{ fn:concat("Unable to parse message with messageID: ", ./messageID) }'
+                                  test='{ $ex:capture }'/>
+            </xs:appinfo>
+          </xs:annotation>
+        </xs:sequence>
+        <!--
+         Otherwise, create this message parse error capture element
+
+         Notice that maxOccurs="0" so valid data never contains these.
+         Validation checking will reject data that contains these.
+
+         This tells us that the same DFDL schema, with these capture elements expressed in it
+         can be used for both parse/unparse and for separate validation of the data.
+         -->
+        <xs:element name="messageParseError" minOccurs="0" maxOccurs="0"
+                    dfdl:occursCountKind="expression"
+                    dfdl:occursCount='{ if ($ex:capture) then 1 else 0 }'
+                    type="xs:string"/>
+      </xs:sequence>
+    </xs:group>
+
+  </tdml:defineSchema>
+
+  <!-- Use this config if you want to capture unrecognized messages in an element. -->
+
+  <tdml:defineConfig name="yesCapture">
+    <daf:externalVariableBindings>
+      <daf:bind name="ex:capture">true</daf:bind>
+    </daf:externalVariableBindings>
+  </tdml:defineConfig>
+
+  <tdml:parserTestCase name="nestedChoice1"
+                       description="Baseline test shows the schema works and messages can parse/unprse."
+                       root="root" model="s0" roundTrip="twoPass">
+    <tdml:document><![CDATA[
+    [1|100|this is message number 1]
+    [2|200|this is message number 2]
+    ]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root>
+          <ex:checkVar>false</ex:checkVar>
+          <msg>
+            <messageID>1</messageID>
+            <message1>
+              <num>100</num>
+              <text>this is message number 1</text>
+            </message1>
+          </msg>
+          <msg>
+            <messageID>2</messageID>
+            <message2>
+              <num>200</num>
+              <text>this is message number 2</text>
+            </message2>
+          </msg>
+        </ex:root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase
+    name="nestedChoice2"
+    description="Shows that if a message is chosen by messageID, and subsequently fails, we don't
+backtrack and get an unrecognizedMessage because the outer choice was discriminated."
+    root="root" model="s0"
+    config="yesCapture"
+    validation="off">
+    <tdml:document><![CDATA[
+    [1|notANumber|some text here]
+    ]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>notANumber</tdml:error>
+      <tdml:error>xs:int</tdml:error>
+      <!--
+      If this had backtracked, because it is set to capture unrecognized messages
+      we would have gotten an element, and this parse message would have been suppressed.
+      -->
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+
+  <!--
+  Well formed, but Invalid data
+  -->
+  <tdml:parserTestCase name="nestedChoice3"
+                       description="Tests that the unrecognized element is captured by the parse, but is viewed as invalid"
+                       root="root" model="s0"
+                       config="yesCapture"
+                       roundTrip="twoPass">
+    <tdml:document><![CDATA[
+    [3|unrecognized stuff here]
+    ]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root>
+          <ex:checkVar>true</ex:checkVar>
+          <msg>
+            <messageID>3</messageID>
+            <unrecognizedMessage>unrecognized stuff here</unrecognizedMessage>
+          </msg>
+        </ex:root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>Invalid content</tdml:error>
+      <tdml:error>unrecognizedMessage</tdml:error>
+      <tdml:error>message1, message2</tdml:error>
+      <tdml:error>occurred '1' times</tdml:error>
+      <tdml:error>minimum of '0'</tdml:error>
+      <tdml:error>maximum of '0'</tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="nestedChoice3b"
+                       description="Tests that the unrecognized element is not created without the var set."
+                       root="root" model="s0"
+                       roundTrip="twoPass">
+    <tdml:document><![CDATA[
+    [3|unrecognized stuff here]
+    ]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Choice dispatch key (3) failed to match any of the branch keys</tdml:error>
+      <tdml:error>Unrecognized messageID: 3</tdml:error>
+      <tdml:error>All choice alternatives failed</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase
+    name="nestedChoice4"
+    description="Shows capture of bad data after parse error of a recognized message."
+    root="root" model="s0"
+    config="yesCapture"
+    roundTrip="twoPass"
+    validation="on">
+    <tdml:document><![CDATA[
+    [2|notANumber|some text here]
+    ]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root xmlns:ex="http://example.com">
+          <ex:checkVar>true</ex:checkVar>
+          <msg>
+            <messageID>2</messageID>
+            <messageParseError>notANumber|some text here</messageParseError>
+          </msg>
+        </ex:root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>Invalid content</tdml:error>
+      <tdml:error>messageParseError</tdml:error>
+      <tdml:error>message1, message2</tdml:error>
+      <tdml:error>occurred '1' times</tdml:error>
+      <tdml:error>minimum of '0'</tdml:error>
+      <tdml:error>maximum of '0'</tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+</tdml:testSuite>
