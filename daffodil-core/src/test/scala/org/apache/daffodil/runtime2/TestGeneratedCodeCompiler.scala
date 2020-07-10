@@ -13,7 +13,7 @@ class TestGeneratedCodeCompiler {
         val testSchema = SchemaUtils.dfdlTestSchema(
                 <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
                 <dfdl:format ref="tns:GeneralFormat"/>,
-                <xs:element name="number" type="xs:int"/>)
+                <xs:element dfdl:representation="binary" name="number" type="xs:int"/>)
         val schemaCompiler = Compiler()
         val pf = schemaCompiler.compileNode(testSchema).asInstanceOf[ProcessorFactory]
         val codeGeneratorState = new CodeGeneratorState("""
