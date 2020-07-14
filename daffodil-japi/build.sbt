@@ -15,26 +15,11 @@
  * limitations under the License.
  */
 
-addCompilerPlugin("com.typesafe.genjavadoc" %% "genjavadoc-plugin" % "0.16" cross CrossVersion.full)
+enablePlugins(GenJavadocPlugin)
+enablePlugins(PublishJavadocPlugin)
 
+unidocGenjavadocVersion := "0.16"
 
-lazy val JavaDoc = config("genjavadoc") extend Compile
-
-configs(JavaDoc)
-
-inConfig(JavaDoc)(Defaults.configSettings)
-
-scalacOptions += "-P:genjavadoc:out=" + target.value + "/java"
-
-packageDoc in Compile := (packageDoc in JavaDoc).value
-
-sources in JavaDoc :=
-  (target.value / "java" ** "*.java").get.filterNot(f => f.toString.contains("$") || f.toString.contains("packageprivate")) ++
-  (sources in Compile).value.filter(_.getName.endsWith(".java"))
-
-javacOptions in JavaDoc := Seq(
-  "-windowtitle", "Apache Daffodil (incubating) " + version.value + " Java API",
-  "-doctitle", "<h1>Apache Daffodil (incubating) " + version.value + " Java API</h1>"
-)
-
-artifactName in packageDoc in JavaDoc := ((sv, mod, art) => "" + mod.name + "_" + sv.binary + "-" + mod.revision + "-javadoc.jar")
+sources in Genjavadoc := (sources in Genjavadoc).value.filterNot { source =>
+  source.toString.contains("$") || source.toString.contains("packageprivate")
+}

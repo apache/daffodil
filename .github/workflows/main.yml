@@ -64,7 +64,7 @@ jobs:
         shell: bash
 
       - name: Build Documentation
-        run: $SBTNOCOV daffodil-japi/genjavadoc:doc daffodil-sapi/doc
+        run: $SBTNOCOV unidoc
         shell: bash
 
       - name: Package Zip & Tar
