@@ -20,8 +20,9 @@ lazy val genProps = taskKey[Seq[File]]("Generate properties scala source")
 lazy val genSchemas = taskKey[Seq[File]]("Generated DFDL schemas")
 
 lazy val daffodil         = Project("daffodil", file(".")).configs(IntegrationTest)
+                              .enablePlugins(JavaUnidocPlugin, ScalaUnidocPlugin)
                               .aggregate(macroLib, propgen, lib, io, runtime1, runtime1Unparser, core, japi, sapi, tdmlLib, tdmlProc, cli, udf, test, testIBM1, tutorials, testStdLayout)
-                              .settings(commonSettings, nopublish, ratSettings)
+                              .settings(commonSettings, nopublish, ratSettings, unidocSettings)
 
 lazy val macroLib         = Project("daffodil-macro-lib", file("daffodil-macro-lib")).configs(IntegrationTest)
                               .settings(commonSettings, nopublish)
@@ -239,6 +240,26 @@ lazy val ratSettings = Seq(
   ),
 
   ratExcludes := Rat.excludes
+)
+
+lazy val unidocSettings = Seq(
+  unidocProjectFilter in (ScalaUnidoc, unidoc) := inProjects(sapi, udf),
+  scalacOptions in (ScalaUnidoc, unidoc) := Seq(
+    "-doc-title", "Apache Daffodil (incubating) " + version.value + " Scala API",
+    "-doc-root-content", (baseDirectory in sapi).value + "/root-doc.txt"
+  ),
+
+  unidocProjectFilter in (JavaUnidoc, unidoc) := inProjects(japi, udf),
+  javacOptions in (JavaUnidoc, unidoc) := Seq(
+    "-windowtitle", "Apache Daffodil (incubating) " + version.value + " Java API",
+    "-doctitle", "<h1>Apache Daffodil (incubating) " + version.value + " Java API</h1>",
+    "-notimestamp"
+  ),
+  unidocAllSources in (JavaUnidoc, unidoc) := (unidocAllSources in (JavaUnidoc,  unidoc)).value.map { sources =>
+    sources.filterNot { source =>
+      source.toString.contains("$") || source.toString.contains("packageprivate")
+    }
+  },
 )
 
 

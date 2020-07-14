@@ -168,8 +168,7 @@ sbt \
   "daffodil-cli/windows:packageBin" \
   "daffodil-cli/universal:packageBin" \
   "daffodil-cli/universal:packageZipTarball" \
-  "daffodil-japi/genjavadoc:doc" \
-  "daffodil-sapi/doc" \
+  "unidoc" \
 
 echo "Removing old release candidates..."
 find $DAFFODIL_DIST_DIR -maxdepth 1 -name $VERSION-\* -exec svn delete --force {} \;
@@ -202,8 +201,8 @@ done
 echo "Installing Site Docs..."
 rm -rf $DAFFODIL_DOCS_DIR
 mkdir -p $DAFFODIL_DOCS_DIR/{javadoc,scaladoc}/
-cp -R daffodil-japi/target/scala-2.12/genjavadoc-api/* $DAFFODIL_DOCS_DIR/javadoc/
-cp -R daffodil-sapi/target/scala-2.12/api/* $DAFFODIL_DOCS_DIR/scaladoc/
+cp -R target/javaunidoc/* $DAFFODIL_DOCS_DIR/javadoc/
+cp -R target/scala-2.12/unidoc/* $DAFFODIL_DOCS_DIR/scaladoc/
 
 echo "Installing Site Tutorials..."
 rm -rf $DAFFODIL_TUTORIALS_DIR
