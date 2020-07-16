@@ -19,10 +19,11 @@ package org.apache.daffodil.dsom
 
 import scala.xml.Node
 import scala.xml._
+import org.apache.daffodil.dsom.walker.GroupRefView
 import org.apache.daffodil.xml.HasRefMixin
 import org.apache.daffodil.schema.annotation.props.NotFound
 
-trait GroupRef { self: ModelGroup =>
+trait GroupRef extends GroupRefView { self: ModelGroup =>
 
   final def asModelGroup: ModelGroup = self
 
@@ -33,7 +34,7 @@ trait GroupRef { self: ModelGroup =>
   /**
    * Override in sequenceGroupRef and choiceGroupRef for hidden groups
    */
-  def isHidden: Boolean
+  override def isHidden: Boolean
 
   final override lazy val optReferredToComponent = Some(referredToComponent)
 

@@ -48,6 +48,7 @@ import org.apache.daffodil.util.{ NullLogWriter => SNullLogWriter }
 import org.apache.daffodil.externalvars.Binding
 import org.apache.daffodil.externalvars.ExternalVariablesLoader
 import org.apache.daffodil.dsom.ExpressionCompilers
+import org.apache.daffodil.dsom.walker.RootView
 import org.apache.daffodil.compiler.{ InvalidParserException => SInvalidParserException }
 import org.apache.daffodil.processors.{ InvalidUsageException => SInvalidUsageException }
 import java.net.URI
@@ -372,6 +373,13 @@ class ProcessorFactory private[japi] (private var pf: SProcessorFactory)
     val dp = pf.onPath(path).asInstanceOf[SDataProcessor]
     new DataProcessor(dp)
   }
+
+  class ExperimentalWrapper(val rootView: RootView)
+  /**
+   * Exposes the RootView object corresponding to this ProcessorFactory.  This can
+   * be used to start a walk using the walkFromRoot method in a DSOM Walker.
+   */
+  lazy val experimental: ExperimentalWrapper = new ExperimentalWrapper(pf.rootView)
 
 }
 

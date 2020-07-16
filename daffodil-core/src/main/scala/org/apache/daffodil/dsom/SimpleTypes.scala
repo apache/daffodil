@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.dsom
 
-import java.math.{BigInteger => JBigInt}
+import java.math.{ BigInteger => JBigInt }
 
 import scala.xml.Node
 import org.apache.daffodil.cookers.IntRangeCooker
@@ -25,6 +25,7 @@ import org.apache.daffodil.cookers.RepValueCooker
 import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.dpath.NodeInfo.PrimType
 import org.apache.daffodil.dpath.InvalidPrimitiveDataException
+import org.apache.daffodil.dsom.walker.SimpleTypeView
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.processors.IdentifyTypeCalculator
 import org.apache.daffodil.processors.RepValueSet
@@ -53,9 +54,9 @@ trait TypeBase {
 trait NonPrimTypeMixin
 
 sealed trait SimpleTypeBase extends TypeBase
-  with HasOptRepTypeMixin {
+  with HasOptRepTypeMixin with SimpleTypeView {
 
-  def primType: PrimType
+  override def primType: PrimType
 }
 
 /*

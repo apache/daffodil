@@ -27,13 +27,13 @@ import java.util.zip.ZipException
 
 import scala.collection.immutable.Queue
 import scala.xml.Node
-
 import org.apache.daffodil.api.DFDL
 import org.apache.daffodil.api.DaffodilSchemaSource
 import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.api.URISchemaSource
 import org.apache.daffodil.api.UnitTestSchemaSource
 import org.apache.daffodil.dsom.SchemaSet
+import org.apache.daffodil.dsom.walker.RootView
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.externalvars.Binding
 import org.apache.daffodil.externalvars.ExternalVariablesLoader
@@ -98,6 +98,8 @@ final class ProcessorFactory private(
     optSchemaSet.getOrElse(
       new SchemaSet(optRootSpec, schemaSource, validateDFDLSchemas, checkAllTopLevel, tunables,
         compilerExternalVarSettings))
+
+  lazy val rootView: RootView = sset.root
 
   def elementBaseInstanceCount = sset.elementBaseInstanceCount
 

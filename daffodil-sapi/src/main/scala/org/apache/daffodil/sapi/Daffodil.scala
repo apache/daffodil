@@ -46,6 +46,7 @@ import org.apache.daffodil.util.{ LoggingDefaults => SLoggingDefaults }
 import org.apache.daffodil.util.{ NullLogWriter => SNullLogWriter }
 import org.apache.daffodil.externalvars.{ Binding, ExternalVariablesLoader }
 import org.apache.daffodil.dsom.ExpressionCompilers
+import org.apache.daffodil.dsom.walker.RootView
 import org.apache.daffodil.compiler.{ InvalidParserException => SInvalidParserException }
 import org.apache.daffodil.processors.{ InvalidUsageException => SInvalidUsageException }
 import java.net.URI
@@ -336,6 +337,14 @@ class ProcessorFactory private[sapi] (private var pf: SProcessorFactory)
   def onPath(path: String) = {
     val dp = pf.onPath(path).asInstanceOf[SDataProcessor]
     new DataProcessor(dp)
+  }
+
+  /**
+   * Exposes the RootView object corresponding to this ProcessorFactory.  This can
+   * be used to start a walk using the walkFromRoot method in a DSOM Walker.
+   */
+  object experimental {
+    val rootView: RootView = pf.rootView
   }
 
 }

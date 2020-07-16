@@ -20,13 +20,16 @@ package org.apache.daffodil.dsom
 import scala.xml.Node
 import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.api.WarnID
+import org.apache.daffodil.dsom.walker.ComplexTypeView
+
 import scala.xml.Text
 import scala.xml.Comment
 
 sealed abstract class ComplexTypeBase(xmlArg: Node, parentArg: SchemaComponent)
   extends SchemaComponentImpl(xmlArg, parentArg)
   with TypeBase
-  with NonPrimTypeMixin {
+  with NonPrimTypeMixin
+  with ComplexTypeView {
 
   final override def optRestriction = None
   final override def optUnion = None
@@ -34,7 +37,7 @@ sealed abstract class ComplexTypeBase(xmlArg: Node, parentArg: SchemaComponent)
 
   requiredEvaluationsIfActivated(modelGroup)
 
-  final def group = modelGroup
+  override final def group = modelGroup
 
   /**
    * Convenience methods for unit testing. Just makes tests a bit more compact and clearer.

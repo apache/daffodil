@@ -26,6 +26,7 @@ import org.apache.daffodil.xml.XMLUtils
 import org.apache.daffodil.schema.annotation.props.gen.OccursCountKind
 import org.apache.daffodil.schema.annotation.props.gen.SequenceKind
 import org.apache.daffodil.Implicits.ns2String
+import org.apache.daffodil.dsom.walker.SequenceView
 import org.apache.daffodil.grammar.SequenceGrammarMixin
 import org.apache.daffodil.schema.annotation.props.Found
 import org.apache.daffodil.schema.annotation.props.PropertyLookupResult
@@ -282,8 +283,8 @@ trait SequenceDefMixin
  */
 final class Sequence(xmlArg: Node, lexicalParent: SchemaComponent, position: Int)
   extends SequenceGroupTermBase(xmlArg, lexicalParent, position)
-  with SequenceDefMixin {
-
+  with SequenceDefMixin
+  with SequenceView {
 
   requiredEvaluationsIfActivated(checkHiddenGroupRefHasNoChildren)
 

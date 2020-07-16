@@ -18,16 +18,19 @@
 package org.apache.daffodil.dsom
 
 import java.util.UUID
+
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.grammar.TermGrammarMixin
 import org.apache.daffodil.schema.annotation.props.gen.YesNo
 import java.lang.{ Integer => JInt }
+
 import org.apache.daffodil.schema.annotation.props.Found
 import org.apache.daffodil.schema.annotation.props.NotFound
 import org.apache.daffodil.schema.annotation.props.gen.LengthKind
 import org.apache.daffodil.schema.annotation.props.gen.OccursCountKind
 import org.apache.daffodil.schema.annotation.props.SeparatorSuppressionPolicy
 import org.apache.daffodil.api.WarnID
+import org.apache.daffodil.dsom.walker.TermView
 
 /**
  * Mixin for objects that are shared, but have consistency checks to be run
@@ -86,7 +89,8 @@ trait Term
   with DelimitedRuntimeValuedPropertiesMixin
   with InitiatedTerminatedMixin
   with TermEncodingMixin
-  with EscapeSchemeRefMixin {
+  with EscapeSchemeRefMixin
+  with TermView {
 
   requiredEvaluationsIfActivated(annotationObjs)
   requiredEvaluationsIfActivated(nonDefaultPropertySources)
@@ -178,7 +182,7 @@ trait Term
    *
    * The DFDL spec is not entirely consistent here either I don't believe.
    */
-  def isOptional: Boolean
+  override def isOptional: Boolean
 
   /**
    * An array can have more than 1 occurrence.
@@ -186,7 +190,7 @@ trait Term
    * An optional element (minOccurs=0, maxOccurs=1) is an array only
    * if occursCountKind is parsed, because then the max/min are ignored.
    */
-  def isArray: Boolean
+  override def isArray: Boolean
 
   def elementChildren: Seq[ElementBase]
 

@@ -26,6 +26,7 @@ import org.apache.daffodil.calendar.DFDLCalendar
 import org.apache.daffodil.calendar.DFDLDateConversion
 import org.apache.daffodil.calendar.DFDLDateTimeConversion
 import org.apache.daffodil.calendar.DFDLTimeConversion
+import org.apache.daffodil.dsom.walker._
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.infoset.DataValue.DataValueBigDecimal
 import org.apache.daffodil.infoset.DataValue.DataValueBigInt
@@ -165,7 +166,7 @@ object NodeInfo extends Enum {
     }
   }
 
-  sealed trait Kind extends EnumValueType {
+  sealed trait Kind extends EnumValueType with PrimTypeView {
     def name: String = Misc.getNameFromClass(this)
 
     def parents: Seq[Kind]
@@ -546,7 +547,7 @@ object NodeInfo extends Enum {
     }
 
     protected sealed trait FloatKind extends SignedNumeric.Kind
-    case object Float extends PrimTypeNode(SignedNumeric) with FloatKind with PrimNumericFloat {
+    case object Float extends PrimTypeNode(SignedNumeric) with FloatKind with PrimNumericFloat with FloatView {
       type Kind = FloatKind
       protected override def fromString(s: String) = {
         val f: JFloat = s match {
@@ -563,7 +564,7 @@ object NodeInfo extends Enum {
     }
 
     protected sealed trait DoubleKind extends SignedNumeric.Kind
-    case object Double extends PrimTypeNode(SignedNumeric) with DoubleKind with PrimNumericFloat {
+    case object Double extends PrimTypeNode(SignedNumeric) with DoubleKind with PrimNumericFloat with DoubleView {
       type Kind = DoubleKind
       protected override def fromString(s: String): DataValueDouble = {
         val d: JDouble = s match {
@@ -580,7 +581,7 @@ object NodeInfo extends Enum {
     }
 
     protected sealed trait DecimalKind extends SignedNumeric.Kind
-    case object Decimal extends PrimTypeNode(SignedNumeric, List(Integer)) with DecimalKind with PrimNumeric {
+    case object Decimal extends PrimTypeNode(SignedNumeric, List(Integer)) with DecimalKind with PrimNumeric with DecimalView {
       type Kind = DecimalKind
       protected override def fromString(s: String): DataValueBigDecimal = new JBigDecimal(s)
       protected override def fromNumberNoCheck(n: Number): DataValueBigDecimal = asBigDecimal(n)
@@ -588,7 +589,8 @@ object NodeInfo extends Enum {
     }
 
     protected sealed trait IntegerKind extends Decimal.Kind
-    case object Integer extends PrimTypeNode(Decimal, List(Long, NonNegativeInteger)) with IntegerKind with PrimNumeric {
+    case object Integer extends PrimTypeNode(Decimal, List(Long, NonNegativeInteger)) with IntegerKind with PrimNumeric
+        with IntegerView {
       type Kind = IntegerKind
       protected override def fromString(s: String): DataValueBigInt = new JBigInt(s)
       protected override def fromNumberNoCheck(n: Number): DataValueBigInt = asBigInt(n)
@@ -596,7 +598,7 @@ object NodeInfo extends Enum {
     }
 
     protected sealed trait LongKind extends Integer.Kind
-    case object Long extends PrimTypeNode(Integer, List(Int)) with LongKind with PrimNumericInteger {
+    case object Long extends PrimTypeNode(Integer, List(Int)) with LongKind with PrimNumericInteger with LongView {
       type Kind = LongKind
       protected override def fromString(s: String): DataValueLong = s.toLong
       protected override def fromNumberNoCheck(n: Number): DataValueLong = n.longValue
@@ -605,7 +607,7 @@ object NodeInfo extends Enum {
     }
 
     protected sealed trait IntKind extends Long.Kind
-    case object Int extends PrimTypeNode(Long, List(Short)) with IntKind with PrimNumericInteger {
+    case object Int extends PrimTypeNode(Long, List(Short)) with IntKind with PrimNumericInteger with IntView {
       type Kind = IntKind
       protected override def fromString(s: String): DataValueInt = s.toInt
       protected override def fromNumberNoCheck(n: Number): DataValueInt = n.intValue
@@ -614,7 +616,7 @@ object NodeInfo extends Enum {
     }
 
     protected sealed trait ShortKind extends Int.Kind
-    case object Short extends PrimTypeNode(Int, List(Byte)) with ShortKind with PrimNumericInteger {
+    case object Short extends PrimTypeNode(Int, List(Byte)) with ShortKind with PrimNumericInteger with ShortView {
       type Kind = ShortKind
       protected override def fromString(s: String): DataValueShort = s.toShort
       protected override def fromNumberNoCheck(n: Number): DataValueShort = n.shortValue
@@ -623,7 +625,7 @@ object NodeInfo extends Enum {
     }
 
     protected sealed trait ByteKind extends Short.Kind
-    case object Byte extends PrimTypeNode(Short) with ByteKind with PrimNumericInteger {
+    case object Byte extends PrimTypeNode(Short) with ByteKind with PrimNumericInteger with ByteView {
       type Kind = ByteKind
       protected override def fromString(s: String): DataValueByte = s.toByte
       protected override def fromNumberNoCheck(n: Number): DataValueByte = n.byteValue
@@ -632,7 +634,8 @@ object NodeInfo extends Enum {
     }
 
     protected sealed trait NonNegativeIntegerKind extends Integer.Kind
-    case object NonNegativeInteger extends PrimTypeNode(Integer, List(UnsignedLong)) with NonNegativeIntegerKind with PrimNumeric {
+    case object NonNegativeInteger extends PrimTypeNode(Integer, List(UnsignedLong)) with NonNegativeIntegerKind with PrimNumeric
+        with NonNegativeIntegerView {
       type Kind = NonNegativeIntegerKind
       protected override def fromString(s: String): DataValueBigInt = new JBigInt(s)
       protected override def fromNumberNoCheck(n: Number): DataValueBigInt = asBigInt(n)
@@ -643,7 +646,8 @@ object NodeInfo extends Enum {
     }
 
     protected sealed trait UnsignedLongKind extends NonNegativeInteger.Kind
-    case object UnsignedLong extends PrimTypeNode(NonNegativeInteger, List(UnsignedInt)) with UnsignedLongKind with PrimNumeric {
+    case object UnsignedLong extends PrimTypeNode(NonNegativeInteger, List(UnsignedInt)) with UnsignedLongKind with PrimNumeric
+        with UnsignedLongView {
       type Kind = UnsignedLongKind
       protected override def fromString(s: String): DataValueBigInt = new JBigInt(s)
       protected override def fromNumberNoCheck(n: Number): DataValueBigInt = asBigInt(n)
@@ -657,7 +661,8 @@ object NodeInfo extends Enum {
     }
 
     protected sealed trait UnsignedIntKind extends UnsignedLong.Kind
-    case object UnsignedInt extends PrimTypeNode(UnsignedLong, List(UnsignedShort, ArrayIndex)) with UnsignedIntKind with PrimNumericInteger {
+    case object UnsignedInt extends PrimTypeNode(UnsignedLong, List(UnsignedShort, ArrayIndex)) with UnsignedIntKind with PrimNumericInteger
+        with UnsignedIntView {
       type Kind = UnsignedIntKind
       protected override def fromString(s: String): DataValueLong = s.toLong
       protected override def fromNumberNoCheck(n: Number): DataValueLong = n.longValue
@@ -666,7 +671,8 @@ object NodeInfo extends Enum {
     }
 
     protected sealed trait UnsignedShortKind extends UnsignedInt.Kind
-    case object UnsignedShort extends PrimTypeNode(UnsignedInt, List(UnsignedByte)) with UnsignedShortKind with PrimNumericInteger {
+    case object UnsignedShort extends PrimTypeNode(UnsignedInt, List(UnsignedByte)) with UnsignedShortKind with PrimNumericInteger
+        with UnsignedShortView {
       type Kind = UnsignedShortKind
       protected override def fromString(s: String): DataValueInt = s.toInt
       protected override def fromNumberNoCheck(n: Number): DataValueInt = n.intValue
@@ -675,7 +681,8 @@ object NodeInfo extends Enum {
     }
 
     protected sealed trait UnsignedByteKind extends UnsignedShort.Kind
-    case object UnsignedByte extends PrimTypeNode(UnsignedShort) with UnsignedByteKind with PrimNumericInteger {
+    case object UnsignedByte extends PrimTypeNode(UnsignedShort) with UnsignedByteKind with PrimNumericInteger
+        with UnsignedByteView {
       type Kind = UnsignedByteKind
       protected override def fromString(s: String): DataValueShort = s.toShort
       protected override def fromNumberNoCheck(n: Number): DataValueShort = n.shortValue
@@ -684,31 +691,31 @@ object NodeInfo extends Enum {
     }
 
     protected sealed trait StringKind extends AnyAtomic.Kind
-    case object String extends PrimTypeNode(AnyAtomic, List(NonEmptyString)) with StringKind {
+    case object String extends PrimTypeNode(AnyAtomic, List(NonEmptyString)) with StringKind with StringView {
       type Kind = StringKind
       override def fromXMLString(s: String) = s
     }
 
     protected sealed trait BooleanKind extends AnySimpleType.Kind
-    case object Boolean extends PrimTypeNode(AnyAtomic) with BooleanKind with PrimNonNumeric {
+    case object Boolean extends PrimTypeNode(AnyAtomic) with BooleanKind with PrimNonNumeric with BooleanView {
       type Kind = BooleanKind
       protected override def fromString(s: String): DataValueBool = s.toBoolean
     }
 
     protected sealed trait AnyURIKind extends AnySimpleType.Kind
-    case object AnyURI extends PrimTypeNode(AnyAtomic) with AnyURIKind with PrimNonNumeric {
+    case object AnyURI extends PrimTypeNode(AnyAtomic) with AnyURIKind with PrimNonNumeric with AnyURIView {
       type Kind = AnyURIKind
       protected override def fromString(s: String): DataValueURI = new URI(s)
     }
 
     protected sealed trait HexBinaryKind extends Opaque.Kind
-    case object HexBinary extends PrimTypeNode(Opaque) with HexBinaryKind with PrimNonNumeric {
+    case object HexBinary extends PrimTypeNode(Opaque) with HexBinaryKind with PrimNonNumeric with HexBinaryView {
       type Kind = HexBinaryKind
       protected override def fromString(s: String): DataValueByteArray = Misc.hex2Bytes(s)
     }
 
     protected sealed trait DateKind extends AnyDateTimeKind
-    case object Date extends PrimTypeNode(AnyDateTime) with DateKind with PrimNonNumeric {
+    case object Date extends PrimTypeNode(AnyDateTime) with DateKind with PrimNonNumeric with DateView {
       type Kind = DateKind
       protected override def fromString(s: String): DataValueDate = {
         DFDLDateConversion.fromXMLString(s)
@@ -716,7 +723,7 @@ object NodeInfo extends Enum {
     }
 
     protected sealed trait DateTimeKind extends AnyDateTimeKind
-    case object DateTime extends PrimTypeNode(AnyDateTime) with DateTimeKind with PrimNonNumeric {
+    case object DateTime extends PrimTypeNode(AnyDateTime) with DateTimeKind with PrimNonNumeric with DateTimeView {
       type Kind = DateTimeKind
       protected override def fromString(s: String): DataValueDateTime = {
         DFDLDateTimeConversion.fromXMLString(s)
@@ -724,7 +731,7 @@ object NodeInfo extends Enum {
     }
 
     protected sealed trait TimeKind extends AnyDateTimeKind
-    case object Time extends PrimTypeNode(AnyDateTime) with TimeKind with PrimNonNumeric {
+    case object Time extends PrimTypeNode(AnyDateTime) with TimeKind with PrimNonNumeric with TimeView {
       type Kind = TimeKind
       protected override def fromString(s: String): DataValueTime = {
         DFDLTimeConversion.fromXMLString(s)

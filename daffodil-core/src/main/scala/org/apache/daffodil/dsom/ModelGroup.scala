@@ -23,6 +23,8 @@ import scala.xml._
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.grammar.ModelGroupGrammarMixin
 import java.lang.{ Integer => JInt }
+
+import org.apache.daffodil.dsom.walker.ModelGroupView
 import org.apache.daffodil.schema.annotation.props.AlignmentType
 import org.apache.daffodil.schema.annotation.props.gen.AlignmentUnits
 import org.apache.daffodil.schema.annotation.props.gen.YesNo
@@ -135,7 +137,8 @@ abstract class ModelGroup(index: Int)
   extends Term
   with ModelGroupGrammarMixin
   with OverlapCheckMixin
-  with NestingLexicalMixin {
+  with NestingLexicalMixin
+  with ModelGroupView {
 
   requiredEvaluationsIfActivated(groupMembers)
   requiredEvaluationsIfActivated(initiatedContentCheck)
@@ -177,7 +180,7 @@ abstract class ModelGroup(index: Int)
    *
    * This also depends on groupMembersDef overrides all being lazy val.
    */
-  final lazy val groupMembers: Seq[Term] =
+  override final lazy val groupMembers: Seq[Term] =
     schemaSet.sharedGroupMembersFactory.getShared(shareKey, groupMembersDef)
 
   /**

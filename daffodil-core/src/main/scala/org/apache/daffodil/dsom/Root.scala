@@ -21,6 +21,7 @@ import scala.collection.mutable
 import scala.xml.Node
 import scala.xml.UnprefixedAttribute
 
+import org.apache.daffodil.dsom.walker.RootView
 import org.apache.daffodil.grammar.RootGrammarMixin
 import org.apache.daffodil.xml.NamedQName
 import org.apache.daffodil.xml.XMLUtils
@@ -34,7 +35,8 @@ final class Root(defXML: Node, parentArg: SchemaDocument,
   namedQNameArg: NamedQName,
   globalElementDecl: GlobalElementDecl)
   extends AbstractElementRef(null, parentArg, 1)
-  with RootGrammarMixin {
+  with RootGrammarMixin
+  with RootView {
 
   requiredEvaluationsAlways({
     val ac = allComponents

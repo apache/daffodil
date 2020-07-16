@@ -17,8 +17,10 @@
 
 package org.apache.daffodil.dsom
 
+import org.apache.daffodil.dsom.walker.CommonContextView
 import org.apache.daffodil.exceptions.SchemaFileLocatable
 import org.apache.daffodil.xml.XMLUtils
+
 import scala.xml.NamespaceBinding
 import org.apache.daffodil.xml.NS
 
@@ -54,7 +56,7 @@ trait SchemaFileLocatableImpl
 }
 
 trait CommonContextMixin
-  extends NestingLexicalMixin { self: SchemaComponent =>
+  extends NestingLexicalMixin with CommonContextView { self: SchemaComponent =>
 
   def optLexicalParent: Option[SchemaComponent]
 
@@ -74,7 +76,7 @@ trait CommonContextMixin
    * in xsi:nil attributes, which is how we represent nilled elements
    * when we convert to XML.
    */
-  final lazy val namespaces = {
+  override final lazy val namespaces = {
     val scope = xml.scope
     val foundXsiURI = scope.getURI("xsi")
     val xsiURI = XMLUtils.xsiURI.toString
