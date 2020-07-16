@@ -24,6 +24,7 @@ import org.junit.AfterClass
 object TestDiscriminators {
   val testDir = "/org/apache/daffodil/section07/discriminators/"
   val runner = Runner(testDir, "discriminator.tdml")
+  val runner2 = Runner(testDir, "multipleDiscriminators.tdml")
 
   @AfterClass def shutDown(): Unit = {
     runner.reset
@@ -76,4 +77,10 @@ class TestDiscriminators {
   @Test def test_discrimPEvalueLength1(): Unit = { runner.runOneTest("discrimPEvalueLength1") }
   @Test def test_discrimPEvalueLengthEnclosingParent1(): Unit = { runner.runOneTest("discrimPEvalueLengthEnclosingParent1") }
 
+  @Test def test_multipleDiscriminators1(): Unit = { runner2.runOneTest("multipleDiscriminators1") }
+  @Test def test_multipleDiscriminators2(): Unit = { runner2.runOneTest("multipleDiscriminators2") }
+  @Test def test_multipleDiscriminators3(): Unit = { runner2.runOneTest("multipleDiscriminators3") }
+  @Test def test_multipleDiscriminators4(): Unit = { runner2.runOneTest("multipleDiscriminators4") }
+  // DAFFODIL-2371
+  //@Test def test_multipleDiscriminators5(): Unit = { runner2.runOneTest("multipleDiscriminators5") }
 }

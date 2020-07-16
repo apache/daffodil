@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<tdml:testSuite xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:ex="http://example.com"
+  suiteName="multipleDiscriminators">
+
+  <tdml:defineSchema name="multipleDiscriminators">
+
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+
+    <dfdl:format ref="ex:GeneralFormatPortable" />
+
+    <xs:element name="root">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="discrim1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1" />
+          <xs:element name="discrim2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1" />
+          <xs:choice>
+            <xs:element name="outerBranch1">
+              <xs:complexType>
+                <xs:choice>
+                  <xs:element name="innerBranch1">
+                    <xs:complexType>
+                      <xs:sequence>
+                        <xs:sequence>
+                          <xs:annotation>
+                            <xs:appinfo source="http://www.ogf.org/dfdl/">
+                              <dfdl:discriminator test="{ ../../ex:discrim1 eq 't' }" />
+                            </xs:appinfo>
+                          </xs:annotation>
+                        </xs:sequence>
+                        <xs:sequence>
+                          <xs:annotation>
+                            <xs:appinfo source="http://www.ogf.org/dfdl/">
+                              <dfdl:discriminator test="{ ../../ex:discrim2 eq 't' }" />
+                            </xs:appinfo>
+                          </xs:annotation>
+                        </xs:sequence>
+                        <xs:element name="integer" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1" />
+                      </xs:sequence>
+                    </xs:complexType>
+                  </xs:element>
+                  <xs:element name="innerBranch2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1" />
+                </xs:choice>
+              </xs:complexType>
+            </xs:element>
+            <xs:element name="outerBranch2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1" />
+          </xs:choice>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <!--
+    The first discriminator evaluates to false, causing immediate backtracking.
+    The second discriminator is never evaluated.
+    We speculatively parse innerBranch2, and it is successful.
+  -->
+  <tdml:parserTestCase name="multipleDiscriminators1" model="multipleDiscriminators" root="root">
+    <tdml:document>ffa</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root>
+          <discrim1>f</discrim1>
+          <discrim2>f</discrim2>
+          <outerBranch1>
+            <innerBranch2>a</innerBranch2>
+          </outerBranch1>
+        </root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    The first discriminator evaluates to false, causing immediate backtracking.
+    The second discriminator is never evaluated.
+    We speculatively parse innerBranch2, and it is successful.
+    Exactly he same behavior as multipleDiscriminators1.
+    -->
+  <tdml:parserTestCase name="multipleDiscriminators2" model="multipleDiscriminators" root="root">
+    <tdml:document>fta</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root>
+          <discrim1>f</discrim1>
+          <discrim2>t</discrim2>
+          <outerBranch1>
+            <innerBranch2>a</innerBranch2>
+          </outerBranch1>
+        </root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    The first discriminator evaluates to true, resolving the inner choice PoU.
+    The second discriminator evaluates to false, causing immediate backtracking.
+    Because the inner choice PoU is resolved, we backtrack to the outer choice.
+    We speculatively parse outerBranch2 and it is successful.
+  -->
+  <tdml:parserTestCase name="multipleDiscriminators3" model="multipleDiscriminators" root="root">
+    <tdml:document>tfa</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root>
+          <discrim1>t</discrim1>
+          <discrim2>f</discrim2>
+          <outerBranch2>a</outerBranch2>
+        </root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    The first discriminator evaluates to true, resolving the inner choice PoU.
+    The second discriminator evaluates to true, resolving the outer choice PoU.
+    We successfully parse the integer element. No backtracking is neeeded.
+  -->
+  <tdml:parserTestCase name="multipleDiscriminators4" model="multipleDiscriminators" root="root">
+    <tdml:document>tt1</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root>
+          <discrim1>t</discrim1>
+          <discrim2>t</discrim2>
+          <outerBranch1>
+            <innerBranch1>
+              <integer>1</integer>
+            </innerBranch1>
+          </outerBranch1>
+        </root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    The first discriminator evaluates to true, resolving the inner choice PoU.
+    The second discriminator evaluates to true, resolving the outer choice PoU.
+    We attempt to parse the integer element, which fails, creating a Parse Error and immediately backtrack.
+    Because the inner choice PoU is resolved, we backtrack to the outer choice.
+    Because the outer choice PoU is resolved, we backtrack again, but there are
+    no more PoU's. It is a Parse Error related to the failure to parse the
+    integer element.
+  -->
+  <tdml:parserTestCase name="multipleDiscriminators5" model="multipleDiscriminators" root="root">
+    <tdml:document>tta</tdml:document>
+    <tdml:errors>
+      <tdml:error>integer</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+</tdml:testSuite>
