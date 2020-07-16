@@ -20,6 +20,7 @@ package org.apache.daffodil.dsom
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.xml._
 import org.apache.daffodil.dpath.NodeInfo.PrimType
+import org.apache.daffodil.dsom.walker.ElementDeclView
 import org.apache.daffodil.equality._
 import scala.xml.Node
 
@@ -42,19 +43,20 @@ trait ElementLikeMixin
  * Shared by all element declarations local or global
  */
 trait ElementDeclMixin
-  extends ElementLikeMixin {
+  extends ElementLikeMixin
+  with ElementDeclView {
 
-  final def isSimpleType: Boolean = optSimpleType.isDefined
+  override final def isSimpleType: Boolean = optSimpleType.isDefined
 
-  final def isComplexType = !isSimpleType
+  override final def isComplexType = !isSimpleType
 
   final def primType = optSimpleType.get.primType
 
   final def hasDefaultValue: Boolean = defaultAttr.isDefined
 
-  final def simpleType: SimpleTypeBase = optSimpleType.get
+  override final def simpleType: SimpleTypeBase = optSimpleType.get
 
-  final def complexType: ComplexTypeBase = optComplexType.get
+  override final def complexType: ComplexTypeBase = optComplexType.get
 
   /**
    * Convenience methods for unit testing purposes.

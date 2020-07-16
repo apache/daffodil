@@ -17,6 +17,8 @@
 
 package org.apache.daffodil.dsom
 
+import org.apache.daffodil.dsom.walker.ChoiceView
+
 import scala.xml.Node
 import scala.xml._
 import org.apache.daffodil.schema.annotation.props.gen.Choice_AnnotationMixin
@@ -243,7 +245,8 @@ abstract class ChoiceTermBase(
 
 final class Choice(xmlArg: Node, lexicalParent: SchemaComponent, position: Int)
   extends ChoiceTermBase(xmlArg, Option(lexicalParent), position)
-  with ChoiceDefMixin {
+  with ChoiceDefMixin
+  with ChoiceView {
 
   override lazy val optReferredToComponent = None
 

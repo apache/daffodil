@@ -34,6 +34,7 @@ import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.api.WarnID
 import java.lang.{Integer => JInt}
 
+import org.apache.daffodil.dsom.walker.ElementBaseView
 import org.apache.daffodil.infoset.DataValue
 import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveOrUseNilForDefaultOrNull
 
@@ -63,7 +64,8 @@ trait ElementBase
   with TextNumberFormatMixin
   with EmptyElementParsePolicyMixin
   with TextStandardBaseMixin
-  with OverlapCheckMixin {
+  with OverlapCheckMixin
+  with ElementBaseView {
 
   override final def eBase = this
 
@@ -87,7 +89,7 @@ trait ElementBase
   requiredEvaluationsIfActivated(checkForAlignmentAmbiguity)
   requiredEvaluationsIfActivated(checkFloating)
 
-  def name: String
+  override def name: String
 
   final lazy val inputValueCalcOption = findPropertyOption("inputValueCalc")
 
