@@ -1,8 +1,10 @@
 package org.apache.daffodil.runtime2
 
 import org.apache.daffodil.compiler.ProcessorFactory
+import org.apache.daffodil.dsom.SchemaDefinitionError
 import org.apache.daffodil.runtime2.generators.CodeGeneratorState
-import os.{Path, Pipe}
+import org.apache.daffodil.util.Misc
+import os.{ Path, Pipe }
 
 class GeneratedCodeCompiler(pf: ProcessorFactory) {
   private var executableFile: Path = _
@@ -21,7 +23,10 @@ class GeneratedCodeCompiler(pf: ProcessorFactory) {
       }
       executableFile = tempExe
     } catch {
-      case e: os.SubprocessException => pf.sset.SDE(e)
+      case e: os.SubprocessException => {
+        val sde = new SchemaDefinitionError(None, None, Misc.getSomeMessage(e).get)
+        pf.sset.error(sde)
+      }
     }
   }
 
