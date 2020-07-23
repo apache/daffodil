@@ -50,57 +50,93 @@ GlobalQName *new_qname(char *name)
 	return qname;
 }
 
-// InfosetOutputter - methods to output XML infoset
+// ElementRuntimeData - data used to parse/unparse objects
 
-void infoset_init(FILE *stream)
+typedef struct ElementRuntimeData ERD;
+
+typedef struct InfosetBase
 {
-	fprintf(stream, u8"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n");
+	ERD *erd;
+} InfosetBase;
+
+typedef void (*Parse_Self)(ERD *erd, PState *pstate);
+typedef void (*Unparse_Self)(InfosetBase *infoNode, UState *ustate);
+typedef ERD *(*New_Instance)(ERD *erd);
+
+enum TypeCode {
+	COMPLEX,
+	PRIMITIVE_INT
+};
+
+typedef struct ElementRuntimeData
+{
+	GlobalQName *namedQName;
+	enum TypeCode typeCode;
+	uint32_t count_children;
+	size_t *offsets;
+	ERD *childrenERD;
+
+	Parse_Self parseSelf;
+	Unparse_Self unparseSelf;
+	New_Instance newInstance;
+} ERD;
+
+typedef void (*VisitInit)();
+typedef void (*VisitStart)();
+typedef void (*VisitEnd)();
+typedef void (*VisitInt)();
+
+typedef struct VisitEventHandler {
+	VisitInit *visitInit;
+	VisitStart *visitStart;
+	VisitEnd *visitEnd;
+	VisitInt *visitInt;
+} VisitEventHandler;
+
+// InfosetOutputter - methods to output XML infoset
+VisitEventHandler xmlWriter;
+typedef struct XMLWriter {
+	VisitEventHandler handler;
+	FILE *stream;
+} XMLWriter;
+
+void xml_init(XMLWriter *writer)
+{
+	fprintf(writer->stream, u8"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n");
 }
 
-void infoset_start(FILE *stream, char *name, bool toplevel)
+void xml_start(XMLWriter *writer, ERD *erd, bool toplevel)
 {
 	if (toplevel)
 	{
-		fprintf(stream, u8"<%s>\n", name);
+		fprintf(writer->stream, u8"<%s>\n", erd->namedQName->name);
 	}
 	else
 	{
-		fprintf(stream, u8"  <%s>", name);
+		fprintf(writer->stream, u8"  <%s>", erd->namedQName->name);
 	}
 }
 
-void infoset_end(FILE *stream, char *name)
+void xml_end(XMLWriter *writer, ERD *erd)
 {
-	fprintf(stream, u8"</%s>\n", name);
+	fprintf(writer->stream, u8"</%s>\n", erd->namedQName->name);
 }
 
-void infoset_prim_int(FILE *stream, int value)
+void xml_int(XMLWriter *writer, ERD *erd, int *location)
 {
-	fprintf(stream, u8"%i", value);
+	int value = *location;
+	fprintf(writer->stream, u8"%i", value);
 }
 
 // R - toplevel element
 
-typedef struct R_Class R_Class;
 typedef struct R
 {
+	InfosetBase _base;
 	int e1;
-	R_Class *_class;
 } R;
 
 // R_Class - methods to parse and output R objects
-
-typedef void (*R_Parse_Self)(R *r, PState *pstate);
-typedef void (*R_Visit_Self)(R *r, FILE *stream);
-typedef R *(*R_New_Instance)(R_Class *r_class_singleton);
-
-typedef struct R_Class
-{
-	GlobalQName *qname;
-	R_Parse_Self parseSelf;
-	R_Visit_Self visitSelf;
-	R_New_Instance newInstance;
-} R_Class;
 
 void r_parse_self(R *r, PState *pstate)
 {
@@ -128,31 +164,86 @@ void r_unparse_self(R* r, UState* ustate) {
 	}
 }
 
-void r_visit_self(R *r, FILE *stream)
+void visit_node_self(VisitEventHandler *handler, InfosetBase *infoNode)
 {
-	infoset_init(stream);
-	infoset_start(stream, r->_class->qname->name, true);
-	infoset_start(stream, "e1", false);
-	infoset_prim_int(stream, r->e1);
-	infoset_end(stream, "e1");
-	infoset_end(stream, r->_class->qname->name);
+	visit_start(handler, infoNode->erd, true);
+	// Iterate through children...
+	ERD* childERD = infoNode->erd->childrenERD;
+	size_t *p_offset = infoNode->erd->offsets;
+	for (int i = 0; i = infoNode->erd->count_children; i++) {
+		// We also need to dereference childERD and offset 
+		// using [i] in the loop code below.. or perhaps
+		// increment them, yes, we do increment the pointers
+		size_t offset = *p_offset;
+		visit_start(stream, childERD, false);
+		// switch on the type...
+		switch (childERD->typeCode) {
+			case COMPLEX: {
+				// get the childNode (how?)
+				InfosetBase* childNode;
+				childNode = (InfosetBase*)((char*)infoNode + offset);;
+				childERD->visitSelf(childNode, stream);
+				break;
+			}
+			case PRIMITIVE_INT: {
+				int* childLocation;
+				childLocation = (int*)((char*)infoNode + offset);
+				visit_int(childERD, childLocation, stream);
+				break;
+			}
+		}
+		visit_end(stream, childERD);
+		p_offset++;
+		childERD++;
+	}
+	visit_end(stream, infoNode->erd);
 }
 
-R *r_new_instance(R_Class *r_class_singleton)
+R *r_new_instance(ERD *erd)
 {
 	R *r = malloc(sizeof(R));
-	r->_class = r_class_singleton;
+	// If InfosetBase adds more members, we need to set them too
+	r->_base.erd = erd;
 	return r;
 }
 
-R_Class *r_new_class()
+size_t *r_new_offsets() {
+	// One offset - the position of the e1 member
+	size_t *offsets = calloc(sizeof(size_t), 1);
+	// Allocate one R object on stack, get address of e1 member, and subtract 
+	// R object's address
+	R r;
+	void *base = &r;
+	void *e1 = &r.e1;
+	offsets[0] = e1 - base;
+	return offsets;
+}
+
+ERD *r_new_children_erd() {
+	// One ERD - the qname of the e1 member
+	ERD *childrenERD = e1_new_erd();
+	return childrenERD;
+}
+
+ERD *r_new_erd()
 {
-	R_Class *r_class_singleton = malloc(sizeof(R_Class));
-	r_class_singleton->qname = new_qname("r");
-	r_class_singleton->parseSelf = &r_parse_self;
-	r_class_singleton->visitSelf = &r_visit_self;
-	r_class_singleton->newInstance = &r_new_instance;
-	return r_class_singleton;
+	ERD *erd = malloc(sizeof(ERD));
+	erd->namedQName = new_qname("r");
+	erd->count_children = 1;
+	erd->offsets = r_new_offsets();
+	erd->childrenERD = r_new_children_erd(); // need to generate each such function
+	erd->parseSelf = &r_parse_self;
+	erd->unparseSelf = &r_unparse_self;
+	erd->newInstance = &r_new_instance;
+	return erd;
+}
+
+ERD *e1_new_erd()
+{
+	ERD *erd = calloc(sizeof(ERD), 1);
+	erd->namedQName = new_qname("e1");
+	erd->typeCode = PRIMITIVE_INT;
+	return erd;
 }
 
 // Run the test
@@ -160,8 +251,11 @@ R_Class *r_new_class()
 int main()
 {
 	PState *pstate = new_pstate(stdin);
-	R_Class *r_class = r_new_class();
-	R *r = r_class->newInstance(r_class);
-	r_class->parseSelf(r, pstate);
-	r_class->visitSelf(r, stdout);
+	VisitEventHandler xmlWriterMethods = { &xml_start, &xml_end, &xml_int };
+	XMLWriter xmlWriter = { xmlWriterMethods, stdout };
+	ERD *r_erd = r_new_erd();
+	R *r = r_erd->newInstance(r_erd);
+	r_erd->parseSelf(r, pstate);
+	InfosetBase infoNode = r->_base;
+	visit_node_self((VisitEventHandler*)&xmlWriter, &infoNode);
 }
