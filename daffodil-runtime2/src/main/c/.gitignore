@@ -1,4 +1,5 @@
-first_test
+*.o
+generated_data
 GPATH
 GRTAGS
 GTAGS
