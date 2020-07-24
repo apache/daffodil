@@ -93,6 +93,9 @@ class TestVariables {
 
   @Test def test_unsignedIntVarCast(): Unit = { runner.runOneTest("unsignedIntVarCast") }
 
+  // DFDL-2375
+  //@Test def test_choiceBranchVariables(): Unit = { runner.runOneTest("choiceBranchVariables") }
+
   @Test def test_doubleSetErr_d(): Unit = { runner_01.runOneTest("doubleSetErr_d") }
   @Test def test_setVar1_d(): Unit = { runner_01.runOneTest("setVar1_d") }
   // DFDL-1443 & DFDL-1448

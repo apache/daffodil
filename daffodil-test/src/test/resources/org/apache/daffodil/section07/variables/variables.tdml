@@ -1692,4 +1692,66 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
+  <tdml:defineSchema name="choice_branch_variables">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" />
+
+    <dfdl:defineVariable name="var1" type="xs:string" defaultValue="false" />
+    <dfdl:defineVariable name="var2" type="xs:string" defaultValue="false" />
+    <xs:element name="root">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="record" minOccurs="0" maxOccurs="2">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="id" type="xs:unsignedShort" dfdl:lengthKind="explicit" dfdl:length="1" />
+                <xs:choice>
+                  <xs:choice dfdl:choiceDispatchKey="{ xs:string(ex:id) }">
+                    <xs:sequence dfdl:choiceBranchKey="1">
+                      <xs:annotation>
+                        <xs:appinfo source="http://www.ogf.org/dfdl/">
+                          <dfdl:setVariable ref="var1" value="true" />
+                        </xs:appinfo>
+                      </xs:annotation>
+                    </xs:sequence>
+                    <xs:sequence dfdl:choiceBranchKey="2">
+                      <xs:annotation>
+                        <xs:appinfo source="http://www.ogf.org/dfdl/">
+                          <dfdl:setVariable ref="var2" value="true" />
+                        </xs:appinfo>
+                      </xs:annotation>
+                    </xs:sequence>
+                  </xs:choice>
+                  <xs:sequence />
+                </xs:choice>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="var1_val" type="xs:string" dfdl:inputValueCalc="{ $ex:var1 }" />
+          <xs:element name="var2_val" type="xs:string" dfdl:inputValueCalc="{ $ex:var2 }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="choiceBranchVariables" root="root"
+    model="choice_branch_variables" description="Section 7 - setVariable - relative path expression - DFDL-7-126R">
+    <tdml:document>1,2</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root>
+          <record>
+            <id>1</id>
+          </record>
+          <record>
+            <id>2</id>
+          </record>
+          <var1_val>true</var1_val>
+          <var2_val>true</var2_val>
+        </root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>
