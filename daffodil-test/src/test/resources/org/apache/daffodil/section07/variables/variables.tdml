@@ -1754,4 +1754,45 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+  <tdml:defineSchema name="variables_nilled_element">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat"
+      nilKind="literalValue" nilValue="%ES;" useNilForDefault="no" nilValueDelimiterPolicy="none" />
+
+    <dfdl:defineVariable name="var1" type="xs:string" defaultValue="false" />
+    <xs:element name="root">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="id" type="xs:unsignedShort" dfdl:lengthKind="explicit" dfdl:length="1">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:setVariable ref="var1" value="true" />
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="nillable_but_present" type="xs:string" nillable="true" dfdl:lengthKind="explicit" dfdl:length="4" />
+          <xs:choice dfdl:choiceDispatchKey="{ $ex:var1 }">
+            <xs:element name="var1_true" type="xs:string" dfdl:choiceBranchKey="true" dfdl:lengthKind="explicit" dfdl:length="7" />
+            <xs:element name="var1_false" type="xs:string" dfdl:choiceBranchKey="false" dfdl:lengthKind="explicit" dfdl:length="7" />
+          </xs:choice>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="variables_nilled_element" root="root"
+    model="variables_nilled_element" description="Section 7 - setVariable - verify that variables aren't getting reset incorrectly - DAFFODIL-2374">
+    <tdml:document>1,test,is set?</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root>
+          <id>1</id>
+          <nillable_but_present>test</nillable_but_present>
+          <var1_true>is set?</var1_true>
+        </root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>
