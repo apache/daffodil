@@ -197,6 +197,7 @@ final class PState private (
 
   def mark(requestorID: String): PState.Mark = {
     // threadCheck()
+    changedVariablesStack.push(mutable.MutableList[GlobalQName]())
     val m = markPool.getFromPool(requestorID)
     m.captureFrom(this, requestorID)
     m
@@ -218,19 +219,14 @@ final class PState private (
       if (variable.isDefined)
         variable.get.reset
     }}
-    /* When parsing choices or unordered sequences it is necessary to clear the
-     * list at the top of the stack because it is possible for multiple
-     * PState.reset calls to occur withing the same point of uncertainty. If we
-     * do not clear the list, the changes made in failed branches of the choice
-     * will accumulate even though their effects have already been reset.
-     */
-    changedVariablesStack.top.clear
+    changedVariablesStack.pop
   }
 
   def discard(m: PState.Mark): Unit = {
     dataInputStream.discard(m.disMark)
     m.clear()
     markPool.returnToPool(m)
+    changedVariablesStack.pop
   }
 
   override def toString() = {
