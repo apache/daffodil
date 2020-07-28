@@ -1,37 +1,7 @@
 #include <stdlib.h>
 #include "common_runtime.h"
 
-// PState - parser state while parsing input
-
-PState *new_pstate(FILE *stream)
-{
-	PState *pstate = malloc(sizeof(PState));
-	pstate->stream = stream;
-	return pstate;
-}
-
-// UState - unparser state while parsing infoset
-
-UState *new_ustate(FILE *stream)
-{
-	UState *ustate = malloc(sizeof(UState));
-	ustate->stream = stream;
-	return ustate;
-}
-
-// GlobalQName - name of an infoset element
-
-GlobalQName *new_qname(char *name)
-{
-	GlobalQName *qname = malloc(sizeof(GlobalQName));
-	qname->name = name;
-	return qname;
-}
-
-// ERD - element runtime data needed to parse/unparse objects
-// Constructors will be in generated code, not generic runtime.
-
-// Generic methods to visit infoset objects with a visit handler
+// Generic method to visit infoset objects with a visit handler
 
 void visit_node_self(VisitEventHandler *handler, InfosetBase *infoNode)
 {

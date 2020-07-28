@@ -15,47 +15,36 @@ R *r_new_instance();
 
 // Metadata singletons
 
-ERD e1ERD;
-ERD rERD;
-
-void fillE1ERD()
+ERD e1ERD = 
 {
-	e1ERD.namedQName = new_qname("e1");
-	e1ERD.typeCode = PRIMITIVE_INT;
-}
+	{ "e1" }, 			// namedQName
+	PRIMITIVE_INT,		// typeCode
+	0,					// count_children
+	NULL,				// offsets
+	NULL,				// childrenERD
+	NULL,				// parseSelf
+	NULL,				// unparseSelf
+	NULL				// newInstance
+};
 
-void fillRERD()
+R rInstance = {
+	{ NULL },			// InfosetBase
+	0					// e1
+};
+
+size_t rERD_offsets = (void*)&rInstance.e1 - (void*)&rInstance;
+
+ERD rERD =
 {
-	rERD.namedQName = new_qname("r");
-	rERD.count_children = 1;
-	rERD.offsets = r_new_offsets();
-	rERD.childrenERD = r_new_children_erd(); // need to generate each such function
-	rERD.parseSelf = (Parse_Self)&r_parse_self;
-	rERD.unparseSelf = (Unparse_Self)&r_unparse_self;
-	rERD.newInstance = (New_Instance)&r_new_instance;
-}
-
-// R - methods to construct R and metadata objects
-
-size_t *r_new_offsets()
-{
-	// One offset - the position of the e1 member
-	size_t *offsets = calloc(sizeof(size_t), 1);
-	// Allocate one R object on stack, get address of e1 member, and subtract
-	// R object's address
-	R r;
-	void *base = &r;
-	void *e1 = &r.e1;
-	offsets[0] = e1 - base;
-	return offsets;
-}
-
-ERD *r_new_children_erd()
-{
-	// One ERD - the qname of the e1 member
-	ERD *childrenERD = &e1ERD;
-	return childrenERD;
-}
+	{ "r" },			// namedQName
+	COMPLEX,			// typeCode
+	1,					// count_children
+	&rERD_offsets,		// offsets
+	&e1ERD,				// childrenERD
+	(Parse_Self)&r_parse_self,		// parseSelf
+	(Unparse_Self)&r_unparse_self,	// unparseSelf
+	(New_Instance)&r_new_instance	// newInstance
+};
 
 // R - methods to parse, unparse, and create R objects
 
@@ -113,12 +102,10 @@ int main(int argc, char *argv[])
 	}
 
 	// Parse the input stream into our infoset.
-	fillE1ERD();
-	fillRERD();
-	PState *pstate = new_pstate(stream);
-	XMLWriter xmlWriter = {xmlWriterMethods, stdout};
-	R *r = (R *)rERD.newInstance();
-	r_parse_self(r, pstate);
+	PState pstate = { stream };
+	XMLWriter xmlWriter = { xmlWriterMethods, stdout };
+	R r = { { &rERD }, 0 };
+	rERD.parseSelf((InfosetBase*)&r, &pstate);
 
 	// Close the input stream if we opened it from a filename argument.
 	if (stream != stdin && fclose(stream) != 0)
@@ -128,7 +115,7 @@ int main(int argc, char *argv[])
 	}
 
 	// Visit the infoset and print XML from it.
-	InfosetBase *infoNode = &r->_base;
+	InfosetBase *infoNode = &r._base;
 	xml_init(&xmlWriter);
 	visit_node_self((VisitEventHandler *)&xmlWriter, infoNode);
 

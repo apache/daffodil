@@ -8,19 +8,19 @@ void xml_init(XMLWriter *writer)
 
 void xml_start(XMLWriter *writer, InfosetBase *base)
 {
-	char* name = base->erd->namedQName->name;
+	char* name = base->erd->namedQName.name;
 	fprintf(writer->stream, u8"<%s>\n", name);
 }
 
 void xml_end(XMLWriter *writer, InfosetBase *base)
 {
-	char* name = base->erd->namedQName->name;
+	char* name = base->erd->namedQName.name;
 	fprintf(writer->stream, u8"</%s>\n", name);
 }
 
 void xml_int(XMLWriter *writer, ERD *erd, int *location)
 {
-	char* name = erd->namedQName->name;
+	char* name = erd->namedQName.name;
 	int value = *location;
 	fprintf(writer->stream, u8"  <%s>%i</%s>\n", name, value, name);
 }

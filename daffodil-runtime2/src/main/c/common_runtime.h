@@ -11,7 +11,6 @@ typedef struct PState
 {
 	FILE *stream; // input to read from
 } PState;
-PState *new_pstate(FILE *stream);
 
 // UState - unparser state while unparsing infoset
 
@@ -19,7 +18,6 @@ typedef struct UState
 {
 	FILE *stream; // output to write to
 } UState;
-UState *new_ustate(FILE *stream);
 
 // GlobalQName - name of an infoset element
 
@@ -27,7 +25,6 @@ typedef struct GlobalQName
 {
 	char *name;
 } GlobalQName;
-GlobalQName *new_qname(char *name);
 
 // TypeCode - type of an infoset element
 
@@ -47,7 +44,7 @@ typedef InfosetBase *(*New_Instance)();
 
 typedef struct ElementRuntimeData
 {
-	GlobalQName *namedQName;
+	GlobalQName namedQName;
 	enum TypeCode typeCode;
 	uint32_t count_children;
 	size_t *offsets;
