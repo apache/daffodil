@@ -17,8 +17,9 @@
 
 package org.apache.daffodil.grammar
 
-import org.apache.daffodil.grammar.primitives.UnicodeByteOrderMark
 import org.apache.daffodil.dsom.Root
+import org.apache.daffodil.grammar.primitives.UnicodeByteOrderMark
+import org.apache.daffodil.runtime2.generators.CodeGeneratorState
 
 trait RootGrammarMixin
   extends LocalElementGrammarMixin // can be repeating if not root
@@ -31,4 +32,5 @@ trait RootGrammarMixin
 
   private def documentElement = enclosedElement
 
+  def generateCode(state: CodeGeneratorState) = documentElement.generateCode(state)
 }

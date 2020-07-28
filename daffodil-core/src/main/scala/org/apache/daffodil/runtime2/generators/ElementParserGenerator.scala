@@ -20,7 +20,6 @@ import scala.collection.JavaConverters._
 
 import org.apache.daffodil.codegen.ast._
 import org.apache.daffodil.dpath.NodeInfo
-import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.dsom.ElementBase
 
 class ElementParserGenerator(context: ElementBase, contentParserGenerator: ParserGenerator)
@@ -45,44 +44,52 @@ class ElementParserGenerator(context: ElementBase, contentParserGenerator: Parse
       Nil.asJava, Nil.asJava)
   }
 
-  override def generateCode(cgState: CodeGeneratorState): CodeGeneratorState = {
+  override def generateCode(cgState: CodeGeneratorState): Unit = {
 
-    context.elementChildren.foreach { child =>
-        if (child.optPrimType.isDefined)
-          cgState.newFieldDeclaration(cgState.toPrimitive(child.optPrimType.get, context), child.name)
-        else
-          ???
+    if (context.isSimpleType) {
+      cgState.newSimpleTypeERD(context) // e1ERD static initializer
+    } else {
+      cgState.pushComplexElement(context)
+      context.elementChildren.foreach { child =>
+        if (child.isSimpleType) {
+          // int e1;
+          //cgState.newFieldDeclaration(cgState.toPrimitive(child.optPrimType.get, context), child.name)
+        } else {
           //cgState.newFieldDeclaration(toComplexType(child), child.name) // struct, union, maybe array
+        }
       }
-
-    context.elementChildren.foreach {
-      case child if (child.optPrimType.isDefined) => {
-        cgState.newAssignment(
-          // Let's avoid the ASTs, just use the child.name?
-          child.name,
-          // child = dataInputStream.parseSInt32();
-          // Shall we literally just assemble that?
-          "dataInputStream.parseSInt32()")
-      }
-      // What is this code doing?  Oh, if this is the complex type case, let's use ??? for now
-      case child => {
-        Assert.invariant(child.optPrimType.isEmpty)
-        //
-        // generate the allocation of new object, and assignment to variable
-        // childName = new ChildType();
-        cgState.newAllocation(child.name, cgState.toComplexType(child).toString)
-        //
-        // generate recursive call to parseSelf
-        // childName.parseSelf(state);
-        // What you typed is the definition of parseSelf and the class,
-        // are we generating the call to parseSelf here or not?
-        cgState.newRecursiveCall(child.name, "parseSelf(state)")
-      }
+      cgState.popComplexElement(context)
     }
 
-    cgState.closeDefinition()
-    cgState
+//    context.elementChildren.foreach {
+//      case child if (child.optPrimType.isDefined) => {
+//        cgState.newAssignment(
+//          // Let's avoid the ASTs, just use the child.name?
+//          child.name,
+//          // child = dataInputStream.parseSInt32();
+//          // Shall we literally just assemble that?
+//          "dataInputStream.parseSInt32()")
+//      }
+//      // What is this code doing?  Oh, if this is the complex type case, let's use ??? for now
+//      case child => {
+//        Assert.invariant(child.optPrimType.isEmpty)
+//        //
+//        // generate the allocation of new object, and assignment to variable
+//        // childName = new ChildType();
+//        cgState.newAllocation(child.name, cgState.toComplexType(child).toString)
+//        //
+//        // generate recursive call to parseSelf
+//        // childName.parseSelf(state);
+//        // What you typed is the definition of parseSelf and the class,
+//        // are we generating the call to parseSelf here or not?
+//        cgState.newRecursiveCall(child.name, "parseSelf(state)")
+//      }
+//    }
+//
+//    cgState.closeDefinition()
+//    cgState
   }
+
   // Pseudo-Scala code for this idea is here:
   //
   // Schema that references a global complex type.

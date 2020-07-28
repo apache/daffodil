@@ -46,7 +46,7 @@ class BinaryIntegerKnownLengthParserGenerator(
   private val impl = new BinaryIntegerKnownLengthParserGeneratorImpl(
       e, signed, lengthInBits, alignmentInBits, byteOrder, bitOrder, elementName)
 
-  override def generateCode(cgState: CodeGeneratorState): CodeGeneratorState =
+  override def generateCode(cgState: CodeGeneratorState): Unit =
     impl.generateCode(cgState)
 }
 
@@ -70,7 +70,7 @@ class  BinaryIntegerKnownLengthParserGeneratorImpl(
   elementName: String)
   extends ParserGenerator {
 
-  override def generateCode(cgState: CodeGeneratorState): CodeGeneratorState = {
+  override def generateCode(cgState: CodeGeneratorState): Unit = {
 
     // For the time being this is a very limited back end.
     // So there are numerous restrictions to enforce.
@@ -109,7 +109,6 @@ class  BinaryIntegerKnownLengthParserGeneratorImpl(
        * A DSL for SQL in Scala exists, and the idea is you write this quasi-SQL,
        * fairly naturally, but what happens really is synthesis (and execution) of real SQL.
        */
-    val newCGState = new CodeGeneratorState()
-    newCGState
+//    val newCGState = new CodeGeneratorState()
   }
 }

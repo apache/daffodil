@@ -122,17 +122,10 @@ final class ProcessorFactory private(
     copy(optRootSpec = RootSpec.makeRootSpec(Option(name), Option(namespace)))
   }
 
-  final def generateCode(cgState: CodeGeneratorState): CodeGeneratorState = {
-    //sset.root.document.generateCode(cgState)
-    new CodeGeneratorState(
-      """
-        |#include <stdio.h>
-        |
-        |int main() {
-        |  printf("Hello World\n");
-        |  return 0;
-        |}
-        |""".stripMargin)
+  final def generateCode(): CodeGeneratorState = {
+    val cgState = new CodeGeneratorState()
+    sset.root.document.generateCode(cgState)
+    cgState
   }
 }
 

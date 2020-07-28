@@ -336,15 +336,16 @@ class ElementParseAndUnspecifiedLength(context: ElementBase, eBeforeGram: Gram, 
     }
   }
 
-  override def generateCode(cgState: CodeGeneratorState): CodeGeneratorState = {
+  override def generateCode(cgState: CodeGeneratorState): Unit = {
+    context.schemaDefinitionUnless(!context.inputValueCalcOption.isDefined, "Elements with inputValueCalc are not supported.")
+    context.schemaDefinitionUnless(!context.outputValueCalcOption.isDefined, "Elements with outputValueCalc are not supported.")
     context.schemaDefinitionUnless(eBeforeGram.isEmpty, "Statements associated with elements are not supported.")
     context.schemaDefinitionUnless(eAfterGram.isEmpty, "Statements associated with elements are not supported.")
     context.schemaDefinitionUnless(repTypeElementGram.isEmpty, "dfdlx:repType is not supported.")
 
     val elementContentGenerator = eGram // a Gram isA ParserGenerator
     val e = new ElementParserGenerator(context, elementContentGenerator)
-    val res = e.generateCode(cgState)
-    res
+    e.generateCode(cgState)
   }
 }
 

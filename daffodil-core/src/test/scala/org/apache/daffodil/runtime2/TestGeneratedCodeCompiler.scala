@@ -10,7 +10,7 @@ import org.junit.Test
 class TestGeneratedCodeCompiler {
 
   @Test
-  def compile_tiny_program(): Unit = {
+  def compileTinyProgram(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
         <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
         <dfdl:format ref="tns:GeneralFormat"/>,
@@ -32,7 +32,7 @@ class TestGeneratedCodeCompiler {
   }
 
   @Test
-  def compile_tiny_bad_program(): Unit = {
+  def checkCompilerDiagnosticMessages(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
         <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
         <dfdl:format ref="tns:GeneralFormat"/>,
@@ -55,7 +55,7 @@ class TestGeneratedCodeCompiler {
   }
 
   @Test
-  def compile_program_with_legal_schema(): Unit = {
+  def compileFirstRealProgram(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
         <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
         <dfdl:format representation="binary" ref="tns:GeneralFormat"/>,
@@ -70,17 +70,10 @@ class TestGeneratedCodeCompiler {
     val b = Misc.hex2Bytes("000000FF")
     val schemaCompiler = Compiler()
     val pf = schemaCompiler.compileNode(testSchema).asInstanceOf[ProcessorFactory]
-    val codeGeneratorState = new CodeGeneratorState(
-      """
-        |#include <stdio.h>
-        |
-        |int main() {
-        |  printf("Hello World\n");
-        |  return 0;
-        |}
-        |""".stripMargin);
+    val codeGeneratorState = pf.generateCode()
     val generatedCodeCompiler = new GeneratedCodeCompiler(pf)
     generatedCodeCompiler.compile(codeGeneratorState)
     assert(!pf.isError)
   }
+
 }

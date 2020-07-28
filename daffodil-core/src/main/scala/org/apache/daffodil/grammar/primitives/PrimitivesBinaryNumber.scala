@@ -57,7 +57,7 @@ class BinaryIntegerKnownLength(val e: ElementBase, signed: Boolean, lengthInBits
 
   override lazy val unparser: Unparser = new BinaryIntegerKnownLengthUnparser(e.elementRuntimeData, signed, lengthInBits.toInt)
 
-    override def generateCode(cgState: CodeGeneratorState): CodeGeneratorState = {
+    override def generateCode(cgState: CodeGeneratorState): Unit = {
       val isSigned = e.primType.isSubtypeOf(NodeInfo.SignedNumeric)
       val generator = new BinaryIntegerKnownLengthParserGenerator(
         e,
@@ -67,8 +67,7 @@ class BinaryIntegerKnownLength(val e: ElementBase, signed: Boolean, lengthInBits
         e.byteOrderEv,
         e.bitOrder,
         e.name)
-      val code = generator.generateCode(cgState)
-      code
+      generator.generateCode(cgState)
     }
 }
 

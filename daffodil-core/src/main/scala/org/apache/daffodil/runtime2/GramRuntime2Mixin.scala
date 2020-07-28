@@ -25,6 +25,6 @@ import org.apache.daffodil.util.Misc
 trait GramRuntime2Mixin
   extends ParserGenerator { self: Gram =>
 
-  def generateCode(state: CodeGeneratorState): CodeGeneratorState =
+  def generateCode(state: CodeGeneratorState): Unit =
     SDE("Code generation not supported for: " + Misc.getNameFromClass(this))
 }

@@ -22,7 +22,6 @@ import org.junit.Test
 import java.io.ByteArrayInputStream
 
 import org.apache.daffodil.util.{SchemaUtils, Misc}
-import org.apache.daffodil.runtime2.generators.CodeGeneratorState
 
 class TestRuntime2 {
 
@@ -90,8 +89,7 @@ object TestUtilsR2 {
     // More compile time errors can be detected by the code-generator
     // Those should be captured by the processor factory.
     //
-    val initialState = new CodeGeneratorState()
-    val finalState = pf.generateCode(initialState)
+    val finalState = pf.generateCode()
 
     check()
 
@@ -99,7 +97,7 @@ object TestUtilsR2 {
     // the generated code, so that we can get back the expected object
     // and return it for inspection.
 
-    finalState.finalGenerate()
+    //finalState.finalGenerate()
     finalState.viewCode
   }
 }
