@@ -35,18 +35,56 @@ trait ParserGenerator {
  */
 class CodeGeneratorState(private var code: String) extends DFDL.CodeGeneratorState {
   private val structs = mutable.Stack[ComplexCGState]()
-  private val finalStructs = mutable.ArrayBuffer[ComplexCGState]()
+  private val finalStructs = mutable.ArrayBuffer[String]()
+  private val finalImplementation = mutable.ArrayBuffer[String]()
   private val erds = mutable.ArrayBuffer[String]()
 
   def this() = this(null)
+
+  def addStruct(context: ElementBase): Unit = {
+    val C = context.namedQName.local
+    val decls = structs.top.declarations.mkString("\n")
+    val struct =
+      s"""
+         |typedef struct $C
+         |{
+         |	InfosetBase _base;
+         |$decls
+         |} $C;
+         |""".stripMargin
+    finalStructs += struct
+  }
+
+  def addNewInstance(context: ElementBase): Unit = {
+    val C = s"\$${context.namedQName.local}"
+    val ERD = s"${C}ERD"
+    val newInstance =
+      s"""
+         |$C *${C}_new_instance()
+         |{
+         |	$C *c = calloc(sizeof($C), 1);
+         |	// If InfosetBase adds more members, we need to set them too
+         |	c->_base.erd = &$ERD;
+         |	return c;
+         |}
+         |""".stripMargin
+    finalImplementation += newInstance
+  }
+
+  def addParseStatement(parseStatement: String): Unit = {
+    structs.top.parserStatements += parseStatement
+  }
+
+  def addUnparseStatement(unparseStatement: String): Unit = {
+    structs.top.unparserStatements += unparseStatement
+  }
 
   def pushComplexElement(context: ElementBase): Unit = {
     structs.push(new ComplexCGState())
   }
 
   def popComplexElement(context: ElementBase): Unit = {
-    val complexCgState = structs.pop()
-    finalStructs += complexCgState
+    structs.pop()
   }
 
   def newSimpleTypeERD(context: ElementBase): Unit = {
@@ -81,7 +119,7 @@ class CodeGeneratorState(private var code: String) extends DFDL.CodeGeneratorSta
     }
   }
 
-  def newFieldDeclaration(definition: String, name: String): Unit = {
+  def addFieldDeclaration(definition: String, name: String): Unit = {
     val complexCGState = structs.top
     complexCGState.declarations += s"  $definition $name;"
   }

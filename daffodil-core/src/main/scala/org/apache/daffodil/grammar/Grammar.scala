@@ -18,7 +18,8 @@
 package org.apache.daffodil.grammar
 
 import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.Implicits._; object INoWarn { ImplicitsSuppressUnusedImportWarning() }
+import org.apache.daffodil.Implicits._
+import org.apache.daffodil.runtime2.generators.CodeGeneratorState; object INoWarn { ImplicitsSuppressUnusedImportWarning() }
 import org.apache.daffodil.processors.unparsers.SeqCompUnparser
 import org.apache.daffodil.dsom._
 import org.apache.daffodil.processors.parsers.SeqCompParser
@@ -107,6 +108,12 @@ class SeqComp private (context: SchemaComponent, children: Seq[Gram]) extends Bi
     if (unparserChildren.isEmpty) new NadaUnparser(context.runtimeData)
     else if (unparserChildren.length == 1) unparserChildren(0)
     else new SeqCompUnparser(context.runtimeData, unparserChildren.toVector)
+  }
+
+  override def generateCode(cgState: CodeGeneratorState): Unit = {
+    for (elem <- children) {
+      elem.generateCode(cgState)
+    }
   }
 }
 

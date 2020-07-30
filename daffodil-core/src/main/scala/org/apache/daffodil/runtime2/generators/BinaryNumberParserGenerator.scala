@@ -22,13 +22,14 @@ import org.apache.daffodil.schema.annotation.props.gen.{BitOrder, ByteOrder}
 import org.apache.daffodil.processors.{ByteOrderEv, LengthInBitsEv}
 
 class BinaryIntegerKnownLengthParserGenerator(
-  e: ThrowsSDE,
-  signed: Boolean,
-  lengthInBitsEv: LengthInBitsEv,
-  alignmentInBits: Int,
-  byteOrderEv: ByteOrderEv,
-  bitOrder: BitOrder,
-  elementName: String)
+                                               e: ThrowsSDE,
+                                               signed: Boolean,
+                                               lengthInBitsEv: LengthInBitsEv,
+                                               alignmentInBits: Int,
+                                               byteOrderEv: ByteOrderEv,
+                                               bitOrder: BitOrder,
+                                               enclosingElementName: String,
+                                               fieldName: String)
   extends ParserGenerator {
 
   val lengthInBits: Long = {
@@ -42,33 +43,6 @@ class BinaryIntegerKnownLengthParserGenerator(
     val bo = byteOrderEv.constValue
     bo
   }
-
-  private val impl = new BinaryIntegerKnownLengthParserGeneratorImpl(
-      e, signed, lengthInBits, alignmentInBits, byteOrder, bitOrder, elementName)
-
-  override def generateCode(cgState: CodeGeneratorState): Unit =
-    impl.generateCode(cgState)
-}
-
-/**
- * Unit testable "impl" version of corresponding generator.
- *
- * Broken out for testing/study purposes.
- *
- * This is independent of
- * daffodil-runtime1 objects like LengthInBitsEv or ByteOrderEv that
- * we can't easily construct for unit testing purposes.
- */
-private [generators]
-class  BinaryIntegerKnownLengthParserGeneratorImpl(
-  e: ThrowsSDE,
-  signed: Boolean,
-  lengthInBits: Long,
-  alignmentInBits: Int,
-  byteOrder: ByteOrder,
-  bitOrder: BitOrder,
-  elementName: String)
-  extends ParserGenerator {
 
   override def generateCode(cgState: CodeGeneratorState): Unit = {
 
@@ -95,20 +69,33 @@ class  BinaryIntegerKnownLengthParserGeneratorImpl(
     if (!signed)
       e.SDE("Only signed integers are supported.")
 
-    /* This code uses Julian Feinauer's code gen library so as to be independent of
-       * whether we are generating C/C++, or Java, or even python.
-       *
-       * But I don't understand it that well, so first cut I'm going to generate Java
-       * code as text. Then we can look at what I've done and figure out how to refactor and
-       * use Julian's library.
-       *
-       * Another good idea is to create a Scala DSL for generating this language.
-       * That would let us write pseudo code in this DSL without having to keep track of
-       * what is happening vs. what is generating.
-       *
-       * A DSL for SQL in Scala exists, and the idea is you write this quasi-SQL,
-       * fairly naturally, but what happens really is synthesis (and execution) of real SQL.
-       */
-//    val newCGState = new CodeGeneratorState()
+    val field = s"$enclosingElementName->$fieldName"
+    val parseStatement =
+      s"""
+        |	char buffer[4];
+        |	int count = fread(&buffer, sizeof(buffer), 1, pstate->stream);
+        |	if (count < sizeof(buffer))
+        |	{
+        |		// error handling - what do we do?
+        |		// longjmp to an error routine, push an error and print it, exit immediately?
+        |	}
+        |	$field = be32toh(*((uint32_t *)(&buffer)));
+        |""".stripMargin
+    cgState.addParseStatement(parseStatement)
+
+    val unparseStatement =
+      s"""
+        |	union {
+        |		char c_val[4];
+        |		uint32_t i_val;
+        |	} buffer;
+        |	buffer.i_val = htobe32($field);
+        |	int count = fwrite(buffer.c_val, sizeof(buffer), 1, ustate->stream);
+        |	if (count < sizeof(buffer))
+        |	{
+        |		// error handling goes here...
+        |	}
+        |""".stripMargin
+    cgState.addUnparseStatement(unparseStatement)
   }
 }
