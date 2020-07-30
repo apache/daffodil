@@ -42,6 +42,12 @@ class TestUserSubmittedTests {
   }
   @Test def test_DFDL_2262(): Unit = { runner.runOneTest("test_DFDL_2262") }
 
+  // DAFFODIL-2378 (decided as not a bug. These tests characterize that behavior.)
+  @Test def testTextNumberPattern1(): Unit = { runner.runOneTest("textNumberPattern1") }
+  @Test def testTextNumberPattern2(): Unit = { runner.runOneTest("textNumberPattern2") }
+  @Test def testTextNumberPattern3(): Unit = { runner.runOneTest("textNumberPattern3") }
+
+
   @Test def test_nameDOB_test2_pass(): Unit = { runner2.runOneTest("nameDOB_test2_pass") }
   @Test def test_nameDOB_test2_fail(): Unit = { runner2.runOneTest("nameDOB_test2_fail") }
 
