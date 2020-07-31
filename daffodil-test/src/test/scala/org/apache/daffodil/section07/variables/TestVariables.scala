@@ -93,9 +93,6 @@ class TestVariables {
 
   @Test def test_unsignedIntVarCast(): Unit = { runner.runOneTest("unsignedIntVarCast") }
 
-  // DFDL-2374
-  @Test def test_variables_nilled_element(): Unit = { runner.runOneTest("variables_nilled_element") }
-
   // DFDL-2375
   //@Test def test_choiceBranchVariables(): Unit = { runner.runOneTest("choiceBranchVariables") }
 
