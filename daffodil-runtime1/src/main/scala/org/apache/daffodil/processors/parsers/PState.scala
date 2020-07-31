@@ -169,10 +169,7 @@ final class PState private (
   /**
    * This stack tracks variables that have changed within the current point of
    * uncertainty. This tracking is necessary to revert changes made to variables
-   * when the parser needs to backtrack. This stack needs to be pushed when a
-   * new mark is created and popped when it is discarded or reset. It is
-   * necessary for every mark to either be discarded or reset to inorder for
-   * this stack to funciton correctly.
+   * when the parser needs to backtrack.
    */
   private val changedVariablesStack = new MStackOf[mutable.MutableList[GlobalQName]]()
   changedVariablesStack.push(mutable.MutableList[GlobalQName]())
