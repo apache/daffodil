@@ -69,7 +69,7 @@ class BinaryIntegerKnownLengthParserGenerator(
     if (!signed)
       e.SDE("Only signed integers are supported.")
 
-    val field = s"$enclosingElementName->$fieldName"
+    val field = s"instance->$fieldName"
     val parseStatement =
       s"""
         |	char buffer[4];

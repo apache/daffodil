@@ -8,11 +8,12 @@ void visit_node_self(VisitEventHandler *handler, InfosetBase *infoNode)
 	handler->visitStart(handler, infoNode);
 	// Iterate through children...
 	int count = infoNode->erd->count_children;
-	ERD *childERD = infoNode->erd->childrenERD;
-	size_t *p_offset = infoNode->erd->offsets;
+	ERD **childrenERDs = infoNode->erd->childrenERDs;
+	size_t *offsets = infoNode->erd->offsets;
 	for (int i = 0; i < count; i++)
 	{
-		size_t offset = *p_offset;
+		size_t offset = offsets[i];
+		ERD* childERD = childrenERDs[i];
 		// NOTE: This can't be right - both childNode and intLocation get the same value
 		InfosetBase *childNode = (InfosetBase *)((char *)infoNode + offset);
 		int *intLocation = (int *)((char *)infoNode + offset);
@@ -28,8 +29,6 @@ void visit_node_self(VisitEventHandler *handler, InfosetBase *infoNode)
 			handler->visitInt(handler, childERD, intLocation);
 			break;
 		}
-		p_offset++;
-		childERD++;
 	}
 	handler->visitEnd(handler, infoNode);
 }

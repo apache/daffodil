@@ -9,15 +9,18 @@ import os.{ Path, Pipe }
 class GeneratedCodeCompiler(pf: ProcessorFactory) {
   private var executableFile: Path = _
 
-  def compile(codeGeneratorState: CodeGeneratorState) = {
-    val generatedCode = codeGeneratorState.viewCode
+  def compile(rootElementName: String, codeGeneratorState: CodeGeneratorState) = {
+    val generatedCodeHeader = codeGeneratorState.viewCodeHeader
+    val generatedCodeFile = codeGeneratorState.viewCodeFile(rootElementName)
     val tempDir = os.temp.dir()
-    val tempFile = tempDir / "hello.c"
-    val tempExe = tempDir / "hello"
+    val tempCodeHeader = tempDir / "generated_data.h"
+    val tempCodeFile = tempDir / "generated_data.c"
+    val tempExe = tempDir / "generated_data"
     executableFile = null
     try {
-      os.write(tempFile, generatedCode)
-      val result = os.proc("gcc", tempFile, "-o", tempExe).call(stderr = Pipe)
+      os.write(tempCodeHeader, generatedCodeHeader)
+      os.write(tempCodeFile, generatedCodeFile)
+      val result = os.proc("gcc", tempCodeFile, "-o", tempExe).call(stderr = Pipe)
       if (!result.out.text.isEmpty || !result.err.text.isEmpty) {
         pf.sset.SDW(null, "Captured warning messages\n" + result.out.text + result.err.text)
       }

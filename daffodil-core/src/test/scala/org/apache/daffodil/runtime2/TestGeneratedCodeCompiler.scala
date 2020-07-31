@@ -27,7 +27,8 @@ class TestGeneratedCodeCompiler {
         |}
         |""".stripMargin);
     val generatedCodeCompiler = new GeneratedCodeCompiler(pf)
-    generatedCodeCompiler.compile(codeGeneratorState)
+    val rootElementName = "r"
+    generatedCodeCompiler.compile(rootElementName, codeGeneratorState)
     assert(!pf.isError)
   }
 
@@ -49,7 +50,8 @@ class TestGeneratedCodeCompiler {
         |}
         |""".stripMargin);
     val generatedCodeCompiler = new GeneratedCodeCompiler(pf)
-    generatedCodeCompiler.compile(codeGeneratorState)
+    val rootElementName = "r"
+    generatedCodeCompiler.compile(rootElementName, codeGeneratorState)
     assert(pf.isError)
     pf.getDiagnostics.find(_.isError).toString.contains("printff")
   }
@@ -72,7 +74,8 @@ class TestGeneratedCodeCompiler {
     val pf = schemaCompiler.compileNode(testSchema).asInstanceOf[ProcessorFactory]
     val codeGeneratorState = pf.generateCode()
     val generatedCodeCompiler = new GeneratedCodeCompiler(pf)
-    generatedCodeCompiler.compile(codeGeneratorState)
+    val rootElementName = "r"
+    generatedCodeCompiler.compile(rootElementName, codeGeneratorState)
     assert(!pf.isError)
   }
 

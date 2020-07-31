@@ -62,7 +62,9 @@ class ElementParserGenerator(context: ElementBase, contentParserGenerator: Parse
         }
       }
       cgState.addStruct(context)
+      cgState.addParser(context)
       cgState.addNewInstance(context)
+      cgState.addComplexTypeERD(context)
       cgState.popComplexElement(context)
     }
   }

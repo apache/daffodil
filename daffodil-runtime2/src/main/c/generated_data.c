@@ -21,26 +21,29 @@ ERD e1ERD =
 	PRIMITIVE_INT,		// typeCode
 	0,					// count_children
 	NULL,				// offsets
-	NULL,				// childrenERD
+	NULL,				// childrenERDs
 	NULL,				// parseSelf
 	NULL,				// unparseSelf
 	NULL				// newInstance
 };
 
-R rInstance = {
-	{ NULL },			// InfosetBase
-	0					// e1
+R r_compute_ERD_offsets;
+
+size_t r_offsets[1] = {
+	(void*)&r_compute_ERD_offsets.e1 - (void*)&r_compute_ERD_offsets
 };
 
-size_t rERD_offsets = (void*)&rInstance.e1 - (void*)&rInstance;
+ERD* r_childrenERDs[1] = {
+	&e1ERD
+};
 
 ERD rERD =
 {
 	{ "r" },			// namedQName
 	COMPLEX,			// typeCode
 	1,					// count_children
-	&rERD_offsets,		// offsets
-	&e1ERD,				// childrenERD
+	r_offsets,			// offsets
+	r_childrenERDs,		// childrenERDs
 	(Parse_Self)&r_parse_self,		// parseSelf
 	(Unparse_Self)&r_unparse_self,	// unparseSelf
 	(New_Instance)&r_new_instance	// newInstance
@@ -79,7 +82,7 @@ void r_unparse_self(R *r, UState *ustate)
 
 R *r_new_instance()
 {
-	R *r = malloc(sizeof(R));
+	R *r = calloc(sizeof(R), 1);
 	// If InfosetBase adds more members, we need to set them too
 	r->_base.erd = &rERD;
 	return r;

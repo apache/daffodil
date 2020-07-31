@@ -48,7 +48,7 @@ typedef struct ElementRuntimeData
 	enum TypeCode typeCode;
 	uint32_t count_children;
 	size_t *offsets;
-	ERD *childrenERD;
+	ERD **childrenERDs;
 
 	Parse_Self parseSelf;
 	Unparse_Self unparseSelf;
