@@ -1735,9 +1735,15 @@
 
   </tdml:defineSchema>
 
-  <tdml:parserTestCase name="choiceBranchVariables" root="root"
+  <!-- This test describes a situation where a choice is used to simply set a variable and nothing else.
+    In the choice of this test the branches only contain empty sequences that call setVariable on different
+    variables, depending on the branch. This works as expected during parsing, but because nothing gets
+    added to the infoset for these setVariable calls, on unparsing only the first branch of the choice is
+    ever used, which if the choice is part of an array, as it is in this test, results in the setVariable
+    call in the first branch being called multiple times, resulting in a double set error.
+  -->
+  <tdml:unparserTestCase name="multipleBranchesWithNoElementsSetVariableError" root="root"
     model="choice_branch_variables" description="Section 7 - setVariable - relative path expression - DFDL-7-126R">
-    <tdml:document>1,2</tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <root>
@@ -1752,7 +1758,19 @@
         </root>
       </tdml:dfdlInfoset>
     </tdml:infoset>
-  </tdml:parserTestCase>
+    <tdml:warnings>
+      <tdml:warning>Multiple choice branches</tdml:warning>
+      <tdml:warning>no required elements</tdml:warning>
+      <tdml:warning>infoset does not specify</tdml:warning>
+      <tdml:warning>selecting the first branch</tdml:warning>
+    </tdml:warnings>
+
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Cannot set variable</tdml:error>
+      <tdml:error>twice</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
 
   <tdml:defineSchema name="variables_nilled_element">
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
