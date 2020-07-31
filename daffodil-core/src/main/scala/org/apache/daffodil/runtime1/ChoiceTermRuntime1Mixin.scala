@@ -86,11 +86,15 @@ trait ChoiceTermRuntime1Mixin { self: ChoiceTermBase =>
     // in the arriving infoset for unparse.
     //
     val optDefaultBranch = {
-      val optEmpty: Option[Term] =
-        groupMembers.find { gm =>
+      val optEmpty: Option[Term] = {
+        val emptyBranches = groupMembers.filter { gm =>
           val ies = gm.identifyingEventsForChoiceBranch
           ies.pnes.isEmpty // empty event list makes it the default, not simply isOpen
         }
+        if (emptyBranches.length > 1)
+          SDW(WarnID.MultipleChoiceBranches, "Multiple choice branches with no required elements detected and the infoset does not specify a branch, selecting the first branch for unparsing")
+        emptyBranches.headOption
+      }
       val optOpen: Option[Term] =
         optEmpty.orElse {
           groupMembers.find { gm =>
