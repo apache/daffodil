@@ -93,7 +93,7 @@ class OrderedSequence(sq: SequenceTermBase, sequenceChildrenArg: Seq[SequenceChi
     }
   }
 
-  override def generateCode(cgState: CodeGeneratorState) = {
+  override def generateCode(cgState: CodeGeneratorState): Unit = {
     //
     // To lift this draconian restriction, we have to
     // generate code for each of the children, and combine them into a block

@@ -3,12 +3,10 @@
 
 #include "common_runtime.h"
 
-// R - toplevel element
-
-typedef struct R
+typedef struct C
 {
 	InfosetBase _base;
 	int e1;
-} R;
+} C;
 
 #endif // GENERATED_DATA_H

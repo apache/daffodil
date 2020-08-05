@@ -3,7 +3,7 @@
 
 void xml_init(XMLWriter *writer)
 {
-	fprintf(writer->stream, u8"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n");
+	fprintf(writer->stream, u8"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
 }
 
 void xml_start(XMLWriter *writer, InfosetBase *base)

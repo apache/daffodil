@@ -61,7 +61,7 @@ class TestGeneratedCodeCompiler {
     val testSchema = SchemaUtils.dfdlTestSchema(
         <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
         <dfdl:format representation="binary" ref="tns:GeneralFormat"/>,
-      <xs:element name="r">
+      <xs:element name="C">
         <xs:complexType>
           <xs:sequence>
             <xs:element name="e1" type="xs:int"/>
@@ -74,9 +74,15 @@ class TestGeneratedCodeCompiler {
     val pf = schemaCompiler.compileNode(testSchema).asInstanceOf[ProcessorFactory]
     val codeGeneratorState = pf.generateCode()
     val generatedCodeCompiler = new GeneratedCodeCompiler(pf)
-    val rootElementName = "r"
+    val rootElementName = "C"
     generatedCodeCompiler.compile(rootElementName, codeGeneratorState)
     assert(!pf.isError)
+    // Our next step will be to run the compiled C code and get a parse result
+    //dataProcessor: Runtime2DataProcessor = generatedCodeCompiler.dataProcessor
+    //input: InputSourceDataInputStream = <something that will read from our b val>
+    //output: InfosetOutputter = <something we can pass to our Runtime2DataProcessor>
+    //parseResult: DFDL.ParseResult = dataProcessor.parse(input, output)
+    //assert(!parseResult.isError)
   }
 
 }

@@ -469,9 +469,8 @@ class ScalarOrderedSequenceChild(sq: SequenceTermBase, term: Term, groupIndex: I
     new ScalarElementUnseparatedSequenceChildParseResultHelper(erd, eep, isEmptyRepZeroLength, isEmptyRepNonZeroLength)
   }
 
-  override def generateCode(cgState: CodeGeneratorState) = {
-    val childGen = term.termContentBody.generateCode(cgState)
-    childGen
+  override def generateCode(cgState: CodeGeneratorState): Unit = {
+    term.termContentBody.generateCode(cgState)
   }
 }
 

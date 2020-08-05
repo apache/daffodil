@@ -99,7 +99,7 @@ final class Prod(nameArg: String, val sc: SchemaComponent, guard: Boolean, gramA
       unp
   }
 
-  final override def generateCode(cgState: CodeGeneratorState): Unit = {
+  override def generateCode(cgState: CodeGeneratorState): Unit = {
     if (guard) gram.generateCode(cgState)
   }
 }

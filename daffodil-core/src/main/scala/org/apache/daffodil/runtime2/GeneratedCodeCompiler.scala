@@ -9,27 +9,38 @@ import os.{ Path, Pipe }
 class GeneratedCodeCompiler(pf: ProcessorFactory) {
   private var executableFile: Path = _
 
-  def compile(rootElementName: String, codeGeneratorState: CodeGeneratorState) = {
+  def compile(rootElementName: String, codeGeneratorState: CodeGeneratorState): Unit = {
+    val commonRuntimeHeader = codeGeneratorState.viewRuntimeHeader
+    val commonRuntimeFile = codeGeneratorState.viewRuntimeFile
     val generatedCodeHeader = codeGeneratorState.viewCodeHeader
     val generatedCodeFile = codeGeneratorState.viewCodeFile(rootElementName)
+    val xmlWriterHeader = codeGeneratorState.viewWriterHeader
+    val xmlWriterFile = codeGeneratorState.viewWriterFile
     val tempDir = os.temp.dir()
+    val tempRuntimeHeader = tempDir / "common_runtime.h"
+    val tempRuntimeFile = tempDir / "common_runtime.c"
     val tempCodeHeader = tempDir / "generated_data.h"
     val tempCodeFile = tempDir / "generated_data.c"
+    val tempWriterHeader = tempDir / "xml_writer.h"
+    val tempWriterFile = tempDir / "xml_writer.c"
     val tempExe = tempDir / "generated_data"
     executableFile = null
     try {
+      os.write(tempRuntimeHeader, commonRuntimeHeader)
+      os.write(tempRuntimeFile, commonRuntimeFile)
       os.write(tempCodeHeader, generatedCodeHeader)
       os.write(tempCodeFile, generatedCodeFile)
-      val result = os.proc("gcc", tempCodeFile, "-o", tempExe).call(stderr = Pipe)
+      os.write(tempWriterHeader, xmlWriterHeader)
+      os.write(tempWriterFile, xmlWriterFile)
+      val result = os.proc("gcc", "-I", ".", tempRuntimeFile, tempCodeFile, tempWriterFile, "-o", tempExe).call(stderr = Pipe)
       if (!result.out.text.isEmpty || !result.err.text.isEmpty) {
         pf.sset.SDW(null, "Captured warning messages\n" + result.out.text + result.err.text)
       }
       executableFile = tempExe
     } catch {
-      case e: os.SubprocessException => {
+      case e: os.SubprocessException =>
         val sde = new SchemaDefinitionError(None, None, Misc.getSomeMessage(e).get)
         pf.sset.error(sde)
-      }
     }
   }
 

@@ -67,7 +67,7 @@ class BinaryIntegerKnownLength(val e: ElementBase, signed: Boolean, lengthInBits
         e.alignmentValueInBits.intValue(),
         e.byteOrderEv,
         e.bitOrder,
-        context.enclosingElements(0).namedQName.local,
+        context.enclosingElements.head.namedQName.local,
         e.name)
       generator.generateCode(cgState)
     }

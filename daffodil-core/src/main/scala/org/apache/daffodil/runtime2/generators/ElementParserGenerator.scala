@@ -16,38 +16,15 @@
  */
 package org.apache.daffodil.runtime2.generators
 
-import scala.collection.JavaConverters._
-
-import org.apache.daffodil.codegen.ast._
-import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.dsom.ElementBase
 
 class ElementParserGenerator(context: ElementBase, contentParserGenerator: ParserGenerator)
   extends ParserGenerator {
 
-  def toPrimitive(primType: NodeInfo.PrimType): TypeDefinition = {
-    import NodeInfo.PrimType
-    primType match {
-      case PrimType.Long => Primitive.LONG
-      case PrimType.Int => Primitive.INTEGER
-      case _ => context.SDE("Unsupported primitive type: " + primType)
-    }
-  }
-
-  def toComplexType(e: ElementBase): TypeDefinition = {
-    // Stubbed code
-    Expressions.typeOf("e2")
-  }
-
-  def toParseMethod(e: ElementBase): Method = {
-    Expressions.method(Expressions.typeOf("E2_Type"), "parseSelf", Primitive.VOID,
-      Nil.asJava, Nil.asJava)
-  }
-
   override def generateCode(cgState: CodeGeneratorState): Unit = {
 
     if (context.isSimpleType) {
-      cgState.newSimpleTypeERD(context) // e1ERD static initializer
+      cgState.addSimpleTypeERD(context) // e1ERD static initializer
       contentParserGenerator.generateCode(cgState)
     } else {
       cgState.pushComplexElement(context)
@@ -63,7 +40,6 @@ class ElementParserGenerator(context: ElementBase, contentParserGenerator: Parse
       }
       cgState.addStruct(context)
       cgState.addParser(context)
-      cgState.addNewInstance(context)
       cgState.addComplexTypeERD(context)
       cgState.popComplexElement(context)
     }
