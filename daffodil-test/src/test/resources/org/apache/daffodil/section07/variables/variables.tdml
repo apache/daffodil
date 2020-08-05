@@ -1795,4 +1795,75 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+  <tdml:defineSchema name="newVariableInstance_choiceDispatchKey">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+
+    <dfdl:format ref="GeneralFormat" />
+    <dfdl:defineVariable name="type" type="xs:int" />
+    <dfdl:defineVariable name="count" type="xs:int" />
+
+    <xs:element name="file">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="records" maxOccurs="unbounded" dfdl:terminator=",">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="type" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1" />
+                <xs:element name="count" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1" />
+                <xs:sequence>
+                  <xs:annotation>
+                    <xs:appinfo source="http://www.ogf.org/dfdl/">
+                      <dfdl:newVariableInstance ref="ex:type" />
+                      <dfdl:newVariableInstance ref="ex:count" />
+                    </xs:appinfo>
+                  </xs:annotation>
+                  <xs:sequence>
+                    <xs:choice dfdl:choiceDispatchKey="{ xs:string(./ex:type) }">
+                      <xs:element name="int" type="xs:int" dfdl:choiceBranchKey="1" maxOccurs="unbounded"
+                        dfdl:occursCountKind="expression" dfdl:occursCount="{ ../ex:count }"
+                        dfdl:lengthKind="explicit" dfdl:length="1" />
+                      <xs:element name="str" type="xs:string" dfdl:choiceBranchKey="2" maxOccurs="unbounded"
+                        dfdl:occursCountKind="expression" dfdl:occursCount="{ ../ex:count }"
+                        dfdl:lengthKind="explicit" dfdl:length="1" />
+                    </xs:choice>
+                  </xs:sequence>
+                </xs:sequence>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="NVI_with_CDK1" root="file"
+    model="newVariableInstance_choiceDispatchKey" description="Combination of choice dispatch key with newVaribleInstance causing mark state errors - DAFFODIL-2354">
+  <tdml:document>1512345,26abcdef,</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <file>
+          <records>
+            <type>1</type>
+            <count>5</count>
+            <int>1</int>
+            <int>2</int>
+            <int>3</int>
+            <int>4</int>
+            <int>5</int>
+          </records>
+          <records>
+            <type>2</type>
+            <count>6</count>
+            <str>a</str>
+            <str>b</str>
+            <str>c</str>
+            <str>d</str>
+            <str>e</str>
+            <str>f</str>
+          </records>
+        </file>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>

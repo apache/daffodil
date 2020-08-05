@@ -93,6 +93,9 @@ class TestVariables {
 
   @Test def test_unsignedIntVarCast(): Unit = { runner.runOneTest("unsignedIntVarCast") }
 
+  // DFDL-2354
+  @Test def test_NVI_with_CDK1(): Unit = { runner.runOneTest("NVI_with_CDK1") }
+
   // DFDL-2374
   @Test def test_variables_nilled_element(): Unit = { runner.runOneTest("variables_nilled_element") }
 
