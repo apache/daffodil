@@ -33,7 +33,7 @@ trait ParserGenerator {
 /**
  * Builds up the state of generated code.
  */
-class CodeGeneratorState(private var code: String) extends DFDL.CodeGeneratorState {
+class CodeGeneratorState(private val code: String) extends DFDL.CodeGeneratorState {
   private val structs = mutable.Stack[ComplexCGState]()
   private val prototypes = mutable.ArrayBuffer[String]()
   private val erds = mutable.ArrayBuffer[String]()

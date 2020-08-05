@@ -9,6 +9,28 @@ import os.{ Path, Pipe }
 class GeneratedCodeCompiler(pf: ProcessorFactory) {
   private var executableFile: Path = _
 
+  // Original method now used only for tiny program compilation unit testing
+  def compile(codeGeneratorState: CodeGeneratorState): Unit = {
+    val code = codeGeneratorState.viewCode
+    val tempDir = os.temp.dir()
+    val tempCodeFile = tempDir / "code.c"
+    val tempExe = tempDir / "exe"
+    executableFile = null
+    try {
+      os.write(tempCodeFile, code)
+      val result = os.proc("gcc", tempCodeFile, "-o", tempExe).call(stderr = Pipe)
+      if (!result.out.text.isEmpty || !result.err.text.isEmpty) {
+        pf.sset.SDW(null, "Captured warning messages\n" + result.out.text + result.err.text)
+      }
+      executableFile = tempExe
+    } catch {
+      case e: os.SubprocessException =>
+        val sde = new SchemaDefinitionError(None, None, Misc.getSomeMessage(e).get)
+        pf.sset.error(sde)
+    }
+  }
+
+  // New method, now generates all of the C code needed to parse an input stream
   def compile(rootElementName: String, codeGeneratorState: CodeGeneratorState): Unit = {
     val commonRuntimeHeader = codeGeneratorState.viewRuntimeHeader
     val commonRuntimeFile = codeGeneratorState.viewRuntimeFile
