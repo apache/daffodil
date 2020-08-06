@@ -17,12 +17,14 @@
 
 package org.apache.daffodil.util
 
-import javax.xml.transform.stream.StreamSource
-import javax.xml.XMLConstants
-import scala.xml.parsing.NoBindingFactoryAdapter
 import java.net.URI
-import org.apache.daffodil.xml.DFDLCatalogResolver
+
 import scala.collection.mutable
+import scala.xml.parsing.NoBindingFactoryAdapter
+
+import javax.xml.XMLConstants
+import javax.xml.transform.stream.StreamSource
+import org.apache.daffodil.xml.DFDLCatalogResolver
 import org.xml.sax.ErrorHandler
 
 /**
@@ -45,8 +47,14 @@ object Validator extends NoBindingFactoryAdapter {
     val validator = {
       val optCachedValidator = cache.get(schemaFileNames)
       optCachedValidator match {
-        case Some(validator) => {
-          validator.reset()
+        case Some(cachedValidator) => {
+          cachedValidator.reset()
+          // reset takes it back to the original state at the point we call
+          // newValidator. So we need to re-set the features, resolvers,
+          // and handlers
+          val resolver = DFDLCatalogResolver.get
+          val validator : javax.xml.validation.Validator =
+            initializeValidator(cachedValidator, errHandler, resolver)
           validator
         }
         case None => {
@@ -65,18 +73,7 @@ object Validator extends NoBindingFactoryAdapter {
           val resolver = DFDLCatalogResolver.get
           factory.setResourceResolver(resolver)
           val schema = factory.newSchema(schemaSources.toArray)
-          val validator = schema.newValidator()
-          validator.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true)
-          //
-          validator.setFeature("http://xml.org/sax/features/validation", true)
-
-          // If you enable the feature below, it seems to do no validation at all. Just passes.
-          //          validator.setFeature("http://apache.org/xml/features/validation/dynamic", true)
-
-          validator.setFeature("http://apache.org/xml/features/validation/schema", true)
-          validator.setFeature("http://apache.org/xml/features/validation/schema-full-checking", true)
-          validator.setErrorHandler(errHandler)
-          validator.setResourceResolver(resolver)
+          val validator = initializeValidator(schema.newValidator(), errHandler, resolver)
           cache.put(schemaFileNames, validator)
           validator
         }
@@ -84,6 +81,22 @@ object Validator extends NoBindingFactoryAdapter {
     }
     val documentSource = new StreamSource(document)
     validator.validate(documentSource)
+  }
+
+  def initializeValidator(validator: javax.xml.validation.Validator, errHandler: ErrorHandler, resolver: DFDLCatalogResolver):
+    javax.xml.validation.Validator = {
+    validator.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true)
+    //
+    validator.setFeature("http://xml.org/sax/features/validation", true)
+
+    // If you enable the feature below, it seems to do no validation at all. Just passes.
+    //          validator.setFeature("http://apache.org/xml/features/validation/dynamic", true)
+
+    validator.setFeature("http://apache.org/xml/features/validation/schema", true)
+    validator.setFeature("http://apache.org/xml/features/validation/schema-full-checking", true)
+    validator.setErrorHandler(errHandler)
+    validator.setResourceResolver(resolver)
+    validator
   }
 }
 

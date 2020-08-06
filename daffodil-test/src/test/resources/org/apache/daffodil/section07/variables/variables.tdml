@@ -802,7 +802,7 @@
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>newVariableInstances must all be distinct within the same scope</tdml:error>
-      <tdml:error>ex:myVar1</tdml:error>
+      <tdml:error>myVar1</tdml:error>
     </tdml:errors>
 
   </tdml:parserTestCase>

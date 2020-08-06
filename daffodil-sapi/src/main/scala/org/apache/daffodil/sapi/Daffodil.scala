@@ -25,7 +25,6 @@ import org.apache.daffodil.sapi.infoset._
 import org.apache.daffodil.sapi.io.InputSourceDataInputStream
 import org.apache.daffodil.debugger.{ InteractiveDebugger => SInteractiveDebugger }
 import org.apache.daffodil.debugger.{ TraceDebuggerRunner => STraceDebuggerRunner }
-import org.apache.daffodil.api.{ Diagnostic => SDiagnostic }
 import java.io.File
 import java.nio.channels.Channels
 import java.nio.channels.ReadableByteChannel
@@ -37,6 +36,7 @@ import org.apache.daffodil.api.{ LocationInSchemaFile => SLocationInSchemaFile }
 import org.apache.daffodil.api.{ WithDiagnostics => SWithDiagnostics }
 import org.apache.daffodil.compiler.{ ProcessorFactory => SProcessorFactory }
 import org.apache.daffodil.processors.{ DataProcessor => SDataProcessor }
+import org.apache.daffodil.processors.{ DaffodilXMLReader => SDaffodilXMLReader }
 import org.apache.daffodil.processors.{ ParseResult => SParseResult }
 import org.apache.daffodil.processors.{ UnparseResult => SUnparseResult }
 import org.apache.daffodil.util.{ ConsoleWriter => SConsoleWriter }
@@ -619,6 +619,12 @@ class DataProcessor private[sapi] (private var dp: SDataProcessor)
   def save(output: WritableByteChannel): Unit = dp.save(output)
 
   /**
+   *  Obtain a new [[DaffodilXMLReader]] from the current [[DataProcessor]].
+   */
+  def newXMLReaderInstance: DaffodilXMLReader =
+    new DaffodilXMLReader(xmlrdr = dp.newXMLReaderInstance.asInstanceOf[SDaffodilXMLReader])
+
+  /**
    * Parse input data with a specified length
    *
    * @param input data to be parsed
@@ -790,3 +796,120 @@ class InvalidParserException(cause: org.apache.daffodil.compiler.InvalidParserEx
  * This exception will be thrown as a result of an invalid usage of the Daffodil API
  */
 class InvalidUsageException(cause: org.apache.daffodil.processors.InvalidUsageException) extends Exception(cause.getMessage(), cause.getCause())
+
+/**
+ * SAX Method of parsing schema and getting the DFDL Infoset via designated
+ * org.xml.sax.ContentHandler, based on the org.xml.sax.XMLReader interface
+ */
+class DaffodilXMLReader private[sapi] (xmlrdr: SDaffodilXMLReader) extends org.xml.sax.XMLReader {
+  /**
+   * Get the value of the feature flag
+   * @param name feature flag whose value is to be retrieved
+   * @return value of the feature flag
+   */
+  override def getFeature(name: String): Boolean = xmlrdr.getFeature(name)
+
+  /**
+   * Set the value of the feature flag
+   * @param name feature flag to be set
+   * @param value value to be assigned to feature flag
+   */
+  override def setFeature(name: String, value: Boolean): Unit = xmlrdr.setFeature(name, value)
+
+  /**
+   * Get the value of the property
+   * @param name property whose value is to be retrieved
+   * @return value of the property
+   */
+  override def getProperty(name: String): AnyRef = xmlrdr.getProperty(name)
+
+  /**
+   * Set the value of the property
+   * @param name property whose value is to be set
+   * @param value value to be assigned to the property
+   */
+  override def setProperty(name: String, value: AnyRef): Unit = xmlrdr.setProperty(name, value)
+
+  /**
+   * Register an entity resolver
+   * @param resolver entity resolver to be registered
+   */
+  override def setEntityResolver(resolver: org.xml.sax.EntityResolver): Unit =
+    xmlrdr.setEntityResolver(resolver)
+
+  /**
+   * Return the registered entity resolver
+   * @return registered entity resolver or null
+   */
+  override def getEntityResolver: org.xml.sax.EntityResolver = xmlrdr.getEntityResolver
+
+  /**
+   * Register a DTD Handler
+   * @param handler DTD Handler to be registered
+   */
+  override def setDTDHandler(handler: org.xml.sax.DTDHandler): Unit = xmlrdr.setDTDHandler(handler)
+
+  /**
+   * Retrieve registered DTD Handler
+   * @return registered DTD Handler or null
+   */
+  override def getDTDHandler: org.xml.sax.DTDHandler = xmlrdr.getDTDHandler
+
+  /**
+   * Register a content handler
+   * @param handler content handler to be registered
+   */
+  override def setContentHandler(handler: org.xml.sax.ContentHandler): Unit = xmlrdr.setContentHandler(handler)
+
+  /**
+   * Retrieve registered content handler
+   * @return registered content handler or null
+   */
+  override def getContentHandler: org.xml.sax.ContentHandler = xmlrdr.getContentHandler
+
+  /**
+   * Register an error handler
+   * @param handler error handler to be registered
+   */
+  override def setErrorHandler(handler: org.xml.sax.ErrorHandler): Unit = xmlrdr.setErrorHandler(handler)
+
+  /**
+   * Retrieve registered error handler
+   * @return registered error handler or null
+   */
+  override def getErrorHandler: org.xml.sax.ErrorHandler = xmlrdr.getErrorHandler
+
+  /**
+   * Parse input data from an InputSource. Infoset can be retrieved via the registered
+   * contentHandler and diagnostics via the registered errorHandler
+   * @param input data to be parsed
+   */
+  override def parse(input: org.xml.sax.InputSource): Unit = xmlrdr.parse(input)
+
+  /**
+   * Parse data from a system identifier/URI. This method is not supported by the API.
+   * @param systemId URI for data to be parsed
+   */
+  override def parse(systemId: String): Unit = xmlrdr.parse(systemId)
+
+  /**
+   * Parse input data from an InputSourceDataInputStream. Infoset can retrieved via the registered
+   * contentHandler and diagnostics via the registered errorHandler
+   * @param isdis data to be parsed
+   */
+  def parse(isdis: InputSourceDataInputStream): Unit = xmlrdr.parse(isdis.dis)
+
+  /**
+   * Parse input data from an InputStream. Infoset can retrieved via the registered contentHandler
+   * and diagnostics via the registered errorHandler
+   * @param stream data to be parsed
+   */
+  def parse(stream: java.io.InputStream): Unit = xmlrdr.parse(stream)
+
+  /**
+   * Parse input data from an array of bytes. Infoset can retrieved via the registered
+   * contentHandler and diagnostics via the registered errorHandler
+   * @param arr data to be parsed
+   */
+  def parse(arr: Array[Byte]): Unit = xmlrdr.parse(arr)
+}

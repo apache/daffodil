@@ -183,27 +183,9 @@ object QName {
       else if (targetNamespace == NoNamespace) None
       else if (targetNamespace == UnspecifiedNamespace) None
       else {
-        val prefixes = NS.allPrefixes(targetNamespace, scope)
-        prefixes.length match {
-          case 0 => None
-          case 1 => Option(prefixes.head)
-          case _ => {
-            //
-            // suppose we have xmlns="..." xmlns:ex="..." xmlns:tns="..."
-            //
-            // We want to prefer ex as the prefix in this case.
-            // So we take the shortest prefix that isn't empty string.
-            //
-            val notNullPrefixes = prefixes.filter(_ ne null) // remove null prefix. There must be a non-empty one.
-            notNullPrefixes.foreach { p => Assert.invariant(p.length > 0) }
-            val pairs = notNullPrefixes.map { _.length } zip notNullPrefixes
-            val first = pairs.head // there has to be 1 at least. But there might be only 1
-            val minLengthPair = pairs.foldLeft(first) { case (x @ (xlen, _), y @ (ylen, _)) => if (xlen <= ylen) x else y }
-            val (n, shortest) = minLengthPair
-            Assert.invariant(n > 0)
-            Some(shortest)
-          }
-        }
+        val prefix = scope.getPrefix(targetNamespace)
+        if (prefix eq null) None
+        else Some(prefix)
       }
 
   def createGlobal(name: String, targetNamespace: NS, scope: scala.xml.NamespaceBinding) = {
@@ -243,6 +225,7 @@ trait QNameBase extends Serializable {
    * or by omitting one, are very common.
    */
   def prefix: Option[String]
+  def prefixOrNull: String = prefix.orNull
   def local: String
   def namespace: NS // No namespace is represented by the NoNamespace object.
 

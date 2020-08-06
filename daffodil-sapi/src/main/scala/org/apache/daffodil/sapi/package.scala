@@ -25,7 +25,7 @@ package org.apache.daffodil
  * <h3>Overview</h3>
  *
  * The [[Daffodil]] object is a factory object to create a [[Compiler]]. The
- * [[Compiler]] provides a method to compils a provided DFDL schema into a
+ * [[Compiler]] provides a method to compile a provided DFDL schema into a
  * [[ProcessorFactory]], which creates a [[DataProcessor]]:
  *
  * {{{
@@ -37,9 +37,58 @@ package org.apache.daffodil
  * The [[DataProcessor]] provides the necessary functions to parse and unparse
  * data, returning a [[ParseResult]] or [[UnparseResult]], respectively. These
  * contain information about the parse/unparse, such as whether or not the
- * processing succeeded any diagnostic information.
+ * processing succeeded with any diagnostic information.
+ *
+ * The [[DataProcessor]] also provides a function to create a [[DaffodilXMLReader]] that can be
+ * used to perform parsing via the SAX API.
+ *
+ * {{{
+ * val xmlRdr = dp.newXMLReaderInstance
+ * }}}
+ *
+ * The [[DaffodilXMLReader]] has several methods that allow one to set properties and handlers
+ * (such as ContentHandlers or ErrorHandlers) for the reader. One can use any
+ * contentHandler/errorHandler as long as they extend the org.xml.sax.ContentHandler and
+ * org.xml.sax.ErrorHandler interfaces respectively. One can use any contentHandler/errorHandler
+ * as long as they extend the org.xml.sax.ContentHandler and org.xml.sax.ErrorHandler interfaces
+ * respectively. One can also set properties for the [[DaffodilXMLReader]] using
+ * [[DaffodilXMLReader.setProperty(name:String* DaffodilXMLReader.setProperty]].
+ *
+ * The following properties can be set as follows:
+ * {{{
+ * xmlRdr.setProperty(XMLUtils.DAFFODIL_SAX_URN_BLOBDIRECTORY, "/tmp/")
+ * xmlRdr.setProperty(XMLUtils.DAFFODIL_SAX_URN_BLOBPREFIX, "daffodil-sax-")
+ * xmlRdr.setProperty(XMLUtils.DAFFODIL_SAX_URN_BLOBSUFFIX, ".bin")
+ * }}}
+ * The variables above start with "urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:sax:" and end
+ * with BlobDirectory, BlobPrefix and BlobSuffix respectively.
+ *
+ * The properties can be retrieved using the same variables with
+ * [[DaffodilXMLReader.getProperty(name:String* DaffodilXMLReader.getProperty]]
+ *
+ * The following handlers can be set as follows:
+ * {{{
+ * xmlRdr.setContentHandler(contentHandler)
+ * xmlRdr.setErrorHandler(errorHandler)
+ * xmlRdr.setDTDHandler(dtdHandler)
+ * xmlRdr.setEntityResolver(entityResolver)
+ * }}}
+ *
+ * The handlers above must implement the following interfaces respectively:
+ * {{{
+ * org.xml.sax.ContentHandler
+ * org.xml.sax.ErrorHandler
+ * org.xml.sax.DTDHandler
+ * org.xml.sax.EntityResolver
+ * }}}
+ *
+ * The [[ParseResult]] can be found as a property within the [[DaffodilXMLReader]] using this
+ * uri: "urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:sax:ParseResult" or
+ * XMLUtils.DAFFODIL_SAX_URN_PARSERESULT
  *
  * <h4>Parse</h4>
+ *
+ * <h5>Dataprocessor Parse</h5>
  *
  * The [[DataProcessor.parse(input:org\.apache\.daffodil\.sapi\.io\.InputSourceDataInputStream* DataProcessor.parse]] method accepts input data to parse in the form
  * of a [[io.InputSourceDataInputStream InputSourceDataInputStream]] and an [[infoset.InfosetOutputter InfosetOutputter]]
@@ -78,6 +127,59 @@ package org.apache.daffodil
  * while (keepParsing) {
  *   scalaOutputter.reset()
  *   val pr = dp.parse(is, jdomOutputter)
+ *   ...
+ *   keepParsing = !pr.location().isAtEnd() && !pr.isError()
+ * }
+ * }}}
+ *
+ * <h5>SAX Parse</h5>
+ *
+ * The [[DaffodilXMLReader.parse(isdis:org\.apache\.daffodil\.sapi\.io\.InputSourceDataInputStream* DaffodilXMLReader.parse]] method accepts input data to parse in the form of a
+ * [[io.InputSourceDataInputStream InputSourceDataInputStream]]. The output representation of the
+ * infoset, as well as how parse errors are handled, are dependent on the content handler and the
+ * error handler provided to the [[DaffodilXMLReader]]. For example the
+ * org.jdom2.input.sax.SAXHandler provides a JDOM representation, whereas other Content
+ * Handlers may output directly to an java.io.OutputStream or java.io.Writer.
+ *
+ * {{{
+ * val contentHandler = new SAXHandler()
+ * xmlRdr.setContentHandler(contentHandler)
+ * val is = new InputSourceDataInputStream(data)
+ * xmlReader.parse(is)
+ * val pr = xmlRdr.getProperty(XMLUtils.DAFFODIL_SAX_URN_PARSERESULT)
+ * val doc = saxHandler.getDocument
+ * }}}
+ *
+ * The [[DaffodilXMLReader.parse(isdis:org\.apache\.daffodil\.sapi\.io\.InputSourceDataInputStream* DaffodilXMLReader.parse]] method is not thread-safe and may only be called again/reused once a
+ * parse operation is completed. This can be done multiple times without the need to create new
+ * DaffodilXMLReaders, ContentHandlers or ErrorHandlers. It might be necessary to reset whatever
+ * ContentHandler is used (or allocate a new one). A thread-safe implementation would require
+ * unique instances of the DaffodilXMLReader and its components. For example:
+ *
+ * {{{
+ * val contentHandler = new SAXHandler()
+ * xmlRdr.setContentHandler(contentHandler)
+ * files.foreach { f => {
+ *   contentHandler.reset
+ *   val is = new InputSourceDataInputStream(new FileInputStream(f))
+ *   xmlReader.parse(is)
+ *   val pr = xmlRdr.getProperty(XMLUtils.DAFFODIL_SAX_URN_PARSERESULT)
+ *   val doc = saxHandler.getDocument
+ * }
+ * }}}
+ *
+ * One can repeat calls to parse() using the same InputSourceDataInputStream to continue parsing
+ * where the previous parse ended. For example:
+ *
+ * {{{
+ * val is = new InputSourceDataInputStream(dataStream)
+ * val contentHandler = new SAXHandler()
+ * xmlRdr.setContentHandler(contentHandler)
+ * val keepParsing = true
+ * while (keepParsing) {
+ *   contentHandler.reset()
+ *   xmlRdr.parse(is)
+ *   val pr = xmlRdr.getProperty(XMLUtils.DAFFODIL_SAX_URN_PARSERESULT)
  *   ...
  *   keepParsing = !pr.location().isAtEnd() && !pr.isError()
  * }
@@ -132,7 +234,20 @@ package org.apache.daffodil
  *
  * {{{
  * val dp = Daffodil.reload(saveFile);
+ * }}}
+ *
+ * And use like below:
+ * {{{
  * val pr = dp.parse(data, inputter);
+ * }}}
+ *
+ * or
+ *
+ * {{{
+ * val xmlRdr = dp.newXMLReaderInstance
+ * ... // setting appropriate handlers
+ * xmlReader.parse(data)
+ * val pr = xmlRdr.getProperty("...ParseResult")
  * }}}
  *
  */

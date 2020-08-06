@@ -17,84 +17,89 @@
 
 package org.apache.daffodil
 
+import java.io.ByteArrayInputStream
+import java.io.File
+import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.OutputStream
-import java.io.FileInputStream
-import java.io.ByteArrayInputStream
+import java.net.URI
+import java.nio.ByteBuffer
 import java.nio.channels.Channels
 import java.nio.file.Paths
 import java.util.Scanner
-
-import scala.xml.{SAXParseException, Node}
-import org.rogach.scallop
-import org.apache.daffodil.debugger.{InteractiveDebugger, CLIDebuggerRunner, TraceDebuggerRunner}
-import org.apache.daffodil.util.Misc
-import org.apache.daffodil.util.Timer
-import org.apache.daffodil.xml._
-import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.compiler.Compiler
-import org.apache.daffodil.api.{WithDiagnostics, URISchemaSource, DFDL, DaffodilTunables}
-import org.apache.daffodil.util.Logging
-import org.apache.daffodil.util.LogLevel
-import org.apache.daffodil.util.LogWriter
-import org.apache.daffodil.util.LoggingDefaults
-import org.apache.daffodil.exceptions.NotYetImplementedException
-import java.io.File
-
-import org.apache.daffodil.tdml.DFDLTestSuite
-import org.apache.daffodil.externalvars.{Binding, BindingException}
-import org.apache.daffodil.externalvars.ExternalVariablesLoader
-import org.apache.daffodil.configuration.ConfigurationLoader
-import org.apache.daffodil.api.ValidationMode
-
-import scala.language.reflectiveCalls
-import scala.concurrent.Future
 import java.util.concurrent.Executors
 
-import scala.concurrent.ExecutionContext
-import org.rogach.scallop.ScallopOption
-
-import scala.concurrent.duration.Duration
 import scala.concurrent.Await
-import org.apache.daffodil.xml.QName
-import org.apache.daffodil.dsom.ExpressionCompilers
-import org.apache.daffodil.compiler.InvalidParserException
-import java.net.URI
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
+import scala.concurrent.duration.Duration
+import scala.language.reflectiveCalls
+import scala.xml.Node
+import scala.xml.SAXParseException
 
-import org.apache.daffodil.tdml.TDMLException
-import org.apache.daffodil.xml.RefQName
-import org.rogach.scallop.ArgType
-import org.rogach.scallop.ValueConverter
-import org.apache.daffodil.processors.DataProcessor
-import org.apache.daffodil.processors.DataLoc
-import org.apache.daffodil.processors.HasSetDebugger
-import org.apache.daffodil.exceptions.UnsuppressableException
-import org.apache.daffodil.infoset.XMLTextInfosetOutputter
-import org.apache.daffodil.infoset.NullInfosetOutputter
-import org.apache.daffodil.infoset.ScalaXMLInfosetOutputter
-import org.apache.daffodil.infoset.JsonInfosetOutputter
-import org.apache.daffodil.infoset.InfosetOutputter
-import org.apache.daffodil.infoset.JDOMInfosetOutputter
-import org.apache.daffodil.infoset.W3CDOMInfosetOutputter
-import org.apache.daffodil.infoset.XMLTextInfosetInputter
-import org.apache.daffodil.infoset.JsonInfosetInputter
-import org.apache.daffodil.infoset.ScalaXMLInfosetInputter
-import org.apache.daffodil.infoset.JDOMInfosetInputter
-import org.apache.daffodil.infoset.W3CDOMInfosetInputter
-import org.apache.daffodil.infoset.InfosetInputter
+import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
-import javax.xml.parsers.DocumentBuilderFactory
 import org.apache.commons.io.IOUtils
-import org.apache.daffodil.io.InputSourceDataInputStream
-import org.apache.daffodil.tdml.TDMLTestNotCompatibleException
+import org.apache.daffodil.api.DFDL
+import org.apache.daffodil.api.DFDL.ParseResult
+import org.apache.daffodil.api.DaffodilTunables
+import org.apache.daffodil.api.URISchemaSource
+import org.apache.daffodil.api.ValidationMode
+import org.apache.daffodil.api.WithDiagnostics
+import org.apache.daffodil.compiler.Compiler
+import org.apache.daffodil.compiler.InvalidParserException
+import org.apache.daffodil.configuration.ConfigurationLoader
+import org.apache.daffodil.debugger.CLIDebuggerRunner
+import org.apache.daffodil.debugger.InteractiveDebugger
+import org.apache.daffodil.debugger.TraceDebuggerRunner
+import org.apache.daffodil.dsom.ExpressionCompilers
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.exceptions.NotYetImplementedException
+import org.apache.daffodil.exceptions.UnsuppressableException
+import org.apache.daffodil.externalvars.Binding
+import org.apache.daffodil.externalvars.BindingException
+import org.apache.daffodil.externalvars.ExternalVariablesLoader
+import org.apache.daffodil.infoset.DaffodilOutputContentHandler
+import org.apache.daffodil.infoset.InfosetInputter
+import org.apache.daffodil.infoset.InfosetOutputter
+import org.apache.daffodil.infoset.JDOMInfosetInputter
+import org.apache.daffodil.infoset.JDOMInfosetOutputter
+import org.apache.daffodil.infoset.JsonInfosetInputter
+import org.apache.daffodil.infoset.JsonInfosetOutputter
+import org.apache.daffodil.infoset.NullInfosetOutputter
+import org.apache.daffodil.infoset.ScalaXMLInfosetInputter
+import org.apache.daffodil.infoset.ScalaXMLInfosetOutputter
+import org.apache.daffodil.infoset.W3CDOMInfosetInputter
+import org.apache.daffodil.infoset.W3CDOMInfosetOutputter
+import org.apache.daffodil.infoset.XMLTextInfosetInputter
+import org.apache.daffodil.infoset.XMLTextInfosetOutputter
 import org.apache.daffodil.io.DataDumper
-import java.nio.ByteBuffer
-
 import org.apache.daffodil.io.FormatInfo
+import org.apache.daffodil.io.InputSourceDataInputStream
+import org.apache.daffodil.processors.DataLoc
+import org.apache.daffodil.processors.DataProcessor
+import org.apache.daffodil.processors.HasSetDebugger
 import org.apache.daffodil.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.tdml.DFDLTestSuite
+import org.apache.daffodil.tdml.TDMLException
+import org.apache.daffodil.tdml.TDMLTestNotCompatibleException
 import org.apache.daffodil.udf.UserDefinedFunctionFatalErrorException
+import org.apache.daffodil.util.LogLevel
+import org.apache.daffodil.util.LogWriter
+import org.apache.daffodil.util.Logging
+import org.apache.daffodil.util.LoggingDefaults
+import org.apache.daffodil.util.Misc
+import org.apache.daffodil.util.Timer
+import org.apache.daffodil.xml.QName
+import org.apache.daffodil.xml.RefQName
+import org.apache.daffodil.xml.DaffodilXMLLoader
+import org.apache.daffodil.xml.XMLUtils
+import org.rogach.scallop
+import org.rogach.scallop.ArgType
+import org.rogach.scallop.ScallopOption
+import org.rogach.scallop.ValueConverter
 
 class NullOutputStream extends OutputStream {
   override def close(): Unit = {
@@ -114,14 +119,14 @@ class NullOutputStream extends OutputStream {
   }
 }
 
-class CommandLineXMLLoaderErrorHandler() extends org.xml.sax.ErrorHandler with Logging {
+class CommandLineSAXErrorHandler() extends org.xml.sax.ErrorHandler with Logging {
 
   def warning(exception: SAXParseException) = {
-    log(LogLevel.Warning, "loading schema: " + exception.getMessage())
+    log(LogLevel.Warning, exception.getMessage())
   }
 
   def error(exception: SAXParseException) = {
-    log(LogLevel.Error, "loading schema: " + exception.getMessage())
+    log(LogLevel.Error, exception.getMessage())
     System.exit(1)
   }
 
@@ -337,7 +342,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used when parsing. An optional namespace may be provided.")
     val tunables = props[String]('T', keyName = "tunable", valueName = "value", descr = "daffodil tunable to be used when parsing.")
     val config = opt[String](short = 'c', argName = "file", descr = "path to file containing configuration items.")
-    val infosetType = opt[String](short = 'I', argName = "infoset_type", descr = "infoset type to output. Must be one of 'xml', 'scala-xml', 'json', 'jdom', 'w3cdom', or 'null'.", default = Some("xml")).map { _.toLowerCase }
+    val infosetType = opt[String](short = 'I', argName = "infoset_type", descr = "infoset type to output. Must be one of 'xml', 'scala-xml', 'json', 'jdom', 'w3cdom', 'sax', or 'null'.", default = Some("xml")).map { _.toLowerCase }
     val stream = toggle(noshort = true, default = Some(false), descrYes = "when left over data exists, parse again with remaining data, separating infosets by a NUL character", descrNo = "stop after the first parse, even if left over data exists")
     val infile = trailArg[String](required = false, descr = "input file to parse. If not specified, or a value of -, reads from stdin.")
 
@@ -364,6 +369,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
       case (Some("json")) => Right(Unit)
       case (Some("jdom")) => Right(Unit)
       case (Some("w3cdom")) => Right(Unit)
+      case (Some("sax")) => Right(Unit)
       case (Some("null")) => Right(Unit)
       case (Some(t)) => Left("Unknown infoset type: " + t)
       case _ => Assert.impossible() // not possible due to default value
@@ -401,7 +407,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used when processing. An optional namespace may be provided.")
     val tunables = props[String]('T', keyName = "tunable", valueName = "value", descr = "daffodil tunable to be used when processing.")
     val config = opt[String](short = 'c', argName = "file", descr = "path to file containing configuration items.")
-    val infosetType = opt[String](short = 'I', argName = "infoset_type", descr = "infoset type to parse/unparse. Must be one of 'xml', 'scala-xml', 'json', 'jdom', 'w3cdom', or 'null'.", default = Some("xml")).map { _.toLowerCase }
+    val infosetType = opt[String](short = 'I', argName = "infoset_type", descr = "infoset type to parse/unparse. Must be one of 'xml', 'scala-xml', 'json', 'jdom', 'w3cdom', 'sax', or 'null'.", default = Some("xml")).map { _.toLowerCase }
     val infile = trailArg[String](required = true, descr = "input file or directory containing files to process.")
 
     validateOpt(schema, parser, rootNS) {
@@ -417,6 +423,8 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
       case (Some("json"), _) => Right(Unit)
       case (Some("jdom"), _) => Right(Unit)
       case (Some("w3cdom"), _) => Right(Unit)
+      case (Some("sax"), Some(true)) => Left("SAX unparse is not yet implemented")
+      case (Some("sax"), _) => Right(Unit)
       case (Some("null"), Some(true)) => Left("infoset type null not valid with performance --unparse")
       case (Some("null"), _) => Right(Unit)
       case (Some(t), _) => Left("Unknown infoset type: " + t)
@@ -482,6 +490,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
       case (Some("json")) => Right(Unit)
       case (Some("jdom")) => Right(Unit)
       case (Some("w3cdom")) => Right(Unit)
+      case (Some("sax")) => Right(Unit)
       //case (Some("null")) => Right(Unit) // null is not valid for unparsing
       case (Some(t)) => Left("Unknown infoset type: " + t)
       case _ => Assert.impossible() // not possible due to default value
@@ -723,16 +732,23 @@ object Main extends Logging {
   val blobDir = Paths.get(System.getProperty("user.dir"), "daffodil-blobs")
   val blobSuffix = ".bin"
 
-  def getInfosetOutputter(infosetType: String, os: java.io.OutputStream): InfosetOutputter = {
+  def getInfosetOutputter(infosetType: String, os: java.io.OutputStream)
+  : Either[InfosetOutputter, DaffodilOutputContentHandler] = {
     val outputter = infosetType match {
-      case "xml" => new XMLTextInfosetOutputter(os, true)
-      case "scala-xml" => new ScalaXMLInfosetOutputter()
-      case "json" => new JsonInfosetOutputter(os, true)
-      case "jdom" => new JDOMInfosetOutputter()
-      case "w3cdom" => new W3CDOMInfosetOutputter()
-      case "null" => new NullInfosetOutputter()
+      case "xml" => Left(new XMLTextInfosetOutputter(os, pretty = true))
+      case "scala-xml" => Left(new ScalaXMLInfosetOutputter())
+      case "json" => Left(new JsonInfosetOutputter(os, pretty = true))
+      case "jdom" => Left(new JDOMInfosetOutputter())
+      case "w3cdom" => Left(new W3CDOMInfosetOutputter())
+      case "sax" => Right(new DaffodilOutputContentHandler(os, pretty = true))
+      case "null" => Left(new NullInfosetOutputter())
     }
-    outputter.setBlobAttributes(blobDir, null, blobSuffix)
+    if (outputter.isLeft) {
+      outputter.left.map(_.setBlobAttributes(blobDir, null, blobSuffix))
+    } else {
+      // do nothing here, we set the blobAttributes using the Blob* properties
+      // within the sax parse calls
+    }
     outputter
   }
 
@@ -840,7 +856,8 @@ object Main extends Logging {
               case Some("-") | None => System.out
               case Some(file) => new FileOutputStream(file)
             }
-            val outputter = getInfosetOutputter(parseOpts.infosetType.toOption.get, output)
+            val infosetType = parseOpts.infosetType.toOption.get
+            val eitherOutputterOrHandler = getInfosetOutputter(infosetType, output)
 
             var lastParseBitPosition = 0L
             var keepParsing = true
@@ -848,9 +865,17 @@ object Main extends Logging {
 
             while (keepParsing) {
 
-              outputter.reset() // reset in case we are streaming
-
-              val parseResult = Timer.getResult("parsing", processor.parse(inStream, outputter))
+              val parseResult = eitherOutputterOrHandler match {
+                case Right(saxContentHandler) =>
+                  // reset in case we are streaming
+                  saxContentHandler.reset()
+                  Timer.getResult("parsing",
+                    parseWithSAX(processor, inStream, saxContentHandler,
+                    new CommandLineSAXErrorHandler()))
+                case Left(outputter) =>
+                  outputter.reset() // reset in case we are streaming
+                  Timer.getResult("parsing", processor.parse(inStream, outputter))
+              }
               val finfo = parseResult.resultState.asInstanceOf[FormatInfo]
               val loc = parseResult.resultState.currentLocation.asInstanceOf[DataLoc]
               displayDiagnostics(parseResult)
@@ -859,19 +884,19 @@ object Main extends Logging {
                 keepParsing = false
                 error = true
               } else {
-                // only XMLTextInfosetOutputter and JsonInfosetOutputter write
-                // directly to the output stream. Other InfosetOutputters must manually
-                // get the result and write it to the stream
-                outputter match {
-                  case sxml: ScalaXMLInfosetOutputter => {
+                // only XMLTextInfosetOutputter, JsonInfosetOutputter and
+                // DaffodilOutputContentHandler write directly to the output stream. Other
+                // InfosetOutputters must manually get the result and write it to the stream below
+                eitherOutputterOrHandler match {
+                  case Left(sxml: ScalaXMLInfosetOutputter) => {
                     val writer = new java.io.OutputStreamWriter(output, "UTF-8")
                     scala.xml.XML.write(writer, sxml.getResult, "UTF-8", true, null)
                     writer.flush()
                   }
-                  case jdom: JDOMInfosetOutputter => {
+                  case Left(jdom: JDOMInfosetOutputter) => {
                     new org.jdom2.output.XMLOutputter().output(jdom.getResult, output)
                   }
-                  case w3cdom: W3CDOMInfosetOutputter => {
+                  case Left(w3cdom: W3CDOMInfosetOutputter) => {
                     val tf = TransformerFactory.newInstance()
                     val transformer = tf.newTransformer()
                     val result = new StreamResult(output)
@@ -1037,8 +1062,15 @@ object Main extends Logging {
                       })
                       case Right(data) => Timer.getTimeResult({
                         val input = InputSourceDataInputStream(data)
-                        val outputterForParse = getInfosetOutputter(infosetType, nullOutputStreamForParse)
-                        processor.parse(input, outputterForParse)
+                        val eitherOutputterOrHandlerForParse = getInfosetOutputter(infosetType, nullOutputStreamForParse)
+                        eitherOutputterOrHandlerForParse match {
+                          case Left(outputter) => processor.parse(input, outputter)
+                          case Right(saxContentHandler) =>
+                            val errorHandler = new CommandLineSAXErrorHandler()
+                            val parseResult = parseWithSAX(processor, input, saxContentHandler,
+                              errorHandler)
+                            parseResult
+                        }
                       })
                     }
 
@@ -1313,6 +1345,21 @@ object Main extends Logging {
     }
 
     ret
+  }
+
+  private def parseWithSAX(
+    processor: DFDL.DataProcessor,
+    data: InputSourceDataInputStream,
+    saxContentHandler: DaffodilOutputContentHandler,
+    errorHandler: CommandLineSAXErrorHandler): ParseResult = {
+    val saxXmlRdr = processor.newXMLReaderInstance
+    saxXmlRdr.setContentHandler(saxContentHandler)
+    saxXmlRdr.setErrorHandler(errorHandler)
+    saxXmlRdr.setProperty(XMLUtils.DAFFODIL_SAX_URN_BLOBDIRECTORY, blobDir)
+    saxXmlRdr.setProperty(XMLUtils.DAFFODIL_SAX_URN_BLOBSUFFIX, blobSuffix)
+    saxXmlRdr.parse(data)
+    val pr = saxXmlRdr.getProperty(XMLUtils.DAFFODIL_SAX_URN_PARSERESULT).asInstanceOf[ParseResult]
+    pr
   }
 
   def bugFound(e: Exception): Int = {

@@ -100,7 +100,7 @@ class JsonInfosetOutputter private (writer: java.io.Writer, pretty: Boolean, dum
   override def startSimple(simple: DISimple): Boolean = {
     startNode()
     startElement(simple)
-    if (!isNilled(simple)) {
+    if (!isNilled(simple) && simple.hasValue) {
       val text =
         if (simple.erd.optPrimType.get.isInstanceOf[NodeInfo.String.Kind]) {
           new String(stringEncoder.quoteAsString(simple.dataValueAsString)) // escapes according to Json spec

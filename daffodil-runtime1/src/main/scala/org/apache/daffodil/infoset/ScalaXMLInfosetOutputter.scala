@@ -52,8 +52,8 @@ class ScalaXMLInfosetOutputter(showFormatInfo: Boolean = false) extends InfosetO
 
     val e =
       if (isNilled(diSimple)) {
-        scala.xml.Elem(diSimple.erd.thisElementsNamespacePrefix, diSimple.erd.name,
-            XMLUtils.xmlNilAttribute, diSimple.erd.minimizedScope, true)
+        scala.xml.Elem(diSimple.erd.namedQName.prefixOrNull, diSimple.erd.name,
+            XMLUtils.xmlNilAttribute, diSimple.erd.minimizedScope, minimizeEmpty = true)
       } else if (diSimple.hasValue) {
         val text =
           if (diSimple.erd.optPrimType.get.isInstanceOf[NodeInfo.String.Kind]) {
@@ -62,12 +62,12 @@ class ScalaXMLInfosetOutputter(showFormatInfo: Boolean = false) extends InfosetO
             diSimple.dataValueAsString
           }
         val textNode = new scala.xml.Text(text)
-        scala.xml.Elem(diSimple.erd.thisElementsNamespacePrefix, diSimple.erd.name, Null,
-            diSimple.erd.minimizedScope, true, textNode)
+        scala.xml.Elem(diSimple.erd.namedQName.prefixOrNull, diSimple.erd.name, Null,
+          diSimple.erd.minimizedScope, minimizeEmpty = true, textNode)
       } else {
         // element has been created but has no value yet, display an empty element tag
-        scala.xml.Elem(diSimple.erd.thisElementsNamespacePrefix, diSimple.erd.name, Null,
-            diSimple.erd.minimizedScope, true)
+        scala.xml.Elem(diSimple.erd.namedQName.prefixOrNull, diSimple.erd.name, Null,
+            diSimple.erd.minimizedScope, minimizeEmpty = true)
       }
 
     val elem = addFmtInfo(diSimple, e, showFormatInfo)
@@ -92,11 +92,11 @@ class ScalaXMLInfosetOutputter(showFormatInfo: Boolean = false) extends InfosetO
 
     val e =
       if (isNilled(diComplex)) {
-        scala.xml.Elem(diComplex.erd.thisElementsNamespacePrefix, diComplex.erd.name,
-          XMLUtils.xmlNilAttribute, diComplex.erd.minimizedScope, true)
+        scala.xml.Elem(diComplex.erd.namedQName.prefixOrNull, diComplex.erd.name,
+          XMLUtils.xmlNilAttribute, diComplex.erd.minimizedScope, minimizeEmpty = true)
       } else {
-        scala.xml.Elem(diComplex.erd.thisElementsNamespacePrefix, diComplex.erd.name,
-            scala.xml.Null, diComplex.erd.minimizedScope, true, children: _*)
+        scala.xml.Elem(diComplex.erd.namedQName.prefixOrNull, diComplex.erd.name,
+            scala.xml.Null, diComplex.erd.minimizedScope,  minimizeEmpty = true, children: _*)
       }
 
     val elem = addFmtInfo(diComplex, e, showFormatInfo)

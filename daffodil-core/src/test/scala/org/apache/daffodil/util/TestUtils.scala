@@ -348,6 +348,7 @@ class Fakes private () {
     override def withTunables(tunables: Map[String,String]): DFDL.DataProcessor = this
     override def withValidationMode(mode: ValidationMode.Type): DFDL.DataProcessor = this
 
+    override def newXMLReaderInstance: DFDL.DaffodilXMLReader = null
   }
   lazy val fakeDP = new FakeDataProcessor
 

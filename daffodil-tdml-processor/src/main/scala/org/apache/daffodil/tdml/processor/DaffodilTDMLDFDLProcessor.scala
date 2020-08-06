@@ -17,12 +17,15 @@
 
 package org.apache.daffodil.tdml.processor
 
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import java.nio.channels.Channels
 import java.nio.file.Path
 import java.nio.file.Paths
 
 import scala.xml.Node
 
+import org.apache.commons.io.IOUtils
 import org.apache.daffodil.api._
 import org.apache.daffodil.compiler.Compiler
 import org.apache.daffodil.debugger.Debugger
@@ -31,15 +34,21 @@ import org.apache.daffodil.debugger.TraceDebuggerRunner
 import org.apache.daffodil.dsom.ExpressionCompilers
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.externalvars.Binding
+import org.apache.daffodil.infoset.DaffodilOutputContentHandler
 import org.apache.daffodil.infoset.ScalaXMLInfosetInputter
 import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.processors.DataProcessor
 import org.apache.daffodil.processors.UnparseResult
 import org.apache.daffodil.processors.unparsers.UState
 import org.apache.daffodil.tdml.SchemaDataProcessorCache
+import org.apache.daffodil.tdml.TDMLException
 import org.apache.daffodil.tdml.TDMLInfosetInputter
 import org.apache.daffodil.tdml.TDMLInfosetOutputter
 import org.apache.daffodil.util.MaybeULong
+import org.apache.daffodil.xml.XMLUtils
+import org.apache.daffodil.xml.XMLUtils.XMLDifferenceException
+import org.xml.sax.ErrorHandler
+import org.xml.sax.SAXParseException
 
 final class TDMLDFDLProcessorFactory private (
   private var compiler: Compiler,
@@ -234,21 +243,22 @@ class DaffodilTDMLDFDLProcessor private (private var dp: DataProcessor) extends 
 
   override def getDiagnostics: Seq[Diagnostic] = dp.getDiagnostics
 
+  def parse(uri: java.net.URI, lengthLimitInBits: Long): TDMLParseResult = {
+    val url = uri.toURL
+    val dpInputStream = url.openStream()
+    val saxInputStream = url.openStream()
+    doParseWithBothApis(dpInputStream, saxInputStream, lengthLimitInBits)
+  }
+
+  def parse(arr: Array[Byte], lengthLimitInBits: Long): TDMLParseResult = {
+    val dpInputStream = new ByteArrayInputStream(arr)
+    val saxInputStream = new ByteArrayInputStream(arr)
+    doParseWithBothApis(dpInputStream, saxInputStream, lengthLimitInBits)
+  }
+
   override def parse(is: java.io.InputStream, lengthLimitInBits: Long): TDMLParseResult = {
-
-    val outputter = new TDMLInfosetOutputter()
-    outputter.setBlobAttributes(blobDir, blobPrefix, blobSuffix)
-
-    val dis = InputSourceDataInputStream(is)
-    if (lengthLimitInBits >= 0 && lengthLimitInBits % 8 != 0) {
-      // Only set the bit limit if the length is not a multiple of 8. In that
-      // case, we aren't expected to consume all the data and need a bitLimit
-      // to prevent messages about left over bits.
-      dis.setBitLimit0b(MaybeULong(lengthLimitInBits))
-    }
-    val actual = dp.parse(dis, outputter)
-
-    new DaffodilTDMLParseResult(actual, outputter)
+    val arr = IOUtils.toByteArray(is)
+    parse(arr, lengthLimitInBits)
   }
 
   override def unparse(infosetXML: scala.xml.Node, outStream: java.io.OutputStream): TDMLUnparseResult = {
@@ -274,6 +284,80 @@ class DaffodilTDMLDFDLProcessor private (private var dp: DataProcessor) extends 
     new DaffodilTDMLUnparseResult(actual, outStream)
   }
 
+  def doParseWithBothApis(dpInputStream: java.io.InputStream, saxInputStream: java.io.InputStream,
+    lengthLimitInBits: Long): TDMLParseResult = {
+    val outputter = new TDMLInfosetOutputter()
+    outputter.setBlobAttributes(blobDir, blobPrefix, blobSuffix)
+
+    val xri = dp.newXMLReaderInstance
+    val errorHandler = new DaffodilTDMLSAXErrorHandler()
+    val outputStream = new ByteArrayOutputStream()
+    val saxHandler = new DaffodilOutputContentHandler(outputStream, pretty = true)
+    xri.setContentHandler(saxHandler)
+    xri.setErrorHandler(errorHandler)
+    xri.setProperty(XMLUtils.DAFFODIL_SAX_URN_BLOBDIRECTORY, blobDir)
+    xri.setProperty(XMLUtils.DAFFODIL_SAX_URN_BLOBPREFIX, blobPrefix)
+    xri.setProperty(XMLUtils.DAFFODIL_SAX_URN_BLOBSUFFIX, blobSuffix)
+
+    val dis = InputSourceDataInputStream(dpInputStream)
+    val sis = InputSourceDataInputStream(saxInputStream)
+    if (lengthLimitInBits >= 0 && lengthLimitInBits % 8 != 0) {
+      // Only set the bit limit if the length is not a multiple of 8. In that
+      // case, we aren't expected to consume all the data and need a bitLimit
+      // to prevent messages about left over bits.
+      dis.setBitLimit0b(MaybeULong(lengthLimitInBits))
+      sis.setBitLimit0b(MaybeULong(lengthLimitInBits))
+    }
+    xri.parse(sis)
+    val actual = dp.parse(dis, outputter)
+
+
+    if (!actual.isError && !errorHandler.isError) {
+      verifySameParseOutput(outputter, outputStream)
+    }
+    verifySameDiagnostics(actual, errorHandler)
+
+    new DaffodilTDMLParseResult(actual, outputter)
+  }
+
+  def verifySameParseOutput(dpOutputter: TDMLInfosetOutputter, outputStream: ByteArrayOutputStream): Unit = {
+    val dpParseOutput = dpOutputter.getResult()
+    val saxParseOutputString = outputStream.toString
+    val saxParseOutput = scala.xml.XML.loadString(saxParseOutputString)
+
+    try {
+      XMLUtils.compareAndReport(
+        dpParseOutput,
+        saxParseOutput,
+        checkNamespaces = true,
+        checkPrefixes = true)
+    } catch {
+      case e: XMLDifferenceException => {
+        throw TDMLException(
+          """SAX parse output (actual) does not match DataProcessor Parse output (expected)""" +
+            "\n" + e.getMessage, None)
+      }
+    }
+  }
+
+  private def verifySameDiagnostics(
+    actual: DFDL.ParseResult,
+    errorHandler: DaffodilTDMLSAXErrorHandler): Unit = {
+    val dpParseDiag = actual.getDiagnostics.map(_.getMessage()).sorted
+    val saxParseDiag = errorHandler.getDiagnostics.map(_.getMessage()).sorted
+
+    if (dpParseDiag != saxParseDiag) {
+      throw TDMLException(
+        """SAX parse diagnostics do not match DataProcessor Parse diagnostics""" +
+          "\n" +
+          """DataProcessor Parse diagnostics: """ + dpParseDiag +
+          (if (saxParseDiag.isEmpty) {
+            "\n No SAX diagnostics were generated."
+          } else {
+            "\n SAX Parse diagnostics: " + saxParseDiag
+          }), None)
+    }
+  }
 }
 
 final class DaffodilTDMLParseResult(actual: DFDL.ParseResult, outputter: TDMLInfosetOutputter) extends TDMLParseResult {
@@ -312,4 +396,29 @@ final class DaffodilTDMLUnparseResult(actual: DFDL.UnparseResult, outStream: jav
   override def getDiagnostics: Seq[Diagnostic] = actual.getDiagnostics
 
   override def bitPos0b: Long = ustate.bitPos0b
+}
+
+class DaffodilTDMLSAXErrorHandler extends ErrorHandler with WithDiagnostics {
+  private var diagnostics: Seq[Diagnostic] = Nil
+  private var errorStatus: Boolean = false
+
+  override def warning(exception: SAXParseException): Unit = {
+    errorStatus = false
+    val embeddedDiagnostic = exception.getCause.asInstanceOf[Diagnostic]
+    diagnostics :+= embeddedDiagnostic
+  }
+
+  override def error(exception: SAXParseException): Unit = {
+    errorStatus = true
+    val embeddedDiagnostic = exception.getCause.asInstanceOf[Diagnostic]
+    diagnostics :+= embeddedDiagnostic
+  }
+
+  override def fatalError(exception: SAXParseException): Unit = {
+    error(exception)
+  }
+
+  override def getDiagnostics: Seq[Diagnostic] = diagnostics
+
+  override def isError: Boolean = errorStatus
 }

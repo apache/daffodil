@@ -173,7 +173,6 @@ trait ElementBaseRuntime1Mixin { self: ElementBase =>
       defaultBitOrder,
       optPrimType,
       targetNamespace,
-      thisElementsNamespace,
       optSimpleTypeRuntimeData,
       optComplexTypeModelGroupRuntimeData,
       minOccurs,
@@ -181,7 +180,6 @@ trait ElementBaseRuntime1Mixin { self: ElementBase =>
       Maybe.toMaybe(optionOccursCountKind),
       name,
       targetNamespacePrefix,
-      thisElementsNamespacePrefix,
       isNillable,
       isArray, // can have more than 1 occurrence
       isOptional, // can have exactly 0 or 1 occurrence
