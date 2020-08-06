@@ -28,13 +28,12 @@ import scala.xml.NamespaceBinding
 import scala.xml._
 
 import org.apache.commons.io.IOUtils
-
-import org.apache.daffodil.exceptions._
-import org.apache.daffodil.util.Misc
 import org.apache.daffodil.calendar.DFDLDateConversion
 import org.apache.daffodil.calendar.DFDLDateTimeConversion
 import org.apache.daffodil.calendar.DFDLTimeConversion
+import org.apache.daffodil.exceptions._
 import org.apache.daffodil.schema.annotation.props.LookupLocation
+import org.apache.daffodil.util.Misc
 
 /**
  * Utilities for handling XML
@@ -410,14 +409,21 @@ object XMLUtils {
   val EXT_PREFIX_NCSA = "daf"
   val EXT_NS_NCSA = NS(DAFFODIL_EXTENSION_NAMESPACE_NCSA.uri)
 
-  private val DAFFODIL_EXTENSIONS_NAMESPACE_ROOT_APACHE = "urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018"
-  private val DAFFODIL_EXTENSION_NAMESPACE_APACHE = NS(DAFFODIL_EXTENSIONS_NAMESPACE_ROOT_APACHE + ":ext")
+  private val DAFFODIL_NAMESPACE_ROOT_APACHE = "urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018"
+  private val DAFFODIL_EXTENSION_NAMESPACE_APACHE = NS(DAFFODIL_NAMESPACE_ROOT_APACHE + ":ext")
   val EXT_PREFIX_APACHE = "daf"
   val EXT_NS_APACHE = NS(DAFFODIL_EXTENSION_NAMESPACE_APACHE.uri)
 
-  private val DAFFODIL_INTERNAL_NAMESPACE = NS(DAFFODIL_EXTENSIONS_NAMESPACE_ROOT_APACHE + ":int")
+  private val DAFFODIL_INTERNAL_NAMESPACE = NS(DAFFODIL_NAMESPACE_ROOT_APACHE + ":int")
   val INT_PREFIX = "dafint"
   val INT_NS = NS(DAFFODIL_INTERNAL_NAMESPACE.uri)
+
+  val DAFFODIL_SAX_URN_ROOT: String = DAFFODIL_NAMESPACE_ROOT_APACHE + ":sax"
+  val DAFFODIL_SAX_URN_PARSERESULT: String = DAFFODIL_SAX_URN_ROOT + ":ParseResult"
+  val DAFFODIL_SAX_URN_BLOBDIRECTORY: String = DAFFODIL_SAX_URN_ROOT + ":BlobDirectory"
+  val DAFFODIL_SAX_URN_BLOBPREFIX: String = DAFFODIL_SAX_URN_ROOT + ":BlobPrefix"
+  val DAFFODIL_SAX_URN_BLOBSUFFIX: String = DAFFODIL_SAX_URN_ROOT + ":BlobSuffix"
+
 
   val FILE_ATTRIBUTE_NAME = "file"
   val LINE_ATTRIBUTE_NAME = "line"
@@ -798,10 +804,20 @@ object XMLUtils {
 
   class XMLDifferenceException(message: String) extends Exception(message)
 
-  def compareAndReport(expected: Node, actual: Node, ignoreProcInstr: Boolean = true) = {
+  def compareAndReport(
+    expected: Node,
+    actual: Node,
+    ignoreProcInstr: Boolean = true,
+    checkPrefixes: Boolean = false,
+    checkNamespaces: Boolean = false): Unit = {
     val expectedMinimized = prepareForDiffComparison(expected)
     val actualMinimized = prepareForDiffComparison(actual)
-    val diffs = XMLUtils.computeDiff(expectedMinimized, actualMinimized, ignoreProcInstr)
+    val diffs = XMLUtils.computeDiff(
+      expectedMinimized,
+      actualMinimized,
+      ignoreProcInstr,
+      checkPrefixes,
+      checkNamespaces)
     if (diffs.length > 0) {
       throw new XMLDifferenceException("""
 Comparison failed.
@@ -821,8 +837,21 @@ Differences were (path, expected, actual):
    * computes a precise difference list which is a sequence of triples.
    * Each triple is the path (an x-path-like string), followed by expected, and actual values.
    */
-  def computeDiff(a: Node, b: Node, ignoreProcInstr: Boolean = true) = {
-    computeDiffOne(a, b, None, Nil, ignoreProcInstr, None)
+  def computeDiff(
+    a: Node,
+    b: Node,
+    ignoreProcInstr: Boolean = true,
+    checkPrefixes: Boolean = false,
+    checkNamespaces: Boolean = false) = {
+    computeDiffOne(
+      a,
+      b,
+      None,
+      Nil,
+      ignoreProcInstr,
+      checkPrefixes,
+      checkNamespaces,
+      None)
   }
 
   def childArrayCounters(e: Elem) = {
@@ -841,21 +870,32 @@ Differences were (path, expected, actual):
     maybeIndex: Option[Int],
     parentPathSteps: Seq[String],
     ignoreProcInstr: Boolean,
+    checkPrefixes: Boolean,
+    checkNamespaces: Boolean,
     maybeType: Option[String]): Seq[(String, String, String)] = {
     lazy val zPath = parentPathSteps.reverse.mkString("/")
     (an, bn) match {
       case (a: Elem, b: Elem) => {
-        val Elem(_, labelA, attribsA, _, childrenA @ _*) = a
-        val Elem(_, labelB, attribsB, _, childrenB @ _*) = b
+        val Elem(prefixA, labelA, attribsA, nsbA, childrenA @ _*) = a
+        val Elem(prefixB, labelB, attribsB, nsbB, childrenB @ _*) = b
         val typeA: Option[String] = a.attribute(XSI_NAMESPACE.toString, "type").map(_.head.text)
         val typeB: Option[String] = b.attribute(XSI_NAMESPACE.toString, "type").map(_.head.text)
         val maybeType: Option[String] = Option(typeA.getOrElse(typeB.getOrElse(null)))
         val nilledA = a.attribute(XSI_NAMESPACE.toString, "nil")
         val nilledB = b.attribute(XSI_NAMESPACE.toString, "nil")
+        // we sort here, since sameElements is not order independent
+        val nsbACompare = nsbA.toString().trim.split(" ").sorted
+        val nsbBCompare = nsbB.toString().trim.split(" ").sorted
 
         if (labelA != labelB) {
           // different label
           List((zPath, labelA, labelB))
+        } else if (checkPrefixes && prefixA != prefixB) {
+          // different prefix
+          List((zPath, prefixA, prefixB))
+        } else if (checkNamespaces && !nsbACompare.sameElements(nsbBCompare)) {
+          // different namespace bindings
+          List((zPath, nsbA.toString(), nsbB.toString()))
         } else if (nilledA != nilledB) {
           // different xsi:nil
           List((zPath + "/" + labelA + "@xsi:nil",
@@ -893,7 +933,15 @@ Differences were (path, expected, actual):
               countMap(ca.label) += 1
               count + 1
             }
-            computeDiffOne(ca, cb, maybeChildIndex, thisPathStep, ignoreProcInstr, maybeType)
+            computeDiffOne(
+              ca,
+              cb,
+              maybeChildIndex,
+              thisPathStep,
+              ignoreProcInstr,
+              checkPrefixes,
+              checkNamespaces,
+              maybeType)
           }
 
           // if childrenA and childrenB have different length, zip will drop an
@@ -1009,7 +1057,9 @@ Differences were (path, expected, actual):
     dataB: String,
     maybeType: Option[String]): Seq[(String, String, String)] = {
 
-    if (maybeType.isDefined && maybeType.get == "xs:anyURI") computeBlobDiff(zPath, dataA, dataB)
+    val hasBlobType = maybeType.isDefined && maybeType.get == "xs:anyURI"
+    val dataLooksLikeBlobURI = Seq(dataA, dataB).forall(_.startsWith("file://"))
+    if (hasBlobType || dataLooksLikeBlobURI) computeBlobDiff(zPath, dataA, dataB)
     else if (textIsSame(dataA, dataB, maybeType)) Nil
     else {
       // There must be some difference, so let's find just the first index of

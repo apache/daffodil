@@ -80,9 +80,9 @@ class TestSimpleTypeUnions {
     val Seq(st1, st2) = u.unionMemberTypes
     st1.asInstanceOf[GlobalSimpleTypeDef].globalQName.toQNameString
     val st1n = st1.diagnosticDebugName
-    assertEquals("ex:int1Type", st1n)
+    assertEquals("int1Type", st1n)
     val st2n = st2.diagnosticDebugName
-    assertEquals("ex:int2Type", st2n)
+    assertEquals("int2Type", st2n)
     val st1rd = st1.simpleTypeRuntimeData
     val st2rd = st2.simpleTypeRuntimeData
     val st1mini = st1rd.minInclusive
@@ -91,15 +91,15 @@ class TestSimpleTypeUnions {
     assertTrue(st2rd.unionMemberTypes.isEmpty)
     val st2mini = st2rd.minInclusive
     assertEquals(2, st2mini.get.intValue())
-    assertEquals("ex:int1Type", st1rd.diagnosticDebugName)
-    assertEquals("ex:int2Type", st2rd.diagnosticDebugName)
+    assertEquals("int1Type", st1rd.diagnosticDebugName)
+    assertEquals("int2Type", st2rd.diagnosticDebugName)
   }
 
   @Test def testUnionFirstUnionMemberOk: Unit = {
     val (result, actual) = TestUtils.testString(testSchema1, "1")
     val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].contents(0).asInstanceOf[DISimple]
     val umstrd = i.unionMemberRuntimeData.get
-    assertEquals("ex:int1Type", umstrd.diagnosticDebugName)
+    assertEquals("int1Type", umstrd.diagnosticDebugName)
     assertTrue(i.valid.get)
     val expected = <e1>1</e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
@@ -109,7 +109,7 @@ class TestSimpleTypeUnions {
     val (result, actual) = TestUtils.testString(testSchema1, "2")
     val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].contents(0).asInstanceOf[DISimple]
     val umstrd = i.unionMemberRuntimeData.get
-    assertEquals("ex:int2Type", umstrd.diagnosticDebugName)
+    assertEquals("int2Type", umstrd.diagnosticDebugName)
     assertTrue(i.valid.get)
     val expected = <e1>2</e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
@@ -128,13 +128,13 @@ class TestSimpleTypeUnions {
     assertTrue(d.isInstanceOf[ValidationError])
     val msg = d.getMessage()
     def die = { println(msg); fail() }
-    if (!msg.contains("ex:e1"))
+    if (!msg.contains("e1"))
       die
     if (!msg.contains("union members"))
       die
-    if (!msg.contains("ex:int1Type"))
+    if (!msg.contains("int1Type"))
       die
-    if (!msg.contains("ex:int2Type"))
+    if (!msg.contains("int2Type"))
       die
     if (!msg.contains("failed facet checks"))
       die
@@ -216,13 +216,13 @@ class TestSimpleTypeUnions {
     assertTrue(d.isInstanceOf[ValidationError])
     val msg = d.getMessage()
     def die = { println(msg); fail() }
-    if (!msg.contains("ex:e1"))
+    if (!msg.contains("e1"))
       die
     if (!msg.contains("union members"))
       die
-    if (!msg.contains("ex:int12or47Type"))
+    if (!msg.contains("int12or47Type"))
       die
-    if (!msg.contains("ex:negIntType"))
+    if (!msg.contains("negIntType"))
       die
     if (!msg.contains("failed facet checks"))
       die
@@ -232,7 +232,7 @@ class TestSimpleTypeUnions {
     val (result, actual) = TestUtils.testString(testSchema2, "1")
     val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].contents(0).asInstanceOf[DISimple]
     val umstrd = i.unionMemberRuntimeData.get
-    assertEquals("ex:int12Type", umstrd.diagnosticDebugName)
+    assertEquals("int12Type", umstrd.diagnosticDebugName)
     assertTrue(i.valid.get)
     val expected = <e1>1</e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
@@ -242,7 +242,7 @@ class TestSimpleTypeUnions {
     val (result, actual) = TestUtils.testString(testSchema2, "2")
     val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].contents(0).asInstanceOf[DISimple]
     val umstrd = i.unionMemberRuntimeData.get
-    assertEquals("ex:int12Type", umstrd.diagnosticDebugName)
+    assertEquals("int12Type", umstrd.diagnosticDebugName)
     assertTrue(i.valid.get)
     val expected = <e1>2</e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
@@ -252,7 +252,7 @@ class TestSimpleTypeUnions {
     val (result, actual) = TestUtils.testString(testSchema2, "-1")
     val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].contents(0).asInstanceOf[DISimple]
     val umstrd = i.unionMemberRuntimeData.get
-    assertEquals("ex:negIntType", umstrd.diagnosticDebugName) // anonymous simple type gets this name from base.
+    assertEquals("negIntType", umstrd.diagnosticDebugName) // anonymous simple type gets this name from base.
     assertTrue(i.valid.get)
     val expected = <e1>-1</e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
@@ -309,7 +309,7 @@ class TestSimpleTypeUnions {
     val (result, actual) = TestUtils.testString(testSchema3, "foo3bar")
     val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].contents(0).asInstanceOf[DISimple]
     val umstrd = i.unionMemberRuntimeData.get
-    assertEquals("ex:foo3or4bar", umstrd.diagnosticDebugName)
+    assertEquals("foo3or4bar", umstrd.diagnosticDebugName)
     assertTrue(i.valid.get)
     val expected = <e1>foo3bar</e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
@@ -319,7 +319,7 @@ class TestSimpleTypeUnions {
     val (result, actual) = TestUtils.testString(testSchema3, "foo1bar")
     val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].contents(0).asInstanceOf[DISimple]
     val umstrd = i.unionMemberRuntimeData.get
-    assertEquals("ex:foo1or2bar", umstrd.diagnosticDebugName)
+    assertEquals("foo1or2bar", umstrd.diagnosticDebugName)
     assertTrue(i.valid.get)
     val expected = <e1>foo1bar</e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
@@ -329,7 +329,7 @@ class TestSimpleTypeUnions {
     val (result, actual) = TestUtils.testString(testSchema3, "foo2bar")
     val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].contents(0).asInstanceOf[DISimple]
     val umstrd = i.unionMemberRuntimeData.get
-    assertEquals("ex:foo1or2bar", umstrd.diagnosticDebugName)
+    assertEquals("foo1or2bar", umstrd.diagnosticDebugName)
     assertTrue(i.valid.get)
     val expected = <e1>foo2bar</e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
@@ -348,13 +348,13 @@ class TestSimpleTypeUnions {
     assertTrue(d.isInstanceOf[ValidationError])
     val msg = d.getMessage()
     def die = { println(msg); fail() }
-    if (!msg.contains("ex:e1"))
+    if (!msg.contains("e1"))
       die
     if (!msg.contains("union members"))
       die
-    if (!msg.contains("ex:foo1or2bar"))
+    if (!msg.contains("foo1or2bar"))
       die
-    if (!msg.contains("ex:foo3or4bar"))
+    if (!msg.contains("foo3or4bar"))
       die
     if (!msg.contains("failed facet checks"))
       die
@@ -377,7 +377,7 @@ class TestSimpleTypeUnions {
     assertTrue(d.isInstanceOf[ValidationError])
     val msg = d.getMessage()
     def die = { println(msg); fail() }
-    if (!msg.contains("ex:e1"))
+    if (!msg.contains("e1"))
       die
     if (!msg.contains("facet pattern"))
       die

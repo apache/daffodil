@@ -19,19 +19,21 @@ package org.apache.daffodil.processors
 
 import java.io.File
 import java.io.IOException
+import java.io.InputStream
 import java.io.ObjectOutputStream
 import java.nio.CharBuffer
 import java.nio.LongBuffer
 import java.nio.channels.Channels
 import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
 import java.util.zip.GZIPOutputStream
 
 import scala.collection.immutable.Queue
+import scala.collection.mutable
 
-import org.xml.sax.ErrorHandler
-import org.xml.sax.SAXException
-import org.xml.sax.SAXParseException
-
+import org.apache.daffodil.Implicits._; object INoWarn4 {
+  ImplicitsSuppressUnusedImportWarning() }
 import org.apache.daffodil.api.DFDL
 import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.api.ValidationMode
@@ -39,9 +41,11 @@ import org.apache.daffodil.api.WithDiagnostics
 import org.apache.daffodil.debugger.Debugger
 import org.apache.daffodil.dsom.TunableLimitExceededError
 import org.apache.daffodil.dsom._
-import org.apache.daffodil.equality._; object EqualityNoWarn3 { EqualitySuppressUnusedImportWarning() }
+import org.apache.daffodil.equality._; object EqualityNoWarn3 {
+  EqualitySuppressUnusedImportWarning() }
 import org.apache.daffodil.events.MultipleEventHandler
 import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.exceptions.SchemaFileLocation
 import org.apache.daffodil.exceptions.UnsuppressableException
 import org.apache.daffodil.externalvars.Binding
 import org.apache.daffodil.externalvars.ExternalVariablesLoader
@@ -50,6 +54,7 @@ import org.apache.daffodil.infoset.InfosetElement
 import org.apache.daffodil.infoset.InfosetException
 import org.apache.daffodil.infoset.InfosetInputter
 import org.apache.daffodil.infoset.InfosetOutputter
+import org.apache.daffodil.infoset.SAXInfosetOutputter
 import org.apache.daffodil.infoset.TeeInfosetOutputter
 import org.apache.daffodil.infoset.XMLTextInfosetOutputter
 import org.apache.daffodil.io.BitOrderChangeException
@@ -68,6 +73,17 @@ import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe._
 import org.apache.daffodil.util.Misc
 import org.apache.daffodil.util.Validator
+import org.apache.daffodil.xml.XMLUtils
+import org.xml.sax.ContentHandler
+import org.xml.sax.DTDHandler
+import org.xml.sax.EntityResolver
+import org.xml.sax.ErrorHandler
+import org.xml.sax.InputSource
+import org.xml.sax.SAXException
+import org.xml.sax.SAXNotRecognizedException
+import org.xml.sax.SAXNotSupportedException
+import org.xml.sax.SAXParseException
+
 
 /**
  * Implementation mixin - provides simple helper methods
@@ -336,6 +352,8 @@ class DataProcessor private (
   override def isError = false // really there is no compiling at all currently, so there can be no errors.
 
   override def getDiagnostics = ssrd.diagnostics
+
+  override def newXMLReaderInstance: DFDL.DaffodilXMLReader = new DaffodilXMLReader(this)
 
   def save(output: DFDL.Output): Unit = {
 
@@ -733,5 +751,170 @@ class UnparseResult(dp: DataProcessor, ustate: UState)
     // we're not supporting runtime-calculated encodings yet so not
     // capturing that information (what the actual runtime-value of encoding was
     encodingInfo.knownEncodingName
+  }
+}
+
+class DaffodilXMLReader(dp: DataProcessor) extends DFDL.DaffodilXMLReader {
+  private var contentHandler: ContentHandler = _
+  private var errorHandler: ErrorHandler = _
+  private var dtdHandler: DTDHandler = _
+  private var entityResolver: EntityResolver = _
+  private val saxNamespaceFeature = "http://xml.org/sax/features/namespaces"
+  private val saxNamespacePrefixFeature = "http://xml.org/sax/features/namespace-prefixes"
+  var saxParseResultProperty: ParseResult = _
+  var saxBlobDirectoryProperty: Path = Paths.get(System.getProperty("java.io.tmpdir"))
+  var saxBlobPrefixProperty: String = "daffodil-sax-"
+  var saxBlobSuffixProperty: String = ".blob"
+
+  private val featureMap = mutable.Map[String, Boolean](saxNamespaceFeature -> false,
+    saxNamespacePrefixFeature -> false)
+
+  override def getFeature(name: String): Boolean = {
+    if (name == saxNamespaceFeature || name == saxNamespacePrefixFeature) {
+      featureMap(name)
+    } else {
+      throw new SAXNotRecognizedException("Feature unsupported: " + name + ".\n" +
+        "Supported features are: " + featureMap.keys.mkString(", "))
+      false
+    }
+  }
+
+  override def setFeature(name: String, value: Boolean): Unit = {
+    if (name == saxNamespaceFeature || name == saxNamespacePrefixFeature) {
+      featureMap(name) = value
+    } else {
+      throw new SAXNotRecognizedException("Feature unsupported: " + name + ".\n" +
+        "Supported features are: " + featureMap.keys.mkString(", "))
+    }
+  }
+
+  override def getProperty(name: String): AnyRef = {
+    val prop = name match {
+      case XMLUtils.DAFFODIL_SAX_URN_PARSERESULT => saxParseResultProperty
+      case XMLUtils.DAFFODIL_SAX_URN_BLOBDIRECTORY => saxBlobDirectoryProperty
+      case XMLUtils.DAFFODIL_SAX_URN_BLOBPREFIX => saxBlobPrefixProperty
+      case XMLUtils.DAFFODIL_SAX_URN_BLOBSUFFIX => saxBlobSuffixProperty
+      case _ =>
+        throw new SAXNotRecognizedException("Property unsupported: " + name + ".")
+    }
+    prop
+  }
+
+  override def setProperty(name: String, value: AnyRef): Unit = {
+    try {
+      name match {
+        case XMLUtils.DAFFODIL_SAX_URN_BLOBDIRECTORY => saxBlobDirectoryProperty =
+          value.asInstanceOf[Path]
+        case XMLUtils.DAFFODIL_SAX_URN_BLOBPREFIX => saxBlobPrefixProperty = value
+          .asInstanceOf[String]
+        case XMLUtils.DAFFODIL_SAX_URN_BLOBSUFFIX => saxBlobSuffixProperty = value
+          .asInstanceOf[String]
+        case _ =>
+          throw new SAXNotRecognizedException("Property unsupported: " + name + ".")
+      }
+    } catch {
+      case _: ClassCastException =>
+        throw new SAXNotSupportedException("Unsupported value for property: " + name + "." )
+    }
+  }
+
+  override def setEntityResolver(resolver: EntityResolver): Unit = {
+    entityResolver = resolver
+  }
+
+  override def getEntityResolver: EntityResolver = entityResolver
+
+  override def setDTDHandler(handler: DTDHandler): Unit = {
+    dtdHandler = handler
+  }
+
+  override def getDTDHandler: DTDHandler = dtdHandler
+
+  override def setContentHandler(handler: ContentHandler): Unit = {
+    contentHandler = handler;
+  }
+
+  override def getContentHandler: ContentHandler = contentHandler
+
+  override def setErrorHandler(handler: ErrorHandler): Unit = {
+    errorHandler = handler;
+  }
+
+  override def getErrorHandler: ErrorHandler = errorHandler
+
+  override def parse(input: InputSource): Unit = {
+    val is = input.getByteStream
+    if (is != null) {
+      val isdis = InputSourceDataInputStream(is)
+      parse(isdis)
+    } else {
+      throw new IOException("Inputsource must be backed by Inputstream")
+    }
+  }
+
+  override def parse(systemId: String): Unit = {
+    throw new IOException("SAX parsing of systemId is unsupported")
+  }
+
+  def parse(isdis: InputSourceDataInputStream): Unit = {
+    val sio = createSAXInfosetOutputter(this)
+    val pr = dp.parse(isdis, sio)
+    handleDiagnostics(pr)
+    saxParseResultProperty = pr .asInstanceOf[ParseResult]
+  }
+
+  def parse(stream: InputStream): Unit = {
+    val isdis = InputSourceDataInputStream(stream)
+    parse(isdis)
+  }
+
+  def parse(arr: Array[Byte]): Unit = {
+    val isdis = InputSourceDataInputStream(arr)
+    parse(isdis)
+  }
+
+  private def handleDiagnostics(pr: DFDL.ParseResult): Unit = {
+    val diagnostics = pr.getDiagnostics
+    val eh = this.getErrorHandler
+    if (diagnostics.nonEmpty && eh != null) {
+      diagnostics.foreach { d =>
+        val spe = {
+          val msg = d.getMessage()
+          val (lineNo, colNo, systemId) = d.getLocationsInSchemaFiles.headOption.map { s =>
+            val sl = s.asInstanceOf[SchemaFileLocation]
+            val ln = sl.lineNumber.getOrElse("0").toInt
+            val cn = sl.columnNumber.getOrElse("0").toInt
+            val sId = sl.uriString
+            (ln, cn, sId)
+          }.getOrElse((0,0, null))
+
+          val spe = new SAXParseException(msg, null, systemId, lineNo, colNo, d)
+          spe
+        }
+
+        if (d.isError) {
+          eh.error(spe)
+        } else {
+          eh.warning(spe)
+        }
+      }
+    }
+  }
+
+  /**
+   * Creates SAXInfosetOutputter object and attempts to setBlobAttributes on it if
+   * it has at least the blobDirectory property set
+   *
+   * @return SAXInfosetOutputter object with or without blob Attributes set
+   */
+  private def createSAXInfosetOutputter(xmlReader: DaffodilXMLReader): SAXInfosetOutputter = {
+    val sioo = new SAXInfosetOutputter(xmlReader)
+    val siof = try {
+      sioo.setBlobAttributes(saxBlobDirectoryProperty, saxBlobPrefixProperty, saxBlobSuffixProperty)
+      sioo
+    } catch {
+      case e: SAXNotSupportedException => sioo
+    }
+    siof
   }
 }

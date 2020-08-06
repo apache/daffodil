@@ -99,11 +99,11 @@ class JDOMInfosetOutputter extends InfosetOutputter
 
   private def createElement(diElement: DIElement): org.jdom2.Element = {
     val elem: org.jdom2.Element =
-      if(diElement.erd.thisElementsNamespace.isNoNamespace)
+      if(diElement.erd.namedQName.namespace.isNoNamespace)
         new org.jdom2.Element(diElement.erd.name)
       else
-        new org.jdom2.Element(diElement.erd.name, diElement.erd.thisElementsNamespacePrefix,
-          diElement.erd.thisElementsNamespace)
+        new org.jdom2.Element(diElement.erd.name, diElement.erd.namedQName.prefixOrNull,
+          diElement.erd.namedQName.namespace)
 
     if (isNilled(diElement)) {
       elem.setAttribute("nil", "true", xsiNS)

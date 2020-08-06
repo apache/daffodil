@@ -191,9 +191,6 @@ trait ElementBase
    */
   def isArrayWithAtLeastOneRequiredArrayElement: Boolean
 
-  final protected lazy val thisElementsNamespace: NS = this.namedQName.namespace
-  final protected lazy val thisElementsNamespacePrefix: String = this.namespaces.getPrefix(thisElementsNamespace.toString)
-
   private def nsBindingsToSet(nsb: NamespaceBinding): Set[(String, NS)] = {
     if (nsb == scala.xml.TopScope) Set()
     else {
@@ -207,7 +204,7 @@ trait ElementBase
     val childrenRequiredNSBindings =
       this.elementChildren.flatMap { _.thisElementsRequiredNamespaceBindings }.toSet
 
-    val myRequiredNSBinding = Set((thisElementsNamespacePrefix, thisElementsNamespace))
+    val myRequiredNSBinding = Set((namedQName.prefixOrNull, namedQName.namespace))
     val nilNSBinding = {
       if (!isNillable) Set()
       else {

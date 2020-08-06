@@ -20,6 +20,7 @@ package org.apache.daffodil.api
 import org.apache.daffodil.processors.ProcessorResult
 import org.apache.daffodil.processors.Success
 import java.io.File
+
 import org.apache.daffodil.processors.VariableMap
 import org.apache.daffodil.externalvars.Binding
 import org.apache.daffodil.infoset.InfosetInputter
@@ -179,7 +180,10 @@ object DFDL {
     @deprecated("Use withTunables.", "2.6.0")
     def setTunables(tunables: Map[String,String]): Unit
 
-
+    /**
+     * Creates a new instance of XMLReader for SAX Parsing/Unparsing
+     */
+    def newXMLReaderInstance: DaffodilXMLReader
 
     /**
      * Unparses (that is, serializes) data to the output, returns an object which contains any diagnostics.
@@ -190,6 +194,12 @@ object DFDL {
      * Returns an object which contains the result, and/or diagnostic information.
      */
     def parse(input: InputSourceDataInputStream, output: InfosetOutputter): ParseResult
+  }
+
+  trait DaffodilXMLReader extends org.xml.sax.XMLReader {
+    def parse(is: java.io.InputStream): Unit
+    def parse(in: InputSourceDataInputStream): Unit
+    def parse(ab: Array[Byte]): Unit
   }
 
   trait ParseResult extends Result with WithDiagnostics {

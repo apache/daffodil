@@ -17,16 +17,29 @@
 
 package org.apache.daffodil.tdml
 
+import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.FileNotFoundException
+import java.io.InputStream
+import java.io.OutputStream
 import java.net.URI
+import java.nio.ByteBuffer
+import java.nio.CharBuffer
+import java.nio.LongBuffer
+import java.nio.charset.CoderResult
+import java.nio.charset.{Charset => JavaCharset}
+import java.nio.file.Files
 
-import scala.xml.Node
+import scala.language.postfixOps
+import scala.util.Try
 import scala.xml.Elem
+import scala.xml.Node
 import scala.xml.NodeSeq
 import scala.xml.NodeSeq.seqToNodeSeq
 import scala.xml.SAXParseException
 import scala.xml.transform._
+
+import org.apache.commons.io.IOUtils
 import org.apache.daffodil.api.DaffodilSchemaSource
 import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.api.DataLocation
@@ -35,56 +48,40 @@ import org.apache.daffodil.api.EmbeddedSchemaSource
 import org.apache.daffodil.api.URISchemaSource
 import org.apache.daffodil.api.UnitTestSchemaSource
 import org.apache.daffodil.api.ValidationMode
+import org.apache.daffodil.configuration.ConfigurationLoader
+import org.apache.daffodil.cookers.EntityReplacer
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.exceptions.UnsuppressableException
 import org.apache.daffodil.externalvars.Binding
+import org.apache.daffodil.io.FormatInfo
+import org.apache.daffodil.io.InputSourceDataInputStream
+import org.apache.daffodil.processors.HasSetDebugger
+import org.apache.daffodil.processors.charset.BitsCharsetDecoder
+import org.apache.daffodil.processors.charset.BitsCharsetEncoder
+import org.apache.daffodil.processors.charset.BitsCharsetNonByteSize
+import org.apache.daffodil.processors.charset.BitsCharsetNonByteSizeEncoder
+import org.apache.daffodil.processors.charset.CharsetUtils
+import org.apache.daffodil.schema.annotation.props.gen.BinaryFloatRep
+import org.apache.daffodil.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.schema.annotation.props.gen.ByteOrder
+import org.apache.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
+import org.apache.daffodil.schema.annotation.props.gen.UTF16Width
+import org.apache.daffodil.tdml.processor.AbstractTDMLDFDLProcessorFactory
+import org.apache.daffodil.tdml.processor.TDML
+import org.apache.daffodil.tdml.processor.TDMLDFDLProcessor
+import org.apache.daffodil.tdml.processor.TDMLParseResult
+import org.apache.daffodil.tdml.processor.TDMLResult
+import org.apache.daffodil.tdml.processor.TDMLUnparseResult
 import org.apache.daffodil.util.LogLevel
 import org.apache.daffodil.util.Logging
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.MaybeInt
 import org.apache.daffodil.util.Misc
 import org.apache.daffodil.util.Misc.bits2Bytes
 import org.apache.daffodil.util.Misc.hex2Bits
 import org.apache.daffodil.util.SchemaUtils
 import org.apache.daffodil.xml.DaffodilXMLLoader
-import org.apache.daffodil.xml._
-import org.apache.daffodil.processors.charset.CharsetUtils
-import java.nio.ByteBuffer
-import java.nio.CharBuffer
-import java.nio.LongBuffer
-import java.nio.charset.CoderResult
-import java.io.ByteArrayInputStream
-
-import scala.language.postfixOps
-import java.nio.file.Files
-import java.io.InputStream
-
-import org.apache.commons.io.IOUtils
-import org.apache.daffodil.cookers.EntityReplacer
-import org.apache.daffodil.configuration.ConfigurationLoader
-import org.apache.daffodil.schema.annotation.props.gen.BitOrder
-import org.apache.daffodil.schema.annotation.props.gen.ByteOrder
-import org.apache.daffodil.schema.annotation.props.gen.BinaryFloatRep
-import org.apache.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
-import org.apache.daffodil.schema.annotation.props.gen.UTF16Width
-import org.apache.daffodil.util.MaybeInt
-import org.apache.daffodil.util.Maybe
-import org.apache.daffodil.processors.charset.BitsCharsetDecoder
-import org.apache.daffodil.processors.charset.BitsCharsetEncoder
-import org.apache.daffodil.processors.charset.BitsCharsetNonByteSize
-import org.apache.daffodil.processors.charset.BitsCharsetNonByteSizeEncoder
-import org.apache.daffodil.io.FormatInfo
-import org.apache.daffodil.io.InputSourceDataInputStream
-import java.nio.charset.{Charset => JavaCharset}
-import java.io.OutputStream
-
-import org.apache.daffodil.tdml.processor.TDMLParseResult
-import org.apache.daffodil.tdml.processor.TDMLDFDLProcessor
-import org.apache.daffodil.tdml.processor.TDMLResult
-import org.apache.daffodil.tdml.processor.TDMLUnparseResult
-import org.apache.daffodil.tdml.processor.TDML
-import org.apache.daffodil.tdml.processor.AbstractTDMLDFDLProcessorFactory
-
-import scala.util.Try
-import org.apache.daffodil.processors.HasSetDebugger
+import org.apache.daffodil.xml.XMLUtils
 
 /**
  * Parses and runs tests expressed in IBM's contributed tdml "Test Data Markup Language"
@@ -860,7 +857,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       if (processor.isError || optExtVarDiag.isDefined) {
         val noParseResult: TDMLParseResult = null
         val allDiags: Seq[Diagnostic] = processor.getDiagnostics ++ optExtVarDiag
-        (noParseResult, allDiags , true)
+        (noParseResult, allDiags, true)
       } else {
         val actual =
           try {

@@ -24,17 +24,19 @@ import static org.junit.Assert.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.nio.channels.Channel;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.daffodil.infoset.DaffodilOutputContentHandler;
 import org.apache.daffodil.japi.*;
+import org.apache.daffodil.japi.infoset.XMLTextInfosetOutputter;
+import org.apache.daffodil.xml.XMLUtils;
 import org.jdom2.output.Format;
 import org.junit.Test;
 
@@ -955,4 +957,88 @@ public class TestJavaAPI {
       }
     }
 
+    @Test
+    public void testJavaAPI20() throws IOException, ClassNotFoundException {
+        // Test SAX parsing
+        org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
+        java.io.File schemaFile = getResource("/test/japi/mySchema1.dfdl.xsd");
+        ProcessorFactory pf = c.compileFile(schemaFile);
+        DataProcessor dp = pf.onPath("/");
+        dp = reserializeDataProcessor(dp);
+        DaffodilXMLReader xri = dp.newXMLReaderInstance();
+
+        java.io.File file = getResource("/test/japi/myData.dat");
+        java.io.FileInputStream fisDP = new java.io.FileInputStream(file);
+        java.io.FileInputStream fisSAX = new java.io.FileInputStream(file);
+        InputSourceDataInputStream disDP = new InputSourceDataInputStream(fisDP);
+        InputSourceDataInputStream disSAX = new InputSourceDataInputStream(fisSAX);
+        ByteArrayOutputStream xmlBos = new ByteArrayOutputStream();
+        XMLTextInfosetOutputter outputter = new XMLTextInfosetOutputter(xmlBos, true);
+        ParseResult res = dp.parse(disDP, outputter);
+        String infosetDPString = xmlBos.toString();
+
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        DaffodilOutputContentHandler contentHandler = new DaffodilOutputContentHandler(bos, true);
+        SAXErrorHandlerForJAPITest errorHandler = new SAXErrorHandlerForJAPITest();
+        xri.setContentHandler(contentHandler);
+        xri.setErrorHandler(errorHandler);
+        xri.setProperty(XMLUtils.DAFFODIL_SAX_URN_BLOBDIRECTORY(),
+                Paths.get(System.getProperty("java.io.tmpdir")));
+        xri.setProperty(XMLUtils.DAFFODIL_SAX_URN_BLOBPREFIX(),
+                "daffodil-sapi-");
+        xri.setProperty(XMLUtils.DAFFODIL_SAX_URN_BLOBSUFFIX(),
+                ".sax.blob");
+        xri.parse(disSAX);
+        org.apache.daffodil.processors.ParseResult resSAX =
+                (org.apache.daffodil.processors.ParseResult) xri.getProperty(
+                        XMLUtils.DAFFODIL_SAX_URN_PARSERESULT());
+        boolean err = errorHandler.isError();
+        ArrayList<Diagnostic> diags = errorHandler.getDiagnostics();
+        String infosetSAXString = bos.toString();
+
+        assertFalse(err);
+        assertTrue(resSAX.resultState().currentLocation().isAtEnd());
+        assertTrue(diags.isEmpty());
+        assertEquals(infosetDPString, infosetSAXString);
+    }
+
+
+    @Test
+    public void testJavaAPI21() throws IOException, ClassNotFoundException {
+        // Test SAX parsing with errors
+        org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
+        java.io.File schemaFile = getResource("/test/japi/mySchema1.dfdl.xsd");
+        ProcessorFactory pf = c.compileFile(schemaFile);
+        DataProcessor dp = pf.onPath("/");
+        dp = reserializeDataProcessor(dp);
+        DaffodilXMLReader xri = dp.newXMLReaderInstance();
+
+        java.io.File file = getResource("/test/japi/myDataBroken.dat");
+        java.io.FileInputStream fis = new java.io.FileInputStream(file);
+        InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
+
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        DaffodilOutputContentHandler contentHandler = new DaffodilOutputContentHandler(bos, false);
+        SAXErrorHandlerForJAPITest errorHandler = new SAXErrorHandlerForJAPITest();
+        xri.setContentHandler(contentHandler);
+        xri.setErrorHandler(errorHandler);
+        xri.setProperty(XMLUtils.DAFFODIL_SAX_URN_BLOBDIRECTORY(),
+                Paths.get(System.getProperty("java.io.tmpdir")));
+        xri.setProperty(XMLUtils.DAFFODIL_SAX_URN_BLOBPREFIX(), "daffodil-sapi-");
+        xri.setProperty(XMLUtils.DAFFODIL_SAX_URN_BLOBSUFFIX(), ".sax.blob");
+        xri.parse(dis);
+        boolean err = errorHandler.isError();
+        ArrayList<Diagnostic> diags = errorHandler.getDiagnostics();
+
+        assertTrue(err);
+        assertEquals(1, diags.size());
+        Diagnostic d = diags.get(0);
+        assertTrue(d.getMessage().contains("int"));
+        assertTrue(d.getMessage().contains("Not an int"));
+        assertTrue(d.getDataLocations().toString().contains("10"));
+        java.util.List<LocationInSchemaFile> locs = d.getLocationsInSchemaFiles();
+        assertEquals(1, locs.size());
+        LocationInSchemaFile loc = locs.get(0);
+        assertTrue(loc.toString().contains("mySchema1.dfdl.xsd"));
+    }
 }

@@ -561,7 +561,6 @@ sealed class ElementRuntimeData(
   defaultBitOrderArg: BitOrder,
   @TransientParam optPrimTypeArg: => Option[PrimType],
   @TransientParam targetNamespaceArg: => NS,
-  @TransientParam thisElementsNamespaceArg: => NS,
   @TransientParam optSimpleTypeRuntimeDataArg: => Option[SimpleTypeRuntimeData],
   @TransientParam optComplexTypeModelGroupRuntimeDataArg: => Option[ModelGroupRuntimeData],
   @TransientParam minOccursArg: => Long,
@@ -569,7 +568,6 @@ sealed class ElementRuntimeData(
   @TransientParam maybeOccursCountKindArg: => Maybe[OccursCountKind],
   @TransientParam nameArg: => String,
   @TransientParam targetNamespacePrefixArg: => String,
-  @TransientParam thisElementsNamespacePrefixArg: => String,
   @TransientParam isNillableArg: => Boolean,
   @TransientParam isArrayArg: => Boolean, // can have more than 1 occurrence
   @TransientParam isOptionalArg: => Boolean, // can have only 0 or 1 occurrence
@@ -617,7 +615,6 @@ sealed class ElementRuntimeData(
   lazy val minimizedScope = minimizedScopeArg
   lazy val optPrimType = optPrimTypeArg
   lazy val targetNamespace = targetNamespaceArg
-  lazy val thisElementsNamespace = thisElementsNamespaceArg
   lazy val optSimpleTypeRuntimeData = optSimpleTypeRuntimeDataArg
   lazy val optComplexTypeModelGroupRuntimeData = optComplexTypeModelGroupRuntimeDataArg
   lazy val minOccurs = minOccursArg
@@ -625,7 +622,6 @@ sealed class ElementRuntimeData(
   lazy val maybeOccursCountKind = maybeOccursCountKindArg
   lazy val name = nameArg
   lazy val targetNamespacePrefix = targetNamespacePrefixArg
-  lazy val thisElementsNamespacePrefix = thisElementsNamespacePrefixArg
   lazy val isNillable = isNillableArg
   override lazy val isArray = isArrayArg
   lazy val isOptional = isOptionalArg
@@ -648,7 +644,6 @@ sealed class ElementRuntimeData(
     minimizedScope
     optPrimType
     targetNamespace
-    thisElementsNamespace
     optSimpleTypeRuntimeData
     optComplexTypeModelGroupRuntimeData
     minOccurs
@@ -656,7 +651,6 @@ sealed class ElementRuntimeData(
     maybeOccursCountKind
     name
     targetNamespacePrefix
-    thisElementsNamespacePrefix
     isNillable
     isArray
     isOptional
@@ -685,8 +679,8 @@ sealed class ElementRuntimeData(
   def isComplexType = !isSimpleType
 
   def prefixedName = {
-    if (thisElementsNamespacePrefix != null) {
-      thisElementsNamespacePrefix + ":" + name
+    if (namedQName.prefixOrNull != null) {
+      namedQName.prefixOrNull + ":" + name
     } else {
       name
     }
@@ -744,7 +738,6 @@ sealed abstract class ErrorERD(local: String, namespaceURI: String)
     null, //defaultBitOrderArg: => BitOrder,
     None, // optPrimTypeArg: => Option[PrimType],
     null, // targetNamespaceArg: => NS,
-    NS(namespaceURI), // thisElementsNamespaceArg: => NS,
     null, // optSimpleTypeRuntimeDataArg: => Option[SimpleTypeRuntimeData],
     null, // optComplexTypeModelGroupRuntimeDataArg: => Option[ModelGroupRuntimeData],
     0L, // minOccursArg: => Long,
@@ -752,7 +745,6 @@ sealed abstract class ErrorERD(local: String, namespaceURI: String)
     Nope, // maybeOccursCountKindArg: => Maybe[OccursCountKind],
     local, // nameArg: => String,
     null, // targetNamespacePrefixArg: => String,
-    null, // thisElementsNamespacePrefixArg: => String,
     false, // isNillableArg: => Boolean,
     false, // isArrayArg: => Boolean, // can have more than 1 occurrence
     false, // isOptionalArg: => Boolean, // can have only 0 or 1 occurrence
@@ -816,7 +808,7 @@ final class NamespaceAmbiguousElementErrorERD(
    * is what was expected.
    */
   def toUnparseError(nothingWasExpected: Boolean = false) = {
-    val sqn = StepQName(None, name, thisElementsNamespace)
+    val sqn = StepQName(None, name, namedQName.namespace)
     val sqnx = sqn.toExtendedSyntax
     val allPossiblesString =
       allPossibleNQNs.map { _.toExtendedSyntax }.mkString(", ")
