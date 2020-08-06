@@ -9,18 +9,18 @@ import os.{ Path, Pipe }
 class GeneratedCodeCompiler(pf: ProcessorFactory) {
   private var executableFile: Path = _
 
-  // Original method now used only for tiny program compilation unit testing
+  // Original method now used only for hello world compilation unit testing
   def compile(codeGeneratorState: CodeGeneratorState): Unit = {
     val code = codeGeneratorState.viewCode
     val tempDir = os.temp.dir()
     val tempCodeFile = tempDir / "code.c"
     val tempExe = tempDir / "exe"
-    executableFile = null
     try {
+      executableFile = null
       os.write(tempCodeFile, code)
-      val result = os.proc("gcc", tempCodeFile, "-o", tempExe).call(stderr = Pipe)
+      val result = os.proc("/usr/bin/gcc", tempCodeFile, "-o", tempExe).call(cwd = tempDir, stderr = Pipe)
       if (!result.out.text.isEmpty || !result.err.text.isEmpty) {
-        pf.sset.SDW(null, "Captured warning messages\n" + result.out.text + result.err.text)
+        pf.sset.SDW(null, "Unexpected generated code compiler output:\n" + result.out.text + result.err.text)
       }
       executableFile = tempExe
     } catch {
@@ -30,7 +30,7 @@ class GeneratedCodeCompiler(pf: ProcessorFactory) {
     }
   }
 
-  // New method, now generates all of the C code needed to parse an input stream
+  // New method, generates all of the C code needed to parse an input stream
   def compile(rootElementName: String, codeGeneratorState: CodeGeneratorState): Unit = {
     val commonRuntimeHeader = codeGeneratorState.viewRuntimeHeader
     val commonRuntimeFile = codeGeneratorState.viewRuntimeFile
@@ -45,18 +45,18 @@ class GeneratedCodeCompiler(pf: ProcessorFactory) {
     val tempCodeFile = tempDir / "generated_data.c"
     val tempWriterHeader = tempDir / "xml_writer.h"
     val tempWriterFile = tempDir / "xml_writer.c"
-    val tempExe = tempDir / "generated_data"
-    executableFile = null
+    val tempExe = tempDir / "exe"
     try {
+      executableFile = null
       os.write(tempRuntimeHeader, commonRuntimeHeader)
       os.write(tempRuntimeFile, commonRuntimeFile)
       os.write(tempCodeHeader, generatedCodeHeader)
       os.write(tempCodeFile, generatedCodeFile)
       os.write(tempWriterHeader, xmlWriterHeader)
       os.write(tempWriterFile, xmlWriterFile)
-      val result = os.proc("gcc", "-I", ".", tempRuntimeFile, tempCodeFile, tempWriterFile, "-o", tempExe).call(stderr = Pipe)
+      val result = os.proc("/usr/bin/gcc", "-I", ".", tempRuntimeFile, tempCodeFile, tempWriterFile, "-o", tempExe).call(cwd = tempDir, stderr = Pipe)
       if (!result.out.text.isEmpty || !result.err.text.isEmpty) {
-        pf.sset.SDW(null, "Captured warning messages\n" + result.out.text + result.err.text)
+        pf.sset.SDW(null, "Unexpected generated code compiler output:\n" + result.out.text + result.err.text)
       }
       executableFile = tempExe
     } catch {
@@ -66,5 +66,5 @@ class GeneratedCodeCompiler(pf: ProcessorFactory) {
     }
   }
 
-  def dataProcessor: Runtime2DataProcessor = ???
+  def dataProcessor: Runtime2DataProcessor = new Runtime2DataProcessor(executableFile)
 }

@@ -75,8 +75,8 @@ class CodeGeneratorState(private val code: String) extends DFDL.CodeGeneratorSta
   def addComplexTypeERD(context: ElementBase): Unit = {
     val C = context.namedQName.local
     val count = structs.top.declarations.length
-    val offsetComputations = s"	(void*)&${C}_compute_ERD_offsets.e1 - (void*)&${C}_compute_ERD_offsets"
-    val erdComputations = "	&e1ERD"
+    val offsetComputations = structs.top.offsetComputations.mkString(",\n")
+    val erdComputations = structs.top.erdComputations.mkString(",\n")
     val complexERD =
       s"""$C ${C}_compute_ERD_offsets;
          |
@@ -125,7 +125,8 @@ class CodeGeneratorState(private val code: String) extends DFDL.CodeGeneratorSta
   }
 
   def pushComplexElement(context: ElementBase): Unit = {
-    structs.push(new ComplexCGState())
+    val C = context.namedQName.local
+    structs.push(new ComplexCGState(C))
   }
 
   def popComplexElement(context: ElementBase): Unit = {
@@ -153,6 +154,11 @@ class CodeGeneratorState(private val code: String) extends DFDL.CodeGeneratorSta
          |};
          |""".stripMargin
     erds += erd
+    val C = structs.top.C
+    val offsetComputation = s"	(void*)&${C}_compute_ERD_offsets.$e - (void*)&${C}_compute_ERD_offsets"
+    val erdComputation = s"	&${e}ERD"
+    structs.top.offsetComputations += offsetComputation
+    structs.top.erdComputations += erdComputation
   }
 
   def toPrimitive(primType: NodeInfo.PrimType, context: ThrowsSDE): String = {
@@ -440,8 +446,10 @@ class CodeGeneratorState(private val code: String) extends DFDL.CodeGeneratorSta
   }
 }
 
-class ComplexCGState() {
+class ComplexCGState(val C: String) {
   val declarations: mutable.ArrayBuffer[String] = mutable.ArrayBuffer[String]()
   val parserStatements: mutable.ArrayBuffer[String] = mutable.ArrayBuffer[String]()
   val unparserStatements: mutable.ArrayBuffer[String] = mutable.ArrayBuffer[String]()
+  val offsetComputations: mutable.ArrayBuffer[String] = mutable.ArrayBuffer[String]()
+  val erdComputations: mutable.ArrayBuffer[String] = mutable.ArrayBuffer[String]()
 }

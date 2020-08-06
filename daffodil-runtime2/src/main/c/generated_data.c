@@ -52,30 +52,34 @@ ERD CERD =
 
 void C_parse_self(C *instance, PState *pstate)
 {
-	// Read 4 bytes from pstate->stream
-	// should handle insufficient number of bytes
-	char buffer[4];
-	int count = fread(&buffer, sizeof(buffer), 1, pstate->stream);
-	if (count < sizeof(buffer))
 	{
-		// error handling - what do we do?
-		// longjmp to an error routine, push an error and print it, exit immediately?
+		// Read 4 bytes from pstate->stream
+		// should handle insufficient number of bytes
+		char buffer[4];
+		int count = fread(&buffer, sizeof(buffer), 1, pstate->stream);
+		if (count < sizeof(buffer))
+		{
+			// error handling - what do we do?
+			// longjmp to an error routine, push an error and print it, exit immediately?
+		}
+		instance->e1 = be32toh(*((uint32_t *)(&buffer)));
 	}
-	instance->e1 = be32toh(*((uint32_t *)(&buffer)));
 }
 
 void C_unparse_self(C *instance, UState *ustate)
 {
-	// Fill 4-byte buffer and write it to ustate->stream
-	union {
-		char c_val[4];
-		uint32_t i_val;
-	} buffer;
-	buffer.i_val = htobe32(instance->e1);
-	int count = fwrite(buffer.c_val, sizeof(buffer), 1, ustate->stream);
-	if (count < sizeof(buffer))
 	{
-		// error handling goes here...
+		// Fill 4-byte buffer and write it to ustate->stream
+		union {
+			char c_val[4];
+			uint32_t i_val;
+		} buffer;
+		buffer.i_val = htobe32(instance->e1);
+		int count = fwrite(buffer.c_val, sizeof(buffer), 1, ustate->stream);
+		if (count < sizeof(buffer))
+		{
+			// error handling goes here...
+		}
 	}
 }
 

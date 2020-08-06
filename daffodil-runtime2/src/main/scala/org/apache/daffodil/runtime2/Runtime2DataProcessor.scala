@@ -1,20 +1,31 @@
 package org.apache.daffodil.runtime2
 
 import java.io.File
+import java.io.InputStream
+import java.io.OutputStream
 
-import org.apache.daffodil.api.{ DFDL, DaffodilTunables, Diagnostic, ValidationMode }
 import org.apache.daffodil.api.DFDL.Output
+import org.apache.daffodil.api.DataLocation
+import org.apache.daffodil.api.DFDL
+import org.apache.daffodil.api.DaffodilTunables
+import org.apache.daffodil.api.Diagnostic
+import org.apache.daffodil.api.ValidationMode
 import org.apache.daffodil.externalvars.Binding
-import org.apache.daffodil.infoset.{ InfosetInputter, InfosetOutputter }
-import org.apache.daffodil.io.InputSourceDataInputStream
+import org.apache.daffodil.processors.ProcessorResult
 import org.apache.daffodil.processors.VariableMap
+import org.apache.daffodil.processors.WithDiagnosticsImpl
+import org.xml.sax.ErrorHandler
+import os.Path
+import os.Pipe
+
+import scala.xml.SAXParseException
 
 /**
  * Effectively a scala proxy object that does its work via the underlying C-code.
  * Will need to consider how to use features of underlying C-code to get infoset,
  * walk infoset, generate XML for use by TDML tests.
  */
-class Runtime2DataProcessor extends DFDL.DataProcessor {
+class Runtime2DataProcessor(executableFile: Path) extends DFDL.DataProcessorBase {
   /**
    * Returns a data processor with all the same state, but the validation mode changed to that of the argument.
    *
@@ -57,12 +68,28 @@ class Runtime2DataProcessor extends DFDL.DataProcessor {
   /**
    * Unparses (that is, serializes) data to the output, returns an object which contains any diagnostics.
    */
-  override def unparse(input: InfosetInputter, output: Output): DFDL.UnparseResult = ???
+  def unparse(input: InputStream, output: OutputStream): DFDL.UnparseResult = ???
 
   /**
    * Returns an object which contains the result, and/or diagnostic information.
    */
-  override def parse(input: InputSourceDataInputStream, output: InfosetOutputter): DFDL.ParseResult = ???
+  def parse(input: InputStream): Unit = {
+    val tempDir = os.temp.dir()
+    val infile = tempDir / "infile"
+    val outfile = tempDir / "outfile"
+    try {
+      os.write(infile, input)
+      val result = os.proc(executableFile, "-I", "xml", "-o", outfile, infile).call(cwd = tempDir, stderr = Pipe)
+      if (!result.out.text.isEmpty || !result.err.text.isEmpty) {
+        val msg = "Unexpected output:\n"  + result.out.text + result.err.text
+        System.err.println(msg)
+      }
+    } catch {
+      case e: os.SubprocessException =>
+        val msg = e.getMessage + ": err.text=" + e.result.err.text
+        System.err.println(msg)
+    }
+  }
 
   /**
    * If multiple diagnostic messages can be created by an action, then this
@@ -88,4 +115,32 @@ class Runtime2DataProcessor extends DFDL.DataProcessor {
    * then one can proceed to run the compiled entity.
    */
   override def isError: Boolean = ???
+}
+
+class ParseResult(dp: Runtime2DataProcessor, override val resultState: State)
+  extends DFDL.ParseResult
+    with WithDiagnosticsImpl
+    with ErrorHandler {
+
+  override def warning(spe: SAXParseException): Unit = {
+    resultState.validationErrorNoContext(spe)
+  }
+  override def error(spe: SAXParseException): Unit = {
+    resultState.validationErrorNoContext(spe)
+  }
+  override def fatalError(spe: SAXParseException): Unit = {
+    resultState.validationErrorNoContext(spe)
+  }
+}
+
+class State extends DFDL.State {
+  override def processorStatus: ProcessorResult = ???
+
+  override def validationStatus: Boolean = ???
+
+  override def diagnostics: Seq[Diagnostic] = ???
+
+  override def currentLocation: DataLocation = ???
+
+  def validationErrorNoContext(spe: SAXParseException): Unit = ???
 }

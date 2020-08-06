@@ -24,23 +24,22 @@ class ElementParserGenerator(context: ElementBase, contentParserGenerator: Parse
   override def generateCode(cgState: CodeGeneratorState): Unit = {
 
     if (context.isSimpleType) {
-      cgState.addSimpleTypeERD(context) // e1ERD static initializer
+      cgState.addSimpleTypeERD(context) // ERD static initializer
       contentParserGenerator.generateCode(cgState)
     } else {
       cgState.pushComplexElement(context)
       context.elementChildren.foreach { child =>
         if (child.isSimpleType) {
-          // int e1;
           cgState.addFieldDeclaration(cgState.toPrimitive(child.optPrimType.get, context), child.name)
           child.enclosedElement.generateCode(cgState)
         } else {
-          ???
-          //cgState.newFieldDeclaration(toComplexType(child), child.name) // struct, union, maybe array
+          ??? // add a child struct, union, maybe array element inside parent element
+          //cgState.addFieldDeclaration(toComplexType(child), child.name)
         }
       }
-      cgState.addStruct(context)
-      cgState.addParser(context)
-      cgState.addComplexTypeERD(context)
+      cgState.addStruct(context) // struct definition
+      cgState.addParser(context) // parse_self, unparse_self, newInstance
+      cgState.addComplexTypeERD(context) // ERD static initializer
       cgState.popComplexElement(context)
     }
   }
