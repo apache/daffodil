@@ -83,8 +83,8 @@ class TestGeneratedCodeCompiler {
     val dp = generatedCodeCompiler.dataProcessor
     val b = Misc.hex2Bytes("000000FF")
     val input = new ByteArrayInputStream(b)
-    //dp.parse(input)
-    //assert(!dp.isError, dp.getDiagnostics.map(_.getMessage()).mkString("\n"))
+    val pr = dp.parse(input)
+    assert(!pr.isError, pr.getDiagnostics.map(_.getMessage()).mkString("\n"))
   }
 
   @Test

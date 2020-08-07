@@ -8,17 +8,17 @@ import org.apache.daffodil.api.DFDL.Output
 import org.apache.daffodil.api.DataLocation
 import org.apache.daffodil.api.DFDL
 import org.apache.daffodil.api.DaffodilTunables
-import org.apache.daffodil.api.Diagnostic
 import org.apache.daffodil.api.ValidationMode
 import org.apache.daffodil.externalvars.Binding
+import org.apache.daffodil.processors.Failure
 import org.apache.daffodil.processors.ProcessorResult
+import org.apache.daffodil.processors.Success
 import org.apache.daffodil.processors.VariableMap
 import org.apache.daffodil.processors.WithDiagnosticsImpl
-import org.xml.sax.ErrorHandler
+import org.apache.daffodil.processors.parsers.ParseError
+import org.apache.daffodil.util.Maybe
 import os.Path
 import os.Pipe
-
-import scala.xml.SAXParseException
 
 /**
  * Effectively a scala proxy object that does its work via the underlying C-code.
@@ -73,74 +73,40 @@ class Runtime2DataProcessor(executableFile: Path) extends DFDL.DataProcessorBase
   /**
    * Returns an object which contains the result, and/or diagnostic information.
    */
-  def parse(input: InputStream): Unit = {
+  def parse(input: InputStream): ParseResult = {
     val tempDir = os.temp.dir()
     val infile = tempDir / "infile"
     val outfile = tempDir / "outfile"
     try {
       os.write(infile, input)
-      val result = os.proc(executableFile, "-I", "xml", "-o", outfile, infile).call(cwd = tempDir, stderr = Pipe)
-      if (!result.out.text.isEmpty || !result.err.text.isEmpty) {
+      val result = os.proc(executableFile, "parse", "-I", "xml", "-o", outfile, infile).call(cwd = tempDir, stderr = Pipe)
+      if (result.out.text.isEmpty && result.err.text.isEmpty) {
+        val parseResult = new ParseResult(this, Success)
+        parseResult
+      } else {
         val msg = "Unexpected output:\n"  + result.out.text + result.err.text
-        System.err.println(msg)
+        val parseError = new ParseError(None, None, None, None, msg)
+        val parseResult = new ParseResult(this, Failure(parseError))
+        parseResult
       }
     } catch {
       case e: os.SubprocessException =>
         val msg = e.getMessage + ": err.text=" + e.result.err.text
-        System.err.println(msg)
+        val parseError = new ParseError(None, None, Maybe.One(e), None, msg)
+        val parseResult = new ParseResult(this, Failure(parseError))
+        parseResult
     }
   }
-
-  /**
-   * If multiple diagnostic messages can be created by an action, then this
-   * returns a sequence of multiple diagnostic objects. If the message is
-   * a fatal runtime issue, then this might be a singleton list, or it could be
-   * a bunch of warnings followed by a fatal runtime error.
-   *
-   * The order of the sequence is important. When the diagnostics are about
-   * a file of text, then diagnostics that are about lines earlier in the file
-   * are earlier in the list.
-   */
-  override def getDiagnostics: Seq[Diagnostic] = ???
-
-  /**
-   * This predicate indicates whether the object in question succeeded or failed
-   * at whatever some action was trying to do. That is to say,
-   * do the diagnostics contain a hard error, or do the diagnostics
-   * only contain warnings and/or advisory content. If false then only warnings
-   * and other non-fatal diagnostics have appeared, so subsequent actions can
-   * proceed.
-   *
-   * The classic example of this is compilation. If only warnings were produced
-   * then one can proceed to run the compiled entity.
-   */
-  override def isError: Boolean = ???
 }
 
-class ParseResult(dp: Runtime2DataProcessor, override val resultState: State)
+class ParseResult(dp: Runtime2DataProcessor, override val processorStatus: ProcessorResult)
   extends DFDL.ParseResult
-    with WithDiagnosticsImpl
-    with ErrorHandler {
+    with DFDL.State
+    with WithDiagnosticsImpl {
 
-  override def warning(spe: SAXParseException): Unit = {
-    resultState.validationErrorNoContext(spe)
-  }
-  override def error(spe: SAXParseException): Unit = {
-    resultState.validationErrorNoContext(spe)
-  }
-  override def fatalError(spe: SAXParseException): Unit = {
-    resultState.validationErrorNoContext(spe)
-  }
-}
+  override def resultState: DFDL.State = this
 
-class State extends DFDL.State {
-  override def processorStatus: ProcessorResult = ???
-
-  override def validationStatus: Boolean = ???
-
-  override def diagnostics: Seq[Diagnostic] = ???
+  override def validationStatus: Boolean = processorStatus.isSuccess
 
   override def currentLocation: DataLocation = ???
-
-  def validationErrorNoContext(spe: SAXParseException): Unit = ???
 }

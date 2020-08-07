@@ -1,7 +1,9 @@
 #include <endian.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
+#include "argp_code.h"
 #include "generated_data.h"
 #include "xml_writer.h"
 
@@ -95,36 +97,58 @@ C *C_new_instance()
 
 int main(int argc, char *argv[])
 {
-	// Read our input from stdin or a filename argument.
-	FILE *stream = stdin;
-	if (argc == 2)
-	{
-		stream = fopen(argv[1], "r");
-		if (stream == NULL)
-		{
-			perror("Error opening file: ");
-			return EXIT_FAILURE;
-		}
-	}
+  // Parse command line options
+  error_t status = global_cmd(argc, argv);
+  if (status == 0) {
+    FILE *input = stdin;
+    FILE *output = stdout;
 
-	// Parse the input stream into our infoset.
-	PState pstate = { stream };
-	XMLWriter xmlWriter = { xmlWriterMethods, stdout };
-	C instance = { { &CERD }, 0 };
-	CERD.parseSelf((InfosetBase*)&instance, &pstate);
+    // Read our input from stdin or a filename argument.
+    if (strcmp(parse.infile, "-")) {
+      input = fopen(parse.infile, "r");
+      if (input == NULL)
+        {
+          perror("Error opening input file: ");
+          return EXIT_FAILURE;
+        }
+    }
 
-	// Close the input stream if we opened it from a filename argument.
-	if (stream != stdin && fclose(stream) != 0)
-	{
-		perror("Error closing file: ");
-		return EXIT_FAILURE;
-	}
+    // Write our output to stdout or a filename argument.
+    if (strcmp(parse.outfile, "-")) {
+      output = fopen(parse.outfile, "w");
+      if (output == NULL)
+        {
+          perror("Error opening output file: ");
+          return EXIT_FAILURE;
+        }
+    }
+    
+    // Parse the input into our infoset.
+    PState pstate = { input };
+    XMLWriter xmlWriter = { xmlWriterMethods, output };
+    C instance = { { &CERD }, 0 };
+    CERD.parseSelf((InfosetBase*)&instance, &pstate);
 
-	// Visit the infoset and print XML from it.
-	InfosetBase *infoNode = &instance._base;
-	xml_init(&xmlWriter);
-	visit_node_self((VisitEventHandler *)&xmlWriter, infoNode);
+    // Visit the infoset and print XML from it.
+    InfosetBase *infoNode = &instance._base;
+    xml_init(&xmlWriter);
+    visit_node_self((VisitEventHandler *)&xmlWriter, infoNode);
 
-	// Return success if we got this far.
-	return EXIT_SUCCESS;
+    // Close the input if we opened it from a filename argument.
+    if (input != stdin && fclose(input) != 0)
+      {
+        perror("Error closing input file: ");
+        return EXIT_FAILURE;
+      }
+
+    // Close the output if we opened it from a filename argument.
+    if (output != stdout && fclose(output) != 0)
+      {
+        perror("Error closing output file: ");
+        return EXIT_FAILURE;
+      }
+
+    // Return success if we got this far.
+    return EXIT_SUCCESS;
+  }
 }

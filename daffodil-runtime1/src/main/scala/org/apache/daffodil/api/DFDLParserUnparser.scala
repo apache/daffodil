@@ -144,7 +144,7 @@ object DFDL {
     def onPath(xpath: String): DataProcessor
   }
 
-  trait DataProcessorBase extends WithDiagnostics {
+  trait DataProcessorBase {
 
     /**
      * Returns a data processor with all the same state, but the validation mode changed to that of the argument.
@@ -180,7 +180,7 @@ object DFDL {
     def setTunables(tunables: Map[String,String]): Unit
 }
 
-  trait DataProcessor extends DataProcessorBase {
+  trait DataProcessor extends DataProcessorBase with WithDiagnostics {
     /**
      * Unparses (that is, serializes) data to the output, returns an object which contains any diagnostics.
      */

@@ -32,6 +32,8 @@ class GeneratedCodeCompiler(pf: ProcessorFactory) {
 
   // New method, generates all of the C code needed to parse an input stream
   def compile(rootElementName: String, codeGeneratorState: CodeGeneratorState): Unit = {
+    val argpCodeHeader = codeGeneratorState.viewArgpHeader
+    val argpCodeFile = codeGeneratorState.viewArgpFile
     val commonRuntimeHeader = codeGeneratorState.viewRuntimeHeader
     val commonRuntimeFile = codeGeneratorState.viewRuntimeFile
     val generatedCodeHeader = codeGeneratorState.viewCodeHeader
@@ -39,6 +41,8 @@ class GeneratedCodeCompiler(pf: ProcessorFactory) {
     val xmlWriterHeader = codeGeneratorState.viewWriterHeader
     val xmlWriterFile = codeGeneratorState.viewWriterFile
     val tempDir = os.temp.dir()
+    val tempArgpHeader = tempDir / "argp_code.h"
+    val tempArgpFile = tempDir / "argp_code.c"
     val tempRuntimeHeader = tempDir / "common_runtime.h"
     val tempRuntimeFile = tempDir / "common_runtime.c"
     val tempCodeHeader = tempDir / "generated_data.h"
@@ -48,13 +52,15 @@ class GeneratedCodeCompiler(pf: ProcessorFactory) {
     val tempExe = tempDir / "exe"
     try {
       executableFile = null
+      os.write(tempArgpHeader, argpCodeHeader)
+      os.write(tempArgpFile, argpCodeFile)
       os.write(tempRuntimeHeader, commonRuntimeHeader)
       os.write(tempRuntimeFile, commonRuntimeFile)
       os.write(tempCodeHeader, generatedCodeHeader)
       os.write(tempCodeFile, generatedCodeFile)
       os.write(tempWriterHeader, xmlWriterHeader)
       os.write(tempWriterFile, xmlWriterFile)
-      val result = os.proc("/usr/bin/gcc", "-I", ".", tempRuntimeFile, tempCodeFile, tempWriterFile, "-o", tempExe).call(cwd = tempDir, stderr = Pipe)
+      val result = os.proc("/usr/bin/gcc", "-I", ".", tempArgpFile, tempRuntimeFile, tempCodeFile, tempWriterFile, "-o", tempExe).call(cwd = tempDir, stderr = Pipe)
       if (!result.out.text.isEmpty || !result.err.text.isEmpty) {
         pf.sset.SDW(null, "Unexpected generated code compiler output:\n" + result.out.text + result.err.text)
       }
