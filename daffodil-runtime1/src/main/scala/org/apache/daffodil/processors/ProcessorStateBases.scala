@@ -77,7 +77,6 @@ trait StateForDebugger {
   def currentLocation: DataLocation
   def arrayPos: Long
   def bitLimit0b: MaybeULong
-  def discriminator: Boolean = false
 }
 
 case class TupleForDebugger(
@@ -86,8 +85,8 @@ case class TupleForDebugger(
   val groupPos: Long,
   val currentLocation: DataLocation,
   val arrayPos: Long,
-  val bitLimit0b: MaybeULong,
-  override val discriminator: Boolean) extends StateForDebugger
+  val bitLimit0b: MaybeULong)
+  extends StateForDebugger
 
 trait SetProcessorMixin {
   private var maybeProcessor_ : Maybe[Processor] = Nope
@@ -430,8 +429,7 @@ abstract class ParseOrUnparseState protected (
       groupPos,
       currentLocation,
       arrayPos,
-      bitLimit0b,
-      discriminator)
+      bitLimit0b)
   }
 
   final override def schemaFileLocation = getContext().schemaFileLocation

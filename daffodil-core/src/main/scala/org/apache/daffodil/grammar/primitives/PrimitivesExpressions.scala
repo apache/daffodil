@@ -47,6 +47,7 @@ import org.apache.daffodil.processors.unparsers.TypeValueCalcUnparser
 import org.apache.daffodil.processors.parsers.InitiatedContentDiscrimOnIndexGreaterThanMinParser
 import org.apache.daffodil.processors.parsers.InitiatedContentDiscrimChoiceParser
 import org.apache.daffodil.processors.parsers.InitiatedContentDiscrimChoiceAndIndexGreaterThanMinParser
+import org.apache.daffodil.processors.parsers.InitiatedContentDiscrimChoiceOnlyOnFirstIndexParser
 
 abstract class AssertBase(
   decl: AnnotatedSchemaComponent,
@@ -121,29 +122,40 @@ case class InitiatedContent(
   override val forWhat = ForParser
 
   override def parser = {
+    // Each of the parsers that this could create always appear immediately
+    // after an initiator parser. So they can all assume that the previous
+    // initiator was successfully parsed and thus resolve points of uncertainty
+    // appropriately
+ 
     t match {
-      case eb: ElementBase => {
+      case eb: ElementBase if eb.isArray => {
         (mg, eb.optPoUMinOccurs) match {
           case (sq: SequenceTermBase, Some(min)) => {
-            // no PoU if occursIndex is <= min. After that
-            // there is a PoU, so we set discriminator true
-            // if we evaluate this parser, since this parser is invoked
-            // only if the initiator's parser was successful.
+            // This is an array of elements inside a sequence with initiated
+            // content. There is no PoU if occursIndex <= min. All elements
+            // after that have a PoU, which are resolved by this parser. Note
+            // that min here is the value of optPoUMinOccurs, which is slightly
+            // different than value of minOccurs, e.g. when occursCountKind="parsed"
+            // this value is zero rather than the value of minOccurs.
             new InitiatedContentDiscrimOnIndexGreaterThanMinParser(min, eb.erd)
           }
           case (ch: ChoiceTermBase, None) => {
-            // if any array elements initiators are parsed successfully we
-            // discriminate the choice. But there is only the choice PoU
-            // to set discriminator on.
-            new InitiatedContentDiscrimChoiceParser(eb.erd)
+            // This branch of a choice is a fixed number of array elements.
+            // Because they are fixed, there is no PoU associated with the
+            // elements, only the choice. This must resolve the choice PoU only
+            // the first time so as not to resolve any other PoUs.
+            new InitiatedContentDiscrimChoiceOnlyOnFirstIndexParser(eb.erd)
           }
           case (ch: ChoiceTermBase, Some(min)) => {
-            // When occursIndex is 1, then we set the choice discriminator
-            // which is 1 below the top of the discriminator stack.
-            // Note that the min is supposed to be 1 or greater.
-            //
-            // If the occursIndex is > min then we set the array discriminator
-            // which is top of discriminator stack.
+            // This branch of a choice is for an array of elements with a
+            // minimum number of occurrences. When occursIndex <= min, there
+            // are no PoU's for the array elements, so this parser only
+            // resolves PoU's once that index has been reached. However, there
+            // is still a PoU for the choice, which must only be resolved once
+            // when we parsed the first array element. Note that min here is
+            // the value of optPoUMinOccurs, which is slightly different than
+            // the value of minOccurs, e.g. when occursCountKind="parsed" this
+            // value is zero rather than the value of minOccurs.
             new InitiatedContentDiscrimChoiceAndIndexGreaterThanMinParser(min, eb.erd)
           }
           case x => Assert.invariantFailed("Guard should exclude this case: " + x)

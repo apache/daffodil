@@ -346,7 +346,7 @@ class TestCLIdebugger {
     }
   }
 
-  @Test def test_1338_CLI_Debugger_discriminatorInfo(): Unit = {
+  @Test def test_1338_CLI_Debugger_pointsOfUncertaintyInfo(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/cli_schema.dfdl.xsd")
     val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input5.txt")
     val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
@@ -358,18 +358,20 @@ class TestCLIdebugger {
       shell.sendLine(cmd)
       shell.expect(contains("(debug)"))
 
-      shell.sendLine("break e3")
-      shell.sendLine("break e4")
-      shell.sendLine("display info discriminator")
+      shell.sendLine("display info pointsOfUncertainty")
 
-      shell.sendLine("continue")
-      shell.expect(contains("discriminator: true"))
+      shell.sendLine("step")
+      shell.expect(contains("pointsOfUncertainty:"))
+      shell.expect(contains("(none)"))
 
-      shell.sendLine("continue")
-      shell.expect(contains("discriminator: true"))
+      shell.sendLine("step")
+      shell.expect(contains("pointsOfUncertainty:"))
+      shell.expect(contains("bitPos: 0, context: choice[1]"))
 
-      shell.sendLine("continue")
-      shell.expect(contains("<e4>400</e4>"))
+      shell.sendLine("step")
+      shell.expect(contains("pointsOfUncertainty:"))
+      shell.expect(contains("(none)"))
+
       shell.sendLine("quit")
     } finally {
       shell.close()

@@ -17,14 +17,8 @@
 
 package org.apache.daffodil.processors.parsers
 
-import java.io.StringWriter
-import java.io.PrintWriter
-
 import org.apache.daffodil.processors.TermRuntimeData
 import org.apache.daffodil.processors.Success
-import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.exceptions.UnsuppressableException
-import org.apache.daffodil.dsom.SchemaDefinitionDiagnosticBase
 
 abstract class NilOrValueParser(ctxt: TermRuntimeData, nilParser: Parser, valueParser: Parser)
   extends CombinatorParser(ctxt) {
@@ -33,55 +27,23 @@ abstract class NilOrValueParser(ctxt: TermRuntimeData, nilParser: Parser, valueP
   override lazy val runtimeDependencies = Vector()
 
   def parse(pstate: PState): Unit = {
-    var mark: PState.Mark = pstate.mark("NilOrValueParser")
-    var markLeakCausedByException = false
 
-    try {
+    // This isn't technically a point of uncertainty. Nothing in the nilParser
+    // can discriminate this PoU. We are really just using this as a technique
+    // to be able to reset back to this point if the nil parser fails.
+    pstate.withPointOfUncertainty("NilOrValueParser", ctxt) { pou =>
+
       nilParser.parse1(pstate)
 
       if (pstate.processorStatus ne Success) {
-        pstate.reset(mark)
-        mark = null
+        // did not find a nil. reset back to the pou and try to parse the value
+        pstate.resetToPointOfUncertainty(pou)
         valueParser.parse1(pstate)
       } else {
-        pstate.discard(mark)
-        mark = null
-      }
-
-    } catch {
-      // Similar try/catch/finally logic for returning marks is also used in
-      // the Sequence parser base. The logic isn't
-      // easily factored out so it is duplicated. Changes made here should also
-      // be made there. Only these parsers deal with taking marks, so this logic
-      // should not be needed elsewhere.
-      //
-      // TODO: Refactor by hoisting this logic into CombinatorParser using same
-      // technique as in SequenceParserBase's tryParseDetectMarkLeaks and parseOne
-      // methods. That way this code really can live in exactly one place.
-      //
-      case t: Throwable => {
-        if (mark != null) {
-          markLeakCausedByException = true
-          if (!t.isInstanceOf[SchemaDefinitionDiagnosticBase] && !t.isInstanceOf[UnsuppressableException] && !t.isInstanceOf[java.lang.Error]) {
-            val stackTrace = new StringWriter()
-            t.printStackTrace(new PrintWriter(stackTrace))
-            Assert.invariantFailed("Exception thrown with mark not returned: " + t + "\nStackTrace:\n" + stackTrace)
-          }
-        }
-        throw t
-      }
-    } finally {
-      var markLeak = false;
-      if (mark != null) {
-        pstate.discard(mark)
-        markLeak = true;
-      }
-
-      if (markLeak && !markLeakCausedByException) {
-        // likely a logic bug, throw assertion
-        Assert.invariantFailed("mark not returned, likely a logic bug")
+        // no-op. We found nil, withPointOfUncertainty will discard the pou
       }
     }
+
   }
 }
 

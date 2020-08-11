@@ -44,13 +44,13 @@ import org.apache.daffodil.processors.EscapeSchemeParserHelper
 import org.apache.daffodil.processors.NonTermRuntimeData
 import org.apache.daffodil.processors.ParseOrUnparseState
 import org.apache.daffodil.processors.ProcessorResult
+import org.apache.daffodil.processors.RuntimeData
 import org.apache.daffodil.processors.TermRuntimeData
 import org.apache.daffodil.processors.VariableMap
 import org.apache.daffodil.processors.VariableRuntimeData
 import org.apache.daffodil.processors.dfa
 import org.apache.daffodil.processors.dfa.DFADelimiter
 import org.apache.daffodil.util.MStack
-import org.apache.daffodil.util.MStackOfBoolean
 import org.apache.daffodil.util.MStackOfInt
 import org.apache.daffodil.util.MStackOfLong
 import org.apache.daffodil.util.MStackOfMaybe
@@ -163,8 +163,50 @@ final class PState private (
 
   override def currentNode = Maybe(infoset)
 
-  private val discriminatorStack = MStackOfBoolean()
-  discriminatorStack.push(false)
+  /**
+   * This stack is used to track points of uncertainty during a parse. When a
+   * parser determines a PoU should exist, it should call withPointOfUncertainty
+   * to create a new PoU (represented by a Mark) and perform all the logic that
+   * should exist while that pou should remain in scope (such as calling child
+   * parsers). For example:
+   *
+   *   pstate.withPointOfUncertainty { pou =>
+   *     // call child parsers
+   *   }
+   *
+   * Calling withPointOfUncertainty pushes the new Mark onto the top of this
+   * stack. Thus, the top of the stack always represents the current in-scope
+   * PoU.
+   *
+   * Discriminators/initiated content/etc. can resolve the current in-scope PoU
+   * by calling resolvePointOfUncertainty(). This simply pops the in-scope PoU
+   * off the top of the stack and discards it, allowing associated memory to be
+   * freed. By immediately popping off the stack, this allows multiple
+   * discriminators to resolve multiple PoU's up the stack.
+   *
+   * Upon returning from any child parsers, the parser that called
+   * withPointOfUncertainty must be able to determine if some other child
+   * parser resolved its PoU. To do so, it only needs to inspect the top value
+   * of this stack. There are only two potential values:
+   *
+   * 1. The top of the stack is the same as the PoU that was provided by
+   *    withPointOfUncertainty. This implies nothing popped it off the stack,
+   *    and thus nothing resolved it. This pou was not resolved by a
+   *    discriminator. In this case the parser may choose to discard or reset
+   *    to the PoU.
+   *
+   * 2. The top of the stack is something different than the PoU that was
+   *    provided by withPointOfUncertainty. This implies that something did pop
+   *    it off the stack, which means something must have resolved it. This PoU
+   *    was resolved by a discriminator. In this case, it is an error if the
+   *    parser attempts to discard or reset to the pou.
+   *
+   * The isPointOfUncertaintyResolved() function performs this logic so parsers
+   * do not need to worry about this implementation detail. Also provided are
+   * discard/resetTo/resolvePointOfUncertainty functions to simplify this
+   * logic.
+   */
+  val pointsOfUncertainty = new MStackOf[PState.Mark]()
 
   /**
    * This stack tracks variables that have changed within the current point of
@@ -198,11 +240,11 @@ final class PState private (
 
   private val markPool = new PState.MarkPool
 
-  def mark(requestorID: String): PState.Mark = {
+  private def mark(requestorID: String, context: RuntimeData): PState.Mark = {
     // threadCheck()
     changedVariablesStack.push(mutable.MutableList[GlobalQName]())
     val m = markPool.getFromPool(requestorID)
-    m.captureFrom(this, requestorID)
+    m.captureFrom(this, requestorID, context)
     m
   }
 
@@ -212,7 +254,7 @@ final class PState private (
 
   def dataInputStreamIsValid = dataInputStream.inputSource.isValid
 
-  def reset(m: PState.Mark): Unit = {
+  private def reset(m: PState.Mark): Unit = {
     // threadCheck()
     m.restoreInto(this)
     m.clear()
@@ -225,7 +267,7 @@ final class PState private (
     changedVariablesStack.pop
   }
 
-  def discard(m: PState.Mark): Unit = {
+  private def discard(m: PState.Mark): Unit = {
     dataInputStream.discard(m.disMark)
     m.clear()
     markPool.returnToPool(m)
@@ -243,7 +285,6 @@ final class PState private (
     new DataLoc(bitPos1b, bitLimit1b, isAtEnd, Right(dataInputStream), Maybe(thisElement.runtimeData))
   }
 
-  override def discriminator = discriminatorStack.top
   def bitPos0b = dataInputStream.bitPos0b
   def bitLimit0b = dataInputStream.bitLimit0b
   //  def charLimit = inStream.charLimit0b
@@ -305,23 +346,85 @@ final class PState private (
     variableMap.removeVariableInstance(vrd)
   }
 
-  def pushPointOfUncertainty: Unit = {
-    // threadCheck()
-    discriminatorStack.push(false)
-    changedVariablesStack.push(mutable.MutableList[GlobalQName]())
+  /**
+   * Creates a new point of uncertainty and binds it to a variable where it can
+   * be used. The PoU can be reset, discarded, or resolved, via helper
+   * functions. If at the end of the func block, the PoU was not reset,
+   * discarded or resolved, it will automatically be discarded. Example usage
+   * of this is:
+   *
+   * pstate.withPointOfUncertainty { pou =>
+   *   // perform parsing logic that uses the "pou" variable
+   * }
+   *
+   * Note that this is implemented via a macro, and part of this macro magic
+   * will munges with variable names in the "func" variable. Thus, this is
+   * potentially fragile, e.g. reflection on the pou variable name will fail.
+   * It is recommend to keep the func body as small as possible and avoid
+   * things like reflection that could cause breakage.
+   */
+  def withPointOfUncertainty[B](pouID: String, context: RuntimeData)(func: PState.Mark => B): B =
+    macro PointOfUncertaintyMacros.withPointOfUncertainty[PState.Mark, B]
+
+  /**
+   * This function creates a mark, which represents a point of uncertainty. This
+   * function should never be used, and is only public so that the
+   * withPointOfUncertainty function can access it. You should almost certainly
+   * be using withPointOfUncertainty instead.
+   */
+  def createPointOfUncertainty(pouID: String, context: RuntimeData): PState.Mark = {
+    val pou = mark(pouID, context)
+    pointsOfUncertainty.push(pou)
+    pou
   }
 
-  def popPointOfUncertainty: Unit = {
-    // threadCheck()
-    discriminatorStack.pop
-    changedVariablesStack.pop
+  /**
+   * Reset to the point of uncertainty created by withPointOfUncertainty. This
+   * also discards the point of uncertainty. Once called, the pou variable
+   * should no longer be used. If it is possible a child parser resolved this
+   * pou, one must first check the result of isPointOfUncertaintResolved--it is
+   * an error to call this function if the PoU has been resolved.
+   */
+  def resetToPointOfUncertainty(pou: PState.Mark): Unit = {
+    val pouPop = pointsOfUncertainty.pop
+    Assert.invariant(pou == pouPop)
+    reset(pouPop)
   }
 
-  def setDiscriminator(disc: Boolean): Unit = {
-    // threadCheck()
-    discriminatorStack.pop()
-    discriminatorStack.push(disc)
+  /**
+   * Discard the point of uncertainty created by withPointOfUncertainty. Once
+   * called, the pou variable should no longer be used. If the pou is not
+   * reset, resolved, or discarded, this function is automatically called at
+   * the end of func block in withPointOfUncertainty. If it is possible child
+   * parser resolved this pou, one must first check the result of
+   * isPointOfUncertaintResolved--it is an error to call this function if the
+   * PoU has been resolved.
+   */
+  def discardPointOfUncertainty(pou: PState.Mark): Unit = {
+    val pouPop = pointsOfUncertainty.pop
+    Assert.invariant(pou == pouPop)
+    discard(pou)
   }
+
+  /**
+   * Resolve the current in-scope point of uncertainty. Should only be called
+   * by discriminators/initated content/etc.
+   */
+  def resolvePointOfUncertainty(): Unit = {
+    if (!pointsOfUncertainty.isEmpty) {
+      val pouPop = pointsOfUncertainty.pop
+      discard(pouPop)
+    }
+  }
+
+  /**
+   * Determine if the PoU created in withPointOfUncertainty has been resolved by
+   * a discrminator.
+   */
+  def isPointOfUncertaintyResolved(pou: PState.Mark): Boolean = {
+    pointsOfUncertainty.isEmpty || pointsOfUncertainty.top != pou
+  }
+
 
   def addBlobPath(path: Path): Unit = {
     blobPaths = path +: blobPaths
@@ -399,7 +502,7 @@ final class PState private (
   def verifyFinalState(optThrown: Maybe[Throwable]): Unit = {
     try {
       if (optThrown.isEmpty) {
-        Assert.invariant(this.discriminatorStack.length == 1)
+        Assert.invariant(this.pointsOfUncertainty.length == 0)
         Assert.invariant(!this.withinHiddenNest) //ensure we are not in hidden nest
         mpstate.verifyFinalState()
       }
@@ -429,9 +532,9 @@ object PState {
 
     override def toString() = {
       if (disMark ne null)
-        "Mark(bitPos0b = " + bitPos0b + " requestorId = " + poolDebugLabel + ")"
+        "bitPos: %s, context: %s [%s] (%s)".format(bitPos0b.toString, context.toString, context.locationDescription, poolDebugLabel)
       else
-        "Mark(uninitialized" + " requestorId = " + poolDebugLabel + ")"
+        "bitPos: (uninitialized), context: %s [%s] (%s)".format(context.toString, context.locationDescription, poolDebugLabel)
     }
 
     def bitPos0b = disMark.bitPos0b
@@ -445,6 +548,7 @@ object PState {
     var diagnostics: List[Diagnostic] = _
     var delimitedParseResult: Maybe[dfa.ParseResult] = Nope
     var blobPaths: Seq[Path] = Seq.empty
+    var context: RuntimeData = _
 
     val mpStateMark = new MPState.Mark
 
@@ -459,10 +563,10 @@ object PState {
       delimitedParseResult = Nope
       mpStateMark.clear()
       blobPaths = Seq.empty
-      // DO NOT clear requestorId. It is there to help us debug if we try to repeatedly reset/discard a mark already discarded.
+      // DO NOT clear requestorId/context. It is there to help us debug if we try to repeatedly reset/discard a mark already discarded.
     }
 
-    def captureFrom(ps: PState, requestorID: String): Unit = {
+    def captureFrom(ps: PState, requestorID: String, context: RuntimeData): Unit = {
       val e = ps.thisElement
       if (e.isSimple)
         simpleElementState.captureFrom(e)
@@ -475,6 +579,7 @@ object PState {
       this.diagnostics = ps.diagnostics
       this.mpStateMark.captureFrom(ps.mpstate)
       this.blobPaths = ps.blobPaths
+      this.context = context
     }
 
     def restoreInfoset(ps: PState) = {

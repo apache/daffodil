@@ -96,34 +96,24 @@ abstract class ElementParserBase(
 
   def parse(pstate: PState): Unit = {
 
+    // Note that pattern discriminators and asserts do not advance the position
+    // in the input stream, so there is no need to mark/reset the inputstream
     if (patDiscrimParser.isDefined) {
-      val startingBitPos = pstate.dataInputStream.mark("ElementParserBase1")
       patDiscrimParser.get.parse1(pstate)
-      // Pattern fails at the start of the Element
       if (pstate.processorStatus ne Success) {
-        pstate.dataInputStream.discard(startingBitPos)
         return
-      } else {
-        pstate.dataInputStream.reset(startingBitPos)
       }
     } else if (patAssertParser.length > 0) {
-      val startingBitPos = pstate.dataInputStream.mark("ElementParserBase2")
       var i: Int = 0
       val size = patAssertParser.size
       while (i < size) {
         val d = patAssertParser(i)
         d.parse1(pstate)
-        // Pattern fails at the start of the Element
         if (pstate.processorStatus ne Success) {
-          pstate.dataInputStream.discard(startingBitPos)
           return
         }
         i += 1
       }
-      // backup again. If all pattern discriminators and/or asserts
-      // have passed, now we parse the element. But we backup
-      // as if the pattern matching had not advanced the state.
-      pstate.dataInputStream.reset(startingBitPos)
     }
 
     parseBegin(pstate)

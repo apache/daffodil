@@ -1195,7 +1195,6 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
           InfoData,
           InfoDelimiterStack,
           InfoDiff,
-          InfoDiscriminator,
           InfoDisplays,
           InfoFoundDelimiter,
           InfoGroupIndex,
@@ -1204,6 +1203,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
           InfoOccursIndex,
           InfoPath,
           InfoParser,
+          InfoPointsOfUncertainty,
           InfoUnparser)
 
       override def validate(args: Seq[String]): Unit = {
@@ -1403,7 +1403,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
           }
           (prestate, state) match {
             case (prestate: StateForDebugger, state: PState) => {
-              if (prestate.discriminator != state.discriminator) { debugPrintln("discriminator: %s -> %s".format(prestate.discriminator, state.discriminator), "  "); diff = true }
+              // nothing yet that is specific to Parser
             }
             case (prestate: StateForDebugger, state: UState) => {
               // nothing yet that is specific to Unparser
@@ -1414,20 +1414,6 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
             debugPrintln("No differences", "  ")
           }
 
-          DebugState.Pause
-        }
-      }
-
-      object InfoDiscriminator extends DebugCommand with DebugCommandValidateZeroArgs {
-        val name = "discriminator"
-        override lazy val short = "dis"
-        val desc = "display whether or not a discriminator is set"
-        val longDesc = desc
-        def act(args: Seq[String], prestate: StateForDebugger, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
-          state match {
-            case state: PState => debugPrintln("%s: %b".format(name, state.discriminator))
-            case _ => debugPrintln("%s: info only available for parse steps".format(name))
-          }
           DebugState.Pause
         }
       }
@@ -1591,6 +1577,30 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
       object InfoParser extends {
         override val name = "parser" // scala -xcheckinit reported this was uninitialized
       } with InfoProcessorBase
+
+      object InfoPointsOfUncertainty extends DebugCommand with DebugCommandValidateZeroArgs {
+        val name = "pointsOfUncertainty"
+        override lazy val short = "pou"
+        val desc = "display list of unresolved points of uncertainty"
+        val longDesc = desc
+        def act(args: Seq[String], prestate: StateForDebugger, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
+          state match {
+            case state: PState => {
+              debugPrintln("%s:".format(name))
+              val pous = state.pointsOfUncertainty.toList
+              if (pous.isEmpty) {
+                debugPrintln("  (none)")
+              } else {
+                pous.reverse.foreach { pou =>
+                  debugPrintln("  %s".format(pou.toString))
+                }
+              }
+            }
+            case _ => debugPrintln("%s: info only available for parse steps".format(name))
+          }
+          DebugState.Pause
+        }
+      }
 
       object InfoUnparser extends {
         override val name = "unparser"

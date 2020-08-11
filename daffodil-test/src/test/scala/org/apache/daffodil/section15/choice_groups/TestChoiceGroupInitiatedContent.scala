@@ -49,6 +49,9 @@ class TestChoiceGroupInitiatedContent {
   // Test for DAFFODIL-2143
   @Test def test_arrayOptionalChildDiscriminatesElementAndChoice1(): Unit = { runner_01.runOneTest("arrayOptionalChildDiscriminatesElementAndChoice1") }
 
+  @Test def test_fixedArrayInitiatedContentDiscriminatesChoice1(): Unit = { runner_01.runOneTest("fixedArrayInitiatedContentDiscriminatesChoice") }
+  @Test def test_parsedArrayMin1InitiatedContentDiscriminatesChoice1(): Unit = { runner_01.runOneTest("parsedArrayMin1InitiatedContentDiscriminatesChoice") }
+
   @Test def test_arrayOfChoice(): Unit = { runner_01.runOneTest("arrayOfChoice") }
   @Test def test_arrayOfChoice2(): Unit = { runner_01.runOneTest("arrayOfChoice2") }
   @Test def test_discriminatorNesting1(): Unit = { runner_01.runOneTest("discriminatorNesting1") }
