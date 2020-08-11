@@ -38,10 +38,7 @@ class TestDiscriminators {
 
   @Test def test_discriminatorGuidesChoice(): Unit = { runner.runOneTest("discriminatorGuidesChoice") }
   @Test def test_discriminatorGuidesChoice2(): Unit = { runner.runOneTest("discriminatorGuidesChoice2") }
-  @Test def test_discriminatorGuidesChoice3() = {
-    //LoggingDefaults.setLoggingLevel(LogLevel.Debug)
-    runner.runOneTest("discriminatorGuidesChoice3")
-  }
+  @Test def test_discriminatorGuidesChoice3(): Unit = { runner.runOneTest("discriminatorGuidesChoice3") }
   @Test def test_discriminatorGuidesChoice4(): Unit = { runner.runOneTest("discriminatorGuidesChoice4") }
   @Test def test_discriminatorGuidesChoice5(): Unit = { runner.runOneTest("discriminatorGuidesChoice5") }
 
@@ -81,6 +78,5 @@ class TestDiscriminators {
   @Test def test_multipleDiscriminators2(): Unit = { runner2.runOneTest("multipleDiscriminators2") }
   @Test def test_multipleDiscriminators3(): Unit = { runner2.runOneTest("multipleDiscriminators3") }
   @Test def test_multipleDiscriminators4(): Unit = { runner2.runOneTest("multipleDiscriminators4") }
-  // DAFFODIL-2371
-  //@Test def test_multipleDiscriminators5(): Unit = { runner2.runOneTest("multipleDiscriminators5") }
+  @Test def test_multipleDiscriminators5(): Unit = { runner2.runOneTest("multipleDiscriminators5") }
 }

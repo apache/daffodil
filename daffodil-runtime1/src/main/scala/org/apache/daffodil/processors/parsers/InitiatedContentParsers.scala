@@ -26,9 +26,9 @@ final class InitiatedContentDiscrimOnIndexGreaterThanMinParser(
   extends PrimParser {
   override lazy val runtimeDependencies = Vector()
 
-  def parse(start: PState): Unit = {
+  final def parse(start: PState): Unit = {
     if (start.arrayPos > min)
-      start.setDiscriminator(true)
+      start.resolvePointOfUncertainty()
   }
 }
 
@@ -37,7 +37,17 @@ final class InitiatedContentDiscrimChoiceParser(override val context: TermRuntim
   override lazy val runtimeDependencies = Vector()
 
   final def parse(start: PState): Unit = {
-    start.setDiscriminator(true)
+    start.resolvePointOfUncertainty()
+  }
+}
+
+final class InitiatedContentDiscrimChoiceOnlyOnFirstIndexParser(override val context: TermRuntimeData)
+  extends PrimParser {
+  override lazy val runtimeDependencies = Vector()
+
+  final def parse(start: PState): Unit = {
+    if (start.arrayPos == 1)
+      start.resolvePointOfUncertainty()
   }
 }
 
@@ -47,13 +57,31 @@ final class InitiatedContentDiscrimChoiceAndIndexGreaterThanMinParser(
   extends PrimParser {
   override lazy val runtimeDependencies = Vector()
 
-  def parse(start: PState): Unit = {
-    val top = start.discriminator
-    start.popPointOfUncertainty // pop array discriminator off of stack and any changed variables
-    start.setDiscriminator(true) // set the choice discriminator
-    start.pushPointOfUncertainty
-    start.setDiscriminator(top) // restore the array discriminator to top of stack
-    if (start.arrayPos > min)
-      start.setDiscriminator(true) // set array discriminator only if
+  final def parse(start: PState): Unit = {
+    // Resolves PoUs associated with arrays with some minimum number of
+    // required occurrences with initiated content.
+    //
+    // Note that if min is zero (i.e the array is optional), this does mean
+    // that two points of uncertainty will be resolved. This may seem wrong,
+    // but it is actually the correct behavior. We first resolve the PoU
+    // associated with the optional array, thus saying that the first element
+    // of the optional array does exist. We then resolve the second PoU for the
+    // initiated content choice, which says that the choice picked the correct
+    // branch and not to try any other branches if something in the array
+    // fails.
+
+    if (start.arrayPos > min) {
+      // resolve the point of uncertainty associated with array elements once
+      // we have parsed the required number of min occurrences. There should
+      // not be a point of uncertainty associated with this array until we have
+      // parsed more than min occurrences
+      start.resolvePointOfUncertainty()
+    }
+
+    if (start.arrayPos == 1) {
+      // resolve the point of uncertainty associated with the initiated content
+      // choice so we do not attempt to parse other branches if something fails
+      start.resolvePointOfUncertainty()
+    }
   }
 }

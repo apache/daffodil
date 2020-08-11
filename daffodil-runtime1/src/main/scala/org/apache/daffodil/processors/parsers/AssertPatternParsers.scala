@@ -72,20 +72,20 @@ class AssertPatternParser(
 
     val dis = start.dataInputStream
     val mark = dis.markPos
-    withMatcher { m =>
-      val isMatch = dis.lookingAt(m, start)
-      if (!isMatch) {
-        val message = getAssertFailureMessage(start)
-        if (failureType == FailureType.ProcessingError) {
-          val diag = new AssertionFailed(context.schemaFileLocation, start, message)
-          start.setFailed(diag)
-        } else
-          start.SDW(message)
-      } else if (discrim) {
-        // Only want to set the discriminator if there was a match.
-        start.setDiscriminator(true)
-      }
-    }
+    val isMatch = withMatcher { m => dis.lookingAt(m, start) }
     dis.resetPos(mark)
+
+    if (!isMatch) {
+      val message = getAssertFailureMessage(start)
+      if (failureType == FailureType.ProcessingError) {
+        val diag = new AssertionFailed(context.schemaFileLocation, start, message)
+        start.setFailed(diag)
+      } else
+        start.SDW(message)
+    } else if (discrim) {
+      // this is a pattern discriminator. Successful match resolves the in
+      // scope point of uncertainty
+      start.resolvePointOfUncertainty()
+    }
   }
 }

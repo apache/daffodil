@@ -19,7 +19,6 @@ package org.apache.daffodil.processors.parsers
 
 import java.math.{ BigInteger => JBigInt }
 
-import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.processors.ChoiceDispatchKeyEv
 import org.apache.daffodil.processors.DelimiterParseEv
 import org.apache.daffodil.processors.ElementRuntimeData
@@ -142,7 +141,7 @@ class ChoiceBranchEmptyParser(val context: RuntimeData)
 
 abstract class ChoiceDispatchCombinatorParserBase(rd: TermRuntimeData, 
                                                   dispatchBranchKeyMap: Map[String, (Parser, Boolean)], 
-                                                  dispatchKeyRangeMap:Vector[(RangeBound,RangeBound,Parser, Boolean)])
+                                                  dispatchKeyRangeMap: Vector[(RangeBound, RangeBound, Parser, Boolean)])
   extends CombinatorParser(rd) {
   override def nom = "ChoiceDispatch"
 
@@ -166,7 +165,7 @@ abstract class ChoiceDispatchCombinatorParserBase(rd: TermRuntimeData,
    * Ideally, we would actually parse repType once, and pass the result into the branch's parser
    * However, in practice, this would involve a significant amount of reworking of Daffodil parsing subsystem.
    *
-   * Instead, we simulate parseing once by saving and restoring state as follows:
+   * Instead, we simulate parsing once by saving and restoring state as follows:
    *
    * initialState = pstate.mark()
    * dispatchKey <- repType.parse()
@@ -181,9 +180,8 @@ abstract class ChoiceDispatchCombinatorParserBase(rd: TermRuntimeData,
    */
 
   def parse(pstate: PState): Unit = {
-    val initialState = pstate.mark("ChoiceDispatchCombinatorParserBase.parse")
-    var freedInitialState = false
-    try {
+    pstate.withPointOfUncertainty("ChoiceDispatchCombinator", rd) { pou =>
+
       val maybeKey = computeDispatchKey(pstate)
 
       if (pstate.processorStatus eq Success) {
@@ -191,34 +189,34 @@ abstract class ChoiceDispatchCombinatorParserBase(rd: TermRuntimeData,
 
         val parserOpt1 = dispatchBranchKeyMap.get(key)
         val parserOpt2 = 
-          if(parserOpt1.isDefined) {
+          if (parserOpt1.isDefined) {
             parserOpt1
           } else{
-            if(!dispatchKeyRangeMap.isEmpty){
-              try{
+            if (!dispatchKeyRangeMap.isEmpty) {
+              try {
                 val keyAsBigInt = new JBigInt(key)
-                val optAns1= dispatchKeyRangeMap.find({case(min,max,_,_) => min.testAsLower(keyAsBigInt) && max.testAsUpper(keyAsBigInt)})
-                optAns1.map({case(_,_,parser,isRepresented)=>(parser,isRepresented)})
-              } catch{
-                case _:NumberFormatException => None
+                val optAns1= dispatchKeyRangeMap.find { case (min, max, _, _) =>
+                  min.testAsLower(keyAsBigInt) && max.testAsUpper(keyAsBigInt)
+                }
+                optAns1.map { case (_ ,_ ,parser, isRepresented) =>
+                  (parser,isRepresented)
+                }
+              } catch {
+                case _: NumberFormatException => None
               }
-            }else{
+            } else {
               None
             }
           }
         
-        val parserOpt:Option[(Parser,Boolean)] = parserOpt2
+        val parserOpt: Option[(Parser,Boolean)] = parserOpt2
         if (parserOpt.isEmpty) {
           val diag = new ChoiceDispatchNoMatch(context.schemaFileLocation, pstate, key)
           pstate.setFailed(diag)
         } else {
           val (parser, isRepresented) = parserOpt.get
           if (isRepresented) {
-            pstate.reset(initialState)
-            freedInitialState = true
-          } else {
-            pstate.discard(initialState)
-            freedInitialState = true
+            pstate.resetToPointOfUncertainty(pou)
           }
 
           // Note that we are intentionally not pushing/popping a new
@@ -240,19 +238,6 @@ abstract class ChoiceDispatchCombinatorParserBase(rd: TermRuntimeData,
             pstate.setFailed(diag)
           }
         }
-      }
-    } finally {
-      if (!freedInitialState) {
-        //Since we failed, it does not matter what state we are actually in, as our caller will backtrack anyway
-        //What does matter is that we return the mark to the pool
-        pstate.discard(initialState)
-        freedInitialState = true
-        
-        /* It is important to put this check after cleaning up the initial state.
-         * If this check fails, before cleaning up the mark, then the error will be
-         * hidden by another error complaining about us not cleaning up the mark
-         */
-        Assert.invariant(pstate.processorStatus ne Success)
       }
     }
 

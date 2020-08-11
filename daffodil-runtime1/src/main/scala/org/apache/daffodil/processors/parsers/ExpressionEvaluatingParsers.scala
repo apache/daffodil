@@ -84,7 +84,7 @@ trait WithDetachedParser {
      * children list of the parent.
      *
      * The parse() call we are in currently is in the middle of the above process already.
-     * To use the distachedParser, we need to unwind then rewind the work that ElementCombinator1 has already done
+     * To use the detachedParser, we need to unwind then rewind the work that ElementCombinator1 has already done
      *  (in addition to reverting the infoset changes that repTypeParser made). the general flow is:
      *
      *  1) priorElement = pstate.infoset
@@ -103,20 +103,26 @@ trait WithDetachedParser {
     val priorElement = pstate.infoset
     pstate.setParent(pstate.infoset.diParent)
 
-    val priorState = pstate.mark("WithDetachedParser.runDetachedParser: About to run detachedParser")
-
-    val ans: DataValuePrimitiveNullable = try {
+    // This isn't actually a point of uncertainty, we just use the logic to
+    // allow resetting the infoset after we create the detached parser
+    val ans = pstate.withPointOfUncertainty("WithDetachedParser", erd) { pou =>
+    
       detachedParser.parse1(pstate)
-      pstate.processorStatus match {
+
+      val res: DataValuePrimitiveNullable = pstate.processorStatus match {
         case Success => pstate.infoset.children.last.asSimple.dataValue
         case _       => DataValue.NoValue
       }
-    } finally {
-      //Restore the infoset, but keep any other side effects
-      priorState.restoreInfoset(pstate)
-      pstate.discard(priorState)
-      pstate.setParent(priorElement)
+
+      // Restore the infoset. withPointOfUncertainty will discard the pou when
+      // this block ends, thus keeping the rest of the modified state
+      pou.restoreInfoset(pstate)
+
+      res
     }
+
+    pstate.setParent(priorElement)
+
     ans
   }
 }
@@ -208,7 +214,7 @@ class AssertExpressionEvaluationParser(
 
     val testResult = res.getBoolean
     if (testResult) {
-      start.setDiscriminator(discrim)
+      if (discrim) start.resolvePointOfUncertainty()
     } else {
       val message = getAssertFailureMessage(start)
       if (failureType == FailureType.ProcessingError) {

@@ -137,8 +137,9 @@ final class PostfixSeparatorHelper(sep: Parser, child: Parser, scParserArg: Sepa
   override def parseOneWithSeparator(pstate: PState, requiredOptional: RequiredOptionalStatus): ParseAttemptStatus = {
 
     val prevBitPosBeforeChild = pstate.bitPos0b
-    val beforeChildState = pstate.mark("Postfix Sep parser before child")
-    try {
+
+    pstate.withPointOfUncertainty("PostfixSeparatorHelper", childParser.context) { pou =>
+      
       childParser.parse1(pstate)
       val childSuccessful = pstate.processorStatus eq Success
       val childFailure = !childSuccessful // just makes later logic easier to read
@@ -167,7 +168,10 @@ final class PostfixSeparatorHelper(sep: Parser, child: Parser, scParserArg: Sepa
           // or infix separator, where if you don't get the sep, then you
           // usually (except first one in infix case) don't run the child parser
           val failure = pstate.processorStatus.asInstanceOf[Failure]
-          pstate.reset(beforeChildState)
+
+          Assert.invariant(!pstate.isPointOfUncertaintyResolved(pou))
+          pstate.resetToPointOfUncertainty(pou)
+
           pstate.setFailed(failure.cause)
           failedSeparator(pstate, "postfix")
           prh.computeFailedSeparatorParseAttemptStatus(scParser, prevBitPosBeforeChild, pstate, hasZLChildAttempt, requiredOptional)
@@ -191,7 +195,10 @@ final class PostfixSeparatorHelper(sep: Parser, child: Parser, scParserArg: Sepa
         //
         if (isSimpleDelimited) {
           val failure = pstate.processorStatus.asInstanceOf[Failure]
-          pstate.reset(beforeChildState)
+
+          Assert.invariant(!pstate.isPointOfUncertaintyResolved(pou))
+          pstate.resetToPointOfUncertainty(pou)
+
           sep.parse1(pstate)
           if (pstate.isSuccess) {
             val posAfterSep = pstate.bitPos0b
@@ -226,9 +233,7 @@ final class PostfixSeparatorHelper(sep: Parser, child: Parser, scParserArg: Sepa
           prh.computeFailedParseAttemptStatus(scParser, prevBitPosBeforeChild, pstate, isZL, requiredOptional)
         }
       }
-    } finally {
-      if ((beforeChildState ne null) && pstate.isInUse(beforeChildState))
-        pstate.discard(beforeChildState)
+
     }
   }
 }

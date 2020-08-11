@@ -746,15 +746,65 @@
     
     <xs:element name="r1" dfdl:lengthKind="implicit">
       <xs:complexType>
-        <xs:choice>
+        <xs:choice> <!-- should not be discriminated -->
           <xs:choice dfdl:initiatedContent="yes"> <!-- should be discriminated -->
-            <!-- This element is OCK 'implicit' minOccurs 1, So first 
-              element will discriminate the choice. There is no PoU for the first 
-              array element. This test is making sure we're not ALSO discriminating
-              the outer choice. -->
-              <xs:element name="e" dfdl:initiator="+" type="xs:int"
-                 dfdl:terminator=";"
-                 minOccurs="1" maxOccurs="2" dfdl:occursCountKind="implicit"/>
+            <!--
+              This element is OCK 'implicit', minOccurs 1, with
+              initiatedContent. Because implicit minOcurrs 1, the first element
+              is not a point of uncertainty. So when we successfully parse the
+              initiator of the first element, the initiated content
+              discriminates inner choice. When we attempt to parse a second "e"
+              element and it fails, we backtrack to the outer choice, which
+              should not be discriminated, and then parse that data as the
+              "correct" element.
+            -->
+            <xs:element name="e" type="xs:int" dfdl:initiator="+" dfdl:terminator=";"
+               minOccurs="1" maxOccurs="2" dfdl:occursCountKind="implicit"/>
+            <xs:element name="incorrect" type="xs:string" dfdl:initiator="+"/>
+          </xs:choice>
+          <xs:element name="correct" type="xs:string"/>
+        </xs:choice>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="r2" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:choice> <!-- should not be discriminated -->
+          <xs:choice dfdl:initiatedContent="yes"> <!-- should be discriminated -->
+            <!--
+              This element is OCK 'fixed' with initiatedContent. Because fixed
+              occurences, no elements are points of uncertainties. There is only
+              the choice. So when we successfully parse the initiator of the
+              first element, the initiated content discriminates inner choice.
+              When we attempt to parse a second "e", it should not discriminate
+              the outer choice. If we then fail to parse a thrid "e", we
+              backtrack to the outer choice, which should not be discriminated,
+              and then parse that data as the "correct" element.
+            -->
+            <xs:element name="e" type="xs:int" dfdl:initiator="+" dfdl:terminator=";"
+               minOccurs="4" maxOccurs="4" dfdl:occursCountKind="fixed"/>
+            <xs:element name="incorrect" type="xs:string" dfdl:initiator="+"/>
+          </xs:choice>
+          <xs:element name="correct" type="xs:string"/>
+        </xs:choice>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="r3" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:choice> <!-- should not be discriminated -->
+          <xs:choice dfdl:initiatedContent="yes"> <!-- should be discriminated -->
+            <!--
+              This element is OCK 'parsed', minOccurs 1, with initiatedContent.
+              Even though minOccurs 1, because OKC is parsed the first element
+              is a point of uncertainty. So when we successfully parse the
+              initiator of the first element, the first element PoU is resolved
+              as well as the inner choice PoU. When that first parse fails, we
+              backtrack to the outer choice, which should not be discriminated,
+              and then parse that data as the "correct" element.
+            -->
+            <xs:element name="e" type="xs:int" dfdl:initiator="+" dfdl:terminator=";"
+               minOccurs="1" maxOccurs="2" dfdl:occursCountKind="parsed"/>
             <xs:element name="incorrect" type="xs:string" dfdl:initiator="+"/>
           </xs:choice>
           <xs:element name="correct" type="xs:string"/>
@@ -776,4 +826,31 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>  
+
+  <tdml:parserTestCase name="fixedArrayInitiatedContentDiscriminatesChoice"
+    model="s4"
+    description="Test array children's initiators discriminate enclosing choice properly.">
+    <tdml:document><![CDATA[+1;+2;+a;]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <r2>
+          <correct>+1;+2;+a;</correct>
+        </r2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="parsedArrayMin1InitiatedContentDiscriminatesChoice"
+    model="s4"
+    description="Test array children's initiators discriminate enclosing choice properly.">
+    <tdml:document><![CDATA[+a;]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <r3>
+          <correct>+a;</correct>
+        </r3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>

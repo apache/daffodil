@@ -17,18 +17,17 @@
 package org.apache.daffodil.processors.parsers
 
 
-import org.apache.daffodil.processors.Evaluatable
-import org.apache.daffodil.exceptions.UnsuppressableException
-import java.io.PrintWriter
-import java.io.StringWriter
-import org.apache.daffodil.dsom.SchemaDefinitionDiagnosticBase
 import org.apache.daffodil.dsom.TunableLimitExceededError
-import org.apache.daffodil.infoset.DIComplex
 import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.processors.Success
-import org.apache.daffodil.processors.SequenceRuntimeData
+import org.apache.daffodil.infoset.DIComplex
 import org.apache.daffodil.processors.ElementRuntimeData
+import org.apache.daffodil.processors.Evaluatable
 import org.apache.daffodil.processors.Failure
+import org.apache.daffodil.processors.SequenceRuntimeData
+import org.apache.daffodil.processors.Success
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.Maybe.Nope
+import org.apache.daffodil.util.Maybe.One
 
 /**
  * Base class for all sequence parsers, which are the combinators that coordinate
@@ -136,7 +135,7 @@ abstract class SequenceParserBase(
               // Note: Performance - counting on Scala compiler to optimize away
               // this 2-tuple to avoid allocation in the inner loop here.
               //
-              val (nextAIS, nextResultOfTry) = parseOneInstance(parser, pstate, roStatus, resultOfTry)
+              val (nextAIS, nextResultOfTry) = parseOneInstance(parser, pstate, roStatus)
               ais = nextAIS
               priorResultOfTry = resultOfTry
               resultOfTry = nextResultOfTry
@@ -203,7 +202,7 @@ abstract class SequenceParserBase(
         }
         case scalarParser => {
           val roStatus = scalarParser.maybeStaticRequiredOptionalStatus.get
-          val (_, nextResultOfTry) = parseOneInstance(scalarParser, pstate, roStatus, resultOfTry)
+          val (_, nextResultOfTry) = parseOneInstance(scalarParser, pstate, roStatus)
           priorResultOfTry = resultOfTry
           resultOfTry = nextResultOfTry
           resultOfTry match {
@@ -254,103 +253,93 @@ abstract class SequenceParserBase(
   private def parseOneInstance(
     parser: SequenceChildParser,
     pstate: PState,
+    roStatus: RequiredOptionalStatus): (ArrayIndexStatus, ParseAttemptStatus) = {
+
+    // Determine if we need a PoU. Note that we only have a point of
+    // uncertainty if the sequence child parser has points of uncertainty (e.g.
+    // array with min/max) and the require/optional status is not required.
+    // Additionally, we only have this for ordered sequence. Unordered
+    // sequences PoU's are handled by the choice parser
+    val needsPoU =
+      isOrdered &&
+      (parser.pouStatus eq PoUStatus.HasPoU) &&
+      !roStatus.isInstanceOf[RequiredOptionalStatus.Required]
+
+    if (needsPoU) {
+      pstate.withPointOfUncertainty("SequenceParserBase", parser.context) { pou =>
+        parseOneInstanceWithMaybePoU(parser, pstate, roStatus, One(pou))
+      }
+    } else {
+      parseOneInstanceWithMaybePoU(parser, pstate, roStatus, Nope)
+    }
+  }
+
+  private def parseOneInstanceWithMaybePoU(
+    parser: SequenceChildParser,
+    pstate: PState,
     roStatus: RequiredOptionalStatus,
-    resultOfTryArg: ParseAttemptStatus): (ArrayIndexStatus, ParseAttemptStatus) = {
-    var resultOfTry = resultOfTryArg
+    maybePoU: Maybe[PState.Mark]): (ArrayIndexStatus, ParseAttemptStatus) = {
+
     var ais: ArrayIndexStatus = ArrayIndexStatus.Uninitialized
 
-    val hasPoU = parser.pouStatus eq PoUStatus.HasPoU
+    checkN(pstate, parser) // check if occursIndex exceeds tunable limit.
+    val priorPos = pstate.bitPos0b
+
+    var resultOfTry = parser.parseOne(pstate, roStatus)
+
+    val currentPos = pstate.bitPos0b
+
+    val isPoUResolved =
+      if (maybePoU.isDefined) pstate.isPointOfUncertaintyResolved(maybePoU.get)
+      else true
 
     //
-    // Saved state before an individual occurrence.
-    // These should not leak as we iterate the occurrences.
-    // The lifetime of these is the parse attempt for a single occurrence
-    // only.
+    // Now we handle the result of the parse attempt.
     //
-    val priorState = if (hasPoU) pstate.mark("before occurrence") else null
+    // check for consistency - failure comes with a PE in the PState.
+    Assert.invariant((pstate.processorStatus eq Success) ||
+      resultOfTry.isInstanceOf[FailedParseAttemptStatus])
 
-    var wasThrow = true
-    try {
-      checkN(pstate, parser) // check if occursIndex exceeds tunable limit.
-
-      if (hasPoU) pstate.pushPointOfUncertainty
-      val priorPos = pstate.bitPos0b
-
-      resultOfTry = parser.parseOne(pstate, roStatus)
-
-      wasThrow = false
-
-      val currentPos = pstate.bitPos0b
-
-      val wasDiscriminatorSet = pstate.discriminator
-      //
-      // Now we handle the result of the parse attempt.
-      //
-      // check for consistency - failure comes with a PE in the PState.
-      Assert.invariant((pstate.processorStatus eq Success) ||
-        resultOfTry.isInstanceOf[FailedParseAttemptStatus])
-
-      resultOfTry match {
-        case _: SuccessParseAttemptStatus => // ok
-        case AbsentRep => {
-          if (hasPoU) pstate.reset(priorState) // back out any side effects of the attempt to parse
-          pstate.dataInputStream.setBitPos0b(currentPos) // skip syntax such as a separator
-        }
-        case MissingSeparator if (pstate.isSuccess) => {
-          // missing separator with parse success indicates that we should end the sequence now
-          if (hasPoU) pstate.discard(priorState)
-          ais = Done
-        }
-        case _: FailedParseAttemptStatus => { // MissingSeparator with failure will match here
-          Assert.invariant(pstate.isFailure)
-          if (hasPoU && !wasDiscriminatorSet &&
-            (roStatus.isInstanceOf[RequiredOptionalStatus.Optional])) {
-            // we back up and finish the array at the prior element if any.
-            pstate.reset(priorState)
-            Assert.invariant(pstate.isSuccess)
-          } else if (hasPoU && wasDiscriminatorSet) {
-            resultOfTry = UnorderedSeqDiscriminatedFailure
-          } else {
-            val cause = pstate.processorStatus.asInstanceOf[Failure].cause
-            parser.trd match {
-              case erd: ElementRuntimeData if (erd.isArray) => {
-                parser.PE(pstate, "Failed to populate %s[%s]. Cause: %s",
-                  erd.prefixedName, pstate.mpstate.arrayPos, cause)
-              }
-              case _ => // ok
-            }
-          }
-          ais = Done // exits the while loop for the array
-        }
-        case other => Assert.invariantFailed("Unexpected parse attempt status: " + other)
+    resultOfTry match {
+      case _: SuccessParseAttemptStatus => { // ok
+        if (maybePoU.isDefined && !isPoUResolved) pstate.discardPointOfUncertainty(maybePoU.get)
       }
-
-      if (hasPoU) pstate.popPointOfUncertainty
-
-    } catch {
-      // Similar try/catch/finally logic for returning marks is also used in
-      // the Choice parser. The logic isn't
-      // easily factored out so it is duplicated. Changes made here should also
-      // be made there. Only these parsers deal with taking marks, so this logic
-      // should not be needed elsewhere.
-      case t: Throwable => {
-        if (hasPoU) {
-          if (pstate.isInUse(priorState)) {
-            pstate.discard(priorState)
-            if (!t.isInstanceOf[SchemaDefinitionDiagnosticBase] && !t.isInstanceOf[UnsuppressableException] && !t.isInstanceOf[java.lang.Error]) {
-              val stackTrace = new StringWriter()
-              t.printStackTrace(new PrintWriter(stackTrace))
-              Assert.invariantFailed("Exception thrown with mark not returned: " + t + "\nStackTrace:\n" + stackTrace)
+      case AbsentRep => {
+        if (maybePoU.isDefined) {
+          Assert.invariant(!isPoUResolved) // impossible for an absent rep to resolve the PoU
+          pstate.resetToPointOfUncertainty(maybePoU.get) // back out any side effects of the attempt to parse
+        }
+        pstate.dataInputStream.setBitPos0b(currentPos) // skip syntax such as a separator
+      }
+      case MissingSeparator if (pstate.isSuccess) => {
+        // missing separator with parse success indicates that we should end the sequence now
+        ais = Done
+      }
+      case _: FailedParseAttemptStatus => { // MissingSeparator with failure will match here
+        Assert.invariant(pstate.isFailure)
+        if (maybePoU.isDefined && !isPoUResolved &&
+          (roStatus.isInstanceOf[RequiredOptionalStatus.Optional])) {
+          // we back up and finish the array at the prior element if any.
+          pstate.resetToPointOfUncertainty(maybePoU.get)
+          Assert.invariant(pstate.isSuccess)
+        } else if (maybePoU.isDefined && isPoUResolved) {
+          resultOfTry = UnorderedSeqDiscriminatedFailure
+        } else {
+          parser.trd match {
+            case erd: ElementRuntimeData if (erd.isArray) => {
+              val cause = pstate.processorStatus.asInstanceOf[Failure].cause
+              parser.PE(pstate, "Failed to populate %s[%s]. Cause: %s",
+                erd.prefixedName, pstate.mpstate.arrayPos, cause)
             }
+            case _ => // ok
           }
         }
-        throw t
+        ais = Done // exits the while loop for the array
       }
+      case other => Assert.invariantFailed("Unexpected parse attempt status: " + other)
     }
-    // if it wasn't reset, we discard priorState here.
-    if (hasPoU && pstate.isInUse(priorState)) {
-      pstate.discard(priorState)
-    }
+
     (ais, resultOfTry)
+
   }
 }
