@@ -219,6 +219,8 @@ abstract class ChoiceDispatchCombinatorParserBase(rd: TermRuntimeData,
             pstate.resetToPointOfUncertainty(pou)
           }
 
+          val savedLastChildNode = pstate.infoset.contents.lastOption
+
           // Note that we are intentionally not pushing/popping a new
           // discriminator here, as is done in the ChoiceCombinatorParser and
           // AltCompParser. This has the effect that if a branch of this direct
@@ -232,6 +234,24 @@ abstract class ChoiceDispatchCombinatorParserBase(rd: TermRuntimeData,
 
           if (pstate.processorStatus eq Success) {
             log(LogLevel.Debug, "Choice dispatch success: %s", parser)
+
+            // We usually rely on the sequence parser to set elements as final.
+            // But choices with scalar elements do not necessarily have a
+            // sequence surrounding them and so they aren't set final. In order
+            // to set these elements final, we do it here as well. We will
+            // attempt to walk the infoset after the PoU is discarded.
+            //
+            // Note that we must do a null check because it's possible there was
+            // a sequence, which figured out the element was final, walked it and
+            // it was removed.
+            val newLastChildNode = pstate.infoset.contents.lastOption
+            if (newLastChildNode != savedLastChildNode) {
+              val last = newLastChildNode.get
+              if (last != null) {
+                last.setFinal()
+              }
+            }
+
           } else {
             log(LogLevel.Debug, "Choice dispatch failed: %s", parser)
             val diag = new ChoiceDispatchFailed(context.schemaFileLocation, pstate, pstate.diagnostics)
@@ -240,6 +260,7 @@ abstract class ChoiceDispatchCombinatorParserBase(rd: TermRuntimeData,
         }
       }
     }
+    pstate.walker.walk()
 
   }
 }

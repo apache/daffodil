@@ -190,6 +190,8 @@ class ChoiceParser(
     
     var successfullyParsedChildBranch = false
 
+    val savedLastChildNode = pstate.infoset.contents.lastOption
+
     while (!successfullyParsedChildBranch && i < numAlternatives) {
 
       val parser = childParsers(i)
@@ -203,6 +205,24 @@ class ChoiceParser(
           // Choice branch was successfull. Break out of the loop and let
           // withPointOfUncertainty discard the pou
           successfullyParsedChildBranch = true
+
+          // We usually rely on the sequence parser to set elements as final.
+          // But choices with scalar elements do not necessarily have a
+          // sequence surrounding them and so they aren't set final. In order
+          // to set these elements final, we do it here as well. We will
+          // attempt to walk the infoset after the PoU is discarded.
+          //
+          // Note that we must do a null check because it's possible there was
+          // a sequence, which figured out the element was final, walked it and
+          // it was removed.
+          val newLastChildNode = pstate.infoset.contents.lastOption
+          if (newLastChildNode != savedLastChildNode) {
+            val last = newLastChildNode.get
+            if (last != null) {
+              last.setFinal()
+            }
+          }
+
         } else {
           // Failed to parse this branch alternative. Create diagnostic and
           // check if anything resolved the associated point of uncertainty
@@ -225,6 +245,8 @@ class ChoiceParser(
           }
         }
       }
+
+      pstate.walker.walk()
     }
 
     if (!successfullyParsedChildBranch) {

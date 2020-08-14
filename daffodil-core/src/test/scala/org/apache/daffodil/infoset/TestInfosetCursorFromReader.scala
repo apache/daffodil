@@ -278,7 +278,7 @@ class TestInfosetInputterFromReader {
     val Seq(fooERD: ElementRuntimeData) = barSeqTRD.groupMembers
     val doc = inp.documentElement
     val Start(bar_s: DIComplex) = is.next
-    doc.addChild(bar_s)
+    doc.addChild(bar_s, tunable)
     inp.pushTRD(barSeqTRD)
     inp.pushTRD(fooERD)
     val StartArray(foo_arr_s) = is.next

@@ -19,6 +19,7 @@ package org.apache.daffodil.processors.parsers
 
 import org.apache.daffodil.dsom.TunableLimitExceededError
 import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.infoset.DIArray
 import org.apache.daffodil.infoset.DIComplex
 import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.processors.Evaluatable
@@ -82,6 +83,18 @@ abstract class SequenceParserBase(
 
     val infosetIndexStart = pstate.infoset.asInstanceOf[DIComplex].childNodes.size
 
+    if (!isOrdered) {
+      // If this is an unordered sequence, upon completion of parsing all the
+      // elements we will reorder the elements into schema definition order.
+      // This means that we cannot let the infoset walker walk any of the
+      // elements while we are parsing because their event order might change.
+      // To ensure we don't walk, add a block on the parent of the infoset
+      // elements. The infoset walker will inspect this to see if it should
+      // walk any children. We'll remove this block once the unordered sequence
+      // is complete.
+      pstate.infoset.infosetWalkerBlockCount += 1
+    }
+
     /**
      * On exit from the sequence loop, if the last thing was Missing, we
      * want to look back one prior to see if that followed a EmptyRep or AbsentRep,
@@ -97,7 +110,13 @@ abstract class SequenceParserBase(
     // This loop iterates over the children terms of the sequence
     //
     while (!isDone && (scpIndex < limit) && (pstate.processorStatus eq Success)) {
+
+      // keep track of the current last child node. If the last child changes
+      // while parsing, we know a new child was added in this loop
+      val savedLastChildNode = pstate.infoset.contents.lastOption
+
       child = children(scpIndex).asInstanceOf[SequenceChildParser]
+
       child match {
         case parser: RepeatingChildParser => {
           //
@@ -183,6 +202,35 @@ abstract class SequenceParserBase(
               //
               pstate.mpstate.moveOverOneGroupIndexOnly()
             }
+
+            val newLastChildNode = pstate.infoset.contents.lastOption
+            if (newLastChildNode != savedLastChildNode) {
+              // We have added at least one child to to this complex during
+              // this array loop.
+              //
+              // If the new child is a DIArray, we know this DIArray has at
+              // least one element, but we don't know if we actually added a
+              // new one in this loop or not. So just get the last array
+              // element and set it as final anyways. Note that we need a null
+              // check because if we didn't add an array element this go
+              // around, the last element may have already been walked and
+              // freed and so could now be null.
+              //
+              // If it's not a DIArray, that means it's just an optional
+              // simple/complex and that will get set final below where all
+              // other non-array elements get set as final.
+              newLastChildNode.get match {
+                case a: DIArray => {
+                  val lastArrayElem = a.contents.last
+                  if (lastArrayElem != null) {
+                    lastArrayElem.setFinal()
+                    pstate.walker.walk()
+                  }
+                }
+                case _ => // non-array, that gets handled down below
+              }
+            }
+
           } // end while for each repeat
           parser.endArray(pstate)
         } // end match case RepeatingChildParser
@@ -237,13 +285,75 @@ abstract class SequenceParserBase(
           pstate.mpstate.moveOverOneGroupIndexOnly()
         } // end case scalarParser
       } // end match case parser
-      if (isOrdered)
-        scpIndex += 1
-      else if (isDone) {
-        val infoset = pstate.infoset.asInstanceOf[DIComplex]
-        infoset.flattenAndValidateChildNodes(pstate, infosetIndexStart)
+
+      // now that we have finished parsing a single instance of this sequence,
+      // we need to potentially set things as final, get the last child to
+      // determine if it changed from the saved last child, which lets us know
+      // if a new child was actually added.
+      val newLastChildNode = pstate.infoset.contents.lastOption
+
+      if (!isOrdered) {
+        // In the special case of unordered sequences with arrays, the
+        // childParser is not a RepeatingChildParser, so array elements aren't
+        // setFinal above like normal arrays are a. Instead we parse one
+        // instance at a time in this loop.
+        //
+        // So if this the new last child node is a DIArray, we must set new
+        // array elements as final here. We can't know if we actually added a
+        // new DIArray element or not, so just set the last one as final
+        // regardless.
+        //
+        // Note that we do not need to do a null check because in an unordered
+        // sequence we are blocking, so we can't possible walk/free any of
+        // these newly added elements.
+        //
+        // Also note that the DIArray itself is set as final right below this.
+        // Again, because unordred sequences get blocked, that array won't be
+        // walked even though it's final.
+        newLastChildNode match {
+          case Some(a: DIArray) => a.contents.last.setFinal()
+          case _ => // do nothing
+        }
       }
+
+      // We finished parsing one part of a sequence, which could either be an
+      // array, simple or complex. If the last child is different from when we
+      // started that means we must have added a new element and we can set it
+      // final and walk. Note that we must do a null check because it's
+      // possible this last child was already determined to be final, walked,
+      // and freed in the ChoiceParser.
+      if (newLastChildNode != savedLastChildNode) {
+        val lastChild = newLastChildNode.get
+        if (lastChild != null) {
+          lastChild.setFinal()
+          pstate.walker.walk()
+        }
+      }
+
+      if (isOrdered) {
+        // only increment scpIndex for ordered sequences. For unordered
+        // sequences, we just parse the single child parser repeatedly until we
+        // get a failure
+        scpIndex += 1
+      }
+
     } // end while for each sequence child parser
+
+    if (!isOrdered) {
+      // we are unordered, so we need to reorder the new children into schema
+      // definition order, flatten arrays, and validate
+      val infoset = pstate.infoset.asInstanceOf[DIComplex]
+      infoset.flattenAndValidateChildNodes(pstate, infosetIndexStart)
+
+      // now that we have flattened children, we can decrement the block count
+      // that we incremented above. This will allow the infoset walker to walk
+      // into the new children that are now in the correct order.
+      pstate.infoset.infosetWalkerBlockCount -= 1
+
+      // we've unblocked the unordered sequence, try walking to output
+      // everything we've created
+      pstate.walker.walk()
+    }
 
     if (child ne null) child.finalChecks(pstate, resultOfTry, priorResultOfTry)
     pstate.mpstate.groupIndexStack.pop()
@@ -266,9 +376,11 @@ abstract class SequenceParserBase(
       !roStatus.isInstanceOf[RequiredOptionalStatus.Required]
 
     if (needsPoU) {
-      pstate.withPointOfUncertainty("SequenceParserBase", parser.context) { pou =>
+      val ans = pstate.withPointOfUncertainty("SequenceParserBase", parser.context) { pou =>
         parseOneInstanceWithMaybePoU(parser, pstate, roStatus, One(pou))
       }
+      pstate.walker.walk()
+      ans
     } else {
       parseOneInstanceWithMaybePoU(parser, pstate, roStatus, Nope)
     }

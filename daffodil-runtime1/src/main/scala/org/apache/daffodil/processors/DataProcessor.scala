@@ -18,53 +18,57 @@
 package org.apache.daffodil.processors
 
 import java.io.File
+import java.io.IOException
 import java.io.ObjectOutputStream
-import java.nio.channels.Channels
 import java.nio.CharBuffer
-import java.nio.file.Files
 import java.nio.LongBuffer
+import java.nio.channels.Channels
+import java.nio.file.Files
 import java.util.zip.GZIPOutputStream
+
+import scala.collection.immutable.Queue
 
 import org.xml.sax.ErrorHandler
 import org.xml.sax.SAXException
 import org.xml.sax.SAXParseException
-import org.apache.daffodil.Implicits._
 
-import scala.collection.immutable.Queue; object INoWarn4 { ImplicitsSuppressUnusedImportWarning() }
-import org.apache.daffodil.equality._; object EqualityNoWarn3 { EqualitySuppressUnusedImportWarning() }
-import org.apache.daffodil.api.WithDiagnostics
-import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.dsom._
 import org.apache.daffodil.ExecutionMode
 import org.apache.daffodil.api.DFDL
-import org.apache.daffodil.api.WithDiagnostics
-import org.apache.daffodil.util.Validator
+import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.api.ValidationMode
-import org.apache.daffodil.externalvars.ExternalVariablesLoader
-import org.apache.daffodil.externalvars.Binding
-import org.apache.daffodil.util.Maybe
-import org.apache.daffodil.util.Maybe._
-import org.apache.daffodil.util.Logging
+import org.apache.daffodil.api.WithDiagnostics
 import org.apache.daffodil.debugger.Debugger
-import org.apache.daffodil.processors.unparsers.UState
-import org.apache.daffodil.infoset.InfosetInputter
-import org.apache.daffodil.processors.unparsers.UnparseError
-import org.apache.daffodil.oolag.ErrorAlreadyHandled
+import org.apache.daffodil.dsom.TunableLimitExceededError
+import org.apache.daffodil.dsom._
+import org.apache.daffodil.equality._; object EqualityNoWarn3 { EqualitySuppressUnusedImportWarning() }
 import org.apache.daffodil.events.MultipleEventHandler
-import org.apache.daffodil.io.DirectOrBufferedDataOutputStream
-import org.apache.daffodil.io.InputSourceDataInputStream
-import org.apache.daffodil.util.LogLevel
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.exceptions.UnsuppressableException
+import org.apache.daffodil.externalvars.Binding
+import org.apache.daffodil.externalvars.ExternalVariablesLoader
+import org.apache.daffodil.infoset.DIElement
+import org.apache.daffodil.infoset.InfosetElement
+import org.apache.daffodil.infoset.InfosetException
+import org.apache.daffodil.infoset.InfosetInputter
+import org.apache.daffodil.infoset.InfosetOutputter
+import org.apache.daffodil.infoset.TeeInfosetOutputter
+import org.apache.daffodil.infoset.XMLTextInfosetOutputter
 import org.apache.daffodil.io.BitOrderChangeException
+import org.apache.daffodil.io.DirectOrBufferedDataOutputStream
 import org.apache.daffodil.io.FileIOException
-import org.apache.daffodil.infoset._
+import org.apache.daffodil.io.InputSourceDataInputStream
+import org.apache.daffodil.oolag.ErrorAlreadyHandled
+import org.apache.daffodil.processors.parsers.PState
 import org.apache.daffodil.processors.parsers.ParseError
 import org.apache.daffodil.processors.parsers.Parser
-import org.apache.daffodil.processors.parsers.PState
-import org.apache.daffodil.exceptions.UnsuppressableException
-import org.apache.daffodil.dsom.TunableLimitExceededError
-import org.apache.daffodil.api.DaffodilTunables
-import java.io.IOException
+import org.apache.daffodil.processors.unparsers.UState
+import org.apache.daffodil.processors.unparsers.UnparseError
+import org.apache.daffodil.util.LogLevel
+import org.apache.daffodil.util.Logging
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.Maybe._
 import org.apache.daffodil.util.Misc
+import org.apache.daffodil.util.Validator
 
 /**
  * Implementation mixin - provides simple helper methods
@@ -389,12 +393,28 @@ class DataProcessor private (
   def parse(input: InputSourceDataInputStream, output: InfosetOutputter): DFDL.ParseResult = {
     Assert.usage(!this.isError)
 
-    val rootERD = ssrd.elementRuntimeData
-    val initialState = PState.createInitialPState(rootERD, input, output, this)
-    parse(initialState)
-  }
+    // If full validation is enabled, tee all the infoset events to a second
+    // infoset outputter that writes the infoset to a byte array, and then
+    // we'll validate that byte array upon a successful parse.
+    //
+    // TODO: ideally we could create a validator that validates using only SAX
+    // events from a ContentHandler. Then we could just validate as parse
+    // events are created rather than writing the entire infoset in memory and
+    // then validating at the end of the parse. See DAFFODIL-2386
+    //
+    val (outputter, maybeValidationBytes) =
+      if (validationMode == ValidationMode.Full) {
+        val bos = new java.io.ByteArrayOutputStream()
+        val xmlOutputter = new XMLTextInfosetOutputter(bos, false)
+        val teeOutputter = new TeeInfosetOutputter(output, xmlOutputter)
+        (teeOutputter, One(bos))
+      } else {
+        (output, Nope)
+      }
 
-  def parse(state: PState): ParseResult = {
+    val rootERD = ssrd.elementRuntimeData
+    val state = PState.createInitialPState(rootERD, input, outputter, this, areDebugging)
+
     ExecutionMode.usingRuntimeMode {
 
       if (areDebugging) {
@@ -406,15 +426,21 @@ class DataProcessor private (
       doParse(ssrd.parser, state)
       val pr = new ParseResult(this, state)
       if (!pr.isProcessingError) {
-        pr.validateResult()
 
-        // now that everything has succeeded, call the infoset outputter to
-        // output the infoset
-        //
-        // TODO: eventually, we want infoset outputting to happen while parsing
-        // so that we can start to throw away infoset nodes. When that happens
-        // we can remove this line.
-        state.infoset.visit(state.output)
+        // By the time we get here, all infoset nodes have been setFinal, all
+        // walker blocks released, and all elements walked. The one exception
+        // is that the root node has not been set final because setFinal is
+        // handled by the sequence parser and there is no sequence around the
+        // root node. So mark it as final and do one last walk to end the
+        // document.
+        state.infoset.contents(0).setFinal()
+        state.walker.walk()
+        Assert.invariant(state.walker.isFinished)
+    
+        if (maybeValidationBytes.isDefined) {
+          pr.validateResult(maybeValidationBytes.get.toByteArray)
+        }
+
         state.output.setBlobPaths(state.blobPaths)
       } else {
         // failed, so delete all blobs that were created
@@ -660,26 +686,21 @@ class ParseResult(dp: DataProcessor, override val resultState: PState)
    *
    * @param state the initial parse state.
    */
-  def validateResult(): Unit = {
+  def validateResult(bytes: Array[Byte]): Unit = {
     Assert.usage(resultState.processorStatus eq Success)
-    if (dp.validationMode == ValidationMode.Full) {
-      val schemaURIStrings = resultState.infoset.asInstanceOf[InfosetElement].runtimeData.schemaURIStringsForFullValidation
-      try {
-        val bos = new java.io.ByteArrayOutputStream()
-        val xml = new XMLTextInfosetOutputter(bos, false)
-        resultState.infoset.visit(xml)
-        val bis = new java.io.ByteArrayInputStream(bos.toByteArray)
-        Validator.validateXMLSources(schemaURIStrings, bis, this)
-      } catch {
-        //
-        // Some SAX Parse errors are thrown even if you specify an error handler to the
-        // validator.
-        //
-        // So we also need this catch
-        //
-        case e: SAXException =>
-          resultState.validationErrorNoContext(e)
-      }
+    val schemaURIStrings = resultState.infoset.asInstanceOf[InfosetElement].runtimeData.schemaURIStringsForFullValidation
+    try {
+      val bis = new java.io.ByteArrayInputStream(bytes)
+      Validator.validateXMLSources(schemaURIStrings, bis, this)
+    } catch {
+      //
+      // Some SAX Parse errors are thrown even if you specify an error handler to the
+      // validator.
+      //
+      // So we also need this catch
+      //
+      case e: SAXException =>
+        resultState.validationErrorNoContext(e)
     }
   }
 

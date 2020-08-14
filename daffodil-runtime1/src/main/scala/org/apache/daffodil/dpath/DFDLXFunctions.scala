@@ -20,10 +20,9 @@ package org.apache.daffodil.dpath
 import java.math.{ BigInteger => JBigInt }
 
 import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.infoset.DINode
 import org.apache.daffodil.infoset.DISimple
 import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
-import org.apache.daffodil.infoset.InfosetCommon
-import org.apache.daffodil.infoset.XMLTextInfosetOutputter
 import org.apache.daffodil.processors.parsers.PState
 import org.apache.daffodil.processors.parsers.ParseError
 import org.apache.daffodil.processors.unparsers.UState
@@ -33,14 +32,6 @@ import org.apache.daffodil.util.Maybe.One
 
 case class DFDLXTrace(recipe: CompiledDPath, msg: String)
   extends RecipeOpWithSubRecipes(recipe) {
-
-  private def asXMLString(ie: InfosetCommon) = {
-    val bos = new java.io.ByteArrayOutputStream()
-    val xml = new XMLTextInfosetOutputter(bos, true)
-    ie.visit(xml, false)
-    xml.endDocument() // causes the outputter to flush to the stream
-    bos.toString("UTF-8")
-  }
 
   override def run(dstate: DState): Unit = {
     recipe.run(dstate)
@@ -52,7 +43,7 @@ case class DFDLXTrace(recipe: CompiledDPath, msg: String)
         dstate.setCurrentValue(v)
         v.toString()
       }
-      case other: InfosetCommon => "\n" + asXMLString(other)
+      case other: DINode => other.namedQName.toString
     }
     System.err.println("trace " + msg + ":" + nodeString)
   }

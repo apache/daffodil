@@ -51,7 +51,18 @@ class TestSimpleTypeUnions {
     <xs:simpleType name="oneOrTwo">
       <xs:union memberTypes="ex:int1Type ex:int2Type"/>
     </xs:simpleType>
-    <xs:element name="e1" dfdl:lengthKind="delimited" type="ex:oneOrTwo"/>)
+    <xs:element name="e1" dfdl:lengthKind="delimited" type="ex:oneOrTwo">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
+          <!--
+            this assert always passes, but uses e1 in an expression to prevent
+            the InfosetWalker from freeing it, which allows the tests to
+            inspect runtime internals
+          -->
+          <dfdl:assert test="{ fn:true() or /ex:e1 eq 0 }" />
+        </xs:appinfo>
+      </xs:annotation>
+    </xs:element>)
 
   @Test def testUnion01: Unit = {
 
@@ -86,7 +97,7 @@ class TestSimpleTypeUnions {
 
   @Test def testUnionFirstUnionMemberOk: Unit = {
     val (result, actual) = TestUtils.testString(testSchema1, "1")
-    val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].root.asInstanceOf[DISimple]
+    val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].contents(0).asInstanceOf[DISimple]
     val umstrd = i.unionMemberRuntimeData.get
     assertEquals("ex:int1Type", umstrd.diagnosticDebugName)
     assertTrue(i.valid.get)
@@ -96,7 +107,7 @@ class TestSimpleTypeUnions {
 
   @Test def testUnionSecondUnionMemberOk: Unit = {
     val (result, actual) = TestUtils.testString(testSchema1, "2")
-    val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].root.asInstanceOf[DISimple]
+    val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].contents(0).asInstanceOf[DISimple]
     val umstrd = i.unionMemberRuntimeData.get
     assertEquals("ex:int2Type", umstrd.diagnosticDebugName)
     assertTrue(i.valid.get)
@@ -106,7 +117,7 @@ class TestSimpleTypeUnions {
 
   @Test def testUnionNoUnionMemberOK: Unit = {
     val (result, _) = TestUtils.testString(testSchema1, "3")
-    val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].root.asInstanceOf[DISimple]
+    val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].contents(0).asInstanceOf[DISimple]
     val Some(dv: java.lang.Integer) = Some(i.dataValue.getInt)
     assertEquals(3, dv.intValue())
     assertTrue(i.unionMemberRuntimeData.isEmpty)
@@ -179,11 +190,22 @@ class TestSimpleTypeUnions {
         </xs:simpleType>
       </xs:union>
     </xs:simpleType>
-    <xs:element name="e1" dfdl:lengthKind="delimited" type="ex:eType"/>)
+    <xs:element name="e1" dfdl:lengthKind="delimited" type="ex:eType">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
+          <!--
+            this assert always passes, but uses e1 in an expression to prevent
+            the InfosetWalker from freeing it, which allows the tests to
+            inspect runtime internals
+          -->
+          <dfdl:assert test="{ fn:true() or /ex:e1 eq 0 }" />
+        </xs:appinfo>
+      </xs:annotation>
+    </xs:element>)
 
   @Test def testUnionNot3: Unit = {
     val (result, _) = TestUtils.testString(testSchema2, "3")
-    val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].root.asInstanceOf[DISimple]
+    val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].contents(0).asInstanceOf[DISimple]
     val Some(dv: java.lang.Integer) = Some(i.dataValue.getInt)
     assertEquals(3, dv.intValue())
     assertTrue(i.unionMemberRuntimeData.isEmpty)
@@ -208,7 +230,7 @@ class TestSimpleTypeUnions {
 
   @Test def testUnionNot3_01: Unit = {
     val (result, actual) = TestUtils.testString(testSchema2, "1")
-    val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].root.asInstanceOf[DISimple]
+    val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].contents(0).asInstanceOf[DISimple]
     val umstrd = i.unionMemberRuntimeData.get
     assertEquals("ex:int12Type", umstrd.diagnosticDebugName)
     assertTrue(i.valid.get)
@@ -218,7 +240,7 @@ class TestSimpleTypeUnions {
 
   @Test def testUnionNot3_02: Unit = {
     val (result, actual) = TestUtils.testString(testSchema2, "2")
-    val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].root.asInstanceOf[DISimple]
+    val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].contents(0).asInstanceOf[DISimple]
     val umstrd = i.unionMemberRuntimeData.get
     assertEquals("ex:int12Type", umstrd.diagnosticDebugName)
     assertTrue(i.valid.get)
@@ -228,7 +250,7 @@ class TestSimpleTypeUnions {
 
   @Test def testUnionNot3_03: Unit = {
     val (result, actual) = TestUtils.testString(testSchema2, "-1")
-    val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].root.asInstanceOf[DISimple]
+    val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].contents(0).asInstanceOf[DISimple]
     val umstrd = i.unionMemberRuntimeData.get
     assertEquals("ex:negIntType", umstrd.diagnosticDebugName) // anonymous simple type gets this name from base.
     assertTrue(i.valid.get)
@@ -270,11 +292,22 @@ class TestSimpleTypeUnions {
         <xs:pattern value="foo[1234]bar"/>
       </xs:restriction>
     </xs:simpleType>
-    <xs:element name="e1" dfdl:lengthKind="delimited" type="ex:foo3bar"/>)
+    <xs:element name="e1" dfdl:lengthKind="delimited" type="ex:foo3bar">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
+          <!--
+            this assert always passes, but uses e1 in an expression to prevent
+            the InfosetWalker from freeing it, which allows the tests to
+            inspect runtime internals
+          -->
+          <dfdl:assert test="{ fn:true() or /ex:e1 eq '' }" />
+        </xs:appinfo>
+      </xs:annotation>
+    </xs:element>)
 
   @Test def testRestrictionOnUnion_01: Unit = {
     val (result, actual) = TestUtils.testString(testSchema3, "foo3bar")
-    val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].root.asInstanceOf[DISimple]
+    val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].contents(0).asInstanceOf[DISimple]
     val umstrd = i.unionMemberRuntimeData.get
     assertEquals("ex:foo3or4bar", umstrd.diagnosticDebugName)
     assertTrue(i.valid.get)
@@ -284,7 +317,7 @@ class TestSimpleTypeUnions {
 
   @Test def testRestrictionOnUnion_02: Unit = {
     val (result, actual) = TestUtils.testString(testSchema3, "foo1bar")
-    val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].root.asInstanceOf[DISimple]
+    val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].contents(0).asInstanceOf[DISimple]
     val umstrd = i.unionMemberRuntimeData.get
     assertEquals("ex:foo1or2bar", umstrd.diagnosticDebugName)
     assertTrue(i.valid.get)
@@ -294,7 +327,7 @@ class TestSimpleTypeUnions {
 
   @Test def testRestrictionOnUnion_03: Unit = {
     val (result, actual) = TestUtils.testString(testSchema3, "foo2bar")
-    val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].root.asInstanceOf[DISimple]
+    val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].contents(0).asInstanceOf[DISimple]
     val umstrd = i.unionMemberRuntimeData.get
     assertEquals("ex:foo1or2bar", umstrd.diagnosticDebugName)
     assertTrue(i.valid.get)
@@ -304,7 +337,7 @@ class TestSimpleTypeUnions {
 
   @Test def testRestrictionOnUnionFail_01: Unit = {
     val (result, _) = TestUtils.testString(testSchema3, "foo4bar")
-    val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].root.asInstanceOf[DISimple]
+    val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].contents(0).asInstanceOf[DISimple]
     val Some(dv: String) = Some(i.dataValue.getString)
     assertEquals("foo4bar", dv)
     assertTrue(i.unionMemberRuntimeData.isEmpty)
@@ -333,7 +366,7 @@ class TestSimpleTypeUnions {
    */
   @Test def testRestrictionOnUnionFail_02: Unit = {
     val (result, _) = TestUtils.testString(testSchema3, "notfoo1bar")
-    val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].root.asInstanceOf[DISimple]
+    val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].contents(0).asInstanceOf[DISimple]
     val Some(dv: String) = Some(i.dataValue.getString)
     assertEquals("notfoo1bar", dv)
     assertTrue(i.unionMemberRuntimeData.isEmpty)

@@ -66,7 +66,7 @@ object TestInfoset {
     val infosetRootNode = {
       val ustate = unparseResult.resultState.asInstanceOf[UStateMain]
       val diDocument: DIDocument = ustate.documentElement
-      val rootElement = diDocument.getRootElement().asInstanceOf[DIElement]
+      val rootElement = diDocument.contents(0).asInstanceOf[DIElement]
       Assert.invariant(rootElement ne null)
       rootElement
     }
