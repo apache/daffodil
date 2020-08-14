@@ -33,12 +33,15 @@ class ElementParserGenerator(context: ElementBase, contentParserGenerator: Parse
           cgState.addFieldDeclaration(cgState.toPrimitive(child.optPrimType.get, context), child.name)
           child.enclosedElement.generateCode(cgState)
         } else {
-          ??? // add a child struct, union, maybe array element inside parent element
-          //cgState.addFieldDeclaration(toComplexType(child), child.name)
+          // add a child struct, union, maybe array element inside parent element
+          cgState.addFieldDeclaration(cgState.toComplexType(child), child.name)
+          cgState.addComplexTypeStatements(child) // recursive calls to parse, unparse, init
+          cgState.addComputations(child) // offset, ERD computations
+          child.enclosedElement.generateCode(cgState)
         }
       }
       cgState.addStruct(context) // struct definition
-      cgState.addParser(context) // parse_self, unparse_self, newInstance
+      cgState.addImplementation(context) // parse_self, unparse_self, init_self
       cgState.addComplexTypeERD(context) // ERD static initializer
       cgState.popComplexElement(context)
     }

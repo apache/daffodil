@@ -87,13 +87,18 @@ class Runtime2DataProcessor(executableFile: Path) extends DFDL.DataProcessorBase
         val msg = "Unexpected output:\n"  + result.out.text + result.err.text
         val parseError = new ParseError(None, None, None, None, msg)
         val parseResult = new ParseResult(this, Failure(parseError))
+        parseResult.addDiagnostic(parseError)
         parseResult
       }
     } catch {
       case e: os.SubprocessException =>
-        val msg = e.getMessage + ": err.text=" + e.result.err.text
-        val parseError = new ParseError(None, None, Maybe.One(e), None, msg)
+        val msg = e.result.err.text
+        val parseError = if (!msg.isBlank)
+          new ParseError(None, None, None, None, s"${e.getMessage} err.text=$msg")
+        else
+          new ParseError(None, None, Maybe.One(e), None)
         val parseResult = new ParseResult(this, Failure(parseError))
+        parseResult.addDiagnostic(parseError)
         parseResult
     }
   }

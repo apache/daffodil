@@ -111,4 +111,41 @@ class TestGeneratedCodeCompiler {
     assert(!pf.isError, pf.getDiagnostics.map(_.getMessage()).mkString("\n"))
   }
 
+  @Test
+  def compileSecondRealProgram(): Unit = {
+    val testSchema = SchemaUtils.dfdlTestSchema(
+        <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+        <dfdl:format representation="binary" ref="tns:GeneralFormat"/>,
+      <xs:element name="c1">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="e1" type="xs:int"/>
+            <xs:element name="c2">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="e2" type="xs:int"/>
+                  <xs:element name="e3" type="xs:int"/>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>,
+      elementFormDefault = "unqualified")
+    val schemaCompiler = Compiler()
+    val pf = schemaCompiler.compileNode(testSchema)
+    assert(!pf.isError, pf.getDiagnostics.map(_.getMessage()).mkString("\n"))
+    val codeGeneratorState = pf.generateCode()
+    val generatedCodeCompiler = new GeneratedCodeCompiler(pf)
+    val rootElementName = "c1"
+    generatedCodeCompiler.compile(rootElementName, codeGeneratorState)
+    assert(!pf.isError, pf.getDiagnostics.map(_.getMessage()).mkString("\n"))
+    // Our next step will be to run the compiled C code and check if it works
+    val dp = generatedCodeCompiler.dataProcessor
+    val b = Misc.hex2Bytes("000000010000000200000003")
+    val input = new ByteArrayInputStream(b)
+    val pr = dp.parse(input)
+    assert(!pr.isError, pr.getDiagnostics.map(_.getMessage()).mkString("\n"))
+  }
+
 }

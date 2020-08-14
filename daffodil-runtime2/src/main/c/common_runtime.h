@@ -40,7 +40,7 @@ typedef struct ElementRuntimeData ERD;
 typedef struct InfosetBase InfosetBase;
 typedef void (*Parse_Self)(InfosetBase *infoNode, PState *pstate);
 typedef void (*Unparse_Self)(InfosetBase *infoNode, UState *ustate);
-typedef InfosetBase *(*New_Instance)();
+typedef void (*Init_Self)(InfosetBase *infoNode);
 
 typedef struct ElementRuntimeData
 {
@@ -52,7 +52,7 @@ typedef struct ElementRuntimeData
 
 	Parse_Self parseSelf;
 	Unparse_Self unparseSelf;
-	New_Instance newInstance;
+	Init_Self initSelf;
 } ERD;
 
 // VisitEventHandler - infoset visitor methods (generic)

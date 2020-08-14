@@ -42,14 +42,15 @@ class CodeGeneratorState(private val code: String) extends DFDL.CodeGeneratorSta
 
   def this() = this(null)
 
-  def addParser(context: ElementBase): Unit = {
+  def addImplementation(context: ElementBase): Unit = {
     val C = context.namedQName.local
     val parserStatements = structs.top.parserStatements.mkString("\n")
     val unparserStatements = structs.top.unparserStatements.mkString("\n")
+    val initStatements = structs.top.initStatements.mkString("\n")
     val prototypeFunctions =
       s"""void ${C}_parse_self($C *instance, PState *pstate);
          |void ${C}_unparse_self($C *instance, UState *ustate);
-         |$C *${C}_new_instance();""".stripMargin
+         |void ${C}_init_self($C *instance);""".stripMargin
     prototypes += prototypeFunctions
     val functions =
       s"""void ${C}_parse_self($C *instance, PState *pstate)
@@ -62,12 +63,9 @@ class CodeGeneratorState(private val code: String) extends DFDL.CodeGeneratorSta
          |$unparserStatements
          |}
          |
-         |$C *${C}_new_instance()
+         |void ${C}_init_self($C *instance)
          |{
-         |	$C *instance = calloc(sizeof($C), 1);
-         |	// If InfosetBase adds more members, we need to set them too
-         |	instance->_base.erd = &${C}ERD;
-         |	return instance;
+         |$initStatements
          |}""".stripMargin
     finalImplementation += functions
   }
@@ -97,7 +95,7 @@ class CodeGeneratorState(private val code: String) extends DFDL.CodeGeneratorSta
          |	${C}_childrenERDs,		// childrenERDs
          |	(Parse_Self)&${C}_parse_self,		// parseSelf
          |	(Unparse_Self)&${C}_unparse_self,	// unparseSelf
-         |	(New_Instance)&${C}_new_instance	// newInstance
+         |	(Init_Self)&${C}_init_self	// initSelf
          |};
          |""".stripMargin
     erds += complexERD
@@ -114,14 +112,27 @@ class CodeGeneratorState(private val code: String) extends DFDL.CodeGeneratorSta
          |} $C;
          |""".stripMargin
     finalStructs += struct
+    val initStatement =
+      s"""	// If InfosetBase adds more members, we need to set them too
+         |	instance->_base.erd = &${C}ERD;""".stripMargin
+    structs.top.initStatements += initStatement
   }
 
-  def addParseStatement(parseStatement: String): Unit = {
+  def addSimpleTypeStatements(parseStatement: String, unparseStatement: String, initStatement: String): Unit = {
     structs.top.parserStatements += parseStatement
+    structs.top.unparserStatements += unparseStatement
+    structs.top.initStatements += initStatement
   }
 
-  def addUnparseStatement(unparseStatement: String): Unit = {
+  def addComplexTypeStatements(child: ElementBase): Unit = {
+    val C = child.namedQName.local
+    val e = child.name
+    val parseStatement = s"	${C}_parse_self(&instance->$e, pstate);"
+    val unparseStatement = s"	${C}_unparse_self(&instance->$e, ustate);"
+    val initStatement = s"	${C}_init_self(&instance->$e);"
+    structs.top.parserStatements += parseStatement
     structs.top.unparserStatements += unparseStatement
+    structs.top.initStatements += initStatement
   }
 
   def pushComplexElement(context: ElementBase): Unit = {
@@ -154,7 +165,12 @@ class CodeGeneratorState(private val code: String) extends DFDL.CodeGeneratorSta
          |};
          |""".stripMargin
     erds += erd
+    addComputations(context)
+  }
+
+  def addComputations(child: ElementBase): Unit = {
     val C = structs.top.C
+    val e = child.namedQName.local
     val offsetComputation = s"	(void*)&${C}_compute_ERD_offsets.$e - (void*)&${C}_compute_ERD_offsets"
     val erdComputation = s"	&${e}ERD"
     structs.top.offsetComputations += offsetComputation
@@ -168,6 +184,11 @@ class CodeGeneratorState(private val code: String) extends DFDL.CodeGeneratorSta
       case PrimType.Int => "int"
       case _ => context.SDE("Unsupported primitive type: " + primType)
     }
+  }
+
+  def toComplexType(child: ElementBase): String = {
+    val definition = child.namedQName.local
+    definition
   }
 
   def addFieldDeclaration(definition: String, name: String): Unit = {
@@ -224,7 +245,8 @@ class CodeGeneratorState(private val code: String) extends DFDL.CodeGeneratorSta
          |    // Parse the input into our infoset.
          |    PState pstate = { input };
          |    XMLWriter xmlWriter = { xmlWriterMethods, output };
-         |    $C instance = { { &${C}ERD }, 0 };
+         |    $C instance;
+         |    ${C}ERD.initSelf((InfosetBase*)&instance);
          |    ${C}ERD.parseSelf((InfosetBase*)&instance, &pstate);
          |
          |    // Visit the infoset and print XML from it.
@@ -508,7 +530,7 @@ class CodeGeneratorState(private val code: String) extends DFDL.CodeGeneratorSta
        |typedef struct InfosetBase InfosetBase;
        |typedef void (*Parse_Self)(InfosetBase *infoNode, PState *pstate);
        |typedef void (*Unparse_Self)(InfosetBase *infoNode, UState *ustate);
-       |typedef InfosetBase *(*New_Instance)();
+       |typedef void (*Init_Self)(InfosetBase *infoNode);
        |
        |typedef struct ElementRuntimeData
        |{
@@ -520,7 +542,7 @@ class CodeGeneratorState(private val code: String) extends DFDL.CodeGeneratorSta
        |
        |	Parse_Self parseSelf;
        |	Unparse_Self unparseSelf;
-       |	New_Instance newInstance;
+       |	Init_Self initSelf;
        |} ERD;
        |
        |// VisitEventHandler - infoset visitor methods (generic)
@@ -649,9 +671,10 @@ class CodeGeneratorState(private val code: String) extends DFDL.CodeGeneratorSta
 }
 
 class ComplexCGState(val C: String) {
-  val declarations: mutable.ArrayBuffer[String] = mutable.ArrayBuffer[String]()
-  val parserStatements: mutable.ArrayBuffer[String] = mutable.ArrayBuffer[String]()
-  val unparserStatements: mutable.ArrayBuffer[String] = mutable.ArrayBuffer[String]()
-  val offsetComputations: mutable.ArrayBuffer[String] = mutable.ArrayBuffer[String]()
-  val erdComputations: mutable.ArrayBuffer[String] = mutable.ArrayBuffer[String]()
+  val declarations = mutable.ArrayBuffer[String]()
+  val parserStatements = mutable.ArrayBuffer[String]()
+  val unparserStatements = mutable.ArrayBuffer[String]()
+  val initStatements = mutable.ArrayBuffer[String]()
+  val offsetComputations = mutable.ArrayBuffer[String]()
+  val erdComputations = mutable.ArrayBuffer[String]()
 }

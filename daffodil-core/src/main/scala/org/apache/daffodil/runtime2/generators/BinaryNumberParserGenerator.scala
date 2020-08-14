@@ -82,8 +82,6 @@ class BinaryIntegerKnownLengthParserGenerator(
          |		}
          |		instance->$fieldName = be32toh(*((uint32_t *)(&buffer)));
          |	}""".stripMargin
-    cgState.addParseStatement(parseStatement)
-
     val unparseStatement =
       s"""	{
          |		// Fill 4-byte buffer and write it to ustate->stream
@@ -98,6 +96,7 @@ class BinaryIntegerKnownLengthParserGenerator(
          |			// error handling goes here...
          |		}
          |	}""".stripMargin
-    cgState.addUnparseStatement(unparseStatement)
+    val initStatement = s"	instance->$fieldName = 0xCDCDCDCD;"
+    cgState.addSimpleTypeStatements(parseStatement, unparseStatement, initStatement)
   }
 }
