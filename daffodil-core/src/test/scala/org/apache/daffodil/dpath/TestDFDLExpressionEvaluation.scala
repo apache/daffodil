@@ -50,7 +50,7 @@ class TestDFDLExpressionEvaluation extends Parsers {
 
     val dis = InputSourceDataInputStream(java.nio.ByteBuffer.allocate(0)) // fake. Zero bits available.
     val outputter = new NullInfosetOutputter()
-    val pstate = PState.createInitialPState(doc, erd, dis, outputter, dp)
+    val pstate = PState.createInitialPState(doc, erd, dis, outputter, dp, areDebugging = false)
     val result = compiledExpr.evaluate(pstate)
     body(result)
   }

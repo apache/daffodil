@@ -431,7 +431,7 @@ sealed trait RegularElementUnparserStartEndStrategy
             c.addChild(res, state.tunable)
           } else {
             val doc = state.documentElement
-            doc.addChild(res) // DIDocument, which is never a current node, must have the child added
+            doc.addChild(res, state.tunable) // DIDocument, which is never a current node, must have the child added
             doc.setFinal() // that's the only child.
           }
           res

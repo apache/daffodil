@@ -269,9 +269,9 @@ protected abstract class MStack[@specialized T] private[util] (
    *
    *  @return the element on top of the stack.
    */
-  @inline final def top: T = table(index - 1).asInstanceOf[T]
+  @inline final def top: T = table(index - 1)
 
-  @inline final def bottom: T = table(0).asInstanceOf[T]
+  @inline final def bottom: T = table(0)
 
   @inline final def isEmpty: Boolean = index == 0
 
@@ -307,7 +307,7 @@ protected abstract class MStack[@specialized T] private[util] (
       Assert.usage(hasNext)
       Assert.usage(initialIndex <= index) // can't make it smaller than when initialized.
       currentIndex -= 1
-      table(currentIndex).asInstanceOf[T]
+      table(currentIndex)
     }
 
     /**

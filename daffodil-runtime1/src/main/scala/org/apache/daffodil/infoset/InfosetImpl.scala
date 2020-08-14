@@ -65,7 +65,7 @@ import org.apache.daffodil.xml.XMLUtils
 import passera.unsigned.ULong
 import org.apache.daffodil.dsom.DPathCompileInfo
 
-sealed trait DINode {
+sealed trait DINode extends DIFinalizable {
 
   def asSimple: DISimple = {
     this match {
@@ -92,11 +92,14 @@ sealed trait DINode {
     else asComplex
 
   def isDefaulted: Boolean
+  def isHidden: Boolean
 
   def children: Stream[DINode]
   def totalElementCount: Long
   def namedQName: NamedQName
   def erd: ElementRuntimeData
+
+  def infosetWalkerBlockCount: Int
 
   /**
    * Can treat any DINode, even simple ones, as a container of other nodes.
@@ -105,8 +108,27 @@ sealed trait DINode {
   def contents: IndexedSeq[DINode]
   final def numChildren = contents.length
 
-  def visit(handler: InfosetOutputter, removeHidden: Boolean = true): Unit
+  /**
+   * Returns the DINode that contains this DINode. Note that this behavior is
+   * slightly different from the "parent". The parent method always returns a
+   * DIComplex, even if this DINode is in an array. This usually makes sense
+   * and is what the caller intended when they call parent.
+   *
+   * However, we sometimes want the exact DINode that contains this DINode. So
+   * if this DINode is a DIElement in an array, then this returns the DIArray.
+   * Otherwise (i.e. DIArray or non-array DIElement) then it should return the
+   * DIComplex parent. Note that if the node is a DIDocument it should return
+   * null, which mimics the behavior of .parent.
+   */
+  def containerNode: DINode
 
+  /**
+   * Free memory associated with the child at a specified index. Note that this
+   * should only free children if they are not actually needed anymore. It can
+   * assume that the infoset events have been created, but if, for example, a
+   * child is used in DPath expressions this should not free the child.
+   */
+  def freeChildIfNoLongerNeeded(index: Int): Unit
 }
 
 /**
@@ -813,6 +835,17 @@ sealed trait DIElement
   override final def trd = erd
 
   /**
+   * Used to prevent the infoset walker from walking into an infoset element.
+   * This is generally incremented when marks are added and decremented when
+   * they are discarded. The idea being that we do not want to walk into
+   * infoset elements if there could be backtracking. Though this is not
+   * strictly the only time blocks may be added. For example, we also increment
+   * this when in unordered sequences to prevent walking until elements are
+   * reordered to schema definition order.
+   */
+  var infosetWalkerBlockCount: Int = 0
+
+  /**
    * Tells us if the element was entirely created by defaulting elements.
    */
   def isDefaulted: Boolean
@@ -877,6 +910,10 @@ sealed trait DIElement
   protected final var _isNilledSet: Boolean = false
 
   override def parent = _parent
+
+  override def containerNode =
+    if (array.isDefined) array.get.asInstanceOf[DINode]
+    else parent.asInstanceOf[DINode]
 
   def diParent = _parent.asInstanceOf[DIComplex]
 
@@ -943,10 +980,11 @@ final class DIArray(
 // without bound. So, replace this with a mutable map so that it can shrink
 // as well as grow. // not saved. Needed only to get initial size.
 )
-  extends DINode with InfosetArray
-  with DIFinalizable {
+  extends DINode with InfosetArray {
 
   private lazy val nfe = new InfosetArrayNotFinalException(this)
+
+  override def containerNode = parent
 
   override def requireFinal: Unit = {
     if (!isFinal) {
@@ -970,6 +1008,38 @@ final class DIArray(
 
   override def isSimple = false
   override def isComplex = false
+
+  // Parsers don't actually call setHidden on DIArrays, only on DIElements. But
+  // DIArrays are always created when there is at least one child element, and
+  // since all children of an array must have the same visibility, we can just
+  // inspect the isHidden property of the first child to determine if the
+  // entire array is hidden.
+  override def isHidden = _contents(0).isHidden
+
+  // Marks/blocks are never taken on arrays, so the infosetWalkerBlockCount
+  // would normally be zero for arrays. The infosetWalkerBlockCount is used to determine
+  // if this array is known to exist or if it could be backtracked. We know
+  // this DIArray exists if the first child is known to exist (i.e. if it has
+  // no blocks).
+  //
+  // Additionally, the infoset walker may delete elements from an array. In
+  // which case _contents(0) may be null. But if _contents(0) is null, that
+  // means there was an element that was known to exist, and it was freed after
+  // its event were created. So that doesn't cause a block.
+  //
+  // We also add the parent block count. This is because a mark is taken when
+  // speculatively parsing a single element of an array. This mark increments
+  // the infosetWalkerBlockCount of the /parent/ of the DIArray because the new
+  // DIElement in this DIArray does not yet exist. So as long as we are
+  // speculatively parsing a single element of an array, this block on the
+  // parent prevents walking into this new speculatively parsed array element.
+  // Once we finish speculatively parsing that single array element, that block
+  // is removed, and we immediately call walk() to walk the new array element
+  // (assuming there are no other PoU's in scope). This process is repeated for
+  // each speculatively parsed array element.
+  override def infosetWalkerBlockCount =
+    parent.infosetWalkerBlockCount +
+    (if (_contents(0) == null) 0 else _contents(0).infosetWalkerBlockCount)
 
   override def toString = "DIArray(" + namedQName + "," + _contents + ")"
 
@@ -1030,19 +1100,15 @@ final class DIArray(
     a
   }
 
-  final def visit(handler: InfosetOutputter, removeHidden: Boolean = true): Unit = {
-    // Do not create an event if there's nothing in the array or if the array
-    // is hidden. Unfortunately, there is no way to tell if an array is hidden,
-    // only its elements. But if the first element is hidden, they are all
-    // hidden, so we check that to determine if the array is hidden.
-    if (length > 0 && (!_contents(0).isHidden || !removeHidden)) {
-      handler.startArray(this)
-      _contents.foreach { _.visit(handler, removeHidden) }
-      handler.endArray(this)
+  final def isDefaulted: Boolean = children.forall { _.isDefaulted }
+
+  final def freeChildIfNoLongerNeeded(index: Int): Unit = {
+    val node = _contents(index)
+    if (!node.erd.dpathElementCompileInfo.isReferencedByExpressions) {
+      // set to null so that the garbage collector can free this node
+      _contents(index) = null
     }
   }
-
-  final def isDefaulted: Boolean = children.forall { _.isDefaulted }
 }
 
 /**
@@ -1296,16 +1362,23 @@ sealed class DISimple(override val erd: ElementRuntimeData)
 
   override def totalElementCount = 1L
 
-  final def visit(handler: InfosetOutputter, removeHidden: Boolean = true): Unit = {
-    if (!this.isHidden || !removeHidden) {
-      handler.startSimple(this)
-      handler.endSimple(this)
-    }
+  /**
+   * requireFinal is only ever used on unparse, and we never need to require a
+   * simple type to be final during unparse. However, we do need to have an
+   * implementation of this function, as DISimple needs DIFinalizable and
+   * isFinal for parsing and allowing the cleanup of unneeded DINodes.
+   */
+  override def requireFinal: Unit = {
+    Assert.invariantFailed("Should not requireFinal a simple type")
+  }
+
+  final def freeChildIfNoLongerNeeded(index: Int): Unit = {
+    Assert.invariantFailed("Should not try to remove a child of a simple type")
   }
 
 }
 /**
- * Arrays and complex elements have a notion of being finalized, when unparsing.
+ * When unparsing, arrays and complex elements have a notion of being finalized.
  * This is when we know that no more elements will be added to them, so things
  * like fn:count can return a value knowing it won't change, and fn:exists can
  * return false, knowing nobody will subsequently append the item that was being
@@ -1325,31 +1398,19 @@ sealed trait DIFinalizable {
 }
 
 /**
- * Complex elements have an array of slots one per named child element.
- *
- * TODO: consider xs:choice - alternatives could share slots, but that would
- * add a lot of complexity, and the nil technique of storing null in a
- * slot to indicate a nilled element only works if we have a positive association
- * of slots to element-bases. If we were to share slots we'd need a different way
- * to indicate nil. A better approach for xs:choice would be a sparse table of
- * slots (whenever there are more than N - some threshold), so that we're not
- * allocating arrays of 200 slots just because there are 200 branches of a choice.
- *
- * A slot stores a Maybe[InfosetCommonMixin]. None means not present (yet, because it
- * hasn't been parsed yet, or it is an optional element (minOccurs 0, maxOccurs 1)
- * and is not present.) One[DISimple] or One[DIComplex] mean a required element
- * is present, or an optional element (minOccurs 0, maxOccurs 1) is present.
- *
- * A slot of a DIComplex should never be null.
- *
- * One[DIArray] means the slot is for a recurring element which can have 2+ instances.
- * The DIArray object's length gives the number of occurrences.
+ * Complex elements have an array of DINodes. Nodes may either be DISimple for
+ * simple types, DIComplex for complex types, or DIArray for arrays or optional
+ * elements. Note that even if an element is nilled, there is still a DIElement
+ * (i.e. a null child element does not mean the child is nilled). Also note
+ * that in some cases Daffodil will remove children if they are determined they
+ * are no longer needed to free up memory. It does this by setting the child to
+ * null. So child slots can have a null value, but only in cases where Daffodil
+ * should never need access to that child.
  */
 sealed class DIComplex(override val erd: ElementRuntimeData)
   extends DIElement
   with DIComplexSharedImplMixin
   with InfosetComplexElement
-  with DIFinalizable // with HasModelGroupMixin
   { diComplex =>
 
   final override def isSimple = false
@@ -1368,10 +1429,6 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
 
   private lazy val nfe = new InfosetComplexElementNotFinalException(this)
 
-  override def requireFinal: Unit = {
-    if (!isFinal) throw nfe
-  }
-
   override def valueStringForDebug: String = ""
 
   final override def isEmpty: Boolean = false
@@ -1386,6 +1443,10 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
     } else {
       erd.toss(new InfosetNoDataException(this, erd))
     }
+  }
+
+  override def requireFinal: Unit = {
+    if (!isFinal) throw nfe
   }
 
   val childNodes = new ArrayBuffer[DINode]
@@ -1438,6 +1499,14 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
       maybeNode.get.asInstanceOf[InfosetArray]
     } else {
       erd.toss(new InfosetNoSuchChildElementException(this, nqn))
+    }
+  }
+
+  def freeChildIfNoLongerNeeded(index: Int): Unit = {
+    val node = childNodes(index)
+    if (!node.erd.dpathElementCompileInfo.isReferencedByExpressions) {
+      // set to null so that the garbage collector can free this node
+      childNodes(index) = null
     }
   }
 
@@ -1495,9 +1564,13 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
     if (!e.isHidden && !hasVisibleChildren) hasVisibleChildren = true
     if (e.runtimeData.isArray) {
       val childERD = e.runtimeData
-      if (childNodes.isEmpty || childNodes.last.erd != childERD) {
-        // no children, or last child is not a DIArray for
-        // this element, create the DIArray
+      if (childNodes.lastOption.map { n => n == null || n.erd != childERD }.getOrElse(true)) {
+        // This complex element either has no children, the most recently added
+        // child is different than the new child, or the last child is null
+        // (which means it was freed because it was finished, and thus must be
+        // different from this new element). This element is an array, so in
+        // any of these cases, we must create a new DIArray, and then we'll add
+        // the new element to it.
         val ia = new DIArray(childERD, this, tunable.initialElementOccurrencesHint.toInt)
         addChildToFastLookup(ia)
         childNodes += ia
@@ -1621,13 +1694,6 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
     a
   }
 
-  override def visit(handler: InfosetOutputter, removeHidden: Boolean = true): Unit = {
-    if (!this.isHidden || !removeHidden) {
-      handler.startComplex(this)
-      childNodes.foreach(node => node.visit(handler, removeHidden))
-      handler.endComplex(this)
-    }
-  }
 }
 
 /*
@@ -1638,7 +1704,6 @@ final class DIDocument(
   erd: ElementRuntimeData)
   extends DIComplex(erd)
   with InfosetDocument {
-  var root: DIElement = null
 
   /**
    * Set if this DIDocument is being attached to a DIElement just to establish the
@@ -1646,44 +1711,6 @@ final class DIDocument(
    * a constant value
    */
   var isCompileExprFalseRoot: Boolean = false
-
-  def setRootElement(rootElement: InfosetElement, tunable: DaffodilTunables): Unit = {
-    root = rootElement.asInstanceOf[DIElement]
-    addChild(root, tunable)
-  }
-
-  override def addChild(child: InfosetElement, tunable: DaffodilTunables) =
-    addChild(child)
-
-  def addChild(child: InfosetElement): Unit = {
-    /*
-     * DIDocument normally only has a single child.
-     * However, if said child wants to create a quasi-element (eg. if it is a simpleType with a typeCalc),
-     * said element will need to be temporarily added as a second child to DIDocument.
-     * When this happens, we do not set it as the root, but otherwise proceed normally
-     */
-    val node = child.asInstanceOf[DINode]
-    childNodes += node
-    if (node.erd.dpathElementCompileInfo.isReferencedByExpressions) {
-      val ab = new ArrayBuffer[DINode]()
-      ab += node
-      nameToChildNodeLookup.put(node.namedQName, ab)
-    }
-    child.setParent(this)
-    if (root == null)
-      root = child.asInstanceOf[DIElement]
-  }
-
-  def getRootElement(): InfosetElement = {
-    root
-  }
-
-  override def visit(handler: InfosetOutputter, removeHidden: Boolean = true): Unit = {
-    assert(root != null)
-    handler.startDocument()
-    root.visit(handler, removeHidden)
-    handler.endDocument()
-  }
 }
 
 object Infoset {
@@ -1696,99 +1723,5 @@ object Infoset {
   def newDocument(erd: ElementRuntimeData): InfosetDocument = {
     new DIDocument(erd)
   }
-
-  def newDocument(root: InfosetElement, tunable: DaffodilTunables): InfosetDocument = {
-    val doc = newDocument(root.runtimeData)
-    doc.setRootElement(root, tunable)
-    doc
-  }
-
-  /**
-   * Used to convert default value strings (from the XSD default property)
-   * into the appropriate representation type.
-   *
-   * For use during compilation of a schema. Not for runtime, as this
-   * can be slow.
-   */
-  // TODO: consolidate into the NodeInfo object where there is already similar
-  // code. Or maybe consolidates into the DPath Conversions.scala code?
-  //  def convertToInfosetRepType(primType: PrimType, value: String, context: ThrowsSDE): AnyRef = {
-  //    import NodeInfo.PrimType._
-  //    val res = primType match {
-  //      case String => value
-  //      case Int => value.toInt
-  //      case Byte => value.toByte
-  //      case Short => value.toShort
-  //      case Long => value.toLong
-  //      case Integer => new java.math.BigInteger(value)
-  //      case Decimal => new java.math.BigDecimal(value)
-  //      case UnsignedInt => {
-  //        val res = java.lang.Long.parseLong(value)
-  //        context.schemaDefinitionUnless(res >= 0, "Cannot convert %s to %s.", value, primType.name)
-  //        res
-  //      }
-  //      case UnsignedByte => {
-  //        val res = value.toShort
-  //        context.schemaDefinitionUnless(res >= 0, "Cannot convert %s to %s.", value, primType.name)
-  //        res
-  //      }
-  //      case UnsignedShort => {
-  //        val res = value.toInt
-  //        context.schemaDefinitionUnless(res >= 0, "Cannot convert %s to %s.", value, primType.name)
-  //        res
-  //      }
-  //      case UnsignedLong => {
-  //        val res = new java.math.BigInteger(value)
-  //        context.schemaDefinitionUnless(res.doubleValue >= 0, "Cannot convert %s to %s.", value, primType.name)
-  //        res
-  //      }
-  //      case NonNegativeInteger => {
-  //        val res = new java.math.BigInteger(value)
-  //        context.schemaDefinitionUnless(res.doubleValue >= 0, "Cannot convert %s to %s.", value, primType.name)
-  //        res
-  //      }
-  //      case Double => {
-  //        value match {
-  //          case XMLUtils.PositiveInfinityString => scala.Double.PositiveInfinity
-  //          case XMLUtils.NegativeInfinityString => scala.Double.NegativeInfinity
-  //          case XMLUtils.NaNString => scala.Double.NaN
-  //          case _ => value.toDouble
-  //        }
-  //      }
-  //      case Float => {
-  //        value match {
-  //          case XMLUtils.PositiveInfinityString => scala.Float.PositiveInfinity
-  //          case XMLUtils.NegativeInfinityString => scala.Float.NegativeInfinity
-  //          case XMLUtils.NaNString => scala.Float.NaN
-  //          case _ => value.toFloat
-  //        }
-  //      }
-  //      case HexBinary => Misc.hex2Bytes(value) // convert hex constant into byte array
-  //      case Boolean => {
-  //        if (value == "true") true
-  //        else if (value == "false") false
-  //        else context.schemaDefinitionError("Cannot convert %s to %s.", value, primType.name)
-  //      }
-  //      case Time => {
-  //        val cal = new GregorianCalendar()
-  //        val pos = new java.text.ParsePosition(0)
-  //        new com.ibm.icu.text.SimpleDateFormat("HH:mm:ssZZZZZ").parse(value, cal, pos)
-  //        DFDLTime(cal, true)
-  //      }
-  //      case DateTime => {
-  //        val cal = new GregorianCalendar()
-  //        val pos = new java.text.ParsePosition(0)
-  //        new com.ibm.icu.text.SimpleDateFormat("uuuu-MM-dd'T'HH:mm:ssZZZZZ").parse(value, cal, pos)
-  //        DFDLDateTime(cal, true)
-  //      }
-  //      case Date => {
-  //        val cal = new GregorianCalendar()
-  //        val pos = new java.text.ParsePosition(0)
-  //        new com.ibm.icu.text.SimpleDateFormat("uuuu-MM-dd").parse(value, cal, pos)
-  //        DFDLDate(cal, true)
-  //      }
-  //    }
-  //    res.asInstanceOf[AnyRef]
-  //  }
 
 }

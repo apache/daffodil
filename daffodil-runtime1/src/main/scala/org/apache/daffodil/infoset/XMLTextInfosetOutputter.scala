@@ -47,15 +47,19 @@ class XMLTextInfosetOutputter private (writer: java.io.Writer, pretty: Boolean, 
     resetIndentation()
   }
 
-  private def getTagName(elem: DIElement): String = {
+  private def outputTagName(elem: DIElement): Unit = {
     val prefix = elem.erd.thisElementsNamespacePrefix
-    if (prefix == null || prefix == "") elem.erd.name else prefix + ":" + elem.erd.name
+    if (prefix != null && prefix != "") {
+      writer.write(prefix)
+      writer.write(":")
+    }
+    writer.write(elem.erd.name)
   }
 
-  private def outputStartTag(elem: DIElement, name: String, isEmpty: Boolean=false): Unit = {
+  private def outputStartTag(elem: DIElement): Unit = {
     writer.write("<")
 
-    writer.write(name)
+    outputTagName(elem)
 
     val nsbStart = elem.erd.minimizedScope
     val nsbEnd = if (elem.isRoot) scala.xml.TopScope else elem.diParent.erd.minimizedScope
@@ -69,23 +73,21 @@ class XMLTextInfosetOutputter private (writer: java.io.Writer, pretty: Boolean, 
       writer.write(" xsi:nil=\"true\"")
     }
 
-    if (isEmpty) {
-      writer.write(" />")
-    } else {
-      writer.write(">")
-    }
+    writer.write(">")
   }
 
-  private def outputEndTag(elem: DIElement, name: String): Unit = {
+  private def outputEndTag(elem: DIElement): Unit = {
     writer.write("</")
-    writer.write(name)
+    outputTagName(elem)
     writer.write(">")
   }
 
   override def startSimple(simple: DISimple): Boolean = {
-    if (pretty) outputIndentation(writer)
-    val name = getTagName(simple)
-    outputStartTag(simple, name)
+    if (pretty) {
+      writer.write(System.lineSeparator())
+      outputIndentation(writer)
+    }
+    outputStartTag(simple)
 
     if (!isNilled(simple) && simple.hasValue) {
       val text =
@@ -99,8 +101,7 @@ class XMLTextInfosetOutputter private (writer: java.io.Writer, pretty: Boolean, 
       writer.write(text)
     }
 
-    outputEndTag(simple, name)
-    if (pretty) writer.write(System.lineSeparator())
+    outputEndTag(simple)
     true
   }
   
@@ -110,26 +111,24 @@ class XMLTextInfosetOutputter private (writer: java.io.Writer, pretty: Boolean, 
   }
 
   override def startComplex(complex: DIComplex): Boolean = {
-    val name = getTagName(complex)
-    if (pretty) outputIndentation(writer)
-    outputStartTag(complex, name, !complex.hasVisibleChildren)
-    if (pretty) writer.write(System.lineSeparator())
+    if (pretty) {
+      writer.write(System.lineSeparator())
+      outputIndentation(writer)
+    }
+    outputStartTag(complex)
     incrementIndentation()
     true
   }
 
   override def endComplex(complex: DIComplex): Boolean = {
     decrementIndentation()
-    if (!complex.hasVisibleChildren) {
-      // Empty complex elements should have an inline closing tag
-      true
-    } else {
-      val name = getTagName(complex)
-      if (pretty) outputIndentation(writer)
-      outputEndTag(complex, name)
-      if (pretty) writer.write(System.lineSeparator())
-      true
+    if (pretty && complex.hasVisibleChildren) {
+      // only output newline and indentation for non-empty complex types
+      writer.write(System.lineSeparator())
+      outputIndentation(writer)
     }
+    outputEndTag(complex)
+    true
   }
 
   override def startArray(array: DIArray): Boolean = {
@@ -143,12 +142,12 @@ class XMLTextInfosetOutputter private (writer: java.io.Writer, pretty: Boolean, 
   }
 
   override def startDocument(): Boolean = {
-    writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>")
-    if (pretty) writer.write(System.lineSeparator())
+    writer.write("""<?xml version="1.0" encoding="UTF-8"?>""")
     true
   }
 
   override def endDocument(): Boolean = {
+    writer.write(System.lineSeparator())
     writer.flush()
     true
   }

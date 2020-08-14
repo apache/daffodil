@@ -450,12 +450,22 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
     }
   }
 
-  private def debugPrettyPrintXML(ie: InfosetElement): Unit = {
+  private def infosetToString(ie: InfosetElement): String = {
     val bos = new java.io.ByteArrayOutputStream()
     val xml = new XMLTextInfosetOutputter(bos, true)
-    ie.visit(xml, DebuggerConfig.removeHidden)
-    xml.endDocument() // causes the outputter to flush to the stream
-    debugPrintln(bos.toString("UTF-8"))
+    val iw = InfosetWalker(
+      ie.asInstanceOf[DINode],
+      xml,
+      walkHidden = !DebuggerConfig.removeHidden,
+      ignoreBlocks = true,
+      removeUnneeded = false)
+    iw.walk()
+    bos.toString("UTF-8")
+  }
+
+  private def debugPrettyPrintXML(ie: InfosetElement): Unit = {
+    val infosetString = infosetToString(ie)
+    debugPrintln(infosetString)
   }
 
 /**********************************/
@@ -1499,38 +1509,35 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
         def act(args: Seq[String], prestate: StateForDebugger, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
           debugPrintln("%s:".format(name))
 
-          var infoset: DIElement = null
           if (state.hasInfoset) {
-            infoset = state.infoset
-            if (DebuggerConfig.infosetParents < 0) {
-              infoset = infoset.toRootDoc.getRootElement().asInstanceOf[DIElement]
-            } else {
-              (1 to DebuggerConfig.infosetParents).foreach { n =>
-                if (infoset.diParent != null) {
-                  infoset = infoset.diParent
-                }
-              }
-            }
-          }
+            var parentSteps =
+              if (DebuggerConfig.infosetParents < 0) Int.MaxValue
+              else DebuggerConfig.infosetParents
 
-          if (infoset != null) {
-            val bos = new java.io.ByteArrayOutputStream()
-            val xml = new XMLTextInfosetOutputter(bos, true)
-            infoset.visit(xml, DebuggerConfig.removeHidden)
-            xml.endDocument() // causes the outputter to flush to the stream
-            val infosetString = bos.toString("UTF-8")
-            val lines = infosetString.split("\n")
-            val tailLines =
-              if (DebuggerConfig.infosetLines > 0) {
-                val dropCount = lines.size - DebuggerConfig.infosetLines
+            var node = state.infoset
+            while (parentSteps > 0 && node.diParent != null) {
+              node = node.diParent
+              parentSteps -= 1
+            }
+
+            node match {
+              case d: DIDocument if d.contents.size == 0 => {
+                debugPrintln("No Infoset", "  ")
+              }
+              case _ => {
+                val infosetString = infosetToString(node)
+                val lines = infosetString.split("\n")
+
+                val dropCount =
+                  if (DebuggerConfig.infosetLines < 0) 0
+                  else Math.max(0, lines.size - DebuggerConfig.infosetLines)
                 if (dropCount > 0) {
                   debugPrintln("...", "  ")
                 }
-                lines.drop(dropCount)
-              } else {
-                lines
+                val linesToShow = lines.drop(dropCount)
+                linesToShow.foreach { l => debugPrintln(l, "  ") }
               }
-            tailLines.foreach(l => debugPrintln(l, "  "))
+            }
           } else {
             debugPrintln("No Infoset", "  ")
           }

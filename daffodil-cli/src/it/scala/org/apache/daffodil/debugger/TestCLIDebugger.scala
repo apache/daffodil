@@ -1022,7 +1022,7 @@ class TestCLIdebugger {
 
       shell.sendLine("continue")
       shell.expect(contains("<a>2</a>"))
-      shell.expect(contains("<g />"))
+      shell.expect(contains("<g></g>"))
     } finally {
       shell.close()
     }
@@ -1097,7 +1097,7 @@ class TestCLIdebugger {
       shell.expect(contains("hidden: true"))
 
       shell.sendLine("continue")
-      shell.expect(contains("<h />"))
+      shell.expect(contains("<h></h>"))
     } finally {
       shell.close()
     }

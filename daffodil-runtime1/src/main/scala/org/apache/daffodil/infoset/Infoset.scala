@@ -27,11 +27,7 @@ import org.apache.daffodil.xml.NS
 
 object INoWarn2 { ImplicitsSuppressUnusedImportWarning() }
 
-trait InfosetCommon {
-  def visit(handler: InfosetOutputter, removeHidden: Boolean = true): Unit
-}
-
-trait InfosetArray extends InfosetCommon {
+trait InfosetArray {
   def append(ie: InfosetElement): Unit
   def getOccurrence(occursIndex: Long): InfosetElement
   def length: Long
@@ -94,11 +90,9 @@ trait InfosetSimpleElement extends InfosetElement {
 }
 
 trait InfosetDocument extends InfosetItem {
-  def getRootElement(): InfosetElement
-  def setRootElement(root: InfosetElement, tunable: DaffodilTunables): Unit
 }
 
-trait InfosetItem extends InfosetCommon {
+trait InfosetItem {
   /**
    * The totalElementCount is the total count of how many elements this InfosetItem contains.
    *

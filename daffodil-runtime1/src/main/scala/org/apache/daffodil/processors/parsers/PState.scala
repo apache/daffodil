@@ -35,6 +35,7 @@ import org.apache.daffodil.infoset.DISimple
 import org.apache.daffodil.infoset.Infoset
 import org.apache.daffodil.infoset.InfosetDocument
 import org.apache.daffodil.infoset.InfosetOutputter
+import org.apache.daffodil.infoset.InfosetWalker
 import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.io.DataInputStream
 import org.apache.daffodil.processors.DataLoc
@@ -151,7 +152,7 @@ class MPState private () {
 final class PState private (
   var infoset: DIElement,
   var dataInputStream: InputSourceDataInputStream,
-  val output: InfosetOutputter,
+  val walker: InfosetWalker,
   vmap: VariableMap,
   diagnosticsArg: List[Diagnostic],
   val mpstate: MPState,
@@ -162,6 +163,8 @@ final class PState private (
   extends ParseOrUnparseState(vmap, diagnosticsArg, One(dataProcArg), tunable) {
 
   override def currentNode = Maybe(infoset)
+
+  def output = walker.outputter
 
   /**
    * This stack is used to track points of uncertainty during a parse. When a
@@ -245,6 +248,7 @@ final class PState private (
     changedVariablesStack.push(mutable.MutableList[GlobalQName]())
     val m = markPool.getFromPool(requestorID)
     m.captureFrom(this, requestorID, context)
+    m.element.infosetWalkerBlockCount += 1
     m
   }
 
@@ -256,6 +260,7 @@ final class PState private (
 
   private def reset(m: PState.Mark): Unit = {
     // threadCheck()
+    m.element.infosetWalkerBlockCount -= 1
     m.restoreInto(this)
     m.clear()
     markPool.returnToPool(m)
@@ -268,6 +273,7 @@ final class PState private (
   }
 
   private def discard(m: PState.Mark): Unit = {
+    m.element.infosetWalkerBlockCount -= 1
     dataInputStream.discard(m.disMark)
     m.clear()
     markPool.returnToPool(m)
@@ -541,6 +547,7 @@ object PState {
 
     val simpleElementState = DISimpleState()
     val complexElementState = DIComplexState()
+    var element: DIElement = _
     var disMark: DataInputStream.Mark = _
     var variableMap: VariableMap = _
     var processorStatus: ProcessorResult = _
@@ -567,11 +574,11 @@ object PState {
     }
 
     def captureFrom(ps: PState, requestorID: String, context: RuntimeData): Unit = {
-      val e = ps.thisElement
-      if (e.isSimple)
-        simpleElementState.captureFrom(e)
+      this.element = ps.thisElement
+      if (element.isSimple)
+        simpleElementState.captureFrom(element)
       else
-        complexElementState.captureFrom(e)
+        complexElementState.captureFrom(element)
       this.disMark = ps.dataInputStream.mark(requestorID)
       this.variableMap = ps.variableMap
       this.processorStatus = ps.processorStatus
@@ -583,10 +590,10 @@ object PState {
     }
 
     def restoreInfoset(ps: PState) = {
-      val e = ps.thisElement
-      e match {
-        case s: DISimple => simpleElementState.restoreInto(e)
-        case c: DIComplex => complexElementState.restoreInto(e)
+      Assert.invariant(this.element eq ps.thisElement)
+      this.element match {
+        case s: DISimple => simpleElementState.restoreInto(this.element)
+        case c: DIComplex => complexElementState.restoreInto(this.element)
       }
     }
 
@@ -628,11 +635,18 @@ object PState {
     root: ElementRuntimeData,
     dis: InputSourceDataInputStream,
     output: InfosetOutputter,
-    dataProc: DFDL.DataProcessor): PState = {
+    dataProc: DFDL.DataProcessor,
+    areDebugging: Boolean): PState = {
 
     val tunables = dataProc.getTunables()
     val doc = Infoset.newDocument(root).asInstanceOf[DIElement]
-    createInitialPState(doc.asInstanceOf[InfosetDocument], root, dis, output, dataProc)
+    createInitialPState(
+      doc.asInstanceOf[InfosetDocument],
+      root,
+      dis,
+      output,
+      dataProc,
+      areDebugging)
   }
 
   /**
@@ -643,7 +657,8 @@ object PState {
     root: ElementRuntimeData,
     dis: InputSourceDataInputStream,
     output: InfosetOutputter,
-    dataProc: DFDL.DataProcessor): PState = {
+    dataProc: DFDL.DataProcessor,
+    areDebugging: Boolean): PState = {
 
     /**
      * This is a full deep copy as variableMap is mutable. Reusing
@@ -654,10 +669,25 @@ object PState {
     val diagnostics = Nil
     val mutablePState = MPState()
     val tunables = dataProc.getTunables()
+    val infosetWalker = InfosetWalker(
+      doc.asInstanceOf[DIElement],
+      output,
+      walkHidden = false,
+      ignoreBlocks = false,
+      removeUnneeded = !areDebugging)
 
     dis.cst.setPriorBitOrder(root.defaultBitOrder)
-    val newState = new PState(doc.asInstanceOf[DIElement], dis, output, variables, diagnostics, mutablePState,
-      dataProc.asInstanceOf[DataProcessor], Nope, Seq.empty, tunables)
+    val newState = new PState(
+      doc.asInstanceOf[DIElement],
+      dis,
+      infosetWalker,
+      variables,
+      diagnostics,
+      mutablePState,
+      dataProc.asInstanceOf[DataProcessor],
+      Nope,
+      Seq.empty,
+      tunables)
     newState
   }
 
@@ -668,9 +698,10 @@ object PState {
     root: ElementRuntimeData,
     data: String,
     output: InfosetOutputter,
-    dataProc: DFDL.DataProcessor): PState = {
+    dataProc: DFDL.DataProcessor,
+    areDebugging: Boolean): PState = {
     val in = InputSourceDataInputStream(data.getBytes("utf-8"))
-    createInitialPState(root, in, output, dataProc)
+    createInitialPState(root, in, output, dataProc, areDebugging)
   }
 
   /**
@@ -680,8 +711,9 @@ object PState {
     root: ElementRuntimeData,
     input: java.nio.channels.ReadableByteChannel,
     output: InfosetOutputter,
-    dataProc: DFDL.DataProcessor): PState = {
+    dataProc: DFDL.DataProcessor,
+    areDebugging: Boolean): PState = {
     val dis = InputSourceDataInputStream(Channels.newInputStream(input))
-    createInitialPState(root, dis, output, dataProc)
+    createInitialPState(root, dis, output, dataProc, areDebugging)
   }
 }
