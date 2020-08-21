@@ -699,7 +699,13 @@ object NodeInfo extends Enum {
     protected sealed trait BooleanKind extends AnySimpleType.Kind
     case object Boolean extends PrimTypeNode(AnyAtomic) with BooleanKind with PrimNonNumeric with BooleanView {
       type Kind = BooleanKind
-      protected override def fromString(s: String): DataValueBool = s.toBoolean
+      protected override def fromString(s: String): DataValueBool = {
+        s match {
+          case "0" | "false" => false
+          case "1" | "true" => true
+          case _ => throw new IllegalArgumentException("Must be one of 0, 1, true, or false")
+        }
+      }
     }
 
     protected sealed trait AnyURIKind extends AnySimpleType.Kind
