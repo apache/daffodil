@@ -2,6 +2,7 @@
 #define COMMON_RUNTIME_H
 
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 
@@ -9,75 +10,80 @@
 
 typedef struct PState
 {
-	FILE *stream; // input to read from
+    FILE *stream; // input to read from
 } PState;
 
 // UState - unparser state while unparsing infoset
 
 typedef struct UState
 {
-	FILE *stream; // output to write to
+    FILE *stream; // output to write to
 } UState;
 
 // GlobalQName - name of an infoset element
 
 typedef struct GlobalQName
 {
-	char *name;
+    char *name;
 } GlobalQName;
 
 // TypeCode - type of an infoset element
 
 enum TypeCode
 {
-	COMPLEX,
-	PRIMITIVE_INT
+    COMPLEX,
+    PRIMITIVE_INT
 };
 
 // ERD - element runtime data needed to parse/unparse objects
 
 typedef struct ElementRuntimeData ERD;
-typedef struct InfosetBase InfosetBase;
-typedef void (*Parse_Self)(InfosetBase *infoNode, PState *pstate);
-typedef void (*Unparse_Self)(InfosetBase *infoNode, UState *ustate);
+typedef struct InfosetBase        InfosetBase;
 typedef void (*Init_Self)(InfosetBase *infoNode);
+typedef const char *(*Parse_Self)(InfosetBase *infoNode, const PState *pstate);
+typedef const char *(*Unparse_Self)(const InfosetBase *infoNode,
+                                    const UState *     ustate);
 
 typedef struct ElementRuntimeData
 {
-	GlobalQName namedQName;
-	enum TypeCode typeCode;
-	uint32_t count_children;
-	size_t *offsets;
-	ERD **childrenERDs;
+    const GlobalQName   namedQName;
+    const enum TypeCode typeCode;
+    const size_t        count_children;
+    const ptrdiff_t *   offsets;
+    const ERD **        childrenERDs;
 
-	Parse_Self parseSelf;
-	Unparse_Self unparseSelf;
-	Init_Self initSelf;
+    const Init_Self    initSelf;
+    const Parse_Self   parseSelf;
+    const Unparse_Self unparseSelf;
 } ERD;
 
 // VisitEventHandler - infoset visitor methods (generic)
 
 typedef struct VisitEventHandler VisitEventHandler;
-typedef void (*VisitStart)(VisitEventHandler *handler, InfosetBase *base);
-typedef void (*VisitEnd)(VisitEventHandler *handler, InfosetBase *base);
-typedef void (*VisitInt)(VisitEventHandler *handler, ERD *erd, int *location);
+typedef void (*VisitStart)(const VisitEventHandler *handler,
+                           const InfosetBase *      base);
+typedef void (*VisitEnd)(const VisitEventHandler *handler,
+                         const InfosetBase *      base);
+typedef void (*VisitInt)(const VisitEventHandler *handler, const ERD *erd,
+                         const int32_t *location);
 
 typedef struct VisitEventHandler
 {
-	VisitStart visitStart;
-	VisitEnd visitEnd;
-	VisitInt visitInt;
+    const VisitStart visitStart;
+    const VisitEnd   visitEnd;
+    const VisitInt   visitInt;
 } VisitEventHandler;
 
 // InfosetBase - representation of an infoset element
 
 typedef struct InfosetBase
 {
-	ERD *erd;
+    const ERD *erd;
 } InfosetBase;
 
 // Generic visit method
 
-void visit_node_self(VisitEventHandler *handler, InfosetBase *infoNode);
+extern void visit_node_self(const VisitEventHandler *handler,
+                            const InfosetBase *      infoNode);
 
 #endif // COMMON_RUNTIME_H

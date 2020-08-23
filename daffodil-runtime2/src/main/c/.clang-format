@@ -1,0 +1,7 @@
+AlignConsecutiveDeclarations: true
+AllowShortFunctionsOnASingleLine: None
+AlwaysBreakAfterReturnType: TopLevelDefinitions
+BasedOnStyle: llvm
+BreakBeforeBraces: Allman
+IndentWidth: 4
+KeepEmptyLinesAtTheStartOfBlocks: false

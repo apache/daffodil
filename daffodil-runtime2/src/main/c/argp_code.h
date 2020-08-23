@@ -3,34 +3,42 @@
 
 #include <argp.h>
 
-// Get our "parse" CLI options
+// Get our "daffodil parse" CLI options
 
-struct parse_config {
-  char *infoset_type;
-  char *infile;
-  char *outfile;
+struct daffodil_parse_cli
+{
+    const char *infoset_type;
+    const char *infile;
+    const char *outfile;
 };
-extern struct parse_config parse;
+extern struct daffodil_parse_cli daffodil_parse;
 
-// Get our "unparse" CLI options
+// Get our "daffodil unparse" CLI options
 
-struct unparse_config {
-  char *infoset_type;
-  char *infile;
-  char *outfile;
+struct daffodil_unparse_cli
+{
+    const char *infoset_type;
+    const char *infile;
+    const char *outfile;
 };
-extern struct unparse_config unparse;
+extern struct daffodil_unparse_cli daffodil_unparse;
 
-// Get our "global" CLI options
+// Get our "daffodil" CLI options
 
-struct global_config {
-  enum subcommand { NONE, PARSE, UNPARSE } subcommand;
-  int verbosity;
+struct daffodil_cli
+{
+    enum subcommand
+    {
+        NONE,
+        PARSE,
+        UNPARSE
+    } subcommand;
+    int verbosity;
 };
-extern struct global_config global;
+extern struct daffodil_cli daffodil_cli;
 
-// Parse our command line interface
+// Parse our "daffodil" command line interface
 
-extern error_t parse_cli(int argc, char **argv);
+extern error_t parse_daffodil_cli(int argc, char **argv);
 
 #endif // ARGP_CODE_H

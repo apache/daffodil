@@ -1,34 +1,40 @@
-#include <stdlib.h>
 #include "common_runtime.h"
+#include <stdlib.h>
 
 // Generic method to visit infoset objects with a visit handler
 
-void visit_node_self(VisitEventHandler *handler, InfosetBase *infoNode)
+void
+visit_node_self(const VisitEventHandler *handler, const InfosetBase *infoNode)
 {
-	handler->visitStart(handler, infoNode);
-	// Iterate through children...
-	int count = infoNode->erd->count_children;
-	ERD **childrenERDs = infoNode->erd->childrenERDs;
-	size_t *offsets = infoNode->erd->offsets;
-	for (int i = 0; i < count; i++)
-	{
-		size_t offset = offsets[i];
-		ERD* childERD = childrenERDs[i];
-		// NOTE: This can't be right - both childNode and intLocation get the same value
-		InfosetBase *childNode = (InfosetBase *)((char *)infoNode + offset);
-		int *intLocation = (int *)((char *)infoNode + offset);
+    const size_t      count = infoNode->erd->count_children;
+    const ERD **const childrenERDs = infoNode->erd->childrenERDs;
+    const ptrdiff_t * offsets = infoNode->erd->offsets;
 
-		// Need to handle more element types...
-		enum TypeCode typeCode = childERD->typeCode;
-		switch (typeCode)
-		{
-		case COMPLEX:
-			visit_node_self(handler, childNode);
-			break;
-		case PRIMITIVE_INT:
-			handler->visitInt(handler, childERD, intLocation);
-			break;
-		}
-	}
-	handler->visitEnd(handler, infoNode);
+    handler->visitStart(handler, infoNode);
+
+    // Visit each child too
+    for (size_t i = 0; i < count; i++)
+    {
+        ptrdiff_t  offset = offsets[i];
+        const ERD *childERD = childrenERDs[i];
+        // We use only one of these variables below depending on typeCode
+        const InfosetBase *childNode =
+            (const InfosetBase *)((const char *)infoNode + offset);
+        const int32_t *intLocation =
+            (const int32_t *)((const char *)infoNode + offset);
+
+        // Need to handle more element types
+        enum TypeCode typeCode = childERD->typeCode;
+        switch (typeCode)
+        {
+        case COMPLEX:
+            visit_node_self(handler, childNode);
+            break;
+        case PRIMITIVE_INT:
+            handler->visitInt(handler, childERD, intLocation);
+            break;
+        }
+    }
+
+    handler->visitEnd(handler, infoNode);
 }
