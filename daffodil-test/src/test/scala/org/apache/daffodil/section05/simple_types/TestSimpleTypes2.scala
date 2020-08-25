@@ -99,4 +99,7 @@ class TestSimpleTypes2 {
 
   @Test def test_hexBinary_Delimited_04(): Unit = { runner.runOneTest("hexBinary_Delimited_04") }
 
+  @Test def test_restrictionBaseEmbeddedLeadlingSpace(): Unit = { runner.runOneTest("restrictionBaseEmbeddedLeadingSpace") }
+  @Test def test_restrictionBaseEmbeddedTrailingSpace(): Unit = { runner.runOneTest("restrictionBaseEmbeddedTrailingSpace") }
+
 }
