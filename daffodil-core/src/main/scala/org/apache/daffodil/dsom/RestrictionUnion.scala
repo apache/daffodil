@@ -76,7 +76,8 @@ final class Restriction(xmlArg: Node, val simpleTypeDef: SimpleTypeDefBase)
     val baseQNameString = baseQNameNodeSeq.text
     val tryBaseQName = QName.resolveRef(baseQNameString, xml.scope,
       tunable.unqualifiedPathStepPolicy)
-    Assert.invariant(tryBaseQName.isSuccess)
+    schemaDefinitionUnless(tryBaseQName.isSuccess,
+      "Failed to resolve base property reference for xs:restriction: " + tryBaseQName.failed.get.getMessage)
     tryBaseQName.get
   }
 
