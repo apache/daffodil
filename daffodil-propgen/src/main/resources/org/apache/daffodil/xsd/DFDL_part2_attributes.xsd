@@ -789,6 +789,8 @@
       type="dfdl:YesNoEnum" />
     <xsd:attribute form="qualified" name="textBidiNumeralShapes"
       type="dfdl:TextBidiNumeralShapesEnum" />
+    <xsd:attribute form="qualified" name="textBidi"
+                   type="dfdl:YesNoEnum" />
   </xsd:attributeGroup>
 
   <!-- 13.4 Properties Specific to Strings with Text representation -->
