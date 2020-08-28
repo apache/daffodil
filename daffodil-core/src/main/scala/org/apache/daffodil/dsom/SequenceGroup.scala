@@ -26,6 +26,7 @@ import org.apache.daffodil.xml.XMLUtils
 import org.apache.daffodil.schema.annotation.props.gen.OccursCountKind
 import org.apache.daffodil.schema.annotation.props.gen.SequenceKind
 import org.apache.daffodil.Implicits.ns2String
+import org.apache.daffodil.api.WarnID
 import org.apache.daffodil.dsom.walker.SequenceView
 import org.apache.daffodil.grammar.SequenceGrammarMixin
 import org.apache.daffodil.schema.annotation.props.Found
@@ -40,6 +41,7 @@ import org.apache.daffodil.processors.SeparatorUnparseEv
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.runtime1.ChoiceBranchImpliedSequenceRuntime1Mixin
 import org.apache.daffodil.schema.annotation.props.FindPropertyMixin
+
 
 /**
  * Base for anything sequence-like.
@@ -91,6 +93,8 @@ abstract class SequenceGroupTermBase(
 
 
   requiredEvaluationsIfActivated(checkIfValidUnorderedSequence)
+
+  requiredEvaluationsIfActivated(checkIfNonEmptyAndDiscrimsOrAsserts)
 
   protected def apparentXMLChildren: Seq[Node]
 
@@ -146,6 +150,18 @@ abstract class SequenceGroupTermBase(
       res
     }
   }.value
+
+  /**
+   * Provides validation for assert and discriminator placement
+   */
+  protected final lazy val checkIfNonEmptyAndDiscrimsOrAsserts: Unit = {
+    val msg = "Counterintuitive placement detected. Wrap the discriminator or assert " +
+      "in an empty sequence to evaluate before the contents."
+    if (groupMembers.size > 0 && discriminatorStatements.size > 0)
+      SDW(WarnID.DiscouragedDiscriminatorPlacement, msg)
+    if (groupMembers.size > 0 && assertStatements.size > 0)
+      SDW(WarnID.DiscouragedAssertPlacement, msg)
+  }
 
   /**
    * Provides unordered sequence checks.  Will SDE if invalid.

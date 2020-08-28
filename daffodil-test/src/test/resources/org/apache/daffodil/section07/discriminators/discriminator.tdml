@@ -28,6 +28,94 @@
   defaultRoundTrip="true" 
   defaultValidation="on">
 
+  <tdml:defineSchema name="discrimAssertPlacement">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" />
+
+    <xs:element name="root-discrim" dfdl:lengthKind="implicit" >
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
+          <xs:annotation>
+            <xs:appinfo source="http://www.ogf.org/dfdl/">
+              <dfdl:discriminator testKind="pattern"
+                                  testPattern="\p{L}{3}"
+                                  message="discriminator failed for pattern '\p{L}{3}'" />
+            </xs:appinfo>
+          </xs:annotation>
+          <xs:element ref="ex:description" dfdl:lengthKind="delimited"/>
+          <xs:element ref="ex:quantity" dfdl:lengthKind="delimited"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="root-assert" dfdl:lengthKind="implicit" >
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
+          <xs:annotation>
+            <xs:appinfo source="http://www.ogf.org/dfdl/">
+              <dfdl:assert testKind="pattern"
+                                  testPattern="\p{L}{3}"
+                                  message="assert failed for pattern '\p{L}{3}'" />
+            </xs:appinfo>
+          </xs:annotation>
+          <xs:element ref="ex:description" dfdl:lengthKind="delimited"/>
+          <xs:element ref="ex:quantity" dfdl:lengthKind="delimited"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="description" type="xs:string" />
+    <xs:element name="quantity" type="xs:int" />
+  </tdml:defineSchema>
+
+  <!--
+  Test name: discrimPlacementSDW
+  Schema: discrimPlacement, root root-discrim
+  Purpose: This test demonstrates the SDW resulting from discouraged discriminator placement
+  -->
+
+  <tdml:parserTestCase name="discrimPlacementSDW"
+                       root="root-discrim" model="discrimAssertPlacement"
+                       description="This test demonstrates the SDW resulting from discouraged discriminator placement">
+    <tdml:document>Hat,2</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root-discrim>
+          <description>Hat</description>
+          <quantity>2</quantity>
+        </root-discrim>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:warnings>
+      <tdml:warning>Schema Definition Warning</tdml:warning>
+      <tdml:warning>Wrap the discriminator or assert in an empty sequence</tdml:warning>
+    </tdml:warnings>
+  </tdml:parserTestCase>
+
+  <!--
+  Test name: assertPlacementSDW
+  Schema: discrimAssertPlacement, root root-assert
+  Purpose: This test demonstrates the SDW resulting from discouraged assert placement
+  -->
+
+  <tdml:parserTestCase name="assertPlacementSDW"
+                       root="root-assert" model="discrimAssertPlacement"
+                       description="This test demonstrates the SDW resulting from discouraged assert placement">
+    <tdml:document>Hat,2</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root-assert>
+          <description>Hat</description>
+          <quantity>2</quantity>
+        </root-assert>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:warnings>
+      <tdml:warning>Schema Definition Warning</tdml:warning>
+      <tdml:warning>Wrap the discriminator or assert in an empty sequence</tdml:warning>
+    </tdml:warnings>
+  </tdml:parserTestCase>
+
   <tdml:defineSchema name="s0">
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
