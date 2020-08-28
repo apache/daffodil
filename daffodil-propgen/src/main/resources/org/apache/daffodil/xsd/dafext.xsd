@@ -453,6 +453,8 @@
           <xs:enumeration value="deprecatedPropertyDFDLXError" />
           <xs:enumeration value="deprecatedPropertyDFDLError" />
           <xs:enumeration value="deprecatedPropertySeparatorPolicy" />
+          <xs:enumeration value="discouragedDiscriminatorPlacement" />
+          <xs:enumeration value="discouragedAssertPlacement" />
           <xs:enumeration value="emptyElementParsePolicyError" />
           <xs:enumeration value="encodingErrorPolicyError" />
           <xs:enumeration value="escapeSchemeRefUndefined" />

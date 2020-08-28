@@ -79,4 +79,8 @@ class TestDiscriminators {
   @Test def test_multipleDiscriminators3(): Unit = { runner2.runOneTest("multipleDiscriminators3") }
   @Test def test_multipleDiscriminators4(): Unit = { runner2.runOneTest("multipleDiscriminators4") }
   @Test def test_multipleDiscriminators5(): Unit = { runner2.runOneTest("multipleDiscriminators5") }
+
+  @Test def test_discrimPlacementSDW(): Unit = { runner.runOneTest("discrimPlacementSDW") }
+  @Test def test_assertPlacementSDW(): Unit = { runner.runOneTest("assertPlacementSDW") }
+
 }
