@@ -1,4 +1,4 @@
-#include "generated_data.h"
+#include "generated_code.h"
 #include "daffodil_argp.h"
 #include "xml_reader.h"
 #include "xml_writer.h"

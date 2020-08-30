@@ -1,7 +1,7 @@
 *.a
 *.o
-generated_data
-mxml.h
 GPATH
 GRTAGS
 GTAGS
+daffodil
+mxml.h

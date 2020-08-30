@@ -18,7 +18,7 @@
                 "-lmxml",
                 "-lpthread",
                 "-o",
-                "${fileDirname}/generated_data"
+                "${fileDirname}/daffodil"
             ],
             "options": {
                 "cwd": "${workspaceFolder}"
