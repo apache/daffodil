@@ -1,4 +1,4 @@
-#include "argp_code.h"
+#include "daffodil_argp.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -196,8 +196,8 @@ parse_daffodil_unparse_cli(struct argp_state *state)
 // Initialize our "daffodil" CLI options
 
 struct daffodil_cli daffodil_cli = {
-    NONE, // default subcommand
-    0,    // default verbosity
+    DAFFODIL_NONE, // default subcommand
+    0,             // default verbosity
 };
 
 static const struct argp_option daffodil_options[] = {
@@ -244,12 +244,12 @@ daffodil_handler(int key, char *arg, struct argp_state *state)
     case ARGP_KEY_ARG:
         if (strcmp(arg, "parse") == 0)
         {
-            daffodil->subcommand = PARSE;
+            daffodil->subcommand = DAFFODIL_PARSE;
             status = parse_daffodil_parse_cli(state);
         }
         else if (strcmp(arg, "unparse") == 0)
         {
-            daffodil->subcommand = UNPARSE;
+            daffodil->subcommand = DAFFODIL_UNPARSE;
             status = parse_daffodil_unparse_cli(state);
         }
         else
@@ -259,7 +259,7 @@ daffodil_handler(int key, char *arg, struct argp_state *state)
         break;
 
     case ARGP_KEY_END:
-        if (daffodil->subcommand == NONE)
+        if (daffodil->subcommand == DAFFODIL_NONE)
         {
             argp_error(state, "missing subcommand");
         }

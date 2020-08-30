@@ -1,5 +1,5 @@
 #include "generated_data.h"
-#include "argp_code.h"
+#include "daffodil_argp.h"
 #include "xml_reader.h"
 #include "xml_writer.h"
 #include <endian.h>
@@ -308,7 +308,7 @@ main(int argc, char *argv[])
         FILE *       output = stdout;
         InfosetBase *root = rootInfoset();
 
-        if (daffodil_cli.subcommand == PARSE)
+        if (daffodil_cli.subcommand == DAFFODIL_PARSE)
         {
             // Open our input and output files if given as arguments.
             input = fopen_or_exit(input, daffodil_parse.infile, "r");
@@ -324,7 +324,7 @@ main(int argc, char *argv[])
             error_msg = walkInfoset((VisitEventHandler *)&xmlWriter, root);
             continue_or_exit(error_msg);
         }
-        else if (daffodil_cli.subcommand == UNPARSE)
+        else if (daffodil_cli.subcommand == DAFFODIL_UNPARSE)
         {
             // Open our input and output files if given as arguments.
             input = fopen_or_exit(input, daffodil_unparse.infile, "r");
