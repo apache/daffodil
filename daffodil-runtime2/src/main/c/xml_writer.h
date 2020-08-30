@@ -11,12 +11,7 @@ typedef struct XMLWriter
     FILE *                  stream;
 } XMLWriter;
 
-// Write XML header to stream before writing anything else (probably
-// should add this to visitor methods)
-
-extern void xml_init(const XMLWriter *writer);
-
-// XML visitor methods to pass to visit method
+// XMLWriter methods to pass to walkInfoset method
 
 extern const VisitEventHandler xmlWriterMethods;
 

@@ -57,23 +57,6 @@ typedef struct ElementRuntimeData
     const Unparse_Self unparseSelf;
 } ERD;
 
-// VisitEventHandler - infoset visitor methods (generic)
-
-typedef struct VisitEventHandler VisitEventHandler;
-typedef void (*VisitStart)(const VisitEventHandler *handler,
-                           const InfosetBase *      base);
-typedef void (*VisitEnd)(const VisitEventHandler *handler,
-                         const InfosetBase *      base);
-typedef void (*VisitInt)(const VisitEventHandler *handler, const ERD *erd,
-                         const int32_t *location);
-
-typedef struct VisitEventHandler
-{
-    const VisitStart visitStart;
-    const VisitEnd   visitEnd;
-    const VisitInt   visitInt;
-} VisitEventHandler;
-
 // InfosetBase - representation of an infoset element
 
 typedef struct InfosetBase
@@ -81,9 +64,30 @@ typedef struct InfosetBase
     const ERD *erd;
 } InfosetBase;
 
-// Generic visit method
+// VisitEventHandler - methods to be called when walking an infoset
 
-extern void visit_node_self(const VisitEventHandler *handler,
-                            const InfosetBase *      infoNode);
+typedef struct VisitEventHandler VisitEventHandler;
+typedef const char *(*VisitStartDocument)(const VisitEventHandler *handler);
+typedef const char *(*VisitEndDocument)(const VisitEventHandler *handler);
+typedef const char *(*VisitStartComplex)(const VisitEventHandler *handler,
+                                         const InfosetBase *      base);
+typedef const char *(*VisitEndComplex)(const VisitEventHandler *handler,
+                                       const InfosetBase *      base);
+typedef const char *(*VisitInt32Elem)(const VisitEventHandler *handler,
+                                      const ERD *erd, const int32_t *location);
+
+typedef struct VisitEventHandler
+{
+    const VisitStartDocument visitStartDocument;
+    const VisitEndDocument   visitEndDocument;
+    const VisitStartComplex  visitStartComplex;
+    const VisitEndComplex    visitEndComplex;
+    const VisitInt32Elem     visitInt32Elem;
+} VisitEventHandler;
+
+// walkInfoset - walk an infoset and call VisitEventHandler methods
+
+extern const char *walkInfoset(const VisitEventHandler *handler,
+                               const InfosetBase *      infoset);
 
 #endif // COMMON_RUNTIME_H

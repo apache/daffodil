@@ -6,12 +6,19 @@
             "label": "C/C++: gcc build active file",
             "command": "/usr/bin/gcc",
             "args": [
+                "-Wall",
+                "-Wextra",
+                "-Wno-missing-field-initializers",
                 "-g",
                 "-I",
                 ".",
                 "**.c",
+                "-L",
+                ".",
+                "-lmxml",
+                "-lpthread",
                 "-o",
-                "${fileDirname}/${fileBasenameNoExtension}"
+                "${fileDirname}/generated_data"
             ],
             "options": {
                 "cwd": "${workspaceFolder}"

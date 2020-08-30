@@ -1,8 +1,10 @@
 #include "generated_data.h"
 #include "argp_code.h"
+#include "xml_reader.h"
 #include "xml_writer.h"
 #include <endian.h>
 #include <error.h>
+#include <mxml.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -241,6 +243,17 @@ C2_unparse_self(const C2 *instance, const UState *ustate)
     return error_msg;
 }
 
+// Return the root of an infoset to be used for parsing or unparsing
+
+static InfosetBase *
+rootInfoset()
+{
+    static C1    instance;
+    InfosetBase *root = &instance._base;
+    C1ERD.initSelf(root);
+    return root;
+}
+
 // Open a file or exit if it can't be opened
 
 static FILE *
@@ -291,8 +304,9 @@ main(int argc, char *argv[])
 
     if (status == 0)
     {
-        FILE *input = stdin;
-        FILE *output = stdout;
+        FILE *       input = stdin;
+        FILE *       output = stdout;
+        InfosetBase *root = rootInfoset();
 
         if (daffodil_cli.subcommand == PARSE)
         {
@@ -301,24 +315,31 @@ main(int argc, char *argv[])
             output = fopen_or_exit(output, daffodil_parse.outfile, "w");
 
             // Parse the input file into our infoset.
-            PState       pstate = {input};
-            XMLWriter    xmlWriter = {xmlWriterMethods, output};
-            C1           instance;
-            InfosetBase *infoNode = &instance._base;
-            const char * error_msg = NULL;
-
-            C1ERD.initSelf(infoNode);
-            error_msg = C1ERD.parseSelf(infoNode, &pstate);
+            PState      pstate = {input};
+            const char *error_msg = root->erd->parseSelf(root, &pstate);
             continue_or_exit(error_msg);
 
             // Visit the infoset and print XML from it.
-            xml_init(&xmlWriter);
-            visit_node_self((VisitEventHandler *)&xmlWriter, infoNode);
+            XMLWriter xmlWriter = {xmlWriterMethods, output};
+            error_msg = walkInfoset((VisitEventHandler *)&xmlWriter, root);
+            continue_or_exit(error_msg);
         }
-        else
+        else if (daffodil_cli.subcommand == UNPARSE)
         {
-            // ??? - We can unparse, but we can't read XML yet
-            printf("unparse: can't read XML infile yet\n");
+            // Open our input and output files if given as arguments.
+            input = fopen_or_exit(input, daffodil_unparse.infile, "r");
+            output = fopen_or_exit(output, daffodil_unparse.outfile, "w");
+
+            // Initialize our infoset's values from the XML data.
+            XMLReader   xmlReader = {xmlReaderMethods, input, root};
+            const char *error_msg =
+                walkInfoset((VisitEventHandler *)&xmlReader, root);
+            continue_or_exit(error_msg);
+
+            // Unparse our infoset to the output file.
+            UState ustate = {output};
+            error_msg = root->erd->unparseSelf(root, &ustate);
+            continue_or_exit(error_msg);
         }
 
         // Close our input and out files if we opened them.

@@ -1,19 +1,26 @@
 #include "common_runtime.h"
 #include <stdlib.h>
 
-// Generic method to visit infoset objects with a visit handler
+// walkInfosetNode - recursively walk an infoset node and call
+// VisitEventHandler methods
 
-void
-visit_node_self(const VisitEventHandler *handler, const InfosetBase *infoNode)
+static const char *
+walkInfosetNode(const VisitEventHandler *handler, const InfosetBase *infoNode)
 {
+    const char *error_msg = NULL;
+
+    // Start visiting the node
+    if (error_msg == NULL)
+    {
+        error_msg = handler->visitStartComplex(handler, infoNode);
+    }
+
+    // Walk the node's children recursively
     const size_t      count = infoNode->erd->count_children;
     const ERD **const childrenERDs = infoNode->erd->childrenERDs;
     const ptrdiff_t * offsets = infoNode->erd->offsets;
 
-    handler->visitStart(handler, infoNode);
-
-    // Visit each child too
-    for (size_t i = 0; i < count; i++)
+    for (size_t i = 0; i < count && error_msg == NULL; i++)
     {
         ptrdiff_t  offset = offsets[i];
         const ERD *childERD = childrenERDs[i];
@@ -28,13 +35,42 @@ visit_node_self(const VisitEventHandler *handler, const InfosetBase *infoNode)
         switch (typeCode)
         {
         case COMPLEX:
-            visit_node_self(handler, childNode);
+            error_msg = walkInfosetNode(handler, childNode);
             break;
         case PRIMITIVE_INT:
-            handler->visitInt(handler, childERD, intLocation);
+            error_msg = handler->visitInt32Elem(handler, childERD, intLocation);
             break;
         }
     }
 
-    handler->visitEnd(handler, infoNode);
+    // End visiting the node
+    if (error_msg == NULL)
+    {
+        error_msg = handler->visitEndComplex(handler, infoNode);
+    }
+
+    return error_msg;
+}
+
+// walkInfoset - walk an infoset and call VisitEventHandler methods
+
+const char *
+walkInfoset(const VisitEventHandler *handler, const InfosetBase *infoset)
+{
+    const char *error_msg = NULL;
+
+    if (error_msg == NULL)
+    {
+        error_msg = handler->visitStartDocument(handler);
+    }
+    if (error_msg == NULL)
+    {
+        error_msg = walkInfosetNode(handler, infoset);
+    }
+    if (error_msg == NULL)
+    {
+        error_msg = handler->visitEndDocument(handler);
+    }
+
+    return error_msg;
 }
