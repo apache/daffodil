@@ -1,5 +1,6 @@
 #include "xml_writer.h"
-#include <stdio.h>
+#include <stdint.h> // for int32_t
+#include <stdio.h>  // for fprintf, NULL, fflush
 
 // Write XML declaration to stream before walking infoset
 

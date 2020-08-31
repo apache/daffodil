@@ -1,9 +1,10 @@
 #include "xml_reader.h"
-#include <errno.h>
-#include <limits.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
+#include <errno.h>  // for errno, ERANGE
+#include <limits.h> // for LONG_MAX, LONG_MIN
+#include <mxml.h>   // for mxmlWalkNext, mxmlGetElement, mxmlGetType, ...
+#include <stdint.h> // for int32_t, INT32_MAX, INT32_MIN
+#include <stdlib.h> // for NULL, strtol
+#include <string.h> // for strcmp, strerror
 
 // Read XML data from stream before walking infoset
 

@@ -1,5 +1,4 @@
 #include "common_runtime.h"
-#include <stdlib.h>
 
 // walkInfosetNode - recursively walk an infoset node and call
 // VisitEventHandler methods

@@ -1,7 +1,8 @@
 #ifndef XML_WRITER_H
 #define XML_WRITER_H
 
-#include "common_runtime.h"
+#include "common_runtime.h" // for VisitEventHandler
+#include <stdio.h>          // for FILE
 
 // XMLWriter - infoset visitor with methods to output XML
 

@@ -1,7 +1,8 @@
-#include "daffodil_argp.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include "daffodil_argp.h" // for daffodil_cli, daffodil_parse_cli, ...
+#include <argp.h>          // for argp_state, argp_error, error_t, argp_parse
+#include <stdio.h>         // for sprintf
+#include <stdlib.h>        // for putenv, NULL
+#include <string.h>        // for strlen, strcmp
 
 // Initialize our "daffodil" name and version
 

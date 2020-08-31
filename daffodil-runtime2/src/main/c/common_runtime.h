@@ -1,10 +1,9 @@
 #ifndef COMMON_RUNTIME_H
 #define COMMON_RUNTIME_H
 
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
-#include <stdio.h>
+#include <stddef.h> // for ptrdiff_t
+#include <stdint.h> // for int32_t
+#include <stdio.h>  // for FILE, size_t
 
 // PState - parser state while parsing input
 

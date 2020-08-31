@@ -1,11 +1,9 @@
 #ifndef DAFFODIL_ARGP_H
 #define DAFFODIL_ARGP_H
 
-#include <argp.h>
-
 // Parse our "daffodil" command line interface
 
-extern error_t parse_daffodil_cli(int argc, char **argv);
+extern int parse_daffodil_cli(int argc, char **argv);
 
 // Get our "daffodil" CLI options
 
