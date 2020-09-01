@@ -39,18 +39,18 @@ realpath() {
   THISPWD=$PWD
   LNK=$1
   while [ "$LNK" ]; do
-    cd "$(dirname "$LNK")"
+    cd "$(dirname "$LNK")" || return
     BN=$(basename "$LNK")
     LNK=$(readlink "$BN")
   done
   REALPATH="$PWD/$BN"
-  cd "$THISPWD"
+  cd "$THISPWD" || return
   echo "$REALPATH"
 }
 
 MAINCLASS=org.apache.daffodil.Main
 SCRIPT=$(realpath "$0")			# Full path to script, needed for symlinks
-BINDIR=`dirname ${SCRIPT}`		# Directory script is run in
+BINDIR=$(dirname "${SCRIPT}")		# Directory script is run in
 LIBDIR="$BINDIR/../lib"
 CLASSPATH=$LIBDIR/'*'
 
