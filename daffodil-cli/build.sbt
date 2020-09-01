@@ -64,6 +64,20 @@ Daffodil uses this description to parse data into an XML infoset for ingestion
 and validation.
 """.trim
 
+// The below is a hack. The sbt native packager plugin does not provide a way
+// to make arbitrary changes to the RPM spec file. However, RPM spec files
+// allow %define's within a description. So if we need to add defines to change
+// rpmbuild behavior, we can simply append them to the RPM description and
+// things still work as expected.
+//
+// In this case, we want to disable zstd compression which isn't supported by
+// older versions of RPM. So we add the following special rpm %define's to use
+// gzip compression instead, which is supported by all versions of RPM.
+packageDescription in Rpm := (packageDescription in Rpm).value + """
+%define _source_payload w9.gzdio
+%define _binary_payload w9.gzdio
+"""
+
 version in Rpm := {
   val parts = version.value.split("-", 2)
   val ver = parts(0) // removes snapshot if it exists
