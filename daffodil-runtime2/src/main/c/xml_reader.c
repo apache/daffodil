@@ -12,8 +12,8 @@ static const char *
 xmlStartDocument(XMLReader *reader)
 {
     reader->xml = mxmlLoadFile(NULL, reader->stream, MXML_OPAQUE_CALLBACK);
-    reader->node = mxmlWalkNext(reader->xml, reader->xml, MXML_DESCEND);
-    return reader->node ? NULL : "Unable to read XML data from input file";
+    reader->node = reader->xml;
+    return reader->xml ? NULL : "Unable to read XML data from input file";
 }
 
 // Free XML data after walking infoset

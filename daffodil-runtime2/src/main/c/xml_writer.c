@@ -1,55 +1,85 @@
 #include "xml_writer.h"
+#include "stack.h"  // for stack_is_empty, stack_pop, stack_push, stack_top
+#include <assert.h> // for assert
+#include <mxml.h>   // for mxml_node_t, mxmlNewElement, mxmlNewOpaquef, ...
 #include <stdint.h> // for int32_t
-#include <stdio.h>  // for fprintf, NULL, fflush
+#include <stdio.h>  // for NULL, fflush
 
-// Write XML declaration to stream before walking infoset
+// Push new XML document on stack.  This function is not
+// thread-safe since it uses static storage.
 
 static const char *
-xmlStartDocument(const XMLWriter *writer)
+xmlStartDocument(XMLWriter *writer)
 {
-    int count = fprintf(writer->stream,
-                        u8"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-    return count > 0 ? NULL : "Error writing XML declaration";
+#define MAX_DEPTH 100
+    static mxml_node_t *array[MAX_DEPTH];
+    stack_init(&writer->stack, array, MAX_DEPTH);
+
+    mxml_node_t *xml = mxmlNewXML("1.0");
+    stack_push(&writer->stack, xml);
+    return xml != NULL ? NULL : "Error making new XML declaration";
 }
 
-// Flush stream after walking infoset
+// Pop completed XML document off stack and write it to stream
 
 static const char *
-xmlEndDocument(const XMLWriter *writer)
+xmlEndDocument(XMLWriter *writer)
 {
-    int status = fflush(writer->stream);
+    mxml_node_t *xml = stack_pop(&writer->stack);
+    assert(stack_is_empty(&writer->stack));
+    int status = mxmlSaveFile(xml, writer->stream, MXML_NO_CALLBACK);
+    if (status < 0)
+    {
+        return "Error writing XML document";
+    }
+    status = fflush(writer->stream);
+    mxmlDelete(xml);
     return status == 0 ? NULL : "Error flushing stream";
 }
 
-// Write node's name as start tag
+// Push new complex element on stack
 
 static const char *
-xmlStartComplex(const XMLWriter *writer, const InfosetBase *base)
+xmlStartComplex(XMLWriter *writer, const InfosetBase *base)
 {
-    char *name = base->erd->namedQName.name;
-    int   count = fprintf(writer->stream, u8"<%s>\n", name);
-    return count > 0 ? NULL : "Error writing start tag";
+    mxml_node_t *complex = NULL;
+    if (!stack_is_full(&writer->stack))
+    {
+        mxml_node_t *parent = stack_top(&writer->stack);
+        char *       name = base->erd->namedQName.name;
+        complex = mxmlNewElement(parent, name);
+        stack_push(&writer->stack, complex);
+    }
+    return complex != NULL ? NULL : "Error making new complex element";
 }
 
-// Write node's name as end tag
+// Pop completed complex element off stack
 
 static const char *
-xmlEndComplex(const XMLWriter *writer, const InfosetBase *base)
+xmlEndComplex(XMLWriter *writer, const InfosetBase *base)
 {
-    char *name = base->erd->namedQName.name;
-    int   count = fprintf(writer->stream, u8"</%s>\n", name);
-    return count > 0 ? NULL : "Error writing end tag";
+    mxml_node_t *complex = NULL;
+    if (!stack_is_empty(&writer->stack))
+    {
+        complex = stack_pop(&writer->stack);
+        (void)base;
+    }
+    return complex != NULL ? NULL : "Underflowed the XML stack";
 }
 
 // Write 32-bit integer value as element
 
 static const char *
-xmlInt32Elem(const XMLWriter *writer, const ERD *erd, const int32_t *location)
+xmlInt32Elem(XMLWriter *writer, const ERD *erd, const int32_t *location)
 {
-    char *  name = erd->namedQName.name;
-    int32_t value = *location;
-    int count = fprintf(writer->stream, u8"  <%s>%i</%s>\n", name, value, name);
-    return count > 0 ? NULL : "Error writing int32 element";
+    mxml_node_t *parent = stack_top(&writer->stack);
+    char *       name = erd->namedQName.name;
+    mxml_node_t *simple = mxmlNewElement(parent, name);
+    int32_t      value = *location;
+    mxml_node_t *text = mxmlNewOpaquef(simple, "%i", value);
+    return (simple != NULL && text != NULL)
+               ? NULL
+               : "Error making new int32 simple element";
 }
 
 // Initialize a struct with our visitor event handler methods

@@ -1,8 +1,1 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<C1>
-  <e1>1</e1>
-<C2>
-  <e2>2</e2>
-  <e3>3</e3>
-</C2>
-</C1>
+<?xml version="1.0" encoding="utf-8"?><C1><e1>1</e1><C2><e2>2</e2><e3>3</e3></C2></C1>
