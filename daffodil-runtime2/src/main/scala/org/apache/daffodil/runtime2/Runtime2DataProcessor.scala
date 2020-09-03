@@ -81,12 +81,12 @@ class Runtime2DataProcessor(executableFile: Path) extends DFDL.DataProcessorBase
       os.write(infile, input)
       val result = os.proc(executableFile, "parse", "-I", "xml", "-o", outfile, infile).call(cwd = tempDir, stderr = Pipe)
       if (result.out.text.isEmpty && result.err.text.isEmpty) {
-        val parseResult = new ParseResult(this, Success)
+        val parseResult = new ParseResult(this, outfile, Success)
         parseResult
       } else {
         val msg = "Unexpected output:\n"  + result.out.text + result.err.text
         val parseError = new ParseError(None, None, None, None, msg)
-        val parseResult = new ParseResult(this, Failure(parseError))
+        val parseResult = new ParseResult(this, outfile, Failure(parseError))
         parseResult.addDiagnostic(parseError)
         parseResult
       }
@@ -97,14 +97,14 @@ class Runtime2DataProcessor(executableFile: Path) extends DFDL.DataProcessorBase
           new ParseError(None, None, None, None, s"${e.getMessage} err.text=$msg")
         else
           new ParseError(None, None, Maybe.One(e), None)
-        val parseResult = new ParseResult(this, Failure(parseError))
+        val parseResult = new ParseResult(this, outfile, Failure(parseError))
         parseResult.addDiagnostic(parseError)
         parseResult
     }
   }
 }
 
-class ParseResult(dp: Runtime2DataProcessor, override val processorStatus: ProcessorResult)
+class ParseResult(dp: Runtime2DataProcessor, outfile: Path, override val processorStatus: ProcessorResult)
   extends DFDL.ParseResult
     with DFDL.State
     with WithDiagnosticsImpl {
@@ -114,4 +114,9 @@ class ParseResult(dp: Runtime2DataProcessor, override val processorStatus: Proce
   override def validationStatus: Boolean = processorStatus.isSuccess
 
   override def currentLocation: DataLocation = ???
+
+  def infosetAsXML : scala.xml.Elem = {
+    val xml = scala.xml.XML.loadFile(outfile.toIO)
+    xml
+  }
 }
