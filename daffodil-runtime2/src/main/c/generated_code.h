@@ -10,18 +10,18 @@ extern InfosetBase *rootInfoset();
 
 // Define some infoset structures
 
-typedef struct C2
+typedef struct c2
 {
     InfosetBase _base;
     int32_t     e2;
     int32_t     e3;
-} C2;
+} c2;
 
-typedef struct C1
+typedef struct c1
 {
     InfosetBase _base;
-    C2          c2;
+    c2          c2;
     int32_t     e1;
-} C1;
+} c1;
 
 #endif // GENERATED_CODE_H

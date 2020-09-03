@@ -7,12 +7,12 @@
 
 // Function prototypes to allow compilation
 
-static void        C1_init_self(C1 *instance);
-static const char *C1_parse_self(C1 *instance, const PState *pstate);
-static const char *C1_unparse_self(const C1 *instance, const UState *ustate);
-static void        C2_init_self(C2 *instance);
-static const char *C2_parse_self(C2 *instance, const PState *pstate);
-static const char *C2_unparse_self(const C2 *instance, const UState *ustate);
+static void        c1_init_self(c1 *instance);
+static const char *c1_parse_self(c1 *instance, const PState *pstate);
+static const char *c1_unparse_self(const c1 *instance, const UState *ustate);
+static void        c2_init_self(c2 *instance);
+static const char *c2_parse_self(c2 *instance, const PState *pstate);
+static const char *c2_unparse_self(const c2 *instance, const UState *ustate);
 
 // Metadata singletons
 
@@ -49,51 +49,62 @@ static const ERD e3ERD = {
     NULL,          // unparseSelf
 };
 
-static const C2 C2_compute_ERD_offsets;
+static const c2 c2_compute_ERD_offsets;
 
-static const ptrdiff_t C2_offsets[2] = {
-    (char *)&C2_compute_ERD_offsets.e2 - (char *)&C2_compute_ERD_offsets,
-    (char *)&C2_compute_ERD_offsets.e3 - (char *)&C2_compute_ERD_offsets,
+static const ptrdiff_t c2_offsets[2] = {
+    (char *)&c2_compute_ERD_offsets.e2 - (char *)&c2_compute_ERD_offsets,
+    (char *)&c2_compute_ERD_offsets.e3 - (char *)&c2_compute_ERD_offsets,
 };
 
-static const ERD *C2_childrenERDs[2] = {
+static const ERD *c2_childrenERDs[2] = {
     &e2ERD,
     &e3ERD,
 };
 
-static const ERD C2ERD = {
-    {"C2"},                         // namedQName
+static const ERD c2ERD = {
+    {"c2"},                         // namedQName
     COMPLEX,                        // typeCode
     2,                              // count_children
-    C2_offsets,                     // offsets
-    C2_childrenERDs,                // childrenERDs
-    (Init_Self)&C2_init_self,       // initSelf
-    (Parse_Self)&C2_parse_self,     // parseSelf
-    (Unparse_Self)&C2_unparse_self, // unparseSelf
+    c2_offsets,                     // offsets
+    c2_childrenERDs,                // childrenERDs
+    (Init_Self)&c2_init_self,       // initSelf
+    (Parse_Self)&c2_parse_self,     // parseSelf
+    (Unparse_Self)&c2_unparse_self, // unparseSelf
 };
 
-static const C1 C1_compute_ERD_offsets;
+static const c1 c1_compute_ERD_offsets;
 
-static const ptrdiff_t C1_offsets[2] = {
-    (char *)&C1_compute_ERD_offsets.e1 - (char *)&C1_compute_ERD_offsets,
-    (char *)&C1_compute_ERD_offsets.c2 - (char *)&C1_compute_ERD_offsets,
+static const ptrdiff_t c1_offsets[2] = {
+    (char *)&c1_compute_ERD_offsets.e1 - (char *)&c1_compute_ERD_offsets,
+    (char *)&c1_compute_ERD_offsets.c2 - (char *)&c1_compute_ERD_offsets,
 };
 
-static const ERD *C1_childrenERDs[2] = {
+static const ERD *c1_childrenERDs[2] = {
     &e1ERD,
-    &C2ERD,
+    &c2ERD,
 };
 
-static const ERD C1ERD = {
-    {"C1"},                         // namedQName
+static const ERD c1ERD = {
+    {"c1"},                         // namedQName
     COMPLEX,                        // typeCode
     2,                              // count_children
-    C1_offsets,                     // offsets
-    C1_childrenERDs,                // childrenERDs
-    (Init_Self)&C1_init_self,       // initSelf
-    (Parse_Self)&C1_parse_self,     // parseSelf
-    (Unparse_Self)&C1_unparse_self, // unparseSelf
+    c1_offsets,                     // offsets
+    c1_childrenERDs,                // childrenERDs
+    (Init_Self)&c1_init_self,       // initSelf
+    (Parse_Self)&c1_parse_self,     // parseSelf
+    (Unparse_Self)&c1_unparse_self, // unparseSelf
 };
+
+// Return the root of an infoset to be used for parsing or unparsing
+
+InfosetBase *
+rootInfoset()
+{
+    static c1    instance;
+    InfosetBase *root = &instance._base;
+    c1ERD.initSelf(root);
+    return root;
+}
 
 // Methods to initialize, parse, and unparse infoset nodes
 
@@ -116,15 +127,15 @@ eof_or_error_msg(FILE *stream)
 }
 
 static void
-C1_init_self(C1 *instance)
+c1_init_self(c1 *instance)
 {
     // If InfosetBase adds more members, we need to set them too
-    instance->_base.erd = &C1ERD;
-    C2_init_self(&instance->c2);
+    instance->_base.erd = &c1ERD;
+    c2_init_self(&instance->c2);
 }
 
 static const char *
-C1_parse_self(C1 *instance, const PState *pstate)
+c1_parse_self(c1 *instance, const PState *pstate)
 {
     const char *error_msg = NULL;
     if (error_msg == NULL)
@@ -139,13 +150,13 @@ C1_parse_self(C1 *instance, const PState *pstate)
     }
     if (error_msg == NULL)
     {
-        error_msg = C2_parse_self(&instance->c2, pstate);
+        error_msg = c2_parse_self(&instance->c2, pstate);
     }
     return error_msg;
 }
 
 static const char *
-C1_unparse_self(const C1 *instance, const UState *ustate)
+c1_unparse_self(const c1 *instance, const UState *ustate)
 {
     const char *error_msg = NULL;
     if (error_msg == NULL)
@@ -164,20 +175,20 @@ C1_unparse_self(const C1 *instance, const UState *ustate)
     }
     if (error_msg == NULL)
     {
-        error_msg = C2_unparse_self(&instance->c2, ustate);
+        error_msg = c2_unparse_self(&instance->c2, ustate);
     }
     return error_msg;
 }
 
 static void
-C2_init_self(C2 *instance)
+c2_init_self(c2 *instance)
 {
     // If InfosetBase adds more members, we need to set them too
-    instance->_base.erd = &C2ERD;
+    instance->_base.erd = &c2ERD;
 }
 
 static const char *
-C2_parse_self(C2 *instance, const PState *pstate)
+c2_parse_self(c2 *instance, const PState *pstate)
 {
     const char *error_msg = NULL;
     if (error_msg == NULL)
@@ -204,7 +215,7 @@ C2_parse_self(C2 *instance, const PState *pstate)
 }
 
 static const char *
-C2_unparse_self(const C2 *instance, const UState *ustate)
+c2_unparse_self(const c2 *instance, const UState *ustate)
 {
     const char *error_msg = NULL;
     if (error_msg == NULL)
@@ -236,15 +247,4 @@ C2_unparse_self(const C2 *instance, const UState *ustate)
         }
     }
     return error_msg;
-}
-
-// Return the root of an infoset to be used for parsing or unparsing
-
-InfosetBase *
-rootInfoset()
-{
-    static C1    instance;
-    InfosetBase *root = &instance._base;
-    C1ERD.initSelf(root);
-    return root;
 }

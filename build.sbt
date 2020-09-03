@@ -15,6 +15,9 @@
  * limitations under the License.
  */
 
+import scala.collection.immutable.ListSet
+import sbtcc._
+
 lazy val genManaged = taskKey[Unit]("Generate managed sources and resources")
 lazy val genProps = taskKey[Seq[File]]("Generate properties scala source")
 lazy val genSchemas = taskKey[Seq[File]]("Generated DFDL schemas")
@@ -44,10 +47,42 @@ lazy val runtime1         = Project("daffodil-runtime1", file("daffodil-runtime1
                               .settings(commonSettings, usesMacros)
                               .settings(libraryDependencies += "com.fasterxml.jackson.core" % "jackson-annotations" % "2.9.8")
 
+val runtime2StaticLib     = Library("libruntime2.a")
 lazy val runtime2         = Project("daffodil-runtime2", file("daffodil-runtime2")).configs(IntegrationTest)
+                              .enablePlugins(CcPlugin, UniversalPlugin)
                               .dependsOn(io, lib % "test->test", runtime1)
                               .settings(commonSettings)
                               .settings(publishArtifact in (Compile, packageDoc) := false)
+                              .settings(
+                                Compile / ccTargets := ListSet(runtime2StaticLib),
+                                Compile / cSources  := Map(
+                                  runtime2StaticLib -> Seq(
+                                    baseDirectory.value / "src" / "main" / "c" / "common_runtime.c",
+                                    baseDirectory.value / "src" / "main" / "c" / "daffodil_argp.c",
+                                    baseDirectory.value / "src" / "main" / "c" / "daffodil_main.c",
+                                    baseDirectory.value / "src" / "main" / "c" / "stack.c",
+                                    baseDirectory.value / "src" / "main" / "c" / "xml_reader.c",
+                                    baseDirectory.value / "src" / "main" / "c" / "xml_writer.c",
+                                  ),
+                                ),
+                                Compile / cFlags := (Compile / cFlags).value.withDefaultValue(Seq(
+                                  "-g",
+                                  "-Wall",
+                                  "-Wextra",
+                                  "-Wno-missing-field-initializers",
+                                )),
+
+                                mappings in Universal ++= Seq(
+                                  (baseDirectory.value / "src" / "main" / "c" / "common_runtime.h") -> "include/common_runtime.h",
+                                  (baseDirectory.value / "src" / "main" / "c" / "daffodil_argp.h") -> "include/daffodil_argp.h",
+                                  (baseDirectory.value / "src" / "main" / "c" / "stack.h") -> "include/stack.h",
+                                  (baseDirectory.value / "src" / "main" / "c" / "xml_reader.h") -> "include/xml_reader.h",
+                                  (baseDirectory.value / "src" / "main" / "c" / "xml_writer.h") -> "include/xml_writer.h",
+                                ),
+                                mappings in Universal ++= (Compile / ccLinkLibraries).value map { lib =>
+                                  lib -> ("lib/" + lib.getName)
+                                },
+                              )
 
 lazy val runtime1Unparser = Project("daffodil-runtime1-unparser", file("daffodil-runtime1-unparser")).configs(IntegrationTest)
                               .dependsOn(runtime1, lib % "test->test", runtime1 % "test->test")

@@ -69,34 +69,33 @@ class BinaryIntegerKnownLengthParserGenerator(
     if (!signed)
       e.SDE("Only signed integers are supported.")
 
+    val initStatement = s"    instance->$fieldName = 0xCDCDCDCD;"
     val parseStatement =
-      s"""	{
-         |		// Read 4 bytes from pstate->stream
-         |		// should handle insufficient number of bytes
-         |		char buffer[4];
-         |		int count = fread(&buffer, sizeof(buffer), 1, pstate->stream);
-         |		if (count < sizeof(buffer))
-         |		{
-         |			// error handling - what do we do?
-         |			// longjmp to an error routine, push an error and print it, exit immediately?
-         |		}
-         |		instance->$fieldName = be32toh(*((uint32_t *)(&buffer)));
-         |	}""".stripMargin
+      s"""    if (error_msg == NULL)
+         |    {
+         |        char   buffer[4];
+         |        size_t count = fread(&buffer, 1, sizeof(buffer), pstate->stream);
+         |        if (count < sizeof(buffer))
+         |        {
+         |            error_msg = eof_or_error_msg(pstate->stream);
+         |        }
+         |        instance->$fieldName = be32toh(*((uint32_t *)(&buffer)));
+         |    }""".stripMargin
     val unparseStatement =
-      s"""	{
-         |		// Fill 4-byte buffer and write it to ustate->stream
-         |		union {
-         |			char c_val[4];
-         |			uint32_t i_val;
-         |		} buffer;
-         |		buffer.i_val = htobe32(instance->$fieldName);
-         |		int count = fwrite(buffer.c_val, sizeof(buffer), 1, ustate->stream);
-         |		if (count < sizeof(buffer))
-         |		{
-         |			// error handling goes here...
-         |		}
-         |	}""".stripMargin
-    val initStatement = s"	instance->$fieldName = 0xCDCDCDCD;"
-    cgState.addSimpleTypeStatements(parseStatement, unparseStatement, initStatement)
+      s"""    if (error_msg == NULL)
+         |    {
+         |        union
+         |        {
+         |            char     c_val[4];
+         |            uint32_t i_val;
+         |        } buffer;
+         |        buffer.i_val = htobe32(instance->$fieldName);
+         |        size_t count = fwrite(buffer.c_val, 1, sizeof(buffer), ustate->stream);
+         |        if (count < sizeof(buffer))
+         |        {
+         |            error_msg = eof_or_error_msg(ustate->stream);
+         |        }
+         |    }""".stripMargin
+    cgState.addSimpleTypeStatements(initStatement, parseStatement, unparseStatement)
   }
 }
