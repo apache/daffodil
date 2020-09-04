@@ -36,12 +36,13 @@ import org.apache.daffodil.infoset.DISimple
 import org.apache.daffodil.infoset.InfosetArrayIndexOutOfBoundsException
 import org.apache.daffodil.infoset.InfosetException
 import org.apache.daffodil.infoset.InfosetLengthUnknownException
-import org.apache.daffodil.infoset.InfosetNoDataException
+import org.apache.daffodil.infoset.InfosetNoDataExceptionBase
 import org.apache.daffodil.infoset.InfosetNoInfosetException
 import org.apache.daffodil.infoset.InfosetNoNextSiblingException
 import org.apache.daffodil.infoset.InfosetNoSuchChildElementException
 import org.apache.daffodil.infoset.InfosetNodeNotFinalException
 import org.apache.daffodil.infoset.OutputValueCalcEvaluationException
+import org.apache.daffodil.infoset.InfosetSelfReferencingException
 import org.apache.daffodil.processors.CompileState
 import org.apache.daffodil.processors.Failure
 import org.apache.daffodil.processors.ParseOrUnparseState
@@ -145,7 +146,7 @@ final class RuntimeExpressionDPath[T <: AnyRef](qn: NamedQName, tt: NodeInfo.Kin
 
             case ni: InfosetNoInfosetException => doPE(e, ps)
 
-            case nd: InfosetNoDataException => doPE(e, ps)
+            case nd: InfosetNoDataExceptionBase => doPE(e, ps)
 
             case ai: InfosetArrayIndexOutOfBoundsException => doPE(e, ps)
 
@@ -157,6 +158,14 @@ final class RuntimeExpressionDPath[T <: AnyRef](qn: NamedQName, tt: NodeInfo.Kin
             //
             // outside discriminators they're all RSDE.
             //
+            case _ => doSDE(e, ps)
+          }
+        }
+        case ParserNonBlocking => {
+          e match {
+            case nd: InfosetNoDataExceptionBase => doSDE(
+              new InfosetSelfReferencingException(state.dState.currentNode.asElement,
+              state.dState.currentNode.erd), ps)
             case _ => doSDE(e, ps)
           }
         }
@@ -196,7 +205,7 @@ final class RuntimeExpressionDPath[T <: AnyRef](qn: NamedQName, tt: NodeInfo.Kin
         whereBlockedInfo.block(noSibling.diSimple, noSibling.info, 0, noSibling)
       case noArrayIndex: InfosetArrayIndexOutOfBoundsException =>
         whereBlockedInfo.block(noArrayIndex.diArray, noArrayIndex.diArray.erd.dpathElementCompileInfo, noArrayIndex.index, noArrayIndex)
-      case nd: InfosetNoDataException if nd.erd.outputValueCalcExpr.isDefined => {
+      case nd: InfosetNoDataExceptionBase if nd.erd.outputValueCalcExpr.isDefined => {
         // we got a no-data exception from an element with outputValueCalc
         // that is, some OVC element requested the value of another OVC element
         val ovc = new OutputValueCalcEvaluationException(nd)

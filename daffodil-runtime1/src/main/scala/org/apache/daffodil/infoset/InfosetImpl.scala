@@ -233,9 +233,15 @@ case class InfosetNoInfosetException(val rd: Maybe[DPathCompileInfo])
  *
  * For complex types indicates has not been setNilled.
  */
-case class InfosetNoDataException(val diElement: DIElement, val erd: ElementRuntimeData)
-  extends ProcessingError("Expression Evaluation", One(erd.schemaFileLocation), Nope, "Element %s does not have a value.", erd.namedQName)
+sealed abstract class InfosetNoDataExceptionBase(val diElement: DIElement, val erd: ElementRuntimeData, message: String)
+  extends ProcessingError("Expression Evaluation", One(erd.schemaFileLocation), Nope, "%s %s", message, erd.namedQName)
   with InfosetException with RetryableException
+
+case class InfosetNoDataException(override val diElement: DIElement, override val erd: ElementRuntimeData)
+  extends InfosetNoDataExceptionBase(diElement, erd, "Element does not have a value.")
+
+case class InfosetSelfReferencingException(override val diElement: DIElement, override val erd: ElementRuntimeData)
+  extends InfosetNoDataExceptionBase(diElement, erd, "Self referencing element does not have a value.")
 
 case class InfosetArrayIndexOutOfBoundsException(val diArray: DIArray, val index: Long, val length: Long)
   extends ProcessingError("Expression Evaluation", Nope, Nope, "Value %d is out of range for the '%s' array with length %d", index, diArray.erd.namedQName, length)

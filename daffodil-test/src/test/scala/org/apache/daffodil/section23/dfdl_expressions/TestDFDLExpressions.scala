@@ -247,12 +247,9 @@ class TestDFDLExpressions {
   @Test def test_expresion_bad_path_to_element(): Unit = { runner.runOneTest("expresion_bad_path_to_element") }
   @Test def test_ArrayOptElem_02(): Unit = { runner.runOneTest("ArrayOptElem_02") }
 
-  //DFDL-1035 - tests need better diagnostic
-  //@Test def test_dfdlCheckConstraints() { runner.runOneTest("dfdlCheckConstraints") }
-  //@Test def test_dfdlCheckConstraints2() { runner.runOneTest("dfdlCheckConstraints2") }
-
-  // DFDL-1043
-  // @Test def test_checkConstraintsComplexTypeFails() { runner.runOneTest("checkConstraintsComplexTypeFails") }
+  @Test def test_dfdlSelfReferencingExpression1(): Unit = { runner.runOneTest("dfdlSelfReferencingExpression1") }
+  @Test def test_dfdlSelfReferencingExpression2(): Unit = { runner.runOneTest("dfdlSelfReferencingExpression2") }
+  @Test def test_dfdlSelfReferencingExpression3(): Unit = { runner.runOneTest("dfdlSelfReferencingExpression3") }
 
   @Test def test_nonFunctionIsDetected() = { runnerNV.runOneTest("nonFunctionIsDetected") }
   @Test def test_constantFunction1(): Unit = { runnerNV.runOneTest("constantFunction1") }
