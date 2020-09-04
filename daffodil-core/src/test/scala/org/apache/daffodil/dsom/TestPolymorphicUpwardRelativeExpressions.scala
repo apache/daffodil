@@ -144,8 +144,8 @@ class TestPolymorphicUpwardRelativeExpressions extends Logging {
     }
     val msg = e.getMessage()
     val hasSDE = msg.contains("Schema Definition Error")
-    val hasPolyInt = msg.contains("../../poly with xs:int")
-    val hasPolyDate = msg.contains("../../poly with xs:date")
+    val hasPolyInt = msg.contains("../../poly eq 5 with xs:int")
+    val hasPolyDate = msg.contains("../../poly eq 5 with xs:date")
     val hasDifferentPhrase = msg.contains("different types at different points")
     assertTrue(hasSDE)
     assertTrue(hasPolyInt)
