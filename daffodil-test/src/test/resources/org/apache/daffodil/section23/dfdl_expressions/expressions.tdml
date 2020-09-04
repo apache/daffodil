@@ -2306,26 +2306,58 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+  <tdml:defineSchema name="selfReferencingExpression">
+  <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+  <dfdl:format ref="ex:GeneralFormat" />
+
+  <xs:simpleType name="cnt1">
+    <xs:restriction base="xs:int">
+      <xs:minInclusive value="0"/>
+      <xs:maxInclusive value="2"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:element name="sr1">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="cnt" type="xs:int" dfdl:lengthKind="delimited" />
+        <xs:sequence>
+          <xs:element name="v" type="ex:cnt1"
+                  dfdl:inputValueCalc="{ if (dfdl:checkConstraints(.)) then xs:int(../ex:cnt) else -1 }" />
+        </xs:sequence>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="sr2">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="cnt" type="xs:int" dfdl:lengthKind="delimited" />
+        <xs:sequence>
+          <xs:element name="v" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{.}" />
+        </xs:sequence>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="sr3">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="cnt" type="xs:int" dfdl:lengthKind="delimited" />
+        <xs:sequence>
+          <xs:element name="v" type="ex:cnt1"
+                dfdl:inputValueCalc="{ dfdl:checkConstraints(if(../ex:cnt eq 0) then ../ex:cnt else .) }" />
+        </xs:sequence>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  </tdml:defineSchema>
+
   <tdml:defineSchema name="checkConstraints">
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
-    <xs:element name="e1">
-      <xs:complexType>
-        <xs:sequence>
-          <xs:element name="cnt" type="xs:int"
-            dfdl:lengthKind="delimited" />
-          <xs:element name="a" minOccurs="0" maxOccurs="unbounded"
-            dfdl:occursCountKind="expression" dfdl:occursCount="{ xs:int(../ex:cnt) }">
-            <xs:complexType>
-              <xs:sequence>
-                <xs:element name="v" type="xs:int"
-                  dfdl:inputValueCalc="{ dfdl:checkConstraints(.) }" />
-              </xs:sequence>
-            </xs:complexType>
-          </xs:element>
-        </xs:sequence>
-      </xs:complexType>
-    </xs:element>
+
     <xs:element name="e2" dfdl:lengthKind="delimited">
       <xs:annotation>
         <xs:appinfo source="http://www.ogf.org/dfdl/">
@@ -2339,6 +2371,7 @@
         </xs:restriction>
       </xs:simpleType>
     </xs:element>
+
     <xs:element name="e3" dfdl:lengthKind="delimited">
       <xs:annotation>
         <xs:appinfo source="http://www.ogf.org/dfdl/">
@@ -2404,12 +2437,7 @@
         </xs:appinfo>
       </xs:annotation>
     </xs:element>
-    
-    <!--  This test is incorrect. An element of simple type cannot use "." 
-    in any inputValueCalc, as "." means "the value of this element", so 
-    we're chasing our tail here. -->
-    <xs:element name="e8" type="xs:int"
-      dfdl:inputValueCalc="{ dfdl:checkConstraints(.) }" />
+
     <xs:simpleType name="st1">
       <xs:restriction base="ex:st2">
         <xs:pattern value="[0-9]+" />
@@ -2435,41 +2463,50 @@
   </tdml:defineSchema>
 
 <!-- 
-     Test Name: dfdlCheckConstraints
-     Schema: checkConstraints
-     Purpose: This test demonstrates that checkConstraints cannot reference an inputValueCalc-ed element because the value is being computed by inputValueCalc
+     Test Name: dfdlCheckConstraintsSelfReference1
+     Schema: selfReferencingExpression
+     Purpose: This tests the error in the case of a self referencing checkConstraints without a value
 -->
 
-  <tdml:parserTestCase name="dfdlCheckConstraints"
-    root="e1" model="checkConstraints" description="DFDL-23-135R">
-    <tdml:document>6</tdml:document>
+  <tdml:parserTestCase name="dfdlSelfReferencingExpression1"
+                       root="sr1" model="selfReferencingExpression" description="DFDL-23-135R">
+    <tdml:document>1</tdml:document>
     <tdml:errors>
-      <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Placeholder</tdml:error>
+      <tdml:error>Expression Evaluation Error</tdml:error>
+      <tdml:error>Self referencing</tdml:error>
+      <tdml:error>does not have a value</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="checkConstraintsComplexTypeFails"
-    root="e7" model="checkConstraints" description="DFDL-23-135R">
-    <tdml:document>s1s2</tdml:document>
+<!--
+     Test Name: dfdlCheckConstraintsSelfReference2
+     Schema: selfReferencingExpression
+     Purpose: This tests the error in the case of a self referencing dfdl:length without a value
+-->
+
+  <tdml:parserTestCase name="dfdlSelfReferencingExpression2"
+                       root="sr2" model="selfReferencingExpression" description="DFDL-23-135R">
+    <tdml:document>1</tdml:document>
     <tdml:errors>
-      <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>checkConstraints</tdml:error>
-      <tdml:error>AnyAtomic</tdml:error>
+      <tdml:error>Expression Evaluation Error</tdml:error>
+      <tdml:error>Self referencing</tdml:error>
+      <tdml:error>does not have a value</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
-<!-- 
-     Test Name: dfdlCheckConstraints2
-     Schema: checkConstraints
-     Purpose: This test demonstrates that checkConstraints cannot reference an inputValueCalc-ed element because the value is being computed by inputValueCalc
--->
-  <tdml:parserTestCase name="dfdlCheckConstraints2" validation="on"
-    root="e8" model="checkConstraints" description="DFDL-23-135R">
-    <tdml:document></tdml:document>
+  <!--
+     Test Name: dfdlCheckConstraintsSelfReference3
+     Schema: selfReferencingExpression
+     Purpose: This tests the error in the case of a self reference without a value
+  -->
+
+  <tdml:parserTestCase name="dfdlSelfReferencingExpression3"
+                       root="sr3" model="selfReferencingExpression" description="DFDL-23-135R">
+    <tdml:document>1</tdml:document>
     <tdml:errors>
-      <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Placeholder</tdml:error>
+      <tdml:error>Expression Evaluation Error</tdml:error>
+      <tdml:error>Self referencing</tdml:error>
+      <tdml:error>does not have a value</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
