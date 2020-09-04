@@ -42,8 +42,8 @@ class TestAssertions {
 
   // DAFFODIL-752
   //@Test def test_assertFailShowsValue() { runner.runOneTest("assertFailShowsValue") }
-  // DFDL-1043
-  // @Test def test_assertFailShowsValue2() { runner.runOneTest("assertFailShowsValue2") }
+
+  @Test def test_assertFailShowsValue2(): Unit = { runner.runOneTest("assertFailShowsValue2") }
   @Test def test_assertFailShowsDetails(): Unit = { runner.runOneTest("assertFailShowsDetails") }
   @Test def test_assertWithWhitespace(): Unit = { runner.runOneTest("assertWithWhitespace") }
   @Test def test_assertWithWhitespaceAndCdata(): Unit = { runner.runOneTest("assertWithWhitespaceAndCdata") }
