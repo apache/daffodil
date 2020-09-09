@@ -95,6 +95,11 @@ final class MStackOfMaybe[T <: AnyRef] {
     else One(m)
   }
 
+  @inline final def setTop(m: Maybe[T]) = {
+    if (m.isDefined) delegate.setTop(m.get)
+    else delegate.setTop(nullT)
+  }
+
   @inline final def top: Maybe[T] = {
     val m = delegate.top
     if (m eq null) Nope
@@ -144,6 +149,7 @@ final class MStackOf[T <: AnyRef]
 
   @inline final def push(t: T) = delegate.push(t)
   @inline final def pop: T = delegate.pop.asInstanceOf[T]
+  @inline final def setTop(t: T) = delegate.setTop(t)
   @inline final def top: T = delegate.top.asInstanceOf[T]
   @inline final def bottom: T = delegate.bottom.asInstanceOf[T]
   @inline final def isEmpty = delegate.isEmpty
@@ -260,6 +266,18 @@ protected abstract class MStack[@specialized T] private[util] (
     table(index) = nullValue
     x
   }
+
+  /**
+   * Change the value on top value of a stack. In some cases, this can be more
+   * performant than popping the top and then pushing a new value
+   *
+   * @param x The element to set to the top of the stack
+   */
+  @inline final def setTop(x: T): Unit = {
+    if (index == 0) Assert.usageError("Stack empty")
+    table(index - 1) = x
+  }
+
 
   /**
    * View the top element of the stack.

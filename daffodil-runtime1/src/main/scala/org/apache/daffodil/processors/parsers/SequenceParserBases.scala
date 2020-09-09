@@ -19,7 +19,6 @@ package org.apache.daffodil.processors.parsers
 
 import org.apache.daffodil.dsom.TunableLimitExceededError
 import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.infoset.DIArray
 import org.apache.daffodil.infoset.DIComplex
 import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.processors.Evaluatable
@@ -113,7 +112,6 @@ abstract class SequenceParserBase(
 
       // keep track of the current last child node. If the last child changes
       // while parsing, we know a new child was added in this loop
-      val savedLastChildNode = pstate.infoset.contents.lastOption
 
       child = children(scpIndex).asInstanceOf[SequenceChildParser]
 
@@ -203,31 +201,27 @@ abstract class SequenceParserBase(
               pstate.mpstate.moveOverOneGroupIndexOnly()
             }
 
-            val newLastChildNode = pstate.infoset.contents.lastOption
-            if (newLastChildNode != savedLastChildNode) {
-              // We have added at least one child to to this complex during
+            val newLastChildNode = pstate.infoset.maybeLastChild
+            if (newLastChildNode.isDefined) {
+              // We have potentially added a child to to this complex during
               // this array loop.
               //
               // If the new child is a DIArray, we know this DIArray has at
               // least one element, but we don't know if we actually added a
               // new one in this loop or not. So just get the last array
-              // element and set it as final anyways. Note that we need a null
-              // check because if we didn't add an array element this go
-              // around, the last element may have already been walked and
-              // freed and so could now be null.
+              // element and set it as final anyways.
               //
               // If it's not a DIArray, that means it's just an optional
               // simple/complex and that will get set final below where all
               // other non-array elements get set as final.
-              newLastChildNode.get match {
-                case a: DIArray => {
-                  val lastArrayElem = a.contents.last
-                  if (lastArrayElem != null) {
-                    lastArrayElem.setFinal()
-                    pstate.walker.walk()
-                  }
+              val lastChild = newLastChildNode.get
+              if (lastChild.isArray) {
+                // not simple or complex, must be an array
+                val lastArrayElem = lastChild.maybeLastChild
+                if (lastArrayElem.isDefined) {
+                  lastArrayElem.get.isFinal = true
+                  pstate.walker.walk()
                 }
-                case _ => // non-array, that gets handled down below
               }
             }
 
@@ -290,12 +284,12 @@ abstract class SequenceParserBase(
       // we need to potentially set things as final, get the last child to
       // determine if it changed from the saved last child, which lets us know
       // if a new child was actually added.
-      val newLastChildNode = pstate.infoset.contents.lastOption
+      val newLastChildNode = pstate.infoset.maybeLastChild
 
       if (!isOrdered) {
         // In the special case of unordered sequences with arrays, the
         // childParser is not a RepeatingChildParser, so array elements aren't
-        // setFinal above like normal arrays are a. Instead we parse one
+        // set final above like normal arrays are. Instead we parse one
         // instance at a time in this loop.
         //
         // So if this the new last child node is a DIArray, we must set new
@@ -310,24 +304,20 @@ abstract class SequenceParserBase(
         // Also note that the DIArray itself is set as final right below this.
         // Again, because unordred sequences get blocked, that array won't be
         // walked even though it's final.
-        newLastChildNode match {
-          case Some(a: DIArray) => a.contents.last.setFinal()
-          case _ => // do nothing
+        if (newLastChildNode.isDefined && newLastChildNode.get.isArray) {
+          // we have a new last child, and it's not simple or complex, so must
+          // be an array. Set its last child final
+          newLastChildNode.get.maybeLastChild.get.isFinal = true
         }
       }
 
       // We finished parsing one part of a sequence, which could either be an
       // array, simple or complex. If the last child is different from when we
       // started that means we must have added a new element and we can set it
-      // final and walk. Note that we must do a null check because it's
-      // possible this last child was already determined to be final, walked,
-      // and freed in the ChoiceParser.
-      if (newLastChildNode != savedLastChildNode) {
-        val lastChild = newLastChildNode.get
-        if (lastChild != null) {
-          lastChild.setFinal()
-          pstate.walker.walk()
-        }
+      // final and walk.
+      if (newLastChildNode.isDefined) {
+        newLastChildNode.get.isFinal = true
+        pstate.walker.walk()
       }
 
       if (isOrdered) {
@@ -379,7 +369,6 @@ abstract class SequenceParserBase(
       val ans = pstate.withPointOfUncertainty("SequenceParserBase", parser.context) { pou =>
         parseOneInstanceWithMaybePoU(parser, pstate, roStatus, One(pou))
       }
-      pstate.walker.walk()
       ans
     } else {
       parseOneInstanceWithMaybePoU(parser, pstate, roStatus, Nope)

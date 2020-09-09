@@ -120,7 +120,6 @@ trait WithDetachedParser {
 
       res
     }
-    pstate.walker.walk()
 
     pstate.setParent(priorElement)
 

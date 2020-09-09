@@ -43,7 +43,6 @@ abstract class NilOrValueParser(ctxt: TermRuntimeData, nilParser: Parser, valueP
         // no-op. We found nil, withPointOfUncertainty will discard the pou
       }
     }
-    pstate.walker.walk()
 
   }
 }

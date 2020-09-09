@@ -190,8 +190,6 @@ class ChoiceParser(
     
     var successfullyParsedChildBranch = false
 
-    val savedLastChildNode = pstate.infoset.contents.lastOption
-
     while (!successfullyParsedChildBranch && i < numAlternatives) {
 
       val parser = childParsers(i)
@@ -211,16 +209,9 @@ class ChoiceParser(
           // sequence surrounding them and so they aren't set final. In order
           // to set these elements final, we do it here as well. We will
           // attempt to walk the infoset after the PoU is discarded.
-          //
-          // Note that we must do a null check because it's possible there was
-          // a sequence, which figured out the element was final, walked it and
-          // it was removed.
-          val newLastChildNode = pstate.infoset.contents.lastOption
-          if (newLastChildNode != savedLastChildNode) {
-            val last = newLastChildNode.get
-            if (last != null) {
-              last.setFinal()
-            }
+          val newLastChildNode = pstate.infoset.maybeLastChild
+          if (newLastChildNode.isDefined) {
+            newLastChildNode.get.isFinal = true
           }
 
         } else {

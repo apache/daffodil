@@ -424,14 +424,14 @@ class DataProcessor private (
     val pr = new ParseResult(this, state)
     if (!pr.isProcessingError) {
 
-      // By the time we get here, all infoset nodes have been setFinal, all
+      // By the time we get here, all infoset nodes have been set final, all
       // walker blocks released, and all elements walked. The one exception
-      // is that the root node has not been set final because setFinal is
+      // is that the root node has not been set final because isFinal is
       // handled by the sequence parser and there is no sequence around the
       // root node. So mark it as final and do one last walk to end the
       // document.
-      state.infoset.contents(0).setFinal()
-      state.walker.walk()
+      state.infoset.contents(0).isFinal = true
+      state.walker.walk(lastWalk = true)
       Assert.invariant(state.walker.isFinished)
 
       if (maybeValidationBytes.isDefined) {

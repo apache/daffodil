@@ -65,7 +65,7 @@ import org.apache.daffodil.xml.XMLUtils
 import passera.unsigned.ULong
 import org.apache.daffodil.dsom.DPathCompileInfo
 
-sealed trait DINode extends DIFinalizable {
+sealed trait DINode {
 
   def asSimple: DISimple = {
     this match {
@@ -86,6 +86,16 @@ sealed trait DINode extends DIFinalizable {
     }
   }
   def isComplex: Boolean
+
+  def asArray: DIArray = {
+    this match {
+      case diArray: DIArray => diArray
+      case _ => {
+        erd.toss(new InfosetWrongNodeType("arrayType", this)) // see comment with exception class definition for why this can happen
+      }
+    }
+  }
+  def isArray: Boolean
 
   def asElement: DIElement =
     if (isSimple) asSimple
@@ -109,18 +119,15 @@ sealed trait DINode extends DIFinalizable {
   final def numChildren = contents.length
 
   /**
-   * Returns the DINode that contains this DINode. Note that this behavior is
-   * slightly different from the "parent". The parent method always returns a
-   * DIComplex, even if this DINode is in an array. This usually makes sense
-   * and is what the caller intended when they call parent.
-   *
-   * However, we sometimes want the exact DINode that contains this DINode. So
-   * if this DINode is a DIElement in an array, then this returns the DIArray.
-   * Otherwise (i.e. DIArray or non-array DIElement) then it should return the
-   * DIComplex parent. Note that if the node is a DIDocument it should return
-   * null, which mimics the behavior of .parent.
+   * If there are any children, returns the last child as a One(lastChild).
+   * Otherwise returns Nope. Note that because Daffodil may set children to
+   * null when it determines they are no longer needed, and One(null) is not
+   * allowed, this must return Nope if the last child has been freed. Thus,
+   * this is not a reliable mechanism to determine if children exist. It should
+   * only be used where we need to modify the state (e.g. isFinal) of the last
+   * child IF it exists.
    */
-  def containerNode: DINode
+  def maybeLastChild: Maybe[DINode]
 
   /**
    * Free memory associated with the child at a specified index. Note that this
@@ -129,6 +136,22 @@ sealed trait DINode extends DIFinalizable {
    * child is used in DPath expressions this should not free the child.
    */
   def freeChildIfNoLongerNeeded(index: Int): Unit
+
+  /**
+   * When unparsing, arrays and complex elements have a notion of being finalized.
+   * This is when we know that no more elements will be added to them, so things
+   * like fn:count can return a value knowing it won't change, and fn:exists can
+   * return false, knowing nobody will subsequently append the item that was being
+   * questioned.
+   */
+  var isFinal: Boolean = false
+
+  /**
+   * use to require it be finalized or throw the appropriate
+   * Array or Complex exception.
+   */
+  def requireFinal: Unit
+
 }
 
 /**
@@ -829,6 +852,7 @@ sealed trait DIElement
 
   def isSimple: Boolean
   def isComplex: Boolean
+  def isArray: Boolean
   override final def name: String = erd.name
   override final def namespace: NS = erd.targetNamespace
   override final def namedQName = erd.namedQName
@@ -911,10 +935,6 @@ sealed trait DIElement
 
   override def parent = _parent
 
-  override def containerNode =
-    if (array.isDefined) array.get.asInstanceOf[DINode]
-    else parent.asInstanceOf[DINode]
-
   def diParent = _parent.asInstanceOf[DIComplex]
 
   override def setParent(p: InfosetComplexElement): Unit = {
@@ -984,8 +1004,6 @@ final class DIArray(
 
   private lazy val nfe = new InfosetArrayNotFinalException(this)
 
-  override def containerNode = parent
-
   override def requireFinal: Unit = {
     if (!isFinal) {
       // If this DIArray isn't final, either we haven't gotten all of its
@@ -999,7 +1017,7 @@ final class DIArray(
       // isn't final then we could still be wainting for events to come in, so
       // throw an nfe.
       if (parent.isFinal) {
-        setFinal()
+        isFinal = true
       } else {
         throw nfe
       }
@@ -1008,6 +1026,7 @@ final class DIArray(
 
   override def isSimple = false
   override def isComplex = false
+  override def isArray = true
 
   // Parsers don't actually call setHidden on DIArrays, only on DIElements. But
   // DIArrays are always created when there is at least one child element, and
@@ -1056,6 +1075,17 @@ final class DIArray(
   }
 
   override def contents: IndexedSeq[DINode] = _contents
+
+  override def maybeLastChild: Maybe[DINode] = {
+    val len = _contents.length
+    if (len > 0) {
+      // note that if _contents(len - 1) has been removed (i.e. set to null)
+      // then this will by Maybe(null) which is a Nope. This is expected
+      // behavior
+      Maybe(_contents(len - 1))
+    }
+    else Nope
+  }
 
   /**
    * Note that occursIndex argument starts at position 1.
@@ -1129,6 +1159,7 @@ sealed class DISimple(override val erd: ElementRuntimeData)
 
   final override def isSimple = true
   final override def isComplex = false
+  final override def isArray = false
 
   def contents: IndexedSeq[DINode] = IndexedSeq.empty
 
@@ -1136,6 +1167,8 @@ sealed class DISimple(override val erd: ElementRuntimeData)
   private var _bdRep: JBigDecimal = null
 
   override def children: Stream[DINode] = Stream.Empty
+
+  override def maybeLastChild: Maybe[DINode] = Nope
 
   def setDefaultedDataValue(defaultedValue: DataValuePrimitive) = {
     setDataValue(defaultedValue)
@@ -1365,8 +1398,8 @@ sealed class DISimple(override val erd: ElementRuntimeData)
   /**
    * requireFinal is only ever used on unparse, and we never need to require a
    * simple type to be final during unparse. However, we do need to have an
-   * implementation of this function, as DISimple needs DIFinalizable and
-   * isFinal for parsing and allowing the cleanup of unneeded DINodes.
+   * implementation of this function, as DINode requires isFinal for parsing
+   * and allowing the cleanup of unneeded DINodes.
    */
   override def requireFinal: Unit = {
     Assert.invariantFailed("Should not requireFinal a simple type")
@@ -1376,25 +1409,6 @@ sealed class DISimple(override val erd: ElementRuntimeData)
     Assert.invariantFailed("Should not try to remove a child of a simple type")
   }
 
-}
-/**
- * When unparsing, arrays and complex elements have a notion of being finalized.
- * This is when we know that no more elements will be added to them, so things
- * like fn:count can return a value knowing it won't change, and fn:exists can
- * return false, knowing nobody will subsequently append the item that was being
- * questioned.
- */
-sealed trait DIFinalizable {
-  private var _isFinal: Boolean = false
-
-  def setFinal(): Unit = { _isFinal = true }
-  def isFinal = _isFinal
-
-  /**
-   * use to require it be finalized or throw the appropriate
-   * Array or Complex exception.
-   */
-  def requireFinal: Unit
 }
 
 /**
@@ -1415,6 +1429,7 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
 
   final override def isSimple = false
   final override def isComplex = true
+  final override def isArray = false
 
   final override def isDefaulted: Boolean = {
     val res =
@@ -1457,6 +1472,17 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
   override lazy val contents: IndexedSeq[DINode] = childNodes
 
   override def children = childNodes.toStream
+
+  override def maybeLastChild: Maybe[DINode] = {
+    val len = childNodes.length
+    if (len > 0) {
+      // note that if childNodes(len - 1) has been removed (i.e. set to null)
+      // then this will by Maybe(null) which is a Nope. This is expected
+      // behavior
+      Maybe(childNodes(len - 1))
+    }
+    else Nope
+  }
 
   var hasVisibleChildren = false
 
@@ -1564,13 +1590,32 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
     if (!e.isHidden && !hasVisibleChildren) hasVisibleChildren = true
     if (e.runtimeData.isArray) {
       val childERD = e.runtimeData
-      if (childNodes.lastOption.map { n => n == null || n.erd != childERD }.getOrElse(true)) {
-        // This complex element either has no children, the most recently added
-        // child is different than the new child, or the last child is null
-        // (which means it was freed because it was finished, and thus must be
-        // different from this new element). This element is an array, so in
-        // any of these cases, we must create a new DIArray, and then we'll add
-        // the new element to it.
+      val needsNewArray =
+        if (childNodes.length == 0) {
+          // This complex element has no children, so we must need to create a
+          // new DIArray to add this array element
+          true
+        } else {
+          val lastChild = childNodes(childNodes.length - 1)
+          if (lastChild == null) {
+            // The last child has been freed by Daffodil. That can only happen
+            // if the array was finished so this new child cannot be part of
+            // that array. We must create a new array
+            true
+          } else if (lastChild.erd ne childERD) {
+            // The last child exists, but it is different than the new child.
+            // We must create a new array.
+            true
+          } else {
+            // The last child exists, and it has the same erd as this one. We
+            // can just append this new child to that last child array. No need
+            // to create a new one
+            false
+          }
+        }
+
+      if (needsNewArray){
+        // create a new array, then we will add the new child to that
         val ia = new DIArray(childERD, this, tunable.initialElementOccurrencesHint.toInt)
         addChildToFastLookup(ia)
         childNodes += ia
