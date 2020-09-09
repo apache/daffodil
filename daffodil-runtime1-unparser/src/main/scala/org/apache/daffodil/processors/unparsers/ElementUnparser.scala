@@ -432,7 +432,7 @@ sealed trait RegularElementUnparserStartEndStrategy
           } else {
             val doc = state.documentElement
             doc.addChild(res, state.tunable) // DIDocument, which is never a current node, must have the child added
-            doc.setFinal() // that's the only child.
+            doc.isFinal = true // that's the only child.
           }
           res
         } else {
@@ -477,7 +477,7 @@ sealed trait RegularElementUnparserStartEndStrategy
       }
       val cur = state.currentInfosetNode
       if (cur.isComplex)
-        cur.asComplex.setFinal()
+        cur.isFinal = true
       state.currentInfosetNodeStack.pop
 
       move(state)

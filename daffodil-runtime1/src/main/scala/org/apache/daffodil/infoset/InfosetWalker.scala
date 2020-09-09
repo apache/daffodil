@@ -19,9 +19,7 @@ package org.apache.daffodil.infoset
 
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.util.MStackOfInt
-import org.apache.daffodil.util.Maybe
-import org.apache.daffodil.util.Maybe.One
-import org.apache.daffodil.util.Maybe.Nope
+import org.apache.daffodil.util.MStackOf
 
 object InfosetWalker {
 
@@ -60,7 +58,7 @@ object InfosetWalker {
    *   except while debugging
    */
   def apply(
-    root: DINode,
+    root: DIElement,
     outputter: InfosetOutputter,
     walkHidden: Boolean,
     ignoreBlocks: Boolean,
@@ -78,7 +76,10 @@ object InfosetWalker {
         // walking at a node that isn't the root DIDocument. This gets the
         // container of the root node to start at and finds the index in that
         // container
-        (root.containerNode, root.containerNode.contents.indexOf(root))
+        val container: DINode =
+          if (root.array.isDefined) root.array.get.asInstanceOf[DINode]
+          else root.parent.asInstanceOf[DINode]
+        (container, container.contents.indexOf(root))
       }
     }
     new InfosetWalker(
@@ -178,7 +179,11 @@ class InfosetWalker private (
    * we increment this value on the top of the stack so that the starting index
    * is correct.
    */
-  private var containerNode: DINode = startingContainerNode
+  private var containerNodeStack: MStackOf[DINode] = {
+    val stack = new MStackOf[DINode]()
+    stack.push(startingContainerNode)
+    stack
+  }
   private var containerIndexStack: MStackOfInt = {
     val stack = MStackOfInt()
     stack.push(startingContainerIndex - 1)
@@ -193,6 +198,29 @@ class InfosetWalker private (
   def isFinished = finished
 
   /**
+   * The following variables are used to determine when to skip the walk()
+   * logic. The idea here is that calls to walk() result in a decrease in
+   * performance in some situations, especially if we can't take steps due to
+   * points of uncertainty or infoset blocks. In such cases, we perform a lot
+   * of logic without actually making any progress. And the callers don't know
+   * if they can take a step or not since that logic is controlled by this
+   * walker.
+   *
+   * So what we do is we first skip walkSkipMin number of calls to walk(). Once
+   * we have skipped that many walk()'s, only then do we actually try to take a
+   * step. If that step fails, that means there is still some block, so we
+   * double the number skips and return. We continue this doubling up until
+   * walkSkipMax. However, if we are able to successfully make a step, it means
+   * any points of uncertainty have been resolved, and so we drop the number of
+   * steps back down to the min value so that we try taking steps and stream
+   * events more frequently.
+   */
+  private val walkSkipMin = 32
+  private val walkSkipMax = 2048
+  private var walkSkipSize = walkSkipMin
+  private var walkSkipRemaining = walkSkipSize
+
+  /**
    * Take zero or more steps in the infoset. This may or may not walk the
    * entire infoset. If isFinished returns false, walk can be called again to
    * continue attempting to walk the infoset where it left off. Because this is
@@ -201,26 +229,60 @@ class InfosetWalker private (
    * possible.
    *
    * It is an error to call walk() if isFinished returns true
+   *
+   * For performance reasons, sometimes a call to walk will intentionally not
+   * try to take any steps even if it is possible. This lets us essentially
+   * batch infoset events and improve performance. If this is the last time
+   * walk() will be called, the lastWalk parameter should be set to true, which
+   * will cause walk() to not skip any steps.
    */
-  def walk(): Unit = {
+  def walk(lastWalk: Boolean = false): Unit = {
     Assert.usage(!finished)
 
-    var maybeNextStep: Maybe[InfosetWalkerStep] = Nope
-    while ({
-      maybeNextStep = getNextStep()
-      maybeNextStep.isDefined
-    }) {
-      maybeNextStep.get.step()
+    if (walkSkipRemaining > 0 && !lastWalk) {
+      // do not attempt to take a step
+      walkSkipRemaining -= 1
+    } else {
+      // no more skips or this is the last walk, so try to take a step
+      var canTakeAnotherStep = maybeDoStep()
+
+      walkSkipSize =
+        if (canTakeAnotherStep) {
+          // we've skipped walkSkipSize calls to walk() and we were able to
+          // make progress taking a step. Let's set the skip size to skip min
+          // to ensure we try to take steps in future calls to walk() more
+          // frequently
+          walkSkipMin
+        } else {
+          // we've skipped skip size calls to walk() and still failed to take
+          // a single step. Most likely we have an early unresolved point of
+          // uncertainty, so double the walkSkipSize to give more time for that
+          // PoU to get resolved before actually trying to take more steps
+          Math.min(walkSkipSize << 2, walkSkipMax)
+        }
+
+      // set the remaining number of skips to the adjusted size so the next
+      // time walk is called we start skipping again
+      walkSkipRemaining = walkSkipSize
+
+      // continue taking steps as far as we can
+      while (canTakeAnotherStep) {
+        canTakeAnotherStep = maybeDoStep()
+      }
+
     }
   }
 
   /**
-   * Determine the next step to take, if any
+   * Take a step if possible. Returns true if it is possible another step could
+   * be take, false if there was a block or something that would prevent
+   * another step from being taken.
    */
-  private def getNextStep(): Maybe[InfosetWalkerStep] = {
-    if (finished) {
-      Nope
-    } else if ((containerNode ne startingContainerNode) || containerIndexStack.top == startingContainerIndex) {
+  private def maybeDoStep(): Boolean = {
+    val containerNode = containerNodeStack.top
+    val containerIndex = containerIndexStack.top
+
+    if ((containerNode ne startingContainerNode) || (containerIndex == startingContainerIndex)) {
       // The containerNode is either some child of the starting node (container
       // node != starting container code) or we are exactly on the starting
       // node (container node == starting container node && top of index stack
@@ -231,10 +293,14 @@ class InfosetWalker private (
       // other kinds of blocks could exist. So we need to inspect the infoset
       // state to determine if we can actually create events for the current
       // infoset node and take a step.
-      if (ignoreBlocks || canTakeStep()) {
-        One(InfosetWalkerStepMove)
+      if (ignoreBlocks || canTakeStep(containerNode, containerIndex)) {
+        infosetWalkerStepMove(containerNode, containerIndex)
+        // took a step, more steps are alloed
+        true
       } else {
-        Nope
+        // a block prevented us from taking a step, no more steps can be taken
+        // during this walk
+        false
       }
     } else {
       // We only get here if the container node is the starting container node,
@@ -252,16 +318,20 @@ class InfosetWalker private (
       // index because we have moved passed the starting element index, and
       // thus the next step is an end step. The InfosetWalkerStepEnd is
       // responsible for creating the endDocument event and cleaning up state.
-      if (containerIndexStack.top < startingContainerIndex) {
-        One(InfosetWalkerStepStart)
+      if (containerIndex < startingContainerIndex) {
+        infosetWalkerStepStart()
+        // took the start document step, more steps are allowed
+        true
       } else {
-        One(InfosetWalkerStepEnd)
+        infosetWalkerStepEnd()
+        // we successfully took a step, but there are no more steps to take
+        // after this
+        false
       }
     }
   }
 
-  private def canTakeStep(): Boolean = {
-
+  private def canTakeStep(containerNode: DINode, containerIndex: Int): Boolean = {
     if (containerNode.infosetWalkerBlockCount > 0) {
       // This happens in two cases:
       //
@@ -284,19 +354,18 @@ class InfosetWalker private (
       // element and the child index of this container 
 
       val children = containerNode.contents
-      val childIndex = containerIndexStack.top
 
-      if (childIndex < children.size) {
+      if (containerIndex < children.length) {
         // There is a child element at this index. Taking a step would create
         // the events for, and moved passed, this element.
-        val elem = children(childIndex)
+        val elem = children(containerIndex)
         if (elem.infosetWalkerBlockCount > 0) {
           // This element has a block associated with it, likely meaning we are
           // speculatively parsing this element and so it may or may not exist.
           // We cannot walk into it until we figure it out and the block is
           // removed.
           false
-        } else if (elem.isInstanceOf[DISimple] && !elem.isFinal) {
+        } else if (elem.isSimple && !elem.isFinal) {
           // This is a simple element that is not final, i.e. we are still
           // doing some parsing for this simple element. Wait until we finish
           // that parse before stepping into it.
@@ -321,132 +390,117 @@ class InfosetWalker private (
     }
   }
 
-  private trait InfosetWalkerStep {
-    /**
-     * Output events associated with this step kind, and mutate the
-     * InfosetWalker state to walk to the next node in the infoset
-     */
-    def step(): Unit
-
-    final def moveToFirstChild(newContainer: DINode): Unit = {
-      containerNode = newContainer
-      containerIndexStack.push(0)
-    }
-
-    final def moveToContainer(): Unit = {
-      containerNode = containerNode.containerNode
-      containerIndexStack.pop
-    }
-
-    final def moveToNextSibling(): Unit = {
-      containerIndexStack.push(containerIndexStack.pop + 1)
-    }
+  @inline
+  private def moveToFirstChild(newContainer: DINode): Unit = {
+    containerNodeStack.push(newContainer)
+    containerIndexStack.push(0)
   }
 
-  private object InfosetWalkerStepStart extends InfosetWalkerStep {
-    /**
-     * Start the document. Note that because the top of container index is
-     * initialized to one less that the starting index, we also call
-     * moveToNextSibling to increment the starting index to the correct
-     * position.
-     */
-    override def step(): Unit = {
-      outputter.startDocument()
-      moveToNextSibling()
-    }
+  @inline
+  private def moveToContainer(): Unit = {
+    containerNodeStack.pop
+    containerIndexStack.pop
   }
 
-  private object InfosetWalkerStepEnd extends InfosetWalkerStep {
-    /**
-     * End document and clean up state. Setting finished to true causes
-     * the next step to be None, walk() will return, and the caller
-     * should not call walk() again because it is finished.
-     */
-    override def step(): Unit = {
-      outputter.endDocument()
-      containerNode = null
-      containerIndexStack = null
-      finished = true
-    }
+  @inline
+  private def moveToNextSibling(): Unit = {
+    val top = containerIndexStack.top
+    containerIndexStack.setTop(top + 1)
   }
 
-  private object InfosetWalkerStepMove extends InfosetWalkerStep {
-    /**
-     * Output start/end events for DIComplex/DIArray/DISimple, and mutate state
-     * so we are looking at the next node in the infoset.
-     */
-    def step(): Unit = {
-      val children = containerNode.contents
-      val childIndex = containerIndexStack.top
+  /**
+   * Start the document. Note that because the top of container index is
+   * initialized to one less that the starting index, we also call
+   * moveToNextSibling to increment the starting index to the correct
+   * position.
+   */
+  private def infosetWalkerStepStart(): Unit = {
+    outputter.startDocument()
+    moveToNextSibling()
+  }
 
-      if (childIndex < children.size) {
-        // This block means we need to create a start event for the element in
-        // the children array at childIndex. We then need to mutate the walker
-        // state so the next call to step() is for either the first child of
-        // this element or the next sibling.
+  /**
+   * End document and clean up state. Setting finished to true causes
+   * the next step to be None, walk() will return, and the caller
+   * should not call walk() again because it is finished.
+   */
+  private def infosetWalkerStepEnd(): Unit = {
+    outputter.endDocument()
+    containerNodeStack = null
+    containerIndexStack = null
+    finished = true
+  }
 
-        children(childIndex) match {
-          case s: DISimple => {
-            if (!s.isHidden || walkHidden) {
-              outputter.startSimple(s)
-              outputter.endSimple(s)
-            }
-            if (removeUnneeded) {
-              // now we can remove this simple element to free up memory
-              containerNode.freeChildIfNoLongerNeeded(containerIndexStack.top)
-            }
-            moveToNextSibling()
-          }
-          case c: DIComplex => {
-            if (!c.isHidden || walkHidden) {
-              outputter.startComplex(c)
-              moveToFirstChild(c)
-            } else {
-              moveToNextSibling()
-            }
-          }
-          case a: DIArray => {
-            if (!a.isHidden || walkHidden) {
-              outputter.startArray(a)
-              moveToFirstChild(a)
-            } else {
-              moveToNextSibling()
-            }
-          }
+  /**
+   * Output start/end events for DIComplex/DIArray/DISimple, and mutate state
+   * so we are looking at the next node in the infoset.
+   */
+  private def infosetWalkerStepMove(containerNode: DINode, containerIndex: Int): Unit = {
+    val children = containerNode.contents
+
+    if (containerIndex < children.size) {
+      // This block means we need to create a start event for the element in
+      // the children array at containerIndex. Once we create that event we
+      // need to mutate the state of the InfosetWalker so that the next time we
+      // take a step we are looking at the next element. If this is a complex
+      // type, that next element is the first child. If this is a simple type,
+      // that next element is the next sibling of this element. We will mutate
+      // the state accordingly.
+
+      val child = children(containerIndex)
+
+      if (child.isSimple) {
+        if (!child.isHidden || walkHidden) {
+          val simple = child.asInstanceOf[DISimple]
+          outputter.startSimple(simple)
+          outputter.endSimple(simple)
         }
-
-      } else {
-        // This else block means that we incremented the index stack past the
-        // number of children in this container (must be a DIComplex/DIDocument
-        // or DIArray), which means we have created events for all if its
-        // children. So we must now create the appropriate end event for the
-        // container and then mutate the state so that we are looking at its
-        // next sibling. Note that if there is no next sibling, that will be
-        // found the next time step() is called (because we incremented past
-        // this element) and we will fall into this block again, call the end
-        // function again, and repeat the process.
-
-        // create appropriate end event
-        containerNode match {
-          case a: DIArray => {
-            outputter.endArray(a)
-          }
-          case c: DIComplex => {
-            outputter.endComplex(c)
-          }
-          case _ => Assert.impossible()
-        }
-
-        // we've ended this array/complex associated with the container, so we
-        // now want to move to the parent container, potentially free up the
-        // memory associated with this container, and then move to the next
-        // sibling of this container
-        moveToContainer()
         if (removeUnneeded) {
-          containerNode.freeChildIfNoLongerNeeded(containerIndexStack.top)
+          // now we can remove this simple element to free up memory
+          containerNode.freeChildIfNoLongerNeeded(containerIndex)
         }
         moveToNextSibling()
+      } else  {
+        // must be complex or array, exact same logic for both
+        if (!child.isHidden || walkHidden) {
+          if (child.isComplex) {
+            outputter.startComplex(child.asInstanceOf[DIComplex])
+          } else {
+            outputter.startArray(child.asInstanceOf[DIArray])
+          }
+          moveToFirstChild(child)
+        } else {
+          moveToNextSibling()
+        }
       }
+
+    } else {
+      // This else block means that we incremented the index stack past the
+      // number of children in this container (must be a DIComplex/DIDocument
+      // or DIArray), which means we have created events for all if its
+      // children. So we must now create the appropriate end event for the
+      // container and then mutate the state so that we are looking at its
+      // next sibling. Note that if there is no next sibling, that will be
+      // found the next time step() is called (because we incremented past
+      // this element) and we will fall into this block again, call the end
+      // function again, and repeat the process.
+
+      // create appropriate end event
+      if (containerNode.isComplex) {
+        outputter.endComplex(containerNode.asInstanceOf[DIComplex])
+      } else {
+        outputter.endArray(containerNode.asInstanceOf[DIArray])
+      }
+
+      // we've ended this array/complex associated with the container, so we
+      // now want to move to the parent container, potentially free up the
+      // memory associated with this container, and then move to the next
+      // sibling of this container
+      moveToContainer()
+      if (removeUnneeded) {
+        containerNodeStack.top.freeChildIfNoLongerNeeded(containerIndexStack.top)
+      }
+      moveToNextSibling()
     }
   }
 

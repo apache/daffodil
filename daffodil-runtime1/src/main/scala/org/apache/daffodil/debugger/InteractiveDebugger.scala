@@ -451,12 +451,12 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
     val bos = new java.io.ByteArrayOutputStream()
     val xml = new XMLTextInfosetOutputter(bos, true)
     val iw = InfosetWalker(
-      ie.asInstanceOf[DINode],
+      ie.asInstanceOf[DIElement],
       xml,
       walkHidden = !DebuggerConfig.removeHidden,
       ignoreBlocks = true,
       removeUnneeded = false)
-    iw.walk()
+    iw.walk(lastWalk = true)
     bos.toString("UTF-8")
   }
 

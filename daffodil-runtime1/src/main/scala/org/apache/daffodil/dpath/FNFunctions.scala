@@ -38,7 +38,7 @@ import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.exceptions.SchemaFileLocation
 import org.apache.daffodil.exceptions.UnsuppressableException
 import org.apache.daffodil.infoset.DIElement
-import org.apache.daffodil.infoset.DIFinalizable
+import org.apache.daffodil.infoset.DINode
 import org.apache.daffodil.infoset.DataValue.DataValueBigDecimal
 import org.apache.daffodil.infoset.DataValue.DataValueBigInt
 import org.apache.daffodil.infoset.DataValue.DataValueBool
@@ -564,7 +564,7 @@ trait ExistsKind {
       }
       case UnparserBlocking => {
         dstate.currentNode match {
-          case c: DIFinalizable if (c.isFinal) => false
+          case c: DINode if (c.isFinal) => false
           case _ => throw th
         }
       }
