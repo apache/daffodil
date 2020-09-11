@@ -40,7 +40,6 @@ class TestChoice {
 
   @Test def test_choice_noBranch (): Unit = { runnerCH.runOneTest("choice_noBranch") }
 
-  @Test def test_optionalChoice00(): Unit = { runnerCH.runOneTest("optionalChoice00") }
   @Test def test_optionalChoice01(): Unit = { runnerCH.runOneTest("optionalChoice01") }
   @Test def test_optionalChoice02(): Unit = { runnerCH.runOneTest("optionalChoice02") }
   @Test def test_optionalChoice03(): Unit = { runnerCH.runOneTest("optionalChoice03") }
