@@ -30,11 +30,10 @@ import jline.console.completer.Completer
 import jline.console.completer.StringsCompleter
 import jline.console.completer.AggregateCompleter
 import org.apache.daffodil.util.Enum
-import org.apache.daffodil.util.Misc
 import org.apache.daffodil.dsom.ExpressionCompilerClass
-import org.apache.daffodil.dpath.DPathUtil
 import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.dpath.ExpressionEvaluationException
+import org.apache.daffodil.util.DPathUtil
 import org.apache.daffodil.util.Misc
 import org.apache.daffodil.oolag.ErrorsNotYetRecorded
 import org.apache.daffodil.processors.unparsers.UState
