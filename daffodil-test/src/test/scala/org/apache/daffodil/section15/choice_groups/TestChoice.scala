@@ -38,6 +38,8 @@ class TestChoice {
 
   import TestChoice._
 
+  @Test def test_choice_noBranch (): Unit = { runnerCH.runOneTest("choice_noBranch") }
+
   @Test def test_optionalChoice01(): Unit = { runnerCH.runOneTest("optionalChoice01") }
   @Test def test_optionalChoice02(): Unit = { runnerCH.runOneTest("optionalChoice02") }
   @Test def test_optionalChoice03(): Unit = { runnerCH.runOneTest("optionalChoice03") }
@@ -122,9 +124,6 @@ class TestChoice {
   @Test def test_direct_dispatch_15(): Unit = { runnerCH.runOneTest("direct_dispatch_15") }
   @Test def test_direct_dispatch_16(): Unit = { runnerCH.runOneTest("direct_dispatch_16") }
   @Test def test_direct_dispatch_17(): Unit = { runnerCH.runOneTest("direct_dispatch_17") }
-
-  //@Test def test_choice_noBranch() { runnerCH.runOneTest("choice_noBranch") } - Test consumes no data, which causes a TDMLError
-
 
   @Test def test_explicit_01(): Unit = { runnerCE.runOneTest("explicit_01") }
   @Test def test_explicit_02(): Unit = { runnerCE.runOneTest("explicit_02") }
