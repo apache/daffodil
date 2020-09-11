@@ -364,7 +364,8 @@ final class ChoiceBranchImpliedSequence(rawGM: Term)
 
   override def maybeLayerTransformerEv: Maybe[LayerTransformerEv] = Maybe.Nope
 
-  override def findPropertyOption(pname: String): PropertyLookupResult = rawGM.findPropertyOption(pname)
+  override def findPropertyOption(pname: String, expressionAllowed: Boolean = false): PropertyLookupResult =
+    rawGM.findPropertyOption(pname, expressionAllowed)
 
   /**
    * Implied sequence doesn't exist textually, so can't have properties on it.

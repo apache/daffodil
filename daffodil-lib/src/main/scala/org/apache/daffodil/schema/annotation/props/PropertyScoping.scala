@@ -20,6 +20,8 @@ package org.apache.daffodil.schema.annotation.props
 import org.apache.daffodil.api.LocationInSchemaFile
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.xml.ResolvesQNames
+import org.apache.daffodil.api.WarnID
+import org.apache.daffodil.util.DPathUtil
 
 /**
  * This file is classes and traits to implement
@@ -112,6 +114,12 @@ trait FindPropertyMixin extends PropTypes {
   def SDE(str: String, args: Any*): Nothing
 
   /**
+   * Implemented by users of the mixin so that we can
+   * report property value warnings.
+   */
+  def SDW(warnID: WarnID, std: String, args: Any*): Unit
+
+  /**
    * Implemented in various ways by users of the mixin to find a property. This
    * should never be directly called to find a property. Instead one should use
    * findPropertyOption and friends, which ensure that caching is consistent.
@@ -120,7 +128,12 @@ trait FindPropertyMixin extends PropTypes {
   
   val propCache = new scala.collection.mutable.LinkedHashMap[String, PropertyLookupResult]
 
-  def findPropertyOption(pname: String): PropertyLookupResult = {
+  /**
+   * expressionAllowed describes whether a run-time expression
+   * is valid for this option. Used to decide whether a warning
+   * should be produced if the value "looks like" an expression
+   */
+  def findPropertyOption(pname: String, expressionAllowed: Boolean = false): PropertyLookupResult = {
     val propCacheResult = propCache.get(pname)
     val propRes =
       propCacheResult match {
@@ -131,6 +144,21 @@ trait FindPropertyMixin extends PropTypes {
           lr
         }
       }
+    // if this looks like it could be an expression, issue a warning
+    // but only if expressionAllowed is false
+    if (!expressionAllowed) {
+      propRes match {
+        case Found(v, _, _, _) => {
+          if (DPathUtil.isExpression(v)) {
+            SDW(WarnID.NonExpressionPropertyValueLooksLikeExpression,
+              "Property %s looks like an expression but cannot be an expression: %s", pname, v)
+          }
+        }
+        case _ => {
+          // Do Nothing
+        }
+      }
+    } 
     propRes
   }
 

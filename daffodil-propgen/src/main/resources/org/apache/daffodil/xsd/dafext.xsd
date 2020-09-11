@@ -467,6 +467,7 @@
           <xs:enumeration value="multipleChoiceBranches" />
           <xs:enumeration value="namespaceDifferencesOnly" />
           <xs:enumeration value="noEmptyDefault" />
+          <xs:enumeration value="nonExpressionPropertyValueLooksLikeExpression" />
           <xs:enumeration value="pathNotToArray" />
           <xs:enumeration value="patternEncodingSlashW" />
           <xs:enumeration value="queryStylePathExpression" />

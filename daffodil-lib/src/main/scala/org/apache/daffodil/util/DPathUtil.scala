@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.dpath
+package org.apache.daffodil.util
 
 
 object DPathUtil {
