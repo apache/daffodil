@@ -1320,19 +1320,6 @@
 
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="choice_noBranch" root="choice_noBranches"
-    model="noBranches.dfdl.xsd"
-    description="Section 15 - Choice Groups - A choice that declares no branches in the DFDL schema is a schema definition error..">
-
-    <tdml:document><![CDATA[test]]></tdml:document>
-
-    <tdml:errors>
-      <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Placeholder</tdml:error>
-    </tdml:errors>
-
-  </tdml:parserTestCase>
-  
   <tdml:defineSchema name="optionalChoices">
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
@@ -1348,6 +1335,19 @@
           <xs:element name="descrip" type="xs:string"/>
         </xs:sequence>
       </xs:complexType>
+
+    <xs:element name="e0">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="redOrBlue" minOccurs="0" dfdl:occursCountKind="implicit">
+            <xs:complexType>
+              <xs:choice>
+              </xs:choice>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
       <xs:element name="e1">
         <xs:complexType>
@@ -1399,11 +1399,26 @@
 
   </tdml:defineSchema>
 
-<!--
-     Test Name: optionalChoice01
-     Schema: optionalChoices
-     Purpose: This test demonstrates the scenario where you have a choice of two initiated elements in an optional choice. In this case the first element should be selected.
--->
+  <!--
+   Test Name: optionalChoice0
+   Schema: optionalChoices
+   Purpose: This test demonstrates the SDE where you have a choice with no branches.
+  -->
+
+  <tdml:parserTestCase name="optionalChoice00" root="e0"
+                       model="optionalChoices">
+    <tdml:document>red</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>choice element must contain one or more branches</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+       Test Name: optionalChoice01
+       Schema: optionalChoices
+       Purpose: This test demonstrates the scenario where you have a choice of two initiated elements in an optional choice. In this case the first element should be selected.
+  -->
   
   <tdml:parserTestCase name="optionalChoice01" root="e1"
     model="optionalChoices">

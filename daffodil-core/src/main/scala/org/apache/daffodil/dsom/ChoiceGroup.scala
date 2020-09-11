@@ -100,6 +100,7 @@ abstract class ChoiceTermBase(
   with ChoiceAGMixin
   with HasOptRepTypeMixinImpl {
 
+  requiredEvaluationsIfActivated(noBranchesFound)
   requiredEvaluationsIfActivated(branchesAreNonOptional)
   requiredEvaluationsIfActivated(branchesAreNotIVCElements)
   requiredEvaluationsIfActivated(modelGroupRuntimeData.preSerialization)
@@ -198,6 +199,12 @@ abstract class ChoiceTermBase(
           res
         }
       res
+    }
+  }.value
+
+  final lazy val noBranchesFound = LV('noBranchesFound) {
+    if(groupMembers.size.equals(0)) {
+      SDE("choice element must contain one or more branches")
     }
   }.value
 
