@@ -32,7 +32,6 @@ import org.xml.sax.ErrorHandler
 import org.xml.sax.SAXException
 import org.xml.sax.SAXParseException
 
-import org.apache.daffodil.ExecutionMode
 import org.apache.daffodil.api.DFDL
 import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.api.ValidationMode
@@ -403,60 +402,57 @@ class DataProcessor private (
     // then validating at the end of the parse. See DAFFODIL-2386
     //
     val (outputter, maybeValidationBytes) =
-      if (validationMode == ValidationMode.Full) {
-        val bos = new java.io.ByteArrayOutputStream()
-        val xmlOutputter = new XMLTextInfosetOutputter(bos, false)
-        val teeOutputter = new TeeInfosetOutputter(output, xmlOutputter)
-        (teeOutputter, One(bos))
-      } else {
-        (output, Nope)
-      }
+    if (validationMode == ValidationMode.Full) {
+      val bos = new java.io.ByteArrayOutputStream()
+      val xmlOutputter = new XMLTextInfosetOutputter(bos, false)
+      val teeOutputter = new TeeInfosetOutputter(output, xmlOutputter)
+      (teeOutputter, One(bos))
+    } else {
+      (output, Nope)
+    }
 
     val rootERD = ssrd.elementRuntimeData
     val state = PState.createInitialPState(rootERD, input, outputter, this, areDebugging)
 
-    ExecutionMode.usingRuntimeMode {
-
-      if (areDebugging) {
-        Assert.invariant(optDebugger.isDefined)
-        addEventHandler(debugger)
-        state.notifyDebugging(true)
-      }
-      state.dataProc.get.init(ssrd.parser)
-      doParse(ssrd.parser, state)
-      val pr = new ParseResult(this, state)
-      if (!pr.isProcessingError) {
-
-        // By the time we get here, all infoset nodes have been setFinal, all
-        // walker blocks released, and all elements walked. The one exception
-        // is that the root node has not been set final because setFinal is
-        // handled by the sequence parser and there is no sequence around the
-        // root node. So mark it as final and do one last walk to end the
-        // document.
-        state.infoset.contents(0).setFinal()
-        state.walker.walk()
-        Assert.invariant(state.walker.isFinished)
-    
-        if (maybeValidationBytes.isDefined) {
-          pr.validateResult(maybeValidationBytes.get.toByteArray)
-        }
-
-        state.output.setBlobPaths(state.blobPaths)
-      } else {
-        // failed, so delete all blobs that were created
-        state.blobPaths.foreach { path =>
-          Files.delete(path)
-        }
-        // ensure the blob paths are empty in case of outputter reuse
-        state.output.setBlobPaths(Seq.empty)
-      }
-      val s = state
-      val dp = s.dataProc
-      val ssrdParser = ssrd.parser
-      if (dp.isDefined) dp.value.fini(ssrdParser)
-
-      pr
+    if (areDebugging) {
+      Assert.invariant(optDebugger.isDefined)
+      addEventHandler(debugger)
+      state.notifyDebugging(true)
     }
+    state.dataProc.get.init(ssrd.parser)
+    doParse(ssrd.parser, state)
+    val pr = new ParseResult(this, state)
+    if (!pr.isProcessingError) {
+
+      // By the time we get here, all infoset nodes have been setFinal, all
+      // walker blocks released, and all elements walked. The one exception
+      // is that the root node has not been set final because setFinal is
+      // handled by the sequence parser and there is no sequence around the
+      // root node. So mark it as final and do one last walk to end the
+      // document.
+      state.infoset.contents(0).setFinal()
+      state.walker.walk()
+      Assert.invariant(state.walker.isFinished)
+
+      if (maybeValidationBytes.isDefined) {
+        pr.validateResult(maybeValidationBytes.get.toByteArray)
+      }
+
+      state.output.setBlobPaths(state.blobPaths)
+    } else {
+      // failed, so delete all blobs that were created
+      state.blobPaths.foreach { path =>
+        Files.delete(path)
+      }
+      // ensure the blob paths are empty in case of outputter reuse
+      state.output.setBlobPaths(Seq.empty)
+    }
+    val s = state
+    val dp = s.dataProc
+    val ssrdParser = ssrd.parser
+    if (dp.isDefined) dp.value.fini(ssrdParser)
+
+    pr
   }
 
   private def doParse(p: Parser, state: PState): Unit = {

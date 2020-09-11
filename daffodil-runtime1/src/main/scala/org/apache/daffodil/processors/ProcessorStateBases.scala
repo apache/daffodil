@@ -497,28 +497,24 @@ abstract class ParseOrUnparseState protected (
   def notifyDebugging(flag: Boolean): Unit
 
   final def SDE(str: String, args: Any*) = {
-    // ExecutionMode.requireRuntimeMode // not any more. More code is shared between compile and runtime now, so these requirements gotta go
     val ctxt = getContext()
     val rsde = new RuntimeSchemaDefinitionError(ctxt.schemaFileLocation, this, str, args: _*)
     ctxt.toss(rsde)
   }
 
   final def SDEButContinue(str: String, args: Any*) = {
-    // ExecutionMode.requireRuntimeMode
     val ctxt = getContext()
     val rsde = new RuntimeSchemaDefinitionError(ctxt.schemaFileLocation, this, str, args: _*)
     diagnostics = rsde :: diagnostics
   }
 
   final def SDW(str: String, args: Any*) = {
-    // ExecutionMode.requireRuntimeMode
     val ctxt = getContext()
     val rsdw = new RuntimeSchemaDefinitionWarning(ctxt.schemaFileLocation, this, str, args: _*)
     diagnostics = rsdw :: diagnostics
   }
 
   final def SDW(warnID: WarnID, str: String, args: Any*) = {
-    // ExecutionMode.requireRuntimeMode
     if (tunable.notSuppressedWarning(warnID)) {
       val ctxt = getContext()
       val rsdw = new RuntimeSchemaDefinitionWarning(ctxt.schemaFileLocation, this, str, args: _*)

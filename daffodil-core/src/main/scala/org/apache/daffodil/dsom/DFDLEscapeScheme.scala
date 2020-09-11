@@ -19,7 +19,6 @@ package org.apache.daffodil.dsom
 
 import scala.xml.Node
 import scala.xml.Utility
-import org.apache.daffodil.ExecutionMode
 import org.apache.daffodil.schema.annotation.props.gen.EscapeScheme_AnnotationMixin
 import org.apache.daffodil.dpath._
 import org.apache.daffodil.schema.annotation.props.gen.EscapeKind
@@ -44,7 +43,6 @@ final class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: 
   final lazy val referringComponent: Option[SchemaComponent] = Some(defES)
 
   protected final override def lookupProperty(pname: String): PropertyLookupResult = {
-    ExecutionMode.requireCompilerMode // never get properties at runtime, only compile time.
     val propNodeSeq = xml.attribute(pname)
     propNodeSeq match {
       case None => NotFound(Seq(this), Nil, pname) // attribute was not found

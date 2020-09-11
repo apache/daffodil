@@ -25,7 +25,6 @@ import org.apache.daffodil.processors.parsers._
 import org.apache.daffodil.xml.XMLUtils
 import org.apache.daffodil.xml.GlobalQName
 import org.apache.daffodil.xml.QName
-import org.apache.daffodil.ExecutionMode
 import java.io.File
 import jline.console.completer.Completer
 import jline.console.completer.StringsCompleter
@@ -155,7 +154,6 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
   }
 
   def debugStep(before: StateForDebugger, after: ParseOrUnparseState, processor: Processor, ignoreBreakpoints: Boolean): Unit = {
-    ExecutionMode.usingUnrestrictedMode {
       debugState = debugState match {
         case _ if ((after.processorStatus ne Success) && DebuggerConfig.breakOnFailure) => DebugState.Pause
         case DebugState.Continue | DebugState.Trace if !ignoreBreakpoints => {
@@ -195,7 +193,6 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
         val args = readCmd
         debugState = runCommand(args, before, after, processor)
       }
-    }
   }
 
   private def isInteresting(parser: Parser): Boolean = {

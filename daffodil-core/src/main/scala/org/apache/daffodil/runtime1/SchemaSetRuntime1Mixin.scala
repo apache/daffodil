@@ -17,7 +17,6 @@
 
 package org.apache.daffodil.runtime1
 
-import org.apache.daffodil.ExecutionMode
 import org.apache.daffodil.api.DFDL
 import org.apache.daffodil.api.ValidationMode
 import org.apache.daffodil.dsom.SchemaSet
@@ -73,7 +72,6 @@ trait SchemaSetRuntime1Mixin { self : SchemaSet =>
   }.value
 
   def onPath(xpath: String): DFDL.DataProcessor = {
-    ExecutionMode.usingCompilerMode {
       Assert.usage(!isError)
       if (xpath != "/") root.notYetImplemented("""Path must be "/". Other path support is not yet implemented.""")
       val rootERD = root.elementRuntimeData
@@ -104,7 +102,6 @@ trait SchemaSetRuntime1Mixin { self : SchemaSet =>
         log(LogLevel.Compile, "Compilation (DataProcesor) completed with no errors.")
       }
       dataProc
-    }
   }
 
 }
