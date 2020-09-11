@@ -18,7 +18,6 @@
 package org.apache.daffodil.dsom
 
 import org.apache.daffodil.exceptions._
-import org.apache.daffodil.ExecutionMode
 import org.apache.daffodil.api.Diagnostic
 import org.apache.daffodil.processors.ParseOrUnparseState
 import org.apache.daffodil.processors.CompileState
@@ -191,7 +190,6 @@ trait ImplementsThrowsOrSavesSDE
   def warn(th: Diagnostic): Unit
 
   def SDEButContinue(id: String, args: Any*): Unit = {
-    ExecutionMode.requireCompilerMode
     val sde = new SchemaDefinitionError(Some(schemaFileLocation), NoAnnotationContext, id, args: _*)
     error(sde) // calls the error routine which records the error, but doesn't throw/toss it.
   }
@@ -201,7 +199,6 @@ trait ImplementsThrowsOrSavesSDE
    */
   def SDW(warnID: WarnID, fmt: String, args: Any*): Unit = {
     if (tunable.notSuppressedWarning(warnID)) {
-      ExecutionMode.requireCompilerMode
       val sdw = new SchemaDefinitionWarning(Some(schemaFileLocation), NoAnnotationContext, fmt, args: _*)
       warn(sdw)
     }

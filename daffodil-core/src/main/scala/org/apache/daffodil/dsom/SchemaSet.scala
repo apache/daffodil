@@ -29,7 +29,6 @@ import org.apache.daffodil.exceptions.ThrowsSDE
 import org.apache.daffodil.dpath.NodeInfo
 import java.io.File
 
-import org.apache.daffodil.ExecutionMode
 import org.apache.daffodil.xml.DFDLCatalogResolver
 import org.apache.daffodil.api.DaffodilSchemaSource
 import org.apache.daffodil.api.UnitTestSchemaSource
@@ -472,7 +471,6 @@ final class SchemaSet(
   }.value
 
   override def isError = {
-    ExecutionMode.usingCompilerMode {
       OOLAG.keepGoing(true) {
         val valid = isValid
         if (valid) {
@@ -490,7 +488,6 @@ final class SchemaSet(
           hasErrors
         } else true
       }
-    }
   }
 }
 

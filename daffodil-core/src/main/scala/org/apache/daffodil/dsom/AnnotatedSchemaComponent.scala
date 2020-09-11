@@ -19,7 +19,6 @@ package org.apache.daffodil.dsom
 
 import scala.xml.Node
 import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.ExecutionMode
 import org.apache.daffodil.xml.XMLUtils
 import org.apache.daffodil.xml.NS
 import org.apache.daffodil.equality._
@@ -79,7 +78,6 @@ trait ResolvesLocalProperties
    * Does lookup of only local properties
    */
   protected override def lookupProperty(pname: String): PropertyLookupResult = {
-    ExecutionMode.requireCompilerMode
     Assert.usage(
       ResolvesProperties.localOnlyProperties.contains(pname),
       "Property '%s' is not a valid local-only property.".format(pname))
@@ -163,7 +161,6 @@ trait ResolvesScopedProperties
    *  properties, then default property locations.
    */
   protected override def lookupProperty(pname: String): PropertyLookupResult = {
-    ExecutionMode.requireCompilerMode
     // first try in regular properties
     val regularResult = findNonDefaultProperty(pname)
     regularResult match {
