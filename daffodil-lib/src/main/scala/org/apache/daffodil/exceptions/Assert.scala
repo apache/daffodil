@@ -33,7 +33,7 @@ abstract class ThinException protected (dummy: Int, cause: Throwable, fmt: Strin
   extends Exception(null, cause, false, false) {
 
   private lazy val msg_ =
-    if (fmt ne null) fmt.format(args)
+    if (fmt ne null) fmt.format(args: _*)
     else if (cause ne null) cause.getMessage()
     else Misc.getNameFromClass(this)
 
