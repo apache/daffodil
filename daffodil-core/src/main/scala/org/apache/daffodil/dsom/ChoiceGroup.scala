@@ -203,7 +203,7 @@ abstract class ChoiceTermBase(
   }.value
 
   final lazy val noBranchesFound = LV('noBranchesFound) {
-    if(groupMembers.size.equals(0)) {
+    if (groupMembers.size == 0) {
       SDE("choice element must contain one or more branches")
     }
   }.value

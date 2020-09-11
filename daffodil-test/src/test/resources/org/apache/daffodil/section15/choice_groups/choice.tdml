@@ -52,6 +52,18 @@
       </xs:complexType>
     </xs:element>
 
+    <xs:element name="ch2">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="redOrBlue" minOccurs="0" dfdl:occursCountKind="implicit">
+            <xs:complexType>
+              <xs:choice>
+              </xs:choice>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
   </tdml:defineSchema>
 
@@ -71,6 +83,20 @@
 
   </tdml:parserTestCase>
 
+  <!--
+   Test Name: choice_noBranch
+   Schema: basic
+   Purpose: This test demonstrates the SDE where you have a choice with no branches.
+  -->
+
+  <tdml:parserTestCase name="choice_noBranch" root="ch2"
+                       model="basic">
+    <tdml:document>red</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>choice element must contain one or more branches</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
 
   <tdml:defineSchema name="choice2">
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
@@ -1336,19 +1362,6 @@
         </xs:sequence>
       </xs:complexType>
 
-    <xs:element name="e0">
-      <xs:complexType>
-        <xs:sequence>
-          <xs:element name="redOrBlue" minOccurs="0" dfdl:occursCountKind="implicit">
-            <xs:complexType>
-              <xs:choice>
-              </xs:choice>
-            </xs:complexType>
-          </xs:element>
-        </xs:sequence>
-      </xs:complexType>
-    </xs:element>
-
       <xs:element name="e1">
         <xs:complexType>
           <xs:sequence dfdl:separator="/%NL;" dfdl:separatorPosition="postfix" dfdl:separatorSuppressionPolicy="trailingEmptyStrict">
@@ -1398,21 +1411,6 @@
       </xs:element>
 
   </tdml:defineSchema>
-
-  <!--
-   Test Name: optionalChoice0
-   Schema: optionalChoices
-   Purpose: This test demonstrates the SDE where you have a choice with no branches.
-  -->
-
-  <tdml:parserTestCase name="optionalChoice00" root="e0"
-                       model="optionalChoices">
-    <tdml:document>red</tdml:document>
-    <tdml:errors>
-      <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>choice element must contain one or more branches</tdml:error>
-    </tdml:errors>
-  </tdml:parserTestCase>
 
   <!--
        Test Name: optionalChoice01
