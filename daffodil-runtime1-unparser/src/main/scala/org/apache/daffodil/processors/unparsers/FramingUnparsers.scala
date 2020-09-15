@@ -41,11 +41,16 @@ class AlignmentFillUnparserSuspendableOperation(
   extends SuspendableOperation {
 
   override def test(ustate: UState) = {
+    // DONE
     val dos = ustate.dataOutputStream
     if (dos.maybeAbsBitPos0b.isEmpty) {
       log(LogLevel.Debug, "%s %s Unable to align to %s bits because there is no absolute bit position.", this, ustate, alignmentInBits)
     }
-    dos.maybeAbsBitPos0b.isDefined
+    val res = dos.maybeAbsBitPos0b.isDefined
+    if (!res) {
+      dos.trackBlockedSuspension(this)
+    }
+    res
   }
 
   override def continuation(state: UState): Unit = {

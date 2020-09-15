@@ -99,6 +99,7 @@ final class RegionSplitSuspendableOperation(override val rd: TermRuntimeData)
    * When retried, the test succeeds.
    */
   override def test(ustate: UState): Boolean = {
+    // HUH?
     if (secondTime) true
     else {
       secondTime = true

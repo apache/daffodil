@@ -192,7 +192,10 @@ class SimpleTypeRetryUnparserSuspendableOperation(
   }
 
   protected def test(state: UState) = {
-    state.currentInfosetNode.asSimple.hasValue
+    // DONE
+    val res = state.currentInfosetNode.asSimple.hasValue
+    if (!res) state.currentInfosetNode.trackBlockedSuspension(this)
+    res
   }
 
   protected def continuation(state: UState): Unit = {
@@ -334,7 +337,7 @@ class TargetLengthOperation(
  * Several sub-unparsers need to have the value length, and the target length
  * in order to compute their own length.
  */
-sealed trait NeedValueAndTargetLengthMixin {
+sealed trait NeedValueAndTargetLengthMixin { this: Suspension =>
 
   def targetLengthEv: Evaluatable[MaybeJULong]
   def maybeLengthEv: Maybe[LengthEv]
@@ -350,6 +353,7 @@ sealed trait NeedValueAndTargetLengthMixin {
     hasTargetLength(ustate) && {
       val e = ustate.currentInfosetNode.asInstanceOf[DIElement]
       val hasValueLength = e.valueLength.maybeLengthInBits().isDefined
+      if (!hasValueLength) e.trackBlockedSuspension(this)
       hasValueLength
     }
   }
@@ -477,8 +481,6 @@ class ChoiceUnusedUnparserSuspendableOperation(
   with StreamSplitter
   with SkipTheBits {
 
-  private var zlStatus_ : ZeroLengthStatus = ZeroLengthStatus.Unknown
-
   private var maybeDOSStart : Maybe[DataOutputStream] = Maybe.Nope
   private var maybeDOSEnd : Maybe[DataOutputStream] = Maybe.Nope
 
@@ -507,28 +509,39 @@ class ChoiceUnusedUnparserSuspendableOperation(
   }
 
   override def test(ustate: UState): Boolean = {
-    if (zlStatus_ ne ZeroLengthStatus.Unknown)
-      true
-    else if (maybeDOSStart.isEmpty)
-      false
-    else {
-      Assert.invariant(maybeDOSStart.isDefined)
-      if (dosToCheck_.exists { dos =>
-        val dosZLStatus = dos.zeroLengthStatus
-        dosZLStatus eq ZeroLengthStatus.NonZero
-      }) {
-        zlStatus_ = ZeroLengthStatus.NonZero
-        true
-      } else if (dosToCheck_.forall { dos =>
-          val dosZLStatus = dos.zeroLengthStatus
-          dosZLStatus eq ZeroLengthStatus.Zero
-      }) {
-        zlStatus_ = ZeroLengthStatus.Zero
-        true
-      } else {
-        Assert.invariant(zlStatus_ eq ZeroLengthStatus.Unknown)
+    // DONE
+    val res =
+      if (maybeDOSStart.isEmpty) {
         false
+      } else {
+        lazy val atLeastOneNonZeroDOS = dosToCheck_.exists { dos =>
+          dos.zeroLengthStatus eq ZeroLengthStaus.NonZero
+        }
+        lazy val allZeroLengthDOS = dosToCheck_.forall { dos =>
+          dos.zeroLengthStatus ew ZeroLengthStatus.Zero
+        }
+        atLeastOneNonZeroDOS || allZeroLengthDOS
       }
+
+      if (res) {
+        // This suspension is tracked by all of the DOS's in dosToCheck. This
+        // test has passed, so this suspenion is no longer blocked. The other
+        // DOS's are still tracking this suspension though, so we must remove
+        // it from all of them.
+        dosToCheck.foreach { dos =>
+          dos.untrackUnblockedSuspension(this)
+        }
+      } else {
+        // This suspension is still blocked. We don't know which DOS's state
+        // changed to trigger this test, and we dont' even know if it was a
+        // zero length state change. So we need to make sure this suspension is
+        // still tracked by all of the DOS's.
+        dosToCheck.foreach { dos =>
+          dos.trackBlockedSuspension(this)
+        }
+      }
+
+      res
     }
   }
 
@@ -666,6 +679,9 @@ class NilLiteralCharacterUnparserSuspendableOperation(
     hasTargetLength(state) && {
       val e = state.currentInfosetNode.asInstanceOf[DISimple]
       val isNilled = e.isNilled
+      if (!isNilled) {
+        e.trackBlockedSuspension(this)
+      }
       isNilled
     }
 
@@ -821,7 +837,12 @@ class PrefixLengthSuspendableOperation(
   override protected def maybeKnownLengthInBits(ustate: UState): MaybeULong = MaybeULong(0L)
 
   override def test(ustate: UState): Boolean = {
-    elem.valueLength.maybeLengthInBits.isDefined
+    // DONE
+    val res = elem.valueLength.maybeLengthInBits.isDefined
+    if (!res) {
+      elem.trackBlockedSuspension(this)
+    }
+    res
   }
 
   override def continuation(state: UState): Unit = {

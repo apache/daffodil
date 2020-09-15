@@ -274,3 +274,62 @@ trait Suspension
   }
 
 }
+
+trait SuspensionTracker {
+
+  /**
+   * Contains a list of suspensions that are blocked on some state in this
+   * SuspensionTracker that must be changed before the Suspension can
+   * potentially make progress. Note that we use a Set to ensure there are no
+   * dulpicates.
+   */
+  private var blockedSuspensions: mutable.HashSet[Suspension] = null
+
+  /**
+   * The passed in suspension depends on some state of this SuspensionTracker.
+   * So we must add it to the local blockedSuspensions list, so that if that
+   * state changes we can attempt to run the suspension. We also add the
+   * suspension to the suspensions list in the ustate, which is primarily used
+   * for diagnostics.
+   */
+  final def trackBlockedSuspension(ustate: UState, s: Suspension): Unit = {
+    if (blockedSuspensions == null) {
+      blockedSuspensions = new mutable.HashSet()
+    }
+    blockedSuspensions.add(s)
+    ustate.suspensions.add(s)
+  }
+
+  final def runBlockedSuspensions(ustate: UState): Unit = {
+    // Some state has changed that might allow the blocked suspensions we are
+    // tracking to succeed. Before we attempt to run these suspensions, we must
+    // first clear out the blockedSuspensions list. If we run a suspension and
+    // it is still blocked, it will automatically be added to the appropriate
+    // SuspensionTracker (which could be this one or a different one), and the
+    // suspensions list will be recreated if necessary.
+    val suspensionsToRun = blockedSuspensions
+    blockedSuspensions = null
+    suspensionsToRun.foreach { s =>
+      ustate.suspensions.remove(s)
+      s.runSuspension()
+    }
+  }
+
+  /**
+   * Sometimes a single Suspension is tracked by multiple SuspensionTrackers.
+   * When that Suspension determines it is no longer blocked, it must tell all
+   * the other SuspensionTrackers not to track that suspension anymore. To do
+   * so, it should call this function to remove that suspension that is no
+   * longer blocked.
+   */
+  final def untrackUnblockedSuspension(s: Suspension): Unit = {
+    if (blockedSuspensions != null) {
+      blockedSuspensions.remove(s)
+    }
+    if (blockedSuspensions.isEmpty) {
+      blockedSuspensions = null
+    }
+    ustate.suspensions.remove(s)
+  }
+  
+}

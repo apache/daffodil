@@ -108,29 +108,48 @@ final class SuppressableSeparatorUnparserSuspendableOperation(
    * and the suspension will be retried later.
    */
   override def test(ustate: UState): Boolean = {
-    if (zlStatus_ ne ZeroLengthStatus.Unknown)
-      true
-    else if (maybeDOSAfterSeparatorRegion.isEmpty)
-      false
-    else {
-      Assert.invariant(maybeDOSAfterSeparatorRegion.isDefined)
-      if (dosToCheck_.exists { dos =>
-        val dosZLStatus = dos.zeroLengthStatus
-        dosZLStatus eq ZeroLengthStatus.NonZero
-      }) {
-        zlStatus_ = ZeroLengthStatus.NonZero
-        true
-      } else if (dosToCheck_.forall { dos =>
-        val dosZLStatus = dos.zeroLengthStatus
-        dosZLStatus eq ZeroLengthStatus.Zero
-      }) {
-        zlStatus_ = ZeroLengthStatus.Zero
-        true
-      } else {
-        Assert.invariant(zlStatus_ eq ZeroLengthStatus.Unknown)
+    // DONE
+    val res =
+      if (maybeDOSAfterSeparatorRegion.isEmpty) {
         false
+      } else {
+        lazy val atLeastOneNonZeroDOS = dosToCheck_.exists { dos =>
+          dos.zeroLengthStatus eq ZeroLengthStaus.NonZero
+        }
+        lazy val allZeroLengthDOS = dosToCheck_.forall { dos =>
+          dos.zeroLengthStatus ew ZeroLengthStatus.Zero
+        }
+
+        if (atLeastOneNonZeroDOS) {
+          zlStatus_ = ZeroLengthStatus.NonZero
+          true
+        } else if (allZeroLengthDOS) {
+          zlStatus_ = ZeroLengthStatus.Zero
+          true
+        } else {
+          false
+        }
+      }
+
+    if (res) {
+      // This suspension is tracked by all of the DOS's in dosToCheck. This
+      // test has passed, so this suspenion is no longer blocked. The other
+      // DOS's are still tracking this suspension though, so we must remove
+      // it from all of them.
+      dosToCheck.foreach { dos =>
+        dos.untrackUnblockedSuspension(this)
+      }
+    } else {
+      // This suspension is still blocked. We don't know which DOS's state
+      // changed to trigger this test, and we dont' even know if it was a
+      // zero length state change. So we need to make sure this suspension is
+      // still tracked by all of the DOS's.
+      dosToCheck.foreach { dos =>
+        dos.trackBlockedSuspension(this)
       }
     }
+
+    res
   }
 
   /**
