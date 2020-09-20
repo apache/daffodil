@@ -504,6 +504,14 @@
             </xs:documentation>
           </xs:annotation>
         </xs:element>
+        <xs:element name="tdmlImplementation" type="xs:string" default="daffodil" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              TDMLDFDLProcessorFactory implementation to use when running TDML tests.
+              Allowed values are "daffodil" (default), "daffodil-runtime2", and "ibm".
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
         <xs:element name="tempFilePath" type="xs:string" default="This string is ignored. Default value is taken from java.io.tmpdir property"  minOccurs="0">
           <xs:annotation>
             <xs:documentation>

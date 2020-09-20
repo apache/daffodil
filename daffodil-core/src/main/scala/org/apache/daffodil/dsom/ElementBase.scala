@@ -32,10 +32,11 @@ import org.apache.daffodil.dpath.NodeInfo.PrimType
 import org.apache.daffodil.dpath.InvalidPrimitiveDataException
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.api.WarnID
-import java.lang.{Integer => JInt}
+import java.lang.{ Integer => JInt }
 
 import org.apache.daffodil.dsom.walker.ElementBaseView
 import org.apache.daffodil.infoset.DataValue
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveNullable
 import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveOrUseNilForDefaultOrNull
 
 /**
@@ -121,8 +122,6 @@ trait ElementBase
    * of the type.
    */
   def typeDef: TypeBase
-
-  private lazy val optRepValueSet = optSimpleType.flatMap(_.optRepValueSet)
 
   /**
    * The DPathElementInfo objects referenced within an IVC
@@ -319,15 +318,16 @@ trait ElementBase
   }.value
 
   /**
-   * Is either None, Some(primTypeValue) or Some(UseNilForDefault), which is a
-   * singleton object indicating that the item is nillable, and useNilForDefault was true.
+   * Is either DataValue[AnyRef], DataValue.NoValue, or DataValue.UseNilForDefault,
+   * which is a singleton object indicating that the item is nillable and
+   * useNilForDefault was true.
    *
    * The value will always be of the matching primitive types for the element, and
    * directly usable as the value of a simple-type element.
    *
-   * When a value is used, it is created from the XSD default or fixed attribute of the
+   * When a value is used, it is created from the XSD default attribute of the
    * element declaration, and that string cannot contain DFDL entities of any kind,
-   * nor any PUA-remapped characters. This insures the default/fixed value can still be
+   * nor any PUA-remapped characters. This insures the default value can still be
    * used for ordinary XML-schema validation outside of Daffodil/DFDL.
    */
   final lazy val defaultValue: DataValuePrimitiveOrUseNilForDefaultOrNull = {
@@ -351,6 +351,38 @@ trait ElementBase
           value
         }
       dv
+    } else DataValue.NoValue
+  }
+
+  /**
+   * Is either DataValue[AnyRef] or DataValue.NoValue.
+   *
+   * The value will always be of the matching primitive types for the element, and
+   * directly usable as the value of a simple-type element.
+   *
+   * When a value is used, it is created from the XSD fixed attribute of the
+   * element declaration, and that string cannot contain DFDL entities of any kind,
+   * nor any PUA-remapped characters. This insures the fixed value can still be
+   * used for ordinary XML-schema validation outside of Daffodil/DFDL.
+   */
+  final lazy val fixedValue: DataValuePrimitiveNullable = {
+    if (hasFixedValue && isSimpleType) {
+      val fv = {
+        //
+        // Note: no remapping PUA chars or otherwise messing with the text of the fixed value
+        // because this must be a regular XSD fixed value so that Xerces validation
+        // will work.
+        //
+        val str = fixedValueAsString
+        val value = try {
+          primType.fromXMLString(str)
+        } catch {
+          case ipd: InvalidPrimitiveDataException =>
+            SDE("Invalid fixed value: %s", ipd.getMessage)
+        }
+        value
+      }
+      fv
     } else DataValue.NoValue
   }
 
@@ -441,12 +473,12 @@ trait ElementBase
   }
 
   final lazy val isParentUnorderedSequence: Boolean = {
-    optLexicalParent.map { lp =>
+    optLexicalParent.exists { lp =>
       lp match {
         case s: SequenceTermBase if !s.isOrdered => true
         case _ => false
       }
-    }.getOrElse(false)
+    }
   }
 
   private def getImplicitAlignmentInBits(thePrimType: PrimType, theRepresentation: Representation): Int = {
@@ -610,7 +642,7 @@ trait ElementBase
     }
   }
 
-  final def hasFixedLengthOf(n: Int) = {
+  final def hasFixedLengthOf(n: Int): Boolean = {
     // FIXME: needs to work in lengthUnits. If length units is bytes/bits
     // and encoding is variable-width charset, what should this return?
     // (Perhaps should be usage error?)
@@ -793,16 +825,16 @@ trait ElementBase
 
   import org.apache.daffodil.dsom.FacetTypes._
 
-  private lazy val hasPattern: Boolean = typeDef.optRestriction.map { _.hasPattern }.getOrElse(false)
-  private lazy val hasEnumeration: Boolean = typeDef.optRestriction.map { _.hasEnumeration }.getOrElse(false)
-  protected lazy val hasMinLength = typeDef.optRestriction.map { _.hasMinLength }.getOrElse(false)
-  protected lazy val hasMaxLength = typeDef.optRestriction.map { _.hasMaxLength }.getOrElse(false)
-  private lazy val hasMinInclusive = typeDef.optRestriction.map { _.hasMinInclusive }.getOrElse(false)
-  private lazy val hasMaxInclusive = typeDef.optRestriction.map { _.hasMaxInclusive }.getOrElse(false)
-  private lazy val hasMinExclusive = typeDef.optRestriction.map { _.hasMinExclusive }.getOrElse(false)
-  private lazy val hasMaxExclusive = typeDef.optRestriction.map { _.hasMaxExclusive }.getOrElse(false)
-  private lazy val hasTotalDigits = typeDef.optRestriction.map { _.hasTotalDigits }.getOrElse(false)
-  private lazy val hasFractionDigits = typeDef.optRestriction.map { _.hasFractionDigits }.getOrElse(false)
+  private lazy val hasPattern: Boolean = typeDef.optRestriction.exists(_.hasPattern)
+  private lazy val hasEnumeration: Boolean = typeDef.optRestriction.exists(_.hasEnumeration)
+  protected lazy val hasMinLength = typeDef.optRestriction.exists(_.hasMinLength)
+  protected lazy val hasMaxLength = typeDef.optRestriction.exists(_.hasMaxLength)
+  private lazy val hasMinInclusive = typeDef.optRestriction.exists(_.hasMinInclusive)
+  private lazy val hasMaxInclusive = typeDef.optRestriction.exists(_.hasMaxInclusive)
+  private lazy val hasMinExclusive = typeDef.optRestriction.exists(_.hasMinExclusive)
+  private lazy val hasMaxExclusive = typeDef.optRestriction.exists(_.hasMaxExclusive)
+  private lazy val hasTotalDigits = typeDef.optRestriction.exists(_.hasTotalDigits)
+  private lazy val hasFractionDigits = typeDef.optRestriction.exists(_.hasFractionDigits)
 
   final lazy val patternValues: Seq[FacetValueR] = {
     Assert.invariant(hasPattern)
@@ -843,7 +875,7 @@ trait ElementBase
         // we convert to the number type.
         //
         // This means we cannot check and SDE here on incorrect simple type.
-        return (zeroBD, unbBD)
+        (zeroBD, unbBD)
       }
       case st: SimpleTypeDefBase if st.optRepTypeElement.isDefined => (st.optRepTypeElement.get.minLength, st.optRepTypeElement.get.maxLength)
       case st: SimpleTypeDefBase if st.optRestriction.isDefined => {
@@ -993,6 +1025,12 @@ trait ElementBase
   def hasDefaultValue: Boolean
 
   /**
+   * Does the element have a fixed value?
+   */
+  def fixedValueAsString: String
+  def hasFixedValue: Boolean
+
+  /**
    * We require that there be a concept of empty if we're going to be able to default something
    * and we are going to require that we can tell this statically. I.e., we're not going to defer this to runtime
    * just in case the delimiters are being determined at runtime.
@@ -1071,8 +1109,6 @@ trait ElementBase
       child.checkParseUnparsePolicyCompatibility(context, policy)
     }
   }
-
-  private def gcd(a: Int, b: Int): Int = if (b == 0) a else gcd(b, a % b)
 
   /**
    * Changed to a warning - DFDL WG decided to make this check optional, but it

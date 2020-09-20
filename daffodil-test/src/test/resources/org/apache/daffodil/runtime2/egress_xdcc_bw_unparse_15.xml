@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<gma:GapsPDU xmlns:gma="urn:gma:1.0">
+  <gma:SDHBWPDU>
+    <gma:SDHBWHeader>
+      <tag0>0</tag0>
+      <tagm>12</tagm>
+      <tags>12</tags>
+      <tagt>15</tagt>
+      <len>44</len>
+      <crc>46626</crc>
+    </gma:SDHBWHeader>
+    <gma:ApplicationData>
+      <gma:Request_echo_pnt>
+        <alt>0.10000000000000001</alt>
+        <lat>29.50464225007952</lat>
+        <lon>-116.00761807405785</lon>
+        <time>1611604087</time>
+      </gma:Request_echo_pnt>
+    </gma:ApplicationData>
+    <gma:GapsTrailer>
+      <seq>0</seq>
+      <rqr>2415922672</rqr>
+      <oid>32652</oid>
+      <mid>0</mid>
+      <crc>0</crc>
+    </gma:GapsTrailer>
+  </gma:SDHBWPDU>
+</gma:GapsPDU>

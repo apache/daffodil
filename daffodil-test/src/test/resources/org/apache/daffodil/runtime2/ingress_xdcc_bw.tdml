@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<tdml:testSuite
+  defaultConfig="config-runtime2"
+  defaultImplementations="daffodil daffodil-runtime2"
+  defaultRoundTrip="none"
+  description="TDML tests for ingress_xdcc_bw"
+  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData">
+
+  <tdml:defineConfig name="config-runtime1">
+    <daf:tunables>
+      <daf:tdmlImplementation>daffodil</daf:tdmlImplementation>
+    </daf:tunables>
+  </tdml:defineConfig>
+
+  <tdml:defineConfig name="config-runtime2">
+    <daf:tunables>
+      <daf:tdmlImplementation>daffodil-runtime2</daf:tdmlImplementation>
+    </daf:tunables>
+  </tdml:defineConfig>
+
+  <tdml:parserTestCase
+    description="ingress_xdcc_bw parse test 111"
+    model="ingress_xdcc_bw.dfdl.xsd"
+    name="ingress_xdcc_bw_parse_111"
+    root="GapsPDU">
+    <tdml:document>
+      <tdml:documentPart type="file">ingress_xdcc_bw_parse_111.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">ingress_xdcc_bw_unparse_111.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:unparserTestCase
+    description="ingress_xdcc_bw unparse test 111"
+    model="ingress_xdcc_bw.dfdl.xsd"
+    name="ingress_xdcc_bw_unparse_111"
+    root="GapsPDU">
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">ingress_xdcc_bw_unparse_111.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="file">ingress_xdcc_bw_parse_111.dat</tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+  <tdml:parserTestCase
+    description="ingress_xdcc_bw parse test 112"
+    model="ingress_xdcc_bw.dfdl.xsd"
+    name="ingress_xdcc_bw_parse_112"
+    root="GapsPDU">
+    <tdml:document>
+      <tdml:documentPart type="file">ingress_xdcc_bw_parse_112.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">ingress_xdcc_bw_unparse_112.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:unparserTestCase
+    description="ingress_xdcc_bw unparse test 112"
+    model="ingress_xdcc_bw.dfdl.xsd"
+    name="ingress_xdcc_bw_unparse_112"
+    root="GapsPDU">
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">ingress_xdcc_bw_unparse_112.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="file">ingress_xdcc_bw_parse_112.dat</tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+  <tdml:parserTestCase
+    description="ingress_xdcc_bw parse test 113"
+    model="ingress_xdcc_bw.dfdl.xsd"
+    name="ingress_xdcc_bw_parse_113"
+    root="GapsPDU">
+    <tdml:document>
+      <tdml:documentPart type="file">ingress_xdcc_bw_parse_113.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">ingress_xdcc_bw_unparse_113.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:unparserTestCase
+    description="ingress_xdcc_bw unparse test 113"
+    model="ingress_xdcc_bw.dfdl.xsd"
+    name="ingress_xdcc_bw_unparse_113"
+    root="GapsPDU">
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">ingress_xdcc_bw_unparse_113.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="file">ingress_xdcc_bw_parse_113.dat</tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+  <tdml:parserTestCase
+    description="ingress_xdcc_bw parse test 114"
+    model="ingress_xdcc_bw.dfdl.xsd"
+    name="ingress_xdcc_bw_parse_114"
+    root="GapsPDU">
+    <tdml:document>
+      <tdml:documentPart type="file">ingress_xdcc_bw_parse_114.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">ingress_xdcc_bw_unparse_114.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:unparserTestCase
+    description="ingress_xdcc_bw unparse test 114"
+    model="ingress_xdcc_bw.dfdl.xsd"
+    name="ingress_xdcc_bw_unparse_114"
+    root="GapsPDU">
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">ingress_xdcc_bw_unparse_114.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="file">ingress_xdcc_bw_parse_114.dat</tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+  <tdml:parserTestCase
+    description="ingress_xdcc_bw parse test 115"
+    model="ingress_xdcc_bw.dfdl.xsd"
+    name="ingress_xdcc_bw_parse_115"
+    root="GapsPDU">
+    <tdml:document>
+      <tdml:documentPart type="file">ingress_xdcc_bw_parse_115.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">ingress_xdcc_bw_unparse_115.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:unparserTestCase
+    description="ingress_xdcc_bw unparse test 115"
+    model="ingress_xdcc_bw.dfdl.xsd"
+    name="ingress_xdcc_bw_unparse_115"
+    root="GapsPDU">
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">ingress_xdcc_bw_unparse_115.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="file">ingress_xdcc_bw_parse_115.dat</tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+  <tdml:parserTestCase
+    description="ingress_xdcc_bw parse test 116"
+    model="ingress_xdcc_bw.dfdl.xsd"
+    name="ingress_xdcc_bw_parse_116"
+    root="GapsPDU">
+    <tdml:document>
+      <tdml:documentPart type="file">ingress_xdcc_bw_parse_116.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">ingress_xdcc_bw_unparse_116.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:unparserTestCase
+    description="ingress_xdcc_bw unparse test 116"
+    model="ingress_xdcc_bw.dfdl.xsd"
+    name="ingress_xdcc_bw_unparse_116"
+    root="GapsPDU">
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">ingress_xdcc_bw_unparse_116.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="file">ingress_xdcc_bw_parse_116.dat</tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+</tdml:testSuite>

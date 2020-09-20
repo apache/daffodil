@@ -22,6 +22,7 @@ object Dependencies {
   lazy val common = core ++ infoset ++ test
 
   lazy val core = Seq(
+    "com.lihaoyi" %% "os-lib" % "0.7.4", // for writing/compiling C source files
     "org.scala-lang.modules" %% "scala-xml" % "1.3.0",
     "org.scala-lang.modules" %% "scala-parser-combinators" % "1.1.2",
     "com.ibm.icu" % "icu4j" % "69.1",
@@ -36,7 +37,7 @@ object Dependencies {
     "com.fasterxml.woodstox" % "woodstox-core" % "6.2.6",
     "com.fasterxml.jackson.core" % "jackson-core" % "2.12.3"
   )
-   
+
   lazy val cli = Seq( 
     "org.fusesource.jansi" % "jansi" % "2.3.2",
     "org.jline" % "jline" % "3.19.0",

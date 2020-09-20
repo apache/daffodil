@@ -30,14 +30,13 @@ import scala.collection.immutable.Queue
 
 import org.apache.daffodil.Implicits._; object INoWarn4 {
   ImplicitsSuppressUnusedImportWarning() }
-import org.apache.daffodil.api.ValidationException
-import org.apache.daffodil.api.ValidationFailure
-import org.apache.daffodil.api.ValidationResult
-import org.apache.daffodil.api.Validator
-import org.apache.daffodil.validation.XercesValidatorFactory
 import org.apache.daffodil.api.DFDL
 import org.apache.daffodil.api.DaffodilTunables
+import org.apache.daffodil.api.ValidationException
+import org.apache.daffodil.api.ValidationFailure
 import org.apache.daffodil.api.ValidationMode
+import org.apache.daffodil.api.ValidationResult
+import org.apache.daffodil.api.Validator
 import org.apache.daffodil.api.WithDiagnostics
 import org.apache.daffodil.debugger.Debugger
 import org.apache.daffodil.dsom.TunableLimitExceededError
@@ -67,7 +66,7 @@ import org.apache.daffodil.processors.unparsers.UnparseError
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe._
 import org.apache.daffodil.util.Misc
-
+import org.apache.daffodil.validation.XercesValidatorFactory
 
 /**
  * Implementation mixin - provides simple helper methods
@@ -695,7 +694,6 @@ class DataProcessor private (
       UnparseError(Nope, One(state.currentLocation), "Expected no remaining events, but received %s.", ev.get)
     }
   }
-
 }
 
 class ParseResult(override val resultState: PState, val validationResult: Option[ValidationResult])
@@ -726,5 +724,3 @@ class UnparseResult(dp: DataProcessor, ustate: UState)
     encodingInfo.knownEncodingName
   }
 }
-
-

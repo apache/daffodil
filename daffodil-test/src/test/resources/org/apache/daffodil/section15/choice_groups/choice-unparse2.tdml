@@ -24,7 +24,7 @@
   xmlns:fn="http://www.w3.org/2005/xpath-functions" 
   xmlns:ex="http://example.com">
 
-  <tdml:defineSchema name="c" elementFormDefault="unqualified">
+  <tdml:defineSchema name="c1" elementFormDefault="unqualified">
     
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"/>
@@ -48,7 +48,7 @@
 
 
     
-<tdml:unparserTestCase name="choice_with_array_branch1" root="e" model="c">
+<tdml:unparserTestCase name="choice_with_array_branch1" root="e" model="c1">
 
   <tdml:document>1;</tdml:document>
 
@@ -62,7 +62,7 @@
   
 </tdml:unparserTestCase>
 
-<tdml:unparserTestCase name="choice_with_array_branch2" root="e" model="c">
+<tdml:unparserTestCase name="choice_with_array_branch2" root="e" model="c1">
 
   <tdml:document>1;2;</tdml:document>
 
@@ -77,7 +77,7 @@
   
 </tdml:unparserTestCase>
 
-<tdml:unparserTestCase name="choice_with_array_branch3" root="e" model="c">
+<tdml:unparserTestCase name="choice_with_array_branch3" root="e" model="c1">
 
   <tdml:document>b</tdml:document>
 

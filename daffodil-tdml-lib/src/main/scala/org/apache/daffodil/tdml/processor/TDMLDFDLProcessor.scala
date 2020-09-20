@@ -124,7 +124,11 @@ trait TDMLResult {
   def isValidationError: Boolean
   def isProcessingError: Boolean
   def getDiagnostics: Seq[Diagnostic]
-
+  /**
+   * Deletes any temporary files that have been generated.
+   * Actually does nothing unless overridden by an implementation.
+   */
+  def cleanUp(): Unit = { /* Do nothing */ }
 }
 
 trait TDMLParseResult extends TDMLResult {

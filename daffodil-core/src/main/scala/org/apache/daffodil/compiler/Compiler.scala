@@ -26,6 +26,7 @@ import java.util.zip.GZIPInputStream
 import java.util.zip.ZipException
 
 import scala.collection.immutable.Queue
+import scala.util.Try
 import scala.xml.Node
 import org.apache.daffodil.api.DFDL
 import org.apache.daffodil.api.DaffodilSchemaSource
@@ -108,6 +109,27 @@ final class ProcessorFactory private(
 
   override def onPath(xpath: String) = sset.onPath(xpath)
 
+  override def forLanguage(language: String): DFDL.CodeGenerator = {
+    Assert.usage(!isError)
+
+    // Do a poor man's pluggable code generator implementation - we can replace
+    // it after we observe how the validator SPI evolves and wait for our
+    // requirements to become clearer
+    val className = language match {
+      case "c" => "org.apache.daffodil.runtime2.CodeGenerator"
+      case _ => throw new InvalidParserException(s"code generator; source language $language is not supported")
+    }
+    import scala.language.existentials // Needed to make next line compile
+    val clazz = Try(Class.forName(className))
+    val constructor = clazz.map { _.getDeclaredConstructor(sset.root.getClass) }
+    val tryInstance = constructor.map { _.newInstance(sset.root).asInstanceOf[DFDL.CodeGenerator] }
+    val codeGenerator = tryInstance.recover {
+      case ex => throw new InvalidParserException(s"Error creating $className", ex)
+    }.get
+
+    codeGenerator
+  }
+
   override def isError = sset.isError
 
   @deprecated("Use arguments to Compiler.compileSource or compileFile.", "2.6.0")
@@ -163,7 +185,7 @@ class Compiler private (var validateDFDLSchemas: Boolean,
   }
 
   @deprecated("Use constructor argument.", "2.6.0")
-  def setValidateDFDLSchemas(value: Boolean) = validateDFDLSchemas = value
+  def setValidateDFDLSchemas(value: Boolean): Unit = validateDFDLSchemas = value
 
   def withValidateDFDLSchemas(value: Boolean) = copy(validateDFDLSchemas = value)
 
@@ -279,10 +301,10 @@ class Compiler private (var validateDFDLSchemas: Boolean,
       //
       case cnf: ClassNotFoundException => {
         val cpString =
-          if (Misc.classPath.length == 0) " empty."
+          if (Misc.classPath.isEmpty) " empty."
           else ":\n" + Misc.classPath.mkString("\n\t")
         val fmtMsg = "%s\nThe class may not exist in this Java JVM version (%s), or it is missing from the classpath which is%s"
-        val msg = fmtMsg.format(cnf.getMessage(), scala.util.Properties.javaVersion, cpString)
+        val msg = fmtMsg.format(cnf.getMessage, scala.util.Properties.javaVersion, cpString)
         throw new InvalidParserException(msg, cnf)
       }
     }
@@ -329,10 +351,10 @@ class Compiler private (var validateDFDLSchemas: Boolean,
     val err = pf.isError
     val diags = pf.getDiagnostics // might be warnings even if not isError
     if (err) {
-      Assert.invariant(diags.length > 0)
+      Assert.invariant(diags.nonEmpty)
       log(LogLevel.Compile, "Compilation (ProcessorFactory) produced %d errors/warnings.", diags.length)
     } else {
-      if (diags.length > 0) {
+      if (diags.nonEmpty) {
         log(LogLevel.Compile, "Compilation (ProcessorFactory) produced %d warnings.", diags.length)
       } else {
         log(LogLevel.Compile, "ProcessorFactory completed with no errors.")

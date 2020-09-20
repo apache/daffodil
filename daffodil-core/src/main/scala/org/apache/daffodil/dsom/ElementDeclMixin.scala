@@ -54,6 +54,8 @@ trait ElementDeclMixin
 
   final def hasDefaultValue: Boolean = defaultAttr.isDefined
 
+  final def hasFixedValue: Boolean = fixedAttr.isDefined
+
   override final def simpleType: SimpleTypeBase = optSimpleType.get
 
   override final def complexType: ComplexTypeBase = optComplexType.get
@@ -141,6 +143,8 @@ trait ElementDeclMixin
 
   final lazy val defaultAttr = xml.attribute("default")
 
+  final lazy val fixedAttr = xml.attribute("fixed")
+
   final lazy val defaultValueAsString = {
     Assert.usage(hasDefaultValue)
     val dv = defaultAttr.get.text
@@ -149,6 +153,11 @@ trait ElementDeclMixin
       "Type was %s, but only type xs:string can have XSD default=\"\".",
       primType.toString)
     dv
+  }
+
+  final lazy val fixedValueAsString = {
+    Assert.usage(hasFixedValue)
+    fixedAttr.get.text
   }
 
   final lazy val isNillable = (xml \ "@nillable").text == "true"
