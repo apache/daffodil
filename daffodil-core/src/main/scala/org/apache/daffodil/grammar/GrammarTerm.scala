@@ -65,7 +65,7 @@ abstract class Gram(contextArg: SchemaComponent)
 
   val forWhat: ParserOrUnparser = BothParserAndUnparser
 
-  final val context: SchemaComponent = contextArg
+  val context: SchemaComponent = contextArg
 
   def term = context.asInstanceOf[Term]
 

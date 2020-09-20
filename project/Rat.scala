@@ -116,6 +116,7 @@ object Rat {
     file("daffodil-sapi/src/test/resources/test/sapi/myData16.dat"),
     file("daffodil-sapi/src/test/resources/test/sapi/myData19.dat"),
     file("daffodil-sapi/src/test/resources/test/sapi/myDataBroken.dat"),
+    file("daffodil-runtime2/src/test/resources/org/apache/daffodil/runtime2/parse_int32"),
     file("daffodil-tdml-lib/src/test/resources/test/tdml/test.bin"),
     file("daffodil-tdml-lib/src/test/resources/test/tdml/test.txt"),
     file("daffodil-tdml-processor/src/test/resources/test/tdml/test.bin"),

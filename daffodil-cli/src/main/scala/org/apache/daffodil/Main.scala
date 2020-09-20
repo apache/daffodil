@@ -37,7 +37,6 @@ import scala.concurrent.Future
 import scala.concurrent.duration.Duration
 import scala.xml.Node
 import scala.xml.SAXParseException
-
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.parsers.SAXParserFactory
 import javax.xml.transform.TransformerFactory
@@ -502,11 +501,48 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     val info = tally(descr = "increment test result information output level, one level for each -i")
   }
 
+  // Generate Subcommand Options
+  val generate = new scallop.Subcommand("generate") {
+    descr("generate <language> code from a DFDL schema")
+
+    banner("""|Usage: daffodil [GLOBAL_OPTS] generate <language> [SUBCOMMAND_OPTS]
+              |""".stripMargin)
+    shortSubcommandsHelp()
+    footer("""|
+              |Run 'daffodil generate <language> --help' for subcommand specific options""".stripMargin)
+
+    val c = new scallop.Subcommand("c") {
+      banner("""|Usage: daffodil generate c -s <schema> [-r [{namespace}]<root>]
+                |                           [-c <file>] [outputDir]
+                |
+                |Generate C code from a DFDL schema to parse or unparse data
+                |
+                |Generate Options:""".stripMargin)
+
+      descr("generate C code from a DFDL schema")
+      helpWidth(76)
+
+      val language = "c"
+      val schema = opt[URI]("schema", required = true, argName = "file", descr = "the annotated DFDL schema to use to generate source code.")
+      val rootNS = opt[RefQName]("root", argName = "node", descr = "the root element of the XML file to use.  An optional namespace may be provided. This needs to be one of the top-level elements of the DFDL schema defined with --schema. Requires --schema. If not supplied uses the first element of the first schema")
+      val tunables = props[String]('T', keyName = "tunable", valueName = "value", descr = "daffodil tunable to be used when compiling schema.")
+      val config = opt[String](short = 'c', argName = "file", descr = "path to file containing configuration items.")
+      val outputDir = trailArg[String](required = false, descr = "output directory in which to generate source code. If not specified, uses current directory.")
+
+      validateOpt(schema) {
+        case None => Left("No schemas specified using the --schema option")
+        case _ => Right(Unit)
+      }
+    }
+    addSubcommand(c)
+  }
+
   addSubcommand(parse)
   addSubcommand(performance)
   addSubcommand(unparse)
   addSubcommand(save)
   addSubcommand(test)
+  addSubcommand(generate)
 
   mutuallyExclusive(trace, debug) // cannot provide both --trace and --debug
   requireSubcommand()
@@ -654,7 +690,7 @@ object Main extends Logging {
 
   def createProcessorFromSchema(schema: URI, rootNS: Option[RefQName], path: Option[String],
     tunables: Map[String, String],
-    mode: ValidationMode.Type) = {
+    mode: ValidationMode.Type): Option[DFDL.DataProcessor] = {
     val compiler = {
       val c = Compiler().withTunables(tunables)
       rootNS match {
@@ -683,6 +719,31 @@ object Main extends Logging {
       }
     })
     pf
+  }
+
+  def createGeneratorFromSchema(schema: URI, rootNS: Option[RefQName], tunables: Map[String, String],
+                                language: String): Option[DFDL.CodeGenerator] = {
+    val compiler = {
+      val c = Compiler().withTunables(tunables)
+      rootNS match {
+        case None => c
+        case Some(RefQName(_, root, ns)) => c.withDistinguishedRootNode(root, ns.toStringOrNullIfNoNS)
+      }
+    }
+
+    val schemaSource = URISchemaSource(schema)
+    val cg = Timer.getResult("compiling", {
+      val processorFactory = compiler.compileSource(schemaSource)
+      if (!processorFactory.isError) {
+        val generator = processorFactory.forLanguage(language)
+        displayDiagnostics(generator)
+        Some(generator)
+      } else {
+        displayDiagnostics(processorFactory)
+        None
+      }
+    })
+    cg
   }
 
   // write blobs to $PWD/daffodil-blobs/*.bin
@@ -1379,11 +1440,42 @@ object Main extends Logging {
         0
       }
 
-      case _ => {
-        // This should never happen, this is caught by validation
-        Assert.impossible()
-        // 1
+      case Some(conf.generate) => {
+        conf.subcommands match {
+          case List(conf.generate, conf.generate.c) => {
+            val generateOpts = conf.generate.c
+
+            // Read any config file and any tunables given as arguments
+            val cfgFileNode = generateOpts.config.toOption match {
+              case None => None
+              case Some(pathToConfig) => Some(this.loadConfigurationFile(pathToConfig))
+            }
+            val tunables = retrieveTunables(generateOpts.tunables, cfgFileNode)
+
+            // Create a CodeGenerator from the DFDL schema
+            val generator = createGeneratorFromSchema(generateOpts.schema(), generateOpts.rootNS.toOption,
+              tunables, generateOpts.language)
+
+            // Ask the CodeGenerator to generate source code from the DFDL schema
+            val rootNS = generateOpts.rootNS.toOption
+            val outputDir = generateOpts.outputDir.toOption.getOrElse(".")
+            val rc = generator match {
+              case Some(generator) => {
+                Timer.getResult("generating", generator.generateCode(rootNS, outputDir))
+                displayDiagnostics(generator)
+                if (generator.isError) 1 else 0
+              }
+              case None => 1
+            }
+            rc
+          }
+          // Required to avoid "match may not be exhaustive", but should never happen
+          case _ => Assert.impossible()
+        }
       }
+
+      // Required to avoid "match may not be exhaustive", but should never happen
+      case _ => Assert.impossible()
     }
 
     ret

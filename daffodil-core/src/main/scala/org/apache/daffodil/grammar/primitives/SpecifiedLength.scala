@@ -141,7 +141,6 @@ class SpecifiedLengthImplicit(e: ElementBase, eGram: => Gram, nBits: Long)
     eParser,
     e.elementRuntimeData,
     nBits)
-
 }
 
 class SpecifiedLengthPrefixed(e: ElementBase, eGram: => Gram, bitsMultiplier: Int)

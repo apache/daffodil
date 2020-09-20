@@ -27,17 +27,17 @@ import java.nio.file.Files
 import java.util.zip.GZIPOutputStream
 
 import scala.collection.immutable.Queue
+import scala.collection.mutable
 
 import org.apache.daffodil.Implicits._; object INoWarn4 {
   ImplicitsSuppressUnusedImportWarning() }
-import org.apache.daffodil.api.ValidationException
-import org.apache.daffodil.api.ValidationFailure
-import org.apache.daffodil.api.ValidationResult
-import org.apache.daffodil.api.Validator
-import org.apache.daffodil.validation.XercesValidatorFactory
 import org.apache.daffodil.api.DFDL
 import org.apache.daffodil.api.DaffodilTunables
+import org.apache.daffodil.api.ValidationException
+import org.apache.daffodil.api.ValidationFailure
 import org.apache.daffodil.api.ValidationMode
+import org.apache.daffodil.api.ValidationResult
+import org.apache.daffodil.api.Validator
 import org.apache.daffodil.api.WithDiagnostics
 import org.apache.daffodil.debugger.Debugger
 import org.apache.daffodil.dsom.TunableLimitExceededError
@@ -678,7 +678,6 @@ class DataProcessor private (
       UnparseError(Nope, One(state.currentLocation), "Expected no remaining events, but received %s.", ev.get)
     }
   }
-
 }
 
 class ParseResult(dp: DataProcessor, override val resultState: PState)
@@ -689,7 +688,7 @@ class ParseResult(dp: DataProcessor, override val resultState: PState)
    * To be successful here, we need to capture parse/validation
    * errors and add them to the Diagnostics list in the PState.
    *
-   * @param bytes the parsed Infoset
+   * @param bytes the XML infoset from the parse
    */
   def validateResult(bytes: Array[Byte]): Unit = {
     Assert.usage(resultState.processorStatus eq Success)
@@ -732,5 +731,3 @@ class UnparseResult(dp: DataProcessor, ustate: UState)
     encodingInfo.knownEncodingName
   }
 }
-
-

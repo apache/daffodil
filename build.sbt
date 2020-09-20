@@ -15,6 +15,10 @@
  * limitations under the License.
  */
 
+import sbt.io.Path.flatRebase
+import sbtcc._
+import scala.collection.immutable.ListSet
+
 // Silence an errant sbt linter warning about unused sbt settings. For some
 // reason, the sbt linter thinks the below settings are set but not used, which
 // leads to a bunch of noisy warnings. But they clearly are used. Seems to be a
@@ -29,9 +33,9 @@ lazy val genManaged = taskKey[Unit]("Generate managed sources and resources")
 lazy val genProps = taskKey[Seq[File]]("Generate properties scala source")
 lazy val genSchemas = taskKey[Seq[File]]("Generated DFDL schemas")
 
-lazy val daffodil         = Project("daffodil", file(".")).configs(IntegrationTest)
+lazy val daffodil         = project.in(file(".")).configs(IntegrationTest)
                               .enablePlugins(JavaUnidocPlugin, ScalaUnidocPlugin)
-                              .aggregate(macroLib, propgen, lib, io, runtime1, runtime1Unparser, core, japi, sapi, tdmlLib, tdmlProc, cli, udf, schematron, test, testIBM1, tutorials, testStdLayout)
+                              .aggregate(macroLib, propgen, lib, io, runtime1, runtime1Unparser, runtime2, core, japi, sapi, tdmlLib, tdmlProc, cli, udf, schematron, test, testIBM1, tutorials, testStdLayout)
                               .settings(commonSettings, nopublish, ratSettings, unidocSettings)
 
 lazy val macroLib         = Project("daffodil-macro-lib", file("daffodil-macro-lib")).configs(IntegrationTest)
@@ -57,6 +61,34 @@ lazy val runtime1Unparser = Project("daffodil-runtime1-unparser", file("daffodil
                               .dependsOn(runtime1, lib % "test->test", runtime1 % "test->test")
                               .settings(commonSettings)
 
+val runtime2CFiles        = Library("libruntime2.a")
+lazy val runtime2         = Project("daffodil-runtime2", file("daffodil-runtime2")).configs(IntegrationTest)
+                              .enablePlugins(CcPlugin)
+                              .dependsOn(core, core % "test->test", tdmlProc)
+                              .settings(commonSettings)
+                              .settings(publishArtifact in (Compile, packageDoc) := false)
+                              .settings(
+                                Compile / ccTargets := ListSet(runtime2CFiles),
+                                Compile / cSources  := Map(
+                                  runtime2CFiles -> (
+                                    ((Compile / resourceDirectory).value / "c" * GlobFilter("*.c")).get() ++
+                                    ((Compile / resourceDirectory).value / "examples" * GlobFilter("*.c")).get()
+                                  )
+                                ),
+                                Compile / cIncludeDirectories := Map(
+                                  runtime2CFiles -> Seq(
+                                    (Compile / resourceDirectory).value / "c",
+                                    (Compile / resourceDirectory).value / "examples"
+                                  )
+                                ),
+                                Compile / cFlags := (Compile / cFlags).value.withDefaultValue(Seq(
+                                  "-g",
+                                  "-Wall",
+                                  "-Wextra",
+                                  "-Wno-missing-field-initializers",
+                                ))
+                              )
+
 lazy val core             = Project("daffodil-core", file("daffodil-core")).configs(IntegrationTest)
                               .dependsOn(runtime1Unparser, udf, lib % "test->test", runtime1 % "test->test")
                               .settings(commonSettings)
@@ -78,7 +110,7 @@ lazy val tdmlProc         = Project("daffodil-tdml-processor", file("daffodil-td
                               .settings(commonSettings)
 
 lazy val cli              = Project("daffodil-cli", file("daffodil-cli")).configs(IntegrationTest)
-                              .dependsOn(tdmlProc, sapi, japi, schematron % Runtime, udf % "it->test") // causes sapi/japi to be pulled in to the helper zip/tar
+                              .dependsOn(tdmlProc, runtime2, sapi, japi, schematron % Runtime, udf % "it->test") // causes runtime2/sapi/japi to be pulled into the helper zip/tar
                               .settings(commonSettings, nopublish)
                               .settings(libraryDependencies ++= Dependencies.cli)
 
@@ -131,7 +163,7 @@ lazy val commonSettings = Seq(
     "-Xfatal-warnings",
     "-Xxml:-coalescing",
     "-Xfuture"
-),
+  ),
   // add scalac options that are version specific
   scalacOptions ++= scalacCrossOptions(scalaVersion.value),
   // Workaround issue that some options are valid for javac, not javadoc.
