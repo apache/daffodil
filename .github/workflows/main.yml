@@ -25,15 +25,20 @@ jobs:
       matrix:
         java_version: [ 8, 11, 15 ]
         scala_version: [ 2.12.11 ]
-        os: [ 'ubuntu-latest', 'windows-latest' ]
-    env:
-      SBT: sbt -J-Xms1024m -J-Xmx5120m -J-XX:ReservedCodeCacheSize=512m -J-XX:MaxMetaspaceSize=1024m ++${{ matrix.scala_version }} coverage
-      SBTNOCOV: sbt -J-Xms1024m -J-Xmx5120m -J-XX:ReservedCodeCacheSize=512m -J-XX:MaxMetaspaceSize=1024m ++${{ matrix.scala_version }}
+        os: [ ubuntu-20.04, windows-latest ]
+        include:
+          - os: ubuntu-20.04
+            shell: bash
+          - os: windows-latest
+            shell: msys2 {0}
 
     runs-on: ${{ matrix.os }}
     defaults:
       run:
-        shell: bash
+        shell: ${{ matrix.shell }}
+    env:
+      SBT: sbt -J-Xms1024m -J-Xmx5120m -J-XX:ReservedCodeCacheSize=512m -J-XX:MaxMetaspaceSize=1024m ++${{ matrix.scala_version }} coverage
+      SBTNOCOV: sbt -J-Xms1024m -J-Xmx5120m -J-XX:ReservedCodeCacheSize=512m -J-XX:MaxMetaspaceSize=1024m ++${{ matrix.scala_version }}
 
     steps:
 
@@ -41,13 +46,39 @@ jobs:
       # Setup
       ############################################################
 
-      - name: Checkout Repository
-        uses: actions/checkout@v2.0.0
+      - name: Install Dependencies (Linux)
+        run: sudo apt-get install -y libmxml-dev
+        if: runner.os == 'Linux'
 
+      - name: Install Dependencies (Windows)
+        uses: msys2/setup-msys2@v2
+        if: runner.os == 'Windows'
+        with:
+          install: gcc libargp-devel make pkg-config
+          path-type: inherit
+
+      - name: Check out mxml source (Windows)
+        uses: actions/checkout@v2.0.0
+        if: runner.os == 'Windows'
+        with:
+          repository: michaelrsweet/mxml
+          path: mxml
+
+      - name: Install mxml library (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          cd mxml
+          ./configure --prefix=/usr --disable-shared --disable-threads
+          make
+          make install
+          
       - name: Install Java
         uses: actions/setup-java@v1
         with:
           java-version: ${{ matrix.java_version }}
+
+      - name: Checkout Repository
+        uses: actions/checkout@v2.0.0
 
       ############################################################
       # Build & Package

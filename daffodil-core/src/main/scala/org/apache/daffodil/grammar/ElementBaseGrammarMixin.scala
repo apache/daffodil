@@ -18,14 +18,11 @@
 package org.apache.daffodil.grammar
 
 import java.lang.{ Long => JLong }
-import scala.Boolean
-import scala.Long
 import org.apache.daffodil.api.WarnID
 import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.dpath.NodeInfo.PrimType
 import org.apache.daffodil.dsom.PrefixLengthQuasiElementDecl
 import org.apache.daffodil.dsom.ElementBase
-import org.apache.daffodil.dsom.ExpressionCompilers
 import org.apache.daffodil.dsom.InitiatedTerminatedMixin
 import org.apache.daffodil.dsom.TunableLimitExceededError
 import org.apache.daffodil.exceptions.Assert
@@ -1016,7 +1013,7 @@ trait ElementBaseGrammarMixin
     }
 
   private def withDelimiterStack(body: => Gram) = {
-    if (hasDelimiters || immediatelyEnclosingModelGroup.map(_.hasDelimiters).getOrElse(false)) DelimiterStackCombinatorElement(this, body)
+    if (hasDelimiters || immediatelyEnclosingModelGroup.exists(_.hasDelimiters)) DelimiterStackCombinatorElement(this, body)
     else body
   }
 
@@ -1185,7 +1182,7 @@ trait ElementBaseGrammarMixin
     val exprNamespaces = exprProp.location.namespaces
     val qn = GlobalQName(Some("daf"), "outputValueCalc", XMLUtils.dafintURI)
     val expr = ExpressionCompilers.AnyRef.compileExpression(
-      qn, primType, exprText, exprNamespaces, dpathCompileInfo, false, self, dpathCompileInfo)
+      qn, primType, exprText, exprNamespaces, dpathCompileInfo, isEvaluatedAbove = false, self, dpathCompileInfo)
     expr
   }
 
@@ -1299,7 +1296,7 @@ trait ElementBaseGrammarMixin
       val len = optLengthConstant.get
       val maxLengthLong = maxLength.longValueExact
       val minLengthLong = minLength.longValueExact
-      def warn(m: String, value: Long) = SDW(WarnID.FacetExplicitLengthOutOfRange, "Explicit dfdl:length of %s is out of range for facet %sLength='%s'.", len, m, value)
+      def warn(m: String, value: Long): Unit = SDW(WarnID.FacetExplicitLengthOutOfRange, "Explicit dfdl:length of %s is out of range for facet %sLength='%s'.", len, m, value)
       if (maxLengthLong != -1 && len > maxLengthLong) warn("max", maxLengthLong)
       Assert.invariant(minLengthLong >= 0)
       if (minLengthLong > 0 && len < minLengthLong) warn("min", minLengthLong)

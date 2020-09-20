@@ -32,7 +32,7 @@ import org.apache.daffodil.dpath.NodeInfo.PrimType
 import org.apache.daffodil.dpath.InvalidPrimitiveDataException
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.api.WarnID
-import java.lang.{Integer => JInt}
+import java.lang.{ Integer => JInt }
 
 import org.apache.daffodil.dsom.walker.ElementBaseView
 import org.apache.daffodil.infoset.DataValue
@@ -121,8 +121,6 @@ trait ElementBase
    * of the type.
    */
   def typeDef: TypeBase
-
-  private lazy val optRepValueSet = optSimpleType.flatMap(_.optRepValueSet)
 
   /**
    * The DPathElementInfo objects referenced within an IVC
@@ -441,12 +439,12 @@ trait ElementBase
   }
 
   final lazy val isParentUnorderedSequence: Boolean = {
-    optLexicalParent.map { lp =>
+    optLexicalParent.exists { lp =>
       lp match {
         case s: SequenceTermBase if !s.isOrdered => true
         case _ => false
       }
-    }.getOrElse(false)
+    }
   }
 
   private def getImplicitAlignmentInBits(thePrimType: PrimType, theRepresentation: Representation): Int = {
@@ -793,16 +791,16 @@ trait ElementBase
 
   import org.apache.daffodil.dsom.FacetTypes._
 
-  private lazy val hasPattern: Boolean = typeDef.optRestriction.map { _.hasPattern }.getOrElse(false)
-  private lazy val hasEnumeration: Boolean = typeDef.optRestriction.map { _.hasEnumeration }.getOrElse(false)
-  protected lazy val hasMinLength = typeDef.optRestriction.map { _.hasMinLength }.getOrElse(false)
-  protected lazy val hasMaxLength = typeDef.optRestriction.map { _.hasMaxLength }.getOrElse(false)
-  private lazy val hasMinInclusive = typeDef.optRestriction.map { _.hasMinInclusive }.getOrElse(false)
-  private lazy val hasMaxInclusive = typeDef.optRestriction.map { _.hasMaxInclusive }.getOrElse(false)
-  private lazy val hasMinExclusive = typeDef.optRestriction.map { _.hasMinExclusive }.getOrElse(false)
-  private lazy val hasMaxExclusive = typeDef.optRestriction.map { _.hasMaxExclusive }.getOrElse(false)
-  private lazy val hasTotalDigits = typeDef.optRestriction.map { _.hasTotalDigits }.getOrElse(false)
-  private lazy val hasFractionDigits = typeDef.optRestriction.map { _.hasFractionDigits }.getOrElse(false)
+  private lazy val hasPattern: Boolean = typeDef.optRestriction.exists(_.hasPattern)
+  private lazy val hasEnumeration: Boolean = typeDef.optRestriction.exists(_.hasEnumeration)
+  protected lazy val hasMinLength = typeDef.optRestriction.exists(_.hasMinLength)
+  protected lazy val hasMaxLength = typeDef.optRestriction.exists(_.hasMaxLength)
+  private lazy val hasMinInclusive = typeDef.optRestriction.exists(_.hasMinInclusive)
+  private lazy val hasMaxInclusive = typeDef.optRestriction.exists(_.hasMaxInclusive)
+  private lazy val hasMinExclusive = typeDef.optRestriction.exists(_.hasMinExclusive)
+  private lazy val hasMaxExclusive = typeDef.optRestriction.exists(_.hasMaxExclusive)
+  private lazy val hasTotalDigits = typeDef.optRestriction.exists(_.hasTotalDigits)
+  private lazy val hasFractionDigits = typeDef.optRestriction.exists(_.hasFractionDigits)
 
   final lazy val patternValues: Seq[FacetValueR] = {
     Assert.invariant(hasPattern)
@@ -843,7 +841,7 @@ trait ElementBase
         // we convert to the number type.
         //
         // This means we cannot check and SDE here on incorrect simple type.
-        return (zeroBD, unbBD)
+        (zeroBD, unbBD)
       }
       case st: SimpleTypeDefBase if st.optRepTypeElement.isDefined => (st.optRepTypeElement.get.minLength, st.optRepTypeElement.get.maxLength)
       case st: SimpleTypeDefBase if st.optRestriction.isDefined => {
@@ -1071,8 +1069,6 @@ trait ElementBase
       child.checkParseUnparsePolicyCompatibility(context, policy)
     }
   }
-
-  private def gcd(a: Int, b: Int): Int = if (b == 0) a else gcd(b, a % b)
 
   /**
    * Changed to a warning - DFDL WG decided to make this check optional, but it
