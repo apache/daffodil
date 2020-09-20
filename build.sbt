@@ -15,13 +15,17 @@
  * limitations under the License.
  */
 
+import sbt.io.Path.flatRebase
+import sbtcc._
+import scala.collection.immutable.ListSet
+
 lazy val genManaged = taskKey[Unit]("Generate managed sources and resources")
 lazy val genProps = taskKey[Seq[File]]("Generate properties scala source")
 lazy val genSchemas = taskKey[Seq[File]]("Generated DFDL schemas")
 
-lazy val daffodil         = Project("daffodil", file(".")).configs(IntegrationTest)
+lazy val daffodil         = project.in(file(".")).configs(IntegrationTest)
                               .enablePlugins(JavaUnidocPlugin, ScalaUnidocPlugin)
-                              .aggregate(macroLib, propgen, lib, io, runtime1, runtime1Unparser, core, japi, sapi, tdmlLib, tdmlProc, cli, udf, test, testIBM1, tutorials, testStdLayout)
+                              .aggregate(macroLib, propgen, lib, io, runtime1, runtime1Unparser, runtime2, core, japi, sapi, tdmlLib, tdmlProc, cli, udf, test, testIBM1, tutorials, testStdLayout)
                               .settings(commonSettings, nopublish, ratSettings, unidocSettings)
 
 lazy val macroLib         = Project("daffodil-macro-lib", file("daffodil-macro-lib")).configs(IntegrationTest)
@@ -42,6 +46,34 @@ lazy val io               = Project("daffodil-io", file("daffodil-io")).configs(
 lazy val runtime1         = Project("daffodil-runtime1", file("daffodil-runtime1")).configs(IntegrationTest)
                               .dependsOn(io, lib % "test->test", udf, macroLib % "compile-internal, test-internal")
                               .settings(commonSettings, usesMacros)
+
+val runtime2CFiles        = Library("libruntime2.a")
+lazy val runtime2         = Project("daffodil-runtime2", file("daffodil-runtime2")).configs(IntegrationTest)
+                              .enablePlugins(CcPlugin)
+                              .dependsOn(core, core % "test->test", tdmlProc)
+                              .settings(commonSettings)
+                              .settings(publishArtifact in (Compile, packageDoc) := false)
+                              .settings(
+                                Compile / ccTargets := ListSet(runtime2CFiles),
+                                Compile / cSources  := Map(
+                                  runtime2CFiles -> (
+                                    ((Compile / resourceDirectory).value / "c" * GlobFilter("*.c")).get() ++
+                                    ((Compile / resourceDirectory).value / "examples" * GlobFilter("*.c")).get()
+                                  )
+                                ),
+                                Compile / cIncludeDirectories := Map(
+                                  runtime2CFiles -> Seq(
+                                    (Compile / resourceDirectory).value / "c",
+                                    (Compile / resourceDirectory).value / "examples"
+                                  )
+                                ),
+                                Compile / cFlags := (Compile / cFlags).value.withDefaultValue(Seq(
+                                  "-g",
+                                  "-Wall",
+                                  "-Wextra",
+                                  "-Wno-missing-field-initializers",
+                                ))
+                              )
 
 lazy val runtime1Unparser = Project("daffodil-runtime1-unparser", file("daffodil-runtime1-unparser")).configs(IntegrationTest)
                               .dependsOn(runtime1, lib % "test->test", runtime1 % "test->test")
@@ -68,9 +100,9 @@ lazy val tdmlProc         = Project("daffodil-tdml-processor", file("daffodil-td
                               .settings(commonSettings)
 
 lazy val cli              = Project("daffodil-cli", file("daffodil-cli")).configs(IntegrationTest)
-                              .dependsOn(tdmlProc, sapi, japi, udf % "it->test") // causes sapi/japi to be pulled in to the helper zip/tar
+                              .dependsOn(tdmlProc, runtime2, sapi, japi, udf % "it->test") // causes runtime2/sapi/japi to be pulled in to the helper zip/tar
                               .settings(commonSettings, nopublish)
-                              .settings(libraryDependencies ++= Dependencies.cli) 
+                              .settings(libraryDependencies ++= Dependencies.cli)
 
 lazy val udf              = Project("daffodil-udf", file("daffodil-udf")).configs(IntegrationTest)
                               .settings(commonSettings)
@@ -106,7 +138,7 @@ lazy val commonSettings = Seq(
   organization := "org.apache.daffodil",
   version := "3.0.0-SNAPSHOT",
   scalaVersion := "2.12.11",
-  crossScalaVersions := Seq("2.12.11", "2.11.12"),
+  crossScalaVersions := Seq("2.12.11"),
   scalacOptions ++= Seq(
     "-feature",
     "-deprecation",
@@ -115,7 +147,7 @@ lazy val commonSettings = Seq(
     "-Xfatal-warnings",
     "-Xxml:-coalescing",
     "-Xfuture"
-),
+  ),
   // add scalac options that are version specific
   scalacOptions ++= scalacCrossOptions(scalaVersion.value),
   // Workaround issue that some options are valid for javac, not javadoc.
@@ -169,9 +201,9 @@ lazy val nopublish = Seq(
 )
 
 lazy val usesMacros = Seq(
-  // copies classe and source files into the project that uses macros. Note
+  // copies classes and source files into the project that uses macros. Note
   // that for packageBin, we only copy directories and class files--this
-  // ignores files such a META-INFA/LICENSE and NOTICE that are duplicated and
+  // ignores files such a META-INF/LICENSE and NOTICE that are duplicated and
   // would otherwise cause a conflict
   mappings in (Compile, packageBin) ++= mappings.in(macroLib, Compile, packageBin).value.filter { case (f, _) => f.isDirectory || f.getPath.endsWith(".class") },
   mappings in (Compile, packageSrc) ++= mappings.in(macroLib, Compile, packageSrc).value

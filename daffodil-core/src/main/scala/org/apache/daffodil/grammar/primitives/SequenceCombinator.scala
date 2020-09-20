@@ -17,26 +17,26 @@
 
 package org.apache.daffodil.grammar.primitives
 
-import org.apache.daffodil.grammar.Terminal
-import org.apache.daffodil.grammar.Gram
 import org.apache.daffodil.dsom._
+import org.apache.daffodil.grammar.Gram
+import org.apache.daffodil.grammar.Terminal
 import org.apache.daffodil.processors.parsers._
-import org.apache.daffodil.schema.annotation.props.SeparatorSuppressionPolicy
 import org.apache.daffodil.processors.unparsers._
+import org.apache.daffodil.schema.annotation.props.SeparatorSuppressionPolicy
 import org.apache.daffodil.util.Misc
 
 /**
  * Base class for all kinds of sequences.
  */
 abstract class SequenceCombinator(sq: SequenceTermBase, sequenceChildren: Seq[SequenceChild])
-  extends Terminal(sq, sequenceChildren.length > 0) {
+  extends Terminal(sq, sequenceChildren.nonEmpty) {
 
   /**
    * Shorthand for getting the sequence runtime data.
    */
   val srd = sq.sequenceRuntimeData
 
-  override def toString() =
+  override def toString: String =
     "<" + Misc.getNameFromClass(this) + ">" +
       sequenceChildren.map { _.toString() }.mkString +
       "</" + Misc.getNameFromClass(this) + ">"
@@ -49,7 +49,7 @@ class OrderedSequence(sq: SequenceTermBase, sequenceChildrenArg: Seq[SequenceChi
   private lazy val sepParser = sepGram.parser
   private lazy val sepUnparser = sepGram.unparser
 
-  private lazy val sequenceChildren = sequenceChildrenArg.toVector
+  lazy val sequenceChildren = sequenceChildrenArg.toVector
 
   override lazy val parser: Parser = sq.hasSeparator match {
     case true => new OrderedSeparatedSequenceParser(
@@ -104,9 +104,7 @@ class UnorderedSequence(sq: SequenceTermBase, sequenceChildrenArg: Seq[SequenceC
 
   private lazy val sequenceChildren = sequenceChildrenArg.toVector
 
-
   private lazy val parsers = alternatives.map(_.parser)
-
 
   override lazy val parser: Parser = {
 

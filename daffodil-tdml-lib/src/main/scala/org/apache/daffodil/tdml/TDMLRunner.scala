@@ -478,7 +478,12 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
   lazy val tdmlDFDLProcessorFactory: AbstractTDMLDFDLProcessorFactory = {
     import scala.language.existentials
 
-    val className = "org.apache.daffodil.tdml.processor.TDMLDFDLProcessorFactory"
+    // Our TDMLDFDLProcessorFactory implementation is a tunable choice with three values.
+    val className = tunableObj.tdmlImplementation match {
+      case "daffodil" => "org.apache.daffodil.tdml.processor.TDMLDFDLProcessorFactory"
+      case "daffodil-runtime2" => "org.apache.daffodil.tdml.processor.runtime2.TDMLDFDLProcessorFactory"
+      case "ibm" => "org.apache.daffodil.tdml.processor.ibm.TDMLDFDLProcessorFactory"
+    }
 
     //
     // If you haven't seen it before. Check out this Try(...) idiom.
@@ -1307,7 +1312,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     if (testDataLength >= 0) {
       val fullBytesNeeded = (testDataLength + 7) / 8
       if (testData.length != fullBytesNeeded) {
-        throw TDMLException("Unparse result data was was %d bytes, but the result length (%d bits) requires %d bytes.".format(
+        throw TDMLException("Unparse result data was %d bytes, but the result length (%d bits) requires %d bytes.".format(
           testData.length, testDataLength, fullBytesNeeded), implString)
       }
     }

@@ -23,7 +23,7 @@ object Rat {
     file(".git"),
     file(".keep"),
 
-    // eclispe related files
+    // eclipse related files
     file(".classpath"),
     file(".project"),
     file(".jupiter"),

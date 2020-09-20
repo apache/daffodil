@@ -29,6 +29,8 @@ object Dependencies {
     "xml-resolver" % "xml-resolver" % "1.2",
     "commons-io" % "commons-io" % "2.6",
     "jline" % "jline" % "2.14.6",
+    "com.lihaoyi" %% "os-lib" % "0.7.1", // for generating C source files
+    "dev.dirs" % "directories" % "21" // for caching generated & compiled C files
   )
 
   lazy val infoset = Seq(
@@ -36,7 +38,7 @@ object Dependencies {
     "com.fasterxml.woodstox" % "woodstox-core" % "5.1.0",
     "com.fasterxml.jackson.core" % "jackson-core" % "2.10.2"
   )
-   
+
   lazy val cli = Seq( 
     "org.fusesource.jansi" % "jansi" % "1.17.1",
     "org.rogach" %% "scallop" % "3.1.3",

@@ -84,7 +84,7 @@ Jackson JSON processor (lib/com.fasterxml.jackson.core.jackson-core-2.10.2.jar)
 
 Scala (lib/org.scala-lang.scala-library-2.12.11.jar)
       (org/apache/daffodil/util/UniquenessCache.class in lib/org.apache.daffodil.daffodil-lib-<VERSION>.jar)
-  Scala parser combinators
+  Scala
   Copyright (c) 2002-2020 EPFL
   Copyright (c) 2011-2020 Lightbend, Inc.
 

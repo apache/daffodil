@@ -388,6 +388,14 @@
             </xs:documentation>
           </xs:annotation>
         </xs:element>
+        <xs:element name="tdmlImplementation" type="xs:string" default="daffodil" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              TDMLDFDLProcessorFactory implementation to use when running TDML tests.
+              Allowed values are "daffodil" (default), "daffodil-runtime2", and "ibm".
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
         <xs:element name="unqualifiedPathStepPolicy" type="daf:TunableUnqualifiedPathStepPolicy" default="noNamespace" minOccurs="0">
           <xs:annotation>
             <xs:documentation>
