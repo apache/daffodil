@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<tdml:testSuite
+  defaultImplementations="daffodil daffodil-runtime2"
+  defaultRoundTrip="none"
+  description="TDML tests for ex_nums"
+  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData">
+
+  <tdml:defineConfig name="config-runtime1">
+    <daf:tunables>
+      <daf:tdmlImplementation>daffodil</daf:tdmlImplementation>
+    </daf:tunables>
+  </tdml:defineConfig>
+
+  <tdml:defineConfig name="config-runtime2">
+    <daf:tunables>
+      <daf:tdmlImplementation>daffodil-runtime2</daf:tdmlImplementation>
+    </daf:tunables>
+  </tdml:defineConfig>
+
+  <tdml:parserTestCase
+    name="ex_nums_parse_runtime1"
+    model="ex_nums.dfdl.xsd"
+    config="config-runtime1">
+    <tdml:document>
+      <tdml:documentPart type="file">ex_nums_parse.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">ex_nums_unparse_runtime1.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:unparserTestCase
+    name="ex_nums_unparse_runtime1"
+    model="ex_nums.dfdl.xsd"
+    config="config-runtime1">
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">ex_nums_unparse_runtime1.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="file">ex_nums_parse.dat</tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+  <tdml:parserTestCase
+    name="ex_nums_parse_runtime2"
+    model="ex_nums.dfdl.xsd"
+    config="config-runtime2">
+    <tdml:document>
+      <tdml:documentPart type="file">ex_nums_parse.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">ex_nums_unparse_runtime2.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:unparserTestCase
+    name="ex_nums_unparse_runtime2"
+    model="ex_nums.dfdl.xsd"
+    config="config-runtime2">
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">ex_nums_unparse_runtime2.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="file">ex_nums_parse.dat</tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase
+    name="ex_nums_unparse_errors"
+    model="ex_nums.dfdl.xsd"
+    config="config-runtime2">
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">ex_nums_unparse_errors.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>value</tdml:error>
+      <tdml:error>does not match</tdml:error>
+      <tdml:error>fixed</tdml:error>
+      <tdml:error>attribute</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
+</tdml:testSuite>

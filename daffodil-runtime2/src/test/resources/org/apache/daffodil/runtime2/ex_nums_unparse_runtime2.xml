@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<ex_nums xmlns="http://example.com">
+  <array>
+    <be_bool16>false</be_bool16>
+    <be_bool16>true</be_bool16>
+    <be_float>1</be_float>
+    <be_float>INF</be_float>
+    <be_float>NaN</be_float>
+    <be_int16>1</be_int16>
+    <be_int16>2</be_int16>
+    <be_int16>3</be_int16>
+  </array>
+  <bigEndian>
+    <be_bool16>true</be_bool16>
+    <be_bool32>true</be_bool32>
+    <be_bool8>false</be_bool8>
+    <be_boolean>false</be_boolean>
+    <be_double>1.7976931348623157E+308</be_double>
+    <be_float>3.40282347E+38</be_float>
+    <be_int16>-16</be_int16>
+    <be_int32>-32</be_int32>
+    <be_int64>-64</be_int64>
+    <be_int8>-8</be_int8>
+    <be_integer16>-16</be_integer16>
+    <be_uint16>16</be_uint16>
+    <be_uint32>32</be_uint32>
+    <be_uint64>64</be_uint64>
+    <be_uint8>8</be_uint8>
+    <be_nonNegativeInteger32>32</be_nonNegativeInteger32>
+  </bigEndian>
+  <littleEndian>
+    <le_bool16>true</le_bool16>
+    <le_bool32>true</le_bool32>
+    <le_bool8>false</le_bool8>
+    <le_boolean>false</le_boolean>
+    <le_double>-2.2250738585072014E-308</le_double>
+    <le_float>-1.17549435E-38</le_float>
+    <le_int16>-16</le_int16>
+    <le_int32>-32</le_int32>
+    <le_int64>-64</le_int64>
+    <le_int8>-8</le_int8>
+    <le_integer64>-64</le_integer64>
+    <le_uint16>16</le_uint16>
+    <le_uint32>32</le_uint32>
+    <le_uint64>64</le_uint64>
+    <le_uint8>8</le_uint8>
+    <le_nonNegativeInteger8>8</le_nonNegativeInteger8>
+  </littleEndian>
+  <fixed>
+    <boolean_false>false</boolean_false>
+    <boolean_true>true</boolean_true>
+    <float_1_5>1.5</float_1_5>
+    <int_32>32</int_32>
+  </fixed>
+</ex_nums>

@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:idl="urn:idl:1.0" targetNamespace="urn:idl:1.0">
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/">
+      <dfdl:defineFormat name="defaults">
+        <dfdl:format alignment="8" alignmentUnits="bits" binaryBooleanFalseRep="0" binaryBooleanTrueRep="1" binaryFloatRep="ieee" binaryNumberCheckPolicy="lax" binaryNumberRep="binary" bitOrder="mostSignificantBitFirst" byteOrder="bigEndian" choiceLengthKind="implicit" encoding="utf-8" encodingErrorPolicy="replace" escapeSchemeRef="" fillByte="%#r20;" floating="no" ignoreCase="no" initiatedContent="no" initiator="" leadingSkip="0" lengthKind="implicit" lengthUnits="bits" occursCountKind="implicit" prefixIncludesPrefixLength="no" representation="binary" separator="" separatorPosition="infix" sequenceKind="ordered" terminator="" textBidi="no" textPadKind="none" trailingSkip="0" truncateSpecifiedLengthString="no"/>
+      </dfdl:defineFormat>
+      <dfdl:format ref="idl:defaults"/>
+    </xs:appinfo>
+  </xs:annotation>
+  <xs:simpleType name="int8" dfdl:length="8" dfdl:lengthKind="explicit">
+    <xs:restriction base="xs:byte"/>
+  </xs:simpleType>
+  <xs:simpleType name="int16" dfdl:length="16" dfdl:lengthKind="explicit">
+    <xs:restriction base="xs:short"/>
+  </xs:simpleType>
+  <xs:simpleType name="uint8" dfdl:length="8" dfdl:lengthKind="explicit">
+    <xs:restriction base="xs:unsignedByte"/>
+  </xs:simpleType>
+  <xs:simpleType name="uint16" dfdl:length="16" dfdl:lengthKind="explicit">
+    <xs:restriction base="xs:unsignedShort"/>
+  </xs:simpleType>
+  <xs:simpleType name="uint32" dfdl:length="32" dfdl:lengthKind="explicit">
+    <xs:restriction base="xs:unsignedInt"/>
+  </xs:simpleType>
+  <xs:complexType name="Command">
+    <xs:sequence>
+      <xs:element name="sync0" fixed="208" type="idl:uint8"/>
+      <xs:element name="sync1" fixed="13" type="idl:uint8"/>
+      <xs:element name="id" fixed="1" type="idl:uint8"/>
+      <xs:element name="length" fixed="7" type="idl:uint8"/>
+      <xs:element name="pan" type="idl:int16"/>
+      <xs:element name="tilt">
+        <xs:simpleType>
+          <xs:restriction base="idl:int16">
+            <xs:minInclusive value="-1396"/>
+            <xs:maxInclusive value="733"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="mode" fixed="80" type="idl:uint8"/>
+      <xs:element name="stabilized" fixed="0" type="idl:uint8"/>
+      <xs:element name="impulse" fixed="0" type="idl:uint8"/>
+      <xs:element name="checksum" type="idl:uint16"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="CommandDecl" type="idl:Command"/>
+  <xs:complexType name="CameraState">
+    <xs:sequence>
+      <xs:element name="sync0" fixed="208" type="idl:uint8"/>
+      <xs:element name="sync1" fixed="13" type="idl:uint8"/>
+      <xs:element name="id" fixed="97" type="idl:uint8"/>
+      <xs:element name="length" fixed="5" type="idl:uint8"/>
+      <xs:element name="zoom" type="idl:int16"/>
+      <xs:element name="focus" type="idl:int16"/>
+      <xs:element name="index" fixed="0" type="idl:uint8"/>
+      <xs:element name="checksum" type="idl:uint16"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="CameraStateDecl" type="idl:CameraState"/>
+  <xs:complexType name="VideoSettings">
+    <xs:sequence>
+      <xs:element name="sync0" fixed="208" type="idl:uint8"/>
+      <xs:element name="sync1" fixed="13" type="idl:uint8"/>
+      <xs:element name="id" fixed="98" type="idl:uint8"/>
+      <xs:element name="length" fixed="14" type="idl:uint8"/>
+      <xs:element name="destIp">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="item" minOccurs="4" maxOccurs="4" dfdl:occursCountKind="fixed" type="idl:uint8"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="port" type="idl:uint16"/>
+      <xs:element name="bitrate" fixed="0" type="idl:uint32"/>
+      <xs:element name="ttl" fixed="0" type="idl:int8"/>
+      <xs:element name="streamType" fixed="0" type="idl:uint8"/>
+      <xs:element name="mjpegQuality" fixed="0" type="idl:uint8"/>
+      <xs:element name="saveSettingsAndTsPacketCount" fixed="0" type="idl:uint8"/>
+      <xs:element name="checksum" type="idl:uint16"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="VideoSettingsDecl" type="idl:VideoSettings"/>
+  <xs:complexType name="AptinaSettings">
+    <xs:sequence>
+      <xs:element name="sync0" fixed="208" type="idl:uint8"/>
+      <xs:element name="sync1" fixed="13" type="idl:uint8"/>
+      <xs:element name="id" fixed="104" type="idl:uint8"/>
+      <xs:element name="length" fixed="15" type="idl:uint8"/>
+      <xs:element name="index" fixed="0" type="idl:uint8"/>
+      <xs:element name="minExposure" type="idl:uint16"/>
+      <xs:element name="maxExposure" type="idl:uint16"/>
+      <xs:element name="minGain" type="idl:uint16"/>
+      <xs:element name="maxGain" type="idl:uint16"/>
+      <xs:element name="brightness" type="idl:int8"/>
+      <xs:element name="contrast" type="idl:int8"/>
+      <xs:element name="saturation" type="idl:int8"/>
+      <xs:element name="sharpness" type="idl:uint8"/>
+      <xs:element name="debugEnable" type="idl:uint8"/>
+      <xs:element name="hue" type="idl:int8"/>
+      <xs:element name="checksum" type="idl:uint16"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="AptinaSettingsDecl" type="idl:AptinaSettings"/>
+  <xs:complexType name="Limits">
+    <xs:sequence>
+      <xs:element name="sync0" fixed="208" type="idl:uint8"/>
+      <xs:element name="sync1" fixed="13" type="idl:uint8"/>
+      <xs:element name="id" fixed="34" type="idl:uint8"/>
+      <xs:element name="length" fixed="0" type="idl:uint8"/>
+      <xs:element name="checksum" type="idl:uint16"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="LimitsDecl" type="idl:Limits"/>
+</xs:schema>

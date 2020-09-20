@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<idl:AptinaSettingsDecl xmlns:idl="urn:idl:1.0">
+  <sync0>208</sync0>
+  <sync1>13</sync1>
+  <id>104</id>
+  <length>15</length>
+  <index>0</index>
+  <minExposure>515</minExposure>
+  <maxExposure>1055</maxExposure>
+  <minGain>36</minGain>
+  <maxGain>864</maxGain>
+  <brightness>1</brightness>
+  <contrast>2</contrast>
+  <saturation>3</saturation>
+  <sharpness>5</sharpness>
+  <debugEnable>0</debugEnable>
+  <hue>6</hue>
+  <checksum>464</checksum>
+</idl:AptinaSettingsDecl>
