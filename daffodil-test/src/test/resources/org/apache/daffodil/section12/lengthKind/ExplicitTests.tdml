@@ -17,13 +17,13 @@
 -->
 
 <tdml:testSuite suiteName="ExplicitTests"
-	description="Section 12 - lengthKind=explicit" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-	xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
-	xmlns:ex="http://example.com"
-	defaultRoundTrip="true">
+  description="Section 12 - lengthKind=explicit" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
+  xmlns:ex="http://example.com"
+  defaultRoundTrip="true">
 
-	<tdml:defineSchema name="lengthKind_explicit">
+  <tdml:defineSchema name="lengthKind_explicit">
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:defineFormat name="trimmed">
       <dfdl:format ref="ex:GeneralFormat" textTrimKind="padChar"
@@ -32,96 +32,96 @@
     </dfdl:defineFormat>
     <dfdl:format ref="ex:GeneralFormat" />
 
-		<xs:element name="address" dfdl:lengthKind="implicit">
-			<xs:complexType>
-				<xs:sequence dfdl:sequenceKind="ordered">
-					<xs:element name="houseNumber" type="xs:string"
-						dfdl:lengthKind="explicit" dfdl:length="6" />
-					<xs:element name="street" type="xs:string"
-						dfdl:lengthKind="explicit" dfdl:length="20" dfdl:ref="trimmed" />
-					<xs:element name="city" type="xs:string"
-						dfdl:lengthKind="explicit" dfdl:length="20" dfdl:ref="trimmed"/>
-					<xs:element name="state" type="xs:string"
-						dfdl:lengthKind="explicit" dfdl:length="2"/>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
+    <xs:element name="address" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:sequenceKind="ordered">
+          <xs:element name="houseNumber" type="xs:string"
+            dfdl:lengthKind="explicit" dfdl:length="6" />
+          <xs:element name="street" type="xs:string"
+            dfdl:lengthKind="explicit" dfdl:length="20" dfdl:ref="trimmed" />
+          <xs:element name="city" type="xs:string"
+            dfdl:lengthKind="explicit" dfdl:length="20" dfdl:ref="trimmed"/>
+          <xs:element name="state" type="xs:string"
+            dfdl:lengthKind="explicit" dfdl:length="2"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-	</tdml:defineSchema>
+  </tdml:defineSchema>
 
-	<tdml:parserTestCase name="Lesson1_lengthKind_explicit"
-		root="address" model="lengthKind_explicit" description="lengthKind='explicit' - DFDL-12-039R"
-		roundTrip="twoPass">
-		<tdml:document><![CDATA[000118Ridgewood Circle    Rochester           NY]]></tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<address>
-					<houseNumber>000118</houseNumber>
-					<street>Ridgewood Circle</street>
-					<city>Rochester</city>
-					<state>NY</state>
-				</address>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
+  <tdml:parserTestCase name="Lesson1_lengthKind_explicit"
+    root="address" model="lengthKind_explicit" description="lengthKind='explicit' - DFDL-12-039R"
+    roundTrip="twoPass">
+    <tdml:document><![CDATA[000118Ridgewood Circle    Rochester           NY]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <address>
+          <houseNumber>000118</houseNumber>
+          <street>Ridgewood Circle</street>
+          <city>Rochester</city>
+          <state>NY</state>
+        </address>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
-	<tdml:defineSchema name="test_ExplicitLengthBits" elementFormDefault="unqualified">
+  <tdml:defineSchema name="test_ExplicitLengthBits" elementFormDefault="unqualified">
     <dfdl:defineFormat name="trimmed">
       <dfdl:format ref="ex:GeneralFormat" textTrimKind="padChar"
                       textStringPadCharacter="%SP;" textStringJustification="center" textPadKind="padChar"
                       truncateSpecifiedLengthString="no"/>
     </dfdl:defineFormat>
-		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
 
-		<xs:element name="notFixed">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="len" type="xs:int"
-						dfdl:representation="binary" dfdl:lengthKind="implicit" 
+    <xs:element name="notFixed">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="len" type="xs:int"
+            dfdl:representation="binary" dfdl:lengthKind="implicit" 
                         dfdl:outputValueCalc="{ dfdl:valueLength(../address, 'bits') }"/>
-					<xs:element name="address" dfdl:lengthKind="explicit"
-						dfdl:length="{ ../len }" dfdl:lengthUnits="bits">
-						<xs:complexType>
-							<xs:sequence dfdl:sequenceKind="ordered">
-								<xs:element name="houseNumber" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 6 }" />
-								<xs:element name="street" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed"/>
-								<xs:element name="city" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed" />
-								<xs:element name="state" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 2 }" />
-							</xs:sequence>
-						</xs:complexType>
-					</xs:element>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
+          <xs:element name="address" dfdl:lengthKind="explicit"
+            dfdl:length="{ ../len }" dfdl:lengthUnits="bits">
+            <xs:complexType>
+              <xs:sequence dfdl:sequenceKind="ordered">
+                <xs:element name="houseNumber" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{ 6 }" />
+                <xs:element name="street" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed"/>
+                <xs:element name="city" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed" />
+                <xs:element name="state" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{ 2 }" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-		<xs:element name="fixed">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="address" dfdl:lengthKind="explicit"
-						dfdl:length="384" dfdl:lengthUnits="bits"> <!-- originally was dfdl:length="48" which is characters not bits -->
-						<xs:complexType>
-							<xs:sequence dfdl:sequenceKind="ordered">
-								<xs:element name="houseNumber" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 6 }" />
-								<xs:element name="street" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed"/>
-								<xs:element name="city" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed"/>
-								<xs:element name="state" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 2 }" />
-							</xs:sequence>
-						</xs:complexType>
-					</xs:element>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
+    <xs:element name="fixed">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="address" dfdl:lengthKind="explicit"
+            dfdl:length="384" dfdl:lengthUnits="bits"> <!-- originally was dfdl:length="48" which is characters not bits -->
+            <xs:complexType>
+              <xs:sequence dfdl:sequenceKind="ordered">
+                <xs:element name="houseNumber" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{ 6 }" />
+                <xs:element name="street" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed"/>
+                <xs:element name="city" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed"/>
+                <xs:element name="state" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{ 2 }" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-	</tdml:defineSchema>
+  </tdml:defineSchema>
   
 <!--
      Test Name: ExplicitLengthBitsNotFixed
@@ -131,28 +131,28 @@
                 determined by an expression.
 -->
 
-	<tdml:parserTestCase name="ExplicitLengthBitsNotFixed"
-		root="notFixed" model="test_ExplicitLengthBits" description="lengthKind='explicit' - DFDL-12-039R"
-		roundTrip="twoPass">
-		<tdml:document>
-			<tdml:documentPart type="byte">00000180
-			</tdml:documentPart>
-			<tdml:documentPart type="text"><![CDATA[000118Ridgewood Circle    Rochester           NY]]></tdml:documentPart>
-		</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<ex:notFixed>
-					<len>384</len>
-					<address>
-						<houseNumber>000118</houseNumber>
-						<street>Ridgewood Circle</street>
-						<city>Rochester</city>
-						<state>NY</state>
-					</address>
-				</ex:notFixed>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
+  <tdml:parserTestCase name="ExplicitLengthBitsNotFixed"
+    root="notFixed" model="test_ExplicitLengthBits" description="lengthKind='explicit' - DFDL-12-039R"
+    roundTrip="twoPass">
+    <tdml:document>
+      <tdml:documentPart type="byte">00000180
+      </tdml:documentPart>
+      <tdml:documentPart type="text"><![CDATA[000118Ridgewood Circle    Rochester           NY]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:notFixed>
+          <len>384</len>
+          <address>
+            <houseNumber>000118</houseNumber>
+            <street>Ridgewood Circle</street>
+            <city>Rochester</city>
+            <state>NY</state>
+          </address>
+        </ex:notFixed>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
   
 <!--
      Test Name: ExplicitLengthBitsFixed
@@ -161,363 +161,363 @@
        Purpose: This test demonstrates using lengthUnits = bits for textual data when the length is fixed
 -->
 
-	<tdml:parserTestCase name="ExplicitLengthBitsFixed"
-		root="fixed" model="test_ExplicitLengthBits" description="lengthKind='explicit' - DFDL-12-039R"
-		roundTrip="twoPass">
-		<tdml:document>
-			<tdml:documentPart type="text"><![CDATA[000118Ridgewood Circle    Rochester           NY]]></tdml:documentPart>
-		</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<fixed>
-					<address>
-						<houseNumber>000118</houseNumber>
-						<street>Ridgewood Circle</street>
-						<city>Rochester</city>
-						<state>NY</state>
-					</address>
-				</fixed>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
+  <tdml:parserTestCase name="ExplicitLengthBitsFixed"
+    root="fixed" model="test_ExplicitLengthBits" description="lengthKind='explicit' - DFDL-12-039R"
+    roundTrip="twoPass">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[000118Ridgewood Circle    Rochester           NY]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <fixed>
+          <address>
+            <houseNumber>000118</houseNumber>
+            <street>Ridgewood Circle</street>
+            <city>Rochester</city>
+            <state>NY</state>
+          </address>
+        </fixed>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
-	<tdml:defineSchema name="test_ExplicitLengthChildLengthLessParent">
+  <tdml:defineSchema name="test_ExplicitLengthChildLengthLessParent">
     <dfdl:defineFormat name="trimmed">
       <dfdl:format ref="ex:GeneralFormat" textTrimKind="padChar"
                       textStringPadCharacter="%SP;" textStringJustification="center" 
                       truncateSpecifiedLengthString="no"/>
     </dfdl:defineFormat>
-		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
 
-		<xs:element name="fixed1">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="elem" dfdl:lengthKind="explicit"
-						dfdl:length="10" dfdl:lengthUnits="characters" maxOccurs="3"
-						minOccurs="3" dfdl:occursCountKind="fixed">
-						<xs:complexType>
-							<xs:sequence dfdl:sequenceKind="ordered">
-								<xs:element name="A" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 1 }" />
-								<xs:element name="B" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
-								<xs:element name="C" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
-								<xs:element name="D" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 2 }" />
-							</xs:sequence>
-						</xs:complexType>
-					</xs:element>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
+    <xs:element name="fixed1">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="elem" dfdl:lengthKind="explicit"
+            dfdl:length="10" dfdl:lengthUnits="characters" maxOccurs="3"
+            minOccurs="3" dfdl:occursCountKind="fixed">
+            <xs:complexType>
+              <xs:sequence dfdl:sequenceKind="ordered">
+                <xs:element name="A" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{ 1 }" />
+                <xs:element name="B" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
+                <xs:element name="C" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
+                <xs:element name="D" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{ 2 }" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-		<xs:element name="fixed2" dfdl:lengthKind="implicit"
-			dfdl:representation="binary">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="elem" dfdl:lengthKind="explicit"
-						dfdl:length="72" dfdl:lengthUnits="bits" maxOccurs="3" minOccurs="3"
-						dfdl:occursCountKind="fixed" dfdl:representation="binary">
-						<xs:complexType>
-							<xs:sequence dfdl:sequenceKind="ordered">
-								<xs:element name="A" type="xs:unsignedInt"
-									dfdl:lengthUnits="bits" dfdl:lengthKind="explicit" dfdl:length="32"
-									dfdl:representation="binary" />
-								<xs:element name="B" type="xs:unsignedInt"
-									dfdl:lengthUnits="bits" dfdl:lengthKind="explicit" dfdl:length="32"
-									dfdl:representation="binary" />
-							</xs:sequence>
-						</xs:complexType>
-					</xs:element>
-				</xs:sequence>
-			</xs:complexType>
+    <xs:element name="fixed2" dfdl:lengthKind="implicit"
+      dfdl:representation="binary">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="elem" dfdl:lengthKind="explicit"
+            dfdl:length="72" dfdl:lengthUnits="bits" maxOccurs="3" minOccurs="3"
+            dfdl:occursCountKind="fixed" dfdl:representation="binary">
+            <xs:complexType>
+              <xs:sequence dfdl:sequenceKind="ordered">
+                <xs:element name="A" type="xs:unsignedInt"
+                  dfdl:lengthUnits="bits" dfdl:lengthKind="explicit" dfdl:length="32"
+                  dfdl:representation="binary" />
+                <xs:element name="B" type="xs:unsignedInt"
+                  dfdl:lengthUnits="bits" dfdl:lengthKind="explicit" dfdl:length="32"
+                  dfdl:representation="binary" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
     </xs:element>
 
     <xs:element name="fixed3">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="e3" dfdl:lengthKind="explicit"
-						dfdl:length="8" dfdl:lengthUnits="characters" maxOccurs="3"
-						minOccurs="3" dfdl:occursCountKind="fixed">
-						<xs:complexType>
-							<xs:sequence dfdl:sequenceKind="ordered">
-								<xs:element name="A" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 1 }" />
-								<xs:element name="B" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
-								<xs:element name="C" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
-								<xs:element name="D" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 2 }" />
-							</xs:sequence>
-						</xs:complexType>
-					</xs:element>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e3" dfdl:lengthKind="explicit"
+            dfdl:length="8" dfdl:lengthUnits="characters" maxOccurs="3"
+            minOccurs="3" dfdl:occursCountKind="fixed">
+            <xs:complexType>
+              <xs:sequence dfdl:sequenceKind="ordered">
+                <xs:element name="A" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{ 1 }" />
+                <xs:element name="B" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
+                <xs:element name="C" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
+                <xs:element name="D" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{ 2 }" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-	</tdml:defineSchema>
+  </tdml:defineSchema>
 
-	<tdml:parserTestCase name="test_ExplicitLengthChildLengthLessParent_Chars"
-		root="fixed1" model="test_ExplicitLengthChildLengthLessParent"
-		description="lengthKind='explicit' - DFDL-12-039R"
-		roundTrip="twoPass">
-		<tdml:document>
-			<tdml:documentPart type="text"><![CDATA[123456789012345678901234567890]]></tdml:documentPart>
-		</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<fixed1>
-					<elem>
-						<A>1</A>
-						<B>234</B>
-						<C>567</C>
-						<D>89</D>
-					</elem>
-					<elem>
-						<A>1</A>
-						<B>234</B>
-						<C>567</C>
-						<D>89</D>
-					</elem>
-					<elem>
-						<A>1</A>
-						<B>234</B>
-						<C>567</C>
-						<D>89</D>
-					</elem>
-				</fixed1>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
-
-	<tdml:parserTestCase name="test_ExplicitLengthChildLengthLessParent_Bytes"
-		root="fixed2" model="test_ExplicitLengthChildLengthLessParent"
-		description="lengthKind='explicit' - DFDL-12-039R"
-		roundTrip="twoPass">
-		<tdml:document>
-			<tdml:documentPart type="byte">00 0F 00 0F 00 0F 00 0F
-			</tdml:documentPart>
-			<tdml:documentPart type="byte">00 0F 00 0F 00 0F 00 0F
-			</tdml:documentPart>
-			<tdml:documentPart type="byte">00 0F 00 0F 00 0F 00 0F
-			</tdml:documentPart>
-			<tdml:documentPart type="byte">00 0F 00
-			</tdml:documentPart>
-		</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<fixed2>
-					<elem>
-						<A>983055</A>
-						<B>983055</B>
-					</elem>
-					<elem>
-						<A>251662080</A>
-						<B>251662080</B>
-					</elem>
-					<elem>
-						<A>983055</A>
-						<B>983055</B>
-					</elem>
-				</fixed2>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
+  <tdml:parserTestCase name="test_ExplicitLengthChildLengthLessParent_Chars"
+    root="fixed1" model="test_ExplicitLengthChildLengthLessParent"
+    description="lengthKind='explicit' - DFDL-12-039R"
+    roundTrip="twoPass">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[123456789012345678901234567890]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <fixed1>
+          <elem>
+            <A>1</A>
+            <B>234</B>
+            <C>567</C>
+            <D>89</D>
+          </elem>
+          <elem>
+            <A>1</A>
+            <B>234</B>
+            <C>567</C>
+            <D>89</D>
+          </elem>
+          <elem>
+            <A>1</A>
+            <B>234</B>
+            <C>567</C>
+            <D>89</D>
+          </elem>
+        </fixed1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
-	<tdml:parserTestCase name="test_ExplicitLengthChildLengthMoreParent_Chars"
-		root="fixed3" model="test_ExplicitLengthChildLengthLessParent"
-		description="lengthKind='explicit' - DFDL-12-039R">
-		<tdml:document>
-			<tdml:documentPart type="text"><![CDATA[123456789012345678901234567890]]></tdml:documentPart>
-		</tdml:document>
+  <tdml:parserTestCase name="test_ExplicitLengthChildLengthLessParent_Bytes"
+    root="fixed2" model="test_ExplicitLengthChildLengthLessParent"
+    description="lengthKind='explicit' - DFDL-12-039R"
+    roundTrip="twoPass">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 0F 00 0F 00 0F 00 0F
+      </tdml:documentPart>
+      <tdml:documentPart type="byte">00 0F 00 0F 00 0F 00 0F
+      </tdml:documentPart>
+      <tdml:documentPart type="byte">00 0F 00 0F 00 0F 00 0F
+      </tdml:documentPart>
+      <tdml:documentPart type="byte">00 0F 00
+      </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <fixed2>
+          <elem>
+            <A>983055</A>
+            <B>983055</B>
+          </elem>
+          <elem>
+            <A>251662080</A>
+            <B>251662080</B>
+          </elem>
+          <elem>
+            <A>983055</A>
+            <B>983055</B>
+          </elem>
+        </fixed2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="test_ExplicitLengthChildLengthMoreParent_Chars"
+    root="fixed3" model="test_ExplicitLengthChildLengthLessParent"
+    description="lengthKind='explicit' - DFDL-12-039R">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[123456789012345678901234567890]]></tdml:documentPart>
+    </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
       <tdml:error>Insufficient bits</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
-	<tdml:defineSchema name="test_ExplicitLengthBytes">
+  <tdml:defineSchema name="test_ExplicitLengthBytes">
     <dfdl:defineFormat name="trimmed">
       <dfdl:format ref="ex:GeneralFormat" textTrimKind="padChar"
                       textStringPadCharacter="%SP;" textStringJustification="center" 
                       truncateSpecifiedLengthString="no" textPadKind="padChar"/>
     </dfdl:defineFormat>
-		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
 
-		<xs:element name="notFixed">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="len" type="xs:int"
-						dfdl:representation="binary" dfdl:lengthKind="implicit"
+    <xs:element name="notFixed">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="len" type="xs:int"
+            dfdl:representation="binary" dfdl:lengthKind="implicit"
                         dfdl:outputValueCalc="{ dfdl:valueLength(../ex:address, 'bytes') }" />
-					<xs:element name="address" dfdl:lengthKind="explicit"
-						dfdl:length="{ ../ex:len }" dfdl:lengthUnits="bytes">
-						<xs:complexType>
-							<xs:sequence dfdl:sequenceKind="ordered">
-								<xs:element name="houseNumber" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 6 }" />
-								<xs:element name="street" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed"/>
-								<xs:element name="city" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed"/>
-								<xs:element name="state" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 2 }" />
-							</xs:sequence>
-						</xs:complexType>
-					</xs:element>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
+          <xs:element name="address" dfdl:lengthKind="explicit"
+            dfdl:length="{ ../ex:len }" dfdl:lengthUnits="bytes">
+            <xs:complexType>
+              <xs:sequence dfdl:sequenceKind="ordered">
+                <xs:element name="houseNumber" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{ 6 }" />
+                <xs:element name="street" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed"/>
+                <xs:element name="city" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed"/>
+                <xs:element name="state" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{ 2 }" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-		<xs:element name="fixed">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="address" dfdl:lengthKind="explicit"
-						dfdl:length="48" dfdl:lengthUnits="bytes">
-						<xs:complexType>
-							<xs:sequence dfdl:sequenceKind="ordered">
-								<xs:element name="houseNumber" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 6 }" />
-								<xs:element name="street" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed"/>
-								<xs:element name="city" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed"/>
-								<xs:element name="state" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 2 }" />
-							</xs:sequence>
-						</xs:complexType>
-					</xs:element>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
+    <xs:element name="fixed">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="address" dfdl:lengthKind="explicit"
+            dfdl:length="48" dfdl:lengthUnits="bytes">
+            <xs:complexType>
+              <xs:sequence dfdl:sequenceKind="ordered">
+                <xs:element name="houseNumber" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{ 6 }" />
+                <xs:element name="street" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed"/>
+                <xs:element name="city" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed"/>
+                <xs:element name="state" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{ 2 }" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-		<xs:element name="fixed_50">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="address" dfdl:lengthKind="explicit"
-						dfdl:length="50" dfdl:lengthUnits="bytes" dfdl:occursCountKind="implicit"
-						maxOccurs="unbounded">
-						<xs:complexType>
-							<xs:sequence dfdl:sequenceKind="ordered">
-								<xs:element name="houseNumber" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 6 }" />
-								<xs:element name="street" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed"/>
-								<xs:element name="city" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed"/>
-								<xs:element name="state" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 2 }" />
-							</xs:sequence>
-						</xs:complexType>
-					</xs:element>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
+    <xs:element name="fixed_50">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="address" dfdl:lengthKind="explicit"
+            dfdl:length="50" dfdl:lengthUnits="bytes" dfdl:occursCountKind="implicit"
+            maxOccurs="unbounded">
+            <xs:complexType>
+              <xs:sequence dfdl:sequenceKind="ordered">
+                <xs:element name="houseNumber" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{ 6 }" />
+                <xs:element name="street" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed"/>
+                <xs:element name="city" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed"/>
+                <xs:element name="state" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{ 2 }" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-		<xs:element name="broken">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="address" dfdl:lengthKind="explicit"
-						dfdl:lengthUnits="bytes">
-						<xs:complexType>
-							<xs:sequence dfdl:sequenceKind="ordered">
-								<xs:element name="houseNumber" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 6 }" />
-								<xs:element name="street" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed"/>
-								<xs:element name="city" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed"/>
-								<xs:element name="state" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 2 }" />
-							</xs:sequence>
-						</xs:complexType>
-					</xs:element>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
+    <xs:element name="broken">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="address" dfdl:lengthKind="explicit"
+            dfdl:lengthUnits="bytes">
+            <xs:complexType>
+              <xs:sequence dfdl:sequenceKind="ordered">
+                <xs:element name="houseNumber" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{ 6 }" />
+                <xs:element name="street" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed"/>
+                <xs:element name="city" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed"/>
+                <xs:element name="state" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{ 2 }" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-		<xs:element name="int" type="xs:int" dfdl:lengthKind="explicit"
-			dfdl:length="{ 3 }" />
-		<xs:element name="string" type="xs:string" dfdl:lengthKind="explicit"
-			dfdl:length="{ 3 }" />
+    <xs:element name="int" type="xs:int" dfdl:lengthKind="explicit"
+      dfdl:length="{ 3 }" />
+    <xs:element name="string" type="xs:string" dfdl:lengthKind="explicit"
+      dfdl:length="{ 3 }" />
 
-		<xs:element name="choiceRef">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="len" type="xs:int"
-						dfdl:representation="binary" dfdl:lengthKind="implicit" 
+    <xs:element name="choiceRef">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="len" type="xs:int"
+            dfdl:representation="binary" dfdl:lengthKind="implicit" 
                         dfdl:outputValueCalc="{ dfdl:valueLength(../ex:address, 'bytes') }"/>
-					<xs:element name="address" dfdl:lengthKind="explicit"
-						dfdl:length="{ ../ex:len }" dfdl:lengthUnits="bytes">
-						<xs:complexType>
-							<xs:sequence dfdl:sequenceKind="ordered">
-								<xs:element name="houseNumber" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 6 }" />
-								<xs:element name="street" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed" />
-								<xs:element name="city" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed" />
-								<xs:element name="state" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 2 }" />
-								<xs:choice>
-									<xs:element ref="ex:int" />
-									<xs:element ref="ex:string" />
-								</xs:choice>
-							</xs:sequence>
-						</xs:complexType>
-					</xs:element>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
+          <xs:element name="address" dfdl:lengthKind="explicit"
+            dfdl:length="{ ../ex:len }" dfdl:lengthUnits="bytes">
+            <xs:complexType>
+              <xs:sequence dfdl:sequenceKind="ordered">
+                <xs:element name="houseNumber" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{ 6 }" />
+                <xs:element name="street" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed" />
+                <xs:element name="city" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed" />
+                <xs:element name="state" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{ 2 }" />
+                <xs:choice>
+                  <xs:element ref="ex:int" />
+                  <xs:element ref="ex:string" />
+                </xs:choice>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-	</tdml:defineSchema>
+  </tdml:defineSchema>
 
-	<tdml:parserTestCase name="test_ExplicitLengthBytesNotFixed"
-		root="notFixed" model="test_ExplicitLengthBytes" description="lengthKind='explicit' - DFDL-12-039R"
-		roundTrip="twoPass">
-		<tdml:document>
-			<tdml:documentPart type="byte">00000030
-			</tdml:documentPart>
-			<tdml:documentPart type="text"><![CDATA[000118Ridgewood Circle    Rochester           NY]]></tdml:documentPart>
-		</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<notFixed>
-					<len>48</len>
-					<address>
-						<houseNumber>000118</houseNumber>
-						<street>Ridgewood Circle</street>
-						<city>Rochester</city>
-						<state>NY</state>
-					</address>
-				</notFixed>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
+  <tdml:parserTestCase name="test_ExplicitLengthBytesNotFixed"
+    root="notFixed" model="test_ExplicitLengthBytes" description="lengthKind='explicit' - DFDL-12-039R"
+    roundTrip="twoPass">
+    <tdml:document>
+      <tdml:documentPart type="byte">00000030
+      </tdml:documentPart>
+      <tdml:documentPart type="text"><![CDATA[000118Ridgewood Circle    Rochester           NY]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <notFixed>
+          <len>48</len>
+          <address>
+            <houseNumber>000118</houseNumber>
+            <street>Ridgewood Circle</street>
+            <city>Rochester</city>
+            <state>NY</state>
+          </address>
+        </notFixed>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
-	<tdml:parserTestCase name="test_ExplicitLengthBytesFixed"
-		root="fixed" model="test_ExplicitLengthBytes" description="lengthKind='explicit' - DFDL-12-039R"
-		roundTrip="twoPass">
-		<tdml:document>
-			<tdml:documentPart type="text"><![CDATA[000118Ridgewood Circle    Rochester           NY]]></tdml:documentPart>
-		</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<fixed>
-					<address>
-						<houseNumber>000118</houseNumber>
-						<street>Ridgewood Circle</street>
-						<city>Rochester</city>
-						<state>NY</state>
-					</address>
-				</fixed>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
+  <tdml:parserTestCase name="test_ExplicitLengthBytesFixed"
+    root="fixed" model="test_ExplicitLengthBytes" description="lengthKind='explicit' - DFDL-12-039R"
+    roundTrip="twoPass">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[000118Ridgewood Circle    Rochester           NY]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <fixed>
+          <address>
+            <houseNumber>000118</houseNumber>
+            <street>Ridgewood Circle</street>
+            <city>Rochester</city>
+            <state>NY</state>
+          </address>
+        </fixed>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
   
 <!--
      Test Name: ExplicitLengthBytesFixed50
@@ -554,140 +554,140 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-	<tdml:parserTestCase name="test_ExplicitLengthBytesBroken"
-		root="broken" model="test_ExplicitLengthBytes"
-		description="lengthKind='explicit' without dfdl:lenght being set - DFDL-12-039R">
-		<tdml:document>
-			<tdml:documentPart type="text"><![CDATA[000118Ridgewood Circle    Rochester           NY]]></tdml:documentPart>
-		</tdml:document>
-		<tdml:errors>
-			<tdml:error>Schema Definition Error: Property length is not defined</tdml:error>
-		</tdml:errors>
-	</tdml:parserTestCase>
+  <tdml:parserTestCase name="test_ExplicitLengthBytesBroken"
+    root="broken" model="test_ExplicitLengthBytes"
+    description="lengthKind='explicit' without dfdl:lenght being set - DFDL-12-039R">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[000118Ridgewood Circle    Rochester           NY]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error: Property length is not defined</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
 
-	<tdml:parserTestCase name="test_ExplicitLengthBytesChoiceRef"
-		root="choiceRef" model="test_ExplicitLengthBytes" description="lengthKind='explicit' - DFDL-12-039R"
-		roundTrip="twoPass">
-		<tdml:document>
-			<tdml:documentPart type="byte">00000033
-			</tdml:documentPart>
-			<tdml:documentPart type="text"><![CDATA[000118Ridgewood Circle    Rochester           NY123]]></tdml:documentPart>
-		</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<choiceRef>
-					<len>51</len>
-					<address>
-						<houseNumber>000118</houseNumber>
-						<street>Ridgewood Circle</street>
-						<city>Rochester</city>
-						<state>NY</state>
-						<int>123</int>
-					</address>
-				</choiceRef>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
+  <tdml:parserTestCase name="test_ExplicitLengthBytesChoiceRef"
+    root="choiceRef" model="test_ExplicitLengthBytes" description="lengthKind='explicit' - DFDL-12-039R"
+    roundTrip="twoPass">
+    <tdml:document>
+      <tdml:documentPart type="byte">00000033
+      </tdml:documentPart>
+      <tdml:documentPart type="text"><![CDATA[000118Ridgewood Circle    Rochester           NY123]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <choiceRef>
+          <len>51</len>
+          <address>
+            <houseNumber>000118</houseNumber>
+            <street>Ridgewood Circle</street>
+            <city>Rochester</city>
+            <state>NY</state>
+            <int>123</int>
+          </address>
+        </choiceRef>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
 
     <!-- This is a nasty negative test. It omits a 4-byte binary int length prefix field. So the
      first 4 chars of the string will be used, 0x30303031 as the length. This is huge.  -->
-	<tdml:parserTestCase name="test_ExplicitLengthBytesNotGiven"
-		root="choiceRef" model="test_ExplicitLengthBytes" description="lengthKind='explicit' - DFDL-12-039R">
-		<tdml:document>
-			<tdml:documentPart type="text"><![CDATA[000118Ridgewood Circle    Rochester           NY123]]></tdml:documentPart>
-		</tdml:document>
-		<tdml:errors>
-            <tdml:error>6467715464</tdml:error>
-            <tdml:error>insufficient</tdml:error>
-            <tdml:error>parse error</tdml:error>
-        </tdml:errors>
+  <tdml:parserTestCase name="test_ExplicitLengthBytesNotGiven"
+    root="choiceRef" model="test_ExplicitLengthBytes" description="lengthKind='explicit' - DFDL-12-039R">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[000118Ridgewood Circle    Rochester           NY123]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>6467715096</tdml:error>
+      <tdml:error>insufficient</tdml:error>
+      <tdml:error>parse error</tdml:error>
+    </tdml:errors>
     </tdml:parserTestCase>
         
-	<tdml:defineSchema name="test_ExplicitLengthChars">
+  <tdml:defineSchema name="test_ExplicitLengthChars">
     <dfdl:defineFormat name="trimmed">
       <dfdl:format ref="ex:GeneralFormat" textTrimKind="padChar"
                       textStringPadCharacter="%SP;" textStringJustification="center" 
                       truncateSpecifiedLengthString="no" textPadKind="padChar"/>
     </dfdl:defineFormat>
-		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
 
-		<xs:element name="notFixed">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="len" type="xs:int"
-						dfdl:representation="binary" dfdl:lengthKind="implicit" 
+    <xs:element name="notFixed">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="len" type="xs:int"
+            dfdl:representation="binary" dfdl:lengthKind="implicit" 
                         dfdl:outputValueCalc="{ dfdl:valueLength(../ex:address, 'bytes') }"/>
-					<xs:element name="address" dfdl:lengthKind="explicit"
-						dfdl:length="{ ../ex:len }" dfdl:lengthUnits="characters">
-						<xs:complexType>
-							<xs:sequence dfdl:sequenceKind="ordered">
-								<xs:element name="houseNumber" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 6 }" />
-								<xs:element name="street" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed" />
-								<xs:element name="city" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed" />
-								<xs:element name="state" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 2 }" />
-							</xs:sequence>
-						</xs:complexType>
-					</xs:element>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-
-		<xs:element name="fixed">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="address" dfdl:lengthKind="explicit"
-						dfdl:length="48" dfdl:lengthUnits="characters">
-						<xs:complexType>
-							<xs:sequence dfdl:sequenceKind="ordered">
-								<xs:element name="houseNumber" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 6 }" />
-								<xs:element name="street" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed" />
-								<xs:element name="city" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed" />
-								<xs:element name="state" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 2 }" />
-							</xs:sequence>
-						</xs:complexType>
-					</xs:element>
-				</xs:sequence>
-			</xs:complexType>
+          <xs:element name="address" dfdl:lengthKind="explicit"
+            dfdl:length="{ ../ex:len }" dfdl:lengthUnits="characters">
+            <xs:complexType>
+              <xs:sequence dfdl:sequenceKind="ordered">
+                <xs:element name="houseNumber" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{ 6 }" />
+                <xs:element name="street" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed" />
+                <xs:element name="city" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed" />
+                <xs:element name="state" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{ 2 }" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
     </xs:element>
 
-		<xs:element name="runtimeSDE">
-			<xs:complexType>
-				<xs:sequence>
+    <xs:element name="fixed">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="address" dfdl:lengthKind="explicit"
+            dfdl:length="48" dfdl:lengthUnits="characters">
+            <xs:complexType>
+              <xs:sequence dfdl:sequenceKind="ordered">
+                <xs:element name="houseNumber" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{ 6 }" />
+                <xs:element name="street" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed" />
+                <xs:element name="city" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed" />
+                <xs:element name="state" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{ 2 }" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="runtimeSDE">
+      <xs:complexType>
+        <xs:sequence>
           <xs:element name="len" type="xs:int"
             dfdl:lengthKind="explicit" dfdl:length="{ 3 }" 
             dfdl:outputValueCalc="{ dfdl:valueLength(../ex:address, 'bytes') }"/>
-					<xs:element name="address" dfdl:lengthKind="explicit"
-						dfdl:length="{ ../ex:len }" dfdl:lengthUnits="bytes">
-						<xs:complexType>
-							<xs:sequence dfdl:sequenceKind="ordered">
-								<xs:element name="houseNumber" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 6 }" />
-								<xs:element name="street" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed" />
-								<xs:element name="city" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed" />
-								<xs:element name="state" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 2 }" />
-							</xs:sequence>
-						</xs:complexType>
-					</xs:element>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
+          <xs:element name="address" dfdl:lengthKind="explicit"
+            dfdl:length="{ ../ex:len }" dfdl:lengthUnits="bytes">
+            <xs:complexType>
+              <xs:sequence dfdl:sequenceKind="ordered">
+                <xs:element name="houseNumber" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{ 6 }" />
+                <xs:element name="street" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed" />
+                <xs:element name="city" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed" />
+                <xs:element name="state" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{ 2 }" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
 
 
-	</tdml:defineSchema>
+  </tdml:defineSchema>
   
 <!--
      Test Name: ExplicitLengthCharsNotFixed
@@ -697,28 +697,28 @@
                 by an expression.
 -->
 
-	<tdml:parserTestCase name="ExplicitLengthCharsNotFixed"
-		root="notFixed" model="test_ExplicitLengthChars" description="lengthKind='explicit' - DFDL-12-039R"
-		roundTrip="twoPass">
-		<tdml:document>
-			<tdml:documentPart type="byte">00000030
-			</tdml:documentPart>
-			<tdml:documentPart type="text"><![CDATA[000118Ridgewood Circle    Rochester           NY]]></tdml:documentPart>
-		</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<notFixed>
-					<len>48</len>
-					<address>
-						<houseNumber>000118</houseNumber>
-						<street>Ridgewood Circle</street>
-						<city>Rochester</city>
-						<state>NY</state>
-					</address>
-				</notFixed>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
+  <tdml:parserTestCase name="ExplicitLengthCharsNotFixed"
+    root="notFixed" model="test_ExplicitLengthChars" description="lengthKind='explicit' - DFDL-12-039R"
+    roundTrip="twoPass">
+    <tdml:document>
+      <tdml:documentPart type="byte">00000030
+      </tdml:documentPart>
+      <tdml:documentPart type="text"><![CDATA[000118Ridgewood Circle    Rochester           NY]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <notFixed>
+          <len>48</len>
+          <address>
+            <houseNumber>000118</houseNumber>
+            <street>Ridgewood Circle</street>
+            <city>Rochester</city>
+            <state>NY</state>
+          </address>
+        </notFixed>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
   
 <!--
      Test Name: ExplicitLengthCharsFixed
@@ -727,46 +727,46 @@
        Purpose: This test demonstrates using lengthUnits = chars for textual data when the length is fixed
 -->
 
-	<tdml:parserTestCase name="ExplicitLengthCharsFixed"
-		root="fixed" model="test_ExplicitLengthChars" description="lengthKind='explicit' - DFDL-12-039R"
-		roundTrip="twoPass">
-		<tdml:document>
-			<tdml:documentPart type="text"><![CDATA[000118Ridgewood Circle    Rochester           NY]]></tdml:documentPart>
-		</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<fixed>
-					<address>
-						<houseNumber>000118</houseNumber>
-						<street>Ridgewood Circle</street>
-						<city>Rochester</city>
-						<state>NY</state>
-					</address>
-				</fixed>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
+  <tdml:parserTestCase name="ExplicitLengthCharsFixed"
+    root="fixed" model="test_ExplicitLengthChars" description="lengthKind='explicit' - DFDL-12-039R"
+    roundTrip="twoPass">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[000118Ridgewood Circle    Rochester           NY]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <fixed>
+          <address>
+            <houseNumber>000118</houseNumber>
+            <street>Ridgewood Circle</street>
+            <city>Rochester</city>
+            <state>NY</state>
+          </address>
+        </fixed>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
-	<tdml:parserTestCase name="test_lengthRuntimeSDENaN"
-		root="runtimeSDE" model="test_ExplicitLengthChars" description="lengthKind='explicit' - DFDL-12-039R">
-		<tdml:document>
-			<tdml:documentPart type="text"><![CDATA[NaN000118Ridgewood Circle    Rochester           NY]]></tdml:documentPart>
-		</tdml:document>
-		<tdml:errors>
-			<tdml:error>placeholder</tdml:error>
-		</tdml:errors>
+  <tdml:parserTestCase name="test_lengthRuntimeSDENaN"
+    root="runtimeSDE" model="test_ExplicitLengthChars" description="lengthKind='explicit' - DFDL-12-039R">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[NaN000118Ridgewood Circle    Rochester           NY]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>placeholder</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
-	<tdml:parserTestCase name="test_lengthRuntimeSDENegative"
-		root="runtimeSDE" model="test_ExplicitLengthChars" description="lengthKind='explicit' - DFDL-12-039R">
-		<tdml:document>
-			<tdml:documentPart type="text"><![CDATA[-10000118Ridgewood Circle    Rochester           NY]]></tdml:documentPart>
-		</tdml:document>
-		<tdml:errors>
-			<tdml:error>Runtime Schema Definition Error</tdml:error>
-			<tdml:error>dfdl:length</tdml:error>
-			<tdml:error>-10</tdml:error>
-		</tdml:errors>
+  <tdml:parserTestCase name="test_lengthRuntimeSDENegative"
+    root="runtimeSDE" model="test_ExplicitLengthChars" description="lengthKind='explicit' - DFDL-12-039R">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[-10000118Ridgewood Circle    Rochester           NY]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Runtime Schema Definition Error</tdml:error>
+      <tdml:error>dfdl:length</tdml:error>
+      <tdml:error>-10</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="explicitLenBytes">
@@ -786,16 +786,16 @@
        Purpose: This test demonstrates using lengthUnits = bytes for binary data when length is fixed
 -->
 
-	<tdml:parserTestCase name="explicitBytes_string_01"
-		root="stringy" model="explicitLenBytes" description="lengthKind='explicit' - DFDL-12-039R">
-		<tdml:document>
-			<tdml:documentPart type="byte">31 32 33 34 35 36</tdml:documentPart>
-		</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
+  <tdml:parserTestCase name="explicitBytes_string_01"
+    root="stringy" model="explicitLenBytes" description="lengthKind='explicit' - DFDL-12-039R">
+    <tdml:document>
+      <tdml:documentPart type="byte">31 32 33 34 35 36</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
         <stringy>123456</stringy>
       </tdml:dfdlInfoset>
-		</tdml:infoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
   
 <!--
@@ -805,16 +805,16 @@
        Purpose: This test demonstrates using lengthUnits = bytes for binary data when length is fixed
 -->
 
-	<tdml:parserTestCase name="explicitBytes_int_01"
-		root="inty" model="explicitLenBytes" description="lengthKind='explicit' - DFDL-12-039R">
-		<tdml:document>
-			<tdml:documentPart type="byte">00 00 00 00 00 08</tdml:documentPart>
-		</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
+  <tdml:parserTestCase name="explicitBytes_int_01"
+    root="inty" model="explicitLenBytes" description="lengthKind='explicit' - DFDL-12-039R">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 00 00 00 08</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
         <inty>8</inty>
       </tdml:dfdlInfoset>
-		</tdml:infoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
   
 <!--
@@ -824,16 +824,16 @@
        Purpose: This test demonstrates using lengthUnits = bytes for binary data when length is fixed
 -->
 
-	<tdml:parserTestCase name="explicitBytes_int_02"
-		root="inty" model="explicitLenBytes" description="lengthKind='explicit' - DFDL-12-039R">
-		<tdml:document>
-			<tdml:documentPart type="byte">00 00 00 00 00 0a</tdml:documentPart>
-		</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
+  <tdml:parserTestCase name="explicitBytes_int_02"
+    root="inty" model="explicitLenBytes" description="lengthKind='explicit' - DFDL-12-039R">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 00 00 00 0a</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
         <inty>10</inty>
       </tdml:dfdlInfoset>
-		</tdml:infoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="s1">

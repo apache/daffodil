@@ -25,6 +25,7 @@ import passera.unsigned.ULong
 import org.apache.daffodil.equality._
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.processors.ElementRuntimeData
+import org.apache.daffodil.processors.ChoiceRuntimeData
 import org.apache.daffodil.processors.RuntimeData
 import org.apache.daffodil.processors.Evaluatable
 import org.apache.daffodil.processors.Success
@@ -59,16 +60,21 @@ sealed abstract class SpecifiedLengthParserBase(
     val nBits = maybeNBits.get
     val dis = pState.dataInputStream
 
-    if (!dis.isDefinedForLength(nBits)) {
+    val shouldCheckDefinedForLength = erd match {
+      case erd : ElementRuntimeData => !erd.isComplexType
+      case _ : ChoiceRuntimeData => false
+      case _ => true
+    }
+
+    if (shouldCheckDefinedForLength && !dis.isDefinedForLength(nBits)) {
       PENotEnoughBits(pState, nBits, dis.remainingBits)
       return
     }
 
     val startingBitPos0b = dis.bitPos0b
-    val isLimitOk: Boolean = dis.withBitLengthLimit(nBits) {
+    dis.withBitLengthLimit(nBits) {
       eParser.parse1(pState)
     }
-    Assert.invariant(isLimitOk)
 
     // at this point the recursive parse of the children is finished
     // so if we're still successful we need to advance the position
@@ -86,10 +92,12 @@ sealed abstract class SpecifiedLengthParserBase(
     Assert.invariant(bitsToSkip >= 0) // if this is < 0, then the parsing of children went past the limit, which it isn't supposed to.
     if (bitsToSkip > 0) {
       // skip left over bits
-      dis.skip(bitsToSkip, pState)
+      val skipSuccess = dis.skip(bitsToSkip, pState)
+      if (!skipSuccess) {
+        PENotEnoughBits(pState, bitsToSkip, dis.remainingBits)
+      }
     }
   }
-
 }
 
 class SpecifiedLengthPatternParser(
