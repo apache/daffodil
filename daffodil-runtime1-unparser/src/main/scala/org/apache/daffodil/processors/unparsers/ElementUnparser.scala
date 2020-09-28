@@ -72,7 +72,7 @@ sealed trait RepMoveMixin {
  * whether to place separators, and there should not be any separator
  * corresponding to an IVC element.
  */
-class ElementUnparserNoRep(
+class ElementUnparserInputValueCalc(
   erd: ElementRuntimeData,
   setVarUnparsers: Array[Unparser])
   extends ElementUnparserBase(
