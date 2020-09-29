@@ -41,13 +41,16 @@ import org.apache.daffodil.sapi.infoset.ScalaXMLInfosetOutputter
 import org.apache.daffodil.sapi.infoset.ScalaXMLInfosetInputter
 import org.apache.daffodil.sapi.io.InputSourceDataInputStream
 import org.apache.daffodil.exceptions.Abort
-import org.apache.daffodil.infoset.DaffodilOutputContentHandler
-import org.apache.daffodil.processors.{ ParseResult => SParseResult }
+import org.apache.daffodil.sapi.DaffodilParseXMLReader
+import org.apache.daffodil.sapi.DaffodilUnhandledSAXException
+import org.apache.daffodil.sapi.DaffodilUnparseErrorSAXException
 import org.apache.daffodil.sapi.SAXErrorHandlerForSAPITest
 import org.apache.daffodil.sapi.infoset.XMLTextInfosetOutputter
-import org.apache.daffodil.xml.XMLUtils
 
 class TestScalaAPI {
+
+  lazy val SAX_NAMESPACES_FEATURE = "http://xml.org/sax/features/namespaces"
+  lazy val SAX_NAMESPACE_PREFIXES_FEATURE = "http://xml.org/sax/features/namespace-prefixes"
 
   private def getResource(resPath: String): File = {
     val f = try {
@@ -979,18 +982,15 @@ class TestScalaAPI {
 
   @Test
   def testScalaAPI20(): Unit = {
-    /** Test SAX parsing */
-    val output = new ByteArrayOutputStream
-
+    // Test SAX parsing/unparsing
     val c = Daffodil.compiler()
 
     val schemaFile = getResource("/test/sapi/mySchema1.dfdl.xsd")
     val pf = c.compileFile(schemaFile)
     val dp1 = pf.onPath("/")
     val dp = reserializeDataProcessor(dp1)
-    val xri = dp.newXMLReaderInstance
+    val parseXMLReader = dp.newXMLReaderInstance()
 
-    // val file = getResource("/test/sapi/myDataBroken.dat")
     val file = getResource("/test/sapi/myData.dat")
     val fisDP = new java.io.FileInputStream(file)
     val fisSAX = new java.io.FileInputStream(file)
@@ -1001,26 +1001,49 @@ class TestScalaAPI {
     dp.parse(inputDP, outputter)
     val infosetDPString = bosDP.toString()
 
-    val bos = new ByteArrayOutputStream()
-    val contentHandler = new DaffodilOutputContentHandler(bos, pretty = true)
+    val outputContentHandler = new org.jdom2.input.sax.SAXHandler()
     val errorHandler = new SAXErrorHandlerForSAPITest()
-    xri.setContentHandler(contentHandler)
-    xri.setErrorHandler(errorHandler)
-    xri.setProperty(XMLUtils.DAFFODIL_SAX_URN_BLOBDIRECTORY,
+    parseXMLReader.setContentHandler(outputContentHandler)
+    parseXMLReader.setErrorHandler(errorHandler)
+    parseXMLReader.setProperty(DaffodilParseXMLReader.DAFFODIL_SAX_URN_BLOBDIRECTORY,
       Paths.get(System.getProperty("java.io.tmpdir")))
-    xri.setProperty(XMLUtils.DAFFODIL_SAX_URN_BLOBPREFIX, "daffodil-sapi-")
-    xri.setProperty(XMLUtils.DAFFODIL_SAX_URN_BLOBSUFFIX, ".sax.blob")
-    xri.parse(inputSAX)
-    val resSAX = xri.getProperty(XMLUtils.DAFFODIL_SAX_URN_PARSERESULT)
-      .asInstanceOf[SParseResult]
+    parseXMLReader.setProperty(DaffodilParseXMLReader.DAFFODIL_SAX_URN_BLOBPREFIX, "daffodil-sapi-")
+    parseXMLReader.setProperty(DaffodilParseXMLReader.DAFFODIL_SAX_URN_BLOBSUFFIX, ".sax.blob")
+    parseXMLReader.parse(inputSAX)
+    val resSAX = parseXMLReader.getProperty(DaffodilParseXMLReader.DAFFODIL_SAX_URN_PARSERESULT).asInstanceOf[ParseResult]
     val err = errorHandler.isError
     val diags = errorHandler.getDiagnostics
-    val infosetSAXString = bos.toString
+    val infosetSAX = outputContentHandler.getDocument
+    val pretty = org.jdom2.output.Format.getPrettyFormat.setLineSeparator(System.getProperty("line.separator"))
+    val infosetSAXString = new org.jdom2.output.XMLOutputter(pretty).outputString(infosetSAX)
 
     assertFalse(err)
-    assertTrue(resSAX.resultState.currentLocation.isAtEnd)
+    assertTrue(resSAX.location().isAtEnd())
     assertTrue(diags.isEmpty)
     assertEquals(infosetDPString, infosetSAXString)
+
+    // test unparse
+    val unparseBos = new java.io.ByteArrayOutputStream()
+    val wbc = java.nio.channels.Channels.newChannel(unparseBos)
+
+    // prep for SAX unparse
+    val unparseContentHandler = dp.newContentHandlerInstance(wbc)
+    val unparseXMLReader = javax.xml.parsers.SAXParserFactory.newInstance.newSAXParser.getXMLReader
+    unparseXMLReader.setContentHandler(unparseContentHandler)
+    unparseXMLReader.setErrorHandler(errorHandler)
+    unparseXMLReader.setFeature(SAX_NAMESPACES_FEATURE, true)
+    unparseXMLReader.setFeature(SAX_NAMESPACE_PREFIXES_FEATURE, true)
+    val is = new ByteArrayInputStream(infosetSAXString.getBytes)
+    // kickstart unparse
+    unparseXMLReader.parse(new org.xml.sax.InputSource(is))
+
+    val saxUr = unparseContentHandler.getUnparseResult
+    wbc.close()
+    
+    val saxErr = saxUr.isError()
+    assertFalse(saxErr)
+    assertTrue(saxUr.getDiagnostics.isEmpty)
+    assertEquals("42", unparseBos.toString())
   }
 
   @Test
@@ -1032,21 +1055,20 @@ class TestScalaAPI {
     val pf = c.compileFile(schemaFile)
     val dp1 = pf.onPath("/")
     val dp = reserializeDataProcessor(dp1)
-    val xri = dp.newXMLReaderInstance
+    val parseXMLReader = dp.newXMLReaderInstance()
 
     val file = getResource("/test/sapi/myDataBroken.dat")
     val fis = new java.io.FileInputStream(file)
     val input = new InputSourceDataInputStream(fis)
-    val bos = new ByteArrayOutputStream()
-    val contentHandler = new DaffodilOutputContentHandler(bos)
+    val contentHandler = new org.jdom2.input.sax.SAXHandler()
     val errorHandler = new SAXErrorHandlerForSAPITest()
-    xri.setContentHandler(contentHandler)
-    xri.setErrorHandler(errorHandler)
-    xri.setProperty(XMLUtils.DAFFODIL_SAX_URN_BLOBDIRECTORY,
+    parseXMLReader.setContentHandler(contentHandler)
+    parseXMLReader.setErrorHandler(errorHandler)
+    parseXMLReader.setProperty(DaffodilParseXMLReader.DAFFODIL_SAX_URN_BLOBDIRECTORY,
       Paths.get(System.getProperty("java.io.tmpdir")))
-    xri.setProperty(XMLUtils.DAFFODIL_SAX_URN_BLOBPREFIX, "daffodil-sapi-")
-    xri.setProperty(XMLUtils.DAFFODIL_SAX_URN_BLOBSUFFIX, ".sax.blob")
-    xri.parse(input)
+    parseXMLReader.setProperty(DaffodilParseXMLReader.DAFFODIL_SAX_URN_BLOBPREFIX, "daffodil-sapi-")
+    parseXMLReader.setProperty(DaffodilParseXMLReader.DAFFODIL_SAX_URN_BLOBSUFFIX, ".sax.blob")
+    parseXMLReader.parse(input)
 
     assertTrue(errorHandler.isError)
     val diags = errorHandler.getDiagnostics
@@ -1059,6 +1081,60 @@ class TestScalaAPI {
     assertEquals(1, locs.size)
     val loc = locs.head
     assertTrue(loc.toString().contains("mySchema1.dfdl.xsd")) // reports the element ref, not element decl.
+  }
+
+  @Test
+  def testScalaAPI22(): Unit = {
+    // Test SAX unparse with errors
+    val lw = new LogWriterForSAPITest()
+    val debugger = new DebuggerRunnerForSAPITest()
+
+    Daffodil.setLogWriter(lw)
+    Daffodil.setLoggingLevel(LogLevel.Debug)
+
+    val c = Daffodil.compiler()
+
+    val schemaFile = getResource("/test/sapi/mySchema1.dfdl.xsd")
+    val pf = c.compileFile(schemaFile)
+    val dp1 = pf.onPath("/")
+    val dp = reserializeDataProcessor(dp1)
+      .withDebugger(debugger)
+      .withDebugging(true)
+
+    val file = getResource("/test/sapi/myInfosetBroken.xml")
+    val xml = scala.xml.XML.loadFile(file)
+    val bos = new java.io.ByteArrayOutputStream()
+    val wbc = java.nio.channels.Channels.newChannel(bos)
+    // prep for SAX
+    val unparseContentHandler = dp.newContentHandlerInstance(wbc)
+    val errorHandler = new SAXErrorHandlerForSAPITest()
+    val unparseXMLReader = javax.xml.parsers.SAXParserFactory.newInstance.newSAXParser.getXMLReader
+    unparseXMLReader.setContentHandler(unparseContentHandler)
+    unparseXMLReader.setErrorHandler(errorHandler)
+    unparseXMLReader.setFeature(SAX_NAMESPACES_FEATURE, true)
+    unparseXMLReader.setFeature(SAX_NAMESPACE_PREFIXES_FEATURE, true)
+    val is = new ByteArrayInputStream(xml.toString().getBytes)
+    // kickstart unparse
+    try {
+      unparseXMLReader.parse(new org.xml.sax.InputSource(is))
+    } catch {
+      case _: DaffodilUnparseErrorSAXException => // do nothing; handled below
+      case _: DaffodilUnhandledSAXException => // do nothing; we don't expect this in this test
+    }
+
+    val res = unparseContentHandler.getUnparseResult
+    val err = res.isError()
+    assertTrue(err)
+
+    val diags = res.getDiagnostics
+    assertEquals(1, diags.size)
+    val d = diags.head
+    assertTrue(d.getMessage().contains("wrong"))
+    assertTrue(d.getMessage().contains("e2"))
+
+    // reset the global logging and debugger state
+    Daffodil.setLogWriter(new ConsoleLogWriter())
+    Daffodil.setLoggingLevel(LogLevel.Info)
   }
 
 }

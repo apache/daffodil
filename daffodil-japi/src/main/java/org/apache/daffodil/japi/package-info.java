@@ -22,9 +22,10 @@
  *
  * <h3>Overview</h3>
  *
- * The {@link org.apache.daffodil.japi.Daffodil} object is a factory object to create a {@link org.apache.daffodil.japi.Compiler}. The
- * {@link org.apache.daffodil.japi.Compiler} provides a method to compile a provided DFDL schema into a
- * {@link org.apache.daffodil.japi.ProcessorFactory}, which creates a {@link org.apache.daffodil.japi.DataProcessor}:
+ * The {@link org.apache.daffodil.japi.Daffodil} object is a factory object to create a
+ * {@link org.apache.daffodil.japi.Compiler}. The {@link org.apache.daffodil.japi.Compiler} provides
+ * a method to compile a provided DFDL schema into a {@link org.apache.daffodil.japi.ProcessorFactory},
+ * which creates a {@link org.apache.daffodil.japi.DataProcessor}:
  *
  * <pre>
  * {@code
@@ -33,49 +34,55 @@
  * DataProcessor dp = pf.onPath("/");
  * }</pre>
  *
- * The {@link org.apache.daffodil.japi.DataProcessor} provides the necessary functions to parse and unparse
- * data, returning a {@link org.apache.daffodil.japi.ParseResult} or {@link org.apache.daffodil.japi.UnparseResult}, respectively. These
- * contain information about the parse/unparse, such as whether or not the
- * processing succeeded with any diagnostic information.
+ * The {@link org.apache.daffodil.japi.DataProcessor} provides the necessary functions to parse and
+ * unparse data, returning a {@link org.apache.daffodil.japi.ParseResult} or
+ * {@link org.apache.daffodil.japi.UnparseResult}, respectively. These contain information about the
+ * parse/unparse, such as whether or not the processing succeeded with any diagnostic information.
  *
- * The {@link org.apache.daffodil.japi.DataProcessor} also provides a function to create a
- * {@link org.apache.daffodil.japi.DaffodilXMLReader} that can be used to perform parsing via the
- * SAX API.
+ * The {@link org.apache.daffodil.japi.DataProcessor} also provides two functions that can be used to
+ * perform parsing/unparsing via the SAX API. The first creates a
+ * {@link org.apache.daffodil.japi.DaffodilParseXMLReader} which is used for parsing, and the
+ * second creates a {@link org.apache.daffodil.japi.DaffodilUnparseContentHandler} which is used for
+ * unparsing.
  *
  * <pre>
  * {@code
- * DaffodilXMLReader xmlRdr = dp.newXMLReaderInstance();
+ * DaffodilParseXMLReader xmlReader = dp.newXMLReaderInstance();
+ * DaffodilUnparseContentHandler unparseContentHandler = dp.newContentHandlerInstance(output);
  * }</pre>
  *
- * The {@link org.apache.daffodil.japi.DaffodilXMLReader} has several methods that allow one to
+ * The {@link org.apache.daffodil.japi.DaffodilParseXMLReader} has several methods that allow one to
  * set properties and handlers (such as ContentHandlers or ErrorHandlers) for the reader. One can
  * use any contentHandler/errorHandler as long as they extend the
  * {@link org.xml.sax.ContentHandler} and {@link org.xml.sax.ErrorHandler} interfaces
- * respectively. One can also set properties for the {@link org.apache.daffodil.japi.DaffodilXMLReader}
- * using {@link org.apache.daffodil.japi.DaffodilXMLReader#setProperty(java.lang.String, java.lang.Object)}.
+ * respectively. One can also set properties for the {@link org.apache.daffodil.japi.DaffodilParseXMLReader}
+ * using {@link org.apache.daffodil.japi.DaffodilParseXMLReader#setProperty(java.lang.String,
+ * java.lang.Object)}.
  *
  * The following properties can be set as follows:
+ *
+ * <p><i>The constants below have literal values starting with
+ * "urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:sax:" and ending with "BlobDirectory",
+ * "BlobPrefix" and "BlobSuffix" respectively.</i></p>
+ *
  * <pre>
  * {@code
- * xmlRdr.setProperty(XMLUtils.DAFFODIL_SAX_URN_BLOBDIRECTORY(), "/tmp/");
- * xmlRdr.setProperty(XMLUtils.DAFFODIL_SAX_URN_BLOBPREFIX(), "daffodil-sax-");
- * xmlRdr.setProperty(XMLUtils.DAFFODIL_SAX_URN_BLOBSUFFIX(), ".bin");
+ * xmlReader.setProperty(DaffodilParseXMLReader.DAFFODIL_SAX_URN_BLOBDIRECTORY(),
+ *  Paths.get(System.getProperty("java.io.tmpdir"))); // value type: java.nio.file.Paths
+ * xmlReader.setProperty(DaffodilParseXMLReader.DAFFODIL_SAX_URN_BLOBPREFIX(), "daffodil-sax-"); // value type String
+ * xmlReader.setProperty(DaffodilParseXMLReader.DAFFODIL_SAX_URN_BLOBSUFFIX(), ".bin"); // value type String
  * }
  * </pre>
  *
- * The variables above start with "urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:sax:" and end
- * with BlobDirectory, BlobPrefix and BlobSuffix respectively.
- *
- * The properites can be retrieved using the same variables with
- * {@link org.apache.daffodil.japi.DaffodilXMLReader#getProperty(java.lang.String)}
+ * The properties can be retrieved using the same variables with
+ * {@link org.apache.daffodil.japi.DaffodilParseXMLReader#getProperty(java.lang.String)} and casting
+ * to the appropriate type as listed above.
  *
  * The following handlers can be set as follows:
  * <pre>
  * {@code
- * xmlRdr.setContentHandler(contentHandler);
- * xmlRdr.setErrorHandler(errorHandler);
- * xmlRdr.setDTDHandler(dtdHandler);
- * xmlRdr.setEntityResolver(entityResolver);
+ * xmlReader.setContentHandler(contentHandler);
+ * xmlReader.setErrorHandler(errorHandler);
  * }
  * </pre>
  *
@@ -84,25 +91,30 @@
  * {@code
  * org.xml.sax.ContentHandler
  * org.xml.sax.ErrorHandler
- * org.xml.sax.DTDHandler
- * org.xml.sax.EntityResolver
  * }
  * </pre>
  *
  * The {@link org.apache.daffodil.japi.ParseResult} can be found as a property within the
- * {@link org.apache.daffodil.japi.DaffodilXMLReader} using
- * {@link org.apache.daffodil.japi.DaffodilXMLReader#getProperty(java.lang.String)} together
- * with the following uri: "urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:sax:ParseResult" or
- * XMLUtils.DAFFODIL_SAX_URN_PARSERESULT().
+ * {@link org.apache.daffodil.japi.DaffodilParseXMLReader} using this uri:
+ * "urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:sax:ParseResult" or
+ * {@link org.apache.daffodil.japi.DaffodilParseXMLReader#DAFFODIL_SAX_URN_PARSERESULT()}.
+ *
+ * In order for a successful unparse to happen, the SAX API requires the
+ * unparse to be kicked off by a parse call to any {@link org.xml.sax.XMLReader} implementation that
+ * has the {@link org.apache.daffodil.japi.DaffodilUnparseContentHandler} registered as its content
+ * handler. To retrieve the {@link org.apache.daffodil.japi.UnparseResult}, one can use
+ * {@link org.apache.daffodil.japi.DaffodilUnparseContentHandler#getUnparseResult()} once the
+ * XMLReader.parse run is complete.
  *
  * <h4>Parse</h4>
  *
  * <h5>Dataprocessor Parse</h5>
  *
- * The {@link org.apache.daffodil.japi.DataProcessor#parse(org.apache.daffodil.japi.io.InputSourceDataInputStream, org.apache.daffodil.japi.infoset.InfosetOutputter)} method accepts input data to parse in the form
- * of a {@link org.apache.daffodil.japi.io.InputSourceDataInputStream} and an {@link org.apache.daffodil.japi.infoset.InfosetOutputter}
- * to determine the output representation of the infoset (e.g. Scala XML Nodes,
- * JDOM2 Documents, etc.):
+ * The {@link org.apache.daffodil.japi.DataProcessor#parse(org.apache.daffodil.japi.io.InputSourceDataInputStream,
+ * org.apache.daffodil.japi.infoset.InfosetOutputter)} method accepts input data to parse in the form
+ * of a {@link org.apache.daffodil.japi.io.InputSourceDataInputStream} and an
+ * {@link org.apache.daffodil.japi.infoset.InfosetOutputter} to determine the output representation
+ * of the infoset (e.g. Scala XML Nodes, JDOM2 Documents, etc.):
  *
  * <pre>
  * {@code
@@ -112,11 +124,13 @@
  * Document doc = jdomOutputter.getResult();
  * }</pre>
  *
- * The {@link org.apache.daffodil.japi.DataProcessor#parse(org.apache.daffodil.japi.io.InputSourceDataInputStream, org.apache.daffodil.japi.infoset.InfosetOutputter)} method is thread-safe and may be called multiple
+ * The {@link org.apache.daffodil.japi.DataProcessor#parse(org.apache.daffodil.japi.io.InputSourceDataInputStream,
+ * org.apache.daffodil.japi.infoset.InfosetOutputter)} method is thread-safe and may be called multiple
  * times without the need to create other data processors. However,
- * {@link org.apache.daffodil.japi.infoset.InfosetOutputter}'s are not thread safe, requiring a unique instance per
- * thread. An {@link org.apache.daffodil.japi.infoset.InfosetOutputter} should call {@link org.apache.daffodil.japi.infoset.InfosetOutputter#reset()} before
- * reuse (or a new one should be allocated). For example:
+ * {@link org.apache.daffodil.japi.infoset.InfosetOutputter}'s are not thread safe, requiring a
+ * unique instance per thread. An {@link org.apache.daffodil.japi.infoset.InfosetOutputter} should
+ * call {@link org.apache.daffodil.japi.infoset.InfosetOutputter#reset()} before reuse (or a new one
+ * should be allocated). For example:
  *
  * <pre>
  * {@code
@@ -129,7 +143,8 @@
  * }
  * }</pre>
  *
- * One can repeat calls to parse() using the same InputSourceDataInputStream to continue parsing where the previous parse ended. For example:
+ * One can repeat calls to parse() using the same InputSourceDataInputStream to continue parsing
+ * where the previous parse ended. For example:
  *
  * <pre>
  * {@code
@@ -145,41 +160,41 @@
  * }</pre>
  *
  * <h5>SAX Parse</h5>
- * The {@link org.apache.daffodil.japi.DaffodilXMLReader#parse(
+ * The {@link org.apache.daffodil.japi.DaffodilParseXMLReader#parse(
  * org.apache.daffodil.japi.io.InputSourceDataInputStream)} method accepts input data to parse in
  * the form of a {@link org.apache.daffodil.japi.io.InputSourceDataInputStream}. The output
  * representation of the infoset, as well as how parse errors are handled, are dependent on the
- * content handler and the error handler provided to the {@link org.apache.daffodil.japi.DaffodilXMLReader}. For example the
- * {@link org.jdom2.input.sax.SAXHandler} provides a JDOM representation, whereas other Content
- * Handlers may output directly to an {@link java.io.OutputStream} or {@link java.io.Writer}.
+ * content handler and the error handler provided to the {@link org.apache.daffodil.japi.DaffodilParseXMLReader}.
+ * For example the {@link org.jdom2.input.sax.SAXHandler} provides a JDOM representation, whereas
+ * other ContentHandlers may output directly to a {@link java.io.OutputStream} or {@link java.io.Writer}.
  *
  * <pre>
  * {@code
  * SAXHandler contentHandler = new SAXHandler();
- * xmlRdr.setContentHandler(contentHandler);
+ * xmlReader.setContentHandler(contentHandler);
  * InputSourceDataInputStream is = new InputSourceDataInputStream(data);
  * xmlReader.parse(is);
- * ParseResult pr = (ParseResult) xmlRdr.getProperty(XMLUtils.DAFFODIL_SAX_URN_PARSERESULT());
+ * ParseResult pr = (ParseResult) xmlReader.getProperty(DaffodilParseXMLReader.DAFFODIL_SAX_URN_PARSERESULT());
  * Document doc = saxHandler.getDocument();
  * }</pre>
  *
- * The The {@link org.apache.daffodil.japi.DaffodilXMLReader#parse(
+ * The The {@link org.apache.daffodil.japi.DaffodilParseXMLReader#parse(
  * org.apache.daffodil.japi.io.InputSourceDataInputStream)} method is not thread-safe and may
  * only be called again/reused once a parse operation is completed. This can be done multiple
- * times without the need to create new DaffodilXMLReaders, ContentHandlers or ErrorHandlers. It
- * might be necessary to reset whatever ContentHandler is used (or allocate a new one). A
- * thread-safe implementation would require unique instances of the DaffodilXMLReader and its
+ * times without the need to create new DaffodilParseXMLReaders, ContentHandlers or ErrorHandlers.
+ * It might be necessary to reset whatever ContentHandler is used (or allocate a new one). A
+ * thread-safe implementation would require unique instances of the DaffodilParseXMLReader and its
  * components. For example:
  *
  * <pre>
  * {@code
  * SAXHandler contentHandler = new SAXHandler();
- * xmlRdr.setContentHandler(contentHandler);
+ * xmlReader.setContentHandler(contentHandler);
  * for (File f : inputFiles) {
  *   contentHandler.reset();
  *   InputSourceDataInputStream is = new InputSourceDataInputStream(new FileInputStream(f));
  *   xmlReader.parse(is);
- *   ParseResult pr = (ParseResult) xmlRdr.getProperty("urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:sax:ParseResult");
+ *   ParseResult pr = (ParseResult) xmlReader.getProperty(DaffodilParseXMLReader.DAFFODIL_SAX_URN_PARSERESULT());
  *   Document doc = saxHandler.getDocument();
  * }
  * }
@@ -192,12 +207,12 @@
  * {@code
  * InputSourceDataInputStream is = new InputSourceDataInputStream(dataStream);
  * SAXHandler contentHandler = new SAXHandler();
- * xmlRdr.setContentHandler(contentHandler);
+ * xmlReader.setContentHandler(contentHandler);
  * Boolean keepParsing = true;
  * while (keepParsing) {
  *   contentHandler.reset();
- *   xmlRdr.parse(is);
- *   val pr = xmlRdr.getProperty(XMLUtils.DAFFODIL_SAX_URN_PARSERESULT());
+ *   xmlReader.parse(is);
+ *   val pr = xmlReader.getProperty(DaffodilParseXMLReader.DAFFODIL_SAX_URN_PARSERESULT());
  *   ...
  *   keepParsing = !pr.location().isAtEnd() && !pr.isError();
  * }
@@ -206,8 +221,11 @@
  *
  * <h4>Unparse</h4>
  *
- * The same {@link org.apache.daffodil.japi.DataProcessor} used for parse can be used to unparse an infoset
- * via the {@link org.apache.daffodil.japi.DataProcessor#unparse(org.apache.daffodil.japi.infoset.InfosetInputter, java.nio.channels.WritableByteChannel)} method. An {@link org.apache.daffodil.japi.infoset.InfosetInputter}
+ * <h5>Dataprocessor Unparse</h5>
+ *
+ * The same {@link org.apache.daffodil.japi.DataProcessor} used for parse can be used to unparse an
+ * infoset via the {@link org.apache.daffodil.japi.DataProcessor#unparse(org.apache.daffodil.japi.infoset.InfosetInputter,
+ * java.nio.channels.WritableByteChannel)} method. An {@link org.apache.daffodil.japi.infoset.InfosetInputter}
  * provides the infoset to unparse, with the unparsed data written to the
  * provided {@link java.nio.channels.WritableByteChannel}. For example:
  *
@@ -217,15 +235,67 @@
  * UnparseResult ur = dp.unparse(jdomInputter, wbc)
  * }</pre>
  *
+ * <h5>SAX Unparse</h5>
+ *
+ * In order to kick off an unparse via the SAX API, one must register the
+ * {@link org.apache.daffodil.japi.DaffodilUnparseContentHandler} as the contentHandler for an
+ * XMLReader implementation. The call to the
+ * {@link org.apache.daffodil.japi.DataProcessor#newContentHandlerInstance(java.nio.channels.WritableByteChannel)}
+ * method must be provided with the {@link java.nio.channels.WritableByteChannel}, where the unparsed
+ * data ought to be written to. Any XMLReader implementation is permissible, as long as they have
+ * XML Namespace support.
+ *
+ * <pre>
+ * {@code
+ *  ByteArrayInputStream is = new ByteArrayInputStream(data);
+ *  ByteArrayOutputStream os = new ByteArrayOutputStream();
+ *  WritableByteChannel wbc = java.nio.channels.Channels.newChannel(os);
+ *  DaffodilUnparseContentHandler unparseContentHandler = dp.newContentHandlerInstance(wbc);
+ *  try {
+ *   XMLReader xmlReader = SAXParserFactory.newInstance().newSAXParser().getXMLReader();
+ *   xmlReader.setContentHandler(unparseContentHandler)
+ *   xmlReader.parse(is)
+ *  } catch (ParserConfigurationException | SAXException e) {
+ *   ...
+ * `} catch catch (DaffodilUnparseErrorSAXException | DaffodilUnhandledSAXException e) {
+ *   ...
+ *  }
+ * }
+ * </pre>
+ *
+ * The call to the XMLReader.parse method must be wrapped in a try/catch, as
+ * {@link org.apache.daffodil.japi.DaffodilUnparseContentHandler} relies on throwing an exception to
+ * end processing in the case of any errors/failures.
+ * There are two kinds of errors to expect
+ * {@link org.apache.daffodil.japi.DaffodilUnparseErrorSAXException}, for the case when the
+ * {@link org.apache.daffodil.japi.UnparseResult#isError()}, and
+ * {@link org.apache.daffodil.japi.DaffodilUnparseErrorSAXException}, for any other errors.
+ *
+ * In the case of an {@link org.apache.daffodil.japi.DaffodilUnhandledSAXException},
+ * {@link org.apache.daffodil.japi.DaffodilUnparseContentHandler#getUnparseResult()} will return null.
+ *
+ * <pre>
+ * {@code
+ *  try {
+ *    xmlReader.parse(new InputSource(is));
+ *  } catch (DaffodilUnparseErrorSAXException | DaffodilUnhandledSAXException e) {
+ *    ...
+ *  }
+ *  UnparseResult ur = unparseContentHandler.getUnparseResult();
+ * }
+ * </pre>
+ *
+ *
  * <h3>Failures and Diagnostics</h3>
  *
  * It is possible that failures could occur during the creation of the
- * {@link org.apache.daffodil.japi.ProcessorFactory}, {@link org.apache.daffodil.japi.DataProcessor}, or {@link org.apache.daffodil.japi.ParseResult}. However, rather than
- * throwing an exception on error (e.g. invalid DFDL schema, parse
- * error, etc), these classes extend {@link org.apache.daffodil.japi.WithDiagnostics}, which is used to
- * determine if an error occurred, and any diagnostic information (see
- * {@link org.apache.daffodil.japi.Diagnostic}) related to the step. Thus, before continuing, one must check
- * {@link org.apache.daffodil.japi.WithDiagnostics#isError}. For example:
+ * {@link org.apache.daffodil.japi.ProcessorFactory}, {@link org.apache.daffodil.japi.DataProcessor},
+ * or {@link org.apache.daffodil.japi.ParseResult}. However, rather than throwing an exception on
+ * error (e.g. invalid DFDL schema, parse error, etc), these classes extend
+ * {@link org.apache.daffodil.japi.WithDiagnostics}, which is used to determine if an error occurred,
+ * and any diagnostic information (see {@link org.apache.daffodil.japi.Diagnostic}) related to the step.
+ * Thus, before continuing, one must check {@link org.apache.daffodil.japi.WithDiagnostics#isError}.
+ * For example:
  *
  * <pre>
  * {@code
@@ -270,10 +340,10 @@
  *
  * <pre>
  * {@code
- * DaffodilXMLReader xmlRdr = dp.newXMLReaderInstance();
+ * DaffodilParseXMLReader xmlReader = dp.newXMLReaderInstance();
  * ... // setting appropriate handlers
  * xmlReader.parse(data);
- * ParseResult pr = xmlRdr.getProperty("...ParseResult");
+ * ParseResult pr = xmlReader.getProperty("...ParseResult");
  * }</pre>
  *
  */

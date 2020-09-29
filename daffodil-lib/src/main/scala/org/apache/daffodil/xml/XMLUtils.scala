@@ -424,6 +424,9 @@ object XMLUtils {
   val DAFFODIL_SAX_URN_BLOBPREFIX: String = DAFFODIL_SAX_URN_ROOT + ":BlobPrefix"
   val DAFFODIL_SAX_URN_BLOBSUFFIX: String = DAFFODIL_SAX_URN_ROOT + ":BlobSuffix"
 
+  val SAX_NAMESPACES_FEATURE = "http://xml.org/sax/features/namespaces"
+  val SAX_NAMESPACE_PREFIXES_FEATURE = "http://xml.org/sax/features/namespace-prefixes"
+
 
   val FILE_ATTRIBUTE_NAME = "file"
   val LINE_ATTRIBUTE_NAME = "line"

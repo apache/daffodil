@@ -226,6 +226,22 @@ object Misc {
   }
 
   /**
+   * Returns true if a StringBuilder contains all whitespace
+   */
+  def isAllWhitespace(sb: StringBuilder): Boolean = {
+    if (sb.isEmpty) false
+    else {
+      var in = 0
+      val sbLen = sb.length
+      while (in < sbLen) {
+        if (!sb.charAt(in).isWhitespace) return false
+        in += 1
+      }
+      true
+    }
+  }
+
+  /**
    * Returns the primary version of daffodil from the jar
    */
   def getDaffodilVersion: String = {
