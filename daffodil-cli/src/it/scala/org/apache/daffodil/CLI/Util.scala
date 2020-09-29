@@ -184,7 +184,7 @@ object Util {
   def newTempFile(filePrefix: String, fileSuffix: String, optFileContents: Option[String] = None): File = {
     val inputFile = File.createTempFile(filePrefix, fileSuffix)
     inputFile.deleteOnExit
-    if( optFileContents.nonEmpty) {
+    if (optFileContents.nonEmpty) {
       val contents = optFileContents.get
       val pw = new PrintWriter(inputFile)
       pw.write(contents)
