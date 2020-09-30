@@ -25,6 +25,8 @@ trait Separated { self: SequenceChildParser =>
   def spos: SeparatorPosition
   def trd: TermRuntimeData
   def parseResultHelper: SeparatedSequenceChildParseResultHelper
+ 
+  override def childProcessors: Vector[Processor] = Vector(self.childParser) :+ sep
 
   import SeparatorPosition._
 

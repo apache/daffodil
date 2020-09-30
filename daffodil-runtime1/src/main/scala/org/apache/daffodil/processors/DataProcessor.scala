@@ -575,7 +575,7 @@ class DataProcessor private (
       unparserState.dataProc.get.init(ssrd.unparser)
       out.setPriorBitOrder(ssrd.elementRuntimeData.defaultBitOrder)
       doUnparse(unparserState)
-      unparserState.evalSuspensions(unparserState) // handles outputValueCalc that were suspended due to forward references.
+      unparserState.evalSuspensions(isFinal = true)
       unparserState.unparseResult
     } catch {
       case ue: UnparseError => {

@@ -481,6 +481,8 @@ sealed trait RegularElementUnparserStartEndStrategy
       state.currentInfosetNodeStack.pop
 
       move(state)
+
+      state.asInstanceOf[UStateMain].evalSuspensions(isFinal = false)
     }
   }
 

@@ -96,18 +96,6 @@ abstract class LogWriter {
   }
 }
 
-object ForUnitTestLogWriter extends LogWriter {
-  var loggedMsg: String = null
-  //  protected val writer = actor { loop { react { case msg : String =>
-  //    loggedMsg = msg
-  //    Console.out.println("Was Logged: " + loggedMsg)
-  //    Console.out.flush()
-  //    } } }
-  def write(msg: String): Unit = {
-    loggedMsg = msg
-  }
-}
-
 object NullLogWriter extends LogWriter {
   //protected val writer = actor { loop { react { case msg : String => } } }
   def write(msg: String): Unit = {
