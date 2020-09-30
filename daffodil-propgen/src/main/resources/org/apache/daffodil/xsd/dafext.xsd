@@ -400,6 +400,32 @@
             </xs:documentation>
           </xs:annotation>
         </xs:element>
+        <xs:element name="unparseSuspensionWaitOld" type="xs:int" default="100" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              While unparsing, some unparse actions require "suspending" which
+              requires buffering unparse output until the suspension can be
+              evaluated. Daffodil periodically attempts to reevaluate these
+              suspensions so that these buffers can be released. We attempt to
+              evaluate young suspensions shortly after creation with the hope
+              that it will succeed and we can release associated buffers. But if
+              a young suspension fails it is moved to the old suspension list.
+              Old suspensions are evaluated less frequently since they are less
+              likely to succeeded. This minimizes the overhead related to
+              evaluating suspensions that are likely to fail. The
+              unparseSuspensionWaitYoung and unparseSuspensionWaitOld
+              values determine how many elements are unparsed before evaluating
+              young and old suspensions, respectively.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="unparseSuspensionWaitYoung" type="xs:int" default="5" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              See unparseSuspensionWaitOld
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
       </xs:all>
     </xs:complexType>
   </xs:element>

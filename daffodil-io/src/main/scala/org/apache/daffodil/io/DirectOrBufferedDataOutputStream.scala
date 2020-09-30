@@ -411,8 +411,24 @@ class DirectOrBufferedDataOutputStream private[io] (
     Assert.invariant(isDirect)
   }
 
+  /**
+   * We need to keep track of what FormatInfo was used as the last write to
+   * this DOS. This way, when this DOS becomes direct and we start
+   * delivering following buffered DOS's, we are using the correct FormatInfo
+   * to check for bitOrder changes and to write data correctly. We set this
+   * value when this DOS is marked as finished with setFinished() and then use
+   * it when delivering buffered content.
+   */
+  private var finishedFormatInfo: Maybe[FormatInfo] = Nope
+
   override def setFinished(finfo: FormatInfo): Unit = {
     Assert.usage(!isFinished)
+    Assert.usage(finishedFormatInfo.isEmpty)
+
+    // this DOS is finished, save this format info so we use it when delivering
+    // buffered content
+    finishedFormatInfo = One(finfo)
+
     // if we are direct, and there's a buffer following this one
     //
     // we know it isn't finished (because of flush() above)
@@ -433,9 +449,14 @@ class DirectOrBufferedDataOutputStream private[io] (
           first.setAbsStartingBitPos0b(dabp)
         }
 
-        DirectOrBufferedDataOutputStream.deliverBufferContent(directStream, first, finfo) // from first, into direct stream's buffers
+        // from first, into direct stream's buffers. Make sure we use the
+        // format info last used for this DOS.
+        DirectOrBufferedDataOutputStream.deliverBufferContent(
+          directStream,
+          first,
+          directStream.finishedFormatInfo.get)
+
         // so now the first one is an EMPTY not necessarily a finished buffered DOS
-        //
         first.convertToDirect(directStream) // first is now the direct stream
         directStream.setDOSState(Uninitialized) // old direct stream is now dead
         directStream = first // long live the new direct stream!

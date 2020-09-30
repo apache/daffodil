@@ -92,6 +92,8 @@ abstract class SequenceChild(protected val sq: SequenceTermBase, child: Term, gr
   protected def separatedHelper: SeparatedHelper
   protected def unseparatedHelper: UnseparatedHelper
 
+  protected lazy val sepMtaGram = sq.delimMTA
+
   protected lazy val sepGram = {
     sscb match {
       case _: PositionalLike =>
@@ -101,8 +103,8 @@ abstract class SequenceChild(protected val sq: SequenceTermBase, child: Term, gr
     sq.sequenceSeparator
   }
 
-  protected lazy val sepParser = sepGram.parser
-  protected lazy val sepUnparser = sepGram.unparser
+  protected lazy val sepParser = (sepMtaGram ~ sepGram).parser
+  protected lazy val sepUnparser = (sepMtaGram ~ sepGram).unparser
 
   final protected def srd = sq.sequenceRuntimeData
   final protected def trd = child.termRuntimeData

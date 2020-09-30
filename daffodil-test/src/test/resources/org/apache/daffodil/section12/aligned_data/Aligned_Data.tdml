@@ -3681,4 +3681,62 @@
     </tdml:errors>
   </tdml:unparserTestCase>
 
+
+  <tdml:defineSchema name="separatorMTA">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+
+    <dfdl:format ref="ex:GeneralFormat"
+      lengthUnits="bits"
+      alignmentUnits="bits"
+      fillByte="%#rFF;"/>
+
+    <xs:element name="e1">
+      <xs:complexType>
+        <xs:sequence
+          dfdl:separator=","
+          dfdl:separatorPosition="prefix"
+          dfdl:separatorSuppressionPolicy="anyEmpty"
+          dfdl:encoding="US-ASCII" dfdl:alignment="8">
+          <xs:element name="a" type="xs:string" maxOccurs="unbounded"
+            dfdl:lengthKind="pattern" dfdl:lengthPattern="."
+            dfdl:encoding="X-DFDL-BASE4-MSBF" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <!--
+     Test Name: separatorMTA_01
+        Schema: separatorMTA
+        Root: root
+        Purpose: This test demonstrates that with the correct separator
+          suppression, separators are only unparsed when elements unparse to
+          non-zero length. Infoset elements that unparse to zero length
+          essentially disappear. This also tests that when we determine a field
+          is zero length and do not unparse the seprator, that we also do not
+          unparse mandatory text alignment associated with that separator
+  -->
+
+  <tdml:unparserTestCase name="separatorMTA_01"
+    model="separatorMTA"
+    description="Section 12.1 - Aligned Data" roundTrip="none">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e1>
+          <ex:a>0</ex:a>
+          <ex:a></ex:a>
+          <ex:a>1</ex:a>
+          <ex:a></ex:a>
+        </ex:e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="bits">00101100</tdml:documentPart> <!-- us-ascii comma separator -->
+      <tdml:documentPart type="bits">00 111111</tdml:documentPart> <!-- base-4 "0" string + mta fill bits-->
+      <tdml:documentPart type="bits">00101100</tdml:documentPart> <!-- us-ascii comma separator -->
+      <tdml:documentPart type="bits">01</tdml:documentPart> <!-- base-4 "1" string (no mta fill bits)-->
+    </tdml:document>
+  </tdml:unparserTestCase>
+
 </tdml:testSuite>

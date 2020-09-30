@@ -443,7 +443,7 @@ sealed abstract class LengthState(ie: DIElement)
 
   def isEndUndef = {
     val r = maybeEndPos0bInBits.isEmpty
-    if (r) Assert.invariant(maybeStartDataOutputStream.isEmpty)
+    if (r) Assert.invariant(maybeEndDataOutputStream.isEmpty)
     r
   }
 
@@ -583,7 +583,7 @@ sealed abstract class LengthState(ie: DIElement)
 
   def setAbsEndPos0bInBits(absPosInBits0b: ULong): Unit = {
     maybeEndPos0bInBits = MaybeULong(absPosInBits0b.longValue)
-    maybeStartDataOutputStream = Nope
+    maybeEndDataOutputStream = Nope
   }
 
   def setRelEndPos0bInBits(relPosInBits0b: ULong, dos: DataOutputStream): Unit = {

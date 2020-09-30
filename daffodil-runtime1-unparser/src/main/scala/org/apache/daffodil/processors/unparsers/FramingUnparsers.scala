@@ -35,12 +35,12 @@ class SkipRegionUnparser(
   }
 }
 
-class AlignmentFillUnparserSuspendableOperation(
-  alignmentInBits: Int,
-  override val rd: TermRuntimeData)
-  extends SuspendableOperation {
+trait AlignmentFillUnparserSuspendableMixin { this: SuspendableOperation =>
 
-  override def test(ustate: UState) = {
+  def alignmentInBits: Int
+  def rd: TermRuntimeData
+
+  def test(ustate: UState) = {
     val dos = ustate.dataOutputStream
     if (dos.maybeAbsBitPos0b.isEmpty) {
       log(LogLevel.Debug, "%s %s Unable to align to %s bits because there is no absolute bit position.", this, ustate, alignmentInBits)
@@ -48,7 +48,7 @@ class AlignmentFillUnparserSuspendableOperation(
     dos.maybeAbsBitPos0b.isDefined
   }
 
-  override def continuation(state: UState): Unit = {
+  def continuation(state: UState): Unit = {
     val dos = state.dataOutputStream
     val b4 = dos.relBitPos0b
     if (!dos.align(alignmentInBits, state))
@@ -61,6 +61,12 @@ class AlignmentFillUnparserSuspendableOperation(
       log(LogLevel.Debug, "%s moved %s bits to align to %s(bits).", this, delta, alignmentInBits)
   }
 }
+
+class AlignmentFillUnparserSuspendableOperation(
+  override val alignmentInBits: Int,
+  override val rd: TermRuntimeData)
+  extends SuspendableOperation
+  with AlignmentFillUnparserSuspendableMixin
 
 class AlignmentFillUnparser(
   alignmentInBits: Int,

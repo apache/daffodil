@@ -24,6 +24,8 @@ import org.apache.daffodil.processors.parsers._
 import org.apache.daffodil.schema.annotation.props.SeparatorSuppressionPolicy
 import org.apache.daffodil.processors.unparsers._
 import org.apache.daffodil.util.Misc
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.MaybeInt
 
 /**
  * Base class for all kinds of sequences.
@@ -45,8 +47,27 @@ abstract class SequenceCombinator(sq: SequenceTermBase, sequenceChildren: Seq[Se
 class OrderedSequence(sq: SequenceTermBase, sequenceChildrenArg: Seq[SequenceChild])
   extends SequenceCombinator(sq, sequenceChildrenArg) {
 
+  private lazy val sepMtaGram = sq.sequenceSeparatorMTA
+  // Note that we actually only ever use one of these depending on
+  // various factors. If there is an optional separator and a suspension is
+  // used to unparse that separator, then we cannot use the sepMtaUnparser
+  // because it results in nested suspensions, which isn't allowed. In that
+  // case, the suspension ends up handling both the optional separator and
+  // alignment using sepMtaAlignmentMaybe.
+  private lazy val (sepMtaAlignmentMaybe, sepMtaUnparserMaybe) =
+    if (sepMtaGram.isEmpty) {
+      (MaybeInt.Nope, Maybe.Nope)
+    } else {
+      (MaybeInt(sq.knownEncodingAlignmentInBits), Maybe(sepMtaGram.unparser))
+    }
+
   private lazy val sepGram = sq.sequenceSeparator
-  private lazy val sepParser = sepGram.parser
+
+  private lazy val sepParser = (sepMtaGram ~ sepGram).parser
+  // we cannot include the mtaGram in the sepUnparser. This is because the
+  // sepUnparser is run in a suspension, and the mtaGram can result in
+  // suspension, which means nested suspensions. Instead, the unparser handles
+  // the mta parser differently to avoid this
   private lazy val sepUnparser = sepGram.unparser
 
   private lazy val sequenceChildren = sequenceChildrenArg.toVector
@@ -82,7 +103,11 @@ class OrderedSequence(sq: SequenceTermBase, sequenceChildrenArg: Seq[SequenceChi
       sq.hasSeparator match {
         case true => new OrderedSeparatedSequenceUnparser(
           srd,
-          sq.separatorSuppressionPolicy, sq.separatorPosition, sepUnparser,
+          sq.separatorSuppressionPolicy,
+          sq.separatorPosition,
+          sepMtaAlignmentMaybe,
+          sepMtaUnparserMaybe,
+          sepUnparser,
           childUnparsers)
         case false =>
           new OrderedUnseparatedSequenceUnparser(
@@ -98,8 +123,27 @@ class UnorderedSequence(sq: SequenceTermBase, sequenceChildrenArg: Seq[SequenceC
 
   import SeparatedSequenceChildBehavior._
 
+  private lazy val sepMtaGram = sq.delimMTA
+  // Note that we actually only ever use one of these depending on
+  // various factors. If there is an optional separator and a suspension is
+  // used to unparse that separator, then we cannot use the sepMtaUnparser
+  // because it results in nested suspensions, which isn't allowed. In that
+  // case, the suspension ends up handling both the optional separator and
+  // alignment using sepMtaAlignmentMaybe.
+  private lazy val (sepMtaAlignmentMaybe, sepMtaUnparserMaybe) =
+    if (sepMtaGram.isEmpty) {
+      (MaybeInt.Nope, Maybe.Nope)
+    } else {
+      (MaybeInt(sq.knownEncodingAlignmentInBits), Maybe(sepMtaGram.unparser))
+    }
+
   private lazy val sepGram = sq.sequenceSeparator
-  private lazy val sepParser = sepGram.parser
+
+  private lazy val sepParser = (sepMtaGram ~ sepGram).parser
+  // we cannot include the mtaGram in the sepUnparser. This is because the
+  // sepUnparser is run in a suspension, and the mtaGram can result in
+  // suspension, which means nested suspensions. Instead, the unparser handles
+  // the mta parser differently to avoid this
   private lazy val sepUnparser = sepGram.unparser
 
   private lazy val sequenceChildren = sequenceChildrenArg.toVector
@@ -173,7 +217,11 @@ class UnorderedSequence(sq: SequenceTermBase, sequenceChildrenArg: Seq[SequenceC
       sq.hasSeparator match {
         case true => new OrderedSeparatedSequenceUnparser(
           srd,
-          SeparatorSuppressionPolicy.AnyEmpty, sq.separatorPosition, sepUnparser,
+          SeparatorSuppressionPolicy.AnyEmpty,
+          sq.separatorPosition,
+          sepMtaAlignmentMaybe,
+          sepMtaUnparserMaybe,
+          sepUnparser,
           childUnparsers)
         case false =>
           new OrderedUnseparatedSequenceUnparser(
