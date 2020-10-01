@@ -25,6 +25,8 @@ import org.apache.daffodil.infoset.DataValue.DataValueBool
 import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.infoset.DataValue.DataValueString
 import org.apache.daffodil.infoset.DataValue.DataValueShort
+import org.apache.daffodil.util.OKOrError
+
 
 case class DFDLCheckConstraints(recipe: CompiledDPath) extends RecipeOpWithSubRecipes(recipe) {
   override def run(dstate: DState): Unit = {
@@ -36,6 +38,31 @@ case class DFDLCheckConstraints(recipe: CompiledDPath) extends RecipeOpWithSubRe
       dstate.currentElement.setValid(res)
       dstate.setCurrentValue(res)
     }
+  }
+}
+
+case class DFDLCheckRangeInclusive(recipe: CompiledDPath, rangeFrom: Int, rangeTo: Int)
+  extends RecipeOpWithSubRecipes(recipe) {
+
+  override def run(dstate: DState): Unit = {
+    recipe.run(dstate)
+    if (dstate.currentElement.valid.isDefined) {
+      dstate.setCurrentValue(dstate.currentElement.valid.get)
+    } else {
+      val res = executeCheck(dstate, rangeFrom, rangeTo).isOK
+      dstate.currentElement.setValid(true)
+      dstate.setCurrentValue(res)
+    }
+  }
+
+  def executeCheck(dstate: DState, rangeFrom: Integer, rangeTo: Integer): OKOrError = {
+    val testValue: BigInt = dstate.currentValue.getBigInt
+    if (testValue.intValue() >= rangeFrom.intValue() && testValue.intValue() <= rangeTo.intValue()) {
+      OKOrError.OK
+    } else {
+      OKOrError.Error("Error...")
+    }
+
   }
 }
 

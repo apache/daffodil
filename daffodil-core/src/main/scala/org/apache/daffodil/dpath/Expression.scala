@@ -1650,6 +1650,9 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
       case (RefQName(_, "checkConstraints", DFDL), args) => {
         DFDLCheckConstraintsExpr(functionQNameString, functionQName, args)
       }
+      case (RefQName(_, "checkRangeInclusive", DFDL), args) => {
+        DFDLCheckRangeInclusiveExpr(functionQNameString, functionQName, args)
+      }
       case (RefQName(_, "decodeDFDLEntities", DFDL), args) => {
         FNOneArgExpr(functionQNameString, functionQName, args,
           NodeInfo.String, NodeInfo.String, DFDLDecodeDFDLEntities(_, _))
@@ -2411,6 +2414,25 @@ case class DFDLCheckConstraintsExpr(nameAsParsed: String, fnQName: RefQName,
     val argDPath = args(0).compiledDPath
     val c = conversions
     val res = new CompiledDPath(DFDLCheckConstraints(argDPath) +: c)
+    res
+  }
+  override def targetTypeForSubexpression(subexpr: Expression): NodeInfo.Kind = NodeInfo.AnyAtomic
+
+  override lazy val inherentType = NodeInfo.Boolean
+
+}
+
+case class DFDLCheckRangeInclusiveExpr(nameAsParsed: String, fnQName: RefQName, args: List[Expression])
+  extends FunctionCallBase(nameAsParsed, fnQName, args) {
+
+  override lazy val children = args
+
+  override lazy val compiledDPath = {
+    checkArgCount(3)
+    val compiledDPath = args(0).compiledDPath
+    val rangeFrom: Int = args(1).text.toInt
+    val rangeTo: Int = args(2).text.toInt
+    val res = new CompiledDPath(DFDLCheckRangeInclusive(compiledDPath, rangeFrom, rangeTo))
     res
   }
   override def targetTypeForSubexpression(subexpr: Expression): NodeInfo.Kind = NodeInfo.AnyAtomic

@@ -64,6 +64,9 @@ object TestDFDLExpressions {
 class TestDFDLExpressions {
   import TestDFDLExpressions._
 
+  @Test def test_testDFDLCheckRangeInclusivePass(): Unit= { runner.runOneTest("testDFDLCheckRangeInclusivePass") }
+  @Test def test_testDFDLCheckRangeInclusiveFail(): Unit= { runner.runOneTest("testDFDLCheckRangeInclusiveFail") }
+
   @Test def test_variableRefError: Unit = { runner4.runOneTest("variableRefError") }
 
   @Test def test_byteOrderExpr1: Unit = { runner4.runOneTest("byteOrderExpr1") }

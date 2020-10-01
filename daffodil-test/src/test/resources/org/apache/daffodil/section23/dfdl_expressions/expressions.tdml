@@ -27,7 +27,48 @@
   xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"  
   xmlns:fn="http://www.w3.org/2005/xpath-functions"
   defaultRoundTrip="true">
-  
+
+  <tdml:defineSchema name="DFDLCheckRange">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" />
+    <xs:element name="root1" dfdl:lengthKind="explicit" dfdl:length="1" type="xs:integer">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
+          <dfdl:discriminator test="{ dfdl:checkRangeInclusive(., 0, 1) }" message="Discriminator failed ..." />
+        </xs:appinfo>
+      </xs:annotation>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <!--
+     Test Name:
+     Schema:
+     Purpose:
+  -->
+  <tdml:parserTestCase name="testDFDLCheckRangeInclusivePass" validation="on"
+                       root="root1" model="DFDLCheckRange" description="">
+    <tdml:document>1</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root1>1</root1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name:
+     Schema:
+     Purpose:
+  -->
+  <tdml:parserTestCase name="testDFDLCheckRangeInclusiveFail" validation="on"
+                       root="root1" model="DFDLCheckRange" description="">
+    <tdml:document>9</tdml:document>
+    <tdml:errors>
+      <tdml:error>Assertion failed</tdml:error>
+      <tdml:error>Discriminator failed</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
   <tdml:defineSchema name="diagnostics">
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"/>
