@@ -73,6 +73,10 @@ trait SchemaSetRuntime1Mixin { self : SchemaSet =>
 
   def onPath(xpath: String): DFDL.DataProcessor = {
       Assert.usage(!isError)
+      if (false) {
+        println("test of code cov report")
+      }
+
       if (xpath != "/") root.notYetImplemented("""Path must be "/". Other path support is not yet implemented.""")
       val rootERD = root.elementRuntimeData
       root.schemaDefinitionUnless(
