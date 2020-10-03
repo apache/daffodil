@@ -14,16 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-/*
- * This is a variant of DataValue specifically for scala 2.11
- * Due to a bug in the 2.11 compiler (https://github.com/scala/bug/issues/7521), AnyVal classes
- * do not behave as expected when wrapping a primitive array.
- * 
- * For our use-case, this presents a problem, as one of our DataValue types is Array[Byte].
- * 
- * To work around this, this implementation will explicitly box/unbox all instances of Array[Byte].
- */
 package org.apache.daffodil.infoset
 
 import java.lang.{ Boolean => JBoolean, Number => JNumber, Long => JLong, Double => JDouble, String => JString, Float => JFloat, Byte => JByte, Integer => JInt, Short => JShort }
@@ -67,25 +57,19 @@ sealed trait DataValuePrimitiveType
  * allow for automatic upcasting between these types where appropriate.
  *
  */
-final class DataValue[+T <: AnyRef, +X <: AnyRef] private (val v: T) extends AnyVal with Serializable{
+final class DataValue[+T <: AnyRef, +X <: AnyRef] private (val v: T) extends AnyVal with Serializable {
   @inline def isEmpty = DataValue.NoValue.v eq v
   @inline def isDefined = !isEmpty
   @inline def value = v
   @inline override def toString = if (isEmpty) "NoValue" else "DataValue(" + v.toString + ")"
 
-  @inline def getAnyRef = {
-    if (v.isInstanceOf[BoxedByteArray]) {
-      v.asInstanceOf[BoxedByteArray].v
-    } else {
-      v.asInstanceOf[AnyRef]
-    }
-  }
+  @inline def getAnyRef = v.asInstanceOf[AnyRef]
   @inline def getBigDecimal = v.asInstanceOf[JBigDecimal]
   @inline def getCalendar = v.asInstanceOf[DFDLCalendar]
   @inline def getDate = v.asInstanceOf[DFDLDate]
   @inline def getTime = v.asInstanceOf[DFDLTime]
   @inline def getDateTime = v.asInstanceOf[DFDLDateTime]
-  @inline def getByteArray = v.asInstanceOf[BoxedByteArray].v
+  @inline def getByteArray = v.asInstanceOf[Array[Byte]]
   @inline def getBoolean = v.asInstanceOf[JBoolean]
   @inline def getNumber = v.asInstanceOf[JNumber]
   @inline def getByte = v.asInstanceOf[JByte]
@@ -119,21 +103,18 @@ final class DataValue[+T <: AnyRef, +X <: AnyRef] private (val v: T) extends Any
 }
 
 object DataValue {
-  /**
-   * All values which are legal for DPath and infoset data values. Note that this incudes
+  /** All values which are legal for DPath and infoset data values. Note that this incudes
    *  DINodes, which is legal for DPath, but not infoset data values.
-   *  Also note that at any given time, the infoset may have no value, which is not directly
-   *  representable by this type.
+   *  Also note that at any given time, the infoset may have no value, which is not directly 
+   *  representable by this type. 
    */
   type DataValuePrimitive = DataValue[AnyRef, NonNullable with DataValuePrimitiveType]
-  /**
-   * A (set-theoretic) extension of DataValuePrimitive adjoining a NULL element refered to as NoValue.
+  /** A (set-theoretic) extension of DataValuePrimitive adjoining a NULL element refered to as NoValue.
    * Since this just adjoins NoValue, we can think of it as a nullable varient of DataValuePrimitive.
    * See https://en.wikipedia.org/wiki/Nullable_type
    */
   type DataValuePrimitiveNullable = DataValue[AnyRef, Nullable with DataValuePrimitiveType]
-  /**
-   * All values of DataValuePrimitiveNullable, plus a sentinal UseNilForDefault value.
+  /** All values of DataValuePrimitiveNullable, plus a sentinal UseNilForDefault value.
    * Used only by the default field of ElementRuntimeData.
    */
   type DataValuePrimitiveOrUseNilForDefaultOrNull = DataValue[AnyRef, tUseNilForDefault]
@@ -144,7 +125,7 @@ object DataValue {
   type DataValueDateTime = DataValue[DFDLDateTime, NonNullable with DataValuePrimitiveType]
   type DataValueDate = DataValue[DFDLDate, NonNullable with DataValuePrimitiveType]
   type DataValueTime = DataValue[DFDLTime, NonNullable with DataValuePrimitiveType]
-  type DataValueByteArray = DataValue[BoxedByteArray, NonNullable with DataValuePrimitiveType]
+  type DataValueByteArray = DataValue[Array[Byte], NonNullable with DataValuePrimitiveType]
   type DataValueBool = DataValue[JBoolean, NonNullable with DataValuePrimitiveType]
   type DataValueNumber = DataValue[JNumber, NonNullable with DataValuePrimitiveType]
   type DataValueLong = DataValue[JLong, NonNullable with DataValuePrimitiveType]
@@ -166,7 +147,7 @@ object DataValue {
   @inline implicit def toDataValue(v: DFDLDateTime): DataValueDateTime = new DataValue(v)
   @inline implicit def toDataValue(v: DFDLDate): DataValueDate = new DataValue(v)
   @inline implicit def toDataValue(v: DFDLTime): DataValueTime = new DataValue(v)
-  @inline implicit def toDataValue(v: Array[Byte]): DataValueByteArray = new DataValue(new BoxedByteArray(v))
+  @inline implicit def toDataValue(v: Array[Byte]): DataValueByteArray = new DataValue(v)
   @inline implicit def toDataValue(v: JBoolean): DataValueBool = new DataValue(v)
   @inline implicit def toDataValue(v: JNumber): DataValueNumber = new DataValue(v)
   @inline implicit def toDataValue(v: JLong): DataValueLong = new DataValue(v)
@@ -195,13 +176,19 @@ object DataValue {
     } else {
       NoValue
     }
+  }  
+  @inline def unsafeFromOptionAnyRef(v: Option[AnyRef]) = {
+    if (v.isDefined) {
+      new DataValue(v.get)
+    } else {
+      NoValue
+    }
   }
 
   val NoValue: DataValueEmpty = new DataValue(null)
-
-  /**
-   * Used as a sentinal value for Element's defaultValue, when said element
-   *  is nillable and has dfdl:useNilForDefault set to true,
+  
+  /** Used as a sentinal value for Element's defaultValue, when said element
+   *  is nillable and has dfdl:useNilForDefault set to true, 
    */
   val UseNilForDefault: DataValueUseNilForDefault = new DataValue(new UseNilForDefaultObj)
 
@@ -233,8 +220,6 @@ object DataValue {
    * As such, is issues a warning on the naive typecheck since it can "never" fail. We silence this warning,
    * by first casting to Any.
    *
-   *
-   *
    */
     Assert.invariant(!v.asInstanceOf[Any].isInstanceOf[DataValue[AnyRef, AnyRef]])
 
@@ -246,8 +231,4 @@ object DataValue {
     // The actual assertion above is equivalent, but does not result in warnings.
     //  Assert.invariant(!v.isInstanceOf[DataValueAny])
   }
-}
-
-class BoxedByteArray(val v: Array[Byte]) extends Serializable {
-
 }

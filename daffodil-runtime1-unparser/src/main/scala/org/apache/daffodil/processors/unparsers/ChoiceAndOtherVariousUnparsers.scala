@@ -31,14 +31,6 @@ case class ChoiceBranchMap(
   unmappedDefault: Option[Unparser])
   extends PreSerialization {
 
-  /**
-   * On Scala 2.11 this declaration of writeObject seems to be required. Not on 2.12.
-   * @param out
-   * @throws java.io.IOException
-   */
-  @throws(classOf[java.io.IOException])
-  private def writeObject(out: java.io.ObjectOutputStream): Unit = serializeObject(out)
-
   def get(cbe: ChoiceBranchEvent): Maybe[Unparser] = {
     val fromTable = lookupTable.get(cbe)
     val res =

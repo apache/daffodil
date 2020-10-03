@@ -20,16 +20,21 @@ on: [push, pull_request]
 jobs:
   test:
     name: Java ${{ matrix.java_version }}, Scala ${{ matrix.scala_version }}, ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        java_version: [ '8.x', '9.x', '11.x' ]
-        scala_version: [ '2.12.11', '2.11.12' ]
+        java_version: [ 8, 9, 11 ]
+        scala_version: [ 2.12.11 ]
         os: [ 'ubuntu-latest', 'windows-latest' ]
     env:
       SBT: sbt -J-Xms1024m -J-Xmx5120m -J-XX:ReservedCodeCacheSize=512m -J-XX:MaxMetaspaceSize=1024m ++${{ matrix.scala_version }} coverage
       SBTNOCOV: sbt -J-Xms1024m -J-Xmx5120m -J-XX:ReservedCodeCacheSize=512m -J-XX:MaxMetaspaceSize=1024m ++${{ matrix.scala_version }}
+
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+
     steps:
 
       ############################################################
@@ -38,17 +43,6 @@ jobs:
 
       - name: Checkout Repository
         uses: actions/checkout@v2.0.0
-
-      - name: Install Dependencies (Windows)
-        run: |
-          choco install sbt
-          REM choco doesn't update PATH, and SBT isn't in any of the default
-          REM PATHs, and Github Actions doesn't have a built in way to modify
-          REM PATH. So add a link to sbt in a directory that is in PATH and that
-          REM should always exist (bit of a hack).
-          mklink "C:\ProgramData\Chocolatey\bin\sbt" "C:\Program Files (x86)\sbt\bin\sbt"
-        shell: cmd
-        if: runner.os == 'Windows'
 
       - name: Install Java
         uses: actions/setup-java@v1
@@ -61,20 +55,16 @@ jobs:
 
       - name: Compile
         run: $SBT compile test:compile it:compile
-        shell: bash
 
       - name: Build Documentation
         run: $SBTNOCOV unidoc
-        shell: bash
 
       - name: Package Zip & Tar
         run: $SBTNOCOV daffodil-cli/universal:packageBin daffodil-cli/universal:packageZipTarball
-        shell: bash
 
       - name: Package RPM
         run: $SBTNOCOV daffodil-cli/rpm:packageBin
         if: runner.os == 'Linux'
-        shell: bash
 
       ############################################################
       # Test
@@ -82,19 +72,15 @@ jobs:
 
       - name: Run Rat Check
         run: $SBTNOCOV ratCheck || (cat target/rat.txt; exit 1)
-        shell: bash
 
       - name: Run Unit Tests
         run: $SBT test
-        shell: bash
 
       - name: Run Integration Tests
         run: $SBT it:test
-        shell: bash
 
       - name: Generate Coverage Report
         run: $SBT coverageAggregate
-        shell: bash
 
       - name: Upload Coverage Report
         uses: codecov/codecov-action@v1
