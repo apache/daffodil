@@ -19,12 +19,13 @@ package org.apache.daffodil.section17.calc_value_properties
 
 import org.junit.Test
 import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.RunnerOpts
 import org.junit.AfterClass
 
 object TestInputValueCalc {
   val testDir = "/org/apache/daffodil/section17/calc_value_properties/"
 
-  val runner = Runner(testDir, "inputValueCalc.tdml", validateTDMLFile = false)
+  val runner = Runner(testDir, "inputValueCalc.tdml", RunnerOpts(validateTDMLFile = false))
   val runnerAR = Runner(testDir, "AR.tdml")
   val runnerAQ = Runner(testDir, "AQ.tdml")
   val runnerAA = Runner(testDir, "AA.tdml")

@@ -441,7 +441,7 @@ abc # a comment
         </tdml:parserTestCase>
       </tdml:testSuite>
 
-    val runner = Runner(testSuite, validateTDMLFile = false)
+    val runner = Runner(testSuite, RunnerOpts(validateTDMLFile = false))
     runner.runOneTest("test1")
     runner.reset
   }
@@ -500,7 +500,7 @@ abc # a comment
         fw =>
           fw.write(testSuite.toString())
       }
-      val ts = new DFDLTestSuite(new java.io.File(tmpTDMLFileName))
+      val ts = Runner("",tmpTDMLFileName)
       ts.trace
       ts.runAllTests()
     } finally {

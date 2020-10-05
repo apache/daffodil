@@ -20,13 +20,14 @@ package org.apache.daffodil.section05.facets
 import org.junit.Test
 import org.junit._
 import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.RunnerOpts
 import org.junit.AfterClass
 
 object TestFacets {
 
   val testDir = "/org/apache/daffodil/section05/facets/"
-  val runner = Runner(testDir, "Facets.tdml", validateTDMLFile = false, validateDFDLSchemas = false)
-  val runnerV = Runner(testDir, "Facets.tdml", validateTDMLFile = false, validateDFDLSchemas = true)
+  val runner = Runner(testDir, "Facets.tdml", RunnerOpts(validateTDMLFile = false, validateDFDLSchemas = false))
+  val runnerV = Runner(testDir, "Facets.tdml", RunnerOpts(validateTDMLFile = false, validateDFDLSchemas = true))
 
   @AfterClass def tearDown(): Unit = {
     runner.reset

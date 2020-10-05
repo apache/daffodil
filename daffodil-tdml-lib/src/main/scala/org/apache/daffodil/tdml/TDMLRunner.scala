@@ -201,11 +201,11 @@ class DFDLTestSuite private[tdml] (
     validateTDMLFile: Boolean = true,
     validateDFDLSchemas: Boolean = true,
     compileAllTopLevel: Boolean = false,
-    defaultRoundTripDefault: RoundTrip = Runner.defaultRoundTripDefaultDefault,
-    defaultValidationDefault: String = Runner.defaultValidationDefaultDefault,
-    defaultImplementationsDefault: Seq[String] = Runner.defaultImplementationsDefaultDefault,
-    shouldDoErrorComparisonOnCrossTests: Boolean = Runner.defaultShouldDoErrorComparisonOnCrossTests,
-    shouldDoWarningComparisonOnCrossTests: Boolean = Runner.defaultShouldDoWarningComparisonOnCrossTests) =
+    defaultRoundTripDefault: RoundTrip = RunnerOpts.defaultRoundTripDefaultDefault,
+    defaultValidationDefault: String = RunnerOpts.defaultValidationDefaultDefault,
+    defaultImplementationsDefault: Seq[String] = RunnerOpts.defaultImplementationsDefaultDefault,
+    shouldDoErrorComparisonOnCrossTests: Boolean = RunnerOpts.defaultShouldDoErrorComparisonOnCrossTests,
+    shouldDoWarningComparisonOnCrossTests: Boolean = RunnerOpts.defaultShouldDoWarningComparisonOnCrossTests) =
     this(null, aNodeFileOrURL, validateTDMLFile, validateDFDLSchemas, compileAllTopLevel,
       defaultRoundTripDefault,
       defaultValidationDefault,

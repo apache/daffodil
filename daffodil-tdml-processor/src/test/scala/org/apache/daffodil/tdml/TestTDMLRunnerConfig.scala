@@ -52,7 +52,7 @@ class TestTDMLRunnerConfig {
         </tdml:parserTestCase>
       </tdml:testSuite>
 
-    lazy val ts = new DFDLTestSuite(testSuite)
+    lazy val ts = Runner(testSuite)
     val e = intercept[Exception] {
       ts.runOneTest("test1")
     }
@@ -80,7 +80,7 @@ class TestTDMLRunnerConfig {
         </tdml:parserTestCase>
       </tdml:testSuite>
 
-    lazy val ts = new DFDLTestSuite(testSuite)
+    lazy val ts = Runner(testSuite)
     val e = intercept[Exception] {
       ts.runOneTest("test1")
     }
@@ -113,7 +113,7 @@ class TestTDMLRunnerConfig {
         </tdml:parserTestCase>
       </tdml:testSuite>
 
-    lazy val ts = new DFDLTestSuite(testSuite)
+    lazy val ts = Runner(testSuite)
     val e = intercept[Exception] {
       ts.runOneTest("test1")
     }
@@ -145,7 +145,7 @@ class TestTDMLRunnerConfig {
         </tdml:parserTestCase>
       </tdml:testSuite>
 
-    lazy val ts = new DFDLTestSuite(testSuite)
+    lazy val ts = Runner(testSuite)
     ts.runOneTest("test1")
   }
 
@@ -171,7 +171,7 @@ class TestTDMLRunnerConfig {
         </tdml:parserTestCase>
       </tdml:testSuite>
 
-    lazy val ts = new DFDLTestSuite(testSuite)
+    lazy val ts = Runner(testSuite)
     ts.runOneTest("test1")
   }
 
@@ -198,7 +198,7 @@ class TestTDMLRunnerConfig {
         </tdml:parserTestCase>
       </tdml:testSuite>
 
-    lazy val ts = new DFDLTestSuite(testSuite)
+    lazy val ts = Runner(testSuite)
     val e = intercept[Exception] {
       ts.runOneTest("test1")
     }

@@ -17,16 +17,14 @@
 
 package org.apache.daffodil.section07.external_variables
 
-import org.apache.daffodil.tdml.DFDLTestSuite
+import org.apache.daffodil.tdml.Runner
 import org.junit.Test
-import org.apache.daffodil.util._
 
 class TestExternalVariablesNew {
 
   val testDir = "/org/apache/daffodil/section07/external_variables/"
-  val tdml = testDir + "external_variables.tdml"
 
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
+  lazy val runner = Runner(testDir, "external_variables.tdml")
 
   // It's important to note here that external variables
   // via the TDMLRunner are currently passed in during

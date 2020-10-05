@@ -17,13 +17,15 @@
 
 package org.apache.daffodil.section16.array_optional_elem
 
-import org.apache.daffodil.util._
-import org.apache.daffodil.tdml.DFDLTestSuite
+import org.apache.daffodil.tdml.Runner
+import org.junit.{ AfterClass }
 
 class TestUnparseArrayParsedOptionalElemNew {
   val testDir = "/org/apache/daffodil/section16/array_optional_elem/"
-  val aa = testDir + "UnparseArrayParsedOptionalElem.tdml"
 
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  var runner = Runner(testDir, "UnparseArrayParsedOptionalElem.tdml")
 
+  @AfterClass def tearDown(): Unit = {
+    runner = null
+  }
 }

@@ -19,6 +19,7 @@ package org.apache.daffodil.section16.array_optional_elem
 
 import org.junit.Test
 import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.RunnerOpts
 import org.junit.AfterClass
 
 object TestArrayOptionalElem {
@@ -26,7 +27,7 @@ object TestArrayOptionalElem {
   private val testDir01 = "/org/apache/daffodil/section05/facets/"
 
   val runner = Runner(testDir, "ArrayOptionalElem.tdml")
-  val runner01 = Runner(testDir01, "Facets.tdml", validateTDMLFile = false)
+  val runner01 = Runner(testDir01, "Facets.tdml", RunnerOpts(validateTDMLFile = false))
   val rBack = Runner(testDir, "backtracking.tdml")
   val runnerAC = Runner(testDir, "ArrayComb.tdml")
 

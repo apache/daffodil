@@ -17,13 +17,14 @@
 package org.apache.daffodil.udf
 
 import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.RunnerOpts
 import org.junit.AfterClass
 import org.junit.Test
 
 object TestUdfsInSchemas {
   val testDir = "/org/apache/daffodil/udf/"
 
-  val runner = Runner(testDir, "udfs.tdml", validateTDMLFile = true)
+  val runner = Runner(testDir, "udfs.tdml", RunnerOpts(validateTDMLFile = true))
 
   @AfterClass def shutDown: Unit = {
     runner.reset

@@ -20,7 +20,6 @@ package org.apache.daffodil.section07.variables
 import org.junit.Test
 import org.apache.daffodil.xml.XMLUtils
 import org.apache.daffodil.Implicits._
-import org.apache.daffodil.tdml.DFDLTestSuite
 import scala.math.Pi
 import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
@@ -137,7 +136,7 @@ class TestVariables {
 
   @Test def test_variables2(): Unit = {
     val testSuite = variables2
-    lazy val ts = new DFDLTestSuite(testSuite)
+    lazy val ts = Runner(testSuite)
     ts.runOneTest("variables2")
   }
 
@@ -175,7 +174,7 @@ class TestVariables {
   @Test def test_variables3(): Unit = {
     // Debugger.setDebugging(true)
     val testSuite = variables3
-    lazy val ts = new DFDLTestSuite(testSuite)
+    lazy val ts = Runner(testSuite)
     ts.runOneTest("variables3")
   }
 }

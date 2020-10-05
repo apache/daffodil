@@ -19,13 +19,14 @@ package org.apache.daffodil.section05.dfdl_xsdl_subset
 
 import org.junit.Test
 import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.RunnerOpts
 import org.junit.AfterClass
 
 object TestDFDLSubset {
 
   val testDir = "/org/apache/daffodil/section05/dfdl_xsdl_subset/"
   val runner = Runner(testDir, "DFDLSubset.tdml")
-  val runnerNV = Runner(testDir, "DFDLSubset.tdml", validateDFDLSchemas=false)
+  val runnerNV = Runner(testDir, "DFDLSubset.tdml", RunnerOpts(validateDFDLSchemas=false))
 
   @AfterClass def tearDown(): Unit = {
     runner.reset

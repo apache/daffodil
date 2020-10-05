@@ -20,18 +20,19 @@ package org.apache.daffodil.section06.namespaces
 import org.junit.Test
 import org.junit.AfterClass
 import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.RunnerOpts
 import org.apache.daffodil.util.LoggingDefaults
 import org.apache.daffodil.util.LogLevel
 
 object TestNamespaces {
   val testDir = "/org/apache/daffodil/section06/namespaces/"
 
-  val runner = Runner(testDir, "namespaces.tdml", validateTDMLFile = true, validateDFDLSchemas = false)
-  val runnerV = Runner(testDir, "namespaces.tdml", validateTDMLFile = true, validateDFDLSchemas = true)
+  val runner = Runner(testDir, "namespaces.tdml", RunnerOpts(validateTDMLFile = true, validateDFDLSchemas = false))
+  val runnerV = Runner(testDir, "namespaces.tdml", RunnerOpts(validateTDMLFile = true, validateDFDLSchemas = true))
 
-  val runner2 = Runner(testDir, "multiFile.tdml", validateTDMLFile = false, validateDFDLSchemas = false)
+  val runner2 = Runner(testDir, "multiFile.tdml", RunnerOpts(validateTDMLFile = false, validateDFDLSchemas = false))
   val runner3 = Runner(testDir, "includeImport.tdml")
-  val runnerWithSchemaValidation = Runner(testDir, "multiFile.tdml", validateTDMLFile = true, validateDFDLSchemas = true)
+  val runnerWithSchemaValidation = Runner(testDir, "multiFile.tdml", RunnerOpts(validateTDMLFile = true, validateDFDLSchemas = true))
 
   @AfterClass def shutDown: Unit = {
     runner.reset

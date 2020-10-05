@@ -17,16 +17,15 @@
 
 package org.apache.daffodil.section06.entities
 
-import org.apache.daffodil.util._
-import org.apache.daffodil.tdml.DFDLTestSuite
+import org.apache.daffodil.tdml.Runner
 
 class TestEntitiesNew {
   val testDir = "/org/apache/daffodil/section06/entities/"
 
   val tdml_01 = testDir + "InvalidEntities.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml_01))
+  lazy val runner = Runner(testDir, "InvalidEntities.tdml")
 
   val tdml_02 = testDir + "Entities.tdml"
-  lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml_02))
+  lazy val runner_01 = Runner(testDir, "Entities.tdml")
 
 }

@@ -17,12 +17,10 @@
 
 package org.apache.daffodil.section08.property_scoping
 
-import org.apache.daffodil.util._
-import org.apache.daffodil.tdml.DFDLTestSuite
+import org.apache.daffodil.tdml.Runner
 
 class TestPropertyScopingNew {
   val testDir = "/org/apache/daffodil/section08/property_scoping/"
-  val aa = testDir + "PropertyScoping.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  lazy val runner = Runner(testDir, "PropertyScoping.tdml")
 
 }

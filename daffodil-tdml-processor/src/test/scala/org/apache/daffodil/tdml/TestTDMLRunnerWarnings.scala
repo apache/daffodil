@@ -87,7 +87,7 @@ class TestTDMLRunnerWarnings {
         </tdml:parserTestCase>
       </tdml:testSuite>
 
-    lazy val ts = new DFDLTestSuite(testSuite)
+    lazy val ts = Runner(testSuite)
     val e = intercept[Exception] {
       ts.runOneTest("warningWhenExpectingSuccess")
     }
@@ -136,7 +136,7 @@ class TestTDMLRunnerWarnings {
         </tdml:parserTestCase>
       </tdml:testSuite>
 
-    lazy val ts = new DFDLTestSuite(testSuite)
+    lazy val ts = Runner(testSuite)
     val e = intercept[Exception] {
       ts.runOneTest("warningWhenExpectingError")
     }
@@ -183,7 +183,7 @@ class TestTDMLRunnerWarnings {
         </tdml:unparserTestCase>
       </tdml:testSuite>
 
-    lazy val ts = new DFDLTestSuite(testSuite)
+    lazy val ts = Runner(testSuite)
     val e = intercept[Exception] {
       ts.runOneTest("unparserWarningWhenExpectingSuccess")
     }
@@ -236,7 +236,7 @@ class TestTDMLRunnerWarnings {
         </tdml:unparserTestCase>
       </tdml:testSuite>
 
-    lazy val ts = new DFDLTestSuite(testSuite)
+    lazy val ts = Runner(testSuite)
     val e = intercept[Exception] {
       ts.runOneTest("unparserWarningWhenExpectingError")
     }

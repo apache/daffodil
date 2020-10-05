@@ -20,10 +20,11 @@ package org.apache.daffodil.section13.text_standard_base
 import org.junit.Test
 import org.junit.AfterClass
 import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.RunnerOpts
 
 object TestTextStandardBase {
   val testDir = "/org/apache/daffodil/section13/text_number_props/"
-  val runner = Runner(testDir, "TextStandardBase.tdml", validateTDMLFile = false, validateDFDLSchemas = false)
+  val runner = Runner(testDir, "TextStandardBase.tdml", RunnerOpts(validateTDMLFile = false, validateDFDLSchemas = false))
 
   @AfterClass def shutDown(): Unit = {
     runner.reset

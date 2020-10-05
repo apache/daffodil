@@ -19,6 +19,7 @@ package org.apache.daffodil.section23.dfdl_expressions
 
 import org.junit._
 import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.RunnerOpts
 
 object TestDFDLExpressions {
   val testDir = "/org/apache/daffodil/section23/dfdl_expressions/"
@@ -32,19 +33,19 @@ object TestDFDLExpressions {
   val testDir4 = "/org/apache/daffodil/section23/runtime_properties/"
 
   val runner = Runner(testDir, "expressions.tdml")
-  val runnerNV = Runner(testDir, "expressions.tdml", validateDFDLSchemas = false)
+  val runnerNV = Runner(testDir, "expressions.tdml", RunnerOpts(validateDFDLSchemas = false))
   val runner2 = Runner(testDir2, "Functions.tdml")
   val runner2_utf8 = Runner(testDir2, "Functions_UTF8.tdml")
   val runner2b = Runner(testDir2, "Functions-neg.tdml")
-  val runner3 = Runner(testDir, "expression_fail.tdml", validateTDMLFile = false)
-  val runner4 = Runner(testDir4, "runtime-properties.tdml", validateTDMLFile = true, validateDFDLSchemas = false)
+  val runner3 = Runner(testDir, "expression_fail.tdml", RunnerOpts(validateTDMLFile = false))
+  val runner4 = Runner(testDir4, "runtime-properties.tdml", RunnerOpts(validateTDMLFile = true, validateDFDLSchemas = false))
   val runner_fun = Runner(testDir, "functions.tdml")
   val runner5 = Runner(testDir, "valueLength.tdml")
 
   val testDir6 = "/org/apache/daffodil/section23/dfdl_expressions/"
   val runner6 = Runner(testDir6, "expressions.tdml")
 
-  val runner7 = Runner(testDir, "expressions2.tdml", compileAllTopLevel = true)
+  val runner7 = Runner(testDir, "expressions2.tdml", RunnerOpts(compileAllTopLevel = true))
 
   @AfterClass def shutDown(): Unit = {
     runner.reset

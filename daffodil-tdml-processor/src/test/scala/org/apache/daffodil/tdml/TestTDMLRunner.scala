@@ -76,7 +76,7 @@ class TestTDMLRunner {
     }
 
     // compileAllTopLevel must be true to enable caching
-    lazy val ts = new DFDLTestSuite(testSuite, true, true, true)
+    lazy val ts = Runner(testSuite, RunnerOpts(validateTDMLFile = true, validateDFDLSchemas = true, compileAllTopLevel = true))
 
     // Run the non-validation test first, this will compile, serialize, and
     // cache the schema
@@ -106,7 +106,7 @@ class TestTDMLRunner {
                         </ts:infoset>
                       </ts:parserTestCase>
                     </ts:testSuite>
-    val ts = new DFDLTestSuite(testSuite)
+    val ts = Runner(testSuite)
     ts.runOneTest("testTDMLParseSuccess", Some(testSchema))
   }
 
@@ -121,7 +121,7 @@ class TestTDMLRunner {
                         </ts:errors>
                       </ts:parserTestCase>
                     </ts:testSuite>
-    lazy val ts = new DFDLTestSuite(testSuite)
+    lazy val ts = Runner(testSuite)
     ts.runOneTest("testTDMLParseDetectsErrorWithSpecificMessage", Some(testSchema))
   }
 
@@ -136,7 +136,7 @@ class TestTDMLRunner {
                         </ts:errors>
                       </ts:parserTestCase>
                     </ts:testSuite>
-    lazy val ts = new DFDLTestSuite(testSuite)
+    lazy val ts = Runner(testSuite)
     val exc = intercept[Exception] {
       ts.runOneTest("testTDMLParseDetectsErrorWithPartMessage", Some(testSchema))
     }
@@ -153,7 +153,7 @@ class TestTDMLRunner {
                         </ts:errors>
                       </ts:parserTestCase>
                     </ts:testSuite>
-    lazy val ts = new DFDLTestSuite(testSuite)
+    lazy val ts = Runner(testSuite)
     ts.runOneTest("testTDMLParseDetectsErrorAnyMessage", Some(testSchema))
   }
 
@@ -167,7 +167,7 @@ class TestTDMLRunner {
                         </ts:errors>
                       </ts:parserTestCase>
                     </ts:testSuite>
-    lazy val ts = new DFDLTestSuite(testSuite)
+    lazy val ts = Runner(testSuite)
     val exc = intercept[Exception] {
       ts.runOneTest("testTDMLParseDetectsNoError", Some(testSchema))
     }
@@ -192,7 +192,7 @@ class TestTDMLRunner {
   //                        </ts:warnings>
   //                      </ts:parserTestCase>
   //                    </ts:testSuite>
-  //    lazy val ts = new DFDLTestSuite(testSuite)
+  //    lazy val ts = new Runner(testSuite)
   //    val exc = intercept[Exception] {
   //      ts.runOneTest("testTDMLParseDetectsNoWarning", Some(testSchema))
   //    }
@@ -218,7 +218,7 @@ class TestTDMLRunner {
                         </infoset>
                       </parserTestCase>
                     </testSuite>
-    lazy val ts = new DFDLTestSuite(testSuite)
+    lazy val ts = Runner(testSuite)
     ts.runAllTests(Some(testSchema))
   }
 
@@ -233,7 +233,7 @@ class TestTDMLRunner {
                   </infoset>
                 </parserTestCase>
               </testSuite>
-    val ts = new DFDLTestSuite(xml)
+    val ts = Runner(xml)
     val ptc = ts.parserTestCases(0)
     val infoset = ptc.optExpectedOrInputInfoset.get
     val actual = infoset.contents
@@ -259,7 +259,7 @@ class TestTDMLRunner {
       fileWriter =>
         fileWriter.write(testSchema.toString())
     }
-    lazy val ts = new DFDLTestSuite(testSuite)
+    lazy val ts = Runner(testSuite)
     ts.runOneTest("testRunModelFile")
   }
 
@@ -285,7 +285,7 @@ class TestTDMLRunner {
         fw =>
           fw.write(testSuite.toString())
       }
-      lazy val ts = new DFDLTestSuite(new java.io.File(tmpTDMLFileName))
+      lazy val ts = Runner("",tmpTDMLFileName)
       ts.runAllTests()
     } finally {
       try {
@@ -317,7 +317,7 @@ class TestTDMLRunner {
 
   @Test def testEmbeddedSchemaWorks(): Unit = {
     val testSuite = tdmlWithEmbeddedSchema
-    lazy val ts = new DFDLTestSuite(testSuite)
+    lazy val ts = Runner(testSuite)
     ts.runOneTest("testEmbeddedSchemaWorks")
   }
 
@@ -329,7 +329,7 @@ class TestTDMLRunner {
         fw =>
           fw.write(testSuite.toString())
       }
-      lazy val ts = new DFDLTestSuite(new java.io.File(tmpTDMLFileName))
+      lazy val ts = Runner("", tmpTDMLFileName)
       assertTrue(ts.isTDMLFileValid)
       ts.runAllTests()
     } finally {
@@ -357,7 +357,7 @@ class TestTDMLRunner {
 
   @Test def testMultiByteUnicodeWorks(): Unit = {
     val testSuite = tdmlWithUnicode2028
-    lazy val ts = new DFDLTestSuite(testSuite)
+    lazy val ts = Runner(testSuite)
     ts.runOneTest("testMultiByteUnicodeWorks")
   }
 
@@ -380,7 +380,7 @@ class TestTDMLRunner {
 
   @Test def testMultiByteUnicodeWithCDATAWorks(): Unit = {
     val testSuite = tdmlWithUnicode5E74AndCDATA
-    lazy val ts = new DFDLTestSuite(testSuite)
+    lazy val ts = Runner(testSuite)
     ts.runOneTest("testMultiByteUnicodeWithCDATAWorks")
   }
 
@@ -402,7 +402,7 @@ class TestTDMLRunner {
         </tdml:parserTestCase>
       </tdml:testSuite>
 
-    lazy val ts = new DFDLTestSuite(testSuite)
+    lazy val ts = Runner(testSuite)
     ts.runOneTest("testNilCompare")
   }
 
@@ -424,7 +424,7 @@ class TestTDMLRunner {
         </tdml:parserTestCase>
       </tdml:testSuite>
 
-    lazy val ts = new DFDLTestSuite(testSuite)
+    lazy val ts = Runner(testSuite)
     val e = intercept[Exception] {
       ts.runOneTest("testNilCompare")
     }
@@ -476,7 +476,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
         </tdml:parserTestCase>
       </tdml:testSuite>
 
-    lazy val ts = new DFDLTestSuite(testSuite)
+    lazy val ts = Runner(testSuite)
     val bytes = ts.parserTestCases(0).document.get.documentBytes
     assertEquals(252, bytes.length)
     val tsData = (testSuite \\ "data").text
@@ -511,7 +511,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
         </tdml:parserTestCase>
       </tdml:testSuite>
 
-    lazy val ts = new DFDLTestSuite(testSuite)
+    lazy val ts = Runner(testSuite)
     val bytes = ts.parserTestCases(0).document.get.documentBytes
     assertEquals(9, bytes.length)
     ts.runOneTest("testNilCompare")
@@ -519,8 +519,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
 
   @Test def test_tdmlNamespaces1(): Unit = {
     val testDir = "/test/tdml/"
-    val t0 = testDir + "tdmlNamespaces.tdml"
-    lazy val r = new DFDLTestSuite(Misc.getRequiredResource(t0))
+    lazy val r = Runner(testDir, "tdmlNamespaces.tdml")
     //
     // This is going to write in the default charset.
     //
@@ -561,7 +560,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
                         </ts:infoset>
                       </ts:parserTestCase>
                     </ts:testSuite>
-    val ts = new DFDLTestSuite(testSuite)
+    val ts = Runner(testSuite)
     ts.runOneTest("testTDMLHexBinaryTypeAwareSuccess", Some(testHexBinarySchema))
   }
 
@@ -580,7 +579,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
                         </ts:infoset>
                       </ts:parserTestCase>
                     </ts:testSuite>
-    val ts = new DFDLTestSuite(testSuite)
+    val ts = Runner(testSuite)
     ts.runOneTest("testTDMLHexBinaryTypeAwareSuccess", Some(testHexBinarySchema))
   }
 
@@ -598,7 +597,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
                         </ts:infoset>
                       </ts:parserTestCase>
                     </ts:testSuite>
-    val ts = new DFDLTestSuite(testSuite)
+    val ts = Runner(testSuite)
     val e = intercept[Exception] {
       ts.runOneTest("testTDMLHexBinaryTypeAwareFailure", Some(testHexBinarySchema))
     }
@@ -630,7 +629,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
                         </ts:infoset>
                       </ts:parserTestCase>
                     </ts:testSuite>
-    val ts = new DFDLTestSuite(testSuite)
+    val ts = Runner(testSuite)
     ts.runOneTest("testTDMLDateTimeTypeAwareSuccess", Some(testDateTimeSchema))
   }
 
@@ -647,7 +646,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
                         </ts:infoset>
                       </ts:parserTestCase>
                     </ts:testSuite>
-    val ts = new DFDLTestSuite(testSuite)
+    val ts = Runner(testSuite)
     ts.runOneTest("testTDMLDateTimeTypeAwareSuccess", Some(testDateTimeSchema))
   }
 
@@ -664,7 +663,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
                         </ts:infoset>
                       </ts:parserTestCase>
                     </ts:testSuite>
-    val ts = new DFDLTestSuite(testSuite)
+    val ts = Runner(testSuite)
     ts.runOneTest("testTDMLDateTimeTypeAwareSuccess", Some(testDateTimeSchema))
   }
 
@@ -681,7 +680,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
                         </ts:infoset>
                       </ts:parserTestCase>
                     </ts:testSuite>
-    val ts = new DFDLTestSuite(testSuite)
+    val ts = Runner(testSuite)
     ts.runOneTest("testTDMLDateTimeTypeAwareSuccess", Some(testDateTimeSchema))
   }
 
@@ -697,7 +696,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
                         </ts:infoset>
                       </ts:parserTestCase>
                     </ts:testSuite>
-    val ts = new DFDLTestSuite(testSuite)
+    val ts = Runner(testSuite)
     val e = intercept[Exception] {
       ts.runOneTest("testTDMLDateTimeTypeAwareFailure", Some(testDateTimeSchema))
     }

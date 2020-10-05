@@ -17,13 +17,14 @@
 package org.apache.daffodil.extensions
 
 import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.RunnerOpts
 import org.junit.AfterClass
 import org.junit.Test
 
 object TestLookAhead {
   val testDir = "/org/apache/daffodil/extensions/lookAhead/"
 
-  val runner = Runner(testDir, "lookAhead.tdml", validateTDMLFile = true)
+  val runner = Runner(testDir, "lookAhead.tdml", RunnerOpts(validateTDMLFile = true))
 
   @AfterClass def shutDown: Unit = {
     runner.reset

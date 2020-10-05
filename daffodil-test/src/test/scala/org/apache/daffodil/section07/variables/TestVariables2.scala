@@ -17,15 +17,12 @@
 
 package org.apache.daffodil.section07.variables
 
-import org.apache.daffodil.tdml.DFDLTestSuite
-import org.apache.daffodil.util._
+import org.apache.daffodil.tdml.Runner
 
 class TestVariables2 {
   val testDir = "/org/apache/daffodil/section07/variables/"
-  val tdml = testDir + "variables.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
+  lazy val runner = Runner(testDir, "variables.tdml")
 
-  val tdml_01 = testDir + "variables_01.tdml"
-  lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml_01))
+  lazy val runner_01 = Runner(testDir, "variables_01.tdml")
 
 }

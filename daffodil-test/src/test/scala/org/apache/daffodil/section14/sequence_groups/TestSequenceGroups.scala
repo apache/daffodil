@@ -19,6 +19,7 @@ package org.apache.daffodil.section14.sequence_groups
 
 import org.junit.Test
 import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.RunnerOpts
 import org.junit.AfterClass
 
 object TestSequenceGroups {
@@ -26,7 +27,7 @@ object TestSequenceGroups {
   val testDir_01 = "/org/apache/daffodil/section14/sequence_groups/"
 
   val runner_01 = Runner(testDir_01, "SequenceGroupDelimiters.tdml")
-  var runner_02 = Runner(testDir_01, "SequenceGroup.tdml", validateTDMLFile = false)
+  var runner_02 = Runner(testDir_01, "SequenceGroup.tdml", RunnerOpts(validateTDMLFile = false))
 
   @AfterClass def shutDown: Unit = {
     runner_01.reset
@@ -38,9 +39,6 @@ object TestSequenceGroups {
 class TestSequenceGroups {
 
   import TestSequenceGroups._
-
-
-
 
   @Test def test_SeqGrp_01(): Unit = { runner_01.runOneTest("SeqGrp_01") }
   @Test def test_SeqGrp_02(): Unit = { runner_01.runOneTest("SeqGrp_02") }

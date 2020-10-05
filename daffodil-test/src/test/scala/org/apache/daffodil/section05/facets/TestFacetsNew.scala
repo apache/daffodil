@@ -17,12 +17,10 @@
 
 package org.apache.daffodil.section05.facets
 
-import org.apache.daffodil.util._
-import org.apache.daffodil.tdml.DFDLTestSuite
+import org.apache.daffodil.tdml.Runner
 
 class TestFacetsNew {
   val testDir = "/org/apache/daffodil/section05/facets/"
-  val aa = testDir + "Facets.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  lazy val runner = Runner(testDir, "Facets.tdml")
 
 }

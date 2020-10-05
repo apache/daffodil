@@ -17,15 +17,17 @@
 
 package org.apache.daffodil.section13.text_number_props
 
-import org.apache.daffodil.util._
-import org.apache.daffodil.tdml.DFDLTestSuite
+import org.apache.daffodil.tdml.Runner
 
-import org.junit.Test
+import org.junit.{ AfterClass, Test }
 
 class TestTextNumberPropsNew {
   val testDir = "/org/apache/daffodil/section13/text_number_props/"
-  val aa = testDir + "TextNumberProps.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  lazy val runner = Runner(testDir, "TextNumberProps.tdml")
+
+  @AfterClass def shutdown: Unit = {
+    runner.reset
+  }
 
   // DFDL-861
   @Test def test_standardZeroRep03(): Unit = { runner.runOneTest("standardZeroRep03") }

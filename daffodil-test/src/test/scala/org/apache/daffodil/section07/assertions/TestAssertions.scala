@@ -19,11 +19,12 @@ package org.apache.daffodil.section07.assertions
 
 import org.junit.Test
 import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.RunnerOpts
 import org.junit.AfterClass
 
 object TestAssertions {
   val testDir = "/org/apache/daffodil/section07/assertions/"
-  val runner = Runner(testDir, "assert.tdml", validateTDMLFile = false)
+  val runner = Runner(testDir, "assert.tdml", RunnerOpts(validateTDMLFile = false))
 
   @AfterClass def tearDown: Unit = {
     runner.reset

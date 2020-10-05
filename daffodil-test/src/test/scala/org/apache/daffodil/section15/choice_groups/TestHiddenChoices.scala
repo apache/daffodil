@@ -19,13 +19,14 @@ package org.apache.daffodil.section15.choice_groups
 
 import org.junit.Test
 import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.RunnerOpts
 import org.junit.AfterClass
 
 object TestHiddenChoices {
 
   val testDir = "/org/apache/daffodil/section15/choice_groups/"
 
-  val runner = Runner(testDir, "HiddenChoices.tdml", validateTDMLFile = true)
+  val runner = Runner(testDir, "HiddenChoices.tdml", RunnerOpts(validateTDMLFile = true))
 
   @AfterClass def shutDown: Unit = {
     runner.reset

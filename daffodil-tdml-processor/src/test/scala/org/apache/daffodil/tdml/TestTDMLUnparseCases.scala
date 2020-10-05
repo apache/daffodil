@@ -48,7 +48,7 @@ class TestTDMLUnparseCases {
                         <ts:document>Hello</ts:document>
                       </ts:unparserTestCase>
                     </ts:testSuite>
-    lazy val ts = new DFDLTestSuite(testSuite)
+    lazy val ts = Runner(testSuite)
     val tc: UnparserTestCase = ts.unparserTestCases.find { utc => utc.tcName == "test1" }.get
     // println(tc)
     tc.document
@@ -61,5 +61,4 @@ class TestTDMLUnparseCases {
     // ts.trace
     ts.runOneTest("test1")
   }
-
 }

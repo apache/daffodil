@@ -17,12 +17,10 @@
 
 package org.apache.daffodil.section02.validation_errors
 
-import org.apache.daffodil.util._
-import org.apache.daffodil.tdml.DFDLTestSuite
+import org.apache.daffodil.tdml.Runner
 
 class TestValidationErrNew {
   val testDir = "/org/apache/daffodil/section02/validation_errors/"
-  val aa = testDir + "Validation.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  lazy val runner = Runner(testDir, "Validation.tdml")
 
 }

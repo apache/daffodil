@@ -18,13 +18,11 @@
 package org.apache.daffodil.section02.schema_definition_errors
 
 import org.junit.Test
-import org.apache.daffodil.util._
-import org.apache.daffodil.tdml.DFDLTestSuite
+import org.apache.daffodil.tdml.Runner
 
 class TestSDENew {
   val testDir = "/org/apache/daffodil/section02/schema_definition_errors/"
-  val aa = testDir + "SchemaDefinitionErrors.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  lazy val runner = Runner(testDir, "SchemaDefinitionErrors.tdml")
 
   @Test def test_schema_component_err(): Unit = { runner.runOneTest("schema_component_err") }
 

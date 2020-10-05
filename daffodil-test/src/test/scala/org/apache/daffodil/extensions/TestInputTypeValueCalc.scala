@@ -19,15 +19,16 @@ package org.apache.daffodil.extensions
 
 import org.junit.Test
 import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.RunnerOpts
 import org.junit.AfterClass
 
 object TestInputTypeValueCalc {
   val testDir = "/org/apache/daffodil/extensions/type_calc/"
 
-  val runner = Runner(testDir, "inputTypeCalc.tdml", validateTDMLFile = false)
-  val exprRunner = Runner(testDir, "inputTypeCalcExpression.tdml", validateTDMLFile = false)
-  val fnRunner = Runner(testDir, "typeCalcFunctions.tdml", validateTDMLFile = false)
-  val fnErrRunner = Runner(testDir, "typeCalcFunctionErrors.tdml", validateTDMLFile = false)
+  val runner = Runner(testDir, "inputTypeCalc.tdml", RunnerOpts(validateTDMLFile = false))
+  val exprRunner = Runner(testDir, "inputTypeCalcExpression.tdml", RunnerOpts(validateTDMLFile = false))
+  val fnRunner = Runner(testDir, "typeCalcFunctions.tdml", RunnerOpts(validateTDMLFile = false))
+  val fnErrRunner = Runner(testDir, "typeCalcFunctionErrors.tdml", RunnerOpts(validateTDMLFile = false))
 
   @AfterClass def shutDown: Unit = {
     runner.reset

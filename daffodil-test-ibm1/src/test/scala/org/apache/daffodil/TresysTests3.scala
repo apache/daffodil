@@ -18,21 +18,22 @@
 package org.apache.daffodil
 
 import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.RunnerOpts
 import org.junit.{ AfterClass, Test }
 
 object TresysTests3 {
   val testDir = "/test-suite/tresys-contributed/"
 
   lazy val runnerBF = Runner(testDir, "bitFlagExpression.tdml",
-    compileAllTopLevel = false) // test has elements that have upward paths past root.
+    RunnerOpts(compileAllTopLevel = false)) // test has elements that have upward paths past root.
 
-  lazy val runnerAH = Runner(testDir, "AH.tdml", compileAllTopLevel = true)
+  lazy val runnerAH = Runner(testDir, "AH.tdml", RunnerOpts(compileAllTopLevel = true))
 
-  lazy val runnerAM = Runner(testDir, "AM.tdml", validateTDMLFile = true, validateDFDLSchemas = false,
-    compileAllTopLevel = true)
+  lazy val runnerAM = Runner(testDir, "AM.tdml", RunnerOpts(validateTDMLFile = true, validateDFDLSchemas = false,
+    compileAllTopLevel = true))
 
-  lazy val runnerAU = Runner(testDir, "AU.tdml", validateTDMLFile = true, validateDFDLSchemas = false,
-    compileAllTopLevel = true)
+  lazy val runnerAU = Runner(testDir, "AU.tdml", RunnerOpts(validateTDMLFile = true, validateDFDLSchemas = false,
+    compileAllTopLevel = true))
 
   lazy val runnerBC = Runner(testDir, "BC.tdml")
   lazy val runnerBD = Runner(testDir, "BD.tdml")

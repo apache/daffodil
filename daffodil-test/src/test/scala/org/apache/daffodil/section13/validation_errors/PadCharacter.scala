@@ -18,6 +18,7 @@
 package org.apache.daffodil.section13.validation_errors
 
 import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.RunnerOpts
 import org.apache.daffodil.xml.XMLUtils
 import org.junit.Test
 
@@ -51,7 +52,7 @@ class PadCharacter {
         </tdml:parserTestCase>
       </tdml:testSuite>
 
-    val runner = Runner(testSuite, validateTDMLFile = false)
+    val runner = Runner(testSuite, RunnerOpts(validateTDMLFile = false))
     runner.runOneTest("short_form_pad_char")
     runner.reset
   }
@@ -85,7 +86,7 @@ class PadCharacter {
         </tdml:parserTestCase>
       </tdml:testSuite>
 
-    val runner = Runner(testSuite, validateTDMLFile = false)
+    val runner = Runner(testSuite, RunnerOpts(validateTDMLFile = false))
     runner.runOneTest("long_form_pad_char")
     runner.reset
   }

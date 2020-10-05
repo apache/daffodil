@@ -50,7 +50,7 @@ class TestTDMLCrossTest {
           <ts:document>foo</ts:document>
         </ts:parserTestCase>
       </ts:testSuite>
-    lazy val ts = new DFDLTestSuite(testSuite)
+    lazy val ts = Runner(testSuite)
     val e = intercept[TDMLException] {
       ts.runOneTest("test1")
     }

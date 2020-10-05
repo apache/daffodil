@@ -19,15 +19,16 @@ package org.apache.daffodil.section02.processing_errors
 
 import org.junit.Test
 import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.RunnerOpts
 import org.junit.AfterClass
 
 object TestProcessingErrors {
   val testDir = "/org/apache/daffodil/section02/processing_errors/"
 
-  val runner = Runner(testDir, "dfdl-schema-validation-diagnostics.tdml", validateTDMLFile = false)
+  val runner = Runner(testDir, "dfdl-schema-validation-diagnostics.tdml", RunnerOpts(validateTDMLFile = false))
 
-  val runner02 = Runner(testDir, "ProcessingErrors.tdml", validateTDMLFile = false, validateDFDLSchemas = false)
-  val runner02Validate = Runner(testDir, "ProcessingErrors.tdml", validateTDMLFile = true, validateDFDLSchemas = true)
+  val runner02 = Runner(testDir, "ProcessingErrors.tdml", RunnerOpts(validateTDMLFile = false, validateDFDLSchemas = false))
+  val runner02Validate = Runner(testDir, "ProcessingErrors.tdml", RunnerOpts(validateTDMLFile = true, validateDFDLSchemas = true))
 
   @AfterClass def shutDown: Unit = {
     runner.reset

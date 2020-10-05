@@ -18,11 +18,10 @@
 package org.apache.daffodil.section06.namespaces
 
 import org.apache.daffodil.util._
-import org.apache.daffodil.tdml.DFDLTestSuite
+import org.apache.daffodil.tdml.Runner
 
 class TestNamespacesNew extends Logging {
   val testDir = "/org/apache/daffodil/section06/namespaces/"
-  val aa = testDir + "namespaces.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  lazy val runner = Runner(testDir, "namespaces.tdml")
 
 }

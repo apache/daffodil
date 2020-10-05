@@ -19,12 +19,13 @@ package org.apache.daffodil.section12.lengthKind
 
 import org.junit.Test
 import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.RunnerOpts
 import org.junit.AfterClass
 
 object TestLengthKindPrefixed {
   private val testDir = "/org/apache/daffodil/section12/lengthKind/"
 
-  val runner = Runner(testDir, "PrefixedTests.tdml", validateTDMLFile = false, validateDFDLSchemas = false)
+  val runner = Runner(testDir, "PrefixedTests.tdml", RunnerOpts(validateTDMLFile = false, validateDFDLSchemas = false))
 
   @AfterClass def shutDown: Unit = {
     runner.reset

@@ -19,12 +19,13 @@ package org.apache.daffodil.section07.property_syntax
 
 import org.junit.Test
 import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.RunnerOpts
 import org.junit.AfterClass
 
 object TestPropertySyntax2 {
 
   val testDir1 = "/org/apache/daffodil/section07/property_syntax/"
-  val runner = Runner(testDir1, "PropertySyntax.tdml", false, false)
+  val runner = Runner(testDir1, "PropertySyntax.tdml", RunnerOpts(validateTDMLFile=false, validateDFDLSchemas=false))
 
   @AfterClass def shutDown: Unit = {
     runner.reset

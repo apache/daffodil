@@ -19,13 +19,14 @@ package org.apache.daffodil.section07.escapeScheme
 
 import org.junit._
 import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.RunnerOpts
 import org.junit.AfterClass
 
 object TestEscapeScheme {
   val testDir = "/org/apache/daffodil/section07/escapeScheme/"
-  val runner = Runner(testDir, "escapeScheme.tdml", validateTDMLFile = false)
-  val runnerNeg = Runner(testDir, "escapeSchemeNeg.tdml", validateTDMLFile = false)
-  val runner2 = Runner(testDir, "escapeScenarios.tdml", validateTDMLFile = false)
+  val runner = Runner(testDir, "escapeScheme.tdml", RunnerOpts(validateTDMLFile = false))
+  val runnerNeg = Runner(testDir, "escapeSchemeNeg.tdml", RunnerOpts(validateTDMLFile = false))
+  val runner2 = Runner(testDir, "escapeScenarios.tdml", RunnerOpts(validateTDMLFile = false))
 
   @AfterClass def shutDown(): Unit = {
     runner.reset

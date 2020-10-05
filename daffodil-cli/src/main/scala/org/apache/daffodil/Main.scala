@@ -82,7 +82,7 @@ import org.apache.daffodil.processors.DataLoc
 import org.apache.daffodil.processors.DataProcessor
 import org.apache.daffodil.processors.HasSetDebugger
 import org.apache.daffodil.schema.annotation.props.gen.BitOrder
-import org.apache.daffodil.tdml.DFDLTestSuite
+import org.apache.daffodil.tdml.Runner
 import org.apache.daffodil.tdml.TDMLException
 import org.apache.daffodil.tdml.TDMLTestNotCompatibleException
 import org.apache.daffodil.udf.UserDefinedFunctionFatalErrorException
@@ -1228,7 +1228,7 @@ object Main extends Logging {
         val testOpts = conf.test
 
         val tdmlFile = testOpts.tdmlfile()
-        val tdmlRunner = new DFDLTestSuite(new java.io.File(tdmlFile))
+        val tdmlRunner = Runner("", tdmlFile)
         setupDebugOrTrace(tdmlRunner, conf)
 
         val tests = {

@@ -19,13 +19,11 @@ package org.apache.daffodil.section15.choice_groups
 
 import org.junit.Test
 import org.junit.AfterClass
-import org.apache.daffodil.util._
-import org.apache.daffodil.tdml.DFDLTestSuite
+import org.apache.daffodil.tdml.Runner
 
 object TestUnparseChoiceNew {
   val testDir = "/org/apache/daffodil/section15/choice_groups/"
-  val aa = testDir + "choice-unparse.tdml"
-  var runnerCH = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  var runnerCH = Runner(testDir, "choice-unparse.tdml")
 
   @AfterClass def tearDown(): Unit = {
     runnerCH = null

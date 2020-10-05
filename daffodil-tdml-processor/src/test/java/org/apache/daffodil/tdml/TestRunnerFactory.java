@@ -33,8 +33,8 @@ public class TestRunnerFactory {
 
   @Test
   public void testPrimaryConstructor() {
-    Runner runner = new Runner(null, testDir, testTdmlFile, true, true, false, NoRoundTrip$.MODULE$,
-        "off", JavaConverters.asScalaBufferConverter(Arrays.asList("daffodil", "ibm")).asScala());
+    Runner runner = new Runner(testDir, testTdmlFile, new RunnerOpts(true, true, false, NoRoundTrip$.MODULE$,
+        "off", JavaConverters.asScalaBufferConverter(Arrays.asList("daffodil", "ibm")).asScala(), false, false));
     runner.runOneTest("testPass");
   }
 

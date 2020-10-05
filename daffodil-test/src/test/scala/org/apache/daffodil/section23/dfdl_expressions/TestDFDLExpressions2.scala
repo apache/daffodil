@@ -19,6 +19,7 @@ package org.apache.daffodil.section23.dfdl_expressions
 
 import org.junit.Test
 import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.RunnerOpts
 import org.junit.AfterClass
 
 object TestDFDLExpressions2 {
@@ -40,7 +41,7 @@ object TestDFDLExpressions2 {
 
   val runner6 = Runner(testDir, "valueLength.tdml")
 
-  val runner7 = Runner(testDir4, "expressions2.tdml", compileAllTopLevel = true)
+  val runner7 = Runner(testDir4, "expressions2.tdml", RunnerOpts(compileAllTopLevel = true))
 
   @AfterClass def shutdown = {
     runner.reset

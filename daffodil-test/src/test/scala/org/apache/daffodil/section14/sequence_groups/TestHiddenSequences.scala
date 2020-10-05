@@ -19,13 +19,14 @@ package org.apache.daffodil.section14.sequence_groups
 
 import org.junit.Test
 import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.RunnerOpts
 import org.junit.AfterClass
 
 object TestHiddenSequences {
 
   val testDir = "/org/apache/daffodil/section14/sequence_groups/"
 
-  val runner = Runner(testDir, "HiddenSequences.tdml", validateTDMLFile = true)
+  val runner = Runner(testDir, "HiddenSequences.tdml", RunnerOpts(validateTDMLFile = true))
 
   @AfterClass def shutDown: Unit = {
     runner.reset
@@ -36,7 +37,6 @@ object TestHiddenSequences {
 class TestHiddenSequences {
 
   import TestHiddenSequences._
-
 
   @Test def test_parseHiddenGroupRef(): Unit = { runner.runOneTest("parseHiddenGroupRef") }
   @Test def test_parseRegularGroupRef(): Unit = { runner.runOneTest("parseRegularGroupRef") }
