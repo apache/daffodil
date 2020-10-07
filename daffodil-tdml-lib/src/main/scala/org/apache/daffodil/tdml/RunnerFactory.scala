@@ -100,6 +100,17 @@ class RunnerOpts(
  * defaultRoundTripDefaultDefault
  */
 object Runner {
+
+def apply(dir: String, file: String,
+    validateTDMLFile: Boolean = true,
+    validateDFDLSchemas: Boolean = true,
+    compileAllTopLevel: Boolean = false,
+    defaultRoundTripDefault: RoundTrip = RunnerOpts.defaultRoundTripDefaultDefault,
+    defaultValidationDefault: String = RunnerOpts.defaultValidationDefaultDefault,
+    defaultImplementationsDefault: Seq[String] = RunnerOpts.defaultImplementationsDefaultDefault): Runner =
+    new Runner(elem = null, dir, file, validateTDMLFile, validateDFDLSchemas, compileAllTopLevel,
+      defaultRoundTripDefault, defaultValidationDefault, defaultImplementationsDefault)
+
   def apply(dir: String, file: String): Runner =
     new Runner(dir, file, RunnerOpts())
 
@@ -111,6 +122,9 @@ object Runner {
 
   def apply(elem: scala.xml.Elem, options: RunnerOpts): Runner =
     new Runner(elem, options)
+
+  def apply(elem: scala.xml.Elem, validateTDMLFile: Boolean): Runner =
+    new Runner(elem, dir = null, file = null, validateTDMLFile)
 }
 
 /**
@@ -121,6 +135,22 @@ object Runner {
  */
 class Runner private (elem: scala.xml.Elem, dir: String, file: String, options: RunnerOpts) 
 extends HasSetDebugger {
+
+  def this (elem: scala.xml.Elem, 
+    dir: String, 
+    file: String,
+    validateTDMLFile: Boolean = true,
+    validateDFDLSchemas: Boolean = true,
+    compileAllTopLevel: Boolean = false,
+    defaultRoundTripDefault: RoundTrip = RunnerOpts.defaultRoundTripDefaultDefault,
+    defaultValidationDefault: String = RunnerOpts.defaultValidationDefaultDefault,
+    defaultImplementationsDefault: Seq[String] = RunnerOpts.defaultImplementationsDefaultDefault) = 
+      this(elem, dir, file, RunnerOpts(validateTDMLFile,
+        validateDFDLSchemas,
+        compileAllTopLevel,
+        defaultRoundTripDefault,
+        defaultValidationDefault,
+        defaultImplementationsDefault))
 
   /*
    * these constructors are for use by Java programs
