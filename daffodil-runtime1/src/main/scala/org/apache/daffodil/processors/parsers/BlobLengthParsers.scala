@@ -47,6 +47,8 @@ sealed abstract class BlobLengthParser(override val context: ElementRuntimeData)
 
     val array = new Array[Byte](start.tunable.blobChunkSizeInBytes)
     val blobChunkSizeInBits = start.tunable.blobChunkSizeInBytes * 8
+    if (blobChunkSizeInBits > Int.MaxValue)
+      start.SDE("blobChunkSizeInBytes is too large. blobChunkSizeInBytes must be less than " + (Int.MaxValue / 8))
 
     while (remainingBitsToGet > 0) {
       val bitsToGet = Math.min(remainingBitsToGet, blobChunkSizeInBits).toInt

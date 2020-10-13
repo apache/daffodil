@@ -521,7 +521,6 @@ final class InputSourceDataInputStream private (val inputSource: InputSource)
 
   def skip(nBits: Long, finfo: FormatInfo): Boolean = {
     // threadCheck()
-    Assert.usage(nBits <= Int.MaxValue)
     if (!this.isDefinedForLength(nBits)) return false
     setBitPos0b(bitPos0b + nBits)
     true
