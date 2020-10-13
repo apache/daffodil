@@ -151,10 +151,6 @@ lazy val commonSettings = Seq(
 
 def scalacCrossOptions(scalaVersion: String) =
   CrossVersion.partialVersion(scalaVersion) match {
-    case Some((2, 11)) => Seq(
-      "-language:existentials",
-      "-Ywarn-unused-import"
-    )
     case Some((2, 12)) => Seq(
       "-Ywarn-unused:imports"
     )
