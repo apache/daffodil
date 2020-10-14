@@ -562,7 +562,8 @@ class DataProcessor private (
       UState.createInitialUState(
         out,
         this,
-        inputter)
+        inputter,
+        areDebugging)
     val res = try {
       if (areDebugging) {
         Assert.invariant(optDebugger.isDefined)

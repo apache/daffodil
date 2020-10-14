@@ -454,7 +454,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
       xml,
       walkHidden = !DebuggerConfig.removeHidden,
       ignoreBlocks = true,
-      removeUnneeded = false)
+      releaseUnneededInfoset = false)
     iw.walk(lastWalk = true)
     bos.toString("UTF-8")
   }

@@ -74,7 +74,8 @@ abstract class UState(
   vbox: VariableBox,
   diagnosticsArg: List[Diagnostic],
   dataProcArg: Maybe[DataProcessor],
-  tunable: DaffodilTunables)
+  tunable: DaffodilTunables,
+  areDebugging: Boolean)
   extends ParseOrUnparseState(vbox, diagnosticsArg, dataProcArg, tunable)
   with Cursor[InfosetAccessor] with ThrowsSDE with SavesErrorsAndWarnings {
 
@@ -349,6 +350,8 @@ abstract class UState(
   def removeVariableInstance(vrd: VariableRuntimeData): Unit = {
     variableMap.removeVariableInstance(vrd)
   }
+
+  final val releaseUnneededInfoset: Boolean = !areDebugging && tunable.releaseUnneededInfoset
 }
 
 /**
@@ -368,8 +371,9 @@ final class UStateForSuspension(
   escapeSchemeEVCacheMaybe: Maybe[MStackOfMaybe[EscapeSchemeUnparserHelper]],
   delimiterStackMaybe: Maybe[MStackOf[DelimiterStackUnparseNode]],
   override val prior: UStateForSuspension,
-  tunable: DaffodilTunables)
-  extends UState(dos, vbox, mainUState.diagnostics, mainUState.dataProc, tunable) {
+  tunable: DaffodilTunables,
+  areDebugging: Boolean)
+  extends UState(dos, vbox, mainUState.diagnostics, mainUState.dataProc, tunable, areDebugging) {
 
   dState.setMode(UnparserBlocking)
   dState.setCurrentNode(thisElement.asInstanceOf[DINode])
@@ -443,8 +447,9 @@ final class UStateMain private (
   diagnosticsArg: List[Diagnostic],
   dataProcArg: DataProcessor,
   dos: DirectOrBufferedDataOutputStream,
-  tunable: DaffodilTunables)
-  extends UState(dos, vbox, diagnosticsArg, One(dataProcArg), tunable) {
+  tunable: DaffodilTunables,
+  areDebugging: Boolean)
+  extends UState(dos, vbox, diagnosticsArg, One(dataProcArg), tunable, areDebugging) {
 
   dState.setMode(UnparserBlocking)
 
@@ -454,9 +459,10 @@ final class UStateMain private (
     diagnosticsArg: List[Diagnostic],
     dataProcArg: DataProcessor,
     dataOutputStream: DirectOrBufferedDataOutputStream,
-    tunable: DaffodilTunables) =
+    tunable: DaffodilTunables,
+    areDebugging: Boolean) =
     this(inputter, new VariableBox(vmap), diagnosticsArg, dataProcArg,
-      dataOutputStream, tunable)
+      dataOutputStream, tunable, areDebugging)
 
   private var _prior: UStateForSuspension = null
   override def prior = _prior
@@ -495,7 +501,8 @@ final class UStateMain private (
       es,
       ds,
       prior,
-      tunable)
+      tunable,
+      areDebugging)
 
     clone.setProcessor(processor)
 
@@ -647,7 +654,8 @@ object UState {
   def createInitialUState(
     out: DirectOrBufferedDataOutputStream,
     dataProc: DFDL.DataProcessor,
-    inputter: InfosetInputter): UStateMain = {
+    inputter: InfosetInputter,
+    areDebugging: Boolean): UStateMain = {
     Assert.invariant(inputter.isInitialized)
 
     /**
@@ -657,8 +665,14 @@ object UState {
     val variables = dataProc.variableMap.copy
 
     val diagnostics = Nil
-    val newState = new UStateMain(inputter, variables, diagnostics, dataProc.asInstanceOf[DataProcessor], out,
-      dataProc.getTunables()) // null means no prior UState
+    val newState = new UStateMain(
+        inputter,
+        variables,
+        diagnostics,
+        dataProc.asInstanceOf[DataProcessor],
+        out,
+        dataProc.getTunables(),
+        areDebugging)
     newState
   }
 }
