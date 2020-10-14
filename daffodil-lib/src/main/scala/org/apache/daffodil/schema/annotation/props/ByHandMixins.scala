@@ -392,7 +392,7 @@ object BinaryBooleanFalseRepType {
 trait TextStandardExponentCharacterMixin
 
 trait TextStandardExponentRepMixin extends PropertyMixin {
-  protected final lazy val optionTextStandardExponentRepRaw = findPropertyOption("textStandardExponentRep")
+  protected final lazy val optionTextStandardExponentRepRaw = findPropertyOption("textStandardExponentRep", expressionAllowed = true)
   protected final lazy val textStandardExponentRepRaw = requireProperty(optionTextStandardExponentRepRaw)
 
   // Deprecated textStandardExponentCharacter
