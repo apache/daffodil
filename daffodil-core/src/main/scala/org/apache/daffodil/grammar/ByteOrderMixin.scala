@@ -25,7 +25,7 @@ import org.apache.daffodil.schema.annotation.props.Found
 trait ByteOrderAnalysisMixin extends GrammarMixin { self: Term =>
 
   final protected lazy val thereIsAByteOrderDefined: Boolean = {
-    val byteOrdLookup = this.findPropertyOption("byteOrder")
+    val byteOrdLookup = this.findPropertyOption("byteOrder", expressionAllowed = true)
     byteOrdLookup match {
       case n: NotFound => false
       case f: Found => true

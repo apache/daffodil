@@ -321,8 +321,8 @@ abstract class SimpleTypeDefBase(xml: Node, lexicalParent: SchemaComponent)
     }
   }
 
-  lazy val optInputTypeCalc = findPropertyOption("inputTypeCalc")
-  lazy val optOutputTypeCalc = findPropertyOption("outputTypeCalc")
+  lazy val optInputTypeCalc = findPropertyOption("inputTypeCalc", expressionAllowed = true)
+  lazy val optOutputTypeCalc = findPropertyOption("outputTypeCalc", expressionAllowed = true)
 
   lazy val optTypeCalculator: Option[TypeCalculator] = LV('optTypeCalculator) {
     optRepType.flatMap(repType => {

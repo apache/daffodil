@@ -91,10 +91,10 @@ trait ElementBase
 
   override def name: String
 
-  final lazy val inputValueCalcOption = findPropertyOption("inputValueCalc")
+  final lazy val inputValueCalcOption = findPropertyOption("inputValueCalc", expressionAllowed = true)
 
   final lazy val outputValueCalcOption = {
-    val optOVC = findPropertyOption("outputValueCalc")
+    val optOVC = findPropertyOption("outputValueCalc", expressionAllowed = true)
     schemaDefinitionWhen(optOVC.isDefined && isOptional, "dfdl:outputValueCalc cannot be defined on optional elements.")
     schemaDefinitionWhen(optOVC.isDefined && isArray, "dfdl:outputValueCalc cannot be defined on array elements.")
     schemaDefinitionWhen(optOVC.isDefined && isComplexType, "dfdl:outputValueCalc cannot be defined on complexType elements.")
