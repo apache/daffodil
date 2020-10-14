@@ -242,9 +242,9 @@ subcomponents is subject to the terms and conditions of the following licenses.
   following files:
     - daffodil-lib/src/main/resources/org/apache/daffodil/xsd/XMLSchema.dtd (https://www.w3.org/2001/XMLSchema.dtd)
     - daffodil-lib/src/main/resources/org/apache/daffodil/xsd/XMLSchema.xsd (https://www.w3.org/2001/XMLSchema.xsd)
-    - daffodil-lib/src/main/resources/org/apache/daffodil/xsd/xml.xsd (https://www.w3.org/2001/xml.xsd)
-    - daffodil-lib/src/main/resources/org/apache/daffodil/xsd/datatypes.dtd (https://www.w3.org/2001/datatypes.dtd)
     - daffodil-lib/src/main/resources/org/apache/daffodil/xsd/XMLSchema_for_DFDL.xsd (https://www.w3.org/2001/XMLSchema.dtd)
+    - daffodil-lib/src/main/resources/org/apache/daffodil/xsd/datatypes.dtd (https://www.w3.org/2001/datatypes.dtd)
+    - daffodil-lib/src/main/resources/org/apache/daffodil/xsd/xml.xsd (https://www.w3.org/2001/xml.xsd)
   These files are available under the W3C Software and Document Licnese:
 
     By obtaining and/or copying this work, you (the licensee) agree that you have
@@ -285,20 +285,19 @@ subcomponents is subject to the terms and conditions of the following licenses.
 
   This product bundles content from the Open Grid Forum Data Format Description
   Language (DFDL) v1.0 Specification, including the following files:
-    - daffodil-test/src/test/resources/org/apache/daffodil/ibm-tests/dpaspc7132.dfdl.xsd
-    - daffodil-test/src/test/resources/org/apache/daffodil/ibm-tests/dpaspc7131.dfdl.xsd
-    - daffodil-test/src/test/resources/org/apache/daffodil/ibm-tests/dpaspc121_02.dfdl.xsd
-    - daffodil-test/src/test/resources/org/apache/daffodil/ibm-tests/dpaspc7132_2.dfdl.xsd
-    - daffodil-test-ibm1/src/test/resources/test-suite/ibm-contributed/dpaspc_41_83_04_02.dfdl.xsd
-    - daffodil-test-ibm1/src/test/resources/test-suite/ibm-contributed/dpaspc83_01.dfdl.xsd
-    - daffodil-test-ibm1/src/test/resources/test-suite/ibm-contributed/dpaspc83_02.dfdl.xsd
+    - daffodil-test-ibm1/src/test/resources/test-suite/ibm-contributed/dpaspc121_01.dfdl.xsd
+    - daffodil-test-ibm1/src/test/resources/test-suite/ibm-contributed/dpaspc121_02.dfdl.xsd
+    - daffodil-test-ibm1/src/test/resources/test-suite/ibm-contributed/dpaspc7131.dfdl.xsd
+    - daffodil-test-ibm1/src/test/resources/test-suite/ibm-contributed/dpaspc7132.dfdl.xsd
+    - daffodil-test-ibm1/src/test/resources/test-suite/ibm-contributed/dpaspc7132_2.dfdl.xsd
     - daffodil-test-ibm1/src/test/resources/test-suite/ibm-contributed/dpaspc7133_01.dfdl.xsd
     - daffodil-test-ibm1/src/test/resources/test-suite/ibm-contributed/dpaspc81_01.dfdl.xsd
-    - daffodil-test-ibm1/src/test/resources/test-suite/ibm-contributed/dpaspc121_02.dfdl.xsd
-    - daffodil-test-ibm1/src/test/resources/test-suite/ibm-contributed/dpaspc_41_83_04_01.dfdl.xsd
     - daffodil-test-ibm1/src/test/resources/test-suite/ibm-contributed/dpaspc82_01.dfdl.xsd
-    - daffodil-test-ibm1/src/test/resources/test-suite/ibm-contributed/dpaspc121_01.dfdl.xsd
+    - daffodil-test-ibm1/src/test/resources/test-suite/ibm-contributed/dpaspc83_01.dfdl.xsd
+    - daffodil-test-ibm1/src/test/resources/test-suite/ibm-contributed/dpaspc83_02.dfdl.xsd
     - daffodil-test-ibm1/src/test/resources/test-suite/ibm-contributed/dpaspc83_03.dfdl.xsd
+    - daffodil-test-ibm1/src/test/resources/test-suite/ibm-contributed/dpaspc_41_83_04_01.dfdl.xsd
+    - daffodil-test-ibm1/src/test/resources/test-suite/ibm-contributed/dpaspc_41_83_04_02.dfdl.xsd
   The content is available under the Open Grid Forum license:
 
     Intellectual Property Statement
