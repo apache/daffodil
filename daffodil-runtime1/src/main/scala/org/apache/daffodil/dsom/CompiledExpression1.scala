@@ -410,7 +410,7 @@ class DPathElementCompileInfo(
    * different choice branches. Either way, we have to indicate that they are
    * ALL referenced by this path step.
    */
-  private def indicateReferencedByExpression(matches: Seq[DPathElementCompileInfo]): Unit = {
+  def indicateReferencedByExpression(matches: Seq[DPathElementCompileInfo]): Unit = {
     matches.foreach { info =>
       info.isReferencedByExpressions = true
     }

@@ -67,6 +67,8 @@ import org.apache.daffodil.dsom.DPathCompileInfo
 
 sealed trait DINode {
 
+  def diParent: DINode
+
   def asSimple: DISimple = {
     this match {
       case diSimple: DISimple => diSimple
@@ -134,8 +136,14 @@ sealed trait DINode {
    * should only free children if they are not actually needed anymore. It can
    * assume that the infoset events have been created, but if, for example, a
    * child is used in DPath expressions this should not free the child.
+   *
+   * For testing purposes, the doRelease argument says if it should actually
+   * free the child. If false, this will not free the child and instead just
+   * marks the wouldHaveBeenFreed variable.
    */
-  def freeChildIfNoLongerNeeded(index: Int): Unit
+  def freeChildIfNoLongerNeeded(index: Int, doFree: Boolean): Unit
+
+  var wouldHaveBeenFreed: Boolean = false
 
   /**
    * When unparsing, arrays and complex elements have a notion of being finalized.
@@ -151,7 +159,6 @@ sealed trait DINode {
    * Array or Complex exception.
    */
   def requireFinal: Unit
-
 }
 
 /**
@@ -1011,28 +1018,14 @@ final class DIArray(
   private lazy val nfe = new InfosetArrayNotFinalException(this)
 
   override def requireFinal: Unit = {
-    if (!isFinal) {
-      // If this DIArray isn't final, either we haven't gotten all of its
-      // children yet, or the array is empty and we'll never get its children.
-      // In the former case,  we'll eventually get all the children and isFinal
-      // will be set to true. However, in the latter case, isFinal will never
-      // get set since the InfosetCursorFromXMLEventCursor, which sets the
-      // isFinal state, doesn't know anything about the array. So we must check
-      // if the parent isFinal. If the parent is final, that means we had a
-      // zero-length array, and it should now be marked as final. If the parent
-      // isn't final then we could still be wainting for events to come in, so
-      // throw an nfe.
-      if (parent.isFinal) {
-        isFinal = true
-      } else {
-        throw nfe
-      }
-    }
+    if (!isFinal) throw nfe
   }
 
   override def isSimple = false
   override def isComplex = false
   override def isArray = true
+
+  override def diParent = parent
 
   // Parsers don't actually call setHidden on DIArrays, only on DIElements. But
   // DIArrays are always created when there is at least one child element, and
@@ -1138,11 +1131,15 @@ final class DIArray(
 
   final def isDefaulted: Boolean = children.forall { _.isDefaulted }
 
-  final def freeChildIfNoLongerNeeded(index: Int): Unit = {
+  final def freeChildIfNoLongerNeeded(index: Int, doFree: Boolean): Unit = {
     val node = _contents(index)
     if (!node.erd.dpathElementCompileInfo.isReferencedByExpressions) {
-      // set to null so that the garbage collector can free this node
-      _contents(index) = null
+      if (doFree) {
+        // set to null so that the garbage collector can free this node
+        _contents(index) = null
+      } else {
+        node.wouldHaveBeenFreed = true
+      }
     }
   }
 }
@@ -1411,7 +1408,7 @@ sealed class DISimple(override val erd: ElementRuntimeData)
     Assert.invariantFailed("Should not requireFinal a simple type")
   }
 
-  final def freeChildIfNoLongerNeeded(index: Int): Unit = {
+  final def freeChildIfNoLongerNeeded(index: Int, doFree: Boolean): Unit = {
     Assert.invariantFailed("Should not try to remove a child of a simple type")
   }
 
@@ -1534,11 +1531,15 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
     }
   }
 
-  def freeChildIfNoLongerNeeded(index: Int): Unit = {
+  def freeChildIfNoLongerNeeded(index: Int, doFree: Boolean): Unit = {
     val node = childNodes(index)
     if (!node.erd.dpathElementCompileInfo.isReferencedByExpressions) {
-      // set to null so that the garbage collector can free this node
-      childNodes(index) = null
+      if (doFree) {
+        // set to null so that the garbage collector can free this node
+        childNodes(index) = null
+      } else {
+        node.wouldHaveBeenFreed = true
+      }
     }
   }
 
@@ -1685,8 +1686,14 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
       // was never used in a schema expression, it will never be found. If the
       // appropriate tunable is set, we will do a linear search to find the
       // element. Due to the slowness of this, this should only be enabled
-      // during debugging or testing.
-      val found = childNodes.filter(_.erd.namedQName == qname)
+      // during debugging or testing. Also note that we need to do a null check
+      // since it's possible some children have been freed. Generally if this
+      // tunable is set one should also have debugging enabled or disable
+      // freeing of infoset nodes (see releaseUnneededInfoset). But those aren't
+      // strictly required, so this avoids an NPE.
+      val found = childNodes.filter { child =>
+        child != null && child.erd.namedQName == qname
+      }
 
       // Daffodil does not support query expressions yet, so there should be at
       // most one item found

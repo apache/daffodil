@@ -315,6 +315,16 @@
             </xs:documentation>
           </xs:annotation>
         </xs:element>
+        <xs:element name="releaseUnneededInfoset" type="xs:boolean" default="true" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              Daffodil will periodically release internal infoset elements that it determines
+              are no longer needed, thus freeing memory. Setting this value to false will
+              prevent this from taking place. This should usually only be used while debugging
+              or with very specific tests.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
         <xs:element name="requireBitOrderProperty" type="xs:boolean" default="false" minOccurs="0">
           <xs:annotation>
             <xs:documentation>

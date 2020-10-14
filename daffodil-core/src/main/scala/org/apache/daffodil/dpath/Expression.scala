@@ -1730,6 +1730,18 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
             ans
           }
         }
+
+        // We need to mark all possible following compileInfos as possibly used
+        // in an expression since the DFDLXOutputTypeCalcNextSibling expression
+        // might need them. We also need to mark this compileInfo as used in an
+        // expression since the evaluate method of DFDLXTypeCalcNextSibilng
+        // uses this element to find the next sibling
+        val dpeci = erd.dpathCompileInfo.asInstanceOf[DPathElementCompileInfo]
+        followingERDs.foreach { erd =>
+          dpeci.indicateReferencedByExpression(Seq(erd.dpathElementCompileInfo))
+        }
+        dpeci.indicateReferencedByExpression(Seq(dpeci))
+
         FNZeroArgExpr(functionQNameString, functionQName,
           dstType, NodeInfo.AnyAtomic, DFDLXOutputTypeCalcNextSibling(_, _))
       }
