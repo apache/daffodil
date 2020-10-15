@@ -136,7 +136,7 @@ class SAXInfosetOutputter(xmlReader: DFDL.DaffodilXMLReader)
       diElem.diParent.erd.minimizedScope
     }
     var n = nsbStart
-    while (n != nsbEnd) {
+    while (n != nsbEnd && n != null && n != scala.xml.TopScope) {
       val prefix = if (n.prefix == null) "" else n.prefix
       val uri = if (n.uri == null) "" else n.uri
       contentHandler.startPrefixMapping(prefix, uri)
@@ -153,7 +153,7 @@ class SAXInfosetOutputter(xmlReader: DFDL.DaffodilXMLReader)
         .minimizedScope
     }
     var n = nsbStart
-    while (n != nsbEnd) {
+    while (n != nsbEnd && n != null && n != scala.xml.TopScope) {
       val prefix = if (n.prefix == null) "" else n.prefix
       contentHandler.endPrefixMapping(prefix)
       n = n.parent

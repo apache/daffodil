@@ -292,7 +292,7 @@ class DaffodilTDMLDFDLProcessor private (private var dp: DataProcessor) extends 
     val xri = dp.newXMLReaderInstance
     val errorHandler = new DaffodilTDMLSAXErrorHandler()
     val outputStream = new ByteArrayOutputStream()
-    val saxHandler = new DaffodilOutputContentHandler(outputStream, pretty = true)
+    val saxHandler = new DaffodilOutputContentHandler(outputStream, pretty = false)
     xri.setContentHandler(saxHandler)
     xri.setErrorHandler(errorHandler)
     xri.setProperty(XMLUtils.DAFFODIL_SAX_URN_BLOBDIRECTORY, blobDir)
