@@ -21,6 +21,7 @@ import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.io.InputStream
 import java.io.OutputStream
 import java.net.URI
 import java.nio.ByteBuffer
@@ -752,30 +753,67 @@ object Main extends Logging {
     outputter
   }
 
-  // Converts the data to whatever form the InfosetInputter will want. Note
-  // that this requires that the result of this must be thread safe and not
-  // mutated by the InfosetInputters, since it will be shared among
-  // InfosetInputters to reduce copies. This means InfosetInputters that expect
-  // a Reader (e.g. xml, json) will just return the data here and have the
-  // Reader created when the InfosetInputter is created. Note that w3c dom is
-  // not thread-safe, even for reading, so we must create a thread local
-  // variable so that each thread has its own copy of the dom tree.
-  //
-  // This should be called outside of a performance loop, with
-  // getInfosetInputter called inside the performance loop
-  def infosetDataToInputterData(infosetType: String, data: Array[Byte]): AnyRef = {
+  /**
+   * Convert the data to whatever form the InfosetInputter will expect
+   *
+   * If the data parameter is a Left[Array[Byte]], the return value must be
+   * thread safe and immutable since it could potentially be shared and mutated
+   * by different InfosetInputters.
+   *
+   * If the data parameter is a Right[InputStream], we can assume the caller
+   * knows that the infoset represented by this InputStream will only be
+   * unparsed once and so it is acceptable if the result is mutable or
+   * non-thread safe.
+   *
+   * So for infoset types like "xml" and "json" where InfosetInputters accept
+   * an InputStream, if this function receives a Right[InputStream], it will
+   * simply return that InputStream. This avoids reading the entire infoset
+   * into memory and makes it possible to unparse large infosets.
+   *
+   * For InfosetInputters that do not accept InputStreams, we must read in the
+   * entire InputStream and convert it to whatever they expect (e.g. Scala XML
+   * Node for "scala-xml"). Supporting large inputs with this infoset types is
+   * not possible.
+   *
+   * Because this function may read large amounts of data from disk and parse
+   * it into an object, this should be called outside of a performance loop,
+   * with getInfosetInputter called inside the performance loop.
+   */
+  def infosetDataToInputterData(infosetType: String, data: Either[Array[Byte],InputStream]): AnyRef = {
     infosetType match {
-      case "xml" => data
-      case "scala-xml" => scala.xml.XML.load(new ByteArrayInputStream(data))
-      case "json" => data
-      case "jdom" => new org.jdom2.input.SAXBuilder().build(new ByteArrayInputStream(data))
+      case "xml" => data match {
+        case Left(bytes) => bytes
+        case Right(is) => is
+      }
+      case "json" => data match {
+        case Left(bytes) => bytes
+        case Right(is) => is
+      }
+      case "scala-xml" => {
+        val is = data match {
+          case Left(bytes) => new ByteArrayInputStream(bytes)
+          case Right(is) => is
+        }
+        scala.xml.XML.load(is)
+      }
+      case "jdom" => {
+        val is = data match {
+          case Left(bytes) => new ByteArrayInputStream(bytes)
+          case Right(is) => is
+        }
+        new org.jdom2.input.SAXBuilder().build(is)
+      }
       case "w3cdom" => {
+        val byteArr = data match {
+          case Left(bytes) => bytes
+          case Right(is) => IOUtils.toByteArray(is)
+        }
         new ThreadLocal[org.w3c.dom.Document] {
           override def initialValue = {
             val dbf = DocumentBuilderFactory.newInstance()
             dbf.setNamespaceAware(true)
             val db = dbf.newDocumentBuilder()
-            db.parse(new ByteArrayInputStream(data))
+            db.parse(new ByteArrayInputStream(byteArr))
           }
         }
       }
@@ -785,15 +823,25 @@ object Main extends Logging {
   def getInfosetInputter(infosetType: String, anyRef: AnyRef): InfosetInputter = {
     infosetType match {
       case "xml" => {
-        val is = new ByteArrayInputStream(anyRef.asInstanceOf[Array[Byte]])
+        val is = anyRef match {
+          case bytes: Array[Byte] => new ByteArrayInputStream(bytes)
+          case is: InputStream => is
+        }
         new XMLTextInfosetInputter(is)
       }
-      case "scala-xml" => new ScalaXMLInfosetInputter(anyRef.asInstanceOf[scala.xml.Node])
       case "json" => {
-        val is = new ByteArrayInputStream(anyRef.asInstanceOf[Array[Byte]])
+        val is = anyRef match {
+          case bytes: Array[Byte] => new ByteArrayInputStream(bytes)
+          case is: InputStream => is
+        }
         new JsonInfosetInputter(is)
       }
-      case "jdom" => new JDOMInfosetInputter(anyRef.asInstanceOf[org.jdom2.Document])
+      case "scala-xml" => {
+        new ScalaXMLInfosetInputter(anyRef.asInstanceOf[scala.xml.Node])
+      }
+      case "jdom" => {
+        new JDOMInfosetInputter(anyRef.asInstanceOf[org.jdom2.Document])
+      }
       case "w3cdom" => {
         val tl = anyRef.asInstanceOf[ThreadLocal[org.w3c.dom.Document]]
         new W3CDOMInfosetInputter(tl.get)
@@ -1016,13 +1064,19 @@ object Main extends Logging {
             val infosetType = performanceOpts.infosetType.toOption.get
 
             val dataSeq: Seq[Either[AnyRef, Array[Byte]]] = files.map { filePath =>
+              // For performance testing, we want everything in memory so as to
+              // remove I/O from consideration. Additionally, for both parse
+              // and unparse we need immutable inputs since we could parse the
+              // same input data multiple times in different performance runs.
+              // So read the file data into an Array[Byte], and use that for
+              // everything.
               val input = (new FileInputStream(filePath))
               val dataSize = filePath.length()
-              val fileContent = new Array[Byte](dataSize.toInt)
-              input.read(fileContent) // For performance testing, we want everything in memory so as to remove I/O from consideration.
+              val bytes = new Array[Byte](dataSize.toInt)
+              input.read(bytes)
               val data = performanceOpts.unparse() match {
-                case true => Left(infosetDataToInputterData(infosetType, fileContent))
-                case false => Right(fileContent)
+                case true => Left(infosetDataToInputterData(infosetType, Left(bytes)))
+                case false => Right(bytes)
               }
               data
             }
@@ -1164,14 +1218,22 @@ object Main extends Logging {
 
             while (keepUnparsing) {
 
-              val data =
+              val eitherBytesOrStream =
                 if (maybeScanner.isDefined) {
-                  maybeScanner.get.next().getBytes()
+                  // The scanner reads the entire infoset up unto the delimiter
+                  // into memory. No way around that with the --stream option.
+                  Left(maybeScanner.get.next().getBytes())
                 } else {
-                  IOUtils.toByteArray(is)
+                  // We are not using the --stream option and won't need to
+                  // unparse the infoset more than once. So pass the
+                  // InputStream into infosetDataToInputterData. For some
+                  // cases, such as "xml" or "json", we can create an
+                  // InfosetInputter directly on this stream so that we can
+                  // avoid reading the entire InputStream into memory
+                  Right(is)
                 }
 
-              val inputterData = infosetDataToInputterData(unparseOpts.infosetType.toOption.get, data)
+              val inputterData = infosetDataToInputterData(unparseOpts.infosetType.toOption.get, eitherBytesOrStream)
               val inputter = getInfosetInputter(unparseOpts.infosetType.toOption.get, inputterData)
               val unparseResult = Timer.getResult("unparsing", processor.unparse(inputter, outChannel))
               displayDiagnostics(unparseResult)
