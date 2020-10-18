@@ -67,8 +67,6 @@ import org.apache.daffodil.processors.parsers.ParseError
 import org.apache.daffodil.processors.parsers.Parser
 import org.apache.daffodil.processors.unparsers.UState
 import org.apache.daffodil.processors.unparsers.UnparseError
-import org.apache.daffodil.util.LogLevel
-import org.apache.daffodil.util.Logging
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe._
 import org.apache.daffodil.util.Misc
@@ -160,7 +158,7 @@ class DataProcessor private (
   protected var optDebugger : Option[Debugger],
   var validationMode: ValidationMode.Type,
   private var externalVars: Queue[Binding])
-  extends DFDL.DataProcessor with Logging
+  extends DFDL.DataProcessor
   with HasSetDebugger
   with Serializable
   with MultipleEventHandler {
@@ -356,10 +354,6 @@ class DataProcessor private (
   override def newXMLReaderInstance: DFDL.DaffodilXMLReader = new DaffodilXMLReader(this)
 
   def save(output: DFDL.Output): Unit = {
-
-    externalVars.foreach{ ev =>
-      log(LogLevel.Warning, "External variable %s is not saved as part of saved DFDL processor.", ev.varQName)
-    }
 
     val oos = new ObjectOutputStream(new GZIPOutputStream(Channels.newOutputStream(output)))
 
@@ -679,7 +673,6 @@ class DataProcessor private (
       case fio: FileIOException =>
         state.SDE(fio)
     }
-    log(LogLevel.Debug, "%s final stream for %s finished.", this, state)
 
     val ev = state.advanceMaybe
     if (ev.isDefined) {
