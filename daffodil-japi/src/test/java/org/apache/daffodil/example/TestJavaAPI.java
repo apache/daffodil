@@ -1041,4 +1041,58 @@ public class TestJavaAPI {
         LocationInSchemaFile loc = locs.get(0);
         assertTrue(loc.toString().contains("mySchema1.dfdl.xsd"));
     }
+
+    @Test
+    public void testJavaAPI22_setExternalVariablesUsingAbstractMap() throws IOException, ClassNotFoundException {
+        // Demonstrates here that we can set external variables using a
+        // Java AbstractMap after compilation but before parsing via DataProcessor.
+        LogWriterForJAPITest lw = new LogWriterForJAPITest();
+        DebuggerRunnerForJAPITest debugger = new DebuggerRunnerForJAPITest();
+
+        Daffodil.setLogWriter(lw);
+        Daffodil.setLoggingLevel(LogLevel.Debug);
+
+        org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
+
+        java.io.File extVarFile = getResource("/test/japi/external_vars_1.xml");
+        java.io.File schemaFile = getResource("/test/japi/mySchemaWithVars.dfdl.xsd");
+        ProcessorFactory pf = c.compileFile(schemaFile);
+        DataProcessor dp = pf.onPath("/");
+        dp = reserializeDataProcessor(dp);
+        dp = dp.withDebugger(debugger);
+        dp = dp.withDebugging(true);
+
+        java.util.AbstractMap<String, String> extVarsMap = new java.util.HashMap<String, String>();
+        extVarsMap.put("var1", "var1ValueFromMap");
+
+        dp = dp.withExternalVariables(extVarsMap);
+
+        java.io.File file = getResource("/test/japi/myData.dat");
+        java.io.FileInputStream fis = new java.io.FileInputStream(file);
+        InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
+        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+        ParseResult res = dp.parse(dis, outputter);
+        boolean err = res.isError();
+        assertFalse(err);
+        org.jdom2.Document doc = outputter.getResult();
+        org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
+        xo.setFormat(Format.getPrettyFormat());
+        String docString = xo.outputString(doc);
+        boolean containsVar1 = docString.contains("var1Value");
+        boolean containsVar1Value = docString.contains("var1ValueFromMap");
+        assertTrue(containsVar1);
+        assertTrue(containsVar1Value);
+
+        assertTrue(res.location().isAtEnd());
+
+        assertEquals(0, lw.errors.size());
+        assertEquals(0, lw.warnings.size());
+        assertTrue(lw.others.size() > 0);
+        assertTrue(debugger.lines.size() > 0);
+        assertTrue(debugger.lines.contains("----------------------------------------------------------------- 1\n"));
+
+        // reset the global logging and debugger state
+        Daffodil.setLogWriter(new ConsoleLogWriter());
+        Daffodil.setLoggingLevel(LogLevel.Info);
+    }
 }
