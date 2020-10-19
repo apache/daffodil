@@ -644,8 +644,22 @@ class DataProcessor private[japi] (private var dp: SDataProcessor)
    *                then no namespace is used. If not preceded by anything,
    *                then Daffodil will figure out the namespace.
    */
+  @deprecated("Use withExternalVariables that accepts a Java AbstractMap", "3.0")
   def withExternalVariables(extVars: Map[String, String]): DataProcessor  =
     copy(dp = dp.withExternalVariables(extVars))
+
+  /**
+   * Obtain a new [[DataProcessor]] with multiple DFDL variables set.
+   *
+   * @param extVars a map of key/value pairs, where the key is the variable
+   *                name, and the value is the value of the variable. The key
+   *                may be preceded by a string of the form "{namespace}" to
+   *                define a namespace for the variable. If preceded with "{}",
+   *                then no namespace is used. If not preceded by anything,
+   *                then Daffodil will figure out the namespace.
+   */
+  def withExternalVariables(extVars: java.util.AbstractMap[String, String]): DataProcessor  =
+    copy(dp = dp.withExternalVariables(extVars.asScala.toMap))
 
   /**
    * Save the DataProcessor
