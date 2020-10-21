@@ -958,13 +958,21 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       toss(optExtVarDiag.get, implString)
     } else {
       val actual = processor.parse(new ByteArrayInputStream(testData), testDataLength)
+      val diagObjs = actual.getDiagnostics
 
       if (actual.isProcessingError) {
         // Means there was an error, not just warnings.
-        val diagObjs = actual.getDiagnostics
         if (diagObjs.length == 1) throw TDMLException(diagObjs.head, implString)
         val diags = actual.getDiagnostics.map(_.getMessage()).mkString("\n")
         throw TDMLException(diags, implString)
+      } else {
+        // If we think we've succeeded, verify there are no errors
+        // captured in the diagnostics. Otherwise there's probably
+        // an internal bug causing us to miss setting isProcessingError
+        val hasErrorDiags = diagObjs.exists { diag =>
+          diag.isError && !diag.isValidation
+        }
+        Assert.invariant(!hasErrorDiags)
       }
       actual
     }

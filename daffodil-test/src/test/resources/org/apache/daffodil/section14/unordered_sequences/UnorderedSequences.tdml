@@ -891,7 +891,7 @@
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthUnits="characters"
       lengthKind="delimited" occursCountKind="parsed" />
-    <xs:element name="R" dfdl:terminator="END">
+    <xs:element name="R" dfdl:terminator="FINAL">
       <xs:complexType>
         <xs:sequence dfdl:sequenceKind="unordered" dfdl:initiatedContent="yes"
           dfdl:separator="|" dfdl:separatorPosition="infix">
@@ -912,7 +912,7 @@
 
   <tdml:parserTestCase name="test_initiated_unordered1"
     model="initiated_content" root="R">
-    <tdml:document><![CDATA[X:not expected|Y:something else]]></tdml:document>
+    <tdml:document><![CDATA[X:not expected|Y:something elseFINAL]]></tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
       <tdml:error>Assertion</tdml:error>
@@ -920,5 +920,26 @@
     </tdml:errors>
   </tdml:parserTestCase>
   
+  <tdml:parserTestCase name="test_initiated_unordered2"
+    model="initiated_content" root="R">
+    <tdml:document><![CDATA[X:expected|Y:something elseFINAL]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <R>
+          <X>expected</X>
+          <Y>something else</Y>
+        </R>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="test_initiated_unordered3"
+    model="initiated_content" root="R">
+    <tdml:document><![CDATA[X:not expectedFINAL]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>FINAL</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
 
 </tdml:testSuite>
