@@ -251,7 +251,7 @@
       terminator="" separator="" ignoreCase="no" occursCountKind="implicit" lengthUnits="bytes"
       initiatedContent="no" textPadKind="none" truncateSpecifiedLengthString="no" textTrimKind="none"
       escapeSchemeRef="" encodingErrorPolicy="replace" textBidi="no" floating="no"
-      byteOrder="bigEndian"/>
+      byteOrder="bigEndian" fillByte="%NUL;" />
 
     <xs:element name="hb_01" type="xs:hexBinary"
       dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="4"/>

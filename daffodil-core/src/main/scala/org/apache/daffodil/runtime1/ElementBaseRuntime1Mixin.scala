@@ -199,7 +199,7 @@ trait ElementBaseRuntime1Mixin { self: ElementBase =>
       if (isOutputValueCalc) Some(ovcCompiledExpression) else None,
       maybeBinaryFloatRepEv,
       maybeByteOrderEv,
-      maybeFillByteEv,
+      fillByteEv,
       maybeCheckByteAndBitOrderEv,
       maybeCheckBitOrderAndCharsetEv,
       isQuasiElement)

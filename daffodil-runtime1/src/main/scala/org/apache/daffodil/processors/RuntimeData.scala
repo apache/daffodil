@@ -118,7 +118,7 @@ sealed abstract class TermRuntimeData(
   val hasNoSkipRegions: Boolean,
   val defaultBitOrder:  BitOrder,
   val optIgnoreCase: Option[YesNo],
-  @TransientParam maybeFillByteEvArg: => Maybe[FillByteEv],
+  @TransientParam fillByteEvArg: => FillByteEv,
   @TransientParam maybeCheckByteAndBitOrderEvArg: => Maybe[CheckByteAndBitOrderEv],
   @TransientParam maybeCheckBitOrderAndCharsetEvArg: => Maybe[CheckBitOrderAndCharsetEv])
   extends RuntimeData {
@@ -155,7 +155,7 @@ sealed abstract class TermRuntimeData(
   lazy val dpathCompileInfo = dpathCompileInfoArg
   lazy val couldHaveText = couldHaveTextArg
   lazy val alignmentValueInBits = alignmentValueInBitsArg
-  lazy val maybeFillByteEv = maybeFillByteEvArg
+  lazy val fillByteEv = fillByteEvArg
   lazy val maybeCheckByteAndBitOrderEv = maybeCheckByteAndBitOrderEvArg
   lazy val maybeCheckBitOrderAndCharsetEv = maybeCheckBitOrderAndCharsetEvArg
 
@@ -166,7 +166,7 @@ sealed abstract class TermRuntimeData(
     dpathCompileInfo
     couldHaveText
     alignmentValueInBits
-    maybeFillByteEv
+    fillByteEv
     maybeCheckByteAndBitOrderEv
     maybeCheckBitOrderAndCharsetEv
   }
@@ -595,13 +595,13 @@ sealed class ElementRuntimeData(
   @TransientParam outputValueCalcExprArg: => Option[CompiledExpression[AnyRef]],
   @TransientParam maybeBinaryFloatRepEvArg: => Maybe[BinaryFloatRepEv],
   @TransientParam maybeByteOrderEvArg: => Maybe[ByteOrderEv],
-  @TransientParam maybeFillByteEvArg: => Maybe[FillByteEv],
+  @TransientParam fillByteEvArg: => FillByteEv,
   @TransientParam maybeCheckByteAndBitOrderEvArg: => Maybe[CheckByteAndBitOrderEv],
   @TransientParam maybeCheckBitOrderAndCharsetEvArg: => Maybe[CheckBitOrderAndCharsetEv],
   @TransientParam isQuasiElementArg: => Boolean)
   extends TermRuntimeData(positionArg, partialNextElementResolverArg,
     encInfoArg, dpathElementCompileInfoArg, isRepresentedArg, couldHaveTextArg, alignmentValueInBitsArg, hasNoSkipRegionsArg,
-    defaultBitOrderArg, optIgnoreCaseArg, maybeFillByteEvArg,
+    defaultBitOrderArg, optIgnoreCaseArg, fillByteEvArg,
     maybeCheckByteAndBitOrderEvArg,
     maybeCheckBitOrderAndCharsetEvArg) {
 
@@ -761,7 +761,7 @@ sealed abstract class ErrorERD(local: String, namespaceURI: String)
     null, // outputValueCalcExprArg: => Option[CompiledExpression[AnyRef]],
     Nope, // maybeBinaryFloatRepEvArg: => Maybe[BinaryFloatRepEv],
     Nope, // maybeByteOrderEvArg: => Maybe[ByteOrderEv],
-    Nope, // maybeFillByteEvArg: => Maybe[FillByteEv],
+    null, // fillByteEvArg => FillByteEv
     Nope, // maybeCheckByteAndBitOrderEvArg: => Maybe[CheckByteAndBitOrderEv],
     Nope, // maybeCheckBitOrderAndCharsetEvArg: => Maybe[CheckBitOrderAndCharsetEv],
     false // isQuasiElementArg: => Boolean
@@ -844,13 +844,13 @@ sealed abstract class ModelGroupRuntimeData(
   alignmentValueInBitsArg:  Int,
   hasNoSkipRegionsArg:  Boolean,
   optIgnoreCaseArg: Option[YesNo],
-  @TransientParam maybeFillByteEvArg: => Maybe[FillByteEv],
+  @TransientParam fillByteEvArg: => FillByteEv,
   @TransientParam maybeCheckByteAndBitOrderEvArg: => Maybe[CheckByteAndBitOrderEv],
   @TransientParam maybeCheckBitOrderAndCharsetEvArg: => Maybe[CheckBitOrderAndCharsetEv])
   extends TermRuntimeData(
     positionArg, partialNextElementResolverArg,
     encInfoArg, ciArg, isRepresentedArg, couldHaveTextArg, alignmentValueInBitsArg, hasNoSkipRegionsArg,
-    defaultBitOrderArg, optIgnoreCaseArg, maybeFillByteEvArg,
+    defaultBitOrderArg, optIgnoreCaseArg, fillByteEvArg,
     maybeCheckByteAndBitOrderEvArg,
     maybeCheckBitOrderAndCharsetEvArg) {
 
@@ -899,13 +899,13 @@ final class SequenceRuntimeData(
   alignmentValueInBitsArg: Int,
   hasNoSkipRegionsArg: Boolean,
   optIgnoreCaseArg: Option[YesNo],
-  @TransientParam maybeFillByteEvArg: => Maybe[FillByteEv],
+  @TransientParam fillByteEvArg: => FillByteEv,
   @TransientParam maybeCheckByteAndBitOrderEvArg: => Maybe[CheckByteAndBitOrderEv],
   @TransientParam maybeCheckBitOrderAndCharsetEvArg: => Maybe[CheckBitOrderAndCharsetEv])
   extends ModelGroupRuntimeData(positionArg, partialNextElementResolverArg,
     variableMapArg, encInfoArg, schemaFileLocationArg, ciArg, diagnosticDebugNameArg, pathArg, defaultBitOrderArg, groupMembersArg,
     isRepresentedArg, couldHaveTextArg, alignmentValueInBitsArg, hasNoSkipRegionsArg, optIgnoreCaseArg,
-    maybeFillByteEvArg,
+    fillByteEvArg,
     maybeCheckByteAndBitOrderEvArg,
     maybeCheckBitOrderAndCharsetEvArg)
 
@@ -934,12 +934,12 @@ final class ChoiceRuntimeData(
   alignmentValueInBitsArg: Int,
   hasNoSkipRegionsArg: Boolean,
   optIgnoreCaseArg: Option[YesNo],
-  @TransientParam maybeFillByteEvArg: => Maybe[FillByteEv],
+  @TransientParam fillByteEvArg: => FillByteEv,
   @TransientParam maybeCheckByteAndBitOrderEvArg: => Maybe[CheckByteAndBitOrderEv],
   @TransientParam maybeCheckBitOrderAndCharsetEvArg: => Maybe[CheckBitOrderAndCharsetEv])
   extends ModelGroupRuntimeData(positionArg, partialNextElementResolverArg,
     variableMapArg, encInfoArg, schemaFileLocationArg, ciArg, diagnosticDebugNameArg, pathArg, defaultBitOrderArg, groupMembersArg,
-    isRepresentedArg, couldHaveTextArg, alignmentValueInBitsArg, hasNoSkipRegionsArg, optIgnoreCaseArg, maybeFillByteEvArg,
+    isRepresentedArg, couldHaveTextArg, alignmentValueInBitsArg, hasNoSkipRegionsArg, optIgnoreCaseArg, fillByteEvArg,
     maybeCheckByteAndBitOrderEvArg,
     maybeCheckBitOrderAndCharsetEvArg)
 
