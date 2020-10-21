@@ -21,7 +21,7 @@
   xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="http://example.com"
   defaultRoundTrip="true">
 
-
+ 
   <tdml:defineSchema name="s1">
 
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
@@ -3680,7 +3680,174 @@
       <tdml:error>%ES;</tdml:error>
     </tdml:errors>
   </tdml:unparserTestCase>
+ 
+  <tdml:defineSchema name="schemaWithNoFillByte"
+    xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+    xmlns:fn="http://www.w3.org/2005/xpath-functions"
+    elementFormDefault="unqualified">
 
+    <dfdl:defineFormat name="myFormat">
+      <dfdl:format
+        textBidi="no"
+        floating="no"
+        encodingErrorPolicy="replace"
+        leadingSkip="0"
+        alignmentUnits="bytes"
+        alignment="1"
+        trailingSkip="0"
+        textPadKind="none"
+        escapeSchemeRef=""
+        truncateSpecifiedLengthString="no"
+        textTrimKind="none"
+        binaryNumberRep="binary"
+
+        representation="binary"
+        byteOrder="littleEndian"
+        encoding="ISO-8859-1"
+        sequenceKind="ordered"
+        initiator=""
+        terminator=""
+        separator=""
+        ignoreCase = "yes"
+        initiatedContent="no" />
+    </dfdl:defineFormat>
+
+    <dfdl:format ref="ex:myFormat" />
+
+    <xs:element name="input"
+      dfdl:lengthKind="implicit"
+      dfdl:lengthUnits="bytes">
+      <xs:complexType>
+        <xs:sequence dfdl:fillByte="%NUL;">
+          <xs:element name="A" type="xs:unsignedInt"
+            dfdl:lengthKind="explicit"
+            dfdl:length="1"
+            dfdl:lengthUnits="bytes"
+            dfdl:alignment="1"
+            dfdl:alignmentUnits="bytes"/>
+          <xs:element name="B" type="xs:unsignedInt"
+            dfdl:lengthKind="explicit"
+            dfdl:length="1"
+            dfdl:lengthUnits="bytes"
+            dfdl:alignment="2"
+            dfdl:alignmentUnits="bytes" />
+          <xs:element name="C" type="xs:unsignedInt"
+            dfdl:lengthKind="explicit"
+            dfdl:length="1"
+            dfdl:lengthUnits="bytes"
+            dfdl:alignment="2"
+            dfdl:alignmentUnits="bytes" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:defineSchema name="schemaWithFillByte" 
+    xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+    xmlns:fn="http://www.w3.org/2005/xpath-functions"
+    elementFormDefault="unqualified">
+
+    <dfdl:defineFormat name="myFormat">
+      <dfdl:format 
+      textBidi="no"
+      floating="no"
+      encodingErrorPolicy="replace"
+      leadingSkip="0" 
+      alignmentUnits="bytes"
+      alignment="1" 
+      trailingSkip="0"
+      textPadKind="none"
+      escapeSchemeRef=""
+      truncateSpecifiedLengthString="no"
+      textTrimKind="none" 
+      binaryNumberRep="binary"
+
+      representation="binary"
+      byteOrder="littleEndian"
+      encoding="ISO-8859-1"
+      sequenceKind="ordered"
+      initiator=""
+      terminator=""
+      separator=""
+      ignoreCase = "yes"
+      fillByte="x"
+      initiatedContent="no" />
+    </dfdl:defineFormat>
+
+    <dfdl:format ref="ex:myFormat" />
+
+    <xs:element name="input"
+      dfdl:lengthKind="implicit"
+      dfdl:lengthUnits="bytes" >
+      <xs:complexType>
+        <xs:sequence dfdl:fillByte="%NUL;">
+          <xs:element name="A" type="xs:unsignedInt" 
+            dfdl:lengthKind="explicit"
+            dfdl:length="1"
+            dfdl:lengthUnits="bytes"
+            dfdl:alignment="1"
+            dfdl:alignmentUnits="bytes" />
+          <xs:element name="B" type="xs:unsignedInt" 
+            dfdl:lengthKind="explicit"
+            dfdl:length="1"
+            dfdl:lengthUnits="bytes"
+            dfdl:alignment="2"
+            dfdl:alignmentUnits="bytes" />
+          <xs:element name="C" type="xs:unsignedInt" 
+            dfdl:lengthKind="explicit"
+            dfdl:length="1"
+            dfdl:lengthUnits="bytes"
+            dfdl:alignment="2"
+            dfdl:alignmentUnits="bytes" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+	</tdml:defineSchema>
+
+  <!--
+     Test Name: alignmentFillByteNotDefined
+        Schema: schemaWithNoFillByte
+          Root: input
+       Purpose: This test demonstrates the fix for DAFFODIL-2377 - the fillByte 
+       property is required when data is not aligned to the proper boundary for 
+       encoding. Now when fillByte is not defined, an SDE is thrown instead of 
+       an abort message.
+  -->
+  <tdml:unparserTestCase name="alignmentFillByteNotDefined"
+    model="schemaWithNoFillByte" roundTrip="onePass" root="input"
+    validation="off">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:input>
+          <A>49</A>
+          <B>50</B>
+          <C>51</C>
+        </ex:input>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document />
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Property fillByte is not defined</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="alignmentFillByteDefined"
+    model="schemaWithFillByte" roundTrip="onePass" root="input"
+    validation="off">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:input>
+          <A>49</A>
+          <B>50</B>
+          <C>51</C>
+        </ex:input>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[1x2x3]]></tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
 
   <tdml:defineSchema name="separatorMTA">
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>

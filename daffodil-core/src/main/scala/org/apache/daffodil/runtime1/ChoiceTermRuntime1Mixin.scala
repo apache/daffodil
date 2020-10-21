@@ -189,7 +189,7 @@ trait ChoiceTermRuntime1Mixin { self: ChoiceTermBase =>
       alignmentValueInBits,
       hasNoSkipRegions,
       optIgnoreCase,
-      maybeFillByteEv,
+      fillByteEv,
       maybeCheckByteAndBitOrderEv,
       maybeCheckBitOrderAndCharsetEv)
   }
