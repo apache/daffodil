@@ -96,11 +96,34 @@ trait InfixPrefixSeparatorHelperMixin { self: SeparatorParseHelper =>
 
     val sepStatus =
       if (shouldParseTheSep) {
-        sep.parse1(pstate)
-        if (pstate.processorStatus eq Success)
-          SeparatorParseStatus.SeparatorFound
-        else
-          SeparatorParseStatus.SeparatorFailed
+
+        // If a separator is expected, but optional, we may generate errors
+        // while searching for it which should not be propagated upward
+        requiredOptional match {
+          case _: RequiredOptionalStatus.Optional => {
+            // Create a point of uncertainty with which to reset if we find errors
+            pstate.withPointOfUncertainty("parseOneWithInfixOrPrefixSeparator",childParser.context) { pou =>
+              sep.parse1(pstate)
+
+              val rv = if (pstate.processorStatus eq Success) {
+                SeparatorParseStatus.SeparatorFound
+              } else {
+                // reset to the point of uncertainty to discard the errors
+                pstate.resetToPointOfUncertainty(pou)
+                SeparatorParseStatus.SeparatorFailed
+              }
+              rv
+
+            }
+          }
+          case _ => {
+            sep.parse1(pstate)
+            if (pstate.processorStatus eq Success)
+              SeparatorParseStatus.SeparatorFound
+            else
+              SeparatorParseStatus.SeparatorFailed
+          }
+        }
       } else
         SeparatorParseStatus.SeparatorNotNeeded
 
@@ -117,7 +140,12 @@ trait InfixPrefixSeparatorHelperMixin { self: SeparatorParseHelper =>
         pas
       }
       case _ => {
-        failedSeparator(pstate, kind)
+        requiredOptional match {
+          case _: RequiredOptionalStatus.Required => {
+            failedSeparator(pstate, kind)
+          }
+          case _ => // No action
+        }
         scParser.parseResultHelper.computeFailedSeparatorParseAttemptStatus(
           scParser,
           prevBitPosBeforeChild, pstate,
