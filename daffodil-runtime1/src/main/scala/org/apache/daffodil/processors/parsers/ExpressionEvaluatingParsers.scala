@@ -165,7 +165,7 @@ class NewVariableInstanceStartParser(override val context: VariableRuntimeData)
   override lazy val runtimeDependencies = Vector()
 
   def parse(start: PState): Unit = {
-    start.newVariableInstance(context)
+    start.newVariableInstance(context, context, start)
   }
 }
 

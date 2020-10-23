@@ -59,6 +59,9 @@ class TestVariables {
   @Test def test_varInstance_09(): Unit = { runner.runOneTest("varInstance_09") }
   @Test def test_varInstance_10(): Unit = { runner.runOneTest("varInstance_10") }
   @Test def test_varInstance_11(): Unit = { runner.runOneTest("varInstance_11") }
+  @Test def test_varInstance_12(): Unit = { runner.runOneTest("varInstance_12") }
+  // Causes OOLAG Circular Definition
+  // @Test def test_defineVariable_nonConstantExpression(): Unit = { runner.runOneTest("defineVariable_nonConstantExpression") }
   @Test def test_setVarChoice(): Unit = { runner.runOneTest("setVarChoice") }
   @Test def test_unparse_setVarChoice(): Unit = { runner.runOneTest("unparse_setVarChoice") }
   @Test def test_setVarOnSeqAndElemRef(): Unit = { runner.runOneTest("setVarOnSeqAndElemRef") }

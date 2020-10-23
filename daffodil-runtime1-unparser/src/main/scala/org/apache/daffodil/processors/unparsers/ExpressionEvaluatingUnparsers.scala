@@ -87,7 +87,8 @@ class NewVariableInstanceStartUnparser(override val context: RuntimeData)
   override lazy val childProcessors = Vector()
 
   override def unparse(state: UState) = {
-    state.newVariableInstance(context.asInstanceOf[VariableRuntimeData])
+    val vrd = context.asInstanceOf[VariableRuntimeData]
+    state.newVariableInstance(vrd, vrd, state)
   }
 }
 
