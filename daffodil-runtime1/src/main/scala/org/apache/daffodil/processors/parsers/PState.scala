@@ -343,8 +343,8 @@ final class PState private (
     changedVariablesStack.top += vrd.globalQName
   }
 
-  def newVariableInstance(vrd: VariableRuntimeData): Unit = {
-    variableMap.newVariableInstance(vrd)
+  def newVariableInstance(vrd: VariableRuntimeData, referringContext: VariableRuntimeData, pstate: PState): Unit = {
+    variableMap.newVariableInstance(vrd, referringContext, pstate)
     changedVariablesStack.top += vrd.globalQName
   }
 

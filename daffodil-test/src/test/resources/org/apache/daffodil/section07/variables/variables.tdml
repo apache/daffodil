@@ -33,6 +33,10 @@
       defaultValue="16" />
     <dfdl:defineVariable name="myVar3" type="xs:int"
       defaultValue="26" />
+    <!--<dfdl:defineVariable name="myVar4" type="xs:int"
+      defaultValue="36" />
+    <dfdl:defineVariable name="nonConstVar" type="xs:int"
+      defaultValue="{ $ex:myVar4 }" />-->
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
     <xs:element name="c">
@@ -407,6 +411,37 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+
+    <xs:element name="nvi12">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="oldVarValue" type="xsd:int" dfdl:inputValueCalc="{ $ex:myVar1 }" />
+          <xs:element name="newDefaultValue" type="xsd:int" dfdl:lengthKind="explicit" dfdl:length="1" />
+          <xs:element name="innerSeq">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:annotation>
+                  <xs:appinfo source="http://www.ogf.org/dfdl/">
+                    <dfdl:newVariableInstance ref="ex:myVar1"
+                      defaultValue="{ ../ex:newDefaultValue }" />
+                  </xs:appinfo>
+                </xs:annotation>
+                <xs:element name="newVarValue" type="xs:int"
+                  dfdl:inputValueCalc="{ $ex:myVar1 }" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <!--<xs:element name="defNonConst">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="value" type="xsd:int" dfdl:inputValueCalc="{ $ex:nonConstVar }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>-->
 
     <xs:element name="e1">
       <xs:complexType>
@@ -911,6 +946,38 @@
       <tdml:error>Assertion failed: Assertion failed for pattern \d</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="varInstance_12" root="nvi12"
+    model="v"
+    description="newVariablesInstance with a non-constant expression as defaultValue">
+
+    <tdml:document><![CDATA[7]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <nvi12 xmlns="http://example.com">
+          <oldVarValue xsi:type="xsd:int">6</oldVarValue>
+          <newDefaultValue xsi:type="xsd:int">7</newDefaultValue>
+          <innerSeq>
+            <newVarValue xsi:type="xsd:int">7</newVarValue>
+          </innerSeq>
+        </nvi12>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--<tdml:parserTestCase name="defineVariable_nonConstantExpression" root="defNonConst"
+    model="v"
+    description="defineVariable with a non-constant expression as defaultValue">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <defNonConst xmlns="http://example.com">
+          <value>36</value>
+        </defNonConst>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>-->
 
   <tdml:parserTestCase name="varAsSeparator" root="e1"
     model="v"

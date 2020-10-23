@@ -987,6 +987,8 @@ final class VariableRuntimeData(
       }
     }
 
-  def createVariableInstance: VariableInstance = VariableInstance(state, value, this, maybeDefaultValueExpr)
+  def createVariableInstance(defaultValue: DataValuePrimitiveNullable = value): VariableInstance = {
+    VariableInstance(state, defaultValue, this, maybeDefaultValueExpr)
+  }
 
 }

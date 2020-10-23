@@ -173,7 +173,7 @@ class VariableMap private(vTable: Map[GlobalQName, MStackOf[VariableInstance]])
   def this(topLevelVRDs: Seq[VariableRuntimeData] = Nil) =
     this(Map(topLevelVRDs.map {
       vrd =>
-        val variab = vrd.createVariableInstance
+        val variab = vrd.createVariableInstance()
         val stack = new MStackOf[VariableInstance]
         stack.push(variab)
         (vrd.globalQName, stack)
@@ -286,11 +286,16 @@ class VariableMap private(vTable: Map[GlobalQName, MStackOf[VariableInstance]])
   /**
    * Creates a new instance of a variable
    */
-  def newVariableInstance(vrd: VariableRuntimeData) = {
+  def newVariableInstance(vrd: VariableRuntimeData, referringContext: ThrowsSDE, state: ParseOrUnparseState) = {
     val varQName = vrd.globalQName
     val stack = vTable.get(varQName)
     Assert.invariant(stack.isDefined)
-    stack.get.push(vrd.createVariableInstance)
+
+    if (vrd.maybeDefaultValueExpr.isDefined) {
+      val defaultValue = DataValue.unsafeFromAnyRef(vrd.maybeDefaultValueExpr.get.evaluate(state))
+      stack.get.push(vrd.createVariableInstance(VariableUtils.convert(defaultValue.getAnyRef.toString, vrd, referringContext)))
+    } else
+      stack.get.push(vrd.createVariableInstance())
   }
 
   def removeVariableInstance(vrd: VariableRuntimeData): Unit = {
