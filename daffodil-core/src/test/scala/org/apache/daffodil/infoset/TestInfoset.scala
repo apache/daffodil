@@ -61,7 +61,7 @@ object TestInfoset {
     // what maintains the schema dynamic runtime context.
     //
     val inputter = new ScalaXMLInfosetInputter(xmlElem)
-    val dummyOutStream = new NullOutputStream
+    val dummyOutStream = NullOutputStream.NULL_OUTPUT_STREAM
     val unparseResult = dp.unparse(inputter, dummyOutStream)
     val infosetRootNode = {
       val ustate = unparseResult.resultState.asInstanceOf[UStateMain]

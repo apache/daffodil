@@ -11,9 +11,16 @@ Based on source code originally developed by
 
 The following NOTICE information applies to binary components distributed with this project:
 
+Apache Commons IO (lib/commons-io.commons-io-2.8.0.jar)
+  Apache Commons IO
+  Copyright 2002-2020 The Apache Software Foundation
+
+  This product includes software developed at
+  The Apache Software Foundation (https://www.apache.org/).
+
 Apache Xerces Java (lib/xerces.xercesImpl-2.12.0.jar)
   Apache Xerces Java
-  Copyright 1999-2010 The Apache Software Foundation
+  Copyright 1999-2018 The Apache Software Foundation
 
   This product includes software developed at
   The Apache Software Foundation (http://www.apache.org/).
@@ -60,7 +67,7 @@ Jansi (lib/org.fusesource.jansi.jansi-1.17.1.jar)
   Copyright (C) 2009, Progress Software Corporation and/or its
   subsidiaries or affiliates.  All rights reserved.
 
-Jackson JSON processor (lib/com.fasterxml.jackson.core.jackson-core-2.10.2.jar)
+Jackson JSON processor (lib/com.fasterxml.jackson.core.jackson-core-2.11.3.jar)
   # Jackson JSON processor
 
   Jackson is a high-performance, Free/Open Source JSON processing library.
@@ -84,7 +91,7 @@ Jackson JSON processor (lib/com.fasterxml.jackson.core.jackson-core-2.10.2.jar)
 
 Scala (lib/org.scala-lang.scala-library-2.12.11.jar)
       (org/apache/daffodil/util/UniquenessCache.class in lib/org.apache.daffodil.daffodil-lib-<VERSION>.jar)
-  Scala parser combinators
+  Scala
   Copyright (c) 2002-2020 EPFL
   Copyright (c) 2011-2020 Lightbend, Inc.
 
@@ -97,7 +104,7 @@ Scala (lib/org.scala-lang.scala-library-2.12.11.jar)
   and can be found in:
     daffodil-lib/src/main/scala/org/apache/daffodil/util/UniquenessCache.scala
 
-Scala Parser Combinators (lib/org.scala-lang.modules.scala-parser-combinators_2.12-1.1.1.jar)
+Scala Parser Combinators (lib/org.scala-lang.modules.scala-parser-combinators_2.12-1.1.2.jar)
   Scala parser combinators
   Copyright (c) 2002-2020 EPFL
   Copyright (c) 2011-2020 Lightbend, Inc.
@@ -106,7 +113,7 @@ Scala Parser Combinators (lib/org.scala-lang.modules.scala-parser-combinators_2.
   LAMP/EPFL (https://lamp.epfl.ch/) and
   Lightbend, Inc. (https://www.lightbend.com/).
 
-Scala XML (lib/org.scala-lang.modules.scala-xml_2.12-1.1.0.jar)
+Scala XML (lib/org.scala-lang.modules.scala-xml_2.12-1.3.0.jar)
   scala-xml
   Copyright (c) 2002-2020 EPFL
   Copyright (c) 2011-2020 Lightbend, Inc.
@@ -114,10 +121,3 @@ Scala XML (lib/org.scala-lang.modules.scala-xml_2.12-1.1.0.jar)
   scala-xml includes software developed at
   LAMP/EPFL (https://lamp.epfl.ch/) and
   Lightbend, Inc. (https://www.lightbend.com/).
-
-Woodstox (lib/com.fasterxml.woodstox.woodstox-core-5.1.0.jar)
-  This product currently only contains code developed by authors
-  of specific components, as identified by the source code files.
-
-  Since product implements StAX API, it has dependencies to StAX API
-  classes.

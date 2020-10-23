@@ -22,7 +22,6 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.InputStream
-import java.io.OutputStream
 import java.net.URI
 import java.nio.ByteBuffer
 import java.nio.channels.Channels
@@ -42,7 +41,10 @@ import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
+
 import org.apache.commons.io.IOUtils
+import org.apache.commons.io.output.NullOutputStream
+
 import org.apache.daffodil.api.DFDL
 import org.apache.daffodil.api.DFDL.ParseResult
 import org.apache.daffodil.api.DaffodilTunables
@@ -101,24 +103,6 @@ import org.rogach.scallop
 import org.rogach.scallop.ArgType
 import org.rogach.scallop.ScallopOption
 import org.rogach.scallop.ValueConverter
-
-class NullOutputStream extends OutputStream {
-  override def close(): Unit = {
-    //do nothing
-  }
-  override def flush(): Unit = {
-    //do nothing
-  }
-  override def write(b: Array[Byte]): Unit = {
-    //do nothing
-  }
-  override def write(b: Array[Byte], off: Int, len: Int): Unit = {
-    //do nothing
-  }
-  override def write(b: Int): Unit = {
-    //do nothing
-  }
-}
 
 class CommandLineSAXErrorHandler() extends org.xml.sax.ErrorHandler with Logging {
 
@@ -1099,11 +1083,11 @@ object Main extends Logging {
               }
             }
 
-            val nullChannelForUnparse = java.nio.channels.Channels.newChannel(new NullOutputStream)
-            val nullOutputStreamForParse = new NullOutputStream()
+            val nullChannelForUnparse = Channels.newChannel(NullOutputStream.NULL_OUTPUT_STREAM)
+            val nullOutputStreamForParse = NullOutputStream.NULL_OUTPUT_STREAM
 
             //the following line allows output verification
-            //val nullChannelForUnparse = java.nio.channels.Channels.newChannel(System.out)
+            //val nullChannelForUnparse = Channels.newChannel(System.out)
             val NSConvert = 1000000000.0
             val (totalTime, results) = Timer.getTimeResult({
               val tasks = inputsWithIndex.map {
@@ -1190,7 +1174,7 @@ object Main extends Logging {
           case Some(file) => new FileOutputStream(file)
         }
 
-        val outChannel = java.nio.channels.Channels.newChannel(output)
+        val outChannel = Channels.newChannel(output)
         //
         // We are not loading a schema here, we're loading the infoset to unparse.
         //

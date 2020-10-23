@@ -239,4 +239,5 @@ class TestTextNumberProps {
   @Test def test_textStandardDistinctValues3(): Unit = { runner.runOneTest("textStandardDistinctValues3") }
 
   @Test def test_textStandardFloatPatternNoSeparators1(): Unit = { runner.runOneTest("textStandardFloatPatternNoSeparators1") }
+  @Test def test_textStandardFloatPatternNoSeparators2(): Unit = { runner.runOneTest("textStandardFloatPatternNoSeparators2") }
 }

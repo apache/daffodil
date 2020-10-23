@@ -146,7 +146,8 @@ lazy val commonSettings = Seq(
   sourceManaged := baseDirectory.value / "src_managed",
   resourceManaged := baseDirectory.value / "resource_managed",
   libraryDependencies ++= Dependencies.common,
-  parallelExecution in IntegrationTest := false
+  parallelExecution in IntegrationTest := false,
+  testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "-v"),
 ) ++ Defaults.itSettings
 
 def scalacCrossOptions(scalaVersion: String) =
@@ -177,6 +178,7 @@ lazy val libManagedSettings = Seq(
   genManaged := {
     (genProps in Compile).value
     (genSchemas in Compile).value
+    ()
   },
   genProps in Compile := {
     val cp = (dependencyClasspath in Runtime in propgen).value
@@ -200,7 +202,7 @@ lazy val libManagedSettings = Seq(
       val br = new java.io.BufferedReader(isr)
       val iterator = Iterator.continually(br.readLine()).takeWhile(_ != null)
       val files = iterator.map { f =>
-        stream.log.info("Generated %s".format(f))
+        stream.log.info("generated %s".format(f))
         new File(f)
       }.toSet
       files
@@ -216,7 +218,7 @@ lazy val libManagedSettings = Seq(
       schemas.map { schema =>
         val out = outdir / "org" / "apache" / "daffodil" / "xsd" / schema.getName
         IO.copyFile(schema, out)
-        stream.log.info("Generated %s".format(out))
+        stream.log.info("generated %s".format(out))
         out
       }
     }

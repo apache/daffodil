@@ -17,33 +17,36 @@
 
 package org.apache.daffodil.util
 
-import scala.xml._
-import org.apache.daffodil.xml.XMLUtils
 import java.io.File
 import java.io.FileNotFoundException
-
-import org.apache.daffodil.Implicits._
-import org.apache.daffodil.grammar.VariableMapFactory
-object INoWarnU2 { ImplicitsSuppressUnusedImportWarning() }
-import org.apache.daffodil.compiler.Compiler
-import java.nio.channels.ReadableByteChannel
-import org.junit.Assert.assertEquals
-import org.apache.daffodil.dsom._
-import org.apache.daffodil.xml._
-import org.apache.daffodil.api._
-import org.apache.daffodil.externalvars.Binding
-import org.apache.daffodil.api.DFDL
-import org.apache.daffodil.processors.DataProcessor
-import org.apache.daffodil.debugger._
 import java.nio.channels.Channels
-import org.apache.daffodil.processors.VariableMap
-import org.apache.daffodil.infoset.ScalaXMLInfosetOutputter
-import org.apache.daffodil.infoset.ScalaXMLInfosetInputter
-import org.apache.daffodil.infoset.InfosetOutputter
-import org.apache.daffodil.infoset.InfosetInputter
-import org.apache.daffodil.io.InputSourceDataInputStream
+import java.nio.channels.ReadableByteChannel
 import java.nio.channels.WritableByteChannel
+
 import scala.util.Try
+import scala.xml._
+
+import org.apache.commons.io.output.NullOutputStream
+
+import org.junit.Assert.assertEquals
+
+import org.apache.daffodil.Implicits._; object INoWarnU2 { ImplicitsSuppressUnusedImportWarning() }
+import org.apache.daffodil.api.DFDL
+import org.apache.daffodil.api._
+import org.apache.daffodil.compiler.Compiler
+import org.apache.daffodil.debugger._
+import org.apache.daffodil.dsom._
+import org.apache.daffodil.externalvars.Binding
+import org.apache.daffodil.grammar.VariableMapFactory
+import org.apache.daffodil.infoset.InfosetInputter
+import org.apache.daffodil.infoset.InfosetOutputter
+import org.apache.daffodil.infoset.ScalaXMLInfosetInputter
+import org.apache.daffodil.infoset.ScalaXMLInfosetOutputter
+import org.apache.daffodil.io.InputSourceDataInputStream
+import org.apache.daffodil.processors.DataProcessor
+import org.apache.daffodil.processors.VariableMap
+import org.apache.daffodil.xml.XMLUtils
+import org.apache.daffodil.xml._
 
 /*
  * This is not a file of tests.
@@ -251,7 +254,7 @@ object TestUtils {
   }
 
   def testCompileTime(resourcePathString: String): Unit = {
-    val nos = new org.apache.commons.io.output.NullOutputStream()
+    val nos = NullOutputStream.NULL_OUTPUT_STREAM
     val nullChannel = java.nio.channels.Channels.newChannel(nos)
     val compiler = Compiler()
     val uri = Misc.getRequiredResource(resourcePathString)
