@@ -18,6 +18,7 @@
 # in the Daffodil source tree.
 #
 *.sbt
+.bsp/
 !build.sbt
 .cache-main
 .cache-tests

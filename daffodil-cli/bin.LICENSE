@@ -283,14 +283,14 @@ subcomponents is subject to the terms and conditions of the following licenses.
     copyright holders.
 
   This product bundles 'ICU4J', including the following files:
-    - lib/com.ibm.icu.icu4j-62.1.jar
+    - lib/com.ibm.icu.icu4j-67.1.jar
   These files are available under the Unicode License. For details, see
-  https://ssl.icu-project.org/repos/icu/tags/release-62-1/icu4j/main/shared/licenses/LICENSE
+  https://github.com/unicode-org/icu/blob/release-67-1/icu4c/LICENSE
 
     COPYRIGHT AND PERMISSION NOTICE (ICU 58 and later)
 
-    Copyright © 1991-2018 Unicode, Inc. All rights reserved.
-    Distributed under the Terms of Use in http://www.unicode.org/copyright.html.
+    Copyright © 1991-2020 Unicode, Inc. All rights reserved.
+    Distributed under the Terms of Use in https://www.unicode.org/copyright.html.
 
     Permission is hereby granted, free of charge, to any person obtaining
     a copy of the Unicode data files and any associated documentation
@@ -796,7 +796,7 @@ subcomponents is subject to the terms and conditions of the following licenses.
     OF THE POSSIBILITY OF SUCH DAMAGE.
 
   This product bundles 'Scallop', including the following files:
-    - lib/org.rogach.scallop_2.12-3.1.3.jar
+    - lib/org.rogach.scallop_2.12-3.5.1.jar
   These files are available under under an MIT License. For details, see
   https://github.com/scallop/scallop/blob/develop/license.txt
 
@@ -821,7 +821,7 @@ subcomponents is subject to the terms and conditions of the following licenses.
     SOFTWARE.
 
   This product product bundles 'Stax 2 API', including the following files:
-    - lib/org.codehaus.woodstox.stax2-api-4.1.jar
+    - lib/org.codehaus.woodstox.stax2-api-4.2.1.jar
   These files are available under the BSD-2-Clause license:
 
     Copyright 2010- FasterXML.com

@@ -494,7 +494,7 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:document>
-      <tdml:documentPart type="text">XYZ5.0X038.0Y41.23Z008</tdml:documentPart>
+      <tdml:documentPart type="text">XYZ5X038.0Y41.23Z008</tdml:documentPart>
     </tdml:document>
   </tdml:unparserTestCase>
 
