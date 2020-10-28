@@ -22,8 +22,12 @@ WORKDIR /root
 COPY setup-container.sh /root/
 RUN /root/setup-container.sh
 
-COPY wix_wine.sh /root/wix311/\\bin\\candle.exe
-COPY wix_wine.sh /root/wix311/\\bin\\light.exe
+# Needed to get WiX to run in wine on Linux. See wix_wine.sh for more details
+# on why we need to do this and how it works
+RUN mv /root/wix311/{candle.exe,real-candle.exe}
+RUN mv /root/wix311/{light.exe,real-light.exe}
+COPY wix_wine.sh /root/wix311/candle.exe
+COPY wix_wine.sh /root/wix311/light.exe
 
 COPY daffodil-release-candidate /root/
 

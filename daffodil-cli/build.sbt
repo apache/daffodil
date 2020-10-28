@@ -42,12 +42,12 @@ mappings in Universal ++= Seq(
   baseDirectory.value / "README.md" -> "README.md",
 )
 
+maintainer := "Apache Daffodil <dev@daffodil.apache.org>"
+
 //
 // RPM configuration
 //
 rpmVendor := "Apache Daffodil"
-
-maintainer in Rpm := "Apache Daffodil <dev@daffodil.apache.org>"
 
 packageArchitecture in Rpm := "noarch"
 
@@ -110,11 +110,6 @@ rpmPrefix := Some(defaultLinuxInstallLocation.value)
 // invocation is the same name as the direcotry you eventually
 // want to install into.
 name in Windows := "Daffodil" 
-
-// The Windows packager SBT plug-in maps the maintainer variable into
-// the WiX ManufacturerFullName field which is displayed in the properties
-// dialog box for the executable.
-maintainer in Windows := "Apache Daffodil Developers <dev@daffodil.apache.org>"
 
 // The Windows packager SBT plug-in maps the packageSummary variable
 // into the WiX productName field. Another strange choice. 
