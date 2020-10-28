@@ -27,17 +27,25 @@
 # failed.
 export WINEDEBUG=-all
 
-# If the WiX environment is setup correctly, the sbt native-packager will
-# execute a symlink to this script, and the $0 variable should look something
-# like "path/to/wix_directory/\\bin\\candle.exe". The following will extract
-# evertyhing after the last backslash, returning either "candle.exe" or
-# "light.exe" depending on what the plugin executes.
-CMD=${0##*\\}
+# The sbt native-packager plugin executes the $WIX/{candle,light}.exe
+# executables to build the Daffodil MSI. The problem is that those are Windows
+# executables and so can't be directly executed in the Linux container. To get
+# around this, the container Dockerfile copies the $WIX/{candle,light}.exe
+# files to $WIX/real-{candle,light}.exe and installs this script to
+# $WIX/{candle,light}.exe. This way, when the sbt plugin executes
+# $WIX/{candle,light}.exe, it's actually executing this script, which figures
+# out how it was executed (either as candle.exe or light.exe) and redirects the
+# execution to the real-{candle,light}.exe file using wine.
 
-# The paths passed into this script by the plugin are all absolute Linux style
-# paths. For arguments that look like a path (i.e. starts with a /), use
-# winepath to convert them to a Windows style path that wine applications can
-# understand. Leave all other arguments unmodified.
+
+# Figure out what was originally executed, and prepend "real-" to it. This is
+# what to execute with wine
+REAL_CMD=real-$(basename "$0")
+
+# The paths passed as arguments to this script by the plugin are all absolute
+# Linux style paths. For arguments that look like a path (i.e. starts with a
+# forward slash), use winepath to convert them to a Windows style path that
+# wine applications can understand. Leave all other arguments unmodified.
 i=0
 NEWARGS=()
 for VAR in "$@"
@@ -55,5 +63,5 @@ done
 # debugging when something goes wrong with wine
 set -x
 
-# Execute wine with the right WiX command and modified arguments
-wine $WIX/$CMD "${NEWARGS[@]}"
+# Execute wine with the real WiX command and modified arguments
+wine $WIX/$REAL_CMD "${NEWARGS[@]}"
