@@ -672,7 +672,7 @@ sealed class ElementRuntimeData(
 
   def isSimpleType = optPrimType.isDefined
 
-  def schemaURIStringsForFullValidation = schemaURIStringsForFullValidation1.distinct
+  lazy val schemaURIStringsForFullValidation = schemaURIStringsForFullValidation1.distinct
   private def schemaURIStringsForFullValidation1: Seq[String] = (schemaFileLocation.uriString +:
     childERDs.flatMap { _.schemaURIStringsForFullValidation1 })
 

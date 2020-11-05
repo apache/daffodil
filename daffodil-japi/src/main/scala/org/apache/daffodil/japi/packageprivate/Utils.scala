@@ -76,15 +76,6 @@ private[japi] object ValidationConversions {
     }
     smode
   }
-
-  def modeFromScala(smode: SValidationMode.Type): ValidationMode = {
-    val mode: ValidationMode = smode match {
-      case SValidationMode.Off => ValidationMode.Off
-      case SValidationMode.Limited => ValidationMode.Limited
-      case SValidationMode.Full => ValidationMode.Full
-    }
-    mode
-  }
 }
 
 /* A wrapper log writer that scala logging can talk to, which is then forwarded

@@ -57,6 +57,7 @@ import org.apache.daffodil.processors.{ InvalidUsageException => SInvalidUsageEx
 import java.net.URI
 
 import org.apache.daffodil.api.URISchemaSource
+import org.apache.daffodil.api.Validator
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe._
 import org.apache.daffodil.util.MaybeULong
@@ -601,6 +602,13 @@ class DataProcessor private[japi] (private var dp: SDataProcessor)
     try { copy(dp = dp.withValidationMode(ValidationConversions.modeToScala(mode))) }
     catch { case e: SInvalidUsageException => throw new InvalidUsageException(e) }
   }
+
+  /**
+   * Obtain a new [[DataProcessor]] having a specific validator
+   * @param validator validator instance
+   */
+  def withValidator(validator: Validator): DataProcessor =
+    copy(dp = dp.withValidationMode(org.apache.daffodil.api.ValidationMode.Custom(validator)))
 
   /**
    * Read external variables from a Daffodil configuration file

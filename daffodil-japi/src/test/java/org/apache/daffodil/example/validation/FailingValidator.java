@@ -15,17 +15,19 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.api
+package org.apache.daffodil.example.validation;
 
-import org.apache.daffodil.util.Enum
+import org.apache.daffodil.api.ValidationResult;
+import org.apache.daffodil.api.Validator;
 
-object ValidationMode extends Enum {
-  sealed abstract class Type protected (val mode: Int) extends EnumValueType with Ordered[Type] with Serializable {
-    def compare(that: ValidationMode.Type) = this.mode - that.mode
-  }
-  case object Off extends Type(10)
-  case object Limited extends Type(20)
-  case object Full extends Type(30)
+import java.io.InputStream;
+import java.util.Collections;
 
-  case class Custom(v: Validator) extends Type( 100)
+public class FailingValidator implements Validator {
+    public static final String name = "failing-japi-validator";
+
+    @Override
+    public ValidationResult validateXML(InputStream document) {
+        return new ValidationResult(Collections.emptyList(), Collections.singletonList(() -> "boom"));
+    }
 }

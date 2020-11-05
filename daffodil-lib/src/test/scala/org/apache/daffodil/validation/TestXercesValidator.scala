@@ -15,17 +15,21 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.api
+package org.apache.daffodil.validation
 
-import org.apache.daffodil.util.Enum
+import org.junit.Test
+import org.junit.Assert.assertTrue
 
-object ValidationMode extends Enum {
-  sealed abstract class Type protected (val mode: Int) extends EnumValueType with Ordered[Type] with Serializable {
-    def compare(that: ValidationMode.Type) = this.mode - that.mode
+class TestXercesValidator {
+  val schema = getClass.getResource("/test/validation/testSchema1.dfdl.xsd").toURI.toString
+  val infoset = getClass.getResourceAsStream("/test/validation/testData1Infoset.xml")
+
+  @Test def testFromSPI(): Unit = {
+    val f = Validators.get(XercesValidator.name)
+    val v = f.make(XercesValidatorFactory.makeConfig(Seq(schema)))
+    val r = v.validateXML(infoset)
+
+    assertTrue(r.warnings.isEmpty)
+    assertTrue(r.errors.isEmpty)
   }
-  case object Off extends Type(10)
-  case object Limited extends Type(20)
-  case object Full extends Type(30)
-
-  case class Custom(v: Validator) extends Type( 100)
 }

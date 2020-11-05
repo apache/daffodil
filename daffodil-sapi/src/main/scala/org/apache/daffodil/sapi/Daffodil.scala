@@ -55,6 +55,7 @@ import org.apache.daffodil.processors.{ InvalidUsageException => SInvalidUsageEx
 import java.net.URI
 
 import org.apache.daffodil.api.URISchemaSource
+import org.apache.daffodil.api.Validator
 import org.apache.daffodil.sapi.ValidationMode.ValidationMode
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe._
@@ -105,6 +106,10 @@ object ValidationMode extends Enumeration {
   val Off = Value(10)
   val Limited = Value(20)
   val Full = Value(30)
+
+  case class Custom(v: Validator) extends ValidationMode {
+    val id: Int = 100
+  }
 }
 
 /**
@@ -562,6 +567,8 @@ class DataProcessor private[sapi] (private var dp: SDataProcessor)
     try { copy(dp = dp.withValidationMode(ValidationConversions.modeToScala(mode))) }
     catch { case e: SInvalidUsageException => throw new InvalidUsageException(e) }
   }
+
+  def withValidator(validator: Validator): DataProcessor = withValidationMode(ValidationMode.Custom(validator))
 
 
   /**

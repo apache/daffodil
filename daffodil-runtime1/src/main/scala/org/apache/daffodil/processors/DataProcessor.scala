@@ -31,8 +31,13 @@ import java.util.zip.GZIPOutputStream
 
 import scala.collection.immutable.Queue
 import scala.collection.mutable
-
-import org.apache.daffodil.Implicits._; object INoWarn4 {
+import org.apache.daffodil.Implicits._
+import org.apache.daffodil.api.ValidationException
+import org.apache.daffodil.api.ValidationFailure
+import org.apache.daffodil.api.ValidationResult
+import org.apache.daffodil.api.Validator
+import org.apache.daffodil.validation.XercesValidatorFactory
+; object INoWarn4 {
   ImplicitsSuppressUnusedImportWarning() }
 import org.apache.daffodil.api.DFDL
 import org.apache.daffodil.api.DaffodilTunables
@@ -50,7 +55,6 @@ import org.apache.daffodil.exceptions.UnsuppressableException
 import org.apache.daffodil.externalvars.Binding
 import org.apache.daffodil.externalvars.ExternalVariablesLoader
 import org.apache.daffodil.infoset.DIElement
-import org.apache.daffodil.infoset.InfosetElement
 import org.apache.daffodil.infoset.InfosetException
 import org.apache.daffodil.infoset.InfosetInputter
 import org.apache.daffodil.infoset.InfosetOutputter
@@ -70,14 +74,12 @@ import org.apache.daffodil.processors.unparsers.UnparseError
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe._
 import org.apache.daffodil.util.Misc
-import org.apache.daffodil.util.Validator
 import org.apache.daffodil.xml.XMLUtils
 import org.xml.sax.ContentHandler
 import org.xml.sax.DTDHandler
 import org.xml.sax.EntityResolver
 import org.xml.sax.ErrorHandler
 import org.xml.sax.InputSource
-import org.xml.sax.SAXException
 import org.xml.sax.SAXNotRecognizedException
 import org.xml.sax.SAXNotSupportedException
 import org.xml.sax.SAXParseException
@@ -240,6 +242,17 @@ class DataProcessor private (
   def setValidationMode(mode: ValidationMode.Type): Unit = { validationMode = mode }
 
   def withValidationMode(mode:ValidationMode.Type): DataProcessor = copy(validationMode = mode)
+
+  def withValidator(validator: Validator): DataProcessor = withValidationMode(ValidationMode.Custom(validator))
+
+  lazy val validator: Validator = {
+    validationMode match {
+      case ValidationMode.Custom(cv) => cv
+      case _ =>
+        val cfg = XercesValidatorFactory.makeConfig(ssrd.elementRuntimeData.schemaURIStringsForFullValidation)
+        XercesValidatorFactory.makeValidator(cfg)
+    }
+  }
 
   // TODO Deprecate and replace usages with just tunables.
   def getTunables: DaffodilTunables = tunables
@@ -416,14 +429,16 @@ class DataProcessor private (
     // events are created rather than writing the entire infoset in memory and
     // then validating at the end of the parse. See DAFFODIL-2386
     //
-    val (outputter, maybeValidationBytes) =
-    if (validationMode == ValidationMode.Full) {
-      val bos = new java.io.ByteArrayOutputStream()
-      val xmlOutputter = new XMLTextInfosetOutputter(bos, false)
-      val teeOutputter = new TeeInfosetOutputter(output, xmlOutputter)
-      (teeOutputter, One(bos))
-    } else {
-      (output, Nope)
+    val (outputter, maybeValidationBytes) = {
+      validationMode match {
+        case ValidationMode.Full | ValidationMode.Custom(_) =>
+          val bos = new java.io.ByteArrayOutputStream()
+          val xmlOutputter = new XMLTextInfosetOutputter(bos, false)
+          val teeOutputter = new TeeInfosetOutputter(output, xmlOutputter)
+          (teeOutputter, One(bos))
+        case _ =>
+          (output, Nope)
+      }
     }
 
     val rootERD = ssrd.elementRuntimeData
@@ -688,41 +703,28 @@ class DataProcessor private (
 
 class ParseResult(dp: DataProcessor, override val resultState: PState)
   extends DFDL.ParseResult
-  with WithDiagnosticsImpl
-  with ErrorHandler {
+  with WithDiagnosticsImpl {
 
   /**
-   * To be successful here, we need to capture xerces parse/validation
+   * To be successful here, we need to capture parse/validation
    * errors and add them to the Diagnostics list in the PState.
    *
-   * @param state the initial parse state.
+   * @param bytes the parsed Infoset
    */
   def validateResult(bytes: Array[Byte]): Unit = {
     Assert.usage(resultState.processorStatus eq Success)
-    val schemaURIStrings = resultState.infoset.asInstanceOf[InfosetElement].runtimeData.schemaURIStringsForFullValidation
-    try {
-      val bis = new java.io.ByteArrayInputStream(bytes)
-      Validator.validateXMLSources(schemaURIStrings, bis, this)
-    } catch {
-      //
-      // Some SAX Parse errors are thrown even if you specify an error handler to the
-      // validator.
-      //
-      // So we also need this catch
-      //
-      case e: SAXException =>
-        resultState.validationErrorNoContext(e)
-    }
-  }
 
-  override def warning(spe: SAXParseException): Unit = {
-    resultState.validationErrorNoContext(spe)
-  }
-  override def error(spe: SAXParseException): Unit = {
-    resultState.validationErrorNoContext(spe)
-  }
-  override def fatalError(spe: SAXParseException): Unit = {
-    resultState.validationErrorNoContext(spe)
+    val bis = new java.io.ByteArrayInputStream(bytes)
+    dp.validator.validateXML(bis) match {
+      case ValidationResult(warnings, errors) =>
+        warnings.forEach{ w => resultState.validationError(w.getMessage) }
+        errors.forEach{
+          case e: ValidationException =>
+            resultState.validationErrorNoContext(e.getCause)
+          case f: ValidationFailure =>
+            resultState.validationError(f.getMessage)
+        }
+    }
   }
 }
 
