@@ -29,6 +29,8 @@ import java.nio.file.Paths
 import java.util.Scanner
 import java.util.concurrent.Executors
 
+import com.typesafe.config.ConfigFactory
+
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -98,6 +100,7 @@ import org.apache.daffodil.util.Logging
 import org.apache.daffodil.util.LoggingDefaults
 import org.apache.daffodil.util.Misc
 import org.apache.daffodil.util.Timer
+import org.apache.daffodil.validation.Validators
 import org.apache.daffodil.xml.QName
 import org.apache.daffodil.xml.RefQName
 import org.apache.daffodil.xml.DaffodilXMLLoader
@@ -106,6 +109,8 @@ import org.rogach.scallop
 import org.rogach.scallop.ArgType
 import org.rogach.scallop.ScallopOption
 import org.rogach.scallop.ValueConverter
+
+import scala.util.matching.Regex
 
 class CommandLineSAXErrorHandler() extends org.xml.sax.ErrorHandler with Logging {
 
@@ -218,11 +223,17 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
   }
 
   implicit def validateConverter = singleArgConverter[ValidationMode.Type]((s: String) => {
+    import ValidatorPatterns._
     s.toLowerCase match {
       case "on" => ValidationMode.Full
       case "limited" => ValidationMode.Limited
       case "off" => ValidationMode.Off
-      case _ => throw new Exception("Unrecognized ValidationMode %s.  Must be 'on', 'limited' or 'off'.".format(s))
+      case DefaultArgPattern(name, arg) if Validators.isRegistered(name) =>
+        val config = if(arg.endsWith(".conf")) ConfigFactory.load(arg) else ConfigFactory.parseString(s"$name=$arg")
+        ValidationMode.Custom(Validators.get(name).make(config))
+      case NoArgsPattern(name) if Validators.isRegistered(name) =>
+        ValidationMode.Custom(Validators.get(name).make(ConfigFactory.empty))
+      case _ => throw new Exception("Unrecognized ValidationMode %s.  Must be 'on', 'limited', 'off', or name of spi validator.".format(s))
     }
   })
 
@@ -326,7 +337,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     val path = opt[String](argName = "path", descr = "path to the node to create parser.")
     val parser = opt[File](short = 'P', argName = "file", descr = "use a previously saved parser.")
     val output = opt[String](argName = "file", descr = "write output to a given file. If not given or is -, output is written to stdout.")
-    val validate: ScallopOption[ValidationMode.Type] = opt[ValidationMode.Type](short = 'V', default = Some(ValidationMode.Off), argName = "mode", descr = "the validation mode. 'on', 'limited' or 'off'.")
+    val validate: ScallopOption[ValidationMode.Type] = opt[ValidationMode.Type](short = 'V', default = Some(ValidationMode.Off), argName = "mode", descr = "the validation mode. 'on', 'limited', 'off', or spi name.")
     val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used when parsing. An optional namespace may be provided.")
     val tunables = props[String]('T', keyName = "tunable", valueName = "value", descr = "daffodil tunable to be used when parsing.")
     val config = opt[String](short = 'c', argName = "file", descr = "path to file containing configuration items.")
@@ -391,7 +402,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     val threads = opt[Int](short = 't', argName = "threads", default = Some(1), descr = "The number of threads to use.")
     val path = opt[String](argName = "path", descr = "path to the node to create parser.")
     val parser = opt[File](short = 'P', argName = "file", descr = "use a previously saved parser.")
-    val validate: ScallopOption[ValidationMode.Type] = opt[ValidationMode.Type](short = 'V', default = Some(ValidationMode.Off), argName = "mode", descr = "the validation mode. 'on', 'limited' or 'off'.")
+    val validate: ScallopOption[ValidationMode.Type] = opt[ValidationMode.Type](short = 'V', default = Some(ValidationMode.Off), argName = "mode", descr = "the validation mode. 'on', 'limited', 'off', or spi name.")
     val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used when processing. An optional namespace may be provided.")
     val tunables = props[String]('T', keyName = "tunable", valueName = "value", descr = "daffodil tunable to be used when processing.")
     val config = opt[String](short = 'c', argName = "file", descr = "path to file containing configuration items.")
@@ -441,7 +452,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     val path = opt[String](argName = "path", descr = "path to the node to create parser.")
     val parser = opt[File](short = 'P', argName = "file", descr = "use a previously saved parser.")
     val output = opt[String](argName = "file", descr = "write output to file. If not given or is -, output is written to standard output.")
-    val validate: ScallopOption[ValidationMode.Type] = opt[ValidationMode.Type](short = 'V', default = Some(ValidationMode.Off), argName = "mode", descr = "the validation mode. 'on', 'limited' or 'off'.")
+    val validate: ScallopOption[ValidationMode.Type] = opt[ValidationMode.Type](short = 'V', default = Some(ValidationMode.Off), argName = "mode", descr = "the validation mode. 'on', 'limited', 'off', or spi name.")
     val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used when unparsing. An optional namespace may be provided.")
     val tunables = props[String]('T', keyName = "tunable", valueName = "value", descr = "daffodil tunable to be used when parsing.")
     val config = opt[String](short = 'c', argName = "file", descr = "path to file containing configuration items.")
@@ -547,6 +558,11 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
   }
 
   verify()
+}
+
+object ValidatorPatterns {
+  val NoArgsPattern: Regex = "(.+?)".r.anchored
+  val DefaultArgPattern: Regex = "(.+?)=(.+)".r.anchored
 }
 
 object Main extends Logging {

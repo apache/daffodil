@@ -15,17 +15,20 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.api
+package org.apache.daffodil.example.validation;
 
-import org.apache.daffodil.util.Enum
+import com.typesafe.config.Config;
+import org.apache.daffodil.api.Validator;
+import org.apache.daffodil.api.ValidatorFactory;
 
-object ValidationMode extends Enum {
-  sealed abstract class Type protected (val mode: Int) extends EnumValueType with Ordered[Type] with Serializable {
-    def compare(that: ValidationMode.Type) = this.mode - that.mode
-  }
-  case object Off extends Type(10)
-  case object Limited extends Type(20)
-  case object Full extends Type(30)
+public class FailingValidatorFactory implements ValidatorFactory {
+    @Override
+    public String name() {
+        return FailingValidator.name;
+    }
 
-  case class Custom(v: Validator) extends Type( 100)
+    @Override
+    public Validator make(Config config) {
+        return new FailingValidator();
+    }
 }

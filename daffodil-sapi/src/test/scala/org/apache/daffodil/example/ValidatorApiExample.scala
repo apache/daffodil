@@ -15,17 +15,28 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.api
+package org.apache.daffodil.example
 
-import org.apache.daffodil.util.Enum
+import org.junit.Test
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 
-object ValidationMode extends Enum {
-  sealed abstract class Type protected (val mode: Int) extends EnumValueType with Ordered[Type] with Serializable {
-    def compare(that: ValidationMode.Type) = this.mode - that.mode
+class ValidatorApiExample extends ValidatorExamplesSupport {
+  @Test
+  def testAlwaysPass(): Unit =
+    withSchema("/test/sapi/mySchema5.dfdl.xsd") { dp =>
+      withInput("/test/sapi/myData5.dat") { input =>
+        val res = dp.withValidator(Always.passes).parse(input, `/dev/null`)
+        assertFalse(res.isValidationError())
+      }
   }
-  case object Off extends Type(10)
-  case object Limited extends Type(20)
-  case object Full extends Type(30)
 
-  case class Custom(v: Validator) extends Type( 100)
+  @Test
+  def testAlwaysFail(): Unit =
+    withSchema("/test/sapi/mySchema5.dfdl.xsd") { dp =>
+      withInput("/test/sapi/myData5.dat") { input =>
+        val res = dp.withValidator(Always.fails).parse(input, `/dev/null`)
+        assertTrue(res.isValidationError())
+      }
+    }
 }
