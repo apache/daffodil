@@ -34,11 +34,16 @@
   *
   * Definition of Coroutine - separate stacks, but NO CONCURRENCY. Only one
   * of a set of coroutines is running at any given time.
+ *
+  * The queueCapacity being set to 1 ensures the NO CONCURRENCY property of this trait, so to reduce
+  * the context-switching overhead is implementation specific, and can be done by passing in a
+  * larger data structure containing multiple event for the Coroutine generic Type, rather than
+  * enlarging the queue size
   */
  trait Coroutine[T] {
 
    private val queueCapacity: Int = 1
-   private val inboundQueue = new ArrayBlockingQueue[Try[T]](queueCapacity)
+   private val inboundQueue = new ArrayBlockingQueue[T](queueCapacity)
 
    private val self = this
 
@@ -69,25 +74,25 @@
     * and then terminates. The coroutine calling this must return from the run()
     * method immediately after calling this.
     */
-   final def resumeFinal(coroutine: Coroutine[T], in: Try[T]): Unit = {
+   final def resumeFinal(coroutine: Coroutine[T], in: T): Unit = {
      coroutine.init()
-     coroutine.inboundQueue.put(in) // allows other to run  final
+     coroutine.inboundQueue.put(in) // allows other to run final
    }
 
    /**
-    * Call when one co-routine wants to resume another, tranmitting a
+    * Call when one co-routine wants to resume another, transmitting a
     * argument value to it.
     *
     * The current co-routine will be suspended until it is resumed later.
     */
-   final def resume(coroutine: Coroutine[T], in: Try[T]): Try[T] = {
+   final def resume(coroutine: Coroutine[T], in: T): T = {
      resumeFinal(coroutine, in)
      val res = waitForResume() // blocks until it is resumed
      res
    }
 
-   final def waitForResume(): Try[T] = {
-     inboundQueue.take
+   final def waitForResume(): T = {
+     inboundQueue.take()
    }
 
    protected def run(): Unit
@@ -113,7 +118,7 @@
   * https://scalaenthusiast.wordpress.com/2013/06/12/transform-a-callback-function-to-an-iteratorlist-in-scala/
   */
 
- final class InvertControl[S](body: => Unit) extends Iterator[S] with Coroutine[S] {
+ final class InvertControl[S](body: => Unit) extends Iterator[S] with Coroutine[Try[S]] {
 
    private object EndMarker extends Throwable
    private val EndOfData = Failure(EndMarker)
@@ -127,7 +132,7 @@
     * After the last value is produced, the consumer is resumed with EndOfData
     * and the producer terminates.
     */
-   class Producer(val consumer: Coroutine[S]) extends Coroutine[S] {
+   class Producer(val consumer: Coroutine[Try[S]]) extends Coroutine[Try[S]] {
      override final def run(): Unit = {
        try {
          waitForResume()
@@ -171,8 +176,7 @@
    private lazy val iterator = gen.toIterator
 
    override def hasNext: Boolean = {
-     if (failed) false
-     else iterator.hasNext
+     !failed && iterator.hasNext
    }
    override def next(): S = {
      if (failed) throw new IllegalStateException()

@@ -269,14 +269,27 @@ object DFDL {
     }
   }
 
-  trait ProducerCoroutine extends Coroutine[SAXInfosetEvent] {
+  object SAXInfosetEvent {
+    def copyEvent(source: DFDL.SAXInfosetEvent, dest: DFDL.SAXInfosetEvent): Unit = {
+      if (source == null) dest.clear()
+      else {
+        dest.eventType = source.eventType
+        dest.namespaceURI = source.namespaceURI
+        dest.localName = source.localName
+        dest.nilValue = source.nilValue
+        dest.simpleText = source.simpleText
+      }
+    }
+  }
+
+  trait ProducerCoroutine extends Coroutine[Array[SAXInfosetEvent]] {
     override def isMain = true
     override protected def run(): Unit = {
       throw new Error("Main thread co-routine run method should not be called.")
     }
   }
 
-  trait ConsumerCoroutine extends Coroutine[SAXInfosetEvent]
+  trait ConsumerCoroutine extends Coroutine[Array[SAXInfosetEvent]]
 
   trait ParseResult extends Result with WithDiagnostics {
     def resultState: State

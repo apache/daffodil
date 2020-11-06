@@ -53,10 +53,11 @@ object TestSAXParseUnparseAPI {
   val testInfosetString: String = testInfoset.toString()
   val testData = "910"
 
-  lazy val dp: DataProcessor = testDataprocessor(testSchema)
+  lazy val dp: DataProcessor = testDataProcessor(testSchema)
 
-  def testDataprocessor(testSchema: scala.xml.Elem): DataProcessor = {
-    val schemaCompiler = Compiler()
+  def testDataProcessor(testSchema: scala.xml.Elem, tunablesArg: Map[String, String] = Map.empty): DataProcessor = {
+    val schemaCompiler = Compiler().withTunables(tunablesArg)
+
     val pf = schemaCompiler.compileNode(testSchema)
     if (pf.isError) {
       val msgs = pf.getDiagnostics.map { _.getMessage() }.mkString("\n")
