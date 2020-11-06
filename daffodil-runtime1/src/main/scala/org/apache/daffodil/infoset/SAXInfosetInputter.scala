@@ -20,11 +20,10 @@ package org.apache.daffodil.infoset
 import java.net.URI
 import java.net.URISyntaxException
 
-import scala.util.Try
-
 import org.apache.daffodil.api.DFDL
 import org.apache.daffodil.api.DFDL.DaffodilUnhandledSAXException
 import org.apache.daffodil.api.DFDL.DaffodilUnparseErrorSAXException
+import org.apache.daffodil.api.DFDL.SAXInfosetEvent
 import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.infoset.InfosetInputterEventType.EndDocument
@@ -35,25 +34,30 @@ import org.apache.daffodil.xml.XMLUtils
 
 /**
  * The SAXInfosetInputter consumes SAXInfosetEvent objects from the DaffodilUnparseContentHandler
- * class and converts them to events that the DataProcessor unparse can use. This class contains two
- * SAXInfosetEvent objects, the current event the unparse method is processing and the next event
- * to be processed later.
+ * class and converts them to events that the DataProcessor unparse can use. This class contains an
+ * array of batched SAXInfosetEvent objects that it receives from the contentHandler and the index
+ * of the current element being processed.
  *
- * This class together with the DaffodilUnparseContentHandler use coroutines to ensure that only one event,
- * at a time, is passed between the two classes. The following is the general process:
+ * This class, together with the SAXInfosetInputter, uses coroutines to ensure that a batch of events
+ * (based on the tunable saxUnparseEventBatchSize) can be passed from the former to the latter.
+ * The following is the general process:
  *
- * - the run method is called, with a StartDocument event already loaded on the inputter's queue.
- * This is collected and stored in the currentEvent member
+ * - the run method is called, with the first batch of events, starting with the StartDocument event,
+ * already loaded on the inputter's queue.
+ * This is collected and stored in the batchedInfosetEvents member, and the currentIndex is set to 0
  * - The dp.unparse method is called, and it calls hasNext to make sure an event exists to be
- * processed and then queries the currentEvent. The hasNext call also queues the nextEvent by
- * transferring control to the contentHandler so it can load the next event.
- * - After it is done with the currentEvent, it calls inputter.next to get the next event, and that
- * copies the queued nextEvent into the currentEvent
- * - This process continues until the currentEvent contains an EndDocument event, at which point, the
- * nextEvent is cleared, endDocumentReceived is set to true and hasNext will return false
- * - This ends the unparse process, and the unparseResult and/or any Errors are set on the event. We
- * call resumeFinal passing along that element, terminating this thread and resuming the
- * contentHandler for the last time.
+ * processed and then queries the event at currentIndex. The hasNext call also checks that there is
+ * a next event to be processed (currentIndex+1), and if not, queues the next batch of events by
+ * transferring control to the contentHandler so it can load them.
+ * - After it is done with the current event, it calls inputter.next to get the next event, and that
+ * increments the currentIndex and cleans out the event at the previous index
+ * - This process continues until the event at currentIndex either contains an EndDocument event or
+ * the currentIndex is the last in the batch. If it is the former, the endDocumentReceived flag is
+ * set to true and hasNext will return false. If it is the latter, the next batch of events will be
+ * queued by transferring control to the contentHandler so it can load them.
+ * - This ends the unparse process, and the unparseResult and/or any Errors are set on a single element
+ * array containing response events. We call resumeFinal passing along that array, terminating this
+ * thread and resuming the contentHandler for the last time.
  *
  * @param unparseContentHandler producer coroutine that sends the SAXInfosetEvent to this class
  * @param dp dataprocessor that we use to kickstart the unparse process and that consumes the
@@ -76,18 +80,19 @@ class SAXInfosetInputter(
   private var resolveRelativeInfosetBlobURIs: Boolean = false
 
   private var endDocumentReceived = false
-  private lazy val currentEvent: DFDL.SAXInfosetEvent = new DFDL.SAXInfosetEvent
-  private lazy val nextEvent: DFDL.SAXInfosetEvent = new DFDL.SAXInfosetEvent
+  private var currentIndex: Int = 0
+  private var batchedInfosetEvents: Array[SAXInfosetEvent] = _
+  private lazy val returnedInfosetEvent: Array[SAXInfosetEvent] = new Array[SAXInfosetEvent](1)
 
-  override def getEventType(): InfosetInputterEventType = currentEvent.eventType.orNull
+  override def getEventType(): InfosetInputterEventType = batchedInfosetEvents(currentIndex).eventType.orNull
 
-  override def getLocalName(): String = currentEvent.localName.orNull
+  override def getLocalName(): String = batchedInfosetEvents(currentIndex).localName.orNull
 
-  override def getNamespaceURI(): String = currentEvent.namespaceURI.orNull
+  override def getNamespaceURI(): String = batchedInfosetEvents(currentIndex).namespaceURI.orNull
 
   override def getSimpleText(primType: NodeInfo.Kind): String = {
-    val res = if (currentEvent.simpleText.isDefined) {
-      currentEvent.simpleText.get
+    val res = if (batchedInfosetEvents(currentIndex).simpleText.isDefined) {
+      batchedInfosetEvents(currentIndex).simpleText.get
     } else {
       throw new NonTextFoundInSimpleContentException(getLocalName())
     }
@@ -104,8 +109,8 @@ class SAXInfosetInputter(
   }
 
   override def isNilled(): MaybeBoolean = {
-    val _isNilled = if (currentEvent.nilValue.isDefined) {
-      val nilValue = currentEvent.nilValue.get
+    val _isNilled = if (batchedInfosetEvents(currentIndex).nilValue.isDefined) {
+      val nilValue = batchedInfosetEvents(currentIndex).nilValue.get
       if (nilValue == "true" || nilValue == "1") {
         MaybeBoolean(true)
       } else if (nilValue == "false" || nilValue == "0") {
@@ -121,35 +126,42 @@ class SAXInfosetInputter(
   }
 
   override def hasNext(): Boolean = {
-    if (endDocumentReceived) false
-    else if (!nextEvent.isEmpty) true
-    else {
-      val event = this.resume(unparseContentHandler, Try(currentEvent))
-      copyEvent(source = event, dest = nextEvent)
+    val nextIndex = currentIndex + 1
+    if (endDocumentReceived) {
+      // if the current Element is EndDocument, then there is no valid next
+      false
+    } else if (batchedInfosetEvents != null && nextIndex < batchedInfosetEvents.length) {
+      // if we have not yet reached the end of the array and endDocument has not yet been received
+      true
+    }  else  {
+      // there is no nextEvent or it was empty, but we still have no EndDocument. So load the next
+      // batch from the contentHandler
+      returnedInfosetEvent(0) = batchedInfosetEvents(currentIndex)
+      batchedInfosetEvents = this.resume(unparseContentHandler, returnedInfosetEvent)
+      // we reset the index to 0 to guarantee that the last element we were looking at when hasNext
+      // was called is still the event we'll be looking at, when we leave this function. This is
+      // guaranteed because the DaffodilUnparseContentHandler moves the last element into the first
+      // index when it resumed.
+      currentIndex = 0
       true
     }
   }
 
   override def next(): Unit = {
     if (hasNext()) {
-      copyEvent(source = Try(nextEvent), dest = currentEvent)
-      nextEvent.clear()
-      if (currentEvent.eventType.contains(EndDocument)) endDocumentReceived = true
-    } else {
-      // we should never call next() if hasNext() is false
-      Assert.abort()
-    }
-  }
+      // clear element at current index as we're done with it, except in the case we just loaded the
+      // new elements, then do nothing
+      batchedInfosetEvents(currentIndex).clear()
 
-  def copyEvent(source: Try[DFDL.SAXInfosetEvent], dest: DFDL.SAXInfosetEvent): Unit= {
-    if (source.isFailure) dest.clear()
-    else {
-      val src = source.get
-      dest.eventType = src.eventType
-      dest.namespaceURI = src.namespaceURI
-      dest.localName = src.localName
-      dest.nilValue = src.nilValue
-      dest.simpleText = src.simpleText
+      // increment current index to the next index
+      currentIndex += 1
+
+      // check if new current index is EndDocument
+      if (batchedInfosetEvents(currentIndex).eventType.contains(EndDocument)) {
+        endDocumentReceived = true
+      }
+    } else {
+      Assert.abort()
     }
   }
 
@@ -183,22 +195,23 @@ class SAXInfosetInputter(
 
   override protected def run(): Unit = {
     try {
-      // startDocument kicks off this entire process, so it should be on the queue so the
-      // waitForResume call can grab it. That is set to our current event, so when hasNext is called
-      // the nextEvent after the StartDocument can be queued
-      copyEvent(source = this.waitForResume(), dest = currentEvent)
+      // startDocument kicks off this entire process, so the first batch of events, of which
+      // startDocument is first, should be on the queue so the waitForResume call can grab it.
+      // This populates the inputter.batchedInfosetEvents var for use by the rest of the Inputter
+      batchedInfosetEvents = this.waitForResume()
       val unparseResult = dp.unparse(this, output)
-      currentEvent.unparseResult = One(unparseResult)
+      batchedInfosetEvents(currentIndex).unparseResult = One(unparseResult)
       if (unparseResult.isError) {
         // unparseError is contained within unparseResult
-        currentEvent.causeError = One(new DaffodilUnparseErrorSAXException(unparseResult))
+        batchedInfosetEvents(currentIndex).causeError = One(new DaffodilUnparseErrorSAXException(unparseResult))
       }
     } catch {
       case e: Exception => {
-        currentEvent.causeError = One(new DaffodilUnhandledSAXException(e.getMessage, e))
+        batchedInfosetEvents(currentIndex).causeError = One(new DaffodilUnhandledSAXException(e.getMessage, e))
       }
     } finally {
-      this.resumeFinal(unparseContentHandler, Try(currentEvent))
+      returnedInfosetEvent(0) = batchedInfosetEvents(currentIndex)
+      this.resumeFinal(unparseContentHandler, returnedInfosetEvent)
     }
   }
 }

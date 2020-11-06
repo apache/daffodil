@@ -390,6 +390,18 @@
             </xs:documentation>
           </xs:annotation>
         </xs:element>
+        <xs:element name="saxUnparseEventBatchSize" type="xs:int" default="100" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              Daffodil's SAX Unparse API allows events to be batched in memory to minimize the
+              frequency of context switching between the SAXInfosetInputter thread that processes
+              the events, and the DaffodilUnparseContentHandler thread that generates the events.
+              Setting this value to a low number will increase the frequency of context switching,
+              but will reduce the memory footprint. Swtting it to a high number will decrease the
+              frequency of context switching, but increase the memory footprint.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
         <xs:element name="suppressSchemaDefinitionWarnings" type="daf:TunableSuppressSchemaDefinitionWarnings" default="emptyElementParsePolicyError" minOccurs="0">
           <xs:annotation>
             <xs:documentation>

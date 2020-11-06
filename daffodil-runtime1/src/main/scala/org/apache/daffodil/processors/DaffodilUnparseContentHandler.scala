@@ -17,13 +17,14 @@
 
 package org.apache.daffodil.processors
 
-import scala.util.Try
 import scala.xml.NamespaceBinding
 
 import javax.xml.XMLConstants
 import org.apache.daffodil.api.DFDL
 import org.apache.daffodil.api.DFDL.DaffodilUnhandledSAXException
 import org.apache.daffodil.api.DFDL.DaffodilUnparseErrorSAXException
+import org.apache.daffodil.api.DFDL.SAXInfosetEvent
+import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.infoset.IllegalContentWhereEventExpected
 import org.apache.daffodil.infoset.InfosetInputterEventType.EndDocument
 import org.apache.daffodil.infoset.InfosetInputterEventType.EndElement
@@ -39,26 +40,29 @@ import org.xml.sax.Locator
 
 /**
  * DaffodilUnparseContentHandler produces SAXInfosetEvent objects for the SAXInfosetInputter to
- * consume and convert to an event that the Dataprocessor unparse can use. The SAXInfosetEvent object
+ * consume and convert to events that the Dataprocessor unparse can use. The SAXInfosetEvent object
  * is built from information that is passed to the ContentHandler from an XMLReader parser. In
  * order to receive the uri and prefix information from the XMLReader, the XMLReader must have
  * support for XML Namespaces
  *
- * This class, together with the SAXInfosetInputter, uses coroutines to ensure that only one event,
- * at a time, is passed between the two classes. The following is the general process:
+ * This class, together with the SAXInfosetInputter, uses coroutines to ensure that a batch of events
+ * (based on the tunable saxUnparseEventBatchSize) can be passed from the former to the latter.
+ * The following is the general process:
  *
  * - an external call is made to parse an XML Document
- * - this class receives a StartDocument call, which is the first SAXInfosetEvent that is sent to
- * the SAXInfosetInputter. That event is put on the inputter's queue, this thread is paused, and
- * that inputter's thread is run
- * - when the SAXInfosetInputter is done processing an event and is ready for a new event, it
- * sends the completed event via the coroutine system, and loads it on the contentHandler's
- * queue, which restarts this thread and pauses that one. In the expected case, the events will
- * contain no new information, until the unparse is completed, otherwise it will contain error
- * information
- * -  this process continues until the EndDocument method is called. Once that SAXInfosetEvent is
- * sent to the inputter, it signals the end of events coming from the contentHandler. This
- * ends the unparseProcess and returns the event with the unparseResult and/or any error
+ * - this class receives a StartDocument call, which is the first SAXInfosetEvent that should be
+ * sent to the SAXInfosetInputter. That event is put onto an array of SAXInfosetEvents of size the
+ * saxUnparseEventBatchSize tunable. Once the array is full, it is put on the inputter's queue,
+ * this thread is paused, and that inputter's thread is run
+ * - when the SAXInfosetInputter is done processing that batch and is ready for a new batch, it
+ * sends a 1 element array with the last completed event via the coroutine system, which loads it on
+ * the contentHandler's queue, which restarts this thread and pauses that one. In the expected case,
+ * the single element array will contain no new information until the unparse complete. In the case of
+ * an unexpected error though, it will contain error information
+ * - this process continues until the EndDocument SAXInfosetEvent is loaded into the batch.
+ * Once that SAXInfosetEvent is processed by the SAXInfosetInputter, it signals the end of batched
+ * events coming from the contentHandler. This ends the unparseProcess and returns the event with
+ * the unparseResult and/or any error
  * information
  *
  * @param dp dataprocessor object that will be used to call the parse
@@ -70,10 +74,48 @@ class DaffodilUnparseContentHandler(
   extends DFDL.DaffodilUnparseContentHandler {
   private lazy val inputter = new SAXInfosetInputter(this, dp, output)
   private var unparseResult: DFDL.UnparseResult = _
-  private lazy val infosetEvent: DFDL.SAXInfosetEvent = new DFDL.SAXInfosetEvent
   private lazy val characterData = new StringBuilder
   private var prefixMapping: NamespaceBinding = _
   private lazy val prefixMappingTrackingStack = new MStackOf[NamespaceBinding]
+
+  private lazy val tunablesBatchSize = dp.getTunables().saxUnparseEventBatchSize
+
+  /**
+   * we always have an extra buffer in the array that we use for the inputter.hasNext call. For each
+   * element, we need to know if it has a viable next, if it doesn't, it will triggers the context
+   * switch to DaffodilUnparseContentHandler. So for example, if the user provides 1 as the
+   * batchSize, under the hood we'll batch [event1, event2].
+   *
+   * - DataProcessor.unparse will call hasNext and getEventType for the initialization call
+   * - hasNext will check if nextIndex (i.e currentIndex + 1) is non-empty. Since currentIndex is 0,
+   * it will return true since event2 exists.
+   * - getEventType (which signifies our processing step) is called for the event at currentIndex
+   * - After the initialization step, subsequent calls will be a loop of next(), ...some processing
+   * of the current event ..., and hasNext()
+   * - For our scenario, next() will clear out the contents at currentIndex, increment the currentIndex,
+   * and our event2 will be processed, then hasNext will check if there is a viable index 2, as
+   * there is not, it will perform the context switch so DaffodilUnparseContentHandler can batch
+   * more events
+   * - DaffodilUnparseContentHandler copies the last event into the first so the currentEvent stays
+   * the same for the inputter until it decides to change it so we end up with [event2, event3]
+   * - When we context switch back to inputter.hasNext, it resets the currentIndex to 0, and our loop
+   * begins again with a call to next
+   *
+   * Without us having the extra buffer, things would happen like this:
+   * user provides 1 as the batchSize, under the hood we'll have [event1] batched.
+   *
+   * DataProcessor.unparse will call hasNext and getEventType for the initialization call, and that
+   * hasNext will check if cnextIndex (i.e currentIndex + 1) is non-empty. As currentIndex is 0, and
+   * it is the maximum index, there is no index 1. It will context switch to get a new batched event,
+   * which, would overwrite event1 before we get to process it.
+   */
+  private lazy val actualBatchSize = tunablesBatchSize + 1
+  private lazy val batchedInfosetEvents: Array[SAXInfosetEvent] = {
+    Assert.invariant(tunablesBatchSize > 0, "invalid saxUnparseEventBatchSize; minimum value is 1")
+    Array.fill[SAXInfosetEvent](actualBatchSize)(new SAXInfosetEvent)
+  }
+  private var currentIndex: Int = 0
+
   /**
    * This is a flag that is set to true when startPrefixMapping is called. When true, we make
    * the assumption that we don't need to use the Attributes parameter from startElement to get the
@@ -94,13 +136,13 @@ class DaffodilUnparseContentHandler(
   }
 
   override def startDocument(): Unit = {
-    infosetEvent.eventType = One(StartDocument)
-    sendToInputter()
+    batchedInfosetEvents(currentIndex).eventType = One(StartDocument)
+    maybeSendToInputter()
   }
 
   override def endDocument(): Unit = {
-    infosetEvent.eventType = One(EndDocument)
-    sendToInputter()
+    batchedInfosetEvents(currentIndex).eventType = One(EndDocument)
+    maybeSendToInputter()
   }
 
   override def startPrefixMapping(prefix: String, uri: String): Unit = {
@@ -164,14 +206,14 @@ class DaffodilUnparseContentHandler(
       mapPrefixMappingFromAttributesImpl(atts)
     }
 
-    if (!infosetEvent.isEmpty && infosetEvent.localName.isDefined) {
+    if (!batchedInfosetEvents(currentIndex).isEmpty && batchedInfosetEvents(currentIndex).localName.isDefined) {
       // we started another element while we were in the process of building a startElement
       // this means the first element was complex and we are ready for the inputter queue
-      sendToInputter()
+      maybeSendToInputter()
     }
     // use Attributes to determine xsi:nil value
     val nilIn = atts.getIndex(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, "nil")
-    infosetEvent.nilValue = if (nilIn >= 0) {
+    batchedInfosetEvents(currentIndex).nilValue = if (nilIn >= 0) {
       val nilValue = atts.getValue(nilIn)
       One(nilValue)
     } else {
@@ -181,62 +223,78 @@ class DaffodilUnparseContentHandler(
     // set localName and namespaceURI
     setLocalNameAndNamespaceUri(uri, localName, qName)
 
-    infosetEvent.eventType = One(StartElement)
+    batchedInfosetEvents(currentIndex).eventType = One(StartElement)
   }
 
   override def endElement(uri: String, localName: String, qName: String): Unit = {
     // if infosetEvent is a startElement, send that first
-    if (infosetEvent.eventType.contains(StartElement)) {
+    if (batchedInfosetEvents(currentIndex).eventType.contains(StartElement)) {
       // any characterData that exists at this point is valid data as padding data has been
       // taken care of in startElement
       val maybeNewStr = One(characterData.toString)
-      infosetEvent.simpleText = maybeNewStr
+      batchedInfosetEvents(currentIndex).simpleText = maybeNewStr
       characterData.setLength(0)
-      sendToInputter()
+      maybeSendToInputter()
     }
+
+    batchedInfosetEvents(currentIndex).eventType = One(EndElement)
 
     // set localName and namespaceURI
     setLocalNameAndNamespaceUri(uri, localName, qName)
-
-    infosetEvent.eventType = One(EndElement)
 
     if (!contentHandlerPrefixMappingUsed) {
       // always pops
       prefixMapping = prefixMappingTrackingStack.pop
     }
-    sendToInputter()
+    maybeSendToInputter()
   }
 
   override def characters(ch: Array[Char], start: Int, length: Int): Unit = {
     characterData.appendAll(ch, start, length)
   }
 
-  private def sendToInputter(): Unit = {
-    val infosetEventWithResponse = this.resume(inputter, Try(infosetEvent))
-    infosetEvent.clear()
-    // if event is wrapped in a Try failure, we will not have an unparseResult, so we only set
-    // unparseResults for events wrapped in Try Success, including those events that have expected
-    // errors
-    if (infosetEventWithResponse.isSuccess && infosetEventWithResponse.get.unparseResult.isDefined) {
-      unparseResult = infosetEventWithResponse.get.unparseResult.get
-    }
-    // the exception from events wrapped in Try failures and events wrapped in Try Successes
-    // (with an unparse error state i.e unparseResult.isError) are collected and thrown to stop
-    // the execution of the xmlReader
-    if (infosetEventWithResponse.isFailure || infosetEventWithResponse.get.isError) {
-      val causeError = if(infosetEventWithResponse.isFailure) {
-        infosetEventWithResponse.failed.get
-      } else {
-        infosetEventWithResponse.get.causeError.get
+  /**
+   * we only context swtich to the InfosetInputter if batchedInfosetEvents is full or we hit an
+   * EndDocument event
+   */
+  private def maybeSendToInputter(): Unit = {
+    val nextIndex = currentIndex + 1
+    if (nextIndex < actualBatchSize &&
+      !batchedInfosetEvents(currentIndex).eventType.contains(EndDocument)) {
+      // if we have room left on the batchedInfosetEvents array and the current element != EndDocument
+      currentIndex += 1
+      // at this point where we're loading the contents of the array, it should have been cleared
+      // mostly by the InfosetInputter, and the last element by us.
+      Assert.invariant(batchedInfosetEvents(currentIndex).isEmpty)
+    } else {
+      // ready to send it off
+      val infosetEventWithResponse = this.resume(inputter, batchedInfosetEvents).head
+      // we only ever return a one element array
+
+      // it is possible for unparseResult to be null, in the case of an DaffodilUnhandledSAXException
+      if (infosetEventWithResponse.unparseResult.isDefined) {
+        unparseResult = infosetEventWithResponse.unparseResult.get
       }
-      causeError match {
-        case unparseError: DaffodilUnparseErrorSAXException =>
-          // although this is an expected error, we need to throw it so we can stop the xmlReader
-          // parse and this thread
-          throw unparseError
-        case unhandled: DaffodilUnhandledSAXException => throw unhandled
-        case unknown => throw new DaffodilUnhandledSAXException("Unknown exception: ", new Exception(unknown))
+      // any exception is collected and thrown to stop the execution of the xmlReader
+      if (infosetEventWithResponse.isError) {
+        val causeError = infosetEventWithResponse.causeError.get
+        causeError match {
+          case unparseError: DaffodilUnparseErrorSAXException =>
+            // although this is an expected error, we need to throw it so we can stop the xmlReader
+            // parse and this thread
+            throw unparseError
+          case unhandled: DaffodilUnhandledSAXException => throw unhandled
+          case unknown => throw new DaffodilUnhandledSAXException("Unknown exception: ",
+            new Exception(unknown))
+        }
       }
+      // copy the last element into the first for use by inputter becuase that last element was
+      // its current element when we did the context switch. When done clear the last element,
+      // since the infosetinputter clears all elements except the last one, then set the index to
+      // 1 so we can start to load elements starting at the second element
+      SAXInfosetEvent.copyEvent(batchedInfosetEvents(currentIndex), batchedInfosetEvents(0))
+      batchedInfosetEvents(currentIndex).clear()
+      currentIndex = 1
     }
   }
 
@@ -276,8 +334,8 @@ class DaffodilUnparseContentHandler(
         Nope
       }
 
-    infosetEvent.localName = maybelocalName
-    infosetEvent.namespaceURI = maybeNamespaceURI
+    batchedInfosetEvents(currentIndex).localName = maybelocalName
+    batchedInfosetEvents(currentIndex).namespaceURI = maybeNamespaceURI
   }
 
   override def ignorableWhitespace(ch: Array[Char], start: Int, length: Int): Unit = {
