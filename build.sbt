@@ -104,7 +104,7 @@ lazy val testStdLayout    = Project("daffodil-test-stdLayout", file("test-stdLay
 
 lazy val commonSettings = Seq(
   organization := "org.apache.daffodil",
-  version := "3.0.0",
+  version := "3.1.0-SNAPSHOT",
   scalaVersion := "2.12.11",
   crossScalaVersions := Seq("2.12.11"),
   scalacOptions ++= Seq(
