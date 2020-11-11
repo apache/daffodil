@@ -232,12 +232,11 @@ lazy val ratSettings = Seq(
   ratLicenses := Seq(
     ("BSD2 ", Rat.BSD2_LICENSE_NAME, Rat.LICENSE_TEXT_PASSERA)
   ),
-
   ratLicenseFamilies := Seq(
     Rat.BSD2_LICENSE_NAME
   ),
-
-  ratExcludes := Rat.excludes
+  ratExcludes := Rat.excludes,
+  ratFailBinaries := true,
 )
 
 lazy val unidocSettings = Seq(
