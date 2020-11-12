@@ -36,6 +36,9 @@ public enum ValidationMode {
    */
   Full(30);
 
+  /**
+   * Numeric ID of the validation mode
+   */
   public final int id;
 
   private ValidationMode(int id) {

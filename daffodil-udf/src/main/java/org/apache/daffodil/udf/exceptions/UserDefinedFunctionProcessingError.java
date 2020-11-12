@@ -22,14 +22,31 @@ package org.apache.daffodil.udf.exceptions;
  */
 @SuppressWarnings("serial")
 public class UserDefinedFunctionProcessingError extends Exception {
+
+  /**
+   * Constructs a new exception with a specified detail message
+   *
+   * @param errorMessage the detail message
+   */
   public UserDefinedFunctionProcessingError(String errorMessage) {
     super(errorMessage);
   }
 
+  /**
+   * Constructs a new exception with a specified cause
+   *
+   * @param cause the cause of the exception
+   */
   public UserDefinedFunctionProcessingError(Throwable cause) {
     super(cause);
   }
 
+  /**
+   * Constructs a new exception with a specified detail message and cause
+   *
+   * @param errorMessage the detail message
+   * @param cause the cause of the exception
+   */
   public UserDefinedFunctionProcessingError(String errorMessage, Throwable cause) {
     super(errorMessage, cause);
   }

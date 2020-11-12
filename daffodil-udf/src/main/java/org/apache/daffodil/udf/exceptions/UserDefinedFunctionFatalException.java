@@ -22,10 +22,21 @@ package org.apache.daffodil.udf.exceptions;
  */
 @SuppressWarnings("serial")
 public class UserDefinedFunctionFatalException extends Exception {
+
+  /**
+   * Constructs a new exception with a specified detail message
+   *
+   * @param errorMessage the detail message
+   */
   public UserDefinedFunctionFatalException(String errorMessage) {
     super(errorMessage);
   }
 
+  /**
+   * Constructs a new exception with a specified cause
+   *
+   * @param cause the cause of the exception
+   */
   public UserDefinedFunctionFatalException(Throwable cause) {
     super(cause);
   }

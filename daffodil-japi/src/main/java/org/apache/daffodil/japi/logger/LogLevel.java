@@ -24,7 +24,6 @@ package org.apache.daffodil.japi.logger;
  * <p>
  * Levels Resolver Compile, Debug, and OOLAGDebug are intended for Daffodil developer
  * use.
- *
  */
 public enum LogLevel {
   Error(10),
@@ -36,8 +35,14 @@ public enum LogLevel {
   OOLAGDebug(60),
   DelimDebug(70);
 
+  /**
+   * Numeric ID of the log level
+   */
   public final int id;
 
+  /**
+   * Create a LogLevel with a specified id
+   */
   private LogLevel(int id) {
     this.id = id;
   }

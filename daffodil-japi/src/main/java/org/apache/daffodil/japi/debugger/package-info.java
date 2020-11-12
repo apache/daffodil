@@ -18,7 +18,7 @@
 /**
  * Provides the classes necessary to perform parse tracing or create a custom debugger
  *
- * <h3>Overview</h3>
+ * <h2>Overview</h2>
  *
  * Daffodil comes with one prebuilt debugger, the {@link
  * org.apache.daffodil.japi.debugger.TraceDebuggerRunner}, which outputs
