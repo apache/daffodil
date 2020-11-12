@@ -28,11 +28,26 @@ import java.lang.annotation.Target;
  *
  * It must have the name and namespaceURI fields initialized with the namespace
  * and name callers would be expected to use in the schema.
- *
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface UserDefinedFunctionIdentification {
+
+  /**
+   * Get the local name that identifies the user defined function
+   *
+   * This value must be a valid XML NCName. It should not include a namespace or namespace prefix.
+   *
+   * @return the value
+   */
   String name();
+
+  /**
+   * Get the namespace URI that identifies the user defined function
+   *
+   * This value must be a valid XML anyURI.
+   *
+   * @return the value
+   */
   String namespaceURI();
 }

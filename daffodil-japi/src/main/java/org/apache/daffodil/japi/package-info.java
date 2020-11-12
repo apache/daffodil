@@ -20,7 +20,7 @@
  * unparse files using the compiled objects, and retrieve results and
  * parsing diagnostics
  *
- * <h3>Overview</h3>
+ * <h2>Overview</h2>
  *
  * The {@link org.apache.daffodil.japi.Daffodil} object is a factory object to create a
  * {@link org.apache.daffodil.japi.Compiler}. The {@link org.apache.daffodil.japi.Compiler} provides
@@ -106,9 +106,9 @@
  * {@link org.apache.daffodil.japi.DaffodilUnparseContentHandler#getUnparseResult()} once the
  * XMLReader.parse run is complete.
  *
- * <h4>Parse</h4>
+ * <h3>Parse</h3>
  *
- * <h5>Dataprocessor Parse</h5>
+ * <h4>Dataprocessor Parse</h4>
  *
  * The {@link org.apache.daffodil.japi.DataProcessor#parse(org.apache.daffodil.japi.io.InputSourceDataInputStream,
  * org.apache.daffodil.japi.infoset.InfosetOutputter)} method accepts input data to parse in the form
@@ -159,7 +159,7 @@
  * }
  * }</pre>
  *
- * <h5>SAX Parse</h5>
+ * <h4>SAX Parse</h4>
  * The {@link org.apache.daffodil.japi.DaffodilParseXMLReader#parse(
  * org.apache.daffodil.japi.io.InputSourceDataInputStream)} method accepts input data to parse in
  * the form of a {@link org.apache.daffodil.japi.io.InputSourceDataInputStream}. The output
@@ -219,9 +219,9 @@
  * }
  * </pre>
  *
- * <h4>Unparse</h4>
+ * <h3>Unparse</h3>
  *
- * <h5>Dataprocessor Unparse</h5>
+ * <h4>Dataprocessor Unparse</h4>
  *
  * The same {@link org.apache.daffodil.japi.DataProcessor} used for parse can be used to unparse an
  * infoset via the {@link org.apache.daffodil.japi.DataProcessor#unparse(org.apache.daffodil.japi.infoset.InfosetInputter,
@@ -235,7 +235,7 @@
  * UnparseResult ur = dp.unparse(jdomInputter, wbc)
  * }</pre>
  *
- * <h5>SAX Unparse</h5>
+ * <h4>SAX Unparse</h4>
  *
  * In order to kick off an unparse via the SAX API, one must register the
  * {@link org.apache.daffodil.japi.DaffodilUnparseContentHandler} as the contentHandler for an

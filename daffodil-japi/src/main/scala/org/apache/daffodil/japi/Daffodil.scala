@@ -379,7 +379,11 @@ class ProcessorFactory private[japi] (private var pf: SProcessorFactory)
     new DataProcessor(dp)
   }
 
-  class ExperimentalWrapper(val rootView: RootView)
+  /**
+   * Wrapper class used to mimic a Scala object namespacing experimental APIs
+   */
+  protected class ExperimentalWrapper(val rootView: RootView)
+
   /**
    * Exposes the RootView object corresponding to this ProcessorFactory.  This can
    * be used to start a walk using the walkFromRoot method in a DSOM Walker.
@@ -464,12 +468,17 @@ class Diagnostic private[japi] (d: SDiagnostic) {
   def isError = d.isError
 
   /**
-   * Positively get these things. No returning 'null' and making caller figure out
-   * whether to look for cause object.
+   * Get the cause of that cause this diagnostic
    *
    * @return the exception that caused the diagnostic
    */
   def getSomeCause: Throwable = d.getSomeCause.get
+
+  /**
+   * Get the message that caused this diagnostic
+   *
+   * @return the message that caused the diagnostic
+   */
   def getSomeMessage: String = d.getSomeMessage.get
 }
 
@@ -489,7 +498,7 @@ class DataLocation private[japi] (dl: SDataLocation) {
   /**
    * Get the position of the data, in bits, using 1-based indexing
    *
-   * @return position of the data in bites
+   * @return position of the data in bits
    */
   def bitPos1b() = dl.bitPos1b
 
@@ -883,9 +892,25 @@ class DaffodilUnhandledSAXException private[japi] (exception: SDaffodilUnhandled
  * The full URIs needed for setting/getting properties for the [[DaffodilParseXMLReader]]
  */
 object DaffodilParseXMLReader {
+
+  /**
+   * Property name to get the [[ParseResult]] from the [[DaffodilParseXMLReader]]. This property is read only.
+   */
   val DAFFODIL_SAX_URN_PARSERESULT: String = XMLUtils.DAFFODIL_SAX_URN_PARSERESULT
+
+  /**
+   * Property name to get/set blob directory as String from the [[DaffodilParseXMLReader]]
+   */
   val DAFFODIL_SAX_URN_BLOBDIRECTORY: String = XMLUtils.DAFFODIL_SAX_URN_BLOBDIRECTORY
+
+  /**
+   * Property name to get/set blob prefix as String from the [[DaffodilParseXMLReader]]
+   */
   val DAFFODIL_SAX_URN_BLOBPREFIX: String = XMLUtils.DAFFODIL_SAX_URN_BLOBPREFIX
+
+  /**
+   * Property name to get/set blob suffix as String from the [[DaffodilParseXMLReader]]
+   */
   val DAFFODIL_SAX_URN_BLOBSUFFIX: String = XMLUtils.DAFFODIL_SAX_URN_BLOBSUFFIX
 }
 

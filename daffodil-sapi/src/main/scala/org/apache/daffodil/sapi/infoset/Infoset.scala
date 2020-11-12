@@ -205,7 +205,7 @@ abstract class InfosetOutputter extends SInfosetOutputter {
 
  
 /**
- * Output the infoset as a scala.xml.Node
+ * [[InfosetOutputter]] to build an infoset represented as a scala.xml.Node
  *
  * @param showFormatInfo add additional properties to each scala.xml.Node for debug purposes
  */
@@ -214,9 +214,17 @@ class ScalaXMLInfosetOutputter(showFormatInfo: Boolean = false)
 
   override val infosetOutputter = new SScalaXMLInfosetOutputter(showFormatInfo)
 
+  /**
+   * Get the scala.xml.Node representing the infoset created during a parse
+   *
+   * This function shuld only be called if ParseResult.isError() returns false
+   */
   def getResult(): scala.xml.Node = infosetOutputter.getResult()
 }
 
+/**
+ * [[InfosetOutputter]] to build an infoset represented as XML written to a java.io.OutputStream
+ */
 class XMLTextInfosetOutputter private (outputter: SXMLTextInfosetOutputter)
   extends InfosetOutputterProxy {
 
@@ -252,6 +260,9 @@ class XMLTextInfosetOutputter private (outputter: SXMLTextInfosetOutputter)
   override val infosetOutputter = outputter
 }
 
+/**
+ * [[InfosetOutputter]] to build an infoset represented as JSON written to a java.io.OutputStream
+ */
 class JsonInfosetOutputter private (outputter: SJsonInfosetOutputter)
   extends InfosetOutputterProxy {
 
@@ -288,29 +299,40 @@ class JsonInfosetOutputter private (outputter: SJsonInfosetOutputter)
 }
 
 /**
- * Output the infoset as a jdom Document
+ * [[InfosetOutputter]] to build an infoset represented as an org.jdom2.Document
  */
 class JDOMInfosetOutputter()
   extends InfosetOutputterProxy {
 
   override val infosetOutputter = new SJDOMInfosetOutputter()
 
+  /**
+   * Get the jdom Document representing the infoset created during a parse
+   *
+   * This function shuld only be called if ParseResult.isError() returns false
+   */
   def getResult(): org.jdom2.Document = infosetOutputter.getResult()
 }
 
 /**
- * Output the infoset as a w3c Document
+ * [[InfosetOutputter]] to build an infoset represented as an org.w3c.dom.Document
  */
 class W3CDOMInfosetOutputter()
   extends InfosetOutputterProxy {
 
   override val infosetOutputter = new SW3CDOMInfosetOutputter()
 
+  /**
+   * Get the w3c Document representing the infoset created during a parse
+   *
+   * This function shuld only be called if ParseResult.isError() returns false
+   */
   def getResult(): org.w3c.dom.Document = infosetOutputter.getResult()
 }
 
 /**
- * Ignore all infoset output
+ * [[InfosetOutputter]] that does not build an infoset represention, ignoring
+ * all [[InfosetOutputter]] events
  */
 class NullInfosetOutputter()
   extends InfosetOutputterProxy {
@@ -320,9 +342,9 @@ class NullInfosetOutputter()
 
 
 /**
- * Read in an infoset in the form of a scala.xml.Node
+ * [[InfosetInputter]] to read an infoset represented as a scala.xml.Node
  *
- * @param node the infoset in the form of a scala.xml.Node
+ * @param node the scala.xml.Node infoset
  */
 class ScalaXMLInfosetInputter(node: scala.xml.Node)
   extends InfosetInputterProxy {
@@ -330,6 +352,9 @@ class ScalaXMLInfosetInputter(node: scala.xml.Node)
   override val infosetInputter = new SScalaXMLInfosetInputter(node)
 }
 
+/**
+ * [[InfosetInputter]] to read an infoset represented as XML from a java.io.InputStream
+ */
 class XMLTextInfosetInputter private (inputter: SXMLTextInfosetInputter)
   extends InfosetInputterProxy {
 
@@ -351,6 +376,9 @@ class XMLTextInfosetInputter private (inputter: SXMLTextInfosetInputter)
   override val infosetInputter = inputter
 }
 
+/**
+ * [[InfosetInputter]] to read an infoset represented as JSON from a java.io.InputStream
+ */
 class JsonInfosetInputter private (inputter: SJsonInfosetInputter)
   extends InfosetInputterProxy {
 
@@ -373,9 +401,9 @@ class JsonInfosetInputter private (inputter: SJsonInfosetInputter)
 }
 
 /**
- * Read in an infoset in the form of a jdom2 Document
+ * [[InfosetInputter]] to read an infoset represented as an org.jdom2.Document
  *
- * @param document the infoset in the form of a jdom2 Document
+ * @param document the org.jdom2.Document infoset
  */
 class JDOMInfosetInputter(document: org.jdom2.Document)
   extends InfosetInputterProxy {
@@ -384,9 +412,9 @@ class JDOMInfosetInputter(document: org.jdom2.Document)
 }
 
 /**
- * Read in an infoset in the form of a w3c Document
+ * [[InfosetInputter]] to read an infoset represented as an org.w3c.dom.Document
  *
- * @param document the infoset in the form of a w3c Document. Note that w3c
+ * @param document the org.w3c.dom.Document infoset. Note that w3c
  *                 Documents are not guaranteed to be thread-safe, even if all
  *                 users only read/traverse it. It is up to the user to ensure
  *                 that the Document passed into the W3CDOMInfosetInputter is
@@ -399,9 +427,14 @@ class W3CDOMInfosetInputter(document: org.w3c.dom.Document)
   override val infosetInputter = new SW3CDOMInfosetInputter(document)
 }
 
-/* A proxy for existing infoset inputters */
+/**
+ * A proxy for InfosetInputters that are internal to Daffodil
+ */
 abstract class InfosetInputterProxy extends InfosetInputter {
 
+  /**
+   * The InfosetInputter to proxy infoset events to
+   */
   protected val infosetInputter: SInfosetInputter
 
   override def getEventType() = infosetInputter.getEventType()
@@ -416,9 +449,14 @@ abstract class InfosetInputterProxy extends InfosetInputter {
   override def fini = infosetInputter.fini
 }
 
-/* A proxy for existing infoset outputters */
+/**
+ * A proxy for InfosetOutputters that are internal to Daffodil
+ */
 abstract class InfosetOutputterProxy extends InfosetOutputter {
 
+  /**
+   * The InfosetOutputter to proxy infoset events to
+   */
   protected val infosetOutputter: SInfosetOutputter
 
   override def reset(): Unit = infosetOutputter.reset()

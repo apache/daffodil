@@ -251,7 +251,8 @@ lazy val unidocSettings = Seq(
   javacOptions in (JavaUnidoc, unidoc) := Seq(
     "-windowtitle", "Apache Daffodil (incubating) " + version.value + " Java API",
     "-doctitle", "<h1>Apache Daffodil (incubating) " + version.value + " Java API</h1>",
-    "-notimestamp"
+    "-notimestamp",
+    "-quiet",
   ),
   unidocAllSources in (JavaUnidoc, unidoc) := (unidocAllSources in (JavaUnidoc,  unidoc)).value.map { sources =>
     sources.filterNot { source =>
