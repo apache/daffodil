@@ -38,9 +38,9 @@ import org.apache.daffodil.debugger.TraceDebuggerRunner
 import org.apache.daffodil.dsom.ExpressionCompilers
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.externalvars.Binding
-import org.apache.daffodil.infoset.DaffodilParseOutputStreamContentHandler
 import org.apache.daffodil.infoset.ScalaXMLInfosetInputter
 import org.apache.daffodil.io.InputSourceDataInputStream
+import org.apache.daffodil.processors.DaffodilParseOutputStreamContentHandler
 import org.apache.daffodil.processors.DataProcessor
 import org.apache.daffodil.processors.UnparseResult
 import org.apache.daffodil.processors.unparsers.UState

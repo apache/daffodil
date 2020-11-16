@@ -24,10 +24,10 @@ import scala.xml.Elem
 
 import javax.xml.parsers.SAXParserFactory
 import org.apache.daffodil.compiler.Compiler
-import org.apache.daffodil.infoset.DaffodilParseOutputStreamContentHandler
 import org.apache.daffodil.infoset.ScalaXMLInfosetInputter
 import org.apache.daffodil.infoset.ScalaXMLInfosetOutputter
 import org.apache.daffodil.io.InputSourceDataInputStream
+import org.apache.daffodil.processors.DaffodilParseOutputStreamContentHandler
 import org.apache.daffodil.processors.DataProcessor
 import org.apache.daffodil.processors.ParseResult
 import org.apache.daffodil.util.SchemaUtils
