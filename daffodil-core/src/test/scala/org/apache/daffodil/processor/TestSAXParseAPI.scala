@@ -24,7 +24,7 @@ import java.io.IOException
 import scala.xml.SAXParseException
 
 import org.apache.daffodil.Implicits.intercept
-import org.apache.daffodil.infoset.DaffodilParseOutputStreamContentHandler
+import org.apache.daffodil.processors.DaffodilParseOutputStreamContentHandler
 import org.apache.daffodil.processors.ParseResult
 import org.apache.daffodil.xml.XMLUtils
 import org.jdom2.input.sax.BuilderErrorHandler

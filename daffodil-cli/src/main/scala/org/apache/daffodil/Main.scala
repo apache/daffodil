@@ -44,10 +44,8 @@ import javax.xml.parsers.SAXParserFactory
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
-
 import org.apache.commons.io.IOUtils
 import org.apache.commons.io.output.NullOutputStream
-
 import org.apache.daffodil.api.DFDL
 import org.apache.daffodil.api.DFDL.DaffodilUnparseErrorSAXException
 import org.apache.daffodil.api.DFDL.ParseResult
@@ -69,7 +67,6 @@ import org.apache.daffodil.exceptions.UnsuppressableException
 import org.apache.daffodil.externalvars.Binding
 import org.apache.daffodil.externalvars.BindingException
 import org.apache.daffodil.externalvars.ExternalVariablesLoader
-import org.apache.daffodil.infoset.DaffodilParseOutputStreamContentHandler
 import org.apache.daffodil.infoset.InfosetInputter
 import org.apache.daffodil.infoset.InfosetOutputter
 import org.apache.daffodil.infoset.JDOMInfosetInputter
@@ -86,6 +83,7 @@ import org.apache.daffodil.infoset.XMLTextInfosetOutputter
 import org.apache.daffodil.io.DataDumper
 import org.apache.daffodil.io.FormatInfo
 import org.apache.daffodil.io.InputSourceDataInputStream
+import org.apache.daffodil.processors.DaffodilParseOutputStreamContentHandler
 import org.apache.daffodil.processors.DataLoc
 import org.apache.daffodil.processors.DataProcessor
 import org.apache.daffodil.processors.HasSetDebugger
@@ -783,11 +781,7 @@ object Main extends Logging {
    */
   def infosetDataToInputterData(infosetType: String, data: Either[Array[Byte],InputStream]): AnyRef = {
     infosetType match {
-      case "xml" => data match {
-        case Left(bytes) => bytes
-        case Right(is) => is
-      }
-      case "json" => data match {
+      case "xml" | "json" | "sax" => data match {
         case Left(bytes) => bytes
         case Right(is) => is
       }
@@ -818,10 +812,6 @@ object Main extends Logging {
             db.parse(new ByteArrayInputStream(byteArr))
           }
         }
-      }
-      case "sax" => data match {
-        case Left(bytes) => bytes
-        case Right(is) => is
       }
     }
   }
