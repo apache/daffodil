@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<tdml:testSuite suiteName="user-csv"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:tns="http://example.com"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
+  xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  defaultRoundTrip="true">
+
+  <tdml:defineSchema name="csv">
+
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+  
+    <dfdl:format ref="tns:GeneralFormat"
+      lengthKind="delimited" 
+      occursCountKind="implicit"/>
+
+    <xs:element name="csv">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="%NL;" dfdl:separatorPosition="postfix">
+          <xs:element name="record" maxOccurs="unbounded">
+            <xs:complexType>
+              <xs:sequence dfdl:separator=",">
+                <xs:element name="item" type="xs:string" maxOccurs="unbounded"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+  
+  <tdml:parserTestCase name="csv_01" model="csv" roundTrip="false">
+    <tdml:document>
+      <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[1,2,3%LF;%LF;4,5,6%LF;]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tns:csv xmlns:tns="http://example.com">
+          <tns:record>
+            <tns:item>1</tns:item>
+            <tns:item>2</tns:item>
+            <tns:item>3</tns:item>
+          </tns:record>
+          <tns:record>
+            <tns:item></tns:item>
+          </tns:record>
+          <tns:record>
+            <tns:item>4</tns:item>
+            <tns:item>5</tns:item>
+            <tns:item>6</tns:item>
+          </tns:record>
+        </tns:csv>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:unparserTestCase name="csv_02" model="csv" roundTrip="false">
+    <tdml:document>
+      <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[1,2,3%LF;4,5,6%LF;]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tns:csv xmlns:tns="http://example.com">
+          <tns:record>
+            <tns:item>1</tns:item>
+            <tns:item>2</tns:item>
+            <tns:item>3</tns:item>
+          </tns:record>
+          <tns:record>
+            <tns:item></tns:item>
+          </tns:record>
+          <tns:record>
+            <tns:item>4</tns:item>
+            <tns:item>5</tns:item>
+            <tns:item>6</tns:item>
+          </tns:record>
+        </tns:csv>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <tdml:parserTestCase name="csv_03" model="csv" roundTrip="false">
+    <tdml:document>
+      <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[,,%LF;,,%LF;,,1,2,3%LF;]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tns:csv xmlns:tns="http://example.com">
+          <tns:record>
+            <tns:item></tns:item>
+          </tns:record>
+          <tns:record>
+            <tns:item></tns:item>
+          </tns:record>
+          <tns:record>
+            <tns:item></tns:item>
+            <tns:item>1</tns:item>
+            <tns:item>2</tns:item>
+            <tns:item>3</tns:item>
+          </tns:record>
+        </tns:csv>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:unparserTestCase name="csv_04" model="csv" roundTrip="false">
+    <tdml:document>
+      <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[,1,2,3%LF;]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tns:csv xmlns:tns="http://example.com">
+          <tns:record>
+            <tns:item></tns:item>
+          </tns:record>
+          <tns:record>
+            <tns:item></tns:item>
+          </tns:record>
+          <tns:record>
+            <tns:item></tns:item>
+            <tns:item>1</tns:item>
+            <tns:item>2</tns:item>
+            <tns:item>3</tns:item>
+          </tns:record>
+        </tns:csv>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+</tdml:testSuite>
