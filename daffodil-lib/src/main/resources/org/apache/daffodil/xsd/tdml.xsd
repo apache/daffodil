@@ -159,6 +159,7 @@
     <attribute name="name" type="xs:NCName" use="required"/>
     <attribute name="ID" type="xs:token" use="optional"/>
     <attribute name="root" type="xs:NCName" use="optional"/> <!-- only needed when there is no infoset. -->
+    <attribute name="rootNS" type="xs:string" use="optional"/> <!-- only needed when there is no infoset. -->
     <attribute name="model" type="xs:string" use="optional"/> <!-- is there a type for a path/uri? -->
     <attribute name="config" type="xs:string" use="optional"/> <!-- is there a type for a path/uri? -->
     <attribute name="roundTrip" type="tns:roundTripType" use="optional"/>

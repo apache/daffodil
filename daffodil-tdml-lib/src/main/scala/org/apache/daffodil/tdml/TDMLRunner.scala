@@ -304,10 +304,9 @@ class DFDLTestSuite private[tdml] (
     _.tcName
   }.filter { case (name, seq) => seq.length > 1 }
   if (duplicateTestCases.nonEmpty) {
-    duplicateTestCases.foreach {
-      case (name, _) =>
-        System.err.println("TDML Runner: More than one test case for name '%s'.".format(name))
-    }
+    val listOfDups = duplicateTestCases.map{ case(name, _) => name}
+    throw new TDMLExceptionImpl(
+      "More than one test for names: " + listOfDups.mkString(","), None)
   }
   val testCaseMap = testCases.map { tc => (tc.tcName -> tc) }.toMap
   val suiteName = (ts \ "@suiteName").text
@@ -380,7 +379,7 @@ class DFDLTestSuite private[tdml] (
     }
     if (isTDMLFileValid) {
       loadingExceptions.foreach { le =>  log(LogLevel.Warning, le.toString) }
-      val testCase = testCases.find(_.tcName == testName)
+      val testCase = testCaseMap.get(testName)
       testCase match {
         case None => throw TDMLException("test " + testName + " was not found.", None)
         case Some(tc) => {
@@ -511,6 +510,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
   lazy val tcID = (testCaseXML \ "@ID").text
   lazy val id = tcName + (if (tcID != "") "(" + tcID + ")" else "")
   lazy val rootAttrib = (testCaseXML \ "@root").text
+  lazy val rootNSAttrib = (testCaseXML \ "@rootNS").text
 
   lazy val (infosetRootName, infosetRootNamespaceString) =
     if (this.optExpectedOrInputInfoset.isDefined) {
@@ -528,13 +528,39 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
     } else rootAttrib
   }
 
-  lazy val rootNamespaceString = {
+  def getRootNamespaceString(schemaArg : Option[Node]) = {
     if (optExpectedOrInputInfoset.isDefined)
       infosetRootNamespaceString
     else if (embeddedSchema.isDefined)
       XMLUtils.EXAMPLE_NAMESPACE.toString
-    else
-      null
+    else if (this.rootNSAttrib != "")
+      rootNSAttrib
+    else {
+      // For some TDML Processors, we have to provide
+      // the root namespace. They don't provide a way to search
+      // for an element when just the name is unambiguous.
+      // So since nothing was provided, we just grab the
+      // target namespace URI (if any) from the primary
+      // schema file. If that turns out to be wrong, then
+      // the test case has to have an explicit rootNS attribute.
+      val schemaNode = schemaArg.getOrElse {
+        val schemaSource = getSuppliedSchema(None)
+        val source = schemaSource.newInputSource()
+        val node = try{
+          scala.xml.XML.load(source)
+        } catch {
+          // any exception while loading then we just use a dummy node.
+          case e:SAXParseException => <dummy/>
+        }
+        node
+      }
+      val tns = (schemaNode \ "@targetNamespace").text
+      val nsURIString = {
+        if (tns != "") tns
+        else null
+      }
+      nsURIString
+    }
   }
 
   lazy val model = (testCaseXML \ "@model").text
@@ -750,6 +776,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
         else if (optExpectedWarnings.isDefined) false
         else true
 
+      val rootNamespaceString = getRootNamespaceString(schemaArg)
       val compileResult: TDML.CompileResult = impl.getProcessor(suppliedSchema, useSerializedProcessor, Option(rootName), Option(rootNamespaceString))
       val newCompileResult : TDML.CompileResult = compileResult.right.map {
         case (diags, proc: TDMLDFDLProcessor) =>
