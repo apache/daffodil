@@ -20,8 +20,6 @@ package org.apache.daffodil.processor
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 
-import scala.xml.SAXException
-
 import javax.xml.parsers.SAXParserFactory
 import org.apache.daffodil.Implicits.intercept
 import org.apache.daffodil.xml.XMLUtils
@@ -50,24 +48,16 @@ class TestSAXUnparseAPI {
   }
 
   /**
-   * Test the case when a user supplies 0 as the batch size. Minimum batchsize must be 1
+   * Test the case when a user supplies 0 as the batch size as soon as an
+   * invalid tunable is set. Minimum batchsize must be 1.
    */
   @Test def testUnparseContentHandler_unparse_saxUnparseEventBatchSize_0(): Unit = {
-    val dpT = testDataProcessor(testSchema, Map("saxUnparseEventBatchSize" -> "0"))
-    val xmlReader: XMLReader = SAXParserFactory.newInstance.newSAXParser.getXMLReader
-    val bao = new ByteArrayOutputStream()
-    val wbc = java.nio.channels.Channels.newChannel(bao)
-    val unparseContentHandler = dpT.newContentHandlerInstance(wbc)
-    xmlReader.setContentHandler(unparseContentHandler)
-    xmlReader.setFeature(XMLUtils.SAX_NAMESPACES_FEATURE, true)
-    xmlReader.setFeature(XMLUtils.SAX_NAMESPACE_PREFIXES_FEATURE, true)
-    val bai = new ByteArrayInputStream(testInfosetString.getBytes)
-    val e = intercept[SAXException] {
-      xmlReader.parse(new InputSource(bai))
-    }
-    val eMsg = e.getMessage
-    assertTrue(eMsg.contains("invalid saxUnparseEventBatchSize"))
-    assertTrue(eMsg.contains("minimum value is 1"))
+     val e = intercept[java.lang.IllegalArgumentException] {
+      testDataProcessor(testSchema, Map("saxUnparseEventBatchSize" -> "0"))
+     }
+     val eMsg = e.getMessage
+     assertTrue(eMsg.contains("saxUnparseEventBatchSize"))
+     assertTrue(eMsg.contains("0"))
   }
 
   @Test def testUnparseContentHandler_unparse_namespace_feature(): Unit = {

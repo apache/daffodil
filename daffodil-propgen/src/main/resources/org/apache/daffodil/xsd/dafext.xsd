@@ -79,6 +79,25 @@
     </xs:simpleContent>
   </xs:complexType>
 
+  <!--
+    This file is used by TunableGenerator.scala to generate code that parses and
+    validates tunable values. The following schema elements define these tunables
+    to be generated. Although this schema is verbose and repetitive, it makes it
+    relatively straightforward to parse and ensure we generate correct code. As
+    such, one must follow a strict pattern to ensure correct code is generated.
+
+    Each element representing a tunable must have an schema primitive as its type,
+    as determined by the tunables allowed value space. Each tunable must also have
+    a default value that is valid for the type. If an element needs additional
+    limitations beyond the value space of the type, then an xs:simpleType with
+    xs:restriction must be used. The base attribute of the restriction must be a
+    schema primitive type. Only the following restrictions are currently supported:
+
+      - minInclusive
+      - maxInclusive
+      - minExclusive
+      - maxExclusive
+  -->
   <xs:element name="tunables">
     <xs:complexType>
       <xs:all>
@@ -110,46 +129,17 @@
             </xs:documentation>
           </xs:annotation>
         </xs:element>
-        <xs:element name="blobChunkSizeInBytes" type="xs:int" default="4096" minOccurs="0">
+        <xs:element name="blobChunkSizeInBytes" default="4096" minOccurs="0">
           <xs:annotation>
             <xs:documentation>
               When reading/writing blob data, the maximum number of bytes to read/write at a time.
             </xs:documentation>
           </xs:annotation>
-        </xs:element>
-        <xs:element name="outputStreamChunkSizeInBytes" type="xs:int" default="65536" minOccurs="0">
-          <xs:annotation>
-            <xs:documentation>
-              When writing file data to the output stream during unparse, this
-              is the maximum number of bytes to write at a time.
-            </xs:documentation>
-          </xs:annotation>
-        </xs:element>
-        <xs:element name="maxByteArrayOutputStreamBufferSizeInBytes" type="xs:long" default="2097152000" minOccurs="0">
-          <xs:annotation>
-            <xs:documentation>
-              When unparsing, this is the maximum size of the buffer that the
-              ByteArrayOutputStream can grow to before switching to a file based
-              output stream.
-            </xs:documentation>
-          </xs:annotation>
-        </xs:element>
-        <xs:element name="tempFilePath" type="xs:string" default="" minOccurs="0">
-          <xs:annotation>
-            <xs:documentation>
-              When unparsing, use this path to store temporary files that may be genrated.
-              The default value (empty string) will result in the use of the java.io.tmpdir
-              property being used as the path.
-            </xs:documentation>
-          </xs:annotation>
-        </xs:element>
-        <xs:element name="defaultInitialRegexMatchLimitInChars" type="xs:int" default="32" minOccurs="0">
-          <xs:annotation>
-            <xs:documentation>
-              Deprecated. This tunable no longer has any affect and is only kept for
-              backwards compatability.
-            </xs:documentation>
-          </xs:annotation>
+          <xs:simpleType>
+            <xs:restriction base="xs:int">
+              <xs:minInclusive value="1" />
+            </xs:restriction>
+          </xs:simpleType>
         </xs:element>
         <xs:element name="defaultEmptyElementParsePolicy" type="daf:TunableEmptyElementParsePolicy" default="treatAsEmpty" minOccurs="0">
           <xs:annotation>
@@ -159,6 +149,19 @@
               false.
             </xs:documentation>
           </xs:annotation>
+        </xs:element>
+        <xs:element name="defaultInitialRegexMatchLimitInChars" default="32" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              Deprecated. This tunable no longer has any affect and is only kept for
+              backwards compatability.
+            </xs:documentation>
+          </xs:annotation>
+          <xs:simpleType>
+            <xs:restriction base="xs:int">
+              <xs:minInclusive value="1" />
+            </xs:restriction>
+          </xs:simpleType>
         </xs:element>
         <xs:element name="errorOnUnsupportedJavaVersion" type="xs:boolean" default="true" minOccurs="0">
           <xs:annotation>
@@ -176,14 +179,19 @@
             </xs:documentation>
           </xs:annotation>
         </xs:element>
-        <xs:element name="initialElementOccurrencesHint" type="xs:int" default="10" minOccurs="0">
+        <xs:element name="initialElementOccurrencesHint" default="10" minOccurs="0">
           <xs:annotation>
             <xs:documentation>
               Initial array buffer size allocated for recurring elements/arrays.
             </xs:documentation>
           </xs:annotation>
+          <xs:simpleType>
+            <xs:restriction base="xs:int">
+              <xs:minInclusive value="1" />
+            </xs:restriction>
+          </xs:simpleType>
         </xs:element>
-        <xs:element name="initialRegexMatchLimitInCharacters" type="xs:int" default="64" minOccurs="0">
+        <xs:element name="initialRegexMatchLimitInCharacters" default="64" minOccurs="0">
           <xs:annotation>
             <xs:documentation>
               Initial number of characters to match when performing regular expression
@@ -191,6 +199,11 @@
               consumed up to the maximumRegexMatchLengthInCharacters tunable.
             </xs:documentation>
           </xs:annotation>
+          <xs:simpleType>
+            <xs:restriction base="xs:int">
+              <xs:minInclusive value="1" />
+            </xs:restriction>
+          </xs:simpleType>
         </xs:element>
         <xs:element name="inputFileMemoryMapLowThreshold" type="xs:int" default="33554432" minOccurs="0">
           <xs:annotation>
@@ -200,20 +213,44 @@
             </xs:documentation>
           </xs:annotation>
         </xs:element>
-        <xs:element name="maxBinaryDecimalVirtualPoint" type="xs:int" default="200" minOccurs="0">
+        <xs:element name="maxBinaryDecimalVirtualPoint" default="200" minOccurs="0">
           <xs:annotation>
             <xs:documentation>
               The largest allowed value of the dfdl:binaryDecimalVirtualPoint property.
             </xs:documentation>
           </xs:annotation>
+          <xs:simpleType>
+            <xs:restriction base="xs:int">
+              <xs:minInclusive value="1" />
+            </xs:restriction>
+          </xs:simpleType>
         </xs:element>
-        <xs:element name="maxDataDumpSizeInBytes" type="xs:int" default="256" minOccurs="0">
+        <xs:element name="maxByteArrayOutputStreamBufferSizeInBytes" default="2097152000" minOccurs="0">
           <xs:annotation>
             <xs:documentation>
-              The maximum size of data to retrive when When getting data to display
+              When unparsing, this is the maximum size of the buffer that the
+              ByteArrayOutputStream can grow to before switching to a file based
+              output stream.
+            </xs:documentation>
+          </xs:annotation>
+          <xs:simpleType>
+            <xs:restriction base="xs:int">
+              <xs:minInclusive value="0" />
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:element>
+        <xs:element name="maxDataDumpSizeInBytes" default="256" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              The maximum size of data to retrive when when getting data to display
               for debugging.
             </xs:documentation>
           </xs:annotation>
+          <xs:simpleType>
+            <xs:restriction base="xs:int">
+              <xs:minInclusive value="1" />
+            </xs:restriction>
+          </xs:simpleType>
         </xs:element>
         <xs:element name="maxFieldContentLengthInBytes" type="xs:int" default="1048576" minOccurs="0">
           <xs:annotation>
@@ -223,7 +260,7 @@
             </xs:documentation>
           </xs:annotation>
         </xs:element>
-        <xs:element name="maxLengthForVariableLengthDelimiterDisplay" type="xs:int" default="10" minOccurs="0">
+        <xs:element name="maxLengthForVariableLengthDelimiterDisplay" default="10" minOccurs="0">
           <xs:annotation>
             <xs:documentation>
               When unexpected text is found where a delimiter is expected, this is the maximum
@@ -231,8 +268,13 @@
               length delimiter.
             </xs:documentation>
           </xs:annotation>
+          <xs:simpleType>
+            <xs:restriction base="xs:int">
+              <xs:minInclusive value="1" />
+            </xs:restriction>
+          </xs:simpleType>
         </xs:element>
-        <xs:element name="maxLookaheadFunctionBits" type="xs:long" default="512" minOccurs="0">
+        <xs:element name="maxLookaheadFunctionBits" default="512" minOccurs="0">
           <xs:annotation>
             <xs:documentation>
               Max distance that the DPath lookahead function is permitted to look.
@@ -240,23 +282,37 @@
               so it is offset+bitsize.
             </xs:documentation>
           </xs:annotation>
+          <xs:simpleType>
+            <xs:restriction base="xs:long">
+              <xs:minInclusive value="1" />
+            </xs:restriction>
+          </xs:simpleType>
         </xs:element>
-        <xs:element name="maxOccursBounds" type="xs:int" default="2147483647" minOccurs="0">
+        <xs:element name="maxOccursBounds" default="2147483647" minOccurs="0">
           <xs:annotation>
             <xs:documentation>
               Maximum number of occurances of an array element.
             </xs:documentation>
           </xs:annotation>
+          <xs:simpleType>
+            <xs:restriction base="xs:long">
+              <xs:minInclusive value="1" />
+            </xs:restriction>
+          </xs:simpleType>
         </xs:element>
-        <xs:element name="maxSkipLengthInBytes" type="xs:int" default="1024" minOccurs="0">
+        <xs:element name="maxSkipLengthInBytes" default="1024" minOccurs="0">
           <xs:annotation>
             <xs:documentation>
               Maximum number of bytes allowed to skip in a skip region.
             </xs:documentation>
           </xs:annotation>
+          <xs:simpleType>
+            <xs:restriction base="xs:int">
+              <xs:minInclusive value="1" />
+            </xs:restriction>
+          </xs:simpleType>
         </xs:element>
-        
-        <xs:element name="maxValidYear" type="xs:int" default="9999" minOccurs="0">
+        <xs:element name="maxValidYear" default="9999" minOccurs="0">
           <xs:annotation>
             <xs:documentation>
               Due to differences in the DFDL spec and ICU4J SimpleDateFormat, we must
@@ -265,28 +321,48 @@
               tunable tunable sets an upper limit for values to prevent overflow.
             </xs:documentation>
           </xs:annotation>
+          <xs:simpleType>
+            <xs:restriction base="xs:int">
+              <xs:minInclusive value="1" />
+            </xs:restriction>
+          </xs:simpleType>
         </xs:element>
-        <xs:element name="maximumRegexMatchLengthInCharacters" type="xs:int" default="1048576" minOccurs="0">
+        <xs:element name="maximumRegexMatchLengthInCharacters" default="1048576" minOccurs="0">
           <xs:annotation>
             <xs:documentation>
               Maximum number of characters to match when performing regular expression
               matches on input data.
             </xs:documentation>
           </xs:annotation>
+          <xs:simpleType>
+            <xs:restriction base="xs:int">
+              <xs:minInclusive value="1" />
+            </xs:restriction>
+          </xs:simpleType>
         </xs:element>
-        <xs:element name="maximumSimpleElementSizeInCharacters" type="xs:int" default="1048576" minOccurs="0">
+        <xs:element name="maximumSimpleElementSizeInCharacters" default="1048576" minOccurs="0">
           <xs:annotation>
             <xs:documentation>
               Maximum number of characters to parse when parsing string data.
             </xs:documentation>
           </xs:annotation>
+          <xs:simpleType>
+            <xs:restriction base="xs:int">
+              <xs:minInclusive value="1" />
+            </xs:restriction>
+          </xs:simpleType>
         </xs:element>
-        <xs:element name="minBinaryDecimalVirtualPoint" type="xs:int" default="-200" minOccurs="0">
+        <xs:element name="minBinaryDecimalVirtualPoint" default="-200" minOccurs="0">
           <xs:annotation>
             <xs:documentation>
               The smallest allowed value of the dfdl:binaryDecimalVirtualPoint property.
             </xs:documentation>
           </xs:annotation>
+          <xs:simpleType>
+            <xs:restriction base="xs:int">
+              <xs:maxInclusive value="-1" />
+            </xs:restriction>
+          </xs:simpleType>
         </xs:element>
         <xs:element name="minValidYear" type="xs:int" default="0" minOccurs="0">
           <xs:annotation>
@@ -297,6 +373,19 @@
               tunable tunable sets an upper limit for values to prevent underflow.
             </xs:documentation>
           </xs:annotation>
+        </xs:element>
+        <xs:element name="outputStreamChunkSizeInBytes" default="65536" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              When writing file data to the output stream during unparse, this
+              is the maximum number of bytes to write at a time.
+            </xs:documentation>
+          </xs:annotation>
+          <xs:simpleType>
+            <xs:restriction base="xs:int">
+              <xs:minInclusive value="1" />
+            </xs:restriction>
+          </xs:simpleType>
         </xs:element>
         <xs:element name="parseUnparsePolicy" type="daf:TunableParseUnparsePolicyTunable" default="fromRoot" minOccurs="0">
           <xs:annotation>
@@ -390,7 +479,7 @@
             </xs:documentation>
           </xs:annotation>
         </xs:element>
-        <xs:element name="saxUnparseEventBatchSize" type="xs:int" default="100" minOccurs="0">
+        <xs:element name="saxUnparseEventBatchSize" default="100" minOccurs="0">
           <xs:annotation>
             <xs:documentation>
               Daffodil's SAX Unparse API allows events to be batched in memory to minimize the
@@ -401,12 +490,26 @@
               frequency of context switching, but increase the memory footprint.
             </xs:documentation>
           </xs:annotation>
+          <xs:simpleType>
+            <xs:restriction base="xs:int">
+              <xs:minInclusive value="1" />
+            </xs:restriction>
+          </xs:simpleType>
         </xs:element>
         <xs:element name="suppressSchemaDefinitionWarnings" type="daf:TunableSuppressSchemaDefinitionWarnings" default="emptyElementParsePolicyError" minOccurs="0">
           <xs:annotation>
             <xs:documentation>
               Space-separated list of schema definition warnings that should be ignored,
               or "all" to ignore all warnings.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="tempFilePath" type="xs:string" default="This string is ignored. Default value is taken from java.io.tmpdir property"  minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              When unparsing, use this path to store temporary files that may be genrated.
+              The default value (empty string) will result in the use of the java.io.tmpdir
+              property being used as the path.
             </xs:documentation>
           </xs:annotation>
         </xs:element>
@@ -422,7 +525,7 @@
             </xs:documentation>
           </xs:annotation>
         </xs:element>
-        <xs:element name="unparseSuspensionWaitOld" type="xs:int" default="100" minOccurs="0">
+        <xs:element name="unparseSuspensionWaitOld" default="100" minOccurs="0">
           <xs:annotation>
             <xs:documentation>
               While unparsing, some unparse actions require "suspending" which
@@ -440,13 +543,23 @@
               young and old suspensions, respectively.
             </xs:documentation>
           </xs:annotation>
+          <xs:simpleType>
+            <xs:restriction base="xs:int">
+              <xs:minInclusive value="1" />
+            </xs:restriction>
+          </xs:simpleType>
         </xs:element>
-        <xs:element name="unparseSuspensionWaitYoung" type="xs:int" default="5" minOccurs="0">
+        <xs:element name="unparseSuspensionWaitYoung" default="5" minOccurs="0">
           <xs:annotation>
             <xs:documentation>
               See unparseSuspensionWaitOld
             </xs:documentation>
           </xs:annotation>
+          <xs:simpleType>
+            <xs:restriction base="xs:int">
+              <xs:minInclusive value="1" />
+            </xs:restriction>
+          </xs:simpleType>
         </xs:element>
       </xs:all>
     </xs:complexType>
