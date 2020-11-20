@@ -117,6 +117,10 @@ class TunableGenerator(schemaRootConfig: scala.xml.Node, schemaRootExt: scala.xm
     |    !suppressSchemaDefinitionWarnings.contains(warnID) &&
     |      !suppressSchemaDefinitionWarnings.contains(WarnID.All)
     |
+    |  private def throwInvalidTunableValue(tunable: String, value: String) = {
+    |    throw new IllegalArgumentException("Invalid value for tunable " + tunable + ": " + value)
+    |  }
+    |
     |}
     """.trim.stripMargin
 
@@ -134,8 +138,14 @@ class TunableGenerator(schemaRootConfig: scala.xml.Node, schemaRootExt: scala.xm
     val tunables =
       tunableNodes.map { tunableNode =>
         val schemaName = tunableNode \@ "name"
-        val schemaType = tunableNode \@ "type"
+        val schemaType =
+          if (tunableNode \@ "type" != "") tunableNode \@ "type"
+          else tunableNode \\ "restriction" \@ "base"
         val schemaDefault = tunableNode \@ "default"
+
+        if (schemaName == "") throw new Exception("Tunable missing mandatory name attribute: " + tunableNode)
+        if (schemaType == "") throw new Exception("Tunable missing mandatory type or restriction base attribute: " + schemaName)
+        if (schemaDefault == "") throw new Exception("Tunable missing mandatory default attribute: " + schemaName)
 
         val tunable =
           if (schemaName == "suppressSchemaDefinitionWarnings") {
@@ -146,21 +156,37 @@ class TunableGenerator(schemaRootConfig: scala.xml.Node, schemaRootExt: scala.xm
             new EnumTunable(schemaName, schemaType, schemaDefault)
           } else if (schemaName == "tempFilePath") {
             // special case, creates actual file object instead of string
-            new TempFilePathTunable()
+            new FileTunable("tempFilePath", """System.getProperty("java.io.tmpdir")""")
           } else {
             // primitive type
-            new PrimitiveTunable(schemaName, schemaType, schemaDefault)
+            new PrimitiveTunable(schemaName, schemaType, schemaDefault, tunableNode)
           }
         tunable
-      }
+      }.sortBy(_.name)
+
+    val definitionString =
+      tunables
+        .map(_.scalaDefinition)
+        .mkString("  ", ",\n  ", ")")
+
+    val conversionString =
+      tunables
+        .map { tunable =>
+          tunable
+            .scalaConversion
+            .split("\n")
+            .filter(_.trim.length > 0)
+            .mkString("      ", "\n      ", "")
+        }
+        .mkString("\n")
 
     w.write(top)
     w.write("\n")
-    w.write(tunables.map(_.scalaDefinition).mkString("  ", ",\n  ", ")"))
+    w.write(definitionString)
     w.write("\n")
     w.write(middle)
     w.write("\n")
-    w.write(tunables.map(_.scalaConversion.split("\n").mkString("      ", "\n      ", "")).mkString("\n"))
+    w.write(conversionString)
     w.write("\n")
     w.write(bottom)
     w.write("\n")
@@ -180,9 +206,14 @@ class TunableGenerator(schemaRootConfig: scala.xml.Node, schemaRootExt: scala.xm
 abstract class TunableBase {
   def scalaDefinition: String
   def scalaConversion: String
+  def name: String
 }
 
-class PrimitiveTunable(name: String, schemaType: String, schemaDefault: String)
+class PrimitiveTunable(
+  override val name: String,
+  schemaType: String,
+  schemaDefault: String,
+  node: scala.xml.Node)
   extends TunableBase {
 
   private val scalaType = schemaType match {
@@ -190,6 +221,7 @@ class PrimitiveTunable(name: String, schemaType: String, schemaDefault: String)
     case "xs:int" => "Int"
     case "xs:long" => "Long"
     case "xs:string" => "String"
+    case _ => throw new Exception("Type not supported for tunable: " + schemaType)
   }
 
   private val scalaDefault = schemaType match {
@@ -197,16 +229,53 @@ class PrimitiveTunable(name: String, schemaType: String, schemaDefault: String)
     case _ => schemaDefault
   }
 
+  private def restrictionCheck(rCheck: String, rValue: String): Option[String] = {
+    if (rValue != "") {
+      Some(s"""  if (!(v ${rCheck} ${rValue})) throwInvalidTunableValue(tunable, value)""")
+    } else {
+      None
+    }
+  }
+
+  private val minInclusive = node \\ "minInclusive" \@ "value"
+  private val maxInclusive = node \\ "maxInclusive" \@ "value"
+  private val minExclusive = node \\ "minExclusive" \@ "value"
+  private val maxExclusive = node \\ "maxExclusive" \@ "value"
+
+  private val restrictionChecks = Seq(
+    restrictionCheck(">=", minInclusive),
+    restrictionCheck("<=", maxInclusive),
+    restrictionCheck(">", minExclusive),
+    restrictionCheck("<", maxExclusive),
+  ).flatten.mkString("\n")
+
   override val scalaDefinition = s"""val ${name}: ${scalaType} = ${scalaDefault}"""
-  override val scalaConversion = s"""case "${name}" => this.copy(${name} = value.to${scalaType})"""
+  override val scalaConversion = s"""
+    |case "${name}" => {
+    |  val v = scala.util.Try(value.to${scalaType}).getOrElse { throwInvalidTunableValue(tunable, value) }
+    |${restrictionChecks}
+    |  this.copy(${name} = v)
+    |}
+    """.trim.stripMargin
 }
 
-class TempFilePathTunable() extends TunableBase {
-  override val scalaDefinition = s"""val tempFilePath: java.io.File = new java.io.File(System.getProperty(\"java.io.tmpdir\"))"""
-  override val scalaConversion = s"""case "tempFilePath" => this.copy(tempFilePath = new java.io.File(value))"""
+class FileTunable(
+  override val name: String,
+  default: String)
+  extends TunableBase {
+
+  override val scalaDefinition = s"""val ${name}: java.io.File = new java.io.File(${default})"""
+  override val scalaConversion = s"""
+    |case "${name}" => {
+    |  this.copy(${name} = new java.io.File(value))
+    |}
+    """.trim.stripMargin
 }
 
-class EnumTunable(name: String, schemaType: String, schemaDefault: String)
+class EnumTunable(
+  override val name: String,
+  schemaType: String,
+  schemaDefault: String)
   extends TunableBase {
 
   private val scalaType = schemaType.stripPrefix("daf:Tunable")
@@ -216,13 +285,17 @@ class EnumTunable(name: String, schemaType: String, schemaDefault: String)
   override val scalaConversion = s"""
     |case "${name}" => {
     |  val vOpt = ${scalaType}.optionStringToEnum("${scalaType}", value)
-    |  val v = vOpt.getOrElse(throw new IllegalArgumentException("For input string: \\"" + value + "\\""))
+    |  val v = vOpt.getOrElse { throwInvalidTunableValue(tunable, value) }
     |  this.copy(${name} = v)
     |}
     """.trim.stripMargin
 }
 
-class EnumListTunable(name: String, schemaType: String, schemaDefault: String, listType: String)
+class EnumListTunable(
+  override val name: String,
+  schemaType: String,
+  schemaDefault: String,
+  listType: String)
   extends TunableBase {
 
   val scalaDefault = {
@@ -241,7 +314,7 @@ class EnumListTunable(name: String, schemaType: String, schemaDefault: String, l
     |case "${name}" => {
     |  val values = value.split("\\\\s+").toSeq.map { v =>
     |    val vOpt = ${listType}.optionStringToEnum("${listType}", v)
-    |    vOpt.getOrElse(throw new IllegalArgumentException("For input string: \\"" + v + "\\""))
+    |    vOpt.getOrElse { throwInvalidTunableValue(tunable, value) }
     |  }
     |  this.copy(${name} = values)
     |}
