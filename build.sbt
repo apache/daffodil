@@ -21,7 +21,7 @@ lazy val genSchemas = taskKey[Seq[File]]("Generated DFDL schemas")
 
 lazy val daffodil         = Project("daffodil", file(".")).configs(IntegrationTest)
                               .enablePlugins(JavaUnidocPlugin, ScalaUnidocPlugin)
-                              .aggregate(macroLib, propgen, lib, io, runtime1, runtime1Unparser, core, japi, sapi, tdmlLib, tdmlProc, cli, udf, test, testIBM1, tutorials, testStdLayout)
+                              .aggregate(macroLib, propgen, lib, io, runtime1, runtime1Unparser, core, japi, sapi, tdmlLib, tdmlProc, cli, udf, schematron, test, testIBM1, tutorials, testStdLayout)
                               .settings(commonSettings, nopublish, ratSettings, unidocSettings)
 
 lazy val macroLib         = Project("daffodil-macro-lib", file("daffodil-macro-lib")).configs(IntegrationTest)
@@ -68,12 +68,18 @@ lazy val tdmlProc         = Project("daffodil-tdml-processor", file("daffodil-td
                               .settings(commonSettings)
 
 lazy val cli              = Project("daffodil-cli", file("daffodil-cli")).configs(IntegrationTest)
-                              .dependsOn(tdmlProc, sapi, japi, udf % "it->test") // causes sapi/japi to be pulled in to the helper zip/tar
+                              .dependsOn(tdmlProc, sapi, japi, schematron % Runtime, udf % "it->test") // causes sapi/japi to be pulled in to the helper zip/tar
                               .settings(commonSettings, nopublish)
-                              .settings(libraryDependencies ++= Dependencies.cli) 
+                              .settings(libraryDependencies ++= Dependencies.cli)
 
 lazy val udf              = Project("daffodil-udf", file("daffodil-udf")).configs(IntegrationTest)
                               .settings(commonSettings)
+
+lazy val schematron       = Project("daffodil-schematron", file("daffodil-schematron"))
+                              .dependsOn(lib)
+                              .settings(commonSettings)
+                              .settings(libraryDependencies ++= Dependencies.schematron)
+                              .configs(IntegrationTest)
 
 lazy val test             = Project("daffodil-test", file("daffodil-test")).configs(IntegrationTest)
                               .dependsOn(tdmlProc, udf % "test->test")
