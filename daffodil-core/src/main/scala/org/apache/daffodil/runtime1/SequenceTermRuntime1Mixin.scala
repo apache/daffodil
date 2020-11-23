@@ -21,6 +21,7 @@ import org.apache.daffodil.dsom.ChoiceBranchImpliedSequence
 import org.apache.daffodil.dsom.SequenceTermBase
 import org.apache.daffodil.processors.SequenceRuntimeData
 import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.processors.FillByteUseNotAllowedEv
 
 trait SequenceTermRuntime1Mixin { self: SequenceTermBase =>
 
@@ -44,7 +45,7 @@ trait SequenceTermRuntime1Mixin { self: SequenceTermBase =>
       alignmentValueInBits,
       hasNoSkipRegions,
       optIgnoreCase,
-      maybeFillByteEv,
+      fillByteEv,
       maybeCheckByteAndBitOrderEv,
       maybeCheckBitOrderAndCharsetEv)
   }
@@ -70,7 +71,7 @@ trait ChoiceBranchImpliedSequenceRuntime1Mixin { self: ChoiceBranchImpliedSequen
       alignmentValueInBits,
       true,
       None,
-      Maybe.Nope,
+      FillByteUseNotAllowedEv,
       Maybe.Nope,
       Maybe.Nope)
   }

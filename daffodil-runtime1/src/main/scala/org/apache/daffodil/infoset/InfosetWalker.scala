@@ -51,9 +51,9 @@ object InfosetWalker {
    *   to prevent creation of infoset events that might be backtracked. This
    *   should usually only be set to true while debugging
    *
-   * @param removeUnneeded
+   * @param releaseUnneededInfoset
    *
-   *   Whether or not to remove infoset nodes once it is determined that they
+   *   Whether or not to release infoset nodes once it is determined that they
    *   will no longer be used by Daffodil. This should usually be set to true
    *   except while debugging
    */
@@ -62,7 +62,7 @@ object InfosetWalker {
     outputter: InfosetOutputter,
     walkHidden: Boolean,
     ignoreBlocks: Boolean,
-    removeUnneeded: Boolean): InfosetWalker = {
+    releaseUnneededInfoset: Boolean): InfosetWalker = {
 
     // Determine the container of the root node and the index in which it
     // appears in that node
@@ -88,7 +88,7 @@ object InfosetWalker {
       outputter,
       walkHidden,
       ignoreBlocks,
-      removeUnneeded)
+      releaseUnneededInfoset)
   }
 
 }
@@ -135,7 +135,7 @@ object InfosetWalker {
  *   to prevent creation of infoset events that might be backtracked. This
  *   should usually only be set to true while debugging
  *
- * @param removeUnneeded
+ * @param releaseUnneededInfoset
  *
  *   Whether or not to remove infoset nodes once it is determined that they
  *   will no longer be used by Daffodil. This should usually be set to true
@@ -147,7 +147,7 @@ class InfosetWalker private (
   val outputter: InfosetOutputter,
   walkHidden: Boolean,
   ignoreBlocks: Boolean,
-  removeUnneeded: Boolean) {
+  releaseUnneededInfoset: Boolean) {
 
   /**
    * These two pieces of mutable state are all that is needed to keep track of
@@ -455,10 +455,8 @@ class InfosetWalker private (
           outputter.startSimple(simple)
           outputter.endSimple(simple)
         }
-        if (removeUnneeded) {
-          // now we can remove this simple element to free up memory
-          containerNode.freeChildIfNoLongerNeeded(containerIndex)
-        }
+        // now we can remove this simple element to free up memory
+        containerNode.freeChildIfNoLongerNeeded(containerIndex, releaseUnneededInfoset)
         moveToNextSibling()
       } else  {
         // must be complex or array, exact same logic for both
@@ -497,9 +495,7 @@ class InfosetWalker private (
       // memory associated with this container, and then move to the next
       // sibling of this container
       moveToContainer()
-      if (removeUnneeded) {
-        containerNodeStack.top.freeChildIfNoLongerNeeded(containerIndexStack.top)
-      }
+      containerNodeStack.top.freeChildIfNoLongerNeeded(containerIndexStack.top, releaseUnneededInfoset)
       moveToNextSibling()
     }
   }

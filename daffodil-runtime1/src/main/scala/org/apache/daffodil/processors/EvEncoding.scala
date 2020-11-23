@@ -154,3 +154,10 @@ class FillByteEv(fillByteRaw: String, charsetEv: CharsetEv, tci: DPathCompileInf
   }
 
 }
+
+object FillByteUseNotAllowedEv
+  extends FillByteEv(fillByteRaw = null, charsetEv = null, tci = null) {
+  override protected def compute(state: ParseOrUnparseState): Integer =
+    Assert.invariantFailed("Not supposed to use fill byte.")
+}
+

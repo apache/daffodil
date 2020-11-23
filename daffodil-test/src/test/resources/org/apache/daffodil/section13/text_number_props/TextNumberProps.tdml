@@ -4267,15 +4267,15 @@
   </tdml:parserTestCase>
 
   <!--
-     Test Name: textStandardFloatPatternNoSeparators
+     Test Name: textStandardFloatPatternNoSeparators1
         Schema: textNumberPattern
           Root: tnp96
-          Purpose: This test shows what even if the textNumberPattern contains
+          Purpose: This test shows that even if the textNumberPattern contains
             no grouping/decimal separators, we still require and use the
-            properties because ICU uses them for non-integer types
+            properties because ICU uses them when parsing non-integer types
   -->
 
-  <tdml:parserTestCase name="textStandardFloatPatternNoSeparators1" root="tnp96" model="textNumberPattern">
+  <tdml:parserTestCase name="textStandardFloatPatternNoSeparators1" root="tnp96" model="textNumberPattern" roundTrip="none">
 
     <tdml:document>
       <tdml:documentPart type="text">10,1</tdml:documentPart>
@@ -4287,5 +4287,27 @@
     </tdml:infoset>
 
   </tdml:parserTestCase>
+
+  <!--
+     Test Name: textStandardFloatPatternNoSeparators2
+        Schema: textNumberPattern
+          Root: tnp96
+          Purpose: This test shows that when the textNumberPattern contains
+          no grouping/decimal separators, when unparsing, ICU will round the
+          result to match the pattern.
+  -->
+
+  <tdml:unparserTestCase name="textStandardFloatPatternNoSeparators2" root="tnp96" model="textNumberPattern" roundTrip="none">
+
+    <tdml:document>
+      <tdml:documentPart type="text">11</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp96>10.9</tnp96>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:unparserTestCase>
 
 </tdml:testSuite>

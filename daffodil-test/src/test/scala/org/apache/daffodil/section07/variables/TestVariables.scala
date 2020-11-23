@@ -100,7 +100,7 @@ class TestVariables {
   @Test def test_variables_nilled_element(): Unit = { runner.runOneTest("variables_nilled_element") }
 
   // DFDL-2375
-  //@Test def test_choiceBranchVariables(): Unit = { runner.runOneTest("choiceBranchVariables") }
+  @Test def test_multipleBranchesWithNoElementsSetVariableError(): Unit = { runner.runOneTest("multipleBranchesWithNoElementsSetVariableError") }
 
   @Test def test_doubleSetErr_d(): Unit = { runner_01.runOneTest("doubleSetErr_d") }
   @Test def test_setVar1_d(): Unit = { runner_01.runOneTest("setVar1_d") }

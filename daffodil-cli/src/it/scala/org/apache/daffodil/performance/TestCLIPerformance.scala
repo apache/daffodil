@@ -56,6 +56,37 @@ class TestCLIPerformance {
     }
   }
 
+  @Test def test_XXX_CLI_Performance_2_Threads_2_Times_sax(): Unit = {
+    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
+    val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input1.txt")
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
+
+    val shell = Util.startIncludeErrors("")
+
+    try {
+      val cmd = String.format("%s performance -I sax -N 2 -t 2 -s %s -r matrix %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("total parse time (sec):"))
+      shell.expect(contains("avg rate (files/sec):"))
+
+      val exitCodeCmd = if (Util.isWindows) "echo %errorlevel%" else "echo $?"
+      shell.sendLine(exitCodeCmd)
+
+      if (Util.isWindows) shell.expect(contains(exitCodeCmd + "\n"))
+      else shell.expect(contains("\n"))
+
+      val sExitCode = shell.expect(contains("\n")).getBefore()
+      val exitCode = Integer.parseInt(sExitCode.trim())
+      if (exitCode != 0)
+        fail("Tests failed. Exit code: " + exitCode)
+
+      shell.sendLine("exit")
+      shell.expect(eof())
+    } finally {
+      shell.close()
+    }
+  }
+
   @Test def test_3394_CLI_Performance_3_Threads_20_Times(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
     val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input1.txt")
@@ -160,6 +191,37 @@ class TestCLIPerformance {
 
     try {
       val cmd = String.format("%s performance --unparse -N 2 -t 2 -s %s -r e3 %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("total unparse time (sec):"))
+      shell.expect(contains("avg rate (files/sec):"))
+
+      val exitCodeCmd = if (Util.isWindows) "echo %errorlevel%" else "echo $?"
+      shell.sendLine(exitCodeCmd)
+
+      if (Util.isWindows) shell.expect(contains(exitCodeCmd + "\n"))
+      else shell.expect(contains("\n"))
+
+      val sExitCode = shell.expect(contains("\n")).getBefore()
+      val exitCode = Integer.parseInt(sExitCode.trim())
+      if (exitCode != 0)
+        fail("Tests failed. Exit code: " + exitCode)
+
+      shell.sendLine("exit")
+      shell.expect(eof())
+    } finally {
+      shell.close()
+    }
+  }
+
+  @Test def test_XXX_CLI_Performance_Unparse_2_Threads_2_Times_sax(): Unit = {
+    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
+    val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input14.txt")
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
+
+    val shell = Util.startIncludeErrors("")
+
+    try {
+      val cmd = String.format("%s performance --unparse -I sax -N 2 -t 2 -s %s -r e3 %s", Util.binPath, testSchemaFile, testInputFile)
       shell.sendLine(cmd)
       shell.expect(contains("total unparse time (sec):"))
       shell.expect(contains("avg rate (files/sec):"))

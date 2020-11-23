@@ -1076,4 +1076,104 @@ class TestCLIparsing {
     }
   }
 
+  @Test def test_XXX_CLI_Parsing_SimpleParse_w3cdom(): Unit = {
+
+    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
+    val (testSchemaFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile)) else (schemaFile)
+
+    val shell = Util.start("")
+
+    try {
+      val cmd = String.format(Util.echoN("Hello") + "| %s parse -I w3cdom -s %s -r e1", Util.binPath, testSchemaFile)
+
+      shell.sendLine(cmd)
+      shell.expect(contains("""<tns:e1 xmlns:tns="http://example.com">Hello</tns:e1>"""))
+
+      shell.send("exit\n")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+    }
+  }
+
+  @Test def test_XXX_CLI_Parsing_SimpleParse_jdom(): Unit = {
+
+    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
+    val (testSchemaFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile)) else (schemaFile)
+
+    val shell = Util.start("")
+
+    try {
+      val cmd = String.format(Util.echoN("Hello") + "| %s parse -I jdom -s %s -r e1", Util.binPath, testSchemaFile)
+
+      shell.sendLine(cmd)
+      shell.expect(contains("""<tns:e1 xmlns:tns="http://example.com">Hello</tns:e1>"""))
+
+      shell.send("exit\n")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+    }
+  }
+
+  @Test def test_XXX_CLI_Parsing_SimpleParse_scala_xml(): Unit = {
+
+    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
+    val (testSchemaFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile)) else (schemaFile)
+
+    val shell = Util.start("")
+
+    try {
+      val cmd = String.format(Util.echoN("Hello") + "| %s parse -I scala-xml -s %s -r e1", Util.binPath, testSchemaFile)
+
+      shell.sendLine(cmd)
+      shell.expect(contains("""<tns:e1 xmlns:tns="http://example.com">Hello</tns:e1>"""))
+
+      shell.send("exit\n")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+    }
+  }
+
+  @Test def test_XXX_CLI_Parsing_SimpleParse_json(): Unit = {
+
+    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
+    val (testSchemaFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile)) else (schemaFile)
+
+    val shell = Util.start("")
+
+    try {
+      val cmd = String.format(Util.echoN("Hello") + "| %s parse -I json -s %s -r e1", Util.binPath, testSchemaFile)
+
+      shell.sendLine(cmd)
+      shell.expect(contains(""""e1": "Hello""""))
+
+      shell.send("exit\n")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+    }
+  }
+
+  @Test def test_XXX_CLI_Parsing_SimpleParse_sax(): Unit = {
+
+    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
+    val (testSchemaFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile)) else (schemaFile)
+
+    val shell = Util.start("")
+
+    try {
+      val cmd = String.format(Util.echoN("Hello") + "| %s parse -I sax -s %s -r e1", Util.binPath, testSchemaFile)
+
+      shell.sendLine(cmd)
+      shell.expect(contains("""<tns:e1 xmlns:tns="http://example.com">Hello</tns:e1>"""))
+
+      shell.send("exit\n")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+    }
+  }
+
 }

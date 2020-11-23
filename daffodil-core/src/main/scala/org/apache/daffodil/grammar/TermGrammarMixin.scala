@@ -66,7 +66,7 @@ trait TermGrammarMixin
   /**
    * Mandatory text alignment for delimiters
    */
-  protected final lazy val delimMTA = prod(
+  final lazy val delimMTA = prod(
     "delimMTA",
     {
       hasDelimiters

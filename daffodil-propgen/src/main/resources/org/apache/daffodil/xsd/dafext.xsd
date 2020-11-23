@@ -315,6 +315,16 @@
             </xs:documentation>
           </xs:annotation>
         </xs:element>
+        <xs:element name="releaseUnneededInfoset" type="xs:boolean" default="true" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              Daffodil will periodically release internal infoset elements that it determines
+              are no longer needed, thus freeing memory. Setting this value to false will
+              prevent this from taking place. This should usually only be used while debugging
+              or with very specific tests.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
         <xs:element name="requireBitOrderProperty" type="xs:boolean" default="false" minOccurs="0">
           <xs:annotation>
             <xs:documentation>
@@ -380,6 +390,18 @@
             </xs:documentation>
           </xs:annotation>
         </xs:element>
+        <xs:element name="saxUnparseEventBatchSize" type="xs:int" default="100" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              Daffodil's SAX Unparse API allows events to be batched in memory to minimize the
+              frequency of context switching between the SAXInfosetInputter thread that processes
+              the events, and the DaffodilUnparseContentHandler thread that generates the events.
+              Setting this value to a low number will increase the frequency of context switching,
+              but will reduce the memory footprint. Swtting it to a high number will decrease the
+              frequency of context switching, but increase the memory footprint.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
         <xs:element name="suppressSchemaDefinitionWarnings" type="daf:TunableSuppressSchemaDefinitionWarnings" default="emptyElementParsePolicyError" minOccurs="0">
           <xs:annotation>
             <xs:documentation>
@@ -405,6 +427,32 @@
               - defaultNamespace: only match elements defined in the default namespace
               - preferDefaultNamespace: match elements defined in the default namespace;
                   if non are found, match elemnts that do not have a namespace
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="unparseSuspensionWaitOld" type="xs:int" default="100" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              While unparsing, some unparse actions require "suspending" which
+              requires buffering unparse output until the suspension can be
+              evaluated. Daffodil periodically attempts to reevaluate these
+              suspensions so that these buffers can be released. We attempt to
+              evaluate young suspensions shortly after creation with the hope
+              that it will succeed and we can release associated buffers. But if
+              a young suspension fails it is moved to the old suspension list.
+              Old suspensions are evaluated less frequently since they are less
+              likely to succeeded. This minimizes the overhead related to
+              evaluating suspensions that are likely to fail. The
+              unparseSuspensionWaitYoung and unparseSuspensionWaitOld
+              values determine how many elements are unparsed before evaluating
+              young and old suspensions, respectively.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="unparseSuspensionWaitYoung" type="xs:int" default="5" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              See unparseSuspensionWaitOld
             </xs:documentation>
           </xs:annotation>
         </xs:element>

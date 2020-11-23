@@ -22,14 +22,12 @@ import java.nio.CharBuffer
 import java.nio.LongBuffer
 
 import scala.Left
-import scala.collection.mutable
 
 import org.apache.daffodil.api.DFDL
 import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.api.DataLocation
 import org.apache.daffodil.api.Diagnostic
 import org.apache.daffodil.dpath.UnparserBlocking
-import org.apache.daffodil.dsom.RuntimeSchemaDefinitionError
 import org.apache.daffodil.equality.EqualitySuppressUnusedImportWarning
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.exceptions.SavesErrorsAndWarnings
@@ -50,6 +48,7 @@ import org.apache.daffodil.processors.Failure
 import org.apache.daffodil.processors.NonTermRuntimeData
 import org.apache.daffodil.processors.ParseOrUnparseState
 import org.apache.daffodil.processors.Suspension
+import org.apache.daffodil.processors.SuspensionTracker
 import org.apache.daffodil.processors.TermRuntimeData
 import org.apache.daffodil.processors.UnparseResult
 import org.apache.daffodil.processors.VariableBox
@@ -75,7 +74,8 @@ abstract class UState(
   vbox: VariableBox,
   diagnosticsArg: List[Diagnostic],
   dataProcArg: Maybe[DataProcessor],
-  tunable: DaffodilTunables)
+  tunable: DaffodilTunables,
+  areDebugging: Boolean)
   extends ParseOrUnparseState(vbox, diagnosticsArg, dataProcArg, tunable)
   with Cursor[InfosetAccessor] with ThrowsSDE with SavesErrorsAndWarnings {
 
@@ -350,6 +350,8 @@ abstract class UState(
   def removeVariableInstance(vrd: VariableRuntimeData): Unit = {
     variableMap.removeVariableInstance(vrd)
   }
+
+  final val releaseUnneededInfoset: Boolean = !areDebugging && tunable.releaseUnneededInfoset
 }
 
 /**
@@ -369,8 +371,9 @@ final class UStateForSuspension(
   escapeSchemeEVCacheMaybe: Maybe[MStackOfMaybe[EscapeSchemeUnparserHelper]],
   delimiterStackMaybe: Maybe[MStackOf[DelimiterStackUnparseNode]],
   override val prior: UStateForSuspension,
-  tunable: DaffodilTunables)
-  extends UState(dos, vbox, mainUState.diagnostics, mainUState.dataProc, tunable) {
+  tunable: DaffodilTunables,
+  areDebugging: Boolean)
+  extends UState(dos, vbox, mainUState.diagnostics, mainUState.dataProc, tunable, areDebugging) {
 
   dState.setMode(UnparserBlocking)
   dState.setCurrentNode(thisElement.asInstanceOf[DINode])
@@ -444,9 +447,9 @@ final class UStateMain private (
   diagnosticsArg: List[Diagnostic],
   dataProcArg: DataProcessor,
   dos: DirectOrBufferedDataOutputStream,
-  initialSuspendedExpressions: mutable.Queue[Suspension],
-  tunable: DaffodilTunables)
-  extends UState(dos, vbox, diagnosticsArg, One(dataProcArg), tunable) {
+  tunable: DaffodilTunables,
+  areDebugging: Boolean)
+  extends UState(dos, vbox, diagnosticsArg, One(dataProcArg), tunable, areDebugging) {
 
   dState.setMode(UnparserBlocking)
 
@@ -456,10 +459,10 @@ final class UStateMain private (
     diagnosticsArg: List[Diagnostic],
     dataProcArg: DataProcessor,
     dataOutputStream: DirectOrBufferedDataOutputStream,
-    initialSuspendedExpressions: mutable.Queue[Suspension],
-    tunable: DaffodilTunables) =
+    tunable: DaffodilTunables,
+    areDebugging: Boolean) =
     this(inputter, new VariableBox(vmap), diagnosticsArg, dataProcArg,
-      dataOutputStream, initialSuspendedExpressions, tunable)
+      dataOutputStream, tunable, areDebugging)
 
   private var _prior: UStateForSuspension = null
   override def prior = _prior
@@ -498,7 +501,8 @@ final class UStateMain private (
       es,
       ds,
       prior,
-      tunable)
+      tunable,
+      areDebugging)
 
     clone.setProcessor(processor)
 
@@ -609,43 +613,18 @@ final class UStateMain private (
    * All the other clones used for outputValueCalc, those never
    * need to add any.
    */
-  private val suspensions = initialSuspendedExpressions
+  private val suspensionTracker =
+    new SuspensionTracker(
+      tunable.unparseSuspensionWaitYoung,
+      tunable.unparseSuspensionWaitOld)
 
   def addSuspension(se: Suspension): Unit = {
-    suspensions.enqueue(se)
+    suspensionTracker.trackSuspension(se)
   }
 
-  def evalSuspensions(ustate: UState): Unit = {
-    var countOfNotMakingProgress = 0
-    while (!suspensions.isEmpty &&
-      countOfNotMakingProgress < suspensions.length) {
-      val se = suspensions.dequeue
-      se.runSuspension()
-      if (!se.isDone) suspensions.enqueue(se)
-      if (se.isDone || se.isMakingProgress)
-        countOfNotMakingProgress = 0
-      else
-        countOfNotMakingProgress += 1
-    }
-    // after the loop, did we terminate
-    // with some expressions still unevaluated?
-    if (suspensions.length > 1) {
-      // unable to evaluate all the expressions
-      suspensions.map { sus =>
-        sus.runSuspension() // good place for a breakpoint so we can debug why things are locked up.
-        sus.explain()
-      }
-      System.err.println("Dump of UStates")
-      var us = ustate
-      while (us ne null) {
-        System.err.println(us)
-        us = us.prior
-      }
-
-      throw new SuspensionDeadlockException(suspensions.seq)
-    } else if (suspensions.length == 1) {
-      Assert.invariantFailed("Single suspended expression making no forward progress. " + suspensions(0))
-    }
+  def evalSuspensions(isFinal: Boolean): Unit = {
+    suspensionTracker.evalSuspensions()
+    if (isFinal) suspensionTracker.requireFinal()
   }
 
   final override def pushTRD(trd: TermRuntimeData) =
@@ -670,19 +649,13 @@ final class UStateMain private (
   }
 }
 
-class SuspensionDeadlockException(suspExprs: Seq[Suspension])
-  extends RuntimeSchemaDefinitionError(
-    suspExprs(0).rd.schemaFileLocation,
-    suspExprs(0).savedUstate,
-    "Expressions/Unparsers are circularly deadlocked (mutually defined):\n%s",
-    suspExprs.groupBy { _.rd }.mapValues { _(0) }.values.mkString(" - ", "\n - ", ""))
-
 object UState {
 
   def createInitialUState(
     out: DirectOrBufferedDataOutputStream,
     dataProc: DFDL.DataProcessor,
-    inputter: InfosetInputter): UStateMain = {
+    inputter: InfosetInputter,
+    areDebugging: Boolean): UStateMain = {
     Assert.invariant(inputter.isInitialized)
 
     /**
@@ -692,8 +665,14 @@ object UState {
     val variables = dataProc.variableMap.copy
 
     val diagnostics = Nil
-    val newState = new UStateMain(inputter, variables, diagnostics, dataProc.asInstanceOf[DataProcessor], out,
-      new mutable.Queue[Suspension], dataProc.getTunables()) // null means no prior UState
+    val newState = new UStateMain(
+        inputter,
+        variables,
+        diagnostics,
+        dataProc.asInstanceOf[DataProcessor],
+        out,
+        dataProc.getTunables(),
+        areDebugging)
     newState
   }
 }

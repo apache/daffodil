@@ -33,7 +33,7 @@ import org.xml.sax.Locator
 import org.xml.sax.SAXException
 import org.xml.sax.helpers.AttributesImpl
 
-class SAXInfosetOutputter(xmlReader: DFDL.DaffodilXMLReader)
+class SAXInfosetOutputter(xmlReader: DFDL.DaffodilParseXMLReader)
   extends InfosetOutputter
   with XMLInfosetOutputter {
   /**
@@ -42,79 +42,103 @@ class SAXInfosetOutputter(xmlReader: DFDL.DaffodilXMLReader)
    */
   override def reset(): Unit = {
     // this doesn't do anything as the ContentHandler API does not support
-    // resetting, but some implemented ContentHandlers, such as the JDOM SaxHandler,
+    // resetting, but some implemented ContentHandlers, such as the JDOM SAXHandler,
     // do support resetting so it's up to the creator of the contentHandler, to call
     // their contentHandler's reset if applicable and if necessary
   }
 
   override def startDocument(): Boolean = {
     val contentHandler = xmlReader.getContentHandler
-    try {
-      contentHandler.startDocument()
+    if (contentHandler != null) {
+      try {
+        contentHandler.startDocument()
+        true
+      } catch {
+        case _: SAXException => false
+      }
+    } else {
       true
-    } catch {
-      case _: SAXException => false
     }
   }
 
   override def endDocument(): Boolean = {
     val contentHandler = xmlReader.getContentHandler
-    try {
-      contentHandler.endDocument()
+    if (contentHandler != null) {
+      try {
+        contentHandler.endDocument()
+        true
+      } catch {
+        case _: SAXException => false
+      }
+    } else {
       true
-    } catch {
-      case _: SAXException => false
     }
   }
 
   override def startSimple(diSimple: DISimple): Boolean = {
     val contentHandler = xmlReader.getContentHandler
-    try {
-      doStartElement(diSimple, contentHandler)
-      if (diSimple.hasValue) {
-        val text =
-          if (diSimple.erd.optPrimType.get.isInstanceOf[NodeInfo.String.Kind]) {
-            val s = remapped(diSimple.dataValueAsString)
-            scala.xml.Utility.escape(s)
-          } else {
-            diSimple.dataValueAsString
-          }
-        val arr = text.toCharArray
-        contentHandler.characters(arr, 0, arr.length)
+    if (contentHandler != null) {
+      try {
+        doStartElement(diSimple, contentHandler)
+        if (diSimple.hasValue) {
+          val text =
+            if (diSimple.erd.optPrimType.get.isInstanceOf[NodeInfo.String.Kind]) {
+              val s = remapped(diSimple.dataValueAsString)
+              scala.xml.Utility.escape(s)
+            } else {
+              diSimple.dataValueAsString
+            }
+          val arr = text.toCharArray
+          contentHandler.characters(arr, 0, arr.length)
+        }
+        true
+      } catch {
+        case _: SAXException => false
       }
+    } else {
       true
-    } catch {
-      case _: SAXException => false
     }
   }
 
   override def endSimple(diSimple: DISimple): Boolean = {
     val contentHandler = xmlReader.getContentHandler
-    try {
-      doEndElement(diSimple, contentHandler)
+    if (contentHandler != null) {
+      try {
+        doEndElement(diSimple, contentHandler)
+        true
+      } catch {
+        case _: SAXException => false
+      }
+    } else {
       true
-    } catch {
-      case _: SAXException => false
     }
   }
 
   override def startComplex(diComplex: DIComplex): Boolean = {
     val contentHandler = xmlReader.getContentHandler
-    try {
-      doStartElement(diComplex, contentHandler)
+    if (contentHandler != null) {
+      try {
+        doStartElement(diComplex, contentHandler)
+        true
+      } catch {
+        case _: SAXException => false
+      }
+    } else {
       true
-    } catch {
-      case _: SAXException => false
     }
   }
 
   override def endComplex(diComplex: DIComplex): Boolean = {
     val contentHandler = xmlReader.getContentHandler
-    try {
-      doEndElement(diComplex, contentHandler)
+    if (contentHandler != null) {
+      try {
+        doEndElement(diComplex, contentHandler)
+        true
+      } catch {
+        case _: SAXException => false
+      }
+    } else {
       true
-    } catch {
-      case _: SAXException => false
     }
   }
 
@@ -136,7 +160,7 @@ class SAXInfosetOutputter(xmlReader: DFDL.DaffodilXMLReader)
       diElem.diParent.erd.minimizedScope
     }
     var n = nsbStart
-    while (n != nsbEnd) {
+    while (n != nsbEnd && n != null && n != scala.xml.TopScope) {
       val prefix = if (n.prefix == null) "" else n.prefix
       val uri = if (n.uri == null) "" else n.uri
       contentHandler.startPrefixMapping(prefix, uri)
@@ -153,7 +177,7 @@ class SAXInfosetOutputter(xmlReader: DFDL.DaffodilXMLReader)
         .minimizedScope
     }
     var n = nsbStart
-    while (n != nsbEnd) {
+    while (n != nsbEnd && n != null && n != scala.xml.TopScope) {
       val prefix = if (n.prefix == null) "" else n.prefix
       contentHandler.endPrefixMapping(prefix)
       n = n.parent
@@ -194,7 +218,7 @@ class SAXInfosetOutputter(xmlReader: DFDL.DaffodilXMLReader)
 
 }
 
-class DaffodilOutputContentHandler(out: OutputStream, pretty: Boolean = false)
+class DaffodilParseOutputStreamContentHandler(out: OutputStream, pretty: Boolean = false)
   extends ContentHandler with Indentable with XMLInfosetOutputter {
   private val writer = new OutputStreamWriter(out)
   private var prefixMapping: NamespaceBinding = null
@@ -271,7 +295,7 @@ class DaffodilOutputContentHandler(out: OutputStream, pretty: Boolean = false)
     outputNewlineStack.push(false)
   }
 
-  override def endElement(uri: String, localName: String,  qName: String): Unit = {
+  override def endElement(uri: String, localName: String, qName: String): Unit = {
     decrementIndentation()
     if (outputNewline) {
       if (pretty) {

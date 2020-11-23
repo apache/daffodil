@@ -59,7 +59,7 @@ object LoggerMacros {
       val $level = $lvl
       val $l = $level.lvl
       if ($ths.getLoggingLevel().lvl >= $l)
-        $ths.doLogging($level, $msg, Seq(..$args))
+        $ths.doLogging($level, $msg, Seq[Any](..$args))
     }
     """
   }

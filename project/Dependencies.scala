@@ -22,32 +22,33 @@ object Dependencies {
   lazy val common = core ++ infoset ++ test
 
   lazy val core = Seq(
-    "org.scala-lang.modules" %% "scala-xml" % "1.1.0",
-    "org.scala-lang.modules" %% "scala-parser-combinators" % "1.1.1",
-    "com.ibm.icu" % "icu4j" % "62.1",
+    "org.scala-lang.modules" %% "scala-xml" % "1.3.0",
+    "org.scala-lang.modules" %% "scala-parser-combinators" % "1.1.2",
+    "com.ibm.icu" % "icu4j" % "67.1",
     "xerces" % "xercesImpl" % "2.12.0",
     "xml-resolver" % "xml-resolver" % "1.2",
-    "commons-io" % "commons-io" % "2.6",
+    "commons-io" % "commons-io" % "2.8.0",
     "jline" % "jline" % "2.14.6",
+    "com.typesafe" % "config" % "1.4.0",
     "com.lihaoyi" %% "os-lib" % "0.7.1", // for generating C source files
-    "dev.dirs" % "directories" % "21" // for caching generated & compiled C files
+    "dev.dirs" % "directories" % "21" // for caching compiled C files
   )
 
   lazy val infoset = Seq(
     "org.jdom" % "jdom2" % "2.0.6",
-    "com.fasterxml.woodstox" % "woodstox-core" % "5.1.0",
-    "com.fasterxml.jackson.core" % "jackson-core" % "2.10.2"
+    "com.fasterxml.woodstox" % "woodstox-core" % "6.2.3",
+    "com.fasterxml.jackson.core" % "jackson-core" % "2.11.3"
   )
 
   lazy val cli = Seq( 
     "org.fusesource.jansi" % "jansi" % "1.17.1",
-    "org.rogach" %% "scallop" % "3.1.3",
+    "org.rogach" %% "scallop" % "3.5.1",
     "net.sf.expectit" % "expectit-core" % "0.9.0" % "it,test"
   )
 
   lazy val test = Seq(
-    "junit" % "junit" % "4.12" % "it,test",
+    "junit" % "junit" % "4.13.1" % "it,test",
     "com.novocode" % "junit-interface" % "0.11" % "it,test",
-    "org.scalacheck" %% "scalacheck" % "1.14.0" % "it,test"
+    "org.scalacheck" %% "scalacheck" % "1.14.3" % "it,test"
   )
 }

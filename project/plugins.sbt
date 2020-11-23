@@ -19,7 +19,7 @@ addSbtPlugin("com.github.tnakamot" % "sbt-cc" % "0.0.3")
 
 addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.7.5")
 
-addSbtPlugin("org.musigma" % "sbt-rat" % "0.6.0")
+addSbtPlugin("org.musigma" % "sbt-rat" % "0.7.0")
 
 addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.6.1")
 

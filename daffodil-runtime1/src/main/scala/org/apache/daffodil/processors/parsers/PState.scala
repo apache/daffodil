@@ -674,7 +674,7 @@ object PState {
       output,
       walkHidden = false,
       ignoreBlocks = false,
-      removeUnneeded = !areDebugging)
+      releaseUnneededInfoset = !areDebugging && tunables.releaseUnneededInfoset)
 
     dis.cst.setPriorBitOrder(root.defaultBitOrder)
     val newState = new PState(

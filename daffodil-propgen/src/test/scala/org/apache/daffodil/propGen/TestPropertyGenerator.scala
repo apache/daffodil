@@ -17,8 +17,13 @@
 
 package org.apache.daffodil.propGen
 
+import java.nio.file.Files
+import java.nio.file.Paths
+
 import org.junit.Assert._
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TemporaryFolder
 
 class TestPropertyGenerator {
 
@@ -158,4 +163,20 @@ class TestPropertyGenerator {
     assertTrue(mx.contains("""with DFDLDefineVariableTypeMixin"""))
   }
 
+  /**
+   * Test the entire PropertyGenerator package and verify that it creates some files.
+   * Ulterior motivation is to push codecov's total coverage above 80% too.
+   */
+  private val _folder = new TemporaryFolder()
+  @Rule def folder = _folder
+  @Test def testPropertyGeneratorMain(): Unit = {
+    val args = Array(folder.getRoot.getCanonicalPath)
+    PropertyGenerator.main(args)
+    val path1 = Paths.get(args(0), "org/apache/daffodil/schema/annotation/props/gen/GeneratedCode.scala")
+    val path2 = Paths.get(args(0), "org/apache/daffodil/api/DaffodilTunablesGen.scala")
+    val path3 = Paths.get(args(0), "org/apache/daffodil/api/WarnIdGen.scala")
+    assert(Files.exists(path1), "Expected PropertyGenerator to create a file")
+    assert(Files.exists(path2), "Expected PropertyGenerator to create a file")
+    assert(Files.exists(path3), "Expected PropertyGenerator to create a file")
+  }
 }

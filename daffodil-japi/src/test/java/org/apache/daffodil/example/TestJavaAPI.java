@@ -33,10 +33,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.daffodil.infoset.DaffodilOutputContentHandler;
 import org.apache.daffodil.japi.*;
 import org.apache.daffodil.japi.infoset.XMLTextInfosetOutputter;
-import org.apache.daffodil.xml.XMLUtils;
 import org.jdom2.output.Format;
 import org.junit.Test;
 
@@ -47,6 +45,9 @@ import org.apache.daffodil.japi.logger.LogLevel;
 import org.apache.daffodil.japi.io.InputSourceDataInputStream;
 
 public class TestJavaAPI {
+
+    String SAX_NAMESPACES_FEATURE = "http://xml.org/sax/features/namespaces";
+    String SAX_NAMESPACE_PREFIXES_FEATURE = "http://xml.org/sax/features/namespace-prefixes";
 
     private java.io.File getResource(String resPath) {
         try {
@@ -959,13 +960,13 @@ public class TestJavaAPI {
 
     @Test
     public void testJavaAPI20() throws IOException, ClassNotFoundException {
-        // Test SAX parsing
+        // Test SAX parsing/unparsing
         org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
         java.io.File schemaFile = getResource("/test/japi/mySchema1.dfdl.xsd");
         ProcessorFactory pf = c.compileFile(schemaFile);
         DataProcessor dp = pf.onPath("/");
         dp = reserializeDataProcessor(dp);
-        DaffodilXMLReader xri = dp.newXMLReaderInstance();
+        DaffodilParseXMLReader parseXMLReader = dp.newXMLReaderInstance();
 
         java.io.File file = getResource("/test/japi/myData.dat");
         java.io.FileInputStream fisDP = new java.io.FileInputStream(file);
@@ -977,29 +978,55 @@ public class TestJavaAPI {
         ParseResult res = dp.parse(disDP, outputter);
         String infosetDPString = xmlBos.toString();
 
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        DaffodilOutputContentHandler contentHandler = new DaffodilOutputContentHandler(bos, true);
+        org.jdom2.input.sax.SAXHandler contentHandler = new org.jdom2.input.sax.SAXHandler();
         SAXErrorHandlerForJAPITest errorHandler = new SAXErrorHandlerForJAPITest();
-        xri.setContentHandler(contentHandler);
-        xri.setErrorHandler(errorHandler);
-        xri.setProperty(XMLUtils.DAFFODIL_SAX_URN_BLOBDIRECTORY(),
+        parseXMLReader.setContentHandler(contentHandler);
+        parseXMLReader.setErrorHandler(errorHandler);
+        parseXMLReader.setProperty(DaffodilParseXMLReader.DAFFODIL_SAX_URN_BLOBDIRECTORY(),
                 Paths.get(System.getProperty("java.io.tmpdir")));
-        xri.setProperty(XMLUtils.DAFFODIL_SAX_URN_BLOBPREFIX(),
+        parseXMLReader.setProperty(DaffodilParseXMLReader.DAFFODIL_SAX_URN_BLOBPREFIX(),
                 "daffodil-sapi-");
-        xri.setProperty(XMLUtils.DAFFODIL_SAX_URN_BLOBSUFFIX(),
+        parseXMLReader.setProperty(DaffodilParseXMLReader.DAFFODIL_SAX_URN_BLOBSUFFIX(),
                 ".sax.blob");
-        xri.parse(disSAX);
-        org.apache.daffodil.processors.ParseResult resSAX =
-                (org.apache.daffodil.processors.ParseResult) xri.getProperty(
-                        XMLUtils.DAFFODIL_SAX_URN_PARSERESULT());
+        parseXMLReader.parse(disSAX);
+        ParseResult resSAX = (ParseResult) parseXMLReader.getProperty(DaffodilParseXMLReader.DAFFODIL_SAX_URN_PARSERESULT());
         boolean err = errorHandler.isError();
         ArrayList<Diagnostic> diags = errorHandler.getDiagnostics();
-        String infosetSAXString = bos.toString();
+        Format pretty = Format.getPrettyFormat().setLineSeparator(System.getProperty("line.separator"));
+        String infosetSAXString = new  org.jdom2.output.XMLOutputter(pretty).outputString(contentHandler.getDocument());
 
         assertFalse(err);
-        assertTrue(resSAX.resultState().currentLocation().isAtEnd());
+        assertTrue(resSAX.location().isAtEnd());
         assertTrue(diags.isEmpty());
         assertEquals(infosetDPString, infosetSAXString);
+
+        // test unparse
+        ByteArrayOutputStream unparseBos = new java.io.ByteArrayOutputStream();
+        WritableByteChannel wbc = java.nio.channels.Channels.newChannel(unparseBos);
+
+        // prep for SAX unparse
+        DaffodilUnparseContentHandler unparseContentHandler = dp.newContentHandlerInstance(wbc);
+        try {
+            org.xml.sax.XMLReader unparseXMLReader = javax.xml.parsers.SAXParserFactory.newInstance()
+                    .newSAXParser().getXMLReader();
+            unparseXMLReader.setContentHandler(unparseContentHandler);
+            unparseXMLReader.setErrorHandler(errorHandler);
+            unparseXMLReader.setFeature(SAX_NAMESPACES_FEATURE, true);
+            unparseXMLReader.setFeature(SAX_NAMESPACE_PREFIXES_FEATURE, true);
+            ByteArrayInputStream is = new ByteArrayInputStream(infosetSAXString.getBytes());
+            // kickstart unparse
+            unparseXMLReader.parse(new org.xml.sax.InputSource(is));
+        } catch (javax.xml.parsers.ParserConfigurationException | org.xml.sax.SAXException e) {
+            fail("Error: " + e);
+        }
+
+        UnparseResult saxUr = unparseContentHandler.getUnparseResult();
+        wbc.close();
+
+        boolean saxErr = saxUr.isError();
+        assertFalse(saxErr);
+        assertTrue(saxUr.getDiagnostics().isEmpty());
+        assertEquals("42", unparseBos.toString());
     }
 
 
@@ -1011,22 +1038,21 @@ public class TestJavaAPI {
         ProcessorFactory pf = c.compileFile(schemaFile);
         DataProcessor dp = pf.onPath("/");
         dp = reserializeDataProcessor(dp);
-        DaffodilXMLReader xri = dp.newXMLReaderInstance();
+        DaffodilParseXMLReader parseXMLReader = dp.newXMLReaderInstance();
 
         java.io.File file = getResource("/test/japi/myDataBroken.dat");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
         InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
 
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        DaffodilOutputContentHandler contentHandler = new DaffodilOutputContentHandler(bos, false);
+        org.jdom2.input.sax.SAXHandler contentHandler = new org.jdom2.input.sax.SAXHandler();
         SAXErrorHandlerForJAPITest errorHandler = new SAXErrorHandlerForJAPITest();
-        xri.setContentHandler(contentHandler);
-        xri.setErrorHandler(errorHandler);
-        xri.setProperty(XMLUtils.DAFFODIL_SAX_URN_BLOBDIRECTORY(),
+        parseXMLReader.setContentHandler(contentHandler);
+        parseXMLReader.setErrorHandler(errorHandler);
+        parseXMLReader.setProperty(DaffodilParseXMLReader.DAFFODIL_SAX_URN_BLOBDIRECTORY(),
                 Paths.get(System.getProperty("java.io.tmpdir")));
-        xri.setProperty(XMLUtils.DAFFODIL_SAX_URN_BLOBPREFIX(), "daffodil-sapi-");
-        xri.setProperty(XMLUtils.DAFFODIL_SAX_URN_BLOBSUFFIX(), ".sax.blob");
-        xri.parse(dis);
+        parseXMLReader.setProperty(DaffodilParseXMLReader.DAFFODIL_SAX_URN_BLOBPREFIX(), "daffodil-sapi-");
+        parseXMLReader.setProperty(DaffodilParseXMLReader.DAFFODIL_SAX_URN_BLOBSUFFIX(), ".sax.blob");
+        parseXMLReader.parse(dis);
         boolean err = errorHandler.isError();
         ArrayList<Diagnostic> diags = errorHandler.getDiagnostics();
 
@@ -1040,5 +1066,109 @@ public class TestJavaAPI {
         assertEquals(1, locs.size());
         LocationInSchemaFile loc = locs.get(0);
         assertTrue(loc.toString().contains("mySchema1.dfdl.xsd"));
+    }
+
+    @Test
+    public void testJavaAPI22_setExternalVariablesUsingAbstractMap() throws IOException, ClassNotFoundException {
+        // Demonstrates here that we can set external variables using a
+        // Java AbstractMap after compilation but before parsing via DataProcessor.
+        LogWriterForJAPITest lw = new LogWriterForJAPITest();
+        DebuggerRunnerForJAPITest debugger = new DebuggerRunnerForJAPITest();
+
+        Daffodil.setLogWriter(lw);
+        Daffodil.setLoggingLevel(LogLevel.Debug);
+
+        org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
+
+        java.io.File extVarFile = getResource("/test/japi/external_vars_1.xml");
+        java.io.File schemaFile = getResource("/test/japi/mySchemaWithVars.dfdl.xsd");
+        ProcessorFactory pf = c.compileFile(schemaFile);
+        DataProcessor dp = pf.onPath("/");
+        dp = reserializeDataProcessor(dp);
+        dp = dp.withDebugger(debugger);
+        dp = dp.withDebugging(true);
+
+        java.util.AbstractMap<String, String> extVarsMap = new java.util.HashMap<String, String>();
+        extVarsMap.put("var1", "var1ValueFromMap");
+
+        dp = dp.withExternalVariables(extVarsMap);
+
+        java.io.File file = getResource("/test/japi/myData.dat");
+        java.io.FileInputStream fis = new java.io.FileInputStream(file);
+        InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
+        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+        ParseResult res = dp.parse(dis, outputter);
+        boolean err = res.isError();
+        assertFalse(err);
+        org.jdom2.Document doc = outputter.getResult();
+        org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
+        xo.setFormat(Format.getPrettyFormat());
+        String docString = xo.outputString(doc);
+        boolean containsVar1 = docString.contains("var1Value");
+        boolean containsVar1Value = docString.contains("var1ValueFromMap");
+        assertTrue(containsVar1);
+        assertTrue(containsVar1Value);
+
+        assertTrue(res.location().isAtEnd());
+
+        assertEquals(0, lw.errors.size());
+        assertEquals(0, lw.warnings.size());
+        assertTrue(lw.others.size() > 0);
+        assertTrue(debugger.lines.size() > 0);
+        assertTrue(debugger.lines.contains("----------------------------------------------------------------- 1\n"));
+
+        // reset the global logging and debugger state
+        Daffodil.setLogWriter(new ConsoleLogWriter());
+        Daffodil.setLoggingLevel(LogLevel.Info);
+    }
+
+    @Test
+    public void testJavaAPI23() throws IOException, ClassNotFoundException {
+        // test SAX unparsing with errors
+        LogWriterForJAPITest lw = new LogWriterForJAPITest();
+
+        Daffodil.setLogWriter(lw);
+        Daffodil.setLoggingLevel(LogLevel.Info);
+
+        org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
+
+        java.io.File schemaFile = getResource("/test/japi/mySchema1.dfdl.xsd");
+        ProcessorFactory pf = c.compileFile(schemaFile);
+        DataProcessor dp = pf.onPath("/");
+        dp = reserializeDataProcessor(dp);
+
+        java.io.File file = getResource("/test/japi/myInfosetBroken.xml");
+        java.io.FileInputStream fis = new java.io.FileInputStream(file);
+        ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
+        WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
+        // prep for SAX
+        DaffodilUnparseContentHandler unparseContentHandler = dp.newContentHandlerInstance(wbc);
+        try {
+            org.xml.sax.XMLReader unparseXMLReader = javax.xml.parsers.SAXParserFactory.newInstance()
+                    .newSAXParser().getXMLReader();
+            unparseXMLReader.setContentHandler(unparseContentHandler);
+            unparseXMLReader.setFeature(SAX_NAMESPACES_FEATURE, true);
+            unparseXMLReader.setFeature(SAX_NAMESPACE_PREFIXES_FEATURE, true);
+            // kickstart unparse
+            unparseXMLReader.parse(new org.xml.sax.InputSource(fis));
+        } catch (DaffodilUnparseErrorSAXException | DaffodilUnhandledSAXException ignored) {
+            // do nothing; UnparseError is handled below while we don't expect Unhandled in this test
+        } catch (javax.xml.parsers.ParserConfigurationException | org.xml.sax.SAXException e) {
+            fail("Error: " + e);
+        }
+
+        UnparseResult res = unparseContentHandler.getUnparseResult();
+        boolean err = res.isError();
+        assertTrue(err);
+
+        java.util.List<Diagnostic> diags = res.getDiagnostics();
+        assertEquals(1, diags.size());
+        Diagnostic d = diags.get(0);
+        assertTrue(d.getMessage().contains("wrong"));
+        assertTrue(d.getMessage().contains("e2"));
+
+        // reset the global logging state
+        Daffodil.setLogWriter(new ConsoleLogWriter());
+        Daffodil.setLoggingLevel(LogLevel.Info);
     }
 }

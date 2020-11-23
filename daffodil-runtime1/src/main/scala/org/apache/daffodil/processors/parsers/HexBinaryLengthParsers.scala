@@ -33,13 +33,16 @@ sealed abstract class HexBinaryLengthParser(override val context: ElementRuntime
   override final def parse(start: PState): Unit = {
     val dis = start.dataInputStream
     val currentElement = start.simpleElement
-    val nBits = getLengthInBits(start).toInt
+    val nBits = getLengthInBits(start)
     if (nBits == 0) {
       currentElement.setDataValue(zeroLengthArray)
+    } else if (nBits > Int.MaxValue) {
+      // Integer overflow will occurr, recommend using blob instead of hexBinary
+      PE(start, "Data is too large for xs:hexBinary. Consider using blobs instead: https://s.apache.org/daffodil-blob-feature")
     } else if (!dis.isDefinedForLength(nBits)) {
       PENotEnoughBits(start, nBits, dis.remainingBits)
     } else {
-      val array =  start.dataInputStream.getByteArray(nBits, start)
+      val array =  start.dataInputStream.getByteArray(nBits.toInt, start)
       currentElement.setDataValue(array)
     }
   }

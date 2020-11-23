@@ -24,6 +24,8 @@ import org.apache.daffodil.processors.ModelGroupRuntimeData
 import scala.collection.mutable.Buffer
 import SeparatorSuppressionPolicy._
 import SeparatorPosition._
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.MaybeInt
 
 trait Separated { self: SequenceChildUnparser =>
 
@@ -99,9 +101,11 @@ class OrderedSeparatedSequenceUnparser(
   rd: SequenceRuntimeData,
   ssp: SeparatorSuppressionPolicy,
   spos: SeparatorPosition,
+  sepMtaAlignmentMaybe: MaybeInt,
+  sepMtaUnparserMaybe: Maybe[Unparser],
   sep: Unparser,
   childUnparsersArg: Vector[SequenceChildUnparser])
-  extends OrderedSequenceUnparserBase(rd, childUnparsersArg :+ sep) {
+  extends OrderedSequenceUnparserBase(rd, (childUnparsersArg :+ sep) ++ sepMtaUnparserMaybe.toSeq) {
 
   private val childUnparsers =
     childUnparsersArg.asInstanceOf[Seq[SequenceChildUnparser with Separated]]
@@ -117,17 +121,18 @@ class OrderedSeparatedSequenceUnparser(
     if (trd.isRepresented) {
       spos match {
         case Prefix => {
-          sep.unparse1(state)
+          unparseJustSeparator(state)
           unparser.unparse1(state)
         }
         case Infix => {
-          if (state.groupPos > 1)
-            sep.unparse1(state)
+          if (state.groupPos > 1) {
+            unparseJustSeparator(state)
+          }
           unparser.unparse1(state)
         }
         case Postfix => {
           unparser.unparse1(state)
-          sep.unparse1(state)
+          unparseJustSeparator(state)
         }
       }
     } else {
@@ -137,31 +142,56 @@ class OrderedSeparatedSequenceUnparser(
   }
 
   /**
-   * Unparses the separator only.
+   * Unparses just the separator, as well as any mandatory text alignment if necessary
    *
    * Does not deals with infix boundary condition.
    */
   private def unparseJustSeparator(state: UState): Unit = {
+    if (sepMtaUnparserMaybe.isDefined) {
+      // we know we are unparsing a separator here, so we must also unparse
+      // mandatory text alignment for that separator. If we didn't staticaly
+      // determine MTA isn't necessary, we must unparse the MTA. This might
+      // lead to a suspension, which is okay in this case because this logic is
+      // not in a suspension, so nested suspensions are avoided.
+      sepMtaUnparserMaybe.get.unparse1(state)
+    }
     sep.unparse1(state)
   }
 
   /**
-   * Unparses the separator only.
+   * Unparses the separator only, which might be optional. The suspension
+   * handles determine if the separator should be unparsed as well as if
+   * alignment is needed, and avoids issues with nested suspensions.
    *
    * Does not have to deal with infix and first child.
+   *
+   * FIXME: this function is not used anywhere and appears to be dead code.
+   * This is commented out for now so as to not affect code coverage. See
+   * DAFFODIL-2405 and potentially related DAFFODIL-2219 to determine the
+   * future of this code.
    */
-  private def unparseJustSeparatorWithTrailingSuppression(
-    trd: TermRuntimeData,
-    state: UState,
-    trailingSuspendedOps: Buffer[SuppressableSeparatorUnparserSuspendableOperation]): Unit = {
-
-    val suspendableOp = new SuppressableSeparatorUnparserSuspendableOperation(sep, trd)
-    // TODO: merge these two objects. We can allocate just one thing here.
-    val suppressableSep = SuppressableSeparatorUnparser(sep, trd, suspendableOp)
-
-    suppressableSep.unparse1(state)
-    trailingSuspendedOps += suspendableOp
-  }
+//private def unparseJustSeparatorWithTrailingSuppression(
+//  trd: TermRuntimeData,
+//  state: UState,
+//  trailingSuspendedOps: Buffer[SuppressableSeparatorUnparserSuspendableOperation]): Unit = {
+//
+//  // We don't know if the unparse will result in zero length or not. We have
+//  // to use a suspendable unparser here for the separator which suspends
+//  // until it is known whether the unparse of the contents were ZL or not. If
+//  // the suspension determines that the field is non-zero length then the
+//  // suspenion must also unparser mandatory text alignment for the separator.
+//  // This cannot be done with a standard MTA alignment unparser since that is
+//  // a suspension and suspensions cannot create suspensions. This this
+//  // suspension is also responsible for unparsing alignment if the separator
+//  // should be unparsed.
+//
+//  val suspendableOp = new SuppressableSeparatorUnparserSuspendableOperation(sepMtaAlignmentMaybe, sep, trd)
+//  // TODO: merge these two objects. We can allocate just one thing here.
+//  val suppressableSep = SuppressableSeparatorUnparser(sep, trd, suspendableOp)
+//
+//  suppressableSep.unparse1(state)
+//  trailingSuspendedOps += suspendableOp
+//}
 
   /**
    * Unparses an entire sequence, including both scalar and array/optional children.
@@ -182,10 +212,15 @@ class OrderedSeparatedSequenceUnparser(
     trailingSuspendedOps: Buffer[SuppressableSeparatorUnparserSuspendableOperation],
     onlySeparatorFlag: Boolean): Unit = {
     val doUnparseChild = !onlySeparatorFlag
-    // We don't know if the unparse will result in zero length or not.
-    // We have to use a suspendable unparser here for the separator
-    // which suspends until it is known whether the unparse of the contents
-    // were ZL or not.
+    // We don't know if the unparse will result in zero length or not. We have
+    // to use a suspendable unparser here for the separator which suspends
+    // until it is known whether the unparse of the contents were ZL or not. If
+    // the suspension determines that the field is non-zero length then the
+    // suspension must also unparse mandatory text alignment for the separator.
+    // This cannot be done with a standard MTA alignment unparser since that is
+    // a suspension and suspensions cannot create suspensions. This suspension
+    // is also responsible for unparsing alignment if the separator should be
+    // unparsed.
     //
     // infix, prefix, postfix matters here, because the separator comes after
     // for postfix.
@@ -194,8 +229,7 @@ class OrderedSeparatedSequenceUnparser(
       // no separator possible; hence, no suppression
       if (doUnparseChild) unparser.unparse1(state)
     } else {
-
-      val suspendableOp = new SuppressableSeparatorUnparserSuspendableOperation(sep, trd)
+      val suspendableOp = new SuppressableSeparatorUnparserSuspendableOperation(sepMtaAlignmentMaybe, sep, trd)
       // TODO: merge these two objects. We can allocate just one thing here.
       val suppressableSep = SuppressableSeparatorUnparser(sep, trd, suspendableOp)
 

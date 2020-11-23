@@ -23,6 +23,7 @@ import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.io.DataOutputStream
 import org.apache.daffodil.io.ZeroLengthStatus
 import org.apache.daffodil.processors.Processor
+import org.apache.daffodil.util.MaybeInt
 
 /**
  * Performance Note: This can be a very special purpose suspension. Unlike the
@@ -32,10 +33,16 @@ import org.apache.daffodil.processors.Processor
  * But we need none of the state needed to unparse or evaluate expressions.
  */
 final class SuppressableSeparatorUnparserSuspendableOperation(
+  sepMtaAlignmentMaybe: MaybeInt,
   sepUnparser: Unparser,
   override val rd: TermRuntimeData)
   extends SuspendableOperation
-  with StreamSplitter {
+  with StreamSplitter
+  with AlignmentFillUnparserSuspendableMixin {
+
+  override val alignmentInBits =
+    if (sepMtaAlignmentMaybe.isDefined) sepMtaAlignmentMaybe.get
+    else 0
 
   private var zlStatus_ : ZeroLengthStatus = ZeroLengthStatus.Unknown
 
@@ -106,28 +113,42 @@ final class SuppressableSeparatorUnparserSuspendableOperation(
    * finished and length is still zero the test will also return true. Otherwise they
    * are possibly just temporarily of length zero, so we don't know so we return false
    * and the suspension will be retried later.
+   *
+   * Also note that this must take into account alignment. However, we only
+   * care about alignment if we will create a separator, which only occurs when
+   * the zero length status is NonZero. If we determine the zero length status
+   * is Zero, no separator will be unparsed, and so MTA should also not be
+   * unparsed.
    */
   override def test(ustate: UState): Boolean = {
-    if (zlStatus_ ne ZeroLengthStatus.Unknown)
-      true
-    else if (maybeDOSAfterSeparatorRegion.isEmpty)
-      false
-    else {
-      Assert.invariant(maybeDOSAfterSeparatorRegion.isDefined)
-      if (dosToCheck_.exists { dos =>
-        val dosZLStatus = dos.zeroLengthStatus
-        dosZLStatus eq ZeroLengthStatus.NonZero
-      }) {
-        zlStatus_ = ZeroLengthStatus.NonZero
+
+    // mutate zlStatus state depending on dos associated with this suspension
+    if ((zlStatus_ ne ZeroLengthStatus.Unknown) || maybeDOSAfterSeparatorRegion.isEmpty) {
+      // no-op, we have either already calculated the zls or we don't have a
+      // final DOS yet so can't try to calculate
+    } else if (dosToCheck_.exists { _.zeroLengthStatus eq ZeroLengthStatus.NonZero }) {
+      zlStatus_ = ZeroLengthStatus.NonZero
+    } else if (dosToCheck_.forall { _.zeroLengthStatus eq ZeroLengthStatus.Zero }) {
+      zlStatus_ = ZeroLengthStatus.Zero
+    }
+
+    zlStatus_ match {
+      case ZeroLengthStatus.Zero => {
+        // zero length, so there is no separator, so there is nothing to do
         true
-      } else if (dosToCheck_.forall { dos =>
-        val dosZLStatus = dos.zeroLengthStatus
-        dosZLStatus eq ZeroLengthStatus.Zero
-      }) {
-        zlStatus_ = ZeroLengthStatus.Zero
-        true
-      } else {
-        Assert.invariant(zlStatus_ eq ZeroLengthStatus.Unknown)
+      }
+      case ZeroLengthStatus.NonZero => {
+        // non zero length, so there is a separator. In adition to handling the
+        // separator, this suspension also handles the mandatory text alignment
+        // for that separator to avoid nested suspensions. This suspension test
+        // passes only if we have statically determined that mta alignment is
+        // not needed because we are already aligned, or the alignment test
+        // passes (vai super.test)
+        sepMtaAlignmentMaybe.isEmpty || super.test(ustate)
+      }
+      case ZeroLengthStatus.Unknown => {
+        // we don't have an answer about the if the separator is needed yet,
+        // the test fails until we can figure out an answer
         false
       }
     }
@@ -140,6 +161,9 @@ final class SuppressableSeparatorUnparserSuspendableOperation(
    * If we're positional and potentially trailing, then this will only be Zero length
    * if we're considering unparsing a trailing separator for an empty, with nothing following.
    * So if ZL, no separator, otherwise we unparse the separator.
+   *
+   * If we are unparsing a separator, we must also unparse associated MTA
+   * alignment if we didn't statically determine that it wasn't needed
    */
   override def continuation(state: UState): Unit = {
     import ZeroLengthStatus._
@@ -152,6 +176,13 @@ final class SuppressableSeparatorUnparserSuspendableOperation(
       }
       case NonZero => {
         // non-zero case. So we need the separator.
+      
+        // first unparse alignment bits if alignment is necessary
+        if (sepMtaAlignmentMaybe.isDefined) {
+          super.continuation(state)
+        }
+ 
+        // then unparse the separator
         sepUnparser.unparse1(savedUstate)
       }
       case Unknown =>

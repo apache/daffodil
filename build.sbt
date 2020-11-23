@@ -136,7 +136,7 @@ lazy val testStdLayout    = Project("daffodil-test-stdLayout", file("test-stdLay
 
 lazy val commonSettings = Seq(
   organization := "org.apache.daffodil",
-  version := "3.0.0-SNAPSHOT",
+  version := "3.1.0-SNAPSHOT",
   scalaVersion := "2.12.11",
   crossScalaVersions := Seq("2.12.11"),
   scalacOptions ++= Seq(
@@ -178,15 +178,12 @@ lazy val commonSettings = Seq(
   sourceManaged := baseDirectory.value / "src_managed",
   resourceManaged := baseDirectory.value / "resource_managed",
   libraryDependencies ++= Dependencies.common,
-  parallelExecution in IntegrationTest := false
+  parallelExecution in IntegrationTest := false,
+  testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "-v"),
 ) ++ Defaults.itSettings
 
 def scalacCrossOptions(scalaVersion: String) =
   CrossVersion.partialVersion(scalaVersion) match {
-    case Some((2, 11)) => Seq(
-      "-language:existentials",
-      "-Ywarn-unused-import"
-    )
     case Some((2, 12)) => Seq(
       "-Ywarn-unused:imports"
     )
@@ -213,6 +210,7 @@ lazy val libManagedSettings = Seq(
   genManaged := {
     (genProps in Compile).value
     (genSchemas in Compile).value
+    ()
   },
   genProps in Compile := {
     val cp = (dependencyClasspath in Runtime in propgen).value
@@ -236,7 +234,7 @@ lazy val libManagedSettings = Seq(
       val br = new java.io.BufferedReader(isr)
       val iterator = Iterator.continually(br.readLine()).takeWhile(_ != null)
       val files = iterator.map { f =>
-        stream.log.info("Generated %s".format(f))
+        stream.log.info("generated %s".format(f))
         new File(f)
       }.toSet
       files
@@ -252,7 +250,7 @@ lazy val libManagedSettings = Seq(
       schemas.map { schema =>
         val out = outdir / "org" / "apache" / "daffodil" / "xsd" / schema.getName
         IO.copyFile(schema, out)
-        stream.log.info("Generated %s".format(out))
+        stream.log.info("generated %s".format(out))
         out
       }
     }
@@ -266,12 +264,11 @@ lazy val ratSettings = Seq(
   ratLicenses := Seq(
     ("BSD2 ", Rat.BSD2_LICENSE_NAME, Rat.LICENSE_TEXT_PASSERA)
   ),
-
   ratLicenseFamilies := Seq(
     Rat.BSD2_LICENSE_NAME
   ),
-
-  ratExcludes := Rat.excludes
+  ratExcludes := Rat.excludes,
+  ratFailBinaries := true,
 )
 
 lazy val unidocSettings = Seq(
@@ -285,7 +282,8 @@ lazy val unidocSettings = Seq(
   javacOptions in (JavaUnidoc, unidoc) := Seq(
     "-windowtitle", "Apache Daffodil (incubating) " + version.value + " Java API",
     "-doctitle", "<h1>Apache Daffodil (incubating) " + version.value + " Java API</h1>",
-    "-notimestamp"
+    "-notimestamp",
+    "-quiet",
   ),
   unidocAllSources in (JavaUnidoc, unidoc) := (unidocAllSources in (JavaUnidoc,  unidoc)).value.map { sources =>
     sources.filterNot { source =>

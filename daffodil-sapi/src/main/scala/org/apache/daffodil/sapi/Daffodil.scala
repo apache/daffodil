@@ -34,9 +34,12 @@ import org.apache.daffodil.api.{ DataLocation => SDataLocation }
 import org.apache.daffodil.api.{ Diagnostic => SDiagnostic }
 import org.apache.daffodil.api.{ LocationInSchemaFile => SLocationInSchemaFile }
 import org.apache.daffodil.api.{ WithDiagnostics => SWithDiagnostics }
+import org.apache.daffodil.api.DFDL.{ DaffodilUnhandledSAXException => SDaffodilUnhandledSAXException }
+import org.apache.daffodil.api.DFDL.{ DaffodilUnparseErrorSAXException => SDaffodilUnparseErrorSAXException }
 import org.apache.daffodil.compiler.{ ProcessorFactory => SProcessorFactory }
 import org.apache.daffodil.processors.{ DataProcessor => SDataProcessor }
-import org.apache.daffodil.processors.{ DaffodilXMLReader => SDaffodilXMLReader }
+import org.apache.daffodil.processors.{ DaffodilParseXMLReader => SDaffodilParseXMLReader }
+import org.apache.daffodil.processors.{ DaffodilUnparseContentHandler => SDaffodilUnparseContentHandler }
 import org.apache.daffodil.processors.{ ParseResult => SParseResult }
 import org.apache.daffodil.processors.{ UnparseResult => SUnparseResult }
 import org.apache.daffodil.util.{ ConsoleWriter => SConsoleWriter }
@@ -52,11 +55,13 @@ import org.apache.daffodil.processors.{ InvalidUsageException => SInvalidUsageEx
 import java.net.URI
 
 import org.apache.daffodil.api.URISchemaSource
+import org.apache.daffodil.api.Validator
 import org.apache.daffodil.sapi.ValidationMode.ValidationMode
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe._
 import org.apache.daffodil.util.MaybeULong
 import org.apache.daffodil.xml.NS
+import org.apache.daffodil.xml.XMLUtils
 
 private class Daffodil private {
   // Having this empty but private companion class removes the constructor from
@@ -101,6 +106,10 @@ object ValidationMode extends Enumeration {
   val Off = Value(10)
   val Limited = Value(20)
   val Full = Value(30)
+
+  case class Custom(v: Validator) extends ValidationMode {
+    val id: Int = 100
+  }
 }
 
 /**
@@ -425,10 +434,17 @@ class Diagnostic private[sapi] (d: SDiagnostic) {
   def isError = d.isError
 
   /**
-   * Positively get these things. No returning 'null' and making caller figure out
-   * whether to look for cause object.
+   * Get the cause of that cause this diagnostic
+   *
+   * @return the exception that caused the diagnostic
    */
   def getSomeCause: Throwable = d.getSomeCause.get
+
+  /**
+   * Get the message that caused this diagnostic
+   *
+   * @return the message that caused the diagnostic
+   */
   def getSomeMessage: String = d.getSomeMessage.get
 }
 
@@ -559,6 +575,8 @@ class DataProcessor private[sapi] (private var dp: SDataProcessor)
     catch { case e: SInvalidUsageException => throw new InvalidUsageException(e) }
   }
 
+  def withValidator(validator: Validator): DataProcessor = withValidationMode(ValidationMode.Custom(validator))
+
 
   /**
    * Read external variables from a Daffodil configuration file
@@ -619,10 +637,17 @@ class DataProcessor private[sapi] (private var dp: SDataProcessor)
   def save(output: WritableByteChannel): Unit = dp.save(output)
 
   /**
-   *  Obtain a new [[DaffodilXMLReader]] from the current [[DataProcessor]].
+   *  Obtain a new [[DaffodilParseXMLReader]] from the current [[DataProcessor]].
    */
-  def newXMLReaderInstance: DaffodilXMLReader =
-    new DaffodilXMLReader(xmlrdr = dp.newXMLReaderInstance.asInstanceOf[SDaffodilXMLReader])
+  def newXMLReaderInstance(): DaffodilParseXMLReader =
+    new DaffodilParseXMLReader(xmlrdr = dp.newXMLReaderInstance.asInstanceOf[SDaffodilParseXMLReader])
+
+  /**
+   *  Obtain a new [[DaffodilUnparseContentHandler]] from the current [[DataProcessor]].
+   */
+  def newContentHandlerInstance(output: WritableByteChannel): DaffodilUnparseContentHandler =
+    new DaffodilUnparseContentHandler(sContentHandler =
+      dp.newContentHandlerInstance(output).asInstanceOf[SDaffodilUnparseContentHandler])
 
   /**
    * Parse input data with a specified length
@@ -798,10 +823,49 @@ class InvalidParserException(cause: org.apache.daffodil.compiler.InvalidParserEx
 class InvalidUsageException(cause: org.apache.daffodil.processors.InvalidUsageException) extends Exception(cause.getMessage(), cause.getCause())
 
 /**
+ * This exception will be thrown when unparseResult.isError returns true during a SAX Unparse
+ */
+class DaffodilUnparseErrorSAXException private[sapi] (exception: SDaffodilUnparseErrorSAXException)
+  extends org.xml.sax.SAXException(exception.getMessage)
+
+/**
+ * This exception will be thrown when an unexpected error occurs during the SAX unparse
+ */
+class DaffodilUnhandledSAXException private[sapi] (exception: SDaffodilUnhandledSAXException)
+  extends org.xml.sax.SAXException(exception.getMessage, new Exception(exception.getCause))
+
+/**
+ * The full URIs needed for setting/getting properties for the [[DaffodilParseXMLReader]]
+ */
+object DaffodilParseXMLReader {
+
+  /**
+   * Property name to get the [[ParseResult]] from the [[DaffodilParseXMLReader]]. This property is read only.
+   */
+  val DAFFODIL_SAX_URN_PARSERESULT: String = XMLUtils.DAFFODIL_SAX_URN_PARSERESULT
+
+  /**
+   * Property name to get/set blob directory as String from the [[DaffodilParseXMLReader]]
+   */
+  val DAFFODIL_SAX_URN_BLOBDIRECTORY: String = XMLUtils.DAFFODIL_SAX_URN_BLOBDIRECTORY
+
+  /**
+   * Property name to get/set blob prefix as String from the [[DaffodilParseXMLReader]]
+   */
+  val DAFFODIL_SAX_URN_BLOBPREFIX: String = XMLUtils.DAFFODIL_SAX_URN_BLOBPREFIX
+
+  /**
+   * Property name to get/set blob suffix as String from the [[DaffodilParseXMLReader]]
+   */
+  val DAFFODIL_SAX_URN_BLOBSUFFIX: String = XMLUtils.DAFFODIL_SAX_URN_BLOBSUFFIX
+}
+
+/**
  * SAX Method of parsing schema and getting the DFDL Infoset via designated
  * org.xml.sax.ContentHandler, based on the org.xml.sax.XMLReader interface
  */
-class DaffodilXMLReader private[sapi] (xmlrdr: SDaffodilXMLReader) extends org.xml.sax.XMLReader {
+class DaffodilParseXMLReader private[sapi] (xmlrdr: SDaffodilParseXMLReader) extends org.xml.sax.XMLReader {
+
   /**
    * Get the value of the feature flag
    * @param name feature flag whose value is to be retrieved
@@ -821,7 +885,15 @@ class DaffodilXMLReader private[sapi] (xmlrdr: SDaffodilXMLReader) extends org.x
    * @param name property whose value is to be retrieved
    * @return value of the property
    */
-  override def getProperty(name: String): AnyRef = xmlrdr.getProperty(name)
+  override def getProperty(name: String): AnyRef = {
+    val res = xmlrdr.getProperty(name)
+    if (name == DaffodilParseXMLReader.DAFFODIL_SAX_URN_PARSERESULT) {
+      val pr = new ParseResult(res.asInstanceOf[SParseResult], Nope)
+      pr
+    } else {
+      res
+    }
+  }
 
   /**
    * Set the value of the property
@@ -912,4 +984,72 @@ class DaffodilXMLReader private[sapi] (xmlrdr: SDaffodilXMLReader) extends org.x
    * @param arr data to be parsed
    */
   def parse(arr: Array[Byte]): Unit = xmlrdr.parse(arr)
+}
+
+/**
+ * Accepts SAX callback events from any SAX XMLReader for unparsing
+ */
+class DaffodilUnparseContentHandler private[sapi] (sContentHandler: SDaffodilUnparseContentHandler)
+  extends org.xml.sax.ContentHandler {
+
+  private val contentHandler: org.xml.sax.ContentHandler = sContentHandler
+
+  /**
+   * Returns the result of the SAX unparse containing diagnostic information. In the case of an
+   * DaffodilUnhandledSAXException, this will return null.
+   */
+  def getUnparseResult: UnparseResult = {
+    val ur = sContentHandler.getUnparseResult.asInstanceOf[SUnparseResult]
+    if (ur == null) null
+    else new UnparseResult(ur)
+  }
+
+  override def setDocumentLocator(locator: org.xml.sax.Locator): Unit =
+    contentHandler.setDocumentLocator(locator)
+
+  override def startDocument(): Unit =
+    try {
+      contentHandler.startDocument()
+    } catch {
+      case e: SDaffodilUnparseErrorSAXException => throw new DaffodilUnparseErrorSAXException(e)
+      case e: SDaffodilUnhandledSAXException => throw  new DaffodilUnhandledSAXException(e)
+    }
+
+  override def endDocument(): Unit =
+    try {
+      contentHandler.endDocument()
+    } catch {
+      case e: SDaffodilUnparseErrorSAXException => throw new DaffodilUnparseErrorSAXException(e)
+      case e: SDaffodilUnhandledSAXException => throw  new DaffodilUnhandledSAXException(e)
+    }
+
+  override def startPrefixMapping(prefix: String, uri: String): Unit =
+    contentHandler.startPrefixMapping(prefix, uri)
+  override def endPrefixMapping(prefix: String): Unit =
+    contentHandler.endPrefixMapping(prefix)
+
+  override def startElement(uri: String, localName: String, qName: String, atts: org.xml.sax.Attributes): Unit =
+    try {
+      contentHandler.startElement(uri, localName, qName, atts)
+    } catch {
+      case e: SDaffodilUnparseErrorSAXException => throw new DaffodilUnparseErrorSAXException(e)
+      case e: SDaffodilUnhandledSAXException => throw  new DaffodilUnhandledSAXException(e)
+    }
+
+  override def endElement(uri: String, localName: String, qName: String): Unit =
+    try {
+      contentHandler.endElement(uri, localName, qName)
+    } catch {
+      case e: SDaffodilUnparseErrorSAXException => throw new DaffodilUnparseErrorSAXException(e)
+      case e: SDaffodilUnhandledSAXException => throw  new DaffodilUnhandledSAXException(e)
+    }
+
+  override def characters(ch: Array[Char], start: Int, length: Int): Unit =
+    contentHandler.characters(ch, start, length)
+  override def ignorableWhitespace(ch: Array[Char], start: Int, length: Int): Unit =
+    contentHandler.ignorableWhitespace(ch, start, length)
+  override def processingInstruction(target: String, data: String): Unit =
+    contentHandler.processingInstruction(target, data)
+  override def skippedEntity(name: String): Unit =
+    contentHandler.skippedEntity(name)
 }

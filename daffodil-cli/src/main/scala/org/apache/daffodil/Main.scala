@@ -21,13 +21,15 @@ import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
-import java.io.OutputStream
+import java.io.InputStream
 import java.net.URI
 import java.nio.ByteBuffer
 import java.nio.channels.Channels
 import java.nio.file.Paths
 import java.util.Scanner
 import java.util.concurrent.Executors
+
+import com.typesafe.config.ConfigFactory
 
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext
@@ -37,12 +39,18 @@ import scala.language.reflectiveCalls
 import scala.xml.Node
 import scala.xml.SAXParseException
 import javax.xml.parsers.DocumentBuilderFactory
+import javax.xml.parsers.SAXParserFactory
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
+
 import org.apache.commons.io.IOUtils
+import org.apache.commons.io.output.NullOutputStream
+
 import org.apache.daffodil.api.DFDL
+import org.apache.daffodil.api.DFDL.DaffodilUnparseErrorSAXException
 import org.apache.daffodil.api.DFDL.ParseResult
+import org.apache.daffodil.api.DFDL.UnparseResult
 import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.api.URISchemaSource
 import org.apache.daffodil.api.ValidationMode
@@ -60,7 +68,7 @@ import org.apache.daffodil.exceptions.UnsuppressableException
 import org.apache.daffodil.externalvars.Binding
 import org.apache.daffodil.externalvars.BindingException
 import org.apache.daffodil.externalvars.ExternalVariablesLoader
-import org.apache.daffodil.infoset.DaffodilOutputContentHandler
+import org.apache.daffodil.infoset.DaffodilParseOutputStreamContentHandler
 import org.apache.daffodil.infoset.InfosetInputter
 import org.apache.daffodil.infoset.InfosetOutputter
 import org.apache.daffodil.infoset.JDOMInfosetInputter
@@ -91,6 +99,7 @@ import org.apache.daffodil.util.Logging
 import org.apache.daffodil.util.LoggingDefaults
 import org.apache.daffodil.util.Misc
 import org.apache.daffodil.util.Timer
+import org.apache.daffodil.validation.Validators
 import org.apache.daffodil.xml.QName
 import org.apache.daffodil.xml.RefQName
 import org.apache.daffodil.xml.DaffodilXMLLoader
@@ -100,23 +109,7 @@ import org.rogach.scallop.ArgType
 import org.rogach.scallop.ScallopOption
 import org.rogach.scallop.ValueConverter
 
-class NullOutputStream extends OutputStream {
-  override def close(): Unit = {
-    //do nothing
-  }
-  override def flush(): Unit = {
-    //do nothing
-  }
-  override def write(b: Array[Byte]): Unit = {
-    //do nothing
-  }
-  override def write(b: Array[Byte], off: Int, len: Int): Unit = {
-    //do nothing
-  }
-  override def write(b: Int): Unit = {
-    //do nothing
-  }
-}
+import scala.util.matching.Regex
 
 class CommandLineSAXErrorHandler() extends org.xml.sax.ErrorHandler with Logging {
 
@@ -229,11 +222,17 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
   }
 
   implicit def validateConverter = singleArgConverter[ValidationMode.Type]((s: String) => {
+    import ValidatorPatterns._
     s.toLowerCase match {
       case "on" => ValidationMode.Full
       case "limited" => ValidationMode.Limited
       case "off" => ValidationMode.Off
-      case _ => throw new Exception("Unrecognized ValidationMode %s.  Must be 'on', 'limited' or 'off'.".format(s))
+      case DefaultArgPattern(name, arg) if Validators.isRegistered(name) =>
+        val config = if(arg.endsWith(".conf")) ConfigFactory.load(arg) else ConfigFactory.parseString(s"$name=$arg")
+        ValidationMode.Custom(Validators.get(name).make(config))
+      case NoArgsPattern(name) if Validators.isRegistered(name) =>
+        ValidationMode.Custom(Validators.get(name).make(ConfigFactory.empty))
+      case _ => throw new Exception("Unrecognized ValidationMode %s.  Must be 'on', 'limited', 'off', or name of spi validator.".format(s))
     }
   })
 
@@ -337,7 +336,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     val path = opt[String](argName = "path", descr = "path to the node to create parser.")
     val parser = opt[File](short = 'P', argName = "file", descr = "use a previously saved parser.")
     val output = opt[String](argName = "file", descr = "write output to a given file. If not given or is -, output is written to stdout.")
-    val validate: ScallopOption[ValidationMode.Type] = opt[ValidationMode.Type](short = 'V', default = Some(ValidationMode.Off), argName = "mode", descr = "the validation mode. 'on', 'limited' or 'off'.")
+    val validate: ScallopOption[ValidationMode.Type] = opt[ValidationMode.Type](short = 'V', default = Some(ValidationMode.Off), argName = "mode", descr = "the validation mode. 'on', 'limited', 'off', or spi name.")
     val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used when parsing. An optional namespace may be provided.")
     val tunables = props[String]('T', keyName = "tunable", valueName = "value", descr = "daffodil tunable to be used when parsing.")
     val config = opt[String](short = 'c', argName = "file", descr = "path to file containing configuration items.")
@@ -402,7 +401,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     val threads = opt[Int](short = 't', argName = "threads", default = Some(1), descr = "The number of threads to use.")
     val path = opt[String](argName = "path", descr = "path to the node to create parser.")
     val parser = opt[File](short = 'P', argName = "file", descr = "use a previously saved parser.")
-    val validate: ScallopOption[ValidationMode.Type] = opt[ValidationMode.Type](short = 'V', default = Some(ValidationMode.Off), argName = "mode", descr = "the validation mode. 'on', 'limited' or 'off'.")
+    val validate: ScallopOption[ValidationMode.Type] = opt[ValidationMode.Type](short = 'V', default = Some(ValidationMode.Off), argName = "mode", descr = "the validation mode. 'on', 'limited', 'off', or spi name.")
     val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used when processing. An optional namespace may be provided.")
     val tunables = props[String]('T', keyName = "tunable", valueName = "value", descr = "daffodil tunable to be used when processing.")
     val config = opt[String](short = 'c', argName = "file", descr = "path to file containing configuration items.")
@@ -422,7 +421,6 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
       case (Some("json"), _) => Right(Unit)
       case (Some("jdom"), _) => Right(Unit)
       case (Some("w3cdom"), _) => Right(Unit)
-      case (Some("sax"), Some(true)) => Left("SAX unparse is not yet implemented")
       case (Some("sax"), _) => Right(Unit)
       case (Some("null"), Some(true)) => Left("infoset type null not valid with performance --unparse")
       case (Some("null"), _) => Right(Unit)
@@ -453,11 +451,11 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     val path = opt[String](argName = "path", descr = "path to the node to create parser.")
     val parser = opt[File](short = 'P', argName = "file", descr = "use a previously saved parser.")
     val output = opt[String](argName = "file", descr = "write output to file. If not given or is -, output is written to standard output.")
-    val validate: ScallopOption[ValidationMode.Type] = opt[ValidationMode.Type](short = 'V', default = Some(ValidationMode.Off), argName = "mode", descr = "the validation mode. 'on', 'limited' or 'off'.")
+    val validate: ScallopOption[ValidationMode.Type] = opt[ValidationMode.Type](short = 'V', default = Some(ValidationMode.Off), argName = "mode", descr = "the validation mode. 'on', 'limited', 'off', or spi name.")
     val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used when unparsing. An optional namespace may be provided.")
     val tunables = props[String]('T', keyName = "tunable", valueName = "value", descr = "daffodil tunable to be used when parsing.")
     val config = opt[String](short = 'c', argName = "file", descr = "path to file containing configuration items.")
-    val infosetType = opt[String](short = 'I', argName = "infoset_type", descr = "infoset type to unparse. Must be one of 'xml', 'scala-xml', 'json', 'jdom', or 'w3cdom'.", default = Some("xml")).map { _.toLowerCase }
+    val infosetType = opt[String](short = 'I', argName = "infoset_type", descr = "infoset type to unparse. Must be one of 'xml', 'scala-xml', 'json', 'jdom', 'w3cdom' or 'sax'.", default = Some("xml")).map { _.toLowerCase }
     val stream = toggle(noshort = true, default = Some(false), descrYes = "split the input data on the NUL character, and unparse each chuck separately", descrNo = "treat the entire input data as one infoset")
     val infile = trailArg[String](required = false, descr = "input file to unparse. If not specified, or a value of -, reads from stdin.")
 
@@ -596,6 +594,11 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
   }
 
   verify()
+}
+
+object ValidatorPatterns {
+  val NoArgsPattern: Regex = "(.+?)".r.anchored
+  val DefaultArgPattern: Regex = "(.+?)=(.+)".r.anchored
 }
 
 object Main extends Logging {
@@ -794,14 +797,14 @@ object Main extends Logging {
   val blobSuffix = ".bin"
 
   def getInfosetOutputter(infosetType: String, os: java.io.OutputStream)
-  : Either[InfosetOutputter, DaffodilOutputContentHandler] = {
+  : Either[InfosetOutputter, DaffodilParseOutputStreamContentHandler] = {
     val outputter = infosetType match {
       case "xml" => Left(new XMLTextInfosetOutputter(os, pretty = true))
       case "scala-xml" => Left(new ScalaXMLInfosetOutputter())
       case "json" => Left(new JsonInfosetOutputter(os, pretty = true))
       case "jdom" => Left(new JDOMInfosetOutputter())
       case "w3cdom" => Left(new W3CDOMInfosetOutputter())
-      case "sax" => Right(new DaffodilOutputContentHandler(os, pretty = true))
+      case "sax" => Right(new DaffodilParseOutputStreamContentHandler(os, pretty = true))
       case "null" => Left(new NullInfosetOutputter())
     }
     if (outputter.isLeft) {
@@ -813,51 +816,110 @@ object Main extends Logging {
     outputter
   }
 
-  // Converts the data to whatever form the InfosetInputter will want. Note
-  // that this requires that the result of this must be thread safe and not
-  // mutated by the InfosetInputters, since it will be shared among
-  // InfosetInputters to reduce copies. This means InfosetInputters that expect
-  // a Reader (e.g. xml, json) will just return the data here and have the
-  // Reader created when the InfosetInputter is created. Note that w3c dom is
-  // not thread-safe, even for reading, so we must create a thread local
-  // variable so that each thread has its own copy of the dom tree.
-  //
-  // This should be called outside of a performance loop, with
-  // getInfosetInputter called inside the performance loop
-  def infosetDataToInputterData(infosetType: String, data: Array[Byte]): AnyRef = {
+  /**
+   * Convert the data to whatever form the InfosetInputter will expect
+   *
+   * If the data parameter is a Left[Array[Byte]], the return value must be
+   * thread safe and immutable since it could potentially be shared and mutated
+   * by different InfosetInputters.
+   *
+   * If the data parameter is a Right[InputStream], we can assume the caller
+   * knows that the infoset represented by this InputStream will only be
+   * unparsed once and so it is acceptable if the result is mutable or
+   * non-thread safe.
+   *
+   * So for infoset types like "xml" and "json" where InfosetInputters accept
+   * an InputStream, if this function receives a Right[InputStream], it will
+   * simply return that InputStream. This avoids reading the entire infoset
+   * into memory and makes it possible to unparse large infosets.
+   *
+   * For InfosetInputters that do not accept InputStreams, we must read in the
+   * entire InputStream and convert it to whatever they expect (e.g. Scala XML
+   * Node for "scala-xml"). Supporting large inputs with this infoset types is
+   * not possible.
+   *
+   * Because this function may read large amounts of data from disk and parse
+   * it into an object, this should be called outside of a performance loop,
+   * with getInfosetInputter called inside the performance loop.
+   */
+  def infosetDataToInputterData(infosetType: String, data: Either[Array[Byte],InputStream]): AnyRef = {
     infosetType match {
-      case "xml" => data
-      case "scala-xml" => scala.xml.XML.load(new ByteArrayInputStream(data))
-      case "json" => data
-      case "jdom" => new org.jdom2.input.SAXBuilder().build(new ByteArrayInputStream(data))
+      case "xml" => data match {
+        case Left(bytes) => bytes
+        case Right(is) => is
+      }
+      case "json" => data match {
+        case Left(bytes) => bytes
+        case Right(is) => is
+      }
+      case "scala-xml" => {
+        val is = data match {
+          case Left(bytes) => new ByteArrayInputStream(bytes)
+          case Right(is) => is
+        }
+        scala.xml.XML.load(is)
+      }
+      case "jdom" => {
+        val is = data match {
+          case Left(bytes) => new ByteArrayInputStream(bytes)
+          case Right(is) => is
+        }
+        new org.jdom2.input.SAXBuilder().build(is)
+      }
       case "w3cdom" => {
+        val byteArr = data match {
+          case Left(bytes) => bytes
+          case Right(is) => IOUtils.toByteArray(is)
+        }
         new ThreadLocal[org.w3c.dom.Document] {
           override def initialValue = {
             val dbf = DocumentBuilderFactory.newInstance()
             dbf.setNamespaceAware(true)
             val db = dbf.newDocumentBuilder()
-            db.parse(new ByteArrayInputStream(data))
+            db.parse(new ByteArrayInputStream(byteArr))
           }
         }
+      }
+      case "sax" => data match {
+        case Left(bytes) => bytes
+        case Right(is) => is
       }
     }
   }
 
-  def getInfosetInputter(infosetType: String, anyRef: AnyRef): InfosetInputter = {
+  def getInfosetInputter(
+    infosetType: String,
+    anyRef: AnyRef,
+    processor: DFDL.DataProcessor,
+    outChannel: DFDL.Output): Either[InfosetInputter, DFDL.DaffodilUnparseContentHandler] = {
     infosetType match {
       case "xml" => {
-        val is = new ByteArrayInputStream(anyRef.asInstanceOf[Array[Byte]])
-        new XMLTextInfosetInputter(is)
+        val is = anyRef match {
+          case bytes: Array[Byte] => new ByteArrayInputStream(bytes)
+          case is: InputStream => is
+        }
+        Left(new XMLTextInfosetInputter(is))
       }
-      case "scala-xml" => new ScalaXMLInfosetInputter(anyRef.asInstanceOf[scala.xml.Node])
       case "json" => {
-        val is = new ByteArrayInputStream(anyRef.asInstanceOf[Array[Byte]])
-        new JsonInfosetInputter(is)
+        val is = anyRef match {
+          case bytes: Array[Byte] => new ByteArrayInputStream(bytes)
+          case is: InputStream => is
+        }
+        Left(new JsonInfosetInputter(is))
       }
-      case "jdom" => new JDOMInfosetInputter(anyRef.asInstanceOf[org.jdom2.Document])
+      case "scala-xml" => {
+        Left(new ScalaXMLInfosetInputter(anyRef.asInstanceOf[scala.xml.Node]))
+      }
+      case "jdom" => {
+        Left(new JDOMInfosetInputter(anyRef.asInstanceOf[org.jdom2.Document]))
+      }
       case "w3cdom" => {
         val tl = anyRef.asInstanceOf[ThreadLocal[org.w3c.dom.Document]]
-        new W3CDOMInfosetInputter(tl.get)
+        Left(new W3CDOMInfosetInputter(tl.get))
+      }
+      case "sax" => {
+        val dp = processor
+        Right(dp.newContentHandlerInstance(outChannel))
       }
     }
   }
@@ -946,7 +1008,7 @@ object Main extends Logging {
                 error = true
               } else {
                 // only XMLTextInfosetOutputter, JsonInfosetOutputter and
-                // DaffodilOutputContentHandler write directly to the output stream. Other
+                // DaffodilParseOutputStreamContentHandler write directly to the output stream. Other
                 // InfosetOutputters must manually get the result and write it to the stream below
                 eitherOutputterOrHandler match {
                   case Left(sxml: ScalaXMLInfosetOutputter) => {
@@ -1077,13 +1139,19 @@ object Main extends Logging {
             val infosetType = performanceOpts.infosetType.toOption.get
 
             val dataSeq: Seq[Either[AnyRef, Array[Byte]]] = files.map { filePath =>
+              // For performance testing, we want everything in memory so as to
+              // remove I/O from consideration. Additionally, for both parse
+              // and unparse we need immutable inputs since we could parse the
+              // same input data multiple times in different performance runs.
+              // So read the file data into an Array[Byte], and use that for
+              // everything.
               val input = (new FileInputStream(filePath))
               val dataSize = filePath.length()
-              val fileContent = new Array[Byte](dataSize.toInt)
-              input.read(fileContent) // For performance testing, we want everything in memory so as to remove I/O from consideration.
+              val bytes = new Array[Byte](dataSize.toInt)
+              input.read(bytes)
               val data = performanceOpts.unparse() match {
-                case true => Left(infosetDataToInputterData(infosetType, fileContent))
-                case false => Right(fileContent)
+                case true => Left(infosetDataToInputterData(infosetType, Left(bytes)))
+                case false => Right(bytes)
               }
               data
             }
@@ -1106,11 +1174,11 @@ object Main extends Logging {
               }
             }
 
-            val nullChannelForUnparse = java.nio.channels.Channels.newChannel(new NullOutputStream)
-            val nullOutputStreamForParse = new NullOutputStream()
+            val nullChannelForUnparse = Channels.newChannel(NullOutputStream.NULL_OUTPUT_STREAM)
+            val nullOutputStreamForParse = NullOutputStream.NULL_OUTPUT_STREAM
 
             //the following line allows output verification
-            //val nullChannelForUnparse = java.nio.channels.Channels.newChannel(System.out)
+            //val nullChannelForUnparse = Channels.newChannel(System.out)
             val NSConvert = 1000000000.0
             val (totalTime, results) = Timer.getTimeResult({
               val tasks = inputsWithIndex.map {
@@ -1118,8 +1186,17 @@ object Main extends Logging {
                   val task: Future[(Int, Long, Boolean)] = Future {
                     val (time, result) = inData match {
                       case Left(anyRef) => Timer.getTimeResult({
-                        val inputterForUnparse = getInfosetInputter(infosetType, anyRef)
-                        processor.unparse(inputterForUnparse, nullChannelForUnparse)
+                        val inputterForUnparse = getInfosetInputter(infosetType, anyRef, processor, nullChannelForUnparse)
+                        inputterForUnparse match {
+                          case Left(inputter) =>
+                            processor.unparse(inputter, nullChannelForUnparse)
+                          case Right(contentHandler) =>
+                            val is = anyRef match {
+                              case bytes: Array[Byte] => new ByteArrayInputStream(bytes)
+                              case is: InputStream => is
+                            }
+                            unparseWithSAX(is, contentHandler)
+                        }
                       })
                       case Right(data) => Timer.getTimeResult({
                         val input = InputSourceDataInputStream(data)
@@ -1197,7 +1274,7 @@ object Main extends Logging {
           case Some(file) => new FileOutputStream(file)
         }
 
-        val outChannel = java.nio.channels.Channels.newChannel(output)
+        val outChannel = Channels.newChannel(output)
         //
         // We are not loading a schema here, we're loading the infoset to unparse.
         //
@@ -1225,16 +1302,35 @@ object Main extends Logging {
 
             while (keepUnparsing) {
 
-              val data =
+              val eitherBytesOrStream =
                 if (maybeScanner.isDefined) {
-                  maybeScanner.get.next().getBytes()
+                  // The scanner reads the entire infoset up unto the delimiter
+                  // into memory. No way around that with the --stream option.
+                  Left(maybeScanner.get.next().getBytes())
                 } else {
-                  IOUtils.toByteArray(is)
+                  // We are not using the --stream option and won't need to
+                  // unparse the infoset more than once. So pass the
+                  // InputStream into infosetDataToInputterData. For some
+                  // cases, such as "xml" or "json", we can create an
+                  // InfosetInputter directly on this stream so that we can
+                  // avoid reading the entire InputStream into memory
+                  Right(is)
                 }
 
-              val inputterData = infosetDataToInputterData(unparseOpts.infosetType.toOption.get, data)
-              val inputter = getInfosetInputter(unparseOpts.infosetType.toOption.get, inputterData)
-              val unparseResult = Timer.getResult("unparsing", processor.unparse(inputter, outChannel))
+              val inputterData = infosetDataToInputterData(unparseOpts.infosetType.toOption.get, eitherBytesOrStream)
+              val inputterOrContentHandler = getInfosetInputter(unparseOpts.infosetType.toOption
+                .get, inputterData, processor, outChannel)
+              val unparseResult = inputterOrContentHandler match {
+                case Left(inputter) =>
+                  Timer.getResult("unparsing", processor.unparse(inputter, outChannel))
+                case Right(contentHandler) =>
+                  val is = inputterData match {
+                    case bytes: Array[Byte] => new ByteArrayInputStream(bytes)
+                    case is: InputStream => is
+                  }
+                  Timer.getResult("unparsing", unparseWithSAX(is, contentHandler))
+              }
+
               displayDiagnostics(unparseResult)
 
               if (unparseResult.isError) {
@@ -1439,10 +1535,27 @@ object Main extends Logging {
     ret
   }
 
+  private def unparseWithSAX(
+    is: InputStream,
+    contentHandler: DFDL.DaffodilUnparseContentHandler): UnparseResult = {
+    val xmlReader = SAXParserFactory.newInstance.newSAXParser.getXMLReader
+    xmlReader.setContentHandler(contentHandler)
+    xmlReader.setFeature(XMLUtils.SAX_NAMESPACES_FEATURE, true)
+    xmlReader.setFeature(XMLUtils.SAX_NAMESPACE_PREFIXES_FEATURE, true)
+    try {
+      xmlReader.parse(new org.xml.sax.InputSource(is))
+    } catch {
+      case _: DaffodilUnparseErrorSAXException => // do nothing, unparseResult has error info
+    }
+
+    val ur = contentHandler.getUnparseResult
+    ur
+  }
+
   private def parseWithSAX(
     processor: DFDL.DataProcessor,
     data: InputSourceDataInputStream,
-    saxContentHandler: DaffodilOutputContentHandler,
+    saxContentHandler: DaffodilParseOutputStreamContentHandler,
     errorHandler: CommandLineSAXErrorHandler): ParseResult = {
     val saxXmlRdr = processor.newXMLReaderInstance
     saxXmlRdr.setContentHandler(saxContentHandler)

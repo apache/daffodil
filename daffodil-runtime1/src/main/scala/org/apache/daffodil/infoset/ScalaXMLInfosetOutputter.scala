@@ -17,15 +17,19 @@
 
 package org.apache.daffodil.infoset
 
-import org.apache.daffodil.util.Maybe
-import scala.xml.Null
 import scala.collection.mutable.ListBuffer
-import org.apache.daffodil.xml.XMLUtils
-import org.apache.daffodil.util.MStackOf
-import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.dpath.NodeInfo
+import scala.xml.MetaData
+import scala.xml.Null
+import scala.xml.UnprefixedAttribute
 
-class ScalaXMLInfosetOutputter(showFormatInfo: Boolean = false) extends InfosetOutputter
+import org.apache.daffodil.dpath.NodeInfo
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.util.MStackOf
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.xml.XMLUtils
+
+
+class ScalaXMLInfosetOutputter(showFormatInfo: Boolean = false, showFreedInfo: Boolean = false) extends InfosetOutputter
     with XMLInfosetOutputter {
 
   protected val stack = new MStackOf[ListBuffer[scala.xml.Node]]
@@ -48,32 +52,57 @@ class ScalaXMLInfosetOutputter(showFormatInfo: Boolean = false) extends InfosetO
     true
   }
 
+  private def getAttributes(diElem: DIElement): MetaData = {
+    val nilAttr = if (isNilled(diElem)) XMLUtils.xmlNilAttribute else Null
+    val freedAttr =
+      if (showFreedInfo) {
+        val selfFreed = diElem.wouldHaveBeenFreed
+        val arrayFreed =
+          if (diElem.erd.isArray) diElem.diParent.children.find { _.erd eq diElem.erd }.get.wouldHaveBeenFreed
+          else false
+        if (selfFreed || arrayFreed) {
+          val freedAttrVal =
+            if (selfFreed && arrayFreed) "self+array"
+            else if (selfFreed) "self"
+            else "array"
+          new UnprefixedAttribute("freed", freedAttrVal, nilAttr)
+        } else {
+          nilAttr
+        }
+      } else {
+        nilAttr
+      }
+    freedAttr
+  }
+
   def startSimple(diSimple: DISimple): Boolean = {
 
-    val e =
-      if (isNilled(diSimple)) {
-        scala.xml.Elem(diSimple.erd.namedQName.prefixOrNull, diSimple.erd.name,
-            XMLUtils.xmlNilAttribute, diSimple.erd.minimizedScope, minimizeEmpty = true)
-      } else if (diSimple.hasValue) {
+    val attributes = getAttributes(diSimple)
+
+    val children =
+      if (!isNilled(diSimple) && diSimple.hasValue) {
         val text =
           if (diSimple.erd.optPrimType.get.isInstanceOf[NodeInfo.String.Kind]) {
             remapped(diSimple.dataValueAsString)
           } else {
             diSimple.dataValueAsString
           }
-        val textNode = new scala.xml.Text(text)
-        scala.xml.Elem(diSimple.erd.namedQName.prefixOrNull, diSimple.erd.name, Null,
-          diSimple.erd.minimizedScope, minimizeEmpty = true, textNode)
+        Seq(new scala.xml.Text(text))
       } else {
-        // element has been created but has no value yet, display an empty element tag
-        scala.xml.Elem(diSimple.erd.namedQName.prefixOrNull, diSimple.erd.name, Null,
-            diSimple.erd.minimizedScope, minimizeEmpty = true)
+        Seq()
       }
 
-    val elem = addFmtInfo(diSimple, e, showFormatInfo)
+    val elem =
+      scala.xml.Elem(
+        diSimple.erd.namedQName.prefixOrNull,
+        diSimple.erd.name,
+        attributes,
+        diSimple.erd.minimizedScope,
+        minimizeEmpty = true,
+        children: _*)
 
-    stack.top.append(elem)
-    //returning true/false will be used when recursion is removed
+    val elemWithFmt = addFmtInfo(diSimple, elem, showFormatInfo)
+    stack.top.append(elemWithFmt)
     true
   }
 
@@ -88,21 +117,20 @@ class ScalaXMLInfosetOutputter(showFormatInfo: Boolean = false) extends InfosetO
 
   def endComplex(diComplex: DIComplex): Boolean = {
 
+    val attributes = getAttributes(diComplex)
     val children = stack.pop
 
-    val e =
-      if (isNilled(diComplex)) {
-        scala.xml.Elem(diComplex.erd.namedQName.prefixOrNull, diComplex.erd.name,
-          XMLUtils.xmlNilAttribute, diComplex.erd.minimizedScope, minimizeEmpty = true)
-      } else {
-        scala.xml.Elem(diComplex.erd.namedQName.prefixOrNull, diComplex.erd.name,
-            scala.xml.Null, diComplex.erd.minimizedScope,  minimizeEmpty = true, children: _*)
-      }
+    val elem =
+      scala.xml.Elem(
+        diComplex.erd.namedQName.prefixOrNull,
+        diComplex.erd.name,
+        attributes,
+        diComplex.erd.minimizedScope,
+        minimizeEmpty = true,
+        children: _*)
 
-    val elem = addFmtInfo(diComplex, e, showFormatInfo)
-
-    stack.top.append(elem)
-    //returning true/false will be used when recursion is removed
+    val elemWithFmt = addFmtInfo(diComplex, elem, showFormatInfo)
+    stack.top.append(elemWithFmt)
     true
   }
 

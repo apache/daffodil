@@ -623,24 +623,20 @@ case class WholeExpression(
     }
 
     if (!allowCoercion) {
-      val (relevantExpr: Expression, detailMsg: String) =
-        Conversion.polymorphicExpressionDiagnostics(inherentType, targetType, subExpr)
       if (tunable.allowExpressionResultCoercion) {
         SDW(
           WarnID.DeprecatedExpressionResultCoercion,
           "In expression %s, result type (%s) should be manually cast to the expected type (%s) with the appropriate constructor." +
-            "Performing deprecated automatic conversion.%s",
-          relevantExpr.text,
+            "Performing deprecated automatic conversion.",
+          wholeExpressionText,
           inherentType,
-          targetType,
-          detailMsg)
+          targetType)
       } else {
         SDE(
-          "In expression %s, result type (%s) must be manually cast to the expected type (%s) with the approrpriate constructor.%s",
-          relevantExpr.text,
+          "In expression %s, result type (%s) must be manually cast to the expected type (%s) with the approrpriate constructor.",
+          wholeExpressionText,
           inherentType,
-          targetType,
-          detailMsg)
+          targetType)
       }
     }
 
@@ -1033,7 +1029,7 @@ sealed abstract class DownStepExpression(s: String, predArg: Option[PredicateExp
                     val sfl = ci.schemaFileLocation.locationDescription
                     val qn = ci.namedQName.toQNameString
                     val msg = "element %s in expression %s with %s type at %s".format(
-                      qn, wholePath.text, tname, sfl)
+                      qn, wholePath.wholeExpressionText, tname, sfl)
                     msg
                   }
                   perUsePointStrings
@@ -1057,6 +1053,7 @@ sealed abstract class DownStepExpression(s: String, predArg: Option[PredicateExp
     (relevantExpr, detailMsg)
   }
 }
+
 
 // TODO: Is ".[i]" ever a valid expression in DFDL?
 // Perhaps. Doesn't work currently though. See DAFFODIL-2182
@@ -1733,6 +1730,18 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
             ans
           }
         }
+
+        // We need to mark all possible following compileInfos as possibly used
+        // in an expression since the DFDLXOutputTypeCalcNextSibling expression
+        // might need them. We also need to mark this compileInfo as used in an
+        // expression since the evaluate method of DFDLXTypeCalcNextSibilng
+        // uses this element to find the next sibling
+        val dpeci = erd.dpathCompileInfo.asInstanceOf[DPathElementCompileInfo]
+        followingERDs.foreach { erd =>
+          dpeci.indicateReferencedByExpression(Seq(erd.dpathElementCompileInfo))
+        }
+        dpeci.indicateReferencedByExpression(Seq(dpeci))
+
         FNZeroArgExpr(functionQNameString, functionQName,
           dstType, NodeInfo.AnyAtomic, DFDLXOutputTypeCalcNextSibling(_, _))
       }

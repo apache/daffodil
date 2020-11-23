@@ -13,5 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Prevents codecov from creating a test coverage comment in a pull request
-comment: off
+coverage:
+  status:
+    project: off
+    patch: 
+      default:
+        target: auto
+
+comment: false

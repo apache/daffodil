@@ -33,10 +33,13 @@ import scala.collection.immutable.Queue
 import scala.collection.mutable
 import org.apache.daffodil.Implicits._; object INoWarn4 {
   ImplicitsSuppressUnusedImportWarning() }
-
 import org.apache.daffodil.api.DFDL
 import org.apache.daffodil.api.DaffodilTunables
+import org.apache.daffodil.api.ValidationException
+import org.apache.daffodil.api.ValidationFailure
 import org.apache.daffodil.api.ValidationMode
+import org.apache.daffodil.api.ValidationResult
+import org.apache.daffodil.api.Validator
 import org.apache.daffodil.api.WithDiagnostics
 import org.apache.daffodil.debugger.Debugger
 import org.apache.daffodil.dsom.TunableLimitExceededError
@@ -50,7 +53,6 @@ import org.apache.daffodil.exceptions.UnsuppressableException
 import org.apache.daffodil.externalvars.Binding
 import org.apache.daffodil.externalvars.ExternalVariablesLoader
 import org.apache.daffodil.infoset.DIElement
-import org.apache.daffodil.infoset.InfosetElement
 import org.apache.daffodil.infoset.InfosetException
 import org.apache.daffodil.infoset.InfosetInputter
 import org.apache.daffodil.infoset.InfosetOutputter
@@ -67,19 +69,16 @@ import org.apache.daffodil.processors.parsers.ParseError
 import org.apache.daffodil.processors.parsers.Parser
 import org.apache.daffodil.processors.unparsers.UState
 import org.apache.daffodil.processors.unparsers.UnparseError
-import org.apache.daffodil.util.LogLevel
-import org.apache.daffodil.util.Logging
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe._
 import org.apache.daffodil.util.Misc
-import org.apache.daffodil.util.Validator
+import org.apache.daffodil.validation.XercesValidatorFactory
 import org.apache.daffodil.xml.XMLUtils
 import org.xml.sax.ContentHandler
 import org.xml.sax.DTDHandler
 import org.xml.sax.EntityResolver
 import org.xml.sax.ErrorHandler
 import org.xml.sax.InputSource
-import org.xml.sax.SAXException
 import org.xml.sax.SAXNotRecognizedException
 import org.xml.sax.SAXNotSupportedException
 import org.xml.sax.SAXParseException
@@ -160,7 +159,7 @@ class DataProcessor private (
   protected var optDebugger : Option[Debugger],
   var validationMode: ValidationMode.Type,
   private var externalVars: Queue[Binding])
-  extends DFDL.DataProcessor with Logging
+  extends DFDL.DataProcessor
   with HasSetDebugger
   with Serializable
   with MultipleEventHandler {
@@ -242,6 +241,17 @@ class DataProcessor private (
   def setValidationMode(mode: ValidationMode.Type): Unit = { validationMode = mode }
 
   def withValidationMode(mode:ValidationMode.Type): DataProcessor = copy(validationMode = mode)
+
+  def withValidator(validator: Validator): DataProcessor = withValidationMode(ValidationMode.Custom(validator))
+
+  lazy val validator: Validator = {
+    validationMode match {
+      case ValidationMode.Custom(cv) => cv
+      case _ =>
+        val cfg = XercesValidatorFactory.makeConfig(ssrd.elementRuntimeData.schemaURIStringsForFullValidation)
+        XercesValidatorFactory.makeValidator(cfg)
+    }
+  }
 
   // TODO Deprecate and replace usages with just tunables.
   def getTunables: DaffodilTunables = tunables
@@ -353,13 +363,12 @@ class DataProcessor private (
 
   override def getDiagnostics = ssrd.diagnostics
 
-  override def newXMLReaderInstance: DFDL.DaffodilXMLReader = new DaffodilXMLReader(this)
+  override def newXMLReaderInstance: DFDL.DaffodilParseXMLReader = new DaffodilParseXMLReader(this)
+
+  override def newContentHandlerInstance(output: DFDL.Output): DFDL.DaffodilUnparseContentHandler =
+    new DaffodilUnparseContentHandler(this, output)
 
   def save(output: DFDL.Output): Unit = {
-
-    externalVars.foreach{ ev =>
-      log(LogLevel.Warning, "External variable %s is not saved as part of saved DFDL processor.", ev.varQName)
-    }
 
     val oos = new ObjectOutputStream(new GZIPOutputStream(Channels.newOutputStream(output)))
 
@@ -419,14 +428,16 @@ class DataProcessor private (
     // events are created rather than writing the entire infoset in memory and
     // then validating at the end of the parse. See DAFFODIL-2386
     //
-    val (outputter, maybeValidationBytes) =
-    if (validationMode == ValidationMode.Full) {
-      val bos = new java.io.ByteArrayOutputStream()
-      val xmlOutputter = new XMLTextInfosetOutputter(bos, false)
-      val teeOutputter = new TeeInfosetOutputter(output, xmlOutputter)
-      (teeOutputter, One(bos))
-    } else {
-      (output, Nope)
+    val (outputter, maybeValidationBytes) = {
+      validationMode match {
+        case ValidationMode.Full | ValidationMode.Custom(_) =>
+          val bos = new java.io.ByteArrayOutputStream()
+          val xmlOutputter = new XMLTextInfosetOutputter(bos, false)
+          val teeOutputter = new TeeInfosetOutputter(output, xmlOutputter)
+          (teeOutputter, One(bos))
+        case _ =>
+          (output, Nope)
+      }
     }
 
     val rootERD = ssrd.elementRuntimeData
@@ -565,7 +576,8 @@ class DataProcessor private (
       UState.createInitialUState(
         out,
         this,
-        inputter)
+        inputter,
+        areDebugging)
     val res = try {
       if (areDebugging) {
         Assert.invariant(optDebugger.isDefined)
@@ -575,7 +587,7 @@ class DataProcessor private (
       unparserState.dataProc.get.init(ssrd.unparser)
       out.setPriorBitOrder(ssrd.elementRuntimeData.defaultBitOrder)
       doUnparse(unparserState)
-      unparserState.evalSuspensions(unparserState) // handles outputValueCalc that were suspended due to forward references.
+      unparserState.evalSuspensions(isFinal = true)
       unparserState.unparseResult
     } catch {
       case ue: UnparseError => {
@@ -679,7 +691,6 @@ class DataProcessor private (
       case fio: FileIOException =>
         state.SDE(fio)
     }
-    log(LogLevel.Debug, "%s final stream for %s finished.", this, state)
 
     val ev = state.advanceMaybe
     if (ev.isDefined) {
@@ -690,41 +701,28 @@ class DataProcessor private (
 
 class ParseResult(dp: DataProcessor, override val resultState: PState)
   extends DFDL.ParseResult
-  with WithDiagnosticsImpl
-  with ErrorHandler {
+  with WithDiagnosticsImpl {
 
   /**
-   * To be successful here, we need to capture xerces parse/validation
+   * To be successful here, we need to capture parse/validation
    * errors and add them to the Diagnostics list in the PState.
    *
    * @param bytes the XML infoset from the parse
    */
   def validateResult(bytes: Array[Byte]): Unit = {
     Assert.usage(resultState.processorStatus eq Success)
-    val schemaURIStrings = resultState.infoset.asInstanceOf[InfosetElement].runtimeData.schemaURIStringsForFullValidation
-    try {
-      val bis = new java.io.ByteArrayInputStream(bytes)
-      Validator.validateXMLSources(schemaURIStrings, bis, this)
-    } catch {
-      //
-      // Some SAX Parse errors are thrown even if you specify an error handler to the
-      // validator.
-      //
-      // So we also need this catch
-      //
-      case e: SAXException =>
-        resultState.validationErrorNoContext(e)
-    }
-  }
 
-  override def warning(spe: SAXParseException): Unit = {
-    resultState.validationErrorNoContext(spe)
-  }
-  override def error(spe: SAXParseException): Unit = {
-    resultState.validationErrorNoContext(spe)
-  }
-  override def fatalError(spe: SAXParseException): Unit = {
-    resultState.validationErrorNoContext(spe)
+    val bis = new java.io.ByteArrayInputStream(bytes)
+    dp.validator.validateXML(bis) match {
+      case ValidationResult(warnings, errors) =>
+        warnings.forEach{ w => resultState.validationError(w.getMessage) }
+        errors.forEach{
+          case e: ValidationException =>
+            resultState.validationErrorNoContext(e.getCause)
+          case f: ValidationFailure =>
+            resultState.validationError(f.getMessage)
+        }
+    }
   }
 }
 
@@ -753,23 +751,23 @@ class UnparseResult(dp: DataProcessor, ustate: UState)
   }
 }
 
-class DaffodilXMLReader(dp: DataProcessor) extends DFDL.DaffodilXMLReader {
+class DaffodilParseXMLReader(dp: DataProcessor) extends DFDL.DaffodilParseXMLReader {
   private var contentHandler: ContentHandler = _
   private var errorHandler: ErrorHandler = _
   private var dtdHandler: DTDHandler = _
   private var entityResolver: EntityResolver = _
-  private val saxNamespaceFeature = "http://xml.org/sax/features/namespaces"
-  private val saxNamespacePrefixFeature = "http://xml.org/sax/features/namespace-prefixes"
-  var saxParseResultProperty: ParseResult = _
-  var saxBlobDirectoryProperty: Path = Paths.get(System.getProperty("java.io.tmpdir"))
-  var saxBlobPrefixProperty: String = "daffodil-sax-"
-  var saxBlobSuffixProperty: String = ".blob"
+  var saxParseResultPropertyValue: ParseResult = _
+  var saxBlobDirectoryPropertyValue: Path = Paths.get(System.getProperty("java.io.tmpdir"))
+  var saxBlobPrefixPropertyValue: String = "daffodil-sax-"
+  var saxBlobSuffixPropertyValue: String = ".blob"
 
-  private val featureMap = mutable.Map[String, Boolean](saxNamespaceFeature -> false,
-    saxNamespacePrefixFeature -> false)
+  private val featureMap = mutable.Map[String, Boolean](
+    XMLUtils.SAX_NAMESPACES_FEATURE -> false,
+    XMLUtils.SAX_NAMESPACE_PREFIXES_FEATURE -> false)
 
   override def getFeature(name: String): Boolean = {
-    if (name == saxNamespaceFeature || name == saxNamespacePrefixFeature) {
+    if (name == XMLUtils.SAX_NAMESPACES_FEATURE ||
+      name == XMLUtils.SAX_NAMESPACE_PREFIXES_FEATURE) {
       featureMap(name)
     } else {
       throw new SAXNotRecognizedException("Feature unsupported: " + name + ".\n" +
@@ -779,7 +777,8 @@ class DaffodilXMLReader(dp: DataProcessor) extends DFDL.DaffodilXMLReader {
   }
 
   override def setFeature(name: String, value: Boolean): Unit = {
-    if (name == saxNamespaceFeature || name == saxNamespacePrefixFeature) {
+    if (name == XMLUtils.SAX_NAMESPACES_FEATURE ||
+      name == XMLUtils.SAX_NAMESPACE_PREFIXES_FEATURE) {
       featureMap(name) = value
     } else {
       throw new SAXNotRecognizedException("Feature unsupported: " + name + ".\n" +
@@ -789,10 +788,10 @@ class DaffodilXMLReader(dp: DataProcessor) extends DFDL.DaffodilXMLReader {
 
   override def getProperty(name: String): AnyRef = {
     val prop = name match {
-      case XMLUtils.DAFFODIL_SAX_URN_PARSERESULT => saxParseResultProperty
-      case XMLUtils.DAFFODIL_SAX_URN_BLOBDIRECTORY => saxBlobDirectoryProperty
-      case XMLUtils.DAFFODIL_SAX_URN_BLOBPREFIX => saxBlobPrefixProperty
-      case XMLUtils.DAFFODIL_SAX_URN_BLOBSUFFIX => saxBlobSuffixProperty
+      case XMLUtils.DAFFODIL_SAX_URN_PARSERESULT => saxParseResultPropertyValue
+      case XMLUtils.DAFFODIL_SAX_URN_BLOBDIRECTORY => saxBlobDirectoryPropertyValue
+      case XMLUtils.DAFFODIL_SAX_URN_BLOBPREFIX => saxBlobPrefixPropertyValue
+      case XMLUtils.DAFFODIL_SAX_URN_BLOBSUFFIX => saxBlobSuffixPropertyValue
       case _ =>
         throw new SAXNotRecognizedException("Property unsupported: " + name + ".")
     }
@@ -802,11 +801,11 @@ class DaffodilXMLReader(dp: DataProcessor) extends DFDL.DaffodilXMLReader {
   override def setProperty(name: String, value: AnyRef): Unit = {
     try {
       name match {
-        case XMLUtils.DAFFODIL_SAX_URN_BLOBDIRECTORY => saxBlobDirectoryProperty =
+        case XMLUtils.DAFFODIL_SAX_URN_BLOBDIRECTORY => saxBlobDirectoryPropertyValue =
           value.asInstanceOf[Path]
-        case XMLUtils.DAFFODIL_SAX_URN_BLOBPREFIX => saxBlobPrefixProperty = value
+        case XMLUtils.DAFFODIL_SAX_URN_BLOBPREFIX => saxBlobPrefixPropertyValue = value
           .asInstanceOf[String]
-        case XMLUtils.DAFFODIL_SAX_URN_BLOBSUFFIX => saxBlobSuffixProperty = value
+        case XMLUtils.DAFFODIL_SAX_URN_BLOBSUFFIX => saxBlobSuffixPropertyValue = value
           .asInstanceOf[String]
         case _ =>
           throw new SAXNotRecognizedException("Property unsupported: " + name + ".")
@@ -847,7 +846,7 @@ class DaffodilXMLReader(dp: DataProcessor) extends DFDL.DaffodilXMLReader {
       val isdis = InputSourceDataInputStream(is)
       parse(isdis)
     } else {
-      throw new IOException("Inputsource must be backed by Inputstream")
+      throw new IOException("InputSource must be backed by InputStream")
     }
   }
 
@@ -858,8 +857,8 @@ class DaffodilXMLReader(dp: DataProcessor) extends DFDL.DaffodilXMLReader {
   def parse(isdis: InputSourceDataInputStream): Unit = {
     val sio = createSAXInfosetOutputter(this)
     val pr = dp.parse(isdis, sio)
+    saxParseResultPropertyValue = pr.asInstanceOf[ParseResult]
     handleDiagnostics(pr)
-    saxParseResultProperty = pr .asInstanceOf[ParseResult]
   }
 
   def parse(stream: InputStream): Unit = {
@@ -906,10 +905,10 @@ class DaffodilXMLReader(dp: DataProcessor) extends DFDL.DaffodilXMLReader {
    *
    * @return SAXInfosetOutputter object with or without blob Attributes set
    */
-  private def createSAXInfosetOutputter(xmlReader: DaffodilXMLReader): SAXInfosetOutputter = {
+  private def createSAXInfosetOutputter(xmlReader: DaffodilParseXMLReader): SAXInfosetOutputter = {
     val sioo = new SAXInfosetOutputter(xmlReader)
     val siof = try {
-      sioo.setBlobAttributes(saxBlobDirectoryProperty, saxBlobPrefixProperty, saxBlobSuffixProperty)
+      sioo.setBlobAttributes(saxBlobDirectoryPropertyValue, saxBlobPrefixPropertyValue, saxBlobSuffixPropertyValue)
       sioo
     } catch {
       case e: SAXNotSupportedException => sioo

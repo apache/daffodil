@@ -429,10 +429,10 @@
     model="s1" description="Section 7 - negative test for assert expression - DFDL-7-043R">
     <tdml:document><![CDATA[1:2;3,4.]]></tdml:document>
     <tdml:errors>
-      <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Assertion failed</tdml:error>
-      <tdml:error>Parsed value was:</tdml:error>
-      <tdml:error><![CDATA[<seq_02><e1>1</e1><e2>2</e2><e3>3</e3><e4>4</e4></seq_02>]]></tdml:error>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>xs:int(.) eq 42</tdml:error>
+      <tdml:error>cannot be converted</tdml:error>
+      <tdml:error>xs:int</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

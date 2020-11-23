@@ -124,14 +124,10 @@ trait TermRuntimeValuedPropertiesMixin
     } else
       Nope
 
-  final lazy val maybeFillByteEv = {
-    if (optionFillByteRaw.isDefined) {
-      val ev = new FillByteEv(fillByte, charsetEv, tci)
-      ev.compile(tunable)
-      One(ev)
-    } else {
-      Nope
-    }
+  final lazy val fillByteEv = {
+    val ev = new FillByteEv(fillByte, charsetEv, tci)
+    ev.compile(tunable)
+    ev
   }
 
   /*

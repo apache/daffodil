@@ -33,13 +33,8 @@ import TestNulChars._
 class TestNulChars {
 
   // DAFFODIL-2363 &#xE000; (NUL replacement into XML) can't be used in pattern facet. With full validation.
-  // @Test def test_nulPattern1() = { runner.runOneTest("nulPattern1") }
+  @Test def test_nulPattern1() = { runner.runOneTest("nulPattern1") }
 
   // DAFFODIL-2364 - infinite loop
   // @Test def test_nulPad1() = { runner.runOneTest("nulPad1") }
-
-  @Test def ignoreThisDummyTestToPreventIDEFromRemovingImports(): Unit = {
-    // TODO Delete this dummy test once at least one of the above tests is made to work.
-    runner
-  }
 }
