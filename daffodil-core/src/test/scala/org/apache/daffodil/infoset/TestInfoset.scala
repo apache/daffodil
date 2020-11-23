@@ -61,7 +61,7 @@ object TestInfoset {
     // what maintains the schema dynamic runtime context.
     //
     val inputter = new ScalaXMLInfosetInputter(xmlElem)
-    val dummyOutStream = new NullOutputStream
+    val dummyOutStream = NullOutputStream.NULL_OUTPUT_STREAM
     val unparseResult = dp.unparse(inputter, dummyOutStream)
     val infosetRootNode = {
       val ustate = unparseResult.resultState.asInstanceOf[UStateMain]
@@ -74,12 +74,17 @@ object TestInfoset {
   }
 
   /**
-   * Returns the root element of the infoset, along with
-   * the schema compiler Root object for examining schema-compiler
-   * computations for unit testing them.
+   * Returns the root element of the infoset, along with the schema compiler
+   * Root object for examining schema-compiler computations for unit testing
+   * them. Because this assumes tests will be inspecting the internal infoset
+   * for correctness, it sets the releaseUnusedInfoset tunable to false so that
+   * the infoset elements are not freed
    */
   def testInfoset(testSchema: scala.xml.Elem, infosetAsXML: scala.xml.Elem): (DIElement, Root, DaffodilTunables) = {
-    val schemaCompiler = Compiler().withTunable("allowExternalPathExpressions", "true")
+    val schemaCompiler =
+      Compiler()
+        .withTunable("allowExternalPathExpressions", "true")
+        .withTunable("releaseUnneededInfoset", "false")
     val pf = schemaCompiler.compileNode(testSchema).asInstanceOf[ProcessorFactory]
     if (pf.isError) {
       val msgs = pf.getDiagnostics.map { _.getMessage() }.mkString("\n")

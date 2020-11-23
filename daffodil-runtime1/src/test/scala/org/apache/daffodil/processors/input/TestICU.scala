@@ -66,14 +66,14 @@ class TestICU {
     r.foreach(parseFractionalSeconds)
   }
 
-  // The three following tests show an ICU bug where if the decimal pattern
+  // The three following tests show an old ICU bug where if the decimal pattern
   // uses scientific notation and the number to format/unparse is positive
-  // infinity, negative infinity, or not a number, ICU still includes the
-  // exponent separator when it shouldn't. We currently work around this in
-  // Daffodil by handling INF, -INF, and NaN ourselves. If ICU a subsequent
-  // release of ICU fixes this issue, these tests should fail and we can remove
-  // the code that manually converts these values to strings. The real expected
-  // values are commented at the end of each function.
+  // infinity, negative infinity, or not a number, ICU would include the
+  // exponent separator when it shouldn't. We used to work around this in
+  // Daffodil by handling INF, -INF, and NaN ourselves. As of ICU 67.1, this
+  // bug appears to be fixed. These tests are kept around to ensure ICU does
+  // not have a regression of this issue. The old broken values that ICU would
+  // create are commented out to show what used to be broken.
 
   @Test def test_scientific_pos_inf = {
     val dfs = new DecimalFormatSymbols()
@@ -83,8 +83,8 @@ class TestICU {
     val df = new DecimalFormat("000.0#E0", dfs)
     val posInf = java.lang.Double.POSITIVE_INFINITY
     val str = df.format(posInf)
-    assertEquals("INFx10^0", str)
-    //assertEquals("INF", str)
+    //assertEquals("INFx10^0", str)
+    assertEquals("INF", str)
   }
 
   @Test def test_scientific_neg_inf = {
@@ -95,8 +95,8 @@ class TestICU {
     val df = new DecimalFormat("000.0#E0", dfs)
     val negInf = java.lang.Double.NEGATIVE_INFINITY
     val str = df.format(negInf)
-    assertEquals("-INFx10^0", str)
-    //assertEquals("-INF", str)
+    //assertEquals("-INFx10^0", str)
+    assertEquals("-INF", str)
   }
 
   @Test def test_scientific_nan = {
@@ -107,8 +107,8 @@ class TestICU {
     val df = new DecimalFormat("000.0#E0", dfs)
     val nan = java.lang.Double.NaN
     val str = df.format(nan)
-    assertEquals("NaNx10^0", str)
-    //assertEquals("NaN", str)
+    //assertEquals("NaNx10^0", str)
+    assertEquals("NaN", str)
   }
 
   // The following test shows that ICU does not reqiure a positive pattern.

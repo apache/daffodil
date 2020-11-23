@@ -24,7 +24,6 @@ rm ~/*
 #install dependencies
 curl https://bintray.com/sbt/rpm/rpm -o /etc/yum.repos.d/bintray-sbt-rpm.repo
 microdnf install git svn sbt java-1.8.0-devel wine winetricks unzip rpm-build rpm-sign vim-minimal
-winetricks --unattended dotnet45
 
 # install wix
 curl -L https://github.com/wixtoolset/wix3/releases/download/wix3111rtm/wix311-binaries.zip -o wix311-binaries.zip
@@ -40,6 +39,6 @@ sh -c "echo 'addSbtPlugin(\"com.jsuereth\" % \"sbt-pgp\" % \"2.0.1\")' >> /root/
 TMP_SBT_PROJECT=/tmp/sbt-project/
 mkdir -p $TMP_SBT_PROJECT
 pushd $TMP_SBT_PROJECT &> /dev/null
-sbt --sbt-version 1.3.9 exit
+sbt --sbt-version 1.4.1 exit
 popd &> /dev/null
 rm -rf $TMP_SBT_PROJECT

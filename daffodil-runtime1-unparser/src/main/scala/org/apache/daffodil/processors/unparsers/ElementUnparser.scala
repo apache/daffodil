@@ -72,7 +72,7 @@ sealed trait RepMoveMixin {
  * whether to place separators, and there should not be any separator
  * corresponding to an IVC element.
  */
-class ElementUnparserNoRep(
+class ElementUnparserInputValueCalc(
   erd: ElementRuntimeData,
   setVarUnparsers: Array[Unparser])
   extends ElementUnparserBase(
@@ -406,7 +406,8 @@ sealed trait RegularElementUnparserStartEndStrategy
       Assert.invariant(state.currentInfosetNode.asSimple.erd eq erd)
       ()
     } else {
-      val elem =
+      // get the new DIElem to add to the infoset
+      val newElem =
         if (!state.withinHiddenNest) {
           // Elements in a hidden context are not in the infoset, so we will never get an event
           // for them. Only try to consume start events for non-hidden elements
@@ -417,39 +418,54 @@ sealed trait RegularElementUnparserStartEndStrategy
             UnparseError(Nope, One(state.currentLocation), "Expected element start event for %s, but received %s.",
               erd.namedQName.toExtendedSyntax, event)
           }
-          val res = event.info.element
-          val mCurNode = state.currentInfosetNodeMaybe
-          if (mCurNode.isDefined) {
-            val c = mCurNode.get.asComplex
-            Assert.invariant(!c.isFinal)
-            if (c.maybeIsNilled == MaybeBoolean.True) {
-              // cannot add content to a nilled complex element
-              UnparseError(One(erd.schemaFileLocation), Nope, "Nilled complex element %s has content from %s",
-                c.erd.namedQName.toExtendedSyntax,
-                res.erd.namedQName.toExtendedSyntax)
-            }
-            c.addChild(res, state.tunable)
-          } else {
-            val doc = state.documentElement
-            doc.addChild(res, state.tunable) // DIDocument, which is never a current node, must have the child added
-            doc.isFinal = true // that's the only child.
-          }
-          res
+          event.info.element
         } else {
           Assert.invariant(state.withinHiddenNest)
           // Since we never get events for elements in hidden contexts, their infoset elements
           // will have never been created. This means we need to manually create them
-          val e = if (erd.isComplexType) new DIComplex(erd) else new DISimple(erd)
-          e.setHidden()
-          state.currentInfosetNode.asComplex.addChild(e, state.tunable)
-          e
+          val hiddenElem = if (erd.isComplexType) new DIComplex(erd) else new DISimple(erd)
+          hiddenElem.setHidden()
+          hiddenElem
         }
+
+      // now add this new elem to the infoset
+      val parentNodeMaybe = state.currentInfosetNodeMaybe
+      if (parentNodeMaybe.isDefined) {
+        val parentComplex = parentNodeMaybe.get.asComplex
+        Assert.invariant(!parentComplex.isFinal)
+        if (parentComplex.maybeIsNilled == MaybeBoolean.True) {
+          // cannot add content to a nilled complex element
+          UnparseError(One(erd.schemaFileLocation), Nope, "Nilled complex element %s has content from %s",
+            parentComplex.erd.namedQName.toExtendedSyntax,
+            newElem.erd.namedQName.toExtendedSyntax)
+        }
+
+        // We are about to add a child to this complex element. Before we do
+        // that, if the last child added to this complex is a DIArray, and this
+        // new child isn't part of that array, that implies that the DIArray
+        // will have no more children added and should be marked as final, and
+        // we can attempt to free that array.
+        val lastChildMaybe = parentComplex.maybeLastChild
+        if (lastChildMaybe.isDefined) {
+          val lastChild = lastChildMaybe.get
+          if (lastChild.isArray && (lastChild.erd ne newElem.erd)) {
+            lastChild.isFinal = true
+            parentComplex.freeChildIfNoLongerNeeded(parentComplex.numChildren - 1, state.releaseUnneededInfoset)
+          }
+        }
+
+        parentComplex.addChild(newElem, state.tunable)
+      } else {
+        // We do not yet have an infoset element (this new element is the
+        // root), so add the infoset node to the DIDocument
+        val doc = state.documentElement
+        doc.addChild(newElem, state.tunable)
+      }
 
       // When the infoset events are being advanced, the currentInfosetNodeStack
       // is pushing and popping to match the events. This provides the proper
       // context for evaluation of expressions.
-      val e = One(elem)
-      state.currentInfosetNodeStack.push(e)
+      state.currentInfosetNodeStack.push(One(newElem))
     }
   }
 
@@ -475,12 +491,44 @@ sealed trait RegularElementUnparserStartEndStrategy
             erd.namedQName.toExtendedSyntax, event)
         }
       }
-      val cur = state.currentInfosetNode
-      if (cur.isComplex)
-        cur.isFinal = true
-      state.currentInfosetNodeStack.pop
+
+      val cur = state.currentInfosetNodeStack.pop.get
+
+      if (cur.isComplex) {
+        // We are ending a complex element. If the last child of this complex
+        // is a DIArray, that implies that the array will have no more children
+        // and should be marked as isFinal. Normally this happens when we add a
+        // new sibling after an array in unparseBegin, but in this case there
+        // is no sibling following the array, so it must be set here.
+        val lastChild = cur.maybeLastChild
+        if (lastChild.isDefined && lastChild.get.isArray) {
+          lastChild.get.isFinal = true
+          cur.freeChildIfNoLongerNeeded(cur.numChildren - 1, state.releaseUnneededInfoset)
+        }
+      }
+
+      // cur is finished, mark it as final and free if possible. Note that we
+      // need the container and not the parent of the current element to free
+      // it. This way if this element is in an array, we free this element
+      // from the array
+      cur.isFinal = true
+      val curContainer =
+        if (cur.erd.isArray) cur.diParent.maybeLastChild.get
+        else cur.diParent
+      curContainer.freeChildIfNoLongerNeeded(curContainer.numChildren - 1, state.releaseUnneededInfoset)
+
+      if (state.currentInfosetNodeStack.isEmpty) {
+        // If there is nothing else on the infoset stack after popping off the
+        // current infoset node, that means we have finished the root element,
+        // so mark the DIDocument as final
+        val doc = state.documentElement
+        Assert.invariant(!doc.isFinal)
+        doc.isFinal = true
+      }
 
       move(state)
+
+      state.asInstanceOf[UStateMain].evalSuspensions(isFinal = false)
     }
   }
 
@@ -497,7 +545,7 @@ trait OVCStartEndStrategy
    * For OVC, the behavior w.r.t. consuming infoset events is different.
    */
   protected final override def unparseBegin(state: UState): Unit = {
-    val elem =
+    val ovcElem =
       if (!state.withinHiddenNest) {
         // outputValueCalc elements are optional in the infoset. If the next event
         // is for this OVC element, then consume the start/end events.
@@ -513,7 +561,6 @@ trait OVCStartEndStrategy
           Assert.invariant(endEv.isEnd && endEv.erd == erd)
 
           val e = new DISimple(erd)
-          state.currentInfosetNode.asComplex.addChild(e, state.tunable)
           // Remove any state that was set by what created this event. Later
           // code asserts that OVC elements do not have a value
           e.resetValue
@@ -521,26 +568,52 @@ trait OVCStartEndStrategy
         } else {
           // Event was optional and didn't exist, create a new InfosetElement and add it
           val e = new DISimple(erd)
-          state.currentInfosetNode.asComplex.addChild(e, state.tunable)
           e
         }
       } else {
         // Event was hidden and will never exist, create a new InfosetElement and add it
         val e = new DISimple(erd)
         e.setHidden()
-        state.currentInfosetNode.asComplex.addChild(e, state.tunable)
         e
       }
 
-    val e = One(elem)
-    state.currentInfosetNodeStack.push(e)
+    // We are about to add a new OVC child to this complex element. Before we
+    // do that, if the last child added to this complex is a DIArray, that
+    // implies that the DIArray will have no more children added and should be
+    // marked as final, and we can attempt to free that array.
+    val parentNode = state.currentInfosetNode
+    val parentComplex = parentNode.asComplex
+    val lastChildMaybe = parentComplex.maybeLastChild
+    if (lastChildMaybe.isDefined) {
+      val lastChild = lastChildMaybe.get
+      if (lastChild.isArray) {
+        lastChild.isFinal = true
+        parentComplex.freeChildIfNoLongerNeeded(parentComplex.numChildren - 1, state.releaseUnneededInfoset)
+      }
+    }
+
+    parentComplex.addChild(ovcElem, state.tunable)
+    state.currentInfosetNodeStack.push(One(ovcElem))
   }
 
   protected final override def unparseEnd(state: UState): Unit = {
-    state.currentInfosetNodeStack.pop
-
     // if an OVC element existed, the start AND end events were consumed in
     // unparseBegin. No need to advance the cursor here.
+
+    // ovcElem is finished, free it if possible. OVC elements are not allowed in
+    // arrays, so we can directly get the diParent to get the container DINode
+    val ovcElem = state.currentInfosetNodeStack.pop
+    val ovcContainer = ovcElem.get.diParent
+    ovcContainer.freeChildIfNoLongerNeeded(ovcContainer.numChildren - 1, state.releaseUnneededInfoset)
+
+    if (state.currentInfosetNodeStack.isEmpty) {
+      // If there is nothing else on the infoset stack after popping off the
+      // current infoset node, that means we have finished the root element,
+      // so mark the DIDocument as final
+      val doc = state.documentElement
+      Assert.invariant(!doc.isFinal)
+      doc.isFinal = true
+    }
 
     move(state)
   }

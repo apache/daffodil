@@ -57,6 +57,16 @@ object AssertMacros {
     """
   }
 
+  def invariantMacro2(c: Context)(testAbortsIfFalse: c.Tree, msg: c.Tree): c.Tree = {
+    import c.universe._
+
+    q"""
+    if (!($testAbortsIfFalse)) {
+         Assert.abort("Invariant broken. " + { $msg })
+    }
+    """
+  }
+
   def notYetImplementedMacro0(c: Context)(): c.Tree = {
     import c.universe._
 

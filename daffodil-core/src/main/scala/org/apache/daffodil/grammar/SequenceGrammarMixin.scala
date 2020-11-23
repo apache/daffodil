@@ -183,7 +183,18 @@ trait SequenceGrammarMixin
    */
   lazy val hasSeparator = !separatorParseEv.isConstantEmptyString
 
-  lazy val sequenceSeparator = prod("separator", hasSeparator) {
-    delimMTA ~ SequenceSeparator(this)
+  /**
+   * Note that the sequence separator does not include the delimMTA grammar
+   * like initiators/terminators. This is because unparsing needs to uncouple
+   * MTA and Separator unparsers to properly support optional separators with
+   * potential alignment. Grammars are expected to handle the delimMTA when
+   * necessary
+   */
+  lazy val sequenceSeparatorMTA = prod("sequenceSeparatorMTA", hasSeparator) {
+    delimMTA
   }
+  lazy val sequenceSeparator = prod("separator", hasSeparator) {
+    SequenceSeparator(this)
+  }
+
 }

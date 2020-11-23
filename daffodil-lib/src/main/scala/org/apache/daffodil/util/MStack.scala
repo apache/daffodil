@@ -18,7 +18,6 @@
 package org.apache.daffodil.util
 
 import org.apache.daffodil.exceptions.Assert
-// import org.apache.daffodil.equality._ // TODO: Scala compiler bug - can't use =#= in this file (scalac 2.11.7) because we get a spurious compile error (unable to find ViewEquality in package equality.)
 import Maybe._
 
 object MStack {

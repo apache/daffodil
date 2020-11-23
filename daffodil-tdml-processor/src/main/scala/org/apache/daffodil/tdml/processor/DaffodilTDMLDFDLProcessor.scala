@@ -19,13 +19,17 @@ package org.apache.daffodil.tdml.processor
 
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.io.OutputStreamWriter
 import java.nio.channels.Channels
 import java.nio.file.Path
 import java.nio.file.Paths
 
 import scala.xml.Node
 
+import javax.xml.parsers.SAXParserFactory
 import org.apache.commons.io.IOUtils
+import org.apache.daffodil.api.DFDL.DaffodilUnhandledSAXException
+import org.apache.daffodil.api.DFDL.DaffodilUnparseErrorSAXException
 import org.apache.daffodil.api._
 import org.apache.daffodil.compiler.Compiler
 import org.apache.daffodil.debugger.Debugger
@@ -34,7 +38,7 @@ import org.apache.daffodil.debugger.TraceDebuggerRunner
 import org.apache.daffodil.dsom.ExpressionCompilers
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.externalvars.Binding
-import org.apache.daffodil.infoset.DaffodilOutputContentHandler
+import org.apache.daffodil.infoset.DaffodilParseOutputStreamContentHandler
 import org.apache.daffodil.infoset.ScalaXMLInfosetInputter
 import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.processors.DataProcessor
@@ -44,10 +48,12 @@ import org.apache.daffodil.tdml.SchemaDataProcessorCache
 import org.apache.daffodil.tdml.TDMLException
 import org.apache.daffodil.tdml.TDMLInfosetInputter
 import org.apache.daffodil.tdml.TDMLInfosetOutputter
+import org.apache.daffodil.tdml.VerifyTestCase
 import org.apache.daffodil.util.MaybeULong
 import org.apache.daffodil.xml.XMLUtils
 import org.apache.daffodil.xml.XMLUtils.XMLDifferenceException
 import org.xml.sax.ErrorHandler
+import org.xml.sax.InputSource
 import org.xml.sax.SAXParseException
 
 final class TDMLDFDLProcessorFactory private (
@@ -262,26 +268,31 @@ class DaffodilTDMLDFDLProcessor private (private var dp: DataProcessor) extends 
   }
 
   override def unparse(infosetXML: scala.xml.Node, outStream: java.io.OutputStream): TDMLUnparseResult = {
-    val output = java.nio.channels.Channels.newChannel(outStream)
-
     val scalaInputter = new ScalaXMLInfosetInputter(infosetXML)
     // We can't compare against other inputters since we only have scala XML,
     // but we still need to use the TDMLInfosetInputter since it may make TDML
     // specific modifications to the input infoset (e.g. blob paths)
     val otherInputters = Seq.empty
     val inputter = new TDMLInfosetInputter(scalaInputter, otherInputters)
-    val actual = dp.unparse(inputter, output).asInstanceOf[UnparseResult]
-    output.close()
-    new DaffodilTDMLUnparseResult(actual, outStream)
+    unparse(inputter, infosetXML, outStream)
   }
 
   def unparse(parseResult: TDMLParseResult, outStream: java.io.OutputStream): TDMLUnparseResult = {
     val dafpr = parseResult.asInstanceOf[DaffodilTDMLParseResult]
     val inputter = dafpr.inputter
-    val output = java.nio.channels.Channels.newChannel(outStream)
-    val actual = dp.unparse(inputter, output)
-    output.close()
-    new DaffodilTDMLUnparseResult(actual, outStream)
+    val resNode = dafpr.getResult
+    unparse(inputter, resNode, outStream)
+  }
+
+  def unparse(inputter: TDMLInfosetInputter, infosetXML: scala.xml.Node, outStream: java.io
+  .OutputStream): TDMLUnparseResult = {
+    val bos = new ByteArrayOutputStream()
+    val osw = new OutputStreamWriter(bos)
+    scala.xml.XML.write(osw, infosetXML, "UTF-8", xmlDecl = true, null)
+    osw.flush()
+    osw.close()
+    val saxInstream = new ByteArrayInputStream(bos.toByteArray)
+    doUnparseWithBothApis(inputter, saxInstream, outStream)
   }
 
   def doParseWithBothApis(dpInputStream: java.io.InputStream, saxInputStream: java.io.InputStream,
@@ -291,8 +302,8 @@ class DaffodilTDMLDFDLProcessor private (private var dp: DataProcessor) extends 
 
     val xri = dp.newXMLReaderInstance
     val errorHandler = new DaffodilTDMLSAXErrorHandler()
-    val outputStream = new ByteArrayOutputStream()
-    val saxHandler = new DaffodilOutputContentHandler(outputStream, pretty = true)
+    val saxOutputStream = new ByteArrayOutputStream()
+    val saxHandler = new DaffodilParseOutputStreamContentHandler(saxOutputStream, pretty = false)
     xri.setContentHandler(saxHandler)
     xri.setErrorHandler(errorHandler)
     xri.setProperty(XMLUtils.DAFFODIL_SAX_URN_BLOBDIRECTORY, blobDir)
@@ -308,16 +319,62 @@ class DaffodilTDMLDFDLProcessor private (private var dp: DataProcessor) extends 
       dis.setBitLimit0b(MaybeULong(lengthLimitInBits))
       sis.setBitLimit0b(MaybeULong(lengthLimitInBits))
     }
-    xri.parse(sis)
-    val actual = dp.parse(dis, outputter)
 
+    val actual = dp.parse(dis, outputter)
+    xri.parse(sis)
 
     if (!actual.isError && !errorHandler.isError) {
-      verifySameParseOutput(outputter, outputStream)
+      verifySameParseOutput(outputter, saxOutputStream)
     }
-    verifySameDiagnostics(actual, errorHandler)
+    val dpParseDiag = actual.getDiagnostics.map(_.getMessage())
+    val saxParseDiag = errorHandler.getDiagnostics.map(_.getMessage())
+    verifySameDiagnostics(dpParseDiag, saxParseDiag)
 
     new DaffodilTDMLParseResult(actual, outputter)
+  }
+
+  def doUnparseWithBothApis(dpInputter: TDMLInfosetInputter, saxInputStream: java.io.InputStream,
+    dpOutputStream: java.io.OutputStream): DaffodilTDMLUnparseResult = {
+
+    val dpOutputChannel = java.nio.channels.Channels.newChannel(dpOutputStream)
+    val saxOutputStream = new ByteArrayOutputStream
+    val saxOutputChannel = java.nio.channels.Channels.newChannel(saxOutputStream)
+    val unparseContentHandler = dp.newContentHandlerInstance(saxOutputChannel)
+    unparseContentHandler.enableInputterResolutionOfRelativeInfosetBlobURIs()
+    val xmlReader = SAXParserFactory.newInstance.newSAXParser.getXMLReader
+    xmlReader.setContentHandler(unparseContentHandler)
+    xmlReader.setFeature(XMLUtils.SAX_NAMESPACES_FEATURE, true)
+    xmlReader.setFeature(XMLUtils.SAX_NAMESPACE_PREFIXES_FEATURE, true)
+
+    val actualDP = dp.unparse(dpInputter, dpOutputChannel).asInstanceOf[UnparseResult]
+    dpOutputChannel.close()
+    // kick off SAX Unparsing
+    try {
+      xmlReader.parse(new InputSource(saxInputStream))
+    } catch {
+      case e: DaffodilUnhandledSAXException =>
+        // In the case of an unexpected errors, catch and throw as TDMLException
+        throw TDMLException("Unexpected error during SAX Unparse:" + e, None)
+      case _: DaffodilUnparseErrorSAXException =>
+        // do nothing as unparseResult and its diagnostics will be handled below
+    }
+
+    val actualSAX = unparseContentHandler.getUnparseResult
+    saxOutputChannel.close()
+    if (!actualDP.isError && !actualSAX.isError) {
+      val dpis = new ByteArrayInputStream(dpOutputStream.asInstanceOf[ByteArrayOutputStream]
+        .toByteArray)
+      if (actualDP.isScannable && actualSAX.isScannable) {
+        VerifyTestCase.verifyTextData(dpis, saxOutputStream, actualSAX.encodingName, None)
+      } else {
+        VerifyTestCase.verifyBinaryOrMixedData(dpis, saxOutputStream, None)
+      }
+    }
+    val dpUnparseDiag = actualDP.getDiagnostics.map(_.getMessage())
+    val saxUnparseDiag = actualSAX.getDiagnostics.map(_.getMessage())
+    verifySameDiagnostics(dpUnparseDiag, saxUnparseDiag)
+
+    new DaffodilTDMLUnparseResult(actualDP, dpOutputStream)
   }
 
   def verifySameParseOutput(dpOutputter: TDMLInfosetOutputter, outputStream: ByteArrayOutputStream): Unit = {
@@ -340,21 +397,20 @@ class DaffodilTDMLDFDLProcessor private (private var dp: DataProcessor) extends 
     }
   }
 
-  private def verifySameDiagnostics(
-    actual: DFDL.ParseResult,
-    errorHandler: DaffodilTDMLSAXErrorHandler): Unit = {
-    val dpParseDiag = actual.getDiagnostics.map(_.getMessage()).sorted
-    val saxParseDiag = errorHandler.getDiagnostics.map(_.getMessage()).sorted
+  private def verifySameDiagnostics(seqDiagExpected: Seq[String], seqDiagActual: Seq[String]): Unit
+  = {
+    val expected = seqDiagExpected.sorted
+    val actual = seqDiagActual.sorted
 
-    if (dpParseDiag != saxParseDiag) {
+    if (expected != actual) {
       throw TDMLException(
         """SAX parse diagnostics do not match DataProcessor Parse diagnostics""" +
           "\n" +
-          """DataProcessor Parse diagnostics: """ + dpParseDiag +
-          (if (saxParseDiag.isEmpty) {
-            "\n No SAX diagnostics were generated."
+          """DataProcessor Parse diagnostics: """ + seqDiagExpected +
+          (if (seqDiagActual.isEmpty) {
+            "\nNo SAX diagnostics were generated."
           } else {
-            "\n SAX Parse diagnostics: " + saxParseDiag
+            "\nSAX Parse diagnostics: " + seqDiagActual
           }), None)
     }
   }

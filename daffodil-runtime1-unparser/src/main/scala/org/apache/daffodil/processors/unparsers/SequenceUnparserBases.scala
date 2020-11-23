@@ -34,9 +34,4 @@ abstract class OrderedSequenceUnparserBase(
   // Sequences of nothing (no initiator, no terminator, nothing at all) should
   // have been optimized away
   Assert.invariant(childUnparsers.length > 0)
-
-  // Since some of the grammar terms might have folded away to EmptyGram,
-  // the number of unparsers here may be different from the number of
-  // children of the sequence group.
-  Assert.invariant(srd.groupMembers.length >= childUnparsers.length - 1) // minus 1 for the separator unparser
 }

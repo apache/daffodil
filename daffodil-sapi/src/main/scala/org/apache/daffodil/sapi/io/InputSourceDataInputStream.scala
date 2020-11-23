@@ -25,9 +25,23 @@ import org.apache.daffodil.io.{ InputSourceDataInputStream => SInputSourceDataIn
 /**
  * Provides Daffodil with byte data from an InputStream, ByteBuffer, or byte
  * Array.
+ *
+ * @param dis the underlying Scala InputSourceDataInputStream
  */
 class InputSourceDataInputStream private[sapi] (private [sapi] val dis: SInputSourceDataInputStream) {
+
+  /**
+   * Create an InputSourceDataInputStream from a java.io.InputStream
+   */
   def this(is: InputStream) = this(SInputSourceDataInputStream(is))
+
+  /**
+   * Create an InputSourceDataInputStream from a java.nio.ByteBuffer
+   */
   def this(bb: ByteBuffer) = this(SInputSourceDataInputStream(bb)) 
+
+  /**
+   * Create an InputSourceDataInputStream from a byte array
+   */
   def this(arr: Array[Byte]) = this(SInputSourceDataInputStream(arr)) 
 }

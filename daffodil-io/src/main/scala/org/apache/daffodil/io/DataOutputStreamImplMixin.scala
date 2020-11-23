@@ -84,13 +84,14 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
       case Zero => // ok
       case NonZero => // ok
       case Unknown => {
-        if (this.isFinished) {
+        if (this.isFinished || this.isDead) {
+          // this DOS was finished or this DOS is dead (i.e. was finished,
+          // became direct and then the following DOS become direct). In either
+          // case, we know that nothing has written to this DOS or the
+          // zlStatus_ would have been set by setNonZeroLength() call, which is
+          // required to be called by everything that writes.
           //
-          // nothing has written to this, or the
-          // zlStatus would have been set by setNonZeroLength() call,
-          // which is required to be called by everything that writes.
-          //
-          // So regardless of whether this stream has been merged/collapsed, etc.
+          // So regardless of whether this stream has been merged/collapsed/dead, etc.
           // we know that no actual writes occurred to this DOS, so it is zero length.
           // And now that it is finsihed, that can never change.
           zlStatus_ = Zero

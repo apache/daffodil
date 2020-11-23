@@ -454,7 +454,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
       xml,
       walkHidden = !DebuggerConfig.removeHidden,
       ignoreBlocks = true,
-      removeUnneeded = false)
+      releaseUnneededInfoset = false)
     iw.walk(lastWalk = true)
     bos.toString("UTF-8")
   }
@@ -1094,7 +1094,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
           // display the empty element.
           //
           case r: RuntimeSchemaDefinitionError if r.getCause() ne null => r.getCause() match {
-            case nd: InfosetNoDataException => {
+            case nd: InfosetNoDataExceptionBase => {
               //
               // Displays the empty element since it has no value.
               //

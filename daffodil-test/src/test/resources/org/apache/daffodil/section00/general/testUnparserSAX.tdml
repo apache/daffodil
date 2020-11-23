@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<tdml:testSuite xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="http://example.com"
+  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
+  suiteName="saxUnparserTests">
+
+  <tdml:defineSchema name="saxUnparseSchema.embedded.dfdl.xsd">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+    <dfdl:format ref="ex:GeneralFormat" />
+
+    <xs:element name="record" type="ex:itemType"/>
+    <xs:complexType name="itemType">
+      <xs:sequence>
+        <xs:element name="item" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+
+  </tdml:defineSchema>
+
+  <tdml:defineConfig name="cfg_saxUnparseEventBatchSize_1">
+    <daf:tunables xmlns="http://www.w3.org/2001/XMLSchema"
+      xmlns:xs="http://www.w3.org/2001/XMLSchema">
+      <daf:saxUnparseEventBatchSize>1</daf:saxUnparseEventBatchSize>
+    </daf:tunables>
+  </tdml:defineConfig>
+
+  <tdml:defineConfig name="cfg_saxUnparseEventBatchSize_5">
+    <daf:tunables xmlns="http://www.w3.org/2001/XMLSchema"
+      xmlns:xs="http://www.w3.org/2001/XMLSchema">
+      <daf:saxUnparseEventBatchSize>5</daf:saxUnparseEventBatchSize>
+    </daf:tunables>
+  </tdml:defineConfig>
+
+  <tdml:defineConfig name="cfg_saxUnparseEventBatchSize_1000">
+    <daf:tunables xmlns="http://www.w3.org/2001/XMLSchema"
+      xmlns:xs="http://www.w3.org/2001/XMLSchema">
+      <daf:saxUnparseEventBatchSize>1000</daf:saxUnparseEventBatchSize>
+    </daf:tunables>
+  </tdml:defineConfig>
+
+  <tdml:unparserTestCase name="test_saxUnparseBatchSize_1" root="record"
+    model="saxUnparseSchema.embedded.dfdl.xsd"
+    roundTrip="true"
+    config="cfg_saxUnparseEventBatchSize_1">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <record xmlns="http://example.com">
+          <item>H</item>
+          <item>e</item>
+          <item>l</item>
+          <item>l</item>
+          <item>o</item>
+          <item>!</item>
+          <item>-</item>
+          <item>W</item>
+          <item>o</item>
+          <item>r</item>
+          <item>l</item>
+          <item>d</item>
+          <item>.</item>
+          <item>1</item>
+          <item>2</item>
+          <item>3</item>
+        </record>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+
+    <tdml:document>Hello!-World.123</tdml:document>
+
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="test_saxUnparseBatchSize_5" root="record"
+    model="saxUnparseSchema.embedded.dfdl.xsd"
+    roundTrip="true"
+    config="cfg_saxUnparseEventBatchSize_5">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <record xmlns="http://example.com">
+          <item>H</item>
+          <item>e</item>
+          <item>l</item>
+          <item>l</item>
+          <item>o</item>
+          <item>!</item>
+          <item>-</item>
+          <item>W</item>
+          <item>o</item>
+          <item>r</item>
+          <item>l</item>
+          <item>d</item>
+          <item>.</item>
+          <item>1</item>
+          <item>2</item>
+          <item>3</item>
+        </record>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+
+    <tdml:document>Hello!-World.123</tdml:document>
+
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="test_saxUnparseBatchSize_1000" root="record"
+    model="saxUnparseSchema.embedded.dfdl.xsd"
+    roundTrip="true"
+    config="cfg_saxUnparseEventBatchSize_1000">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <record xmlns="http://example.com">
+          <item>H</item>
+          <item>e</item>
+          <item>l</item>
+          <item>l</item>
+          <item>o</item>
+          <item>!</item>
+          <item>-</item>
+          <item>W</item>
+          <item>o</item>
+          <item>r</item>
+          <item>l</item>
+          <item>d</item>
+          <item>.</item>
+          <item>1</item>
+          <item>2</item>
+          <item>3</item>
+        </record>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:document>Hello!-World.123</tdml:document>
+
+  </tdml:unparserTestCase>
+</tdml:testSuite>
+

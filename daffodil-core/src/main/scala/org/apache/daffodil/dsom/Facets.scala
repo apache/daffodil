@@ -21,6 +21,7 @@ import java.math.BigInteger
 import scala.xml.Node
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.dpath.NodeInfo.PrimType
+import org.apache.daffodil.xml.XMLUtils
 
 trait Facets { self: Restriction =>
   import org.apache.daffodil.dsom.FacetTypes._
@@ -129,10 +130,45 @@ trait Facets { self: Restriction =>
   final lazy val patternValues: Seq[FacetValueR] = {
     val values = combinedBaseFacets.filter { case (f, _) => f == Facet.pattern }
     if (values.size > 0) {
-      val res: Seq[FacetValueR] = values.map { case (f, v) => (f, v.r) }
+      val res: Seq[FacetValueR] = values.map {
+        case (f, v) => {
+          //
+          // The DFDL Infoset can contain strings which hold characters
+          // that are not allowed in XML at all.
+          //
+          // In order to talk about these characters in a XSD pattern facet
+          // we use a remapping of such characters into the Unicode
+          // Private Use Area, so as to have XML-legal characters.
+          //
+          // See the section titled "XML Illegal Characters" on this web page:
+          // https://daffodil.apache.org/infoset/
+          //
+          // Before processing a regex of these characters in Daffodil's pattern facet
+          // validation, we must remap these PUA characters back to the originally
+          // intended code points, since that's what the Infoset strings will contain.
+          //
+          // Consider the character code 0xB. This is illegal in XML v1.0 documents.
+          // A DFDL Schema is an XML Schema, which is an XML document; hence, we cannot
+          // use the character with code 0xB directly, nor can we use an XML numeric
+          // character entity like &#xB; for it. The character is simply disallowed in
+          // XML, including DFDL schemas. Hence, we mention 0xB by using a remapping of it
+          // to the PUA area character 0xE00B, which we express by &#xE00B;
+          // Hence a pattern regex like "[&#xE00B;&#x20;0-9a-zA-Z]" will match
+          // the character with char code 0xB (remapped from E00B), as well as spaces,
+          // and alphanumeric characters.
+          //
+          // The XSD numeric character entity &#xE000; can be used to match ASCII NUL
+          // (char code 0).
+          //
+          val remapped = XMLUtils.remapPUAToXMLIllegalCharacters(v)
+          (f, remapped.r)
+        }
+      }
       res
-    } else Seq.empty
+    } else
+      Seq.empty
   }
+
   final lazy val enumerationValues: Option[String] = {
     // Should only ever have one set per SimpleType
     val values = combinedBaseFacets.filter { case (f, _) => f == Facet.enumeration }

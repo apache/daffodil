@@ -18,7 +18,7 @@
 /**
  * Provides the classes necessary to receive logging messages from Daffodil.
  *
- * <h3>Overview</h3>
+ * <h2>Overview</h2>
  *
  * Daffodil comes with three prebuilt log writers:
  * <ul>

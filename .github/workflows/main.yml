@@ -23,14 +23,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java_version: [ 8, 11 ]
+        java_version: [ 8, 11, 15 ]
         scala_version: [ 2.12.11 ]
-        os: [ 'ubuntu-20.04', 'windows-latest' ]
-        include:
-          - os: ubuntu-20.04
-            shell: bash
-          - os: windows-latest
-            shell: msys2 {0}
+        os: [ 'ubuntu-latest', 'windows-latest' ]
     env:
       SBT: sbt -J-Xms1024m -J-Xmx5120m -J-XX:ReservedCodeCacheSize=512m -J-XX:MaxMetaspaceSize=1024m ++${{ matrix.scala_version }} coverage
       SBTNOCOV: sbt -J-Xms1024m -J-Xmx5120m -J-XX:ReservedCodeCacheSize=512m -J-XX:MaxMetaspaceSize=1024m ++${{ matrix.scala_version }}
@@ -38,7 +33,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     defaults:
       run:
-        shell: ${{ matrix.shell }}
+        shell: bash
 
     steps:
 
@@ -71,7 +66,7 @@ jobs:
           ./configure --prefix=/usr --disable-shared --disable-threads
           make
           make install
-          
+
       - name: Install Java
         uses: actions/setup-java@v1
         with:

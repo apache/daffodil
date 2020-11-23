@@ -26,4 +26,6 @@ object ValidationMode extends Enum {
   case object Off extends Type(10)
   case object Limited extends Type(20)
   case object Full extends Type(30)
+
+  case class Custom(v: Validator) extends Type( 100)
 }

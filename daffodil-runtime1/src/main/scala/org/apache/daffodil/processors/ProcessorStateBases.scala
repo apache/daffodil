@@ -284,7 +284,8 @@ abstract class ParseOrUnparseState protected (
 
   final def fillByte: Byte = {
     if (maybeCachedFillByte.isEmpty)
-      maybeCachedFillByte = MaybeInt(termRuntimeData.maybeFillByteEv.get.evaluate(this).toInt)
+      maybeCachedFillByte = MaybeInt(termRuntimeData.fillByteEv.evaluate(this))
+
     maybeCachedFillByte.get.toByte
   }
 

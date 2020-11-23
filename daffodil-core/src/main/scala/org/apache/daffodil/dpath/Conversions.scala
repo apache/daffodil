@@ -17,8 +17,6 @@
 
 package org.apache.daffodil.dpath
 
-import org.apache.daffodil.exceptions.Assert
-
 /*
  * Casting chart taken from http://www.w3.org/TR/xpath-functions/#casting, with
  * types DFDL does not allow removed.
@@ -269,74 +267,14 @@ object Conversion {
 
       case (_, Exists) => Nil
       case (_, other) => {
-        val (relevantExpr: Expression, detailMsg: String) =
-          polymorphicExpressionDiagnostics(st, tt, context)
         context.SDE(
-          "In expression %s, the type %s cannot be converted to %s.%s",
-          relevantExpr.text,
+          "In expression %s, the type %s cannot be converted to %s.",
+          context.wholeExpressionText,
           st.globalQName.toQNameString,
-          tt.globalQName.toQNameString,
-          detailMsg)
+          tt.globalQName.toQNameString)
       }
     }
     ops
-  }
-
-  /**
-   * Determines a better expression for use in diagnostic messages, and computes
-   * a detailed diagnostic message with one line per use of the polymorphic expression
-   * up to 4 lines of detail. (Beyond that are suppressed/ignored.)
-   */
-  def polymorphicExpressionDiagnostics(
-    st: NodeInfo.Kind,
-    tt: NodeInfo.Kind,
-    context: Expression): (Expression, String) = {
-    val (relevantExpr: Expression, detailMsg: String) =
-      context match {
-        case stepE: StepExpression => {
-          val typeNodeGroups = stepE.stepElements.groupBy { _.typeNode }
-          Assert.invariant(typeNodeGroups.size > 0)
-          val rpp = stepE.relPathParent
-          val wholePath =
-            if (rpp.isAbsolutePath)
-              rpp.parent.asInstanceOf[RootPathExpression]
-            else
-              rpp
-          if (typeNodeGroups.size > 1) {
-            //
-            // types are not consistent for all step elements
-            //
-
-            val detailStrings: Seq[String] = {
-              typeNodeGroups.flatMap {
-                case (tn, cis) =>
-                  val tname = tn.globalQName.toQNameString
-                  val perUsePointStrings = cis.map { ci =>
-                    val sfl = ci.schemaFileLocation.locationDescription
-                    val qn = ci.namedQName.toQNameString
-                    val msg = "element %s in expression %s with %s type at %s".format(
-                      qn, wholePath.text, tname, sfl)
-                    msg
-                  }
-                  perUsePointStrings
-              }
-            }.toSeq
-            val detailPart: Seq[String] =
-              if (detailStrings.length > 4)
-                detailStrings.take(4) :+ "..."
-              else
-                detailStrings
-            val detailMessage: String =
-              "\nThe type is %s due to:\n%s".format(
-                st.name, detailPart.mkString("\n"))
-            (wholePath, detailMessage)
-          } else {
-            (wholePath, "")
-          }
-        }
-        case _ => (context, "")
-      }
-    (relevantExpr, detailMsg)
   }
 
 }

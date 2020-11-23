@@ -17,9 +17,6 @@
 
 package org.apache.daffodil.processors.unparsers
 
-import java.lang.{ Double => JDouble }
-import java.lang.{ Float => JFloat }
-
 import org.apache.daffodil.processors._
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.processors.TextNumberFormatEv
@@ -67,18 +64,6 @@ case class ConvertTextNumberUnparser(
 
     val strRep = value.getAnyRef match {
       case n: Number if n == 0 && zeroRep.isDefined => zeroRep.get
-      // We need to special case infinity and NaN because ICU4J has a bug and
-      // will add an exponent to inf/nan (e.g. INFx10^0) if defined in the
-      // pattern, which we don't want. We need to manually output the inf/nan
-      // rep plus the prefix and suffix
-      case f: JFloat if f.isInfinite =>
-        if (f > 0) df.getPositivePrefix + dfs.getInfinity + df.getPositiveSuffix
-        else df.getNegativePrefix + dfs.getInfinity + df.getNegativeSuffix
-      case f: JFloat if f.isNaN => dfs.getNaN
-      case d: JDouble if d.isInfinite =>
-        if (d > 0) df.getPositivePrefix + dfs.getInfinity + df.getPositiveSuffix
-        else df.getNegativePrefix + dfs.getInfinity + df.getNegativeSuffix
-      case d: JDouble if d.isNaN => dfs.getNaN
       case _ =>
         try {
           df.format(value.getAnyRef)

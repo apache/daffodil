@@ -24,10 +24,15 @@ import java.io.File
 import org.apache.daffodil.processors.VariableMap
 import org.apache.daffodil.externalvars.Binding
 import org.apache.daffodil.infoset.InfosetInputter
+import org.apache.daffodil.infoset.InfosetInputterEventType
 import org.apache.daffodil.infoset.InfosetOutputter
 import org.apache.daffodil.processors.Failure
 import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.xml.RefQName
+import org.apache.daffodil.util.Coroutine
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.Maybe.Nope
+import org.xml.sax.SAXException
 
 /**
  * This file contains traits that define an abstract API that any DFDL processor
@@ -215,9 +220,14 @@ object DFDL {
 
   trait DataProcessor extends DataProcessorBase with WithDiagnostics {
     /**
-     * Creates a new instance of XMLReader for SAX Parsing/Unparsing
+     * Creates a new instance of XMLReader for SAX Parsing
      */
-    def newXMLReaderInstance: DaffodilXMLReader
+    def newXMLReaderInstance: DaffodilParseXMLReader
+
+    /**
+     * Creates a new instance of DaffodilUnparseContentHandler for SAX Unparsing
+     */
+    def newContentHandlerInstance(output: DFDL.Output): DaffodilUnparseContentHandler
 
     /**
      * Unparses (that is, serializes) data to the output, returns an object which contains any diagnostics.
@@ -230,11 +240,90 @@ object DFDL {
     def parse(input: InputSourceDataInputStream, output: InfosetOutputter): ParseResult
   }
 
-  trait DaffodilXMLReader extends org.xml.sax.XMLReader {
+  trait DaffodilParseXMLReader extends org.xml.sax.XMLReader {
     def parse(is: java.io.InputStream): Unit
     def parse(in: InputSourceDataInputStream): Unit
     def parse(ab: Array[Byte]): Unit
   }
+
+  trait DaffodilUnparseContentHandler extends org.xml.sax.ContentHandler with ProducerCoroutine {
+    def getUnparseResult: UnparseResult
+    def enableInputterResolutionOfRelativeInfosetBlobURIs(): Unit
+  }
+
+  /**
+   * Used in SAXInfosetEvent.causeError to identify when an unparseResult.isError is true
+   */
+  class DaffodilUnparseErrorSAXException(unparseResult: UnparseResult)
+    extends org.xml.sax.SAXException(unparseResult.getDiagnostics.mkString("\n"))
+
+  /**
+   * Used in SAXInfosetEvent.causeError to identify when an unexpected error occurs
+   */
+  class DaffodilUnhandledSAXException(description: String, cause: Exception)
+    extends org.xml.sax.SAXException(description, cause)
+
+  class SAXInfosetEvent() {
+    var localName: Maybe[String] = Nope
+    var simpleText: Maybe[String] = Nope
+    var namespaceURI: Maybe[String] = Nope
+    var eventType: Maybe[InfosetInputterEventType] = Nope
+    var nilValue: Maybe[String] = Nope
+    var causeError: Maybe[SAXException] = Nope
+    var unparseResult: Maybe[UnparseResult] = Nope
+
+    def isError: Boolean = causeError.isDefined
+
+    def clear(): Unit = {
+      localName = Nope
+      simpleText = Nope
+      namespaceURI = Nope
+      eventType = Nope
+      nilValue = Nope
+      causeError = Nope
+      unparseResult = Nope
+    }
+
+    def isEmpty: Boolean = {
+      localName.isEmpty &&
+        simpleText.isEmpty &&
+        namespaceURI.isEmpty &&
+        eventType.isEmpty &&
+        nilValue.isEmpty &&
+        causeError.isEmpty &&
+        unparseResult.isEmpty
+    }
+
+    override def toString: String = {
+      val errorState = if (isError) "ERROR" else ""
+      s"$errorState ${if (eventType.isDefined) eventType.get else "No_EventType"}:" +
+        s"{${if (namespaceURI.isDefined) namespaceURI.get else ""}}" +
+        s"${if (localName.isDefined) localName.get else "No_Name"}:" +
+        s"(${if (simpleText.isDefined) simpleText.get else "No_content"})"
+    }
+  }
+
+  object SAXInfosetEvent {
+    def copyEvent(source: DFDL.SAXInfosetEvent, dest: DFDL.SAXInfosetEvent): Unit = {
+      if (source == null) dest.clear()
+      else {
+        dest.eventType = source.eventType
+        dest.namespaceURI = source.namespaceURI
+        dest.localName = source.localName
+        dest.nilValue = source.nilValue
+        dest.simpleText = source.simpleText
+      }
+    }
+  }
+
+  trait ProducerCoroutine extends Coroutine[Array[SAXInfosetEvent]] {
+    override def isMain = true
+    override protected def run(): Unit = {
+      throw new Error("Main thread co-routine run method should not be called.")
+    }
+  }
+
+  trait ConsumerCoroutine extends Coroutine[Array[SAXInfosetEvent]]
 
   trait ParseResult extends Result with WithDiagnostics {
     def resultState: State

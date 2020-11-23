@@ -411,8 +411,24 @@ class DirectOrBufferedDataOutputStream private[io] (
     Assert.invariant(isDirect)
   }
 
+  /**
+   * We need to keep track of what FormatInfo was used as the last write to
+   * this DOS. This way, when this DOS becomes direct and we start
+   * delivering following buffered DOS's, we are using the correct FormatInfo
+   * to check for bitOrder changes and to write data correctly. We set this
+   * value when this DOS is marked as finished with setFinished() and then use
+   * it when delivering buffered content.
+   */
+  private var finishedFormatInfo: Maybe[FormatInfo] = Nope
+
   override def setFinished(finfo: FormatInfo): Unit = {
     Assert.usage(!isFinished)
+    Assert.usage(finishedFormatInfo.isEmpty)
+
+    // this DOS is finished, save this format info so we use it when delivering
+    // buffered content
+    finishedFormatInfo = One(finfo)
+
     // if we are direct, and there's a buffer following this one
     //
     // we know it isn't finished (because of flush() above)
@@ -433,9 +449,14 @@ class DirectOrBufferedDataOutputStream private[io] (
           first.setAbsStartingBitPos0b(dabp)
         }
 
-        DirectOrBufferedDataOutputStream.deliverBufferContent(directStream, first, finfo) // from first, into direct stream's buffers
+        // from first, into direct stream's buffers. Make sure we use the
+        // format info last used for this DOS.
+        DirectOrBufferedDataOutputStream.deliverBufferContent(
+          directStream,
+          first,
+          directStream.finishedFormatInfo.get)
+
         // so now the first one is an EMPTY not necessarily a finished buffered DOS
-        //
         first.convertToDirect(directStream) // first is now the direct stream
         directStream.setDOSState(Uninitialized) // old direct stream is now dead
         directStream = first // long live the new direct stream!
@@ -824,107 +845,70 @@ class DirectOrBufferedDataOutputStream private[io] (
   }
 
   /**
-   * Convenience methods that temporarily set and (reliably) restore the bitLimit.
-   * The argument gives the limit length. Note this is a length, not a bit position.
-   *
-   * This is added to the current bit position to get the limiting bit position
-   * which is then set as the bitLimit when
-   * the body is evaluated. On return the bit limit is restored to its
-   * prior value.
-   * <p>
-   * The return value is false if the new bit limit is beyond the existing bit limit range.
-   * Otherwise the return value is true.
-   * <p>
-   * The prior value is restored even if an Error/Exception is thrown. (ie., via a try-finally)
-   * <p>
-   * These are intended for use implementing specified-length types (simple or complex).
-   * <p>
-   * Note that length limits in lengthUnits Characters are not implemented
-   * this way. See fillCharBuffer(cb) method.
+   * Delivers the bits of this DOS's buffer into the given directDOS's output stream.
+   * Deals with the possibility that the directDOS ends with a fragment byte, or
+   * the bufDOS does, or both. Handles file based buffers as well.
    */
-  // private def withBitLengthLimit(lengthLimitInBits: Long)(body: => Unit): Boolean = macro IOMacros.withBitLengthLimitMacroForOutput
-
-  protected def deliverContent(directDOS: DirectOrBufferedDataOutputStream, finfo: FormatInfo) = {
+  protected def deliverContent(directDOS: DirectOrBufferedDataOutputStream, finfo: FormatInfo): Unit = {
     val bufferNBits = this.relBitPos0b // don't have to subtract a starting offset. It's always zero in buffered case.
     val bufOS = this.bufferingJOS
+    val nBytes = (bufferNBits / 8)
+    val nFragBits = this.fragmentLastByteLimit
 
-    if (directDOS.isEndOnByteBoundary && this.isEndOnByteBoundary) {
-      // no fragment bytes anywhere - just take the bytes
-
-      val nBytes = (bufferNBits / 8).toInt
-      val nBytesPut = {
-        if (bufOS.isFile) {
-          bufOS.close
-          val nBitsPut = try {
-            directDOS.putFile(bufOS.getFile.toPath, bufferNBits.toLong, chunkSizeInBytes, finfo)
-          } finally {
-            // Make sure we delete the file after it was put in the directDOS or
-            // if we encountered an error
-            if (bufOS.isTempFile)
-              bufOS.getFile.delete()
-          }
-          nBitsPut / 8
-        } else
-          directDOS.putBytes(bufOS.getBuf, 0, nBytes, finfo)
-      }
-      Assert.invariant(nBytesPut == nBytes)
-
-    } else {
-      // fragment byte on directDOS, fragment byte on bufDOS, or both.
-
-      val nFragBits = this.fragmentLastByteLimit
-      val byteCount = bufferNBits / 8
-      val wholeBytesWritten = {
-        if (bufOS.isFile) {
-          bufOS.close
-          val nBitsPut = try {
-            directDOS.putFile(bufOS.getFile.toPath, bufferNBits.toLong, chunkSizeInBytes, finfo)
-          } finally {
-            // Make sure we delete the file after it was put in the directDOS or
-            // if we encountered an error
-            if (bufOS.isTempFile)
-              bufOS.getFile.delete()
-          }
-          nBitsPut / 8
-        } else
-          directDOS.putBytes(bufOS.getBuf, 0, byteCount.toInt, finfo)
-      }
-
-      Assert.invariant(byteCount == wholeBytesWritten)
-      if (nFragBits > 0) {
-        if (directDOS.isEndOnByteBoundary) {
-          // We cannot use putLong like below because it's possible that
-          // the fragment byte has a different bitOrder than the finfo
-          // passed in, since that came from a suspension. However, if
-          // the directDOS ended on a byte boundary, that means that its
-          // new fragment byte should be exactly the same as the buffered
-          // DOS fragment byte. So in this case, just copy the frag byte
-          // information from buffered to direct.
-          directDOS.setFragmentLastByte(this.fragmentLastByte, this.fragmentLastByteLimit)
-        } else {
-          // If the direct DOS wasn't byte aligned, then we need logic to
-          // write the buffered DOS fragment after the direct DOS
-          // fragment. Fortunately, putLong has all of this logic. Like
-          // above, the call to putLong potentially uses the wrong finfo
-          // since it may have come from a suspension. However, all that
-          // putLong really uses from the finfo is the bitOrder. And
-          // because the directDOS isn't byte aligned we know it must
-          // have the same bitOrder as the buffered DOS. So even though
-          // it could be the wrong format info, it's safe to use in this
-          // case.
-          val origfrag = this.fragmentLastByte
-          val fragNum =
-            if (finfo.bitOrder eq BitOrder.MostSignificantBitFirst)
-              origfrag >> (8 - nFragBits)
-            else
-              origfrag
-
-          Assert.invariant(directDOS.putLongUnchecked(
-            fragNum, nFragBits, finfo,
-            ignoreByteOrder = this.bufferingJOS.isFile))
+    val wholeBytesWritten = {
+      if (bufOS.isFile) {
+        bufOS.close
+        val nBitsPut = try {
+          directDOS.putFile(bufOS.getFile.toPath, bufferNBits.toLong, chunkSizeInBytes, finfo)
+        } finally {
+          // Make sure we delete the file after it was put in the directDOS or
+          // if we encountered an error
+          if (bufOS.isTempFile)
+            bufOS.getFile.delete()
         }
+        nBitsPut / 8
+      } else {
+        Assert.invariant(nBytes <= Int.MaxValue)
+        directDOS.putBytes(bufOS.getBuf, 0, nBytes.toInt, finfo)
       }
     }
+
+    Assert.invariant(nBytes == wholeBytesWritten)
+
+    if (nFragBits > 0) {
+      if (directDOS.isEndOnByteBoundary) {
+        // We cannot use putLong like below because it's possible that
+        // the fragment byte has a different bitOrder than the finfo
+        // passed in, since that came from a suspension. However, if
+        // the directDOS ended on a byte boundary, that means that its
+        // new fragment byte should be exactly the same as the buffered
+        // DOS fragment byte. So in this case, just copy the frag byte
+        // information from buffered to direct.
+        directDOS.setFragmentLastByte(this.fragmentLastByte, this.fragmentLastByteLimit)
+      } else {
+        // If the direct DOS wasn't byte aligned, then we need logic to
+        // write the buffered DOS fragment after the direct DOS
+        // fragment. Fortunately, putLong has all of this logic. Like
+        // above, the call to putLong potentially uses the wrong finfo
+        // since it may have come from a suspension. However, all that
+        // putLong really uses from the finfo is the bitOrder. And
+        // because the directDOS isn't byte aligned we know it must
+        // have the same bitOrder as the buffered DOS. So even though
+        // it could be the wrong format info, it's safe to use in this
+        // case.
+        val origfrag = this.fragmentLastByte
+        val fragNum =
+          if (finfo.bitOrder eq BitOrder.MostSignificantBitFirst)
+            origfrag >> (8 - nFragBits)
+          else
+            origfrag
+
+        Assert.invariant(directDOS.putLongUnchecked(
+          fragNum, nFragBits, finfo,
+          ignoreByteOrder = this.bufferingJOS.isFile))
+      }
+    }
+
     bufOS.close()
   }
 

@@ -283,7 +283,7 @@ class ElementParser(
   }
 }
 
-class ElementParserNoRep(
+class ElementParserInputValueCalc(
   erd: ElementRuntimeData,
   name: String,
   patDiscrim: Maybe[Parser],
@@ -310,7 +310,7 @@ class ElementParserNoRep(
   // if there is no rep (inputValueCalc), then we do create a new child so that index must advance,
   // but we don't create anything new as far as the group is concerned, and we don't want
   // the group 'thinking' that there's a prior sibling inside the group and placing a
-  // separator after it. So in the case of NoRep, we don't advance group child, just element child.
+  // separator after it. So in the case of InputValueCalc, we don't advance group child, just element child.
   override def move(state: PState): Unit = {
     state.mpstate.moveOverOneElementChildOnly
   }

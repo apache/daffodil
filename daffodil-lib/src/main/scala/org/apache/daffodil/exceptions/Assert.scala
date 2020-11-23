@@ -84,11 +84,20 @@ object Assert extends Assert {
   def usage(testAbortsIfFalse: Boolean): Unit = macro AssertMacros.usageMacro1
 
   /**
-   * test for something that the program is supposed to be insuring.
+   * test for something that the program is supposed to be ensuring.
    *
    * This is for more complex invariants than the simple 'impossible' case.
    */
   def invariant(testAbortsIfFalse: Boolean): Unit = macro AssertMacros.invariantMacro1
+
+  /**
+   * test for something that the program is supposed to be ensuring, with a custom error message.
+   *
+   * This is for more complex invariants than the simple 'impossible' case.
+   *
+   * The msg parameter is only evaluated if the test fails
+   */
+  def invariant(testAbortsIfFalse: Boolean, msg: String): Unit = macro AssertMacros.invariantMacro2
 
   /**
    * Conditional behavior for NYIs

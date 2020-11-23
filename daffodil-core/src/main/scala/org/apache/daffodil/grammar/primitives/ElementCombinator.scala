@@ -23,6 +23,9 @@ import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.grammar.Gram
 import org.apache.daffodil.grammar.NamedGram
 import org.apache.daffodil.grammar.Terminal
+import org.apache.daffodil.processors.parsers.ElementParser
+import org.apache.daffodil.processors.parsers.ElementParserInputValueCalc
+import org.apache.daffodil.processors.parsers.Parser
 import org.apache.daffodil.processors.parsers.CaptureEndOfContentLengthParser
 import org.apache.daffodil.processors.parsers.CaptureEndOfValueLengthParser
 import org.apache.daffodil.processors.parsers.CaptureStartOfContentLengthParser
@@ -37,7 +40,7 @@ import org.apache.daffodil.processors.unparsers.CaptureStartOfValueLengthUnparse
 import org.apache.daffodil.processors.unparsers.ElementOVCSpecifiedLengthUnparser
 import org.apache.daffodil.processors.unparsers.ElementOVCUnspecifiedLengthUnparser
 import org.apache.daffodil.processors.unparsers.ElementSpecifiedLengthUnparser
-import org.apache.daffodil.processors.unparsers.ElementUnparserNoRep
+import org.apache.daffodil.processors.unparsers.ElementUnparserInputValueCalc
 import org.apache.daffodil.processors.unparsers.ElementUnspecifiedLengthUnparser
 import org.apache.daffodil.processors.unparsers.ElementUnusedUnparser
 import org.apache.daffodil.processors.unparsers.LeftCenteredPaddingUnparser
@@ -304,7 +307,7 @@ class ElementParseAndUnspecifiedLength(override val context: ElementBase,
         eRepTypeParser
       )
     else
-      new ElementParserNoRep(
+      new ElementParserInputValueCalc(
         context.erd,
         context.name,
         patDiscrim,
@@ -327,7 +330,7 @@ class ElementParseAndUnspecifiedLength(override val context: ElementBase,
       // dfdl:inputValueCalc case.
       // This unparser will assume the events are in the event stream, having been inferred and put
       // in place by the next element resolver.
-      new ElementUnparserNoRep(context.erd, uSetVar)
+      new ElementUnparserInputValueCalc(context.erd, uSetVar)
     }
   }
 }
