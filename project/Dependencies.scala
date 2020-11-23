@@ -49,4 +49,8 @@ object Dependencies {
     "com.novocode" % "junit-interface" % "0.11" % "it,test",
     "org.scalacheck" %% "scalacheck" % "1.14.3" % "it,test"
   )
+
+  lazy val schematron = Seq(
+    "net.sf.saxon" % "Saxon-HE" % "9.9.1-7"
+  )
 }
