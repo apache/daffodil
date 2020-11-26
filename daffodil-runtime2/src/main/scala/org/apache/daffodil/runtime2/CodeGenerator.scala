@@ -56,10 +56,12 @@ class CodeGenerator(root: Root) extends DFDL.CodeGenerator {
 
     // Copy our resource directory and all its C source files to our code subdirectory
     val resourceUri = Misc.getRequiredResource("/c")
-    val fileSystem = if (resourceUri.getScheme == "jar")
-      FileSystems.newFileSystem(resourceUri, Collections.emptyMap(), null)
-    else
+    val fileSystem = if (resourceUri.getScheme == "jar") {
+      val env: java.util.Map[String, String] = Collections.emptyMap()
+      FileSystems.newFileSystem(resourceUri, env)
+    } else {
       null
+    }
     try {
       val resourceDir = os.Path(if (fileSystem != null) fileSystem.getPath("/c") else Paths.get(resourceUri))
       os.copy(resourceDir, codeDir)
