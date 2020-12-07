@@ -89,11 +89,11 @@ class TestExternalVariablesLoader extends Logging {
     val (sd, sset) = generateSD(topLevelAnnotations)
     val initialVMap = sset.variableMap
 
-    val stk_v_no_default = initialVMap.getVariableBindings(v_no_default)
-    val stk_v_with_default = initialVMap.getVariableBindings(v_with_default)
+    val abuf_v_no_default = initialVMap.getVariableBindings(v_no_default)
+    val abuf_v_with_default = initialVMap.getVariableBindings(v_with_default)
 
-    val var_v_no_default = stk_v_no_default.top
-    val var_v_with_default = stk_v_with_default.top
+    val var_v_no_default = abuf_v_no_default.last
+    val var_v_with_default = abuf_v_with_default.last
 
     val v_no_default_vrd = var_v_no_default.rd
     val v_with_default_vrd = var_v_with_default.rd

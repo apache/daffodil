@@ -330,8 +330,8 @@ final class PState private (
     this.infoset = newParent
   }
 
-  def setVariable(vrd: VariableRuntimeData, newValue: DataValuePrimitive, referringContext: VariableRuntimeData, pstate: PState): Unit = {
-    variableMap.setVariable(vrd, newValue, referringContext, pstate)
+  def setVariable(vrd: VariableRuntimeData, newValue: DataValuePrimitive, referringContext: VariableRuntimeData): Unit = {
+    variableMap.setVariable(vrd, newValue, referringContext, this)
     changedVariablesStack.top += vrd.globalQName
   }
 
@@ -343,8 +343,8 @@ final class PState private (
     changedVariablesStack.top += vrd.globalQName
   }
 
-  def newVariableInstance(vrd: VariableRuntimeData, referringContext: VariableRuntimeData, pstate: PState): Unit = {
-    variableMap.newVariableInstance(vrd, referringContext, pstate)
+  def newVariableInstance(vrd: VariableRuntimeData): Unit = {
+    variableMap.newVariableInstance(vrd, this)
     changedVariablesStack.top += vrd.globalQName
   }
 

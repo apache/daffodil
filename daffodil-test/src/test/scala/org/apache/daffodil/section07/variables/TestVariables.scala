@@ -60,8 +60,16 @@ class TestVariables {
   @Test def test_varInstance_10(): Unit = { runner.runOneTest("varInstance_10") }
   @Test def test_varInstance_11(): Unit = { runner.runOneTest("varInstance_11") }
   @Test def test_varInstance_12(): Unit = { runner.runOneTest("varInstance_12") }
-  // Causes OOLAG Circular Definition
-  // @Test def test_defineVariable_nonConstantExpression(): Unit = { runner.runOneTest("defineVariable_nonConstantExpression") }
+
+  @Test def test_defineVariable_nonConstantExpression(): Unit = { runner.runOneTest("defineVariable_nonConstantExpression") }
+  @Test def test_defineVariable_nonConstantExpression_unp(): Unit = { runner.runOneTest("defineVariable_nonConstantExpression_unp") }
+  @Test def test_circular_defineVariable_err(): Unit = { runner.runOneTest("circular_defineVariable_err") }
+  @Test def test_defineVariable_ref_noDefault_err(): Unit = { runner.runOneTest("defineVariable_ref_noDefault_err") }
+  @Test def test_defineVariable_nonConstantExpression_setVar_err(): Unit = { runner.runOneTest("defineVariable_nonConstantExpression_setVar_err") }
+
+  // This test triggers an unhandled NoSuchElement exception, which if handled then runs into an Assert.invariant
+  //@Test def test_defineVariable_ref_infoset_err(): Unit = { runner.runOneTest("defineVariable_ref_infoset_err") }
+
   @Test def test_setVarChoice(): Unit = { runner.runOneTest("setVarChoice") }
   @Test def test_unparse_setVarChoice(): Unit = { runner.runOneTest("unparse_setVarChoice") }
   @Test def test_setVarOnSeqAndElemRef(): Unit = { runner.runOneTest("setVarOnSeqAndElemRef") }

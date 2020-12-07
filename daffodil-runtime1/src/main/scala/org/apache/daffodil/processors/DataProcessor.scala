@@ -491,6 +491,10 @@ class DataProcessor private (
       try {
         Assert.usageErrorUnless(state.dataInputStreamIsValid, "Attempted to use an invalid input source. This can happen due to our position in the input source not being properly reset after failed parse could not backtrack to its original position")
 
+        // Force the evaluation of any defineVariable's with non-constant default
+        // value expressions
+        state.variableMap.forceExpressionEvaluations(state)
+
         this.startElement(state, p)
         p.parse1(state)
         this.endElement(state, p)

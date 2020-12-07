@@ -33,10 +33,12 @@
       defaultValue="16" />
     <dfdl:defineVariable name="myVar3" type="xs:int"
       defaultValue="26" />
-    <!--<dfdl:defineVariable name="myVar4" type="xs:int"
+    <dfdl:defineVariable name="myVar4" type="xs:int"
       defaultValue="36" />
     <dfdl:defineVariable name="nonConstVar" type="xs:int"
-      defaultValue="{ $ex:myVar4 }" />-->
+      defaultValue="{ $ex:myVar4 }" />
+    <dfdl:defineVariable name="nonConstVar2" type="xs:int"
+      defaultValue="{ $ex:nonConstVar }" />
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
     <xs:element name="c">
@@ -435,13 +437,15 @@
       </xs:complexType>
     </xs:element>
 
-    <!--<xs:element name="defNonConst">
+    <xs:element name="defNonConst">
       <xs:complexType>
         <xs:sequence>
+          <xs:element name="test" type="xsd:int" dfdl:lengthKind="explicit" dfdl:length="1" />
           <xs:element name="value" type="xsd:int" dfdl:inputValueCalc="{ $ex:nonConstVar }" />
+          <xs:element name="value2" type="xsd:int" dfdl:inputValueCalc="{ $ex:nonConstVar2 }" />
         </xs:sequence>
       </xs:complexType>
-    </xs:element>-->
+    </xs:element>
 
     <xs:element name="e1">
       <xs:complexType>
@@ -966,18 +970,39 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <!--<tdml:parserTestCase name="defineVariable_nonConstantExpression" root="defNonConst"
+  <tdml:parserTestCase name="defineVariable_nonConstantExpression" root="defNonConst"
     model="v"
     description="defineVariable with a non-constant expression as defaultValue">
+
+    <tdml:document><![CDATA[7]]></tdml:document>
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <defNonConst xmlns="http://example.com">
+          <test>7</test>
           <value>36</value>
+          <value2>36</value2>
         </defNonConst>
       </tdml:dfdlInfoset>
     </tdml:infoset>
-  </tdml:parserTestCase>-->
+  </tdml:parserTestCase>
+
+  <tdml:unparserTestCase name="defineVariable_nonConstantExpression_unp" root="defNonConst"
+    model="v"
+    description="defineVariable with a non-constant expression as defaultValue" roundTrip="false">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <defNonConst xmlns="http://example.com">
+          <test>7</test>
+          <value>36</value>
+          <value2>36</value2>
+        </defNonConst>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:document><![CDATA[7]]></tdml:document>
+  </tdml:unparserTestCase>
 
   <tdml:parserTestCase name="varAsSeparator" root="e1"
     model="v"
@@ -1947,6 +1972,108 @@
             <str>f</str>
           </records>
         </file>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="circular_defineVariable">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" />
+
+    <dfdl:defineVariable name="circular1" type="xs:int"
+      defaultValue="{ $ex:circular2 }" />
+    <dfdl:defineVariable name="circular2" type="xs:int"
+      defaultValue="{ $ex:circular1 }" />
+    <xs:element name="root" type="xs:int" dfdl:inputValueCalc="{ $ex:circular1 }" />
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="circular_defineVariable_err" root="root"
+    model="circular_defineVariable" description="Section 7 - ">
+    <tdml:document/>
+    <tdml:errors>
+      <tdml:error>Runtime Schema Definition Error</tdml:error>
+      <tdml:error>part of a circular definition</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="defineVariable_ref_infoset">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" />
+
+    <dfdl:defineVariable name="badRef" type="xs:int"
+      defaultValue="{ ex:root }" />
+    <xs:element name="root" type="xs:int" dfdl:inputValueCalc="{ 42 }" />
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="defineVariable_ref_infoset_err" root="root"
+    model="defineVariable_ref_infoset" description="Section 7 - ">
+    <tdml:document/>
+    <tdml:errors>
+      <tdml:error>????</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="defineVariable_ref_noDefault">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" />
+
+    <dfdl:defineVariable name="noDefault" type="xs:int" />
+    <dfdl:defineVariable name="badRef" type="xs:int"
+      defaultValue="{ $ex:noDefault }" />
+    <xs:element name="root" type="xs:int" dfdl:inputValueCalc="{ $ex:badRef }" />
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="defineVariable_ref_noDefault_err" root="root"
+    model="defineVariable_ref_noDefault" description="Section 7 - ">
+    <tdml:document/>
+    <tdml:errors>
+      <tdml:error>Runtime Schema Definition Error</tdml:error>
+      <tdml:error>has no value. It was not set</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="defineVariable_nonConstantExpression_setVar">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" />
+
+    <dfdl:defineVariable name="var1" type="xs:int"
+      defaultValue="{ 5 }" />
+    <dfdl:defineVariable name="var2" type="xs:int"
+      defaultValue="{ $ex:var1 }" />
+    <xs:element name="root">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:annotation>
+            <xs:appinfo source="http://www.ogf.org/dfdl/">
+              <dfdl:setVariable ref="ex:var2">2</dfdl:setVariable>
+              <dfdl:setVariable ref="ex:var1">1</dfdl:setVariable>
+            </xs:appinfo>
+          </xs:annotation>
+          <xs:element name="e1" type="xs:int" dfdl:inputValueCalc="{ $ex:var1 }" />
+          <xs:element name="e2" type="xs:int" dfdl:inputValueCalc="{ $ex:var2 }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="defineVariable_nonConstantExpression_setVar_err" root="root"
+    model="defineVariable_nonConstantExpression_setVar" description="Section 7 - ">
+    <tdml:document/>
+    <tdml:warnings>
+      <tdml:warning>Runtime Schema Definition Warning</tdml:warning>
+      <tdml:warning>Cannot set variable</tdml:warning>
+      <tdml:warning>after reading the default value</tdml:warning>
+    </tdml:warnings>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root>
+          <e1>1</e1>
+          <e2>2</e2>
+        </root>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
