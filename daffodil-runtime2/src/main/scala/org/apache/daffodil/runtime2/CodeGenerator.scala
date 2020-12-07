@@ -77,8 +77,8 @@ class CodeGenerator(root: Root) extends DFDL.CodeGenerator {
     val codeFileText = codeGeneratorState.generateCodeFile(rootElementName)
 
     // Write the generated C code into our code subdirectory
-    val generatedCodeHeader = codeDir/"generated_code.h"
-    val generatedCodeFile = codeDir/"generated_code.c"
+    val generatedCodeHeader = codeDir/"libruntime"/"generated_code.h"
+    val generatedCodeFile = codeDir/"libruntime"/"generated_code.c"
     os.write(generatedCodeHeader, codeHeaderText)
     os.write(generatedCodeFile, codeFileText)
 
@@ -96,7 +96,7 @@ class CodeGenerator(root: Root) extends DFDL.CodeGenerator {
     try {
       // Assemble the compiler's command line arguments
       val compiler = pickCompiler
-      val files = os.list(codeDir).filter(_.ext == "c")
+      val files = os.walk(codeDir).filter(_.ext == "c")
       val libs = Seq("-lmxml", if (isWindows) "-largp" else "-lpthread")
 
       // Call the compiler if it was found.  We run the compiler in the output directory,
@@ -105,7 +105,8 @@ class CodeGenerator(root: Root) extends DFDL.CodeGenerator {
       // We can't let "zig_cache" be put into "c" because we always remove and re-generate
       // everything in "c" from scratch.
       if (compiler.nonEmpty) {
-        val result = os.proc(compiler, "-I", codeDir, files, libs, "-o", exe).call(cwd = outputDir, stderr = os.Pipe)
+        val result = os.proc(compiler, "-I", codeDir/"libcli", "-I", codeDir/"libruntime",
+          files, libs, "-o", exe).call(cwd = outputDir, stderr = os.Pipe)
 
         // Report any compiler output as a warning
         if (result.out.text.nonEmpty || result.err.text.nonEmpty) {
