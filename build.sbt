@@ -57,13 +57,14 @@ lazy val runtime2         = Project("daffodil-runtime2", file("daffodil-runtime2
                                 Compile / ccTargets := ListSet(runtime2CFiles),
                                 Compile / cSources  := Map(
                                   runtime2CFiles -> (
-                                    ((Compile / resourceDirectory).value / "c" * GlobFilter("*.c")).get() ++
-                                    ((Compile / resourceDirectory).value / "examples" * GlobFilter("*.c")).get()
+                                    ((Compile / resourceDirectory).value / "c" ** GlobFilter("*.c")).get() ++
+                                    ((Compile / resourceDirectory).value / "examples" ** GlobFilter("*.c")).get()
                                   )
                                 ),
                                 Compile / cIncludeDirectories := Map(
                                   runtime2CFiles -> Seq(
-                                    (Compile / resourceDirectory).value / "c",
+                                    (Compile / resourceDirectory).value / "c" / "libcli",
+                                    (Compile / resourceDirectory).value / "c" / "libruntime",
                                     (Compile / resourceDirectory).value / "examples"
                                   )
                                 ),
