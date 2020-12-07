@@ -17,22 +17,26 @@
 
 package org.apache.daffodil.generating
 
-import org.junit.Test
-import org.junit.Before
-import org.junit.After
-import org.apache.daffodil.CLI.Util
 import net.sf.expectit.matcher.Matchers.contains
 import net.sf.expectit.matcher.Matchers.eof
+import org.apache.daffodil.CLI.Util
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
 
+/**
+ * Checks that we can run the "daffodil generate c" subcommand with
+ * various options and get expected outputs.
+ */
 class TestCLIGenerateC {
 
   val daffodil: String = Util.binPath
-  val outputDir: os.Path = os.pwd/"generate_tmp"
+  var outputDir: os.Path = _
   lazy val schemaFile: String = if (Util.isWindows) Util.cmdConvert(sf) else sf
   val sf: String = Util.daffodilPath("daffodil-runtime2/src/test/resources/org/apache/daffodil/runtime2/TestRuntime2.dfdl.xsd")
 
   @Before def before(): Unit = {
-    os.remove.all(outputDir)
+    outputDir = os.temp.dir()
   }
 
   @After def after(): Unit = {
@@ -52,7 +56,7 @@ class TestCLIGenerateC {
       shell.close()
     }
 
-    assert(os.exists(outputDir/"c"/"generated_code.c"))
+    assert(os.exists(outputDir/"c"/"libruntime"/"generated_code.c"))
   }
 
   @Test def test_CLI_Generate_noC_error(): Unit = {
@@ -130,7 +134,7 @@ class TestCLIGenerateC {
       shell.close()
     }
 
-    assert(os.exists(outputDir/"c"/"generated_code.c"))
+    assert(os.exists(outputDir/"c"/"libruntime"/"generated_code.c"))
   }
 
   @Test def test_CLI_Generate_root(): Unit = {
@@ -146,7 +150,7 @@ class TestCLIGenerateC {
       shell.close()
     }
 
-    assert(os.exists(outputDir/"c"/"generated_code.c"))
+    assert(os.exists(outputDir/"c"/"libruntime"/"generated_code.c"))
   }
 
   @Test def test_CLI_Generate_root_error(): Unit = {
@@ -193,6 +197,6 @@ class TestCLIGenerateC {
       shell.close()
     }
 
-    assert(os.exists(outputDir/"c"/"generated_code.c"))
+    assert(os.exists(outputDir/"c"/"libruntime"/"generated_code.c"))
   }
 }

@@ -20,24 +20,36 @@ package org.apache.daffodil.runtime2
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.nio.channels.Channels
-
 import org.apache.daffodil.Implicits.intercept
 import org.apache.daffodil.compiler.Compiler
 import org.apache.daffodil.util.Misc
 import org.apache.daffodil.util.SchemaUtils
 import org.apache.daffodil.util.TestUtils
+import org.junit.After
 import org.junit.Assert.assertArrayEquals
+import org.junit.Before
 import org.junit.Test
 
 /**
  * Checks that we can create a [[CodeGenerator]] and call its methods.
  * The value of this test is to debug the call path from [[Compiler]]
- * to [[CodeGenerator]] for one very simple DFDL schema.  Running TDML
- * tests with daffodil-runtime2 is a more effective way to test the
- * functionality of CodeGenerator's generated code for as many DFDL
- * schemas as you could want.
+ * to [[CodeGenerator]] for a single test DFDL schema.  Running TDML
+ * tests with daffodil-runtime2 is a more effective way to check that
+ * CodeGenerator can generate appropriate code for as many DFDL schemas
+ * as you could want.
  */
 class TestCodeGenerator {
+  // Ensure all tests remove outputDir after using it
+  var outputDir: os.Path = _
+
+  @Before def before(): Unit = {
+    outputDir = os.temp.dir()
+  }
+
+  @After def after(): Unit = {
+    os.remove.all(outputDir)
+  }
+
   // Define a simple DFDL test schema for debugging our code path
   private val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
@@ -78,35 +90,29 @@ class TestCodeGenerator {
     val cg = pf.forLanguage("c")
 
     // Generate code from the test schema successfully
-    val outputDir = cg.generateCode(None, "./generateCode_tmp")
+    val outputDir = cg.generateCode(None, s"${this.outputDir}")
     assert(!cg.isError, cg.getDiagnostics.map(_.getMessage()).mkString("\n"))
     assert(os.exists(outputDir))
-    assert(os.exists(outputDir/"c"/"generated_code.c"))
-
-    // Remove the generated code
-    os.remove.all(outputDir)
+    assert(os.exists(outputDir/"c"/"libruntime"/"generated_code.c"))
   }
 
   @Test def test_compileCode_success(): Unit = {
     // Create a CodeGenerator and generate code from the test schema
     val pf = Compiler().compileNode(testSchema)
     val cg = pf.forLanguage("c")
-    val outputDir = cg.generateCode(None, "./compileCode_tmp")
+    val outputDir = cg.generateCode(None, s"${this.outputDir}")
 
     // Compile the generated code into an executable successfully
     val executable = cg.compileCode(outputDir)
     assert(!cg.isError, cg.getDiagnostics.map(_.getMessage()).mkString("\n"))
     assert(os.exists(executable))
-
-    // Remove the generated code
-    os.remove.all(outputDir)
   }
 
   @Test def test_parse_success(): Unit = {
     // Compile the test schema into a C executable
     val pf = Compiler().compileNode(testSchema)
     val cg = pf.forLanguage("c")
-    val outputDir = cg.generateCode(None, "./parse_tmp")
+    val outputDir = cg.generateCode(None, s"${this.outputDir}")
     val executable = cg.compileCode(outputDir)
 
     // Create a Runtime2DataProcessor and parse a binary int32 number successfully
@@ -117,16 +123,13 @@ class TestCodeGenerator {
     assert(!pr.isError && pf.getDiagnostics.isEmpty, pr.getDiagnostics.map(_.getMessage()).mkString("\n"))
     val expected = <e1><x>5</x></e1>
     TestUtils.assertEqualsXMLElements(expected, pr.infosetAsXML)
-
-    // Remove the generated code
-    os.remove.all(outputDir)
   }
 
   @Test def test_unparse_success(): Unit = {
     // Compile the test schema into a C executable
     val pf = Compiler().compileNode(testSchema)
     val cg = pf.forLanguage("c")
-    val outputDir = cg.generateCode(None, "./unparse_tmp")
+    val outputDir = cg.generateCode(None, s"${this.outputDir}")
     val executable = cg.compileCode(outputDir)
 
     // Create a Runtime2DataProcessor and unparse a binary int32 number successfully
@@ -137,8 +140,5 @@ class TestCodeGenerator {
     assert(!pr.isError && pf.getDiagnostics.isEmpty, pr.getDiagnostics.map(_.getMessage()).mkString("\n"))
     val expected = Misc.hex2Bytes("00000005")
     assertArrayEquals(expected, output.toByteArray)
-
-    // Remove the generated code
-    os.remove.all(outputDir)
   }
 }
