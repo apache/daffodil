@@ -987,8 +987,17 @@ final class VariableRuntimeData(
       }
     }
 
-  def createVariableInstance(defaultValue: DataValuePrimitiveNullable = value): VariableInstance = {
+  // Pass by name/lazy arg is needed here as we need to postpone evaluating the
+  // defaultValue, which is most likely an expression, until after the inital
+  // VariableMap is created. Otherwise when we attempt to evaluate the
+  // expression it will look in the VariableMap, which hasn't been fully
+  // created yet and will trigger an OOLAG Circular Definition Exception
+  def createVariableInstance(defaultValue: => DataValuePrimitiveNullable): VariableInstance = {
     VariableInstance(state, defaultValue, this, maybeDefaultValueExpr)
+  }
+
+  def createVariableInstance(): VariableInstance = {
+    VariableInstance(state, value, this, maybeDefaultValueExpr)
   }
 
 }

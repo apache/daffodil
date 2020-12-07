@@ -88,7 +88,7 @@ class NewVariableInstanceStartUnparser(override val context: RuntimeData)
 
   override def unparse(state: UState) = {
     val vrd = context.asInstanceOf[VariableRuntimeData]
-    state.newVariableInstance(vrd, vrd, state)
+    state.newVariableInstance(vrd)
   }
 }
 

@@ -29,11 +29,12 @@ import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveNullable
 import org.apache.daffodil.infoset.RetryableException
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe.Nope
-import org.apache.daffodil.util.MStackOf
+import org.apache.daffodil.util.PreSerialization
+import org.apache.daffodil.util.TransientParam
 import org.apache.daffodil.xml.{GlobalQName, UnspecifiedNamespace, NamedQName, RefQName}
 import org.apache.daffodil.processors.parsers.PState
 
-import scala.collection.mutable.Map
+import scala.collection.mutable.{Map, ArrayBuffer}
 
 sealed abstract class VariableState extends Serializable
 
@@ -56,16 +57,103 @@ case object VariableRead extends VariableState
 case object VariableInProcess extends VariableState
 
 /**
- * Core tuple of a state for variables.
+ * Class for maintaining the state of a variable
+ *
+ * Note: stateArg, valueArg, and defaultValueExprArg are pass by name/lazy
+ * values as it is necessary to postpone their evaluation beyond when the
+ * VariableInstance is created. Attempting to evaluate these arguments will
+ * likely trigger an expression to be evaluated, which will query the
+ * VariableMap if the expression references another variable. If this is
+ * occurring within a defineVariable call, the VariableMap hasn't been fully
+ * created and attempting to evaluate such an expression will result in an OOLAG
+ * Circular Definition Exception
  */
-case class VariableInstance(
-  var state: VariableState,
-  var value: DataValuePrimitiveNullable,
-  rd: VariableRuntimeData,
-  defaultValueExpr: Maybe[CompiledExpression[AnyRef]],
+object VariableInstance {
+  def apply(
+    stateArg: => VariableState,
+    valueArg: => DataValuePrimitiveNullable,
+    rd: VariableRuntimeData,
+    defaultValueExprArg: => Maybe[CompiledExpression[AnyRef]],
+    priorState: VariableState = VariableUndefined,
+    priorValue: DataValuePrimitiveNullable = DataValue.NoValue) = {
+
+    new VariableInstance(stateArg, valueArg, rd, defaultValueExprArg, priorState, priorValue)
+  }
+}
+
+/**
+ * See documentation for object VariableInstance
+ */
+class VariableInstance private (
+  @TransientParam stateArg: => VariableState,
+  @TransientParam valueArg: => DataValuePrimitiveNullable,
+  val rd: VariableRuntimeData,
+  @TransientParam defaultValueExprArg: => Maybe[CompiledExpression[AnyRef]],
   var priorState: VariableState = VariableUndefined,
   var priorValue: DataValuePrimitiveNullable = DataValue.NoValue)
-  extends Serializable {
+  extends Serializable
+  with PreSerialization {
+
+  lazy val defaultValueExpr = defaultValueExprArg
+
+  private var _value: Option[DataValuePrimitiveNullable] = None
+  private var _state: VariableState = null
+
+  /**
+   * Returns the current value of the VariableInstance
+   *
+   * This function allows value to be set while also enabling valueArg to be
+   * lazily evaluated. This allows the VariableInstance to support setting the
+   * value later and allows the construction of the VariableMap containing the
+   * VariableInstance before evaluating the default value expression
+   */
+  def value = {
+    if (_value.isEmpty) {
+      _value = Some(valueArg)
+    }
+
+    _value.get
+  }
+
+  /**
+   * Returns the current state of the VariableInstance
+   *
+   * This function allows state to be set while also enabling stateArg to be
+   * lazily evaluated. This allows the VariableInstance to support setting the
+   * state later and allows the construction of the VariableMap containing the
+   * VariableInstance before evaluating the default value expression
+   */
+  def state = {
+    if (_state == null) {
+      _state = stateArg
+    }
+
+    _state
+  }
+
+  def setState(s: VariableState) = {
+    this.priorState = this.state
+    this._state = s
+  }
+
+  def setValue(v: DataValuePrimitiveNullable) = {
+    this.priorValue = this.value
+    this._value = Some(v)
+  }
+
+  override def preSerialization: Unit = {
+    defaultValueExpr
+    value
+    state
+  }
+
+  override def toString: String = "VariableInstance(%s,%s,%s,%s,%s,%s".format(
+                                                    state,
+                                                    value,
+                                                    rd,
+                                                    defaultValueExpr,
+                                                    priorState,
+                                                    priorValue)
 
   def copy(
     state: VariableState = state,
@@ -73,27 +161,22 @@ case class VariableInstance(
     rd: VariableRuntimeData = rd,
     defaultValueExpr: Maybe[CompiledExpression[AnyRef]] = defaultValueExpr,
     priorState: VariableState = priorState,
-    priorValue: DataValuePrimitiveNullable = priorValue) =
-      new VariableInstance(state, value, rd, defaultValueExpr, priorState, priorValue)
-
-  def setState(s: VariableState) = {
-    this.priorState = this.state
-    this.state = s
+    priorValue: DataValuePrimitiveNullable = priorValue) = {
+      val inst = new VariableInstance(state, value, rd, defaultValueExpr, priorState, priorValue)
+      inst.init()
+      inst
   }
 
-  def setValue(v: DataValuePrimitiveNullable) = {
-    this.priorValue = this.value
-    this.value = v
-  }
+  def init() = preSerialization
 
   def reset() = {
     Assert.invariant(this.state != VariableUndefined)
     (this.state, this.priorState, this.defaultValueExpr.isDefined) match {
-      case (VariableRead, VariableSet, _) => this.state = VariableSet
-      case (VariableRead, _, true) => this.state = VariableDefined
+      case (VariableRead, VariableSet, _) => this.setState(VariableSet)
+      case (VariableRead, _, true) => this.setState(VariableDefined)
       case (VariableSet, _, _) => {
-        this.state = this.priorState
-        this.value = this.priorValue
+        this.setState(this.priorState)
+        this.setValue(this.priorValue)
       }
       case (_, _, _) => Assert.impossible("Should have SDE before reaching this")
     }
@@ -127,6 +210,14 @@ abstract class VariableException(val qname: NamedQName, val context: VariableRun
 class VariableHasNoValue(qname: NamedQName, context: VariableRuntimeData) extends VariableException(qname, context,
   "Variable map (runtime): variable %s has no value. It was not set, and has no default value.".format(qname))
   with RetryableException
+
+/**
+ * This expression can be thrown either at the start of parsing is the
+ * expressions in a defineVariable are circular, or later during parsing if
+ * newVariableInstance contains a circular expression
+ */
+class VariableCircularDefinition(qname: NamedQName, context: VariableRuntimeData) extends VariableException(qname, context,
+  "Variable map (runtime): variable %s is part of a circular definition with other variables".format(qname))
 
 /**
  * Provides one more indirection to the variable map.
@@ -166,17 +257,21 @@ final class VariableBox(initialVMap: VariableMap) {
  *
  * The DPath implementation must be made to implement the
  * no-set-after-default-value-has-been-read behavior. This requires that reading the variables causes a state transition.
+ *
+ * The implementation of the VariabeMap uses ArrayBuffers essentially as a
+ * stack, as they allow for easy serialization unlike the custom MStack classes
+ * we use elsewhere. Scala's mutable Stack is deprecated in 2.12
  */
-class VariableMap private(vTable: Map[GlobalQName, MStackOf[VariableInstance]])
+class VariableMap private(vTable: Map[GlobalQName, ArrayBuffer[VariableInstance]])
   extends Serializable {
 
   def this(topLevelVRDs: Seq[VariableRuntimeData] = Nil) =
     this(Map(topLevelVRDs.map {
       vrd =>
         val variab = vrd.createVariableInstance()
-        val stack = new MStackOf[VariableInstance]
-        stack.push(variab)
-        (vrd.globalQName, stack)
+        val abuf = new ArrayBuffer[VariableInstance]
+        abuf += variab
+        (vrd.globalQName, abuf)
     }: _*))
 
   override def toString(): String = {
@@ -188,24 +283,37 @@ class VariableMap private(vTable: Map[GlobalQName, MStackOf[VariableInstance]])
    * VariableInstances are mutable and cannot safely be shared across threads
    */
   def copy(): VariableMap = {
-    val table = Map[GlobalQName, MStackOf[VariableInstance]]()
-    vTable.foreach { case (k: GlobalQName, s: MStackOf[VariableInstance]) => {
-      val newStack= new MStackOf[VariableInstance]()
-
-      // toList provides a list in LIFO order, so we need to reverse it to
-      // maintain order
-      s.toList.reverse.foreach { case v: VariableInstance => newStack.push(v.copy()) }
-      table(k) = newStack
+    val table = vTable.map { case (k: GlobalQName, abuf: ArrayBuffer[VariableInstance]) => {
+      val newBuf = abuf.map { _.copy() }
+      (k, newBuf)
     }}
 
     new VariableMap(table)
   }
 
+  // For defineVariable's with non-constant expressions for default values, it
+  // is necessary to force the evaluation of the expressions after the
+  // VariableMap has been created and initialized, but before parsing begins. We
+  // must also ensure that the expressions only reference other variables that
+  // have default value expressions or are defined externally.
+  def forceExpressionEvaluations(state: ParseOrUnparseState): Unit = {
+    vTable.foreach { case (_, abuf) => { abuf.foreach { inst => {
+      (inst.state, inst.value, inst.defaultValueExpr.isDefined) match {
+        // Evaluate defineVariable statements with non-constant default value expressions
+        case (VariableDefined, DataValue.NoValue, true) => {
+          val res = inst.defaultValueExpr.get.evaluate(state)
+          inst.setValue(DataValue.unsafeFromAnyRef(res))
+        }
+        case (_, _, _) => // Do nothing
+      }
+    }}}}
+  }
+
   def find(qName: GlobalQName): Option[VariableInstance] = {
-    val optStack = vTable.get(qName)
+    val optBuf = vTable.get(qName)
     val variab = {
-      if (optStack.isDefined)
-        Some(optStack.get.top)
+      if (optBuf.isDefined)
+        Some(optBuf.get.last)
       else
         None
     }
@@ -220,9 +328,9 @@ class VariableMap private(vTable: Map[GlobalQName, MStackOf[VariableInstance]])
   lazy val context = Assert.invariantFailed("unused.")
 
   /**
-   * For testing mostly.
+   * Used only for testing.
    */
-  def getVariableBindings(qn: GlobalQName): MStackOf[VariableInstance] = {
+  def getVariableBindings(qn: GlobalQName): ArrayBuffer[VariableInstance] = {
     vTable.get(qn).get
   }
 
@@ -230,20 +338,39 @@ class VariableMap private(vTable: Map[GlobalQName, MStackOf[VariableInstance]])
    * Returns the value of a variable and sets the state of the variable to be
    * VariableRead.
    */
-  def readVariable(vrd: VariableRuntimeData, referringContext: ThrowsSDE, maybePstate: Maybe[ParseOrUnparseState]): DataValuePrimitive = {
+  def readVariable(vrd: VariableRuntimeData, referringContext: ThrowsSDE, maybeState: Maybe[ParseOrUnparseState]): DataValuePrimitive = {
     val varQName = vrd.globalQName
-    val stack = vTable.get(varQName)
-    if (stack.isDefined) {
-      val variable = stack.get.top
+    val abuf = vTable.get(varQName)
+    if (abuf.isDefined) {
+      val variable = abuf.get.last
       variable.state match {
         case VariableRead if (variable.value.isDefined) => variable.value.getNonNullable
         case VariableDefined | VariableSet if (variable.value.isDefined) => {
-          if (maybePstate.isDefined && maybePstate.get.isInstanceOf[PState])
-            maybePstate.get.asInstanceOf[PState].markVariableRead(vrd)
+          if (maybeState.isDefined && maybeState.get.isInstanceOf[PState])
+            maybeState.get.asInstanceOf[PState].markVariableRead(vrd)
 
           variable.setState(VariableRead)
           variable.value.getNonNullable
         }
+        // This case is only hit for defineVariable's who's expression reference
+        // other defineVariables with expressions. It will be hit at the start
+        // of parsing, before an infoset is generated, via the
+        // forceExpressionEvaluations function after which all variables should
+        // have a defined value
+        case VariableDefined if (!variable.value.isDefined && variable.defaultValueExpr.isDefined) => {
+          Assert.invariant(maybeState.isDefined)
+          variable.setState(VariableInProcess)
+          val state = maybeState.get
+          val res = DataValue.unsafeFromAnyRef(variable.defaultValueExpr.get.evaluate(state))
+
+          // Need to update the variable's value with the result of the
+          // expression
+          variable.setState(VariableRead)
+          variable.setValue(res)
+
+          res
+        }
+        case VariableInProcess => throw new VariableCircularDefinition(varQName, vrd)
         case _ => throw new VariableHasNoValue(varQName, vrd)
       }
     } else
@@ -255,9 +382,9 @@ class VariableMap private(vTable: Map[GlobalQName, MStackOf[VariableInstance]])
    */
   def setVariable(vrd: VariableRuntimeData, newValue: DataValuePrimitive, referringContext: ThrowsSDE, pstate: ParseOrUnparseState) = {
     val varQName = vrd.globalQName
-    val stack = vTable.get(varQName)
-    if (stack.isDefined) {
-      val variable = stack.get.top
+    val abuf = vTable.get(varQName)
+    if (abuf.isDefined) {
+      val variable = abuf.get.last
       variable.state match {
         case VariableSet => {
           referringContext.SDE("Cannot set variable %s twice. State was: %s. Existing value: %s",
@@ -286,28 +413,28 @@ class VariableMap private(vTable: Map[GlobalQName, MStackOf[VariableInstance]])
   /**
    * Creates a new instance of a variable
    */
-  def newVariableInstance(vrd: VariableRuntimeData, referringContext: ThrowsSDE, state: ParseOrUnparseState) = {
+  def newVariableInstance(vrd: VariableRuntimeData, state: ParseOrUnparseState) = {
     val varQName = vrd.globalQName
-    val stack = vTable.get(varQName)
-    Assert.invariant(stack.isDefined)
+    val abuf = vTable.get(varQName)
+    Assert.invariant(abuf.isDefined)
 
     if (vrd.maybeDefaultValueExpr.isDefined) {
       val defaultValue = DataValue.unsafeFromAnyRef(vrd.maybeDefaultValueExpr.get.evaluate(state))
-      stack.get.push(vrd.createVariableInstance(VariableUtils.convert(defaultValue.getAnyRef.toString, vrd, referringContext)))
+      abuf.get += vrd.createVariableInstance(VariableUtils.convert(defaultValue.getAnyRef.toString, vrd, vrd))
     } else
-      stack.get.push(vrd.createVariableInstance())
+      abuf.get += vrd.createVariableInstance()
   }
 
   def removeVariableInstance(vrd: VariableRuntimeData): Unit = {
     val varQName = vrd.globalQName
-    val stack = vTable.get(varQName)
-    Assert.invariant(stack.isDefined)
-    stack.get.pop
+    val abuf = vTable.get(varQName)
+    Assert.invariant(abuf.isDefined)
+    abuf.get.trimEnd(1)
   }
 
 
   private lazy val externalVarGlobalQNames: Seq[GlobalQName] =
-    vTable.map { case (_, stack) if (stack.top.rd.external) => stack.top.rd.globalQName }.toSeq
+    vTable.map { case (_, abuf) if (abuf.last.rd.external) => abuf.last.rd.globalQName }.toSeq
 
   /**
    * Assigns an external variable and sets the variables state to VariableSet
@@ -334,11 +461,11 @@ class VariableMap private(vTable: Map[GlobalQName, MStackOf[VariableInstance]])
         bindingQName
       }
 
-    val stack = vTable.get(varQName.toGlobalQName)
-    if (!stack.isDefined)
+    val abuf = vTable.get(varQName.toGlobalQName)
+    if (!abuf.isDefined)
       referringContext.schemaDefinitionError("unknown variable %s", varQName)
     else {
-      val variable = stack.get.top
+      val variable = abuf.get.last
       variable.state match {
         case VariableDefined if (!variable.rd.external) => {
           referringContext.SDE("Cannot set variable %s externally. State was: %s. Existing value: %s.",

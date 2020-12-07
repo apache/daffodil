@@ -182,7 +182,7 @@ object MStackOfAnyRef {
  * things.
  */
 protected abstract class MStack[@specialized T] private[util] (
-  arrayAllocator: (Int) => Array[T], nullValue: T) extends Serializable {
+  arrayAllocator: (Int) => Array[T], nullValue: T) {
 
   private var index = 0
   private var table: Array[T] = null

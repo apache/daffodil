@@ -62,7 +62,7 @@ class DFDLDefineVariable(node: Node, doc: SchemaDocument)
   final lazy val primType = PrimType.fromNameString(typeQName.local).getOrElse(
     this.SDE("Variables must have primitive type. Type was '%s'.", typeQName.toPrettyString))
 
-  final def createVariableInstance = variableRuntimeData.createVariableInstance()
+  final def createVariableInstance = variableRuntimeData.createVariableInstance
 
   final override lazy val runtimeData = variableRuntimeData
 

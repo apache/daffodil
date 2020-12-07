@@ -156,7 +156,7 @@ class SetVariableParser(expr: CompiledExpression[AnyRef], decl: VariableRuntimeD
     log(LogLevel.Debug, "This is %s", toString) // important. Don't toString unless we have to log.
     val res = eval(start)
     if (start.processorStatus.isInstanceOf[Failure]) return
-    start.setVariable(decl, res, decl, start)
+    start.setVariable(decl, res, decl)
   }
 }
 
@@ -165,7 +165,7 @@ class NewVariableInstanceStartParser(override val context: VariableRuntimeData)
   override lazy val runtimeDependencies = Vector()
 
   def parse(start: PState): Unit = {
-    start.newVariableInstance(context, context, start)
+    start.newVariableInstance(context)
   }
 }
 

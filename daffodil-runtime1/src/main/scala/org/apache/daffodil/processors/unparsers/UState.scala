@@ -343,8 +343,8 @@ abstract class UState(
 
   def documentElement: DIDocument
 
-  def newVariableInstance(vrd: VariableRuntimeData, referringContext: VariableRuntimeData, ustate: UState): Unit = {
-    variableMap.newVariableInstance(vrd, referringContext, ustate)
+  def newVariableInstance(vrd: VariableRuntimeData): Unit = {
+    variableMap.newVariableInstance(vrd, this)
   }
 
   def removeVariableInstance(vrd: VariableRuntimeData): Unit = {
