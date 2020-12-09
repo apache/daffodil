@@ -17,6 +17,7 @@
 
 package org.apache.daffodil.runtime2.generators
 
+import org.apache.daffodil.grammar.primitives.AlignmentFill
 import org.apache.daffodil.grammar.primitives.ElementParseAndUnspecifiedLength
 import org.apache.daffodil.runtime2.Runtime2CodeGenerator
 
@@ -29,7 +30,8 @@ trait ElementParseAndUnspecifiedLengthCodeGenerator {
 
     context.schemaDefinitionWhen(context.inputValueCalcOption.isDefined, "Elements with inputValueCalc are not supported.")
     context.schemaDefinitionWhen(context.outputValueCalcOption.isDefined, "Elements with outputValueCalc are not supported.")
-    context.schemaDefinitionUnless(g.eBeforeGram.isEmpty, "Statements associated with elements are not supported.")
+    context.schemaDefinitionUnless(g.eBeforeGram.isEmpty
+      || g.eBeforeGram == AlignmentFill(context), "Statements associated with elements are not supported.")
     context.schemaDefinitionUnless(g.eAfterGram.isEmpty, "Statements associated with elements are not supported.")
     context.schemaDefinitionUnless(g.repTypeElementGram.isEmpty, "dfdlx:repType is not supported.")
 

@@ -136,18 +136,26 @@ walkInfosetNode(const VisitEventHandler *handler, const InfosetBase *infoNode)
         // We use only one of these variables below depending on typeCode
         const InfosetBase *childNode =
             (const InfosetBase *)((const char *)infoNode + offset);
-        const int32_t *intLocation =
-            (const int32_t *)((const char *)infoNode + offset);
+        const void *intLocation =
+            (const void *)((const char *)infoNode + offset);
 
         // Need to handle more element types
-        enum TypeCode typeCode = childERD->typeCode;
+        const enum TypeCode typeCode = childERD->typeCode;
         switch (typeCode)
         {
         case COMPLEX:
             error_msg = walkInfosetNode(handler, childNode);
             break;
+        case PRIMITIVE_UINT64:
+        case PRIMITIVE_UINT32:
+        case PRIMITIVE_UINT16:
+        case PRIMITIVE_UINT8:
+        case PRIMITIVE_INT64:
         case PRIMITIVE_INT32:
-            error_msg = handler->visitInt32Elem(handler, childERD, intLocation);
+        case PRIMITIVE_INT16:
+        case PRIMITIVE_INT8:
+            error_msg =
+                handler->visitIntegerElem(handler, childERD, intLocation);
             break;
         }
     }
