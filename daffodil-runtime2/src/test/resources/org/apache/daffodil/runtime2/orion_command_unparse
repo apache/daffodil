@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
   Licensed to the Apache Software Foundation (ASF) under one or more
   contributor license agreements.  See the NOTICE file distributed with
@@ -16,10 +16,15 @@
   limitations under the License.
 -->
 
-<ex:ex_int32 xmlns:ex="http://example.com">
-  <ex:e1>1</ex:e1>
-  <ex:c2>
-    <ex:e2>2</ex:e2>
-    <ex:e3>3</ex:e3>
-  </ex:c2>
-</ex:ex_int32>
+<orion_command xmlns="http://example.com">
+  <sync0>208</sync0>
+  <sync1>12</sync1>
+  <id>1</id>
+  <length>7</length>
+  <pan>-999</pan>
+  <tilt>-21231</tilt>
+  <mode>80</mode>
+  <stabilized>0</stabilized>
+  <impulse>0</impulse>
+  <checksum>30149</checksum>
+</orion_command>

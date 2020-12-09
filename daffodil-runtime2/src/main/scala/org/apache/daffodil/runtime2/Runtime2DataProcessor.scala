@@ -108,6 +108,8 @@ class Runtime2DataProcessor(executableFile: os.Path) extends DFDL.DataProcessorB
         val parseResult = new ParseResult(outfile, Failure(parseError))
         parseResult.addDiagnostic(parseError)
         parseResult
+    } finally {
+      os.remove.all(tempDir)
     }
   }
 
@@ -145,6 +147,8 @@ class Runtime2DataProcessor(executableFile: os.Path) extends DFDL.DataProcessorB
         val unparseResult = new UnparseResult(finalBitPos0b, Failure(unparseError))
         unparseResult.addDiagnostic(unparseError)
         unparseResult
+    } finally {
+      os.remove.all(tempDir)
     }
   }
 }
@@ -178,10 +182,7 @@ final class ParseResult(outfile: os.Path,
 
   override def currentLocation: DataLocation = loc
 
-  def infosetAsXML : scala.xml.Elem = {
-    val xml = scala.xml.XML.loadFile(outfile.toIO)
-    xml
-  }
+  val infosetAsXML : scala.xml.Elem = scala.xml.XML.loadFile(outfile.toIO)
 }
 
 final class UnparseResult(val finalBitPos0b: Long,

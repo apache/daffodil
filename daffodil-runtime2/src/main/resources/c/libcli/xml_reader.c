@@ -162,10 +162,10 @@ xmlEndComplex(XMLReader *reader, const InfosetBase *base)
     return NULL;
 }
 
-// Read 32-bit integer value from XML data
+// Read 8, 16, 32, or 64-bit signed/unsigned integer number from XML data
 
 static const char *
-xmlInt32Elem(XMLReader *reader, const ERD *erd, int32_t *location)
+xmlIntegerElem(XMLReader *reader, const ERD *erd, void *intLocation)
 {
     // Consume any newlines or whitespace before the element
     while (mxmlGetType(reader->node) == MXML_OPAQUE)
@@ -184,10 +184,50 @@ xmlInt32Elem(XMLReader *reader, const ERD *erd, int32_t *location)
     {
         if (strcmp(name_from_xml, name_from_erd) == 0)
         {
-            // Check for any errors getting the 32-bit integer
+            // Check for any errors getting the integer number
             const char *errstr = NULL;
-            *location = (int32_t)strtonum(number_from_xml, INT32_MIN, INT32_MAX,
-                                          &errstr);
+
+            // Need to handle varying bit lengths and signedness
+            const enum TypeCode typeCode = erd->typeCode;
+            switch (typeCode)
+            {
+            case PRIMITIVE_UINT64:
+                *(uint64_t *)intLocation =
+                    (uint64_t)strtonum(number_from_xml, 0, UINT64_MAX, &errstr);
+                break;
+            case PRIMITIVE_UINT32:
+                *(uint32_t *)intLocation =
+                    (uint32_t)strtonum(number_from_xml, 0, UINT32_MAX, &errstr);
+                break;
+            case PRIMITIVE_UINT16:
+                *(uint16_t *)intLocation =
+                    (uint16_t)strtonum(number_from_xml, 0, UINT16_MAX, &errstr);
+                break;
+            case PRIMITIVE_UINT8:
+                *(uint8_t *)intLocation =
+                    (uint8_t)strtonum(number_from_xml, 0, UINT8_MAX, &errstr);
+                break;
+            case PRIMITIVE_INT64:
+                *(int64_t *)intLocation = (int64_t)strtonum(
+                    number_from_xml, INT64_MIN, INT64_MAX, &errstr);
+                break;
+            case PRIMITIVE_INT32:
+                *(int32_t *)intLocation = (int32_t)strtonum(
+                    number_from_xml, INT32_MIN, INT32_MAX, &errstr);
+                break;
+            case PRIMITIVE_INT16:
+                *(int16_t *)intLocation = (int16_t)strtonum(
+                    number_from_xml, INT16_MIN, INT16_MAX, &errstr);
+                break;
+            case PRIMITIVE_INT8:
+                *(int8_t *)intLocation = (int8_t)strtonum(
+                    number_from_xml, INT8_MIN, INT8_MAX, &errstr);
+                break;
+            default:
+                errstr = "Unexpected ERD typeCode while reading integer from XML data";
+                break;
+            }
+
             return errstr;
         }
         else
@@ -206,5 +246,5 @@ xmlInt32Elem(XMLReader *reader, const ERD *erd, int32_t *location)
 const VisitEventHandler xmlReaderMethods = {
     (VisitStartDocument)&xmlStartDocument, (VisitEndDocument)&xmlEndDocument,
     (VisitStartComplex)&xmlStartComplex,   (VisitEndComplex)&xmlEndComplex,
-    (VisitInt32Elem)&xmlInt32Elem,
+    (VisitIntegerElem)&xmlIntegerElem,
 };

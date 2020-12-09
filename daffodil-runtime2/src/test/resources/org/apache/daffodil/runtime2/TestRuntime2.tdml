@@ -41,26 +41,54 @@ limitations under the License.
   </tdml:defineConfig>
 
   <tdml:parserTestCase
-    description="Parse binary int32 integers"
+    description="Parse example ex_int32"
     model="TestRuntime2.dfdl.xsd"
-    name="parse_int32">
+    name="ex_int32_parse"
+    root="ex_int32">
     <tdml:document>
-      <tdml:documentPart type="file">parse_int32</tdml:documentPart>
+      <tdml:documentPart type="file">ex_int32_parse</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
-      <tdml:dfdlInfoset type="file">unparse_int32</tdml:dfdlInfoset>
+      <tdml:dfdlInfoset type="file">ex_int32_unparse</tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
 
   <tdml:unparserTestCase
-    description="Unparse binary int32 numbers"
+    description="Unparse example ex_int32"
     model="TestRuntime2.dfdl.xsd"
-    name="unparse_int32">
+    name="ex_int32_unparse"
+    root="ex_int32">
     <tdml:infoset>
-      <tdml:dfdlInfoset type="file">unparse_int32</tdml:dfdlInfoset>
+      <tdml:dfdlInfoset type="file">ex_int32_unparse</tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:document>
-      <tdml:documentPart type="file">parse_int32</tdml:documentPart>
+      <tdml:documentPart type="file">ex_int32_parse</tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+  <tdml:parserTestCase
+    description="Parse example orion_command"
+    model="TestRuntime2.dfdl.xsd"
+    name="orion_command_parse"
+    root="orion_command">
+    <tdml:document>
+      <tdml:documentPart type="file">orion_command_parse</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">orion_command_unparse</tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:unparserTestCase
+    description="Unparse example orion_command"
+    model="TestRuntime2.dfdl.xsd"
+    name="orion_command_unparse"
+    root="orion_command">
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">orion_command_unparse</tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="file">orion_command_parse</tdml:documentPart>
     </tdml:document>
   </tdml:unparserTestCase>
 

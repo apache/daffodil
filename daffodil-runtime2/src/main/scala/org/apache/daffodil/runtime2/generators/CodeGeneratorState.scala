@@ -170,8 +170,14 @@ class CodeGeneratorState {
     val e = context.namedQName.local
     val qnameInit = defineQNameInit(context)
     val typeCode = context.optPrimType.get match {
+      case PrimType.UnsignedLong => "PRIMITIVE_UINT64"
+      case PrimType.UnsignedInt => "PRIMITIVE_UINT32"
+      case PrimType.UnsignedShort => "PRIMITIVE_UINT16"
+      case PrimType.UnsignedByte => "PRIMITIVE_UINT8"
+      case PrimType.Long => "PRIMITIVE_INT64"
       case PrimType.Int => "PRIMITIVE_INT32"
-      case PrimType.String => "PRIMITIVE_STRING"
+      case PrimType.Short => "PRIMITIVE_INT16"
+      case PrimType.Byte => "PRIMITIVE_INT8"
       case p: PrimType => context.SDE("PrimType %s not supported yet.", p.toString)
     }
     val erd =
@@ -203,8 +209,14 @@ class CodeGeneratorState {
     val definition = if (child.isSimpleType) {
       import NodeInfo.PrimType
       child.optPrimType.get match {
+        case PrimType.UnsignedLong => "uint64_t   "
+        case PrimType.UnsignedInt => "uint32_t   "
+        case PrimType.UnsignedShort => "uint16_t   "
+        case PrimType.UnsignedByte => "uint8_t    "
         case PrimType.Long => "int64_t    "
         case PrimType.Int => "int32_t    "
+        case PrimType.Short => "int16_t    "
+        case PrimType.Byte => "int8_t     "
         case x => context.SDE("Unsupported primitive type: " + x)
       }
     } else {
@@ -259,6 +271,9 @@ class CodeGeneratorState {
          |}
          |
          |// Methods to initialize, parse, and unparse infoset nodes
+         |
+         |static inline uint8_t be8toh(uint8_t be8b) { return be8b; }
+         |static inline uint8_t htobe8(uint8_t h8b) { return h8b; }
          |
          |$finalImplementation
          |""".stripMargin
