@@ -23,6 +23,8 @@ import org.apache.daffodil.schema.annotation.props.gen.{ BitOrder, ByteOrder }
 trait BinaryIntegerKnownLengthCodeGenerator {
 
   def binaryIntegerKnownLengthGenerateCode(g: BinaryIntegerKnownLength, cgState: CodeGeneratorState): Unit = {
+    // For the time being this is a very limited back end.
+    // So there are numerous restrictions to enforce.
     val e = g.e
     val fieldName = e.namedQName.local
     val lengthInBits: Long = {
@@ -36,50 +38,47 @@ trait BinaryIntegerKnownLengthCodeGenerator {
       val bo = e.byteOrderEv.constValue
       bo
     }
-    // For the time being this is a very limited back end.
-    // So there are numerous restrictions to enforce.
-    e.schemaDefinitionUnless(lengthInBits <= 64, "Length must be 64 bits or less, but was: %s", lengthInBits)
-    if (lengthInBits == 64 && !g.signed)
-      e.SDE("Integers of 64 bits length must be signed.")
 
     // This insures we can use regular java.io library calls.
     if (e.alignmentValueInBits.intValue() % 8 != 0)
       e.SDE("Only alignment to 8-bit (1 byte) boundaries is supported.")
 
     // The restrictions below are ones we want to eventually lift.
-    if (lengthInBits != 32)
-      e.SDE("Lengths other than 32 bits are not supported.")
-
     if (byteOrder ne ByteOrder.BigEndian)
       e.SDE("Only dfdl:byteOrder 'bigEndian' is supported.")
 
     if (e.bitOrder ne BitOrder.MostSignificantBitFirst)
       e.SDE("Only dfdl:bitOrder 'mostSignificantBitFirst' is supported.")
 
-    if (!g.signed)
-      e.SDE("Only signed integers are supported.")
-
-    val initStatement = s"    instance->$fieldName = 0xCDCDCDCD;"
+    // Start generating code snippets
+    val initialValue = lengthInBits match {
+      case 8 => "0xCD"
+      case 16 => "0xCDCD"
+      case 32 => "0xCDCDCDCD"
+      case 64 => "0xCDCDCDCDCDCDCDCD"
+      case _ => e.SDE("Lengths other than 8, 16, 32, or 64 bits are not supported.")
+    }
+    val initStatement = s"    instance->$fieldName = $initialValue;"
     val parseStatement =
       s"""    if (!error_msg)
          |    {
-         |        char   buffer[4];
+         |        char   buffer[sizeof(uint${lengthInBits}_t)];
          |        size_t count = fread(&buffer, 1, sizeof(buffer), pstate->stream);
          |        if (count < sizeof(buffer))
          |        {
          |            error_msg = eof_or_error_msg(pstate->stream);
          |        }
-         |        instance->$fieldName = be32toh(*((uint32_t *)(&buffer)));
+         |        instance->$fieldName = be${lengthInBits}toh(*((uint${lengthInBits}_t *)(&buffer)));
          |    }""".stripMargin
     val unparseStatement =
       s"""    if (!error_msg)
          |    {
          |        union
          |        {
-         |            char     c_val[4];
-         |            uint32_t i_val;
+         |            char     c_val[sizeof(uint${lengthInBits}_t)];
+         |            uint${lengthInBits}_t i_val;
          |        } buffer;
-         |        buffer.i_val = htobe32(instance->$fieldName);
+         |        buffer.i_val = htobe${lengthInBits}(instance->$fieldName);
          |        size_t count = fwrite(buffer.c_val, 1, sizeof(buffer), ustate->stream);
          |        if (count < sizeof(buffer))
          |        {

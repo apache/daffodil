@@ -16,33 +16,79 @@
   limitations under the License.
 -->
 
-<xs:schema elementFormDefault="qualified"
-           targetNamespace="http://example.com"
-           xmlns="http://example.com"
-           xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-           xmlns:ex="http://example.com"
-           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:schema
+    elementFormDefault="qualified"
+    targetNamespace="http://example.com"
+    xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+    xmlns:ex="http://example.com"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns="http://example.com">
 
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
     <xs:annotation>
         <xs:appinfo source="http://www.ogf.org/dfdl/">
-            <dfdl:format ref="GeneralFormat" representation="binary"/>
+            <dfdl:format
+                alignment="8"
+                alignmentUnits="bits"
+                encoding="UTF-8"
+                lengthUnits="bits"
+                representation="binary"
+                ref="GeneralFormat"/>
         </xs:appinfo>
     </xs:annotation>
 
     <xs:element name="ex_int32">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="e1" type="xs:int"/>
+                <xs:element name="e1" type="xs:int" />
                 <xs:element name="c2">
                     <xs:complexType>
                         <xs:sequence>
-                            <xs:element name="e2" type="xs:int"/>
-                            <xs:element name="e3" type="xs:int"/>
+                            <xs:element name="e2" type="xs:int" />
+                            <xs:element name="e3" type="xs:int" />
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:simpleType
+        name="int16"
+        dfdl:alignment="16"
+        dfdl:length="16"
+        dfdl:lengthKind="explicit">
+        <xs:restriction base="xs:short"/>
+    </xs:simpleType>
+    <xs:simpleType
+        name="uint8"
+        dfdl:alignment="8"
+        dfdl:length="8"
+        dfdl:lengthKind="explicit">
+        <xs:restriction base="xs:unsignedByte"/>
+    </xs:simpleType>
+    <xs:simpleType
+        name="uint16"
+        dfdl:alignment="16"
+        dfdl:length="16"
+        dfdl:lengthKind="explicit">
+        <xs:restriction base="xs:unsignedShort"/>
+    </xs:simpleType>
+
+    <xs:element name="orion_command">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="sync0" type="uint8" fixed="208"/>
+                <xs:element name="sync1" type="uint8" fixed="13"/>
+                <xs:element name="id" type="uint8" fixed="1"/>
+                <xs:element name="length" type="uint8" fixed="7"/>
+                <xs:element name="pan" type="int16"/>
+                <xs:element name="tilt" type="int16"/>
+                <xs:element name="mode" type="uint8" fixed="80"/>
+                <xs:element name="stabilized" type="uint8" fixed="0"/>
+                <xs:element name="impulse" type="uint8" fixed="0"/>
+                <xs:element name="checksum" type="uint16"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>

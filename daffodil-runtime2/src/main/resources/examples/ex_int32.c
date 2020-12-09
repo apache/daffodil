@@ -25,15 +25,15 @@
 static void        c2_initSelf(c2 *instance);
 static const char *c2_parseSelf(c2 *instance, const PState *pstate);
 static const char *c2_unparseSelf(const c2 *instance, const UState *ustate);
-static void        c1_initSelf(c1 *instance);
-static const char *c1_parseSelf(c1 *instance, const PState *pstate);
-static const char *c1_unparseSelf(const c1 *instance, const UState *ustate);
+static void        ex_int32_initSelf(ex_int32 *instance);
+static const char *ex_int32_parseSelf(ex_int32 *instance, const PState *pstate);
+static const char *ex_int32_unparseSelf(const ex_int32 *instance, const UState *ustate);
 
 // Metadata singletons
 
 static const ERD e1_ERD = {
     {
-        "ex", // namedQName.prefix
+        NULL, // namedQName.prefix
         "e1", // namedQName.local
         NULL, // namedQName.ns
     },
@@ -48,7 +48,7 @@ static const ERD e1_ERD = {
 
 static const ERD e2_ERD = {
     {
-        "ex", // namedQName.prefix
+        NULL, // namedQName.prefix
         "e2", // namedQName.local
         NULL, // namedQName.ns
     },
@@ -63,7 +63,7 @@ static const ERD e2_ERD = {
 
 static const ERD e3_ERD = {
     {
-        "ex", // namedQName.prefix
+        NULL, // namedQName.prefix
         "e3", // namedQName.local
         NULL, // namedQName.ns
     },
@@ -86,7 +86,7 @@ static const ERD *c2_childrenERDs[2] = {&e2_ERD, &e3_ERD};
 
 static const ERD c2_ERD = {
     {
-        "ex", // namedQName.prefix
+        NULL, // namedQName.prefix
         "c2", // namedQName.local
         NULL, // namedQName.ns
     },
@@ -99,27 +99,27 @@ static const ERD c2_ERD = {
     (ERDUnparseSelf)&c2_unparseSelf, // unparseSelf
 };
 
-static const c1 c1_compute_ERD_offsets;
+static const ex_int32 ex_int32_compute_ERD_offsets;
 
-static const ptrdiff_t c1_offsets[2] = {
-    (char *)&c1_compute_ERD_offsets.e1 - (char *)&c1_compute_ERD_offsets,
-    (char *)&c1_compute_ERD_offsets.c2 - (char *)&c1_compute_ERD_offsets};
+static const ptrdiff_t ex_int32_offsets[2] = {
+    (char *)&ex_int32_compute_ERD_offsets.e1 - (char *)&ex_int32_compute_ERD_offsets,
+    (char *)&ex_int32_compute_ERD_offsets.c2 - (char *)&ex_int32_compute_ERD_offsets};
 
-static const ERD *c1_childrenERDs[2] = {&e1_ERD, &c2_ERD};
+static const ERD *ex_int32_childrenERDs[2] = {&e1_ERD, &c2_ERD};
 
-static const ERD c1_ERD = {
+static const ERD ex_int32_ERD = {
     {
-        "ex",                 // namedQName.prefix
-        "c1",                 // namedQName.local
+        NULL, // namedQName.prefix
+        "ex_int32", // namedQName.local
         "http://example.com", // namedQName.ns
     },
     COMPLEX,                         // typeCode
     2,                               // numChildren
-    c1_offsets,                      // offsets
-    c1_childrenERDs,                 // childrenERDs
-    (ERDInitSelf)&c1_initSelf,       // initSelf
-    (ERDParseSelf)&c1_parseSelf,     // parseSelf
-    (ERDUnparseSelf)&c1_unparseSelf, // unparseSelf
+    ex_int32_offsets,                      // offsets
+    ex_int32_childrenERDs,                 // childrenERDs
+    (ERDInitSelf)&ex_int32_initSelf,       // initSelf
+    (ERDParseSelf)&ex_int32_parseSelf,     // parseSelf
+    (ERDUnparseSelf)&ex_int32_unparseSelf, // unparseSelf
 };
 
 // Return a root element to be used for parsing or unparsing
@@ -127,13 +127,16 @@ static const ERD c1_ERD = {
 InfosetBase *
 rootElement()
 {
-    static c1    instance;
+    static ex_int32    instance;
     InfosetBase *root = &instance._base;
-    c1_ERD.initSelf(root);
+    ex_int32_ERD.initSelf(root);
     return root;
 }
 
 // Methods to initialize, parse, and unparse infoset nodes
+
+static inline uint8_t be8toh(uint8_t be8b) { return be8b; }
+static inline uint8_t htobe8(uint8_t h8b) { return h8b; }
 
 static void
 c2_initSelf(c2 *instance)
@@ -149,7 +152,7 @@ c2_parseSelf(c2 *instance, const PState *pstate)
     const char *error_msg = NULL;
     if (!error_msg)
     {
-        char   buffer[4];
+        char   buffer[sizeof(uint32_t)];
         size_t count = fread(&buffer, 1, sizeof(buffer), pstate->stream);
         if (count < sizeof(buffer))
         {
@@ -159,7 +162,7 @@ c2_parseSelf(c2 *instance, const PState *pstate)
     }
     if (!error_msg)
     {
-        char   buffer[4];
+        char   buffer[sizeof(uint32_t)];
         size_t count = fread(&buffer, 1, sizeof(buffer), pstate->stream);
         if (count < sizeof(buffer))
         {
@@ -178,7 +181,7 @@ c2_unparseSelf(const c2 *instance, const UState *ustate)
     {
         union
         {
-            char     c_val[4];
+            char     c_val[sizeof(uint32_t)];
             uint32_t i_val;
         } buffer;
         buffer.i_val = htobe32(instance->e2);
@@ -192,7 +195,7 @@ c2_unparseSelf(const c2 *instance, const UState *ustate)
     {
         union
         {
-            char     c_val[4];
+            char     c_val[sizeof(uint32_t)];
             uint32_t i_val;
         } buffer;
         buffer.i_val = htobe32(instance->e3);
@@ -206,20 +209,20 @@ c2_unparseSelf(const c2 *instance, const UState *ustate)
 }
 
 static void
-c1_initSelf(c1 *instance)
+ex_int32_initSelf(ex_int32 *instance)
 {
     instance->e1 = 0xCDCDCDCD;
     c2_initSelf(&instance->c2);
-    instance->_base.erd = &c1_ERD;
+    instance->_base.erd = &ex_int32_ERD;
 }
 
 static const char *
-c1_parseSelf(c1 *instance, const PState *pstate)
+ex_int32_parseSelf(ex_int32 *instance, const PState *pstate)
 {
     const char *error_msg = NULL;
     if (!error_msg)
     {
-        char   buffer[4];
+        char   buffer[sizeof(uint32_t)];
         size_t count = fread(&buffer, 1, sizeof(buffer), pstate->stream);
         if (count < sizeof(buffer))
         {
@@ -235,14 +238,14 @@ c1_parseSelf(c1 *instance, const PState *pstate)
 }
 
 static const char *
-c1_unparseSelf(const c1 *instance, const UState *ustate)
+ex_int32_unparseSelf(const ex_int32 *instance, const UState *ustate)
 {
     const char *error_msg = NULL;
     if (!error_msg)
     {
         union
         {
-            char     c_val[4];
+            char     c_val[sizeof(uint32_t)];
             uint32_t i_val;
         } buffer;
         buffer.i_val = htobe32(instance->e1);

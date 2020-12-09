@@ -30,11 +30,11 @@ typedef struct c2
     int32_t     e3;
 } c2;
 
-typedef struct c1
+typedef struct ex_int32
 {
     InfosetBase _base;
     int32_t     e1;
     c2          c2;
-} c1;
+} ex_int32;
 
 #endif // GENERATED_CODE_H

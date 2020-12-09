@@ -90,23 +90,58 @@ xmlEndComplex(XMLWriter *writer, const InfosetBase *base)
     return complex ? NULL : "Underflowed the XML stack";
 }
 
-// Write 32-bit integer value as element
+// Write 8, 16, 32, or 64-bit signed/unsigned integer as element
 
 static const char *
-xmlInt32Elem(XMLWriter *writer, const ERD *erd, const int32_t *location)
+xmlIntegerElem(XMLWriter *writer, const ERD *erd, const void *intLocation)
 {
     mxml_node_t *parent = stack_top(&writer->stack);
     const char * name = get_erd_name(erd);
-    const char * xmlns = get_erd_xmlns(erd);
     mxml_node_t *simple = mxmlNewElement(parent, name);
-    int32_t      value = *location;
-    mxml_node_t *text = mxmlNewOpaquef(simple, "%i", value);
+
+    // Set namespace declaration if necessary
+    const char *xmlns = get_erd_xmlns(erd);
     if (xmlns)
     {
         const char *ns = get_erd_ns(erd);
         mxmlElementSetAttr(simple, xmlns, ns);
     }
-    return (simple && text) ? NULL : "Error making new int32 simple element";
+
+    // Need to handle varying bit lengths and signedness
+    const enum TypeCode typeCode = erd->typeCode;
+    mxml_node_t *       text = NULL;
+    switch (typeCode)
+    {
+    case PRIMITIVE_UINT64:
+        text = mxmlNewOpaquef(simple, "%lu", *(const uint64_t *)intLocation);
+        break;
+    case PRIMITIVE_UINT32:
+        text = mxmlNewOpaquef(simple, "%u", *(const uint32_t *)intLocation);
+        break;
+    case PRIMITIVE_UINT16:
+        text = mxmlNewOpaquef(simple, "%hu", *(const uint16_t *)intLocation);
+        break;
+    case PRIMITIVE_UINT8:
+        text = mxmlNewOpaquef(simple, "%hhu", *(const uint8_t *)intLocation);
+        break;
+    case PRIMITIVE_INT64:
+        text = mxmlNewOpaquef(simple, "%li", *(const int64_t *)intLocation);
+        break;
+    case PRIMITIVE_INT32:
+        text = mxmlNewOpaquef(simple, "%i", *(const int32_t *)intLocation);
+        break;
+    case PRIMITIVE_INT16:
+        text = mxmlNewOpaquef(simple, "%hi", *(const int16_t *)intLocation);
+        break;
+    case PRIMITIVE_INT8:
+        text = mxmlNewOpaquef(simple, "%hhi", *(const int8_t *)intLocation);
+        break;
+    default:
+        // Let text remain NULL and report error below
+        break;
+    }
+
+    return (simple && text) ? NULL : "Error making new simple integer element";
 }
 
 // Initialize a struct with our visitor event handler methods
@@ -114,5 +149,5 @@ xmlInt32Elem(XMLWriter *writer, const ERD *erd, const int32_t *location)
 const VisitEventHandler xmlWriterMethods = {
     (VisitStartDocument)&xmlStartDocument, (VisitEndDocument)&xmlEndDocument,
     (VisitStartComplex)&xmlStartComplex,   (VisitEndComplex)&xmlEndComplex,
-    (VisitInt32Elem)&xmlInt32Elem,
+    (VisitIntegerElem)&xmlIntegerElem,
 };
