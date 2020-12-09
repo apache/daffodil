@@ -31,13 +31,16 @@ import org.apache.daffodil.dsom.ElementBase
 import org.apache.daffodil.processors.parsers.NewVariableInstanceEndParser
 import org.apache.daffodil.processors.parsers.SetVariableParser
 import org.apache.daffodil.processors.parsers.IVCParser
+import org.apache.daffodil.processors.parsers.NadaParser
 import org.apache.daffodil.processors.unparsers.SetVariableUnparser
 import org.apache.daffodil.processors.unparsers.NewVariableInstanceEndUnparser
 import org.apache.daffodil.processors.unparsers.NewVariableInstanceStartUnparser
+import org.apache.daffodil.processors.unparsers.NadaUnparser
 import org.apache.daffodil.compiler.ForParser
 import org.apache.daffodil.schema.annotation.props.PropertyLookupResult
 import org.apache.daffodil.schema.annotation.props.Found
 import org.apache.daffodil.schema.annotation.props.gen.FailureType
+import org.apache.daffodil.schema.annotation.props.gen.VariableDirection
 import org.apache.daffodil.dsom.ExpressionCompilers
 import org.apache.daffodil.dsom.DFDLSetVariable
 import org.apache.daffodil.dsom.DFDLNewVariableInstance
@@ -179,8 +182,19 @@ case class SetVariable(stmt: DFDLSetVariable)
 
   override lazy val nodeKind = stmt.defv.primType
 
-  lazy val parser: DaffodilParser = new SetVariableParser(expr, stmt.defv.runtimeData)
-  override lazy val unparser: DaffodilUnparser = new SetVariableUnparser(expr, stmt.defv.runtimeData, stmt.nonTermRuntimeData)
+  lazy val parser: DaffodilParser = {
+    if (stmt.defv.runtimeData.direction == VariableDirection.UnparseOnly)
+      new NadaParser(stmt.defv.runtimeData)
+    else
+      new SetVariableParser(expr, stmt.defv.runtimeData)
+  }
+
+  override lazy val unparser: DaffodilUnparser = {
+    if (stmt.defv.runtimeData.direction == VariableDirection.ParseOnly)
+      new NadaUnparser(stmt.defv.runtimeData)
+    else
+      new SetVariableUnparser(expr, stmt.defv.runtimeData, stmt.nonTermRuntimeData)
+  }
 }
 
 abstract class NewVariableInstanceBase(decl: AnnotatedSchemaComponent, stmt: DFDLNewVariableInstance)
@@ -190,15 +204,37 @@ abstract class NewVariableInstanceBase(decl: AnnotatedSchemaComponent, stmt: DFD
 case class NewVariableInstanceStart(decl: AnnotatedSchemaComponent, stmt: DFDLNewVariableInstance)
   extends NewVariableInstanceBase(decl, stmt) {
 
-  lazy val parser: DaffodilParser = new NewVariableInstanceStartParser(stmt.variableRuntimeData)
-  override lazy val unparser: DaffodilUnparser = new NewVariableInstanceStartUnparser(stmt.variableRuntimeData)
+  lazy val parser: DaffodilParser = {
+    if (stmt.defv.runtimeData.direction == VariableDirection.UnparseOnly)
+      new NadaParser(stmt.variableRuntimeData)
+    else
+      new NewVariableInstanceStartParser(stmt.variableRuntimeData)
+  }
+
+  override lazy val unparser: DaffodilUnparser = {
+    if (stmt.defv.runtimeData.direction == VariableDirection.ParseOnly)
+      new NadaUnparser(stmt.variableRuntimeData)
+    else
+      new NewVariableInstanceStartUnparser(stmt.variableRuntimeData)
+  }
 }
 
 case class NewVariableInstanceEnd(decl: AnnotatedSchemaComponent, stmt: DFDLNewVariableInstance)
   extends NewVariableInstanceBase(decl, stmt) {
 
-  lazy val parser: DaffodilParser = new NewVariableInstanceEndParser(stmt.variableRuntimeData)
-  override lazy val unparser: DaffodilUnparser = new NewVariableInstanceEndUnparser(stmt.variableRuntimeData)
+  lazy val parser: DaffodilParser = {
+    if (stmt.defv.runtimeData.direction == VariableDirection.UnparseOnly)
+      new NadaParser(stmt.variableRuntimeData)
+    else
+      new NewVariableInstanceEndParser(stmt.variableRuntimeData)
+  }
+
+  override lazy val unparser: DaffodilUnparser = {
+    if (stmt.defv.runtimeData.direction == VariableDirection.ParseOnly)
+      new NadaUnparser(stmt.variableRuntimeData)
+    else
+      new NewVariableInstanceEndUnparser(stmt.variableRuntimeData)
+  }
 }
 
 /**

@@ -311,7 +311,7 @@ class ElementSpecifiedLengthUnparser(
 /**
  * For dfdl:outputValueCalc elements.
  */
-class ElementOVCSpecifiedLengthUnparserSuspendableExpresion(
+class ElementOVCSpecifiedLengthUnparserSuspendableExpression(
   callingUnparser: ElementOVCSpecifiedLengthUnparser)
   extends SuspendableExpression {
 
@@ -355,7 +355,7 @@ class ElementOVCSpecifiedLengthUnparser(
   override lazy val runtimeDependencies = maybeTargetLengthEv.toList.toVector
 
   private def suspendableExpression =
-    new ElementOVCSpecifiedLengthUnparserSuspendableExpresion(this)
+    new ElementOVCSpecifiedLengthUnparserSuspendableExpression(this)
 
   Assert.invariant(context.outputValueCalcExpr.isDefined)
 

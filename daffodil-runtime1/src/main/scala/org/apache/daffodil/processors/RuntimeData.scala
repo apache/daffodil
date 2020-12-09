@@ -35,6 +35,7 @@ import org.apache.daffodil.infoset.PartialNextElementResolver
 import org.apache.daffodil.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.schema.annotation.props.gen.Representation
 import org.apache.daffodil.schema.annotation.props.gen.YesNo
+import org.apache.daffodil.schema.annotation.props.gen.VariableDirection
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe.Nope
 import org.apache.daffodil.util.PreSerialization
@@ -952,6 +953,7 @@ final class VariableRuntimeData(
   pathArg: String,
   namespacesArg: NamespaceBinding,
   val external: Boolean,
+  val direction: VariableDirection,
   @TransientParam maybeDefaultValueExprArg: => Maybe[CompiledExpression[AnyRef]],
   val typeRef:  RefQName,
   val globalQName: GlobalQName,
@@ -999,8 +1001,6 @@ final class VariableRuntimeData(
     VariableInstance(state, defaultValue, this, maybeDefaultValueExpr)
   }
 
-  def createVariableInstance(): VariableInstance = {
-    VariableInstance(state, value, this, maybeDefaultValueExpr)
-  }
+  def createVariableInstance(): VariableInstance = VariableInstance(state, value, this, maybeDefaultValueExpr)
 
 }

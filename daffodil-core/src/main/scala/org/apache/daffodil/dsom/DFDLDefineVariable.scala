@@ -28,6 +28,7 @@ import org.apache.daffodil.dpath.NodeInfo.PrimType
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.grammar.primitives.{ SetVariable, NewVariableInstanceStart, NewVariableInstanceEnd }
 import org.apache.daffodil.schema.annotation.props.Found
+import org.apache.daffodil.schema.annotation.props.gen.VariableDirection
 
 class DFDLDefineVariable(node: Node, doc: SchemaDocument)
   extends DFDLDefiningAnnotation(node, doc) {
@@ -39,6 +40,11 @@ class DFDLDefineVariable(node: Node, doc: SchemaDocument)
   private lazy val typeQNameString = getAttributeOption("type").getOrElse("xs:string")
 
   final lazy val external = getAttributeOption("external").map { _.toBoolean }.getOrElse(false)
+
+  final lazy val direction = {
+    val directionStr = getAttributeOption(XMLUtils.DFDLX_NAMESPACE, "direction").getOrElse("both")
+    VariableDirection(directionStr, this)
+  }
 
   private lazy val defaultValueAsAttribute = getAttributeOption("defaultValue")
   private lazy val defaultValueAsElement = node.child.text.trim
@@ -83,6 +89,7 @@ class DFDLDefineVariable(node: Node, doc: SchemaDocument)
       this.path,
       this.namespaces,
       this.external,
+      this.direction,
       maybeDefaultValueExpr,
       this.typeQName,
       this.namedQName.asInstanceOf[GlobalQName],
@@ -116,7 +123,7 @@ final class DFDLNewVariableInstance(node: Node, decl: AnnotatedSchemaComponent)
 
   private lazy val attrValue = getAttributeOption("value")
 
-  private lazy val <dfdl:setVariable>{ eltChildren @ _* }</dfdl:setVariable> = node
+  private lazy val <dfdl:newVariableInstance>{ eltChildren @ _* }</dfdl:newVariableInstance> = node
 
   private lazy val eltValue = eltChildren.text.trim
 
@@ -159,6 +166,7 @@ final class DFDLNewVariableInstance(node: Node, decl: AnnotatedSchemaComponent)
       this.path,
       this.namespaces,
       defv.external,
+      defv.direction,
       maybeDefaultValueExpr,
       defv.typeQName,
       defv.namedQName.asInstanceOf[GlobalQName],

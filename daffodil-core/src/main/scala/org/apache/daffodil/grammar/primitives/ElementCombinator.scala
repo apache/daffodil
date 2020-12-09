@@ -90,7 +90,7 @@ class ElementCombinator(
     subComb.parser
   }
 
-  private lazy val uSetVars = context.setVariableStatements.map(_.gram(context).unparser).toArray
+  private lazy val uSetVars = context.setVariableStatements.map(_.gram(context).unparser).toArray.filterNot { _.isEmpty }
 
   private lazy val eBeforeUnparser: Maybe[Unparser] =
     if (eBeforeContent.isEmpty) Maybe.Nope
@@ -359,7 +359,7 @@ abstract class ElementCombinatorBase(context: ElementBase, eGramBefore: Gram, eG
     }
   }
   lazy val patAssert = context.assertStatements.filter(_.testKind == TestKind.Pattern).map(_.gram(context).parser).toArray
-  lazy val pSetVar = context.setVariableStatements.map(_.gram(context).parser).toArray
+  lazy val pSetVar = context.setVariableStatements.map(_.gram(context).parser).toArray.filterNot { _.isEmpty }
   lazy val testDiscrim = {
     val td = context.discriminatorStatements.filter(_.testKind == TestKind.Expression)
     Assert.invariant(td.size <= 1)

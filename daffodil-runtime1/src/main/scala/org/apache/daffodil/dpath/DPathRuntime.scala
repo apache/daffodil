@@ -179,7 +179,8 @@ case class VRef(vrd: VariableRuntimeData, context: ThrowsSDE)
 
   override def run(dstate: DState): Unit = {
     Assert.invariant(dstate.vmap != null)
-    dstate.setCurrentValue(dstate.vmap.readVariable(vrd, context, dstate.parseOrUnparseState))
+    Assert.invariant(dstate.parseOrUnparseState.isDefined)
+    dstate.setCurrentValue(dstate.vmap.readVariable(vrd, context, dstate.parseOrUnparseState.get))
   }
 
   override def toXML = toXML("$" + vrd.globalQName.toPrettyString)

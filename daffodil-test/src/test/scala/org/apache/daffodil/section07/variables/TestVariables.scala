@@ -60,6 +60,18 @@ class TestVariables {
   @Test def test_varInstance_10(): Unit = { runner.runOneTest("varInstance_10") }
   @Test def test_varInstance_11(): Unit = { runner.runOneTest("varInstance_11") }
   @Test def test_varInstance_12(): Unit = { runner.runOneTest("varInstance_12") }
+  @Test def test_varInstance_13(): Unit = { runner.runOneTest("varInstance_13") }
+  @Test def test_varInstance_14(): Unit = { runner.runOneTest("varInstance_14") }
+
+  @Test def test_varDirection_1(): Unit = { runner.runOneTest("varDirection_1") }
+  @Test def test_varDirection_2(): Unit = { runner.runOneTest("varDirection_2") }
+  @Test def test_varDirection_3(): Unit = { runner.runOneTest("varDirection_3") }
+  @Test def test_varDirection_err1(): Unit = { runner.runOneTest("varDirection_err1") }
+  @Test def test_varDirection_err2(): Unit = { runner.runOneTest("varDirection_err2") }
+  @Test def test_varDirection_setVar1(): Unit = { runner.runOneTest("varDirection_setVar1") }
+  @Test def test_varDirection_setVar2(): Unit = { runner.runOneTest("varDirection_setVar2") }
+  @Test def test_varDirection_nvi1(): Unit = { runner.runOneTest("varDirection_nvi1") }
+  @Test def test_varDirection_nvi2(): Unit = { runner.runOneTest("varDirection_nvi2") }
 
   @Test def test_defineVariable_nonConstantExpression(): Unit = { runner.runOneTest("defineVariable_nonConstantExpression") }
   @Test def test_defineVariable_nonConstantExpression_unp(): Unit = { runner.runOneTest("defineVariable_nonConstantExpression_unp") }

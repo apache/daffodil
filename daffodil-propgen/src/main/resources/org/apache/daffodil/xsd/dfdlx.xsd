@@ -57,6 +57,15 @@
     </xs:restriction>
   </xs:simpleType>
 
+  <xs:attribute name="direction" type="dfdlx:VariableDirectionEnum"/>
+  <xs:simpleType name="VariableDirectionEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="both" />
+      <xs:enumeration value="parseOnly" />
+      <xs:enumeration value="unparseOnly" />
+    </xs:restriction>
+  </xs:simpleType>
+
   <xs:attribute name="emptyElementParsePolicy" type="dfdlx:EmptyElementParsePolicyEnum"/>
   <xs:simpleType name="EmptyElementParsePolicyEnum">
     <xs:restriction base="xs:string">
