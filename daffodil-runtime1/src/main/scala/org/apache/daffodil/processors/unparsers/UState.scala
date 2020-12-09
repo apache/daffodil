@@ -53,7 +53,6 @@ import org.apache.daffodil.processors.TermRuntimeData
 import org.apache.daffodil.processors.UnparseResult
 import org.apache.daffodil.processors.VariableBox
 import org.apache.daffodil.processors.VariableMap
-import org.apache.daffodil.processors.VariableRuntimeData
 import org.apache.daffodil.processors.charset.BitsCharset
 import org.apache.daffodil.processors.charset.BitsCharsetDecoder
 import org.apache.daffodil.processors.charset.BitsCharsetEncoder
@@ -341,14 +340,6 @@ abstract class UState(
 
   def documentElement: DIDocument
 
-  def newVariableInstance(vrd: VariableRuntimeData): Unit = {
-    variableMap.newVariableInstance(vrd, this)
-  }
-
-  def removeVariableInstance(vrd: VariableRuntimeData): Unit = {
-    variableMap.removeVariableInstance(vrd)
-  }
-
   final val releaseUnneededInfoset: Boolean = !areDebugging && tunable.releaseUnneededInfoset
 
   def delimitedParseResult = Nope
@@ -439,7 +430,6 @@ final class UStateForSuspension(
   override def incrementHiddenDef = Assert.usageError("Unparser suspended UStates need not be aware of hidden contexts")
   override def decrementHiddenDef = Assert.usageError("Unparser suspended UStates need not be aware of hidden contexts")
   override def withinHiddenNest = Assert.usageError("Unparser suspended UStates need not be aware of hidden contexts")
-
 }
 
 final class UStateMain private (
@@ -504,7 +494,7 @@ final class UStateMain private (
     val clone = new UStateForSuspension(
       this,
       suspendedDOS,
-      variableBox,
+      variableBox.cloneForSuspension,
       currentInfosetNodeStack.top.get, // only need the to of the stack, not the whole thing
       arrayIndexStack.top, // only need the top of the stack, not the whole thing
       es,

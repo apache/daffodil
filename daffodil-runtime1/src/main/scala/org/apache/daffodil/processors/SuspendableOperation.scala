@@ -37,7 +37,7 @@ import org.apache.daffodil.infoset.RetryableException
 trait SuspendableOperation
   extends Suspension {
 
-  override def rd: TermRuntimeData
+  override def rd: RuntimeData
 
   override def toString = "%s for %s".format(Misc.getNameFromClass(this), rd.diagnosticDebugName)
 

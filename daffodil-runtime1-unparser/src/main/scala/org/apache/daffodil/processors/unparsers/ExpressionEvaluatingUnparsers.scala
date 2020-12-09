@@ -27,10 +27,11 @@ import org.apache.daffodil.infoset.Infoset
 import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.processors.Evaluatable
 import org.apache.daffodil.processors.NonTermRuntimeData
-import org.apache.daffodil.processors.RuntimeData
 import org.apache.daffodil.processors.Success
 import org.apache.daffodil.processors.TypeCalculator
 import org.apache.daffodil.processors.VariableRuntimeData
+import org.apache.daffodil.processors.{ VariableInProcess, VariableDefined }
+//import org.apache.daffodil.processors.SuspendableOperation
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.MaybeULong
 
@@ -77,9 +78,24 @@ final class SetVariableUnparser(
 
 }
 
+final class NewVariableInstanceSuspendableExpression(
+  override val expr: CompiledExpression[AnyRef],
+  override val rd: VariableRuntimeData)
+  extends SuspendableExpression {
+
+  override protected def processExpressionResult(ustate: UState, v: DataValuePrimitive): Unit = {
+    val vi = ustate.variableMap.find(rd.globalQName)
+    Assert.invariant(vi.isDefined)
+    vi.get.setState(VariableDefined)
+    vi.get.setValue(v)
+  }
+
+  override protected def maybeKnownLengthInBits(ustate: UState) = MaybeULong(0)
+}
+
 // When implemented this almost certainly wants to be a combinator
 // Not two separate unparsers.
-class NewVariableInstanceStartUnparser(override val context: RuntimeData)
+class NewVariableInstanceStartUnparser(override val context: VariableRuntimeData)
   extends PrimUnparserNoData {
 
   override lazy val runtimeDependencies = Vector()
@@ -87,21 +103,25 @@ class NewVariableInstanceStartUnparser(override val context: RuntimeData)
   override lazy val childProcessors = Vector()
 
   override def unparse(state: UState) = {
-    val vrd = context.asInstanceOf[VariableRuntimeData]
-    state.newVariableInstance(vrd)
+    state.variableMap.newVariableInstance(context)
+    if (context.maybeDefaultValueExpr.isDefined) {
+      val maybeVar = state.variableMap.find(context.globalQName)
+      Assert.invariant(maybeVar.isDefined)
+      maybeVar.get.setState(VariableInProcess)
+      val suspendableExpression = new NewVariableInstanceSuspendableExpression(context.maybeDefaultValueExpr.get, context)
+      suspendableExpression.run(state)
+    }
   }
 }
 
-class NewVariableInstanceEndUnparser(override val context: RuntimeData)
+class NewVariableInstanceEndUnparser(override val context: VariableRuntimeData)
   extends PrimUnparserNoData {
 
   override lazy val runtimeDependencies = Vector()
 
   override lazy val childProcessors = Vector()
 
-  override def unparse(state: UState) = {
-    state.removeVariableInstance(context.asInstanceOf[VariableRuntimeData])
-  }
+  override def unparse(state: UState) = state.variableMap.removeVariableInstance(context)
 }
 
 class TypeValueCalcUnparser(typeCalculator: TypeCalculator, repTypeUnparser: Unparser, e: ElementRuntimeData, repTypeRuntimeData: ElementRuntimeData)

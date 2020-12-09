@@ -166,6 +166,11 @@ class NewVariableInstanceStartParser(override val context: VariableRuntimeData)
 
   def parse(start: PState): Unit = {
     start.newVariableInstance(context)
+    if (context.maybeDefaultValueExpr.isDefined) {
+      val v = start.variableMap.find(context.globalQName).get
+      val res = DataValue.unsafeFromAnyRef(context.maybeDefaultValueExpr.get.evaluate(start))
+      v.setDefaultValue(res)
+    }
   }
 }
 

@@ -1745,6 +1745,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
             case VariableRead => "read"
             case VariableSet => "set"
             case VariableUndefined => "undefined"
+            case VariableBeingDefined => "being defined"
             case VariableInProcess => "in process"
           }
 

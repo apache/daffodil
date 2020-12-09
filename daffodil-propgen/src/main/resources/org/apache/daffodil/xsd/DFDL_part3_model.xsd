@@ -136,6 +136,7 @@
     <xsd:attribute name="external" type="xsd:boolean" />
     <xsd:attribute name="defaultValue"
       type="dfdl:DFDLStringLiteral_Or_DFDLExpression" />
+    <xsd:attribute ref="dfdlx:direction" />
   </xsd:attributeGroup>
 
   <xsd:attributeGroup name="SetVariableAG">
