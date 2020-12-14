@@ -73,6 +73,7 @@ object Rat {
     file("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input18.txt"),
     file("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input19.txt"),
     file("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/inputBig1M.txt"),
+    file("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/prefix.txt"),
     file("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/test_DFDL-714.txt"),
     file("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/output/output1.txt"),
     file("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/output/output1_nopretty.txt"),
