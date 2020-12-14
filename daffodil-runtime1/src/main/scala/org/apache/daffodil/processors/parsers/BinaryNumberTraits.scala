@@ -72,9 +72,11 @@ trait PrefixedLengthParserMixin {
   def getPrefixedLengthInUnits(state: PState): Long = {
     val savedInfoset = state.infoset
 
-    // create a "detached" element that the prefix length will be parsed to.
-    // This temporarily removes to infoset.
-    val plElement = Infoset.newElement(prefixedLengthERD).asInstanceOf[DISimple]
+    // Create a "detached" document with a single child element that the prefix
+    // length will be parsed to. This creates a completely new infoset and
+    // parses to that, so care is taken to ensure we reset it back after the parse
+    val plElement = Infoset.newDetachedElement(state, prefixedLengthERD).asInstanceOf[DISimple]
+
     state.infoset = plElement
 
     val parsedLen: JLong = try {

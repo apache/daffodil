@@ -1782,4 +1782,18 @@ object Infoset {
     new DIDocument(erd)
   }
 
+  /**
+  * Create a new detached infoset with a single specified element. This
+  * essentially creates another infoset with a completely differed DIDocument
+  * so care should be taken to ensure things like expressions are not evaluated
+  * or new elements are not added within the scope of this infoset, as it will
+  * have no access to the true infoset. It is up to the caller to ensure the
+  * return infoset element is used safely
+  */
+  def newDetachedElement(state: ParseOrUnparseState, erd: ElementRuntimeData): InfosetElement = {
+    val detachedDoc = Infoset.newDocument(erd).asInstanceOf[DIDocument]
+    val detachedElem = Infoset.newElement(erd)
+    detachedDoc.addChild(detachedElem, state.tunable)
+    detachedElem
+  }
 }

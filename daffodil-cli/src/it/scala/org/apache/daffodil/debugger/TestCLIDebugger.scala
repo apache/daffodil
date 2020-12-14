@@ -1127,4 +1127,34 @@ class TestCLIdebugger {
     }
   }*/
 
+  @Test def test_3585_CLI_Debugger_prefixLength(): Unit = {
+    val schemaFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/prefixed_length.dfdl.xsd")
+    val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/prefix.txt")
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
+
+    val shell = if (Util.isWindows) Util.start("", envp = DAFFODIL_JAVA_OPTS) else Util.start("")
+
+    try {
+      val cmd = String.format("%s -d parse -s %s %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("(debug)"))
+      shell.sendLine("display info infoset")
+      shell.expect(contains("(debug)"))
+      shell.sendLine("display eval .")
+      shell.sendLine("step")
+      shell.expect(contains("<field></field>"))
+      shell.sendLine("step")
+      shell.expect(contains("<field (prefixLength)></field (prefixLength)>"))
+      shell.sendLine("step")
+      shell.expect(contains("<field (prefixLength)>4</field (prefixLength)>"))
+      shell.sendLine("step")
+      shell.expect(contains("<field>abcd</field>"))
+      shell.sendLine("complete")
+      shell.expect(contains("<field>abcd</field>"))
+    } finally {
+      shell.close()
+    }
+  }
+
+
 }
