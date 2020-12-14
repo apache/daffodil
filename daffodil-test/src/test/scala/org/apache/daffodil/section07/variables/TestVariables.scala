@@ -67,7 +67,7 @@ class TestVariables {
   @Test def test_defineVariable_ref_noDefault_err(): Unit = { runner.runOneTest("defineVariable_ref_noDefault_err") }
   @Test def test_defineVariable_nonConstantExpression_setVar_err(): Unit = { runner.runOneTest("defineVariable_nonConstantExpression_setVar_err") }
 
-  // This test triggers an unhandled NoSuchElement exception, which if handled then runs into an Assert.invariant
+  // DAFFODIL-2444 - This test triggers an unhandled NoSuchElement exception, which if handled then runs into an Assert.invariant
   //@Test def test_defineVariable_ref_infoset_err(): Unit = { runner.runOneTest("defineVariable_ref_infoset_err") }
 
   @Test def test_setVarChoice(): Unit = { runner.runOneTest("setVarChoice") }
