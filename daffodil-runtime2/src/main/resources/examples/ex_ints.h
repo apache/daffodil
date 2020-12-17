@@ -23,18 +23,25 @@
 
 // Define some infoset structures
 
-typedef struct c2
+typedef struct ex_ints
 {
     InfosetBase _base;
-    int32_t     e2;
-    int32_t     e3;
-} c2;
-
-typedef struct ex_int32
-{
-    InfosetBase _base;
-    int32_t     e1;
-    c2          c2;
-} ex_int32;
+    uint64_t    be_uint64;
+    uint32_t    be_uint32;
+    uint16_t    be_uint16;
+    uint8_t     be_uint8;
+    int64_t     be_int64;
+    int32_t     be_int32;
+    int16_t     be_int16;
+    int8_t      be_int8;
+    uint64_t    le_uint64;
+    uint32_t    le_uint32;
+    uint16_t    le_uint16;
+    uint8_t     le_uint8;
+    int64_t     le_int64;
+    int32_t     le_int32;
+    int16_t     le_int16;
+    int8_t      le_int8;
+} ex_ints;
 
 #endif // GENERATED_CODE_H
