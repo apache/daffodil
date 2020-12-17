@@ -16,10 +16,21 @@
   limitations under the License.
 -->
 
-<ex_int32 xmlns="http://example.com">
-  <e1>1</e1>
-  <c2>
-    <e2>2</e2>
-    <e3>3</e3>
-  </c2>
-</ex_int32>
+<ex_ints xmlns="http://example.com">
+  <be_uint64>64</be_uint64>
+  <be_uint32>32</be_uint32>
+  <be_uint16>16</be_uint16>
+  <be_uint8>8</be_uint8>
+  <be_int64>-64</be_int64>
+  <be_int32>-32</be_int32>
+  <be_int16>-16</be_int16>
+  <be_int8>-8</be_int8>
+  <le_uint64>64</le_uint64>
+  <le_uint32>32</le_uint32>
+  <le_uint16>16</le_uint16>
+  <le_uint8>8</le_uint8>
+  <le_int64>-64</le_int64>
+  <le_int32>-32</le_int32>
+  <le_int16>-16</le_int16>
+  <le_int8>-8</le_int8>
+</ex_ints>

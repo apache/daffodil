@@ -39,26 +39,23 @@ trait BinaryIntegerKnownLengthCodeGenerator {
       bo
     }
 
-    // This insures we can use regular java.io library calls.
+    // We eventually want to lift this restriction.
+    if (e.bitOrder ne BitOrder.MostSignificantBitFirst)
+      e.SDE("Only dfdl:bitOrder 'mostSignificantBitFirst' is supported.")
     if (e.alignmentValueInBits.intValue() % 8 != 0)
       e.SDE("Only alignment to 8-bit (1 byte) boundaries is supported.")
 
-    // The restrictions below are ones we want to eventually lift.
-    if (byteOrder ne ByteOrder.BigEndian)
-      e.SDE("Only dfdl:byteOrder 'bigEndian' is supported.")
-
-    if (e.bitOrder ne BitOrder.MostSignificantBitFirst)
-      e.SDE("Only dfdl:bitOrder 'mostSignificantBitFirst' is supported.")
-
-    // Start generating code snippets
+    // Use an unusual memory bit pattern (magic debug value) to mark fields as
+    // uninitialized in case generated code fails to set them during parsing.
     val initialValue = lengthInBits match {
-      case 8 => "0xCD"
-      case 16 => "0xCDCD"
-      case 32 => "0xCDCDCDCD"
-      case 64 => "0xCDCDCDCDCDCDCDCD"
+      case 8 => "0xCC"
+      case 16 => "0xCCCC"
+      case 32 => "0xCCCCCCCC"
+      case 64 => "0xCCCCCCCCCCCCCCCC"
       case _ => e.SDE("Lengths other than 8, 16, 32, or 64 bits are not supported.")
     }
     val initStatement = s"    instance->$fieldName = $initialValue;"
+    val conv = if (byteOrder eq ByteOrder.BigEndian) "be" else "le"
     val parseStatement =
       s"""    if (!error_msg)
          |    {
@@ -68,7 +65,7 @@ trait BinaryIntegerKnownLengthCodeGenerator {
          |        {
          |            error_msg = eof_or_error_msg(pstate->stream);
          |        }
-         |        instance->$fieldName = be${lengthInBits}toh(*((uint${lengthInBits}_t *)(&buffer)));
+         |        instance->$fieldName = ${conv}${lengthInBits}toh(*((uint${lengthInBits}_t *)(&buffer)));
          |    }""".stripMargin
     val unparseStatement =
       s"""    if (!error_msg)
@@ -78,7 +75,7 @@ trait BinaryIntegerKnownLengthCodeGenerator {
          |            char     c_val[sizeof(uint${lengthInBits}_t)];
          |            uint${lengthInBits}_t i_val;
          |        } buffer;
-         |        buffer.i_val = htobe${lengthInBits}(instance->$fieldName);
+         |        buffer.i_val = hto${conv}${lengthInBits}(instance->$fieldName);
          |        size_t count = fwrite(buffer.c_val, 1, sizeof(buffer), ustate->stream);
          |        if (count < sizeof(buffer))
          |        {
