@@ -248,7 +248,7 @@ class CodeGeneratorState {
     val finalImplementation = this.finalImplementation.mkString("\n")
     val code =
       s"""#include "generated_code.h" // for generated code structs
-         |#include <endian.h>         // for be32toh, htobe32
+         |#include <endian.h>         // for be32toh, htobe32, etc.
          |#include <stddef.h>         // for ptrdiff_t
          |#include <stdio.h>          // for NULL, fread, fwrite, size_t, FILE
          |
@@ -270,10 +270,15 @@ class CodeGeneratorState {
          |    return root;
          |}
          |
-         |// Methods to initialize, parse, and unparse infoset nodes
+         |// Degenerate cases of endian-conversion functions called by code
+         |// generator since <endian.h> handles only 16, 32, and 64-bit cases
          |
-         |static inline uint8_t be8toh(uint8_t be8b) { return be8b; }
          |static inline uint8_t htobe8(uint8_t h8b) { return h8b; }
+         |static inline uint8_t htole8(uint8_t h8b) { return h8b; }
+         |static inline uint8_t be8toh(uint8_t be8b) { return be8b; }
+         |static inline uint8_t le8toh(uint8_t le8b) { return le8b; }
+         |
+         |// Methods to initialize, parse, and unparse infoset nodes
          |
          |$finalImplementation
          |""".stripMargin

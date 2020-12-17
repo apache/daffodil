@@ -29,8 +29,7 @@
     <xs:annotation>
         <xs:appinfo source="http://www.ogf.org/dfdl/">
             <dfdl:format
-                alignment="8"
-                alignmentUnits="bits"
+                byteOrder="bigEndian"
                 encoding="UTF-8"
                 lengthUnits="bits"
                 representation="binary"
@@ -38,39 +37,43 @@
         </xs:appinfo>
     </xs:annotation>
 
-    <xs:element name="ex_int32">
+    <xs:element name="ex_ints">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="e1" type="xs:int" />
-                <xs:element name="c2">
-                    <xs:complexType>
-                        <xs:sequence>
-                            <xs:element name="e2" type="xs:int" />
-                            <xs:element name="e3" type="xs:int" />
-                        </xs:sequence>
-                    </xs:complexType>
-                </xs:element>
+                <xs:element name="be_uint64" type="xs:unsignedLong" />
+                <xs:element name="be_uint32" type="xs:unsignedInt" />
+                <xs:element name="be_uint16" type="xs:unsignedShort" />
+                <xs:element name="be_uint8" type="xs:unsignedByte" />
+                <xs:element name="be_int64" type="xs:long" />
+                <xs:element name="be_int32" type="xs:int" />
+                <xs:element name="be_int16" type="xs:short" />
+                <xs:element name="be_int8" type="xs:byte" />
+                <xs:element name="le_uint64" type="xs:unsignedLong" dfdl:byteOrder="littleEndian" />
+                <xs:element name="le_uint32" type="xs:unsignedInt" dfdl:byteOrder="littleEndian" />
+                <xs:element name="le_uint16" type="xs:unsignedShort" dfdl:byteOrder="littleEndian" />
+                <xs:element name="le_uint8" type="xs:unsignedByte" dfdl:byteOrder="littleEndian" />
+                <xs:element name="le_int64" type="xs:long" dfdl:byteOrder="littleEndian" />
+                <xs:element name="le_int32" type="xs:int" dfdl:byteOrder="littleEndian" />
+                <xs:element name="le_int16" type="xs:short" dfdl:byteOrder="littleEndian" />
+                <xs:element name="le_int8" type="xs:byte" dfdl:byteOrder="littleEndian" />
             </xs:sequence>
         </xs:complexType>
     </xs:element>
 
     <xs:simpleType
         name="int16"
-        dfdl:alignment="16"
         dfdl:length="16"
         dfdl:lengthKind="explicit">
         <xs:restriction base="xs:short"/>
     </xs:simpleType>
     <xs:simpleType
         name="uint8"
-        dfdl:alignment="8"
         dfdl:length="8"
         dfdl:lengthKind="explicit">
         <xs:restriction base="xs:unsignedByte"/>
     </xs:simpleType>
     <xs:simpleType
         name="uint16"
-        dfdl:alignment="16"
         dfdl:length="16"
         dfdl:lengthKind="explicit">
         <xs:restriction base="xs:unsignedShort"/>

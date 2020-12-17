@@ -138,7 +138,7 @@ class TestCLIGenerateC {
   }
 
   @Test def test_CLI_Generate_root(): Unit = {
-    val generateCmd = s"$daffodil generate c -s $schemaFile -r {http://example.com}ex_int32 $outputDir"
+    val generateCmd = s"$daffodil generate c -s $schemaFile -r {http://example.com}ex_ints $outputDir"
     val exitCmd = "exit"
 
     val shell = Util.start("")
@@ -154,14 +154,14 @@ class TestCLIGenerateC {
   }
 
   @Test def test_CLI_Generate_root_error(): Unit = {
-    val generateCmd = s"$daffodil generate c -s $schemaFile -r {ex}ex_int32 $outputDir"
+    val generateCmd = s"$daffodil generate c -s $schemaFile -r {ex}ex_ints $outputDir"
     val exitCmd = "exit"
 
     val shell = Util.start("", expectErr = true)
     try {
       shell.sendLine(generateCmd)
       shell.expect(contains("Schema Definition Error"))
-      shell.expect(contains("No global element found for {ex}ex_int32"))
+      shell.expect(contains("No global element found for {ex}ex_ints"))
       shell.sendLine(exitCmd)
       shell.expect(eof())
     } finally {

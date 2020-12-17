@@ -107,7 +107,7 @@ xmlIntegerElem(XMLWriter *writer, const ERD *erd, const void *intLocation)
         mxmlElementSetAttr(simple, xmlns, ns);
     }
 
-    // Need to handle varying bit lengths and signedness
+    // Handle varying bit lengths of both signed & unsigned numbers
     const enum TypeCode typeCode = erd->typeCode;
     mxml_node_t *       text = NULL;
     switch (typeCode)

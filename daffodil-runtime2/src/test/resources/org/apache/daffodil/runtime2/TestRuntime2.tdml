@@ -24,7 +24,6 @@ limitations under the License.
   suiteName="TestRuntime2"
   xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-  xmlns:ex="http://example.com"
   xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
   xmlns="http://example.com">
 
@@ -41,28 +40,28 @@ limitations under the License.
   </tdml:defineConfig>
 
   <tdml:parserTestCase
-    description="Parse example ex_int32"
+    description="Parse example ex_ints"
     model="TestRuntime2.dfdl.xsd"
-    name="ex_int32_parse"
-    root="ex_int32">
+    name="ex_ints_parse"
+    root="ex_ints">
     <tdml:document>
-      <tdml:documentPart type="file">ex_int32_parse</tdml:documentPart>
+      <tdml:documentPart type="file">ex_ints_parse.dat</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
-      <tdml:dfdlInfoset type="file">ex_int32_unparse</tdml:dfdlInfoset>
+      <tdml:dfdlInfoset type="file">ex_ints_unparse.xml</tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
 
   <tdml:unparserTestCase
-    description="Unparse example ex_int32"
+    description="Unparse example ex_ints"
     model="TestRuntime2.dfdl.xsd"
-    name="ex_int32_unparse"
-    root="ex_int32">
+    name="ex_ints_unparse"
+    root="ex_ints">
     <tdml:infoset>
-      <tdml:dfdlInfoset type="file">ex_int32_unparse</tdml:dfdlInfoset>
+      <tdml:dfdlInfoset type="file">ex_ints_unparse.xml</tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:document>
-      <tdml:documentPart type="file">ex_int32_parse</tdml:documentPart>
+      <tdml:documentPart type="file">ex_ints_parse.dat</tdml:documentPart>
     </tdml:document>
   </tdml:unparserTestCase>
 
@@ -72,10 +71,10 @@ limitations under the License.
     name="orion_command_parse"
     root="orion_command">
     <tdml:document>
-      <tdml:documentPart type="file">orion_command_parse</tdml:documentPart>
+      <tdml:documentPart type="file">orion_command_parse.dat</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
-      <tdml:dfdlInfoset type="file">orion_command_unparse</tdml:dfdlInfoset>
+      <tdml:dfdlInfoset type="file">orion_command_unparse.xml</tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
 
@@ -85,10 +84,10 @@ limitations under the License.
     name="orion_command_unparse"
     root="orion_command">
     <tdml:infoset>
-      <tdml:dfdlInfoset type="file">orion_command_unparse</tdml:dfdlInfoset>
+      <tdml:dfdlInfoset type="file">orion_command_unparse.xml</tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:document>
-      <tdml:documentPart type="file">orion_command_parse</tdml:documentPart>
+      <tdml:documentPart type="file">orion_command_parse.dat</tdml:documentPart>
     </tdml:document>
   </tdml:unparserTestCase>
 
