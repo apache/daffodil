@@ -16,11 +16,11 @@
  */
 
 #include "xml_writer.h"
-#include "stack.h"  // for stack_is_empty, stack_pop, stack_push, stack_top
-#include <assert.h> // for assert
-#include <mxml.h>   // for mxml_node_t, mxmlNewElement, mxmlNewOpaquef, ...
-#include <stdint.h> // for int32_t
-#include <stdio.h>  // for NULL, fflush
+#include "stack.h"   // for stack_is_empty, stack_pop, stack_push, stack_top, stack_init, stack_is_full
+#include <assert.h>  // for assert
+#include <mxml.h>    // for mxmlNewOpaquef, mxml_node_t, mxmlElementSetAttr, mxmlNewElement, mxmlDelete, mxmlNewXML, mxmlSaveFile, MXML_NO_CALLBACK
+#include <stdint.h>  // for int16_t, int32_t, int64_t, int8_t, uint16_t, uint32_t, uint64_t, uint8_t
+#include <stdio.h>   // for NULL, fflush
 
 // Push new XML document on stack.  This function is not
 // thread-safe since it uses static storage.
@@ -90,10 +90,27 @@ xmlEndComplex(XMLWriter *writer, const InfosetBase *base)
     return complex ? NULL : "Underflowed the XML stack";
 }
 
-// Write 8, 16, 32, or 64-bit signed/unsigned integer as element
+// Fix a floating point number to conform to xsd:float syntax if needed
+
+static void
+fixNumberIfNeeded(const char *text)
+{
+    if (text[0] == 'N' && text[1] == 'A')
+    {
+        // xsd:float requires NaN to be capitalized correctly
+        char *modifyInPlace = (char *)text;
+        modifyInPlace[1] = 'a';
+    }
+    // These are not required by xsd:float, only to match runtime1 better
+    //  - Strip + from <f>E+<e> to get <f>E<e> (not worth it)
+    //  - Add .0 to 1 to get 1.0 (not worth it)
+}
+
+// Write 8, 16, 32, or 64-bit signed/unsigned Number or floating point number as
+// element
 
 static const char *
-xmlIntegerElem(XMLWriter *writer, const ERD *erd, const void *intLocation)
+xmlNumberElem(XMLWriter *writer, const ERD *erd, const void *numLocation)
 {
     mxml_node_t *parent = stack_top(&writer->stack);
     const char * name = get_erd_name(erd);
@@ -113,35 +130,46 @@ xmlIntegerElem(XMLWriter *writer, const ERD *erd, const void *intLocation)
     switch (typeCode)
     {
     case PRIMITIVE_UINT64:
-        text = mxmlNewOpaquef(simple, "%lu", *(const uint64_t *)intLocation);
+        text = mxmlNewOpaquef(simple, "%lu", *(const uint64_t *)numLocation);
         break;
     case PRIMITIVE_UINT32:
-        text = mxmlNewOpaquef(simple, "%u", *(const uint32_t *)intLocation);
+        text = mxmlNewOpaquef(simple, "%u", *(const uint32_t *)numLocation);
         break;
     case PRIMITIVE_UINT16:
-        text = mxmlNewOpaquef(simple, "%hu", *(const uint16_t *)intLocation);
+        text = mxmlNewOpaquef(simple, "%hu", *(const uint16_t *)numLocation);
         break;
     case PRIMITIVE_UINT8:
-        text = mxmlNewOpaquef(simple, "%hhu", *(const uint8_t *)intLocation);
+        text = mxmlNewOpaquef(simple, "%hhu", *(const uint8_t *)numLocation);
         break;
     case PRIMITIVE_INT64:
-        text = mxmlNewOpaquef(simple, "%li", *(const int64_t *)intLocation);
+        text = mxmlNewOpaquef(simple, "%li", *(const int64_t *)numLocation);
         break;
     case PRIMITIVE_INT32:
-        text = mxmlNewOpaquef(simple, "%i", *(const int32_t *)intLocation);
+        text = mxmlNewOpaquef(simple, "%i", *(const int32_t *)numLocation);
         break;
     case PRIMITIVE_INT16:
-        text = mxmlNewOpaquef(simple, "%hi", *(const int16_t *)intLocation);
+        text = mxmlNewOpaquef(simple, "%hi", *(const int16_t *)numLocation);
         break;
     case PRIMITIVE_INT8:
-        text = mxmlNewOpaquef(simple, "%hhi", *(const int8_t *)intLocation);
+        text = mxmlNewOpaquef(simple, "%hhi", *(const int8_t *)numLocation);
+        break;
+    case PRIMITIVE_FLOAT:
+        // Round-trippable float, shortest possible
+        text = mxmlNewOpaquef(simple, "%.9G", *(const float *)numLocation);
+        fixNumberIfNeeded(mxmlGetOpaque(text));
+        break;
+    case PRIMITIVE_DOUBLE:
+        // Round-trippable double, shortest possible
+        text = mxmlNewOpaquef(simple, "%.17lG", *(const double *)numLocation);
+        fixNumberIfNeeded(mxmlGetOpaque(text));
         break;
     default:
         // Let text remain NULL and report error below
         break;
     }
 
-    return (simple && text) ? NULL : "Error making new simple integer element";
+    return (simple && text) ? NULL
+                            : "Error making new simple numerical element";
 }
 
 // Initialize a struct with our visitor event handler methods
@@ -149,5 +177,5 @@ xmlIntegerElem(XMLWriter *writer, const ERD *erd, const void *intLocation)
 const VisitEventHandler xmlWriterMethods = {
     (VisitStartDocument)&xmlStartDocument, (VisitEndDocument)&xmlEndDocument,
     (VisitStartComplex)&xmlStartComplex,   (VisitEndComplex)&xmlEndComplex,
-    (VisitIntegerElem)&xmlIntegerElem,
+    (VisitNumberElem)&xmlNumberElem,
 };

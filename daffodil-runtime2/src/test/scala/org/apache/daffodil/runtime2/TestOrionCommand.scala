@@ -15,33 +15,24 @@
  * limitations under the License.
  */
 
-#ifndef GENERATED_CODE_H
-#define GENERATED_CODE_H
+package org.apache.daffodil.runtime2
 
-#include "infoset.h" // for InfosetBase
-#include <stdint.h>  // for int32_t
+import org.junit.Test
+import org.apache.daffodil.tdml.Runner
+import org.junit.AfterClass
 
-// Define some infoset structures
+object TestOrionCommand {
+  val testDir = "/org/apache/daffodil/runtime2/"
+  val runner = Runner(testDir, "orion-command.tdml")
 
-typedef struct ex_ints
-{
-    InfosetBase _base;
-    uint64_t    be_uint64;
-    uint32_t    be_uint32;
-    uint16_t    be_uint16;
-    uint8_t     be_uint8;
-    int64_t     be_int64;
-    int32_t     be_int32;
-    int16_t     be_int16;
-    int8_t      be_int8;
-    uint64_t    le_uint64;
-    uint32_t    le_uint32;
-    uint16_t    le_uint16;
-    uint8_t     le_uint8;
-    int64_t     le_int64;
-    int32_t     le_int32;
-    int16_t     le_int16;
-    int8_t      le_int8;
-} ex_ints;
+  @AfterClass def shutDown(): Unit = { runner.reset }
+}
 
-#endif // GENERATED_CODE_H
+class TestOrionCommand {
+  import TestOrionCommand._
+
+  @Test def test_command_parse(): Unit = { runner.runOneTest("command_parse") }
+  @Test def test_command_unparse(): Unit = { runner.runOneTest("command_unparse") }
+  @Test def test_video_settings_parse(): Unit = { runner.runOneTest("video_settings_parse") }
+  @Test def test_video_settings_unparse(): Unit = { runner.runOneTest("video_settings_unparse") }
+}

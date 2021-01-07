@@ -16,15 +16,15 @@
   limitations under the License.
 -->
 
-<orion_command xmlns="http://example.com">
+<idl:Command xmlns:idl="urn:idl:1.0">
   <sync0>208</sync0>
-  <sync1>12</sync1>
+  <sync1>13</sync1>
   <id>1</id>
   <length>7</length>
   <pan>-999</pan>
-  <tilt>-21231</tilt>
+  <tilt>-1231</tilt>
   <mode>80</mode>
   <stabilized>0</stabilized>
   <impulse>0</impulse>
   <checksum>30149</checksum>
-</orion_command>
+</idl:Command>

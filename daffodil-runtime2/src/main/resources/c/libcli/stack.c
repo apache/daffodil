@@ -16,10 +16,10 @@
  */
 
 #include "stack.h"
-#include <error.h>   // for error
-#include <stdbool.h> // for bool
-#include <stddef.h>  // for ptrdiff_t
-#include <stdlib.h>  // for EXIT_FAILURE
+#include <error.h>    // for error
+#include <stdbool.h>  // for bool
+#include <stddef.h>   // for ptrdiff_t
+#include <stdlib.h>   // for EXIT_FAILURE
 
 // Initialize stack with preallocated array
 
