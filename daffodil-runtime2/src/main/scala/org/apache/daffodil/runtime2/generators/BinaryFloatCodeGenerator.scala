@@ -17,46 +17,33 @@
 
 package org.apache.daffodil.runtime2.generators
 
-import org.apache.daffodil.grammar.primitives.BinaryIntegerKnownLength
+import org.apache.daffodil.dsom.ElementBase
+import org.apache.daffodil.schema.annotation.props.gen.ByteOrder
 import org.apache.daffodil.schema.annotation.props.gen.OccursCountKind
-import org.apache.daffodil.schema.annotation.props.gen.{ BitOrder, ByteOrder }
 
-trait BinaryIntegerKnownLengthCodeGenerator {
+trait BinaryFloatCodeGenerator {
 
-  def binaryIntegerKnownLengthGenerateCode(g: BinaryIntegerKnownLength, cgState: CodeGeneratorState): Unit = {
+  def binaryFloatGenerateCode(e: ElementBase, lengthInBits: Int, cgState: CodeGeneratorState): Unit = {
     // For the time being this is a very limited back end.
     // So there are some restrictions to enforce.
-    val e = g.e
-    val lengthInBits: Long = {
-      e.schemaDefinitionUnless(e.elementLengthInBitsEv.isConstant, "Runtime dfdl:length expressions not supported.")
-      val len = e.elementLengthInBitsEv.constValue.get
-      len
-    }
-    e.schemaDefinitionUnless(e.bitOrder eq BitOrder.MostSignificantBitFirst, "Only dfdl:bitOrder 'mostSignificantBitFirst' is supported.")
+    assert(lengthInBits == 32 || lengthInBits == 64)
     val byteOrder: ByteOrder = {
       e.schemaDefinitionUnless(e.byteOrderEv.isConstant, "Runtime dfdl:byteOrder expressions not supported.")
       val bo = e.byteOrderEv.constValue
       bo
     }
 
-    // Use an unusual memory bit pattern (magic debug value) to mark our field
-    // as uninitialized in case parsing or unparsing fails to set the field.
-    val initialValue = lengthInBits match {
-      case 8 => "0xCC"
-      case 16 => "0xCCCC"
-      case 32 => "0xCCCCCCCC"
-      case 64 => "0xCCCCCCCCCCCCCCCC"
-      case _ => e.SDE("Lengths other than 8, 16, 32, or 64 bits are not supported.")
-    }
+    // Use a NAN to mark our field as uninitialized in case parsing or unparsing
+    // fails to set the field.
     val fieldName = e.namedQName.local
-    val integer = if (g.signed) s"int${lengthInBits}" else s"uint${lengthInBits}"
+    val float = if (lengthInBits == 32) "float" else "double"
     val conv = if (byteOrder eq ByteOrder.BigEndian) "be" else "le"
     val arraySize = if (e.occursCountKind == OccursCountKind.Fixed) e.maxOccurs else 0
 
     def addSimpleTypeStatements(deref: String): Unit = {
-      val initStatement = s"    instance->$fieldName$deref = $initialValue;"
-      val parseStatement = s"    parse_${conv}_$integer(&instance->$fieldName$deref, pstate);"
-      val unparseStatement = s"    unparse_${conv}_$integer(instance->$fieldName$deref, ustate);"
+      val initStatement = s"    instance->$fieldName$deref = NAN;"
+      val parseStatement = s"    parse_${conv}_$float(&instance->$fieldName$deref, pstate);"
+      val unparseStatement = s"    unparse_${conv}_$float(instance->$fieldName$deref, ustate);"
       cgState.addSimpleTypeStatements(initStatement, parseStatement, unparseStatement)
     }
     if (arraySize > 0)

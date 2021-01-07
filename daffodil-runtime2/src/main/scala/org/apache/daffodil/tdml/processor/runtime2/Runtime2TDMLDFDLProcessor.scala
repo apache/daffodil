@@ -17,7 +17,6 @@
 
 package org.apache.daffodil.tdml.processor.runtime2
 
-import dev.dirs.ProjectDirectories
 import org.apache.daffodil.api._
 import org.apache.daffodil.compiler.Compiler
 import org.apache.daffodil.externalvars.Binding
@@ -107,20 +106,20 @@ final class TDMLDFDLProcessorFactory private(
       // Create a CodeGenerator from the DFDL schema for the C language
       val generator = pf.forLanguage("c")
 
-      // Generate the C source code in our cache directory
+      // Generate the C source code in a temporary unique directory
       val rootNS = QName.refQNameFromExtendedSyntax(optRootName.getOrElse("")).toOption
-      val directories = ProjectDirectories.from("org", "Apache Software Foundation", "Daffodil")
-      val outputDir = generator.generateCode(rootNS, directories.cacheDir)
+      val tempDir = os.temp.dir()
+      val codeDir = generator.generateCode(rootNS, tempDir.toString)
 
       // Compile the generated code into an executable
-      val executable = generator.compileCode(outputDir)
+      val executable = generator.compileCode(codeDir)
 
       // Summarize the result of compiling the schema for the test
       val compileResult = if (generator.isError) {
         Left(generator.getDiagnostics) // C code compilation diagnostics
       } else {
         // Create a processor for running the test using the executable
-        val processor = new Runtime2TDMLDFDLProcessor(executable)
+        val processor = new Runtime2TDMLDFDLProcessor(tempDir, executable)
         Right((generator.getDiagnostics, processor))
       }
       compileResult
@@ -136,7 +135,7 @@ final class TDMLDFDLProcessorFactory private(
  * XML Infosets, feeding to the unparser, creating XML from the result created by the
  * [[Runtime2DataProcessor]]. All the "real work" is done by [[Runtime2DataProcessor]].
  */
-class Runtime2TDMLDFDLProcessor(executable: os.Path) extends TDMLDFDLProcessor {
+class Runtime2TDMLDFDLProcessor(tempDir: os.Path, executable: os.Path) extends TDMLDFDLProcessor {
 
   override type R = Runtime2TDMLDFDLProcessor
 
@@ -178,7 +177,7 @@ class Runtime2TDMLDFDLProcessor(executable: os.Path) extends TDMLDFDLProcessor {
     val pr = dataProcessor.parse(is)
     anyErrors = pr.isError
     diagnostics = pr.getDiagnostics
-    new Runtime2TDMLParseResult(pr)
+    new Runtime2TDMLParseResult(pr, tempDir)
   }
 
   // Run the C code, collect and save the unparsed data with any errors and
@@ -187,13 +186,12 @@ class Runtime2TDMLDFDLProcessor(executable: os.Path) extends TDMLDFDLProcessor {
   // the unparsed data on its standard output, and write any error messages
   // on its standard output (all done in [[Runtime2DataProcessor.unparse]]).
   override def unparse(infosetXML: scala.xml.Node, outStream: java.io.OutputStream): TDMLUnparseResult = {
-    val tempDir = null
-    val tempInputFile = XMLUtils.convertNodeToTempFile(infosetXML, tempDir)
+    val tempInputFile = XMLUtils.convertNodeToTempFile(infosetXML, tempDir.toIO)
     val inStream = os.read.inputStream(os.Path(tempInputFile))
     val upr = dataProcessor.unparse(inStream, outStream)
     anyErrors = upr.isError
     diagnostics = upr.getDiagnostics
-    new Runtime2TDMLUnparseResult(upr)
+    new Runtime2TDMLUnparseResult(upr, tempDir)
   }
 
   def unparse(parseResult: TDMLParseResult, outStream: java.io.OutputStream): TDMLUnparseResult = {
@@ -201,7 +199,7 @@ class Runtime2TDMLDFDLProcessor(executable: os.Path) extends TDMLDFDLProcessor {
   }
 }
 
-final class Runtime2TDMLParseResult(pr: ParseResult) extends TDMLParseResult {
+final class Runtime2TDMLParseResult(pr: ParseResult, tempDir: os.Path) extends TDMLParseResult {
   override def addDiagnostic(failure: Diagnostic): Unit = pr.addDiagnostic(failure)
 
   override def getResult: Node = pr.infosetAsXML
@@ -213,9 +211,11 @@ final class Runtime2TDMLParseResult(pr: ParseResult) extends TDMLParseResult {
   override def isProcessingError: Boolean = pr.isProcessingError
 
   override def getDiagnostics: Seq[Diagnostic] = pr.getDiagnostics
+
+  override def cleanUp(): Unit = os.remove.all(tempDir)
 }
 
-final class Runtime2TDMLUnparseResult(upr: UnparseResult) extends TDMLUnparseResult {
+final class Runtime2TDMLUnparseResult(upr: UnparseResult, tempDir: os.Path) extends TDMLUnparseResult {
   override def bitPos0b: Long = upr.finalBitPos0b
 
   override def finalBitPos0b: Long = upr.finalBitPos0b
@@ -229,4 +229,6 @@ final class Runtime2TDMLUnparseResult(upr: UnparseResult) extends TDMLUnparseRes
   override def isProcessingError: Boolean = upr.isProcessingError
 
   override def getDiagnostics: Seq[Diagnostic] = upr.getDiagnostics
+
+  override def cleanUp(): Unit = os.remove.all(tempDir)
 }

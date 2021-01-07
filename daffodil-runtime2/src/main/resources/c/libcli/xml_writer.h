@@ -18,9 +18,9 @@
 #ifndef XML_WRITER_H
 #define XML_WRITER_H
 
-#include "infoset.h" // for VisitEventHandler
-#include "stack.h"   // for stack_t
-#include <stdio.h>   // for FILE
+#include "infoset.h"  // for VisitEventHandler
+#include "stack.h"    // for stack_t
+#include <stdio.h>    // for FILE
 
 // XMLWriter - infoset visitor with methods to output XML
 

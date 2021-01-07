@@ -18,9 +18,9 @@
 #ifndef STACK_H
 #define STACK_H
 
-#include <mxml.h>    // for mxml_node_t
-#include <stdbool.h> // for bool
-#include <stddef.h>  // for ptrdiff_t
+#include <mxml.h>     // for mxml_node_t
+#include <stdbool.h>  // for bool
+#include <stddef.h>   // for ptrdiff_t
 
 // Type of element pushed into stack
 

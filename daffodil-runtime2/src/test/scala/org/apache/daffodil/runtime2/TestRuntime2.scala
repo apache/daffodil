@@ -31,8 +31,8 @@ object TestRuntime2 {
 class TestRuntime2 {
   import TestRuntime2._
 
-  @Test def test_ex_ints_parse(): Unit = { runner.runOneTest("ex_ints_parse") }
-  @Test def test_ex_ints_unparse(): Unit = { runner.runOneTest("ex_ints_unparse") }
-  @Test def test_orion_command_parse(): Unit = { runner.runOneTest("orion_command_parse") }
-  @Test def test_orion_command_unparse(): Unit = { runner.runOneTest("orion_command_unparse") }
+  @Test def test_ex_nums_parse1(): Unit = { runner.runOneTest("ex_nums_parse1") }
+  @Test def test_ex_nums_unparse1(): Unit = { runner.runOneTest("ex_nums_unparse1") }
+  @Test def test_ex_nums_parse2(): Unit = { runner.runOneTest("ex_nums_parse2") }
+  @Test def test_ex_nums_unparse2(): Unit = { runner.runOneTest("ex_nums_unparse2") }
 }

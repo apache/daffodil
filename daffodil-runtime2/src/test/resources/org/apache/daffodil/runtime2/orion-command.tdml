@@ -17,9 +17,10 @@
 -->
 
 <tdml:testSuite
+  defaultConfig="config-runtime2"
   defaultImplementations="daffodil daffodil-runtime2"
   defaultRoundTrip="onePass"
-  description="TDML tests for daffodil-runtime2"
+  description="TDML tests for orion-command"
   xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData">
@@ -37,58 +38,54 @@
   </tdml:defineConfig>
 
   <tdml:parserTestCase
-    config="config-runtime1"
-    description="ex_nums parse test with runtime1"
-    model="TestRuntime2.dfdl.xsd"
-    name="ex_nums_parse1"
-    root="ex_nums">
+    description="orion-command Command parse test"
+    model="orion-command.dfdl.xsd"
+    name="command_parse"
+    root="Command">
     <tdml:document>
-      <tdml:documentPart type="file">ex_nums_parse.dat</tdml:documentPart>
+      <tdml:documentPart type="file">command_parse.dat</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
-      <tdml:dfdlInfoset type="file">ex_nums_unparse1.xml</tdml:dfdlInfoset>
+      <tdml:dfdlInfoset type="file">command_unparse.xml</tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
 
   <tdml:unparserTestCase
-    config="config-runtime1"
-    description="ex_nums unparse test with runtime1"
-    model="TestRuntime2.dfdl.xsd"
-    name="ex_nums_unparse1"
-    root="ex_nums">
+    description="orion-command Command unparse test"
+    model="orion-command.dfdl.xsd"
+    name="command_unparse"
+    root="Command">
     <tdml:infoset>
-      <tdml:dfdlInfoset type="file">ex_nums_unparse1.xml</tdml:dfdlInfoset>
+      <tdml:dfdlInfoset type="file">command_unparse.xml</tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:document>
-      <tdml:documentPart type="file">ex_nums_parse.dat</tdml:documentPart>
+      <tdml:documentPart type="file">command_parse.dat</tdml:documentPart>
     </tdml:document>
   </tdml:unparserTestCase>
 
   <tdml:parserTestCase
-    config="config-runtime2"
-    description="ex_nums parse test with runtime2"
-    model="TestRuntime2.dfdl.xsd"
-    name="ex_nums_parse2"
-    root="ex_nums">
+    description="orion-command VideoSettings parse test"
+    model="orion-command.dfdl.xsd"
+    name="video_settings_parse"
+    root="VideoSettings">
     <tdml:document>
-      <tdml:documentPart type="file">ex_nums_parse.dat</tdml:documentPart>
+      <tdml:documentPart type="file">video_settings_parse.dat</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
-      <tdml:dfdlInfoset type="file">ex_nums_unparse2.xml</tdml:dfdlInfoset>
+      <tdml:dfdlInfoset type="file">video_settings_unparse.xml</tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
 
   <tdml:unparserTestCase
-    config="config-runtime2"
-    description="ex_nums unparse test with runtime2"
-    model="TestRuntime2.dfdl.xsd"
-    name="ex_nums_unparse2"
-    root="ex_nums">
+    description="orion-command VideoSettings unparse test"
+    model="orion-command.dfdl.xsd"
+    name="video_settings_unparse"
+    root="VideoSettings">
     <tdml:infoset>
-      <tdml:dfdlInfoset type="file">ex_nums_unparse2.xml</tdml:dfdlInfoset>
+      <tdml:dfdlInfoset type="file">video_settings_unparse.xml</tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:document>
-      <tdml:documentPart type="file">ex_nums_parse.dat</tdml:documentPart>
+      <tdml:documentPart type="file">video_settings_parse.dat</tdml:documentPart>
     </tdml:document>
   </tdml:unparserTestCase>
 

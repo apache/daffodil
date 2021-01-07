@@ -15,14 +15,14 @@
  * limitations under the License.
  */
 
-#include "daffodil_argp.h" // for daffodil_cli, parse_daffodil_cli, ...
-#include "infoset.h"       // for InfosetBase, walkInfoset, rootElement, ...
-#include "xml_reader.h"    // for xmlReaderMethods, XMLReader
-#include "xml_writer.h"    // for xmlWriterMethods, XMLWriter
-#include <error.h>         // for error
-#include <stdio.h>         // for FILE, perror, fclose, fopen, stdin
-#include <stdlib.h>        // for exit, EXIT_FAILURE
-#include <string.h>        // for strcmp
+#include "daffodil_argp.h"  // for daffodil_cli, daffodil_parse, daffodil_parse_cli, daffodil_unparse, daffodil_unparse_cli, parse_daffodil_cli, DAFFODIL_PARSE, DAFFODIL_UNPARSE
+#include "infoset.h"        // for walkInfoset, InfosetBase, rootElement, ERD, PState, UState, VisitEventHandler
+#include "xml_reader.h"     // for xmlReaderMethods, XMLReader
+#include "xml_writer.h"     // for xmlWriterMethods, XMLWriter
+#include <error.h>          // for error
+#include <stdio.h>          // for FILE, perror, fclose, fopen, stdin, stdout
+#include <stdlib.h>         // for exit, EXIT_FAILURE
+#include <string.h>         // for strcmp
 
 // Open a file or exit if it can't be opened
 
@@ -85,15 +85,16 @@ main(int argc, char *argv[])
             output = fopen_or_exit(output, daffodil_parse.outfile, "w");
 
             // Parse the input file into our infoset.
-            PState      pstate = {input};
-            const char *error_msg = root->erd->parseSelf(root, &pstate);
-            continue_or_exit(error_msg);
+            PState pstate = {input};
+            root->erd->parseSelf(root, &pstate);
+            continue_or_exit(pstate.error_msg);
 
             if (strcmp(daffodil_parse.infoset_converter, "xml") == 0)
             {
                 // Visit the infoset and print XML from it.
-                XMLWriter xmlWriter = {xmlWriterMethods, output};
-                error_msg = walkInfoset((VisitEventHandler *)&xmlWriter, root);
+                XMLWriter   xmlWriter = {xmlWriterMethods, output};
+                const char *error_msg =
+                    walkInfoset((VisitEventHandler *)&xmlWriter, root);
                 continue_or_exit(error_msg);
             }
             else
@@ -123,9 +124,9 @@ main(int argc, char *argv[])
             }
 
             // Unparse our infoset to the output file.
-            UState      ustate = {output};
-            const char *error_msg = root->erd->unparseSelf(root, &ustate);
-            continue_or_exit(error_msg);
+            UState ustate = {output};
+            root->erd->unparseSelf(root, &ustate);
+            continue_or_exit(ustate.error_msg);
         }
 
         // Close our input and out files if we opened them.

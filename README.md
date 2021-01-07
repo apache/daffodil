@@ -38,17 +38,28 @@ For more information about Daffodil, see https://daffodil.apache.org/.
 
 * JDK 8 or higher
 * SBT 0.13.8 or higher
+* C compiler (for daffodil-runtime2 only)
+* Mini-XML Version 3.2 or higher (for daffodil-runtime2 only)
 
 ## Getting Started
 
-[SBT] is the officially supported tool to build Daffodil, run all tests, create packages,
-and more. Below are some of the more common commands used for Daffodil development.
+You will need the full Java Software Development Kit ([JDK] or [SDK]),
+not the Java Runtime Environment (JRE), to build Daffodil.  You also
+will need [SBT] to build Daffodil, run all tests, create packages, and
+more.
+
+In order to build daffodil-runtime2, you will need a C compiler (for
+example, [gcc]), the [Mini-XML] library, and possibly the [argp]
+library if your system doesn't include it in its C library.
+
+Below are some of the more common commands used for Daffodil development.
 
 ### Compile
 
 ```text
 $ sbt compile
 ```
+
 ### Tests
 
 Run all unit tests:
@@ -110,18 +121,20 @@ projects. While incubation status is not necessarily a reflection of the complet
 stability of the code, it does indicate that the project has yet to be fully endorsed by
 the ASF.
 
-
-
-
 [Apache License, v2.0]: https://www.apache.org/licenses/LICENSE-2.0
 [Apache RAT]: https://creadur.apache.org/rat/
 [CodeCov]: https://codecov.io/gh/apache/incubator-daffodil/
 [Command Line Interface]: https://daffodil.apache.org/cli/
 [Daffodil JIRA]: https://issues.apache.org/jira/projects/DAFFODIL
 [Data Format Description Language (DFDL)]: http://www.ogf.org/dfdl
+[JDK]: https://docs.oracle.com/en/java/javase/11/install/overview-jdk-installation.html
+[Mini-XML]: https://www.msweet.org/mxml/
 [Open Grid Forum]: http://www.ogf.org
 [Releases]: http://daffodil.apache.org/releases/
 [SBT]: http://www.scala-sbt.org
+[SDK]: https://sdkman.io
 [Github Actions]: https://github.com/apache/incubator-daffodil/actions?query=branch%3Amaster+
 [Website]: https://daffodil.apache.org
+[argp]: https://packages.msys2.org/package/libargp-devel
+[gcc]: https://linuxize.com/post/how-to-install-gcc-on-ubuntu-20-04/
 [sbt-scoverage]: https://github.com/scoverage/sbt-scoverage

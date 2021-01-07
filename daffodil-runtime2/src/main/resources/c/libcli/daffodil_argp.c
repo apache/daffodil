@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-#include "daffodil_argp.h" // for daffodil_cli, daffodil_parse_cli, ...
-#include <argp.h>          // for argp_state, argp_error, error_t, argp_parse
-#include <stdio.h>         // for sprintf
-#include <stdlib.h>        // for putenv, NULL
-#include <string.h>        // for strlen, strcmp
+#include "daffodil_argp.h"
+#include <argp.h>    // for argp_state, argp_error, error_t, argp_parse, ARGP_ERR_UNKNOWN, ARGP_IN_ORDER, ARGP_KEY_ARG, argp, argp_option, ARGP_KEY_END
+#include <stdio.h>   // for sprintf, NULL
+#include <stdlib.h>  // for putenv
+#include <string.h>  // for strlen, strcmp
 
 // Initialize our "daffodil" name and version
 

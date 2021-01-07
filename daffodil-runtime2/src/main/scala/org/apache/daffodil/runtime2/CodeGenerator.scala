@@ -44,7 +44,7 @@ class CodeGenerator(root: Root) extends DFDL.CodeGenerator {
   private var errorStatus: Boolean = false
 
   // Writes C source files into a "c" subdirectory of the given output directory.
-  // Removes the "c" subdirectory if it existed before.
+  // Removes the "c" subdirectory if it existed before.  Returns the "c" subdirectory.
   override def generateCode(rootNS: Option[RefQName], outputDirArg: String): os.Path = {
     // Get the paths of the output directory and its code subdirectory
     val outputDir = os.Path(Paths.get(outputDirArg).toAbsolutePath)
@@ -82,15 +82,14 @@ class CodeGenerator(root: Root) extends DFDL.CodeGenerator {
     os.write(generatedCodeHeader, codeHeaderText)
     os.write(generatedCodeFile, codeFileText)
 
-    // Return our output directory in case caller wants to call compileCode next
-    outputDir
+    // Return our code directory in case caller wants to call compileCode next
+    codeDir
   }
 
-  // Compiles any C source files inside a "c" subdirectory of the given output directory.
-  // Returns the path of the newly created executable to use in TDML tests or something else.
-  override def compileCode(outputDir: os.Path): os.Path = {
-    // Get the paths of the code subdirectory and the executable we will build
-    val codeDir = outputDir/"c"
+  // Compiles any C source files inside the given code directory.  Returns the path
+  // of the newly created executable to use in TDML tests or somewhere else.
+  override def compileCode(codeDir: os.Path): os.Path = {
+    // Get the path of the executable we will build
     val exe = if (isWindows) codeDir/"daffodil.exe" else codeDir/"daffodil"
 
     try {
@@ -99,14 +98,12 @@ class CodeGenerator(root: Root) extends DFDL.CodeGenerator {
       val files = os.walk(codeDir).filter(_.ext == "c")
       val libs = Seq("-lmxml", if (isWindows) "-largp" else "-lpthread")
 
-      // Call the compiler if it was found.  We run the compiler in the output directory,
-      // not in the "c" subdirectory, in order to let the compiler (which might be "zig cc")
-      // cache/reuse previously built files (which might be in a "zig_cache" subdirectory).
-      // We can't let "zig_cache" be put into "c" because we always remove and re-generate
-      // everything in "c" from scratch.
+      // Run the compiler in the code directory (if we found "zig cc"
+      // as a compiler, it will cache previously built files in zig's
+      // global cache directory, not a local zig_cache directory)
       if (compiler.nonEmpty) {
         val result = os.proc(compiler, "-I", codeDir/"libcli", "-I", codeDir/"libruntime",
-          files, libs, "-o", exe).call(cwd = outputDir, stderr = os.Pipe)
+          files, libs, "-o", exe).call(cwd = codeDir, stderr = os.Pipe)
 
         // Report any compiler output as a warning
         if (result.out.text.nonEmpty || result.err.text.nonEmpty) {
@@ -116,7 +113,7 @@ class CodeGenerator(root: Root) extends DFDL.CodeGenerator {
     } catch {
       // Report any subprocess termination error as an error
       case e: os.SubprocessException =>
-        error("Error compiling generated code: %s wd: %s", Misc.getSomeMessage(e).get, outputDir.toString)
+        error("Error compiling generated code: %s wd: %s", Misc.getSomeMessage(e).get, codeDir.toString)
     }
 
     // Report any failure to build the executable as an error
