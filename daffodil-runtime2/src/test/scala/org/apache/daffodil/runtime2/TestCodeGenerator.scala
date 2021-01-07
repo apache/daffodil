@@ -39,15 +39,15 @@ import org.junit.Test
  * as you could want.
  */
 class TestCodeGenerator {
-  // Ensure all tests remove outputDir after using it
-  var outputDir: os.Path = _
+  // Ensure all tests remove tempDir after using it
+  var tempDir: os.Path = _
 
   @Before def before(): Unit = {
-    outputDir = os.temp.dir()
+    tempDir = os.temp.dir()
   }
 
   @After def after(): Unit = {
-    os.remove.all(outputDir)
+    os.remove.all(tempDir)
   }
 
   // Define a simple DFDL test schema for debugging our code path
@@ -90,20 +90,20 @@ class TestCodeGenerator {
     val cg = pf.forLanguage("c")
 
     // Generate code from the test schema successfully
-    val outputDir = cg.generateCode(None, s"${this.outputDir}")
+    val codeDir = cg.generateCode(None, tempDir.toString)
     assert(!cg.isError, cg.getDiagnostics.map(_.getMessage()).mkString("\n"))
-    assert(os.exists(outputDir))
-    assert(os.exists(outputDir/"c"/"libruntime"/"generated_code.c"))
+    assert(os.exists(codeDir))
+    assert(os.exists(codeDir/"libruntime"/"generated_code.c"))
   }
 
   @Test def test_compileCode_success(): Unit = {
     // Create a CodeGenerator and generate code from the test schema
     val pf = Compiler().compileNode(testSchema)
     val cg = pf.forLanguage("c")
-    val outputDir = cg.generateCode(None, s"${this.outputDir}")
+    val codeDir = cg.generateCode(None, tempDir.toString)
 
     // Compile the generated code into an executable successfully
-    val executable = cg.compileCode(outputDir)
+    val executable = cg.compileCode(codeDir)
     assert(!cg.isError, cg.getDiagnostics.map(_.getMessage()).mkString("\n"))
     assert(os.exists(executable))
   }
@@ -112,8 +112,8 @@ class TestCodeGenerator {
     // Compile the test schema into a C executable
     val pf = Compiler().compileNode(testSchema)
     val cg = pf.forLanguage("c")
-    val outputDir = cg.generateCode(None, s"${this.outputDir}")
-    val executable = cg.compileCode(outputDir)
+    val codeDir = cg.generateCode(None, tempDir.toString)
+    val executable = cg.compileCode(codeDir)
 
     // Create a Runtime2DataProcessor and parse a binary int32 number successfully
     val dp = new Runtime2DataProcessor(executable)
@@ -129,8 +129,8 @@ class TestCodeGenerator {
     // Compile the test schema into a C executable
     val pf = Compiler().compileNode(testSchema)
     val cg = pf.forLanguage("c")
-    val outputDir = cg.generateCode(None, s"${this.outputDir}")
-    val executable = cg.compileCode(outputDir)
+    val codeDir = cg.generateCode(None, tempDir.toString)
+    val executable = cg.compileCode(codeDir)
 
     // Create a Runtime2DataProcessor and unparse a binary int32 number successfully
     val dp = new Runtime2DataProcessor(executable)

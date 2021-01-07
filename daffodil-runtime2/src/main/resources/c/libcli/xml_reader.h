@@ -18,9 +18,9 @@
 #ifndef XML_READER_H
 #define XML_READER_H
 
-#include "infoset.h" // for VisitEventHandler, InfosetBase
-#include <mxml.h>    // for mxml_node_t
-#include <stdio.h>   // for FILE
+#include "infoset.h"  // for VisitEventHandler, InfosetBase
+#include <mxml.h>     // for mxml_node_t
+#include <stdio.h>    // for FILE
 
 // XMLReader - infoset visitor with methods to read XML
 

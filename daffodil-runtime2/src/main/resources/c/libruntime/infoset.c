@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include "infoset.h" // for walkInfoset, VisitEventHandler, ...
+#include "infoset.h"
 #include <string.h>  // for memccpy
 
 // get_erd_name, get_erd_xmlns, get_erd_ns - get name and xmlns
@@ -136,7 +136,7 @@ walkInfosetNode(const VisitEventHandler *handler, const InfosetBase *infoNode)
         // We use only one of these variables below depending on typeCode
         const InfosetBase *childNode =
             (const InfosetBase *)((const char *)infoNode + offset);
-        const void *intLocation =
+        const void *numLocation =
             (const void *)((const char *)infoNode + offset);
 
         // Need to handle more element types
@@ -154,8 +154,10 @@ walkInfosetNode(const VisitEventHandler *handler, const InfosetBase *infoNode)
         case PRIMITIVE_INT32:
         case PRIMITIVE_INT16:
         case PRIMITIVE_INT8:
+        case PRIMITIVE_FLOAT:
+        case PRIMITIVE_DOUBLE:
             error_msg =
-                handler->visitIntegerElem(handler, childERD, intLocation);
+                handler->visitNumberElem(handler, childERD, numLocation);
             break;
         }
     }

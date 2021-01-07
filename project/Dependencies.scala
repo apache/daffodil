@@ -31,7 +31,6 @@ object Dependencies {
     "jline" % "jline" % "2.14.6",
     "com.typesafe" % "config" % "1.4.1",
     "com.lihaoyi" %% "os-lib" % "0.7.1", // for generating C source files
-    "dev.dirs" % "directories" % "21" // for caching compiled C files
   )
 
   lazy val infoset = Seq(

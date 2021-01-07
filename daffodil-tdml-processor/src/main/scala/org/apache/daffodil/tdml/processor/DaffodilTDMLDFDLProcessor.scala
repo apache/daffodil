@@ -21,6 +21,7 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.OutputStreamWriter
 import java.nio.channels.Channels
+import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 
@@ -433,6 +434,8 @@ final class DaffodilTDMLParseResult(actual: DFDL.ParseResult, outputter: TDMLInf
   override def currentLocation: DataLocation = actual.resultState.currentLocation
 
   override def addDiagnostic(diag: Diagnostic): Unit = actual.addDiagnostic(diag)
+
+  override def cleanUp(): Unit = getBlobPaths.foreach { Files.delete }
 }
 
 final class DaffodilTDMLUnparseResult(actual: DFDL.UnparseResult, outStream: java.io.OutputStream) extends TDMLUnparseResult {
@@ -452,6 +455,8 @@ final class DaffodilTDMLUnparseResult(actual: DFDL.UnparseResult, outStream: jav
   override def getDiagnostics: Seq[Diagnostic] = actual.getDiagnostics
 
   override def bitPos0b: Long = ustate.bitPos0b
+
+  override def cleanUp(): Unit = { /* do nothing */ }
 }
 
 class DaffodilTDMLSAXErrorHandler extends ErrorHandler with WithDiagnostics {

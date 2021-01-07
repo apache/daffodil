@@ -19,10 +19,10 @@
 
 SOURCES = libcli/*.[ch] libruntime/*.[ch]
 PROGRAM = ./daffodil
-CFLAGS = -Wall
+CFLAGS = -g -Wall -Wextra -Wno-missing-field-initializers
 
 $(PROGRAM): $(SOURCES)
-	$(CC) $(CFLAGS) -o $(PROGRAM) -I libcli -I libruntime $(SOURCES) -lmxml -lpthread -lm
+	$(CC) $(CFLAGS) -I libcli -I libruntime $(SOURCES) -lmxml -o $(PROGRAM)
 
 # Here's how to run parse/unparse tests (.dat <-> .xml, although you
 # will need to create the .dat and .xml files first)

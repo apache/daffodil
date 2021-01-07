@@ -28,7 +28,6 @@ import java.nio.CharBuffer
 import java.nio.LongBuffer
 import java.nio.charset.CoderResult
 import java.nio.charset.{Charset => JavaCharset}
-import java.nio.file.Files
 
 import scala.language.postfixOps
 import scala.util.Try
@@ -900,9 +899,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
         // we should never need blobs if we're expecting an error even if we
         // don't get errors. So clean them up immediately
-        actual.getBlobPaths.foreach { blobPath =>
-          Files.delete(blobPath)
-        }
+        actual.cleanUp()
 
         val isErr: Boolean =
           if (actual.isProcessingError) true
@@ -1155,9 +1152,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         // Done with the first parse result, safe to clean up blobs if there
         // was success. This won't get called on failure, which is fine--leave
         // blobs around for debugging
-        firstParseResult.getBlobPaths.foreach { blobPath =>
-          Files.delete(blobPath)
-        }
+        firstParseResult.cleanUp()
       }
       case OnePassRoundTrip => {
         val outStream = new java.io.ByteArrayOutputStream()
@@ -1172,9 +1167,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         // Done with the first parse result, safe to clean up blobs if there
         // was success. This won't get called on failure, which is fine--leave
         // blobs around for debugging
-        firstParseResult.getBlobPaths.foreach { blobPath =>
-          Files.delete(blobPath)
-        }
+        firstParseResult.cleanUp()
       }
       case TwoPassRoundTrip => {
         //
@@ -1199,12 +1192,8 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         // Done with the first and second parse resultrs, safe to clean up
         // blobs if there was success. This won't get called on failure, which
         // is fine--leave blobs around for debugging
-        firstParseResult.getBlobPaths.foreach { blobPath =>
-          Files.delete(blobPath)
-        }
-        actual.getBlobPaths.foreach { blobPath =>
-          Files.delete(blobPath)
-        }
+        firstParseResult.cleanUp()
+        actual.cleanUp()
       }
       case ThreePassRoundTrip => {
         //
@@ -1248,12 +1237,8 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         // Done with the first parse result and second parse results. Safe to
         // clean up blobs if there was success. Leave them around for debugging
         // if there was a failure
-        firstParseResult.getBlobPaths.foreach { blobPath =>
-          Files.delete(blobPath)
-        }
-        secondParseResult.getBlobPaths.foreach { blobPath =>
-          Files.delete(blobPath)
-        }
+        firstParseResult.cleanUp()
+        secondParseResult.cleanUp()
       }
     }
 
@@ -1409,11 +1394,12 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       // Done with the parse results, safe to clean up blobs if there was
       // success. This won't get called on failure, which is fine--leave blobs
       // around for debugging
-      parseActual.getBlobPaths.foreach { blobPath =>
-        Files.delete(blobPath)
-      }
-
+      parseActual.cleanUp()
     }
+
+    // Done with the unparse results, safe to clean up any temporary files
+    // if they were not already cleaned up by parseActual.cleanUp() above
+    actual.cleanUp()
   }
 
   def runUnparserExpectErrors(
@@ -1477,6 +1463,10 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
             }
           }
         }
+
+        // Done with the unparse results, safe to clean up any temporary files
+        actual.cleanUp()
+
         processor.getDiagnostics ++ actual.getDiagnostics ++ dataErrors
       }
     }

@@ -53,7 +53,7 @@ jobs:
         if: runner.os == 'Windows'
         uses: msys2/setup-msys2@v2
         with:
-          install: gcc libargp-devel make pkg-config
+          install: gcc libargp-devel make pkgconf
           path-type: inherit
 
       - name: Check out mxml source (Windows)
