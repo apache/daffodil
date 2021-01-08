@@ -5855,10 +5855,9 @@
 -->
   
   <tdml:parserTestCase name="dateCalendarDaysInFirstWeek" root="date17"
-    model="dateTimeSchema" description="Section 13 Simple Types - calendarDaysInFirstWeek - DFDL-13-143R"
-    roundTrip="false">
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarDaysInFirstWeek - DFDL-13-143R">
 
-    <tdml:document><![CDATA[01 2013]]></tdml:document>
+    <tdml:document><![CDATA[1 2013]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <date17>2013-01-06</date17>
@@ -5879,7 +5878,7 @@
     model="dateTimeSchema" description="Section 13 Simple Types - calendarDaysInFirstWeek - DFDL-13-143R"
     roundTrip="false">
 
-    <tdml:document><![CDATA[01 2013]]></tdml:document>
+    <tdml:document><![CDATA[1 2013]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <date18>2012-12-30</date18>
@@ -5898,7 +5897,7 @@
   <tdml:parserTestCase name="dateCalendarDaysInFirstWeek3" root="date17"
     model="dateTimeSchema" description="Section 13 Simple Types - calendarDaysInFirstWeek - DFDL-13-143R">
 
-    <tdml:document><![CDATA[01 2012]]></tdml:document>
+    <tdml:document><![CDATA[1 2012]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <date17>2012-01-01+00:00</date17>
@@ -5916,10 +5915,9 @@
 -->
   
   <tdml:parserTestCase name="dateCalendarDaysInFirstWeek4" root="date19"
-    model="dateTimeSchema" description="Section 13 Simple Types - calendarDaysInFirstWeek - DFDL-13-143R"
-    roundTrip="false">
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarDaysInFirstWeek - DFDL-13-143R">
 
-    <tdml:document><![CDATA[01 03 2013]]></tdml:document>
+    <tdml:document><![CDATA[1 03 2013]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <date19>2013-03-03</date19>
@@ -5939,7 +5937,7 @@
   <tdml:parserTestCase name="dateCalendarDaysInFirstWeek5" root="date20"
     model="dateTimeSchema" description="Section 13 Simple Types - calendarDaysInFirstWeek - DFDL-13-143R">
 
-    <tdml:document><![CDATA[01 03 2013]]></tdml:document>
+    <tdml:document><![CDATA[1 03 2013]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <date20>2013-02-24+00:00</date20>
@@ -6199,8 +6197,7 @@
 -->
   
   <tdml:parserTestCase name="dateCalendarFirstDayOfWeek01" root="date05"
-    model="dateTimeSchema" description="Section 13 Simple Types - calendarFirstDayOfWeek - DFDL-13-142R"
-    roundTrip="false">
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarFirstDayOfWeek - DFDL-13-142R">
 
     <tdml:document><![CDATA[day 1 of the week, month 02 year 2013]]></tdml:document>
     <tdml:infoset>
@@ -6221,8 +6218,7 @@
 -->
   
   <tdml:parserTestCase name="dateCalendarFirstDayOfWeek02" root="date05"
-    model="dateTimeSchema" description="Section 13 Simple Types - calendarFirstDayOfWeek - DFDL-13-142R"
-    roundTrip="false">
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarFirstDayOfWeek - DFDL-13-142R">
 
     <tdml:document><![CDATA[day 2 of the week, month 02 year 2013]]></tdml:document>
     <tdml:infoset>
@@ -6283,7 +6279,7 @@
   
   <tdml:parserTestCase name="timeZoneFormats" root="time04"
     model="dateTimeSchema" description="Section 13 Simple Types - calendarPattern - DFDL-13-146R"
-    roundTrip="twoPass">
+    roundTrip="false">
 
     <tdml:document><![CDATA[08:43.EST]]></tdml:document>
     <tdml:infoset>
@@ -6294,6 +6290,24 @@
   </tdml:parserTestCase>
 
 <!--
+     Test Name: timeZoneFormats_unparse
+        Schema: dateTimeSchema
+          Root: time04
+       Purpose: This test demonstrates the 'z' pattern unparses to a generic offset
+-->
+  
+  <tdml:unparserTestCase name="timeZoneFormats_unparse" root="time04"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarPattern - DFDL-13-146R">
+
+    <tdml:document><![CDATA[08:43.GMT-5]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:time04>08:43:00-05:00</ex:time04>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+<!--
      Test Name: timeZoneFormats2
         Schema: dateTimeSchema
           Root: time04b
@@ -6302,7 +6316,7 @@
   
   <tdml:parserTestCase name="timeZoneFormats2" root="time04b"
     model="dateTimeSchema" description="Section 13 Simple Types - calendarPattern - DFDL-13-146R"
-    roundTrip="twoPass">
+    roundTrip="false">
 
     <tdml:document><![CDATA[08:43.Eastern Standard Time]]></tdml:document>
     <tdml:infoset>
@@ -6313,6 +6327,24 @@
   </tdml:parserTestCase>
 
 <!--
+     Test Name: timeZoneFormats2_unparse
+        Schema: dateTimeSchema
+          Root: time04b
+       Purpose: This test demonstrates different formatting for timezone
+-->
+  
+  <tdml:unparserTestCase name="timeZoneFormats2_unparse" root="time04b"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarPattern - DFDL-13-146R">
+
+    <tdml:document><![CDATA[08:43.GMT-05:00]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:time04b>08:43:00-05:00</ex:time04b>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+<!--
      Test Name: timeZoneFormats3
         Schema: dateTimeSchema
           Root: time05
@@ -6321,12 +6353,30 @@
   
   <tdml:parserTestCase name="timeZoneFormats3" root="time05"
     model="dateTimeSchema" description="Section 13 Simple Types - calendarPattern - DFDL-13-146R"
-    roundTrip="twoPass">
+    roundTrip="false">
 
     <tdml:document><![CDATA[08:43.PT]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <time05>08:43:00-08:00</time05>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: timeZoneFormats3_unparse
+        Schema: dateTimeSchema
+          Root: time05
+       Purpose: This test demonstrates different formatting for timezone
+-->
+  
+  <tdml:parserTestCase name="timeZoneFormats3_unparse" root="time05"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarPattern - DFDL-13-146R">
+
+    <tdml:document><![CDATA[08:43.GMT-8]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:time05>08:43:00-08:00</ex:time05>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -6509,7 +6559,7 @@
   
   <tdml:parserTestCase name="timeZoneFormats4" root="time05b"
     model="dateTimeSchema" description="Section 13 Simple Types - calendarPattern - DFDL-13-146R"
-    roundTrip="twoPass">
+    roundTrip="false">
 
     <tdml:document><![CDATA[08:43.Pacific Standard Time]]></tdml:document>
     <tdml:infoset>
@@ -6520,6 +6570,24 @@
   </tdml:parserTestCase>
 
 <!--
+     Test Name: timeZoneFormats4_unparse
+        Schema: dateTimeSchema
+          Root: time05b
+       Purpose: This test demonstrates different formatting for timezone
+-->
+  
+  <tdml:unparserTestCase name="timeZoneFormats4_unparse" root="time05b"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarPattern - DFDL-13-146R">
+
+    <tdml:document><![CDATA[08:43.GMT-08:00]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:time05b>08:43:00-08:00</ex:time05b>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+<!--
      Test Name: timeZoneFormats5
         Schema: dateTimeSchema
           Root: time06
@@ -6528,7 +6596,7 @@
   
   <tdml:parserTestCase name="timeZoneFormats5" root="time06"
     model="dateTimeSchema" description="Section 13 Simple Types - calendarPattern - DFDL-13-146R"
-    roundTrip="twoPass">
+    roundTrip="false">
 
     <tdml:document><![CDATA[08:43.Los Angeles Time]]></tdml:document>
     <tdml:infoset>
@@ -6537,6 +6605,24 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+
+<!--
+     Test Name: timeZoneFormats5_unparse
+        Schema: dateTimeSchema
+          Root: time06
+       Purpose: This test demonstrates different formatting for timezone
+-->
+  
+  <tdml:unparserTestCase name="timeZoneFormats5_unparse" root="time06"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarPattern - DFDL-13-146R">
+
+    <tdml:document><![CDATA[08:43.GMT-08:00]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:time06>08:43:00-08:00</ex:time06>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
 
 <!--
      Test Name: timeZoneFormats6
@@ -6558,6 +6644,67 @@
   </tdml:parserTestCase>
 
 <!--
+     Test Name: timeZoneFormats6_unparse
+        Schema: dateTimeSchema
+          Root: time07
+          Purpose: This test demonstrates different formatting for timezone.
+                   Note that this does not round trip because "unk" parses
+                   to the +00:00 timezone
+-->
+  
+  <tdml:unparserTestCase name="timeZoneFormats6_unparse" root="time07"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarPattern - DFDL-13-146R"
+    roundTrip="false">
+
+    <tdml:document><![CDATA[08:43.unk]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:time07>08:43:00-08:00</ex:time07>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+<!--
+     Test Name: timeZoneFormats6_2
+        Schema: dateTimeSchema
+          Root: time07
+          Purpose: This test demonstrates different formatting for timezone,
+                   specifically how the "unk" timezone short ID is handled. Note
+                   this does not round trip because +00:00 unparsed to "gmt" short id.
+-->
+  
+  <tdml:parserTestCase name="timeZoneFormats6_2" root="time07"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarPattern - DFDL-13-146R"
+    roundTrip="false">
+
+    <tdml:document><![CDATA[08:43.unk]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <time07>08:43:00+00:00</time07>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: timeZoneFormats6_2_unparse
+        Schema: dateTimeSchema
+          Root: time07
+          Purpose: This test demonstrates different formatting for timezone,
+                   specifically how the "+00:00" timezone is unparsed to a short ID.
+-->
+  
+  <tdml:unparserTestCase name="timeZoneFormats6_2_unparse" root="time07"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarPattern - DFDL-13-146R">
+
+    <tdml:document><![CDATA[08:43.gmt]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:time07>08:43:00+00:00</ex:time07>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+<!--
      Test Name: timeZoneFormats7
         Schema: dateTimeSchema
           Root: time05b
@@ -6566,7 +6713,7 @@
   
   <tdml:parserTestCase name="timeZoneFormats7" root="time05b"
     model="dateTimeSchema" description="Section 13 Simple Types - calendarPattern - DFDL-13-146R"
-    roundTrip="twoPass">
+    roundTrip="false">
 
     <tdml:document><![CDATA[08:43.Eastern Standard Time]]></tdml:document>
     <tdml:infoset>
@@ -6577,6 +6724,25 @@
   </tdml:parserTestCase>
 
 <!--
+     Test Name: timeZoneFormats7_unparse
+        Schema: dateTimeSchema
+          Root: time05b
+       Purpose: This test demonstrates different formatting for timezone
+-->
+  
+  <tdml:unparserTestCase name="timeZoneFormats7_unparse" root="time05b"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarPattern - DFDL-13-146R">
+
+    <tdml:document><![CDATA[08:43.GMT-05:00]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:time05b>08:43:00-05:00</ex:time05b>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+
+<!--
      Test Name: timeZoneFormats8
         Schema: dateTimeSchema
           Root: time27
@@ -6584,8 +6750,7 @@
 -->
   
   <tdml:parserTestCase name="timeZoneFormats8" root="time27"
-    model="dateTimeSchema" description="Section 13 Simple Types - calendarPattern - DFDL-13-146R"
-    roundTrip="true">
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarPattern - DFDL-13-146R">
 
     <tdml:document><![CDATA[08:43.-0800]]></tdml:document>
     <tdml:infoset>
@@ -6604,7 +6769,7 @@
   
   <tdml:parserTestCase name="timeZoneFormats9" root="time27"
     model="dateTimeSchema" description="Section 13 Simple Types - calendarPattern - DFDL-13-146R"
-    roundTrip="twoPass">
+    roundTrip="false">
 
     <tdml:document><![CDATA[08:43.GMT+00:00]]></tdml:document>
     <tdml:infoset>
@@ -6613,6 +6778,24 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+
+<!--
+     Test Name: timeZoneFormats9_unparse
+        Schema: dateTimeSchema
+          Root: time27
+       Purpose: This test demonstrates different formatting for timezone
+-->
+  
+  <tdml:unparserTestCase name="timeZoneFormats9_unparse" root="time27"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarPattern - DFDL-13-146R">
+
+    <tdml:document><![CDATA[08:43.+0000]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:time27>08:43:00+00:00</ex:time27>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
 
 <!--
      Test Name: timeCalendarTimeZone
@@ -6659,7 +6842,7 @@
   
   <tdml:parserTestCase name="timeCalendarTimeZone3" root="time28"
     model="dateTimeSchema" description="Section 13 Simple Types - calendarTimeZone - DFDL-13-140R"
-    roundTrip="twoPass">
+    roundTrip="false">
 
     <tdml:document><![CDATA[08:43.EST]]></tdml:document>
     <tdml:infoset>
@@ -6668,6 +6851,24 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+
+<!--
+     Test Name: timeCalendarTimeZone3_unparse
+        Schema: dateTimeSchema
+          Root: time28
+       Purpose: This test demonstrates the calendarTimeZone property when a timezone is already present in the data
+-->
+  
+  <tdml:unparserTestCase name="timeCalendarTimeZone3_unparse" root="time28"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarTimeZone - DFDL-13-140R">
+
+    <tdml:document><![CDATA[08:43.GMT-5]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:time28>08:43:00-05:00</ex:time28>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
 
 <!--
      Test Name: timeFractionalSeconds01
@@ -6696,9 +6897,9 @@
 -->
   
   <tdml:parserTestCase name="dateCountDeterminesFormat" root="date07"
-    model="dateTimeSchema" description="Section 13 Simple Types - count determines format - DFDL-13-153R" roundTrip="false">
+    model="dateTimeSchema" description="Section 13 Simple Types - count determines format - DFDL-13-153R">
 
-    <tdml:document><![CDATA[Mon, 01 2013]]></tdml:document>
+    <tdml:document><![CDATA[Monday, 01 2013]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <date07>2013-01-07</date07>
@@ -7192,10 +7393,9 @@
 -->
   
   <tdml:parserTestCase name="dateTimeCalendarDaysInFirstWeek" root="dateTime05"
-    model="dateTimeSchema" description="Section 13 Simple Types - calendarDaysInFirstWeek - DFDL-13-143R"
-    roundTrip="false">
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarDaysInFirstWeek - DFDL-13-143R">
 
-    <tdml:document><![CDATA[01 02 2013]]></tdml:document>
+    <tdml:document><![CDATA[1 02 2013]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <dateTime05>2013-02-05T00:00:00</dateTime05>
@@ -7213,10 +7413,9 @@
 -->
   
   <tdml:parserTestCase name="dateTimeCalendarDaysInFirstWeek2" root="dateTime06"
-    model="dateTimeSchema" description="Section 13 Simple Types - calendarDaysInFirstWeek - DFDL-13-143R"
-    roundTrip="false">
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarDaysInFirstWeek - DFDL-13-143R">
 
-    <tdml:document><![CDATA[01 02 2013]]></tdml:document>
+    <tdml:document><![CDATA[1 02 2013]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <dateTime06>2013-02-07T00:00:00</dateTime06>
@@ -7237,7 +7436,7 @@
     model="dateTimeSchema" description="Section 13 Simple Types - calendarDaysInFirstWeek - DFDL-13-143R"
     roundTrip="false">
 
-    <tdml:document><![CDATA[01 02 2013]]></tdml:document>
+    <tdml:document><![CDATA[1 02 2013]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <dateTime07>2013-01-31T00:00:00</dateTime07>
@@ -7255,10 +7454,9 @@
 -->
   
   <tdml:parserTestCase name="dateTimeCalendarDaysInFirstWeek4" root="dateTime08"
-    model="dateTimeSchema" description="Section 13 Simple Types - calendarDaysInFirstWeek - DFDL-13-143R"
-    roundTrip="false">
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarDaysInFirstWeek - DFDL-13-143R">
 
-    <tdml:document><![CDATA[01 02 2013 12:43:30PM]]></tdml:document>
+    <tdml:document><![CDATA[1 02 2013 12:43:30PM]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <dateTime08>2013-02-03T12:43:30</dateTime08>
@@ -7276,10 +7474,9 @@
 -->
   
   <tdml:parserTestCase name="dateTimeCalendarDaysInFirstWeek5" root="dateTime08"
-    model="dateTimeSchema" description="Section 13 Simple Types - calendarDaysInFirstWeek - DFDL-13-143R"
-    roundTrip="false">
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarDaysInFirstWeek - DFDL-13-143R">
 
-    <tdml:document><![CDATA[01 01 2013 12:43:30PM]]></tdml:document>
+    <tdml:document><![CDATA[1 01 2013 12:43:30PM]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <dateTime08>2013-01-06T12:43:30</dateTime08>
@@ -7297,10 +7494,9 @@
 -->
   
   <tdml:parserTestCase name="dateTimeCalendarDaysInFirstWeek6" root="dateTime08"
-    model="dateTimeSchema" description="Section 13 Simple Types - calendarDaysInFirstWeek - DFDL-13-143R"
-    roundTrip="false">
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarDaysInFirstWeek - DFDL-13-143R">
 
-    <tdml:document><![CDATA[02 01 2013 12:43:30PM]]></tdml:document>
+    <tdml:document><![CDATA[2 01 2013 12:43:30PM]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <dateTime08>2013-01-13T12:43:30</dateTime08>
@@ -7398,7 +7594,7 @@
     Purpose: Attempt to unparse an invalid calendar
   -->
 
-  <tdml:unparserTestCase name="calendar_unparseError" root="date" roundTrip="false"
+  <tdml:unparserTestCase name="calendar_unparseError" root="date"
       model="dateTimeSchemaTNR" description="Section 5 Schema types - int - DFDL-5-013R">
     <tdml:infoset>
       <tdml:dfdlInfoset>
