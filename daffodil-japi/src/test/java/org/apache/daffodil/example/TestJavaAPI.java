@@ -980,6 +980,9 @@ public class TestJavaAPI {
 
         org.jdom2.input.sax.SAXHandler contentHandler = new org.jdom2.input.sax.SAXHandler();
         SAXErrorHandlerForJAPITest errorHandler = new SAXErrorHandlerForJAPITest();
+        // since SAXHandler uses a blank prefix when the below isn't set to true, it introduces
+        // an undesired no-prefixed xmlns mapping
+        parseXMLReader.setFeature(SAX_NAMESPACE_PREFIXES_FEATURE, true);
         parseXMLReader.setContentHandler(contentHandler);
         parseXMLReader.setErrorHandler(errorHandler);
         parseXMLReader.setProperty(DaffodilParseXMLReader.DAFFODIL_SAX_URN_BLOBDIRECTORY(),

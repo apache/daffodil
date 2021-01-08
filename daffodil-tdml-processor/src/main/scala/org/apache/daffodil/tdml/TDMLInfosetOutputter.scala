@@ -104,6 +104,8 @@ class TDMLInfosetOutputter() extends InfosetOutputter {
 
   def getResult() = scalaOut.getResult
 
+  def getXmlString() = xmlStream.toString
+
   def toInfosetInputter() = {
     val scalaIn = new ScalaXMLInfosetInputter(scalaOut.getResult)
     val jdomIn = new JDOMInfosetInputter(jdomOut.getResult)

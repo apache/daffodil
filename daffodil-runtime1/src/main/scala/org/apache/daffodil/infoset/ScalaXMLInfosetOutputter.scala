@@ -94,7 +94,7 @@ class ScalaXMLInfosetOutputter(showFormatInfo: Boolean = false, showFreedInfo: B
 
     val elem =
       scala.xml.Elem(
-        diSimple.erd.namedQName.prefixOrNull,
+        diSimple.erd.prefix,
         diSimple.erd.name,
         attributes,
         diSimple.erd.minimizedScope,
@@ -122,7 +122,7 @@ class ScalaXMLInfosetOutputter(showFormatInfo: Boolean = false, showFreedInfo: B
 
     val elem =
       scala.xml.Elem(
-        diComplex.erd.namedQName.prefixOrNull,
+        diComplex.erd.prefix,
         diComplex.erd.name,
         attributes,
         diComplex.erd.minimizedScope,

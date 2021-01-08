@@ -225,7 +225,6 @@ trait QNameBase extends Serializable {
    * or by omitting one, are very common.
    */
   def prefix: Option[String]
-  def prefixOrNull: String = prefix.orNull
   def local: String
   def namespace: NS // No namespace is represented by the NoNamespace object.
 

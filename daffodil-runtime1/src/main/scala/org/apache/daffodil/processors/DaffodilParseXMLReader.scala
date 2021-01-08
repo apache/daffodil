@@ -22,8 +22,6 @@ import java.io.InputStream
 import java.nio.file.Path
 import java.nio.file.Paths
 
-import scala.collection.mutable
-
 import org.apache.daffodil.api.DFDL
 import org.apache.daffodil.exceptions.SchemaFileLocation
 import org.apache.daffodil.infoset.SAXInfosetOutputter
@@ -34,44 +32,44 @@ import org.xml.sax.DTDHandler
 import org.xml.sax.EntityResolver
 import org.xml.sax.ErrorHandler
 import org.xml.sax.InputSource
+import org.xml.sax.SAXException
 import org.xml.sax.SAXNotRecognizedException
 import org.xml.sax.SAXNotSupportedException
 import org.xml.sax.SAXParseException
 
+/**
+ * XMLReader implementation that interfaces with the DataProcessor and SAXInfosetOutputter to parse
+ * data into an XML infoset
+ *
+ * @param dp dataprocessor object that will be used to call the parse
+ */
 class DaffodilParseXMLReader(dp: DataProcessor) extends DFDL.DaffodilParseXMLReader {
   private var contentHandler: ContentHandler = _
   private var errorHandler: ErrorHandler = _
   private var dtdHandler: DTDHandler = _
   private var entityResolver: EntityResolver = _
-  var saxParseResultPropertyValue: ParseResult = _
-  var saxBlobDirectoryPropertyValue: Path = Paths.get(System.getProperty("java.io.tmpdir"))
-  var saxBlobPrefixPropertyValue: String = "daffodil-sax-"
-  var saxBlobSuffixPropertyValue: String = ".blob"
-
-  private val featureMap = mutable.Map[String, Boolean](
-    XMLUtils.SAX_NAMESPACES_FEATURE -> false,
-    XMLUtils.SAX_NAMESPACE_PREFIXES_FEATURE -> false
-  )
+  private var saxParseResultPropertyValue: ParseResult = _
+  private var saxBlobDirectoryPropertyValue: Path = Paths.get(System.getProperty("java.io.tmpdir"))
+  private var saxBlobPrefixPropertyValue: String = "daffodil-sax-"
+  private var saxBlobSuffixPropertyValue: String = ".blob"
+  private var saxNamespaceFeatureValue: Boolean = true
+  private var saxNamespacePrefixesFeatureValue: Boolean = false
 
   override def getFeature(name: String): Boolean = {
-    if (name == XMLUtils.SAX_NAMESPACES_FEATURE ||
-      name == XMLUtils.SAX_NAMESPACE_PREFIXES_FEATURE) {
-      featureMap(name)
-    } else {
-      throw new SAXNotRecognizedException("Feature unsupported: " + name + ".\n" +
-        "Supported features are: " + featureMap.keys.mkString(", ")
-      )
+    name match {
+      case XMLUtils.SAX_NAMESPACES_FEATURE => saxNamespaceFeatureValue
+      case XMLUtils.SAX_NAMESPACE_PREFIXES_FEATURE => saxNamespacePrefixesFeatureValue
+      case _ =>
+        throwFeatureSAXNotRecogizedException(name, "Feature unsupported")
     }
   }
 
   override def setFeature(name: String, value: Boolean): Unit = {
-    if (name == XMLUtils.SAX_NAMESPACES_FEATURE ||
-      name == XMLUtils.SAX_NAMESPACE_PREFIXES_FEATURE) {
-      featureMap(name) = value
-    } else {
-      throw new SAXNotRecognizedException("Feature unsupported: " + name + ".\n" +
-        "Supported features are: " + featureMap.keys.mkString(", ")
-      )
+    name match {
+      case XMLUtils.SAX_NAMESPACES_FEATURE => saxNamespaceFeatureValue = value
+      case XMLUtils.SAX_NAMESPACE_PREFIXES_FEATURE => saxNamespacePrefixesFeatureValue = value
+      case _ =>
+        throwFeatureSAXNotRecogizedException(name, "Feature unsupported")
     }
   }
 
@@ -144,7 +142,18 @@ class DaffodilParseXMLReader(dp: DataProcessor) extends DFDL.DaffodilParseXMLRea
   }
 
   def parse(isdis: InputSourceDataInputStream): Unit = {
-    val sio = createSAXInfosetOutputter(this)
+    // validate that the features are not false/false
+    if (!saxNamespaceFeatureValue && !saxNamespacePrefixesFeatureValue) {
+      throw new SAXException("Illegal State: Namespaces and NamespacePrefixes features cannot both be false")
+    }
+    // creates SAXInfosetOutputter object and calls setBlobAttributes on it
+    val sio = new SAXInfosetOutputter(this,
+      saxNamespaceFeatureValue,
+      saxNamespacePrefixesFeatureValue)
+    sio.setBlobAttributes(saxBlobDirectoryPropertyValue,
+      saxBlobPrefixPropertyValue,
+      saxBlobSuffixPropertyValue
+    )
     val pr = dp.parse(isdis, sio)
     saxParseResultPropertyValue = pr.asInstanceOf[ParseResult]
     handleDiagnostics(pr)
@@ -188,22 +197,10 @@ class DaffodilParseXMLReader(dp: DataProcessor) extends DFDL.DaffodilParseXMLRea
     }
   }
 
-  /**
-   * Creates SAXInfosetOutputter object and attempts to setBlobAttributes on it if
-   * it has at least the blobDirectory property set
-   *
-   * @return SAXInfosetOutputter object with or without blob Attributes set
-   */
-  private def createSAXInfosetOutputter(xmlReader: DaffodilParseXMLReader): SAXInfosetOutputter = {
-    val sioo = new SAXInfosetOutputter(xmlReader)
-    val siof = try {
-      sioo.setBlobAttributes(saxBlobDirectoryPropertyValue, saxBlobPrefixPropertyValue,
-        saxBlobSuffixPropertyValue
-      )
-      sioo
-    } catch {
-      case e: SAXNotSupportedException => sioo
-    }
-    siof
+  def throwFeatureSAXNotRecogizedException(name: String, message: String): Boolean = {
+    throw new SAXNotRecognizedException(message + ": " + name + ".\n" +
+      "Supported features are: " +
+      Seq(XMLUtils.SAX_NAMESPACES_FEATURE,
+        XMLUtils.SAX_NAMESPACE_PREFIXES_FEATURE).mkString(", "))
   }
 }

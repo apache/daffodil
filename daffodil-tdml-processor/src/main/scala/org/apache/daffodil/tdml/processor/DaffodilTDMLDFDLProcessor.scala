@@ -379,14 +379,18 @@ class DaffodilTDMLDFDLProcessor private (private var dp: DataProcessor) extends 
   }
 
   def verifySameParseOutput(dpOutputter: TDMLInfosetOutputter, outputStream: ByteArrayOutputStream): Unit = {
-    val dpParseOutput = dpOutputter.getResult()
+    val dpParseOutputString = dpOutputter.getXmlString()
     val saxParseOutputString = outputStream.toString
-    val saxParseOutput = scala.xml.XML.loadString(saxParseOutputString)
+    val saxParseXMLNodeOutput = scala.xml.XML.loadString(saxParseOutputString)
+    // scala.xml.XML.loadString reverses the order of the namespace mappings, so we call it for the
+    // dpParseXMLNodeOutput as well so the reversal is mirrored and we can do a proper prefixes and namespaces
+    // comparison. dpOutputter.getOutput returns it in the right order, which is why we don't use it
+    val dpParseXMLNodeOutputReloaded = scala.xml.XML.loadString(dpParseOutputString)
 
     try {
       XMLUtils.compareAndReport(
-        dpParseOutput,
-        saxParseOutput,
+        dpParseXMLNodeOutputReloaded,
+        saxParseXMLNodeOutput,
         checkNamespaces = true,
         checkPrefixes = true)
     } catch {

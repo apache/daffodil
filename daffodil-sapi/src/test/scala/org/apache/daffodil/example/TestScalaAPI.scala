@@ -1003,6 +1003,9 @@ class TestScalaAPI {
 
     val outputContentHandler = new org.jdom2.input.sax.SAXHandler()
     val errorHandler = new SAXErrorHandlerForSAPITest()
+    // since SAXHandler uses a blank prefix when the below isn't set to true, it introduces
+    // a the no-prefixed xmlns mapping
+    parseXMLReader.setFeature(SAX_NAMESPACE_PREFIXES_FEATURE, true)
     parseXMLReader.setContentHandler(outputContentHandler)
     parseXMLReader.setErrorHandler(errorHandler)
     parseXMLReader.setProperty(DaffodilParseXMLReader.DAFFODIL_SAX_URN_BLOBDIRECTORY,
