@@ -148,6 +148,7 @@ class TestSimpleTypes {
   @Test def test_timeCalendarTimeZone(): Unit = { runner.runOneTest("timeCalendarTimeZone") }
   @Test def test_timeCalendarTimeZone2(): Unit = { runner.runOneTest("timeCalendarTimeZone2") }
   @Test def test_timeCalendarTimeZone3(): Unit = { runner.runOneTest("timeCalendarTimeZone3") }
+  @Test def test_timeCalendarTimeZone3_unparse(): Unit = { runner.runOneTest("timeCalendarTimeZone3_unparse") }
 
   @Test def test_timeZoneFormats(): Unit = { runner.runOneTest("timeZoneFormats") }
   @Test def test_timeZoneFormats2(): Unit = { runner.runOneTest("timeZoneFormats2") }
@@ -155,9 +156,19 @@ class TestSimpleTypes {
   @Test def test_timeZoneFormats4(): Unit = { runner.runOneTest("timeZoneFormats4") }
   @Test def test_timeZoneFormats5(): Unit = { runner.runOneTest("timeZoneFormats5") }
   @Test def test_timeZoneFormats6(): Unit = { runner.runOneTest("timeZoneFormats6") }
+  @Test def test_timeZoneFormats6_2(): Unit = { runner.runOneTest("timeZoneFormats6_2") }
   @Test def test_timeZoneFormats7(): Unit = { runner.runOneTest("timeZoneFormats7") }
   @Test def test_timeZoneFormats8(): Unit = { runner.runOneTest("timeZoneFormats8") }
   @Test def test_timeZoneFormats9(): Unit = { runner.runOneTest("timeZoneFormats9") }
+  @Test def test_timeZoneFormats_unparse(): Unit = { runner.runOneTest("timeZoneFormats_unparse") }
+  @Test def test_timeZoneFormats2_unparse(): Unit = { runner.runOneTest("timeZoneFormats2_unparse") }
+  @Test def test_timeZoneFormats3_unparse(): Unit = { runner.runOneTest("timeZoneFormats3_unparse") }
+  @Test def test_timeZoneFormats4_unparse(): Unit = { runner.runOneTest("timeZoneFormats4_unparse") }
+  @Test def test_timeZoneFormats5_unparse(): Unit = { runner.runOneTest("timeZoneFormats5_unparse") }
+  @Test def test_timeZoneFormats6_unparse(): Unit = { runner.runOneTest("timeZoneFormats6_unparse") }
+  @Test def test_timeZoneFormats6_2_unparse(): Unit = { runner.runOneTest("timeZoneFormats6_2_unparse") }
+  @Test def test_timeZoneFormats7_unparse(): Unit = { runner.runOneTest("timeZoneFormats7_unparse") }
+  @Test def test_timeZoneFormats9_unparse(): Unit = { runner.runOneTest("timeZoneFormats9_unparse") }
 
   @Test def test_dateCountDeterminesFormat(): Unit = { runner.runOneTest("dateCountDeterminesFormat") }
   @Test def test_dateNonAlphaChars01(): Unit = { runner.runOneTest("dateNonAlphaChars01") }
