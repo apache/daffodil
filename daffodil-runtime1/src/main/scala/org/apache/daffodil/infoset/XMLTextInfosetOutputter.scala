@@ -48,7 +48,7 @@ class XMLTextInfosetOutputter private (writer: java.io.Writer, pretty: Boolean, 
   }
 
   private def outputTagName(elem: DIElement): Unit = {
-    val prefix = elem.erd.namedQName.prefixOrNull
+    val prefix = elem.erd.prefix
     if (prefix != null && prefix != "") {
       writer.write(prefix)
       writer.write(":")

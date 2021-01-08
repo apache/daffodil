@@ -680,9 +680,11 @@ sealed class ElementRuntimeData(
 
   def isComplexType = !isSimpleType
 
+  def prefix = this.minimizedScope.getPrefix(namedQName.namespace)
+
   def prefixedName = {
-    if (namedQName.prefixOrNull != null) {
-      namedQName.prefixOrNull + ":" + name
+    if (prefix != null) {
+      prefix + ":" + name
     } else {
       name
     }

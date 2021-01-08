@@ -22,6 +22,7 @@ import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardOpenOption
 
+import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuilder
 import scala.xml.NamespaceBinding
@@ -33,6 +34,7 @@ import org.apache.daffodil.calendar.DFDLDateTimeConversion
 import org.apache.daffodil.calendar.DFDLTimeConversion
 import org.apache.daffodil.exceptions._
 import org.apache.daffodil.schema.annotation.props.LookupLocation
+import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Misc
 
 /**
@@ -849,15 +851,25 @@ object XMLUtils {
       checkPrefixes,
       checkNamespaces)
     if (diffs.length > 0) {
+      val attributesProperty = if(checkPrefixes || checkNamespaces) {
+        "attributes not ignored for diff"
+      } else {
+        "attributes ignored for diff"
+      }
       throw new XMLDifferenceException("""
 Comparison failed.
-Expected (attributes stripped)
+Expected (attributes %s)
           %s
-Actual (attributes ignored for diff)
+Actual (attributes %s for diff)
           %s
 Differences were (path, expected, actual):
 %s""".format(
-        removeAttributes(expected).toString,
+        (if (checkPrefixes || checkNamespaces) "compared for diff"
+        else "stripped"),
+        (if (checkPrefixes || checkNamespaces) expected
+        else removeAttributes(expected).toString),
+        (if (checkPrefixes || checkNamespaces) "compared"
+        else "ignored"),
         actual,
         diffs.map { _.toString }.mkString("- ", "\n- ", "\n")))
     }
@@ -913,9 +925,6 @@ Differences were (path, expected, actual):
         val maybeType: Option[String] = Option(typeA.getOrElse(typeB.getOrElse(null)))
         val nilledA = a.attribute(XSI_NAMESPACE.toString, "nil")
         val nilledB = b.attribute(XSI_NAMESPACE.toString, "nil")
-        // we sort here, since sameElements is not order independent
-        val nsbACompare = nsbA.toString().trim.split(" ").sorted
-        val nsbBCompare = nsbB.toString().trim.split(" ").sorted
 
         if (labelA != labelB) {
           // different label
@@ -923,7 +932,7 @@ Differences were (path, expected, actual):
         } else if (checkPrefixes && prefixA != prefixB) {
           // different prefix
           List((zPath, prefixA, prefixB))
-        } else if (checkNamespaces && !nsbACompare.sameElements(nsbBCompare)) {
+        } else if (checkNamespaces && nsbA != nsbB ) {
           // different namespace bindings
           List((zPath, nsbA.toString(), nsbB.toString()))
         } else if (nilledA != nilledB) {
@@ -1254,6 +1263,46 @@ Differences were (path, expected, actual):
     sb.append("&#x")
     sb.append(s)
     sb.append(";")
+  }
+
+  /**
+   * Return a Maybe(URI) from NamespaceBinding based on some input prefix. There is a
+   * NamespaceBinding equivalent of this called getURI, but that does not handle the null case
+   * and will throw a NullPointerException when uri can't be found
+   *
+   * @param nsb NamespaceBinding we wish to search for the prefix's uri
+   * @param prefix Prefix whose URI we search through the NamespaceBinding for
+   * @return the uri string wrapped in a Maybe.One, or Maybe.Nope, if not found
+   */
+  @tailrec
+def maybeURI(nsb: NamespaceBinding, prefix: String): Maybe[String] = {
+    if (nsb == null) Maybe.Nope
+    else if (nsb.prefix == prefix) Maybe.One(nsb.uri)
+    else maybeURI(nsb.parent, prefix)
+  }
+
+  /**
+   * Return Maybe(prefix) from NamespaceBinding based on some input uri. There is a
+   * NamespaceBinding equivalent of this called gePrefix, but that does not handle the null case
+   * and will throw a NullPointerException when uri can't be found
+   *
+   * @param nsb NamespaceBinding we wish to search for the uri's prefix
+   * @param uri Prefix whose URI we search through the NamespaceBinding for
+   * @return the prefix string wrapped in a Maybe.One, or Maybe.Nope if not found or prefix is null
+   */
+  @tailrec
+  def maybePrefix(nsb: NamespaceBinding, uri: String): Maybe[String] = {
+
+    if (nsb == null) Maybe.Nope
+    else if (nsb.uri == uri) {
+      if (nsb.prefix == null) {
+        // the case of xmlns="some-uri"
+        Maybe.Nope
+      } else {
+        Maybe.One(nsb.prefix)
+      }
+    }
+    else maybePrefix(nsb.parent, uri)
   }
 }
 

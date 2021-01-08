@@ -30,8 +30,12 @@ import org.xml.sax.InputSource
 import org.xml.sax.XMLReader
 
 class TestSAXUnparseAPI {
-  import TestSAXParseUnparseAPI._
+  import TestSAXUtils._
 
+  /**
+   * tests the base case of unparsing error free using SAX. Default for namespace features/prefixes
+   * is true/true for SAXParserFactory
+   */
   @Test def testUnparseContentHandler_unparse(): Unit = {
     val xmlReader: XMLReader = SAXParserFactory.newInstance.newSAXParser.getXMLReader
     val bao = new ByteArrayOutputStream()
@@ -53,13 +57,16 @@ class TestSAXUnparseAPI {
    */
   @Test def testUnparseContentHandler_unparse_saxUnparseEventBatchSize_0(): Unit = {
      val e = intercept[java.lang.IllegalArgumentException] {
-      testDataProcessor(testSchema, Map("saxUnparseEventBatchSize" -> "0"))
+      testDataProcessor(testSchema1, Map("saxUnparseEventBatchSize" -> "0"))
      }
      val eMsg = e.getMessage
      assertTrue(eMsg.contains("saxUnparseEventBatchSize"))
      assertTrue(eMsg.contains("0"))
   }
 
+  /**
+   * tests the case of unparsing with the namespace features/prefixes set to true/false
+   */
   @Test def testUnparseContentHandler_unparse_namespace_feature(): Unit = {
     val xmlReader: XMLReader = SAXParserFactory.newInstance.newSAXParser.getXMLReader
     val bao = new ByteArrayOutputStream()
@@ -75,6 +82,9 @@ class TestSAXUnparseAPI {
     assertEquals(testData, bao.toString)
   }
 
+  /**
+   * tests the case of unparsing with the namespace features/prefixes set to false/true
+   */
   @Test def testUnparseContentHandler_unparse_namespace_prefix_feature(): Unit = {
     val xmlReader: XMLReader = SAXParserFactory.newInstance.newSAXParser.getXMLReader
     val bao = new ByteArrayOutputStream()

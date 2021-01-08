@@ -200,6 +200,11 @@
  * }
  * </pre>
  *
+ * The value of the supported features cannot be changed during a parse, and the parse will run
+ * with the value of the features as they were when the parse was kicked off. To run a parse with
+ * different feature values, one must wait until the running parse finishes, set the feature values
+ * using the XMLReader's setFeature and run the parse again.
+ *
  * One can repeat calls to parse() using the same InputSourceDataInputStream to continue parsing
  * where the previous parse ended. For example:
  *

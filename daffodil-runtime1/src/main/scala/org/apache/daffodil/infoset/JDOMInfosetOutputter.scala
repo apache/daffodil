@@ -102,7 +102,7 @@ class JDOMInfosetOutputter extends InfosetOutputter
       if(diElement.erd.namedQName.namespace.isNoNamespace)
         new org.jdom2.Element(diElement.erd.name)
       else
-        new org.jdom2.Element(diElement.erd.name, diElement.erd.namedQName.prefixOrNull,
+        new org.jdom2.Element(diElement.erd.name, diElement.erd.prefix,
           diElement.erd.namedQName.namespace)
 
     if (isNilled(diElement)) {

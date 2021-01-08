@@ -203,7 +203,7 @@ trait ElementBase
     val childrenRequiredNSBindings =
       this.elementChildren.flatMap { _.thisElementsRequiredNamespaceBindings }.toSet
 
-    val myRequiredNSBinding = Set((namedQName.prefixOrNull, namedQName.namespace))
+    val myRequiredNSBinding = Set((this.namespaces.getPrefix(namedQName.namespace), namedQName.namespace))
     val nilNSBinding = {
       if (!isNillable) Set()
       else {
