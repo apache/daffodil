@@ -320,6 +320,10 @@ class VariableMap private(vTable: Map[GlobalQName, ArrayBuffer[VariableInstance]
     variab
   }
 
+  def qnames(): Seq[GlobalQName] = {
+    vTable.toSeq.map(_._1)
+  }
+
   def getVariableRuntimeData(qName: GlobalQName): Option[VariableRuntimeData] = {
     val optVariable = find(qName)
     if (optVariable.isDefined) Some(optVariable.get.rd) else None

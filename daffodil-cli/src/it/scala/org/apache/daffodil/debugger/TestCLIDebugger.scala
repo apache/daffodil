@@ -750,7 +750,7 @@ class TestCLIdebugger {
       shell.sendLine("display info dne1")
       shell.expect(contains("error: undefined info command: dne1"))
       shell.sendLine("display info bitLimit dne2")
-      shell.expect(contains("error: undefined info command: dne2"))
+      shell.expect(contains("error: bitLimit command requires zero arguments"))
       shell.sendLine("display break")
       shell.expect(contains("error: undefined command: break"))
       shell.sendLine("quit")
@@ -1156,5 +1156,94 @@ class TestCLIdebugger {
     }
   }
 
+  @Test def test_CLI_Debugger_info_variables(): Unit = {
+    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
+    val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input1.txt")
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
+
+    val shell = if (Util.isWindows) Util.start("", envp = DAFFODIL_JAVA_OPTS) else Util.start("")
+
+    try {
+      val cmd = String.format("%s -d parse -s %s -r matrix %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("(debug)"))
+      shell.sendLine("info variables byteOrder")
+      shell.expect(contains("byteOrder: bigEndian (default)"))
+      shell.sendLine("quit")
+    } finally {
+      shell.close()
+    }
+  }
+
+  @Test def test_CLI_Debugger_info_data_text(): Unit = {
+    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
+    val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input1.txt")
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
+
+    val shell = if (Util.isWindows) Util.start("", envp = DAFFODIL_JAVA_OPTS) else Util.start("")
+
+    try {
+      val cmd = String.format("%s -d parse -s %s -r matrix %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("(debug)"))
+      shell.sendLine("display info data text")
+      shell.expect(contains("(debug)"))
+      shell.sendLine("step")
+      shell.expect(contains("0~,~1~,~2~"))
+      shell.sendLine("quit")
+    } finally {
+      shell.close()
+    }
+  }
+
+  @Test def test_CLI_Debugger_info_data_binary(): Unit = {
+    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
+    val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input1.txt")
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
+
+    val shell = if (Util.isWindows) Util.start("", envp = DAFFODIL_JAVA_OPTS) else Util.start("")
+
+    try {
+      val cmd = String.format("%s -d parse -s %s -r matrix %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("(debug)"))
+      shell.sendLine("display info data binary")
+      shell.expect(contains("(debug)"))
+      shell.sendLine("step")
+      shell.expect(contains("302c 312c 32"))
+      shell.sendLine("quit")
+    } finally {
+      shell.close()
+    }
+  }
+
+  @Test def test_CLI_Debugger_info_diff(): Unit = {
+    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section07/variables/variables_01.dfdl.xsd")
+    val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input1.txt")
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
+
+    val shell = if (Util.isWindows) Util.start("", envp = DAFFODIL_JAVA_OPTS) else Util.start("")
+
+    try {
+      val cmd = String.format("%s -d parse -s %s -r c %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("(debug)"))
+      shell.sendLine("display info diff")
+      shell.expect(contains("(debug)"))
+      shell.sendLine("step")
+      shell.expect(contains("No differences"))
+      shell.sendLine("step")
+      shell.expect(contains("No differences"))
+      shell.sendLine("step")
+      shell.expect(contains("variable: tns:v_with_default: 42 (default) -> 42 (read)"))
+      shell.sendLine("step")
+      shell.expect(contains("variable: tns:v_no_default: (undefined) -> 42 (set)"))
+      shell.sendLine("step")
+      shell.expect(contains("No differences"))
+      shell.sendLine("quit")
+    } finally {
+      shell.close()
+    }
+  }
 
 }

@@ -77,6 +77,7 @@ trait StateForDebugger {
   def currentLocation: DataLocation
   def arrayPos: Long
   def bitLimit0b: MaybeULong
+  def variableMap: VariableMap
 }
 
 case class TupleForDebugger(
@@ -85,7 +86,8 @@ case class TupleForDebugger(
   val groupPos: Long,
   val currentLocation: DataLocation,
   val arrayPos: Long,
-  val bitLimit0b: MaybeULong)
+  val bitLimit0b: MaybeULong,
+  val variableMap: VariableMap)
   extends StateForDebugger
 
 trait SetProcessorMixin {
@@ -430,7 +432,9 @@ abstract class ParseOrUnparseState protected (
       groupPos,
       currentLocation,
       arrayPos,
-      bitLimit0b)
+      bitLimit0b,
+      variableMap.copy(), // deep copy since variableMap is mutable
+    )
   }
 
   final override def schemaFileLocation = getContext().schemaFileLocation
