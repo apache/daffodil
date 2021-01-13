@@ -940,12 +940,12 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
       val desc = "show value of expression each time program stops"
       val longDesc = """|Usage: di[splay] <debugger_command>
                         |
-                        |Execute a debugger command (limited to eval or info) every time a debugger
-                        |console is displayed to the user.
+                        |Execute a debugger command (limited to eval, info, and clear) every time a
+                        |there is a pause in the debugger.
                         |
                         |Example: display info infoset""".stripMargin
       override lazy val short = "di"
-      override val subcommands = Seq(Eval, Info)
+      override val subcommands = Seq(Eval, Info, Clear)
 
       def act(args: Seq[String], prestate: StateForDebugger, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
         DebuggerConfig.displays += new Display(DebuggerConfig.displayIndex, args)
@@ -1189,7 +1189,9 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
       val longDesc = """|Usage: i[nfo] <item>...
                         |
                         |Print internal information to the console. <item> can be specified
-                        |multiple times to display multiple pieces of information.
+                        |multiple times to display multiple pieces of information. <items>
+                        |that are not recognized as info commands are assumed to be arguments
+                        |to the previous <item>
                         |
                         |Example: info data infoset""".stripMargin
       override val subcommands =
@@ -1210,25 +1212,80 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
           InfoPath,
           InfoParser,
           InfoPointsOfUncertainty,
-          InfoUnparser)
+          InfoUnparser,
+          InfoVariables)
+
+      /**
+      * The info command allows printing multiple different kinds of
+      * information at once. For example "info foo bar" is equivalent to
+      * running the two commands "info foo" and "info bar". However, some info
+      * commands might take one or more parameters. In this case, we allow
+      * include the parameters after the subcommand, for example "info foo
+      * fooParam bar". To determine where one subcommand end and another
+      * subcommand begins, we assume unknown strings (e.g. fooParam) are parameters
+      * to the previous known subcommand. This function constructs a sequence
+      * that represents the different info commands and their parameters. For
+      * example, the following command:
+      *
+      *   info foo bar barParam1 barParam2 baz
+      *
+      * Is parsed to the following:
+      *
+      *   Seq(
+      *     Seq("foo"),
+      *     Seq("bar", "barParam1", "barParam2"),
+      *     Seq("baz"),
+      *   )
+      *
+      * This sequence of sequences can then be used to determine how to execute
+      * individual info commands and provide the appropriate arguments.
+      */
+      private def buildInfoCommands(args: Seq[String]): Seq[Seq[String]] = {
+        val backwardsInfoCommands = args.foldLeft(Seq.empty[Seq[String]]) { case (infoCmds, arg) =>
+          val cmd = subcommands.find(_ == arg)
+          if (cmd.isDefined || infoCmds.isEmpty) {
+            // Found a new info subcommand, or we don't have an info commands
+            // yet. Create a new Seq to hold the subcommand + args and
+            // prepend this Weq to our list of info subcommands. Note that if
+            // this isn't actually an info subcommand, we'll detect that later
+            // when we validate this list.
+            val newCommand = Seq(arg)
+            newCommand +: infoCmds
+          } else {
+            // Not a recognized info subcommand. Assume it is an arg to the
+            // most recent command we've seen and prepend it to that list.
+            val head :: tail = infoCmds
+            (arg +: head) +: tail
+          }
+        }
+
+        // We've built up a list of info commands with args, but the info
+        // commands and the args are all reversed because we prepended
+        // everything. So reverse that all to get the order correct
+        backwardsInfoCommands.map { _.reverse }.reverse
+      }
 
       override def validate(args: Seq[String]): Unit = {
         if (args.size == 0) {
           throw new DebugException("one or more commands are required")
         }
-        args.foreach(arg => {
-          subcommands.find(_ == arg) match {
-            case Some(c) => c.validate(Seq())
-            case None => throw new DebugException("undefined info command: %s".format(arg))
+        val infocmds = buildInfoCommands(args)
+        infocmds.foreach { cmds =>
+          val cmd :: args = cmds
+          subcommands.find(_ == cmd) match {
+            case Some(c) => c.validate(args)
+            case None => throw new DebugException("undefined info command: %s".format(cmd))
           }
-        })
+        }
       }
 
       def act(args: Seq[String], prestate: StateForDebugger, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
-        args.foreach(arg => {
-          val action = subcommands.find(_ == arg).get
-          action.act(Seq(), prestate, state, processor)
-        })
+        val infocmds = buildInfoCommands(args)
+        infocmds.foreach { cmds =>
+          val cmd :: args = cmds
+          val action = subcommands.find(_ == cmd).get
+          action.act(args, prestate, state, processor)
+        }
         DebugState.Pause
       }
 
@@ -1315,7 +1372,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
         }
       }
 
-      object InfoData extends DebugCommand with DebugCommandValidateZeroArgs {
+      object InfoData extends DebugCommand with DebugCommandValidateOptionalArg {
         val name = "data"
         val desc = "display the input/output data"
         val longDesc = desc
@@ -1326,14 +1383,22 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
           debugPrintln(lines, "  ")
         }
 
+        override def validate(args: Seq[String]): Unit = {
+          super.validate(args)
+          args.headOption.map(_.toLowerCase) match {
+            case None =>
+            case Some("text") =>
+            case Some("binary") =>
+            case _ => throw new DebugException("unknown data representation: %s. Must be one of 'text' or 'binary'".format(args(0)))
+          }
+        }
+
         def act(args: Seq[String], prestate: StateForDebugger, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
           debugPrintln("%s:".format(name))
           val rep = if (args.size > 0) {
             args(0).toLowerCase match {
-              case "t" => Some(Representation.Text)
-              case "b" => Some(Representation.Binary)
-              case _ =>
-                throw new DebugException("uknown representation: %s. Must be one of 't' for text or 'b' for binary".format(args(0)))
+              case "text" => Some(Representation.Text)
+              case "binary" => Some(Representation.Binary)
             }
           } else {
             if (state.hasInfoset) {
@@ -1404,6 +1469,24 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
               if (prestate.arrayPos != state.arrayPos) { debugPrintln("occursIndex: %d -> %d".format(prestate.arrayPos, state.arrayPos), "  "); diff = true }
               if (prestate.groupPos != state.groupPos) { debugPrintln("groupIndex: %d -> %d".format(prestate.groupPos, state.groupPos), "  "); diff = true }
               if (prestate.childPos != state.childPos) { debugPrintln("childIndex: %d -> %d".format(prestate.childPos, state.childPos), "  "); diff = true }
+              prestate.variableMap.qnames.foreach { qname =>
+                val pre_instance = prestate.variableMap.find(qname).get
+                val pre_value = pre_instance.value
+                val pre_state = pre_instance.state
+
+                val cur_instance = state.variableMap.find(qname).get
+                val cur_value = cur_instance.value
+                val cur_state = cur_instance.state
+
+                if (pre_value != cur_value || pre_state != cur_state) {
+                  debugPrintln("variable: %s: %s -> %s".format(
+                    qname,
+                    InfoVariables.variableInstanceToDebugString(pre_instance),
+                    InfoVariables.variableInstanceToDebugString(cur_instance),
+                  ), "  ")
+                  diff = true
+                }
+              }
             }
             case _ => // ok
           }
@@ -1608,6 +1691,54 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
       object InfoUnparser extends {
         override val name = "unparser"
       } with InfoProcessorBase
+
+      object InfoVariables extends DebugCommand {
+        val name = "variables"
+        override lazy val short = "v"
+        val desc = "display in-scope state of variables"
+        val longDesc = """|Usage: v[ariables] [<name>...]
+                          |
+                          |Display the in-scope state of variables matching <name>'s. If no
+                          |names are given, displays the in-scope state of all variabes.""".stripMargin
+
+        override def validate(args: Seq[String]): Unit = {
+          // no validation
+        }
+
+        def variableInstanceToDebugString(vinst: VariableInstance): String = {
+          val state = vinst.state match {
+            case VariableDefined => "default"
+            case VariableRead => "read"
+            case VariableSet => "set"
+            case VariableUndefined => "undefined"
+            case VariableInProcess => "in process"
+          }
+
+          if (vinst.value.isEmpty) "(%s)".format(state)
+          else "%s (%s)".format(vinst.value.value, state)
+        }
+
+        def act(args: Seq[String], prestate: StateForDebugger, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
+          val vmap = state.variableMap
+          val allQNames = vmap.qnames
+          val qnamesToPrint =
+            if (args.size == 0) allQNames
+            else {
+              allQNames.filter { qname =>
+                args.contains(qname.local) || args.contains(qname.toPrettyString)
+              }
+            }
+
+          debugPrintln("%s:".format(name))
+          qnamesToPrint.sortBy { _.toPrettyString }.foreach { qname =>
+            val instance = vmap.find(qname).get
+            val debugVal = variableInstanceToDebugString(instance)
+            debugPrintln("  %s: %s".format(qname.toPrettyString, debugVal))
+          }
+
+          DebugState.Pause
+        }
+      }
     }
 
     object Quit extends DebugCommand with DebugCommandValidateZeroArgs {
