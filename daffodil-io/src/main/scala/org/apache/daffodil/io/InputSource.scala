@@ -188,7 +188,15 @@ class BucketingInputSource(
     val bytes = new Array[Byte](bucketSize)
   }
 
-  private val maxNumberOfBuckets = Math.max(maxCacheSizeInBytes / bucketSize, 2)
+  /**
+  * The maximum number of buckets that can be cached in the buckets array. Note
+  * that because we periodically remove buckets from the buckets array by
+  * setting them to null, it is possible (and expected for large data) for the
+  * size of the buckets array to grow beyond this number. So this does not
+  * represent the maximum size of the buckets array, but instead represents the
+  * maximum number of non-null elements in the buckets array.
+  */
+  private val maxNumberOfNonNullBuckets = Math.max(maxCacheSizeInBytes / bucketSize, 2)
 
   /**
    * Array of buckets
@@ -276,7 +284,7 @@ class BucketingInputSource(
           buckets += new Bucket()
           bytesFilledInLastBucket = 0
           lastBucketIndex += 1
-          if (buckets.size > maxNumberOfBuckets) {
+          if ((lastBucketIndex - oldestBucketIndex) >= maxNumberOfNonNullBuckets) {
             // This frees the oldest bucket, allowing it to be garbage collected.
             buckets(oldestBucketIndex.toInt) = null
             oldestBucketIndex += 1
