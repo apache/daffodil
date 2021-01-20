@@ -22,15 +22,10 @@ import java.io.StringWriter
 
 import javax.xml.parsers.ParserConfigurationException
 import javax.xml.parsers.SAXParserFactory
-import javax.xml.transform.Source
 import javax.xml.transform.Templates
-import javax.xml.transform.TransformerFactory
 import javax.xml.transform.URIResolver
-import javax.xml.transform.dom.DOMResult
-import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.sax.SAXSource
 import javax.xml.transform.stream.StreamResult
-import javax.xml.transform.stream.StreamSource
 import org.apache.daffodil.api.ValidatorInitializationException
 import org.xml.sax.InputSource
 import org.xml.sax.SAXException
@@ -42,9 +37,6 @@ import org.xml.sax.XMLReader
  */
 object Schematron {
   val templatesRootDir = "iso-schematron-xslt2"
-  private val templatesPipeline = Array("iso_dsdl_include.xsl",
-                                        "iso_abstract_expand.xsl",
-                                        "iso_svrl_for_xslt2.xsl")
 
   private val featuress = Array(
     Feature.on(javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING),
@@ -54,17 +46,7 @@ object Schematron {
 
   def fromRules(rules: Templates) = new Schematron(xmlReader.get(), rules)
 
-  def templatesFor(sch: InputStream, tf: TransformerFactory): Templates = tf.newTemplates(
-    templatesPipeline.foldLeft(new StreamSource(sch): Source) {
-      (source, template) =>
-        val xsl = getClass.getClassLoader.getResourceAsStream(s"$templatesRootDir/$template")
-        val result: DOMResult = new DOMResult
-        tf.newTransformer(new StreamSource(xsl)).transform(source, result)
-        new DOMSource(result.getNode)
-    }
-  )
-
-  def isoTemplateResolver(child: Option[URIResolver]) = new ClassPathUriResolver(Schematron.templatesRootDir, child)
+  def isoTemplateResolver(child: Option[URIResolver]) = new ClassPathUriResolver(templatesRootDir, child)
 
   // reduce overhead by caching the xml reader, but the SAXParser class is not thread safe so use a thread local
   private val xmlReader = new ThreadLocal[XMLReader] {

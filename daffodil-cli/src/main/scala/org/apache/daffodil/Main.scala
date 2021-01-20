@@ -222,7 +222,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
 
   implicit def validateConverter = singleArgConverter[ValidationMode.Type]((s: String) => {
     import ValidatorPatterns._
-    s.toLowerCase match {
+    s match {
       case "on" => ValidationMode.Full
       case "limited" => ValidationMode.Limited
       case "off" => ValidationMode.Off
@@ -335,7 +335,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     val path = opt[String](argName = "path", descr = "path to the node to create parser.")
     val parser = opt[File](short = 'P', argName = "file", descr = "use a previously saved parser.")
     val output = opt[String](argName = "file", descr = "write output to a given file. If not given or is -, output is written to stdout.")
-    val validate: ScallopOption[ValidationMode.Type] = opt[ValidationMode.Type](short = 'V', default = Some(ValidationMode.Off), argName = "mode", descr = "the validation mode. 'on', 'limited', 'off', or spi name.")
+    val validate: ScallopOption[ValidationMode.Type] = opt[ValidationMode.Type](short = 'V', default = Some(ValidationMode.Off), argName = "mode", descr = "the validation mode. 'on', 'limited', 'off', or a validator plugin name.")
     val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used when parsing. An optional namespace may be provided.")
     val tunables = props[String]('T', keyName = "tunable", valueName = "value", descr = "daffodil tunable to be used when parsing.")
     val config = opt[String](short = 'c', argName = "file", descr = "path to file containing configuration items.")
@@ -400,7 +400,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     val threads = opt[Int](short = 't', argName = "threads", default = Some(1), descr = "The number of threads to use.")
     val path = opt[String](argName = "path", descr = "path to the node to create parser.")
     val parser = opt[File](short = 'P', argName = "file", descr = "use a previously saved parser.")
-    val validate: ScallopOption[ValidationMode.Type] = opt[ValidationMode.Type](short = 'V', default = Some(ValidationMode.Off), argName = "mode", descr = "the validation mode. 'on', 'limited', 'off', or spi name.")
+    val validate: ScallopOption[ValidationMode.Type] = opt[ValidationMode.Type](short = 'V', default = Some(ValidationMode.Off), argName = "mode", descr = "the validation mode. 'on', 'limited', 'off', or a validator plugin name.")
     val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used when processing. An optional namespace may be provided.")
     val tunables = props[String]('T', keyName = "tunable", valueName = "value", descr = "daffodil tunable to be used when processing.")
     val config = opt[String](short = 'c', argName = "file", descr = "path to file containing configuration items.")
@@ -450,7 +450,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     val path = opt[String](argName = "path", descr = "path to the node to create parser.")
     val parser = opt[File](short = 'P', argName = "file", descr = "use a previously saved parser.")
     val output = opt[String](argName = "file", descr = "write output to file. If not given or is -, output is written to standard output.")
-    val validate: ScallopOption[ValidationMode.Type] = opt[ValidationMode.Type](short = 'V', default = Some(ValidationMode.Off), argName = "mode", descr = "the validation mode. 'on', 'limited', 'off', or spi name.")
+    val validate: ScallopOption[ValidationMode.Type] = opt[ValidationMode.Type](short = 'V', default = Some(ValidationMode.Off), argName = "mode", descr = "the validation mode. 'on', 'limited', 'off', or a validator plugin name.")
     val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used when unparsing. An optional namespace may be provided.")
     val tunables = props[String]('T', keyName = "tunable", valueName = "value", descr = "daffodil tunable to be used when parsing.")
     val config = opt[String](short = 'c', argName = "file", descr = "path to file containing configuration items.")

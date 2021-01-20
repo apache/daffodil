@@ -394,13 +394,20 @@ trait AnnotatedMixin { self: AnnotatedSchemaComponent =>
     ann
   }
 
+  private def isDfdlNamespace(ns: String): Boolean = ns.contains("ogf") && ns.contains("dfdl")
+
   lazy val dfdlAppInfos = {
     val ais = (annotationNode \ "appinfo")
     val dais = ais.filter { ai =>
       {
         ai.attribute("source") match {
           case None => {
-            this.SDW(WarnID.AppinfoNoSource, """xs:appinfo without source attribute. Is source="http://www.ogf.org/dfdl/" missing?""")
+            // if a child node in the dfdl namespace exists we will provide a warning about using the source property
+            ai.child.flatMap(n => Option(n.namespace)).find(isDfdlNamespace).foreach { _ =>
+              SDW(WarnID.AppinfoNoSource,
+              """xs:appinfo without source attribute. Is source="http://www.ogf.org/dfdl/" missing?"""
+              )
+            }
             false
           }
           case Some(n) => {
@@ -421,7 +428,7 @@ trait AnnotatedMixin { self: AnnotatedSchemaComponent =>
             // and getting false, where the types should have been the same.
             //
             val hasRightSource = (sourceNS =:= officialAppinfoSourceAttributeNS)
-            val isAcceptable = sourceNS.toString.contains("ogf") && sourceNS.toString.contains("dfdl")
+            val isAcceptable = isDfdlNamespace(sourceNS.toString)
             schemaDefinitionWarningWhen(WarnID.AppinfoDFDLSourceWrong, !hasRightSource && isAcceptable,
               "The xs:appinfo source attribute value '%s' should be '%s'.", sourceNS, officialAppinfoSourceAttributeNS)
             (hasRightSource || isAcceptable)

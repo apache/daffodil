@@ -20,13 +20,15 @@ package org.apache.daffodil.validation.schematron
 import java.io.FileInputStream
 import java.io.InputStream
 import java.nio.file.Paths
-
 import com.typesafe.config.Config
+
 import javax.xml.transform.URIResolver
 import net.sf.saxon.TransformerFactoryImpl
 import org.apache.daffodil.api.Validator
 import org.apache.daffodil.api.ValidatorFactory
 import org.apache.daffodil.api.ValidatorInitializationException
+
+import java.nio.file.Files
 
 /**
  * Daffodil ValidatorFactory implementation for ISO schematron
@@ -37,28 +39,17 @@ object SchematronValidatorFactory {
       throw ValidatorInitializationException("invalid configuration: missing schematron path")
 
     val schPath = Paths.get(config.getString(SchematronValidator.name))
-    val schStream = if(schPath.isAbsolute) {
-        val schFile = schPath.toFile
-        if (!schFile.exists())
-          throw ValidatorInitializationException(s"file not found: schematron $schFile")
-        new FileInputStream(schPath.toFile)
-      }
-      else {
-      val res = getClass.getClassLoader.getResourceAsStream(schPath.toString)
-      if(res == null) {
-        throw ValidatorInitializationException(s"resource not found at $schPath")
-      }
-      res
-    }
-
-    makeValidator(schStream, None)
+    val schStream = if(Files.exists(schPath)) new FileInputStream(schPath.toFile)
+    else Option(getClass.getClassLoader.getResourceAsStream(schPath.toString)).getOrElse(
+      throw ValidatorInitializationException(s"schematron resource not found: $schPath")
+    )
+    makeValidator(schStream, SchSource.from(schPath), None)
   }
 
-  def makeValidator(schematron: InputStream, fallback: Option[URIResolver] = None): SchematronValidator = {
+  def makeValidator(schematron: InputStream, srcfmt: SchSource, fallback: Option[URIResolver] = None): SchematronValidator = {
     val factory = new TransformerFactoryImpl()
     factory.setURIResolver(Schematron.isoTemplateResolver(fallback))
-
-    val rules = Schematron.templatesFor(schematron, factory)
+    val rules = Transforms.from(schematron, srcfmt, factory)
     new SchematronValidator(Schematron.fromRules(rules))
   }
 }
