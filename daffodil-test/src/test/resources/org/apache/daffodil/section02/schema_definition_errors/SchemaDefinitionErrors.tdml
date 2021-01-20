@@ -192,6 +192,26 @@
   </tdml:parserTestCase>
 
 <!--
+    Test Name: missing_appinfo_source_nondfdl
+       Schema: warning
+         Root: elem
+      Purpose: This test demonstrates tdml:warnings
+-->
+
+  <tdml:parserTestCase name="missing_appinfo_source_nondfdl" root="elem"
+                       model="MissingAppinfoSourceNonDfdl.dfdl.xsd"
+                       description="">
+    <tdml:document><![CDATA[test]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <elem>test</elem>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+<!--
     Test Name: schema_line_number
        Schema: lineNumber.dfdl.xsd
          Root: e1

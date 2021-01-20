@@ -76,7 +76,7 @@ lazy val udf              = Project("daffodil-udf", file("daffodil-udf")).config
                               .settings(commonSettings)
 
 lazy val schematron       = Project("daffodil-schematron", file("daffodil-schematron"))
-                              .dependsOn(lib)
+                              .dependsOn(lib, sapi % Test)
                               .settings(commonSettings)
                               .settings(libraryDependencies ++= Dependencies.schematron)
                               .configs(IntegrationTest)

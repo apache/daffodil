@@ -31,9 +31,15 @@ final class ClassPathUriResolver(rulesDir: String, fallback: Option[URIResolver]
     Option(getClass.getClassLoader.getResourceAsStream(path)) match {
       case Some(is) => new StreamSource(is)
       case None =>
-        fallback.map(_.resolve(href, base)).getOrElse(
-          throw ValidatorInitializationException(s"schematron resource not found at $path")
-        )
+        // fallback #1;; try the raw classpath without the prefix
+        Option(getClass.getClassLoader.getResourceAsStream(href)) match {
+          case Some(is) => new StreamSource(is)
+          case None =>
+            // fallback #2;; use the fallback resolver if provided
+            fallback.map(_.resolve(href, base)).getOrElse(
+              throw ValidatorInitializationException(s"schematron resource not found at $path")
+            )
+        }
     }
   }
 }
