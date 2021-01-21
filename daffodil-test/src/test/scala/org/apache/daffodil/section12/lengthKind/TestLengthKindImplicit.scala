@@ -45,6 +45,7 @@ class TestLengthKindImplicit {
   @Test def test_nested_seq_01(): Unit = { runner_01.runOneTest("nested_seq_01") }
 
   @Test def test_implicit_with_len(): Unit = { runner_01.runOneTest("implicit_with_len") }
+  @Test def test_implicit_ignored_len(): Unit = { runner_01.runOneTest("implicit_ignored_len") }
   @Test def test_implicitLenTime(): Unit = { runner_01.runOneTest("implicitLenTime") }
 
 }
