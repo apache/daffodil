@@ -98,8 +98,6 @@ class TestDFDLExpressions {
   @Test def test_arrayIndexOutOfBounds_02(): Unit = { runner.runOneTest("arrayIndexOutOfBounds_02") }
   @Test def test_arrayIndexOutOfBounds_03(): Unit = { runner.runOneTest("arrayIndexOutOfBounds_03") }
 
-  // DFDL-1865
-  //@Test def test_arrayIndexOutOfBounds_04() { runner.runOneTest("arrayIndexOutOfBounds_04") }
   @Test def test_arrayIndexOutOfBounds_05(): Unit = { runner.runOneTest("arrayIndexOutOfBounds_05") }
 
   @Test def test_asterisk_01(): Unit = { runner.runOneTest("asterisk_01") }
