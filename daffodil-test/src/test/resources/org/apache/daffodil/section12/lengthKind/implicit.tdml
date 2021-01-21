@@ -112,6 +112,9 @@
     
     <xs:element name="elem01" dfdl:lengthKind="implicit" dfdl:length="5" type="xs:int"/>
 
+    <xs:element name="elem02" type="xs:int" dfdl:representation="binary"
+      dfdl:lengthKind="implicit" dfdl:length="5" />
+
   </tdml:defineSchema>
   
  <!--
@@ -134,6 +137,31 @@
       <tdml:error>lengthKind</tdml:error>                       
       <tdml:error>implicit</tdml:error>                             
     </tdml:errors>
+  </tdml:parserTestCase>
+
+ <!--
+    Test name: implicit_ignored_len
+    Schema: implicit_tests_embedded
+    Purpose: This test demonstrates SDW when dfdl:length is ignored because dfdl:lengthKind="implicit"
+  -->
+
+  <tdml:parserTestCase name="implicit_ignored_len" root="elem02"
+    model="implicit_tests_embedded" description="">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 00 05</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <elem02>5</elem02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:warnings>
+      <tdml:warning>dfdl:lengthKind</tdml:warning>
+      <tdml:warning>implicit</tdml:warning>
+      <tdml:warning>dfdl:length</tdml:warning>
+      <tdml:warning>ignored</tdml:warning>
+    </tdml:warnings>
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="nested_seq" root="nested_seq"
