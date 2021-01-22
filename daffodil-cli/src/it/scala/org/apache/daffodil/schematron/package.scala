@@ -71,7 +71,7 @@ package object schematron {
     try {
       shell.sendLine(cmd).expect(expectation)
 
-      val actualEc = shell.sendLine(echoEC).expect(matchEC).getInput.trim.split(eol).last
+      val actualEc = shell.sendLine(echoEC).expect(matchEC).getBefore.trim.split(eol).last
       Try(actualEc.toInt) match {
         case Success(`ec`) => // good
         case Success(v) => fail(s"wrong ec, $v")
@@ -93,8 +93,10 @@ package object schematron {
   private val mustache1 = """\{(.+?)}""".r.unanchored
   private val mustache2 = """\{\{(.+?)}}""".r.unanchored
 
+  // have to use platform specific matching here as the $ doesnt match on Windows
+  // potentially because of the withInputFilters set on the shell in Util
+  private val matchEC = regexLine(s"""(?<=\\d+)${if(Util.isWindows) eol else "$"}""")
   private val echoEC = s"echo ${if(Util.isWindows) "%errorlevel%" else "$?"}"
-  private val matchEC = regexLine("""\d+""")
 
   private def schPath(p: String): String = path(s"daffodil-schematron/src/test/resources/$p")
   private def cliPath(p: String): String = path(s"daffodil-cli/src/it/resources/org/apache/daffodil/CLI/$p")
