@@ -63,7 +63,7 @@ object InitiatorCooker extends DelimiterCooker("initiator")
 
 object TerminatorCooker extends DelimiterCooker("terminator")
 
-object TerminatorCookerNoES extends DelimiterCookerNoES("terminator")
+object TerminatorDelimitedCooker extends DelimiterCookerNoSoleES("terminator")
 
 object SeparatorCooker extends DelimiterCookerNoES("separator")
 

@@ -46,8 +46,8 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Separator</tdml:error>
-      <tdml:error>cannot</tdml:error>
-      <tdml:error>contain</tdml:error>
+      <tdml:error>contains</tdml:error>
+      <tdml:error>disallowed</tdml:error>
       <tdml:error>ES</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
@@ -267,8 +267,8 @@
     <tdml:errors>
       <tdml:error>Schema definition error</tdml:error>
       <tdml:error>nilValue</tdml:error>
-      <tdml:error>cannot</tdml:error>
-      <tdml:error>contain</tdml:error>
+      <tdml:error>contains</tdml:error>
+      <tdml:error>disallowed</tdml:error>
       <tdml:error>NL</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
