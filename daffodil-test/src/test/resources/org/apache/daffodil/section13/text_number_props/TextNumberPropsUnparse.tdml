@@ -470,7 +470,7 @@
     </tdml:infoset>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>textStringPadCharacter cannot contain %WSP+;</tdml:error>
+      <tdml:error>textStringPadCharacter contains disallowed character class(es): %WSP+;</tdml:error>
     </tdml:errors>
   </tdml:unparserTestCase>
 
@@ -489,8 +489,8 @@
   <tdml:errors>
     <tdml:error>Schema Definition Error</tdml:error>
     <tdml:error>textStringPadCharacter</tdml:error>
-    <tdml:error>cannot</tdml:error>
-    <tdml:error>contain</tdml:error>
+    <tdml:error>contains</tdml:error>
+    <tdml:error>disallowed</tdml:error>
     <tdml:error>NL</tdml:error>
   </tdml:errors>
   </tdml:unparserTestCase>
@@ -510,8 +510,8 @@
   <tdml:errors>
     <tdml:error>Schema Definition Error</tdml:error>
     <tdml:error>textStringPadCharacter</tdml:error>
-    <tdml:error>cannot</tdml:error>
-    <tdml:error>contain</tdml:error>
+    <tdml:error>contains</tdml:error>
+    <tdml:error>disallowed</tdml:error>
     <tdml:error>ES</tdml:error>
   </tdml:errors>
   </tdml:unparserTestCase>

@@ -230,8 +230,8 @@
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>nilValue</tdml:error>
-      <tdml:error>cannot</tdml:error>
-      <tdml:error>contain</tdml:error>
+      <tdml:error>contains</tdml:error>
+      <tdml:error>disallowed</tdml:error>
       <tdml:error>WSP*</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>

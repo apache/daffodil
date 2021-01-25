@@ -1236,7 +1236,7 @@ is multiple bytes in UTF-8 encoding that is used"
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>dfdl:terminator</tdml:error>
-      <tdml:error>cannot contain %ES;</tdml:error>
+      <tdml:error>ES entity cannot appear on its own</tdml:error>
       <tdml:error>dfdl:lengthKind="delimited"</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>

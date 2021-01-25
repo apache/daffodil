@@ -23,7 +23,7 @@ import org.apache.daffodil.processors.dfa.CreateDelimiterDFA
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.processors.unparsers.UState
 import org.apache.daffodil.processors.parsers.DelimiterTextType
-import org.apache.daffodil.cookers.TerminatorCookerNoES
+import org.apache.daffodil.cookers.TerminatorDelimitedCooker
 import org.apache.daffodil.cookers.SeparatorCooker
 import org.apache.daffodil.cookers.InitiatorCooker
 import org.apache.daffodil.cookers.TerminatorCooker
@@ -117,13 +117,13 @@ class InitiatorUnparseEv(expr: CompiledExpression[String], outputNewLine: Output
 class TerminatorParseEv(expr: CompiledExpression[String], isLengthKindDelimited: Boolean, ignoreCase: Boolean, tci: DPathCompileInfo)
   extends DelimiterParseEv(DelimiterTextType.Terminator, expr, ignoreCase, tci) {
 
-  override val converter = if (isLengthKindDelimited) TerminatorCookerNoES else TerminatorCooker
+  override val converter = if (isLengthKindDelimited) TerminatorDelimitedCooker else TerminatorCooker
 }
 
 class TerminatorUnparseEv(expr: CompiledExpression[String], isLengthKindDelimited: Boolean, outputNewLine: OutputNewLineEv, tci: DPathCompileInfo)
   extends DelimiterUnparseEv(DelimiterTextType.Terminator, expr, outputNewLine, tci) {
 
-  override val converter = if (isLengthKindDelimited) TerminatorCookerNoES else TerminatorCooker
+  override val converter = if (isLengthKindDelimited) TerminatorDelimitedCooker else TerminatorCooker
 }
 
 class SeparatorParseEv(expr: CompiledExpression[String], ignoreCase: Boolean, tci: DPathCompileInfo)
