@@ -71,23 +71,27 @@ import org.apache.daffodil.dsom.DPathCompileInfo
  * contains member functions for everything the debugger needs to be able to observe.
  */
 trait StateForDebugger {
-  def bytePos: Long
+  def currentLocation: DataLocation
+  def bitPos0b: Long
+  def bitLimit0b: MaybeULong
   def childPos: Long
   def groupPos: Long
-  def currentLocation: DataLocation
   def arrayPos: Long
-  def bitLimit0b: MaybeULong
   def variableMap: VariableMap
+  def delimitedParseResult: Maybe[dfa.ParseResult]
+  def withinHiddenNest: Boolean
 }
 
 case class TupleForDebugger(
-  val bytePos: Long,
+  val currentLocation: DataLocation,
+  val bitPos0b: Long,
+  val bitLimit0b: MaybeULong,
   val childPos: Long,
   val groupPos: Long,
-  val currentLocation: DataLocation,
   val arrayPos: Long,
-  val bitLimit0b: MaybeULong,
-  val variableMap: VariableMap)
+  val variableMap: VariableMap,
+  val delimitedParseResult: Maybe[dfa.ParseResult],
+  val withinHiddenNest: Boolean)
   extends StateForDebugger
 
 trait SetProcessorMixin {
@@ -427,13 +431,15 @@ abstract class ParseOrUnparseState protected (
 
   def copyStateForDebugger = {
     TupleForDebugger(
-      bytePos,
+      currentLocation,
+      bitPos0b,
+      bitLimit0b,
       childPos,
       groupPos,
-      currentLocation,
       arrayPos,
-      bitLimit0b,
       variableMap.copy(), // deep copy since variableMap is mutable
+      delimitedParseResult,
+      withinHiddenNest,
     )
   }
 
@@ -564,6 +570,7 @@ final class CompileState(tci: DPathCompileInfo, maybeDataProc: Maybe[DataProcess
   def dataStream = Nope
   def groupPos: Long = 0L
   def hasInfoset: Boolean = infoset_.isDefined
+  def delimitedParseResult = Nope
 
   private lazy val infoset_ : Maybe[DIElement] = Nope
 

@@ -352,6 +352,8 @@ abstract class UState(
   }
 
   final val releaseUnneededInfoset: Boolean = !areDebugging && tunable.releaseUnneededInfoset
+
+  def delimitedParseResult = Nope
 }
 
 /**
