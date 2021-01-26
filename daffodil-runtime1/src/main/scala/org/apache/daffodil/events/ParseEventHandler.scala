@@ -34,7 +34,7 @@ trait EventHandler {
   /**
    * Parser Events
    */
-  def init(processor: Parser): Unit = {
+  def init(state: PState, processor: Parser): Unit = {
     //do nothing
   }
 
@@ -77,7 +77,7 @@ trait EventHandler {
   /**
    * Unparser Events
    */
-  def init(processor: Unparser): Unit = {
+  def init(state: UState, processor: Unparser): Unit = {
     //do nothing
   }
 
@@ -142,7 +142,7 @@ trait MultipleEventHandler extends EventHandler with Serializable {
   /**
    * Parser Events
    */
-  override def init(processor: Parser): Unit = { if (!(handlers eq Nil)) handlers.foreach { _.init(processor) } }
+  override def init(state: PState, processor: Parser): Unit = { if (!(handlers eq Nil)) handlers.foreach { _.init(state, processor) } }
 
   override def before(state: PState, processor: Parser): Unit = { if (!(handlers eq Nil)) handlers.foreach { _.before(state, processor) } }
 
@@ -173,7 +173,7 @@ trait MultipleEventHandler extends EventHandler with Serializable {
   /**
    * Unparser Events
    */
-  override def init(processor: Unparser): Unit = { if (!(handlers eq Nil)) handlers.foreach { _.init(processor) } }
+  override def init(state: UState, processor: Unparser): Unit = { if (!(handlers eq Nil)) handlers.foreach { _.init(state, processor) } }
 
   override def before(state: UState, processor: Unparser): Unit = { if (!(handlers eq Nil)) handlers.foreach { _.before(state, processor) } }
 

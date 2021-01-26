@@ -1217,7 +1217,7 @@ class TestCLIdebugger {
     }
   }
 
-  @Test def test_CLI_Debugger_info_diff(): Unit = {
+  @Test def test_CLI_Debugger_info_diff_01(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section07/variables/variables_01.dfdl.xsd")
     val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input1.txt")
     val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
@@ -1231,15 +1231,89 @@ class TestCLIdebugger {
       shell.sendLine("display info diff")
       shell.expect(contains("(debug)"))
       shell.sendLine("step")
-      shell.expect(contains("No differences"))
+      shell.expect(contains("(no differences)"))
       shell.sendLine("step")
-      shell.expect(contains("No differences"))
+      shell.expect(contains("(no differences)"))
       shell.sendLine("step")
       shell.expect(contains("variable: tns:v_with_default: 42 (default) -> 42 (read)"))
       shell.sendLine("step")
       shell.expect(contains("variable: tns:v_no_default: (undefined) -> 42 (set)"))
       shell.sendLine("step")
-      shell.expect(contains("No differences"))
+      shell.expect(contains("childIndex: 1 -> 2"))
+      shell.sendLine("step")
+      shell.expect(contains("variable: tns:v_no_default: 42 (set) -> 42 (read)"))
+      shell.sendLine("step")
+      shell.expect(contains("<d>42</d>"))
+      shell.expect(contains("<e>42</e>"))
+    } finally {
+      shell.close()
+    }
+  }
+
+  @Test def test_CLI_Debugger_info_diff_02(): Unit = {
+    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
+    val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input1.txt")
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
+
+    val shell = if (Util.isWindows) Util.start("", envp = DAFFODIL_JAVA_OPTS) else Util.start("")
+
+    try {
+      val cmd = String.format("%s -d parse -s %s -r matrix %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("(debug)"))
+      shell.sendLine("display info diff")
+      shell.expect(contains("(debug)"))
+      shell.sendLine("step")
+      shell.sendLine("step")
+      shell.sendLine("step")
+      shell.sendLine("step")
+      shell.sendLine("step")
+      shell.sendLine("step")
+      shell.expect(contains("bitPosition: 0 -> 8"))
+      shell.expect(contains("foundDelimiter: (no value) -> ,"))
+      shell.expect(contains("foundField: (no value) -> 0"))
+      shell.sendLine("step")
+      shell.sendLine("step")
+      shell.expect(contains("childIndex: 1 -> 2"))
+      shell.expect(contains("groupIndex: 1 -> 2"))
+      shell.expect(contains("occursIndex: 1 -> 2"))
+      shell.sendLine("step")
+      shell.expect(contains("bitPosition: 8 -> 16"))
+      shell.expect(contains("foundDelimiter: , -> (no value)"))
+      shell.expect(contains("foundField: 0 -> (no value)"))
+      shell.sendLine("quit")
+    } finally {
+      shell.close()
+    }
+  }
+
+  @Test def test_CLI_Debugger_info_diff_03(): Unit = {
+    val schemaFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/cli_schema.dfdl.xsd")
+    val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input6.txt")
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
+
+    val shell = if (Util.isWindows) Util.start("", envp = DAFFODIL_JAVA_OPTS) else Util.start("")
+
+    try {
+      val cmd = String.format("%s -d parse -s %s -r e %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("(debug)"))
+      shell.sendLine("display info diff")
+      shell.expect(contains("(debug)"))
+      shell.sendLine("step")
+      shell.sendLine("step")
+      shell.expect(contains("hidden: false -> true"))
+      shell.sendLine("step")
+      shell.sendLine("step")
+      shell.sendLine("step")
+      shell.sendLine("step")
+      shell.sendLine("step")
+      shell.sendLine("step")
+      shell.sendLine("step")
+      shell.sendLine("step")
+      shell.sendLine("step")
+      shell.sendLine("step")
+      shell.expect(contains("hidden: true -> false"))
       shell.sendLine("quit")
     } finally {
       shell.close()

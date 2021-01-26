@@ -434,7 +434,7 @@ class DataProcessor private (
       addEventHandler(debugger)
       state.notifyDebugging(true)
     }
-    state.dataProc.get.init(ssrd.parser)
+    state.dataProc.get.init(state, ssrd.parser)
     doParse(ssrd.parser, state)
     val pr = new ParseResult(this, state)
     if (!pr.isProcessingError) {
@@ -574,7 +574,7 @@ class DataProcessor private (
         addEventHandler(debugger)
         unparserState.notifyDebugging(true)
       }
-      unparserState.dataProc.get.init(ssrd.unparser)
+      unparserState.dataProc.get.init(unparserState, ssrd.unparser)
       out.setPriorBitOrder(ssrd.elementRuntimeData.defaultBitOrder)
       doUnparse(unparserState)
       unparserState.evalSuspensions(isFinal = true)
