@@ -32,6 +32,11 @@ import org.apache.daffodil.util.Misc
 import org.apache.daffodil.xml.RefQName
 
 /**
+ * We need a mutux object for exclusive access to a code block
+  */
+private object mutex {}
+
+/**
  * Generates and compiles C source files from a DFDL schema encapsulated in a [[Root]].
  * Implements the [[DFDL.CodeGenerator]] trait to allow it to be called by Daffodil code.
  * @param root Provides the DFDL schema for code generation
@@ -43,8 +48,10 @@ class CodeGenerator(root: Root) extends DFDL.CodeGenerator {
   private var diagnostics: Seq[Diagnostic] = Nil
   private var errorStatus: Boolean = false
 
-  // Writes C source files into a "c" subdirectory of the given output directory.
-  // Removes the "c" subdirectory if it existed before.  Returns the "c" subdirectory.
+  /**
+   * Writes C source files into a "c" subdirectory of the given output directory.
+   * Removes the "c" subdirectory if it existed before.  Returns the "c" subdirectory.
+  */
   override def generateCode(rootNS: Option[RefQName], outputDirArg: String): os.Path = {
     // Get the paths of the output directory and its code subdirectory
     val outputDir = os.Path(Paths.get(outputDirArg).toAbsolutePath)
@@ -55,19 +62,22 @@ class CodeGenerator(root: Root) extends DFDL.CodeGenerator {
     os.remove.all(codeDir)
 
     // Copy our resource directory and all its C source files to our code subdirectory
+    // (using synchronized to avoid calling FileSystems.newFileSystem concurrently)
     val resourceUri = Misc.getRequiredResource("/c")
-    val fileSystem = if (resourceUri.getScheme == "jar") {
-      val env: java.util.Map[String, String] = Collections.emptyMap()
-      FileSystems.newFileSystem(resourceUri, env)
-    } else {
-      null
+    mutex.synchronized {
+      val fileSystem = if (resourceUri.getScheme == "jar") {
+        val env: java.util.Map[String, String] = Collections.emptyMap()
+        FileSystems.newFileSystem(resourceUri, env)
+      } else {
+        null
+      }
+      try {
+        val resourceDir = os.Path(if (fileSystem != null) fileSystem.getPath("/c") else Paths.get(resourceUri))
+        os.copy(resourceDir, codeDir)
+      }
+      finally
+        if (fileSystem != null) fileSystem.close()
     }
-    try {
-      val resourceDir = os.Path(if (fileSystem != null) fileSystem.getPath("/c") else Paths.get(resourceUri))
-      os.copy(resourceDir, codeDir)
-    }
-    finally
-      if (fileSystem != null) fileSystem.close()
 
     // Generate C code from the DFDL schema
     val rootElementName = rootNS.getOrElse(root.refQName).local
@@ -86,8 +96,10 @@ class CodeGenerator(root: Root) extends DFDL.CodeGenerator {
     codeDir
   }
 
-  // Compiles any C source files inside the given code directory.  Returns the path
-  // of the newly created executable to use in TDML tests or somewhere else.
+  /**
+   * Compiles any C source files inside the given code directory.  Returns the path
+   * of the newly created executable to use in TDML tests or somewhere else.
+   */
   override def compileCode(codeDir: os.Path): os.Path = {
     // Get the path of the executable we will build
     val exe = if (isWindows) codeDir/"daffodil.exe" else codeDir/"daffodil"
@@ -96,7 +108,7 @@ class CodeGenerator(root: Root) extends DFDL.CodeGenerator {
       // Assemble the compiler's command line arguments
       val compiler = pickCompiler
       val files = os.walk(codeDir).filter(_.ext == "c")
-      val libs = Seq("-lmxml", if (isWindows) "-largp" else "-lpthread")
+      val libs = if (isWindows) Seq("-largp", "-lmxml") else Seq("-lmxml")
 
       // Run the compiler in the code directory (if we found "zig cc"
       // as a compiler, it will cache previously built files in zig's

@@ -64,7 +64,7 @@ lazy val runtime1Unparser = Project("daffodil-runtime1-unparser", file("daffodil
 val runtime2CFiles        = Library("libruntime2.a")
 lazy val runtime2         = Project("daffodil-runtime2", file("daffodil-runtime2")).configs(IntegrationTest)
                               .enablePlugins(CcPlugin)
-                              .dependsOn(core, core % "test->test", tdmlProc)
+                              .dependsOn(core, core % "test->test")
                               .settings(commonSettings)
                               .settings(publishArtifact in (Compile, packageDoc) := false)
                               .settings(
@@ -82,12 +82,7 @@ lazy val runtime2         = Project("daffodil-runtime2", file("daffodil-runtime2
                                     (Compile / resourceDirectory).value / "examples"
                                   )
                                 ),
-                                Compile / cFlags := (Compile / cFlags).value.withDefaultValue(Seq(
-                                  "-g",
-                                  "-Wall",
-                                  "-Wextra",
-                                  "-Wno-missing-field-initializers",
-                                ))
+                                Compile / cFlags := (Compile / cFlags).value.withDefaultValue(Seq("-Wall", "-Wextra"))
                               )
 
 lazy val core             = Project("daffodil-core", file("daffodil-core")).configs(IntegrationTest)
@@ -107,7 +102,7 @@ lazy val tdmlLib             = Project("daffodil-tdml-lib", file("daffodil-tdml-
                               .settings(commonSettings)
 
 lazy val tdmlProc         = Project("daffodil-tdml-processor", file("daffodil-tdml-processor")).configs(IntegrationTest)
-                              .dependsOn(tdmlLib, core)
+                              .dependsOn(tdmlLib, runtime2, core)
                               .settings(commonSettings)
 
 lazy val cli              = Project("daffodil-cli", file("daffodil-cli")).configs(IntegrationTest)
@@ -125,7 +120,7 @@ lazy val schematron       = Project("daffodil-schematron", file("daffodil-schema
                               .configs(IntegrationTest)
 
 lazy val test             = Project("daffodil-test", file("daffodil-test")).configs(IntegrationTest)
-                              .dependsOn(tdmlProc, udf % "test->test")
+                              .dependsOn(tdmlProc, runtime2 % "test->test", udf % "test->test")
                               .settings(commonSettings, nopublish)
                               //
                               // Uncomment the following line to run these tests 

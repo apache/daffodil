@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:idl="urn:idl:1.0" targetNamespace="urn:idl:1.0">
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/">
+      <dfdl:defineFormat name="defaults">
+        <dfdl:format alignment="8" alignmentUnits="bits" binaryBooleanFalseRep="0" binaryBooleanTrueRep="1" binaryFloatRep="ieee" binaryNumberCheckPolicy="lax" binaryNumberRep="binary" bitOrder="mostSignificantBitFirst" byteOrder="bigEndian" choiceLengthKind="implicit" encoding="utf-8" encodingErrorPolicy="replace" escapeSchemeRef="" fillByte="%#r20;" floating="no" ignoreCase="no" initiatedContent="no" initiator="" leadingSkip="0" lengthKind="implicit" lengthUnits="bits" occursCountKind="implicit" prefixIncludesPrefixLength="no" representation="binary" separator="" separatorPosition="infix" sequenceKind="ordered" terminator="" textBidi="no" textPadKind="none" trailingSkip="0" truncateSpecifiedLengthString="no"/>
+      </dfdl:defineFormat>
+      <dfdl:format ref="idl:defaults"/>
+    </xs:appinfo>
+  </xs:annotation>
+
+  <xs:simpleType name="double" dfdl:length="64" dfdl:lengthKind="explicit">
+    <xs:restriction base="xs:double"/>
+  </xs:simpleType>
+
+  <xs:simpleType name="int32" dfdl:length="32" dfdl:lengthKind="explicit">
+    <xs:restriction base="xs:int"/>
+  </xs:simpleType>
+
+  <xs:complexType name="FooType">
+    <xs:sequence>
+      <xs:element name="a" type="idl:int32"/>
+      <xs:element name="b" type="idl:int32"/>
+      <xs:element name="c" type="idl:int32"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="BarType">
+    <xs:sequence>
+      <xs:element name="x" type="idl:double"/>
+      <xs:element name="y" type="idl:double"/>
+      <xs:element name="z" type="idl:double"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="NestedStructType">
+    <xs:sequence>
+      <xs:element name="data">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="foo" type="idl:FooType"/>
+            <xs:element name="bar" type="idl:BarType"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="NestedUnionType">
+    <xs:sequence>
+      <xs:element name="tag" type="idl:int32"/>
+      <xs:element name="data">
+        <xs:complexType>
+          <xs:choice dfdl:choiceDispatchKey="{xs:string(../tag)}">
+            <xs:element name="foo" type="idl:FooType" dfdl:choiceBranchKey="1 2"/>
+            <xs:element name="bar" type="idl:BarType" dfdl:choiceBranchKey="3 4"/>
+          </xs:choice>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="NestedStruct" type="idl:NestedStructType"/>
+
+  <xs:element name="NestedUnion" type="idl:NestedUnionType"/>
+
+</xs:schema>

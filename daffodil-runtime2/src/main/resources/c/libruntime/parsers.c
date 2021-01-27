@@ -19,10 +19,16 @@
 #include <endian.h>  // for be32toh, be64toh, le32toh, le64toh, be16toh, le16toh
 #include <stdio.h>   // for fread, size_t
 
-// Macros to expand into functions below
+// Macros that are not defined by <endian.h>
+
+#define be8toh(var) var
+
+#define le8toh(var) var
+
+// Macros to define parse_<endian>_<type> functions
 
 #define define_parse_endian_real(endian, type, bits)                           \
-    extern void parse_##endian##_##type(type *number, PState *pstate)          \
+    void parse_##endian##_##type(type *number, PState *pstate)                 \
     {                                                                          \
         if (!pstate->error_msg)                                                \
         {                                                                      \
@@ -44,8 +50,7 @@
     }
 
 #define define_parse_endian_integer(endian, type, bits)                        \
-    extern void parse_##endian##_##type##bits(type##bits##_t *number,          \
-                                              PState *        pstate)          \
+    void parse_##endian##_##type##bits(type##bits##_t *number, PState *pstate) \
     {                                                                          \
         if (!pstate->error_msg)                                                \
         {                                                                      \
@@ -63,10 +68,6 @@
             *number = endian##bits##toh(buffer.i_val);                         \
         }                                                                      \
     }
-
-#define be8toh(var) var
-
-#define le8toh(var) var
 
 // Define functions to parse binary real and integer numbers
 

@@ -19,10 +19,16 @@
 #include <endian.h>  // for htobe32, htobe64, htole32, htole64, htobe16, htole16
 #include <stdio.h>   // for fwrite, size_t
 
-// Macros to expand into functions below
+// Macros that are not defined by <endian.h>
+
+#define htobe8(var) var
+
+#define htole8(var) var
+
+// Macros to define unparse_<endian>_<type> functions
 
 #define define_unparse_endian_real(endian, type, bits)                         \
-    extern void unparse_##endian##_##type(type number, UState *ustate)         \
+    void unparse_##endian##_##type(type number, UState *ustate)                \
     {                                                                          \
         if (!ustate->error_msg)                                                \
         {                                                                      \
@@ -44,8 +50,8 @@
     }
 
 #define define_unparse_endian_integer(endian, type, bits)                      \
-    extern void unparse_##endian##_##type##bits(type##bits##_t number,         \
-                                                UState *       ustate)         \
+    void unparse_##endian##_##type##bits(type##bits##_t number,                \
+                                         UState *       ustate)                \
     {                                                                          \
         if (!ustate->error_msg)                                                \
         {                                                                      \
@@ -63,10 +69,6 @@
             }                                                                  \
         }                                                                      \
     }
-
-#define htobe8(var) var
-
-#define htole8(var) var
 
 // Define functions to unparse binary real and integer numbers
 

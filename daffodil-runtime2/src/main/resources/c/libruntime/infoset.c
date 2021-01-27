@@ -127,19 +127,19 @@ walkInfosetNode(const VisitEventHandler *handler, const InfosetBase *infoNode)
     // Walk the node's children recursively
     const size_t      count = infoNode->erd->numChildren;
     const ERD **const childrenERDs = infoNode->erd->childrenERDs;
-    const ptrdiff_t * offsets = infoNode->erd->offsets;
+    const size_t *    offsets = infoNode->erd->offsets;
 
     for (size_t i = 0; i < count && !error_msg; i++)
     {
-        ptrdiff_t  offset = offsets[i];
-        const ERD *childERD = childrenERDs[i];
+        const size_t offset = offsets[i];
+        const ERD *  childERD = childrenERDs[i];
         // We use only one of these variables below depending on typeCode
         const InfosetBase *childNode =
             (const InfosetBase *)((const char *)infoNode + offset);
         const void *numLocation =
             (const void *)((const char *)infoNode + offset);
 
-        // Need to handle more element types
+        // Will need to handle more element types
         const enum TypeCode typeCode = childERD->typeCode;
         switch (typeCode)
         {
@@ -158,6 +158,14 @@ walkInfosetNode(const VisitEventHandler *handler, const InfosetBase *infoNode)
         case PRIMITIVE_DOUBLE:
             error_msg =
                 handler->visitNumberElem(handler, childERD, numLocation);
+            break;
+        case CHOICE:
+            // Point next ERD to choice of alternative elements' ERDs
+            if (!infoNode->erd->initChoice(infoNode, rootElement()))
+            {
+                error_msg =
+                    "Walk error: no match between choice dispatch key and any branch key";
+            }
             break;
         }
     }

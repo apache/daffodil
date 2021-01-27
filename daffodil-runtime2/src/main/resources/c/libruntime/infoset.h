@@ -18,16 +18,11 @@
 #ifndef INFOSET_H
 #define INFOSET_H
 
-#include <stddef.h>  // for ptrdiff_t, size_t
-#include <stdio.h>   // for FILE
+#include <stdbool.h>  // for bool
+#include <stddef.h>   // for size_t
+#include <stdio.h>    // for FILE
 
 // Prototypes needed for compilation
-
-struct ElementRuntimeData;
-struct InfosetBase;
-struct PState;
-struct UState;
-struct VisitEventHandler;
 
 typedef struct ElementRuntimeData ERD;
 typedef struct InfosetBase        InfosetBase;
@@ -38,6 +33,8 @@ typedef struct VisitEventHandler  VisitEventHandler;
 typedef void (*ERDInitSelf)(InfosetBase *infoNode);
 typedef void (*ERDParseSelf)(InfosetBase *infoNode, PState *pstate);
 typedef void (*ERDUnparseSelf)(const InfosetBase *infoNode, UState *ustate);
+typedef bool (*InitChoiceRD)(const InfosetBase *infoNode,
+                             const InfosetBase *rootElement);
 
 typedef const char *(*VisitStartDocument)(const VisitEventHandler *handler);
 typedef const char *(*VisitEndDocument)(const VisitEventHandler *handler);
@@ -71,7 +68,8 @@ enum TypeCode
     PRIMITIVE_INT16,
     PRIMITIVE_INT8,
     PRIMITIVE_FLOAT,
-    PRIMITIVE_DOUBLE
+    PRIMITIVE_DOUBLE,
+    CHOICE
 };
 
 // ERD - element runtime data needed to parse/unparse objects
@@ -81,34 +79,35 @@ typedef struct ElementRuntimeData
     const NamedQName    namedQName;
     const enum TypeCode typeCode;
     const size_t        numChildren;
-    const ptrdiff_t *   offsets;
+    const size_t *      offsets;
     const ERD **        childrenERDs;
 
     const ERDInitSelf    initSelf;
     const ERDParseSelf   parseSelf;
     const ERDUnparseSelf unparseSelf;
+    const InitChoiceRD   initChoice;
 } ERD;
 
-// InfosetBase - representation of an infoset element
+// InfosetBase - metadata of an infoset element
 
 typedef struct InfosetBase
 {
     const ERD *erd;
 } InfosetBase;
 
-// PState - parser state while parsing input
+// PState - mutable state while parsing data
 
 typedef struct PState
 {
-    FILE *      stream;    // input to read from
+    FILE *      stream;    // input to read data from
     const char *error_msg; // to stop if an error happens
 } PState;
 
-// UState - unparser state while unparsing infoset
+// UState - mutable state while unparsing infoset
 
 typedef struct UState
 {
-    FILE *      stream;    // output to write to
+    FILE *      stream;    // output to write data to
     const char *error_msg; // to stop if an error happens
 } UState;
 
@@ -130,9 +129,10 @@ extern const char *get_erd_name(const ERD *erd);
 extern const char *get_erd_xmlns(const ERD *erd);
 extern const char *get_erd_ns(const ERD *erd);
 
-// rootElement - return a root element to walk while parsing or unparsing
+// rootElement - return an infoset's root element for parsing,
+// walking, or unparsing (implementation actually is generated in
+// generated_code.c, not defined in infoset.c)
 
-// (actual definition will be in generated_code.c, not infoset.c)
 extern InfosetBase *rootElement(void);
 
 // walkInfoset - walk an infoset and call VisitEventHandler methods
@@ -143,5 +143,9 @@ extern const char *walkInfoset(const VisitEventHandler *handler,
 // eof_or_error_msg - check if a stream has its eof or error indicator set
 
 extern const char *eof_or_error_msg(FILE *stream);
+
+// NO_CHOICE - value stored in an uninitialized _choice field
+
+static const size_t NO_CHOICE = (size_t)-1;
 
 #endif // INFOSET_H
