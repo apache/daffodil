@@ -17,14 +17,19 @@
 
 package org.apache.daffodil.runtime2.generators
 
+import org.apache.daffodil.cookers.ChoiceBranchKeyCooker
 import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.dpath.NodeInfo.PrimType
+import org.apache.daffodil.dsom.AbstractElementRef
+import org.apache.daffodil.dsom.Choice
 import org.apache.daffodil.dsom.ElementBase
+import org.apache.daffodil.dsom.GlobalComplexTypeDef
 import org.apache.daffodil.dsom.GlobalElementDecl
 import org.apache.daffodil.dsom.SchemaComponent
 import org.apache.daffodil.exceptions.ThrowsSDE
 import org.apache.daffodil.schema.annotation.props.gen.OccursCountKind
 
+import java.net.URI
 import scala.collection.mutable
 
 /**
@@ -37,12 +42,13 @@ class CodeGeneratorState {
   private val finalStructs = mutable.ArrayBuffer[String]()
   private val finalImplementation = mutable.ArrayBuffer[String]()
 
-  // Builds a name for the given element that needs to be unique in C file scope
-  private def qualifiedName(context: ElementBase): String = {
+  // Builds an ERD name for the given element that needs to be unique in C file scope
+  private def erdName(context: ElementBase): String = {
     def buildName(sc: SchemaComponent, sb: StringBuilder): StringBuilder = {
       sc match {
-        case gd: GlobalElementDecl => sb ++= gd.namedQName.local += '_'
         case eb: ElementBase => sb ++= eb.namedQName.local += '_'
+        case gd: GlobalElementDecl => sb ++= gd.namedQName.local += '_'
+        case ct: GlobalComplexTypeDef => sb ++= ct.namedQName.local += '_'
         case _ => // don't include other schema components in qualified name
       }
       sc.optLexicalParent.foreach {
@@ -50,7 +56,7 @@ class CodeGeneratorState {
       }
       sb
     }
-    val sb = buildName(context, new StringBuilder)
+    val sb = buildName(context, new StringBuilder) ++= "ERD"
     sb.toString()
   }
 
@@ -60,20 +66,36 @@ class CodeGeneratorState {
   def addImplementation(context: ElementBase): Unit = {
     val C = localName(context)
     val initStatements = structs.top.initStatements.mkString("\n")
+    val initChoiceStatements = structs.top.initChoiceStatements.mkString("\n")
     val parserStatements = structs.top.parserStatements.mkString("\n")
     val unparserStatements = structs.top.unparserStatements.mkString("\n")
+    val hasChoice = structs.top.initChoiceStatements.nonEmpty
+    val root = structs.elems.last.C
+    val prototypeInitChoice = if (hasChoice)
+      s"\nstatic bool ${C}_initChoice($C *instance, const $root *rootElement);"
+    else
+      ""
+    val implementInitChoice = if (hasChoice)
+      s"""
+         |static bool
+         |${C}_initChoice($C *instance, const $root *rootElement)
+         |{
+         |$initChoiceStatements
+         |}
+         |""".stripMargin
+    else
+      ""
     val prototypeFunctions =
-      s"""static void ${C}_initSelf($C *instance);
+      s"""static void ${C}_initSelf($C *instance);$prototypeInitChoice
          |static void ${C}_parseSelf($C *instance, PState *pstate);
          |static void ${C}_unparseSelf(const $C *instance, UState *ustate);""".stripMargin
-    prototypes += prototypeFunctions
     val functions =
       s"""static void
          |${C}_initSelf($C *instance)
          |{
          |$initStatements
          |}
-         |
+         |$implementInitChoice
          |static void
          |${C}_parseSelf($C *instance, PState *pstate)
          |{
@@ -86,6 +108,8 @@ class CodeGeneratorState {
          |$unparserStatements
          |}
          |""".stripMargin
+
+    prototypes += prototypeFunctions
     finalImplementation += functions
   }
 
@@ -105,17 +129,155 @@ class CodeGeneratorState {
     qnameInit
   }
 
+  /**
+   * We want to convert a choiceDispatchKey expression into C struct dot
+   * notation (rootElement->[subElement.field]) which will access the C
+   * struct field containing the choiceDispatchKey's runtime value.
+   *
+   * We make some assumptions to make generating the dot notation easier:
+   * - the expression starts with '{xs:string( and ends with )}'
+   * - the expression returns the value of a previous element without
+   *   changing the value in any way (except converting it to xs:string)
+   * - both the expression and the C code use only local names (for now...)
+   * - we can map the context node's path to a Unix-like slash path
+   * - all dpath operations look like Unix-like relative paths (../tag)
+   * - we can normalize the new path and convert it to C struct dot notation
+   * - we can store the accessed value in an int64_t local variable safely
+   */
+  private def choiceDispatchField(context: ElementBase): String = {
+    // We want to use SchemaComponent.scPath but it's private so duplicate it here (for now...)
+    def scPath(sc: SchemaComponent): Seq[SchemaComponent] = sc.optLexicalParent.map { scPath }.getOrElse(Nil) :+ sc
+    val localNames = scPath(context).map {
+      case er: AbstractElementRef => er.refQName.local
+      case e: ElementBase => e.namedQName.local
+      case ed: GlobalElementDecl => ed.namedQName.local
+      case _ => ""
+    }
+    val absoluteSlashPath = localNames.mkString("/")
+    val dispatchSlashPath = context.complexType.modelGroup match {
+      case choice: Choice if choice.isDirectDispatch =>
+        val expr = choice.choiceDispatchKeyEv.expr.toBriefXML()
+        val before = "'{xs:string("
+        val after = ")}'"
+        val relativePath = if (expr.startsWith(before) && expr.endsWith(after))
+          expr.substring(before.length, expr.length - after.length) else expr
+        val normalizedURI = new URI(absoluteSlashPath + "/" + relativePath).normalize
+        normalizedURI.getPath.substring(1)
+      case _ => ""
+    }
+    // Strip namespace prefixes since C code uses only local names (for now...)
+    val localDispatchSlashPath = dispatchSlashPath.replaceAll("/[^:]+:", "/")
+    val res = localDispatchSlashPath.replace('/', '.')
+    res
+  }
+
+  def addBeforeSwitchStatements(context: ElementBase): Unit = {
+    val erd = erdName(context)
+    val initStatement = s"    instance->_base.erd = &$erd;"
+
+    structs.top.initStatements += initStatement
+
+    val dispatchField = choiceDispatchField(context)
+    if (dispatchField.nonEmpty) {
+      val C = localName(context)
+      val declaration =
+        s"""    size_t      _choice; // choice of which union field to use
+           |    union
+           |    {""".stripMargin
+      val erdDef =
+        s"""static const ERD _choice_$erd = {
+           |    {
+           |        NULL, // namedQName.prefix
+           |        "_choice", // namedQName.local
+           |        NULL, // namedQName.ns
+           |    },
+           |    CHOICE, // typeCode
+           |    0, NULL, NULL, NULL, NULL, NULL, NULL
+           |};
+           |""".stripMargin
+      val offsetComputation = s"    (const char *)&${C}_compute_offsets._choice - (const char *)&${C}_compute_offsets"
+      val erdComputation = s"    &_choice_$erd"
+      val initStatement = s"    instance->_choice = NO_CHOICE;"
+      val initChoiceStatement =
+        s"""    int64_t key = rootElement->$dispatchField;
+           |    switch (key)
+           |    {""".stripMargin
+      val parseStatement =
+        s"""    instance->_base.erd->initChoice(&instance->_base, rootElement());
+           |    switch (instance->_choice)
+           |    {""".stripMargin
+      val unparseStatement =
+        s"""    instance->_base.erd->initChoice(&instance->_base, rootElement());
+           |    switch (instance->_choice)
+           |    {""".stripMargin
+
+      erds += erdDef
+      structs.top.declarations += declaration
+      structs.top.offsetComputations += offsetComputation
+      structs.top.erdComputations += erdComputation
+      structs.top.initStatements += initStatement
+      structs.top.initChoiceStatements += initChoiceStatement
+      structs.top.parserStatements += parseStatement
+      structs.top.unparserStatements += unparseStatement
+    }
+  }
+
+  def addAfterSwitchStatements(): Unit = {
+    if (structs.top.initChoiceStatements.nonEmpty) {
+      val declaration = s"    };"
+      val initChoiceStatement =
+        s"""    default:
+           |        instance->_choice = NO_CHOICE;
+           |        break;
+           |    }
+           |
+           |    if (instance->_choice != NO_CHOICE)
+           |    {
+           |        const size_t choice = instance->_choice + 1; // skip the _choice field
+           |        const size_t offset = instance->_base.erd->offsets[choice];
+           |        const ERD *  childERD = instance->_base.erd->childrenERDs[choice];
+           |        InfosetBase *childNode = (InfosetBase *)((const char *)instance + offset);
+           |        childNode->erd = childERD;
+           |        return true;
+           |    }
+           |    else
+           |    {
+           |        return false;
+           |    }""".stripMargin
+      val parseStatement =
+        s"""    default:
+           |        pstate->error_msg =
+           |            "Parse error: no match between choice dispatch key and any branch key";
+           |        break;
+           |    }""".stripMargin
+      val unparseStatement =
+        s"""    default:
+           |        ustate->error_msg =
+           |            "Unparse error: no match between choice dispatch key and any branch key";
+           |        break;
+           |    }""".stripMargin
+
+      structs.top.declarations += declaration
+      structs.top.initChoiceStatements += initChoiceStatement
+      structs.top.parserStatements += parseStatement
+      structs.top.unparserStatements += unparseStatement
+    }
+  }
+
   def addComplexTypeERD(context: ElementBase): Unit = {
     val C = localName(context)
-    val qn = qualifiedName(context)
+    val erd = erdName(context)
     val count = structs.top.offsetComputations.length
     val offsetComputations = structs.top.offsetComputations.mkString(",\n")
     val erdComputations = structs.top.erdComputations.mkString(",\n")
     val qnameInit = defineQNameInit(context)
+    val hasChoice = structs.top.initChoiceStatements.nonEmpty
+    val numChildren = if (hasChoice) 2 else count
+    val initChoice = if (hasChoice) s"(InitChoiceRD)&${C}_initChoice" else "NULL"
     val complexERD =
       s"""static const $C ${C}_compute_offsets;
          |
-         |static const ptrdiff_t ${C}_offsets[$count] = {
+         |static const size_t ${C}_offsets[$count] = {
          |$offsetComputations
          |};
          |
@@ -123,23 +285,24 @@ class CodeGeneratorState {
          |$erdComputations
          |};
          |
-         |static const ERD ${qn}_ERD = {
+         |static const ERD $erd = {
          |$qnameInit
-         |    COMPLEX,                         // typeCode
-         |    $count,                               // numChildren
-         |    ${C}_offsets,                      // offsets
-         |    ${C}_childrenERDs,                 // childrenERDs
-         |    (ERDInitSelf)&${C}_initSelf,       // initSelf
-         |    (ERDParseSelf)&${C}_parseSelf,     // parseSelf
+         |    COMPLEX, // typeCode
+         |    $numChildren, // numChildren
+         |    ${C}_offsets, // offsets
+         |    ${C}_childrenERDs, // childrenERDs
+         |    (ERDInitSelf)&${C}_initSelf, // initSelf
+         |    (ERDParseSelf)&${C}_parseSelf, // parseSelf
          |    (ERDUnparseSelf)&${C}_unparseSelf, // unparseSelf
+         |    $initChoice // initChoice
          |};
          |""".stripMargin
+
     erds += complexERD
   }
 
   def addStruct(context: ElementBase): Unit = {
     val C = localName(context)
-    val qn = qualifiedName(context)
     val declarations = structs.top.declarations.mkString("\n")
     val struct =
       s"""typedef struct $C
@@ -148,9 +311,8 @@ class CodeGeneratorState {
          |$declarations
          |} $C;
          |""".stripMargin
+
     finalStructs += struct
-    val initStatement = s"    instance->_base.erd = &${qn}_ERD;"
-    structs.top.initStatements += initStatement
   }
 
   def addSimpleTypeStatements(initStatement: String, parseStatement: String, unparseStatement: String): Unit = {
@@ -162,10 +324,31 @@ class CodeGeneratorState {
   def addComplexTypeStatements(child: ElementBase): Unit = {
     val C = localName(child)
     val e = child.name
+    val hasChoice = structs.top.initChoiceStatements.nonEmpty
+    val offset = if (hasChoice) child.position - 1 else -1
     val initStatement = s"    ${C}_initSelf(&instance->$e);"
-    val parseStatement = s"    ${C}_parseSelf(&instance->$e, pstate);"
-    val unparseStatement = s"    ${C}_unparseSelf(&instance->$e, ustate);"
+    val initChoiceStatement =
+      s"""        instance->_choice = $offset;
+         |        break;""".stripMargin
+    val parseStatement = if (hasChoice)
+      s"""    case $offset:
+         |        ${C}_parseSelf(&instance->$e, pstate);
+         |        break;""".stripMargin
+    else
+      s"    ${C}_parseSelf(&instance->$e, pstate);"
+    val unparseStatement = if (hasChoice)
+      s"""    case $offset:
+         |        ${C}_unparseSelf(&instance->$e, ustate);
+         |        break;""".stripMargin
+    else
+      s"    ${C}_unparseSelf(&instance->$e, ustate);"
+
     structs.top.initStatements += initStatement
+    if (hasChoice) {
+      structs.top.initChoiceStatements ++= ChoiceBranchKeyCooker.convertConstant(
+        child.choiceBranchKey, child, forUnparse = false).map { key => s"    case $key:"}
+      structs.top.initChoiceStatements += initChoiceStatement
+    }
     structs.top.parserStatements += parseStatement
     structs.top.unparserStatements += unparseStatement
   }
@@ -175,12 +358,12 @@ class CodeGeneratorState {
     structs.push(new ComplexCGState(C))
   }
 
-  def popComplexElement(context: ElementBase): Unit = {
+  def popComplexElement(): Unit = {
     structs.pop()
   }
 
   def addSimpleTypeERD(context: ElementBase): Unit = {
-    val qn = qualifiedName(context)
+    val erd = erdName(context)
     val qnameInit = defineQNameInit(context)
     val typeCode = context.optPrimType.get match {
       case PrimType.UnsignedLong => "PRIMITIVE_UINT64"
@@ -195,30 +378,25 @@ class CodeGeneratorState {
       case PrimType.Double => "PRIMITIVE_DOUBLE"
       case p: PrimType => context.SDE("PrimType %s not supported yet.", p.toString)
     }
-    val erd =
-      s"""static const ERD ${qn}_ERD = {
+    val erdDef =
+      s"""static const ERD $erd = {
          |$qnameInit
          |    $typeCode, // typeCode
-         |    0,               // numChildren
-         |    NULL,            // offsets
-         |    NULL,            // childrenERDs
-         |    NULL,            // initSelf
-         |    NULL,            // parseSelf
-         |    NULL,            // unparseSelf
+         |    0, NULL, NULL, NULL, NULL, NULL, NULL
          |};
          |""".stripMargin
-    erds += erd
+    erds += erdDef
     addComputations(context)
   }
 
   def addComputations(child: ElementBase): Unit = {
     val C = structs.top.C
     val e = localName(child)
-    val qn = qualifiedName(child)
+    val erd = erdName(child)
     val arraySize = if (child.occursCountKind == OccursCountKind.Fixed) child.maxOccurs else 0
     def addComputation(deref: String): Unit = {
       val offsetComputation = s"    (const char *)&${C}_compute_offsets.$e$deref - (const char *)&${C}_compute_offsets"
-      val erdComputation = s"    &${qn}_ERD"
+      val erdComputation = s"    &$erd"
       structs.top.offsetComputations += offsetComputation
       structs.top.erdComputations += erdComputation
     }
@@ -250,7 +428,10 @@ class CodeGeneratorState {
     }
     val e = child.name
     val arrayDef = if (child.occursCountKind == OccursCountKind.Fixed) s"[${child.maxOccurs}]" else ""
-    structs.top.declarations += s"    $definition $e$arrayDef;"
+    val indent = if (structs.top.initChoiceStatements.nonEmpty) "    " else ""
+    val declaration = s"$indent    $definition $e$arrayDef;"
+
+    structs.top.declarations += declaration
   }
 
   def generateCodeHeader: String = {
@@ -262,7 +443,7 @@ class CodeGeneratorState {
          |#include "infoset.h"  // for InfosetBase
          |#include <stdint.h>   // for int16_t, int32_t, int64_t, int8_t, uint16_t, uint32_t, uint64_t, uint8_t
 
-         |// Define some infoset structures
+         |// Define infoset structures
          |
          |$structs
          |#endif // GENERATED_CODE_H
@@ -279,7 +460,8 @@ class CodeGeneratorState {
          |#include "parsers.h"    // for parse_be_double, parse_be_float, parse_be_int16, parse_be_int32, parse_be_int64, parse_be_int8, parse_be_uint16, parse_be_uint32, parse_be_uint64, parse_be_uint8, parse_le_double, parse_le_float, parse_le_int16, parse_le_int32, parse_le_int64, parse_le_int8, parse_le_uint16, parse_le_uint32, parse_le_uint64, parse_le_uint8
          |#include "unparsers.h"  // for unparse_be_double, unparse_be_float, unparse_be_int16, unparse_be_int32, unparse_be_int64, unparse_be_int8, unparse_be_uint16, unparse_be_uint32, unparse_be_uint64, unparse_be_uint8, unparse_le_double, unparse_le_float, unparse_le_int16, unparse_le_int32, unparse_le_int64, unparse_le_int8, unparse_le_uint16, unparse_le_uint32, unparse_le_uint64, unparse_le_uint8
          |#include <math.h>       // for NAN
-         |#include <stddef.h>     // for NULL, ptrdiff_t
+         |#include <stdbool.h>    // for bool, false, true
+         |#include <stddef.h>     // for NULL, size_t
          |
          |// Prototypes needed for compilation
          |
@@ -290,13 +472,17 @@ class CodeGeneratorState {
          |$erds
          |// Return a root element to be used for parsing or unparsing
          |
-         |extern InfosetBase *
+         |InfosetBase *
          |rootElement(void)
          |{
-         |    static $rootElementName instance;
-         |    InfosetBase *root = &instance._base;
-         |    ${rootElementName}__ERD.initSelf(root);
-         |    return root;
+         |    static bool initialized;
+         |    static $rootElementName root;
+         |    if (!initialized)
+         |    {
+         |        ${rootElementName}_initSelf(&root);
+         |        initialized = true;
+         |    }
+         |    return &root._base;
          |}
          |
          |// Methods to initialize, parse, and unparse infoset nodes
@@ -316,6 +502,7 @@ class ComplexCGState(val C: String) {
   val offsetComputations = mutable.ArrayBuffer[String]()
   val erdComputations = mutable.ArrayBuffer[String]()
   val initStatements = mutable.ArrayBuffer[String]()
+  val initChoiceStatements = mutable.ArrayBuffer[String]()
   val parserStatements = mutable.ArrayBuffer[String]()
   val unparserStatements = mutable.ArrayBuffer[String]()
 }

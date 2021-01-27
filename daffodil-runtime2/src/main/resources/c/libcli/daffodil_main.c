@@ -85,14 +85,15 @@ main(int argc, char *argv[])
             output = fopen_or_exit(output, daffodil_parse.outfile, "w");
 
             // Parse the input file into our infoset.
-            PState pstate = {input};
+            PState pstate = {input, NULL};
             root->erd->parseSelf(root, &pstate);
             continue_or_exit(pstate.error_msg);
 
             if (strcmp(daffodil_parse.infoset_converter, "xml") == 0)
             {
                 // Visit the infoset and print XML from it.
-                XMLWriter   xmlWriter = {xmlWriterMethods, output};
+                XMLWriter   xmlWriter = {
+                    xmlWriterMethods, output, {NULL, NULL, 0}};
                 const char *error_msg =
                     walkInfoset((VisitEventHandler *)&xmlWriter, root);
                 continue_or_exit(error_msg);
@@ -112,7 +113,8 @@ main(int argc, char *argv[])
             if (strcmp(daffodil_unparse.infoset_converter, "xml") == 0)
             {
                 // Initialize our infoset's values from the XML data.
-                XMLReader   xmlReader = {xmlReaderMethods, input, root};
+                XMLReader   xmlReader = {
+                    xmlReaderMethods, input, root, NULL, NULL};
                 const char *error_msg =
                     walkInfoset((VisitEventHandler *)&xmlReader, root);
                 continue_or_exit(error_msg);
@@ -124,7 +126,7 @@ main(int argc, char *argv[])
             }
 
             // Unparse our infoset to the output file.
-            UState ustate = {output};
+            UState ustate = {output, NULL};
             root->erd->unparseSelf(root, &ustate);
             continue_or_exit(ustate.error_msg);
         }

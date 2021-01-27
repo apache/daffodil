@@ -17,22 +17,24 @@
 
 package org.apache.daffodil.runtime2
 
-import org.junit.Test
 import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
+import org.junit.Test
 
-object TestRuntime2 {
+object TestNested {
   val testDir = "/org/apache/daffodil/runtime2/"
-  val runner = Runner(testDir, "TestRuntime2.tdml")
+  val runner: Runner = Runner(testDir, "nested.tdml")
 
   @AfterClass def shutDown(): Unit = { runner.reset }
 }
 
-class TestRuntime2 {
-  import TestRuntime2._
+class TestNested {
+  import TestNested._
 
-  @Test def test_ex_nums_parse1(): Unit = { runner.runOneTest("ex_nums_parse1") }
-  @Test def test_ex_nums_unparse1(): Unit = { runner.runOneTest("ex_nums_unparse1") }
-  @Test def test_ex_nums_parse2(): Unit = { runner.runOneTest("ex_nums_parse2") }
-  @Test def test_ex_nums_unparse2(): Unit = { runner.runOneTest("ex_nums_unparse2") }
+  @Test def test_nested_struct_parse(): Unit = { runner.runOneTest("nested_struct_parse") }
+  @Test def test_nested_struct_unparse(): Unit = { runner.runOneTest("nested_struct_unparse") }
+  @Test def test_nested_union_parse_2(): Unit = { runner.runOneTest("nested_union_parse_2") }
+  @Test def test_nested_union_unparse_2(): Unit = { runner.runOneTest("nested_union_unparse_2") }
+  @Test def test_nested_union_parse_4(): Unit = { runner.runOneTest("nested_union_parse_4") }
+  @Test def test_nested_union_unparse_4(): Unit = { runner.runOneTest("nested_union_unparse_4") }
 }

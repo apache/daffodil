@@ -15,24 +15,46 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.runtime2
+#ifndef GENERATED_CODE_H
+#define GENERATED_CODE_H
 
-import org.junit.Test
-import org.apache.daffodil.tdml.Runner
-import org.junit.AfterClass
+#include "infoset.h"  // for InfosetBase
+#include <stdint.h>   // for int16_t, int32_t, int64_t, int8_t, uint16_t, uint32_t, uint64_t, uint8_t
 
-object TestOrionCommand {
-  val testDir = "/org/apache/daffodil/runtime2/"
-  val runner = Runner(testDir, "orion-command.tdml")
+// Define infoset structures
 
-  @AfterClass def shutDown(): Unit = { runner.reset }
-}
+typedef struct foo
+{
+    InfosetBase _base;
+    int32_t     a;
+    int32_t     b;
+    int32_t     c;
+} foo;
 
-class TestOrionCommand {
-  import TestOrionCommand._
+typedef struct bar
+{
+    InfosetBase _base;
+    double      x;
+    double      y;
+    double      z;
+} bar;
 
-  @Test def test_command_parse(): Unit = { runner.runOneTest("command_parse") }
-  @Test def test_command_unparse(): Unit = { runner.runOneTest("command_unparse") }
-  @Test def test_video_settings_parse(): Unit = { runner.runOneTest("video_settings_parse") }
-  @Test def test_video_settings_unparse(): Unit = { runner.runOneTest("video_settings_unparse") }
-}
+typedef struct data
+{
+    InfosetBase _base;
+    size_t      _choice; // choice of which union field to use
+    union
+    {
+        foo foo;
+        bar bar;
+    };
+} data;
+
+typedef struct NestedUnion
+{
+    InfosetBase _base;
+    int32_t     tag;
+    data data;
+} NestedUnion;
+
+#endif // GENERATED_CODE_H

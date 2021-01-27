@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.tdml.processor.runtime2
+package org.apache.daffodil.tdml.processor
 
 import org.apache.daffodil.api._
 import org.apache.daffodil.compiler.Compiler
@@ -23,13 +23,12 @@ import org.apache.daffodil.externalvars.Binding
 import org.apache.daffodil.runtime2.ParseResult
 import org.apache.daffodil.runtime2.Runtime2DataProcessor
 import org.apache.daffodil.runtime2.UnparseResult
-import org.apache.daffodil.tdml.processor._
 import org.apache.daffodil.xml.QName
 import org.apache.daffodil.xml.XMLUtils
 
 import scala.xml.Node
 
-final class TDMLDFDLProcessorFactory private(
+final class Runtime2TDMLDFDLProcessorFactory private(
   private var compiler: Compiler,
   private var checkAllTopLevel: Boolean,
   validateDFDLSchemasArg: Boolean)
@@ -37,7 +36,7 @@ final class TDMLDFDLProcessorFactory private(
 
   override def validateDFDLSchemas = validateDFDLSchemasArg
 
-  override type R = TDMLDFDLProcessorFactory
+  override type R = Runtime2TDMLDFDLProcessorFactory
 
   override def implementationName = "daffodil-runtime2"
 
@@ -49,7 +48,7 @@ final class TDMLDFDLProcessorFactory private(
     compiler: Compiler = compiler,
     checkAllTopLevel: Boolean = checkAllTopLevel,
     validateDFDLSchemas: Boolean = validateDFDLSchemas) =
-    new TDMLDFDLProcessorFactory(compiler, checkAllTopLevel, validateDFDLSchemas)
+    new Runtime2TDMLDFDLProcessorFactory(compiler, checkAllTopLevel, validateDFDLSchemas)
 
   /**
    * Deprecated methods must be implemented. Some are just stubs though now.
@@ -59,7 +58,7 @@ final class TDMLDFDLProcessorFactory private(
     compiler = compiler.withValidateDFDLSchemas(bool)
   }
 
-  override def withValidateDFDLSchemas(bool: Boolean): TDMLDFDLProcessorFactory = {
+  override def withValidateDFDLSchemas(bool: Boolean): Runtime2TDMLDFDLProcessorFactory = {
     copy(compiler = compiler.withValidateDFDLSchemas(bool))
   }
 
@@ -68,7 +67,7 @@ final class TDMLDFDLProcessorFactory private(
     compiler = compiler.withCheckAllTopLevel(checkAllTopLevel)
   }
 
-  override def withCheckAllTopLevel(checkAllTopLevel: Boolean): TDMLDFDLProcessorFactory = {
+  override def withCheckAllTopLevel(checkAllTopLevel: Boolean): Runtime2TDMLDFDLProcessorFactory = {
     copy(compiler = compiler.withCheckAllTopLevel(checkAllTopLevel))
   }
 
@@ -76,14 +75,14 @@ final class TDMLDFDLProcessorFactory private(
   override def setTunables(tunables: Map[String, String]): Unit =
     compiler = compiler.withTunables(tunables)
 
-  override def withTunables(tunables: Map[String, String]): TDMLDFDLProcessorFactory =
+  override def withTunables(tunables: Map[String, String]): Runtime2TDMLDFDLProcessorFactory =
     copy(compiler = compiler.withTunables(tunables))
 
   @deprecated("Use DaffodilTDMLDFDLProcessor.setExternalDFDLVariables.", "2.6.0")
   override def setExternalDFDLVariables(externalVarBindings: Seq[Binding]): Unit =
     compiler = compiler.withExternalDFDLVariablesImpl(externalVarBindings)
 
-  override def withExternalDFDLVariables(externalVarBindings: Seq[Binding]): TDMLDFDLProcessorFactory =
+  override def withExternalDFDLVariables(externalVarBindings: Seq[Binding]): Runtime2TDMLDFDLProcessorFactory =
     copy(compiler = compiler.withExternalDFDLVariablesImpl(externalVarBindings))
 
   @deprecated("Use arguments to getProcessor()", "2.6.0")
@@ -130,10 +129,10 @@ final class TDMLDFDLProcessorFactory private(
 }
 
 /**
- * Delegates all execution, error gathering, error access to the [[Runtime2DataProcessor]].
- * The responsibility of this class is just for TDML matching up. That is dealing with TDML
- * XML Infosets, feeding to the unparser, creating XML from the result created by the
- * [[Runtime2DataProcessor]]. All the "real work" is done by [[Runtime2DataProcessor]].
+ * Delegates all execution, error gathering, error access to the Runtime2DataProcessor.
+ * The responsibility of this class is just for TDML matching up. That is dealing with
+ * TDML XML Infosets, feeding to the unparser, creating XML from the result created by
+ * the Runtime2DataProcessor. All the "real work" is done by Runtime2DataProcessor.
  */
 class Runtime2TDMLDFDLProcessor(tempDir: os.Path, executable: os.Path) extends TDMLDFDLProcessor {
 

@@ -40,6 +40,7 @@ trait ElementParseAndUnspecifiedLengthCodeGenerator {
       Runtime2CodeGenerator.generateCode(elementContentGram, cgState) // initSelf, parseSelf, unparseSelf
     } else {
       cgState.pushComplexElement(context)
+      cgState.addBeforeSwitchStatements(context) // switch statements for choices
       context.elementChildren.foreach { child =>
         if (!child.isSimpleType) {
           cgState.addComplexTypeStatements(child) // recursive calls to parse, unparse, init
@@ -48,10 +49,11 @@ trait ElementParseAndUnspecifiedLengthCodeGenerator {
         cgState.addFieldDeclaration(context, child) // struct member for child
         Runtime2CodeGenerator.generateCode(child.enclosedElement, cgState) // generate children too
       }
+      cgState.addAfterSwitchStatements() // switch statements for choices
       cgState.addStruct(context) // struct definition
       cgState.addImplementation(context) // initSelf, parseSelf, unparseSelf
       cgState.addComplexTypeERD(context) // ERD static initializer
-      cgState.popComplexElement(context)
+      cgState.popComplexElement()
     }
   }
 }
