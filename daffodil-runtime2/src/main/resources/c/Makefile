@@ -17,12 +17,15 @@
 # Here's how to compile the C sources into a program for running
 # parse/unparse tests (.dat <-> .xml)
 
-SOURCES = libcli/*.[ch] libruntime/*.[ch]
 PROGRAM = ./daffodil
-CFLAGS = -g -Wall -Wextra -Wno-missing-field-initializers
+HEADERS = libcli/*.h libruntime/*.h
+SOURCES = libcli/*.c libruntime/*.c
+INCLUDES = -I libcli -I libruntime
+CFLAGS = -g -Wall -Wextra
+LIBS = -lmxml
 
-$(PROGRAM): $(SOURCES)
-	$(CC) $(CFLAGS) -I libcli -I libruntime $(SOURCES) -lmxml -o $(PROGRAM)
+$(PROGRAM): $(HEADERS) $(SOURCES)
+	$(CC) $(CFLAGS) $(INCLUDES) $(SOURCES) $(LIBS) -o $(PROGRAM)
 
 # Here's how to run parse/unparse tests (.dat <-> .xml, although you
 # will need to create the .dat and .xml files first)

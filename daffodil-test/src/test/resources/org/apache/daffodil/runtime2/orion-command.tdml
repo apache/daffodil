@@ -19,7 +19,7 @@
 <tdml:testSuite
   defaultConfig="config-runtime2"
   defaultImplementations="daffodil daffodil-runtime2"
-  defaultRoundTrip="onePass"
+  defaultRoundTrip="none"
   description="TDML tests for orion-command"
   xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
@@ -36,6 +36,32 @@
       <daf:tdmlImplementation>daffodil-runtime2</daf:tdmlImplementation>
     </daf:tunables>
   </tdml:defineConfig>
+
+  <tdml:parserTestCase
+    description="orion-command CameraState parse test"
+    model="orion-command.dfdl.xsd"
+    name="camera_state_parse"
+    root="CameraState">
+    <tdml:document>
+      <tdml:documentPart type="file">camera_state_parse.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">camera_state_unparse.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:unparserTestCase
+    description="orion-command CameraState unparse test"
+    model="orion-command.dfdl.xsd"
+    name="camera_state_unparse"
+    root="CameraState">
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">camera_state_unparse.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="file">camera_state_parse.dat</tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
 
   <tdml:parserTestCase
     description="orion-command Command parse test"

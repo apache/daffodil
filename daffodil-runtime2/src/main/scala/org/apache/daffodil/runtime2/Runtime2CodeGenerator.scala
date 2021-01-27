@@ -51,7 +51,7 @@ object Runtime2CodeGenerator
     with SeqCompCodeGenerator {
 
   @tailrec
-  def generateCode(gram: Gram, state: CodeGeneratorState): Unit =
+  def generateCode(gram: Gram, state: CodeGeneratorState): Unit = {
     gram match {
       case g: RootGrammarMixin => Runtime2CodeGenerator.generateCode(g.documentElement, state)
       case g: Prod if (g.guard) => Runtime2CodeGenerator.generateCode(g.gram, state)
@@ -70,6 +70,7 @@ object Runtime2CodeGenerator
       case _: CaptureValueLengthEnd => noop
       case _ => gram.SDE("Code generation not supported for: %s", Misc.getNameFromClass(gram))
     }
+  }
 
   private def noop: Unit = {
     // Not generating code here, but can use as a breakpoint

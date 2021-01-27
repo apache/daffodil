@@ -33,7 +33,7 @@ class TestCLIGenerateC {
   val daffodil: String = Util.binPath
   var outputDir: os.Path = _
   lazy val schemaFile: String = if (Util.isWindows) Util.cmdConvert(sf) else sf
-  val sf: String = Util.daffodilPath("daffodil-runtime2/src/test/resources/org/apache/daffodil/runtime2/TestRuntime2.dfdl.xsd")
+  val sf: String = Util.daffodilPath("daffodil-runtime2/src/test/resources/org/apache/daffodil/runtime2/ex_nums.dfdl.xsd")
 
   @Before def before(): Unit = {
     outputDir = os.temp.dir()

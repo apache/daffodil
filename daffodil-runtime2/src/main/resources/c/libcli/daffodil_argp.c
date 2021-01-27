@@ -35,11 +35,12 @@ struct daffodil_parse_cli daffodil_parse = {
 
 static const struct argp_option parse_options[] = {
     {"infoset-type", 'I', "<infoset_type>", 0,
-     "Infoset type to output. Must be one of 'xml' or 'null'"},
+     "Infoset type to output. Must be one of 'xml' or 'null'", 0},
 
     {"output", 'o', "<file>", 0,
      "Write output to a given file. If not given or is -, output is written to "
-     "stdout"},
+     "stdout",
+     0},
 
     {0}};
 
@@ -62,6 +63,9 @@ static const struct argp parse_argp = {
     parse_handler,  // function to get these CLI options
     parse_args_doc, // short usage documentation
     parse_doc,      // long help documentation
+    0,              // child argps parsed after this argp
+    0,              // function to replace help messages
+    0               // domain name for translation lookup
 };
 
 // Handle callbacks to get our "daffodil parse" CLI options
@@ -128,11 +132,12 @@ struct daffodil_unparse_cli daffodil_unparse = {
 
 static const struct argp_option unparse_options[] = {
     {"infoset-type", 'I', "<infoset_type>", 0,
-     "Infoset type to unparse. Must be 'xml'"},
+     "Infoset type to unparse. Must be 'xml'", 0},
 
     {"output", 'o', "<file>", 0,
      "Write output to file. If not given or is -, output is written to "
-     "standard output"},
+     "standard output",
+     0},
 
     {0}};
 
@@ -155,6 +160,9 @@ static const struct argp unparse_argp = {
     unparse_handler,  // function to get these CLI options
     unparse_args_doc, // short usage documentation
     unparse_doc,      // long help documentation
+    0,                // child argps parsed after this argp
+    0,                // function to replace help messages
+    0                 // domain name for translation lookup
 };
 
 // Handle callbacks to get our "daffodil unparse" CLI options
@@ -243,6 +251,9 @@ static const struct argp daffodil_argp = {
     daffodil_handler,  // function to get these CLI options
     daffodil_args_doc, // short usage documentation
     daffodil_doc,      // long help documentation
+    0,                 // child argps parsed after this argp
+    0,                 // function to replace help messages
+    0                  // domain name for translation lookup
 };
 
 // Handle callbacks to get our "daffodil" CLI options

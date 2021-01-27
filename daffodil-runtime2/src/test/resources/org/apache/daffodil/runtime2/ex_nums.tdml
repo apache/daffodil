@@ -18,8 +18,8 @@
 
 <tdml:testSuite
   defaultImplementations="daffodil daffodil-runtime2"
-  defaultRoundTrip="onePass"
-  description="TDML tests for daffodil-runtime2"
+  defaultRoundTrip="none"
+  description="TDML tests for ex_nums"
   xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData">
@@ -37,27 +37,23 @@
   </tdml:defineConfig>
 
   <tdml:parserTestCase
-    config="config-runtime1"
-    description="ex_nums parse test with runtime1"
-    model="TestRuntime2.dfdl.xsd"
-    name="ex_nums_parse1"
-    root="ex_nums">
+    name="ex_nums_parse_runtime1"
+    model="ex_nums.dfdl.xsd"
+    config="config-runtime1">
     <tdml:document>
       <tdml:documentPart type="file">ex_nums_parse.dat</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
-      <tdml:dfdlInfoset type="file">ex_nums_unparse1.xml</tdml:dfdlInfoset>
+      <tdml:dfdlInfoset type="file">ex_nums_unparse_runtime1.xml</tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
 
   <tdml:unparserTestCase
-    config="config-runtime1"
-    description="ex_nums unparse test with runtime1"
-    model="TestRuntime2.dfdl.xsd"
-    name="ex_nums_unparse1"
-    root="ex_nums">
+    name="ex_nums_unparse_runtime1"
+    model="ex_nums.dfdl.xsd"
+    config="config-runtime1">
     <tdml:infoset>
-      <tdml:dfdlInfoset type="file">ex_nums_unparse1.xml</tdml:dfdlInfoset>
+      <tdml:dfdlInfoset type="file">ex_nums_unparse_runtime1.xml</tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:document>
       <tdml:documentPart type="file">ex_nums_parse.dat</tdml:documentPart>
@@ -65,27 +61,23 @@
   </tdml:unparserTestCase>
 
   <tdml:parserTestCase
-    config="config-runtime2"
-    description="ex_nums parse test with runtime2"
-    model="TestRuntime2.dfdl.xsd"
-    name="ex_nums_parse2"
-    root="ex_nums">
+    name="ex_nums_parse_runtime2"
+    model="ex_nums.dfdl.xsd"
+    config="config-runtime2">
     <tdml:document>
       <tdml:documentPart type="file">ex_nums_parse.dat</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
-      <tdml:dfdlInfoset type="file">ex_nums_unparse2.xml</tdml:dfdlInfoset>
+      <tdml:dfdlInfoset type="file">ex_nums_unparse_runtime2.xml</tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
 
   <tdml:unparserTestCase
-    config="config-runtime2"
-    description="ex_nums unparse test with runtime2"
-    model="TestRuntime2.dfdl.xsd"
-    name="ex_nums_unparse2"
-    root="ex_nums">
+    name="ex_nums_unparse_runtime2"
+    model="ex_nums.dfdl.xsd"
+    config="config-runtime2">
     <tdml:infoset>
-      <tdml:dfdlInfoset type="file">ex_nums_unparse2.xml</tdml:dfdlInfoset>
+      <tdml:dfdlInfoset type="file">ex_nums_unparse_runtime2.xml</tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:document>
       <tdml:documentPart type="file">ex_nums_parse.dat</tdml:documentPart>
