@@ -72,7 +72,7 @@
 	
 	<tdml:parserTestCase name="apos_test1"
 		root="apostrophe" model="apostrophe"
-		description="Can't deal properly with apostrophe (') marks within the document data in TDML " roundTrip="true">
+		description="Shows proper handling of apostrophe (') marks within the document data in TDML " roundTrip="true">
 
 		<tdml:document>'</tdml:document>
 
@@ -93,7 +93,7 @@
 
 	<tdml:parserTestCase name="apos_test2"
 		root="apostrophe" model="apostrophe"
-		description="Can't deal properly with apostrophe (&apos;) marks within the document data in TDML " roundTrip="true">
+		description="Shows proper handling of apostrophe (&apos;) marks within the document data in TDML " roundTrip="true">
 
 		<tdml:document>&apos;</tdml:document>
 

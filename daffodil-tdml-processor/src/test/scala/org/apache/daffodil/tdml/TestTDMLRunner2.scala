@@ -24,8 +24,19 @@ import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
 import org.apache.daffodil.Implicits._
+import org.junit.AfterClass
+
+object TestTDMLRunner2 {
+  val runner = Runner("/test/tdml/", "tdmlQuoting.tdml")
+
+  @AfterClass def shutDown: Unit = {
+    runner.reset
+  }
+}
 
 class TestTDMLRunner2 {
+
+  import TestTDMLRunner2._
 
   val tdml = XMLUtils.TDML_NAMESPACE
   val dfdl = XMLUtils.DFDL_NAMESPACE
@@ -510,13 +521,10 @@ abc # a comment
   }
 
   /**
-   * Test illustrates problem with tdml runner correctly processes apostrophes (')
-   * in the html format (&apos;) within the document or infoset data. The aposrophes are stripped out of
-   * stripped out of actual or expected values causing the comparison to fail.
-   *
-   * Bug DAFFODIL-1928
+   * Tests illustrate tdml runner correctly processes apostrophes (')
+   * in the html format (&apos;) within the document or infoset data.
    */
-  // @Test def test_apos_test1() { runner.runOneTest("apos_test1") }
-  // @Test def test_apos_test2() { runner.runOneTest("apos_test2") }
+  @Test def test_apos_test1(): Unit = { runner.runOneTest("apos_test1") }
+  @Test def test_apos_test2(): Unit = { runner.runOneTest("apos_test2") }
 
 }

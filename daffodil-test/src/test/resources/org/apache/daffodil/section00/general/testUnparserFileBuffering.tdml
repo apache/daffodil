@@ -55,24 +55,11 @@
   </tdml:defineSchema>
 
 <!--
-      Test Name: apostrophe_01
-         Schema: fixedLengthStrings
-        Purpose: This test demonstrates that Daffodil can handle unparsing an apostrophe
-                 in the infoset, and parsing an apostrophe in the document.
--->
+  Note: Tests in this file are largely copies of those in testUnparserGeneral.tdml
+  modified to use a different config that forces file buffering.
 
-  <tdml:unparserTestCase name="apostrophe_01" root="e2" model="fixedLengthStrings" roundTrip="true"
-    config="cfg_forceFileBuffering">
-
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <ex:e2>&apos;</ex:e2>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-    
-    <tdml:document>&apos;</tdml:document>
-
-  </tdml:unparserTestCase>
+  The test names are the same save a "_ffb" suffix, for "force file buffering".
+ -->
 
 <!--
       Test Name: puaInfosetChars_01
@@ -80,7 +67,7 @@
         Purpose: When parsing illegal XML characters, they get mapped to PUA. This test demonstrates that when unparsing these mapped infosets, the characters get mapped back to their original values.
 -->
 
-  <tdml:parserTestCase name="puaInfosetChars_01" root="e1" model="illegalChars" roundTrip="true"
+  <tdml:parserTestCase name="puaInfosetChars_01_ffb" root="e1" model="illegalChars" roundTrip="true"
     config="cfg_forceFileBuffering">
     <tdml:document>
       <tdml:documentPart type="byte">00</tdml:documentPart>
@@ -100,7 +87,7 @@
         Purpose: When parsing illegal XML characters, they get mapped to PUA. This test demonstrates that when unparsing these mapped infosets, the characters get mapped back to their original values.
 -->
 
-  <tdml:parserTestCase name="puaInfosetChars_02" root="e1" model="illegalChars" roundTrip="true"
+  <tdml:parserTestCase name="puaInfosetChars_02_ffb" root="e1" model="illegalChars" roundTrip="true"
     config="cfg_forceFileBuffering">
     <tdml:document>
       <tdml:documentPart type="byte">010203</tdml:documentPart>
@@ -120,7 +107,7 @@
         Purpose: When parsing illegal XML characters, they get mapped to PUA. This test demonstrates that unparsing and unparsing actual PUA values is handled correctly.
 -->
 
-  <tdml:parserTestCase name="puaInfosetChars_03" root="e1" model="illegalChars" roundTrip="true"
+  <tdml:parserTestCase name="puaInfosetChars_03_ffb" root="e1" model="illegalChars" roundTrip="true"
     config="cfg_forceFileBuffering">
     <tdml:document>&#xE001;</tdml:document>
 
@@ -138,7 +125,7 @@
         Purpose: When parsing illegal XML characters, they get mapped to PUA. This test demonstrates that when unparsing these mapped infosets, the characters get mapped back to their original values.
 -->
 
-  <tdml:unparserTestCase name="puaInfosetChars_04" root="e1" model="illegalChars" roundTrip="true"
+  <tdml:unparserTestCase name="puaInfosetChars_04_ffb" root="e1" model="illegalChars" roundTrip="true"
     config="cfg_forceFileBuffering">
 
     <tdml:infoset>
@@ -157,7 +144,7 @@
         Purpose: This is a basic test of the unparse capabilities of Daffodil and the TDML Runner
 -->
 
-  <tdml:unparserTestCase name="unparseFixedLengthString01" root="e1" model="fixedLengthStrings" roundTrip="true"
+  <tdml:unparserTestCase name="unparseFixedLengthString01_ffb" root="e1" model="fixedLengthStrings" roundTrip="true"
     config="cfg_forceFileBuffering">
 
     <tdml:infoset>
@@ -177,7 +164,7 @@
                  a parserTestCase.
 -->
 
-  <tdml:parserTestCase name="parseFixedLengthString01" root="e1" model="fixedLengthStrings" roundTrip="true"
+  <tdml:parserTestCase name="parseFixedLengthString01_ffb" root="e1" model="fixedLengthStrings" roundTrip="true"
     config="cfg_forceFileBuffering">
     <tdml:document>Hello</tdml:document>
 
@@ -195,7 +182,7 @@
         Purpose: Test to see what happens when the fixed length of a string is '0' and when a default value is supplied
 -->
 
-  <tdml:parserTestCase name="parseFixedLengthStringLength0" root="e4" model="fixedLengthStrings" roundTrip="true"
+  <tdml:parserTestCase name="parseFixedLengthStringLength0_ffb" root="e4" model="fixedLengthStrings" roundTrip="true"
     config="cfg_forceFileBuffering">
     <tdml:document>[,2]</tdml:document>
 
@@ -217,7 +204,7 @@
         Purpose: This is a basic test of the unparse capabilities of Daffodil and the TDML Runner
 -->
 
-  <tdml:unparserTestCase name="unparseFixedLengthString02" root="e2" model="fixedLengthStrings" roundTrip="true"
+  <tdml:unparserTestCase name="unparseFixedLengthString02_ffb" root="e2" model="fixedLengthStrings" roundTrip="true"
     config="cfg_forceFileBuffering">
 
     <tdml:infoset>
@@ -237,7 +224,7 @@
                  In this case the test is referencing an external schema rather than an embedded one.
 -->
 
-  <tdml:unparserTestCase name="unparseFixedLengthString03" root="e1" model="generalSchema.dfdl.xsd"
+  <tdml:unparserTestCase name="unparseFixedLengthString03_ffb" root="e1" model="generalSchema.dfdl.xsd"
     config="cfg_forceFileBuffering">
 
     <tdml:infoset>
@@ -257,7 +244,7 @@
                  In this case, the expected output does not match the unparsed output.
 -->
 
-  <tdml:unparserTestCase name="negativeUnparseTest01" root="e2" model="fixedLengthStrings"
+  <tdml:unparserTestCase name="negativeUnparseTest01_ffb" root="e2" model="fixedLengthStrings"
     config="cfg_forceFileBuffering">
 
     <tdml:infoset>
@@ -286,7 +273,7 @@
                  In this case, the expected output does not match the unparsed output.
 -->
 
-  <tdml:unparserTestCase name="negativeUnparseTest02" root="e2" model="fixedLengthStrings"
+  <tdml:unparserTestCase name="negativeUnparseTest02_ffb" root="e2" model="fixedLengthStrings"
     config="cfg_forceFileBuffering">
 
     <tdml:infoset>
@@ -314,7 +301,7 @@
                  an unparse error should occur.
 -->
 
-  <tdml:unparserTestCase name="negativeUnparseTest03" root="e1" model="fixedLengthStrings"
+  <tdml:unparserTestCase name="negativeUnparseTest03_ffb" root="e1" model="fixedLengthStrings"
     config="cfg_forceFileBuffering">
 
     <tdml:infoset>
@@ -343,7 +330,7 @@
                  an unparse error should occur.
 -->
 
-  <tdml:unparserTestCase name="negativeUnparseTest04" root="e3" model="fixedLengthStrings"
+  <tdml:unparserTestCase name="negativeUnparseTest04_ffb" root="e3" model="fixedLengthStrings"
     config="cfg_forceFileBuffering">
 
     <tdml:infoset>
@@ -368,7 +355,7 @@
                  In this case, the expected output does not match the unparsed output.
 -->
 
-  <tdml:unparserTestCase name="negativeUnparseTest05" root="e2" model="fixedLengthStrings"
+  <tdml:unparserTestCase name="negativeUnparseTest05_ffb" root="e2" model="fixedLengthStrings"
     config="cfg_forceFileBuffering">
 
     <tdml:infoset>
@@ -440,7 +427,7 @@
       Schema: delimitedStrings
       Purpose: This test demonstrates unparsing a sequence of delimited strings
 -->
-  <tdml:unparserTestCase name="unparseDelimitedString01" model="delimitedStrings" root="e1" roundTrip="true"
+  <tdml:unparserTestCase name="unparseDelimitedString01_ffb" model="delimitedStrings" root="e1" roundTrip="true"
     config="cfg_forceFileBuffering">
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -453,7 +440,7 @@
     <tdml:document>[1,2]</tdml:document>
   </tdml:unparserTestCase>
 
-  <tdml:parserTestCase name="parseDelimitedString01" model="delimitedStrings" root="e1"
+  <tdml:parserTestCase name="parseDelimitedString01_ffb" model="delimitedStrings" root="e1"
     config="cfg_forceFileBuffering">
     <tdml:document>[1,2]</tdml:document>
     <tdml:infoset>
@@ -473,7 +460,7 @@
       Purpose: This test demonstrates unparsing a sequence of delimited strings. In this case
                there is too much data and an error should occur
 -->
-  <tdml:unparserTestCase name="unparseDelimitedString02" model="delimitedStrings" root="e1" roundTrip="false"
+  <tdml:unparserTestCase name="unparseDelimitedString02_ffb" model="delimitedStrings" root="e1" roundTrip="false"
     config="cfg_forceFileBuffering">
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -500,7 +487,7 @@
       Purpose: This test demonstrates unparsing a sequence of delimited strings. In this case
                there is not enough data and an error should occur
 -->
-  <tdml:unparserTestCase name="unparseDelimitedString03" model="delimitedStrings" root="e1" roundTrip="false"
+  <tdml:unparserTestCase name="unparseDelimitedString03_ffb" model="delimitedStrings" root="e1" roundTrip="false"
     config="cfg_forceFileBuffering">
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -525,7 +512,7 @@
       Purpose: This test demonstrates unparsing a sequence of delimited strings. In this case the data is delimited by initiators.
 -->
 
-  <tdml:unparserTestCase name="unparseDelimitedString04" model="delimitedStrings" root="e2" roundTrip="true"
+  <tdml:unparserTestCase name="unparseDelimitedString04_ffb" model="delimitedStrings" root="e2" roundTrip="true"
     config="cfg_forceFileBuffering">
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -543,7 +530,7 @@
       Schema: delimitedStrings
       Purpose: This test demonstrates unparsing a sequence of delimited strings. In this case the data is delimited by terminators.
 -->
-  <tdml:unparserTestCase name="unparseDelimitedString05" model="delimitedStrings" root="e3" roundTrip="true"
+  <tdml:unparserTestCase name="unparseDelimitedString05_ffb" model="delimitedStrings" root="e3" roundTrip="true"
     config="cfg_forceFileBuffering">
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -561,7 +548,7 @@
       Schema: delimitedStrings
       Purpose: This test demonstrates unparsing a sequence of delimited strings. In this case the data is delimited by terminators.
 -->
-  <tdml:unparserTestCase name="unparseDelimitedString06" model="delimitedStrings" root="e4" roundTrip="true"
+  <tdml:unparserTestCase name="unparseDelimitedString06_ffb" model="delimitedStrings" root="e4" roundTrip="true"
     config="cfg_forceFileBuffering">
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -580,7 +567,7 @@
       Purpose: This test demonstrates unparsing a delimited string. In this case the data is delimited by initiators.
 -->
 
-  <tdml:unparserTestCase name="unparseDelimitedString07" model="delimitedStrings" root="e5" roundTrip="true"
+  <tdml:unparserTestCase name="unparseDelimitedString07_ffb" model="delimitedStrings" root="e5" roundTrip="true"
     config="cfg_forceFileBuffering">
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -693,7 +680,7 @@
       Schema: delimitedStrings
       Purpose: This test demonstrates roundtrip of an element with padding, OVC, and alignment
   -->
-  <tdml:unparserTestCase name="alignmentPaddingOVC1" model="alignmentPaddingOVC" root="e1"
+  <tdml:unparserTestCase name="alignmentPaddingOVC1_ffb" model="alignmentPaddingOVC" root="e1"
     config="cfg_forceFileBuffering">
     <tdml:document>
       <tdml:documentPart type="text">xx20</tdml:documentPart><!-- length of below fields in bits -->
@@ -721,7 +708,7 @@
       Schema: delimitedStrings
       Purpose: This test demonstrates roundtrip of an element with padding, OVC, and alignment
 -->
-  <tdml:unparserTestCase name="alignmentPaddingOVC2" model="alignmentPaddingOVC" root="e2"
+  <tdml:unparserTestCase name="alignmentPaddingOVC2_ffb" model="alignmentPaddingOVC" root="e2"
     config="cfg_forceFileBuffering">
     <tdml:document>
       <tdml:documentPart type="text">20xx</tdml:documentPart><!-- length of below fields in bits -->
@@ -749,7 +736,7 @@
       Schema: delimitedStrings
       Purpose: This test demonstrates roundtrip of an element with padding, OVC, and alignment
 -->
-  <tdml:unparserTestCase name="alignmentPaddingOVC3" model="alignmentPaddingOVC" root="e3"
+  <tdml:unparserTestCase name="alignmentPaddingOVC3_ffb" model="alignmentPaddingOVC" root="e3"
     config="cfg_forceFileBuffering">
     <tdml:document>
       <tdml:documentPart type="text">x20x</tdml:documentPart><!-- length of below fields in bits -->
@@ -777,7 +764,7 @@
       Schema: delimitedStrings
       Purpose: This test demonstrates an SDE when explicit length is less than textOutputMinLength
 -->
-  <tdml:unparserTestCase name="alignmentPaddingOVC4" model="alignmentPaddingOVC"
+  <tdml:unparserTestCase name="alignmentPaddingOVC4_ffb" model="alignmentPaddingOVC"
     roundTrip="none" config="cfg_forceFileBuffering">
     <tdml:document>2AB;</tdml:document>
     <tdml:warnings>
