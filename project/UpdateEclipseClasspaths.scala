@@ -23,6 +23,8 @@ import scala.language.reflectiveCalls
 /**
  * After 'sbt eclipse' creates the projects, you still have to update every .classpath file
  * so that all but daffodil-macro-lib have a dependency on daffodil-macro-lib.
+ * 
+ * That is what this does.   
  */
 
 object UpdateEclipseClasspaths extends App {
@@ -30,15 +32,31 @@ object UpdateEclipseClasspaths extends App {
   lazy val libRoot = new java.io.File(dafHome + "/lib_managed")
   lazy val baseFile = new java.io.File(dafHome)
 
+  /**
+   * File listFiles() returns null if you have no permission to read.
+   * 
+   * So we defend agaist that here and test for that and return Nil in that case.
+   */
+  private def listFiles(d: java.io.File) : List[java.io.File] = {
+    assert(d.isDirectory(), "Not a directory.")
+    val files = d.listFiles()
+    val res = 
+      if (files == null) Nil
+      else files.toList
+    res
+  }
+  
   def main(): Int = {
 
-    val epl = new java.io.File(dafHome).listFiles()
-    val classPathFiles = epl.flatMap { f =>
-      if (f.isDirectory())
-        f.listFiles().filter { _.getName == ".classpath" }
-      else Nil
-    }.filterNot { _.toString.contains("daffodil-macro-lib") }
+    println("updating eclipse classpaths")
+    assert(baseFile.exists(), "Directory " + baseFile.toString + " does not exist.")
+    assert(baseFile.isDirectory, "The DAFFODIL_HOME location + " + baseFile.toString + " is not a directory.")
+    
+    val classPathFiles = listFiles(baseFile).filter(_.isDirectory).
+      flatMap { d => listFiles(d) }.filter { _.getName == ".classpath" }.
+      filterNot { _.toString.contains("daffodil-macro-lib") }
 
+    assert(!classPathFiles.isEmpty, "No subproject directories found. Check DAFFODIL_HOME environment variable.")
     classPathFiles.foreach { f =>
       println("updating " + f.toString)
       updateOneClasspathFile(f)
@@ -63,6 +81,7 @@ object UpdateEclipseClasspaths extends App {
     //
     val s = System.getenv("DAFFODIL_HOME")
     assert(s ne null, "$DAFFODIL_HOME undefined")
+    println("using DAFFODIL_HOME environment variable: " + s)
     s
   }
 
@@ -71,6 +90,7 @@ object UpdateEclipseClasspaths extends App {
   lazy val baseURI = baseFile.toURI
 
   def updateOneClasspathFile(cpf: java.io.File): Unit = {
+    
     val cpNode = scala.xml.XML.loadFile(cpf)
     /*
      * There is an issue with the XML loader that reverses the order of the attributes
