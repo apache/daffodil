@@ -45,4 +45,20 @@
     </xs:restriction>
   </xs:simpleType>
 
+  <xs:element name="base">
+    <xs:complexType>
+      <xs:sequence dfdl:separator=",">
+        <xs:element name="acolor" type="a20:color" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="base2">
+    <xs:complexType>
+      <xs:sequence dfdl:separator="/">
+        <xs:element name="seq" type="a20:simpleSeq" maxOccurs="3"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
 </xs:schema>

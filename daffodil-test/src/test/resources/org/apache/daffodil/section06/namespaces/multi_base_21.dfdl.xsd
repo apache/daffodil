@@ -19,7 +19,7 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
    targetNamespace="http://baseSchema.com" xmlns:base="http://baseSchema.com" xmlns:a21="http://a21.com">
 
-  <xs:import namespace="http://a21.com" schemaLocation="org/apache/daffodil/section06/namespaces/multi_A_21.dfdl.xsd"/>
+  <xs:import namespace="http://a21.com" schemaLocation="multi_A_21.dfdl.xsd"/>
   <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
   <xs:annotation>

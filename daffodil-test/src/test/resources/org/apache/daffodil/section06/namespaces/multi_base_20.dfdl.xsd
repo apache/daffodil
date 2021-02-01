@@ -19,7 +19,7 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
    targetNamespace="http://baseSchema.com" xmlns:base="http://baseSchema.com" xmlns:a20="http://a20.com">
 
-  <xs:import namespace="http://a20.com" schemaLocation="org/apache/daffodil/section06/namespaces/multi_A_20.dfdl.xsd"/>
+  <xs:import namespace="http://a20.com" schemaLocation="multi_A_20.dfdl.xsd"/>
   <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
   <xs:annotation>
@@ -29,20 +29,8 @@
     </xs:appinfo>
   </xs:annotation>
 
-  <xs:element name="base">
-    <xs:complexType>
-      <xs:sequence dfdl:separator=",">
-        <xs:element name="acolor" type="a20:color" maxOccurs="unbounded"/>   
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
+  <xs:element ref="a20:base" />
   
-  <xs:element name="base2">
-    <xs:complexType>
-      <xs:sequence dfdl:separator="/">
-        <xs:element name="seq" type="a20:simpleSeq" maxOccurs="3"/>
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
+  <xs:element name="a20:base2" />
 
 </xs:schema>

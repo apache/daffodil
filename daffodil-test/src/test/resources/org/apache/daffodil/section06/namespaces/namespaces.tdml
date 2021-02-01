@@ -2370,7 +2370,8 @@
     Test name: schemaNoGlobalElems_01
     Schema: multi_base_20.dfdl.xsd
     Root: base
-    Purpose: This test demonstrates that you can have a schema with no global elements (only contains items that are referenced) 
+    Purpose: This test demonstrates that you can have a primary schema where the
+             only global elements are element references
   -->
 
   <tdml:parserTestCase name="schemaNoGlobalElems_01"
@@ -2391,7 +2392,8 @@
     Test name: schemaNoGlobalElems_02
     Schema: multi_base_20.dfdl.xsd
     Root: base2
-    Purpose: This test demonstrates that you can have a schema with no global elements (only contains items that are referenced) 
+    Purpose: This test demonstrates that you can have a primary schema where the
+             only global elements are element references
   -->
 
   <tdml:parserTestCase name="schemaNoGlobalElems_02"
@@ -2411,6 +2413,25 @@
             <elem>six</elem>
           </seq>
         </base2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: schemaNoGlobalElems_03
+    Schema: multi_base_21.dfdl.xsd
+    Root: base2
+    Purpose: This test demonstrates that you can have a schema if there are
+             no global elements in the primary schema, as long as the root element is
+             specified (the TDML Runner always specifies the root)
+  -->
+
+  <tdml:parserTestCase name="schemaNoGlobalElems_03"
+    root="distant_element" model="multi_base_21.dfdl.xsd" description="">
+    <tdml:document>test string</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <distant_element>test string</distant_element>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
