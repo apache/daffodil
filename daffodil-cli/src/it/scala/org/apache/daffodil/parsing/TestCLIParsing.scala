@@ -206,27 +206,19 @@ class TestCLIparsing {
   }
 
   @Test def test_1593_CLI_Parsing_MultifileSchema_noGlobalElem(): Unit = {
-    val tmp_filename: String = (System.currentTimeMillis / 1000).toString()
-    val file = new File(tmp_filename)
-    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/TopLevel.dfdl.xsd")
-    val inputFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/02nine_headers.txt")
-    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
-
-    val shell = Util.start("")
+    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/namespaces/multi_base_21.dfdl.xsd")
+    val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
+    val shell = Util.startIncludeErrors("")
 
     try {
-      val cmd = String.format("%s parse -s %s -o %s %s", Util.binPath, testSchemaFile, tmp_filename, testInputFile)
+      val cmd = String.format(Util.echoN("does not matter") + " | %s parse -s %s", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
-
-      //TODO:update
-      //val err = shell.getCurrentStandardErrContents()
-      //assertEquals(err, "")
+      shell.expectIn(1, contains("No global elements"))
+      shell.expectIn(1, contains("multi_base_21.dfdl.xsd"))
       shell.sendLine("exit")
       shell.expect(eof)
     } finally {
       shell.close()
-      //Remove the temporary output file
-      assertTrue("Failed to remove temporary file: %s".format(file), file.delete)
     }
   }
 

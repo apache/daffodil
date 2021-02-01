@@ -47,6 +47,7 @@ class TestNamespaces {
 
   @Test def test_schemaNoGlobalElems_01(): Unit = { runner.runOneTest("schemaNoGlobalElems_01") }
   @Test def test_schemaNoGlobalElems_02(): Unit = { runner.runOneTest("schemaNoGlobalElems_02") }
+  @Test def test_schemaNoGlobalElems_03(): Unit = { runner.runOneTest("schemaNoGlobalElems_03") }
 
   @Test def test_schemaSameDir_01(): Unit = { runner.runOneTest("schemaSameDir_01") }
   @Test def test_schemaSameDir_02(): Unit = { runner.runOneTest("schemaSameDir_02") }
