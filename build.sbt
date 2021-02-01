@@ -15,6 +15,16 @@
  * limitations under the License.
  */
 
+// Silence an errant sbt linter warning about unused sbt settings. For some
+// reason, the sbt linter thinks the below settings are set but not used, which
+// leads to a bunch of noisy warnings. But they clearly are used. Seems to be a
+// bug in the linter where it cannot detect that some keys are used. The
+// following is the sbt recommended way to silence these linter warnings on a
+// per setting basis rather thand disabling the linter completely.
+Global / excludeLintKeys ++= Set(
+  EclipseKeys.classpathTransformerFactories,
+)
+
 lazy val genManaged = taskKey[Unit]("Generate managed sources and resources")
 lazy val genProps = taskKey[Seq[File]]("Generate properties scala source")
 lazy val genSchemas = taskKey[Seq[File]]("Generated DFDL schemas")
@@ -171,13 +181,46 @@ lazy val nopublish = Seq(
   skip in publish := true
 )
 
+// "usesMacros" is a list of settings that should be applied only to
+// subprojects that use the Daffodil macroLib subproject. In addition to using
+// these settings, projects that use macroLib should add it as
+// "compile-internal" and "test-internal" dependency, so that the macroLib jar
+// does not need to be published. For example:
+//
+//   lazy val subProject = Project(...)
+//                           .dependsOn(..., macroLib % "compile-internal, test-internal")
+//                           .settings(commonSettings, usesMacros)
+//
 lazy val usesMacros = Seq(
-  // copies classe and source files into the project that uses macros. Note
-  // that for packageBin, we only copy directories and class files--this
+  // Because the macroLib is an internal dependency to projects that use this
+  // setting, the macroLib is not published. But that means we need to copy the
+  // macro src/bin into projects that use it, essentially inlining macros into
+  // the projects that use them. This is standard practice according to:
+  //
+  //   https://www.scala-sbt.org/1.x/docs/Macro-Projects.html#Distribution
+  //
+  // Note that for packageBin, we only copy directories and class files--this
   // ignores files such a META-INFA/LICENSE and NOTICE that are duplicated and
-  // would otherwise cause a conflict
+  // would otherwise cause a conflict.
   mappings in (Compile, packageBin) ++= mappings.in(macroLib, Compile, packageBin).value.filter { case (f, _) => f.isDirectory || f.getPath.endsWith(".class") },
-  mappings in (Compile, packageSrc) ++= mappings.in(macroLib, Compile, packageSrc).value
+  mappings in (Compile, packageSrc) ++= mappings.in(macroLib, Compile, packageSrc).value,
+
+  // The .classpath files that the sbt eclipse plugin creates need minor
+  // modifications. Fortunately, the plugin allows us to provide "transformers"
+  // to make such modifications. Note that because this is part of the
+  // "usesMacro" setting, the following transformations are only applied to
+  // .classpath files in projects that use macros and add this setting.
+  EclipseKeys.classpathTransformerFactories ++= Seq(
+    // The macroLib project needs to be a "compile-internal" dependency to
+    // projects that add this "usesMacros" setting. But the sbt eclipse plugin
+    // only looks at "compile" dependencies when building .classpath files.
+    // This means that eclipse projects that use macros don't have a dependency
+    // to macroLib and so fail to compile. This transformation looks for
+    // "classpath" nodes, and appends a new "classpathentry" node as a child
+    // referencing the macroLib project. This causes Eclipse to treat macroLib
+    // just like any other dependency to allow compilation to work.
+    transformNode("classpath", DefaultTransforms.Append(EclipseClasspathEntry.Project(macroLib.base.toString))),
+  ),
 )
 
 lazy val libManagedSettings = Seq(
@@ -265,14 +308,3 @@ lazy val unidocSettings = Seq(
     }
   },
 )
-
-
-//
-// To create a set of eclipse projects (one for each subproject of daffodil), you
-// need the sbtEclipse plugin and this task below which is run after 'sbt eclipse'.
-// Directions for setup are on the Daffodil Wiki.
-//
-
-lazy val updateEclipseClasspaths = taskKey[Unit]("Updates eclipse classpaths with daffodil-macro-lib. Used after sbt eclipse.")
-
-updateEclipseClasspaths := UpdateEclipseClasspaths.main()

@@ -23,6 +23,8 @@ addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.6.1")
 
 addSbtPlugin("com.eed3si9n" % "sbt-unidoc" % "0.4.3")
 
+addSbtPlugin("com.typesafe.sbteclipse" % "sbteclipse-plugin" % "5.2.4")
+
 // Both sbt and the sbt-native-pacakger plugin have transitive dependencies to
 // different versions of plexus-utils and guava, but with different major
 // version numbers. SBT interprets this major version number difference as
