@@ -260,7 +260,7 @@
             <hr/>
             <div>
                 <div style="text-align: center;">
-                    Copyright &#169; 2020 <a href="https://www.apache.org">The Apache Software Foundation</a>.
+                    Copyright &#169; 2021 <a href="https://www.apache.org">The Apache Software Foundation</a>.
                     Licensed under the <a href="https://www.apache.org/licenses/LICENSE-2.0">Apache License, Version
                     2.0</a>.
                     <br/>
