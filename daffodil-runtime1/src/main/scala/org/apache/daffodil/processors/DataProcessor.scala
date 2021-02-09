@@ -56,7 +56,6 @@ import org.apache.daffodil.infoset.InfosetOutputter
 import org.apache.daffodil.infoset.TeeInfosetOutputter
 import org.apache.daffodil.infoset.XMLTextInfosetOutputter
 import org.apache.daffodil.io.BitOrderChangeException
-import org.apache.daffodil.io.DirectOrBufferedDataOutputStream
 import org.apache.daffodil.io.FileIOException
 import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.oolag.ErrorAlreadyHandled
@@ -553,18 +552,10 @@ class DataProcessor private (
   }
 
   def unparse(inputter: InfosetInputter, outStream: java.io.OutputStream) = {
-    val out = DirectOrBufferedDataOutputStream(
-      outStream,
-      null, // null means no other stream created this one.
-      isLayer = false,
-      tunables.outputStreamChunkSizeInBytes,
-      tunables.maxByteArrayOutputStreamBufferSizeInBytes,
-      tunables.tempFilePath)
-
     inputter.initialize(ssrd.elementRuntimeData, getTunables())
     val unparserState =
       UState.createInitialUState(
-        out,
+        outStream,
         this,
         inputter,
         areDebugging)
@@ -575,7 +566,7 @@ class DataProcessor private (
         unparserState.notifyDebugging(true)
       }
       unparserState.dataProc.get.init(unparserState, ssrd.unparser)
-      out.setPriorBitOrder(ssrd.elementRuntimeData.defaultBitOrder)
+      unparserState.dataOutputStream.setPriorBitOrder(ssrd.elementRuntimeData.defaultBitOrder)
       doUnparse(unparserState)
       unparserState.evalSuspensions(isFinal = true)
       unparserState.unparseResult
