@@ -70,7 +70,6 @@ import org.apache.daffodil.util.Maybe.One
 object ENoWarn { EqualitySuppressUnusedImportWarning() }
 
 abstract class UState(
-  dos: DirectOrBufferedDataOutputStream,
   vbox: VariableBox,
   diagnosticsArg: List[Diagnostic],
   dataProcArg: Maybe[DataProcessor],
@@ -102,9 +101,8 @@ abstract class UState(
     "UState(" + elt + " DOS=" + dataOutputStream.toString() + ")"
   }
 
-  var dataOutputStream: DirectOrBufferedDataOutputStream = dos
+  var dataOutputStream: DirectOrBufferedDataOutputStream
 
-  def prior: UStateForSuspension
   def currentInfosetNode: DINode
   def currentInfosetNodeMaybe: Maybe[DINode]
   def escapeSchemeEVCache: MStackOfMaybe[EscapeSchemeUnparserHelper]
@@ -366,16 +364,15 @@ abstract class UState(
  */
 final class UStateForSuspension(
   val mainUState: UStateMain,
-  dos: DirectOrBufferedDataOutputStream,
+  override var dataOutputStream: DirectOrBufferedDataOutputStream,
   vbox: VariableBox,
   override val currentInfosetNode: DINode,
   occursIndex: Long,
   escapeSchemeEVCacheMaybe: Maybe[MStackOfMaybe[EscapeSchemeUnparserHelper]],
   delimiterStackMaybe: Maybe[MStackOf[DelimiterStackUnparseNode]],
-  override val prior: UStateForSuspension,
   tunable: DaffodilTunables,
   areDebugging: Boolean)
-  extends UState(dos, vbox, mainUState.diagnostics, mainUState.dataProc, tunable, areDebugging) {
+  extends UState(vbox, mainUState.diagnostics, mainUState.dataProc, tunable, areDebugging) {
 
   dState.setMode(UnparserBlocking)
   dState.setCurrentNode(thisElement.asInstanceOf[DINode])
@@ -445,29 +442,37 @@ final class UStateForSuspension(
 
 final class UStateMain private (
   private val inputter: InfosetInputter,
+  outStream: java.io.OutputStream,
   vbox: VariableBox,
   diagnosticsArg: List[Diagnostic],
   dataProcArg: DataProcessor,
-  dos: DirectOrBufferedDataOutputStream,
   tunable: DaffodilTunables,
   areDebugging: Boolean)
-  extends UState(dos, vbox, diagnosticsArg, One(dataProcArg), tunable, areDebugging) {
+  extends UState(vbox, diagnosticsArg, One(dataProcArg), tunable, areDebugging) {
 
   dState.setMode(UnparserBlocking)
 
   def this(
     inputter: InfosetInputter,
+    outputStream: java.io.OutputStream,
     vmap: VariableMap,
     diagnosticsArg: List[Diagnostic],
     dataProcArg: DataProcessor,
-    dataOutputStream: DirectOrBufferedDataOutputStream,
     tunable: DaffodilTunables,
     areDebugging: Boolean) =
-    this(inputter, new VariableBox(vmap), diagnosticsArg, dataProcArg,
-      dataOutputStream, tunable, areDebugging)
+    this(inputter, outputStream, new VariableBox(vmap), diagnosticsArg, dataProcArg,
+      tunable, areDebugging)
 
-  private var _prior: UStateForSuspension = null
-  override def prior = _prior
+  override var dataOutputStream: DirectOrBufferedDataOutputStream = {
+    val out = DirectOrBufferedDataOutputStream(
+      outStream,
+      null, // null means no other stream created this one.
+      isLayer = false,
+      tunable.outputStreamChunkSizeInBytes,
+      tunable.maxByteArrayOutputStreamBufferSizeInBytes,
+      tunable.tempFilePath)
+    out
+  }
 
   def cloneForSuspension(suspendedDOS: DirectOrBufferedDataOutputStream): UState = {
     val es =
@@ -502,13 +507,11 @@ final class UStateMain private (
       arrayIndexStack.top, // only need the top of the stack, not the whole thing
       es,
       ds,
-      prior,
       tunable,
       areDebugging)
 
     clone.setProcessor(processor)
 
-    this._prior = clone
     clone
   }
 
@@ -654,7 +657,7 @@ final class UStateMain private (
 object UState {
 
   def createInitialUState(
-    out: DirectOrBufferedDataOutputStream,
+    outStream: java.io.OutputStream,
     dataProc: DFDL.DataProcessor,
     inputter: InfosetInputter,
     areDebugging: Boolean): UStateMain = {
@@ -669,10 +672,10 @@ object UState {
     val diagnostics = Nil
     val newState = new UStateMain(
         inputter,
+        outStream,
         variables,
         diagnostics,
         dataProc.asInstanceOf[DataProcessor],
-        out,
         dataProc.getTunables(),
         areDebugging)
     newState
