@@ -608,7 +608,7 @@ trait ElementBase
     }
   }
 
-  final def hasFixedLengthOf(n: Int) = {
+  final def hasFixedLengthOf(n: Int): Boolean = {
     // FIXME: needs to work in lengthUnits. If length units is bytes/bits
     // and encoding is variable-width charset, what should this return?
     // (Perhaps should be usage error?)

@@ -46,23 +46,32 @@ trait BinaryIntegerKnownLengthCodeGenerator {
       case 16 => "0xCCCC"
       case 32 => "0xCCCCCCCC"
       case 64 => "0xCCCCCCCCCCCCCCCC"
-      case _ => e.SDE("Lengths other than 8, 16, 32, or 64 bits are not supported.")
+      case _ => e.SDE("Integer lengths other than 8, 16, 32, or 64 bits are not supported.")
     }
     val fieldName = e.namedQName.local
-    val integer = if (g.signed) s"int${lengthInBits}" else s"uint${lengthInBits}"
     val conv = if (byteOrder eq ByteOrder.BigEndian) "be" else "le"
+    val prim = if (g.signed) s"int${lengthInBits}" else s"uint${lengthInBits}"
     val arraySize = if (e.occursCountKind == OccursCountKind.Fixed) e.maxOccurs else 0
+    val fixed = e.xml.attribute("fixed")
+    val fixedValue = if (fixed.isDefined) fixed.get.text else ""
 
-    def addSimpleTypeStatements(deref: String): Unit = {
+    def addStatements(deref: String): Unit = {
       val initStatement = s"    instance->$fieldName$deref = $initialValue;"
-      val parseStatement = s"    parse_${conv}_$integer(&instance->$fieldName$deref, pstate);"
-      val unparseStatement = s"    unparse_${conv}_$integer(instance->$fieldName$deref, ustate);"
+      val parseStatement = s"    parse_${conv}_$prim(&instance->$fieldName$deref, pstate);"
+      val unparseStatement = s"    unparse_${conv}_$prim(instance->$fieldName$deref, ustate);"
       cgState.addSimpleTypeStatements(initStatement, parseStatement, unparseStatement)
+
+      if (fixedValue.nonEmpty) {
+        val init2 = ""
+        val parse2 = s"""    parse_validate_fixed(instance->$fieldName$deref == $fixedValue, "$fieldName", pstate);"""
+        val unparse2 = s"""    unparse_validate_fixed(instance->$fieldName$deref == $fixedValue, "$fieldName", ustate);"""
+        cgState.addSimpleTypeStatements(init2, parse2, unparse2)
+      }
     }
     if (arraySize > 0)
       for (i <- 0 until arraySize)
-        addSimpleTypeStatements(s"[$i]")
+        addStatements(s"[$i]")
     else
-      addSimpleTypeStatements("")
+      addStatements("")
   }
 }

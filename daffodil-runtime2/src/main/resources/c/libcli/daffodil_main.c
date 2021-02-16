@@ -85,7 +85,7 @@ main(int argc, char *argv[])
             output = fopen_or_exit(output, daffodil_parse.outfile, "w");
 
             // Parse the input file into our infoset.
-            PState pstate = {input, NULL};
+            PState pstate = {input, 0, NULL};
             root->erd->parseSelf(root, &pstate);
             continue_or_exit(pstate.error_msg);
 
@@ -126,7 +126,7 @@ main(int argc, char *argv[])
             }
 
             // Unparse our infoset to the output file.
-            UState ustate = {output, NULL};
+            UState ustate = {output, 0, NULL};
             root->erd->unparseSelf(root, &ustate);
             continue_or_exit(ustate.error_msg);
         }

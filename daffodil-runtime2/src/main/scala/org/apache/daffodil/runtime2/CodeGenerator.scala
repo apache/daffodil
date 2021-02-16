@@ -79,10 +79,11 @@ class CodeGenerator(root: Root) extends DFDL.CodeGenerator {
         if (fileSystem != null) fileSystem.close()
     }
 
-    // Generate C code from the DFDL schema
+    // Generate C code from the DFDL schema, appending any warnings to our diagnostics
     val rootElementName = rootNS.getOrElse(root.refQName).local
     val codeGeneratorState = new CodeGeneratorState()
     Runtime2CodeGenerator.generateCode(root.document, codeGeneratorState)
+    diagnostics = diagnostics ++ root.warnings
     val codeHeaderText = codeGeneratorState.generateCodeHeader
     val codeFileText = codeGeneratorState.generateCodeFile(rootElementName)
 

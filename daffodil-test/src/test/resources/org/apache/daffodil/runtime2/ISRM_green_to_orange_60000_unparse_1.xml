@@ -16,15 +16,9 @@
   limitations under the License.
 -->
 
-<idl:CommandDecl xmlns:idl="urn:idl:1.0">
-  <sync0>208</sync0>
-  <sync1>13</sync1>
-  <id>1</id>
-  <length>7</length>
-  <pan>-999</pan>
-  <tilt>-1231</tilt>
-  <mode>80</mode>
-  <stabilized>0</stabilized>
-  <impulse>0</impulse>
-  <checksum>30149</checksum>
-</idl:CommandDecl>
+<idl:IsrmResultDecl xmlns:idl="urn:idl:1.0">
+  <tag>1</tag>
+  <data>
+    <end />
+  </data>
+</idl:IsrmResultDecl>

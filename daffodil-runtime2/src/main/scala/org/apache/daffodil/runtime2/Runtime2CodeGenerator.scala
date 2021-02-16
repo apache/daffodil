@@ -21,6 +21,7 @@ import org.apache.daffodil.grammar.Gram
 import org.apache.daffodil.grammar.Prod
 import org.apache.daffodil.grammar.RootGrammarMixin
 import org.apache.daffodil.grammar.SeqComp
+import org.apache.daffodil.grammar.primitives.BinaryBoolean
 import org.apache.daffodil.grammar.primitives.BinaryDouble
 import org.apache.daffodil.grammar.primitives.BinaryFloat
 import org.apache.daffodil.grammar.primitives.BinaryIntegerKnownLength
@@ -33,6 +34,7 @@ import org.apache.daffodil.grammar.primitives.ElementParseAndUnspecifiedLength
 import org.apache.daffodil.grammar.primitives.OrderedSequence
 import org.apache.daffodil.grammar.primitives.ScalarOrderedSequenceChild
 import org.apache.daffodil.grammar.primitives.SpecifiedLengthImplicit
+import org.apache.daffodil.runtime2.generators.BinaryBooleanCodeGenerator
 import org.apache.daffodil.runtime2.generators.BinaryFloatCodeGenerator
 import org.apache.daffodil.runtime2.generators.BinaryIntegerKnownLengthCodeGenerator
 import org.apache.daffodil.runtime2.generators.CodeGeneratorState
@@ -44,7 +46,8 @@ import org.apache.daffodil.util.Misc
 import scala.annotation.tailrec
 
 object Runtime2CodeGenerator
-  extends BinaryIntegerKnownLengthCodeGenerator
+  extends BinaryBooleanCodeGenerator
+    with BinaryIntegerKnownLengthCodeGenerator
     with BinaryFloatCodeGenerator
     with ElementParseAndUnspecifiedLengthCodeGenerator
     with OrderedSequenceCodeGenerator
@@ -58,12 +61,13 @@ object Runtime2CodeGenerator
       case g: ElementCombinator => Runtime2CodeGenerator.generateCode(g.subComb, state)
       case g: SpecifiedLengthImplicit => Runtime2CodeGenerator.generateCode(g.eGram, state)
       case g: ScalarOrderedSequenceChild => Runtime2CodeGenerator.generateCode(g.term.termContentBody, state)
-      case g: SeqComp => seqCompGenerateCode(g, state)
-      case g: OrderedSequence => orderedSequenceGenerateCode(g, state)
-      case g: ElementParseAndUnspecifiedLength => elementParseAndUnspecifiedLengthGenerateCode(g, state)
-      case g: BinaryIntegerKnownLength => binaryIntegerKnownLengthGenerateCode(g, state)
-      case g: BinaryFloat => binaryFloatGenerateCode(g.e, 32, state)
+      case g: BinaryBoolean => binaryBooleanGenerateCode(g.e, state)
       case g: BinaryDouble => binaryFloatGenerateCode(g.e, 64, state)
+      case g: BinaryFloat => binaryFloatGenerateCode(g.e, 32, state)
+      case g: BinaryIntegerKnownLength => binaryIntegerKnownLengthGenerateCode(g, state)
+      case g: ElementParseAndUnspecifiedLength => elementParseAndUnspecifiedLengthGenerateCode(g, state)
+      case g: OrderedSequence => orderedSequenceGenerateCode(g, state)
+      case g: SeqComp => seqCompGenerateCode(g, state)
       case _: CaptureContentLengthStart => noop
       case _: CaptureContentLengthEnd => noop
       case _: CaptureValueLengthStart => noop

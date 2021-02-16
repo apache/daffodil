@@ -31,10 +31,14 @@ object TestOrionCommand {
 class TestOrionCommand {
   import TestOrionCommand._
 
-  @Test def test_camera_state_parse(): Unit = { runner.runOneTest("camera_state_parse") }
-  @Test def test_camera_state_unparse(): Unit = { runner.runOneTest("camera_state_unparse") }
   @Test def test_command_parse(): Unit = { runner.runOneTest("command_parse") }
   @Test def test_command_unparse(): Unit = { runner.runOneTest("command_unparse") }
+  @Test def test_camera_state_parse(): Unit = { runner.runOneTest("camera_state_parse") }
+  @Test def test_camera_state_unparse(): Unit = { runner.runOneTest("camera_state_unparse") }
   @Test def test_video_settings_parse(): Unit = { runner.runOneTest("video_settings_parse") }
   @Test def test_video_settings_unparse(): Unit = { runner.runOneTest("video_settings_unparse") }
+  @Test def test_aptina_settings_parse(): Unit = { runner.runOneTest("aptina_settings_parse") }
+  @Test def test_aptina_settings_unparse(): Unit = { runner.runOneTest("aptina_settings_unparse") }
+  @Test def test_limits_parse(): Unit = { runner.runOneTest("limits_parse") }
+  @Test def test_limits_unparse(): Unit = { runner.runOneTest("limits_unparse") }
 }

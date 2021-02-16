@@ -16,15 +16,21 @@
   limitations under the License.
 -->
 
-<idl:CommandDecl xmlns:idl="urn:idl:1.0">
+<idl:AptinaSettingsDecl xmlns:idl="urn:idl:1.0">
   <sync0>208</sync0>
   <sync1>13</sync1>
-  <id>1</id>
-  <length>7</length>
-  <pan>-999</pan>
-  <tilt>-1231</tilt>
-  <mode>80</mode>
-  <stabilized>0</stabilized>
-  <impulse>0</impulse>
-  <checksum>30149</checksum>
-</idl:CommandDecl>
+  <id>104</id>
+  <length>15</length>
+  <index>0</index>
+  <minExposure>515</minExposure>
+  <maxExposure>1055</maxExposure>
+  <minGain>36</minGain>
+  <maxGain>864</maxGain>
+  <brightness>1</brightness>
+  <contrast>2</contrast>
+  <saturation>3</saturation>
+  <sharpness>5</sharpness>
+  <debugEnable>0</debugEnable>
+  <hue>6</hue>
+  <checksum>464</checksum>
+</idl:AptinaSettingsDecl>

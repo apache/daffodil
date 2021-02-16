@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:idl="urn:idl:1.0" targetNamespace="urn:idl:1.0">
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/">
+      <dfdl:defineFormat name="defaults">
+        <dfdl:format alignment="1" alignmentUnits="bytes" binaryBooleanFalseRep="0" binaryBooleanTrueRep="1" binaryFloatRep="ieee" binaryNumberCheckPolicy="lax" binaryNumberRep="binary" bitOrder="mostSignificantBitFirst" byteOrder="bigEndian" choiceLengthKind="implicit" encoding="utf-8" encodingErrorPolicy="replace" escapeSchemeRef="" fillByte="%NUL;" floating="no" ignoreCase="no" initiatedContent="no" initiator="" leadingSkip="0" lengthKind="implicit" lengthUnits="bytes" occursCountKind="implicit" prefixIncludesPrefixLength="no" representation="binary" separator="" separatorPosition="infix" sequenceKind="ordered" terminator="" textBidi="no" textPadKind="none" trailingSkip="0" truncateSpecifiedLengthString="no"/>
+      </dfdl:defineFormat>
+      <dfdl:format ref="idl:defaults"/>
+    </xs:appinfo>
+  </xs:annotation>
+  <xs:simpleType name="float" dfdl:length="4" dfdl:lengthKind="explicit">
+    <xs:restriction base="xs:float"/>
+  </xs:simpleType>
+  <xs:simpleType name="double" dfdl:length="8" dfdl:lengthKind="explicit">
+    <xs:restriction base="xs:double"/>
+  </xs:simpleType>
+  <xs:simpleType name="int8" dfdl:length="1" dfdl:lengthKind="explicit">
+    <xs:restriction base="xs:byte"/>
+  </xs:simpleType>
+  <xs:simpleType name="int16" dfdl:length="2" dfdl:lengthKind="explicit">
+    <xs:restriction base="xs:short"/>
+  </xs:simpleType>
+  <xs:simpleType name="int32" dfdl:length="4" dfdl:lengthKind="explicit">
+    <xs:restriction base="xs:int"/>
+  </xs:simpleType>
+  <xs:simpleType name="int64" dfdl:length="8" dfdl:lengthKind="explicit">
+    <xs:restriction base="xs:long"/>
+  </xs:simpleType>
+  <xs:simpleType name="uint8" dfdl:length="1" dfdl:lengthKind="explicit">
+    <xs:restriction base="xs:unsignedByte"/>
+  </xs:simpleType>
+  <xs:simpleType name="uint16" dfdl:length="2" dfdl:lengthKind="explicit">
+    <xs:restriction base="xs:unsignedShort"/>
+  </xs:simpleType>
+  <xs:simpleType name="uint32" dfdl:length="4" dfdl:lengthKind="explicit">
+    <xs:restriction base="xs:unsignedInt"/>
+  </xs:simpleType>
+  <xs:simpleType name="uint64" dfdl:length="8" dfdl:lengthKind="explicit">
+    <xs:restriction base="xs:unsignedLong"/>
+  </xs:simpleType>
+  <xs:simpleType name="boolean" dfdl:length="1" dfdl:lengthKind="explicit">
+    <xs:restriction base="xs:boolean"/>
+  </xs:simpleType>
+  <xs:complexType name="SystemReady">
+    <xs:sequence/>
+  </xs:complexType>
+  <xs:element name="SystemReadyDecl" type="idl:SystemReady"/>
+  <xs:complexType name="Action">
+    <xs:sequence>
+      <xs:element name="actionId">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="item" minOccurs="10" maxOccurs="10" dfdl:occursCountKind="fixed" type="idl:int8"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="actionTy">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="item" minOccurs="10" maxOccurs="10" dfdl:occursCountKind="fixed" type="idl:int8"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="waypoint">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="item" minOccurs="10" maxOccurs="10" dfdl:occursCountKind="fixed" type="idl:int8"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ActionDecl" type="idl:Action"/>
+  <xs:complexType name="Waypoint">
+    <xs:sequence>
+      <xs:element name="id">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="item" minOccurs="10" maxOccurs="10" dfdl:occursCountKind="fixed" type="idl:int8"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="x" type="idl:double"/>
+      <xs:element name="y" type="idl:double"/>
+      <xs:element name="z" type="idl:double"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="WaypointDecl" type="idl:Waypoint"/>
+  <xs:complexType name="MissionPlan">
+    <xs:sequence>
+      <xs:element name="missionId">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="item" minOccurs="20" maxOccurs="20" dfdl:occursCountKind="fixed" type="idl:int8"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="sensorActions">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="action" minOccurs="2" maxOccurs="2" dfdl:occursCountKind="fixed" type="idl:Action"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="sensorPlanId">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="item" minOccurs="10" maxOccurs="10" dfdl:occursCountKind="fixed" type="idl:int8"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="vehiclePlanId">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="item" minOccurs="10" maxOccurs="10" dfdl:occursCountKind="fixed" type="idl:int8"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="waypoints">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="item" minOccurs="4" maxOccurs="4" dfdl:occursCountKind="fixed" type="idl:Waypoint"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="MissionPlanDecl" type="idl:MissionPlan"/>
+  <xs:simpleType name="MpuRequestTag">
+    <xs:restriction base="idl:uint32"/>
+  </xs:simpleType>
+  <xs:complexType name="MpuRequest">
+    <xs:sequence>
+      <xs:element name="tag" type="idl:MpuRequestTag"/>
+      <xs:element name="data" dfdl:length="236" dfdl:lengthKind="explicit">
+        <xs:complexType>
+          <xs:choice dfdl:choiceDispatchKey="{xs:string(../tag)}">
+            <xs:element dfdl:choiceBranchKey="0" name="missionPlan" type="idl:MissionPlan"/>
+            <xs:element dfdl:choiceBranchKey="1" name="systemReady" type="idl:SystemReady"/>
+          </xs:choice>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="MpuRequestDecl" type="idl:MpuRequest"/>
+</xs:schema>

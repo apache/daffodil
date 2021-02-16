@@ -117,8 +117,12 @@ final class Runtime2TDMLDFDLProcessorFactory private(
       val compileResult = if (generator.isError) {
         Left(generator.getDiagnostics) // C code compilation diagnostics
       } else {
-        // Create a processor for running the test using the executable
-        val processor = new Runtime2TDMLDFDLProcessor(tempDir, executable)
+        // Create a processor for running the test using the executable, passing it
+        // generator.diagnostics in order to let us check generator warnings later
+        val processor = new Runtime2TDMLDFDLProcessor(tempDir, executable, generator.getDiagnostics)
+        // Sadly, TDMLRunner never checks generator diagnostics in "Right" tuple below
+        // nor does it check processor diagnostics in cross tests (runtime2's TDML tests)
+        // unless you set defaultShouldDoWarningComparisonOnCrossTests true in RunnerFactory
         Right((generator.getDiagnostics, processor))
       }
       compileResult
@@ -134,13 +138,13 @@ final class Runtime2TDMLDFDLProcessorFactory private(
  * TDML XML Infosets, feeding to the unparser, creating XML from the result created by
  * the Runtime2DataProcessor. All the "real work" is done by Runtime2DataProcessor.
  */
-class Runtime2TDMLDFDLProcessor(tempDir: os.Path, executable: os.Path) extends TDMLDFDLProcessor {
+class Runtime2TDMLDFDLProcessor(tempDir: os.Path, executable: os.Path,
+                                var diagnostics: Seq[Diagnostic]) extends TDMLDFDLProcessor {
 
   override type R = Runtime2TDMLDFDLProcessor
 
   private val dataProcessor = new Runtime2DataProcessor(executable)
   private var anyErrors: Boolean = false
-  private var diagnostics: Seq[Diagnostic] = Nil
 
   @deprecated("Use withDebugging.", "2.6.0")
   override def setDebugging(b: Boolean) = ???
@@ -175,7 +179,7 @@ class Runtime2TDMLDFDLProcessor(tempDir: os.Path, executable: os.Path) extends T
     // TODO: pass lengthLimitInBits to the C program to tell it how big the data is
     val pr = dataProcessor.parse(is)
     anyErrors = pr.isError
-    diagnostics = pr.getDiagnostics
+    diagnostics = diagnostics ++ pr.getDiagnostics
     new Runtime2TDMLParseResult(pr, tempDir)
   }
 
@@ -189,7 +193,7 @@ class Runtime2TDMLDFDLProcessor(tempDir: os.Path, executable: os.Path) extends T
     val inStream = os.read.inputStream(os.Path(tempInputFile))
     val upr = dataProcessor.unparse(inStream, outStream)
     anyErrors = upr.isError
-    diagnostics = upr.getDiagnostics
+    diagnostics = diagnostics ++ upr.getDiagnostics
     new Runtime2TDMLUnparseResult(upr, tempDir)
   }
 

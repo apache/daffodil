@@ -17,21 +17,24 @@
 -->
 
 <xs:schema
-    elementFormDefault="qualified"
-    targetNamespace="http://example.com"
-    xmlns="http://example.com"
-    xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-    xmlns:xs="http://www.w3.org/2001/XMLSchema">
+        elementFormDefault="qualified"
+        targetNamespace="http://example.com"
+        xmlns="http://example.com"
+        xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+        xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
     <xs:annotation>
         <xs:appinfo source="http://www.ogf.org/dfdl/">
             <dfdl:format
-                byteOrder="bigEndian"
-                encoding="UTF-8"
-                representation="binary"
-                ref="GeneralFormat"/>
+                    binaryBooleanFalseRep="0"
+                    binaryBooleanTrueRep=""
+                    byteOrder="bigEndian"
+                    encoding="UTF-8"
+                    lengthUnits="bits"
+                    representation="binary"
+                    ref="GeneralFormat"/>
         </xs:appinfo>
     </xs:annotation>
 
@@ -41,44 +44,115 @@
                 <xs:element name="array">
                     <xs:complexType>
                         <xs:sequence>
-                            <xs:element name="be_int16" type="xs:short"
-                                        minOccurs="3" maxOccurs="3" dfdl:occursCountKind="fixed" />
+                            <xs:element name="be_bool16" type="xs:boolean"
+                                        dfdl:length="16"
+                                        dfdl:lengthKind="explicit"
+                                        dfdl:occursCountKind="fixed"
+                                        maxOccurs="2" minOccurs="2"/>
                             <xs:element name="be_float" type="xs:float"
-                                        minOccurs="3" maxOccurs="3" dfdl:occursCountKind="fixed" />
+                                        dfdl:occursCountKind="fixed"
+                                        minOccurs="3" maxOccurs="3"/>
+                            <xs:element name="be_int16" type="xs:short"
+                                        dfdl:occursCountKind="fixed"
+                                        minOccurs="3" maxOccurs="3"/>
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
                 <xs:element name="bigEndian">
-                  <xs:complexType>
-                    <xs:sequence>
-                      <xs:element name="be_double" type="xs:double" />
-                      <xs:element name="be_float" type="xs:float" />
-                      <xs:element name="be_uint64" type="xs:unsignedLong" />
-                      <xs:element name="be_uint32" type="xs:unsignedInt" />
-                      <xs:element name="be_uint16" type="xs:unsignedShort" />
-                      <xs:element name="be_uint8" type="xs:unsignedByte" />
-                      <xs:element name="be_int64" type="xs:long" />
-                      <xs:element name="be_int32" type="xs:int" />
-                      <xs:element name="be_int16" type="xs:short" />
-                      <xs:element name="be_int8" type="xs:byte" />
-                    </xs:sequence>
-                  </xs:complexType>
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="be_bool16" type="xs:boolean"
+                                        dfdl:binaryBooleanTrueRep="1"
+                                        dfdl:length="16"
+                                        dfdl:lengthKind="explicit"/>
+                            <xs:element name="be_bool32" type="xs:boolean"
+                                        dfdl:length="32"
+                                        dfdl:lengthKind="explicit"/>
+                            <xs:element name="be_bool8" type="xs:boolean"
+                                        dfdl:length="8"
+                                        dfdl:lengthKind="explicit"/>
+                            <xs:element name="be_boolean" type="xs:boolean"/>
+                            <xs:element name="be_double" type="xs:double"/>
+                            <xs:element name="be_float" type="xs:float"/>
+                            <xs:element name="be_int16" type="xs:short"/>
+                            <xs:element name="be_int32" type="xs:int"/>
+                            <xs:element name="be_int64" type="xs:long"/>
+                            <xs:element name="be_int8" type="xs:byte"/>
+                            <xs:element name="be_integer16" type="xs:integer"
+                                        dfdl:length="16"
+                                        dfdl:lengthKind="explicit"/>
+                            <xs:element name="be_uint16" type="xs:unsignedShort"/>
+                            <xs:element name="be_uint32" type="xs:unsignedInt"/>
+                            <xs:element name="be_uint64" type="xs:unsignedLong"/>
+                            <xs:element name="be_uint8" type="xs:unsignedByte"/>
+                            <xs:element name="be_nonNegativeInteger32" type="xs:nonNegativeInteger"
+                                        dfdl:length="32"
+                                        dfdl:lengthKind="explicit"/>
+                        </xs:sequence>
+                    </xs:complexType>
                 </xs:element>
                 <xs:element name="littleEndian">
-                  <xs:complexType>
-                    <xs:sequence>
-                      <xs:element name="le_uint64" type="xs:unsignedLong" dfdl:byteOrder="littleEndian" />
-                      <xs:element name="le_uint32" type="xs:unsignedInt" dfdl:byteOrder="littleEndian" />
-                      <xs:element name="le_uint16" type="xs:unsignedShort" dfdl:byteOrder="littleEndian" />
-                      <xs:element name="le_uint8" type="xs:unsignedByte" dfdl:byteOrder="littleEndian" />
-                      <xs:element name="le_int64" type="xs:long" dfdl:byteOrder="littleEndian" />
-                      <xs:element name="le_int32" type="xs:int" dfdl:byteOrder="littleEndian" />
-                      <xs:element name="le_int16" type="xs:short" dfdl:byteOrder="littleEndian" />
-                      <xs:element name="le_int8" type="xs:byte" dfdl:byteOrder="littleEndian" />
-                      <xs:element name="le_float" type="xs:float" dfdl:byteOrder="littleEndian" />
-                      <xs:element name="le_double" type="xs:double" dfdl:byteOrder="littleEndian" />
-                    </xs:sequence>
-                  </xs:complexType>
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="le_bool16" type="xs:boolean"
+                                        dfdl:binaryBooleanTrueRep="1"
+                                        dfdl:byteOrder="littleEndian"
+                                        dfdl:length="16"
+                                        dfdl:lengthKind="explicit"/>
+                            <xs:element name="le_bool32" type="xs:boolean"
+                                        dfdl:byteOrder="littleEndian"
+                                        dfdl:length="32"
+                                        dfdl:lengthKind="explicit"/>
+                            <xs:element name="le_bool8" type="xs:boolean"
+                                        dfdl:byteOrder="littleEndian"
+                                        dfdl:length="8"
+                                        dfdl:lengthKind="explicit"/>
+                            <xs:element name="le_boolean" type="xs:boolean"
+                                        dfdl:byteOrder="littleEndian"/>
+                            <xs:element name="le_double" type="xs:double"
+                                        dfdl:byteOrder="littleEndian"/>
+                            <xs:element name="le_float" type="xs:float"
+                                        dfdl:byteOrder="littleEndian"/>
+                            <xs:element name="le_int16" type="xs:short"
+                                        dfdl:byteOrder="littleEndian"/>
+                            <xs:element name="le_int32" type="xs:int"
+                                        dfdl:byteOrder="littleEndian"/>
+                            <xs:element name="le_int64" type="xs:long"
+                                        dfdl:byteOrder="littleEndian"/>
+                            <xs:element name="le_int8" type="xs:byte"
+                                        dfdl:byteOrder="littleEndian"/>
+                            <xs:element name="le_integer64" type="xs:integer"
+                                        dfdl:byteOrder="littleEndian"
+                                        dfdl:length="64"
+                                        dfdl:lengthKind="explicit"/>
+                            <xs:element name="le_uint16" type="xs:unsignedShort"
+                                        dfdl:byteOrder="littleEndian"/>
+                            <xs:element name="le_uint32" type="xs:unsignedInt"
+                                        dfdl:byteOrder="littleEndian"/>
+                            <xs:element name="le_uint64" type="xs:unsignedLong"
+                                        dfdl:byteOrder="littleEndian"/>
+                            <xs:element name="le_uint8" type="xs:unsignedByte"
+                                        dfdl:byteOrder="littleEndian"/>
+                            <xs:element name="le_nonNegativeInteger8" type="xs:nonNegativeInteger"
+                                        dfdl:byteOrder="littleEndian"
+                                        dfdl:length="8"
+                                        dfdl:lengthKind="explicit"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="fixed">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="boolean_false" type="xs:boolean"
+                                        fixed="false"/>
+                            <xs:element name="boolean_true" type="xs:boolean"
+                                        fixed="true"/>
+                            <xs:element name="float_1_5" type="xs:float"
+                                        fixed="1.5"/>
+                            <xs:element name="int_32" type="xs:int"
+                                        fixed="32"/>
+                        </xs:sequence>
+                    </xs:complexType>
                 </xs:element>
             </xs:sequence>
         </xs:complexType>

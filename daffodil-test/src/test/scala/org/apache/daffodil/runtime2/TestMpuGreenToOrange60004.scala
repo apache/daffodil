@@ -1,7 +1,7 @@
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
+ * this work for additional information ringarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
@@ -17,23 +17,20 @@
 
 package org.apache.daffodil.runtime2
 
-import org.junit.Test
 import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
+import org.junit.Test
 
-object TestExNums {
+object TestMpuGreenToOrange60004 {
   val testDir = "/org/apache/daffodil/runtime2/"
-  val runner = Runner(testDir, "ex_nums.tdml")
+  val runner = Runner(testDir, "MPU_green_to_orange_60004.tdml")
 
   @AfterClass def shutDown(): Unit = { runner.reset }
 }
 
-class TestExNums {
-  import TestExNums._
+class TestMpuGreenToOrange60004 {
+  import TestMpuGreenToOrange60004._
 
-  @Test def test_ex_nums_parse_runtime1(): Unit = { runner.runOneTest("ex_nums_parse_runtime1") }
-  @Test def test_ex_nums_unparse_runtime1(): Unit = { runner.runOneTest("ex_nums_unparse_runtime1") }
-  @Test def test_ex_nums_parse_runtime2(): Unit = { runner.runOneTest("ex_nums_parse_runtime2") }
-  @Test def test_ex_nums_unparse_runtime2(): Unit = { runner.runOneTest("ex_nums_unparse_runtime2") }
-  @Test def test_ex_nums_unparse_errors(): Unit = { runner.runOneTest("ex_nums_unparse_errors") }
+  @Test def test_MPU_green_to_orange_60004_parse(): Unit = { runner.runOneTest("MPU_green_to_orange_60004_parse") }
+  @Test def test_MPU_green_to_orange_60004_unparse(): Unit = { runner.runOneTest("MPU_green_to_orange_60004_unparse") }
 }

@@ -136,36 +136,35 @@ walkInfosetNode(const VisitEventHandler *handler, const InfosetBase *infoNode)
         // We use only one of these variables below depending on typeCode
         const InfosetBase *childNode =
             (const InfosetBase *)((const char *)infoNode + offset);
-        const void *numLocation =
-            (const void *)((const char *)infoNode + offset);
+        const void *number = (const void *)((const char *)infoNode + offset);
 
         // Will need to handle more element types
         const enum TypeCode typeCode = childERD->typeCode;
         switch (typeCode)
         {
-        case COMPLEX:
-            error_msg = walkInfosetNode(handler, childNode);
-            break;
-        case PRIMITIVE_UINT64:
-        case PRIMITIVE_UINT32:
-        case PRIMITIVE_UINT16:
-        case PRIMITIVE_UINT8:
-        case PRIMITIVE_INT64:
-        case PRIMITIVE_INT32:
-        case PRIMITIVE_INT16:
-        case PRIMITIVE_INT8:
-        case PRIMITIVE_FLOAT:
-        case PRIMITIVE_DOUBLE:
-            error_msg =
-                handler->visitNumberElem(handler, childERD, numLocation);
-            break;
         case CHOICE:
             // Point next ERD to choice of alternative elements' ERDs
             if (!infoNode->erd->initChoice(infoNode, rootElement()))
             {
-                error_msg =
-                    "Walk error: no match between choice dispatch key and any branch key";
+                error_msg = "Walk error: no match between choice dispatch key "
+                            "and any branch key";
             }
+            break;
+        case COMPLEX:
+            error_msg = walkInfosetNode(handler, childNode);
+            break;
+        case PRIMITIVE_BOOLEAN:
+        case PRIMITIVE_DOUBLE:
+        case PRIMITIVE_FLOAT:
+        case PRIMITIVE_INT16:
+        case PRIMITIVE_INT32:
+        case PRIMITIVE_INT64:
+        case PRIMITIVE_INT8:
+        case PRIMITIVE_UINT16:
+        case PRIMITIVE_UINT32:
+        case PRIMITIVE_UINT64:
+        case PRIMITIVE_UINT8:
+            error_msg = handler->visitNumberElem(handler, childERD, number);
             break;
         }
     }
@@ -209,11 +208,11 @@ eof_or_error_msg(FILE *stream)
 {
     if (feof(stream))
     {
-        return "Found eof indicator after reading stream";
+        return "Found eof indicator in stream, stopping now";
     }
     else if (ferror(stream))
     {
-        return "Found error indicator after reading stream";
+        return "Found error indicator in stream, stopping now";
     }
     else
     {

@@ -16,7 +16,7 @@
   limitations under the License.
 -->
 
-<idl:VideoSettings xmlns:idl="urn:idl:1.0">
+<idl:VideoSettingsDecl xmlns:idl="urn:idl:1.0">
   <sync0>208</sync0>
   <sync1>13</sync1>
   <id>98</id>
@@ -34,4 +34,4 @@
   <mjpegQuality>0</mjpegQuality>
   <saveSettingsAndTsPacketCount>0</saveSettingsAndTsPacketCount>
   <checksum>3073</checksum>
-</idl:VideoSettings>
+</idl:VideoSettingsDecl>

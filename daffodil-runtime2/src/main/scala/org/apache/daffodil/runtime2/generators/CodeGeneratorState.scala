@@ -17,8 +17,8 @@
 
 package org.apache.daffodil.runtime2.generators
 
+import org.apache.daffodil.api.WarnID
 import org.apache.daffodil.cookers.ChoiceBranchKeyCooker
-import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.dpath.NodeInfo.PrimType
 import org.apache.daffodil.dsom.AbstractElementRef
 import org.apache.daffodil.dsom.Choice
@@ -67,8 +67,21 @@ class CodeGeneratorState {
     val C = localName(context)
     val initStatements = structs.top.initStatements.mkString("\n")
     val initChoiceStatements = structs.top.initChoiceStatements.mkString("\n")
-    val parserStatements = structs.top.parserStatements.mkString("\n")
-    val unparserStatements = structs.top.unparserStatements.mkString("\n")
+    val hasStatements = structs.top.parserStatements.nonEmpty
+    val parserStatements = if (hasStatements)
+      structs.top.parserStatements.mkString("\n")
+    else
+      s"""    // Empty struct, but need to prevent compiler warnings
+         |    UNUSED(${C}_compute_offsets);
+         |    UNUSED(instance);
+         |    UNUSED(pstate);""".stripMargin
+    val unparserStatements = if (hasStatements)
+      structs.top.unparserStatements.mkString("\n")
+    else
+      s"""    // Empty struct, but need to prevent compiler warnings
+         |    UNUSED(${C}_compute_offsets);
+         |    UNUSED(instance);
+         |    UNUSED(ustate);""".stripMargin
     val hasChoice = structs.top.initChoiceStatements.nonEmpty
     val root = structs.elems.last.C
     val prototypeInitChoice = if (hasChoice)
@@ -171,11 +184,23 @@ class CodeGeneratorState {
     res
   }
 
+  // We know context is a complex type.  We need to 1) support choice groups; 2) support
+  // padding complex elements to explicit lengths with fill bytes
   def addBeforeSwitchStatements(context: ElementBase): Unit = {
     val erd = erdName(context)
     val initStatement = s"    instance->_base.erd = &$erd;"
 
     structs.top.initStatements += initStatement
+
+    // Implement padding if complex type has an explicit length
+    if (context.maybeFixedLengthInBits.isDefined && context.maybeFixedLengthInBits.get > 0) {
+      val lengthInBytes = context.maybeFixedLengthInBits.get / 8;
+      val parseStatement = s"    const size_t end_position = pstate->position + $lengthInBytes;"
+      val unparseStatement = s"    const size_t end_position = ustate->position + $lengthInBytes;"
+
+      structs.top.parserStatements += parseStatement
+      structs.top.unparserStatements += unparseStatement
+    }
 
     val dispatchField = choiceDispatchField(context)
     if (dispatchField.nonEmpty) {
@@ -222,7 +247,9 @@ class CodeGeneratorState {
     }
   }
 
-  def addAfterSwitchStatements(): Unit = {
+  // We know context is a complex type.  We need to 1) support choice groups; 2) support
+  // padding complex elements to explicit lengths with fill bytes
+  def addAfterSwitchStatements(context: ElementBase): Unit = {
     if (structs.top.initChoiceStatements.nonEmpty) {
       val declaration = s"    };"
       val initChoiceStatement =
@@ -259,6 +286,16 @@ class CodeGeneratorState {
 
       structs.top.declarations += declaration
       structs.top.initChoiceStatements += initChoiceStatement
+      structs.top.parserStatements += parseStatement
+      structs.top.unparserStatements += unparseStatement
+    }
+
+    // Implement padding if complex type has an explicit length
+    if (context.maybeFixedLengthInBits.isDefined && context.maybeFixedLengthInBits.get > 0) {
+      val octalFillByte = context.fillByteEv.constValue.toByte.toOctalString
+      val parseStatement = s"    parse_fill_bytes(end_position, pstate);"
+      val unparseStatement = s"    unparse_fill_bytes(end_position, '\\$octalFillByte', ustate);"
+
       structs.top.parserStatements += parseStatement
       structs.top.unparserStatements += unparseStatement
     }
@@ -316,41 +353,55 @@ class CodeGeneratorState {
   }
 
   def addSimpleTypeStatements(initStatement: String, parseStatement: String, unparseStatement: String): Unit = {
-    structs.top.initStatements += initStatement
-    structs.top.parserStatements += parseStatement
-    structs.top.unparserStatements += unparseStatement
+    if (initStatement.nonEmpty) structs.top.initStatements += initStatement
+    if (parseStatement.nonEmpty) structs.top.parserStatements += parseStatement
+    if (unparseStatement.nonEmpty) structs.top.unparserStatements += unparseStatement
   }
 
   def addComplexTypeStatements(child: ElementBase): Unit = {
     val C = localName(child)
     val e = child.name
     val hasChoice = structs.top.initChoiceStatements.nonEmpty
-    val offset = if (hasChoice) child.position - 1 else -1
-    val initStatement = s"    ${C}_initSelf(&instance->$e);"
-    val initChoiceStatement =
-      s"""        instance->_choice = $offset;
-         |        break;""".stripMargin
-    val parseStatement = if (hasChoice)
-      s"""    case $offset:
-         |        ${C}_parseSelf(&instance->$e, pstate);
-         |        break;""".stripMargin
-    else
-      s"    ${C}_parseSelf(&instance->$e, pstate);"
-    val unparseStatement = if (hasChoice)
-      s"""    case $offset:
-         |        ${C}_unparseSelf(&instance->$e, ustate);
-         |        break;""".stripMargin
-    else
-      s"    ${C}_unparseSelf(&instance->$e, ustate);"
+    val arraySize = if (child.occursCountKind == OccursCountKind.Fixed) child.maxOccurs else 0
 
-    structs.top.initStatements += initStatement
     if (hasChoice) {
+      val offset = child.position - 1
+      val initChoiceStatement =
+        s"""        instance->_choice = $offset;
+           |        break;""".stripMargin
+      val parseStatement = s"    case $offset:"
+      val unparseStatement = s"    case $offset:"
+
       structs.top.initChoiceStatements ++= ChoiceBranchKeyCooker.convertConstant(
         child.choiceBranchKey, child, forUnparse = false).map { key => s"    case $key:"}
       structs.top.initChoiceStatements += initChoiceStatement
+      structs.top.parserStatements += parseStatement
+      structs.top.unparserStatements += unparseStatement
     }
-    structs.top.parserStatements += parseStatement
-    structs.top.unparserStatements += unparseStatement
+
+    def addStatements(deref: String): Unit = {
+      val moreIndent = if (hasChoice) "    " else ""
+      val initStatement = s"    ${C}_initSelf(&instance->$e$deref);"
+      val parseStatement = s"    $moreIndent${C}_parseSelf(&instance->$e$deref, pstate);"
+      val unparseStatement = s"    $moreIndent${C}_unparseSelf(&instance->$e$deref, ustate);"
+
+      structs.top.initStatements += initStatement
+      structs.top.parserStatements += parseStatement
+      structs.top.unparserStatements += unparseStatement
+    }
+    if (arraySize > 0)
+      for (i <- 0 until arraySize)
+        addStatements(s"[$i]")
+    else
+      addStatements("")
+
+    if (hasChoice) {
+      val parseStatement = s"        break;"
+      val unparseStatement = s"        break;"
+
+      structs.top.parserStatements += parseStatement
+      structs.top.unparserStatements += unparseStatement
+    }
   }
 
   def pushComplexElement(context: ElementBase): Unit = {
@@ -362,21 +413,74 @@ class CodeGeneratorState {
     structs.pop()
   }
 
+  // Gets length from explicit length declaration if any, otherwise from base type's implicit length
+  private def getLengthInBits(e: ElementBase): Long = {
+    e.schemaDefinitionUnless(e.elementLengthInBitsEv.isConstant, "Runtime dfdl:length expressions are not supported.")
+    e.elementLengthInBitsEv.constValue.get
+  }
+
+  // Because schema authors don't always get types right, allows explicit lengths to override implicit lengths
+  private def getPrimType(e: ElementBase): PrimType = {
+    val primType = e.optPrimType.get match {
+      case PrimType.Byte
+         | PrimType.Short
+         | PrimType.Int
+         | PrimType.Long
+         | PrimType.Integer =>
+        getLengthInBits(e) match {
+          case 8 =>  PrimType.Byte
+          case 16 => PrimType.Short
+          case 32 => PrimType.Int
+          case 64 => PrimType.Long
+          case _ =>  e.SDE("Integer lengths other than 8, 16, 32, or 64 bits are not supported.")
+        }
+      case PrimType.UnsignedByte
+         | PrimType.UnsignedShort
+         | PrimType.UnsignedInt
+         | PrimType.UnsignedLong
+         | PrimType.NonNegativeInteger =>
+        getLengthInBits(e) match {
+          case 8 =>  PrimType.UnsignedByte
+          case 16 => PrimType.UnsignedShort
+          case 32 => PrimType.UnsignedInt
+          case 64 => PrimType.UnsignedLong
+          case _ =>  e.SDE("Unsigned integer lengths other than 8, 16, 32, or 64 bits are not supported.")
+        }
+      case PrimType.Double
+         | PrimType.Float =>
+        getLengthInBits(e) match {
+          case 32 => PrimType.Float
+          case 64 => PrimType.Double
+          case _ =>  e.SDE("Floating point lengths other than 32 or 64 bits are not supported.")
+        }
+      case PrimType.Boolean =>
+        getLengthInBits(e) match {
+          case 8 | 16 | 32 => PrimType.Boolean
+          case _ => e.SDE("Boolean lengths other than 8, 16, or 32 bits are not supported.")
+        }
+      case p => e.SDE("PrimType %s is not supported in C code generator.", p.toString)
+    }
+    if (primType != e.optPrimType.get)
+      e.SDW(WarnID.IgnoreDFDLProperty, "Ignoring PrimType %s, using %s", e.optPrimType.get.toString, primType.toString)
+    primType
+  }
+
   def addSimpleTypeERD(context: ElementBase): Unit = {
     val erd = erdName(context)
     val qnameInit = defineQNameInit(context)
-    val typeCode = context.optPrimType.get match {
-      case PrimType.UnsignedLong => "PRIMITIVE_UINT64"
-      case PrimType.UnsignedInt => "PRIMITIVE_UINT32"
-      case PrimType.UnsignedShort => "PRIMITIVE_UINT16"
-      case PrimType.UnsignedByte => "PRIMITIVE_UINT8"
-      case PrimType.Long => "PRIMITIVE_INT64"
-      case PrimType.Int => "PRIMITIVE_INT32"
-      case PrimType.Short => "PRIMITIVE_INT16"
-      case PrimType.Byte => "PRIMITIVE_INT8"
-      case PrimType.Float => "PRIMITIVE_FLOAT"
+    val typeCode = getPrimType(context) match {
+      case PrimType.Boolean => "PRIMITIVE_BOOLEAN"
       case PrimType.Double => "PRIMITIVE_DOUBLE"
-      case p: PrimType => context.SDE("PrimType %s not supported yet.", p.toString)
+      case PrimType.Float => "PRIMITIVE_FLOAT"
+      case PrimType.Short => "PRIMITIVE_INT16"
+      case PrimType.Int => "PRIMITIVE_INT32"
+      case PrimType.Long => "PRIMITIVE_INT64"
+      case PrimType.Byte => "PRIMITIVE_INT8"
+      case PrimType.UnsignedShort => "PRIMITIVE_UINT16"
+      case PrimType.UnsignedInt => "PRIMITIVE_UINT32"
+      case PrimType.UnsignedLong => "PRIMITIVE_UINT64"
+      case PrimType.UnsignedByte => "PRIMITIVE_UINT8"
+      case p => context.SDE("PrimType %s is not supported.", p.toString)
     }
     val erdDef =
       s"""static const ERD $erd = {
@@ -409,19 +513,19 @@ class CodeGeneratorState {
 
   def addFieldDeclaration(context: ThrowsSDE, child: ElementBase): Unit = {
     val definition = if (child.isSimpleType) {
-      import NodeInfo.PrimType
-      child.optPrimType.get match {
-        case PrimType.UnsignedLong => "uint64_t   "
-        case PrimType.UnsignedInt => "uint32_t   "
-        case PrimType.UnsignedShort => "uint16_t   "
-        case PrimType.UnsignedByte => "uint8_t    "
-        case PrimType.Long => "int64_t    "
-        case PrimType.Int => "int32_t    "
-        case PrimType.Short => "int16_t    "
-        case PrimType.Byte => "int8_t     "
-        case PrimType.Float => "float      "
+      getPrimType(child) match {
+        case PrimType.Boolean => "bool       "
         case PrimType.Double => "double     "
-        case x => context.SDE("Unsupported primitive type: " + x)
+        case PrimType.Float => "float      "
+        case PrimType.Short => "int16_t    "
+        case PrimType.Int => "int32_t    "
+        case PrimType.Long => "int64_t    "
+        case PrimType.Byte => "int8_t     "
+        case PrimType.UnsignedShort => "uint16_t   "
+        case PrimType.UnsignedInt => "uint32_t   "
+        case PrimType.UnsignedLong => "uint64_t   "
+        case PrimType.UnsignedByte => "uint8_t    "
+        case p => child.SDE("PrimType %s is not supported: ", p.toString)
       }
     } else {
       localName(child)
@@ -441,6 +545,7 @@ class CodeGeneratorState {
          |#define GENERATED_CODE_H
          |
          |#include "infoset.h"  // for InfosetBase
+         |#include <stdbool.h>  // for bool
          |#include <stdint.h>   // for int16_t, int32_t, int64_t, int8_t, uint16_t, uint32_t, uint64_t, uint8_t
 
          |// Define infoset structures

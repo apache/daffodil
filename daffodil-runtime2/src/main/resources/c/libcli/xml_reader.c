@@ -16,67 +16,66 @@
  */
 
 #include "xml_reader.h"
+#include <assert.h>    // for assert
 #include <errno.h>     // for errno
 #include <inttypes.h>  // for strtoimax, strtoumax
 #include <mxml.h>      // for mxmlWalkNext, mxmlGetType, mxmlGetElement, MXML_DESCEND, MXML_OPAQUE, mxmlDelete, mxmlGetOpaque, mxmlLoadFile, MXML_OPAQUE_CALLBACK
+#include <stdbool.h>   // for bool, false, true
 #include <stdint.h>    // for intmax_t, uintmax_t, int16_t, int32_t, int64_t, int8_t, uint16_t, uint32_t, uint64_t, uint8_t, INT16_MAX, INT16_MIN, INT32_MAX, INT32_MIN, INT64_MAX, INT64_MIN, INT8_MAX, INT8_MIN, UINT16_MAX, UINT32_MAX, UINT64_MAX, UINT8_MAX
 #include <stdlib.h>    // for strtod, strtof
 #include <string.h>    // for strcmp, strlen, strncmp
 
-// Convert an XML element's text to a signed integer (BSD function not
-// widely available, so call strtoimax with our own error checking)
+// Convert an XML element's text to a boolean with error checking
 
-static intmax_t
-strtonum(const char *numptr, intmax_t minval, intmax_t maxval,
-         const char **errstrp)
+static bool
+strtobool(const char *numptr, const char **errstrp)
 {
-    char *endptr = NULL;
+    // The lexical space of xs:boolean accepts true, false, 1, and 0
+    bool        value = false;
+    const char *error_msg = NULL;
 
-    // Clear errno to detect error after calling strtoimax
-    errno = 0;
-    const intmax_t value = strtoimax(numptr, &endptr, 10);
-
-    // Report any issues converting the string to a number
-    if (errno != 0)
+    // Report any issues converting the string to a boolean
+    if (strcmp(numptr, "true") == 0)
     {
-        *errstrp = "Error converting XML data to integer";
+        value = true;
     }
-    else if (endptr == numptr)
+    else if (strcmp(numptr, "false") == 0)
     {
-        *errstrp = "Found no number in XML data";
+        value = false;
     }
-    else if (*endptr != '\0')
+    else if (strcmp(numptr, "1") == 0)
     {
-        *errstrp = "Found non-number characters in XML data";
+        value = true;
     }
-    else if (value < minval || value > maxval || maxval < minval)
+    else if (strcmp(numptr, "0") == 0)
     {
-        *errstrp = "Number in XML data out of range";
+        value = false;
     }
     else
     {
-        *errstrp = NULL;
+        error_msg = "Error converting XML data to boolean";
     }
 
+    *errstrp = error_msg;
     return value;
 }
 
-// Convert an XML element's text to an unsigned integer (call strtoumax
-// with our own error checking)
+// Convert an XML element's text to a double (call strtod with our own
+// error checking)
 
-static uintmax_t
-strtounum(const char *numptr, uintmax_t maxval, const char **errstrp)
+static double
+strtodnum(const char *numptr, const char **errstrp)
 {
     char *endptr = NULL;
 
-    // Clear errno to detect error after calling strtoumax
+    // Clear errno to detect error after calling strtod
     errno = 0;
-    const uintmax_t value = strtoumax(numptr, &endptr, 10);
+    const double value = strtod(numptr, &endptr);
 
     // Report any issues converting the string to a number
     if (errno != 0)
     {
-        *errstrp = "Error converting XML data to integer";
+        *errstrp = "Error converting XML data to number";
     }
     else if (endptr == numptr)
     {
@@ -85,10 +84,6 @@ strtounum(const char *numptr, uintmax_t maxval, const char **errstrp)
     else if (*endptr != '\0')
     {
         *errstrp = "Found non-number characters in XML data";
-    }
-    else if (value > maxval)
-    {
-        *errstrp = "Number in XML data out of range";
     }
     else
     {
@@ -131,22 +126,24 @@ strtofnum(const char *numptr, const char **errstrp)
     return value;
 }
 
-// Convert an XML element's text to a double (call strtod with our own
-// error checking)
+// Convert an XML element's text to a signed integer (BSD function not
+// widely available, so call strtoimax with our own error checking)
 
-static double
-strtodnum(const char *numptr, const char **errstrp)
+static intmax_t
+strtonum(const char *numptr, intmax_t minval, intmax_t maxval,
+         const char **errstrp)
 {
     char *endptr = NULL;
+    assert(minval < maxval);
 
-    // Clear errno to detect error after calling strtod
+    // Clear errno to detect error after calling strtoimax
     errno = 0;
-    const double value = strtod(numptr, &endptr);
+    const intmax_t value = strtoimax(numptr, &endptr, 10);
 
     // Report any issues converting the string to a number
     if (errno != 0)
     {
-        *errstrp = "Error converting XML data to number";
+        *errstrp = "Error converting XML data to integer";
     }
     else if (endptr == numptr)
     {
@@ -155,6 +152,47 @@ strtodnum(const char *numptr, const char **errstrp)
     else if (*endptr != '\0')
     {
         *errstrp = "Found non-number characters in XML data";
+    }
+    else if (value < minval || value > maxval)
+    {
+        *errstrp = "Number in XML data out of range";
+    }
+    else
+    {
+        *errstrp = NULL;
+    }
+
+    return value;
+}
+
+// Convert an XML element's text to an unsigned integer (call strtoumax
+// with our own error checking)
+
+static uintmax_t
+strtounum(const char *numptr, uintmax_t maxval, const char **errstrp)
+{
+    char *endptr = NULL;
+
+    // Clear errno to detect error after calling strtoumax
+    errno = 0;
+    const uintmax_t value = strtoumax(numptr, &endptr, 10);
+
+    // Report any issues converting the string to a number
+    if (errno != 0)
+    {
+        *errstrp = "Error converting XML data to integer";
+    }
+    else if (endptr == numptr)
+    {
+        *errstrp = "Found no number in XML data";
+    }
+    else if (*endptr != '\0')
+    {
+        *errstrp = "Found non-number characters in XML data";
+    }
+    else if (value > maxval)
+    {
+        *errstrp = "Number in XML data out of range";
     }
     else
     {
@@ -261,16 +299,16 @@ xmlStartComplex(XMLReader *reader, const InfosetBase *base)
 static const char *
 xmlEndComplex(XMLReader *reader, const InfosetBase *base)
 {
-    (void)reader;
-    (void)base;
+    UNUSED(reader); // because nothing to read
+    UNUSED(base); // because nothing to check
     return NULL;
 }
 
-// Read 8, 16, 32, or 64-bit signed/unsigned integer number or floating point
-// number from XML data
+// Read a boolean, 32-bit or 64-bit real number, or 8, 16, 32, or
+// 64-bit signed or unsigned integer from XML data
 
 static const char *
-xmlNumberElem(XMLReader *reader, const ERD *erd, void *numLocation)
+xmlNumberElem(XMLReader *reader, const ERD *erd, void *number)
 {
     // Consume any newlines or whitespace before the element
     while (mxmlGetType(reader->node) == MXML_OPAQUE)
@@ -292,48 +330,50 @@ xmlNumberElem(XMLReader *reader, const ERD *erd, void *numLocation)
             // Check for any errors getting the number
             const char *errstr = NULL;
 
-            // Handle varying bit lengths of both signed & unsigned integers and
-            // floating point numbers
+            // Handle varying bit lengths of both signed & unsigned numbers
             const enum TypeCode typeCode = erd->typeCode;
             switch (typeCode)
             {
-            case PRIMITIVE_UINT64:
-                *(uint64_t *)numLocation =
-                    (uint64_t)strtounum(number_from_xml, UINT64_MAX, &errstr);
-                break;
-            case PRIMITIVE_UINT32:
-                *(uint32_t *)numLocation =
-                    (uint32_t)strtounum(number_from_xml, UINT32_MAX, &errstr);
-                break;
-            case PRIMITIVE_UINT16:
-                *(uint16_t *)numLocation =
-                    (uint16_t)strtounum(number_from_xml, UINT16_MAX, &errstr);
-                break;
-            case PRIMITIVE_UINT8:
-                *(uint8_t *)numLocation =
-                    (uint8_t)strtounum(number_from_xml, UINT8_MAX, &errstr);
-                break;
-            case PRIMITIVE_INT64:
-                *(int64_t *)numLocation = (int64_t)strtonum(
-                    number_from_xml, INT64_MIN, INT64_MAX, &errstr);
-                break;
-            case PRIMITIVE_INT32:
-                *(int32_t *)numLocation = (int32_t)strtonum(
-                    number_from_xml, INT32_MIN, INT32_MAX, &errstr);
-                break;
-            case PRIMITIVE_INT16:
-                *(int16_t *)numLocation = (int16_t)strtonum(
-                    number_from_xml, INT16_MIN, INT16_MAX, &errstr);
-                break;
-            case PRIMITIVE_INT8:
-                *(int8_t *)numLocation = (int8_t)strtonum(
-                    number_from_xml, INT8_MIN, INT8_MAX, &errstr);
+            case PRIMITIVE_BOOLEAN:
+                *(bool *)number = strtobool(number_from_xml, &errstr);
                 break;
             case PRIMITIVE_FLOAT:
-                *(float *)numLocation = strtofnum(number_from_xml, &errstr);
+                *(float *)number = strtofnum(number_from_xml, &errstr);
                 break;
             case PRIMITIVE_DOUBLE:
-                *(double *)numLocation = strtodnum(number_from_xml, &errstr);
+                *(double *)number = strtodnum(number_from_xml, &errstr);
+                break;
+            case PRIMITIVE_INT16:
+                *(int16_t *)number = (int16_t)strtonum(
+                    number_from_xml, INT16_MIN, INT16_MAX, &errstr);
+                break;
+            case PRIMITIVE_INT32:
+                *(int32_t *)number = (int32_t)strtonum(
+                    number_from_xml, INT32_MIN, INT32_MAX, &errstr);
+                break;
+            case PRIMITIVE_INT64:
+                *(int64_t *)number = (int64_t)strtonum(
+                    number_from_xml, INT64_MIN, INT64_MAX, &errstr);
+                break;
+            case PRIMITIVE_INT8:
+                *(int8_t *)number = (int8_t)strtonum(number_from_xml, INT8_MIN,
+                                                     INT8_MAX, &errstr);
+                break;
+            case PRIMITIVE_UINT16:
+                *(uint16_t *)number =
+                    (uint16_t)strtounum(number_from_xml, UINT16_MAX, &errstr);
+                break;
+            case PRIMITIVE_UINT32:
+                *(uint32_t *)number =
+                    (uint32_t)strtounum(number_from_xml, UINT32_MAX, &errstr);
+                break;
+            case PRIMITIVE_UINT64:
+                *(uint64_t *)number =
+                    (uint64_t)strtounum(number_from_xml, UINT64_MAX, &errstr);
+                break;
+            case PRIMITIVE_UINT8:
+                *(uint8_t *)number =
+                    (uint8_t)strtounum(number_from_xml, UINT8_MAX, &errstr);
                 break;
             default:
                 errstr = "Unexpected ERD typeCode while reading number from "
