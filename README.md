@@ -16,21 +16,21 @@
 -->
 
 [<img src="https://daffodil.apache.org/assets/themes/apache/img/apache-daffodil-logo.svg" height="85" align="left" alt="Apache Daffodil"/>][Website]
-[<img src="https://img.shields.io/github/workflow/status/apache/incubator-daffodil/Daffodil%20CI/master.svg" align="right"/>][GitHub Actions]
+[<img src="https://img.shields.io/github/workflow/status/apache/daffodil/Daffodil%20CI/master.svg" align="right"/>][GitHub Actions]
 <br clear="right" />
-[<img src="https://img.shields.io/codecov/c/github/apache/incubator-daffodil/master.svg" align="right"/>][CodeCov]
+[<img src="https://img.shields.io/codecov/c/github/apache/daffodil/master.svg" align="right"/>][CodeCov]
 <br clear="right" />
 [<img src="https://img.shields.io/maven-central/v/org.apache.daffodil/daffodil-core_2.12.svg?color=brightgreen&label=version" align="right"/>][Releases]
 <br clear="both" />
 
-Apache Daffodil (incubating) is the open source implementation of the [Data Format
-Description Language (DFDL)], a specification created by the [Open Grid Forum]. DFDL is
-capable of describing many data formats, including textual and binary, commercial
-record-oriented, scientific and numeric, modern and legacy, and many industry standards.
-It leverages XML technology and concepts, using a subset of W3C XML schema type system and
-annotations to describe such data. Daffodil uses this description to parse data into an
-infoset represented as XML or JSON, easily capable of ingestion, validation, and
-transformation.
+Apache Daffodil is an open-source implementation of the [DFDL specification]
+that uses DFDL data descriptions to parse fixed format data into an infoset.
+This infoset is commonly converted into XML or JSON to enable the use of
+well-established XML or JSON technologies and libraries to consume, inspect,
+and manipulate fixed format data in existing solutions. Daffodil is also
+capable of serializing or "unparsing" data back to the original data format.
+The DFDL infoset can also be converted directly to/from the data structures
+carried by data processing frameworks so as to bypass any XML/JSON overheads.
 
 For more information about Daffodil, see https://daffodil.apache.org/.
 
@@ -100,28 +100,18 @@ users@daffodil.apache.org mailing lists. Bugs can be reported via the [Daffodil 
 
 Apache Daffodil is licensed under the [Apache License, v2.0].
 
-## Disclaimer
-
-Apache Daffodil is an effort undergoing incubation at The Apache Software Foundation
-(ASF), sponsored by the Incubator PMC. Incubation is required of all newly accepted
-projects until a further review indicates that the infrastructure, communications, and
-decision making process have stabilized in a manner consistent with other successful ASF
-projects. While incubation status is not necessarily a reflection of the completeness or
-stability of the code, it does indicate that the project has yet to be fully endorsed by
-the ASF.
-
 
 
 
 [Apache License, v2.0]: https://www.apache.org/licenses/LICENSE-2.0
 [Apache RAT]: https://creadur.apache.org/rat/
-[CodeCov]: https://codecov.io/gh/apache/incubator-daffodil/
+[CodeCov]: https://codecov.io/gh/apache/daffodil/
 [Command Line Interface]: https://daffodil.apache.org/cli/
 [Daffodil JIRA]: https://issues.apache.org/jira/projects/DAFFODIL
-[Data Format Description Language (DFDL)]: http://www.ogf.org/dfdl
+[DFDL specification]: http://www.ogf.org/dfdl
 [Open Grid Forum]: http://www.ogf.org
 [Releases]: http://daffodil.apache.org/releases/
 [SBT]: http://www.scala-sbt.org
-[Github Actions]: https://github.com/apache/incubator-daffodil/actions?query=branch%3Amaster+
+[Github Actions]: https://github.com/apache/daffodil/actions?query=branch%3Amaster+
 [Website]: https://daffodil.apache.org
 [sbt-scoverage]: https://github.com/scoverage/sbt-scoverage

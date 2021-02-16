@@ -151,12 +151,11 @@ lazy val commonSettings = Seq(
   pomIncludeRepository in ThisBuild := { _ => false },
   scmInfo := Some(
     ScmInfo(
-      browseUrl = url("https://gitbox.apache.org/repos/asf/incubator-daffodil.git"),
-      connection = "scm:git:https://gitbox.apache.org/repos/asf/incubator-daffodil.git"
+      browseUrl = url("https://github.com/apache/daffodil"),
+      connection = "scm:git:https://github.com/apache/daffodil"
     )
   ),
   licenses := Seq("Apache License, Version 2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0")),
-  mappings in (Compile, packageBin) += baseDirectory.value / ".." / "DISCLAIMER" -> "META-INF/DISCLAIMER",
   homepage := Some(url("https://daffodil.apache.org")),
   unmanagedBase := baseDirectory.value / "lib" / "jars",
   sourceManaged := baseDirectory.value / "src_managed",
@@ -291,14 +290,14 @@ lazy val ratSettings = Seq(
 lazy val unidocSettings = Seq(
   unidocProjectFilter in (ScalaUnidoc, unidoc) := inProjects(sapi, udf),
   scalacOptions in (ScalaUnidoc, unidoc) := Seq(
-    "-doc-title", "Apache Daffodil (incubating) " + version.value + " Scala API",
+    "-doc-title", "Apache Daffodil " + version.value + " Scala API",
     "-doc-root-content", (baseDirectory in sapi).value + "/root-doc.txt"
   ),
 
   unidocProjectFilter in (JavaUnidoc, unidoc) := inProjects(japi, udf),
   javacOptions in (JavaUnidoc, unidoc) := Seq(
-    "-windowtitle", "Apache Daffodil (incubating) " + version.value + " Java API",
-    "-doctitle", "<h1>Apache Daffodil (incubating) " + version.value + " Java API</h1>",
+    "-windowtitle", "Apache Daffodil " + version.value + " Java API",
+    "-doctitle", "<h1>Apache Daffodil " + version.value + " Java API</h1>",
     "-notimestamp",
     "-quiet",
   ),

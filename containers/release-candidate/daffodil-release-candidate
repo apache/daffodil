@@ -116,9 +116,9 @@ echo
 
 REPO_ROOT=`pwd`
 
-DAFFODIL_REPO="incubator-daffodil"
-DAFFODIL_SITE_REPO="incubator-daffodil-site"
-DAFFODIL_DIST="incubator-daffodil-dist"
+DAFFODIL_REPO="daffodil"
+DAFFODIL_SITE_REPO="daffodil-site"
+DAFFODIL_DIST="daffodil-dist"
 
 echo "Cloning repos..."
 
@@ -129,8 +129,8 @@ echo
 echo git clone ssh://git@github.com/apache/$DAFFODIL_SITE_REPO.git
 git clone ssh://git@github.com/apache/$DAFFODIL_SITE_REPO.git
 
-echo svn checkout https://dist.apache.org/repos/dist/dev/incubator/daffodil $DAFFODIL_DIST
-svn checkout https://dist.apache.org/repos/dist/dev/incubator/daffodil $DAFFODIL_DIST
+echo svn checkout https://dist.apache.org/repos/dist/dev/daffodil $DAFFODIL_DIST
+svn checkout https://dist.apache.org/repos/dist/dev/daffodil $DAFFODIL_DIST
 
 pushd $REPO_ROOT/$DAFFODIL_REPO &> /dev/null
 
@@ -187,7 +187,7 @@ find $DAFFODIL_DIST_DIR -maxdepth 1 -name $VERSION-\* -exec svn delete --force {
 
 echo "Installing Source and Convenience Binaries..."
 mkdir -p $DAFFODIL_RELEASE_DIR/{src,bin}/
-git archive --format=zip --prefix=apache-daffodil-$VERSION-incubating-src/ HEAD > $DAFFODIL_RELEASE_DIR/src/apache-daffodil-$VERSION-incubating-src.zip
+git archive --format=zip --prefix=apache-daffodil-$VERSION-src/ HEAD > $DAFFODIL_RELEASE_DIR/src/apache-daffodil-$VERSION-src.zip
 cp daffodil-cli/target/universal/apache-daffodil-*.tgz $DAFFODIL_RELEASE_DIR/bin/
 cp daffodil-cli/target/universal/apache-daffodil-*.zip $DAFFODIL_RELEASE_DIR/bin/
 cp daffodil-cli/target/rpm/RPMS/noarch/apache-daffodil-*.rpm $DAFFODIL_RELEASE_DIR/bin/
@@ -259,7 +259,7 @@ else
   cat << EOF > /root/complete-release
 #!/bin/bash
 set -x
-cd $DAFFODIL_DIST_DIR && svn ci --username $APACHE_USERNAME -m 'Staging Apache Daffodil (incubating) $VERSION-$PRE_RELEASE'
+cd $DAFFODIL_DIST_DIR && svn ci --username $APACHE_USERNAME -m 'Staging Apache Daffodil $VERSION-$PRE_RELEASE'
 cd $DAFFODIL_REPO_DIR && git push origin v$VERSION-$PRE_RELEASE
 cd $DAFFODIL_SITE_DIR && git push origin master
 EOF

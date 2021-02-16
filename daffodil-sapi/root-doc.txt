@@ -1,4 +1,4 @@
-This is the documentation for the Apache Daffodil (incubating) Scala API.
+This is the documentation for the Apache Daffodil Scala API.
 
 === Package structure ===
 

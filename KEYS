@@ -31,7 +31,7 @@ Developers:
   Releases will be signed using one of the keys in this file. This file will
   be available with the distributed Apache Daffodil releases at:
 
-      https://dist.apache.org/repos/dist/release/incubator/daffodil/KEYS
+      https://dist.apache.org/repos/dist/release/daffodil/KEYS
 
 ********************************************************************************
 

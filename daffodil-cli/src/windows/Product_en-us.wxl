@@ -31,12 +31,6 @@
    <!-- SBT Native Packager plug-in does not support comments, so this next line is ignored. -->
    <String Id="Comments">Installs Daffodil</String>
  
-   <!-- Set up the Notice dialog. -->
-   <String Id="DisclaimerDlg_Title" Overridable="yes">Daffodil Setup</String>
-   <String Id="DisclaimerDlg_TitleBold" Overridable="yes">{\WixUI_Font_Title}Apache Incubator Disclaimer</String>
-   <String Id="DisclaimerDlgDescription" Overridable="yes">Please read this Disclaimer, then click the 'Next' button</String>
-   <String Id="DisclaimerText" Overridable="yes">{\WixUI_Font_Bigger}Apache Daffodil is an effort undergoing incubation at The Apache Software Foundation (ASF), sponsored by the Apache Incubator PMC. Incubation is required of all newly accepted projects until a further review indicates that the infrastructure, communications, and decision making process have stabilized in a manner consistent with other successful ASF projects. While incubation status is not necessarily a reflection of the completeness or stability of the code, it does indicate that the project has yet to be fully endorsed by the ASF.</String>
-   
    <!-- Set up the License Agreement dialog. -->
    <String Id="LicenseAgreementDlg_Title" Overridable="yes">Daffodil Setup</String>
    <String Id="LicenseAgreementDlg_TitleBold" Overridable="yes">{\WixUI_Font_Title}Apache Daffodil License</String>   

@@ -189,7 +189,7 @@
               <a href="#" data-toggle="dropdown" class="dropdown-toggle">Development<b class="caret"></b></a>
               <ul class="dropdown-menu dropdown-left">
                 <li><a class="external" href="https://cwiki.apache.org/confluence/display/DAFFODIL/">Wiki</a></li>
-                <li><a class="external" href="https://github.com/search?q=repo%3Aapache%2Fincubator-daffodil+repo%3Aapache%2Fincubator-daffodil-site&amp;type=Repositories">GitHub</a></li>
+                <li><a class="external" href="https://github.com/search?q=repo%3Aapache%2Fdaffodil+repo%3Aapache%2Fdaffodil-site&amp;type=Repositories">GitHub</a></li>
                 <li><a class="external" href="https://issues.apache.org/jira/projects/DAFFODIL/">JIRA</a></li>
               </ul>
             </li>
@@ -241,31 +241,14 @@
     <div class="wrapper">
         <div class="footer-col-wrapper" style="font-size: .85em;">
             <hr/>
-            <div class="container">
-                <div class="row">
-                    <div class="col-xs-3" style="margin-top: 15px;">
-                        <a href="https://incubator.apache.org"><img src="https://daffodil.apache.org/assets/themes/apache/img/incubator_feather_egg_logo.png"
-                                                                   alt="Apache Incubator" style="width:100%;"/></a>
-                    </div>
-                    <div class="col-xs-9">
-                        Apache Daffodil is an effort undergoing <a href="https://incubator.apache.org/index.html">Incubation</a>
-                        at The Apache Software Foundation (ASF), sponsored by the Incubator. Incubation is required of all newly
-                        accepted projects until a further review indicates that the infrastructure, communications, and decision
-                        making process have stabilized in a manner consistent with other successful ASF projects. While incubation
-                        status is not necessarily a reflection of the completeness or stability of the code, it does indicate that
-                        the project has yet to be fully endorsed by the ASF.
-                    </div>
-                </div>
-            </div>
-            <hr/>
             <div>
                 <div style="text-align: center;">
                     Copyright &#169; 2021 <a href="https://www.apache.org">The Apache Software Foundation</a>.
                     Licensed under the <a href="https://www.apache.org/licenses/LICENSE-2.0">Apache License, Version
                     2.0</a>.
                     <br/>
-                    Apache, the Apache Incubator project logo, Apache Daffodil, Daffodil, and the
-                    Apache Daffodil logo are trademarks of The Apache Software Foundation.
+                    Apache, Apache Daffodil, Daffodil, and the Apache Daffodil logo
+                    are trademarks of The Apache Software Foundation.
                 </div>
             </div>
         </div>
