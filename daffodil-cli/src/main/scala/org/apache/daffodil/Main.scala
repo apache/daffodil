@@ -271,7 +271,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     uri.getOrElse(throw new Exception("Could not find file or resource %s" format s))
   })
 
-  printedName = "Apache Daffodil (incubating)"
+  printedName = "Apache Daffodil"
 
   helpWidth(76)
 

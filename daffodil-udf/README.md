@@ -19,7 +19,7 @@
 
 ## Introduction
 
-Apache Daffodil (incubating) allows execution of Java/Scala external/user defined functions in DFDL Expressions.
+Apache Daffodil allows execution of Java/Scala external/user defined functions in DFDL Expressions.
 
 ## Getting Started
 

@@ -30,7 +30,7 @@ enablePlugins(WindowsPlugin)
 
 executableScriptName := "daffodil"
 
-packageName in Universal := "apache-daffodil-" + version.value + "-incubating-bin" //tarball name
+packageName in Universal := "apache-daffodil-" + version.value + "-bin" //tarball name
 packageName in Linux := executableScriptName.value
 packageName in Rpm := "apache-" + executableScriptName.value
 packageName in Windows := executableScriptName.value
@@ -38,7 +38,6 @@ packageName in Windows := executableScriptName.value
 mappings in Universal ++= Seq(
   baseDirectory.value / "bin.LICENSE" -> "LICENSE",
   baseDirectory.value / "bin.NOTICE" -> "NOTICE",
-  baseDirectory.value / ".." / "DISCLAIMER" -> "DISCLAIMER",
   baseDirectory.value / "README.md" -> "README.md",
 )
 
@@ -51,17 +50,17 @@ rpmVendor := "Apache Daffodil"
 
 packageArchitecture in Rpm := "noarch"
 
-packageSummary in Rpm := "Open source implementation of the Data Format Description Language (DFDL)"
+packageSummary in Rpm := "Open-source implementation of the Data Format Description Language (DFDL)"
 
 packageDescription in Rpm := """
-Apache Daffodil (incubating) is the open source implementation of the Data
-Format Description Language (DFDL), a specification created by the Open Grid
-Forum. DFDL is capable of describing many data formats, including textual and
-binary, commercial record-oriented, scientific and numeric, modern and legacy,
-and many industry standards. It leverages XML technology and concepts, using a
-subset of W3C XML schema type system and annotations to describe such data.
-Daffodil uses this description to parse data into an XML infoset for ingestion
-and validation.
+Apache Daffodil is an open-source implementation of the DFDL specification
+that uses DFDL data descriptions to parse fixed format data into an infoset.
+This infoset is commonly converted into XML or JSON to enable the use of
+well-established XML or JSON technologies and libraries to consume, inspect,
+and manipulate fixed format data in existing solutions. Daffodil is also
+capable of serializing or "unparsing" data back to the original data format.
+The DFDL infoset can also be converted directly to/from the data structures
+carried by data processing frameworks so as to bypass any XML/JSON overheads.
 """.trim
 
 // The below is a hack. The sbt native packager plugin does not provide a way
@@ -81,7 +80,7 @@ packageDescription in Rpm := (packageDescription in Rpm).value + """
 version in Rpm := {
   val parts = version.value.split("-", 2)
   val ver = parts(0) // removes snapshot if it exists
-  ver + ".incubating"
+  ver
 }
 
 rpmRelease := {
@@ -115,24 +114,15 @@ name in Windows := "Daffodil"
 // into the WiX productName field. Another strange choice. 
 packageSummary in Windows := "Daffodil"
 
-// The Windows packager SBT plug-in limits the length of the
-// packageDescription field to a single line. Originally this was a
-// full paragraph, as seen in the RPM section, above.
-packageDescription in Windows := """Apache Daffodil (incubating) is the open source implementation of the Data Format Description Language (DFDL)""".trim
+// The Windows packager SBT plug-in limits the length of the packageDescription
+// field to a single line. Use the short packageSummary from the RPM config.
+packageDescription in Windows := (packageSummary in Rpm).value
 
-// Calculate the version number dynamically and pass it in.
-// Windows permits up to four numeric values (e.g. 2.1.5.1820)
-// where the numbers represent major, minor, patch and build
-// respectively. In RPM packaging we add 'incubating', but
-// Windows will barf on this. Here we suffix a zero (0) build
-// number for snapshot/development/debug builds. A one (1)
-// in the build number could be used to differentiate official
-// production builds that are destined for release. 
-version in Windows := {
-  val parts = version.value.split("-", 2)
-  val ver = parts(0) // removes snapshot if it exists
-  ver + ".0"
-}
+// Use the same version number as in the rpm, which has SNAPSHOT removed if it
+// exists. Windows version numbers has no concept of a "snapshot build", only
+// major, minor, patch, and build. So Windows MSI versions do not differentiate
+// between snapshots and non-snapshots.
+version in Windows := (version in Rpm).value
 
 // Required and critical GUIDs. Ironically the ProductId is unique
 // to a given release, but UpgradeId must NEVER change! This may
@@ -180,11 +170,11 @@ wixProductLicense := {
   writer.close
   Option(targetLicense)
 }
+
 // Use the wixFiles variable to add in the Daffodil-specific dialog
 // boxes and sequence.
 wixFiles ++= Seq(
   (sourceDirectory in Windows).value / "WixUI_Daffodil.wxs",
-  (sourceDirectory in Windows).value / "DisclaimerDlg_Daffodil.wxs"
 )  
 
 // The SBT Native Packager plug-in assumes that we want to give the user
@@ -222,8 +212,8 @@ wixProductConfig := {
 
   // Define icons (ID should not be longer than 18 chars and must end with ".exe")
   val icon = Seq(
-    <Icon Id="Icon.exe" SourceFile={ ((sourceDirectory in Windows).value / "apache-daffodil.ico").toString } />,
-    <Property Id="ARPPRODUCTICON" Value="Icon.exe" />
+    <Icon Id="Daffodil.ico" SourceFile={ ((sourceDirectory in Windows).value / "apache-daffodil.ico").toString } />,
+    <Property Id="ARPPRODUCTICON" Value="Daffodil.ico" />
   )
   
   // String together the additional XML around the generated directory and file lists. 
