@@ -20,7 +20,7 @@
   <array>
     <be_bool16>false</be_bool16>
     <be_bool16>true</be_bool16>
-    <be_float>1</be_float>
+    <be_float>1.0</be_float>
     <be_float>INF</be_float>
     <be_float>NaN</be_float>
     <be_int16>1</be_int16>
@@ -32,8 +32,8 @@
     <be_bool32>true</be_bool32>
     <be_bool8>false</be_bool8>
     <be_boolean>false</be_boolean>
-    <be_double>1.7976931348623157E+308</be_double>
-    <be_float>3.40282347E+38</be_float>
+    <be_double>1.7976931348623157E308</be_double>
+    <be_float>3.4028235E38</be_float>
     <be_int16>-16</be_int16>
     <be_int32>-32</be_int32>
     <be_int64>-64</be_int64>
@@ -64,9 +64,9 @@
     <le_nonNegativeInteger8>8</le_nonNegativeInteger8>
   </littleEndian>
   <fixed>
-    <boolean_false>false</boolean_false>
-    <boolean_true>true</boolean_true>
-    <float_1_5>1.5</float_1_5>
-    <int_32>32</int_32>
+    <boolean_false>true</boolean_false>
+    <boolean_true>false</boolean_true>
+    <float_1_5>0.0</float_1_5>
+    <int_32>0</int_32>
   </fixed>
 </ex_nums>

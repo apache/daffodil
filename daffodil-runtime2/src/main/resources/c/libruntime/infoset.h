@@ -43,7 +43,7 @@ typedef const char *(*VisitStartComplex)(const VisitEventHandler *handler,
 typedef const char *(*VisitEndComplex)(const VisitEventHandler *handler,
                                        const InfosetBase *      base);
 typedef const char *(*VisitNumberElem)(const VisitEventHandler *handler,
-                                       const ERD *erd, const void *numLocation);
+                                       const ERD *erd, const void *number);
 
 // NamedQName - name of an infoset element
 
@@ -58,18 +58,19 @@ typedef struct NamedQName
 
 enum TypeCode
 {
+    CHOICE,
     COMPLEX,
-    PRIMITIVE_UINT64,
-    PRIMITIVE_UINT32,
-    PRIMITIVE_UINT16,
-    PRIMITIVE_UINT8,
-    PRIMITIVE_INT64,
-    PRIMITIVE_INT32,
-    PRIMITIVE_INT16,
-    PRIMITIVE_INT8,
-    PRIMITIVE_FLOAT,
+    PRIMITIVE_BOOLEAN,
     PRIMITIVE_DOUBLE,
-    CHOICE
+    PRIMITIVE_FLOAT,
+    PRIMITIVE_INT16,
+    PRIMITIVE_INT32,
+    PRIMITIVE_INT64,
+    PRIMITIVE_INT8,
+    PRIMITIVE_UINT16,
+    PRIMITIVE_UINT32,
+    PRIMITIVE_UINT64,
+    PRIMITIVE_UINT8
 };
 
 // ERD - element runtime data needed to parse/unparse objects
@@ -100,6 +101,7 @@ typedef struct InfosetBase
 typedef struct PState
 {
     FILE *      stream;    // input to read data from
+    size_t      position;  // 0-based position in stream
     const char *error_msg; // to stop if an error happens
 } PState;
 
@@ -108,6 +110,7 @@ typedef struct PState
 typedef struct UState
 {
     FILE *      stream;    // output to write data to
+    size_t      position;  // 0-based position in stream
     const char *error_msg; // to stop if an error happens
 } UState;
 
@@ -144,8 +147,12 @@ extern const char *walkInfoset(const VisitEventHandler *handler,
 
 extern const char *eof_or_error_msg(FILE *stream);
 
-// NO_CHOICE - value stored in an uninitialized _choice field
+// NO_CHOICE - define value stored in uninitialized _choice field
 
 static const size_t NO_CHOICE = (size_t)-1;
+
+// UNUSED - suppress compiler warning about unused variable
+
+#define UNUSED(x) (void)(x)
 
 #endif // INFOSET_H

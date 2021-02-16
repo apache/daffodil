@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<idl:ComponentReadyDecl xmlns:idl="urn:idl:1.0">
+  <name>
+    <item>0</item>
+    <item>1</item>
+    <item>2</item>
+    <item>3</item>
+    <item>4</item>
+    <item>5</item>
+    <item>6</item>
+    <item>7</item>
+    <item>8</item>
+    <item>9</item>
+    <item>10</item>
+    <item>11</item>
+    <item>12</item>
+    <item>13</item>
+    <item>14</item>
+    <item>15</item>
+    <item>16</item>
+    <item>17</item>
+    <item>18</item>
+    <item>19</item>
+    <item>20</item>
+    <item>21</item>
+    <item>22</item>
+    <item>23</item>
+    <item>24</item>
+    <item>25</item>
+    <item>26</item>
+    <item>27</item>
+    <item>28</item>
+    <item>29</item>
+    <item>30</item>
+    <item>31</item>
+    <item>32</item>
+    <item>33</item>
+    <item>34</item>
+    <item>35</item>
+    <item>36</item>
+    <item>37</item>
+    <item>38</item>
+    <item>39</item>
+    <item>40</item>
+    <item>41</item>
+    <item>42</item>
+    <item>43</item>
+    <item>44</item>
+    <item>45</item>
+    <item>46</item>
+    <item>47</item>
+    <item>48</item>
+    <item>49</item>
+    <item>50</item>
+    <item>51</item>
+    <item>52</item>
+    <item>53</item>
+    <item>54</item>
+    <item>55</item>
+    <item>56</item>
+    <item>57</item>
+    <item>58</item>
+    <item>59</item>
+    <item>60</item>
+    <item>61</item>
+    <item>62</item>
+    <item>63</item>
+    <item>64</item>
+    <item>65</item>
+    <item>66</item>
+    <item>67</item>
+    <item>68</item>
+    <item>69</item>
+    <item>80</item>
+    <item>81</item>
+    <item>82</item>
+    <item>83</item>
+    <item>84</item>
+    <item>85</item>
+    <item>86</item>
+    <item>87</item>
+    <item>88</item>
+    <item>89</item>
+  </name>
+  <status>true</status>
+</idl:ComponentReadyDecl>

@@ -49,7 +49,7 @@ trait ElementParseAndUnspecifiedLengthCodeGenerator {
         cgState.addFieldDeclaration(context, child) // struct member for child
         Runtime2CodeGenerator.generateCode(child.enclosedElement, cgState) // generate children too
       }
-      cgState.addAfterSwitchStatements() // switch statements for choices
+      cgState.addAfterSwitchStatements(context) // switch statements for choices
       cgState.addStruct(context) // struct definition
       cgState.addImplementation(context) // initSelf, parseSelf, unparseSelf
       cgState.addComplexTypeERD(context) // ERD static initializer

@@ -16,7 +16,7 @@
   limitations under the License.
 -->
 
-<idl:CameraState xmlns:idl="urn:idl:1.0">
+<idl:CameraStateDecl xmlns:idl="urn:idl:1.0">
   <sync0>208</sync0>
   <sync1>13</sync1>
   <id>97</id>
@@ -25,4 +25,4 @@
   <focus>10</focus>
   <index>0</index>
   <checksum>30149</checksum>
-</idl:CameraState>
+</idl:CameraStateDecl>

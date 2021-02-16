@@ -17,9 +17,11 @@
 -->
 
 <tdml:testSuite
+  defaultConfig="config-runtime2"
   defaultImplementations="daffodil daffodil-runtime2"
   defaultRoundTrip="none"
-  description="TDML tests for ex_nums"
+  defaultValidation="on"
+  description="TDML tests for MPU_orange_to_green_60006"
   xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData">
@@ -37,66 +39,51 @@
   </tdml:defineConfig>
 
   <tdml:parserTestCase
-    name="ex_nums_parse_runtime1"
-    model="ex_nums.dfdl.xsd"
-    config="config-runtime1">
+    model="MPU_orange_to_green_60006.dfdl.xsd"
+    name="MPU_orange_to_green_60006_parse_0"
+    root="MpuRequestDecl">
     <tdml:document>
-      <tdml:documentPart type="file">ex_nums_parse.dat</tdml:documentPart>
+      <tdml:documentPart type="file">MPU_orange_to_green_60006_parse_0.dat</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
-      <tdml:dfdlInfoset type="file">ex_nums_unparse_runtime1.xml</tdml:dfdlInfoset>
+      <tdml:dfdlInfoset type="file">MPU_orange_to_green_60006_unparse_0.xml</tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
 
   <tdml:unparserTestCase
-    name="ex_nums_unparse_runtime1"
-    model="ex_nums.dfdl.xsd"
-    config="config-runtime1">
+    model="MPU_orange_to_green_60006.dfdl.xsd"
+    name="MPU_orange_to_green_60006_unparse_0"
+    root="MpuRequestDecl">
     <tdml:infoset>
-      <tdml:dfdlInfoset type="file">ex_nums_unparse_runtime1.xml</tdml:dfdlInfoset>
+      <tdml:dfdlInfoset type="file">MPU_orange_to_green_60006_unparse_0.xml</tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:document>
-      <tdml:documentPart type="file">ex_nums_parse.dat</tdml:documentPart>
+      <tdml:documentPart type="file">MPU_orange_to_green_60006_parse_0.dat</tdml:documentPart>
     </tdml:document>
   </tdml:unparserTestCase>
 
   <tdml:parserTestCase
-    name="ex_nums_parse_runtime2"
-    model="ex_nums.dfdl.xsd"
-    config="config-runtime2">
+    model="MPU_orange_to_green_60006.dfdl.xsd"
+    name="MPU_orange_to_green_60006_parse_1"
+    root="MpuRequestDecl">
     <tdml:document>
-      <tdml:documentPart type="file">ex_nums_parse.dat</tdml:documentPart>
+      <tdml:documentPart type="file">MPU_orange_to_green_60006_parse_1.dat</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
-      <tdml:dfdlInfoset type="file">ex_nums_unparse_runtime2.xml</tdml:dfdlInfoset>
+      <tdml:dfdlInfoset type="file">MPU_orange_to_green_60006_unparse_1.xml</tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
 
   <tdml:unparserTestCase
-    name="ex_nums_unparse_runtime2"
-    model="ex_nums.dfdl.xsd"
-    config="config-runtime2">
+    model="MPU_orange_to_green_60006.dfdl.xsd"
+    name="MPU_orange_to_green_60006_unparse_1"
+    root="MpuRequestDecl">
     <tdml:infoset>
-      <tdml:dfdlInfoset type="file">ex_nums_unparse_runtime2.xml</tdml:dfdlInfoset>
+      <tdml:dfdlInfoset type="file">MPU_orange_to_green_60006_unparse_1.xml</tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:document>
-      <tdml:documentPart type="file">ex_nums_parse.dat</tdml:documentPart>
+      <tdml:documentPart type="file">MPU_orange_to_green_60006_parse_1.dat</tdml:documentPart>
     </tdml:document>
-  </tdml:unparserTestCase>
-
-  <tdml:unparserTestCase
-    name="ex_nums_unparse_errors"
-    model="ex_nums.dfdl.xsd"
-    config="config-runtime2">
-    <tdml:infoset>
-      <tdml:dfdlInfoset type="file">ex_nums_unparse_errors.xml</tdml:dfdlInfoset>
-    </tdml:infoset>
-    <tdml:errors>
-      <tdml:error>value</tdml:error>
-      <tdml:error>does not match</tdml:error>
-      <tdml:error>fixed</tdml:error>
-      <tdml:error>attribute</tdml:error>
-    </tdml:errors>
   </tdml:unparserTestCase>
 
 </tdml:testSuite>

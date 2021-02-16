@@ -18,35 +18,48 @@
 package org.apache.daffodil.runtime2.generators
 
 import org.apache.daffodil.dsom.ElementBase
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.schema.annotation.props.gen.ByteOrder
 import org.apache.daffodil.schema.annotation.props.gen.OccursCountKind
+import passera.unsigned.ULong
 
-trait BinaryFloatCodeGenerator {
+trait BinaryBooleanCodeGenerator {
 
-  def binaryFloatGenerateCode(e: ElementBase, lengthInBits: Int, cgState: CodeGeneratorState): Unit = {
+  def binaryBooleanGenerateCode(e: ElementBase, cgState: CodeGeneratorState): Unit = {
     // For the time being this is a very limited back end.
     // So there are some restrictions to enforce.
-    assert(lengthInBits == 32 || lengthInBits == 64)
+    e.schemaDefinitionUnless(e.bitOrder eq BitOrder.MostSignificantBitFirst, "Only dfdl:bitOrder 'mostSignificantBitFirst' is supported.")
     val byteOrder: ByteOrder = {
       e.schemaDefinitionUnless(e.byteOrderEv.isConstant, "Runtime dfdl:byteOrder expressions not supported.")
-      val bo = e.byteOrderEv.constValue
-      bo
+      e.byteOrderEv.constValue
     }
+    val lengthInBits: Long = {
+      e.schemaDefinitionUnless(e.elementLengthInBitsEv.isConstant, "Runtime dfdl:length expressions not supported.")
+      val len = e.elementLengthInBitsEv.constValue.get
+      len match {
+        case 8 | 16 | 32 => len
+        case _ => e.SDE("Boolean lengths other than 8, 16, or 32 bits are not supported.")
+      }
+    }
+    Assert.invariant(e.binaryBooleanTrueRep.isEmpty || e.binaryBooleanTrueRep.getULong >= ULong(0))
+    Assert.invariant(e.binaryBooleanFalseRep >= ULong(0))
 
-    // Use a NAN to mark our field as uninitialized in case parsing or unparsing
-    // fails to set the field.
-    val initialValue = "NAN"
+    val initialValue = "true"
     val fieldName = e.namedQName.local
     val conv = if (byteOrder eq ByteOrder.BigEndian) "be" else "le"
-    val prim = if (lengthInBits == 32) "float" else "double"
+    val prim = s"bool$lengthInBits"
+    val trueRep = if (e.binaryBooleanTrueRep.isDefined) e.binaryBooleanTrueRep.getULong else -1
+    val falseRep = e.binaryBooleanFalseRep
+    val unparseTrueRep = if (e.binaryBooleanTrueRep.isDefined) s"$trueRep" else s"~$falseRep"
     val arraySize = if (e.occursCountKind == OccursCountKind.Fixed) e.maxOccurs else 0
     val fixed = e.xml.attribute("fixed")
     val fixedValue = if (fixed.isDefined) fixed.get.text else ""
 
     def addStatements(deref: String): Unit = {
       val initStatement = s"    instance->$fieldName$deref = $initialValue;"
-      val parseStatement = s"    parse_${conv}_$prim(&instance->$fieldName$deref, pstate);"
-      val unparseStatement = s"    unparse_${conv}_$prim(instance->$fieldName$deref, ustate);"
+      val parseStatement = s"    parse_${conv}_$prim(&instance->$fieldName$deref, $trueRep, $falseRep, pstate);"
+      val unparseStatement = s"    unparse_${conv}_$prim(instance->$fieldName$deref, $unparseTrueRep, $falseRep, ustate);"
       cgState.addSimpleTypeStatements(initStatement, parseStatement, unparseStatement)
 
       if (fixedValue.nonEmpty) {

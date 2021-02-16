@@ -20,6 +20,7 @@
   defaultConfig="config-runtime2"
   defaultImplementations="daffodil daffodil-runtime2"
   defaultRoundTrip="none"
+  defaultValidation="on"
   description="TDML tests for orion-command"
   xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
@@ -38,36 +39,9 @@
   </tdml:defineConfig>
 
   <tdml:parserTestCase
-    description="orion-command CameraState parse test"
-    model="orion-command.dfdl.xsd"
-    name="camera_state_parse"
-    root="CameraState">
-    <tdml:document>
-      <tdml:documentPart type="file">camera_state_parse.dat</tdml:documentPart>
-    </tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset type="file">camera_state_unparse.xml</tdml:dfdlInfoset>
-    </tdml:infoset>
-  </tdml:parserTestCase>
-
-  <tdml:unparserTestCase
-    description="orion-command CameraState unparse test"
-    model="orion-command.dfdl.xsd"
-    name="camera_state_unparse"
-    root="CameraState">
-    <tdml:infoset>
-      <tdml:dfdlInfoset type="file">camera_state_unparse.xml</tdml:dfdlInfoset>
-    </tdml:infoset>
-    <tdml:document>
-      <tdml:documentPart type="file">camera_state_parse.dat</tdml:documentPart>
-    </tdml:document>
-  </tdml:unparserTestCase>
-
-  <tdml:parserTestCase
-    description="orion-command Command parse test"
     model="orion-command.dfdl.xsd"
     name="command_parse"
-    root="Command">
+    root="CommandDecl">
     <tdml:document>
       <tdml:documentPart type="file">command_parse.dat</tdml:documentPart>
     </tdml:document>
@@ -77,10 +51,9 @@
   </tdml:parserTestCase>
 
   <tdml:unparserTestCase
-    description="orion-command Command unparse test"
     model="orion-command.dfdl.xsd"
     name="command_unparse"
-    root="Command">
+    root="CommandDecl">
     <tdml:infoset>
       <tdml:dfdlInfoset type="file">command_unparse.xml</tdml:dfdlInfoset>
     </tdml:infoset>
@@ -90,10 +63,33 @@
   </tdml:unparserTestCase>
 
   <tdml:parserTestCase
-    description="orion-command VideoSettings parse test"
+    model="orion-command.dfdl.xsd"
+    name="camera_state_parse"
+    root="CameraStateDecl">
+    <tdml:document>
+      <tdml:documentPart type="file">camera_state_parse.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">camera_state_unparse.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:unparserTestCase
+    model="orion-command.dfdl.xsd"
+    name="camera_state_unparse"
+    root="CameraStateDecl">
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">camera_state_unparse.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="file">camera_state_parse.dat</tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+  <tdml:parserTestCase
     model="orion-command.dfdl.xsd"
     name="video_settings_parse"
-    root="VideoSettings">
+    root="VideoSettingsDecl">
     <tdml:document>
       <tdml:documentPart type="file">video_settings_parse.dat</tdml:documentPart>
     </tdml:document>
@@ -103,15 +99,62 @@
   </tdml:parserTestCase>
 
   <tdml:unparserTestCase
-    description="orion-command VideoSettings unparse test"
     model="orion-command.dfdl.xsd"
     name="video_settings_unparse"
-    root="VideoSettings">
+    root="VideoSettingsDecl">
     <tdml:infoset>
       <tdml:dfdlInfoset type="file">video_settings_unparse.xml</tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:document>
       <tdml:documentPart type="file">video_settings_parse.dat</tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+  <tdml:parserTestCase
+    model="orion-command.dfdl.xsd"
+    name="aptina_settings_parse"
+    root="AptinaSettingsDecl">
+    <tdml:document>
+      <tdml:documentPart type="file">aptina_settings_parse.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">aptina_settings_unparse.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:unparserTestCase
+    model="orion-command.dfdl.xsd"
+    name="aptina_settings_unparse"
+    root="AptinaSettingsDecl">
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">aptina_settings_unparse.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="file">aptina_settings_parse.dat</tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+  <tdml:parserTestCase
+    model="orion-command.dfdl.xsd"
+    name="limits_parse"
+    root="LimitsDecl">
+    <tdml:document>
+      <tdml:documentPart type="file">limits_parse.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">limits_unparse.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:unparserTestCase
+    model="orion-command.dfdl.xsd"
+    name="limits_unparse"
+    root="LimitsDecl">
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">limits_unparse.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="file">limits_parse.dat</tdml:documentPart>
     </tdml:document>
   </tdml:unparserTestCase>
 

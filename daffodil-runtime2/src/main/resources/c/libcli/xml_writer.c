@@ -16,11 +16,13 @@
  */
 
 #include "xml_writer.h"
-#include "stack.h"   // for stack_is_empty, stack_pop, stack_push, stack_top, stack_init, stack_is_full
-#include <assert.h>  // for assert
-#include <mxml.h>    // for mxmlNewOpaquef, mxml_node_t, mxmlElementSetAttr, mxmlNewElement, mxmlDelete, mxmlNewXML, mxmlSaveFile, MXML_NO_CALLBACK
-#include <stdint.h>  // for int16_t, int32_t, int64_t, int8_t, uint16_t, uint32_t, uint64_t, uint8_t
-#include <stdio.h>   // for NULL, fflush
+#include "stack.h"    // for stack_is_empty, stack_pop, stack_push, stack_top, stack_init, stack_is_full
+#include <assert.h>   // for assert
+#include <mxml.h>     // for mxmlNewOpaquef, mxml_node_t, mxmlElementSetAttr, mxmlNewElement, mxmlDelete, mxmlNewXML, mxmlSaveFile, MXML_NO_CALLBACK
+#include <stdbool.h>  // for bool
+#include <stdint.h>   // for int16_t, int32_t, int64_t, int8_t, uint16_t, uint32_t, uint64_t, uint8_t
+#include <stdio.h>    // for NULL, fflush
+#include <string.h>   // for strcmp
 
 // Push new XML document on stack.  This function is not
 // thread-safe since it uses static storage.
@@ -85,12 +87,15 @@ xmlEndComplex(XMLWriter *writer, const InfosetBase *base)
     if (!stack_is_empty(&writer->stack))
     {
         complex = stack_pop(&writer->stack);
-        (void)base;
+
+        const char *name_from_xml = mxmlGetElement(complex);
+        const char *name_from_erd = get_erd_name(base->erd);
+        assert(strcmp(name_from_xml, name_from_erd) == 0);
     }
     return complex ? NULL : "Underflowed the XML stack";
 }
 
-// Fix a floating point number to conform to xsd:float syntax if needed
+// Fix a real number to conform to xsd:float syntax if needed
 
 static void
 fixNumberIfNeeded(const char *text)
@@ -106,11 +111,11 @@ fixNumberIfNeeded(const char *text)
     //  - Add .0 to 1 to get 1.0 (not worth it)
 }
 
-// Write 8, 16, 32, or 64-bit signed/unsigned Number or floating point number as
-// element
+// Write a boolean, 32-bit or 64-bit real number, or 8, 16, 32, or
+// 64-bit signed or unsigned integer as an XML element's value
 
 static const char *
-xmlNumberElem(XMLWriter *writer, const ERD *erd, const void *numLocation)
+xmlNumberElem(XMLWriter *writer, const ERD *erd, const void *number)
 {
     mxml_node_t *parent = stack_top(&writer->stack);
     const char * name = get_erd_name(erd);
@@ -129,39 +134,43 @@ xmlNumberElem(XMLWriter *writer, const ERD *erd, const void *numLocation)
     mxml_node_t *       text = NULL;
     switch (typeCode)
     {
-    case PRIMITIVE_UINT64:
-        text = mxmlNewOpaquef(simple, "%lu", *(const uint64_t *)numLocation);
-        break;
-    case PRIMITIVE_UINT32:
-        text = mxmlNewOpaquef(simple, "%u", *(const uint32_t *)numLocation);
-        break;
-    case PRIMITIVE_UINT16:
-        text = mxmlNewOpaquef(simple, "%hu", *(const uint16_t *)numLocation);
-        break;
-    case PRIMITIVE_UINT8:
-        text = mxmlNewOpaquef(simple, "%hhu", *(const uint8_t *)numLocation);
-        break;
-    case PRIMITIVE_INT64:
-        text = mxmlNewOpaquef(simple, "%li", *(const int64_t *)numLocation);
-        break;
-    case PRIMITIVE_INT32:
-        text = mxmlNewOpaquef(simple, "%i", *(const int32_t *)numLocation);
-        break;
-    case PRIMITIVE_INT16:
-        text = mxmlNewOpaquef(simple, "%hi", *(const int16_t *)numLocation);
-        break;
-    case PRIMITIVE_INT8:
-        text = mxmlNewOpaquef(simple, "%hhi", *(const int8_t *)numLocation);
+    case PRIMITIVE_BOOLEAN:
+        text = mxmlNewOpaquef(simple, "%s",
+                              *(const bool *)number ? "true" : "false");
         break;
     case PRIMITIVE_FLOAT:
         // Round-trippable float, shortest possible
-        text = mxmlNewOpaquef(simple, "%.9G", *(const float *)numLocation);
+        text = mxmlNewOpaquef(simple, "%.9G", *(const float *)number);
         fixNumberIfNeeded(mxmlGetOpaque(text));
         break;
     case PRIMITIVE_DOUBLE:
         // Round-trippable double, shortest possible
-        text = mxmlNewOpaquef(simple, "%.17lG", *(const double *)numLocation);
+        text = mxmlNewOpaquef(simple, "%.17lG", *(const double *)number);
         fixNumberIfNeeded(mxmlGetOpaque(text));
+        break;
+    case PRIMITIVE_INT16:
+        text = mxmlNewOpaquef(simple, "%hi", *(const int16_t *)number);
+        break;
+    case PRIMITIVE_INT32:
+        text = mxmlNewOpaquef(simple, "%i", *(const int32_t *)number);
+        break;
+    case PRIMITIVE_INT64:
+        text = mxmlNewOpaquef(simple, "%li", *(const int64_t *)number);
+        break;
+    case PRIMITIVE_INT8:
+        text = mxmlNewOpaquef(simple, "%hhi", *(const int8_t *)number);
+        break;
+    case PRIMITIVE_UINT16:
+        text = mxmlNewOpaquef(simple, "%hu", *(const uint16_t *)number);
+        break;
+    case PRIMITIVE_UINT32:
+        text = mxmlNewOpaquef(simple, "%u", *(const uint32_t *)number);
+        break;
+    case PRIMITIVE_UINT64:
+        text = mxmlNewOpaquef(simple, "%lu", *(const uint64_t *)number);
+        break;
+    case PRIMITIVE_UINT8:
+        text = mxmlNewOpaquef(simple, "%hhu", *(const uint8_t *)number);
         break;
     default:
         // Let text remain NULL and report error below
