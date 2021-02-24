@@ -30,6 +30,8 @@ class SuspensionTracker(suspensionWaitYoung: Int, suspensionWaitOld: Int)
   private val suspensionsYoung = new Queue[Suspension]
   private val suspensionsOld = new Queue[Suspension]
 
+  def suspensions: Seq[Suspension] = suspensionsYoung.toSeq ++ suspensionsOld.toSeq
+
   private var count: Int = 0
 
   private var suspensionStatTracked: Int = 0

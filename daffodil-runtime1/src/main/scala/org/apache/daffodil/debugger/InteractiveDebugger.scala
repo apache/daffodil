@@ -43,6 +43,7 @@ import org.apache.daffodil.processors._
 import org.apache.daffodil.processors.parsers.ConvertTextCombinatorParser
 import org.apache.daffodil.processors.parsers._
 import org.apache.daffodil.processors.unparsers.UState
+import org.apache.daffodil.processors.unparsers.UStateForSuspension
 import org.apache.daffodil.processors.unparsers.Unparser
 import org.apache.daffodil.schema.annotation.props.gen.Representation
 import org.apache.daffodil.util.DPathUtil
@@ -118,6 +119,9 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
     /* whether to remove hidden elements when displaying the infoset */
     var removeHidden: Boolean = false
 
+    /* list of info commands to exclude when running 'info diff' */
+    var diffExcludes: Seq[String] = Seq.empty
+
     /* stores the last actual command (i.e. not a "") that was executed */
     var lastCommand: String = ""
 
@@ -158,6 +162,11 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
   }
 
   def debugStep(state: ParseOrUnparseState, processor: Processor, ignoreBreakpoints: Boolean): Unit = {
+      // ignore debug steps called during suspensions, those must be handled differently
+      if (state.isInstanceOf[UStateForSuspension]) {
+        return
+      }
+
       debugState = debugState match {
         case _ if ((state.processorStatus ne Success) && DebuggerConfig.breakOnFailure) => DebugState.Pause
         case DebugState.Continue | DebugState.Trace if !ignoreBreakpoints => {
@@ -1197,6 +1206,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
           InfoPath,
           InfoParser,
           InfoPointsOfUncertainty,
+          InfoSuspensions,
           InfoUnparser,
           InfoVariables)
 
@@ -1326,6 +1336,37 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
           } else {
             false
           }
+        }
+      }
+
+      trait InfoSeqValue[A] extends InfoDiffable { self: DebugCommand =>
+
+        def getSeqValue(state: StateForDebugger): Seq[A]
+
+        def act(args: Seq[String], state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
+          debugPrintln("%s:".format(self.name))
+          getSeqValue(state).foreach { value =>
+            debugPrintln("%s".format(value.toString), "  ")
+          }
+          DebugState.Pause
+        }
+
+        def diff(pre: StateForDebugger, post: StateForDebugger): Boolean = {
+          val preSeq = getSeqValue(pre)
+          val postSeq = getSeqValue(post)
+          val removed = preSeq.diff(postSeq)
+          val added = postSeq.diff(preSeq)
+          val hasDiff = removed.nonEmpty || added.nonEmpty
+          if (hasDiff) {
+            debugPrintln("%s:".format(self.name), "  ")
+            removed.foreach { v =>
+              debugPrintln("- %s".format(v.toString), "    ")
+            }
+            added.foreach { v =>
+              debugPrintln("+ %s".format(v.toString), "    ")
+            }
+          }
+          hasDiff
         }
       }
 
@@ -1470,14 +1511,20 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
         val desc = "display differences since the previous pause in the debugger"
         val longDesc = desc
 
-        private lazy val infoDiffables = Info.subcommands.collect { case diffable: InfoDiffable => diffable }
+        lazy val infoDiffables = Info.subcommands.collect { case diffable: InfoDiffable => diffable }
 
         def act(args: Seq[String], state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
           debugPrintln("%s:".format(name))
-          val differencesExist = infoDiffables.foldLeft(false) { case (foundDiff, ic) =>
-            ic.diff(previousProcessorState, state) || foundDiff
+          val foundDiff = infoDiffables.foldLeft(false) { case (prevCmdsFoundDiff, curCmd) =>
+            val curCmdFoundDiff =
+              if (DebuggerConfig.diffExcludes.contains(curCmd.name)) {
+                false // skip current command since it's excluded
+              } else {
+                curCmd.diff(previousProcessorState, state)
+              }
+            curCmdFoundDiff || prevCmdsFoundDiff
           }
-          if (!differencesExist) {
+          if (!foundDiff) {
             debugPrintln("(no differences)", "  ")
           }
 
@@ -1666,6 +1713,15 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
         }
       }
 
+      object InfoSuspensions extends DebugCommand with DebugCommandValidateZeroArgs with InfoSeqValue[Suspension] {
+        val name = "suspensions"
+        override lazy val short = "sus"
+        val desc = "display list of suspensions"
+        val longDesc = desc
+
+        def getSeqValue(state: StateForDebugger): Seq[Suspension] = state.suspensions
+      }
+
       object InfoUnparser extends {
         override val name = "unparser"
       } with InfoProcessorBase
@@ -1763,7 +1819,17 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
                         |
                         |Example: set breakOnlyOnCreation false
                         |         set dataLength 100""".stripMargin
-      override val subcommands = Seq(SetBreakOnFailure, SetBreakOnlyOnCreation, SetDataLength, SetInfosetLines, SetInfosetParents, SetRemoveHidden, SetRepresentation, SetWrapLength)
+      override val subcommands = Seq(
+        SetBreakOnFailure,
+        SetBreakOnlyOnCreation,
+        SetDataLength,
+        SetDiffExcludes,
+        SetInfosetLines,
+        SetInfosetParents,
+        SetRemoveHidden,
+        SetRepresentation,
+        SetWrapLength,
+      )
       override lazy val short = "set"
 
       def act(args: Seq[String], state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
@@ -1838,6 +1904,32 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
 
         def act(args: Seq[String], state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
           DebuggerConfig.dataLength = args.head.toInt
+          DebugState.Pause
+        }
+      }
+
+      object SetDiffExcludes extends DebugCommand {
+        val name = "diffExcludes"
+        val desc = "set info commands to exclude in the 'info diff' commanad"
+        val longDesc = """|Usage: set diffExcludes|de <commands...>
+                          |
+                          |Set info comamnds to exclude in the 'info diff' command. Multiple arguments
+                          |separated by a space excludes multiple commands. Zero arguments excludes no
+                          |commands.
+                          |
+                          |Example: set diffExcludes bitPosition bitLimit""".stripMargin
+        override lazy val short = "de"
+
+        override def validate(args: Seq[String]): Unit = {
+          val diffableNames = Info.InfoDiff.infoDiffables.map { _.name }
+          val unknown = args.diff(diffableNames)
+          if (unknown.size > 0) {
+            throw new DebugException("unknown or undiffable info commands: " + unknown.mkString(", "))
+          }
+        }
+
+        def act(args: Seq[String], state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
+          DebuggerConfig.diffExcludes = args
           DebugState.Pause
         }
       }

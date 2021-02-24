@@ -18,10 +18,13 @@
 package org.apache.daffodil.debugger
 
 import org.junit.Test
-import org.apache.daffodil.CLI.Util
-import net.sf.expectit.matcher.Matchers.contains
+
 import net.sf.expectit.matcher.Matchers.allOf
+import net.sf.expectit.matcher.Matchers.contains
+import net.sf.expectit.matcher.Matchers.regexp
 import net.sf.expectit.matcher.Matchers.times
+
+import org.apache.daffodil.CLI.Util
 
 class TestCLIdebugger {
 
@@ -1319,5 +1322,84 @@ class TestCLIdebugger {
       shell.close()
     }
   }
+
+  @Test def test_CLI_Debugger_info_diff_04(): Unit = {
+    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
+    val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input1.txt.xml")
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
+
+    val shell = if (Util.isWindows) Util.start("", envp = DAFFODIL_JAVA_OPTS) else Util.start("")
+
+    try {
+      val cmd = String.format("%s -d unparse -s %s -r matrix -o %s %s", Util.binPath, testSchemaFile, Util.devNull, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("(debug)"))
+      shell.sendLine("display info diff")
+      shell.expect(contains("(debug)"))
+      shell.sendLine("step")
+      shell.sendLine("step")
+      shell.sendLine("step")
+      shell.sendLine("step")
+      shell.expect(contains("bitPosition: 0 -> 8"))
+      shell.sendLine("set diffExcludes childIndex")
+      shell.sendLine("step")
+      shell.sendLine("step")
+      shell.sendLine("step")
+      shell.sendLine("step")
+      shell.sendLine("step")
+      shell.sendLine("step")
+      shell.sendLine("step")
+      shell.sendLine("step")
+      shell.expect(regexp("\\+ Suppressable.* for cell"))
+      shell.sendLine("step")
+      shell.expect(regexp("\\+ Alignment.* for cell"))
+      shell.sendLine("info suspensions")
+      shell.expect(regexp("Suppressable.* for cell"))
+      shell.expect(regexp("Alignment.* for cell"))
+      shell.sendLine("quit")
+    } finally {
+      shell.close()
+    }
+  }
+
+  @Test def test_CLI_Debugger_info_diff_05(): Unit = {
+    val schemaFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/cli_schema_03.dfdl.xsd")
+    val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input9.txt.xml")
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
+
+    val shell = if (Util.isWindows) Util.start("", envp = DAFFODIL_JAVA_OPTS) else Util.start("")
+
+    try {
+      val cmd = String.format("%s -d unparse -r list -s %s -o %s %s", Util.binPath, testSchemaFile, Util.devNull, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("(debug)"))
+      shell.sendLine("set diffExcludes doesNotExist1 bitLimit doesNotExist2")
+      shell.expect(contains("unknown or undiffable info commands: doesNotExist1, doesNotExist2"))
+
+      shell.sendLine("display info diff")
+      shell.sendLine("break Item")
+      shell.sendLine("continue")
+      shell.sendLine("step")
+      shell.sendLine("step")
+      shell.sendLine("step")
+      shell.expect(regexp("\\+ SuppressableSeparator.* ex:Item"))
+      shell.sendLine("continue")
+      shell.sendLine("step")
+      shell.sendLine("step")
+      shell.sendLine("step")
+      shell.expect(regexp("\\+ RegionSplit.* ex:Item"))
+      shell.sendLine("step")
+      shell.sendLine("step")
+      shell.expect(regexp("\\- RegionSplit.* ex:Item"))
+      shell.sendLine("info suspensions")
+      shell.expect(regexp("SuppressableSeparator.* ex:Item"))
+      shell.sendLine("step")
+      shell.sendLine("step")
+      shell.sendLine("quit")
+    } finally {
+      shell.close()
+    }
+  }
+
 
 }
