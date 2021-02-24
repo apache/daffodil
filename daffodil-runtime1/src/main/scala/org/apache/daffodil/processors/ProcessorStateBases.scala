@@ -80,6 +80,7 @@ trait StateForDebugger {
   def variableMap: VariableMap
   def delimitedParseResult: Maybe[dfa.ParseResult]
   def withinHiddenNest: Boolean
+  def suspensions: Seq[Suspension]
 }
 
 case class TupleForDebugger(
@@ -91,7 +92,8 @@ case class TupleForDebugger(
   val arrayPos: Long,
   val variableMap: VariableMap,
   val delimitedParseResult: Maybe[dfa.ParseResult],
-  val withinHiddenNest: Boolean)
+  val withinHiddenNest: Boolean,
+  val suspensions: Seq[Suspension])
   extends StateForDebugger
 
 trait SetProcessorMixin {
@@ -440,6 +442,7 @@ abstract class ParseOrUnparseState protected (
       variableMap.copy(), // deep copy since variableMap is mutable
       delimitedParseResult,
       withinHiddenNest,
+      suspensions,
     )
   }
 
@@ -571,6 +574,7 @@ final class CompileState(tci: DPathCompileInfo, maybeDataProc: Maybe[DataProcess
   def groupPos: Long = 0L
   def hasInfoset: Boolean = infoset_.isDefined
   def delimitedParseResult = Nope
+  def suspensions = Seq.empty
 
   private lazy val infoset_ : Maybe[DIElement] = Nope
 

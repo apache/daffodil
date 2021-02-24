@@ -385,6 +385,8 @@ final class UStateForSuspension(
   override def getDecoder(cs: BitsCharset): BitsCharsetDecoder = mainUState.getDecoder(cs)
   override def getEncoder(cs: BitsCharset): BitsCharsetEncoder = mainUState.getEncoder(cs)
 
+  override def suspensions = mainUState.suspensions
+
   // override def charBufferDataOutputStream = mainUState.charBufferDataOutputStream
   override def withUnparserDataInputStream = mainUState.withUnparserDataInputStream
   override def withByteArrayOutputStream = mainUState.withByteArrayOutputStream
@@ -631,6 +633,8 @@ final class UStateMain private (
     suspensionTracker.evalSuspensions()
     if (isFinal) suspensionTracker.requireFinal()
   }
+
+  def suspensions = suspensionTracker.suspensions
 
   final override def pushTRD(trd: TermRuntimeData) =
     inputter.pushTRD(trd)

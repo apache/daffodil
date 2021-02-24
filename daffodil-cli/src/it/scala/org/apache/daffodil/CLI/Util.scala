@@ -150,6 +150,14 @@ object Util {
     }
   }
 
+  def devNull(): String = {
+    if (isWindows) {
+      "NUL"
+    } else {
+      "/dev/null"
+    }
+  }
+
   def makeMultipleCmds(cmds: Array[String]): String = {
     if (isWindows) {
       cmds.mkString(" & ")

@@ -525,6 +525,8 @@ final class PState private (
       }
     }
   }
+
+  def suspensions = Seq.empty
 }
 
 object PState {
