@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<tdml:testSuite
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:ex="http://example.com"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  defaultRoundTrip="onePass"
+  defaultValidation="on">
+
+  <tdml:defineSchema name="s">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+
+    <dfdl:format ref="ex:GeneralFormat"/>
+
+    <xs:simpleType name="singleByteCharsWithCodepointLessThan1F"
+                    dfdl:encoding="iso-8859-1">
+      <xs:restriction base="xs:string">
+        <!--
+          We cannot depend on Daffodil's mapping from E009 to 9, E00A to A, and E00D to D.
+          Because that won't work in Xerces with "full" validation.
+          We can't use numeric entities for the tab, LF, or CR, because those aren't allowed in attribute
+          values (XML attribute normalization converts tabs, and line endings to spaces.)
+          So we use \t, \n, and \r for those control characters.
+
+          The result is this somewhat clumsy pattern is what is needed in DFDL to say you want only
+          code points in the original data of 0x00 to 0x1F to be valid.
+          -->
+        <xs:pattern value="[&#xE000;-&#xE008;\t\n&#xE00B;&#xE00C;\r&#xE00E;-&#xE01F;&#x20;-&#x7F;]*"/>
+      </xs:restriction>
+    </xs:simpleType>
+
+
+    <!-- note this is delimited, but there is no terminator. So End-of-Data
+         becomes the delimiter -->
+    <xs:element name="str" type="ex:singleByteCharsWithCodepointLessThan1F"
+       dfdl:lengthKind="delimited"/>
+
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="patternRanges1" model="s"
+                       validation="limited" roundTrip="none">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 01 09 0A 0B 0D 0E 1F 20 7F</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <!-- in the infoset note that 0A becomes &#x0A; in the below. But the CR (0D above)
+             also becomes &#x0A; because XML normalizes isolated CR to LF.
+             This can affect round-tripping of data, because information is actually lost here.
+             Some LFs come from LFs, and some LFs come from CRs, and we lose which is which.
+             If, however, all line endings are LF, or CRLF, then you can use dfdl:outputNewLine
+             to do the right thing.
+             -->
+        <ex:str>&#xE000;&#xE001;&#x09;&#x0A;&#xE00B;&#x0A;&#xE00E;&#xE01F;&#x20;&#x7F;</ex:str>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="patternRanges2" model="s"
+                       validation="limited" roundTrip="none">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 01 09 0A 0B 0D 0E 1F 20 7F 80</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <!-- similar to patternRanges1 test, but has an out-of-range character -->
+        <ex:str>&#xE000;&#xE001;&#x09;&#x0A;&#xE00B;&#x0A;&#xE00E;&#xE01F; &#x7F;&#x80;</ex:str>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>ex:str failed facet checks</tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="patternRangesXerces1" model="s"
+                       validation="on" roundTrip="none">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 01 09 0A 0B 0D 0E 1F 20 7F</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:str>&#xE000;&#xE001;&#x09;&#x0A;&#xE00B;&#x0A;&#xE00E;&#xE01F;&#x20;&#x7F;</ex:str>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="patternRangesXerces2" model="s"
+                       validation="on" roundTrip="none">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 01 09 0A 0B 0D 0E 1F 20 7F 80</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <!-- similar to patternRanges1 test, but has an out-of-range character -->
+        <ex:str>&#xE000;&#xE001;&#x09;&#x0A;&#xE00B;&#x0A;&#xE00E;&#xE01F; &#x7F;&#x80;</ex:str>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>ex:str failed facet checks</tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+</tdml:testSuite>
