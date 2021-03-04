@@ -106,9 +106,9 @@ class TestXMLUtils {
   }
 
   @Test def testRemapPUAToXMLIllegalChar(): Unit = {
-    val ec = XMLUtils.remapPUAToXMLIllegalChar(false)(0xE000)
+    val ec = XMLUtils.remapPUAToXMLIllegalChar(0xE000)
     assertEquals(0x0, ec)
-    val ed = XMLUtils.remapPUAToXMLIllegalChar(false)(0xE880)
+    val ed = XMLUtils.remapPUAToXMLIllegalChar(0xE880)
     assertEquals(0xD880, ed)
   }
 
@@ -326,7 +326,6 @@ class TestXMLUtils {
     val path1 = createBlobFile(("00" * 1024) + ("A1" * 41))
     val path2 = createBlobFile(("00" * 1024))
     val diff = XMLUtils.computeBlobDiff("path", path1.toUri.toString, path2.toUri.toString)
-    println(diff)
     assertEquals("path.bytesAt(1025)", diff(0)._1)
     assertEquals("A1" * 40, diff(0)._2)
     assertEquals("", diff(0)._3)

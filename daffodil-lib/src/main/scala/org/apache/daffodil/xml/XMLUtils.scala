@@ -37,10 +37,8 @@ import org.apache.daffodil.util.Misc
 
 /**
  * Utilities for handling XML
- *
- * @version 1
- * @author Alejandro Rodriguez
  */
+
 object XMLUtils {
 
   /**
@@ -55,6 +53,9 @@ object XMLUtils {
 
   /**
    * Legal XML v1.0 chars are #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF]
+   *
+   * Note that this function is curried. You first close over the parameters of the algorithm
+   * to obtain a function that converts individual characters.
    */
   def remapXMLIllegalCharToPUA(checkForExistingPUA: Boolean = true, replaceCRWithLF: Boolean = true)(c: Char): Char = {
     val cInt = c.toInt
@@ -64,9 +65,9 @@ object XMLUtils {
       case 0xD =>
         if (replaceCRWithLF) 0xA.toChar // Map CR to LF. That's what XML does.
         else 0xE00D.toChar // or remap it to PUA so it is non-whitespace, and preserved.
-      case _ if (cInt < 0x20) => (cInt + 0xE000).toChar
-      case _ if (cInt > 0xD7FF && cInt < 0xE000) => (cInt + 0x1000).toChar
-      case _ if (cInt >= 0xE000 && cInt <= 0xF8FF) => {
+      case _ if (cInt < 0x20) => (cInt + 0xE000).toChar // ascii c0 controls
+      case _ if (cInt > 0xD7FF && cInt < 0xE000) => (cInt + 0x1000).toChar // surrogate code points
+      case _ if (cInt >= 0xE000 && cInt <= 0xF8FF) => { // Unicode PUA is E000 to F8FF.
         if (checkForExistingPUA)
           Assert.usageError("Pre-existing Private Use Area (PUA) character found in data: '%s'".format(c))
         else c
@@ -82,13 +83,20 @@ object XMLUtils {
     res
   }
 
+  /**
+   * Scans the string looking for XML-illegal characters. True if any are found.
+   */
   def needsXMLToPUARemapping(s: String): Boolean = {
     var i = 0
     val len = s.length
     while (i < len) {
       val v = s.charAt(i).toInt
-      if ((v < 0x20 && !(v == 0xA || v == 0x9)) || (v > 0xD7FF && v < 0xE000) ||
-          (v >= 0xE000 && v <= 0xF8FF) || (v == 0xFFFE) || (v == 0xFFFF) || (v > 0x10FFFF)) {
+      if ((v < 0x20 && !(v == 0xA || v == 0x9)) ||
+        (v > 0xD7FF && v < 0xE000) ||
+        (v >= 0xE000 && v <= 0xF8FF) ||  // Unicode PUA is E000 to F8FF
+        (v == 0xFFFE) ||
+        (v == 0xFFFF) ||
+        (v > 0x10FFFF)) {
         return true
       }
       i += 1
@@ -97,13 +105,13 @@ object XMLUtils {
   }
 
   /**
-   * Reverse of the above method
+   * Reverse of the remapXMLIllegalCharToPUA method
    */
-  def remapPUAToXMLIllegalChar(checkForExistingPUA: Boolean = true)(c: Char): Char = {
+  def remapPUAToXMLIllegalChar(c: Char): Char = {
     val cInt = c.toInt
     val res = cInt match {
-      case _ if (c >= 0xE000 && c < 0xE020) => (c - 0xE000).toChar
-      case _ if (c > 0xE7FF && c < 0xF000) => (c - 0x1000).toChar
+      case _ if (c >= 0xE000 && c <= 0xE01F) => (c - 0xE000).toChar // Ascii c0 controls
+      case _ if (c >= 0xE800 && c <= 0xEFFF) => (c - 0x1000).toChar // surrogate codepoints
       case 0xF0FE => 0xFFFE.toChar
       case 0xF0FF => 0xFFFF.toChar
       case _ if (c > 0x10FFFF) => {
@@ -114,14 +122,21 @@ object XMLUtils {
     res
   }
 
+  /**
+   * Determines if we need to unmap PUA-mapped characters back to the (XML illegal) original characters.
+   *
+   * Used to save allocating a string every time, given that these PUA mapped chars are rare.
+   */
   def needsPUAToXMLRemapping(s: String): Boolean = {
     var i = 0
     val len = s.length
     while (i < len) {
       val v = s.charAt(i).toInt
       if ((v == 0xD) || // not PUA, but string still needs remapping since CR must be mapped to LF
-          (v >= 0xE000 && v < 0xE020) || (v > 0xE7FF && v < 0xF000) ||
-          (v == 0xF0FE) || (v == 0xF0FF) || (v > 0x10FFFF)) {
+          (v >= 0xE000 && v <= 0xE01F) || // PUA chars that are Ascii C0 controls.
+          (v >= 0xE800 && v <= 0xEFFF) || // Surrogate codepoints
+          (v == 0xF0FE) || (v == 0xF0FF) || // FFFE and FFFF illegal chars
+          (v > 0x10FFFF)) {
         return true
       }
       i += 1
@@ -249,6 +264,12 @@ object XMLUtils {
     }
   }
 
+  /**
+   * Converts PUA characters back into the original (XML Illegal) characters
+   * they represent.
+   *
+   *
+   */
   def remapPUAToXMLIllegalCharacters(dfdlString: String): String = {
     if (needsPUAToXMLRemapping(dfdlString)) {
       // This essentially doubles the work if remapping is needed (since we
@@ -256,7 +277,7 @@ object XMLUtils {
       // remapping). But the common case is that remapping is not needed, so we
       // only need to scan the string once AND we avoid allocating a new string
       // with characters remapped.
-      remapXMLCharacters(dfdlString, remapPUAToXMLIllegalChar(false))
+      remapXMLCharacters(dfdlString, remapPUAToXMLIllegalChar)
     } else {
       dfdlString
     }
@@ -689,7 +710,13 @@ object XMLUtils {
     res
   }
 
-  def convertPCDataToText(n: Node): Node = {
+  /**
+   * Used as part of preparing XML for comparison/diffing.
+   *
+   * Insures that CDATA bracketing of data doesn't change
+   * the value of text for comparison purposes.
+   */
+  private def convertPCDataToText(n: Node): Node = {
     val res = n match {
       case t: Text => t
       case a: Atom[_] => Text(a.text)

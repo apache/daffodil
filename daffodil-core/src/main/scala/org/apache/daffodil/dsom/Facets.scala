@@ -44,7 +44,8 @@ trait Facets { self: Restriction =>
 
   private def retrieveFacetValuesFromRestrictionBase(xml: Node, facetName: Facet.Type): Seq[String] = {
     val res = xml \\ "restriction" \ facetName.toString() \\ "@value"
-    if (res.length > 0) res.map(n => n.text).toList else List.empty
+    val ret = if (res.length > 0) res.map(n => n.text).toList else List.empty
+    ret
   }
   private def enumeration(xml: Node): Seq[String] = { retrieveFacetValuesFromRestrictionBase(xml, Facet.enumeration) }
   private def fractionDigits(xml: Node): String = { retrieveFacetValueFromRestrictionBase(xml, Facet.fractionDigits) }
@@ -56,7 +57,8 @@ trait Facets { self: Restriction =>
   private def minLength(xml: Node): String = { retrieveFacetValueFromRestrictionBase(xml, Facet.minLength) }
   private def pattern(xml: Node): Seq[String] = {
     // Patterns are OR'd locally, AND'd remotely
-    retrieveFacetValuesFromRestrictionBase(xml, Facet.pattern).map(p => p)
+    val res = retrieveFacetValuesFromRestrictionBase(xml, Facet.pattern).map(p => p)
+    res
   }
   private def totalDigits(xml: Node): String = { retrieveFacetValueFromRestrictionBase(xml, Facet.totalDigits) }
   private def whitespace(xml: Node): String = { retrieveFacetValueFromRestrictionBase(xml, Facet.whiteSpace) }
@@ -128,10 +130,10 @@ trait Facets { self: Restriction =>
   final lazy val hasFractionDigits: Boolean = (localFractionDigitsValue != "") || (getRemoteFacetValues(Facet.fractionDigits).size > 0)
 
   final lazy val patternValues: Seq[FacetValueR] = {
-    val values = combinedBaseFacets.filter { case (f, _) => f == Facet.pattern }
+    val values: Seq[(Facet.Type, Values)] = combinedBaseFacets.filter { case (f, _) => f == Facet.pattern }
     if (values.size > 0) {
       val res: Seq[FacetValueR] = values.map {
-        case (f, v) => {
+        case (f, v: String) => {
           //
           // The DFDL Infoset can contain strings which hold characters
           // that are not allowed in XML at all.
@@ -160,7 +162,7 @@ trait Facets { self: Restriction =>
           // The XSD numeric character entity &#xE000; can be used to match ASCII NUL
           // (char code 0).
           //
-          val remapped = XMLUtils.remapPUAToXMLIllegalCharacters(v)
+          val remapped: String = XMLUtils.remapPUAToXMLIllegalCharacters(v)
           (f, remapped.r)
         }
       }

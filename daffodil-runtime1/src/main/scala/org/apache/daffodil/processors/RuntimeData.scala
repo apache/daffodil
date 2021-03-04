@@ -18,7 +18,6 @@
 package org.apache.daffodil.processors
 
 import scala.xml.NamespaceBinding
-
 import org.apache.daffodil.Implicits.ImplicitsSuppressUnusedImportWarning
 import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.dpath.NodeInfo.PrimType
@@ -46,7 +45,10 @@ import org.apache.daffodil.xml.NS
 import org.apache.daffodil.xml.NamedQName
 import org.apache.daffodil.xml.QNameBase
 import org.apache.daffodil.xml.RefQName
-import org.apache.daffodil.xml.StepQName; object NoWarn { ImplicitsSuppressUnusedImportWarning() }
+import org.apache.daffodil.xml.StepQName
+import org.apache.daffodil.xml.XMLUtils
+
+import scala.util.matching.Regex; object NoWarn { ImplicitsSuppressUnusedImportWarning() }
 import java.util.regex.Matcher
 
 import org.apache.daffodil.api.UnqualifiedPathStepPolicy
@@ -305,7 +307,8 @@ final class SimpleTypeRuntimeData(
     if (e.patternValues.isDefinedAt(0)) {
       val check = checkPatterns(currentElement, patternMatchers)
       if (!check) {
-        val patternStrings = e.patternValues.map { case (_, pattern) => pattern }.mkString(",")
+        // The escaping is important here as error messages were impossible to figure out when control chars were involved.
+        val patternStrings = e.patternValues.map { case (_, r: Regex) => XMLUtils.escape(r.pattern.pattern()) }.mkString(",")
         return Error("facet pattern(s): %s".format(patternStrings))
       }
     }
