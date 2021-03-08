@@ -25,7 +25,7 @@ object Dependencies {
     "org.scala-lang.modules" %% "scala-xml" % "1.3.0",
     "org.scala-lang.modules" %% "scala-parser-combinators" % "1.1.2",
     "com.ibm.icu" % "icu4j" % "68.2",
-    "xerces" % "xercesImpl" % "2.12.0",
+    "xerces" % "xercesImpl" % "2.12.1",
     "xml-resolver" % "xml-resolver" % "1.2",
     "commons-io" % "commons-io" % "2.8.0",
     "jline" % "jline" % "2.14.6",
