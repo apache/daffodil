@@ -45,7 +45,7 @@ object Dependencies {
   )
 
   lazy val test = Seq(
-    "junit" % "junit" % "4.13.1" % "it,test",
+    "junit" % "junit" % "4.13.2" % "it,test",
     "com.novocode" % "junit-interface" % "0.11" % "it,test",
     "org.scalacheck" %% "scalacheck" % "1.14.3" % "it,test"
   )
