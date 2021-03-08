@@ -415,7 +415,7 @@ class TestCLIparsing {
     try {
       val cmd = String.format("echo 0,1,2,3| %s parse", Util.binPath)
       shell.sendLine(cmd)
-      shell.expect(contains("One of --schema or --parser must be defined"))
+      shell.expect(contains("There should be exactly one of the following options: schema, parser"))
       shell.send("exit\n")
       shell.expect(eof)
     } finally {
@@ -771,7 +771,7 @@ class TestCLIparsing {
 
     try {
       shell.sendLine(cmd)
-      shell.expect(contains("subcommand"))
+      shell.expect(contains("Subcommand required"))
       shell.sendLine("exit")
       shell.expect(eof)
     } finally {

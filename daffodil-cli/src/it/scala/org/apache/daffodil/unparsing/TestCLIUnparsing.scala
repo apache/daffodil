@@ -270,7 +270,7 @@ class TestCLIunparsing {
     try {
       val cmd = String.format("""echo '<tns:e1 xmlns:tns="http://example.com">Hello</tns:e1>' | %s unparse""", Util.binPath)
       shell.sendLine(cmd)
-      shell.expect(contains("One of --schema or --parser must be defined"))
+      shell.expect(contains("There should be exactly one of the following options: schema, parser"))
       shell.send("exit\n")
       shell.expect(eof)
     } finally {
