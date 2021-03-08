@@ -277,6 +277,9 @@ class DFDLPathExpressionParser[T <: AnyRef](
     SupportedForwardAxis ~ NodeTest ~ Predicate.? ^^ {
       case "self" ~ qn ~ p => Self2(qn, p)
       case "child" ~ qn ~ p => NamedStep(qn, p)
+      // $COVERAGE-OFF$
+      case _ => Assert.impossible()
+      // $COVERAGE-ON$
     } |
     UnsupportedForwardAxis ~ Predicate.? ^^ { case name ~ _ => context.SDE("'%s::' is an unsupported axis in DFDL Expression Syntax.", name) } |
     NodeTest ~ Predicate.? ^^ { case qn ~ p => { NamedStep(qn, p) } }

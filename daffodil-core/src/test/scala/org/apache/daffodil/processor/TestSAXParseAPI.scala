@@ -455,9 +455,9 @@ class TestSAXParseAPI {
         |endElement($a02Uri, intx, )
         |endElement($b02Uri, seq2, )
         |endElement($b02Uri, seq, )
-        |endPrefixMapping(xsi)
-        |endPrefixMapping(b02)
         |endPrefixMapping(a02)
+        |endPrefixMapping(b02)
+        |endPrefixMapping(xsi)
         |endDocument
         |""".stripMargin
     assertEquals(expectedOutput, actualOutput)
@@ -479,7 +479,7 @@ class TestSAXParseAPI {
          |startPrefixMapping(a02, $a02Uri)
          |startPrefixMapping(b02, $b02Uri)
          |startPrefixMapping(xsi, $xsiUri)
-         |startElement($b02Uri, seq, b02:seq, Attributes((,,xmlns:xsi,$xsiUri)(,,xmlns:b02,$b02Uri)(,,xmlns:a02,$a02Uri)))
+         |startElement($b02Uri, seq, b02:seq, Attributes((,,xmlns:a02,$a02Uri)(,,xmlns:b02,$b02Uri)(,,xmlns:xsi,$xsiUri)))
          |startElement($b02Uri, seq2, b02:seq2, Attributes())
          |startElement($a02Uri, intx, a02:intx, Attributes(($xsiUri,nil,xsi:nil,true)))
          |endElement($a02Uri, intx, a02:intx)
@@ -500,9 +500,9 @@ class TestSAXParseAPI {
          |endElement($a02Uri, intx, a02:intx)
          |endElement($b02Uri, seq2, b02:seq2)
          |endElement($b02Uri, seq, b02:seq)
-         |endPrefixMapping(xsi)
-         |endPrefixMapping(b02)
          |endPrefixMapping(a02)
+         |endPrefixMapping(b02)
+         |endPrefixMapping(xsi)
          |endDocument
          |""".stripMargin
     assertEquals(expectedOutput, actualOutput)
@@ -521,7 +521,7 @@ class TestSAXParseAPI {
     val b02Uri = "http://b02.com"
     val expectedOutput =
       s"""startDocument
-         |startElement(, , b02:seq, Attributes((,,xmlns:xsi,$xsiUri)(,,xmlns:b02,$b02Uri)(,,xmlns:a02,$a02Uri)))
+         |startElement(, , b02:seq, Attributes((,,xmlns:a02,$a02Uri)(,,xmlns:b02,$b02Uri)(,,xmlns:xsi,$xsiUri)))
          |startElement(, , b02:seq2, Attributes())
          |startElement(, , a02:intx, Attributes((,,xsi:nil,true)))
          |endElement(, , a02:intx)

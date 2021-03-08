@@ -293,12 +293,15 @@ class DPathCompileInfo(
    *
    * Then we move outward to the enclosing element - and if there
    * isn't one we return None. (Which most likely will lead to an SDE.)
+   *
+   * The map(identity) is used work around a bug related to serialization of Lists
+   * and the SerializationProxy object.
    */
   final lazy val enclosingElementCompileInfos: Seq[DPathElementCompileInfo] = {
     val eci = elementCompileInfos.flatMap { _.parents }
     val res = eci.flatMap { _.elementCompileInfos }
     res
-  }
+  }.map(identity)
 
   /**
    * The contract here supports the semantics of "." in paths.
@@ -309,14 +312,19 @@ class DPathCompileInfo(
    * This is used because paths refer to elements, so we have to
    * walk upward until we get elements. At that point we can
    * then navigate element to element.
+   *
+   * The map(identity) is used work around a bug related to serialization of
+   * Lists and the SerializationProxy object.
    */
-  final lazy val elementCompileInfos: Seq[DPathElementCompileInfo] = this match {
-    case e: DPathElementCompileInfo => Seq(e)
-    case d: DPathCompileInfo => {
-      val eci = d.parents
-      eci flatMap { ci => ci.elementCompileInfos }
+  final lazy val elementCompileInfos: Seq[DPathElementCompileInfo] = {
+    this match {
+      case e: DPathElementCompileInfo => Seq(e)
+      case d: DPathCompileInfo => {
+        val eci = d.parents
+        eci flatMap { ci => ci.elementCompileInfos }
+      }
     }
-  }
+  }.map(identity)
 }
 
 /**

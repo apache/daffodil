@@ -223,6 +223,13 @@ class TestCLIparsing {
   }
 
   //  See comment in DFDL-952
+  //
+  //  Also note that this test is important in showing the expected existence
+  //  and ordering of XML namespace prefix mappings. Daffodil ensures
+  //  consistent and repeatable output of namespace prefix mappings, but normal
+  //  TDML tests do not verify this part of expected infosets. This is one test
+  //  verifies the expected output. If this test fails, it likely means we've
+  //  broken our attempts to create consistent prefix mappings.
   @Test def test_1585_CLI_Parsing_MultifileSchema_methodImportSameDir(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/namespaces/multi_base_14.dfdl.xsd")
     val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
