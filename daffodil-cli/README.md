@@ -28,7 +28,7 @@ capable of serializing or "unparsing" data back to the original data format.
 The DFDL infoset can also be converted directly to/from the data structures
 carried by data processing frameworks so as to bypass any XML/JSON overheads.
 
-For more information about Daffodil, see https://daffodil.apache.org/.
+For more information about Daffodil, see <https://daffodil.apache.org/>.
 
 ## Requirements
 
@@ -38,6 +38,7 @@ For more information about Daffodil, see https://daffodil.apache.org/.
 
 To execute Daffodil on Linux:
 
+<!-- markdownlint-disable commands-show-output -->
 ```bash
 $ ./bin/daffodil [options]
 ```
@@ -68,7 +69,8 @@ inspect state. Type `help` at the command prompt to get information on the
 debugger commands, or `help <command>` to get information about a specific
 command.
 
-See the [Interactive Debugger](https://daffodil.apache.org/debugger/) page for its detailed usage.
+See the [Interactive Debugger](https://daffodil.apache.org/debugger/)
+page for its detailed usage.
 
 ## Getting Help
 
@@ -79,3 +81,7 @@ users@daffodil.apache.org mailing lists. Bugs can be reported via the
 ## License
 
 Daffodil is licensed under the [Apache License, v2.0](https://www.apache.org/licenses/LICENSE-2.0)
+
+This product includes The Saxon XSLT and XQuery Processor from
+Saxonica Limited (<http://www.saxonica.com/>), which is licensed under
+the Mozilla Public License version 2.0.
