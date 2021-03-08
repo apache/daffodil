@@ -274,7 +274,7 @@ trait ElementBase
   }
 
   // FIXME: DAFFODIL-2282 works only if there is no difference among usages.
-  private def pairsToNSBinding(pairs: Set[(String, NS)], parentNS: NamespaceBinding): NamespaceBinding = {
+  private def pairsToNSBinding(pairs: List[(String, NS)], parentNS: NamespaceBinding): NamespaceBinding = {
     if (pairs.isEmpty) parentNS
     else {
       val (pre, ns) = pairs.head
@@ -314,7 +314,16 @@ trait ElementBase
         myUniquePairs
       }
 
-    pairsToNSBinding(uniquePairs, parentMinimizedScope)
+    // Sort alphabetically, with null NS going first. This is the order that
+    // NamespaceBinings will be output with the toString method. This ensures
+    // consistent ordering regardless of Set/Map implementation details of
+    // uniquePairs
+    val sortedPairs = uniquePairs.toList.sortWith { case (l, r) =>
+      (l._1 == null) || (r._1 == null) || (l._1.compareTo(r._1) < 0)
+    }
+
+    pairsToNSBinding(sortedPairs, parentMinimizedScope)
+
   }.value
 
   /**

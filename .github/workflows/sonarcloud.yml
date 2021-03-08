@@ -23,7 +23,7 @@ jobs:
     name: SonarCloud Scan, Scala ${{ matrix.scala_version }}, ${{ matrix.os }}
     strategy:
       matrix:
-        scala_version: [ 2.12.11 ]
+        scala_version: [ 2.12.13 ]
         os: [ ubuntu-20.04 ]
 
     runs-on: ${{ matrix.os }}

@@ -145,18 +145,11 @@ class SAXInfosetOutputter(xmlReader: DFDL.DaffodilParseXMLReader,
   private def doStartPrefixMapping(diElem: DIElement, contentHandler: ContentHandler): Unit = {
     val (nsbStart: NamespaceBinding, nsbEnd: NamespaceBinding) = getNsbStartAndEnd(diElem)
     var n = nsbStart
-    var mappingsList: Seq[(String, String)] = Seq()
     while (n.ne(nsbEnd) && n.ne(null) && n.ne(scala.xml.TopScope)) {
       val prefix = if (n.prefix == null) "" else n.prefix
       val uri = if (n.uri == null) "" else n.uri
-      // we generate a list here by prepending so can build the prefixMapping in the
-      // same order as it is in minimizedScope when we call startPrefixMapping; we do this because
-      // getPrefix in the contentHandler is order dependent
-      mappingsList +:= (prefix, uri)
-      n = n.parent
-    }
-    mappingsList.foreach{ case (prefix, uri) =>
       contentHandler.startPrefixMapping(prefix, uri)
+      n = n.parent
     }
   }
 

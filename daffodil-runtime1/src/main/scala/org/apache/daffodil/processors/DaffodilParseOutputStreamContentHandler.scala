@@ -93,7 +93,12 @@ class DaffodilParseOutputStreamContentHandler(out: OutputStream, pretty: Boolean
 
   override def startPrefixMapping(prefix: String, uri: String): Unit = {
     val _prefix = if (prefix == "") null else prefix
-    activePrefixMapping = NamespaceBinding(_prefix, uri, activePrefixMapping)
+    // only add this new prefix mapping to the currentElementMapping. The
+    // mappings in this variable will be added to the active mapping later.
+    // This is necessary because we essentially prepend NamespaceBindings when
+    // adding new ones, which effectively reverses the order. When we add these
+    // mappings to the activePrefixMapping, we'll undo that reversal so things
+    // are in the correct order
     currentElementPrefixMapping = NamespaceBinding(_prefix, uri, currentElementPrefixMapping)
   }
 
@@ -102,39 +107,56 @@ class DaffodilParseOutputStreamContentHandler(out: OutputStream, pretty: Boolean
   }
 
   /**
-   * Uses Attributes, which is passed in to the startElement callback, to gather element attributes
-   * or in the case where namespacePrefixes is true, prefix mappings. Any new prefix mappings are used
-   * to update the activePrefixMapping and currentElementPrefixMapping.
-   *
-   * @return sequence of string attribute=val pairings
+   * Uses Attributes, which is passed in to the startElement callback, to
+   * gather prefix mappings in the case where namespacePrefixes is true. New
+   * prefix mappings are added to the currentElementPrefixMapping bindings
    */
-  def processAttributes(atts: Attributes): Seq[String] = {
-    var attrPairings: Seq[String] = Seq()
+  def processAttributePrefixMappings(atts: Attributes): Unit = {
     var i = 0
-    var newMappingsList: Seq[(String, String)] = Seq()
     while (i < atts.getLength) {
       val qName = atts.getQName(i)
-      val attrVal =  atts.getValue(i)
       if (qName.nonEmpty) {
-        // if qName is populated; as in when namespacePrefixes == true
-        // describing namespace mapping
+        // if qName is populated that implies namespacePrefixes == true, and we
+        // might have prefix mappings if the qname is a special xmlns value
+        if (qName == "xmlns") {
+          val pre = null
+          val uri = atts.getValue(i)
+          currentElementPrefixMapping = NamespaceBinding(pre, uri, currentElementPrefixMapping)
+        } else if (qName.startsWith("xmlns:")) {
+          val pre = qName.substring(6)
+          val uri = atts.getValue(i)
+          currentElementPrefixMapping = NamespaceBinding(pre, uri, currentElementPrefixMapping)
+        } else {
+          // not a prefix mapping, ignore this attribute
+        }
+      } else {
+        // no qname, so namespacePrefixes == false, which means we get no
+        // prefix mappings in the Attributes, only regular attributes such as xsi:nil.
+        // This can't be a prefix mapping, so ignore this attribute
+      }
+      i += 1
+    }
+  }
+
+  /**
+   * Uses Attributes, which is passed in to the startElement callback, to write
+   * element attributes. Prefix mappings are ignored and assumed to be written
+   * elsewhere. Uses activePrefixMappings to map uri's to prefixes, so prefix
+   * mappings in the Attributes must have already been processed and added to
+   * activePrefixMappings
+   */
+  def writeNonNamespaceAttributes(writer: OutputStreamWriter, atts: Attributes): Unit = {
+    var i = 0
+    while (i < atts.getLength) {
+      val qName = atts.getQName(i)
+      if (qName.nonEmpty) {
         if (qName.startsWith("xmlns:") || qName == "xmlns") {
-          // get prefix
-          val pre = if (qName.startsWith("xmlns:")) {
-            qName.substring(6)
-          } else {
-            null
-          }
-          // we make this call to check if the prefix already exists. If it doesn't exist, we get a
-          // Nope, so we can add it to our list, but if it does exist, nothing happens and it doesn't
-          // get re-added and we instead proceed to the next item in Attributes
-          val maybeUri = XMLUtils.maybeURI(activePrefixMapping, pre)
-          if (maybeUri.isEmpty || maybeUri.get != attrVal) { // not found yet, add it
-            newMappingsList +:= (pre, attrVal)
-          }
+          // namespace mapping, ignore
         } else {
           // regular attribute with qname such as xsi:nil
-          attrPairings +:= s""" ${qName}="${attrVal}""""
+          val attrVal = atts.getValue(i)
+          val attr = s""" ${qName}="${attrVal}""""
+          writer.write(attr)
         }
       } else {
         // no qname, so namespacePrefixes == false, which means we get no
@@ -148,7 +170,9 @@ class DaffodilParseOutputStreamContentHandler(out: OutputStream, pretty: Boolean
           // found a prefix; add to attribute pairings
           if (maybePrefix.isDefined) {
             val prefix = maybePrefix.get
-            attrPairings +:= s""" $prefix:$localName="${attrVal}""""
+            val attrVal = atts.getValue(i)
+            val attr = s""" $prefix:$localName="${attrVal}""""
+            writer.write(attr)
           } else {
             // if an attribute has a URI, we must have a prefix, even if it is null
            Assert.invariantFailed("Cannot have URI with no prefix mapping")
@@ -160,11 +184,6 @@ class DaffodilParseOutputStreamContentHandler(out: OutputStream, pretty: Boolean
       }
       i += 1
     }
-    newMappingsList.foreach{ case (prefix, uri) =>
-      activePrefixMapping = NamespaceBinding(prefix, uri, activePrefixMapping)
-      currentElementPrefixMapping = NamespaceBinding(prefix, uri, currentElementPrefixMapping)
-    }
-    attrPairings.reverse
   }
 
   override def startElement(
@@ -179,11 +198,32 @@ class DaffodilParseOutputStreamContentHandler(out: OutputStream, pretty: Boolean
       outputIndentation(writer)
     }
 
-    /**
-     * represents the attributes for the current element. We use this to generate the attributes list
-     * within the start tag
-     */
-    val currentElementAttributes = processAttributes(atts)
+    // scan the attributes for any prefix mappings, which will update
+    // currentElementPrefixMappings
+    processAttributePrefixMappings(atts)
+
+    // at this point, all prefix mappings specific to this element have been
+    // added to currentElementPrefixMapping (either from startPrefixMapping or
+    // processAttributePrefixMappings). Note that these new mappings are in the
+    // reverse order than they should be written because they were prepended to
+    // NamespaceBinding. We now add these new mappings to the activePrefixMapping,
+    // and in doing so re-reverses the order so that they are in the correct
+    // order in the activePrefixMaping. This ensures we get find the right
+    // prefix during lookups and write the mappings in the correct order.
+    val previousPrefixMapping = activePrefixMapping
+    while (currentElementPrefixMapping != null) {
+      val prefix = currentElementPrefixMapping.prefix
+      val uri = currentElementPrefixMapping.uri
+
+      // check to see if the prefix is already mapped to the same URI. If it
+      // is, ignore this mapping since it adds nothing new
+      val maybeUri = XMLUtils.maybeURI(activePrefixMapping, prefix)
+      if (maybeUri.isEmpty || maybeUri.get != uri) {
+        activePrefixMapping = NamespaceBinding(prefix, uri, activePrefixMapping)
+      }
+      currentElementPrefixMapping = currentElementPrefixMapping.parent
+    }
+
     // we always push, but activePrefixMapping won't always be populated with new information
     // from startPrefixMapping or processAttributes
     activePrefixMappingContextStack.push(activePrefixMapping)
@@ -192,19 +232,15 @@ class DaffodilParseOutputStreamContentHandler(out: OutputStream, pretty: Boolean
     writer.write("<")
     outputTagName(uri, localName, qName)
 
-    // this contains only xmlns prefixes and are populated via the start/endPrefixMappings
-    // or Attributes via processAttributes()
-    if (currentElementPrefixMapping != null) {
-      val pm = currentElementPrefixMapping.toString()
+    // write only the part of activePrefixMapping that is new for this element
+    if (activePrefixMapping ne previousPrefixMapping) {
+      val pm = activePrefixMapping.buildString(previousPrefixMapping)
       writer.write(pm)
-      currentElementPrefixMapping = null
     }
 
-    // handles attributes from the Attributes object. Example attributes is xsi:nil
-    if (currentElementAttributes.nonEmpty) {
-      val attrs = currentElementAttributes.mkString(" ")
-      writer.write(attrs)
-    }
+    // write the non-namespace attributes from the Attributes object. Example
+    // attributes is xsi:nil
+    writeNonNamespaceAttributes(writer, atts)
 
     // handle end of tag
     writer.write(">")

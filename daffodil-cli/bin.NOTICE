@@ -106,8 +106,8 @@ Scala (lib/org.scala-lang.scala-library-<VERSION>.jar)
 
 Scala Parser Combinators (lib/org.scala-lang.modules.scala-parser-combinators_<VERSION>.jar)
   Scala parser combinators
-  Copyright (c) 2002-2020 EPFL
-  Copyright (c) 2011-2020 Lightbend, Inc.
+  Copyright (c) 2002-2021 EPFL
+  Copyright (c) 2011-2021 Lightbend, Inc.
 
   Scala includes software developed at
   LAMP/EPFL (https://lamp.epfl.ch/) and
