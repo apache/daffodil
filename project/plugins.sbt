@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.7.5")
+addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.7.6")
 
 addSbtPlugin("org.musigma" % "sbt-rat" % "0.7.0")
 
