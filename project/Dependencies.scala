@@ -29,7 +29,7 @@ object Dependencies {
     "xml-resolver" % "xml-resolver" % "1.2",
     "commons-io" % "commons-io" % "2.8.0",
     "jline" % "jline" % "2.14.6",
-    "com.typesafe" % "config" % "1.4.0"
+    "com.typesafe" % "config" % "1.4.1"
   )
 
   lazy val infoset = Seq(
