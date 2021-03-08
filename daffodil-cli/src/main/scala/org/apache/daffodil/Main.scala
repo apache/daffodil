@@ -35,7 +35,6 @@ import scala.concurrent.Await
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.concurrent.duration.Duration
-import scala.language.reflectiveCalls
 import scala.xml.Node
 import scala.xml.SAXParseException
 
@@ -156,6 +155,18 @@ object TDMLLogWriter extends CLILogPrefix {
   }
 }
 
+object InfosetType extends Enumeration {
+  type Type = Value
+
+  val JDOM = Value("jdom")
+  val JSON = Value("json")
+  val SAX = Value("sax")
+  val SCALA_XML = Value("scala-xml")
+  val W3CDOM = Value("w3cdom")
+  val XML = Value("xml")
+  val NULL = Value("null")
+}
+
 class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
   with Logging {
 
@@ -212,14 +223,6 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
       override def argFormat(name: String): String = "[" + name + "]"
     }
 
-  def validateConf(c1: => Option[scallop.ScallopConfBase])(fn: (Option[scallop.ScallopConfBase]) => Either[String, Unit]): Unit = {
-    validations :+= new Function0[Either[String, Unit]] {
-      def apply = {
-        fn(c1)
-      }
-    }
-  }
-
   implicit def validateConverter = singleArgConverter[ValidationMode.Type]((s: String) => {
     import ValidatorPatterns._
     s match {
@@ -232,6 +235,14 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
       case NoArgsPattern(name) if Validators.isRegistered(name) =>
         ValidationMode.Custom(Validators.get(name).make(ConfigFactory.empty))
       case _ => throw new Exception("Unrecognized ValidationMode %s.  Must be 'on', 'limited', 'off', or name of spi validator.".format(s))
+    }
+  })
+
+  implicit def infosetTypeConverter = singleArgConverter[InfosetType.Type]((s: String) => {
+    try {
+      InfosetType.withName(s.toLowerCase)
+    } catch {
+      case _: NoSuchElementException => throw new Exception("Unrecognized infoset type: %s.  Must be one of %s".format(s, InfosetType.values.mkString(", ")))
     }
   })
 
@@ -314,7 +325,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
   val version = opt[Boolean](descr = "Show version of this program")
 
   // Parse Subcommand Options
-  val parse = new scallop.Subcommand("parse") {
+  object parse extends scallop.Subcommand("parse") {
     banner("""|Usage: daffodil parse (-s <schema> [-r [{namespace}]<root>] [-p <path>] |
               |                       -P <parser>)
               |                      [--validate [mode]]
@@ -338,44 +349,29 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     val validate: ScallopOption[ValidationMode.Type] = opt[ValidationMode.Type](short = 'V', default = Some(ValidationMode.Off), argName = "mode", descr = "the validation mode. 'on', 'limited', 'off', or a validator plugin name.")
     val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used when parsing. An optional namespace may be provided.")
     val tunables = props[String]('T', keyName = "tunable", valueName = "value", descr = "daffodil tunable to be used when parsing.")
-    val config = opt[String](short = 'c', argName = "file", descr = "path to file containing configuration items.")
-    val infosetType = opt[String](short = 'I', argName = "infoset_type", descr = "infoset type to output. Must be one of 'xml', 'scala-xml', 'json', 'jdom', 'w3cdom', 'sax', or 'null'.", default = Some("xml")).map { _.toLowerCase }
+    val config = opt[File](short = 'c', argName = "file", descr = "path to file containing configuration items.")
+    val infosetType = opt[InfosetType.Type](short = 'I', argName = "infoset_type", descr = "infoset type to output. Must be one of 'xml', 'scala-xml', 'json', 'jdom', 'w3cdom', 'sax', or 'null'.", default = Some(InfosetType.XML))
     val stream = toggle(noshort = true, default = Some(false), descrYes = "when left over data exists, parse again with remaining data, separating infosets by a NUL character", descrNo = "stop after the first parse, even if left over data exists")
     val infile = trailArg[String](required = false, descr = "input file to parse. If not specified, or a value of -, reads from stdin.")
 
-    validateOpt(debug, infile) {
-      case (Some(None), Some("-")) | (Some(None), None) => Left("Input must not be stdin during interactive debugging")
-      case _ => Right(Unit)
-    }
+    requireOne(schema, parser) // must have one of --schema or --parser
+    conflicts(parser, List(rootNS)) // if --parser is provided, cannot also provide --root
+    validateFileIsFile(config) // --config must be a file that exists
 
-    validateOpt(schema, parser, rootNS) {
-      case (None, None, _) => Left("One of --schema or --parser must be defined")
-      case (Some(_), Some(_), _) => Left("Only one of --parser and --schema may be defined")
-      case (None, Some(_), Some(_)) => Left("--root cannot be defined with --parser")
+    validateOpt(debug, infile) {
+      case (Some(_), Some("-")) | (Some(_), None) => Left("Input must not be stdin during interactive debugging")
       case _ => Right(Unit)
     }
 
     validateOpt(parser, validate) {
-      case (Some(_), Some(v)) if v == ValidationMode.Full => Left("The validation mode must be 'limited' or 'off' when using a saved parser.")
+      case (Some(_), Some(ValidationMode.Full)) => Left("The validation mode must be 'limited' or 'off' when using a saved parser.")
       case _ => Right(Unit)
-    }
-
-    validateOpt(infosetType) {
-      case (Some("xml")) => Right(Unit)
-      case (Some("scala-xml")) => Right(Unit)
-      case (Some("json")) => Right(Unit)
-      case (Some("jdom")) => Right(Unit)
-      case (Some("w3cdom")) => Right(Unit)
-      case (Some("sax")) => Right(Unit)
-      case (Some("null")) => Right(Unit)
-      case (Some(t)) => Left("Unknown infoset type: " + t)
-      case _ => Assert.impossible() // not possible due to default value
     }
 
   }
 
   // Performance Subcommand Options
-  val performance = new scallop.Subcommand("performance") {
+  object performance extends scallop.Subcommand("performance") {
     banner("""|Usage: daffodil performance (-s <schema> [-r [{namespace}]<root>] [-p <path>] |
               |                       -P <parser>)
               |                      [--unparse]
@@ -403,33 +399,22 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     val validate: ScallopOption[ValidationMode.Type] = opt[ValidationMode.Type](short = 'V', default = Some(ValidationMode.Off), argName = "mode", descr = "the validation mode. 'on', 'limited', 'off', or a validator plugin name.")
     val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used when processing. An optional namespace may be provided.")
     val tunables = props[String]('T', keyName = "tunable", valueName = "value", descr = "daffodil tunable to be used when processing.")
-    val config = opt[String](short = 'c', argName = "file", descr = "path to file containing configuration items.")
-    val infosetType = opt[String](short = 'I', argName = "infoset_type", descr = "infoset type to parse/unparse. Must be one of 'xml', 'scala-xml', 'json', 'jdom', 'w3cdom', 'sax', or 'null'.", default = Some("xml")).map { _.toLowerCase }
+    val config = opt[File](short = 'c', argName = "file", descr = "path to file containing configuration items.")
+    val infosetType = opt[InfosetType.Type](short = 'I', argName = "infoset_type", descr = "infoset type to parse/unparse. Must be one of 'xml', 'scala-xml', 'json', 'jdom', 'w3cdom', 'sax', or 'null'.", default = Some(InfosetType.XML))
     val infile = trailArg[String](required = true, descr = "input file or directory containing files to process.")
 
-    validateOpt(schema, parser, rootNS) {
-      case (None, None, _) => Left("One of --schema or --parser must be defined")
-      case (Some(_), Some(_), _) => Left("Only one of --parser and --schema may be defined")
-      case (None, Some(_), Some(_)) => Left("--root cannot be defined with --parser")
-      case _ => Right(Unit)
-    }
+    requireOne(schema, parser) // must have one of --schema or --parser
+    conflicts(parser, List(rootNS)) // if --parser is provided, cannot also provide --root
+    validateFileIsFile(config) // --config must be a file that exists
 
     validateOpt(infosetType, unparse) {
-      case (Some("xml"), _) => Right(Unit)
-      case (Some("scala-xml"), _) => Right(Unit)
-      case (Some("json"), _) => Right(Unit)
-      case (Some("jdom"), _) => Right(Unit)
-      case (Some("w3cdom"), _) => Right(Unit)
-      case (Some("sax"), _) => Right(Unit)
-      case (Some("null"), Some(true)) => Left("infoset type null not valid with performance --unparse")
-      case (Some("null"), _) => Right(Unit)
-      case (Some(t), _) => Left("Unknown infoset type: " + t)
-      case _ => Assert.impossible() // not possible due to default value
+      case (Some(InfosetType.NULL), Some(true)) => Left("null infoset type not valid with performance --unparse")
+      case _ => Right(Unit)
     }
   }
 
   // Unparse Subcommand Options
-  val unparse = new scallop.Subcommand("unparse") {
+  object unparse extends scallop.Subcommand("unparse") {
     banner("""|Usage: daffodil unparse (-s <schema> [-r [{namespace}]<root>] [-p <path>] |
               |                         -P <parser>)
               |                        [--validate [mode]]
@@ -453,48 +438,28 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     val validate: ScallopOption[ValidationMode.Type] = opt[ValidationMode.Type](short = 'V', default = Some(ValidationMode.Off), argName = "mode", descr = "the validation mode. 'on', 'limited', 'off', or a validator plugin name.")
     val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used when unparsing. An optional namespace may be provided.")
     val tunables = props[String]('T', keyName = "tunable", valueName = "value", descr = "daffodil tunable to be used when parsing.")
-    val config = opt[String](short = 'c', argName = "file", descr = "path to file containing configuration items.")
-    val infosetType = opt[String](short = 'I', argName = "infoset_type", descr = "infoset type to unparse. Must be one of 'xml', 'scala-xml', 'json', 'jdom', 'w3cdom' or 'sax'.", default = Some("xml")).map { _.toLowerCase }
+    val config = opt[File](short = 'c', argName = "file", descr = "path to file containing configuration items.")
+    val infosetType = opt[InfosetType.Type](short = 'I', argName = "infoset_type", descr = "infoset type to unparse. Must be one of 'xml', 'scala-xml', 'json', 'jdom', 'w3cdom' or 'sax'.", default = Some(InfosetType.XML))
     val stream = toggle(noshort = true, default = Some(false), descrYes = "split the input data on the NUL character, and unparse each chuck separately", descrNo = "treat the entire input data as one infoset")
     val infile = trailArg[String](required = false, descr = "input file to unparse. If not specified, or a value of -, reads from stdin.")
 
+    requireOne(schema, parser) // must have one of --schema or --parser
+    conflicts(parser, List(rootNS)) // if --parser is provided, cannot also provide --root
+    validateFileIsFile(config) // --config must be a file that exists
+
     validateOpt(debug, infile) {
-      case (Some(None), Some("-")) | (Some(None), None) => Left("Input must not be stdin during interactive debugging")
-      case _ => Right(Unit)
-    }
-
-    validateOpt(schema, parser, rootNS) {
-      case (None, None, _) => Left("One of --schema or --parser must be defined")
-      case (Some(_), Some(_), _) => Left("Only one of --parser and --schema may be defined")
-      case (None, Some(_), Some(_)) => Left("--root cannot be defined with --parser")
-      case _ => Right(Unit)
-    }
-
-    validateOpt(config) {
-      case Some(path) => {
-        val fin = new File(path)
-        if (!fin.exists) Left("--config file does not exist.")
-        else if (!fin.canRead) Left("--config file could not be read.")
-        else Right(Unit)
-      }
+      case (Some(_), Some("-")) | (Some(_), None) => Left("Input must not be stdin during interactive debugging")
       case _ => Right(Unit)
     }
 
     validateOpt(infosetType) {
-      case (Some("xml")) => Right(Unit)
-      case (Some("scala-xml")) => Right(Unit)
-      case (Some("json")) => Right(Unit)
-      case (Some("jdom")) => Right(Unit)
-      case (Some("w3cdom")) => Right(Unit)
-      case (Some("sax")) => Right(Unit)
-      //case (Some("null")) => Right(Unit) // null is not valid for unparsing
-      case (Some(t)) => Left("Unknown infoset type: " + t)
-      case _ => Assert.impossible() // not possible due to default value
+      case (Some(InfosetType.NULL)) => Left("Invalid infoset type: null") // null is not valid for unparsing
+      case _ => Right(Unit)
     }
   }
 
   // Save Subcommand Options
-  val save = new scallop.Subcommand("save-parser") {
+  object save extends scallop.Subcommand("save-parser") {
     banner("""|Usage: daffodil save-parser -s <schema> [-r [{namespace}]<root>]
               |                            [-p <path>]
               |                            [-D[{namespace}]<variable>=<value>...]
@@ -513,16 +478,14 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     val outfile = trailArg[String](required = false, descr = "output file to save parser. If not specified, or a value of -, writes to stdout.")
     val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used.")
     val tunables = props[String]('T', keyName = "tunable", valueName = "value", descr = "daffodil tunable to be used when parsing.")
-    val config = opt[String](short = 'c', argName = "file", descr = "path to file containing configuration items.")
+    val config = opt[File](short = 'c', argName = "file", descr = "path to file containing configuration items.")
 
-    validateOpt(schema) {
-      case (None) => Left("No schemas specified using the --schema option")
-      case _ => Right(Unit)
-    }
+    requireOne(schema) // --schema must be provided
+    validateFileIsFile(config) // --config must be a file that exists
   }
 
   // Test Subcommand Options
-  val test = new scallop.Subcommand("test") {
+  object test extends scallop.Subcommand("test") {
     banner("""|Usage: daffodil test <tdmlfile> [testname...]
               |
               |List or execute tests in a TDML file
@@ -545,15 +508,8 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
   addSubcommand(save)
   addSubcommand(test)
 
-  validateOpt(trace, debug) {
-    case (Some(true), Some(_)) => Left("Only one of --trace and --debug may be defined")
-    case _ => Right(Unit)
-  }
-
-  validateConf(subcommand) {
-    case None => Left("Missing subcommand")
-    case _ => Right(Unit)
-  }
+  mutuallyExclusive(trace, debug) // cannot provide both --trace and --debug
+  requireSubcommand()
 
   verify()
 }
@@ -586,9 +542,9 @@ object Main extends Logging {
    * @param pathName The path to the file.
    * @return The Node representation of the file.
    */
-  def loadConfigurationFile(pathName: String) = {
+  def loadConfigurationFile(file: File) = {
     val loader = new DaffodilXMLLoader()
-    val node = ConfigurationLoader.getConfiguration(loader, pathName)
+    val node = ConfigurationLoader.getConfiguration(loader, file.toURI)
     node
   }
 
@@ -733,16 +689,16 @@ object Main extends Logging {
   val blobDir = Paths.get(System.getProperty("user.dir"), "daffodil-blobs")
   val blobSuffix = ".bin"
 
-  def getInfosetOutputter(infosetType: String, os: java.io.OutputStream)
+  def getInfosetOutputter(infosetType: InfosetType.Type, os: java.io.OutputStream)
   : Either[InfosetOutputter, DaffodilParseOutputStreamContentHandler] = {
     val outputter = infosetType match {
-      case "xml" => Left(new XMLTextInfosetOutputter(os, pretty = true))
-      case "scala-xml" => Left(new ScalaXMLInfosetOutputter())
-      case "json" => Left(new JsonInfosetOutputter(os, pretty = true))
-      case "jdom" => Left(new JDOMInfosetOutputter())
-      case "w3cdom" => Left(new W3CDOMInfosetOutputter())
-      case "sax" => Right(new DaffodilParseOutputStreamContentHandler(os, pretty = true))
-      case "null" => Left(new NullInfosetOutputter())
+      case InfosetType.XML => Left(new XMLTextInfosetOutputter(os, pretty = true))
+      case InfosetType.SCALA_XML => Left(new ScalaXMLInfosetOutputter())
+      case InfosetType.JSON => Left(new JsonInfosetOutputter(os, pretty = true))
+      case InfosetType.JDOM => Left(new JDOMInfosetOutputter())
+      case InfosetType.W3CDOM => Left(new W3CDOMInfosetOutputter())
+      case InfosetType.SAX => Right(new DaffodilParseOutputStreamContentHandler(os, pretty = true))
+      case InfosetType.NULL => Left(new NullInfosetOutputter())
     }
     if (outputter.isLeft) {
       outputter.left.map(_.setBlobAttributes(blobDir, null, blobSuffix))
@@ -779,27 +735,27 @@ object Main extends Logging {
    * it into an object, this should be called outside of a performance loop,
    * with getInfosetInputter called inside the performance loop.
    */
-  def infosetDataToInputterData(infosetType: String, data: Either[Array[Byte],InputStream]): AnyRef = {
+  def infosetDataToInputterData(infosetType: InfosetType.Type, data: Either[Array[Byte],InputStream]): AnyRef = {
     infosetType match {
-      case "xml" | "json" | "sax" => data match {
+      case InfosetType.XML | InfosetType.JSON | InfosetType.SAX => data match {
         case Left(bytes) => bytes
         case Right(is) => is
       }
-      case "scala-xml" => {
+      case InfosetType.SCALA_XML => {
         val is = data match {
           case Left(bytes) => new ByteArrayInputStream(bytes)
           case Right(is) => is
         }
         scala.xml.XML.load(is)
       }
-      case "jdom" => {
+      case InfosetType.JDOM => {
         val is = data match {
           case Left(bytes) => new ByteArrayInputStream(bytes)
           case Right(is) => is
         }
         new org.jdom2.input.SAXBuilder().build(is)
       }
-      case "w3cdom" => {
+      case InfosetType.W3CDOM => {
         val byteArr = data match {
           case Left(bytes) => bytes
           case Right(is) => IOUtils.toByteArray(is)
@@ -817,36 +773,36 @@ object Main extends Logging {
   }
 
   def getInfosetInputter(
-    infosetType: String,
+    infosetType: InfosetType.Type,
     anyRef: AnyRef,
     processor: DFDL.DataProcessor,
     outChannel: DFDL.Output): Either[InfosetInputter, DFDL.DaffodilUnparseContentHandler] = {
     infosetType match {
-      case "xml" => {
+      case InfosetType.XML => {
         val is = anyRef match {
           case bytes: Array[Byte] => new ByteArrayInputStream(bytes)
           case is: InputStream => is
         }
         Left(new XMLTextInfosetInputter(is))
       }
-      case "json" => {
+      case InfosetType.JSON => {
         val is = anyRef match {
           case bytes: Array[Byte] => new ByteArrayInputStream(bytes)
           case is: InputStream => is
         }
         Left(new JsonInfosetInputter(is))
       }
-      case "scala-xml" => {
+      case InfosetType.SCALA_XML => {
         Left(new ScalaXMLInfosetInputter(anyRef.asInstanceOf[scala.xml.Node]))
       }
-      case "jdom" => {
+      case InfosetType.JDOM => {
         Left(new JDOMInfosetInputter(anyRef.asInstanceOf[org.jdom2.Document]))
       }
-      case "w3cdom" => {
+      case InfosetType.W3CDOM => {
         val tl = anyRef.asInstanceOf[ThreadLocal[org.w3c.dom.Document]]
         Left(new W3CDOMInfosetInputter(tl.get))
       }
-      case "sax" => {
+      case InfosetType.SAX => {
         val dp = processor
         Right(dp.newContentHandlerInstance(outChannel))
       }
