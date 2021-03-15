@@ -49,6 +49,7 @@ import org.apache.daffodil.processors.RuntimeData
 import org.apache.daffodil.processors.TermRuntimeData
 import org.apache.daffodil.processors.VariableMap
 import org.apache.daffodil.processors.VariableRuntimeData
+import org.apache.daffodil.processors.VariableInstance
 import org.apache.daffodil.processors.dfa
 import org.apache.daffodil.processors.dfa.DFADelimiter
 import org.apache.daffodil.util.MStack
@@ -343,9 +344,10 @@ final class PState private (
     changedVariablesStack.top += vrd.globalQName
   }
 
-  def newVariableInstance(vrd: VariableRuntimeData): Unit = {
-    variableMap.newVariableInstance(vrd)
+  def newVariableInstance(vrd: VariableRuntimeData): VariableInstance = {
+    val v = variableMap.newVariableInstance(vrd)
     changedVariablesStack.top += vrd.globalQName
+    v
   }
 
   def removeVariableInstance(vrd: VariableRuntimeData): Unit = {

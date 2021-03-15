@@ -155,7 +155,12 @@ class TestExternalVariablesNew {
       case Success(None) => fail("Did not find " + keyToFind + " in the VariableMap.")
       case Success(Some(variab)) => {
         // Found var1 but is the value correct?
-        assertTrue(variab.toString.contains("VariableInstance(VariableDefined,DataValue(" + expectedValue + ")"))
+        // Variables that aren't externally defined will be undefined, but
+        // expected value should be in the expression
+        if (variab.toString.contains("VariableDefined"))
+          assertTrue(variab.toString.contains("DataValue(" + expectedValue + ")"))
+        else
+          assertTrue(variab.toString.contains("CompiledExpression(" + expectedValue + ")"))
       }
     }
   }
@@ -252,7 +257,7 @@ class TestExternalVariablesNew {
     checkResult(dp.variableMap, "{}var2", "value2")
 
     // The other var2's namespace was http://example.com, so we expect
-    // it to be unchanged.
+    // it to be undefined and without value.
     checkResult(dp.variableMap, "{http://example.com}var2", "default2.1")
 
   }

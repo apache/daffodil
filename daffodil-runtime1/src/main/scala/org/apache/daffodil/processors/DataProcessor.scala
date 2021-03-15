@@ -478,6 +478,7 @@ class DataProcessor private (
         // Force the evaluation of any defineVariable's with non-constant default
         // value expressions
         state.variableMap.forceExpressionEvaluations(state)
+        state.variableMap.setFirstInstanceInitialValues()
 
         this.startElement(state, p)
         p.parse1(state)
@@ -627,6 +628,12 @@ class DataProcessor private (
       mtrd.isDefined &&
         (mtrd.get eq rootUnparser.context)
     }
+
+    // Force the evaluation of any defineVariable's with non-constant default
+    // value expressions
+    state.variableMap.forceExpressionEvaluations(state)
+    state.variableMap.setFirstInstanceInitialValues()
+
     rootUnparser.unparse1(state)
     state.popTRD(rootUnparser.context.asInstanceOf[TermRuntimeData])
 

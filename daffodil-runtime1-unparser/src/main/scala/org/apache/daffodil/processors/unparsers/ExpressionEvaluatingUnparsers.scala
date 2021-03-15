@@ -30,8 +30,8 @@ import org.apache.daffodil.processors.NonTermRuntimeData
 import org.apache.daffodil.processors.Success
 import org.apache.daffodil.processors.TypeCalculator
 import org.apache.daffodil.processors.VariableRuntimeData
-import org.apache.daffodil.processors.{ VariableInProcess, VariableDefined }
-//import org.apache.daffodil.processors.SuspendableOperation
+import org.apache.daffodil.processors.VariableInProcess
+import org.apache.daffodil.processors.VariableInstance
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.MaybeULong
 
@@ -78,16 +78,14 @@ final class SetVariableUnparser(
 
 }
 
-final class NewVariableInstanceSuspendableExpression(
+final class NewVariableInstanceDefaultValueSuspendableExpression(
   override val expr: CompiledExpression[AnyRef],
-  override val rd: VariableRuntimeData)
+  override val rd: VariableRuntimeData,
+  nvi: VariableInstance)
   extends SuspendableExpression {
 
   override protected def processExpressionResult(ustate: UState, v: DataValuePrimitive): Unit = {
-    val vi = ustate.variableMap.find(rd.globalQName)
-    Assert.invariant(vi.isDefined)
-    vi.get.setState(VariableDefined)
-    vi.get.setValue(v)
+    nvi.setDefaultValue(v) // This also sets variable state to VariableDefined
   }
 
   override protected def maybeKnownLengthInBits(ustate: UState) = MaybeULong(0)
@@ -103,13 +101,17 @@ class NewVariableInstanceStartUnparser(override val context: VariableRuntimeData
   override lazy val childProcessors = Vector()
 
   override def unparse(state: UState) = {
-    state.variableMap.newVariableInstance(context)
+    val nvi = state.variableMap.newVariableInstance(context)
+
     if (context.maybeDefaultValueExpr.isDefined) {
-      val maybeVar = state.variableMap.find(context.globalQName)
-      Assert.invariant(maybeVar.isDefined)
-      maybeVar.get.setState(VariableInProcess)
-      val suspendableExpression = new NewVariableInstanceSuspendableExpression(context.maybeDefaultValueExpr.get, context)
+      val dve = context.maybeDefaultValueExpr.get
+      nvi.setState(VariableInProcess)
+      val suspendableExpression = new NewVariableInstanceDefaultValueSuspendableExpression(dve, context, nvi)
       suspendableExpression.run(state)
+    } else if (nvi.firstInstanceInitialValue.isDefined) {
+      // The NVI will inherit the default value of the original variable instance
+      // This will also inherit any externally provided bindings.
+      nvi.setDefaultValue(nvi.firstInstanceInitialValue)
     }
   }
 }

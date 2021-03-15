@@ -131,7 +131,7 @@ final class DFDLNewVariableInstance(node: Node, decl: AnnotatedSchemaComponent)
   private lazy val defaultValueAsElement = node.child.text.trim
 
   final lazy val defaultValue = (defaultValueAsAttribute, defaultValueAsElement) match {
-    case (None, "") => defv.defaultValue
+    case (None, "") => None
     case (None, str) => Some(str)
     case (Some(str), "") => Some(str)
     case (Some(str), v) => schemaDefinitionError("Default value of variable was supplied both as attribute and element value: %s", node.toString)

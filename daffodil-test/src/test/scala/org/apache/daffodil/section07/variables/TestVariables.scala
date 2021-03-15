@@ -62,6 +62,7 @@ class TestVariables {
   @Test def test_varInstance_12(): Unit = { runner.runOneTest("varInstance_12") }
   @Test def test_varInstance_13(): Unit = { runner.runOneTest("varInstance_13") }
   @Test def test_varInstance_14(): Unit = { runner.runOneTest("varInstance_14") }
+  @Test def test_varInstance_15(): Unit = { runner.runOneTest("varInstance_15") }
 
   @Test def test_varDirection_1(): Unit = { runner.runOneTest("varDirection_1") }
   @Test def test_varDirection_2(): Unit = { runner.runOneTest("varDirection_2") }
