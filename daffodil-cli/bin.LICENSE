@@ -283,9 +283,9 @@ is subject to the terms and conditions of the following licenses.
     copyright holders.
 
   This product bundles 'ICU4J', including the following files:
-    - lib/com.ibm.icu.icu4j-67.1.jar
+    - lib/com.ibm.icu.icu4j-<VERSION>.jar
   These files are available under the Unicode License. For details, see
-  https://github.com/unicode-org/icu/blob/release-67-1/icu4c/LICENSE
+  https://github.com/unicode-org/icu/blob/release-<VERSION>/icu4c/LICENSE
 
     COPYRIGHT AND PERMISSION NOTICE (ICU 58 and later)
 
@@ -703,7 +703,7 @@ is subject to the terms and conditions of the following licenses.
     OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
   This product bundles 'JDOM2', including the following files:
-    - lib/org.jdom.jdom2-2.0.6.jar
+    - lib/org.jdom.jdom2-<VERSION>.jar
   These files are available under an Apache style License:
 
     Redistribution and use in source and binary forms, with or without
@@ -756,7 +756,7 @@ is subject to the terms and conditions of the following licenses.
     on the JDOM Project, please see <http://www.jdom.org/>. 
 
   This product bundles 'JLine', including the following files:
-    - lib/jline.jline-2.14.6.jar
+    - lib/jline.jline-<VERSION>.jar
   These files are available under a BSD-3-Clause license. For details, see
   https://github.com/jline/jline2/blob/master/LICENSE.txt
 
@@ -796,7 +796,7 @@ is subject to the terms and conditions of the following licenses.
     OF THE POSSIBILITY OF SUCH DAMAGE.
 
   This product bundles 'Scallop', including the following files:
-    - lib/org.rogach.scallop_2.12-3.5.1.jar
+    - lib/org.rogach.scallop_<VERSION>.jar
   These files are available under under an MIT License. For details, see
   https://github.com/scallop/scallop/blob/develop/license.txt
 
@@ -821,7 +821,7 @@ is subject to the terms and conditions of the following licenses.
     SOFTWARE.
 
   This product product bundles 'Stax 2 API', including the following files:
-    - lib/org.codehaus.woodstox.stax2-api-4.2.1.jar
+    - lib/org.codehaus.woodstox.stax2-api-<VERSION>.jar
   These files are available under the BSD-2-Clause license:
 
     Copyright 2010- FasterXML.com
