@@ -521,6 +521,20 @@
       </xs:complexType>
     </xs:element>
 
+    <xs:element name="nvi15">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:annotation>
+            <xs:appinfo source="http://www.ogf.org/dfdl/">
+              <dfdl:newVariableInstance ref="ex:myVar1" />
+            </xs:appinfo>
+          </xs:annotation>
+          <xs:element name="a" type="xsd:int" dfdl:lengthKind="explicit" dfdl:length="1"
+            dfdl:outputValueCalc="{ $ex:myVar1 }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
     <xs:element name="defNonConst">
       <xs:complexType>
         <xs:sequence>
@@ -971,6 +985,22 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+
+  <tdml:unparserTestCase name="varInstance_15" root="nvi15"
+    model="v" roundTrip="false"
+    description="Demonstrates that newVariableInstance inherits default value from original definition">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <nvi15 xmlns="http://example.com">
+          <a xsi:type="xsd:int">8</a>
+        </nvi15>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:document>6</tdml:document>
+
+  </tdml:unparserTestCase>
 
   <tdml:parserTestCase name="varInstance_08" root="nvi8"
     model="v"

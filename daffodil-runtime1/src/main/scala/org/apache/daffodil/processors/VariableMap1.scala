@@ -18,7 +18,6 @@
 package org.apache.daffodil.processors
 
 import org.apache.daffodil.api.ThinDiagnostic
-import org.apache.daffodil.dsom.CompiledExpression
 import org.apache.daffodil.dpath.InvalidPrimitiveDataException
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.exceptions.ThrowsSDE
@@ -29,8 +28,6 @@ import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveNullable
 import org.apache.daffodil.infoset.RetryableException
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe.Nope
-import org.apache.daffodil.util.PreSerialization
-import org.apache.daffodil.util.TransientParam
 import org.apache.daffodil.xml.{GlobalQName, UnspecifiedNamespace, NamedQName, RefQName}
 import org.apache.daffodil.processors.parsers.PState
 import org.apache.daffodil.processors.unparsers.UState
@@ -40,17 +37,36 @@ import scala.collection.mutable.{Map, ArrayBuffer}
 
 sealed abstract class VariableState extends Serializable
 
+/**
+ * The variable has no value. Attempting to read the variable will result in an
+ * error. This is the initial state of all variables. Variables will remain in
+ * this state until their defaultValue expression (if it exists) is evaluated or
+ * until the variable is set.
+ */
 case object VariableUndefined extends VariableState
 
+/**
+ * The variable is defined with either a default or externally provided value.
+ * Both reading and setting are allowed.
+ */
 case object VariableDefined extends VariableState
 
 /**
- * Used to detect circular definitions of variables
+ * We are in the process of setting a default value for a defineVariable
+ * statement and this state is used to catch circular definitions of variables.
  */
 case object VariableBeingDefined extends VariableState
 
+/**
+ * The variable has been set to a value, but has not been read yet. Reading is
+ * allowed, but multiple sets will result in an error.
+ */
 case object VariableSet extends VariableState
 
+/**
+ * The variable's value has been read. The value can no longer change. Setting
+ * will cause an error.
+ */
 case object VariableRead extends VariableState
 
 /**
@@ -65,123 +81,70 @@ case object VariableInProcess extends VariableState
 
 /**
  * Class for maintaining the state of a variable
- *
- * Note: stateArg, valueArg, and defaultValueExprArg are pass by name/lazy
- * values as it is necessary to postpone their evaluation beyond when the
- * VariableInstance is created. Attempting to evaluate these arguments will
- * likely trigger an expression to be evaluated, which will query the
- * VariableMap if the expression references another variable. If this is
- * occurring within a defineVariable call, the VariableMap hasn't been fully
- * created and attempting to evaluate such an expression will result in an OOLAG
- * Circular Definition Exception
  */
 object VariableInstance {
-  def apply(
-    stateArg: => VariableState,
-    valueArg: => DataValuePrimitiveNullable,
-    rd: VariableRuntimeData,
-    defaultValueExprArg: => Maybe[CompiledExpression[AnyRef]],
-    priorState: VariableState = VariableUndefined,
-    priorValue: DataValuePrimitiveNullable = DataValue.NoValue) = {
-
-    new VariableInstance(stateArg, valueArg, rd, defaultValueExprArg, priorState, priorValue)
+  def apply(rd: VariableRuntimeData) = {
+    new VariableInstance(rd)
   }
 }
 
 /**
  * See documentation for object VariableInstance
  */
-class VariableInstance private (
-  @TransientParam stateArg: => VariableState,
-  @TransientParam valueArg: => DataValuePrimitiveNullable,
-  val rd: VariableRuntimeData,
-  @TransientParam defaultValueExprArg: => Maybe[CompiledExpression[AnyRef]],
-  var priorState: VariableState = VariableUndefined,
-  var priorValue: DataValuePrimitiveNullable = DataValue.NoValue)
-  extends Serializable
-  with PreSerialization {
+class VariableInstance private (val rd: VariableRuntimeData)
+  extends Serializable {
 
-  lazy val defaultValueExpr = defaultValueExprArg
+  var state: VariableState = VariableUndefined
+  var priorState: VariableState = VariableUndefined
+  var value: DataValuePrimitiveNullable = DataValue.NoValue
+  var priorValue: DataValuePrimitiveNullable = DataValue.NoValue
 
-  private var _value: Option[DataValuePrimitiveNullable] = None
-  private var _state: VariableState = null
-
-  /**
-   * Returns the current value of the VariableInstance
-   *
-   * This function allows value to be set while also enabling valueArg to be
-   * lazily evaluated. This allows the VariableInstance to support setting the
-   * value later and allows the construction of the VariableMap containing the
-   * VariableInstance before evaluating the default value expression
-   */
-  def value = {
-    if (_value.isEmpty) {
-      _value = Some(valueArg)
-    }
-
-    _value.get
-  }
-
-  /**
-   * Returns the current state of the VariableInstance
-   *
-   * This function allows state to be set while also enabling stateArg to be
-   * lazily evaluated. This allows the VariableInstance to support setting the
-   * state later and allows the construction of the VariableMap containing the
-   * VariableInstance before evaluating the default value expression
-   */
-  def state = {
-    if (_state == null) {
-      _state = stateArg
-    }
-
-    _state
-  }
+  // This represents the default value at the start of processing, provided by
+  // either the defaultValue expression or by an external binding
+  var firstInstanceInitialValue: DataValuePrimitiveNullable = DataValue.NoValue
 
   def setState(s: VariableState) = {
     this.priorState = this.state
-    this._state = s
+    this.state = s
   }
 
   def setValue(v: DataValuePrimitiveNullable) = {
     this.priorValue = this.value
-    this._value = Some(v)
+    this.value = v
   }
 
-  def setDefaultValue(v: DataValuePrimitiveNullable) = this._value = Some(v)
-
-  override def preSerialization: Unit = {
-    defaultValueExpr
-    value
-    state
+  /* This is used to set a default value without assigning a priorValue */
+  def setDefaultValue(v: DataValuePrimitiveNullable) = {
+    Assert.invariant((this.state == VariableUndefined || this.state == VariableInProcess) && v.isDefined)
+    this.state = VariableDefined
+    this.value = v
   }
 
-  override def toString: String = "VariableInstance(%s,%s,%s,%s,%s,%s,%s)".format(
+  override def toString: String = "VariableInstance(%s,%s,%s,%s,%s,%s)".format(
                                                     state,
                                                     value,
                                                     rd,
-                                                    defaultValueExpr,
+                                                    rd.maybeDefaultValueExpr,
                                                     priorState,
-                                                    priorValue,
-                                                    this.hashCode)
+                                                    priorValue)
 
   def copy(
     state: VariableState = state,
     value: DataValuePrimitiveNullable = value,
     rd: VariableRuntimeData = rd,
-    defaultValueExpr: Maybe[CompiledExpression[AnyRef]] = defaultValueExpr,
     priorState: VariableState = priorState,
     priorValue: DataValuePrimitiveNullable = priorValue) = {
-      val inst = new VariableInstance(state, value, rd, defaultValueExpr, priorState, priorValue)
-      inst.init()
+      val inst = new VariableInstance(rd)
+      inst.state = state
+      inst.priorState = priorState
+      inst.value = value
+      inst.priorValue = priorValue
       inst
   }
 
-  def init() = preSerialization
-
   def reset() = {
     Assert.invariant(this.state != VariableUndefined)
-    (this.state, this.priorState, this.defaultValueExpr.isDefined) match {
+    (this.state, this.priorState, this.rd.maybeDefaultValueExpr.isDefined) match {
       case (VariableRead, VariableSet, _) => this.setState(VariableSet)
       case (VariableRead, _, true) => this.setState(VariableDefined)
       case (VariableSet, _, _) => {
@@ -324,15 +287,29 @@ class VariableMap private(vTable: Map[GlobalQName, ArrayBuffer[VariableInstance]
   // have default value expressions or are defined externally.
   def forceExpressionEvaluations(state: ParseOrUnparseState): Unit = {
     vTable.foreach { case (_, variableInstances) => { variableInstances.foreach { inst => {
-      (inst.state, inst.value, inst.defaultValueExpr.isDefined) match {
+      (inst.state, inst.rd.maybeDefaultValueExpr.isDefined) match {
         // Evaluate defineVariable statements with non-constant default value expressions
-        case (VariableDefined, DataValue.NoValue, true) => {
-          val res = inst.defaultValueExpr.get.evaluate(state)
-          inst.setValue(DataValue.unsafeFromAnyRef(res))
+        case (VariableUndefined, true) => {
+          val res = inst.rd.maybeDefaultValueExpr.get.evaluate(state)
+          inst.setDefaultValue(DataValue.unsafeFromAnyRef(res))
         }
-        case (_, _, _) => // Do nothing
+        case (_, _) => // Do nothing
       }
     }}}}
+  }
+
+
+  /**
+   * This function is called immediately after forceExpressionEvaluations in
+   * order to set the firstInstanceInitialValue for each variable instance.
+   * These initial values will be inherited by future new variable instances if
+   * the newVariableInstance statement does not provide a default value
+   * expression
+   */
+  def setFirstInstanceInitialValues(): Unit = {
+    vTable.foreach { case (_, variableInstances) => {
+      variableInstances(0).firstInstanceInitialValue = variableInstances(0).value
+    }}
   }
 
   def find(qName: GlobalQName): Option[VariableInstance] = {
@@ -395,9 +372,9 @@ class VariableMap private(vTable: Map[GlobalQName, ArrayBuffer[VariableInstance]
         // of parsing, before an infoset is generated, via the
         // forceExpressionEvaluations function after which all variables should
         // have a defined value
-        case VariableDefined if (!variable.value.isDefined && variable.defaultValueExpr.isDefined) => {
+        case VariableUndefined if (variable.rd.maybeDefaultValueExpr.isDefined) => {
           variable.setState(VariableBeingDefined)
-          val res = DataValue.unsafeFromAnyRef(variable.defaultValueExpr.get.evaluate(pstate))
+          val res = DataValue.unsafeFromAnyRef(variable.rd.maybeDefaultValueExpr.get.evaluate(pstate))
 
           // Need to update the variable's value with the result of the
           // expression
@@ -463,26 +440,16 @@ class VariableMap private(vTable: Map[GlobalQName, ArrayBuffer[VariableInstance]
   }
 
   /**
-   * Creates a new instance of a variable with default value
-   */
-  def newVariableInstance(vrd: VariableRuntimeData, defaultValue: DataValuePrimitive) = {
-    val varQName = vrd.globalQName
-    val variableInstances = vTable.get(varQName)
-    Assert.invariant(variableInstances.isDefined)
-
-    variableInstances.get += vrd.createVariableInstance(VariableUtils.convert(defaultValue.getAnyRef.toString, vrd, vrd))
-  }
-
-  /**
    * Creates a new instance of a variable without default value
    */
-  def newVariableInstance(vrd: VariableRuntimeData) = {
+  def newVariableInstance(vrd: VariableRuntimeData): VariableInstance = {
     val varQName = vrd.globalQName
     val variableInstances = vTable.get(varQName)
     Assert.invariant(variableInstances.isDefined)
-
-    val v = vrd.createVariableInstance()
-    variableInstances.get += v
+    val nvi = vrd.createVariableInstance()
+    nvi.firstInstanceInitialValue = variableInstances.get(0).firstInstanceInitialValue
+    variableInstances.get += nvi
+    nvi
   }
 
   def removeVariableInstance(vrd: VariableRuntimeData): Unit = {
@@ -547,7 +514,8 @@ class VariableMap private(vTable: Map[GlobalQName, ArrayBuffer[VariableInstance]
         }
 
         case _ => {
-          variable.setValue(VariableUtils.convert(newValue.getAnyRef.toString, variable.rd, referringContext))
+          val value = VariableUtils.convert(newValue.getAnyRef.toString, variable.rd, referringContext)
+          variable.setValue(value)
           variable.setState(VariableDefined)
         }
       }

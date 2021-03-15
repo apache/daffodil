@@ -165,11 +165,16 @@ class NewVariableInstanceStartParser(override val context: VariableRuntimeData)
   override lazy val runtimeDependencies = Vector()
 
   def parse(start: PState): Unit = {
-    start.newVariableInstance(context)
+    val nvi = start.newVariableInstance(context)
+
     if (context.maybeDefaultValueExpr.isDefined) {
-      val v = start.variableMap.find(context.globalQName).get
-      val res = DataValue.unsafeFromAnyRef(context.maybeDefaultValueExpr.get.evaluate(start))
-      v.setDefaultValue(res)
+      val dve = context.maybeDefaultValueExpr.get
+      val res = DataValue.unsafeFromAnyRef(dve.evaluate(start))
+      nvi.setDefaultValue(res)
+    } else if (nvi.firstInstanceInitialValue.isDefined){
+      // The NVI will inherit the default value of the original variable instance
+      // This will also inherit any externally provided bindings.
+      nvi.setDefaultValue(nvi.firstInstanceInitialValue)
     }
   }
 }

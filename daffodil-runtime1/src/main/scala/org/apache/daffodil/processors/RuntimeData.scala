@@ -22,7 +22,6 @@ import org.apache.daffodil.Implicits.ImplicitsSuppressUnusedImportWarning
 import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.dpath.NodeInfo.PrimType
 import org.apache.daffodil.dsom.CompiledExpression
-import org.apache.daffodil.dsom.ConstantExpression
 import org.apache.daffodil.dsom.DPathCompileInfo
 import org.apache.daffodil.dsom.DPathElementCompileInfo
 import org.apache.daffodil.dsom.FacetTypes
@@ -55,7 +54,6 @@ import java.util.regex.Matcher
 import org.apache.daffodil.api.UnqualifiedPathStepPolicy
 import org.apache.daffodil.infoset.DISimple
 import org.apache.daffodil.infoset.DataValue
-import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveNullable
 import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveOrUseNilForDefaultOrNull
 import org.apache.daffodil.processors.unparsers.UnparseError
 import org.apache.daffodil.schema.annotation.props.gen.OccursCountKind
@@ -978,29 +976,6 @@ final class VariableRuntimeData(
   @throws(classOf[java.io.IOException])
   final private def writeObject(out: java.io.ObjectOutputStream): Unit = serializeObject(out)
 
-  private lazy val state =
-    if (!maybeDefaultValueExpr.isDefined) VariableUndefined
-    else VariableDefined
-
-  private lazy val value: DataValuePrimitiveNullable =
-    if (maybeDefaultValueExpr.isEmpty) DataValue.NoValue
-    else {
-      val defaultValueExpr = maybeDefaultValueExpr.get
-      defaultValueExpr match {
-        case constExpr: ConstantExpression[_] => DataValue.unsafeFromAnyRef(constExpr.constant)
-        case _ => DataValue.NoValue
-      }
-    }
-
-  // Pass by name/lazy arg is needed here as we need to postpone evaluating the
-  // defaultValue, which is most likely an expression, until after the inital
-  // VariableMap is created. Otherwise when we attempt to evaluate the
-  // expression it will look in the VariableMap, which hasn't been fully
-  // created yet and will trigger an OOLAG Circular Definition Exception
-  def createVariableInstance(defaultValue: => DataValuePrimitiveNullable): VariableInstance = {
-    VariableInstance(state, defaultValue, this, maybeDefaultValueExpr)
-  }
-
-  def createVariableInstance(): VariableInstance = VariableInstance(state, value, this, maybeDefaultValueExpr)
+  def createVariableInstance(): VariableInstance = VariableInstance(rd=this)
 
 }

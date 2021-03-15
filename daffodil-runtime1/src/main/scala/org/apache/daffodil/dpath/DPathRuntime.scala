@@ -55,9 +55,15 @@ class CompiledDPath(val ops: RecipeOp*) extends Serializable {
    */
   def runExpression(state: ParseOrUnparseState, dstate: DState): Unit = {
     dstate.opIndex = 0
-    dstate.setCurrentNode(state.thisElement.asInstanceOf[DINode])
+
+    // This if statement is necessary as defineVariable statements can contain
+    // expressions that are evaluated prior to an infoset being generated
+    if (state.currentNode.isDefined) {
+      dstate.setCurrentNode(state.thisElement.asInstanceOf[DINode])
+      dstate.setContextNode(state.thisElement.asInstanceOf[DINode]) // used for diagnostics
+    }
+
     dstate.setVMap(state.variableMap)
-    dstate.setContextNode(state.thisElement.asInstanceOf[DINode]) // used for diagnostics
     dstate.setArrayPos(state.arrayPos)
     dstate.setErrorOrWarn(state)
     dstate.setParseOrUnparseState(state)
