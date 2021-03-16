@@ -18,7 +18,7 @@
 enablePlugins(GenJavadocPlugin)
 enablePlugins(PublishJavadocPlugin)
 
-unidocGenjavadocVersion := "0.16"
+unidocGenjavadocVersion := "0.17"
 
 sources in Genjavadoc := (sources in Genjavadoc).value.filterNot { source =>
   source.toString.contains("$") || source.toString.contains("packageprivate")
