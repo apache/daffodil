@@ -19,7 +19,6 @@ package org.apache.daffodil.util
 
 import scala.xml._
 import org.apache.daffodil.xml._
-import org.apache.daffodil.Implicits._
 
 /*
  * This is not a file of tests.

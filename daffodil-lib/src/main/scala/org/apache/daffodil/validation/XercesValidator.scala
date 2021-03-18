@@ -18,10 +18,10 @@
 package org.apache.daffodil.validation
 
 import java.net.URI
-
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import com.typesafe.config.ConfigValueFactory
+
 import javax.xml.XMLConstants
 import javax.xml.transform.stream.StreamSource
 import org.apache.daffodil.api.ValidationException
@@ -32,6 +32,7 @@ import org.apache.daffodil.api.Validator
 import org.apache.daffodil.api.ValidatorFactory
 import org.apache.daffodil.validation.XercesValidator.XercesValidatorImpl
 import org.apache.daffodil.xml.DFDLCatalogResolver
+import org.apache.daffodil.xml.XMLUtils
 import org.xml.sax.ErrorHandler
 import org.xml.sax.SAXParseException
 
@@ -56,7 +57,7 @@ object XercesValidatorFactory {
       if(config.hasPath(XercesValidator.name))
         config.getStringList(XercesValidator.name).asScala
       else Seq.empty
-    new XercesValidator(schemaFiles)
+    XercesValidator.fromFiles(schemaFiles)
   }
 
   def makeConfig(uris: Seq[String]): Config = {
@@ -70,16 +71,8 @@ object XercesValidatorFactory {
  * to do a validation pass on the TDML expected Infoset w.r.t. the model and to
  * do a validation pass on the actual result w.r.t. the model as an XML document.
  */
-class XercesValidator(schemaFileNames: Seq[String])
+class XercesValidator(schemaSources: Seq[javax.xml.transform.Source])
   extends Validator {
-
-  private val schemaSources: Seq[javax.xml.transform.Source] = schemaFileNames.map { fn =>
-    val uri = new URI(fn)
-    val is = uri.toURL.openStream()
-    val stream = new StreamSource(is)
-    stream.setSystemId(uri.toString) // must set this so that relative URIs will be created for import/include files.
-    stream
-  }
 
   private val factory = new org.apache.xerces.jaxp.validation.XMLSchemaFactory()
   private val resolver = DFDLCatalogResolver.get
@@ -89,28 +82,35 @@ class XercesValidator(schemaFileNames: Seq[String])
 
   private val validator = new ThreadLocal[XercesValidatorImpl] {
     override def initialValue(): XercesValidatorImpl =
-      initializeValidator(schema.newValidator(), resolver)
+      initializeValidator(schema.newValidator, resolver)
   }
 
-  def validateXML(document: java.io.InputStream): ValidationResult = {
+  def validateXML(document: java.io.InputStream) =
+    validateXML(document, new XercesErrorHandler)
+
+  def validateXML(
+    document: java.io.InputStream,
+    eh: ErrorHandler): ValidationResult = {
+
     val documentSource = new StreamSource(document)
 
     // get the validator instance for this thread
     val xv = validator.get()
 
-    // create a new error handler for this execution
-    val eh = new XercesErrorHandler
     xv.setErrorHandler(eh)
 
     // validate the document
     xv.validate(documentSource)
 
-    // error handler contents as daffodil result
-    ValidationResult(eh.warnings, eh.errors)
+    eh match {
+      case xeh: XercesErrorHandler => ValidationResult(xeh.warnings, xeh.errors)
+      case _ => ValidationResult.empty
+    }
   }
 
   private def initializeValidator(validator: XercesValidatorImpl, resolver: DFDLCatalogResolver): XercesValidatorImpl = {
     validator.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true)
+    validator.setFeature(XMLUtils.XML_DISALLOW_DOCTYPE_FEATURE, true)
     validator.setFeature("http://xml.org/sax/features/validation", true)
     validator.setFeature("http://apache.org/xml/features/validation/schema", true)
     validator.setFeature("http://apache.org/xml/features/validation/schema-full-checking", true)
@@ -122,6 +122,17 @@ class XercesValidator(schemaFileNames: Seq[String])
 object XercesValidator {
   private type XercesValidatorImpl = javax.xml.validation.Validator
   val name = "xerces"
+
+  def fromURIs(schemaURIs: Seq[URI]) = new XercesValidator(
+    schemaURIs.map { uri =>
+      val is = uri.toURL.openStream()
+      val stream = new StreamSource(is)
+      stream.setSystemId(uri.toString) // must set this so that relative URIs will be created for import/include files.
+      stream
+    })
+
+  def fromFiles(schemaFileNames: Seq[String]) =
+    fromURIs(schemaFileNames.map { new URI(_) })
 }
 
 private class XercesErrorHandler extends ErrorHandler {

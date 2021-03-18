@@ -27,7 +27,6 @@ import scala.xml.Text
 import scala.xml.Node
 import scala.xml.ProcInstr
 import scala.xml.Comment
-import scala.xml.Atom
 
 class ScalaXMLInfosetInputter(rootNode: Node)
   extends InfosetInputter {
@@ -75,14 +74,12 @@ class ScalaXMLInfosetInputter(rootNode: Node)
   override def getNamespaceURI(): String = stack.top._1.namespace
 
   override def getSimpleText(primType: NodeInfo.Kind): String = {
-    val text =
-      if (stack.top._2.hasNext) {
-        val child = stack.top._2.next
-        if (stack.top._2.hasNext) {
-          throw new NonTextFoundInSimpleContentException(stack.top._1.label)
-        }
-        val text = child match {
-          case t: Text => t.data
+    val text = {
+      val sb = new StringBuilder()
+      val iter: Iterator[Node] = stack.top._2
+      while (iter.hasNext) {
+        val n = iter.next()
+        n match {
           //
           // Note: may be a bug in scala.xml library, but sometimes we are
           // getting Atom[String] here, not Text. Some kinds of things we think
@@ -94,19 +91,28 @@ class ScalaXMLInfosetInputter(rootNode: Node)
           // well, and doesn't coalesce them into Text nodes incorrectly like
           // the regular XML loader (in scala.xml 1.0.6) does.
           //
-          case a: Atom[_] => a.data.toString()
-          case _ => throw new NonTextFoundInSimpleContentException(stack.top._1.label)
+          case txt: scala.xml.Text =>
+            txt.addString(sb)
+          case atom: scala.xml.Atom[_] =>
+            sb.append(atom.text)
+          case er: scala.xml.EntityRef =>
+            er.text.addString(sb)
+          case x => throw new NonTextFoundInSimpleContentException(
+            stack.top._1.label)
         }
-        if (primType.isInstanceOf[NodeInfo.String.Kind]) {
-          XMLUtils.remapPUAToXMLIllegalCharacters(text)
-        } else {
-          text
-        }
-      } else {
-        ""
       }
-
-    text
+      val strWithEscapes = sb.toString()
+      val unescaped = XMLUtils.unescape(strWithEscapes)
+      unescaped
+    }
+    val result = {
+      if (primType.isInstanceOf[NodeInfo.String.Kind]) {
+          XMLUtils.remapPUAToXMLIllegalCharacters(text)
+      } else {
+        text
+      }
+    }
+    result
   }
 
   override def isNilled(): MaybeBoolean = {

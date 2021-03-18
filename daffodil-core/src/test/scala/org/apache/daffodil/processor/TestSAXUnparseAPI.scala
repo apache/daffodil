@@ -19,7 +19,6 @@ package org.apache.daffodil.processor
 
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
-
 import javax.xml.parsers.SAXParserFactory
 import org.apache.daffodil.Implicits.intercept
 import org.apache.daffodil.xml.XMLUtils
@@ -27,6 +26,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.xml.sax.InputSource
+import org.xml.sax.SAXParseException
 import org.xml.sax.XMLReader
 
 class TestSAXUnparseAPI {
@@ -38,6 +38,7 @@ class TestSAXUnparseAPI {
    */
   @Test def testUnparseContentHandler_unparse(): Unit = {
     val xmlReader: XMLReader = SAXParserFactory.newInstance.newSAXParser.getXMLReader
+    XMLUtils.setSecureDefaults(xmlReader)
     val bao = new ByteArrayOutputStream()
     val wbc = java.nio.channels.Channels.newChannel(bao)
     val unparseContentHandler = dp.newContentHandlerInstance(wbc)
@@ -69,6 +70,7 @@ class TestSAXUnparseAPI {
    */
   @Test def testUnparseContentHandler_unparse_namespace_feature(): Unit = {
     val xmlReader: XMLReader = SAXParserFactory.newInstance.newSAXParser.getXMLReader
+    XMLUtils.setSecureDefaults(xmlReader)
     val bao = new ByteArrayOutputStream()
     val wbc = java.nio.channels.Channels.newChannel(bao)
     val unparseContentHandler = dp.newContentHandlerInstance(wbc)
@@ -87,6 +89,7 @@ class TestSAXUnparseAPI {
    */
   @Test def testUnparseContentHandler_unparse_namespace_prefix_feature(): Unit = {
     val xmlReader: XMLReader = SAXParserFactory.newInstance.newSAXParser.getXMLReader
+    XMLUtils.setSecureDefaults(xmlReader)
     val bao = new ByteArrayOutputStream()
     val wbc = java.nio.channels.Channels.newChannel(bao)
     val unparseContentHandler = dp.newContentHandlerInstance(wbc)
@@ -98,5 +101,41 @@ class TestSAXUnparseAPI {
     val ur = unparseContentHandler.getUnparseResult
     assertTrue(!ur.isError)
     assertEquals(testData, bao.toString)
+  }
+
+  /**
+   * Verifies if the XML reader has secure defaults, then unparsing does
+   * detect and refuse the use of DOCTYPE decls.
+   *
+   * This is part of fixing DAFFODIL-1422, DAFFODIL-1659 - disallow doctype decls.
+   */
+  @Test def testUnparse_NoDocType_feature(): Unit = {
+    val xmlReader: XMLReader = SAXParserFactory.newInstance.newSAXParser.getXMLReader
+    //
+    // In case of unparsing, we can't really insist that setSecureDefaults is called, because
+    // there is no Daffodil API call that is passed the xmlReader where we can enforce that this
+    // setSecureDefaults is called.
+    //
+    XMLUtils.setSecureDefaults(xmlReader)
+    val bao = new ByteArrayOutputStream()
+    val wbc = java.nio.channels.Channels.newChannel(bao)
+    val unparseContentHandler = dp.newContentHandlerInstance(wbc)
+    xmlReader.setContentHandler(unparseContentHandler)
+    xmlReader.setFeature(XMLUtils.SAX_NAMESPACES_FEATURE, false)
+    xmlReader.setFeature(XMLUtils.SAX_NAMESPACE_PREFIXES_FEATURE, true)
+    val xmlWithDocType = """<?xml version="1.0" ?>
+      <!DOCTYPE root_element [
+        Document Type Definition (DTD):
+        elements/attributes/entities/notations/
+          processing instructions/comments/PE references
+    ]>
+    <list xmlns="http://example.com"><w>9</w><w>1</w><w>0</w></list>
+    """
+    val bai = new ByteArrayInputStream(xmlWithDocType.getBytes)
+    val e = intercept[SAXParseException] {
+      xmlReader.parse(new InputSource(bai))
+    }
+    val m = e.getMessage()
+    assertTrue(m.contains("DOCTYPE is disallowed"))
   }
 }

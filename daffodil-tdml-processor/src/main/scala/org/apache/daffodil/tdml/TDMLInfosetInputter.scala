@@ -19,7 +19,6 @@ package org.apache.daffodil.tdml
 
 import java.net.URI
 import java.net.URISyntaxException
-
 import org.apache.daffodil.infoset.InfosetInputter
 import org.apache.daffodil.infoset.ScalaXMLInfosetInputter
 import org.apache.daffodil.infoset.InfosetInputterEventType
@@ -68,22 +67,20 @@ class TDMLInfosetInputter(val scalaInputter: ScalaXMLInfosetInputter, others: Se
   override def getSimpleText(primType: NodeInfo.Kind): String = {
     val res = scalaInputter.getSimpleText(primType)
     val resIsEmpty = res == null || res == ""
-    val othersmatch = others.forall { i =>
-      val st = i.getSimpleText(primType)
+    val otherStrings = others.map { i =>
+      val firstVersion = i.getSimpleText(primType)
+      val finalVersion = i match {
+        case _ if (firstVersion eq null) => ""
+        case jsonii: JsonInfosetInputter => firstVersion.replaceAll("(\r\n|\r)", "\n").
+          replaceAll("\r", "\n")
+        case _ => firstVersion
+      }
+      finalVersion
+    }
+    val othersmatch = otherStrings.forall { case st: String =>
       val stIsEmpty = st == null || res == ""
       val areSame = res == st || (resIsEmpty && stIsEmpty)
-      if (areSame) {
-        true
-      } else {
-        if (i.isInstanceOf[JsonInfosetInputter]) {
-          // the json infoset inputter maintains CRLF/CR, but XML converts CRLF/CR to
-          // LF. So if this is Json, then compare with the CRLF/CR converted to LF
-          val replaced = st.replace("\r\n", "\n").replace("\r", "\n")
-          res == replaced
-        } else {
-          false
-        }
-      }
+      areSame
     }
 
     if (!othersmatch)

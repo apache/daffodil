@@ -182,7 +182,7 @@ class UnitTestTDMLRunner {
     assertEquals(expectedBytes, actualBytes)
     val infoset = ptc.optExpectedInfoset.get
     val actualContent = infoset.dfdlInfoset.contents
-    val trimmed = actualContent
+    val trimmed = XMLUtils.removeAttributes(actualContent)
     val expected = <byte1>123</byte1>
     assertEquals(expected, trimmed)
   }
@@ -214,7 +214,7 @@ class UnitTestTDMLRunner {
     assertEquals(expectedBytes, actualBytes)
     val infoset = ptc.optExpectedInfoset.get
     val actualContent = infoset.dfdlInfoset.contents
-    val trimmed = actualContent
+    val trimmed = XMLUtils.removeAttributes(actualContent)
     val expected = <byte1>123</byte1>
     assertEquals(expected, trimmed)
   }

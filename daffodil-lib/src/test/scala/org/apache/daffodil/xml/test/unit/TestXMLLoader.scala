@@ -17,8 +17,12 @@
 
 package org.apache.daffodil.xml.test.unit
 
+import org.apache.daffodil.Implicits.intercept
+import org.apache.daffodil.api.StringSchemaSource
+import org.apache.daffodil.xml.DaffodilXMLLoader
 import org.junit.Assert._
 import org.junit.Test
+import org.xml.sax.SAXParseException
 
 class TestXMLLoader {
 
@@ -57,4 +61,28 @@ b&"<>]]>"""))
 
   }
 
+  /**
+   * Verify that we don't accept doctype decls in our XML.
+   *
+   * Part of fixing DAFFODIL-1422, DAFFODIL-1659.
+   */
+  @Test
+  def testNoDoctypeAllowed() : Unit = {
+
+    val data = """<?xml version="1.0" ?>
+      <!DOCTYPE root_element [
+        Document Type Definition (DTD):
+        elements/attributes/entities/notations/
+          processing instructions/comments/PE references
+    ]>
+    <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
+    """
+    val loader = new DaffodilXMLLoader()
+    val ss = StringSchemaSource(data)
+    val e = intercept[SAXParseException] {
+      loader.load(ss, None)
+    }
+    val m = e.getMessage()
+    assertTrue(m.contains("DOCTYPE is disallowed"))
+  }
 }

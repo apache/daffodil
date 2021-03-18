@@ -21,13 +21,11 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardOpenOption
-
 import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuilder
 import scala.xml.NamespaceBinding
 import scala.xml._
-
 import org.apache.commons.io.IOUtils
 import org.apache.daffodil.calendar.DFDLDateConversion
 import org.apache.daffodil.calendar.DFDLDateTimeConversion
@@ -36,12 +34,24 @@ import org.apache.daffodil.exceptions._
 import org.apache.daffodil.schema.annotation.props.LookupLocation
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Misc
+import org.xml.sax.SAXNotRecognizedException
+import org.xml.sax.XMLReader
+
+import javax.xml.XMLConstants
+import scala.util.Try
+import scala.util.matching.Regex
 
 /**
  * Utilities for handling XML
  */
 
 object XMLUtils {
+
+  val schemaForDFDLSchemas =
+    Misc.getRequiredResource("org/apache/daffodil/xsd/XMLSchema_for_DFDL.xsd")
+
+  val dafextURI =
+    Misc.getRequiredResource("org/apache/daffodil/xsd/dafext.xsd")
 
   /**
    * We must have xsi prefix bound to the right namespace.
@@ -450,6 +460,55 @@ object XMLUtils {
   val SAX_NAMESPACES_FEATURE = "http://xml.org/sax/features/namespaces"
   val SAX_NAMESPACE_PREFIXES_FEATURE = "http://xml.org/sax/features/namespace-prefixes"
 
+  /**
+   * Always enable this feature (which disables doctypes).
+   */
+  val XML_DISALLOW_DOCTYPE_FEATURE = "http://apache.org/xml/features/disallow-doctype-decl"
+
+  /**
+   * Always disable this. Might not be necessary if doctypes are disallowed.
+   */
+  val XML_EXTERNAL_PARAMETER_ENTITIES_FEATURE = "http://xml.org/sax/features/external-parameter-entities"
+
+  /**
+   * Always disable this. Might not be necessary if doctypes are disallowed.
+   */
+  val XML_EXTERNAL_GENERAL_ENTITIES_FEATURE = "http://xml.org/sax/features/external-general-entities"
+
+  /**
+   * Sets properties that disable insecure XML reader behaviors.
+   * @param xmlReader - the reader to change feature settings on.
+   */
+  def setSecureDefaults(xmlReader: XMLReader) : Unit = {
+    // Try all of these. Then see if any of them were rejected.
+    try{ Seq(
+    Try { xmlReader.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true) },
+    Try { xmlReader.setFeature(XMLUtils.XML_DISALLOW_DOCTYPE_FEATURE, true) },
+    Try { xmlReader.setFeature(XMLUtils.XML_EXTERNAL_PARAMETER_ENTITIES_FEATURE, false) },
+    Try { xmlReader.setFeature(XMLUtils.XML_EXTERNAL_GENERAL_ENTITIES_FEATURE, false) }
+      // not available on an XMLReader
+      // xmlReader.setProperty(XMLUtils.SAX_NAMESPACE_PREFIXES_FEATURE, true)
+      // not available on an XMLReader
+      // xmlReader.setProperty(XMLUtils.SAX_NAMESPACES_FEATURE, true)
+      // System.err.println("SAX XMLReader supports disallow properties: " + xmlReader)
+    ).find(_.isFailure).getOrElse(()) // throws the first failure, after attempting all of them.
+    } catch {
+      case e: SAXNotRecognizedException =>
+        //
+        // Our specific SAX XMLReader does not accept these options.
+        // But this is in daffodil-lib, and the DaffodilParseXMLReader is in
+        // runtime1, so we can't use the class directly here. So we play
+        // these class name tricks to see if the reader is ours, and
+        // only re-throw if it isn't.
+        //
+        val className = Misc.getNameFromClass(xmlReader)
+        if (!className.contains("DaffodilParseXMLReader")) {
+          // $COVERAGE-OFF$
+          Assert.abort(e) // bug.
+          // $COVERAGE-ON$
+        }
+    }
+  }
 
   val FILE_ATTRIBUTE_NAME = "file"
   val LINE_ATTRIBUTE_NAME = "line"
@@ -1258,6 +1317,25 @@ Differences were (path, expected, actual):
     sb.append("&#x")
     sb.append(s)
     sb.append(";")
+  }
+
+  private val xmlEntityPattern = new Regex("""&(quot|amp|apos|lt|gt);""", "entity")
+
+  /**
+   * Remove XML escapes like &amp; and &gt; &lt; from a string.
+   */
+   def unescape(raw: String) = {
+    val withoutNamedXMLCharEntities: String = {
+      val res = xmlEntityPattern.replaceAllIn(raw, m => {
+        val sb = scala.xml.Utility.unescape(m.group("entity"), new StringBuilder())
+        // There really is no possibility for null to come back as we've made
+        // sure to only include valid xml entities in the xmlEntityPattern.
+        Assert.invariant(sb ne null)
+        sb.toString()
+      })
+      res
+    }
+    withoutNamedXMLCharEntities
   }
 
   /**

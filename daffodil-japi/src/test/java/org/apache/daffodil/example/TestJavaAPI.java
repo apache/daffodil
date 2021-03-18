@@ -40,6 +40,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.daffodil.japi.*;
 import org.apache.daffodil.japi.infoset.XMLTextInfosetOutputter;
+import org.apache.daffodil.xml.XMLUtils;
 import org.jdom2.output.Format;
 import org.junit.Test;
 
@@ -1008,6 +1009,7 @@ public class TestJavaAPI {
         try {
             org.xml.sax.XMLReader unparseXMLReader = javax.xml.parsers.SAXParserFactory.newInstance()
                     .newSAXParser().getXMLReader();
+            XMLUtils.setSecureDefaults(unparseXMLReader);
             unparseXMLReader.setContentHandler(unparseContentHandler);
             unparseXMLReader.setErrorHandler(errorHandler);
             unparseXMLReader.setFeature(SAX_NAMESPACES_FEATURE, true);
@@ -1143,6 +1145,7 @@ public class TestJavaAPI {
         try {
             org.xml.sax.XMLReader unparseXMLReader = javax.xml.parsers.SAXParserFactory.newInstance()
                     .newSAXParser().getXMLReader();
+            XMLUtils.setSecureDefaults(unparseXMLReader);
             unparseXMLReader.setContentHandler(unparseContentHandler);
             unparseXMLReader.setFeature(SAX_NAMESPACES_FEATURE, true);
             unparseXMLReader.setFeature(SAX_NAMESPACE_PREFIXES_FEATURE, true);

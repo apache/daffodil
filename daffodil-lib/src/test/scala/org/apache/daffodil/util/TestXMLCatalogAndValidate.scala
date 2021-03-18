@@ -400,24 +400,19 @@ class SchemaAwareFactoryAdapter()
   //System.err.println("Creating " + getClass().getName())
   val res = new MyResolver()
   //System.err.println("Creating parser")
-  val f = SAXParserFactory.newInstance()
+  val f: SAXParserFactory = SAXParserFactory.newInstance()
   f.setNamespaceAware(true)
   f.setFeature("http://xml.org/sax/features/namespace-prefixes", true)
   f.setFeature("http://xml.org/sax/features/validation", true)
   f.setFeature("http://apache.org/xml/features/validation/dynamic", true)
   f.setFeature("http://apache.org/xml/features/validation/schema", true)
   f.setFeature("http://apache.org/xml/features/validation/schema-full-checking", true)
-
-  // JIRA DFDL-1659 - make sure not accessing things remotely and protect from denial-of-service
-  // using XML trickery.
-  // f.setFeature("http://javax.xml.XMLConstants/property/accessExternalDTD", false)
-  //  f.setFeature("http://xml.org/sax/features/external-general-entities", false)
-  //  f.setFeature("http://xml.org/sax/features/external-parameter-entities", false)
   f.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true)
-
   f.setValidating(true)
   val p = f.newSAXParser()
+  // cannot setSecureDefaults on the parser. Must do that on the xml reader created from it.
   val xr = p.getXMLReader()
+  XMLUtils.setSecureDefaults(xr)
   xr.setContentHandler(this)
   xr.setEntityResolver(res) // older API??
   xr.setProperty(
@@ -429,9 +424,16 @@ class SchemaAwareFactoryAdapter()
 
   var exceptionList: List[Exception] = Nil
 
+  /**
+   * Called by all the load(...) methods to actually do the loading.
+   *
+   * @param source
+   * @param ignored
+   * @return the scala.xml.Node loaded that is the document element of the loaded source.
+   */
   override def loadXML(source: InputSource, ignored: SAXParser): Node = {
-    //System.err.println("loadXML")
     val xr = parser.getXMLReader()
+    XMLUtils.setSecureDefaults(xr)
     xr.setErrorHandler(new org.xml.sax.ErrorHandler() {
 
       def warning(exception: SAXParseException) = {
@@ -449,16 +451,8 @@ class SchemaAwareFactoryAdapter()
       }
     })
 
-    //    val schemaFactory = SchemaFactory.newInstance("http://www.w3.org/2001/XMLSchema");
-    //    //System.err.println("Reading the schema")
-    //    schemaFactory.setResourceResolver(res)
-    //    val schema = schemaFactory.newSchema(schemaFile);
-    //    //System.err.println("Done reading the schema")
-    //    // What if, instead of this, we just setFeature(...validation...) above?
-    //    // Answer: it doesn't throw exceptions on validation errors.
-    //    val vh = schema.newValidatorHandler()
-    //    vh.setContentHandler(this)
-    //    xr.setContentHandler(vh)
+    // validation occurs during the loading process because
+    // we set the feature requiring it above where the parser is constructed.
 
     // parse file
     scopeStack.push(TopScope)

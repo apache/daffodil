@@ -129,6 +129,19 @@
                 <!-- We want the default to be 'unqualified' in the longer term but 
                      we leave it 'qualified here to prevent lots of tests from breaking. -->
     <attribute name="elementFormDefault" type="tns:elementFormDefaultType" default="qualified"/>
+        <!-- we want the default for useDefaultNamespace to be false longer term but
+             we leave it as true here to prevent lots of tests from breaking. -->
+    <attribute name="useDefaultNamepace" type="xs:boolean" default="true">
+      <annotation><documentation>
+        Controls whether a xmlns="http://example.com" default namespace prefix
+        definition will be provided for the embedded schema.
+
+        This matters when the defined schema is used to validate the infoset xml
+        before unparsing, or after parsing, as it affects the interpretation of
+        path expressions in the DFDL schema based on the unqualifiedPathStepPolicy
+        tunable.
+      </documentation></annotation>
+    </attribute>
     <attribute ref="tns:tutorialInclude"/>
   </complexType>
 

@@ -58,6 +58,7 @@ class TunableGenerator(schemaRootConfig: scala.xml.Node, schemaRootExt: scala.xm
     |import org.apache.daffodil.util.Logging
     |import org.apache.daffodil.util.Misc
     |import org.apache.daffodil.xml.DaffodilXMLLoader
+    |import org.apache.daffodil.xml.XMLUtils
     |
     |object DaffodilTunables {
     |
@@ -75,7 +76,7 @@ class TunableGenerator(schemaRootConfig: scala.xml.Node, schemaRootExt: scala.xm
     |    val configTunables: Map[String, String] =
     |      if (configOpt.isDefined) {
     |        val loader = new DaffodilXMLLoader()
-    |        val node = loader.load(URISchemaSource(configOpt.get))
+    |        val node = loader.load(URISchemaSource(configOpt.get), Some(XMLUtils.dafextURI))
     |        val trimmed = scala.xml.Utility.trim(node)
     |        val tunablesNode = (trimmed \ "tunables").headOption
     |        val tunablesMap: Map[String, String] = tunablesNode match {

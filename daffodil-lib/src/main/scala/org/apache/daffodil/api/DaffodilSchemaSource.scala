@@ -17,19 +17,26 @@
 
 package org.apache.daffodil.api
 import org.xml.sax.InputSource
+
 import java.net.URI
 import scala.xml.Node
 import java.io.FileInputStream
 import org.apache.daffodil.xml.XMLUtils
 import org.apache.commons.io.input.XmlStreamReader
+
 import java.io.File
 import java.nio.file.Paths
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.equality._
+
+import java.io.InputStream
 import java.nio.file.FileSystemNotFoundException
 
 /**
  * Our abstraction of the source of a schema.
+ *
+ * Provides the support needed to enable import/include schemaLocation
+ * resolution using relative paths.
  *
  * Because we make multiple passes over the schema (for validation)
  * we have to cache the schema if it is given to us in any sort of transient form
@@ -43,6 +50,12 @@ sealed trait DaffodilSchemaSource {
    * Use to get a org.xml.sax.InputSource for use by Xerces
    */
   def newInputSource(): InputSource
+
+  /**
+   * Don't forget to close() these.
+   * @return an input stream which must be closed by the caller.
+   */
+  final def newInputStream(): InputStream = uriForLoading.toURL.openStream()
 
   /**
    * Use to get the URI that can be used to load the xml.
@@ -112,7 +125,7 @@ class URISchemaSource protected (val fileOrResource: URI) extends DaffodilSchema
 /**
  * For stdin, or other anonymous pipe-like source of schema.
  */
-case class InputStreamSchemaSource(is: java.io.InputStream, tmpDir: Option[File], blameName: String, extension: String) extends DaffodilSchemaSource {
+class InputStreamSchemaSource(is: java.io.InputStream, tmpDir: Option[File], blameName: String, extension: String) extends DaffodilSchemaSource {
   lazy val tempSchemaFile = XMLUtils.convertInputStreamToTempFile(is, tmpDir.getOrElse(null), blameName, extension)
   lazy val tempURI = tempSchemaFile.toURI
   lazy val csName = {

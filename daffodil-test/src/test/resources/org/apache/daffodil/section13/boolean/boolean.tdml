@@ -16,7 +16,7 @@
   limitations under the License.
 -->
 
-<testSuite suiteName="Boolean"
+<tdml:testSuite suiteName="Boolean"
   xmlns:xs="http://www.w3.org/2001/XMLSchema" 
   xmlns:fn="http://www.w3.org/2005/xpath-functions"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
@@ -164,4 +164,4 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
-</testSuite>
+</tdml:testSuite>

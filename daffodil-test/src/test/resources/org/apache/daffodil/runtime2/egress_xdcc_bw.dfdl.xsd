@@ -16,7 +16,13 @@
   limitations under the License.
 -->
 
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:fn="http://www.w3.org/2005/xpath-functions" xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext" xmlns:gma="urn:gma:1.0" targetNamespace="urn:gma:1.0">
+<xs:schema
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
+  xmlns:gma="urn:gma:1.0"
+  targetNamespace="urn:gma:1.0">
 
  <xs:annotation>  
   <xs:appinfo source="http://www.ogf.org/dfdl/">   
