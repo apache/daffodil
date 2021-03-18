@@ -21,7 +21,6 @@ import java.io.IOException
 import java.io.InputStream
 import java.nio.file.Path
 import java.nio.file.Paths
-
 import org.apache.daffodil.api.DFDL
 import org.apache.daffodil.exceptions.SchemaFileLocation
 import org.apache.daffodil.infoset.SAXInfosetOutputter
@@ -37,13 +36,17 @@ import org.xml.sax.SAXNotRecognizedException
 import org.xml.sax.SAXNotSupportedException
 import org.xml.sax.SAXParseException
 
+
 /**
  * XMLReader implementation that interfaces with the DataProcessor and SAXInfosetOutputter to parse
  * data into an XML infoset
  *
+ * This is inherently a secure reader - it isn't actually reading any XML. So one need not (and cannot)
+ * call things like setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true).
+ *
  * @param dp dataprocessor object that will be used to call the parse
  */
-class DaffodilParseXMLReader(dp: DataProcessor) extends DFDL.DaffodilParseXMLReader {
+class DaffodilParseXMLReader (dp: DataProcessor) extends DFDL.DaffodilParseXMLReader {
   private var contentHandler: ContentHandler = _
   private var errorHandler: ErrorHandler = _
   private var dtdHandler: DTDHandler = _

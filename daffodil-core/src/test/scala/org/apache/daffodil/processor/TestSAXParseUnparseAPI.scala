@@ -19,13 +19,14 @@ package org.apache.daffodil.processor
 
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
-
-import javax.xml.parsers.SAXParserFactory
 import org.apache.daffodil.api.DFDL
+import org.apache.daffodil.dpath.NodeInfo
+import org.apache.daffodil.infoset.InfosetInputterEventType
 import org.apache.daffodil.infoset.ScalaXMLInfosetInputter
 import org.apache.daffodil.infoset.ScalaXMLInfosetOutputter
 import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.processors.ParseResult
+import org.apache.daffodil.xml.DaffodilSAXParserFactory
 import org.apache.daffodil.xml.XMLUtils
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -48,8 +49,7 @@ class TestSAXParseUnparseAPI {
     val pr = parseXMLReader.getProperty(XMLUtils.DAFFODIL_SAX_URN_PARSERESULT).asInstanceOf[ParseResult]
     assertTrue(!pr.isError)
     assertEquals(expectedInfoset, scala.xml.XML.loadString(baosParse.toString))
-
-    val unparseXMLReader = SAXParserFactory.newInstance().newSAXParser().getXMLReader
+    val unparseXMLReader = DaffodilSAXParserFactory().newSAXParser().getXMLReader
     unparseXMLReader.setFeature(XMLUtils.SAX_NAMESPACES_FEATURE, true)
     val baosUnparse = new ByteArrayOutputStream()
     val wbcUnparse = java.nio.channels.Channels.newChannel(baosUnparse)
@@ -76,7 +76,7 @@ class TestSAXParseUnparseAPI {
     assertTrue(!pr.isError)
     assertEquals(expectedInfoset, parsedData)
 
-    val unparseXMLReader = SAXParserFactory.newInstance().newSAXParser().getXMLReader
+    val unparseXMLReader = DaffodilSAXParserFactory().newSAXParser().getXMLReader
     unparseXMLReader.setFeature(XMLUtils.SAX_NAMESPACES_FEATURE, true)
     val baosUnparse = new ByteArrayOutputStream()
     val wbcUnparse = java.nio.channels.Channels.newChannel(baosUnparse)
@@ -95,7 +95,7 @@ class TestSAXParseUnparseAPI {
    * test the case where we use SAX to unparse data and SAX to parse the unparsed data
    */
   @Test def test_DaffodilUnparseContentHandler_unparse_DaffodilParseXMLReader_parse(): Unit = {
-    val unparseXMLReader = SAXParserFactory.newInstance().newSAXParser().getXMLReader
+    val unparseXMLReader = DaffodilSAXParserFactory().newSAXParser().getXMLReader
     unparseXMLReader.setFeature(XMLUtils.SAX_NAMESPACES_FEATURE, true)
     val baosUnparse = new ByteArrayOutputStream()
     val wbcUnparse = java.nio.channels.Channels.newChannel(baosUnparse)
@@ -124,7 +124,7 @@ class TestSAXParseUnparseAPI {
    * tests the case where we use SAX to unparse data and StAX to parse the unparsed data
    */
   @Test def test_DaffodilUnparseContentHandler_unparse_DataProcessor_parse(): Unit = {
-    val unparseXMLReader = SAXParserFactory.newInstance().newSAXParser().getXMLReader
+    val unparseXMLReader = DaffodilSAXParserFactory().newSAXParser().getXMLReader
     unparseXMLReader.setFeature(XMLUtils.SAX_NAMESPACES_FEATURE, true)
     val baosUnparse = new ByteArrayOutputStream()
     val wbcUnparse = java.nio.channels.Channels.newChannel(baosUnparse)
@@ -185,5 +185,17 @@ class TestSAXParseUnparseAPI {
     val pr = parseXMLReader.getProperty(XMLUtils.DAFFODIL_SAX_URN_PARSERESULT).asInstanceOf[ParseResult]
     assertTrue(!pr.isError)
     assertEquals(expectedInfoset, scala.xml.XML.loadString(baosParse.toString))
+  }
+
+  @Test
+  def test_entityRefInXML(): Unit = {
+    import InfosetInputterEventType._
+
+    val sii = new ScalaXMLInfosetInputter(<foo>&amp;</foo>)
+    assertTrue(sii.hasNext())
+    sii.next()
+    assertEquals(StartElement, sii.getEventType())
+    val stxt = sii.getSimpleText(NodeInfo.String)
+    assertEquals("&", stxt)
   }
 }

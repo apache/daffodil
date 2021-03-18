@@ -17,8 +17,12 @@
 
 package org.apache.daffodil.xml.test.unit
 
+import org.apache.daffodil.Implicits.intercept
+import org.apache.daffodil.api.StringSchemaSource
+import org.apache.daffodil.xml.DaffodilXMLLoader
 import org.junit.Assert._
 import org.junit.Test
+import org.xml.sax.SAXParseException
 
 class TestXMLLoader {
 
@@ -57,4 +61,80 @@ b&"<>]]>"""))
 
   }
 
+  /**
+   * Verify that we don't accept doctype decls in our XML.
+   *
+   * Part of fixing DAFFODIL-1422, DAFFODIL-1659.
+   */
+  @Test
+  def testNoDoctypeAllowed() : Unit = {
+
+    val data = """<?xml version="1.0" ?>
+      <!DOCTYPE root_element [
+        Document Type Definition (DTD):
+        elements/attributes/entities/notations/
+          processing instructions/comments/PE references
+    ]>
+    <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
+    """
+    val loader = new DaffodilXMLLoader()
+    val ss = StringSchemaSource(data)
+    val e = intercept[SAXParseException] {
+      loader.load(ss, None, false, true)
+    }
+    val m = e.getMessage()
+    assertTrue(m.contains("DOCTYPE is disallowed"))
+  }
+
+  /**
+   * Test shows that a CRLF in the middle of XML data can
+   * be preserved or normalized by loader options.
+   */
+  @Test
+  def testDaffodilXMLLoaderCRLFNormalization() : Unit = {
+    // This data has an embedded CRLF, and an embedded isolated CR
+    val xmlTextWithCRLFs =
+    """<?xml version="1.0" ?>""" + "\r\n" +
+    "<data>before" + "\r\n" + // regular CRLF
+      "after" + "\r" + // isolated CR
+      "end<![CDATA[CDATAbefore" + "\r\n" + // CRLF inside CDATA
+      "after" + "\r" + // isolated CR inside CDATA
+      "endCDATA]]></data>" + "\r\n"
+    val loader = new DaffodilXMLLoader()
+    val ss = StringSchemaSource(xmlTextWithCRLFs)
+    //
+    // Our loader preserves CDATA regions. They stay as separate Nodes (of type PCDATA)
+    // and toString will print them out into the text with the <![CDATA[...]]> preserved.
+    //
+    val xmlFromDafLoaderNonNormalized =
+      loader.load(ss, None, addPositionAttributes = false, normalizeCRLFtoLF = false)
+    val xmlFromDafLoaderNormalized =
+      loader.load(ss, None, addPositionAttributes = false, normalizeCRLFtoLF = true)
+
+    {
+      // compare to the regular scala XML loader
+      // Note that this doesn't preserve the CDATA/PCData
+      val xmlFromScalaLoader = scala.xml.XML.loadString(xmlTextWithCRLFs)
+
+      // calling .text on a Node creates a string, but also replaces PCData nodes
+      // (all Atoms actually) with their contents. So if we call .text on our loader's
+      // Node, it will be the same as the one from the regular scala xml loader.
+      assertEquals(xmlFromDafLoaderNormalized.text, xmlFromScalaLoader.text) // both have LF only
+      assertEquals("before\nafter\nendCDATAbefore\nafter\nendCDATA", xmlFromScalaLoader.text)
+    }
+
+    assertEquals( // retains CRLF and CR
+      "<data>before\r\nafter\rend<![CDATA[CDATAbefore\r\nafter\rendCDATA]]></data>",
+      xmlFromDafLoaderNonNormalized.toString)
+    assertEquals( // Converts CRLF/CR => LF
+      "<data>before\nafter\nend<![CDATA[CDATAbefore\nafter\nendCDATA]]></data>",
+      xmlFromDafLoaderNormalized.toString)
+    assertEquals( // retains CRLF and CR, but eliminates CDATA brackets.
+      "before\r\nafter\rendCDATAbefore\r\nafter\rendCDATA",
+      xmlFromDafLoaderNonNormalized.text)
+    assertEquals( // Converts CRLF/CR => LF, but elimintes CDATA brackets.
+      "before\nafter\nendCDATAbefore\nafter\nendCDATA",
+      xmlFromDafLoaderNormalized.text)
+
+  }
 }

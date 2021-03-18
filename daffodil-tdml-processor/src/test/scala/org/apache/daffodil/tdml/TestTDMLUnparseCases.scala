@@ -18,9 +18,8 @@
 package org.apache.daffodil.tdml
 
 import org.apache.daffodil.xml.XMLUtils
-import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
-import org.apache.daffodil.Implicits._
 
 class TestTDMLUnparseCases {
 
@@ -49,17 +48,8 @@ class TestTDMLUnparseCases {
                       </ts:unparserTestCase>
                     </ts:testSuite>
     lazy val ts = new DFDLTestSuite(testSuite)
-    val tc: UnparserTestCase = ts.unparserTestCases.find { utc => utc.tcName == "test1" }.get
-    // println(tc)
-    tc.document
-    val is = tc.inputInfoset
-    // println(is)
-    val bar = is.dfdlInfoset.contents
-    val scala.xml.Elem(pre, label, _, _, _) = bar
-    assertEquals("ex", pre)
-    assertEquals("bar", label)
-    // ts.trace
     ts.runOneTest("test1")
+    assertTrue(ts.loadingDiagnosticMessages.isEmpty)
   }
 
 }

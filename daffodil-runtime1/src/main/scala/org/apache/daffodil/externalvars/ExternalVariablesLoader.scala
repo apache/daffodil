@@ -17,16 +17,19 @@
 
 package org.apache.daffodil.externalvars
 
-import scala.xml.parsing.ConstructingParser
+import org.apache.daffodil.api.URISchemaSource
+
 import java.io.File
 import java.net.URI
-
 import scala.xml.Node
 import scala.io.Codec.string2codec
-import org.apache.daffodil.processors.{ VariableUtils, VariableMap }
+import org.apache.daffodil.processors.VariableMap
+import org.apache.daffodil.processors.VariableUtils
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.util.Misc._
 import org.apache.daffodil.exceptions.ThrowsSDE
+import org.apache.daffodil.xml.DaffodilXMLLoader
+import org.apache.daffodil.xml.XMLUtils
 
 import scala.collection.immutable.Queue
 
@@ -66,13 +69,11 @@ object ExternalVariablesLoader {
 
   def fileToBindings(file: File): Queue[Binding] = {
     Assert.usage(file ne null)
-    ExternalVariablesValidator.validate(file) match {
-      case Left(ex) => Assert.abort(ex)
-      case Right(_) => // Success
-    }
     val enc = determineEncoding(file) // The encoding is needed for ConstructingParser
     val input = scala.io.Source.fromURI(file.toURI)(enc)
-    val node = ConstructingParser.fromSource(input, true).document.docElem
+    val ldr = new DaffodilXMLLoader()
+    val dafextURI = XMLUtils.dafextURI
+    val node = ldr.load(URISchemaSource(file.toURI), Some(dafextURI))
     nodeToBindings(node)
   }
 

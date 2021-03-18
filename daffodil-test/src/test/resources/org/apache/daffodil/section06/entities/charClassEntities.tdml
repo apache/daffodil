@@ -64,9 +64,11 @@
   <parserTestCase name="CarriageReturn" root="matrix"
     model="charClassEntities.dfdl.xsd" description="CSV-style tests and use of %NL; - DFDL-6-045R"
     roundTrip="twoPass">
-
+    <!-- two pass because CR in data will be converted to LF due to outputNewLine -->
     <document>
-      <documentPart type="text"><![CDATA[0,1,2,3,45,6,7,8,910,11,12,13,14]]></documentPart>
+      <documentPart type="text" replaceDFDLEntities="true"><![CDATA[0,1,2,3,4%CR;]]></documentPart>
+      <documentPart type="text" replaceDFDLEntities="true"><![CDATA[5,6,7,8,9%CR;]]></documentPart>
+      <documentPart type="text" replaceDFDLEntities="true"><![CDATA[10,11,12,13,14]]></documentPart>
     </document>
 
     <infoset>

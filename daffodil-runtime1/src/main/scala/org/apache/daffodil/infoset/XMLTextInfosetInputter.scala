@@ -22,6 +22,7 @@ import org.apache.daffodil.util.Misc
 import org.apache.daffodil.xml.XMLUtils
 import org.apache.daffodil.util.MaybeBoolean
 import org.apache.daffodil.dpath.NodeInfo
+import org.apache.daffodil.infoset.InfosetInputterEventType._
 
 import javax.xml.stream.XMLStreamReader
 import javax.xml.stream.XMLStreamConstants._
@@ -33,17 +34,18 @@ import javax.xml.XMLConstants
 object XMLTextInfosetInputter {
   lazy val xmlInputFactory = {
     val fact = new com.ctc.wstx.stax.WstxInputFactory()
-    // JIRA DFDL-1659 - make sure not accessing things remotely and protect from denial-of-service
-    // using XML trickery.
-    // fact.setProperty("http://javax.xml.XMLConstants/property/accessExternalDTD", false)
-    // fact.setProperty("http://xml.org/sax/features/external-general-entities", false)
-    // fact.setProperty("http://xml.org/sax/features/external-parameter-entities", false)
-    //
-    // fact.setProperty(XMLConstants.FEATURE_SECURE_PROCESSING, true) // Seems to be the default setting anyway
-
     fact.setProperty(XMLInputFactory.IS_COALESCING, true)
     fact.setEventAllocator(com.ctc.wstx.evt.DefaultEventAllocator.getDefaultInstance)
 
+    // Woodstox has it's own properties for turning off DTDs to provide
+    // secure XML processing.
+    //
+    // This does not cause Woodstox to throw or error on encountering
+    // a DTD. It just doesn't do anything with it.
+    //
+    fact.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false)
+    fact.setProperty(XMLInputFactory.SUPPORT_DTD, false)
+    fact.setProperty(XMLInputFactory.IS_VALIDATING, false) // no DTD validation
     fact
   }
 }
@@ -91,7 +93,6 @@ class XMLTextInfosetInputter private (input: Either[java.io.Reader, java.io.Inpu
   private var fakeStartEvent = false
 
   override def getEventType(): InfosetInputterEventType = {
-    import InfosetInputterEventType._
     if (fakeStartEvent) {
       StartElement
     } else {
@@ -201,6 +202,8 @@ class XMLTextInfosetInputter private (input: Either[java.io.Reader, java.io.Inpu
         case CHARACTERS if xsr.isWhiteSpace() => // skip whitespace
         case CDATA if xsr.isWhiteSpace() => // skip whitespace
         case SPACE | PROCESSING_INSTRUCTION | COMMENT => // skip these too
+        case DTD =>
+          throw new IllegalContentWhereEventExpected("DOCTYPE/DTD Not supported. Error on line " + evAlloc.allocate(xsr).getLocation.getLineNumber)
         case other =>
           throw new IllegalContentWhereEventExpected("Error on line " + evAlloc.allocate(xsr).getLocation.getLineNumber + " : " + other)
       }

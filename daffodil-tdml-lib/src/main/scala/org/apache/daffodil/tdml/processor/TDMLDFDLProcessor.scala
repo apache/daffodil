@@ -73,7 +73,8 @@ trait AbstractTDMLDFDLProcessorFactory {
   def setDistinguishedRootNode(name: String, namespace: String): Unit
 
   def getProcessor(schemaSource: DaffodilSchemaSource, useSerializedProcessor: Boolean,
-    optRootName: Option[String] = None, optRootNamespace: Option[String] = None): TDML.CompileResult
+    optRootName: Option[String] = None, optRootNamespace: Option[String] = None,
+    tunables: Map[String, String]): TDML.CompileResult
 }
 
 /**

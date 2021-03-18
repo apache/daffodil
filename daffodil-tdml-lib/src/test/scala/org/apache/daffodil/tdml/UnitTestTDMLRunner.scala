@@ -26,6 +26,7 @@ import org.junit.Assert.assertFalse
 import org.apache.daffodil.util._
 import org.junit.Test
 import org.apache.daffodil.Implicits._
+import org.junit.Assert.fail
 
 class UnitTestTDMLRunner {
 
@@ -182,7 +183,7 @@ class UnitTestTDMLRunner {
     assertEquals(expectedBytes, actualBytes)
     val infoset = ptc.optExpectedInfoset.get
     val actualContent = infoset.dfdlInfoset.contents
-    val trimmed = actualContent
+    val trimmed = XMLUtils.removeAttributes(actualContent)
     val expected = <byte1>123</byte1>
     assertEquals(expected, trimmed)
   }
@@ -214,7 +215,7 @@ class UnitTestTDMLRunner {
     assertEquals(expectedBytes, actualBytes)
     val infoset = ptc.optExpectedInfoset.get
     val actualContent = infoset.dfdlInfoset.contents
-    val trimmed = actualContent
+    val trimmed = XMLUtils.removeAttributes(actualContent)
     val expected = <byte1>123</byte1>
     assertEquals(expected, trimmed)
   }
@@ -437,5 +438,40 @@ class UnitTestTDMLRunner {
       doc.documentParts.collect { case x: DocumentPart => x }
     }
     assertTrue(exc.getMessage().contains("bitOrder"))
+  }
+
+  val tdmlDefineSchemaWithoutDefaultNamespace =
+    <testSuite xmlns:tns={ tns }
+                    xmlns:tdml={ tdml }
+                    xmlns={ tdml }
+                    xmlns:dfdl={ dfdl }
+                    xmlns:xsd={ xsd }
+                    xmlns:xs={ xsd }
+                    xmlns:xsi={ xsi }>
+      <tdml:defineSchema name="mySchema" useDefaultNamespace="false" xmlns={ xsd }>
+        <dfdl:format ref="tns:GeneralFormat"/>
+        <element name="data" type="int" dfdl:lengthKind="delimited"/>
+      </tdml:defineSchema>
+      <parserTestCase name="test1" root="data" model="mySchema">
+        <document>37</document>
+        <infoset>
+          <dfdlInfoset>
+            <data xmlns={ example }>37</data>
+          </dfdlInfoset>
+        </infoset>
+      </parserTestCase>
+    </testSuite>
+
+  @Test def testDefineSchemaWithNoDefaultNamespace(): Unit = {
+    val testSuite = tdmlDefineSchemaWithoutDefaultNamespace
+    val ts = new DFDLTestSuite(testSuite)
+    if (!ts.isTDMLFileValid) {
+      val msgs = ts.loadingExceptions.map{ _.getMessage() } .mkString("\n")
+      fail(msgs)
+    }
+    val tc = ts.parserTestCases.find(ptc => ptc.tcName == "test1")
+    val ds = ts.embeddedSchemas.find(ds => ds.name == "mySchema").get
+    val dataElem = ds.globalElementDecls.find(edecl => (edecl \ "@name").text == "data").get
+    assertTrue(dataElem ne null)
   }
 }

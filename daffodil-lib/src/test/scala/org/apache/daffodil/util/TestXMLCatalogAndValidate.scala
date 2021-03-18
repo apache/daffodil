@@ -18,24 +18,33 @@
 package org.apache.daffodil.util
 
 import java.io.File
-import scala.xml.{ SAXParseException, InputSource }
+import scala.xml.InputSource
+import scala.xml.SAXParseException
 import scala.xml.parsing.NoBindingFactoryAdapter
-import scala.xml.{ TopScope, Node, Elem }
+import scala.xml.Elem
+import scala.xml.Node
 import org.apache.xerces.xni.parser.XMLInputSource
-import org.apache.xml.resolver.{ CatalogManager, Catalog }
+import org.apache.xml.resolver.Catalog
+import org.apache.xml.resolver.CatalogManager
 import org.junit.Test
-import Implicits.using
-import javax.xml.parsers.{ SAXParserFactory, SAXParser }
-import org.junit.Assert.{ fail, assertTrue }
+import org.apache.daffodil.util.Implicits.using
+
+import javax.xml.parsers.SAXParser
+import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
+
 import scala.xml.NamespaceBinding
 import scala.xml.MetaData
 import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.xml.DaffodilSAXParserFactory
+
 import scala.xml.Null
 import scala.xml.Attribute
 import scala.xml.Text
 import scala.language.reflectiveCalls
 import org.apache.daffodil.xml.NS.implicitNStoString
 import org.apache.daffodil.xml.XMLUtils
+
 import scala.collection.mutable
 import javax.xml.XMLConstants
 
@@ -289,9 +298,6 @@ class TestXMLCatalogAndValidate {
 object XMLLoaderFactory {
   def apply() = {
     val loader = new SchemaAwareFactoryAdapter()
-    //    val loader = new factory.XMLLoader[Elem] {
-    //      override def adapter = new SchemaAwareFactoryAdapter // new parsing.NoBindingFactoryAdapter() {
-    //    }
     loader
   }
 
@@ -400,21 +406,14 @@ class SchemaAwareFactoryAdapter()
   //System.err.println("Creating " + getClass().getName())
   val res = new MyResolver()
   //System.err.println("Creating parser")
-  val f = SAXParserFactory.newInstance()
+  val f = DaffodilSAXParserFactory()
   f.setNamespaceAware(true)
   f.setFeature("http://xml.org/sax/features/namespace-prefixes", true)
   f.setFeature("http://xml.org/sax/features/validation", true)
   f.setFeature("http://apache.org/xml/features/validation/dynamic", true)
   f.setFeature("http://apache.org/xml/features/validation/schema", true)
   f.setFeature("http://apache.org/xml/features/validation/schema-full-checking", true)
-
-  // JIRA DFDL-1659 - make sure not accessing things remotely and protect from denial-of-service
-  // using XML trickery.
-  // f.setFeature("http://javax.xml.XMLConstants/property/accessExternalDTD", false)
-  //  f.setFeature("http://xml.org/sax/features/external-general-entities", false)
-  //  f.setFeature("http://xml.org/sax/features/external-parameter-entities", false)
   f.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true)
-
   f.setValidating(true)
   val p = f.newSAXParser()
   val xr = p.getXMLReader()
@@ -429,8 +428,14 @@ class SchemaAwareFactoryAdapter()
 
   var exceptionList: List[Exception] = Nil
 
+  /**
+   * Called by all the load(...) methods to actually do the loading.
+   *
+   * @param source
+   * @param ignored
+   * @return the scala.xml.Node loaded that is the document element of the loaded source.
+   */
   override def loadXML(source: InputSource, ignored: SAXParser): Node = {
-    //System.err.println("loadXML")
     val xr = parser.getXMLReader()
     xr.setErrorHandler(new org.xml.sax.ErrorHandler() {
 
@@ -449,23 +454,10 @@ class SchemaAwareFactoryAdapter()
       }
     })
 
-    //    val schemaFactory = SchemaFactory.newInstance("http://www.w3.org/2001/XMLSchema");
-    //    //System.err.println("Reading the schema")
-    //    schemaFactory.setResourceResolver(res)
-    //    val schema = schemaFactory.newSchema(schemaFile);
-    //    //System.err.println("Done reading the schema")
-    //    // What if, instead of this, we just setFeature(...validation...) above?
-    //    // Answer: it doesn't throw exceptions on validation errors.
-    //    val vh = schema.newValidatorHandler()
-    //    vh.setContentHandler(this)
-    //    xr.setContentHandler(vh)
+    // validation occurs during the loading process because
+    // we set the feature requiring it above where the parser is constructed.
 
-    // parse file
-    scopeStack.push(TopScope)
-    //System.err.println("beginning parse")
     xr.parse(source)
-    //System.err.println("ending parse")
-    scopeStack.pop
     return rootElem.asInstanceOf[Elem]
   }
 }

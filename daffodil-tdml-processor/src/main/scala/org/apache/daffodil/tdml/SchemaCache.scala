@@ -17,14 +17,14 @@
 
 package org.apache.daffodil.tdml
 
-import org.apache.daffodil.equality._;
+import org.apache.daffodil.equality._
+
 import scala.collection.mutable
 import org.apache.daffodil.exceptions.ThinException
 import org.apache.daffodil.api.URISchemaSource
 import org.apache.daffodil.api.Diagnostic
 import org.apache.daffodil.api.DFDL
 import org.apache.daffodil.exceptions.Assert
-import scala.Right
 object ENoWarnTDML { EqualitySuppressUnusedImportWarning() }
 
 /**
@@ -33,6 +33,21 @@ object ENoWarnTDML { EqualitySuppressUnusedImportWarning() }
  */
 object SchemaDataProcessorCache extends SchemaCache[(Seq[Diagnostic], DFDL.DataProcessor), Seq[Diagnostic]]
 
+object SchemaCache {
+  /**
+   * A key object for caching compiled DFDL schemas. Everything that effects compilation
+   * must be captured here.
+   */
+  case class Key (
+    uri: URISchemaSource,      // The DFDL schema's URI
+    useSerializedProcessor: Boolean,
+    compileAllTopLevels: Boolean,
+    optRootName: Option[String],
+    optRootNamespace: Option[String],
+    tunables: Map[String, String])  // tunables map - required since tunables effect compilation
+  // (ex: parseUnparsePolicy, unqualifiedPathStepPolicy, perhaps others)
+
+}
 /**
  * A cache of things associated with URISchemaSources.
  *
@@ -44,10 +59,12 @@ object SchemaDataProcessorCache extends SchemaCache[(Seq[Diagnostic], DFDL.DataP
 
 class SchemaCache[CachedType, DiagnosticType] {
 
-  private class Cache
-    extends mutable.HashMap[(URISchemaSource, Boolean, Boolean, Option[String], Option[String]), (URISchemaSource, CachedType)] {
+ import SchemaCache._
 
-    override def getOrElseUpdate(key: (URISchemaSource, Boolean, Boolean, Option[String], Option[String]), body: => (URISchemaSource, CachedType)) = synchronized {
+  private class Cache
+    extends mutable.HashMap[Key, (URISchemaSource, CachedType)] {
+
+    override def getOrElseUpdate(key: Key, body: => (URISchemaSource, CachedType)) = synchronized {
       super.getOrElseUpdate(key, body)
     }
 
@@ -88,18 +105,15 @@ class SchemaCache[CachedType, DiagnosticType] {
    * can be null if the name alone is unambiguous.
    *
    */
-  def compileAndCache(uss: URISchemaSource, useSerializedProcessor: Boolean,
-    compileAllTopLevels: Boolean,
-    optRootName: Option[String],
-    optRootNamespace: Option[String])(doCompileByName: => CompileResult): CompileResult = {
+  def compileAndCache(key: Key)
+    (doCompileByName: => CompileResult): CompileResult = {
     lazy val doCompile = doCompileByName // exactly once
-    val key = (uss, useSerializedProcessor, compileAllTopLevels, optRootName, optRootNamespace)
     synchronized {
       // if the file is newer then when last compiled, drop from the cache.
       val optExistingEntry = compiledSchemaCache.get(key)
       if (optExistingEntry.isDefined) {
         val (originalUSS, _) = optExistingEntry.get // odd - when I did this using a match-case, I got a match error....
-        if (uss.isNewerThan(originalUSS)) compiledSchemaCache.remove(key)
+        if (key.uri.isNewerThan(originalUSS)) compiledSchemaCache.remove(key)
       }
     }
     val compResult: CompileResult = {
@@ -108,7 +122,7 @@ class SchemaCache[CachedType, DiagnosticType] {
           val dp: CompileResult = doCompile
           if (dp.isRight) {
             // populate cache with successful compile result
-            (uss, dp.right.get)
+            (key.uri, dp.right.get)
           } else {
             // prevent populating the cache
             throw new SchemaCompileFailed(dp)

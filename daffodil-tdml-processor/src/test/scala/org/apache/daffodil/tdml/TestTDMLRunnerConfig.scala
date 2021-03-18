@@ -203,7 +203,6 @@ class TestTDMLRunnerConfig {
       ts.runOneTest("test1")
     }
     val msg = e.getMessage()
-    println(msg)
     assertTrue(msg.contains("ambiguous"))
     assertTrue(msg.contains("testConfigFile.xml"))
   }

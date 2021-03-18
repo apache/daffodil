@@ -16,7 +16,7 @@
   limitations under the License.
 -->
 
-<testSuite suiteName="NameDOB"
+<tdml:testSuite suiteName="NameDOB"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
            xmlns:fn="http://www.w3.org/2005/xpath-functions"
            xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
@@ -223,4 +223,4 @@ jones,arya,cat,1986-02-19
     </tdml:errors>
   </tdml:parserTestCase>
 
-</testSuite>
+</tdml:testSuite>

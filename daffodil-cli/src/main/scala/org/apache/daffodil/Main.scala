@@ -28,7 +28,6 @@ import java.nio.channels.Channels
 import java.nio.file.Paths
 import java.util.Scanner
 import java.util.concurrent.Executors
-
 import com.typesafe.config.ConfigFactory
 
 import scala.concurrent.Await
@@ -37,9 +36,7 @@ import scala.concurrent.Future
 import scala.concurrent.duration.Duration
 import scala.xml.Node
 import scala.xml.SAXParseException
-
 import javax.xml.parsers.DocumentBuilderFactory
-import javax.xml.parsers.SAXParserFactory
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
@@ -55,7 +52,6 @@ import org.apache.daffodil.api.ValidationMode
 import org.apache.daffodil.api.WithDiagnostics
 import org.apache.daffodil.compiler.Compiler
 import org.apache.daffodil.compiler.InvalidParserException
-import org.apache.daffodil.configuration.ConfigurationLoader
 import org.apache.daffodil.debugger.CLIDebuggerRunner
 import org.apache.daffodil.debugger.InteractiveDebugger
 import org.apache.daffodil.debugger.TraceDebuggerRunner
@@ -98,6 +94,7 @@ import org.apache.daffodil.util.LoggingDefaults
 import org.apache.daffodil.util.Misc
 import org.apache.daffodil.util.Timer
 import org.apache.daffodil.validation.Validators
+import org.apache.daffodil.xml.DaffodilSAXParserFactory
 import org.apache.daffodil.xml.QName
 import org.apache.daffodil.xml.RefQName
 import org.apache.daffodil.xml.DaffodilXMLLoader
@@ -106,8 +103,10 @@ import org.rogach.scallop
 import org.rogach.scallop.ArgType
 import org.rogach.scallop.ScallopOption
 import org.rogach.scallop.ValueConverter
+import org.xml.sax.XMLReader
 
 import scala.util.matching.Regex
+import scala.xml.SAXParser
 
 class CommandLineSAXErrorHandler() extends org.xml.sax.ErrorHandler with Logging {
 
@@ -576,7 +575,7 @@ object Main extends Logging {
    */
   def loadConfigurationFile(file: File) = {
     val loader = new DaffodilXMLLoader()
-    val node = ConfigurationLoader.getConfiguration(loader, file.toURI)
+    val node = loader.load(URISchemaSource(file.toURI), Some(XMLUtils.dafextURI))
     node
   }
 
@@ -803,14 +802,27 @@ object Main extends Logging {
           case Left(bytes) => new ByteArrayInputStream(bytes)
           case Right(is) => is
         }
-        scala.xml.XML.load(is)
+        val parser: SAXParser = {
+          val f = DaffodilSAXParserFactory()
+          f.setNamespaceAware(false)
+          val p = f.newSAXParser()
+          p
+        }
+        scala.xml.XML.withSAXParser(parser).load(is)
       }
       case InfosetType.JDOM => {
         val is = data match {
           case Left(bytes) => new ByteArrayInputStream(bytes)
           case Right(is) => is
         }
-        new org.jdom2.input.SAXBuilder().build(is)
+        val builder = new org.jdom2.input.SAXBuilder() {
+          override protected def createParser(): XMLReader = {
+            val rdr = super.createParser()
+            XMLUtils.setSecureDefaults(rdr)
+            rdr
+          }
+        }
+        builder.build(is)
       }
       case InfosetType.W3CDOM => {
         val byteArr = data match {
@@ -821,6 +833,7 @@ object Main extends Logging {
           override def initialValue = {
             val dbf = DocumentBuilderFactory.newInstance()
             dbf.setNamespaceAware(true)
+            dbf.setFeature(XMLUtils.XML_DISALLOW_DOCTYPE_FEATURE, true)
             val db = dbf.newDocumentBuilder()
             db.parse(new ByteArrayInputStream(byteArr))
           }
@@ -1484,7 +1497,7 @@ object Main extends Logging {
   private def unparseWithSAX(
     is: InputStream,
     contentHandler: DFDL.DaffodilUnparseContentHandler): UnparseResult = {
-    val xmlReader = SAXParserFactory.newInstance.newSAXParser.getXMLReader
+    val xmlReader = DaffodilSAXParserFactory().newSAXParser.getXMLReader
     xmlReader.setContentHandler(contentHandler)
     xmlReader.setFeature(XMLUtils.SAX_NAMESPACES_FEATURE, true)
     xmlReader.setFeature(XMLUtils.SAX_NAMESPACE_PREFIXES_FEATURE, true)
