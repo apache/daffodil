@@ -71,7 +71,6 @@ if uname -a | grep -qi cygwin
 then
 	# if run from cygwin, convert unix paths to windows paths
 	CLASSPATH=$(cygpath -apw "$CLASSPATH")
-	JOPTS="$JOPTS -Djline.terminal=jline.UnixTerminal"
 fi
 
 exec java $JOPTS -cp "$CLASSPATH" "$MAINCLASS" "$@"

@@ -756,14 +756,14 @@ is subject to the terms and conditions of the following licenses.
     on the JDOM Project, please see <http://www.jdom.org/>. 
 
   This product bundles 'JLine', including the following files:
-    - lib/jline.jline-<VERSION>.jar
+    - lib/org.jline.jline-<VERSION>.jar
   These files are available under a BSD-3-Clause license. For details, see
-  https://github.com/jline/jline2/blob/master/LICENSE.txt
+  https://github.com/jline/jline3/blob/master/LICENSE.txt
 
-    Copyright (c) 2002-2016, the original author or authors.
+    Copyright (c) 2002-2018, the original author or authors.
     All rights reserved.
 
-    http://www.opensource.org/licenses/bsd-license.php
+    https://opensource.org/licenses/BSD-3-Clause
 
     Redistribution and use in source and binary forms, with or
     without modification, are permitted provided that the following
