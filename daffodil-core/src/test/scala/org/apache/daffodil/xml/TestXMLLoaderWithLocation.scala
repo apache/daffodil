@@ -37,7 +37,7 @@ class TestXMLLoaderWithLocation {
       }
       val res = URISchemaSource(new File(tmpXMLFileName).toURI)
       val eh = new BasicErrorHandler
-      val node = (new DaffodilXMLLoader(eh)).load(res)
+      val node = (new DaffodilXMLLoader(eh)).load(res, None, addPositionAttributes = true)
       assertTrue(node.toString.toLowerCase.contains("dafint:file"))
       assertFalse(eh.hasError)
       assertEquals(0, eh.diagnostics.length)
@@ -70,7 +70,8 @@ class TestXMLLoaderWithLocation {
       }
       val res = URISchemaSource(new File(tmpXMLFileName).toURI)
       val eh = new BasicErrorHandler
-      val node = (new DaffodilXMLLoader(eh)).load(res)
+      val node = (new DaffodilXMLLoader(eh)).load(res, Some(XMLUtils.schemaForDFDLSchemas),
+        addPositionAttributes = true)
       assertTrue(eh.hasError)
       val msgs = eh.diagnostics.map { _.getMessage() }.mkString("\n")
       assertTrue(msgs.contains(":illegal"))

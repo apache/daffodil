@@ -18,8 +18,6 @@
 package org.apache.daffodil.tdml
 
 import java.io.File
-import java.nio.charset.Charset
-
 import org.apache.daffodil.Implicits.using
 import org.apache.daffodil.xml.XMLUtils
 import org.junit.Assert.assertEquals
@@ -238,7 +236,7 @@ class TestTDMLRunner {
     val infoset = ptc.optExpectedOrInputInfoset.get
     val actual = infoset.contents
     val expected = <byte1>123</byte1>
-    assertEquals(expected, actual)
+    assertEquals(expected, XMLUtils.removeAttributes(actual))
   }
 
   @Test def testRunModelFile(): Unit = {
@@ -525,19 +523,16 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
     // This is going to write in the default charset.
     //
     val out = new java.io.ByteArrayOutputStream()
-    Console.withErr(out) {
-      r.runOneTest("tdmlNamespaces1")
+    val e = intercept[TDMLException] {
+      Console.withErr(out) {
+        r.runOneTest("tdmlNamespaces1")
+      }
     }
-    out.close()
-    //
-    // verify fix for DAFFODIL-2340
-    //
-    val msgs =
-      new String(out.toByteArray(),
-        Charset.defaultCharset()) // read back in default charset as well
-        .toLowerCase()
+    val msgs = e.getMessage()
+    // val msgs = out.toString
+    // println(msgs)
     assertTrue(msgs.contains("incorrect/path/on/purpose/tdml.xsd"))
-    assertTrue(msgs.contains("unable to resolve"))
+    assertTrue(msgs.contains("Cannot find the declaration of element 'testSuite'"))
   }
 
 

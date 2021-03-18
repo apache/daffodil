@@ -16,9 +16,10 @@
   limitations under the License.
 -->
 
-<testSuite suiteName="Namespaces"
+<tdml:testSuite suiteName="Namespaces"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:gpf="http://www.ibm.com/dfdl/GeneralPurposeFormat" 
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:gpf="http://www.ibm.com/dfdl/GeneralPurposeFormat"
   xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" 
   xmlns:xs="http://www.w3.org/2001/XMLSchema" 
   xmlns:a01="http://a01.com" xmlns:b01="http://b01.com"
@@ -66,4 +67,4 @@
   
   
  
-</testSuite>
+</tdml:testSuite>

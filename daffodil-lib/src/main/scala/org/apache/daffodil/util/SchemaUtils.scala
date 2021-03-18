@@ -19,7 +19,6 @@ package org.apache.daffodil.util
 
 import scala.xml._
 import org.apache.daffodil.xml._
-import org.apache.daffodil.Implicits._
 
 /*
  * This is not a file of tests.
@@ -60,7 +59,7 @@ object SchemaUtils {
         targetNamespace = tns,
         defaultNamespace = tns,
         elementFormDefault = elementFormDefault,
-        hasDefaultNamespace = hasDefaultNamespace)
+        useDefaultNamespace = hasDefaultNamespace)
     sch
   }
 
@@ -83,7 +82,7 @@ object SchemaUtils {
     targetNamespace: NS = XMLUtils.targetNS,
     defaultNamespace: NS = XMLUtils.targetNS,
     elementFormDefault: String = "qualified",
-    hasDefaultNamespace: Boolean = true): Elem = {
+    useDefaultNamespace: Boolean = true): Elem = {
     val fileAttrib =
       if (fileName == "") Null
       else Attribute(XMLUtils.INT_PREFIX, "file", Text(fileName), Null)
@@ -97,7 +96,7 @@ object SchemaUtils {
         <ignore xmlns:xsd={ xsdURI } xmlns:dfdl={ dfdlURI } xmlns:xsi={ xsiURI } xmlns:fn={ fnURI } xmlns:math={ mathURI } xmlns:dafint={ dafintURI }/>.scope
       }
     scope = XMLUtils.combineScopes("xs", XMLUtils.xsdURI, scope) // always need this one
-    if (hasDefaultNamespace) {
+    if (useDefaultNamespace) {
       scope = XMLUtils.combineScopes(null, defaultNamespace, scope)
     }
     scope = XMLUtils.combineScopes("tns", targetNamespace, scope)

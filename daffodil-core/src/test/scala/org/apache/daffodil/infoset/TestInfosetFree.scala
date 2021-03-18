@@ -58,7 +58,6 @@ object TestInfosetFree {
       val msgs = pf.getDiagnostics.map { _.getMessage() }.mkString("\n")
       fail("pf compile errors: " + msgs)
     }
-    pf.sset.root.erd.preSerialization // force evaluation of all compile-time constructs
     val dp = pf.onPath("/")
     if (dp.isError) {
       val msgs = dp.getDiagnostics.map { _.getMessage() }.mkString("\n")

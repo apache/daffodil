@@ -19,7 +19,6 @@ package org.apache.daffodil.infoset
 
 import org.apache.daffodil.xml.XMLUtils
 import org.apache.daffodil.util._
-import org.apache.daffodil.Implicits._
 import org.apache.daffodil.compiler._
 import org.junit.Assert._
 import org.junit.Test
@@ -90,7 +89,6 @@ object TestInfoset {
       val msgs = pf.getDiagnostics.map { _.getMessage() }.mkString("\n")
       fail("pf compile errors: " + msgs)
     }
-    pf.sset.root.erd.preSerialization // force evaluation of all compile-time constructs
     val dp = pf.onPath("/").asInstanceOf[DataProcessor]
     if (dp.isError) {
       val msgs = dp.getDiagnostics.map { _.getMessage() }.mkString("\n")

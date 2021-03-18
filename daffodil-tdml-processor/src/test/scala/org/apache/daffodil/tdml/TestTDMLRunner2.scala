@@ -387,7 +387,7 @@ abc # a comment
 abc # a comment
 # a line with only a comment
 123 # another comment
-"""
+""".replaceAll("\r\n", "\n")
     val cdata = new scala.xml.PCData(cdataText)
     val testSuite =
       <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi }>

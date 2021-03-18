@@ -20,14 +20,14 @@ package org.apache.daffodil.cookers
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 import org.apache.daffodil.exceptions.Assert
-import java.lang.Byte
 import org.apache.daffodil.equality._
 import org.apache.daffodil.exceptions.ThrowsSDE
 import org.apache.daffodil.util.Misc
 import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.xml.XMLUtils
+
 import scala.collection.mutable.ListBuffer
-import scala.util.matching.Regex
-import java.lang.{ Character => JChar }
+import java.lang.{Character => JChar, Byte => JByte}
 
 class EntitySyntaxException(msg: String) extends Exception(msg)
 
@@ -185,8 +185,8 @@ final class EntityReplacer {
       if (m.find()) {
         val rawStr = m.group().toString()
         val trimmedStr = rawStr.replace(prefix, "").replace(";", "")
-        val upperNibble: Int = Byte.parseByte(trimmedStr.substring(0, 1), 16) << 4
-        val lowerNibble: Byte = Byte.parseByte(trimmedStr.substring(1, 2), 16)
+        val upperNibble: Int = JByte.parseByte(trimmedStr.substring(0, 1), 16) << 4
+        val lowerNibble: Byte = JByte.parseByte(trimmedStr.substring(1, 2), 16)
         val byteStr: Int = upperNibble | lowerNibble
 
         res = res.replaceAll(rawStr, byteStr.toChar.toString)
@@ -493,24 +493,10 @@ sealed abstract class StringLiteralBase(propNameArg: String,
   extends AutoPropNameBase(propNameArg)
     with StringLiteralCookerMixin {
 
-  private val xmlEntityPattern = new Regex("""&(quot|amp|apos|lt|gt);""", "entity")
-
   /**
    * Thawed means XML entities have been replaced. So &amp; is &, etc.
    */
-  private def thaw(raw: String) = {
-    val thawed: String = {
-      val res = xmlEntityPattern.replaceAllIn(raw, m => {
-        val sb = scala.xml.Utility.unescape(m.group("entity"), new StringBuilder())
-        // There really is no possibility for null to come back as we've made
-        // sure to only include valid xml entities in the xmlEntityPattern.
-        Assert.invariant(sb ne null)
-        sb.toString()
-      })
-      res
-    }
-    thawed
-  }
+  private def thaw(raw: String) = XMLUtils.unescape(raw)
 
   private val whitespaceMatcher = """.*(\s+).*""".r
 

@@ -25,6 +25,13 @@ import org.apache.daffodil.processors.DataProcessor
 import org.apache.daffodil.util.Misc
 import org.apache.daffodil.util.SchemaUtils
 import org.apache.daffodil.processors.unparsers.UnparseError
+import org.apache.daffodil.xml.XMLUtils
+import org.jdom2.input.JDOMParseException
+import org.junit.Assert.assertEquals
+import org.xml.sax.XMLReader
+
+import javax.xml.stream.XMLInputFactory
+import javax.xml.stream.XMLStreamConstants
 
 class TestInfosetInputter1 {
 
@@ -94,5 +101,127 @@ class TestInfosetInputter1 {
     val msg = Misc.getSomeMessage(exc).get
     assertTrue(msg.contains("Illegal content")) // content not allowed in prolog.
     assertTrue(msg.contains("Invalid UTF-8 character"))
+  }
+
+  private val rootFoo = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
+      <xs:element name="root">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="foo" type="xs:string" dfdl:lengthKind="delimited"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>)
+
+  /**
+   * This test characterizes the behavior of the Woodstox XML library with respect to
+   * DOCTYPE declarations (aka DTDs), and shows that the XMLTextInfosetInputter
+   * detects and disallows them.
+   */
+  @Test def testXMLTextInfosetInputterDisallowsDocType(): Unit = {
+
+    //
+    // First we show that woodstox can read with a DTD present.
+    // This will end with an error about the DTD, showing that Woodstox is
+    // recognizing and processing the DTD.
+    //
+    var is = Misc.getRequiredResource("test/xmlDocWithBadDTD.xml").toURL.openStream()
+    var fact = new com.ctc.wstx.stax.WstxInputFactory()
+    fact.setProperty(XMLInputFactory.IS_COALESCING, true)
+    fact.setEventAllocator(com.ctc.wstx.evt.DefaultEventAllocator.getDefaultInstance)
+
+    // Woodstox has it's own properties for controlling DTDs
+    // Allow DTD here, so we have a positive example of woodstock allowing
+    // them, so we can contrast to when we disable them later.
+    //
+    fact.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, true)
+    fact.setProperty(XMLInputFactory.SUPPORT_DTD, true)
+    fact.setProperty(XMLInputFactory.IS_VALIDATING, true) // validate with DTD
+
+    var rdr = fact.createXMLStreamReader(is)
+    assertTrue(rdr.hasNext)
+    var ev = rdr.next()
+    assertEquals(XMLStreamConstants.COMMENT, ev)
+    ev = rdr.next()
+    assertEquals(XMLStreamConstants.COMMENT, ev)
+    ev = rdr.next()
+    assertEquals(XMLStreamConstants.DTD, ev)
+    val woodstoxErr = intercept[com.ctc.wstx.exc.WstxParsingException] {
+      rdr.next()
+    }
+    val woodstoxMsg = woodstoxErr.getMessage()
+    // This proves woodstox was trying to process the DTD.
+    assertTrue(woodstoxMsg.contains("notFound.dtd"))
+
+    //
+    // Now we show how to configure Woostox so the same
+    // Document with DTD is rejected.
+    //
+    // Our first try, expecting Woodstox to throw an error itself, doesn't
+    // work. Woodstock can ignore the DTD, but still traverses it
+    // creating a DTD StAX event.
+    //
+    fact = new com.ctc.wstx.stax.WstxInputFactory()
+    fact.setProperty(XMLInputFactory.IS_COALESCING, true)
+    fact.setEventAllocator(com.ctc.wstx.evt.DefaultEventAllocator.getDefaultInstance)
+
+    // Woodstox has it's own properties for turning off DTDs to provide
+    // secure XML processing.
+    fact.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false)
+    fact.setProperty(XMLInputFactory.SUPPORT_DTD, false)
+    fact.setProperty(XMLInputFactory.IS_VALIDATING, false)
+
+    is = Misc.getRequiredResource("test/xmlDocWithBadDTD.xml").toURL.openStream()
+    rdr = fact.createXMLStreamReader(is)
+    assertTrue(rdr.hasNext)
+    ev = rdr.next()
+    assertEquals(XMLStreamConstants.COMMENT, ev)
+    ev = rdr.next()
+    assertEquals(XMLStreamConstants.COMMENT, ev)
+    ev = rdr.next()
+    assertEquals(XMLStreamConstants.DTD, ev) // Aha. It still allows the DTD.
+    // This DTD is bad, so if it was being processed, we would fail here.
+    ev = rdr.next()
+    // but we don't fail, we skip past it and encounter the root element
+    // following.
+    assertEquals(XMLStreamConstants.START_ELEMENT, ev)
+    assertEquals("root", rdr.getLocalName)
+    //
+    // That above shows that regardless of turning off DTDs, we're still
+    // tolerating them, and have to explicitly detect them in the
+    // XMLTextInfosetInputter
+    //
+    // So here we show that the XMLTextInfosetInputter is explicitly
+    // detecting the DTD event, and issuing a diagnostic message
+    // specifically about DTD/DOCTYPE not being supported.
+    //
+
+    is = Misc.getRequiredResource("test/xmlDocWithBadDTD.xml").toURL.openStream()
+    val ic = infosetInputter(rootFoo, is)
+    val exc = intercept[UnparseError] {
+     ic.advance
+    }
+    val msg = Misc.getSomeMessage(exc).get
+    assertTrue(msg.contains("Illegal content"))
+    assertTrue(msg.contains("DOCTYPE"))
+  }
+
+  @Test
+  def test_JDOMDisallowsDocType(): Unit = {
+
+    val is = Misc.getRequiredResource("test/xmlDocWithBadDTD.xml").toURL.openStream()
+    val builder = new org.jdom2.input.SAXBuilder() {
+      override protected def createParser(): XMLReader = {
+        val rdr = super.createParser()
+        XMLUtils.setSecureDefaults(rdr)
+        rdr
+      }
+    }
+    val exc = intercept[JDOMParseException] {
+      builder.build(is)
+    }
+    val msg = Misc.getSomeMessage(exc).get
+    assertTrue(msg.contains("DOCTYPE is disallowed"))
   }
 }

@@ -21,13 +21,11 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardOpenOption
-
 import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuilder
 import scala.xml.NamespaceBinding
 import scala.xml._
-
 import org.apache.commons.io.IOUtils
 import org.apache.daffodil.calendar.DFDLDateConversion
 import org.apache.daffodil.calendar.DFDLDateTimeConversion
@@ -36,6 +34,10 @@ import org.apache.daffodil.exceptions._
 import org.apache.daffodil.schema.annotation.props.LookupLocation
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Misc
+import org.xml.sax.XMLReader
+
+import javax.xml.XMLConstants
+import scala.util.matching.Regex
 
 /**
  * Utilities for handling XML
@@ -43,6 +45,14 @@ import org.apache.daffodil.util.Misc
 
 object XMLUtils {
 
+  lazy val schemaForDFDLSchemas =
+    Misc.getRequiredResource("org/apache/daffodil/xsd/XMLSchema_for_DFDL.xsd")
+
+  lazy val dafextURI =
+    Misc.getRequiredResource("org/apache/daffodil/xsd/dafext.xsd")
+
+  lazy val tdmlURI =
+    Misc.getRequiredResource("org/apache/daffodil/xsd/tdml.xsd")
   /**
    * We must have xsi prefix bound to the right namespace.
    * That gets enforced elsewhere.
@@ -59,7 +69,9 @@ object XMLUtils {
    * Note that this function is curried. You first close over the parameters of the algorithm
    * to obtain a function that converts individual characters.
    */
-  def remapXMLIllegalCharToPUA(checkForExistingPUA: Boolean = true, replaceCRWithLF: Boolean = true)(c: Char): Char = {
+  def remapXMLIllegalCharToPUA(
+    checkForExistingPUA: Boolean = true,
+    replaceCRWithLF: Boolean = true)(c: Char): Char = {
     val cInt = c.toInt
     val res = cInt match {
       case 0x9 => c
@@ -87,6 +99,8 @@ object XMLUtils {
 
   /**
    * Scans the string looking for XML-illegal characters. True if any are found.
+   *
+   * Note that this considers CR (0x0d) to be a character that requires remapping.
    */
   def needsXMLToPUARemapping(s: String): Boolean = {
     var i = 0
@@ -450,6 +464,40 @@ object XMLUtils {
   val SAX_NAMESPACES_FEATURE = "http://xml.org/sax/features/namespaces"
   val SAX_NAMESPACE_PREFIXES_FEATURE = "http://xml.org/sax/features/namespace-prefixes"
 
+  /**
+   * Always enable this feature (which disables doctypes).
+   */
+  val XML_DISALLOW_DOCTYPE_FEATURE = "http://apache.org/xml/features/disallow-doctype-decl"
+
+  /**
+   * Always disable this. Might not be necessary if doctypes are disallowed.
+   */
+  val XML_EXTERNAL_PARAMETER_ENTITIES_FEATURE = "http://xml.org/sax/features/external-parameter-entities"
+
+  /**
+   * Always disable this. Might not be necessary if doctypes are disallowed.
+   */
+  val XML_EXTERNAL_GENERAL_ENTITIES_FEATURE = "http://xml.org/sax/features/external-general-entities"
+
+  /**
+   * Always disable this. Might not be necessary if doctypes are disallowed.
+   */
+  val XML_LOAD_EXTERNAL_DTD_FEATURE = "http://apache.org/xml/features/nonvalidating/load-external-dtd"
+
+  /**
+   * Sets properties that disable insecure XML reader behaviors.
+   * @param xmlReader - the reader to change feature settings on.
+   */
+  def setSecureDefaults(xmlReader: XMLReader) : Unit = {
+    xmlReader.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true)
+    //
+    // We don't actually know what FEATURE_SECURE_PROCESSING disables
+    // So we also set these individually to their secure settings.
+    //
+    xmlReader.setFeature(XMLUtils.XML_DISALLOW_DOCTYPE_FEATURE, true)
+    xmlReader.setFeature(XMLUtils.XML_EXTERNAL_PARAMETER_ENTITIES_FEATURE, false)
+    xmlReader.setFeature(XMLUtils.XML_EXTERNAL_GENERAL_ENTITIES_FEATURE, false)
+  }
 
   val FILE_ATTRIBUTE_NAME = "file"
   val LINE_ATTRIBUTE_NAME = "line"
@@ -1147,14 +1195,7 @@ Differences were (path, expected, actual):
    * reasons (line numbers for errors)
    */
   def convertNodeToTempFile(xml: Node, tmpDir: File, nameHint: String = "daffodil_tmp_") = {
-    // Create temp file
-    // note that the prefix has a minimum length of 3.
-    val prefix = nameHint.length match {
-      case 0 => "daffodil_tmp_"
-      case 1 => nameHint + "__"
-      case 2 => nameHint + "_"
-      case _ => nameHint
-    }
+    val prefix = prefixFromHint(nameHint)
     val tmpSchemaFile = File.createTempFile(prefix, ".dfdl.xsd", tmpDir)
     // Delete temp file when program exits
     tmpSchemaFile.deleteOnExit
@@ -1171,19 +1212,28 @@ Differences were (path, expected, actual):
     tmpSchemaFile
   }
 
-  def convertInputStreamToTempFile(
-    is: java.io.InputStream,
-    tmpDir: File,
-    nameHint: String,
-    suffix: String) = {
-    // Create temp file
-    // note that the prefix has a minimum length of 3.
-    val prefix = nameHint.length match {
+  /**
+   * Create a suitable prefix for a temp file name.
+   *
+   * @param nameHint a string incorporated into the prefix
+   * @return the prefix string which has minimum length 3.
+   */
+  private def prefixFromHint(nameHint: String) = {
+
+    nameHint.length match {
       case 0 => "daffodil_tmp_"
       case 1 => nameHint + "__"
       case 2 => nameHint + "_"
       case _ => nameHint
     }
+  }
+
+  def convertInputStreamToTempFile(
+    is: java.io.InputStream,
+    tmpDir: File,
+    nameHint: String,
+    suffix: String) = {
+    val prefix = prefixFromHint(nameHint)
     val tmpSchemaFile = File.createTempFile(prefix, suffix, tmpDir)
     // Delete temp file when program exits
     tmpSchemaFile.deleteOnExit
@@ -1205,7 +1255,7 @@ Differences were (path, expected, actual):
    * might contain single quotes.
    *
    * The reason basic scala.xml.Utility.escape doesn't escape single-quotes is
-   * HTML compatibility. HTML doesn't define an "&apos;" entity.
+   * HTML compatibility. HTML doesn't define an "&amp;apos;" entity.
    *
    * Furthermore, since some potentially illegal XML characters may be used here, we
    * are going to remap all the illegal XML characters to their corresponding PUA characters.
@@ -1217,8 +1267,11 @@ Differences were (path, expected, actual):
    * The result is a string which can be displayed as an XML attribute value, is
    * invertible back to the original string.
    *
-   * Finally, CRLF and CR will come through as &#xE00D;&#xA; that's because
-   * if we used &#xD; for the CR, it might be converted to a LF by XML readers.
+   * Finally, CRLF will come through as "&amp;#xE00D;&amp;#xA;", and isolated CR
+   * will come through as "&amp;#xE00D;". That's because
+   * if we used "&amp;#xD;" for the CR, it might be converted to a LF by XML readers.
+   * Not all XML readers/loaders do this, but it is described as standard behavior
+   * in the XML specification.
    * We have to use our own PUA remapping trick if we want to be sure to preserve
    * CR in XML.
    */
@@ -1258,6 +1311,25 @@ Differences were (path, expected, actual):
     sb.append("&#x")
     sb.append(s)
     sb.append(";")
+  }
+
+  private val xmlEntityPattern = new Regex("""&(quot|amp|apos|lt|gt);""", "entity")
+
+  /**
+   * Remove XML escapes like &amp; and &gt; &lt; from a string.
+   */
+   def unescape(raw: String) = {
+    val withoutNamedXMLCharEntities: String = {
+      val res = xmlEntityPattern.replaceAllIn(raw, m => {
+        val sb = scala.xml.Utility.unescape(m.group("entity"), new StringBuilder())
+        // There really is no possibility for null to come back as we've made
+        // sure to only include valid xml entities in the xmlEntityPattern.
+        Assert.invariant(sb ne null)
+        sb.toString()
+      })
+      res
+    }
+    withoutNamedXMLCharEntities
   }
 
   /**

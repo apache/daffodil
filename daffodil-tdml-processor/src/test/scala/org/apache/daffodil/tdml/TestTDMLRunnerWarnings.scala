@@ -92,9 +92,7 @@ class TestTDMLRunnerWarnings {
       ts.runOneTest("warningWhenExpectingSuccess")
     }
     val msg = e.getMessage()
-    System.err.println(msg)
     if (!msg.contains("This will not be found")) {
-      println(msg)
       fail("TDML Warnings were not checked")
     }
   }
@@ -141,9 +139,7 @@ class TestTDMLRunnerWarnings {
       ts.runOneTest("warningWhenExpectingError")
     }
     val msg = e.getMessage()
-    System.err.println(msg)
     if (!msg.contains("This will not be found")) {
-      println(msg)
       fail("TDML Warnings were not checked")
     }
   }
@@ -188,9 +184,7 @@ class TestTDMLRunnerWarnings {
       ts.runOneTest("unparserWarningWhenExpectingSuccess")
     }
     val msg = e.getMessage()
-    System.err.println(msg)
     if (!msg.contains("This will not be found")) {
-      println(msg)
       fail("TDML Warnings were not checked")
     }
   }
@@ -241,9 +235,7 @@ class TestTDMLRunnerWarnings {
       ts.runOneTest("unparserWarningWhenExpectingError")
     }
     val msg = e.getMessage()
-    System.err.println(msg)
     if (!msg.contains("This will not be found")) {
-      println(msg)
       fail("TDML Warnings were not checked")
     }
   }

@@ -28,7 +28,6 @@ import java.nio.CharBuffer
 import java.nio.LongBuffer
 import java.nio.charset.CoderResult
 import java.nio.charset.{Charset => JavaCharset}
-
 import scala.language.postfixOps
 import scala.util.Try
 import scala.xml.Elem
@@ -37,7 +36,6 @@ import scala.xml.NodeSeq
 import scala.xml.NodeSeq.seqToNodeSeq
 import scala.xml.SAXParseException
 import scala.xml.transform._
-
 import org.apache.commons.io.IOUtils
 import org.apache.daffodil.api.DaffodilSchemaSource
 import org.apache.daffodil.api.DaffodilTunables
@@ -47,7 +45,6 @@ import org.apache.daffodil.api.EmbeddedSchemaSource
 import org.apache.daffodil.api.URISchemaSource
 import org.apache.daffodil.api.UnitTestSchemaSource
 import org.apache.daffodil.api.ValidationMode
-import org.apache.daffodil.configuration.ConfigurationLoader
 import org.apache.daffodil.cookers.EntityReplacer
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.exceptions.UnsuppressableException
@@ -81,6 +78,8 @@ import org.apache.daffodil.util.Misc.hex2Bits
 import org.apache.daffodil.util.SchemaUtils
 import org.apache.daffodil.xml.DaffodilXMLLoader
 import org.apache.daffodil.xml.XMLUtils
+
+import scala.collection.mutable
 
 /**
  * Parses and runs tests expressed in IBM's contributed tdml "Test Data Markup Language"
@@ -138,12 +137,6 @@ private[tdml] object DFDLTestSuite {
 
 }
 
-//
-// TODO: validate the infoset XML (expected result) against the DFDL Schema, that is using it as an XML Schema
-// for the infoset. This would prevent errors where the infoset instance and the schema drift apart under maintenance.
-//
-// TODO: validate the actual result against the DFDL Schema using it as an XML Schema.
-//
 /**
  * TDML test suite runner
  *
@@ -177,7 +170,9 @@ private[tdml] object DFDLTestSuite {
  */
 
 class DFDLTestSuite private[tdml] (
-  val __nl: Null, // this extra arg allows us to make this primary constructor package private so we can deprecate the one generally used.
+  // this extra arg allows us to make this primary constructor
+  // package private so we can deprecate the one generally used.
+  val __nl: Null,
   aNodeFileOrURL: Any,
   validateTDMLFile: Boolean,
   val validateDFDLSchemas: Boolean,
@@ -212,6 +207,10 @@ class DFDLTestSuite private[tdml] (
       shouldDoErrorComparisonOnCrossTests,
       shouldDoWarningComparisonOnCrossTests)
 
+  /*
+  These checks happen at object construction time.
+  They are just checks on the constructor arguments.
+   */
   if (!aNodeFileOrURL.isInstanceOf[scala.xml.Node])
     System.err.println("Creating DFDL Test Suite for " + aNodeFileOrURL)
   val TMP_DIR = System.getProperty("java.io.tmpdir", ".")
@@ -223,14 +222,34 @@ class DFDLTestSuite private[tdml] (
     case x => Assert.usageError("argument was not a scala.xmlNode, File, or URI: " + x)
   }
 
-  val errorHandler = new org.xml.sax.ErrorHandler {
+  /*
+  This class and related use almost all lazy evaluation.
+
+  The style here is to avoid doing anything complex with the TDML file
+  at object construction time
+  because the parsing and verification of the TDML file is a very complex
+  endeavor best decomposed into lazy val and methods of this class.
+
+  This means errors mostly occur after the object is constructed, which
+  allows for things like accumulating diagnostics on this object.
+
+  This style also allows unit tests to test parts of the TDML
+  system in isolation from each other.
+
+  We also depend on laziness because often we run just one test from a
+  large TDML file containing many test cases. We do have to construct
+  the test cases to find the one test case to run, but we are lazy about
+  computing the details of the test case objects so we only incur the
+  overhead of creating the one we're running.
+   */
+
+  lazy val errorHandler = new org.xml.sax.ErrorHandler {
     def warning(exception: SAXParseException) = {
-      loadingExceptions = exception :: loadingExceptions
+      loadingExceptions += exception
     }
 
     def error(exception: SAXParseException) = {
-      loadingExceptions = exception :: loadingExceptions
-      isLoadingError = true
+      loadingExceptions += exception
     }
 
     def fatalError(exception: SAXParseException) = {
@@ -238,9 +257,7 @@ class DFDLTestSuite private[tdml] (
     }
   }
 
-  var isLoadingError: Boolean = false
-
-  var loadingExceptions: List[Exception] = Nil
+  val loadingExceptions: mutable.Set[Exception] = mutable.Set.empty
 
   def loadingDiagnosticMessages: String = {
     val msgs = loadingExceptions.map { _.toString() }.mkString(" ")
@@ -251,10 +268,16 @@ class DFDLTestSuite private[tdml] (
    * our loader here accumulates load-time errors here on the
    * test suite object.
    */
-  val loader = new DaffodilXMLLoader(errorHandler)
-  loader.setValidation(validateTDMLFile)
+  lazy val loader = new DaffodilXMLLoader(errorHandler)
+  lazy val optTDMLSchema =
+    if (validateTDMLFile) {
+      Some(XMLUtils.tdmlURI)
+    } else {
+      None
+    }
 
-  val (ts, tsURI) = aNodeFileOrURL match {
+
+  lazy val (tsRaw, tsURI) = aNodeFileOrURL match {
     case tsNode: Node => {
       //
       // We were passed a literal schema node. This is for unit testing
@@ -264,27 +287,48 @@ class DFDLTestSuite private[tdml] (
       tmpDir.mkdirs()
 
       val src = UnitTestSchemaSource(tsNode, "", Some(tmpDir))
-      loader.load(src)
+
+      loader.load(src, optTDMLSchema,
+        addPositionAttributes = true) // want line numbers for TDML
       //
       (tsNode, src.uriForLoading)
     }
     case tdmlFile: File => {
       log(LogLevel.Info, "loading TDML file: %s", tdmlFile)
       val uri = tdmlFile.toURI()
-      val newNode = loader.load(URISchemaSource(uri))
+      val newNode = loader.load(URISchemaSource(uri), optTDMLSchema,
+        addPositionAttributes = true)
       val res = (newNode, uri)
       log(LogLevel.Debug, "done loading TDML file: %s", tdmlFile)
       res
     }
     case uri: URI => {
-      val newNode = loader.load(URISchemaSource(uri))
+      val newNode = loader.load(URISchemaSource(uri), optTDMLSchema,
+        addPositionAttributes = true)
       val res = (newNode, uri)
       res
     }
     case _ => Assert.usageError("not a Node, File, or URL")
   } // end match
 
-  lazy val isTDMLFileValid = !this.isLoadingError
+  lazy val ts = {
+    if (tsRaw eq null) {
+      // must have been a loader error
+      reportLoadingErrors()
+    } else {
+      tsRaw
+    }
+  }
+
+  lazy val isTDMLFileValid = {
+    (ts ne null) &&
+    loadingExceptions.isEmpty
+  }
+
+  def reportLoadingErrors(): Nothing = {
+    log(LogLevel.Error, "TDML file %s is not valid.", tsURI)
+    throw TDMLException(loadingExceptions.toSeq, None)
+  }
 
   var checkAllTopLevel: Boolean = compileAllTopLevel
 
@@ -292,38 +336,45 @@ class DFDLTestSuite private[tdml] (
     checkAllTopLevel = flag
   }
 
-  val parserTestCases = (ts \ "parserTestCase").map { node => ParserTestCase(node, this) }
+  lazy val parserTestCases = (ts \ "parserTestCase").map { node => ParserTestCase(node, this) }
   //
   // Note: IBM started this TDML file format. They call an unparser test a "serializer" test.
   // We call it an UnparserTestCase
   //
-  val unparserTestCases = (ts \ "unparserTestCase").map { node => UnparserTestCase(node, this) }
-  val testCases: Seq[TestCase] = parserTestCases ++ unparserTestCases
-  val duplicateTestCases = testCases.groupBy {
-    _.tcName
-  }.filter { case (name, seq) => seq.length > 1 }
-  if (duplicateTestCases.nonEmpty) {
-    val listOfDups = duplicateTestCases.map{ case(name, _) => name}
-    throw new TDMLExceptionImpl(
-      "More than one test for names: " + listOfDups.mkString(","), None)
+  lazy val unparserTestCases = (ts \ "unparserTestCase").map { node => UnparserTestCase(node, this) }
+  lazy val testCases = {
+    val tcs: Seq[TestCase] = parserTestCases ++ unparserTestCases
+    val dups = tcs.groupBy {
+      _.tcName
+    }.filter { case (name, seq) => seq.length > 1 }
+    if (dups.nonEmpty) {
+      val listOfDups = dups.map{ case(name, _) => name}
+      val tdml =
+         if (aNodeFileOrURL.isInstanceOf[Node]) ""
+         else " for TDML " + aNodeFileOrURL.toString
+      throw new TDMLExceptionImpl(
+        "More than one test for names: " + listOfDups.mkString(",") + tdml, None)
+    }
+    tcs
   }
-  val testCaseMap = testCases.map { tc => (tc.tcName -> tc) }.toMap
-  val suiteName = (ts \ "@suiteName").text
-  val suiteID = (ts \ "@ID").text
-  val description = (ts \ "@description").text
-  val defaultRoundTrip = {
+
+  lazy val testCaseMap = testCases.map { tc => (tc.tcName -> tc) }.toMap
+  lazy val suiteName = (ts \ "@suiteName").text
+  lazy val suiteID = (ts \ "@ID").text
+  lazy val description = (ts \ "@description").text
+  lazy val defaultRoundTrip = {
     val str = (ts \ "@defaultRoundTrip").text
     if (str == "") defaultRoundTripDefault else DFDLTestSuite.standardizeRoundTrip(str)
   }
-  val defaultValidation = {
+  lazy val defaultValidation = {
     val str = (ts \ "@defaultValidation").text
     if (str == "") defaultValidationDefault else str
   }
-  val defaultConfig = {
+  lazy val defaultConfig = {
     val str = (ts \ "@defaultConfig").text
     str
   }
-  val defaultImplementations = {
+  lazy val defaultImplementations = {
     val str = (ts \ "@defaultImplementations").text
     if (str == "") defaultImplementationsDefault
     else {
@@ -332,10 +383,10 @@ class DFDLTestSuite private[tdml] (
     }
   }
 
-  val embeddedSchemasRaw = (ts \ "defineSchema").map { node => DefinedSchema(node, this) }
-  val embeddedConfigs = (ts \ "defineConfig").map { node => DefinedConfig(node, this) }
+  lazy val embeddedSchemasRaw = (ts \ "defineSchema").map { node => DefinedSchema(node, this) }
+  lazy val embeddedConfigs = (ts \ "defineConfig").map { node => DefinedConfig(node, this) }
 
-  val embeddedSchemas = {
+  lazy val embeddedSchemas = {
     val embeddedSchemaGroups = embeddedSchemasRaw.groupBy { _.name }
     embeddedSchemaGroups.foreach {
       case (name, Seq(sch)) => // ok
@@ -376,9 +427,14 @@ class DFDLTestSuite private[tdml] (
       System.gc()
       Thread.sleep(1) // needed to give tools like jvisualvm ability to "grab on" quickly
     }
+    val testCase = testCaseMap.get(testName) // causes loading
     if (isTDMLFileValid) {
-      loadingExceptions.foreach { le =>  log(LogLevel.Warning, le.toString) }
-      val testCase = testCaseMap.get(testName)
+      // TODO: DAFFODIL-2410
+      // display warnings if there are any
+      // Note: this simple approach is just too verbose.
+      // We need a better approach that doesn't repeat these endlessly for every
+      // test in a suite.
+      // loadingExceptions.foreach { le =>  log(LogLevel.Warning, le.toString) }
       testCase match {
         case None => throw TDMLException("test " + testName + " was not found.", None)
         case Some(tc) => {
@@ -386,9 +442,7 @@ class DFDLTestSuite private[tdml] (
         }
       }
     } else {
-      log(LogLevel.Error, "TDML file %s is not valid.", tsURI)
-      val msgs = this.loadingExceptions.map { _.toString }.mkString("\n")
-      throw TDMLException(msgs, None)
+      reportLoadingErrors()
     }
   }
 
@@ -446,7 +500,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
     if (tcImplementations == "") defaultImplementations
     else tcImplementations.split("""\s+""").toSeq
 
-  protected def toss(t: Throwable, implString: Option[String]) = {
+  def toss(t: Throwable, implString: Option[String]) = {
     t match {
       case e: TDMLException => throw e
       case e: UnsuppressableException => throw e
@@ -536,7 +590,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
   def getRootNamespaceString(schemaArg : Option[Node]) = {
     if (optExpectedOrInputInfoset.isDefined)
       infosetRootNamespaceString
-    else if (embeddedSchema.isDefined)
+    else if (optEmbeddedSchema.isDefined)
       XMLUtils.EXAMPLE_NAMESPACE.toString
     else if (this.rootNSAttrib != "")
       rootNSAttrib
@@ -550,9 +604,10 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
       // the test case has to have an explicit rootNS attribute.
       val schemaNode = schemaArg.getOrElse {
         val schemaSource = getSuppliedSchema(None)
-        val source = schemaSource.newInputSource()
+
         val node = try{
-          scala.xml.XML.load(source)
+          parent.loader.load(schemaSource, Some(XMLUtils.schemaForDFDLSchemas),
+            addPositionAttributes = true) // want line numbers for schemas
         } catch {
           // any exception while loading then we just use a dummy node.
           case e:SAXParseException => <dummy/>
@@ -635,11 +690,23 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
     combined
   }
 
-  lazy val embeddedSchema = parent.findEmbeddedSchema(model)
+  lazy val optEmbeddedSchema = parent.findEmbeddedSchema(model).map{ defSchema =>
+    // The file, line, and column attributes we add for tracking purposes
+    // cause issues with the IBM DFDL processor as it doesn't allow
+    // attributes that it doesn't understand, so we must remove them */
+    if (isCrossTest(this.tdmlDFDLProcessorFactory.implementationName)) {
+      EmbeddedSchemaSource(stripLineColInfo(defSchema.xml), defSchema.name)
+    } else {
+      defSchema.schemaSource
+    }
+  }
+
+  lazy val optSchemaFileURI =
+    if (model == "") None
+    else parent.findSchemaFileName(model)
 
   def getSuppliedSchema(schemaArg: Option[Node]): DaffodilSchemaSource = {
-    val schemaURI = parent.findSchemaFileName(model)
-    val suppliedSchema = (schemaArg, embeddedSchema, schemaURI) match {
+    val suppliedSchema = (schemaArg, optEmbeddedSchema, optSchemaFileURI) match {
       case (None, None, None) => throw TDMLException("Model '" + model + "' was not passed, found embedded in the TDML file, nor as a schema file.", None)
       case (None, Some(_), Some(_)) => throw TDMLException("Model '" + model + "' is ambiguous. There is an embedded model with that name, AND a file with that name.", None)
       case (Some(node), _, _) => {
@@ -649,21 +716,9 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
         // so error messages will end up being about some temp file.
         UnitTestSchemaSource(node, tcName)
       }
-      case (None, Some(defSchema), None) => {
+      case (None, Some(embeddedSchemaSource), None) => {
         Assert.invariant(model != "") // validation of the TDML should prevent this
-
-        /* The file, line, and column attributes we add for tracking purposes
-         * cause issues with the IBM DFDL processor as it doesn't allow
-         * attributes that it doesn't understand, so we must remove them */
-        val processedSchema = {
-          if (isCrossTest(this.tdmlDFDLProcessorFactory.implementationName)) {
-            stripLineColInfo(defSchema.xsdSchema)
-          } else {
-            defSchema.xsdSchema
-          }
-        }
-
-        EmbeddedSchemaSource(processedSchema, defSchema.name)
+        embeddedSchemaSource
       }
       case (None, None, Some(uri)) => {
         //
@@ -684,7 +739,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
       case (name, Some(x), None) if name != "" => Some(x)
       case (name, None, Some(uri)) if name != "" => {
         // Read file, convert to definedConfig
-        val node = ConfigurationLoader.getConfiguration(parent.loader, uri)
+        val node = parent.loader.load(URISchemaSource(uri), Some(XMLUtils.dafextURI))
         val definedConfig = DefinedConfig(node, parent)
         Some(definedConfig)
       }
@@ -767,7 +822,9 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
     } else {
       // run the test.
 
-      impl = impl.withValidateDFDLSchemas(parent.validateDFDLSchemas).withTunables(tunables).withCheckAllTopLevel(parent.checkAllTopLevel)
+      impl = impl.withValidateDFDLSchemas(parent.validateDFDLSchemas).
+        withTunables(tunables).
+        withCheckAllTopLevel(parent.checkAllTopLevel)
 
       val optInputOrExpectedData = document.map {
         _.data
@@ -782,7 +839,12 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
         else true
 
       val rootNamespaceString = getRootNamespaceString(schemaArg)
-      val compileResult: TDML.CompileResult = impl.getProcessor(suppliedSchema, useSerializedProcessor, Option(rootName), Option(rootNamespaceString))
+      val compileResult: TDML.CompileResult = impl.getProcessor(
+        suppliedSchema,
+        useSerializedProcessor,
+        Option(rootName),
+        Option(rootNamespaceString),
+        tunables)
       val newCompileResult : TDML.CompileResult = compileResult.right.map {
         case (diags, proc: TDMLDFDLProcessor) =>
           // warnings are checked elsewhere for expected ones.
@@ -797,8 +859,15 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
           }
           (diags, newNewProc)
       }
-      runProcessor(newCompileResult, optInputOrExpectedData, nBits, optExpectedErrors, optExpectedWarnings, optExpectedValidationErrors, validationMode,
-        roundTrip, implString)
+      runProcessor(newCompileResult,
+        optInputOrExpectedData,
+        nBits,
+        optExpectedErrors,
+        optExpectedWarnings,
+        optExpectedValidationErrors,
+        validationMode,
+        roundTrip,
+        implString)
 
     }
   }
@@ -860,7 +929,11 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         compileResult.right.foreach {
           case (_, proc) => {
             processor = proc
-            runParseExpectErrors(dataToParse, nBits, optExpectedErrors.get, optExpectedWarnings, optExpectedValidationErrors, validationMode, implString)
+            runParseExpectErrors(dataToParse, nBits, optExpectedErrors.get,
+              optExpectedWarnings,
+              optExpectedValidationErrors,
+              validationMode,
+              implString)
           }
         }
       }
@@ -929,7 +1002,9 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       }
     }
     if (!isError) {
-      throw TDMLException("Expected error. Didn't get one. Actual result was\n" + parseResult.getResult.toString, implString)
+      toss(TDMLException("Expected error. Didn't get one. Actual result was\n" +
+        parseResult.getResult.toString, implString),
+        implString)
     }
 
     checkDiagnosticMessages(diagnostics, errors, optWarnings, implString)
@@ -1751,12 +1826,25 @@ case class DefinedSchema(xml: Node, parent: DFDLTestSuite) {
    * */
   final val DEFAULT_ELEMENT_FORM_DEFAULT_VALUE = "qualified"
 
+  // TODO: We want this default to be false eventually.
+  // The rationale is if people want a default namespace
+  // in their TDML defineSchemas, they should define it. We shouldn't tack
+  // such a sensitive thing on automatically. (81 tests fail in daffodil-test
+  // if you change this however.)
+  //
+  final val DEFAULT_USE_DEFAULT_NAMESPACE_VALUE = true
+
   val name = (xml \ "@name").text.toString
   val elementFormDefault = {
     val value = (xml \ "@elementFormDefault").text.toString
 
     if (value == "") DEFAULT_ELEMENT_FORM_DEFAULT_VALUE
     else value
+  }
+  val useDefaultNamespace = {
+    val value = (xml \ "@useDefaultNamespace").text.toString
+    if (value == "") DEFAULT_USE_DEFAULT_NAMESPACE_VALUE
+    else value.toBoolean
   }
 
   val defineFormats = (xml \ "defineFormat")
@@ -1783,7 +1871,16 @@ case class DefinedSchema(xml: Node, parent: DFDLTestSuite) {
     case None => ""
   }
   lazy val xsdSchema =
-    SchemaUtils.dfdlTestSchema(importIncludes, dfdlTopLevels, xsdTopLevels, fileName = fileName, schemaScope = xml.scope, elementFormDefault = elementFormDefault)
+    SchemaUtils.dfdlTestSchema(
+      importIncludes,
+      dfdlTopLevels,
+      xsdTopLevels,
+      fileName = fileName,
+      schemaScope = xml.scope,
+      elementFormDefault = elementFormDefault,
+      useDefaultNamespace = useDefaultNamespace)
+
+  lazy val schemaSource = EmbeddedSchemaSource(xsdSchema, name)
 }
 
 case class DefinedConfig(xml: Node, parent: DFDLTestSuite) {
@@ -2294,29 +2391,61 @@ sealed abstract class DocumentPart(part: Node, parent: Document) {
 }
 
 case class Infoset(i: NodeSeq, parent: TestCase) {
-  val Seq(dfdlInfoset) = (i \ "dfdlInfoset").map { node => DFDLInfoset(node, this) }
-  val contents = dfdlInfoset.contents
+  lazy val Seq(dfdlInfoset) = (i \ "dfdlInfoset").map { node => DFDLInfoset(node, this) }
+  lazy val contents = dfdlInfoset.contents
 }
 
 case class DFDLInfoset(di: Node, parent: Infoset) {
 
-  val infosetNodeSeq = {
-    (di \ "@type").toString match {
-      case "infoset" | "" => di.child.filter {
-        _.isInstanceOf[scala.xml.Elem]
-      }
-      case "file" => {
-        val path = di.text.trim()
-        val maybeURI = parent.parent.parent.findTDMLResource(path)
-        val uri = maybeURI.getOrElse(throw new FileNotFoundException("TDMLRunner: infoset file '" + path + "' was not found"))
-        val elem = scala.xml.XML.load(uri.toURL)
-        elem
-      }
-      case value => Assert.abort("Uknown value for type attribute on dfdlInfoset: " + value)
+  private lazy val infosetNodeSeq = {
+    val testCase: TestCase = parent.parent
+    val loader = testCase.parent.loader
+    val optDataSchema: Option[URI] = {
+      testCase.optSchemaFileURI.orElse(testCase.optEmbeddedSchema.map{_.uriForLoading})
     }
+    val src =
+      (di \ "@type").toString match {
+        case "infoset" | "" => {
+          val rawElem = di.child.filter {
+            _.isInstanceOf[scala.xml.Elem]
+          }.head
+          UnitTestSchemaSource(rawElem, testCase.tcName)
+        }
+        case "file" => {
+          val path = di.text.trim()
+          val maybeURI = parent.parent.parent.findTDMLResource(path)
+          val uri = maybeURI.getOrElse(throw new FileNotFoundException("TDMLRunner: infoset file '" + path + "' was not found"))
+          URISchemaSource(uri)
+        }
+        case value => Assert.abort("Uknown value for type attribute on dfdlInfoset: " + value)
+      }
+    //
+    // TODO: DAFFODIL-288 validate the infoset also
+    // You can pass the optDataSchema, which appears to be the correct thing
+    // but in many cases it doesn't seem to be able to resolve things.
+    //
+    val testSuite = testCase.parent
+    val before = testSuite.loadingExceptions.clone()
+    // val elem: Node = loader.load(src, optDataSchema)
+    val elem = loader.load(src, None) // no schema
+
+    // The expected infoset is loaded using the normalizeCRLFtoLF mode (which
+    // is the default), so MS-DOS/Windows CRLFs in expected data XML files will
+    // have been converted into LF at this point.
+    //
+    // This is quite an expensive check however, so leaving it out for now
+    // if ((elem ne null)) Assert.invariant(!elem.toString.contains("\r"))
+
+    val nAfter = testSuite.loadingExceptions.size
+    val hasMoreExceptions = before.size < nAfter
+    if (hasMoreExceptions) {
+      val newExceptions = (testSuite.loadingExceptions -- before).toSeq
+      testCase.toss(TDMLException(newExceptions, None), None)
+    }
+    elem
   }
 
-  val contents = {
+  lazy val contents = {
     Assert.usage(infosetNodeSeq.size == 1, "dfdlInfoset element must contain a single root element")
     val c = infosetNodeSeq.head
     c

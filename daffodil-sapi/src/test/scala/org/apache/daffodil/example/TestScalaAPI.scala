@@ -47,10 +47,32 @@ import org.apache.daffodil.sapi.DaffodilUnhandledSAXException
 import org.apache.daffodil.sapi.DaffodilUnparseErrorSAXException
 import org.apache.daffodil.sapi.SAXErrorHandlerForSAPITest
 import org.apache.daffodil.sapi.infoset.XMLTextInfosetOutputter
+import org.xml.sax.XMLReader
 
 import java.nio.ByteBuffer
+import javax.xml.XMLConstants
+
+object TestScalaAPI {
+  /**
+   * Best practices for XML loading are to turn off anything that could lead to
+   * insecurity.
+   *
+   * This is probably unnecessary in the case of these tests, but as these tests
+   * are also used to illustrate API usage, this exemplifies best practice.
+   */
+  def setSecureDefaults(xmlReader: XMLReader): Unit = {
+    xmlReader.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true)
+    // since we're not really sure what they mean by secure processing
+    // we make doubly sure by setting these ourselves also.
+    xmlReader.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true)
+    xmlReader.setFeature("http://xml.org/sax/features/external-parameter-entities", false)
+    xmlReader.setFeature("http://xml.org/sax/features/external-general-entities", false)
+  }
+}
 
 class TestScalaAPI {
+
+  import TestScalaAPI._
 
   lazy val SAX_NAMESPACES_FEATURE = "http://xml.org/sax/features/namespaces"
   lazy val SAX_NAMESPACE_PREFIXES_FEATURE = "http://xml.org/sax/features/namespace-prefixes"
@@ -259,6 +281,21 @@ class TestScalaAPI {
     val loc = locs(0)
     assertTrue(loc.toString().contains("mySchema1.dfdl.xsd")) // reports the element ref, not element decl.
 
+    if (lw.errors.size > 0) {
+      lw.errors.foreach { s =>
+        System.err.println("testScalaAPI2: " + s)
+      }
+    }
+    if (lw.warnings.size > 0) {
+      lw.warnings.foreach { s =>
+        System.err.println("testScalaAPI2: " + s)
+      }
+    }
+    if (lw.others.size > 0) {
+      lw.others.foreach { s =>
+        System.err.println("testScalaAPI2: " + s)
+      }
+    }
     assertEquals(0, lw.errors.size)
     assertEquals(0, lw.warnings.size)
     assertEquals(0, lw.others.size)
@@ -1027,6 +1064,7 @@ class TestScalaAPI {
     // prep for SAX unparse
     val unparseContentHandler = dp.newContentHandlerInstance(wbc)
     val unparseXMLReader = javax.xml.parsers.SAXParserFactory.newInstance.newSAXParser.getXMLReader
+    setSecureDefaults(unparseXMLReader)
     unparseXMLReader.setContentHandler(unparseContentHandler)
     unparseXMLReader.setErrorHandler(errorHandler)
     unparseXMLReader.setFeature(SAX_NAMESPACES_FEATURE, true)
@@ -1107,6 +1145,7 @@ class TestScalaAPI {
     val unparseContentHandler = dp.newContentHandlerInstance(wbc)
     val errorHandler = new SAXErrorHandlerForSAPITest()
     val unparseXMLReader = javax.xml.parsers.SAXParserFactory.newInstance.newSAXParser.getXMLReader
+    setSecureDefaults(unparseXMLReader)
     unparseXMLReader.setContentHandler(unparseContentHandler)
     unparseXMLReader.setErrorHandler(errorHandler)
     unparseXMLReader.setFeature(SAX_NAMESPACES_FEATURE, true)

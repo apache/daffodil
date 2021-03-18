@@ -582,7 +582,7 @@
 
   </tdml:unparserTestCase>
     
-  <tdml:defineSchema name="s3">
+  <tdml:defineSchema name="s3" elementFormDefault="unqualified">
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
     
     <dfdl:format ref="ex:GeneralFormatPortable" 
@@ -650,7 +650,7 @@
 
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns="http://example.com">
-        <ptg3>
+        <ex:ptg3>
           <record>
             <required1>a</required1>
             <!-- empty string has no syntax, so even when dfdlx:emptyElementParsePolicy is 'treatAsEmpty'
@@ -674,7 +674,7 @@
             <potTrailing5/> 
             -->
           </record>
-        </ptg3>
+        </ex:ptg3>
       </tdml:dfdlInfoset>
     </tdml:infoset>
 
@@ -689,7 +689,7 @@
 
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns="http://example.com">
-        <ptg3>
+        <ex:ptg3>
           <record>
             <required1>a</required1>
             <!-- <positional4_s/> scalar, but is backtracked anyway by IBM DFDL, daffodil treatAsMissing mode. -->
@@ -700,7 +700,7 @@
             <!-- <positional4_s/> scalar, but is backtracked anyway by IBM DFDL, daffodil treatAsMissing mode. -->
             <!-- no empty string for positional5 -->
           </record>
-        </ptg3>
+        </ex:ptg3>
       </tdml:dfdlInfoset>
     </tdml:infoset>
 
@@ -713,8 +713,8 @@
     <tdml:document><![CDATA[|a,,,|a,,,|]]></tdml:document>
 
     <tdml:infoset>
-      <tdml:dfdlInfoset xmlns="http://example.com">
-        <ptg3>
+      <tdml:dfdlInfoset>
+        <ex:ptg3>
           <record>
             <required1>a</required1>
             <positional4_s/> <!-- must be present, as the element is scalar -->
@@ -723,7 +723,7 @@
             <required1>a</required1>
             <positional4_s/> <!-- must be present, as the element is scalar -->
           </record>
-        </ptg3>
+        </ex:ptg3>
       </tdml:dfdlInfoset>
     </tdml:infoset>
 

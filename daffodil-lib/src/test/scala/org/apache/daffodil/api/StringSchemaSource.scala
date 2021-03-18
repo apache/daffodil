@@ -15,29 +15,15 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.externalvars
+package org.apache.daffodil.api
 
-import javax.xml.transform.stream.StreamSource
-import org.xml.sax.SAXException
-import java.io.File
+import java.io.ByteArrayInputStream
 
-object ExternalVariablesValidator {
-
-  final val extVarXsd = {
-    val stream = this.getClass().getResourceAsStream("/xsd/dafext.xsd")
-    stream
-  }
-
-  def validate(xmlFile: File): Either[java.lang.Throwable, _] = {
-    try {
-      val factory = new org.apache.xerces.jaxp.validation.XMLSchemaFactory()
-      val schema = factory.newSchema(new StreamSource(extVarXsd))
-      val validator = schema.newValidator()
-      validator.validate(new StreamSource(xmlFile))
-    } catch {
-      case ex: SAXException => Left(ex)
-    }
-    Right(true)
-  }
-
-}
+/**
+ * Convenient for testing. Allows creating XML strings for loading that contain things
+ * not supported by scala XML syntax like DOCTYPE decls.
+ *
+ * @param str - string that is loaded as XML.
+ */
+case class StringSchemaSource(str: String)
+extends InputStreamSchemaSource(new ByteArrayInputStream(str.getBytes()), None, "", "")

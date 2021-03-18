@@ -178,15 +178,17 @@ object QName {
     LocalDeclQName(optPrefix(scope, ns), name, ns)
   }
 
-  private def optPrefix(scope: scala.xml.NamespaceBinding, targetNamespace:NS) =
-      if (scope eq null) None
-      else if (targetNamespace == NoNamespace) None
-      else if (targetNamespace == UnspecifiedNamespace) None
-      else {
-        val prefix = scope.getPrefix(targetNamespace)
-        if (prefix eq null) None
-        else Some(prefix)
-      }
+  private def optPrefix(scope: scala.xml.NamespaceBinding, targetNamespace:NS) = {
+   val res = if (scope eq null) None
+    else if (targetNamespace == NoNamespace) None
+    else if (targetNamespace == UnspecifiedNamespace) None
+    else {
+      val prefix = scope.getPrefix(targetNamespace)
+      if (prefix eq null) None
+      else Some(prefix)
+    }
+    res
+  }
 
   def createGlobal(name: String, targetNamespace: NS, scope: scala.xml.NamespaceBinding) = {
     GlobalQName(optPrefix(scope, targetNamespace), name, targetNamespace)
