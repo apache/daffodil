@@ -86,6 +86,14 @@ class DaffodilConstructingLoader(uri: URI, errorHandler: org.xml.sax.ErrorHandle
     Source.fromInputStream(is, enc)
   }, true) {
 
+  /**
+   * Ensures that DOCTYPES aka DTDs, if encountered, are rejected.
+   */
+  override def parseDTD(): Unit = {
+    val e = makeSAXParseException(pos, "DOCTYPE is disallowed.")
+    throw e
+  }
+
   // This one line is a bit of a hack to get consistent line numbers. The
   // scala-xml libary reads XML from a scala.io.Source which maintains private
   // line/col information about where in the Source we are reading from (i.e.

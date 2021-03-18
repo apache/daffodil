@@ -47,6 +47,7 @@ import org.apache.daffodil.sapi.DaffodilUnhandledSAXException
 import org.apache.daffodil.sapi.DaffodilUnparseErrorSAXException
 import org.apache.daffodil.sapi.SAXErrorHandlerForSAPITest
 import org.apache.daffodil.sapi.infoset.XMLTextInfosetOutputter
+import org.apache.daffodil.xml.XMLUtils
 
 import java.nio.ByteBuffer
 
@@ -1027,6 +1028,7 @@ class TestScalaAPI {
     // prep for SAX unparse
     val unparseContentHandler = dp.newContentHandlerInstance(wbc)
     val unparseXMLReader = javax.xml.parsers.SAXParserFactory.newInstance.newSAXParser.getXMLReader
+    XMLUtils.setSecureDefaults(unparseXMLReader)
     unparseXMLReader.setContentHandler(unparseContentHandler)
     unparseXMLReader.setErrorHandler(errorHandler)
     unparseXMLReader.setFeature(SAX_NAMESPACES_FEATURE, true)
@@ -1107,6 +1109,7 @@ class TestScalaAPI {
     val unparseContentHandler = dp.newContentHandlerInstance(wbc)
     val errorHandler = new SAXErrorHandlerForSAPITest()
     val unparseXMLReader = javax.xml.parsers.SAXParserFactory.newInstance.newSAXParser.getXMLReader
+    XMLUtils.setSecureDefaults(unparseXMLReader)
     unparseXMLReader.setContentHandler(unparseContentHandler)
     unparseXMLReader.setErrorHandler(errorHandler)
     unparseXMLReader.setFeature(SAX_NAMESPACES_FEATURE, true)

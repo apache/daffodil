@@ -17,15 +17,19 @@
 
 package org.apache.daffodil.api
 import org.xml.sax.InputSource
+
 import java.net.URI
 import scala.xml.Node
 import java.io.FileInputStream
 import org.apache.daffodil.xml.XMLUtils
 import org.apache.commons.io.input.XmlStreamReader
+
 import java.io.File
 import java.nio.file.Paths
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.equality._
+
+import java.io.ByteArrayInputStream
 import java.nio.file.FileSystemNotFoundException
 
 /**
@@ -107,6 +111,27 @@ class URISchemaSource protected (val fileOrResource: URI) extends DaffodilSchema
       else false
     } else false
   }
+}
+
+/**
+ * Convenient for testing. Allows creating XML strings for loading that contain things
+ * not supported by scala XML syntax like DOCTYPE decls.
+ *
+ * @param str - string that is loaded as XML.
+ */
+case class StringSchemaSource(str: String)
+extends DaffodilSchemaSource {
+
+  private val delegate = InputStreamSchemaSource(new ByteArrayInputStream(str.getBytes()), None, "string", "")
+  /**
+   * Use to get a org.xml.sax.InputSource for use by Xerces
+   */
+  override def newInputSource() = delegate.newInputSource()
+
+  /**
+   * Use to get the URI that can be used to load the xml.
+   */
+  override def uriForLoading = delegate.uriForLoading
 }
 
 /**

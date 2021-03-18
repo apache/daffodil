@@ -17,22 +17,31 @@
 
 package org.apache.daffodil.externalvars
 
+import org.apache.daffodil.util.Misc
+import org.apache.daffodil.xml.DFDLCatalogResolver
+import org.apache.daffodil.xml.XMLUtils
+import org.apache.xerces.jaxp.validation.XMLSchemaFactory
+
 import javax.xml.transform.stream.StreamSource
 import org.xml.sax.SAXException
+
 import java.io.File
 
 object ExternalVariablesValidator {
 
   final val extVarXsd = {
-    val stream = this.getClass().getResourceAsStream("/xsd/dafext.xsd")
+    val uri = Misc.getRequiredResource("org/apache/daffodil/xsd/dafext.xsd")
+    val stream = uri.toURL.openStream()
     stream
   }
 
   def validate(xmlFile: File): Either[java.lang.Throwable, _] = {
     try {
-      val factory = new org.apache.xerces.jaxp.validation.XMLSchemaFactory()
+      val factory = new XMLSchemaFactory()
+      factory.setResourceResolver(DFDLCatalogResolver.get)
       val schema = factory.newSchema(new StreamSource(extVarXsd))
       val validator = schema.newValidator()
+      validator.setFeature(XMLUtils.XML_DISALLOW_DOCTYPE_FEATURE, true)
       validator.validate(new StreamSource(xmlFile))
     } catch {
       case ex: SAXException => Left(ex)

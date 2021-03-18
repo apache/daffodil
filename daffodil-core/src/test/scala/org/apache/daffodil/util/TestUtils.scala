@@ -85,6 +85,17 @@ object TestUtils {
     runSchemaOnRBC(testSchema, Misc.stringToReadableByteChannel(data), areTracing)
   }
 
+  /**
+   * Exposes the data processor object so that you can test its API conveniently.
+   */
+  def dataProcessorForTestString(testSchema: Node, data: String): (DataProcessor, InputStream) = {
+    val rbc = Misc.stringToReadableByteChannel(data)
+    val is = Channels.newInputStream(rbc)
+    val p = compileSchema(testSchema)
+    (p, is)
+    // runDataProcessorOnInputStream(p, is, areTracing)
+  }
+
   def testBinary(testSchema: Node, hexData: String, areTracing: Boolean = false): (DFDL.ParseResult, Node) = {
     val b = Misc.hex2Bytes(hexData)
     testBinary(testSchema, b, areTracing)

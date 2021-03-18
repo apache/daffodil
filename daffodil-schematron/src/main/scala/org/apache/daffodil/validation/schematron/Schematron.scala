@@ -19,7 +19,6 @@ package org.apache.daffodil.validation.schematron
 
 import java.io.InputStream
 import java.io.StringWriter
-
 import javax.xml.parsers.ParserConfigurationException
 import javax.xml.parsers.SAXParserFactory
 import javax.xml.transform.Templates
@@ -27,6 +26,7 @@ import javax.xml.transform.URIResolver
 import javax.xml.transform.sax.SAXSource
 import javax.xml.transform.stream.StreamResult
 import org.apache.daffodil.api.ValidatorInitializationException
+import org.apache.daffodil.xml.XMLUtils
 import org.xml.sax.InputSource
 import org.xml.sax.SAXException
 import org.xml.sax.XMLReader
@@ -59,7 +59,9 @@ object Schematron {
           throw ValidatorInitializationException(s"Error setting feature on parser: ${ex.getMessage}")
       }
       f.setValidating(false)
-      f.newSAXParser.getXMLReader
+      val xr = f.newSAXParser.getXMLReader
+      XMLUtils.setSecureDefaults(xr)
+      xr
     }
   }
 

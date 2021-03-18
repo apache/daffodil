@@ -28,10 +28,8 @@ import java.io.File
 import java.io.InputStream
 import java.io.Reader
 import java.net.URI
-
 import javax.xml.XMLConstants
 import javax.xml.transform.sax.SAXSource
-
 import scala.collection.JavaConverters.asScalaBufferConverter
 import scala.xml.Elem
 import scala.xml.InputSource
@@ -40,9 +38,7 @@ import scala.xml.SAXParseException
 import scala.xml.SAXParser
 import scala.xml.TopScope
 import scala.xml.parsing.NoBindingFactoryAdapter
-
 import org.w3c.dom.ls.LSInput
-
 import org.apache.daffodil.api.DaffodilSchemaSource
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.util.LogLevel
@@ -392,9 +388,13 @@ class DFDLXercesAdapter(val errorHandler: org.xml.sax.ErrorHandler)
   // This is the common routine called by all the load calls to actually
   // carry out the loading of the schema.
   //
+  // There are no calls to this in Daffodil code base as of this writing, but
+  // the base class scala.xml.factory.XMLLoader calls it.
+  //
   override def loadXML(source: InputSource, p: SAXParser): Node = {
-
+    // cannot setSecureDefaults on parser. Must set it on reader created from parser.
     val xr = p.getXMLReader()
+    XMLUtils.setSecureDefaults(xr)
     xr.setErrorHandler(errorHandler)
     scopeStack.push(TopScope)
     xr.parse(source)
@@ -437,7 +437,9 @@ trait SchemaAwareLoaderMixin {
       //      f.setValidating(true) // old style API?
     }
     val parser = f.newSAXParser()
+    // cannot setSecureDefaults on parser. Must set on the xml reader created from it.
     val xr = parser.getXMLReader()
+    XMLUtils.setSecureDefaults(xr)
     xr.setContentHandler(this)
     //xr.setEntityResolver(resolver) // older API?? is this needed? Doesn't seem to hurt.
     xr.setProperty(
@@ -467,6 +469,7 @@ trait SchemaAwareLoaderMixin {
    * newSchema call is what forces schema validation to take place.
    */
   protected val sf = new org.apache.xerces.jaxp.validation.XMLSchemaFactory()
+  // XMLSchemaFactory doesn't support secure defaults // XMLUtils.setSecureDefaults(sf)
   sf.setResourceResolver(resolver)
   sf.setErrorHandler(errorHandler)
 
@@ -483,10 +486,22 @@ trait SchemaAwareLoaderMixin {
    * So if we want good file/line/column info from this, we have to give
    * it a plain old file or resource, and not try to play games to get it to
    * pick up the file/line/col information from attributes of the elements.
+   *
+   * Due to limitations in the xerces newSchema() method
+   * this method should be called only after loading
+   * the schema as a regular XML file, which itself insists
+   * on the XMLUtils.setSecureDefaults, so we don't need to
+   * further check that here.
    */
   def validateSchema(source: DaffodilSchemaSource): Unit = {
     val inputSource = source.newInputSource()
     val saxSource = new SAXSource(inputSource)
+    //
+    // We would like this saxSource to be created from an XMLReader
+    // so that we can call XMLUtils.setSecureDefaults on it.
+    // but we get strange errors if I do that, where every symbol
+    // in the schema has an unrecognized namespace prefix.
+    //
     sf.newSchema(saxSource)
     inputSource.getByteStream().close()
   }
@@ -578,7 +593,22 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler) {
     res
   }
 
-  def validateSchema(source: DaffodilSchemaSource) = xercesAdapter.validateSchema(source)
+  /**
+   * Uses xerces ability to load an XSD as a schema specifically,
+   * not only as an XML file.
+   *
+   * This verifies many things about the schema being well formed and
+   * valid.
+   *
+   * The schema is first loaded as an XML file
+   * which checks basic XML well-formedness, and for
+   * security issues like containing DOCTYPE declarations which
+   * we don't allow.
+   */
+  def validateSchema(source: DaffodilSchemaSource) = {
+    load(source) // validate as XML file with XML Schema for DFDL Schemas
+    xercesAdapter.validateSchema(source)
+  }
 }
 
 /**

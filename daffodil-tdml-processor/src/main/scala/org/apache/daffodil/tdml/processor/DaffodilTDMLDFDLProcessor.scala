@@ -346,6 +346,7 @@ class DaffodilTDMLDFDLProcessor private (private var dp: DataProcessor) extends 
     val unparseContentHandler = dp.newContentHandlerInstance(saxOutputChannel)
     unparseContentHandler.enableInputterResolutionOfRelativeInfosetBlobURIs()
     val xmlReader = SAXParserFactory.newInstance.newSAXParser.getXMLReader
+    XMLUtils.setSecureDefaults(xmlReader)
     xmlReader.setContentHandler(unparseContentHandler)
     xmlReader.setFeature(XMLUtils.SAX_NAMESPACES_FEATURE, true)
     xmlReader.setFeature(XMLUtils.SAX_NAMESPACE_PREFIXES_FEATURE, true)

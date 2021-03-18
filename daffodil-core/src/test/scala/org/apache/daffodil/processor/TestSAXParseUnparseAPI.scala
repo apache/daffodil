@@ -51,6 +51,7 @@ class TestSAXParseUnparseAPI {
 
     val unparseXMLReader = SAXParserFactory.newInstance().newSAXParser().getXMLReader
     unparseXMLReader.setFeature(XMLUtils.SAX_NAMESPACES_FEATURE, true)
+    XMLUtils.setSecureDefaults(unparseXMLReader)
     val baosUnparse = new ByteArrayOutputStream()
     val wbcUnparse = java.nio.channels.Channels.newChannel(baosUnparse)
     val unparseContentHandler = dp.newContentHandlerInstance(wbcUnparse)
@@ -78,6 +79,7 @@ class TestSAXParseUnparseAPI {
 
     val unparseXMLReader = SAXParserFactory.newInstance().newSAXParser().getXMLReader
     unparseXMLReader.setFeature(XMLUtils.SAX_NAMESPACES_FEATURE, true)
+    XMLUtils.setSecureDefaults(unparseXMLReader)
     val baosUnparse = new ByteArrayOutputStream()
     val wbcUnparse = java.nio.channels.Channels.newChannel(baosUnparse)
     val unparseContentHandler = dp.newContentHandlerInstance(wbcUnparse)
@@ -101,6 +103,7 @@ class TestSAXParseUnparseAPI {
     val wbcUnparse = java.nio.channels.Channels.newChannel(baosUnparse)
     val unparseContentHandler = dp.newContentHandlerInstance(wbcUnparse)
     unparseXMLReader.setContentHandler(unparseContentHandler)
+    XMLUtils.setSecureDefaults(unparseXMLReader)
     val baisUnparse = new ByteArrayInputStream(testInfosetString.getBytes)
     val inputSourceUnparse = new InputSource(baisUnparse)
     unparseXMLReader.parse(inputSourceUnparse)
@@ -130,6 +133,7 @@ class TestSAXParseUnparseAPI {
     val wbcUnparse = java.nio.channels.Channels.newChannel(baosUnparse)
     val unparseContentHandler = dp.newContentHandlerInstance(wbcUnparse)
     unparseXMLReader.setContentHandler(unparseContentHandler)
+    XMLUtils.setSecureDefaults(unparseXMLReader)
     val baisUnparse = new ByteArrayInputStream(testInfosetString.getBytes)
     val inputSourceUnparse = new InputSource(baisUnparse)
     unparseXMLReader.parse(inputSourceUnparse)

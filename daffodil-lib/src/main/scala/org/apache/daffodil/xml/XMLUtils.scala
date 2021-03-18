@@ -21,13 +21,11 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardOpenOption
-
 import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuilder
 import scala.xml.NamespaceBinding
 import scala.xml._
-
 import org.apache.commons.io.IOUtils
 import org.apache.daffodil.calendar.DFDLDateConversion
 import org.apache.daffodil.calendar.DFDLDateTimeConversion
@@ -36,6 +34,8 @@ import org.apache.daffodil.exceptions._
 import org.apache.daffodil.schema.annotation.props.LookupLocation
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Misc
+import org.xml.sax.SAXNotRecognizedException
+import org.xml.sax.XMLReader
 
 /**
  * Utilities for handling XML
@@ -450,6 +450,64 @@ object XMLUtils {
   val SAX_NAMESPACES_FEATURE = "http://xml.org/sax/features/namespaces"
   val SAX_NAMESPACE_PREFIXES_FEATURE = "http://xml.org/sax/features/namespace-prefixes"
 
+  /**
+   * Always enable this feature (which disables doctypes).
+   */
+  val XML_DISALLOW_DOCTYPE_FEATURE = "http://apache.org/xml/features/disallow-doctype-decl"
+
+  /**
+   * Always disable this. Might not be necessary if doctypes are disallowed.
+   */
+  val XML_EXTERNAL_PARAMETER_ENTITIES_FEATURE = "http://xml.org/sax/features/external-parameter-entities"
+
+  /**
+   * Always disable this. Might not be necessary if doctypes are disallowed.
+   */
+  val XML_EXTERNAL_GENERAL_ENTITIES_FEATURE = "http://xml.org/sax/features/external-general-entities"
+
+  /**
+   * Sets properties that disable insecure XML reader behaviors.
+   * @param xmlReader - the reader to change feature settings on.
+   */
+  def setSecureDefaults(xmlReader: XMLReader) : Unit = {
+    try {
+      xmlReader.setFeature(XMLUtils.XML_DISALLOW_DOCTYPE_FEATURE, true)
+      xmlReader.setFeature(XMLUtils.XML_EXTERNAL_PARAMETER_ENTITIES_FEATURE, false)
+      xmlReader.setFeature(XMLUtils.XML_EXTERNAL_GENERAL_ENTITIES_FEATURE, false)
+      // System.err.println("SAX XMLReader supports disallow properties: " + xmlReader)
+    } catch {
+      case e: SAXNotRecognizedException => {
+        // System.err.println("xmlReader: " + e.getMessage()) // good place for a breakpoint
+        throw e
+      }
+    }
+  }
+
+//  def setSecureDefaults(schemaFactory: org.apache.xerces.jaxp.validation.XMLSchemaFactory) : Unit = {
+//    try {
+//      schemaFactory.setFeature(XMLUtils.XML_DISALLOW_DOCTYPE_FEATURE, true)
+//      schemaFactory.setFeature(XMLUtils.XML_EXTERNAL_PARAMETER_ENTITIES_FEATURE, false)
+//      schemaFactory.setFeature(XMLUtils.XML_EXTERNAL_GENERAL_ENTITIES_FEATURE, false)
+//      System.err.println("SAX SchemaFactory supports disallow properties: " + schemaFactory)
+//    } catch {
+//      case e: SAXNotRecognizedException => {
+//        System.err.println("schemaFactory: " + e.getMessage())
+//      }
+//    }
+//  }
+
+//  def setSecureDefaults(saxParser: SAXParser) : Unit = {
+//    try {
+//    saxParser.setProperty(XMLUtils.XML_DISALLOW_DOCTYPE_FEATURE, true)
+//    saxParser.setProperty(XMLUtils.XML_EXTERNAL_PARAMETER_ENTITIES_FEATURE, false)
+//    saxParser.setProperty(XMLUtils.XML_EXTERNAL_GENERAL_ENTITIES_FEATURE, false)
+//      System.err.println("SAX parser supports disallow properties: " + saxParser)
+//    } catch {
+//      case e: SAXNotRecognizedException => {
+//        System.err.println("saxParser: " + e.getMessage())
+//      }
+//    }
+//  }
 
   val FILE_ATTRIBUTE_NAME = "file"
   val LINE_ATTRIBUTE_NAME = "line"

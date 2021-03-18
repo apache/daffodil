@@ -28,7 +28,6 @@ import java.nio.channels.Channels
 import java.nio.file.Paths
 import java.util.Scanner
 import java.util.concurrent.Executors
-
 import com.typesafe.config.ConfigFactory
 
 import scala.concurrent.Await
@@ -37,7 +36,6 @@ import scala.concurrent.Future
 import scala.concurrent.duration.Duration
 import scala.xml.Node
 import scala.xml.SAXParseException
-
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.parsers.SAXParserFactory
 import javax.xml.transform.TransformerFactory
@@ -106,8 +104,10 @@ import org.rogach.scallop
 import org.rogach.scallop.ArgType
 import org.rogach.scallop.ScallopOption
 import org.rogach.scallop.ValueConverter
+import org.xml.sax.XMLReader
 
 import scala.util.matching.Regex
+import scala.xml.SAXParser
 
 class CommandLineSAXErrorHandler() extends org.xml.sax.ErrorHandler with Logging {
 
@@ -807,7 +807,18 @@ object Main extends Logging {
           case Left(bytes) => new ByteArrayInputStream(bytes)
           case Right(is) => is
         }
-        scala.xml.XML.load(is)
+        val parser: SAXParser = {
+          val f = SAXParserFactory.newInstance()
+          f.setNamespaceAware(false)
+          val p = f.newSAXParser()
+          p
+        }
+        //
+        // FIXME: This needs to use a Daffodil-created loader, so that we can
+        // insure that the XMLReader used from it has the setSecureDefaults treatment.
+        //
+        System.err.println("FIXME: Needs to use a Daffodil-created loader.")
+        scala.xml.XML.withSAXParser(parser).load(is)
       }
       case InfosetType.JDOM => {
         val is = data match {
@@ -1488,7 +1499,9 @@ object Main extends Logging {
   private def unparseWithSAX(
     is: InputStream,
     contentHandler: DFDL.DaffodilUnparseContentHandler): UnparseResult = {
-    val xmlReader = SAXParserFactory.newInstance.newSAXParser.getXMLReader
+    val xmlReader: XMLReader = SAXParserFactory.newInstance.newSAXParser.getXMLReader
+    // standard secure XML parsing features
+    XMLUtils.setSecureDefaults(xmlReader)
     xmlReader.setContentHandler(contentHandler)
     xmlReader.setFeature(XMLUtils.SAX_NAMESPACES_FEATURE, true)
     xmlReader.setFeature(XMLUtils.SAX_NAMESPACE_PREFIXES_FEATURE, true)
@@ -1512,6 +1525,7 @@ object Main extends Logging {
     saxXmlRdr.setErrorHandler(errorHandler)
     saxXmlRdr.setProperty(XMLUtils.DAFFODIL_SAX_URN_BLOBDIRECTORY, blobDir)
     saxXmlRdr.setProperty(XMLUtils.DAFFODIL_SAX_URN_BLOBSUFFIX, blobSuffix)
+    XMLUtils.setSecureDefaults(saxXmlRdr)
     saxXmlRdr.parse(data)
     val pr = saxXmlRdr.getProperty(XMLUtils.DAFFODIL_SAX_URN_PARSERESULT).asInstanceOf[ParseResult]
     pr

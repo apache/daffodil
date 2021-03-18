@@ -2301,7 +2301,8 @@ case class DFDLInfoset(di: Node, parent: Infoset) {
         val path = di.text.trim()
         val maybeURI = parent.parent.parent.findTDMLResource(path)
         val uri = maybeURI.getOrElse(throw new FileNotFoundException("TDMLRunner: infoset file '" + path + "' was not found"))
-        val elem = scala.xml.XML.load(uri.toURL)
+        val loader = new DaffodilXMLLoader()
+        val elem = loader.load(URISchemaSource(uri))
         elem
       }
       case value => Assert.abort("Uknown value for type attribute on dfdlInfoset: " + value)

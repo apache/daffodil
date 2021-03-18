@@ -145,7 +145,6 @@ final class DFDLSchemaFile(
       val ldr = new DaffodilXMLLoader(this)
       ldr.setValidation(true)
       try {
-        ldr.load(schemaSource) // validate as XML file with XML Schema for DFDL Schemas
         ldr.validateSchema(schemaSource) // validate as XSD (catches UPA errors for example)
       } catch {
         // ok to absorb SAX Parse Exception as we've captured those errors in error handling
