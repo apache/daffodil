@@ -28,12 +28,7 @@ import org.apache.daffodil.CLI.Util
 
 class TestCLIdebugger {
 
-  val DAFFODIL_JAVA_OPTS = Map("DAFFODIL_JAVA_OPTS" -> "-Xms256m -Xmx2048m -Djline.terminal=jline.UnsupportedTerminal -Dfile.encoding=UTF-8")
-  //  Dubugging tests were not executing under Windows and especially under Eclipse
-  //  due to the use of a non-interactive console.
-  //  Set the DAFFODIL_JAVA_OPTS environment variable for Debugger tests to specify
-  //  the use of an unsupported terminal: -Djline.terminal=jline.UnsupportedTerminal
-  //  Also added a Java option to specify the character encoding: -Dfile.encoding=UTF-8
+  val DAFFODIL_JAVA_OPTS = Map("DAFFODIL_JAVA_OPTS" -> "-Xms256m -Xmx2048m -Dfile.encoding=UTF-8")
 
   @Test def test_3385_CLI_Debugger_invalidExpressions(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")

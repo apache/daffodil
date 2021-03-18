@@ -19,12 +19,6 @@ package org.apache.daffodil.debugger
 
 import java.io.File
 
-import scala.collection.JavaConverters._
-
-import jline.console.completer.AggregateCompleter
-import jline.console.completer.Completer
-import jline.console.completer.StringsCompleter
-
 import org.apache.daffodil.BasicComponent
 import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.dpath.ExpressionEvaluationException
@@ -532,56 +526,6 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
       }
     }
 
-    class DebugCommandCompleter(dc: DebugCommand) extends Completer {
-      val subcommandsCompleter = new AggregateCompleter(dc.subcommands.sortBy(_.name).map(_.completer): _*)
-
-      def getCompleteString(args: String) = {
-        // just remove leading whitespace
-        val trimmed = args.replaceAll("^\\s+", "")
-        trimmed
-      }
-
-      def complete(buffer: String, cursor: Int, candidates: java.util.List[CharSequence]): Int = {
-        val cmds = buffer.replaceAll("^\\s+", "").split("(?= )", 2).toList
-        val (cmd, args) = cmds match {
-          case c :: rest => rest match {
-            case a :: Nil => (c, a)
-            case Nil => (c, "")
-            case _ => Assert.impossible("cmd/args were split incorrectly")
-          }
-          case Nil => ("", "")
-        }
-
-        if (args != "") {
-          if (dc == cmd) {
-            val completeString = getCompleteString(args)
-            val subcandidates = new java.util.ArrayList[CharSequence]
-            val newCursor = subcommandsCompleter.complete(completeString, cursor, subcandidates)
-            val seq = subcandidates.asScala
-            seq.foreach(c => candidates.add(c))
-            buffer.lastIndexOf(completeString) + newCursor
-          } else {
-            -1
-          }
-        } else {
-          if (dc.name.startsWith(cmd)) {
-            candidates.add(dc.name + " ")
-            buffer.lastIndexOf(cmd)
-          } else {
-            -1
-          }
-        }
-      }
-    }
-
-    def completer: Completer = {
-      if (subcommands.isEmpty) {
-        new StringsCompleter(name)
-      } else {
-        new DebugCommandCompleter(this)
-      }
-    }
-
     // This ensures that there are no naming conflicts (e.g. short form names
     // conflict). This is really just a sanity check, and really only needs to
     // be run whenever names change or new commands are added.
@@ -683,19 +627,6 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
       val subcmdActor = subcommands.find(_ == subcmd).get
       val newState = subcmdActor.act(subcmdArgs, state, processor)
       newState
-    }
-
-    override def completer: Completer = {
-      new DebugCommandCompleter(this) {
-        override def complete(buffer: String, cursor: Int, candidates: java.util.List[CharSequence]): Int = {
-          val cmd = buffer.replaceAll("^\\s+", "")
-          val subcandidates = new java.util.ArrayList[CharSequence]
-          val newCursor = subcommandsCompleter.complete(cmd, cursor, subcandidates)
-          val seq = subcandidates.asScala
-          seq.foreach(c => candidates.add(c))
-          buffer.lastIndexOf(cmd) + newCursor
-        }
-      }
     }
 
     object Break extends DebugCommand with DebugCommandValidateSingleArg {
@@ -1282,24 +1213,6 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
           action.act(args, state, processor)
         }
         DebugState.Pause
-      }
-
-      override def completer = new InfoCommandCompleter(this)
-
-      class InfoCommandCompleter(dc: DebugCommand) extends DebugCommandCompleter(dc) {
-        override def getCompleteString(args: String) = {
-          val lastInfoCommand =
-            if (args.endsWith(" ")) {
-              "" // this allows the subcommand completers to match anything
-            } else {
-              // otherwise, it will only match against the last info argument,
-              // so 'info foo bar inf\t' will match 'inf' to infoset. The
-              // default getComplteString would match against 'foo bar inf',
-              // which wouldn't find anything
-              args.split("\\s+").last
-            }
-          lastInfoCommand
-        }
       }
 
       trait InfoDiffable {

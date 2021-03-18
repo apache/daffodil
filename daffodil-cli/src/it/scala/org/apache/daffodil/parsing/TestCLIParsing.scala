@@ -1044,7 +1044,7 @@ class TestCLIparsing {
     val xcatalogFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/xcatalog_invalid.xml")
     val testXcatalogFile = if (Util.isWindows) Util.cmdConvert(xcatalogFile) else xcatalogFile
 
-    val DAFFODIL_JAVA_OPTS = Map("DAFFODIL_JAVA_OPTS" -> ("-Dxml.catalog.files=" + testXcatalogFile + " -Xms256m -Xmx2048m -Djline.terminal=jline.UnsupportedTerminal -Dfile.encoding=UTF-8"))
+    val DAFFODIL_JAVA_OPTS = Map("DAFFODIL_JAVA_OPTS" -> ("-Dxml.catalog.files=" + testXcatalogFile + " -Xms256m -Xmx2048m -Dfile.encoding=UTF-8"))
 
     val shell = Util.startIncludeErrors("", envp = DAFFODIL_JAVA_OPTS)
 

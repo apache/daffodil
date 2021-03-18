@@ -28,7 +28,6 @@ object Dependencies {
     "xerces" % "xercesImpl" % "2.12.1",
     "xml-resolver" % "xml-resolver" % "1.2",
     "commons-io" % "commons-io" % "2.8.0",
-    "jline" % "jline" % "2.14.6",
     "com.typesafe" % "config" % "1.4.1"
   )
 
@@ -39,7 +38,8 @@ object Dependencies {
   )
    
   lazy val cli = Seq( 
-    "org.fusesource.jansi" % "jansi" % "1.18",
+    "org.fusesource.jansi" % "jansi" % "2.3.2",
+    "org.jline" % "jline" % "3.19.0",
     "org.rogach" %% "scallop" % "4.0.2",
     "net.sf.expectit" % "expectit-core" % "0.9.0" % "it,test"
   )
