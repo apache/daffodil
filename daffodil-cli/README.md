@@ -38,15 +38,14 @@ For more information about Daffodil, see <https://daffodil.apache.org/>.
 
 To execute Daffodil on Linux:
 
-<!-- markdownlint-disable commands-show-output -->
 ```bash
-$ ./bin/daffodil [options]
+./bin/daffodil [options]
 ```
 
 To execute Daffodil on Windows:
 
 ```bash
-$ .\bin\daffodil.bat [options]
+.\bin\daffodil.bat [options]
 ```
 
 Use the `--help` option or see the [Command Line Interface](https://daffodil.apache.org/cli/)
@@ -60,7 +59,7 @@ interactive debugger, supply the global -d option when parsing or unparsing,
 for example:
 
 ```bash
-$ ./bin/daffodil -d parse --schema <path/to/schema.dfdl.xsd> input-file
+./bin/daffodil -d parse --schema <path/to/schema.dfdl.xsd> input-file
 ```
 
 When running the debugger, the user is provided with a command prompt, at which
