@@ -25,6 +25,7 @@ object TestDiscriminators {
   val testDir = "/org/apache/daffodil/section07/discriminators/"
   val runner = Runner(testDir, "discriminator.tdml")
   val runner2 = Runner(testDir, "multipleDiscriminators.tdml")
+  val runner3 = Runner(testDir, "discriminator2.tdml")
 
   @AfterClass def shutDown(): Unit = {
     runner.reset
@@ -83,4 +84,11 @@ class TestDiscriminators {
   @Test def test_discrimPlacementSDW(): Unit = { runner.runOneTest("discrimPlacementSDW") }
   @Test def test_assertPlacementSDW(): Unit = { runner.runOneTest("assertPlacementSDW") }
 
+  @Test def test_nameDOB_test1(): Unit = { runner3.runOneTest("nameDOB_test1") }
+  @Test def test_nameDOB_test_bad_date_first_row(): Unit = { runner3.runOneTest("nameDOB_test_bad_date_first_row") }
+
+  // DAFFODIL-2486 - discriminator bug - interaction with separators
+  // @Test def test_nameDOB_test_bad_1(): Unit = { runner3.runOneTest("nameDOB_test_bad_1") }
+
+  @Test def test_nameDOB_test_bad_using_terminators(): Unit = { runner3.runOneTest("nameDOB_test_bad_using_terminators") }
 }
