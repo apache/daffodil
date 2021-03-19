@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<testSuite suiteName="NameDOB"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:fn="http://www.w3.org/2005/xpath-functions"
+           xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+           xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+           xmlns:ex="http://example.com"
+           xmlns:tns="http://example.com"
+           defaultRoundTrip="none">
+
+  <tdml:defineSchema name="s1">
+
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+
+    <dfdl:format
+      ref="tns:GeneralFormat"
+      representation="text"
+      encoding="ASCII"
+      lengthKind="delimited"
+      separator=""
+      separatorPosition="infix"
+    />
+
+    <!--
+    Schema for simple CSV-like file containing 4 columns, the last of which is a date.
+
+    What makes this non-trivial is use of discriminator after the first column.
+    If we can parse a first column, then the remaining columns MUST be present, and an error
+    in parsing them should be fatal.
+
+    -->
+    <xs:element name="file" dfdl:initiator="last,first,middle,DOB%NL;%WSP*;">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="%NL;" dfdl:separatorPosition="postfix">
+          <xs:element name="record" maxOccurs="unbounded">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="lastName" type="xs:string"
+                            dfdl:terminator=","/>
+                <xs:sequence>
+                  <xs:annotation>
+                    <xs:appinfo source="http://www.ogf.org/dfdl/">
+                      <!--
+                      This discriminator should discriminate the closest
+                      point of uncertainty, which should be the record array element.
+
+                      If we parse the record to this discriminator, then
+                      any subsequent error parsing the remaining fields (e.g., such as
+                      the date being incorrect format, should fail the whole parse, not
+                      just terminate the array.
+                      -->
+                      <dfdl:discriminator test="{ fn:true() }"/>
+                    </xs:appinfo>
+                  </xs:annotation>
+                </xs:sequence>
+                <xs:sequence dfdl:separator=",">
+                  <xs:element name="firstName" type="xs:string"/>
+                  <xs:element name="middleName" type="xs:string"/>
+                  <xs:element name="DOB" type="xs:date"
+                              dfdl:calendarPattern="MM/dd/yyyy"
+                              dfdl:calendarPatternKind="explicit"/>
+                </xs:sequence>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="file2" dfdl:initiator="last,first,middle,DOB%NL;%WSP*;">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="record" maxOccurs="unbounded" dfdl:terminator="%NL;">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="lastName" type="xs:string"
+                            dfdl:terminator=","/>
+                <xs:sequence>
+                  <xs:annotation>
+                    <xs:appinfo source="http://www.ogf.org/dfdl/">
+                      <!--
+                      This discriminator should discriminate the closest
+                      point of uncertainty, which should be the record array element.
+
+                      If we parse the record to this discriminator, then
+                      any subsequent error parsing the remaining fields (e.g., such as
+                      the date being incorrect format, should fail the whole parse, not
+                      just terminate the array.
+                      -->
+                      <dfdl:discriminator test="{ fn:true() }"/>
+                    </xs:appinfo>
+                  </xs:annotation>
+                </xs:sequence>
+                <xs:sequence>
+                  <xs:element name="firstName" type="xs:string" dfdl:terminator="," />
+                  <xs:element name="middleName" type="xs:string" dfdl:terminator=","/>
+                  <xs:element name="DOB" type="xs:date"
+                              dfdl:calendarPattern="MM/dd/yyyy"
+                              dfdl:calendarPatternKind="explicit"/>
+                </xs:sequence>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <!--
+  This test just illustrates that the above schema does parse well-formed CSV-like data
+  including the final date element.
+  -->
+  <tdml:parserTestCase name="nameDOB_test1" model="s1">
+    <tdml:document><![CDATA[last,first,middle,DOB
+smith,robert,brandon,03/24/1988
+johnson,john,henry,01/23/1986
+jones,arya,cat,02/19/1986
+]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:file2 xmlns:ex="http://example.com">
+          <record>
+            <lastName>smith</lastName>
+            <firstName>robert</firstName>
+            <middleName>brandon</middleName>
+            <DOB>1988-03-24</DOB>
+          </record>
+          <record>
+            <lastName>johnson</lastName>
+            <firstName>john</firstName>
+            <middleName>henry</middleName>
+            <DOB>1986-01-23</DOB>
+          </record>
+          <record>
+            <lastName>jones</lastName>
+            <firstName>arya</firstName>
+            <middleName>cat</middleName>
+            <DOB>1986-02-19</DOB>
+          </record>
+        </ex:file2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Shows that the discriminator causes a malformed date in
+    the first row of data to be detected and an error diagnostic about
+    the date field reported.
+    -->
+  <tdml:parserTestCase name="nameDOB_test_bad_date_first_row" root="file"
+                       model="s1">
+    <tdml:document><![CDATA[last,first,middle,DOB
+smith,robert,brandon,1986-02-19
+johnson,john,henry,01/23/1986
+jones,arya,cat,02/19/1986
+]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>xs:date</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+  This test illustrates that because of the malformed date in the
+  final row of data, the schema should deem the whole file malformed.
+
+  Bug DAFFODIL-2486 reports that the discriminator in the schema
+  for this data does not seem to work.
+
+  There is a problem related to separator suppression which is introducing an
+  additional point of uncertainty, which renders the discriminator ineffective
+  for rows after the first one.
+
+  The test should end with a complaint about the DOB element, which is a date.
+  Until that bug is fixed, this ends with "left over data".
+  Because it backtracks and terminates the record array based on the failure
+  to parse the date.
+  That shouldn't happen because of the discriminator.
+  -->
+  <tdml:parserTestCase name="nameDOB_test_bad_1" root="file"
+                       model="s1">
+    <tdml:document><![CDATA[last,first,middle,DOB
+smith,robert,brandon,03/24/1988
+johnson,john,henry,01/23/1986
+jones,arya,cat,1986-02-19
+]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>xs:date</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+  This test shows that if you model this CSV-like data using
+  only terminators, not separators, then the discriminator works
+  as expected.
+  -->
+  <tdml:parserTestCase name="nameDOB_test_bad_using_terminators" root="file2"
+                       model="s1">
+    <tdml:document><![CDATA[last,first,middle,DOB
+smith,robert,brandon,03/24/1988
+johnson,john,henry,01/23/1986
+jones,arya,cat,1986-02-19
+]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>xs:date</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+</testSuite>

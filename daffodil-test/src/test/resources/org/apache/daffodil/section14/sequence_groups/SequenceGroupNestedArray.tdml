@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<tdml:testSuite
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:ex="http://example.com"
+  xmlns:tns="http://example.com"
+  defaultRoundTrip="none">
+
+  <tdml:defineSchema name="s1">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format
+      ref="ex:GeneralFormat"
+      representation="text"
+      encoding="ASCII"
+      lengthKind="delimited"
+      separator=""
+      separatorPosition="infix"
+    />
+
+    <!--
+      A very basic CSV-like data.
+
+      Of note: the item array inside has minOccurs="1"
+      The point is to contrast behavior of this (which seems working)
+      to that of a variant that has minOccurs="0".
+    -->
+    <xs:element name="file">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="%NL;" dfdl:separatorPosition="postfix">
+          <xs:element name="header" minOccurs="0" maxOccurs="1"
+                      dfdl:occursCountKind="implicit">
+            <xs:complexType>
+              <xs:sequence dfdl:separator=",">
+                <xs:element name="title" type="xs:string" maxOccurs="unbounded" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="record" maxOccurs="unbounded">
+            <xs:complexType>
+              <xs:sequence dfdl:separator=",">
+                <xs:element name="item" type="xs:string" minOccurs="1" maxOccurs="unbounded"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <!--
+    Identical to element file above, excepting that the item array has
+    minOccurs="0", not "1".
+
+    This should allow rows containing things like
+
+        ,a,b,
+
+     To work. Bug DAFFODIL-2487 is that this hangs.
+    -->
+    <xs:element name="file2">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="%NL;" dfdl:separatorPosition="postfix">
+          <xs:element name="header" minOccurs="0" maxOccurs="1"
+                      dfdl:occursCountKind="implicit">
+            <xs:complexType>
+              <xs:sequence dfdl:separator=",">
+                <xs:element name="title" type="xs:string" maxOccurs="unbounded" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="record" maxOccurs="unbounded">
+            <xs:complexType>
+              <xs:sequence dfdl:separator=",">
+                <!--
+                Note: This is the difference. This element below has
+                minOccurs="0"
+                -->
+                <xs:element name="item" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <!--
+  Test shows that with the item array having minOccurs="1"
+  The parse works on this data.
+  Including suppressing trailing separators.
+  It does not suppress leading empty elements that have separators, because one
+  such element is required.
+  -->
+  <tdml:parserTestCase name="csv_nohang_1"
+    model="s1">
+    <tdml:document><![CDATA[last,first,middle,DOB
+this line has excess separators,,,,,,,,
+smith,robert,brandon,1988-03-24
+,preceded by an empty field,
+,,preceded by two empty fields,
+notice lines of all commas are not skipped
+,,,,,,,
+notice blank lines are not skipped
+
+johnson,john,henry,1986-01-23
+
+jones,arya,cat,1986-02-19
+
+]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:file xmlns:ex="http://example.com">
+          <ex:header>
+            <ex:title>last</ex:title>
+            <ex:title>first</ex:title>
+            <ex:title>middle</ex:title>
+            <ex:title>DOB</ex:title>
+          </ex:header>
+          <ex:record>
+            <ex:item>this line has excess separators</ex:item>
+          </ex:record>
+          <ex:record>
+            <ex:item>smith</ex:item>
+            <ex:item>robert</ex:item>
+            <ex:item>brandon</ex:item>
+            <ex:item>1988-03-24</ex:item>
+          </ex:record>
+          <ex:record>
+            <ex:item></ex:item><!-- Notice 1 empty field here -->
+            <ex:item>preceded by an empty field</ex:item>
+          </ex:record>
+          <ex:record>
+            <ex:item></ex:item><!-- Notice 1 (not 2) empty field here -->
+            <ex:item>preceded by two empty fields</ex:item>
+          </ex:record>
+          <ex:record>
+            <ex:item>notice lines of all commas are not skipped</ex:item>
+          </ex:record>
+          <ex:record>
+            <ex:item></ex:item>
+          </ex:record>
+          <ex:record>
+            <ex:item>notice blank lines are not skipped</ex:item>
+          </ex:record>
+          <ex:record>
+            <ex:item></ex:item>
+          </ex:record>
+          <ex:record>
+            <ex:item>johnson</ex:item>
+            <ex:item>john</ex:item>
+            <ex:item>henry</ex:item>
+            <ex:item>1986-01-23</ex:item>
+          </ex:record>
+          <ex:record>
+            <ex:item></ex:item>
+          </ex:record>
+          <ex:record>
+            <ex:item>jones</ex:item>
+            <ex:item>arya</ex:item>
+            <ex:item>cat</ex:item>
+            <ex:item>1986-02-19</ex:item>
+          </ex:record>
+          <ex:record>
+            <ex:item></ex:item>
+          </ex:record>
+        </ex:file>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+  Test shows that if we just change minOccurs on the item array to 0
+  then the test hangs.
+  -->
+  <tdml:parserTestCase name="csv_hang_1"
+                       model="s1">
+    <tdml:document><![CDATA[last,first,middle,DOB
+,preceded by an empty field,
+,,preceded by two empty fields,
+notice lines of all commas are skipped
+,,,,,,,
+notice blank lines are skipped
+
+]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:file2 xmlns:ex="http://example.com">
+          <ex:header>
+            <ex:title>last</ex:title>
+            <ex:title>first</ex:title>
+            <ex:title>middle</ex:title>
+            <ex:title>DOB</ex:title>
+          </ex:header>
+          <ex:record>
+            <ex:item>preceded by an empty field</ex:item>
+          </ex:record>
+          <ex:record>
+            <ex:item>preceded by two empty fields</ex:item>
+          </ex:record>
+          <ex:record>
+            <ex:item>notice lines of all commas are skipped</ex:item>
+          </ex:record>
+          <ex:record>
+            <ex:item>notice blank lines are skipped</ex:item>
+          </ex:record>
+        </ex:file2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+ Test shows that if we just change minOccurs on the item array to 0
+ then the test hangs.
+ -->
+  <tdml:parserTestCase name="csv_hang_2"
+                       model="s1">
+    <tdml:document><![CDATA[last,first,middle,DOB
+,preceded by an empty field,
+,,preceded by two empty fields,
+]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:file2 xmlns:ex="http://example.com">
+          <ex:header>
+            <ex:title>last</ex:title>
+            <ex:title>first</ex:title>
+            <ex:title>middle</ex:title>
+            <ex:title>DOB</ex:title>
+          </ex:header>
+          <ex:record>
+            <ex:item>preceded by an empty field</ex:item>
+          </ex:record>
+          <ex:record>
+            <ex:item>preceded by two empty fields</ex:item>
+          </ex:record>
+        </ex:file2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+Test shows that if we just change minOccurs on the item array to 0
+then the test hangs.
+-->
+  <tdml:parserTestCase name="csv_hang_3"
+                       model="s1">
+    <tdml:document><![CDATA[last,first,middle,DOB
+,preceded by an empty field,
+]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:file2 xmlns:ex="http://example.com">
+          <ex:header>
+            <ex:title>last</ex:title>
+            <ex:title>first</ex:title>
+            <ex:title>middle</ex:title>
+            <ex:title>DOB</ex:title>
+          </ex:header>
+          <ex:record>
+            <ex:item>preceded by an empty field</ex:item>
+          </ex:record>
+        </ex:file2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+
+</tdml:testSuite>
