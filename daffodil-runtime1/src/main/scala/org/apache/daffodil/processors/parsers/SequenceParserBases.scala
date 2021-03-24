@@ -183,21 +183,21 @@ abstract class SequenceParserBase(
             if (ais ne Done) {
               pstate.mpstate.moveOverOneArrayIndexOnly()
             }
+
             if (currentPos > priorPos ||
-              ((resultOfTry eq AbsentRep) && pstate.isSuccess
-                && parser.isPositional) ||
+              ((resultOfTry eq AbsentRep) && pstate.isSuccess) ||
                 resultOfTry.isInstanceOf[SuccessParseAttemptStatus]) {
-              // we moved past something, so we're definitely not first
-              // in the group any more.
+              // If we consumed some bits, then we moved past something, and so
+              // we're definitely not first in the group any more.
               //
-              // Or if AbsentRep, and we're positional. Then also we
-              // move on in the group.
+              // Or if AbsentRep, that means we sucessfully parsed a
+              // zero-length separated element. Even though this element may
+              // not end up in the infoset due to separator suppression, we
+              // must still increment the group index since that is used to
+              // determine when to consume infix separators
               //
-              // But if not, if we're still at position zero, then
-              // whatever is next could still be first in the group
-              // and not get an infix separator. So we have to conditionally
-              // not move the group index unless we really did parse something.
-              //
+              // Otherwise, the parse failed or nothing was consumed and we do
+              // should not increment the group index.
               pstate.mpstate.moveOverOneGroupIndexOnly()
             }
 

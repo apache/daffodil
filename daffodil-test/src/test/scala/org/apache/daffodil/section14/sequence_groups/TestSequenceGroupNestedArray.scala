@@ -39,9 +39,7 @@ class TestSequenceGroupNestedArray {
 
   @Test def test_csv_nohang_1(): Unit = { runner.runOneTest("csv_nohang_1") }
   // DAFFODIL-2487 hang when minOccurs="0"
-  // @Test def test_csv_hang_1(): Unit = { runner.runOneTest("csv_hang_1") }
-  // @Test def test_csv_hang_2(): Unit = { runner.runOneTest("csv_hang_2") }
-  // @Test def test_csv_hang_3(): Unit = { runner.runOneTest("csv_hang_3") }
-
-
+  @Test def test_csv_hang_1(): Unit = { runner.runOneTest("csv_hang_1") }
+  @Test def test_csv_hang_2(): Unit = { runner.runOneTest("csv_hang_2") }
+  @Test def test_csv_hang_3(): Unit = { runner.runOneTest("csv_hang_3") }
 }
