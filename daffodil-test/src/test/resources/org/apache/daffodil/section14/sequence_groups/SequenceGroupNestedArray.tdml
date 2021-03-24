@@ -196,7 +196,7 @@ jones,arya,cat,1986-02-19
     <tdml:document><![CDATA[last,first,middle,DOB
 ,preceded by an empty field,
 ,,preceded by two empty fields,
-notice lines of all commas are skipped
+notice lines of all commas create an empty record
 ,,,,,,,
 notice blank lines are skipped
 
@@ -217,8 +217,9 @@ notice blank lines are skipped
             <ex:item>preceded by two empty fields</ex:item>
           </ex:record>
           <ex:record>
-            <ex:item>notice lines of all commas are skipped</ex:item>
+            <ex:item>notice lines of all commas create an empty record</ex:item>
           </ex:record>
+          <ex:record />
           <ex:record>
             <ex:item>notice blank lines are skipped</ex:item>
           </ex:record>
