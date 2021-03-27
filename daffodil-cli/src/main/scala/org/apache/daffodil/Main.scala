@@ -502,7 +502,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
   }
 
   // Generate Subcommand Options
-  val generate = new scallop.Subcommand("generate") {
+  object generate extends scallop.Subcommand("generate") {
     descr("generate <language> code from a DFDL schema")
 
     banner("""|Usage: daffodil [GLOBAL_OPTS] generate <language> [SUBCOMMAND_OPTS]
@@ -511,7 +511,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     footer("""|
               |Run 'daffodil generate <language> --help' for subcommand specific options""".stripMargin)
 
-    val c = new scallop.Subcommand("c") {
+    object c extends scallop.Subcommand("c") {
       banner("""|Usage: daffodil generate c -s <schema> [-r [{namespace}]<root>]
                 |                           [-c <file>] [outputDir]
                 |
@@ -526,13 +526,11 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
       val schema = opt[URI]("schema", required = true, argName = "file", descr = "the annotated DFDL schema to use to generate source code.")
       val rootNS = opt[RefQName]("root", argName = "node", descr = "the root element of the XML file to use.  An optional namespace may be provided. This needs to be one of the top-level elements of the DFDL schema defined with --schema. Requires --schema. If not supplied uses the first element of the first schema")
       val tunables = props[String]('T', keyName = "tunable", valueName = "value", descr = "daffodil tunable to be used when compiling schema.")
-      val config = opt[String](short = 'c', argName = "file", descr = "path to file containing configuration items.")
+      val config = opt[File](short = 'c', argName = "file", descr = "path to file containing configuration items.")
       val outputDir = trailArg[String](required = false, descr = "output directory in which to generate source code. If not specified, uses current directory.")
 
-      validateOpt(schema) {
-        case None => Left("No schemas specified using the --schema option")
-        case _ => Right(Unit)
-      }
+      requireOne(schema) // --schema must be provided
+      validateFileIsFile(config) // --config must be a file that exists
     }
     addSubcommand(c)
   }

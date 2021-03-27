@@ -27,7 +27,6 @@ import java.nio.file.Files
 import java.util.zip.GZIPOutputStream
 
 import scala.collection.immutable.Queue
-import scala.collection.mutable
 
 import org.apache.daffodil.Implicits._; object INoWarn4 {
   ImplicitsSuppressUnusedImportWarning() }
@@ -67,7 +66,7 @@ import org.apache.daffodil.processors.unparsers.UnparseError
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe._
 import org.apache.daffodil.util.Misc
-
+import org.apache.daffodil.validation.XercesValidatorFactory
 
 /**
  * Implementation mixin - provides simple helper methods
