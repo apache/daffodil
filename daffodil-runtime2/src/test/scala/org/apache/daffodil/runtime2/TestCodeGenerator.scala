@@ -27,7 +27,6 @@ import org.apache.daffodil.util.SchemaUtils
 import org.apache.daffodil.util.TestUtils
 import org.junit.After
 import org.junit.Assert.assertArrayEquals
-import org.junit.Before
 import org.junit.Test
 
 /**
@@ -39,12 +38,8 @@ import org.junit.Test
  * as you could want.
  */
 class TestCodeGenerator {
-  // Ensure all tests remove tempDir after using it
-  var tempDir: os.Path = _
-
-  @Before def before(): Unit = {
-    tempDir = os.temp.dir()
-  }
+  // Ensure all tests remove tempDir after creating it
+  val tempDir: os.Path = os.temp.dir()
 
   @After def after(): Unit = {
     os.remove.all(tempDir)

@@ -21,7 +21,6 @@ import net.sf.expectit.matcher.Matchers.contains
 import net.sf.expectit.matcher.Matchers.eof
 import org.apache.daffodil.CLI.Util
 import org.junit.After
-import org.junit.Before
 import org.junit.Test
 
 /**
@@ -31,20 +30,17 @@ import org.junit.Test
 class TestCLIGenerateC {
 
   val daffodil: String = Util.binPath
-  var outputDir: os.Path = _
   lazy val schemaFile: String = if (Util.isWindows) Util.cmdConvert(sf) else sf
   val sf: String = Util.daffodilPath("daffodil-runtime2/src/test/resources/org/apache/daffodil/runtime2/ex_nums.dfdl.xsd")
-
-  @Before def before(): Unit = {
-    outputDir = os.temp.dir()
-  }
+  // Ensure all tests remove tempDir after creating it
+  val tempDir: os.Path = os.temp.dir()
 
   @After def after(): Unit = {
-    os.remove.all(outputDir)
+    os.remove.all(tempDir)
   }
 
   @Test def test_CLI_Generate_schema(): Unit = {
-    val generateCmd = s"$daffodil generate c -s $schemaFile $outputDir"
+    val generateCmd = s"$daffodil generate c -s $schemaFile $tempDir"
     val exitCmd = "exit"
 
     val shell = Util.start("")
@@ -56,11 +52,11 @@ class TestCLIGenerateC {
       shell.close()
     }
 
-    assert(os.exists(outputDir/"c"/"libruntime"/"generated_code.c"))
+    assert(os.exists(tempDir/"c"/"libruntime"/"generated_code.c"))
   }
 
   @Test def test_CLI_Generate_noC_error(): Unit = {
-    val generateCmd = s"$daffodil generate -s $schemaFile $outputDir"
+    val generateCmd = s"$daffodil generate -s $schemaFile $tempDir"
     val exitCmd = "exit"
 
     val shell = Util.start("", expectErr = true)
@@ -75,13 +71,13 @@ class TestCLIGenerateC {
   }
 
   @Test def test_CLI_Generate_otherThanC_error(): Unit = {
-    val generateCmd = s"$daffodil generate vhld -s $schemaFile $outputDir"
+    val generateCmd = s"$daffodil generate vhld -s $schemaFile $tempDir"
     val exitCmd = "exit"
 
     val shell = Util.start("", expectErr = true)
     try {
       shell.sendLine(generateCmd)
-      shell.expect(contains("Excess arguments provided: 'vhld"))
+      shell.expect(contains("Unknown option 's'"))
       shell.sendLine(exitCmd)
       shell.expect(eof())
     } finally {
@@ -90,7 +86,7 @@ class TestCLIGenerateC {
   }
 
   @Test def test_CLI_Generate_noSchema_error(): Unit = {
-    val generateCmd = s"$daffodil generate c $outputDir"
+    val generateCmd = s"$daffodil generate c $tempDir"
     val exitCmd = "exit"
 
     val shell = Util.start("", expectErr = true)
@@ -105,7 +101,7 @@ class TestCLIGenerateC {
   }
 
   @Test def test_CLI_Generate_twoSchema_error(): Unit = {
-    val generateCmd = s"$daffodil generate c -s $schemaFile -s $schemaFile $outputDir"
+    val generateCmd = s"$daffodil generate c -s $schemaFile -s $schemaFile $tempDir"
     val exitCmd = "exit"
 
     val shell = Util.start("", expectErr = true)
@@ -120,7 +116,7 @@ class TestCLIGenerateC {
   }
 
   @Test def test_CLI_Generate_verbose(): Unit = {
-    val generateCmd = s"$daffodil -v generate c -s $schemaFile $outputDir"
+    val generateCmd = s"$daffodil -v generate c -s $schemaFile $tempDir"
     val exitCmd = "exit"
 
     val shell = Util.start("", expectErr = true)
@@ -134,11 +130,11 @@ class TestCLIGenerateC {
       shell.close()
     }
 
-    assert(os.exists(outputDir/"c"/"libruntime"/"generated_code.c"))
+    assert(os.exists(tempDir/"c"/"libruntime"/"generated_code.c"))
   }
 
   @Test def test_CLI_Generate_root(): Unit = {
-    val generateCmd = s"$daffodil generate c -s $schemaFile -r {http://example.com}ex_nums $outputDir"
+    val generateCmd = s"$daffodil generate c -s $schemaFile -r {http://example.com}ex_nums $tempDir"
     val exitCmd = "exit"
 
     val shell = Util.start("")
@@ -150,11 +146,11 @@ class TestCLIGenerateC {
       shell.close()
     }
 
-    assert(os.exists(outputDir/"c"/"libruntime"/"generated_code.c"))
+    assert(os.exists(tempDir/"c"/"libruntime"/"generated_code.c"))
   }
 
   @Test def test_CLI_Generate_root_error(): Unit = {
-    val generateCmd = s"$daffodil generate c -s $schemaFile -r {ex}ex_nums $outputDir"
+    val generateCmd = s"$daffodil generate c -s $schemaFile -r {ex}ex_nums $tempDir"
     val exitCmd = "exit"
 
     val shell = Util.start("", expectErr = true)
@@ -170,13 +166,13 @@ class TestCLIGenerateC {
   }
 
   @Test def test_CLI_Generate_namespaceNoRoot_error(): Unit = {
-    val generateCmd = s"$daffodil generate c -s $schemaFile -r {http://example.com} $outputDir"
+    val generateCmd = s"$daffodil generate c -s $schemaFile -r {http://example.com} $tempDir"
     val exitCmd = "exit"
 
     val shell = Util.start("", expectErr = true)
     try {
       shell.sendLine(generateCmd)
-      shell.expect(contains("'{http://example.com}' - wrong arguments format"))
+      shell.expect(contains("Invalid syntax for extended QName"))
       shell.sendLine(exitCmd)
       shell.expect(eof())
     } finally {
@@ -185,7 +181,7 @@ class TestCLIGenerateC {
   }
 
   @Test def test_CLI_Generate_tunable(): Unit = {
-    val generateCmd = s"$daffodil generate c -s $schemaFile -T parseUnparsePolicy=parseOnly $outputDir"
+    val generateCmd = s"$daffodil generate c -s $schemaFile -T parseUnparsePolicy=parseOnly $tempDir"
     val exitCmd = "exit"
 
     val shell = Util.start("")
@@ -197,6 +193,6 @@ class TestCLIGenerateC {
       shell.close()
     }
 
-    assert(os.exists(outputDir/"c"/"libruntime"/"generated_code.c"))
+    assert(os.exists(tempDir/"c"/"libruntime"/"generated_code.c"))
   }
 }

@@ -533,6 +533,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
       validateFileIsFile(config) // --config must be a file that exists
     }
     addSubcommand(c)
+    requireSubcommand()
   }
 
   addSubcommand(parse)
