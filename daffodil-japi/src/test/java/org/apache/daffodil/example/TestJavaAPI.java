@@ -99,7 +99,7 @@ public class TestJavaAPI {
         ProcessorFactory pf = c.compileFile(schemaFile);
         DataProcessor dp = pf.onPath("/");
         dp = reserializeDataProcessor(dp);
-        dp = dp.withDebugger(debugger);
+        dp = dp.withDebuggerRunner(debugger);
         dp = dp.withDebugging(true);
 
         java.io.File file = getResource("/test/japi/myData.dat");
@@ -154,7 +154,7 @@ public class TestJavaAPI {
         ReadableByteChannel input = Channels.newChannel(is);
         org.apache.daffodil.japi.Compiler compiler = Daffodil.compiler();
         DataProcessor parser = compiler.reload(input);
-        parser = parser.withDebugger(debugger);
+        parser = parser.withDebuggerRunner(debugger);
         parser = parser.withDebugging(true);
 
         java.io.File file = getResource("/test/japi/myData.dat");
@@ -199,7 +199,7 @@ public class TestJavaAPI {
         java.io.File schemaFile = getResource("/test/japi/mySchema1.dfdl.xsd");
         ProcessorFactory pf = c.compileFile(schemaFile);
         DataProcessor dp = pf.onPath("/");
-        dp = dp.withDebugger(debugger);
+        dp = dp.withDebuggerRunner(debugger);
         dp = dp.withDebugging(true);
 
         // Serialize the parser to memory, then deserialize for parsing.
@@ -661,7 +661,7 @@ public class TestJavaAPI {
         ProcessorFactory pf = c.compileFile(schemaFile);
         DataProcessor dp = pf.onPath("/");
         dp = reserializeDataProcessor(dp);
-        dp = dp.withDebugger(debugger);
+        dp = dp.withDebuggerRunner(debugger);
         dp = dp.withDebugging(true);
 
         java.io.File file = getResource("/test/japi/myData.dat");
@@ -702,7 +702,7 @@ public class TestJavaAPI {
 
         DataProcessor dp = pf.onPath("/");
         dp = reserializeDataProcessor(dp);
-        dp = dp.withDebugger(debugger);
+        dp = dp.withDebuggerRunner(debugger);
         dp = dp.withDebugging(true);
         dp = dp.withExternalVariables(extVarsFile);
 
@@ -744,7 +744,7 @@ public class TestJavaAPI {
         ProcessorFactory pf = c.compileFile(schemaFile);
         DataProcessor dp = pf.onPath("/");
         dp = reserializeDataProcessor(dp);
-        dp = dp.withDebugger(debugger);
+        dp = dp.withDebuggerRunner(debugger);
         dp = dp.withDebugging(true);
         dp = dp.withExternalVariables(extVarFile);
 
@@ -1085,7 +1085,7 @@ public class TestJavaAPI {
         ProcessorFactory pf = c.compileFile(schemaFile);
         DataProcessor dp = pf.onPath("/");
         dp = reserializeDataProcessor(dp);
-        dp = dp.withDebugger(debugger);
+        dp = dp.withDebuggerRunner(debugger);
         dp = dp.withDebugging(true);
 
         java.util.AbstractMap<String, String> extVarsMap = new java.util.HashMap<String, String>();
