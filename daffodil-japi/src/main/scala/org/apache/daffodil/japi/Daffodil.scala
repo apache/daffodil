@@ -58,6 +58,7 @@ import java.net.URI
 
 import org.apache.daffodil.api.URISchemaSource
 import org.apache.daffodil.api.Validator
+import org.apache.daffodil.debugger.Debugger
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe._
 import org.apache.daffodil.util.MaybeULong
@@ -532,7 +533,8 @@ class DataProcessor private[japi] (private var dp: SDataProcessor)
   /**
    * Enable/disable debugging.
    *
-   * Before enabling, [[DataProcessor#setDebugger(DebuggerRunner)]] must be called with a non-null debugger.
+   * Before enabling, [[DataProcessor#withDebugger]] or [[DataProcessor#withDebuggerRunner(DebuggerRunner)]] must be
+   * called with a non-null debugger.
    *
    * @param flag true to enable debugging, false to disabled
    */
@@ -544,7 +546,8 @@ class DataProcessor private[japi] (private var dp: SDataProcessor)
   /**
    * Obtain a new [[DataProcessor]] instance with debugging enabled or disabled.
    *
-   * Before enabling, [[DataProcessor#withDebugger(DebuggerRunner)]] must be called to obtain a [[DataProcessor]] with a non-null debugger.
+   * Before enabling, [[DataProcessor#withDebugger(Debugger)]] or [[DataProcessor#withDebuggerRunner(DebuggerRunner)]]
+   * must be called to obtain a [[DataProcessor]] with a non-null debugger.
    *
    * @param flag true to enable debugging, false to disabled
    */
@@ -557,7 +560,7 @@ class DataProcessor private[japi] (private var dp: SDataProcessor)
    *
    * @param dr debugger runner
    */
-  @deprecated("Use withDebugger.", "2.6.0")
+  @deprecated("Use withDebuggerRunner.", "2.6.0")
   def setDebugger(dr: DebuggerRunner): Unit = {
     val debugger = newDebugger(dr)
     dp = dp.withDebugger(debugger)
@@ -568,9 +571,18 @@ class DataProcessor private[japi] (private var dp: SDataProcessor)
    *
    * @param dr debugger runner
    */
-  def withDebugger(dr: DebuggerRunner): DataProcessor = {
+  def withDebuggerRunner(dr: DebuggerRunner): DataProcessor = {
     val debugger = newDebugger(dr)
     copy(dp = dp.withDebugger(debugger))
+  }
+
+  /**
+   * Obtain a new [[DataProcessor]] with a specified debugger.
+   *
+   * @param dbg debugger
+   */
+  def withDebugger(dbg: Debugger): DataProcessor = {
+    copy(dp = dp.withDebugger(dbg))
   }
 
   private def newDebugger(dr: DebuggerRunner) = {

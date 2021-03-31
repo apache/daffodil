@@ -122,7 +122,7 @@ class TestScalaAPI {
     val pf = c.compileFile(schemaFile)
     val dp1 = pf.onPath("/")
     val dp = reserializeDataProcessor(dp1)
-      .withDebugger(debugger)
+      .withDebuggerRunner(debugger)
       .withDebugging(true)
       .withValidationMode(ValidationMode.Off)
 
@@ -181,7 +181,7 @@ class TestScalaAPI {
     val savedParser = Channels.newChannel(is)
     val compiler = Daffodil.compiler()
     val parser = compiler.reload(savedParser)
-    .withDebugger(debugger)
+    .withDebuggerRunner(debugger)
     .withDebugging(true)
     .withValidationMode(ValidationMode.Off)
     val file = getResource("/test/sapi/myData.dat")
@@ -641,7 +641,7 @@ class TestScalaAPI {
     val pf = c.compileFile(schemaFile)
     val dp1 = pf.onPath("/")
     val dp = reserializeDataProcessor(dp1)
-      .withDebugger(debugger)
+      .withDebuggerRunner(debugger)
       .withDebugging(true)
       .withValidationMode(ValidationMode.Off)
 
@@ -688,7 +688,7 @@ class TestScalaAPI {
     val dp1 = pf.onPath("/")
     val dp = reserializeDataProcessor(dp1)
       .withExternalVariables(extVarsFile)
-      .withDebugger(debugger)
+      .withDebuggerRunner(debugger)
       .withDebugging(true)
       .withValidationMode(ValidationMode.Off)
 
@@ -729,7 +729,7 @@ class TestScalaAPI {
     val dp1 = pf.onPath("/")
     val dp = reserializeDataProcessor(dp1)
       .withExternalVariables(extVarFile)
-      .withDebugger(debugger)
+      .withDebuggerRunner(debugger)
       .withDebugging(true)
       .withValidationMode(ValidationMode.Off)
 
@@ -779,7 +779,7 @@ class TestScalaAPI {
     val schemaFile = getResource("/test/sapi/mySchema1.dfdl.xsd")
     val pf = c.compileFile(schemaFile)
     val dp = pf.onPath("/")
-      .withDebugger(debugger)
+      .withDebuggerRunner(debugger)
       .withDebugging(true)
     // Serialize the parser to memory, then deserialize for parsing.
     val os = new ByteArrayOutputStream()
@@ -816,7 +816,7 @@ class TestScalaAPI {
     val pf = c.compileFile(schemaFile)
     val dp1 = pf.onPath("/")
     val dp = reserializeDataProcessor(dp1)
-      .withDebugger(debugger)
+      .withDebuggerRunner(debugger)
       .withDebugging(true)
 
     val file = getResource("/test/sapi/myInfosetBroken.xml")
@@ -1098,7 +1098,7 @@ class TestScalaAPI {
     val pf = c.compileFile(schemaFile)
     val dp1 = pf.onPath("/")
     val dp = reserializeDataProcessor(dp1)
-      .withDebugger(debugger)
+      .withDebuggerRunner(debugger)
       .withDebugging(true)
 
     val file = getResource("/test/sapi/myInfosetBroken.xml")
