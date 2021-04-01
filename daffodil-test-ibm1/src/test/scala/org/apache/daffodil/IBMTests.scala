@@ -44,8 +44,7 @@ class IBMTestsThatPass {
   @Test def test_length_delimited_12_01(): Unit = { runner1.runOneTest("length_delimited_12_01") }
   @Test def test_length_delimited_12_04(): Unit = { runner1.runOneTest("length_delimited_12_04") }
 
-  // Doesn't work for a user, possible locale issue (DAFFODIL-1945)
-  // @Test def test_simple_type_properties_text_calendar_13_01() { runner2.runOneTest("simple_type_properties_text_calendar_13_01") }
+  @Test def test_simple_type_properties_text_calendar_13_01(): Unit = { runner2.runOneTest("simple_type_properties_text_calendar_13_01") }
   @Test def test_simple_type_properties_text_calendar_13_02(): Unit = { runner2.runOneTest("simple_type_properties_text_calendar_13_02") }
   @Test def test_simple_type_properties_text_calendar_13_03(): Unit = { runner2.runOneTest("simple_type_properties_text_calendar_13_03") }
   @Test def test_simple_type_properties_text_calendar_13_04(): Unit = { runner2.runOneTest("simple_type_properties_text_calendar_13_04") }
