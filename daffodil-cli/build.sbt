@@ -18,24 +18,24 @@
 import scala.xml.Attribute
 import scala.xml.transform.RewriteRule
 import scala.xml.transform.RuleTransformer
- 
+
 enablePlugins(JavaAppPackaging)
 enablePlugins(RpmPlugin)
 enablePlugins(WindowsPlugin)
 
 // need 'sbt stage' to build the CLI for cli integration tests
-(test in IntegrationTest) := (test in IntegrationTest).dependsOn(stage in Compile).value
-(testOnly in IntegrationTest) := (testOnly in IntegrationTest).dependsOn(stage in Compile).evaluated
-(testQuick in IntegrationTest) := (testQuick in IntegrationTest).dependsOn(stage in Compile).evaluated
+(IntegrationTest / test) := (IntegrationTest / test).dependsOn(Compile / stage).value
+(IntegrationTest / testOnly) := (IntegrationTest / testOnly).dependsOn(Compile / stage).evaluated
+(IntegrationTest / testQuick) := (IntegrationTest / testQuick).dependsOn(Compile / stage).evaluated
 
 executableScriptName := "daffodil"
 
-packageName in Universal := "apache-daffodil-" + version.value + "-bin" //tarball name
-packageName in Linux := executableScriptName.value
-packageName in Rpm := "apache-" + executableScriptName.value
-packageName in Windows := executableScriptName.value
+Universal / packageName := "apache-daffodil-" + version.value + "-bin" //tarball name
+Linux / packageName := executableScriptName.value
+Rpm / packageName := "apache-" + executableScriptName.value
+Windows / packageName := executableScriptName.value
 
-mappings in Universal ++= Seq(
+Universal / mappings ++= Seq(
   baseDirectory.value / "bin.LICENSE" -> "LICENSE",
   baseDirectory.value / "bin.NOTICE" -> "NOTICE",
   baseDirectory.value / "README.md" -> "README.md",
@@ -48,11 +48,11 @@ maintainer := "Apache Daffodil <dev@daffodil.apache.org>"
 //
 rpmVendor := "Apache Daffodil"
 
-packageArchitecture in Rpm := "noarch"
+Rpm / packageArchitecture := "noarch"
 
-packageSummary in Rpm := "Open-source implementation of the Data Format Description Language (DFDL)"
+Rpm / packageSummary := "Open-source implementation of the Data Format Description Language (DFDL)"
 
-packageDescription in Rpm := """
+Rpm / packageDescription := """
 Apache Daffodil is an open-source implementation of the DFDL specification
 that uses DFDL data descriptions to parse fixed format data into an infoset.
 This infoset is commonly converted into XML or JSON to enable the use of
@@ -72,12 +72,12 @@ carried by data processing frameworks so as to bypass any XML/JSON overheads.
 // In this case, we want to disable zstd compression which isn't supported by
 // older versions of RPM. So we add the following special rpm %define's to use
 // gzip compression instead, which is supported by all versions of RPM.
-packageDescription in Rpm := (packageDescription in Rpm).value + """
+Rpm / packageDescription := (Rpm / packageDescription).value + """
 %define _source_payload w9.gzdio
 %define _binary_payload w9.gzdio
 """
 
-version in Rpm := {
+Rpm / version := {
   val parts = version.value.split("-", 2)
   val ver = parts(0) // removes snapshot if it exists
   ver
@@ -108,21 +108,21 @@ rpmPrefix := Some(defaultLinuxInstallLocation.value)
 // The SBT WiX plug-in incorrectly assumes that the directory of
 // invocation is the same name as the direcotry you eventually
 // want to install into.
-name in Windows := "Daffodil" 
+Windows / name := "Daffodil"
 
 // The Windows packager SBT plug-in maps the packageSummary variable
-// into the WiX productName field. Another strange choice. 
-packageSummary in Windows := "Daffodil"
+// into the WiX productName field. Another strange choice.
+Windows / packageSummary := "Daffodil"
 
 // The Windows packager SBT plug-in limits the length of the packageDescription
 // field to a single line. Use the short packageSummary from the RPM config.
-packageDescription in Windows := (packageSummary in Rpm).value
+Windows / packageDescription := (Rpm / packageSummary).value
 
 // Use the same version number as in the rpm, which has SNAPSHOT removed if it
 // exists. Windows version numbers has no concept of a "snapshot build", only
 // major, minor, patch, and build. So Windows MSI versions do not differentiate
 // between snapshots and non-snapshots.
-version in Windows := (version in Rpm).value
+Windows / version := (Rpm / version).value
 
 // Required and critical GUIDs. Ironically the ProductId is unique
 // to a given release, but UpgradeId must NEVER change! This may
@@ -138,22 +138,22 @@ wixProductUpgradeId := "4C966AFF-585E-4E17-8CC2-059FD70FEC77"
 // specific XML to enable this, the WiX compiler and linker
 // complain about it unless you specifically suppress the warning.
 lightOptions := Seq(
-	"-sval", // validation does not currently work under Wine, this disables that
-	"-sice:ICE61",
-	"-ext", "WixUIExtension",
-	"-cultures:en-us",
-	"-loc", ((sourceDirectory in Windows).value / "Product_en-us.wxl").toString
-	)
+  "-sval", // validation does not currently work under Wine, this disables that
+  "-sice:ICE61",
+  "-ext", "WixUIExtension",
+  "-cultures:en-us",
+  "-loc", ((Windows / sourceDirectory).value / "Product_en-us.wxl").toString
+)
 
 // Build an RTF version of the license file for display in the license
 // acceptance dialog box. This file will also be sent to the
 // printer when and if the user asks for hard copy via the 'print' button.
 wixProductLicense := {
   // Make sure the target direcotry exists.
-  (target in Windows).value.mkdirs()
-  
+  (Windows / target).value.mkdirs()
+
   // This target file doesn't exist until placed there by the build.
-  val targetLicense = (target in Windows).value / "LICENSE.rtf" 
+  val targetLicense = (Windows / target).value / "LICENSE.rtf"
   val sourceLicense = baseDirectory.value / "bin.LICENSE"
   // somehow convert sourceLicense into RTF and store at targetLicense
   val rtfHeader = """{\rtf {\fonttbl {\f0 Arial;}} \f0\fs18"""
@@ -174,8 +174,8 @@ wixProductLicense := {
 // Use the wixFiles variable to add in the Daffodil-specific dialog
 // boxes and sequence.
 wixFiles ++= Seq(
-  (sourceDirectory in Windows).value / "WixUI_Daffodil.wxs",
-)  
+  (Windows / sourceDirectory).value / "WixUI_Daffodil.wxs",
+)
 
 // The SBT Native Packager plug-in assumes that we want to give the user
 // a Feature Tree to select from. One of the 'features' that the plug-in
@@ -191,32 +191,32 @@ wixFeatures := {
 
 // Make sure that we don't use an MSI installer that is older than
 // version 2.0. It also fixes the comment attribute that hangs
-// out on the Package keyword. 
+// out on the Package keyword.
 wixPackageInfo := wixPackageInfo.value.copy(installerVersion = "200", comments = "!(loc.Comments)")
 
 // Fix the XML that is associated with the installable files and directories.
 wixProductConfig := {
   // Pick up the generated code.
   val pc = wixProductConfig.value
-  
+
   // Replace the default headline banner and Welcome/Exit screen
-  // bitmaps with the custom ones we developed for Daffodil. 
-  val banner = <WixVariable Id="WixUIBannerBmp" Value={ ((sourceDirectory in Windows).value / "banner.bmp").toString } />
-  val dialog = <WixVariable Id="WixUIDialogBmp" Value={ ((sourceDirectory in Windows).value / "dialog.bmp").toString } />
-  
+  // bitmaps with the custom ones we developed for Daffodil.
+  val banner = <WixVariable Id="WixUIBannerBmp" Value={ ((Windows / sourceDirectory).value / "banner.bmp").toString } />
+  val dialog = <WixVariable Id="WixUIDialogBmp" Value={ ((Windows / sourceDirectory).value / "dialog.bmp").toString } />
+
   // Reference the Daffodil-specific User Interface (dialog box) sequence.
   val ui = <UI><UIRef Id="WixUI_Daffodil" /></UI>
-  
+
   // Make sure we abort if we are not installing on Windows 95 or later.
   val osCondition = <Condition Message="!(loc.OS2Old)"><![CDATA[Installed OR (VersionNT >= 400)]]></Condition>
 
   // Define icons (ID should not be longer than 18 chars and must end with ".exe")
   val icon = Seq(
-    <Icon Id="Daffodil.ico" SourceFile={ ((sourceDirectory in Windows).value / "apache-daffodil.ico").toString } />,
+    <Icon Id="Daffodil.ico" SourceFile={ ((Windows / sourceDirectory).value / "apache-daffodil.ico").toString } />,
     <Property Id="ARPPRODUCTICON" Value="Daffodil.ico" />
   )
-  
-  // String together the additional XML around the generated directory and file lists. 
+
+  // String together the additional XML around the generated directory and file lists.
   val pcGroup = pc.asInstanceOf[scala.xml.Group]
   val newNodes = osCondition ++ icon ++ pcGroup.nodes ++ dialog ++ banner ++ ui
   val pcWithNewNodes = pcGroup.copy(nodes = newNodes)
@@ -224,7 +224,7 @@ wixProductConfig := {
   // Change (edit) some items inside the directory/files list.
   val pcRewriteRule = new RewriteRule {
     override def transform(n: scala.xml.Node): Seq[scala.xml.Node] = n match {
-	
+
       // We want to comply with the Windows standard pattern of
       // installing at /Program Files/ManufacturerName/Application
       // This case effectively inserts the manufacturer name into
@@ -234,7 +234,7 @@ wixProductConfig := {
         val apacheDirWithChild = apacheDir.copy(child = e.child)
         e.copy(child = apacheDirWithChild)
       }
-	  
+
       // We *ARE* going to allow the user to repair and reinstall
       // the same exact version, so we need to add an attribute
       // to the MajorUpgrade keyword.  This will trigger an 'ICE61'
@@ -248,7 +248,7 @@ wixProductConfig := {
         val attribs = e.attributes.remove("Key")
         e % scala.xml.Attribute("", "Key", """Software\Apache\Installed Products\Daffodil""", attribs)
       }
-	  
+
       // The WixUI_FeatureTree reference has to be removed so that
       // our custom Daffodil UI can operate properly.
       case e: scala.xml.Elem if e.label == "UIRef" && (e \ "@Id").text == "WixUI_FeatureTree" => {

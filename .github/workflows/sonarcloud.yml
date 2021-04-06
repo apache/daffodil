@@ -38,7 +38,7 @@ jobs:
       ############################################################
 
       - name: Compile
-        run: $SBT compile test:compile it:compile
+        run: $SBT compile Test/compile IntegrationTest/compile
         shell: bash
         env:
           SBT: sbt -J-Xms1024m -J-Xmx5120m -J-XX:ReservedCodeCacheSize=512m -J-XX:MaxMetaspaceSize=1024m ++${{ matrix.scala_version }} coverage

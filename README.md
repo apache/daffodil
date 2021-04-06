@@ -60,7 +60,7 @@ $ sbt test
 Run all command line interface tests:
 
 ```text
-$ sbt it:test
+$ sbt IntegrationTest/test
 ```
 
 ### Command Line Interface
@@ -87,7 +87,7 @@ Generate an [sbt-scoverage] test coverage report located in
 ``target/scala-ver/scoverage-report/``:
 
 ```text
-$ sbt clean coverage test it:test
+$ sbt clean coverage test IntegrationTest/test
 $ sbt coverageAggregate
 ```
 
