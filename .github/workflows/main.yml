@@ -54,16 +54,16 @@ jobs:
       ############################################################
 
       - name: Compile
-        run: $SBT compile test:compile it:compile
+        run: $SBT compile Test/compile IntegrationTest/compile
 
       - name: Build Documentation
         run: $SBTNOCOV unidoc
 
       - name: Package Zip & Tar
-        run: $SBTNOCOV daffodil-cli/universal:packageBin daffodil-cli/universal:packageZipTarball
+        run: $SBTNOCOV daffodil-cli/Universal/packageBin daffodil-cli/Universal/packageZipTarball
 
       - name: Package RPM
-        run: $SBTNOCOV daffodil-cli/rpm:packageBin
+        run: $SBTNOCOV daffodil-cli/Rpm/packageBin
         if: runner.os == 'Linux'
 
       ############################################################
@@ -77,7 +77,7 @@ jobs:
         run: $SBT test
 
       - name: Run Integration Tests
-        run: $SBT it:test
+        run: $SBT IntegrationTest/test
 
       - name: Generate Coverage Report
         run: $SBT coverageAggregate

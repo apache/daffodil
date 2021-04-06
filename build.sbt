@@ -136,7 +136,7 @@ lazy val commonSettings = Seq(
   scalacOptions ++= scalacCrossOptions(scalaVersion.value),
   // Workaround issue that some options are valid for javac, not javadoc.
   // These javacOptions are for code compilation only. (Issue sbt/sbt#355)
-  javacOptions in Compile in compile ++= Seq(
+  Compile / compile / javacOptions  ++= Seq(
     "-Werror",
     "-Xlint:deprecation"
   ),
@@ -145,10 +145,10 @@ lazy val commonSettings = Seq(
   retrieveManaged := true,
   useCoursier := false, // disabled because it breaks retrieveManaged (sbt issue #5078)
   exportJars := true,
-  exportJars in Test := false,
+  Test / exportJars := false,
   publishMavenStyle := true,
-  publishArtifact in Test := false,
-  pomIncludeRepository in ThisBuild := { _ => false },
+  Test / publishArtifact := false,
+  ThisBuild / pomIncludeRepository := { _ => false },
   scmInfo := Some(
     ScmInfo(
       browseUrl = url("https://github.com/apache/daffodil"),
@@ -161,7 +161,7 @@ lazy val commonSettings = Seq(
   sourceManaged := baseDirectory.value / "src_managed",
   resourceManaged := baseDirectory.value / "resource_managed",
   libraryDependencies ++= Dependencies.common,
-  parallelExecution in IntegrationTest := false,
+  IntegrationTest / parallelExecution := false,
   testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "-v"),
 ) ++ Defaults.itSettings
 
@@ -177,7 +177,7 @@ lazy val nopublish = Seq(
   publish := {},
   publishLocal := {},
   publishM2 := {},
-  skip in publish := true
+  publish / skip := true
 )
 
 // "usesMacros" is a list of settings that should be applied only to
@@ -201,8 +201,8 @@ lazy val usesMacros = Seq(
   // Note that for packageBin, we only copy directories and class files--this
   // ignores files such a META-INFA/LICENSE and NOTICE that are duplicated and
   // would otherwise cause a conflict.
-  mappings in (Compile, packageBin) ++= mappings.in(macroLib, Compile, packageBin).value.filter { case (f, _) => f.isDirectory || f.getPath.endsWith(".class") },
-  mappings in (Compile, packageSrc) ++= mappings.in(macroLib, Compile, packageSrc).value,
+  Compile / packageBin / mappings ++= (macroLib / Compile / packageBin / mappings).value.filter { case (f, _) => f.isDirectory || f.getPath.endsWith(".class") },
+  Compile / packageSrc / mappings ++= (macroLib / Compile / packageSrc / mappings).value,
 
   // The .classpath files that the sbt eclipse plugin creates need minor
   // modifications. Fortunately, the plugin allows us to provide "transformers"
@@ -224,16 +224,16 @@ lazy val usesMacros = Seq(
 
 lazy val libManagedSettings = Seq(
   genManaged := {
-    (genProps in Compile).value
-    (genSchemas in Compile).value
+    (Compile / genProps).value
+    (Compile / genSchemas).value
     ()
   },
-  genProps in Compile := {
-    val cp = (dependencyClasspath in Runtime in propgen).value
-    val inSrc = (sources in Compile in propgen).value
-    val inRSrc = (resources in Compile in propgen).value
-    val stream = (streams in propgen).value
-    val outdir = (sourceManaged in Compile).value
+  Compile / genProps := {
+    val cp = (propgen / Runtime / dependencyClasspath).value
+    val inSrc = (propgen / Runtime/ sources).value
+    val inRSrc = (propgen / Compile / resources).value
+    val stream = (propgen / streams).value
+    val outdir = (Compile / sourceManaged).value
     val filesToWatch = (inSrc ++ inRSrc).toSet
     val cachedFun = FileFunction.cached(stream.cacheDirectory / "propgen") { (in: Set[File]) =>
       val mainClass = "org.apache.daffodil.propGen.PropertyGenerator"
@@ -257,10 +257,10 @@ lazy val libManagedSettings = Seq(
     }
     cachedFun(filesToWatch).toSeq
   },
-  genSchemas in Compile := {
-    val inRSrc = (resources in Compile in propgen).value
-    val stream = (streams in propgen).value
-    val outdir = (resourceManaged in Compile).value
+  Compile / genSchemas := {
+    val inRSrc = (propgen / Compile / resources).value
+    val stream = (propgen / streams).value
+    val outdir = (Compile / resourceManaged).value
     val filesToWatch = inRSrc.filter{_.isFile}.toSet
     val cachedFun = FileFunction.cached(stream.cacheDirectory / "schemasgen") { (schemas: Set[File]) =>
       schemas.map { schema =>
@@ -272,8 +272,8 @@ lazy val libManagedSettings = Seq(
     }
     cachedFun(filesToWatch).toSeq
   },
-  sourceGenerators in Compile += (genProps in Compile).taskValue,
-  resourceGenerators in Compile += (genSchemas in Compile).taskValue
+  Compile / sourceGenerators += (Compile / genProps).taskValue,
+  Compile / resourceGenerators += (Compile / genSchemas).taskValue
 )
 
 lazy val ratSettings = Seq(
@@ -288,20 +288,20 @@ lazy val ratSettings = Seq(
 )
 
 lazy val unidocSettings = Seq(
-  unidocProjectFilter in (ScalaUnidoc, unidoc) := inProjects(sapi, udf),
-  scalacOptions in (ScalaUnidoc, unidoc) := Seq(
+  ScalaUnidoc / unidoc / unidocProjectFilter := inProjects(sapi, udf),
+  ScalaUnidoc / unidoc / scalacOptions := Seq(
     "-doc-title", "Apache Daffodil " + version.value + " Scala API",
-    "-doc-root-content", (baseDirectory in sapi).value + "/root-doc.txt"
+    "-doc-root-content", (sapi / baseDirectory).value + "/root-doc.txt"
   ),
 
-  unidocProjectFilter in (JavaUnidoc, unidoc) := inProjects(japi, udf),
-  javacOptions in (JavaUnidoc, unidoc) := Seq(
+  JavaUnidoc / unidoc / unidocProjectFilter := inProjects(japi, udf),
+  JavaUnidoc / unidoc / javacOptions:= Seq(
     "-windowtitle", "Apache Daffodil " + version.value + " Java API",
     "-doctitle", "<h1>Apache Daffodil " + version.value + " Java API</h1>",
     "-notimestamp",
     "-quiet",
   ),
-  unidocAllSources in (JavaUnidoc, unidoc) := (unidocAllSources in (JavaUnidoc,  unidoc)).value.map { sources =>
+  JavaUnidoc / unidoc / unidocAllSources := (JavaUnidoc / unidoc / unidocAllSources).value.map { sources =>
     sources.filterNot { source =>
       source.toString.contains("$") || source.toString.contains("packageprivate")
     }

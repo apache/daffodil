@@ -170,16 +170,16 @@ fi
 
 echo "Building Convenience Binaries and Publishing to Apache Repository..."
 sbt \
-  "set updateOptions in ThisBuild := updateOptions.value.withGigahorse(false)" \
-  "set credentials in ThisBuild += Credentials(\"Sonatype Nexus Repository Manager\", \"repository.apache.org\", \"$APACHE_USERNAME\", \"$APACHE_PASSWD\")" \
-  "set publishTo in ThisBuild := Some(\"Apache Staging Distribution Repository\" at \"https://repository.apache.org/service/local/staging/deploy/maven2\")" \
+  "set ThisBuild/updateOptions := updateOptions.value.withGigahorse(false)" \
+  "set ThisBuild/credentials += Credentials(\"Sonatype Nexus Repository Manager\", \"repository.apache.org\", \"$APACHE_USERNAME\", \"$APACHE_PASSWD\")" \
+  "set ThisBuild/publishTo := Some(\"Apache Staging Distribution Repository\" at \"https://repository.apache.org/service/local/staging/deploy/maven2\")" \
   "set pgpSigningKey := Some(\"$PGP_SIGNING_KEY_ID\")" \
   "+compile" \
   "+$SBT_PUBLISH" \
-  "daffodil-cli/rpm:packageBin" \
-  "daffodil-cli/windows:packageBin" \
-  "daffodil-cli/universal:packageBin" \
-  "daffodil-cli/universal:packageZipTarball" \
+  "daffodil-cli/Rpm/packageBin" \
+  "daffodil-cli/Windows/packageBin" \
+  "daffodil-cli/Universal/packageBin" \
+  "daffodil-cli/Universal/packageZipTarball" \
   "unidoc" \
 
 echo "Removing old release candidates..."

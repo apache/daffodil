@@ -60,7 +60,7 @@ class TestFunctionality {
     val calendar = Calendar.getInstance(locale)
     calendar.clear()
     val formatter = new SimpleDateFormat(pattern, locale)
-    // Make sure you've done 'sbt update-classifiers' to pull in all the source.
+    // Make sure you've done 'sbt updateClassifiers' to pull in all the source.
     // Step through the format here and into SimpleDateFormat -> case: 29 aka V -> TimeZoneFormat.format
     // It would appear as though the SimpleTimeZone GMT-0800 is not recognized in the ICU library
     // and so returns this 'unk' value rather than 'uslax'.  Even though -0800 GMT IS uslax!!! :(
