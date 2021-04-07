@@ -86,7 +86,7 @@ class TestLogger {
     a.setLoggingLevel(LogLevel.Error)
     a.setLogWriter(lw)
     a.logSomething()
-    assertTrue(lw.loggedMsg.contains("Message: int=1 float=3.0"))
+    assertTrue(lw.loggedMsg matches ".*Message: int=1 float=3[.,]0.*")
   }
 
 }
