@@ -16,13 +16,18 @@
  */
 
 #include "ex_nums.h"
-#include "parsers.h"    // for parse_be_double, parse_be_float, parse_be_int16, parse_be_int32, parse_be_int64, parse_be_int8, parse_be_uint16, parse_be_uint32, parse_be_uint64, parse_be_uint8, parse_le_double, parse_le_float, parse_le_int16, parse_le_int32, parse_le_int64, parse_le_int8, parse_le_uint16, parse_le_uint32, parse_le_uint64, parse_le_uint8
-#include "unparsers.h"  // for unparse_be_double, unparse_be_float, unparse_be_int16, unparse_be_int32, unparse_be_int64, unparse_be_int8, unparse_be_uint16, unparse_be_uint32, unparse_be_uint64, unparse_be_uint8, unparse_le_double, unparse_le_float, unparse_le_int16, unparse_le_int32, unparse_le_int64, unparse_le_int8, unparse_le_uint16, unparse_le_uint32, unparse_le_uint64, unparse_le_uint8
 #include <math.h>       // for NAN
-#include <stdbool.h>    // for bool, false, true
+#include <stdbool.h>    // for bool, true, false
 #include <stddef.h>     // for NULL, size_t
+#include "errors.h"     // for Error, PState, UState, ERR_CHOICE_KEY, UNUSED
+#include "parsers.h"    // for parse_be_float, parse_be_int16, parse_be_bool32, parse_validate_fixed, parse_be_bool16, parse_be_int32, parse_be_uint32, parse_le_bool32, parse_le_int64, parse_le_uint8, parse_be_bool8, parse_be_double, parse_be_int64, parse_be_int8, parse_be_uint16, parse_be_uint64, parse_be_uint8, parse_le_bool16, parse_le_bool8, parse_le_double, parse_le_float, parse_le_int16, parse_le_int32, parse_le_int8, parse_le_uint16, parse_le_uint32, parse_le_uint64
+#include "unparsers.h"  // for unparse_be_float, unparse_be_int16, unparse_be_bool32, unparse_validate_fixed, unparse_be_bool16, unparse_be_int32, unparse_be_uint32, unparse_le_bool32, unparse_le_int64, unparse_le_uint8, unparse_be_bool8, unparse_be_double, unparse_be_int64, unparse_be_int8, unparse_be_uint16, unparse_be_uint64, unparse_be_uint8, unparse_le_bool16, unparse_le_bool8, unparse_le_double, unparse_le_float, unparse_le_int16, unparse_le_int32, unparse_le_int8, unparse_le_uint16, unparse_le_uint32, unparse_le_uint64
 
-// Prototypes needed for compilation
+// Initialize our program's name and version
+
+const char *argp_program_version = "daffodil-runtime2 3.1.0-SNAPSHOT";
+
+// Declare prototypes for easier compilation
 
 static void array_initSelf(array *instance);
 static void array_parseSelf(array *instance, PState *pstate);
@@ -40,7 +45,7 @@ static void ex_nums_initSelf(ex_nums *instance);
 static void ex_nums_parseSelf(ex_nums *instance, PState *pstate);
 static void ex_nums_unparseSelf(const ex_nums *instance, UState *ustate);
 
-// Metadata singletons
+// Define metadata for the infoset
 
 static const ERD be_bool16_array_ex_nums_ERD = {
     {
@@ -648,7 +653,7 @@ static const ERD ex_nums_ERD = {
     NULL // initChoice
 };
 
-// Return a root element to be used for parsing or unparsing
+// Return a root element for parsing or unparsing the infoset
 
 InfosetBase *
 rootElement(void)
@@ -663,7 +668,7 @@ rootElement(void)
     return &root._base;
 }
 
-// Methods to initialize, parse, and unparse infoset nodes
+// Initialize, parse, and unparse nodes of the infoset
 
 static void
 array_initSelf(array *instance)
@@ -683,26 +688,42 @@ static void
 array_parseSelf(array *instance, PState *pstate)
 {
     parse_be_bool16(&instance->be_bool16[0], -1, 0, pstate);
+    if (pstate->error) return;
     parse_be_bool16(&instance->be_bool16[1], -1, 0, pstate);
+    if (pstate->error) return;
     parse_be_float(&instance->be_float[0], pstate);
+    if (pstate->error) return;
     parse_be_float(&instance->be_float[1], pstate);
+    if (pstate->error) return;
     parse_be_float(&instance->be_float[2], pstate);
+    if (pstate->error) return;
     parse_be_int16(&instance->be_int16[0], pstate);
+    if (pstate->error) return;
     parse_be_int16(&instance->be_int16[1], pstate);
+    if (pstate->error) return;
     parse_be_int16(&instance->be_int16[2], pstate);
+    if (pstate->error) return;
 }
 
 static void
 array_unparseSelf(const array *instance, UState *ustate)
 {
     unparse_be_bool16(instance->be_bool16[0], ~0, 0, ustate);
+    if (ustate->error) return;
     unparse_be_bool16(instance->be_bool16[1], ~0, 0, ustate);
+    if (ustate->error) return;
     unparse_be_float(instance->be_float[0], ustate);
+    if (ustate->error) return;
     unparse_be_float(instance->be_float[1], ustate);
+    if (ustate->error) return;
     unparse_be_float(instance->be_float[2], ustate);
+    if (ustate->error) return;
     unparse_be_int16(instance->be_int16[0], ustate);
+    if (ustate->error) return;
     unparse_be_int16(instance->be_int16[1], ustate);
+    if (ustate->error) return;
     unparse_be_int16(instance->be_int16[2], ustate);
+    if (ustate->error) return;
 }
 
 static void
@@ -731,42 +752,74 @@ static void
 bigEndian_parseSelf(bigEndian *instance, PState *pstate)
 {
     parse_be_bool16(&instance->be_bool16, 1, 0, pstate);
+    if (pstate->error) return;
     parse_be_bool32(&instance->be_bool32, -1, 0, pstate);
+    if (pstate->error) return;
     parse_be_bool8(&instance->be_bool8, -1, 0, pstate);
+    if (pstate->error) return;
     parse_be_bool32(&instance->be_boolean, -1, 0, pstate);
+    if (pstate->error) return;
     parse_be_double(&instance->be_double, pstate);
+    if (pstate->error) return;
     parse_be_float(&instance->be_float, pstate);
+    if (pstate->error) return;
     parse_be_int16(&instance->be_int16, pstate);
+    if (pstate->error) return;
     parse_be_int32(&instance->be_int32, pstate);
+    if (pstate->error) return;
     parse_be_int64(&instance->be_int64, pstate);
+    if (pstate->error) return;
     parse_be_int8(&instance->be_int8, pstate);
+    if (pstate->error) return;
     parse_be_int16(&instance->be_integer16, pstate);
+    if (pstate->error) return;
     parse_be_uint16(&instance->be_uint16, pstate);
+    if (pstate->error) return;
     parse_be_uint32(&instance->be_uint32, pstate);
+    if (pstate->error) return;
     parse_be_uint64(&instance->be_uint64, pstate);
+    if (pstate->error) return;
     parse_be_uint8(&instance->be_uint8, pstate);
+    if (pstate->error) return;
     parse_be_uint32(&instance->be_nonNegativeInteger32, pstate);
+    if (pstate->error) return;
 }
 
 static void
 bigEndian_unparseSelf(const bigEndian *instance, UState *ustate)
 {
     unparse_be_bool16(instance->be_bool16, 1, 0, ustate);
+    if (ustate->error) return;
     unparse_be_bool32(instance->be_bool32, ~0, 0, ustate);
+    if (ustate->error) return;
     unparse_be_bool8(instance->be_bool8, ~0, 0, ustate);
+    if (ustate->error) return;
     unparse_be_bool32(instance->be_boolean, ~0, 0, ustate);
+    if (ustate->error) return;
     unparse_be_double(instance->be_double, ustate);
+    if (ustate->error) return;
     unparse_be_float(instance->be_float, ustate);
+    if (ustate->error) return;
     unparse_be_int16(instance->be_int16, ustate);
+    if (ustate->error) return;
     unparse_be_int32(instance->be_int32, ustate);
+    if (ustate->error) return;
     unparse_be_int64(instance->be_int64, ustate);
+    if (ustate->error) return;
     unparse_be_int8(instance->be_int8, ustate);
+    if (ustate->error) return;
     unparse_be_int16(instance->be_integer16, ustate);
+    if (ustate->error) return;
     unparse_be_uint16(instance->be_uint16, ustate);
+    if (ustate->error) return;
     unparse_be_uint32(instance->be_uint32, ustate);
+    if (ustate->error) return;
     unparse_be_uint64(instance->be_uint64, ustate);
+    if (ustate->error) return;
     unparse_be_uint8(instance->be_uint8, ustate);
+    if (ustate->error) return;
     unparse_be_uint32(instance->be_nonNegativeInteger32, ustate);
+    if (ustate->error) return;
 }
 
 static void
@@ -795,42 +848,74 @@ static void
 littleEndian_parseSelf(littleEndian *instance, PState *pstate)
 {
     parse_le_bool16(&instance->le_bool16, 1, 0, pstate);
+    if (pstate->error) return;
     parse_le_bool32(&instance->le_bool32, -1, 0, pstate);
+    if (pstate->error) return;
     parse_le_bool8(&instance->le_bool8, -1, 0, pstate);
+    if (pstate->error) return;
     parse_le_bool32(&instance->le_boolean, -1, 0, pstate);
+    if (pstate->error) return;
     parse_le_double(&instance->le_double, pstate);
+    if (pstate->error) return;
     parse_le_float(&instance->le_float, pstate);
+    if (pstate->error) return;
     parse_le_int16(&instance->le_int16, pstate);
+    if (pstate->error) return;
     parse_le_int32(&instance->le_int32, pstate);
+    if (pstate->error) return;
     parse_le_int64(&instance->le_int64, pstate);
+    if (pstate->error) return;
     parse_le_int8(&instance->le_int8, pstate);
+    if (pstate->error) return;
     parse_le_int64(&instance->le_integer64, pstate);
+    if (pstate->error) return;
     parse_le_uint16(&instance->le_uint16, pstate);
+    if (pstate->error) return;
     parse_le_uint32(&instance->le_uint32, pstate);
+    if (pstate->error) return;
     parse_le_uint64(&instance->le_uint64, pstate);
+    if (pstate->error) return;
     parse_le_uint8(&instance->le_uint8, pstate);
+    if (pstate->error) return;
     parse_le_uint8(&instance->le_nonNegativeInteger8, pstate);
+    if (pstate->error) return;
 }
 
 static void
 littleEndian_unparseSelf(const littleEndian *instance, UState *ustate)
 {
     unparse_le_bool16(instance->le_bool16, 1, 0, ustate);
+    if (ustate->error) return;
     unparse_le_bool32(instance->le_bool32, ~0, 0, ustate);
+    if (ustate->error) return;
     unparse_le_bool8(instance->le_bool8, ~0, 0, ustate);
+    if (ustate->error) return;
     unparse_le_bool32(instance->le_boolean, ~0, 0, ustate);
+    if (ustate->error) return;
     unparse_le_double(instance->le_double, ustate);
+    if (ustate->error) return;
     unparse_le_float(instance->le_float, ustate);
+    if (ustate->error) return;
     unparse_le_int16(instance->le_int16, ustate);
+    if (ustate->error) return;
     unparse_le_int32(instance->le_int32, ustate);
+    if (ustate->error) return;
     unparse_le_int64(instance->le_int64, ustate);
+    if (ustate->error) return;
     unparse_le_int8(instance->le_int8, ustate);
+    if (ustate->error) return;
     unparse_le_int64(instance->le_integer64, ustate);
+    if (ustate->error) return;
     unparse_le_uint16(instance->le_uint16, ustate);
+    if (ustate->error) return;
     unparse_le_uint32(instance->le_uint32, ustate);
+    if (ustate->error) return;
     unparse_le_uint64(instance->le_uint64, ustate);
+    if (ustate->error) return;
     unparse_le_uint8(instance->le_uint8, ustate);
+    if (ustate->error) return;
     unparse_le_uint8(instance->le_nonNegativeInteger8, ustate);
+    if (ustate->error) return;
 }
 
 static void
@@ -847,26 +932,42 @@ static void
 fixed_parseSelf(fixed *instance, PState *pstate)
 {
     parse_be_bool32(&instance->boolean_false, -1, 0, pstate);
+    if (pstate->error) return;
     parse_validate_fixed(instance->boolean_false == false, "boolean_false", pstate);
+    if (pstate->error) return;
     parse_be_bool32(&instance->boolean_true, -1, 0, pstate);
+    if (pstate->error) return;
     parse_validate_fixed(instance->boolean_true == true, "boolean_true", pstate);
+    if (pstate->error) return;
     parse_be_float(&instance->float_1_5, pstate);
+    if (pstate->error) return;
     parse_validate_fixed(instance->float_1_5 == 1.5, "float_1_5", pstate);
+    if (pstate->error) return;
     parse_be_int32(&instance->int_32, pstate);
+    if (pstate->error) return;
     parse_validate_fixed(instance->int_32 == 32, "int_32", pstate);
+    if (pstate->error) return;
 }
 
 static void
 fixed_unparseSelf(const fixed *instance, UState *ustate)
 {
     unparse_be_bool32(instance->boolean_false, ~0, 0, ustate);
+    if (ustate->error) return;
     unparse_validate_fixed(instance->boolean_false == false, "boolean_false", ustate);
+    if (ustate->error) return;
     unparse_be_bool32(instance->boolean_true, ~0, 0, ustate);
+    if (ustate->error) return;
     unparse_validate_fixed(instance->boolean_true == true, "boolean_true", ustate);
+    if (ustate->error) return;
     unparse_be_float(instance->float_1_5, ustate);
+    if (ustate->error) return;
     unparse_validate_fixed(instance->float_1_5 == 1.5, "float_1_5", ustate);
+    if (ustate->error) return;
     unparse_be_int32(instance->int_32, ustate);
+    if (ustate->error) return;
     unparse_validate_fixed(instance->int_32 == 32, "int_32", ustate);
+    if (ustate->error) return;
 }
 
 static void
@@ -883,17 +984,25 @@ static void
 ex_nums_parseSelf(ex_nums *instance, PState *pstate)
 {
     array_parseSelf(&instance->array, pstate);
+    if (pstate->error) return;
     bigEndian_parseSelf(&instance->bigEndian, pstate);
+    if (pstate->error) return;
     littleEndian_parseSelf(&instance->littleEndian, pstate);
+    if (pstate->error) return;
     fixed_parseSelf(&instance->fixed, pstate);
+    if (pstate->error) return;
 }
 
 static void
 ex_nums_unparseSelf(const ex_nums *instance, UState *ustate)
 {
     array_unparseSelf(&instance->array, ustate);
+    if (ustate->error) return;
     bigEndian_unparseSelf(&instance->bigEndian, ustate);
+    if (ustate->error) return;
     littleEndian_unparseSelf(&instance->littleEndian, ustate);
+    if (ustate->error) return;
     fixed_unparseSelf(&instance->fixed, ustate);
+    if (ustate->error) return;
 }
 

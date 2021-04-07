@@ -16,10 +16,9 @@
  */
 
 #include "stack.h"
-#include <error.h>    // for error
 #include <stdbool.h>  // for bool
-#include <stddef.h>   // for ptrdiff_t
-#include <stdlib.h>   // for EXIT_FAILURE
+#include <stddef.h>   // for NULL, ptrdiff_t
+#include "errors.h"   // for continue_or_exit, Error, ERR_STACK_EMPTY, ERR_STACK_OVERFLOW, ERR_STACK_UNDERFLOW
 
 // Initialize stack with preallocated array
 
@@ -55,7 +54,8 @@ stack_pop(stack_t *p_stack)
 {
     if (stack_is_empty(p_stack))
     {
-        error(EXIT_FAILURE, 0, "Stack underflow - program terminated");
+        const Error error = {ERR_STACK_UNDERFLOW, {NULL}};
+        continue_or_exit(&error);
     }
     return *(--p_stack->p_after);
 }
@@ -67,7 +67,8 @@ stack_push(stack_t *p_stack, stack_item_t item)
 {
     if (stack_is_full(p_stack))
     {
-        error(EXIT_FAILURE, 0, "Stack overflow - program terminated");
+        const Error error = {ERR_STACK_OVERFLOW, {NULL}};
+        continue_or_exit(&error);
     }
     *(p_stack->p_after++) = item;
 }
@@ -79,7 +80,8 @@ stack_top(stack_t *p_stack)
 {
     if (stack_is_empty(p_stack))
     {
-        error(EXIT_FAILURE, 0, "Stack empty - program terminated");
+        const Error error = {ERR_STACK_EMPTY, {NULL}};
+        continue_or_exit(&error);
     }
     return *(p_stack->p_after - 1);
 }

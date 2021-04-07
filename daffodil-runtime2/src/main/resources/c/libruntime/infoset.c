@@ -17,6 +17,7 @@
 
 #include "infoset.h"
 #include <string.h>  // for memccpy
+#include "errors.h"  // for Error, ERR_WALK_KEY
 
 // get_erd_name, get_erd_xmlns, get_erd_ns - get name and xmlns
 // attribute/value from ERD to use on XML element
@@ -113,15 +114,15 @@ get_erd_ns(const ERD *erd)
 // walkInfosetNode - recursively walk an infoset node and call
 // VisitEventHandler methods
 
-static const char *
+static const Error *
 walkInfosetNode(const VisitEventHandler *handler, const InfosetBase *infoNode)
 {
-    const char *error_msg = NULL;
+    const Error *error = NULL;
 
     // Start visiting the node
-    if (!error_msg)
+    if (!error)
     {
-        error_msg = handler->visitStartComplex(handler, infoNode);
+        error = handler->visitStartComplex(handler, infoNode);
     }
 
     // Walk the node's children recursively
@@ -129,7 +130,7 @@ walkInfosetNode(const VisitEventHandler *handler, const InfosetBase *infoNode)
     const ERD **const childrenERDs = infoNode->erd->childrenERDs;
     const size_t *    offsets = infoNode->erd->offsets;
 
-    for (size_t i = 0; i < count && !error_msg; i++)
+    for (size_t i = 0; i < count && !error; i++)
     {
         const size_t offset = offsets[i];
         const ERD *  childERD = childrenERDs[i];
@@ -144,14 +145,10 @@ walkInfosetNode(const VisitEventHandler *handler, const InfosetBase *infoNode)
         {
         case CHOICE:
             // Point next ERD to choice of alternative elements' ERDs
-            if (!infoNode->erd->initChoice(infoNode, rootElement()))
-            {
-                error_msg = "Walk error: no match between choice dispatch key "
-                            "and any branch key";
-            }
+            error = infoNode->erd->initChoice(infoNode, rootElement());
             break;
         case COMPLEX:
-            error_msg = walkInfosetNode(handler, childNode);
+            error = walkInfosetNode(handler, childNode);
             break;
         case PRIMITIVE_BOOLEAN:
         case PRIMITIVE_DOUBLE:
@@ -164,58 +161,39 @@ walkInfosetNode(const VisitEventHandler *handler, const InfosetBase *infoNode)
         case PRIMITIVE_UINT32:
         case PRIMITIVE_UINT64:
         case PRIMITIVE_UINT8:
-            error_msg = handler->visitNumberElem(handler, childERD, number);
+            error = handler->visitNumberElem(handler, childERD, number);
             break;
         }
     }
 
     // End visiting the node
-    if (!error_msg)
+    if (!error)
     {
-        error_msg = handler->visitEndComplex(handler, infoNode);
+        error = handler->visitEndComplex(handler, infoNode);
     }
 
-    return error_msg;
+    return error;
 }
 
 // walkInfoset - walk an infoset and call VisitEventHandler methods
 
-const char *
+const Error *
 walkInfoset(const VisitEventHandler *handler, const InfosetBase *infoset)
 {
-    const char *error_msg = NULL;
+    const Error *error = NULL;
 
-    if (!error_msg)
+    if (!error)
     {
-        error_msg = handler->visitStartDocument(handler);
+        error = handler->visitStartDocument(handler);
     }
-    if (!error_msg)
+    if (!error)
     {
-        error_msg = walkInfosetNode(handler, infoset);
+        error = walkInfosetNode(handler, infoset);
     }
-    if (!error_msg)
+    if (!error)
     {
-        error_msg = handler->visitEndDocument(handler);
+        error = handler->visitEndDocument(handler);
     }
 
-    return error_msg;
-}
-
-// eof_or_error_msg - check if a stream has its eof or error indicator set
-
-const char *
-eof_or_error_msg(FILE *stream)
-{
-    if (feof(stream))
-    {
-        return "Found eof indicator in stream, stopping now";
-    }
-    else if (ferror(stream))
-    {
-        return "Found error indicator in stream, stopping now";
-    }
-    else
-    {
-        return NULL;
-    }
+    return error;
 }

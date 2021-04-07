@@ -18,32 +18,29 @@
 #ifndef INFOSET_H
 #define INFOSET_H
 
-#include <stdbool.h>  // for bool
-#include <stddef.h>   // for size_t
-#include <stdio.h>    // for FILE
+#include <stddef.h>  // for size_t
+#include "errors.h"  // for Error, PState, UState
 
 // Prototypes needed for compilation
 
 typedef struct ElementRuntimeData ERD;
 typedef struct InfosetBase        InfosetBase;
-typedef struct PState             PState;
-typedef struct UState             UState;
 typedef struct VisitEventHandler  VisitEventHandler;
 
 typedef void (*ERDInitSelf)(InfosetBase *infoNode);
 typedef void (*ERDParseSelf)(InfosetBase *infoNode, PState *pstate);
 typedef void (*ERDUnparseSelf)(const InfosetBase *infoNode, UState *ustate);
-typedef bool (*InitChoiceRD)(const InfosetBase *infoNode,
-                             const InfosetBase *rootElement);
+typedef const Error *(*InitChoiceRD)(const InfosetBase *infoNode,
+                                     const InfosetBase *rootElement);
 
-typedef const char *(*VisitStartDocument)(const VisitEventHandler *handler);
-typedef const char *(*VisitEndDocument)(const VisitEventHandler *handler);
-typedef const char *(*VisitStartComplex)(const VisitEventHandler *handler,
-                                         const InfosetBase *      base);
-typedef const char *(*VisitEndComplex)(const VisitEventHandler *handler,
-                                       const InfosetBase *      base);
-typedef const char *(*VisitNumberElem)(const VisitEventHandler *handler,
-                                       const ERD *erd, const void *number);
+typedef const Error *(*VisitStartDocument)(const VisitEventHandler *handler);
+typedef const Error *(*VisitEndDocument)(const VisitEventHandler *handler);
+typedef const Error *(*VisitStartComplex)(const VisitEventHandler *handler,
+                                          const InfosetBase *      base);
+typedef const Error *(*VisitEndComplex)(const VisitEventHandler *handler,
+                                        const InfosetBase *      base);
+typedef const Error *(*VisitNumberElem)(const VisitEventHandler *handler,
+                                        const ERD *erd, const void *number);
 
 // NamedQName - name of an infoset element
 
@@ -54,7 +51,7 @@ typedef struct NamedQName
     const char *ns;     // namespace URI (optional, may be NULL)
 } NamedQName;
 
-// TypeCode - type of an infoset element
+// TypeCode - types of infoset elements
 
 enum TypeCode
 {
@@ -96,24 +93,6 @@ typedef struct InfosetBase
     const ERD *erd;
 } InfosetBase;
 
-// PState - mutable state while parsing data
-
-typedef struct PState
-{
-    FILE *      stream;    // input to read data from
-    size_t      position;  // 0-based position in stream
-    const char *error_msg; // to stop if an error happens
-} PState;
-
-// UState - mutable state while unparsing infoset
-
-typedef struct UState
-{
-    FILE *      stream;    // output to write data to
-    size_t      position;  // 0-based position in stream
-    const char *error_msg; // to stop if an error happens
-} UState;
-
 // VisitEventHandler - methods to be called when walking an infoset
 
 typedef struct VisitEventHandler
@@ -140,19 +119,7 @@ extern InfosetBase *rootElement(void);
 
 // walkInfoset - walk an infoset and call VisitEventHandler methods
 
-extern const char *walkInfoset(const VisitEventHandler *handler,
-                               const InfosetBase *      infoset);
-
-// eof_or_error_msg - check if a stream has its eof or error indicator set
-
-extern const char *eof_or_error_msg(FILE *stream);
-
-// NO_CHOICE - define value stored in uninitialized _choice field
-
-static const size_t NO_CHOICE = (size_t)-1;
-
-// UNUSED - suppress compiler warning about unused variable
-
-#define UNUSED(x) (void)(x)
+extern const Error *walkInfoset(const VisitEventHandler *handler,
+                                const InfosetBase *      infoset);
 
 #endif // INFOSET_H

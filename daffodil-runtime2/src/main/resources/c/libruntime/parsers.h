@@ -18,11 +18,12 @@
 #ifndef PARSERS_H
 #define PARSERS_H
 
-#include "infoset.h"  // for PState
 #include <stdbool.h>  // for bool
-#include <stdint.h>   // for int16_t, int32_t, int64_t, int8_t, uint16_t, uint32_t, uint64_t, uint8_t
+#include <stddef.h>   // for size_t
+#include <stdint.h>   // for int64_t, uint32_t, int16_t, int32_t, int8_t, uint16_t, uint64_t, uint8_t
+#include "errors.h"   // for PState
 
-// Functions to parse binary booleans, real numbers, and integers
+// Parse binary booleans, real numbers, and integers
 
 extern void parse_be_bool16(bool *number, int64_t true_rep, uint32_t false_rep,
                             PState *pstate);
@@ -64,11 +65,11 @@ extern void parse_le_uint32(uint32_t *number, PState *pstate);
 extern void parse_le_uint64(uint64_t *number, PState *pstate);
 extern void parse_le_uint8(uint8_t *number, PState *pstate);
 
-// Function to parse fill bytes until end position is reached
+// Parse fill bytes until end position is reached
 
 extern void parse_fill_bytes(size_t end_position, PState *pstate);
 
-// Function to validate number is same as fixed value after parse
+// Validate parsed number is same as fixed value
 
 extern void parse_validate_fixed(bool same, const char *element,
                                  PState *pstate);

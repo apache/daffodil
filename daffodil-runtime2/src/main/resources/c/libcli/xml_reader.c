@@ -19,22 +19,23 @@
 #include <assert.h>    // for assert
 #include <errno.h>     // for errno
 #include <inttypes.h>  // for strtoimax, strtoumax
-#include <mxml.h>      // for mxmlWalkNext, mxmlGetType, mxmlGetElement, MXML_DESCEND, MXML_OPAQUE, mxmlDelete, mxmlGetOpaque, mxmlLoadFile, MXML_OPAQUE_CALLBACK
+#include <mxml.h>      // for mxmlWalkNext, mxmlGetElement, mxmlGetType, MXML_DESCEND, MXML_OPAQUE, mxmlDelete, mxmlGetOpaque, mxmlLoadFile, MXML_OPAQUE_CALLBACK
 #include <stdbool.h>   // for bool, false, true
 #include <stdint.h>    // for intmax_t, uintmax_t, int16_t, int32_t, int64_t, int8_t, uint16_t, uint32_t, uint64_t, uint8_t, INT16_MAX, INT16_MIN, INT32_MAX, INT32_MIN, INT64_MAX, INT64_MIN, INT8_MAX, INT8_MIN, UINT16_MAX, UINT32_MAX, UINT64_MAX, UINT8_MAX
+#include <stdio.h>     // for NULL
 #include <stdlib.h>    // for strtod, strtof
 #include <string.h>    // for strcmp, strlen, strncmp
+#include "errors.h"    // for Error, Error::(anonymous), ERR_STRTONUM_EMPTY, ERR_STRTONUM_NOT, ERR_XML_GONE, ERR_STRTOD_ERRNO, ERR_STRTOI_ERRNO, ERR_STRTONUM_RANGE, ERR_XML_MISMATCH, ERR_STRTOBOOL, ERR_XML_ERD, ERR_XML_INPUT, ERR_XML_LEFT, UNUSED
 
 // Convert an XML element's text to a boolean with error checking
 
 static bool
-strtobool(const char *numptr, const char **errstrp)
+strtobool(const char *numptr, const Error **errorptr)
 {
     // The lexical space of xs:boolean accepts true, false, 1, and 0
-    bool        value = false;
-    const char *error_msg = NULL;
+    bool value = false;
 
-    // Report any issues converting the string to a boolean
+    // Check for any errors converting the string to a boolean
     if (strcmp(numptr, "true") == 0)
     {
         value = true;
@@ -53,10 +54,11 @@ strtobool(const char *numptr, const char **errstrp)
     }
     else
     {
-        error_msg = "Error converting XML data to boolean";
+        static Error error = {ERR_STRTOBOOL, {NULL}};
+        error.s = numptr;
+        *errorptr = &error;
     }
 
-    *errstrp = error_msg;
     return value;
 }
 
@@ -64,7 +66,7 @@ strtobool(const char *numptr, const char **errstrp)
 // error checking)
 
 static double
-strtodnum(const char *numptr, const char **errstrp)
+strtodnum(const char *numptr, const Error **errorptr)
 {
     char *endptr = NULL;
 
@@ -72,22 +74,24 @@ strtodnum(const char *numptr, const char **errstrp)
     errno = 0;
     const double value = strtod(numptr, &endptr);
 
-    // Report any issues converting the string to a number
+    // Check for any errors converting the string to a number
     if (errno != 0)
     {
-        *errstrp = "Error converting XML data to number";
+        static Error error = {ERR_STRTOD_ERRNO, {NULL}};
+        error.s = numptr;
+        *errorptr = &error;
     }
     else if (endptr == numptr)
     {
-        *errstrp = "Found no number in XML data";
+        static Error error = {ERR_STRTONUM_EMPTY, {NULL}};
+        error.s = numptr;
+        *errorptr = &error;
     }
     else if (*endptr != '\0')
     {
-        *errstrp = "Found non-number characters in XML data";
-    }
-    else
-    {
-        *errstrp = NULL;
+        static Error error = {ERR_STRTONUM_NOT, {NULL}};
+        error.s = numptr;
+        *errorptr = &error;
     }
 
     return value;
@@ -97,7 +101,7 @@ strtodnum(const char *numptr, const char **errstrp)
 // error checking)
 
 static float
-strtofnum(const char *numptr, const char **errstrp)
+strtofnum(const char *numptr, const Error **errorptr)
 {
     char *endptr = NULL;
 
@@ -105,33 +109,35 @@ strtofnum(const char *numptr, const char **errstrp)
     errno = 0;
     const float value = strtof(numptr, &endptr);
 
-    // Report any issues converting the string to a number
+    // Check for any errors converting the string to a number
     if (errno != 0)
     {
-        *errstrp = "Error converting XML data to number";
+        static Error error = {ERR_STRTOD_ERRNO, {NULL}};
+        error.s = numptr;
+        *errorptr = &error;
     }
     else if (endptr == numptr)
     {
-        *errstrp = "Found no number in XML data";
+        static Error error = {ERR_STRTONUM_EMPTY, {NULL}};
+        error.s = numptr;
+        *errorptr = &error;
     }
     else if (*endptr != '\0')
     {
-        *errstrp = "Found non-number characters in XML data";
-    }
-    else
-    {
-        *errstrp = NULL;
+        static Error error = {ERR_STRTONUM_NOT, {NULL}};
+        error.s = numptr;
+        *errorptr = &error;
     }
 
     return value;
 }
 
-// Convert an XML element's text to a signed integer (BSD function not
-// widely available, so call strtoimax with our own error checking)
+// Convert an XML element's text to a signed integer (call strtoimax
+// with our own error checking)
 
 static intmax_t
 strtonum(const char *numptr, intmax_t minval, intmax_t maxval,
-         const char **errstrp)
+         const Error **errorptr)
 {
     char *endptr = NULL;
     assert(minval < maxval);
@@ -140,26 +146,30 @@ strtonum(const char *numptr, intmax_t minval, intmax_t maxval,
     errno = 0;
     const intmax_t value = strtoimax(numptr, &endptr, 10);
 
-    // Report any issues converting the string to a number
+    // Check for any errors converting the string to a number
     if (errno != 0)
     {
-        *errstrp = "Error converting XML data to integer";
+        static Error error = {ERR_STRTOI_ERRNO, {NULL}};
+        error.s = numptr;
+        *errorptr = &error;
     }
     else if (endptr == numptr)
     {
-        *errstrp = "Found no number in XML data";
+        static Error error = {ERR_STRTONUM_EMPTY, {NULL}};
+        error.s = numptr;
+        *errorptr = &error;
     }
     else if (*endptr != '\0')
     {
-        *errstrp = "Found non-number characters in XML data";
+        static Error error = {ERR_STRTONUM_NOT, {NULL}};
+        error.s = numptr;
+        *errorptr = &error;
     }
     else if (value < minval || value > maxval)
     {
-        *errstrp = "Number in XML data out of range";
-    }
-    else
-    {
-        *errstrp = NULL;
+        static Error error = {ERR_STRTONUM_RANGE, {NULL}};
+        error.s = numptr;
+        *errorptr = &error;
     }
 
     return value;
@@ -169,7 +179,7 @@ strtonum(const char *numptr, intmax_t minval, intmax_t maxval,
 // with our own error checking)
 
 static uintmax_t
-strtounum(const char *numptr, uintmax_t maxval, const char **errstrp)
+strtounum(const char *numptr, uintmax_t maxval, const Error **errorptr)
 {
     char *endptr = NULL;
 
@@ -177,26 +187,30 @@ strtounum(const char *numptr, uintmax_t maxval, const char **errstrp)
     errno = 0;
     const uintmax_t value = strtoumax(numptr, &endptr, 10);
 
-    // Report any issues converting the string to a number
+    // Check for any errors converting the string to a number
     if (errno != 0)
     {
-        *errstrp = "Error converting XML data to integer";
+        static Error error = {ERR_STRTOI_ERRNO, {NULL}};
+        error.s = numptr;
+        *errorptr = &error;
     }
     else if (endptr == numptr)
     {
-        *errstrp = "Found no number in XML data";
+        static Error error = {ERR_STRTONUM_EMPTY, {NULL}};
+        error.s = numptr;
+        *errorptr = &error;
     }
     else if (*endptr != '\0')
     {
-        *errstrp = "Found non-number characters in XML data";
+        static Error error = {ERR_STRTONUM_NOT, {NULL}};
+        error.s = numptr;
+        *errorptr = &error;
     }
     else if (value > maxval)
     {
-        *errstrp = "Number in XML data out of range";
-    }
-    else
-    {
-        *errstrp = NULL;
+        static Error error = {ERR_STRTONUM_RANGE, {NULL}};
+        error.s = numptr;
+        *errorptr = &error;
     }
 
     return value;
@@ -204,7 +218,7 @@ strtounum(const char *numptr, uintmax_t maxval, const char **errstrp)
 
 // Read XML data from file before walking infoset
 
-static const char *
+static const Error *
 xmlStartDocument(XMLReader *reader)
 {
     // Load the XML data into memory
@@ -212,7 +226,8 @@ xmlStartDocument(XMLReader *reader)
     reader->node = reader->xml;
     if (!reader->node)
     {
-        return "Unable to read XML data from input file";
+        static Error error = {ERR_XML_INPUT, {NULL}};
+        return &error;
     }
 
     // Consume the <?xml line if there is one
@@ -237,12 +252,13 @@ xmlStartDocument(XMLReader *reader)
         } while (mxmlGetType(reader->node) == MXML_OPAQUE);
     }
 
-    return reader->node ? NULL : "Ran out of XML data";
+    static Error error = {ERR_XML_GONE, {NULL}};
+    return reader->node ? NULL : &error;
 }
 
 // Delete XML data after walking infoset
 
-static const char *
+static const Error *
 xmlEndDocument(XMLReader *reader)
 {
     // Consume any remaining newlines or whitespace
@@ -255,7 +271,9 @@ xmlEndDocument(XMLReader *reader)
     if (reader->node)
     {
         // This code path exits the program - no need to call mxmlDelete
-        return "Did not consume all of the XML data";
+        static Error error = {ERR_XML_LEFT, {NULL}};
+        error.s = mxmlGetElement(reader->node);
+        return &error;
     }
 
     // Free the storage allocated to hold the XML data
@@ -267,7 +285,7 @@ xmlEndDocument(XMLReader *reader)
 
 // Continue walking both XML data and infoset in lockstep
 
-static const char *
+static const Error *
 xmlStartComplex(XMLReader *reader, const InfosetBase *base)
 {
     // Consume any newlines or whitespace before the element
@@ -284,30 +302,31 @@ xmlStartComplex(XMLReader *reader, const InfosetBase *base)
     // Check whether we are walking both XML data and infoset in lockstep
     if (name_from_xml && name_from_erd)
     {
-        return strcmp(name_from_xml, name_from_erd) == 0
-                   ? NULL
-                   : "Found mismatch between XML data and infoset";
+        static Error error = {ERR_XML_MISMATCH, {NULL}};
+        error.s = name_from_erd;
+        return strcmp(name_from_xml, name_from_erd) == 0 ? NULL : &error;
     }
     else
     {
-        return "Ran out of XML data";
+        static Error error = {ERR_XML_GONE, {NULL}};
+        return &error;
     }
 }
 
 // Consume XML data only on start events, not end events
 
-static const char *
+static const Error *
 xmlEndComplex(XMLReader *reader, const InfosetBase *base)
 {
     UNUSED(reader); // because nothing to read
-    UNUSED(base); // because nothing to check
+    UNUSED(base);   // because nothing to check
     return NULL;
 }
 
 // Read a boolean, 32-bit or 64-bit real number, or 8, 16, 32, or
 // 64-bit signed or unsigned integer from XML data
 
-static const char *
+static const Error *
 xmlNumberElem(XMLReader *reader, const ERD *erd, void *number)
 {
     // Consume any newlines or whitespace before the element
@@ -327,70 +346,75 @@ xmlNumberElem(XMLReader *reader, const ERD *erd, void *number)
     {
         if (strcmp(name_from_xml, name_from_erd) == 0)
         {
+            static Error error_erd = {ERR_XML_ERD, {NULL}};
+
             // Check for any errors getting the number
-            const char *errstr = NULL;
+            const Error *error = NULL;
 
             // Handle varying bit lengths of both signed & unsigned numbers
             const enum TypeCode typeCode = erd->typeCode;
             switch (typeCode)
             {
             case PRIMITIVE_BOOLEAN:
-                *(bool *)number = strtobool(number_from_xml, &errstr);
+                *(bool *)number = strtobool(number_from_xml, &error);
                 break;
             case PRIMITIVE_FLOAT:
-                *(float *)number = strtofnum(number_from_xml, &errstr);
+                *(float *)number = strtofnum(number_from_xml, &error);
                 break;
             case PRIMITIVE_DOUBLE:
-                *(double *)number = strtodnum(number_from_xml, &errstr);
+                *(double *)number = strtodnum(number_from_xml, &error);
                 break;
             case PRIMITIVE_INT16:
                 *(int16_t *)number = (int16_t)strtonum(
-                    number_from_xml, INT16_MIN, INT16_MAX, &errstr);
+                    number_from_xml, INT16_MIN, INT16_MAX, &error);
                 break;
             case PRIMITIVE_INT32:
                 *(int32_t *)number = (int32_t)strtonum(
-                    number_from_xml, INT32_MIN, INT32_MAX, &errstr);
+                    number_from_xml, INT32_MIN, INT32_MAX, &error);
                 break;
             case PRIMITIVE_INT64:
                 *(int64_t *)number = (int64_t)strtonum(
-                    number_from_xml, INT64_MIN, INT64_MAX, &errstr);
+                    number_from_xml, INT64_MIN, INT64_MAX, &error);
                 break;
             case PRIMITIVE_INT8:
                 *(int8_t *)number = (int8_t)strtonum(number_from_xml, INT8_MIN,
-                                                     INT8_MAX, &errstr);
+                                                     INT8_MAX, &error);
                 break;
             case PRIMITIVE_UINT16:
                 *(uint16_t *)number =
-                    (uint16_t)strtounum(number_from_xml, UINT16_MAX, &errstr);
+                    (uint16_t)strtounum(number_from_xml, UINT16_MAX, &error);
                 break;
             case PRIMITIVE_UINT32:
                 *(uint32_t *)number =
-                    (uint32_t)strtounum(number_from_xml, UINT32_MAX, &errstr);
+                    (uint32_t)strtounum(number_from_xml, UINT32_MAX, &error);
                 break;
             case PRIMITIVE_UINT64:
                 *(uint64_t *)number =
-                    (uint64_t)strtounum(number_from_xml, UINT64_MAX, &errstr);
+                    (uint64_t)strtounum(number_from_xml, UINT64_MAX, &error);
                 break;
             case PRIMITIVE_UINT8:
                 *(uint8_t *)number =
-                    (uint8_t)strtounum(number_from_xml, UINT8_MAX, &errstr);
+                    (uint8_t)strtounum(number_from_xml, UINT8_MAX, &error);
                 break;
             default:
-                errstr = "Unexpected ERD typeCode while reading number from "
-                         "XML data";
+                error_erd.d64 = typeCode;
+                error = &error_erd;
                 break;
             }
 
-            return errstr;
+            return error;
         }
         else
         {
-            return "Found mismatch between XML data and infoset";
+            static Error error = {ERR_XML_MISMATCH, {NULL}};
+            error.s = name_from_erd;
+            return &error;
         }
     }
     else
     {
-        return "Ran out of XML data";
+        static Error error = {ERR_XML_GONE, {NULL}};
+        return &error;
     }
 }
 

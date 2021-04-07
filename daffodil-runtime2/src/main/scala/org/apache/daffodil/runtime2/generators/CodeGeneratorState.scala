@@ -85,12 +85,12 @@ class CodeGeneratorState {
     val hasChoice = structs.top.initChoiceStatements.nonEmpty
     val root = structs.elems.last.C
     val prototypeInitChoice = if (hasChoice)
-      s"\nstatic bool ${C}_initChoice($C *instance, const $root *rootElement);"
+      s"\nstatic const Error *${C}_initChoice($C *instance, const $root *rootElement);"
     else
       ""
     val implementInitChoice = if (hasChoice)
       s"""
-         |static bool
+         |static const Error *
          |${C}_initChoice($C *instance, const $root *rootElement)
          |{
          |$initChoiceStatements
@@ -222,17 +222,27 @@ class CodeGeneratorState {
            |""".stripMargin
       val offsetComputation = s"    (const char *)&${C}_compute_offsets._choice - (const char *)&${C}_compute_offsets"
       val erdComputation = s"    &_choice_$erd"
-      val initStatement = s"    instance->_choice = NO_CHOICE;"
+      val initStatement = s"    instance->_choice = 0xFFFFFFFFFFFFFFFF;"
       val initChoiceStatement =
-        s"""    int64_t key = rootElement->$dispatchField;
+        s"""    static Error error = {ERR_CHOICE_KEY, {NULL}};
+           |
+           |    int64_t key = rootElement->$dispatchField;
            |    switch (key)
            |    {""".stripMargin
       val parseStatement =
-        s"""    instance->_base.erd->initChoice(&instance->_base, rootElement());
+        s"""    static Error error = {ERR_CHOICE_KEY, {NULL}};
+           |
+           |    pstate->error = instance->_base.erd->initChoice(&instance->_base, rootElement());
+           |    if (pstate->error) return;
+           |
            |    switch (instance->_choice)
            |    {""".stripMargin
       val unparseStatement =
-        s"""    instance->_base.erd->initChoice(&instance->_base, rootElement());
+        s"""    static Error error = {ERR_CHOICE_KEY, {NULL}};
+           |
+           |    ustate->error = instance->_base.erd->initChoice(&instance->_base, rootElement());
+           |    if (ustate->error) return;
+           |
            |    switch (instance->_choice)
            |    {""".stripMargin
 
@@ -254,34 +264,31 @@ class CodeGeneratorState {
       val declaration = s"    };"
       val initChoiceStatement =
         s"""    default:
-           |        instance->_choice = NO_CHOICE;
-           |        break;
+           |        error.d64 = key;
+           |        return &error;
            |    }
            |
-           |    if (instance->_choice != NO_CHOICE)
-           |    {
-           |        const size_t choice = instance->_choice + 1; // skip the _choice field
-           |        const size_t offset = instance->_base.erd->offsets[choice];
-           |        const ERD *  childERD = instance->_base.erd->childrenERDs[choice];
-           |        InfosetBase *childNode = (InfosetBase *)((const char *)instance + offset);
-           |        childNode->erd = childERD;
-           |        return true;
-           |    }
-           |    else
-           |    {
-           |        return false;
-           |    }""".stripMargin
+           |    // Point next ERD to choice of alternative elements' ERDs
+           |    const size_t choice = instance->_choice + 1; // skip the _choice field
+           |    const size_t offset = instance->_base.erd->offsets[choice];
+           |    const ERD *  childERD = instance->_base.erd->childrenERDs[choice];
+           |    InfosetBase *childNode = (InfosetBase *)((const char *)instance + offset);
+           |    childNode->erd = childERD;
+           |
+           |    return NULL;""".stripMargin
       val parseStatement =
         s"""    default:
-           |        pstate->error_msg =
-           |            "Parse error: no match between choice dispatch key and any branch key";
-           |        break;
+           |        // Should never happen because initChoice would return an error first
+           |        error.d64 = (int64_t)instance->_choice;
+           |        pstate->error = &error;
+           |        return;
            |    }""".stripMargin
       val unparseStatement =
         s"""    default:
-           |        ustate->error_msg =
-           |            "Unparse error: no match between choice dispatch key and any branch key";
-           |        break;
+           |        // Should never happen because initChoice would return an error first
+           |        error.d64 = (int64_t)instance->_choice;
+           |        ustate->error = &error;
+           |        return;
            |    }""".stripMargin
 
       structs.top.declarations += declaration
@@ -293,8 +300,12 @@ class CodeGeneratorState {
     // Implement padding if complex type has an explicit length
     if (context.maybeFixedLengthInBits.isDefined && context.maybeFixedLengthInBits.get > 0) {
       val octalFillByte = context.fillByteEv.constValue.toByte.toOctalString
-      val parseStatement = s"    parse_fill_bytes(end_position, pstate);"
-      val unparseStatement = s"    unparse_fill_bytes(end_position, '\\$octalFillByte', ustate);"
+      val parseStatement =
+        s"""    parse_fill_bytes(end_position, pstate);
+           |    if (pstate->error) return;""".stripMargin
+      val unparseStatement =
+        s"""    unparse_fill_bytes(end_position, '\\$octalFillByte', ustate);
+           |    if (ustate->error) return;""".stripMargin
 
       structs.top.parserStatements += parseStatement
       structs.top.unparserStatements += unparseStatement
@@ -382,8 +393,12 @@ class CodeGeneratorState {
     def addStatements(deref: String): Unit = {
       val moreIndent = if (hasChoice) "    " else ""
       val initStatement = s"    ${C}_initSelf(&instance->$e$deref);"
-      val parseStatement = s"    $moreIndent${C}_parseSelf(&instance->$e$deref, pstate);"
-      val unparseStatement = s"    $moreIndent${C}_unparseSelf(&instance->$e$deref, ustate);"
+      val parseStatement =
+        s"""$moreIndent    ${C}_parseSelf(&instance->$e$deref, pstate);
+           |$moreIndent    if (pstate->error) return;""".stripMargin
+      val unparseStatement =
+        s"""$moreIndent    ${C}_unparseSelf(&instance->$e$deref, ustate);
+           |$moreIndent    if (ustate->error) return;""".stripMargin
 
       structs.top.initStatements += initStatement
       structs.top.parserStatements += parseStatement
@@ -544,9 +559,10 @@ class CodeGeneratorState {
       s"""#ifndef GENERATED_CODE_H
          |#define GENERATED_CODE_H
          |
-         |#include "infoset.h"  // for InfosetBase
          |#include <stdbool.h>  // for bool
-         |#include <stdint.h>   // for int16_t, int32_t, int64_t, int8_t, uint16_t, uint32_t, uint64_t, uint8_t
+         |#include <stddef.h>   // for size_t
+         |#include <stdint.h>   // for int16_t, int32_t, int64_t, uint32_t, uint8_t, int8_t, uint16_t, uint64_t
+         |#include "infoset.h"  // for InfosetBase
 
          |// Define infoset structures
          |
@@ -557,25 +573,32 @@ class CodeGeneratorState {
   }
 
   def generateCodeFile(rootElementName: String): String = {
+    val program = this.getClass.getPackage.getImplementationTitle
+    val version = this.getClass.getPackage.getImplementationVersion
     val prototypes = this.prototypes.mkString("\n")
     val erds = this.erds.mkString("\n")
     val finalImplementation = this.finalImplementation.mkString("\n")
     val code =
       s"""#include "generated_code.h"
-         |#include "parsers.h"    // for parse_be_double, parse_be_float, parse_be_int16, parse_be_int32, parse_be_int64, parse_be_int8, parse_be_uint16, parse_be_uint32, parse_be_uint64, parse_be_uint8, parse_le_double, parse_le_float, parse_le_int16, parse_le_int32, parse_le_int64, parse_le_int8, parse_le_uint16, parse_le_uint32, parse_le_uint64, parse_le_uint8
-         |#include "unparsers.h"  // for unparse_be_double, unparse_be_float, unparse_be_int16, unparse_be_int32, unparse_be_int64, unparse_be_int8, unparse_be_uint16, unparse_be_uint32, unparse_be_uint64, unparse_be_uint8, unparse_le_double, unparse_le_float, unparse_le_int16, unparse_le_int32, unparse_le_int64, unparse_le_int8, unparse_le_uint16, unparse_le_uint32, unparse_le_uint64, unparse_le_uint8
          |#include <math.h>       // for NAN
-         |#include <stdbool.h>    // for bool, false, true
+         |#include <stdbool.h>    // for bool, true, false
          |#include <stddef.h>     // for NULL, size_t
+         |#include "errors.h"     // for Error, PState, UState, ERR_CHOICE_KEY, UNUSED
+         |#include "parsers.h"    // for parse_be_float, parse_be_int16, parse_be_bool32, parse_validate_fixed, parse_be_bool16, parse_be_int32, parse_be_uint32, parse_le_bool32, parse_le_int64, parse_le_uint8, parse_be_bool8, parse_be_double, parse_be_int64, parse_be_int8, parse_be_uint16, parse_be_uint64, parse_be_uint8, parse_le_bool16, parse_le_bool8, parse_le_double, parse_le_float, parse_le_int16, parse_le_int32, parse_le_int8, parse_le_uint16, parse_le_uint32, parse_le_uint64
+         |#include "unparsers.h"  // for unparse_be_float, unparse_be_int16, unparse_be_bool32, unparse_validate_fixed, unparse_be_bool16, unparse_be_int32, unparse_be_uint32, unparse_le_bool32, unparse_le_int64, unparse_le_uint8, unparse_be_bool8, unparse_be_double, unparse_be_int64, unparse_be_int8, unparse_be_uint16, unparse_be_uint64, unparse_be_uint8, unparse_le_bool16, unparse_le_bool8, unparse_le_double, unparse_le_float, unparse_le_int16, unparse_le_int32, unparse_le_int8, unparse_le_uint16, unparse_le_uint32, unparse_le_uint64
          |
-         |// Prototypes needed for compilation
+         |// Initialize our program's name and version
+         |
+         |const char *argp_program_version = "$program $version";
+         |
+         |// Declare prototypes for easier compilation
          |
          |$prototypes
          |
-         |// Metadata singletons
+         |// Define metadata for the infoset
          |
          |$erds
-         |// Return a root element to be used for parsing or unparsing
+         |// Return a root element for parsing or unparsing the infoset
          |
          |InfosetBase *
          |rootElement(void)
@@ -590,7 +613,7 @@ class CodeGeneratorState {
          |    return &root._base;
          |}
          |
-         |// Methods to initialize, parse, and unparse infoset nodes
+         |// Initialize, parse, and unparse nodes of the infoset
          |
          |$finalImplementation
          |""".stripMargin

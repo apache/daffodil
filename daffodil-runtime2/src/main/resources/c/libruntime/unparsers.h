@@ -18,11 +18,12 @@
 #ifndef UNPARSERS_H
 #define UNPARSERS_H
 
-#include "infoset.h"  // for UState
 #include <stdbool.h>  // for bool
-#include <stdint.h>   // for int16_t, int32_t, int64_t, int8_t, uint16_t, uint32_t, uint64_t, uint8_t
+#include <stddef.h>   // for size_t
+#include <stdint.h>   // for uint32_t, int16_t, int32_t, int64_t, int8_t, uint16_t, uint64_t, uint8_t
+#include "errors.h"   // for UState
 
-// Functions to unparse binary booleans, real numbers, and integers
+// Unparse binary booleans, real numbers, and integers
 
 extern void unparse_be_bool16(bool number, uint32_t true_rep,
                               uint32_t false_rep, UState *ustate);
@@ -64,12 +65,12 @@ extern void unparse_le_uint32(uint32_t number, UState *ustate);
 extern void unparse_le_uint64(uint64_t number, UState *ustate);
 extern void unparse_le_uint8(uint8_t number, UState *ustate);
 
-// Function to unparse fill bytes until end position is reached
+// Unparse fill bytes until end position is reached
 
 extern void unparse_fill_bytes(size_t end_position, const char fill_byte,
                                UState *ustate);
 
-// Function to validate number is same as fixed value during unparse
+// Validate unparsed number is same as fixed value
 
 extern void unparse_validate_fixed(bool same, const char *element,
                                    UState *ustate);

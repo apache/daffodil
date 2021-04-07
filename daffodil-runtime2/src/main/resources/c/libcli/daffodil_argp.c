@@ -21,10 +21,6 @@
 #include <stdlib.h>  // for putenv
 #include <string.h>  // for strlen, strcmp
 
-// Initialize our "daffodil" name and version
-
-const char *argp_program_version = "Apache Daffodil (runtime2) 0.1";
-
 // Initialize our "daffodil parse" CLI options
 
 struct daffodil_parse_cli daffodil_parse = {

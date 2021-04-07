@@ -16,14 +16,14 @@
  */
 
 #include "unparsers.h"
-#include <endian.h>   // for htobe32, htobe64, htole32, htole64, htobe16, htole16
+#include <endian.h>   // for htobe32, htole32, htobe16, htobe64, htole16, htole64
 #include <stdbool.h>  // for bool
-#include <stdio.h>    // for fwrite, size_t
+#include <stdio.h>    // for fwrite
+#include "errors.h"   // for UState, eof_or_error, Diagnostics, Error, need_diagnostics, ERR_FIXED_VALUE, Error::(anonymous)
 
-// Macros that are not defined by <endian.h>
+// Macros not defined by <endian.h> which we need for uniformity
 
 #define htobe8(var) var
-
 #define htole8(var) var
 
 // Helper macro to reduce duplication of C code writing stream,
@@ -34,7 +34,8 @@
     ustate->position += count;                                                 \
     if (count < sizeof(buffer))                                                \
     {                                                                          \
-        ustate->error_msg = eof_or_error_msg(ustate->stream);                  \
+        ustate->error = eof_or_error(ustate->stream);                          \
+        if (ustate->error) return;                                             \
     }
 
 // Macros to define unparse_<endian>_<type> functions
@@ -43,55 +44,46 @@
     void unparse_##endian##_bool##bits(bool number, uint32_t true_rep,         \
                                        uint32_t false_rep, UState *ustate)     \
     {                                                                          \
-        if (!ustate->error_msg)                                                \
+        union                                                                  \
         {                                                                      \
-            union                                                              \
-            {                                                                  \
-                char           c_val[sizeof(uint##bits##_t)];                  \
-                uint##bits##_t i_val;                                          \
-            } buffer;                                                          \
+            char           c_val[sizeof(uint##bits##_t)];                      \
+            uint##bits##_t i_val;                                              \
+        } buffer;                                                              \
                                                                                \
-            buffer.i_val = hto##endian##bits(number ? true_rep : false_rep);   \
-            write_stream_update_position;                                      \
-        }                                                                      \
+        buffer.i_val = hto##endian##bits(number ? true_rep : false_rep);       \
+        write_stream_update_position;                                          \
     }
 
 #define define_unparse_endian_real(endian, type, bits)                         \
     void unparse_##endian##_##type(type number, UState *ustate)                \
     {                                                                          \
-        if (!ustate->error_msg)                                                \
+        union                                                                  \
         {                                                                      \
-            union                                                              \
-            {                                                                  \
-                char           c_val[sizeof(type)];                            \
-                type           f_val;                                          \
-                uint##bits##_t i_val;                                          \
-            } buffer;                                                          \
+            char           c_val[sizeof(type)];                                \
+            type           f_val;                                              \
+            uint##bits##_t i_val;                                              \
+        } buffer;                                                              \
                                                                                \
-            buffer.f_val = number;                                             \
-            buffer.i_val = hto##endian##bits(buffer.i_val);                    \
-            write_stream_update_position;                                      \
-        }                                                                      \
+        buffer.f_val = number;                                                 \
+        buffer.i_val = hto##endian##bits(buffer.i_val);                        \
+        write_stream_update_position;                                          \
     }
 
 #define define_unparse_endian_integer(endian, type, bits)                      \
     void unparse_##endian##_##type##bits(type##bits##_t number,                \
                                          UState *       ustate)                \
     {                                                                          \
-        if (!ustate->error_msg)                                                \
+        union                                                                  \
         {                                                                      \
-            union                                                              \
-            {                                                                  \
-                char           c_val[sizeof(type##bits##_t)];                  \
-                type##bits##_t i_val;                                          \
-            } buffer;                                                          \
+            char           c_val[sizeof(type##bits##_t)];                      \
+            type##bits##_t i_val;                                              \
+        } buffer;                                                              \
                                                                                \
-            buffer.i_val = hto##endian##bits(number);                          \
-            write_stream_update_position;                                      \
-        }                                                                      \
+        buffer.i_val = hto##endian##bits(number);                              \
+        write_stream_update_position;                                          \
     }
 
-// Define functions to unparse binary real numbers and integers
+// Unparse binary booleans, real numbers, and integers
 
 define_unparse_endian_bool(be, 16);
 define_unparse_endian_bool(be, 32);
@@ -127,35 +119,41 @@ define_unparse_endian_integer(le, uint, 32)
 define_unparse_endian_integer(le, uint, 64)
 define_unparse_endian_integer(le, uint, 8)
 
-// Define function to unparse fill bytes until end position is reached
+// Unparse fill bytes until end position is reached
 
 void
-unparse_fill_bytes(size_t end_position, const char fill_byte, UState *ustate)
+unparse_fill_bytes(size_t end_position, const char fill_byte,
+                   UState *ustate)
 {
-    while (!ustate->error_msg && ustate->position < end_position)
+    union
     {
-        size_t count = fwrite(&fill_byte, 1, sizeof(fill_byte), ustate->stream);
+        char c_val[1];
+    } buffer;
 
-        ustate->position += count;
-        if (count < sizeof(fill_byte))
-        {
-            ustate->error_msg = eof_or_error_msg(ustate->stream);
-        }
+    buffer.c_val[0] = fill_byte;
+
+    while (ustate->position < end_position)
+    {
+        write_stream_update_position;
     }
 }
 
-// Define function to validate number is same as fixed value during unparse
+// Validate unparsed number is same as fixed value
 
 void
 unparse_validate_fixed(bool same, const char *element, UState *ustate)
 {
-    if (!ustate->error_msg && !same)
+    if (!same)
     {
-        // Error message would be easier to assemble and
-        // internationalize if we used an error struct with multiple
-        // fields instead of a const char string.
-        ustate->error_msg = "Unparse: Value of element does not match value of "
-                            "its 'fixed' attribute";
-        UNUSED(element); // unused because managing strings hard in embedded C
+        Diagnostics *validati = need_diagnostics();
+        ustate->validati = validati;
+
+        if (validati->length <
+            sizeof(validati->array) / sizeof(*validati->array))
+        {
+            Error *error = &validati->array[validati->length++];
+            error->code = ERR_FIXED_VALUE;
+            error->s = element;
+        }
     }
 }

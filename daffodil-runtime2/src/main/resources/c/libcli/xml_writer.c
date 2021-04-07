@@ -16,83 +16,93 @@
  */
 
 #include "xml_writer.h"
-#include "stack.h"    // for stack_is_empty, stack_pop, stack_push, stack_top, stack_init, stack_is_full
 #include <assert.h>   // for assert
-#include <mxml.h>     // for mxmlNewOpaquef, mxml_node_t, mxmlElementSetAttr, mxmlNewElement, mxmlDelete, mxmlNewXML, mxmlSaveFile, MXML_NO_CALLBACK
+#include <mxml.h>     // for mxmlNewOpaquef, mxml_node_t, mxmlElementSetAttr, mxmlGetOpaque, mxmlNewElement, mxmlDelete, mxmlGetElement, mxmlNewXML, mxmlSaveFile, MXML_NO_CALLBACK
 #include <stdbool.h>  // for bool
 #include <stdint.h>   // for int16_t, int32_t, int64_t, int8_t, uint16_t, uint32_t, uint64_t, uint8_t
-#include <stdio.h>    // for NULL, fflush
+#include <stdio.h>    // for NULL
 #include <string.h>   // for strcmp
+#include "errors.h"   // for Error, ERR_XML_DECL, ERR_XML_ELEMENT, ERR_XML_WRITE, Error::(anonymous)
+#include "stack.h"    // for stack_is_empty, stack_pop, stack_push, stack_top, stack_init
 
-// Push new XML document on stack.  This function is not
-// thread-safe since it uses static storage.
+// Push new XML document on stack (note the stack is stored in a
+// static array which could overflow and stop the program; it also
+// means none of those functions are thread-safe)
 
-static const char *
+static const Error *
 xmlStartDocument(XMLWriter *writer)
 {
-#define MAX_DEPTH 100
+    enum
+    {
+        MAX_DEPTH = 100
+    };
     static mxml_node_t *array[MAX_DEPTH];
     stack_init(&writer->stack, array, MAX_DEPTH);
 
     mxml_node_t *xml = mxmlNewXML("1.0");
-    stack_push(&writer->stack, xml);
-    return xml ? NULL : "Error making new XML declaration";
+    if (xml)
+    {
+        stack_push(&writer->stack, xml);
+        return NULL;
+    }
+    else
+    {
+        static Error error = {ERR_XML_DECL, {NULL}};
+        return &error;
+    }
 }
 
-// Pop completed XML document off stack and write it to stream
+// Pop completed XML document off stack and write it to stream (note
+// stack underflow will stop program)
 
-static const char *
+static const Error *
 xmlEndDocument(XMLWriter *writer)
 {
     mxml_node_t *xml = stack_pop(&writer->stack);
     assert(stack_is_empty(&writer->stack));
+
     int status = mxmlSaveFile(xml, writer->stream, MXML_NO_CALLBACK);
     if (status < 0)
     {
-        return "Error writing XML document";
+        static Error error = {ERR_XML_WRITE, {NULL}};
+        return &error;
     }
-    status = fflush(writer->stream);
     mxmlDelete(xml);
-    return status == 0 ? NULL : "Error flushing stream";
+    return NULL;
 }
 
-// Push new complex element on stack
+// Push new complex element on stack (note stack overflow will stop
+// program)
 
-static const char *
+static const Error *
 xmlStartComplex(XMLWriter *writer, const InfosetBase *base)
 {
-    mxml_node_t *complex = NULL;
-    if (!stack_is_full(&writer->stack))
+    mxml_node_t *parent = stack_top(&writer->stack);
+    const char * name = get_erd_name(base->erd);
+    const char * xmlns = get_erd_xmlns(base->erd);
+    mxml_node_t *complex = mxmlNewElement(parent, name);
+    if (xmlns)
     {
-        mxml_node_t *parent = stack_top(&writer->stack);
-        const char * name = get_erd_name(base->erd);
-        const char * xmlns = get_erd_xmlns(base->erd);
-        complex = mxmlNewElement(parent, name);
-        if (xmlns)
-        {
-            const char *ns = get_erd_ns(base->erd);
-            mxmlElementSetAttr(complex, xmlns, ns);
-        }
-        stack_push(&writer->stack, complex);
+        const char *ns = get_erd_ns(base->erd);
+        mxmlElementSetAttr(complex, xmlns, ns);
     }
-    return complex ? NULL : "Error making new complex element";
+    stack_push(&writer->stack, complex);
+    return NULL;
 }
 
-// Pop completed complex element off stack
+// Pop completed complex element off stack (note stack underflow will
+// stop program)
 
-static const char *
+static const Error *
 xmlEndComplex(XMLWriter *writer, const InfosetBase *base)
 {
-    mxml_node_t *complex = NULL;
-    if (!stack_is_empty(&writer->stack))
-    {
-        complex = stack_pop(&writer->stack);
+    mxml_node_t *complex = stack_pop(&writer->stack);
 
-        const char *name_from_xml = mxmlGetElement(complex);
-        const char *name_from_erd = get_erd_name(base->erd);
-        assert(strcmp(name_from_xml, name_from_erd) == 0);
-    }
-    return complex ? NULL : "Underflowed the XML stack";
+    const char *name_from_xml = mxmlGetElement(complex);
+    const char *name_from_erd = get_erd_name(base->erd);
+    assert(strcmp(name_from_xml, name_from_erd) == 0);
+
+    return NULL;
 }
 
 // Fix a real number to conform to xsd:float syntax if needed
@@ -107,14 +117,15 @@ fixNumberIfNeeded(const char *text)
         modifyInPlace[1] = 'a';
     }
     // These are not required by xsd:float, only to match runtime1 better
-    //  - Strip + from <f>E+<e> to get <f>E<e> (not worth it)
-    //  - Add .0 to 1 to get 1.0 (not worth it)
+    //  - Strip + from <f>E+<e> to get <f>E<e>
+    //  - Add .0 to 1 to get 1.0
+    // It would be better to compare floats as numbers, not strings, though
 }
 
 // Write a boolean, 32-bit or 64-bit real number, or 8, 16, 32, or
 // 64-bit signed or unsigned integer as an XML element's value
 
-static const char *
+static const Error *
 xmlNumberElem(XMLWriter *writer, const ERD *erd, const void *number)
 {
     mxml_node_t *parent = stack_top(&writer->stack);
@@ -177,8 +188,16 @@ xmlNumberElem(XMLWriter *writer, const ERD *erd, const void *number)
         break;
     }
 
-    return (simple && text) ? NULL
-                            : "Error making new simple numerical element";
+    if (simple && text)
+    {
+        return NULL;
+    }
+    else
+    {
+        static Error error = {ERR_XML_ELEMENT, {NULL}};
+        error.s = name;
+        return &error;
+    }
 }
 
 // Initialize a struct with our visitor event handler methods
