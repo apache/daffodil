@@ -19,7 +19,7 @@
 #include <endian.h>   // for htobe32, htole32, htobe16, htobe64, htole16, htole64
 #include <stdbool.h>  // for bool
 #include <stdio.h>    // for fwrite
-#include "errors.h"   // for UState, eof_or_error, Diagnostics, Error, need_diagnostics, ERR_FIXED_VALUE, Error::(anonymous)
+#include "errors.h"   // for UState, eof_or_error, add_diagnostic, need_diagnostics, ERR_FIXED_VALUE, Diagnostics, Error
 
 // Macros not defined by <endian.h> which we need for uniformity
 
@@ -146,14 +146,9 @@ unparse_validate_fixed(bool same, const char *element, UState *ustate)
     if (!same)
     {
         Diagnostics *validati = need_diagnostics();
-        ustate->validati = validati;
+        const Error error = {ERR_FIXED_VALUE, {element}};
 
-        if (validati->length <
-            sizeof(validati->array) / sizeof(*validati->array))
-        {
-            Error *error = &validati->array[validati->length++];
-            error->code = ERR_FIXED_VALUE;
-            error->s = element;
-        }
+        add_diagnostic(validati, &error);
+        ustate->validati = validati;
     }
 }

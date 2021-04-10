@@ -135,6 +135,23 @@ need_diagnostics(void)
     return &validati;
 }
 
+// add_diagnostic - add a new error to validation diagnostics
+
+void
+add_diagnostic(Diagnostics *validati, const Error *error)
+{
+    if (validati && error)
+    {
+        if (validati->length <
+            sizeof(validati->array) / sizeof(*validati->array))
+        {
+            Error *err = &validati->array[validati->length++];
+            err->code = error->code;
+            err->s = error->s;
+        }
+    }
+}
+
 // print_diagnostics - print any validation diagnostics
 
 void

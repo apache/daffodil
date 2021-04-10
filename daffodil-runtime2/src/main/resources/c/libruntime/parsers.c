@@ -19,7 +19,7 @@
 #include <endian.h>   // for be32toh, le32toh, be16toh, be64toh, le16toh, le64toh
 #include <stdbool.h>  // for bool, false, true
 #include <stdio.h>    // for fread
-#include "errors.h"   // for PState, eof_or_error, Error, ERR_PARSE_BOOL, Error::(anonymous), Diagnostics, need_diagnostics, ERR_FIXED_VALUE
+#include "errors.h"   // for PState, eof_or_error, Error, ERR_PARSE_BOOL, Error::(anonymous), add_diagnostic, need_diagnostics, ERR_FIXED_VALUE, Diagnostics
 
 // Macros not defined by <endian.h> which we need for uniformity
 
@@ -160,14 +160,9 @@ parse_validate_fixed(bool same, const char *element, PState *pstate)
     if (!same)
     {
         Diagnostics *validati = need_diagnostics();
-        pstate->validati = validati;
+        const Error error = {ERR_FIXED_VALUE, {element}};
 
-        if (validati->length <
-            sizeof(validati->array) / sizeof(*validati->array))
-        {
-            Error *error = &validati->array[validati->length++];
-            error->code = ERR_FIXED_VALUE;
-            error->s = element;
-        }
+        add_diagnostic(validati, &error);
+        pstate->validati = validati;
     }
 }

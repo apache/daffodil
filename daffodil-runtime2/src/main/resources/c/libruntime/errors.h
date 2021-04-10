@@ -98,6 +98,10 @@ typedef struct UState
 
 extern Diagnostics *need_diagnostics(void);
 
+// add_diagnostic - add a new error to validation diagnostics
+
+extern void add_diagnostic(Diagnostics *validati, const Error *error);
+
 // print_diagnostics - print any validation diagnostics
 
 extern void print_diagnostics(const Diagnostics *validati);
