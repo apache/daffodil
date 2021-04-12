@@ -24,9 +24,11 @@ import scala.io.Source
 
 import org.jline.reader.Candidate
 import org.jline.reader.Completer
+import org.jline.reader.EndOfFileException
 import org.jline.reader.LineReader
 import org.jline.reader.LineReaderBuilder
 import org.jline.reader.ParsedLine
+import org.jline.reader.UserInterruptException
 
 
 class CLIDebuggerRunner(cmdsIter: Iterator[String]) extends InteractiveDebuggerRunner {
@@ -66,8 +68,13 @@ class CLIDebuggerRunner(cmdsIter: Iterator[String]) extends InteractiveDebuggerR
       println("%s%s".format(prompt, line))
       line
     } else {
-      val line = reader.get.readLine(prompt)
-      if (line == null) "quit" else line
+      val line = try {
+        reader.get.readLine(prompt)
+      } catch {
+        case _: UserInterruptException => "quit" // Ctrl-C
+        case _: EndOfFileException => "quit" // Ctrl-D
+      }
+      line
     }
     cmd.trim
   }
@@ -104,8 +111,10 @@ class CLIDebuggerCompleter(id: InteractiveDebugger) extends Completer {
           // We have the name for the next command, try to find the
           // associated subcommand of the current DebugCommand. If we don't
           // find one, it just means they user typed something that's not a
-          // valid command and we no command to use for completing
-          val nextCmd = cmd.subcommands.find { _.name == nextCmdName }
+          // valid command and we have no command to use for completing. Note
+          // that by comparing using == with the RHS being a String, we match
+          // against both short and long debug command names
+          val nextCmd = cmd.subcommands.find { _ == nextCmdName }
           nextCmd
         }
         case None => {
