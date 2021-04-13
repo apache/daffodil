@@ -19,15 +19,17 @@ package org.apache.daffodil.io
 
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
-import org.apache.daffodil.exceptions.Assert
+import java.nio.charset.CoderResult
+import java.nio.charset.{ Charset => JavaCharset }
+import java.nio.charset.{ CharsetDecoder => JavaCharsetDecoder }
+
 import com.ibm.icu.lang.UCharacter
 import com.ibm.icu.lang.UCharacterEnums
 import com.ibm.icu.lang.UProperty
-import org.apache.daffodil.util.Misc
+
 import org.apache.daffodil.equality._
-import java.nio.charset.{ CharsetDecoder => JavaCharsetDecoder }
-import java.nio.charset.{ Charset => JavaCharset }
-import java.nio.charset.CoderResult
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.util.Misc
 
 /**
  * Hex/Bits and text dump formats for debug/trace purposes.
@@ -38,12 +40,6 @@ import java.nio.charset.CoderResult
  * so it really cannot exploit any information about the data format)
  */
 class DataDumper {
-
-  import scala.language.reflectiveCalls
-
-  type ByteSource = {
-    def get(byteAddress0b: Int): Byte // arg must be Int, not Long, so ByteBuffers satisfy this constract.
-  }
 
   val defaultMaxLineLength = 70
 
@@ -99,12 +95,12 @@ class DataDumper {
    * indicator info is a start position and length for the "region of interest". The units
    * are in bits.
    *
-   * The shamStartBitAddress0b is the location where the data in the byteSource starts.
-   * E.g., the byte at byteSource.get(0) is from the data stream at the shamStartBitAddress0b.
+   * The shamStartBitAddress0b is the location where the data in the byteBuffer starts.
+   * E.g., the byte at byteBuffer.get(0) is from the data stream at the shamStartBitAddress0b.
    *
    * The byte source is a window into the data stream.
    */
-  def dump(kind: Kind, shamStartBitAddress0b: Long, lengthInBits: Int, byteSource: ByteSource, maxLineLength: Int = defaultMaxLineLength,
+  def dump(kind: Kind, shamStartBitAddress0b: Long, lengthInBits: Int, byteBuffer: ByteBuffer, maxLineLength: Int = defaultMaxLineLength,
     includeHeadingLine: Boolean = true,
     indicatorInfo: Option[(Long, Int)] = None): Seq[String] = {
     val (shamStartByteAddress0b, lengthInBytes, _) = convertBitsToBytesUnits(shamStartBitAddress0b, lengthInBits)
@@ -119,12 +115,12 @@ class DataDumper {
     }
     kind match {
       case TextOnly(enc) => {
-        dumpTextLine(maxLineLength, shamStartByteAddress0b, lengthInBytes, byteSource, enc, indicatorInfoInBytes)
+        dumpTextLine(maxLineLength, shamStartByteAddress0b, lengthInBytes, byteBuffer, enc, indicatorInfoInBytes)
       }
       case MixedHexLTR(optionCS) =>
-        dumpHexAndTextBytes(shamStartByteAddress0b, lengthInBytes, byteSource, includeHeadingLine, optEncName, indicatorInfoInBytes)
+        dumpHexAndTextBytes(shamStartByteAddress0b, lengthInBytes, byteBuffer, includeHeadingLine, optEncName, indicatorInfoInBytes)
       case MixedHexRTL(None) =>
-        dumpHexAndTextBytesLSBFirst(shamStartByteAddress0b, lengthInBytes, byteSource, includeHeadingLine, optEncName)
+        dumpHexAndTextBytesLSBFirst(shamStartByteAddress0b, lengthInBytes, byteBuffer, includeHeadingLine, optEncName)
       case _ => Assert.usageError("unsupported dump kind")
     }
   }
@@ -137,13 +133,13 @@ class DataDumper {
   var nPadBytesFromPriorLine = 0
 
   private def textDump(addr: Long, rowStart0b: Int, txtsb: StringBuilder,
-    limit0b: Int, endByteAddress0b: Long, byteSource: ByteSource, decoder: Option[JavaCharsetDecoder],
+    limit0b: Int, endByteAddress0b: Long, byteBuffer: ByteBuffer, decoder: Option[JavaCharsetDecoder],
     textByteWidth: Int): Unit = {
     var i = rowStart0b + nPadBytesFromPriorLine
     txtsb ++= paddingFromPriorLine
     while (i <= limit0b) {
       val bytePos0b = addr + i
-      val (charRep, nBytesConsumed, width) = convertToCharRepr(bytePos0b, endByteAddress0b, byteSource, decoder)
+      val (charRep, nBytesConsumed, width) = convertToCharRepr(bytePos0b, endByteAddress0b, byteBuffer, decoder)
       Assert.invariant(nBytesConsumed > 0)
       // some characters will print double width. It is assumed all such
       // characters occupy at least one byte.
@@ -201,7 +197,7 @@ class DataDumper {
    * For examples see the TestDump class.
    */
   private[io] def dumpHexAndTextBytes(startByteAddress0b: Long, lengthInBytes: Int,
-    byteSource: ByteSource,
+    byteBuffer: ByteBuffer,
     includeHeadingLine: Boolean,
     optEncodingName: Option[String],
     indicatorInfoInBytes: Option[(Long, Int)]): Seq[String] = {
@@ -277,7 +273,7 @@ class DataDumper {
         rowStart0b to limit0b foreach { i =>
           val bytePos0b = addr + i - startByteAddress0b
           val byteValue = try {
-            byteSource.get(bytePos0b.toInt)
+            byteBuffer.get(bytePos0b.toInt)
           } catch {
             case e: IndexOutOfBoundsException => 0.toByte
           }
@@ -289,7 +285,7 @@ class DataDumper {
         // Text dump
         //
         textDump(addr - startByteAddress0b, rowStart0b, txtsb,
-          limit0b, endByteAddress0b, byteSource, decoder,
+          limit0b, endByteAddress0b, byteBuffer, decoder,
           textByteWidth)
 
         if (isLastRow) {
@@ -472,7 +468,7 @@ class DataDumper {
   private def convertToCharRepr(
     startingBytePos0b: Long,
     endingBytePos0b: Long,
-    bs: ByteSource,
+    byteBuffer: ByteBuffer,
     decoder: Option[JavaCharsetDecoder]): (String, Int, Int) = {
 
     Assert.invariant(decoder.map { d => Misc.isAsciiBased(d.charset()) }.getOrElse(true))
@@ -492,7 +488,7 @@ class DataDumper {
           val thePos = (startingBytePos0b + i).toInt
           Assert.invariant(thePos >= 0)
           val theByte = try {
-            bs.get(thePos)
+            byteBuffer.get(thePos)
           } catch {
             case e: IndexOutOfBoundsException => 0.toByte
           }
@@ -573,7 +569,7 @@ class DataDumper {
         // no encoding, so use the general one based on windows-1252 where
         // every byte corresponds to a character with a glyph.
         val byteValue = try {
-          bs.get(startingBytePos0b.toInt)
+          byteBuffer.get(startingBytePos0b.toInt)
         } catch {
           case e: IndexOutOfBoundsException => 0.toByte
         }
@@ -592,7 +588,7 @@ class DataDumper {
    * If displaying ONLY text, then we just display one long line
    * and replace any whitespace or non-glyph characters with glyph characters.
    */
-  def dumpTextLine(maxLineLen: Int, startByteAddress0b: Long, lengthInBytesRequested: Int, byteSource: ByteSource,
+  def dumpTextLine(maxLineLen: Int, startByteAddress0b: Long, lengthInBytesRequested: Int, byteBuffer: ByteBuffer,
     optEncodingName: Option[String] = None,
     indicatorInfoInBytes: Option[(Long, Int)] = None): Seq[String] = {
     Assert.usage(startByteAddress0b >= 0)
@@ -640,7 +636,7 @@ class DataDumper {
     var i = startByteAddress0b
     val sb = new StringBuilder
     while (i <= endByteAddress0b) {
-      val (cR, nBytesConsumed, _) = convertToCharRepr(i - startByteAddress0b, endByteAddress0b, byteSource, decoder)
+      val (cR, nBytesConsumed, _) = convertToCharRepr(i - startByteAddress0b, endByteAddress0b, byteBuffer, decoder)
       sb ++= cR
       i += nBytesConsumed
     }
@@ -678,11 +674,11 @@ class DataDumper {
    * little-endian data
    */
   private[io] def dumpHexAndTextBytesLSBFirst(startByteAddress0b: Long, lengthInBytes: Int,
-    byteSource: ByteSource,
+    byteBuffer: ByteBuffer,
     includeHeadingLine: Boolean = true,
     optEncodingName: Option[String] = None): Seq[String] = {
     val ltrDump = dumpHexAndTextBytes(startByteAddress0b, lengthInBytes,
-      byteSource, includeHeadingLine, optEncodingName, None)
+      byteBuffer, includeHeadingLine, optEncodingName, None)
     val ltrLines =
       ltrDump.filterNot { _.length() == 0 }
     val wholeLineRegex = """([0-9a-fA-F]{8})(:?\s+)([0-9a-fA-F ]+[0-9a-fA-F])(\s+)(.*)""".r

@@ -70,7 +70,7 @@
   <tdml:parserTestCase name="layers1" root="root" model="s1">
     <tdml:document>
       <tdml:documentPart type="byte"><![CDATA[
-      000000D41F8B08000000000000004D904176C3200C44AF3207C8F33DBA6F0F40CCD8568391
+      000000D41F8B08000000000000FF4D904176C3200C44AF3207C8F33DBA6F0F40CCD8568391
       8B44D3DC3EC2C9A2EFB1013EF3357C6E6288F5DDCD61BA137BCA443FE0FC73F8967C5C4B75
       D6CC0C575C8984857714A93414ADEB848F25D800B794036045632A67C605E2B86B2F19553D
       805FBE889F2ECE70E2AA4DEA3AA2E3519EF065842E58D2AEDD02530F8DB640832A8F26F3B9
@@ -383,7 +383,7 @@ jones,arya,cat,1986-02-19
 
 We gzip that, and then we must prepend that with the length (as a binary 4-byte int) before we base64 encode.
   -->
-      <tdml:documentPart type="text"  replaceDFDLEntities="true"><![CDATA[AAAAcx+LCAAAAAAAAAAtyUEKgCAQheG94E1mIDWittG+M0xpaNQIo5tuX0Kb98P7LioVjiTf3sn7%CR;%LF;K8CyzlqVO9UIkrcgFTYh9pnBTOOInUPba3XmyOX7WiEGlqfxgJ1B6xpzKEDyEOxUf7JoJq1e/RI4%CR;%LF;wXIAAAA=--END--]]></tdml:documentPart>
+      <tdml:documentPart type="text"  replaceDFDLEntities="true"><![CDATA[AAAAcx+LCAAAAAAAAP8tyUEKgCAQheG94E1mIDWittG+M0xpaNQIo5tuX0Kb98P7LioVjiTf3sn7%CR;%LF;K8CyzlqVO9UIkrcgFTYh9pnBTOOInUPba3XmyOX7WiEGlqfxgJ1B6xpzKEDyEOxUf7JoJq1e/RI4%CR;%LF;wXIAAAA=--END--]]></tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
