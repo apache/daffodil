@@ -17,36 +17,23 @@
 
 package org.apache.daffodil.io
 
+import java.nio.ByteBuffer
+
 import org.junit.Test
 import org.junit.Assert._
-import org.apache.daffodil.schema.annotation.props.gen.BitOrder
-import org.apache.daffodil.util.Misc
 
 class TestDump {
 
   val Dump = new DataDumper
 
-  class BS(val bytes: Array[Byte]) {
-
-    def this(hex: String) = this(Misc.hex2Bytes(hex))
-
-    def get(byteAddress0b: Int): Byte = {
-      getRawByte(byteAddress0b * 8, java.nio.ByteOrder.BIG_ENDIAN, BitOrder.MostSignificantBitFirst)
-    }
-
-    private def getRawByte(bitPos0b: Long, order: java.nio.ByteOrder, bitOrder: BitOrder): Byte = {
-      bytes((bitPos0b >> 3).toInt)
-    }
-  }
-
   @Test def testDumpHexAndText1(): Unit = {
 
     val bytes = "Date 年月日=2003年08月27日".getBytes("utf-8")
     val lengthInBits = bytes.length * 8
-    val bs = new BS(bytes)
+    val bb = ByteBuffer.wrap(bytes)
 
     val dumpString =
-      Dump.dump(Dump.MixedHexLTR(Some("utf-8")), 0, lengthInBits, bs,
+      Dump.dump(Dump.MixedHexLTR(Some("utf-8")), 0, lengthInBits, bb,
         includeHeadingLine = true).mkString("\n")
     val expected = """
 87654321  0011 2233 4455 6677 8899 aabb ccdd eeff  0~1~2~3~4~5~6~7~8~9~a~b~c~d~e~f~
@@ -61,10 +48,10 @@ class TestDump {
     val dateString = "Date 年月日=2003年08月27日"
     val dateStringLengthInBytes = dateString.getBytes("utf-8").length
     val bytes = dateString.getBytes("utf-8")
-    val bs = new BS(bytes)
+    val bb = ByteBuffer.wrap(bytes)
 
     val dumpString =
-      Dump.dump(Dump.MixedHexLTR(Some("utf-8")), 1000 * 8, dateStringLengthInBytes * 8, bs,
+      Dump.dump(Dump.MixedHexLTR(Some("utf-8")), 1000 * 8, dateStringLengthInBytes * 8, bb,
         includeHeadingLine = true,
         indicatorInfo = Some(((1000 + 12) * 8), 6 * 8)).mkString("\n")
     //
@@ -85,10 +72,10 @@ class TestDump {
 
     val bytes = "Date 年月日=2003年08月27日".getBytes("utf-8")
     val lengthInBits = bytes.length * 8
-    val bs = new BS(bytes)
+    val bb = ByteBuffer.wrap(bytes)
 
     val dumpString =
-      Dump.dump(Dump.MixedHexLTR(Some("utf-8")), 0, lengthInBits, bs,
+      Dump.dump(Dump.MixedHexLTR(Some("utf-8")), 0, lengthInBits, bb,
         includeHeadingLine = true,
         indicatorInfo = Some((0, lengthInBits))).mkString("\n")
     val expected = """
@@ -104,10 +91,10 @@ class TestDump {
 
     val bytes = "Date 年月日=2003年08月27日".getBytes("utf-8")
     val lengthInBits = bytes.length * 8
-    val bs = new BS(bytes)
+    val bb = ByteBuffer.wrap(bytes)
 
     val dumpString =
-      Dump.dump(Dump.MixedHexLTR(Some("utf-8")), 0, lengthInBits, bs,
+      Dump.dump(Dump.MixedHexLTR(Some("utf-8")), 0, lengthInBits, bb,
         includeHeadingLine = true,
         indicatorInfo = Some((8, 14 * 8))).mkString("\n")
     val expected = """
@@ -123,9 +110,9 @@ class TestDump {
 
     val bytes = "Date 年月日=2003年08月27日".getBytes("utf-32BE")
     val lengthInBits = bytes.length * 8
-    val bs = new BS(bytes)
+    val bb = ByteBuffer.wrap(bytes)
 
-    val dumpString = Dump.dump(Dump.MixedHexLTR(Some("utf-32BE")), 0, lengthInBits, bs,
+    val dumpString = Dump.dump(Dump.MixedHexLTR(Some("utf-32BE")), 0, lengthInBits, bb,
       includeHeadingLine = true).mkString("\n")
     val expected = """
 87654321  0011 2233 4455 6677 8899 aabb ccdd eeff  0~1~2~3~4~5~6~7~8~9~a~b~c~d~e~f~
@@ -142,9 +129,9 @@ class TestDump {
 
     val bytes = "Date 年月日=2003年08月27日".getBytes("utf-32BE")
     val lengthInBits = bytes.length * 8
-    val bs = new BS(bytes)
+    val bb = ByteBuffer.wrap(bytes)
 
-    val dumpString = Dump.dump(Dump.MixedHexLTR(Some("utf-32BE")), 0, lengthInBits, bs,
+    val dumpString = Dump.dump(Dump.MixedHexLTR(Some("utf-32BE")), 0, lengthInBits, bb,
       includeHeadingLine = true,
       indicatorInfo = Some((0, lengthInBits))).mkString("\n")
     val expected = """
@@ -163,9 +150,9 @@ class TestDump {
 
     val bytes = "Date 年月日=2003年08月27日".getBytes("utf-32BE")
     val lengthInBits = bytes.length * 8
-    val bs = new BS(bytes)
+    val bb = ByteBuffer.wrap(bytes)
 
-    val dumpString = Dump.dump(Dump.MixedHexLTR(Some("utf-32BE")), 0, lengthInBits, bs,
+    val dumpString = Dump.dump(Dump.MixedHexLTR(Some("utf-32BE")), 0, lengthInBits, bb,
       includeHeadingLine = true,
       indicatorInfo = Some((16, 12 * 8))).mkString("\n")
     val expected = """
@@ -184,9 +171,9 @@ class TestDump {
 
     val bytes = "Date 年月日=2003年08月27日".getBytes("utf-16LE")
     val lengthInBits = bytes.length * 8
-    val bs = new BS(bytes)
+    val bb = ByteBuffer.wrap(bytes)
 
-    val dumpString = Dump.dump(Dump.MixedHexLTR(Some("utf-16LE")), 0, lengthInBits, bs,
+    val dumpString = Dump.dump(Dump.MixedHexLTR(Some("utf-16LE")), 0, lengthInBits, bb,
       includeHeadingLine = true).mkString("\n")
     val expected = """
 87654321  0011 2233 4455 6677 8899 aabb ccdd eeff  0~1~2~3~4~5~6~7~8~9~a~b~c~d~e~f~
@@ -206,8 +193,8 @@ dada 0000 0101 0817 ece2 8017 ece2 dead beef cc7a 1234
         .replaceAll("\\s+", "").grouped(2)
         .map { Integer.parseInt(_, 16).toByte }.toArray
     val lengthInBits = bytes.length * 8
-    val bs = new BS(bytes)
-    val dumpString = Dump.dump(Dump.MixedHexLTR(Some("utf-8")), 0, lengthInBits, bs,
+    val bb = ByteBuffer.wrap(bytes)
+    val dumpString = Dump.dump(Dump.MixedHexLTR(Some("utf-8")), 0, lengthInBits, bb,
       includeHeadingLine = true).mkString("\n")
     val u068b = Character.toChars(0x068b).mkString
     val u10907 = Character.toChars(0x10907).mkString
@@ -225,9 +212,9 @@ dada 0000 0101 0817 ece2 8017 ece2 dead beef cc7a 1234
 
   @Test def testDump1(): Unit = {
 
-    val bs = new BS((0 to 255).map { _.toByte }.toArray)
+    val bb = ByteBuffer.wrap((0 to 255).map { _.toByte }.toArray)
 
-    val dumpString = Dump.dump(Dump.MixedHexLTR(None), 0, 256 * 8, bs, includeHeadingLine = true).mkString("\n")
+    val dumpString = Dump.dump(Dump.MixedHexLTR(None), 0, 256 * 8, bb, includeHeadingLine = true).mkString("\n")
     val expected = """
 87654321  0011 2233 4455 6677 8899 aabb ccdd eeff  0123456789abcdef
 00000000: 0001 0203 0405 0607 0809 0a0b 0c0d 0e0f  ␀␁␂␃␄␅␆␇␈␉␊␋␌␍␎␏
@@ -252,9 +239,9 @@ dada 0000 0101 0817 ece2 8017 ece2 dead beef cc7a 1234
 
   @Test def testDump2(): Unit = {
 
-    val bs = new BS((0 to 255).map { _.toByte }.toArray)
+    val bb = ByteBuffer.wrap((0 to 255).map { _.toByte }.toArray)
 
-    val dumpString = Dump.dump(Dump.MixedHexLTR(None), 8, 254 * 8, bs, includeHeadingLine = true).mkString("\n")
+    val dumpString = Dump.dump(Dump.MixedHexLTR(None), 8, 254 * 8, bb, includeHeadingLine = true).mkString("\n")
 
     val expected = """
 87654321  0011 2233 4455 6677 8899 aabb ccdd eeff  0123456789abcdef
@@ -281,9 +268,9 @@ dada 0000 0101 0817 ece2 8017 ece2 dead beef cc7a 1234
 
   @Test def testDump3(): Unit = {
 
-    val bs = new BS((0 to 255).map { _.toByte }.toArray)
+    val bb = ByteBuffer.wrap((0 to 255).map { _.toByte }.toArray)
 
-    val dumpString = Dump.dump(Dump.MixedHexLTR(None), 50, (191 * 8) - 5, bs, includeHeadingLine = true).mkString("\n")
+    val dumpString = Dump.dump(Dump.MixedHexLTR(None), 50, (191 * 8) - 5, bb, includeHeadingLine = true).mkString("\n")
     val expected = """
 87654321  0011 2233 4455 6677 8899 aabb ccdd eeff  0123456789abcdef
 00000000:                0001 0203 0405 0607 0809        ␀␁␂␃␄␅␆␇␈␉
@@ -306,9 +293,9 @@ dada 0000 0101 0817 ece2 8017 ece2 dead beef cc7a 1234
 
   @Test def testDump4(): Unit = {
 
-    val bs = new BS((0 to 255).map { _.toByte }.toArray)
+    val bb = ByteBuffer.wrap((0 to 255).map { _.toByte }.toArray)
 
-    val dumpString = Dump.dump(Dump.MixedHexLTR(None), 50, 51, bs, includeHeadingLine = true).mkString("\n")
+    val dumpString = Dump.dump(Dump.MixedHexLTR(None), 50, 51, bb, includeHeadingLine = true).mkString("\n")
     val expected = """
 87654321  0011 2233 4455 6677 8899 aabb ccdd eeff  0123456789abcdef
 00000000:                0001 0203 0405 0607             ␀␁␂␃␄␅␆␇  
@@ -318,9 +305,9 @@ dada 0000 0101 0817 ece2 8017 ece2 dead beef cc7a 1234
 
   @Test def testDumpLSBFirst1(): Unit = {
 
-    val bs = new BS((0 to 255).map { _.toByte }.toArray)
+    val bb = ByteBuffer.wrap((0 to 255).map { _.toByte }.toArray)
 
-    val dumpString = Dump.dump(Dump.MixedHexRTL(None), 50, 51, bs, includeHeadingLine = true).mkString("\n")
+    val dumpString = Dump.dump(Dump.MixedHexRTL(None), 50, 51, bb, includeHeadingLine = true).mkString("\n")
     val expected = """
 fedcba9876543210  ffee ddcc bbaa 9988 7766 5544 3322 1100  87654321
   ␇␆␅␄␃␂␁␀             0706 0504 0302 0100                :00000000
@@ -337,9 +324,9 @@ fedcba9876543210  ffee ddcc bbaa 9988 7766 5544 3322 1100  87654321
         .split("\\s+")
         .map { Integer.parseInt(_, 16).toByte }
         .toArray
-    val bs = new BS(bytes)
+    val bb = ByteBuffer.wrap(bytes)
 
-    val dumpString = Dump.dump(Dump.MixedHexRTL(None), 0, bytes.length * 8, bs, includeHeadingLine = true).mkString("\n")
+    val dumpString = Dump.dump(Dump.MixedHexRTL(None), 0, bytes.length * 8, bb, includeHeadingLine = true).mkString("\n")
     val expected = """
 fedcba9876543210  ffee ddcc bbaa 9988 7766 5544 3322 1100  87654321
 cø€␀␀␀wü␚’gU€␀gä  63f8 8000 0000 77fc 1a92 6755 8000 67e4 :00000000
@@ -350,9 +337,9 @@ cø€␀␀␀wü␚’gU€␀gä  63f8 8000 0000 77fc 1a92 6755 8000 67e4 :00
 
   @Test def testDumpTextLine1(): Unit = {
     val data = (0 to 255).map { _.toByte }.toArray
-    val bs = new BS(data)
+    val bb = ByteBuffer.wrap(data)
     val lengthInbits = data.length * 8
-    val dump = Dump.dump(Dump.TextOnly(None), 0, lengthInbits, bs)
+    val dump = Dump.dump(Dump.TextOnly(None), 0, lengthInbits, bb)
     val dumpString = dump.mkString("\n")
     val expected = """␀␁␂␃␄␅␆␇␈␉␊␋␌␍␎␏␐␑␒␓␔␕␖␗␘␙␚␛␜␝␞␟␣!"#$%&'()*+,-./0123456789:;<=>?@ABCDE"""
     // """FGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~␡€Ɓ‚ƒ„…†‡ˆ‰Š‹ŒƍŽƏƐ‘’“”•–—˜™š›œƝžŸ␢¡¢£¤¥¦§¨©ª«¬-®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ""".replace("\r\n", "\n")
@@ -361,11 +348,11 @@ cø€␀␀␀wü␚’gU€␀gä  63f8 8000 0000 77fc 1a92 6755 8000 67e4 :00
 
   @Test def testDumpTextLine2(): Unit = {
     val data = (0 to 255).map { _.toByte }.toArray
-    val bs = new BS(data)
+    val bb = ByteBuffer.wrap(data)
     val lengthInbits = data.length * 8
     val indicatorStartAtByte0b = 32L
     val indicatorLengthInBytes = 8
-    val dump = Dump.dump(Dump.TextOnly(None), 0, lengthInbits, bs,
+    val dump = Dump.dump(Dump.TextOnly(None), 0, lengthInbits, bb,
       indicatorInfo = Some((indicatorStartAtByte0b * 8, indicatorLengthInBytes * 8)))
     val dumpString = dump.mkString("\n")
     val expected =
@@ -377,11 +364,11 @@ cø€␀␀␀wü␚’gU€␀gä  63f8 8000 0000 77fc 1a92 6755 8000 67e4 :00
 
   @Test def testDumpTextLine3(): Unit = {
     val data = (32 to 255).map { _.toByte }.toArray
-    val bs = new BS(data)
+    val bb = ByteBuffer.wrap(data)
     val lengthInbits = data.length * 8
     val indicatorStartAtByte0b = 0L
     val indicatorLengthInBytes = 1000
-    val dump = Dump.dump(Dump.TextOnly(None), 0, lengthInbits, bs,
+    val dump = Dump.dump(Dump.TextOnly(None), 0, lengthInbits, bb,
       indicatorInfo = Some((indicatorStartAtByte0b * 8, indicatorLengthInBytes * 8)))
     val dumpString = dump.mkString("\n")
 
@@ -404,11 +391,11 @@ cø€␀␀␀wü␚’gU€␀gä  63f8 8000 0000 77fc 1a92 6755 8000 67e4 :00
 
   @Test def testDumpTextLine4(): Unit = {
     val data = (32 to 63).map { _.toByte }.toArray
-    val bs = new BS(data)
+    val bb = ByteBuffer.wrap(data)
     val lengthInbits = data.length * 8
     val indicatorStartAtByte0b = 0L
     val indicatorLengthInBytes = 1000
-    val dump = Dump.dump(Dump.TextOnly(None), 0, lengthInbits, bs,
+    val dump = Dump.dump(Dump.TextOnly(None), 0, lengthInbits, bb,
       indicatorInfo = Some((indicatorStartAtByte0b * 8, indicatorLengthInBytes * 8)))
     val dumpString = dump.mkString("\n")
     //
@@ -428,11 +415,11 @@ cø€␀␀␀wü␚’gU€␀gä  63f8 8000 0000 77fc 1a92 6755 8000 67e4 :00
 
   @Test def testDumpTextLine5(): Unit = {
     val data = (32 to 63).map { _.toByte }.toArray
-    val bs = new BS(data)
+    val bb = ByteBuffer.wrap(data)
     val lengthInbits = data.length * 8
     val indicatorStartAtByte0b = 5L
     val indicatorLengthInBytes = 0
-    val dump = Dump.dump(Dump.TextOnly(None), 0, lengthInbits, bs,
+    val dump = Dump.dump(Dump.TextOnly(None), 0, lengthInbits, bb,
       indicatorInfo = Some((indicatorStartAtByte0b * 8, indicatorLengthInBytes * 8)))
     val dumpString = dump.mkString("\n")
     //
@@ -448,11 +435,11 @@ cø€␀␀␀wü␚’gU€␀gä  63f8 8000 0000 77fc 1a92 6755 8000 67e4 :00
 
   @Test def testDumpTextLine6(): Unit = {
     val data = (32 to 63).map { _.toByte }.toArray
-    val bs = new BS(data)
+    val bb = ByteBuffer.wrap(data)
     val lengthInbits = data.length * 8
     val indicatorStartAtByte0b = 5L
     val indicatorLengthInBytes = 1
-    val dump = Dump.dump(Dump.TextOnly(None), 0, lengthInbits, bs,
+    val dump = Dump.dump(Dump.TextOnly(None), 0, lengthInbits, bb,
       indicatorInfo = Some((indicatorStartAtByte0b * 8, indicatorLengthInBytes * 8)))
     val dumpString = dump.mkString("\n")
     val expected =
@@ -467,9 +454,9 @@ cø€␀␀␀wü␚’gU€␀gä  63f8 8000 0000 77fc 1a92 6755 8000 67e4 :00
       0000 0101 0817 dead beef cc7a"""
       .replaceAll("\\s+", "").grouped(2)
       .map { Integer.parseInt(_, 16).toByte }.toArray
-    val bs = new BS(data)
+    val bb = ByteBuffer.wrap(data)
     val lengthInbits = data.length * 8
-    val dumpString = Dump.dump(Dump.TextOnly(Some("utf-8")), 0, lengthInbits, bs).mkString("\n")
+    val dumpString = Dump.dump(Dump.TextOnly(Some("utf-8")), 0, lengthInbits, bb).mkString("\n")
     val uUnknown = 0xfffd
     val arrayOfDecodedChars1 =
       Array(0x068b, 0x10907, 0x10bf8b, uUnknown, 0x007a)
