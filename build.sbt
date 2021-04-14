@@ -68,8 +68,8 @@ lazy val runtime2         = Project("daffodil-runtime2", file("daffodil-runtime2
                               .settings(commonSettings)
                               .settings(publishArtifact in (Compile, packageDoc) := false)
                               .settings(
-                                Compile / cCompiler := "cc",
-                                Compile / ccArchiveCommand := "ar",
+                                Compile / cCompiler := sys.env.getOrElse("CC", "cc"),
+                                Compile / ccArchiveCommand := sys.env.getOrElse("AR", "ar"),
                                 Compile / ccTargets := ListSet(runtime2CFiles),
                                 Compile / cSources  := Map(
                                   runtime2CFiles -> (

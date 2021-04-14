@@ -16,8 +16,10 @@
  */
 
 #include "errors.h"
+#include <assert.h>    // for assert
 #include <error.h>     // for error
 #include <inttypes.h>  // for PRId64
+#include <stdbool.h>   // for bool, false, true
 #include <stdio.h>     // for NULL, feof, ferror, FILE, size_t
 #include <stdlib.h>    // for EXIT_FAILURE
 
@@ -29,8 +31,7 @@ error_message(enum ErrorCode code)
     switch (code)
     {
     case ERR_CHOICE_KEY:
-        return "no match between choice dispatch key %" PRId64
-               " and any branch key";
+        return "no match between choice dispatch key %" PRId64 " and any branch key";
     case ERR_FILE_CLOSE:
         return "error closing file";
     case ERR_FILE_FLUSH:
@@ -85,6 +86,7 @@ error_message(enum ErrorCode code)
     case ERR_XML_WRITE:
         return "error writing XML document";
     default:
+        assert("invalid code" && 0);
         return "unrecognized error code, shouldn't happen";
     }
 }
@@ -126,42 +128,43 @@ print_maybe_stop(const Error *err, int status)
     }
 }
 
-// need_diagnostics - return pointer to validation diagnostics
+// get_diagnostics - get pointer to validation diagnostics
 
 Diagnostics *
-need_diagnostics(void)
+get_diagnostics(void)
 {
-    static Diagnostics validati;
-    return &validati;
+    static Diagnostics diagnostics;
+    return &diagnostics;
 }
 
 // add_diagnostic - add a new error to validation diagnostics
 
-void
-add_diagnostic(Diagnostics *validati, const Error *error)
+bool
+add_diagnostic(Diagnostics *diagnostics, const Error *error)
 {
-    if (validati && error)
+    if (diagnostics && error)
     {
-        if (validati->length <
-            sizeof(validati->array) / sizeof(*validati->array))
+        if (diagnostics->length < LIMIT_DIAGNOSTICS)
         {
-            Error *err = &validati->array[validati->length++];
+            Error *err = &diagnostics->array[diagnostics->length++];
             err->code = error->code;
             err->s = error->s;
+            return true;
         }
     }
+    return false;
 }
 
 // print_diagnostics - print any validation diagnostics
 
 void
-print_diagnostics(const Diagnostics *validati)
+print_diagnostics(const Diagnostics *diagnostics)
 {
-    if (validati)
+    if (diagnostics)
     {
-        for (size_t i = 0; i < validati->length; i++)
+        for (size_t i = 0; i < diagnostics->length; i++)
         {
-            const Error *error = &validati->array[i];
+            const Error *error = &diagnostics->array[i];
             print_maybe_stop(error, 0);
         }
     }

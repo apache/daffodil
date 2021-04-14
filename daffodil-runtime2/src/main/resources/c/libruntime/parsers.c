@@ -19,7 +19,7 @@
 #include <endian.h>   // for be32toh, le32toh, be16toh, be64toh, le16toh, le64toh
 #include <stdbool.h>  // for bool, false, true
 #include <stdio.h>    // for fread
-#include "errors.h"   // for PState, eof_or_error, Error, ERR_PARSE_BOOL, Error::(anonymous), add_diagnostic, need_diagnostics, ERR_FIXED_VALUE, Diagnostics
+#include "errors.h"   // for PState, eof_or_error, Error, ERR_PARSE_BOOL, Error::(anonymous), add_diagnostic, get_diagnostics, ERR_FIXED_VALUE, Diagnostics
 
 // Macros not defined by <endian.h> which we need for uniformity
 
@@ -29,75 +29,74 @@
 // Helper macro to reduce duplication of C code reading stream,
 // updating position, and checking for errors
 
-#define read_stream_update_position                                            \
-    size_t count = fread(&buffer.c_val, 1, sizeof(buffer), pstate->stream);    \
-    pstate->position += count;                                                 \
-    if (count < sizeof(buffer))                                                \
-    {                                                                          \
-        pstate->error = eof_or_error(pstate->stream);                          \
-        if (pstate->error) return;                                             \
+#define read_stream_update_position                                                                          \
+    size_t count = fread(&buffer.c_val, 1, sizeof(buffer), pstate->stream);                                  \
+    pstate->position += count;                                                                               \
+    if (count < sizeof(buffer))                                                                              \
+    {                                                                                                        \
+        pstate->error = eof_or_error(pstate->stream);                                                        \
+        if (pstate->error) return;                                                                           \
     }
 
 // Macros to define parse_<endian>_<type> functions
 
-#define define_parse_endian_bool(endian, bits)                                 \
-    void parse_##endian##_bool##bits(bool *number, int64_t true_rep,           \
-                                     uint32_t false_rep, PState *pstate)       \
-    {                                                                          \
-        union                                                                  \
-        {                                                                      \
-            char           c_val[sizeof(uint##bits##_t)];                      \
-            uint##bits##_t i_val;                                              \
-        } buffer;                                                              \
-                                                                               \
-        read_stream_update_position;                                           \
-        buffer.i_val = endian##bits##toh(buffer.i_val);                        \
-        if (true_rep < 0)                                                      \
-        {                                                                      \
-            *number = (buffer.i_val != false_rep);                             \
-        }                                                                      \
-        else if (buffer.i_val == (uint32_t)true_rep)                           \
-        {                                                                      \
-            *number = true;                                                    \
-        }                                                                      \
-        else if (buffer.i_val == false_rep)                                    \
-        {                                                                      \
-            *number = false;                                                   \
-        }                                                                      \
-        else                                                                   \
-        {                                                                      \
-            static Error error = {ERR_PARSE_BOOL, {NULL}};                     \
-            error.d64 = (int64_t)buffer.i_val;                                 \
-            pstate->error = &error;                                            \
-        }                                                                      \
+#define define_parse_endian_bool(endian, bits)                                                               \
+    void parse_##endian##_bool##bits(bool *number, int64_t true_rep, uint32_t false_rep, PState *pstate)     \
+    {                                                                                                        \
+        union                                                                                                \
+        {                                                                                                    \
+            char           c_val[sizeof(uint##bits##_t)];                                                    \
+            uint##bits##_t i_val;                                                                            \
+        } buffer;                                                                                            \
+                                                                                                             \
+        read_stream_update_position;                                                                         \
+        buffer.i_val = endian##bits##toh(buffer.i_val);                                                      \
+        if (true_rep < 0)                                                                                    \
+        {                                                                                                    \
+            *number = (buffer.i_val != false_rep);                                                           \
+        }                                                                                                    \
+        else if (buffer.i_val == (uint32_t)true_rep)                                                         \
+        {                                                                                                    \
+            *number = true;                                                                                  \
+        }                                                                                                    \
+        else if (buffer.i_val == false_rep)                                                                  \
+        {                                                                                                    \
+            *number = false;                                                                                 \
+        }                                                                                                    \
+        else                                                                                                 \
+        {                                                                                                    \
+            static Error error = {ERR_PARSE_BOOL, {NULL}};                                                   \
+            error.d64 = (int64_t)buffer.i_val;                                                               \
+            pstate->error = &error;                                                                          \
+        }                                                                                                    \
     }
 
-#define define_parse_endian_real(endian, type, bits)                           \
-    void parse_##endian##_##type(type *number, PState *pstate)                 \
-    {                                                                          \
-        union                                                                  \
-        {                                                                      \
-            char           c_val[sizeof(type)];                                \
-            type           f_val;                                              \
-            uint##bits##_t i_val;                                              \
-        } buffer;                                                              \
-                                                                               \
-        read_stream_update_position;                                           \
-        buffer.i_val = endian##bits##toh(buffer.i_val);                        \
-        *number = buffer.f_val;                                                \
+#define define_parse_endian_real(endian, type, bits)                                                         \
+    void parse_##endian##_##type(type *number, PState *pstate)                                               \
+    {                                                                                                        \
+        union                                                                                                \
+        {                                                                                                    \
+            char           c_val[sizeof(type)];                                                              \
+            type           f_val;                                                                            \
+            uint##bits##_t i_val;                                                                            \
+        } buffer;                                                                                            \
+                                                                                                             \
+        read_stream_update_position;                                                                         \
+        buffer.i_val = endian##bits##toh(buffer.i_val);                                                      \
+        *number = buffer.f_val;                                                                              \
     }
 
-#define define_parse_endian_integer(endian, type, bits)                        \
-    void parse_##endian##_##type##bits(type##bits##_t *number, PState *pstate) \
-    {                                                                          \
-        union                                                                  \
-        {                                                                      \
-            char           c_val[sizeof(type##bits##_t)];                      \
-            type##bits##_t i_val;                                              \
-        } buffer;                                                              \
-                                                                               \
-        read_stream_update_position;                                           \
-        *number = endian##bits##toh(buffer.i_val);                             \
+#define define_parse_endian_integer(endian, type, bits)                                                      \
+    void parse_##endian##_##type##bits(type##bits##_t *number, PState *pstate)                               \
+    {                                                                                                        \
+        union                                                                                                \
+        {                                                                                                    \
+            char           c_val[sizeof(type##bits##_t)];                                                    \
+            type##bits##_t i_val;                                                                            \
+        } buffer;                                                                                            \
+                                                                                                             \
+        read_stream_update_position;                                                                         \
+        *number = endian##bits##toh(buffer.i_val);                                                           \
     }
 
 // Parse binary booleans, real numbers, and integers
@@ -159,10 +158,10 @@ parse_validate_fixed(bool same, const char *element, PState *pstate)
 {
     if (!same)
     {
-        Diagnostics *validati = need_diagnostics();
-        const Error error = {ERR_FIXED_VALUE, {element}};
+        Diagnostics *diagnostics = get_diagnostics();
+        const Error  error = {ERR_FIXED_VALUE, {element}};
 
-        add_diagnostic(validati, &error);
-        pstate->validati = validati;
+        add_diagnostic(diagnostics, &error);
+        pstate->diagnostics = diagnostics;
     }
 }

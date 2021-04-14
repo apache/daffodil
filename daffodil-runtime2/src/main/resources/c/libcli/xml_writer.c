@@ -22,7 +22,7 @@
 #include <stdint.h>   // for int16_t, int32_t, int64_t, int8_t, uint16_t, uint32_t, uint64_t, uint8_t
 #include <stdio.h>    // for NULL
 #include <string.h>   // for strcmp
-#include "errors.h"   // for Error, ERR_XML_DECL, ERR_XML_ELEMENT, ERR_XML_WRITE, Error::(anonymous)
+#include "errors.h"   // for Error, ERR_XML_DECL, ERR_XML_ELEMENT, ERR_XML_WRITE, LIMIT_XML_NESTING, Error::(anonymous)
 #include "stack.h"    // for stack_is_empty, stack_pop, stack_push, stack_top, stack_init
 
 // Push new XML document on stack (note the stack is stored in a
@@ -32,12 +32,8 @@
 static const Error *
 xmlStartDocument(XMLWriter *writer)
 {
-    enum
-    {
-        MAX_DEPTH = 100
-    };
-    static mxml_node_t *array[MAX_DEPTH];
-    stack_init(&writer->stack, array, MAX_DEPTH);
+    static mxml_node_t *array[LIMIT_XML_NESTING];
+    stack_init(&writer->stack, array, LIMIT_XML_NESTING);
 
     mxml_node_t *xml = mxmlNewXML("1.0");
     if (xml)
@@ -146,8 +142,7 @@ xmlNumberElem(XMLWriter *writer, const ERD *erd, const void *number)
     switch (typeCode)
     {
     case PRIMITIVE_BOOLEAN:
-        text = mxmlNewOpaquef(simple, "%s",
-                              *(const bool *)number ? "true" : "false");
+        text = mxmlNewOpaquef(simple, "%s", *(const bool *)number ? "true" : "false");
         break;
     case PRIMITIVE_FLOAT:
         // Round-trippable float, shortest possible

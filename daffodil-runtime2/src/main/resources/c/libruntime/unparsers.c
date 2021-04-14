@@ -19,7 +19,7 @@
 #include <endian.h>   // for htobe32, htole32, htobe16, htobe64, htole16, htole64
 #include <stdbool.h>  // for bool
 #include <stdio.h>    // for fwrite
-#include "errors.h"   // for UState, eof_or_error, add_diagnostic, need_diagnostics, ERR_FIXED_VALUE, Diagnostics, Error
+#include "errors.h"   // for UState, eof_or_error, add_diagnostic, get_diagnostics, ERR_FIXED_VALUE, Diagnostics, Error
 
 // Macros not defined by <endian.h> which we need for uniformity
 
@@ -29,58 +29,56 @@
 // Helper macro to reduce duplication of C code writing stream,
 // updating position, and checking for errors
 
-#define write_stream_update_position                                           \
-    size_t count = fwrite(buffer.c_val, 1, sizeof(buffer), ustate->stream);    \
-    ustate->position += count;                                                 \
-    if (count < sizeof(buffer))                                                \
-    {                                                                          \
-        ustate->error = eof_or_error(ustate->stream);                          \
-        if (ustate->error) return;                                             \
+#define write_stream_update_position                                                                         \
+    size_t count = fwrite(buffer.c_val, 1, sizeof(buffer), ustate->stream);                                  \
+    ustate->position += count;                                                                               \
+    if (count < sizeof(buffer))                                                                              \
+    {                                                                                                        \
+        ustate->error = eof_or_error(ustate->stream);                                                        \
+        if (ustate->error) return;                                                                           \
     }
 
 // Macros to define unparse_<endian>_<type> functions
 
-#define define_unparse_endian_bool(endian, bits)                               \
-    void unparse_##endian##_bool##bits(bool number, uint32_t true_rep,         \
-                                       uint32_t false_rep, UState *ustate)     \
-    {                                                                          \
-        union                                                                  \
-        {                                                                      \
-            char           c_val[sizeof(uint##bits##_t)];                      \
-            uint##bits##_t i_val;                                              \
-        } buffer;                                                              \
-                                                                               \
-        buffer.i_val = hto##endian##bits(number ? true_rep : false_rep);       \
-        write_stream_update_position;                                          \
+#define define_unparse_endian_bool(endian, bits)                                                             \
+    void unparse_##endian##_bool##bits(bool number, uint32_t true_rep, uint32_t false_rep, UState *ustate)   \
+    {                                                                                                        \
+        union                                                                                                \
+        {                                                                                                    \
+            char           c_val[sizeof(uint##bits##_t)];                                                    \
+            uint##bits##_t i_val;                                                                            \
+        } buffer;                                                                                            \
+                                                                                                             \
+        buffer.i_val = hto##endian##bits(number ? true_rep : false_rep);                                     \
+        write_stream_update_position;                                                                        \
     }
 
-#define define_unparse_endian_real(endian, type, bits)                         \
-    void unparse_##endian##_##type(type number, UState *ustate)                \
-    {                                                                          \
-        union                                                                  \
-        {                                                                      \
-            char           c_val[sizeof(type)];                                \
-            type           f_val;                                              \
-            uint##bits##_t i_val;                                              \
-        } buffer;                                                              \
-                                                                               \
-        buffer.f_val = number;                                                 \
-        buffer.i_val = hto##endian##bits(buffer.i_val);                        \
-        write_stream_update_position;                                          \
+#define define_unparse_endian_real(endian, type, bits)                                                       \
+    void unparse_##endian##_##type(type number, UState *ustate)                                              \
+    {                                                                                                        \
+        union                                                                                                \
+        {                                                                                                    \
+            char           c_val[sizeof(type)];                                                              \
+            type           f_val;                                                                            \
+            uint##bits##_t i_val;                                                                            \
+        } buffer;                                                                                            \
+                                                                                                             \
+        buffer.f_val = number;                                                                               \
+        buffer.i_val = hto##endian##bits(buffer.i_val);                                                      \
+        write_stream_update_position;                                                                        \
     }
 
-#define define_unparse_endian_integer(endian, type, bits)                      \
-    void unparse_##endian##_##type##bits(type##bits##_t number,                \
-                                         UState *       ustate)                \
-    {                                                                          \
-        union                                                                  \
-        {                                                                      \
-            char           c_val[sizeof(type##bits##_t)];                      \
-            type##bits##_t i_val;                                              \
-        } buffer;                                                              \
-                                                                               \
-        buffer.i_val = hto##endian##bits(number);                              \
-        write_stream_update_position;                                          \
+#define define_unparse_endian_integer(endian, type, bits)                                                    \
+    void unparse_##endian##_##type##bits(type##bits##_t number, UState *ustate)                              \
+    {                                                                                                        \
+        union                                                                                                \
+        {                                                                                                    \
+            char           c_val[sizeof(type##bits##_t)];                                                    \
+            type##bits##_t i_val;                                                                            \
+        } buffer;                                                                                            \
+                                                                                                             \
+        buffer.i_val = hto##endian##bits(number);                                                            \
+        write_stream_update_position;                                                                        \
     }
 
 // Unparse binary booleans, real numbers, and integers
@@ -122,8 +120,7 @@ define_unparse_endian_integer(le, uint, 8)
 // Unparse fill bytes until end position is reached
 
 void
-unparse_fill_bytes(size_t end_position, const char fill_byte,
-                   UState *ustate)
+unparse_fill_bytes(size_t end_position, const char fill_byte, UState *ustate)
 {
     union
     {
@@ -145,10 +142,10 @@ unparse_validate_fixed(bool same, const char *element, UState *ustate)
 {
     if (!same)
     {
-        Diagnostics *validati = need_diagnostics();
-        const Error error = {ERR_FIXED_VALUE, {element}};
+        Diagnostics *diagnostics = get_diagnostics();
+        const Error  error = {ERR_FIXED_VALUE, {element}};
 
-        add_diagnostic(validati, &error);
-        ustate->validati = validati;
+        add_diagnostic(diagnostics, &error);
+        ustate->diagnostics = diagnostics;
     }
 }

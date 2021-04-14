@@ -67,15 +67,14 @@ class CodeGeneratorState {
     val C = localName(context)
     val initStatements = structs.top.initStatements.mkString("\n")
     val initChoiceStatements = structs.top.initChoiceStatements.mkString("\n")
-    val hasStatements = structs.top.parserStatements.nonEmpty
-    val parserStatements = if (hasStatements)
+    val parserStatements = if (structs.top.parserStatements.nonEmpty)
       structs.top.parserStatements.mkString("\n")
     else
       s"""    // Empty struct, but need to prevent compiler warnings
          |    UNUSED(${C}_compute_offsets);
          |    UNUSED(instance);
          |    UNUSED(pstate);""".stripMargin
-    val unparserStatements = if (hasStatements)
+    val unparserStatements = if (structs.top.unparserStatements.nonEmpty)
       structs.top.unparserStatements.mkString("\n")
     else
       s"""    // Empty struct, but need to prevent compiler warnings

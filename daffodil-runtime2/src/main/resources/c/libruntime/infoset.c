@@ -17,7 +17,7 @@
 
 #include "infoset.h"
 #include <string.h>  // for memccpy
-#include "errors.h"  // for Error, ERR_WALK_KEY
+#include "errors.h"  // for Error, LIMIT_NAME_LENGTH
 
 // get_erd_name, get_erd_xmlns, get_erd_ns - get name and xmlns
 // attribute/value from ERD to use on XML element
@@ -25,7 +25,7 @@
 const char *
 get_erd_name(const ERD *erd)
 {
-    static char name[9999];
+    static char name[LIMIT_NAME_LENGTH];
     char *      next = name;
     char *      last = name + sizeof(name) - 1;
 
@@ -66,7 +66,7 @@ get_erd_xmlns(const ERD *erd)
 {
     if (erd->namedQName.ns)
     {
-        static char xmlns[9999];
+        static char xmlns[LIMIT_NAME_LENGTH];
         char *      next = xmlns;
         char *      last = xmlns + sizeof(xmlns) - 1;
 
@@ -135,9 +135,8 @@ walkInfosetNode(const VisitEventHandler *handler, const InfosetBase *infoNode)
         const size_t offset = offsets[i];
         const ERD *  childERD = childrenERDs[i];
         // We use only one of these variables below depending on typeCode
-        const InfosetBase *childNode =
-            (const InfosetBase *)((const char *)infoNode + offset);
-        const void *number = (const void *)((const char *)infoNode + offset);
+        const InfosetBase *childNode = (const InfosetBase *)((const char *)infoNode + offset);
+        const void *       number = (const void *)((const char *)infoNode + offset);
 
         // Will need to handle more element types
         const enum TypeCode typeCode = childERD->typeCode;

@@ -30,17 +30,13 @@ typedef struct VisitEventHandler  VisitEventHandler;
 typedef void (*ERDInitSelf)(InfosetBase *infoNode);
 typedef void (*ERDParseSelf)(InfosetBase *infoNode, PState *pstate);
 typedef void (*ERDUnparseSelf)(const InfosetBase *infoNode, UState *ustate);
-typedef const Error *(*InitChoiceRD)(const InfosetBase *infoNode,
-                                     const InfosetBase *rootElement);
+typedef const Error *(*InitChoiceRD)(const InfosetBase *infoNode, const InfosetBase *rootElement);
 
 typedef const Error *(*VisitStartDocument)(const VisitEventHandler *handler);
 typedef const Error *(*VisitEndDocument)(const VisitEventHandler *handler);
-typedef const Error *(*VisitStartComplex)(const VisitEventHandler *handler,
-                                          const InfosetBase *      base);
-typedef const Error *(*VisitEndComplex)(const VisitEventHandler *handler,
-                                        const InfosetBase *      base);
-typedef const Error *(*VisitNumberElem)(const VisitEventHandler *handler,
-                                        const ERD *erd, const void *number);
+typedef const Error *(*VisitStartComplex)(const VisitEventHandler *handler, const InfosetBase *base);
+typedef const Error *(*VisitEndComplex)(const VisitEventHandler *handler, const InfosetBase *base);
+typedef const Error *(*VisitNumberElem)(const VisitEventHandler *handler, const ERD *erd, const void *number);
 
 // NamedQName - name of an infoset element
 
@@ -119,7 +115,6 @@ extern InfosetBase *rootElement(void);
 
 // walkInfoset - walk an infoset and call VisitEventHandler methods
 
-extern const Error *walkInfoset(const VisitEventHandler *handler,
-                                const InfosetBase *      infoset);
+extern const Error *walkInfoset(const VisitEventHandler *handler, const InfosetBase *infoset);
 
 #endif // INFOSET_H

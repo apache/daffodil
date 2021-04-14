@@ -36,7 +36,7 @@ existing solutions.  Daffodil is also capable of serializing or
 can also be converted directly to/from the data structures carried by
 data processing frameworks so as to bypass any XML/JSON overheads.
 
-For more information about Daffodil, see the [Website].
+For more information about Daffodil, see <https://daffodil.apache.org/>.
 
 ## Build Requirements
 
@@ -45,94 +45,46 @@ For more information about Daffodil, see the [Website].
 * C compiler C99 or higher
 * Mini-XML Version 3.2 or higher
 
-Since Daffodil has a DFDL to C backend, you will need a C compiler
-([gcc] or [clang]), the [Mini-XML] library, and possibly the GNU
-[argp] library if your system's C library doesn't include it.  You can
-install gcc and libmxml as system packages on most Unix based
-platforms with distribution-specific packager commands such as (Debian
-and Ubuntu):
-
-    # Just mentioning all other packages you might need too
-    sudo apt install build-essential curl git libmxml-dev
-
-You will need the Java Software Development Kit ([JDK]) and the Scala
-Build Tool ([SBT]) to build Daffodil, run all tests, create packages,
-and more.  [SDK] offers an easy and uniform way to install both java
-and sbt on any Unix based platform:
-
-    curl -s "https://get.sdkman.io" | bash
-    sdk install java
-    sdk install sbt
-
-You can edit the Compile / cCompiler setting in build.sbt if you don't
-want sbt to call your C compiler with "cc" as the driver command.
-
-On Windows, the easiest way to install gcc and libargp is to install
-[MSYS2]'s collection of free tools and libraries although MSYS2 has no
-package for libmxml which you'll need to build from source.  First
-install [MSYS2] following its website's installation instructions,
-then run the following commands in a "MSYS2 MSYS" window:
-
-    pacman -S gcc git libargp-devel make pkgconf
-    git clone https://github.com/michaelrsweet/mxml.git
-    cd mxml
-    ./configure --prefix=/usr --disable-shared --disable-threads
-    make
-    make install
-
-You also need to install [JDK} and [SBT] from their Windows
-installation packages and define an environment variable using
-Windows' control panel for editing environment variables.  Define an
-environment variable with the name `MSYS2_PATH_TYPE` and the value
-`inherit`.  Now when you open a new "MSYS2 MSYS" window from the Start
-Menu, you will be able to type your sbt commands in the MSYS2 window
-and both sbt and daffodil will be able to call the C compiler.
+See [BUILD.md](BUILD.md) for more details.
 
 ## Getting Started
 
-Below are some of the more common commands used for Daffodil development.
+[SBT] is the officially supported tool to build Daffodil.  Here are
+some of the more commonly used commands for Daffodil development.
 
-### Compile
+* Compile source code:
 
-    sbt compile
+        sbt compile
 
-### Tests
+* Run unit tests:
 
-Run all unit tests:
+        sbt test
 
-    sbt test
+* Run command line interface tests:
 
-Run all command line interface tests:
+        sbt IntegrationTest/test
 
-    sbt it:test
+* Build the command line interface (Linux and Windows shell scripts in
+`daffodil-cli/target/universal/stage/bin/`; see the [Command Line
+Interface] documentation for details on their usage):
 
-### Command Line Interface
+        sbt daffodil-cli/stage
 
-Create Linux and Windows shell scripts in
-`daffodil-cli/target/universal/stage/bin/`.  See the [Command Line
-Interface] documentation for details on its usage:
+* Run [Apache RAT] (license audit report in `target/rat.txt` and error
+if any unapproved licenses are found):
 
-    sbt daffodil-cli/stage
+        sbt ratCheck
 
-### License Check
+* Run [sbt-scoverage] (test coverage report in
+`target/scala-ver/scoverage-report/`):
 
-Generate an [Apache RAT] license check report located in
-``target/rat.txt`` and error if any unapproved licenses are found:
-
-    sbt ratCheck
-
-### Test Coverage Report
-
-Generate an [sbt-scoverage] test coverage report located in
-``target/scala-ver/scoverage-report/``:
-
-    sbt clean coverage test it:test
-    sbt coverageAggregate
+        sbt clean coverage test IntegrationTest/test
+        sbt coverageAggregate
 
 ## Getting Help
 
-For questions, we can be reached at the dev@daffodil.apache.org or
-users@daffodil.apache.org mailing lists.  Bugs can be reported via the
+You can ask questions on the dev@daffodil.apache.org or
+users@daffodil.apache.org mailing lists.  You can report bugs via the
 [Daffodil JIRA].
 
 ## License
@@ -146,14 +98,7 @@ Apache Daffodil is licensed under the [Apache License, v2.0].
 [DFDL specification]: https://daffodil.apache.org/docs/dfdl/
 [Daffodil JIRA]: https://issues.apache.org/jira/projects/DAFFODIL/
 [Github Actions]: https://github.com/apache/daffodil/actions?query=branch%3Amaster+
-[JDK]: https://adoptopenjdk.net/
-[Mini-XML]: https://www.msweet.org/mxml/
-[MSYS2]: https://www.msys2.org/
 [Releases]: http://daffodil.apache.org/releases/
 [SBT]: https://www.scala-sbt.org/
-[SDK]: https://sdkman.io/
 [Website]: https://daffodil.apache.org/
-[argp]: https://packages.msys2.org/package/libargp-devel
-[clang]: https://clang.llvm.org/get_started.html
-[gcc]: https://linuxize.com/post/how-to-install-gcc-on-ubuntu-20-04/
 [sbt-scoverage]: https://github.com/scoverage/sbt-scoverage/

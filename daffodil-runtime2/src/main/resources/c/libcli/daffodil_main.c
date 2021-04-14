@@ -95,22 +95,19 @@ main(int argc, char *argv[])
             // Parse the input file into our infoset.
             PState pstate = {input, 0, NULL, NULL};
             root->erd->parseSelf(root, &pstate);
-            print_diagnostics(pstate.validati);
+            print_diagnostics(pstate.diagnostics);
             continue_or_exit(pstate.error);
 
             if (strcmp(daffodil_parse.infoset_converter, "xml") == 0)
             {
                 // Visit the infoset and print XML from it.
-                XMLWriter xmlWriter = {
-                    xmlWriterMethods, output, {NULL, NULL, 0}};
-                const Error *error =
-                    walkInfoset((VisitEventHandler *)&xmlWriter, root);
+                XMLWriter    xmlWriter = {xmlWriterMethods, output, {NULL, NULL, 0}};
+                const Error *error = walkInfoset((VisitEventHandler *)&xmlWriter, root);
                 fflush_continue_or_exit(output, error);
             }
             else
             {
-                const Error error = {ERR_INFOSET_WRITE,
-                                     {daffodil_parse.infoset_converter}};
+                const Error error = {ERR_INFOSET_WRITE, {daffodil_parse.infoset_converter}};
                 continue_or_exit(&error);
             }
         }
@@ -123,23 +120,20 @@ main(int argc, char *argv[])
             if (strcmp(daffodil_unparse.infoset_converter, "xml") == 0)
             {
                 // Initialize our infoset's values from the XML data.
-                XMLReader    xmlReader = {xmlReaderMethods, input, root, NULL,
-                                       NULL};
-                const Error *error =
-                    walkInfoset((VisitEventHandler *)&xmlReader, root);
+                XMLReader    xmlReader = {xmlReaderMethods, input, root, NULL, NULL};
+                const Error *error = walkInfoset((VisitEventHandler *)&xmlReader, root);
                 continue_or_exit(error);
             }
             else
             {
-                const Error error = {ERR_INFOSET_READ,
-                                     {daffodil_unparse.infoset_converter}};
+                const Error error = {ERR_INFOSET_READ, {daffodil_unparse.infoset_converter}};
                 continue_or_exit(&error);
             }
 
             // Unparse our infoset to the output file.
             UState ustate = {output, 0, NULL, NULL};
             root->erd->unparseSelf(root, &ustate);
-            print_diagnostics(ustate.validati);
+            print_diagnostics(ustate.diagnostics);
             continue_or_exit(ustate.error);
         }
 

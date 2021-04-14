@@ -43,7 +43,9 @@ abstract class AbstractElementRef(
 
   def complexType: ComplexTypeBase = this.referencedElement.complexType
   def defaultValueAsString: String = this.referencedElement.defaultValueAsString
+  def fixedValueAsString: String = this.referencedElement.fixedValueAsString
   def hasDefaultValue: Boolean = this.referencedElement.hasDefaultValue
+  def hasFixedValue: Boolean = this.referencedElement.hasFixedValue
   def isComplexType: Boolean = this.referencedElement.isComplexType
   def isNillable: Boolean = this.referencedElement.isNillable
   def isSimpleType: Boolean = this.referencedElement.isSimpleType

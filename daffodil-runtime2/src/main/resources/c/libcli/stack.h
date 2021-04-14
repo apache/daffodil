@@ -37,8 +37,7 @@ typedef struct
 
 // Initialize stack with preallocated array
 
-extern void stack_init(stack_t *p_stack, stack_item_t *p_array,
-                       ptrdiff_t capacity);
+extern void stack_init(stack_t *p_stack, stack_item_t *p_array, ptrdiff_t capacity);
 
 // Check whether stack is empty
 

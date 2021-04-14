@@ -30,8 +30,7 @@ struct daffodil_parse_cli daffodil_parse = {
 };
 
 static const struct argp_option parse_options[] = {
-    {"infoset-type", 'I', "<infoset_type>", 0,
-     "Infoset type to output. Must be one of 'xml' or 'null'", 0},
+    {"infoset-type", 'I', "<infoset_type>", 0, "Infoset type to output. Must be one of 'xml' or 'null'", 0},
 
     {"output", 'o', "<file>", 0,
      "Write output to a given file. If not given or is -, output is written to "
@@ -44,15 +43,14 @@ static error_t parse_handler(int key, char *arg, struct argp_state *state);
 
 static const char parse_args_doc[] = "[infile]";
 
-static const char parse_doc[] =
-    "\n"
-    "Parse a file using a DFDL schema\n"
-    "\n"
-    "Parse Options:"
-    "\v"
-    " Trailing arguments:\n"
-    "  infile (not required)      input file to parse. "
-    "If not specified, or a value of -, reads from stdin";
+static const char parse_doc[] = "\n"
+                                "Parse a file using a DFDL schema\n"
+                                "\n"
+                                "Parse Options:"
+                                "\v"
+                                " Trailing arguments:\n"
+                                "  infile (not required)      input file to parse. "
+                                "If not specified, or a value of -, reads from stdin";
 
 static const struct argp parse_argp = {
     parse_options,  // array of CLI options
@@ -109,8 +107,7 @@ parse_daffodil_parse_cli(struct argp_state *state)
     sprintf(new_cmd, "%s parse", state->name);
     argv[0] = new_cmd;
 
-    error_t status = argp_parse(&parse_argp, argc, argv, ARGP_IN_ORDER, &argc,
-                                &daffodil_parse);
+    error_t status = argp_parse(&parse_argp, argc, argv, ARGP_IN_ORDER, &argc, &daffodil_parse);
 
     argv[0] = old_cmd;
     state->next += argc - 1;
@@ -127,8 +124,7 @@ struct daffodil_unparse_cli daffodil_unparse = {
 };
 
 static const struct argp_option unparse_options[] = {
-    {"infoset-type", 'I', "<infoset_type>", 0,
-     "Infoset type to unparse. Must be 'xml'", 0},
+    {"infoset-type", 'I', "<infoset_type>", 0, "Infoset type to unparse. Must be 'xml'", 0},
 
     {"output", 'o', "<file>", 0,
      "Write output to file. If not given or is -, output is written to "
@@ -141,15 +137,14 @@ static error_t unparse_handler(int key, char *arg, struct argp_state *state);
 
 static const char unparse_args_doc[] = "[infile]";
 
-static const char unparse_doc[] =
-    "\n"
-    "Unparse an infoset file using a DFDL schema\n"
-    "\n"
-    "Unparse Options:"
-    "\v"
-    " Trailing arguments:\n"
-    "  infile (not required)      input file to unparse. If not specified, or "
-    "a value of -, reads from stdin";
+static const char unparse_doc[] = "\n"
+                                  "Unparse an infoset file using a DFDL schema\n"
+                                  "\n"
+                                  "Unparse Options:"
+                                  "\v"
+                                  " Trailing arguments:\n"
+                                  "  infile (not required)      input file to unparse. If not specified, or "
+                                  "a value of -, reads from stdin";
 
 static const struct argp unparse_argp = {
     unparse_options,  // array of CLI options
@@ -206,8 +201,7 @@ parse_daffodil_unparse_cli(struct argp_state *state)
     sprintf(new_cmd, "%s unparse", state->name);
     argv[0] = new_cmd;
 
-    error_t status = argp_parse(&unparse_argp, argc, argv, ARGP_IN_ORDER, &argc,
-                                &daffodil_unparse);
+    error_t status = argp_parse(&unparse_argp, argc, argv, ARGP_IN_ORDER, &argc, &daffodil_unparse);
 
     argv[0] = old_cmd;
     state->next += argc - 1;
@@ -223,8 +217,7 @@ struct daffodil_cli daffodil_cli = {
 };
 
 static const struct argp_option daffodil_options[] = {
-    {"verbose", 'v', 0, 0, "Increment verbosity level, one level for each -v",
-     -1},
+    {"verbose", 'v', 0, 0, "Increment verbosity level, one level for each -v", -1},
 
     {0}};
 
@@ -232,15 +225,14 @@ static error_t daffodil_handler(int key, char *arg, struct argp_state *state);
 
 static const char daffodil_args_doc[] = "<subcommand> [SUBCOMMAND_OPTION...]";
 
-static const char daffodil_doc[] =
-    "\n"
-    "Global Options:"
-    "\v"
-    "Subcommands:\n"
-    "  parse         Parse data to a DFDL infoset\n"
-    "  unparse       Unparse a DFDL infoset\n"
-    "\n"
-    "Run 'daffodil <subcommand> --help' for subcommand specific options";
+static const char daffodil_doc[] = "\n"
+                                   "Global Options:"
+                                   "\v"
+                                   "Subcommands:\n"
+                                   "  parse         Parse data to a DFDL infoset\n"
+                                   "  unparse       Unparse a DFDL infoset\n"
+                                   "\n"
+                                   "Run 'daffodil <subcommand> --help' for subcommand specific options";
 
 static const struct argp daffodil_argp = {
     daffodil_options,  // array of CLI options
@@ -304,6 +296,5 @@ parse_daffodil_cli(int argc, char **argv)
 {
     static char *argp_help_fmt = "ARGP_HELP_FMT=no-dup-args-note";
     putenv(argp_help_fmt); // Do not pass an automatic variable to putenv
-    return argp_parse(&daffodil_argp, argc, argv, ARGP_IN_ORDER, NULL,
-                      &daffodil_cli);
+    return argp_parse(&daffodil_argp, argc, argv, ARGP_IN_ORDER, NULL, &daffodil_cli);
 }

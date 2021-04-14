@@ -15,8 +15,10 @@
 
 AlignConsecutiveDeclarations: true
 AllowShortFunctionsOnASingleLine: None
+AllowShortIfStatementsOnASingleLine: true
 AlwaysBreakAfterReturnType: TopLevelDefinitions
 BasedOnStyle: llvm
 BreakBeforeBraces: Allman
+ColumnLimit: 110
 IndentWidth: 4
 KeepEmptyLinesAtTheStartOfBlocks: false

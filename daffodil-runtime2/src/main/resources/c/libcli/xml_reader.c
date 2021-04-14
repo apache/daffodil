@@ -136,8 +136,7 @@ strtofnum(const char *numptr, const Error **errorptr)
 // with our own error checking)
 
 static intmax_t
-strtonum(const char *numptr, intmax_t minval, intmax_t maxval,
-         const Error **errorptr)
+strtonum(const char *numptr, intmax_t minval, intmax_t maxval, const Error **errorptr)
 {
     char *endptr = NULL;
     assert(minval < maxval);
@@ -236,8 +235,7 @@ xmlStartDocument(XMLReader *reader)
     {
         do
         {
-            reader->node =
-                mxmlWalkNext(reader->node, reader->xml, MXML_DESCEND);
+            reader->node = mxmlWalkNext(reader->node, reader->xml, MXML_DESCEND);
         } while (mxmlGetType(reader->node) == MXML_OPAQUE);
         name = mxmlGetElement(reader->node);
     }
@@ -247,8 +245,7 @@ xmlStartDocument(XMLReader *reader)
     {
         do
         {
-            reader->node =
-                mxmlWalkNext(reader->node, reader->xml, MXML_DESCEND);
+            reader->node = mxmlWalkNext(reader->node, reader->xml, MXML_DESCEND);
         } while (mxmlGetType(reader->node) == MXML_OPAQUE);
     }
 
@@ -346,8 +343,6 @@ xmlNumberElem(XMLReader *reader, const ERD *erd, void *number)
     {
         if (strcmp(name_from_xml, name_from_erd) == 0)
         {
-            static Error error_erd = {ERR_XML_ERD, {NULL}};
-
             // Check for any errors getting the number
             const Error *error = NULL;
 
@@ -357,52 +352,44 @@ xmlNumberElem(XMLReader *reader, const ERD *erd, void *number)
             {
             case PRIMITIVE_BOOLEAN:
                 *(bool *)number = strtobool(number_from_xml, &error);
-                break;
+                return error;
             case PRIMITIVE_FLOAT:
                 *(float *)number = strtofnum(number_from_xml, &error);
-                break;
+                return error;
             case PRIMITIVE_DOUBLE:
                 *(double *)number = strtodnum(number_from_xml, &error);
-                break;
+                return error;
             case PRIMITIVE_INT16:
-                *(int16_t *)number = (int16_t)strtonum(
-                    number_from_xml, INT16_MIN, INT16_MAX, &error);
-                break;
+                *(int16_t *)number = (int16_t)strtonum(number_from_xml, INT16_MIN, INT16_MAX, &error);
+                return error;
             case PRIMITIVE_INT32:
-                *(int32_t *)number = (int32_t)strtonum(
-                    number_from_xml, INT32_MIN, INT32_MAX, &error);
-                break;
+                *(int32_t *)number = (int32_t)strtonum(number_from_xml, INT32_MIN, INT32_MAX, &error);
+                return error;
             case PRIMITIVE_INT64:
-                *(int64_t *)number = (int64_t)strtonum(
-                    number_from_xml, INT64_MIN, INT64_MAX, &error);
-                break;
+                *(int64_t *)number = (int64_t)strtonum(number_from_xml, INT64_MIN, INT64_MAX, &error);
+                return error;
             case PRIMITIVE_INT8:
-                *(int8_t *)number = (int8_t)strtonum(number_from_xml, INT8_MIN,
-                                                     INT8_MAX, &error);
-                break;
+                *(int8_t *)number = (int8_t)strtonum(number_from_xml, INT8_MIN, INT8_MAX, &error);
+                return error;
             case PRIMITIVE_UINT16:
-                *(uint16_t *)number =
-                    (uint16_t)strtounum(number_from_xml, UINT16_MAX, &error);
-                break;
+                *(uint16_t *)number = (uint16_t)strtounum(number_from_xml, UINT16_MAX, &error);
+                return error;
             case PRIMITIVE_UINT32:
-                *(uint32_t *)number =
-                    (uint32_t)strtounum(number_from_xml, UINT32_MAX, &error);
-                break;
+                *(uint32_t *)number = (uint32_t)strtounum(number_from_xml, UINT32_MAX, &error);
+                return error;
             case PRIMITIVE_UINT64:
-                *(uint64_t *)number =
-                    (uint64_t)strtounum(number_from_xml, UINT64_MAX, &error);
-                break;
+                *(uint64_t *)number = (uint64_t)strtounum(number_from_xml, UINT64_MAX, &error);
+                return error;
             case PRIMITIVE_UINT8:
-                *(uint8_t *)number =
-                    (uint8_t)strtounum(number_from_xml, UINT8_MAX, &error);
-                break;
+                *(uint8_t *)number = (uint8_t)strtounum(number_from_xml, UINT8_MAX, &error);
+                return error;
             default:
+            {
+                static Error error_erd = {ERR_XML_ERD, {NULL}};
                 error_erd.d64 = typeCode;
-                error = &error_erd;
-                break;
+                return &error_erd;
             }
-
-            return error;
+            }
         }
         else
         {

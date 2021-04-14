@@ -36,6 +36,7 @@ import java.lang.{ Integer => JInt }
 
 import org.apache.daffodil.dsom.walker.ElementBaseView
 import org.apache.daffodil.infoset.DataValue
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveNullable
 import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveOrUseNilForDefaultOrNull
 
 /**
@@ -323,9 +324,9 @@ trait ElementBase
    * The value will always be of the matching primitive types for the element, and
    * directly usable as the value of a simple-type element.
    *
-   * When a value is used, it is created from the XSD default or fixed attribute of the
+   * When a value is used, it is created from the XSD default attribute of the
    * element declaration, and that string cannot contain DFDL entities of any kind,
-   * nor any PUA-remapped characters. This insures the default/fixed value can still be
+   * nor any PUA-remapped characters. This insures the default value can still be
    * used for ordinary XML-schema validation outside of Daffodil/DFDL.
    */
   final lazy val defaultValue: DataValuePrimitiveOrUseNilForDefaultOrNull = {
@@ -348,6 +349,38 @@ trait ElementBase
           }
           value
         }
+      dv
+    } else DataValue.NoValue
+  }
+
+  /**
+   * Is either None or Some(primTypeValue).
+   *
+   * The value will always be of the matching primitive types for the element, and
+   * directly usable as the value of a simple-type element.
+   *
+   * When a value is used, it is created from the XSD fixed attribute of the
+   * element declaration, and that string cannot contain DFDL entities of any kind,
+   * nor any PUA-remapped characters. This insures the fixed value can still be
+   * used for ordinary XML-schema validation outside of Daffodil/DFDL.
+   */
+  final lazy val fixedValue: DataValuePrimitiveNullable = {
+    if (hasFixedValue && (isScalar || isArrayWithAtLeastOneRequiredArrayElement)) {
+      val dv = {
+        //
+        // Note: no remapping PUA chars or otherwise messing with the text of the fixed value
+        // because this must be a regular XSD fixed value so that Xerces validation
+        // will work.
+        //
+        val str = fixedValueAsString
+        val value = try {
+          primType.fromXMLString(str)
+        } catch {
+          case ipd: InvalidPrimitiveDataException =>
+            SDE("Invalid fixed value: %s", ipd.getMessage)
+        }
+        value
+      }
       dv
     } else DataValue.NoValue
   }
@@ -989,6 +1022,12 @@ trait ElementBase
    */
   def defaultValueAsString: String
   def hasDefaultValue: Boolean
+
+  /**
+   * Does the element have a fixed value?
+   */
+  def fixedValueAsString: String
+  def hasFixedValue: Boolean
 
   /**
    * We require that there be a concept of empty if we're going to be able to default something

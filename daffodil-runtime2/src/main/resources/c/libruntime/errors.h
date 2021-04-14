@@ -18,8 +18,16 @@
 #ifndef ERRORS_H
 #define ERRORS_H
 
-#include <stdio.h>    // for FILE, size_t
+#include <stdbool.h>  // for bool
 #include <stdint.h>   // for int64_t
+#include <stdio.h>    // for FILE, size_t
+
+enum Limits
+{
+    LIMIT_DIAGNOSTICS = 100,  // limits how many diagnostics can accumulate
+    LIMIT_NAME_LENGTH = 9999, // limits how long infoset names can become
+    LIMIT_XML_NESTING = 100   // limits how deep infoset elements can nest
+};
 
 // ErrorCode - types of errors which could occur
 
@@ -70,7 +78,7 @@ typedef struct Error
 
 typedef struct Diagnostics
 {
-    Error  array[100];
+    Error  array[LIMIT_DIAGNOSTICS];
     size_t length;
 } Diagnostics;
 
@@ -78,33 +86,33 @@ typedef struct Diagnostics
 
 typedef struct PState
 {
-    FILE *       stream;   // input to read data from
-    size_t       position; // 0-based position in stream
-    Diagnostics *validati; // any validation diagnostics
-    const Error *error;    // any error which stops program
+    FILE *       stream;      // input to read data from
+    size_t       position;    // 0-based position in stream
+    Diagnostics *diagnostics; // any validation diagnostics
+    const Error *error;       // any error which stops program
 } PState;
 
 // UState - mutable state while unparsing infoset
 
 typedef struct UState
 {
-    FILE *       stream;   // output to write data to
-    size_t       position; // 0-based position in stream
-    Diagnostics *validati; // any validation diagnostics
-    const Error *error;    // any error which stops program
+    FILE *       stream;      // output to write data to
+    size_t       position;    // 0-based position in stream
+    Diagnostics *diagnostics; // any validation diagnostics
+    const Error *error;       // any error which stops program
 } UState;
 
-// need_diagnostics - return pointer to validation diagnostics
+// get_diagnostics - get pointer to validation diagnostics
 
-extern Diagnostics *need_diagnostics(void);
+extern Diagnostics *get_diagnostics(void);
 
 // add_diagnostic - add a new error to validation diagnostics
 
-extern void add_diagnostic(Diagnostics *validati, const Error *error);
+extern bool add_diagnostic(Diagnostics *diagnostics, const Error *error);
 
 // print_diagnostics - print any validation diagnostics
 
-extern void print_diagnostics(const Diagnostics *validati);
+extern void print_diagnostics(const Diagnostics *diagnostics);
 
 // continue_or_exit - print and exit if an error occurred or continue otherwise
 

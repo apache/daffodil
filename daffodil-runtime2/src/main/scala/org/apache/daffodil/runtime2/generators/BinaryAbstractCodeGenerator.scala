@@ -37,8 +37,6 @@ trait BinaryAbstractCodeGenerator {
     val byteOrder = e.byteOrderEv.constValue
     val conv = if (byteOrder eq ByteOrder.BigEndian) "be" else "le"
     val arraySize = if (e.occursCountKind == OccursCountKind.Fixed) e.maxOccurs else 0
-    val fixed = e.xml.attribute("fixed")
-    val fixedValue = if (fixed.isDefined) fixed.get.text else ""
 
     def addStatements(deref: String): Unit = {
       val initStatement = s"    instance->$fieldName$deref = $initialValue;"
@@ -50,7 +48,8 @@ trait BinaryAbstractCodeGenerator {
            |    if (ustate->error) return;""".stripMargin
       cgState.addSimpleTypeStatements(initStatement, parseStatement, unparseStatement)
 
-      if (fixedValue.nonEmpty) {
+      if (e.hasFixedValue) {
+        val fixedValue = e.fixedValue.value.toString
         val init2 = ""
         val parse2 =
           s"""    parse_validate_fixed(instance->$fieldName$deref == $fixedValue, "$fieldName", pstate);
