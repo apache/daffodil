@@ -23,12 +23,23 @@ function usage {
 usage: $BN [OPTION]...
 
 Options:
-  -n, --dry-run   Run all commands but do not actually publish anything
-  -h, --help      Display this help and exit
+  -n, --dry-run [alt]   Run all commands but do not actually publish anything.
+                        Can optionally provide an alternative github repo and
+                        branch of the form "user/repo@branch" instead of the
+                        default "apache/daffodil@master"
+  -h, --help            Display this help and exit
 USAGE
 }
 
 DRY_RUN=false
+
+DAFFODIL_CODE_USER="apache"
+DAFFODIL_CODE_REPO="daffodil"
+DAFFODIL_CODE_BRANCH="master"
+
+DAFFODIL_SITE_REPO="daffodil-site"
+
+DAFFODIL_DIST="daffodil-dist"
 
 while [[ $# -gt 0 ]]
 do
@@ -36,6 +47,13 @@ do
   case $option in
     -n|--dry-run)
       DRY_RUN=true
+      if [[ (! -z $2) && ($2 != -*) ]]
+      then
+        DAFFODIL_CODE_USER=`echo $2 | cut -d/ -f1`
+        DAFFODIL_CODE_REPO=`echo $2 | cut -d/ -f2 | cut -d@ -f1`
+        DAFFODIL_CODE_BRANCH=`echo $2 | cut -d@ -f2`
+        shift
+      fi
       shift
     ;;
     -h|--help)
@@ -116,15 +134,11 @@ echo
 
 REPO_ROOT=`pwd`
 
-DAFFODIL_REPO="daffodil"
-DAFFODIL_SITE_REPO="daffodil-site"
-DAFFODIL_DIST="daffodil-dist"
-
 echo "Cloning repos..."
 
 echo
-echo git clone ssh://git@github.com/apache/$DAFFODIL_REPO.git
-git clone ssh://git@github.com/apache/$DAFFODIL_REPO.git
+echo git clone -b $DAFFODIL_CODE_BRANCH ssh://git@github.com/$DAFFODIL_CODE_USER/$DAFFODIL_CODE_REPO.git
+git clone -b $DAFFODIL_CODE_BRANCH ssh://git@github.com/$DAFFODIL_CODE_USER/$DAFFODIL_CODE_REPO.git
 echo
 echo git clone ssh://git@github.com/apache/$DAFFODIL_SITE_REPO.git
 git clone ssh://git@github.com/apache/$DAFFODIL_SITE_REPO.git
@@ -132,7 +146,7 @@ git clone ssh://git@github.com/apache/$DAFFODIL_SITE_REPO.git
 echo svn checkout https://dist.apache.org/repos/dist/dev/daffodil $DAFFODIL_DIST
 svn checkout https://dist.apache.org/repos/dist/dev/daffodil $DAFFODIL_DIST
 
-pushd $REPO_ROOT/$DAFFODIL_REPO &> /dev/null
+pushd $REPO_ROOT/$DAFFODIL_CODE_REPO &> /dev/null
 
 VERSION=$(grep 'version :=' build.sbt | cut -d\" -f2)
 if [[ $VERSION == *SNAPSHOT* ]]; then
@@ -144,7 +158,7 @@ if [[ $VERSION == *SNAPSHOT* ]]; then
   fi
 fi
 
-DAFFODIL_REPO_DIR=$REPO_ROOT/$DAFFODIL_REPO
+DAFFODIL_CODE_DIR=$REPO_ROOT/$DAFFODIL_CODE_REPO
 DAFFODIL_SITE_DIR=$REPO_ROOT/$DAFFODIL_SITE_REPO
 DAFFODIL_DOCS_DIR=$DAFFODIL_SITE_DIR/site/docs/$VERSION
 DAFFODIL_TUTORIALS_DIR=$DAFFODIL_SITE_DIR/site/tutorials
@@ -153,8 +167,8 @@ DAFFODIL_RELEASE_DIR=$DAFFODIL_DIST_DIR/$VERSION-$PRE_RELEASE
 
 if [ -d "$DAFFODIL_RELEASE_DIR" ]; then echo -e "\n!!! Daffodil release directory already exists: $DAFFODIL_RELEASE_DIR !!! "; exit; fi
 
-git -C $DAFFODIL_REPO_DIR config --local user.name  "$GIT_COMMIT_NAME"
-git -C $DAFFODIL_REPO_DIR config --local user.email "$GIT_COMMIT_EMAIL"
+git -C $DAFFODIL_CODE_DIR config --local user.name  "$GIT_COMMIT_NAME"
+git -C $DAFFODIL_CODE_DIR config --local user.email "$GIT_COMMIT_EMAIL"
 git -C $DAFFODIL_SITE_DIR config --local user.name  "$GIT_COMMIT_NAME"
 git -C $DAFFODIL_SITE_DIR config --local user.email "$GIT_COMMIT_EMAIL"
 
@@ -246,7 +260,7 @@ echo
 echo "- Files in $DAFFODIL_DIST_DIR"
 echo "- Files in $DAFFODIL_DOCS_DIR"
 echo "- Files in $DAFFODIL_TUTORIALS_DIR"
-echo "- Git tag created in $DAFFODIL_REPO_DIR for v$VERSION-$PRE_RELEASE"
+echo "- Git tag created in $DAFFODIL_CODE_DIR for v$VERSION-$PRE_RELEASE"
 echo "- Staged published files at https://repository.apache.org/"
 echo
 
@@ -260,7 +274,7 @@ else
 #!/bin/bash
 set -x
 cd $DAFFODIL_DIST_DIR && svn ci --username $APACHE_USERNAME -m 'Staging Apache Daffodil $VERSION-$PRE_RELEASE'
-cd $DAFFODIL_REPO_DIR && git push origin v$VERSION-$PRE_RELEASE
+cd $DAFFODIL_CODE_DIR && git push origin v$VERSION-$PRE_RELEASE
 cd $DAFFODIL_SITE_DIR && git push origin master
 EOF
   chmod +x /root/complete-release
