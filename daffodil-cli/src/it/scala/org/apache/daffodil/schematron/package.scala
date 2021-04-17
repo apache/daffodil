@@ -51,6 +51,12 @@ package object schematron {
   val FailureErrorCode = 1
   val JoinStdError = true
 
+  def resolvePath(argstring: String): String =
+    mustache.replaceAllIn(argstring, _ match {
+      case mustache2(p) => schPath(p)
+      case mustache1(p) => cliPath(p)
+    })
+
   /**
    * executes a command in a shell with the provided expectations and error code using a mustache syntax looks up files
    * from local resources {path} or the daffodil-schematron resources {{path}}
@@ -60,10 +66,7 @@ package object schematron {
    */
   def withShell[R <: Result](ec: Int = 0, stderr: Boolean = false)(body: => (String,  Matcher[R])): Unit = {
     val (argstring, expectation) = body
-    val args = mustache.replaceAllIn(argstring, _ match {
-      case mustache2(p) => schPath(p)
-      case mustache1(p) => cliPath(p)
-    })
+    val args = resolvePath(argstring)
 
     val joinStdErr = if(stderr) "2>&1" else ""
     val cmd = Util.binPath :: args :: joinStdErr :: Nil mkString " "
@@ -98,9 +101,9 @@ package object schematron {
   private val matchEC = regexLine(s"""(?<=\\d+)${if(Util.isWindows) eol else "$"}""")
   private val echoEC = s"echo ${if(Util.isWindows) "%errorlevel%" else "$?"}"
 
-  private def schPath(p: String): String = path(s"daffodil-schematron/src/test/resources/$p")
-  private def cliPath(p: String): String = path(s"daffodil-cli/src/it/resources/org/apache/daffodil/CLI/$p")
-  private def path(p: String): String = {
+  private def schPath(p: String): String = fixpath(s"daffodil-schematron/src/test/resources/$p")
+  private def cliPath(p: String): String = fixpath(s"daffodil-cli/src/it/resources/org/apache/daffodil/CLI/$p")
+  private def fixpath(p: String): String = {
     val full = Paths.get(Util.dafRoot, p).toString
     val argfix = full.replaceAll("""\\""", "/")
     Regex.quoteReplacement(argfix)
@@ -118,8 +121,8 @@ package object schematron {
    * @param str
    * @return
    */
-  def mktmp(d: Array[Byte]): Path = {
-    val f = File.createTempFile("schval", "data")
+  def mktmp(d: Array[Byte], prefix: String = "schval", suffix: String = "data"): Path = {
+    val f = File.createTempFile(prefix, suffix)
     f.deleteOnExit()
     val os = new FileOutputStream(f)
     os.write(d)
@@ -127,6 +130,15 @@ package object schematron {
     f.toPath
   }
   def mktmp(str: String): Path = mktmp(str.getBytes)
+
+  def mkTmpConf(schPath: String, svrlPath: Path): String = {
+    val svrl = Regex.quoteReplacement(svrlPath.toString.replaceAll("""\\""", "/"))
+    val sch = resolvePath(s"{{$schPath}}")
+    mktmp(
+      s"""schematron.path="$sch"
+         |schematron.svrl.file="$svrl"
+         |""".stripMargin.getBytes, suffix = ".conf").toString
+  }
 
   /**
    * the common pattern on stderr when a validation error is hit

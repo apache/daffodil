@@ -54,10 +54,11 @@ trait ValidatorFactory {
 
 /**
  * Results of a validation execution
- * @param warnings [[org.apache.daffodil.api.ValidationWarning]] objects
- * @param errors [[org.apache.daffodil.api.ValidationFailure]] objects
  */
-final case class ValidationResult(warnings: java.util.Collection[ValidationWarning], errors: java.util.Collection[ValidationFailure])
+trait ValidationResult {
+  def warnings(): java.util.Collection[ValidationWarning]
+  def errors(): java.util.Collection[ValidationFailure]
+}
 
 object ValidationResult {
   /**
@@ -65,9 +66,12 @@ object ValidationResult {
    */
   val empty: ValidationResult = ValidationResult(Seq.empty, Seq.empty)
 
-  def apply(warnings: Seq[ValidationWarning], errors: Seq[ValidationFailure]): ValidationResult = {
+  def apply(w: Seq[ValidationWarning], e: Seq[ValidationFailure]): ValidationResult = {
     import scala.collection.JavaConverters.asJavaCollectionConverter
-    ValidationResult(warnings.asJavaCollection, errors.asJavaCollection)
+    new ValidationResult{
+      val warnings: java.util.Collection[ValidationWarning] = w.asJavaCollection
+      val errors: java.util.Collection[ValidationFailure] = e.asJavaCollection
+    }
   }
 }
 
@@ -86,9 +90,9 @@ trait ValidationFailure {
 }
 
 /**
- * Represents a fatal validation notification backed by a Throwable
+ * Represents a ValidationFailure that is backed by a Throwable
  */
-trait ValidationException {
+trait ValidationException extends ValidationFailure {
   def getCause: Throwable
 }
 

@@ -21,6 +21,7 @@ import java.io.FileInputStream
 import java.io.InputStream
 import java.nio.file.Paths
 import com.typesafe.config.Config
+import com.typesafe.config.ConfigValueType
 
 import javax.xml.transform.URIResolver
 import net.sf.saxon.TransformerFactoryImpl
@@ -29,28 +30,44 @@ import org.apache.daffodil.api.ValidatorFactory
 import org.apache.daffodil.api.ValidatorInitializationException
 
 import java.nio.file.Files
+import java.nio.file.Path
 
 /**
  * Daffodil ValidatorFactory implementation for ISO schematron
  */
 object SchematronValidatorFactory {
   def makeValidator(config: Config): SchematronValidator = {
-    if(!config.hasPath(SchematronValidator.name))
+    if (!config.hasPath(SchematronValidator.name)) {
       throw ValidatorInitializationException("invalid configuration: missing schematron path")
+    }
 
-    val schPath = Paths.get(config.getString(SchematronValidator.name))
-    val schStream = if(Files.exists(schPath)) new FileInputStream(schPath.toFile)
+    val schPathValue = config.getValue(SchematronValidator.name)
+    val schPath = Paths.get(schPathValue.valueType() match {
+      case ConfigValueType.OBJECT => config.getString(SchematronValidator.ConfigKeys.schPath)
+      case ConfigValueType.STRING => config.getString(SchematronValidator.name)
+      case _ =>
+        throw ValidatorInitializationException("invalid configuration: schematron path was not an object or string")
+    })
+    val schStream = if (Files.exists(schPath)) new FileInputStream(schPath.toFile)
     else Option(getClass.getClassLoader.getResourceAsStream(schPath.toString)).getOrElse(
       throw ValidatorInitializationException(s"schematron resource not found: $schPath")
     )
-    makeValidator(schStream, SchSource.from(schPath), None)
+    val svrlOutPath: Option[Path] =
+      if (config.hasPath(SchematronValidator.ConfigKeys.svrlOutputFile))
+        Some(Paths.get(config.getString(SchematronValidator.ConfigKeys.svrlOutputFile)))
+      else None
+
+    makeValidator(schStream, SchSource.from(schPath), svrlOutPath, None)
   }
 
-  def makeValidator(schematron: InputStream, srcfmt: SchSource, fallback: Option[URIResolver] = None): SchematronValidator = {
+  def makeValidator(schematron: InputStream, srcfmt: SchSource, fallback: Option[URIResolver] = None): SchematronValidator =
+    makeValidator(schematron, srcfmt, None, fallback)
+
+  def makeValidator(schematron: InputStream, srcfmt: SchSource, svrlPath: Option[Path], fallback: Option[URIResolver]): SchematronValidator = {
     val factory = new TransformerFactoryImpl()
     factory.setURIResolver(Schematron.isoTemplateResolver(fallback))
     val rules = Transforms.from(schematron, srcfmt, factory)
-    new SchematronValidator(Schematron.fromRules(rules))
+    new SchematronValidator(Schematron.fromRules(rules), svrlPath)
   }
 }
 

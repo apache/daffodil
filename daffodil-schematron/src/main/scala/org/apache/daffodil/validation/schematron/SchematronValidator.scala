@@ -17,29 +17,50 @@
 
 package org.apache.daffodil.validation.schematron
 
+import org.apache.daffodil.api.ValidationException
+
 import java.io.InputStream
 
 import org.apache.daffodil.api.ValidationFailure
 import org.apache.daffodil.api.ValidationResult
 import org.apache.daffodil.api.Validator
 
+import java.io.FileOutputStream
+import java.nio.file.Path
+import scala.util.Try
 import scala.xml.XML
 
 /**
  * Daffodil Validator implementation for ISO schematron
  */
-final class SchematronValidator(engine: Schematron) extends Validator {
+final class SchematronValidator(engine: Schematron, svrlPath: Option[Path]) extends Validator {
   def validateXML(document: InputStream): ValidationResult = {
     val svrl = XML.loadString(engine.validate(document))
-    val err = for(f @ <svrl:failed-assert>{ msg @ _* }</svrl:failed-assert> <- svrl.child) yield {
+    val valErr: Seq[ValidationFailure] = for(f @ <svrl:failed-assert>{ msg @ _* }</svrl:failed-assert> <- svrl.child) yield {
       SchematronValidationError(msg.text.trim, { f \\ "@location" }.text)
     }
-    ValidationResult(Seq.empty, err)
+
+    val svrlString = svrl.mkString
+    val svrlOutputFailure = svrlPath.flatMap { path =>
+      Try {
+        val os = new FileOutputStream(path.toFile)
+        os.write(svrlString.getBytes)
+        os.close()
+      }.failed.map(SvrlOutputException).toOption
+    }
+
+    val err = svrlOutputFailure.fold(valErr)(f => valErr :+ f)
+    SchematronResult(Seq.empty, err, svrlString)
   }
 }
 
 object SchematronValidator {
   val name = "schematron"
+
+  object ConfigKeys {
+    val schPath = s"$name.path"
+    val svrlOutputFile = s"$name.svrl.file"
+  }
 }
 
 /**
@@ -50,3 +71,9 @@ object SchematronValidator {
 case class SchematronValidationError(text: String, location: String) extends ValidationFailure {
   def getMessage: String = text
 }
+
+/**
+ * Thrown when raw SVRL output is requested but cannot be written
+ * @param e the cause
+ */
+final case class SvrlOutputException(e: Throwable) extends Exception(e) with ValidationException
