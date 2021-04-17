@@ -19,13 +19,16 @@ package org.apache.daffodil.schematron
 
 import org.junit.Test
 
-class TestValidating {
+object TestValidating {
   val data = "input/uuid.txt"
   val uuid = "xsd/string.dfdl.xsd"
   val never = "sch/never-fails.sch"
   val always = "sch/always-fails.sch"
 
   val alwaysResult = regexLine("<.+-fails>2f6481e6-542c-11eb-ae93-0242ac130002</.+-fails>")
+}
+class TestValidating {
+  import TestValidating._
 
   // always fails sch, but no validate flag so it should pass
   @Test def nonShouldPass(): Unit = withShell() {

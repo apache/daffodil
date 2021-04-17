@@ -435,9 +435,8 @@ class DataProcessor private (
     }
     state.dataProc.get.init(state, ssrd.parser)
     doParse(ssrd.parser, state)
-    val pr = new ParseResult(this, state)
-    if (!pr.isProcessingError) {
 
+    val pr = if (state.processorStatus == Success) {
       // By the time we get here, all infoset nodes have been set final, all
       // walker blocks released, and all elements walked. The one exception
       // is that the root node has not been set final because isFinal is
@@ -448,11 +447,21 @@ class DataProcessor private (
       state.walker.walk(lastWalk = true)
       Assert.invariant(state.walker.isFinished)
 
-      if (maybeValidationBytes.isDefined) {
-        pr.validateResult(maybeValidationBytes.get.toByteArray)
+      // validate infoset, errors are added to the PState diagnostics
+      val vr = maybeValidationBytes.toScalaOption.map { bytes =>
+        val bis = new java.io.ByteArrayInputStream(bytes.toByteArray)
+        val res = validator.validateXML(bis)
+        res.warnings().forEach{ w => state.validationError(w.getMessage) }
+        res.errors().forEach{
+          case e: ValidationException =>
+            state.validationErrorNoContext(e.getCause)
+          case f: ValidationFailure =>
+            state.validationError(f.getMessage)
+        }
+        res
       }
-
       state.output.setBlobPaths(state.blobPaths)
+      new ParseResult(state, vr)
     } else {
       // failed, so delete all blobs that were created
       state.blobPaths.foreach { path =>
@@ -460,6 +469,7 @@ class DataProcessor private (
       }
       // ensure the blob paths are empty in case of outputter reuse
       state.output.setBlobPaths(Seq.empty)
+      new ParseResult(state, None)
     }
     val s = state
     val dp = s.dataProc
@@ -688,32 +698,9 @@ class DataProcessor private (
 
 }
 
-class ParseResult(dp: DataProcessor, override val resultState: PState)
+class ParseResult(override val resultState: PState, val validationResult: Option[ValidationResult])
   extends DFDL.ParseResult
-  with WithDiagnosticsImpl {
-
-  /**
-   * To be successful here, we need to capture parse/validation
-   * errors and add them to the Diagnostics list in the PState.
-   *
-   * @param bytes the parsed Infoset
-   */
-  def validateResult(bytes: Array[Byte]): Unit = {
-    Assert.usage(resultState.processorStatus eq Success)
-
-    val bis = new java.io.ByteArrayInputStream(bytes)
-    dp.validator.validateXML(bis) match {
-      case ValidationResult(warnings, errors) =>
-        warnings.forEach{ w => resultState.validationError(w.getMessage) }
-        errors.forEach{
-          case e: ValidationException =>
-            resultState.validationErrorNoContext(e.getCause)
-          case f: ValidationFailure =>
-            resultState.validationError(f.getMessage)
-        }
-    }
-  }
-}
+  with WithDiagnosticsImpl
 
 class UnparseResult(dp: DataProcessor, ustate: UState)
   extends DFDL.UnparseResult

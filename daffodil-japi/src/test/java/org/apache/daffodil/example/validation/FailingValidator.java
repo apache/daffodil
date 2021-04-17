@@ -17,10 +17,13 @@
 
 package org.apache.daffodil.example.validation;
 
+import org.apache.daffodil.api.ValidationFailure;
 import org.apache.daffodil.api.ValidationResult;
+import org.apache.daffodil.api.ValidationWarning;
 import org.apache.daffodil.api.Validator;
 
 import java.io.InputStream;
+import java.util.Collection;
 import java.util.Collections;
 
 public class FailingValidator implements Validator {
@@ -28,6 +31,16 @@ public class FailingValidator implements Validator {
 
     @Override
     public ValidationResult validateXML(InputStream document) {
-        return new ValidationResult(Collections.emptyList(), Collections.singletonList(() -> "boom"));
+        return new ValidationResult() {
+            @Override
+            public Collection<ValidationWarning> warnings() {
+                return Collections.emptyList();
+            }
+
+            @Override
+            public Collection<ValidationFailure> errors() {
+                return Collections.singletonList(() -> "boom");
+            }
+        };
     }
 }

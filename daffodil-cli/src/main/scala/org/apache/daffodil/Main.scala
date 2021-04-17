@@ -230,7 +230,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
       case "limited" => ValidationMode.Limited
       case "off" => ValidationMode.Off
       case DefaultArgPattern(name, arg) if Validators.isRegistered(name) =>
-        val config = if(arg.endsWith(".conf")) ConfigFactory.load(arg) else ConfigFactory.parseString(s"$name=$arg")
+        val config = if(arg.endsWith(".conf")) ConfigFactory.parseFile(new File(arg)) else ConfigFactory.parseString(s"$name=$arg")
         ValidationMode.Custom(Validators.get(name).make(config))
       case NoArgsPattern(name) if Validators.isRegistered(name) =>
         ValidationMode.Custom(Validators.get(name).make(ConfigFactory.empty))
