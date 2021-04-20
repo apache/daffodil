@@ -23,8 +23,7 @@
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	xmlns:ex="http://example.com"
-	xmlns:fn="http://www.w3.org/2005/xpath-functions"
->
+	xmlns:fn="http://www.w3.org/2005/xpath-functions">
 
 	<tdml:defineSchema name="s1" elementFormDefault="unqualified">
 
@@ -113,6 +112,60 @@
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 
+	</tdml:parserTestCase>
+
+	<tdml:defineSchema name="s2" elementFormDefault="unqualified">
+
+		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+		<dfdl:format
+			ref="ex:GeneralFormat"
+			representation="text"
+			lengthKind="delimited"
+			separatorPosition="infix" />
+
+		<!-- DAFFODIL-2217
+		  These additional tests give another case where trailingEmptyStrict should be causing a
+		  parse error, but it does not in a case where maxOccurs="3" but works correctly when maxOccurs="4".
+		  -->
+
+		<!-- maxOccurs='3' fails to detect the trailing "/" i.e., this should fail with a parse error
+		due to trailingEmptyStrict -->
+
+		<xs:element name="file1">
+			<xs:complexType>
+				<xs:sequence dfdl:separator="/" dfdl:separatorPosition="infix"
+										 dfdl:separatorSuppressionPolicy="trailingEmptyStrict">
+					<xs:element name="value" type="xs:string" minOccurs="1" maxOccurs="3" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<!-- same, but maxOccurs is 4. This works, as in detects the error. -->
+		<xs:element name="file2">
+			<xs:complexType>
+				<xs:sequence dfdl:separator="/" dfdl:separatorPosition="infix"
+										 dfdl:separatorSuppressionPolicy="trailingEmptyStrict">
+					<xs:element name="value" type="xs:string" minOccurs="1" maxOccurs="4" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="test_sep_trailingEmptyStrict_1" root="file1" model="s2">
+		<tdml:document>a/b/</tdml:document>
+		<tdml:errors>
+			<tdml:error>Parse Error</tdml:error>
+			<tdml:error>trailingEmptyStrict</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="test_sep_trailingEmptyStrict_2" root="file2" model="s2">
+		<tdml:document>a/b/</tdml:document>
+		<tdml:errors>
+			<tdml:error>Parse Error</tdml:error>
+			<tdml:error>trailingEmptyStrict</tdml:error>
+		</tdml:errors>
 	</tdml:parserTestCase>
 
 </tdml:testSuite>

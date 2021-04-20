@@ -40,4 +40,8 @@ class TestSepTests {
   // DAFFODIL-2498 anyEmpty with minOccurs '0', and empty as first occurrence.
   @Test def test_sep_anyEmpty_2(): Unit = { runner.runOneTest("test_sep_anyEmpty_2") }
 
+  // DAFFODIL-2217 - trailingEmptyStrict violation not detected when maxOccurs is '3'
+  // @Test def test_sep_trailingEmptyStrict_1(): Unit = { runner.runOneTest("test_sep_trailingEmptyStrict_1") }
+  @Test def test_sep_trailingEmptyStrict_2(): Unit = { runner.runOneTest("test_sep_trailingEmptyStrict_2") }
+
 }
