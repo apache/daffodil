@@ -17,305 +17,305 @@
 -->
 
 <tdml:testSuite
-	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-	xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns:ex="http://example.com"
-	xmlns:fn="http://www.w3.org/2005/xpath-functions"
-	xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions">
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:ex="http://example.com"
+  xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions">
 
-	<tdml:defineSchema name="s1" elementFormDefault="unqualified">
+  <tdml:defineSchema name="s1" elementFormDefault="unqualified">
 
-		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
-		<dfdl:format
-			ref="ex:GeneralFormat"
-			representation="text"
-			lengthKind="delimited"
-			separatorPosition="infix" />
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format
+      ref="ex:GeneralFormat"
+      representation="text"
+      lengthKind="delimited"
+      separatorPosition="infix"/>
 
-		<!-- baseline for DAFFODIL-2498. Works. -->
-		<xs:element name="file1">
-			<xs:complexType>
-				<xs:sequence dfdl:separator="/" dfdl:separatorPosition="infix"
-										 dfdl:separatorSuppressionPolicy="trailingEmpty">
-					<xs:element name="value" type="xs:string" minOccurs="0" maxOccurs="5" />
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
+    <!-- baseline for DAFFODIL-2498. Works. -->
+    <xs:element name="file1">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="/" dfdl:separatorPosition="infix"
+                     dfdl:separatorSuppressionPolicy="trailingEmpty">
+          <xs:element name="value" type="xs:string" minOccurs="0" maxOccurs="5"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-		<!--
-		The same test, except separatorSuppressionPolicy is 'anyEmpty', and minOccurs="1"
-		This also works
-		 -->
-		<xs:element name="file2">
-			<xs:complexType>
-				<xs:sequence dfdl:separator="/" dfdl:separatorPosition="infix"
-										 dfdl:separatorSuppressionPolicy="anyEmpty">
-					<xs:element name="value" type="xs:string" minOccurs="1" maxOccurs="5" />
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
+    <!--
+    The same test, except separatorSuppressionPolicy is 'anyEmpty', and minOccurs="1"
+    This also works
+     -->
+    <xs:element name="file2">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="/" dfdl:separatorPosition="infix"
+                     dfdl:separatorSuppressionPolicy="anyEmpty">
+          <xs:element name="value" type="xs:string" minOccurs="1" maxOccurs="5"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-		<!--
-		The same, except minOccurs="0"
-		This fails in Daffodil 3.0.0, but works in 3.1.0
-		-->
-		<xs:element name="file3">
-			<xs:complexType>
-				<xs:sequence dfdl:separator="/" dfdl:separatorPosition="infix"
-										 dfdl:separatorSuppressionPolicy="anyEmpty">
-					<xs:element name="value" type="xs:string" minOccurs="0" maxOccurs="5" />
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
+    <!--
+    The same, except minOccurs="0"
+    This fails in Daffodil 3.0.0, but works in 3.1.0
+    -->
+    <xs:element name="file3">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="/" dfdl:separatorPosition="infix"
+                     dfdl:separatorSuppressionPolicy="anyEmpty">
+          <xs:element name="value" type="xs:string" minOccurs="0" maxOccurs="5"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-	</tdml:defineSchema>
+  </tdml:defineSchema>
 
-	<tdml:parserTestCase name="test_sep_trailing_1" root="file1" model="s1">
-		<tdml:document>/a//</tdml:document>
+  <tdml:parserTestCase name="test_sep_trailing_1" root="file1" model="s1">
+    <tdml:document>/a//</tdml:document>
 
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<ex:file1>
-					<value>a</value>
-				</ex:file1>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:file1>
+          <value>a</value>
+        </ex:file1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
 
-	</tdml:parserTestCase>
+  </tdml:parserTestCase>
 
-	<tdml:parserTestCase name="test_sep_anyEmpty_1" root="file2" model="s1">
-		<tdml:document>/a//</tdml:document>
+  <tdml:parserTestCase name="test_sep_anyEmpty_1" root="file2" model="s1">
+    <tdml:document>/a//</tdml:document>
 
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<ex:file2>
-					<value></value>
-					<value>a</value>
-				</ex:file2>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:file2>
+          <value></value>
+          <value>a</value>
+        </ex:file2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
 
-	</tdml:parserTestCase>
+  </tdml:parserTestCase>
 
-	<!-- DAFFODIL-2498 - on Daffodil 3.0.0 this was failing. Works on 3.1.0. -->
+  <!-- DAFFODIL-2498 - on Daffodil 3.0.0 this was failing. Works on 3.1.0. -->
 
-	<tdml:parserTestCase name="test_sep_anyEmpty_2" root="file3" model="s1">
-		<tdml:document>/a//</tdml:document>
+  <tdml:parserTestCase name="test_sep_anyEmpty_2" root="file3" model="s1">
+    <tdml:document>/a//</tdml:document>
 
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<ex:file3>
-					<value>a</value>
-				</ex:file3>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:file3>
+          <value>a</value>
+        </ex:file3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
 
-	</tdml:parserTestCase>
+  </tdml:parserTestCase>
 
-	<tdml:defineSchema name="s2" elementFormDefault="unqualified">
+  <tdml:defineSchema name="s2" elementFormDefault="unqualified">
 
-		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
-		<dfdl:format
-			ref="ex:GeneralFormat"
-			representation="text"
-			lengthKind="delimited"
-			separatorPosition="infix" />
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format
+      ref="ex:GeneralFormat"
+      representation="text"
+      lengthKind="delimited"
+      separatorPosition="infix"/>
 
-		<!-- DAFFODIL-2217
-		  These additional tests give another case where trailingEmptyStrict should be causing a
-		  parse error, but it does not in a case where maxOccurs="3" but works correctly when maxOccurs="4".
-		  -->
+    <!-- DAFFODIL-2217
+      These additional tests give another case where trailingEmptyStrict should be causing a
+      parse error, but it does not in a case where maxOccurs="3" but works correctly when maxOccurs="4".
+      -->
 
-		<!-- maxOccurs='3' fails to detect the trailing "/" i.e., this should fail with a parse error
-		due to trailingEmptyStrict -->
+    <!-- maxOccurs='3' fails to detect the trailing "/" i.e., this should fail with a parse error
+    due to trailingEmptyStrict -->
 
-		<xs:element name="file1">
-			<xs:complexType>
-				<xs:sequence dfdl:separator="/" dfdl:separatorPosition="infix"
-										 dfdl:separatorSuppressionPolicy="trailingEmptyStrict">
-					<xs:element name="value" type="xs:string" minOccurs="1" maxOccurs="3" />
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
+    <xs:element name="file1">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="/" dfdl:separatorPosition="infix"
+                     dfdl:separatorSuppressionPolicy="trailingEmptyStrict">
+          <xs:element name="value" type="xs:string" minOccurs="1" maxOccurs="3"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-		<!-- same, but maxOccurs is 4. This works, as in detects the error. -->
-		<xs:element name="file2">
-			<xs:complexType>
-				<xs:sequence dfdl:separator="/" dfdl:separatorPosition="infix"
-										 dfdl:separatorSuppressionPolicy="trailingEmptyStrict">
-					<xs:element name="value" type="xs:string" minOccurs="1" maxOccurs="4" />
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
+    <!-- same, but maxOccurs is 4. This works, as in detects the error. -->
+    <xs:element name="file2">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="/" dfdl:separatorPosition="infix"
+                     dfdl:separatorSuppressionPolicy="trailingEmptyStrict">
+          <xs:element name="value" type="xs:string" minOccurs="1" maxOccurs="4"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-	</tdml:defineSchema>
+  </tdml:defineSchema>
 
-	<tdml:parserTestCase name="test_sep_trailingEmptyStrict_1" root="file1" model="s2">
-		<tdml:document>a/b/</tdml:document>
-		<tdml:errors>
-			<tdml:error>Parse Error</tdml:error>
-			<tdml:error>trailingEmptyStrict</tdml:error>
-		</tdml:errors>
-	</tdml:parserTestCase>
+  <tdml:parserTestCase name="test_sep_trailingEmptyStrict_1" root="file1" model="s2">
+    <tdml:document>a/b/</tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>trailingEmptyStrict</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
 
-	<tdml:parserTestCase name="test_sep_trailingEmptyStrict_2" root="file2" model="s2">
-		<tdml:document>a/b/</tdml:document>
-		<tdml:errors>
-			<tdml:error>Parse Error</tdml:error>
-			<tdml:error>trailingEmptyStrict</tdml:error>
-		</tdml:errors>
-	</tdml:parserTestCase>
+  <tdml:parserTestCase name="test_sep_trailingEmptyStrict_2" root="file2" model="s2">
+    <tdml:document>a/b/</tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>trailingEmptyStrict</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
 
-	<tdml:defineSchema name="s3" elementFormDefault="unqualified">
+  <tdml:defineSchema name="s3" elementFormDefault="unqualified">
 
-			<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
-			<dfdl:format
-				ref="ex:GeneralFormat"
-				representation="text"
-				lengthKind="delimited"
-				separatorPosition="infix"
-			  dfdlx:emptyElementParsePolicy="treatAsEmpty" />
-		<!--
-		Note: dfdlx:emptyElementParsePolicy should become regular DFDL emptyElementParsePolicy
-		once implemented in DAFFODIL-2496. The enum 'treatAsMissing' is renamed to 'treatAsAbsent'
-		-->
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format
+      ref="ex:GeneralFormat"
+      representation="text"
+      lengthKind="delimited"
+      separatorPosition="infix"
+      dfdlx:emptyElementParsePolicy="treatAsEmpty"/>
+    <!--
+    Note: dfdlx:emptyElementParsePolicy should become regular DFDL emptyElementParsePolicy
+    once implemented in DAFFODIL-2496. The enum 'treatAsMissing' is renamed to 'treatAsAbsent'
+    -->
 
-			<xs:element name="file1">
-        <xs:complexType>
-          <xs:sequence dfdl:separator="," dfdl:separatorPosition="infix"
-            dfdl:separatorSuppressionPolicy="never">
-            <xs:element name="given-name" type="xs:string" minOccurs="0" maxOccurs="3" />
-            <xs:element name="surname" type="xs:string" minOccurs="0"/>
-            <xs:element name="phone" type="xs:string" minOccurs="0" maxOccurs="6" />
-          </xs:sequence>
-        </xs:complexType>
-      </xs:element>
+    <xs:element name="file1">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," dfdl:separatorPosition="infix"
+                     dfdl:separatorSuppressionPolicy="never">
+          <xs:element name="given-name" type="xs:string" minOccurs="0" maxOccurs="3"/>
+          <xs:element name="surname" type="xs:string" minOccurs="0"/>
+          <xs:element name="phone" type="xs:string" minOccurs="0" maxOccurs="6"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-		<!-- Same, but has minOccurs=maxOccurs for the arrays.
-		 That makes all array elements "required" -->
-			<xs:element name="file2">
-				<xs:complexType>
-					<xs:sequence dfdl:separator="," dfdl:separatorPosition="infix"
-											 dfdl:separatorSuppressionPolicy="never">
-						<xs:element name="given-name" type="xs:string" minOccurs="3" maxOccurs="3" />
-						<xs:element name="surname" type="xs:string" />
-						<xs:element name="phone" type="xs:string" minOccurs="6" maxOccurs="6" />
-					</xs:sequence>
-				</xs:complexType>
-			</xs:element>
+    <!-- Same, but has minOccurs=maxOccurs for the arrays.
+     That makes all array elements "required" -->
+    <xs:element name="file2">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," dfdl:separatorPosition="infix"
+                     dfdl:separatorSuppressionPolicy="never">
+          <xs:element name="given-name" type="xs:string" minOccurs="3" maxOccurs="3"/>
+          <xs:element name="surname" type="xs:string"/>
+          <xs:element name="phone" type="xs:string" minOccurs="6" maxOccurs="6"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-	</tdml:defineSchema>
+  </tdml:defineSchema>
 
-	<!-- Test for DAFFODIL-2499. empty strings should not be creating empty elements here. -->
-	<tdml:parserTestCase name="test_sep_ssp_never_1" root="file1" model="s3"
-	  implementations="daffodil ibm">
-		<tdml:document>madonna,,,,,,,,,</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<ex:file1>
-					<given-name>madonna</given-name>
-				</ex:file1>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
+  <!-- Test for DAFFODIL-2499. empty strings should not be creating empty elements here. -->
+  <tdml:parserTestCase name="test_sep_ssp_never_1" root="file1" model="s3"
+                       implementations="daffodil ibm">
+    <tdml:document>madonna,,,,,,,,,</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:file1>
+          <given-name>madonna</given-name>
+        </ex:file1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
-	<tdml:parserTestCase name="test_sep_ssp_never_2" root="file2" model="s3"
-											 implementations="daffodil ibm">
-		<tdml:document>madonna,,,,,,,,,</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<ex:file2>
-					<given-name>madonna</given-name>
-					<given-name></given-name>
-					<given-name></given-name>
-					<surname></surname>
-					<phone></phone>
-					<phone></phone>
-					<phone></phone>
-					<phone></phone>
-					<phone></phone>
-					<phone></phone>
-				</ex:file2>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
+  <tdml:parserTestCase name="test_sep_ssp_never_2" root="file2" model="s3"
+                       implementations="daffodil ibm">
+    <tdml:document>madonna,,,,,,,,,</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:file2>
+          <given-name>madonna</given-name>
+          <given-name></given-name>
+          <given-name></given-name>
+          <surname></surname>
+          <phone></phone>
+          <phone></phone>
+          <phone></phone>
+          <phone></phone>
+          <phone></phone>
+          <phone></phone>
+        </ex:file2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
-	<!--
-	This schema identical to s3, except for the dfdlx:emptyElementParsePolicy is treatAsMissing
-	-->
-	<tdml:defineSchema name="s4" elementFormDefault="unqualified">
+  <!--
+  This schema identical to s3, except for the dfdlx:emptyElementParsePolicy is treatAsMissing
+  -->
+  <tdml:defineSchema name="s4" elementFormDefault="unqualified">
 
-		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
-		<dfdl:format
-			ref="ex:GeneralFormat"
-			representation="text"
-			lengthKind="delimited"
-			separatorPosition="infix"
-			dfdlx:emptyElementParsePolicy="treatAsMissing" />
-		<!--
-		Note: dfdlx:emptyElementParsePolicy should become regular DFDL emptyElementParsePolicy
-		once implemented in DAFFODIL-2496. The enum 'treatAsMissing' is renamed to 'treatAsAbsent'
-		-->
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format
+      ref="ex:GeneralFormat"
+      representation="text"
+      lengthKind="delimited"
+      separatorPosition="infix"
+      dfdlx:emptyElementParsePolicy="treatAsMissing"/>
+    <!--
+    Note: dfdlx:emptyElementParsePolicy should become regular DFDL emptyElementParsePolicy
+    once implemented in DAFFODIL-2496. The enum 'treatAsMissing' is renamed to 'treatAsAbsent'
+    -->
 
-		<!--
-		treatAsMissing should have no effect here, because everything is optional.
-		-->
-		<xs:element name="file1">
-			<xs:complexType>
-				<xs:sequence dfdl:separator="," dfdl:separatorPosition="infix"
-										 dfdl:separatorSuppressionPolicy="never">
-					<xs:element name="given-name" type="xs:string" minOccurs="0" maxOccurs="3" />
-					<xs:element name="surname" type="xs:string" minOccurs="0"/>
-					<xs:element name="phone" type="xs:string" minOccurs="0" maxOccurs="6" />
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
+    <!--
+    treatAsMissing should have no effect here, because everything is optional.
+    -->
+    <xs:element name="file1">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," dfdl:separatorPosition="infix"
+                     dfdl:separatorSuppressionPolicy="never">
+          <xs:element name="given-name" type="xs:string" minOccurs="0" maxOccurs="3"/>
+          <xs:element name="surname" type="xs:string" minOccurs="0"/>
+          <xs:element name="phone" type="xs:string" minOccurs="0" maxOccurs="6"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-		<!-- Same, but has minOccurs=maxOccurs for the arrays.
-		 That makes all array elements "required"
+    <!-- Same, but has minOccurs=maxOccurs for the arrays.
+     That makes all array elements "required"
 
-		 treatAsMissing causes this to fail. Required empty non-defaultable is an error in that case.
-		 (note: treatAsMissing will become treatAsAbsent DAFFODIL-2496)
-		 -->
-		<xs:element name="file2">
-			<xs:complexType>
-				<xs:sequence dfdl:separator="," dfdl:separatorPosition="infix"
-										 dfdl:separatorSuppressionPolicy="never">
-					<xs:element name="given-name" type="xs:string" minOccurs="3" maxOccurs="3" />
-					<xs:element name="surname" type="xs:string" />
-					<xs:element name="phone" type="xs:string" minOccurs="6" maxOccurs="6" />
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
+     treatAsMissing causes this to fail. Required empty non-defaultable is an error in that case.
+     (note: treatAsMissing will become treatAsAbsent DAFFODIL-2496)
+     -->
+    <xs:element name="file2">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," dfdl:separatorPosition="infix"
+                     dfdl:separatorSuppressionPolicy="never">
+          <xs:element name="given-name" type="xs:string" minOccurs="3" maxOccurs="3"/>
+          <xs:element name="surname" type="xs:string"/>
+          <xs:element name="phone" type="xs:string" minOccurs="6" maxOccurs="6"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-	</tdml:defineSchema>
+  </tdml:defineSchema>
 
-	<!-- Test for DAFFODIL-2499. empty strings should not be creating empty elements here. -->
-	<tdml:parserTestCase name="test_sep_ssp_never_3" root="file1" model="s4"
-											 implementations="daffodil ibm">
-		<tdml:document>madonna,,,,,,,,,</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<ex:file1>
-					<given-name>madonna</given-name>
-				</ex:file1>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
+  <!-- Test for DAFFODIL-2499. empty strings should not be creating empty elements here. -->
+  <tdml:parserTestCase name="test_sep_ssp_never_3" root="file1" model="s4"
+                       implementations="daffodil ibm">
+    <tdml:document>madonna,,,,,,,,,</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:file1>
+          <given-name>madonna</given-name>
+        </ex:file1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
-	<tdml:parserTestCase name="test_sep_ssp_never_4" root="file2" model="s4"
-											 implementations="daffodil ibm">
-		<tdml:document>madonna,,,,,,,,,</tdml:document>
-		<tdml:errors>
-			<tdml:error>Parse Error</tdml:error>
-			<tdml:error>emptyElementParsePolicy</tdml:error>
-			<tdml:error>treatAsMissing</tdml:error><!-- will change to treatAsAbsent DAFFODIL-2496 -->
-			<tdml:error>required</tdml:error>
-		</tdml:errors>
-	</tdml:parserTestCase>
+  <tdml:parserTestCase name="test_sep_ssp_never_4" root="file2" model="s4"
+                       implementations="daffodil ibm">
+    <tdml:document>madonna,,,,,,,,,</tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>emptyElementParsePolicy</tdml:error>
+      <tdml:error>treatAsMissing</tdml:error><!-- will change to treatAsAbsent DAFFODIL-2496 -->
+      <tdml:error>required</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
 
 
 </tdml:testSuite>
