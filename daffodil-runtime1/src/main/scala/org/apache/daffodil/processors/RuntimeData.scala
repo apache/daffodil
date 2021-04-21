@@ -141,9 +141,9 @@ sealed abstract class TermRuntimeData(
   /**
    * Cyclic structures require initialization
    */
-  lazy val initialize: Unit = initializeFunction
+  lazy val initialize: Unit = initializeFunction()
 
-  protected def initializeFunction: Unit = {
+  protected def initializeFunction(): Unit = {
     partialNextElementResolver
     dpathCompileInfo.initialize
   }
@@ -179,6 +179,7 @@ sealed abstract class TermRuntimeData(
 
   lazy val partialNextElementResolver =
     partialNextElementResolverDelay.value
+
 }
 
 sealed class NonTermRuntimeData(
@@ -786,6 +787,7 @@ sealed abstract class ModelGroupRuntimeData(
 
   final override def isRequiredScalar = true
   final override def isArray = false
+
 }
 
 /**
@@ -874,6 +876,7 @@ final class VariableRuntimeData(
    */
   lazy val initialize: Unit = {
     maybeDefaultValueExpr // demand this
+
   }
 
   lazy val maybeDefaultValueExpr: Maybe[CompiledExpression[AnyRef]] = maybeDefaultValueExprDelay.value

@@ -187,7 +187,7 @@ protected abstract class MStack[@specialized T] private[util] (
   private var index = 0
   private var table: Array[T] = null
 
-  def init: Unit = {
+  def init(): Unit = {
     index = 0
     table = arrayAllocator(32)
   }

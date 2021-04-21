@@ -24,7 +24,7 @@ object TestUnseparated {
   val testDir = "/test-suite/tresys-contributed/"
   val runner = Runner(testDir, "unseparated.tdml")
 
-  @AfterClass def shutDown: Unit = {
+  @AfterClass def shutDown(): Unit = {
     runner.reset
   }
 }

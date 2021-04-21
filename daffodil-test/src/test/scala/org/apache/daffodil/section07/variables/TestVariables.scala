@@ -29,7 +29,7 @@ object TestVariables {
   val runner = Runner(testDir, "variables.tdml")
   val runner_01 = Runner(testDir, "variables_01.tdml")
 
-  @AfterClass def shutDown: Unit = {
+  @AfterClass def shutDown(): Unit = {
     runner.reset
     runner_01.reset
   }

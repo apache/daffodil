@@ -24,7 +24,7 @@ import org.junit.AfterClass
 object TestPayloadAndTypes {
   val runner = Runner("org2", "testPayloadAndTypes.tdml")
 
-  @AfterClass def shutDown: Unit = {
+  @AfterClass def shutDown(): Unit = {
     runner.reset
   }
 }

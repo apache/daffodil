@@ -25,7 +25,7 @@ object TestAssertions {
   val testDir = "/org/apache/daffodil/section07/assertions/"
   val runner = Runner(testDir, "assert.tdml", validateTDMLFile = false)
 
-  @AfterClass def tearDown: Unit = {
+  @AfterClass def tearDown(): Unit = {
     runner.reset
   }
 

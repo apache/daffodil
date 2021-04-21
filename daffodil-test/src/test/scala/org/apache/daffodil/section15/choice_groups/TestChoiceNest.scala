@@ -26,7 +26,7 @@ object TestChoiceNest {
 
   val runner = Runner(testDir, "choiceNests.tdml")
 
-  @AfterClass def shutDown: Unit = {
+  @AfterClass def shutDown(): Unit = {
     runner.reset
   }
 

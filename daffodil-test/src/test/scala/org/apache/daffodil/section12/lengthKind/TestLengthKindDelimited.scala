@@ -28,7 +28,7 @@ object TestLengthKindDelimited {
   val runnerAB = Runner(testDir, "AB.tdml")
   val runnerAN = Runner(testDir, "AN.tdml")
 
-  @AfterClass def shutDown: Unit = {
+  @AfterClass def shutDown(): Unit = {
     runner.reset
     runnerAB.reset
     runnerAN.reset

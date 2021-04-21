@@ -23,7 +23,7 @@ import org.junit.AfterClass
 
 object TestSequenceGroupUnparse {
   val runner = Runner("/org/apache/daffodil/section14/sequence_groups/SequenceGroupUnparse.tdml")
-  @AfterClass def shutDown: Unit = {
+  @AfterClass def shutDown(): Unit = {
     runner.reset
   }
 }

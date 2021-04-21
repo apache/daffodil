@@ -27,7 +27,7 @@ object TestHiddenChoices {
 
   val runner = Runner(testDir, "HiddenChoices.tdml", validateTDMLFile = true)
 
-  @AfterClass def shutDown: Unit = {
+  @AfterClass def shutDown(): Unit = {
     runner.reset
   }
 

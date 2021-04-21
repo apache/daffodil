@@ -215,7 +215,7 @@ class TestDsomCompiler {
     assertTrue(elem.isInstanceOf[LocalElementDecl])
   }
 
-  @Test def test3: Unit = {
+  @Test def test3(): Unit = {
     val testSchema = XML.load(Misc.getRequiredResource("/test/example-of-most-dfdl-constructs.dfdl.xml").toURL)
 
     val sset = SchemaSet(testSchema)
@@ -297,7 +297,7 @@ class TestDsomCompiler {
     assertEquals("ex:a", e1r.ref)
   }
 
-  @Test def test4: Unit = {
+  @Test def test4(): Unit = {
     val testSchema = XML.load(Misc.getRequiredResource("/test/example-of-most-dfdl-constructs.dfdl.xml").toURL)
 
     val sset = SchemaSet(testSchema)
@@ -324,7 +324,7 @@ class TestDsomCompiler {
     assertEquals("{ $myVar1 eq xs:int(xs:string(fn:round-half-to-even(8.5))) }", asrt1.testTxt)
   }
 
-  @Test def test_named_format_chaining: Unit = {
+  @Test def test_named_format_chaining(): Unit = {
     val testSchema =
       XML.load(
         Misc.getRequiredResource(
@@ -342,7 +342,7 @@ class TestDsomCompiler {
     assertEquals(true, a1.verifyPropValue("binaryNumberRep", "packed"))
   }
 
-  @Test def test_simple_types_access_works: Unit = {
+  @Test def test_simple_types_access_works(): Unit = {
     val testSchema =
       XML.load(
         Misc.getRequiredResource(
@@ -357,7 +357,7 @@ class TestDsomCompiler {
     assertEquals(AlignmentUnits.Bytes, x.alignmentUnits)
   }
 
-  @Test def test_simple_types_property_combining: Unit = {
+  @Test def test_simple_types_property_combining(): Unit = {
     val testSchema =
       XML.load(
         Misc.getRequiredResource(
@@ -389,7 +389,7 @@ class TestDsomCompiler {
     assertEquals(BinaryNumberRep.Packed, ge6.binaryNumberRep)
   }
 
-  @Test def test_simpleType_base_combining: Unit = {
+  @Test def test_simpleType_base_combining(): Unit = {
     val testSchema = XML.load(Misc.getRequiredResource("/test/example-of-most-dfdl-constructs.dfdl.xml").toURL)
 
     val sset = SchemaSet(testSchema)
@@ -436,7 +436,7 @@ class TestDsomCompiler {
     assertTrue(msgs.contains("initiator".toLowerCase))
   }
 
-  @Test def test_group_references: Unit = {
+  @Test def test_group_references(): Unit = {
     val testSchema = XML.load(Misc.getRequiredResource("/test/example-of-most-dfdl-constructs.dfdl.xml").toURL)
 
     val sset = SchemaSet(testSchema)
@@ -489,7 +489,7 @@ class TestDsomCompiler {
 
   }
 
-  @Test def test_ibm_7132: Unit = {
+  @Test def test_ibm_7132(): Unit = {
     val ibm7132Schema = XML.load(Misc.getRequiredResource("/test/TestRefChainingIBM7132.dfdl.xml").toURL)
     // val ibm7132Schema = "test/TestRefChainingIBM7132.dfdl.xml"
     val sset = SchemaSet(ibm7132Schema)
@@ -533,7 +533,7 @@ class TestDsomCompiler {
 
   }
 
-  @Test def testGetQName = {
+  @Test def testGetQName() = {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:defineFormat name="ref1">
@@ -565,7 +565,7 @@ class TestDsomCompiler {
     scala.xml.Elem("dfdl", "element", scala.xml.Null, scope, true)
   }
 
-  @Test def test_escapeSchemeOverride = {
+  @Test def test_escapeSchemeOverride() = {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" separator="" initiator="" terminator="" emptyValueDelimiterPolicy="none" textNumberRep="standard" representation="text" occursStopValue="-1" occursCountKind="expression" escapeSchemeRef="pound"/>
@@ -608,7 +608,7 @@ class TestDsomCompiler {
     assertEquals("cStyleComment", e2f_esref)
   }
 
-  @Test def test_element_references: Unit = {
+  @Test def test_element_references(): Unit = {
     val testSchema = XML.load(Misc.getRequiredResource("/test/example-of-most-dfdl-constructs.dfdl.xml").toURL)
 
     val sset = SchemaSet(testSchema)

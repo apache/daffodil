@@ -26,7 +26,7 @@ object TestPropertySyntax {
   val runner1 = Runner(testDir1, "PropertySyntax.tdml", validateTDMLFile = false, validateDFDLSchemas = false)
   val runner1V = Runner(testDir1, "PropertySyntax.tdml", validateTDMLFile = false)
 
-  @AfterClass def shutDown: Unit = {
+  @AfterClass def shutDown(): Unit = {
     runner1.reset
     runner1V.reset
   }

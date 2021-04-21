@@ -28,7 +28,7 @@ object TestSequenceGroups3 {
   val runner_01 = Runner(testDir_01, "SequenceGroupDelimiters.tdml")
   val runner_02 = Runner(testDir_01, "SequenceGroup.tdml", validateTDMLFile = false)
 
-  @AfterClass def shutDown: Unit = {
+  @AfterClass def shutDown(): Unit = {
     runner_01.reset
     runner_02.reset
   }

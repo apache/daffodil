@@ -201,7 +201,7 @@ trait Suspension
   private var done_ : Boolean = false
   private var isBlocked_ = false
 
-  final def setDone: Unit = {
+  final def setDone(): Unit = {
     done_ = true
   }
 

@@ -28,7 +28,7 @@ object TestProcessingErrorsUnparse {
   val runner02Validate = Runner(testDir, "ProcessingErrorsUnparse.tdml", validateTDMLFile = true, validateDFDLSchemas = true,
     compileAllTopLevel = true)
 
-  @AfterClass def shutDown: Unit = {
+  @AfterClass def shutDown(): Unit = {
     runner02.reset
     runner02Validate.reset
   }

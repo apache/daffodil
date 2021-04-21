@@ -30,7 +30,7 @@ object TestHiddenSequences {
     validateDFDLSchemas = false,
     )
 
-  @AfterClass def shutDown: Unit = {
+  @AfterClass def shutDown(): Unit = {
     runner.reset
   }
 

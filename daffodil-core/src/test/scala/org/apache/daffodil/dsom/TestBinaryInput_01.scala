@@ -51,7 +51,7 @@ class TestBinaryInput_01 {
     (dis, finfo)
   }
 
-  @After def shutDown: Unit = {
+  @After def shutDown(): Unit = {
     dis.discard(startOver)
   }
 

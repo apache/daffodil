@@ -131,7 +131,7 @@ class Registers() extends Poolable with Serializable {
     data1 = charIterator.peek2()
   }
 
-  def commitOneChar: Unit = {
+  def commitOneChar(): Unit = {
     if (charIterator.hasNext) charIterator.next()
   }
 

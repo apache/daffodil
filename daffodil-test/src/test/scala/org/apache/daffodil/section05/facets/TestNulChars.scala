@@ -23,7 +23,7 @@ import org.junit.Test
 object TestNulChars {
   val runner = Runner("/org/apache/daffodil/section05/facets", "NulChars.tdml")
 
-  @AfterClass def shutDown = {
+  @AfterClass def shutDown() = {
     runner.reset
   }
 }

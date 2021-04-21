@@ -25,7 +25,7 @@ object TestRepProps2 {
   val testDir = "/org/apache/daffodil/section10/representation_properties/"
   val runner = Runner(testDir, "encodings.tdml")
 
-  @AfterClass def shutDown: Unit = {
+  @AfterClass def shutDown(): Unit = {
     runner.reset
   }
 }

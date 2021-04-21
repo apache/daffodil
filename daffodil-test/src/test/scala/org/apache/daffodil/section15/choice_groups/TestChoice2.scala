@@ -28,7 +28,7 @@ object TestChoice2 {
   val runner1773 = Runner(testDir, "choice1773.tdml")
   val runner2162 = Runner(testDir, "choice2162.tdml")
 
-  @AfterClass def shutDown: Unit = {
+  @AfterClass def shutDown(): Unit = {
     runner.reset
     runner1773.reset
     runner2162.reset

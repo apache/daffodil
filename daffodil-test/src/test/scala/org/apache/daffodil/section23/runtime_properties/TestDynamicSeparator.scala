@@ -26,7 +26,7 @@ object TestDynamicSeparator {
   val testDir = "org/apache/daffodil/section23/runtime_properties/"
   val runner = Runner(testDir, "dynamicSeparator.tdml")
 
-  @AfterClass def shutdown = {
+  @AfterClass def shutDown() = {
     runner.reset
   }
 }

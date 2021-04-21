@@ -192,7 +192,12 @@ def buildScalacOptions(scalaVersion: String) = {
     "-unchecked",
     "-Xfatal-warnings",
     "-Xxml:-coalescing",
-    "-Xfuture"
+    "-Xfuture",
+    "-Ywarn-infer-any",
+    "-Ywarn-inaccessible",
+    // "-Ywarn-nullary-unit", // we cannot use this. It interferes with the Uniform Access Principle.
+    // See https://stackoverflow.com/questions/7600910/difference-between-function-with-parentheses-and-without.
+    "-Ywarn-unused-import"
   )
 
   val scalaVersionSpecificOptions = CrossVersion.partialVersion(scalaVersion) match {
@@ -211,6 +216,8 @@ def buildScalacOptions(scalaVersion: String) = {
     commonOptions ++ scalaVersionSpecificOptions ++ javaVersionSpecificOptions
 }
 
+// Workaround issue that some options are valid for javac, not javadoc.
+// These javacOptions are for code compilation only. (Issue sbt/sbt#355)
 def buildJavacOptions() = {
   val commonOptions = Seq(
     "-Werror",

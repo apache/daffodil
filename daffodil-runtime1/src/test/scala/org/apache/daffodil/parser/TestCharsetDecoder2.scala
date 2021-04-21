@@ -23,7 +23,7 @@ import org.apache.daffodil.processors.charset.CharsetUtils
 
 class TestCharsetDecoder2 {
 
-  @Test def testIfHasJava7DecoderBug: Unit = {
+  @Test def testIfHasJava7DecoderBug(): Unit = {
     if (CharsetUtils.hasJava7DecoderBug) fail("Java 7 Decoder bug detected. Daffodil requires Java 8 (or higher)")
   }
 }

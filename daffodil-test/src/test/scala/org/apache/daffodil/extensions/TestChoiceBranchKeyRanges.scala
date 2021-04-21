@@ -25,7 +25,7 @@ object TestChoiceBranchKeyRanges {
 
   val runner = Runner(testDir, "choiceBranchKeyRanges.tdml", validateTDMLFile = true)
 
-  @AfterClass def shutDown: Unit = {
+  @AfterClass def shutDown(): Unit = {
     runner.reset
   }
 

@@ -24,7 +24,7 @@ object TestSepSuppression {
   val testDir = "/test-suite/tresys-contributed/"
   val runner = Runner(testDir, "sepSuppression.tdml")
 
-  @AfterClass def shutDown: Unit = {
+  @AfterClass def shutDown(): Unit = {
     runner.reset
   }
 }

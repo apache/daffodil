@@ -27,7 +27,7 @@ object TestSequenceGroupNestedArray {
 
   val runner = Runner(testDir_01, "SequenceGroupNestedArray.tdml")
 
-  @AfterClass def shutDown: Unit = {
+  @AfterClass def shutDown(): Unit = {
     runner.reset
   }
 

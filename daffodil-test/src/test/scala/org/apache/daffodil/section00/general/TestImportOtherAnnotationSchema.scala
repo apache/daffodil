@@ -25,7 +25,7 @@ object TestImportOtherAnnotationSchema {
   val testDir = "/org/apache/daffodil/section00/general/"
   val runner = Runner(testDir, "testImportOtherAnnotationSchema.tdml")
 
-  @AfterClass def shutDown: Unit = {
+  @AfterClass def shutDown(): Unit = {
     runner.reset
   }
 }

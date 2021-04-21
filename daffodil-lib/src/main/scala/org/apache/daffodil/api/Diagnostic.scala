@@ -155,7 +155,7 @@ abstract class Diagnostic protected (
   final def getSomeCause: Some[Throwable] = Misc.getSomeCause(this)
   final def getSomeMessage: Some[String] = Misc.getSomeMessage(this)
 
-  private def init: Unit = {
+  private def init(): Unit = {
     Assert.invariant(maybeCause.isDefined ^ maybeFormatString.isDefined)
     Assert.invariant(maybeCause.isEmpty || args.length == 0) // if there is a cause, there can't be args.
   }

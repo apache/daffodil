@@ -29,7 +29,7 @@ object TestEntities {
   val runnerEntity = Runner(testDir, "entities_01.tdml")
   val runnerInvalid = Runner(testDir, "InvalidEntities.tdml")
 
-  @AfterClass def shutDown: Unit = {
+  @AfterClass def shutDown(): Unit = {
     runner.reset
     runner_01.reset
     runnerEntity.reset

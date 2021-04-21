@@ -25,7 +25,7 @@ object TestLengthKindExplicit {
   val testDir = "/org/apache/daffodil/section12/lengthKind/"
   val runner = Runner(testDir, "ExplicitTests.tdml")
 
-  @AfterClass def shutDown: Unit = {
+  @AfterClass def shutDown(): Unit = {
     runner.reset
   }
 

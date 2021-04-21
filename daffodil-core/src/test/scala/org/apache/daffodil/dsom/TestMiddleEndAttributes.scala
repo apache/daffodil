@@ -28,7 +28,7 @@ class TestMiddleEndAttributes {
   val xsi = XMLUtils.XSI_NAMESPACE
   val example = XMLUtils.EXAMPLE_NAMESPACE
 
-  @Test def test_hasStaticallyRequiredOccurrencesInDataRepresentation_1: Unit = {
+  @Test def test_hasStaticallyRequiredOccurrencesInDataRepresentation_1(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator="" separator="" ignoreCase="no"/>,
@@ -54,7 +54,7 @@ class TestMiddleEndAttributes {
     assertTrue(s2.hasStaticallyRequiredOccurrencesInDataRepresentation)
   }
 
-  @Test def test_hasStaticallyRequiredOccurrencesInDataRepresentation_2: Unit = {
+  @Test def test_hasStaticallyRequiredOccurrencesInDataRepresentation_2(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format representation="text" occursCountKind="parsed" lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator="" separator="" ignoreCase="no"/>,
@@ -80,7 +80,7 @@ class TestMiddleEndAttributes {
     assertFalse(s2.hasStaticallyRequiredOccurrencesInDataRepresentation)
   }
 
-  @Test def testRequiredSiblings: Unit = {
+  @Test def testRequiredSiblings(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format representation="text" occursCountKind="parsed" lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator="" separator="" ignoreCase="no"/>,
@@ -112,7 +112,7 @@ class TestMiddleEndAttributes {
     assertFalse(s5.hasStaticallyRequiredOccurrencesInDataRepresentation)
   }
 
-  @Test def testStaticallyFirstWithChoice: Unit = {
+  @Test def testStaticallyFirstWithChoice(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format representation="text" occursCountKind="parsed" lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator="" separator="" ignoreCase="no"

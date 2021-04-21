@@ -25,7 +25,7 @@ object TestAnnotations {
   val testDir = "/org/apache/daffodil/section07/annotations/"
   val runner = Runner(testDir, "annotations.tdml", validateTDMLFile = false)
 
-  @AfterClass def tearDown: Unit = {
+  @AfterClass def tearDown(): Unit = {
     runner.reset
   }
 }

@@ -25,7 +25,7 @@ object TestUnparserGeneral {
   val testDir = "/org/apache/daffodil/section00/general/"
   val runner = Runner(testDir, "testUnparserGeneral.tdml")
 
-  @AfterClass def shutDown: Unit = {
+  @AfterClass def shutDown(): Unit = {
     runner.reset
   }
 }

@@ -31,7 +31,7 @@ class TestDataOutputStream2 {
    * BitBuffer tests
    */
 
-  @Test def testPutBitBufferDirect0_BE_MSBF: Unit = {
+  @Test def testPutBitBufferDirect0_BE_MSBF(): Unit = {
 
     val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val out = DirectOrBufferedDataOutputStream(baos, null, false, 4096, 2000 * (1 << 20), new File("."), Maybe.Nope)
@@ -51,7 +51,7 @@ class TestDataOutputStream2 {
 
   }
 
-  @Test def testPutBitBufferDirect1_BE_MSBF: Unit = {
+  @Test def testPutBitBufferDirect1_BE_MSBF(): Unit = {
 
     val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val out = DirectOrBufferedDataOutputStream(baos, null, false, 4096, 2000 * (1 << 20), new File("."), Maybe.Nope)
@@ -71,7 +71,7 @@ class TestDataOutputStream2 {
 
   }
 
-  @Test def testPutBitBufferDirect7_BE_MSBF: Unit = {
+  @Test def testPutBitBufferDirect7_BE_MSBF(): Unit = {
 
     val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val out = DirectOrBufferedDataOutputStream(baos, null, false, 4096, 2000 * (1 << 20), new File("."), Maybe.Nope)

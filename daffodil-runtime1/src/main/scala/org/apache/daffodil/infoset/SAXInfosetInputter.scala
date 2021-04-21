@@ -189,7 +189,7 @@ class SAXInfosetInputter(
 
   override val supportsNamespaces: Boolean = true
 
-  override def fini: Unit = {
+  override def fini(): Unit = {
     // do nothing
   }
 

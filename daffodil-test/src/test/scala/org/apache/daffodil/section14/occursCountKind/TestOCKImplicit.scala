@@ -29,7 +29,7 @@ object TestOCKImplicit {
   val testDir = "/org/apache/daffodil/section14/occursCountKind/"
   val runner = Runner(testDir, "ockImplicit.tdml")
 
-  @AfterClass def shutDown: Unit = {
+  @AfterClass def shutDown(): Unit = {
     runner.reset
   }
 

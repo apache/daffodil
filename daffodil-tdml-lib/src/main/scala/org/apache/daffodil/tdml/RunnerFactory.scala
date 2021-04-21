@@ -209,7 +209,7 @@ class Runner private (
    *  Call this from an @AfterClass method
    *  to drop any state (like the test suite object) so we don't leak
    */
-  def reset: Unit = {
+  def reset(): Unit = {
     // Note that we intentionally do not use getTS here for two reasons:
     //
     // 1) the DFDLTestSuite is lazily created only when a test is run--if no
@@ -234,7 +234,7 @@ class Runner private (
     debug
   }
 
-  def debug = {
+  def debug() = {
     getTS.setDebugging(true)
   }
 

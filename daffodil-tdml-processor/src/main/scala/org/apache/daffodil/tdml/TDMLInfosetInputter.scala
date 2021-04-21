@@ -129,7 +129,7 @@ class TDMLInfosetInputter(val scalaInputter: ScalaXMLInfosetInputter, others: Se
     others.foreach(_.next)
   }
 
-  override def fini: Unit = {
+  override def fini(): Unit = {
     scalaInputter.fini
     others.foreach(_.fini)
   }

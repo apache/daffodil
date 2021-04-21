@@ -25,7 +25,7 @@ object TestRegularExpressions {
   val testDir = "/org/apache/daffodil/section24/regular_expressions/"
   val runner = Runner(testDir, "RegularExpressions.tdml")
 
-  @AfterClass def shutDown: Unit = {
+  @AfterClass def shutDown(): Unit = {
     runner.reset
   }
 

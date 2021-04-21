@@ -98,14 +98,4 @@ trait DataStreamCommon {
    */
   def pastData(nBytesRequested: Int): ByteBuffer
   def futureData(nBytesRequested: Int): ByteBuffer
-
-  /**
-   * Called once after each parse operation to verify final invariants for
-   * the implementation.
-   *
-   * Use to perform checks such as that data structures held in pools are
-   * all returned before end of parse.
-   */
-  def validateFinalStreamState: Unit
-
 }

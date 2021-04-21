@@ -397,34 +397,31 @@ final class UStateForSuspension(
   override def withUnparserDataInputStream = mainUState.withUnparserDataInputStream
   override def withByteArrayOutputStream = mainUState.withByteArrayOutputStream
 
+  // $COVERAGE-OFF$
   override def advance: Boolean = die
   override def advanceAccessor: InfosetAccessor = die
   override def inspect: Boolean = die
   override def inspectAccessor: InfosetAccessor = die
-  override def fini: Unit = {
-    //do nothing
-  }
+  override def fini: Unit = die
   override def inspectOrError = die
   override def advanceOrError = die
   override def isInspectArrayEnd = die
-
   override def currentInfosetNodeStack = die
-  override def currentInfosetNodeMaybe = Maybe(currentInfosetNode)
-
   override def arrayIndexStack = die
   override def moveOverOneArrayIndexOnly() = die
-  override def arrayPos = occursIndex
-
   override def groupIndexStack = die
   override def moveOverOneGroupIndexOnly() = die
-  override def groupPos = 0 // was die, but this is called when copying state during debugging
-
   override def childIndexStack = die
   override def moveOverOneElementChildOnly() = die
-  override def childPos = 0 // was die, but this is called when copying state during debugging.
-
   override def pushDelimiters(node: DelimiterStackUnparseNode) = die
   override def popDelimiters() = die
+  // $COVERAGE-ON$
+
+  override def groupPos = 0 // was die, but this is called when copying state during debugging
+  override def currentInfosetNodeMaybe = Maybe(currentInfosetNode)
+  override def arrayPos = occursIndex
+  override def childPos = 0 // was die, but this is called when copying state during debugging.
+
   override def localDelimiters = delimiterStackMaybe.get.top
   override def allTerminatingMarkup = {
     delimiterStackMaybe.get.iterator.flatMap { dnode =>
@@ -543,8 +540,9 @@ final class UStateMain private (
   override def advanceAccessor: InfosetAccessor = inputter.advanceAccessor
   override def inspect: Boolean = inputter.inspect
   override def inspectAccessor: InfosetAccessor = inputter.inspectAccessor
-  override def fini: Unit = { inputter.fini }
-
+  // $COVERAGE-OFF$ // unused, but necessary to meet requirements of Cursor[T]
+  override def fini = Assert.usageError("Not to be used on UState")
+  // $COVERAGE-ON$
   /**
    * Use this so if there isn't an event we get a clean diagnostic message saying
    * that is what has gone wrong.

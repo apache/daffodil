@@ -96,7 +96,7 @@ trait Pool[T <: Poolable] {
    * This is to help find resource leaks where items are taken from
    * the pool, but then dropped.
    */
-  final def finalCheck: Unit = {
+  final def finalCheck(): Unit = {
     if (!(numOutstanding =#= 0)) {
       val msg = "Pool " + Misc.getNameFromClass(this) + " leaked " + numOutstanding + " instance(s)." +
         "\n" + inUse.map { item => "poolDebugLabel = " + item.poolDebugLabel }.mkString("\n")

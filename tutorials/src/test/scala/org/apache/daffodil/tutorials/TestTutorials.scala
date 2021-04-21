@@ -26,7 +26,7 @@ object TestTutorials {
   val runner4 = Runner("/", "tdmlTutorial.tdml.xml")
   val runner5 = Runner("/", "bugReportTemplate.tdml.xml")
 
-  @AfterClass def shutDown: Unit = {
+  @AfterClass def shutDown(): Unit = {
     runner1.reset
     runner4.reset
     runner5.reset

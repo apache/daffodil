@@ -511,10 +511,10 @@ abstract class ParseOrUnparseState protected (
 
   private var _hiddenDepth = 0
 
-  def incrementHiddenDef = {
+  def incrementHiddenDef(): Unit = {
     _hiddenDepth += 1
   }
-  def decrementHiddenDef = {
+  def decrementHiddenDef(): Unit = {
     _hiddenDepth -= 1
   }
 

@@ -29,7 +29,7 @@ import org.junit.AfterClass
 object TestTDMLRunner2 {
   val runner = Runner("/test/tdml/", "tdmlQuoting.tdml")
 
-  @AfterClass def shutDown: Unit = {
+  @AfterClass def shutDown(): Unit = {
     runner.reset
   }
 }

@@ -37,7 +37,7 @@ object TresysTests3 {
   val runnerBC = Runner(testDir, "BC.tdml")
   val runnerBD = Runner(testDir, "BD.tdml")
 
-  @AfterClass def shutDown: Unit = {
+  @AfterClass def shutDown(): Unit = {
     runnerBF.reset
     runnerAH.reset
     runnerAM.reset
