@@ -24,13 +24,24 @@
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:ex="http://example.com"
   xmlns:fn="http://www.w3.org/2005/xpath-functions"
-  xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions">
+  xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
+  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
+  defaultImplementations="daffodil ibm"
+  defaultConfig="cfg">
+
+  <tdml:defineConfig name="cfg">
+    <daf:tunables>
+      <daf:suppressSchemaDefinitionWarnings>
+        encodingErrorPolicyError
+      </daf:suppressSchemaDefinitionWarnings>
+    </daf:tunables>
+  </tdml:defineConfig>
 
   <tdml:defineSchema name="s1" elementFormDefault="unqualified">
 
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format
-      ref="ex:GeneralFormat"
+      ref="ex:GeneralFormatPortable"
       representation="text"
       lengthKind="delimited"
       separatorPosition="infix"/>
@@ -86,7 +97,13 @@
 
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="test_sep_anyEmpty_1" root="file2" model="s1">
+  <tdml:parserTestCase name="test_sep_anyEmpty_1" root="file2" model="s1"
+                       implementations="daffodil">
+    <!--
+      Test doesn't work on IBM. 'treatAsAbsent' behavior is the only thing
+      they support, so the initial empty element is never added to the infoset.
+      (This as of 2021-04-21)
+      -->
     <tdml:document>/a//</tdml:document>
 
     <tdml:infoset>
@@ -119,7 +136,7 @@
 
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format
-      ref="ex:GeneralFormat"
+      ref="ex:GeneralFormatPortable"
       representation="text"
       lengthKind="delimited"
       separatorPosition="infix"/>
@@ -173,11 +190,11 @@
 
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format
-      ref="ex:GeneralFormat"
+      ref="ex:GeneralFormatPortable"
       representation="text"
       lengthKind="delimited"
       separatorPosition="infix"
-      dfdlx:emptyElementParsePolicy="treatAsEmpty"/>
+      dfdlx:emptyElementParsePolicy="treatAsEmpty"/><!-- remove extension proerty for IBM cross tests -->
     <!--
     Note: dfdlx:emptyElementParsePolicy should become regular DFDL emptyElementParsePolicy
     once implemented in DAFFODIL-2496. The enum 'treatAsMissing' is renamed to 'treatAsAbsent'
@@ -211,7 +228,14 @@
 
   <!-- Test for DAFFODIL-2499. empty strings should not be creating empty elements here. -->
   <tdml:parserTestCase name="test_sep_ssp_never_1" root="file1" model="s3"
-                       implementations="daffodil ibm">
+                       implementations="ibm">
+    <!--
+      This test doesn't work on Daffodil due  to DAFFODIL-2499.
+
+      However, we enable it in the scala test driver (not commented out) but just
+      specify only the ibm implementation here, so that if cross testing this file
+      you will see that it works there.
+    -->
     <tdml:document>madonna,,,,,,,,,</tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -223,7 +247,11 @@
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="test_sep_ssp_never_2" root="file2" model="s3"
-                       implementations="daffodil ibm">
+                       implementations="daffodil">
+    <!--
+      This test doesn't work on IBM DFDL (as of 2021-04-21) because they
+      don't support emptyElementParsePolicy 'treatAsEmpty' behavior.
+    -->
     <tdml:document>madonna,,,,,,,,,</tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -250,11 +278,11 @@
 
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format
-      ref="ex:GeneralFormat"
+      ref="ex:GeneralFormatPortable"
       representation="text"
       lengthKind="delimited"
       separatorPosition="infix"
-      dfdlx:emptyElementParsePolicy="treatAsMissing"/>
+      dfdlx:emptyElementParsePolicy="treatAsMissing"/> <!-- remove extension proerty for IBM cross tests -->
     <!--
     Note: dfdlx:emptyElementParsePolicy should become regular DFDL emptyElementParsePolicy
     once implemented in DAFFODIL-2496. The enum 'treatAsMissing' is renamed to 'treatAsAbsent'
@@ -295,7 +323,7 @@
 
   <!-- Test for DAFFODIL-2499. empty strings should not be creating empty elements here. -->
   <tdml:parserTestCase name="test_sep_ssp_never_3" root="file1" model="s4"
-                       implementations="daffodil ibm">
+                       implementations="ibm">
     <tdml:document>madonna,,,,,,,,,</tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -307,8 +335,12 @@
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="test_sep_ssp_never_4" root="file2" model="s4"
-                       implementations="daffodil ibm">
+                       implementations="ibm">
     <tdml:document>madonna,,,,,,,,,</tdml:document>
+    <!--
+      When we cross test on IBM DFDL, this test passes, but the TDML runner doesn't
+      insist the error strings are found. Only that an error occurred.
+      -->
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
       <tdml:error>emptyElementParsePolicy</tdml:error>
