@@ -131,7 +131,7 @@ class MPState private () {
 
   val escapeSchemeEVCache = new MStackOfMaybe[EscapeSchemeParserHelper]
 
-  private def init: Unit = {
+  private def init(): Unit = {
     arrayIndexStack.push(1L)
     groupIndexStack.push(1L)
     childIndexStack.push(1L)

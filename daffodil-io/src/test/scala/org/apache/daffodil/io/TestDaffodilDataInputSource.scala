@@ -79,7 +79,7 @@ class TestInputStream extends java.io.InputStream {
 // expected
 class TestTestInputStream {
 
-  @Test def testTestInputStream1: Unit = {
+  @Test def testTestInputStream1(): Unit = {
     val is = new TestInputStream
     var i = 0
     while (i < 100) {
@@ -88,7 +88,7 @@ class TestTestInputStream {
     }
   }
   
-  @Test def testTestInputStream2: Unit = {
+  @Test def testTestInputStream2(): Unit = {
     val is = new TestInputStream
     val b = new Array[Byte](10)
     is.read(b)
@@ -99,7 +99,7 @@ class TestTestInputStream {
     }
   }
   
-  @Test def testTestInputStream3: Unit = {
+  @Test def testTestInputStream3(): Unit = {
     val is = new TestInputStream
     val b = new Array[Byte](10)
     is.read(b, 3, 3)
@@ -110,7 +110,7 @@ class TestTestInputStream {
     }
   }
 
-  @Test def testTestInputStream4: Unit = {
+  @Test def testTestInputStream4(): Unit = {
     val is = new TestInputStream
     is.setEOF(4)
     assertEquals(0, is.read)
@@ -120,7 +120,7 @@ class TestTestInputStream {
     assertEquals(-1, is.read)
   }
   
-  @Test def testTestInputStream5: Unit = {
+  @Test def testTestInputStream5(): Unit = {
     val is = new TestInputStream
     val b = new Array[Byte](10)
     is.setEOF(4)
@@ -131,7 +131,7 @@ class TestTestInputStream {
 
 class TestBucketingInputSource {
 
-  @Test def testBucketingInputSource1: Unit = {
+  @Test def testBucketingInputSource1(): Unit = {
     val tis = new TestInputStream
     val bis = new BucketingInputSource(tis, 17)
     var i = 0
@@ -143,7 +143,7 @@ class TestBucketingInputSource {
     }
   }
 
-  @Test def testBucketingInputSource2: Unit = {
+  @Test def testBucketingInputSource2(): Unit = {
     val tis = new TestInputStream
     val bis = new BucketingInputSource(tis, 7)
     val b = new Array[Byte](10)
@@ -162,7 +162,7 @@ class TestBucketingInputSource {
     assertEquals(20, bis.position())
   }
  
-  @Test def testBucketingInputSource3: Unit = {
+  @Test def testBucketingInputSource3(): Unit = {
     val tis = new TestInputStream
     val bis = new BucketingInputSource(tis, 7)
     val b = new Array[Byte](10)
@@ -179,7 +179,7 @@ class TestBucketingInputSource {
     }
   }
 
-  @Test def testBucketingInputSource4: Unit = {
+  @Test def testBucketingInputSource4(): Unit = {
     val tis = new TestInputStream
     val bis = new BucketingInputSource(tis, 7)
     tis.setEOF(4)
@@ -190,7 +190,7 @@ class TestBucketingInputSource {
     assertEquals(-1, bis.get)
   }
  
-  @Test def testBucketingInputSource5: Unit = {
+  @Test def testBucketingInputSource5(): Unit = {
     val tis = new TestInputStream
     val bis = new BucketingInputSource(tis, 7)
     val b = new Array[Byte](10)
@@ -205,7 +205,7 @@ class TestBucketingInputSource {
     assertEquals(-1, bis.get)
   }
 
-  @Test def testBucketingInputSource6: Unit = {
+  @Test def testBucketingInputSource6(): Unit = {
     val tis = new TestInputStream
     val bis = new BucketingInputSource(tis, 7)
     tis.setEOF(17)
@@ -224,7 +224,7 @@ class TestBucketingInputSource {
     assertEquals(-1, bis.get) 
   }
 
-  @Test def testBucketingInputSource7: Unit = {
+  @Test def testBucketingInputSource7(): Unit = {
     val tis = new TestInputStream
     val bis = new BucketingInputSource(tis, 7)
     tis.setEOF(17)
@@ -265,7 +265,7 @@ class TestByteBufferInputSource {
                          0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
                          0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
 
-  @Test def testByteBufferInputSource1: Unit = {
+  @Test def testByteBufferInputSource1(): Unit = {
     val bb = ByteBuffer.wrap(data)
     val bis = new ByteBufferInputSource(bb)
     var i = 0
@@ -278,7 +278,7 @@ class TestByteBufferInputSource {
     assertEquals(-1, bis.get)
   }
 
-  @Test def testByteBufferInputSource2: Unit = {
+  @Test def testByteBufferInputSource2(): Unit = {
     val bb = ByteBuffer.wrap(data)
     val bis = new ByteBufferInputSource(bb)
     val b = new Array[Byte](10)
@@ -297,7 +297,7 @@ class TestByteBufferInputSource {
     assertEquals(20, bis.position())
   }
 
-  @Test def testByteBufferInputSource3: Unit = {
+  @Test def testByteBufferInputSource3(): Unit = {
     val bb = ByteBuffer.wrap(data)
     val bis = new ByteBufferInputSource(bb)
     val b = new Array[Byte](10)
@@ -314,7 +314,7 @@ class TestByteBufferInputSource {
     }
   }
 
-  @Test def testByteBufferInputSource4: Unit = {
+  @Test def testByteBufferInputSource4(): Unit = {
     val bb = ByteBuffer.wrap(data, 0, 4)
     val bis = new ByteBufferInputSource(bb)
     assertEquals(0, bis.get)
@@ -324,7 +324,7 @@ class TestByteBufferInputSource {
     assertEquals(-1, bis.get)
   }
  
-  @Test def testByteBufferInputSource5: Unit = {
+  @Test def testByteBufferInputSource5(): Unit = {
     val bb = ByteBuffer.wrap(data, 0, 4)
     val bis = new ByteBufferInputSource(bb)
     val b = new Array[Byte](10)
@@ -338,7 +338,7 @@ class TestByteBufferInputSource {
     assertEquals(-1, bis.get)
   }
 
-  @Test def testByteBufferInputSource6: Unit = {
+  @Test def testByteBufferInputSource6(): Unit = {
     val bb = ByteBuffer.wrap(data, 0, 17)
     val bis = new ByteBufferInputSource(bb)
     var i = 0
@@ -356,7 +356,7 @@ class TestByteBufferInputSource {
     assertEquals(-1, bis.get) 
   }
 
-  @Test def testByteBufferInputSource7: Unit = {
+  @Test def testByteBufferInputSource7(): Unit = {
     val bb = ByteBuffer.wrap(data, 0, 17)
     val bis = new ByteBufferInputSource(bb)
     var i = 0

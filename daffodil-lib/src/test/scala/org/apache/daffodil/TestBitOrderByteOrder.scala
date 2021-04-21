@@ -18,13 +18,12 @@
 package org.apache.daffodil
 
 import org.junit.Assert.assertEquals
-import org.apache.daffodil.util._
 import org.junit.Test
 import org.apache.daffodil.util._
 
 class TestByteOrder {
 
-  @Test def testLittleEndianBitValue = {
+  @Test def testLittleEndianBitValue() = {
     var bsl = 13
     assertEquals(0x80, Bits.littleEndianBitValue(1, bsl))
     assertEquals(0x40, Bits.littleEndianBitValue(2, bsl))
@@ -49,7 +48,7 @@ class TestByteOrder {
 
 class TestBitOrder {
 
-  @Test def testAsLSBitFirst = {
+  @Test def testAsLSBitFirst() = {
     assertEquals(0x20, Bits.asLSBitFirst(0x04))
     assertEquals(0x80, Bits.asLSBitFirst(1))
     assertEquals(0xA5, Bits.asLSBitFirst(0xA5))

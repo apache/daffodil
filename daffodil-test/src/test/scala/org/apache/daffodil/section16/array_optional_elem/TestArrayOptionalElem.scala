@@ -30,7 +30,7 @@ object TestArrayOptionalElem {
   val rBack = Runner(testDir, "backtracking.tdml")
   val runnerAC = Runner(testDir, "ArrayComb.tdml")
 
-  @AfterClass def shutDown: Unit = {
+  @AfterClass def shutDown(): Unit = {
     runner.reset
     runner01.reset
     rBack.reset

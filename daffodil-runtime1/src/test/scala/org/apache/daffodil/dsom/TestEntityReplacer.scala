@@ -24,13 +24,13 @@ import org.apache.daffodil.cookers.EntityReplacer
 
 class TestEntityReplacer {
 
-  @Test def testEmptyString = {
+  @Test def testEmptyString() = {
     EntityReplacer { e =>
       assertEquals(e.replaceAll(""), "")
     }
   }
 
-  @Test def testEscapeScheme = {
+  @Test def testEscapeScheme() = {
     EntityReplacer { er =>
       val f1 = intercept[Exception] { er.replaceAll("Text%Text") }
       assertTrue(f1.getMessage().contains("Invalid DFDL Entity (%Text) found in \"Text%Text\"")) // Works basic case
@@ -43,7 +43,7 @@ class TestEntityReplacer {
     }
   }
 
-  @Test def testEntityReplacement = {
+  @Test def testEntityReplacement() = {
     EntityReplacer { er =>
       assertEquals("Text\u0000Text", { er.replaceAll("Text%NUL;Text") }) // Works basic case
 
@@ -53,7 +53,7 @@ class TestEntityReplacer {
     }
   }
 
-  @Test def testHexadecimalCodePointReplacement = {
+  @Test def testHexadecimalCodePointReplacement() = {
     EntityReplacer { er =>
       assertEquals("Text\u0000Text", { er.replaceAll("Text%#x0000;Text") }) // Works basic case
       assertEquals("Text\u0000Text\u000D", { er.replaceAll("Text%#x0000;Text%#x000D;") }) // Works multiple hex
@@ -63,7 +63,7 @@ class TestEntityReplacer {
     }
   }
 
-  @Test def testDecimalCodePointReplacement = {
+  @Test def testDecimalCodePointReplacement() = {
     EntityReplacer { er =>
       assertEquals("TextAText", { er.replaceAll("Text%#65;Text") }) // Works basic case
       assertEquals("TextAText", { er.replaceAll("Text%#0000000000065;Text") }) // Works basic case w/ padding
@@ -75,7 +75,7 @@ class TestEntityReplacer {
     }
   }
 
-  @Test def testRawByteReplacement = {
+  @Test def testRawByteReplacement() = {
     EntityReplacer { er =>
       assertEquals("ÿ", { er.replaceAll("%#rFF;") })
       assertEquals("ÿ ú", { er.replaceAll("%#rFF; %#rFA;") })
@@ -85,7 +85,7 @@ class TestEntityReplacer {
     }
   }
 
-  @Test def testInvalidDfdlEntities = {
+  @Test def testInvalidDfdlEntities() = {
     EntityReplacer { er =>
       val f1 = intercept[Exception] { { er.replaceAll("%#rTT;") } }
       assertTrue(f1.getMessage().contains("Invalid DFDL Entity (%#rTT;) found in \"%#rTT;\"")) // Verify fails: Raw Byte
@@ -101,7 +101,7 @@ class TestEntityReplacer {
     }
   }
 
-  @Test def testAll = {
+  @Test def testAll() = {
     EntityReplacer { er =>
       val testString = new StringBuilder
       testString.append("Text#%%Text")
@@ -125,7 +125,7 @@ class TestEntityReplacer {
     }
   }
 
-  @Test def testMultiplePercents = {
+  @Test def testMultiplePercents() = {
     EntityReplacer { er =>
       val testString1 = "Text1%%%%%%%%%%Text2"
       val solution1 = "Text1%%%%%Text2"
@@ -169,7 +169,7 @@ class TestEntityReplacer {
     }
   }
 
-  @Test def testMultipleSemicolons = {
+  @Test def testMultipleSemicolons() = {
     EntityReplacer { er =>
       val testString1 = "Text1;;;;;;;;;;Text2"
       val testString2 = ";Text1;;;;;;;;;;Text2"
@@ -192,7 +192,7 @@ class TestEntityReplacer {
     }
   }
 
-  @Test def testSemiColonSP = {
+  @Test def testSemiColonSP() = {
     EntityReplacer { er =>
       val testString = ";%SP;"
       assertEquals("; ", { er.replaceAll(testString) })

@@ -26,7 +26,7 @@ object TestUnions {
 
   val runner = Runner(testDir, "unions.tdml")
 
-  @AfterClass def shutdown: Unit = {
+  @AfterClass def shutdown(): Unit = {
     runner.reset
   }
 }

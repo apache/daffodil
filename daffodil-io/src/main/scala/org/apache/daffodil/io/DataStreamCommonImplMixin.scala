@@ -54,7 +54,7 @@ trait DataStreamCommonState {
   var maybeTrailingSurrogateForUTF8: MaybeChar = MaybeChar.Nope
   var priorBitPos: Long = 0L
 
-  def resetUTF8SurrogatePairCapture: Unit = {
+  def resetUTF8SurrogatePairCapture(): Unit = {
     this.priorBitPos = -1
   }
 

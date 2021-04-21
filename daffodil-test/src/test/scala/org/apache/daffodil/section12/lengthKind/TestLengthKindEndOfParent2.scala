@@ -25,7 +25,7 @@ object TestLengthKindEndOfParent2 {
   val testDir = "/org/apache/daffodil/section12/lengthKind/"
   val runner = Runner(testDir, "EndOfParentTests.tdml")
 
-  @AfterClass def shutDown: Unit = {
+  @AfterClass def shutDown(): Unit = {
     runner.reset
   }
 

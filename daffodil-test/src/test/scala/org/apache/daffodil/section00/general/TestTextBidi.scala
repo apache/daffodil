@@ -24,7 +24,7 @@ object TestTextBidi {
   val testDir = "/org/apache/daffodil/section00/general/"
   val runner = Runner(testDir, "testTextBidi.tdml")
 
-  @AfterClass def shutDown: Unit = {
+  @AfterClass def shutDown(): Unit = {
     runner.reset
   }
 }

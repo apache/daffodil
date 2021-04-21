@@ -26,7 +26,7 @@ object TestEncodings {
 
   val runner = Runner(testDir, "Encodings.tdml")
 
-  @AfterClass def shutdown: Unit = {
+  @AfterClass def shutdown(): Unit = {
     runner.reset
   }
 }

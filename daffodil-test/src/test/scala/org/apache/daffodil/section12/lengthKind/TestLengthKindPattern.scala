@@ -29,7 +29,7 @@ object TestLengthKindPattern {
 
   val runnerAI = Runner(testDir, "AI.tdml")
 
-  @AfterClass def shutDown: Unit = {
+  @AfterClass def shutDown(): Unit = {
     runner.reset
     runnerAI.reset
   }

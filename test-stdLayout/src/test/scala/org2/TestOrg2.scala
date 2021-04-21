@@ -25,7 +25,7 @@ object TestOrg2 {
   val runner = Runner("org2", "testSchemaFilesUnderSrcTest2.tdml")
   val runner2 = Runner("org2", "testEmbeddedSchema.tdml")
 
-  @AfterClass def shutDown: Unit = {
+  @AfterClass def shutDown(): Unit = {
     runner.reset
     runner2.reset
   }

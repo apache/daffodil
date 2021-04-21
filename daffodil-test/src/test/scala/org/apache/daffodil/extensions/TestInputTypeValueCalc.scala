@@ -29,7 +29,7 @@ object TestInputTypeValueCalc {
   val fnRunner = Runner(testDir, "typeCalcFunctions.tdml", validateTDMLFile = false)
   val fnErrRunner = Runner(testDir, "typeCalcFunctionErrors.tdml", validateTDMLFile = false)
 
-  @AfterClass def shutDown: Unit = {
+  @AfterClass def shutDown(): Unit = {
     runner.reset
     exprRunner.reset
     fnRunner.reset

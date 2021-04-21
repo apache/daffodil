@@ -76,7 +76,7 @@ class TestDataOutputStream4 {
     assertEquals(0x80.toByte, buf(7))
   }
 
-  @Test def testPutLong19FinishInOrderAbs: Unit = {
+  @Test def testPutLong19FinishInOrderAbs(): Unit = {
     val (baos, direct, out, out2) = setup()
 
     direct.setFinished(finfo)
@@ -87,7 +87,7 @@ class TestDataOutputStream4 {
 
   }
 
-  @Test def testPutLong19FinishOutOfOrder1Abs: Unit = {
+  @Test def testPutLong19FinishOutOfOrder1Abs(): Unit = {
     val (baos, direct, out, out2) = setup()
 
     out.setFinished(finfo)
@@ -98,7 +98,7 @@ class TestDataOutputStream4 {
 
   }
 
-  @Test def testPutLong19FinishOutOfOrder2Abs: Unit = {
+  @Test def testPutLong19FinishOutOfOrder2Abs(): Unit = {
     val (baos, direct, out, out2) = setup()
 
     out2.setFinished(finfo)
@@ -109,7 +109,7 @@ class TestDataOutputStream4 {
 
   }
 
-  @Test def testPutLong19FinishOutOfOrder3Abs: Unit = {
+  @Test def testPutLong19FinishOutOfOrder3Abs(): Unit = {
     val (baos, direct, out, out2) = setup()
 
     out2.setFinished(finfo)
@@ -120,7 +120,7 @@ class TestDataOutputStream4 {
 
   }
 
-  @Test def testPutLong19FinishInOrder: Unit = {
+  @Test def testPutLong19FinishInOrder(): Unit = {
     val (baos, direct, out, out2) = setup(false)
 
     direct.setFinished(finfo)
@@ -131,7 +131,7 @@ class TestDataOutputStream4 {
 
   }
 
-  @Test def testPutLong19FinishOutOfOrder1: Unit = {
+  @Test def testPutLong19FinishOutOfOrder1(): Unit = {
     val (baos, direct, out, out2) = setup(false)
 
     out.setFinished(finfo)
@@ -142,7 +142,7 @@ class TestDataOutputStream4 {
 
   }
 
-  @Test def testPutLong19FinishOutOfOrder2: Unit = {
+  @Test def testPutLong19FinishOutOfOrder2(): Unit = {
     val (baos, direct, out, out2) = setup(false)
 
     out2.setFinished(finfo)
@@ -153,7 +153,7 @@ class TestDataOutputStream4 {
 
   }
 
-  @Test def testPutLong19FinishOutOfOrder3: Unit = {
+  @Test def testPutLong19FinishOutOfOrder3(): Unit = {
     val (baos, direct, out, out2) = setup(false)
 
     out2.setFinished(finfo)

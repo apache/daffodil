@@ -47,7 +47,7 @@ class TestDirectOrBufferedDataOutputStream {
    * Tests that the toString method doesn't throw. Can't even use a debugger
    * if that happens.
    */
-  @Test def testToStringDoesNotThrow: Unit = {
+  @Test def testToStringDoesNotThrow(): Unit = {
     val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val layered = newDirectOrBufferedDataOutputStream(baos, null)
     assertFalse(layered.toString().isEmpty())
@@ -55,7 +55,7 @@ class TestDirectOrBufferedDataOutputStream {
 
   val finfo = FormatInfoForUnitTest()
 
-  @Test def testCollapsingBufferIntoDirect1: Unit = {
+  @Test def testCollapsingBufferIntoDirect1(): Unit = {
 
     val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val layered = newDirectOrBufferedDataOutputStream(baos, null)
@@ -82,7 +82,7 @@ class TestDirectOrBufferedDataOutputStream {
 
   }
 
-  @Test def testCollapsingFinishedBufferIntoLayered: Unit = {
+  @Test def testCollapsingFinishedBufferIntoLayered(): Unit = {
 
     val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val layered = newDirectOrBufferedDataOutputStream(baos, null)
@@ -111,7 +111,7 @@ class TestDirectOrBufferedDataOutputStream {
 
   }
 
-  @Test def testCollapsingTwoBuffersIntoDirect: Unit = {
+  @Test def testCollapsingTwoBuffersIntoDirect(): Unit = {
 
     val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val layered = newDirectOrBufferedDataOutputStream(baos, null)

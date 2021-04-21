@@ -83,6 +83,4 @@ final class StringDataInputStreamForUnparse
   override def hasData: Boolean = doNotUse
   override def skip(nBits: Long, finfo: FormatInfo): Boolean = doNotUse
   override def resetBitLimit0b(savedBitLimit0b: MaybeULong): Unit = doNotUse
-  // $COVERAGE-ON$
-  override def validateFinalStreamState: Unit = {} // does nothing
 }

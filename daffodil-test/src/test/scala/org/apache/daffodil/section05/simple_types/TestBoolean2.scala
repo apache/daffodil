@@ -26,7 +26,7 @@ object TestBoolean2 {
 
   val runner = Runner(testDir, "Boolean.tdml")
 
-  @AfterClass def shutdown: Unit = {
+  @AfterClass def shutdown(): Unit = {
     runner.reset
   }
 }

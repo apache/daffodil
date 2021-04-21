@@ -26,7 +26,7 @@ import java.math.RoundingMode
 
 class TestRounding {
 
-  @Test def test_howToRoundFloatingPoint = {
+  @Test def test_howToRoundFloatingPoint() = {
     //
     // We ran into an issue where just passing the Float
     // to BigDecimal would change the value passed to it.

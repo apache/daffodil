@@ -191,7 +191,7 @@ abstract class InputSource {
   final def areDebugging: Boolean = _debugging
   final def isValid: Boolean = _isValid
 
-  final def setInvalid: Unit = { _isValid = false }
+  final def setInvalid(): Unit = { _isValid = false }
   final def setDebugging(setting: Boolean): Unit = _debugging = setting
 }
 

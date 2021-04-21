@@ -30,7 +30,7 @@ class TestInputSourceDataInputStream2 {
   val twenty = twentyDigits.getBytes("utf-8")
   val finfo = FormatInfoForUnitTest()
 
-  @Test def testMark1: Unit = {
+  @Test def testMark1(): Unit = {
     val dis = InputSourceDataInputStream(ten)
     val m1 = dis.mark("testMark1")
     var arr = dis.getByteArray(80, finfo)
@@ -52,7 +52,7 @@ class TestInputSourceDataInputStream2 {
     assertEquals(10, dis.bytePos0b)
   }
 
-  @Test def testMark2: Unit = {
+  @Test def testMark2(): Unit = {
     val dis = InputSourceDataInputStream(twenty)
     var m1: DataInputStream.Mark = null
     dis.withBitLengthLimit(5 * 8) {
@@ -86,7 +86,7 @@ class TestInputSourceDataInputStream2 {
     assertEquals(10, dis.bytePos0b)
   }
 
-  @Test def testMark3: Unit = {
+  @Test def testMark3(): Unit = {
     val dis = InputSourceDataInputStream(twenty).asInstanceOf[InputSourceDataInputStream]
     dis.setBitLimit0b(MaybeULong(5 * 8))
     var arr = dis.getByteArray(5 * 8, finfo)

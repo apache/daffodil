@@ -25,7 +25,7 @@ object TestLookAhead {
 
   val runner = Runner(testDir, "lookAhead.tdml", validateTDMLFile = true)
 
-  @AfterClass def shutDown: Unit = {
+  @AfterClass def shutDown(): Unit = {
     runner.reset
   }
 

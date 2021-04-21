@@ -28,7 +28,7 @@ object TestOutputValueCalc {
   val runner2 = Runner(testDir, "outputValueCalc2.tdml")
   val runner3 = Runner(testDir, "outputValueCalc3.tdml")
 
-  @AfterClass def shutdown: Unit = {
+  @AfterClass def shutdown(): Unit = {
     runner.reset
     runner2.reset
     runner3.reset

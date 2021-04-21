@@ -23,7 +23,7 @@ import org.junit.{AfterClass, Test}
 object TestBoolean {
   val runner = Runner("/org/apache/daffodil/section13/boolean/", "boolean.tdml")
 
-  @AfterClass def shutdown: Unit = { runner.reset }
+  @AfterClass def shutdown(): Unit = { runner.reset }
 
 }
 

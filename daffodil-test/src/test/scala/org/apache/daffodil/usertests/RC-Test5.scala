@@ -26,7 +26,7 @@ object RCTest5 {
   val runner = Runner(testDir, "test-5.tdml.xml")
   val runner6 = Runner(testDir, "test-6.tdml.xml")
 
-  @AfterClass def shutDown: Unit = {
+  @AfterClass def shutDown(): Unit = {
     runner.reset
     runner6.reset
   }

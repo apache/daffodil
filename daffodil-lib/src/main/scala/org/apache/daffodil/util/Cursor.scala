@@ -116,7 +116,7 @@ trait Cursor[AccessorType <: Accessor[AccessorType]] {
    * Cause this cursor to finish and cleanup anything that may be necessary,
    * regardless of if it is complete or not
    */
-  def fini: Unit
+  def fini(): Unit
 }
 
 trait CursorImplMixin[AccessorType <: Accessor[AccessorType]]

@@ -138,7 +138,7 @@ class JsonInfosetInputter private (input: Either[java.io.Reader, java.io.InputSt
     }
   }
 
-  override def fini: Unit = {
+  override def fini(): Unit = {
     jsp.close()
   }
 

@@ -25,7 +25,7 @@ object TestUdfsInSchemas {
 
   val runner = Runner(testDir, "udfs.tdml", validateTDMLFile = true)
 
-  @AfterClass def shutDown: Unit = {
+  @AfterClass def shutDown(): Unit = {
     runner.reset
   }
 

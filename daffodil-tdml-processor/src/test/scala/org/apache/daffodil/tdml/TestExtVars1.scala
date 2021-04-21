@@ -24,7 +24,7 @@ object TestExtVars1 {
   val testDir = "org/apache/daffodil/tdml/"
   val runner = Runner(testDir, "testExtVars1.tdml")
 
-  @AfterClass def shutDown: Unit = {
+  @AfterClass def shutDown(): Unit = {
     runner.reset
   }
 }

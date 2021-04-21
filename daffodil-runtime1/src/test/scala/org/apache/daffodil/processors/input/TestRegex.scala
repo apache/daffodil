@@ -33,7 +33,7 @@ class TestRegex extends RegexParsers {
   override def skipWhitespace = skipWS
   var skipWS = false // assign this to turn on/off whitespace skipping.
 
-  @Test def testEscapeRemoval_Blocks = {
+  @Test def testEscapeRemoval_Blocks() = {
     // Assumptions:
     //	1. Delimiter and padding removed
     //	2. Valid start-end blocks were already removed
@@ -66,7 +66,7 @@ class TestRegex extends RegexParsers {
     assertEquals("blah1ETblah2", test(removeEscapes, "blah1ETblah2"))
   }
 
-  @Test def testEscapeRemoval_SameCharacter = {
+  @Test def testEscapeRemoval_SameCharacter() = {
     // This might not be possible using regex replacement
     // may have to stick with existing code in DelimParser
     //
@@ -112,7 +112,7 @@ class TestRegex extends RegexParsers {
     assertEquals("text1text2", test("text1Etext2"))
   }
 
-  @Test def testEscapeRemoval_DiffCharacter = {
+  @Test def testEscapeRemoval_DiffCharacter() = {
     // Assumptions:
     //	1. Delimiter and padding removed
     //
@@ -146,7 +146,7 @@ class TestRegex extends RegexParsers {
   }
 
   // Need to capture everything to get length of parsed data
-  @Test def testParser_CaptureEverything = {
+  @Test def testParser_CaptureEverything() = {
     var testNum = 0
     def test(theParser: Parser[(Vector[String], String)], theInput: String, isPadLeft: Boolean, isPadRight: Boolean) = {
       testNum = testNum + 1
@@ -221,7 +221,7 @@ class TestRegex extends RegexParsers {
   }
 
   // Need to capture everything to get length of parsed data
-  @Test def testParserEscapeSchemes_DiffEscapesWithPaddingCapturesEverything = {
+  @Test def testParserEscapeSchemes_DiffEscapesWithPaddingCapturesEverything() = {
     var testNum = 0
     def test(theParser: Parser[(Vector[String], String)], theInput: String, isPadLeft: Boolean, isPadRight: Boolean) = {
       testNum = testNum + 1
@@ -320,7 +320,7 @@ class TestRegex extends RegexParsers {
   }
 
   // Need to capture everything
-  @Test def testParserEscapeSchemes_BlockEscapeWithPaddingCapturesEverything = {
+  @Test def testParserEscapeSchemes_BlockEscapeWithPaddingCapturesEverything() = {
     var testNum = 0
     def test(theParser: Parser[(Vector[String], String)], theInput: String, isPadLeft: Boolean, isPadRight: Boolean) = {
       testNum = testNum + 1
@@ -422,7 +422,7 @@ class TestRegex extends RegexParsers {
     //    assertEquals(Some("before1SNbefore2PP", ""), test(content, "Tbefore1SNbefore2PPN", false, false))
   }
 
-  @Test def testParserEscapeSchemes_BlockEscapeWithPadding = {
+  @Test def testParserEscapeSchemes_BlockEscapeWithPadding() = {
     var testNum = 0
     def test(theParser: Parser[(String, String)], theInput: String) = {
       testNum = testNum + 1
@@ -490,7 +490,7 @@ class TestRegex extends RegexParsers {
     assertEquals(Some("before1SNbefore2PP", ""), test(content, "Tbefore1SNbefore2PPN"))
   }
 
-  @Test def testParserEscapeSchemes_SameEscapeWithPadding = {
+  @Test def testParserEscapeSchemes_SameEscapeWithPadding() = {
     var testNum = 0
     def test(theParser: Parser[(String, String)], theInput: String) = {
       testNum = testNum + 1
@@ -745,7 +745,7 @@ class TestRegex extends RegexParsers {
     assertEquals(Some("EPPPbeforeE", "D"), test(contentCenterDelimReq, "EPPPbeforeEPPPDafter1Dafter2"))
   }
 
-  @Test def testParserEscapeSchemes_DiffEscapesWithPadding = {
+  @Test def testParserEscapeSchemes_DiffEscapesWithPadding() = {
     var testNum = 0
     def test(theParser: Parser[(String, String)], theInput: String) = {
       testNum = testNum + 1
@@ -969,7 +969,7 @@ class TestRegex extends RegexParsers {
     assertEquals(Some("beforePPPSE", "D"), test(contentRight, "PPPbeforePPPSEDstillbeforePPPDafter"))
   }
 
-  //  @Test def testParserEscapeSchemes_SameEscapeWithPadding = {
+  //  @Test def testParserEscapeSchemes_SameEscapeWithPadding() = {
   //    var testNum = 0
   //    def test(theParser: Parser[(String, String)], theInput: String) = {
   //      testNum = testNum + 1
@@ -1136,7 +1136,7 @@ class TestRegex extends RegexParsers {
   //    //      val ContentPattern = str.format(escape, delimiter, padChar).r
   //  }
 
-  //  @Test def testParserEscapeSchemes_DiffEscapesWithPadding = {
+  //  @Test def testParserEscapeSchemes_DiffEscapesWithPadding() = {
   //    var testNum = 0
   //    def test(theParser: Parser[(String, String)], theInput: String) = {
   //      testNum = testNum + 1
@@ -1254,7 +1254,7 @@ class TestRegex extends RegexParsers {
   //    assertEquals(Some("beforePPPSE", "D"), test(contentRightJustified, "PPPbeforePPPSEDstillbeforePPPDafter"))
   //  }
 
-  //  @Test def testParserEscapeSchemes = {
+  //  @Test def testParserEscapeSchemes() = {
   //    //                escEsc     esc       delim        padChar
   //    //val test = tester("""S""", """E""", """\_*D\_*""", """P""") // put any regex in there for the delimiter
   //    val escapeEscape = """S"""

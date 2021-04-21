@@ -26,7 +26,7 @@ object TestTextNumberPropsUnparse {
 
   val runner = Runner(testDir, "TextNumberPropsUnparse.tdml")
 
-  @AfterClass def shutDown: Unit = {
+  @AfterClass def shutDown(): Unit = {
     runner.reset
   }
 }

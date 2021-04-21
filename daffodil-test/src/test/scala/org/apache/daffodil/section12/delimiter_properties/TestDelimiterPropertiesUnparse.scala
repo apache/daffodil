@@ -26,7 +26,7 @@ object TestDelimiterPropertiesUnparse {
   val testDir_02 = "/org/apache/daffodil/section12/delimiter_properties/"
   val runner = Runner(testDir_02, "DelimiterPropertiesUnparse.tdml")
 
-  @AfterClass def shutDown: Unit = {
+  @AfterClass def shutDown(): Unit = {
     runner.reset
   }
 

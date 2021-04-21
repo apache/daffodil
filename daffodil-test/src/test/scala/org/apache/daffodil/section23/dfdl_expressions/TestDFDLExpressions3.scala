@@ -26,7 +26,7 @@ object TestDFDLExpressions3 {
   val testDir = "org/apache/daffodil/section23/dfdl_expressions/"
   val runner = Runner(testDir, "expressions3.tdml")
 
-  @AfterClass def shutdown = {
+  @AfterClass def shutDown() = {
     runner.reset
   }
 }

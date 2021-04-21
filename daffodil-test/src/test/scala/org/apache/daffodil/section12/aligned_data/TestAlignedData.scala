@@ -26,7 +26,7 @@ object TestAlignedData {
   val runner1 = Runner(testDir_01, "Aligned_Data.tdml")
   val runner2 = Runner(testDir_01, "BinaryInput_01.tdml")
 
-  @AfterClass def shutDown: Unit = {
+  @AfterClass def shutDown(): Unit = {
     runner1.reset
     runner2.reset
   }

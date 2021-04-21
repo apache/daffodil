@@ -64,21 +64,21 @@ object TestDFDLExpressions {
 class TestDFDLExpressions {
   import TestDFDLExpressions._
 
-  @Test def test_variableRefError: Unit = { runner4.runOneTest("variableRefError") }
+  @Test def test_variableRefError(): Unit = { runner4.runOneTest("variableRefError") }
 
-  @Test def test_byteOrderExpr1: Unit = { runner4.runOneTest("byteOrderExpr1") }
-  @Test def test_byteOrderExpr1b: Unit = { runner4.runOneTest("byteOrderExpr1b") }
-  @Test def test_byteOrderExpr2: Unit = { runner4.runOneTest("byteOrderExpr2") }
-  @Test def test_byteOrderExpr2b: Unit = { runner4.runOneTest("byteOrderExpr2b") }
-  @Test def test_byteOrderExpr3: Unit = { runner4.runOneTest("byteOrderExpr3") }
-  @Test def test_byteOrderExpr4: Unit = { runner4.runOneTest("byteOrderExpr4") }
-  @Test def test_byteOrderExpr5: Unit = { runner4.runOneTest("byteOrderExpr5") }
-  @Test def test_byteOrderExpr6: Unit = { runner4.runOneTest("byteOrderExpr6") }
-  @Test def test_byteOrderExpr7: Unit = { runner4.runOneTest("byteOrderExpr7") }
-  @Test def test_byteOrderExpr7b: Unit = { runner4.runOneTest("byteOrderExpr7b") }
-  @Test def test_byteOrderExpr7c: Unit = { runner4.runOneTest("byteOrderExpr7c") }
-  @Test def test_byteOrderExpr8: Unit = { runner4.runOneTest("byteOrderExpr8") }
-  @Test def test_byteOrderExpr9: Unit = { runner4.runOneTest("byteOrderExpr9") }
+  @Test def test_byteOrderExpr1(): Unit = { runner4.runOneTest("byteOrderExpr1") }
+  @Test def test_byteOrderExpr1b(): Unit = { runner4.runOneTest("byteOrderExpr1b") }
+  @Test def test_byteOrderExpr2(): Unit = { runner4.runOneTest("byteOrderExpr2") }
+  @Test def test_byteOrderExpr2b(): Unit = { runner4.runOneTest("byteOrderExpr2b") }
+  @Test def test_byteOrderExpr3(): Unit = { runner4.runOneTest("byteOrderExpr3") }
+  @Test def test_byteOrderExpr4(): Unit = { runner4.runOneTest("byteOrderExpr4") }
+  @Test def test_byteOrderExpr5(): Unit = { runner4.runOneTest("byteOrderExpr5") }
+  @Test def test_byteOrderExpr6(): Unit = { runner4.runOneTest("byteOrderExpr6") }
+  @Test def test_byteOrderExpr7(): Unit = { runner4.runOneTest("byteOrderExpr7") }
+  @Test def test_byteOrderExpr7b(): Unit = { runner4.runOneTest("byteOrderExpr7b") }
+  @Test def test_byteOrderExpr7c(): Unit = { runner4.runOneTest("byteOrderExpr7c") }
+  @Test def test_byteOrderExpr8(): Unit = { runner4.runOneTest("byteOrderExpr8") }
+  @Test def test_byteOrderExpr9(): Unit = { runner4.runOneTest("byteOrderExpr9") }
 
   //DFDL-1111
   //@Test def test_diagnostics_01() { runner.runOneTest("diagnostics_01") }
@@ -976,53 +976,53 @@ class TestDFDLExpressions {
   @Test def test_array_index_relative_path_subexpression_01(): Unit = { runner.runOneTest("array_index_relative_path_subexpression_01") }
 
   //DFDL-1702
-  @Test def test_mathPow01: Unit = { runner2.runOneTest("mathPow01") }
-  @Test def test_mathPow02: Unit = { runner2.runOneTest("mathPow02") }
-  @Test def test_mathPow03: Unit = { runner2.runOneTest("mathPow03") }
-  @Test def test_mathPow04: Unit = { runner2.runOneTest("mathPow04") }
-  @Test def test_mathPow05: Unit = { runner2.runOneTest("mathPow05") }
-  @Test def test_mathPow06: Unit = { runner2.runOneTest("mathPow06") }
-  @Test def test_mathPow07: Unit = { runner2.runOneTest("mathPow07") }
-  @Test def test_mathPow08: Unit = { runner2.runOneTest("mathPow08") }
-  @Test def test_mathPow09: Unit = { runner2.runOneTest("mathPow09") }
-  @Test def test_mathPow10: Unit = { runner2.runOneTest("mathPow10") }
-  @Test def test_mathPow11: Unit = { runner2.runOneTest("mathPow11") }
-  @Test def test_mathPow12: Unit = { runner2.runOneTest("mathPow12") }
-  @Test def test_mathPow13: Unit = { runner2.runOneTest("mathPow13") }
-  @Test def test_mathPow14: Unit = { runner2.runOneTest("mathPow14") }
-  @Test def test_mathPow15: Unit = { runner2.runOneTest("mathPow15") }
-  @Test def test_mathPow16: Unit = { runner2.runOneTest("mathPow16") }
-  @Test def test_mathPow17: Unit = { runner2.runOneTest("mathPow17") }
-  @Test def test_mathPow18: Unit = { runner2.runOneTest("mathPow18") }
-  @Test def test_mathPow19: Unit = { runner2.runOneTest("mathPow19") }
-  @Test def test_mathPow20: Unit = { runner2.runOneTest("mathPow20") }
-  @Test def test_mathPow21: Unit = { runner2.runOneTest("mathPow21") }
-  @Test def test_mathPow22: Unit = { runner2.runOneTest("mathPow22") }
-  @Test def test_mathPow23: Unit = { runner2.runOneTest("mathPow23") }
-  @Test def test_mathPow24: Unit = { runner2.runOneTest("mathPow24") }
-  @Test def test_mathPow25: Unit = { runner2.runOneTest("mathPow25") }
-  @Test def test_mathPow26: Unit = { runner2.runOneTest("mathPow26") }
-  @Test def test_mathPow27: Unit = { runner2.runOneTest("mathPow27") }
-  @Test def test_mathPow28: Unit = { runner2.runOneTest("mathPow28") }
-  @Test def test_mathPow29: Unit = { runner2.runOneTest("mathPow29") }
-  @Test def test_mathPow30: Unit = { runner2.runOneTest("mathPow30") }
-  @Test def test_mathPow31: Unit = { runner2.runOneTest("mathPow31") }
-  @Test def test_mathPow32: Unit = { runner2.runOneTest("mathPow32") }
-  @Test def test_mathPow33: Unit = { runner2.runOneTest("mathPow33") }
-  @Test def test_mathPow34: Unit = { runner2.runOneTest("mathPow34") }
+  @Test def test_mathPow01(): Unit = { runner2.runOneTest("mathPow01") }
+  @Test def test_mathPow02(): Unit = { runner2.runOneTest("mathPow02") }
+  @Test def test_mathPow03(): Unit = { runner2.runOneTest("mathPow03") }
+  @Test def test_mathPow04(): Unit = { runner2.runOneTest("mathPow04") }
+  @Test def test_mathPow05(): Unit = { runner2.runOneTest("mathPow05") }
+  @Test def test_mathPow06(): Unit = { runner2.runOneTest("mathPow06") }
+  @Test def test_mathPow07(): Unit = { runner2.runOneTest("mathPow07") }
+  @Test def test_mathPow08(): Unit = { runner2.runOneTest("mathPow08") }
+  @Test def test_mathPow09(): Unit = { runner2.runOneTest("mathPow09") }
+  @Test def test_mathPow10(): Unit = { runner2.runOneTest("mathPow10") }
+  @Test def test_mathPow11(): Unit = { runner2.runOneTest("mathPow11") }
+  @Test def test_mathPow12(): Unit = { runner2.runOneTest("mathPow12") }
+  @Test def test_mathPow13(): Unit = { runner2.runOneTest("mathPow13") }
+  @Test def test_mathPow14(): Unit = { runner2.runOneTest("mathPow14") }
+  @Test def test_mathPow15(): Unit = { runner2.runOneTest("mathPow15") }
+  @Test def test_mathPow16(): Unit = { runner2.runOneTest("mathPow16") }
+  @Test def test_mathPow17(): Unit = { runner2.runOneTest("mathPow17") }
+  @Test def test_mathPow18(): Unit = { runner2.runOneTest("mathPow18") }
+  @Test def test_mathPow19(): Unit = { runner2.runOneTest("mathPow19") }
+  @Test def test_mathPow20(): Unit = { runner2.runOneTest("mathPow20") }
+  @Test def test_mathPow21(): Unit = { runner2.runOneTest("mathPow21") }
+  @Test def test_mathPow22(): Unit = { runner2.runOneTest("mathPow22") }
+  @Test def test_mathPow23(): Unit = { runner2.runOneTest("mathPow23") }
+  @Test def test_mathPow24(): Unit = { runner2.runOneTest("mathPow24") }
+  @Test def test_mathPow25(): Unit = { runner2.runOneTest("mathPow25") }
+  @Test def test_mathPow26(): Unit = { runner2.runOneTest("mathPow26") }
+  @Test def test_mathPow27(): Unit = { runner2.runOneTest("mathPow27") }
+  @Test def test_mathPow28(): Unit = { runner2.runOneTest("mathPow28") }
+  @Test def test_mathPow29(): Unit = { runner2.runOneTest("mathPow29") }
+  @Test def test_mathPow30(): Unit = { runner2.runOneTest("mathPow30") }
+  @Test def test_mathPow31(): Unit = { runner2.runOneTest("mathPow31") }
+  @Test def test_mathPow32(): Unit = { runner2.runOneTest("mathPow32") }
+  @Test def test_mathPow33(): Unit = { runner2.runOneTest("mathPow33") }
+  @Test def test_mathPow34(): Unit = { runner2.runOneTest("mathPow34") }
 
   // DFDL-1771
-  @Test def test_expr_path_past_root1: Unit = { runner7.runOneTest("test_expr_path_past_root1") }
+  @Test def test_expr_path_past_root1(): Unit = { runner7.runOneTest("test_expr_path_past_root1") }
 
   // DFDL-1804
-  @Test def test_traceComplex: Unit = { runner7.runOneTest("traceComplex") }
+  @Test def test_traceComplex(): Unit = { runner7.runOneTest("traceComplex") }
 
   //DFDL-1076
   @Test def test_nilled_01(): Unit = { runner2.runOneTest("nilled_01") }
 
   // DFDL-1617 - should detect errors due to query-style expressions
-  @Test def test_query_style_01: Unit = { runner6.runOneTest("query_style_01") }
-  @Test def test_query_style_02: Unit = { runner6.runOneTest("query_style_02") }
+  @Test def test_query_style_01(): Unit = { runner6.runOneTest("query_style_01") }
+  @Test def test_query_style_02(): Unit = { runner6.runOneTest("query_style_02") }
 
   //DFDL-1221
   @Test def test_beyondRoot_01(): Unit = { runner.runOneTest("beyondRoot_01") }

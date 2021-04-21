@@ -35,7 +35,7 @@ import org.apache.daffodil.util._
 
 object Tak {
 
-  def calibrate = {
+  def calibrate() = {
     if (takeons == 0.0) {
       testTak
     }
@@ -57,7 +57,7 @@ object Tak {
       z
   }
 
-  def testTak: Unit = {
+  def testTak(): Unit = {
     println("Calibrating takeon units")
     callCount = 0
     val nanos = Timer.getTimeNS { tak(21, 3, 21) }
@@ -68,7 +68,9 @@ object Tak {
     println("Done calibrating")
   }
 
+  // $COVERAGE-OFF$ // not part of any unit testing
   def main(args: Array[String]): Unit = {
-    testTak
+    testTak()
   }
+  // $COVERAGE-ON$
 }

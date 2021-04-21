@@ -25,7 +25,7 @@ object TestSequenceGroupInitiatedContent {
   val testDir_01 = "/org/apache/daffodil/section14/sequence_groups/"
   val runner_01 = Runner(testDir_01, "SequenceGroupInitiatedContent.tdml")
 
-  @AfterClass def shutDown: Unit = {
+  @AfterClass def shutDown(): Unit = {
     runner_01.reset
   }
 

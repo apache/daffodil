@@ -31,7 +31,7 @@ object TestNamespaces {
   val runner3 = Runner(testDir, "includeImport.tdml")
   val runnerWithSchemaValidation = Runner(testDir, "multiFile.tdml", validateTDMLFile = true, validateDFDLSchemas = true)
 
-  @AfterClass def shutDown: Unit = {
+  @AfterClass def shutDown(): Unit = {
     runner.reset
     runnerV.reset
     runner2.reset

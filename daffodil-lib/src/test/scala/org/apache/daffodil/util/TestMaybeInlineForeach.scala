@@ -65,7 +65,7 @@ final class TestMaybeInlineForeach {
    */
   @inline private def limit = 1000000000L // 50000000000L runs for about a minute
 
-  def testForeach: Unit = {
+  def testForeach(): Unit = {
     var i: Long = 0
     while (i < limit) {
       i += 1
@@ -73,7 +73,7 @@ final class TestMaybeInlineForeach {
     }
   }
 
-  def testIfDefined: Unit = {
+  def testIfDefined(): Unit = {
     var i: Long = 0
     i = 0
     while (i < limit) {
@@ -82,7 +82,7 @@ final class TestMaybeInlineForeach {
     }
   }
 
-  def testIfNull: Unit = {
+  def testIfNull(): Unit = {
     var i: Long = 0
     i = 0
     while (i < limit) {
@@ -97,7 +97,7 @@ final class TestMaybeInlineForeach {
    * but there's no point waiting 2 seconds for this test to run all the time.
    */
   // @Test
-  def testForeachVersusIfDefined: Unit = {
+  def testForeachVersusIfDefined(): Unit = {
     val foreachNanos: Double = time(testForeach)
     val ifDefinedNanos: Double = time(testIfDefined)
     val ifNullNanos: Double = time(testIfNull)

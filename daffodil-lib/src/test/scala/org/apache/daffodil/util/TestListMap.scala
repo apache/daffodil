@@ -32,7 +32,7 @@ class TestListMap {
    * practice, it is implemented as a linked list that does maintain order.
    * This test ensures that this behavior does not change.
    */
-  @Test def test_listMap = {
+  @Test def test_listMap() = {
     val orig = Random.shuffle((0 until 1000).toList)
     val mt: ListMap[Int, String] = ListMap.empty
     val listMap: ListMap[Int, String] = orig.foldLeft(mt) {

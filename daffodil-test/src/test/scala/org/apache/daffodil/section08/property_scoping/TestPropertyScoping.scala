@@ -26,7 +26,7 @@ object TestPropertyScoping {
   val runner = Runner(testDir, "PropertyScoping.tdml")
   val runner_01 = Runner(testDir, "PropertyScoping_01.tdml")
 
-  @AfterClass def shutDown: Unit = {
+  @AfterClass def shutDown(): Unit = {
     runner.reset
     runner_01.reset
   }

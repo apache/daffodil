@@ -153,7 +153,7 @@ class XMLTextInfosetInputter private (input: Either[java.io.Reader, java.io.Inpu
     res
   }
 
-  override def fini: Unit = {
+  override def fini(): Unit = {
     xsr.close()
   }
 

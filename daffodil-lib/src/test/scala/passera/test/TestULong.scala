@@ -33,7 +33,7 @@ import java.math.{ BigInteger => JBigInt }
 
 class TestULong {
 
-  @Test def testULongToString1: Unit = {
+  @Test def testULongToString1(): Unit = {
     val mm1 = ULong(-1L)
     assertEquals("FFFFFFFFFFFFFFFF", mm1.toHexString.toUpperCase)
     assertEquals(ULong.MaxValueAsBigInt, mm1.toBigInt)
@@ -42,7 +42,7 @@ class TestULong {
   }
 
   // DAFFODIL-1714
-  @Test def testULongModulus1: Unit = {
+  @Test def testULongModulus1(): Unit = {
     for (i <- 0 to 16 ) {
       val numerator = ULong(i)
       val denominator = ULong(8)
@@ -51,20 +51,20 @@ class TestULong {
     }
   }
 
-  @Test def testULongModulus2: Unit = {
+  @Test def testULongModulus2(): Unit = {
     val mm1 = ULong(-1L)
     val remainder = mm1 % ULong(65536)
     assertEquals(ULong(0x0000FFFF), remainder)
   }
   
-  @Test def testULongModulus3: Unit = {
+  @Test def testULongModulus3(): Unit = {
     val mm1 = ULong(-1L)
     val mm2 = ULong(-2L)
     val remainder = mm1 % mm2
     assertEquals(ULong(1), remainder)
   }
 
-  @Test def testULongMostNegativeLong1: Unit = {
+  @Test def testULongMostNegativeLong1(): Unit = {
     val v = ULong(Long.MinValue)
     val vbi = v.toBigInt
     val vhex = vbi.toString(16)
@@ -74,7 +74,7 @@ class TestULong {
     assertEquals("9223372036854775808", v.toString)
   }
 
-  @Test def testULongMaxValue: Unit = {
+  @Test def testULongMaxValue(): Unit = {
     val v = ULong.MaxValue
     assertEquals("FFFFFFFFFFFFFFFF", v.toHexString.toUpperCase)
     assertEquals(ULong(0), v + ULong(1))
@@ -82,7 +82,7 @@ class TestULong {
     assertEquals(ULong(1), ULong(v1)) // preserves only 64 bits
   }
 
-  @Test def testULongFromBigInt: Unit = {
+  @Test def testULongFromBigInt(): Unit = {
     val zero = JBigInt.ZERO
     val one = JBigInt.ONE
     val two = JBigInt.valueOf(2)
@@ -96,7 +96,7 @@ class TestULong {
     assertEquals("7FFFFFFFFFFFFFFF", (ULong(Long.MinValue) - ULong(1)).toHexString.toUpperCase)
   }
 
-  @Test def testULongShift: Unit = {
+  @Test def testULongShift(): Unit = {
     // The >> operator is arithmetic shift, so for signed numbers this would sign extend,
     // but ULong is unsigned, so there is no difference between >> and >>> (logical shift right).
     assertEquals("7FFFFFFFFFFFFFFF", (ULong.MaxValue >> 1).toHexString.toUpperCase)
@@ -110,7 +110,7 @@ class TestULong {
     assertEquals("7FFFFFFFFFFFFFFF", (ULong.MaxValue << 1 >> 1).toHexString.toUpperCase)
   }
 
-  @Test def testULongFromHex: Unit = {
+  @Test def testULongFromHex(): Unit = {
     assertEquals("7FFFFFFFFFFFFFFF", ULong.fromHexString("7FFFFFFFFFFFFFFF").toHexString.toUpperCase)
   }
 }

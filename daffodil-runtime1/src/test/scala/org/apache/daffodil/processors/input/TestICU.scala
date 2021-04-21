@@ -36,7 +36,7 @@ class TestICU {
    * above 9 fractional seconds. Daffodil will only support 9, so these test
    * ensure that ICU can handle 9 fractional seconds.
    */
-  @Test def test_maxFractionalSeconds = {
+  @Test def test_maxFractionalSeconds() = {
     def parseFractionalSeconds(numFractionalSeconds: Int) = {
       val numOutFractionalSeconds = TextCalendarConstants.maxFractionalSeconds
       val inDataChar = "1"
@@ -75,7 +75,7 @@ class TestICU {
   // not have a regression of this issue. The old broken values that ICU would
   // create are commented out to show what used to be broken.
 
-  @Test def test_scientific_pos_inf = {
+  @Test def test_scientific_pos_inf() = {
     val dfs = new DecimalFormatSymbols()
     dfs.setInfinity("INF")
     dfs.setNaN("NaN")
@@ -87,7 +87,7 @@ class TestICU {
     assertEquals("INF", str)
   }
 
-  @Test def test_scientific_neg_inf = {
+  @Test def test_scientific_neg_inf() = {
     val dfs = new DecimalFormatSymbols()
     dfs.setInfinity("INF")
     dfs.setNaN("NaN")
@@ -99,7 +99,7 @@ class TestICU {
     assertEquals("-INF", str)
   }
 
-  @Test def test_scientific_nan = {
+  @Test def test_scientific_nan() = {
     val dfs = new DecimalFormatSymbols()
     dfs.setInfinity("INF")
     dfs.setNaN("NaN")
@@ -113,7 +113,7 @@ class TestICU {
 
   // The following test shows that ICU does not reqiure a positive pattern.
   // Because of this we manually check that a positive pattern exists.
-  @Test def test_missing_positive_pattern = {
+  @Test def test_missing_positive_pattern() = {
     // this should throw an exception if ICU ever adds back support for
     // requiring a positive pattern.
     val df = new DecimalFormat(";-000")
@@ -125,7 +125,7 @@ class TestICU {
   // after parse position are pad characters. If ICU ever fixes this bug and
   // updates parse position, this test should fail, and we no longer need to do
   // the manual check.
-  @Test def test_suffix_padding = {
+  @Test def test_suffix_padding() = {
     val df = new DecimalFormat("0 SUFFIX*_")
     val pos = new ParsePosition(0)
     val str = "123 SUFFIX____"
@@ -138,7 +138,7 @@ class TestICU {
   // This test shows the bug in ICU where it does not correctly handle
   // scientific notiation with an empty exponent separator. If ICU fixes this
   // bug, this test should fail. See DAFFODIL-1981
-  @Test def test_empty_exponent_separator = {
+  @Test def test_empty_exponent_separator() = {
     val dfs = new DecimalFormatSymbols()
     dfs.setExponentSeparator("")
     dfs.setGroupingSeparator(',')
@@ -155,7 +155,7 @@ class TestICU {
   // Shows that even if a decimal format pattern doesn't contain a decimal
   // point, the decimal format separator from the locale still has an effect
   // and can cause locale specific behavior
-  @Test def test_local_side_effect = {
+  @Test def test_local_side_effect() = {
 
     // Germany's locale has a decimal separator of ','
     val dfs = new DecimalFormatSymbols(java.util.Locale.GERMANY)

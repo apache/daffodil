@@ -25,7 +25,7 @@ object TestLengthKindImplicit {
   val testDir = "/org/apache/daffodil/section12/lengthKind/"
   val runner_01 = Runner(testDir, "implicit.tdml")
 
-  @AfterClass def shutDown: Unit = {
+  @AfterClass def shutDown(): Unit = {
     runner_01.reset
   }
 

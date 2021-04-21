@@ -39,7 +39,7 @@ class TestDFDLRegularExpressions {
 
   def delims = "D|C|F"
 
-  @Test def testSameEscapeRegExNoPadding = {
+  @Test def testSameEscapeRegExNoPadding() = {
     val cp = DFDLRegularExpressions.getSameEscapeRegEx(escape, delim)
     def test(x: String) = x match {
       case cp(before, rubbish, delim, after) => {
@@ -79,7 +79,7 @@ class TestDFDLRegularExpressions {
     assertEquals(Some("before", "D"), test2("beforeEEEEDafter"))
   }
 
-  @Test def testSameEscapeRegExLeftJustified = {
+  @Test def testSameEscapeRegExLeftJustified() = {
     val cp = DFDLRegularExpressions.getSameEscapeRegExWithPadding(escape, delim, padChar, TextStringJustification.Left)
     def test(x: String) = x match {
       case cp(ee1s, before, ee2s, delimAfterPad, ee3s, delimAfterEEs, after) => {
@@ -135,7 +135,7 @@ class TestDFDLRegularExpressions {
     assertEquals(Some("before", "D"), test2("beforeEEEEDafter"))
   }
 
-  @Test def testSameEscapeRegExRightJustified = {
+  @Test def testSameEscapeRegExRightJustified() = {
     val cp = DFDLRegularExpressions.getSameEscapeRegExWithPadding(escape, delim, padChar, TextStringJustification.Right)
     def test(x: String) = x match {
       case cp(ee1s, before, ee2s, delimAfterPad, ee3s, delimAfterEEs, after) => {
@@ -194,7 +194,7 @@ class TestDFDLRegularExpressions {
     assertEquals(Some("before", "D"), test2("beforeEEEEDafter"))
   }
 
-  @Test def testSameEscapeRegExCenterJustified = {
+  @Test def testSameEscapeRegExCenterJustified() = {
     val cp = DFDLRegularExpressions.getSameEscapeRegExWithPadding(escape, delim, padChar, TextStringJustification.Center)
     def test(x: String) = x match {
       case cp(ee1s, before, ee2s, delimAfterPad, ee3s, delimAfterEEs, after) => {
@@ -253,7 +253,7 @@ class TestDFDLRegularExpressions {
     assertEquals(Some("before", "D"), test2("beforeEEEEDafter"))
   }
 
-  @Test def testEscapeRegExNoPadding = {
+  @Test def testEscapeRegExNoPadding() = {
     val cp = DFDLRegularExpressions.getEscapeRegEx(escape, escapeEscape, delim)
 
     def test(x: String) = x match {
@@ -286,7 +286,7 @@ class TestDFDLRegularExpressions {
     assertEquals(Some("beforeS", "D"), test2("beforeSDstillBeforeDafter"))
   }
 
-  @Test def testEscapeRegExLeftJustified = {
+  @Test def testEscapeRegExLeftJustified() = {
     val cp = DFDLRegularExpressions.getEscapeRegExWithPadding(escape, escapeEscape, delim, padChar, TextStringJustification.Left)
     def test(x: String) = x match {
       case cp(before, delim, after) => Some((before, delim))
@@ -311,7 +311,7 @@ class TestDFDLRegularExpressions {
     assertEquals(Some(("before", "F")), test2("beforeFafter"))
   }
 
-  @Test def testEscapeRegExRightJustified = {
+  @Test def testEscapeRegExRightJustified() = {
     val cp = DFDLRegularExpressions.getEscapeRegExWithPadding(escape, escapeEscape, delim, padChar, TextStringJustification.Right)
     def test(x: String) = x match {
       case cp(before, delim, after) => Some((before, delim))
@@ -336,7 +336,7 @@ class TestDFDLRegularExpressions {
     assertEquals(Some(("before", "F")), test2("beforeFafter"))
   }
 
-  @Test def testEscapeRegExCenterJustified = {
+  @Test def testEscapeRegExCenterJustified() = {
     val cp = DFDLRegularExpressions.getEscapeRegExWithPadding(escape, escapeEscape, delim, padChar, TextStringJustification.Center)
     def test(x: String) = x match {
       case cp(before, delim, after) => Some((before, delim))
@@ -367,7 +367,7 @@ class TestDFDLRegularExpressions {
     assertEquals(Some(("before", "F")), test2("beforeFafter"))
   }
 
-  @Test def testEscapeBlockRegExNoPadding = {
+  @Test def testEscapeBlockRegExNoPadding() = {
     val cp = DFDLRegularExpressions.getEscapeBlockRegEx(bStart, bEnd, escapeEscape, escape, delim)
     def test(x: String) = x match {
       case cp(before, delim, after, null, null, null) => {
@@ -447,7 +447,7 @@ class TestDFDLRegularExpressions {
     assertEquals(Some(("beforeDstillBeforeENstillBefore", "F", "after")), test2("TbeforeDstillBeforeENstillBeforeNFafter"))
   }
 
-  @Test def testEscapeBlockRegExLeftJustified = {
+  @Test def testEscapeBlockRegExLeftJustified() = {
     val cp = DFDLRegularExpressions.getEscapeBlockRegExWithPadding(bStart, bEnd, escapeEscape, escape, padChar, delim, TextStringJustification.Left)
     def test(x: String) = x match {
       case cp(before, delim, after, null, null, null) => {
@@ -543,7 +543,7 @@ class TestDFDLRegularExpressions {
     assertEquals(Some(("PPPTbefore", "F", "stillBeforeTstillBeforeSENPPPDafter")), test2("PPPTbeforeFstillBeforeTstillBeforeSENPPPDafter"))
   }
 
-  @Test def testEscapeBlockRegExRightJustified = {
+  @Test def testEscapeBlockRegExRightJustified() = {
     val cp = DFDLRegularExpressions.getEscapeBlockRegExWithPadding(bStart, bEnd, escapeEscape, escape, padChar, delim, TextStringJustification.Right)
     def test(x: String) = x match {
       case cp(before, delim, after, null, null, null) => {
@@ -634,7 +634,7 @@ class TestDFDLRegularExpressions {
     assertEquals(Some(("beforeDstillBeforeTstillBeforeSE", "F", "after")), test2("PPPTbeforeDstillBeforeTstillBeforeSENFafter"))
   }
 
-  @Test def testEscapeBlockRegExCenterJustified = {
+  @Test def testEscapeBlockRegExCenterJustified() = {
     val cp = DFDLRegularExpressions.getEscapeBlockRegExWithPadding(bStart, bEnd, escapeEscape, escape, padChar, delim, TextStringJustification.Center)
     def test(x: String) = x match {
       case cp(before, delim, after, null, null, null) => {

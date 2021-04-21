@@ -29,7 +29,7 @@ object TestInputValueCalc {
   val runnerAQ = Runner(testDir, "AQ.tdml")
   val runnerAA = Runner(testDir, "AA.tdml")
 
-  @AfterClass def shutDown: Unit = {
+  @AfterClass def shutDown(): Unit = {
     runner.reset
     runnerAR.reset
     runnerAQ.reset

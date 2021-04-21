@@ -19,18 +19,14 @@ package org.apache.daffodil.io
 
 import java.io.ByteArrayOutputStream
 import java.math.{BigInteger => JBigInt}
-import java.math.{BigInteger => JBigInt}
 import java.nio.ByteBuffer
 import java.nio.channels.Channels
 import java.nio.charset.CoderResult
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
-
 import passera.unsigned.ULong
-
 import org.apache.commons.io.output.TeeOutputStream
-
 import org.apache.daffodil.equality._
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.processors.charset.BitsCharsetNonByteSizeEncoder
@@ -41,7 +37,6 @@ import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe.Nope
 import org.apache.daffodil.util.Maybe.One
 import org.apache.daffodil.util.MaybeULong
-
 
 sealed trait DOSState
 private[io] case object Active extends DOSState
@@ -1079,10 +1074,6 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
   override final def resetMaybeRelBitLimit0b(savedBitLimit0b: MaybeULong): Unit = {
     Assert.usage(isWritable)
     setMaybeRelBitLimit0b(savedBitLimit0b, true)
-  }
-
-  final override def validateFinalStreamState: Unit = {
-    // nothing to validate
   }
 
   final override def isAligned(bitAlignment1b: Int): Boolean = {

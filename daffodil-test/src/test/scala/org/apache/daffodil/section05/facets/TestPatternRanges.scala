@@ -23,7 +23,7 @@ import org.junit.Test
 object TestPatternRanges {
   val runner = Runner("/org/apache/daffodil/section05/facets", "PatternRanges.tdml")
 
-  @AfterClass def shutDown = {
+  @AfterClass def shutDown() = {
     runner.reset
   }
 }

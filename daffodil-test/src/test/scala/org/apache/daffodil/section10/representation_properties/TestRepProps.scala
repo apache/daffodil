@@ -25,7 +25,7 @@ object TestRepProps {
   val testDir = "/org/apache/daffodil/section10/representation_properties/"
   val runner = Runner(testDir, "RepProps.tdml")
 
-  @AfterClass def shutDown: Unit = {
+  @AfterClass def shutDown(): Unit = {
     runner.reset
   }
 

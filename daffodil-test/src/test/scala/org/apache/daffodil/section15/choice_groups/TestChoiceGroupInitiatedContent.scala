@@ -25,7 +25,7 @@ object TestChoiceGroupInitiatedContent {
   val testDir_01 = "/org/apache/daffodil/section15/choice_groups/"
   val runner_01 = Runner(testDir_01, "ChoiceGroupInitiatedContent.tdml")
 
-  @AfterClass def shutDown: Unit = {
+  @AfterClass def shutDown(): Unit = {
     runner_01.reset
   }
 

@@ -30,7 +30,7 @@ object TestNillable {
   val runnerLC = Runner(testDir, "literal-character-nils.tdml")
   val runnerEntity = Runner(testDir_01, "entities_01.tdml")
 
-  @AfterClass def shutDown: Unit = {
+  @AfterClass def shutDown(): Unit = {
     runnerAA.reset
     runnerLN.reset
     runnerEntity.reset

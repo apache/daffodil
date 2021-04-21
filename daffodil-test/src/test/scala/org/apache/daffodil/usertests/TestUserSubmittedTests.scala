@@ -26,7 +26,7 @@ object TestUserSubmittedTests {
   val runner = Runner(testDir, "UserSubmittedTests.tdml")
   val runner2 = Runner(testDir, "nameDOB_test.tdml")
 
-  @AfterClass def shutDown: Unit = {
+  @AfterClass def shutDown(): Unit = {
     runner.reset
     runner2.reset
   }
@@ -93,7 +93,7 @@ class CustomTraceRunner extends TraceRunner {
     allTheLines
   }
 
-  override def init: Unit = { _lines = List.empty[String] }
+  override def init(): Unit = { _lines = List.empty[String] }
   override def lineOutput(line: String) = _lines ++ (line + "\n")
 
 }

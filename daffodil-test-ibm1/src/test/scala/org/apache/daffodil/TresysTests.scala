@@ -50,7 +50,7 @@ object TresysTests {
   val runnerRD = Runner("/test-suite/tresys-contributed/", "runtime-diagnostics.tdml", compileAllTopLevel = true, validateTDMLFile = false)
   val runnerSQ = Runner("/test-suite/tresys-contributed/sequence.tdml")
 
-  @AfterClass def shutDown: Unit = {
+  @AfterClass def shutDown(): Unit = {
     runnerAF.reset
     runnerAG.reset
     runnerAP.reset
