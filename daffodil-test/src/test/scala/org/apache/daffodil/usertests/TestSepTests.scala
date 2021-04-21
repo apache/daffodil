@@ -44,4 +44,24 @@ class TestSepTests {
   // @Test def test_sep_trailingEmptyStrict_1(): Unit = { runner.runOneTest("test_sep_trailingEmptyStrict_1") }
   @Test def test_sep_trailingEmptyStrict_2(): Unit = { runner.runOneTest("test_sep_trailingEmptyStrict_2") }
 
+  // DAFFODIL-2499 - separatorSuppressionPolicy 'never'
+  // Note: this test isn't commented out, because it works for IBM DFDL in cross testing
+  // The TDML for this test just has it disabled for the daffodil implementation.
+  // Add daffodil to implementations to see the erroneous daffodil behavior.
+  @Test def test_sep_ssp_never_1(): Unit = { runner.runOneTest("test_sep_ssp_never_1") }
+
+  @Test def test_sep_ssp_never_2(): Unit = { runner.runOneTest("test_sep_ssp_never_2") }
+
+  // DAFFODIL-2499 - separatorSuppressionPolicy 'never'
+  // Note: this test isn't commented out, because it works for IBM DFDL in cross testing
+  // The TDML for this test just has it disabled for the daffodil implementation.
+  // Add daffodil to implementations to see the erroneous daffodil behavior.
+  @Test def test_sep_ssp_never_3(): Unit = { runner.runOneTest("test_sep_ssp_never_3") }
+
+  // DAFFODIL-2496 - implement DFDL official emptyElementParsePolicy property
+  // Note: this test isn't commented out, because it works for IBM DFDL in cross testing
+  // The TDML for this test just has it disabled for the daffodil implementation.
+  // Add daffodil to implementations to see the erroneous daffodil behavior.
+  @Test def test_sep_ssp_never_4(): Unit = { runner.runOneTest("test_sep_ssp_never_4") }
+
 }
