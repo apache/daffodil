@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<tdml:testSuite suiteName="More Encoding Tests" description="Section 10 - Core Representation Properties"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xmlns:ex="http://example.com"
+  xmlns:tns="http://example.com"
+  defaultRoundTrip="true">
+  
+<tdml:defineSchema name="enc1">
+  <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+  
+  <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited"/>
+    
+	<xs:simpleType name="bit" dfdl:lengthKind="explicit" dfdl:lengthUnits="bits" dfdl:alignmentUnits="bits" dfdl:representation="binary" >
+		<xs:restriction base="xs:unsignedInt" />
+	</xs:simpleType>	
+	
+  <xs:element name="isoMsb">
+	<xs:complexType>
+		<xs:sequence>
+			<xs:element name="a" type="ex:bit" dfdl:length="3" />
+			<xs:element name="b" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="8" dfdl:lengthUnits="bits" dfdl:alignmentUnits="bits" dfdl:representation="text" dfdl:encoding="X-DFDL-ISO-88591-8-BIT-PACKED-MSB-FIRST"/>			
+		</xs:sequence>
+	</xs:complexType>	
+  </xs:element>
+  
+  <xs:element name="isoLsb">
+	<xs:complexType>
+		<xs:sequence>
+			<xs:element name="a" type="ex:bit" dfdl:length="3" dfdl:bitOrder="leastSignificantBitFirst" dfdl:byteOrder="littleEndian" />
+			<xs:element name="b" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="8" dfdl:lengthUnits="bits" dfdl:alignmentUnits="bits" dfdl:representation="text" dfdl:bitOrder="leastSignificantBitFirst" dfdl:byteOrder="littleEndian" dfdl:encoding="X-DFDL-ISO-88591-8-BIT-PACKED-LSB-FIRST"/>			
+		</xs:sequence>
+	</xs:complexType>	
+  </xs:element>
+  
+  <xs:element name="eString" type="xs:string" dfdl:encoding="ebcdic-cp-us"/>
+  `
+  <xs:element name="eString1047" type="xs:string" dfdl:encoding="IBM-1047"/>
+  
+  <xs:element name="bString" type="xs:string" dfdl:encoding="x-dfdl-bits-lsbf"
+    dfdl:bitOrder="leastSignificantBitFirst" dfdl:byteOrder="littleEndian"/>
+    
+  <xs:element name="bStringTerm" type="xs:string" dfdl:encoding="x-dfdl-bits-lsbf"
+    dfdl:bitOrder="leastSignificantBitFirst" dfdl:byteOrder="littleEndian"
+    dfdl:terminator="11111111"/>
+    
+  <xs:element name="bStringTerm2" type="xs:string" dfdl:encoding="x-dfdl-bits-lsbf"
+    dfdl:bitOrder="leastSignificantBitFirst" dfdl:byteOrder="littleEndian"
+    dfdl:terminator="1111"/>
+    
+  <xs:element name="sixBit1" type="xs:string" dfdl:encoding="X-DFDL-6-BIT-DFI-264-DUI-001"
+    dfdl:bitOrder="leastSignificantBitFirst" dfdl:byteOrder="littleEndian"/>
+
+  <xs:element name="fiveBitDFI1661DUI001" type="xs:string" dfdl:encoding="X-DFDL-5-BIT-DFI-1661-DUI-001"
+    dfdl:bitOrder="leastSignificantBitFirst" dfdl:byteOrder="littleEndian"/>
+    
+</tdml:defineSchema>
+
+
+  <tdml:parserTestCase name="iso88591msbbitsmisaligned" root="isoMsb" model="enc1" 
+    description="ISO-8859-1 testcase (MSB) Bits (misaligned)">
+    <tdml:document>
+		<tdml:documentPart type="bits">10100110111</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tns:isoMsb>
+			<ex:a>5</ex:a>
+			<ex:b>7</ex:b>
+		</tns:isoMsb>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="iso88591lsbbitsmisaligned" root="isoLsb" model="enc1" 
+    description="ISO-8859-1 testcase (LSB) Bits (misaligned)">
+    <tdml:document>
+		<tdml:documentPart type="bits" bitOrder="LSBFirst" byteOrder="RTL">001 10111101</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tns:isoLsb>
+			<ex:a>5</ex:a>
+			<ex:b>7</ex:b>
+		</tns:isoLsb>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+    
+  <tdml:parserTestCase name="ebcdic1" root="eString" model="enc1" 
+    description="EBCDIC basic test">
+    <tdml:document>
+      <tdml:documentPart type="text" encoding="ebcdic-cp-us">12345</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tns:eString>12345</tns:eString>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="IBM1047" root="eString1047" model="enc1" 
+    description="IBM-1047 basic test">
+    <tdml:document>
+      <tdml:documentPart type="text" encoding="IBM-1047">12345</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tns:eString>12345</tns:eString>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="bits1" root= "bString" model="enc1" 
+    description="X-DFDL-BITS-LSBF basic test">
+    <tdml:document>
+      <tdml:documentPart type="text" encoding="x-dfdl-bits-lsbf"
+      bitOrder="LSBFirst">1</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tns:bString>1</tns:bString>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="bits1a" root= "bString" model="enc1" 
+    description="X-DFDL-BITS-LSBF basic test">
+    <tdml:document>
+      <tdml:documentPart type="bits" bitOrder="LSBFirst">1</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tns:bString>1</tns:bString>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="bits2" root= "bString" model="enc1" 
+    description="X-DFDL-BITS-LSBF basic test">
+    <tdml:document>
+      <tdml:documentPart type="text" encoding="x-dfdl-bits-lsbf"
+      bitOrder="LSBFirst">11</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tns:bString>11</tns:bString>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="bits2a" root= "bString" model="enc1" 
+    description="X-DFDL-BITS-LSBF basic test">
+    <tdml:document>
+      <tdml:documentPart type="bits" bitOrder="LSBFirst">11</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tns:bString>11</tns:bString>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  
+  <tdml:parserTestCase name="bits8" root= "bString" model="enc1" 
+    description="X-DFDL-BITS-LSBF basic test">
+    <tdml:document>
+      <tdml:documentPart type="text" encoding="x-dfdl-bits-lsbf"
+      bitOrder="LSBFirst">00110101</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tns:bString>00110101</tns:bString>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="bitsTerm1" root="bStringTerm" model="enc1" description="X-DFDL-BITS-LSBF basic test">
+    <tdml:document>
+      <tdml:documentPart type="text" encoding="x-dfdl-bits-lsbf" bitOrder="LSBFirst">1011011011111111</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tns:bStringTerm>10110110</tns:bStringTerm>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="bitsTerm2" root="bStringTerm2" model="enc1" description="X-DFDL-BITS-LSBF basic test">
+    <tdml:document>
+      <tdml:documentPart type="text" encoding="x-dfdl-bits-lsbf" bitOrder="LSBFirst">101101101111</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tns:bStringTerm2>10110110</tns:bStringTerm2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="bitsTerm3" root="bStringTerm2" model="enc1" description="X-DFDL-BITS-LSBF basic test">
+    <tdml:document>
+      <tdml:documentPart type="bits" bitOrder="LSBFirst" byteOrder="RTL">1111 00110110</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tns:bStringTerm2>01101100</tns:bStringTerm2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  
+  <tdml:parserTestCase name="sixBit1" root="sixBit1" model="enc1" description="X-DFDL-6-BIT-DFI-264-DUI-001">
+    <tdml:document>
+      <tdml:documentPart type="text" encoding="X-DFDL-6-BIT-DFI-264-DUI-001" bitOrder="LSBFirst"><![CDATA[0123456789 ABCDEFGHIJKLMNOPQRSTUVWXYZ012]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tns:sixBit1><![CDATA[0123456789 ABCDEFGHIJKLMNOPQRSTUVWXYZ012]]></tns:sixBit1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="fiveBitDFI1661DUI001" root="fiveBitDFI1661DUI001" model="enc1" description="X-DFDL-5-BIT-DFI-1661-DUI-001" roundTrip="none">
+    <tdml:document>
+      <tdml:documentPart type="bits" bitOrder="LSBFirst" byteOrder="RTL">
+      11111 | 11110 | 11101 | 11100 | 11011 | 11010 | 11001 | 11000 | 10111 | 10110 | 10101 | 10100 | 10011 | 10010 | 10001 | 10000 | 01111 | 01110 | 01101 | 01100 | 01011 | 01010 | 01001 | 01000 | 00111 | 00110 | 00101 | 00100 | 00011 | 00010 | 00001 | 00000
+      </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <!--
+        Note, the space below is actually \u00A0 no-break space
+        We terminal CDATA "early" to allow use of character entities at the end.
+        -->
+        <tns:fiveBitDFI1661DUI001><![CDATA[ ABCDEFGHIJKLMNOPQRSTUVWXYZ]]>&#xFFFD;&#xFFFD;&#xFFFD;&#xFFFD;&#xFFFD;</tns:fiveBitDFI1661DUI001>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="fiveBitDFI1661DUI001_roundTrip" root="fiveBitDFI1661DUI001" model="enc1" description="X-DFDL-5-BIT-DFI-1661-DUI-001" roundTrip="onePass">
+    <tdml:document>
+      <tdml:documentPart type="bits" bitOrder="LSBFirst" byteOrder="RTL">
+      11010 | 11001 | 11000 | 10111 | 10110 | 10101 | 10100 | 10011 | 10010 | 10001 | 10000 | 01111 | 01110 | 01101 | 01100 | 01011 | 01010 | 01001 | 01000 | 00111 | 00110 | 00101 | 00100 | 00011 | 00010 | 00001 | 00000
+      </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <!--
+        Note, the space below is actually \u00A0 no-break space
+        -->
+        <tns:fiveBitDFI1661DUI001><![CDATA[ ABCDEFGHIJKLMNOPQRSTUVWXYZ]]></tns:fiveBitDFI1661DUI001>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  
+  
+</tdml:testSuite>
