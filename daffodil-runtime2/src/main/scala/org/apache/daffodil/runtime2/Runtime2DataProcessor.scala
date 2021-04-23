@@ -25,6 +25,7 @@ import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.api.DataLocation
 import org.apache.daffodil.api.ValidationMode
 import org.apache.daffodil.api.ValidationResult
+import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.externalvars.Binding
 import org.apache.daffodil.processors.Failure
 import org.apache.daffodil.processors.ProcessorResult
@@ -88,12 +89,12 @@ class Runtime2DataProcessor(executableFile: os.Path) extends DFDL.DataProcessorB
       os.write(infile, input)
       val result = os.proc(executableFile, "parse", "-I", "xml", "-o", outfile, infile).call(cwd = tempDir, stderr = os.Pipe)
       if (result.out.text.isEmpty && result.err.text.isEmpty) {
-        val parseResult = new ParseResult(outfile, Success)
+        val parseResult = new ParseResult(outfile, Success, infile)
         parseResult
       } else {
         val msg = s"Unexpected daffodil output on stdout: ${result.out.text} on stderr: ${result.err.text}"
         val parseError = new ParseError(Nope, Nope, Nope, Maybe(msg))
-        val parseResult = new ParseResult(outfile, Failure(parseError))
+        val parseResult = new ParseResult(outfile, Failure(parseError), infile)
         parseResult.addDiagnostic(parseError)
         parseResult
       }
@@ -105,7 +106,7 @@ class Runtime2DataProcessor(executableFile: os.Path) extends DFDL.DataProcessorB
           val msg = s"${e.getMessage} with stdout: ${e.result.out.text} and stderr: ${e.result.err.text}"
           new ParseError(Nope, Nope, Nope, Maybe(msg))
         }
-        val parseResult = new ParseResult(outfile, Failure(parseError))
+        val parseResult = new ParseResult(outfile, Failure(parseError), infile)
         parseResult.addDiagnostic(parseError)
         parseResult
     } finally {
@@ -154,27 +155,34 @@ class Runtime2DataProcessor(executableFile: os.Path) extends DFDL.DataProcessorB
 }
 
 object Runtime2DataLocation {
-  class Runtime2DataLocation(_isAtEnd: Boolean,
-                             _bitPos1b: Long,
+  class Runtime2DataLocation( _bitPos1b: Long,
                              _bytePos1b: Long) extends DataLocation {
-    override def isAtEnd: Boolean = _isAtEnd
     override def bitPos1b: Long = _bitPos1b
     override def bytePos1b: Long = _bytePos1b
+
+    // $COVERAGE-OFF$
+    @deprecated("Use comparison of bitPos1b with expected position instead.", "3.1.0")
+    override def isAtEnd: Boolean = Assert.usageError("isAtEnd is deprecated and not implemented in Runtime2.")
+    // $COVERAGE-ON$
   }
 
-  def apply(isAtEnd: Boolean = true,
-            bitPos1b: Long = 0L,
-            bytePos1b: Long = 0L): DataLocation = {
-    new Runtime2DataLocation(isAtEnd, bitPos1b, bytePos1b)
+  def apply(bitPos1b: Long,
+            bytePos1b: Long): DataLocation = {
+    new Runtime2DataLocation(bitPos1b, bytePos1b)
   }
 }
 
 final class ParseResult(outfile: os.Path,
                         override val processorStatus: ProcessorResult,
-                        loc: DataLocation = Runtime2DataLocation())
+                        infile: os.Path)
   extends DFDL.ParseResult
     with DFDL.State
     with WithDiagnosticsImpl {
+
+  val loc: DataLocation = {
+    val infileLengthInBytes = infile.toIO.length()
+    Runtime2DataLocation(infileLengthInBytes * 8, infileLengthInBytes)
+  }
 
   override def resultState: DFDL.State = this
 
@@ -188,11 +196,14 @@ final class ParseResult(outfile: os.Path,
 }
 
 final class UnparseResult(val finalBitPos0b: Long,
-                          override val processorStatus: ProcessorResult,
-                          loc: DataLocation = Runtime2DataLocation())
+                          override val processorStatus: ProcessorResult)
   extends DFDL.UnparseResult
     with DFDL.State
     with WithDiagnosticsImpl {
+
+  // Note DataLocation uses 1-based bit/byte positions, so we have to add 1.
+  val loc: DataLocation = Runtime2DataLocation(finalBitPos0b + 1, (finalBitPos0b + 1) / 8)
+
   /**
    * Data is 'scannable' if it consists entirely of textual data, and that data
    * is all in the same encoding.

@@ -66,7 +66,6 @@ W1vdXMgcXVvdGVzIG9yIHNvbmcgbHlyaWNzIG9yIGFueXRoaW5nIGxpa2UgdGhhdCBpbnRyb2R1Y
     pairs.foreach {
       case (exp, act) => {
         if (exp != act) {
-          println("differ at character %s (0-based). Expected '%s' got '%s'.".format(i, exp, act))
           failed = true
         }
         i += 1
@@ -92,7 +91,7 @@ W1vdXMgcXVvdGVzIG9yIHNvbmcgbHlyaWNzIG9yIGFueXRoaW5nIGxpa2UgdGhhdCBpbnRyb2R1Y
     val data = b64Text.dropRight(3)
 
     intercept[IllegalArgumentException] {
-      println(new String(java.util.Base64.getMimeDecoder.decode(data)))
+      java.util.Base64.getMimeDecoder.decode(data)
     }
 
   }
@@ -203,7 +202,6 @@ W1vdXMgcXVvdGVzIG9yIHNvbmcgbHlyaWNzIG9yIGFueXRoaW5nIGxpa2UgdGhhdCBpbnRyb2R1Y
     pairs.foreach {
       case (exp, act) => {
         if (exp != act) {
-          println("differ at character %s (0-based). Expected '%s' got '%s'.".format(i, exp, act))
           failed = true
         }
         i += 1

@@ -298,6 +298,13 @@ class DaffodilTDMLDFDLProcessor private (private var dp: DataProcessor) extends 
 
   def doParseWithBothApis(dpInputStream: java.io.InputStream, saxInputStream: java.io.InputStream,
     lengthLimitInBits: Long): TDMLParseResult = {
+    //
+    // TDML Tests MUST have a length limit. Otherwise they cannot determine if
+    // there is left-over-data or not without doing more reading from the input stream
+    // so as to be sure to hit end-of-data.
+    //
+    Assert.usage(lengthLimitInBits >= 0)
+
     val outputter = new TDMLInfosetOutputter()
     outputter.setBlobAttributes(blobDir, blobPrefix, blobSuffix)
 
@@ -313,13 +320,9 @@ class DaffodilTDMLDFDLProcessor private (private var dp: DataProcessor) extends 
 
     val dis = InputSourceDataInputStream(dpInputStream)
     val sis = InputSourceDataInputStream(saxInputStream)
-    if (lengthLimitInBits >= 0 && lengthLimitInBits % 8 != 0) {
-      // Only set the bit limit if the length is not a multiple of 8. In that
-      // case, we aren't expected to consume all the data and need a bitLimit
-      // to prevent messages about left over bits.
-      dis.setBitLimit0b(MaybeULong(lengthLimitInBits))
-      sis.setBitLimit0b(MaybeULong(lengthLimitInBits))
-    }
+
+    dis.setBitLimit0b(MaybeULong(lengthLimitInBits))
+    sis.setBitLimit0b(MaybeULong(lengthLimitInBits))
 
     val actual = dp.parse(dis, outputter)
     xri.parse(sis)

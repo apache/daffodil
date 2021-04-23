@@ -17,50 +17,22 @@
 
 package org.apache.daffodil.dsom
 
-import java.math.{ BigInteger => JBigInt }
+import java.math.{BigInteger => JBigInt}
 import java.nio.ByteBuffer
-import java.nio.CharBuffer
-import java.nio.LongBuffer
-
-import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.io.DataInputStream
+import org.apache.daffodil.io.FakeFormatInfo
 import org.apache.daffodil.io.FormatInfo
 import org.apache.daffodil.io.InputSourceDataInputStream
-import org.apache.daffodil.processors.charset.BitsCharsetDecoder
-import org.apache.daffodil.processors.charset.BitsCharsetEncoder
-import org.apache.daffodil.schema.annotation.props.gen.BinaryFloatRep
 import org.apache.daffodil.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.schema.annotation.props.gen.ByteOrder
-import org.apache.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
-import org.apache.daffodil.schema.annotation.props.gen.UTF16Width
-import org.apache.daffodil.util.Maybe
-import org.apache.daffodil.util.MaybeInt
 import org.apache.daffodil.util.Misc
 import org.junit.After
 import org.junit.Test
-
 import org.junit.Assert.assertEquals
 
 // Do no harm number 16 of 626 fail in regression, 154 in total of 797
 
 class TestBinaryInput_01 {
-
-  class FakeFormatInfo(val bitOrder: BitOrder, val byteOrder: ByteOrder) extends FormatInfo {
-    def encoder: BitsCharsetEncoder = ???
-    def decoder: BitsCharsetDecoder = ???
-    def reportingDecoder: BitsCharsetDecoder = ???
-    def replacingDecoder: BitsCharsetDecoder = ???
-    def fillByte: Byte = ???
-
-    def binaryFloatRep: BinaryFloatRep = ???
-    def maybeCharWidthInBits: MaybeInt = ???
-    def maybeUTF16Width: Maybe[UTF16Width] = ???
-    def encodingMandatoryAlignmentInBits: Int = ???
-    def encodingErrorPolicy: EncodingErrorPolicy = ???
-    def tunable: DaffodilTunables = ???
-    def regexMatchBuffer: CharBuffer = ???
-    def regexMatchBitPositionBuffer: LongBuffer = ???
-  }
 
   var startOver: DataInputStream.Mark = null
   var dis: DataInputStream = null

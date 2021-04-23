@@ -26,13 +26,18 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.daffodil.japi.*;
 import org.apache.daffodil.japi.infoset.XMLTextInfosetOutputter;
 import org.jdom2.output.Format;
@@ -109,7 +114,6 @@ public class TestJavaAPI {
         ParseResult res = dp.parse(dis, outputter);
         boolean err = res.isError();
         assertFalse(err);
-        assertTrue(res.location().isAtEnd());
         assertEquals(0, lw.errors.size());
         assertEquals(0, lw.warnings.size());
         assertTrue(lw.others.size() > 0);
@@ -157,14 +161,17 @@ public class TestJavaAPI {
         parser = parser.withDebuggerRunner(debugger);
         parser = parser.withDebugging(true);
 
-        java.io.File file = getResource("/test/japi/myData.dat");
-        java.io.FileInputStream fis = new java.io.FileInputStream(file);
-        InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
+        File data = getResource("/test/japi/myData.dat");
+        // This test uses a byte array here, just so as to be sure to exercise
+        // the constructor for creating an InputSourceDataInputStream from a byte array
+        // and byte buffer.
+        byte[] ba = FileUtils.readFileToByteArray(data);
+        ByteBuffer bb = ByteBuffer.wrap(ba);
+        InputSourceDataInputStream dis = new InputSourceDataInputStream(bb);
         JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
         ParseResult res = parser.parse(dis, outputter);
         boolean err = res.isError();
         assertFalse(err);
-        assertTrue(res.location().isAtEnd());
         assertEquals(0, lw.errors.size());
         assertEquals(0, lw.warnings.size());
         assertTrue(lw.others.size() > 0);
@@ -238,8 +245,11 @@ public class TestJavaAPI {
         dp = reserializeDataProcessor(dp);
 
         java.io.File file = getResource("/test/japi/myDataBroken.dat");
-        java.io.FileInputStream fis = new java.io.FileInputStream(file);
-        InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
+        // This test uses a byte array here, just so as to be sure to exercise
+        // the constructor for creating an InputSourceDataInputStream from a byte array
+        // and byte buffer.
+        byte[] ba = FileUtils.readFileToByteArray(file);
+        InputSourceDataInputStream dis = new InputSourceDataInputStream(ba);
         JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
         ParseResult res = dp.parse(dis, outputter);
 
@@ -295,7 +305,6 @@ public class TestJavaAPI {
         ParseResult res = dp.parse(dis, outputter);
         boolean err = res.isError();
         assertFalse(err);
-        assertFalse(res.location().isAtEnd());
         assertEquals(2, res.location().bytePos1b());
         assertEquals(9, res.location().bitPos1b());
 
@@ -336,7 +345,6 @@ public class TestJavaAPI {
         ParseResult res = parser.parse(dis, outputter);
         boolean err = res.isError();
         assertFalse(err);
-        assertFalse(res.location().isAtEnd());
         assertEquals(2, res.location().bytePos1b());
         assertEquals(9, res.location().bitPos1b());
 
@@ -365,7 +373,6 @@ public class TestJavaAPI {
         ParseResult res = dp.parse(dis, outputter);
         boolean err = res.isError();
         assertFalse(err);
-        assertFalse(res.location().isAtEnd());
         assertEquals(5, res.location().bytePos1b());
         assertEquals(33, res.location().bitPos1b());
 
@@ -394,7 +401,6 @@ public class TestJavaAPI {
         ParseResult res = dp.parse(dis, outputter);
         boolean err = res.isError();
         assertFalse(err);
-        assertTrue(!res.location().isAtEnd());
         assertEquals(5, res.location().bytePos1b());
         assertEquals(33, res.location().bitPos1b());
 
@@ -468,7 +474,6 @@ public class TestJavaAPI {
         ParseResult res = dp.parse(dis, outputter);
         boolean err = res.isError();
         assertFalse(err);
-        assertTrue(res.location().isAtEnd());
 
         java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
         java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
@@ -511,7 +516,6 @@ public class TestJavaAPI {
         ParseResult res = dp.parse(dis, outputter);
         boolean err = res.isError();
         assertFalse(err);
-        assertTrue(res.location().isAtEnd());
 
         java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
         java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
@@ -550,7 +554,6 @@ public class TestJavaAPI {
         ParseResult res = dp.parse(dis, outputter);
         boolean err = res.isError();
         assertFalse(err);
-        assertTrue(res.location().isAtEnd());
 
         org.jdom2.Document doc1 = outputter.getResult();
 
@@ -602,7 +605,6 @@ public class TestJavaAPI {
         org.jdom2.Element rootNode = doc.getRootElement();
         org.jdom2.Element hidden = rootNode.getChild("hiddenElement", rootNode.getNamespace());
         assertTrue(null == hidden);
-        assertTrue(res.location().isAtEnd());
     }
 
     /**
@@ -643,7 +645,6 @@ public class TestJavaAPI {
         assertTrue(null == rootE2);
         org.jdom2.Element rootE3 = rootNode.getChild("e3", null);
         assertTrue(null == rootE3);
-        assertTrue(res.location().isAtEnd());
     }
 
     @Test
@@ -671,7 +672,6 @@ public class TestJavaAPI {
         ParseResult res = dp.parse(dis, outputter);
         boolean err = res.isError();
         assertFalse(err);
-        assertTrue(res.location().isAtEnd());
 
         assertEquals(0, lw2.errors.size());
         assertEquals(0, lw2.warnings.size());
@@ -763,7 +763,6 @@ public class TestJavaAPI {
         boolean containsVar1Value = docString.contains("externallySet");
         assertTrue(containsVar1);
         assertTrue(containsVar1Value);
-        assertTrue(res.location().isAtEnd());
 
         assertEquals(0, lw.errors.size());
         assertEquals(0, lw.warnings.size());
@@ -836,7 +835,6 @@ public class TestJavaAPI {
         assertTrue(res.isError());
         assertFalse(res.isProcessingError());
         assertTrue(res.isValidationError());
-        assertTrue(res.location().isAtEnd());
 
         java.util.List<Diagnostic> diags = res.getDiagnostics();
         assertEquals(1, diags.size());
@@ -863,7 +861,8 @@ public class TestJavaAPI {
         assertTrue(res.isError());
         assertFalse(res.isProcessingError());
         assertTrue(res.isValidationError());
-        assertTrue(res.location().isAtEnd());
+        long actualLength = res.location().bytePos1b() - 1;
+        assertEquals(file.length(), actualLength);
 
         java.util.List<Diagnostic> diags = res.getDiagnostics();
         assertEquals(3, diags.size());
@@ -905,7 +904,6 @@ public class TestJavaAPI {
       res = dp.parse(input, outputter);
       err = res.isError();
       assertFalse(err);
-      assertFalse(res.location().isAtEnd());
       assertEquals(5, res.location().bytePos1b());
       assertEquals("data", outputter.getResult().getRootElement().getText());
 
@@ -913,7 +911,6 @@ public class TestJavaAPI {
       res = dp.parse(input, outputter);
       err = res.isError();
       assertFalse(err);
-      assertFalse(res.location().isAtEnd());
       assertEquals(9, res.location().bytePos1b());
       assertEquals("left", outputter.getResult().getRootElement().getText());
 
@@ -921,7 +918,7 @@ public class TestJavaAPI {
       res = dp.parse(input, outputter);
       err = res.isError();
       assertFalse(err);
-      assertTrue(res.location().isAtEnd());
+      assertFalse(input.hasData());
       assertEquals(13, res.location().bytePos1b());
       assertEquals("over", outputter.getResult().getRootElement().getText());
     }
@@ -999,7 +996,6 @@ public class TestJavaAPI {
         String infosetSAXString = new  org.jdom2.output.XMLOutputter(pretty).outputString(contentHandler.getDocument());
 
         assertFalse(err);
-        assertTrue(resSAX.location().isAtEnd());
         assertTrue(diags.isEmpty());
         assertEquals(infosetDPString, infosetSAXString);
 
@@ -1111,8 +1107,6 @@ public class TestJavaAPI {
         boolean containsVar1Value = docString.contains("var1ValueFromMap");
         assertTrue(containsVar1);
         assertTrue(containsVar1Value);
-
-        assertTrue(res.location().isAtEnd());
 
         assertEquals(0, lw.errors.size());
         assertEquals(0, lw.warnings.size());

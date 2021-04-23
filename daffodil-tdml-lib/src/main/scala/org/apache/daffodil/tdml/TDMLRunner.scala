@@ -194,7 +194,7 @@ class DFDLTestSuite private[tdml] (
   // That avoids creating the test suites repeatedly, but also leaks memory unless
   // you have an @AfterClass shutdown method in the object that calls runner.reset() at end.
   //
-  // @deprecated("2016-12-30", "Use Runner(...) instead.")
+  // @deprecated("Use Runner(...) instead.", "2016-12-30")
   def this(
     aNodeFileOrURL: Any,
     validateTDMLFile: Boolean = true,
@@ -837,7 +837,9 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     roundTrip: RoundTrip,
     implString: Option[String]) = {
 
+    Assert.usage(optLengthLimitInBits.isDefined, "TDML tests should always have a length limit.")
     val nBits = optLengthLimitInBits.get
+
     val dataToParse = optDataToParse.get
 
     (optExpectedInfoset, optExpectedErrors) match {
@@ -911,8 +913,10 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
             //
             val loc: DataLocation = actual.currentLocation
 
-            if (!loc.isAtEnd) {
-              val leftOverMsg = "Left over data. Consumed %s bit(s) with %s bit(s) remaining.".format(loc.bitPos1b - 1, lengthLimitInBits - (loc.bitPos1b - 1))
+            if (loc.bitPos1b <= lengthLimitInBits) {
+              val leftOverMsg =
+                "Left over data. Consumed %s bit(s) with %s bit(s) remaining.".format(
+                  loc.bitPos1b - 1, lengthLimitInBits - (loc.bitPos1b - 1))
               actual.addDiagnostic(new TDMLDiagnostic(leftOverMsg, implString))
               true
             } else {
@@ -969,7 +973,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   private def verifyLeftOverData(actual: TDMLParseResult, lengthLimitInBits: Long, implString: Option[String]) = {
     val loc: DataLocation = actual.currentLocation
 
-    val leftOverException = if (!loc.isAtEnd) {
+    val leftOverException = if (loc.bitPos1b < lengthLimitInBits) {
       val leftOverMsg = "Left over data. Consumed %s bit(s) with %s bit(s) remaining.".format(
         loc.bitPos1b - 1, lengthLimitInBits - (loc.bitPos1b - 1))
       Some(TDMLException(leftOverMsg, implString))
@@ -1363,9 +1367,15 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       }
       val loc: DataLocation = parseActual.currentLocation
 
-      val leftOverException = if (!loc.isAtEnd) {
-        val leftOverMsg = "Left over data. Consumed %s bit(s) with %s bit(s) remaining.".format(loc.bitPos1b - 1, testDataLength - (loc.bitPos1b - 1))
-        println(leftOverMsg)
+      val leftOverException = if (loc.bitPos1b < testDataLength) {
+        //
+        // For this to happen (and have test coverage) we need an unparserTestCase
+        // which is roundTrip onePass, and where the parse doesn't consume all
+        // the data.
+        //
+        val leftOverMsg =
+          "Left over data. Consumed %s bit(s) with %s bit(s) remaining.".format(
+            loc.bitPos1b - 1, testDataLength - (loc.bitPos1b - 1))
         Some(TDMLException(leftOverMsg, implString))
       } else None
 

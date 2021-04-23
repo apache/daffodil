@@ -89,3 +89,28 @@ class FormatInfoForUnitTest private ()
     }
   }
 }
+
+/**
+ * Supplies only bitOrder and byteOrder. Everything else unimplemented.
+ * @param bitOrder
+ * @param byteOrder
+ */
+class FakeFormatInfo(val bitOrder: BitOrder, val byteOrder: ByteOrder) extends FormatInfo {
+  def encoder: BitsCharsetEncoder = ???
+  def decoder: BitsCharsetDecoder = ???
+  def reportingDecoder: BitsCharsetDecoder = ???
+  def replacingDecoder: BitsCharsetDecoder = ???
+  def fillByte: Byte = ???
+
+  def binaryFloatRep: BinaryFloatRep = ???
+  def maybeCharWidthInBits: MaybeInt = ???
+  def maybeUTF16Width: Maybe[UTF16Width] = ???
+  def encodingMandatoryAlignmentInBits: Int = ???
+  def encodingErrorPolicy: EncodingErrorPolicy = ???
+  def tunable: DaffodilTunables = ???
+  def regexMatchBuffer: CharBuffer = ???
+  def regexMatchBitPositionBuffer: LongBuffer = ???
+}
+
+object FakeFormatInfo_MSBF_BE extends FakeFormatInfo(BitOrder.MostSignificantBitFirst, ByteOrder.BigEndian)
+object FakeFormatInfo_LSBF_LE extends FakeFormatInfo(BitOrder.LeastSignificantBitFirst, ByteOrder.LittleEndian)

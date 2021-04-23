@@ -140,7 +140,6 @@ ZSBzaG9ydCB2ZWhlbWVuY2Ugb2YgYW55IGNhcm5hbCBwbGVhc3VyZS4="""
     val gzipBufferSize = 1
     val decodedStream = new java.util.zip.GZIPInputStream(inputStream, gzipBufferSize)
     val lines = IOUtils.readLines(decodedStream, StandardCharsets.ISO_8859_1).asScala.toSeq
-    lines.foreach { println }
     assertEquals(1, lines.length)
     assertEquals(expected, lines(0))
     val additionalLines = IOUtils.readLines(inputStream, StandardCharsets.ISO_8859_1).asScala.toSeq
@@ -172,7 +171,6 @@ ZSBzaG9ydCB2ZWhlbWVuY2Ugb2YgYW55IGNhcm5hbCBwbGVhc3VyZS4="""
     val gzipBufferSize = 1
     val decodedStream = new java.util.zip.GZIPInputStream(inputStream, gzipBufferSize)
     val lines = IOUtils.readLines(decodedStream, StandardCharsets.ISO_8859_1).asScala.toSeq
-    lines.foreach { println }
     assertEquals(1, lines.length)
     assertEquals(expected, lines(0))
     val additionalLines = IOUtils.readLines(inputStream, StandardCharsets.ISO_8859_1).asScala.toSeq

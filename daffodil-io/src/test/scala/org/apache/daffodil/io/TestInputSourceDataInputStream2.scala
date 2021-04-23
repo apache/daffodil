@@ -74,7 +74,7 @@ class TestInputSourceDataInputStream2 {
     assertEquals(81, dis.bitLimit1b.get)
     assertEquals(10, dis.bytePos0b)
     dis.reset(m1)
-    assertFalse(dis.isDefinedForLength(1))
+    assertFalse(dis.hasData())
     dis.asInstanceOf[InputSourceDataInputStream].resetBitLimit0b(MaybeULong(10 * 8))
     arr = dis.getByteArray(5 * 8, finfo)
     assertEquals(5, arr.size)

@@ -17,14 +17,12 @@
 
  package org.apache.daffodil.util
 
- import java.util.concurrent.ArrayBlockingQueue
-
- import scala.util.Try
- import scala.util.Success
- import scala.util.Failure
-
- import org.apache.daffodil.exceptions.Assert
  import org.apache.daffodil.exceptions.UnsuppressableException
+
+ import java.util.concurrent.ArrayBlockingQueue
+ import scala.util.Failure
+ import scala.util.Success
+ import scala.util.Try
 
  /**
   * General purpose Co-routines.
@@ -73,8 +71,12 @@
     * Call when a co-routine resumes another (to provide a result of some sort)
     * and then terminates. The coroutine calling this must return from the run()
     * method immediately after calling this.
+    *
+    * @tparam R The type of objects transmitted to the other coroutine. These need
+    *           not be the same type as the kind transmitted back to this calling
+    *           coroutine.
     */
-   final def resumeFinal(coroutine: Coroutine[T], in: T): Unit = {
+   final def resumeFinal[R](coroutine: Coroutine[R], in: R): Unit = {
      coroutine.init()
      coroutine.inboundQueue.put(in) // allows other to run final
    }
@@ -84,8 +86,11 @@
     * argument value to it.
     *
     * The current co-routine will be suspended until it is resumed later.
+    * @tparam R The type of objects transmitted to the other coroutine. These need
+    *           not be the same type as the kind transmitted back to this calling
+    *           coroutine.
     */
-   final def resume(coroutine: Coroutine[T], in: T): T = {
+   final def resume[R](coroutine: Coroutine[R], in: R): T = {
      resumeFinal(coroutine, in)
      val res = waitForResume() // blocks until it is resumed
      res
@@ -96,6 +101,21 @@
    }
 
    protected def run(): Unit
+ }
+
+ /**
+  * Convenience class, since many Coroutines systems have this as
+  * the main coroutine definition
+  * @tparam T The value type returned to this main coroutine when it is
+  *           resumed by other coroutines.
+  */
+ class MainCoroutine[T] extends Coroutine[T] {
+   final override def isMain = true
+   // $COVERAGE-OFF$
+   override protected def run(): Unit = {
+     throw new Error("Main thread co-routine run method should not be called.")
+   }
+   // $COVERAGE-ON$
  }
 
  /**
@@ -118,7 +138,9 @@
   * https://scalaenthusiast.wordpress.com/2013/06/12/transform-a-callback-function-to-an-iteratorlist-in-scala/
   */
 
- final class InvertControl[S](body: => Unit) extends Iterator[S] with Coroutine[Try[S]] {
+ final class InvertControl[S](body: => Unit)
+   extends MainCoroutine[Try[S]]
+     with Iterator[S] {
 
    private object EndMarker extends Throwable
    private val EndOfData = Failure(EndMarker)
@@ -155,8 +177,6 @@
 
    private val producer = new Producer(this)
 
-   override def isMain = true
-
    private var failed = false
 
    private val dummy: Try[S] = Success(null.asInstanceOf[S])
@@ -181,10 +201,6 @@
    override def next(): S = {
      if (failed) throw new IllegalStateException()
      else iterator.next()
-   }
-
-   override def run(): Unit= {
-     Assert.invariantFailed("Main thread co-routine run method should not be called.")
    }
 
  }

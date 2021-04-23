@@ -224,7 +224,10 @@ abstract class Diagnostic protected (
  */
 trait DataLocation {
   def toString: String
+
+  @deprecated("Use comparison of bitPos1b with expected position instead.", "3.1.0")
   def isAtEnd: Boolean
+
   def bitPos1b: Long
   def bytePos1b: Long
 }

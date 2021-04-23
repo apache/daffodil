@@ -456,10 +456,19 @@ class DataLocation private[sapi] (dl: SDataLocation) {
   override def toString() = dl.toString
 
   /**
-   * Determine if this data location is at the end of the input data
+   * Determine if we're positioned at the end of data.
    *
-   * @return true if this represents the end of the input data, false otherwise
+   * Blocks until either one byte of data can be read, or end-of-data
+   * is encountered.
+   *
+   * It is generally not advised to use this on network TCP data streams
+   * as it will block waiting for the sender of data to provide more data
+   * or close the stream.
+   *
+   * @return boolean indicating whether we are known to be positioned at
+   *         the end of data.
    */
+  @deprecated("Use comparison of bitPos1b() with expected position instead.", "3.1.0")
   def isAtEnd() = dl.isAtEnd
 
   /**

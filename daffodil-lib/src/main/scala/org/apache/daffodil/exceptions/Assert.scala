@@ -45,13 +45,17 @@ abstract class ThinException protected (dummy: Int, cause: Throwable, fmt: Strin
   def this(cause: Throwable) = this(1, cause, null)
 }
 
-abstract class UnsuppressableException(m: String) extends Exception(m) {
-  def this() = this("") // no arg constructor also.
+// $COVERAGE-OFF$ These exception objects should never be created by tests.
+abstract class UnsuppressableException(m: String, th: Throwable) extends Exception(m, th) {
+  def this(msg: String) = this(msg, null)
+  def this(th: Throwable) = this(null, th)
 }
+
 class UsageException(m: String) extends UnsuppressableException(m)
 class NotYetImplementedException(m: String) extends UnsuppressableException("Not yet implemented: " + m)
-class Abort(m: String) extends UnsuppressableException(m) {
-  def this(th: Throwable) = this(th.getMessage())
+class Abort(m: String, th: Throwable) extends UnsuppressableException(m, th) {
+  def this(th: Throwable) = this(null, th)
+  def this(m: String) = this(m, null)
 }
 
 class Assert {
@@ -64,6 +68,7 @@ class Assert {
     throw x
   }
 }
+// $COVERAGE-ON$
 
 object Assert extends Assert {
 
@@ -102,9 +107,12 @@ object Assert extends Assert {
   /**
    * Conditional behavior for NYIs
    */
-  def notYetImplemented(): Nothing = macro AssertMacros.notYetImplementedMacro0
   def notYetImplemented(testThatWillThrowIfTrue: Boolean): Unit = macro AssertMacros.notYetImplementedMacro1
   def notYetImplemented(testThatWillThrowIfTrue: Boolean, msg: String): Unit = macro AssertMacros.notYetImplementedMacro2
+
+  // $COVERAGE-OFF$ These unconditional assertions should never get executed by tests.
+
+  def notYetImplemented(): Nothing = macro AssertMacros.notYetImplementedMacro0
   //
   // Throughout this file, specifying return type Nothing
   // gets rid of many spurious (scala compiler bug) dead code
@@ -174,5 +182,6 @@ object Assert extends Assert {
   def invariantFailed(msg: String = "") = {
     abort("Invariant broken. " + msg)
   }
+  // $COVERAGE-ON$
 
 }

@@ -19,8 +19,8 @@ package org.apache.daffodil.api
 
 import org.apache.daffodil.processors.ProcessorResult
 import org.apache.daffodil.processors.Success
-import java.io.File
 
+import java.io.File
 import org.apache.daffodil.processors.VariableMap
 import org.apache.daffodil.externalvars.Binding
 import org.apache.daffodil.infoset.InfosetInputter
@@ -29,6 +29,7 @@ import org.apache.daffodil.infoset.InfosetOutputter
 import org.apache.daffodil.processors.Failure
 import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.util.Coroutine
+import org.apache.daffodil.util.MainCoroutine
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe.Nope
 import org.xml.sax.SAXException
@@ -246,7 +247,9 @@ object DFDL {
     def parse(ab: Array[Byte]): Unit
   }
 
-  trait DaffodilUnparseContentHandler extends org.xml.sax.ContentHandler with ProducerCoroutine {
+  trait DaffodilUnparseContentHandler
+    extends  ProducerCoroutine
+    with org.xml.sax.ContentHandler {
     def getUnparseResult: UnparseResult
     def enableInputterResolutionOfRelativeInfosetBlobURIs(): Unit
   }
@@ -316,12 +319,7 @@ object DFDL {
     }
   }
 
-  trait ProducerCoroutine extends Coroutine[Array[SAXInfosetEvent]] {
-    override def isMain = true
-    override protected def run(): Unit = {
-      throw new Error("Main thread co-routine run method should not be called.")
-    }
-  }
+  trait ProducerCoroutine extends MainCoroutine[Array[SAXInfosetEvent]]
 
   trait ConsumerCoroutine extends Coroutine[Array[SAXInfosetEvent]]
 

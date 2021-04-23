@@ -62,6 +62,12 @@ class TestInputSourceDataInputStream {
   def assertEqualsTyped(expected: Float, actual: Float, threshold: Float) = assertEquals(expected, actual, threshold)
   def assertEqualsTyped(expected: Double, actual: Double, threshold: Double) = assertEquals(expected, actual, threshold)
 
+  @Test def testByteBufferInputSource1(): Unit = {
+    val dis = InputSourceDataInputStream(ten)
+    // provides codecov for this method for ByteBufferInputSource
+    assertTrue(dis.hasReachedEndOfData)
+  }
+
   @Test def testBitAndBytePos0: Unit = {
     val dis = InputSourceDataInputStream(ten)
     0L assertEqualsTyped (dis.bitPos0b)

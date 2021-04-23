@@ -20,9 +20,6 @@ package org.apache.daffodil.processors.unparsers
 import java.io.ByteArrayOutputStream
 import java.nio.CharBuffer
 import java.nio.LongBuffer
-
-import scala.Left
-
 import org.apache.daffodil.api.DFDL
 import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.api.DataLocation
@@ -166,8 +163,7 @@ abstract class UState(
   def currentLocation: DataLocation = {
     val m = maybeCurrentInfosetElement
     val mrd = if (m.isDefined) Maybe(m.value.runtimeData) else Nope
-    val isAtEnd = false // TODO: this isn't right, but what does it mean to be at the end? Nothing appears to use this value when unparsing
-    new DataLoc(bitPos1b, bitLimit1b, isAtEnd, Left(dataOutputStream), mrd)
+    new DataLoc(bitPos1b, bitLimit1b, Left(dataOutputStream), mrd)
   }
 
   lazy val unparseResult = new UnparseResult(dataProc.get, this)

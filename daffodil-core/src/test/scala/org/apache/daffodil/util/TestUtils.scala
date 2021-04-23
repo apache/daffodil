@@ -22,15 +22,13 @@ import java.io.FileNotFoundException
 import java.nio.channels.Channels
 import java.nio.channels.ReadableByteChannel
 import java.nio.channels.WritableByteChannel
-
 import scala.util.Try
 import scala.xml._
-
 import org.apache.commons.io.output.NullOutputStream
-
 import org.junit.Assert.assertEquals
+import org.apache.daffodil.Implicits._
 
-import org.apache.daffodil.Implicits._; object INoWarnU2 { ImplicitsSuppressUnusedImportWarning() }
+import java.io.InputStream
 import org.apache.daffodil.api.DFDL
 import org.apache.daffodil.api._
 import org.apache.daffodil.compiler.Compiler
@@ -47,6 +45,8 @@ import org.apache.daffodil.processors.DataProcessor
 import org.apache.daffodil.processors.VariableMap
 import org.apache.daffodil.xml.XMLUtils
 import org.apache.daffodil.xml._
+
+object INoWarnU2 { ImplicitsSuppressUnusedImportWarning() }
 
 /*
  * This is not a file of tests.
@@ -82,7 +82,7 @@ object TestUtils {
   }
 
   def testString(testSchema: Node, data: String, areTracing: Boolean = false) = {
-    runSchemaOnData(testSchema, Misc.stringToReadableByteChannel(data), areTracing)
+    runSchemaOnRBC(testSchema, Misc.stringToReadableByteChannel(data), areTracing)
   }
 
   def testBinary(testSchema: Node, hexData: String, areTracing: Boolean = false): (DFDL.ParseResult, Node) = {
@@ -92,11 +92,11 @@ object TestUtils {
 
   def testBinary(testSchema: Node, data: Array[Byte], areTracing: Boolean): (DFDL.ParseResult, Node) = {
     val rbc = Misc.byteArrayToReadableByteChannel(data)
-    runSchemaOnData(testSchema, rbc, areTracing)
+    runSchemaOnRBC(testSchema, rbc, areTracing)
   }
 
   def testFile(testSchema: Node, fileName: String) = {
-    runSchemaOnData(testSchema, Misc.fileToReadableByteChannel(new java.io.File(fileName)))
+    runSchemaOnRBC(testSchema, Misc.fileToReadableByteChannel(new java.io.File(fileName)))
   }
 
   val useSerializedProcessor = true
@@ -182,7 +182,7 @@ object TestUtils {
     } else p
   }
 
-  def runSchemaOnData(testSchema: Node, data: ReadableByteChannel, areTracing: Boolean = false) = {
+  def compileSchema(testSchema: Node) = {
     val compiler = Compiler()
     val pf = compiler.compileNode(testSchema)
     val isError = pf.isError
@@ -191,19 +191,34 @@ object TestUtils {
     if (isError) {
       throw new Exception(msgs)
     }
-    var p = saveAndReload(pf.onPath("/").asInstanceOf[DataProcessor])
+    val p = saveAndReload(pf.onPath("/").asInstanceOf[DataProcessor])
     val pIsError = p.isError
     if (pIsError) {
       val msgs = pf.getDiagnostics.map(_.getMessage()).mkString("\n")
       throw new Exception(msgs)
     }
-    p = if (areTracing) {
-      p.withDebugger(builtInTracer).withDebugging(true)
-    } else p
-    p = p.withValidationMode(ValidationMode.Limited)
+    p
+  }
+
+  def runSchemaOnRBC(testSchema: Node, data: ReadableByteChannel, areTracing: Boolean = false): (DFDL.ParseResult, Node) = {
+    runSchemaOnInputStream(testSchema, Channels.newInputStream(data), areTracing)
+  }
+
+  def runSchemaOnInputStream(testSchema: Node, is: InputStream, areTracing: Boolean = false): (DFDL.ParseResult, Node) = {
+    val p = compileSchema(testSchema)
+    runDataProcessorOnInputStream(p, is, areTracing)
+  }
+
+  def runDataProcessorOnInputStream(dp: DataProcessor, is: InputStream, areTracing: Boolean = false): (DFDL.ParseResult, Node) = {
+    val p1 =
+      if (areTracing) {
+        dp.withDebugger(builtInTracer).withDebugging(true)
+      } else dp
+
+    val p = p1.withValidationMode(ValidationMode.Limited)
 
     val outputter = new ScalaXMLInfosetOutputter()
-    val input = InputSourceDataInputStream(Channels.newInputStream(data))
+    val input = InputSourceDataInputStream(is)
     val actual = p.parse(input, outputter)
     if (actual.isProcessingError) {
       val diags = actual.getDiagnostics

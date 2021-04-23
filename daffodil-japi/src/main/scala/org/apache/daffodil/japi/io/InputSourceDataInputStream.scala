@@ -20,7 +20,7 @@ package org.apache.daffodil.japi.io
 import java.io.InputStream
 import java.nio.ByteBuffer
 
-import org.apache.daffodil.io.{ InputSourceDataInputStream => SInputSourceDataInputStream }
+import org.apache.daffodil.io.{InputSourceDataInputStream => SInputSourceDataInputStream}
 
 /**
  * Provides Daffodil with byte data from an InputStream, ByteBuffer, or byte
@@ -28,7 +28,7 @@ import org.apache.daffodil.io.{ InputSourceDataInputStream => SInputSourceDataIn
  *
  * @param dis the underlying Scala InputSourceDataInputStream
  */
-class InputSourceDataInputStream private[japi] (private [japi] val dis: SInputSourceDataInputStream) {
+class InputSourceDataInputStream private[japi](private[japi] val dis: SInputSourceDataInputStream) {
 
   /**
    * Create an InputSourceDataInputStream from a java.io.InputStream
@@ -38,10 +38,30 @@ class InputSourceDataInputStream private[japi] (private [japi] val dis: SInputSo
   /**
    * Create an InputSourceDataInputStream from a java.nio.ByteBuffer
    */
-  def this(bb: ByteBuffer) = this(SInputSourceDataInputStream(bb)) 
+  def this(bb: ByteBuffer) = this(SInputSourceDataInputStream(bb))
 
   /**
    * Create an InputSourceDataInputStream from a byte array
    */
-  def this(arr: Array[Byte]) = this(SInputSourceDataInputStream(arr)) 
+  def this(arr: Array[Byte]) = this(SInputSourceDataInputStream(arr))
+
+  /**
+   * Returns true if the input stream has at least 1 bit of data.
+   *
+   * Does not advance the position.
+   *
+   * Returns true immediately if the input stream has available data that
+   * has not yet been consumed.
+   *
+   * On a network input stream, this may block to determine if the stream
+   * contains data or is at end-of-data.
+   *
+   * This is used when parsing multiple elements from a stream to see if there
+   * is data or not before calling parse().
+   *
+   * It may also be used after a parse() operation that is intended to consume
+   * the entire data stream (such as for a file) to determine if all data has
+   * been consumed or some data is left-over.
+   */
+  def hasData(): Boolean = dis.isDefinedForLength(1)
 }

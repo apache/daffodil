@@ -17,10 +17,12 @@
 
 package org.apache.daffodil.example
 
+import org.apache.commons.io.FileUtils
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
+
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.ObjectInputStream
@@ -28,7 +30,6 @@ import java.io.ObjectOutputStream
 import java.io.File
 import java.nio.channels.Channels
 import java.nio.file.Paths
-
 import org.junit.Test
 import org.apache.daffodil.sapi.Daffodil
 import org.apache.daffodil.sapi.DataProcessor
@@ -46,6 +47,8 @@ import org.apache.daffodil.sapi.DaffodilUnhandledSAXException
 import org.apache.daffodil.sapi.DaffodilUnparseErrorSAXException
 import org.apache.daffodil.sapi.SAXErrorHandlerForSAPITest
 import org.apache.daffodil.sapi.infoset.XMLTextInfosetOutputter
+
+import java.nio.ByteBuffer
 
 class TestScalaAPI {
 
@@ -133,7 +136,6 @@ class TestScalaAPI {
     val res = dp.parse(input, outputter)
     val err = res.isError()
     assertFalse(err)
-    assertTrue(res.location().isAtEnd())
     assertEquals(0, lw.errors.size)
     assertEquals(0, lw.warnings.size)
 
@@ -185,13 +187,16 @@ class TestScalaAPI {
     .withDebugging(true)
     .withValidationMode(ValidationMode.Off)
     val file = getResource("/test/sapi/myData.dat")
-    val fis = new java.io.FileInputStream(file)
-    val input = new InputSourceDataInputStream(fis)
+    // This test uses a byte array here, just so as to be sure to exercise
+    // the constructor for creating an InputSourceDataInputStream from a byte array
+    // and byte buffer.
+    val ba = FileUtils.readFileToByteArray(file)
+    val bb = ByteBuffer.wrap(ba)
+    val input = new InputSourceDataInputStream(bb)
     val outputter = new ScalaXMLInfosetOutputter()
     val res = parser.parse(input, outputter)
     val err = res.isError()
     assertFalse(err)
-    assertTrue(res.location().isAtEnd())
 
     lw.errors.foreach(println)
     lw.warnings.foreach(println)
@@ -232,8 +237,11 @@ class TestScalaAPI {
     val dp = reserializeDataProcessor(dp1)
 
     val file = getResource("/test/sapi/myDataBroken.dat")
-    val fis = new java.io.FileInputStream(file)
-    val input = new InputSourceDataInputStream(fis)
+    // This test uses a byte array here, just so as to be sure to exercise
+    // the constructor for creating an InputSourceDataInputStream from a byte array
+    // and byte buffer.
+    val ba = FileUtils.readFileToByteArray(file)
+    val input = new InputSourceDataInputStream(ba)
     val outputter = new ScalaXMLInfosetOutputter()
     val res = dp.parse(input, outputter)
 
@@ -282,7 +290,6 @@ class TestScalaAPI {
     val res = dp.parse(input, outputter)
     val err = res.isError()
     assertFalse(err)
-    assertFalse(res.location().isAtEnd())
     assertEquals(2, res.location().bytePos1b())
     assertEquals(9, res.location().bitPos1b())
 
@@ -323,7 +330,6 @@ class TestScalaAPI {
     val res = parser.parse(input, outputter)
     val err = res.isError()
     assertFalse(err)
-    assertFalse(res.location().isAtEnd())
     assertEquals(2, res.location().bytePos1b())
     assertEquals(9, res.location().bitPos1b())
 
@@ -352,7 +358,6 @@ class TestScalaAPI {
     val res = dp.parse(input, outputter)
     val err = res.isError()
     assertFalse(err)
-    assertFalse(res.location().isAtEnd())
     assertEquals(5, res.location().bytePos1b())
     assertEquals(33, res.location().bitPos1b())
 
@@ -383,7 +388,6 @@ class TestScalaAPI {
     val res = dp.parse(input, outputter)
     val err = res.isError()
     assertFalse(err)
-    assertTrue(!res.location().isAtEnd())
     assertEquals(5, res.location().bytePos1b())
     assertEquals(33, res.location().bitPos1b())
 
@@ -456,7 +460,6 @@ class TestScalaAPI {
     val res = dp.parse(input, outputter)
     val err = res.isError()
     assertFalse(err)
-    assertTrue(res.location().isAtEnd())
 
     val bos = new java.io.ByteArrayOutputStream()
     val wbc = java.nio.channels.Channels.newChannel(bos)
@@ -500,7 +503,6 @@ class TestScalaAPI {
     val res = dp.parse(input, outputter)
     val err = res.isError()
     assertFalse(err)
-    assertTrue(res.location().isAtEnd())
 
     val bos = new java.io.ByteArrayOutputStream()
     val wbc = java.nio.channels.Channels.newChannel(bos)
@@ -589,7 +591,6 @@ class TestScalaAPI {
     val node = outputter.getResult
     val hidden = node \\ "hiddenElement"
     assertTrue(hidden.isEmpty)
-    assertTrue(res.location().isAtEnd())
   }
 
   /**
@@ -623,7 +624,6 @@ class TestScalaAPI {
     assertTrue(rootE2.isEmpty)
     val rootE3 = rootNode \ "e3"
     assertTrue(rootE3.isEmpty)
-    assertTrue(res.location().isAtEnd())
   }
 
   @Test
@@ -652,7 +652,6 @@ class TestScalaAPI {
     val res = dp.parse(input, outputter)
     val err = res.isError()
     assertFalse(err)
-    assertTrue(res.location().isAtEnd())
 
     lw2.errors.foreach(println)
     lw2.warnings.foreach(println)
@@ -745,7 +744,6 @@ class TestScalaAPI {
     assertTrue(var1ValueNode.size == 1)
     val var1ValueText = var1ValueNode.text
     assertTrue(var1ValueText == "externallySet")
-    assertTrue(res.location().isAtEnd())
 
     lw.errors.foreach(println)
     lw.warnings.foreach(println)
@@ -857,7 +855,6 @@ class TestScalaAPI {
     assertTrue(res.isError())
     assertFalse(res.isProcessingError())
     assertTrue(res.isValidationError())
-    assertTrue(res.location().isAtEnd())
 
     val diags = res.getDiagnostics
     assertEquals(1, diags.size)
@@ -883,7 +880,8 @@ class TestScalaAPI {
     assertTrue(res.isError())
     assertFalse(res.isProcessingError())
     assertTrue(res.isValidationError())
-    assertTrue(res.location().isAtEnd())
+    val actualLength = res.location.bytePos1b - 1
+    assertEquals(file.length, actualLength)
 
     val diags = res.getDiagnostics
     assertEquals(3, diags.size)
@@ -924,7 +922,6 @@ class TestScalaAPI {
     res = dp.parse(input, outputter)
     err = res.isError()
     assertFalse(err)
-    assertFalse(res.location().isAtEnd())
     assertEquals(5, res.location().bytePos1b())
     assertEquals("data", outputter.getResult.text)
 
@@ -932,7 +929,6 @@ class TestScalaAPI {
     res = dp.parse(input, outputter)
     err = res.isError()
     assertFalse(err)
-    assertFalse(res.location().isAtEnd())
     assertEquals(9, res.location().bytePos1b())
     assertEquals("left", outputter.getResult.text)
 
@@ -940,7 +936,7 @@ class TestScalaAPI {
     res = dp.parse(input, outputter)
     err = res.isError()
     assertFalse(err)
-    assertTrue(res.location().isAtEnd())
+    assertFalse(input.hasData())
     assertEquals(13, res.location().bytePos1b())
     assertEquals("over", outputter.getResult.text)
   }
@@ -1021,7 +1017,6 @@ class TestScalaAPI {
     val infosetSAXString = new org.jdom2.output.XMLOutputter(pretty).outputString(infosetSAX)
 
     assertFalse(err)
-    assertTrue(resSAX.location().isAtEnd())
     assertTrue(diags.isEmpty)
     assertEquals(infosetDPString, infosetSAXString)
 
