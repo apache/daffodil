@@ -18,7 +18,7 @@
 package org.apache.daffodil.io
 
 import java.io.InputStream
-import java.math.{ BigInteger => JBigInt }
+import java.math.{BigInteger => JBigInt}
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
 import java.nio.LongBuffer
@@ -94,8 +94,9 @@ private[io] class MarkPool() extends Pool[MarkState] {
  *
  * Underlying representation is an InputSource containing all input data.
  */
-final class InputSourceDataInputStream private (val inputSource: InputSource)
+final class InputSourceDataInputStream private(val inputSource: InputSource)
   extends DataInputStreamImplMixin {
+
   import DataInputStream._
 
   override def toString = {
@@ -116,6 +117,38 @@ final class InputSourceDataInputStream private (val inputSource: InputSource)
 
   @inline
   override final def bitLimit0b: MaybeULong = cst.bitLimit0b
+
+  /**
+   * Tells us if the underlying input source has detected end-of-data
+   * (the read(...) call returned -1.
+   *
+   * But this does NOT tell us we are positioned at the end, only whether
+   * in the course of reading, we encountered the end of data. If we
+   * backtracked we could have seen the end of data, but backed up in
+   * the data to an earlier position.
+   */
+  def hasReachedEndOfData: Boolean = inputSource.hasReachedEndOfData
+
+  /**
+   * Determine if we're positioned at the end of data.
+   *
+   * Blocks until either one byte of data can be read, or end-of-data
+   * is encountered.
+   *
+   * It is generally not advised to use this on network TCP data streams
+   * as it will block waiting for the sender of data to provide more data
+   * or close the stream.
+   *
+   * @return boolean indicating whether we are known to be positioned at
+   *         the end of data.
+   */
+  @deprecated(
+    "Use bitPos0b or bitPos1b to compare with expected position (possibly bitLimit0b).",
+    "3.1.0")
+  final def isAtEnd(): Boolean = {
+    !hasData() && hasReachedEndOfData
+  }
+
 
   def setBitPos0b(newBitPos0b: Long): Unit = {
     // threadCheck()
@@ -507,7 +540,10 @@ final class InputSourceDataInputStream private (val inputSource: InputSource)
   /**
    * Determines whether the input stream has this much more data.
    *
-   * Does not advance the position
+   * Does not advance the position.
+   *
+   * This operation will block until either n bytes are read or end-of-data
+   * is hit.
    */
   final def isDefinedForLength(nBits: Long): Boolean = {
     val newBitPos0b = bitPos0b + nBits
@@ -518,6 +554,8 @@ final class InputSourceDataInputStream private (val inputSource: InputSource)
       inputSource.areBytesAvailable(moreBytesNeeded)
     }
   }
+
+  final def hasData() = isDefinedForLength(1)
 
   def skip(nBits: Long, finfo: FormatInfo): Boolean = {
     // threadCheck()
@@ -565,6 +603,7 @@ final class InputSourceDataInputStream private (val inputSource: InputSource)
   }
 
   override def markPos: MarkPos = bitPos0b
+
   override def resetPos(m: MarkPos): Unit = {
     setBitPos0b(m)
   }
@@ -735,6 +774,7 @@ final class InputSourceDataInputStream private (val inputSource: InputSource)
   }
 
   private val charIterator = new InputSourceDataInputStreamCharIterator(this)
+
   def asIteratorChar: CharIterator = {
     val ci = charIterator
     ci.reset()

@@ -18,11 +18,12 @@
 package org.apache.daffodil.io
 
 import java.nio.ByteBuffer
-
 import scala.collection.mutable.ArrayBuffer
-
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.exceptions.ThinException
+import org.apache.daffodil.exceptions.UnsuppressableException
+
+import java.io.InputStream
 
 /**
  * There is a finite limit to the distance one can backtrack which is given by
@@ -54,6 +55,27 @@ case class BacktrackingException(position: Long, maxBacktrackLength: Int)
   extends ThinException("Attempted to backtrack to byte %d, which exceeds maximum backtrack length of %d", position, maxBacktrackLength)
 
 /**
+ * Thrown in the specific case where a java.io.InputStream is not properly
+ * implemented and is returning 0 from the read(buf, off, len) call when len > 0.
+ *
+ * This non-blocking behavior is not supported by java.io.InputStream's contract
+ * and Daffodil depends on InputStreams having only blocking behavior.
+ *
+ * To properly place blame for this error on the InputStream (and not Daffodil's
+ * I/O layer built on top of it) we throw this very specific, informative
+ * exception in this case.
+ * @param inputStream The stream that is misbehaving.
+ */
+class InputStreamReadZeroError(inputStream: InputStream)
+extends UnsuppressableException(
+  s"""InputStream ${ inputStream.toString } illegally
+  | returned 0 from a call to read(buf, off, len).
+  | This is illegal behavior from a java.io.InputStream instance, as InputStream is a blocking API.
+  | This is not a Daffodil bug, but a problem with the InputStream supplied
+  | to Daffodil as a data source.""".stripMargin){
+}
+
+/**
  * The InputSource class is really just a mechanism to provide bytes an
  * InputSourceDataInputStream, which does the heavily lift about converter
  * bits/bytes to numbers and characters. This class does not need to know
@@ -66,6 +88,15 @@ case class BacktrackingException(position: Long, maxBacktrackLength: Int)
  * marks with random access.
  */
 abstract class InputSource {
+
+  /**
+   * Determine if the InputSource has encountered the end-of-data.
+   *
+   * This does NOT perform a read operation (which would be blocking), but just
+   * answers the question of whether prior read operations in fact encountered
+   * the -1 indicating end-of-data
+   */
+  def hasReachedEndOfData: Boolean
 
   /**
    * Determine whether the underlying data has the specified number of bytes
@@ -245,6 +276,12 @@ class BucketingInputSource(
    */
   private var bytesFilledInLastBucket: Int = 0
 
+  private var hasMoreData = true
+
+  override def hasReachedEndOfData: Boolean =
+    !hasMoreData
+
+
   /**
    * Adds new buckets to the buckets array until either we run out of data or
    * we fill up to byteIndex bytes in the bucketIndex. This modifies
@@ -255,7 +292,7 @@ class BucketingInputSource(
    */
   private def fillBucketsToIndex(goalBucketIndex: Long, bytesNeededInBucket: Long): Boolean = {
     var lastBucketIndex = buckets.length - 1
-    var hasMoreData = true
+
     var needsMoreData = goalBucketIndex > lastBucketIndex || (goalBucketIndex == lastBucketIndex && bytesNeededInBucket > bytesFilledInLastBucket)
 
     while (needsMoreData && hasMoreData) {
@@ -263,10 +300,21 @@ class BucketingInputSource(
       // actually needed
       val emptyBytesInLastBucket = bucketSize - bytesFilledInLastBucket
 
+      // we never call read passing len of 0.
+      Assert.invariant(emptyBytesInLastBucket > 0)
+
       // Try to read enough bytes to fill the rest of this bucket. Note that
       // the .read() function could hit EOF (returns -1) or could return
-      // anywhere from zero to emptyBytesInLastBucket bytes
-      val bytesRead = inputStream.read(buckets(lastBucketIndex).bytes, bytesFilledInLastBucket, emptyBytesInLastBucket)
+      // anywhere from 1 to emptyBytesInLastBucket bytes
+      val bytesRead =
+        inputStream.read(
+          buckets(lastBucketIndex).bytes,
+          bytesFilledInLastBucket,
+          emptyBytesInLastBucket)
+
+      // check for bad inputStream behavior. It's not our fault!
+      if (bytesRead == 0)
+        throw new InputStreamReadZeroError(inputStream)
 
       if (bytesRead == -1) {
         // Needed more data but hit EOF, break out with error
@@ -550,4 +598,11 @@ class ByteBufferInputSource(byteBuffer: ByteBuffer)
     // since those are only used to prevent memory segments from being
     // compacted.
   }
+
+  /**
+   * Determine if the InputSource has encountered the end-of-data.
+   *
+   * For a byte buffer, this is always true.
+   */
+  override def hasReachedEndOfData = true
 }

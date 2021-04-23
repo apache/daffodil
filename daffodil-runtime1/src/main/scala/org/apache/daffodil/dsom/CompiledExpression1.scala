@@ -102,7 +102,7 @@ abstract class CompiledExpression[+T <: AnyRef](
    *
    * isConstant must be true or this will throw.
    */
-  @deprecated("2016-02-18", "Code should just call evaluate(...) on an Evaluatable object.")
+  @deprecated("Code should just call evaluate(...) on an Evaluatable object.", "2016-02-18")
   def constant: T
   def isConstant: Boolean
 

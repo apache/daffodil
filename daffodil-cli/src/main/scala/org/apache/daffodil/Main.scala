@@ -976,14 +976,15 @@ object Main extends Logging {
                 }
                 output.flush()
 
-                if (loc.isAtEnd) {
+                if (!inStream.hasData()) {
+                  // not even 1 more bit is available.
                   // do not try to keep parsing, nothing left to parse
                   keepParsing = false
                   error = false
                 } else {
-                  // remaining data exists
-
+                  // There is more data available.
                   if (parseOpts.stream.toOption.get) {
+                    // Streaming mode
                     if (lastParseBitPosition == loc.bitPos0b) {
                       // this parse consumed no data, that means this would get
                       // stuck in an infinite loop if we kept trying to stream,
@@ -998,13 +999,16 @@ object Main extends Logging {
                       keepParsing = false
                       error = true
                     } else {
+                      // last parse did consume data, and we know there is more
+                      // data to come, so try to parse again.
                       lastParseBitPosition = loc.bitPos0b
                       keepParsing = true
                       error = false
                       output.write(0) // NUL-byte separates streams
                     }
                   } else {
-                    // not streaming, show left over data warning
+                    // not streaming mode, and there is more data available,
+                    // so show left over data warning
                     val Dump = new DataDumper
                     val bitsAlreadyConsumed = loc.bitPos0b % 8
                     val firstByteString = if (bitsAlreadyConsumed != 0) {

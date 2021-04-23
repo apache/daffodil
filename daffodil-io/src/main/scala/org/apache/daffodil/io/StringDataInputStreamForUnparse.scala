@@ -47,8 +47,6 @@ final class StringDataInputStreamForUnparse
     dis = InputSourceDataInputStream(ba)
   }
 
-  private def doNotUse = Assert.usageError("Not to be called on " + Misc.getNameFromClass(this))
-
   override def asIteratorChar: DataInputStream.CharIterator = {
     Assert.usage(dis != null, "Must call reset(str) before any other method.")
     dis.asIteratorChar
@@ -66,6 +64,9 @@ final class StringDataInputStreamForUnparse
   override def getSomeString(nChars: Long,finfo: FormatInfo): Maybe[String] = dis.getSomeString(nChars, finfo)
   override def getString(nChars: Long,finfo: FormatInfo): Maybe[String] = dis.getString(nChars, finfo)
 
+  // $COVERAGE-OFF$ Nothing should be calling these.
+  private def doNotUse = Assert.usageError("Not to be called on " + Misc.getNameFromClass(this))
+
   override def futureData(nBytesRequested: Int): java.nio.ByteBuffer = doNotUse
   override def getBinaryDouble(finfo: FormatInfo): Double = doNotUse
   override def getBinaryFloat(finfo: FormatInfo): Float = doNotUse
@@ -79,7 +80,9 @@ final class StringDataInputStreamForUnparse
   override def setBitLimit0b(bitLimit0b: MaybeULong): Boolean = doNotUse
   override def setDebugging(setting: Boolean): Unit = doNotUse
   override def isDefinedForLength(length: Long): Boolean = doNotUse
+  override def hasData: Boolean = doNotUse
   override def skip(nBits: Long, finfo: FormatInfo): Boolean = doNotUse
   override def resetBitLimit0b(savedBitLimit0b: MaybeULong): Unit = doNotUse
+  // $COVERAGE-ON$
   override def validateFinalStreamState: Unit = {} // does nothing
 }

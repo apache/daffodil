@@ -134,11 +134,11 @@ package org.apache.daffodil
  * val is = new InputSourceDataInputStream(dataStream)
  * val scalaOutputter = new ScalaXMLInfosetOutputter()
  * val keepParsing = true
- * while (keepParsing) {
+ * while (keepParsing && is.hasData()) {
  *   scalaOutputter.reset()
  *   val pr = dp.parse(is, jdomOutputter)
  *   ...
- *   keepParsing = !pr.location().isAtEnd() && !pr.isError()
+ *   keepParsing = !pr.isError()
  * }
  * }}}
  *
@@ -193,12 +193,12 @@ package org.apache.daffodil
  * val contentHandler = new SAXHandler()
  * xmlReader.setContentHandler(contentHandler)
  * val keepParsing = true
- * while (keepParsing) {
+ * while (keepParsing && is.hasData()) {
  *   contentHandler.reset()
  *   xmlReader.parse(is)
  *   val pr = xmlReader.getProperty(DaffodilParseXMLReader.DAFFODIL_SAX_URN_PARSERESULT)
  *   ...
- *   keepParsing = !pr.location().isAtEnd() && !pr.isError()
+ *   keepParsing = !pr.isError()
  * }
  * }}}
  *

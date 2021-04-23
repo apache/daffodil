@@ -20,10 +20,7 @@ package org.apache.daffodil.processors.parsers
 import java.nio.channels.Channels
 import java.nio.file.Files
 import java.nio.file.Path
-
-import scala.Right
 import scala.collection.mutable
-
 import org.apache.daffodil.api.DFDL
 import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.api.DataLocation
@@ -288,8 +285,7 @@ final class PState private (
   }
 
   def currentLocation: DataLocation = {
-    val isAtEnd = !dataInputStream.isDefinedForLength(1)
-    new DataLoc(bitPos1b, bitLimit1b, isAtEnd, Right(dataInputStream), Maybe(thisElement.runtimeData))
+    new DataLoc(bitPos1b, bitLimit1b, Right(dataInputStream), Maybe(thisElement.runtimeData))
   }
 
   def bitPos0b = dataInputStream.bitPos0b

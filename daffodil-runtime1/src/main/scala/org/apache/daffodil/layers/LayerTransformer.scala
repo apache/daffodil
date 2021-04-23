@@ -216,7 +216,7 @@ class JavaIOInputStream(s: InputSourceDataInputStream, finfo: FormatInfo)
     }
   }
 
-  override def available(): Int = 1
+  override def available(): Int = 0
 
   override def close(): Unit = {
     // do nothing

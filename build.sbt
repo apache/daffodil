@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-import sbt.io.Path.flatRebase
 import sbtcc._
+
 import scala.collection.immutable.ListSet
 
 // Silence an errant sbt linter warning about unused sbt settings. For some
@@ -86,7 +86,7 @@ lazy val runtime2         = Project("daffodil-runtime2", file("daffodil-runtime2
                               )
 
 lazy val core             = Project("daffodil-core", file("daffodil-core")).configs(IntegrationTest)
-                              .dependsOn(runtime1Unparser, udf, lib % "test->test", runtime1 % "test->test")
+                              .dependsOn(runtime1Unparser, udf, lib % "test->test", runtime1 % "test->test", io % "test->test")
                               .settings(commonSettings)
 
 lazy val japi             = Project("daffodil-japi", file("daffodil-japi")).configs(IntegrationTest)

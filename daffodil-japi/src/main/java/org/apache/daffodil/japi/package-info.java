@@ -151,11 +151,11 @@
  * InputSourceDataInputStream is = new InputSourceDataInputStream(dataStream);
  * JDOMInfosetOutputter jdomOutputter = new JDOMInfosetOutputter();
  * boolean keepParsing = true;
- * while (keepParsing) {
+ * while (keepParsing && is.hasData()) {
  *   jdomOutputter.reset();
  *   ParseResult pr = dp.parse(is, jdomOutputter);
  *   ...
- *   keepParsing = !pr.location().isAtEnd() && !pr.isError();
+ *   keepParsing = !pr.isError();
  * }
  * }</pre>
  *
@@ -214,12 +214,12 @@
  * SAXHandler contentHandler = new SAXHandler();
  * xmlReader.setContentHandler(contentHandler);
  * Boolean keepParsing = true;
- * while (keepParsing) {
+ * while (keepParsing && is.hasData()) {
  *   contentHandler.reset();
  *   xmlReader.parse(is);
  *   val pr = xmlReader.getProperty(DaffodilParseXMLReader.DAFFODIL_SAX_URN_PARSERESULT());
  *   ...
- *   keepParsing = !pr.location().isAtEnd() && !pr.isError();
+ *   keepParsing = !pr.isError();
  * }
  * }
  * </pre>
