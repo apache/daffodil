@@ -34,6 +34,7 @@ class TestRepProps2 {
   import TestRepProps2._
   
   @Test def test_ebcdic1() = { runner.runOneTest("ebcdic1") }
+  @Test def test_IBM1047() = { runner.runOneTest("IBM1047") }
   @Test def test_bits1() = { runner.runOneTest("bits1") }
   @Test def test_bits1a() = { runner.runOneTest("bits1a") }
   @Test def test_bits2() = { runner.runOneTest("bits2") }
@@ -41,7 +42,7 @@ class TestRepProps2 {
 
   @Test def test_bitsTerm1() = { runner.runOneTest("bitsTerm1") }
 
-  // fails Left-over data byte 1 limit(bytes) 2
+  // fails Left-over data byte 1 limit(bytes) 2   
   @Test def test_bitsTerm2() = { runner.runOneTest("bitsTerm2") }
   @Test def test_bitsTerm3() = { runner.runOneTest("bitsTerm3") }
   
