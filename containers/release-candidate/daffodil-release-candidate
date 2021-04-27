@@ -77,6 +77,9 @@ fi
 
 export GPG_TTY=$(tty)
 export WIX=/root/wix311/
+export LANG=en_US.UTF-8
+export CC=clang
+export AR=llvm-ar
 
 
 read -p "Pre Release label (e.g. rc1): " PRE_RELEASE
@@ -112,8 +115,8 @@ fi
 TEST_GIT_DIR=/tmp/test-git-sign
 mkdir -p $TEST_GIT_DIR
 pushd $TEST_GIT_DIR &> /dev/null
-git init .
-git commit --allow-empty --allow-empty-message -m "test"
+git init -b main .
+git commit --allow-empty --allow-empty-message -m "Test Commit"
 git tag -as -u $PGP_SIGNING_KEY_ID -m "Test Signed Tag"  test-tag
 if [ $? -ne 0 ]; then
    echo -e "\n!!! Unable to sign git tag with given key: $PGP_SIGNING_KEY !!!\n"

@@ -21,12 +21,35 @@ export WINEDEBUG=-all
 #delete stuff in homedir
 rm ~/*
 
-#install dependencies
-curl https://bintray.com/sbt/rpm/rpm -o /etc/yum.repos.d/bintray-sbt-rpm.repo
-microdnf install git svn sbt java-1.8.0-devel wine winetricks unzip rpm-build rpm-sign vim-minimal
+# sbt rpm is self hosted
+cat <<EOF > /etc/yum.repos.d/sbt-rpm.repo
+[sbt-rpm]
+name=sbt-rpm
+baseurl=https://repo.scala-sbt.org/scalasbt/rpm
+gpgcheck=0
+repo_gpgcheck=0
+enabled=1
+EOF
+
+# install dependencies
+microdnf -y install \
+  clang \
+  git \
+  java-1.8.0-devel \
+  llvm \
+  mxml-devel \
+  pinentry \
+  rpm-build \
+  rpm-sign \
+  sbt \
+  subversion \
+  unzip \
+  vim-minimal \
+  wine \
+  winetricks
 
 # install wix
-curl -L https://github.com/wixtoolset/wix3/releases/download/wix3111rtm/wix311-binaries.zip -o wix311-binaries.zip
+curl -L https://github.com/wixtoolset/wix3/releases/download/wix3112rtm/wix311-binaries.zip -o wix311-binaries.zip
 mkdir wix311
 unzip wix311-binaries.zip -d wix311/
 rm wix311-binaries.zip

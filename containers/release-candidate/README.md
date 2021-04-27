@@ -27,7 +27,7 @@ To build the Daffodil release candidate container image:
 
 To use the container image to build a release run the following:
 
-    podman run -it \
+    podman run -it --privileged \
       -v ~/.gitconfig:/root/.gitconfig \
       -v ~/.gnupg/:/root/.gnupg/ \
       -v ~/.ssh/:/root/.ssh/ \
