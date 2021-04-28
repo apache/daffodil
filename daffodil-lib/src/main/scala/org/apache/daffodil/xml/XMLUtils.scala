@@ -851,11 +851,6 @@ object XMLUtils {
       checkPrefixes,
       checkNamespaces)
     if (diffs.length > 0) {
-      val attributesProperty = if(checkPrefixes || checkNamespaces) {
-        "attributes not ignored for diff"
-      } else {
-        "attributes ignored for diff"
-      }
       throw new XMLDifferenceException("""
 Comparison failed.
 Expected (attributes %s)

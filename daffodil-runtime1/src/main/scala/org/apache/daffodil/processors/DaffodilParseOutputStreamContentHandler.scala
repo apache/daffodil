@@ -26,8 +26,6 @@ import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.util.Indentable
 import org.apache.daffodil.util.MStackOf
 import org.apache.daffodil.util.MStackOfBoolean
-import org.apache.daffodil.util.Maybe
-import org.apache.daffodil.util.Maybe.Nope
 import org.apache.daffodil.xml.XMLUtils
 import org.xml.sax.Attributes
 import org.xml.sax.ContentHandler
@@ -192,7 +190,7 @@ class DaffodilParseOutputStreamContentHandler(out: OutputStream, pretty: Boolean
 
     // handle start of tag
     writer.write("<")
-    outputTagName(uri, localName, qName, Some(atts))
+    outputTagName(uri, localName, qName)
 
     // this contains only xmlns prefixes and are populated via the start/endPrefixMappings
     // or Attributes via processAttributes()
@@ -216,7 +214,7 @@ class DaffodilParseOutputStreamContentHandler(out: OutputStream, pretty: Boolean
     outputNewlineStack.push(false)
   }
 
-  private def outputTagName(uri: String, localName: String, qName: String, atts: Maybe[Attributes] = Nope): Unit = {
+  private def outputTagName(uri: String, localName: String, qName: String): Unit = {
     val tagName = {
       if (qName.nonEmpty) {
         // namespacePrefixes == true, so qName is populated
