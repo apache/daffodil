@@ -14,42 +14,56 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Here's how to compile the C sources into a program for running
-# parse/unparse tests (.dat <-> .xml)
+# Step 0: You will need to install the Mini-XML library and xmldiff.
+# Here's how to install both packages on Ubuntu 20.04 (first-time
+# setup only):
+
+# $ sudo apt install libmxml-dev xmldiff
+
+# Step 1: Copy your test data files here and either rename them to
+# parse.dat and unparse.xml or set PARSE_DAT and UNPARSE_XML.
+
+# $ cp ../ex_nums_parse.dat parse.dat
+# $ cp ../ex_nums_unparse_runtime2.xml unparse.xml
+
+PARSE_DAT = parse.dat
+UNPARSE_XML = unparse.xml
+
+# Step 2: Compile the C source files into an executable program which
+# can run the parse and unparse checks (e.g., .dat <-> .xml).
+
+# $ make
 
 PROGRAM = ./daffodil
 HEADERS = libcli/*.h libruntime/*.h
 SOURCES = libcli/*.c libruntime/*.c
-INCLUDES = -I libcli -I libruntime
+INCLUDES = -Ilibcli -Ilibruntime
 CFLAGS = -g -Wall -Wextra
 LIBS = -lmxml
 
 $(PROGRAM): $(HEADERS) $(SOURCES)
 	$(CC) $(CFLAGS) $(INCLUDES) $(SOURCES) $(LIBS) -o $(PROGRAM)
 
-# Here's how to run parse/unparse tests (.dat <-> .xml, although you
-# will need to create the .dat and .xml files first)
+# Step 3: Run the executable on the test data files and check that the
+# new temp data files match the original test data files.
 
-PARSE_DAT = parse.dat
-UNPARSE_XML = unparse.xml
+# $ make check
+
+check: parse-check unparse-check
+
+parse-check: $(PROGRAM)
+	$(PROGRAM) -o temp_$(UNPARSE_XML) parse $(PARSE_DAT)
+	xmldiff $(UNPARSE_XML) temp_$(UNPARSE_XML)
+
+unparse-check: $(PROGRAM)
+	$(PROGRAM) -o temp_$(PARSE_DAT) unparse $(UNPARSE_XML)
+	diff $(PARSE_DAT) temp_$(PARSE_DAT)
+
+# Step 4 (optional): Remove the executable and temp data files.
+
+# $ make clean
 
 clean:
-	rm -f $(PROGRAM) test_$(PARSE_DAT) test_$(UNPARSE_XML)
+	rm -f $(PROGRAM) temp_$(PARSE_DAT) temp_$(UNPARSE_XML)
 
-tests: parse-test unparse-test
-
-parse-test: $(PROGRAM)
-	$(PROGRAM) parse $(PARSE_DAT) -o test_$(UNPARSE_XML)
-	xmldiff $(UNPARSE_XML) test_$(UNPARSE_XML)
-
-unparse-test: $(PROGRAM)
-	$(PROGRAM) unparse $(UNPARSE_XML) -o test_$(PARSE_DAT)
-	diff $(PARSE_DAT) test_$(PARSE_DAT)
-
-# You will need the Mini-XML library and xmldiff - here's how to
-# install both in Ubuntu 20.04
-
-deps:
-	sudo apt install libmxml-dev xmldiff
-
-.PHONY: deps tests parse-test unparse-test
+.PHONY: check parse-check unparse-check clean

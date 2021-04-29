@@ -15,9 +15,11 @@
  * limitations under the License.
  */
 
+// clang-format off
 #include "infoset.h"
 #include <string.h>  // for memccpy
 #include "errors.h"  // for Error, LIMIT_NAME_LENGTH
+// clang-format on
 
 // get_erd_name, get_erd_xmlns, get_erd_ns - get name and xmlns
 // attribute/value from ERD to use on XML element

@@ -29,14 +29,20 @@ jobs:
         include:
           - os: ubuntu-20.04
             shell: bash
+            env_cc: clang-10
+            env_ar: llvm-ar-10
           - os: windows-2019
             shell: msys2 {0}
+            env_cc: clang
+            env_ar: llvm-ar
 
     runs-on: ${{ matrix.os }}
     defaults:
       run:
         shell: ${{ matrix.shell }}
     env:
+      AR: ${{ matrix.env_ar }}
+      CC: ${{ matrix.env_cc }}
       SBT: sbt -J-Xms1024m -J-Xmx5120m -J-XX:ReservedCodeCacheSize=512m -J-XX:MaxMetaspaceSize=1024m ++${{ matrix.scala_version }} coverage
       SBTNOCOV: sbt -J-Xms1024m -J-Xmx5120m -J-XX:ReservedCodeCacheSize=512m -J-XX:MaxMetaspaceSize=1024m ++${{ matrix.scala_version }}
     steps:
@@ -53,7 +59,7 @@ jobs:
         if: runner.os == 'Windows'
         uses: msys2/setup-msys2@v2
         with:
-          install: gcc libargp-devel make pkgconf
+          install: clang diffutils make pkgconf
           path-type: inherit
 
       - name: Check out mxml source (Windows)
@@ -67,9 +73,10 @@ jobs:
       - name: Install mxml library (Windows)
         if: runner.os == 'Windows'
         run: |
+          # Our runtime2 tests may break if mxml library is compiled with clang
+          export AR=ar CC=cc
           cd mxml
           ./configure --prefix=/usr --disable-shared --disable-threads
-          make
           make install
           # Workaround for sbt hanging problem
           echo "COURSIER_CACHE=$temp" >> $GITHUB_ENV

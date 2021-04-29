@@ -18,13 +18,18 @@
 #ifndef INFOSET_H
 #define INFOSET_H
 
+// clang-format off
 #include <stddef.h>  // for size_t
-#include "errors.h"  // for Error, PState, UState
+#include <stdio.h>   // for FILE
+#include "errors.h"  // for Error, Diagnostics
+// clang-format on
 
 // Prototypes needed for compilation
 
 typedef struct ElementRuntimeData ERD;
 typedef struct InfosetBase        InfosetBase;
+typedef struct PState             PState;
+typedef struct UState             UState;
 typedef struct VisitEventHandler  VisitEventHandler;
 
 typedef void (*ERDInitSelf)(InfosetBase *infoNode);
@@ -88,6 +93,26 @@ typedef struct InfosetBase
 {
     const ERD *erd;
 } InfosetBase;
+
+// PState - mutable state while parsing data
+
+typedef struct PState
+{
+    FILE *       stream;      // input to read data from
+    size_t       position;    // 0-based position in stream
+    Diagnostics *diagnostics; // any validation diagnostics
+    const Error *error;       // any error which stops program
+} PState;
+
+// UState - mutable state while unparsing infoset
+
+typedef struct UState
+{
+    FILE *       stream;      // output to write data to
+    size_t       position;    // 0-based position in stream
+    Diagnostics *diagnostics; // any validation diagnostics
+    const Error *error;       // any error which stops program
+} UState;
 
 // VisitEventHandler - methods to be called when walking an infoset
 

@@ -18,9 +18,11 @@
 #ifndef XML_WRITER_H
 #define XML_WRITER_H
 
+// clang-format off
 #include <stdio.h>    // for FILE
 #include "infoset.h"  // for VisitEventHandler
 #include "stack.h"    // for stack_t
+// clang-format on
 
 // XMLWriter - infoset visitor with methods to output XML
 

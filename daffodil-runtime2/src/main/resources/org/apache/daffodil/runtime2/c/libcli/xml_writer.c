@@ -15,15 +15,17 @@
  * limitations under the License.
  */
 
+// clang-format off
 #include "xml_writer.h"
-#include <assert.h>   // for assert
-#include <mxml.h>     // for mxmlNewOpaquef, mxml_node_t, mxmlElementSetAttr, mxmlGetOpaque, mxmlNewElement, mxmlDelete, mxmlGetElement, mxmlNewXML, mxmlSaveFile, MXML_NO_CALLBACK
-#include <stdbool.h>  // for bool
-#include <stdint.h>   // for int16_t, int32_t, int64_t, int8_t, uint16_t, uint32_t, uint64_t, uint8_t
-#include <stdio.h>    // for NULL
-#include <string.h>   // for strcmp
-#include "errors.h"   // for Error, ERR_XML_DECL, ERR_XML_ELEMENT, ERR_XML_WRITE, LIMIT_XML_NESTING, Error::(anonymous)
-#include "stack.h"    // for stack_is_empty, stack_pop, stack_push, stack_top, stack_init
+#include <assert.h>      // for assert
+#include <mxml.h>        // for mxmlNewOpaquef, mxml_node_t, mxmlElementSetAttr, mxmlGetOpaque, mxmlNewElement, mxmlDelete, mxmlGetElement, mxmlNewXML, mxmlSaveFile, MXML_NO_CALLBACK
+#include <stdbool.h>     // for bool
+#include <stdint.h>      // for int16_t, int32_t, int64_t, int8_t, uint16_t, uint32_t, uint64_t, uint8_t
+#include <string.h>      // for strcmp
+#include "cli_errors.h"  // for CLI_XML_DECL, CLI_XML_ELEMENT, CLI_XML_WRITE, LIMIT_XML_NESTING
+#include "errors.h"      // for Error, Error::(anonymous)
+#include "stack.h"       // for stack_is_empty, stack_pop, stack_push, stack_top, stack_init
+// clang-format on
 
 // Push new XML document on stack (note the stack is stored in a
 // static array which could overflow and stop the program; it also
@@ -43,7 +45,7 @@ xmlStartDocument(XMLWriter *writer)
     }
     else
     {
-        static Error error = {ERR_XML_DECL, {NULL}};
+        static Error error = {CLI_XML_DECL, {0}};
         return &error;
     }
 }
@@ -60,7 +62,7 @@ xmlEndDocument(XMLWriter *writer)
     int status = mxmlSaveFile(xml, writer->stream, MXML_NO_CALLBACK);
     if (status < 0)
     {
-        static Error error = {ERR_XML_WRITE, {NULL}};
+        static Error error = {CLI_XML_WRITE, {0}};
         return &error;
     }
     mxmlDelete(xml);
@@ -192,7 +194,7 @@ xmlNumberElem(XMLWriter *writer, const ERD *erd, const void *number)
     }
     else
     {
-        static Error error = {ERR_XML_ELEMENT, {NULL}};
+        static Error error = {CLI_XML_ELEMENT, {0}};
         error.s = name;
         return &error;
     }

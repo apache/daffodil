@@ -18,9 +18,11 @@
 #ifndef STACK_H
 #define STACK_H
 
+// clang-format off
 #include <mxml.h>     // for mxml_node_t
 #include <stdbool.h>  // for bool
 #include <stddef.h>   // for ptrdiff_t
+// clang-format on
 
 // Type of element pushed into stack
 

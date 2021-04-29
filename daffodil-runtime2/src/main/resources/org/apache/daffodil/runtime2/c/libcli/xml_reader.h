@@ -18,9 +18,11 @@
 #ifndef XML_READER_H
 #define XML_READER_H
 
+// clang-format off
 #include <mxml.h>     // for mxml_node_t
 #include <stdio.h>    // for FILE
 #include "infoset.h"  // for VisitEventHandler, InfosetBase
+// clang-format on
 
 // XMLReader - infoset visitor with methods to read XML
 

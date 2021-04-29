@@ -15,10 +15,13 @@
  * limitations under the License.
  */
 
+// clang-format off
 #include "stack.h"
-#include <stdbool.h>  // for bool
-#include <stddef.h>   // for NULL, ptrdiff_t
-#include "errors.h"   // for continue_or_exit, Error, ERR_STACK_EMPTY, ERR_STACK_OVERFLOW, ERR_STACK_UNDERFLOW
+#include <stdbool.h>     // for bool
+#include <stddef.h>      // for ptrdiff_t
+#include "cli_errors.h"  // for CLI_STACK_EMPTY, CLI_STACK_OVERFLOW, CLI_STACK_UNDERFLOW
+#include "errors.h"      // for continue_or_exit, Error
+// clang-format on
 
 // Initialize stack with preallocated array
 
@@ -54,7 +57,7 @@ stack_pop(stack_t *p_stack)
 {
     if (stack_is_empty(p_stack))
     {
-        const Error error = {ERR_STACK_UNDERFLOW, {NULL}};
+        const Error error = {CLI_STACK_UNDERFLOW, {0}};
         continue_or_exit(&error);
     }
     return *(--p_stack->p_after);
@@ -67,7 +70,7 @@ stack_push(stack_t *p_stack, stack_item_t item)
 {
     if (stack_is_full(p_stack))
     {
-        const Error error = {ERR_STACK_OVERFLOW, {NULL}};
+        const Error error = {CLI_STACK_OVERFLOW, {0}};
         continue_or_exit(&error);
     }
     *(p_stack->p_after++) = item;
@@ -80,7 +83,7 @@ stack_top(stack_t *p_stack)
 {
     if (stack_is_empty(p_stack))
     {
-        const Error error = {ERR_STACK_EMPTY, {NULL}};
+        const Error error = {CLI_STACK_EMPTY, {0}};
         continue_or_exit(&error);
     }
     return *(p_stack->p_after - 1);

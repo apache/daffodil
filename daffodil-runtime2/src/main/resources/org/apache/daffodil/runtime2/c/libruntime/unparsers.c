@@ -15,11 +15,13 @@
  * limitations under the License.
  */
 
+// clang-format off
 #include "unparsers.h"
 #include <endian.h>   // for htobe32, htole32, htobe16, htobe64, htole16, htole64
 #include <stdbool.h>  // for bool
 #include <stdio.h>    // for fwrite
-#include "errors.h"   // for UState, eof_or_error, add_diagnostic, get_diagnostics, ERR_FIXED_VALUE, Diagnostics, Error
+#include "errors.h"   // for eof_or_error, add_diagnostic, get_diagnostics, ERR_FIXED_VALUE, Diagnostics, Error
+// clang-format on
 
 // Macros not defined by <endian.h> which we need for uniformity
 
@@ -143,7 +145,7 @@ unparse_validate_fixed(bool same, const char *element, UState *ustate)
     if (!same)
     {
         Diagnostics *diagnostics = get_diagnostics();
-        const Error  error = {ERR_FIXED_VALUE, {element}};
+        const Error  error = {ERR_FIXED_VALUE, {.s = element}};
 
         add_diagnostic(diagnostics, &error);
         ustate->diagnostics = diagnostics;

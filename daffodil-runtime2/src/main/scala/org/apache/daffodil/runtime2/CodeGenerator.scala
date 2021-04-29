@@ -34,7 +34,7 @@ import scala.util.Properties.isWin
 
 /**
  * We need a mutux object for exclusive access to a code block
-  */
+ */
 private object mutex {}
 
 /**
@@ -54,7 +54,7 @@ class CodeGenerator(root: Root) extends DFDL.CodeGenerator {
    * Writes C source files into a "c" subdirectory of the given output directory.
    * Removes the "c" subdirectory if it existed before.  Returns the newly created
    * "c" subdirectory.
-  */
+   */
   override def generateCode(rootNS: Option[RefQName], outputDirArg: String): os.Path = {
     // Get the paths of the C resources, the output directory, and its code subdirectory
     val resources = "/org/apache/daffodil/runtime2/c"
@@ -112,15 +112,17 @@ class CodeGenerator(root: Root) extends DFDL.CodeGenerator {
     try {
       // Assemble the compiler's command line arguments
       val compiler = pickCompiler
-      val files = os.walk(codeDir).filter(_.ext == "c")
-      val libs = if (isWin) Seq("-largp", "-lmxml") else Seq("-lmxml")
+      val absFiles = os.walk(codeDir).filter(_.ext == "c")
+      val relFiles = Seq("libcli/*.c", "libruntime/*.c")
+      val libs = Seq("-lmxml")
 
       // Run the compiler in the code directory (if we found "zig cc"
       // as a compiler, it will cache previously built files in zig's
       // global cache directory, not a local zig_cache directory)
       if (compiler.nonEmpty) {
-        val result = os.proc(compiler, "-I", codeDir/"libcli", "-I", codeDir/"libruntime",
-          files, libs, "-o", exe).call(cwd = codeDir, stderr = os.Pipe)
+        val result = os
+          .proc(compiler, "-Ilibcli", "-Ilibruntime", if (isWin) relFiles else absFiles, libs, "-o", exe)
+          .call(cwd = codeDir, stderr = os.Pipe)
 
         // Report any compiler output as a warning
         if (result.out.text.nonEmpty || result.err.text.nonEmpty) {
@@ -146,9 +148,9 @@ class CodeGenerator(root: Root) extends DFDL.CodeGenerator {
    * find any compiler from the following list:
    *
    *   - zig cc
-   *   - gcc
-   *   - clang
    *   - cc
+   *   - clang
+   *   - gcc
    *
    * Returns the first compiler found as a sequence of strings in case the
    * compiler is a program with a subcommand argument.  Returns the empty
@@ -156,7 +158,7 @@ class CodeGenerator(root: Root) extends DFDL.CodeGenerator {
    */
   lazy val pickCompiler: Seq[String] = {
     val ccEnv = System.getenv("CC")
-    val compilers = Seq(ccEnv, "zig cc", "gcc", "clang", "cc")
+    val compilers = Seq(ccEnv, "zig cc", "cc", "clang", "gcc")
     val path = System.getenv("PATH").split(File.pathSeparatorChar)
     def inPath(compiler: String): Boolean = {
       (compiler != null) && {
