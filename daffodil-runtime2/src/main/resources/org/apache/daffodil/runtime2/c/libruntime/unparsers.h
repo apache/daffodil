@@ -18,19 +18,18 @@
 #ifndef UNPARSERS_H
 #define UNPARSERS_H
 
+// clang-format off
 #include <stdbool.h>  // for bool
 #include <stddef.h>   // for size_t
 #include <stdint.h>   // for uint32_t, int16_t, int32_t, int64_t, int8_t, uint16_t, uint64_t, uint8_t
-#include "errors.h"   // for UState
+#include "infoset.h"  // for UState
+// clang-format on
 
 // Unparse binary booleans, real numbers, and integers
 
-extern void unparse_be_bool16(bool number, uint32_t true_rep,
-                              uint32_t false_rep, UState *ustate);
-extern void unparse_be_bool32(bool number, uint32_t true_rep,
-                              uint32_t false_rep, UState *ustate);
-extern void unparse_be_bool8(bool number, uint32_t true_rep, uint32_t false_rep,
-                             UState *ustate);
+extern void unparse_be_bool16(bool number, uint32_t true_rep, uint32_t false_rep, UState *ustate);
+extern void unparse_be_bool32(bool number, uint32_t true_rep, uint32_t false_rep, UState *ustate);
+extern void unparse_be_bool8(bool number, uint32_t true_rep, uint32_t false_rep, UState *ustate);
 
 extern void unparse_be_double(double number, UState *ustate);
 extern void unparse_be_float(float number, UState *ustate);
@@ -45,12 +44,9 @@ extern void unparse_be_uint32(uint32_t number, UState *ustate);
 extern void unparse_be_uint64(uint64_t number, UState *ustate);
 extern void unparse_be_uint8(uint8_t number, UState *ustate);
 
-extern void unparse_le_bool16(bool number, uint32_t true_rep,
-                              uint32_t false_rep, UState *ustate);
-extern void unparse_le_bool32(bool number, uint32_t true_rep,
-                              uint32_t false_rep, UState *ustate);
-extern void unparse_le_bool8(bool number, uint32_t true_rep, uint32_t false_rep,
-                             UState *ustate);
+extern void unparse_le_bool16(bool number, uint32_t true_rep, uint32_t false_rep, UState *ustate);
+extern void unparse_le_bool32(bool number, uint32_t true_rep, uint32_t false_rep, UState *ustate);
+extern void unparse_le_bool8(bool number, uint32_t true_rep, uint32_t false_rep, UState *ustate);
 
 extern void unparse_le_double(double number, UState *ustate);
 extern void unparse_le_float(float number, UState *ustate);
@@ -67,12 +63,10 @@ extern void unparse_le_uint8(uint8_t number, UState *ustate);
 
 // Unparse fill bytes until end position is reached
 
-extern void unparse_fill_bytes(size_t end_position, const char fill_byte,
-                               UState *ustate);
+extern void unparse_fill_bytes(size_t end_position, const char fill_byte, UState *ustate);
 
 // Validate unparsed number is same as fixed value
 
-extern void unparse_validate_fixed(bool same, const char *element,
-                                   UState *ustate);
+extern void unparse_validate_fixed(bool same, const char *element, UState *ustate);
 
 #endif // UNPARSERS_H

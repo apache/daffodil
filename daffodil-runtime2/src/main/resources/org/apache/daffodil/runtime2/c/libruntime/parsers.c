@@ -15,11 +15,13 @@
  * limitations under the License.
  */
 
+// clang-format off
 #include "parsers.h"
 #include <endian.h>   // for be32toh, le32toh, be16toh, be64toh, le16toh, le64toh
 #include <stdbool.h>  // for bool, false, true
 #include <stdio.h>    // for fread
-#include "errors.h"   // for PState, eof_or_error, Error, ERR_PARSE_BOOL, Error::(anonymous), add_diagnostic, get_diagnostics, ERR_FIXED_VALUE, Diagnostics
+#include "errors.h"   // for eof_or_error, Error, ERR_PARSE_BOOL, Error::(anonymous), add_diagnostic, get_diagnostics, ERR_FIXED_VALUE, Diagnostics
+// clang-format on
 
 // Macros not defined by <endian.h> which we need for uniformity
 
@@ -65,7 +67,7 @@
         }                                                                                                    \
         else                                                                                                 \
         {                                                                                                    \
-            static Error error = {ERR_PARSE_BOOL, {NULL}};                                                   \
+            static Error error = {ERR_PARSE_BOOL, {0}};                                                      \
             error.d64 = (int64_t)buffer.i_val;                                                               \
             pstate->error = &error;                                                                          \
         }                                                                                                    \
@@ -159,7 +161,7 @@ parse_validate_fixed(bool same, const char *element, PState *pstate)
     if (!same)
     {
         Diagnostics *diagnostics = get_diagnostics();
-        const Error  error = {ERR_FIXED_VALUE, {element}};
+        const Error  error = {ERR_FIXED_VALUE, {.s = element}};
 
         add_diagnostic(diagnostics, &error);
         pstate->diagnostics = diagnostics;

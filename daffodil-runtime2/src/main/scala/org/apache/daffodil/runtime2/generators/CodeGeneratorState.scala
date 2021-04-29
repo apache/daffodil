@@ -223,13 +223,13 @@ class CodeGeneratorState {
       val erdComputation = s"    &_choice_$erd"
       val initStatement = s"    instance->_choice = 0xFFFFFFFFFFFFFFFF;"
       val initChoiceStatement =
-        s"""    static Error error = {ERR_CHOICE_KEY, {NULL}};
+        s"""    static Error error = {ERR_CHOICE_KEY, {0}};
            |
            |    int64_t key = rootElement->$dispatchField;
            |    switch (key)
            |    {""".stripMargin
       val parseStatement =
-        s"""    static Error error = {ERR_CHOICE_KEY, {NULL}};
+        s"""    static Error error = {ERR_CHOICE_KEY, {0}};
            |
            |    pstate->error = instance->_base.erd->initChoice(&instance->_base, rootElement());
            |    if (pstate->error) return;
@@ -237,7 +237,7 @@ class CodeGeneratorState {
            |    switch (instance->_choice)
            |    {""".stripMargin
       val unparseStatement =
-        s"""    static Error error = {ERR_CHOICE_KEY, {NULL}};
+        s"""    static Error error = {ERR_CHOICE_KEY, {0}};
            |
            |    ustate->error = instance->_base.erd->initChoice(&instance->_base, rootElement());
            |    if (ustate->error) return;
@@ -588,7 +588,7 @@ class CodeGeneratorState {
          |
          |// Initialize our program's name and version
          |
-         |const char *argp_program_version = "$program $version";
+         |const char *daffodil_program_version = "$program $version";
          |
          |// Declare prototypes for easier compilation
          |

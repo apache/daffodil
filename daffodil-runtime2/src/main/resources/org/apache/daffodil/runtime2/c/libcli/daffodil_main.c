@@ -15,13 +15,16 @@
  * limitations under the License.
  */
 
-#include <stdio.h>          // for NULL, perror, FILE, fclose, fflush, fopen, stdin, stdout
-#include <string.h>         // for strcmp
-#include "daffodil_argp.h"  // for daffodil_parse, daffodil_parse_cli, daffodil_unparse, daffodil_unparse_cli, daffodil_cli, parse_daffodil_cli, DAFFODIL_PARSE, DAFFODIL_UNPARSE
-#include "errors.h"         // for continue_or_exit, Error, print_diagnostics, PState, UState, ERR_FILE_CLOSE, ERR_FILE_FLUSH, ERR_FILE_OPEN, ERR_INFOSET_READ, ERR_INFOSET_WRITE
-#include "infoset.h"        // for walkInfoset, InfosetBase, rootElement, ERD, VisitEventHandler
-#include "xml_reader.h"     // for xmlReaderMethods, XMLReader
-#include "xml_writer.h"     // for xmlWriterMethods, XMLWriter
+// clang-format off
+#include <stdio.h>            // for NULL, FILE, perror, fclose, fopen, stdin, stdout
+#include <string.h>           // for strcmp
+#include "cli_errors.h"       // for CLI_FILE_CLOSE, CLI_FILE_OPEN
+#include "daffodil_getopt.h"  // for daffodil_cli, parse_daffodil_cli, daffodil_parse, daffodil_parse_cli, daffodil_unparse, daffodil_unparse_cli, DAFFODIL_PARSE, DAFFODIL_UNPARSE
+#include "errors.h"           // for continue_or_exit, print_diagnostics, Error
+#include "infoset.h"          // for walkInfoset, InfosetBase, PState, UState, rootElement, ERD, VisitEventHandler
+#include "xml_reader.h"       // for xmlReaderMethods, XMLReader
+#include "xml_writer.h"       // for xmlWriterMethods, XMLWriter
+// clang-format on
 
 // Open a file or exit if it can't be opened
 
@@ -34,29 +37,11 @@ fopen_or_exit(FILE *stream, const char *pathname, const char *mode)
         if (!stream)
         {
             perror("fopen");
-            const Error error = {ERR_FILE_OPEN, {pathname}};
+            const Error error = {CLI_FILE_OPEN, {.s = pathname}};
             continue_or_exit(&error);
         }
     }
     return stream;
-}
-
-// Flush all output to a file or exit if it can't be written, also
-// print and exit if any previous error occurred or continue otherwise
-
-static void
-fflush_continue_or_exit(FILE *output, const Error *error)
-{
-    if (fflush(output) != 0)
-    {
-        perror("fflush");
-        if (!error)
-        {
-            const Error error = {ERR_FILE_FLUSH, {NULL}};
-            continue_or_exit(&error);
-        }
-    }
-    continue_or_exit(error);
 }
 
 // Close a file or exit if it can't be closed
@@ -67,80 +52,64 @@ fclose_or_exit(FILE *stream, FILE *stdin_or_stdout)
     if (stream != stdin_or_stdout && fclose(stream) != 0)
     {
         perror("fclose");
-        const Error error = {ERR_FILE_CLOSE, {NULL}};
+        const Error error = {CLI_FILE_CLOSE, {0}};
         continue_or_exit(&error);
     }
 }
 
-// Define our daffodil program's main entry point
+// Define our main entry point
 
 int
 main(int argc, char *argv[])
 {
-    // Parse our "daffodil" command line options
-    int status = parse_daffodil_cli(argc, argv);
+    // Parse our command line options
+    const Error *error = parse_daffodil_cli(argc, argv);
+    continue_or_exit(error);
 
-    if (status == 0)
+    // Get our infoset ready
+    FILE *       input = stdin;
+    FILE *       output = stdout;
+    InfosetBase *root = rootElement();
+
+    // Perform our command
+    if (daffodil_cli.subcommand == DAFFODIL_PARSE)
     {
-        FILE *       input = stdin;
-        FILE *       output = stdout;
-        InfosetBase *root = rootElement();
+        // Open our input and output files if given as arguments
+        input = fopen_or_exit(input, daffodil_parse.infile, "r");
+        output = fopen_or_exit(output, daffodil_parse.outfile, "w");
 
-        if (daffodil_cli.subcommand == DAFFODIL_PARSE)
-        {
-            // Open our input and output files if given as arguments.
-            input = fopen_or_exit(input, daffodil_parse.infile, "r");
-            output = fopen_or_exit(output, daffodil_parse.outfile, "w");
+        // Parse the input file into our infoset
+        PState pstate = {input, 0, NULL, NULL};
+        root->erd->parseSelf(root, &pstate);
+        print_diagnostics(pstate.diagnostics);
+        continue_or_exit(pstate.error);
 
-            // Parse the input file into our infoset.
-            PState pstate = {input, 0, NULL, NULL};
-            root->erd->parseSelf(root, &pstate);
-            print_diagnostics(pstate.diagnostics);
-            continue_or_exit(pstate.error);
+        // Visit the infoset and print XML from it
+        XMLWriter xmlWriter = {xmlWriterMethods, output, {NULL, NULL, 0}};
+        error = walkInfoset((VisitEventHandler *)&xmlWriter, root);
+        continue_or_exit(error);
+    }
+    else if (daffodil_cli.subcommand == DAFFODIL_UNPARSE)
+    {
+        // Open our input and output files if given as arguments
+        input = fopen_or_exit(input, daffodil_unparse.infile, "r");
+        output = fopen_or_exit(output, daffodil_unparse.outfile, "w");
 
-            if (strcmp(daffodil_parse.infoset_converter, "xml") == 0)
-            {
-                // Visit the infoset and print XML from it.
-                XMLWriter    xmlWriter = {xmlWriterMethods, output, {NULL, NULL, 0}};
-                const Error *error = walkInfoset((VisitEventHandler *)&xmlWriter, root);
-                fflush_continue_or_exit(output, error);
-            }
-            else
-            {
-                const Error error = {ERR_INFOSET_WRITE, {daffodil_parse.infoset_converter}};
-                continue_or_exit(&error);
-            }
-        }
-        else if (daffodil_cli.subcommand == DAFFODIL_UNPARSE)
-        {
-            // Open our input and output files if given as arguments.
-            input = fopen_or_exit(input, daffodil_unparse.infile, "r");
-            output = fopen_or_exit(output, daffodil_unparse.outfile, "w");
+        // Initialize our infoset's values from the XML data
+        XMLReader xmlReader = {xmlReaderMethods, input, root, NULL, NULL};
+        error = walkInfoset((VisitEventHandler *)&xmlReader, root);
+        continue_or_exit(error);
 
-            if (strcmp(daffodil_unparse.infoset_converter, "xml") == 0)
-            {
-                // Initialize our infoset's values from the XML data.
-                XMLReader    xmlReader = {xmlReaderMethods, input, root, NULL, NULL};
-                const Error *error = walkInfoset((VisitEventHandler *)&xmlReader, root);
-                continue_or_exit(error);
-            }
-            else
-            {
-                const Error error = {ERR_INFOSET_READ, {daffodil_unparse.infoset_converter}};
-                continue_or_exit(&error);
-            }
-
-            // Unparse our infoset to the output file.
-            UState ustate = {output, 0, NULL, NULL};
-            root->erd->unparseSelf(root, &ustate);
-            print_diagnostics(ustate.diagnostics);
-            continue_or_exit(ustate.error);
-        }
-
-        // Close our input and out files if we opened them.
-        fclose_or_exit(input, stdin);
-        fclose_or_exit(output, stdout);
+        // Unparse our infoset to the output file
+        UState ustate = {output, 0, NULL, NULL};
+        root->erd->unparseSelf(root, &ustate);
+        print_diagnostics(ustate.diagnostics);
+        continue_or_exit(ustate.error);
     }
 
-    return status;
+    // Close our input and out files if we opened them
+    fclose_or_exit(input, stdin);
+    fclose_or_exit(output, stdout);
+
+    return 0;
 }

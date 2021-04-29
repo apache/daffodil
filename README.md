@@ -43,7 +43,7 @@ For more information about Daffodil, see <https://daffodil.apache.org/>.
 * JDK 8 or higher
 * SBT 0.13.8 or higher
 * C compiler C99 or higher
-* Mini-XML Version 3.2 or higher
+* Mini-XML Version 3.0 or higher
 
 See [BUILD.md](BUILD.md) for more details.
 

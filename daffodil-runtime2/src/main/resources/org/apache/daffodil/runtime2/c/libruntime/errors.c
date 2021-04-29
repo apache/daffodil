@@ -15,116 +15,33 @@
  * limitations under the License.
  */
 
+// clang-format off
 #include "errors.h"
 #include <assert.h>    // for assert
-#include <error.h>     // for error
 #include <inttypes.h>  // for PRId64
 #include <stdbool.h>   // for bool, false, true
-#include <stdio.h>     // for NULL, feof, ferror, FILE, size_t
-#include <stdlib.h>    // for EXIT_FAILURE
+#include <stdio.h>     // for fprintf, stderr, feof, ferror, FILE, stdout
+#include <stdlib.h>    // for exit, EXIT_FAILURE, EXIT_SUCCESS
+// clang-format oon
 
-// error_message - return an internationalized error message
+// eof_or_error - get pointer to error if stream has eof or error indicator set
 
-static const char *
-error_message(enum ErrorCode code)
+const Error *
+eof_or_error(FILE *stream)
 {
-    switch (code)
+    if (feof(stream))
     {
-    case ERR_CHOICE_KEY:
-        return "no match between choice dispatch key %" PRId64 " and any branch key";
-    case ERR_FILE_CLOSE:
-        return "error closing file";
-    case ERR_FILE_FLUSH:
-        return "error flushing stream to file";
-    case ERR_FILE_OPEN:
-        return "error opening file '%s'";
-    case ERR_FIXED_VALUE:
-        return "value of element '%s' does not match value of its "
-               "'fixed' attribute";
-    case ERR_INFOSET_READ:
-        return "cannot read infoset type '%s'";
-    case ERR_INFOSET_WRITE:
-        return "cannot write infoset type '%s'";
-    case ERR_PARSE_BOOL:
-        return "error parsing binary value %" PRId64 " as either true or false";
-    case ERR_STACK_EMPTY:
-        return "stack empty, stopping program";
-    case ERR_STACK_OVERFLOW:
-        return "stack overflow, stopping program";
-    case ERR_STACK_UNDERFLOW:
-        return "stack underflow, stopping program";
-    case ERR_STREAM_EOF:
-        return "EOF in stream, stopping program";
-    case ERR_STREAM_ERROR:
-        return "error in stream, stopping program";
-    case ERR_STRTOBOOL:
-        return "error converting XML data '%s' to boolean";
-    case ERR_STRTOD_ERRNO:
-        return "error converting XML data '%s' to number";
-    case ERR_STRTOI_ERRNO:
-        return "error converting XML data '%s' to integer";
-    case ERR_STRTONUM_EMPTY:
-        return "found no number in XML data '%s'";
-    case ERR_STRTONUM_NOT:
-        return "found non-number characters in XML data '%s'";
-    case ERR_STRTONUM_RANGE:
-        return "number in XML data '%s' out of range";
-    case ERR_XML_DECL:
-        return "error making new XML declaration";
-    case ERR_XML_ELEMENT:
-        return "error making new XML element '%s'";
-    case ERR_XML_ERD:
-        return "unexpected ERD typeCode %" PRId64 " while reading XML data";
-    case ERR_XML_GONE:
-        return "ran out of XML data";
-    case ERR_XML_INPUT:
-        return "unable to read XML data from input file";
-    case ERR_XML_LEFT:
-        return "did not consume all of the XML data, '%s' left";
-    case ERR_XML_MISMATCH:
-        return "found mismatch between XML data and infoset '%s'";
-    case ERR_XML_WRITE:
-        return "error writing XML document";
-    default:
-        assert("invalid code" && 0);
-        return "unrecognized error code, shouldn't happen";
+        static Error error = {ERR_STREAM_EOF, {0}};
+        return &error;
     }
-}
-
-// print_maybe_stop - print a message and maybe stop the program
-
-static void
-print_maybe_stop(const Error *err, int status)
-{
-    const int   errnum = 0;
-    const char *format = "%s";
-    const char *msg = error_message(err->code);
-
-    switch (err->code)
+    else if (ferror(stream))
     {
-    case ERR_FILE_OPEN:
-    case ERR_FIXED_VALUE:
-    case ERR_INFOSET_READ:
-    case ERR_INFOSET_WRITE:
-    case ERR_STRTOBOOL:
-    case ERR_STRTOD_ERRNO:
-    case ERR_STRTOI_ERRNO:
-    case ERR_STRTONUM_EMPTY:
-    case ERR_STRTONUM_NOT:
-    case ERR_STRTONUM_RANGE:
-    case ERR_XML_ELEMENT:
-    case ERR_XML_LEFT:
-    case ERR_XML_MISMATCH:
-        error(status, errnum, msg, err->s);
-        break;
-    case ERR_CHOICE_KEY:
-    case ERR_PARSE_BOOL:
-    case ERR_XML_ERD:
-        error(status, errnum, msg, err->d64);
-        break;
-    default:
-        error(status, errnum, format, msg);
-        break;
+        static Error error = {ERR_STREAM_ERROR, {0}};
+        return &error;
+    }
+    else
+    {
+        return NULL;
     }
 }
 
@@ -155,6 +72,74 @@ add_diagnostic(Diagnostics *diagnostics, const Error *error)
     return false;
 }
 
+// error_lookup - look up an internationalized error message
+
+static const ErrorLookup *
+error_lookup(uint8_t code)
+{
+    static const ErrorLookup table[ERR_ZZZ] = {
+        {ERR_CHOICE_KEY, "no match between choice dispatch key %" PRId64 " and any branch key\n", FIELD_D64},
+        {ERR_FIXED_VALUE, "value of element '%s' does not match value of its 'fixed' attribute\n", FIELD_S},
+        {ERR_PARSE_BOOL, "error parsing binary value %" PRId64 " as either true or false\n", FIELD_D64},
+        {ERR_STREAM_EOF, "EOF in stream, stopping program\n", FIELD_ZZZ},
+        {ERR_STREAM_ERROR, "error in stream, stopping program\n", FIELD_ZZZ},
+    };
+
+    if (code < ERR_ZZZ)
+    {
+        const ErrorLookup *lookup = &table[code];
+
+        // Double check that we looked up correct row
+        assert(code == lookup->code);
+
+        return lookup;
+    }
+    else
+    {
+        return NULL;
+    }
+}
+
+// print_maybe_stop - print a message and maybe stop the program
+
+static void
+print_maybe_stop(const Error *error, int status)
+{
+    const ErrorLookup *lookup = error_lookup(error->code);
+    if (!lookup && cli_error_lookup)
+    {
+        lookup = cli_error_lookup(error->code);
+    }
+    assert(lookup);
+
+    switch (lookup->field)
+    {
+    case FIELD_C:
+        fprintf(stderr, lookup->message, error->c);
+        break;
+    case FIELD_D64:
+        fprintf(stderr, lookup->message, error->d64);
+        break;
+    case FIELD_S:
+        fprintf(stderr, lookup->message, error->s);
+        break;
+    case FIELD_S_ON_STDOUT:
+        fprintf(stdout, lookup->message, error->s);
+        exit(EXIT_SUCCESS);
+        break;
+    case FIELD_ZZZ:
+    default:
+        fprintf(stderr, "%s", lookup->message);
+        break;
+    }
+
+    // Maybe stop the program
+    if (status)
+    {
+        exit(status);
+    }
+}
+
 // print_diagnostics - print any validation diagnostics
 
 void
@@ -170,7 +155,7 @@ print_diagnostics(const Diagnostics *diagnostics)
     }
 }
 
-// continue_or_exit - print and exit if an error occurred or continue otherwise
+// continue_or_exit - print and exit if any error or continue otherwise
 
 void
 continue_or_exit(const Error *error)
@@ -181,23 +166,21 @@ continue_or_exit(const Error *error)
     }
 }
 
-// eof_or_error - return an error if a stream has its eof or error indicator set
+// check_error_lookup - call from debugger to check error lookup tables
 
-const Error *
-eof_or_error(FILE *stream)
+uint8_t
+check_error_lookup(void)
 {
-    if (feof(stream))
+    uint8_t code = 0;
+    const ErrorLookup *lookup = 0;
+    do
     {
-        static Error error = {ERR_STREAM_EOF, {NULL}};
-        return &error;
-    }
-    else if (ferror(stream))
-    {
-        static Error error = {ERR_STREAM_ERROR, {NULL}};
-        return &error;
-    }
-    else
-    {
-        return NULL;
-    }
+        lookup = error_lookup(code);
+        if (!lookup && cli_error_lookup)
+        {
+            lookup = cli_error_lookup(code);
+        }
+    } while (lookup && ++code);
+
+    return code;
 }

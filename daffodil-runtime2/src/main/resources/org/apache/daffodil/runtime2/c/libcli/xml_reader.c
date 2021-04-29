@@ -15,17 +15,19 @@
  * limitations under the License.
  */
 
+// clang-format off
 #include "xml_reader.h"
-#include <assert.h>    // for assert
-#include <errno.h>     // for errno
-#include <inttypes.h>  // for strtoimax, strtoumax
-#include <mxml.h>      // for mxmlWalkNext, mxmlGetElement, mxmlGetType, MXML_DESCEND, MXML_OPAQUE, mxmlDelete, mxmlGetOpaque, mxmlLoadFile, MXML_OPAQUE_CALLBACK
-#include <stdbool.h>   // for bool, false, true
-#include <stdint.h>    // for intmax_t, uintmax_t, int16_t, int32_t, int64_t, int8_t, uint16_t, uint32_t, uint64_t, uint8_t, INT16_MAX, INT16_MIN, INT32_MAX, INT32_MIN, INT64_MAX, INT64_MIN, INT8_MAX, INT8_MIN, UINT16_MAX, UINT32_MAX, UINT64_MAX, UINT8_MAX
-#include <stdio.h>     // for NULL
-#include <stdlib.h>    // for strtod, strtof
-#include <string.h>    // for strcmp, strlen, strncmp
-#include "errors.h"    // for Error, Error::(anonymous), ERR_STRTONUM_EMPTY, ERR_STRTONUM_NOT, ERR_XML_GONE, ERR_STRTOD_ERRNO, ERR_STRTOI_ERRNO, ERR_STRTONUM_RANGE, ERR_XML_MISMATCH, ERR_STRTOBOOL, ERR_XML_ERD, ERR_XML_INPUT, ERR_XML_LEFT, UNUSED
+#include <assert.h>      // for assert
+#include <errno.h>       // for errno
+#include <inttypes.h>    // for strtoimax, strtoumax
+#include <mxml.h>        // for mxmlWalkNext, mxmlGetElement, mxmlGetType, MXML_DESCEND, MXML_OPAQUE, mxmlDelete, mxmlGetOpaque, mxmlLoadFile, MXML_OPAQUE_CALLBACK
+#include <stdbool.h>     // for bool, false, true
+#include <stdint.h>      // for intmax_t, uintmax_t, int16_t, int32_t, int64_t, int8_t, uint16_t, uint32_t, uint64_t, uint8_t, INT16_MAX, INT16_MIN, INT32_MAX, INT32_MIN, INT64_MAX, INT64_MIN, INT8_MAX, INT8_MIN, UINT16_MAX, UINT32_MAX, UINT64_MAX, UINT8_MAX
+#include <stdlib.h>      // for strtod, strtof
+#include <string.h>      // for strcmp, strlen, strncmp
+#include "cli_errors.h"  // for CLI_STRTONUM_EMPTY, CLI_STRTONUM_NOT, CLI_XML_GONE, CLI_STRTOD_ERRNO, CLI_STRTOI_ERRNO, CLI_STRTONUM_RANGE, CLI_XML_MISMATCH, CLI_STRTOBOOL, CLI_XML_ERD, CLI_XML_INPUT, CLI_XML_LEFT
+#include "errors.h"      // for Error, Error::(anonymous), UNUSED
+// clang-format on
 
 // Convert an XML element's text to a boolean with error checking
 
@@ -54,7 +56,7 @@ strtobool(const char *numptr, const Error **errorptr)
     }
     else
     {
-        static Error error = {ERR_STRTOBOOL, {NULL}};
+        static Error error = {CLI_STRTOBOOL, {0}};
         error.s = numptr;
         *errorptr = &error;
     }
@@ -77,19 +79,19 @@ strtodnum(const char *numptr, const Error **errorptr)
     // Check for any errors converting the string to a number
     if (errno != 0)
     {
-        static Error error = {ERR_STRTOD_ERRNO, {NULL}};
+        static Error error = {CLI_STRTOD_ERRNO, {0}};
         error.s = numptr;
         *errorptr = &error;
     }
     else if (endptr == numptr)
     {
-        static Error error = {ERR_STRTONUM_EMPTY, {NULL}};
+        static Error error = {CLI_STRTONUM_EMPTY, {0}};
         error.s = numptr;
         *errorptr = &error;
     }
     else if (*endptr != '\0')
     {
-        static Error error = {ERR_STRTONUM_NOT, {NULL}};
+        static Error error = {CLI_STRTONUM_NOT, {0}};
         error.s = numptr;
         *errorptr = &error;
     }
@@ -112,19 +114,19 @@ strtofnum(const char *numptr, const Error **errorptr)
     // Check for any errors converting the string to a number
     if (errno != 0)
     {
-        static Error error = {ERR_STRTOD_ERRNO, {NULL}};
+        static Error error = {CLI_STRTOD_ERRNO, {0}};
         error.s = numptr;
         *errorptr = &error;
     }
     else if (endptr == numptr)
     {
-        static Error error = {ERR_STRTONUM_EMPTY, {NULL}};
+        static Error error = {CLI_STRTONUM_EMPTY, {0}};
         error.s = numptr;
         *errorptr = &error;
     }
     else if (*endptr != '\0')
     {
-        static Error error = {ERR_STRTONUM_NOT, {NULL}};
+        static Error error = {CLI_STRTONUM_NOT, {0}};
         error.s = numptr;
         *errorptr = &error;
     }
@@ -148,25 +150,25 @@ strtonum(const char *numptr, intmax_t minval, intmax_t maxval, const Error **err
     // Check for any errors converting the string to a number
     if (errno != 0)
     {
-        static Error error = {ERR_STRTOI_ERRNO, {NULL}};
+        static Error error = {CLI_STRTOI_ERRNO, {0}};
         error.s = numptr;
         *errorptr = &error;
     }
     else if (endptr == numptr)
     {
-        static Error error = {ERR_STRTONUM_EMPTY, {NULL}};
+        static Error error = {CLI_STRTONUM_EMPTY, {0}};
         error.s = numptr;
         *errorptr = &error;
     }
     else if (*endptr != '\0')
     {
-        static Error error = {ERR_STRTONUM_NOT, {NULL}};
+        static Error error = {CLI_STRTONUM_NOT, {0}};
         error.s = numptr;
         *errorptr = &error;
     }
     else if (value < minval || value > maxval)
     {
-        static Error error = {ERR_STRTONUM_RANGE, {NULL}};
+        static Error error = {CLI_STRTONUM_RANGE, {0}};
         error.s = numptr;
         *errorptr = &error;
     }
@@ -189,25 +191,25 @@ strtounum(const char *numptr, uintmax_t maxval, const Error **errorptr)
     // Check for any errors converting the string to a number
     if (errno != 0)
     {
-        static Error error = {ERR_STRTOI_ERRNO, {NULL}};
+        static Error error = {CLI_STRTOI_ERRNO, {0}};
         error.s = numptr;
         *errorptr = &error;
     }
     else if (endptr == numptr)
     {
-        static Error error = {ERR_STRTONUM_EMPTY, {NULL}};
+        static Error error = {CLI_STRTONUM_EMPTY, {0}};
         error.s = numptr;
         *errorptr = &error;
     }
     else if (*endptr != '\0')
     {
-        static Error error = {ERR_STRTONUM_NOT, {NULL}};
+        static Error error = {CLI_STRTONUM_NOT, {0}};
         error.s = numptr;
         *errorptr = &error;
     }
     else if (value > maxval)
     {
-        static Error error = {ERR_STRTONUM_RANGE, {NULL}};
+        static Error error = {CLI_STRTONUM_RANGE, {0}};
         error.s = numptr;
         *errorptr = &error;
     }
@@ -225,7 +227,7 @@ xmlStartDocument(XMLReader *reader)
     reader->node = reader->xml;
     if (!reader->node)
     {
-        static Error error = {ERR_XML_INPUT, {NULL}};
+        static Error error = {CLI_XML_INPUT, {0}};
         return &error;
     }
 
@@ -249,7 +251,7 @@ xmlStartDocument(XMLReader *reader)
         } while (mxmlGetType(reader->node) == MXML_OPAQUE);
     }
 
-    static Error error = {ERR_XML_GONE, {NULL}};
+    static Error error = {CLI_XML_GONE, {0}};
     return reader->node ? NULL : &error;
 }
 
@@ -268,7 +270,7 @@ xmlEndDocument(XMLReader *reader)
     if (reader->node)
     {
         // This code path exits the program - no need to call mxmlDelete
-        static Error error = {ERR_XML_LEFT, {NULL}};
+        static Error error = {CLI_XML_LEFT, {0}};
         error.s = mxmlGetElement(reader->node);
         return &error;
     }
@@ -299,13 +301,13 @@ xmlStartComplex(XMLReader *reader, const InfosetBase *base)
     // Check whether we are walking both XML data and infoset in lockstep
     if (name_from_xml && name_from_erd)
     {
-        static Error error = {ERR_XML_MISMATCH, {NULL}};
+        static Error error = {CLI_XML_MISMATCH, {0}};
         error.s = name_from_erd;
         return strcmp(name_from_xml, name_from_erd) == 0 ? NULL : &error;
     }
     else
     {
-        static Error error = {ERR_XML_GONE, {NULL}};
+        static Error error = {CLI_XML_GONE, {0}};
         return &error;
     }
 }
@@ -385,7 +387,7 @@ xmlNumberElem(XMLReader *reader, const ERD *erd, void *number)
                 return error;
             default:
             {
-                static Error error_erd = {ERR_XML_ERD, {NULL}};
+                static Error error_erd = {CLI_XML_ERD, {0}};
                 error_erd.d64 = typeCode;
                 return &error_erd;
             }
@@ -393,14 +395,14 @@ xmlNumberElem(XMLReader *reader, const ERD *erd, void *number)
         }
         else
         {
-            static Error error = {ERR_XML_MISMATCH, {NULL}};
+            static Error error = {CLI_XML_MISMATCH, {0}};
             error.s = name_from_erd;
             return &error;
         }
     }
     else
     {
-        static Error error = {ERR_XML_GONE, {NULL}};
+        static Error error = {CLI_XML_GONE, {0}};
         return &error;
     }
 }

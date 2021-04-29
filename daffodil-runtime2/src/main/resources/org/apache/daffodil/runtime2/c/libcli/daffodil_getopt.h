@@ -15,27 +15,26 @@
  * limitations under the License.
  */
 
-#ifndef DAFFODIL_ARGP_H
-#define DAFFODIL_ARGP_H
+#ifndef DAFFODIL_GETOPT_H
+#define DAFFODIL_GETOPT_H
 
-// Parse our "daffodil" command line interface
+// clang-format off
+#include "errors.h"  // for Error
+// clang-format on
 
-extern int parse_daffodil_cli(int argc, char **argv);
-
-// Get our "daffodil" CLI options
+// Declare our "daffodil" CLI options
 
 extern struct daffodil_cli
 {
     enum daffodil_subcommand
     {
-        DAFFODIL_NONE,
+        DAFFODIL_MISSING_COMMAND,
         DAFFODIL_PARSE,
         DAFFODIL_UNPARSE
     } subcommand;
-    int verbosity;
 } daffodil_cli;
 
-// Get our "daffodil parse" CLI options
+// Declare our "daffodil parse" CLI options
 
 extern struct daffodil_parse_cli
 {
@@ -44,7 +43,7 @@ extern struct daffodil_parse_cli
     const char *outfile;
 } daffodil_parse;
 
-// Get our "daffodil unparse" CLI options
+// Declare our "daffodil unparse" CLI options
 
 extern struct daffodil_unparse_cli
 {
@@ -53,4 +52,8 @@ extern struct daffodil_unparse_cli
     const char *outfile;
 } daffodil_unparse;
 
-#endif // DAFFODIL_ARGP_H
+// Parse our command line interface
+
+extern const Error *parse_daffodil_cli(int argc, char *argv[]);
+
+#endif // DAFFODIL_GETOPT_H

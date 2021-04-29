@@ -87,7 +87,7 @@ class Runtime2DataProcessor(executableFile: os.Path) extends DFDL.DataProcessorB
     val outfile = tempDir/"outfile"
     try {
       os.write(infile, input)
-      val result = os.proc(executableFile, "parse", "-I", "xml", "-o", outfile, infile).call(cwd = tempDir, stderr = os.Pipe)
+      val result = os.proc(executableFile, "-o", outfile, "parse", infile).call(cwd = tempDir, stderr = os.Pipe)
       if (result.out.text.isEmpty && result.err.text.isEmpty) {
         val parseResult = new ParseResult(outfile, Success, infile)
         parseResult
@@ -123,7 +123,7 @@ class Runtime2DataProcessor(executableFile: os.Path) extends DFDL.DataProcessorB
     val outfile = tempDir/"outfile"
     try {
       os.write(infile, input)
-      val result = os.proc(executableFile, "unparse", "-I", "xml", "-o", outfile, infile).call(cwd = tempDir, stderr = os.Pipe)
+      val result = os.proc(executableFile, "-o", outfile, "unparse", infile).call(cwd = tempDir, stderr = os.Pipe)
       val finalBitPos0b = os.size(outfile) * 8 // File sizes are bytes, so must multiply to get final position in bits
       os.read.stream(outfile).writeBytesTo(output)
       if (result.out.text.isEmpty && result.err.text.isEmpty) {

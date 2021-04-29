@@ -18,61 +18,65 @@
 #ifndef ERRORS_H
 #define ERRORS_H
 
+// clang-format off
 #include <stdbool.h>  // for bool
-#include <stdint.h>   // for int64_t
-#include <stdio.h>    // for FILE, size_t
+#include <stddef.h>   // for size_t
+#include <stdint.h>   // for uint8_t, int64_t
+#include <stdio.h>    // for FILE
+// clang-format on
 
-enum Limits
-{
-    LIMIT_DIAGNOSTICS = 100,  // limits how many diagnostics can accumulate
-    LIMIT_NAME_LENGTH = 9999, // limits how long infoset names can become
-    LIMIT_XML_NESTING = 100   // limits how deep infoset elements can nest
-};
-
-// ErrorCode - types of errors which could occur
+// ErrorCode - identifiers of libruntime errors
 
 enum ErrorCode
 {
     ERR_CHOICE_KEY,
-    ERR_FILE_CLOSE,
-    ERR_FILE_FLUSH,
-    ERR_FILE_OPEN,
     ERR_FIXED_VALUE,
-    ERR_INFOSET_READ,
-    ERR_INFOSET_WRITE,
     ERR_PARSE_BOOL,
-    ERR_STACK_EMPTY,
-    ERR_STACK_OVERFLOW,
-    ERR_STACK_UNDERFLOW,
     ERR_STREAM_EOF,
     ERR_STREAM_ERROR,
-    ERR_STRTOBOOL,
-    ERR_STRTOD_ERRNO,
-    ERR_STRTOI_ERRNO,
-    ERR_STRTONUM_EMPTY,
-    ERR_STRTONUM_NOT,
-    ERR_STRTONUM_RANGE,
-    ERR_XML_DECL,
-    ERR_XML_ELEMENT,
-    ERR_XML_ERD,
-    ERR_XML_GONE,
-    ERR_XML_INPUT,
-    ERR_XML_LEFT,
-    ERR_XML_MISMATCH,
-    ERR_XML_WRITE
+    ERR_ZZZ,
 };
+
+// ErrorField - identifiers of Error fields
+
+enum ErrorField
+{
+    FIELD_C,
+    FIELD_D64,
+    FIELD_S,
+    FIELD_S_ON_STDOUT,
+    FIELD_ZZZ,
+};
+
+// ErrorLookup - structure of an error lookup table row
+
+typedef struct ErrorLookup
+{
+    uint8_t         code;
+    const char *    message;
+    enum ErrorField field;
+} ErrorLookup;
 
 // Error - specific error occuring now
 
 typedef struct Error
 {
-    enum ErrorCode code;
+    uint8_t code;
     union
     {
-        const char *s;   // for %s
+        int         c;   // for %c
         int64_t     d64; // for %d64
+        const char *s;   // for %s
     };
 } Error;
+
+// Limits - limits on how many elements static arrays can hold
+
+enum Limits
+{
+    LIMIT_DIAGNOSTICS = 100,  // limits how many diagnostics can accumulate
+    LIMIT_NAME_LENGTH = 9999, // limits how long infoset names can become
+};
 
 // Diagnostics - array of validation errors
 
@@ -82,25 +86,9 @@ typedef struct Diagnostics
     size_t length;
 } Diagnostics;
 
-// PState - mutable state while parsing data
+// eof_or_error - get pointer to error if stream has eof or error indicator set
 
-typedef struct PState
-{
-    FILE *       stream;      // input to read data from
-    size_t       position;    // 0-based position in stream
-    Diagnostics *diagnostics; // any validation diagnostics
-    const Error *error;       // any error which stops program
-} PState;
-
-// UState - mutable state while unparsing infoset
-
-typedef struct UState
-{
-    FILE *       stream;      // output to write data to
-    size_t       position;    // 0-based position in stream
-    Diagnostics *diagnostics; // any validation diagnostics
-    const Error *error;       // any error which stops program
-} UState;
+extern const Error *eof_or_error(FILE *stream);
 
 // get_diagnostics - get pointer to validation diagnostics
 
@@ -114,13 +102,18 @@ extern bool add_diagnostic(Diagnostics *diagnostics, const Error *error);
 
 extern void print_diagnostics(const Diagnostics *diagnostics);
 
-// continue_or_exit - print and exit if an error occurred or continue otherwise
+// continue_or_exit - print and exit if any error or continue otherwise
 
 extern void continue_or_exit(const Error *error);
 
-// eof_or_error - return an error if a stream has its eof or error indicator set
+// cli_error_lookup - declare our pluggable error lookup mechanism
 
-extern const Error *eof_or_error(FILE *stream);
+typedef const ErrorLookup *cli_error_lookup_t(uint8_t code);
+extern cli_error_lookup_t *cli_error_lookup;
+
+// daffodil_program_version - declare our program's name and version
+
+extern const char *daffodil_program_version;
 
 // UNUSED - suppress compiler warning about unused variable
 
