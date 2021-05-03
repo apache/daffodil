@@ -1,0 +1,726 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<tdml:testSuite suiteName="SimpleTypes" description="Section 5 - simple types"
+  xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  xmlns:math="http://www.w3.org/2005/xpath-functions/math"
+  xmlns:ex="http://example.com"
+  xmlns:home="http://home.com"
+  xmlns:first="http://first.com"
+  defaultRoundTrip="onePass">
+  <tdml:defineSchema elementFormDefault="unqualified" name="BitFunctions">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" />
+  <xs:complexType name="leftIntType">
+    <xs:sequence dfdl:separator=",">
+      <xs:element name="num" type="xs:int" dfdl:lengthKind="delimited" dfdl:textNumberPattern="#0"/>
+      <xs:element name="count" type="xs:int" dfdl:lengthKind="delimited"/>
+      <xs:element name="value" type="xs:int" dfdl:inputValueCalc="{dfdlx:leftShift(../num,../count)}"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="rightIntType">
+    <xs:sequence dfdl:separator=",">
+      <xs:element name="num" type="xs:int" dfdl:lengthKind="delimited" dfdl:textNumberPattern="#0"/>
+      <xs:element name="count" type="xs:int" dfdl:lengthKind="delimited"/>
+      <xs:element name="value" type="xs:int" dfdl:inputValueCalc="{dfdlx:rightShift(../num,../count)}"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="testIntShifting">
+    <xs:complexType>
+      <xs:sequence dfdl:separator="|">
+        <xs:element name="leftInt1" type="ex:leftIntType"/>
+        <xs:element name="leftInt2" type="ex:leftIntType"/>
+        <xs:element name="rightInt1" type="ex:rightIntType"/>
+        <xs:element name="rightInt2" type="ex:rightIntType"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:complexType name="leftLong">
+    <xs:sequence dfdl:separator=",">
+      <xs:element name="num" type="xs:long" dfdl:lengthKind="delimited" dfdl:textNumberPattern="#0"/>
+      <xs:element name="count" type="xs:long" dfdl:lengthKind="delimited"/>
+      <xs:element name="value" type="xs:long" dfdl:inputValueCalc="{dfdlx:leftShift(../num,../count)}"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="rightLong">
+    <xs:sequence dfdl:separator=",">
+      <xs:element name="num" type="xs:long" dfdl:lengthKind="delimited" dfdl:textNumberPattern="#0"/>
+      <xs:element name="count" type="xs:long" dfdl:lengthKind="delimited"/>
+      <xs:element name="value" type="xs:long" dfdl:inputValueCalc="{dfdlx:rightShift(../num,../count)}"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="testLongShifting">
+    <xs:complexType>
+      <xs:sequence dfdl:separator="|">
+        <xs:element name="leftLong1" type="ex:leftLong"/>
+        <xs:element name="leftLong2" type="ex:leftLong"/>
+        <xs:element name="rightLong1" type="ex:rightLong"/>
+        <xs:element name="rightLong2" type="ex:rightLong"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:complexType name="leftByte">
+    <xs:sequence dfdl:separator=",">
+      <xs:element name="num" type="xs:byte" dfdl:lengthKind="delimited" dfdl:textNumberPattern="#0"/>
+      <xs:element name="count" type="xs:byte" dfdl:lengthKind="delimited"/>
+      <xs:element name="value" type="xs:byte" dfdl:inputValueCalc="{dfdlx:leftShift(../num,../count)}"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="rightByte">
+    <xs:sequence dfdl:separator=",">
+      <xs:element name="num" type="xs:byte" dfdl:lengthKind="delimited" dfdl:textNumberPattern="#0"/>
+      <xs:element name="count" type="xs:byte" dfdl:lengthKind="delimited"/>
+      <xs:element name="value" type="xs:byte" dfdl:inputValueCalc="{dfdlx:rightShift(../num,../count)}"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="testByteShifting">
+    <xs:complexType>
+      <xs:sequence dfdl:separator="|">
+        <xs:element name="leftByte1" type="ex:leftByte"/>
+        <xs:element name="leftByte2" type="ex:leftByte"/>
+        <xs:element name="rightByte1" type="ex:rightByte"/>
+        <xs:element name="rightByte2" type="ex:rightByte"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:complexType name="leftShort">
+    <xs:sequence dfdl:separator=",">
+      <xs:element name="num" type="xs:short" dfdl:lengthKind="delimited" dfdl:textNumberPattern="#0"/>
+      <xs:element name="count" type="xs:short" dfdl:lengthKind="delimited"/>
+      <xs:element name="value" type="xs:short" dfdl:inputValueCalc="{dfdlx:leftShift(../num,../count)}"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="rightShort">
+    <xs:sequence dfdl:separator=",">
+      <xs:element name="num" type="xs:short" dfdl:lengthKind="delimited" dfdl:textNumberPattern="#0"/>
+      <xs:element name="count" type="xs:short" dfdl:lengthKind="delimited"/>
+      <xs:element name="value" type="xs:short" dfdl:inputValueCalc="{dfdlx:rightShift(../num,../count)}"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="testShortShifting">
+    <xs:complexType>
+      <xs:sequence dfdl:separator="|">
+        <xs:element name="leftShort1" type="ex:leftShort"/>
+        <xs:element name="leftShort2" type="ex:leftShort"/>
+        <xs:element name="rightShort1" type="ex:rightShort"/>
+        <xs:element name="rightShort2" type="ex:rightShort"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="leftInt">
+    <xs:complexType>
+      <xs:sequence dfdl:separator=",">
+        <xs:element name="num" type="xs:int" dfdl:lengthKind="delimited" dfdl:textNumberPattern="#0"/>
+        <xs:element name="count" type="xs:int" dfdl:lengthKind="delimited"/>
+        <xs:element name="value" type="xs:int" dfdl:inputValueCalc="{dfdlx:leftShift(../num,../count)}"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="rightInt">
+    <xs:complexType>
+      <xs:sequence dfdl:separator=",">
+        <xs:element name="num" type="xs:int" dfdl:lengthKind="delimited" dfdl:textNumberPattern="#0"/>
+        <xs:element name="count" type="xs:int" dfdl:lengthKind="delimited"/>
+        <xs:element name="value" type="xs:int" dfdl:inputValueCalc="{dfdlx:rightShift(../num,../count)}"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+
+  <xs:element name="leftLong">
+    <xs:complexType>
+      <xs:sequence dfdl:separator=",">
+        <xs:element name="num" type="xs:long" dfdl:lengthKind="delimited" dfdl:textNumberPattern="#0"/>
+        <xs:element name="count" type="xs:long" dfdl:lengthKind="delimited"/>
+        <xs:element name="value" type="xs:long" dfdl:inputValueCalc="{dfdlx:leftShift(../num,../count)}"/>
+       </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="rightLong">
+    <xs:complexType>
+      <xs:sequence dfdl:separator=",">
+        <xs:element name="num" type="xs:long" dfdl:lengthKind="delimited" dfdl:textNumberPattern="#0"/>
+        <xs:element name="count" type="xs:long" dfdl:lengthKind="delimited"/>
+        <xs:element name="value" type="xs:long" dfdl:inputValueCalc="{dfdlx:rightShift(../num,../count)}"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="leftShort">
+    <xs:complexType>
+      <xs:sequence dfdl:separator=",">
+        <xs:element name="num" type="xs:short" dfdl:lengthKind="delimited" dfdl:textNumberPattern="#0"/>
+        <xs:element name="count" type="xs:short" dfdl:lengthKind="delimited"/>
+        <xs:element name="value" type="xs:short" dfdl:inputValueCalc="{dfdlx:leftShift(../num,../count)}"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="rightShort">
+    <xs:complexType>
+      <xs:sequence dfdl:separator=",">
+        <xs:element name="num" type="xs:short" dfdl:lengthKind="delimited" dfdl:textNumberPattern="#0"/>
+        <xs:element name="count" type="xs:short" dfdl:lengthKind="delimited"/>
+        <xs:element name="value" type="xs:short" dfdl:inputValueCalc="{dfdlx:rightShift(../num,../count)}"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="leftByte">
+    <xs:complexType>
+      <xs:sequence dfdl:separator=",">
+        <xs:element name="num" type="xs:byte" dfdl:lengthKind="delimited" dfdl:textNumberPattern="#0"/>
+        <xs:element name="count" type="xs:byte" dfdl:lengthKind="delimited"/>
+        <xs:element name="value" type="xs:byte" dfdl:inputValueCalc="{dfdlx:leftShift(../num,../count)}"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="rightByte">
+    <xs:complexType>
+      <xs:sequence dfdl:separator=",">
+        <xs:element name="num" type="xs:byte" dfdl:lengthKind="delimited" dfdl:textNumberPattern="#0"/>
+        <xs:element name="count" type="xs:byte" dfdl:lengthKind="delimited"/>
+        <xs:element name="value" type="xs:byte" dfdl:inputValueCalc="{dfdlx:rightShift(../num,../count)}"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:complexType name="leftUnsignedLong">
+    <xs:sequence dfdl:separator=",">
+      <xs:element name="num" type="xs:unsignedLong" dfdl:lengthKind="delimited" dfdl:textNumberPattern="#0"/>
+      <xs:element name="count" type="xs:int" dfdl:lengthKind="delimited"/>
+      <xs:element name="value" type="xs:unsignedLong" dfdl:inputValueCalc="{dfdlx:leftShift(../num,../count)}"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="rightUnsignedLong">
+    <xs:sequence dfdl:separator=",">
+      <xs:element name="num" type="xs:unsignedLong" dfdl:lengthKind="delimited" dfdl:textNumberPattern="#0"/>
+      <xs:element name="count" type="xs:int" dfdl:lengthKind="delimited"/>
+      <xs:element name="value" type="xs:unsignedLong" dfdl:inputValueCalc="{dfdlx:rightShift(../num,../count)}"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="testUnsignedLongShifting">
+    <xs:complexType>
+      <xs:sequence dfdl:separator="|">
+        <xs:element name="leftUnsignedLong1" type="ex:leftUnsignedLong"/>
+        <xs:element name="leftUnsignedLong2" type="ex:leftUnsignedLong"/>
+        <xs:element name="rightUnsignedLong1" type="ex:rightUnsignedLong"/>
+        <xs:element name="rightUnsignedLong2" type="ex:rightUnsignedLong"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+
+  <xs:complexType name="leftUnsignedInt">
+    <xs:sequence dfdl:separator=",">
+      <xs:element name="num" type="xs:unsignedInt" dfdl:lengthKind="delimited" dfdl:textNumberPattern="#0"/>
+      <xs:element name="count" type="xs:int" dfdl:lengthKind="delimited"/>
+      <xs:element name="value" type="xs:unsignedInt" dfdl:inputValueCalc="{dfdlx:leftShift(../num,../count)}"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="rightUnsignedInt">
+    <xs:sequence dfdl:separator=",">
+      <xs:element name="num" type="xs:unsignedInt" dfdl:lengthKind="delimited" dfdl:textNumberPattern="#0"/>
+      <xs:element name="count" type="xs:int" dfdl:lengthKind="delimited"/>
+      <xs:element name="value" type="xs:unsignedLong" dfdl:inputValueCalc="{dfdlx:rightShift(../num,../count)}"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="testUnsignedIntShifting">
+    <xs:complexType>
+      <xs:sequence dfdl:separator="|">
+        <xs:element name="leftUnsignedInt1" type="ex:leftUnsignedInt"/>
+        <xs:element name="leftUnsignedInt2" type="ex:leftUnsignedInt"/>
+        <xs:element name="rightUnsignedInt1" type="ex:rightUnsignedInt"/>
+        <xs:element name="rightUnsignedInt2" type="ex:rightUnsignedInt"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:complexType name="leftUnsignedShort">
+    <xs:sequence dfdl:separator=",">
+      <xs:element name="num" type="xs:unsignedShort" dfdl:lengthKind="delimited" dfdl:textNumberPattern="#0"/>
+      <xs:element name="count" type="xs:int" dfdl:lengthKind="delimited"/>
+      <xs:element name="value" type="xs:unsignedShort" dfdl:inputValueCalc="{dfdlx:leftShift(../num,../count)}"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="rightUnsignedShort">
+    <xs:sequence dfdl:separator=",">
+      <xs:element name="num" type="xs:unsignedShort" dfdl:lengthKind="delimited" dfdl:textNumberPattern="#0"/>
+      <xs:element name="count" type="xs:int" dfdl:lengthKind="delimited"/>
+      <xs:element name="value" type="xs:unsignedShort" dfdl:inputValueCalc="{dfdlx:rightShift(../num,../count)}"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="testUnsignedShortShifting">
+    <xs:complexType>
+      <xs:sequence dfdl:separator="|">
+        <xs:element name="leftUnsignedShort1" type="ex:leftUnsignedShort"/>
+        <xs:element name="leftUnsignedShort2" type="ex:leftUnsignedShort"/>
+        <xs:element name="rightUnsignedShort1" type="ex:rightUnsignedShort"/>
+        <xs:element name="rightUnsignedShort2" type="ex:rightUnsignedShort"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+
+  <xs:complexType name="leftUnsignedByte">
+    <xs:sequence dfdl:separator=",">
+      <xs:element name="num" type="xs:unsignedByte" dfdl:lengthKind="delimited" dfdl:textNumberPattern="#0"/>
+      <xs:element name="count" type="xs:int" dfdl:lengthKind="delimited"/>
+      <xs:element name="value" type="xs:unsignedByte" dfdl:inputValueCalc="{dfdlx:leftShift(../num,../count)}"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="rightUnsignedByte">
+    <xs:sequence dfdl:separator=",">
+      <xs:element name="num" type="xs:unsignedByte" dfdl:lengthKind="delimited" dfdl:textNumberPattern="#0"/>
+      <xs:element name="count" type="xs:int" dfdl:lengthKind="delimited"/>
+      <xs:element name="value" type="xs:unsignedByte" dfdl:inputValueCalc="{dfdlx:rightShift(../num,../count)}"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="testUnsignedByteShifting">
+    <xs:complexType>
+      <xs:sequence dfdl:separator="|">
+        <xs:element name="leftUnsignedByte1" type="ex:leftUnsignedByte"/>
+        <xs:element name="leftUnsignedByte2" type="ex:leftUnsignedByte"/>
+        <xs:element name="rightUnsignedByte1" type="ex:rightUnsignedByte"/>
+        <xs:element name="rightUnsignedByte2" type="ex:rightUnsignedByte"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+
+  <xs:element name="leftShiftFloat" type="xs:float" dfdl:inputValueCalc="{ dfdlx:leftShift(xs:float(1.0), 1) }" />
+  <xs:element name="rightShiftFloat" type="xs:float" dfdl:inputValueCalc="{ dfdlx:rightShift(xs:float(1.0), 1) }" />
+
+  <xs:element name="leftShiftDouble" type="xs:double" dfdl:inputValueCalc="{ dfdlx:leftShift(xs:double(1.0), 1) }" />
+  <xs:element name="rightShiftDouble" type="xs:double" dfdl:inputValueCalc="{ dfdlx:rightShift(xs:double(1.0), 1) }" />
+
+  <xs:element name="leftShiftInteger" type="xs:integer" dfdl:inputValueCalc="{ dfdlx:leftShift(xs:integer(1), 1) }" />
+  <xs:element name="rightShiftInteger" type="xs:integer" dfdl:inputValueCalc="{ dfdlx:rightShift(xs:integer(1), 1) }" />
+
+  <xs:element name="leftShiftNonNegativeInteger" type="xs:nonNegativeInteger" dfdl:inputValueCalc="{ dfdlx:leftShift(xs:nonNegativeInteger(1), 1) }" />
+  <xs:element name="rightShiftNonNegativeInteger" type="xs:nonNegativeInteger" dfdl:inputValueCalc="{ dfdlx:rightShift(xs:nonNegativeInteger(1), 1) }" />
+
+  <xs:element name="leftShiftDecimal" type="xs:decimal" dfdl:inputValueCalc="{ dfdlx:leftShift(xs:decimal(1.0), 1) }" />
+  <xs:element name="rightShiftDecimal" type="xs:decimal" dfdl:inputValueCalc="{ dfdlx:rightShift(xs:decimal(1.0), 1) }" />
+
+
+
+  </tdml:defineSchema>
+
+
+  <tdml:parserTestCase name="intShiftTest" root="testIntShifting" model="BitFunctions">
+    <tdml:document>4,2|4,31|4,0|1,31</tdml:document>
+        <tdml:infoset>
+            <tdml:dfdlInfoset>
+                <ex:testIntShifting>
+                      <ex:leftInt1>
+                          <num>4</num>
+                          <count>2</count>
+                          <value>16</value>
+                      </ex:leftInt1>
+                      <ex:leftInt2>
+                          <num>4</num>
+                          <count>31</count>
+                          <value>0</value>
+                      </ex:leftInt2>
+                      <ex:rightInt1>
+                          <num>4</num>
+                          <count>0</count>
+                          <value>4</value>
+                      </ex:rightInt1>
+                      <ex:rightInt2>
+                          <num>1</num>
+                          <count>31</count>
+                          <value>0</value>
+                      </ex:rightInt2>
+                </ex:testIntShifting>
+            </tdml:dfdlInfoset>
+        </tdml:infoset>
+  </tdml:parserTestCase>
+
+
+  <tdml:parserTestCase name="longShiftTest" root="testLongShifting" model="BitFunctions">
+    <tdml:document>4,2|4,63|4,0|4,63</tdml:document>
+        <tdml:infoset>
+            <tdml:dfdlInfoset>
+                <ex:testLongShifting>
+                      <ex:leftLong1>
+                          <num>4</num>
+                          <count>2</count>
+                          <value>16</value>
+                      </ex:leftLong1>
+                      <ex:leftLong2>
+                          <num>4</num>
+                          <count>63</count>
+                          <value>0</value>
+                      </ex:leftLong2>
+                      <ex:rightLong1>
+                          <num>4</num>
+                          <count>0</count>
+                          <value>4</value>
+                      </ex:rightLong1>
+                      <ex:rightLong2>
+                          <num>4</num>
+                          <count>63</count>
+                          <value>0</value>
+                      </ex:rightLong2>
+                </ex:testLongShifting>
+            </tdml:dfdlInfoset>
+        </tdml:infoset>
+  </tdml:parserTestCase>
+
+    <tdml:parserTestCase name="byteShiftTest" root="testByteShifting" model="BitFunctions">
+      <tdml:document>4,2|4,7|4,0|4,7</tdml:document>
+          <tdml:infoset>
+              <tdml:dfdlInfoset>
+                  <ex:testByteShifting>
+                        <ex:leftByte1>
+                            <num>4</num>
+                            <count>2</count>
+                            <value>16</value>
+                        </ex:leftByte1>
+                        <ex:leftByte2>
+                            <num>4</num>
+                            <count>7</count>
+                            <value>0</value>
+                        </ex:leftByte2>
+                        <ex:rightByte1>
+                            <num>4</num>
+                            <count>0</count>
+                            <value>4</value>
+                        </ex:rightByte1>
+                        <ex:rightByte2>
+                            <num>4</num>
+                            <count>7</count>
+                            <value>0</value>
+                        </ex:rightByte2>
+                  </ex:testByteShifting>
+              </tdml:dfdlInfoset>
+          </tdml:infoset>
+    </tdml:parserTestCase>
+
+    <tdml:parserTestCase name="shortShiftTest" root="testShortShifting" model="BitFunctions">
+      <tdml:document>4,2|4,7|4,0|4,7</tdml:document>
+          <tdml:infoset>
+              <tdml:dfdlInfoset>
+                  <ex:testShortShifting>
+                        <ex:leftShort1>
+                            <num>4</num>
+                            <count>2</count>
+                            <value>16</value>
+                        </ex:leftShort1>
+                        <ex:leftShort2>
+                            <num>4</num>
+                            <count>7</count>
+                            <value>512</value>
+                        </ex:leftShort2>
+                        <ex:rightShort1>
+                            <num>4</num>
+                            <count>0</count>
+                            <value>4</value>
+                        </ex:rightShort1>
+                        <ex:rightShort2>
+                            <num>4</num>
+                            <count>7</count>
+                            <value>0</value>
+                        </ex:rightShort2>
+                  </ex:testShortShifting>
+              </tdml:dfdlInfoset>
+          </tdml:infoset>
+    </tdml:parserTestCase>
+
+    <tdml:parserTestCase name="testUnsignedLongShifting1" root="testUnsignedLongShifting" model="BitFunctions">
+      <tdml:document>18446744073709551615,63|1,32|4,0|18446744073709551615,63</tdml:document>
+          <tdml:infoset>
+              <tdml:dfdlInfoset>
+                  <ex:testUnsignedLongShifting>
+                        <ex:leftUnsignedLong1>
+                            <num>18446744073709551615</num>
+                            <count>63</count>
+                            <value>9223372036854775808</value>
+                        </ex:leftUnsignedLong1>
+                        <ex:leftUnsignedLong2>
+                            <num>1</num>
+                            <count>32</count>
+                            <value>4294967296</value>
+                        </ex:leftUnsignedLong2>
+                        <ex:rightUnsignedLong1>
+                            <num>4</num>
+                            <count>0</count>
+                            <value>4</value>
+                        </ex:rightUnsignedLong1>
+                        <ex:rightUnsignedLong2>
+                            <num>18446744073709551615</num>
+                            <count>63</count>
+                            <value>1</value>
+                        </ex:rightUnsignedLong2>
+                  </ex:testUnsignedLongShifting>
+              </tdml:dfdlInfoset>
+          </tdml:infoset>
+    </tdml:parserTestCase>
+
+    <tdml:parserTestCase name="testUnsignedIntShifting" root="testUnsignedIntShifting" model="BitFunctions">
+      <tdml:document>1,31|4294967295,1|4,0|1,31</tdml:document>
+          <tdml:infoset>
+              <tdml:dfdlInfoset>
+                  <ex:testUnsignedIntShifting>
+                        <ex:leftUnsignedInt1>
+                            <num>1</num>
+                            <count>31</count>
+                            <value>2147483648</value>
+                        </ex:leftUnsignedInt1>
+                        <ex:leftUnsignedInt2>
+                            <num>4294967295</num>
+                            <count>1</count>
+                            <value>4294967294</value>
+                        </ex:leftUnsignedInt2>
+                        <ex:rightUnsignedInt1>
+                            <num>4</num>
+                            <count>0</count>
+                            <value>4</value>
+                        </ex:rightUnsignedInt1>
+                        <ex:rightUnsignedInt2>
+                            <num>1</num>
+                            <count>31</count>
+                            <value>0</value>
+                        </ex:rightUnsignedInt2>
+                  </ex:testUnsignedIntShifting>
+              </tdml:dfdlInfoset>
+          </tdml:infoset>
+    </tdml:parserTestCase>
+
+
+    <tdml:parserTestCase name="testUnsignedShortShifting" root="testUnsignedShortShifting" model="BitFunctions">
+      <tdml:document>1,15|65535,1|4,0|4,15</tdml:document>
+          <tdml:infoset>
+              <tdml:dfdlInfoset>
+                  <ex:testUnsignedShortShifting>
+                        <ex:leftUnsignedShort1>
+                            <num>1</num>
+                            <count>15</count>
+                            <value>32768</value>
+                        </ex:leftUnsignedShort1>
+                        <ex:leftUnsignedShort2>
+                            <num>65535</num>
+                            <count>1</count>
+                            <value>65534</value>
+                        </ex:leftUnsignedShort2>
+                        <ex:rightUnsignedShort1>
+                            <num>4</num>
+                            <count>0</count>
+                            <value>4</value>
+                        </ex:rightUnsignedShort1>
+                        <ex:rightUnsignedShort2>
+                            <num>4</num>
+                            <count>15</count>
+                            <value>0</value>
+                        </ex:rightUnsignedShort2>
+                  </ex:testUnsignedShortShifting>
+              </tdml:dfdlInfoset>
+          </tdml:infoset>
+    </tdml:parserTestCase>
+
+
+    <tdml:parserTestCase name="testUnsignedByteShifting" root="testUnsignedByteShifting" model="BitFunctions">
+      <tdml:document>1,7|255,1|4,0|4,7</tdml:document>
+          <tdml:infoset>
+              <tdml:dfdlInfoset>
+                  <ex:testUnsignedByteShifting>
+                        <ex:leftUnsignedByte1>
+                            <num>1</num>
+                            <count>7</count>
+                            <value>128</value>
+                        </ex:leftUnsignedByte1>
+                        <ex:leftUnsignedByte2>
+                            <num>255</num>
+                            <count>1</count>
+                            <value>254</value>
+                        </ex:leftUnsignedByte2>
+                        <ex:rightUnsignedByte1>
+                            <num>4</num>
+                            <count>0</count>
+                            <value>4</value>
+                        </ex:rightUnsignedByte1>
+                        <ex:rightUnsignedByte2>
+                            <num>4</num>
+                            <count>7</count>
+                            <value>0</value>
+                        </ex:rightUnsignedByte2>
+                  </ex:testUnsignedByteShifting>
+              </tdml:dfdlInfoset>
+          </tdml:infoset>
+    </tdml:parserTestCase>
+
+
+
+
+
+  <tdml:parserTestCase name="leftShiftFloatError01" root="leftShiftFloat" model="BitFunctions">
+    <tdml:document>1.0,1</tdml:document>
+      <tdml:errors>
+        <tdml:error> xs:unsignedLong or xs:long or a subtype of those</tdml:error>
+      </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="rightShiftFloatError01" root="rightShiftFloat" model="BitFunctions">
+    <tdml:document>1.0,1</tdml:document>
+      <tdml:errors>
+        <tdml:error>xs:unsignedLong or xs:long or a subtype of those</tdml:error>
+      </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="leftShiftDoubleError01" root="leftShiftDouble" model="BitFunctions">
+    <tdml:document>1.0,1</tdml:document>
+      <tdml:errors>
+        <tdml:error>xs:unsignedLong or xs:long or a subtype of those</tdml:error>
+      </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="rightShiftDoubleError01" root="rightShiftDouble" model="BitFunctions">
+    <tdml:document>1.0,1</tdml:document>
+      <tdml:errors>
+        <tdml:error>xs:unsignedLong or xs:long or a subtype of those</tdml:error>
+      </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="leftShiftIntegerError01" root="leftShiftInteger" model="BitFunctions">
+    <tdml:document>1.0,1</tdml:document>
+      <tdml:errors>
+        <tdml:error>xs:unsignedLong or xs:long or a subtype of those</tdml:error>
+      </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="rightShiftIntegerError01" root="rightShiftInteger" model="BitFunctions">
+    <tdml:document>1.0,1</tdml:document>
+      <tdml:errors>
+        <tdml:error>xs:unsignedLong or xs:long or a subtype of those</tdml:error>
+      </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="leftShiftDecimalError01" root="leftShiftDecimal" model="BitFunctions">
+    <tdml:document>1.0,1</tdml:document>
+      <tdml:errors>
+        <tdml:error>xs:unsignedLong or xs:long or a subtype of those</tdml:error>
+      </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="rightShiftDecimalError01" root="rightShiftDecimal" model="BitFunctions">
+    <tdml:document>1.0,1</tdml:document>
+      <tdml:errors>
+        <tdml:error>xs:unsignedLong or xs:long or a subtype of those</tdml:error>
+      </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="leftShiftNonNegativeIntegerError01" root="leftShiftNonNegativeInteger" model="BitFunctions">
+    <tdml:document>1.0,1</tdml:document>
+      <tdml:errors>
+        <tdml:error>xs:unsignedLong or xs:long or a subtype of those</tdml:error>
+      </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="rightShiftNonNegativeIntegerError01" root="rightShiftNonNegativeInteger" model="BitFunctions">
+    <tdml:document>1.0,1</tdml:document>
+      <tdml:errors>
+        <tdml:error>xs:unsignedLong or xs:long or a subtype of those</tdml:error>
+      </tdml:errors>
+  </tdml:parserTestCase>
+
+
+
+  <tdml:parserTestCase name="leftShiftIntError" root="leftInt" model="BitFunctions">
+     <tdml:document>2,32</tdml:document>
+       <tdml:errors>
+         <tdml:error>32</tdml:error>
+       </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="rightShiftIntError" root="rightInt" model="BitFunctions">
+    <tdml:document>2,35</tdml:document>
+      <tdml:errors>
+      <tdml:error>32</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="leftShiftLongError" root="leftLong" model="BitFunctions">
+    <tdml:document>2,64</tdml:document>
+      <tdml:errors>
+        <tdml:error>64</tdml:error>
+      </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="rightShiftLongError" root="rightLong" model="BitFunctions">
+     <tdml:document>2,64</tdml:document>
+       <tdml:errors>
+         <tdml:error>64</tdml:error>
+       </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="leftShiftShortError" root="leftShort" model="BitFunctions">
+    <tdml:document>2,16</tdml:document>
+       <tdml:errors>
+         <tdml:error>16</tdml:error>
+      </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="rightShiftShortError" root="rightShort" model="BitFunctions">
+    <tdml:document>2,16</tdml:document>
+      <tdml:errors>
+        <tdml:error>16</tdml:error>
+      </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="leftShiftByteError" root="leftByte" model="BitFunctions">
+    <tdml:document>2,8</tdml:document>
+      <tdml:errors>
+        <tdml:error>8</tdml:error>
+      </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="rightShiftByteError" root="rightByte" model="BitFunctions">
+    <tdml:document>2,8</tdml:document>
+      <tdml:errors>
+        <tdml:error>8</tdml:error>
+      </tdml:errors>
+  </tdml:parserTestCase>
+
+</tdml:testSuite>

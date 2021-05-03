@@ -17,8 +17,9 @@
 
 package org.apache.daffodil.dpath
 
-import java.math.{ BigInteger => JBigInt }
+import java.math.{BigInteger => JBigInt}
 
+import org.apache.daffodil.dpath.NodeInfo.PrimType.PrimNumeric
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.infoset.DINode
 import org.apache.daffodil.infoset.DISimple
@@ -29,6 +30,74 @@ import org.apache.daffodil.processors.unparsers.UState
 import org.apache.daffodil.processors.unparsers.UnparseError
 import org.apache.daffodil.util.Maybe.Nope
 import org.apache.daffodil.util.Maybe.One
+import passera.unsigned.{UInt, ULong}
+
+/**
+ * This is the "logical" shift left.
+ * The left-most bits shifted out are discarded. Zeros are shifted in for the right-most bits.
+ *
+ * @param recipes
+ * @param argType
+ */
+case class DFDLXLeftShift(recipes: List[CompiledDPath], argType: NodeInfo.Kind) extends FNTwoArgs(recipes)  {
+  override def computeValue(arg1: DataValuePrimitive, arg2: DataValuePrimitive, dstate: DState): DataValuePrimitive = {
+
+    val shiftLong = arg2.getLong
+    val shift = shiftLong.toInt
+    val width = argType.asInstanceOf[PrimNumeric].width.get
+    Assert.invariant(shift >= 0)
+    if(shift>=width)
+      dstate.SDE("dfdlx:leftShift not supported for shift greater or equal to %s for %s. Shift was %s", width, argType.globalQName, shift)
+
+    argType match {
+      case NodeInfo.Long => arg1.getLong << shift
+      case NodeInfo.Int => arg1.getInt << shift
+      case NodeInfo.Short => (arg1.getShort << shift).toShort
+      case NodeInfo.Byte => (arg1.getByte << shift).toByte
+      case NodeInfo.UnsignedLong => (ULong(arg1.getBigInt.longValue()) << shift).toBigInt
+      case NodeInfo.UnsignedInt => ULong(arg1.getLong << shift).toUInt.toLong
+      case NodeInfo.UnsignedShort => UInt(arg1.getInt << shift).toUShort.toInt
+      case NodeInfo.UnsignedByte => UInt(arg1.getShort << shift).toUByte.toShort
+      //$COVERAGE-OFF$
+      case _ => Assert.invariantFailed(s"Should not have gotten ${argType.globalQName} for left shift argument type")
+      // $COVERAGE-ON$
+    }
+  }
+}
+
+/**
+ * This is the "arithmetic" shift right. The right-most bits shifted out are discarded.
+ * The sign bit is shifted in for the left-most bits. This means for signed primitives the values are sign-extended.
+ * If "logical" (zero-filling) shift right is needed, you must use unsigned primitives.
+ *
+ *
+ * @param recipes
+ * @param argType
+ */
+case class DFDLXRightShift(recipes: List[CompiledDPath], argType: NodeInfo.Kind) extends FNTwoArgs(recipes) {
+  override def computeValue(arg1: DataValuePrimitive, arg2: DataValuePrimitive, dstate: DState): DataValuePrimitive = {
+    val shiftLong = arg2.getLong
+    val shift = shiftLong.toInt
+    val width = argType.asInstanceOf[PrimNumeric].width.get
+    Assert.invariant(shift >= 0)
+    if(shift>=width)
+      dstate.SDE("dfdlx:rightShift not supported for shift greater or equal to %s for %s. Shift was %s", width, argType.globalQName, shift)
+    argType match {
+      case NodeInfo.Long => arg1.getLong >> shift
+      case NodeInfo.Int => arg1.getInt >> shift
+      case NodeInfo.Short => (arg1.getShort >> shift).toShort
+      case NodeInfo.Byte => (arg1.getByte >> shift).toByte
+      case NodeInfo.UnsignedLong => (ULong(arg1.getBigInt.longValue()) >> shift).toBigInt
+      case NodeInfo.UnsignedInt => ULong(arg1.getLong.toInt >> shift).toUInt.toLong
+      case NodeInfo.UnsignedShort => UInt(arg1.getInt.toShort >> shift).toUShort.toInt
+      case NodeInfo.UnsignedByte => UInt(arg1.getShort.toByte >> shift).toUByte.toShort
+      //$COVERAGE-OFF$
+      case _ => Assert.invariantFailed(s"Should not have gotten ${argType.globalQName} for right shift argument type")
+      // $COVERAGE-ON$
+    }
+  }
+}
+
 
 case class DFDLXTrace(recipe: CompiledDPath, msg: String)
   extends RecipeOpWithSubRecipes(recipe) {
