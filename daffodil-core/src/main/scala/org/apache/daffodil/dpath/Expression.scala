@@ -1628,6 +1628,14 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
       case (RefQName(_, "exactly-one", FUNC), args) =>
         FNExactlyOneExpr(functionQNameString, functionQName, args)
 
+      case (RefQName(_, "leftShift", DFDLX), args) =>
+        DFDLXShiftExpr(functionQNameString, functionQName, args,
+          DFDLXLeftShift(_, _))
+      case (RefQName(_, "rightShift", DFDLX), args) =>
+        DFDLXShiftExpr(functionQNameString, functionQName, args,
+          DFDLXRightShift(_, _))
+
+
       case (RefQName(_, "year-from-dateTime", FUNC), args) => FNOneArgExpr(functionQNameString, functionQName, args, NodeInfo.Integer, NodeInfo.DateTime, FNYearFromDateTime(_, _))
       case (RefQName(_, "month-from-dateTime", FUNC), args) => FNOneArgExpr(functionQNameString, functionQName, args, NodeInfo.Integer, NodeInfo.DateTime, FNMonthFromDateTime(_, _))
       case (RefQName(_, "day-from-dateTime", FUNC), args) => FNOneArgExpr(functionQNameString, functionQName, args, NodeInfo.Integer, NodeInfo.DateTime, FNDayFromDateTime(_, _))
@@ -2132,6 +2140,41 @@ case class FNTwoArgsMathExpr(nameAsParsed: String, fnQName: RefQName,
       arg2Type
     else
       Assert.invariantFailed("subexpression %s is not an argument.".format(subexp))
+  }
+}
+
+case class DFDLXShiftExpr(nameAsParsed: String, fnQName: RefQName,
+                             args: List[Expression], constructor: (List[CompiledDPath], NodeInfo.Kind) => RecipeOp)
+  extends FunctionCallBase(nameAsParsed, fnQName, args) {
+  override lazy val inherentType = {
+    val argInherentType = args(0).inherentType
+    schemaDefinitionUnless(
+      argInherentType.isSubtypeOf(NodeInfo.PrimType.UnsignedLong) ||
+        argInherentType.isSubtypeOf(NodeInfo.PrimType.Long),
+      "First argument for %s must be either xs:unsignedLong or xs:long or a subtype of those, but was %s.",
+      nameAsParsed,argInherentType.globalQName)
+    argInherentType
+  }
+
+  override def targetTypeForSubexpression(subexp: Expression): NodeInfo.Kind = {
+    if (subexp == args(0))
+      inherentType
+    else if (subexp == args(1))
+      NodeInfo.UnsignedInt
+    else
+    //$COVERAGE-OFF$
+      Assert.invariantFailed("subexpression %s is not an argument.".format(subexp))
+    //$COVERAGE-ON$
+  }
+
+  override def compiledDPath: CompiledDPath = {
+    checkArgCount(2)
+    val arg0Recipe = args(0).compiledDPath
+    val arg0Type = args(0).inherentType
+    val arg1Recipe=args(1).compiledDPath
+    val c=conversions
+    val res = new CompiledDPath(constructor(List(arg0Recipe,arg1Recipe),arg0Type)+:c)
+    res
   }
 }
 

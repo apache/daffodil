@@ -17,8 +17,8 @@
 
 package org.apache.daffodil.dpath
 
-import java.lang.{ Byte => JByte, Double => JDouble, Float => JFloat, Integer => JInt, Long => JLong, Short => JShort }
-import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
+import java.lang.{Byte => JByte, Double => JDouble, Float => JFloat, Integer => JInt, Long => JLong, Short => JShort}
+import java.math.{BigDecimal => JBigDecimal, BigInteger => JBigInt}
 import java.net.URI
 import java.net.URISyntaxException
 
@@ -44,8 +44,7 @@ import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.infoset.DataValue.DataValueShort
 import org.apache.daffodil.infoset.DataValue.DataValueTime
 import org.apache.daffodil.infoset.DataValue.DataValueURI
-import org.apache.daffodil.util.Enum
-import org.apache.daffodil.util.Misc
+import org.apache.daffodil.util.{Enum, MaybeInt, Misc}
 import org.apache.daffodil.util.Numbers.asBigInt
 import org.apache.daffodil.util.Numbers.asBigDecimal
 import org.apache.daffodil.xml.GlobalQName
@@ -473,6 +472,7 @@ object NodeInfo extends Enum {
     }
 
     trait PrimNumeric { self: Numeric.Kind =>
+      def width:MaybeInt
       def isValid(n: Number): Boolean
       protected def fromNumberNoCheck(n: Number): DataValueNumber
       def fromNumber(n: Number): DataValueNumber = {
@@ -561,6 +561,7 @@ object NodeInfo extends Enum {
       protected override def fromNumberNoCheck(n: Number): DataValueFloat = n.floatValue
       override val min = -JFloat.MAX_VALUE.doubleValue
       override val max = JFloat.MAX_VALUE.doubleValue
+      override val width: MaybeInt = MaybeInt(32)
     }
 
     protected sealed trait DoubleKind extends SignedNumeric.Kind
@@ -578,6 +579,7 @@ object NodeInfo extends Enum {
       protected override def fromNumberNoCheck(n: Number): DataValueDouble = n.doubleValue
       override val min = -JDouble.MAX_VALUE
       override val max = JDouble.MAX_VALUE
+      override val width: MaybeInt = MaybeInt(64)
     }
 
     protected sealed trait DecimalKind extends SignedNumeric.Kind
@@ -586,6 +588,8 @@ object NodeInfo extends Enum {
       protected override def fromString(s: String): DataValueBigDecimal = new JBigDecimal(s)
       protected override def fromNumberNoCheck(n: Number): DataValueBigDecimal = asBigDecimal(n)
       override def isValid(n: Number): Boolean = true
+
+      override val width: MaybeInt = MaybeInt.Nope
     }
 
     protected sealed trait IntegerKind extends Decimal.Kind
@@ -595,6 +599,8 @@ object NodeInfo extends Enum {
       protected override def fromString(s: String): DataValueBigInt = new JBigInt(s)
       protected override def fromNumberNoCheck(n: Number): DataValueBigInt = asBigInt(n)
       override def isValid(n: Number): Boolean = true
+
+      override val width: MaybeInt = MaybeInt.Nope
     }
 
     protected sealed trait LongKind extends Integer.Kind
@@ -604,6 +610,7 @@ object NodeInfo extends Enum {
       protected override def fromNumberNoCheck(n: Number): DataValueLong = n.longValue
       override val min = JLong.MIN_VALUE
       override val max = JLong.MAX_VALUE
+      override val width: MaybeInt = MaybeInt(64)
     }
 
     protected sealed trait IntKind extends Long.Kind
@@ -613,6 +620,7 @@ object NodeInfo extends Enum {
       protected override def fromNumberNoCheck(n: Number): DataValueInt = n.intValue
       override val min = JInt.MIN_VALUE.toLong
       override val max = JInt.MAX_VALUE.toLong
+      override val width: MaybeInt = MaybeInt(32)
     }
 
     protected sealed trait ShortKind extends Int.Kind
@@ -622,6 +630,7 @@ object NodeInfo extends Enum {
       protected override def fromNumberNoCheck(n: Number): DataValueShort = n.shortValue
       override val min = JShort.MIN_VALUE.toLong
       override val max = JShort.MAX_VALUE.toLong
+      override val width: MaybeInt = MaybeInt(16)
     }
 
     protected sealed trait ByteKind extends Short.Kind
@@ -631,6 +640,7 @@ object NodeInfo extends Enum {
       protected override def fromNumberNoCheck(n: Number): DataValueByte = n.byteValue
       override val min = JByte.MIN_VALUE.toLong
       override val max = JByte.MAX_VALUE.toLong
+      override val width: MaybeInt = MaybeInt(8)
     }
 
     protected sealed trait NonNegativeIntegerKind extends Integer.Kind
@@ -643,6 +653,8 @@ object NodeInfo extends Enum {
         case bi: JBigInt => bi.signum >= 0
         case _ => n.longValue >= 0
       }
+
+      override val width: MaybeInt = MaybeInt.Nope
     }
 
     protected sealed trait UnsignedLongKind extends NonNegativeInteger.Kind
@@ -658,6 +670,7 @@ object NodeInfo extends Enum {
       }
       val max = new JBigInt(1, scala.Array.fill(8)(0xFF.toByte))
       val maxBD = new JBigDecimal(max)
+      override val width: MaybeInt = MaybeInt(64)
     }
 
     protected sealed trait UnsignedIntKind extends UnsignedLong.Kind
@@ -668,6 +681,7 @@ object NodeInfo extends Enum {
       protected override def fromNumberNoCheck(n: Number): DataValueLong = n.longValue
       override val min = 0L
       override val max = 0xFFFFFFFFL
+      override val width: MaybeInt = MaybeInt(32)
     }
 
     protected sealed trait UnsignedShortKind extends UnsignedInt.Kind
@@ -678,6 +692,7 @@ object NodeInfo extends Enum {
       protected override def fromNumberNoCheck(n: Number): DataValueInt = n.intValue
       override val min = 0L
       override val max = 0xFFFFL
+      override val width: MaybeInt = MaybeInt(16)
     }
 
     protected sealed trait UnsignedByteKind extends UnsignedShort.Kind
@@ -688,6 +703,7 @@ object NodeInfo extends Enum {
       protected override def fromNumberNoCheck(n: Number): DataValueShort = n.shortValue
       override val min = 0L
       override val max = 0xFFL
+      override val width: MaybeInt = MaybeInt(8)
     }
 
     protected sealed trait StringKind extends AnyAtomic.Kind
