@@ -48,7 +48,7 @@ object Dependencies {
   lazy val test = Seq(
     "junit" % "junit" % "4.13.2" % "it,test",
     "com.novocode" % "junit-interface" % "0.11" % "it,test",
-    "org.scalacheck" %% "scalacheck" % "1.15.3" % "it,test"
+    "org.scalacheck" %% "scalacheck" % "1.15.4" % "it,test"
   )
 
   lazy val schematron = Seq(
