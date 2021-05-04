@@ -43,19 +43,47 @@ commands (or set them to `true` to disable C compilation altogether)
 if you don't want `sbt compile` to call your C compiler with `cc` and
 `ar` as the default commands.
 
-## Fedora 34
+## CentOS 7
 
-You can use the `dnf` package manager to install most of the tools
+You can use the `yum` package manager to install most of the tools
 needed to build Daffodil:
 
-    sudo dnf install clang git java-11-openjdk-devel llvm make mxml-devel pkgconf
+    sudo yum install clang gcc git java-11-openjdk-devel llvm make pkgconfig
 
 If you want to use clang instead of gcc, you'll have to set your
 environment variables `CC` and `AR` to the clang binaries' names:
 
     export CC=clang AR=llvm-ar
 
-However, Fedora has no sbt package in its default repositories.
+However, CentOS has no [mxml-devel][Mini-XML] or [sbt][SBT] packages
+in its own repositories.  You'll have to install the latest [SBT]
+version following its website's instructions and you'll have to build
+the [Mini-XML] library from source:
+
+    git clone -b v3.2 https://github.com/michaelrsweet/mxml.git
+    # ./configure fails if you use CC=clang
+    unset CC AR
+    cd mxml
+    ./configure --prefix=/usr --disable-shared --disable-threads
+    make
+    sudo make install
+
+Now you can build Daffodil from source and the sbt and daffodil
+commands you type will be able to call the C compiler.
+
+## Fedora 34
+
+You can use the `dnf` package manager to install most of the tools
+needed to build Daffodil:
+
+    sudo dnf install clang gcc git java-11-openjdk-devel llvm make mxml-devel pkgconf
+
+If you want to use clang instead of gcc, you'll have to set your
+environment variables `CC` and `AR` to the clang binaries' names:
+
+    export CC=clang AR=llvm-ar
+
+However, Fedora has no [sbt][SBT] package in its own repositories.
 You'll have to install the latest [SBT] version following its
 website's instructions.
 
@@ -74,7 +102,7 @@ environment variables `CC` and `AR` to the clang binaries' names:
 
     export CC=clang-10 AR=llvm-ar-10
 
-However, Ubuntu has no sbt package in its default repositories.
+However, Ubuntu has no [sbt][SBT] package in its own repositories.
 You'll have to install the latest [SBT] version following its
 website's instructions.
 
@@ -93,7 +121,7 @@ libraries.
 You can use the `pacman` package manager to install most of the tools
 needed to build Daffodil:
 
-    pacman -S clang diffutils git make pkgconf
+    pacman -S clang diffutils gcc git make pkgconf
 
 If you want to use clang instead of gcc, you'll have to set your
 environment variables `CC` and `AR` to the clang binaries' names:
@@ -104,6 +132,8 @@ However, MSYS2 has no [libmxml-devel][Mini-XML] package so you'll have
 to build the [Mini-XML] library from source:
 
     git clone -b v3.2 https://github.com/michaelrsweet/mxml.git
+    # some daffodil tests fail if you build mxml with clang
+    unset CC AR
     cd mxml
     ./configure --prefix=/usr --disable-shared --disable-threads
     make

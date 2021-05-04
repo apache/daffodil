@@ -38,7 +38,7 @@ PROGRAM = ./daffodil
 HEADERS = libcli/*.h libruntime/*.h
 SOURCES = libcli/*.c libruntime/*.c
 INCLUDES = -Ilibcli -Ilibruntime
-CFLAGS = -g -Wall -Wextra
+CFLAGS = -g -Wall -Wextra -pedantic -std=gnu99
 LIBS = -lmxml
 
 $(PROGRAM): $(HEADERS) $(SOURCES)

@@ -85,9 +85,9 @@
 
 // Unparse binary booleans, real numbers, and integers
 
-define_unparse_endian_bool(be, 16);
-define_unparse_endian_bool(be, 32);
-define_unparse_endian_bool(be, 8);
+define_unparse_endian_bool(be, 16)
+define_unparse_endian_bool(be, 32)
+define_unparse_endian_bool(be, 8)
 
 define_unparse_endian_real(be, double, 64)
 define_unparse_endian_real(be, float, 32)
@@ -102,9 +102,9 @@ define_unparse_endian_integer(be, uint, 32)
 define_unparse_endian_integer(be, uint, 64)
 define_unparse_endian_integer(be, uint, 8)
 
-define_unparse_endian_bool(le, 16);
-define_unparse_endian_bool(le, 32);
-define_unparse_endian_bool(le, 8);
+define_unparse_endian_bool(le, 16)
+define_unparse_endian_bool(le, 32)
+define_unparse_endian_bool(le, 8)
 
 define_unparse_endian_real(le, double, 64)
 define_unparse_endian_real(le, float, 32)

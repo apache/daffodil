@@ -67,7 +67,7 @@ typedef struct Error
         int         c;   // for %c
         int64_t     d64; // for %d64
         const char *s;   // for %s
-    };
+    } arg;
 } Error;
 
 // Limits - limits on how many elements static arrays can hold
