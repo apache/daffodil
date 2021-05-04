@@ -263,7 +263,7 @@ class CodeGeneratorState {
       val declaration = s"    };"
       val initChoiceStatement =
         s"""    default:
-           |        error.d64 = key;
+           |        error.arg.d64 = key;
            |        return &error;
            |    }
            |
@@ -278,14 +278,14 @@ class CodeGeneratorState {
       val parseStatement =
         s"""    default:
            |        // Should never happen because initChoice would return an error first
-           |        error.d64 = (int64_t)instance->_choice;
+           |        error.arg.d64 = (int64_t)instance->_choice;
            |        pstate->error = &error;
            |        return;
            |    }""".stripMargin
       val unparseStatement =
         s"""    default:
            |        // Should never happen because initChoice would return an error first
-           |        error.d64 = (int64_t)instance->_choice;
+           |        error.arg.d64 = (int64_t)instance->_choice;
            |        ustate->error = &error;
            |        return;
            |    }""".stripMargin

@@ -26,22 +26,26 @@
 
 // Prototypes needed for compilation
 
-typedef struct ElementRuntimeData ERD;
-typedef struct InfosetBase        InfosetBase;
-typedef struct PState             PState;
-typedef struct UState             UState;
-typedef struct VisitEventHandler  VisitEventHandler;
+struct ERD;
+struct InfosetBase;
+struct PState;
+struct UState;
+struct VisitEventHandler;
 
-typedef void (*ERDInitSelf)(InfosetBase *infoNode);
-typedef void (*ERDParseSelf)(InfosetBase *infoNode, PState *pstate);
-typedef void (*ERDUnparseSelf)(const InfosetBase *infoNode, UState *ustate);
-typedef const Error *(*InitChoiceRD)(const InfosetBase *infoNode, const InfosetBase *rootElement);
+typedef void (*ERDInitSelf)(struct InfosetBase *infoNode);
+typedef void (*ERDParseSelf)(struct InfosetBase *infoNode, struct PState *pstate);
+typedef void (*ERDUnparseSelf)(const struct InfosetBase *infoNode, struct UState *ustate);
+typedef const Error *(*InitChoiceRD)(const struct InfosetBase *infoNode,
+                                     const struct InfosetBase *rootElement);
 
-typedef const Error *(*VisitStartDocument)(const VisitEventHandler *handler);
-typedef const Error *(*VisitEndDocument)(const VisitEventHandler *handler);
-typedef const Error *(*VisitStartComplex)(const VisitEventHandler *handler, const InfosetBase *base);
-typedef const Error *(*VisitEndComplex)(const VisitEventHandler *handler, const InfosetBase *base);
-typedef const Error *(*VisitNumberElem)(const VisitEventHandler *handler, const ERD *erd, const void *number);
+typedef const Error *(*VisitStartDocument)(const struct VisitEventHandler *handler);
+typedef const Error *(*VisitEndDocument)(const struct VisitEventHandler *handler);
+typedef const Error *(*VisitStartComplex)(const struct VisitEventHandler *handler,
+                                          const struct InfosetBase *      base);
+typedef const Error *(*VisitEndComplex)(const struct VisitEventHandler *handler,
+                                        const struct InfosetBase *      base);
+typedef const Error *(*VisitNumberElem)(const struct VisitEventHandler *handler, const struct ERD *erd,
+                                        const void *number);
 
 // NamedQName - name of an infoset element
 
@@ -73,13 +77,13 @@ enum TypeCode
 
 // ERD - element runtime data needed to parse/unparse objects
 
-typedef struct ElementRuntimeData
+typedef struct ERD
 {
     const NamedQName    namedQName;
     const enum TypeCode typeCode;
     const size_t        numChildren;
     const size_t *      offsets;
-    const ERD **        childrenERDs;
+    const struct ERD ** childrenERDs;
 
     const ERDInitSelf    initSelf;
     const ERDParseSelf   parseSelf;

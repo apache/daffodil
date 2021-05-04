@@ -82,7 +82,7 @@ lazy val runtime2         = Project("daffodil-runtime2", file("daffodil-runtime2
                                     (Compile / resourceDirectory).value / "org" / "apache" / "daffodil" / "runtime2" / "examples"
                                   )
                                 ),
-                                Compile / cFlags := (Compile / cFlags).value.withDefaultValue(Seq("-Wall", "-Wextra"))
+                                Compile / cFlags := (Compile / cFlags).value.withDefaultValue(Seq("-Wall", "-Wextra", "-pedantic", "-std=gnu99"))
                               )
 
 lazy val core             = Project("daffodil-core", file("daffodil-core")).configs(IntegrationTest)

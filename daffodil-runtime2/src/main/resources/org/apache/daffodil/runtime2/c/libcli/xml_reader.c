@@ -57,7 +57,7 @@ strtobool(const char *numptr, const Error **errorptr)
     else
     {
         static Error error = {CLI_STRTOBOOL, {0}};
-        error.s = numptr;
+        error.arg.s = numptr;
         *errorptr = &error;
     }
 
@@ -80,19 +80,19 @@ strtodnum(const char *numptr, const Error **errorptr)
     if (errno != 0)
     {
         static Error error = {CLI_STRTOD_ERRNO, {0}};
-        error.s = numptr;
+        error.arg.s = numptr;
         *errorptr = &error;
     }
     else if (endptr == numptr)
     {
         static Error error = {CLI_STRTONUM_EMPTY, {0}};
-        error.s = numptr;
+        error.arg.s = numptr;
         *errorptr = &error;
     }
     else if (*endptr != '\0')
     {
         static Error error = {CLI_STRTONUM_NOT, {0}};
-        error.s = numptr;
+        error.arg.s = numptr;
         *errorptr = &error;
     }
 
@@ -115,19 +115,19 @@ strtofnum(const char *numptr, const Error **errorptr)
     if (errno != 0)
     {
         static Error error = {CLI_STRTOD_ERRNO, {0}};
-        error.s = numptr;
+        error.arg.s = numptr;
         *errorptr = &error;
     }
     else if (endptr == numptr)
     {
         static Error error = {CLI_STRTONUM_EMPTY, {0}};
-        error.s = numptr;
+        error.arg.s = numptr;
         *errorptr = &error;
     }
     else if (*endptr != '\0')
     {
         static Error error = {CLI_STRTONUM_NOT, {0}};
-        error.s = numptr;
+        error.arg.s = numptr;
         *errorptr = &error;
     }
 
@@ -151,25 +151,25 @@ strtonum(const char *numptr, intmax_t minval, intmax_t maxval, const Error **err
     if (errno != 0)
     {
         static Error error = {CLI_STRTOI_ERRNO, {0}};
-        error.s = numptr;
+        error.arg.s = numptr;
         *errorptr = &error;
     }
     else if (endptr == numptr)
     {
         static Error error = {CLI_STRTONUM_EMPTY, {0}};
-        error.s = numptr;
+        error.arg.s = numptr;
         *errorptr = &error;
     }
     else if (*endptr != '\0')
     {
         static Error error = {CLI_STRTONUM_NOT, {0}};
-        error.s = numptr;
+        error.arg.s = numptr;
         *errorptr = &error;
     }
     else if (value < minval || value > maxval)
     {
         static Error error = {CLI_STRTONUM_RANGE, {0}};
-        error.s = numptr;
+        error.arg.s = numptr;
         *errorptr = &error;
     }
 
@@ -192,25 +192,25 @@ strtounum(const char *numptr, uintmax_t maxval, const Error **errorptr)
     if (errno != 0)
     {
         static Error error = {CLI_STRTOI_ERRNO, {0}};
-        error.s = numptr;
+        error.arg.s = numptr;
         *errorptr = &error;
     }
     else if (endptr == numptr)
     {
         static Error error = {CLI_STRTONUM_EMPTY, {0}};
-        error.s = numptr;
+        error.arg.s = numptr;
         *errorptr = &error;
     }
     else if (*endptr != '\0')
     {
         static Error error = {CLI_STRTONUM_NOT, {0}};
-        error.s = numptr;
+        error.arg.s = numptr;
         *errorptr = &error;
     }
     else if (value > maxval)
     {
         static Error error = {CLI_STRTONUM_RANGE, {0}};
-        error.s = numptr;
+        error.arg.s = numptr;
         *errorptr = &error;
     }
 
@@ -271,7 +271,7 @@ xmlEndDocument(XMLReader *reader)
     {
         // This code path exits the program - no need to call mxmlDelete
         static Error error = {CLI_XML_LEFT, {0}};
-        error.s = mxmlGetElement(reader->node);
+        error.arg.s = mxmlGetElement(reader->node);
         return &error;
     }
 
@@ -302,7 +302,7 @@ xmlStartComplex(XMLReader *reader, const InfosetBase *base)
     if (name_from_xml && name_from_erd)
     {
         static Error error = {CLI_XML_MISMATCH, {0}};
-        error.s = name_from_erd;
+        error.arg.s = name_from_erd;
         return strcmp(name_from_xml, name_from_erd) == 0 ? NULL : &error;
     }
     else
@@ -388,7 +388,7 @@ xmlNumberElem(XMLReader *reader, const ERD *erd, void *number)
             default:
             {
                 static Error error_erd = {CLI_XML_ERD, {0}};
-                error_erd.d64 = typeCode;
+                error_erd.arg.d64 = typeCode;
                 return &error_erd;
             }
             }
@@ -396,7 +396,7 @@ xmlNumberElem(XMLReader *reader, const ERD *erd, void *number)
         else
         {
             static Error error = {CLI_XML_MISMATCH, {0}};
-            error.s = name_from_erd;
+            error.arg.s = name_from_erd;
             return &error;
         }
     }
