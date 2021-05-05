@@ -57,17 +57,17 @@ class TestNillable {
   @Test def test_nillable1(): Unit = { runnerAA.runOneTest("nillable1") }
   @Test def test_edifact1a(): Unit = { runnerAA.runOneTest("edifact1a") }
 
-  @Test def test_text_nil_characterClass_04_parse() = { runnerLN.runOneTest("text_nil_characterClass_04_parse") }
+  @Test def test_text_nil_characterClass_04_parse(): Unit = { runnerLN.runOneTest("text_nil_characterClass_04_parse") }
 
   @Test def test_text_03(): Unit = { runnerLN.runOneTest("text_03") }
   @Test def test_text_03ic(): Unit = { runnerLN.runOneTest("text_03ic") }
   @Test def test_text_04(): Unit = { runnerLN.runOneTest("text_04") }
   @Test def test_text_05(): Unit = { runnerLN.runOneTest("text_05") }
-  @Test def test_text_06() = { runnerLN.runOneTest("text_06") }
-  @Test def test_binary_01() = { runnerLN.runOneTest("binary_01") }
-  @Test def test_padded_nils() = { runnerLN.runOneTest("test_padded_nils") }
+  @Test def test_text_06(): Unit = { runnerLN.runOneTest("text_06") }
+  @Test def test_binary_01(): Unit = { runnerLN.runOneTest("binary_01") }
+  @Test def test_padded_nils(): Unit = { runnerLN.runOneTest("test_padded_nils") }
 
-  @Test def test_nillable_ovc_01() = { runnerLN.runOneTest("nillable_ovc_01") }
+  @Test def test_nillable_ovc_01(): Unit = { runnerLN.runOneTest("nillable_ovc_01") }
 
   /* These should demonstrate that:
    *   DFDL Char Classes are not allowed for literalCharacter

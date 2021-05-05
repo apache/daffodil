@@ -366,6 +366,13 @@
 
   </tdml:defineSchema>
 
+<!--
+  Test Name: test_complex_nil
+     Schema: nillableComplex
+       Root: doc
+    Purpose: This test demonstrates parsing a complex literal nil.
+-->
+
   <tdml:parserTestCase name="test_complex_nil" root="doc"
     model="nillableComplex"
     description="Verify complex elements can be nilllable">
