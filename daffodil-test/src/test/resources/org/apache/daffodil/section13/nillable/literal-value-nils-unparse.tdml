@@ -740,6 +740,24 @@
         </xs:choice>
       </xs:complexType>
     </xs:element>
+    
+    <xs:element name="doc4">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|" dfdl:separatorPosition="infix">
+          <xs:element name="person" maxOccurs="unbounded"
+                      dfdl:occursCountKind="implicit"
+                      dfdl:initiator="Person:" nillable="true"
+                      dfdl:nilValue="%ES;" dfdl:nilValueDelimiterPolicy="initiator">
+            <xs:complexType>
+              <xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
+                <xs:element name="name" type="xs:string" />
+                <xs:element name="age" type="xs:string" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
   </tdml:defineSchema>
 
@@ -811,6 +829,43 @@
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[]]></tdml:documentPart>
+    </tdml:document>
+
+  </tdml:unparserTestCase>
+
+<!--
+  Test Name: text_complex_nil4
+     Schema: nillableComplex
+       Root: doc4
+    Purpose: This test checks DAFFODIL-2183 is fixed
+-->
+
+  <tdml:unparserTestCase name="text_complex_nil4" root="doc4"
+    model="nillableComplex"
+    description="Verify complex elements can be nilllable">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doc4 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+          <person>
+            <name>John Doe</name>
+            <age>29</age>
+          </person>
+          <person>
+            <name>Sally Smith</name>
+            <age>34</age>
+          </person>
+          <person xsi:nil="true"></person>
+          <person>
+            <name>Bob Jones</name>
+            <age>51</age>
+          </person>
+        </doc4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[Person:John Doe,29|Person:Sally Smith,34|Person:|Person:Bob Jones,51]]></tdml:documentPart>
     </tdml:document>
 
   </tdml:unparserTestCase>
