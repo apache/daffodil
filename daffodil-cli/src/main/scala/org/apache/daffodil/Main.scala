@@ -174,18 +174,18 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
    * This is used when the flag is optional and so is its
    * argument.
    *
-   * Let's use --validate [mode] as an example.
+   * Let's use --debug [file] as an example.
    *
    * This optionalValueConverter first determines if the
-   * --validate flag was given.  If it wasn't, Right(None)
+   * --debug flag was given.  If it wasn't, Right(None)
    * is returned.
    *
    * If the flag was given we then need to determine
-   * if 'mode' was also given.  If mode was not given, Right(Some(None))
-   * is returned meaning that the --validate flag was there but 'mode'
-   * was not.  If the mode was given, Right(Some(Some(conv(mode)))) is
-   * returned.  This means that the --validate flag was there as well as
-   * a value for 'mode'.
+   * if 'file' was also given.  If file was not given, Right(Some(None))
+   * is returned meaning that the --debug flag was there but 'file'
+   * was not.  If the file was given, Right(Some(Some(conv(file)))) is
+   * returned.  This means that the --debug flag was there as well as
+   * a filename for 'file'.
    *
    * conv(mode) simply performs the necessary conversion
    * of the string to the type [A].
@@ -284,7 +284,8 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
 
   printedName = "Apache Daffodil"
 
-  helpWidth(76)
+  val width = 87
+  helpWidth(width)
 
   def error(msg: String) = errorMessageHandler(msg)
 
@@ -319,40 +320,38 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
   shortSubcommandsHelp()
 
   // Global Options
-  val debug = opt[Option[String]](argName = "file", descr = "enable debugging. Optionally, read initial debugger commands from [file] if provided.")(optionalValueConverter[String](a => a))
-  val trace = opt[Boolean](descr = "run the debugger with verbose trace output")
-  val verbose = tally(descr = "increment verbosity level, one level for each -v")
-  val version = opt[Boolean](descr = "Show version of this program")
+  val debug = opt[Option[String]](argName = "file", descr = "Enable the interactive debugger. Optionally, read initial debugger commands from [file] if provided.")(optionalValueConverter[String](a => a))
+  val trace = opt[Boolean](descr = "Run this program with verbose trace output")
+  val verbose = tally(descr = "Increment verbosity level, one level for each -v")
+  val version = opt[Boolean](descr = "Show Daffodil's version")
 
   // Parse Subcommand Options
   object parse extends scallop.Subcommand("parse") {
-    banner("""|Usage: daffodil parse (-s <schema> [-r [{namespace}]<root>] [-p <path>] |
-              |                       -P <parser>)
-              |                      [--validate [mode]]
-              |                      [-D[{namespace}]<variable>=<value>...] [-o <output>]
-              |                      [-I <infoset_type>]
-              |                      [--stream]
-              |                      [-c <file>] [infile]
+    banner("""|Usage: daffodil parse (-s <schema> [-r <root>] | -P <parser>)
+              |                      [-c <file>] [-D<variable>=<value>...] [-I <infoset_type>]
+              |                      [-o <output>] [--stream] [-T<tunable>=<value>...] [-V <mode>]
+              |                      [infile]
               |
               |Parse a file, using either a DFDL schema or a saved parser
               |
               |Parse Options:""".stripMargin)
 
-    descr("parse data to a DFDL infoset")
-    helpWidth(76)
+    descr("Parse data to a DFDL infoset")
+    helpWidth(width)
 
-    val schema = opt[URI]("schema", argName = "file", descr = "the annotated DFDL schema to use to create the parser.")(fileResourceURIConverter)
-    val rootNS = opt[RefQName]("root", argName = "node", descr = "the root element of the XML file to use.  An optional namespace may be provided. This needs to be one of the top-level elements of the DFDL schema defined with --schema. Requires --schema. If not supplied uses the first element of the first schema")
-    val path = opt[String](argName = "path", descr = "path to the node to create parser.")
-    val parser = opt[File](short = 'P', argName = "file", descr = "use a previously saved parser.")
-    val output = opt[String](argName = "file", descr = "write output to a given file. If not given or is -, output is written to stdout.")
-    val validate: ScallopOption[ValidationMode.Type] = opt[ValidationMode.Type](short = 'V', default = Some(ValidationMode.Off), argName = "mode", descr = "the validation mode. 'on', 'limited', 'off', or a validator plugin name.")
-    val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used when parsing. An optional namespace may be provided.")
-    val tunables = props[String]('T', keyName = "tunable", valueName = "value", descr = "daffodil tunable to be used when parsing.")
-    val config = opt[File](short = 'c', argName = "file", descr = "path to file containing configuration items.")
-    val infosetType = opt[InfosetType.Type](short = 'I', argName = "infoset_type", descr = "infoset type to output. Must be one of 'xml', 'scala-xml', 'json', 'jdom', 'w3cdom', 'sax', or 'null'.", default = Some(InfosetType.XML))
-    val stream = toggle(noshort = true, default = Some(false), descrYes = "when left over data exists, parse again with remaining data, separating infosets by a NUL character", descrNo = "stop after the first parse, even if left over data exists")
-    val infile = trailArg[String](required = false, descr = "input file to parse. If not specified, or a value of -, reads from stdin.")
+    val config = opt[File](short = 'c', argName = "file", descr = "XML file containing configuration items")
+    val vars = props[String](name = 'D', keyName = "variable", valueName = "value", descr = "Variables to be used when parsing. Can be prefixed with {namespace}.")
+    val infosetType = opt[InfosetType.Type](short = 'I', argName = "infoset_type", descr = "Infoset type to output. Use 'xml', 'scala-xml', 'json', 'jdom', 'w3cdom', 'sax', or 'null'. Defaults to 'xml'.", default = Some(InfosetType.XML))
+    val output = opt[String](argName = "file", descr = "Output file to write infoset to. If not given or is -, infoset is written to stdout.")
+    val parser = opt[File](short = 'P', argName = "file", descr = "Previously saved parser to reuse")
+    val path = opt[String](argName = "path", descr = "Path from root element to node from which to start parsing", hidden = true)
+    val rootNS = opt[RefQName]("root", argName = "node", descr = "Root element to use. Can be prefixed with {namespace}. Must be a top-level element. Defaults to first top-level element of DFDL schema.")
+    val schema = opt[URI]("schema", argName = "file", descr = "DFDL schema to use to create parser")(fileResourceURIConverter)
+    val stream = toggle(noshort = true, default = Some(false), descrYes = "When left over data exists, parse again with remaining data, separating infosets by a NUL character", descrNo = "Stop after the first parse, throwing an error if left over data exists")
+    val tunables = props[String](name = 'T', keyName = "tunable", valueName = "value", descr = "Tunable configuration options to change Daffodil's behavior")
+    val validate: ScallopOption[ValidationMode.Type] = opt[ValidationMode.Type](short = 'V', default = Some(ValidationMode.Off), argName = "mode", descr = "Validation mode. Use 'on', 'limited', 'off', or a validator plugin name.")
+
+    val infile = trailArg[String](required = false, descr = "Input file to parse. If not specified, or a value of -, reads from stdin.")
 
     requireOne(schema, parser) // must have one of --schema or --parser
     conflicts(parser, List(rootNS)) // if --parser is provided, cannot also provide --root
@@ -370,78 +369,33 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
 
   }
 
-  // Performance Subcommand Options
-  object performance extends scallop.Subcommand("performance") {
-    banner("""|Usage: daffodil performance (-s <schema> [-r [{namespace}]<root>] [-p <path>] |
-              |                       -P <parser>)
-              |                      [--unparse]
-              |                      [--validate [mode]]
-              |                      [-N <number of files to process>]
-              |                      [-t <threadcount>]
-              |                      [-D[{namespace}]<variable>=<value>...]
-              |                      [-I <infoset_type>]
-              |                      [-c <file>] <infile>
-              |
-              |Run a performance test (parse or unparse), using either a DFDL schema or a saved parser
-              |
-              |Performance Options:""".stripMargin)
-
-    descr("run performance test")
-    helpWidth(76)
-
-    val schema = opt[URI]("schema", argName = "file", descr = "the annotated DFDL schema to use to create the parser.")(fileResourceURIConverter)
-    val unparse = opt[Boolean](default = Some(false), descr = "perform unparse instead of parse for performance.")
-    val rootNS = opt[RefQName]("root", argName = "node", descr = "the root element of the XML file to use.  An optional namespace may be provided. This needs to be one of the top-level elements of the DFDL schema defined with --schema. Requires --schema. If not supplied uses the first element of the schema")
-    val number = opt[Int](short = 'N', argName = "number", default = Some(1), descr = "The total number of files to process.")
-    val threads = opt[Int](short = 't', argName = "threads", default = Some(1), descr = "The number of threads to use.")
-    val path = opt[String](argName = "path", descr = "path to the node to create parser.")
-    val parser = opt[File](short = 'P', argName = "file", descr = "use a previously saved parser.")
-    val validate: ScallopOption[ValidationMode.Type] = opt[ValidationMode.Type](short = 'V', default = Some(ValidationMode.Off), argName = "mode", descr = "the validation mode. 'on', 'limited', 'off', or a validator plugin name.")
-    val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used when processing. An optional namespace may be provided.")
-    val tunables = props[String]('T', keyName = "tunable", valueName = "value", descr = "daffodil tunable to be used when processing.")
-    val config = opt[File](short = 'c', argName = "file", descr = "path to file containing configuration items.")
-    val infosetType = opt[InfosetType.Type](short = 'I', argName = "infoset_type", descr = "infoset type to parse/unparse. Must be one of 'xml', 'scala-xml', 'json', 'jdom', 'w3cdom', 'sax', or 'null'.", default = Some(InfosetType.XML))
-    val infile = trailArg[String](required = true, descr = "input file or directory containing files to process.")
-
-    requireOne(schema, parser) // must have one of --schema or --parser
-    conflicts(parser, List(rootNS)) // if --parser is provided, cannot also provide --root
-    validateFileIsFile(config) // --config must be a file that exists
-
-    validateOpt(infosetType, unparse) {
-      case (Some(InfosetType.NULL), Some(true)) => Left("null infoset type not valid with performance --unparse")
-      case _ => Right(Unit)
-    }
-  }
-
   // Unparse Subcommand Options
   object unparse extends scallop.Subcommand("unparse") {
-    banner("""|Usage: daffodil unparse (-s <schema> [-r [{namespace}]<root>] [-p <path>] |
-              |                         -P <parser>)
-              |                        [--validate [mode]]
-              |                        [-D[{namespace}]<variable>=<value>...] [-c <file>]
-              |                        [-I <infoset_type>]
-              |                        [--stream]
-              |                        [-o <output>] [infile]
+    banner("""|Usage: daffodil unparse (-s <schema> [-r <root>] | -P <parser>)
+              |                        [-c <file>] [-D<variable>=<value>...] [-I <infoset_type>]
+              |                        [-o <output>] [--stream] [-T<tunable>=<value>...] [-V <mode>]
+              |                        [infile]
               |
               |Unparse an infoset file, using either a DFDL schema or a saved parser
               |
               |Unparse Options:""".stripMargin)
 
-    descr("unparse a DFDL infoset")
-    helpWidth(76)
+    descr("Unparse a DFDL infoset")
+    helpWidth(width)
 
-    val schema = opt[URI]("schema", argName = "file", descr = "the annotated DFDL schema to use to create the parser.")(fileResourceURIConverter)
-    val rootNS = opt[RefQName]("root", argName = "node", descr = "the root element of the XML file to use.  An optional namespace may be provided. This needs to be one of the top-level elements of the DFDL schema defined with --schema. Requires --schema. If not supplied uses the first element of the schema")
-    val path = opt[String](argName = "path", descr = "path to the node to create parser.")
-    val parser = opt[File](short = 'P', argName = "file", descr = "use a previously saved parser.")
-    val output = opt[String](argName = "file", descr = "write output to file. If not given or is -, output is written to standard output.")
-    val validate: ScallopOption[ValidationMode.Type] = opt[ValidationMode.Type](short = 'V', default = Some(ValidationMode.Off), argName = "mode", descr = "the validation mode. 'on', 'limited', 'off', or a validator plugin name.")
-    val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used when unparsing. An optional namespace may be provided.")
-    val tunables = props[String]('T', keyName = "tunable", valueName = "value", descr = "daffodil tunable to be used when parsing.")
-    val config = opt[File](short = 'c', argName = "file", descr = "path to file containing configuration items.")
-    val infosetType = opt[InfosetType.Type](short = 'I', argName = "infoset_type", descr = "infoset type to unparse. Must be one of 'xml', 'scala-xml', 'json', 'jdom', 'w3cdom' or 'sax'.", default = Some(InfosetType.XML))
-    val stream = toggle(noshort = true, default = Some(false), descrYes = "split the input data on the NUL character, and unparse each chuck separately", descrNo = "treat the entire input data as one infoset")
-    val infile = trailArg[String](required = false, descr = "input file to unparse. If not specified, or a value of -, reads from stdin.")
+    val config = opt[File](short = 'c', argName = "file", descr = "XML file containing configuration items")
+    val vars = props[String](name = 'D', keyName = "variable", valueName = "value", descr = "Variables to be used when parsing. Can be prefixed with {namespace}.")
+    val infosetType = opt[InfosetType.Type](short = 'I', argName = "infoset_type", descr = "Infoset type to unparse. Use 'xml', 'scala-xml', 'json', 'jdom', 'w3cdom', or 'sax'. Defaults to 'xml'.", default = Some(InfosetType.XML))
+    val output = opt[String](argName = "file", descr = "Output file to write data to. If not given or is -, data is written to stdout.")
+    val parser = opt[File](short = 'P', argName = "file", descr = "Previously saved parser to reuse")
+    val path = opt[String](argName = "path", descr = "Path from root element to node from which to start unparsing", hidden = true)
+    val rootNS = opt[RefQName]("root", argName = "node", descr = "Root element to use. Can be prefixed with {namespace}. Must be a top-level element. Defaults to first top-level element of DFDL schema.")
+    val schema = opt[URI]("schema", argName = "file", descr = "DFDL schema to use to create parser")(fileResourceURIConverter)
+    val stream = toggle(noshort = true, default = Some(false), descrYes = "Split the input data on the NUL character, and unparse each chuck separately", descrNo = "Treat the entire input data as one infoset")
+    val tunables = props[String](name = 'T', keyName = "tunable", valueName = "value", descr = "Tunable configuration options to change Daffodil's behavior")
+    val validate: ScallopOption[ValidationMode.Type] = opt[ValidationMode.Type](short = 'V', default = Some(ValidationMode.Off), argName = "mode", descr = "Validation mode. Use 'on', 'limited', 'off', or a validator plugin name.")
+
+    val infile = trailArg[String](required = false, descr = "Input file to unparse. If not specified, or a value of -, reads from stdin.")
 
     requireOne(schema, parser) // must have one of --schema or --parser
     conflicts(parser, List(rootNS)) // if --parser is provided, cannot also provide --root
@@ -458,27 +412,27 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     }
   }
 
-  // Save Subcommand Options
+  // Save Parser Subcommand Options
   object save extends scallop.Subcommand("save-parser") {
-    banner("""|Usage: daffodil save-parser -s <schema> [-r [{namespace}]<root>]
-              |                            [-p <path>]
-              |                            [-D[{namespace}]<variable>=<value>...]
-              |                            [-c <file>] [outfile]
+    banner("""|Usage: daffodil save-parser -s <schema> [-r <root>]
+              |                            [-c <file>] [-D<variable>=<value>...] [-T<tunable>=<value>...]
+              |                            [outfile]
               |
               |Create and save a parser using a DFDL schema
               |
               |Save Parser Options:""".stripMargin)
 
-    descr("save a daffodil parser for reuse")
-    helpWidth(76)
+    descr("Save a Daffodil parser for reuse")
+    helpWidth(width)
 
-    val schema = opt[URI]("schema", argName = "file", required = true, descr = "the annotated DFDL schema to use to create the parser.")(fileResourceURIConverter)
-    val rootNS = opt[RefQName]("root", argName = "node", descr = "the root element of the XML file to use.  An optional namespace may be provided. This needs to be one of the top-level elements of the DFDL schema defined with --schema. Requires --schema. If not supplied uses the first element of the first schema")
-    val path = opt[String](argName = "path", descr = "path to the node to create parser.")
-    val outfile = trailArg[String](required = false, descr = "output file to save parser. If not specified, or a value of -, writes to stdout.")
-    val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used.")
-    val tunables = props[String]('T', keyName = "tunable", valueName = "value", descr = "daffodil tunable to be used when parsing.")
-    val config = opt[File](short = 'c', argName = "file", descr = "path to file containing configuration items.")
+    val config = opt[File](short = 'c', argName = "file", descr = "XML file containing configuration items")
+    val vars = props[String](name = 'D', keyName = "variable", valueName = "value", descr = "Variables to be used when parsing. Can be prefixed with {namespace}.")
+    val path = opt[String](argName = "path", descr = "Path from root element to node from which to start parsing", hidden = true)
+    val rootNS = opt[RefQName]("root", argName = "node", descr = "Root element to use. Can be prefixed with {namespace}. Must be a top-level element. Defaults to first top-level element of DFDL schema.")
+    val schema = opt[URI]("schema", required = true, argName = "file", descr = "DFDL schema to use to create parser")(fileResourceURIConverter)
+    val tunables = props[String](name = 'T', keyName = "tunable", valueName = "value", descr = "Tunable configuration options to change Daffodil's behavior")
+
+    val outfile = trailArg[String](required = false, descr = "Output file to save parser to. If not specified, or a value of -, saves to stdout.")
 
     requireOne(schema) // --schema must be provided
     validateFileIsFile(config) // --config must be a file that exists
@@ -486,25 +440,65 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
 
   // Test Subcommand Options
   object test extends scallop.Subcommand("test") {
-    banner("""|Usage: daffodil test <tdmlfile> [testname...]
+    banner("""|Usage: daffodil test [-l] [-r] [-i] <tdmlfile> [testnames...]
               |
               |List or execute tests in a TDML file
               |
               |Test Options:""".stripMargin)
 
-    descr("list or execute TDML tests")
-    helpWidth(76)
+    descr("List or execute TDML tests")
+    helpWidth(width)
 
-    val list = opt[Boolean](descr = "show names and descriptions instead of running test cases.")
-    val regex = opt[Boolean](descr = "treat <names> as regular expressions.")
-    val tdmlfile = trailArg[String](required = true, descr = "test data markup language (TDML) file.")
-    val names = trailArg[List[String]](required = false, descr = "name of test case(s) in tdml file. If not given, all tests in tdmlfile are run.")
-    val info = tally(descr = "increment test result information output level, one level for each -i")
+    val info = tally(descr = "Increment test result information output level, one level for each -i")
+    val list = opt[Boolean](descr = "Show names and descriptions instead of running test cases")
+    val regex = opt[Boolean](descr = "Treat <testnames...> as regular expressions")
+    val tdmlfile = trailArg[String](required = true, descr = "Test Data Markup Language (TDML) file")
+    val testnames = trailArg[List[String]](required = false, descr = "Name(s) of test cases in tdmlfile. If not given, all tests in tdmlfile are run.")
+  }
+
+  // Performance Subcommand Options
+  object performance extends scallop.Subcommand("performance") {
+    banner("""|Usage: daffodil performance (-s <schema> [-r <root>] | -P <parser>)
+              |                            [-c <file>] [-D<variable>=<value>...] [-I <infoset_type>]
+              |                            [-N <number>] [-t <threads>] [-T<tunable>=<value>...]
+              |                            [-u] [-V <mode>]
+              |                            <infile>
+              |
+              |Run a performance test, using either a DFDL schema or a saved parser
+              |
+              |Performance Options:""".stripMargin)
+
+    descr("Run performance test")
+    helpWidth(width)
+
+    val config = opt[File](short = 'c', argName = "file", descr = "XML file containing configuration items")
+    val vars = props[String](name = 'D', keyName = "variable", valueName = "value", descr = "Variables to be used when parsing. Can be prefixed with {namespace}.")
+    val infosetType = opt[InfosetType.Type](short = 'I', argName = "infoset_type", descr = "Infoset type to output or unparse. Use 'xml', 'scala-xml', 'json', 'jdom', 'w3cdom', 'sax', or 'null'. Defaults to 'xml'.", default = Some(InfosetType.XML))
+    val number = opt[Int](short = 'N', argName = "number", default = Some(1), descr = "Total number of files to process. Defaults to 1.")
+    val parser = opt[File](short = 'P', argName = "file", descr = "Previously saved parser to reuse")
+    val path = opt[String](argName = "path", descr = "Path from root element to node from which to start parsing or unparsing", hidden = true)
+    val rootNS = opt[RefQName]("root", argName = "node", descr = "Root element to use. Can be prefixed with {namespace}. Must be a top-level element. Defaults to first top-level element of DFDL schema.")
+    val schema = opt[URI]("schema", argName = "file", descr = "DFDL schema to use to create parser")(fileResourceURIConverter)
+    val threads = opt[Int](short = 't', argName = "threads", default = Some(1), descr = "Number of threads to use. Defaults to 1.")
+    val tunables = props[String](name = 'T', keyName = "tunable", valueName = "value", descr = "Tunable configuration options to change Daffodil's behavior")
+    val unparse = opt[Boolean](default = Some(false), descr = "Perform unparse instead of parse for performance test")
+    val validate: ScallopOption[ValidationMode.Type] = opt[ValidationMode.Type](short = 'V', default = Some(ValidationMode.Off), argName = "mode", descr = "Validation mode. Use 'on', 'limited', 'off', or a validator plugin name.")
+
+    val infile = trailArg[String](required = true, descr = "Input file or directory containing input files to parse or unparse")
+
+    requireOne(schema, parser) // must have one of --schema or --parser
+    conflicts(parser, List(rootNS)) // if --parser is provided, cannot also provide --root
+    validateFileIsFile(config) // --config must be a file that exists
+
+    validateOpt(infosetType, unparse) {
+      case (Some(InfosetType.NULL), Some(true)) => Left("null infoset type not valid with performance --unparse")
+      case _ => Right(Unit)
+    }
   }
 
   // Generate Subcommand Options
   object generate extends scallop.Subcommand("generate") {
-    descr("generate <language> code from a DFDL schema")
+    descr("Generate <language> code from a DFDL schema")
 
     banner("""|Usage: daffodil [GLOBAL_OPTS] generate <language> [SUBCOMMAND_OPTS]
               |""".stripMargin)
@@ -513,22 +507,24 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
               |Run 'daffodil generate <language> --help' for subcommand specific options""".stripMargin)
 
     object c extends scallop.Subcommand("c") {
-      banner("""|Usage: daffodil generate c -s <schema> [-r [{namespace}]<root>]
-                |                           [-c <file>] [outputDir]
+      banner("""|Usage: daffodil generate c -s <schema> [-r <root>]
+                |                           [-c <file>] [-T<tunable>=<value>...]
+                |                           [outdir]
                 |
                 |Generate C code from a DFDL schema to parse or unparse data
                 |
                 |Generate Options:""".stripMargin)
 
-      descr("generate C code from a DFDL schema")
-      helpWidth(76)
+      descr("Generate C code from a DFDL schema")
+      helpWidth(width)
 
       val language = "c"
-      val schema = opt[URI]("schema", required = true, argName = "file", descr = "the annotated DFDL schema to use to generate source code.")
-      val rootNS = opt[RefQName]("root", argName = "node", descr = "the root element of the XML file to use.  An optional namespace may be provided. This needs to be one of the top-level elements of the DFDL schema defined with --schema. Requires --schema. If not supplied uses the first element of the first schema")
-      val tunables = props[String]('T', keyName = "tunable", valueName = "value", descr = "daffodil tunable to be used when compiling schema.")
-      val config = opt[File](short = 'c', argName = "file", descr = "path to file containing configuration items.")
-      val outputDir = trailArg[String](required = false, descr = "output directory in which to generate source code. If not specified, uses current directory.")
+      val config = opt[File](short = 'c', argName = "file", descr = "XML file containing configuration items")
+      val rootNS = opt[RefQName]("root", argName = "node", descr = "Root element to use. Can be prefixed with {namespace}. Must be a top-level element. Defaults to first top-level element of DFDL schema.")
+      val schema = opt[URI]("schema", required = true, argName = "file", descr = "DFDL schema to use to create parser")(fileResourceURIConverter)
+      val tunables = props[String](name = 'T', keyName = "tunable", valueName = "value", descr = "Tunable configuration options to change Daffodil's behavior")
+
+      val outdir = trailArg[String](required = false, descr = "Output directory in which to create 'c' subdirectory. If not specified, uses current directory.")
 
       requireOne(schema) // --schema must be provided
       validateFileIsFile(config) // --config must be a file that exists
@@ -538,10 +534,10 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
   }
 
   addSubcommand(parse)
-  addSubcommand(performance)
   addSubcommand(unparse)
   addSubcommand(save)
   addSubcommand(test)
+  addSubcommand(performance)
   addSubcommand(generate)
 
   mutuallyExclusive(trace, debug) // cannot provide both --trace and --debug
@@ -575,7 +571,7 @@ object Main extends Logging {
   /**
    * Loads and validates the configuration file.
    *
-   * @param pathName The path to the file.
+   * @param file The path to the file.
    * @return The Node representation of the file.
    */
   def loadConfigurationFile(file: File) = {
@@ -911,7 +907,7 @@ object Main extends Logging {
             val input = parseOpts.infile.toOption match {
               case Some("-") | None => System.in
               case Some(file) => {
-                val f = new File(parseOpts.infile())
+                val f = new File(file)
                 new FileInputStream(f)
               }
             }
@@ -1339,8 +1335,8 @@ object Main extends Logging {
         setupDebugOrTrace(tdmlRunner, conf)
 
         val tests = {
-          if (testOpts.names.isDefined) {
-            testOpts.names().flatMap(testName => {
+          if (testOpts.testnames.isDefined) {
+            testOpts.testnames().flatMap(testName => {
               if (testOpts.regex()) {
                 val regex = testName.r
                 val matches = tdmlRunner.testCases.filter(testCase => regex.pattern.matcher(testCase.tcName).matches)
@@ -1462,7 +1458,7 @@ object Main extends Logging {
 
             // Ask the CodeGenerator to generate source code from the DFDL schema
             val rootNS = generateOpts.rootNS.toOption
-            val outputDir = generateOpts.outputDir.toOption.getOrElse(".")
+            val outputDir = generateOpts.outdir.toOption.getOrElse(".")
             val rc = generator match {
               case Some(generator) => {
                 Timer.getResult("generating", generator.generateCode(rootNS, outputDir))
