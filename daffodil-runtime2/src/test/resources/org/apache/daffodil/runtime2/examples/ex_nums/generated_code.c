@@ -8,7 +8,7 @@
 
 // Initialize our program's name and version
 
-const char *daffodil_program_version = "daffodil-runtime2 3.1.0-SNAPSHOT";
+const char *daffodil_program_version = "daffodil-runtime2 3.1.0";
 
 // Declare prototypes for easier compilation
 
