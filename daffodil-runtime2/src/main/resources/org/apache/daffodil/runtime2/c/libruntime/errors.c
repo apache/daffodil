@@ -65,7 +65,7 @@ add_diagnostic(Diagnostics *diagnostics, const Error *error)
         {
             Error *err = &diagnostics->array[diagnostics->length++];
             err->code = error->code;
-            err->s = error->s;
+            err->arg.s = error->arg.s;
             return true;
         }
     }
@@ -115,16 +115,16 @@ print_maybe_stop(const Error *error, int status)
     switch (lookup->field)
     {
     case FIELD_C:
-        fprintf(stderr, lookup->message, error->c);
+        fprintf(stderr, lookup->message, error->arg.c);
         break;
     case FIELD_D64:
-        fprintf(stderr, lookup->message, error->d64);
+        fprintf(stderr, lookup->message, error->arg.d64);
         break;
     case FIELD_S:
-        fprintf(stderr, lookup->message, error->s);
+        fprintf(stderr, lookup->message, error->arg.s);
         break;
     case FIELD_S_ON_STDOUT:
-        fprintf(stdout, lookup->message, error->s);
+        fprintf(stdout, lookup->message, error->arg.s);
         exit(EXIT_SUCCESS);
         break;
     case FIELD_ZZZ:
@@ -147,7 +147,8 @@ print_diagnostics(const Diagnostics *diagnostics)
 {
     if (diagnostics)
     {
-        for (size_t i = 0; i < diagnostics->length; i++)
+        size_t i;
+        for (i = 0; i < diagnostics->length; i++)
         {
             const Error *error = &diagnostics->array[i];
             print_maybe_stop(error, 0);

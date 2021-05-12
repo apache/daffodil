@@ -279,7 +279,7 @@ class PositionalTrailingGroupSeparatedSequenceChildParseResultHelper(
     if (isModelGroupRepPossiblyZeroLength &&
       !isModelGroupRepNonZeroLength) {
       pstate.setSuccess()
-      ParseAttemptStatus.MissingSeparator
+      ParseAttemptStatus.AbsentRep
     } else
       ParseAttemptStatus.FailureUnspecified
   }

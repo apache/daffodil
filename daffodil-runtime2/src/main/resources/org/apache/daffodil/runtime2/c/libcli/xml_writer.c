@@ -195,7 +195,7 @@ xmlNumberElem(XMLWriter *writer, const ERD *erd, const void *number)
     else
     {
         static Error error = {CLI_XML_ELEMENT, {0}};
-        error.s = name;
+        error.arg.s = name;
         return &error;
     }
 }

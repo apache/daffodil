@@ -132,6 +132,55 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+  <!-- Schema for DFDL-2399 test-->
+ <tdml:defineSchema name="dfdl2399">
+  <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+
+  <dfdl:format ref="GeneralFormat"
+    lengthKind="delimited" 
+    separatorSuppressionPolicy="trailingEmpty" />
+
+  <xs:element name="message">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="record"/>
+      </xs:sequence>
+    </xs:complexType> 
+  </xs:element>
+
+  <xs:element name="record" dfdl:initiator="record" dfdl:terminator="%NL;">
+    <xs:complexType>
+      <xs:sequence dfdl:separator="|" dfdl:separatorPosition="prefix">
+        <xs:sequence dfdl:separator="~" dfdl:separatorPosition="infix">
+          <xs:element name="field1" type="xs:string" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+        <xs:sequence dfdl:separator="~" dfdl:separatorPosition="infix">
+          <xs:element name="field2" type="xs:string" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+        <xs:sequence dfdl:separator="~" dfdl:separatorPosition="infix">
+          <xs:element name="field3" type="xs:string" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  </tdml:defineSchema>
+  
+  <tdml:parserTestCase name="test_DFDL_2399"
+    root="record" model="dfdl2399"
+    description="Demonstrate that a sequence which contains minOccurs=0, delimited sequences
+    which are empty do not return both a succesful parse and errors.">
+    <tdml:document>
+      <tdml:documentPart type="text" replaceDFDLEntities="true">record|field1%CR;%LF;</tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:record xmlns:ex="http://example.com"><ex:field1>field1</ex:field1></ex:record>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
 	<tdml:defineSchema name="dfdlwg1" elementFormDefault="unqualified">
 		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 

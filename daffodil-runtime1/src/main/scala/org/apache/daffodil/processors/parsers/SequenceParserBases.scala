@@ -243,6 +243,7 @@ abstract class SequenceParserBase(
           // We do NOT move over the group index state for non-represented things.
         }
         case scalarParser => {
+          val diagnosticsBeforeAttempt = pstate.diagnostics
           val roStatus = scalarParser.maybeStaticRequiredOptionalStatus.get
           val (_, nextResultOfTry) = parseOneInstance(scalarParser, pstate, roStatus)
           priorResultOfTry = resultOfTry
@@ -261,6 +262,10 @@ abstract class SequenceParserBase(
               // So we mask the failure, and exit the sequence successfully
               pstate.setSuccess()
               isDone = true
+              // If we're masking the failure, we don't want the error dianostics
+              // to flow up. Restore the diagnostics from before the parse
+              // attempt
+              pstate.diagnostics = diagnosticsBeforeAttempt
             }
 
             // We successfully parsed a discriminator, but failed to parse the discriminated content.
@@ -272,6 +277,10 @@ abstract class SequenceParserBase(
               // the sequence succesfully
               isDone = true
               pstate.setSuccess()
+              // If we're masking the failure, we don't want the error dianostics
+              // to flow up. Restore the diagnostics from before the parse
+              // attempt
+              pstate.diagnostics = diagnosticsBeforeAttempt
             }
 
             case _ => // ok.

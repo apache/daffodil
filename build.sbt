@@ -82,7 +82,7 @@ lazy val runtime2         = Project("daffodil-runtime2", file("daffodil-runtime2
                                     (Compile / resourceDirectory).value / "org" / "apache" / "daffodil" / "runtime2" / "examples"
                                   )
                                 ),
-                                Compile / cFlags := (Compile / cFlags).value.withDefaultValue(Seq("-Wall", "-Wextra"))
+                                Compile / cFlags := (Compile / cFlags).value.withDefaultValue(Seq("-Wall", "-Wextra", "-pedantic", "-std=gnu99"))
                               )
 
 lazy val core             = Project("daffodil-core", file("daffodil-core")).configs(IntegrationTest)
@@ -148,9 +148,9 @@ lazy val testStdLayout    = Project("daffodil-test-stdLayout", file("test-stdLay
 
 lazy val commonSettings = Seq(
   organization := "org.apache.daffodil",
-  version := "3.1.0-SNAPSHOT",
-  scalaVersion := "2.13.5",
-  crossScalaVersions := Seq("2.13.5"),
+  version := "3.1.0",
+  scalaVersion := "2.12.13",
+  crossScalaVersions := Seq("2.12.13"),
   scalacOptions ++= Seq(
     "-feature",
     "-deprecation",

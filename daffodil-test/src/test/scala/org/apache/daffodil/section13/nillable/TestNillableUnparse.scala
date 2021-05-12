@@ -43,6 +43,7 @@ class TestNillableUnparse {
   @Test def test_text_complex_nil(): Unit = { runnerLN.runOneTest("text_complex_nil") }
   @Test def test_text_complex_nil2(): Unit = { runnerLN.runOneTest("text_complex_nil2") }
   @Test def test_text_complex_nil3(): Unit = { runnerLN.runOneTest("text_complex_nil3") }
+  @Test def test_text_complex_nil4(): Unit = { runnerLN.runOneTest("text_complex_nil4") }
 
   @Test def test_text_nil_only1(): Unit = { runnerLN.runOneTest("text_nil_only1") }
   @Test def test_text_nil_only2(): Unit = { runnerLN.runOneTest("text_nil_only2") }

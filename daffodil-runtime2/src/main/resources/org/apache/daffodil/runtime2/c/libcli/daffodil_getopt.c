@@ -67,13 +67,13 @@ parse_daffodil_cli(int argc, char *argv[])
         {
         case 'h':
             error.code = CLI_HELP_USAGE;
-            error.s = exe;
+            error.arg.s = exe;
             return &error;
         case 'I':
             if (strcmp("xml", optarg) != 0)
             {
                 error.code = CLI_INVALID_INFOSET;
-                error.s = optarg;
+                error.arg.s = optarg;
                 return &error;
             }
             daffodil_parse.infoset_converter = optarg;
@@ -85,26 +85,27 @@ parse_daffodil_cli(int argc, char *argv[])
             break;
         case 'V':
             error.code = CLI_PROGRAM_VERSION;
-            error.s = daffodil_program_version;
+            error.arg.s = daffodil_program_version;
             return &error;
         case ':':
             error.code = CLI_MISSING_VALUE;
-            error.c = optopt;
+            error.arg.c = optopt;
             return &error;
         case '?':
             error.code = CLI_INVALID_OPTION;
-            error.c = optopt;
+            error.arg.c = optopt;
             return &error;
         default:
             // shouldn't happen unless programmer made error
             error.code = CLI_PROGRAM_ERROR;
-            error.d64 = opt;
+            error.arg.d64 = opt;
             return &error;
         }
     }
 
     // Get the command and the infile arg
-    for (int i = optind; i < argc; i++)
+    int i;
+    for (i = optind; i < argc; i++)
     {
         const char *arg = argv[i];
 
@@ -117,7 +118,7 @@ parse_daffodil_cli(int argc, char *argv[])
             else
             {
                 error.code = CLI_UNEXPECTED_ARGUMENT;
-                error.s = arg;
+                error.arg.s = arg;
                 return &error;
             }
         }
@@ -130,7 +131,7 @@ parse_daffodil_cli(int argc, char *argv[])
             else
             {
                 error.code = CLI_UNEXPECTED_ARGUMENT;
-                error.s = arg;
+                error.arg.s = arg;
                 return &error;
             }
         }
@@ -145,7 +146,7 @@ parse_daffodil_cli(int argc, char *argv[])
         else
         {
             error.code = CLI_INVALID_COMMAND;
-            error.s = arg;
+            error.arg.s = arg;
             return &error;
         }
     }
@@ -153,7 +154,7 @@ parse_daffodil_cli(int argc, char *argv[])
     if (DAFFODIL_MISSING_COMMAND == daffodil_cli.subcommand)
     {
         error.code = CLI_MISSING_COMMAND;
-        error.c = 0;
+        error.arg.c = 0;
         return &error;
     }
 
