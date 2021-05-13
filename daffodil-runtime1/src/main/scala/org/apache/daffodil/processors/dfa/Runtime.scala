@@ -160,21 +160,3 @@ trait Rule extends Serializable {
   def test(r: Registers): Boolean // take this action?
   def act(r: Registers): Unit // modifies the registers
 }
-
-/**
- * Convenient thingy for hand-created rules
- * <p>
- * Can write things like `Rule { r.data0 == EC } { r.resultString.append(...)...}
- * Examples in other file.
- *
- * TODO: Get rid of all the anonymous Rule objects. No reason these can't be ordinary
- * classes with test and act methods.
- */
-object Rule {
-  def apply(testBody: Registers => Boolean)(actionBody: Registers => Unit) = {
-    new Rule {
-      override def test(r: Registers) = testBody(r)
-      override def act(r: Registers) = actionBody(r)
-    }
-  }
-}
