@@ -17,6 +17,21 @@
 
 set -e
 
+function trap_err {
+  echo
+  echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+  echo "!!! An error occurred while creating the release candidate !!!"
+  echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+  echo
+  echo "Perform the following steps:"
+  echo
+  echo "- Drop the staged files (if they exist) at https://repository.apache.org"
+  echo "- Type 'exit', fix the issues, and start over"
+  echo
+}
+
+trap 'trap_err' ERR
+
 function usage {
   BN=$(basename $0)
   cat <<USAGE >&2
@@ -244,9 +259,9 @@ git tag -as -u $PGP_SIGNING_KEY_ID -m "Release v$VERSION-$PRE_RELEASE" v$VERSION
 popd &> /dev/null
 
 pushd $DAFFODIL_SITE_DIR &> /dev/null
-echo "Comitting Site Changes..."
+echo "Committing Site Changes..."
 git add .
-git commit -m "Stage release v$VERSION-$PRE_RELEASE"
+git diff-index --quiet HEAD || git commit -m "Stage release v$VERSION-$PRE_RELEASE"
 popd &> /dev/null
 
 echo "Adding Release Files..."
@@ -290,8 +305,9 @@ EOF
   echo
   echo "If anything looks incorrect, do the following:"
   echo
-  echo "- Delete the staged files at https://repository.apache.org"
+  echo "- Drop the staged files at https://repository.apache.org"
   echo "- Type 'exit', fix the issues, and start over"
+  echo
 fi
 
 echo
