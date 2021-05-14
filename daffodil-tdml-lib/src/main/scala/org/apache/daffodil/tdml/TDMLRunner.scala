@@ -913,7 +913,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
             //
             val loc: DataLocation = actual.currentLocation
 
-            if (loc.bitPos1b <= lengthLimitInBits) {
+            if (loc.bitPos1b >= 0 && loc.bitPos1b <= lengthLimitInBits) {
               val leftOverMsg =
                 "Left over data. Consumed %s bit(s) with %s bit(s) remaining.".format(
                   loc.bitPos1b - 1, lengthLimitInBits - (loc.bitPos1b - 1))
@@ -981,7 +981,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   private def verifyLeftOverData(actual: TDMLParseResult, lengthLimitInBits: Long, implString: Option[String]) = {
     val loc: DataLocation = actual.currentLocation
 
-    val leftOverException = if (loc.bitPos1b < lengthLimitInBits) {
+    val leftOverException = if (loc.bitPos1b >= 0 && loc.bitPos1b < lengthLimitInBits) {
       val leftOverMsg = "Left over data. Consumed %s bit(s) with %s bit(s) remaining.".format(
         loc.bitPos1b - 1, lengthLimitInBits - (loc.bitPos1b - 1))
       Some(TDMLException(leftOverMsg, implString))
@@ -1375,7 +1375,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       }
       val loc: DataLocation = parseActual.currentLocation
 
-      val leftOverException = if (loc.bitPos1b < testDataLength) {
+      val leftOverException = if (loc.bitPos1b >= 0 && loc.bitPos1b < testDataLength) {
         //
         // For this to happen (and have test coverage) we need an unparserTestCase
         // which is roundTrip onePass, and where the parse doesn't consume all
