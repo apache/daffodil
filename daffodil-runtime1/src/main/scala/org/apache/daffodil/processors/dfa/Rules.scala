@@ -107,8 +107,9 @@ abstract class State(states: => ArrayBuffer[State]) extends Serializable {
       if (pTerm0.isInstanceOf[WSPStarState]) {
         val wspStar = pTerm0.asInstanceOf[WSPStarState]
         if (wspStar.checkMatch(charIn)) {
+          // Was a space
           true
-        } // Was a space
+        }
         else if (wspStar.nextState == DFA.FinalState) {
           // WSP* is not allowed to appear by itself as a terminator
           // or separator.
