@@ -43,7 +43,10 @@ case class ULong(override val longValue: Long) extends AnyVal with Unsigned[ULon
   override def toLong: Long = rep
   override def toFloat: Float = (rep & 0x7fffffffffffffffL).toFloat
   override def toDouble: Double = (rep >>> 1).toDouble * 2.0 + (rep & 1L)
-  def toBigInt: JBigInt = if (rep >= 0) JBigInt.valueOf(rep) else ULong.MaxValueAsBigInt.subtract(JBigInt.valueOf(rep.abs)).add(JBigInt.ONE)
+
+  def toBigInt: JBigInt =
+    if (rep >= 0) JBigInt.valueOf(rep)
+    else JBigInt.valueOf(rep).and(ULong.MaxValueAsBigInt)
 
   // override def intValue = rep
   override def byteValue = toByte
@@ -156,10 +159,8 @@ case class ULong(override val longValue: Long) extends AnyVal with Unsigned[ULon
   override def toString =
     if (rep >= 0L)
       rep.toString
-    else if (rep == Long.MinValue)
-      ULong.maxULongString
     else
-      this.toBigInt.toString // (~(rep - 1)).toString
+      this.toBigInt.toString
 
   def toHexString = rep.toHexString
   def toOctalString = rep.toOctalString
@@ -240,6 +241,17 @@ object ULong {
   val Zero = MinValue
   val MaxValue = ULong(~0L)
 
-  val MaxValueAsBigInt = JBigInt.valueOf(Long.MinValue).abs
-  private val maxULongString = MaxValueAsBigInt.toString()
+  val MaxValueAsBigInt = new JBigInt("FFFFFFFFFFFFFFFF", 16)
+
+  def apply(bi: JBigInt): ULong = {
+    val posBigInt = bi.and(ULong.MaxValueAsBigInt)
+    ULong(posBigInt.longValue)
+  }
+
+  def apply(digits: String, radix: Int): ULong = {
+    val bi = new JBigInt(digits, radix)
+    ULong(bi)
+  }
+
+  def fromHexString(hexDigits: String) = ULong(hexDigits, 16)
 }
