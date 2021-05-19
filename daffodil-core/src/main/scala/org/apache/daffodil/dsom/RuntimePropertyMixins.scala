@@ -48,6 +48,7 @@ import org.apache.daffodil.schema.annotation.props.gen.LengthKind
 import org.apache.daffodil.schema.annotation.props.gen.ChoiceAGMixin
 import org.apache.daffodil.schema.annotation.props.gen.OccursAGMixin
 import org.apache.daffodil.schema.annotation.props.gen.Representation
+import org.apache.daffodil.schema.annotation.props.gen.EscapeKind
 import org.apache.daffodil.schema.annotation.props.gen.Sequence_AnnotationMixin
 import org.apache.daffodil.processors.LengthInBitsEv
 import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
@@ -649,6 +650,36 @@ trait SequenceRuntimeValuedPropertiesMixin
           SDE(
             "The dfdl:terminator and dfdl:separator properties must be distinct. Both contain: %s.",
             inBoth.map { s => "'" + s + "'" }.mkString(", "))
+        }
+      }
+    }
+  }
+
+  def checkDelimiterEscapeConflict(childTerm: Term): Unit = {
+    if (childTerm.optionEscapeScheme.isDefined &&
+        (childTerm.optionEscapeScheme.get.escapeKind == EscapeKind.EscapeCharacter) &&
+        (hasTerminator || hasSeparator)) {
+      val ecEv = childTerm.optionEscapeScheme.get.escapeCharacterEv
+      if (ecEv.isConstant) {
+        val ec = ecEv.constValue
+        var delims = Set[String]()
+
+        val termEv = this.terminatorParseEv
+        if (termEv.isConstant)
+          delims = delims ++ termEv.constValue.map { _.lookingFor }
+
+        val sepEv = this.separatorParseEv
+        if (sepEv.isConstant)
+          delims = delims ++ sepEv.constValue.map { _.lookingFor }
+
+        if (delims.exists { _.startsWith(ec) } )
+          SDE("The dfdl:terminator and dfdl:separator may not begin with the dfdl:escapeCharacter: '%s'.", ec)
+
+        val maybeEecEv = childTerm.optionEscapeScheme.get.optionEscapeEscapeCharacterEv
+        if (maybeEecEv.isDefined && maybeEecEv.get.isConstant) {
+          val eec = maybeEecEv.get.constValue
+          if (delims.exists { _.startsWith(eec) } )
+            SDE("The dfdl:terminator and dfdl:separator may not begin with the dfdl:escapeEscapeCharacter: '%s'.", eec)
         }
       }
     }

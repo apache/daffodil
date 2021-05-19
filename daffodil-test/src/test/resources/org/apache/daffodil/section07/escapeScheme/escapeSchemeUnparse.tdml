@@ -262,38 +262,13 @@
         </ex:e5b>
       </tdml:dfdlInfoset>
     </tdml:infoset>
-    <tdml:document>test#double te##st</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>dfdl:terminator and dfdl:separator</tdml:error>
+      <tdml:error>may not begin with the dfdl:escapeCharacter</tdml:error>
+    </tdml:errors>
   </tdml:unparserTestCase>
   
-<!--
-      Test Name: unparseDelimitedEscapedString11
-      Schema: delimitedStringsEscapeScheme
-      Purpose: This test demonstrates unparsing a sequence of delimited strings with escape schemes
--->
-  <tdml:unparserTestCase name="unparseDelimitedEscapedString11" model="delimitedStringsEscapeScheme" root="e5">
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <ex:e5 xmlns:ex="http://example.com">
-          <ex:s1>test</ex:s1>
-          <ex:s2>double te#st</ex:s2>
-        </ex:e5>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-    <tdml:document>test#double te##st</tdml:document>
-  </tdml:unparserTestCase>
-
-  <tdml:parserTestCase name="parseDelimitedEscapedString05" model="delimitedStringsEscapeScheme" root="e5">
-    <tdml:document>test#double te##st</tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <ex:e5 xmlns:ex="http://example.com">
-          <ex:s1>test</ex:s1>
-          <ex:s2>double te#st</ex:s2>
-        </ex:e5>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-  </tdml:parserTestCase>
-
 <!--
       Test Name: unparseDelimitedEscapedString06
       Schema: delimitedStringsEscapeScheme
@@ -625,6 +600,55 @@
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>Invalid DFDL Entity</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
+  <tdml:defineSchema name="runtimeDelimiterEscapeConflict">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" encoding="ascii" lengthUnits="bytes" outputNewLine="%CR;%LF;"/>
+    <dfdl:defineEscapeScheme name="pound2">
+      <dfdl:escapeScheme escapeCharacter='#'
+        escapeKind="escapeCharacter" escapeEscapeCharacter="/" extraEscapedCharacters="" generateEscapeBlock="whenNeeded" />
+    </dfdl:defineEscapeScheme>
+
+    <xs:element name="e1">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="sep" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1" />
+          <xs:element name="seq">
+            <xs:complexType>
+              <xs:sequence dfdl:separator="{ ../ex:sep }">
+                <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited" dfdl:escapeSchemeRef="pound2"/>
+                <xs:element name="s2" type="xs:string" dfdl:lengthKind="delimited" dfdl:escapeSchemeRef="pound2"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+<!--
+      Test Name: runtimeUnparseDelimiterEscapeConflict
+      Schema: runtimeUnparseDelimiterEscapeConflict
+      Purpose: This test checks for a runtime SDE for a conflicting delimiter and escapeCharacter
+-->
+  <tdml:unparserTestCase name="runtimeUnparseDelimiterEscapeConflict" model="runtimeDelimiterEscapeConflict" root="e1">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e1 xmlns:ex="http://example.com">
+          <ex:sep>#</ex:sep>
+          <ex:seq>
+            <ex:s1>test</ex:s1>
+            <ex:s2>test2</ex:s2>
+          </ex:seq>
+        </ex:e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Unparse Error</tdml:error>
+      <tdml:error>dfdl:terminator and dfdl:separator</tdml:error>
+      <tdml:error>may not begin with the dfdl:escapeCharacter</tdml:error>
     </tdml:errors>
   </tdml:unparserTestCase>
 

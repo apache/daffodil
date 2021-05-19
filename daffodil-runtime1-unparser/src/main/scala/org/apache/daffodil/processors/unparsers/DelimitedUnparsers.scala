@@ -66,7 +66,7 @@ sealed class StringDelimitedUnparser(
             val (result, _) = {
               if (scheme.isInstanceOf[EscapeSchemeCharUnparserHelper]) {
                 val theScheme = scheme.asInstanceOf[EscapeSchemeCharUnparserHelper]
-                val hasEscCharAsDelimiter = terminatingMarkup.exists(d => d.lookingFor.length == 1 && d.lookingFor(0) =#= theScheme.ec)
+                val hasEscCharAsDelimiter = terminatingMarkup.exists(d => d.lookingFor(0) =#= theScheme.ec)
                 val thingsToEscape = (terminatingMarkup ++ scheme.lookingFor).toArray
 
                 textUnparser.escapeCharacter(dis, fieldDFA, thingsToEscape, hasEscCharAsDelimiter, theScheme.ec, theScheme.eec, state)
