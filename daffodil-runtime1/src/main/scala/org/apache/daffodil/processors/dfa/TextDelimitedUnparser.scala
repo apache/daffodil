@@ -248,6 +248,8 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
     escapeEscapeChar: MaybeChar, state: UState): (String, Boolean) = {
     Assert.invariant(delims != null)
     Assert.invariant(field != null)
+    if (hasEscCharAsDelimiter)
+      UnparseError(One(context.schemaFileLocation), One(state.currentLocation), "The dfdl:terminator and dfdl:separator may not begin with the dfdl:escapeCharacter: '%s'.", escapeChar)
 
     val successes: ArrayBuffer[(DFADelimiter, Registers)] = ArrayBuffer.empty
     val fieldReg: Registers = state.dfaRegistersPool.getFromPool("escapeCharacter1")
@@ -305,6 +307,7 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
               case _ => {
                 // this delim did not match, ignore it and discard its register
                 state.dfaRegistersPool.returnToPool(delimReg)
+                input.resetPos(beforeDelimiter)
               }
             }
           }
@@ -320,8 +323,7 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
             // matched a delimiter, need to handle escaping it
             val (matchedDelim, matchedReg) = longestMatch(successes).get
             if (matchedDelim.lookingFor.length() == 1 && matchedDelim.lookingFor(0) =#= escapeChar) {
-              if (hasEscCharAsDelimiter) { fieldReg.appendToField(escapeChar) }
-              else if (escapeEscapeChar.isDefined)
+              if (escapeEscapeChar.isDefined)
                 fieldReg.appendToField(escapeEscapeChar.get)
               else
                 UnparseError(One(context.schemaFileLocation), One(state.currentLocation), "escapeEscapeCharacter was not defined but the escapeCharacter (%s) was present in the data.", escapeChar)

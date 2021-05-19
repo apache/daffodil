@@ -96,8 +96,10 @@ abstract class SequenceChild(protected val sq: SequenceTermBase, child: Term, gr
 
   protected lazy val sepGram = {
     sscb match {
-      case _: PositionalLike =>
+      case _: PositionalLike => {
         sgtb.checkSeparatorTerminatorConflict
+        sgtb.checkDelimiterEscapeConflict(child)
+      }
       case _ => // ok
     }
     sq.sequenceSeparator
