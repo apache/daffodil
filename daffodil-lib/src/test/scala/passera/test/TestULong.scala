@@ -78,7 +78,7 @@ class TestULong {
     val v = ULong.MaxValue
     assertEquals("FFFFFFFFFFFFFFFF", v.toHexString.toUpperCase)
     assertEquals(ULong(0), v + ULong(1))
-    val v1 = ULong.MaxValue.toBigInt.add(JBigInt.TWO) // 0x8000000000000001
+    val v1 = ULong.MaxValue.toBigInt.add(JBigInt.valueOf(2)) // 0x8000000000000001
     assertEquals(ULong(1), ULong(v1)) // preserves only 64 bits
   }
 
