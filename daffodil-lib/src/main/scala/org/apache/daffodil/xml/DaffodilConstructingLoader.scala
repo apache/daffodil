@@ -59,6 +59,9 @@ object Position {
  * properly, creating PCData nodes for the contents of these, and not otherwise
  * messing with the contents.
  *
+ * This code is effectively our fork of the Scala ConstructingParser. This
+ * works around some bugs in it.
+ *
  * Xerces, unfortunately, messes with the contents of these CDATA regions,
  * normalizes whitespace inside them, and generally makes it impossible to do things
  * in XML that depend on line-structure of element content to being preserved.
@@ -288,8 +291,147 @@ class DaffodilConstructingLoader private[xml] (uri: URI,
     text(pos, s)
   }
 
+  /**
+   * Same CRLF/CR => LF processing as text gets.
+   */
   override def comment(pos: Int, s: String): Comment = {
     Comment(text(pos, s).text)
+  }
+
+  /**
+   * Same CRLF/CR => LF processing as text gets.
+   */
+  override def procInstr(pos: Int, target: String, txt: String) =
+    ProcInstr(target, text(pos, txt).text)
+
+  private def parseXMLPrologAttributes(m: MetaData): (Option[String], Option[String], Option[Boolean]) = {
+
+    var info_ver: Option[String] = None
+    var info_enc: Option[String] = None
+    var info_stdl: Option[Boolean] = None
+
+    var n = 0
+    m("version") match {
+      case null =>
+      case Text("1.0") =>
+        info_ver = Some("1.0"); n += 1
+      case _ => reportSyntaxError("cannot deal with versions != 1.0")
+    }
+
+    m("encoding") match {
+      case null =>
+      case Text(enc) =>
+        if (!isValidIANAEncoding(enc))
+          reportSyntaxError("\"" + enc + "\" is not a valid encoding")
+        else {
+          info_enc = Some(enc)
+          n += 1
+        }
+    }
+
+    m("standalone") match {
+      case null =>
+      case Text("yes") =>
+        info_stdl = Some(true); n += 1
+      case Text("no") =>
+        info_stdl = Some(false); n += 1
+      case _ => reportSyntaxError("either 'yes' or 'no' expected")
+    }
+
+    if (m.length - n != 0) {
+      reportSyntaxError(
+        "only 'version', 'encoding', and 'standalone' attributes are expected in xml prolog. Found: " + m)
+    }
+
+    (info_ver, info_enc, info_stdl)
+  }
+
+  /**
+   * Override of document to make it tolerant of the start of the file
+   * being whitespace instead of a "<" character
+   *
+   * This does not handle DOCTYPEs (aka DTDs) at all. Hence, is not
+   * a true replacement (bug fix) on the original ConstructingParser method
+   * that it overrides.
+   */
+  override def document(): Document = {
+    doc = new Document()
+    this.dtd = null
+    var children: NodeSeq = null
+
+    if ('<' == ch) {
+      nextch()
+      if ('?' == ch) {
+        nextch()
+        // It's probably an XML prolog, but
+        // there are cases where there is no XML Prolog, but a starting
+        // PI of <?xml-model href="...."?>
+        // So we have to recognize as a general PI, then look and see if
+        // it is a prolog.
+        val name = xName
+        xSpace()
+        val (md, scp) = xAttributes(TopScope)
+        if (scp != TopScope)
+          reportSyntaxError("no xmlns definitions allowed.")
+        xToken('?')
+        xToken('>')
+        if (name == "xml") {
+          val info_prolog = parseXMLPrologAttributes(md)
+          doc.version = info_prolog._1
+          doc.encoding = info_prolog._2
+          doc.standAlone = info_prolog._3
+        } else {
+          // not an xml prolog. It's some other PI
+          // do nothing. We're just skipping those PIs
+        }
+        children = content(TopScope)
+      } else {
+        val ts = new NodeBuffer()
+        content1(TopScope, ts) // the 1 suffix means "without the first < character"
+        ts &+ content(TopScope)
+        children = NodeSeq.fromSeq(ts)
+      }
+    } else {
+      children = content(TopScope)
+    }
+
+    var isErr = false
+    var elemCount = 0
+    var theNode: Node = null
+    children.foreach { c =>
+      c match {
+        case _: ProcInstr => // skip
+        case _: Comment => // skip
+        // $COVERAGE-OFF$ // constructing parser never creates these - probably due to a bug
+        case _: EntityRef => {
+          reportSyntaxError("no entity references allowed here")
+          isErr = true
+        }
+        // $COVERAGE-ON$
+        case s: SpecialNode => {
+          val txt = s.toString.trim()
+          if (txt.length > 0) {
+            reportSyntaxError("non-empty text nodes not allowed: '" + txt + "'.")
+            isErr = true
+          }
+        }
+        case m: Elem =>
+          elemCount += 1
+          theNode = m
+      }
+    }
+    if (1 != elemCount) {
+      reportSyntaxError("document must contain exactly one element")
+      isErr = true
+    }
+
+    if (!isErr) {
+      doc.children = children
+      doc.docElem = theNode
+      doc
+    } else {
+      null
+    }
   }
 
   def load(): Node = {
