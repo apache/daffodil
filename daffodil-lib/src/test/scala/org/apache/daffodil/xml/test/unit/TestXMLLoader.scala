@@ -22,9 +22,75 @@ import org.apache.daffodil.api.StringSchemaSource
 import org.apache.daffodil.xml.DaffodilXMLLoader
 import org.junit.Assert._
 import org.junit.Test
-import org.xml.sax.SAXParseException
+
+import scala.collection.mutable.ArrayBuffer
+import scala.xml.SAXParseException
 
 class TestXMLLoader {
+
+  @Test
+  def test_schemaLoad(): Unit = {
+    val data =
+      """<?xml version="1.0"?>
+        |<xs:schema
+        |targetNamespace="http://example.com"
+        |xmlns:ex="http://example.com"
+        |xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        |xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        |xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
+        |  <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+        |  <xs:annotation>
+        |    <xs:appinfo source="http://www.ogf.org/dfdl/">
+        |      <dfdl:format lengthKind="delimited" ref="ex:GeneralFormat"/>
+        |    </xs:appinfo>
+        |  </xs:annotation>
+        |  <xs:element name="e1">
+        |    <xs:complexType>
+        |      <xs:sequence>
+        |        <xs:element name="s1" type="xs:int"/>
+        |      </xs:sequence>
+        |    </xs:complexType>
+        |  </xs:element>
+        |</xs:schema>
+        |""".stripMargin
+    val loader = new DaffodilXMLLoader()
+    val ss = StringSchemaSource(data)
+    val root =
+      loader.load(ss, None, false)
+    assertEquals("http://example.com", (root \ "@targetNamespace").text)
+  }
+
+  @Test
+  def test_startsWithPINotProlog(): Unit = {
+    val data =
+      """<?xml-model href="../Schematron/iCalendar.sch" type="application/xml" schematypens="http://purl.oclc.org/dsdl/schematron"?>
+        |<xs:schema
+        |targetNamespace="http://example.com"
+        |xmlns:ex="http://example.com"
+        |xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        |xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        |xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
+        |  <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+        |  <xs:annotation>
+        |    <xs:appinfo source="http://www.ogf.org/dfdl/">
+        |      <dfdl:format lengthKind="delimited" ref="ex:GeneralFormat"/>
+        |    </xs:appinfo>
+        |  </xs:annotation>
+        |  <xs:element name="e1">
+        |    <xs:complexType>
+        |      <xs:sequence>
+        |        <xs:element name="s1" type="xs:int"/>
+        |      </xs:sequence>
+        |    </xs:complexType>
+        |  </xs:element>
+        |</xs:schema>
+        |""".stripMargin
+    val loader = new DaffodilXMLLoader()
+    val ss = StringSchemaSource(data)
+    val root =
+      loader.load(ss, None, false)
+    assertEquals("http://example.com", (root \ "@targetNamespace").text)
+  }
 
   /**
    * Characterize behavior of scala's xml loader w.r.t. CDATA preservation.
@@ -83,7 +149,7 @@ b&"<>]]>"""))
       loader.load(ss, None, false, true)
     }
     val m = e.getMessage()
-    assertTrue(m.contains("DOCTYPE is disallowed"))
+    assertTrue(m.contains("DOCTYPE"))
   }
 
   /**
@@ -136,5 +202,67 @@ b&"<>]]>"""))
       "before\nafter\nendCDATAbefore\nafter\nendCDATA",
       xmlFromDafLoaderNormalized.text)
 
+  }
+
+  @Test def testLoaderToleratesXMLWithLeadingWhitespace(): Unit = {
+    val xmlTextWithLeadingWhitespace = "    \n" + "<data>foo</data>\n"
+    val loader = new DaffodilXMLLoader()
+    val ss = StringSchemaSource(xmlTextWithLeadingWhitespace)
+    val xml = loader.load(ss, None, addPositionAttributes = false)
+    assertEquals("foo", xml.text)
+  }
+
+  @Test def testLoaderToleratesXMLWithLeadingComments(): Unit = {
+    val xmlText = "    \n" +
+      "  <!-- a comment -->  \n  <data>foo</data>\n"
+    val loader = new DaffodilXMLLoader()
+    val ss = StringSchemaSource(xmlText)
+    val xml = loader.load(ss, None, addPositionAttributes = false)
+    assertEquals("foo", xml.text)
+  }
+
+  @Test def testLoaderToleratesXMLWithPI(): Unit = {
+    val xmlText = "    \n" +
+    "<?aProcInstr yadda yadda ?>\n" +
+      "  <!-- a comment -->  \n  <data>foo</data>\n"
+    val loader = new DaffodilXMLLoader()
+    val ss = StringSchemaSource(xmlText)
+    val xml = loader.load(ss, None, addPositionAttributes = false)
+    assertEquals("foo", xml.text)
+  }
+
+  @Test def testLoaderCatchesVarousBadXML(): Unit = {
+    val xmlText = "    \n" + // no prolog some whitespace (tolerated)
+      "&AnEntityRef;\n" + // entity refs not allowed
+      "random text\n" + // just text not allowed
+      "<data>foo</data>\n" +
+    "<!-- comment afterwards --><another>element</another>\n&AnotherEntityRef;\nmore random text\n" // other bad stuff.
+    val teh = new TestErrorHandler()
+    val loader = new DaffodilXMLLoader(teh)
+    val ss = StringSchemaSource(xmlText)
+    val xml = loader.load(ss, None, addPositionAttributes = false)
+    val msgs = teh.exceptions.map{ _.getMessage() }.mkString("\n")
+    println(msgs)
+    assertTrue(msgs.contains("non-empty text nodes not allowed"))
+    assertTrue(msgs.contains("random text"))
+    assertTrue(msgs.contains("more random text"))
+    assertTrue(msgs.contains("exactly one element"))
+  }
+}
+
+class TestErrorHandler extends org.xml.sax.ErrorHandler {
+
+  val exceptions = new ArrayBuffer[SAXParseException]
+
+  def warning(exception: SAXParseException) = {
+    exceptions += exception
+  }
+
+  def error(exception: SAXParseException) = {
+    exceptions += exception
+  }
+
+  def fatalError(exception: SAXParseException) = {
+    exceptions += exception
   }
 }
