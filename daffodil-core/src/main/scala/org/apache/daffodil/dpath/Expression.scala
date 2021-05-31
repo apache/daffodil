@@ -1634,6 +1634,9 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
       case (RefQName(_, "rightShift", DFDLX), args) =>
         DFDLXShiftExpr(functionQNameString, functionQName, args,
           DFDLXRightShift(_, _))
+      case (RefQName(_, "xor", DFDLX), args) =>
+        DFDLXBitExpr(functionQNameString, functionQName, args,
+          DFDLXXor(_,_))
 
 
       case (RefQName(_, "year-from-dateTime", FUNC), args) => FNOneArgExpr(functionQNameString, functionQName, args, NodeInfo.Integer, NodeInfo.DateTime, FNYearFromDateTime(_, _))
@@ -2177,7 +2180,31 @@ case class DFDLXShiftExpr(nameAsParsed: String, fnQName: RefQName,
     res
   }
 }
+case class DFDLXBitExpr(nameAsParsed: String, fnQName: RefQName,
+                        args: List[Expression], constructor: (List[CompiledDPath], NodeInfo.Kind) => RecipeOp)
+  extends FunctionCallBase(nameAsParsed, fnQName, args) {
+  override lazy val inherentType = {
+    val arg0Type = args(0).inherentType
+    val arg1Type = args(1).inherentType
+    val argInherentType = if (arg1Type.isSubtypeOf(arg0Type)) arg0Type else arg1Type
+    schemaDefinitionUnless(
+      argInherentType.isSubtypeOf(NodeInfo.PrimType.UnsignedLong) || argInherentType.isSubtypeOf(NodeInfo.PrimType.Long),
+      "Both arguments for %s must be either xs:unsignedLong or xs:long or a subtype of those, but was %s.",
+      nameAsParsed,argInherentType.globalQName)
+    argInherentType
+  }
+    override def targetTypeForSubexpression(subexp: Expression): NodeInfo.Kind = inherentType
 
+  override def compiledDPath: CompiledDPath = {
+    checkArgCount(2)
+    val argType = inherentType
+    val arg0Recipe = args(0).compiledDPath
+    val arg1Recipe=args(1).compiledDPath
+    val c=conversions
+    val res = new CompiledDPath(constructor(List(arg0Recipe,arg1Recipe),argType)+:c)
+    res
+  }
+}
 case class FNZeroArgExpr(nameAsParsed: String, fnQName: RefQName,
   resultType: NodeInfo.Kind, argType: NodeInfo.Kind, constructor: (CompiledDPath, NodeInfo.Kind) => RecipeOp)
   extends FunctionCallBase(nameAsParsed, fnQName, Nil) {
