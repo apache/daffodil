@@ -25,9 +25,11 @@ object TestBitFunctions {
   val testDir = "/org/apache/daffodil/section23/dfdl_functions/"
 
   val runner = Runner(testDir, "BitFunctions.tdml")
+  val runner1= Runner(testDir,"BitFunctionsXor.tdml")
 
   @AfterClass def shutDown(): Unit = {
     runner.reset
+    runner1.reset
   }
 }
 
@@ -59,6 +61,18 @@ class TestBitFunctions {
   @Test def rightShiftDecimalError01():Unit = {runner.runOneTest("rightShiftDecimalError01")}
   @Test def leftShiftNonNegativeIntegerError01():Unit = {runner.runOneTest("leftShiftNonNegativeIntegerError01")}
   @Test def rightShiftNonNegativeIntegerError01():Unit = {runner.runOneTest("rightShiftNonNegativeIntegerError01")}
+  @Test def testIntXor():Unit = {runner1.runOneTest("testIntXor")}
+  @Test def testLongXor():Unit = {runner1.runOneTest("testLongXor")}
+  @Test def testShortXor():Unit = {runner1.runOneTest("testShortXor")}
+  @Test def testByteXor():Unit = {runner1.runOneTest("testByteXor")}
+  @Test def testUnsignedIntXor():Unit = {runner1.runOneTest("testUnsignedIntXor")}
+  @Test def testUnsignedLongXor():Unit = {runner1.runOneTest("testUnsignedLongXor")}
+  @Test def testUnsignedShortXor():Unit = {runner1.runOneTest("testUnsignedShortXor")}
+  @Test def testUnsignedByteXor():Unit = {runner1.runOneTest("testUnsignedByteXor")}
+
+
+
+
 
 
 

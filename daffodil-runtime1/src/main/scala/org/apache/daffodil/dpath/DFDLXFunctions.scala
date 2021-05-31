@@ -98,6 +98,25 @@ case class DFDLXRightShift(recipes: List[CompiledDPath], argType: NodeInfo.Kind)
   }
 }
 
+case class DFDLXXor(recipes: List[CompiledDPath], argType: NodeInfo.Kind) extends FNTwoArgs(recipes) {
+  override def computeValue(arg1: DataValuePrimitive, arg2: DataValuePrimitive, dstate: DState): DataValuePrimitive = {
+    argType match {
+      case NodeInfo.Long => arg1.getLong ^ arg2.getLong
+      case NodeInfo.Int => arg1.getInt ^ arg2.getInt
+      case NodeInfo.Short => (arg1.getShort ^ arg2.getShort).toShort
+      case NodeInfo.Byte => (arg1.getByte ^ arg2.getByte).toByte
+      case NodeInfo.UnsignedLong => arg1.getBigInt.xor(arg2.getBigInt)
+      case NodeInfo.UnsignedInt => arg1.getLong ^ arg2.getLong
+      case NodeInfo.UnsignedShort => arg1.getInt ^ arg2.getInt
+      case NodeInfo.UnsignedByte => (arg1.getShort ^ arg2.getShort).toShort
+          //$COVERAGE-OFF$
+      case _ => Assert.invariantFailed(s"dfdlx:XOR not supported")
+          // $COVERAGE-ON$
+    }
+    }
+  }
+
+
 
 case class DFDLXTrace(recipe: CompiledDPath, msg: String)
   extends RecipeOpWithSubRecipes(recipe) {
