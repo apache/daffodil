@@ -43,15 +43,6 @@ class ScalarOrderedUnseparatedSequenceChildParser(
   with Unseparated
   with NonRepeatingSequenceChildParser
 
-class ScalarUnorderedUnseparatedSequenceChildParser(
-  override val childParser: Parser,
-  override val srd: SequenceRuntimeData,
-  override val trd: TermRuntimeData,
-  override val parseResultHelper: UnseparatedSequenceChildParseResultHelper)
-  extends SequenceChildParser(childParser, srd, trd)
-  with Unseparated
-  with NonRepeatingUnorderedSequenceChildParser
-
 class RepOrderedExactlyNUnseparatedSequenceChildParser(
   childParser: Parser,
   srd: SequenceRuntimeData,
@@ -79,7 +70,7 @@ class RepOrderedWithMinMaxUnseparatedSequenceChildParser(
   with Unseparated
 
 class OrderedUnseparatedSequenceParser(rd: SequenceRuntimeData, childParsersArg: Vector[SequenceChildParser])
-  extends SequenceParserBase(rd, childParsersArg)
+  extends SequenceParserBase(rd, childParsersArg, isOrdered = true)
 
 class UnorderedUnseparatedSequenceParser(rd: SequenceRuntimeData, choiceParser: Vector[SequenceChildParser])
-  extends SequenceParserBase(rd, choiceParser, false)
+  extends SequenceParserBase(rd, choiceParser, isOrdered = false)

@@ -121,8 +121,6 @@ class OrderedSequence(sq: SequenceTermBase, sequenceChildrenArg: Seq[SequenceChi
 class UnorderedSequence(sq: SequenceTermBase, sequenceChildrenArg: Seq[SequenceChild], alternatives: Seq[Gram])
   extends SequenceCombinator(sq, sequenceChildrenArg) {
 
-  import SeparatedSequenceChildBehavior._
-
   private lazy val sepMtaGram = sq.delimMTA
   // Note that we actually only ever use one of these depending on
   // various factors. If there is an optional separator and a suspension is
@@ -152,43 +150,16 @@ class UnorderedSequence(sq: SequenceTermBase, sequenceChildrenArg: Seq[SequenceC
 
   override lazy val parser: Parser = {
 
-    lazy val choiceParser = new ChoiceParser(srd, parsers.toVector)
-
     sq.hasSeparator match {
       case true => {
-        lazy val groupHelper = new NonPositionalGroupSeparatedSequenceChildParseResultHelper(
-          srd,
-          NonPositional,
-          true, // Due to the nature of UOSeqs, could potentially be empty
-          false) // and does not have required syntax
-
-        lazy val groupParser = new GroupSeparatedUnorderedSequenceChildParser(
-          choiceParser,
-          srd,
-          srd, // Won't actually be used
-          sepParser,
-          sq.separatorPosition,
-          groupHelper)
-
         new UnorderedSeparatedSequenceParser(
           srd, sq.separatorPosition, sepParser,
-          Vector(groupParser))
+          sequenceChildren.flatMap { _.optSequenceChildParser })
       }
       case false => {
-        lazy val groupHelper = new GroupUnseparatedSequenceChildParseResultHelper(
-          srd,
-          true, // Due to the nature of UOSeqs, could potentially be empty
-          false) // and does not have required syntax
-
-        lazy val groupParser = new ScalarUnorderedUnseparatedSequenceChildParser(
-          choiceParser,
-          srd,
-          srd, // Won't actually be used
-          groupHelper)
-
         new UnorderedUnseparatedSequenceParser(
           srd,
-          Vector(groupParser))
+          sequenceChildren.flatMap { _.optSequenceChildParser })
       }
     }
   }
