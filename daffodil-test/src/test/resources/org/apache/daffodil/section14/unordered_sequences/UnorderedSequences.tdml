@@ -938,7 +938,8 @@
     <tdml:document><![CDATA[X:not expectedFINAL]]></tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>FINAL</tdml:error>
+      <tdml:error>Assertion</tdml:error>
+      <tdml:error>the expected message</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

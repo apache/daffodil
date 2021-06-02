@@ -36,7 +36,7 @@ import org.apache.daffodil.util.Maybe.One
 abstract class SequenceParserBase(
   srd: SequenceRuntimeData,
   childParsers: Vector[Parser],
-  isOrdered: Boolean = true)
+  isOrdered: Boolean)
   extends CombinatorParser(srd) {
   override def nom = "Sequence"
 
@@ -116,11 +116,11 @@ abstract class SequenceParserBase(
       child = children(scpIndex).asInstanceOf[SequenceChildParser]
 
       child match {
-        case parser: RepeatingChildParser => {
+        case parser: RepeatingChildParser if isOrdered => {
           //
-          // The sequence child is an array/repeating element (or ooptional
-          // element as the runtime doesn't distinguish them.)
-          //
+          // The sequence child is an array/repeating element (or optional
+          // element as the runtime doesn't distinguish them) of an ordered
+          // sequence. Unordred sequences are treated as scalars below.
           //
           val min = parser.minRepeats(pstate)
           val max = parser.maxRepeats(pstate)
@@ -229,22 +229,37 @@ abstract class SequenceParserBase(
           parser.endArray(pstate)
         } // end match case RepeatingChildParser
 
-        //
-        // This case for scalar parsers. This includes both scalar elements, and
-        // model group terms (choices, or sequences that are children of a sequence).
-        // A model group term is considered scalar
-        // in that they cannot be repeating at all in DFDL v1.0.
-        //
         case nonRepresentedParser: NonRepresentedSequenceChildParser => {
+          // should never have non-represented children in unordered sequences
+          Assert.invariant(isOrdered)
+
           nonRepresentedParser.parseOne(pstate, null)
           // don't need to digest result from this. All
           // information about success/failure is in the pstate.
           //
           // We do NOT move over the group index state for non-represented things.
         }
+
+        // This case for scalar parsers. This includes both scalar elements,
+        // and model group terms (choices, or sequences that are children of a
+        // sequence). A model group term is considered scalar in that they
+        // cannot be repeating at all in DFDL v1.0.
+        //
+        // This case is also used for all children of unordered sequences. In
+        // that case, we repeatedly attempt to parse all the children (starting
+        // over on success), until all children fail or if discriminated
+        // content causes us to bail early.
         case scalarParser => {
           val diagnosticsBeforeAttempt = pstate.diagnostics
-          val roStatus = scalarParser.maybeStaticRequiredOptionalStatus.get
+          val roStatus =
+            if (isOrdered)
+              scalarParser.maybeStaticRequiredOptionalStatus.get
+            else {
+              // Treat unordered sequence children as if they are required.
+              // This way if they fail, we will simply backtrack and try the
+              // next child
+              RequiredOptionalStatus.Required
+            }
           val (_, nextResultOfTry) = parseOneInstance(scalarParser, pstate, roStatus)
           priorResultOfTry = resultOfTry
           resultOfTry = nextResultOfTry
@@ -268,24 +283,40 @@ abstract class SequenceParserBase(
               pstate.diagnostics = diagnosticsBeforeAttempt
             }
 
-            // We successfully parsed a discriminator, but failed to parse the discriminated content.
-            // Do not continue trying to parse other memebers of the unordered sequence.
+            // This child alternative of an unordered sequence failed, and that
+            // failure occurred after a discriminator within that child
+            // evaluated to true. This means that this unordered sequence has
+            // failed. We set isDone to true so we do not attempt anymore
+            // children of this unordered sequence. Additionally, that failure
+            // is still in the PState, which will cause us to backtrack to the
+            // nearest unresolved point of uncertainty.
             case UnorderedSeqDiscriminatedFailure => isDone = true
 
-            case (MissingItem | MissingSeparator | FailureUnspecified) if (!isOrdered) => {
-              // We have hit the end of an unordered sequence, mask the failure and exit
-              // the sequence succesfully
-              isDone = true
-              pstate.setSuccess()
-              // If we're masking the failure, we don't want the error dianostics
-              // to flow up. Restore the diagnostics from before the parse
-              // attempt
-              pstate.diagnostics = diagnosticsBeforeAttempt
-            }
+            // We failed to parse a single instance of an unordered sequence
+            // element, and we did not hit a discriminator. parseOneInstance
+            // will have backtracked to before this instance was attempted, so
+            // we can just try to parse the next child. We do not need to do
+            // anything special, the end of this loop will increment to the
+            // next child.
+            case _: FailedParseAttemptStatus if (!isOrdered) => // no-op
 
-            case _ => // ok.
+            case _ => {
+              if (isOrdered) {
+                // Successfully parsed a scalar ordered sequence element,
+                // nothing to do. We'll increment scpIndex before looping
+                // back around and try parsing the next sequence child
+              } else {
+                // Successfully parsed an unordered sequence child. We want to
+                // try parsing the unordered sequence children again from the
+                // beginning, so we set the index to -1 so it is incremented
+                // back to zero at the end of the while loop
+                scpIndex = -1
+              }
+              // We successfully parsed something, so we must increment the group
+              // index
+              pstate.mpstate.moveOverOneGroupIndexOnly()
+            }
           }
-          pstate.mpstate.moveOverOneGroupIndexOnly()
         } // end case scalarParser
       } // end match case parser
 
@@ -296,23 +327,19 @@ abstract class SequenceParserBase(
       val newLastChildNode = pstate.infoset.maybeLastChild
 
       if (!isOrdered) {
-        // In the special case of unordered sequences with arrays, the
-        // childParser is not a RepeatingChildParser, so array elements aren't
-        // set final above like normal arrays are. Instead we parse one
-        // instance at a time in this loop.
+        // In the special case of unordered sequences with arrays, we do not
+        // use the RepatingChildParser. Instead we parse on instance at a time
+        // in this loop. So array elements aren't set final above like normal
+        // arrays are.
         //
-        // So if this the new last child node is a DIArray, we must set new
-        // array elements as final here. We can't know if we actually added a
-        // new DIArray element or not, so just set the last one as final
+        // So if the last child node is a DIArray, we must set new array
+        // elements as final here. We can't know if we actually added a new
+        // DIArray element or not, so just set the last one as final
         // regardless.
         //
         // Note that we do not need to do a null check because in an unordered
-        // sequence we are blocking, so we can't possible walk/free any of
+        // sequence we are blocking, so we can't possibly walk/free any of
         // these newly added elements.
-        //
-        // Also note that the DIArray itself is set as final right below this.
-        // Again, because unordred sequences get blocked, that array won't be
-        // walked even though it's final.
         if (newLastChildNode.isDefined && newLastChildNode.get.isArray) {
           // we have a new last child, and it's not simple or complex, so must
           // be an array. Set its last child final
@@ -321,20 +348,24 @@ abstract class SequenceParserBase(
       }
 
       // We finished parsing one part of a sequence, which could either be an
-      // array, simple or complex. If the last child is different from when we
-      // started that means we must have added a new element and we can set it
-      // final and walk.
+      // array, simple, or complex. We aren't sure if we actually added a new
+      // element or not, but in case we did, mark the last node as final.
+      //
+      // Additionally, if this is an ordered sequence, try to walk the infoset
+      // to output events for this potentially new element. If this is an
+      // unordered sequence, walking is unnecessary. This is because we may
+      // need to reorder the infoset once this unordered sequence is complete
+      // (via flattenAndValidateChildNodes below) and cannot walk until that
+      // happens. To ensure we don't walk even if a child parser tries to call
+      // walk() we incremented infosetWalkerBlockCount at the beginning of this
+      // function, so the walker is effectively blocked from making any
+      // progress. So we don't even bother calling walk() in this case.
       if (newLastChildNode.isDefined) {
         newLastChildNode.get.isFinal = true
-        pstate.walker.walk()
+        if (isOrdered) pstate.walker.walk()
       }
 
-      if (isOrdered) {
-        // only increment scpIndex for ordered sequences. For unordered
-        // sequences, we just parse the single child parser repeatedly until we
-        // get a failure
-        scpIndex += 1
-      }
+      scpIndex += 1
 
     } // end while for each sequence child parser
 
@@ -367,12 +398,16 @@ abstract class SequenceParserBase(
     // Determine if we need a PoU. Note that we only have a point of
     // uncertainty if the sequence child parser has points of uncertainty (e.g.
     // array with min/max) and the require/optional status is not required.
-    // Additionally, we only have this for ordered sequence. Unordered
-    // sequences PoU's are handled by the choice parser
+    //
+    // Additionally, we also have a PoU for unordered sequences. The result of
+    // this PoU lets us know if a discriminator tells us to stop trying more
+    // unordered sequence children
     val needsPoU =
-      isOrdered &&
-      (parser.pouStatus eq PoUStatus.HasPoU) &&
-      !roStatus.isInstanceOf[RequiredOptionalStatus.Required]
+      !isOrdered || 
+      (
+        (parser.pouStatus eq PoUStatus.HasPoU) &&
+        !roStatus.isInstanceOf[RequiredOptionalStatus.Required]
+      )
 
     if (needsPoU) {
       val ans = pstate.withPointOfUncertainty("SequenceParserBase", parser.context) { pou =>
@@ -427,13 +462,24 @@ abstract class SequenceParserBase(
       }
       case _: FailedParseAttemptStatus => { // MissingSeparator with failure will match here
         Assert.invariant(pstate.isFailure)
-        if (maybePoU.isDefined && !isPoUResolved &&
+        if (!isOrdered) {
+          if (isPoUResolved) {
+            // failed this unordered sequence branch, and the PoU was resolved
+            // so the unordered sequence failed. Change the resultOfTry to a
+            // special state indicated this so this failure will propogate up
+            resultOfTry = UnorderedSeqDiscriminatedFailure
+          } else {
+            // failed this unordered sequence branch, but nothing resolved the
+            // PoU. We need to just try the next branch from the PoU. So just
+            // reset to the PoU. The resultOfTry will be returned and will be
+            // acted on appropriately
+            pstate.resetToPointOfUncertainty(maybePoU.get)
+          }
+        } else if (maybePoU.isDefined && !isPoUResolved &&
           (roStatus.isInstanceOf[RequiredOptionalStatus.Optional])) {
           // we back up and finish the array at the prior element if any.
           pstate.resetToPointOfUncertainty(maybePoU.get)
           Assert.invariant(pstate.isSuccess)
-        } else if (maybePoU.isDefined && isPoUResolved) {
-          resultOfTry = UnorderedSeqDiscriminatedFailure
         } else {
           parser.trd match {
             case erd: ElementRuntimeData if (erd.isArray) => {

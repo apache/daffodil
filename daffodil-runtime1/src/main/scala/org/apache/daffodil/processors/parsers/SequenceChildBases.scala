@@ -229,15 +229,6 @@ trait NonRepeatingSequenceChildParser { self: SequenceChildParser =>
 
 }
 
-trait NonRepeatingUnorderedSequenceChildParser { self: SequenceChildParser =>
-
-  def pouStatus: PoUStatus = PoUStatus.HasPoU
-
-  def maybeStaticRequiredOptionalStatus: Maybe[RequiredOptionalStatus] =
-    Maybe(RequiredOptionalStatus.Optional)
-
-}
-
 /**
  * For computed elements, and for groups (which commonly will be sequences)
  * which contain only other non-represented entities, or executable
