@@ -30,12 +30,10 @@ import java.nio.charset.CoderResult
 import java.nio.charset.{Charset => JavaCharset}
 import scala.language.postfixOps
 import scala.util.Try
-import scala.xml.Elem
 import scala.xml.Node
 import scala.xml.NodeSeq
 import scala.xml.NodeSeq.seqToNodeSeq
 import scala.xml.SAXParseException
-import scala.xml.transform._
 import org.apache.commons.io.IOUtils
 import org.apache.daffodil.api.DaffodilSchemaSource
 import org.apache.daffodil.api.DaffodilTunables
@@ -511,20 +509,6 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
 
   final def isCrossTest(implString: String) = implString != "daffodil"
 
-  val removeLineColInfo = new RewriteRule {
-    override def transform(n: Node) = n match {
-      case e: Elem => {
-        e.copy(attributes = n.attributes.filter(a =>
-          (a.prefixedKey != "dafint:" + XMLUtils.COLUMN_ATTRIBUTE_NAME) &&
-            (a.prefixedKey != "dafint:" + XMLUtils.LINE_ATTRIBUTE_NAME) &&
-            (a.prefixedKey != "dafint:" + XMLUtils.FILE_ATTRIBUTE_NAME)))
-      }
-      case _ => n
-    }
-  }
-
-  val stripLineColInfo = new RuleTransformer(removeLineColInfo)
-
   final def isNegativeTest = optExpectedErrors.isDefined
 
   lazy val tdmlDFDLProcessorFactory: AbstractTDMLDFDLProcessorFactory = {
@@ -690,15 +674,8 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
     combined
   }
 
-  lazy val optEmbeddedSchema = parent.findEmbeddedSchema(model).map{ defSchema =>
-    // The file, line, and column attributes we add for tracking purposes
-    // cause issues with the IBM DFDL processor as it doesn't allow
-    // attributes that it doesn't understand, so we must remove them */
-    if (isCrossTest(this.tdmlDFDLProcessorFactory.implementationName)) {
-      EmbeddedSchemaSource(stripLineColInfo(defSchema.xml), defSchema.name)
-    } else {
-      defSchema.schemaSource
-    }
+  lazy val optEmbeddedSchema = parent.findEmbeddedSchema(model).map { defSchema =>
+    defSchema.schemaSource
   }
 
   lazy val optSchemaFileURI =
@@ -1386,13 +1363,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
     Assert.usage(roundTrip ne TwoPassRoundTrip) // not supported for unparser test cases.
 
-    val infosetXML: Node = {
-      if (isCrossTest(implString.get)) {
-        stripLineColInfo(this.inputInfoset.dfdlInfoset.contents)
-      } else {
-        this.inputInfoset.dfdlInfoset.contents
-      }
-    }
+    val infosetXML: Node = inputInfoset.dfdlInfoset.contents
 
     val outStream = new java.io.ByteArrayOutputStream()
     val actual =
@@ -1519,11 +1490,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         val infosetXML = {
           if (optInputInfoset.isEmpty)
             throw TDMLException("No infoset specified, but one is required to run the test.", implString)
-          if (isCrossTest(implString.get)) {
-            stripLineColInfo(inputInfoset.dfdlInfoset.contents)
-          } else {
-            inputInfoset.dfdlInfoset.contents
-          }
+          inputInfoset.dfdlInfoset.contents
         }
         val actual =
           try {
