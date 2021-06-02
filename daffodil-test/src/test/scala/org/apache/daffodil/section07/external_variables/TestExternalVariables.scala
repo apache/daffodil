@@ -44,10 +44,6 @@ class TestExternalVariables {
     runner.runOneTest("override_define_vars_02")
   }
 
-  @Test def test_override_define_vars_03(): Unit = {
-    runner.runOneTest("override_define_vars_03")
-  }
-
   @Test def test_override_define_vars_04(): Unit = {
     runner.runOneTest("override_define_vars_04")
   }
@@ -70,9 +66,5 @@ class TestExternalVariables {
 
   @Test def test_set_predefined_var(): Unit = {
     runner.runOneTest("set_predefined_var")
-  }
-
-  @Test def test_external_var_dne(): Unit = {
-    runner.runOneTest("external_var_dne")
   }
 }

@@ -707,7 +707,7 @@ public class TestJavaAPI {
     }
 
     @Test
-    public void testJavaAPI13() throws IOException, ClassNotFoundException {
+    public void testJavaAPI13() throws IOException, ClassNotFoundException, ExternalVariableException {
         // Demonstrates here that we can set external variables
         // after compilation but before parsing via Compiler.
         LogWriterForJAPITest lw = new LogWriterForJAPITest();
@@ -750,7 +750,7 @@ public class TestJavaAPI {
     }
 
     @Test
-    public void testJavaAPI14() throws IOException, ClassNotFoundException {
+    public void testJavaAPI14() throws IOException, ClassNotFoundException, ExternalVariableException {
         // Demonstrates here that we can set external variables
         // after compilation but before parsing via DataProcessor.
         LogWriterForJAPITest lw = new LogWriterForJAPITest();
@@ -1091,7 +1091,7 @@ public class TestJavaAPI {
     }
 
     @Test
-    public void testJavaAPI22_setExternalVariablesUsingAbstractMap() throws IOException, ClassNotFoundException {
+    public void testJavaAPI22_setExternalVariablesUsingAbstractMap() throws IOException, ClassNotFoundException, ExternalVariableException {
         // Demonstrates here that we can set external variables using a
         // Java AbstractMap after compilation but before parsing via DataProcessor.
         LogWriterForJAPITest lw = new LogWriterForJAPITest();
@@ -1192,4 +1192,120 @@ public class TestJavaAPI {
         Daffodil.setLogWriter(new ConsoleLogWriter());
         Daffodil.setLoggingLevel(LogLevel.Info);
     }
+
+    @Test
+    public void testJavaAPI24() throws IOException, ClassNotFoundException, ExternalVariableException {
+        // Demonstrates error cases of setting external variables
+        org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
+
+        java.io.File schemaFile = getResource("/test/japi/mySchemaWithComplexVars1.dfdl.xsd");
+        ProcessorFactory pf = c.compileFile(schemaFile);
+        DataProcessor dp = pf.onPath("/");
+        dp = reserializeDataProcessor(dp);
+
+        java.util.AbstractMap<String, String> extVarsMap = new java.util.HashMap<String, String>();
+
+        // set var without a namespace, ambiguity error because schema contains
+        // two variables with same name but different namespace
+        extVarsMap.clear();
+        extVarsMap.put("var", "10");
+        try {
+            dp = dp.withExternalVariables(extVarsMap);
+        } catch (ExternalVariableException e) {
+            String msg = e.getMessage();
+            assertTrue(msg.contains("var"));
+            assertTrue(msg.contains("ambiguity"));
+            assertTrue(msg.contains("ex1:var"));
+            assertTrue(msg.contains("ex2:var"));
+        }
+
+        // variable without namespace does not exist error
+        extVarsMap.clear();
+        extVarsMap.put("dne", "10");
+        try {
+            dp = dp.withExternalVariables(extVarsMap);
+        } catch (ExternalVariableException e) {
+            String msg = e.getMessage();
+            assertTrue(msg.contains("definition not found"));
+            assertTrue(msg.contains("dne"));
+        }
+
+        // variable with namespace does not exist error
+        extVarsMap.clear();
+        extVarsMap.put("{http://example.com/1}dne", "10");
+        try {
+            dp = dp.withExternalVariables(extVarsMap);
+        } catch (ExternalVariableException e) {
+            String msg = e.getMessage();
+            assertTrue(msg.contains("definition not found"));
+            assertTrue(msg.contains("{http://example.com/1}dne"));
+        }
+
+        // variable cannot be set externally
+        extVarsMap.clear();
+        extVarsMap.put("{http://example.com/2}var", "10");
+        try {
+            dp = dp.withExternalVariables(extVarsMap);
+        } catch (ExternalVariableException e) {
+            String msg = e.getMessage();
+            assertTrue(msg.contains("ex2:var"));
+            assertTrue(msg.contains("cannot be set externally"));
+        }
+
+        // variable not valid with regards to type
+        extVarsMap.clear();
+        extVarsMap.put("{http://example.com/1}var", "notAnInt");
+        try {
+            dp = dp.withExternalVariables(extVarsMap);
+        } catch (ExternalVariableException e) {
+            String msg = e.getMessage();
+            assertTrue(msg.contains("ex1:var"));
+            assertTrue(msg.contains("is not a valid xs:int"));
+            assertTrue(msg.contains("notAnInt"));
+        }
+
+        // can change the value of the same variable multiple times
+        extVarsMap.clear();
+        extVarsMap.put("{http://example.com/1}var", "100");
+        dp = dp.withExternalVariables(extVarsMap);
+        extVarsMap.clear();
+        extVarsMap.put("{http://example.com/1}var", "200");
+        dp = dp.withExternalVariables(extVarsMap);
+
+        // can parse with the variable values
+        {
+            byte[] ba = {};
+            ByteBuffer bb = ByteBuffer.wrap(ba);
+            InputSourceDataInputStream dis = new InputSourceDataInputStream(bb);
+            JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+            ParseResult res = dp.parse(dis, outputter);
+            assertFalse(res.isError());
+            org.jdom2.Document doc = outputter.getResult();
+            org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
+            xo.setFormat(Format.getPrettyFormat());
+            String docString = xo.outputString(doc);
+            assertTrue(docString.contains("<ex1var>200</ex1var>"));
+        }
+
+        // can set an external variable after a parse
+        extVarsMap.clear();
+        extVarsMap.put("{http://example.com/1}var", "300");
+        dp = dp.withExternalVariables(extVarsMap);
+
+        // can parse with the updated variable value
+        {
+            byte[] ba = {};
+            ByteBuffer bb = ByteBuffer.wrap(ba);
+            InputSourceDataInputStream dis = new InputSourceDataInputStream(bb);
+            JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+            ParseResult res = dp.parse(dis, outputter);
+            assertFalse(res.isError());
+            org.jdom2.Document doc = outputter.getResult();
+            org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
+            xo.setFormat(Format.getPrettyFormat());
+            String docString = xo.outputString(doc);
+            assertTrue(docString.contains("<ex1var>300</ex1var>"));
+        }
+    }
+
 }

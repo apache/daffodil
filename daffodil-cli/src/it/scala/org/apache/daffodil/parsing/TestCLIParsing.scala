@@ -188,6 +188,27 @@ class TestCLIparsing {
     }
   }
 
+  @Test def test_CLI_Parsing_SimpleParse_extVars_error(): Unit = {
+
+    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section07/external_variables/external_variables.dfdl.xsd")
+    val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
+
+    val shell = Util.startIncludeErrors("")
+
+    try {
+      val cmd = String.format("echo 0,1,2| %s parse -s %s -r row2 -DdoesNotExist=1", Util.binPath, testSchemaFile)
+      shell.sendLine(cmd)
+
+      shell.expectIn(1, contains("definition not found"))
+      shell.expectIn(1, contains("doesNotExist"))
+
+      shell.sendLine("exit")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+    }
+  }
+
   @Test def test_3227_CLI_Parsing_SimpleParse_DFDL1197_fix(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section12/delimiter_properties/testOptionalInfix.dfdl.xsd")
     val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile

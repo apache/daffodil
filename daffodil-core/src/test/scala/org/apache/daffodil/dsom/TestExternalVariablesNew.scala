@@ -17,26 +17,28 @@
 
 package org.apache.daffodil.dsom
 
-import org.junit.Test
-import org.apache.daffodil.Implicits.ns2String
-import org.apache.daffodil.compiler.Compiler
-import org.apache.daffodil.processors.VariableMap
-import org.apache.daffodil.util.SchemaUtils
-import org.apache.daffodil.xml.XMLUtils
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
-import org.junit.Assert._
-import org.junit.Test
-import org.apache.daffodil.xml.NS
+import java.nio.channels.Channels
+
 import scala.xml.Node
-import org.apache.daffodil.externalvars.ExternalVariablesLoader
+
 import org.apache.daffodil.Implicits._
+import org.apache.daffodil.Implicits.ns2String
 import org.apache.daffodil.api.UnitTestSchemaSource
-import org.apache.daffodil.xml.QName
-import org.apache.daffodil.util.Misc
+import org.apache.daffodil.compiler.Compiler
+import org.apache.daffodil.externalvars.ExternalVariablesLoader
 import org.apache.daffodil.infoset.ScalaXMLInfosetOutputter
 import org.apache.daffodil.io.InputSourceDataInputStream
-import java.nio.channels.Channels
+import org.apache.daffodil.processors.ExternalVariableException
+import org.apache.daffodil.processors.VariableMap
+import org.apache.daffodil.util.Misc
+import org.apache.daffodil.util.SchemaUtils
+import org.apache.daffodil.xml.NS
+import org.apache.daffodil.xml.QName
+import org.apache.daffodil.xml.XMLUtils
+import org.junit.Assert._
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
+import org.junit.Test
 
 /**
  * Tests for compiler-oriented XPath interface aka CompiledExpression
@@ -296,14 +298,14 @@ class TestExternalVariablesNew {
     val sset = pf.sset
     val variables = ExternalVariablesLoader.mapToBindings(vars)
 
-    val sde = intercept[SchemaDefinitionError] {
+    val exception = intercept[ExternalVariableException] {
       pf.onPath("/").withExternalVariables(variables)
     }
-    val msg = sde.getMessage()
-    if (!msg.contains("var3 is ambiguous")) {
-      println(msg)
-      fail()
-    }
+
+    val msg = exception.getMessage()
+    assertTrue(msg.contains("var3 is ambiguous"))
+    assertTrue(msg.contains("tns:var3"))
+    assertTrue(msg.contains("{}var3"))
   }
 
   @Test def test_data_processor_vmap_copy(): Unit = {

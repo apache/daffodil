@@ -17,50 +17,50 @@
 
 package org.apache.daffodil.sapi
 
-import org.apache.daffodil.compiler.{ Compiler => SCompiler }
-import org.apache.daffodil.sapi.debugger._
-import org.apache.daffodil.sapi.logger._
-import org.apache.daffodil.sapi.packageprivate._
-import org.apache.daffodil.sapi.infoset._
-import org.apache.daffodil.sapi.io.InputSourceDataInputStream
-import org.apache.daffodil.debugger.{ InteractiveDebugger => SInteractiveDebugger }
-import org.apache.daffodil.debugger.{ TraceDebuggerRunner => STraceDebuggerRunner }
 import java.io.File
+import java.net.URI
 import java.nio.channels.Channels
 import java.nio.channels.ReadableByteChannel
 import java.nio.channels.WritableByteChannel
 
+import org.apache.daffodil.api.DFDL.{ DaffodilUnhandledSAXException => SDaffodilUnhandledSAXException }
+import org.apache.daffodil.api.DFDL.{ DaffodilUnparseErrorSAXException => SDaffodilUnparseErrorSAXException }
+import org.apache.daffodil.api.URISchemaSource
+import org.apache.daffodil.api.Validator
 import org.apache.daffodil.api.{ DataLocation => SDataLocation }
 import org.apache.daffodil.api.{ Diagnostic => SDiagnostic }
 import org.apache.daffodil.api.{ LocationInSchemaFile => SLocationInSchemaFile }
 import org.apache.daffodil.api.{ WithDiagnostics => SWithDiagnostics }
-import org.apache.daffodil.api.DFDL.{ DaffodilUnhandledSAXException => SDaffodilUnhandledSAXException }
-import org.apache.daffodil.api.DFDL.{ DaffodilUnparseErrorSAXException => SDaffodilUnparseErrorSAXException }
+import org.apache.daffodil.compiler.{ Compiler => SCompiler }
+import org.apache.daffodil.compiler.{ InvalidParserException => SInvalidParserException }
 import org.apache.daffodil.compiler.{ ProcessorFactory => SProcessorFactory }
-import org.apache.daffodil.processors.{ DataProcessor => SDataProcessor }
+import org.apache.daffodil.debugger.Debugger
+import org.apache.daffodil.debugger.{ InteractiveDebugger => SInteractiveDebugger }
+import org.apache.daffodil.debugger.{ TraceDebuggerRunner => STraceDebuggerRunner }
+import org.apache.daffodil.dsom.ExpressionCompilers
+import org.apache.daffodil.dsom.walker.RootView
+import org.apache.daffodil.externalvars.{ Binding, ExternalVariablesLoader }
 import org.apache.daffodil.processors.{ DaffodilParseXMLReader => SDaffodilParseXMLReader }
 import org.apache.daffodil.processors.{ DaffodilUnparseContentHandler => SDaffodilUnparseContentHandler }
+import org.apache.daffodil.processors.{ DataProcessor => SDataProcessor }
+import org.apache.daffodil.processors.{ ExternalVariableException => SExternalVariableException }
+import org.apache.daffodil.processors.{ InvalidUsageException => SInvalidUsageException }
 import org.apache.daffodil.processors.{ ParseResult => SParseResult }
 import org.apache.daffodil.processors.{ UnparseResult => SUnparseResult }
+import org.apache.daffodil.sapi.ValidationMode.ValidationMode
+import org.apache.daffodil.sapi.debugger._
+import org.apache.daffodil.sapi.infoset._
+import org.apache.daffodil.sapi.io.InputSourceDataInputStream
+import org.apache.daffodil.sapi.logger._
+import org.apache.daffodil.sapi.packageprivate._
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.Maybe._
+import org.apache.daffodil.util.MaybeULong
 import org.apache.daffodil.util.{ ConsoleWriter => SConsoleWriter }
 import org.apache.daffodil.util.{ FileWriter => SFileWriter }
 import org.apache.daffodil.util.{ LogWriter => SLogWriter }
 import org.apache.daffodil.util.{ LoggingDefaults => SLoggingDefaults }
 import org.apache.daffodil.util.{ NullLogWriter => SNullLogWriter }
-import org.apache.daffodil.externalvars.{ Binding, ExternalVariablesLoader }
-import org.apache.daffodil.dsom.ExpressionCompilers
-import org.apache.daffodil.dsom.walker.RootView
-import org.apache.daffodil.compiler.{ InvalidParserException => SInvalidParserException }
-import org.apache.daffodil.processors.{ InvalidUsageException => SInvalidUsageException }
-import java.net.URI
-
-import org.apache.daffodil.api.URISchemaSource
-import org.apache.daffodil.api.Validator
-import org.apache.daffodil.debugger.Debugger
-import org.apache.daffodil.sapi.ValidationMode.ValidationMode
-import org.apache.daffodil.util.Maybe
-import org.apache.daffodil.util.Maybe._
-import org.apache.daffodil.util.MaybeULong
 import org.apache.daffodil.xml.NS
 import org.apache.daffodil.xml.XMLUtils
 
@@ -605,10 +605,16 @@ class DataProcessor private[sapi] (private var dp: SDataProcessor)
    * @see <a target="_blank" href='https://daffodil.apache.org/configuration/'>Daffodil Configuration File</a> - Daffodil configuration file format
    *
    * @param extVars file to read DFDL variables from.
+   * @throws ExternalVariableException if an error occurs while setting an external variable
    */
   @deprecated("Use withExternalVariables.", "2.6.0")
-  def setExternalVariables(extVars: File): Unit =
-    dp = dp.withExternalVariables(extVars)
+  @throws(classOf[ExternalVariableException])
+  def setExternalVariables(extVars: File): Unit = {
+    //$COVERAGE-OFF$
+    try { dp = dp.withExternalVariables(extVars) }
+    catch { case e: SExternalVariableException => throw new ExternalVariableException(e.getMessage) }
+    //$COVERAGE-ON$
+  }
 
   /**
    * Obtain a new [[DataProcessor]] with external variables read from a Daffodil configuration file
@@ -616,9 +622,13 @@ class DataProcessor private[sapi] (private var dp: SDataProcessor)
    * @see <a target="_blank" href='https://daffodil.apache.org/configuration/'>Daffodil Configuration File</a> - Daffodil configuration file format
    *
    * @param extVars file to read DFDL variables from.
+   * @throws ExternalVariableException if an error occurs while setting an external variable
    */
-  def withExternalVariables(extVars: File): DataProcessor =
-    copy(dp = dp.withExternalVariables(extVars))
+  @throws(classOf[ExternalVariableException])
+  def withExternalVariables(extVars: File): DataProcessor = {
+    try { copy(dp = dp.withExternalVariables(extVars)) }
+    catch { case e: SExternalVariableException => throw new ExternalVariableException(e.getMessage) }
+  }
 
   /**
    * Set the value of multiple DFDL variables
@@ -629,10 +639,16 @@ class DataProcessor private[sapi] (private var dp: SDataProcessor)
    *                define a namespace for the variable. If preceded with "{}",
    *                then no namespace is used. If not preceded by anything,
    *                then Daffodil will figure out the namespace.
+   * @throws ExternalVariableException if an error occurs while setting an external variable
    */
   @deprecated("Use withExternalVariables.", "2.6.0")
-  def setExternalVariables(extVars: Map[String, String]) =
-    dp = dp.withExternalVariables(extVars)
+  @throws(classOf[ExternalVariableException])
+  def setExternalVariables(extVars: Map[String, String]) = {
+    //$COVERAGE-OFF$
+    try { dp = dp.withExternalVariables(extVars) }
+    catch { case e: SExternalVariableException => throw new ExternalVariableException(e.getMessage) }
+    //$COVERAGE-ON$
+  }
 
   /**
    *  Obtain a new [[DataProcessor]] with multiple DFDL variables set.
@@ -643,10 +659,13 @@ class DataProcessor private[sapi] (private var dp: SDataProcessor)
    *                define a namespace for the variable. If preceded with "{}",
    *                then no namespace is used. If not preceded by anything,
    *                then Daffodil will figure out the namespace.
+   * @throws ExternalVariableException if an error occurs while setting an external variable
    */
-  def withExternalVariables(extVars: Map[String, String]): DataProcessor =
-    copy(dp = dp.withExternalVariables(extVars))
-
+  @throws(classOf[ExternalVariableException])
+  def withExternalVariables(extVars: Map[String, String]): DataProcessor = {
+    try {copy(dp = dp.withExternalVariables(extVars)) }
+    catch { case e: SExternalVariableException => throw new ExternalVariableException(e.getMessage) }
+  }
 
 
   /**
@@ -842,6 +861,15 @@ class InvalidParserException(cause: org.apache.daffodil.compiler.InvalidParserEx
  * This exception will be thrown as a result of an invalid usage of the Daffodil API
  */
 class InvalidUsageException(cause: org.apache.daffodil.processors.InvalidUsageException) extends Exception(cause.getMessage(), cause.getCause())
+
+/**
+ * This exception will be thrown if an error occurs when setting an external variable. Example of errors include:
+ * - Ambiguity in variable to set
+ * - Variable definition not found in a schema
+ * - Variable value does not have a valid type with regards to the variable type
+ * - Variable cannot be set externally
+ */
+class ExternalVariableException private[sapi] (message: String) extends Exception(message)
 
 /**
  * This exception will be thrown when unparseResult.isError returns true during a SAX Unparse

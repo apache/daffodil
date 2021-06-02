@@ -17,9 +17,7 @@
 
 package org.apache.daffodil.grammar
 
-import org.apache.daffodil.dsom._
-import org.apache.daffodil.externalvars.Binding
-import org.apache.daffodil.exceptions.ThrowsSDE
+import org.apache.daffodil.dsom.DFDLDefineVariable
 import org.apache.daffodil.processors.VariableMap
 
 object VariableMapFactory {
@@ -28,9 +26,5 @@ object VariableMapFactory {
     val vrds = dvs.map { _.variableRuntimeData }
     val vmap = new VariableMap(vrds)
     vmap
-  }
-
-  def setExternalVariables(currentVMap: VariableMap, bindings: Seq[Binding], referringContext: ThrowsSDE) = {
-    bindings.foreach(b => currentVMap.setExtVariable(b.varQName, b.varValue, referringContext))
   }
 }
