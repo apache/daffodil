@@ -82,6 +82,7 @@ import org.apache.daffodil.processors.DaffodilParseOutputStreamContentHandler
 import org.apache.daffodil.processors.DataLoc
 import org.apache.daffodil.processors.DataProcessor
 import org.apache.daffodil.processors.HasSetDebugger
+import org.apache.daffodil.processors.ExternalVariableException
 import org.apache.daffodil.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.tdml.DFDLTestSuite
 import org.apache.daffodil.tdml.TDMLException
@@ -1587,6 +1588,10 @@ object Main extends Logging {
         1
       }
       case e: InvalidParserException => {
+        log(LogLevel.Error, "%s", e.getMessage())
+        1
+      }
+      case e: ExternalVariableException => {
         log(LogLevel.Error, "%s", e.getMessage())
         1
       }

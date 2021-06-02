@@ -17,6 +17,9 @@
 
 package org.apache.daffodil.processors
 
+import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.Map
+
 import org.apache.daffodil.api.ThinDiagnostic
 import org.apache.daffodil.dpath.InvalidPrimitiveDataException
 import org.apache.daffodil.exceptions.Assert
@@ -26,14 +29,15 @@ import org.apache.daffodil.infoset.DataValue
 import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveNullable
 import org.apache.daffodil.infoset.RetryableException
-import org.apache.daffodil.util.Maybe
-import org.apache.daffodil.util.Maybe.Nope
-import org.apache.daffodil.xml.{GlobalQName, UnspecifiedNamespace, NamedQName, RefQName}
 import org.apache.daffodil.processors.parsers.PState
 import org.apache.daffodil.processors.unparsers.UState
 import org.apache.daffodil.schema.annotation.props.gen.VariableDirection
-
-import scala.collection.mutable.{Map, ArrayBuffer}
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.Maybe.Nope
+import org.apache.daffodil.xml.GlobalQName
+import org.apache.daffodil.xml.NamedQName
+import org.apache.daffodil.xml.RefQName
+import org.apache.daffodil.xml.UnspecifiedNamespace
 
 sealed abstract class VariableState extends Serializable
 
@@ -160,15 +164,6 @@ object VariableUtils {
 
   def setExternalVariables(currentVMap: VariableMap, bindings: Seq[Binding], referringContext: ThrowsSDE) = {
     bindings.foreach { b => currentVMap.setExtVariable(b.varQName, b.varValue, referringContext) }
-  }
-
-  def convert(v: String, rd: VariableRuntimeData, referringContext: ThrowsSDE): DataValuePrimitive = {
-    try {
-      rd.primType.fromXMLString(v)
-    } catch {
-      case e: InvalidPrimitiveDataException =>
-        referringContext.SDE("Error processing variable %s: %s", rd.globalQName, e.getMessage)
-    }
   }
 
 }
@@ -412,7 +407,7 @@ class VariableMap private(vTable: Map[GlobalQName, ArrayBuffer[VariableInstance]
            * variable read too early */
           pstate.SDW("Cannot set variable %s after reading the default value. State was: %s. Existing value: %s",
           variable.rd.globalQName, VariableSet, variable.value)
-          variable.setValue(VariableUtils.convert(newValue.getAnyRef.toString, variable.rd, referringContext))
+          variable.setValue(newValue)
           variable.setState(VariableSet)
         }
 
@@ -432,7 +427,7 @@ class VariableMap private(vTable: Map[GlobalQName, ArrayBuffer[VariableInstance]
             }
             case _ => // Do nothing
           }
-          variable.setValue(VariableUtils.convert(newValue.getAnyRef.toString, variable.rd, referringContext))
+          variable.setValue(newValue)
           variable.setState(VariableSet)
         }
       }
@@ -459,66 +454,75 @@ class VariableMap private(vTable: Map[GlobalQName, ArrayBuffer[VariableInstance]
     variableInstances.get.trimEnd(1)
   }
 
-
-  private lazy val externalVarGlobalQNames: Seq[GlobalQName] =
-    vTable.map { case (_, variableInstances) if (variableInstances.last.rd.external) => variableInstances.last.rd.globalQName }.toSeq
-
   /**
    * Assigns an external variable and sets the variables state to VariableSet
    */
-  def setExtVariable(bindingQName: RefQName, newValue: DataValuePrimitive, referringContext: ThrowsSDE) = {
-    val varQName: RefQName =
+  def setExtVariable(bindingQName: RefQName, newValue: String, referringContext: ThrowsSDE) = {
+
+    val optVariableInstances =
       if (bindingQName.namespace == UnspecifiedNamespace) {
-        // The external variable binding was hoping to get away with not specifying a namespace.
-        val candidateExtVarsQNames = externalVarGlobalQNames.filter {
-          _.local == bindingQName.local
+        // The external variable binding was hoping to get away with not
+        // specifying a namespace. Let's try to find an unambiguous variable
+        // using just the local name. Note that this ignores the external value
+        // of variables. If we find a single variable, we'll check it's
+        // external value later. If we find two or more variables with the same
+        // name, we just consider that an ambiguity error. There is a chance of
+        // solving this ambiguity if only one of those varibles was external,
+        // but it's safer to err on the side of caution and require the user to
+        // be explicit about which variable they intended to set.
+        val candidates = vTable.filter { case (key, _) =>
+          key.local == bindingQName.local
         }
-        candidateExtVarsQNames match {
-          case Seq() => bindingQName // just pass through. Will fail below when it isn't found
-          case Seq(candidate) => candidate.toRefQName
+        candidates.size match {
+          case 0 => None
+          case 1 => Some(candidates.head._2)
           case _ => {
-            // ambiguous. There's multiple such.
-            referringContext.SDE(
-              "The externally defined variable binding %s is ambiguous.  " +
-                "A namespace is required to resolve the ambiguity.\nFound:\t%s",
-              bindingQName, candidateExtVarsQNames.mkString(", "))
+            val msg = "External variable binding %s is ambiguous. A namespace is required to resolve the ambiguity. Found variables: %s".format(
+              bindingQName,
+              candidates.keys.map(_.toString).mkString(", "))
+            throw new ExternalVariableException(msg)
           }
         }
       } else {
-        bindingQName
+        vTable.get(bindingQName.toGlobalQName)
       }
 
-    val variableInstances = vTable.get(varQName.toGlobalQName)
-    if (!variableInstances.isDefined)
-      referringContext.schemaDefinitionError("unknown variable %s", varQName)
-    else {
-      val variable = variableInstances.get.last
-      variable.state match {
-        case VariableDefined if (!variable.rd.external) => {
-          referringContext.SDE("Cannot set variable %s externally. State was: %s. Existing value: %s.",
-            variable.rd.globalQName, VariableDefined, variable.value)
+    optVariableInstances match {
+      case None => throw new ExternalVariableException("Variable definition not found: " + bindingQName)
+      case Some(variableInstances) => {
+        // This array of VariableInstances comes from the VariableMap that is
+        // part of the DataProcessor before being copied to pstate/ustate when
+        // a parse/unparse is started. So this array should contain only a
+        // single instance
+        Assert.invariant(variableInstances.size == 1)
+        val variable = variableInstances(0)
+        if (!variable.rd.external) {
+          throw new ExternalVariableException("Variable cannot be set externally: " + variable.rd.globalQName)
         }
-
-        case VariableUndefined if (!variable.rd.external) => {
-          referringContext.SDE("Cannot set variable %s externally. State was: %s.", variable.rd.globalQName, VariableUndefined)
-        }
-
-        case VariableSet => {
-          referringContext.SDE("Cannot externally set variable %s twice. State was: %s. Existing value: %s",
-            variable.rd.globalQName, VariableSet, variable.value)
-        }
-
-        case VariableRead => {
-          referringContext.SDE("Cannot externally set variable %s after reading the default value. State was: %s. Existing value: %s",
-            variable.rd.globalQName, VariableSet, variable.value)
-        }
-
-        case _ => {
-          val value = VariableUtils.convert(newValue.getAnyRef.toString, variable.rd, referringContext)
-          variable.setValue(value)
-          variable.setState(VariableDefined)
+        variable.state match {
+          case VariableDefined | VariableUndefined => {
+            val value =
+              try {
+                variable.rd.primType.fromXMLString(newValue)
+              } catch {
+                case e: InvalidPrimitiveDataException => {
+                  val msg = "Value for variable %s is not a valid %s: %s".format(
+                    variable.rd.globalQName,
+                    variable.rd.primType.globalQName,
+                    newValue)
+                  throw new ExternalVariableException(msg)
+                }
+              }
+            variable.setValue(value)
+            variable.setState(VariableDefined)
+          }
+          //$COVERAGE-OFF$
+          case _ => Assert.impossible()
+          //$COVERAGE-ON$
         }
       }
     }
   }
 }
+
+class ExternalVariableException(message: String) extends Exception(message)

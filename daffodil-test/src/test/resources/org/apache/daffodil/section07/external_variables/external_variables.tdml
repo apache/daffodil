@@ -159,19 +159,6 @@
 	</tdml:defineConfig>
 
 	<!-- Overrides define variables -->
-	<tdml:parserTestCase name="external_var_dne"
-		root="c" model="v" config="cfg_err"
-		description="Should error, attempting to bind to a non-existent variable">
-
-		<tdml:document />
-
-		<tdml:errors>
-      <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>unknown variable</tdml:error>
-    </tdml:errors>
-	</tdml:parserTestCase>
-
-	<!-- Overrides define variables -->
 	<tdml:parserTestCase name="override_define_vars_01"
 		root="c" model="v" config="cfg_01"
 		description="Use of defineVariable and extVariable - DFDL-7-091R">
@@ -294,21 +281,6 @@
 			<daf:bind name="ex:v_with_default">2</daf:bind>
 		</daf:externalVariableBindings>
 	</tdml:defineConfig>
-
-	<!-- Should error. One of the variables is not set to external, yet we attempt 
-		to set it externally. -->
-	<tdml:parserTestCase name="override_define_vars_03"
-		root="c" model="v3" config="config_03"
-		description="Use of defineVariable, extVariable, and setVariable - DFDL-7-091R">
-
-		<tdml:document />
-
-		<tdml:errors>
-			<tdml:error>Cannot set variable</tdml:error>
-			<tdml:error>v_no_default</tdml:error>
-			<tdml:error>externally</tdml:error>
-		</tdml:errors>
-	</tdml:parserTestCase>
 
 	<tdml:defineSchema name="v4">
 		<dfdl:defineVariable name="v_no_default" type="xsd:int"

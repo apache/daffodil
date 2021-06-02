@@ -38,7 +38,6 @@ import org.apache.commons.io.IOUtils
 import org.apache.daffodil.api.DaffodilSchemaSource
 import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.api.DataLocation
-import org.apache.daffodil.api.Diagnostic
 import org.apache.daffodil.api.EmbeddedSchemaSource
 import org.apache.daffodil.api.URISchemaSource
 import org.apache.daffodil.api.UnitTestSchemaSource
@@ -944,20 +943,16 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     validationMode: ValidationMode.Type,
     implString: Option[String]): Unit = {
 
-    val optExtVarDiag =
-      try {
-        processor = processor.withExternalDFDLVariables(externalVarBindings)
-        None
-      } catch {
-        case diag: Diagnostic =>
-          Some(diag)
-      }
+    try {
+      processor = processor.withExternalDFDLVariables(externalVarBindings)
+    } catch {
+      case e: Exception => throw TDMLException(e, implString)
+    }
 
     val (parseResult, diagnostics, isError) = {
-      if (processor.isError || optExtVarDiag.isDefined) {
+      if (processor.isError) {
         val noParseResult: TDMLParseResult = null
-        val allDiags: Seq[Diagnostic] = processor.getDiagnostics ++ optExtVarDiag
-        (noParseResult, allDiags, true)
+        (noParseResult, processor.getDiagnostics, true)
       } else {
         val actual =
           try {
@@ -1014,36 +1009,30 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
     val testDataLength = lengthLimitInBits
 
-    val optExtVarDiag =
-      try {
-        processor = processor.withExternalDFDLVariables(externalVarBindings)
-        None
-      } catch {
-        case diag: Diagnostic =>
-          Some(diag)
-      }
-    if (optExtVarDiag.isDefined) {
-      toss(optExtVarDiag.get, implString)
-    } else {
-      val actual = processor.parse(new ByteArrayInputStream(testData), testDataLength)
-      val diagObjs = actual.getDiagnostics
-
-      if (actual.isProcessingError) {
-        // Means there was an error, not just warnings.
-        if (diagObjs.length == 1) throw TDMLException(diagObjs.head, implString)
-        val diags = actual.getDiagnostics.map(_.getMessage()).mkString("\n")
-        throw TDMLException(diags, implString)
-      } else {
-        // If we think we've succeeded, verify there are no errors
-        // captured in the diagnostics. Otherwise there's probably
-        // an internal bug causing us to miss setting isProcessingError
-        val hasErrorDiags = diagObjs.exists { diag =>
-          diag.isError && !diag.isValidation
-        }
-        Assert.invariant(!hasErrorDiags)
-      }
-      actual
+    try {
+      processor = processor.withExternalDFDLVariables(externalVarBindings)
+    } catch {
+      case e: Exception => throw TDMLException(e, implString)
     }
+
+    val actual = processor.parse(new ByteArrayInputStream(testData), testDataLength)
+    val diagObjs = actual.getDiagnostics
+
+    if (actual.isProcessingError) {
+      // Means there was an error, not just warnings.
+      if (diagObjs.length == 1) throw TDMLException(diagObjs.head, implString)
+      val diags = actual.getDiagnostics.map(_.getMessage()).mkString("\n")
+      throw TDMLException(diags, implString)
+    } else {
+      // If we think we've succeeded, verify there are no errors
+      // captured in the diagnostics. Otherwise there's probably
+      // an internal bug causing us to miss setting isProcessingError
+      val hasErrorDiags = diagObjs.exists { diag =>
+        diag.isError && !diag.isValidation
+      }
+      Assert.invariant(!hasErrorDiags)
+    }
+    actual
   }
 
   private def verifyLeftOverData(actual: TDMLParseResult, lengthLimitInBits: Long, implString: Option[String]) = {
@@ -1489,18 +1478,15 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     optWarnings: Option[ExpectedWarnings],
     implString: Option[String]): Unit = {
 
-    val optExtVarDiag =
-      try {
-        processor = processor.withExternalDFDLVariables(externalVarBindings)
-        None
-      } catch {
-        case diag: Diagnostic =>
-          Some(diag)
-      }
+    try {
+      processor = processor.withExternalDFDLVariables(externalVarBindings)
+    } catch {
+      case e: Exception => throw TDMLException(e, implString)
+    }
 
     val diagnostics = {
-      if (processor.isError || optExtVarDiag.isDefined)
-        processor.getDiagnostics ++ optExtVarDiag
+      if (processor.isError)
+        processor.getDiagnostics
       else {
         val outStream = new java.io.ByteArrayOutputStream()
         val infosetXML = {

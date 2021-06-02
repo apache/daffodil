@@ -17,40 +17,44 @@
 
 package org.apache.daffodil.example
 
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
+import java.nio.ByteBuffer
+import java.nio.channels.Channels
+import java.nio.file.Paths
+import javax.xml.XMLConstants
+
 import org.apache.commons.io.FileUtils
+
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
-
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import java.io.ObjectInputStream
-import java.io.ObjectOutputStream
-import java.io.File
-import java.nio.channels.Channels
-import java.nio.file.Paths
 import org.junit.Test
-import org.apache.daffodil.sapi.Daffodil
-import org.apache.daffodil.sapi.DataProcessor
-import org.apache.daffodil.sapi.ParseResult
-import org.apache.daffodil.sapi.logger.ConsoleLogWriter
-import org.apache.daffodil.sapi.logger.LogLevel
-import org.apache.daffodil.sapi.ValidationMode
-import org.apache.daffodil.sapi.InvalidUsageException
-import org.apache.daffodil.sapi.infoset.ScalaXMLInfosetOutputter
-import org.apache.daffodil.sapi.infoset.ScalaXMLInfosetInputter
-import org.apache.daffodil.sapi.io.InputSourceDataInputStream
+
+import org.xml.sax.XMLReader
+
 import org.apache.daffodil.exceptions.Abort
+import org.apache.daffodil.sapi.Daffodil
 import org.apache.daffodil.sapi.DaffodilParseXMLReader
 import org.apache.daffodil.sapi.DaffodilUnhandledSAXException
 import org.apache.daffodil.sapi.DaffodilUnparseErrorSAXException
+import org.apache.daffodil.sapi.DataProcessor
+import org.apache.daffodil.sapi.ExternalVariableException
+import org.apache.daffodil.sapi.InvalidUsageException
+import org.apache.daffodil.sapi.ParseResult
 import org.apache.daffodil.sapi.SAXErrorHandlerForSAPITest
+import org.apache.daffodil.sapi.ValidationMode
+import org.apache.daffodil.sapi.infoset.ScalaXMLInfosetInputter
+import org.apache.daffodil.sapi.infoset.ScalaXMLInfosetOutputter
 import org.apache.daffodil.sapi.infoset.XMLTextInfosetOutputter
-import org.xml.sax.XMLReader
+import org.apache.daffodil.sapi.io.InputSourceDataInputStream
+import org.apache.daffodil.sapi.logger.ConsoleLogWriter
+import org.apache.daffodil.sapi.logger.LogLevel
 
-import java.nio.ByteBuffer
-import javax.xml.XMLConstants
 
 object TestScalaAPI {
   /**
@@ -1172,6 +1176,107 @@ class TestScalaAPI {
     // reset the global logging and debugger state
     Daffodil.setLogWriter(new ConsoleLogWriter())
     Daffodil.setLoggingLevel(LogLevel.Info)
+  }
+
+  @Test
+  def testScalaAPI24(): Unit = {
+    // Demonstrates error cases of setting external variables
+    val c = Daffodil.compiler()
+
+    val schemaFile = getResource("/test/sapi/mySchemaWithComplexVars1.dfdl.xsd")
+    val pf = c.compileFile(schemaFile)
+    var dp = pf.onPath("/")
+    dp = reserializeDataProcessor(dp)
+
+    // set var without a namespace, ambiguity error because schema contains
+    // two variables with same name but different namespace
+    try {
+      dp = dp.withExternalVariables(Map("var" -> "10"))
+    } catch {
+      case e: ExternalVariableException => {
+        val msg = e.getMessage()
+        assertTrue(msg.contains("var"))
+        assertTrue(msg.contains("ambiguity"))
+        assertTrue(msg.contains("ex1:var"))
+        assertTrue(msg.contains("ex2:var"))
+      }
+    }
+
+    // variable without namespace does not exist error
+    try {
+      dp = dp.withExternalVariables(Map("dne" -> "10"))
+    } catch {
+      case e: ExternalVariableException => {
+        val msg = e.getMessage()
+        assertTrue(msg.contains("definition not found"))
+        assertTrue(msg.contains("dne"))
+      }
+    }
+
+    // variable with namespace does not exist error
+    try {
+      dp = dp.withExternalVariables(Map("{http://example.com/1}dne" -> "10"))
+    } catch {
+      case e: ExternalVariableException => {
+        val msg = e.getMessage()
+        assertTrue(msg.contains("definition not found"))
+        assertTrue(msg.contains("{http://example.com/1}dne"))
+      }
+    }
+
+    // variable cannot be set externally
+    try {
+      dp = dp.withExternalVariables(Map("{http://example.com/2}var" -> "10"))
+    } catch {
+      case e: ExternalVariableException => {
+        val msg = e.getMessage()
+        assertTrue(msg.contains("ex2:var"))
+        assertTrue(msg.contains("cannot be set externally"))
+      }
+    }
+
+    // variable not valid with regards to type
+    try {
+      dp = dp.withExternalVariables(Map("{http://example.com/1}var" -> "notAnInt"))
+    } catch {
+      case e: ExternalVariableException => {
+        val msg = e.getMessage()
+        assertTrue(msg.contains("ex1:var"))
+        assertTrue(msg.contains("is not a valid xs:int"))
+        assertTrue(msg.contains("notAnInt"))
+      }
+    }
+
+    // can change the value of the same variable multiple times
+    dp = dp.withExternalVariables(Map("{http://example.com/1}var" -> "100"))
+    dp = dp.withExternalVariables(Map("{http://example.com/1}var" -> "200"))
+
+    // can parse with the variable values
+    {
+        val ba = Array[Byte]()
+        val bb = ByteBuffer.wrap(ba)
+        val dis = new InputSourceDataInputStream(bb)
+        val outputter = new ScalaXMLInfosetOutputter()
+        val res = dp.parse(dis, outputter)
+        assertFalse(res.isError())
+        val docString = outputter.getResult().toString()
+        assertTrue(docString.contains("<ex1var>200</ex1var>"))
+    }
+
+    // can set an external variable after a parse
+    dp = dp.withExternalVariables(Map("{http://example.com/1}var" -> "300"))
+
+    // can parse with the updated variable value
+    {
+        val ba = Array[Byte]()
+        val bb = ByteBuffer.wrap(ba)
+        val dis = new InputSourceDataInputStream(bb)
+        val outputter = new ScalaXMLInfosetOutputter()
+        val res = dp.parse(dis, outputter)
+        assertFalse(res.isError())
+        val docString = outputter.getResult().toString()
+        assertTrue(docString.contains("<ex1var>300</ex1var>"))
+    }
   }
 
 }
