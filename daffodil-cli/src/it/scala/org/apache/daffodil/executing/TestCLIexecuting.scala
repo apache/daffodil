@@ -167,4 +167,22 @@ class TestCLIexecuting {
       shell.close()
     }
   }
+
+  @Test def test_CLI_catch_TestNotCompatible(): Unit = {
+    val tdmlFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/testNonCompatibleImplementation.tdml")
+
+    val testTdmlFile = if (Util.isWindows) Util.cmdConvert(tdmlFile) else tdmlFile
+
+    val shell = Util.start("")
+
+    try {
+      val cmd = String.format("%s test %s testNotCompatibleImplementation1", Util.binPath, testTdmlFile)
+      println(cmd)
+      shell.sendLine(cmd)
+      shell.expect(contains("[Skipped] testNotCompatibleImplementation1 (Not compatible implementation.)"))
+      shell.sendLine("exit")
+    } finally {
+      shell.close()
+    }
+  }
 }

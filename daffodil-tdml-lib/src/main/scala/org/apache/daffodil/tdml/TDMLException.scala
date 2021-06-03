@@ -89,7 +89,15 @@ class TDMLDiagnostic(diag: String, implementation: Option[String])
  * Used to determine when a test will not be run due to not being compatible
  * with the implementation. Useful since this isn't necessarily a failure and
  * may want to be treated differently in some cases.
+ *
+ * Carries causes because a failure to detect compatibility can be due to
+ * failures to reflectively create a junit org.junit.AssumptionViolatedException, and
+ * if that is the case, we may need the exception to figure out the reason why
+ * the reflective access failed.
  */
-class TDMLTestNotCompatibleException(testName: String, override val implementation: Option[String])
-  extends TDMLExceptionImpl("Test '%s' not compatible with implementation.".format(testName), implementation) {
-}
+class TDMLTestNotCompatibleException(testName: String,
+  override val implementation: Option[String],
+  cause: Option[Throwable] = None)
+  extends TDMLExceptionImpl(
+    "Test '%s' not compatible with implementation.".format(testName),
+    cause.toSeq, implementation)
