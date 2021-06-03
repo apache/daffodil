@@ -21,6 +21,7 @@
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
   xmlns:ex="http://example.com" xmlns:tns="http://example.com"
+  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
   defaultRoundTrip="true">
 
   <tdml:defineSchema name="SimpleTypes-Embedded.dfdl.xsd">
@@ -4298,7 +4299,32 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
- 
+
+  <tdml:defineConfig name="cfg_smallBlobChunkSize">
+    <daf:tunables xmlns="http://www.w3.org/2001/XMLSchema"
+      xmlns:xs="http://www.w3.org/2001/XMLSchema">
+      <daf:blobChunkSizeInBytes>1</daf:blobChunkSizeInBytes>
+    </daf:tunables>
+  </tdml:defineConfig>
+
+  <!--
+    Test name: hexBinary_01_chunk
+    Schema: SimpleTypes-binary
+    Purpose: This document demonstrates the use of the hexBinary simple type with tunables set to test chunking
+  -->
+
+  <tdml:parserTestCase name="hexBinary_01_chunk" root="hb_01" config="cfg_smallBlobChunkSize"
+      model="SimpleTypes-binary" description="Section 5 Simple Types - hexBinary - DFDL-5-025R" roundTrip="true">
+    <tdml:document>
+      <tdml:documentPart type="byte"><![CDATA[a1b1c1d1]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <hb_01>A1B1C1D1</hb_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
   <!--
     Test name: hexBinary_rep
     Schema: HexBinary
