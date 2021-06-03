@@ -748,7 +748,23 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
       _.newInstance(tdmlException.getMessage, tdmlException).asInstanceOf[Exception]
     }
 
-    val exceptionToThrow = junitExceptionInstance.getOrElse(tdmlException)
+    val exceptionToThrow = junitExceptionInstance.getOrElse(
+      // We create a new exception here so that we can propagate the
+      // exception as to why we are not able to construct
+      // an org.junit.AssumptionViolatedException.
+      //
+      // This can be useful if nothing is catching this exception.
+      // The CLI catches this, but won't display the messaging that
+      // elaborates on the cause, because the CLI doesn't utilize junit,
+      // so it expects this to fail.
+      //
+      // But if this isn't caught, and propagates to top level,
+      // then we'll get the diagnostic messaging, including about the
+      // cause.
+      //
+      new TDMLTestNotCompatibleException(testName, implementationName,
+        Option(junitExceptionInstance.failed.get))
+    )
     throw exceptionToThrow
   }
 
