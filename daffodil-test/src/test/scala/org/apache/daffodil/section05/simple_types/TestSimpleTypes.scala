@@ -47,6 +47,7 @@ class TestSimpleTypes {
   @Test def test_hexBinary_fromString(): Unit = { runner.runOneTest("hexBinary_fromString") } //roundTrip
 
   @Test def test_hexBinary_01(): Unit = { runner.runOneTest("hexBinary_01") } //roundTrip
+  @Test def test_hexBinary_01_chunk(): Unit = { runner.runOneTest("hexBinary_01_chunk") } //roundTrip
   @Test def test_hexBinary_Delimited_01(): Unit = { runner.runOneTest("hexBinary_Delimited_01") } //roundTrip
   @Test def test_hexBinary_Delimited_01a(): Unit = { runner.runOneTest("hexBinary_Delimited_01a") } //roundTrip
   @Test def test_hexBinary_Delimited_02(): Unit = { runner.runOneTest("hexBinary_Delimited_02") } //roundTrip

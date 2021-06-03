@@ -24,38 +24,32 @@ import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.processors.LengthInBitsEv
 import org.apache.daffodil.util.MaybeULong
 
-sealed abstract class BlobLengthParser(override val context: ElementRuntimeData)
-  extends PrimParser {
+trait ByteChunkWriter { self: PrimParser =>
 
-  protected def getLengthInBits(pstate: PState): Long
-
-  override final def parse(start: PState): Unit = {
+  /**
+   * Read nBits of data from the input source associated with pstate in chunks.
+   * For each chunk, the writeChunk function passed as a parameter is called,
+   * which takes as parameters an array of bytes and the number of bytes in
+   * that array that should be written. The chunk size is defined by the
+   * blobChunkSizeInBytes tunable.
+   */
+  def writeBitsInChunks(start: PState, nBits: Long)(writeChunk: (Array[Byte], Int) => Unit): Unit = {
     val dis = start.dataInputStream
-    val currentElement = start.simpleElement
-    val nBits = getLengthInBits(start)
-
-    val blobPath = try {
-      val blobDir = start.output.getBlobDirectory
-      Files.createDirectories(blobDir)
-      Files.createTempFile(blobDir, start.output.getBlobPrefix, start.output.getBlobSuffix)
-    } catch {
-      case e: Exception => start.SDE("Unable to create blob file: ", e.getMessage)
-    }
-    val blobStream = Files.newOutputStream(blobPath, StandardOpenOption.WRITE)
-
     var remainingBitsToGet = nBits
 
     val array = new Array[Byte](start.tunable.blobChunkSizeInBytes)
+
+    // Tunable restrictions ensure blobChunkSizeInBits still fits in an int.
+    // All the places where toInt is called below can be no larger than this
+    // value, and so have no issues with potential overflow.
     val blobChunkSizeInBits = start.tunable.blobChunkSizeInBytes * 8
-    if (blobChunkSizeInBits > Int.MaxValue)
-      start.SDE("blobChunkSizeInBytes is too large. blobChunkSizeInBytes must be less than " + (Int.MaxValue / 8))
 
     while (remainingBitsToGet > 0) {
-      val bitsToGet = Math.min(remainingBitsToGet, blobChunkSizeInBits).toInt
+      val bitsToGet = Math.min(remainingBitsToGet, blobChunkSizeInBits)
       if (dis.isDefinedForLength(bitsToGet)) {
-        start.dataInputStream.getByteArray(bitsToGet, start, array)
+        start.dataInputStream.getByteArray(bitsToGet.toInt, start, array)
         val bytesToPut = (bitsToGet + 7) / 8
-        blobStream.write(array, 0, bytesToPut)
+        writeChunk(array, bytesToPut.toInt)
         remainingBitsToGet -= bitsToGet
       } else {
         val remainingBits =
@@ -65,14 +59,41 @@ sealed abstract class BlobLengthParser(override val context: ElementRuntimeData)
           } else {
             MaybeULong.Nope
           }
-        PENotEnoughBits(start, nBits, remainingBits)
+        self.PENotEnoughBits(start, nBits, remainingBits)
         remainingBitsToGet = 0 // break out of the loop
       }
+    }
+  }
+
+}
+
+
+sealed abstract class BlobLengthParser(override val context: ElementRuntimeData)
+  extends PrimParser
+  with ByteChunkWriter {
+
+  protected def getLengthInBits(pstate: PState): Long
+
+  override final def parse(start: PState): Unit = {
+    val blobPath = try {
+      val blobDir = start.output.getBlobDirectory
+      Files.createDirectories(blobDir)
+      Files.createTempFile(blobDir, start.output.getBlobPrefix, start.output.getBlobSuffix)
+    } catch {
+      case e: Exception => start.SDE("Unable to create blob file: ", e.getMessage)
+    }
+
+    val blobStream = Files.newOutputStream(blobPath, StandardOpenOption.WRITE)
+
+    val nBits = getLengthInBits(start)
+    writeBitsInChunks(start, nBits) { case (bytes, nBytes) =>
+      blobStream.write(bytes, 0, nBytes)
     }
 
     blobStream.close()
 
     if (start.isSuccess) {
+      val currentElement = start.simpleElement
       currentElement.setDataValue(blobPath.toUri)
       start.addBlobPath(blobPath)
     } else {

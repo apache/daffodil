@@ -17,6 +17,7 @@
 
 package org.apache.daffodil.processors.parsers
 
+import java.nio.ByteBuffer
 
 import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.processors.LengthInBitsEv
@@ -24,26 +25,47 @@ import org.apache.daffodil.processors.Processor
 import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
 
 sealed abstract class HexBinaryLengthParser(override val context: ElementRuntimeData)
-  extends PrimParser {
+  extends PrimParser
+  with ByteChunkWriter {
 
   protected def getLengthInBits(pstate: PState): Long
 
   private val zeroLengthArray = new Array[Byte](0)
 
   override final def parse(start: PState): Unit = {
-    val dis = start.dataInputStream
     val currentElement = start.simpleElement
     val nBits = getLengthInBits(start)
-    if (nBits == 0) {
+    val nBytes = (nBits + 7) / 8
+    if (nBytes == 0) {
       currentElement.setDataValue(zeroLengthArray)
-    } else if (nBits > Int.MaxValue) {
-      // Integer overflow will occurr, recommend using blob instead of hexBinary
-      PE(start, "Data is too large for xs:hexBinary. Consider using blobs instead: https://s.apache.org/daffodil-blob-feature")
-    } else if (!dis.isDefinedForLength(nBits)) {
-      PENotEnoughBits(start, nBits, dis.remainingBits)
+    } else if (nBytes > start.tunable.maxHexBinaryLengthInBytes) {
+      PE(start, "Length for xs:hexBinary exceeds maximum of %s bytes: %s",
+        start.tunable.maxHexBinaryLengthInBytes, nBytes)
+    } else if (nBytes <= start.tunable.blobChunkSizeInBytes) {
+      // For small hex binary that can fit in a single chunk, don't bother
+      // chunking so we avoid the overhead of reading a chunk to one array only
+      // to copy it to the target array. Instead, just have the InputSource
+      // create and fill the byte array
+      val dis = start.dataInputStream
+      if (!dis.isDefinedForLength(nBits)) {
+        PENotEnoughBits(start, nBits, dis.remainingBits)
+      } else {
+        val array = start.dataInputStream.getByteArray(nBits.toInt, start)
+        currentElement.setDataValue(array)
+      }
     } else {
-      val array =  start.dataInputStream.getByteArray(nBits.toInt, start)
-      currentElement.setDataValue(array)
+      // For larger hex binary, read the data in chunks. There's additional
+      // overhead with this since there's more copying of data between arrays,
+      // but it avoids issues with the input stream caches getting emptied and
+      // limiting the size of hex binarie data.
+      val array = new Array[Byte](nBytes.toInt)
+      val buffer = ByteBuffer.wrap(array)
+      writeBitsInChunks(start, nBits) { case (bytes, nBytes) =>
+        buffer.put(bytes, 0, nBytes)
+      }
+      if (start.isSuccess) {
+        currentElement.setDataValue(array)
+      }
     }
   }
 }
