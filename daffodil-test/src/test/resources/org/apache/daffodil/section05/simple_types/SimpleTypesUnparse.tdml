@@ -154,8 +154,11 @@
     </tdml:infoset>
     <tdml:errors>
       <tdml:error>Unparse Error</tdml:error>
-      <tdml:error>Data length 40 bits</tdml:error>
-      </tdml:errors>
+      <tdml:error>xs:hexBinary</tdml:error>
+      <tdml:error>calculated length</tdml:error>
+      <tdml:error>40 bits</tdml:error>
+      <tdml:error>32</tdml:error>
+    </tdml:errors>
   </tdml:unparserTestCase>
 
   <!--
