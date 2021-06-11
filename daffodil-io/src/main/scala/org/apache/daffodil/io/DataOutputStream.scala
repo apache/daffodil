@@ -196,7 +196,7 @@ trait DataOutputStream extends DataStreamCommon
    * It is a usage error if bitLengthFrom1 is not greater than or equal to 1.
    *
    */
-  def putByteArray(ba: Array[Byte], bitLengthFrom1: Int, finfo: FormatInfo, ignoreByteOrder: Boolean = false): Boolean
+  def putByteArray(ba: Array[Byte], bitLengthFrom1: Long, finfo: FormatInfo, ignoreByteOrder: Boolean = false): Boolean
 
   /**
    * Float and Double

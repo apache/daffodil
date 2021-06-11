@@ -38,29 +38,45 @@ abstract class HexBinaryUnparserBase(override val context: ElementRuntimeData)
 
     val node = state.currentInfosetNode.asSimple
     val value = node.dataValue.getByteArray
-    val lengthInBits = getLengthInBits(state)
 
+    val valueLengthInBytes = value.length.toLong
+    if (valueLengthInBytes > state.tunable.maxHexBinaryLengthInBytes) {
+      UnparseError(
+        One(context.schemaFileLocation),
+        One(state.currentLocation),
+        "Length of xs:hexBinary exceeds maximum of %s bytes: %s",
+        state.tunable.maxHexBinaryLengthInBytes,
+        valueLengthInBytes)
+    }
+
+    val lengthInBits = getLengthInBits(state)
     val lengthInBytes = (lengthInBits + 7) / 8
-    if (value.length > lengthInBytes) {
-      UnparseError(One(context.schemaFileLocation), One(state.currentLocation), "Data length %d bits exceeds explicit length value: %d bits", value.length * 8, lengthInBits)
+
+    if (valueLengthInBytes > lengthInBytes) {
+      UnparseError(
+        One(context.schemaFileLocation),
+        One(state.currentLocation),
+        "Length of xs:hexBinary exceeds calculated length of %s bits: %s",
+        valueLengthInBytes * 8,
+        lengthInBits)
     }
 
     val bitsFromValueToPut =
-      if (lengthInBytes > value.size) {
+      if (lengthInBytes > valueLengthInBytes) {
         // the length to put is larger than the number of available bytes in the
         // array. So put the whole array and we'll add fill bytes later
-        value.size * 8
+        valueLengthInBytes * 8
       } else {
         // the length to put is either everything or some fragment of the last
         // byte, so put the length in bits. putByte will deal with the fragment byte
-        Assert.invariant(lengthInBytes == value.size)
+        Assert.invariant(lengthInBytes == valueLengthInBytes)
         lengthInBits
       }
 
     val dos = state.dataOutputStream
 
     if (bitsFromValueToPut > 0) {
-      val ret = dos.putByteArray(value, bitsFromValueToPut.toInt, state)
+      val ret = dos.putByteArray(value, bitsFromValueToPut, state)
       if (!ret) {
         UnparseError(One(context.schemaFileLocation), One(state.currentLocation), "Failed to write %d hexBinary bits", bitsFromValueToPut)
       }
@@ -81,7 +97,7 @@ class HexBinaryMinLengthInBytesUnparser(minLengthInBytes: Long, erd: ElementRunt
   extends HexBinaryUnparserBase(erd) {
 
   override def getLengthInBits(state: UState): Long = {
-    val len = state.currentNode.get.asSimple.dataValue.getByteArray.length * 8
+    val len = state.currentNode.get.asSimple.dataValue.getByteArray.length.toLong * 8
     val min = minLengthInBytes * 8
     scala.math.max(len, min)
   }
@@ -96,7 +112,7 @@ final class HexBinarySpecifiedLengthUnparser(erd: ElementRuntimeData, val length
     } catch {
       case e: RetryableException => {
         val bytes = state.currentInfosetNode.asSimple.dataValue.getByteArray
-        val len = bytes.length * 8
+        val len = bytes.length.toLong * 8
         len
       }
     }

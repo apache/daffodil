@@ -596,4 +596,25 @@
 
   </tdml:parserTestCase>
 
+  <tdml:unparserTestCase
+    name="maxHexBinaryUnparseError" root="root"
+    model="smallMaxHexBinary"
+    config="cfg_smallMaxHexBinary">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root>00112233445566778899AA</ex:root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:errors>
+      <tdml:error>Unparse Error</tdml:error>
+      <tdml:error>xs:hexBinary</tdml:error>
+      <tdml:error>maximum</tdml:error>
+      <tdml:error>10</tdml:error>
+      <tdml:error>11</tdml:error>
+    </tdml:errors>
+
+  </tdml:unparserTestCase>
+
 </tdml:testSuite>

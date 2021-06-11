@@ -108,5 +108,6 @@ class TestGeneral {
   @Test def test_requireEncodingErrorPolicyTrue(): Unit = { tunables_runner.runOneTest("requireEncodingErrorPolicyTrue") }
   @Test def test_requireEncodingErrorPolicyFalse(): Unit = { tunables_runner.runOneTest("requireEncodingErrorPolicyFalse") }
   @Test def test_maxHexBinaryError(): Unit = { tunables_runner.runOneTest("maxHexBinaryError") }
+  @Test def test_maxHexBinaryUnparseError(): Unit = { tunables_runner.runOneTest("maxHexBinaryUnparseError") }
 
 }
