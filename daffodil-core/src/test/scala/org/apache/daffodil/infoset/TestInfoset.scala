@@ -17,18 +17,17 @@
 
 package org.apache.daffodil.infoset
 
-import org.apache.daffodil.xml.XMLUtils
-import org.apache.daffodil.util._
+import org.apache.commons.io.output.NullOutputStream
+import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.compiler._
+import org.apache.daffodil.dsom.{ ElementBase, Root }
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.processors.DataProcessor
+import org.apache.daffodil.processors.unparsers.UStateMain
+import org.apache.daffodil.util._
+import org.apache.daffodil.xml.XMLUtils
 import org.junit.Assert._
 import org.junit.Test
-import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.api.DaffodilTunables
-import org.apache.daffodil.processors.DataProcessor
-import org.apache.daffodil.dsom.ElementBase
-import org.apache.daffodil.processors.unparsers.UStateMain
-import org.apache.commons.io.output.NullOutputStream
-import org.apache.daffodil.dsom.Root
 
 object TestInfoset {
   /**
@@ -49,7 +48,6 @@ object TestInfoset {
   def elem2Infoset(
     xmlElem: scala.xml.Node,
     dp: DataProcessor): DIElement = {
-    val ic = new ScalaXMLInfosetInputter(xmlElem)
     //
     // A prior version of this code just pulled events to force the
     // infoset to be constructed. That doesn't work anymore.
@@ -62,6 +60,10 @@ object TestInfoset {
     val inputter = new ScalaXMLInfosetInputter(xmlElem)
     val dummyOutStream = NullOutputStream.NULL_OUTPUT_STREAM
     val unparseResult = dp.unparse(inputter, dummyOutStream)
+    if (unparseResult.isError){
+      val exc = unparseResult.getDiagnostics.filter(_.isError).head
+      throw exc
+    }
     val infosetRootNode = {
       val ustate = unparseResult.resultState.asInstanceOf[UStateMain]
       val diDocument: DIDocument = ustate.documentElement
@@ -386,5 +388,30 @@ class TestInfoset1 {
         }
       }
     }
+  }
+
+  /**
+   * DAFFODIL-2538 - in release 3.1.0 of daffodil this test wouldn't pass.
+   * Because the XML loading was assuming a single text, not 3 separate nodes
+   * one for "EQUAL_TO_OR_" an Atom[String] for the "&amp;lt;" and one for "_0.0001_SQUARE_DATA_MILES".
+   */
+  @Test def testXMLToInfoset7(): Unit = {
+    val testSchema = SchemaUtils.dfdlTestSchema(
+        <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+        <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited"/>,
+        <xs:element name="root" type="tns:example1"/>
+        <xs:complexType name="example1">
+          <xs:sequence>
+            <xs:element name="enum" type="xs:string" />
+          </xs:sequence>
+        </xs:complexType>)
+
+    val xmlInfoset = <root xmlns={ ex }><enum>EQUAL_TO_OR_&lt;_0.0001_SQUARE_DATA_MILES</enum></root>
+
+    val (infoset: DIComplex, _, tunable) = testInfoset(testSchema, xmlInfoset)
+    val enumElt: DISimple = infoset.children.head.asInstanceOf[DISimple]
+    val value = enumElt.dataValueAsString
+    assertEquals("EQUAL_TO_OR_<_0.0001_SQUARE_DATA_MILES", value)
+
   }
 }
