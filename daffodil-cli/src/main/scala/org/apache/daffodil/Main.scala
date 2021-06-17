@@ -685,8 +685,8 @@ object Main extends Logging {
   }
 
   def createProcessorFromSchema(schema: URI, rootNS: Option[RefQName], path: Option[String],
-    tunables: Map[String, String],
-    mode: ValidationMode.Type): Option[DFDL.DataProcessor] = {
+                                tunables: Map[String, String],
+                                mode: ValidationMode.Type): Option[DFDL.DataProcessor] = {
     val compiler = {
       val c = Compiler().withTunables(tunables)
       rootNS match {
@@ -844,10 +844,10 @@ object Main extends Logging {
   }
 
   def getInfosetInputter(
-    infosetType: InfosetType.Type,
-    anyRef: AnyRef,
-    processor: DFDL.DataProcessor,
-    outChannel: DFDL.Output): Either[InfosetInputter, DFDL.DaffodilUnparseContentHandler] = {
+                          infosetType: InfosetType.Type,
+                          anyRef: AnyRef,
+                          processor: DFDL.DataProcessor,
+                          outChannel: DFDL.Output): Either[InfosetInputter, DFDL.DaffodilUnparseContentHandler] = {
     infosetType match {
       case InfosetType.XML => {
         val is = anyRef match {
@@ -950,7 +950,7 @@ object Main extends Logging {
                   saxContentHandler.reset()
                   Timer.getResult("parsing",
                     parseWithSAX(processor, inStream, saxContentHandler,
-                    new CommandLineSAXErrorHandler()))
+                      new CommandLineSAXErrorHandler()))
                 case Left(outputter) =>
                   outputter.reset() // reset in case we are streaming
                   Timer.getResult("parsing", processor.parse(inStream, outputter))
@@ -1000,11 +1000,11 @@ object Main extends Logging {
                       // stuck in an infinite loop if we kept trying to stream,
                       // so we need quit
                       val remainingBits =
-                        if (loc.bitLimit0b.isDefined) {
-                          (loc.bitLimit0b.get - loc.bitPos0b).toString
-                        } else {
-                          "at least " + (inStream.inputSource.bytesAvailable * 8)
-                        }
+                      if (loc.bitLimit0b.isDefined) {
+                        (loc.bitLimit0b.get - loc.bitPos0b).toString
+                      } else {
+                        "at least " + (inStream.inputSource.bytesAvailable * 8)
+                      }
                       log(LogLevel.Warning, "Left over data after consuming 0 bits while streaming. Stopped after consuming %s bit(s) with %s bit(s) remaining.", loc.bitPos0b, remainingBits)
                       keepParsing = false
                       error = true
@@ -1082,7 +1082,7 @@ object Main extends Logging {
             createProcessorFromSchema(performanceOpts.schema(), performanceOpts.rootNS.toOption, performanceOpts.path.toOption, tunables, validate)
           }
         }.map{ _.withExternalVariables(retrieveExternalVariables(performanceOpts.vars, cfgFileNode)) }
-         .map{ _.withValidationMode(validate) }
+          .map{ _.withValidationMode(validate) }
 
         val rc = processor match {
           case Some(processor: DataProcessor) if (!processor.isError) => {
@@ -1370,20 +1370,20 @@ object Main extends Logging {
             val headers = List("Name", "Model", "Root", "Description")
             val maxCols = tests.foldLeft(headers.map(_.length)) {
               (maxVals, testPair) =>
-                {
-                  testPair match {
-                    case (name, None) => List(
-                      maxVals(0).max(name.length),
-                      maxVals(1),
-                      maxVals(2),
-                      maxVals(3))
-                    case (name, Some(test)) => List(
-                      maxVals(0).max(name.length),
-                      maxVals(1).max(test.model.length),
-                      maxVals(2).max(test.rootName.length),
-                      maxVals(3).max(test.description.length))
-                  }
+              {
+                testPair match {
+                  case (name, None) => List(
+                    maxVals(0).max(name.length),
+                    maxVals(1),
+                    maxVals(2),
+                    maxVals(3))
+                  case (name, Some(test)) => List(
+                    maxVals(0).max(name.length),
+                    maxVals(1).max(test.model.length),
+                    maxVals(2).max(test.rootName.length),
+                    maxVals(3).max(test.description.length))
                 }
+              }
             }
             val formatStr = maxCols.map(max => "%" + -max + "s").mkString("  ")
             println(formatStr.format(headers: _*))
@@ -1496,8 +1496,8 @@ object Main extends Logging {
   }
 
   private def unparseWithSAX(
-    is: InputStream,
-    contentHandler: DFDL.DaffodilUnparseContentHandler): UnparseResult = {
+                              is: InputStream,
+                              contentHandler: DFDL.DaffodilUnparseContentHandler): UnparseResult = {
     val xmlReader = DaffodilSAXParserFactory().newSAXParser.getXMLReader
     xmlReader.setContentHandler(contentHandler)
     xmlReader.setFeature(XMLUtils.SAX_NAMESPACES_FEATURE, true)
@@ -1513,10 +1513,10 @@ object Main extends Logging {
   }
 
   private def parseWithSAX(
-    processor: DFDL.DataProcessor,
-    data: InputSourceDataInputStream,
-    saxContentHandler: DaffodilParseOutputStreamContentHandler,
-    errorHandler: CommandLineSAXErrorHandler): ParseResult = {
+                            processor: DFDL.DataProcessor,
+                            data: InputSourceDataInputStream,
+                            saxContentHandler: DaffodilParseOutputStreamContentHandler,
+                            errorHandler: CommandLineSAXErrorHandler): ParseResult = {
     val saxXmlRdr = processor.newXMLReaderInstance
     saxXmlRdr.setContentHandler(saxContentHandler)
     saxXmlRdr.setErrorHandler(errorHandler)
@@ -1584,35 +1584,35 @@ object Main extends Logging {
     } catch {
       case s: scala.util.control.ControlThrowable => throw s
       case e: java.io.FileNotFoundException => {
-        log(LogLevel.Error, "%s", e.getMessage())
+        log(LogLevel.Error, "Missing File Error", e.getMessage())
         1
       }
       case e: InvalidParserException => {
-        log(LogLevel.Error, "%s", e.getMessage())
-        1
+        log(LogLevel.Error, "Invalid Parser Error", e.getMessage())
+        2
       }
       case e: ExternalVariableException => {
-        log(LogLevel.Error, "%s", e.getMessage())
-        1
+        log(LogLevel.Error, "External Variable Error", e.getMessage())
+        3
       }
       case e: BindingException => {
-        log(LogLevel.Error, "%s", e.getMessage())
-        1
+        log(LogLevel.Error, "Binding Error", e.getMessage())
+        4
       }
       case e: NotYetImplementedException => {
         nyiFound(e)
       }
       case e: TDMLException => {
-        log(LogLevel.Error, "%s", e.getMessage())
-        1
+        log(LogLevel.Error, "TDML Error", e.getMessage())
+        5
       }
       case e: OutOfMemoryError => {
         oomError(e)
       }
       case e: UserDefinedFunctionFatalErrorException => {
-        log(LogLevel.Error, "%s", e.getMessage())
+        log(LogLevel.Error, "User Error", e.getMessage())
         e.printStackTrace()
-        1
+        6
       }
       case e: Exception => {
         bugFound(e)
