@@ -727,4 +727,91 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
   //    assertEquals(expected, hexDigits)
   //  }
 
+  @Test def testDuplicateDefineSchema(): Unit = {
+    val testSuite =
+      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
+        <tdml:defineSchema name="dupSchema">
+          <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+          <dfdl:format ref="tns:GeneralFormat"/>
+          <xsd:element name="data" type="xsd:int" dfdl:lengthKind="explicit" dfdl:length="{ xs:unsignedInt(2) }"/>
+        </tdml:defineSchema>
+        <tdml:defineSchema name="dupSchema">
+          <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+          <dfdl:format ref="tns:GeneralFormat"/>
+          <xsd:element name="data" type="xsd:int" dfdl:lengthKind="explicit" dfdl:length="{ xs:unsignedInt(2) }"/>
+        </tdml:defineSchema>
+        <parserTestCase xmlns={ tdml } name="testCase" root="data" model="dupSchema">
+          <document>37</document>
+          <infoset>
+            <dfdlInfoset>
+              <data xmlns={ example }>37</data>
+            </dfdlInfoset>
+          </infoset>
+        </parserTestCase>
+      </tdml:testSuite>
+    lazy val ts = new DFDLTestSuite(testSuite)
+    val exc = intercept[Exception] {
+      ts.runOneTest("testCase")
+    }
+    assertTrue(exc.getMessage().contains("Duplicate definitions found for defineSchema: dupSchema"))
+  }
+
+  @Test def testDuplicateTestCase(): Unit = {
+    val testSuite =
+      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
+        <tdml:defineSchema name="mySchema">
+          <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+          <dfdl:format ref="tns:GeneralFormat"/>
+          <xsd:element name="data" type="xsd:int" dfdl:lengthKind="explicit" dfdl:length="{ xs:unsignedInt(2) }"/>
+        </tdml:defineSchema>
+        <parserTestCase xmlns={ tdml } name="dupTestCase" root="data" model="mySchema">
+          <document>37</document>
+          <infoset>
+            <dfdlInfoset>
+              <data xmlns={ example }>37</data>
+            </dfdlInfoset>
+          </infoset>
+        </parserTestCase>
+        <unparserTestCase xmlns={ tdml } name="dupTestCase" root="data" model="mySchema">
+          <document>37</document>
+          <infoset>
+            <dfdlInfoset>
+              <data xmlns={ example }>37</data>
+            </dfdlInfoset>
+          </infoset>
+        </unparserTestCase>
+      </tdml:testSuite>
+    lazy val ts = new DFDLTestSuite(testSuite)
+    val exc = intercept[Exception] {
+      ts.runOneTest("testCase")
+    }
+    assertTrue(exc.getMessage().contains("Duplicate definitions found for parser or unparser test cases: dupTestCase"))
+  }
+
+  @Test def testDuplicateDefineConfig(): Unit = {
+    val testSuite =
+      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
+        <tdml:defineSchema name="mySchema">
+          <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+          <dfdl:format ref="tns:GeneralFormat"/>
+          <xsd:element name="data" type="xsd:int" dfdl:lengthKind="explicit" dfdl:length="{ xs:unsignedInt(2) }"/>
+        </tdml:defineSchema>
+        <tdml:defineConfig name="dupConfig" />
+        <tdml:defineConfig name="dupConfig" />
+        <parserTestCase xmlns={ tdml } name="testCase" root="data" model="mySchema" config="dupConfig">
+          <document>37</document>
+          <infoset>
+            <dfdlInfoset>
+              <data xmlns={ example }>37</data>
+            </dfdlInfoset>
+          </infoset>
+        </parserTestCase>
+      </tdml:testSuite>
+    lazy val ts = new DFDLTestSuite(testSuite)
+    val exc = intercept[Exception] {
+      ts.runOneTest("testCase")
+    }
+    assertTrue(exc.getMessage().contains("Duplicate definitions found for defineConfig: dupConfig"))
+  }
+
 }

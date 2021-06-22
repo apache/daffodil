@@ -92,10 +92,18 @@ class TestGeneral {
     assertTrue(m.toLowerCase.contains("not found"))
   }
 
-  // DFDL-1143
-  @Test def test_unqualifiedPathStepPolicy_defaultNamespace_test_01(): Unit = { tunables_runner.runOneTest("unqualifiedPathStepPolicy_defaultNamespace_test_01") }
-  @Test def test_unqualifiedPathStepPolicy_noNamespace_test_02(): Unit = { tunables_runner.runOneTest("unqualifiedPathStepPolicy_noNamespace_test_02") }
-  @Test def test_unqualifiedPathStepPolicy_defaultNamespace_test_02(): Unit = { tunables_runner.runOneTest("unqualifiedPathStepPolicy_defaultNamespace_test_02") }
+  @Test def test_unqualifiedPathStepPolicy_test_01_defaultNamespace(): Unit = { tunables_runner.runOneTest("unqualifiedPathStepPolicy_test_01_defaultNamespace") }
+  @Test def test_unqualifiedPathStepPolicy_test_01_preferDefaultNamespace(): Unit = { tunables_runner.runOneTest("unqualifiedPathStepPolicy_test_01_preferDefaultNamespace") }
+  @Test def test_unqualifiedPathStepPolicy_test_01_noNamespace(): Unit = { tunables_runner.runOneTest("unqualifiedPathStepPolicy_test_01_noNamespace") }
+  @Test def test_unqualifiedPathStepPolicy_test_02_defaultNamespace(): Unit = { tunables_runner.runOneTest("unqualifiedPathStepPolicy_test_02_defaultNamespace") }
+  @Test def test_unqualifiedPathStepPolicy_test_02_preferDefaultNamespace(): Unit = { tunables_runner.runOneTest("unqualifiedPathStepPolicy_test_02_preferDefaultNamespace") }
+  @Test def test_unqualifiedPathStepPolicy_test_02_noNamespace(): Unit = { tunables_runner.runOneTest("unqualifiedPathStepPolicy_test_02_noNamespace") }
+  @Test def test_unqualifiedPathStepPolicy_test_03_defaultNamespace(): Unit = { tunables_runner.runOneTest("unqualifiedPathStepPolicy_test_03_defaultNamespace") }
+  @Test def test_unqualifiedPathStepPolicy_test_03_preferDefaultNamespace(): Unit = { tunables_runner.runOneTest("unqualifiedPathStepPolicy_test_03_preferDefaultNamespace") }
+  @Test def test_unqualifiedPathStepPolicy_test_03_noNamespace(): Unit = { tunables_runner.runOneTest("unqualifiedPathStepPolicy_test_03_noNamespace") }
+  @Test def test_unqualifiedPathStepPolicy_test_04_defaultNamespace(): Unit = { tunables_runner.runOneTest("unqualifiedPathStepPolicy_test_04_defaultNamespace") }
+  @Test def test_unqualifiedPathStepPolicy_test_04_preferDefaultNamespace(): Unit = { tunables_runner.runOneTest("unqualifiedPathStepPolicy_test_04_preferDefaultNamespace") }
+  @Test def test_unqualifiedPathStepPolicy_test_04_noNamespace(): Unit = { tunables_runner.runOneTest("unqualifiedPathStepPolicy_test_04_noNamespace") }
   
   @Test def test_maxOccursBoundsExceeded(): Unit = { tunables_runner.runOneTest("maxOccursBoundsExceeded") }
   @Test def test_textBidiYes(): Unit = { tunables_runner.runOneTest("textBidiYes") }
