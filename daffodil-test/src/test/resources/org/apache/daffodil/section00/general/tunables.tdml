@@ -36,7 +36,7 @@
 		</daf:tunables>
 	</tdml:defineConfig>
 
-	<tdml:defineConfig name="cfg_defaultNamespace">
+	<tdml:defineConfig name="cfg_preferDefaultNamespace">
 		<daf:tunables xmlns="http://www.w3.org/2001/XMLSchema"
 			xmlns:xs="http://www.w3.org/2001/XMLSchema">
 			<daf:unqualifiedPathStepPolicy>preferDefaultNamespace</daf:unqualifiedPathStepPolicy>
@@ -167,73 +167,265 @@
 
 	</tdml:defineSchema>
 
-	<!-- Test name: unqualifiedPathStepPolicy_defaultNamespace_test_01 Schema: 
-		unqualifiedPathStepPolicy Purpose: Verifiy that Tunables now work when specified 
-		via TDML -->
-	<tdml:parserTestCase
-		name="unqualifiedPathStepPolicy_defaultNamespace_test_01" root="test_01"
-		model="unqualifiedPathStep" description="Tunables - Unqualified Path Step Policy"
-		config="cfg_defaultNamespace">
+  <!--
+    Test name: unqualifiedPathStepPolicy_test_01_defaultNamespace
+    Schema: unqualifiedPathStepPolicy
+    Purpose: Verifiy that unqualifiedPathStepPolicy works as expected
+  -->
+  <tdml:parserTestCase
+    name="unqualifiedPathStepPolicy_test_01_defaultNamespace" root="test_01"
+    model="unqualifiedPathStep" description="Tunables - Unqualified Path Step Policy"
+    config="cfg_defaultNamespace">
+    <tdml:document>
+      <tdml:documentPart type="text">12</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:test_01 xmlns:ex="http://example.com">
+          <ex:a>
+            <ex:b>1</ex:b>
+            <c xmlns="">2</c>
+          </ex:a>
+          <s xmlns="">1</s>
+        </ex:test_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
-		<tdml:document>
-			<tdml:documentPart type="text">12</tdml:documentPart>
-		</tdml:document>
+  <!--
+    Test name: unqualifiedPathStepPolicy_test_01_preferDefaultNamespace
+    Schema: unqualifiedPathStepPolicy
+    Purpose: Verifiy that unqualifiedPathStepPolicy works as expected
+  -->
+  <tdml:parserTestCase
+    name="unqualifiedPathStepPolicy_test_01_preferDefaultNamespace" root="test_01"
+    model="unqualifiedPathStep" description="Tunables - Unqualified Path Step Policy"
+    config="cfg_preferDefaultNamespace">
+    <tdml:document>
+      <tdml:documentPart type="text">12</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:test_01 xmlns:ex="http://example.com">
+          <ex:a>
+            <ex:b>1</ex:b>
+            <c xmlns="">2</c>
+          </ex:a>
+          <s xmlns="">1</s>
+        </ex:test_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<test_01 xmlns="http://example.com">
-					<a>
-						<b>1</b>
-						<c xmlns="">2</c>
-					</a>
-					<s xmlns="">1</s>
-				</test_01>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
-	
-	<!-- Test name: unqualifiedPathStepPolicy_noNamespace_test_02 Schema: 
-		unqualifiedPathStepPolicy Purpose: Verifiy that Tunables now work when specified
-		via TDML. This also overrides the default tunable (defaultNamespace). -->
-	<tdml:parserTestCase
-		name="unqualifiedPathStepPolicy_noNamespace_test_02" root="test_02"
-		model="unqualifiedPathStep" description="Tunables - Unqualified Path Step Policy"
-		config="cfg_noNamespace">
+  <!--
+    Test name: unqualifiedPathStepPolicy_test_01_noNamespace
+    Schema: unqualifiedPathStepPolicy
+    Purpose: Verifiy that unqualifiedPathStepPolicy works as expected
+  -->
+  <tdml:parserTestCase
+    name="unqualifiedPathStepPolicy_test_01_noNamespace" root="test_01"
+    model="unqualifiedPathStep" description="Tunables - Unqualified Path Step Policy"
+    config="cfg_noNamespace">
+    <tdml:document>
+      <tdml:documentPart type="text">12</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:test_01 xmlns:ex="http://example.com">
+          <ex:a>
+            <ex:b>1</ex:b>
+            <c xmlns="">2</c>
+          </ex:a>
+          <s xmlns="">1</s>
+        </ex:test_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
-		<tdml:document>
-			<tdml:documentPart type="text">12</tdml:documentPart>
-		</tdml:document>
+  <!--
+    Test name: unqualifiedPathStepPolicy_test_02_defaultNamespace
+    Schema: unqualifiedPathStepPolicy
+    Purpose: Verifiy that unqualifiedPathStepPolicy works as expected
+  -->
+  <tdml:parserTestCase
+    name="unqualifiedPathStepPolicy_test_02_defaultNamespace" root="test_02"
+    model="unqualifiedPathStep" description="Tunables - Unqualified Path Step Policy"
+    config="cfg_defaultNamespace">
+    <tdml:document>
+      <tdml:documentPart type="text">12</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:test_02 xmlns:ex="http://example.com">
+          <ex:a>
+            <ex:b>1</ex:b>
+            <c xmlns="">2</c>
+          </ex:a>
+          <s xmlns="">1</s>
+        </ex:test_02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
-		<tdml:errors>
-			<tdml:error>Schema Definition Error</tdml:error>
-		</tdml:errors>
-	</tdml:parserTestCase>
+  <!--
+    Test name: unqualifiedPathStepPolicy_test_02_preferDefaultNamespace
+    Schema: unqualifiedPathStepPolicy
+    Purpose: Verifiy that unqualifiedPathStepPolicy works as expected
+  -->
+  <tdml:parserTestCase
+    name="unqualifiedPathStepPolicy_test_02_preferDefaultNamespace" root="test_02"
+    model="unqualifiedPathStep" description="Tunables - Unqualified Path Step Policy"
+    config="cfg_preferDefaultNamespace">
+    <tdml:document>
+      <tdml:documentPart type="text">12</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:test_02 xmlns:ex="http://example.com">
+          <ex:a>
+            <ex:b>1</ex:b>
+            <c xmlns="">2</c>
+          </ex:a>
+          <s xmlns="">1</s>
+        </ex:test_02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
-	<!-- Test name: unqualifiedPathStepPolicy_defaultNamespace_test_02
-	     Schema: unqualifiedPathStepPolicy
-	     Purpose: Verify that Tunables now work when specified via TDML.
-	-->
-	<tdml:parserTestCase
-		name="unqualifiedPathStepPolicy_defaultNamespace_test_02" root="test_02"
-		model="unqualifiedPathStep" description="Tunables - Unqualified Path Step Policy"
-		config="cfg_defaultNamespace">
+  <!--
+    Test name: unqualifiedPathStepPolicy_test_02_noNamespace
+    Schema: unqualifiedPathStepPolicy
+    Purpose: Verifiy that unqualifiedPathStepPolicy works as expected
+  -->
+  <tdml:parserTestCase
+    name="unqualifiedPathStepPolicy_test_02_noNamespace" root="test_02"
+    model="unqualifiedPathStep" description="Tunables - Unqualified Path Step Policy"
+    config="cfg_noNamespace">
+    <tdml:document>
+      <tdml:documentPart type="text">12</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
 
-		<tdml:document>
-			<tdml:documentPart type="text">12</tdml:documentPart>
-		</tdml:document>
+  <!--
+    Test name: unqualifiedPathStepPolicy_test_03_defaultNamespace
+    Schema: unqualifiedPathStepPolicy
+    Purpose: Verifiy that unqualifiedPathStepPolicy works as expected
+  -->
+  <tdml:parserTestCase
+    name="unqualifiedPathStepPolicy_test_03_defaultNamespace" root="test_03"
+    model="unqualifiedPathStep" description="Tunables - Unqualified Path Step Policy"
+    config="cfg_defaultNamespace">
+    <tdml:document>
+      <tdml:documentPart type="text">12</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
 
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<test_02 xmlns="http://example.com">
-					<ex:a>
-						<ex:b>1</ex:b>
-						<c>2</c>
-					</ex:a>
-					<s>1</s>
-				</test_02>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
+  <!--
+    Test name: unqualifiedPathStepPolicy_test_03_preferDefaultNamespace
+    Schema: unqualifiedPathStepPolicy
+    Purpose: Verifiy that unqualifiedPathStepPolicy works as expected
+  -->
+  <tdml:parserTestCase
+    name="unqualifiedPathStepPolicy_test_03_preferDefaultNamespace" root="test_03"
+    model="unqualifiedPathStep" description="Tunables - Unqualified Path Step Policy"
+    config="cfg_preferDefaultNamespace">
+    <tdml:document>
+      <tdml:documentPart type="text">12</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: unqualifiedPathStepPolicy_test_03_noNamespace
+    Schema: unqualifiedPathStepPolicy
+    Purpose: Verifiy that unqualifiedPathStepPolicy works as expected
+  -->
+  <tdml:parserTestCase
+    name="unqualifiedPathStepPolicy_test_03_noNamespace" root="test_03"
+    model="unqualifiedPathStep" description="Tunables - Unqualified Path Step Policy"
+    config="cfg_noNamespace">
+    <tdml:document>
+      <tdml:documentPart type="text">12</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: unqualifiedPathStepPolicy_test_04_defaultNamespace
+    Schema: unqualifiedPathStepPolicy
+    Purpose: Verifiy that unqualifiedPathStepPolicy works as expected
+  -->
+  <tdml:parserTestCase
+    name="unqualifiedPathStepPolicy_test_04_defaultNamespace" root="test_04"
+    model="unqualifiedPathStep" description="Tunables - Unqualified Path Step Policy"
+    config="cfg_defaultNamespace">
+    <tdml:document>
+      <tdml:documentPart type="text">12</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: unqualifiedPathStepPolicy_test_04_preferDefaultNamespace
+    Schema: unqualifiedPathStepPolicy
+    Purpose: Verifiy that unqualifiedPathStepPolicy works as expected
+  -->
+  <tdml:parserTestCase
+    name="unqualifiedPathStepPolicy_test_04_preferDefaultNamespace" root="test_04"
+    model="unqualifiedPathStep" description="Tunables - Unqualified Path Step Policy"
+    config="cfg_preferDefaultNamespace">
+    <tdml:document>
+      <tdml:documentPart type="text">12</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:test_04 xmlns:ex="http://example.com">
+          <ex:a>
+            <ex:b>1</ex:b>
+            <c xmlns="">2</c>
+          </ex:a>
+          <s xmlns="">2</s>
+        </ex:test_04>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: unqualifiedPathStepPolicy_test_04_noNamespace
+    Schema: unqualifiedPathStepPolicy
+    Purpose: Verifiy that unqualifiedPathStepPolicy works as expected
+  -->
+  <tdml:parserTestCase
+    name="unqualifiedPathStepPolicy_test_04_noNamespace" root="test_04"
+    model="unqualifiedPathStep" description="Tunables - Unqualified Path Step Policy"
+    config="cfg_noNamespace">
+    <tdml:document>
+      <tdml:documentPart type="text">12</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:test_04 xmlns:ex="http://example.com">
+          <ex:a>
+            <ex:b>1</ex:b>
+            <c xmlns="">2</c>
+          </ex:a>
+          <s xmlns="">2</s>
+        </ex:test_04>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
 
 

@@ -339,19 +339,10 @@ class DFDLTestSuite private[tdml] (
   // We call it an UnparserTestCase
   //
   lazy val unparserTestCases = (ts \ "unparserTestCase").map { node => UnparserTestCase(node, this) }
+
   lazy val testCases = {
     val tcs: Seq[TestCase] = parserTestCases ++ unparserTestCases
-    val dups = tcs.groupBy {
-      _.tcName
-    }.filter { case (name, seq) => seq.length > 1 }
-    if (dups.nonEmpty) {
-      val listOfDups = dups.map{ case(name, _) => name}
-      val tdml =
-         if (aNodeFileOrURL.isInstanceOf[Node]) ""
-         else " for TDML " + aNodeFileOrURL.toString
-      throw new TDMLExceptionImpl(
-        "More than one test for names: " + listOfDups.mkString(",") + tdml, None)
-    }
+    ensureUnique("parser or unparser test cases", tcs) { _.tcName }
     tcs
   }
 
@@ -380,19 +371,16 @@ class DFDLTestSuite private[tdml] (
     }
   }
 
-  lazy val embeddedSchemasRaw = (ts \ "defineSchema").map { node => DefinedSchema(node, this) }
-  lazy val embeddedConfigs = (ts \ "defineConfig").map { node => DefinedConfig(node, this) }
-
   lazy val embeddedSchemas = {
-    val embeddedSchemaGroups = embeddedSchemasRaw.groupBy { _.name }
-    embeddedSchemaGroups.foreach {
-      case (name, Seq(sch)) => // ok
-      case (name, seq) =>
-        // TDML XML schema has uniqueness check for this. Hence, this is just an Assert here
-        // since it means that the validation of the TDML file didn't catch the duplicate name.
-        Assert.usageError("More than one definition for embedded schema " + name)
-    }
-    embeddedSchemasRaw
+    val res = (ts \ "defineSchema").map { node => DefinedSchema(node, this) }
+    ensureUnique("defineSchema", res) { _.name }
+    res
+  }
+
+  lazy val embeddedConfigs = {
+    val res = (ts \ "defineConfig").map { node => DefinedConfig(node, this) }
+    ensureUnique("defineConfig", res) { _.name }
+    res
   }
 
   def runAllTests(schema: Option[Node] = None): Unit = {
@@ -471,6 +459,14 @@ class DFDLTestSuite private[tdml] (
   }
 
   def findConfigFileName(configName: String) = findTDMLResource(configName)
+
+  def ensureUnique[T](name: String, seq: Seq[T])(f: T => String): Unit = {
+    val grouped = seq.groupBy(f)
+    val dups = grouped.filter { case (key, s) => s.size > 1 }
+    if (dups.size > 0) {
+      throw TDMLException("Duplicate definitions found for " + name + ": " + dups.keys.mkString(", "), None)
+    }
+  }
 
 }
 
@@ -2386,7 +2382,7 @@ case class DFDLInfoset(di: Node, parent: Infoset) {
           val uri = maybeURI.getOrElse(throw new FileNotFoundException("TDMLRunner: infoset file '" + path + "' was not found"))
           URISchemaSource(uri)
         }
-        case value => Assert.abort("Uknown value for type attribute on dfdlInfoset: " + value)
+        case value => Assert.abort("Unknown value for type attribute on dfdlInfoset: " + value)
       }
     //
     // TODO: DAFFODIL-288 validate the infoset also
