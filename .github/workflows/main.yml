@@ -124,4 +124,4 @@ jobs:
         run: $SBT coverageAggregate
 
       - name: Upload Coverage Report
-        uses: codecov/codecov-action@v1.3.1
+        uses: codecov/codecov-action@v1.5.2
