@@ -15,10 +15,19 @@
 
 name: Daffodil CI
 
-on: [push, pull_request]
+# Run CI when pushing a commit to master or creating a pull request or
+# adding another commit to a pull request or reopening a pull request.
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+# Build Daffodil and run some checks.
 
 jobs:
-  test:
+  check:
     name: Java ${{ matrix.java_version }}, Scala ${{ matrix.scala_version }}, ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -44,8 +53,8 @@ jobs:
     env:
       AR: ${{ matrix.env_ar }}
       CC: ${{ matrix.env_cc }}
-      SBT: sbt -J-Xms1024m -J-Xmx5120m -J-XX:ReservedCodeCacheSize=512m -J-XX:MaxMetaspaceSize=1024m ++${{ matrix.scala_version }} coverage
-      SBTNOCOV: sbt -J-Xms1024m -J-Xmx5120m -J-XX:ReservedCodeCacheSize=512m -J-XX:MaxMetaspaceSize=1024m ++${{ matrix.scala_version }}
+      SBT: sbt -J-Xms1024m -J-Xmx5120m -J-XX:ReservedCodeCacheSize=512m -J-XX:MaxMetaspaceSize=1024m ++${{ matrix.scala_version }}
+
     steps:
 
       ############################################################
@@ -89,41 +98,63 @@ jobs:
           distribution: ${{ matrix.distribution }}
           java-version: ${{ matrix.java_version }}
 
+      # Cache Action - tried on 2021-06-28, removed because it didn't help
+      # 1. Tried coursier/cache-action but Apache didn't allow it
+      #    extraSbtFiles: daffodil-cli/build.sbt daffodil-japi/build.sbt
+      # 2. Tried actions/cache but it didn't speed up CI at all
+      #    path: ~/.cache/coursier ~/.ivy2/cache ~/.sbt 
+
       - name: Check out Repository
         uses: actions/checkout@v2.3.4
+        # Disabling shallow clone is recommended for improving reporting
+        with:
+          fetch-depth: 0
 
       ############################################################
       # Build & Package
       ############################################################
 
       - name: Compile
-        run: $SBT compile Test/compile IntegrationTest/compile
+        run: $SBT coverage compile Test/compile IntegrationTest/compile
 
       - name: Build Documentation
-        run: $SBTNOCOV unidoc
+        run: $SBT unidoc
 
       - name: Package Zip & Tar
-        run: $SBTNOCOV daffodil-cli/Universal/packageBin daffodil-cli/Universal/packageZipTarball
+        run: $SBT daffodil-cli/Universal/packageBin daffodil-cli/Universal/packageZipTarball
 
       - name: Package RPM (Linux)
         if: runner.os == 'Linux'
-        run: $SBTNOCOV daffodil-cli/Rpm/packageBin
+        run: $SBT daffodil-cli/Rpm/packageBin
 
       ############################################################
-      # Test
+      # Check
       ############################################################
 
       - name: Run Rat Check
-        run: $SBTNOCOV ratCheck || (cat target/rat.txt; exit 1)
+        run: $SBT ratCheck || (cat target/rat.txt; exit 1)
 
       - name: Run Unit Tests
-        run: $SBT test
+        run: $SBT coverage test
 
       - name: Run Integration Tests
-        run: $SBT IntegrationTest/test
+        run: $SBT coverage IntegrationTest/test
 
       - name: Generate Coverage Report
         run: $SBT coverageAggregate
 
       - name: Upload Coverage Report
         uses: codecov/codecov-action@v1.5.2
+
+      - name: Prepare for SonarCloud Scan
+        if: ${{ runner.os == 'Linux' && matrix.java_version == '11' && github.repository == 'apache/daffodil' }}
+        run: |
+          $SBT coverageReport
+          find . -name scoverage.xml -exec sed -i 's#/home/runner/work/daffodil/daffodil#/github/workspace#g' {} +
+
+      - name: Run SonarCloud Scan
+        if: ${{ runner.os == 'Linux' && matrix.java_version == '11' && github.repository == 'apache/daffodil' }}
+        uses: sonarsource/sonarcloud-github-action@v1.6
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
