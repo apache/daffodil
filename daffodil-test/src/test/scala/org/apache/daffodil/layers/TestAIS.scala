@@ -26,8 +26,8 @@ import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 
 object TestAISPayloadArmoring {
-  lazy val testDir = "/org/apache/daffodil/layers/"
-  lazy val runner = Runner(testDir, "ais.tdml")
+  val testDir = "/org/apache/daffodil/layers/"
+  val runner = Runner(testDir, "ais.tdml")
 
   @AfterClass def shutDown(): Unit = {
     runner.reset

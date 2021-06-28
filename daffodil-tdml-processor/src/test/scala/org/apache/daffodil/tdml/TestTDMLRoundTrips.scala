@@ -60,8 +60,9 @@ class TestTDMLRoundTrips {
                         <ts:document>foo,bar</ts:document>
                       </ts:parserTestCase>
                     </ts:testSuite>
-    lazy val ts = new DFDLTestSuite(testSuite)
-    ts.runOneTest("test1")
+    val runner = new Runner(testSuite)
+    runner.runOneTest("test1")
+    runner.reset
   }
 
   /**
@@ -98,10 +99,11 @@ class TestTDMLRoundTrips {
                         <ts:document>foo,bar</ts:document>
                       </ts:parserTestCase>
                     </ts:testSuite>
-    lazy val ts = new DFDLTestSuite(testSuite)
+    val runner = new Runner(testSuite)
     val e = intercept[TDMLException] {
-      ts.runOneTest("test1")
+      runner.runOneTest("test1")
     }
+    runner.reset
     val m = e.getMessage()
     assertTrue(m.toLowerCase.contains("unparsed data differs"))
   }
@@ -140,8 +142,9 @@ class TestTDMLRoundTrips {
   @Test def testTwoPass1(): Unit = {
 
     val testSuite = needsTwoPassesOnlyTDML("twoPass")
-    lazy val ts = new DFDLTestSuite(testSuite)
-    ts.runOneTest("test1")
+    val runner = new Runner(testSuite)
+    runner.runOneTest("test1")
+    runner.reset
   }
   /**
    * Tests windows style (CRLF) line endings for two pass
@@ -190,8 +193,9 @@ New Line]]></bar>
           </ts:infoset>
         </ts:parserTestCase>
       </ts:testSuite>
-    lazy val ts = new DFDLTestSuite(testSuite)
-    ts.runOneTest("test1")
+    val runner = new Runner(testSuite)
+    runner.runOneTest("test1")
+    runner.reset
   }
 
   /**
@@ -240,8 +244,9 @@ New Line]]></bar>
                         </ts:infoset>
                       </ts:parserTestCase>
                     </ts:testSuite>
-    lazy val ts = new DFDLTestSuite(testSuite)
-    ts.runOneTest("test1")
+    val runner = new Runner(testSuite)
+    runner.runOneTest("test1")
+    runner.reset
   }
 
   def nPassNotNeededTDML(passesEnum: String) =
@@ -280,10 +285,11 @@ New Line]]></bar>
    */
   @Test def testTwoPassNotNeeded1(): Unit = {
     val testSuite = nPassNotNeededTDML("twoPass")
-    lazy val ts = new DFDLTestSuite(testSuite)
+    val runner = new Runner(testSuite)
     val e = intercept[TDMLException] {
-      ts.runOneTest("test1")
+      runner.runOneTest("test1")
     }
+    runner.reset
     val m = e.getMessage()
     assertTrue(m.toLowerCase.contains("should this really be a twopass test"))
   }
@@ -327,9 +333,9 @@ New Line]]></bar>
                         <ts:document>foo,nil,</ts:document>
                       </ts:parserTestCase>
                     </ts:testSuite>
-    lazy val ts = new DFDLTestSuite(testSuite)
-    // ts.areTracing = true
-    ts.runOneTest("test1")
+    val runner = new Runner(testSuite)
+    runner.runOneTest("test1")
+    runner.reset
   }
 
   /**
@@ -339,10 +345,11 @@ New Line]]></bar>
    */
   @Test def testThreePassNotNeeded1(): Unit = {
     val testSuite = nPassNotNeededTDML("threePass")
-    lazy val ts = new DFDLTestSuite(testSuite)
+    val runner = new Runner(testSuite)
     val e = intercept[TDMLException] {
-      ts.runOneTest("test1")
+      runner.runOneTest("test1")
     }
+    runner.reset
     val m = e.getMessage()
     assertTrue(m.toLowerCase.contains("should this really be a threepass test"))
   }
@@ -360,13 +367,14 @@ New Line]]></bar>
   // Forcing the original infoset to NOT match just makes those tests harder to write.
   // FYI: One such test is in PCAP.
   //
-  //  @Test def testThreePassNotNeeded2() {
+  //      ts.runOneTest("test1")
   //
   //    val testSuite = needsTwoPassesOnlyTDML("threePass")
-  //    lazy val ts = new DFDLTestSuite(testSuite)
+  //    val runner = new Runner(testSuite)
   //    val e = intercept[TDMLException] {
-  //      ts.runOneTest("test1")
+  //      runner.runOneTest("test1")
   //    }
+  //    runner.reset
   //    val m = e.getMessage()
   //    assertTrue(m.toLowerCase.contains("should this really be a threepass test"))
   //  }

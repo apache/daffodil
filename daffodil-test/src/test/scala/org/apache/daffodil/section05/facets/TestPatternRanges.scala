@@ -21,7 +21,7 @@ import org.junit.AfterClass
 import org.junit.Test
 
 object TestPatternRanges {
-  lazy val runner = Runner("/org/apache/daffodil/section05/facets", "PatternRanges.tdml")
+  val runner = Runner("/org/apache/daffodil/section05/facets", "PatternRanges.tdml")
 
   @AfterClass def shutDown = {
     runner.reset

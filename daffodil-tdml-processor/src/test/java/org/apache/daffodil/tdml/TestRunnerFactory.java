@@ -18,6 +18,7 @@
 package org.apache.daffodil.tdml;
 
 import java.util.Arrays;
+import java.net.URI;
 
 import org.apache.daffodil.util.Misc;
 import org.junit.Test;
@@ -26,6 +27,7 @@ import org.xml.sax.InputSource;
 import scala.collection.JavaConverters;
 import scala.xml.Elem;
 import scala.xml.XML;
+import scala.util.Right;
 
 public class TestRunnerFactory {
   String testDir = "/org/apache/daffodil/tdml/";
@@ -33,9 +35,18 @@ public class TestRunnerFactory {
 
   @Test
   public void testPrimaryConstructor() {
-    Runner runner = new Runner(null, testDir, testTdmlFile, true, true, false, NoRoundTrip$.MODULE$,
-        "off", JavaConverters.asScalaBufferConverter(Arrays.asList("daffodil", "ibm")).asScala());
+    URI tdmlUri = Misc.getRequiredResource("org/apache/daffodil/tdml/genericTdml.tdml");
+    Right<scala.xml.Elem, String> rightURI = new Right<>(tdmlUri.toString());
+    Runner runner = new Runner(
+      rightURI,
+      true,
+      true,
+      false,
+      NoRoundTrip$.MODULE$,
+      "off",
+      JavaConverters.asScalaBufferConverter(Arrays.asList("daffodil", "ibm")).asScala());
     runner.runOneTest("testPass");
+    runner.reset();
   }
 
   @Test
@@ -46,11 +57,56 @@ public class TestRunnerFactory {
     Elem testXml = (Elem) XML.load(tdmlResource);
     Runner runner = new Runner(testXml);
     runner.runOneTest("testPass");
+    runner.reset();
   }
 
   @Test
   public void testTwoArgConstructor() {
     Runner runner = new Runner(testDir, testTdmlFile);
     runner.runOneTest("testPass");
+    runner.reset();
   }
+
+  @Test
+  public void testDirFileConstructor1() {
+    Runner runner = new Runner("org/apache/daffodil/tdml", "genericTdml.tdml");
+    runner.runOneTest("testPass");
+    runner.reset();
+  }
+
+  @Test
+  public void testDirFileConstructor2() {
+    Runner runner = new Runner("org/apache/daffodil/tdml/", "genericTdml.tdml");
+    runner.runOneTest("testPass");
+    runner.reset();
+  }
+
+  @Test
+  public void testDirFileConstructor3() {
+    Runner runner = new Runner("/org/apache/daffodil/tdml", "genericTdml.tdml");
+    runner.runOneTest("testPass");
+    runner.reset();
+  }
+
+  @Test
+  public void testDirFileConstructor4() {
+    Runner runner = new Runner("/org/apache/daffodil/tdml/", "genericTdml.tdml");
+    runner.runOneTest("testPass");
+    runner.reset();
+  }
+
+  @Test
+  public void testPathConstructor1() {
+    Runner runner = new Runner("org/apache/daffodil/tdml/genericTdml.tdml");
+    runner.runOneTest("testPass");
+    runner.reset();
+  }
+
+  @Test
+  public void testPathConstructor2() {
+    Runner runner = new Runner("/org/apache/daffodil/tdml/genericTdml.tdml");
+    runner.runOneTest("testPass");
+    runner.reset();
+  }
+
 }

@@ -50,10 +50,11 @@ class TestTDMLCrossTest {
           <ts:document>foo</ts:document>
         </ts:parserTestCase>
       </ts:testSuite>
-    lazy val ts = new DFDLTestSuite(testSuite)
+    val runner = new Runner(testSuite)
     val e = intercept[TDMLException] {
-      ts.runOneTest("test1")
+      runner.runOneTest("test1")
     }
+    runner.reset
     val msg = e.getMessage()
     assertTrue(msg.contains("notAnImplName"))
   }

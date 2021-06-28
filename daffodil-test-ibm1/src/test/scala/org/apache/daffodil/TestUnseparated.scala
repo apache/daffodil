@@ -22,7 +22,7 @@ import org.junit.{ AfterClass, Test }
 
 object TestUnseparated {
   val testDir = "/test-suite/tresys-contributed/"
-  lazy val runner = Runner(testDir, "unseparated.tdml")
+  val runner = Runner(testDir, "unseparated.tdml")
 
   @AfterClass def shutDown: Unit = {
     runner.reset

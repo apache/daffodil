@@ -119,14 +119,24 @@ trait TDMLDFDLProcessor {
 
   def unparse(parseResult: TDMLParseResult, outStream: java.io.OutputStream): TDMLUnparseResult
 
+  /**
+   * The TDMLRunner may cache the TDMLDFDLProcessor so that it can be reused
+   * among multiple parse/unparse calls without needing to rebuild the
+   * processor. This function is called once the TDMLRunner is done with the
+   * TMLDFDLProcessor. This allows state such as temporary files to be cleaned
+   * up. Actually does nothing unless overridden by an implementation.
+   */
+  def cleanUp(): Unit = { /* Do nothing */ }
 }
 
 trait TDMLResult {
   def isValidationError: Boolean
   def isProcessingError: Boolean
   def getDiagnostics: Seq[Diagnostic]
+
   /**
-   * Deletes any temporary files that have been generated.
+   * Called once the TDMLRunner has finished analyzing the parse/unparse
+   * result. This allows state such as temporary files to be cleaned up.
    * Actually does nothing unless overridden by an implementation.
    */
   def cleanUp(): Unit = { /* Do nothing */ }

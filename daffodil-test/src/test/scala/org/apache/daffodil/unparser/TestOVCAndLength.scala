@@ -19,16 +19,12 @@ package org.apache.daffodil.unparser
 
 import org.junit.Test
 import org.junit.AfterClass
-import org.apache.daffodil.util._
-import org.apache.daffodil.tdml.DFDLTestSuite
+import org.apache.daffodil.tdml.Runner
 
 object TestOVCAndLength {
-  val testDir = "/org/apache/daffodil/unparser/"
-  val aa = testDir + "OVCAndLengthTest.tdml"
-  var runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
-
+  val runner = Runner("/org/apache/daffodil/unparser/OVCAndLengthTest.tdml")
   @AfterClass def tearDown(): Unit = {
-    runner = null
+    runner.reset
   }
 }
 

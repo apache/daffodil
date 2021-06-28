@@ -18,7 +18,6 @@
 package org.apache.daffodil.tdml
 
 import org.apache.daffodil.util.Misc
-import org.apache.daffodil.exceptions.Assert
 
 /**
  * Creates the DFDLTestSuite object lazily, so the file isn't read into memory
@@ -43,16 +42,24 @@ object Runner {
     compileAllTopLevel: Boolean = false,
     defaultRoundTripDefault: RoundTrip = defaultRoundTripDefaultDefault,
     defaultValidationDefault: String = defaultValidationDefaultDefault,
-    defaultImplementationsDefault: Seq[String] = defaultImplementationsDefaultDefault): Runner =
-    new Runner(elem = null, dir, file, validateTDMLFile, validateDFDLSchemas, compileAllTopLevel,
+    defaultImplementationsDefault: Seq[String] = defaultImplementationsDefaultDefault): Runner = {
+
+    val resourceDir = if (dir.startsWith("/")) dir else "/" + dir
+    val resourcePath = if (resourceDir.endsWith("/")) resourceDir + file else resourceDir + "/" + file
+
+    new Runner(Right(resourcePath), validateTDMLFile, validateDFDLSchemas, compileAllTopLevel,
       defaultRoundTripDefault, defaultValidationDefault, defaultImplementationsDefault)
+  }
+
+  def apply(path: String): Runner =
+    new Runner(path)
 
   def apply(elem: scala.xml.Elem): Runner =
-    new Runner(elem, dir = null, file = null)
+    new Runner(elem)
 
   def apply(elem: scala.xml.Elem, validateTDMLFile: Boolean): Runner =
-    new Runner(elem, dir = null, file = null, validateTDMLFile)
-
+    new Runner(Left(elem), validateTDMLFile)
+  
   // Yes, that's a lot of defaults.....
   // but really it is 3-tiers deep:
   // roundTrip - on test case
@@ -87,12 +94,18 @@ object Runner {
 }
 
 /**
- * Needs to be thread-safe (i.e., use all thread-local state) so that
- * test can be run in parallel.
+ * A Runner is responsible for creating and running tests in a DFDLTestSuite. A
+ * Runner will lazily create a DFDLTestSuite associated with the parameters
+ * only when a test is run. Tests can be run in parallel, and synchronization
+ * will be used to ensure only a single DFDLTestSuite is created and used.
  *
- * Note however, that each thread will get its own copy of the DFDLTestSuite
+ * source is either a scala.xml.Elem, generally used for unit testing or a
+ * String. If the string starts with a forward slash, it is treated is if it
+ * were a resource on the classpath. Otherwise it is treated as if it were a
+ * URI.
  */
-class Runner private (elem: scala.xml.Elem, dir: String, file: String,
+class Runner private (
+  source: Either[scala.xml.Elem, String],
   validateTDMLFile: Boolean = true,
   validateDFDLSchemas: Boolean = true,
   compileAllTopLevel: Boolean = false,
@@ -100,54 +113,96 @@ class Runner private (elem: scala.xml.Elem, dir: String, file: String,
   defaultValidationDefault: String = Runner.defaultValidationDefaultDefault,
   defaultImplementationsDefault: Seq[String] = Runner.defaultImplementationsDefaultDefault) {
 
-  /*
-   * these constructors are for use by Java programs
+
+  /**
+   * Create a runner for the path. This constructor requires this path be on
+   * the classpath. A forward slash is prepended to ensure this path always
+   * works as a classpath resource.
    */
-  def this(dir: String, file:String) =
-    this(null, dir, file)
+  def this(path: String) =
+    this(
+      if (path.startsWith("/")) Right(path)
+      else Right("/" + path)
+    )
 
+  /**
+   * Create a runner for the dir + file combination. This constructor requires
+   * this combined path be on the classpath. A forward slash is appended
+   * between the dir and file if needed, and then we call the "path: String"
+   * constructor which will prepend a forward slash if needed. This ensures
+   * this dir + file path always works as a classpath resource.
+   */
+  def this(dir: String, file: String) =
+    this(
+      if (dir.endsWith("/")) dir + file
+      else dir + "/" + file
+    )
+
+  /**
+   * Create a runner for a URI.
+   */
+  def this(uri: java.net.URI) =
+    this(Right(uri.toString))
+
+  /**
+   * Create a runner for a File
+   */
+  def this(file: java.io.File) =
+    this(file.toURI)
+
+  /**
+   * Create a runner for a scala XML Elem. This is generally only used for testing
+   */
   def this(elem: scala.xml.Elem) =
-    this(elem, null, null)
+    this(Left(elem))
 
-  if (elem ne null)
-    Assert.usage((dir eq null) && (file eq null))
-  else
-    Assert.usage((dir ne null) && (file ne null))
 
-  private lazy val resource = {
-    // This is ok to be a hard-wired "/" because these are resource identifiers, which
-    // are not file-system paths that have to be made platform-specific.
-    // In other words, we don't need to use "\\" for windows here. "/" works there as well.
-    val d = if (dir.endsWith("/")) dir else dir + "/"
-    Misc.getRequiredResource(d + file)
-  }
+  private var ts: DFDLTestSuite = null
 
-  private def getTS = {
+  // This Runner should only ever have a single DFDLTestSuite associated with
+  // it. But different tests using this runner could be run in parallel. We
+  // also do not want to create the runner until a test actually uses it to
+  // avoid unnecessary allocations/computations. So all access of the
+  // underlying test suite should occur through this function, which is
+  // synchronized to ensure we only ever create one per Runner.
+  private[tdml] def getTS = this.synchronized {
     if (ts == null) {
-      if (elem eq null) {
-        tl_ts.set(new DFDLTestSuite(resource, validateTDMLFile, validateDFDLSchemas, compileAllTopLevel,
-          defaultRoundTripDefault, defaultValidationDefault, defaultImplementationsDefault))
-      } else {
-        tl_ts.set(new DFDLTestSuite(elem, validateTDMLFile, validateDFDLSchemas, compileAllTopLevel,
-          defaultRoundTripDefault, defaultValidationDefault, defaultImplementationsDefault))
+      val elemOrURI: Any = source match {
+        case Left(l) => l
+        case Right(r) => if (r.startsWith("/")) Misc.getRequiredResource(r) else new java.net.URI(r)
       }
+      ts = new DFDLTestSuite(
+        null,
+        elemOrURI,
+        validateTDMLFile,
+        validateDFDLSchemas,
+        compileAllTopLevel,
+        defaultRoundTripDefault,
+        defaultValidationDefault,
+        defaultImplementationsDefault,
+        Runner.defaultShouldDoErrorComparisonOnCrossTests,
+        Runner.defaultShouldDoWarningComparisonOnCrossTests)
     }
     ts
   }
 
-  private object tl_ts extends ThreadLocal[DFDLTestSuite]
-
-  private def ts = tl_ts.get
-
-  def runOneTest(testName: String, schema: Option[scala.xml.Node] = None, leakCheck: Boolean = false) =
+  def runOneTest(testName: String, leakCheck: Boolean = false) =
     try {
-      getTS.runOneTest(testName, schema, leakCheck)
+      getTS.runOneTest(testName, leakCheck)
     } finally {
       getTS.setDebugging(false)
     }
 
   def runOneTest(testName: String): Unit = {
-    runOneTest(testName, None, false)
+    runOneTest(testName, false)
+  }
+
+  def runAllTests(): Unit = {
+    getTS.runAllTests()
+  }
+
+  def testCases(): Seq[TestCase] = {
+    getTS.testCases
   }
 
   /**
@@ -155,11 +210,18 @@ class Runner private (elem: scala.xml.Elem, dir: String, file: String,
    *  to drop any state (like the test suite object) so we don't leak
    */
   def reset: Unit = {
-    try {
-      tl_ts.set(null)
-    } catch {
-      case io: java.io.FileNotFoundException => //ok
+    // Note that we intentionally do not use getTS here for two reasons:
+    //
+    // 1) the DFDLTestSuite is lazily created only when a test is run--if no
+    //    tests are ever run, then there is no need to create the
+    //    DFDLTestSuite, which getTS will force.
+    // 2) If creating the DFDLTestSuite leads to an exception, then ts will be
+    //    null and calling getTS here will just cause that same exception to
+    //    occur in the reset method, which can be confusing.
+    if (ts != null) {
+      ts.cleanUp()
     }
+    ts = null
   }
 
   def trace = {

@@ -26,22 +26,24 @@ object TestSimpleTypes2 {
   val testDir = "/org/apache/daffodil/section05/simple_types/"
 
   val runnerAL = Runner(testDir, "AL.tdml")
-  val runner2 = Runner(testDir, "WhiteSpace.tdml")
+  val runnerWS = Runner(testDir, "WhiteSpace.tdml")
   val runnerAJ = Runner(testDir, "AJ.tdml")
   val runnerAK = Runner(testDir, "AK.tdml")
   val runner1 = Runner(testDir, "BitOrder.tdml")
   val runnerST = Runner(testDir, "simple-type-bases.tdml")
 
   val runner = Runner(testDir, "SimpleTypes.tdml")
+  val runner2 = Runner(testDir, "SimpleTypes2.tdml")
 
   @AfterClass def shutDown(): Unit = {
     runnerAL.reset
-    runner2.reset
+    runnerWS.reset
     runnerAJ.reset
     runnerAK.reset
     runner1.reset
     runnerST.reset
     runner.reset
+    runner2.reset
   }
 }
 
@@ -56,13 +58,13 @@ class TestSimpleTypes2 {
   @Test def test_AK000(): Unit = { runnerAK.runOneTest("AK000") }
   @Test def test_AK001(): Unit = { runnerAK.runOneTest("AK001") }
 
-  @Test def test_redefinedFormat(): Unit = { runner2.runOneTest("redefinedFormat") }
-  @Test def test_whiteSpaceBeforeLax(): Unit = { runner2.runOneTest("whiteSpaceBeforeLax") }
-  @Test def test_whiteSpaceAfterLax(): Unit = { runner2.runOneTest("whiteSpaceAfterLax") }
-  @Test def test_whiteSpaceDuringLax(): Unit = { runner2.runOneTest("whiteSpaceDuringLax") }
-  @Test def test_whiteSpaceBeforeStrict(): Unit = { runner2.runOneTest("whiteSpaceBeforeStrict") }
-  @Test def test_whiteSpaceDuringStrict(): Unit = { runner2.runOneTest("whiteSpaceDuringStrict") }
-  @Test def test_whiteSpaceAfterStrict(): Unit = { runner2.runOneTest("whiteSpaceAfterStrict") }
+  @Test def test_redefinedFormat(): Unit = { runnerWS.runOneTest("redefinedFormat") }
+  @Test def test_whiteSpaceBeforeLax(): Unit = { runnerWS.runOneTest("whiteSpaceBeforeLax") }
+  @Test def test_whiteSpaceAfterLax(): Unit = { runnerWS.runOneTest("whiteSpaceAfterLax") }
+  @Test def test_whiteSpaceDuringLax(): Unit = { runnerWS.runOneTest("whiteSpaceDuringLax") }
+  @Test def test_whiteSpaceBeforeStrict(): Unit = { runnerWS.runOneTest("whiteSpaceBeforeStrict") }
+  @Test def test_whiteSpaceDuringStrict(): Unit = { runnerWS.runOneTest("whiteSpaceDuringStrict") }
+  @Test def test_whiteSpaceAfterStrict(): Unit = { runnerWS.runOneTest("whiteSpaceAfterStrict") }
 
   // THIS TEST won't round trip until encoding for 7-bit ascii is implemented
   // Currently this is set to roundTrip="false"
@@ -89,6 +91,10 @@ class TestSimpleTypes2 {
   //@Test def test_bitOrderChangeInvalid3() { runner1.runOneTest("bitOrderChangeInvalid3") }
   //@Test def test_bitOrderChangeInvalid() { runner3.runOneTest("bitOrderChangeInvalid") }
 
+  // DAFFODIL-1001 fixed.
+  @Test def test_bigEndianLeastFirst(): Unit = { runner1.runOneTest("bigEndianLeastFirst") }
+
+
   @Test def test_simpleTypeDerivedFromPrimType(): Unit = { runnerST.runOneTest("simpleTypeDerivedFromPrimType") }
   @Test def test_simpleTypeChainedDerivations(): Unit = { runnerST.runOneTest("simpleTypeChainedDerivations") }
   @Test def test_simpleTypeOverlapPrimError(): Unit = { runnerST.runOneTest("simpleTypeOverlapPrimError") }
@@ -102,4 +108,6 @@ class TestSimpleTypes2 {
   @Test def test_restrictionBaseEmbeddedLeadlingSpace(): Unit = { runner.runOneTest("restrictionBaseEmbeddedLeadingSpace") }
   @Test def test_restrictionBaseEmbeddedTrailingSpace(): Unit = { runner.runOneTest("restrictionBaseEmbeddedTrailingSpace") }
 
+  // DAFFODIL-2204
+  @Test def test_terminatorErrorMessage(): Unit = { runner2.runOneTest("terminatorErrorMessage") }
 }

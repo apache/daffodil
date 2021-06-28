@@ -67,4 +67,19 @@ class TestExternalVariables {
   @Test def test_set_predefined_var(): Unit = {
     runner.runOneTest("set_predefined_var")
   }
+
+  // Tests that we can specify a file in the parser
+  // test case.
+  @Test def test_read_config_from_file(): Unit = {
+    runner.runOneTest("read_config_from_file")
+  }
+
+  /**
+   * Test that a default XMLNS binding isn't present. That would be broken
+   * as this schema depends on unqualified child element names
+   * (elementFormDefault unqualified, which is the default)
+   */
+  @Test def test_testNoRootUnnecessaryBinding(): Unit = {
+    runner.runOneTest("testNoRootUnnecessaryBinding")
+  }
 }

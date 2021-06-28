@@ -18,10 +18,15 @@
 package org.apache.daffodil.tdml
 
 import org.junit.Test
+import org.junit.AfterClass
 
 object TestExtVars1 {
   val testDir = "org/apache/daffodil/tdml/"
-  lazy val runner = Runner(testDir, "testExtVars1.tdml")
+  val runner = Runner(testDir, "testExtVars1.tdml")
+
+  @AfterClass def shutDown: Unit = {
+    runner.reset
+  }
 }
 
 class TestExtVars1 {

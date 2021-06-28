@@ -43,7 +43,7 @@ import org.junit.Test
 /**
  * Tests for compiler-oriented XPath interface aka CompiledExpression
  */
-class TestExternalVariablesNew {
+class TestExternalVariables {
   val xsd = XMLUtils.XSD_NAMESPACE
   val dfdl = XMLUtils.DFDL_NAMESPACE
   val xsi = XMLUtils.XSI_NAMESPACE

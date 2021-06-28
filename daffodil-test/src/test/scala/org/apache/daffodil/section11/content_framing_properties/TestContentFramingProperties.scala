@@ -24,7 +24,7 @@ import org.junit.AfterClass
 object TestContentFramingProperties {
 
   private val testDir_02 = "/org/apache/daffodil/section11/content_framing_properties/"
-  lazy val runner2 = Runner(testDir_02, "ContentFramingProps.tdml")
+  val runner2 = Runner(testDir_02, "ContentFramingProps.tdml")
 
   @AfterClass def shutdown: Unit = {
     runner2.reset

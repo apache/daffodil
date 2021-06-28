@@ -87,10 +87,11 @@ class TestTDMLRunnerWarnings {
         </tdml:parserTestCase>
       </tdml:testSuite>
 
-    lazy val ts = new DFDLTestSuite(testSuite)
+    val runner = new Runner(testSuite)
     val e = intercept[Exception] {
-      ts.runOneTest("warningWhenExpectingSuccess")
+      runner.runOneTest("warningWhenExpectingSuccess")
     }
+    runner.reset
     val msg = e.getMessage()
     if (!msg.contains("This will not be found")) {
       fail("TDML Warnings were not checked")
@@ -134,10 +135,11 @@ class TestTDMLRunnerWarnings {
         </tdml:parserTestCase>
       </tdml:testSuite>
 
-    lazy val ts = new DFDLTestSuite(testSuite)
+    val runner = new Runner(testSuite)
     val e = intercept[Exception] {
-      ts.runOneTest("warningWhenExpectingError")
+      runner.runOneTest("warningWhenExpectingError")
     }
+    runner.reset
     val msg = e.getMessage()
     if (!msg.contains("This will not be found")) {
       fail("TDML Warnings were not checked")
@@ -179,10 +181,11 @@ class TestTDMLRunnerWarnings {
         </tdml:unparserTestCase>
       </tdml:testSuite>
 
-    lazy val ts = new DFDLTestSuite(testSuite)
+    val runner = new Runner(testSuite)
     val e = intercept[Exception] {
-      ts.runOneTest("unparserWarningWhenExpectingSuccess")
+      runner.runOneTest("unparserWarningWhenExpectingSuccess")
     }
+    runner.reset
     val msg = e.getMessage()
     if (!msg.contains("This will not be found")) {
       fail("TDML Warnings were not checked")
@@ -230,10 +233,11 @@ class TestTDMLRunnerWarnings {
         </tdml:unparserTestCase>
       </tdml:testSuite>
 
-    lazy val ts = new DFDLTestSuite(testSuite)
+    val runner = new Runner(testSuite)
     val e = intercept[Exception] {
-      ts.runOneTest("unparserWarningWhenExpectingError")
+      runner.runOneTest("unparserWarningWhenExpectingError")
     }
+    runner.reset
     val msg = e.getMessage()
     if (!msg.contains("This will not be found")) {
       fail("TDML Warnings were not checked")

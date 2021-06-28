@@ -18,17 +18,13 @@
 package org.apache.daffodil.section14.sequence_groups
 
 import org.junit.Test
-import org.apache.daffodil.util.Misc
-import org.apache.daffodil.tdml.DFDLTestSuite
+import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 
 object TestSequenceGroupUnparse {
-  val testDir = "org/apache/daffodil/section14/sequence_groups/"
-  val aa = testDir + "SequenceGroupUnparse.tdml"
-  val res = Misc.getRequiredResource(aa)
-  var runner = new DFDLTestSuite(res)
+  val runner = Runner("/org/apache/daffodil/section14/sequence_groups/SequenceGroupUnparse.tdml")
   @AfterClass def shutDown: Unit = {
-    runner = null
+    runner.reset
   }
 }
 class TestSequenceGroupUnparse {

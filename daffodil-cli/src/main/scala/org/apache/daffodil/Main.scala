@@ -84,7 +84,7 @@ import org.apache.daffodil.processors.DataProcessor
 import org.apache.daffodil.processors.HasSetDebugger
 import org.apache.daffodil.processors.ExternalVariableException
 import org.apache.daffodil.schema.annotation.props.gen.BitOrder
-import org.apache.daffodil.tdml.DFDLTestSuite
+import org.apache.daffodil.tdml.Runner
 import org.apache.daffodil.tdml.TDMLException
 import org.apache.daffodil.tdml.TDMLTestNotCompatibleException
 import org.apache.daffodil.udf.UserDefinedFunctionFatalErrorException
@@ -1345,8 +1345,7 @@ object Main extends Logging {
         val testOpts = conf.test
 
         val tdmlFile = testOpts.tdmlfile()
-        val tdmlRunner = new DFDLTestSuite(new java.io.File(tdmlFile))
-        setupDebugOrTrace(tdmlRunner, conf)
+        val tdmlRunner = new Runner(new java.io.File(tdmlFile))
 
         val tests = {
           if (testOpts.testnames.isDefined) {
@@ -1363,6 +1362,8 @@ object Main extends Logging {
             tdmlRunner.testCases.map(test => (test.tcName, Some(test)))
           }
         }.distinct.sortBy(_._1)
+
+        tdmlRunner.reset
 
         if (testOpts.list()) {
           if (testOpts.info() > 0) {

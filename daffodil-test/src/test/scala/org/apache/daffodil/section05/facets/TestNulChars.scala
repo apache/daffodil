@@ -21,7 +21,7 @@ import org.junit.AfterClass
 import org.junit.Test
 
 object TestNulChars {
-  lazy val runner = Runner("/org/apache/daffodil/section05/facets", "NulChars.tdml")
+  val runner = Runner("/org/apache/daffodil/section05/facets", "NulChars.tdml")
 
   @AfterClass def shutDown = {
     runner.reset

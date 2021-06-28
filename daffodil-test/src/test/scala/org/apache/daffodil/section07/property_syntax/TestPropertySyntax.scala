@@ -52,4 +52,7 @@ class TestPropertySyntax {
   @Test def test_dfdlxProperty2(): Unit = { runner1.runOneTest("dfdlxProperty2") }
 
   @Test def test_ignoredPropertiesWarning(): Unit = { runner1.runOneTest("ignoredPropertiesWarning") }
+
+  @Test def test_badElementFormProperty(): Unit = { runner1.runOneTest("badElementFormProperty") }
+  @Test def test_badElementFormProperty2(): Unit = { runner1.runOneTest("badElementFormProperty2") }
 }

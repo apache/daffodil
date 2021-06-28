@@ -72,4 +72,6 @@ class TestEscapeSchemeUnparse {
   @Test def test_parseDelimitedEscapedString04(): Unit = { runner.runOneTest("parseDelimitedEscapedString04") }
 
   @Test def test_runtimeUnparseDelimiterEscapeConflict(): Unit = { runner.runOneTest("runtimeUnparseDelimiterEscapeConflict") }
+
+  @Test def test_unparseInvalidExtraEscapedCharacters(): Unit = { runner.runOneTest("unparseInvalidExtraEscapedCharacters") }
 }

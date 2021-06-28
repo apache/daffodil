@@ -96,13 +96,15 @@ class TestTDMLRunnerTutorial {
 
   @Test def testTutorialElementsParse(): Unit = {
     val testSuite = tdmlWithTutorial
-    lazy val ts = new DFDLTestSuite(testSuite)
-    ts.runOneTest("testTutorialElementsParse")
+    val runner = new Runner(testSuite)
+    runner.runOneTest("testTutorialElementsParse")
+    runner.reset
   }
 
   @Test def testTutorialElementsUnparse(): Unit = {
     val testSuite = tdmlWithTutorial
-    lazy val ts = new DFDLTestSuite(testSuite)
-    ts.runOneTest("testTutorialElementsUnparse")
+    val runner = new Runner(testSuite)
+    runner.runOneTest("testTutorialElementsUnparse")
+    runner.reset
   }
 }

@@ -21,7 +21,7 @@ import org.apache.daffodil.tdml.Runner
 import org.junit.{AfterClass, Test}
 
 object TestBoolean {
-  lazy val runner = Runner("/org/apache/daffodil/section13/boolean/", "boolean.tdml")
+  val runner = Runner("/org/apache/daffodil/section13/boolean/", "boolean.tdml")
 
   @AfterClass def shutdown: Unit = { runner.reset }
 

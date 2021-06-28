@@ -82,7 +82,7 @@ class Runtime2DataProcessor(executableFile: os.Path) extends DFDL.DataProcessorB
    * Returns an object which contains the result, and/or diagnostic information.
    */
   def parse(input: InputStream): ParseResult = {
-    val tempDir = os.temp.dir()
+    val tempDir = os.temp.dir(dir = null, prefix = "daffodil-runtime2-")
     val infile = tempDir/"infile"
     val outfile = tempDir/"outfile"
     try {
@@ -118,7 +118,7 @@ class Runtime2DataProcessor(executableFile: os.Path) extends DFDL.DataProcessorB
    * Unparses (that is, serializes) data to the output, returns an object which contains any diagnostics.
    */
   def unparse(input: InputStream, output: OutputStream): UnparseResult = {
-    val tempDir = os.temp.dir()
+    val tempDir = os.temp.dir(dir = null, prefix = "daffodil-runtime2-")
     val infile = tempDir/"infile"
     val outfile = tempDir/"outfile"
     try {
