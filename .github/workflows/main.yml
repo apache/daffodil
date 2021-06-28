@@ -20,7 +20,7 @@ name: Daffodil CI
 
 on:
   push:
-    branches: [ master ]
+    branches-ignore: [ 'dependabot/**' ]
   pull_request:
     types: [opened, synchronize, reopened]
 
@@ -54,6 +54,14 @@ jobs:
       AR: ${{ matrix.env_ar }}
       CC: ${{ matrix.env_cc }}
       SBT: sbt -J-Xms1024m -J-Xmx5120m -J-XX:ReservedCodeCacheSize=512m -J-XX:MaxMetaspaceSize=1024m ++${{ matrix.scala_version }}
+      SONARSCAN: ${{
+                     matrix.os == 'ubuntu-20.04' &&
+                     matrix.java_version == '11' &&
+                     matrix.scala_version == '2.12.14' &&
+                     github.event_name == 'push' &&
+                     github.repository == 'apache/daffodil' &&
+                     github.ref == 'refs/heads/master'
+                  }}
 
     steps:
 
@@ -147,13 +155,13 @@ jobs:
         uses: codecov/codecov-action@v1.5.2
 
       - name: Prepare for SonarCloud Scan
-        if: ${{ runner.os == 'Linux' && matrix.java_version == '11' && github.repository == 'apache/daffodil' }}
+        if: ${{ env.SONARSCAN == 'true' }}
         run: |
           $SBT coverageReport
           find . -name scoverage.xml -exec sed -i 's#/home/runner/work/daffodil/daffodil#/github/workspace#g' {} +
 
       - name: Run SonarCloud Scan
-        if: ${{ runner.os == 'Linux' && matrix.java_version == '11' && github.repository == 'apache/daffodil' }}
+        if: ${{ env.SONARSCAN == 'true' }}
         uses: sonarsource/sonarcloud-github-action@v1.6
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

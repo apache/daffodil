@@ -23,7 +23,7 @@ import org.junit.Test
 
 object TestPacked {
   val testDir = "/org/apache/daffodil/section13/packed/"
-  lazy val runner = Runner(testDir, "packed.tdml")
+  val runner = Runner(testDir, "packed.tdml")
 
   @AfterClass def shutdown(): Unit = {
     runner.reset

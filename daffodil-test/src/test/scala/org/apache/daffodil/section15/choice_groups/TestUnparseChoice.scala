@@ -39,4 +39,8 @@ class TestUnparseChoice {
   @Test def test_choice4(): Unit = { runnerCH.runOneTest("choice4") }
   @Test def test_choice5(): Unit = { runnerCH.runOneTest("choice5") }
   @Test def test_choice6(): Unit = { runnerCH.runOneTest("choice6") }
+  @Test def test_choice7(): Unit = { runnerCH.runOneTest("choice7") }
+  @Test def test_choice8(): Unit = { runnerCH.runOneTest("choice8") }
+  @Test def test_choice9(): Unit = { runnerCH.runOneTest("choice9") }
+  @Test def test_choice10(): Unit = { runnerCH.runOneTest("choice10") }
 }

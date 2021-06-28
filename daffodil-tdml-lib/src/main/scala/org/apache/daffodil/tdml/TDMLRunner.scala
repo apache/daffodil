@@ -185,8 +185,7 @@ class DFDLTestSuite private[tdml] (
   // Uncomment to force conversion of all test suites to use Runner(...) instead.
   // That avoids creating the test suites repeatedly, but also leaks memory unless
   // you have an @AfterClass shutdown method in the object that calls runner.reset() at end.
-  //
-  // @deprecated("Use Runner(...) instead.", "2016-12-30")
+  @deprecated("Use Runner(...) instead.", "3.2.0")
   def this(
     aNodeFileOrURL: Any,
     validateTDMLFile: Boolean = true,
@@ -204,12 +203,6 @@ class DFDLTestSuite private[tdml] (
       shouldDoErrorComparisonOnCrossTests,
       shouldDoWarningComparisonOnCrossTests)
 
-  /*
-  These checks happen at object construction time.
-  They are just checks on the constructor arguments.
-   */
-  if (!aNodeFileOrURL.isInstanceOf[scala.xml.Node])
-    System.err.println("Creating DFDL Test Suite for " + aNodeFileOrURL)
   val TMP_DIR = System.getProperty("java.io.tmpdir", ".")
 
   aNodeFileOrURL match {
@@ -383,9 +376,9 @@ class DFDLTestSuite private[tdml] (
     res
   }
 
-  def runAllTests(schema: Option[Node] = None): Unit = {
+  def runAllTests(): Unit = {
     if (isTDMLFileValid)
-      testCases.map { _.run(schema) }
+      testCases.map { _.run() }
     else {
       log(LogLevel.Error, "TDML file %s is not valid.", tsURI)
     }
@@ -407,7 +400,7 @@ class DFDLTestSuite private[tdml] (
     daffodilDebugger = db
   }
 
-  def runOneTest(testName: String, schema: Option[Node] = None, leakCheck: Boolean = false): Unit = {
+  def runOneTest(testName: String, leakCheck: Boolean = false): Unit = {
     if (leakCheck) {
       System.gc()
       Thread.sleep(1) // needed to give tools like jvisualvm ability to "grab on" quickly
@@ -423,7 +416,7 @@ class DFDLTestSuite private[tdml] (
       testCase match {
         case None => throw TDMLException("test " + testName + " was not found.", None)
         case Some(tc) => {
-          tc.run(schema)
+          tc.run()
         }
       }
     } else {
@@ -465,6 +458,66 @@ class DFDLTestSuite private[tdml] (
     val dups = grouped.filter { case (key, s) => s.size > 1 }
     if (dups.size > 0) {
       throw TDMLException("Duplicate definitions found for " + name + ": " + dups.keys.mkString(", "), None)
+    }
+  }
+
+  /**
+   * The CompileResult cache is stored in the DFDLTestSuite instance. This
+   * means any tests run from the same instance can share the same compiled
+   * processor. Once the DFDLTestSuite goes out of scope and is garbage
+   * collected, so too will be the compiled processors. Running the tests again
+   * will require creating a new DFDLTestSuite instance, and thus will
+   * recompile the schema.
+   */
+  private val tdmlCompileResultCache = mutable.HashMap[TDMLCompileResultCacheKey, TDML.CompileResult]()
+
+  case class TDMLCompileResultCacheKey (
+    impl: String,
+    suppliedSchema: DaffodilSchemaSource,
+    useSerializedProcessor: Boolean,
+    optRootName: Option[String],
+    optRootNamespace: Option[String],
+    tunables: Map[String, String],
+  )
+
+  // Multiple test cases could use the same schema, and because they can be
+  // executed in parallel, could request the same CompileResult from different
+  // threads. To ensure we only compile these schemas once, we cache the
+  // compile results inside this DFDLTestSuite. So any tests run from the same
+  // test suite can share compile results. To deal with potential thread races
+  // and two threads trying to compile the same schema in parallel, we
+  // synchronize this function on this DFDLTestSuite.
+  def getCompileResult(
+    impl: AbstractTDMLDFDLProcessorFactory,
+    suppliedSchema: DaffodilSchemaSource,
+    useSerializedProcessor: Boolean,
+    optRootName: Option[String],
+    optRootNamespace: Option[String],
+    tunables: Map[String, String]): TDML.CompileResult = this.synchronized {
+
+    val key = TDMLCompileResultCacheKey(
+      impl.implementationName,
+      suppliedSchema,
+      useSerializedProcessor,
+      optRootName,
+      optRootNamespace,
+      tunables)
+    val compileResult: TDML.CompileResult = {
+      tdmlCompileResultCache.getOrElseUpdate(key, {
+        impl.getProcessor(
+          suppliedSchema,
+          useSerializedProcessor,
+          optRootName,
+          optRootNamespace,
+          tunables)
+      })
+    }
+    compileResult
+  }
+
+  def cleanUp(): Unit = {
+    tdmlCompileResultCache.values.foreach { compileRes =>
+      compileRes.map { _._2.cleanUp() }
     }
   }
 
@@ -566,7 +619,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
     } else rootAttrib
   }
 
-  def getRootNamespaceString(schemaArg : Option[Node]) = {
+  def getRootNamespaceString() = {
     if (optExpectedOrInputInfoset.isDefined)
       infosetRootNamespaceString
     else if (optEmbeddedSchema.isDefined)
@@ -581,18 +634,16 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
       // target namespace URI (if any) from the primary
       // schema file. If that turns out to be wrong, then
       // the test case has to have an explicit rootNS attribute.
-      val schemaNode = schemaArg.getOrElse {
-        val schemaSource = getSuppliedSchema(None)
+      val schemaSource = getSuppliedSchema()
 
-        val node = try{
-          parent.loader.load(schemaSource, Some(XMLUtils.schemaForDFDLSchemas),
-            addPositionAttributes = true) // want line numbers for schemas
-        } catch {
-          // any exception while loading then we just use a dummy node.
-          case e:SAXParseException => <dummy/>
-        }
-        node
+      val schemaNode = try{
+        parent.loader.load(schemaSource, Some(XMLUtils.schemaForDFDLSchemas),
+          addPositionAttributes = true) // want line numbers for schemas
+      } catch {
+        // any exception while loading then we just use a dummy node.
+        case e:SAXParseException => <dummy/>
       }
+
       val tns = (schemaNode \ "@targetNamespace").text
       val nsURIString = {
         if (tns != "") tns
@@ -677,22 +728,15 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
     if (model == "") None
     else parent.findSchemaFileName(model)
 
-  def getSuppliedSchema(schemaArg: Option[Node]): DaffodilSchemaSource = {
-    val suppliedSchema = (schemaArg, optEmbeddedSchema, optSchemaFileURI) match {
-      case (None, None, None) => throw TDMLException("Model '" + model + "' was not passed, found embedded in the TDML file, nor as a schema file.", None)
-      case (None, Some(_), Some(_)) => throw TDMLException("Model '" + model + "' is ambiguous. There is an embedded model with that name, AND a file with that name.", None)
-      case (Some(node), _, _) => {
-        // unit test case. There is no URI/file location
-        if (model != "") throw TDMLException("You supplied a model attribute, and a schema argument. Can't have both.", None)
-        // note that in this case, since a node was passed in, this node has no file/line/col information on it
-        // so error messages will end up being about some temp file.
-        UnitTestSchemaSource(node, tcName)
-      }
-      case (None, Some(embeddedSchemaSource), None) => {
+  def getSuppliedSchema(): DaffodilSchemaSource = {
+    val suppliedSchema = (optEmbeddedSchema, optSchemaFileURI) match {
+      case (None, None) => throw TDMLException("Model '" + model + "' was not passed, found embedded in the TDML file, nor as a schema file.", None)
+      case (Some(_), Some(_)) => throw TDMLException("Model '" + model + "' is ambiguous. There is an embedded model with that name, AND a file with that name.", None)
+      case (Some(embeddedSchemaSource), None) => {
         Assert.invariant(model != "") // validation of the TDML should prevent this
         embeddedSchemaSource
       }
-      case (None, None, Some(uri)) => {
+      case (None, Some(uri)) => {
         //
         // In this case, we have a real TDML file (or resource) to open
         URISchemaSource(uri)
@@ -793,8 +837,8 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
     case Some(definedConfig) => retrieveBindings(definedConfig, tunableObj)
   }
 
-  def run(schemaArg: Option[Node] = None): Unit = {
-    val suppliedSchema = getSuppliedSchema(schemaArg)
+  def run(): Unit = {
+    val suppliedSchema = getSuppliedSchema()
 
     var impl: AbstractTDMLDFDLProcessorFactory = this.tdmlDFDLProcessorFactory
     val implString = Some(impl.implementationName)
@@ -826,13 +870,16 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
         else if (optExpectedWarnings.isDefined) false
         else true
 
-      val rootNamespaceString = getRootNamespaceString(schemaArg)
-      val compileResult: TDML.CompileResult = impl.getProcessor(
+      val rootNamespaceString = getRootNamespaceString()
+
+      val compileResult: TDML.CompileResult = parent.getCompileResult(
+        impl,
         suppliedSchema,
         useSerializedProcessor,
         Option(rootName),
         Option(rootNamespaceString),
         tunables)
+
       val newCompileResult : TDML.CompileResult = compileResult.right.map {
         case (diags, proc: TDMLDFDLProcessor) =>
           // warnings are checked elsewhere for expected ones.

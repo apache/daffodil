@@ -26,7 +26,7 @@ import org.junit.Test
 import org.apache.daffodil.xml._
 import scala.util.Success
 
-class TestExternalVariablesNew extends Logging {
+class TestExternalVariables extends Logging {
 
   @Test def testQNameForIndividualVars() = {
     // This test just verifies that we're getting back

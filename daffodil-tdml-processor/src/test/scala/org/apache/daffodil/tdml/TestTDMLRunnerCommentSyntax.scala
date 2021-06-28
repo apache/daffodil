@@ -87,8 +87,9 @@ class TestTDMLRunnerCommentSyntax {
         <!-- comment -->
       </tdml:testSuite>
 
-    lazy val ts = new DFDLTestSuite(testSuite)
-    ts.runOneTest("test1")
+    val runner = new Runner(testSuite)
+    runner.runOneTest("test1")
+    runner.reset
     // if we don't throw/fail when running then pass this test.
   }
 

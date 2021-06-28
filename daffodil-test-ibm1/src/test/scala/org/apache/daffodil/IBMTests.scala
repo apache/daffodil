@@ -17,18 +17,18 @@
 
 package org.apache.daffodil
 
-import org.apache.daffodil.tdml.DFDLTestSuite
-import org.apache.daffodil.util.Misc
+import org.apache.daffodil.tdml.Runner
 import org.junit.Test
-import org.junit.Test
+import org.junit.AfterClass
 
 object IBMTestsThatPass {
+  val runner1 = Runner("/test-suite/ibm-contributed/", "dpaext1.tdml", validateTDMLFile = true, validateDFDLSchemas = false)
+  val runner2 = Runner("/test-suite/ibm-contributed/dpaext2.tdml")
 
-  val testDir = "/test-suite/ibm-contributed/"
-  val tdml1 = testDir + "dpaext1.tdml"
-  val tdml2 = testDir + "dpaext2.tdml"
-  lazy val runner1 = new DFDLTestSuite(Misc.getRequiredResource(tdml1), validateTDMLFile = true, validateDFDLSchemas = false)
-  lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
+  @AfterClass def tearDown(): Unit = {
+    runner1.reset
+    runner2.reset
+  }
 }
 
 class IBMTestsThatPass {

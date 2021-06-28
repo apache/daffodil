@@ -29,6 +29,8 @@ object TestDiscriminators {
 
   @AfterClass def shutDown(): Unit = {
     runner.reset
+    runner2.reset
+    runner3.reset
   }
 
 }

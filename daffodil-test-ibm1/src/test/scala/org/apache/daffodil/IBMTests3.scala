@@ -17,17 +17,19 @@
 
 package org.apache.daffodil
 
-import org.apache.daffodil.tdml.DFDLTestSuite
-import org.apache.daffodil.util.Misc
+import org.apache.daffodil.tdml.Runner
 import org.junit.Test
+import org.junit.AfterClass
 
 object IBMTestsThatPass2 {
 
-  val testDir = "/test-suite/ibm-contributed/"
-  val tdml1 = testDir + "dpaext1.tdml"
-  val tdml2 = testDir + "dpaext2.tdml"
-  lazy val runner1 = new DFDLTestSuite(Misc.getRequiredResource(tdml1))
-  lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
+  val runner1 = Runner("/test-suite/ibm-contributed/dpaext1.tdml")
+  val runner2 = Runner("/test-suite/ibm-contributed/dpaext2.tdml")
+
+  @AfterClass def shutDown(): Unit = {
+    runner1.reset
+    runner2.reset
+  }
 }
 
 class IBMTestsThatPass2 {

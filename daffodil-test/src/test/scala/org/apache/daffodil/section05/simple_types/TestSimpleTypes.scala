@@ -547,5 +547,14 @@ class TestSimpleTypes {
   @Test def test_float_binary_fail_01(): Unit = { runner.runOneTest("float_binary_fail_01") }
   @Test def test_float_binary_fail_02(): Unit = { runner.runOneTest("float_binary_fail_02") }
   @Test def test_float_binary_fail_03(): Unit = { runner.runOneTest("float_binary_fail_03") }
+  
+  @Test def test_time_calendarTimeZone_EmptyString(): Unit = { runner.runOneTest("time_calendarTimeZone_EmptyString") }
+  @Test def test_time_calendarTimeZone_EST(): Unit = { runner.runOneTest("time_calendarTimeZone_EST") }
+  @Test def test_date_calendarTimeZone_EmptyString(): Unit = { runner.runOneTest("date_calendarTimeZone_EmptyString") }
+  @Test def test_date_calendarTimeZone_EST(): Unit = { runner.runOneTest("date_calendarTimeZone_EST") }
+  @Test def test_dateTime_calendarTimeZone_EmptyString(): Unit = { runner.runOneTest("dateTime_calendarTimeZone_EmptyString") }
+  @Test def test_dateTime_calendarTimeZone_EST(): Unit = { runner.runOneTest("dateTime_calendarTimeZone_EST") }
+
+  @Test def test_hexBinary_specifiedLengthUnaligned(): Unit = { runner.runOneTest("hexBinary_specifiedLengthUnaligned") }
 
 }

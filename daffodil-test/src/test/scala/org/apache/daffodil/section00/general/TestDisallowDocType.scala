@@ -40,9 +40,9 @@ object TestDisallowDocType {
 
   // This TDML file has a DOCTYPE declaration, so we should fail to
   // load it. However, that happens lazily.
-  lazy val runner1 = Runner(testDir, "hasDocType.tdml")
+  val runner1 = Runner(testDir, "hasDocType.tdml")
 
-  lazy val runner2 = Runner(testDir, "disallowDocTypes.tdml")
+  val runner2 = Runner(testDir, "disallowDocTypes.tdml")
 
   @AfterClass def shutDown(): Unit = {
     runner1.reset

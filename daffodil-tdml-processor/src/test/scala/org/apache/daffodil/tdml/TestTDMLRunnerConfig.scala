@@ -52,10 +52,11 @@ class TestTDMLRunnerConfig {
         </tdml:parserTestCase>
       </tdml:testSuite>
 
-    lazy val ts = new DFDLTestSuite(testSuite)
+    val runner = new Runner(testSuite)
     val e = intercept[Exception] {
-      ts.runOneTest("test1")
+      runner.runOneTest("test1")
     }
+    runner.reset
     val msg = e.getMessage()
     assertTrue(msg.contains("defaultConfig"))
     assertTrue(msg.contains("nonsense"))
@@ -80,10 +81,11 @@ class TestTDMLRunnerConfig {
         </tdml:parserTestCase>
       </tdml:testSuite>
 
-    lazy val ts = new DFDLTestSuite(testSuite)
+    val runner = new Runner(testSuite)
     val e = intercept[Exception] {
-      ts.runOneTest("test1")
+      runner.runOneTest("test1")
     }
+    runner.reset
     val msg = e.getMessage()
     assertTrue(msg.contains("config"))
     assertTrue(msg.contains("nonsense"))
@@ -113,9 +115,9 @@ class TestTDMLRunnerConfig {
         </tdml:parserTestCase>
       </tdml:testSuite>
 
-    lazy val ts = new DFDLTestSuite(testSuite)
+    val runner = new Runner(testSuite)
     val e = intercept[Exception] {
-      ts.runOneTest("test1")
+      runner.runOneTest("test1")
     }
     val msg = e.getMessage()
     assertTrue(msg.contains("defaultConfig"))
@@ -145,8 +147,9 @@ class TestTDMLRunnerConfig {
         </tdml:parserTestCase>
       </tdml:testSuite>
 
-    lazy val ts = new DFDLTestSuite(testSuite)
-    ts.runOneTest("test1")
+    val runner = new Runner(testSuite)
+    runner.runOneTest("test1")
+    runner.reset
   }
 
   @Test def testGoodDefaultConfigNoBitOrderProp() = {
@@ -171,8 +174,9 @@ class TestTDMLRunnerConfig {
         </tdml:parserTestCase>
       </tdml:testSuite>
 
-    lazy val ts = new DFDLTestSuite(testSuite)
-    ts.runOneTest("test1")
+    val runner = new Runner(testSuite)
+    runner.runOneTest("test1")
+    runner.reset
   }
 
   @Test def testAmbiguousFileAndDefaultConfig() = {
@@ -198,10 +202,11 @@ class TestTDMLRunnerConfig {
         </tdml:parserTestCase>
       </tdml:testSuite>
 
-    lazy val ts = new DFDLTestSuite(testSuite)
+    val runner = new Runner(testSuite)
     val e = intercept[Exception] {
-      ts.runOneTest("test1")
+      runner.runOneTest("test1")
     }
+    runner.reset
     val msg = e.getMessage()
     assertTrue(msg.contains("ambiguous"))
     assertTrue(msg.contains("testConfigFile.xml"))

@@ -17,86 +17,66 @@
 
 package org.apache.daffodil
 
-import org.apache.daffodil.tdml.DFDLTestSuite
-import org.apache.daffodil.util.Misc
-import org.junit.{ AfterClass, Test }
 import org.apache.daffodil.tdml.Runner
+import org.junit.AfterClass
+import org.junit.Test
 
 object TresysTests {
 
-  // Debug Template
-  // @Test def test_name() = Debugger.withDebugger {
-  // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
-  // runner.runOneTest("test_name")
-  // }
-
-  val testDir = "/test-suite/tresys-contributed/"
-
-  lazy val runnerDelimited = Runner(testDir, "delimTests.tdml")
-
-  lazy val runnerMD = Runner(testDir, "multiple-diagnostics.tdml", compileAllTopLevel = true)
-  lazy val runnerMD_NV = Runner(testDir, "multiple-diagnostics.tdml", compileAllTopLevel = true, validateDFDLSchemas = false)
-  
-  val bb = testDir + "BB.tdml"
-  lazy val runnerBB = new DFDLTestSuite(Misc.getRequiredResource(bb))
-  val be = testDir + "BE.tdml"
-  lazy val runnerBE = new DFDLTestSuite(Misc.getRequiredResource(be))
-  val bf = testDir + "BF.tdml"
-  lazy val runnerBF1 = new DFDLTestSuite(Misc.getRequiredResource(bf))
-  val bg = testDir + "BG.tdml"
-  lazy val runnerBG = new DFDLTestSuite(Misc.getRequiredResource(bg))
-  val mb = testDir + "mixed-binary-text.tdml"
-  lazy val runnerMB = new DFDLTestSuite(Misc.getRequiredResource(mb))
-
-  val ap = testDir + "AP.tdml"
-  lazy val runnerAP = new DFDLTestSuite(Misc.getRequiredResource(ap))
-  val ax = testDir + "AX.tdml"
-  lazy val runnerAX = new DFDLTestSuite(Misc.getRequiredResource(ax))
-  val av0 = testDir + "AV000.tdml"
-  lazy val runnerAV000 = new DFDLTestSuite(Misc.getRequiredResource(av0))
-  val av1 = testDir + "AV001.tdml"
-  lazy val runnerAV001 = new DFDLTestSuite(Misc.getRequiredResource(av1))
-  val av2 = testDir + "AV002.tdml"
-  lazy val runnerAV002 = new DFDLTestSuite(Misc.getRequiredResource(av2))
-  val av3 = testDir + "AV003.tdml"
-  lazy val runnerAV003 = new DFDLTestSuite(Misc.getRequiredResource(av3))
-  val nsd = testDir + "nested-separator-delimited.tdml"
-  lazy val runnerNSD = new DFDLTestSuite(Misc.getRequiredResource(nsd))
-
-
-  lazy val runnerRD = Runner(testDir, "runtime-diagnostics.tdml", compileAllTopLevel = true, validateTDMLFile = false)
-
-  val sq = testDir + "sequence.tdml"
-  lazy val runnerSQ = new DFDLTestSuite(Misc.getRequiredResource(sq))
-
-  lazy val runnerNG = new DFDLTestSuite(Misc.getRequiredResource(testDir + "nested_group_ref.tdml"))
-  val af = testDir + "AF.tdml"
-  lazy val runnerAF = new DFDLTestSuite(Misc.getRequiredResource(af))
-  val ag = testDir + "AG.tdml"
-  lazy val runnerAG = new DFDLTestSuite(Misc.getRequiredResource(ag))
-
-  val aw = testDir + "AW.tdml"
-  lazy val runnerAW = new DFDLTestSuite(Misc.getRequiredResource(aw))
-
-  val ay = testDir + "AY.tdml"
-  lazy val runnerAY = new DFDLTestSuite(Misc.getRequiredResource(ay))
-
-  val az = testDir + "AZ.tdml"
-  lazy val runnerAZ = new DFDLTestSuite(Misc.getRequiredResource(az))
-
-  val ba = testDir + "BA.tdml"
-  lazy val runnerBA = new DFDLTestSuite(Misc.getRequiredResource(ba))
-
-  val bc = testDir + "BC.tdml"
-  lazy val runnerBC = new DFDLTestSuite(Misc.getRequiredResource(bc))
-  val bd = testDir + "BD.tdml"
-  lazy val runnerBD = new DFDLTestSuite(Misc.getRequiredResource(bd))
+  val runnerAF = Runner("/test-suite/tresys-contributed/AF.tdml")
+  val runnerAG = Runner("/test-suite/tresys-contributed/AG.tdml")
+  val runnerAP = Runner("/test-suite/tresys-contributed/AP.tdml")
+  val runnerAV000 = Runner("/test-suite/tresys-contributed/AV000.tdml")
+  val runnerAV001 = Runner("/test-suite/tresys-contributed/AV001.tdml")
+  val runnerAV002 = Runner("/test-suite/tresys-contributed/AV002.tdml")
+  val runnerAV003 = Runner("/test-suite/tresys-contributed/AV003.tdml")
+  val runnerAW = Runner("/test-suite/tresys-contributed/AW.tdml")
+  val runnerAX = Runner("/test-suite/tresys-contributed/AX.tdml")
+  val runnerAY = Runner("/test-suite/tresys-contributed/AY.tdml")
+  val runnerAZ = Runner("/test-suite/tresys-contributed/AZ.tdml")
+  val runnerBA = Runner("/test-suite/tresys-contributed/BA.tdml")
+  val runnerBB = Runner("/test-suite/tresys-contributed/BB.tdml")
+  val runnerBC = Runner("/test-suite/tresys-contributed/BC.tdml")
+  val runnerBD = Runner("/test-suite/tresys-contributed/BD.tdml")
+  val runnerBE = Runner("/test-suite/tresys-contributed/BE.tdml")
+  val runnerBF1 = Runner("/test-suite/tresys-contributed/BF.tdml")
+  val runnerBG = Runner("/test-suite/tresys-contributed/BG.tdml")
+  val runnerDelimited = Runner("/test-suite/tresys-contributed/delimTests.tdml")
+  val runnerMB = Runner("/test-suite/tresys-contributed/mixed-binary-text.tdml")
+  val runnerMD = Runner("/test-suite/tresys-contributed/", "multiple-diagnostics.tdml", compileAllTopLevel = true)
+  val runnerMD_NV = Runner("/test-suite/tresys-contributed/", "multiple-diagnostics.tdml", compileAllTopLevel = true, validateDFDLSchemas = false)
+  val runnerNG = Runner("/test-suite/tresys-contributed/nested_group_ref.tdml")
+  val runnerNSD = Runner("/test-suite/tresys-contributed/nested-separator-delimited.tdml")
+  val runnerRD = Runner("/test-suite/tresys-contributed/", "runtime-diagnostics.tdml", compileAllTopLevel = true, validateTDMLFile = false)
+  val runnerSQ = Runner("/test-suite/tresys-contributed/sequence.tdml")
 
   @AfterClass def shutDown: Unit = {
+    runnerAF.reset
+    runnerAG.reset
+    runnerAP.reset
+    runnerAV000.reset
+    runnerAV001.reset
+    runnerAV002.reset
+    runnerAV003.reset
+    runnerAW.reset
+    runnerAX.reset
+    runnerAY.reset
+    runnerAZ.reset
+    runnerBA.reset
+    runnerBB.reset
+    runnerBC.reset
+    runnerBD.reset
+    runnerBE.reset
+    runnerBF1.reset
+    runnerBG.reset
     runnerDelimited.reset
+    runnerMB.reset
     runnerMD.reset
     runnerMD_NV.reset
+    runnerNG.reset
+    runnerNSD.reset
     runnerRD.reset
+    runnerSQ.reset
   }
 }
 

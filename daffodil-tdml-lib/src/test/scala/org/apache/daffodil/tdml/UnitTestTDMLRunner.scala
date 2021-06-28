@@ -125,7 +125,8 @@ class UnitTestTDMLRunner {
                   </infoset>
                 </parserTestCase>
               </testSuite>
-    val ts = new DFDLTestSuite(xml)
+    val runner = new Runner(xml)
+    val ts = runner.getTS
     val ptc = ts.parserTestCases(0)
     val doc = ptc.document.get
     doc.documentParts(0)
@@ -133,6 +134,7 @@ class UnitTestTDMLRunner {
     val numBytes = doc.data.read(bytes)
     val actual = new String(bytes, 0, numBytes, "UTF8").replace("\r\n", "\n")
     assertEquals("test\n1\n2\n3\n", actual)
+    runner.reset
   }
 
   @Test def testDocWithBinaryFile(): Unit = {
@@ -148,7 +150,8 @@ class UnitTestTDMLRunner {
                   </infoset>
                 </parserTestCase>
               </testSuite>
-    val ts = new DFDLTestSuite(xml)
+    val runner = new Runner(xml)
+    val ts = runner.getTS
     val ptc = ts.parserTestCases(0)
     val doc = ptc.document.get
     doc.documentParts(0)
@@ -157,6 +160,7 @@ class UnitTestTDMLRunner {
     val actual = bytes.toList
     val expected = Vector(0xDE, 0xAD, 0xBE, 0xEF).map { _.toByte }.toList
     assertEquals(expected, actual)
+    runner.reset
   }
 
   @Test def test1(): Unit = {
@@ -171,7 +175,8 @@ class UnitTestTDMLRunner {
                 </parserTestCase>
               </testSuite>
 
-    val ts = new DFDLTestSuite(xml)
+    val runner = new Runner(xml)
+    val ts = runner.getTS
     val ptc = ts.parserTestCases(0)
     assertEquals("test1", ptc.tcName)
     assertEquals("byte1", ptc.rootName)
@@ -186,6 +191,7 @@ class UnitTestTDMLRunner {
     val trimmed = XMLUtils.removeAttributes(actualContent)
     val expected = <byte1>123</byte1>
     assertEquals(expected, trimmed)
+    runner.reset
   }
 
   @Test def test2(): Unit = {
@@ -200,7 +206,8 @@ class UnitTestTDMLRunner {
                 </parserTestCase>
               </testSuite>
 
-    lazy val ts = new DFDLTestSuite(xml)
+    val runner = new Runner(xml)
+    val ts = runner.getTS
     val tsn = ts.suiteName
     assertEquals("theSuiteName", tsn)
     assertEquals("", ts.description)
@@ -218,15 +225,19 @@ class UnitTestTDMLRunner {
     val trimmed = XMLUtils.removeAttributes(actualContent)
     val expected = <byte1>123</byte1>
     assertEquals(expected, trimmed)
+    runner.reset
   }
-  /////////////////////////////////////////////////////////////////////////////////////////////////////
+
   @Test def testTDMLResource(): Unit = {
-    lazy val res = Misc.getRequiredResource("/test-suite/ibm-contributed/dpaext1-2.tdml")
-    lazy val ts = new DFDLTestSuite(new File(res))
+    val res = Misc.getRequiredResource("/test-suite/ibm-contributed/dpaext1-2.tdml")
+    val runner = new Runner(res)
+    val ts = runner.getTS
     val mf = ts.findTDMLResource("./fvt/ext/dpa/dpaspc121_01.dfdl.xsd")
     val file = new File(mf.get)
     assertTrue(file.exists())
+    runner.reset
   }
+
   val tdmlWithEmbeddedSchemaInvalid =
     <tdml:testSuite suiteName="testEmbeddedSchemaValidates" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
       <tdml:defineSchema name="mySchema">
@@ -245,32 +256,34 @@ class UnitTestTDMLRunner {
 
   @Test def testEmbeddedSchemaValidates(): Unit = {
     val testSuite = tdmlWithEmbeddedSchemaInvalid
-    assertFalse(ts.isTDMLFileValid)
-    lazy val ts = new DFDLTestSuite(testSuite)
+    val runner = new Runner(testSuite)
+    val ts = runner.getTS
     assertFalse(ts.isTDMLFileValid)
     val msgs: String = ts.loadingDiagnosticMessages
     val hasMsg = msgs.contains("notAllowed")
-    // println("messages = '" + msgs + "'")
     assertTrue(hasMsg)
     assertFalse(ts.isTDMLFileValid)
+    runner.reset
   }
+
   @Test def testTDMLSelfContainedFileValidates(): Unit = {
-    val tmpTDMLFileName = getClass.getName() + ".tdml"
+    val tmpTDMLFile = File.createTempFile("daffodil-tdml-", ".dfdl.xsd")
     val testSuite = tdmlWithEmbeddedSchemaInvalid
     try {
-      using(new java.io.FileWriter(tmpTDMLFileName)) {
+      using(new java.io.FileWriter(tmpTDMLFile)) {
         fw =>
           fw.write(testSuite.toString())
       }
 
-      lazy val ts = new DFDLTestSuite(new java.io.File(tmpTDMLFileName))
+      val runner = new Runner(tmpTDMLFile)
+      val ts = runner.getTS
       assertFalse(ts.isTDMLFileValid)
       val msgs = ts.loadingDiagnosticMessages
       assertTrue(msgs.contains("notAllowed"))
+      runner.reset
 
     } finally {
-      val t = new java.io.File(tmpTDMLFileName)
-      t.delete()
+      tmpTDMLFile.delete()
     }
   }
 
@@ -281,6 +294,7 @@ class UnitTestTDMLRunner {
     assertEquals(-32, bytes(0))
     assertEquals(3, doc.nBits)
   }
+
   /**
    * Make sure our tdml data document preserves CRLFs.
    * <p>
@@ -464,7 +478,8 @@ class UnitTestTDMLRunner {
 
   @Test def testDefineSchemaWithNoDefaultNamespace(): Unit = {
     val testSuite = tdmlDefineSchemaWithoutDefaultNamespace
-    val ts = new DFDLTestSuite(testSuite)
+    val runner = new Runner(testSuite)
+    val ts = runner.getTS
     if (!ts.isTDMLFileValid) {
       val msgs = ts.loadingExceptions.map{ _.getMessage() } .mkString("\n")
       fail(msgs)
@@ -473,5 +488,6 @@ class UnitTestTDMLRunner {
     val ds = ts.embeddedSchemas.find(ds => ds.name == "mySchema").get
     val dataElem = ds.globalElementDecls.find(edecl => (edecl \ "@name").text == "data").get
     assertTrue(dataElem ne null)
+    runner.reset
   }
 }

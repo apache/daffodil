@@ -26,7 +26,7 @@ object TestSequenceGroups {
   val testDir_01 = "/org/apache/daffodil/section14/sequence_groups/"
 
   val runner_01 = Runner(testDir_01, "SequenceGroupDelimiters.tdml")
-  var runner_02 = Runner(testDir_01, "SequenceGroup.tdml", validateTDMLFile = false)
+  val runner_02 = Runner(testDir_01, "SequenceGroup.tdml", validateTDMLFile = false)
 
   @AfterClass def shutDown: Unit = {
     runner_01.reset

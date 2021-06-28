@@ -42,8 +42,6 @@ import org.apache.daffodil.processors.DaffodilParseOutputStreamContentHandler
 import org.apache.daffodil.processors.DataProcessor
 import org.apache.daffodil.processors.UnparseResult
 import org.apache.daffodil.processors.unparsers.UState
-import org.apache.daffodil.tdml.SchemaCache
-import org.apache.daffodil.tdml.SchemaDataProcessorCache
 import org.apache.daffodil.tdml.TDMLException
 import org.apache.daffodil.tdml.TDMLInfosetInputter
 import org.apache.daffodil.tdml.TDMLInfosetOutputter
@@ -119,7 +117,7 @@ final class TDMLDFDLProcessorFactory private (
    * through a serialize then unserialize path to get a processor as if
    * it were being fetched from a file.
    */
-  private def generateProcessor(pf: DFDL.ProcessorFactory, useSerializedProcessor: Boolean): SchemaDataProcessorCache.Types.CompileResult = {
+  private def generateProcessor(pf: DFDL.ProcessorFactory, useSerializedProcessor: Boolean): TDML.CompileResult = {
     val p = pf.onPath("/")
     if (p.isError) {
       val diags = p.getDiagnostics
@@ -136,7 +134,7 @@ final class TDMLDFDLProcessorFactory private (
         } else p
       }
       val diags = p.getDiagnostics
-      Right((diags, dp))
+      Right((diags, new DaffodilTDMLDFDLProcessor(dp)))
     }
   }
 
@@ -144,7 +142,7 @@ final class TDMLDFDLProcessorFactory private (
     schemaSource: DaffodilSchemaSource,
     useSerializedProcessor: Boolean,
     optRootName: Option[String],
-    optRootNamespace: Option[String]): SchemaDataProcessorCache.Types.CompileResult = {
+    optRootNamespace: Option[String]): TDML.CompileResult = {
     val pf = compiler.compileSource(schemaSource, optRootName, optRootNamespace)
     val diags = pf.getDiagnostics
     if (pf.isError) {
@@ -161,25 +159,8 @@ final class TDMLDFDLProcessorFactory private (
     optRootName: Option[String],
     optRootNamespace: Option[String],
     tunables: Map[String, String]): TDML.CompileResult = {
-    val cacheResult: SchemaDataProcessorCache.Types.CompileResult = schemaSource match {
-      case uss: URISchemaSource =>
-        SchemaDataProcessorCache.compileAndCache(SchemaCache.Key(
-          uss,
-          useSerializedProcessor,
-          checkAllTopLevel,
-          optRootName,
-          optRootNamespace,
-          tunables)) {
-            compileProcessor(uss, useSerializedProcessor, optRootName, optRootNamespace)
-          }
-      case _ => {
-        compileProcessor(schemaSource, useSerializedProcessor, optRootName, optRootNamespace)
-      }
-    }
-    val res = cacheResult match {
-      case Right((diags, dp)) => Right((diags, new DaffodilTDMLDFDLProcessor(dp)))
-      case Left(diags) => Left(diags)
-    }
+
+    val res = compileProcessor(schemaSource, useSerializedProcessor, optRootName, optRootNamespace)
     res
   }
 

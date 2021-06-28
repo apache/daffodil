@@ -22,7 +22,7 @@ import org.junit.AfterClass
 import org.apache.daffodil.tdml.Runner
 
 object TestEnvelopePayload {
-  var runner = Runner("/org/apache/daffodil/unparser/", "envelopePayload.tdml")
+  val runner = Runner("/org/apache/daffodil/unparser/", "envelopePayload.tdml")
 
   @AfterClass def tearDown(): Unit = {
     runner.reset

@@ -511,9 +511,10 @@ abc # a comment
         fw =>
           fw.write(testSuite.toString())
       }
-      val ts = new DFDLTestSuite(new java.io.File(tmpTDMLFileName))
-      ts.trace
-      ts.runAllTests()
+      val runner = new Runner(new java.io.File(tmpTDMLFileName))
+      runner.trace
+      runner.runAllTests()
+      runner.reset
     } finally {
       val t = new java.io.File(tmpTDMLFileName)
       t.delete()

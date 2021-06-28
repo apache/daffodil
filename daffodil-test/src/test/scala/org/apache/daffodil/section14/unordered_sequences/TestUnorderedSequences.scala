@@ -21,19 +21,20 @@ import org.junit.Test
 import org.junit.AfterClass
 import org.apache.daffodil.tdml.Runner
 
-object TestUnorderedSequencesNew {
+object TestUnorderedSequences {
   val testDir = "/org/apache/daffodil/section14/unordered_sequences/"
   val runner = Runner(testDir, "UnorderedSequences.tdml")
   val runnerBE = Runner(testDir, "BE.tdml")
 
   @AfterClass def shutDown: Unit = {
     runner.reset
+    runnerBE.reset
   }
 }
 
-class TestUnorderedSequencesNew {
+class TestUnorderedSequences {
 
-  import TestUnorderedSequencesNew._
+  import TestUnorderedSequences._
 
   //DFDL-1010
   @Test def test_simple = { runner.runOneTest("test_simple") }

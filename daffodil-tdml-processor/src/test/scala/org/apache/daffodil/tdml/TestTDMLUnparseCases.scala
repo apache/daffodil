@@ -47,9 +47,10 @@ class TestTDMLUnparseCases {
                         <ts:document>Hello</ts:document>
                       </ts:unparserTestCase>
                     </ts:testSuite>
-    lazy val ts = new DFDLTestSuite(testSuite)
-    ts.runOneTest("test1")
-    assertTrue(ts.loadingDiagnosticMessages.isEmpty)
+    val runner = new Runner(testSuite)
+    runner.runOneTest("test1")
+    assertTrue(runner.getTS.loadingDiagnosticMessages.isEmpty)
+    runner.reset
   }
 
 }

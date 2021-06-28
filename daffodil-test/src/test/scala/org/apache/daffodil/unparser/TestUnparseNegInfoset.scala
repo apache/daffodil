@@ -19,16 +19,12 @@ package org.apache.daffodil.unparser
 
 import org.junit.Test
 import org.junit.AfterClass
-import org.apache.daffodil.util._
-import org.apache.daffodil.tdml.DFDLTestSuite
+import org.apache.daffodil.tdml.Runner
 
 object TestUnparseNegInfoset {
-  val testDir = "/org/apache/daffodil/unparser/"
-  val aa = testDir + "unparseNegInfosetTest.tdml"
-  var runner = new DFDLTestSuite(Misc.getRequiredResource(aa), validateTDMLFile = false)
-
+  val runner = Runner("/org/apache/daffodil/unparser/", "unparseNegInfosetTest.tdml", validateTDMLFile = false)
   @AfterClass def tearDown(): Unit = {
-    runner = null
+    runner.reset
   }
 }
 

@@ -28,18 +28,18 @@ import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 
 object TestGeneral {
-  lazy val testDir = "/org/apache/daffodil/section00/general/"
-  lazy val runner = Runner(testDir, "general.tdml")
+  val testDir = "/org/apache/daffodil/section00/general/"
+  val runner = Runner(testDir, "general.tdml")
 
-  lazy val runner1 = Runner(testDir, "largeInput.tdml")
+  val runner1 = Runner(testDir, "largeInput.tdml")
 
-  lazy val testDir2 = "/test space/"
-  lazy val runnerA_B = Runner(testDir2, "A BTinyData.tdml.dat")
+  val testDir2 = "/test space/"
+  val runnerA_B = Runner(testDir2, "A BTinyData.tdml.dat")
 
-  lazy val testDir3 = "/test space/test 1/"
-  lazy val runner_ns = Runner(testDir3, "namespaces.tdml")
+  val testDir3 = "/test space/test 1/"
+  val runner_ns = Runner(testDir3, "namespaces.tdml")
 
-  lazy val tunables_runner = Runner(testDir, "tunables.tdml")
+  val tunables_runner = Runner(testDir, "tunables.tdml")
 
   @AfterClass def shutDown(): Unit = {
     runner.reset
