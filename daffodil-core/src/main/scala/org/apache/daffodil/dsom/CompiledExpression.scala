@@ -60,6 +60,9 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
     host: BasicComponent,
     compileInfo: DPathCompileInfo): CompiledExpression[T] = {
 
+    compileInfo.initialize
+    compileInfoWhereExpressionWasLocated.initialize
+
     val res =
       if (DPathUtil.isExpression(exprOrLiteral)) {
         compileRealExpression(

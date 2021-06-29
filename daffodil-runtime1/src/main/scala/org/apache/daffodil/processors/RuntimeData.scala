@@ -35,10 +35,9 @@ import org.apache.daffodil.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.schema.annotation.props.gen.Representation
 import org.apache.daffodil.schema.annotation.props.gen.YesNo
 import org.apache.daffodil.schema.annotation.props.gen.VariableDirection
+import org.apache.daffodil.util.Delay
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe.Nope
-import org.apache.daffodil.util.PreSerialization
-import org.apache.daffodil.util.TransientParam
 import org.apache.daffodil.xml.GlobalQName
 import org.apache.daffodil.xml.LocalDeclQName
 import org.apache.daffodil.xml.NS
@@ -50,7 +49,6 @@ import org.apache.daffodil.xml.XMLUtils
 
 import scala.util.matching.Regex; object NoWarn { ImplicitsSuppressUnusedImportWarning() }
 import java.util.regex.Matcher
-
 import org.apache.daffodil.api.UnqualifiedPathStepPolicy
 import org.apache.daffodil.infoset.DISimple
 import org.apache.daffodil.infoset.DataValue
@@ -75,7 +73,7 @@ import org.apache.daffodil.util.OKOrError
 sealed trait RuntimeData
   extends ImplementsThrowsSDE
   with HasSchemaFileLocation
-  with PreSerialization {
+  with Serializable {
   def schemaFileLocation: SchemaFileLocation
   def diagnosticDebugName: String
   def path: String
@@ -85,6 +83,7 @@ sealed trait RuntimeData
 
   def unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy
 
+  def namespaces: NamespaceBinding
 }
 
 object TermRuntimeData {
@@ -99,30 +98,57 @@ object TermRuntimeData {
 
 }
 
+/**
+ * Base runtime data structure for all terms
+ *
+ * These Delay-type args are part of how we
+ * create a structure here which contains some objects that
+ * somewhere within themselves, refer back to this structure.
+ *
+ * A Delay object is part of a functional programming idiom for creating
+ * a cyclic structure without using side-effects and therefore ordering-dependency.
+ * It is pretty similar to just passing an argument by-name (lazily) but
+ * has some additional sophistication to avoid dragging Scala closures
+ * around and ending up with objects being not garbage collectable.
+ *
+ * The relationhip between RuntimeData and PartialNextElementResolver is
+ * indeed cyclic. Simplest to think of it in terms of elements.
+ * An ERD has a partialNextElementResolver which exists to figure out
+ * the ERD of the next element, which could be this same ERD again, or
+ * could be some other ERD which can then be followed by an element with
+ * this same ERD again. So the cycle can be immediate or flow through
+ * many ERDs and partialNextElementResolvers. Turns out other kinds of
+ * terms can affect the next element resolver process (there's a stack
+ * of them) so partialNextElementResolver ends up on the TermRuntimeData
+ * to share the definition of the slot for this polymorphically.
+ */
 sealed abstract class TermRuntimeData(
-  /**
-   * These transient by-name args are part of how we
-   * create a structure here which contains some objects that
-   * somewhere within themselves, refer back to this structure.
-   *
-   * These are passed by-name, and ultimately what is serialized is not
-   * these, but lazy vals that refer to them which are forced to have
-   * values at the time of object serialization.
-   */
   val position: Int,
-  @TransientParam partialNextElementResolverArg: => PartialNextElementResolver,
-  @TransientParam encodingInfoArg: => EncodingRuntimeData, // depends on CharsetEv
-  @TransientParam dpathCompileInfoArg: => DPathCompileInfo,
-  val isRepresented:  Boolean,
-  @TransientParam couldHaveTextArg: => Boolean,
-  @TransientParam alignmentValueInBitsArg: => Int, // depends ultimately on EncodingEv.isConstant
+  partialNextElementResolverDelay: Delay[PartialNextElementResolver],
+  val encodingInfo: EncodingRuntimeData,
+  val dpathCompileInfo: DPathCompileInfo,
+  val isRepresented: Boolean,
+  val couldHaveText: Boolean,
+  val alignmentValueInBits: Int, // depends ultimately on EncodingEv.isConstant
   val hasNoSkipRegions: Boolean,
-  val defaultBitOrder:  BitOrder,
+  val defaultBitOrder: BitOrder,
   val optIgnoreCase: Option[YesNo],
-  @TransientParam fillByteEvArg: => FillByteEv,
-  @TransientParam maybeCheckByteAndBitOrderEvArg: => Maybe[CheckByteAndBitOrderEv],
-  @TransientParam maybeCheckBitOrderAndCharsetEvArg: => Maybe[CheckBitOrderAndCharsetEv])
+  val fillByteEv: FillByteEv,
+  val maybeCheckByteAndBitOrderEv: Maybe[CheckByteAndBitOrderEv],
+  val maybeCheckBitOrderAndCharsetEv: Maybe[CheckBitOrderAndCharsetEv])
   extends RuntimeData {
+
+  /**
+   * Cyclic structures require initialization
+   */
+  lazy val initialize: Unit = initializeFunction
+
+  protected def initializeFunction: Unit = {
+    partialNextElementResolver
+    dpathCompileInfo.initialize
+  }
+
+  final def namespaces = dpathCompileInfo.namespaces
 
   private val termID = TermRuntimeData.generateTermID
 
@@ -151,29 +177,8 @@ sealed abstract class TermRuntimeData(
    */
   def unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy = dpathCompileInfo.unqualifiedPathStepPolicy
 
-  lazy val partialNextElementResolver = partialNextElementResolverArg
-  lazy val encodingInfo = encodingInfoArg
-  lazy val dpathCompileInfo = dpathCompileInfoArg
-  lazy val couldHaveText = couldHaveTextArg
-  lazy val alignmentValueInBits = alignmentValueInBitsArg
-  lazy val fillByteEv = fillByteEvArg
-  lazy val maybeCheckByteAndBitOrderEv = maybeCheckByteAndBitOrderEvArg
-  lazy val maybeCheckBitOrderAndCharsetEv = maybeCheckBitOrderAndCharsetEvArg
-
-  override def preSerialization: Unit = {
-    super.preSerialization
-    partialNextElementResolver
-    encodingInfo
-    dpathCompileInfo
-    couldHaveText
-    alignmentValueInBits
-    fillByteEv
-    maybeCheckByteAndBitOrderEv
-    maybeCheckBitOrderAndCharsetEv
-  }
-  @throws(classOf[java.io.IOException])
-  final private def writeObject(out: java.io.ObjectOutputStream): Unit = serializeObject(out)
-
+  lazy val partialNextElementResolver =
+    partialNextElementResolverDelay.value
 }
 
 sealed class NonTermRuntimeData(
@@ -181,14 +186,9 @@ sealed class NonTermRuntimeData(
   val schemaFileLocation:  SchemaFileLocation,
   val diagnosticDebugName:  String,
   val path: String,
-  val namespaces: NamespaceBinding,
+  override val namespaces: NamespaceBinding,
   val unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy)
-  extends RuntimeData {
-
-  @throws(classOf[java.io.IOException])
-  final private def writeObject(out: java.io.ObjectOutputStream): Unit = serializeObject(out)
-
-}
+  extends RuntimeData
 
 /**
  * Singleton. If found as the default value, means to use nil as
@@ -224,9 +224,6 @@ final class SimpleTypeRuntimeData(
     pathArg, namespacesArg, unqualifiedPathStepPolicyArg) {
 
   import org.apache.daffodil.util.OKOrError._
-
-  @throws(classOf[java.io.IOException])
-  final private def writeObject(out: java.io.ObjectOutputStream): Unit = serializeObject(out)
 
   /**
    * These are creators of regex pattern matcher objects. we want to avoid
@@ -527,53 +524,50 @@ final class SimpleTypeRuntimeData(
 
 }
 
-/*
- * These objects have become too big. Most processors don't need most of this stuff.
- *
- * The objective should be to take things OUT of this structure and pass directly to the
- * constructor of the parser/unparser.
+/** Primary Runtime data structure for Elements
  *
  * These objects are for things that are generally heavily used everywhere like information for
  * providing diagnostics.
+ *
+ * These Delay-type args are part of how we
+ * create a structure here which contains some objects that
+ * somewhere within themselves, refer back to this structure.
+ *
+ * These structures are inherently cyclic, particularly for ElementRuntimeData (ERD)
+ * the PartialNextElementResolver,
+ * which is about figuring out the next ERD given incoming name+namespace
+ * and context. Hence it by its very nature contains and returns ERDs and
+ * so involves cycles with the ERD structure.
+ *
+ * To construct this cyclic data structure but still be using functional
+ * programming, we use these Delay/lazy evaluation tricks.
  */
-
 sealed class ElementRuntimeData(
-  /**
-   * These transient by-name args are part of how we
-   * create a structure here which contains some objects that
-   * somewhere within themselves, refer back to this structure.
-   *
-   * These are passed by-name, and ultimately what is serialized is not
-   * these, but lazy vals that refer to them which are forced to have
-   * values at the time of object serialization.
-   *
-   * Note that all transient elements must be added to the preSerialization method below
-   * to allow parser serialization/deserialization to work.
-   */
   positionArg: Int,
-  @TransientParam childrenArg: => Seq[ElementRuntimeData],
-  @TransientParam variableMapArg: => VariableMap,
-  @TransientParam partialNextElementResolverArg: => PartialNextElementResolver,
-  @TransientParam encInfoArg: => EncodingRuntimeData,
-  @TransientParam dpathElementCompileInfoArg: => DPathElementCompileInfo,
+  children: Seq[ElementRuntimeData],
+  val variableMap: VariableMap,
+  partialNextElementResolverDelay: Delay[PartialNextElementResolver],
+  val encInfo: EncodingRuntimeData,
+  val dpathElementCompileInfo: DPathElementCompileInfo,
   val schemaFileLocation: SchemaFileLocation,
   val diagnosticDebugName: String,
   val path: String,
-  @TransientParam minimizedScopeArg: => NamespaceBinding,
+  val minimizedScope: NamespaceBinding,
   defaultBitOrderArg: BitOrder,
-  @TransientParam optPrimTypeArg: => Option[PrimType],
-  @TransientParam targetNamespaceArg: => NS,
-  @TransientParam optSimpleTypeRuntimeDataArg: => Option[SimpleTypeRuntimeData],
-  @TransientParam optComplexTypeModelGroupRuntimeDataArg: => Option[ModelGroupRuntimeData],
-  @TransientParam minOccursArg: => Long,
-  @TransientParam maxOccursArg: => Long,
-  @TransientParam maybeOccursCountKindArg: => Maybe[OccursCountKind],
-  @TransientParam nameArg: => String,
-  @TransientParam targetNamespacePrefixArg: => String,
-  @TransientParam isNillableArg: => Boolean,
-  @TransientParam isArrayArg: => Boolean, // can have more than 1 occurrence
-  @TransientParam isOptionalArg: => Boolean, // can have only 0 or 1 occurrence
-  @TransientParam isRequiredInUnparseInfosetArg: => Boolean, // must have at least 1 occurrence
+  val optPrimType: Option[PrimType],
+  val targetNamespace: NS,
+  val optSimpleTypeRuntimeData: Option[SimpleTypeRuntimeData],
+  val optComplexTypeModelGroupRuntimeData: Option[ModelGroupRuntimeData],
+  val minOccurs: Long,
+  val maxOccurs: Long,
+  val maybeOccursCountKind: Maybe[OccursCountKind],
+  val name: String,
+  val targetNamespacePrefix: String,
+  val isNillable: Boolean,
+  val isArray: Boolean, // can have more than 1 occurrence
+  val isOptional: Boolean, // can have only 0 or 1 occurrence
+  val isRequiredInUnparseInfoset: Boolean, // must have at least 1 occurrence
+
   /**
    * This is the properly qualified name for recognizing this
    * element.
@@ -582,99 +576,38 @@ sealed class ElementRuntimeData(
    * If 'qualified' then there will be a namespace component.
    * If 'unqualified' the the namespace component will be No_Namespace.
    */
-  @TransientParam namedQNameArg: => NamedQName,
+  val namedQName: NamedQName,
   isRepresentedArg: Boolean,
-  @TransientParam couldHaveTextArg: => Boolean,
-  @TransientParam alignmentValueInBitsArg: => Int,
+  couldHaveTextArg: Boolean,
+  alignmentValueInBitsArg: Int,
   hasNoSkipRegionsArg: Boolean,
-  @TransientParam impliedRepresentationArg: => Representation,
+  val impliedRepresentation: Representation,
   optIgnoreCaseArg: Option[YesNo],
-  @TransientParam optDefaultValueArg: => DataValuePrimitiveOrUseNilForDefaultOrNull,
+  val optDefaultValue: DataValuePrimitiveOrUseNilForDefaultOrNull,
   //
   // Unparser-specific arguments
   //
-  @TransientParam optTruncateSpecifiedLengthStringArg: => Option[Boolean],
-  @TransientParam outputValueCalcExprArg: => Option[CompiledExpression[AnyRef]],
-  @TransientParam maybeBinaryFloatRepEvArg: => Maybe[BinaryFloatRepEv],
-  @TransientParam maybeByteOrderEvArg: => Maybe[ByteOrderEv],
-  @TransientParam fillByteEvArg: => FillByteEv,
-  @TransientParam maybeCheckByteAndBitOrderEvArg: => Maybe[CheckByteAndBitOrderEv],
-  @TransientParam maybeCheckBitOrderAndCharsetEvArg: => Maybe[CheckBitOrderAndCharsetEv],
-  @TransientParam isQuasiElementArg: => Boolean)
-  extends TermRuntimeData(positionArg, partialNextElementResolverArg,
-    encInfoArg, dpathElementCompileInfoArg, isRepresentedArg, couldHaveTextArg, alignmentValueInBitsArg, hasNoSkipRegionsArg,
+  val optTruncateSpecifiedLengthString: Option[Boolean],
+  val outputValueCalcExpr: Option[CompiledExpression[AnyRef]],
+  val maybeBinaryFloatRepEv: Maybe[BinaryFloatRepEv],
+  val maybeByteOrderEv: Maybe[ByteOrderEv],
+  fillByteEvArg: FillByteEv,
+  maybeCheckByteAndBitOrderEvArg: Maybe[CheckByteAndBitOrderEv],
+  maybeCheckBitOrderAndCharsetEvArg: Maybe[CheckBitOrderAndCharsetEv],
+  val isQuasiElement: Boolean)
+  extends TermRuntimeData(positionArg, partialNextElementResolverDelay,
+    encInfo, dpathElementCompileInfo, isRepresentedArg, couldHaveTextArg, alignmentValueInBitsArg, hasNoSkipRegionsArg,
     defaultBitOrderArg, optIgnoreCaseArg, fillByteEvArg,
     maybeCheckByteAndBitOrderEvArg,
     maybeCheckBitOrderAndCharsetEvArg) {
 
   override def isRequiredScalar = !isArray && isRequiredInUnparseInfoset
-  override def namespaces: NamespaceBinding = dpathElementCompileInfo.namespaces
-
-  lazy val children = childrenArg
-  lazy val variableMap = variableMapArg
-  lazy val encInfo = encInfoArg
-  lazy val dpathElementCompileInfo = dpathElementCompileInfoArg
-  lazy val minimizedScope = minimizedScopeArg
-  lazy val optPrimType = optPrimTypeArg
-  lazy val targetNamespace = targetNamespaceArg
-  lazy val optSimpleTypeRuntimeData = optSimpleTypeRuntimeDataArg
-  lazy val optComplexTypeModelGroupRuntimeData = optComplexTypeModelGroupRuntimeDataArg
-  lazy val minOccurs = minOccursArg
-  lazy val maxOccurs = maxOccursArg
-  lazy val maybeOccursCountKind = maybeOccursCountKindArg
-  lazy val name = nameArg
-  lazy val targetNamespacePrefix = targetNamespacePrefixArg
-  lazy val isNillable = isNillableArg
-  override lazy val isArray = isArrayArg
-  lazy val isOptional = isOptionalArg
-  lazy val isRequiredInUnparseInfoset = isRequiredInUnparseInfosetArg // if true, no uncertainty about number of occurrences.
-  lazy val namedQName = namedQNameArg
-  lazy val impliedRepresentation = impliedRepresentationArg
-  lazy val optDefaultValue = optDefaultValueArg
-  lazy val optTruncateSpecifiedLengthString = optTruncateSpecifiedLengthStringArg
-  lazy val outputValueCalcExpr = outputValueCalcExprArg
-  lazy val maybeBinaryFloatRepEv = maybeBinaryFloatRepEvArg
-  lazy val maybeByteOrderEv = maybeByteOrderEvArg
-  lazy val isQuasiElement = isQuasiElementArg
-
-  override def preSerialization: Unit = {
-    super.preSerialization
-    children
-    variableMap
-    encInfo
-    dpathElementCompileInfo
-    minimizedScope
-    optPrimType
-    targetNamespace
-    optSimpleTypeRuntimeData
-    optComplexTypeModelGroupRuntimeData
-    minOccurs
-    maxOccurs
-    maybeOccursCountKind
-    name
-    targetNamespacePrefix
-    isNillable
-    isArray
-    isOptional
-    isRequiredInUnparseInfoset
-    namedQName
-    impliedRepresentation
-    optDefaultValue
-    optTruncateSpecifiedLengthString
-    outputValueCalcExpr
-    maybeBinaryFloatRepEv
-    maybeByteOrderEv
-    isQuasiElement
-  }
-
-  @throws(classOf[java.io.IOException])
-  private def writeObject(out: java.io.ObjectOutputStream): Unit = serializeObject(out)
 
   final def childERDs = children
 
   def isSimpleType = optPrimType.isDefined
 
-  lazy val schemaURIStringsForFullValidation = schemaURIStringsForFullValidation1.distinct
+  lazy val schemaURIStringsForFullValidation: Seq[String] = schemaURIStringsForFullValidation1.distinct
   private def schemaURIStringsForFullValidation1: Seq[String] = (schemaFileLocation.uriString +:
     childERDs.flatMap { _.schemaURIStringsForFullValidation1 })
 
@@ -689,7 +622,6 @@ sealed class ElementRuntimeData(
       name
     }
   }
-
 }
 
 /**
@@ -720,9 +652,9 @@ sealed abstract class ErrorERD(local: String, namespaceURI: String)
     null, // PartialNextElementResolver
     null, // EncodingRuntimeData
     new DPathElementCompileInfo(
-      Nil, // parentsArg: => Seq[DPathElementCompileInfo],
+      Delay('ErrorERDParents, getClass().getName, Seq[DPathElementCompileInfo]()).force, // parentsArg: => Seq[DPathElementCompileInfo],
       null, // variableMap: => VariableMap,
-      Nil, // elementChildrenCompileInfoArg: => Seq[DPathElementCompileInfo],
+      Delay('ErrorERD, getClass().getName, Seq[DPathElementCompileInfo]()).force, // elementChildrenCompileInfoDelay: Delay[Seq[DPathElementCompileInfo]],
       null, // namespaces: scala.xml.NamespaceBinding,
       local, // path: String,
       local, // val name: String,
@@ -732,7 +664,6 @@ sealed abstract class ErrorERD(local: String, namespaceURI: String)
       null, // sfl: SchemaFileLocation,
       null, // override val unqualifiedPathStepPolicy : UnqualifiedPathStepPolicy,
       null, // typeCalcMap: TypeCalcMap,
-      null, // lexicalContextRuntimeData: RuntimeData,
       null, // val sscd: String),
       false), // val hasOutputValueCalc: Boolean
     null, // SchemaFileLocation
@@ -773,9 +704,6 @@ sealed abstract class ErrorERD(local: String, namespaceURI: String)
 
   override def toString() = Misc.getNameFromClass(this) + "(" + this.namedQName.toExtendedSyntax + ")"
 
-  @throws(classOf[java.io.IOException])
-  private def writeObject(out: java.io.ObjectOutputStream): Unit =
-    Assert.usageError("Not for serialization")
 }
 
 /**
@@ -823,160 +751,133 @@ final class NamespaceAmbiguousElementErrorERD(
   }
 }
 
+/**
+ * Base class for model group runtime data
+ *
+ * These Delay-type args are part of how we
+ * create a structure here which contains some objects that
+ * somewhere within themselves, refer back to this structure.
+ */
 sealed abstract class ModelGroupRuntimeData(
-  /**
-   * These transient by-name args are part of how we
-   * create a structure here which contains some objects that
-   * somewhere within themselves, refer back to this structure.
-   *
-   * These are passed by-name, and ultimately what is serialized is not
-   * these, but lazy vals that refer to them which are forced to have
-   * values at the time of object serialization.
-   */
   positionArg: Int,
-  @TransientParam partialNextElementResolverArg: => PartialNextElementResolver,
-  @TransientParam variableMapArg: => VariableMap,
-  @TransientParam encInfoArg: => EncodingRuntimeData,
-  val schemaFileLocation:  SchemaFileLocation,
-  @TransientParam ciArg: => DPathCompileInfo,
-  val diagnosticDebugName:  String,
-  val path:  String,
+  partialNextElementResolverDelay: Delay[PartialNextElementResolver],
+  val variableMap: VariableMap,
+  val encInfo: EncodingRuntimeData,
+  val schemaFileLocation: SchemaFileLocation,
+  ci: DPathCompileInfo,
+  val diagnosticDebugName: String,
+  val path: String,
   defaultBitOrderArg: BitOrder,
-  @TransientParam groupMembersArg: => Seq[TermRuntimeData],
+  val groupMembers: Seq[TermRuntimeData],
   isRepresentedArg: Boolean,
-  @TransientParam couldHaveTextArg: => Boolean,
-  alignmentValueInBitsArg:  Int,
-  hasNoSkipRegionsArg:  Boolean,
+  couldHaveText: Boolean,
+  alignmentValueInBitsArg: Int,
+  hasNoSkipRegionsArg: Boolean,
   optIgnoreCaseArg: Option[YesNo],
-  @TransientParam fillByteEvArg: => FillByteEv,
-  @TransientParam maybeCheckByteAndBitOrderEvArg: => Maybe[CheckByteAndBitOrderEv],
-  @TransientParam maybeCheckBitOrderAndCharsetEvArg: => Maybe[CheckBitOrderAndCharsetEv])
+  fillByteEvArg: FillByteEv,
+  maybeCheckByteAndBitOrderEvArg: Maybe[CheckByteAndBitOrderEv],
+  maybeCheckBitOrderAndCharsetEvArg: Maybe[CheckBitOrderAndCharsetEv])
   extends TermRuntimeData(
-    positionArg, partialNextElementResolverArg,
-    encInfoArg, ciArg, isRepresentedArg, couldHaveTextArg, alignmentValueInBitsArg, hasNoSkipRegionsArg,
+    positionArg, partialNextElementResolverDelay,
+    encInfo, ci, isRepresentedArg, couldHaveText, alignmentValueInBitsArg, hasNoSkipRegionsArg,
     defaultBitOrderArg, optIgnoreCaseArg, fillByteEvArg,
     maybeCheckByteAndBitOrderEvArg,
     maybeCheckBitOrderAndCharsetEvArg) {
 
   final override def isRequiredScalar = true
   final override def isArray = false
-  override def namespaces: NamespaceBinding = ci.namespaces
-
-  lazy val variableMap = variableMapArg
-  lazy val encInfo = encInfoArg
-  lazy val ci = ciArg
-  lazy val groupMembers = groupMembersArg
-
-  override def preSerialization: Unit = {
-    super.preSerialization
-    variableMap
-    encInfo
-    ci
-    groupMembers
-  }
-  @throws(classOf[java.io.IOException])
-  final private def writeObject(out: java.io.ObjectOutputStream): Unit = serializeObject(out)
 }
 
+/**
+ * These Delay-type args are part of how we
+ * create a structure here which contains some objects that
+ * somewhere within themselves, refer back to this structure.
+ */
 final class SequenceRuntimeData(
-  /**
-   * These transient by-name args are part of how we
-   * create a structure here which contains some objects that
-   * somewhere within themselves, refer back to this structure.
-   *
-   * These are passed by-name, and ultimately what is serialized is not
-   * these, but lazy vals that refer to them which are forced to have
-   * values at the time of object serialization.
-   */
   positionArg: Int,
-  @TransientParam partialNextElementResolverArg: => PartialNextElementResolver,
-  @TransientParam variableMapArg: => VariableMap,
-  @TransientParam encInfoArg: => EncodingRuntimeData,
+  partialNextElementResolverDelay: Delay[PartialNextElementResolver],
+  variableMapArg: VariableMap,
+  encInfo: EncodingRuntimeData,
   schemaFileLocationArg: SchemaFileLocation,
-  @TransientParam ciArg: => DPathCompileInfo,
+  ci: DPathCompileInfo,
   diagnosticDebugNameArg: String,
-  pathArg:  String,
+  pathArg: String,
   defaultBitOrderArg: BitOrder,
-  @TransientParam groupMembersArg: => Seq[TermRuntimeData],
+  groupMembersArg: Seq[TermRuntimeData],
   isRepresentedArg: Boolean,
-  @TransientParam couldHaveTextArg: => Boolean,
+  couldHaveText: Boolean,
   alignmentValueInBitsArg: Int,
   hasNoSkipRegionsArg: Boolean,
   optIgnoreCaseArg: Option[YesNo],
-  @TransientParam fillByteEvArg: => FillByteEv,
-  @TransientParam maybeCheckByteAndBitOrderEvArg: => Maybe[CheckByteAndBitOrderEv],
-  @TransientParam maybeCheckBitOrderAndCharsetEvArg: => Maybe[CheckBitOrderAndCharsetEv])
-  extends ModelGroupRuntimeData(positionArg, partialNextElementResolverArg,
-    variableMapArg, encInfoArg, schemaFileLocationArg, ciArg, diagnosticDebugNameArg, pathArg, defaultBitOrderArg, groupMembersArg,
-    isRepresentedArg, couldHaveTextArg, alignmentValueInBitsArg, hasNoSkipRegionsArg, optIgnoreCaseArg,
+  fillByteEvArg: FillByteEv,
+  maybeCheckByteAndBitOrderEvArg: Maybe[CheckByteAndBitOrderEv],
+  maybeCheckBitOrderAndCharsetEvArg: Maybe[CheckBitOrderAndCharsetEv])
+  extends ModelGroupRuntimeData(positionArg, partialNextElementResolverDelay,
+    variableMapArg, encInfo, schemaFileLocationArg, ci, diagnosticDebugNameArg, pathArg, defaultBitOrderArg, groupMembersArg,
+    isRepresentedArg, couldHaveText, alignmentValueInBitsArg, hasNoSkipRegionsArg, optIgnoreCaseArg,
     fillByteEvArg,
     maybeCheckByteAndBitOrderEvArg,
     maybeCheckBitOrderAndCharsetEvArg)
 
+/*
+ * These Delay-type args are part of how we
+ * create a structure here which contains some objects that
+ * somewhere within themselves, refer back to this structure.
+ */
 final class ChoiceRuntimeData(
-  /**
-   * These transient by-name args are part of how we
-   * create a structure here which contains some objects that
-   * somewhere within themselves, refer back to this structure.
-   *
-   * These are passed by-name, and ultimately what is serialized is not
-   * these, but lazy vals that refer to them which are forced to have
-   * values at the time of object serialization.
-   */
   positionArg: Int,
-  @TransientParam partialNextElementResolverArg: => PartialNextElementResolver,
-  @TransientParam variableMapArg: => VariableMap,
-  @TransientParam encInfoArg: => EncodingRuntimeData,
+  partialNextElementResolverDelay: Delay[PartialNextElementResolver],
+  variableMapArg: VariableMap,
+  encInfo: EncodingRuntimeData,
   schemaFileLocationArg: SchemaFileLocation,
-  @TransientParam ciArg: => DPathCompileInfo,
+  ci: DPathCompileInfo,
   diagnosticDebugNameArg: String,
   pathArg: String,
   defaultBitOrderArg: BitOrder,
-  @TransientParam groupMembersArg: => Seq[TermRuntimeData],
+  groupMembersArg: Seq[TermRuntimeData],
   isRepresentedArg: Boolean,
-  @TransientParam couldHaveTextArg: => Boolean,
+  couldHaveText: Boolean,
   alignmentValueInBitsArg: Int,
   hasNoSkipRegionsArg: Boolean,
   optIgnoreCaseArg: Option[YesNo],
-  @TransientParam fillByteEvArg: => FillByteEv,
-  @TransientParam maybeCheckByteAndBitOrderEvArg: => Maybe[CheckByteAndBitOrderEv],
-  @TransientParam maybeCheckBitOrderAndCharsetEvArg: => Maybe[CheckBitOrderAndCharsetEv])
-  extends ModelGroupRuntimeData(positionArg, partialNextElementResolverArg,
-    variableMapArg, encInfoArg, schemaFileLocationArg, ciArg, diagnosticDebugNameArg, pathArg, defaultBitOrderArg, groupMembersArg,
-    isRepresentedArg, couldHaveTextArg, alignmentValueInBitsArg, hasNoSkipRegionsArg, optIgnoreCaseArg, fillByteEvArg,
+  fillByteEvArg: FillByteEv,
+  maybeCheckByteAndBitOrderEvArg: Maybe[CheckByteAndBitOrderEv],
+  maybeCheckBitOrderAndCharsetEvArg: Maybe[CheckBitOrderAndCharsetEv])
+  extends ModelGroupRuntimeData(positionArg, partialNextElementResolverDelay,
+    variableMapArg, encInfo, schemaFileLocationArg, ci, diagnosticDebugNameArg, pathArg, defaultBitOrderArg, groupMembersArg,
+    isRepresentedArg, couldHaveText, alignmentValueInBitsArg, hasNoSkipRegionsArg, optIgnoreCaseArg, fillByteEvArg,
     maybeCheckByteAndBitOrderEvArg,
     maybeCheckBitOrderAndCharsetEvArg)
 
 final class VariableRuntimeData(
-  schemaFileLocationArg:  SchemaFileLocation,
-  diagnosticDebugNameArg:  String,
+  schemaFileLocationArg: SchemaFileLocation,
+  diagnosticDebugNameArg: String,
   pathArg: String,
   namespacesArg: NamespaceBinding,
   val external: Boolean,
   val direction: VariableDirection,
-  @TransientParam maybeDefaultValueExprArg: => Maybe[CompiledExpression[AnyRef]],
-  val typeRef:  RefQName,
+  maybeDefaultValueExprDelay: Delay[Maybe[CompiledExpression[AnyRef]]],
+  val typeRef: RefQName,
   val globalQName: GlobalQName,
-  val primType:  NodeInfo.PrimType,
-  unqualifiedPathStepPolicyArg:  UnqualifiedPathStepPolicy)
+  val primType: NodeInfo.PrimType,
+  unqualifiedPathStepPolicyArg: UnqualifiedPathStepPolicy)
   extends NonTermRuntimeData(
     null, // no variable map
     schemaFileLocationArg,
     diagnosticDebugNameArg,
     pathArg,
     namespacesArg,
-    unqualifiedPathStepPolicyArg)
-  with Serializable {
+    unqualifiedPathStepPolicyArg) {
 
-  lazy val maybeDefaultValueExpr = maybeDefaultValueExprArg
-
-  override def preSerialization: Unit = {
-    super.preSerialization
-    maybeDefaultValueExpr
+  /**
+   * Cyclic structures require initialization
+   */
+  lazy val initialize: Unit = {
+    maybeDefaultValueExpr // demand this
   }
 
-  @throws(classOf[java.io.IOException])
-  final private def writeObject(out: java.io.ObjectOutputStream): Unit = serializeObject(out)
+  lazy val maybeDefaultValueExpr: Maybe[CompiledExpression[AnyRef]] = maybeDefaultValueExprDelay.value
+
 
   def createVariableInstance(): VariableInstance = VariableInstance(rd=this)
 

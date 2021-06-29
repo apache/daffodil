@@ -50,7 +50,7 @@ class TestMiddleEndAttributes3 {
         </xs:complexType>
       </xs:element>)
 
-    val sset = new SchemaSet(testSchema)
+    val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd, _) = sch.schemaDocuments
 
@@ -100,7 +100,7 @@ class TestMiddleEndAttributes3 {
         </xs:complexType>
       </xs:element>)
 
-    val sset = new SchemaSet(testSchema)
+    val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd, _) = sch.schemaDocuments
 

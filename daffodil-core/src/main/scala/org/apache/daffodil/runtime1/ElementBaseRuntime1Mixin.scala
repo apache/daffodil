@@ -25,12 +25,23 @@ import org.apache.daffodil.dsom.DPathElementCompileInfo
 import org.apache.daffodil.processors.RuntimeData
 import org.apache.daffodil.processors.TermRuntimeData
 import org.apache.daffodil.processors.ElementRuntimeData
+import org.apache.daffodil.util.Delay
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.dsom.SimpleTypeDefBase
 import org.apache.daffodil.dsom.ComplexTypeBase
 import org.apache.daffodil.dsom.PrimitiveType
 
 trait ElementBaseRuntime1Mixin { self: ElementBase =>
+
+  // initialize cyclic structure
+  requiredEvaluationsIfActivated(
+    dpathElementCompileInfo.initialize
+  )
+
+  // initialize cyclic structure
+  requiredEvaluationsIfActivated(
+    elementRuntimeData.initialize
+  )
 
   /**
    * Tells us if, for this element, we need to capture its content length
@@ -122,14 +133,14 @@ trait ElementBaseRuntime1Mixin { self: ElementBase =>
    * This is the compile info for this element term.
    */
   lazy val dpathElementCompileInfo: DPathElementCompileInfo = {
-    val ee = enclosingElements
+    lazy val ee = enclosingElements
     lazy val parents = ee.map {
       _.dpathElementCompileInfo
     }
     val eci = new DPathElementCompileInfo(
-      parents,
+      Delay('elementParents, this, parents),
       variableMap,
-      elementChildrenCompileInfo,
+      Delay('elementChildrenCompileInfo, this, elementChildrenCompileInfo),
       namespaces,
       slashPath,
       name,
@@ -139,7 +150,6 @@ trait ElementBaseRuntime1Mixin { self: ElementBase =>
       schemaFileLocation,
       tunable.unqualifiedPathStepPolicy,
       schemaSet.typeCalcMap,
-      runtimeData,
       shortSchemaComponentDesignator,
       isOutputValueCalc)
     eci
@@ -150,20 +160,18 @@ trait ElementBaseRuntime1Mixin { self: ElementBase =>
 
   final def erd = elementRuntimeData // just an abbreviation
 
-  final lazy val elementRuntimeData: ElementRuntimeData = LV('elementRuntimeData) {
-    computeElementRuntimeData
+  private lazy val childrenERDs: Seq[ElementRuntimeData] = LV('childrenERDs) {
+    elementChildren.map {
+      _.elementRuntimeData
+    }
   }.value
 
-  protected def computeElementRuntimeData(): ElementRuntimeData = {
-
-    lazy val childrenERDs: Seq[ElementRuntimeData] =
-      elementChildren.map { _.elementRuntimeData }
-
+  final lazy val elementRuntimeData: ElementRuntimeData = LV('elementRuntimeData) {
     val newERD: ElementRuntimeData = new ElementRuntimeData(
       position,
       childrenERDs,
       schemaSet.variableMap,
-      partialNextElementResolver,
+      Delay('ElementPartialNextElementResolver, this, partialNextElementResolver),
       encodingInfo,
       dpathElementCompileInfo,
       schemaFileLocation,
@@ -204,7 +212,7 @@ trait ElementBaseRuntime1Mixin { self: ElementBase =>
       maybeCheckBitOrderAndCharsetEv,
       isQuasiElement)
     newERD
-  }
+  }.value
 
   private lazy val (optSimpleTypeRuntimeData,
     optComplexTypeModelGroupRuntimeData) =

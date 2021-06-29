@@ -134,7 +134,10 @@ object Util {
   }
 
   def cmdConvert(str: String): String = {
-    str.replaceAll("/", "\\\\")
+    if (isWindows)
+      str.replaceAll("/", "\\\\")
+    else
+      str
   }
 
   def fileConvert(str: String): String = {

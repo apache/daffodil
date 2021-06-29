@@ -115,17 +115,18 @@
          the properties as it has given up processing those constructs. -->
       <!-- <tdml:error>representation</tdml:error> -->
       
-      <!-- Don't get this type-related error anymore
       <tdml:error>immediate type</tdml:error>
       <tdml:error>named type</tdml:error>
       <tdml:error>not both</tdml:error>
-      -->
+
       <!-- Dont get invalidity error anymore. 
       <tdml:error>invalid</tdml:error>
       <tdml:error>dfdl:format</tdml:error>
       -->
+      <!-- Don't get this anymore - stops once the schema is invalid
       <tdml:error>ex:err2</tdml:error>
       <tdml:error>referenced</tdml:error>
+      -->
     </tdml:errors>
 
   </tdml:parserTestCase>

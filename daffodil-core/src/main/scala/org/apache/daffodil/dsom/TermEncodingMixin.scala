@@ -23,6 +23,7 @@ import org.apache.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
 import org.apache.daffodil.processors.KnownEncodingMixin
 import org.apache.daffodil.api.WarnID
 import org.apache.daffodil.schema.annotation.props.gen.YesNo
+import org.apache.daffodil.util.Maybe
 
 /**
  * Captures concepts around dfdl:encoding property and Terms.
@@ -31,7 +32,7 @@ import org.apache.daffodil.schema.annotation.props.gen.YesNo
  */
 trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
 
-  requiredEvaluationsAlways(checkTextBidi)
+  requiredEvaluationsIfActivated(checkTextBidi)
 
   private lazy val optionTextBidi = findPropertyOption("textBidi")
 
@@ -47,12 +48,15 @@ trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
         encodingErrorPolicy
       } else {
         if (!optionEncodingErrorPolicy.isDefined)
-          SDW(WarnID.EncodingErrorPolicyError, "Property 'dfdl:encodingErrorPolicy' is required but not defined, using 'replace' by default.")
+          SDW(
+            WarnID.EncodingErrorPolicyError,
+            "Property 'dfdl:encodingErrorPolicy' is required but not defined, using 'replace' by default.")
         optionEncodingErrorPolicy.getOrElse(EncodingErrorPolicy.Replace)
       }
     if (policy == EncodingErrorPolicy.Error) {
       // DFDL-935 to enable
-      SDW(WarnID.EncodingErrorPolicyError, "dfdl:encodingErrorPolicy=\"error\" is not yet implemented. The 'replace' value will be used.")
+      SDW(WarnID.EncodingErrorPolicyError,
+        "dfdl:encodingErrorPolicy=\"error\" is not yet implemented. The 'replace' value will be used.")
       EncodingErrorPolicy.Replace
     }
     policy
@@ -83,7 +87,9 @@ trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
    */
   override final lazy val knownEncodingAlignmentInBits = {
     if (isKnownEncoding) {
-      schemaDefinitionWarningWhen(WarnID.DeprecatedEncodingNameUSASCII7BitPacked, knownEncodingName == "US-ASCII-7-BIT-PACKED",
+      schemaDefinitionWarningWhen(
+        WarnID.DeprecatedEncodingNameUSASCII7BitPacked,
+        knownEncodingName == "US-ASCII-7-BIT-PACKED",
         "Character set encoding name US-ASCII-7-BIT-PACKED is deprecated." +
           "Please update your DFDL schema to use the name X-DFDL-US-ASCII-7-BIT-PACKED.")
       val cs = charsetEv.optConstant.get
@@ -92,8 +98,15 @@ trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
   }
 
   lazy val encodingInfo =
-    new EncodingRuntimeData(charsetEv, schemaFileLocation, optionUTF16Width, defaultEncodingErrorPolicy,
-      summaryEncoding, isKnownEncoding, isScannable, knownEncodingAlignmentInBits, hasTextAlignment)
+    new EncodingRuntimeData(
+      charsetEv,
+      schemaFileLocation,
+      Maybe.toMaybe(optionUTF16Width),
+      defaultEncodingErrorPolicy,
+      isKnownEncoding,
+      isScannable,
+      knownEncodingAlignmentInBits,
+      hasTextAlignment)
 
 
 

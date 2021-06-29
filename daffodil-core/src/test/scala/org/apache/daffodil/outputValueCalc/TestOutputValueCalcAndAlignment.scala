@@ -20,9 +20,6 @@ package org.apache.daffodil.outputValueCalc
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
-
-import org.apache.daffodil.Implicits.ns2String
-import org.apache.daffodil.dsom.RuntimeSchemaDefinitionError
 import org.apache.daffodil.util.Misc
 import org.apache.daffodil.util.SchemaUtils
 import org.apache.daffodil.util.TestUtils
@@ -135,16 +132,14 @@ class TestOutputValueCalcAndAlignment {
     try {
       TestUtils.testUnparsing(sch, infoset, "ignored", areTracing)
     } catch {
-      case e: RuntimeSchemaDefinitionError => {
+          // Some test utilities, given multiple diagnostics from a run, will just
+          // concatenate their messages, and throw a vanilla Exception object.
+      case e: Exception => {
         val msg = Misc.getSomeMessage(e).get.toLowerCase
         if (!msg.contains("Schema Definition Error".toLowerCase))
           fail(msg + " did not contain Schema Definition Error")
 
         assertTrue(msg.contains("Deadlock".toLowerCase))
-      }
-      case x: Throwable => {
-        val y = x.toString
-        System.err.println(y)
       }
     }
   }

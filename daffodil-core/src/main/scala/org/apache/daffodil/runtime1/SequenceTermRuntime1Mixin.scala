@@ -22,6 +22,7 @@ import org.apache.daffodil.dsom.SequenceTermBase
 import org.apache.daffodil.processors.SequenceRuntimeData
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.processors.FillByteUseNotAllowedEv
+import org.apache.daffodil.util.Delay
 
 trait SequenceTermRuntime1Mixin { self: SequenceTermBase =>
 
@@ -30,7 +31,7 @@ trait SequenceTermRuntime1Mixin { self: SequenceTermBase =>
   lazy val sequenceRuntimeData = {
     new SequenceRuntimeData(
       position,
-      partialNextElementResolver,
+      Delay('SequencePartialNextElementResolver, this ,partialNextElementResolver),
       schemaSet.variableMap,
       encodingInfo,
       // elementChildren.map { _.elementRuntimeData.dpathElementCompileInfo },
@@ -54,10 +55,12 @@ trait SequenceTermRuntime1Mixin { self: SequenceTermBase =>
 
 trait ChoiceBranchImpliedSequenceRuntime1Mixin { self: ChoiceBranchImpliedSequence =>
 
+  requiredEvaluationsIfActivated(sequenceRuntimeData.initialize)
+
   override lazy val sequenceRuntimeData: SequenceRuntimeData = {
     new SequenceRuntimeData(
       position,
-      partialNextElementResolver,
+      Delay('ChoiceBranchImpliedSequencePartialNextElementResolver, this, partialNextElementResolver),
       schemaSet.variableMap,
       encodingInfo,
       schemaFileLocation,

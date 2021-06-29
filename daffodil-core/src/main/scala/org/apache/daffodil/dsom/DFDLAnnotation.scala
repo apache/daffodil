@@ -47,7 +47,7 @@ abstract class DFDLAnnotation(xmlArg: Node, annotatedSCArg: AnnotatedSchemaCompo
 
   override def toString = diagnosticDebugName
 
-  override lazy val diagnosticDebugName: String = {
+  override protected lazy val diagnosticDebugNameImpl: String = {
     val cn = Misc.getNameFromClass(this)
     val n =
       if (cn.startsWith("DFDL")) {

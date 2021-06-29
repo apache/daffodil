@@ -130,8 +130,6 @@ final class ChainPropProvider(leafProvidersArg: Seq[LeafPropProvider], forAnnota
 
   final lazy val leafProviders = leafProvidersArg
 
-  final lazy val diagnosticDebugName: String = "ChainPropProvider(" + forAnnotation + ")"
-
   final def chainFindProperty(pname: String): PropertyLookupResult = {
     lookupPropertyInSources(leafProviders, pname)
   }

@@ -40,7 +40,7 @@ import java.net.URI
 final class Import(importNode: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
   extends IIBase(importNode, xsd, seenArg) {
 
-  final def mapPair = LV('mapPair) {
+  final lazy val mapPair = LV('mapPair) {
     val mpOpt = importElementNS.map { ieNS => (ieNS, resolvedLocation) }
     val mp = mpOpt.getOrElse {
       //

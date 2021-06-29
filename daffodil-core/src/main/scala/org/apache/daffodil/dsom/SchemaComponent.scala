@@ -21,16 +21,15 @@ import scala.xml.Node
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.xml.NS
 import org.apache.daffodil.xml.XMLUtils
-import org.apache.daffodil.processors.RuntimeData
 import org.apache.daffodil.processors.VariableMap
-import org.apache.daffodil.processors.NonTermRuntimeData
 import org.apache.daffodil.xml.ResolvesQNames
-import org.apache.daffodil.schema.annotation.props.LookupLocation
 import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.xml.GetAttributesMixin
 import org.apache.daffodil.schema.annotation.props.PropTypes
 import org.apache.daffodil.util.Misc
 import org.apache.daffodil.BasicComponent
+import org.apache.daffodil.runtime1.SchemaComponentRuntime1Mixin
+import org.apache.daffodil.util.Delay
 
 abstract class SchemaComponentImpl(
   final override val xml: Node,
@@ -53,29 +52,35 @@ trait SchemaComponent
   with SchemaComponentIncludesAndImportsMixin
   with ResolvesQNames
   with SchemaFileLocatableImpl
-  with PropTypes {
+  with PropTypes
+  with SchemaComponentRuntime1Mixin {
+
+  override protected def initialize(): Unit = {
+    super.initialize()
+    xml
+    namespaces
+    diagnosticDebugName
+    optLexicalParent
+  }
 
   def xml: Node
 
   override def oolagContextViaArgs = optLexicalParent
 
-  requiredEvaluationsIfActivated(runtimeData)
-  requiredEvaluationsIfActivated(runtimeData.preSerializationOnlyOnce)
-
   override lazy val tunable: DaffodilTunables = optLexicalParent.get.tunable
   final override lazy val unqualifiedPathStepPolicy = tunable.unqualifiedPathStepPolicy
 
+  // FIXME: I think this should be abstract. We never need this actual object.
   lazy val dpathCompileInfo: DPathCompileInfo = {
     lazy val parents = enclosingTerms.map { _.dpathCompileInfo }
     new DPathCompileInfo(
-      parents,
+      Delay('nonElementParents, this, parents),
       variableMap,
       namespaces,
       path,
       schemaFileLocation,
       tunable.unqualifiedPathStepPolicy,
-      schemaSet.typeCalcMap,
-      runtimeData)
+      schemaSet.typeCalcMap)
   }
 
   /**
@@ -83,35 +88,9 @@ trait SchemaComponent
    */
   final def ci = dpathCompileInfo
 
-  /**
-   * All non-terms get runtimeData from this definition. All Terms
-   * which are elements and model-groups) override this.
-   *
-   * The Term class has a generic termRuntimeData => TermRuntimeData
-   * function (useful since all Terms share things like having charset encoding)
-   * The Element classes all inherit an elementRuntimeData => ElementRuntimeData
-   * and the model groups all have modelGroupRuntimeData => ModelGroupRuntimeData.
-   *
-   * There is also VariableRuntimeData and SchemaSetRuntimeData.
-   */
-  lazy val runtimeData: RuntimeData = nonTermRuntimeData // overrides in ModelGroup, ElementBase, SimpleTypes
-
-  final def nonTermRuntimeData = LV('nonTermRuntimeData) {
-    new NonTermRuntimeData(
-      variableMap,
-      schemaFileLocation,
-      diagnosticDebugName,
-      path,
-      namespaces,
-      tunable.unqualifiedPathStepPolicy)
-  }.value
-
-  def variableMap: VariableMap = LV('variableMap) {
+  lazy val variableMap: VariableMap = LV('variableMap) {
     schemaSet.variableMap
   }.value
-
-
-  lazy val schemaComponent: LookupLocation = this
 
   /**
    * Elements that enclose this.
@@ -121,26 +100,12 @@ trait SchemaComponent
    */
   final lazy val enclosingElements: Seq[ElementBase] = LV('enclosingElements) {
     val ets = enclosingTerms
-    if (ets.isEmpty) {
-      // a root element (in test situations there can be several) has no enclosing term
-      val r = this.schemaSet.root
-      if (this eq r) Nil
-      else {
-        // A simpleType that is used by way of an expression like:
-        // ```dfdl:inputValueCalc="{ dfdlx:inputTypeCalc('tns:simpleTypeName', ...) }" ```
-        // Also has no enclosing terms. (Currently)
-        this match {
-          case st: GlobalSimpleTypeDef if st.optRepType.isDefined => Nil // no enclosingElements
-          case _ => {
-            // This does happen for some tests in daffodil-core
-            // That use the file example-of-most-dfdl-constructs.dfdl.xml.
-            // This may not be valid.
-            Seq(r)
-          }
-        }
-      }
+    val res = if (ets.isEmpty) {
+      // There are no enclosing terms.
+      Nil
     } else {
-      val res = ets.flatMap { et =>
+      // There ARE enclosing terms
+      val etsRes = ets.flatMap { et =>
         val ee = et match {
           case eb: ElementBase => Seq(eb)
           case sc: SchemaComponent => {
@@ -150,8 +115,9 @@ trait SchemaComponent
         }
         ee
       }
-      res
+      etsRes
     }
+    res.distinct
   }.value
 
   /**
@@ -172,7 +138,7 @@ trait SchemaComponent
         }
       }
     }
-    res
+    res.distinct
   }
 
   /**
@@ -214,7 +180,7 @@ trait SchemaComponent
         case sgr: SequenceGroupRef => "sgr" + (if (sgr.isHidden) "h" else "") + (if (sgr.position > 1) sgr.position else "") + "=" + sgr.groupDef.namedQName.toQNameString
         case sgd: GlobalSequenceGroupDef => "sgd=" + sgd.namedQName.toQNameString
         case cg: Choice => "c" + (if (cg.position > 1) cg.position else "")
-        case sg: Sequence => "s" + (if (sg.position > 1) sg.position else "")
+        case sg: LocalSequence => "s" + (if (sg.position > 1) sg.position else "")
         case unknown => "unk=" + Misc.getNameFromClass(unknown)
       }
     }
@@ -272,6 +238,14 @@ trait SchemaComponent
   }
 }
 
+object Schema {
+  def apply(namespace: NS, schemaDocs: Seq[SchemaDocument], schemaSetArg: SchemaSet) = {
+    val s = new Schema(namespace, schemaDocs, schemaSetArg)
+    s.initialize()
+    s
+  }
+}
+
 /**
  * A schema is all the schema documents sharing a single target namespace.
  *
@@ -279,14 +253,10 @@ trait SchemaComponent
  * same target namespace, and in that case all those schema documents make up
  * the 'schema'.
  */
-final class Schema(val namespace: NS, schemaDocs: Seq[SchemaDocument], schemaSetArg: SchemaSet)
+final class Schema private (val namespace: NS, schemaDocs: Seq[SchemaDocument], schemaSetArg: SchemaSet)
   extends SchemaComponentImpl(<fake/>, Option(schemaSetArg)) {
 
-  requiredEvaluationsAlways(schemaDocuments)
-
   override def targetNamespace: NS = namespace
-
-  override lazy val schemaDocument: SchemaDocument = Assert.usageError("schemaDocument should not be called on Schema")
 
   override lazy val schemaSet = schemaSetArg
 

@@ -18,7 +18,6 @@
 package org.apache.daffodil.dsom
 
 import scala.xml.Node
-import scala.xml._
 import org.apache.daffodil.dsom.walker.GroupRefView
 import org.apache.daffodil.xml.HasRefMixin
 import org.apache.daffodil.schema.annotation.props.NotFound
@@ -95,15 +94,28 @@ final class GroupRefFactory private (refXML: Node, val refLexicalParent: SchemaC
       SDE("Referenced group definition not found: %s", this.ref)
     }
     val gref = gdef match {
-      case gd: GlobalSequenceGroupDef => new SequenceGroupRef(gd, refXML, refLexicalParent, position, isHidden)
-      case gd: GlobalChoiceGroupDef => new ChoiceGroupRef(gd, refXML, refLexicalParent, position, isHidden)
+      case gd: GlobalSequenceGroupDef => SequenceGroupRef(gd, refXML, refLexicalParent, position, isHidden)
+      case gd: GlobalChoiceGroupDef => ChoiceGroupRef(gd, refXML, refLexicalParent, position, isHidden)
     }
     gref
   }
 }
 
-final class SequenceGroupRef(
-  globalGroupDefArg: => GlobalSequenceGroupDef,
+object SequenceGroupRef {
+  def apply(
+    globalGroupDefArg: GlobalSequenceGroupDef,
+    refXML: Node,
+    refLexicalParent: SchemaComponent,
+    positionArg: Int,
+    isHidden: Boolean) = {
+    val sgr = new SequenceGroupRef(globalGroupDefArg, refXML, refLexicalParent, positionArg, isHidden)
+    sgr.initialize()
+    sgr
+  }
+}
+
+final class SequenceGroupRef private (
+  globalGroupDefArg: GlobalSequenceGroupDef,
   refXML: Node,
   refLexicalParent: SchemaComponent,
   positionArg: Int,
@@ -127,7 +139,20 @@ final class SequenceGroupRef(
 
 }
 
-final class ChoiceGroupRef(
+object ChoiceGroupRef {
+  def apply(
+    globalGroupDefArg: GlobalChoiceGroupDef,
+    refXML: Node,
+    refLexicalParent: SchemaComponent,
+    positionArg: Int,
+    isHidden: Boolean) = {
+    val cgr = new ChoiceGroupRef(globalGroupDefArg, refXML, refLexicalParent, positionArg, isHidden)
+    cgr.initialize()
+    cgr
+  }
+}
+
+final class ChoiceGroupRef private (
   globalGroupDefArg: GlobalChoiceGroupDef,
   refXML: Node,
   refLexicalParent: SchemaComponent,

@@ -905,7 +905,7 @@
   -->
 
   <tdml:parserTestCase name="no_namespace_02" root="vagueBase"
-    model="multi_base_05_nons.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    model="multi_base_05_nons_with_A.dfdl.xsd" description="import a schema - DFDL-6-007R">
     <tdml:document><![CDATA[333]]></tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
@@ -923,11 +923,12 @@
   -->
 
   <tdml:parserTestCase name="no_namespace_03" root="baseSeq2"
-    model="multi_base_05_nons.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    model="multi_base_05_nons_with_A.dfdl.xsd" description="import a schema - DFDL-6-007R">
     <tdml:document><![CDATA[||333|||.||343|||]]></tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>More than one definition for name: pipes</tdml:error>
+      <tdml:error>More than one definition for</tdml:error>
+      <tdml:error>pipes</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -1738,7 +1739,11 @@
     <tdml:document><![CDATA[f:....53....(e)|f:..41..(e)]]></tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Attribute 'textStringJustification' is not allowed to appear in element 'xs:element'.</tdml:error>
+      <tdml:error>Attribute 'textStringJustification'</tdml:error>
+      <!-- some changes in messages happen when the specific validator changes -->
+      <!-- Calling the Xerces schema validator, XSD parser, and just parsing
+          XML with validation on, create similar, but slightly different messages -->
+      <tdml:error>appear in element</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

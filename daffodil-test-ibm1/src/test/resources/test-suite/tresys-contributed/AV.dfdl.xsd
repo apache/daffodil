@@ -44,7 +44,7 @@
         calendarCheckPolicy='strict'
         calendarLanguage='en' 
         escapeSchemeRef=''
-        encodingErrorPolicy="error"
+        encodingErrorPolicy="replace"
         dfdlx:parseUnparsePolicy="parseOnly" />
     </appinfo>
   </annotation>

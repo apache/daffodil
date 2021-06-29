@@ -16,13 +16,16 @@
   limitations under the License.
 -->
 
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xmlns="http://example.com" targetNamespace="http://example.com">
-      
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+           xmlns:xmlns="http://foo.com"
+           xmlns:tns="http://example.com"
+           targetNamespace="http://example.com">
+
+  <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/">
-      <dfdl:format separator="" alignment="1" alignmentUnits="bits" lengthUnits="bytes"
-        trailingSkip="0" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
-        ignoreCase="no" representation="text" textNumberRep="standard" encoding="ASCII"/>
+      <dfdl:format ref="tns:GeneralFormat"/>
     </xs:appinfo>
   </xs:annotation>
   
@@ -30,6 +33,6 @@
       <xs:restriction base="xs:int"/>
     </xs:simpleType>
 
-    <xs:element name="one" type="xmlns:simTyp"/>
+    <xs:element name="one" type="tns:simTyp"/>
   
 </xs:schema>

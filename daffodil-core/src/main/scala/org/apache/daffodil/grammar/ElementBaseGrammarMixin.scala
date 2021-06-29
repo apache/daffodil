@@ -52,6 +52,8 @@ trait ElementBaseGrammarMixin
   with PaddingInfoMixin
   with ElementBaseRuntime1Mixin { self: ElementBase =>
 
+  requiredEvaluationsIfActivated(checkPrefixedLengthElementDecl)
+
   private val context = this
 
   private lazy val (leftPadding, rightPadding) = {
@@ -88,91 +90,106 @@ trait ElementBaseGrammarMixin
       minLen > 0)
   }
 
-  final lazy val prefixedLengthElementDecl: PrefixLengthQuasiElementDecl = {
-    Assert.invariant(lengthKind == LengthKind.Prefixed)
 
+  private lazy val prefixLengthTypeGSTD = LV('prefixLengthTypeGSTD){
     // We need to resolve the global simple type of the prefix length type
     // because we need to create a detached element with the same schema
     // document/parent of the GSTD.
-    val prefixLengthTypeGSTD = schemaSet.getGlobalSimpleTypeDef(prefixLengthType).getOrElse(
+    schemaSet.getGlobalSimpleTypeDef(prefixLengthType).getOrElse(
       schemaDefinitionError(
         "Failed to resolve dfdl:prefixLengthType=\"%s\" to a simpleType",
         prefixLengthType.toQNameString))
+  }.value
 
+  lazy val prefixedLengthElementDecl: PrefixLengthQuasiElementDecl = LV('prefixedLengthElementDecl){
+    Assert.invariant(lengthKind == LengthKind.Prefixed)
     val detachedNode =
-      <element name={ name + " (prefixLength)" } type={ prefixLengthType.toQNameString }/>
+        <element name={name + " (prefixLength)"} type={prefixLengthType.toQNameString}/>
         .copy(scope = prefixLengthTypeGSTD.xml.scope)
-    val detachedElementDecl =
-      new PrefixLengthQuasiElementDecl(detachedNode, prefixLengthTypeGSTD)
-
-    val prefixedLengthKind = detachedElementDecl.lengthKind
-    prefixedLengthKind match {
-      case LengthKind.Delimited | LengthKind.EndOfParent | LengthKind.Pattern =>
-        schemaDefinitionError(
-          "%s is specified as a dfdl:prefixLengthType, but has a dfdl:lengthKind of %s",
-          prefixLengthType,
-          prefixedLengthKind)
-      case LengthKind.Explicit if detachedElementDecl.optLengthConstant.isEmpty =>
-        schemaDefinitionError(
-          "%s is specified as a dfdl:prefixLengthType, but has an expression for dfdl:length",
-          prefixLengthType)
-      case LengthKind.Implicit | LengthKind.Explicit if prefixIncludesPrefixLength == YesNo.Yes &&
-        lengthUnits != detachedElementDecl.lengthUnits =>
-        schemaDefinitionError(
-          "%s is specified as a dfdl:prefixLengthType where dfdl:prefixIncludesPrefixLength=\"yes\" " +
-            "with dfdl:lengthKind %s, but has different dfdl:lengthUnits than the element",
-          prefixLengthType,
-          prefixedLengthKind)
-      case _ =>
+    val detachedElementDecl = {
+      PrefixLengthQuasiElementDecl(detachedNode, prefixLengthTypeGSTD)
     }
-
-    schemaDefinitionUnless(
-      detachedElementDecl.primType.isSubtypeOf(NodeInfo.Integer),
-      "%s is specified as a dfdl:prefixLengthType, but its type xs:%s is not a subtype of xs:integer",
-      prefixLengthType,
-      detachedElementDecl.primType.toString.toLowerCase)
-
-    schemaDefinitionWhen(
-      detachedElementDecl.isOutputValueCalc,
-      "%s is specified as a dfdl:prefixLengthType, but specifies dfdl:outputValueCalc",
-      prefixLengthType)
-    schemaDefinitionWhen(
-      detachedElementDecl.hasInitiator,
-      "%s is specified as a dfdl:prefixLengthType, but specifies a dfdl:initiator",
-      prefixLengthType)
-    schemaDefinitionWhen(
-      detachedElementDecl.hasTerminator,
-      "%s is specified as a dfdl:prefixLengthType, but specifies a dfdl:terminator",
-      prefixLengthType)
-    schemaDefinitionWhen(
-      detachedElementDecl.alignment != 1,
-      "%s is specified as a dfdl:prefixLengthType, but specifies a dfdl:alignment other than 1",
-      prefixLengthType)
-    schemaDefinitionWhen(
-      detachedElementDecl.leadingSkip != 0,
-      "%s is specified as a dfdl:prefixLengthType, but specifies a dfdl:leadingSkip other than 0",
-      prefixLengthType)
-    schemaDefinitionWhen(
-      detachedElementDecl.trailingSkip != 0,
-      "%s is specified as a dfdl:prefixLengthType, but specifies a dfdl:trailingSkip other than 0",
-      prefixLengthType)
-
-    if (detachedElementDecl.lengthKind == LengthKind.Prefixed &&
-      detachedElementDecl.prefixedLengthElementDecl.lengthKind == LengthKind.Prefixed) {
-      schemaDefinitionError(
-        "Nesting level for dfdl:prefixLengthType exceeds 1: %s > %s > %s > %s",
-        name,
-        prefixLengthType,
-        detachedElementDecl.prefixLengthType,
-        detachedElementDecl.prefixedLengthElementDecl.prefixLengthType)
-    }
-
-    subset(
-      detachedElementDecl.lengthKind != LengthKind.Prefixed,
-      "Nested dfdl:lengthKind=\"prefixed\" is not supported.")
-
     detachedElementDecl
+  }.value
+
+  final lazy val optPrefixLengthElementDecl: Option[PrefixLengthQuasiElementDecl] =
+    if (lengthKind == LengthKind.Prefixed)
+      Some(prefixedLengthElementDecl)
+    else
+      None
+
+  final lazy val checkPrefixedLengthElementDecl: Unit = {
+    if (lengthKind != LengthKind.Prefixed) ()
+    else {
+      val detachedElementDecl = prefixedLengthElementDecl
+      val prefixedLengthKind = detachedElementDecl.lengthKind
+      prefixedLengthKind match {
+        case LengthKind.Delimited | LengthKind.EndOfParent | LengthKind.Pattern =>
+          schemaDefinitionError(
+            "%s is specified as a dfdl:prefixLengthType, but has a dfdl:lengthKind of %s",
+            prefixLengthType,
+            prefixedLengthKind)
+        case LengthKind.Explicit if detachedElementDecl.optLengthConstant.isEmpty =>
+          schemaDefinitionError(
+            "%s is specified as a dfdl:prefixLengthType, but has an expression for dfdl:length",
+            prefixLengthType)
+        case LengthKind.Implicit | LengthKind.Explicit if prefixIncludesPrefixLength == YesNo.Yes &&
+          lengthUnits != detachedElementDecl.lengthUnits =>
+          schemaDefinitionError(
+            "%s is specified as a dfdl:prefixLengthType where dfdl:prefixIncludesPrefixLength=\"yes\" " +
+              "with dfdl:lengthKind %s, but has different dfdl:lengthUnits than the element",
+            prefixLengthType,
+            prefixedLengthKind)
+        case _ => // ok
+      }
+
+      schemaDefinitionUnless(
+        detachedElementDecl.primType.isSubtypeOf(NodeInfo.Integer),
+        "%s is specified as a dfdl:prefixLengthType, but its type xs:%s is not a subtype of xs:integer",
+        prefixLengthType,
+        detachedElementDecl.primType.toString.toLowerCase)
+
+      schemaDefinitionWhen(
+        detachedElementDecl.isOutputValueCalc,
+        "%s is specified as a dfdl:prefixLengthType, but specifies dfdl:outputValueCalc",
+        prefixLengthType)
+      schemaDefinitionWhen(
+        detachedElementDecl.hasInitiator,
+        "%s is specified as a dfdl:prefixLengthType, but specifies a dfdl:initiator",
+        prefixLengthType)
+      schemaDefinitionWhen(
+        detachedElementDecl.hasTerminator,
+        "%s is specified as a dfdl:prefixLengthType, but specifies a dfdl:terminator",
+        prefixLengthType)
+      schemaDefinitionWhen(
+        detachedElementDecl.alignment != 1,
+        "%s is specified as a dfdl:prefixLengthType, but specifies a dfdl:alignment other than 1",
+        prefixLengthType)
+      schemaDefinitionWhen(
+        detachedElementDecl.leadingSkip != 0,
+        "%s is specified as a dfdl:prefixLengthType, but specifies a dfdl:leadingSkip other than 0",
+        prefixLengthType)
+      schemaDefinitionWhen(
+        detachedElementDecl.trailingSkip != 0,
+        "%s is specified as a dfdl:prefixLengthType, but specifies a dfdl:trailingSkip other than 0",
+        prefixLengthType)
+
+      if (detachedElementDecl.lengthKind == LengthKind.Prefixed &&
+        detachedElementDecl.prefixedLengthElementDecl.lengthKind == LengthKind.Prefixed) {
+        schemaDefinitionError(
+          "Nesting level for dfdl:prefixLengthType exceeds 1: %s > %s > %s > %s",
+          name,
+          prefixLengthType,
+          detachedElementDecl.prefixLengthType,
+          detachedElementDecl.prefixedLengthElementDecl.prefixLengthType)
+      }
+
+      subset(
+        detachedElementDecl.lengthKind != LengthKind.Prefixed,
+        "Nested dfdl:lengthKind=\"prefixed\" is not supported.")
+    }
   }
+
   final lazy val prefixedLengthAdjustmentInUnits: Long = prefixIncludesPrefixLength match {
     case YesNo.Yes => {
       // get the known length of the prefix element in lengthUnits
@@ -447,11 +464,13 @@ trait ElementBaseGrammarMixin
    * It is critical that the 2nd argument to getShared is passed by name, so not
    * evaluated a second time when sharing opportunities are discovered (same shareKey).
    */
-  lazy val sharedSimpleParsedValue =
+  lazy val sharedSimpleParsedValue = {
+    lazy val retry = retrySimpleType(value) // once only
     schemaSet.sharedSimpleValueFactory.getShared(
       shareKey,
-      captureLengthRegions(leftPadding, retrySimpleType(value), rightPadding ~ rightFill) ~
+      captureLengthRegions(leftPadding, retry, rightPadding ~ rightFill) ~
         terminatorRegion)
+  }
 
   /**
    * Wrapped around the simple value unparsers where the simple type value is
@@ -466,7 +485,7 @@ trait ElementBaseGrammarMixin
    * do setups of ustate/data-output-streams when unparsing the result of an OVC.
    */
   private def retrySimpleType(allowedValueArg: => Gram) = {
-    lazy val allowedValue = allowedValueArg
+    lazy val allowedValue = allowedValueArg // once only
     if (this.isOutputValueCalc)
       SimpleTypeRetry(this, allowedValue)
     else if (this.isInstanceOf[PrefixLengthQuasiElementDecl]) {
@@ -1125,7 +1144,11 @@ trait ElementBaseGrammarMixin
 
   lazy val hasRepType = (isSimpleType && simpleType.optRepType.isDefined)
   lazy val optRepType = if (hasRepType) Some(simpleType.optRepType.get) else None
-  lazy val optRepTypeElement = if (isSimpleType && simpleType.optRepTypeElement.isDefined) Some(simpleType.optRepTypeElement.get) else None
+  lazy val optRepTypeElement =
+    if (isSimpleType && simpleType.optRepTypeElement.isDefined)
+      Some(simpleType.optRepTypeElement.get)
+    else
+      None
 
   /**
    * the element left framing does not include the initiator nor the element right framing the terminator

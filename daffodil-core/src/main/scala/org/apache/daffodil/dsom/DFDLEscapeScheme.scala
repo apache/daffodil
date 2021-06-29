@@ -78,7 +78,7 @@ final class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: 
   override def verifyPropValue(key: String, value: String): Boolean =
     super.verifyPropValue(key, value)
 
-  final def escapeCharacterEv = LV('escapeCharacterEv) {
+  final lazy val escapeCharacterEv = LV('escapeCharacterEv) {
     val qn = this.qNameForProperty("escapeCharacter")
     val expr = ExpressionCompilers.String.compileProperty(qn, NodeInfo.NonEmptyString, escapeCharacterRaw, this,
       defES.pointOfUse.dpathCompileInfo)
@@ -87,7 +87,7 @@ final class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: 
     ev
   }.value
 
-  final def optionEscapeEscapeCharacterEv = LV('optionEscapeEscapeCharacterEv) {
+  final lazy val optionEscapeEscapeCharacterEv = LV('optionEscapeEscapeCharacterEv) {
     val qn = this.qNameForProperty("escapeEscapeCharacter")
     escapeEscapeCharacterRaw match {
       case Found("", loc, _, _) => Nope
@@ -103,7 +103,7 @@ final class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: 
     }
   }.value
 
-  final def optionExtraEscapedCharacters = LV('optionExtraEscapedCharacters) {
+  final lazy val optionExtraEscapedCharacters = LV('optionExtraEscapedCharacters) {
     extraEscapedCharactersRaw match {
       case Found("", _, _, _) => Nope
       case Found(v, _, _, _) => One(v)
@@ -130,11 +130,26 @@ final class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: 
 
 }
 
-final class DFDLDefineEscapeSchemeFactory(node: Node, decl: SchemaDocument)
-  extends DFDLDefiningAnnotation(node, decl) {
-  def forComponent(pointOfUse: SchemaComponent) = new DFDLDefineEscapeScheme(node, decl, pointOfUse)
+object DFDLDefineEscapeSchemeFactory {
+  def apply(node: Node, decl: SchemaDocument) = {
+    val desf = new DFDLDefineEscapeSchemeFactory(node, decl)
+    desf.initialize()
+    desf
+  }
 }
 
+final class DFDLDefineEscapeSchemeFactory private (node: Node, decl: SchemaDocument)
+  extends DFDLDefiningAnnotation(node, decl) {
+  def forComponent(pointOfUse: SchemaComponent) = DFDLDefineEscapeScheme(node, decl, pointOfUse)
+}
+
+object DFDLDefineEscapeScheme {
+  def apply(node: Node, sd: SchemaDocument, pointOfUse: SchemaComponent) = {
+    val des = new DFDLDefineEscapeScheme(node, sd, pointOfUse)
+    des.initialize()
+    des
+  }
+}
 /**
  * Escape scheme definitions
  *
@@ -146,12 +161,13 @@ final class DFDLDefineEscapeSchemeFactory(node: Node, decl: SchemaDocument)
  * has its own expression compilation for these properties, as it would for any regular expression-valued
  * property like byteOrder or encoding or a delimiter.
  */
-final class DFDLDefineEscapeScheme(node: Node, decl: SchemaDocument,
+final class DFDLDefineEscapeScheme private (node: Node, decl: SchemaDocument,
   val pointOfUse: SchemaComponent)
-  extends DFDLDefiningAnnotation(node, decl) // Note: defineEscapeScheme isn't a format annotation itself.
-  {
+  extends DFDLDefiningAnnotation(node, decl) { // Note: defineEscapeScheme isn't a format annotation itself.
 
-  /*
+  requiredEvaluationsAlways(escapeScheme)
+
+  /**
    * For diagnostic messages, we need the decl - because that's where the
    * escapescheme definition is written.
    *
@@ -159,8 +175,6 @@ final class DFDLDefineEscapeScheme(node: Node, decl: SchemaDocument,
    * nearest enclosing element. That will be made to happen by way of
    * the ExpressionCompiler - every schema component potentially has one.
    */
-  requiredEvaluationsAlways(escapeScheme)
-
   lazy val referringComponent: Option[SchemaComponent] = Some(pointOfUse)
 
   lazy val escapeScheme = {

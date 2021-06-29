@@ -19,7 +19,6 @@ package org.apache.daffodil.processors
 
 import scala.collection.immutable.HashMap
 import scala.collection.immutable.HashSet
-
 import org.apache.daffodil.dpath.DState
 import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.dsom.CompiledExpression
@@ -30,19 +29,18 @@ import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveNullable
 import org.apache.daffodil.processors.parsers.PState
 import org.apache.daffodil.processors.parsers.ParseError
 import org.apache.daffodil.processors.unparsers.UState
+import org.apache.daffodil.util.Delay
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe.One
 import org.apache.daffodil.util.Numbers
-import org.apache.daffodil.util.PreSerialization
-import org.apache.daffodil.util.TransientParam
 import org.apache.daffodil.xml.QNameBase
 
 abstract class TypeCalculator(val srcType: NodeInfo.Kind, val dstType: NodeInfo.Kind)
-  extends PreSerialization {
+  extends Serializable {
   type Error = String
 
-  override def preSerialization: Any = {
-    super.preSerialization
+  def initialize(): Unit = {
+    // base method does nothing
   }
 
   /*
@@ -121,9 +119,6 @@ abstract class TypeCalculator(val srcType: NodeInfo.Kind, val dstType: NodeInfo.
   def supportsParse: Boolean = true
   def supportsUnparse: Boolean = true
 
-  @throws(classOf[java.io.IOException])
-  final private def writeObject(out: java.io.ObjectOutputStream): Unit = serializeObject(out)
-
   /*
    * In theory, this normalizeArg method should not be nessasary. We know at compile time what
    * types a given calculator is defined in terms of, so the compiler should insert any conversion
@@ -198,13 +193,25 @@ class KeysetValueTypeCalculatorUnordered(valueMap: HashMap[DataValuePrimitive, D
 }
 
 class ExpressionTypeCalculator(
-  @TransientParam maybeInputTypeCalcArg: => Maybe[CompiledExpression[AnyRef]],
-  @TransientParam maybeOutputTypeCalcArg: => Maybe[CompiledExpression[AnyRef]],
-  srcType: NodeInfo.Kind, dstType: NodeInfo.Kind)
+  private val maybeInputTypeCalcDelay: Delay[Maybe[CompiledExpression[AnyRef]]],
+  private val maybeOutputTypeCalcDelay: Delay[Maybe[CompiledExpression[AnyRef]]],
+  srcType: NodeInfo.Kind,
+  dstType: NodeInfo.Kind)
   extends TypeCalculator(srcType, dstType) {
 
-  override def supportsParse = maybeInputTypeCalcArg.isDefined
-  override def supportsUnparse = maybeOutputTypeCalcArg.isDefined
+  /*
+   * objects with Delay arguments for functional programming construction of
+   * cyclic graphs, need a way to force the delays, resulting in an ordinary
+   * (though cyclic) data structure.
+   */
+  final override def initialize(): Unit = {
+    super.initialize()
+    maybeInputTypeCalc
+    maybeOutputTypeCalc
+  }
+
+  override def supportsParse = maybeInputTypeCalc.isDefined
+  override def supportsUnparse = maybeOutputTypeCalc.isDefined
 
   /*
    * Compiling DPath expressions may need to evaluate typeCalculators in order to lookup their srcType and dstType.
@@ -212,15 +219,8 @@ class ExpressionTypeCalculator(
    *
    * Since these fields must be lazy, we cannot use them to determine supportsParse or supportUnparse
    */
-
-  lazy val maybeInputTypeCalc = maybeInputTypeCalcArg
-  lazy val maybeOutputTypeCalc = maybeOutputTypeCalcArg
-
-  override def preSerialization: Any = {
-    super.preSerialization
-    maybeInputTypeCalc
-    maybeOutputTypeCalc
-  }
+  lazy val maybeInputTypeCalc = maybeInputTypeCalcDelay.value
+  lazy val maybeOutputTypeCalc = maybeOutputTypeCalcDelay.value
 
   //The class TypeValueCalc will verify that supports(Un)Parse is true when nessasary
   //Therefore, if we ever call the below functions, we know that the relevent Maybe object is defined.
@@ -413,7 +413,13 @@ object TypeCalculatorCompiler {
     srcType: NodeInfo.Kind, dstType: NodeInfo.Kind): ExpressionTypeCalculator = {
     lazy val maybeInputType: Maybe[CompiledExpression[AnyRef]] = optInputTypeCalc.map(Maybe(_)).getOrElse(Maybe.Nope)
     lazy val maybeOutputType: Maybe[CompiledExpression[AnyRef]] = optOutputTypeCalc.map(Maybe(_)).getOrElse(Maybe.Nope)
-    new ExpressionTypeCalculator(maybeInputType, maybeOutputType, srcType, dstType)
+    val tc =
+      new ExpressionTypeCalculator(
+        Delay('maybeInputType, this, maybeInputType),
+        Delay('maybeOutputType, this, maybeOutputType),
+        srcType,
+        dstType)
+    tc
   }
   def compileIdentity(srcType: NodeInfo.Kind): TypeCalculator = new IdentifyTypeCalculator(srcType)
 

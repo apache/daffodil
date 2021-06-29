@@ -60,14 +60,18 @@ class BinaryIntegerKnownLength(val e: ElementBase,
 
 class BinaryIntegerPrefixedLength(val e: ElementBase, signed: Boolean) extends Terminal(e, true) {
 
+  private lazy val erd = e.elementRuntimeData
+  private lazy val plerd = e.prefixedLengthElementDecl.elementRuntimeData
+  private lazy val pladj = e.prefixedLengthAdjustmentInUnits
+
   override lazy val parser =
     new BinaryIntegerPrefixedLengthParser(
-      e.elementRuntimeData,
+      erd,
       e.prefixedLengthBody.parser,
-      e.prefixedLengthElementDecl.elementRuntimeData,
+      plerd,
       signed,
       e.lengthUnits,
-      e.prefixedLengthAdjustmentInUnits)
+      pladj)
 
   override lazy val unparser: Unparser = {
     val maybeNBits = e.primType match {
@@ -79,13 +83,13 @@ class BinaryIntegerPrefixedLength(val e: ElementBase, signed: Boolean) extends T
       case _ => Assert.invariantFailed("Only integer base types should be used for this primitive")
     }
     new BinaryIntegerPrefixedLengthUnparser(
-      e.elementRuntimeData,
+      erd,
       e.prefixedLengthBody.unparser,
-      e.prefixedLengthElementDecl.elementRuntimeData,
+      plerd,
       maybeNBits,
       signed,
       e.lengthUnits,
-      e.prefixedLengthAdjustmentInUnits)
+      pladj)
   }
 }
 

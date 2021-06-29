@@ -30,7 +30,7 @@
   <xs:element name="baseSeq2">
     <xs:complexType>
       <xs:sequence dfdl:separator=".">
-        <xs:element dfdl:ref="pipes" maxOccurs="10" type="xs:int"/>
+        <xs:element dfdl:ref="pipes" name="foo" maxOccurs="10" type="xs:int"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>

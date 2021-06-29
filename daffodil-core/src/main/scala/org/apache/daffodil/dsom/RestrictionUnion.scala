@@ -17,19 +17,21 @@
 
 package org.apache.daffodil.dsom
 
-import java.math.{ BigInteger => JBigInt, BigDecimal => JBigDecimal }
+import java.math.{ BigInteger => JBigInt }
+import java.math.{ BigDecimal => JBigDecimal }
 import org.apache.daffodil.exceptions.ThrowsSDE
 import org.apache.daffodil.exceptions.UnsuppressableException
+
 import scala.xml.Node
 import org.apache.daffodil.xml.QName
 import org.apache.daffodil.dpath.NodeInfo
 import com.ibm.icu.text.SimpleDateFormat
+
 import scala.collection.mutable.Queue
 import org.apache.daffodil.exceptions.Assert
 import com.ibm.icu.util.GregorianCalendar
 import com.ibm.icu.util.TimeZone
 import org.apache.daffodil.dpath.NodeInfo.PrimType
-import org.apache.daffodil.processors.RepValueSet
 import org.apache.daffodil.processors.RepValueSetCompiler
 import org.apache.daffodil.dsom.FacetTypes.ElemFacets
 import org.apache.daffodil.dsom.FacetTypes.FacetValue
@@ -37,31 +39,44 @@ import org.apache.daffodil.processors.RepValueSet
 import org.apache.daffodil.processors.RangeBound
 import org.apache.daffodil.infoset.DataValue
 import org.apache.daffodil.infoset.DataValue.DataValueBigInt
+import org.apache.daffodil.xml.RefQName
 
+object Restriction {
+  def apply(xmlArg: Node, simpleTypeDef: SimpleTypeDefBase) = {
+    val r = new Restriction(xmlArg, simpleTypeDef)
+    r.initialize()
+    r
+  }
+}
 /**
  * A schema component for simple type restrictions
  */
-final class Restriction(xmlArg: Node, val simpleTypeDef: SimpleTypeDefBase)
+final class Restriction private (xmlArg: Node, val simpleTypeDef: SimpleTypeDefBase)
   extends SchemaComponentImpl(xmlArg, simpleTypeDef)
   with Facets
   with NestingLexicalMixin
   with TypeChecks {
 
+  protected override def initialize() = {
+    super.initialize()
+    optUnion
+  }
+
   Assert.invariant(xmlArg.asInstanceOf[scala.xml.Elem].label == "restriction")
 
-  final lazy val primType: PrimType = {
-    optDirectPrimType.getOrElse(optBaseType.get.primType)
+  lazy val primType: PrimType = {
+    optDirectPrimType.getOrElse(optBaseTypeDef.get.primType)
   }
 
   /**
    * Defined if the restriction is derived from a union
    */
-  final lazy val optUnion: Option[Union] = {
-    optBaseType.flatMap { _.optUnion }.orElse(
-      optBaseType.flatMap { _.optRestriction.flatMap { _.optUnion } })
+  lazy val optUnion: Option[Union] = {
+    optBaseTypeDef.flatMap { _.optUnion }.orElse(
+      optBaseTypeDef.flatMap { _.optRestriction.flatMap { _.optUnion } })
   }
 
-  final lazy val derivationBaseRestrictions: Seq[Restriction] = {
+  lazy val derivationBaseRestrictions: Seq[Restriction] = {
     val obt = optBaseTypeDef.toSeq
     val res = obt.flatMap {
       bt =>
@@ -71,18 +86,18 @@ final class Restriction(xmlArg: Node, val simpleTypeDef: SimpleTypeDefBase)
     res
   }
 
-  lazy val baseQName = {
+  lazy val baseQNameString: String = {
     val baseQNameNodeSeq = xml \ "@base"
-    val baseQNameString = baseQNameNodeSeq.text
+    baseQNameNodeSeq.text
+  }
+
+  lazy val baseQName: RefQName = {
     val tryBaseQName = QName.resolveRef(baseQNameString, xml.scope,
       tunable.unqualifiedPathStepPolicy)
     schemaDefinitionUnless(tryBaseQName.isSuccess,
       "Failed to resolve base property reference for xs:restriction: " + tryBaseQName.failed.get.getMessage)
     tryBaseQName.get
   }
-
-  def optBaseType = optBaseTypeDef
-  def optBaseDef = optBaseTypeDef
 
   /**
    * Exclusive - restriction either has a baseType or a direct primType.
@@ -100,7 +115,7 @@ final class Restriction(xmlArg: Node, val simpleTypeDef: SimpleTypeDefBase)
     res
   }
 
-  final lazy val localBaseFacets: ElemFacets = {
+  lazy val localBaseFacets: ElemFacets = {
     val myFacets: Queue[FacetValue] = Queue.empty // val not var - it's a mutable collection
     if (localPatternValue.length > 0) { myFacets.enqueue((Facet.pattern, localPatternValue)) }
     if (localMinLengthValue.length > 0) { myFacets.enqueue((Facet.minLength, localMinLengthValue)) }
@@ -165,8 +180,8 @@ final class Restriction(xmlArg: Node, val simpleTypeDef: SimpleTypeDefBase)
     combined.toSeq
   }
 
-  final def remoteBaseFacets = LV('remoteBaseFacets) {
-    optBaseType match {
+  final lazy val remoteBaseFacets = LV('remoteBaseFacets) {
+    optBaseTypeDef match {
       case Some(gstd) => gstd.optRestriction.toSeq.flatMap { _.combinedBaseFacets }
       case None => Nil
     }
@@ -239,13 +254,26 @@ final class Restriction(xmlArg: Node, val simpleTypeDef: SimpleTypeDefBase)
   lazy val optLogicalValueSet: Option[RepValueSet] = if (logicalValueSet.isEmpty) None else Some(logicalValueSet)
 }
 
+object Union {
+  def apply(xmlArg: Node, simpleTypeDef: SimpleTypeDefBase) = {
+    val u = new Union(xmlArg, simpleTypeDef)
+    u.initialize()
+    u
+  }
+}
+
 /**
  * A schema component for simple type unions
  */
-final class Union(val xmlArg: Node, simpleTypeDef: SimpleTypeDefBase)
+final class Union private (val xmlArg: Node, simpleTypeDef: SimpleTypeDefBase)
   extends SchemaComponentImpl(xmlArg, simpleTypeDef)
   with NestingLexicalMixin {
   Assert.invariant(xmlArg.asInstanceOf[scala.xml.Elem].label == "union")
+
+  protected override def initialize() = {
+    super.initialize()
+    unionMemberTypes
+  }
 
   lazy val primType: NodeInfo.PrimType = {
     if (unionMemberTypes.length == 1) {
@@ -269,7 +297,7 @@ final class Union(val xmlArg: Node, simpleTypeDef: SimpleTypeDefBase)
   private lazy val immediateTypeXMLs = xml \ "simpleType"
   private lazy val immediateTypes: Seq[SimpleTypeDefBase] = immediateTypeXMLs.map { node =>
     {
-      new LocalSimpleTypeDef(node, schemaDocument)
+      LocalSimpleTypeDef(node, schemaDocument)
     }
   }
 

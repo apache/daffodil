@@ -35,7 +35,7 @@ import org.apache.daffodil.oolag.OOLAG
 final class Include(xml: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
   extends IIBase(xml, xsd, seenArg) {
 
-  protected final def mapPair = LV('mapPair) {
+  protected final lazy val mapPair = LV('mapPair) {
     // for an include, the targetNamespace of the schema document that contained us is right.
     val mp = (targetNamespace, resolvedLocation)
     mp
@@ -49,6 +49,10 @@ final class Include(xml: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
   lazy val resolvedLocation = LV('resolvedLocation) {
     resolvedSchemaLocation match {
       case Some(rsl) => {
+        //
+        // We use keepGoing here so we can capture diagnostics, but then
+        // issue a final summary diagnostic about the target namespace.
+        //
         val ns = OOLAG.keepGoing(
           schemaDefinitionError("Unable to determine target namespace.")) {
             xsd.targetNamespace

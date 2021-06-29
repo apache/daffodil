@@ -84,7 +84,7 @@ class HowToUseJUnit {
   //        // println("not going to throw")
   //      }
   //    } catch {
-  //      case e: JUnitTestFailedError => // we're good // FIXME: wrong exception to catch
+  //      case e: JUnitTestFailedError => // we're good // is this the wrong exception to catch
   //      case e => throw e
   //    }
   //  }

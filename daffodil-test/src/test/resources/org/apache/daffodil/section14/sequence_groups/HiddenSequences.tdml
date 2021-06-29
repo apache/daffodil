@@ -264,7 +264,7 @@
   </tdml:unparserTestCase>
 
   <tdml:unparserTestCase name="invalidGroupDefWithHiddenSequenceModelGroup" root="e9"
-    model="SequencesWithHiddenRefs.dfdl.xsd"
+    model="SequencesWithHiddenRefsInvalid.dfdl.xsd"
     description="a group definition is used where the model group is a hidden group ref">
     <tdml:infoset>
       <tdml:dfdlInfoset>

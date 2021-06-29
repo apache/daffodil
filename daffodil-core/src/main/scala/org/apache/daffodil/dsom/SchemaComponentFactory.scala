@@ -62,9 +62,10 @@ trait CommonContextMixin
 
   lazy val schemaFile: Option[DFDLSchemaFile] = optLexicalParent.flatMap { _.schemaFile }
   lazy val schemaSet: SchemaSet = optLexicalParent.get.schemaSet
-  def schemaDocument: SchemaDocument = optLexicalParent.get.schemaDocument
-  lazy val xmlSchemaDocument: XMLSchemaDocument = optLexicalParent.get.xmlSchemaDocument
-  lazy val schema: Schema = optLexicalParent.get.schema
+  lazy val optSchemaDocument: Option[SchemaDocument] = optLexicalParent.flatMap{ _.optSchemaDocument }
+  final def schemaDocument: SchemaDocument = optSchemaDocument.get
+  lazy val optXMLSchemaDocument: Option[XMLSchemaDocument] = optLexicalParent.flatMap{ _.optXMLSchemaDocument }
+  final def xmlSchemaDocument: XMLSchemaDocument = optXMLSchemaDocument.get
   def uriString: String = optLexicalParent.get.uriString
 
   def xml: scala.xml.Node

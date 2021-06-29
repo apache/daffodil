@@ -17,7 +17,10 @@
 
 package org.apache.daffodil.dsom
 
+import org.apache.daffodil.runtime1.LocalElementDeclBaseRuntime1Mixin
+
 import scala.xml.Node
+import scala.xml.TopScope
 
 sealed abstract class LocalElementDeclBase(
   final override val xml: Node,
@@ -26,13 +29,21 @@ sealed abstract class LocalElementDeclBase(
   extends ElementBase
   with LocalElementComponentMixin
   with ElementDeclMixin
-  with NestingLexicalMixin {
+  with NestingLexicalMixin
+  with LocalElementDeclBaseRuntime1Mixin {
 
   requiredEvaluationsIfActivated(minOccurs)
   requiredEvaluationsIfActivated(maxOccurs)
 }
 
-class LocalElementDecl(
+object LocalElementDecl {
+  def apply(xml: Node, lexicalParent: SchemaComponent, position: Int) = {
+    val led = new LocalElementDecl(xml, lexicalParent, position)
+    led.initialize()
+    led
+  }
+}
+class LocalElementDecl private (
   xml: Node,
   lexicalParent: SchemaComponent,
   position: Int)
@@ -52,16 +63,34 @@ sealed abstract class QuasiElementDeclBase(
   lexicalParent: SchemaComponent)
   extends LocalElementDeclBase(xml, Option(lexicalParent), -1) {
 
-  override lazy val isQuasiElement = true
+  override lazy val minimizedScope = TopScope
+
+  override def isQuasiElement = true
 }
 
-class PrefixLengthQuasiElementDecl(
+object PrefixLengthQuasiElementDecl {
+  def apply(xml: Node, lexicalParent: SchemaComponent) = {
+    val pl = new PrefixLengthQuasiElementDecl(xml, lexicalParent)
+    pl.initialize()
+    pl
+  }
+}
+
+class PrefixLengthQuasiElementDecl private (
   xml: Node,
   lexicalParent: SchemaComponent)
   extends QuasiElementDeclBase(xml, lexicalParent) {
 }
 
-class RepTypeQuasiElementDecl(
+object RepTypeQuasiElementDecl {
+  def apply(xml:Node, lexicalParent: SchemaComponent) = {
+    val rt = new RepTypeQuasiElementDecl(xml, lexicalParent)
+    rt.initialize()
+    rt
+  }
+}
+
+class RepTypeQuasiElementDecl private (
   xml: Node,
   lexicalParent: SchemaComponent)
   extends QuasiElementDeclBase(xml, lexicalParent) {

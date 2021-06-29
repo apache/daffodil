@@ -343,7 +343,7 @@ class DataProcessor private (
 
   def withTunables(tunablesArg: Map[String, String]): DataProcessor = copy(tunables = tunables.setTunables(tunablesArg))
 
-  override def isError = false // really there is no compiling at all currently, so there can be no errors.
+  override def isError = false
 
   override def getDiagnostics = ssrd.diagnostics
 
@@ -716,8 +716,6 @@ class UnparseResult(dp: DataProcessor, ustate: UState)
       Nope
 
   private def encodingInfo = if (maybeEncodingInfo.isDefined) maybeEncodingInfo.get else dp.ssrd.elementRuntimeData.encodingInfo
-
-  def summaryEncoding = encodingInfo.summaryEncoding
 
   override def isScannable = encodingInfo.isScannable
   override def encodingName = {

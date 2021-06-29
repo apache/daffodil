@@ -273,7 +273,8 @@ final class SharedFactory[SharedType] {
    * we want to avoid evaluating that at all when the key is one
    * we have already seen.
    */
-  final def getShared(key: ShareKey, value: => SharedType): SharedType = {
+  final def getShared(key: ShareKey, valueArg: => SharedType): SharedType = {
+    lazy val value = valueArg // once only
     val opt = vals.get(key)
     opt match {
       case Some(y) => y
@@ -295,6 +296,10 @@ trait AnnotatedSchemaComponent
   extends SchemaComponent
   with AnnotatedMixin
   with OverlapCheckMixin {
+
+  protected override def initialize(): Unit = {
+    super.initialize()
+  }
 
   /**
    * If two terms have the same propEnv, they have identical properties
@@ -331,7 +336,7 @@ trait AnnotatedSchemaComponent
    */
   final protected def refersToForPropertyCombining: Option[AnnotatedSchemaComponent] = optReferredToComponent
 
-  protected def optReferredToComponent: Option[AnnotatedSchemaComponent] // override in ref objects
+  def optReferredToComponent: Option[AnnotatedSchemaComponent] // override in ref objects
 
   lazy val nonDefaultPropertySources: Seq[ChainPropProvider] = LV('nonDefaultPropertySources) {
     this match {
@@ -443,7 +448,7 @@ trait AnnotatedMixin { self: AnnotatedSchemaComponent =>
    * The DFDL annotations on the component, as objects
    * that are subtypes of DFDLAnnotation.
    */
-  final lazy val annotationObjs = LV('annotationObjs) {
+  final lazy val annotationObjs = {
     val objs = dfdlAppInfos.flatMap { dai =>
       {
         val children = dai.child
@@ -456,7 +461,7 @@ trait AnnotatedMixin { self: AnnotatedSchemaComponent =>
       }
     }
     objs
-  }.value
+  }
 
   /**
    * Here we establish an invariant which is that every annotatable schema component has, definitely, has an
@@ -476,7 +481,7 @@ trait AnnotatedMixin { self: AnnotatedSchemaComponent =>
 
   protected def isMyFormatAnnotation(a: DFDLAnnotation): Boolean
 
-  final lazy val formatAnnotation = LV('formatAnnotation) {
+  final lazy val formatAnnotation = {
     val format = annotationObjs.collect { case fa: DFDLFormatAnnotation if isMyFormatAnnotation(fa) => fa }
     val res = format match {
       case Seq() => emptyFormatFactory // does make things with the right namespace scopes attached!
@@ -484,6 +489,6 @@ trait AnnotatedMixin { self: AnnotatedSchemaComponent =>
       case _ => schemaDefinitionError("Only one format annotation is allowed at each annotation point.")
     }
     res
-  }.value
+  }
 
 }

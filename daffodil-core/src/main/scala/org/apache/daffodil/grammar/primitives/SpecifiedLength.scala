@@ -151,21 +151,25 @@ class SpecifiedLengthPrefixed(e: ElementBase, eGram: => Gram, bitsMultiplier: In
 
   lazy val kind = "Prefixed_" + e.lengthUnits.toString
 
+  private lazy val erd = e.elementRuntimeData
+  private lazy val plerd = e.prefixedLengthElementDecl.elementRuntimeData
+  private lazy val pladj = e.prefixedLengthAdjustmentInUnits
+
   lazy val parser: Parser = new SpecifiedLengthPrefixedParser(
     eParser,
-    e.elementRuntimeData,
+    erd,
     e.prefixedLengthBody.parser,
-    e.prefixedLengthElementDecl.elementRuntimeData,
+    plerd,
     e.lengthUnits,
-    e.prefixedLengthAdjustmentInUnits)
+    pladj)
 
   lazy val unparser: Unparser = new SpecifiedLengthPrefixedUnparser(
     eUnparser,
-    e.elementRuntimeData,
+    erd,
     e.prefixedLengthBody.unparser,
-    e.prefixedLengthElementDecl.elementRuntimeData,
+    plerd,
     e.lengthUnits,
-    e.prefixedLengthAdjustmentInUnits)
+    pladj)
 }
 
 class SpecifiedLengthExplicitCharacters(e: ElementBase, eGram: => Gram)

@@ -121,8 +121,7 @@ object TestUtils {
     val inputter = new ScalaXMLInfosetInputter(infosetXML)
     val actual = u.unparse(inputter, out)
     if (actual.isProcessingError) {
-      val msgs = actual.getDiagnostics.map(_.getMessage()).mkString("\n")
-      throw new Exception(msgs)
+      throwDiagnostics(actual.getDiagnostics)
     }
     val unparsed = outputStream.toString
     //    System.err.println("parsed: " + infoset)
@@ -247,7 +246,7 @@ object TestUtils {
       topLevels,
       contentElements,
       elementFormDefault = elementFormDefault)
-    val sset = new SchemaSet(testSchema)
+    val sset = SchemaSet(testSchema)
     sset.root
   }
 
@@ -320,7 +319,7 @@ class Fakes private () {
     </xs:group>)
   val DummyPrimitiveFactory = null
   val tunables = DaffodilTunables()
-  lazy val xsd_sset: SchemaSet = new SchemaSet(sch, "http://example.com", "fake")
+  lazy val xsd_sset: SchemaSet = SchemaSet(sch, "http://example.com", "fake")
   lazy val xsd_schema = xsd_sset.getSchema(NS("http://example.com")).get
   lazy val fakeSD = xsd_schema.schemaDocuments(0)
   lazy val fakeElem = fakeSD.getGlobalElementDecl("fake").get

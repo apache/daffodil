@@ -21,11 +21,18 @@ import scala.xml.Node
 import org.apache.daffodil.xml._
 import org.apache.daffodil.dpath.NodeInfo
 
+object ElementRef {
+  def apply(xmlArg: Node, lexicalParent: GroupDefLike, position: Int) = {
+    val er = new ElementRef(xmlArg, lexicalParent, position)
+    er.initialize()
+    er
+  }
+}
 /**
  * There are 3 first-class concrete children of ElementBase.
  * Root, LocalElementDecl, and ElementRef
  */
-final class ElementRef(xmlArg: Node, lexicalParent: GroupDefLike, position: Int)
+final class ElementRef private (xmlArg: Node, lexicalParent: GroupDefLike, position: Int)
   extends AbstractElementRef(xmlArg, lexicalParent, position)
 
 abstract class AbstractElementRef(
@@ -62,7 +69,7 @@ abstract class AbstractElementRef(
    * invokes namedQName because it's a named thing, must be overridden
    * and use refQName instead.
    */
-  override def namedQName: NamedQName = LV('namedQName) {
+  override lazy val namedQName: NamedQName = LV('namedQName) {
     referencedElement.namedQName
   }.value
 
@@ -93,7 +100,7 @@ abstract class AbstractElementRef(
 
   override lazy val namespace = refQName.namespace
 
-  override lazy val diagnosticDebugName = "element reference " + refQName
+  override protected lazy val diagnosticDebugNameImpl = "element reference " + refQName
 
   override def typeDef = referencedElement.typeDef
 

@@ -73,9 +73,9 @@ trait HasTermCheck {
 /**
  * Term, and what is and isn't a Term, is a key concept in DSOM.
  *
- * From elements, ElementRef and LocalElementDecl are Term. A GlobalElementDecl is *not* a Term.
- * From sequences, Sequence and SequenceGroupRef are Term. GlobalSequenceGroupDef is *not* a Term.
- * From choices, Choice and ChoiceGroupRef are Term. GlobalChoiceGroupDef is *not* a Term.
+ * From the kinds of elements, ElementRef and LocalElementDecl are Term. A GlobalElementDecl is *not* a Term.
+ * From the kinds of sequences, LocalSequence and SequenceGroupRef are Term. GlobalSequenceGroupDef is *not* a Term.
+ * From the kinds of choices, Choice and ChoiceGroupRef are Term. GlobalChoiceGroupDef is *not* a Term.
  *
  * Terms are the things we actually generate parsers/unparsers for. Non-Terms just
  * contribute information used by Terms.
@@ -277,7 +277,7 @@ trait Term
         // to the actual choice
         //
         case c: ChoiceBranchImpliedSequence => c.immediatelyEnclosingGroupDef
-        case s: Sequence => Some(s)
+        case s: LocalSequence => Some(s)
         case d: SchemaDocument => {
           // we must be the Root elementRef or a quasi node
           Assert.invariant(this.isInstanceOf[Root] || this.isInstanceOf[QuasiElementDeclBase])

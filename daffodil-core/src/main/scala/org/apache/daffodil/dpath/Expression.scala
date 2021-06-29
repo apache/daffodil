@@ -50,16 +50,6 @@ import org.apache.daffodil.api.UnqualifiedPathStepPolicy
 abstract class Expression extends OOLAGHostImpl()
   with BasicComponent {
 
-  /**
-   * Use several calls instead of one, because then OOLAG will try them
-   * all separately, and perhaps if you're lucky report more errors.
-   */
-  requiredEvaluationsAlways(parent)
-  requiredEvaluationsAlways(targetType)
-  requiredEvaluationsAlways(inherentType)
-  requiredEvaluationsAlways(isTypeCorrect)
-  requiredEvaluationsAlways(compiledDPath_)
-
   override lazy val tunable: DaffodilTunables = parent.tunable
   override lazy val unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy = parent.unqualifiedPathStepPolicy
   /**
@@ -131,7 +121,7 @@ abstract class Expression extends OOLAGHostImpl()
     res
   }
 
-  private def compiledDPath_ = LV('compiledDPath) { compiledDPath }
+  private lazy val compiledDPath_ = LV('compiledDPath) { compiledDPath }
   def compiledDPath: CompiledDPath
 
   final lazy val parentOpt = Option(parent)
@@ -861,9 +851,6 @@ sealed abstract class StepExpression(val step: String, val pred: Option[Predicat
       "Relative path '%s' past root element.", this.wholeExpressionText)
     toss(err)
   }
-  requiredEvaluationsAlways(priorStep)
-  requiredEvaluationsAlways(compileInfo)
-  requiredEvaluationsAlways(stepElements)
 
   def verifyQNames(cis: Seq[DPathElementCompileInfo]): Unit = {
     cis.foreach { ci =>
@@ -875,6 +862,9 @@ sealed abstract class StepExpression(val step: String, val pred: Option[Predicat
   // that enables a lazy calculation to call super.
   final lazy val stepElements = {
     val res = stepElementDefs
+    // We cannot check Assert.invariant(res.isDefinedAt(0))
+    // since that would prevent us from detecting illegal paths past root
+    // for example.
     res
   }
 
@@ -1090,8 +1080,6 @@ case class Self(predArg: Option[PredicateExpression])
 case class Self2(s: String, predArg: Option[PredicateExpression])
   extends SelfStepExpression(s, predArg) {
 
-  requiredEvaluationsAlways(stepQName)
-
   override def stepElementDefs: Seq[DPathElementCompileInfo] = {
     val cis = super.stepElementDefs
     verifyQNames(cis)
@@ -1146,8 +1134,6 @@ case class Up(predArg: Option[PredicateExpression])
 case class Up2(s: String, predArg: Option[PredicateExpression])
   extends UpStepExpression(s, predArg) {
 
-  requiredEvaluationsAlways(stepQName)
-
   override def text = ".."
 
   override protected def stepElementDefs: Seq[DPathElementCompileInfo] = {
@@ -1160,8 +1146,6 @@ case class Up2(s: String, predArg: Option[PredicateExpression])
 
 case class NamedStep(s: String, predArg: Option[PredicateExpression])
   extends DownStepExpression(s, predArg) {
-
-  requiredEvaluationsAlways(stepQName)
 
   override lazy val compiledDPath = {
     val d = downwardStep
@@ -1693,97 +1677,6 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           typeCalc.srcType, NodeInfo.String, typeCalc.dstType, DFDLXOutputTypeCalc(_, typeCalc))
       }
 
-      case (RefQName(_, "outputTypeCalcNextSibling", DFDLX), args) => {
-        val erd = compileInfo.lexicalContextRuntimeData match {
-          case erd: ElementRuntimeData => erd
-          case _ => SDE("dfdlx:outputTypeCalcNextSibling can only be defined on an element")
-        }
-        val resolver = erd.partialNextElementResolver
-        val followingERDs = resolver.currentPossibleNextElements.dropWhile { _ == erd }
-
-        // It is required that the next sibling be a peer "adjacent or downward", but not up-and-out
-        // from the location of the term where this resides.
-        //
-        //we keep the ERD to be able to produce better error messages
-        val dstTypes: Seq[(NodeInfo.Kind, ElementRuntimeData)] = followingERDs.map(erd => {
-          val strd = erd.optSimpleTypeRuntimeData match {
-            case Some(x) => x
-            case None => SDE("dfdlx:outputTypeCalcNextSibling: potential next sibling %s does not have a simple type def. This could be because it has a primitive type, or a complex type.", erd.namedQName)
-          }
-          val calc = strd.typeCalculator match {
-            case Some(x) => x
-            case None => SDE("dfdlx:outputTypeCalcNextSibling(): potential next sibling %s does not define a type calculator", erd.namedQName)
-          }
-          if (!calc.supportsUnparse) {
-            SDE("dfdlx:outputTypeCalcNextSibling(): potential next sibling %s does not have an outputTypeCalc", erd.namedQName)
-          }
-          (calc.srcType, erd)
-        })
-        val dstType = dstTypes match {
-          case Seq() => SDE("dfdlx:outputTypeCalcNextSibling() called where no suitable next sibling exists")
-          case Seq(x) => x._1
-          case x +: xs => {
-            val (ans, headQName) = x
-            /*
-             * Verify that all next siblings have the same dstType
-             * In theory, we could loosen the requirement to having the same primitive type,
-             * but in the interest of being conservative, we will stick to the stricter interperatation for now
-             */
-            xs.map(other => {
-              val (otherAns, otherQName) = other
-              if (otherAns != ans) {
-                SDE(
-                  "dfdlx:outputTypeCalcNextSibling() requires that all the possible next siblings have the same " +
-                    "repType. However, the potential next siblings %s and %s have repTypes %s and %s respectively",
-                  headQName, otherQName, ans, otherAns)
-              }
-            })
-            ans
-          }
-        }
-
-        // We need to mark all possible following compileInfos as possibly used
-        // in an expression since the DFDLXOutputTypeCalcNextSibling expression
-        // might need them. We also need to mark this compileInfo as used in an
-        // expression since the evaluate method of DFDLXTypeCalcNextSibilng
-        // uses this element to find the next sibling
-        val dpeci = erd.dpathCompileInfo.asInstanceOf[DPathElementCompileInfo]
-        followingERDs.foreach { erd =>
-          dpeci.indicateReferencedByExpression(Seq(erd.dpathElementCompileInfo))
-        }
-        dpeci.indicateReferencedByExpression(Seq(dpeci))
-
-        FNZeroArgExpr(functionQNameString, functionQName,
-          dstType, NodeInfo.AnyAtomic, DFDLXOutputTypeCalcNextSibling(_, _))
-      }
-
-      case (RefQName(_, "repTypeValue", DFDLX), args) => {
-        val strd = compileInfo.lexicalContextRuntimeData match {
-          case strd: SimpleTypeRuntimeData => strd
-          case _ => {
-            SDE("dfdlx:repTypeValue() can only be defined on a simple type")
-          }
-        }
-        val repPrimType = strd.optRepPrimType match {
-          case Some(x) => x
-          case None => SDE("dfdlx:repTypeValue() used on type that does not have a repType.")
-        }
-        FNZeroArgExpr(functionQNameString, functionQName,
-          repPrimType, NodeInfo.AnyAtomic, DFDLXRepTypeValue(_, _))
-      }
-
-      case (RefQName(_, "logicalTypeValue", DFDLX), args) => {
-        val strd = compileInfo.lexicalContextRuntimeData match {
-          case strd: SimpleTypeRuntimeData => strd
-          case _ => {
-            SDE("dfdlx:logicalTypeValue() can only be defined on a simple type")
-          }
-        }
-        val logicalType = strd.primType
-        FNZeroArgExpr(functionQNameString, functionQName,
-          logicalType, NodeInfo.AnyAtomic, DFDLXLogicalTypeValue(_, _))
-      }
-
       //End typeValueCalc related functions
 
       case (RefQName(_, "lookAhead", DFDLX), args) =>
@@ -1948,6 +1841,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
     if (requiresUnparse && !typeCalculator.supportsUnparse) {
       SDE("The type calculator defined by %s does not define an outputValueCalc.", qname)
     }
+    typeCalculator.initialize()
     typeCalculator
   }
 
@@ -2513,9 +2407,6 @@ case class ParenthesizedExpression(expression: Expression)
 
 case class DFDLXTraceExpr(nameAsParsed: String, fnQName: RefQName, args: List[Expression])
   extends FunctionCallBase(nameAsParsed, fnQName, args) {
-
-  requiredEvaluationsAlways(realArg)
-  requiredEvaluationsAlways(msgText)
 
   lazy val (realArg, msgText) = args match {
     case List(arg0, LiteralExpression(txt: String)) => (arg0, txt)

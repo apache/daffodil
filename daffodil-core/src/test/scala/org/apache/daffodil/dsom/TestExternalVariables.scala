@@ -68,7 +68,7 @@ class TestExternalVariables {
           <xs:sequence/>
         </xs:choice>
       </xs:group>)
-    lazy val xsd_sset = new SchemaSet(sch, "http://example.com", "fake")
+    lazy val xsd_sset = SchemaSet(sch, "http://example.com", "fake")
     lazy val xsd_schema = xsd_sset.getSchema(NS("http://example.com")).get
     lazy val fakeSD = xsd_schema.schemaDocuments(0)
     (fakeSD, xsd_sset)

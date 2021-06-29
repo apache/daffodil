@@ -17,14 +17,25 @@
 
 package org.apache.daffodil.dsom
 
-import scala.xml.{ XML, Utility, Node }
-import org.junit.Test
+import scala.xml.Node
+import scala.xml.Utility
+import scala.xml.XML
 import org.apache.daffodil.compiler._
 import org.apache.daffodil.Implicits._; object INoWarnDSOM1 { ImplicitsSuppressUnusedImportWarning() }
-import org.apache.daffodil.schema.annotation.props.gen.{ YesNo, TextNumberRep, SeparatorPosition, Representation, OccursCountKind, NilKind, LengthKind, ChoiceLengthKind, ByteOrder, BinaryNumberRep, AlignmentUnits }
-
+import org.apache.daffodil.schema.annotation.props.gen.AlignmentUnits
+import org.apache.daffodil.schema.annotation.props.gen.BinaryNumberRep
+import org.apache.daffodil.schema.annotation.props.gen.ByteOrder
+import org.apache.daffodil.schema.annotation.props.gen.ChoiceLengthKind
+import org.apache.daffodil.schema.annotation.props.gen.LengthKind
+import org.apache.daffodil.schema.annotation.props.gen.NilKind
+import org.apache.daffodil.schema.annotation.props.gen.OccursCountKind
+import org.apache.daffodil.schema.annotation.props.gen.Representation
+import org.apache.daffodil.schema.annotation.props.gen.SeparatorPosition
+import org.apache.daffodil.schema.annotation.props.gen.TextNumberRep
+import org.apache.daffodil.schema.annotation.props.gen.YesNo
 import org.apache.daffodil.schema.annotation.props.AlignmentType
-import org.apache.daffodil.util.{ Misc, Logging }
+import org.apache.daffodil.util.Logging
+import org.apache.daffodil.util.Misc
 import org.apache.daffodil.xml.XMLUtils
 import org.junit.Assert._
 import org.apache.daffodil.api.Diagnostic
@@ -199,8 +210,8 @@ class TestDsomCompiler extends Logging {
     val Seq(ct) = schemaDoc.globalComplexTypeDefs
     assertEquals("example1", ct.name)
 
-    val mg = ct.modelGroup.asInstanceOf[Sequence]
-    assertTrue(mg.isInstanceOf[Sequence])
+    val mg = ct.modelGroup.asInstanceOf[LocalSequence]
+    assertTrue(mg.isInstanceOf[LocalSequence])
 
     val Seq(elem) = mg.groupMembers
     assertTrue(elem.isInstanceOf[LocalElementDecl])
@@ -209,7 +220,7 @@ class TestDsomCompiler extends Logging {
   @Test def test3: Unit = {
     val testSchema = XML.load(Misc.getRequiredResource("/test/example-of-most-dfdl-constructs.dfdl.xml").toURL)
 
-    val sset = new SchemaSet(testSchema)
+    val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd, _) = sch.schemaDocuments
 
@@ -229,7 +240,7 @@ class TestDsomCompiler extends Logging {
     assertTrue(a2.isInstanceOf[DFDLAssert]) // second annotation is newVariableInstance
     assertEquals(OccursCountKind.Implicit.toString, e3.getProperty("occursCountKind"))
     // Explore local complex type def
-    val seq = e1.complexType.modelGroup.asInstanceOf[Sequence] //... which is a sequence
+    val seq = e1.complexType.modelGroup.asInstanceOf[LocalSequence] //... which is a sequence
     seq.formatAnnotation.asInstanceOf[DFDLSequence] //...annotated with...
     assertEquals(YesNo.No, seq.initiatedContent) // initiatedContent="no"
 
@@ -291,7 +302,7 @@ class TestDsomCompiler extends Logging {
   @Test def test4: Unit = {
     val testSchema = XML.load(Misc.getRequiredResource("/test/example-of-most-dfdl-constructs.dfdl.xml").toURL)
 
-    val sset = new SchemaSet(testSchema)
+    val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd, _) = sch.schemaDocuments
 
@@ -321,7 +332,7 @@ class TestDsomCompiler extends Logging {
         Misc.getRequiredResource(
           "/test/example-of-named-format-chaining-and-element-simpleType-property-combining.dfdl.xml").toURL)
 
-    val sset = new SchemaSet(testSchema)
+    val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd) = sch.schemaDocuments
 
@@ -339,7 +350,7 @@ class TestDsomCompiler extends Logging {
         Misc.getRequiredResource(
           "/test/example-of-named-format-chaining-and-element-simpleType-property-combining.dfdl.xml").toURL)
 
-    val sset = new SchemaSet(testSchema)
+    val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd) = sch.schemaDocuments
 
@@ -354,7 +365,7 @@ class TestDsomCompiler extends Logging {
         Misc.getRequiredResource(
           "/test/example-of-named-format-chaining-and-element-simpleType-property-combining.dfdl.xml").toURL)
 
-    val sset = new SchemaSet(testSchema)
+    val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd) = sch.schemaDocuments
 
@@ -383,7 +394,7 @@ class TestDsomCompiler extends Logging {
   @Test def test_simpleType_base_combining: Unit = {
     val testSchema = XML.load(Misc.getRequiredResource("/test/example-of-most-dfdl-constructs.dfdl.xml").toURL)
 
-    val sset = new SchemaSet(testSchema)
+    val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val root = sset.root
     val Seq(sd, _) = sch.schemaDocuments
@@ -430,7 +441,7 @@ class TestDsomCompiler extends Logging {
   @Test def test_group_references: Unit = {
     val testSchema = XML.load(Misc.getRequiredResource("/test/example-of-most-dfdl-constructs.dfdl.xml").toURL)
 
-    val sset = new SchemaSet(testSchema)
+    val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd, _) = sch.schemaDocuments
 
@@ -483,7 +494,7 @@ class TestDsomCompiler extends Logging {
   @Test def test_ibm_7132: Unit = {
     val ibm7132Schema = XML.load(Misc.getRequiredResource("/test/TestRefChainingIBM7132.dfdl.xml").toURL)
     // val ibm7132Schema = "test/TestRefChainingIBM7132.dfdl.xml"
-    val sset = new SchemaSet(ibm7132Schema)
+    val sset = SchemaSet(ibm7132Schema)
     // val Seq(sch) = sset.schemas
     val Seq(sd) = sset.allSchemaDocuments
 
@@ -514,7 +525,7 @@ class TestDsomCompiler extends Logging {
       <dfdl:defineFormat name="ref1"> <dfdl:format initiator=":"/> </dfdl:defineFormat>,
       <xs:element name="e1" dfdl:lengthKind="implicit" dfdl:ref="tns:ref1" type="xs:string">
       </xs:element>)
-    val sset = new SchemaSet(testSchema)
+    val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd, _) = sch.schemaDocuments
 
@@ -532,7 +543,7 @@ class TestDsomCompiler extends Logging {
       </dfdl:defineFormat>,
       <xs:element name="e1" dfdl:lengthKind="implicit" dfdl:ref="tns:ref1" type="xs:string">
       </xs:element>)
-    val sset = new SchemaSet(testSchema)
+    val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd, _) = sch.schemaDocuments
 
@@ -559,7 +570,7 @@ class TestDsomCompiler extends Logging {
   @Test def test_escapeSchemeOverride = {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
-      <dfdl:format separator="" initiator="" terminator="" emptyValueDelimiterPolicy="none" textNumberRep="standard" representation="text" occursStopValue="-1" occursCountKind="expression" escapeSchemeRef="pound"/>
+      <dfdl:format ref="tns:GeneralFormat" separator="" initiator="" terminator="" emptyValueDelimiterPolicy="none" textNumberRep="standard" representation="text" occursStopValue="-1" occursCountKind="expression" escapeSchemeRef="pound"/>
       <dfdl:defineEscapeScheme name="pound">
         <dfdl:escapeScheme escapeCharacter='#' escapeKind="escapeCharacter"/>
       </dfdl:defineEscapeScheme>
@@ -574,7 +585,7 @@ class TestDsomCompiler extends Logging {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-    val sset = new SchemaSet(testSchema)
+    val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd, _) = sch.schemaDocuments
 
@@ -602,7 +613,7 @@ class TestDsomCompiler extends Logging {
   @Test def test_element_references: Unit = {
     val testSchema = XML.load(Misc.getRequiredResource("/test/example-of-most-dfdl-constructs.dfdl.xml").toURL)
 
-    val sset = new SchemaSet(testSchema)
+    val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd, _) = sch.schemaDocuments
 
@@ -637,7 +648,7 @@ class TestDsomCompiler extends Logging {
           </xs:sequence>
         </xs:sequence>
       </xs:complexType>)
-    val sset = new SchemaSet(testSchema)
+    val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd, _) = sch.schemaDocuments
 
@@ -647,7 +658,7 @@ class TestDsomCompiler extends Logging {
     val seq = ge1.sequence
 
     val Seq(_, _, s3) = seq.groupMembers
-    val s3s = s3.asInstanceOf[Sequence]
+    val s3s = s3.asInstanceOf[LocalSequence]
     val Seq(es) = s3s.groupMembers
     val ese = es.asInstanceOf[LocalElementDecl]
     assertTrue(ese.path.contains("sequence[3]"))

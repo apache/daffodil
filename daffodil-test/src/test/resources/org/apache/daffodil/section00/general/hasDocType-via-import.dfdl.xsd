@@ -20,7 +20,8 @@
   -->
 <xs:schema
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-  xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  targetNamespace="http://example.com">
 
   <xs:import schemaLocation="hasDocType-import.dfdl.xsd"/>
     

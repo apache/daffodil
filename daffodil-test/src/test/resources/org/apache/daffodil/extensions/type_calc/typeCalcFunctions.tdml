@@ -51,22 +51,6 @@
     <xs:restriction base="xs:int"/>
   </xs:simpleType>
 
-  <xs:simpleType name="AbstractIntToMulitiply2" dfdlx:repType="xs:int" dfdlx:inputTypeCalc="{ dfdlx:repTypeValue() * 2 }">
-    <xs:restriction base="xs:int"/>
-  </xs:simpleType>
-
-  <xs:simpleType name="AbstractStringToPrefixedString" dfdlx:repType="xs:string" dfdlx:inputTypeCalc="{ fn:concat('x',dfdlx:repTypeValue()) }">
-    <xs:restriction base="xs:string"/>
-  </xs:simpleType>
-
-  <xs:simpleType name="AbstractMulitiply2FromInt" dfdlx:repType="xs:int" dfdlx:outputTypeCalc="{ dfdlx:logicalTypeValue() * 2 }">
-    <xs:restriction base="xs:int"/>
-  </xs:simpleType>
-
-  <xs:simpleType name="AbstractPrefixedStringFromInt" dfdlx:repType="xs:string" dfdlx:outputTypeCalc="{ fn:concat('x',xs:string(dfdlx:logicalTypeValue())) }">
-    <xs:restriction base="xs:int"/>
-  </xs:simpleType>
-
   <xs:simpleType name="AbstractIntToStringByKeyset" dfdlx:repType="xs:int">
     <xs:restriction base="xs:string">
       <xs:enumeration value="one" dfdlx:repValues="1"/>
@@ -85,28 +69,6 @@
     </xs:complexType>
   </xs:element>
   <xs:element name="outputTypeCalcString_01" type="xs:string" dfdl:inputValueCalc="{ dfdlx:outputTypeCalc('tns:AbstractXYZFromInt', 7) }" />
-  <xs:element name="repTypeValueInt_01" type="xs:int" dfdl:inputValueCalc="{ dfdlx:inputTypeCalc('tns:AbstractIntToMulitiply2', 7) }" />
-  <xs:element name="repTypeValueString_01" type="xs:string" dfdl:inputValueCalc="{ dfdlx:inputTypeCalc('tns:AbstractStringToPrefixedString', 'y') }" />
-  <xs:element name="logicalTypeValueInt_01" dfdlx:parseUnparsePolicy="parseOnly" type="xs:int" 
-    dfdl:inputValueCalc="{ dfdlx:outputTypeCalc('tns:AbstractMulitiply2FromInt', 7) }" />
-  <xs:element name="logicalTypeValueString_01" dfdlx:parseUnparsePolicy="parseOnly" type="xs:string" 
-    dfdl:inputValueCalc="{ dfdlx:outputTypeCalc('tns:AbstractPrefixedStringFromInt', 7) }" />
-  <xs:element name="outputTypeCalcNextSiblingInt_01">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element name="raw" type="tns:uint8" dfdl:outputValueCalc="{ dfdlx:outputTypeCalcNextSibling() }"/>
-        <xs:element name="logic" type="tns:AbstractMulitiply2FromInt" dfdl:inputValueCalc="{ 0 }"/>
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="outputTypeCalcNextSiblingString_01">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element name="raw" type="xs:string" dfdl:outputValueCalc="{ dfdlx:outputTypeCalcNextSibling() }"/>
-        <xs:element name="logic" type="tns:AbstractXYZFromInt" dfdl:inputValueCalc="{ 0 }"/>
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
 
   <xs:element name="abstractIntToStringByKeyset_01" type="xs:string" dfdl:inputValueCalc="{dfdlx:inputTypeCalc('AbstractIntToStringByKeyset',0)}"/>
 
@@ -204,100 +166,6 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
-
-  <tdml:parserTestCase name="repTypeValueInt_01"
-    root="repTypeValueInt_01" model="inputTypeCalc-Embedded.dfdl.xsd" description="Extensions - inputTypeCalc keysetValue transform">
-
-    <tdml:document>
-    <tdml:documentPart type="byte">
-    </tdml:documentPart>
-    </tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <repTypeValueInt_01>14</repTypeValueInt_01>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-  </tdml:parserTestCase>
-
-  <tdml:parserTestCase name="repTypeValueString_01"
-    root="repTypeValueString_01" model="inputTypeCalc-Embedded.dfdl.xsd" description="Extensions - inputTypeCalc keysetValue transform">
-
-    <tdml:document>
-    <tdml:documentPart type="byte">
-    </tdml:documentPart>
-    </tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <repTypeValueString_01>xy</repTypeValueString_01>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-  </tdml:parserTestCase>
-
-  <tdml:parserTestCase name="logicalTypeValueInt_01"
-    root="logicalTypeValueInt_01" model="inputTypeCalc-Embedded.dfdl.xsd" description="Extensions - inputTypeCalc keysetValue transform">
-
-    <tdml:document>
-    <tdml:documentPart type="byte">
-    </tdml:documentPart>
-    </tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <logicalTypeValueInt_01>14</logicalTypeValueInt_01>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-  </tdml:parserTestCase>
-
-  <tdml:parserTestCase name="logicalTypeValueString_01"
-    root="logicalTypeValueString_01" model="inputTypeCalc-Embedded.dfdl.xsd" description="Extensions - inputTypeCalc keysetValue transform">
-
-    <tdml:document>
-    <tdml:documentPart type="byte">
-    </tdml:documentPart>
-    </tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <logicalTypeValueString_01>x7</logicalTypeValueString_01>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-  </tdml:parserTestCase>
-
-  <tdml:unparserTestCase name="outputTypeCalcNextSiblingInt_01"
-    root="outputTypeCalcNextSiblingInt_01" model="inputTypeCalc-Embedded.dfdl.xsd" description="Extensions - inputTypeCalc keysetValue transform">
-
-    <tdml:document>
-    <tdml:documentPart type="byte">
-    0E
-    </tdml:documentPart>
-    </tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <outputTypeCalcNextSiblingInt_01>
-          <logic>7</logic>
-        </outputTypeCalcNextSiblingInt_01>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-  </tdml:unparserTestCase>
-
-  <tdml:unparserTestCase name="outputTypeCalcNextSiblingString_01"
-    root="outputTypeCalcNextSiblingString_01" model="inputTypeCalc-Embedded.dfdl.xsd" description="Extensions - inputTypeCalc keysetValue transform">
-
-    <tdml:document>
-      <tdml:documentPart type="text">xyz</tdml:documentPart>
-    </tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <outputTypeCalcNextSiblingString_01>
-          <logic>7</logic>
-        </outputTypeCalcNextSiblingString_01>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-  </tdml:unparserTestCase>
 
   <tdml:parserTestCase name="abstractIntToStringByKeyset_01"
     root="abstractIntToStringByKeyset_01" model="inputTypeCalc-Embedded.dfdl.xsd" description="Extensions - inputTypeCalc keysetValue transform">
