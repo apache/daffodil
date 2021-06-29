@@ -1196,4 +1196,31 @@ class TestCLIparsing {
     }
   }
 
+  @Test def test_CLI_Error_Return_Codes(): Unit = {
+
+    val shell = Util.startIncludeErrors("")
+
+    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
+    val (testSchemaFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile)) else (schemaFile)
+
+    try {
+      val cmd = String.format(Util.echoN("Hello") + "| %s parse -I scala-xml -s %s -r e1", Util.binPath, testSchemaFile)
+
+      val exitCodeCmd = if (Util.isWindows) "echo %errorlevel%" else "echo $?"
+      shell.sendLine(exitCodeCmd)
+
+      if (Util.isWindows) shell.expect(contains(exitCodeCmd + "\n"))
+      else shell.expect(contains(exitCodeCmd + "\n"))
+
+      val sExitCode = shell.expect(contains("\n")).getBefore()
+      val exitCode = Integer.parseInt(sExitCode.trim())
+      if (exitCode != 0)
+        fail("Tests failed. Exit code: " + exitCode)
+
+    } finally {
+      shell.close()
+    }
+
+  }
+
 }

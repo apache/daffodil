@@ -1579,43 +1579,57 @@ object Main extends Logging {
   }
 
   def main(arguments: Array[String]): Unit = {
+
+    def FILE_NOT_FOUND_ERROR = 1
+    def INVALID_PARSER_ERROR = 2
+    def EXT_VARIABLE_ERROR = 3
+    def BINDING_EXCEPTION_ERROR = 4
+    def NOT_YET_IMPLEMENTED_ERROR = 5
+    def TDML_EXCEPTION_ERROR = 6
+    def OUT_OF_MEMORY_ERROR = 7
+    def USER_DEF_FATAL_ERROR = 8
+    def BUG_FOUND_ERROR = 9
+
     val ret = try {
       run(arguments)
     } catch {
       case s: scala.util.control.ControlThrowable => throw s
       case e: java.io.FileNotFoundException => {
-        log(LogLevel.Error, "Missing File Error", e.getMessage())
-        1
+        log(LogLevel.Error, "%s", e.getMessage())
+        FILE_NOT_FOUND_ERROR
       }
       case e: InvalidParserException => {
-        log(LogLevel.Error, "Invalid Parser Error", e.getMessage())
-        2
+        log(LogLevel.Error, "%s", e.getMessage())
+        INVALID_PARSER_ERROR
       }
       case e: ExternalVariableException => {
-        log(LogLevel.Error, "External Variable Error", e.getMessage())
-        3
+        log(LogLevel.Error, "%s", e.getMessage())
+        EXT_VARIABLE_ERROR
       }
       case e: BindingException => {
-        log(LogLevel.Error, "Binding Error", e.getMessage())
-        4
+        log(LogLevel.Error, "%s", e.getMessage())
+        BINDING_EXCEPTION_ERROR
       }
       case e: NotYetImplementedException => {
         nyiFound(e)
+        NOT_YET_IMPLEMENTED_ERROR
       }
       case e: TDMLException => {
-        log(LogLevel.Error, "TDML Error", e.getMessage())
-        5
+        log(LogLevel.Error, "%s", e.getMessage())
+        TDML_EXCEPTION_ERROR
       }
       case e: OutOfMemoryError => {
         oomError(e)
+        OUT_OF_MEMORY_ERROR
       }
       case e: UserDefinedFunctionFatalErrorException => {
-        log(LogLevel.Error, "User Error", e.getMessage())
+        log(LogLevel.Error, "%s", e.getMessage())
         e.printStackTrace()
-        6
+        USER_DEF_FATAL_ERROR
       }
       case e: Exception => {
         bugFound(e)
+        BUG_FOUND_ERROR
       }
     }
 
