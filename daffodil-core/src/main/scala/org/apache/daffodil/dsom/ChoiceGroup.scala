@@ -20,7 +20,6 @@ package org.apache.daffodil.dsom
 import org.apache.daffodil.dsom.walker.ChoiceView
 
 import scala.xml.Node
-import scala.xml._
 import org.apache.daffodil.schema.annotation.props.gen.Choice_AnnotationMixin
 import org.apache.daffodil.schema.annotation.props.gen.ChoiceAGMixin
 import org.apache.daffodil.grammar.ChoiceGrammarMixin
@@ -103,7 +102,6 @@ abstract class ChoiceTermBase(
   requiredEvaluationsIfActivated(noBranchesFound)
   requiredEvaluationsIfActivated(branchesAreNonOptional)
   requiredEvaluationsIfActivated(branchesAreNotIVCElements)
-  requiredEvaluationsIfActivated(modelGroupRuntimeData.preSerialization)
 
   final protected lazy val optionChoiceDispatchKeyRaw = findPropertyOption("choiceDispatchKey", expressionAllowed  = true)
   final protected lazy val choiceDispatchKeyRaw = requireProperty(optionChoiceDispatchKeyRaw)
@@ -229,17 +227,21 @@ abstract class ChoiceTermBase(
    * This latter need to be allowed, because while they do not have known required syntax they do
    * have to be executed for side-effect.
    */
-  final def branchesAreNonOptional = LV('branchesAreNonOptional) {
+  final lazy val branchesAreNonOptional = LV('branchesAreNonOptional) {
     val branchesOk = groupMembers map { branch =>
-      if (branch.isOptional) {
-        schemaDefinitionErrorButContinue("Branch of choice %s must be non-optional.".format(branch.path))
+      val realBranch = branch match {
+        case impliedSeq: ChoiceBranchImpliedSequence => impliedSeq.groupMembers(0)
+        case regular => regular
+      }
+      if (realBranch.isOptional) {
+        schemaDefinitionErrorButContinue("Branch of choice %s must be non-optional.".format(realBranch.path))
         false
       } else true
     }
     assuming(branchesOk.forall { x => x })
   }.value
 
-  final def branchesAreNotIVCElements = LV('branchesAreNotIVCElements) {
+  final lazy val branchesAreNotIVCElements = LV('branchesAreNotIVCElements) {
     val branchesOk = groupMembers map { branch =>
       if (!branch.isRepresented) {
         schemaDefinitionErrorButContinue("Branch of choice %s cannot have the dfdl:inputValueCalc property.".format(branch.path))
@@ -250,11 +252,40 @@ abstract class ChoiceTermBase(
   }.value
 }
 
-final class Choice(xmlArg: Node, lexicalParent: SchemaComponent, position: Int)
+object Choice {
+  def apply(xmlArg: Node, lexicalParent: SchemaComponent, position: Int) = {
+    val c = new Choice(xmlArg, lexicalParent, position)
+    c.initialize()
+    c
+  }
+}
+final class Choice private (xmlArg: Node, lexicalParent: SchemaComponent, position: Int)
   extends ChoiceTermBase(xmlArg, Option(lexicalParent), position)
   with ChoiceDefMixin
   with ChoiceView {
 
   override lazy val optReferredToComponent = None
+
+  override protected def computeGroupMembers(): Seq[Term] = {
+    val firstCut = super.computeGroupMembers()
+    val withImpliedSequences =
+      firstCut.map { term =>
+        val finalTerm =
+          if (term.isScalar) term
+          else {
+            /**
+             * If this choice branch is a non-scalar, then we need to encapsulate
+             * it with a ChoiceBranchImpliedSequence, which is a kind of Sequence
+             * base. When compiling this this choice branch, Daffodil can then
+             * depend on the invariant that every recurring element is contained
+             * inside a sequence, and that sequence describes everything about how
+             * that elements occurrences are separated.
+             */
+            ChoiceBranchImpliedSequence(term)
+          }
+        finalTerm
+      }
+    withImpliedSequences
+  }
 
 }

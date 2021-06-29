@@ -19,7 +19,6 @@ package org.apache.daffodil.dpath
 
 import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.processors.TypeCalculator
-import org.apache.daffodil.exceptions.Assert
 
 case class DFDLXInputTypeCalc(typedRecipes: List[(CompiledDPath, NodeInfo.Kind)], calc: TypeCalculator)
   extends FNTwoArgs(typedRecipes.map(_._1)) {
@@ -44,67 +43,3 @@ case class DFDLXOutputTypeCalc(typedRecipes: List[(CompiledDPath, NodeInfo.Kind)
   }
 }
 
-case class DFDLXOutputTypeCalcNextSibling(a: CompiledDPath, b: NodeInfo.Kind) extends RecipeOp {
-
-  def run(dstate: DState): Unit = {
-    if (dstate.isCompile) {
-      //CompileDPath.runExpressionForConstant (in DPathRuntime.scala) determines
-      //that an expression is not constant by seeing if evalutating it throws an exception
-      throw new IllegalStateException()
-    }
-
-    val nextSibling = dstate.nextSibling.asSimple
-    val typeCalculator = nextSibling.erd.optSimpleTypeRuntimeData.get.typeCalculator.get
-    /*
-     * The compiler knows about all the potential typeCalculators we can see here
-     * so any validation of typeCalculator should go in Expression.scala as part of compilation
-     */
-
-    val primType = nextSibling.erd.optPrimType.get
-
-    val x = nextSibling.dataValue
-    Assert.invariant(x.isDefined)
-    typeCalculator.outputTypeCalcRun(dstate, x.getNonNullable, primType)
-  }
-}
-
-case class DFDLXRepTypeValue(a: CompiledDPath, b: NodeInfo.Kind)
-  extends RecipeOp {
-
-  override def run(dstate: DState): Unit = {
-    if (dstate.isCompile){
-      throw new IllegalStateException()
-    }
-    
-    if (!dstate.repValue.isDefined) {
-      /*
-     * In theory, we should be able to detect this error at compile time. In practice
-     * the compiler does not provide sufficient details to the expression compiler for it
-     * to notice.
-     */
-      dstate.SDE("dfdlx:repTypeValue() may only be called from within dfdlx:inputTypeCalc")
-    }
-    dstate.setCurrentValue(dstate.repValue)
-  }
-}
-
-case class DFDLXLogicalTypeValue(a: CompiledDPath, b: NodeInfo.Kind)
-  extends RecipeOp {
-
-  override def run(dstate: DState): Unit = {
-    
-    if (dstate.isCompile){
-      throw new IllegalStateException()
-    }
-    
-    if (!dstate.logicalValue.isDefined) {
-      /*
-     * In theory, we should be able to detect this error at compile time. In practice
-     * the compiler does not provide sufficient details to the expression compiler for it
-     * to notice.
-     */
-      dstate.SDE("dfdlx:logicalTypeValue() may only be called from within dfdlx:outputTypeCalc")
-    }
-    dstate.setCurrentValue(dstate.logicalValue)
-  }
-}

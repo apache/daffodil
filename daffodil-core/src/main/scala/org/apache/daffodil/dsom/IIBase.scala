@@ -18,18 +18,20 @@
 package org.apache.daffodil.dsom
 
 import org.apache.daffodil.util.Misc
+
 import scala.xml.Node
 import scala.collection.immutable.ListMap
 import org.apache.daffodil.xml.NS
-import org.apache.daffodil.util._
-import IIUtils._
+import org.apache.daffodil.dsom.IIUtils._
+
 import java.io.File
 import java.net.URI
-import org.apache.daffodil.xml._
 import org.apache.daffodil.util.Delay
+
 import java.net.URLEncoder
 import org.apache.daffodil.api.DaffodilSchemaSource
 import org.apache.daffodil.api.URISchemaSource
+
 import java.net.URISyntaxException
 import org.apache.daffodil.api.WarnID
 
@@ -118,6 +120,8 @@ import org.apache.daffodil.api.WarnID
  */
 object IIUtils {
   type IIMap = Delay[ListMap[(NS, DaffodilSchemaSource), IIBase]]
+  private val empty = new ListMap[(NS, DaffodilSchemaSource), IIBase]()
+  val emptyIIMap = Delay('IIMapEmpty, this, empty).force
 }
 
 /**
@@ -140,10 +144,8 @@ abstract class IIBase( final override val xml: Node, xsdArg: XMLSchemaDocument, 
    * already been seen and result in duplicate effort and slower schema
    * compilation.
    */
-  requiredEvaluationsAlways(iiSchemaFileMaybe)
-  requiredEvaluationsAlways(iiSchemaFileMaybe.map(_.iiXMLSchemaDocument))
 
-  protected final def notSeenThisBefore = LV('notSeenThisBefore) {
+  protected final lazy val notSeenThisBefore = LV('notSeenThisBefore) {
     val mp = mapPair
     val res = seenBefore.value.get(mp) match {
       case Some(_) => false
@@ -159,16 +161,16 @@ abstract class IIBase( final override val xml: Node, xsdArg: XMLSchemaDocument, 
    * so that if our own includes/imports cycle back to us
    * we will detect it.
    */
-  protected final def seenBeforeThisFile: IIMap = LV('seenBeforeThisFile) {
-    val res = Delay {
-      val v = if (notSeenThisBefore) Delay(seenBefore.value + mapTuple)
-      else seenBefore
-      v.value
-    }
+  protected final lazy val seenBeforeThisFile: IIMap = LV('seenBeforeThisFile) {
+    val res = Delay('seenBeforeThisFile, this, {
+      val v = if (notSeenThisBefore) seenBefore.value + mapTuple
+      else seenBefore.value
+      v
+    })
     res
   }.value
 
-  final def seenAfter: IIMap = LV('seenAfter) {
+  final lazy val seenAfter: IIMap = LV('seenAfter) {
     val res = iiSchemaFileMaybe.map { _.seenAfter }.getOrElse(seenBefore)
     res
   }.value
@@ -235,7 +237,7 @@ abstract class IIBase( final override val xml: Node, xsdArg: XMLSchemaDocument, 
 
   protected def mapPair: (NS, DaffodilSchemaSource)
 
-  protected final def mapTuple = LV('mapTuple) {
+  protected final lazy val mapTuple = LV('mapTuple) {
     val tuple = (mapPair, this)
     tuple
   }.value
@@ -260,7 +262,7 @@ abstract class IIBase( final override val xml: Node, xsdArg: XMLSchemaDocument, 
    * point its namespace is not acceptable given the import
    * statement.
    */
-  final def iiSchemaFileMaybe: Option[DFDLSchemaFile] = LV('iiSchemaFileMaybe) {
+  final lazy val iiSchemaFileMaybe: Option[DFDLSchemaFile] = LV('iiSchemaFileMaybe) {
     val res = if (notSeenThisBefore) {
       Some(iiSchemaFile)
     } else None
@@ -270,7 +272,7 @@ abstract class IIBase( final override val xml: Node, xsdArg: XMLSchemaDocument, 
   /**
    * Unconditionally, get the schema file object.
    */
-  final def iiSchemaFile: DFDLSchemaFile = LV('iiSchemaFile) {
+  final lazy val iiSchemaFile: DFDLSchemaFile = LV('iiSchemaFile) {
     val res = new DFDLSchemaFile(schemaSet, resolvedLocation, this, seenBeforeThisFile)
     res.node // force access to the data of the file.
     res

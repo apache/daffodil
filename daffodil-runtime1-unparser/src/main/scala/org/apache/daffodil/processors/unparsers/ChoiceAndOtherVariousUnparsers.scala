@@ -20,16 +20,14 @@ package org.apache.daffodil.processors.unparsers
 import org.apache.daffodil.processors._
 import org.apache.daffodil.infoset._
 import org.apache.daffodil.processors.RuntimeData
-import org.apache.daffodil.util.Maybe._
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.MaybeInt
 import org.apache.daffodil.util.Maybe._
-import org.apache.daffodil.util.PreSerialization
 
 case class ChoiceBranchMap(
   lookupTable: Map[ChoiceBranchEvent, Unparser],
   unmappedDefault: Option[Unparser])
-  extends PreSerialization {
+  extends Serializable {
 
   def get(cbe: ChoiceBranchEvent): Maybe[Unparser] = {
     val fromTable = lookupTable.get(cbe)

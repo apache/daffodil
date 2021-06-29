@@ -68,6 +68,10 @@ trait ElementBase
   with OverlapCheckMixin
   with ElementBaseView {
 
+  protected override def initialize() = {
+    super.initialize()
+  }
+
   override final def eBase = this
 
   lazy val init: Unit = {
@@ -89,12 +93,13 @@ trait ElementBase
   requiredEvaluationsIfActivated(if (hasFractionDigits) fractionDigits)
   requiredEvaluationsIfActivated(checkForAlignmentAmbiguity)
   requiredEvaluationsIfActivated(checkFloating)
+  requiredEvaluationsIfActivated(minimizedScope)
 
   override def name: String
 
   final lazy val inputValueCalcOption = findPropertyOption("inputValueCalc", expressionAllowed = true)
 
-  final lazy val outputValueCalcOption = {
+  final lazy val outputValueCalcOption: PropertyLookupResult = {
     val optOVC = findPropertyOption("outputValueCalc", expressionAllowed = true)
     schemaDefinitionWhen(optOVC.isDefined && isOptional, "dfdl:outputValueCalc cannot be defined on optional elements.")
     schemaDefinitionWhen(optOVC.isDefined && isArray, "dfdl:outputValueCalc cannot be defined on array elements.")
@@ -286,16 +291,21 @@ trait ElementBase
     }
   }
 
-  private lazy val parentMinimizedScope = {
+  private lazy val parentMinimizedScope = LV('parentMinimizedScope) {
     val ee = enclosingElements.headOption // FIXME: bug DAFFODIL-2282 doesn't work unless all are same.
-    ee.map { _.minimizedScope }.getOrElse(scala.xml.TopScope)
-  }
+    val res =
+      if (ee.isEmpty)
+        scala.xml.TopScope
+      else
+        ee.get.minimizedScope
+    res
+  }.value
 
   /**
    * To be properly constructed, scala's xml Elems must share the scope (namespace bindings) of the enclosing
    * parent element, except when it adds more of its own bindings, in which case the tail is supposed to be shared.
    */
-  final protected lazy val minimizedScope: NamespaceBinding = LV('minimizedScope) {
+  protected lazy val minimizedScope: NamespaceBinding = LV('minimizedScope) {
     val uniquePairs =
       if (this.isInstanceOf[Root]) {
         // If this is the root element and it contains xmlns="", then remove
@@ -409,7 +419,7 @@ trait ElementBase
     unparserInfosetElementDefaultingBehavior !=:= MustExist
   }
 
-  lazy val isQuasiElement: Boolean = false //overriden by RepTypeQuasiElementDecl
+  def isQuasiElement: Boolean = false //overriden by RepTypeQuasiElementDecl
 
   final protected lazy val optTruncateSpecifiedLengthString =
     Option(truncateSpecifiedLengthString =:= YesNo.Yes)
@@ -1156,4 +1166,17 @@ trait ElementBase
     case (_, _) => this.subset((floating eq YesNo.No), "Property value floating='yes' is not supported.")
   }
 
+  final lazy val quasiElementChildren: Seq[QuasiElementDeclBase] = {
+    val res =
+      if (!isQuasiElement)
+        if (this.lengthKind == LengthKind.Prefixed)
+          Seq(prefixedLengthElementDecl)
+        else if (this.isSimpleType)
+          this.simpleType.optRepTypeElement.toSeq
+        else
+          Nil
+      else
+        Nil
+    res
+  }
 }

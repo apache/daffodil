@@ -28,5 +28,8 @@
       </dfdl:defineFormat>
     </xs:appinfo>
   </xs:annotation>
- 
+
+  <xs:element name="vagueElem" type="xs:int"/>
+
+
 </xs:schema>

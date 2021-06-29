@@ -17,8 +17,6 @@
 
 package org.apache.daffodil.grammar.primitives
 
-import scala.Boolean
-
 import org.apache.daffodil.dsom.ElementBase
 import org.apache.daffodil.grammar.Terminal
 import org.apache.daffodil.processors.FieldDFAParseEv
@@ -40,7 +38,7 @@ import org.apache.daffodil.processors.parsers.PackedDecimalDelimitedParser
 import org.apache.daffodil.processors.parsers.PackedIntegerDelimitedParser
 import org.apache.daffodil.processors.parsers.StringDelimitedParser
 import org.apache.daffodil.processors.parsers.StringOfSpecifiedLengthParser
-import org.apache.daffodil.processors.parsers.{ Parser => DaffodilParser }
+import org.apache.daffodil.processors.parsers.{Parser => DaffodilParser}
 import org.apache.daffodil.processors.unparsers.BCDDecimalDelimitedUnparser
 import org.apache.daffodil.processors.unparsers.BCDIntegerDelimitedUnparser
 import org.apache.daffodil.processors.unparsers.BlobSpecifiedLengthUnparser
@@ -56,7 +54,7 @@ import org.apache.daffodil.processors.unparsers.StringDelimitedUnparser
 import org.apache.daffodil.processors.unparsers.StringMaybeTruncateBitsUnparser
 import org.apache.daffodil.processors.unparsers.StringMaybeTruncateCharactersUnparser
 import org.apache.daffodil.processors.unparsers.StringNoTruncateUnparser
-import org.apache.daffodil.processors.unparsers.{ Unparser => DaffodilUnparser }
+import org.apache.daffodil.processors.unparsers.{Unparser => DaffodilUnparser}
 import org.apache.daffodil.schema.annotation.props.gen.EscapeKind
 import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
 import org.apache.daffodil.util.Maybe.Nope
@@ -102,11 +100,6 @@ case class StringOfSpecifiedLength(e: ElementBase) extends Terminal(e, true) wit
 abstract class StringDelimited(e: ElementBase)
   extends StringDelimBase(e, true)
   with Padded {
-
-  // TODO: DFDL-451 - Has been placed on the backburner until we can figure out the appropriate behavior
-  //
-  //  requiredEvaluations(gram.checkDelimiterDistinctness(esObj.escapeSchemeKind, optPadChar, optEscChar,
-  //    optEscEscChar, optEscBlkStart, optEscBlkEnd, staticDelimsCooked, elemBase))
 
   def isDelimRequired: Boolean
 

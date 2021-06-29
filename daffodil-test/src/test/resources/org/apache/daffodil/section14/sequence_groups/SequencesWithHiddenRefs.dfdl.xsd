@@ -124,9 +124,6 @@
       <xs:sequence dfdl:hiddenGroupRef="ex:s4" />
     </xs:sequence>
   </xs:group>
-  <xs:group name="s6">
-    <xs:sequence dfdl:hiddenGroupRef="ex:s4" />
-  </xs:group>
   <xs:element name="e7" dfdl:lengthKind="delimited">
     <xs:complexType>
       <xs:sequence dfdl:separator=",">
@@ -142,12 +139,5 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-  <xs:element name="e9" dfdl:lengthKind="delimited">
-    <xs:complexType>
-      <xs:sequence dfdl:separator=",">
-        <xs:sequence dfdl:hiddenGroupRef="ex:s6" />
-        <xs:element name="g" type="xs:int"/>
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
+
 </xs:schema>

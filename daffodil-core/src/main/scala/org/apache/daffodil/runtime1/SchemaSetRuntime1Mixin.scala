@@ -31,15 +31,27 @@ import org.apache.daffodil.processors.parsers.NotParsableParser
 import org.apache.daffodil.processors.unparsers.NotUnparsableUnparser
 import org.apache.daffodil.util.LogLevel
 
-import java.io.ObjectOutputStream
-
-trait SchemaSetRuntime1Mixin { self : SchemaSet =>
+trait SchemaSetRuntime1Mixin {
+  self: SchemaSet =>
 
   requiredEvaluationsAlways(parser)
   requiredEvaluationsAlways(unparser)
+  requiredEvaluationsAlways(root.elementRuntimeData.initialize)
 
-  override def variableMap: VariableMap = LV('variableMap) {
-    val dvs = allSchemaDocuments.flatMap { _.defineVariables }
+  /**
+   * This initialization is required for simpleTypeDefs used only
+   * for type calculations where those simpleTypeDefs do not have
+   * a corresponding element of that type.
+   */
+  requiredEvaluationsAlways(typeCalcMap.foreach {
+    case (_, typeCalculator) =>
+      typeCalculator.initialize()
+  })
+
+  override lazy val variableMap: VariableMap = LV('variableMap) {
+    val dvs = allSchemaDocuments.flatMap {
+      _.defineVariables
+    }
     val alldvs = dvs.union(predefinedVars)
     val vmap = VariableMapFactory.create(alldvs)
     //
@@ -74,61 +86,32 @@ trait SchemaSetRuntime1Mixin { self : SchemaSet =>
   }.value
 
   def onPath(xpath: String): DFDL.DataProcessor = {
-    Assert.usage(!isError)
-    if (xpath != "/") root.notYetImplemented("""Path must be "/". Other path support is not yet implemented.""")
-    val rootERD = root.elementRuntimeData
-    root.schemaDefinitionUnless(
-      rootERD.outputValueCalcExpr.isEmpty,
-      "The root element cannot have the dfdl:outputValueCalc property.")
-    val validationMode = ValidationMode.Off
-    val p = if (!root.isError) parser else null
-    val u = if (!root.isError) unparser else null
-    val ssrd = new SchemaSetRuntimeData(
-      p,
-      u,
-      this.diagnostics,
-      rootERD,
-      variableMap,
-      typeCalcMap)
-    if (root.numComponents > root.numUniqueComponents)
-      log(LogLevel.Info, "Compiler: component counts: unique %s, actual %s.",
-        root.numUniqueComponents, root.numComponents)
-    val dataProc = new DataProcessor(ssrd, tunable, self.compilerExternalVarSettings)
-    //
-    // now we fake serialize to a dev/null-type output stream which forces
-    // any lazy evaluation that hasn't completed to complete.
-    // Those things could signal errors, so we do this before we check for errors.
-    //
-    // Note that calling preSerialization is not sufficient, since that's only mixed into
-    // objects with lazy evaluation. A SSRD is just a tuple-like object, does not mixin
-    // preSerialization, and shouldn't need to. We need to
-    // serialize all its substructure to insure all preSerializations, that force
-    // all lazy evaluations, are done.
-    //
-    // Overhead-wise, this is costly, if the caller is about to save the processor themselves
-    // But as there have been cases of Runtime1 processors which end up doing lazy evaluation
-    // that ends up happening late, this eliminates a source of bugs, albeit, by masking them
-    // so they are not detectable.
-    //
-    // Best to address this for real when we refactor Runtime1 to fully separate it from
-    // the schema compiler. At that point we can draw a firmer line about the compiler's output
-    // being fully realized before runtime objects are constructed.
-    //
-    // We don't call save() here, because that does a few other things than just serialize.
-    val oos = new ObjectOutputStream(org.apache.commons.io.output.NullOutputStream.NULL_OUTPUT_STREAM)
-    oos.writeObject(dataProc)
-
-    if (dataProc.isError) {
-      // NO longer printing anything here. Callers must do this.
-      //        val diags = dataProc.getDiagnostics
-      //        log(LogLevel.Error,"Compilation (DataProcessor) reports %s compile errors/warnings.", diags.length)
-      //        diags.foreach { diag => log(LogLevel.Error, diag.toString()) }
-    } else {
-      log(LogLevel.Compile, "Parser = %s.", ssrd.parser.toString)
-      log(LogLevel.Compile, "Unparser = %s.", ssrd.unparser.toString)
-      log(LogLevel.Compile, "Compilation (DataProcesor) completed with no errors.")
+      Assert.usage(!isError)
+      if (xpath != "/") root.notYetImplemented("""Path must be "/". Other path support is not yet implemented.""")
+      val rootERD = root.elementRuntimeData
+      root.schemaDefinitionUnless(
+        rootERD.outputValueCalcExpr.isEmpty,
+        "The root element cannot have the dfdl:outputValueCalc property.")
+      val validationMode = ValidationMode.Off
+      val p = if (!root.isError) parser else null
+      val u = if (!root.isError) unparser else null
+      val ssrd = new SchemaSetRuntimeData(
+        p,
+        u,
+        this.diagnostics,
+        rootERD,
+        variableMap,
+        typeCalcMap)
+      if (root.numComponents > root.numUniqueComponents)
+        log(LogLevel.Compile, "Compiler: component counts: unique %s, actual %s.",
+          root.numUniqueComponents, root.numComponents)
+      val dataProc = new DataProcessor(ssrd, tunable, self.compilerExternalVarSettings)
+      if (dataProc.isError) {
+      } else {
+        log(LogLevel.Compile, "Parser = %s.", ssrd.parser.toString)
+        log(LogLevel.Compile, "Unparser = %s.", ssrd.unparser.toString)
+        log(LogLevel.Compile, "Compilation (DataProcesor) completed with no errors.")
+      }
+      dataProc
     }
-    dataProc
-  }
-
 }

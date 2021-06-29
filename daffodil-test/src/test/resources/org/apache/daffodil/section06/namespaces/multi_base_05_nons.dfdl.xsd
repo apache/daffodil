@@ -29,7 +29,6 @@
     </xs:appinfo>
   </xs:annotation>
    
-  <xs:include schemaLocation="org/apache/daffodil/section06/namespaces/multi_A_05_nons.dfdl.xsd"/>
   <xs:include schemaLocation="org/apache/daffodil/section06/namespaces/multi_B_05_nons.dfdl.xsd"/>
   
   <xs:element name="baseSeq">

@@ -19,7 +19,15 @@ package org.apache.daffodil.dsom
 
 import scala.xml.Node
 
-final class GlobalElementDecl(
+object GlobalElementDecl {
+  def apply(xmlArg: Node, schemaDocument: SchemaDocument) = {
+    val ged = new GlobalElementDecl(xmlArg, schemaDocument)
+    ged.initialize()
+    ged
+  }
+}
+
+final class GlobalElementDecl private (
   xmlArg: Node,
   schemaDocument: SchemaDocument)
   extends AnnotatedSchemaComponentImpl(xmlArg, schemaDocument)
@@ -30,7 +38,7 @@ final class GlobalElementDecl(
   // NOT on global element decls such as dfdl:choiceBranchKey
   with ResolvesLocalProperties {
 
-  lazy val asRoot = new Root(xml, schemaDocument, namedQName, this)
+  lazy val asRoot = Root(xml, schemaDocument, namedQName, this)
 
   requiredEvaluationsIfActivated(validateChoiceBranchKey)
 

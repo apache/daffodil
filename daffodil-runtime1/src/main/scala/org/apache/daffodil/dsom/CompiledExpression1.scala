@@ -18,7 +18,6 @@
 package org.apache.daffodil.dsom
 
 import scala.runtime.ScalaRunTime.stringOf
-
 import org.apache.daffodil.api.UnqualifiedPathStepPolicy
 import org.apache.daffodil.api.WarnID
 import org.apache.daffodil.dpath.DState
@@ -28,14 +27,13 @@ import org.apache.daffodil.exceptions.HasSchemaFileLocation
 import org.apache.daffodil.exceptions.SchemaFileLocation
 import org.apache.daffodil.infoset.DataValue
 import org.apache.daffodil.processors.ParseOrUnparseState
-import org.apache.daffodil.processors.RuntimeData
 import org.apache.daffodil.processors.Suspension
 import org.apache.daffodil.processors.TypeCalculatorCompiler.TypeCalcMap
 import org.apache.daffodil.processors.VariableMap
+import org.apache.daffodil.util.Delay
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.MaybeULong
 import org.apache.daffodil.util.PreSerialization
-import org.apache.daffodil.util.TransientParam
 import org.apache.daffodil.xml.NS
 import org.apache.daffodil.xml.NamedQName
 import org.apache.daffodil.xml.NoNamespace
@@ -44,8 +42,10 @@ import org.apache.daffodil.xml.StepQName
 trait ContentValueReferencedElementInfoMixin {
 
   def contentReferencedElementInfos: Set[DPathElementCompileInfo]
+
   def valueReferencedElementInfos: Set[DPathElementCompileInfo]
 }
+
 /**
  * For the DFDL path/expression language, this provides the place to
  * type check the expression (SDE if not properly typed)
@@ -104,10 +104,13 @@ abstract class CompiledExpression[+T <: AnyRef](
    */
   @deprecated("Code should just call evaluate(...) on an Evaluatable object.", "2016-02-18")
   def constant: T
+
   def isConstant: Boolean
 
   def evaluate(state: ParseOrUnparseState): T
+
   def run(dstate: DState): Unit
+
   /**
    * The target type of the expression. This is the type that we want the expression to create.
    */
@@ -151,6 +154,7 @@ final case class ConstantExpression[+T <: AnyRef](
     dstate.setCurrentValue(DataValue.unsafeFromAnyRef(value))
     value
   }
+
   override def run(dstate: DState) = dstate.setCurrentValue(DataValue.unsafeFromAnyRef(value))
 
   final def evaluateForwardReferencing(state: ParseOrUnparseState, whereBlockedLocation: Suspension): Maybe[T] = {
@@ -162,9 +166,11 @@ final case class ConstantExpression[+T <: AnyRef](
   def expressionEvaluationBlockLocation = MaybeULong.Nope
 
   def constant: T = value
+
   def isConstant = true
 
   override def contentReferencedElementInfos = ReferencedElementInfos.None
+
   override def valueReferencedElementInfos = ReferencedElementInfos.None
 }
 
@@ -201,29 +207,21 @@ final case class ConstantExpression[+T <: AnyRef](
  * into "passes".
  */
 class DPathCompileInfo(
-  @TransientParam parentsArg: Seq[DPathCompileInfo],
-  @TransientParam variableMapArg: => VariableMap,
+
+  parentsDelay: Delay[Seq[DPathCompileInfo]],
+  val variableMap: VariableMap,
   val namespaces: scala.xml.NamespaceBinding,
   val path: String,
   override val schemaFileLocation: SchemaFileLocation,
   val unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy,
-  typeCalcMapArg: TypeCalcMap,
-  //
-  // lexicalContextRuntimeData is used to get the partialNextElementResolver which is used
-  // to get the next sibling info to support the outputTypeCalcNextSibling function.
-  //
-  // TODO: DAFFODIL-2326 do not pass runtime data as argment to DPathCompileInfo. The point
-  // is for DPathCompileInfo to NOT have all of the runtime data for the term, but just what
-  // is needed to compile DPath. If functions need info about next sibling, then we should
-  // compute what it needs and pass that here (e.g, sequence of possible next sibling DPathCompileInfos,
-  // or if this applies only to elements, then it should be on that object.
-  //
-  // We should not hook in the whole runtime data object here. This should be runtime independent code.
-  //
-  val lexicalContextRuntimeData: RuntimeData)
-  extends ImplementsThrowsSDE with PreSerialization
-  with HasSchemaFileLocation {
+  typeCalcMapArg: TypeCalcMap)
+  extends ImplementsThrowsSDE
+    with PreSerialization
+    with HasSchemaFileLocation {
 
+  def initialize: Unit = {
+    parents
+  }
 
   /**
    * This "parents" val is a backpointer to all DPathCompileInfo's that
@@ -241,8 +239,7 @@ class DPathCompileInfo(
    * Sequence objects and the stack depth is again relative to the schema
    * depth.
    */
-  @transient
-  val parents = parentsArg
+  lazy val parents = parentsDelay.value
 
   def serializeParents(oos: java.io.ObjectOutputStream): Unit = {
     oos.writeObject(parents)
@@ -264,18 +261,10 @@ class DPathCompileInfo(
     parentsField.setAccessible(false)
   }
 
-
-  lazy val variableMap =
-    variableMapArg
-
   /*
    * This map(identity) pattern appears to work around an unidentified bug with serialization.
    */
   lazy val typeCalcMap: TypeCalcMap = typeCalcMapArg.map(identity)
-
-  override def preSerialization: Any = {
-    variableMap
-  }
 
   def diagnosticDebugName = path
 
@@ -298,8 +287,12 @@ class DPathCompileInfo(
    * and the SerializationProxy object.
    */
   final lazy val enclosingElementCompileInfos: Seq[DPathElementCompileInfo] = {
-    val eci = elementCompileInfos.flatMap { _.parents }
-    val res = eci.flatMap { _.elementCompileInfos }
+    val eci = elementCompileInfos.flatMap {
+      _.parents
+    }
+    val res = eci.flatMap {
+      _.elementCompileInfos
+    }
     res
   }.map(identity)
 
@@ -340,10 +333,21 @@ class DPathCompileInfo(
  * (first), and kept on this object, and then subsequently ERD data
  * structures are created which reference these.
  */
-class DPathElementCompileInfo(
-  @TransientParam parentsArg: Seq[DPathElementCompileInfo],
+class DPathElementCompileInfo
+(
+  parentsDelay: Delay[Seq[DPathElementCompileInfo]],
+  // parentsArg is a transient due to serialization order issues,
+  // there is no delay/lazy/by-name involvement here.
+
   variableMap: VariableMap,
-  @TransientParam elementChildrenCompileInfoArg: => Seq[DPathElementCompileInfo],
+  // This next arg must be a Delay as we're creating a circular
+  // structure here. Element's compile info points down to their children. Children
+  // point back to their parents, which may be multiple parents if they are shared.
+  //
+  // We choose a Delay object not call-by-name because it has features to enable
+  // the GC to collect the closure objects that are created from the calling context
+  // to realize the by-name arg expression.
+  elementChildrenCompileInfoDelay: Delay[Seq[DPathElementCompileInfo]],
   namespaces: scala.xml.NamespaceBinding,
   path: String,
   val name: String,
@@ -353,12 +357,21 @@ class DPathElementCompileInfo(
   sfl: SchemaFileLocation,
   override val unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy,
   typeCalcMap: TypeCalcMap,
-  lexicalContextRuntimeData: RuntimeData,
   val sscd: String,
   val isOutputValueCalc: Boolean)
-  extends DPathCompileInfo(parentsArg, variableMap, namespaces, path, sfl,
+  extends DPathCompileInfo(
+    parentsDelay.asInstanceOf[Delay[Seq[DPathCompileInfo]]],
+    variableMap, namespaces, path, sfl,
     unqualifiedPathStepPolicy,
-    typeCalcMap, lexicalContextRuntimeData) {
+    typeCalcMap) {
+
+  /**
+   * Cyclic objects require initialization
+   */
+  override lazy val initialize: Unit = {
+    parents
+    elementChildrenCompileInfo
+  }
 
   override def serializeParents(oos: java.io.ObjectOutputStream): Unit = {
     super.serializeParents(oos)
@@ -370,8 +383,7 @@ class DPathElementCompileInfo(
     elementChildrenCompileInfo.foreach { _.deserializeParents(ois) }
   }
 
-
-  lazy val elementChildrenCompileInfo = elementChildrenCompileInfoArg
+  lazy val elementChildrenCompileInfo = elementChildrenCompileInfoDelay.value
 
   override def preSerialization: Any = {
     super.preSerialization
@@ -423,6 +435,7 @@ class DPathElementCompileInfo(
       info.isReferencedByExpressions = true
     }
   }
+
   /**
    * Finds a child ERD that matches a StepQName. This is for matching up
    * path steps (for example) to their corresponding ERD.

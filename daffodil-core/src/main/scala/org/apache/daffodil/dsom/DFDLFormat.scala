@@ -19,7 +19,15 @@ package org.apache.daffodil.dsom
 
 import scala.xml.Node
 
-final class DFDLFormat(node: Node, sd: SchemaDocument)
+object DFDLFormat {
+  def apply(node: Node, sd: SchemaDocument) = {
+    val df = new DFDLFormat(node, sd)
+    df.initialize()
+    df
+  }
+}
+
+final class DFDLFormat private (node: Node, sd: SchemaDocument)
   extends DFDLFormatAnnotation(node, sd)
 // leave the below comments here for a while. (In case we have to reproduce
 // this list of mixins on a schema component somewhere)

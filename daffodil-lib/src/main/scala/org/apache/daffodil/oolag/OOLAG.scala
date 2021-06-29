@@ -27,6 +27,8 @@ import org.apache.daffodil.util.Misc
 import org.apache.daffodil.exceptions.ThinException
 import org.apache.daffodil.util.Maybe._
 
+import scala.collection.mutable
+
 /**
  * OOLAG = Object-oriented Lazy Attribute Grammars
  *
@@ -54,6 +56,9 @@ object OOLAG extends Logging {
    *
    * If body fails with an OOLAG exception of the right kind, then
    * alt is evaluated and returned instead.
+   *
+   * Anyplace that calls keepGoing should have a comment saying why it
+   * is using it. There should be very few places that use it.
    */
   def keepGoing[T](alt: => T)(body: => T) = {
     try {
@@ -98,12 +103,7 @@ object OOLAG extends Logging {
    *
    * The way these are generally used now is like this
    * {{{
-   *  def foo = LV('foo) {...calculation...}.value
-   * }}}
-   * or, if you would like a slot to show up in the debugger so you
-   * can more easily see the value of the LV then you can
-   * {{{
-   * lazy val foo = LV('foo){...calculation...}.value
+   *  lazy val foo = LV('foo) {...calculation...}.value
    * }}}
    * Why scala needs 'real' Lisp-style macros: Well wouldn't it be
    * nicer if I could write:
@@ -238,40 +238,26 @@ object OOLAG extends Logging {
 
     final var currentOVList: Seq[OOLAGValueBase] = Nil
 
-    private val lvCache = new scala.collection.mutable.LinkedHashMap[Symbol, OOLAGValueBase]
-
     /**
      * The factory for OOLAGValues is LV.
      */
     protected final def LV[T](sym: Symbol)(body: => T): OOLAGValue[T] = {
-      //
-      // TODO: This is very fragile. A simple cut/paste error where two LVs have the same symbol
-      // causes no scala compilation error, but results in the second definition to be evaluated
-      // getting the value of the first to be evaluated. This can be very hard to debug.
-      //
-      // Really we want the thunk itself's identity to be the key for lookup, not this
-      // hand maintained symbol.
-      //
-      // Once again this is why scala needs real lisp-style macros, not these quasi function things
-      // where a macro can only do what a function could have done.
-      //
-      // Fixing this problem likely requires one to go back to the older oolag design
-      // which didn't have this lvCache at all, just used actual lazy val for each LV.
-      // That would mean changing all def foo = LV('foo) {...} to be lazy val. But that would
-      // be much safer, because then the sym is only used for debugging info, and could even be optional.
-      //
-      lvCache.get(sym).getOrElse {
-        val lv = new OOLAGValue[T](this, sym.name, body)
-        lvCache.put(sym, lv)
-        lv
-      }.asInstanceOf[OOLAGValue[T]]
+      val lv = new OOLAGValue[T](this, sym.name, body)
+      lv
     }
 
     /*
      * requiredEvaluations feature
      *
      * An object either uses requiredEvaluationsAlways, or requiredEvaluationsIfActivated.
-     * Some objects use both.
+     *
+     * requiredEvaluationsIfActivated is for objects in the abstract syntax tree (AST) where
+     * the mere construction of them is not sufficient to know if the required evaluations
+     * should occur. The objects may or may not ultimately be needed.
+     *
+     * requiredEvaluationsAlways is for top level things like the OOLAG Root object,
+     * and objects where their construction is enough to know that they should have
+     * these required evaluations occur.
      *
      * They are maintained as two separate lists of eval functions aka thunks to be run.
      *
@@ -297,11 +283,16 @@ object OOLAG extends Logging {
     private var requiredEvalIfActivatedFunctions: List[OOLAGValueBase] = Nil // for evaluation only if activated.
 
     /**
-     * Unconditionally, evaluate the expression arg in order to insure all checks for this
-     * object are performed.
+     * Used to force evaluation for error checking unconditionally.
+     *
+     * Creating the object will queue up the expression for evaluation later
+     * when checkErrors is called.
+     *
+     * This is for root-of-the-AST objects, where we don't conditionally construct them.
+     * Rather, upon construction we know we positively ARE adding them to the AST.
      */
     protected final def requiredEvaluationsAlways(arg: => Any): Unit = {
-      requiredEvaluationsAlways(thunk(arg))
+        requiredEvaluationsAlways(thunk(arg))
     }
 
     /**
@@ -328,6 +319,11 @@ object OOLAG extends Logging {
       lv
     }
 
+    /**
+     * When it is possible to centralize (on the OOLAG Root object) all the
+     * locally enqueued required evaluation thunks, do so. The root needs to be established first,
+     * and the object activated if the requiredEvaluationsIfActive method is used.
+     */
     private def centralizeEvalFunctionsWhenReady(): Unit = {
       if (optOolagContext.isDefined) {
         //
@@ -355,9 +351,21 @@ object OOLAG extends Logging {
     /**
      * Saves the arg expression, and insures it is evaluated later only
      * if setRequiredEvaluationActive() is called for this object.
+     *
+     * This is for use when constructing a abstract syntax tree (AST)
+     * such as the DSOM tree (really a directed graph) when
+     * the object creation itself is not enough to know if the object will or
+     * will not be attached to the tree.
+     *
+     * The code constructing the AST must traverse the final tree and activate
+     * the nodes that ultimately want all these things evaluated on them.
+     *
+     * If using this, you should know that the object is either discarded
+     * (in which case these will never get evaluated), or somehow activated
+     * in which case they will be evaluated later when checkErrors is called.
      */
     protected final def requiredEvaluationsIfActivated(arg: => Any): Unit = {
-      requiredEvaluationsIfActivated(thunk(arg))
+        requiredEvaluationsIfActivated(thunk(arg))
     }
 
     /**
@@ -396,8 +404,13 @@ object OOLAG extends Logging {
      * required evaluations, as well as those for any objects that
      * become activated during evaluation of required evaluations of
      * any object recursively.
+     *
+     * This is called only on the OOLAGRoot object. It depends on
+     * all other object's required evaluations having been moved up
+     * onto the root, which happens automatically via the calls to
+     * centralizeEvalFunctionsWhenReady().
      */
-    final def checkErrors: Unit = {
+    private def checkErrors: Unit = {
       Assert.usage(this.isOOLAGRoot || requiredEvalFunctions == Nil)
       while (oolagRoot.requiredEvalFunctions != Nil) { // while there is an accumulated crop of eval functions
         // grab the current crop of eval functions
@@ -421,13 +434,13 @@ object OOLAG extends Logging {
      * Accumulate diagnostics on the root of the hierarchy.
      * (Likely the SchemaSet object.)
      */
-    private var errors_ : Seq[Diagnostic] = Nil
-    private var warnings_ : Seq[Diagnostic] = Nil
+    private val errors_ = new mutable.LinkedHashSet[Diagnostic]()
+    private val warnings_ = new mutable.LinkedHashSet[Diagnostic]()
 
-    final def errors = oolagRoot.errors_
-    final def warnings = oolagRoot.warnings_
+    final def errors: Seq[Diagnostic] = oolagRoot.errors_.toSeq
+    final def warnings: Seq[Diagnostic] = oolagRoot.warnings_.toSeq
 
-    def getDiagnostics = diagnostics
+    def getDiagnostics: Seq[Diagnostic] = diagnostics
 
     def warn(th: Diagnostic): Unit = {
       oolagRoot.oolagWarn(th)
@@ -449,12 +462,12 @@ object OOLAG extends Logging {
 
     protected def oolagWarn(th: Diagnostic): Unit = {
       if (!warnings_.contains(th))
-        warnings_ :+= th
+        warnings_ += th
     }
 
     protected def oolagError(th: Diagnostic): Unit = {
       if (!errors_.contains(th))
-        errors_ :+= th
+        errors_ += th
     }
 
     /**
@@ -467,13 +480,13 @@ object OOLAG extends Logging {
      * that have been created and activated at the time this is called.
      */
 
-    def isError = {
+    def isError: Boolean = {
       oolagRoot.checkErrors
-      val errorCount = oolagRoot.errors.length
+      val errorCount = oolagRoot.errors.size
       errorCount > 0
     }
 
-    def diagnostics = errors ++ warnings
+    def diagnostics: Seq[Diagnostic] = (errors ++ warnings).toSeq
   }
 
   /**

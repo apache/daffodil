@@ -42,7 +42,7 @@ trait NamedMixin
 
   def namedQName: NamedQName
 
-  override lazy val diagnosticDebugName = namedQName.diagnosticDebugName
+  override protected lazy val diagnosticDebugNameImpl = namedQName.diagnosticDebugName
 
 }
 

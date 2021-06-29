@@ -25,7 +25,8 @@
   ]>
 <xs:schema
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-  xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  targetNamespace="http://example.com">
     
   <xs:element name="imported" type="xs:string"/>
 </xs:schema>

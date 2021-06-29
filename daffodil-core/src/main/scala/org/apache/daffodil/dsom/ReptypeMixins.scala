@@ -32,7 +32,7 @@ trait HasOptRepTypeMixinImpl extends SchemaComponent with HasOptRepTypeMixin {
   override lazy val optRepTypeElement: Option[RepTypeQuasiElementDecl] =
     optRepTypeDef.map(repType => {
       val xmlElem = Elem(null, "QuasiElementForTypeCalc", new UnprefixedAttribute("type", repType.namedQName.toAttributeNameString, Null), namespaces, true)
-      new RepTypeQuasiElementDecl(xmlElem, this)
+      RepTypeQuasiElementDecl(xmlElem, this)
     })
 
 }

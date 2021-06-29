@@ -17,7 +17,6 @@
 
 package org.apache.daffodil.processors
 
-import org.apache.daffodil.dsom.EncodingLattice
 import org.apache.daffodil.dsom.ImplementsThrowsSDE
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.exceptions.SchemaFileLocation
@@ -26,10 +25,8 @@ import org.apache.daffodil.processors.charset.BitsCharset
 import org.apache.daffodil.processors.charset.StandardBitsCharsets
 import org.apache.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
 import org.apache.daffodil.schema.annotation.props.gen.UTF16Width
-import org.apache.daffodil.util.Maybe
-import org.apache.daffodil.util.PreSerialization
-import org.apache.daffodil.util.TransientParam
 import org.apache.daffodil.processors.charset.CharsetUtils
+import org.apache.daffodil.util.Maybe
 
 /**
  * To eliminate circularities between RuntimeData objects and the
@@ -110,33 +107,16 @@ trait KnownEncodingMixin { self: ThrowsSDE =>
 
 }
 
-/**
- * This is the object we serialize.
- *
- * At compile time we will create an encodingInfo
- * for ourselves supplying as context a schema component.
- *
- * At runtime we will create an encodingInfo supplying as context
- * a TermRuntimeData object.
- */
-
 final class EncodingRuntimeData(
-  @TransientParam charsetEvArg: => CharsetEv,
+  val charsetEv: CharsetEv,
   override val schemaFileLocation: SchemaFileLocation,
-  optionUTF16WidthArg: Option[UTF16Width],
+  val maybeUTF16Width: Maybe[UTF16Width],
   val defaultEncodingErrorPolicy: EncodingErrorPolicy,
-  val summaryEncoding: EncodingLattice,
   val isKnownEncoding: Boolean,
   val isScannable: Boolean,
   override val knownEncodingAlignmentInBits: Int,
   val hasTextAlignment: Boolean)
-  extends KnownEncodingMixin with ImplementsThrowsSDE with PreSerialization {
-
-  private val maybeUTF16Width_ = Maybe.toMaybe[UTF16Width](optionUTF16WidthArg)
-
-  def maybeUTF16Width = maybeUTF16Width_
-
-  lazy val charsetEv = charsetEvArg
+  extends KnownEncodingMixin with ImplementsThrowsSDE with Serializable {
 
   lazy val runtimeDependencies = Vector(charsetEv)
 
@@ -161,13 +141,5 @@ final class EncodingRuntimeData(
     val cs = charsetEv.evaluate(state)
     cs
   }
-
-  override def preSerialization: Any = {
-    super.preSerialization
-    charsetEv
-  }
-
-  @throws(classOf[java.io.IOException])
-  private def writeObject(out: java.io.ObjectOutputStream): Unit = serializeObject(out)
 
 }

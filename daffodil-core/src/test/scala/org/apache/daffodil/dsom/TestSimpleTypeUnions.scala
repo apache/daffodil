@@ -66,7 +66,7 @@ class TestSimpleTypeUnions {
 
   @Test def testUnion01: Unit = {
 
-    val sset = new SchemaSet(testSchema1)
+    val sset = SchemaSet(testSchema1)
     val Seq(sch) = sset.schemas
     val Seq(sd, _) = sch.schemaDocuments
 
@@ -252,7 +252,7 @@ class TestSimpleTypeUnions {
     val (result, actual) = TestUtils.testString(testSchema2, "-1")
     val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].contents(0).asInstanceOf[DISimple]
     val umstrd = i.unionMemberRuntimeData.get
-    assertEquals("negIntType", umstrd.diagnosticDebugName) // anonymous simple type gets this name from base.
+    assertEquals("ex:negIntType", umstrd.diagnosticDebugName) // anonymous simple type gets this name from base.
     assertTrue(i.valid.get)
     val expected = <e1>-1</e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
@@ -309,7 +309,7 @@ class TestSimpleTypeUnions {
     val (result, actual) = TestUtils.testString(testSchema3, "foo3bar")
     val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].contents(0).asInstanceOf[DISimple]
     val umstrd = i.unionMemberRuntimeData.get
-    assertEquals("foo3or4bar", umstrd.diagnosticDebugName)
+    assertEquals("ex:foo3or4bar", umstrd.diagnosticDebugName)
     assertTrue(i.valid.get)
     val expected = <e1>foo3bar</e1>
     TestUtils.assertEqualsXMLElements(expected, actual)

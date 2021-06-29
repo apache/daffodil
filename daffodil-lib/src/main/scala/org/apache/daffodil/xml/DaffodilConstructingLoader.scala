@@ -444,7 +444,7 @@ class DaffodilConstructingLoader private[xml] (uri: URI,
       } catch {
         case e: Exception => {
           val exc = makeSAXParseException(curInput.pos, e.toString)
-          errorHandler.fatalError(exc)
+          errorHandler.fatalError(exc) // good place for a breakpoint
           null
         }
       }

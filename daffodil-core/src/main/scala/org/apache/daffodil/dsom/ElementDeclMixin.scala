@@ -22,6 +22,7 @@ import org.apache.daffodil.xml._
 import org.apache.daffodil.dpath.NodeInfo.PrimType
 import org.apache.daffodil.dsom.walker.ElementDeclView
 import org.apache.daffodil.equality._
+
 import scala.xml.Node
 
 trait ElementLikeMixin
@@ -93,7 +94,7 @@ trait ElementDeclMixin
   final lazy val optComplexType =
     optNamedComplexType.orElse(optImmediateComplexType.collect { case ct: ComplexTypeBase => ct })
 
-  final lazy val namedType: Option[TypeBase] = LV('namedTypeDef) {
+  final lazy val namedType: Option[TypeBase] = {
     val res = optNamedSimpleType.orElse(optNamedComplexType).orElse {
       namedTypeQName.map { qn => SDE("No type definition found for '%s'.", qn.toPrettyString) }
     }
@@ -101,11 +102,11 @@ trait ElementDeclMixin
       optNamedComplexType.isDefined)
       SDE("Both a simple type and a complex type definition found for %s.", namedTypeQName.get.toPrettyString)
     res
-  }.value
+  }
 
   final lazy val immediateType = optImmediateSimpleType.orElse(optImmediateComplexType)
 
-  final lazy val typeDef: TypeBase = LV('typeDef) {
+  final lazy val typeDef: TypeBase = LV('TypeBase){
     (immediateType, namedType) match {
       case (Some(ty), None) => ty
       case (None, Some(ty)) => ty
@@ -116,21 +117,17 @@ trait ElementDeclMixin
     }
   }.value
 
-  final lazy val optImmediateSimpleType: Option[SimpleTypeBase] = LV('optImmediateSimpleType) {
+  final lazy val optImmediateSimpleType: Option[LocalSimpleTypeDef] = LV('optImmediateSimpleType) {
     val st = xml \ "simpleType"
     if (st.length == 1) {
-      val lstd = new LocalSimpleTypeDef(st(0), this)
+      val lstd = LocalSimpleTypeDef(st(0), this)
       Some(lstd)
     } else None
   }.value
 
   final lazy val typeName = getAttributeOption("type")
 
-  final lazy val namedTypeQName: Option[RefQName] = {
-    typeName.map { tname =>
-      QName.resolveRef(tname, namespaces, tunable.unqualifiedPathStepPolicy).get
-    }
-  }
+  final lazy val namedTypeQName: Option[RefQName] = typeName.map { resolveQName(_) }
 
   final lazy val optNamedSimpleType: Option[SimpleTypeBase] = {
     namedTypeQName.flatMap { qn =>

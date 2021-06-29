@@ -35,8 +35,6 @@ import org.apache.daffodil.processors.parsers.NadaParser
  */
 abstract class BinaryGram(context: SchemaComponent, childrenArg: Seq[Gram]) extends Gram(context) {
 
-  requiredEvaluationsAlways(children)
-
   protected def op: String
   protected def open: String
   protected def close: String

@@ -17,6 +17,8 @@
 
 package org.apache.daffodil.util
 
+import org.apache.daffodil.exceptions.Assert
+
 /**
  * Things that are named need some common methods.
  *
@@ -27,7 +29,36 @@ package org.apache.daffodil.util
 trait NamedMixinBase {
 
   /**
-   * For diagnostics/trace/debug purposes
+   * Flag used to prevent re-entry of diagnosticDebugName
    */
-  lazy val diagnosticDebugName: String = Misc.getNameFromClass(this)
+  private var isAlreadyComputing: Boolean = false
+
+  /**
+   * For diagnostics/trace/debug purposes
+   *
+   * We cannot call diagnosticDebugName inside another call to diagnosticDebugName
+   * of the same object. This catches stack overflow situations.
+   */
+  final lazy val diagnosticDebugName: String = {
+    if (isAlreadyComputing == true) {
+      Assert.invariantFailed("Reentry of computation")
+    } else {
+      try {
+        isAlreadyComputing = true
+        diagnosticDebugNameImpl
+      } finally {
+        isAlreadyComputing = false
+      }
+    }
+  }
+
+  /**
+   * Override this to implement a diagnostic debug name.
+   *
+   * Note that this cannot throw exceptions because it is used to create
+   * diagnostic messages.
+   */
+  protected def diagnosticDebugNameImpl = className
+
+  private lazy val className = Misc.getNameFromClass(this)
 }

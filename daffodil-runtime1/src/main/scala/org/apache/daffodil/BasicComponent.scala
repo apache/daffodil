@@ -36,4 +36,20 @@ trait BasicComponent
   with ResolvesQNames
   with ImplementsThrowsOrSavesSDE {
 
+  /**
+   * Components have an initialize protocol.
+   *
+   * Use object factories (private constructor on the class) to
+   * enforce calling of initialize() after construction.
+   *
+   * The overrides of initialize should always call super.initialize()
+   *
+   * They should evaluate any lazy vals that MUST be evaluatable upon
+   * object construction - typically this is things that may be needed
+   * in order to issue diagnostic messages.
+   */
+  protected def initialize(): Unit = {
+    // do nothing.
+  }
+
 }

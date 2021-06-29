@@ -26,17 +26,6 @@ import org.apache.daffodil.xml.XMLUtils
 trait Facets { self: Restriction =>
   import org.apache.daffodil.dsom.FacetTypes._
 
-  requiredEvaluationsAlways(if (hasPattern) patternValues)
-  requiredEvaluationsAlways(if (hasEnumeration) enumerationValues)
-  requiredEvaluationsAlways(if (hasMinLength) minLengthValue)
-  requiredEvaluationsAlways(if (hasMaxLength) maxLengthValue)
-  requiredEvaluationsAlways(if (hasMinInclusive) minInclusiveValue)
-  requiredEvaluationsAlways(if (hasMaxInclusive) maxInclusiveValue)
-  requiredEvaluationsAlways(if (hasMinExclusive) minExclusiveValue)
-  requiredEvaluationsAlways(if (hasMaxExclusive) maxExclusiveValue)
-  requiredEvaluationsAlways(if (hasTotalDigits) totalDigitsValue)
-  requiredEvaluationsAlways(if (hasFractionDigits) fractionDigitsValue)
-
   private def retrieveFacetValueFromRestrictionBase(xml: Node, facetName: Facet.Type): String = {
     val res = xml \\ "restriction" \ facetName.toString() \ "@value"
     if (res.length > 0) res.head.text else ""

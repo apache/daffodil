@@ -21,20 +21,22 @@ import scala.xml.Node
 import scala.xml.Utility
 import org.apache.daffodil.xml.XMLUtils
 
+object DFDLDefineFormat {
+  def apply(node: Node, sd: SchemaDocument) = {
+    val df = new DFDLDefineFormat(node, sd)
+    df.initialize()
+    df
+  }
+}
+
 final class DFDLDefineFormat(node: Node, sd: SchemaDocument)
   extends DFDLDefiningAnnotation(node, sd) // Note: DefineFormat is not a format annotation
   {
 
-  requiredEvaluationsAlways(formatAnnotation)
-
-  // baseFormat was removed from the DFDL spec. Just use a ref from the
-  // dfdl:format inside.
-  // lazy val baseFormat = getAttributeOption("baseFormat") // nor baseFormat
-
   lazy val formatAnnotation = LV('formatAnnotation) {
     XMLUtils.removeComments(Utility.trim(node)) match {
       case <defineFormat>{ f @ <format>{ _* }</format> }</defineFormat> =>
-        new DFDLFormat(f, sd)
+        DFDLFormat(f, sd)
       case _ =>
         schemaDefinitionError("dfdl:defineFormat does not contain a dfdl:format element.")
     }

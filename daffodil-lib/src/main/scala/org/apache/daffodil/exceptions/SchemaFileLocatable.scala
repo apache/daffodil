@@ -20,7 +20,6 @@ package org.apache.daffodil.exceptions
 import java.net.URLDecoder
 import org.apache.daffodil.api.LocationInSchemaFile
 import org.apache.daffodil.schema.annotation.props.LookupLocation
-import org.apache.daffodil.util.TransientParam
 
 trait HasSchemaFileLocation extends LookupLocation {
   override def schemaFileLocation: SchemaFileLocation
@@ -33,11 +32,24 @@ trait HasSchemaFileLocation extends LookupLocation {
   override def locationDescription: String = schemaFileLocation.locationDescription
 }
 
-class SchemaFileLocation(@TransientParam context: SchemaFileLocatable) extends LocationInSchemaFile with Serializable {
+object SchemaFileLocation {
+  def apply(context:SchemaFileLocatable) =
+    new SchemaFileLocation(
+      context.lineNumber,
+      context.columnNumber,
+      context.uriString,
+      context.toString,
+      context.diagnosticDebugName)
+}
 
-  val lineNumber = context.lineNumber
-  val columnNumber = context.columnNumber
-  val uriString: String = context.uriString
+class SchemaFileLocation private (
+  val lineNumber: Option[String],
+  val columnNumber: Option[String],
+  val uriString: String,
+  contextToString: String,
+  val diagnosticDebugName: String)
+  extends LocationInSchemaFile
+    with Serializable {
 
   override def lineDescription = lineNumber match {
     case Some(num) => " line " + num
@@ -49,9 +61,7 @@ class SchemaFileLocation(@TransientParam context: SchemaFileLocatable) extends L
     case None => ""
   }
 
-  override val toString = context.toString
-
-  val diagnosticDebugName: String = context.diagnosticDebugName
+  override val toString = contextToString
 
   override def fileDescription = " in " + URLDecoder.decode(uriString, "UTF-8")
 
@@ -128,6 +138,6 @@ trait SchemaFileLocatable extends LocationInSchemaFile
 
   }
 
-  override lazy val schemaFileLocation = new SchemaFileLocation(this)
+  override lazy val schemaFileLocation = SchemaFileLocation(this)
 }
 

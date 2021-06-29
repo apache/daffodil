@@ -43,8 +43,6 @@
         <xs:pattern value="[0-5]{3}" />
       </xs:restriction>
     </xs:simpleType>
-  </xs:element> 
- 
-  <xs:element name="vagueElem" type="xs:int"/>
-  
+  </xs:element>
+
 </xs:schema>

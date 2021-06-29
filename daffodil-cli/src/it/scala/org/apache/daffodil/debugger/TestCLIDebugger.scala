@@ -932,7 +932,7 @@ class TestCLIdebugger {
       shell.expect(contains("hidden: true"))
 
       shell.sendLine("continue")
-      shell.expect(contains("<f>2</f>"))
+      shell.expect(contains("<f xmlns=\"\">2</f>"))
       shell.sendLine("quit")
     } finally {
       shell.close()
@@ -972,7 +972,7 @@ class TestCLIdebugger {
       shell.expect(contains("hidden: false"))
 
       shell.sendLine("continue")
-      shell.expect(contains("<f>3</f>"))
+      shell.expect(contains("<f xmlns=\"\">3</f>"))
       shell.sendLine("quit")
     } finally {
       shell.close()

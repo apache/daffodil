@@ -20,20 +20,39 @@ package org.apache.daffodil.dsom
 import scala.xml.Node
 import scala.xml.NodeSeq.seqToNodeSeq
 import org.apache.daffodil.grammar.EmptyGram
-import org.apache.daffodil.processors._
 import org.apache.daffodil.xml.XMLUtils
-import org.apache.daffodil.xml.GlobalQName
 import org.apache.daffodil.xml.QName
 import org.apache.daffodil.dpath.NodeInfo.PrimType
-import org.apache.daffodil.util.Maybe
-import org.apache.daffodil.grammar.primitives.{ SetVariable, NewVariableInstanceStart, NewVariableInstanceEnd }
-import org.apache.daffodil.schema.annotation.props.Found
+import org.apache.daffodil.grammar.primitives.NewVariableInstanceEnd
+import org.apache.daffodil.grammar.primitives.NewVariableInstanceStart
+import org.apache.daffodil.grammar.primitives.SetVariable
+import org.apache.daffodil.runtime1.DFDLDefineVariableRuntime1Mixin
+import org.apache.daffodil.runtime1.DFDLNewVariableInstanceRuntime1Mixin
+import org.apache.daffodil.runtime1.DFDLSetVariableRuntime1Mixin
+import org.apache.daffodil.runtime1.VariableReferenceRuntime1Mixin
 import org.apache.daffodil.schema.annotation.props.gen.VariableDirection
+import org.apache.daffodil.xml.NS
 
-class DFDLDefineVariable(node: Node, doc: SchemaDocument)
-  extends DFDLDefiningAnnotation(node, doc) {
+object DFDLDefineVariable {
+  def apply(node: Node, doc: SchemaDocument) = {
+    val dv = new DFDLDefineVariable(node, doc)
+    dv.initialize()
+    dv
+  }
 
-  requiredEvaluationsAlways(variableRuntimeData.preSerialization)
+  def apply(node: Node, doc: SchemaDocument, nsURI: String) = {
+    val dv = new DFDLDefineVariable(node, doc) {
+      override lazy val namespace = NS(nsURI)
+      override lazy val targetNamespace = NS(nsURI)
+    }
+    dv.initialize()
+    dv
+  }
+}
+
+class DFDLDefineVariable private (node: Node, doc: SchemaDocument)
+  extends DFDLDefiningAnnotation(node, doc)
+  with DFDLDefineVariableRuntime1Mixin{
 
   final lazy val gram = EmptyGram // has to have because statements have parsers layed in by the grammar.
 
@@ -69,56 +88,34 @@ class DFDLDefineVariable(node: Node, doc: SchemaDocument)
     this.SDE("Variables must have primitive type. Type was '%s'.", typeQName.toPrettyString))
 
   final def createVariableInstance = variableRuntimeData.createVariableInstance
-
-  final override lazy val runtimeData = variableRuntimeData
-
-  lazy val maybeDefaultValueExpr = {
-    val compilationTargetType = primType
-    val qn = this.qNameForProperty("defaultValue", XMLUtils.dafintURI)
-    val defaultValExpr = defaultValue.map { e =>
-      ExpressionCompilers.AnyRef.compileProperty(qn, compilationTargetType, Found(e, this.dpathCompileInfo, "defaultValue", false), this, dpathCompileInfo)
-    }
-
-    Maybe.toMaybe(defaultValExpr)
-  }
-
-  final lazy val variableRuntimeData = {
-    val vrd = new VariableRuntimeData(
-      this.schemaFileLocation,
-      this.diagnosticDebugName,
-      this.path,
-      this.namespaces,
-      this.external,
-      this.direction,
-      maybeDefaultValueExpr,
-      this.typeQName,
-      this.namedQName.asInstanceOf[GlobalQName],
-      this.primType,
-      this.tunable.unqualifiedPathStepPolicy)
-    vrd
-  }
 }
 
-abstract class VariableReference(node: Node, decl: AnnotatedSchemaComponent)
-  extends DFDLStatement(node, decl) {
+sealed abstract class VariableReference(node: Node, decl: AnnotatedSchemaComponent)
+  extends DFDLStatement(node, decl)
+  with VariableReferenceRuntime1Mixin {
+
+  requiredEvaluationsIfActivated(varQName)
 
   final lazy val ref = getAttributeRequired("ref")
   final lazy val varQName = resolveQName(ref)
-
-  def variableRuntimeData = defv.runtimeData
 
   final lazy val defv = decl.schemaSet.getDefineVariable(varQName).getOrElse(
     this.schemaDefinitionError("Variable definition not found: %s", ref))
 }
 
 final class DFDLNewVariableInstance(node: Node, decl: AnnotatedSchemaComponent)
-  extends VariableReference(node, decl) // with NewVariableInstance_AnnotationMixin
-  {
-  // newVariableInstance only allowed within group ref, sequence, or choice
-  decl match {
-    case gr: GroupRef =>
-    case grl: GroupDefLike =>
-    case _ => decl.SDE("newVariableInstance may only be used on group reference, sequence or choice")
+  extends VariableReference(node, decl)
+    with DFDLNewVariableInstanceRuntime1Mixin  {
+
+  requiredEvaluationsIfActivated(checks)
+
+  private lazy val checks = {
+    // newVariableInstance only allowed within group ref, sequence, or choice
+    decl match {
+      case gr: GroupRef =>
+      case grl: GroupDefLike =>
+      case _ => decl.SDE("newVariableInstance may only be used on group reference, sequence or choice")
+    }
   }
 
   private lazy val attrValue = getAttributeOption("value")
@@ -144,37 +141,6 @@ final class DFDLNewVariableInstance(node: Node, decl: AnnotatedSchemaComponent)
     case (None, "") => decl.SDE("Must have either a value attribute or an element value: %s", node)
   }
 
-  lazy val maybeDefaultValueExpr = {
-    val compilationTargetType = defv.primType
-    val qn = this.qNameForProperty("defaultValue", XMLUtils.dafintURI)
-    val defaultValExpr = defaultValue.map { e =>
-      ExpressionCompilers.AnyRef.compileProperty(qn, compilationTargetType, Found(e, this.dpathCompileInfo, "defaultValue", false), this, dpathCompileInfo)
-    }
-
-    Maybe.toMaybe(defaultValExpr)
-  }
-
-  /* Need to override variableRuntimeData so that defaultValues
-   * are read from newVariableInstance instead of the original
-   * variable definition. Also allows diagnostic messages to
-   * point to this location instead of the original definition
-   */
-  final override lazy val variableRuntimeData = {
-    val vrd = new VariableRuntimeData(
-      this.schemaFileLocation,
-      this.diagnosticDebugName,
-      this.path,
-      this.namespaces,
-      defv.external,
-      defv.direction,
-      maybeDefaultValueExpr,
-      defv.typeQName,
-      defv.namedQName.asInstanceOf[GlobalQName],
-      defv.primType,
-      this.tunable.unqualifiedPathStepPolicy)
-    vrd
-  }
-
   final def gram(term: Term) = LV('gram) {
     NewVariableInstanceStart(decl, this)
   }.value
@@ -185,8 +151,8 @@ final class DFDLNewVariableInstance(node: Node, decl: AnnotatedSchemaComponent)
 }
 
 final class DFDLSetVariable(node: Node, decl: AnnotatedSchemaComponent)
-  extends VariableReference(node, decl) // with SetVariable_AnnotationMixin
-  {
+  extends VariableReference(node, decl)
+  with DFDLSetVariableRuntime1Mixin {
   private lazy val attrValue = getAttributeOption("value")
   private lazy val <dfdl:setVariable>{ eltChildren @ _* }</dfdl:setVariable> = node
   private lazy val eltValue = eltChildren.text.trim

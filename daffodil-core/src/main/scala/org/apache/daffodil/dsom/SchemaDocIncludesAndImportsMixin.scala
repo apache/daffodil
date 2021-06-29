@@ -59,7 +59,7 @@ trait SchemaDocIncludesAndImportsMixin { self: XMLSchemaDocument =>
    * namespace (if found) on the xs:schema of this schema document must match
    * that of the import statement. If a namespace is specified there.
    */
-  override def targetNamespace: NS = LV('targetNamespace) {
+  override lazy val targetNamespace: NS = LV('targetNamespace) {
     val checkedNS =
       ii.map {
         _ match {
@@ -117,7 +117,7 @@ trait SchemaDocIncludesAndImportsMixin { self: XMLSchemaDocument =>
     this.uriStringFromAttribute.getOrElse("file:unknown")
   }
 
-  def seenBefore: IIMap
+  protected def seenBefore: IIMap
 
   // val iiXML: Node = xml // override in SchemaSet
 
@@ -154,14 +154,14 @@ trait SchemaDocIncludesAndImportsMixin { self: XMLSchemaDocument =>
 
   def importStatementsMap = ismli_._1
   def localImports = ismli_._2
-  private def ismli_ = LV('importStatementsMap_localImports) {
+  private lazy val ismli_ = LV('importStatementsMap_localImports) {
     val res = getImportsOrIncludes(seenBefore, impNodes, new Import(_, _, _))
     res
   }.value
 
   def seenAfter = sali_._1
   def localIncludes = sali_._2
-  private def sali_ = LV('seenAfter_localIncludes) {
+  private lazy val sali_ = LV('seenAfter_localIncludes) {
     val res = getImportsOrIncludes(importStatementsMap, incNodes, new Include(_, _, _))
     res
   }.value

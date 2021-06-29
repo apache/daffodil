@@ -48,18 +48,19 @@ final class Prod(nameArg: String,
                  override val forWhat: ParserOrUnparser)
   extends NamedGram(sc) {
 
-  final override def deref = gram
+  final override lazy val deref = gram
 
-  final override def name = nameArg
+  final override lazy val name = nameArg
 
   override def toString() = "<" + name + ">" + gram.toString + "</" + name + ">"
 
   final override lazy val path = sc.path + "@@Prod(" + diagnosticDebugName + ")"
 
+  private lazy val g = gramArg // once only
+
   final override lazy val gram: Gram = {
     guard match {
       case true => {
-        val g = gramArg // exactly once.
         g match {
           case p: Prod => {
             p.gram // recursively force this
@@ -75,7 +76,7 @@ final class Prod(nameArg: String,
     }
   }
 
-  final override def isEmpty = if (!guard) true else gram.isEmpty
+  final override lazy val isEmpty = if (!guard) true else gram.isEmpty
 
   final override lazy val parser = {
     (forWhat, gram.forWhat) match {

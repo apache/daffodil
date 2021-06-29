@@ -41,7 +41,7 @@ class TestMiddleEndAttributes {
         </xs:complexType>
       </xs:element>)
 
-    val sset = new SchemaSet(testSchema)
+    val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd, _) = sch.schemaDocuments
 
@@ -67,7 +67,7 @@ class TestMiddleEndAttributes {
         </xs:complexType>
       </xs:element>)
 
-    val sset = new SchemaSet(testSchema)
+    val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd, _) = sch.schemaDocuments
 
@@ -96,7 +96,7 @@ class TestMiddleEndAttributes {
         </xs:complexType>
       </xs:element>)
 
-    val sset = new SchemaSet(testSchema)
+    val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd, _) = sch.schemaDocuments
 
@@ -128,7 +128,7 @@ class TestMiddleEndAttributes {
         </xs:complexType>
       </xs:element>)
 
-    val sset = new SchemaSet(testSchema)
+    val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd, _) = sch.schemaDocuments
 
@@ -139,11 +139,11 @@ class TestMiddleEndAttributes {
     val Seq(seqMem) = seq.groupMembers
     val cho = seqMem.asInstanceOf[Choice]
     val Seq(s1, s2) = cho.groupMembers
-    val es = s1.optLexicalParent.get.optLexicalParent.get.asInstanceOf[Sequence]
+    val es = s1.optLexicalParent.get.optLexicalParent.get.asInstanceOf[LocalSequence]
     assertTrue(es.hasInfixSep)
     assertEquals(1, s1.position)
     assertTrue(s1.isScalar)
-    val es2 = s2.optLexicalParent.get.optLexicalParent.get.asInstanceOf[Sequence]
+    val es2 = s2.optLexicalParent.get.optLexicalParent.get.asInstanceOf[LocalSequence]
     assertEquals(es, es2)
     assertEquals(2, s2.position)
     assertTrue(s2.isScalar)
@@ -164,7 +164,7 @@ class TestMiddleEndAttributes {
         </xs:complexType>
       </xs:element>)
 
-    val sset = new SchemaSet(testSchema)
+    val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd, _) = sch.schemaDocuments
 
@@ -175,7 +175,7 @@ class TestMiddleEndAttributes {
     val mems = seq.groupMembers
     val Seq(t1: Term) = mems
     val e1ref = t1.asInstanceOf[ElementRef]
-    val Some(nes: Sequence) = e1ref.optLexicalParent
+    val Some(nes: LocalSequence) = e1ref.optLexicalParent
     assertEquals(seq, nes)
   }
 
@@ -205,7 +205,7 @@ class TestMiddleEndAttributes {
         </xs:complexType>
       </xs:element>)
 
-    val sset = new SchemaSet(testSchema)
+    val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd, _) = sch.schemaDocuments
 

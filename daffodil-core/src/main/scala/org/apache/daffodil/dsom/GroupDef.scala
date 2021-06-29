@@ -30,9 +30,9 @@ object GlobalGroupDef {
       case <group>{ contents @ _* }</group> => {
         val list = contents.collect {
           case groupXML @ <sequence>{ _* }</sequence> =>
-            new GlobalSequenceGroupDef(defXML, groupXML, schemaDocument)
+            GlobalSequenceGroupDef(defXML, groupXML, schemaDocument)
           case groupXML @ <choice>{ _* }</choice> =>
-            new GlobalChoiceGroupDef(defXML, groupXML, schemaDocument)
+            GlobalChoiceGroupDef(defXML, groupXML, schemaDocument)
         }
         val res = list(0)
         res
@@ -67,6 +67,11 @@ trait GroupDefLike
 
   /** Returns the group members that are elements or model groups. */
   protected lazy val groupMembersDef: Seq[Term] = LV('groupMembers) {
+    computeGroupMembers()
+  }.value
+
+  // override in Choice
+  protected def computeGroupMembers(): Seq[Term] = {
     val positions = List.range(1, goodXmlChildren.length + 1) // range is exclusive on 2nd arg. So +1.
     val pairs = goodXmlChildren zip positions
     val members = pairs.map {
@@ -75,7 +80,7 @@ trait GroupDefLike
         t
     }
     members
-  }.value
+  }
 
   /**
    * XML is full of uninteresting text nodes. We just want the element children, not all children.
@@ -126,24 +131,40 @@ sealed abstract class GlobalGroupDef(
   final override lazy val name = defXML.attribute("name").map { _.text }.getOrElse(
     Assert.invariantFailed("Global group def without name attribute."))
 
-  final override protected def optReferredToComponent = None
+  override def optReferredToComponent = None
 }
 
-final class GlobalSequenceGroupDef(
+object GlobalSequenceGroupDef {
+  def apply(defXMLArg: Node, seqXML: Node, schemaDocument: SchemaDocument) = {
+    val gsgd = new GlobalSequenceGroupDef(defXMLArg, seqXML, schemaDocument)
+    gsgd.initialize()
+    gsgd
+  }
+}
+
+final class GlobalSequenceGroupDef private (
   defXMLArg: Node, seqXML: Node, schemaDocument: SchemaDocument)
   extends GlobalGroupDef(defXMLArg, seqXML, schemaDocument)
   with SequenceDefMixin {
 
   requiredEvaluationsIfActivated(checkGroupDefIsNotHiddenSequence)
 
-  private def checkGroupDefIsNotHiddenSequence: Unit = {
+  private lazy val checkGroupDefIsNotHiddenSequence: Unit = {
     if (hiddenGroupRefOption.isDefined) {
       SDE("the model group of a group definition cannot be a sequence with dfdl:hiddenGroupRef")
     }
   }
 }
 
-final class GlobalChoiceGroupDef(
+
+object GlobalChoiceGroupDef {
+  def apply(defXMLArg: Node, xml: Node, schemaDocument: SchemaDocument) = {
+    val gsgd = new GlobalChoiceGroupDef(defXMLArg, xml, schemaDocument)
+    gsgd.initialize()
+    gsgd
+  }
+}
+final class GlobalChoiceGroupDef private (
   defXMLArg: Node, choiceXML: Node, schemaDocument: SchemaDocument)
   extends GlobalGroupDef(defXMLArg, choiceXML, schemaDocument)
   with ChoiceDefMixin

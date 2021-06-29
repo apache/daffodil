@@ -19,13 +19,11 @@ package org.apache.daffodil.dsom
 
 import scala.xml.Elem
 import scala.xml.Node
-import scala.xml._
 import org.apache.daffodil.schema.annotation.props.gen.Sequence_AnnotationMixin
 import org.apache.daffodil.schema.annotation.props.SeparatorSuppressionPolicyMixin
 import org.apache.daffodil.xml.XMLUtils
 import org.apache.daffodil.schema.annotation.props.gen.OccursCountKind
 import org.apache.daffodil.schema.annotation.props.gen.SequenceKind
-import org.apache.daffodil.Implicits.ns2String
 import org.apache.daffodil.api.WarnID
 import org.apache.daffodil.dsom.walker.SequenceView
 import org.apache.daffodil.grammar.SequenceGrammarMixin
@@ -91,9 +89,7 @@ abstract class SequenceGroupTermBase(
   with SeparatorSuppressionPolicyMixin
   with LayeringRuntimeValuedPropertiesMixin {
 
-
   requiredEvaluationsIfActivated(checkIfValidUnorderedSequence)
-
   requiredEvaluationsIfActivated(checkIfNonEmptyAndDiscrimsOrAsserts)
 
   protected def apparentXMLChildren: Seq[Node]
@@ -278,7 +274,7 @@ trait SequenceDefMixin
     }
   }
 
-  protected final def emptyFormatFactory = new DFDLSequence(newDFDLAnnotationXML("sequence"), this)
+  protected def emptyFormatFactory = new DFDLSequence(newDFDLAnnotationXML("sequence"), this)
 
   final lazy val <sequence>{ apparentXMLChildren @ _* }</sequence> = (xml \\ "sequence")(0)
 
@@ -292,17 +288,6 @@ trait SequenceDefMixin
     findPropertyOption("hiddenGroupRef")
   }.value
 
-}
-
-/**
- * Represents a local sequence definition.
- */
-final class Sequence(xmlArg: Node, lexicalParent: SchemaComponent, position: Int)
-  extends SequenceGroupTermBase(xmlArg, lexicalParent, position)
-  with SequenceDefMixin
-  with SequenceView {
-
-  requiredEvaluationsIfActivated(checkHiddenGroupRefHasNoChildren)
 
   override lazy val optReferredToComponent = None
 
@@ -323,8 +308,31 @@ final class Sequence(xmlArg: Node, lexicalParent: SchemaComponent, position: Int
     }
     hgr
   }.value
+
 }
 
+object LocalSequence {
+  def apply(xmlArg: Node, lexicalParent: SchemaComponent, position: Int) = {
+    val ls = new LocalSequence(xmlArg, lexicalParent, position)
+    ls.initialize()
+    ls
+  }
+}
+/**
+ * Represents a local sequence definition.
+ */
+final class LocalSequence private (xmlArg: Node, lexicalParent: SchemaComponent, position: Int)
+  extends SequenceGroupTermBase(xmlArg, lexicalParent, position)
+  with SequenceDefMixin
+  with SequenceView
+
+object ChoiceBranchImpliedSequence {
+  def apply(rawGM: Term) = {
+    val cbis = new ChoiceBranchImpliedSequence(rawGM)
+    cbis.initialize()
+    cbis
+  }
+}
 /**
  * For the case when a choice branch happens to be a local element decl or element ref
  * with varying or multiple occurrences. In that case we encapsulate them
@@ -335,7 +343,7 @@ final class Sequence(xmlArg: Node, lexicalParent: SchemaComponent, position: Int
  * sequence machinery. In effect this is specifying the properties needed to ensure it is
  * handled as a degenerate sequence having only one element decl within it.
  */
-final class ChoiceBranchImpliedSequence(rawGM: Term)
+final class ChoiceBranchImpliedSequence private (rawGM: Term)
   extends SequenceTermBase(rawGM.xml, rawGM.optLexicalParent, rawGM.position)
   with SequenceDefMixin
   with ChoiceBranchImpliedSequenceRuntime1Mixin {
@@ -371,9 +379,6 @@ final class ChoiceBranchImpliedSequence(rawGM: Term)
    * Implied sequence doesn't exist textually, so can't have properties on it.
    */
   override lazy val nonDefaultPropertySources: Seq[ChainPropProvider] = Seq()
-
-  // Members declared in AnnotatedSchemaComponent
-  protected def optReferredToComponent: Option[AnnotatedSchemaComponent] = None
 
   final override def xmlChildren: Seq[scala.xml.Node] = Seq(xml)
 

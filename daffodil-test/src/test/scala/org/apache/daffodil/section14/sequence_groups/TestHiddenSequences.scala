@@ -25,7 +25,10 @@ object TestHiddenSequences {
 
   val testDir = "/org/apache/daffodil/section14/sequence_groups/"
 
-  val runner = Runner(testDir, "HiddenSequences.tdml", validateTDMLFile = true)
+  val runner = Runner(testDir, "HiddenSequences.tdml")
+  val runnerNoValidate = Runner(testDir, "HiddenSequences.tdml",
+    validateDFDLSchemas = false,
+    )
 
   @AfterClass def shutDown: Unit = {
     runner.reset
@@ -54,5 +57,5 @@ class TestHiddenSequences {
   @Test def test_noOVCinHiddenContext(): Unit = { runner.runOneTest("noOVCinHiddenContext") }
   @Test def test_nestedNoOVCinHiddenContext(): Unit = { runner.runOneTest("nestedNoOVCinHiddenContext") }
 
-  @Test def test_invalidGroupDefWithHiddenSequenceModelGroup(): Unit = { runner.runOneTest("invalidGroupDefWithHiddenSequenceModelGroup") }
+  @Test def test_invalidGroupDefWithHiddenSequenceModelGroup(): Unit = { runnerNoValidate.runOneTest("invalidGroupDefWithHiddenSequenceModelGroup") }
 }

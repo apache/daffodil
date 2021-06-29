@@ -45,7 +45,7 @@ trait NestingLexicalMixin { self: SchemaComponent =>
    * The enclosing components are identified by the object, and the position of this
    * object within that enclosing component by index.
    */
-  final protected lazy val enclosingComponents: Seq[EnclosingComponentDef] = {
+  final lazy val enclosingComponents: Seq[EnclosingComponentDef] = { // Public for tests
     //
     // enclosing components is not defined for some top-level schema component objects
     //
@@ -137,6 +137,6 @@ trait NestingLexicalMixin { self: SchemaComponent =>
             } // end match
           components
       }
-    result
+    result.distinct
   }
 }

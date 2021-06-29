@@ -17,33 +17,34 @@
 
 package org.apache.daffodil.dsom
 
-import scala.collection.mutable
 import scala.xml.Node
 import scala.xml.UnprefixedAttribute
-
 import org.apache.daffodil.dsom.walker.RootView
 import org.apache.daffodil.grammar.RootGrammarMixin
 import org.apache.daffodil.xml.NamedQName
 import org.apache.daffodil.xml.XMLUtils
 
+object Root {
+  def apply(defXML: Node,
+    parentArg: SchemaDocument,
+    namedQNameArg: NamedQName,
+    globalElementDecl: GlobalElementDecl) = {
+    val r = new Root(defXML, parentArg, namedQNameArg, globalElementDecl)
+    r.initialize()
+    r
+  }
+}
 /**
  * Root is a special kind of ElementRef that has no enclosing group.
  *
  * This is the entity that is compiled by the schema compiler.
  */
-final class Root(defXML: Node, parentArg: SchemaDocument,
+final class Root private (defXML: Node, parentArg: SchemaDocument,
   namedQNameArg: NamedQName,
   globalElementDecl: GlobalElementDecl)
   extends AbstractElementRef(null, parentArg, 1)
   with RootGrammarMixin
   with RootView {
-
-  requiredEvaluationsAlways({
-    val ac = allComponents
-    ac.foreach {
-      _.setRequiredEvaluationsActive()
-    }
-  })
 
   final override lazy val xml = {
     val elem = XMLUtils.getXSDElement(defXML.scope)
@@ -98,60 +99,17 @@ final class Root(defXML: Node, parentArg: SchemaDocument,
     }.toMap
   }
 
-  private lazy val allComponentsSet = new mutable.HashSet[SchemaComponent]
-
-  private def allSchemaComponents(component: SchemaComponent, optIndex: Option[Int]): Unit = {
-    if (allComponentsSet.contains(component)) {
-      // ok
-    } else {
-      allComponentsSet.add(component)
-      component match {
-        case aer: AbstractElementRef => {
-          val edecl = aer.referencedElement
-          allSchemaComponents(edecl, None)
-          if (!aer.isRepresented) {
-            // ok // could be inputValueCalc with typeCalc expression referring to a type.
-            // TODO: We're not finding those relationships. But typeCalc is in flux. Not sure we want to fix it.
-          }
-          if (aer.outputValueCalcOption.isDefined) {
-            // ok // could be outputValueCalc option with typeCalc expression referring to a type.
-            // TODO: We're not finding those relationships. But typeCalc is in flux. Not sure we want to fix it.
-          }
-        }
-        case edecl: ElementDeclMixin => edecl.typeDef match {
-          case std: SimpleTypeDefBase => {
-            allSchemaComponents(std, None)
-            std.bases.foreach { allSchemaComponents(_, None) }
-            std.optRepTypeDef.foreach { allSchemaComponents(_, None) }
-          }
-          case ctd: ComplexTypeBase => allSchemaComponents(ctd, None)
-          case pt: PrimitiveType => {
-            // An element decl with primitive type can still reference a simple type by way
-            // of dfdl:inputValueCalc that calls dfdlx:inputTypeCalc('QNameOfType', ....)
-            //
-            // TBD: ok for now, but needs addressing.
-          }
-        }
-        case gr: GroupRef => allSchemaComponents(gr.groupDef, None)
-        case ct: ComplexTypeBase => allSchemaComponents(ct.modelGroup, None)
-        case mg: ModelGroup => mg.groupMembers.foreach { gm =>
-          allSchemaComponents(gm, Some(gm.position))
-        }
-        case gstd: GlobalSimpleTypeDef => gstd.bases.foreach { allSchemaComponents(_, None) }
-        case gd: GlobalGroupDef => gd.groupMembers.foreach { gm =>
-          allSchemaComponents(gm, Some(gm.position))
-        }
-        case std: SimpleTypeDefBase => {
-          std.bases.foreach { allSchemaComponents(_, None) }
-        }
-      }
-    }
-  }
-
-  final lazy val allComponents = {
-    allSchemaComponents(this, None)
-    allComponentsSet.toSeq
-  }
+  /*
+   * Important: the back-pointers allowing a shared object to know what is
+   * referencing it, those are constructed from this allComponents list.
+   * This implies that no reference to those things can occur in any
+   * computation needed to construct the allComponents list.
+   *
+   * So anything using the back-pointers (eg., enclosingComponents member)
+   * or anything derived from that, is effectively in a second pass that has to
+   * happen AFTER allComponents is computed.
+   */
+  def allComponents = schemaSet.allSchemaComponents
 
   final lazy val numComponents =
     allComponents.length

@@ -35,14 +35,12 @@ sealed abstract class ComplexTypeBase(xmlArg: Node, parentArg: SchemaComponent)
   final override def optUnion = None
   final override def typeNode = NodeInfo.Complex
 
-  requiredEvaluationsIfActivated(modelGroup)
-
   override final def group = modelGroup
 
   /**
    * Convenience methods for unit testing. Just makes tests a bit more compact and clearer.
    */
-  final def sequence = group.asInstanceOf[Sequence]
+  final def sequence = group.asInstanceOf[LocalSequence]
   final def choice = group.asInstanceOf[Choice]
 
   private lazy val <complexType>{ xmlChildren @ _* }</complexType> = xml
@@ -86,7 +84,15 @@ sealed abstract class ComplexTypeBase(xmlArg: Node, parentArg: SchemaComponent)
   }
 }
 
-final class GlobalComplexTypeDef(
+object GlobalComplexTypeDef {
+  def apply(xmlArg: Node, schemaDocumentArg: SchemaDocument) = {
+    val gctd = new GlobalComplexTypeDef(xmlArg, schemaDocumentArg)
+    gctd.initialize()
+    gctd
+  }
+}
+
+final class GlobalComplexTypeDef private (
   xmlArg: Node,
   schemaDocumentArg: SchemaDocument)
   extends ComplexTypeBase(xmlArg, schemaDocumentArg)

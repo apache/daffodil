@@ -73,8 +73,6 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
   extends DFDLAnnotation(nodeArg, annotatedSCArg)
   with LeafPropProvider {
 
-  requiredEvaluationsAlways(hasConflictingPropertyError)
-
   //
   // prefix of a QName as the value of this ref, must be referring
   // to a namespace binding that is in force right here on this object

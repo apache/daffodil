@@ -21,7 +21,7 @@ import org.apache.daffodil.dsom.Choice
 import org.apache.daffodil.dsom.ChoiceGroupRef
 import org.apache.daffodil.dsom.ElementRef
 import org.apache.daffodil.dsom.LocalElementDecl
-import org.apache.daffodil.dsom.Sequence
+import org.apache.daffodil.dsom.LocalSequence
 import org.apache.daffodil.dsom.SequenceGroupRef
 import org.apache.daffodil.dsom.Term
 import org.junit.Test
@@ -35,7 +35,7 @@ class TestStreamingUnparserCompilerAttributes {
   type LE = LocalElementDecl
   type SGR = SequenceGroupRef
   type CGR = ChoiceGroupRef
-  type S = Sequence
+  type S = LocalSequence
   type C = Choice
   type ER = ElementRef
 

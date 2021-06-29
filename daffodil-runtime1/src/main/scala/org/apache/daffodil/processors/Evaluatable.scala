@@ -181,6 +181,7 @@ abstract class Evaluatable[+T <: AnyRef](protected val ci: DPathCompileInfo, qNa
   @inline final def isCompiled = isCompiled_
 
   @inline final def ensureCompiled: Unit = {
+    ci.initialize
     if (!isCompiled)
       Assert.invariantFailed("not compiled Ev: " + this.qName)
   }

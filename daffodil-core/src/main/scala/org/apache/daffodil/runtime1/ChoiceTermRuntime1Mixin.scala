@@ -17,7 +17,10 @@
 
 package org.apache.daffodil.runtime1
 
-import org.apache.daffodil.dsom.{ChoiceTermBase, ExpressionCompilers, SequenceTermBase, Term}
+import org.apache.daffodil.dsom.ChoiceTermBase
+import org.apache.daffodil.dsom.ExpressionCompilers
+import org.apache.daffodil.dsom.SequenceTermBase
+import org.apache.daffodil.dsom.Term
 import org.apache.daffodil.infoset.ChoiceBranchStartEvent
 import org.apache.daffodil.processors.ChoiceRuntimeData
 import org.apache.daffodil.infoset.ChoiceBranchEvent
@@ -26,11 +29,13 @@ import org.apache.daffodil.infoset.ChoiceBranchEndEvent
 import org.apache.daffodil.api.WarnID
 import org.apache.daffodil.processors.ChoiceDispatchKeyEv
 import org.apache.daffodil.dpath.NodeInfo
-import org.apache.daffodil.grammar.Gram
 import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.grammar.Gram
+import org.apache.daffodil.util.Delay
 
 trait ChoiceTermRuntime1Mixin { self: ChoiceTermBase =>
+
+  requiredEvaluationsIfActivated(optRepTypeElement.map{ _.elementRuntimeData.initialize })
 
   /**
    * The members of the choice group with special treatment given to some kinds of members.
@@ -175,10 +180,13 @@ trait ChoiceTermRuntime1Mixin { self: ChoiceTermBase =>
 
   final lazy val modelGroupRuntimeData = choiceRuntimeData
 
+
+
+
   final lazy val choiceRuntimeData = {
     new ChoiceRuntimeData(
       position,
-      partialNextElementResolver,
+      Delay('ChoicePartialNextElementResolver, this, partialNextElementResolver),
       schemaSet.variableMap,
       encodingInfo,
       // elementChildren.map { _.elementRuntimeData.dpathElementCompileInfo },

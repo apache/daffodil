@@ -66,10 +66,10 @@ package org.apache.daffodil
  * graph has been created, in order to compile it into the runtime data structures.
  *
  * There are a few exceptions to the above. The dfdl:hiddenGroupRef attribute is one such. It
- * must be local to the [[Sequence]] object, and has implications for the parsing
+ * must be local to the [[LocalSequence]] object, and has implications for the parsing
  * of the XML as it implies there should be no children of that xs:sequence.
  * Since it is not scoped, the DSOM graph is not needed in order to access it.
- * Only the local [[Sequence]] object and it's [[DFDLSequence]] annotation object.
+ * Only the local [[LocalSequence]] object and it's [[DFDLSequence]] annotation object.
  * The [[AnnotatedSchemaComponent]] trait provides methods for this local-only
  * property lookup.
  *

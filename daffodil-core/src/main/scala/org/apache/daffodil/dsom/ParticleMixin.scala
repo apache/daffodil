@@ -214,7 +214,7 @@ trait ParticleMixin extends RequiredOptionalMixin { self: ElementBase =>
    *
    * This excludes elements that have no representation e.g., elements with dfdl:inputValueCalc.
    */
-  final def hasStaticallyRequiredOccurrencesInDataRepresentation = LV('hasStaticallyRequiredOccurrencesInDataRepresentation) {
+  final lazy val hasStaticallyRequiredOccurrencesInDataRepresentation = LV('hasStaticallyRequiredOccurrencesInDataRepresentation) {
     val res =
       if (!isRepresented) false // if there's no rep, then it's not statically required.
       else if (isScalar) true

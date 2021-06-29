@@ -97,7 +97,7 @@ final class ProcessorFactory private(
 
   lazy val sset: SchemaSet =
     optSchemaSet.getOrElse(
-      new SchemaSet(optRootSpec, schemaSource, validateDFDLSchemas, checkAllTopLevel, tunables,
+      SchemaSet(optRootSpec, schemaSource, validateDFDLSchemas, checkAllTopLevel, tunables,
         compilerExternalVarSettings))
 
   lazy val rootView: RootView = sset.root
@@ -107,7 +107,7 @@ final class ProcessorFactory private(
   def diagnostics = sset.diagnostics
   def getDiagnostics = diagnostics
 
-  override def onPath(xpath: String) = sset.onPath(xpath)
+  override def onPath(xpath: String): DFDL.DataProcessor = sset.onPath(xpath)
 
   override def forLanguage(language: String): DFDL.CodeGenerator = {
     Assert.usage(!isError)
@@ -156,13 +156,32 @@ class Compiler private (var validateDFDLSchemas: Boolean,
    * This argument can be removed once this deprecated feature is removed.
    */
   private var externalDFDLVariables: Queue[Binding],
+
+  /**
+   * checkAllTopLevel should normally be true. There are some schemas where
+   * it must be false. Those are schemas where there are top-level elements that
+   * are unused (when certain roots are selected) which have "up and out" relative paths.
+   *
+   * That sort of element isn't ever intended to be a root, it's intended to be
+   * used by way of an element reference within a context that makes the relative path
+   * meaningful.
+   *
+   * Compiling a schema with that sort of element in it and compileAllTopLevel true
+   * causes an SDE about "relative path past root".
+   */
   private var checkAllTopLevel : Boolean,
   private var optRootName: Option[String],
   private var optRootNamespace: Option[String])
   extends DFDL.Compiler
   with Logging {
 
-  private def this(validateDFDLSchemas: Boolean = true) = this(validateDFDLSchemas, DaffodilTunables(), Queue.empty, true, None, None)
+  private def this(validateDFDLSchemas: Boolean = true) =
+    this(validateDFDLSchemas,
+      tunables = DaffodilTunables(),
+      externalDFDLVariables = Queue.empty,
+      checkAllTopLevel = true,
+      optRootName = None,
+      optRootNamespace = None)
 
   private def copy(validateDFDLSchemas: Boolean = validateDFDLSchemas,
     tunables : DaffodilTunables = tunables,

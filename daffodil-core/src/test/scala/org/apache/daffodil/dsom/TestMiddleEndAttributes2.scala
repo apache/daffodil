@@ -40,7 +40,7 @@ class TestMiddleEndAttributes2 {
         </xs:complexType>
       </xs:element>)
 
-    val sset = new SchemaSet(testSchema)
+    val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd, _) = sch.schemaDocuments
 
@@ -50,7 +50,7 @@ class TestMiddleEndAttributes2 {
     val seq1 = e1ct.sequence
     val mems = seq1.groupMembers
     val Seq(t1: Term) = mems
-    t1.asInstanceOf[Sequence]
+    t1.asInstanceOf[LocalSequence]
     val (_, actual) = TestUtils.testString(testSchema, "/5")
     val expected = <e1><x>5</x></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)

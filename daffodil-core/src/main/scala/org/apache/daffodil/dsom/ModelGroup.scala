@@ -19,11 +19,10 @@ package org.apache.daffodil.dsom
 
 import scala.xml.Node
 import scala.xml.NodeSeq.seqToNodeSeq
-import scala.xml._
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.grammar.ModelGroupGrammarMixin
-import java.lang.{ Integer => JInt }
 
+import java.lang.{ Integer => JInt }
 import org.apache.daffodil.dsom.walker.ModelGroupView
 import org.apache.daffodil.schema.annotation.props.AlignmentType
 import org.apache.daffodil.schema.annotation.props.gen.AlignmentUnits
@@ -62,7 +61,9 @@ object ModelGroupFactory {
     nodesAlreadyTrying: Set[Node]): ModelGroup = {
     val childModelGroup: ModelGroup = child match {
       case <sequence>{ _* }</sequence> => {
-        val seq = new Sequence(child, lexicalParent, position) // throwaway just so we can grab local properties to check for hidden
+        // throwaway just so we can grab local properties to check for hidden, without
+        // special-case code
+        val seq = LocalSequence(child, lexicalParent, position)
         if (seq.hiddenGroupRefOption.isDefined) {
           // explicit check here, because we're about to discard this, and construct
           // a SequenceGroupRef or ChoiceGroupRef, with isHidden = true. So this
@@ -73,12 +74,12 @@ object ModelGroupFactory {
           // but set flag so it will be hidden.
           //
           val hgrXML = seq.hiddenGroupRefXML
-          ModelGroupFactory(hgrXML, lexicalParent, position, true, nodesAlreadyTrying)
+          ModelGroupFactory(hgrXML, lexicalParent, position, isHidden = true, nodesAlreadyTrying)
         } else {
-          seq
+          LocalSequence(child, lexicalParent, position)
         }
       }
-      case <choice>{ _* }</choice> => new Choice(child, lexicalParent, position)
+      case <choice>{ _* }</choice> => Choice(child, lexicalParent, position)
       case <group>{ _* }</group> => {
         val pos: Int = lexicalParent match {
           case ct: ComplexTypeBase => 1
@@ -115,10 +116,10 @@ object TermFactory {
         // be tripped up by dfdl:ref="fmt:fooey" which is a format reference.
         refProp match {
           case None => {
-            val eDecl = new LocalElementDecl(child, lexicalParent, position)
+            val eDecl = LocalElementDecl(child, lexicalParent, position)
             eDecl
           }
-          case Some(_) => new ElementRef(child, lexicalParent, position)
+          case Some(_) => ElementRef(child, lexicalParent, position)
         }
       }
       case _ => ModelGroupFactory(child, lexicalParent, position, false, nodesAlreadyTrying)
@@ -133,14 +134,18 @@ object TermFactory {
  * There are ultimately 4 concrete classes that implement this:
  * Sequence, Choice, SequenceGroupRef, and ChoiceGroupRef
  */
-abstract class ModelGroup(index: Int)
+abstract class ModelGroup protected (index: Int)
   extends Term
   with ModelGroupGrammarMixin
   with OverlapCheckMixin
   with NestingLexicalMixin
   with ModelGroupView {
 
-  requiredEvaluationsIfActivated(groupMembers)
+  protected override def initialize(): Unit = {
+    super.initialize()
+    xmlChildren
+  }
+
   requiredEvaluationsIfActivated(initiatedContentCheck)
 
   /**
@@ -203,7 +208,7 @@ abstract class ModelGroup(index: Int)
 
   private def prettyIndex = "[" + index + "]" // 1-based indexing in XML/XSD
 
-  override lazy val diagnosticDebugName = prettyBaseName + prettyIndex
+  override protected lazy val diagnosticDebugNameImpl = prettyBaseName + prettyIndex
 
   override lazy val alignmentValueInBits: JInt = {
     this.alignment match {
@@ -331,7 +336,7 @@ abstract class ModelGroup(index: Int)
    * any unparse events. This is used to determine next children/sibling
    * elements used during unparsing.
    */
-  final def mustHaveRequiredElement: Boolean = LV('mustHaveRequiredElement) {
+  final lazy val mustHaveRequiredElement: Boolean = LV('mustHaveRequiredElement) {
     this match {
       case gr: GroupRef if gr.isHidden => false
       case s: SequenceTermBase if s.isOrdered =>
@@ -349,13 +354,15 @@ abstract class ModelGroup(index: Int)
 
   lazy val initiatedContentCheck: Unit = {
     if (initiatedContent eq YesNo.Yes) {
-      groupMembers.foreach {
-        term => {
-          term.schemaDefinitionUnless(term.hasInitiator,
-            "Enclosing group has initiatedContent='yes', but initiator is not defined.")
-          term.schemaDefinitionUnless(term.hasNonZeroLengthInitiator,
-            "Enclosing group has initiatedContent='yes', but initiator can match zero-length data.")
+      groupMembers.foreach { memberTerm =>
+        val term = memberTerm match {
+          case impliedSequence: ChoiceBranchImpliedSequence => impliedSequence.groupMembers(0)
+          case regular => regular
         }
+        term.schemaDefinitionUnless(term.hasInitiator,
+          "Enclosing group has initiatedContent='yes', but initiator is not defined.")
+        term.schemaDefinitionUnless(term.hasNonZeroLengthInitiator,
+          "Enclosing group has initiatedContent='yes', but initiator can match zero-length data.")
       }
     }
   }

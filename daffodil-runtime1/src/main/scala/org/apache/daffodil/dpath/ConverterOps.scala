@@ -275,8 +275,8 @@ case object FNToBoolean extends Converter {
       case l: JLong => if (l == 0) false else true
       case bi: JBigInt => if (bi.compareTo(JBigInt.ZERO) == 0) false else true
       // TODO: Once sequences are supported, fill in these case statements
-      //case s: Sequence if s.length == 0 => false
-      //case s: Sequence if s(0) == Node => true
+      //case s: LocalSequence if s.length == 0 => false
+      //case s: LocalSequence if s(0) == Node => true
       case _ => throw new NumberFormatException("Invalid argument type.")
     }
     res

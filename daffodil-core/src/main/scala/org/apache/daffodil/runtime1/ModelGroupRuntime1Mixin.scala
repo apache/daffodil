@@ -26,6 +26,8 @@ import org.apache.daffodil.dsom.ElementBase
 
 trait ModelGroupRuntime1Mixin { self: ModelGroup =>
 
+  requiredEvaluationsIfActivated(modelGroupRuntimeData.initialize)
+
   final override lazy val runtimeData: RuntimeData = modelGroupRuntimeData
 
   final override lazy val termRuntimeData: TermRuntimeData = modelGroupRuntimeData

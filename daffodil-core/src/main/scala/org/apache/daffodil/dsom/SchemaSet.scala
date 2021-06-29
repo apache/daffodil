@@ -27,8 +27,8 @@ import org.apache.daffodil.xml.NS
 import org.apache.daffodil.oolag.OOLAG
 import org.apache.daffodil.exceptions.ThrowsSDE
 import org.apache.daffodil.dpath.NodeInfo
-import java.io.File
 
+import java.io.File
 import org.apache.daffodil.xml.DFDLCatalogResolver
 import org.apache.daffodil.api.DaffodilSchemaSource
 import org.apache.daffodil.api.UnitTestSchemaSource
@@ -38,9 +38,38 @@ import org.apache.daffodil.externalvars.Binding
 import org.apache.daffodil.processors.TypeCalculatorCompiler.TypeCalcMap
 import org.apache.daffodil.grammar.Gram
 import org.apache.daffodil.grammar.SchemaSetGrammarMixin
+import org.apache.daffodil.util.TransitiveClosure
 
 import scala.collection.immutable.Queue
 
+object SchemaSet {
+  def apply(
+    optPFRootSpec: Option[RootSpec],
+  schemaSource: DaffodilSchemaSource,
+  shouldValidateDFDLSchemas: Boolean,
+  checkAllTopLevel: Boolean,
+  tunables: DaffodilTunables,
+  compilerExternalVarSettings: Queue[Binding]) = {
+    val ss = new SchemaSet(optPFRootSpec,
+      schemaSource,
+      shouldValidateDFDLSchemas,
+      checkAllTopLevel,
+      tunables,
+      compilerExternalVarSettings)
+    ss.initialize()
+    ss
+  }
+
+  def apply(sch: Node,
+    rootNamespace: String = null,
+    root: String = null,
+    optTmpDir: Option[File] = None,
+    tunableOpt: Option[DaffodilTunables] = None) = {
+    val ss = new SchemaSet(sch, rootNamespace, root, optTmpDir, tunableOpt)
+    ss.initialize()
+    ss
+  }
+}
 /**
  * A schema set is exactly that, a set of schemas. Each schema has
  * a target namespace (or 'no namespace'), so a schema set is
@@ -62,16 +91,20 @@ import scala.collection.immutable.Queue
  * schema components obviously it does not live within a schema document.
  */
 
-final class SchemaSet(
+final class SchemaSet private (
   optPFRootSpec: Option[RootSpec],
   val schemaSource: DaffodilSchemaSource,
-  val validateDFDLSchemas: Boolean,
+  val shouldValidateDFDLSchemas: Boolean,
   val checkAllTopLevel: Boolean,
   val tunables: DaffodilTunables,
   protected val compilerExternalVarSettings: Queue[Binding])
   extends SchemaComponentImpl(<schemaSet/>, None)
   with SchemaSetIncludesAndImportsMixin
   with SchemaSetGrammarMixin {
+
+  override protected def initialize(): Unit = {
+    // no normal schema component initialization for SchemaSet
+  }
 
   /**
    * Used to count instances of element base objects created by
@@ -87,22 +120,16 @@ final class SchemaSet(
 
   override lazy val tunable = tunables
 
-  requiredEvaluationsAlways(isValid)
   requiredEvaluationsAlways(typeCalcMap)
   requiredEvaluationsAlways(root)
-
-  if (checkAllTopLevel) {
-    requiredEvaluationsAlways(checkForDuplicateTopLevels())
-    requiredEvaluationsAlways(this.allTopLevels)
-  }
-
+  requiredEvaluationsAlways(checkForDuplicateTopLevels())
 
   lazy val resolver = DFDLCatalogResolver.get
 
   override lazy val schemaSet = this
 
-  override lazy val schemaDocument = Assert.usageError("schemaDocument should not be called on SchemaSet")
-  override lazy val xmlSchemaDocument = Assert.usageError("xmlSchemaDocument should not be called on SchemaSet")
+  override lazy val optSchemaDocument = None
+  override lazy val optXMLSchemaDocument = None
 
   override lazy val lineAttribute: Option[String] = None
 
@@ -115,12 +142,13 @@ final class SchemaSet(
   override lazy val uriString: String = schemaSource.uriForLoading.toString
 
   override def warn(th: Diagnostic) = oolagWarn(th)
+
   override def error(th: Diagnostic) = oolagError(th)
 
   /**
    * This constructor for unit testing only
    */
-  def this(sch: Node, rootNamespace: String = null, root: String = null, optTmpDir: Option[File] = None, tunableOpt: Option[DaffodilTunables] = None) =
+  private def this(sch: Node, rootNamespace: String = null, root: String = null, optTmpDir: Option[File] = None, tunableOpt: Option[DaffodilTunables] = None) =
     this(
       {
         if (root == null) None else {
@@ -136,11 +164,19 @@ final class SchemaSet(
 
   lazy val schemaFileList = schemas.map(s => s.uriString)
 
-  lazy val isValid = {
+  private lazy val isValid: Boolean = {
+    //
+    // We use keepGoing here, because we want to gather a validation error,
+    // suppress further propagation of it, and return false.
+    //
     val isV = OOLAG.keepGoing(false) {
       val files = allSchemaFiles
-      val fileValids = files.map { _.isValid }
-      val res = fileValids.length > 0 && fileValids.fold(true) { _ && _ }
+      val fileValids = files.map {
+        _.isValid
+      }
+      val res = fileValids.length > 0 && fileValids.fold(true) {
+        _ && _
+      }
       res
     }
     isV
@@ -148,11 +184,13 @@ final class SchemaSet(
 
   lazy val validationDiagnostics = {
     val files = allSchemaFiles
-    val res = files.flatMap { _.validationDiagnostics }
+    val res = files.flatMap {
+      _.validationDiagnostics
+    }
     res
   }
 
-  lazy val schemas: Seq[Schema] = LV('schemas) {
+  lazy val schemas: Seq[Schema] = {
     val schemaPairs = allSchemaDocuments.map { sd => (sd.targetNamespace, sd) }
     //
     // groupBy is deterministic if the hashCode of the key element is deterministic.
@@ -160,37 +198,29 @@ final class SchemaSet(
     //
     // Alas, being deterministic doesn't mean it is in an order we expect.
     // but at least it is deterministic.
-    val schemaGroups = schemaPairs.groupBy { _._1 } // group by the namespace identifier
+    val schemaGroups = schemaPairs.groupBy {
+      _._1
+    } // group by the namespace identifier
     val schemas = schemaGroups.map {
       case (ns, pairs) => {
         val sds = pairs.map { case (ns, s) => s }
-        val sch = new Schema(ns, sds.toSeq, this)
+        val sch = Schema(ns, sds.toSeq, this)
         sch
       }
     }
     schemas.toSeq
-  }.value
+  }
 
   lazy val globalSimpleTypeDefs: Seq[GlobalSimpleTypeDef] = schemas.flatMap(_.globalSimpleTypeDefs)
 
   /**
-   * The global simple type definitions that are reachable from the root element.
-   */
-  lazy val inUseGlobalSimpleTypeDefs: Seq[GlobalSimpleTypeDef] =
-    // TODO: This isn't going to work for elements that reference a repType via
-    // a calculation such as dfdl:inputValueCalc expression that references a type name.
-    // Expressions need to be analyzed for these type names so that the reference can be
-    // added to the allComponents list, and the reverse mapping from shared types to uses of them
-    // also needs to be maintained.
-    // However.... since typeCalc is in flux, not clear we want to fix this.
-    root.allComponents.collect { case gstd: GlobalSimpleTypeDef => gstd }
-
-  /**
-   * For the in-use simple types defs, get those that particpate
+   * For simple types defs, get those that particpate
    * in type calculation.
    */
   lazy val typeCalcMap: TypeCalcMap = {
-    val factories = globalSimpleTypeDefs // inUseGlobalSimpleTypeDefs // FIXME: Hack to just take all global simple type defs for now. Not just "in use".
+    // Just take all global simple type defs for now. Not just "in use".
+    // filter them by whether they have a typeCalculator
+    val factories = globalSimpleTypeDefs
     val withCalc = factories.filter(_.optTypeCalculator.isDefined)
     val mappings = withCalc.map(st => (st.globalQName, st.optTypeCalculator.get))
     mappings.toMap
@@ -202,68 +232,66 @@ final class SchemaSet(
 
   private type UC = (NS, String, Symbol, GlobalComponent)
 
-  private def allTopLevels: Seq[UC] = LV('allTopLevels) {
-    val res = schemas.flatMap { schema =>
-      {
-        val ns = schema.namespace
-        val geds = schema.globalElementDecls.map { g =>
-          {
-            (ns, g.name, 'Element, g)
-          }
-        }
-        val stds = schema.globalSimpleTypeDefs.map { g =>
-          {
-            (ns, g.name, 'SimpleType, g)
-          }
-        }
-        val ctds = schema.globalComplexTypeDefs.map { g =>
-          {
-            (ns, g.name, 'ComplexType, g)
-          }
-        }
-        val gds = schema.globalGroupDefs.map { g =>
-          {
-            (ns, g.name, 'Group, g)
-          }
-        }
-        val dfs = schema.defineFormats.map { g =>
-          {
-            (ns, g.name, 'DefineFormat, g)
-          }
-        }
-        val dess = schema.defineEscapeSchemes.map { g =>
-          {
-            (ns, g.name, 'DefineEscapeScheme, g)
-          }
-        }
-        val dvs = schema.defineVariables.map { g =>
-          {
-            (ns, g.name, 'DefineVariable, g)
-          }
-        }
-        val all = geds ++ stds ++ ctds ++ gds ++ dfs ++ dess ++ dvs
-        all
+  private lazy val allTopLevels: Seq[UC] = LV('allTopLevels) {
+    val res = schemas.flatMap { schema => {
+      val ns = schema.namespace
+      val geds = schema.globalElementDecls.map { g => {
+        (ns, g.name, 'Element, g)
       }
+      }
+      val stds = schema.globalSimpleTypeDefs.map { g => {
+        (ns, g.name, 'SimpleType, g)
+      }
+      }
+      val ctds = schema.globalComplexTypeDefs.map { g => {
+        (ns, g.name, 'ComplexType, g)
+      }
+      }
+      val gds = schema.globalGroupDefs.map { g => {
+        (ns, g.name, 'Group, g)
+      }
+      }
+      val dfs = schema.defineFormats.map { g => {
+        (ns, g.name, 'DefineFormat, g)
+      }
+      }
+      val dess = schema.defineEscapeSchemes.map { g => {
+        (ns, g.name, 'DefineEscapeScheme, g)
+      }
+      }
+      val dvs = schema.defineVariables.map { g => {
+        (ns, g.name, 'DefineVariable, g)
+      }
+      }
+      val all = geds ++ stds ++ ctds ++ gds ++ dfs ++ dess ++ dvs
+      all
+    }
     }
     res.asInstanceOf[Seq[UC]]
   }.value
 
-  private def groupedTopLevels = LV('groupedTopLevels) {
+  private lazy val groupedTopLevels = LV('groupedTopLevels) {
     val grouped = allTopLevels.groupBy {
       case (ns, name, kind, obj) => {
         (kind, ns, name)
       }
     }
     val grouped2 = grouped.map {
-      case (idFields, seq) => {
-        val onlyObj = seq.map { case (ns, name, kind, obj) => obj }
-        if (onlyObj.length > 1) {
-          val (ns, name, kind) = idFields
-          val locations = onlyObj.asInstanceOf[Seq[LookupLocation]] // don't like this downcast
-          SDEButContinue("multiple definitions for %s  {%s}%s.\n%s", kind.toString, ns, name,
-            locations.map { _.locationDescription }.mkString("\n"))
+      case (idFields @ (kind, ns, name), seq) => {
+        val locations = seq.map {
+          case (_, _, _, obj: LookupLocation) => obj
+          case _ => Assert.invariantFailed("not (ns, name, kind, lookuplocation)")
         }
-        (idFields, onlyObj)
+        if (locations.length > 1) {
+          SDEButContinue("multiple definitions for %s %s%s.\n%s",
+            kind.name.toString,
+            (if (ns eq NoNamespace) "" else "{" + ns.toString + "}"),
+            name,
+            locations.map {
+              _.locationDescription
+            }.mkString("\n"))
+        }
+        (idFields, locations)
       }
     }
     val res = grouped2.flatMap { case (_, topLevelThing) => topLevelThing }.toSeq
@@ -283,15 +311,16 @@ final class SchemaSet(
    * unambiguous, it is used as the root.
    */
   private def findRootElement(name: String) = {
-    val candidates = schemas.flatMap { _.getGlobalElementDecl(name) }
+    val candidates = schemas.flatMap {
+      _.getGlobalElementDecl(name)
+    }
     schemaDefinitionUnless(candidates.length != 0, "No root element found for %s in any available namespace", name)
     schemaDefinitionUnless(candidates.length <= 1, "Root element %s is ambiguous. Candidates are %s.", name,
-      candidates.map { gef =>
-        {
-          val tns = gef.schemaDocument.targetNamespace
-          Assert.invariant(!tns.isUnspecified)
-          gef.name + " " + tns.explainForMsg
-        }
+      candidates.map { gef => {
+        val tns = gef.schemaDocument.targetNamespace
+        Assert.invariant(!tns.isUnspecified)
+        gef.name + " " + tns.explainForMsg
+      }
       })
     Assert.invariant(candidates.length == 1)
     val ge = candidates(0)
@@ -307,7 +336,9 @@ final class SchemaSet(
       case RootSpec(Some(rootNamespaceName), rootElementName) => {
         val qn = RefQName(None, rootElementName, rootNamespaceName)
         val optGE = getGlobalElementDecl(qn)
-        val ge = optGE.getOrElse { schemaDefinitionError("No global element found for %s", rootSpec) }
+        val ge = optGE.getOrElse {
+          schemaDefinitionError("No global element found for %s", rootSpec)
+        }
         ge
       }
       case RootSpec(None, rootElementName) => {
@@ -368,31 +399,45 @@ final class SchemaSet(
    */
   def getGlobalElementDecl(refQName: RefQName) = {
     val s = getSchema(refQName.namespace)
-    val res = s.flatMap { s =>
-      {
-        val ged = s.getGlobalElementDecl(refQName.local)
-        ged
-      }
+    val res = s.flatMap { s => {
+      val ged = s.getGlobalElementDecl(refQName.local)
+      ged
+    }
     }
     res
   }
-  def getGlobalSimpleTypeDef(refQName: RefQName) = getSchema(refQName.namespace).flatMap { _.getGlobalSimpleTypeDef(refQName.local) }
-  def getGlobalComplexTypeDef(refQName: RefQName) = getSchema(refQName.namespace).flatMap { _.getGlobalComplexTypeDef(refQName.local) }
-  def getGlobalGroupDef(refQName: RefQName) = getSchema(refQName.namespace).flatMap { _.getGlobalGroupDef(refQName.local) }
+
+  def getGlobalSimpleTypeDef(refQName: RefQName) = getSchema(refQName.namespace).flatMap {
+    _.getGlobalSimpleTypeDef(refQName.local)
+  }
+
+  def getGlobalComplexTypeDef(refQName: RefQName) = getSchema(refQName.namespace).flatMap {
+    _.getGlobalComplexTypeDef(refQName.local)
+  }
+
+  def getGlobalGroupDef(refQName: RefQName) = getSchema(refQName.namespace).flatMap {
+    _.getGlobalGroupDef(refQName.local)
+  }
 
   /**
    * DFDL Schema top-level global objects
    */
   def getDefineFormat(refQName: RefQName) = {
     val s = getSchema(refQName.namespace)
-    s.flatMap { _.getDefineFormat(refQName.local) }
+    s.flatMap {
+      _.getDefineFormat(refQName.local)
+    }
   }
+
   def getDefineFormats(namespace: NS, context: ThrowsSDE) = getSchema(namespace) match {
     case None => context.schemaDefinitionError("Failed to find a schema for namespace:  " + namespace)
     case Some(sch) => sch.getDefineFormats()
   }
+
   def getDefineVariable(refQName: RefQName) = {
-    val res = getSchema(refQName.namespace).flatMap { _.getDefineVariable(refQName.local) }
+    val res = getSchema(refQName.namespace).flatMap {
+      _.getDefineVariable(refQName.local)
+    }
     val finalResult = res match {
       case None => {
         val optRes = this.predefinedVars.find(dfv => {
@@ -404,14 +449,19 @@ final class SchemaSet(
     }
     finalResult
   }
-  def getDefineEscapeScheme(refQName: RefQName) = getSchema(refQName.namespace).flatMap { _.getDefineEscapeScheme(refQName.local) }
+
+  def getDefineEscapeScheme(refQName: RefQName) = getSchema(refQName.namespace).flatMap {
+    _.getDefineEscapeScheme(refQName.local)
+  }
 
   def getPrimitiveType(refQName: RefQName) = {
     if (refQName.namespace != XMLUtils.XSD_NAMESPACE) // must check namespace
       None
     else {
       val optPrimNode = NodeInfo.PrimType.fromNameString(refQName.local)
-      optPrimNode.map { PrimitiveType(_) }
+      optPrimNode.map {
+        PrimitiveType(_)
+      }
     }
   }
 
@@ -420,16 +470,16 @@ final class SchemaSet(
    *
    * @param theName The variable name.
    * @param theType The type of the variable. ex. xs:string
-   * @param nsURI The namespace URI of the variable.
-   *
+   * @param nsURI   The namespace URI of the variable.
    * @return A Seq[DFDLDefineVariable]
    */
   private def generateDefineVariable(theName: String, theType: String, theDefaultValue: String, nsURI: String, sdoc: SchemaDocument) = {
-    val dfv = new DFDLDefineVariable(
-      <dfdl:defineVariable name={ theName } type={ theType } defaultValue={ theDefaultValue } external="true" xmlns:xs={ XMLUtils.XSD_NAMESPACE.toString }/>, sdoc) {
-      override lazy val namespace = NS(nsURI)
-      override lazy val targetNamespace = NS(nsURI)
-    }
+    val dfv = DFDLDefineVariable(
+        <dfdl:defineVariable name={theName}
+                             type={theType}
+                             defaultValue={theDefaultValue}
+                             external="true"
+                             xmlns:xs={XMLUtils.XSD_NAMESPACE.toString}/>, sdoc, nsURI)
     dfv
   }
 
@@ -463,46 +513,177 @@ final class SchemaSet(
     Seq(encDFV, boDFV, binDFV, outDFV)
   }
 
-  lazy val allDefinedVariables = schemas.flatMap{ _.defineVariables }
-  lazy val allExternalVariables = allDefinedVariables.filter{ _.external }
+  lazy val allDefinedVariables = schemas.flatMap {
+    _.defineVariables
+  }
+  lazy val allExternalVariables = allDefinedVariables.filter {
+    _.external
+  }
 
   private lazy val checkUnusedProperties = LV('hasUnusedProperties) {
     root.checkUnusedProperties
   }.value
 
-  override def isError = {
+  /**
+   * Asking if there are errors drives compilation. First the schema is validated, then
+   * the abstract syntax tree is constructed (which could be a source of errors)
+   * and finally the AST objects are checked for errors, which recursively
+   * demands that all other aspects of compilation occur.
+   */
+  override def isError: Boolean = {
+    if (!isValid) true
+    else if (
+    // use keepGoing so we can capture errors and
+    // return true (indicating there is an error)
+    //
       OOLAG.keepGoing(true) {
-        val valid = isValid
-        if (valid) {
-          // no point in going forward with more
-          // checks if the schema isn't valid
-          // The code base is written assuming valid
-          // schema input. It's just going to hit
-          // assertion failures and such if we
-          // try to compile invalid schemas.
-          val hasErrors = super.isError
-          if (!hasErrors) {
-            // only check for unused properties if there are no errors
-            checkUnusedProperties
-          }
-          hasErrors
-        } else true
+        !areComponentsConstructed
+      }) true
+    else {
+      val hasErrors = super.isError
+      if (!hasErrors) {
+        // must be last, after all compilation is done.
+        // only check this if there are no errors.
+        checkUnusedProperties
       }
+      hasErrors
+    }
+  }
+
+  /**
+   * Creation of the DSOM tree of components
+   *
+   * Assumes schema files exist and are valid.
+   *
+   * As DSOM objects are constructed, the factory pattern assures
+   * that initialize() is called. This demands the basic fields that
+   * are needed for diagnostic messages describing error contexts.
+   *
+   * Then we start from the root set of schema components, and construct
+   * all children reachable from them. We "activate" these so that the
+   * OOLAG requiredEvaluationsIfActive will execute for these components
+   * as a part of SchemaSet.isError (but that execution of those required
+   * evaluations happens later).
+   *
+   * Then we construct the refMap. This is the core data structure allowing
+   * shared objects to access all the contexts where they are used.
+   *
+   * Some LVs like enclosingComponents depend on the refMap, so those cannot
+   * be evaluated until this point.
+   *
+   * Once the refMap is constructed, we are done "construcing" the components.
+   *
+   * An important characteristic here is that everything we invoke here is
+   * downward looking. None of it involves looking upward at enclosing components
+   * with the exception of the unique lexical parent.
+   *
+   * A challenge is that often quite sophisticated analysis is required in order
+   * to determine the child components. E.g., one must analyze length-kind to
+   * know if a prefix-length quasi-element component is needed. The lengthKind
+   * property can be scoped, hence, all the machinery associated with scoped
+   * lookup of properties is part of establishing the tree/graph of components.
+   * That said, it is a goal to do minimal other work here. Just create all the
+   * components.
+   *
+   * Inability to resolve a QName reference is a fatal error, and no attempt to continue
+   * processing accumulating more errors is required in that situation.
+   *
+   * @return true if the components are all constructed with their interconnections.
+   *         false with diagnostics accumulated otherwise.
+   */
+  private lazy val areComponentsConstructed: Boolean = LV('areComponentsConstructed) {
+    allSchemaFiles
+    allSchemaDocuments
+    schemas
+    allSchemaComponents // recursively constructs all the objects.
+    allSchemaComponents.foreach{ _.setRequiredEvaluationsActive() }
+    root.refMap
+    true
+  }.value
+
+
+  private lazy val startingGlobalComponents: Seq[SchemaComponent] = {
+    root +: {
+      // always need the simple type defs so we can ask for their
+      // repTypeElements as part of constructing the complete object graph.
+      // The inputTypeCalc/outputTypeCalc functions take
+      // The QName of a simple type. By just always obtaining all the simple types defs
+      // we insure the quasi-elements used by them are always constructed, and names
+      // are resolvable.
+      allSchemaDocuments.flatMap { sd: SchemaDocument =>
+        sd.globalSimpleTypeDefs
+      } ++ {
+        if (this.checkAllTopLevel)
+          allSchemaDocuments.flatMap { sd: SchemaDocument =>
+            sd.defaultFormat // just demand this since it should be possible to create it.
+              sd.globalElementDecls ++
+              sd.globalComplexTypeDefs ++
+              sd.globalGroupDefs
+          }
+        else
+          Nil
+      }
+    }
+  }
+
+  private lazy val allSchemaComponentsSet = TransitiveClosureSchemaComponents(startingGlobalComponents)
+
+  lazy val allSchemaComponents = allSchemaComponentsSet.toIndexedSeq
+}
+
+object TransitiveClosureSchemaComponents {
+  def apply(ssc: Seq[SchemaComponent]) =
+    (new TransitiveClosureSchemaComponents())(ssc)
+}
+
+class TransitiveClosureSchemaComponents private() extends TransitiveClosure[SchemaComponent] {
+
+  type SSC = Seq[SchemaComponent]
+
+  override protected def func(sc: SchemaComponent) = {
+    val referents: SSC = sc match {
+      case asc: AnnotatedSchemaComponent => asc.optReferredToComponent.toSeq
+      case _ => Nil
+    }
+    val children: SSC = sc match {
+      case er: AbstractElementRef => Nil // already have referents above.
+      case e: ElementDeclMixin => e.typeDef match {
+        case std: SimpleTypeDefBase => Seq(std)
+        case ctd: ComplexTypeBase => Seq(ctd)
+        case pt: PrimitiveType => {
+          // An element decl with primitive type can still reference a simple type by way
+          // of dfdl:inputValueCalc that calls dfdlx:inputTypeCalc('QNameOfType', ....)
+          //
+          // This is covered because the QNameOfType must be a GlobalSimpleTypeDef and
+          // those will always be part of all components and their type calcs will be
+          // checked.
+          Nil
+        }
+      }
+      case m: ModelGroup => m.groupMembers
+      case st: SimpleTypeDefBase =>
+        st.bases ++
+          st.optRestriction ++
+          st.optUnion ++
+          st.optRepTypeDef ++
+          st.optRepTypeElement
+      case r: Restriction => r.optUnion.toSeq
+      case u: Union => u.unionMemberTypes
+      case c: ComplexTypeBase => Seq(c.modelGroup)
+      case gd: GlobalGroupDef => gd.groupMembers
+      case stmt: DFDLStatement => Nil
+    }
+    val statements: SSC = sc match {
+      case t: Term => t.statements
+      case _ => Nil
+    }
+    val misc: SSC = sc match {
+      case eb: ElementBase => eb.optPrefixLengthElementDecl.toSeq
+      case ch: ChoiceTermBase => ch.optRepTypeElement.toSeq
+      case _ => Seq()
+    }
+
+    referents ++ children ++ statements ++ misc
   }
 }
 
-
-class ValidateSchemasErrorHandler(sset: SchemaSet) extends org.xml.sax.ErrorHandler {
-
-  def warning(exception: org.xml.sax.SAXParseException) = {
-    val sdw = new SchemaDefinitionWarning(sset.schemaFileLocation, "Warning loading schema due to %s", exception)
-    sset.warn(sdw)
-  }
-
-  def error(exception: org.xml.sax.SAXParseException) = {
-    val sde = new SchemaDefinitionError(sset.schemaFileLocation, "Error loading schema due to %s", exception)
-    sset.error(sde)
-  }
-
-  def fatalError(exception: org.xml.sax.SAXParseException) = this.error(exception)
-}

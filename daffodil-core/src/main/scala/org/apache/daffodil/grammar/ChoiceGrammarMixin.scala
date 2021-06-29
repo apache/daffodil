@@ -17,7 +17,6 @@
 
 package org.apache.daffodil.grammar
 
-import org.apache.daffodil.dsom.ChoiceBranchImpliedSequence
 import org.apache.daffodil.dsom.ChoiceTermBase
 import org.apache.daffodil.grammar.primitives.ChoiceCombinator
 import org.apache.daffodil.runtime1.ChoiceTermRuntime1Mixin
@@ -30,27 +29,7 @@ trait ChoiceGrammarMixin
     ChoiceCombinator(this, alternatives)
   }
 
-  /**
-   * Establish the invariant is that if a direct child member is an array element,
-   * the child will have been encapsulated as a sequence, so that arrays always
-   * live within sequences.
-   */
-  final protected lazy val alternatives: Seq[Gram] = {
-    groupMembers.map { t =>
-      if (!t.isScalar) {
-        /**
-         * If this choice branch is a non-scalar, then we need to encapsulate
-         * it with a ChoiceBranchImpliedSequence, which is a kind of Sequence
-         * base. When compiling this this choice branch, Daffodil can then
-         * depend on the invariant that every recurring element is contained
-         * inside a sequence, and that sequence describes everything about how
-         * that elements occurrences are separated.
-         */
-        val cbis = new ChoiceBranchImpliedSequence(t)
-        cbis.termContentBody
-      } else {
-        t.termContentBody
-      }
-    }
-  }
+  final protected lazy val alternatives: Seq[Gram] =
+    groupMembers.map{ _.termContentBody }
+
 }

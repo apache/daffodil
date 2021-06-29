@@ -428,6 +428,14 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
   private lazy val schemaFactory = {
     val sf = new org.apache.xerces.jaxp.validation.XMLSchemaFactory()
     sf.setResourceResolver(resolver)
+    //
+    // despite setting the errorHandler here, the validator
+    // sometimes still throws exceptions, so we cannot depend
+    // exclusively on the errorHandler picking off all errors.
+    //
+    // In particular, fatal errors when a node cannot be returned
+    // from the parse, always cause a throw.
+    //
     sf.setErrorHandler(errorHandler)
     sf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true)
     sf.setFeature(XMLUtils.XML_DISALLOW_DOCTYPE_FEATURE, true)
@@ -461,21 +469,40 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
   def validateAsDFDLSchema(source: DaffodilSchemaSource): Unit = {
     // first we load it, with validation explicitly against the
     // schema for DFDL Schemas.
-    load(source, Some(XMLUtils.schemaForDFDLSchemas), addPositionAttributes = true)
-    //
-    // Then we validate explicitly so Xerces can check things
-    // such as for UPA violations
-    //
-    val inputSource = source.newInputSource()
-    val saxSource = new SAXSource(inputSource)
-    //
-    // We would like this saxSource to be created from an XMLReader
-    // so that we can call XMLUtils.setSecureDefaults on it.
-    // but we get strange errors if I do that, where every symbol
-    // in the schema has an unrecognized namespace prefix.
-    //
-    schemaFactory.newSchema(saxSource)
-    inputSource.getByteStream().close()
+    try {
+      load(source, Some(XMLUtils.schemaForDFDLSchemas), addPositionAttributes = true)
+      //
+      // Then we validate explicitly so Xerces can check things
+      // such as for UPA violations
+      //
+      val inputSource = source.newInputSource()
+      val saxSource = new SAXSource(inputSource)
+      //
+      // We would like this saxSource to be created from an XMLReader
+      // so that we can call XMLUtils.setSecureDefaults on it.
+      // but we get strange errors if I do that, where every symbol
+      // in the schema has an unrecognized namespace prefix.
+      //
+      try {
+        schemaFactory.newSchema(saxSource)
+      } finally {
+        inputSource.getByteStream().close()
+      }
+    } catch {
+      // fatal errors are thrown.
+      // validation errors are never fatal.
+      case e: SAXParseException => {
+        // Capturing this would be redundant.
+        // It will already have been passed to the errorHandler.fatalError
+        // method.
+        // So it is explicitly ok to just rethrow this exception.
+        // we don't want to record it again, but we do want to stop with a
+        // fatal error because the schema was invalid. Daffodil assumes the
+        // schema is valid all over its code base.
+        throw e
+      }
+    }
+
   }
 
   // $COVERAGE-OFF$
@@ -611,8 +638,14 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
     val constructingLoader =
       new DaffodilConstructingLoader(source.uriForLoading,
         errorHandler, addPositionAttributes, normalizeCRLFtoLF)
-    val res = constructingLoader.load() // construct the XML objects for us.
-    constructingLoader.input.close()
+    val res = try {
+      constructingLoader.load() // construct the XML objects for us.
+    } catch {
+      case e: SAXParseException => // fatal. We can't successfully load.
+        throw e // good place for a breakpoint
+    } finally {
+      constructingLoader.input.close()
+    }
     res
   }
 }
