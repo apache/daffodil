@@ -19,10 +19,12 @@ package org.apache.daffodil.parsing
 
 import org.junit.Assert._
 import org.junit.Test
+
 import java.io.File
 import org.apache.daffodil.CLI.Util
 import net.sf.expectit.matcher.Matchers.contains
 import net.sf.expectit.matcher.Matchers.eof
+import org.apache.daffodil.Main.ExitCode
 
 class TestCLIparsing {
 
@@ -1204,18 +1206,10 @@ class TestCLIparsing {
     val (testSchemaFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile)) else (schemaFile)
 
     try {
-      val cmd = String.format(Util.echoN("Hello") + "| %s parse -I scala-xml -s %s -r e1", Util.binPath, testSchemaFile)
+      val cmd = String.format("%s parse -I scala-xml -s %s -r e1", Util.binPath, "/this/does/not/exist")
 
-      val exitCodeCmd = if (Util.isWindows) "echo %errorlevel%" else "echo $?"
-      shell.sendLine(exitCodeCmd)
-
-      if (Util.isWindows) shell.expect(contains(exitCodeCmd + "\n"))
-      else shell.expect(contains(exitCodeCmd + "\n"))
-
-      val sExitCode = shell.expect(contains("\n")).getBefore()
-      val exitCode = Integer.parseInt(sExitCode.trim())
-      if (exitCode != 0)
-        fail("Tests failed. Exit code: " + exitCode)
+      shell.sendLine(cmd)
+      Util.expectExitCode(ExitCode.FileNotFound, shell)
 
     } finally {
       shell.close()

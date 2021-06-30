@@ -880,7 +880,7 @@ object Main extends Logging {
     }
   }
 
-  def run(arguments: Array[String]): Int = {
+  def run(arguments: Array[String]): ExitCode.Value = {
     LoggingDefaults.setLogWriter(CLILogWriter)
 
     val conf = new CLIConf(arguments)
@@ -894,7 +894,7 @@ object Main extends Logging {
     }
     LoggingDefaults.setLoggingLevel(verboseLevel)
 
-    val ret = conf.subcommand match {
+    val ret: ExitCode.Value = conf.subcommand match {
 
       case Some(conf.parse) => {
         val parseOpts = conf.parse
@@ -916,7 +916,10 @@ object Main extends Logging {
         }.map{ _.withExternalVariables(retrieveExternalVariables(parseOpts.vars, cfgFileNode))}
 
         val rc = processor match {
-          case Some(proc) if (!proc.isError) => {
+          case Some(proc) if (proc.isError) => ExitCode.SchemaDefinitionError
+          case None => ExitCode.UnableToCreateProcessor
+          case Some(proc) => {
+            Assert.invariant(!proc.isError)
             var processor = proc
             val input = parseOpts.infile.toOption match {
               case Some("-") | None => System.in
@@ -940,7 +943,7 @@ object Main extends Logging {
 
             var lastParseBitPosition = 0L
             var keepParsing = true
-            var error = false
+            var exitCode = ExitCode.Normal
 
             while (keepParsing) {
 
@@ -961,7 +964,7 @@ object Main extends Logging {
 
               if (parseResult.isProcessingError || parseResult.isValidationError) {
                 keepParsing = false
-                error = true
+                exitCode = ExitCode.ParseError
               } else {
                 // only XMLTextInfosetOutputter, JsonInfosetOutputter and
                 // DaffodilParseOutputStreamContentHandler write directly to the output stream. Other
@@ -990,7 +993,7 @@ object Main extends Logging {
                   // not even 1 more bit is available.
                   // do not try to keep parsing, nothing left to parse
                   keepParsing = false
-                  error = false
+                  exitCode = ExitCode.NotEnoughData
                 } else {
                   // There is more data available.
                   if (parseOpts.stream.toOption.get) {
@@ -998,7 +1001,7 @@ object Main extends Logging {
                     if (lastParseBitPosition == loc.bitPos0b) {
                       // this parse consumed no data, that means this would get
                       // stuck in an infinite loop if we kept trying to stream,
-                      // so we need quit
+                      // so we need to quit
                       val remainingBits =
                         if (loc.bitLimit0b.isDefined) {
                           (loc.bitLimit0b.get - loc.bitPos0b).toString
@@ -1007,13 +1010,13 @@ object Main extends Logging {
                         }
                       log(LogLevel.Warning, "Left over data after consuming 0 bits while streaming. Stopped after consuming %s bit(s) with %s bit(s) remaining.", loc.bitPos0b, remainingBits)
                       keepParsing = false
-                      error = true
+                      exitCode = ExitCode.NoForwardProgress
                     } else {
                       // last parse did consume data, and we know there is more
                       // data to come, so try to parse again.
                       lastParseBitPosition = loc.bitPos0b
                       keepParsing = true
-                      error = false
+                      exitCode = ExitCode.Normal
                       output.write(0) // NUL-byte separates streams
                     }
                   } else {
@@ -1051,15 +1054,13 @@ object Main extends Logging {
                     val leftOverDataWarning = s"Left over data. Consumed ${loc.bitPos0b} bit(s) with ${remainingBits} bit(s) remaining." + firstByteString + dataHex + dataText
                     log(LogLevel.Warning, leftOverDataWarning)
                     keepParsing = false
-                    error = true
+                    exitCode = ExitCode.LeftOverData
                   }
                 }
               }
             }
-            if (error) 1 else 0
+          exitCode
           }
-          case Some(processor) => 1
-          case None => 1
         }
         rc
       }
@@ -1084,7 +1085,9 @@ object Main extends Logging {
         }.map{ _.withExternalVariables(retrieveExternalVariables(performanceOpts.vars, cfgFileNode)) }
          .map{ _.withValidationMode(validate) }
 
-        val rc = processor match {
+        val rc: ExitCode.Value = processor match {
+          case Some(proc) if (proc.isError) => ExitCode.SchemaDefinitionError
+          case None => ExitCode.UnableToCreateProcessor
           case Some(processor: DataProcessor) if (!processor.isError) => {
             val infile = new java.io.File(performanceOpts.infile())
 
@@ -1202,10 +1205,9 @@ object Main extends Logging {
             printf("max rate (files/sec): %f\n", rates.max)
             printf("avg rate (files/sec): %f\n", (performanceOpts.number() / sec))
 
-            if (numFailures == 0) 0 else 1
+            if (numFailures == 0) ExitCode.Normal else ExitCode.PerformanceTestFailed
           }
-          case Some(processor) => 1
-          case None => 1
+
         }
         rc
       }
@@ -1243,8 +1245,8 @@ object Main extends Logging {
           case Some(fileName) => new FileInputStream(fileName)
         }
 
-        val rc = processor match {
-          case None => 1
+        val rc: ExitCode.Value = processor match {
+          case None => ExitCode.UnableToCreateProcessor
           case Some(processor) => {
             setupDebugOrTrace(processor.asInstanceOf[DataProcessor], conf)
 
@@ -1258,7 +1260,7 @@ object Main extends Logging {
               }
 
             var keepUnparsing = maybeScanner.isEmpty || maybeScanner.get.hasNext
-            var error = false
+            var exitCode = ExitCode.Normal
 
             while (keepUnparsing) {
 
@@ -1295,14 +1297,13 @@ object Main extends Logging {
 
               if (unparseResult.isError) {
                 keepUnparsing = false
-                error = true
+                exitCode = ExitCode.UnparseError
               } else {
                 keepUnparsing = maybeScanner.isDefined && maybeScanner.get.hasNext
-                error = false
+                exitCode = ExitCode.Normal
               }
             }
-
-            if (error) 1 else 0
+            exitCode
           }
         }
 
@@ -1334,9 +1335,9 @@ object Main extends Logging {
         val rc = processor match {
           case Some(processor) => {
             Timer.getResult("saving", processor.save(output))
-            0
+            ExitCode.Normal
           }
-          case None => 1
+          case None => ExitCode.UnableToCreateProcessor
         }
         rc
       }
@@ -1451,7 +1452,7 @@ object Main extends Logging {
           println("")
           println("Total: %d, Pass: %d, Fail: %d, Not Found: %s".format(pass + fail + notfound, pass, fail, notfound))
         }
-        0
+        ExitCode.Normal
       }
 
       case Some(conf.generate) => {
@@ -1477,9 +1478,9 @@ object Main extends Logging {
               case Some(generator) => {
                 Timer.getResult("generating", generator.generateCode(rootNS, outputDir))
                 displayDiagnostics(generator)
-                if (generator.isError) 1 else 0
+                if (generator.isError) ExitCode.UnableToGenerateCode else ExitCode.Normal
               }
-              case None => 1
+              case None => ExitCode.UnableToGenerateCode
             }
             rc
           }
@@ -1578,17 +1579,37 @@ object Main extends Logging {
     1
   }
 
-  def main(arguments: Array[String]): Unit = {
+  object ExitCode extends Enumeration {
 
-    def FILE_NOT_FOUND_ERROR = 1
-    def INVALID_PARSER_ERROR = 2
-    def EXT_VARIABLE_ERROR = 3
-    def BINDING_EXCEPTION_ERROR = 4
-    def NOT_YET_IMPLEMENTED_ERROR = 5
-    def TDML_EXCEPTION_ERROR = 6
-    def OUT_OF_MEMORY_ERROR = 7
-    def USER_DEF_FATAL_ERROR = 8
-    def BUG_FOUND_ERROR = 9
+
+
+
+    val Normal = Value(0)
+    val FileNotFound = Value(1)
+    val InvalidParserException = Value(2)
+    val ExternalVariableException = Value(3)
+    val BindingException = Value(4)
+    val NotYetImplemented = Value(5)
+    val TDMLException = Value(6)
+    val OutOfMemory = Value(7)
+    val UserDefinedFunctionFatalError = Value(8)
+    val BugFound = Value(9)
+
+
+    val ParseError = Value(20)
+    val UnparseError = Value(30)
+    val NoForwardProgress = Value(21)
+    val LeftOverData = Value(22)
+    val NotEnoughData= Value(23)
+
+    val SchemaDefinitionError = Value(40)
+    val UnableToCreateProcessor = Value(41)
+    val UnableToGenerateCode = Value(42)
+
+    val PerformanceTestFailed = Value(50)
+  }
+
+  def main(arguments: Array[String]): Unit = {
 
     val ret = try {
       run(arguments)
@@ -1596,43 +1617,43 @@ object Main extends Logging {
       case s: scala.util.control.ControlThrowable => throw s
       case e: java.io.FileNotFoundException => {
         log(LogLevel.Error, "%s", e.getMessage())
-        FILE_NOT_FOUND_ERROR
+        ExitCode.FileNotFound
       }
       case e: InvalidParserException => {
         log(LogLevel.Error, "%s", e.getMessage())
-        INVALID_PARSER_ERROR
+        ExitCode.InvalidParserException
       }
       case e: ExternalVariableException => {
         log(LogLevel.Error, "%s", e.getMessage())
-        EXT_VARIABLE_ERROR
+        ExitCode.ExternalVariableException
       }
       case e: BindingException => {
         log(LogLevel.Error, "%s", e.getMessage())
-        BINDING_EXCEPTION_ERROR
+        ExitCode.BindingException
       }
       case e: NotYetImplementedException => {
         nyiFound(e)
-        NOT_YET_IMPLEMENTED_ERROR
+        ExitCode.NotYetImplemented
       }
       case e: TDMLException => {
         log(LogLevel.Error, "%s", e.getMessage())
-        TDML_EXCEPTION_ERROR
+        ExitCode.TDMLException
       }
       case e: OutOfMemoryError => {
         oomError(e)
-        OUT_OF_MEMORY_ERROR
+        ExitCode.OutOfMemory
       }
       case e: UserDefinedFunctionFatalErrorException => {
         log(LogLevel.Error, "%s", e.getMessage())
         e.printStackTrace()
-        USER_DEF_FATAL_ERROR
+        ExitCode.UserDefinedFunctionFatalError
       }
       case e: Exception => {
         bugFound(e)
-        BUG_FOUND_ERROR
+        ExitCode.BugFound
       }
     }
 
-    System.exit(ret)
+    System.exit(ret.id)
   }
 }

@@ -21,12 +21,15 @@ import org.apache.daffodil.util.Misc
 import net.sf.expectit.ExpectBuilder
 import net.sf.expectit.Expect
 import net.sf.expectit.filter.Filters.replaceInString
+import net.sf.expectit.matcher.Matchers.contains
+import org.apache.daffodil.Main.ExitCode
+
 import java.nio.file.Paths
 import java.io.{File, PrintWriter}
 import scala.collection.JavaConverters._
 import java.util.concurrent.TimeUnit
-
 import org.apache.daffodil.xml.XMLUtils
+import org.junit.Assert.fail
 
 object Util {
 
@@ -199,5 +202,27 @@ object Util {
       pw.close
     }
     inputFile
+  }
+
+
+
+  def expectExitCode(expectedExitCode: ExitCode.Value, shell: Expect): Unit = {
+    val expectedCode: Int = expectedExitCode.id
+    //
+    val exitCodeCmd = if (Util.isWindows) "echo %errorlevel%" else "echo $?"
+    shell.sendLine(exitCodeCmd)
+
+    val sExitCode = shell.expect(contains("\n")).getBefore()
+    val actualInt = Integer.parseInt(sExitCode.trim())
+    if (actualInt != expectedCode) {
+      val expectedExitCodeName = expectedExitCode.toString
+      val actualExitCodeName = ExitCode(actualInt)
+      val failMessage = "Exit code %s expected (%s), but got %s (%s) instead.".format(
+        expectedCode, expectedExitCodeName, actualInt, actualExitCodeName)
+      fail(failMessage)
+    }
+
+
+
   }
 }
