@@ -916,7 +916,7 @@ object Main extends Logging {
         }.map{ _.withExternalVariables(retrieveExternalVariables(parseOpts.vars, cfgFileNode))}
 
         val rc = processor match {
-          case Some(proc) if (proc.isError) => ExitCode.SchemaDefinitionError
+          case Some(proc) if (proc.isError) => ExitCode.UnableToCreateProcessor
           case None => ExitCode.UnableToCreateProcessor
           case Some(proc) => {
             Assert.invariant(!proc.isError)
@@ -943,7 +943,7 @@ object Main extends Logging {
 
             var lastParseBitPosition = 0L
             var keepParsing = true
-            var exitCode = ExitCode.Normal
+            var exitCode = ExitCode.Success
 
             while (keepParsing) {
 
@@ -993,7 +993,6 @@ object Main extends Logging {
                   // not even 1 more bit is available.
                   // do not try to keep parsing, nothing left to parse
                   keepParsing = false
-                  exitCode = ExitCode.NotEnoughData
                 } else {
                   // There is more data available.
                   if (parseOpts.stream.toOption.get) {
@@ -1008,7 +1007,7 @@ object Main extends Logging {
                         } else {
                           "at least " + (inStream.inputSource.bytesAvailable * 8)
                         }
-                      log(LogLevel.Warning, "Left over data after consuming 0 bits while streaming. Stopped after consuming %s bit(s) with %s bit(s) remaining.", loc.bitPos0b, remainingBits)
+                      log(LogLevel.Error, "Left over data after consuming 0 bits while streaming. Stopped after consuming %s bit(s) with %s bit(s) remaining.", loc.bitPos0b, remainingBits)
                       keepParsing = false
                       exitCode = ExitCode.NoForwardProgress
                     } else {
@@ -1016,7 +1015,6 @@ object Main extends Logging {
                       // data to come, so try to parse again.
                       lastParseBitPosition = loc.bitPos0b
                       keepParsing = true
-                      exitCode = ExitCode.Normal
                       output.write(0) // NUL-byte separates streams
                     }
                   } else {
@@ -1052,7 +1050,7 @@ object Main extends Logging {
                         "at least " + (bytesAvailable * 8)
                       }
                     val leftOverDataWarning = s"Left over data. Consumed ${loc.bitPos0b} bit(s) with ${remainingBits} bit(s) remaining." + firstByteString + dataHex + dataText
-                    log(LogLevel.Warning, leftOverDataWarning)
+                    log(LogLevel.Error, leftOverDataWarning)
                     keepParsing = false
                     exitCode = ExitCode.LeftOverData
                   }
@@ -1086,9 +1084,9 @@ object Main extends Logging {
          .map{ _.withValidationMode(validate) }
 
         val rc: ExitCode.Value = processor match {
-          case Some(proc) if (proc.isError) => ExitCode.SchemaDefinitionError
+          case Some(proc) if (proc.isError) => ExitCode.UnableToCreateProcessor
           case None => ExitCode.UnableToCreateProcessor
-          case Some(processor: DataProcessor) if (!processor.isError) => {
+          case Some(processor: DataProcessor) => {
             val infile = new java.io.File(performanceOpts.infile())
 
             val files = {
@@ -1205,7 +1203,7 @@ object Main extends Logging {
             printf("max rate (files/sec): %f\n", rates.max)
             printf("avg rate (files/sec): %f\n", (performanceOpts.number() / sec))
 
-            if (numFailures == 0) ExitCode.Normal else ExitCode.PerformanceTestFailed
+            if (numFailures == 0) ExitCode.Success else ExitCode.PerformanceTestError
           }
 
         }
@@ -1246,6 +1244,7 @@ object Main extends Logging {
         }
 
         val rc: ExitCode.Value = processor match {
+          case Some(proc) if (proc.isError) => ExitCode.UnableToCreateProcessor
           case None => ExitCode.UnableToCreateProcessor
           case Some(processor) => {
             setupDebugOrTrace(processor.asInstanceOf[DataProcessor], conf)
@@ -1260,7 +1259,7 @@ object Main extends Logging {
               }
 
             var keepUnparsing = maybeScanner.isEmpty || maybeScanner.get.hasNext
-            var exitCode = ExitCode.Normal
+            var exitCode = ExitCode.Success
 
             while (keepUnparsing) {
 
@@ -1300,7 +1299,6 @@ object Main extends Logging {
                 exitCode = ExitCode.UnparseError
               } else {
                 keepUnparsing = maybeScanner.isDefined && maybeScanner.get.hasNext
-                exitCode = ExitCode.Normal
               }
             }
             exitCode
@@ -1335,7 +1333,7 @@ object Main extends Logging {
         val rc = processor match {
           case Some(processor) => {
             Timer.getResult("saving", processor.save(output))
-            ExitCode.Normal
+            ExitCode.Success
           }
           case None => ExitCode.UnableToCreateProcessor
         }
@@ -1452,7 +1450,7 @@ object Main extends Logging {
           println("")
           println("Total: %d, Pass: %d, Fail: %d, Not Found: %s".format(pass + fail + notfound, pass, fail, notfound))
         }
-        ExitCode.Normal
+        ExitCode.Success
       }
 
       case Some(conf.generate) => {
@@ -1478,9 +1476,9 @@ object Main extends Logging {
               case Some(generator) => {
                 Timer.getResult("generating", generator.generateCode(rootNS, outputDir))
                 displayDiagnostics(generator)
-                if (generator.isError) ExitCode.UnableToGenerateCode else ExitCode.Normal
+                if (generator.isError) ExitCode.GenerateCodeError else ExitCode.Success
               }
-              case None => ExitCode.UnableToGenerateCode
+              case None => ExitCode.GenerateCodeError
             }
             rc
           }
@@ -1581,32 +1579,29 @@ object Main extends Logging {
 
   object ExitCode extends Enumeration {
 
+    val Success = Value(0)
+    val Failure = Value(1)
 
-
-
-    val Normal = Value(0)
-    val FileNotFound = Value(1)
-    val InvalidParserException = Value(2)
-    val ExternalVariableException = Value(3)
-    val BindingException = Value(4)
+    val FileNotFound = Value(2)
+    val OutOfMemory = Value(3)
+    val BugFound = Value(4)
     val NotYetImplemented = Value(5)
-    val TDMLException = Value(6)
-    val OutOfMemory = Value(7)
-    val UserDefinedFunctionFatalError = Value(8)
-    val BugFound = Value(9)
 
 
     val ParseError = Value(20)
-    val UnparseError = Value(30)
-    val NoForwardProgress = Value(21)
-    val LeftOverData = Value(22)
-    val NotEnoughData= Value(23)
+    val UnparseError = Value(21)
+    val GenerateCodeError = Value(23)
+    val TestError = Value(24)
+    val PerformanceTestError = Value(25)
 
-    val SchemaDefinitionError = Value(40)
-    val UnableToCreateProcessor = Value(41)
-    val UnableToGenerateCode = Value(42)
 
-    val PerformanceTestFailed = Value(50)
+    val NoForwardProgress = Value(30)
+    val LeftOverData = Value(31)
+    val InvalidParserException = Value(32)
+    val BadExternalVariable = Value(33)
+    val UserDefinedFunctionError = Value(34)
+    val UnableToCreateProcessor = Value(35)
+
   }
 
   def main(arguments: Array[String]): Unit = {
@@ -1625,11 +1620,11 @@ object Main extends Logging {
       }
       case e: ExternalVariableException => {
         log(LogLevel.Error, "%s", e.getMessage())
-        ExitCode.ExternalVariableException
+        ExitCode.BadExternalVariable
       }
       case e: BindingException => {
         log(LogLevel.Error, "%s", e.getMessage())
-        ExitCode.BindingException
+        ExitCode.BadExternalVariable
       }
       case e: NotYetImplementedException => {
         nyiFound(e)
@@ -1637,7 +1632,7 @@ object Main extends Logging {
       }
       case e: TDMLException => {
         log(LogLevel.Error, "%s", e.getMessage())
-        ExitCode.TDMLException
+        ExitCode.TestError
       }
       case e: OutOfMemoryError => {
         oomError(e)
@@ -1646,7 +1641,7 @@ object Main extends Logging {
       case e: UserDefinedFunctionFatalErrorException => {
         log(LogLevel.Error, "%s", e.getMessage())
         e.printStackTrace()
-        ExitCode.UserDefinedFunctionFatalError
+        ExitCode.UserDefinedFunctionError
       }
       case e: Exception => {
         bugFound(e)

@@ -204,11 +204,8 @@ object Util {
     inputFile
   }
 
-
-
   def expectExitCode(expectedExitCode: ExitCode.Value, shell: Expect): Unit = {
-    val expectedCode: Int = expectedExitCode.id
-    //
+    val expectedCode = expectedExitCode.id
     val exitCodeCmd = if (Util.isWindows) "echo %errorlevel%" else "echo $?"
     shell.sendLine(exitCodeCmd)
 
@@ -221,8 +218,6 @@ object Util {
         expectedCode, expectedExitCodeName, actualInt, actualExitCodeName)
       fail(failMessage)
     }
-
-
 
   }
 }
