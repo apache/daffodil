@@ -18,9 +18,9 @@
 package org.apache.daffodil.processors.unparsers
 
 import org.apache.daffodil.processors.SuspendableOperation
-import org.apache.daffodil.util.LogLevel
 import org.apache.daffodil.processors.TextProcessor
 import org.apache.daffodil.processors.TermRuntimeData
+import org.apache.daffodil.util.Logger
 
 class SkipRegionUnparser(
   skipInBits: Int,
@@ -43,7 +43,7 @@ trait AlignmentFillUnparserSuspendableMixin { this: SuspendableOperation =>
   def test(ustate: UState) = {
     val dos = ustate.dataOutputStream
     if (dos.maybeAbsBitPos0b.isEmpty) {
-      log(LogLevel.Debug, "%s %s Unable to align to %s bits because there is no absolute bit position.", this, ustate, alignmentInBits)
+      Logger.log.debug(s"${this} ${ustate} Unable to align to ${alignmentInBits} bits because there is no absolute bit position.")
     }
     dos.maybeAbsBitPos0b.isDefined
   }
@@ -56,9 +56,9 @@ trait AlignmentFillUnparserSuspendableMixin { this: SuspendableOperation =>
     val aft = dos.relBitPos0b
     val delta = aft - b4
     if (delta == 0)
-      log(LogLevel.Debug, "%s did nothing.", this)
+      Logger.log.debug(s"${this} did nothing.")
     else
-      log(LogLevel.Debug, "%s moved %s bits to align to %s(bits).", this, delta, alignmentInBits)
+      Logger.log.debug(s"${this} moved ${delta} bits to align to ${alignmentInBits}(bits).")
   }
 }
 

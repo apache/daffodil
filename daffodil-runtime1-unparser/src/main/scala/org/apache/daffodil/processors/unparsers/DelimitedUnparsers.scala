@@ -17,6 +17,7 @@
 
 package org.apache.daffodil.processors.unparsers
 
+
 import java.nio.charset.MalformedInputException
 import java.nio.charset.UnmappableCharacterException
 
@@ -28,7 +29,7 @@ import org.apache.daffodil.processors.EscapeSchemeUnparseEv
 import org.apache.daffodil.processors.dfa.CreateFieldDFA
 import org.apache.daffodil.processors.dfa.TextDelimitedUnparser
 import org.apache.daffodil.schema.annotation.props.gen.GenerateEscape
-import org.apache.daffodil.util.LogLevel
+import org.apache.daffodil.util.Logger
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe.Nope
 import org.apache.daffodil.util.Maybe.One
@@ -101,7 +102,7 @@ sealed class StringDelimitedUnparser(
       val nCharsWritten = outStream.putString(escapedValue, state)
       if (nCharsWritten != escapedValue.length) UE(state, "%s - Too many bits in field: IndexOutOfBounds. Insufficient space to write %s characters.",
         nom, escapedValue.length)
-      log(LogLevel.Debug, "Ended at bit position " + outStream.relBitPos0b)
+      Logger.log.debug(s"Ended at bit position ${outStream.relBitPos0b}")
     } catch {
       // Characters in infoset element cannot be encoded without error.
       //

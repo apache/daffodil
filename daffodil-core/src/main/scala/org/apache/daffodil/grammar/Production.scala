@@ -17,13 +17,13 @@
 
 package org.apache.daffodil.grammar
 
-import org.apache.daffodil.dsom.SchemaComponent
+import org.apache.daffodil.compiler.ForParser
+import org.apache.daffodil.compiler.ForUnparser
 import org.apache.daffodil.compiler.ParserOrUnparser
+import org.apache.daffodil.dsom.SchemaComponent
 import org.apache.daffodil.processors.parsers.NadaParser
 import org.apache.daffodil.processors.unparsers.NadaUnparser
-import org.apache.daffodil.compiler.ForUnparser
-import org.apache.daffodil.compiler.ForParser
-import org.apache.daffodil.util.LogLevel
+import org.apache.daffodil.util.Logger
 
 /**
  * Prod or Grammar Production
@@ -70,7 +70,7 @@ final class Prod(nameArg: String,
         g
       }
       case false => {
-        log(LogLevel.Debug, "Prod %s removed.", name)
+        Logger.log.debug(s"Prod ${name} removed.")
         EmptyGram
       }
     }

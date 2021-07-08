@@ -39,6 +39,7 @@ Universal / mappings ++= Seq(
   baseDirectory.value / "bin.LICENSE" -> "LICENSE",
   baseDirectory.value / "bin.NOTICE" -> "NOTICE",
   baseDirectory.value / "README.md" -> "README.md",
+  sourceDirectory.value / "conf" / "log4j2.xml" -> "conf/log4j2.xml",
 )
 
 maintainer := "Apache Daffodil <dev@daffodil.apache.org>"

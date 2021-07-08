@@ -24,7 +24,7 @@ import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveNullable
 import org.apache.daffodil.processors.Suspension
 import org.apache.daffodil.processors.unparsers.UState
-import org.apache.daffodil.util.LogLevel
+import org.apache.daffodil.util.Logger
 
 /**
  * Base for unparse-time expression evaluation that can have forward reference.
@@ -46,20 +46,20 @@ trait SuspendableExpression
   override protected final def doTask(ustate: UState): Unit = {
     var v: DataValuePrimitiveNullable = DataValue.NoValue
     if (!isBlocked) {
-      log(LogLevel.Debug, "Starting suspendable expression for %s, expr=%s", rd.diagnosticDebugName, expr.prettyExpr)
+      Logger.log.debug(s"Starting suspendable expression for ${rd.diagnosticDebugName}, expr=${expr.prettyExpr}")
     } else {
       this.setUnblocked()
-      log(LogLevel.Debug, "Retrying suspendable expression for %s, expr=%s", rd.diagnosticDebugName, expr.prettyExpr)
+      Logger.log.debug(s"Retrying suspendable expression for ${rd.diagnosticDebugName}, expr=${expr.prettyExpr}")
     }
     while (v.isEmpty && !this.isBlocked) {
       v = DataValue.unsafeFromMaybeAnyRef(expr.evaluateForwardReferencing(ustate, this))
       if (v.isEmpty) {
         Assert.invariant(this.isBlocked)
-        log(LogLevel.Debug, "UnparserBlocking suspendable expression for %s, expr=%s", rd.diagnosticDebugName, expr.prettyExpr)
+        Logger.log.debug(s"UnparserBlocking suspendable expression for ${rd.diagnosticDebugName}, expr=${expr.prettyExpr}")
       } else {
         Assert.invariant(this.isDone)
         Assert.invariant(ustate.currentInfosetNodeMaybe.isDefined)
-        log(LogLevel.Debug, "Completed suspendable expression for %s, expr=%s", rd.diagnosticDebugName, expr.prettyExpr)
+        Logger.log.debug(s"Completed suspendable expression for ${rd.diagnosticDebugName}, expr=$expr.prettyExpr{}")
         processExpressionResult(ustate, v.getNonNullable)
       }
     }

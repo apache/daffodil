@@ -29,7 +29,9 @@ object Dependencies {
     "xerces" % "xercesImpl" % "2.12.1",
     "xml-resolver" % "xml-resolver" % "1.2",
     "commons-io" % "commons-io" % "2.11.0",
-    "com.typesafe" % "config" % "1.4.1"
+    "com.typesafe" % "config" % "1.4.1",
+    "org.apache.logging.log4j" %% "log4j-api-scala" % "12.0",
+    "org.apache.logging.log4j" % "log4j-core" % "2.14.1" % "it,test",
   )
 
   lazy val infoset = Seq(
@@ -42,7 +44,8 @@ object Dependencies {
     "org.fusesource.jansi" % "jansi" % "2.3.4",
     "org.jline" % "jline" % "3.20.0",
     "org.rogach" %% "scallop" % "4.0.4",
-    "net.sf.expectit" % "expectit-core" % "0.9.0" % "it,test"
+    "net.sf.expectit" % "expectit-core" % "0.9.0" % "it,test",
+    "org.apache.logging.log4j" % "log4j-core" % "2.14.1",
   )
 
   lazy val test = Seq(

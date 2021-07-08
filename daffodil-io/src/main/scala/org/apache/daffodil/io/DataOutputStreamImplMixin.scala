@@ -17,28 +17,30 @@
 
 package org.apache.daffodil.io
 
-import org.apache.daffodil.util.Maybe
-import org.apache.daffodil.util.Maybe.One
-import org.apache.daffodil.util.Maybe.Nope
-import org.apache.daffodil.schema.annotation.props.gen.ByteOrder
-import org.apache.daffodil.schema.annotation.props.gen.BitOrder
-import passera.unsigned.ULong
+import java.io.ByteArrayOutputStream
+import java.math.{BigInteger => JBigInt}
+import java.math.{BigInteger => JBigInt}
+import java.nio.ByteBuffer
+import java.nio.channels.Channels
+import java.nio.charset.CoderResult
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
-import java.nio.ByteBuffer
-import java.math.{BigInteger => JBigInt}
-import org.apache.daffodil.exceptions.Assert
-import java.nio.charset.CoderResult
-import java.nio.channels.Channels
-import java.io.ByteArrayOutputStream
+
+import passera.unsigned.ULong
+
 import org.apache.commons.io.output.TeeOutputStream
-import org.apache.daffodil.util.MaybeULong
+
 import org.apache.daffodil.equality._
-import org.apache.daffodil.util.Bits
-import org.apache.daffodil.util.LogLevel
+import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.processors.charset.BitsCharsetNonByteSizeEncoder
-import java.math.{BigInteger => JBigInt}
+import org.apache.daffodil.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.schema.annotation.props.gen.ByteOrder
+import org.apache.daffodil.util.Bits
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.Maybe.Nope
+import org.apache.daffodil.util.Maybe.One
+import org.apache.daffodil.util.MaybeULong
 
 
 sealed trait DOSState
@@ -821,8 +823,6 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
   final def putCharBuffer(cb: java.nio.CharBuffer, finfo: FormatInfo): Long = {
     Assert.usage(isWritable)
 
-    val debugCBString = if (areLogging(LogLevel.Debug)) cb.toString() else ""
-
     val nToTransfer = cb.remaining()
     //
     // TODO: restore mandatory alignment functionality.
@@ -867,7 +867,6 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
       }
       if (putBitBuffer(bb, bitsToWrite, finfo) == 0) 0 else nToTransfer
     }
-    log(LogLevel.Debug, "Wrote string '%s' to %s", debugCBString, this)
     if (res > 0)
       setNonZeroLength()
     res

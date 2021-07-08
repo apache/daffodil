@@ -52,8 +52,6 @@ import org.apache.daffodil.sapi.infoset.ScalaXMLInfosetInputter
 import org.apache.daffodil.sapi.infoset.ScalaXMLInfosetOutputter
 import org.apache.daffodil.sapi.infoset.XMLTextInfosetOutputter
 import org.apache.daffodil.sapi.io.InputSourceDataInputStream
-import org.apache.daffodil.sapi.logger.ConsoleLogWriter
-import org.apache.daffodil.sapi.logger.LogLevel
 
 
 object TestScalaAPI {
@@ -140,11 +138,7 @@ class TestScalaAPI {
 
   @Test
   def testScalaAPI1(): Unit = {
-    val lw = new LogWriterForSAPITest()
     val debugger = new DebuggerRunnerForSAPITest()
-
-    Daffodil.setLogWriter(lw)
-    Daffodil.setLoggingLevel(LogLevel.Debug)
 
     val c = Daffodil.compiler()
     val schemaFile = getResource("/test/sapi/mySchema1.dfdl.xsd")
@@ -162,10 +156,7 @@ class TestScalaAPI {
     val res = dp.parse(input, outputter)
     val err = res.isError()
     assertFalse(err)
-    assertEquals(0, lw.errors.size)
-    assertEquals(0, lw.warnings.size)
 
-    assertTrue(lw.others.size > 0)
     assertTrue(debugger.lines.size > 0)
     assertTrue(debugger.lines
       .contains("----------------------------------------------------------------- 1\n"))
@@ -178,21 +169,13 @@ class TestScalaAPI {
     val err2 = res2.isError();
     assertFalse(err2);
     assertEquals("42", bos.toString());
-
-    // reset the global logging and debugger state
-    Daffodil.setLogWriter(new ConsoleLogWriter())
-    Daffodil.setLoggingLevel(LogLevel.Info)
   }
 
   // This is a duplicate of test testScalaAPI1 that serializes the parser
   // before executing the test.
   @Test
   def testScalaAPI1_A(): Unit = {
-    val lw = new LogWriterForSAPITest()
     val debugger = new DebuggerRunnerForSAPITest()
-
-    Daffodil.setLogWriter(lw)
-    Daffodil.setLoggingLevel(LogLevel.Debug)
 
     val c = Daffodil.compiler()
 
@@ -224,11 +207,6 @@ class TestScalaAPI {
     val err = res.isError()
     assertFalse(err)
 
-    lw.errors.foreach(println)
-    lw.warnings.foreach(println)
-    assertEquals(0, lw.errors.size)
-    assertEquals(0, lw.warnings.size)
-    assertTrue(lw.others.size > 0)
     assertTrue(debugger.lines.size > 0)
     assertTrue(debugger.lines
       .contains("----------------------------------------------------------------- 1\n"))
@@ -241,20 +219,10 @@ class TestScalaAPI {
     val err2 = res2.isError();
     assertFalse(err2);
     assertEquals("42", bos.toString());
-
-    // reset the global logging and debugger state
-    Daffodil.setLogWriter(new ConsoleLogWriter())
-    Daffodil.setLoggingLevel(LogLevel.Info)
-
   }
 
   @Test
   def testScalaAPI2(): Unit = {
-    val lw = new LogWriterForSAPITest()
-
-    Daffodil.setLogWriter(lw)
-    Daffodil.setLoggingLevel(LogLevel.Info)
-
     val c = Daffodil.compiler()
 
     val schemaFile = getResource("/test/sapi/mySchema1.dfdl.xsd")
@@ -284,29 +252,6 @@ class TestScalaAPI {
     assertEquals(1, locs.size)
     val loc = locs(0)
     assertTrue(loc.toString().contains("mySchema1.dfdl.xsd")) // reports the element ref, not element decl.
-
-    if (lw.errors.size > 0) {
-      lw.errors.foreach { s =>
-        System.err.println("testScalaAPI2: " + s)
-      }
-    }
-    if (lw.warnings.size > 0) {
-      lw.warnings.foreach { s =>
-        System.err.println("testScalaAPI2: " + s)
-      }
-    }
-    if (lw.others.size > 0) {
-      lw.others.foreach { s =>
-        System.err.println("testScalaAPI2: " + s)
-      }
-    }
-    assertEquals(0, lw.errors.size)
-    assertEquals(0, lw.warnings.size)
-    assertEquals(0, lw.others.size)
-
-    // reset the global logging state
-    Daffodil.setLogWriter(new ConsoleLogWriter())
-    Daffodil.setLoggingLevel(LogLevel.Info)
   }
 
   /**
@@ -450,11 +395,6 @@ class TestScalaAPI {
    */
   @Test
   def testScalaAPI6(): Unit = {
-    val lw = new LogWriterForSAPITest()
-
-    Daffodil.setLogWriter(lw)
-    Daffodil.setLoggingLevel(LogLevel.Debug)
-
     val c = Daffodil.compiler()
 
     val schemaFile = new java.io.File("/test/sapi/notHere1.dfdl.xsd")
@@ -464,10 +404,6 @@ class TestScalaAPI {
     val found1 = diags.exists{ _.getMessage().contains("notHere1") }
 
     assertTrue(found1)
-
-    // reset the global logging state
-    Daffodil.setLogWriter(new ConsoleLogWriter())
-    Daffodil.setLoggingLevel(LogLevel.Info)
   }
 
   /**
@@ -482,11 +418,6 @@ class TestScalaAPI {
     // back and forth between Scala.xml.Node and JDOM. And the conversions
     // both use XMLOutputter to format the result (which escapes the
     // entities).
-    val lw = new LogWriterForSAPITest()
-
-    Daffodil.setLogWriter(lw)
-    Daffodil.setLoggingLevel(LogLevel.Debug)
-
     val c = Daffodil.compiler()
 
     val schemaFile = getResource("/test/sapi/TopLevel.dfdl.xsd")
@@ -509,10 +440,6 @@ class TestScalaAPI {
     val err2 = res2.isError()
     assertFalse(err2)
     assertTrue(bos.toString().contains("Return-Path: <bob@smith.com>"))
-
-    // reset the global logging state
-    Daffodil.setLogWriter(new ConsoleLogWriter())
-    Daffodil.setLoggingLevel(LogLevel.Info)
   }
 
   /**
@@ -525,11 +452,6 @@ class TestScalaAPI {
    */
   @Test
   def testScalaAPI8(): Unit = {
-    val lw = new LogWriterForSAPITest()
-
-    Daffodil.setLogWriter(lw)
-    Daffodil.setLoggingLevel(LogLevel.Debug)
-
     val c = Daffodil.compiler()
 
     val schemaFile = getResource("/test/sapi/TopLevel.dfdl.xsd")
@@ -552,10 +474,6 @@ class TestScalaAPI {
     val err2 = res2.isError();
     assertFalse(err2);
     assertTrue(bos.toString().contains("Return-Path: <bob@smith.com>"))
-
-    // reset the global logging state
-    Daffodil.setLogWriter(new ConsoleLogWriter())
-    Daffodil.setLoggingLevel(LogLevel.Info)
   }
 
   /**
@@ -564,11 +482,6 @@ class TestScalaAPI {
    */
   @Test
   def testScalaAPI9(): Unit = {
-    val lw = new LogWriterForSAPITest()
-
-    Daffodil.setLogWriter(lw)
-    Daffodil.setLoggingLevel(LogLevel.Debug)
-
     val c = Daffodil.compiler()
 
     val schemaFile = getResource("/test/sapi/TopLevel.dfdl.xsd")
@@ -603,10 +516,6 @@ class TestScalaAPI {
     val err3 = res3.isError();
     assertFalse(err3);
     assertTrue(bos2.toString().contains("Return-Path: <bob@smith.com>"))
-
-    // reset the global logging state
-    Daffodil.setLogWriter(new ConsoleLogWriter())
-    Daffodil.setLoggingLevel(LogLevel.Info)
   }
 
   /**
@@ -669,11 +578,7 @@ class TestScalaAPI {
 
   @Test
   def testScalaAPI12(): Unit = {
-    val lw2 = new LogWriterForSAPITest2()
     val debugger = new DebuggerRunnerForSAPITest()
-
-    Daffodil.setLogWriter(lw2)
-    Daffodil.setLoggingLevel(LogLevel.Debug)
 
     val c = Daffodil.compiler()
 
@@ -694,31 +599,16 @@ class TestScalaAPI {
     val err = res.isError()
     assertFalse(err)
 
-    lw2.errors.foreach(println)
-    lw2.warnings.foreach(println)
-    assertEquals(0, lw2.errors.size)
-    assertEquals(0, lw2.warnings.size)
-    assertTrue(lw2.others.size > 0)
     assertTrue(debugger.lines.size > 0)
     assertTrue(debugger.lines
       .contains("----------------------------------------------------------------- 1\n"))
-
-    // reset the global logging and debugger state
-    Daffodil.setLogWriter(new ConsoleLogWriter())
-    Daffodil.setLoggingLevel(LogLevel.Info)
-
   }
 
   @Test
   def testScalaAPI13(): Unit = {
     // Demonstrates here that we can set external variables
     // after compilation but before parsing via Compiler.
-    val lw = new LogWriterForSAPITest()
     val debugger = new DebuggerRunnerForSAPITest()
-
-    Daffodil.setLogWriter(lw)
-    Daffodil.setLoggingLevel(LogLevel.Debug)
-
     val c = Daffodil.compiler()
 
     val extVarsFile = getResource("/test/sapi/external_vars_1.xml")
@@ -744,22 +634,13 @@ class TestScalaAPI {
     assertTrue(var1Node.size == 1)
     val var1NodeValue = var1Node.text
     assertTrue(var1NodeValue == "externallySet")
-
-    // reset the global logging and debugger state
-    Daffodil.setLogWriter(new ConsoleLogWriter())
-    Daffodil.setLoggingLevel(LogLevel.Info)
-
   }
 
   @Test
   def testScalaAPI14(): Unit = {
     // Demonstrates here that we can set external variables
     // after compilation but before parsing via DataProcessor.
-    val lw = new LogWriterForSAPITest()
     val debugger = new DebuggerRunnerForSAPITest()
-
-    Daffodil.setLogWriter(lw)
-    Daffodil.setLoggingLevel(LogLevel.Debug)
 
     val c = Daffodil.compiler()
 
@@ -786,19 +667,9 @@ class TestScalaAPI {
     val var1ValueText = var1ValueNode.text
     assertTrue(var1ValueText == "externallySet")
 
-    lw.errors.foreach(println)
-    lw.warnings.foreach(println)
-    assertEquals(0, lw.errors.size)
-    assertEquals(0, lw.warnings.size)
-    assertTrue(lw.others.size > 0)
     assertTrue(debugger.lines.size > 0)
     assertTrue(debugger.lines
       .contains("----------------------------------------------------------------- 1\n"))
-
-    // reset the global logging and debugger state
-    Daffodil.setLogWriter(new ConsoleLogWriter())
-    Daffodil.setLoggingLevel(LogLevel.Info)
-
   }
 
   // This is a duplicate of test testScalaAPI1 that serializes the parser
@@ -807,11 +678,7 @@ class TestScalaAPI {
   //
   @Test
   def testScalaAPI1_A_FullFails(): Unit = {
-    val lw = new LogWriterForSAPITest()
     val debugger = new DebuggerRunnerForSAPITest()
-
-    Daffodil.setLogWriter(lw)
-    Daffodil.setLoggingLevel(LogLevel.Debug)
 
     val c = Daffodil.compiler()
 
@@ -834,20 +701,11 @@ class TestScalaAPI {
       parser.withValidationMode(ValidationMode.Full)
       fail()
     } catch { case e: InvalidUsageException => assertEquals("'Full' validation not allowed when using a restored parser.", e.getMessage()) }
-
-    // reset the global logging and debugger state
-    Daffodil.setLogWriter(new ConsoleLogWriter())
-    Daffodil.setLoggingLevel(LogLevel.Info)
-
   }
 
   @Test
   def testScalaAPI15(): Unit = {
-    val lw = new LogWriterForSAPITest()
     val debugger = new DebuggerRunnerForSAPITest()
-
-    Daffodil.setLogWriter(lw)
-    Daffodil.setLoggingLevel(LogLevel.Debug)
 
     val c = Daffodil.compiler()
 
@@ -873,10 +731,6 @@ class TestScalaAPI {
     val d = diags(0);
     assertTrue(d.getMessage().contains("wrong"))
     assertTrue(d.getMessage().contains("e2"))
-
-    // reset the global logging and debugger state
-    Daffodil.setLogWriter(new ConsoleLogWriter())
-    Daffodil.setLoggingLevel(LogLevel.Info)
   }
 
   @Test
@@ -1126,11 +980,7 @@ class TestScalaAPI {
   @Test
   def testScalaAPI22(): Unit = {
     // Test SAX unparse with errors
-    val lw = new LogWriterForSAPITest()
     val debugger = new DebuggerRunnerForSAPITest()
-
-    Daffodil.setLogWriter(lw)
-    Daffodil.setLoggingLevel(LogLevel.Debug)
 
     val c = Daffodil.compiler()
 
@@ -1172,10 +1022,6 @@ class TestScalaAPI {
     val d = diags.head
     assertTrue(d.getMessage().contains("wrong"))
     assertTrue(d.getMessage().contains("e2"))
-
-    // reset the global logging and debugger state
-    Daffodil.setLogWriter(new ConsoleLogWriter())
-    Daffodil.setLoggingLevel(LogLevel.Info)
   }
 
   @Test

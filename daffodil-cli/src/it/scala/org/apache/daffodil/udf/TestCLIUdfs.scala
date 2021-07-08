@@ -95,7 +95,6 @@ class TestCLIUdfs {
       shell.expectIn(
         1,
         allOf(
-          contains("[info] No User Defined Functions loaded."),
           contains("[error] Schema Definition Error: Unsupported function: jsudf:replace")))
 
       Util.expectExitCode(ExitCode.UnableToCreateProcessor, shell)
@@ -132,10 +131,8 @@ class TestCLIUdfs {
       shell.expectIn(
         1,
         allOf(
-          contains("[error] Error while loading User Defined Function Providers:" +
-            " org.apache.daffodil.udf.UserDefinedFunctionProvider:" +
-            " Provider org.nonexistentclass.example.StringFunctions.StringFunctionsProvider not found"),
-          contains("[info] No User Defined Functions loaded."),
+          contains("[warn] User Defined Function Provider failed to load: org.apache.daffodil.udf.UserDefinedFunctionProvider:"),
+          contains("Provider org.nonexistentclass.example.StringFunctions.StringFunctionsProvider not found"),
           contains("[error] Schema Definition Error: Unsupported function: jsudf:replace")))
 
       Util.expectExitCode(ExitCode.UnableToCreateProcessor, shell)
@@ -166,7 +163,6 @@ class TestCLIUdfs {
       shell.expectIn(
         1,
         allOf(
-          contains("[info] No User Defined Functions loaded."),
           contains("[error] Schema Definition Error: Unsupported function: jsudf:replace")))
 
       Util.expectExitCode(ExitCode.UnableToCreateProcessor, shell)
@@ -199,10 +195,9 @@ class TestCLIUdfs {
       shell.expectIn(
         1,
         allOf(
-          contains("[warning] User Defined Function Provider ignored:" +
+          contains("[warn] User Defined Function Provider ignored:" +
             " org.badudfs.functionclasses1.StringFunctions.StringFunctionsProvider." +
             " No User Defined Functions found."),
-          contains("[info] No User Defined Functions loaded."),
           contains("[error] Schema Definition Error: Unsupported function: jsudf:replace")))
 
       Util.expectExitCode(ExitCode.UnableToCreateProcessor, shell)
@@ -235,10 +230,9 @@ class TestCLIUdfs {
       shell.expectIn(
         1,
         allOf(
-          contains("[warning] User Defined Function Provider ignored:" +
+          contains("[warn] User Defined Function Provider ignored:" +
             " org.badudfs.functionclasses2.StringFunctions.StringFunctionsProvider." +
             " No User Defined Functions found."),
-          contains("[info] No User Defined Functions loaded."),
           contains("[error] Schema Definition Error: Unsupported function: jsudf:replace")))
 
       Util.expectExitCode(ExitCode.UnableToCreateProcessor, shell)
@@ -272,13 +266,12 @@ class TestCLIUdfs {
       shell.expectIn(
         1,
         allOf(
-          contains("[warning] User Defined Function ignored:" +
+          contains("[warn] User Defined Function ignored:" +
             " org.badudfs.nonUDF.StringFunctions.FuncA." +
             " Doesn't implement org.apache.daffodil.udf.UserDefinedFunction"),
-          contains("[warning] User Defined Function ignored:" +
+          contains("[warn] User Defined Function ignored:" +
             " org.badudfs.nonUDF.StringFunctions.Replace." +
             " Doesn't implement org.apache.daffodil.udf.UserDefinedFunction"),
-          contains("[info] No User Defined Functions loaded."),
           contains("[error] Schema Definition Error: Unsupported function: jsudf:replace")))
 
       Util.expectExitCode(ExitCode.UnableToCreateProcessor, shell)
@@ -312,20 +305,19 @@ class TestCLIUdfs {
       shell.expectIn(
         1,
         allOf(
-          contains("[warning] User Defined Function ignored:" +
+          contains("[warn] User Defined Function ignored:" +
             " org.badudfs.annotations.StringFunctions.FuncB." +
             " Missing org.apache.daffodil.udf.UserDefinedFunctionIdentification annotation"),
           anyOf(
-            contains("[warning] User Defined Function ignored:" +
+            contains("[warn] User Defined Function ignored:" +
               " org.badudfs.annotations.StringFunctions.Compare." +
               " Annotation namespace field is empty or invalid."),
-            contains("[warning] User Defined Function ignored:" +
+            contains("[warn] User Defined Function ignored:" +
               " org.badudfs.annotations.StringFunctions.Compare." +
               " Annotation name field is empty or invalid.")),
-          contains("[warning] User Defined Function ignored:" +
+          contains("[warn] User Defined Function ignored:" +
             " org.badudfs.annotations.StringFunctions.Replace." +
             " Annotation name field is empty or invalid."),
-          contains("[info] No User Defined Functions loaded."),
           contains("[error] Schema Definition Error: Unsupported function: jsudf:replace")))
 
       Util.expectExitCode(ExitCode.UnableToCreateProcessor, shell)
@@ -362,25 +354,24 @@ class TestCLIUdfs {
       shell.expectIn(
         1,
         allOf(
-          contains("[warning] User Defined Function ignored:" +
+          contains("[warn] User Defined Function ignored:" +
             " org.badudfs.evaluate.StringFunctions.FuncA." +
             " Overloaded evaluate method: urn:example:com:ext:badudfs:stringfunctions:funcA"),
-          contains("[warning] User Defined Function ignored:" +
+          contains("[warn] User Defined Function ignored:" +
             " org.badudfs.evaluate.StringFunctions.Replace." +
             " Missing evaluate method: urn:example:com:ext:badudfs:stringfunctions:replace"),
-          contains("[warning] User Defined Function ignored:" +
+          contains("[warn] User Defined Function ignored:" +
             " org.badudfs.evaluate.StringFunctions.FuncB." +
             " Unsupported return type: void"),
-          contains("[warning] User Defined Function ignored:" +
+          contains("[warn] User Defined Function ignored:" +
             " org.badudfs.evaluate.StringFunctions.FuncC." +
             " Unsupported parameter type(s): String[],int[]"),
-          contains("[warning] User Defined Function ignored:" +
+          contains("[warn] User Defined Function ignored:" +
             " org.badudfs.evaluate.StringFunctions.FuncD." +
             " Unsupported parameter type(s): String[]"),
-          contains("[warning] User Defined Function ignored:" +
+          contains("[warn] User Defined Function ignored:" +
             " org.badudfs.evaluate.StringFunctions.FuncE." +
             " Unsupported return type: String[]"),
-          contains("[info] No User Defined Functions loaded."),
           contains("[error] Schema Definition Error: Unsupported function: jsudf:replace")))
 
       Util.expectExitCode(ExitCode.UnableToCreateProcessor, shell)
@@ -414,9 +405,8 @@ class TestCLIUdfs {
       shell.expectIn(
         1,
         allOf(
-          contains("[error] User Defined Function 'ssudf:reverse' Error: UDF Error!"),
-          contains("org.apache.daffodil.udf.UserDefinedFunctionFatalErrorException: "),
-          contains("at org.sbadudfs.udfexceptions.evaluating.StringFunctions.Reverse.evaluate")))
+          contains("[error] User Defined Function 'ssudf:reverse' Error. Cause: org.sbadudfs.udfexceptions.evaluating.StringFunctions.Reverse$CustomException: UDF Error!"),
+          contains("at org.sbadudfs.udfexceptions.evaluating.StringFunctions.Reverse.evaluate(StringFunctionsProvider.scala:56)")))
 
       Util.expectExitCode(ExitCode.UserDefinedFunctionError, shell)
       shell.send("exit\n")
@@ -479,12 +469,9 @@ class TestCLIUdfs {
       shell.expectIn(
         1,
         allOf(
-          contains("[error] Error initializing User Defined Function:"),
-          contains("http://example.com/scala/udf:rev-words."),
-          contains("Error thrown: org.sbadudfs.udfexceptions2.StringFunctions.ReverseWords$CustomException: UDF Error!"),
-          contains("[error] User Defined Function 'http://example.com/scala/udf:rev-words' Error: UDF Error!"),
-          contains("org.apache.daffodil.udf.UserDefinedFunctionFatalErrorException:"),
-          contains("at org.sbadudfs.udfexceptions2.StringFunctions.ReverseWords")))
+          contains("[error] User Defined Function could not be initialized: {http://example.com/scala/udf}rev-words."),
+          contains("Cause: org.sbadudfs.udfexceptions2.StringFunctions.ReverseWords$CustomException: UDF Error!"),
+          contains("at org.sbadudfs.udfexceptions2.StringFunctions.ReverseWords.<init>(StringFunctionsProvider.scala:65)")))
 
       Util.expectExitCode(ExitCode.UserDefinedFunctionError, shell)
       shell.send("exit\n")
@@ -517,7 +504,7 @@ class TestCLIUdfs {
       shell.expectIn(
         1,
         allOf(
-          contains("[warning] User Defined Function Provider ignored:"),
+          contains("[warn] User Defined Function Provider ignored:"),
           contains("org.sbadudfs.udfpexceptions.StringFunctions.StringFunctionsProvider"),
           contains("Error loading User Defined Functions:"),
           contains("org.sbadudfs.udfpexceptions.StringFunctions.StringFunctionsProvider$CustomException"),
@@ -554,10 +541,8 @@ class TestCLIUdfs {
       shell.expectIn(
         1,
         allOf(
-          contains("[error] Error while loading User Defined Function Providers:" +
-            " org.apache.daffodil.udf.UserDefinedFunctionProvider:" +
-            " Provider org.sbadudfs.udfpexceptions2.StringFunctions.StringFunctionsProvider could not be instantiated"),
-          contains("[info] No User Defined Functions loaded."),
+          contains("[warn] User Defined Function Provider failed to load: org.apache.daffodil.udf.UserDefinedFunctionProvider"),
+          contains("Provider org.sbadudfs.udfpexceptions2.StringFunctions.StringFunctionsProvider could not be instantiated"),
           contains("[error] Schema Definition Error: Unsupported function: ssudf:rev-words")))
 
       Util.expectExitCode(ExitCode.UnableToCreateProcessor, shell)
@@ -592,9 +577,9 @@ class TestCLIUdfs {
       shell.expectIn(
         1,
         allOf(
-          contains("[error] User Defined Function Class Mismatch: http://example.com/scala/udf:rev-words." +
-            " Expected: class org.sbadudfs.functionclasses.StringFunctions.ReverseWords" +
-            " Actual: class org.sbadudfs.functionclasses.StringFunctions.Reverse"),
+          contains("[warn] User Defined Function class mismatch: {http://example.com/scala/udf}rev-words."),
+          contains("Expected: class org.sbadudfs.functionclasses.StringFunctions.ReverseWords"),
+          contains("Actual: class org.sbadudfs.functionclasses.StringFunctions.Reverse"),
           contains("[error] Schema Definition Error: Unsupported function: ssudf:rev-words")))
 
       Util.expectExitCode(ExitCode.UnableToCreateProcessor, shell)
@@ -628,11 +613,9 @@ class TestCLIUdfs {
       shell.expectIn(
         1,
         allOf(
-          contains("[error] Error initializing User Defined Function:"),
-          contains("http://example.com/scala/udf:reverse."),
-          contains("Error thrown: scala.MatchError:"),
-          contains("org.apache.daffodil.udf.UserDefinedFunctionFatalErrorException:"),
-          contains("at org.sbadudfs.functionclasses.StringFunctions.StringFunctionsProvider.createUserDefinedFunction")))
+          contains("[error] User Defined Function could not be initialized: {http://example.com/scala/udf}reverse."),
+          contains("Cause: scala.MatchError: http://example.com/scala/udf:reverse (of class java.lang.String)"),
+          contains("at org.sbadudfs.functionclasses.StringFunctions.StringFunctionsProvider.createUserDefinedFunction(StringFunctionsProvider.scala:34)")))
 
       Util.expectExitCode(ExitCode.UserDefinedFunctionError, shell)
       shell.send("exit\n")
@@ -660,12 +643,17 @@ class TestCLIUdfs {
     val shell = Util.start("", envp = Map("DAFFODIL_CLASSPATH" -> dafClassPath))
 
     try {
-      val cmd = String.format("%s -v save-parser -s %s -r user_func4", Util.binPath, testSchemaFile)
+      val cmd = String.format("%s -vv save-parser -s %s -r user_func4", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expectIn(
         1,
         allOf(
-          contains("[error] Error serializing initialized User Defined Function: org.sbadudfs.functionclasses2.StringFunctions.GetNonSerializableState"),
+          contains("[debug] User Defined Function loaded: org.sbadudfs.functionclasses2.StringFunctions.GetNonSerializableState => {http://example.com/scala/udf}get-nonserializable-state"),
+          contains("[debug] User Defined Function loaded: org.sbadudfs.functionclasses2.StringFunctions.GetSerializableState => {http://example.com/scala/udf}get-serializable-state")))
+      shell.expectIn(
+        1,
+        allOf(
+          contains("[warn] User Defined Function is not serializable: org.sbadudfs.functionclasses2.StringFunctions.GetNonSerializableState."),
           contains("Could not serialize member of class: org.sbadudfs.functionclasses2.StringFunctions.SomeNonSerializableClass"),
           contains("[error] Schema Definition Error: Unsupported function: ssudf:get-nonserializable-state")))
 
@@ -698,10 +686,15 @@ class TestCLIUdfs {
 
     try {
       val cmds = Array(
-        String.format("%s -v save-parser -s %s -r user_func5 %s", Util.binPath, testSchemaFile, savedParserFile.getAbsolutePath),
+        String.format("%s -vv save-parser -s %s -r user_func5 %s", Util.binPath, testSchemaFile, savedParserFile.getAbsolutePath),
         String.format(Util.echoN("strng") + "| %s -v parse -P %s", Util.binPath, savedParserFile.getAbsolutePath))
       val cmd = Util.makeMultipleCmds(cmds)
       shell.sendLine(cmd)
+      shell.expectIn(
+        1,
+        allOf(
+          contains("[debug] User Defined Function loaded: org.sbadudfs.functionclasses2.StringFunctions.GetNonSerializableState => {http://example.com/scala/udf}get-nonserializable-state"),
+          contains("[debug] User Defined Function loaded: org.sbadudfs.functionclasses2.StringFunctions.GetSerializableState => {http://example.com/scala/udf}get-serializable-state")))
       shell.expectIn(
         0,
         allOf(

@@ -446,7 +446,7 @@ class CharDelim(val char: Char, ignoreCase: Boolean) extends DelimBase {
 
   lazy val typeName = "CharDelim"
   def print = {
-    //log(LogLevel.Debug, "\t\t\t" + typeName + ": '" + char + "' d" + char.toInt + " isMatched: " + isMatched.toString()))
+    //Logger.log.debug(s"\t\t\t" + typeName + ": '" + char + "' d" + char.toInt + " isMatched: " + isMatched.toString()))
   }
 
   def printStr = {
@@ -511,7 +511,7 @@ class NLDelim extends DelimBase with NL {
   }
 
   def print = {
-    //log(LogLevel.Debug, "\t\t\t" + typeName + ": NL" + " isMatched: " + isMatched.toString()))
+    //Logger.log.debug(s"\t\t\t" + typeName + ": NL" + " isMatched: " + isMatched.toString()))
   }
   def printStr = {
     val res = typeName
@@ -575,7 +575,7 @@ abstract class WSPBase extends DelimBase with WSP {
     isMatched
   }
   def print = {
-    //log(LogLevel.Debug, "\t\t\t" + typeName + ": WSPBase" + " isMatched: " + isMatched.toString()))
+    //Logger.log.debug(s"\t\t\t" + typeName + ": WSPBase" + " isMatched: " + isMatched.toString()))
   }
   def printStr = {
     val res = typeName
@@ -586,7 +586,7 @@ abstract class WSPBase extends DelimBase with WSP {
 class WSPDelim extends WSPBase with WSP {
   override lazy val typeName = "WSPDelim"
   override def print = {
-    //log(LogLevel.Debug, "\t\t\t" + typeName + ": WSP" + " isMatched: " + isMatched.toString()))
+    //Logger.log.debug(s"\t\t\t" + typeName + ": WSP" + " isMatched: " + isMatched.toString()))
   }
   override def printStr = {
     val res = typeName
@@ -598,7 +598,7 @@ class WSPDelim extends WSPBase with WSP {
 class WSPPlusDelim extends WSPBase with WSP {
   override lazy val typeName = "WSP+Delim"
   override def print = {
-    //log(LogLevel.Debug, "\t\t\t" + typeName + ": WSP+" + " isMatched: " + isMatched.toString()))
+    //Logger.log.debug(s"\t\t\t" + typeName + ": WSP+" + " isMatched: " + isMatched.toString()))
   }
   override def printStr = {
     val res = typeName
@@ -610,7 +610,7 @@ class WSPPlusDelim extends WSPBase with WSP {
 class WSPStarDelim extends WSPBase with WSP {
   override lazy val typeName = "WSP*Delim"
   override def print = {
-    //log(LogLevel.Debug, "\t\t\t" + typeName + ": WSP*" + " isMatched: " + isMatched.toString()))
+    //Logger.log.debug(s"\t\t\t" + typeName + ": WSP*" + " isMatched: " + isMatched.toString()))
   }
   override def printStr = {
     val res = typeName

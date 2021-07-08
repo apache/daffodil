@@ -35,13 +35,11 @@ REM DAFFODIL_JAVA_OPTS environment variable. If not specified, the JAVA_OPTS
 REM environment variable will be used. If that is not specified, reasonable
 REM defaults for Daffodil will be defined.
 
-
 set MAINCLASS=org.apache.daffodil.Main
 set BINDIR=%~dp0
 set LIBDIR=%BINDIR%..\lib
+set CONFDIR=%BINDIR%..\conf
 set CLASSPATH=%LIBDIR%\*
-
-set JOPTS=-Xms1024m -Xmx1024m -XX:ReservedCodeCacheSize=128m
 
 if defined DAFFODIL_JAVA_OPTS (
 	set JOPTS=%DAFFODIL_JAVA_OPTS%
@@ -49,4 +47,16 @@ if defined DAFFODIL_JAVA_OPTS (
 	set JOPTS=%JAVA_OPTS%
 )
 
-java %JOPTS% -cp "%CLASSPATH%;%DAFFODIL_CLASSPATH%" %MAINCLASS% %*
+if defined DAFFODIL_CLASSPATH (
+	set CLASSPATH=%CLASSPATH%;%DAFFODIL_CLASSPATH%
+)
+
+REM Prepend additional java options that must be provided. By prepending, a user
+REM can override options by redefining them in JAVA_OPTS or DAFFODIL_JAVA_OPTS
+set DEFAULT_JOPTS=
+set DEFAULT_JOPTS=%DEFAULT_JOPTS% -Xms1024m
+set DEFAULT_JOPTS=%DEFAULT_JOPTS% -Xmx1024m
+set DEFAULT_JOPTS=%DEFAULT_JOPTS% -XX:ReservedCodeCacheSize=128m
+set DEFAULT_JOPTS=%DEFAULT_JOPTS% "-Dlog4j.configurationFile=%CONFDIR%\log4j2.xml"
+
+java %DEFAULT_JOPTS% %JOPTS% -cp "%CLASSPATH%" %MAINCLASS% %*

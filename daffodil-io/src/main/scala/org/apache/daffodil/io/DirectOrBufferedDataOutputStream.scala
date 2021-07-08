@@ -17,6 +17,7 @@
 
 package org.apache.daffodil.io
 
+import java.io.File
 import java.nio.file.Path
 
 import passera.unsigned.ULong
@@ -25,13 +26,11 @@ import org.apache.daffodil.equality._
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.util.Bits
-import org.apache.daffodil.util.LogLevel
+import org.apache.daffodil.util.Logger
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe._
 import org.apache.daffodil.util.MaybeULong
 import org.apache.daffodil.util.Misc
-import org.apache.daffodil.util.Logging
-import java.io.File
 
 /**
  * This simple extension just gives us a public method for access to the underlying byte array.
@@ -45,7 +44,7 @@ private[io] class ByteArrayOrFileOutputStream(
   maxBufferSizeInBytes: Long,
   tempDirPath: File,
   maybeExistingFile: Maybe[Path])
-  extends java.io.OutputStream with Logging {
+  extends java.io.OutputStream {
 
   var isFile: Boolean = maybeExistingFile.isDefined
 
@@ -75,7 +74,7 @@ private[io] class ByteArrayOrFileOutputStream(
   @inline
   private def checkBuffer(lengthInBytes: Long): Unit = {
     if (!isFile && (nBytes + lengthInBytes > maxBufferSizeInBytes)) {
-      log(LogLevel.Info, "Switching to file based output stream. If this is performance critical, you may want to consider re-organizing your schema to avoid this if possible.")
+      Logger.log.warn(s"Switching to file based output stream. If this is performance critical, you may want to consider re-organizing your schema to avoid this if possible.")
       maybeFile = try {
         val file = File.createTempFile("daffodil-", ".tmp", tempDirPath)
         file.deleteOnExit()
@@ -179,6 +178,7 @@ class DirectOrBufferedDataOutputStream private[io] (
   val tempDirPath: File,
   val maybeExistingFile: Maybe[Path])
   extends DataOutputStreamImplMixin {
+
   type ThisType = DirectOrBufferedDataOutputStream
 
   override def putULong(unsignedLong: ULong, bitLengthFrom1To64: Int, finfo: FormatInfo): Boolean = {
@@ -239,7 +239,7 @@ class DirectOrBufferedDataOutputStream private[io] (
       } else if (maybeRelBitLimit0b.isDefined) {
         " length limit %d.".format(maybeRelBitLimit0b.get)
       } else "") +
-      (if (isBuffering) ", data=" + upTo16BytesInHex else "") +
+      (if (isBuffering && !bufferingJOS.isFile) ", data=" + upTo16BytesInHex else "") +
       (if (_following.isEmpty) " no following" else "") +
       ")"
     toDisplay
@@ -443,7 +443,7 @@ class DirectOrBufferedDataOutputStream private[io] (
         keepMerging = first.isFinished // continue until AFTER we merge forward into the first non-finished successor
         Assert.invariant(first.isBuffering)
 
-        log(LogLevel.Debug, "merging direct DOS %s into DOS %s", directStream, first)
+        Logger.log.debug(s"merging direct DOS ${directStream} into DOS ${first}")
         val dabp = directStream.maybeAbsBitPos0b.getULong
         if (first.maybeAbsStartingBitPos0b.isEmpty) {
           first.setAbsStartingBitPos0b(dabp)
@@ -460,7 +460,7 @@ class DirectOrBufferedDataOutputStream private[io] (
         first.convertToDirect(directStream) // first is now the direct stream
         directStream.setDOSState(Uninitialized) // old direct stream is now dead
         directStream = first // long live the new direct stream!
-        log(LogLevel.Debug, "New direct DOS %s", directStream)
+        Logger.log.debug(s"New direct DOS ${directStream}")
 
       }
       if (directStream._following.isDefined) {
@@ -568,7 +568,7 @@ class DirectOrBufferedDataOutputStream private[io] (
         if (pmabp.isDefined) {
           val pabp = pmabp.getULong
           this.setAbsStartingBitPos0b(pabp)
-          log(LogLevel.Debug, "for %s propagated absolute starting bit pos %s\n", this, pabp.toString)
+          Logger.log.debug(s"for ${this} propagated absolute starting bit pos ${pabp}")
           super.maybeAbsBitPos0b // will get the right value this time.
         } else {
           // prior doesn't have an abs bit pos.

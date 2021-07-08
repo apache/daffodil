@@ -23,13 +23,12 @@ import org.apache.daffodil.Implicits.ImplicitsSuppressUnusedImportWarning
 import org.apache.daffodil.compiler.Compiler; object INoWarnDSOM1 { ImplicitsSuppressUnusedImportWarning() }
 
 import org.apache.daffodil.util.Fakes
-import org.apache.daffodil.util.Logging
 import org.apache.daffodil.util.SchemaUtils
 import org.apache.daffodil.xml.XMLUtils
 import org.junit.Assert.assertEquals
 import org.apache.daffodil.api.DaffodilTunables
 
-class TestTunables extends Logging {
+class TestTunables {
 
   val xsd = XMLUtils.XSD_NAMESPACE
   val dfdl = XMLUtils.dfdlAppinfoSource // XMLUtils.DFDL_NAMESPACE

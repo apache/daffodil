@@ -20,8 +20,6 @@ package org.apache.daffodil.section06.namespaces
 import org.junit.Test
 import org.junit.AfterClass
 import org.apache.daffodil.tdml.Runner
-import org.apache.daffodil.util.LoggingDefaults
-import org.apache.daffodil.util.LogLevel
 
 object TestNamespaces {
   val testDir = "/org/apache/daffodil/section06/namespaces/"
@@ -60,27 +58,8 @@ class TestNamespaces {
   // which is the file with the content responsible for the error, not the file
   // of the object where the error was detected.
 
-  @Test def test_combinations_02(): Unit = {
-    try {
-      // Must turn off the Info logging messages, because those will have the filename in them
-      // which would create a false positive in this test.
-      LoggingDefaults.setLoggingLevel(LogLevel.Warning)
-      runnerV.runOneTest("combinations_02")
-    } finally {
-      LoggingDefaults.setLoggingLevel(LogLevel.Info)
-    }
-  }
-
-  @Test def test_errorLocations_01(): Unit = {
-    try {
-      // Must turn off the Info logging messages, because those will have the filename in them
-      // which would create a false positive in this test.
-      LoggingDefaults.setLoggingLevel(LogLevel.Warning)
-      runner.runOneTest("errorLocations_01")
-    } finally {
-      LoggingDefaults.setLoggingLevel(LogLevel.Info)
-    }
-  }
+  @Test def test_combinations_02(): Unit = { runnerV.runOneTest("combinations_02") }
+  @Test def test_errorLocations_01(): Unit = { runner.runOneTest("errorLocations_01") }
 
   @Test def test_defaultNamespaceInExpression(): Unit = { runner.runOneTest("defaultNamespaceInExpression") }
   @Test def test_defaultNamespaceInExpression2(): Unit = { runner.runOneTest("defaultNamespaceInExpression2") }

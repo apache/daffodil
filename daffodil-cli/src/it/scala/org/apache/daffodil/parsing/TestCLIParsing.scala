@@ -450,14 +450,10 @@ class TestCLIparsing {
     val shell = Util.start("")
 
     try {
-
       shell.sendLine(String.format("echo 0,1| %s -v parse -s %s -r matrix -", Util.binPath, testSchemaFile))
       shell.expectIn(1, contains("[info]"))
 
       shell.sendLine(String.format("echo 0,1| %s -vv parse -s %s -r matrix -", Util.binPath, testSchemaFile))
-      shell.expectIn(1, contains("[compile]"))
-
-      shell.sendLine(String.format("echo 0,1| %s -vvv parse -s %s -r matrix -", Util.binPath, testSchemaFile))
       shell.expectIn(1, contains("[debug]"))
 
       Util.expectExitCode(ExitCode.LeftOverData, shell)

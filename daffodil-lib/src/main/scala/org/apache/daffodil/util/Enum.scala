@@ -44,9 +44,6 @@ package org.apache.daffodil.util
  * integer id field, etc.
  *
  * How to use: search the source for " extends Enum" and you'll find a few examples.
- * One of these, the one in Logger.scala's LogLevel object enum, is setup to
- * work across the Java API (japi), so that's an example of how to achieve
- * a scala enum, but also have it be usable across from Java calling into scala.
  *
  * Note: There is a different enum idiom used in the DFDL properties code
  * that is laid down by the code generator. This one is a small improvement

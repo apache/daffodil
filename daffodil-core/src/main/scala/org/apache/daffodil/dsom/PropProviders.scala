@@ -18,7 +18,6 @@
 package org.apache.daffodil.dsom
 
 import org.apache.daffodil.util._
-import org.apache.daffodil.util.Logging
 import org.apache.daffodil.schema.annotation.props.LookupLocation
 import org.apache.daffodil.schema.annotation.props.PropertyLookupResult
 import org.apache.daffodil.schema.annotation.props.PropTypes
@@ -50,7 +49,7 @@ import org.apache.daffodil.schema.annotation.props.Found
  * format annotations together.
  */
 trait LeafPropProvider
-  extends LookupLocation with PropTypes with Logging {
+  extends LookupLocation with PropTypes {
 
   /**
    * for debug/test only
@@ -109,7 +108,7 @@ trait LeafPropProvider
  * be the default formats being chained together.
  */
 final class ChainPropProvider(leafProvidersArg: Seq[LeafPropProvider], forAnnotation: String)
-  extends Logging with PropTypes {
+  extends PropTypes {
 
   override def toString() = Misc.getNameFromClass(this) + "(" + forAnnotation + ")"
 

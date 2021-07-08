@@ -24,7 +24,9 @@ package org.apache.daffodil.japi.logger;
  * <p>
  * Levels Resolver Compile, Debug, and OOLAGDebug are intended for Daffodil developer
  * use.
+ * @deprecated Use Log4j for logging. Since 3.2.0.
  */
+@Deprecated
 public enum LogLevel {
   Error(10),
   Warning(20),

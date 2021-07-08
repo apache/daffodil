@@ -25,44 +25,10 @@ package org.apache.daffodil.sapi.packageprivate
 // private should go in this package.
 
 import org.apache.daffodil.sapi._
-import org.apache.daffodil.sapi.logger._
 import org.apache.daffodil.sapi.debugger._
 import org.apache.daffodil.api.{ ValidationMode => SValidationMode }
-import org.apache.daffodil.util.{ LogLevel => SLogLevel }
-import org.apache.daffodil.util.{ LogWriter => SLogWriter }
 import org.apache.daffodil.debugger.{ InteractiveDebugger => SInteractiveDebugger }
 import org.apache.daffodil.debugger.{ InteractiveDebuggerRunner => SInteractiveDebuggerRunner }
-
-private[sapi] object LoggingConversions {
-
-  def levelToScala(lvl: LogLevel.Value): SLogLevel.Type = {
-    val slvl: SLogLevel.Type = lvl match {
-      case LogLevel.Error => SLogLevel.Error
-      case LogLevel.Warning => SLogLevel.Warning
-      case LogLevel.Info => SLogLevel.Info
-      case LogLevel.Compile => SLogLevel.Compile
-      case LogLevel.Resolver => SLogLevel.Resolver
-      case LogLevel.Debug => SLogLevel.Debug
-      case LogLevel.OOLAGDebug => SLogLevel.OOLAGDebug
-      case LogLevel.DelimDebug => SLogLevel.DelimDebug
-    }
-    slvl
-  }
-
-  def levelFromScala(slvl: SLogLevel.Type): LogLevel.Value = {
-    val lvl: LogLevel.Value = slvl match {
-      case SLogLevel.Error => LogLevel.Error
-      case SLogLevel.Warning => LogLevel.Warning
-      case SLogLevel.Info => LogLevel.Info
-      case SLogLevel.Resolver => LogLevel.Resolver
-      case SLogLevel.Compile => LogLevel.Compile
-      case SLogLevel.Debug => LogLevel.Debug
-      case SLogLevel.OOLAGDebug => LogLevel.OOLAGDebug
-      case SLogLevel.DelimDebug => LogLevel.DelimDebug
-    }
-    lvl
-  }
-}
 
 private[sapi] object ValidationConversions {
 
@@ -87,23 +53,6 @@ private[sapi] object ValidationConversions {
   }
 }
 
-/* A wrapper log writer that scala logging can talk to, which is then forwarded
- * onto the java LogWriter, if a user implements their own log writer in java.
- */
-private[sapi] class JavaLogWriter(logWriter: LogWriter)
-    extends SLogWriter {
-
-  protected def write(msg: String): Unit = {
-    //do nothing
-  }
-
-  override def log(lvl: SLogLevel.Type, logID: String, msg: String, args: Seq[Any]): Unit = {
-    if (logWriter != null) {
-      logWriter.log(LoggingConversions.levelFromScala(lvl), logID, msg, args)
-    }
-  }
-}
-
 /* A wrapper interctive debugger that scala debugging can talk to, which is
  * then forwarded onto the java interactive debugger, if a user implements
  * their own debugger in java.
@@ -115,4 +64,3 @@ private[sapi] class JavaInteractiveDebuggerRunner(dr: DebuggerRunner)
   def lineOutput(line: String): Unit = dr.lineOutput(line)
   def fini(): Unit = dr.fini
 }
-

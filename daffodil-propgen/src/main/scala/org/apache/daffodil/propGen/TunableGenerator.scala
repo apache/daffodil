@@ -55,7 +55,6 @@ class TunableGenerator(schemaRootConfig: scala.xml.Node, schemaRootExt: scala.xm
     |import org.apache.daffodil.exceptions.ThrowsSDE
     |import org.apache.daffodil.schema.annotation.props.EmptyElementParsePolicy
     |import org.apache.daffodil.schema.annotation.props.Enum
-    |import org.apache.daffodil.util.Logging
     |import org.apache.daffodil.util.Misc
     |import org.apache.daffodil.xml.DaffodilXMLLoader
     |import org.apache.daffodil.xml.XMLUtils
@@ -98,8 +97,7 @@ class TunableGenerator(schemaRootConfig: scala.xml.Node, schemaRootExt: scala.xm
     """.trim.stripMargin
 
   val middle = """
-    |  extends Serializable
-    |  with Logging {
+    |  extends Serializable {
     |
     |  def setTunables(tunables: Map[String, String]): DaffodilTunables = {
     |    tunables.foldLeft(this) { case (dafTuns, (tunable, value)) => dafTuns.setTunable(tunable, value) }

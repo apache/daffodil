@@ -29,7 +29,7 @@ import org.apache.daffodil.processors.SchemaSetRuntimeData
 import org.apache.daffodil.processors.VariableMap
 import org.apache.daffodil.processors.parsers.NotParsableParser
 import org.apache.daffodil.processors.unparsers.NotUnparsableUnparser
-import org.apache.daffodil.util.LogLevel
+import org.apache.daffodil.util.Logger
 
 trait SchemaSetRuntime1Mixin {
   self: SchemaSet =>
@@ -86,32 +86,31 @@ trait SchemaSetRuntime1Mixin {
   }.value
 
   def onPath(xpath: String): DFDL.DataProcessor = {
-      Assert.usage(!isError)
-      if (xpath != "/") root.notYetImplemented("""Path must be "/". Other path support is not yet implemented.""")
-      val rootERD = root.elementRuntimeData
-      root.schemaDefinitionUnless(
-        rootERD.outputValueCalcExpr.isEmpty,
-        "The root element cannot have the dfdl:outputValueCalc property.")
-      val validationMode = ValidationMode.Off
-      val p = if (!root.isError) parser else null
-      val u = if (!root.isError) unparser else null
-      val ssrd = new SchemaSetRuntimeData(
-        p,
-        u,
-        this.diagnostics,
-        rootERD,
-        variableMap,
-        typeCalcMap)
-      if (root.numComponents > root.numUniqueComponents)
-        log(LogLevel.Compile, "Compiler: component counts: unique %s, actual %s.",
-          root.numUniqueComponents, root.numComponents)
-      val dataProc = new DataProcessor(ssrd, tunable, self.compilerExternalVarSettings)
-      if (dataProc.isError) {
-      } else {
-        log(LogLevel.Compile, "Parser = %s.", ssrd.parser.toString)
-        log(LogLevel.Compile, "Unparser = %s.", ssrd.unparser.toString)
-        log(LogLevel.Compile, "Compilation (DataProcesor) completed with no errors.")
-      }
-      dataProc
+    Assert.usage(!isError)
+    if (xpath != "/") root.notYetImplemented("""Path must be "/". Other path support is not yet implemented.""")
+    val rootERD = root.elementRuntimeData
+    root.schemaDefinitionUnless(
+      rootERD.outputValueCalcExpr.isEmpty,
+      "The root element cannot have the dfdl:outputValueCalc property.")
+    val validationMode = ValidationMode.Off
+    val p = if (!root.isError) parser else null
+    val u = if (!root.isError) unparser else null
+    val ssrd = new SchemaSetRuntimeData(
+      p,
+      u,
+      this.diagnostics,
+      rootERD,
+      variableMap,
+      typeCalcMap)
+    if (root.numComponents > root.numUniqueComponents)
+      Logger.log.info(s"Compiler: component counts: unique ${root.numUniqueComponents}, actual ${root.numComponents}.")
+    val dataProc = new DataProcessor(ssrd, tunable, self.compilerExternalVarSettings)
+    if (dataProc.isError) {
+    } else {
+      Logger.log.debug(s"Parser = ${ssrd.parser.toString}.")
+      Logger.log.debug(s"Unparser = ${ssrd.unparser.toString}.")
+      Logger.log.debug(s"Compilation (DataProcesor) completed with no errors.")
     }
+    dataProc
+  }
 }

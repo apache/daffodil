@@ -23,6 +23,7 @@ import scala.collection.JavaConverters._
 /**
  * Abstract log writer, which can be overridden to create a custom log writer.
  */
+@deprecated("Use Log4j for logging", "3.2.0")
 abstract class LogWriter {
   /**
    * Implement this method to determine how the log message is written.
@@ -95,6 +96,7 @@ abstract class LogWriter {
 /**
  * [[LogWriter]] that writes log messages to stdout
  */
+@deprecated("Use Log4j for logging", "3.2.0")
 final class ConsoleLogWriter extends LogWriter {
   protected def write(level: LogLevel, logID: String, msg: String): Unit = {
     //do nothing
@@ -104,6 +106,7 @@ final class ConsoleLogWriter extends LogWriter {
 /**
  * [[LogWriter]] that drops all log messages
  */
+@deprecated("Use Log4j for logging", "3.2.0")
 final class NullLogWriter extends LogWriter {
   protected def write(level: LogLevel, logID: String, msg: String): Unit = {
     //do nothing
@@ -115,6 +118,7 @@ final class NullLogWriter extends LogWriter {
  *
  * @param file the file to write log messages to
  */
+@deprecated("Use Log4j for logging", "3.2.0")
 final class FileLogWriter(file: File) extends LogWriter {
   /**
    * Retrieve the file the log writer writes to

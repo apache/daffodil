@@ -18,12 +18,12 @@
 package org.apache.daffodil.dsom
 
 import scala.xml.Node
+import scala.xml.NodeSeq
+
+import org.apache.daffodil.dsom.IIUtils._
+import org.apache.daffodil.equality._
 import org.apache.daffodil.xml.NS
 import org.apache.daffodil.xml.NoNamespace
-import org.apache.daffodil.util._
-import IIUtils._
-import scala.xml.NodeSeq
-import org.apache.daffodil.equality._
 
 /**
  * Mixin for SchemaDocument
@@ -121,11 +121,7 @@ trait SchemaDocIncludesAndImportsMixin { self: XMLSchemaDocument =>
 
   // val iiXML: Node = xml // override in SchemaSet
 
-  lazy val impNodes = {
-    val i = (xml \ "import")
-    log(LogLevel.Debug, "There are %s imports", i.length)
-    i
-  }
+  lazy val impNodes = (xml \ "import")
   lazy val incNodes = (xml \ "include")
 
   val mtList: List[IIBase] = Nil

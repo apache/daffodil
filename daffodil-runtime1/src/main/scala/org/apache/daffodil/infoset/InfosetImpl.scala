@@ -48,8 +48,7 @@ import org.apache.daffodil.processors.ProcessingError
 import org.apache.daffodil.processors.SimpleTypeRuntimeData
 import org.apache.daffodil.processors.TermRuntimeData
 import org.apache.daffodil.processors.parsers.PState
-import org.apache.daffodil.util.LogLevel
-import org.apache.daffodil.util.Logging
+import org.apache.daffodil.util.Logger
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe.Nope
 import org.apache.daffodil.util.Maybe.One
@@ -346,8 +345,7 @@ sealed trait DITerm {
  * are defined, then that start pos is a relative start pos, and we'll need to compute the
  * absolute start pos once we find out the absolute start pos of the data output stream.
  */
-sealed abstract class LengthState(ie: DIElement)
-  extends Logging {
+sealed abstract class LengthState(ie: DIElement) {
 
   protected def flavor: String
 
@@ -421,7 +419,7 @@ sealed abstract class LengthState(ie: DIElement)
         // that here.
         val thisRelStartPos0bInBits = this.maybeStartPos0bInBits.getULong
         val newStartBitPos0b = dos.toAbsolute(thisRelStartPos0bInBits)
-        log(LogLevel.Debug, "%sgth for %s new absolute start pos: %s", flavor, ie.name, newStartBitPos0b)
+        Logger.log.debug(s"${flavor}gth for ${ie.name} new absolute start pos: ${newStartBitPos0b}")
         this.maybeStartDataOutputStream = Nope
         this.maybeStartPos0bInBits = MaybeULong(newStartBitPos0b.longValue)
       }
@@ -435,7 +433,7 @@ sealed abstract class LengthState(ie: DIElement)
         // that here.
         val thisRelEndPos0bInBits = this.maybeEndPos0bInBits.getULong
         val newEndBitPos0b = dos.toAbsolute(thisRelEndPos0bInBits)
-        log(LogLevel.Debug, "%sgth for %s new absolute end pos: %s", flavor, ie.name, newEndBitPos0b)
+        Logger.log.debug(s"${flavor}gth for ${ie.name} new absolute end pos: ${newEndBitPos0b}")
         this.maybeEndDataOutputStream = Nope
         this.maybeEndPos0bInBits = MaybeULong(newEndBitPos0b.longValue)
       }
@@ -492,14 +490,14 @@ sealed abstract class LengthState(ie: DIElement)
     val computed: MaybeULong = {
       if (maybeComputedLength.isDefined) {
         val len = maybeComputedLength.get
-        log(LogLevel.Debug, "%sgth of %s is %s, (was already computed)", flavor, ie.name, len)
+        Logger.log.debug(s"${flavor}gth of ${ie.name} is ${len}, (was already computed)")
         return maybeComputedLength
       } else if (isStartUndef || isEndUndef) {
-        log(LogLevel.Debug, "%sgth of %s cannot be computed yet. %s", flavor, ie.name, toString)
+        Logger.log.debug(s"${flavor}gth of ${ie.name} cannot be computed yet. ${toString}")
         MaybeULong.Nope
       } else if (isStartAbsolute && isEndAbsolute) {
         val len = maybeEndPos0bInBits.get - maybeStartPos0bInBits.get
-        log(LogLevel.Debug, "%sgth of %s is %s, by absolute positions. %s", flavor, ie.name, len, toString)
+        Logger.log.debug(s"${flavor}gth of ${ie.name} is ${len}, by absolute positions. ${toString}")
         MaybeULong(len)
       } else if (isStartRelative && isEndRelative && (maybeStartDataOutputStream.get _eq_ maybeEndDataOutputStream.get)) {
         //
@@ -513,7 +511,7 @@ sealed abstract class LengthState(ie: DIElement)
         val startPos = maybeStartPos0bInBits.get
         val endPos = maybeEndPos0bInBits.get
         val len = endPos - startPos
-        log(LogLevel.Debug, "%sgth of %s is %s, by relative positions in same data stream. %s", flavor, ie.name, len, toString)
+        Logger.log.debug(s"${flavor}gth of ${ie.name} is ${len}, by relative positions in same data stream. ${toString}")
         MaybeULong(len)
       } else if (isStartRelative && isEndRelative && maybeStartDataOutputStream.get.isFinished) {
         // if start and end DOSs are relative and different, but every DOS from
@@ -536,14 +534,14 @@ sealed abstract class LengthState(ie: DIElement)
 
         if (!dos.isFinished) {
           // found a non-finished DOS, can't calculate length
-          log(LogLevel.Debug, "%sgth of %s is unknown due to unfinished output stream. %s", flavor, ie.name, toString)
+          Logger.log.debug(s"${flavor}gth of ${ie.name} is unknown due to unfinished output stream. ${toString}")
           MaybeULong.Nope
         } else {
-          log(LogLevel.Debug, "%sgth of %s is %s, by relative positions in same data stream. %s", flavor, ie.name, len, toString)
+          Logger.log.debug(s"${flavor}gth of ${ie.name} is ${len}, by relative positions in same data stream. ${toString}")
           MaybeULong(len.toLong)
         }
       } else {
-        log(LogLevel.Debug, "%sgth of %s is unknown still. %s", flavor, ie.name, toString)
+        Logger.log.debug(s"${flavor}gth of ${ie.name} is unknown still. ${toString}")
         MaybeULong.Nope
       }
     }

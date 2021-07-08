@@ -18,15 +18,16 @@
 package org.apache.daffodil.dsom
 
 import org.xml.sax.SAXParseException
-import org.apache.daffodil.xml.DaffodilXMLLoader
-import org.apache.daffodil.xml.NS
+
+import org.apache.daffodil.api.Diagnostic
 import org.apache.daffodil.api._
 import org.apache.daffodil.dsom.IIUtils._
-import org.apache.daffodil.api.Diagnostic
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.exceptions.SchemaFileLocation
-import org.apache.daffodil.util.LogLevel
+import org.apache.daffodil.util.Logger
 import org.apache.daffodil.util.Misc
+import org.apache.daffodil.xml.DaffodilXMLLoader
+import org.apache.daffodil.xml.NS
 import org.apache.daffodil.xml.XMLUtils
 
 class DFDLSchemaFileLoadErrorHandler(schemaFileLocation: SchemaFileLocation)
@@ -138,7 +139,7 @@ final class DFDLSchemaFile(
 
   lazy val (node, validationDiagnostics, isValid) = {
     val res = try {
-      log(LogLevel.Resolver, "Loading %s.", diagnosticDebugName)
+      Logger.log.debug(s"Loading ${diagnosticDebugName}.")
       //
       // We do not want to validate here ever, because we have to examine the
       // root xs:schema element of a schema to decide if it is a  DFDL schema

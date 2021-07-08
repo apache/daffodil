@@ -41,7 +41,7 @@ case class UserDefinedFunctionProcessingErrorException(
  * into Daffodil Aborts
  */
 case class UserDefinedFunctionFatalErrorException(description: String = "", cause: Throwable, udfOfInterest: String = "", providerOfInterest: String = "")
-  extends Abort(description + ": " + cause.getMessage) {
+  extends Abort(description + ". Cause: " + cause.toString) {
 
   /*
    * This will replace the stacktrace of the fatal error with just the UDF relevant

@@ -17,14 +17,14 @@
 
 package org.apache.daffodil.processors
 
-import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.processors.unparsers.UState
-import org.apache.daffodil.util.Misc
-import org.apache.daffodil.util.LogLevel
 import org.apache.daffodil.api.ThinDiagnostic
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.infoset.RetryableException
+import org.apache.daffodil.processors.unparsers.UState
+import org.apache.daffodil.util.Logger
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe._
-import org.apache.daffodil.infoset.RetryableException
+import org.apache.daffodil.util.Misc
 
 /**
  * SuspendableOperation is used for suspending and retrying things that aren't
@@ -57,22 +57,22 @@ trait SuspendableOperation
   override protected final def doTask(ustate: UState): Unit = {
     if (isBlocked) {
       setUnblocked()
-      log(LogLevel.Debug, "retrying %s", this)
+      Logger.log.debug(s"retrying ${this}")
     }
     while (!isDone && !isBlocked) {
       try {
         val tst = test(ustate)
         if (tst) {
-          log(LogLevel.Debug, "test() of %s %s passed", this, tst)
+          Logger.log.debug(s"test() of ${this} ${tst} passed")
           setDone
         } else {
-          log(LogLevel.Debug, "test() of %s %s failed", this, tst)
+          Logger.log.debug(s"test() of ${this} ${tst} failed")
           val nodeOpt = if (ustate.currentInfosetNodeMaybe.isDefined) ustate.currentInfosetNodeMaybe.get else "No Node"
           block(nodeOpt, ustate.dataOutputStream, 0, this)
         }
       } catch {
         case e: RetryableException => {
-          log(LogLevel.Debug, "test() of %s threw %s", this, e)
+          Logger.log.debug(s"test() of ${this} threw ${e}")
           val nodeOpt = if (ustate.currentInfosetNodeMaybe.isDefined) ustate.currentInfosetNodeMaybe.get else "No Node"
           block(nodeOpt, ustate.dataOutputStream, 0, e)
         }
@@ -82,9 +82,9 @@ trait SuspendableOperation
       }
     }
     if (isDone) {
-      log(LogLevel.Debug, "continuation() of %s", this)
+      Logger.log.debug(s"continuation() of ${this}")
       continuation(ustate)
-      log(LogLevel.Debug, "continuation() of %s done!", this)
+      Logger.log.debug(s"continuation() of ${this} done!")
 
     }
   }

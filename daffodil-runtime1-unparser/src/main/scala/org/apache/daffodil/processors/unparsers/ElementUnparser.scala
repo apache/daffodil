@@ -17,19 +17,20 @@
 
 package org.apache.daffodil.processors.unparsers
 
+import org.apache.daffodil.dpath.SuspendableExpression
 import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.infoset.DIComplex
+import org.apache.daffodil.infoset.DISimple
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.infoset.RetryableException
+import org.apache.daffodil.processors.ElementRuntimeData
+import org.apache.daffodil.processors.Evaluatable
+import org.apache.daffodil.processors.UnparseTargetLengthInBitsEv
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe._
-import org.apache.daffodil.processors.ElementRuntimeData
-import org.apache.daffodil.infoset.DISimple
-import org.apache.daffodil.infoset.DIComplex
-import org.apache.daffodil.dpath.SuspendableExpression
-import org.apache.daffodil.processors.UnparseTargetLengthInBitsEv
-import org.apache.daffodil.util.MaybeULong
-import org.apache.daffodil.processors.Evaluatable
-import org.apache.daffodil.infoset.RetryableException
 import org.apache.daffodil.util.MaybeBoolean
-import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.util.MaybeULong
+
 /**
  * Elements that, when unparsing, have no length specified.
  *
@@ -222,13 +223,11 @@ sealed abstract class ElementUnparserBase(
     //
     //    val resultState = DFDLCheckConstraintsFunction.validate(state) match {
     //      case Right(boolVal) => {
-    //        log(LogLevel.Debug, "Validation succeeded for %s", currentElement.toXML())
+    //        Logger.log.debug(s"Validation succeeded for ${currentElement.toXML()}")
     //        currentElement.setValid(true)
     //      }
     //      case Left(failureMessage) => {
-    //        log(LogLevel.Debug,
-    //          "Validation failed for %s due to %s. The element value was %s.",
-    //          context.toString, failureMessage, currentElement.toXML())
+    //        Logger.log.debug(s"Validation failed for ${context.toString} due to ${failureMessage}. The element value was ${currentElement.toXML()}")
     //        state.reportValidationError("%s failed facet checks due to: %s",
     //          context.toString, failureMessage)
     //        currentElement.setValid(false)

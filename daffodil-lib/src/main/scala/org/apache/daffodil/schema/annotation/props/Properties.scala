@@ -19,7 +19,6 @@ package org.apache.daffodil.schema.annotation.props
 
 import org.apache.daffodil.exceptions._
 import org.apache.daffodil.util.Misc._
-import org.apache.daffodil.util.Logging
 import org.apache.daffodil.util._
 import org.apache.daffodil.cookers.Converter
 import scala.collection.mutable
@@ -157,8 +156,7 @@ abstract class Enum[A] extends EnumBase with Converter[String, A] {
 trait PropertyMixin
   extends FindPropertyMixin
   with ThrowsSDE
-  with SavesErrorsAndWarnings
-  with Logging {
+  with SavesErrorsAndWarnings {
 
   //  /**
   //   * Only for testing purposes

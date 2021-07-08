@@ -74,20 +74,14 @@ class TestChoice {
   @Test def test_choice5(): Unit = { runnerCH.runOneTest("choice5") }
   @Test def test_choice6(): Unit = { runnerCH.runOneTest("choice6") }
   @Test def test_choiceFail1(): Unit = { runnerCH.runOneTest("choiceFail1") }
-  @Test def test_choiceDelim1(): Unit = {
-    // Logging@Test defaults.setLoggingLevel(LogLevel.Debug)
-    runnerCH.runOneTest("choiceDelim1")
-  }
+  @Test def test_choiceDelim1(): Unit = { runnerCH.runOneTest("choiceDelim1") }
   @Test def test_choiceDelim2(): Unit = { runnerCH.runOneTest("choiceDelim2") }
   @Test def test_choiceDelimFloat(): Unit = { runnerCH.runOneTest("choiceDelimFloat") }
   @Test def test_choiceDelimString(): Unit = { runnerCH.runOneTest("choiceDelimString") }
   @Test def test_choiceDelimStringwSp(): Unit = { runnerCH.runOneTest("choiceDelimStringwSp") }
   @Test def test_choiceDelimInt(): Unit = { runnerCH.runOneTest("choiceDelimInt") }
 
-  @Test def test_nestedChoice1(): Unit = {
-    // Logging@Test defaults.setLoggingLevel(LogLevel.Debug)
-    runnerCH.runOneTest("nestedChoice1")
-  }
+  @Test def test_nestedChoice1(): Unit = { runnerCH.runOneTest("nestedChoice1") }
 
   @Test def test_nestedChoiceAllString(): Unit = { runnerCH.runOneTest("nestedChoiceAllString") }
   @Test def test_nestedChoiceAllFloat(): Unit = { runnerCH.runOneTest("nestedChoiceAllFloat") }

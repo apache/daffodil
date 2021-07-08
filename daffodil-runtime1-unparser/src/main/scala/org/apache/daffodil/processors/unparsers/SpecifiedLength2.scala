@@ -17,34 +17,36 @@
 
 package org.apache.daffodil.processors.unparsers
 
+
+import java.nio.charset.MalformedInputException
+import java.nio.charset.UnmappableCharacterException
+
+import passera.unsigned.ULong
+
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.infoset.DIComplex
 import org.apache.daffodil.infoset.DIElement
 import org.apache.daffodil.infoset.DISimple
+import org.apache.daffodil.io.DataOutputStream
+import org.apache.daffodil.io.DirectOrBufferedDataOutputStream
+import org.apache.daffodil.io.ZeroLengthStatus
+import org.apache.daffodil.processors.CharsetEv
 import org.apache.daffodil.processors.ElementRuntimeData
+import org.apache.daffodil.processors.Evaluatable
+import org.apache.daffodil.processors.LengthEv
 import org.apache.daffodil.processors.ModelGroupRuntimeData
 import org.apache.daffodil.processors.RuntimeData
 import org.apache.daffodil.processors.SuspendableOperation
 import org.apache.daffodil.processors.UnparseTargetLengthInBitsEv
 import org.apache.daffodil.processors.charset.BitsCharset
 import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
-import org.apache.daffodil.util.LogLevel
+import org.apache.daffodil.util.Logger
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe._
 import org.apache.daffodil.util.MaybeChar
+import org.apache.daffodil.util.MaybeJULong
 import org.apache.daffodil.util.MaybeULong
 import org.apache.daffodil.util.Misc
-import org.apache.daffodil.processors.CharsetEv
-import org.apache.daffodil.processors.LengthEv
-import org.apache.daffodil.processors.Evaluatable
-import org.apache.daffodil.util.MaybeJULong
-import org.apache.daffodil.io.DirectOrBufferedDataOutputStream
-import org.apache.daffodil.io.ZeroLengthStatus
-import org.apache.daffodil.io.DataOutputStream
-import passera.unsigned.ULong
-
-import java.nio.charset.MalformedInputException
-import java.nio.charset.UnmappableCharacterException
 
 /*
  * Notes on variable-width characters with lengthUnits 'characters'
@@ -420,11 +422,9 @@ trait SkipTheBits { self: SuspendableOperation =>
         UE(ustate, "Unable to skip %s(bits).", skipInBits)
     }
     if (skipInBits == 0) {
-      log(LogLevel.Debug, "%s no fill for %s DOS %s.",
-        Misc.getNameFromClass(this), rd.diagnosticDebugName, ustate.dataOutputStream)
+      Logger.log.debug(s"${Misc.getNameFromClass(this)} no fill for ${rd.diagnosticDebugName} DOS ${ustate.dataOutputStream}.")
     } else {
-      log(LogLevel.Debug, "%s filled %s bits for %s DOS %s.",
-        Misc.getNameFromClass(this), skipInBits, rd.diagnosticDebugName, ustate.dataOutputStream)
+      Logger.log.debug(s"${Misc.getNameFromClass(this)} filled ${skipInBits} bits for ${rd.diagnosticDebugName} DOS ${ustate.dataOutputStream}.")
     }
   }
 }

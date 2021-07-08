@@ -17,18 +17,18 @@
 
 package org.apache.daffodil.processors.parsers
 
-import org.apache.daffodil.util.LogLevel
-import org.apache.daffodil.infoset._
-import org.apache.daffodil.dpath.DFDLCheckConstraintsFunction
-import org.apache.daffodil.api.ValidationMode
-import org.apache.daffodil.util.Maybe
-import org.apache.daffodil.dpath.DFDLCheckConstraintsFunction
 import org.apache.daffodil.api.Diagnostic
+import org.apache.daffodil.api.ValidationMode
+import org.apache.daffodil.dpath.DFDLCheckConstraintsFunction
+import org.apache.daffodil.dpath.DFDLCheckConstraintsFunction
 import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.infoset._
 import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.processors.Processor
 import org.apache.daffodil.processors.Success
 import org.apache.daffodil.processors.TermRuntimeData
+import org.apache.daffodil.util.Logger
+import org.apache.daffodil.util.Maybe
 
 abstract class ElementParserBase(
   rd: TermRuntimeData,
@@ -75,15 +75,12 @@ abstract class ElementParserBase(
     val resultState = {
       val ccfResult = DFDLCheckConstraintsFunction.validate(pstate)
       if (ccfResult.isOK) {
-        log(LogLevel.Debug, "Validation succeeded for %s", currentElement.namedQName)
+        Logger.log.debug(s"Validation succeeded for ${currentElement.namedQName}")
         currentElement.setValid(true)
         pstate // Success, do not mutate state.
       } else {
         val failureMessage = ccfResult.errMsg
-        log(
-          LogLevel.Debug,
-          "Validation failed for %s due to %s. The element was %s.",
-          context.toString, failureMessage, currentElement.namedQName)
+        Logger.log.debug("Validation failed for ${context.toString} due to ${failureMessage}. The element was ${currentElement.namedQName}.")
         pstate.validationError(
           "%s failed facet checks due to: %s",
           context.toString, failureMessage)
@@ -237,7 +234,7 @@ class ElementParser(
     if (pstate.withinHiddenNest)
       currentElement.setHidden()
 
-    log(LogLevel.Debug, "currentElement = %s", currentElement)
+    Logger.log.debug(s"currentElement = ${currentElement}")
     val priorElement = pstate.infoset
     priorElement match {
       case ct: DIComplex => ct.addChild(currentElement, pstate.tunable)
@@ -254,7 +251,7 @@ class ElementParser(
         Assert.invariantFailed("Unknown priorElement: " + priorElement)
       }
     }
-    log(LogLevel.Debug, "priorElement = %s", priorElement)
+    Logger.log.debug(s"priorElement = ${priorElement}")
     pstate.setParent(currentElement)
   }
 

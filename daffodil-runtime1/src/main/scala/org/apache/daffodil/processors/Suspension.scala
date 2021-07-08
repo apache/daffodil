@@ -17,18 +17,17 @@
 
 package org.apache.daffodil.processors
 
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.io.BitOrderChangeException
+import org.apache.daffodil.io.DirectOrBufferedDataOutputStream
 import org.apache.daffodil.processors.unparsers.UState
 import org.apache.daffodil.processors.unparsers.UStateMain
-import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.util.MaybeULong
-import org.apache.daffodil.io.DirectOrBufferedDataOutputStream
-import org.apache.daffodil.util.Logging
-import org.apache.daffodil.util.LogLevel
+import org.apache.daffodil.processors.unparsers.UnparseError
+import org.apache.daffodil.util.Logger
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe._
 import org.apache.daffodil.util.MaybeInt
-import org.apache.daffodil.processors.unparsers.UnparseError
-import org.apache.daffodil.io.BitOrderChangeException
+import org.apache.daffodil.util.MaybeULong
 
 /**
  * The suspension object keeps track of the state of the task, i.e., whether it
@@ -40,7 +39,7 @@ import org.apache.daffodil.io.BitOrderChangeException
  *
  */
 trait Suspension
-  extends Serializable with Logging {
+  extends Serializable {
 
   /**
    * Specifies that this suspension does not write to the data output stream.
@@ -91,7 +90,7 @@ trait Suspension
         case boc: BitOrderChangeException =>
           savedUstate.SDE(boc)
       }
-      log(LogLevel.Debug, "%s finished %s.", this, savedUstate)
+      Logger.log.debug(s"${this} finished ${savedUstate}.")
     }
   }
 
@@ -157,8 +156,7 @@ trait Suspension
 
       }
     } else {
-      log(LogLevel.Debug, "Buffered DOS created for %s without knowning absolute start bit pos: %s\n",
-        ustate.currentInfosetNode.erd.diagnosticDebugName, buffered)
+      Logger.log.debug(s"Buffered DOS created for ${ustate.currentInfosetNode.erd.diagnosticDebugName} without knowning absolute start bit pos: ${buffered}")
     }
 
     // the main-thread will carry on using the original ustate but unparsing
@@ -187,7 +185,7 @@ trait Suspension
   final def explain(): Unit = {
     val t = this
     Assert.invariant(t.isBlocked)
-    log(LogLevel.Warning, "%s", t.blockedLocation)
+    Logger.log.warn(s"${t.blockedLocation}")
   }
 
   private var priorNodeOrVar: Maybe[AnyRef] = Nope
@@ -224,7 +222,7 @@ trait Suspension
   final def isMakingProgress = isMakingProgress_
 
   final def block(nodeOrVar: AnyRef, info: AnyRef, index: Long, exc: AnyRef): Unit = {
-    log(LogLevel.Debug, "blocking %s due to %s", this, exc)
+    Logger.log.debug(s"blocking ${this} due to ${exc}")
 
     Assert.usage(nodeOrVar ne null)
     Assert.usage(info ne null)

@@ -20,7 +20,6 @@ package org.apache.daffodil.dsom
 import scala.xml.Node
 import org.junit.Test
 import org.junit.Assert._
-import org.apache.daffodil.util.LogLevel
 import org.apache.daffodil.util.Fakes
 
 class HasProps(xml: Node) extends DFDLFormatAnnotation(xml, Fakes.fakeElem)
@@ -29,7 +28,6 @@ class TestPropertyScoping {
   val x1 = new HasProps(<fake alignmentUnits="bytes"/>)
 
   @Test def test1(): Unit = {
-    LogLevel
     //    println(x1.formatRefs)
     //    println(x1.shortFormProperties)
     //    println(x1.longFormProperties)
