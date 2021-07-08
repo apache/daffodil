@@ -19,13 +19,12 @@ package org.apache.daffodil.dsom
 
 import org.junit.Test
 import org.apache.daffodil.Implicits._;
-import org.apache.daffodil.util.Logging
 import org.apache.daffodil.xml.XMLUtils
 import org.junit.Assert._
 import org.apache.daffodil.util._
 import org.junit.Test
 
-class TestPolymorphicUpwardRelativeExpressions extends Logging {
+class TestPolymorphicUpwardRelativeExpressions {
 
   val xsd = XMLUtils.XSD_NAMESPACE
   val dfdl = XMLUtils.dfdlAppinfoSource // XMLUtils.DFDL_NAMESPACE

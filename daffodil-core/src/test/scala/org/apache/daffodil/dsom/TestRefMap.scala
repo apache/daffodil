@@ -18,13 +18,12 @@
 package org.apache.daffodil.dsom
 
 import org.apache.daffodil.compiler._
-import org.apache.daffodil.util.Logging
+import org.apache.daffodil.util._
 import org.apache.daffodil.xml.XMLUtils
 import org.junit.Assert._
-import org.apache.daffodil.util._
 import org.junit.Test
 
-class TestRefMap extends Logging {
+class TestRefMap {
 
   val xsd = XMLUtils.XSD_NAMESPACE
   val dfdl = XMLUtils.dfdlAppinfoSource // XMLUtils.DFDL_NAMESPACE

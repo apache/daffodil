@@ -21,11 +21,9 @@ import scala.collection.mutable.Queue
 
 import org.apache.daffodil.dsom.RuntimeSchemaDefinitionError
 import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.util.LogLevel
-import org.apache.daffodil.util.Logging
+import org.apache.daffodil.util.Logger
 
-class SuspensionTracker(suspensionWaitYoung: Int, suspensionWaitOld: Int)
-  extends Logging {
+class SuspensionTracker(suspensionWaitYoung: Int, suspensionWaitOld: Int) {
 
   private val suspensionsYoung = new Queue[Suspension]
   private val suspensionsOld = new Queue[Suspension]
@@ -89,12 +87,7 @@ class SuspensionTracker(suspensionWaitYoung: Int, suspensionWaitOld: Int)
       throw new SuspensionDeadlockException(suspensionsOld.seq)
     }
 
-    log(
-      LogLevel.Debug,
-      "Suspension runs/tracked: %d/%d (%.2f%%)",
-      suspensionStatRuns,
-      suspensionStatTracked,
-      (suspensionStatRuns.toFloat / suspensionStatTracked) * 100)
+    Logger.log.debug(f"Suspension runs/tracked: ${suspensionStatRuns}%d/${suspensionStatTracked}%d (${(suspensionStatRuns.toFloat / suspensionStatTracked) * 100}%.2f%%)")
   }
 
   /**

@@ -19,9 +19,9 @@ package org.apache.daffodil.dsom
 
 import scala.xml.Node
 
-import org.apache.daffodil.util._
-import IIUtils._
+import org.apache.daffodil.dsom.IIUtils._
 import org.apache.daffodil.oolag.OOLAG
+import org.apache.daffodil.util.Logger
 
 /**
  * enclosingGoalNS is None if this include
@@ -57,7 +57,7 @@ final class Include(xml: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
           schemaDefinitionError("Unable to determine target namespace.")) {
             xsd.targetNamespace
           }
-        log(LogLevel.Debug, "Included schema from %s into namespace %s.", rsl, ns)
+        Logger.log.debug(s"Included schema from ${rsl} into namespace ${ns}.")
         rsl
       }
       case None => schemaDefinitionError("Included schema not found at location %s. %s", slText, whereSearched)

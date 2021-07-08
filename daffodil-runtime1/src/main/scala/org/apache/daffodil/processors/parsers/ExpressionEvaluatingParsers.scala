@@ -32,8 +32,8 @@ import org.apache.daffodil.processors.RuntimeData
 import org.apache.daffodil.processors.Success
 import org.apache.daffodil.processors.TypeCalculator
 import org.apache.daffodil.processors.VariableRuntimeData
-import org.apache.daffodil.util.LogLevel
 import org.apache.daffodil.schema.annotation.props.gen.FailureType
+import org.apache.daffodil.util.Logger
 
 /**
  * Common parser base class for any parser that evaluates an expression.
@@ -58,10 +58,11 @@ abstract class ExpressionEvaluationParser(
 
 class IVCParser(expr: CompiledExpression[AnyRef], e: ElementRuntimeData)
   extends ExpressionEvaluationParser(expr, e) {
+
   Assert.invariant(e.isSimpleType)
 
   def parse(start: PState): Unit = {
-    log(LogLevel.Debug, "This is %s", toString)
+    Logger.log.debug(s"This is ${toString}")
     val currentElement: InfosetSimpleElement = start.simpleElement
     val res = eval(start)
     currentElement.setDataValue(res)
@@ -153,7 +154,7 @@ class SetVariableParser(expr: CompiledExpression[AnyRef], decl: VariableRuntimeD
   extends ExpressionEvaluationParser(expr, decl) {
 
   def parse(start: PState): Unit = {
-    log(LogLevel.Debug, "This is %s", toString) // important. Don't toString unless we have to log.
+    Logger.log.debug(s"This is ${toString}") // important. Don't toString unless we have to log.
     val res = eval(start)
     if (start.processorStatus.isInstanceOf[Failure]) return
     start.setVariable(decl, res, decl)
@@ -198,7 +199,7 @@ class AssertExpressionEvaluationParser(
   with AssertMessageEvaluationMixin {
 
   def parse(start: PState): Unit = {
-    log(LogLevel.Debug, "This is %s", toString)
+    Logger.log.debug(s"This is ${toString}")
     //
     // This now informs us of the success/failure of the expression
     // evaluation via side-effect on the start state passed here.

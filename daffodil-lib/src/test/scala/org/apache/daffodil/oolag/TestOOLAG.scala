@@ -65,7 +65,6 @@ class MySubHost(name: String, parent: MyBase)
 class MyHost extends MyBase(null) {
 
   requiredEvaluationsIfActivated(a1)
-  // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
 
   lazy val subHostCreator = {
 
@@ -244,7 +243,6 @@ class TestOOLAG {
   }
 
   @Test def testDivZeroInside(): Unit = {
-    // LoggingDefaults.setLoggingLevel(LogLevel.OOLAGDebug)
     val h = new MyHost
     h.setRequiredEvaluationsActive()
     // println("done constructing MyHost")

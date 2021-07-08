@@ -48,7 +48,6 @@ object Processor {
  */
 trait Processor
   extends ToBriefXMLImpl
-  with Logging
   with Serializable {
   // things common to both unparser and parser go here.
   def context: RuntimeData

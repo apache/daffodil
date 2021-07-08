@@ -17,8 +17,6 @@
 
 package org.apache.daffodil.externalvars
 
-import org.apache.daffodil.util._
-
 import org.junit.Assert._
 import org.junit.Test
 import org.apache.daffodil.Implicits._; object INoWarn2 { ImplicitsSuppressUnusedImportWarning() }
@@ -26,7 +24,7 @@ import org.junit.Test
 import org.apache.daffodil.xml._
 import scala.util.Success
 
-class TestExternalVariables extends Logging {
+class TestExternalVariables {
 
   @Test def testQNameForIndividualVars() = {
     // This test just verifies that we're getting back

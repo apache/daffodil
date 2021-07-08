@@ -17,14 +17,14 @@
 
 package org.apache.daffodil.processors.unparsers
 
-import org.apache.daffodil.processors.TermRuntimeData
-import org.apache.daffodil.processors.parsers.DelimiterTextType
-import org.apache.daffodil.util.Maybe._
-import org.apache.daffodil.util.LogLevel
 import java.nio.charset.MalformedInputException
 import java.nio.charset.UnmappableCharacterException
-import org.apache.daffodil.util.Misc
 import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.processors.TermRuntimeData
+import org.apache.daffodil.processors.parsers.DelimiterTextType
+import org.apache.daffodil.util.Logger
+import org.apache.daffodil.util.Maybe._
+import org.apache.daffodil.util.Misc
 
 class DelimiterTextUnparser(override val context: TermRuntimeData, delimiterType: DelimiterTextType.Type)
   extends TextPrimUnparser {
@@ -46,7 +46,7 @@ class DelimiterTextUnparser(override val context: TermRuntimeData, delimiterType
 
   def unparse(state: UState): Unit = {
 
-    log(LogLevel.Debug, "Unparsing starting at bit position: %s", state.dataOutputStream.maybeAbsBitPos0b)
+    Logger.log.debug(s"Unparsing starting at bit position: ${state.dataOutputStream.maybeAbsBitPos0b}")
 
     val localDelimNode = state.localDelimiters
 

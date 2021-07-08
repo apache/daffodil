@@ -17,14 +17,16 @@
 
 package org.apache.daffodil.dsom
 
+import java.net.URI
+
 import scala.xml.Node
-import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.xml._
+
 import org.apache.daffodil.api.DaffodilSchemaSource
 import org.apache.daffodil.api.URISchemaSource
-import org.apache.daffodil.util._
-import IIUtils._
-import java.net.URI
+import org.apache.daffodil.dsom.IIUtils._
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.util.Logger
+import org.apache.daffodil.xml._
 
 /**
  * An import statement.
@@ -111,9 +113,7 @@ final class Import(importNode: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
    */
   lazy val resolvedLocation: DaffodilSchemaSource = LV('resolvedLocation) {
 
-    log(LogLevel.Resolver, "Computing resolvedLocation")
-    log(LogLevel.Resolver, "\nimportElementNS='%s'\nresolvedNamespaceURI='%s'\nschemaLocationProperty='%s'\nresolvedSchemaLocation='%s'".format(
-      importElementNS, resolvedNamespaceURI, schemaLocationProperty, resolvedSchemaLocation))
+    Logger.log.debug(s"Computing resolvedLocation\nimportElementNS='${importElementNS}'\nresolvedNamespaceURI='${resolvedNamespaceURI}'\nschemaLocationProperty='${schemaLocationProperty}'\nresolvedSchemaLocation='${resolvedSchemaLocation}'")
 
     val rl = (importElementNS, resolvedNamespaceURI, schemaLocationProperty, resolvedSchemaLocation) match {
       case (None, _, Some(sl), None) => {

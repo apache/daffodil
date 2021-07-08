@@ -45,8 +45,6 @@ import org.junit.Test;
 
 import org.apache.daffodil.japi.infoset.JDOMInfosetInputter;
 import org.apache.daffodil.japi.infoset.JDOMInfosetOutputter;
-import org.apache.daffodil.japi.logger.ConsoleLogWriter;
-import org.apache.daffodil.japi.logger.LogLevel;
 import org.apache.daffodil.japi.io.InputSourceDataInputStream;
 import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
@@ -115,11 +113,7 @@ public class TestJavaAPI {
 
     @Test
     public void testJavaAPI1() throws IOException, ClassNotFoundException {
-        LogWriterForJAPITest lw = new LogWriterForJAPITest();
         DebuggerRunnerForJAPITest debugger = new DebuggerRunnerForJAPITest();
-
-        Daffodil.setLogWriter(lw);
-        Daffodil.setLoggingLevel(LogLevel.Debug);
 
         org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
         java.io.File schemaFile = getResource("/test/japi/mySchema1.dfdl.xsd");
@@ -136,9 +130,6 @@ public class TestJavaAPI {
         ParseResult res = dp.parse(dis, outputter);
         boolean err = res.isError();
         assertFalse(err);
-        assertEquals(0, lw.errors.size());
-        assertEquals(0, lw.warnings.size());
-        assertTrue(lw.others.size() > 0);
         assertTrue(debugger.lines.size() > 0);
         assertTrue(debugger.lines.contains("----------------------------------------------------------------- 1\n"));
         assertTrue(debugger.getCommand().equals("trace"));
@@ -150,21 +141,13 @@ public class TestJavaAPI {
         err = res2.isError();
         assertFalse(err);
         assertEquals("42", bos.toString());
-
-        // reset the global logging and debugger state
-        Daffodil.setLogWriter(new ConsoleLogWriter());
-        Daffodil.setLoggingLevel(LogLevel.Info);
     }
 
     // This is a duplicate of test testJavaAPI1 that serializes the parser
     // before executing the test.
     @Test
     public void testJavaAPI1_A() throws Exception {
-        LogWriterForJAPITest lw = new LogWriterForJAPITest();
         DebuggerRunnerForJAPITest debugger = new DebuggerRunnerForJAPITest();
-
-        Daffodil.setLogWriter(lw);
-        Daffodil.setLoggingLevel(LogLevel.Debug);
 
         org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
         java.io.File schemaFile = getResource("/test/japi/mySchema1.dfdl.xsd");
@@ -194,9 +177,6 @@ public class TestJavaAPI {
         ParseResult res = parser.parse(dis, outputter);
         boolean err = res.isError();
         assertFalse(err);
-        assertEquals(0, lw.errors.size());
-        assertEquals(0, lw.warnings.size());
-        assertTrue(lw.others.size() > 0);
         assertTrue(debugger.lines.size() > 0);
         assertTrue(debugger.lines.contains("----------------------------------------------------------------- 1\n"));
         assertTrue(debugger.getCommand().equals("trace"));
@@ -208,21 +188,13 @@ public class TestJavaAPI {
         err = res2.isError();
         assertFalse(err);
         assertEquals("42", bos.toString());
-
-        // reset the global logging and debugger state
-        Daffodil.setLogWriter(new ConsoleLogWriter());
-        Daffodil.setLoggingLevel(LogLevel.Info);
     }
 
     // This is a duplicate of test testJavaAPI1 that serializes the parser
     // before executing the test.
     @Test
     public void testJavaAPI1_A_FullFails() throws Exception {
-        LogWriterForJAPITest lw = new LogWriterForJAPITest();
         DebuggerRunnerForJAPITest debugger = new DebuggerRunnerForJAPITest();
-
-        Daffodil.setLogWriter(lw);
-        Daffodil.setLoggingLevel(LogLevel.Debug);
 
         org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
         java.io.File schemaFile = getResource("/test/japi/mySchema1.dfdl.xsd");
@@ -247,19 +219,10 @@ public class TestJavaAPI {
         } catch (InvalidUsageException e) {
             assertEquals("'Full' validation not allowed when using a restored parser.", e.getMessage());
         }
-
-        // reset the global logging and debugger state
-        Daffodil.setLogWriter(new ConsoleLogWriter());
-        Daffodil.setLoggingLevel(LogLevel.Info);
     }
 
     @Test
     public void testJavaAPI2() throws IOException, ClassNotFoundException {
-        LogWriterForJAPITest lw = new LogWriterForJAPITest();
-
-        Daffodil.setLogWriter(lw);
-        Daffodil.setLoggingLevel(LogLevel.Info);
-
         org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
         java.io.File schemaFile = getResource("/test/japi/mySchema1.dfdl.xsd");
         ProcessorFactory pf = c.compileFile(schemaFile);
@@ -294,15 +257,6 @@ public class TestJavaAPI {
         assertTrue(loc.toString().contains("mySchema1.dfdl.xsd"));
         // above is mySchema1 as it reports the element ref location,
         // not element decl.
-
-        assertEquals(0, lw.errors.size());
-        assertEquals(0, lw.warnings.size());
-        // assertTrue(lw.infos.size() > 0);
-        assertEquals(0, lw.others.size());
-
-        // reset the global logging state
-        Daffodil.setLogWriter(new ConsoleLogWriter());
-        Daffodil.setLoggingLevel(LogLevel.Info);
     }
 
     /**
@@ -443,11 +397,6 @@ public class TestJavaAPI {
      */
     @Test
     public void testJavaAPI6() throws IOException {
-        LogWriterForJAPITest lw = new LogWriterForJAPITest();
-
-        Daffodil.setLogWriter(lw);
-        Daffodil.setLoggingLevel(LogLevel.Debug);
-
         org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
         java.io.File schemaFile = new java.io.File("/test/japi/notHere1.dfdl.xsd");
         ProcessorFactory pf = c.compileFile(schemaFile);
@@ -460,10 +409,6 @@ public class TestJavaAPI {
             }
         }
         assertTrue(found1);
-
-        // reset the global logging state
-        Daffodil.setLogWriter(new ConsoleLogWriter());
-        Daffodil.setLoggingLevel(LogLevel.Info);
     }
 
     /**
@@ -478,11 +423,6 @@ public class TestJavaAPI {
         // back and forth between Scala.xml.Node and JDOM. And the conversions
         // both use XMLOutputter to format the result (which escapes the
         // entities).
-        LogWriterForJAPITest lw = new LogWriterForJAPITest();
-
-        Daffodil.setLogWriter(lw);
-        Daffodil.setLoggingLevel(LogLevel.Debug);
-
         org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
         java.io.File schemaFile = getResource("/test/japi/TopLevel.dfdl.xsd");
         ProcessorFactory pf = c.compileFile(schemaFile, "TopLevel", null);
@@ -504,10 +444,6 @@ public class TestJavaAPI {
         err = res2.isError();
         assertFalse(err);
         assertTrue(bos.toString().contains("Return-Path: <bob@smith.com>"));
-
-        // reset the global logging state
-        Daffodil.setLogWriter(new ConsoleLogWriter());
-        Daffodil.setLoggingLevel(LogLevel.Info);
     }
 
     /**
@@ -520,11 +456,6 @@ public class TestJavaAPI {
      */
     @Test
     public void testJavaAPI8() throws IOException, ClassNotFoundException {
-        LogWriterForJAPITest lw = new LogWriterForJAPITest();
-
-        Daffodil.setLogWriter(lw);
-        Daffodil.setLoggingLevel(LogLevel.Debug);
-
         org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
         java.io.File schemaFile = getResource("/test/japi/TopLevel.dfdl.xsd");
         ProcessorFactory pf = c.compileFile(schemaFile, "TopLevel2", null);
@@ -546,10 +477,6 @@ public class TestJavaAPI {
         err = res2.isError();
         assertFalse(err);
         assertTrue(bos.toString().contains("Return-Path: <bob@smith.com>"));
-
-        // reset the global logging state
-        Daffodil.setLogWriter(new ConsoleLogWriter());
-        Daffodil.setLoggingLevel(LogLevel.Info);
     }
 
     /**
@@ -558,11 +485,6 @@ public class TestJavaAPI {
      */
     @Test
     public void testJavaAPI9() throws IOException, ClassNotFoundException {
-        LogWriterForJAPITest lw = new LogWriterForJAPITest();
-
-        Daffodil.setLogWriter(lw);
-        Daffodil.setLoggingLevel(LogLevel.Debug);
-
         org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
         java.io.File schemaFile = getResource("/test/japi/TopLevel.dfdl.xsd");
         ProcessorFactory pf = c.compileFile(schemaFile, "TopLevel2", null);
@@ -596,10 +518,6 @@ public class TestJavaAPI {
         err = res3.isError();
         assertFalse(err);
         assertTrue(bos2.toString().contains("Return-Path: <bob@smith.com>"));
-
-        // reset the global logging state
-        Daffodil.setLogWriter(new ConsoleLogWriter());
-        Daffodil.setLoggingLevel(LogLevel.Info);
     }
 
     /**
@@ -671,11 +589,7 @@ public class TestJavaAPI {
 
     @Test
     public void testJavaAPI12() throws IOException, ClassNotFoundException {
-        LogWriterForJAPITest2 lw2 = new LogWriterForJAPITest2();
         DebuggerRunnerForJAPITest debugger = new DebuggerRunnerForJAPITest();
-
-        Daffodil.setLogWriter(lw2);
-        Daffodil.setLoggingLevel(LogLevel.Debug);
 
         org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
 
@@ -695,26 +609,15 @@ public class TestJavaAPI {
         boolean err = res.isError();
         assertFalse(err);
 
-        assertEquals(0, lw2.errors.size());
-        assertEquals(0, lw2.warnings.size());
-        assertTrue(lw2.others.size() > 0);
         assertTrue(debugger.lines.size() > 0);
         assertTrue(debugger.lines.contains("----------------------------------------------------------------- 1\n"));
-
-        // reset the global logging and debugger state
-        Daffodil.setLogWriter(new ConsoleLogWriter());
-        Daffodil.setLoggingLevel(LogLevel.Info);
     }
 
     @Test
     public void testJavaAPI13() throws IOException, ClassNotFoundException, ExternalVariableException {
         // Demonstrates here that we can set external variables
         // after compilation but before parsing via Compiler.
-        LogWriterForJAPITest lw = new LogWriterForJAPITest();
         DebuggerRunnerForJAPITest debugger = new DebuggerRunnerForJAPITest();
-
-        Daffodil.setLogWriter(lw);
-        Daffodil.setLoggingLevel(LogLevel.Debug);
 
         org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
 
@@ -743,21 +646,13 @@ public class TestJavaAPI {
         boolean containsVar1Value = docString.contains("externallySet");
         assertTrue(containsVar1);
         assertTrue(containsVar1Value);
-
-        // reset the global logging and debugger state
-        Daffodil.setLogWriter(new ConsoleLogWriter());
-        Daffodil.setLoggingLevel(LogLevel.Info);
     }
 
     @Test
     public void testJavaAPI14() throws IOException, ClassNotFoundException, ExternalVariableException {
         // Demonstrates here that we can set external variables
         // after compilation but before parsing via DataProcessor.
-        LogWriterForJAPITest lw = new LogWriterForJAPITest();
         DebuggerRunnerForJAPITest debugger = new DebuggerRunnerForJAPITest();
-
-        Daffodil.setLogWriter(lw);
-        Daffodil.setLoggingLevel(LogLevel.Debug);
 
         org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
 
@@ -786,24 +681,12 @@ public class TestJavaAPI {
         assertTrue(containsVar1);
         assertTrue(containsVar1Value);
 
-        assertEquals(0, lw.errors.size());
-        assertEquals(0, lw.warnings.size());
-        assertTrue(lw.others.size() > 0);
         assertTrue(debugger.lines.size() > 0);
         assertTrue(debugger.lines.contains("----------------------------------------------------------------- 1\n"));
-
-        // reset the global logging and debugger state
-        Daffodil.setLogWriter(new ConsoleLogWriter());
-        Daffodil.setLoggingLevel(LogLevel.Info);
     }
 
     @Test
     public void testJavaAPI15() throws IOException, ClassNotFoundException {
-        LogWriterForJAPITest lw = new LogWriterForJAPITest();
-
-        Daffodil.setLogWriter(lw);
-        Daffodil.setLoggingLevel(LogLevel.Info);
-
         org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
 
         java.io.File schemaFile = getResource("/test/japi/mySchema1.dfdl.xsd");
@@ -833,10 +716,6 @@ public class TestJavaAPI {
         Diagnostic d = diags.get(0);
         assertTrue(d.getMessage().contains("wrong"));
         assertTrue(d.getMessage().contains("e2"));
-
-        // reset the global logging state
-        Daffodil.setLogWriter(new ConsoleLogWriter());
-        Daffodil.setLoggingLevel(LogLevel.Info);
     }
 
     @Test
@@ -1094,11 +973,7 @@ public class TestJavaAPI {
     public void testJavaAPI22_setExternalVariablesUsingAbstractMap() throws IOException, ClassNotFoundException, ExternalVariableException {
         // Demonstrates here that we can set external variables using a
         // Java AbstractMap after compilation but before parsing via DataProcessor.
-        LogWriterForJAPITest lw = new LogWriterForJAPITest();
         DebuggerRunnerForJAPITest debugger = new DebuggerRunnerForJAPITest();
-
-        Daffodil.setLogWriter(lw);
-        Daffodil.setLoggingLevel(LogLevel.Debug);
 
         org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
 
@@ -1131,25 +1006,13 @@ public class TestJavaAPI {
         assertTrue(containsVar1);
         assertTrue(containsVar1Value);
 
-        assertEquals(0, lw.errors.size());
-        assertEquals(0, lw.warnings.size());
-        assertTrue(lw.others.size() > 0);
         assertTrue(debugger.lines.size() > 0);
         assertTrue(debugger.lines.contains("----------------------------------------------------------------- 1\n"));
-
-        // reset the global logging and debugger state
-        Daffodil.setLogWriter(new ConsoleLogWriter());
-        Daffodil.setLoggingLevel(LogLevel.Info);
     }
 
     @Test
     public void testJavaAPI23() throws IOException, ClassNotFoundException {
         // test SAX unparsing with errors
-        LogWriterForJAPITest lw = new LogWriterForJAPITest();
-
-        Daffodil.setLogWriter(lw);
-        Daffodil.setLoggingLevel(LogLevel.Info);
-
         org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
 
         java.io.File schemaFile = getResource("/test/japi/mySchema1.dfdl.xsd");
@@ -1187,10 +1050,6 @@ public class TestJavaAPI {
         Diagnostic d = diags.get(0);
         assertTrue(d.getMessage().contains("wrong"));
         assertTrue(d.getMessage().contains("e2"));
-
-        // reset the global logging state
-        Daffodil.setLogWriter(new ConsoleLogWriter());
-        Daffodil.setLoggingLevel(LogLevel.Info);
     }
 
     @Test

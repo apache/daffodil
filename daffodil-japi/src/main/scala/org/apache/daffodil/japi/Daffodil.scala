@@ -59,11 +59,6 @@ import org.apache.daffodil.processors.{ UnparseResult => SUnparseResult }
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe._
 import org.apache.daffodil.util.MaybeULong
-import org.apache.daffodil.util.{ ConsoleWriter => SConsoleWriter }
-import org.apache.daffodil.util.{ FileWriter => SFileWriter }
-import org.apache.daffodil.util.{ LogWriter => SLogWriter }
-import org.apache.daffodil.util.{ LoggingDefaults => SLoggingDefaults }
-import org.apache.daffodil.util.{ NullLogWriter => SNullLogWriter }
 import org.apache.daffodil.xml.NS
 import org.apache.daffodil.xml.XMLUtils
 
@@ -93,14 +88,8 @@ object Daffodil {
    *
    * @param lw log writer to capture logging messages
    */
+  @deprecated("Use Log4j for logging", "3.2.0")
   def setLogWriter(lw: LogWriter): Unit = {
-    val slw: SLogWriter = lw match {
-      case clw: ConsoleLogWriter => SConsoleWriter
-      case flw: FileLogWriter => new SFileWriter(flw.getFile)
-      case nlw: NullLogWriter => SNullLogWriter
-      case _ => new JavaLogWriter(lw)
-    }
-    SLoggingDefaults.setLogWriter(slw)
   }
 
   /**
@@ -108,8 +97,8 @@ object Daffodil {
    *
    * @param lvl log level
    */
+  @deprecated("Use Log4j for logging", "3.2.0")
   def setLoggingLevel(lvl: LogLevel): Unit = {
-    SLoggingDefaults.setLoggingLevel(LoggingConversions.levelToScala(lvl))
   }
 
 }

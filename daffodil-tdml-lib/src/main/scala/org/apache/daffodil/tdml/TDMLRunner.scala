@@ -28,13 +28,17 @@ import java.nio.CharBuffer
 import java.nio.LongBuffer
 import java.nio.charset.CoderResult
 import java.nio.charset.{Charset => JavaCharset}
+
+import scala.collection.mutable
 import scala.language.postfixOps
 import scala.util.Try
 import scala.xml.Node
 import scala.xml.NodeSeq
 import scala.xml.NodeSeq.seqToNodeSeq
 import scala.xml.SAXParseException
+
 import org.apache.commons.io.IOUtils
+
 import org.apache.daffodil.api.DaffodilSchemaSource
 import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.api.DataLocation
@@ -65,8 +69,7 @@ import org.apache.daffodil.tdml.processor.TDMLDFDLProcessor
 import org.apache.daffodil.tdml.processor.TDMLParseResult
 import org.apache.daffodil.tdml.processor.TDMLResult
 import org.apache.daffodil.tdml.processor.TDMLUnparseResult
-import org.apache.daffodil.util.LogLevel
-import org.apache.daffodil.util.Logging
+import org.apache.daffodil.util.Logger
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.MaybeInt
 import org.apache.daffodil.util.Misc
@@ -75,8 +78,6 @@ import org.apache.daffodil.util.Misc.hex2Bits
 import org.apache.daffodil.util.SchemaUtils
 import org.apache.daffodil.xml.DaffodilXMLLoader
 import org.apache.daffodil.xml.XMLUtils
-
-import scala.collection.mutable
 
 /**
  * Parses and runs tests expressed in IBM's contributed tdml "Test Data Markup Language"
@@ -179,8 +180,7 @@ class DFDLTestSuite private[tdml] (
   val defaultImplementationsDefault: Seq[String],
   val shouldDoErrorComparisonOnCrossTests: Boolean,
   val shouldDoWarningComparisonOnCrossTests: Boolean)
-  extends Logging
-  with HasSetDebugger {
+  extends HasSetDebugger {
 
   // Uncomment to force conversion of all test suites to use Runner(...) instead.
   // That avoids creating the test suites repeatedly, but also leaks memory unless
@@ -284,12 +284,12 @@ class DFDLTestSuite private[tdml] (
       (tsNode, src.uriForLoading)
     }
     case tdmlFile: File => {
-      log(LogLevel.Info, "loading TDML file: %s", tdmlFile)
+      Logger.log.info(s"loading TDML file: ${tdmlFile}")
       val uri = tdmlFile.toURI()
       val newNode = loader.load(URISchemaSource(uri), optTDMLSchema,
         addPositionAttributes = true)
       val res = (newNode, uri)
-      log(LogLevel.Debug, "done loading TDML file: %s", tdmlFile)
+      Logger.log.debug(s"done loading TDML file: ${tdmlFile}")
       res
     }
     case uri: URI => {
@@ -316,7 +316,6 @@ class DFDLTestSuite private[tdml] (
   }
 
   def reportLoadingErrors(): Nothing = {
-    log(LogLevel.Error, "TDML file %s is not valid.", tsURI)
     throw TDMLException(loadingExceptions.toSeq, None)
   }
 
@@ -380,7 +379,7 @@ class DFDLTestSuite private[tdml] (
     if (isTDMLFileValid)
       testCases.map { _.run() }
     else {
-      log(LogLevel.Error, "TDML file %s is not valid.", tsURI)
+      throw TDMLException(s"TDML file ${tsURI} is not valid.", None)
     }
   }
 
@@ -412,7 +411,7 @@ class DFDLTestSuite private[tdml] (
       // Note: this simple approach is just too verbose.
       // We need a better approach that doesn't repeat these endlessly for every
       // test in a suite.
-      // loadingExceptions.foreach { le =>  log(LogLevel.Warning, le.toString) }
+      // loadingExceptions.foreach { le =>  Logger.log.warn(le.toString) }
       testCase match {
         case None => throw TDMLException("test " + testName + " was not found.", None)
         case Some(tc) => {
@@ -523,8 +522,7 @@ class DFDLTestSuite private[tdml] (
 
 }
 
-abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
-  extends Logging {
+abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
 
   /**
    * Test case execution is strongly sequentialized due to this central var.
@@ -2280,7 +2278,7 @@ class BitsDocumentPart(part: Node, parent: Document) extends DataDocumentPart(pa
   }
 }
 
-class FileDocumentPart(part: Node, parent: Document) extends DocumentPart(part, parent) with Logging {
+class FileDocumentPart(part: Node, parent: Document) extends DocumentPart(part, parent) {
 
   override lazy val nBits =
     if (lengthInBytes != -1L) lengthInBytes * 8

@@ -23,7 +23,6 @@ import scala.xml.Node
 import org.apache.daffodil.api.WarnID
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.schema.annotation.props.LookupLocation
-import org.apache.daffodil.util.LogLevel
 import org.apache.daffodil.xml.NS
 import org.apache.daffodil.xml.NoNamespace
 import org.apache.daffodil.xml.RefQName
@@ -144,7 +143,6 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
           val defFmt = schemaSet.getDefineFormat(adjustedQN).getOrElse {
             annotatedSC.schemaDefinitionError("defineFormat with name '%s', was not found.", adjustedQN.toString)
           }
-          log(LogLevel.Debug, "found defineFormat named: %s", adjustedQN)
           val fmt = defFmt.formatAnnotation
           val newSeen = seen + (adjustedQN -> fmt)
           val moreRefs = fmt.getFormatRefs(newSeen)
@@ -169,17 +167,6 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
     val res = new ChainPropProvider(withMe, this.diagnosticDebugName)
     res
   }
-
-  /**
-   * Don't need the map anymore, and we put ourselves highest
-   * priority meaning at the front of the list.
-   */
-  //  private lazy val formatRefs: Seq[DFDLFormatAnnotation] = {
-  //    val fmts = formatRefMap.map { case (_, fmt) => fmt }
-  //    log(LogLevel.Debug, "%s::%s formatRefs = %s", annotatedSC.diagnosticDebugName, diagnosticDebugName, fmts)
-  //    val seq = Seq(this) ++ fmts
-  //    seq
-  //  }
 
   private lazy val shortFormProperties: Set[PropItem] = LV[Set[PropItem]]('shortFormProperties) {
     // shortForm properties should be prefixed by dfdl

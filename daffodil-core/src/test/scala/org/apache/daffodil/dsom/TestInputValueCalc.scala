@@ -22,7 +22,7 @@ import org.junit.Test
 import scala.xml.Node
 import org.junit.Test
 
-class TestInputValueCalc extends Logging {
+class TestInputValueCalc {
 
   // @Test
   @Test def testInputValueCalc1(): Unit = {

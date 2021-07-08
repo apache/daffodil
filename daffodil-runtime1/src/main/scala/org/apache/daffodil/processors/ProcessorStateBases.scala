@@ -39,7 +39,6 @@ import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe.Nope
 import org.apache.daffodil.util.Maybe.One
 import org.apache.daffodil.util.MaybeULong
-import org.apache.daffodil.util.Logging
 import org.apache.daffodil.processors.charset.EncoderDecoderMixin
 import org.apache.daffodil.api.DataLocation
 import org.apache.daffodil.util.Maybe
@@ -145,7 +144,6 @@ abstract class ParseOrUnparseState protected (
   with SavesErrorsAndWarnings
   with LocalBufferMixin
   with EncoderDecoderMixin
-  with Logging
   with FormatInfo
   with SetProcessorMixin {
 

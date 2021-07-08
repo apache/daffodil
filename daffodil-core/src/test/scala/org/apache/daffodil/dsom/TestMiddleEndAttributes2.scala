@@ -24,7 +24,6 @@ import org.apache.daffodil.util.TestUtils
 class TestMiddleEndAttributes2 {
 
   @Test def testNestedSequencePrefixSep() = {
-    // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
 

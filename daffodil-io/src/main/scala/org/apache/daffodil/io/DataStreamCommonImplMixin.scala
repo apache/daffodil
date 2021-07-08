@@ -17,7 +17,6 @@
 
 package org.apache.daffodil.io
 import org.apache.daffodil.util.MaybeChar
-import org.apache.daffodil.util.Logging
 import org.apache.daffodil.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe._
@@ -70,7 +69,7 @@ trait DataStreamCommonState {
 /**
  * Shared by both DataInputStream and DataOutputStream implementations
  */
-trait DataStreamCommonImplMixin extends DataStreamCommon with Logging {
+trait DataStreamCommonImplMixin extends DataStreamCommon {
 
   protected def cst: DataStreamCommonState
 

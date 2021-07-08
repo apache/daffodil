@@ -27,7 +27,7 @@ import org.apache.daffodil.processors.RangeBound
 import org.apache.daffodil.processors.RuntimeData
 import org.apache.daffodil.processors.Success
 import org.apache.daffodil.processors.TermRuntimeData
-import org.apache.daffodil.util.LogLevel
+import org.apache.daffodil.util.Logger
 import org.apache.daffodil.util.Maybe
 
 class ComplexTypeParser(rd: RuntimeData, bodyParser: Parser)
@@ -143,6 +143,7 @@ abstract class ChoiceDispatchCombinatorParserBase(rd: TermRuntimeData,
                                                   dispatchBranchKeyMap: Map[String, (Parser, Boolean)], 
                                                   dispatchKeyRangeMap: Vector[(RangeBound, RangeBound, Parser, Boolean)])
   extends CombinatorParser(rd) {
+
   override def nom = "ChoiceDispatch"
 
   override lazy val runtimeDependencies = Vector()
@@ -227,11 +228,11 @@ abstract class ChoiceDispatchCombinatorParserBase(rd: TermRuntimeData,
           // discriminator here if would essentially ignore discriminators on a
           // choice branch.
 
-          log(LogLevel.Debug, "Dispatching to choice alternative: %s", parser)
+          Logger.log.debug(s"Dispatching to choice alternative: ${parser}")
           parser.parse1(pstate)
 
           if (pstate.processorStatus eq Success) {
-            log(LogLevel.Debug, "Choice dispatch success: %s", parser)
+            Logger.log.debug(s"Choice dispatch success: ${parser}")
 
             // We usually rely on the sequence parser to set elements as final.
             // But choices with scalar elements do not necessarily have a
@@ -244,7 +245,7 @@ abstract class ChoiceDispatchCombinatorParserBase(rd: TermRuntimeData,
             }
 
           } else {
-            log(LogLevel.Debug, "Choice dispatch failed: %s", parser)
+            Logger.log.debug(s"Choice dispatch failed: ${parser}")
             val diag = new ChoiceDispatchFailed(context.schemaFileLocation, pstate, pstate.diagnostics)
             pstate.setFailed(diag)
           }

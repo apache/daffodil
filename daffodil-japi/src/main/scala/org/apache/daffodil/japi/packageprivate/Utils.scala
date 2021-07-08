@@ -25,46 +25,10 @@ package org.apache.daffodil.japi.packageprivate
 // private should go in this package.
 
 import org.apache.daffodil.japi._
-import org.apache.daffodil.japi.logger._
 import org.apache.daffodil.japi.debugger._
 import org.apache.daffodil.api.{ ValidationMode => SValidationMode }
-import org.apache.daffodil.util.{ LogLevel => SLogLevel }
-import org.apache.daffodil.util.{ LogWriter => SLogWriter }
 import org.apache.daffodil.debugger.{ InteractiveDebugger => SInteractiveDebugger }
 import org.apache.daffodil.debugger.{ InteractiveDebuggerRunner => SInteractiveDebuggerRunner }
-
-import scala.collection.JavaConverters._
-
-private[japi] object LoggingConversions {
-
-  def levelToScala(lvl: LogLevel): SLogLevel.Type = {
-    val slvl: SLogLevel.Type = lvl match {
-      case LogLevel.Error => SLogLevel.Error
-      case LogLevel.Warning => SLogLevel.Warning
-      case LogLevel.Info => SLogLevel.Info
-      case LogLevel.Compile => SLogLevel.Compile
-      case LogLevel.Resolver => SLogLevel.Resolver
-      case LogLevel.Debug => SLogLevel.Debug
-      case LogLevel.OOLAGDebug => SLogLevel.OOLAGDebug
-      case LogLevel.DelimDebug => SLogLevel.DelimDebug
-    }
-    slvl
-  }
-
-  def levelFromScala(slvl: SLogLevel.Type): LogLevel = {
-    val lvl: LogLevel = slvl match {
-      case SLogLevel.Error => LogLevel.Error
-      case SLogLevel.Warning => LogLevel.Warning
-      case SLogLevel.Info => LogLevel.Info
-      case SLogLevel.Resolver => LogLevel.Resolver
-      case SLogLevel.Compile => LogLevel.Compile
-      case SLogLevel.Debug => LogLevel.Debug
-      case SLogLevel.OOLAGDebug => LogLevel.OOLAGDebug
-      case SLogLevel.DelimDebug => LogLevel.DelimDebug
-    }
-    lvl
-  }
-}
 
 private[japi] object ValidationConversions {
 
@@ -75,23 +39,6 @@ private[japi] object ValidationConversions {
       case ValidationMode.Full => SValidationMode.Full
     }
     smode
-  }
-}
-
-/* A wrapper log writer that scala logging can talk to, which is then forwarded
- * onto the java LogWriter, if a user implements their own log writer in java.
- */
-private[japi] class JavaLogWriter(logWriter: LogWriter)
-    extends SLogWriter {
-
-  protected def write(msg: String): Unit = {
-    //do nothing
-  }
-
-  override def log(lvl: SLogLevel.Type, logID: String, msg: String, args: Seq[Any]): Unit = {
-    if (logWriter != null) {
-      logWriter.log(LoggingConversions.levelFromScala(lvl), logID, msg, args.asJava)
-    }
   }
 }
 

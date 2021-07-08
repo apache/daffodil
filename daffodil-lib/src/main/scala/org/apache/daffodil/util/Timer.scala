@@ -17,9 +17,9 @@
 
 package org.apache.daffodil.util
 
-import collection.JavaConverters._
+import scala.collection.JavaConverters._
 
-object Timer extends Logging {
+object Timer {
 
   def printTime(message: String, nanos: Long, units: String): Unit = {
     val msg = message match {
@@ -30,7 +30,7 @@ object Timer extends Logging {
       case "ms" => nanos / 1000000
       case "ns" => nanos
     }
-    log(LogLevel.Info, "Time%s: %d%s", msg, time, units)
+    Logger.log.info(s"Time${msg}: ${time}${units}")
   }
 
   def getResult[A](message: String, f: => A): A = {
@@ -147,8 +147,6 @@ object TakTimer {
   val y = 2L
   val z = 20L
 
-  private val info = LogLevel.Info
-
   /**
    * The number of nanoseconds for 1 tak function call.
    *
@@ -170,7 +168,7 @@ object TakTimer {
 }
 
 
-object TimeTracker extends Logging {
+object TimeTracker {
 
   case class SectionTime(var time: Long, var count: Int)
 
@@ -218,7 +216,7 @@ object TimeTracker extends Logging {
   /**
    * Output the results of the tracked sections in sorted columnar format.
    */
-  def logTimes(logLevel: LogLevel.Type): Unit = {
+  def logTimes(logLevel: org.apache.logging.log4j.Level): Unit = {
     val stats = sectionTimes.asScala.toSeq.map { case (name, SectionTime(timeNS, count)) => {
       val average = timeNS / count
       (name, timeNS / 1000000000.0, average, count)
@@ -249,11 +247,11 @@ object TimeTracker extends Logging {
       "%"  + averageLen + "s  " +
       "%"  + countLen + "s"
 
-    log(logLevel, formatString, "Name", "Time", "Pct", "Average", "Count")
+    Logger.log(logLevel, formatString.format("Name", "Time", "Pct", "Average", "Count"))
     stringStats.foreach { stats =>
-      log(logLevel, formatString, stats.productIterator.toList: _*)
+      Logger.log(logLevel, formatString.format(stats.productIterator.toList: _*))
     }
-    log(logLevel, "Total Time: %.3f", totalTime)
+    Logger.log(logLevel, f"Total Time: $totalTime%.3f")
   }
 
   def clear(): Unit = {

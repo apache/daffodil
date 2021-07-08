@@ -22,7 +22,6 @@ import java.nio.CharBuffer
 import java.nio.file.Path
 import java.io.File
 import org.apache.daffodil.util.MaybeULong
-import org.apache.daffodil.util.Logging
 import org.apache.daffodil.util.Maybe
 import java.math.{BigInteger => JBigInt}
 
@@ -86,8 +85,7 @@ object ZeroLengthStatus {
  * is known, then the relative bit limit is known and is equal.
  *
  */
-trait DataOutputStream extends DataStreamCommon
-  with Logging {
+trait DataOutputStream extends DataStreamCommon {
 
   def maybeNextInChain: Maybe[DataOutputStream]
 

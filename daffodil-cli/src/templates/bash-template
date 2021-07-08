@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -52,9 +52,8 @@ MAINCLASS=org.apache.daffodil.Main
 SCRIPT=$(realpath "$0")			# Full path to script, needed for symlinks
 BINDIR=$(dirname "${SCRIPT}")		# Directory script is run in
 LIBDIR="$BINDIR/../lib"
+CONFDIR="$BINDIR/../conf"
 CLASSPATH=$LIBDIR/'*'
-
-JOPTS="-Xms1024m -Xmx1024m -XX:ReservedCodeCacheSize=128m"
 
 if [ -n "$DAFFODIL_JAVA_OPTS" ]; then
 	JOPTS="$DAFFODIL_JAVA_OPTS"
@@ -62,8 +61,7 @@ elif [ -n "$JAVA_OPTS" ]; then
 	JOPTS="$JAVA_OPTS"
 fi
 
-if [ -n "$DAFFODIL_CLASSPATH" ]
-then
+if [ -n "$DAFFODIL_CLASSPATH" ]; then
 	CLASSPATH="$CLASSPATH:$DAFFODIL_CLASSPATH"
 fi
 
@@ -73,4 +71,13 @@ then
 	CLASSPATH=$(cygpath -apw "$CLASSPATH")
 fi
 
-exec java $JOPTS -cp "$CLASSPATH" "$MAINCLASS" "$@"
+# Prepend additional java options that must be provided. By prepending, a user
+# can override options by redefining them in JAVA_OPTS or DAFFODIL_JAVA_OPTS
+DEFAULT_JOPTS=(
+  "-Xms1024m"
+  "-Xmx1024m"
+  "-XX:ReservedCodeCacheSize=128m"
+  "-Dlog4j.configurationFile=$CONFDIR/log4j2.xml"
+)
+
+exec java "${DEFAULT_JOPTS[@]}" $JOPTS -cp "$CLASSPATH" $MAINCLASS "$@"

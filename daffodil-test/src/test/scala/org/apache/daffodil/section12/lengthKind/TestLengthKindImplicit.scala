@@ -37,7 +37,6 @@ class TestLengthKindImplicit {
 
   // Debug Template
   // @Test def test_name() = Debugger.withDebugger {
-  // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
   // runner.runOneTest("test_name")
   // }
 

@@ -20,13 +20,12 @@ package org.apache.daffodil.dsom
 import org.junit.Test
 import org.apache.daffodil.compiler._
 
-import org.apache.daffodil.util.Logging
 import org.apache.daffodil.xml.XMLUtils
 import org.junit.Assert._
 import org.apache.daffodil.util.SchemaUtils
 import org.junit.Test
 
-class TestIsScannable extends Logging {
+class TestIsScannable {
 
   val xsd = XMLUtils.XSD_NAMESPACE
   val dfdl = XMLUtils.dfdlAppinfoSource // XMLUtils.DFDL_NAMESPACE

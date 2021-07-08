@@ -28,6 +28,7 @@ import java.util.zip.ZipException
 import scala.collection.immutable.Queue
 import scala.util.Try
 import scala.xml.Node
+
 import org.apache.daffodil.api.DFDL
 import org.apache.daffodil.api.DaffodilSchemaSource
 import org.apache.daffodil.api.DaffodilTunables
@@ -39,8 +40,7 @@ import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.externalvars.Binding
 import org.apache.daffodil.externalvars.ExternalVariablesLoader
 import org.apache.daffodil.processors.DataProcessor
-import org.apache.daffodil.util.LogLevel
-import org.apache.daffodil.util.Logging
+import org.apache.daffodil.util.Logger
 import org.apache.daffodil.util.Misc
 import org.apache.daffodil.xml._
 
@@ -172,8 +172,7 @@ class Compiler private (var validateDFDLSchemas: Boolean,
   private var checkAllTopLevel : Boolean,
   private var optRootName: Option[String],
   private var optRootNamespace: Option[String])
-  extends DFDL.Compiler
-  with Logging {
+  extends DFDL.Compiler {
 
   private def this(validateDFDLSchemas: Boolean = true) =
     this(validateDFDLSchemas,
@@ -371,15 +370,15 @@ class Compiler private (var validateDFDLSchemas: Boolean,
     val diags = pf.getDiagnostics // might be warnings even if not isError
     if (err) {
       Assert.invariant(diags.nonEmpty)
-      log(LogLevel.Compile, "Compilation (ProcessorFactory) produced %d errors/warnings.", diags.length)
+      Logger.log.debug(s"Compilation (ProcessorFactory) produced ${diags.length} errors/warnings.")
     } else {
       if (diags.nonEmpty) {
-        log(LogLevel.Compile, "Compilation (ProcessorFactory) produced %d warnings.", diags.length)
+        Logger.log.debug(s"Compilation (ProcessorFactory) produced ${diags.length} warnings.")
       } else {
-        log(LogLevel.Compile, "ProcessorFactory completed with no errors.")
+        Logger.log.debug(s"ProcessorFactory completed with no errors.")
       }
     }
-    log(LogLevel.Compile, "Schema had %s elements.", pf.elementBaseInstanceCount)
+    Logger.log.debug(s"Schema had ${pf.elementBaseInstanceCount} elements.")
     pf
   }
 

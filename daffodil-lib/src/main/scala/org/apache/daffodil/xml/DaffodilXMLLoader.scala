@@ -29,27 +29,30 @@ import java.io.InputStream
 import java.io.Reader
 import java.net.URI
 import javax.xml.XMLConstants
-import javax.xml.transform.sax.SAXSource
-import scala.collection.JavaConverters.asScalaBufferConverter
-import scala.xml.InputSource
-import scala.xml.SAXParseException
-import scala.xml.parsing.NoBindingFactoryAdapter
-import org.w3c.dom.ls.LSInput
-import org.apache.daffodil.api.DaffodilSchemaSource
-import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.util.LogLevel
-import org.apache.daffodil.util.Logging
-import org.apache.daffodil.util.Misc
-import org.apache.daffodil.validation.XercesValidator
-import org.apache.xerces.xni.parser.XMLInputSource
-import org.apache.xml.resolver.Catalog
-import org.apache.xml.resolver.CatalogManager
-
 import javax.xml.parsers.SAXParserFactory
+import javax.xml.transform.sax.SAXSource
 import javax.xml.transform.stream.StreamSource
 import javax.xml.validation.Schema
 import javax.xml.validation.SchemaFactory
+
+import scala.collection.JavaConverters.asScalaBufferConverter
+import scala.xml.InputSource
+import scala.xml.SAXParseException
 import scala.xml.SAXParser
+import scala.xml.parsing.NoBindingFactoryAdapter
+
+import org.apache.xerces.xni.parser.XMLInputSource
+
+import org.apache.xml.resolver.Catalog
+import org.apache.xml.resolver.CatalogManager
+
+import org.w3c.dom.ls.LSInput
+
+import org.apache.daffodil.api.DaffodilSchemaSource
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.util.Logger
+import org.apache.daffodil.util.Misc
+import org.apache.daffodil.validation.XercesValidator
 
 /**
  * Resolves URI/URL/URNs to loadable files/streams.
@@ -71,8 +74,7 @@ class DFDLCatalogResolver private ()
   extends org.apache.xerces.xni.parser.XMLEntityResolver
   with org.w3c.dom.ls.LSResourceResolver
   with org.xml.sax.EntityResolver
-  with org.xml.sax.ext.EntityResolver2
-  with Logging {
+  with org.xml.sax.ext.EntityResolver2 {
 
   lazy val init = {
     cm
@@ -102,13 +104,13 @@ class DFDLCatalogResolver private ()
     // our catalog first in the catalog list, and then set it again.
     //
     val catFiles = cm.getCatalogFiles().toArray.toList.asInstanceOf[List[String]]
-    log(LogLevel.Debug, "initial catalog files: %s ", catFiles)
+    Logger.log.debug(s"initial catalog files: ${catFiles}")
     val builtInCatalog = Misc.getRequiredResource("/daffodil-built-in-catalog.xml")
     val newCatFiles = builtInCatalog.toString() :: catFiles
     cm.setCatalogFiles(newCatFiles.mkString(";"))
 
     val catFilesAfter = cm.getCatalogFiles()
-    log(LogLevel.Debug, "final catalog files: %s ", catFilesAfter)
+    Logger.log.debug(s"final catalog files: ${catFilesAfter}")
     cm
   }
 
@@ -149,7 +151,7 @@ class DFDLCatalogResolver private ()
 
     if (ns == XMLUtils.XSD_NAMESPACE) {
       if (alreadyResolvingXSD) {
-        log(LogLevel.Debug, "special resolved to null")
+        Logger.log.debug(s"special resolved to null")
         return null
       }
     }
@@ -183,7 +185,7 @@ class DFDLCatalogResolver private ()
     init
     if (nsURI == null && systemId == null && baseURIString == null) return None
 
-    log(LogLevel.Resolver, "nsURI = %s, baseURI = %s, systemId = %s", nsURI, baseURIString, systemId)
+    Logger.log.debug(s"nsURI = ${nsURI}, baseURI = ${baseURIString}, systemId = ${systemId}")
     val resolvedUri = delegate.resolveURI(nsURI)
     val resolvedSystem =
       if (systemId == null) null
@@ -214,7 +216,7 @@ class DFDLCatalogResolver private ()
       case (null, null) => {
         // This happens now in some unit tests.
         // Assert.invariantFailed("resolvedId and systemId were null.")
-        log(LogLevel.Resolver, "Unable to resolve.")
+        Logger.log.debug(s"Unable to resolve.")
         None
       }
       case (null, sysId) =>
@@ -222,13 +224,13 @@ class DFDLCatalogResolver private ()
           val baseURI = if (baseURIString == null) None else Some(new URI(baseURIString))
           val optURI = Misc.getResourceRelativeOption(sysId, baseURI)
           optURI match {
-            case Some(uri) => log(LogLevel.Resolver, "Found on classpath: %s.", uri)
-            case None => log(LogLevel.Info, "Unable to resolve " + sysId + " in " + baseURI)
+            case Some(uri) => Logger.log.debug(s"Found on classpath: ${uri}.")
+            case None => Logger.log.info(s"Unable to resolve ${sysId} in ${baseURI}")
           }
           optURI
         }
       case (resolved, _) => {
-        log(LogLevel.Resolver, "Found via XML Catalog: %s.", resolved)
+        Logger.log.debug(s"Found via XML Catalog: ${resolved}.")
         Some(new URI(resolved))
       }
     }
@@ -259,7 +261,7 @@ class DFDLCatalogResolver private ()
    * We don't deal with DTDs at all. So this always returns null
    */
   def getExternalSubset(name: String, baseURI: String) = {
-    log(LogLevel.Debug, "getExternalSubset: name = %s, baseURI = %s", name, baseURI)
+    Logger.log.debug(s"getExternalSubset: name = ${name}, baseURI = ${baseURI}")
     null
   }
 
