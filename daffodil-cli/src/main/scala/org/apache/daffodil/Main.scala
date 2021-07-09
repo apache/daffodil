@@ -109,22 +109,6 @@ import org.xml.sax.XMLReader
 import scala.util.matching.Regex
 import scala.xml.SAXParser
 
-class CommandLineSAXErrorHandler() extends org.xml.sax.ErrorHandler with Logging {
-
-  def warning(exception: SAXParseException) = {
-    log(LogLevel.Warning, exception.getMessage())
-  }
-
-  def error(exception: SAXParseException) = {
-    log(LogLevel.Error, exception.getMessage())
-    System.exit(1)
-  }
-
-  def fatalError(exception: SAXParseException) = {
-    error(exception)
-  }
-}
-
 trait CLILogPrefix extends LogWriter {
   override def prefix(lvl: LogLevel.Type, logID: String): String = {
     "[" + lvl.toString.toLowerCase + "] "
@@ -301,7 +285,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
       }
 
     log(LogLevel.Error, "%s", msg)
-    sys.exit(1)
+    sys.exit(64)
   }
 
   banner("""|Usage: daffodil [GLOBAL_OPTS] <subcommand> [SUBCOMMAND_OPTS]
@@ -635,12 +619,21 @@ object Main extends Logging {
   }
 
   def createProcessorFromParser(savedParser: File, path: Option[String], mode: ValidationMode.Type) = {
-    val compiler = Compiler()
-    val processor = Timer.getResult("reloading", compiler.reload(savedParser))
-    displayDiagnostics(processor)
-    if (!processor.isError) {
-      Some(processor.withValidationMode(mode))
-    } else None
+    try {
+      val compiler = Compiler()
+      val processor = Timer.getResult("reloading", compiler.reload(savedParser))
+      displayDiagnostics(processor)
+      if (!processor.isError) {
+        Some(processor.withValidationMode(mode))
+      } else {
+        None
+      }
+    } catch {
+      case e: InvalidParserException => {
+        log(LogLevel.Error, "%s", e.getMessage())
+        None
+      }
+    }
   }
 
   def retrieveTunables(tunables: Map[String, String], configFileNode: Option[Node]) = {
@@ -952,8 +945,7 @@ object Main extends Logging {
                   // reset in case we are streaming
                   saxContentHandler.reset()
                   Timer.getResult("parsing",
-                    parseWithSAX(processor, inStream, saxContentHandler,
-                    new CommandLineSAXErrorHandler()))
+                    parseWithSAX(processor, inStream, saxContentHandler))
                 case Left(outputter) =>
                   outputter.reset() // reset in case we are streaming
                   Timer.getResult("parsing", processor.parse(inStream, outputter))
@@ -1165,9 +1157,7 @@ object Main extends Logging {
                         eitherOutputterOrHandlerForParse match {
                           case Left(outputter) => processor.parse(input, outputter)
                           case Right(saxContentHandler) =>
-                            val errorHandler = new CommandLineSAXErrorHandler()
-                            val parseResult = parseWithSAX(processor, input, saxContentHandler,
-                              errorHandler)
+                            val parseResult = parseWithSAX(processor, input, saxContentHandler)
                             parseResult
                         }
                       })
@@ -1400,6 +1390,7 @@ object Main extends Logging {
               }
             }
           }
+          ExitCode.Success
         } else {
           LoggingDefaults.setLogWriter(TDMLLogWriter)
           var pass = 0
@@ -1449,8 +1440,9 @@ object Main extends Logging {
           }
           println("")
           println("Total: %d, Pass: %d, Fail: %d, Not Found: %s".format(pass + fail + notfound, pass, fail, notfound))
+
+          if (fail == 0) ExitCode.Success else ExitCode.TestError
         }
-        ExitCode.Success
       }
 
       case Some(conf.generate) => {
@@ -1514,11 +1506,9 @@ object Main extends Logging {
   private def parseWithSAX(
     processor: DFDL.DataProcessor,
     data: InputSourceDataInputStream,
-    saxContentHandler: DaffodilParseOutputStreamContentHandler,
-    errorHandler: CommandLineSAXErrorHandler): ParseResult = {
+    saxContentHandler: DaffodilParseOutputStreamContentHandler): ParseResult = {
     val saxXmlRdr = processor.newXMLReaderInstance
     saxXmlRdr.setContentHandler(saxContentHandler)
-    saxXmlRdr.setErrorHandler(errorHandler)
     saxXmlRdr.setProperty(XMLUtils.DAFFODIL_SAX_URN_BLOBDIRECTORY, blobDir)
     saxXmlRdr.setProperty(XMLUtils.DAFFODIL_SAX_URN_BLOBSUFFIX, blobSuffix)
     saxXmlRdr.parse(data)
@@ -1613,10 +1603,6 @@ object Main extends Logging {
       case e: java.io.FileNotFoundException => {
         log(LogLevel.Error, "%s", e.getMessage())
         ExitCode.FileNotFound
-      }
-      case e: InvalidParserException => {
-        log(LogLevel.Error, "%s", e.getMessage())
-        ExitCode.InvalidParserException
       }
       case e: ExternalVariableException => {
         log(LogLevel.Error, "%s", e.getMessage())

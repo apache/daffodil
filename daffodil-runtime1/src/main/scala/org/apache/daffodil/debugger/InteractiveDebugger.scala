@@ -69,6 +69,8 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
     def this(str: String) = this(str, null)
   }
 
+  case class DebuggerExitException(str: String) extends Exception("Debugger exit")
+
   trait Disablable {
     var enabled = true
     def disable = { enabled = false }
@@ -1720,7 +1722,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
                         |Immediately abort all processing.""".stripMargin
       override lazy val short = "q"
       def act(args: Seq[String], state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
-        sys.exit(1)
+        throw new DebuggerExitException("")
       }
     }
 
