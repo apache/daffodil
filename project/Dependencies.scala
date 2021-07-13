@@ -28,7 +28,7 @@ object Dependencies {
     "com.ibm.icu" % "icu4j" % "69.1",
     "xerces" % "xercesImpl" % "2.12.1",
     "xml-resolver" % "xml-resolver" % "1.2",
-    "commons-io" % "commons-io" % "2.10.0",
+    "commons-io" % "commons-io" % "2.11.0",
     "com.typesafe" % "config" % "1.4.1"
   )
 
