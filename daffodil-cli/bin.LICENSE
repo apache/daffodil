@@ -1447,7 +1447,7 @@ is subject to the terms and conditions of the following licenses.
     THE SOFTWARE.
 
   This product bundles libraries from 'os-lib', including the following files:
-    - lib/com.lihaoyi.geany_<VERSION>.jar
+    - lib/com.lihaoyi.geny_<VERSION>.jar
     - lib/com.lihaoyi.os-lib_<VERSION>.jar
   These files are available under the MIT license:
 
