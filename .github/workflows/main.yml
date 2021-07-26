@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: Daffodil CI
+name: CI
 
 # Run CI when pushing a commit to master or creating a pull request or
 # adding another commit to a pull request or reopening a pull request.
@@ -24,9 +24,10 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
 
-# Build Daffodil and run some checks.
-
 jobs:
+
+  # Build Daffodil and run some checks.
+
   check:
     name: Java ${{ matrix.java_version }}, Scala ${{ matrix.scala_version }}, ${{ matrix.os }}
     strategy:
@@ -168,3 +169,24 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: -Dproject.settings=.sonar-project.properties
+
+
+  # Ensure pull requests only have a single commit
+
+  single-commit:
+    name: Single Commit Pull Request
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Check Single Commit
+        uses: actions/github-script@v4.0.2
+        with:
+          script: |
+            const commits = await github.pulls.listCommits({
+              ...context.repo,
+              pull_number: context.issue.number,
+            });
+            core.info("Number of commits in this pull request: " + commits.data.length);
+            if (commits.data.length > 1) {
+              core.setFailed("If approved with two +1's, squash this pull request into one commit");
+            }
