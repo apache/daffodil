@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+      http://www.apache.org/licenses/LICENSE-2.0
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<tdml:testSuite suiteName="SimpleTypes" description="Section 5 - simple types"
+  xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  xmlns:math="http://www.w3.org/2005/xpath-functions/math"
+  xmlns:ex="http://example.com"
+  xmlns:home="http://home.com"
+  xmlns:first="http://first.com"
+  defaultRoundTrip="onePass">
+  <tdml:defineSchema elementFormDefault="unqualified" name="BitFunctions">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" />
+
+  <xs:complexType name="IntNot">
+    <xs:sequence dfdl:separator=",">
+      <xs:element name="num" type="xs:int" dfdl:lengthKind="delimited" dfdl:textNumberPattern="#0"/>
+      <xs:element name="value" type="xs:int" dfdl:inputValueCalc="{dfdlx:bitNot(../num)}"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="testIntNot">
+    <xs:complexType>
+      <xs:sequence dfdl:separator="|">
+        <xs:element name="IntNot1" type="ex:IntNot"/>
+        <xs:element name="IntNot2" type="ex:IntNot"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:complexType name="LongNot">
+    <xs:sequence dfdl:separator=",">
+      <xs:element name="num" type="xs:long" dfdl:lengthKind="delimited" dfdl:textNumberPattern="#0"/>
+      <xs:element name="value" type="xs:long" dfdl:inputValueCalc="{dfdlx:bitNot(../num)}"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="testLongNot">
+    <xs:complexType>
+      <xs:sequence dfdl:separator="|">
+        <xs:element name="LongNot1" type="ex:LongNot"/>
+        <xs:element name="LongNot2" type="ex:LongNot"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:complexType name="ShortNot">
+    <xs:sequence dfdl:separator=",">
+      <xs:element name="num" type="xs:short" dfdl:lengthKind="delimited" dfdl:textNumberPattern="#0"/>
+      <xs:element name="value" type="xs:short" dfdl:inputValueCalc="{dfdlx:bitNot(../num)}"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="testShortNot">
+    <xs:complexType>
+      <xs:sequence dfdl:separator="|">
+        <xs:element name="ShortNot1" type="ex:ShortNot"/>
+        <xs:element name="ShortNot2" type="ex:ShortNot"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:complexType name="ByteNot">
+    <xs:sequence dfdl:separator=",">
+      <xs:element name="num" type="xs:byte" dfdl:lengthKind="delimited" dfdl:textNumberPattern="#0"/>
+      <xs:element name="value" type="xs:byte" dfdl:inputValueCalc="{dfdlx:bitNot(../num)}"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="testByteNot">
+    <xs:complexType>
+      <xs:sequence dfdl:separator="|">
+        <xs:element name="ByteNot1" type="ex:ByteNot"/>
+        <xs:element name="ByteNot2" type="ex:ByteNot"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:complexType name="UnsignedIntNot">
+    <xs:sequence dfdl:separator=",">
+      <xs:element name="num" type="xs:unsignedInt" dfdl:lengthKind="delimited" dfdl:textNumberPattern="#0"/>
+      <xs:element name="value" type="xs:unsignedInt" dfdl:inputValueCalc="{dfdlx:bitNot(../num)}"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="testUnsignedIntNot">
+    <xs:complexType>
+      <xs:sequence dfdl:separator="|">
+        <xs:element name="UnsignedIntNot1" type="ex:UnsignedIntNot"/>
+        <xs:element name="UnsignedIntNot2" type="ex:UnsignedIntNot"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:complexType name="UnsignedLongNot">
+    <xs:sequence dfdl:separator=",">
+      <xs:element name="num" type="xs:unsignedLong" dfdl:lengthKind="delimited" dfdl:textNumberPattern="#0"/>
+      <xs:element name="value" type="xs:unsignedLong" dfdl:inputValueCalc="{dfdlx:bitNot(../num)}"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="testUnsignedLongNot">
+    <xs:complexType>
+      <xs:sequence dfdl:separator="|">
+        <xs:element name="UnsignedLongNot1" type="ex:UnsignedLongNot"/>
+        <xs:element name="UnsignedLongNot2" type="ex:UnsignedLongNot"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:complexType name="UnsignedShortNot">
+    <xs:sequence dfdl:separator=",">
+      <xs:element name="num" type="xs:unsignedShort" dfdl:lengthKind="delimited" dfdl:textNumberPattern="#0"/>
+      <xs:element name="value" type="xs:unsignedShort" dfdl:inputValueCalc="{dfdlx:bitNot(../num)}"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="testUnsignedShortNot">
+    <xs:complexType>
+      <xs:sequence dfdl:separator="|">
+        <xs:element name="UnsignedShortNot1" type="ex:UnsignedShortNot"/>
+        <xs:element name="UnsignedShortNot2" type="ex:UnsignedShortNot"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:complexType name="UnsignedByteNot">
+    <xs:sequence dfdl:separator=",">
+      <xs:element name="num" type="xs:unsignedByte" dfdl:lengthKind="delimited" dfdl:textNumberPattern="#0"/>
+      <xs:element name="value" type="xs:unsignedByte" dfdl:inputValueCalc="{dfdlx:bitNot(../num)}"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="testUnsignedByteNot">
+    <xs:complexType>
+      <xs:sequence dfdl:separator="|">
+        <xs:element name="UnsignedByteNot1" type="ex:UnsignedByteNot"/>
+        <xs:element name="UnsignedByteNot2" type="ex:UnsignedByteNot"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="testIntNot" root="testIntNot" model="BitFunctions">
+    <tdml:document>1|3</tdml:document>
+      <tdml:infoset>
+        <tdml:dfdlInfoset>
+          <ex:testIntNot>
+            <ex:IntNot1>
+              <num>1</num>
+              <value>-2</value>
+            </ex:IntNot1>
+            <ex:IntNot2>
+              <num>3</num>
+              <value>-4</value>
+            </ex:IntNot2>
+          </ex:testIntNot>
+        </tdml:dfdlInfoset>
+      </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="testLongNot" root="testLongNot" model="BitFunctions">
+    <tdml:document>1|3</tdml:document>
+      <tdml:infoset>
+        <tdml:dfdlInfoset>
+          <ex:testLongNot>
+            <ex:LongNot1>
+              <num>1</num>
+              <value>-2</value>
+            </ex:LongNot1>
+            <ex:LongNot2>
+              <num>3</num>
+              <value>-4</value>
+            </ex:LongNot2>
+          </ex:testLongNot>
+        </tdml:dfdlInfoset>
+      </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="testShortNot" root="testShortNot" model="BitFunctions">
+    <tdml:document>1|3</tdml:document>
+      <tdml:infoset>
+        <tdml:dfdlInfoset>
+          <ex:testShortNot>
+            <ex:ShortNot1>
+              <num>1</num>
+              <value>-2</value>
+            </ex:ShortNot1>
+            <ex:ShortNot2>
+              <num>3</num>
+              <value>-4</value>
+            </ex:ShortNot2>
+          </ex:testShortNot>
+        </tdml:dfdlInfoset>
+      </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="testByteNot" root="testByteNot" model="BitFunctions">
+    <tdml:document>1|3</tdml:document>
+      <tdml:infoset>
+        <tdml:dfdlInfoset>
+          <ex:testByteNot>
+            <ex:ByteNot1>
+              <num>1</num>
+              <value>-2</value>
+            </ex:ByteNot1>
+            <ex:ByteNot2>
+              <num>3</num>
+              <value>-4</value>
+            </ex:ByteNot2>
+          </ex:testByteNot>
+        </tdml:dfdlInfoset>
+      </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="testUnsignedIntNot" root="testUnsignedIntNot" model="BitFunctions">
+    <tdml:document>2|1</tdml:document>
+      <tdml:infoset>
+        <tdml:dfdlInfoset>
+          <ex:testUnsignedIntNot>
+            <ex:UnsignedIntNot1>
+              <num>2</num>
+              <value>4294967293</value>
+            </ex:UnsignedIntNot1>
+            <ex:UnsignedIntNot2>
+              <num>1</num>
+              <value>4294967294</value>
+            </ex:UnsignedIntNot2>
+          </ex:testUnsignedIntNot>
+        </tdml:dfdlInfoset>
+      </tdml:infoset>
+  </tdml:parserTestCase>
+
+
+  <tdml:parserTestCase name="testUnsignedLongNot" root="testUnsignedLongNot" model="BitFunctions">
+    <tdml:document>2|1</tdml:document>
+      <tdml:infoset>
+        <tdml:dfdlInfoset>
+          <ex:testUnsignedLongNot>
+            <ex:UnsignedLongNot1>
+              <num>2</num>
+              <value>18446744073709551613</value>
+            </ex:UnsignedLongNot1>
+            <ex:UnsignedLongNot2>
+              <num>1</num>
+              <value>18446744073709551614</value>
+            </ex:UnsignedLongNot2>
+          </ex:testUnsignedLongNot>
+        </tdml:dfdlInfoset>
+      </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="testUnsignedShortNot" root="testUnsignedShortNot" model="BitFunctions">
+    <tdml:document>2|1</tdml:document>
+      <tdml:infoset>
+        <tdml:dfdlInfoset>
+          <ex:testUnsignedShortNot>
+            <ex:UnsignedShortNot1>
+              <num>2</num>
+              <value>65533</value>
+            </ex:UnsignedShortNot1>
+            <ex:UnsignedShortNot2>
+              <num>1</num>
+              <value>65534</value>
+            </ex:UnsignedShortNot2>
+          </ex:testUnsignedShortNot>
+        </tdml:dfdlInfoset>
+      </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="testUnsignedByteNot" root="testUnsignedByteNot" model="BitFunctions">
+    <tdml:document>1|2</tdml:document>
+      <tdml:infoset>
+        <tdml:dfdlInfoset>
+          <ex:testUnsignedByteNot>
+            <ex:UnsignedByteNot1>
+              <num>1</num>
+              <value>254</value>
+            </ex:UnsignedByteNot1>
+            <ex:UnsignedByteNot2>
+              <num>2</num>
+              <value>253</value>
+            </ex:UnsignedByteNot2>
+          </ex:testUnsignedByteNot>
+        </tdml:dfdlInfoset>
+      </tdml:infoset>
+  </tdml:parserTestCase>
+</tdml:testSuite>

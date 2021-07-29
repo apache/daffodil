@@ -26,10 +26,16 @@ object TestBitFunctions {
 
   val runner = Runner(testDir, "BitFunctions.tdml")
   val runner1= Runner(testDir,"BitFunctionsXor.tdml")
+  val runner2=Runner(testDir,"BitFunctionsOr.tdml")
+  val runner3=Runner(testDir,"BitFunctionsAnd.tdml")
+  val runner4=Runner(testDir,"BitFunctionsNot.tdml")
 
   @AfterClass def shutDown(): Unit = {
     runner.reset
     runner1.reset
+    runner2.reset
+    runner3.reset
+    runner4.reset
   }
 }
 
@@ -69,11 +75,28 @@ class TestBitFunctions {
   @Test def testUnsignedLongXor():Unit = {runner1.runOneTest("testUnsignedLongXor")}
   @Test def testUnsignedShortXor():Unit = {runner1.runOneTest("testUnsignedShortXor")}
   @Test def testUnsignedByteXor():Unit = {runner1.runOneTest("testUnsignedByteXor")}
-
-
-
-
-
-
-
+  @Test def testIntOr():Unit = {runner2.runOneTest("testIntOr")}
+  @Test def testLongOr():Unit = {runner2.runOneTest("testLongOr")}
+  @Test def testShortOr():Unit = {runner2.runOneTest("testShortOr")}
+  @Test def testByteOr():Unit = {runner2.runOneTest("testByteOr")}
+  @Test def testUnsignedIntOr():Unit = {runner2.runOneTest("testUnsignedIntOr")}
+  @Test def testUnsignedLongOr():Unit = {runner2.runOneTest("testUnsignedLongOr")}
+  @Test def testUnsignedShortOr():Unit = {runner2.runOneTest("testUnsignedShortOr")}
+  @Test def testUnsignedByteOr():Unit = {runner2.runOneTest("testUnsignedByteOr")}
+  @Test def testIntAnd():Unit = {runner3.runOneTest("testIntAnd")}
+  @Test def testLongAnd():Unit = {runner3.runOneTest("testLongAnd")}
+  @Test def testShortAnd():Unit = {runner3.runOneTest("testShortAnd")}
+  @Test def testByteAnd():Unit = {runner3.runOneTest("testByteAnd")}
+  @Test def testUnsignedIntAnd():Unit = {runner3.runOneTest("testUnsignedIntAnd")}
+  @Test def testUnsignedLongAnd():Unit = {runner3.runOneTest("testUnsignedLongAnd")}
+  @Test def testUnsignedShortAnd():Unit = {runner3.runOneTest("testUnsignedShortAnd")}
+  @Test def testUnsignedByteAnd():Unit = {runner3.runOneTest("testUnsignedByteAnd")}
+  @Test def testIntNot():Unit = {runner4.runOneTest("testIntNot")}
+  @Test def testLongNot():Unit = {runner4.runOneTest("testLongNot")}
+  @Test def testShortNot():Unit = {runner4.runOneTest("testShortNot")}
+  @Test def testByteNot():Unit = {runner4.runOneTest("testByteNot")}
+  @Test def testUnsignedIntNot():Unit = {runner4.runOneTest("testUnsignedIntNot")}
+  @Test def testUnsignedLongNot():Unit = {runner4.runOneTest("testUnsignedLongNot")}
+  @Test def testUnsignedShortNot():Unit = {runner4.runOneTest("testUnsignedShortNot")}
+  @Test def testUnsignedByteNot():Unit = {runner4.runOneTest("testUnsignedByteNot")}
 }

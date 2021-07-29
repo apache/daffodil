@@ -591,10 +591,6 @@
       </tdml:infoset>
   </tdml:parserTestCase>
 
-
-
-
-
   <tdml:parserTestCase name="leftShiftFloatError01" root="leftShiftFloat" model="BitFunctions">
     <tdml:document>1.0,1</tdml:document>
       <tdml:errors>
