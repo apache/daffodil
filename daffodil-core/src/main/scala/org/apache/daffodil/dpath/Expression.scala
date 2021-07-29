@@ -1634,9 +1634,19 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
       case (RefQName(_, "rightShift", DFDLX), args) =>
         DFDLXShiftExpr(functionQNameString, functionQName, args,
           DFDLXRightShift(_, _))
-      case (RefQName(_, "xor", DFDLX), args) =>
-        DFDLXBitExpr(functionQNameString, functionQName, args,
-          DFDLXXor(_,_))
+      case (RefQName(_, "bitXor", DFDLX), args) =>
+        DFDLXBitBinaryExpr(functionQNameString, functionQName, args,
+          DFDLXBitXor(_,_))
+      case (RefQName(_, "bitAnd", DFDLX), args) =>
+        DFDLXBitBinaryExpr(functionQNameString, functionQName, args,
+          DFDLXBitAnd(_,_))
+      case (RefQName(_, "bitOr", DFDLX), args) =>
+        DFDLXBitBinaryExpr(functionQNameString, functionQName, args,
+          DFDLXBitOr(_,_))
+      case (RefQName(_, "bitNot", DFDLX), args) =>
+        DFDLXBitUnaryExpr(functionQNameString, functionQName, args,
+          DFDLXBitNot(_,_))
+
 
 
       case (RefQName(_, "year-from-dateTime", FUNC), args) => FNOneArgExpr(functionQNameString, functionQName, args, NodeInfo.Integer, NodeInfo.DateTime, FNYearFromDateTime(_, _))
@@ -2180,7 +2190,7 @@ case class DFDLXShiftExpr(nameAsParsed: String, fnQName: RefQName,
     res
   }
 }
-case class DFDLXBitExpr(nameAsParsed: String, fnQName: RefQName,
+case class DFDLXBitBinaryExpr(nameAsParsed: String, fnQName: RefQName,
                         args: List[Expression], constructor: (List[CompiledDPath], NodeInfo.Kind) => RecipeOp)
   extends FunctionCallBase(nameAsParsed, fnQName, args) {
   override lazy val inherentType = {
@@ -2205,6 +2215,31 @@ case class DFDLXBitExpr(nameAsParsed: String, fnQName: RefQName,
     res
   }
 }
+
+case class DFDLXBitUnaryExpr(nameAsParsed: String, fnQName: RefQName,
+                        args: List[Expression], constructor: (CompiledDPath, NodeInfo.Kind) => RecipeOp)
+  extends FunctionCallBase(nameAsParsed, fnQName, args) {
+  override lazy val inherentType = {
+    val arg0Type = args(0).inherentType
+    schemaDefinitionUnless(
+      arg0Type.isSubtypeOf(NodeInfo.PrimType.UnsignedLong) || arg0Type.isSubtypeOf(NodeInfo.PrimType.Long),
+      "The argument passed for %s must be either xs:unsignedLong or xs:long or a subtype of those, but was %s.",
+       nameAsParsed, arg0Type.globalQName)
+    arg0Type
+  }
+  override def targetTypeForSubexpression(subexp: Expression): NodeInfo.Kind = inherentType
+
+  override def compiledDPath: CompiledDPath = {
+    checkArgCount(1)
+    val argType = inherentType
+    val arg0Recipe = args(0).compiledDPath
+    val c=conversions
+    val res = new CompiledDPath(constructor(arg0Recipe, argType) +: c)
+    res
+  }
+}
+
+
 case class FNZeroArgExpr(nameAsParsed: String, fnQName: RefQName,
   resultType: NodeInfo.Kind, argType: NodeInfo.Kind, constructor: (CompiledDPath, NodeInfo.Kind) => RecipeOp)
   extends FunctionCallBase(nameAsParsed, fnQName, Nil) {

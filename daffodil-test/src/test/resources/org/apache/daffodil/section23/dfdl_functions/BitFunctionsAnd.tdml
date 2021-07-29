@@ -6,9 +6,7 @@
   The ASF licenses this file to You under the Apache License, Version 2.0
   (the "License"); you may not use this file except in compliance with
   the License.  You may obtain a copy of the License at
-
       http://www.apache.org/licenses/LICENSE-2.0
-
   Unless required by applicable law or agreed to in writing, software
   distributed under the License is distributed on an "AS IS" BASIS,
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -30,301 +28,301 @@
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
 
-  <xs:complexType name="IntXor">
+  <xs:complexType name="IntAnd">
     <xs:sequence dfdl:separator=",">
       <xs:element name="num" type="xs:int" dfdl:lengthKind="delimited" dfdl:textNumberPattern="#0"/>
       <xs:element name="count" type="xs:int" dfdl:lengthKind="delimited"/>
-      <xs:element name="value" type="xs:int" dfdl:inputValueCalc="{dfdlx:bitXor(../num,../count)}"/>
+      <xs:element name="value" type="xs:int" dfdl:inputValueCalc="{dfdlx:bitAnd(../num,../count)}"/>
     </xs:sequence>
   </xs:complexType>
 
-  <xs:element name="testIntXor">
+  <xs:element name="testIntAnd">
     <xs:complexType>
       <xs:sequence dfdl:separator="|">
-        <xs:element name="IntXor1" type="ex:IntXor"/>
-        <xs:element name="IntXor2" type="ex:IntXor"/>
+        <xs:element name="IntAnd1" type="ex:IntAnd"/>
+        <xs:element name="IntAnd2" type="ex:IntAnd"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
 
-  <xs:complexType name="LongXor">
+  <xs:complexType name="LongAnd">
     <xs:sequence dfdl:separator=",">
       <xs:element name="num" type="xs:long" dfdl:lengthKind="delimited" dfdl:textNumberPattern="#0"/>
       <xs:element name="count" type="xs:long" dfdl:lengthKind="delimited"/>
-      <xs:element name="value" type="xs:long" dfdl:inputValueCalc="{dfdlx:bitXor(../num,../count)}"/>
+      <xs:element name="value" type="xs:long" dfdl:inputValueCalc="{dfdlx:bitAnd(../num,../count)}"/>
     </xs:sequence>
   </xs:complexType>
 
-  <xs:element name="testLongXor">
+  <xs:element name="testLongAnd">
     <xs:complexType>
       <xs:sequence dfdl:separator="|">
-        <xs:element name="LongXor1" type="ex:LongXor"/>
-        <xs:element name="LongXor2" type="ex:LongXor"/>
+        <xs:element name="LongAnd1" type="ex:LongAnd"/>
+        <xs:element name="LongAnd2" type="ex:LongAnd"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
 
-  <xs:complexType name="ShortXor">
+  <xs:complexType name="ShortAnd">
     <xs:sequence dfdl:separator=",">
       <xs:element name="num" type="xs:short" dfdl:lengthKind="delimited" dfdl:textNumberPattern="#0"/>
       <xs:element name="count" type="xs:short" dfdl:lengthKind="delimited"/>
-      <xs:element name="value" type="xs:short" dfdl:inputValueCalc="{dfdlx:bitXor(../num,../count)}"/>
+      <xs:element name="value" type="xs:short" dfdl:inputValueCalc="{dfdlx:bitAnd(../num,../count)}"/>
     </xs:sequence>
   </xs:complexType>
 
-  <xs:element name="testShortXor">
+  <xs:element name="testShortAnd">
     <xs:complexType>
       <xs:sequence dfdl:separator="|">
-        <xs:element name="ShortXor1" type="ex:ShortXor"/>
-        <xs:element name="ShortXor2" type="ex:ShortXor"/>
+        <xs:element name="ShortAnd1" type="ex:ShortAnd"/>
+        <xs:element name="ShortAnd2" type="ex:ShortAnd"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
 
-  <xs:complexType name="ByteXor">
+  <xs:complexType name="ByteAnd">
     <xs:sequence dfdl:separator=",">
       <xs:element name="num" type="xs:byte" dfdl:lengthKind="delimited" dfdl:textNumberPattern="#0"/>
       <xs:element name="count" type="xs:byte" dfdl:lengthKind="delimited"/>
-      <xs:element name="value" type="xs:byte" dfdl:inputValueCalc="{dfdlx:bitXor(../num,../count)}"/>
+      <xs:element name="value" type="xs:byte" dfdl:inputValueCalc="{dfdlx:bitAnd(../num,../count)}"/>
     </xs:sequence>
   </xs:complexType>
 
-  <xs:element name="testByteXor">
+  <xs:element name="testByteAnd">
     <xs:complexType>
       <xs:sequence dfdl:separator="|">
-        <xs:element name="ByteXor1" type="ex:ByteXor"/>
-        <xs:element name="ByteXor2" type="ex:ByteXor"/>
+        <xs:element name="ByteAnd1" type="ex:ByteAnd"/>
+        <xs:element name="ByteAnd2" type="ex:ByteAnd"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
 
-  <xs:complexType name="UnsignedIntXor">
+  <xs:complexType name="UnsignedIntAnd">
     <xs:sequence dfdl:separator=",">
       <xs:element name="num" type="xs:unsignedInt" dfdl:lengthKind="delimited" dfdl:textNumberPattern="#0"/>
       <xs:element name="count" type="xs:unsignedInt" dfdl:lengthKind="delimited"/>
-      <xs:element name="value" type="xs:unsignedInt" dfdl:inputValueCalc="{dfdlx:bitXor(../num,../count)}"/>
+      <xs:element name="value" type="xs:unsignedInt" dfdl:inputValueCalc="{dfdlx:bitAnd(../num,../count)}"/>
     </xs:sequence>
   </xs:complexType>
 
-  <xs:element name="testUnsignedIntXor">
+  <xs:element name="testUnsignedIntAnd">
     <xs:complexType>
       <xs:sequence dfdl:separator="|">
-        <xs:element name="UnsignedIntXor1" type="ex:UnsignedIntXor"/>
-        <xs:element name="UnsignedIntXor2" type="ex:UnsignedIntXor"/>
+        <xs:element name="UnsignedIntAnd1" type="ex:UnsignedIntAnd"/>
+        <xs:element name="UnsignedIntAnd2" type="ex:UnsignedIntAnd"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
 
-  <xs:complexType name="UnsignedLongXor">
+  <xs:complexType name="UnsignedLongAnd">
     <xs:sequence dfdl:separator=",">
       <xs:element name="num" type="xs:unsignedLong" dfdl:lengthKind="delimited" dfdl:textNumberPattern="#0"/>
       <xs:element name="count" type="xs:unsignedLong" dfdl:lengthKind="delimited"/>
-      <xs:element name="value" type="xs:unsignedLong" dfdl:inputValueCalc="{dfdlx:bitXor(../num,../count)}"/>
+      <xs:element name="value" type="xs:unsignedLong" dfdl:inputValueCalc="{dfdlx:bitAnd(../num,../count)}"/>
     </xs:sequence>
   </xs:complexType>
 
-  <xs:element name="testUnsignedLongXor">
+  <xs:element name="testUnsignedLongAnd">
     <xs:complexType>
       <xs:sequence dfdl:separator="|">
-        <xs:element name="UnsignedLongXor1" type="ex:UnsignedLongXor"/>
-        <xs:element name="UnsignedLongXor2" type="ex:UnsignedLongXor"/>
+        <xs:element name="UnsignedLongAnd1" type="ex:UnsignedLongAnd"/>
+        <xs:element name="UnsignedLongAnd2" type="ex:UnsignedLongAnd"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
 
-  <xs:complexType name="UnsignedShortXor">
+  <xs:complexType name="UnsignedShortAnd">
     <xs:sequence dfdl:separator=",">
       <xs:element name="num" type="xs:unsignedShort" dfdl:lengthKind="delimited" dfdl:textNumberPattern="#0"/>
       <xs:element name="count" type="xs:unsignedShort" dfdl:lengthKind="delimited"/>
-      <xs:element name="value" type="xs:unsignedShort" dfdl:inputValueCalc="{dfdlx:bitXor(../num,../count)}"/>
+      <xs:element name="value" type="xs:unsignedShort" dfdl:inputValueCalc="{dfdlx:bitAnd(../num,../count)}"/>
     </xs:sequence>
   </xs:complexType>
 
-  <xs:element name="testUnsignedShortXor">
+  <xs:element name="testUnsignedShortAnd">
     <xs:complexType>
       <xs:sequence dfdl:separator="|">
-        <xs:element name="UnsignedShortXor1" type="ex:UnsignedShortXor"/>
-        <xs:element name="UnsignedShortXor2" type="ex:UnsignedShortXor"/>
+        <xs:element name="UnsignedShortAnd1" type="ex:UnsignedShortAnd"/>
+        <xs:element name="UnsignedShortAnd2" type="ex:UnsignedShortAnd"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
 
-  <xs:complexType name="UnsignedByteXor">
+  <xs:complexType name="UnsignedByteAnd">
     <xs:sequence dfdl:separator=",">
       <xs:element name="num" type="xs:unsignedByte" dfdl:lengthKind="delimited" dfdl:textNumberPattern="#0"/>
       <xs:element name="count" type="xs:unsignedByte" dfdl:lengthKind="delimited"/>
-      <xs:element name="value" type="xs:unsignedByte" dfdl:inputValueCalc="{dfdlx:bitXor(../num,../count)}"/>
+      <xs:element name="value" type="xs:unsignedByte" dfdl:inputValueCalc="{dfdlx:bitAnd(../num,../count)}"/>
     </xs:sequence>
   </xs:complexType>
 
-  <xs:element name="testUnsignedByteXor">
+  <xs:element name="testUnsignedByteAnd">
     <xs:complexType>
       <xs:sequence dfdl:separator="|">
-        <xs:element name="UnsignedByteXor1" type="ex:UnsignedByteXor"/>
-        <xs:element name="UnsignedByteXor2" type="ex:UnsignedByteXor"/>
+        <xs:element name="UnsignedByteAnd1" type="ex:UnsignedByteAnd"/>
+        <xs:element name="UnsignedByteAnd2" type="ex:UnsignedByteAnd"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
 
   </tdml:defineSchema>
 
-  <tdml:parserTestCase name="testIntXor" root="testIntXor" model="BitFunctions">
-    <tdml:document>1,1|1,0</tdml:document>
+  <tdml:parserTestCase name="testIntAnd" root="testIntAnd" model="BitFunctions">
+    <tdml:document>3,2|1,0</tdml:document>
       <tdml:infoset>
         <tdml:dfdlInfoset>
-          <ex:testIntXor>
-            <ex:IntXor1>
-              <num>1</num>
-              <count>1</count>
-              <value>0</value>
-            </ex:IntXor1>
-            <ex:IntXor2>
+          <ex:testIntAnd>
+            <ex:IntAnd1>
+              <num>3</num>
+              <count>2</count>
+              <value>2</value>
+            </ex:IntAnd1>
+            <ex:IntAnd2>
               <num>1</num>
               <count>0</count>
-              <value>1</value>
-            </ex:IntXor2>
-          </ex:testIntXor>
+              <value>0</value>
+            </ex:IntAnd2>
+          </ex:testIntAnd>
         </tdml:dfdlInfoset>
       </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="testLongXor" root="testLongXor" model="BitFunctions">
-    <tdml:document>1,1|1,0</tdml:document>
+  <tdml:parserTestCase name="testLongAnd" root="testLongAnd" model="BitFunctions">
+    <tdml:document>3,2|1,0</tdml:document>
       <tdml:infoset>
         <tdml:dfdlInfoset>
-          <ex:testLongXor>
-            <ex:LongXor1>
-              <num>1</num>
-              <count>1</count>
-              <value>0</value>
-            </ex:LongXor1>
-            <ex:LongXor2>
+          <ex:testLongAnd>
+            <ex:LongAnd1>
+              <num>3</num>
+              <count>2</count>
+              <value>2</value>
+            </ex:LongAnd1>
+            <ex:LongAnd2>
               <num>1</num>
               <count>0</count>
-              <value>1</value>
-            </ex:LongXor2>
-          </ex:testLongXor>
+              <value>0</value>
+            </ex:LongAnd2>
+          </ex:testLongAnd>
         </tdml:dfdlInfoset>
       </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="testShortXor" root="testShortXor" model="BitFunctions">
-    <tdml:document>1,1|1,0</tdml:document>
+  <tdml:parserTestCase name="testShortAnd" root="testShortAnd" model="BitFunctions">
+    <tdml:document>3,2|1,0</tdml:document>
       <tdml:infoset>
         <tdml:dfdlInfoset>
-          <ex:testShortXor>
-            <ex:ShortXor1>
-              <num>1</num>
-              <count>1</count>
-              <value>0</value>
-            </ex:ShortXor1>
-            <ex:ShortXor2>
+          <ex:testShortAnd>
+            <ex:ShortAnd1>
+              <num>3</num>
+              <count>2</count>
+              <value>2</value>
+            </ex:ShortAnd1>
+            <ex:ShortAnd2>
               <num>1</num>
               <count>0</count>
-              <value>1</value>
-            </ex:ShortXor2>
-          </ex:testShortXor>
+              <value>0</value>
+            </ex:ShortAnd2>
+          </ex:testShortAnd>
         </tdml:dfdlInfoset>
       </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="testByteXor" root="testByteXor" model="BitFunctions">
-    <tdml:document>1,1|1,0</tdml:document>
+  <tdml:parserTestCase name="testByteAnd" root="testByteAnd" model="BitFunctions">
+    <tdml:document>3,2|1,0</tdml:document>
       <tdml:infoset>
         <tdml:dfdlInfoset>
-          <ex:testByteXor>
-            <ex:ByteXor1>
-              <num>1</num>
-              <count>1</count>
-              <value>0</value>
-            </ex:ByteXor1>
-            <ex:ByteXor2>
+          <ex:testByteAnd>
+            <ex:ByteAnd1>
+              <num>3</num>
+              <count>2</count>
+              <value>2</value>
+            </ex:ByteAnd1>
+            <ex:ByteAnd2>
               <num>1</num>
               <count>0</count>
-              <value>1</value>
-            </ex:ByteXor2>
-          </ex:testByteXor>
+              <value>0</value>
+            </ex:ByteAnd2>
+          </ex:testByteAnd>
         </tdml:dfdlInfoset>
       </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="testUnsignedIntXor" root="testUnsignedIntXor" model="BitFunctions">
-    <tdml:document>1,1|1,0</tdml:document>
+  <tdml:parserTestCase name="testUnsignedIntAnd" root="testUnsignedIntAnd" model="BitFunctions">
+    <tdml:document>3,2|1,0</tdml:document>
       <tdml:infoset>
         <tdml:dfdlInfoset>
-          <ex:testUnsignedIntXor>
-            <ex:UnsignedIntXor1>
-              <num>1</num>
-              <count>1</count>
-              <value>0</value>
-            </ex:UnsignedIntXor1>
-            <ex:UnsignedIntXor2>
+          <ex:testUnsignedIntAnd>
+            <ex:UnsignedIntAnd1>
+              <num>3</num>
+              <count>2</count>
+              <value>2</value>
+            </ex:UnsignedIntAnd1>
+            <ex:UnsignedIntAnd2>
               <num>1</num>
               <count>0</count>
-              <value>1</value>
-            </ex:UnsignedIntXor2>
-          </ex:testUnsignedIntXor>
+              <value>0</value>
+            </ex:UnsignedIntAnd2>
+          </ex:testUnsignedIntAnd>
         </tdml:dfdlInfoset>
       </tdml:infoset>
   </tdml:parserTestCase>
 
 
-  <tdml:parserTestCase name="testUnsignedLongXor" root="testUnsignedLongXor" model="BitFunctions">
-    <tdml:document>1,1|1,0</tdml:document>
+  <tdml:parserTestCase name="testUnsignedLongAnd" root="testUnsignedLongAnd" model="BitFunctions">
+    <tdml:document>3,2|1,0</tdml:document>
       <tdml:infoset>
         <tdml:dfdlInfoset>
-          <ex:testUnsignedLongXor>
-            <ex:UnsignedLongXor1>
-              <num>1</num>
-              <count>1</count>
-              <value>0</value>
-            </ex:UnsignedLongXor1>
-            <ex:UnsignedLongXor2>
+          <ex:testUnsignedLongAnd>
+            <ex:UnsignedLongAnd1>
+              <num>3</num>
+              <count>2</count>
+              <value>2</value>
+            </ex:UnsignedLongAnd1>
+            <ex:UnsignedLongAnd2>
               <num>1</num>
               <count>0</count>
-              <value>1</value>
-            </ex:UnsignedLongXor2>
-          </ex:testUnsignedLongXor>
+              <value>0</value>
+            </ex:UnsignedLongAnd2>
+          </ex:testUnsignedLongAnd>
         </tdml:dfdlInfoset>
       </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="testUnsignedShortXor" root="testUnsignedShortXor" model="BitFunctions">
-    <tdml:document>1,1|1,0</tdml:document>
+  <tdml:parserTestCase name="testUnsignedShortAnd" root="testUnsignedShortAnd" model="BitFunctions">
+    <tdml:document>3,2|1,0</tdml:document>
       <tdml:infoset>
         <tdml:dfdlInfoset>
-          <ex:testUnsignedShortXor>
-            <ex:UnsignedShortXor1>
-              <num>1</num>
-              <count>1</count>
-              <value>0</value>
-            </ex:UnsignedShortXor1>
-            <ex:UnsignedShortXor2>
+          <ex:testUnsignedShortAnd>
+            <ex:UnsignedShortAnd1>
+              <num>3</num>
+              <count>2</count>
+              <value>2</value>
+            </ex:UnsignedShortAnd1>
+            <ex:UnsignedShortAnd2>
               <num>1</num>
               <count>0</count>
-              <value>1</value>
-            </ex:UnsignedShortXor2>
-          </ex:testUnsignedShortXor>
+              <value>0</value>
+            </ex:UnsignedShortAnd2>
+          </ex:testUnsignedShortAnd>
         </tdml:dfdlInfoset>
       </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="testUnsignedByteXor" root="testUnsignedByteXor" model="BitFunctions">
-    <tdml:document>1,1|1,0</tdml:document>
+  <tdml:parserTestCase name="testUnsignedByteAnd" root="testUnsignedByteAnd" model="BitFunctions">
+    <tdml:document>3,2|1,0</tdml:document>
       <tdml:infoset>
         <tdml:dfdlInfoset>
-          <ex:testUnsignedByteXor>
-            <ex:UnsignedByteXor1>
-              <num>1</num>
-              <count>1</count>
-              <value>0</value>
-            </ex:UnsignedByteXor1>
-            <ex:UnsignedByteXor2>
+          <ex:testUnsignedByteAnd>
+            <ex:UnsignedByteAnd1>
+              <num>3</num>
+              <count>2</count>
+              <value>2</value>
+            </ex:UnsignedByteAnd1>
+            <ex:UnsignedByteAnd2>
               <num>1</num>
               <count>0</count>
-              <value>1</value>
-            </ex:UnsignedByteXor2>
-          </ex:testUnsignedByteXor>
+              <value>0</value>
+            </ex:UnsignedByteAnd2>
+          </ex:testUnsignedByteAnd>
         </tdml:dfdlInfoset>
       </tdml:infoset>
   </tdml:parserTestCase>
