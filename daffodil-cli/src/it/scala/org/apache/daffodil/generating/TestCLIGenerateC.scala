@@ -20,6 +20,7 @@ package org.apache.daffodil.generating
 import net.sf.expectit.matcher.Matchers.contains
 import net.sf.expectit.matcher.Matchers.eof
 import org.apache.daffodil.CLI.Util
+import org.apache.daffodil.Main.ExitCode
 import org.junit.After
 import org.junit.Test
 
@@ -46,6 +47,8 @@ class TestCLIGenerateC {
     val shell = Util.start("")
     try {
       shell.sendLine(generateCmd)
+
+      Util.expectExitCode(ExitCode.Success, shell)
       shell.sendLine(exitCmd)
       shell.expect(eof())
     } finally {
@@ -59,12 +62,14 @@ class TestCLIGenerateC {
     val generateCmd = s"$daffodil generate -s $schemaFile $tempDir"
     val exitCmd = "exit"
 
-    val shell = Util.start("", expectErr = true)
+    val shell = Util.start("")
     try {
       shell.sendLine(generateCmd)
-      shell.expect(contains("Unknown option 's'"))
+      shell.expectIn(1, contains("Unknown option 's'"))
+
+      Util.expectExitCode(ExitCode.Usage, shell)
       shell.sendLine(exitCmd)
-      shell.expect(eof())
+      shell.expectIn(1, eof())
     } finally {
       shell.close()
     }
@@ -74,12 +79,14 @@ class TestCLIGenerateC {
     val generateCmd = s"$daffodil generate vhld -s $schemaFile $tempDir"
     val exitCmd = "exit"
 
-    val shell = Util.start("", expectErr = true)
+    val shell = Util.start("")
     try {
       shell.sendLine(generateCmd)
-      shell.expect(contains("Unknown option 's'"))
+      shell.expectIn(1, contains("Unknown option 's'"))
+
+      Util.expectExitCode(ExitCode.Usage, shell)
       shell.sendLine(exitCmd)
-      shell.expect(eof())
+      shell.expectIn(1, eof())
     } finally {
       shell.close()
     }
@@ -89,12 +96,14 @@ class TestCLIGenerateC {
     val generateCmd = s"$daffodil generate c $tempDir"
     val exitCmd = "exit"
 
-    val shell = Util.start("", expectErr = true)
+    val shell = Util.start("")
     try {
       shell.sendLine(generateCmd)
-      shell.expect(contains("Required option 'schema' not found"))
+      shell.expectIn(1, contains("Required option 'schema' not found"))
+
+      Util.expectExitCode(ExitCode.Usage, shell)
       shell.sendLine(exitCmd)
-      shell.expect(eof())
+      shell.expectIn(1, eof())
     } finally {
       shell.close()
     }
@@ -104,12 +113,14 @@ class TestCLIGenerateC {
     val generateCmd = s"$daffodil generate c -s $schemaFile -s $schemaFile $tempDir"
     val exitCmd = "exit"
 
-    val shell = Util.start("", expectErr = true)
+    val shell = Util.start("")
     try {
       shell.sendLine(generateCmd)
-      shell.expect(contains("you should provide exactly one argument"))
+      shell.expectIn(1, contains("you should provide exactly one argument"))
+
+      Util.expectExitCode(ExitCode.Usage, shell)
       shell.sendLine(exitCmd)
-      shell.expect(eof())
+      shell.expectIn(1, eof())
     } finally {
       shell.close()
     }
@@ -119,13 +130,15 @@ class TestCLIGenerateC {
     val generateCmd = s"$daffodil -v generate c -s $schemaFile $tempDir"
     val exitCmd = "exit"
 
-    val shell = Util.start("", expectErr = true)
+    val shell = Util.start("")
     try {
       shell.sendLine(generateCmd)
-      shell.expect(contains("[info] Time (compiling)"))
-      shell.expect(contains("[info] Time (generating)"))
+      shell.expectIn(1, contains("[info] Time (compiling)"))
+      shell.expectIn(1, contains("[info] Time (generating)"))
+
+      Util.expectExitCode(ExitCode.Success, shell)
       shell.sendLine(exitCmd)
-      shell.expect(eof())
+      shell.expectIn(1, eof())
     } finally {
       shell.close()
     }
@@ -140,6 +153,8 @@ class TestCLIGenerateC {
     val shell = Util.start("")
     try {
       shell.sendLine(generateCmd)
+
+      Util.expectExitCode(ExitCode.Success, shell)
       shell.sendLine(exitCmd)
       shell.expect(eof())
     } finally {
@@ -153,13 +168,15 @@ class TestCLIGenerateC {
     val generateCmd = s"$daffodil generate c -s $schemaFile -r {ex}ex_nums $tempDir"
     val exitCmd = "exit"
 
-    val shell = Util.start("", expectErr = true)
+    val shell = Util.start("")
     try {
       shell.sendLine(generateCmd)
-      shell.expect(contains("Schema Definition Error"))
-      shell.expect(contains("No global element found for {ex}ex_nums"))
+      shell.expectIn(1, contains("Schema Definition Error"))
+      shell.expectIn(1, contains("No global element found for {ex}ex_nums"))
+
+      Util.expectExitCode(ExitCode.GenerateCodeError, shell)
       shell.sendLine(exitCmd)
-      shell.expect(eof())
+      shell.expectIn(1, eof())
     } finally {
       shell.close()
     }
@@ -169,12 +186,14 @@ class TestCLIGenerateC {
     val generateCmd = s"$daffodil generate c -s $schemaFile -r {http://example.com} $tempDir"
     val exitCmd = "exit"
 
-    val shell = Util.start("", expectErr = true)
+    val shell = Util.start("")
     try {
       shell.sendLine(generateCmd)
-      shell.expect(contains("Invalid syntax for extended QName"))
+      shell.expectIn(1, contains("Invalid syntax for extended QName"))
+
+      Util.expectExitCode(ExitCode.Usage, shell)
       shell.sendLine(exitCmd)
-      shell.expect(eof())
+      shell.expectIn(1, eof())
     } finally {
       shell.close()
     }
@@ -187,6 +206,8 @@ class TestCLIGenerateC {
     val shell = Util.start("")
     try {
       shell.sendLine(generateCmd)
+
+      Util.expectExitCode(ExitCode.Success, shell)
       shell.sendLine(exitCmd)
       shell.expect(eof())
     } finally {

@@ -25,15 +25,12 @@ import net.sf.expectit.matcher.Matchers.regexp
 import net.sf.expectit.matcher.Matchers.sequence
 import net.sf.expectit.Result
 import net.sf.expectit.matcher.Matcher
-import org.junit.Assert.fail
+import org.apache.daffodil.Main.ExitCode
 
 import java.io.File
 import java.io.FileOutputStream
 import java.nio.file.Path
 import java.nio.file.Paths
-import scala.util.Failure
-import scala.util.Success
-import scala.util.Try
 import scala.util.matching.Regex
 
 /**
@@ -64,7 +61,7 @@ package object schematron {
    * @param stderr join stderr in output
    * @param body 2 tuple of daffodil arguments and expectation
    */
-  def withShell[R <: Result](ec: Int = 0, stderr: Boolean = false)(body: => (String,  Matcher[R])): Unit = {
+  def withShell[R <: Result](ec: ExitCode.Value, stderr: Boolean = false)(body: => (String,  Matcher[R])): Unit = {
     val (argstring, expectation) = body
     val args = resolvePath(argstring)
 
@@ -74,12 +71,7 @@ package object schematron {
     try {
       shell.sendLine(cmd).expect(expectation)
 
-      val actualEc = shell.sendLine(echoEC).expect(matchEC).getBefore.trim.split(eol).last
-      Try(actualEc.toInt) match {
-        case Success(`ec`) => // good
-        case Success(v) => fail(s"wrong ec, $v")
-        case Failure(_) => fail(s"unparseable ec, $actualEc")
-      }
+      Util.expectExitCode(ec, shell)
 
       shell.sendLine("exit")
       shell.expect(eof)
@@ -98,8 +90,7 @@ package object schematron {
 
   // have to use platform specific matching here as the $ doesnt match on Windows
   // potentially because of the withInputFilters set on the shell in Util
-  private val matchEC = regexLine(s"""(?<=\\d+)${if(Util.isWindows) eol else "$"}""")
-  private val echoEC = s"echo ${if(Util.isWindows) "%errorlevel%" else "$?"}"
+
 
   private def schPath(p: String): String = fixpath(s"daffodil-schematron/src/test/resources/$p")
   private def cliPath(p: String): String = fixpath(s"daffodil-cli/src/it/resources/org/apache/daffodil/CLI/$p")

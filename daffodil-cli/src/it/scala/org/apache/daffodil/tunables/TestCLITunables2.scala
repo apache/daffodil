@@ -21,6 +21,7 @@ import org.junit.Test
 import org.apache.daffodil.CLI.Util
 import net.sf.expectit.matcher.Matchers.contains
 import net.sf.expectit.matcher.Matchers.eof
+import org.apache.daffodil.Main.ExitCode
 
 class TestCLITunables2 {
 
@@ -41,6 +42,8 @@ class TestCLITunables2 {
   <s2>b
 </s2>
 </ex:e1>""".replace("\r\n", "\n")))
+
+      Util.expectExitCode(ExitCode.Success, shell)
       shell.sendLine("exit")
       shell.expect(eof)
     } finally {
@@ -69,6 +72,8 @@ class TestCLITunables2 {
   <s2>b
 </s2>
 </ex:e1>""".replace("\r\n", "\n")))
+
+      Util.expectExitCode(ExitCode.Success, shell)
       shell.sendLine("exit")
       shell.expect(eof)
     } finally {

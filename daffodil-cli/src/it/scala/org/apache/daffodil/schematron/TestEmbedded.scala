@@ -18,24 +18,25 @@
 package org.apache.daffodil.schematron
 
 import net.sf.expectit.matcher.Matchers.sequence
+import org.apache.daffodil.Main.ExitCode
 import org.junit.Test
 
 import java.util.UUID
 
 class TestEmbedded {
-  @Test def alwaysFails(): Unit = withShell(FailureErrorCode) {
+  @Test def alwaysFails(): Unit = withShell(ExitCode.ParseError) {
     val data = mktmp(UUID.randomUUID.toString)
     val schema = "xsd/always-fails-1.dfdl.xsd"
     s"parse --validate schematron={{$schema}} -s {{$schema}} $data" -> lineEndsWith("</always-fails>")
   }
 
-  @Test def unitPriceWithoutValidation(): Unit = withShell() {
+  @Test def unitPriceWithoutValidation(): Unit = withShell(ExitCode.Success) {
     val data = mktmp("widget,monday,1,$5.00,$5.00")
     val schema = "xsd/unit_price.dfdl.xsd"
     s"parse -r list -s {{$schema}} $data" -> lineEndsWith("</ex:list>")
   }
 
-  @Test def unitPriceWithValidation(): Unit = withShell(FailureErrorCode, JoinStdError) {
+  @Test def unitPriceWithValidation(): Unit = withShell(ExitCode.ParseError, JoinStdError) {
     val data = mktmp("widget,monday,1,$5.00,$6.00")
     val schema = "xsd/unit_price.dfdl.xsd"
     s"parse -r list --validate schematron={{$schema}} -s {{$schema}} $data" -> sequence(
@@ -44,7 +45,7 @@ class TestEmbedded {
     )
   }
 
-  @Test def unitPriceWithValidationCheckMessage(): Unit = withShell(FailureErrorCode, JoinStdError) {
+  @Test def unitPriceWithValidationCheckMessage(): Unit = withShell(ExitCode.ParseError, JoinStdError) {
     val data = mktmp("widget,monday,5,$5.00,$25.00||gadget,tuesday,1,$10.00,$11.00")
     val schema = "xsd/unit_price.dfdl.xsd"
     s"parse -r list --validate schematron={{$schema}} -s {{$schema}} $data" -> sequence(
@@ -54,31 +55,31 @@ class TestEmbedded {
     )
   }
 
-  @Test def extends1(): Unit = withShell() {
+  @Test def extends1(): Unit = withShell(ExitCode.Success) {
     val data = mktmp("bob;l;smith")
     val schema = "xsd/extends-1.dfdl.xsd"
     s"parse --validate schematron={{$schema}} -s {{$schema}} $data" -> lineEndsWith("</name>")
   }
 
-  @Test def extends2(): Unit = withShell() {
+  @Test def extends2(): Unit = withShell(ExitCode.Success) {
     val data = mktmp("ob;;smith")
     val schema = "xsd/extends-1.dfdl.xsd"
     s"parse --validate schematron={{$schema}} -s {{$schema}} $data" -> lineEndsWith("</name>")
   }
 
-  @Test def extends3(): Unit = withShell(FailureErrorCode, JoinStdError) {
+  @Test def extends3(): Unit = withShell(ExitCode.ParseError, JoinStdError) {
     val data = mktmp(";;smith")
     val schema = "xsd/extends-1.dfdl.xsd"
     s"parse --validate schematron={{$schema}} -s {{$schema}} $data" -> validationError("first is blank")
   }
 
-  @Test def extends4(): Unit = withShell(FailureErrorCode, JoinStdError) {
+  @Test def extends4(): Unit = withShell(ExitCode.ParseError, JoinStdError) {
     val data = mktmp("bob;l;")
     val schema = "xsd/extends-1.dfdl.xsd"
     s"parse --validate schematron={{$schema}} -s {{$schema}} $data" -> validationError("last is blank")
   }
 
-  @Test def extends5(): Unit = withShell(FailureErrorCode, JoinStdError) {
+  @Test def extends5(): Unit = withShell(ExitCode.ParseError, JoinStdError) {
     val data = mktmp(";l;")
     val schema = "xsd/extends-1.dfdl.xsd"
     s"parse --validate schematron={{$schema}} -s {{$schema}} $data" -> sequence(
@@ -87,19 +88,19 @@ class TestEmbedded {
     )
   }
 
-  @Test def testWithNs1(): Unit = withShell() {
+  @Test def testWithNs1(): Unit = withShell(ExitCode.Success) {
     val data = mktmp("0;1")
     val schema = "xsd/with-ns-1.dfdl.xsd"
     s"parse --validate schematron={{$schema}} -s {{$schema}} $data" -> lineEndsWith("</myns:interval>")
   }
 
-  @Test def testWithNs2(): Unit = withShell(FailureErrorCode, JoinStdError) {
+  @Test def testWithNs2(): Unit = withShell(ExitCode.ParseError, JoinStdError) {
     val data = mktmp("2;1")
     val schema = "xsd/with-ns-1.dfdl.xsd"
     s"parse --validate schematron={{$schema}} -s {{$schema}} $data" -> validationError()
   }
 
-  @Test def testWithNs3(): Unit = withShell(FailureErrorCode, JoinStdError) {
+  @Test def testWithNs3(): Unit = withShell(ExitCode.ParseError, JoinStdError) {
     val data = mktmp("0;0")
     val schema = "xsd/with-ns-1.dfdl.xsd"
     s"parse --validate schematron={{$schema}} -s {{$schema}} $data" -> validationError()
