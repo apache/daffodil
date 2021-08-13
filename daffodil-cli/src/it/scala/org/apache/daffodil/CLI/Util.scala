@@ -21,12 +21,15 @@ import org.apache.daffodil.util.Misc
 import net.sf.expectit.ExpectBuilder
 import net.sf.expectit.Expect
 import net.sf.expectit.filter.Filters.replaceInString
+import net.sf.expectit.matcher.Matchers.contains
+import org.apache.daffodil.Main.ExitCode
+
 import java.nio.file.Paths
 import java.io.{File, PrintWriter}
 import scala.collection.JavaConverters._
 import java.util.concurrent.TimeUnit
-
 import org.apache.daffodil.xml.XMLUtils
+import org.junit.Assert.fail
 
 object Util {
 
@@ -53,24 +56,14 @@ object Util {
     fileConvert(lines)
   }
 
-  def start(cmd: String, expectErr: Boolean = false, envp: Map[String, String] = Map.empty[String, String], timeout: Long = 30): Expect = {
-    val spawnCmd = if (isWindows) {
-      "cmd /k " + cmdConvert(cmd)
-    } else {
-      "/bin/bash"
-    }
-
-    return getShell(cmd, spawnCmd, expectErr, envp, timeout)
-  }
-
-  def startIncludeErrors(cmd: String, envp: Map[String, String] = Map.empty[String, String], timeout: Long = 30): Expect = {
+  def start(cmd: String, envp: Map[String, String] = Map.empty[String, String], timeout: Long = 30): Expect = {
     val spawnCmd = if (isWindows) {
       "cmd /k" + cmdConvert(cmd)
     } else {
       "/bin/bash"
     }
 
-    getShellWithErrors(cmd, spawnCmd, envp, timeout)
+    getShell(cmd, spawnCmd, envp, timeout)
   }
 
   // This function will be used if you are providing two separate commands
@@ -85,35 +78,10 @@ object Util {
     return getShell(cmd, spawnCmd, envp = envp, timeout = timeout)
   }
 
-  def getShell(cmd: String, spawnCmd: String, expectErr: Boolean = false, envp: Map[String, String] = Map.empty[String, String], timeout: Long): Expect = {
-    val newEnv = System.getenv().asScala ++ envp
-
-    val envAsArray = newEnv.toArray.map { case (k, v) => k + "=" + v }
-    val process = Runtime.getRuntime().exec(spawnCmd, envAsArray)
-    val inputStream = if (expectErr) {
-      process.getErrorStream()
-    } else {
-      process.getInputStream()
-    }
-    val shell = new ExpectBuilder()
-      .withInputs(inputStream)
-      .withInputFilters(replaceInString("\r\n", "\n"))
-      .withOutput(process.getOutputStream())
-      .withEchoOutput(System.out)
-      .withEchoInput(System.out)
-      .withTimeout(timeout, TimeUnit.SECONDS)
-      .withExceptionOnFailure()
-      .build();
-    if (!isWindows) {
-      shell.send(cmd)
-    }
-    return shell
-  }
-
   // Return a shell object with two streams
   // The inputStream will be at index 0
   // The errorStream will be at index 1
-  def getShellWithErrors(cmd: String, spawnCmd: String, envp: Map[String, String] = Map.empty[String, String], timeout: Long): Expect = {
+  def getShell(cmd: String, spawnCmd: String, envp: Map[String, String] = Map.empty[String, String], timeout: Long): Expect = {
     val newEnv = System.getenv().asScala ++ envp
 
     val envAsArray = newEnv.toArray.map { case (k, v) => k + "=" + v }
@@ -202,5 +170,31 @@ object Util {
       pw.close
     }
     inputFile
+  }
+
+  def expectExitCode(expectedExitCode: ExitCode.Value, shell: Expect): Unit = {
+    val expectedCode = expectedExitCode.id
+
+    val keyWord = "EXITCODE:"
+
+    //Escaped characters ^| for windows and \\! for linux makes the echo outputs different text than the command,
+    //That way the expect function can tell the difference.
+    val exitCodeCmd = "echo " + keyWord + (if (Util.isWindows) "^|%errorlevel%" else "\\!$?")
+    val exitCodeExpectation = keyWord + (if (Util.isWindows) "|" else "!")
+
+    shell.sendLine(exitCodeCmd)
+    shell.expect(contains(exitCodeExpectation))
+
+    val sExitCode = shell.expect(contains("\n")).getBefore().trim()
+    val actualInt = Integer.parseInt(sExitCode)
+
+    if (actualInt != expectedCode) {
+      val expectedExitCodeName = expectedExitCode.toString
+      val actualExitCodeName = ExitCode.values.find { _.id == actualInt }.map { _.toString }.getOrElse("Unknown")
+      val failMessage = "Exit code %s expected (%s), but got %s (%s) instead.".format(
+        expectedCode, expectedExitCodeName, actualInt, actualExitCodeName)
+      fail(failMessage)
+    }
+
   }
 }

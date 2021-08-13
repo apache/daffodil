@@ -23,6 +23,7 @@ import net.sf.expectit.matcher.Matchers.allOf
 import net.sf.expectit.matcher.Matchers.contains
 import net.sf.expectit.matcher.Matchers.regexp
 import net.sf.expectit.matcher.Matchers.times
+import org.apache.daffodil.Main.ExitCode
 
 import org.apache.daffodil.CLI.Util
 
@@ -64,6 +65,7 @@ class TestCLIdebugger {
       shell.expect(contains("(debug)"))
 
       shell.sendLine("quit")
+      Util.expectExitCode(ExitCode.Failure, shell)
     } finally {
       shell.close()
     }
@@ -83,6 +85,7 @@ class TestCLIdebugger {
       shell.sendLine("garbage")
       shell.expect(contains("error: undefined command: garbage"))
       shell.sendLine("quit")
+      Util.expectExitCode(ExitCode.Failure, shell)
     } finally {
       shell.close()
     }
@@ -116,7 +119,8 @@ class TestCLIdebugger {
       //      shell.expect(contains("0,\n    1,\n    2,\n    3,\n    4,\n    5,\n    6\n"))
 
       shell.sendLine("continue")
-      shell.sendLine("quit")
+
+      Util.expectExitCode(ExitCode.Success, shell)
     } finally {
       shell.close()
     }
@@ -134,7 +138,8 @@ class TestCLIdebugger {
       shell.sendLine(cmd)
       shell.expect(contains("(debug)"))
       shell.sendLine("continue")
-      shell.sendLine("quit")
+
+      Util.expectExitCode(ExitCode.Success, shell)
     } finally {
       shell.close()
     }
@@ -177,7 +182,8 @@ class TestCLIdebugger {
 
       shell.sendLine("continue")
       shell.expect(contains("matrix"))
-      shell.sendLine("quit")
+
+      Util.expectExitCode(ExitCode.Success, shell)
     } finally {
       shell.close()
     }
@@ -201,6 +207,7 @@ class TestCLIdebugger {
       shell.sendLine("continue")
       shell.expect(contains("<sneaky>5</sneaky>"))
       shell.sendLine("quit")
+      Util.expectExitCode(ExitCode.Failure, shell)
     } finally {
       shell.close()
     }
@@ -226,7 +233,8 @@ class TestCLIdebugger {
       shell.sendLine("continue")
       val result = shell.expect(contains("</ex:e>")).getBefore();
       assert(!result.contains("sneaky"))
-      shell.sendLine("quit")
+
+      Util.expectExitCode(ExitCode.Success, shell)
     } finally {
       shell.close()
     }
@@ -282,7 +290,8 @@ class TestCLIdebugger {
 
       shell.sendLine("continue")
       shell.expect(contains("<tns:cell>3</tns:cell>"))
-      shell.sendLine("quit")
+
+      Util.expectExitCode(ExitCode.Success, shell)
     } finally {
       shell.close()
     }
@@ -339,6 +348,7 @@ class TestCLIdebugger {
       shell.expect(contains("</tns:matrix>"))
 
       shell.sendLine("quit")
+      Util.expectExitCode(ExitCode.Failure, shell)
     } finally {
       shell.close()
     }
@@ -371,6 +381,7 @@ class TestCLIdebugger {
       shell.expect(contains("(none)"))
 
       shell.sendLine("quit")
+      Util.expectExitCode(ExitCode.Failure, shell)
     } finally {
       shell.close()
     }
@@ -411,7 +422,8 @@ class TestCLIdebugger {
 
       shell.sendLine("delete breakpoint 1")
       shell.sendLine("continue")
-      shell.sendLine("quit")
+
+      Util.expectExitCode(ExitCode.Success, shell)
     } finally {
       shell.close()
     }
@@ -447,7 +459,8 @@ class TestCLIdebugger {
 
       shell.sendLine("continue")
       shell.expect(contains("<tns:cell>6</tns:cell>")) // has tns prefix because this is the final infoset, not the debugger printing this.
-      shell.sendLine("quit")
+
+      Util.expectExitCode(ExitCode.Success, shell)
     } finally {
       shell.close()
     }
@@ -472,7 +485,7 @@ class TestCLIdebugger {
       shell.sendLine("continue")
       shell.expect(allOf(contains("Schema Definition Error"), contains("{}cell"), contains("tns:cell")))
 
-      shell.sendLine("quit")
+      Util.expectExitCode(ExitCode.Success, shell)
     } finally {
       shell.close()
     }
@@ -514,7 +527,7 @@ class TestCLIdebugger {
       shell.sendLine("continue")
       shell.expect(contains("<tns:cell>6</tns:cell>"))
 
-      shell.sendLine("quit")
+      Util.expectExitCode(ExitCode.Success, shell)
     } finally {
       shell.close()
     }
@@ -557,7 +570,8 @@ class TestCLIdebugger {
 
       shell.sendLine("disable breakpoint 1")
       shell.sendLine("continue")
-      shell.sendLine("quit")
+
+      Util.expectExitCode(ExitCode.Success, shell)
     } finally {
       shell.close()
     }
@@ -589,7 +603,8 @@ class TestCLIdebugger {
       shell.expect(contains("bitPosition: 32"))
 
       shell.sendLine("continue")
-      shell.sendLine("quit")
+
+      Util.expectExitCode(ExitCode.Success, shell)
     } finally {
       shell.close()
     }
@@ -622,7 +637,8 @@ class TestCLIdebugger {
 
       shell.sendLine("disable breakpoint 1")
       shell.sendLine("continue")
-      shell.sendLine("quit")
+
+      Util.expectExitCode(ExitCode.Success, shell)
     } finally {
       shell.close()
     }
@@ -651,7 +667,8 @@ class TestCLIdebugger {
       shell.expect(contains("debug"))
       shell.sendLine("continue")
       shell.expect(contains(output1))
-      shell.sendLine("quit")
+
+      Util.expectExitCode(ExitCode.Success, shell)
     } finally {
       shell.close()
     }
@@ -694,7 +711,8 @@ class TestCLIdebugger {
 
       shell.sendLine("disable breakpoint 1")
       shell.sendLine("continue")
-      shell.sendLine("quit")
+
+      Util.expectExitCode(ExitCode.Success, shell)
     } finally {
       shell.close()
     }
@@ -752,6 +770,7 @@ class TestCLIdebugger {
       shell.sendLine("display break")
       shell.expect(contains("error: undefined command: break"))
       shell.sendLine("quit")
+      Util.expectExitCode(ExitCode.Failure, shell)
     } finally {
       shell.close()
     }
@@ -783,7 +802,8 @@ class TestCLIdebugger {
       shell.expect(contains("""    87654321  0011 2233 4455 6677 8899 aabb ccdd eeff  0~1~2~3~4~5~6~7~8~9~a~b~c~d~e~f~"""))
       shell.expect(contains("""    00000000: 302c 312c 322c 332c 342c 352c 36         0~,~1~,~2~,~3~,~4~,~5~,~6~      """))
       shell.sendLine("continue")
-      shell.sendLine("quit")
+//      shell.sendLine("quit")
+      Util.expectExitCode(ExitCode.Success, shell)
     } finally {
       shell.close()
     }
@@ -808,7 +828,8 @@ class TestCLIdebugger {
       shell.expect(contains("error: undefined command: breakonfailure"))
 
       shell.sendLine("continue")
-      shell.sendLine("quit")
+
+      Util.expectExitCode(ExitCode.Success, shell)
     } finally {
       shell.close()
     }
@@ -848,6 +869,7 @@ class TestCLIdebugger {
       shell.expect(contains("""local:  , (separator)"""))
 
       shell.sendLine("quit")
+      Util.expectExitCode(ExitCode.Failure, shell)
     } finally {
       shell.close()
     }
@@ -869,6 +891,7 @@ class TestCLIdebugger {
       shell.expect(contains("\u240A"))
 
       shell.sendLine("quit")
+      Util.expectExitCode(ExitCode.Failure, shell)
     } finally {
       shell.close()
     }
@@ -894,6 +917,7 @@ class TestCLIdebugger {
       shell.expect(contains("matrix"))
 
       shell.sendLine("quit")
+      Util.expectExitCode(ExitCode.Failure, shell)
     } finally {
       shell.close()
     }
@@ -933,7 +957,8 @@ class TestCLIdebugger {
 
       shell.sendLine("continue")
       shell.expect(contains("<f xmlns=\"\">2</f>"))
-      shell.sendLine("quit")
+
+      Util.expectExitCode(ExitCode.Success, shell)
     } finally {
       shell.close()
     }
@@ -973,7 +998,8 @@ class TestCLIdebugger {
 
       shell.sendLine("continue")
       shell.expect(contains("<f xmlns=\"\">3</f>"))
-      shell.sendLine("quit")
+
+      Util.expectExitCode(ExitCode.Success, shell)
     } finally {
       shell.close()
     }
@@ -1120,6 +1146,7 @@ class TestCLIdebugger {
       shell.expect(contains(
         """4865 6c6c 6f                             Hello"""))
       shell.sendLine("quit")
+      Util.expectExitCode(ExitCode.Failure, shell)
     } finally {
       shell.close()
     }
@@ -1168,6 +1195,7 @@ class TestCLIdebugger {
       shell.sendLine("info variables byteOrder")
       shell.expect(contains("byteOrder: bigEndian (default)"))
       shell.sendLine("quit")
+      Util.expectExitCode(ExitCode.Failure, shell)
     } finally {
       shell.close()
     }
@@ -1189,6 +1217,7 @@ class TestCLIdebugger {
       shell.sendLine("step")
       shell.expect(contains("0~,~1~,~2~"))
       shell.sendLine("quit")
+      Util.expectExitCode(ExitCode.Failure, shell)
     } finally {
       shell.close()
     }
@@ -1210,6 +1239,7 @@ class TestCLIdebugger {
       shell.sendLine("step")
       shell.expect(contains("302c 312c 32"))
       shell.sendLine("quit")
+      Util.expectExitCode(ExitCode.Failure, shell)
     } finally {
       shell.close()
     }
@@ -1282,6 +1312,7 @@ class TestCLIdebugger {
       shell.expect(contains("foundDelimiter: (no value) -> ,"))
       shell.expect(contains("foundField: (no value) -> 1"))
       shell.sendLine("quit")
+      Util.expectExitCode(ExitCode.Failure, shell)
     } finally {
       shell.close()
     }
@@ -1315,6 +1346,7 @@ class TestCLIdebugger {
       shell.sendLine("step")
       shell.expect(contains("hidden: true -> false"))
       shell.sendLine("quit")
+      Util.expectExitCode(ExitCode.Failure, shell)
     } finally {
       shell.close()
     }
@@ -1357,6 +1389,7 @@ class TestCLIdebugger {
       shell.expect(regexp("Suppressable.* for cell"))
       shell.expect(regexp("RegionSplit.* for cell"))
       shell.sendLine("quit")
+      Util.expectExitCode(ExitCode.Failure, shell)
     } finally {
       shell.close()
     }
@@ -1395,7 +1428,8 @@ class TestCLIdebugger {
       shell.expect(regexp("SuppressableSeparator.* ex:Item"))
       shell.sendLine("step")
       shell.sendLine("step")
-      shell.sendLine("quit")
+
+      Util.expectExitCode(ExitCode.Success, shell)
     } finally {
       shell.close()
     }

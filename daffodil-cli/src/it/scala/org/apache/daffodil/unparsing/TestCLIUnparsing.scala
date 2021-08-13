@@ -23,6 +23,7 @@ import java.io.File
 import org.apache.daffodil.CLI.Util
 import net.sf.expectit.matcher.Matchers.contains
 import net.sf.expectit.matcher.Matchers.eof
+import org.apache.daffodil.Main.ExitCode
 
 class TestCLIunparsing {
 
@@ -39,6 +40,7 @@ class TestCLIunparsing {
       shell.sendLine(cmd)
       shell.expect(contains("Hello"))
 
+      Util.expectExitCode(ExitCode.Success, shell)
       shell.send("exit\n")
       shell.expect(eof)
       shell.close()
@@ -60,6 +62,7 @@ class TestCLIunparsing {
       shell.sendLine(cmd)
       shell.expect(contains("[1,2]"))
 
+      Util.expectExitCode(ExitCode.Success, shell)
       shell.send("exit\n")
       shell.expect(eof)
       shell.close()
@@ -81,6 +84,7 @@ class TestCLIunparsing {
       shell.sendLine(cmd)
       shell.expect(contains("[1,2]"))
 
+      Util.expectExitCode(ExitCode.Success, shell)
       shell.send("exit\n")
       shell.expect(eof)
       shell.close()
@@ -97,10 +101,11 @@ class TestCLIunparsing {
     val shell = Util.start("")
 
     try {
-      val cmd = String.format("""echo '<tns:e1 xmlns:tns="http://example.com">Hello</tns:e1>' | %s unparse -s %s --root e1""", Util.binPath, testSchemaFile)
+      val cmd = String.format(Util.echoN("\"<tns:e1 xmlns:tns='http://example.com'>Hello</tns:e1>\"") + "| %s unparse -s %s --root e1", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expect(contains("Hello"))
 
+      Util.expectExitCode(ExitCode.Success, shell)
       shell.send("exit\n")
       shell.expect(eof)
       shell.close()
@@ -117,10 +122,11 @@ class TestCLIunparsing {
     val shell = Util.start("")
 
     try {
-      val cmd = String.format("""echo '<tns:e1 xmlns:tns="http://example.com">Hello</tns:e1>' | %s unparse -s %s --root e1 -""", Util.binPath, testSchemaFile)
+      val cmd = String.format(Util.echoN("\"<tns:e1 xmlns:tns='http://example.com'>Hello</tns:e1>\"") + "| %s unparse -s %s --root e1 -", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expect(contains("Hello"))
 
+      Util.expectExitCode(ExitCode.Success, shell)
       shell.send("exit\n")
       shell.expect(eof)
       shell.close()
@@ -143,6 +149,7 @@ class TestCLIunparsing {
       shell.expect(contains("1,2,3"))
       shell.expect(contains("4,5,6"))
 
+      Util.expectExitCode(ExitCode.Success, shell)
       shell.send("exit\n")
       shell.expect(eof)
       shell.close()
@@ -165,6 +172,7 @@ class TestCLIunparsing {
       shell.sendLine(cmd)
       shell.expect(contains("0"))
 
+      Util.expectExitCode(ExitCode.Success, shell)
       shell.send("exit\n")
       shell.expect(eof)
       shell.close()
@@ -187,6 +195,7 @@ class TestCLIunparsing {
       shell.sendLine(cmd)
       shell.expect(contains("0"))
 
+      Util.expectExitCode(ExitCode.Success, shell)
       shell.send("exit\n")
       shell.expect(eof)
       shell.close()
@@ -213,6 +222,7 @@ class TestCLIunparsing {
       shell.sendLine(openCmd)
       shell.expect(contains("[1,2]"))
 
+      Util.expectExitCode(ExitCode.Success, shell)
       shell.sendLine("exit")
       shell.expect(eof)
     } finally {
@@ -233,6 +243,7 @@ class TestCLIunparsing {
 
       shell.expect(contains("[1,2]"))
 
+      Util.expectExitCode(ExitCode.Success, shell)
       shell.sendLine("exit")
       shell.expect(eof)
     } finally {
@@ -244,19 +255,20 @@ class TestCLIunparsing {
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
     val (testSchemaFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile)) else (schemaFile)
 
-    val shell = Util.start("", true)
+    val shell = Util.start("")
 
     try {
 
-      shell.sendLine(String.format("""echo '<tns:e1 xmlns:tns="http://example.com">Hello</tns:e1>' | %s -v unparse -s %s --root e1""", Util.binPath, testSchemaFile))
-      shell.expect(contains("[info]"))
+      shell.sendLine(String.format(Util.echoN("\"<tns:e1 xmlns:tns='http://example.com'>Hello</tns:e1>\"") + "| %s -v unparse -s %s --root e1", Util.binPath, testSchemaFile))
+      shell.expectIn(1, contains("[info]"))
 
-      shell.sendLine(String.format("""echo '<tns:e1 xmlns:tns="http://example.com">Hello</tns:e1>' | %s -vv unparse -s %s --root e1""", Util.binPath, testSchemaFile))
-      shell.expect(contains("[compile]"))
+      shell.sendLine(String.format(Util.echoN("\"<tns:e1 xmlns:tns='http://example.com'>Hello</tns:e1>\"") + "| %s -vv unparse -s %s --root e1", Util.binPath, testSchemaFile))
+      shell.expectIn(1, contains("[compile]"))
 
-      shell.sendLine(String.format("""echo '<tns:e1 xmlns:tns="http://example.com">Hello</tns:e1>' | %s -vvv unparse -s %s --root e1""", Util.binPath, testSchemaFile))
-      shell.expect(contains("[debug]"))
+      shell.sendLine(String.format(Util.echoN("\"<tns:e1 xmlns:tns='http://example.com'>Hello</tns:e1>\"") + "| %s -vvv unparse -s %s --root e1", Util.binPath, testSchemaFile))
+      shell.expectIn(1, contains("[debug]"))
 
+      Util.expectExitCode(ExitCode.Success, shell)
       shell.send("exit\n")
       shell.expect(eof)
     } finally {
@@ -265,12 +277,14 @@ class TestCLIunparsing {
   }
 
   @Test def test_3579_CLI_Unparsing_negativeTest(): Unit = {
-    val shell = Util.start("", true)
+    val shell = Util.start("")
 
     try {
-      val cmd = String.format("""echo '<tns:e1 xmlns:tns="http://example.com">Hello</tns:e1>' | %s unparse""", Util.binPath)
+      val cmd = String.format(Util.echoN("\"<tns:e1 xmlns:tns='http://example.com'>Hello</tns:e1>\"") + "| %s unparse", Util.binPath)
       shell.sendLine(cmd)
-      shell.expect(contains("There should be exactly one of the following options: schema, parser"))
+      shell.expectIn(1, contains("There should be exactly one of the following options: schema, parser"))
+
+      Util.expectExitCode(ExitCode.Usage, shell)
       shell.send("exit\n")
       shell.expect(eof)
     } finally {
@@ -286,10 +300,11 @@ class TestCLIunparsing {
     val shell = Util.start("")
 
     try {
-      val cmd = String.format("""echo '<tns:e1 xmlns:tns="http://example.com">Hello</tns:e1>' | %s unparse -s %s""", Util.binPath, testSchemaFile)
+      val cmd = String.format(Util.echoN("\"<tns:e1 xmlns:tns='http://example.com'>Hello</tns:e1>\"") + "| %s unparse -s %s", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expect(contains("Hello"))
 
+      Util.expectExitCode(ExitCode.Success, shell)
       shell.send("exit\n")
       shell.expect(eof)
       shell.close()
@@ -305,10 +320,12 @@ class TestCLIunparsing {
     val shell = Util.start("")
 
     try {
-      val cmd = String.format("""echo '<tns:hcp2 xmlns:tns="http://www.example.org/example1/">12</tns:hcp2>' | %s unparse -s %s -r hcp2 -p /""", Util.binPath, testSchemaFile)
+      val cmd = String.format(Util.echoN("\"<tns:hcp2 xmlns:tns='http://www.example.org/example1/'>12</tns:hcp2>\"") + "| %s unparse -s %s -r hcp2 -p /", Util.binPath, testSchemaFile)
 
       shell.sendLine(cmd)
       shell.expect(contains("12"))
+
+      Util.expectExitCode(ExitCode.Success, shell)
       shell.sendLine("exit")
       shell.expect(eof)
     } finally {
@@ -323,7 +340,7 @@ class TestCLIunparsing {
     val schemaFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/cli_schema.dfdl.xsd")
     val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
 
-    val shell = Util.start("", true)
+    val shell = Util.start("")
 
     try {
       val cmd = String.format("""echo '<ex:validation_check xmlns:ex="http://example.com">test</ex:validation_check>' | %s unparse -s %s -r validation_check --validate on """, Util.binPath, testSchemaFile)
@@ -375,13 +392,15 @@ class TestCLIunparsing {
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/doesnotexist.dfdl.xsd")
     val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
 
-    val shell = Util.start("", true)
+    val shell = Util.start("")
 
     try {
-      val cmd = String.format("echo '<tns:e1>Hello</tns:e1>' | %s unparse -s %s -r root", Util.binPath, testSchemaFile)
+      val cmd = String.format(Util.echoN("\"<tns:e1>Hello</tns:e1>\"") + "| %s unparse -s %s -r root", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
-      shell.expect(contains("Bad arguments for option 'schema'"))
-      shell.expect(contains("Could not find file or resource"))
+      shell.expectIn(1, contains("Bad arguments for option 'schema'"))
+      shell.expectIn(1, contains("Could not find file or resource"))
+
+      Util.expectExitCode(ExitCode.Usage, shell)
       shell.sendLine("exit")
       shell.expect(eof)
     } finally {
@@ -402,6 +421,7 @@ class TestCLIunparsing {
       shell.sendLine(cmd)
       shell.expect(contains("Hello"))
 
+      Util.expectExitCode(ExitCode.Success, shell)
       shell.send("exit\n")
       shell.expect(eof)
       shell.close()
@@ -423,6 +443,7 @@ class TestCLIunparsing {
       shell.sendLine(cmd)
       shell.expect(contains("Hello"))
 
+      Util.expectExitCode(ExitCode.Success, shell)
       shell.send("exit\n")
       shell.expect(eof)
       shell.close()
@@ -444,6 +465,7 @@ class TestCLIunparsing {
       shell.sendLine(cmd)
       shell.expect(contains("Hello"))
 
+      Util.expectExitCode(ExitCode.Success, shell)
       shell.send("exit\n")
       shell.expect(eof)
       shell.close()
@@ -465,6 +487,7 @@ class TestCLIunparsing {
       shell.sendLine(cmd)
       shell.expect(contains("Hello"))
 
+      Util.expectExitCode(ExitCode.Success, shell)
       shell.send("exit\n")
       shell.expect(eof)
       shell.close()
@@ -486,6 +509,7 @@ class TestCLIunparsing {
       shell.sendLine(cmd)
       shell.expect(contains("Hello"))
 
+      Util.expectExitCode(ExitCode.Success, shell)
       shell.send("exit\n")
       shell.expect(eof)
       shell.close()
@@ -507,6 +531,7 @@ class TestCLIunparsing {
       shell.sendLine(cmd)
       shell.expect(contains("Hello"))
 
+      Util.expectExitCode(ExitCode.Success, shell)
       shell.send("exit\n")
       shell.expect(eof)
       shell.close()
@@ -528,6 +553,7 @@ class TestCLIunparsing {
       shell.sendLine(cmd)
       shell.expect(contains("Hello"))
 
+      Util.expectExitCode(ExitCode.Success, shell)
       shell.send("exit\n")
       shell.expect(eof)
       shell.close()
@@ -549,6 +575,7 @@ class TestCLIunparsing {
       shell.sendLine(cmd)
       shell.expect(contains("Hello"))
 
+      Util.expectExitCode(ExitCode.Success, shell)
       shell.send("exit\n")
       shell.expect(eof)
       shell.close()
@@ -570,6 +597,7 @@ class TestCLIunparsing {
       shell.sendLine(cmd)
       shell.expect(contains("Hello"))
 
+      Util.expectExitCode(ExitCode.Success, shell)
       shell.send("exit\n")
       shell.expect(eof)
       shell.close()
@@ -589,6 +617,8 @@ class TestCLIunparsing {
       val cmd = String.format("%s unparse --stream -s %s %s", Util.binPath, testSchemaFile, testInputFile)
       shell.sendLine(cmd)
       shell.expect(contains("123"))
+
+      Util.expectExitCode(ExitCode.Success, shell)
       shell.send("exit\n")
     } finally {
       shell.close()

@@ -23,6 +23,8 @@ import net.sf.expectit.matcher.Matchers.contains
 import net.sf.expectit.matcher.Matchers.anyOf
 import net.sf.expectit.matcher.Matchers.allOf
 import net.sf.expectit.matcher.Matchers.eof
+import org.apache.daffodil.Main.ExitCode
+
 import java.nio.file.FileSystems
 import java.nio.file.Files
 import scala.collection.JavaConverters._
@@ -68,6 +70,7 @@ class TestCLIUdfs {
           contains("<value>Hello,strng</value>"),
           contains("</fn_func>")))
 
+      Util.expectExitCode(ExitCode.Success, shell)
       shell.send("exit\n")
       shell.expect(eof)
       shell.close()
@@ -84,7 +87,7 @@ class TestCLIUdfs {
     val schemaFile = Util.daffodilPath("daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd")
     val (testSchemaFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile)) else (schemaFile)
 
-    val shell = Util.startIncludeErrors("")
+    val shell = Util.start("")
 
     try {
       val cmd = String.format(Util.echoN("strng") + "| %s -v parse -s %s -r user_func1", Util.binPath, testSchemaFile)
@@ -95,6 +98,7 @@ class TestCLIUdfs {
           contains("[info] No User Defined Functions loaded."),
           contains("[error] Schema Definition Error: Unsupported function: jsudf:replace")))
 
+      Util.expectExitCode(ExitCode.UnableToCreateProcessor, shell)
       shell.send("exit\n")
       shell.expect(eof)
       shell.close()
@@ -120,7 +124,7 @@ class TestCLIUdfs {
       (testUdfsPaths :+ Util.daffodilPath(metaForNonExistentClass))
         .mkString(java.io.File.pathSeparator)
 
-    val shell = Util.startIncludeErrors("", envp = Map("DAFFODIL_CLASSPATH" -> dafClassPath))
+    val shell = Util.start("", envp = Map("DAFFODIL_CLASSPATH" -> dafClassPath))
 
     try {
       val cmd = String.format(Util.echoN("strng") + "| %s -v parse -s %s -r user_func1", Util.binPath, testSchemaFile)
@@ -134,6 +138,7 @@ class TestCLIUdfs {
           contains("[info] No User Defined Functions loaded."),
           contains("[error] Schema Definition Error: Unsupported function: jsudf:replace")))
 
+      Util.expectExitCode(ExitCode.UnableToCreateProcessor, shell)
       shell.send("exit\n")
       shell.expect(eof)
       shell.close()
@@ -153,7 +158,7 @@ class TestCLIUdfs {
     val dafClassPath =
       testUdfsPaths.mkString(java.io.File.pathSeparator)
 
-    val shell = Util.startIncludeErrors("", envp = Map("DAFFODIL_CLASSPATH" -> dafClassPath))
+    val shell = Util.start("", envp = Map("DAFFODIL_CLASSPATH" -> dafClassPath))
 
     try {
       val cmd = String.format(Util.echoN("strng") + "| %s -v parse -s %s -r user_func1", Util.binPath, testSchemaFile)
@@ -164,6 +169,7 @@ class TestCLIUdfs {
           contains("[info] No User Defined Functions loaded."),
           contains("[error] Schema Definition Error: Unsupported function: jsudf:replace")))
 
+      Util.expectExitCode(ExitCode.UnableToCreateProcessor, shell)
       shell.send("exit\n")
       shell.expect(eof)
       shell.close()
@@ -185,7 +191,7 @@ class TestCLIUdfs {
       (testUdfsPaths :+ Util.daffodilPath(metaInfForSomeUdfA))
         .mkString(java.io.File.pathSeparator)
 
-    val shell = Util.startIncludeErrors("", envp = Map("DAFFODIL_CLASSPATH" -> dafClassPath))
+    val shell = Util.start("", envp = Map("DAFFODIL_CLASSPATH" -> dafClassPath))
 
     try {
       val cmd = String.format(Util.echoN("strng") + "| %s -v parse -s %s -r user_func1", Util.binPath, testSchemaFile)
@@ -199,6 +205,7 @@ class TestCLIUdfs {
           contains("[info] No User Defined Functions loaded."),
           contains("[error] Schema Definition Error: Unsupported function: jsudf:replace")))
 
+      Util.expectExitCode(ExitCode.UnableToCreateProcessor, shell)
       shell.send("exit\n")
       shell.expect(eof)
       shell.close()
@@ -220,7 +227,7 @@ class TestCLIUdfs {
       (testUdfsPaths :+ Util.daffodilPath(metaInfForSomeUdfA))
         .mkString(java.io.File.pathSeparator)
 
-    val shell = Util.startIncludeErrors("", envp = Map("DAFFODIL_CLASSPATH" -> dafClassPath))
+    val shell = Util.start("", envp = Map("DAFFODIL_CLASSPATH" -> dafClassPath))
 
     try {
       val cmd = String.format(Util.echoN("strng") + "| %s -v parse -s %s -r user_func1", Util.binPath, testSchemaFile)
@@ -234,6 +241,7 @@ class TestCLIUdfs {
           contains("[info] No User Defined Functions loaded."),
           contains("[error] Schema Definition Error: Unsupported function: jsudf:replace")))
 
+      Util.expectExitCode(ExitCode.UnableToCreateProcessor, shell)
       shell.send("exit\n")
       shell.expect(eof)
       shell.close()
@@ -256,7 +264,7 @@ class TestCLIUdfs {
       (testUdfsPaths :+ Util.daffodilPath(metaInfForSomeUdfA))
         .mkString(java.io.File.pathSeparator)
 
-    val shell = Util.startIncludeErrors("", envp = Map("DAFFODIL_CLASSPATH" -> dafClassPath))
+    val shell = Util.start("", envp = Map("DAFFODIL_CLASSPATH" -> dafClassPath))
 
     try {
       val cmd = String.format(Util.echoN("strng") + "| %s -v parse -s %s -r user_func1", Util.binPath, testSchemaFile)
@@ -273,6 +281,7 @@ class TestCLIUdfs {
           contains("[info] No User Defined Functions loaded."),
           contains("[error] Schema Definition Error: Unsupported function: jsudf:replace")))
 
+      Util.expectExitCode(ExitCode.UnableToCreateProcessor, shell)
       shell.send("exit\n")
       shell.expect(eof)
       shell.close()
@@ -295,7 +304,7 @@ class TestCLIUdfs {
       (testUdfsPaths :+ Util.daffodilPath(metaInfForSomeUdfA))
         .mkString(java.io.File.pathSeparator)
 
-    val shell = Util.startIncludeErrors("", envp = Map("DAFFODIL_CLASSPATH" -> dafClassPath))
+    val shell = Util.start("", envp = Map("DAFFODIL_CLASSPATH" -> dafClassPath))
 
     try {
       val cmd = String.format(Util.echoN("strng") + "| %s -v parse -s %s -r user_func1", Util.binPath, testSchemaFile)
@@ -319,6 +328,7 @@ class TestCLIUdfs {
           contains("[info] No User Defined Functions loaded."),
           contains("[error] Schema Definition Error: Unsupported function: jsudf:replace")))
 
+      Util.expectExitCode(ExitCode.UnableToCreateProcessor, shell)
       shell.send("exit\n")
       shell.expect(eof)
       shell.close()
@@ -344,7 +354,7 @@ class TestCLIUdfs {
       (testUdfsPaths :+ Util.daffodilPath(metaInfForSomeUdfA))
         .mkString(java.io.File.pathSeparator)
 
-    val shell = Util.startIncludeErrors("", envp = Map("DAFFODIL_CLASSPATH" -> dafClassPath))
+    val shell = Util.start("", envp = Map("DAFFODIL_CLASSPATH" -> dafClassPath))
 
     try {
       val cmd = String.format(Util.echoN("strng") + "| %s -v parse -s %s -r user_func1", Util.binPath, testSchemaFile)
@@ -373,6 +383,7 @@ class TestCLIUdfs {
           contains("[info] No User Defined Functions loaded."),
           contains("[error] Schema Definition Error: Unsupported function: jsudf:replace")))
 
+      Util.expectExitCode(ExitCode.UnableToCreateProcessor, shell)
       shell.send("exit\n")
       shell.expect(eof)
       shell.close()
@@ -395,7 +406,7 @@ class TestCLIUdfs {
       (testUdfsPaths :+ Util.daffodilPath(metaInfForSomeUdfA))
         .mkString(java.io.File.pathSeparator)
 
-    val shell = Util.startIncludeErrors("", envp = Map("DAFFODIL_CLASSPATH" -> dafClassPath))
+    val shell = Util.start("", envp = Map("DAFFODIL_CLASSPATH" -> dafClassPath))
 
     try {
       val cmd = String.format(Util.echoN("strng") + "| %s parse -s %s -r user_func2", Util.binPath, testSchemaFile)
@@ -407,6 +418,7 @@ class TestCLIUdfs {
           contains("org.apache.daffodil.udf.UserDefinedFunctionFatalErrorException: "),
           contains("at org.sbadudfs.udfexceptions.evaluating.StringFunctions.Reverse.evaluate")))
 
+      Util.expectExitCode(ExitCode.UserDefinedFunctionError, shell)
       shell.send("exit\n")
       shell.expect(eof)
       shell.close()
@@ -429,13 +441,14 @@ class TestCLIUdfs {
       (testUdfsPaths :+ Util.daffodilPath(metaInfForSomeUdfA))
         .mkString(java.io.File.pathSeparator)
 
-    val shell = Util.startIncludeErrors("", envp = Map("DAFFODIL_CLASSPATH" -> dafClassPath))
+    val shell = Util.start("", envp = Map("DAFFODIL_CLASSPATH" -> dafClassPath))
 
     try {
       val cmd = String.format(Util.echoN("strng") + "| %s parse -s %s -r user_func3", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expectIn(1, contains("[error] Schema Definition Error: User Defined Function 'ssudf:rev-words' Error: UDF PE!"))
 
+      Util.expectExitCode(ExitCode.UnableToCreateProcessor, shell)
       shell.send("exit\n")
       shell.expect(eof)
       shell.close()
@@ -458,7 +471,7 @@ class TestCLIUdfs {
       (testUdfsPaths :+ Util.daffodilPath(metaInfForSomeUdfA))
         .mkString(java.io.File.pathSeparator)
 
-    val shell = Util.startIncludeErrors("", envp = Map("DAFFODIL_CLASSPATH" -> dafClassPath))
+    val shell = Util.start("", envp = Map("DAFFODIL_CLASSPATH" -> dafClassPath))
 
     try {
       val cmd = String.format(Util.echoN("strng") + "| %s -v parse -s %s -r user_func3", Util.binPath, testSchemaFile)
@@ -473,6 +486,7 @@ class TestCLIUdfs {
           contains("org.apache.daffodil.udf.UserDefinedFunctionFatalErrorException:"),
           contains("at org.sbadudfs.udfexceptions2.StringFunctions.ReverseWords")))
 
+      Util.expectExitCode(ExitCode.UserDefinedFunctionError, shell)
       shell.send("exit\n")
       shell.expect(eof)
       shell.close()
@@ -495,7 +509,7 @@ class TestCLIUdfs {
       (testUdfsPaths :+ Util.daffodilPath(metaInfForSomeUdfA))
         .mkString(java.io.File.pathSeparator)
 
-    val shell = Util.startIncludeErrors("", envp = Map("DAFFODIL_CLASSPATH" -> dafClassPath))
+    val shell = Util.start("", envp = Map("DAFFODIL_CLASSPATH" -> dafClassPath))
 
     try {
       val cmd = String.format(Util.echoN("strng") + "| %s -v parse -s %s -r user_func3", Util.binPath, testSchemaFile)
@@ -509,6 +523,7 @@ class TestCLIUdfs {
           contains("org.sbadudfs.udfpexceptions.StringFunctions.StringFunctionsProvider$CustomException"),
           contains("[error] Schema Definition Error: Unsupported function: ssudf:rev-words")))
 
+      Util.expectExitCode(ExitCode.UnableToCreateProcessor, shell)
       shell.send("exit\n")
       shell.expect(eof)
       shell.close()
@@ -531,7 +546,7 @@ class TestCLIUdfs {
       (testUdfsPaths :+ Util.daffodilPath(metaInfForSomeUdfA))
         .mkString(java.io.File.pathSeparator)
 
-    val shell = Util.startIncludeErrors("", envp = Map("DAFFODIL_CLASSPATH" -> dafClassPath))
+    val shell = Util.start("", envp = Map("DAFFODIL_CLASSPATH" -> dafClassPath))
 
     try {
       val cmd = String.format(Util.echoN("strng") + "| %s -v parse -s %s -r user_func3", Util.binPath, testSchemaFile)
@@ -545,6 +560,7 @@ class TestCLIUdfs {
           contains("[info] No User Defined Functions loaded."),
           contains("[error] Schema Definition Error: Unsupported function: ssudf:rev-words")))
 
+      Util.expectExitCode(ExitCode.UnableToCreateProcessor, shell)
       shell.send("exit\n")
       shell.expect(eof)
       shell.close()
@@ -568,7 +584,7 @@ class TestCLIUdfs {
       (testUdfsPaths :+ Util.daffodilPath(metaInfForSomeUdfA))
         .mkString(java.io.File.pathSeparator)
 
-    val shell = Util.startIncludeErrors("", envp = Map("DAFFODIL_CLASSPATH" -> dafClassPath))
+    val shell = Util.start("", envp = Map("DAFFODIL_CLASSPATH" -> dafClassPath))
 
     try {
       val cmd = String.format(Util.echoN("strng") + "| %s -v parse -s %s -r user_func3", Util.binPath, testSchemaFile)
@@ -581,6 +597,7 @@ class TestCLIUdfs {
             " Actual: class org.sbadudfs.functionclasses.StringFunctions.Reverse"),
           contains("[error] Schema Definition Error: Unsupported function: ssudf:rev-words")))
 
+      Util.expectExitCode(ExitCode.UnableToCreateProcessor, shell)
       shell.send("exit\n")
       shell.expect(eof)
       shell.close()
@@ -603,7 +620,7 @@ class TestCLIUdfs {
       (testUdfsPaths :+ Util.daffodilPath(metaInfForSomeUdfA))
         .mkString(java.io.File.pathSeparator)
 
-    val shell = Util.startIncludeErrors("", envp = Map("DAFFODIL_CLASSPATH" -> dafClassPath))
+    val shell = Util.start("", envp = Map("DAFFODIL_CLASSPATH" -> dafClassPath))
 
     try {
       val cmd = String.format(Util.echoN("strng") + "| %s -v parse -s %s -r user_func2", Util.binPath, testSchemaFile)
@@ -617,6 +634,7 @@ class TestCLIUdfs {
           contains("org.apache.daffodil.udf.UserDefinedFunctionFatalErrorException:"),
           contains("at org.sbadudfs.functionclasses.StringFunctions.StringFunctionsProvider.createUserDefinedFunction")))
 
+      Util.expectExitCode(ExitCode.UserDefinedFunctionError, shell)
       shell.send("exit\n")
       shell.expect(eof)
       shell.close()
@@ -639,7 +657,7 @@ class TestCLIUdfs {
       (testUdfsPaths :+ Util.daffodilPath(metaInfForSomeUdfA))
         .mkString(java.io.File.pathSeparator)
 
-    val shell = Util.startIncludeErrors("", envp = Map("DAFFODIL_CLASSPATH" -> dafClassPath))
+    val shell = Util.start("", envp = Map("DAFFODIL_CLASSPATH" -> dafClassPath))
 
     try {
       val cmd = String.format("%s -v save-parser -s %s -r user_func4", Util.binPath, testSchemaFile)
@@ -650,6 +668,8 @@ class TestCLIUdfs {
           contains("[error] Error serializing initialized User Defined Function: org.sbadudfs.functionclasses2.StringFunctions.GetNonSerializableState"),
           contains("Could not serialize member of class: org.sbadudfs.functionclasses2.StringFunctions.SomeNonSerializableClass"),
           contains("[error] Schema Definition Error: Unsupported function: ssudf:get-nonserializable-state")))
+
+      Util.expectExitCode(ExitCode.UnableToCreateProcessor, shell)
       shell.send("exit\n")
       shell.expect(eof)
       shell.close()
@@ -674,7 +694,7 @@ class TestCLIUdfs {
       (testUdfsPaths :+ Util.daffodilPath(metaInfForSomeUdfA))
         .mkString(java.io.File.pathSeparator)
 
-    val shell = Util.startIncludeErrors("", envp = Map("DAFFODIL_CLASSPATH" -> dafClassPath))
+    val shell = Util.start("", envp = Map("DAFFODIL_CLASSPATH" -> dafClassPath))
 
     try {
       val cmds = Array(
@@ -689,6 +709,8 @@ class TestCLIUdfs {
           contains("<data>strng</data>"),
           contains("<value>Serializable State</value>"),
           contains("</user_func5>")))
+
+      Util.expectExitCode(ExitCode.Success, shell)
       shell.send("exit\n")
       shell.expect(eof)
       shell.close()

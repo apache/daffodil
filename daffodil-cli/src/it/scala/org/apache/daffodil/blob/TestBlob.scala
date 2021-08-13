@@ -119,7 +119,7 @@ class TestBlob {
     infosetFile.deleteOnExit()
     unparseFile.deleteOnExit()
 
-    val shell = Util.startIncludeErrors("", envp = DAFFODIL_JAVA_OPTS)
+    val shell = Util.start("", envp = DAFFODIL_JAVA_OPTS)
 
     try {
       // Parse to a file
@@ -172,7 +172,7 @@ class TestBlob {
     val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/2049MB.bin")
     val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
 
-    val shell = Util.startIncludeErrors("", envp = DAFFODIL_JAVA_OPTS)
+    val shell = Util.start("", envp = DAFFODIL_JAVA_OPTS)
 
     try {
       // Execute Daffodil
@@ -206,7 +206,7 @@ class TestBlob {
     val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/2049MB.bin")
     val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
 
-    val shell = Util.startIncludeErrors("", envp = DAFFODIL_JAVA_OPTS)
+    val shell = Util.start("", envp = DAFFODIL_JAVA_OPTS)
 
     try {
       // Execute Daffodil

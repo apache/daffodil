@@ -19,6 +19,7 @@ package org.apache.daffodil.schematron
 
 import net.sf.expectit.matcher.Matchers.sequence
 import org.apache.daffodil.CLI.Util
+import org.apache.daffodil.Main.ExitCode
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
@@ -34,7 +35,7 @@ class TestSvrlOutput {
   @Test def validationSuccess(): Unit = {
     val svrlPath = makeTempFilePath()
     val confFile = mkTmpConf(never, svrlPath)
-    withShell(stderr=true) {
+    withShell(ExitCode.Success, stderr=true) {
       s"parse --validate schematron=$confFile -s {{$uuid}} {$data}" -> alwaysResult
     }
 
@@ -62,7 +63,7 @@ class TestSvrlOutput {
   @Test def validationFailure(): Unit = {
     val svrlPath = makeTempFilePath()
     val confFile = mkTmpConf(always, svrlPath)
-    withShell(FailureErrorCode) {
+    withShell(ExitCode.ParseError) {
       s"parse --validate schematron=$confFile -s {{$uuid}} {$data}" -> alwaysResult
     }
 
@@ -92,7 +93,7 @@ class TestSvrlOutput {
     val svrlPath = makeTempFilePath()
     val confFile = mkTmpConf(never, svrlPath)
     val data = mktmp("12")
-    withShell(FailureErrorCode, stderr = true) {
+    withShell(ExitCode.UnableToCreateProcessor, stderr = true) {
       val schemaFile = Util.daffodilPath(
         "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
       val schema = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
@@ -111,7 +112,7 @@ class TestSvrlOutput {
   @Test def outputPathFailure(): Unit = {
     val badSvrlPath = Paths.get("thisisnotavalidlocation/schematron.svrl")
     val confFile = mkTmpConf(never, badSvrlPath)
-    withShell(FailureErrorCode, JoinStdError) {
+    withShell(ExitCode.ParseError, JoinStdError) {
       s"""parse --validate schematron="$confFile" -s {{$uuid}} {$data}""" -> sequence(
         lineEndsWithRegex(s"\\[error] Validation Error: .+"),
         anyLines(2))
@@ -125,7 +126,7 @@ class TestSvrlOutput {
   @Test def overwriteExistingFile(): Unit = {
     val svrlPath = mktmp("=== this content will be overwritten ===")
     val confFile = mkTmpConf(never, svrlPath)
-    withShell() {
+    withShell(ExitCode.Success) {
       s"parse --validate schematron=$confFile -s {{$uuid}} {$data}" -> alwaysResult
     }
 

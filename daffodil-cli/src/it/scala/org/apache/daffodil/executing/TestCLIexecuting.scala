@@ -23,6 +23,7 @@ import org.apache.daffodil.CLI.Util
 import net.sf.expectit.matcher.Matchers.contains
 import net.sf.expectit.matcher.Matchers.matches
 import net.sf.expectit.ExpectIOException
+import org.apache.daffodil.Main.ExitCode
 
 class TestCLIexecuting {
 
@@ -42,6 +43,8 @@ class TestCLIexecuting {
       val cmd = String.format("%s test %s escape_entry1 escape_entry2-11 escape_entry1-5 escape_entry4_3", Util.binPath, testTdmlFile)
       shell.sendLine(cmd)
       shell.expect(contains(output3))
+
+      Util.expectExitCode(ExitCode.Success, shell)
       shell.sendLine("exit")
     } finally {
       shell.close()
@@ -58,6 +61,8 @@ class TestCLIexecuting {
       val cmd = String.format("%s test --regex %s \"escape_entry4_\\d\"", Util.binPath, testTdmlFile)
       shell.sendLine(cmd)
       shell.expect(contains(output13))
+
+      Util.expectExitCode(ExitCode.Success, shell)
       shell.sendLine("exit")
     } finally {
       shell.close()
@@ -78,6 +83,8 @@ class TestCLIexecuting {
         fail("Output was found when none was expected.")
       }
     } finally {
+
+      Util.expectExitCode(ExitCode.Success, shell)
       shell.sendLine("exit")
       shell.close()
     }
@@ -93,6 +100,8 @@ class TestCLIexecuting {
       val cmd = String.format("%s test -l --regex %s \"escape_entry4_\\d+\"", Util.binPath, testTdmlFile)
       shell.sendLine(cmd)
       shell.expect(contains(output14))
+
+      Util.expectExitCode(ExitCode.Success, shell)
       shell.sendLine("exit")
     } finally {
       shell.close()
@@ -130,6 +139,8 @@ class TestCLIexecuting {
     try {
       shell.sendLine(String.format("%s test -l %s", Util.binPath, testTdmlFile))
       shell.expect(contains(output16))
+
+      Util.expectExitCode(ExitCode.Success, shell)
       shell.sendLine("exit")
     } finally {
       shell.close()
@@ -146,6 +157,8 @@ class TestCLIexecuting {
       val cmd = String.format("%s test -l %s byte_entities_6_08", Util.binPath, testTdmlFile)
       shell.sendLine(cmd)
       shell.expect(contains("byte_entities_6_08"))
+
+      Util.expectExitCode(ExitCode.Success, shell)
       shell.sendLine("exit")
     } finally {
       shell.close()
@@ -162,6 +175,8 @@ class TestCLIexecuting {
       val cmd = String.format("%s test %s byte_entities_6_08", Util.binPath, testTdmlFile)
       shell.sendLine(cmd)
       shell.expect(contains("[Pass] byte_entities_6_08"))
+
+      Util.expectExitCode(ExitCode.Success, shell)
       shell.sendLine("exit")
     } finally {
       shell.close()
@@ -180,6 +195,8 @@ class TestCLIexecuting {
       println(cmd)
       shell.sendLine(cmd)
       shell.expect(contains("[Skipped] testNotCompatibleImplementation1 (Not compatible implementation.)"))
+
+      Util.expectExitCode(ExitCode.Success, shell)
       shell.sendLine("exit")
     } finally {
       shell.close()

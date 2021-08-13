@@ -21,6 +21,7 @@ import org.junit.Test
 import org.apache.daffodil.CLI.Util
 import net.sf.expectit.matcher.Matchers.contains
 import net.sf.expectit.matcher.Matchers.eof
+import org.apache.daffodil.Main.ExitCode
 
 class TestCLIlisting {
 
@@ -33,6 +34,8 @@ class TestCLIlisting {
       val cmd = String.format("%s test -l %s byte_entities_6_08", Util.binPath, testTdmlFile)
       shell.sendLine(cmd)
       shell.expect(contains("byte_entities_6_08"))
+
+      Util.expectExitCode(ExitCode.Success, shell)
       shell.sendLine("exit")
       shell.expect(eof)
     } finally {
@@ -83,6 +86,7 @@ class TestCLIlisting {
       shell.sendLine(String.format("%s test -l -i --regex %s assertPattern.*", Util.binPath, testTdmlFile))
       shell.expect(contains("assertPatternAndExp              s2                e3         Section 7 - Assert Schema Error for Expression/Pattern - DFDL-7-047R"))
 
+      Util.expectExitCode(ExitCode.Success, shell)
       shell.sendLine("exit")
       shell.expect(eof)
     } finally {

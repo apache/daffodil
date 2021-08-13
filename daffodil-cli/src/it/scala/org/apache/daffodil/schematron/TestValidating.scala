@@ -17,6 +17,7 @@
 
 package org.apache.daffodil.schematron
 
+import org.apache.daffodil.Main.ExitCode
 import org.junit.Test
 
 object TestValidating {
@@ -31,17 +32,17 @@ class TestValidating {
   import TestValidating._
 
   // always fails sch, but no validate flag so it should pass
-  @Test def nonShouldPass(): Unit = withShell() {
+  @Test def nonShouldPass(): Unit = withShell(ExitCode.Success) {
     s"parse -s {{$uuid}} {$data}" -> alwaysResult
   }
 
   // always fails sch, with validate flag should fail
-  @Test def failShouldFail(): Unit = withShell(FailureErrorCode) {
+  @Test def failShouldFail(): Unit = withShell(ExitCode.ParseError) {
     s"parse --validate schematron={{$always}} -s {{$uuid}} {$data}" -> alwaysResult
   }
 
   // never fails sch, with validate flag should pass
-  @Test def passShouldPass(): Unit = withShell() {
+  @Test def passShouldPass(): Unit = withShell(ExitCode.Success) {
     s"parse --validate schematron={{$never}} -s {{$uuid}} {$data}" -> alwaysResult
   }
 }

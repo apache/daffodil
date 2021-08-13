@@ -54,6 +54,8 @@ abstract class InteractiveDebuggerRunner {
   def fini(): Unit
 }
 
+case class DebuggerExitException() extends UnsuppressableException("Debugger exit")
+
 class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: ExpressionCompilerClass) extends Debugger {
 
   object DebugState extends Enum {
@@ -1720,7 +1722,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
                         |Immediately abort all processing.""".stripMargin
       override lazy val short = "q"
       def act(args: Seq[String], state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
-        sys.exit(1)
+        throw new DebuggerExitException()
       }
     }
 
