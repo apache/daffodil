@@ -1304,7 +1304,67 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
-    
+
+    <xs:element name="ocke5">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="arr1" maxOccurs="unbounded">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="field1" type="xs:string" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="arr2" type="xs:string" maxOccurs="unbounded"
+            dfdl:occursCountKind="expression"
+            dfdl:occursCount="{ xs:unsignedLong(does/not/exist) }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="ocke6">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="arr1" maxOccurs="unbounded">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="field1" type="xs:string" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="arr2" type="xs:string" maxOccurs="unbounded"
+            dfdl:occursCountKind="expression"
+            dfdl:occursCount="{ xs:unsignedLong(../ex:arr1[does/not/exist]/field1) }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="ocke7">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="arr2" maxOccurs="unbounded"
+            dfdl:occursCountKind="expression"
+            dfdl:occursCount="{ xs:unsignedLong(ex:count) }">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="count" type="xs:int" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="ocke8">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="arr" type="xs:string" maxOccurs="unbounded"
+            dfdl:occursCountKind="expression"
+            dfdl:occursCount="{ xs:unsignedLong(..) }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
     <xs:element name="expr_space" dfdl:lengthKind="implicit">
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
@@ -1580,7 +1640,83 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
-  
+
+  <!--
+       Test Name: ocke_step_dne
+          Schema: expressions-Embedded.dfdl.xsd
+          Purpose: This test demonstrates that we get an appropriate error message when an
+                   occursCountKind expression references a non existent path step
+  -->
+  <tdml:parserTestCase name="ocke_step_dne" root="ocke5"
+    model="expressions-Embedded.dfdl.xsd" description="occursCountKind expression - DFDL-23-011R">
+
+    <tdml:document><![CDATA[]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Path expression</tdml:error>
+      <tdml:error>absolute</tdml:error>
+      <tdml:error>upward step</tdml:error>
+      <tdml:error>does/not/exist</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+       Test Name: ocke_array_index_step_dne
+          Schema: expressions-Embedded.dfdl.xsd
+          Purpose: This test demonstrates that we get an appropriate error message when an
+                   occursCountKind expression references a non existent path step inside
+                   an array index
+  -->
+  <tdml:parserTestCase name="ocke_array_index_step_dne" root="ocke6"
+    model="expressions-Embedded.dfdl.xsd" description="occursCountKind expression - DFDL-23-011R">
+
+    <tdml:document><![CDATA[]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Path expression</tdml:error>
+      <tdml:error>absolute</tdml:error>
+      <tdml:error>upward step</tdml:error>
+      <tdml:error>does/not/exist</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+       Test Name: ocke_non_upward
+          Schema: expressions-Embedded.dfdl.xsd
+          Purpose: This test demonstrates that we get an appropriate error message when an
+                   occursCountKind expression uses a path that does not go upward
+  -->
+  <tdml:parserTestCase name="ocke_non_upward" root="ocke7"
+    model="expressions-Embedded.dfdl.xsd" description="occursCountKind expression - DFDL-23-011R">
+
+    <tdml:document><![CDATA[]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Path expression</tdml:error>
+      <tdml:error>absolute</tdml:error>
+      <tdml:error>upward step</tdml:error>
+      <tdml:error>ex:count</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+       Test Name: ocke_single_upward
+          Schema: expressions-Embedded.dfdl.xsd
+          Purpose: This test demonstrates that we get an appropriate error message when an
+                   occursCountKind expression uses a path that is only a single upward step
+  -->
+  <tdml:parserTestCase name="ocke_single_upward" root="ocke8"
+    model="expressions-Embedded.dfdl.xsd" description="occursCountKind expression - DFDL-23-011R">
+
+    <tdml:document><![CDATA[]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Complex</tdml:error>
+      <tdml:error>cannot be converted</tdml:error>
+      <tdml:error>xs:unsignedLong</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
 <!--
      Test Name: internal_space_preserved
         Schema: expressions-Embedded.dfdl.xsd

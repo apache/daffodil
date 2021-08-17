@@ -716,7 +716,7 @@ case class UnaryExpression(op: String, exp: Expression)
 
 abstract class PathExpression()
   extends Expression {
-  def steps: Seq[StepExpression]
+  def steps: List[StepExpression]
 
   override def text = steps.map { _.text }.mkString("/")
 
@@ -753,7 +753,7 @@ case class RootPathExpression(relPath: Option[RelativePathExpression])
 
   override def text = "/" + super.text
 
-  lazy val steps = relPath.map { _.steps }.getOrElse(Nil)
+  override lazy val steps = relPath.map { _.steps }.getOrElse(Nil)
 
   override lazy val inherentType = {
     if (!(steps == Nil)) steps.last.inherentType
@@ -779,63 +779,63 @@ case class RootPathExpression(relPath: Option[RelativePathExpression])
 
   override lazy val compiledDPath = {
     val rel = relPath.map { rp => rp.compiledDPath.ops.toList }.getOrElse(Nil)
+    // note that no conversion is needed here since the compiledDPath of the
+    // relative path includes the necessary conversions
     val cdp = new CompiledDPath(ToRoot +: rel)
     cdp
   }
 }
 
-case class RelativePathExpression(steps1: List[StepExpression], isEvaluatedAbove: Boolean)
+case class RelativePathExpression(stepsRaw: List[StepExpression], isEvaluatedAbove: Boolean)
   extends PathExpression() {
 
   lazy val isAbsolutePath = {
     parent != null && parent.isInstanceOf[RootPathExpression]
   }
 
-  /**
-   * We must adjust the steps for the isEvaluatedAbove case.
-   * That's when something like dfdl:occursCount is written as { ../c }.
-   * In that case, it's written on an element decl as if it were accessing a
-   * peer, but in fact the expression is evaluated before any instances of
-   * the array are even allocated, so we must remove an ".." up move from
-   * every relative path contained inside the expression, except when
-   * part of an absolute path.
-   */
-  private lazy val adjustedSteps = {
-    if (parent.isInstanceOf[RootPathExpression]) steps2
-    else {
-      // not an absolute path.
-      if (isEvaluatedAbove) {
-        // in this case, the relative path must begin with ".." to be
-        // meaningful.
-        Assert.invariant(steps2(0).isInstanceOf[Up])
-        steps2.tail // trim off the UP move at the start.
-      } else steps2
-    }
-  }
-
   override lazy val compiledDPath: CompiledDPath = {
-    val cps = adjustedSteps.map {
-      _.compiledDPath
+
+    val stepsToEvaluate = {
+      if (parent.isInstanceOf[RootPathExpression] || !isEvaluatedAbove) steps
+      else {
+        // This expression a relative expression that is actually evaluated
+        // above the element it is defined on. This means it's something like
+        // dfdl:occursCount with an expression like { ../c }. In cases like
+        // this, the property is written on an element decl as if it were
+        // accessing a peer, but in fact the expression is evaluated before any
+        // instances of the array are even allocated, so the first up ".." move
+        // in this relative path is implied and so should not actually be
+        // evaluated. Such an expression must begin with an upward step to even
+        // be considered valid, so we also error if it doesn't exist.
+        if (!steps(0).isInstanceOf[Up]) {
+          SDE("""Path expression must be absolute or begin with a "../" upward step: %s""", this.text)
+        }
+        steps.tail
+      }
     }
-    val ops = cps.map {
-      _.ops.toList
-    }
-    val res = new CompiledDPath(ops.flatten)
+
+    // All the steps are individual CompiledDPaths, let's optmize those out and
+    // just create a single CompiledDpath that contains all those flattened
+    // operations.
+    val ops = stepsToEvaluate.flatMap { _.compiledDPath.ops }
+
+    // add the appropriate conversions based on the inherent type of this path
+    // expression. Individual steps do not need a conversion, we only need to
+    // convert the result of the path expression
+    val res = new CompiledDPath(ops ++ conversions)
     res
   }
 
   override lazy val steps = {
-    steps2
-  }
-
-  // remove any spurious "." in relative paths so "./.././.." becomes "../.."
-  // corner case "././././." should behave like "."
-  val steps2 = {
-    val noSelfSteps = steps1.filter { case Self(None) => false; case _ => true }
-    val res =
-      if (noSelfSteps.length == 0) List(Self(None)) // we need one "."
-      else noSelfSteps
-    res
+    // Optimize out all self steps, since those don't change the expression at all
+    val noSelfSteps = stepsRaw.filter { case Self(None) => false; case _ => true }
+    if (noSelfSteps.length == 0) {
+      // If this path expression was all self steps, all steps were removed. We
+      // still need at least one step, so replace it with a self step
+      List(Self(None))
+    } else {
+      noSelfSteps
+    }
   }
 
   override lazy val children: List[Expression] = steps
@@ -1051,7 +1051,7 @@ sealed abstract class DownStepExpression(s: String, predArg: Option[PredicateExp
 sealed abstract class SelfStepExpression(s: String, predArg: Option[PredicateExpression])
   extends DownStepExpression(s, predArg) {
 
-  override lazy val compiledDPath = new CompiledDPath(SelfMove +: conversions)
+  override lazy val compiledDPath = new CompiledDPath(SelfMove)
   override def text = "."
 
   protected def stepElementDefs: Seq[DPathElementCompileInfo] = {
@@ -1149,9 +1149,7 @@ case class NamedStep(s: String, predArg: Option[PredicateExpression])
 
   override lazy val compiledDPath = {
     val d = downwardStep
-    val conv = conversions
-    val c = (if (isLastStep) conv else Nil)
-    val res = new CompiledDPath(d +: c)
+    val res = new CompiledDPath(d)
     res
   }
 
