@@ -203,9 +203,14 @@ class TestCLIdebugger {
       shell.expect(contains("(debug)"))
       shell.sendLine("set removeHidden false")
       shell.sendLine("display info infoset")
+      shell.sendLine("step")
+      shell.sendLine("step")
+      // intentionally look for a newline to make sure normally hidden elements
+      // are output with a trailing newline when the debugger displays them
+      shell.expect(contains("<sneaky></sneaky>\n"))
       shell.sendLine("break g")
       shell.sendLine("continue")
-      shell.expect(contains("<sneaky>5</sneaky>"))
+      shell.expect(contains("<sneaky>5</sneaky>\n"))
       shell.sendLine("quit")
       Util.expectExitCode(ExitCode.Failure, shell)
     } finally {

@@ -43,8 +43,25 @@ class XMLTextInfosetOutputter private (writer: java.io.Writer, pretty: Boolean, 
 
   private val sb = new StringBuilder()
 
+  /**
+   * Used to keep determine if the in-scope complex element has children, and
+   * thus if we should output a newline or not when closing that complex type.
+   * A complex type with no children should just be output like
+   *
+   *   <complex></complex>
+   *
+   * This value is initialized to false when a complex type is started, since
+   * we don't know if it has children yet. This value is then set to true
+   * either when a simple type is started (i.e. the current complex type must
+   * have at least one child), or when a complex type is ended (i.e. the parent
+   * and all subsequent parents of the ended complex must have at least one
+   * child, which is the complex that just eneded).
+   */
+  private var inScopeComplexElementHasChildren = false
+
   override def reset(): Unit = {
     resetIndentation()
+    inScopeComplexElementHasChildren = false
   }
 
   private def outputTagName(elem: DIElement): Unit = {
@@ -102,6 +119,8 @@ class XMLTextInfosetOutputter private (writer: java.io.Writer, pretty: Boolean, 
     }
 
     outputEndTag(simple)
+    inScopeComplexElementHasChildren = true
+
     true
   }
   
@@ -117,17 +136,21 @@ class XMLTextInfosetOutputter private (writer: java.io.Writer, pretty: Boolean, 
     }
     outputStartTag(complex)
     incrementIndentation()
+    inScopeComplexElementHasChildren = false
+
     true
   }
 
   override def endComplex(complex: DIComplex): Boolean = {
     decrementIndentation()
-    if (pretty && complex.hasVisibleChildren) {
+    if (pretty && inScopeComplexElementHasChildren) {
       // only output newline and indentation for non-empty complex types
       writer.write(System.lineSeparator())
       outputIndentation(writer)
     }
     outputEndTag(complex)
+    inScopeComplexElementHasChildren = true
+
     true
   }
 

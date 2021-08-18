@@ -1485,8 +1485,6 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
     else Nope
   }
 
-  var hasVisibleChildren = false
-
   final def getChild(erd: ElementRuntimeData, tunable: DaffodilTunables): InfosetElement = {
     getChild(erd.dpathElementCompileInfo.namedQName, tunable)
   }
@@ -1592,7 +1590,6 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
   }
 
   override def addChild(e: InfosetElement, tunable: DaffodilTunables): Unit = {
-    if (!e.isHidden && !hasVisibleChildren) hasVisibleChildren = true
     if (e.runtimeData.isArray) {
       val childERD = e.runtimeData
       val needsNewArray =
