@@ -1214,6 +1214,16 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+
+    <xs:element name="ocke_from_string">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="count" type="xs:string" />
+          <xs:element name="item" type="xs:string" maxOccurs="unbounded"
+            dfdl:occursCountKind="expression" dfdl:occursCount="{ xs:unsignedInt(../ex:count) }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
     
     <xs:element name="ocke" dfdl:lengthKind="implicit">
       <xs:complexType>
@@ -1457,11 +1467,48 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+
+  <!--
+       Test Name: ocke_from_string_01
+          Schema: expressions-Embedded.dfdl.xsd
+         Purpose: This test demonstrates the use of strings in occursCount expression
+  -->
+  <tdml:parserTestCase name="ocke_from_string_01" root="ocke_from_string"
+    model="expressions-Embedded.dfdl.xsd" description="occursCountKind expression - DFDL-23-011R">
+
+    <tdml:document><![CDATA[2,3,1]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ocke_from_string>
+          <count>2</count>
+          <item>3</item>
+          <item>1</item>
+        </ocke_from_string>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+       Test Name: ocke_from_string_01
+          Schema: expressions-Embedded.dfdl.xsd
+          Purpose: This test demonstrates the use of non-numeric strings in
+                   occursCount expression results in a parse error
+  -->
+  <tdml:parserTestCase name="ocke_from_string_02" root="ocke_from_string"
+    model="expressions-Embedded.dfdl.xsd" description="occursCountKind expression - DFDL-23-011R">
+
+    <tdml:document><![CDATA[X,3,1]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Cannot convert 'X'</tdml:error>
+      <tdml:error>not a valid xs:long</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
   
 <!--
      Test Name: ocke_rel
         Schema: expressions-Embedded.dfdl.xsd
-       Purpose: This test demonstrates the use of relative paths in an occursCount expression 
+       Purpose: This test demonstrates the use of relative paths in an occursCount expression
 -->
 
   <tdml:parserTestCase name="ocke_rel" root="ocke"
