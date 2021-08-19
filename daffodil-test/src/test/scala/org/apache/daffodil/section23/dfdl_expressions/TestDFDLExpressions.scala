@@ -215,6 +215,8 @@ class TestDFDLExpressions {
 
   @Test def test_lke1_rel(): Unit = { runner.runOneTest("lke1_rel") }
   @Test def test_lke1_abs(): Unit = { runner.runOneTest("lke1_abs") }
+  @Test def test_ocke_from_string_01(): Unit = { runner.runOneTest("ocke_from_string_01") }
+  @Test def test_ocke_from_string_02(): Unit = { runner.runOneTest("ocke_from_string_02") }
   @Test def test_ocke1(): Unit = { runner.runOneTest("ocke1") }
   @Test def test_ocke2(): Unit = { runner.runOneTest("ocke2") }
   @Test def test_ArrayOptElem_01(): Unit = { runner.runOneTest("ArrayOptElem_01") }
