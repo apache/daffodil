@@ -34,6 +34,7 @@ import org.apache.daffodil.util.Delay
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.MaybeULong
 import org.apache.daffodil.util.PreSerialization
+import org.apache.daffodil.util.TransientParam
 import org.apache.daffodil.xml.NS
 import org.apache.daffodil.xml.NamedQName
 import org.apache.daffodil.xml.NoNamespace
@@ -208,7 +209,10 @@ final case class ConstantExpression[+T <: AnyRef](
  */
 class DPathCompileInfo(
 
-  parentsDelay: Delay[Seq[DPathCompileInfo]],
+  // parentsDelay is a transient due to serialization order issues causing
+  // stack overflows. There is no delay/lazy/by-name involvement here. See the
+  // lazy val parents scaladoc for a detailed explanation.
+  @TransientParam parentsDelay: Delay[Seq[DPathCompileInfo]],
   val variableMap: VariableMap,
   val namespaces: scala.xml.NamespaceBinding,
   val path: String,
@@ -224,22 +228,24 @@ class DPathCompileInfo(
   }
 
   /**
-   * This "parents" val is a backpointer to all DPathCompileInfo's that
-   * reference this DPathCompileInfo. The problem with this is that when
-   * elements are shared, these backpointers create a highly connected graph
-   * that requires a large stack to serialize using the default java
-   * serialization as it jumps around parents and children. To avoid this large
-   * stack requirement, we make the parents backpointer transient. This
-   * prevents jumping back up to parents during serialization and results in
-   * only needing a stack depth relative to the schema depth. Once all that
-   * serialization is completed and all the DPathCompileInfo's are serialized,
-   * we then manually traverse all the DPathCompileInfo's again and serialize
-   * the parent sequences (via the serailizeParents method). Because all the
-   * DPathCompileInfo's are already serialized, this just serializes the
-   * Sequence objects and the stack depth is again relative to the schema
-   * depth.
+   * This "parents" and "parentsDelay" variables are backpointers to all
+   * DPathCompileInfo's that reference this DPathCompileInfo. The problem with
+   * this is that when elements are shared, these backpointers create a highly
+   * connected and cyclic graph that requires a large stack to serialize using
+   * default Java serialization as it jumps around parents and children. To
+   * avoid this large stack requirement, we mark the parents and parentsDelay
+   * backpointers as transient. This prevents Java from serializing these
+   * backpointers at all, turning this into serialization of a directed
+   * acycling graph, which only requires a stack depth relative to the schema
+   * depth. Once all that default serialization is completed and all the
+   * DPathCompileInfo's are serialized, we then manually traverse all the
+   * DPathCompileInfo's again and serialize the parent sequences (via the
+   * serailizeParents method). Because all the DPathCompileInfo's are already
+   * serialized, the seralizeParents is really just serializing a Seq with
+   * pointers to objects that have already been serialized, which avoids the
+   * serialization cycles.
    */
-  lazy val parents = parentsDelay.value
+  @transient lazy val parents = parentsDelay.value
 
   def serializeParents(oos: java.io.ObjectOutputStream): Unit = {
     oos.writeObject(parents)
@@ -335,9 +341,10 @@ class DPathCompileInfo(
  */
 class DPathElementCompileInfo
 (
-  parentsDelay: Delay[Seq[DPathElementCompileInfo]],
-  // parentsArg is a transient due to serialization order issues,
-  // there is no delay/lazy/by-name involvement here.
+  // parentsDelay is a transient due to serialization order issues causing
+  // stack overflows. There is no delay/lazy/by-name involvement here. See the
+  // lazy val parents scaladoc for a detailed explanation.
+  @TransientParam parentsDelay: Delay[Seq[DPathElementCompileInfo]],
 
   variableMap: VariableMap,
   // This next arg must be a Delay as we're creating a circular
