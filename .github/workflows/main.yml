@@ -153,7 +153,7 @@ jobs:
         run: $SBT coverageAggregate
 
       - name: Upload Coverage Report
-        uses: codecov/codecov-action@v2.0.2
+        uses: codecov/codecov-action@v2.0.3
 
       - name: Prepare for SonarCloud Scan
         if: ${{ env.SONARSCAN == 'true' }}
