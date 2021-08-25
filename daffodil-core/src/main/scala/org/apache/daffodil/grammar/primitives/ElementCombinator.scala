@@ -114,7 +114,8 @@ class ElementCombinator(
         uSetVars,
         eBeforeUnparser,
         eUnparser,
-        eAfterUnparser)
+        eAfterUnparser,
+        context.ovcCompiledExpression)
     } else if ((context.lengthKind _eq_ LengthKind.Explicit) ||
       (context.isSimpleType &&
         (context.lengthKind _eq_ LengthKind.Implicit) &&

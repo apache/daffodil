@@ -753,27 +753,49 @@ class TestRefMap {
             <xs:element name="f" type="xs:int" dfdl:inputValueCalc='{ ../../rr/e }' />
           </xs:sequence>
         </xs:group>
+        <xs:group name="x">
+          <xs:sequence>
+            <!--
+            likewise, this group is never used, and so should not create an error, even
+            if checkAllTopLevel is true
+            -->
+            <xs:element name="y" type="xs:int" dfdl:outputValueCalc='{ ../../dne }'/>
+            <xs:element name="z" type="xs:int" dfdl:inputValueCalc='{ ../../dne }' />
+          </xs:sequence>
+        </xs:group>
 
   /**
    * The root element doesn't have any substructure that eventually uses the
-   * group h, so we get the error that indicates h can't be a root (relative path upward)
-   * because we're checking all top level.
+   * group h, and so the IVC/OVC expressions within it which reach past the
+   * root are not validated. This is because such expressions potentially only
+   * make sense within the context of the root element. checkAllTopLevel does
+   * not mean that all elements that aren't used must make sense as root
+   * elements--even though "h" could be a root because it isn't referenced
+   * anywhere, that doesn't necessarily mean we should require that expressions
+   * inside it are not up-and-out expressions, as if it were a root.
    */
   @Test def testPathPastRootFromGlobalDef1(): Unit = {
     val compiler = Compiler().withCheckAllTopLevel(true)
-    val pf = compiler.compileNode(testRootPathsSchema1)
+    val pf = compiler.compileNode(testRootPathsSchema1, None, Some("r"))
     val isError = pf.isError
-    val msgs = pf.getDiagnostics.map(_.getMessage()).mkString("\n")
-    // println(msgs)
-    assertTrue(isError)
-    assertTrue(msgs.toLowerCase.contains("Relative path '../../rr/f' past root element".toLowerCase))
+    assertFalse(isError)
   }
 
   @Test def testPathPastRootFromGlobalDef2(): Unit = {
     val compiler = Compiler().withCheckAllTopLevel(false)
-    val pf = compiler.compileNode(testRootPathsSchema1)
+    val pf = compiler.compileNode(testRootPathsSchema1, None, Some("r"))
     val isError = pf.isError
     assertFalse(isError)
+  }
+
+  @Test def testPathPastRootFromGlobalDef3(): Unit = {
+    val compiler = Compiler().withCheckAllTopLevel(true)
+    val pf = compiler.compileNode(testRootPathsSchema1, None, Some("h"))
+    val isError = pf.isError
+    assertTrue(isError)
+    val msgs = pf.getDiagnostics.map(_.getMessage()).mkString("\n")
+    assertTrue(isError)
+    assertTrue(msgs.toLowerCase.contains("Relative path '../../rr/f' past root element".toLowerCase))
   }
 
   lazy val testRootPathsSchema2 = SchemaUtils.dfdlTestSchema(
@@ -807,7 +829,7 @@ class TestRefMap {
    * meaningful, then that is correct. It's usage as a root is incorrect
    * but isn't entertained as a consideration by the schema compiler.
    */
-  @Test def testPathPastRootFromGlobalDef3(): Unit = {
+  @Test def testPathPastRootFromGlobalDef4(): Unit = {
     val compiler = Compiler().withCheckAllTopLevel(true)
     val pf = compiler.compileNode(testRootPathsSchema2)
     val isError = pf.isError

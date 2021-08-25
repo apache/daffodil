@@ -205,7 +205,7 @@ final class RuntimeExpressionDPath[T <: AnyRef](qn: NamedQName, tt: NodeInfo.Kin
         whereBlockedInfo.block(noSibling.diSimple, noSibling.info, 0, noSibling)
       case noArrayIndex: InfosetArrayIndexOutOfBoundsException =>
         whereBlockedInfo.block(noArrayIndex.diArray, noArrayIndex.diArray.erd.dpathElementCompileInfo, noArrayIndex.index, noArrayIndex)
-      case nd: InfosetNoDataExceptionBase if nd.erd.outputValueCalcExpr.isDefined => {
+      case nd: InfosetNoDataExceptionBase if nd.erd.dpathElementCompileInfo.isOutputValueCalc => {
         // we got a no-data exception from an element with outputValueCalc
         // that is, some OVC element requested the value of another OVC element
         val ovc = new OutputValueCalcEvaluationException(nd)

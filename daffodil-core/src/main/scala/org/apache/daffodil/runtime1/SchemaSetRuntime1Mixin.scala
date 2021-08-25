@@ -90,7 +90,7 @@ trait SchemaSetRuntime1Mixin {
     if (xpath != "/") root.notYetImplemented("""Path must be "/". Other path support is not yet implemented.""")
     val rootERD = root.elementRuntimeData
     root.schemaDefinitionUnless(
-      rootERD.outputValueCalcExpr.isEmpty,
+      !rootERD.dpathElementCompileInfo.isOutputValueCalc,
       "The root element cannot have the dfdl:outputValueCalc property.")
     val validationMode = ValidationMode.Off
     val p = if (!root.isError) parser else null

@@ -418,7 +418,7 @@ abstract class InfosetInputter
         if (txt != null && txt != "") {
           UnparseError(One(elem.erd.schemaFileLocation), Nope, "Nilled simple element %s has content", erd.namedQName.toExtendedSyntax)
         }
-      } else if (erd.outputValueCalcExpr.isEmpty) {
+      } else if (!erd.dpathElementCompileInfo.isOutputValueCalc) {
         val primType = elem.erd.optPrimType.get
         val obj = try {
           primType.fromXMLString(txt)

@@ -588,7 +588,6 @@ sealed class ElementRuntimeData(
   // Unparser-specific arguments
   //
   val optTruncateSpecifiedLengthString: Option[Boolean],
-  val outputValueCalcExpr: Option[CompiledExpression[AnyRef]],
   val maybeBinaryFloatRepEv: Maybe[BinaryFloatRepEv],
   val maybeByteOrderEv: Maybe[ByteOrderEv],
   fillByteEvArg: FillByteEv,
@@ -665,7 +664,7 @@ sealed abstract class ErrorERD(local: String, namespaceURI: String)
       null, // override val unqualifiedPathStepPolicy : UnqualifiedPathStepPolicy,
       null, // typeCalcMap: TypeCalcMap,
       null, // val sscd: String),
-      false), // val hasOutputValueCalc: Boolean
+      false), // val isOutputValueCalc: Boolean
     null, // SchemaFileLocation
     local, // diagnosticDebugName: String,
     local, // pathArg: => String,
@@ -693,7 +692,6 @@ sealed abstract class ErrorERD(local: String, namespaceURI: String)
     null, // optIgnoreCaseArg: => Option[YesNo],
     DataValue.NoValue, // optDefaultValueArg: => DataValuePrimitiveOrUseNilForDefaultOrNull,
     null, // optTruncateSpecifiedLengthStringArg: => Option[Boolean],
-    null, // outputValueCalcExprArg: => Option[CompiledExpression[AnyRef]],
     Nope, // maybeBinaryFloatRepEvArg: => Maybe[BinaryFloatRepEv],
     Nope, // maybeByteOrderEvArg: => Maybe[ByteOrderEv],
     null, // fillByteEvArg => FillByteEv
