@@ -56,6 +56,7 @@
     </tdml:infoset>
     <tdml:errors>
       <tdml:error>Schema Definition Warning</tdml:error>
+      <tdml:error>UPA Violation</tdml:error>
       <tdml:error>multiple choice</tdml:error>
     </tdml:errors>
   </tdml:unparserTestCase>

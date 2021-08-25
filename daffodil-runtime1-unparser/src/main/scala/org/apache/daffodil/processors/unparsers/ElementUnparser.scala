@@ -18,6 +18,7 @@
 package org.apache.daffodil.processors.unparsers
 
 import org.apache.daffodil.dpath.SuspendableExpression
+import org.apache.daffodil.dsom.CompiledExpression
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.infoset.DIComplex
 import org.apache.daffodil.infoset.DISimple
@@ -311,12 +312,11 @@ class ElementSpecifiedLengthUnparser(
  * For dfdl:outputValueCalc elements.
  */
 class ElementOVCSpecifiedLengthUnparserSuspendableExpression(
-  callingUnparser: ElementOVCSpecifiedLengthUnparser)
+  callingUnparser: ElementOVCSpecifiedLengthUnparser,
+  override val expr: CompiledExpression[AnyRef])
   extends SuspendableExpression {
 
   override def rd = callingUnparser.erd
-
-  override lazy val expr = rd.outputValueCalcExpr.get
 
   override final protected def processExpressionResult(state: UState, v: DataValuePrimitive): Unit = {
     val diSimple = state.currentInfosetNode.asSimple
@@ -340,7 +340,8 @@ class ElementOVCSpecifiedLengthUnparser(
   setVarUnparsers: Array[Unparser],
   eBeforeUnparser: Maybe[Unparser],
   eUnparser: Maybe[Unparser],
-  eAfterUnparser: Maybe[Unparser])
+  eAfterUnparser: Maybe[Unparser],
+  expr: CompiledExpression[AnyRef])
   extends ElementUnparserBase(
     context,
     setVarUnparsers,
@@ -354,9 +355,9 @@ class ElementOVCSpecifiedLengthUnparser(
   override lazy val runtimeDependencies = maybeTargetLengthEv.toList.toVector
 
   private def suspendableExpression =
-    new ElementOVCSpecifiedLengthUnparserSuspendableExpression(this)
+    new ElementOVCSpecifiedLengthUnparserSuspendableExpression(this, expr)
 
-  Assert.invariant(context.outputValueCalcExpr.isDefined)
+  Assert.invariant(context.dpathElementCompileInfo.isOutputValueCalc)
 
   override def runContentUnparser(state: UState): Unit = {
     computeTargetLength(state) // must happen before run() so that we can take advantage of knowing the length

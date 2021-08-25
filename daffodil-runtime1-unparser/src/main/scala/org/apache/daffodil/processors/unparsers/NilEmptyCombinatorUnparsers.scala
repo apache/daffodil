@@ -39,7 +39,7 @@ case class SimpleNilOrValueUnparser(
     // suspends, this call to isNilled will throw a InfosetNoDataException
     // because _isNilled has not been set yet. Rather than having to deal with
     // suspending, only check isNilled for non-OVC elements.
-    if (ctxt.outputValueCalcExpr.isEmpty && inode.isNilled) nilUnparser.unparse1(state)
+    if (!ctxt.dpathElementCompileInfo.isOutputValueCalc && inode.isNilled) nilUnparser.unparse1(state)
     else valueUnparser.unparse1(state)
   }
 }

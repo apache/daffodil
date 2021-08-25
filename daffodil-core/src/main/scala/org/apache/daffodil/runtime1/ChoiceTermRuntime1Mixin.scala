@@ -17,20 +17,20 @@
 
 package org.apache.daffodil.runtime1
 
+import org.apache.daffodil.api.WarnID
+import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.dsom.ChoiceTermBase
+import org.apache.daffodil.dsom.ElementBase
 import org.apache.daffodil.dsom.ExpressionCompilers
 import org.apache.daffodil.dsom.SequenceTermBase
 import org.apache.daffodil.dsom.Term
-import org.apache.daffodil.infoset.ChoiceBranchStartEvent
-import org.apache.daffodil.processors.ChoiceRuntimeData
-import org.apache.daffodil.infoset.ChoiceBranchEvent
 import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.infoset.ChoiceBranchEndEvent
-import org.apache.daffodil.api.WarnID
-import org.apache.daffodil.processors.ChoiceDispatchKeyEv
-import org.apache.daffodil.dpath.NodeInfo
-import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.grammar.Gram
+import org.apache.daffodil.infoset.ChoiceBranchEndEvent
+import org.apache.daffodil.infoset.ChoiceBranchEvent
+import org.apache.daffodil.infoset.ChoiceBranchStartEvent
+import org.apache.daffodil.processors.ChoiceDispatchKeyEv
+import org.apache.daffodil.processors.ChoiceRuntimeData
 import org.apache.daffodil.util.Delay
 
 trait ChoiceTermRuntime1Mixin { self: ChoiceTermBase =>
@@ -136,7 +136,7 @@ trait ChoiceTermRuntime1Mixin { self: ChoiceTermBase =>
               // because if so, we have a true ambiguity here.
               case sg: SequenceTermBase => {
                 val nonOVCEltChildren = sg.groupMembers.filter {
-                  case erd: ElementRuntimeData => erd.outputValueCalcExpr.isEmpty
+                  case eb: ElementBase => !eb.isOutputValueCalc
                   case _ => false
                 }
                 nonOVCEltChildren.length > 0

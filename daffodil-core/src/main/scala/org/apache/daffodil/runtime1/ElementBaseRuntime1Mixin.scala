@@ -204,7 +204,6 @@ trait ElementBaseRuntime1Mixin { self: ElementBase =>
       // unparser specific items
       //
       optTruncateSpecifiedLengthString,
-      if (isOutputValueCalc) Some(ovcCompiledExpression) else None,
       maybeBinaryFloatRepEv,
       maybeByteOrderEv,
       fillByteEv,

@@ -1199,7 +1199,7 @@ trait ElementBaseGrammarMixin
         inputValueCalcPrim, dfdlScopeEnd, EmptyGram)
     }
 
-  protected final lazy val ovcCompiledExpression = { // ovcValueCalcObject.expr
+  final lazy val ovcCompiledExpression = {
     val exprProp = outputValueCalcOption.asInstanceOf[Found]
     val exprText = exprProp.value
     val exprNamespaces = exprProp.location.namespaces
