@@ -195,7 +195,7 @@ class TestSAXParseUnparseAPI {
     assertTrue(sii.hasNext())
     sii.next()
     assertEquals(StartElement, sii.getEventType())
-    val stxt = sii.getSimpleText(NodeInfo.String)
+    val stxt = sii.getSimpleText(NodeInfo.String, java.util.Collections.emptyMap())
     assertEquals("&", stxt)
   }
 }

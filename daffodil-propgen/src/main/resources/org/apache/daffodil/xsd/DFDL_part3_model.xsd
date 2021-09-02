@@ -328,6 +328,7 @@
     <xsd:attributeGroup ref="dfdl:NillableAG" />
     <xsd:attributeGroup ref="dfdl:DefaultValueControlAG" />
     <xsd:attributeGroup ref="dfdl:OccursAG" />
+    <xsd:attributeGroup ref="dfdlx:RuntimePropertiesAG" />
   </xsd:attributeGroup>
   
    <xsd:attributeGroup name="ElementAG">
@@ -363,7 +364,7 @@
     <xsd:attributeGroup ref="dfdl:BooleanTextAG" />
     <xsd:attributeGroup ref="dfdl:BooleanBinaryAG" />
     <xsd:attributeGroup ref="dfdlx:SimpleTypeValueCalcAG" />
-    <xsd:attributeGroup ref="dfdlx:ObjectAG" />
+    <xsd:attributeGroup ref="dfdlx:ObjectKindAG" />
   </xsd:attributeGroup>
 
 </xsd:schema>

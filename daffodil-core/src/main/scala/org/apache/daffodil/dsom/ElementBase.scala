@@ -17,27 +17,27 @@
 
 package org.apache.daffodil.dsom
 
-import org.apache.daffodil.equality._
-import org.apache.daffodil.processors._
-import org.apache.daffodil.schema.annotation.props._
-import org.apache.daffodil.xml._
-import org.apache.daffodil.grammar.ElementBaseGrammarMixin
-import org.apache.daffodil.schema.annotation.props.gen._
-import org.apache.daffodil.util.Misc
-
-import scala.xml.NamespaceBinding
-import org.apache.daffodil.util.MaybeULong
-import org.apache.daffodil.dpath.NodeInfo
-import org.apache.daffodil.dpath.NodeInfo.PrimType
-import org.apache.daffodil.dpath.InvalidPrimitiveDataException
-import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.api.WarnID
 import java.lang.{ Integer => JInt }
 
+import scala.xml.NamespaceBinding
+
+import org.apache.daffodil.api.WarnID
+import org.apache.daffodil.dpath.InvalidPrimitiveDataException
+import org.apache.daffodil.dpath.NodeInfo
+import org.apache.daffodil.dpath.NodeInfo.PrimType
 import org.apache.daffodil.dsom.walker.ElementBaseView
+import org.apache.daffodil.equality._
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.grammar.ElementBaseGrammarMixin
 import org.apache.daffodil.infoset.DataValue
 import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveNullable
 import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveOrUseNilForDefaultOrNull
+import org.apache.daffodil.processors._
+import org.apache.daffodil.schema.annotation.props._
+import org.apache.daffodil.schema.annotation.props.gen._
+import org.apache.daffodil.util.MaybeULong
+import org.apache.daffodil.util.Misc
+import org.apache.daffodil.xml._
 
 /**
  * Note about DSOM design versus say XSOM or Apache XSD library.
@@ -1178,5 +1178,32 @@ trait ElementBase
       else
         Nil
     res
+  }
+
+  /**
+   * This runtimeProperties is just a map of key value pairs that can be
+   * applied to simple elements. Each runtime can choose how to use thes key
+   * value pairs as they wish. The property is currently limited to simple
+   * types since the only current use case relates to the ability to modify the
+   * value of simple type values in the runtime1 InfosetInputter/Outputter.
+   * This restriction may be lifted in the future. Note that we create a Java
+   * map here since this will be directly provied to the Java API. This avoids
+   * some potential asJava overhead, but is still easily usable in the Scala
+   * API
+   */
+  lazy val runtimeProperties: java.util.Map[String,String] = findPropertyOption("runtimeProperties").toOption match {
+    case None => java.util.Collections.emptyMap()
+    case Some(value) => {
+      schemaDefinitionUnless(isSimpleType, "dfdlx:runtimeProperties is only valid on simple types")
+      val map = new java.util.HashMap[String,String]()
+      value.split("\\s+").filter(_ != "").foreach { v =>
+        val kv = v.split("=")
+        // DFDL schema validation should ensure that this is valid syntax, but double check to be safe
+        schemaDefinitionUnless(kv.length == 2 && kv(0).length > 0 && kv(1).length > 0,
+          "dfdlx:runtimeProperties must be a space-separated list of \"key=value\" pairs: \"%s\" is invalid", v)
+        map.put(kv(0), kv(1))
+      }
+      map
+    }
   }
 }

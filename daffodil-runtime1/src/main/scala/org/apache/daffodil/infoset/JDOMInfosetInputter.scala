@@ -81,7 +81,7 @@ class JDOMInfosetInputter(doc: Document)
 
   override def getNamespaceURI(): String = stack.top._1.getNamespace.getURI
 
-  override def getSimpleText(primType: NodeInfo.Kind): String = {
+  override def getSimpleText(primType: NodeInfo.Kind, runtimePropertes: java.util.Map[String, String]): String = {
     val text =
       if (stack.top._2.hasNext) {
         val child = stack.top._2.next

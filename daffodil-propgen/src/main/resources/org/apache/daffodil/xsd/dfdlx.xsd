@@ -45,6 +45,7 @@
       <xs:enumeration value="dfdlx:repType"/>
       <xs:enumeration value="dfdlx:repValueRanges"/>
       <xs:enumeration value="dfdlx:repValues"/>
+      <xs:enumeration value="dfdlx:runtimeProperties"/>
     </xs:restriction>
   </xs:simpleType>
 
@@ -129,11 +130,11 @@
     <xs:attribute form="qualified" name="layerBoundaryMark" type="dfdl:ListOfDFDLStringLiteral_Or_DFDLExpression" />
   </xs:attributeGroup>
 
-  <xs:attributeGroup name="ObjectAG">
-    <xs:attribute form="qualified" name="ObjectKind" type="dfdlx:ObjectKindType" />
+  <xs:attributeGroup name="ObjectKindAG">
+    <xs:attribute form="qualified" name="objectKind" type="dfdlx:ObjectKindType" />
   </xs:attributeGroup>
 
-  <xs:attributeGroup name="ObjectAGQualified">
+  <xs:attributeGroup name="ObjectKindAGQualified">
     <xs:attribute form="qualified" name="objectKind" type="dfdlx:ObjectKindType" />
   </xs:attributeGroup>
 
@@ -142,6 +143,28 @@
       <xs:enumeration value="bytes"/>
       <xs:enumeration value="chars"/>
     </xs:restriction>
+  </xs:simpleType>
+
+  <xs:attributeGroup name="RuntimePropertiesAG">
+    <xs:attribute form="qualified" name="runtimeProperties" type="dfdlx:RuntimePropertiesType" />
+  </xs:attributeGroup>
+
+  <xs:attributeGroup name="RuntimePropertiesAGQualified">
+    <xs:attribute form="qualified" name="runtimeProperties" type="dfdlx:RuntimePropertiesType" />
+  </xs:attributeGroup>
+
+  <xs:simpleType name="RuntimePropertiesType">
+    <xs:restriction base="dfdlx:KVList" />
+  </xs:simpleType>
+
+  <xs:simpleType name="KVList">
+    <xs:list>
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:pattern value="[a-zA-Z_][a-zA-Z0-9_]*=\S*"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:list>
   </xs:simpleType>
 
 </xs:schema>

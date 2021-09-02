@@ -64,11 +64,11 @@ class TDMLInfosetInputter(val scalaInputter: ScalaXMLInfosetInputter, others: Se
     res
   }
 
-  override def getSimpleText(primType: NodeInfo.Kind): String = {
-    val res = scalaInputter.getSimpleText(primType)
+  override def getSimpleText(primType: NodeInfo.Kind, runtimeProperties: java.util.Map[String, String]): String = {
+    val res = scalaInputter.getSimpleText(primType, runtimeProperties)
     val resIsEmpty = res == null || res == ""
     val otherStrings = others.map { i =>
-      val firstVersion = i.getSimpleText(primType)
+      val firstVersion = i.getSimpleText(primType, runtimeProperties)
       val finalVersion = i match {
         case _ if (firstVersion eq null) => ""
         // the json infoset inputter maintains CRLF/CR, but XML converts CRLF/CR to

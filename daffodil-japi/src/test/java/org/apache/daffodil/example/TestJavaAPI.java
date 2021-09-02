@@ -17,6 +17,7 @@
 
 package org.apache.daffodil.example;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -1165,6 +1166,43 @@ public class TestJavaAPI {
             String docString = xo.outputString(doc);
             assertTrue(docString.contains("<ex1var>300</ex1var>"));
         }
+    }
+
+    @Test
+    public void testJavaAPI25() throws IOException, ClassNotFoundException, ExternalVariableException {
+        // Demonstrates the use of a custom InfosetInputter/Outputter
+
+        String expectedData = "42";
+        TestInfosetEvent expectedEvents[] = {
+            TestInfosetEvent.startDocument(),
+            TestInfosetEvent.startComplex("e1", "http://example.com"),
+            TestInfosetEvent.startSimple("e2", "http://example.com", expectedData),
+            TestInfosetEvent.endSimple("e2", "http://example.com"),
+            TestInfosetEvent.endComplex("e1", "http://example.com"),
+            TestInfosetEvent.endDocument()
+        };
+
+        org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
+        java.io.File schemaFile = getResource("/test/japi/mySchema1.dfdl.xsd");
+        ProcessorFactory pf = c.compileFile(schemaFile);
+        DataProcessor dp = pf.onPath("/");
+
+        java.io.File file = getResource("/test/japi/myData.dat");
+        java.io.FileInputStream fis = new java.io.FileInputStream(file);
+        InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
+        TestInfosetOutputter outputter = new TestInfosetOutputter();
+        ParseResult pr = dp.parse(dis, outputter);
+
+        assertFalse(pr.isError());
+        assertArrayEquals(expectedEvents, outputter.events.toArray());
+
+        java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
+        java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
+        TestInfosetInputter inputter = new TestInfosetInputter(expectedEvents);
+        UnparseResult ur = dp.unparse(inputter, wbc);
+
+        assertFalse(ur.isError());
+        assertEquals(expectedData, bos.toString());
     }
 
 }

@@ -17,6 +17,7 @@
 
 package org.apache.daffodil.japi.infoset
 
+import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.infoset.{ InfosetOutputter => SInfosetOutputter }
 import org.apache.daffodil.infoset.{ InfosetInputter => SInfosetInputter }
 import org.apache.daffodil.infoset.{ ScalaXMLInfosetOutputter => SScalaXMLInfosetOutputter }
@@ -73,6 +74,13 @@ abstract class InfosetInputter extends SInfosetInputter {
    * the event contains complex data, it is an error and should throw
    * NonTextFoundInSimpleContentException. If the element does not have any
    * simple content, this should return either null or the empty string.
+   */
+  def getSimpleText(primType: NodeInfo.Kind, runtimeProperties: java.util.Map[String,String]): String =
+    getSimpleText(primType)
+
+  /**
+   * See getSimpleText(primType, runtimeProperties), which has a default
+   * implementation to call this function without the runtimeProperties Map
    */
   def getSimpleText(primType: NodeInfo.Kind): String
 
@@ -440,7 +448,14 @@ abstract class InfosetInputterProxy extends InfosetInputter {
   override def getEventType() = infosetInputter.getEventType()
   override def getLocalName() = infosetInputter.getLocalName()
   override def getNamespaceURI() = infosetInputter.getNamespaceURI()
-  override def getSimpleText(primType: NodeInfo.Kind) = infosetInputter.getSimpleText(primType)
+  override def getSimpleText(primType: NodeInfo.Kind, runtimeProperties: java.util.Map[String,String]): String = {
+    infosetInputter.getSimpleText(primType, runtimeProperties)
+  }
+  override def getSimpleText(primType: NodeInfo.Kind) = {
+    //$COVERAGE-OFF$
+    Assert.impossible()
+    //$COVERAGE-ON$
+  }
   override def hasNext() = infosetInputter.hasNext()
   override def isNilled() = infosetInputter.isNilled()
   override def next() = infosetInputter.next()

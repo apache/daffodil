@@ -209,7 +209,8 @@ trait ElementBaseRuntime1Mixin { self: ElementBase =>
       fillByteEv,
       maybeCheckByteAndBitOrderEv,
       maybeCheckBitOrderAndCharsetEv,
-      isQuasiElement)
+      isQuasiElement,
+      runtimeProperties)
     newERD
   }.value
 

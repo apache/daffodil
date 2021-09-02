@@ -115,7 +115,7 @@ class XMLTextInfosetInputter private (input: Either[java.io.Reader, java.io.Inpu
     xsr.getNamespaceURI()
   }
 
-  override def getSimpleText(primType: NodeInfo.Kind): String = {
+  override def getSimpleText(primType: NodeInfo.Kind, runtimeProperties: java.util.Map[String, String]): String = {
     val txt =
       try {
         xsr.getElementText()

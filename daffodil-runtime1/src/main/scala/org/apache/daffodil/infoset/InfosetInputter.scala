@@ -121,7 +121,7 @@ abstract class InfosetInputter
    * NonTextFoundInSimpleContentException. If the element does not have any
    * simple content, this should return either null or the empty string.
    */
-  def getSimpleText(primType: NodeInfo.Kind): String
+  def getSimpleText(primType: NodeInfo.Kind, runtimeProperties: java.util.Map[String,String]): String
 
   /**
    * Determine if the current event is nilled. This will only be called when
@@ -409,7 +409,7 @@ abstract class InfosetInputter
     if (erd.isSimpleType) {
       val txt =
         try {
-          getSimpleText(erd.optPrimType.get)
+          getSimpleText(erd.optPrimType.get, erd.runtimeProperties)
         } catch {
           case ex: NonTextFoundInSimpleContentException =>
             UnparseError(One(elem.erd.schemaFileLocation), Nope, ex.getMessage())
