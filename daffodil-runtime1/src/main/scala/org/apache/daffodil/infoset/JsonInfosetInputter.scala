@@ -120,7 +120,7 @@ class JsonInfosetInputter private (input: Either[java.io.Reader, java.io.InputSt
     null
   }
 
-  override def getSimpleText(primType: NodeInfo.Kind): String = {
+  override def getSimpleText(primType: NodeInfo.Kind, runtimeProperties: java.util.Map[String, String]): String = {
     if (jsp.getCurrentToken() == JsonToken.VALUE_NULL) {
       null
     } else {

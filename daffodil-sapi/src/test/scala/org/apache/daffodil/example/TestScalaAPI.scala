@@ -29,6 +29,7 @@ import javax.xml.XMLConstants
 
 import org.apache.commons.io.FileUtils
 
+import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -1125,4 +1126,45 @@ class TestScalaAPI {
     }
   }
 
+
+    @Test
+    def testScalaAPI25(): Unit = {
+      // Demonstrates the use of a custom InfosetInputter/Outputter
+
+      val expectedData = "42"
+      val expectedEvents = Array(
+        TestInfosetEvent.startDocument(),
+        TestInfosetEvent.startComplex("e1", "http://example.com"),
+        TestInfosetEvent.startSimple("e2", "http://example.com", expectedData),
+        TestInfosetEvent.endSimple("e2", "http://example.com"),
+        TestInfosetEvent.endComplex("e1", "http://example.com"),
+        TestInfosetEvent.endDocument()
+      )
+
+      val c = Daffodil.compiler()
+
+      val schemaFile = getResource("/test/sapi/mySchema1.dfdl.xsd")
+      val pf = c.compileFile(schemaFile)
+      val dp = pf.onPath("/")
+
+      val file = getResource("/test/sapi/myData.dat")
+      val fis = new java.io.FileInputStream(file)
+      val dis = new InputSourceDataInputStream(fis)
+      val outputter = new TestInfosetOutputter()
+      val pr = dp.parse(dis, outputter)
+
+      assertFalse(pr.isError())
+      assertArrayEquals(
+        expectedEvents.asInstanceOf[Array[Object]],
+        outputter.events.toArray.asInstanceOf[Array[Object]]
+      )
+
+      val bos = new java.io.ByteArrayOutputStream()
+      val wbc = java.nio.channels.Channels.newChannel(bos)
+      val inputter = new TestInfosetInputter(expectedEvents: _*)
+
+      val ur = dp.unparse(inputter, wbc)
+      assertFalse(ur.isError)
+      assertEquals(expectedData, bos.toString())
+    }
 }

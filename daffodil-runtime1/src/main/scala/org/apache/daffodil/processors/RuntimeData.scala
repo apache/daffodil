@@ -593,7 +593,8 @@ sealed class ElementRuntimeData(
   fillByteEvArg: FillByteEv,
   maybeCheckByteAndBitOrderEvArg: Maybe[CheckByteAndBitOrderEv],
   maybeCheckBitOrderAndCharsetEvArg: Maybe[CheckBitOrderAndCharsetEv],
-  val isQuasiElement: Boolean)
+  val isQuasiElement: Boolean,
+  val runtimeProperties: java.util.Map[String,String])
   extends TermRuntimeData(positionArg, partialNextElementResolverDelay,
     encInfo, dpathElementCompileInfo, isRepresentedArg, couldHaveTextArg, alignmentValueInBitsArg, hasNoSkipRegionsArg,
     defaultBitOrderArg, optIgnoreCaseArg, fillByteEvArg,
@@ -697,7 +698,8 @@ sealed abstract class ErrorERD(local: String, namespaceURI: String)
     null, // fillByteEvArg => FillByteEv
     Nope, // maybeCheckByteAndBitOrderEvArg: => Maybe[CheckByteAndBitOrderEv],
     Nope, // maybeCheckBitOrderAndCharsetEvArg: => Maybe[CheckBitOrderAndCharsetEv],
-    false // isQuasiElementArg: => Boolean
+    false, // isQuasiElementArg: => Boolean
+    null, // runtimeProperties: java.util.Map[String,String]
   ) {
 
   override def toString() = Misc.getNameFromClass(this) + "(" + this.namedQName.toExtendedSyntax + ")"

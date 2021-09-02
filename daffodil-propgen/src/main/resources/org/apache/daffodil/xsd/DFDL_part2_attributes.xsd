@@ -1036,6 +1036,7 @@
     <xsd:attributeGroup ref="dfdl:DefaultValueControlAGQualified" />
     <xsd:attributeGroup ref="dfdl:OccursAGQualified" />
     <xsd:attributeGroup ref="dfdl:CalculatedValueAGQualified" />
+    <xsd:attributeGroup ref="dfdlx:RuntimePropertiesAGQualified" />
   </xsd:attributeGroup>
 
   <!-- dfdl:group takes the union of dfdl:sequence and dfdl:choice properties -->
@@ -1066,7 +1067,7 @@
     <xsd:attributeGroup ref="dfdl:BooleanTextAGQualified" />
     <xsd:attributeGroup ref="dfdl:BooleanBinaryAGQualified" />
     <xsd:attributeGroup ref="dfdlx:SimpleTypeValueCalcAGQualified" />
-    <xsd:attributeGroup ref="dfdlx:ObjectAGQualified" />
+    <xsd:attributeGroup ref="dfdlx:ObjectKindAGQualified" />
   </xsd:attributeGroup>
 
   <xsd:attributeGroup name="LayeringAGQualified">

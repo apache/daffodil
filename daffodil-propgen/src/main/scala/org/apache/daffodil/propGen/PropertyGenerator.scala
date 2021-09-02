@@ -243,9 +243,14 @@ class PropertyGenerator(arg: Node) {
       val notFormatProperties = List("ref", "type", "name", "test", "defaultValue", "message", "baseFormat")
       val notScopedFormatProperties = List("inputValueCalc", "outputValueCalc", "hiddenGroupRef") // do these by-hand since they are not scoped.
       val excludedBecauseDoneByHand =
-        List("separatorSuppressionPolicy", "separatorPolicy",
-          "textStandardExponentRep", "textStandardExponentCharacter",
-          "textOutputMinLength")
+        List(
+          "runtimeProperties",
+          "separatorPolicy",
+          "separatorSuppressionPolicy",
+          "textOutputMinLength",
+          "textStandardExponentCharacter",
+          "textStandardExponentRep",
+        )
       val exclusions = notFormatProperties ++ notScopedFormatProperties ++ excludedBecauseDoneByHand
       if (exclusions.contains(rawName)) {
         Nil

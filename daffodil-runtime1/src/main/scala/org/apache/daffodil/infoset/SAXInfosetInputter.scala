@@ -90,7 +90,7 @@ class SAXInfosetInputter(
 
   override def getNamespaceURI(): String = batchedInfosetEvents(currentIndex).namespaceURI.orNull
 
-  override def getSimpleText(primType: NodeInfo.Kind): String = {
+  override def getSimpleText(primType: NodeInfo.Kind, runtimeProperties: java.util.Map[String, String]): String = {
     val res = if (batchedInfosetEvents(currentIndex).simpleText.isDefined) {
       batchedInfosetEvents(currentIndex).simpleText.get
     } else {

@@ -73,7 +73,7 @@ class ScalaXMLInfosetInputter(rootNode: Node)
 
   override def getNamespaceURI(): String = stack.top._1.namespace
 
-  override def getSimpleText(primType: NodeInfo.Kind): String = {
+  override def getSimpleText(primType: NodeInfo.Kind, runtimeProperties: java.util.Map[String, String]): String = {
     val text = {
       val sb = new StringBuilder()
       val iter: Iterator[Node] = stack.top._2
