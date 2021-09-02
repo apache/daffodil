@@ -175,16 +175,16 @@ class TestBinaryInput_01 {
 
   @Test
   def testBufferBigIntBigEndianExtraction(): Unit = {
-    val (dis, finfo) = fromString("Something in the way she moves, ", BE, msbFirst)
+    val (dis, finfo) = fromString("Thirty-two character long string", BE, msbFirst)
     val bigInt = getBigInt(finfo, dis, 0, 256)
-    assertEquals(new JBigInt("37738841482167102822784581157237036764884875846207476558974346160344516471840"),
+    assertEquals(new JBigInt("38178759144797737047702418052138682097409903778432721523410841200294898527847"),
       bigInt)
   }
 
   @Test
   def testBufferBigIntLittleEndianExtraction(): Unit = {
-    val (dis, finfo) = fromString("Something in the way she moves, ", LE, msbFirst)
-    assertEquals(new JBigInt("14552548861771956163454220823873430243364312915206513831353612029437431082835"),
+    val (dis, finfo) = fromString("Thirty-two character long string", LE, msbFirst)
+    assertEquals(new JBigInt("46783304350265979503919546124020768339208030665592297039403372142674722777172"),
       getBigInt(finfo, dis, 0, 256))
   }
 

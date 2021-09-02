@@ -562,10 +562,10 @@
     <xs:element name="e_lowercase2" type="xs:string" dfdl:inputValueCalc="{ fn:lower-case('TeSt LoWeR') }" />
     <xs:element name="e_lowercase3" type="xs:string" dfdl:inputValueCalc="{ fn:lower-case('') }" />
 
-    <xs:element name="e_contains1" type="xs:boolean" dfdl:inputValueCalc="{ fn:contains('The quick brown fox.', 'quick') }" />
-    <xs:element name="e_contains2" type="xs:boolean" dfdl:inputValueCalc="{ fn:contains('The quick brown fox.', 'slow') }" />
-    <xs:element name="e_contains3" type="xs:boolean" dfdl:inputValueCalc="{ fn:contains('The quick brown fox.', '') }" />
-    <xs:element name="e_contains4" type="xs:boolean" dfdl:inputValueCalc="{ fn:contains('', 'test') }" />
+    <xs:element name="e_contains1" type="xs:boolean" dfdl:inputValueCalc="{ fn:contains('Four word test sentence.', 'word') }" />
+    <xs:element name="e_contains2" type="xs:boolean" dfdl:inputValueCalc="{ fn:contains('Four word test sentence.', 'missing') }" />
+    <xs:element name="e_contains3" type="xs:boolean" dfdl:inputValueCalc="{ fn:contains('Four word test sentence.', '') }" />
+    <xs:element name="e_contains4" type="xs:boolean" dfdl:inputValueCalc="{ fn:contains('', 'missing') }" />
     <xs:element name="e_contains5">
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
@@ -577,10 +577,10 @@
     </xs:element>
     <xs:element name="e_contains6" type="xs:boolean" dfdl:inputValueCalc="{ fn:contains('test', 'est', 'collation') }" />
 
-    <xs:element name="e_startswith1" type="xs:boolean" dfdl:inputValueCalc="{ fn:starts-with('The quick brown fox.', 'The q') }" />
-    <xs:element name="e_startswith2" type="xs:boolean" dfdl:inputValueCalc="{ fn:starts-with('The quick brown fox.', 'he qu') }" />
-    <xs:element name="e_startswith3" type="xs:boolean" dfdl:inputValueCalc="{ fn:starts-with('The quick brown fox.', '') }" />
-    <xs:element name="e_startswith4" type="xs:boolean" dfdl:inputValueCalc="{ fn:starts-with('', 'The') }" />
+    <xs:element name="e_startswith1" type="xs:boolean" dfdl:inputValueCalc="{ fn:starts-with('Four word test sentence.', 'Four w') }" />
+    <xs:element name="e_startswith2" type="xs:boolean" dfdl:inputValueCalc="{ fn:starts-with('Four word test sentence.', 'our wo') }" />
+    <xs:element name="e_startswith3" type="xs:boolean" dfdl:inputValueCalc="{ fn:starts-with('Four word test sentence.', '') }" />
+    <xs:element name="e_startswith4" type="xs:boolean" dfdl:inputValueCalc="{ fn:starts-with('', 'Four') }" />
     <xs:element name="e_startswith5">
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
@@ -592,10 +592,10 @@
     </xs:element>
     <xs:element name="e_startswith6" type="xs:boolean" dfdl:inputValueCalc="{ fn:starts-with('test', 'te', 'collation') }" />
 
-    <xs:element name="e_endswith1" type="xs:boolean" dfdl:inputValueCalc="{ fn:ends-with('The quick brown fox.', 'fox.') }" />
-    <xs:element name="e_endswith2" type="xs:boolean" dfdl:inputValueCalc="{ fn:ends-with('The quick brown fox.', 'The') }" />
-    <xs:element name="e_endswith3" type="xs:boolean" dfdl:inputValueCalc="{ fn:ends-with('The quick brown fox.', '') }" />
-    <xs:element name="e_endswith4" type="xs:boolean" dfdl:inputValueCalc="{ fn:ends-with('', 'fox') }" />
+    <xs:element name="e_endswith1" type="xs:boolean" dfdl:inputValueCalc="{ fn:ends-with('Four word test sentence.', 'sentence.') }" />
+    <xs:element name="e_endswith2" type="xs:boolean" dfdl:inputValueCalc="{ fn:ends-with('Four word test sentence.', 'Four') }" />
+    <xs:element name="e_endswith3" type="xs:boolean" dfdl:inputValueCalc="{ fn:ends-with('Four word test sentence.', '') }" />
+    <xs:element name="e_endswith4" type="xs:boolean" dfdl:inputValueCalc="{ fn:ends-with('', 'sentence') }" />
     <xs:element name="e_endswith5">
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
@@ -607,9 +607,9 @@
     </xs:element>
     <xs:element name="e_endswith6" type="xs:boolean" dfdl:inputValueCalc="{ fn:ends-with('test', 'est', 'collation') }" />
 
-    <xs:element name="e_substringbefore1" type="xs:string" dfdl:inputValueCalc="{ fn:substring-before('The quick brown fox.', 'quick') }" />
+    <xs:element name="e_substringbefore1" type="xs:string" dfdl:inputValueCalc="{ fn:substring-before('Four word test sentence.', 'word') }" />
     <xs:element name="e_substringbefore2" type="xs:string" dfdl:inputValueCalc="{ fn:substring-before('', '') }" />
-    <xs:element name="e_substringbefore3" type="xs:string" dfdl:inputValueCalc="{ fn:substring-before('The quick brown fox.', '') }" />
+    <xs:element name="e_substringbefore3" type="xs:string" dfdl:inputValueCalc="{ fn:substring-before('Four word test sentence.', '') }" />
     <xs:element name="e_substringbefore4">
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
@@ -622,9 +622,9 @@
     <xs:element name="e_substringbefore5" type="xs:string" dfdl:inputValueCalc="{ fn:substring-before('test', 's', 'collation') }" />
     <xs:element name="e_substringbefore6" type="xs:string" dfdl:inputValueCalc="{ fn:substring-before('test') }" />
 
-    <xs:element name="e_substringafter1" type="xs:string" dfdl:inputValueCalc="{ fn:substring-after('The quick brown fox.', 'brown') }" />
+    <xs:element name="e_substringafter1" type="xs:string" dfdl:inputValueCalc="{ fn:substring-after('Four word test sentence.', 'test') }" />
     <xs:element name="e_substringafter2" type="xs:string" dfdl:inputValueCalc="{ fn:substring-after('', '') }" />
-    <xs:element name="e_substringafter3" type="xs:string" dfdl:inputValueCalc="{ fn:substring-after('The quick brown fox.', '') }" />
+    <xs:element name="e_substringafter3" type="xs:string" dfdl:inputValueCalc="{ fn:substring-after('Four word test sentence.', '') }" />
     <xs:element name="e_substringafter4">
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
@@ -1541,12 +1541,12 @@
   <tdml:parserTestCase name="contains_05" root="e_contains5"
     model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:contains - DFDL-23-104R">
 
-    <tdml:document>The quick brown fox.,The quick brown fox.</tdml:document>
+    <tdml:document>Four word test sentence.,Four word test sentence.</tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e_contains5>
-          <one>The quick brown fox.</one>
-          <two>The quick brown fox.</two>
+          <one>Four word test sentence.</one>
+          <two>Four word test sentence.</two>
           <contains>true</contains>
         </e_contains5>
       </tdml:dfdlInfoset>
@@ -1563,12 +1563,12 @@
   <tdml:parserTestCase name="contains_06" root="e_contains5"
     model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:contains - DFDL-23-104R">
 
-    <tdml:document>The quick brown fox.,The quick BROWN fox.</tdml:document>
+    <tdml:document>Four word test sentence.,Four WORD test sentence.</tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e_contains5>
-          <one>The quick brown fox.</one>
-          <two>The quick BROWN fox.</two>
+          <one>Four word test sentence.</one>
+          <two>Four WORD test sentence.</two>
           <contains>false</contains>
         </e_contains5>
       </tdml:dfdlInfoset>
@@ -1675,12 +1675,12 @@
   <tdml:parserTestCase name="startswith_05" root="e_startswith5"
     model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:starts-with - DFDL-23-105R">
 
-    <tdml:document>The quick brown fox.,The quick brown fox.</tdml:document>
+    <tdml:document>Four word test sentence.,Four word test sentence.</tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e_startswith5>
-          <one>The quick brown fox.</one>
-          <two>The quick brown fox.</two>
+          <one>Four word test sentence.</one>
+          <two>Four word test sentence.</two>
           <starts>true</starts>
         </e_startswith5>
       </tdml:dfdlInfoset>
@@ -1697,11 +1697,11 @@
   <tdml:parserTestCase name="startswith_06" root="e_startswith5"
     model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:starts-with - DFDL-23-105R">
 
-    <tdml:document>The quick brown fox.,the</tdml:document>
+    <tdml:document>Four word test sentence.,the</tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e_startswith5>
-          <one>The quick brown fox.</one>
+          <one>Four word test sentence.</one>
           <two>the</two>
           <starts>false</starts>
         </e_startswith5>
@@ -1809,12 +1809,12 @@
   <tdml:parserTestCase name="endswith_05" root="e_endswith5"
     model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:ends-with - DFDL-23-106R">
 
-    <tdml:document>The quick brown fox.,The quick brown fox.</tdml:document>
+    <tdml:document>Four word test sentence.,Four word test sentence.</tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e_endswith5>
-          <one>The quick brown fox.</one>
-          <two>The quick brown fox.</two>
+          <one>Four word test sentence.</one>
+          <two>Four word test sentence.</two>
           <ends>true</ends>
         </e_endswith5>
       </tdml:dfdlInfoset>
@@ -1831,12 +1831,12 @@
   <tdml:parserTestCase name="endswith_06" root="e_endswith5"
     model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:ends-with - DFDL-23-106R">
 
-    <tdml:document>The quick brown fox.,The quick BROWN fox.</tdml:document>
+    <tdml:document>Four word test sentence.,Four WORD test sentence.</tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e_endswith5>
-          <one>The quick brown fox.</one>
-          <two>The quick BROWN fox.</two>
+          <one>Four word test sentence.</one>
+          <two>Four WORD test sentence.</two>
           <ends>false</ends>
         </e_endswith5>
       </tdml:dfdlInfoset>
@@ -1874,7 +1874,7 @@
     <tdml:document/>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <e_substringbefore1>The </e_substringbefore1>
+        <e_substringbefore1>Four </e_substringbefore1>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -2030,7 +2030,7 @@
     <tdml:document/>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <e_substringafter1> fox.</e_substringafter1>
+        <e_substringafter1> sentence.</e_substringafter1>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -2066,7 +2066,7 @@
     <tdml:document/>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <e_substringafter3>The quick brown fox.</e_substringafter3>
+        <e_substringafter3>Four word test sentence.</e_substringafter3>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

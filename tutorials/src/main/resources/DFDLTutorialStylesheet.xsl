@@ -259,7 +259,7 @@
         <script src="https://daffodil.apache.org/assets/themes/apache/jquery/jquery-2.1.1.min.js"></script>
         <script src="https://daffodil.apache.org/assets/themes/apache/bootstrap/js/bootstrap.min.js"></script>
       </body>
-      <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+      <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@e006587b4a893f0281e9dc9a53001c7ed584d4e7/loader/run_prettify.js"></script>
     </html>
   </xsl:template>
 
