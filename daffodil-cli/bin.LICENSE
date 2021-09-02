@@ -574,8 +574,8 @@ is subject to the terms and conditions of the following licenses.
      #  and others. All Rights Reserved.
      #
      # Project: https://github.com/veer66/lao-dictionary
-     # Dictionary: https://github.com/veer66/lao-dictionary/blob/master/Lao-Dictionary.txt
-     # License: https://github.com/veer66/lao-dictionary/blob/master/Lao-Dictionary-LICENSE.txt
+     # Dictionary: https://github.com/veer66/lao-dictionary/blob/2c2344310636f548b09d854362ab2e2e666369e0/Lao-Dictionary.txt
+     # License: https://github.com/veer66/lao-dictionary/blob/2c2344310636f548b09d854362ab2e2e666369e0/Lao-Dictionary-LICENSE.txt
      #              (copied below)
      #
      #  This file is derived from the above dictionary, with slight
@@ -758,7 +758,7 @@ is subject to the terms and conditions of the following licenses.
   This product bundles 'JLine', including the following files:
     - lib/org.jline.jline-<VERSION>.jar
   These files are available under a BSD-3-Clause license. For details, see
-  https://github.com/jline/jline3/blob/master/LICENSE.txt
+  https://github.com/jline/jline3/blob/jline-parent-3.20.0/LICENSE.txt
 
     Copyright (c) 2002-2018, the original author or authors.
     All rights reserved.
@@ -1202,7 +1202,7 @@ is subject to the terms and conditions of the following licenses.
       in the version distributed with Saxon is the removal of code that Saxon does not need.)
 
 
-      (This license is published at https://github.com/hrldcpr/pcollections/blob/master/LICENSE)
+      (This license is published at https://github.com/hrldcpr/pcollections/blob/v3.1.4/LICENSE)
 
       MIT License
 

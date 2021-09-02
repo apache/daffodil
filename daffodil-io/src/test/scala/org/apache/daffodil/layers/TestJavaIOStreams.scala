@@ -50,16 +50,19 @@ import java.io.ByteArrayOutputStream
 class TestJavaIOStreams {
   Assert.usage(scala.util.Properties.isJavaAtLeast("1.8"))
 
-  val text = """Man is distinguished, not only by his reason, but by this singular passion from
-other animals, which is a lust of the mind, that by a perseverance of delight
-in the continued and indefatigable generation of knowledge, exceeds the short
-vehemence of any carnal pleasure.""".replace("\r\n", "\n").replace("\n", " ")
+  val text = """Daffodil is an open source implementation of the DFDL
+specification that uses these DFDL schemas to parse fixed format data into an
+infoset, which is most commonly represented as either XML or JSON. This
+allows the use of well-established XML or JSON technologies and libraries to
+consume, inspect, and manipulate fixed format data in existing solutions.""".replace("\r\n", "\n").replace("\n", " ")
 
-  val b64Text = """TWFuIGlzIGRpc3Rpbmd1aXNoZWQsIG5vdCBvbmx5IGJ5IGhpcyByZWFzb24sIGJ1dCBieSB0aGlz
-IHNpbmd1bGFyIHBhc3Npb24gZnJvbSBvdGhlciBhbmltYWxzLCB3aGljaCBpcyBhIGx1c3Qgb2Yg
-dGhlIG1pbmQsIHRoYXQgYnkgYSBwZXJzZXZlcmFuY2Ugb2YgZGVsaWdodCBpbiB0aGUgY29udGlu
-dWVkIGFuZCBpbmRlZmF0aWdhYmxlIGdlbmVyYXRpb24gb2Yga25vd2xlZGdlLCBleGNlZWRzIHRo
-ZSBzaG9ydCB2ZWhlbWVuY2Ugb2YgYW55IGNhcm5hbCBwbGVhc3VyZS4="""
+  val b64Text = """RGFmZm9kaWwgaXMgYW4gb3BlbiBzb3VyY2UgaW1wbGVtZW50YXRpb24gb2YgdGhlIERGREwgc3Bl
+Y2lmaWNhdGlvbiB0aGF0IHVzZXMgdGhlc2UgREZETCBzY2hlbWFzIHRvIHBhcnNlIGZpeGVkIGZv
+cm1hdCBkYXRhIGludG8gYW4gaW5mb3NldCwgd2hpY2ggaXMgbW9zdCBjb21tb25seSByZXByZXNl
+bnRlZCBhcyBlaXRoZXIgWE1MIG9yIEpTT04uIFRoaXMgYWxsb3dzIHRoZSB1c2Ugb2Ygd2VsbC1l
+c3RhYmxpc2hlZCBYTUwgb3IgSlNPTiB0ZWNobm9sb2dpZXMgYW5kIGxpYnJhcmllcyB0byBjb25z
+dW1lLCBpbnNwZWN0LCBhbmQgbWFuaXB1bGF0ZSBmaXhlZCBmb3JtYXQgZGF0YSBpbiBleGlzdGlu
+ZyBzb2x1dGlvbnMuCg=="""
 
   val zipped = {
     val baos = new ByteArrayOutputStream()

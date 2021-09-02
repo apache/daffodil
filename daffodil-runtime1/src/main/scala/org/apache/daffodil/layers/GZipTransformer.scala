@@ -115,7 +115,7 @@ class GZIPFixedOutputStream private (os: java.io.OutputStream) extends java.io.O
     if (bytePosition < 0) {
       // The bad byte has been fixed, pass all writes directly through to the
       // underlying OutputStream. This may be more efficient than the default
-      // OutputStream write() function, which writes the bytes from his array
+      // OutputStream write() function, which writes the bytes from this array
       // one at a time
       os.write(b, off, len)
     } else {

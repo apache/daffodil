@@ -94,7 +94,7 @@
     The first discriminator evaluates to false, causing immediate backtracking.
     The second discriminator is never evaluated.
     We speculatively parse innerBranch2, and it is successful.
-    Exactly he same behavior as multipleDiscriminators1.
+    Exactly the same behavior as multipleDiscriminators1.
     -->
   <tdml:parserTestCase name="multipleDiscriminators2" model="multipleDiscriminators" root="root">
     <tdml:document>fta</tdml:document>

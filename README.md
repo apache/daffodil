@@ -19,9 +19,9 @@
 <!-- markdownlint-disable line-length -->
 <!-- markdownlint-disable no-inline-html -->
 [<img src="https://daffodil.apache.org/assets/themes/apache/img/apache-daffodil-logo.svg" height="85" align="left" alt="Apache Daffodil"/>][Website]
-[<img src="https://img.shields.io/github/workflow/status/apache/daffodil/CI/master.svg" align="right"/>][GitHub Actions]
+[<img src="https://img.shields.io/github/workflow/status/apache/daffodil/CI/main.svg" align="right"/>][GitHub Actions]
 <br clear="right" />
-[<img src="https://img.shields.io/codecov/c/github/apache/daffodil/master.svg" align="right"/>][CodeCov]
+[<img src="https://img.shields.io/codecov/c/github/apache/daffodil/main.svg" align="right"/>][CodeCov]
 <br clear="right" />
 [<img src="https://img.shields.io/maven-central/v/org.apache.daffodil/daffodil-core_2.12.svg?color=brightgreen&label=version" align="right"/>][Releases]
 <br clear="both" />
@@ -106,7 +106,7 @@ Apache Daffodil is licensed under the [Apache License, v2.0].
 [Command Line Interface]: https://daffodil.apache.org/cli/
 [DFDL specification]: https://daffodil.apache.org/docs/dfdl/
 [Daffodil JIRA]: https://issues.apache.org/jira/projects/DAFFODIL/
-[Github Actions]: https://github.com/apache/daffodil/actions?query=branch%3Amaster+
+[Github Actions]: https://github.com/apache/daffodil/actions?query=branch%3Amain+
 [Releases]: http://daffodil.apache.org/releases/
 [SBT]: https://www.scala-sbt.org/
 [Website]: https://daffodil.apache.org/

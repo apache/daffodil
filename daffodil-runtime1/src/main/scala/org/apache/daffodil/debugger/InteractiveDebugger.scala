@@ -529,8 +529,8 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
     }
 
     // This ensures that there are no naming conflicts (e.g. short form names
-    // conflict). This is really just a sanity check, and really only needs to
-    // be run whenever names change or new commands are added.
+    // conflict). This really only needs to be run whenever names change or new
+    // commands are added.
 
     // Uncomment this and the DebugCommandBase.checkNameConflicts line to do a
     // check when changes are made.

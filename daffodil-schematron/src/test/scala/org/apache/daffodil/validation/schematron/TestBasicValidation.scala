@@ -30,7 +30,7 @@ import scala.io.Source
 
 /**
  * basic function tests adapted from the Camel Schematron implementation
- * https://github.com/apache/camel/blob/master/components/camel-schematron/src/test/java/org/apache/camel/component/schematron
+ * https://github.com/apache/camel/blob/main/components/camel-schematron/src/test/java/org/apache/camel/component/schematron
  */
 class TestBasicValidation {
 

@@ -424,7 +424,7 @@ class SpecifiedLengthPrefixedUnparser(
       // suspension to resume and unparse the value
       val suspension = new PrefixLengthSuspendableOperation(erd, elem, plElem, lengthUnits, prefixedLengthAdjustmentInUnits)
 
-      // Run the suspension--we know he suspension will not be able to succeed
+      // Run the suspension--we know the suspension will not be able to succeed
       // since maybeLengthInBits is not defined, but this performs various
       // actions to suspend the operation and allow it to be run later
       suspension.run(state)

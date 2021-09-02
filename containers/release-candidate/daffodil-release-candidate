@@ -41,7 +41,7 @@ Options:
   -n, --dry-run [alt]   Run all commands but do not actually publish anything.
                         Can optionally provide an alternative github repo and
                         branch of the form "user/repo@branch" instead of the
-                        default "apache/daffodil@master"
+                        default "apache/daffodil@main"
   -h, --help            Display this help and exit
 USAGE
 }
@@ -50,7 +50,7 @@ DRY_RUN=false
 
 DAFFODIL_CODE_USER="apache"
 DAFFODIL_CODE_REPO="daffodil"
-DAFFODIL_CODE_BRANCH="master"
+DAFFODIL_CODE_BRANCH="main"
 
 DAFFODIL_SITE_REPO="daffodil-site"
 
@@ -293,7 +293,7 @@ else
 set -x
 cd $DAFFODIL_DIST_DIR && svn ci --username $APACHE_USERNAME -m 'Staging Apache Daffodil $VERSION-$PRE_RELEASE'
 cd $DAFFODIL_CODE_DIR && git push origin v$VERSION-$PRE_RELEASE
-cd $DAFFODIL_SITE_DIR && git push origin master
+cd $DAFFODIL_SITE_DIR && git push origin main
 EOF
   chmod +x /root/complete-release
 

@@ -59,7 +59,7 @@ object PointOfUncertaintyMacros {
         // The "body" uses the "param" variable name, and scala doesn't like it
         // if we just create a new variable with this name, with a very unclear
         // error message. Instead, we need to create a "fresh" variable name to
-        // hold he new point of uncertainty, and then transform the body so
+        // hold the new point of uncertainty, and then transform the body so
         // that all instances of "param" are replaced with our new fresh name.
         val transformer = new Transformer {
           override def transform(tree: Tree): Tree = tree match {
