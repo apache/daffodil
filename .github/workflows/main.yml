@@ -15,7 +15,7 @@
 
 name: CI
 
-# Run CI when pushing a commit to master or creating a pull request or
+# Run CI when pushing a commit to main or creating a pull request or
 # adding another commit to a pull request or reopening a pull request.
 
 on:
@@ -61,7 +61,7 @@ jobs:
                      matrix.scala_version == '2.12.14' &&
                      github.event_name == 'push' &&
                      github.repository == 'apache/daffodil' &&
-                     github.ref == 'refs/heads/master'
+                     github.ref == 'refs/heads/main'
                   }}
 
     steps:
