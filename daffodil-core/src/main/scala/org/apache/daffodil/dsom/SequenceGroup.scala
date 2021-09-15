@@ -175,7 +175,7 @@ abstract class SequenceGroupTermBase(
       groupMembers.filter { m => m.isInstanceOf[LocalElementDecl] || m.isInstanceOf[ElementRef]
       }.map(_.asInstanceOf[ElementBase])
 
-    val invalidChildren = validChildren.filter(e => {
+    val invalidChild = validChildren.find(e => {
       if (e.minOccurs == 0 | !e.isScalar) {
         e.occursCountKind match {
           case OccursCountKind.Parsed => false
@@ -183,39 +183,28 @@ abstract class SequenceGroupTermBase(
         }
       } else false
     })
-    val hasInvalidChildren = invalidChildren.length > 0
-    if (hasInvalidChildren)
-      this.SDE("Members of an unordered sequence (%s) that are optional or array elements must have dfdl:occursCountKind='parsed'." +
-        "\nThe offending members: %s.", this.path, invalidChildren.mkString(","))
+    if (invalidChild.isDefined) {
+      invalidChild.get.SDE("Member of an unordered sequence that is an optional or array element must have dfdl:occursCountKind='parsed'")
+    }
   }
 
   private lazy val checkMembersAreAllElementOrElementRef: Unit = {
-    val invalidChildren = groupMembers.filterNot(child =>
-      child.isInstanceOf[LocalElementDecl] || child.isInstanceOf[ElementRef])
-    val hasInvalidChildren = invalidChildren.length > 0
-    if (hasInvalidChildren)
-      this.SDE("Members of an unordered sequence (%s) must be Element or ElementRef." +
-        "\nThe offending members: %s.", this.path, invalidChildren.mkString(","))
+    val invalidChild = groupMembers.find(!_.isInstanceOf[ElementBase])
+    if (invalidChild.isDefined) {
+      invalidChild.get.SDE("Member of an unordered sequence must be an element declaration or element reference")
+    }
   }
 
   private lazy val checkMembersHaveUniqueNamesInNamespaces: Unit = {
-    val childrenGroupedByNamespace =
-      groupMembers.filter(m => m.isInstanceOf[ElementBase]).map(_.asInstanceOf[ElementBase]).groupBy(_.targetNamespace)
-
-    childrenGroupedByNamespace.foreach {
-      case (ns, children) => {
-        // At this point we're looking at the individual namespace buckets
-        val childrenGroupedByName = children.groupBy(child => child.name)
-        childrenGroupedByName.foreach {
-          case (name, children) =>
-            // Now we're looking at the individual name buckets within the
-            // individual namespace bucket.
-            if (children.length > 1)
-              this.SDE(
-                "Two or more members of the unordered sequence (%s) have the same name and the same namespace." +
-                  "\nNamespace: %s\tName: %s.",
-                this.path, ns, name)
-        }
+    val childrenGroupedByQName = groupMembers.groupBy { gm =>
+      // previous checks should ensure that all group members are either local
+      // elements or element references
+      Assert.invariant(gm.isInstanceOf[ElementBase])
+      gm.asInstanceOf[ElementBase].namedQName
+    }
+    childrenGroupedByQName.foreach { case (qname, children) =>
+      if (children.length > 1) {
+        children.head.SDE("Two or more members of an unordered sequence have the same name and the same namespace")
       }
     }
   }
