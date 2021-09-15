@@ -726,8 +726,8 @@
     root="SDE_01">
     <tdml:document><![CDATA[a1,bx20:y99:z,c55]]></tdml:document>
     <tdml:errors>
-      <tdml:error>Members of an unordered sequence</tdml:error>
-      <tdml:error>must be Element or ElementRef</tdml:error>
+      <tdml:error>unordered sequence</tdml:error>
+      <tdml:error>element declaration or element reference</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -737,8 +737,9 @@
     root="SDE_02">
     <tdml:document><![CDATA[a1,bx20:y99:z,c55]]></tdml:document>
     <tdml:errors>
-      <tdml:error>Members of an unordered sequence</tdml:error>
-      <tdml:error>that are optional or array elements must have dfdl:occursCountKind='parsed'.</tdml:error>
+      <tdml:error>unordered sequence</tdml:error>
+      <tdml:error>optional or array</tdml:error>
+      <tdml:error>dfdl:occursCountKind='parsed'</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -748,8 +749,8 @@
     root="SDE_03">
     <tdml:document><![CDATA[a1,bx20:y99:z,c55]]></tdml:document>
     <tdml:errors>
-      <tdml:error>Two or more members of the unordered sequence</tdml:error>
-      <tdml:error>have the same name and the same namespace.</tdml:error>
+      <tdml:error>unordered sequence</tdml:error>
+      <tdml:error>same name and the same namespace</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -941,6 +942,19 @@
       <tdml:error>Assertion</tdml:error>
       <tdml:error>the expected message</tdml:error>
     </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="test_unordered_namespaces_01"
+    model="unordered_namespaces_01.dfdl.xsd" root="root">
+    <tdml:document><![CDATA[-3.*4]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <b02:root xmlns:a02="http://a02.com" xmlns:b02="http://b02.com">
+          <a02:inty>3</a02:inty>
+          <b02:inty>4</b02:inty>
+        </b02:root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
 </tdml:testSuite>

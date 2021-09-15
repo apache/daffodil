@@ -63,6 +63,8 @@ class TestUnorderedSequences {
   @Test def test_initiated_unordered2 = { runner.runOneTest("test_initiated_unordered2") }
   @Test def test_initiated_unordered3 = { runner.runOneTest("test_initiated_unordered3") }
 
+  @Test def test_unordered_namespaces_01 = { runner.runOneTest("test_unordered_namespaces_01") }
+
   @Test def test_BE000 = { runnerBE.runOneTest("BE000") }
   @Test def test_BE001 = { runnerBE.runOneTest("BE001") }
   @Test def test_BE002 = { runnerBE.runOneTest("BE002") }
