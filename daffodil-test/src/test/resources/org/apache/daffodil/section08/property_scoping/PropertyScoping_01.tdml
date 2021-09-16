@@ -57,40 +57,6 @@
     </xs:element>
   </tdml:defineSchema>
 
-  <tdml:defineSchema name="s1-u">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
-    <dfdl:defineFormat name="def">
-      <dfdl:format ref="tns:def1" encoding="ascii"
-        lengthKind="explicit" lengthUnits="characters" length="5"
-        textNumberRep="zoned" />
-    </dfdl:defineFormat>
-
-    <dfdl:defineFormat name="def2">
-      <dfdl:format ref="tns:def3" lengthKind="explicit"
-        lengthUnits="characters" length="4" representation="text"
-        textNumberRep="standard" />
-    </dfdl:defineFormat>
-
-    <dfdl:defineFormat name="def3">
-      <dfdl:format ref="tns:GeneralFormat" representation="binary" />
-    </dfdl:defineFormat>
-
-    <dfdl:defineFormat name="def1">
-      <dfdl:format ref="tns:def2" />
-    </dfdl:defineFormat>
-
-    <dfdl:format ref="tns:GeneralFormat" lengthKind="explicit"
-      lengthUnits="characters" length="3" />
-
-    <xs:element name="easy" type="xs:int" dfdl:textNumberRep="standard">
-      <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/">
-          <dfdl:element ref="tns:def"/>
-        </xs:appinfo>
-      </xs:annotation>
-    </xs:element>
-  </tdml:defineSchema>
-
   <tdml:defineSchema name="s1-u2">
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:defineFormat name="def">
@@ -378,7 +344,7 @@
   </tdml:parserTestCase>
 
   <tdml:unparserTestCase name="unparse_property_scoping_02"
-    root="easy" model="s1-u"
+    root="easy" model="s1"
     description="Section 8 Combining DFDL Representation Properties from a dfdl:defineFormat - DFDL-8-018R">
     <tdml:infoset>
       <tdml:dfdlInfoset>
