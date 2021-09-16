@@ -579,16 +579,16 @@
 
   <tdml:parserTestCase name="localAnnotation_05"
     description="DFDL Property Scoping Rules - DFDL-8-010R"
-    model="localAnnotationSchema" root="e5">
+    model="localAnnotationSchema" root="e5" roundTrip="twoPass">
     <tdml:document>
       <tdml:documentPart type="text">C:catastrophe,B:bologna,A:applesauce</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e5>
-          <C>catastrophe</C>
-          <B>bologna</B>
           <A>applesauce</A>
+          <B>bologna</B>
+          <C>catastrophe</C>
         </e5>
       </tdml:dfdlInfoset>
     </tdml:infoset>

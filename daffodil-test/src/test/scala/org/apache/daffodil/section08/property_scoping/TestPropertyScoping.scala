@@ -45,9 +45,7 @@ class TestPropertyScoping {
   @Test def test_localAnnotation_02(): Unit = { runner.runOneTest("localAnnotation_02") }
   @Test def test_localAnnotation_03(): Unit = { runner.runOneTest("localAnnotation_03") }
   @Test def test_localAnnotation_04(): Unit = { runner.runOneTest("localAnnotation_04") }
-
-  //DFDL-1036 (was fixed) now DFDL-1159
-  //@Test def test_localAnnotation_05() { runner.runOneTest("localAnnotation_05") }
+  @Test def test_localAnnotation_05(): Unit = { runner.runOneTest("localAnnotation_05") }
 
   @Test def test_property_scoping_01(): Unit = { runner.runOneTest("property_scoping_01") }
   @Test def test_unparse_property_scoping_01(): Unit = { runner.runOneTest("unparse_property_scoping_01") }
@@ -61,10 +59,9 @@ class TestPropertyScoping {
   @Test def test_format_nesting_01(): Unit = { runner.runOneTest("format_nesting_01") }
 
   @Test def test_property_scoping_02(): Unit = { runner_01.runOneTest("property_scoping_02") }
-  // DAFFODIL-2103
-  // @Test def test_unparse_property_scoping_02() { runner_01.runOneTest("unparse_property_scoping_02") }
-  @Test def test_property_scoping_03() = { runner_01.runOneTest("property_scoping_03") }
-  @Test def test_unparse_property_scoping_03() = { runner_01.runOneTest("unparse_property_scoping_03") }
+  @Test def test_unparse_property_scoping_02(): Unit = { runner_01.runOneTest("unparse_property_scoping_02") }
+  @Test def test_property_scoping_03(): Unit = { runner_01.runOneTest("property_scoping_03") }
+  @Test def test_unparse_property_scoping_03(): Unit = { runner_01.runOneTest("unparse_property_scoping_03") }
   @Test def test_property_scoping_04(): Unit = { runner_01.runOneTest("property_scoping_04") }
   @Test def test_property_scoping_05(): Unit = { runner_01.runOneTest("property_scoping_05") }
   @Test def test_unparse_property_scoping_04(): Unit = { runner_01.runOneTest("unparse_property_scoping_04") }
@@ -82,6 +79,6 @@ class TestPropertyScoping {
   @Test def test_unparse_property_scoping_12(): Unit = { runner_01.runOneTest("unparse_property_scoping_12") }
   @Test def test_NearestEnclosingSequenceElementRef(): Unit = { runner_01.runOneTest("NearestEnclosingSequenceElementRef") }
 
-  @Test def test_property_refElementFormFail() = { runner_01.runOneTest("refElementFormFail") }
+  @Test def test_property_refElementFormFail(): Unit = { runner_01.runOneTest("refElementFormFail") }
 
 }
