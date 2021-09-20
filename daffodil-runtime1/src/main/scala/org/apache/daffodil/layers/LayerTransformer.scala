@@ -17,11 +17,13 @@
 
 package org.apache.daffodil.layers
 
+import org.apache.daffodil.api.ThinDiagnostic
 import org.apache.daffodil.schema.annotation.props.gen.LayerLengthKind
 import org.apache.daffodil.schema.annotation.props.gen.LayerLengthUnits
-import org.apache.daffodil.processors.LayerLengthInBytesEv
+import org.apache.daffodil.processors.LayerLengthEv
 import org.apache.daffodil.processors.LayerBoundaryMarkEv
 import org.apache.daffodil.processors.LayerCharsetEv
+
 import java.util.HashMap
 import org.apache.daffodil.processors.ParseOrUnparseState
 import org.apache.daffodil.util.NonAllocatingMap
@@ -39,7 +41,10 @@ import org.apache.daffodil.processors.parsers.PState
 import org.apache.daffodil.processors.unparsers.UState
 import org.apache.daffodil.io.DirectOrBufferedDataOutputStream
 import passera.unsigned.ULong
-import org.apache.daffodil.dsom.DPathCompileInfo
+import org.apache.daffodil.processors.SequenceRuntimeData
+
+import java.io.InputStream
+import java.io.OutputStream
 
 /**
  * Factory for a layer transformer.
@@ -56,10 +61,10 @@ abstract class LayerTransformerFactory(nom: String)
   def newInstance(
     maybeLayerCharsetEv: Maybe[LayerCharsetEv],
     maybeLayerLengthKind: Maybe[LayerLengthKind],
-    maybeLayerLengthInBytesEv: Maybe[LayerLengthInBytesEv],
+    maybeLayerLengthEv: Maybe[LayerLengthEv],
     maybeLayerLengthUnits: Maybe[LayerLengthUnits],
     maybeLayerBoundaryMarkEv: Maybe[LayerBoundaryMarkEv],
-    tci: DPathCompileInfo): LayerTransformer
+    srd: SequenceRuntimeData): LayerTransformer
 }
 
 /**
@@ -101,29 +106,38 @@ object LayerTransformerFactory {
   register(GZIPTransformerFactory)
   register(IMFLineFoldedTransformerFactory)
   register(ICalendarLineFoldedTransformerFactory)
+
+  /**
+   * Arguably the above could be bundled with Daffodil.
+   *
+   * The transformers below really should be plugins defined
+   * outside Daffodil, per DAFFODIL-1927.
+   */
   register(AISPayloadArmoringTransformerFactory)
   register(FourByteSwapTransformerFactory)
 }
 
 /**
  * Shared functionality of all LayerTransformers.
+ *
+ * A layer transformer is created at runtime as part of a single parse/unparse call.
+ * Hence, they can be stateful without causing thread-safety issues.
  */
-abstract class LayerTransformer()
-  extends Serializable {
+abstract class LayerTransformer() {
 
-  protected def wrapLayerDecoder(jis: java.io.InputStream): java.io.InputStream
+  protected def wrapLayerDecoder(jis: InputStream): InputStream
 
-  protected def wrapLimitingStream(jis: java.io.InputStream, state: PState): java.io.InputStream
+  protected def wrapLimitingStream(jis: InputStream, state: PState): InputStream
 
-  def wrapJavaInputStream(s: InputSourceDataInputStream, fInfo: FormatInfo): java.io.InputStream = {
+  def wrapJavaInputStream(s: InputSourceDataInputStream, fInfo: FormatInfo): InputStream = {
     new JavaIOInputStream(s, fInfo)
   }
 
-  protected def wrapLayerEncoder(jos: java.io.OutputStream): java.io.OutputStream
+  protected def wrapLayerEncoder(jos: OutputStream): OutputStream
 
-  protected def wrapLimitingStream(jis: java.io.OutputStream, state: UState): java.io.OutputStream
+  protected def wrapLimitingStream(jis: OutputStream, state: UState): OutputStream
 
-  def wrapJavaOutputStream(s: DataOutputStream, fInfo: FormatInfo): java.io.OutputStream = {
+  def wrapJavaOutputStream(s: DataOutputStream, fInfo: FormatInfo): OutputStream = {
     new JavaIOOutputStream(s, fInfo)
   }
   /**
@@ -148,7 +162,7 @@ abstract class LayerTransformer()
     // nothing for now
   }
 
-  def addLayer(s: DataOutputStream, state: UState): DataOutputStream = {
+  def addLayer(s: DataOutputStream, state: UState): DirectOrBufferedDataOutputStream = {
     val jos = wrapJavaOutputStream(s, state)
     val limitedJOS = wrapLimitingStream(jos, state)
     val encodedOutputStream = wrapLayerEncoder(limitedJOS)
@@ -173,37 +187,33 @@ abstract class LayerTransformer()
     //
   }
 
-  // These were very useful for debugging. Note that they stop with a ???
-  // error. That's because dumping streams changes their state.
-  //
-  // Keeping these around commented out, for now. While this feature is still
-  // new and may need further debugging.
-  //
-  //  def dumpLayer(is: InputStream) {
-  //    val str = Stream.continually(is.read).takeWhile(_ != -1).map(_.toChar).mkString
-  //    println("dump length " + str.length + " = " + str)
-  //    ???
-  //  }
-  //
-  //  def hexDumpLayer(is: InputStream) {
-  //    val str = hexify(is)
-  //    println("hex dump = " + str)
-  //    ???
-  //  }
-  //
-  //  def hexify(is: InputStream): String =
-  //    Stream.continually(is.read).takeWhile(_ != -1).map(x => "%02x".format(x.toInt)).mkString(" ")
-  //
-  //  def hexDumpLayer(is: InputSourceDataInputStream, finfo: FormatInfo) {
-  //    val jis = new JavaIOInputStream(is, finfo)
-  //    val str = hexify(jis)
-  //    println("DIS hex dump = " + str)
-  //    ???
-  //  }
+  /**
+   * Enables the layer transformer to take necessary state-maniuplating actions before
+   * the parsing of a layer starts.
+   *
+   * Examples might be setting variable values.
+   *
+   * At the time this is called, the state contains the layered I/O stream already.
+   * @param s The parser state, which may be modified.
+   */
+  def startLayerForParse(s: PState):Unit = () // nothing by default
+
+
+  /**
+   * Enables the layer transformer to take necessary state-maniuplating actions after
+   * the unparsing of a layer ends.
+   *
+   * Note that if variables without values are read by this method, then this must create
+   * suspended calculations that clone the necessary state, which are evaluated later.
+   *
+   * Examples might be setting variable values.
+   * @param s The unparser state, which may be modified.
+   */
+  def endLayerForUnparse(s: UState): Unit = () // nothing by default
 }
 
 class JavaIOInputStream(s: InputSourceDataInputStream, finfo: FormatInfo)
-  extends java.io.InputStream {
+  extends InputStream {
 
   private lazy val id = Misc.getNameFromClass(this)
 
@@ -239,7 +249,7 @@ class JavaIOInputStream(s: InputSourceDataInputStream, finfo: FormatInfo)
 }
 
 class JavaIOOutputStream(dos: DataOutputStream, finfo: FormatInfo)
-  extends java.io.OutputStream {
+  extends OutputStream {
 
   private var closed = false
 
@@ -259,3 +269,17 @@ class JavaIOOutputStream(dos: DataOutputStream, finfo: FormatInfo)
     }
   }
 }
+
+abstract class LayerException(
+  layerSRD: SequenceRuntimeData,
+  state: PState,
+  maybeCause: Maybe[Throwable],
+  maybeFormatString: Maybe[String],
+  args: Any*)
+extends ThinDiagnostic(One(layerSRD.dpathCompileInfo.schemaFileLocation), One(state.currentLocation), maybeCause, maybeFormatString, args: _*)
+
+case class LayerNotEnoughDataException(layerSRD: SequenceRuntimeData, state: PState, cause: Throwable, nBytesRequired: Int)
+  extends LayerException(layerSRD, state, One(cause), None, nBytesRequired) {
+  override def isError = true
+  override def modeName = "Parse"
+  }

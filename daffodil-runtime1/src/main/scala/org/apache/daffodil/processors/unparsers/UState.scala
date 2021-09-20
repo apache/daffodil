@@ -33,6 +33,7 @@ import org.apache.daffodil.infoset.DIArray
 import org.apache.daffodil.infoset.DIDocument
 import org.apache.daffodil.infoset.DIElement
 import org.apache.daffodil.infoset.DINode
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.infoset.InfosetAccessor
 import org.apache.daffodil.infoset.InfosetInputter
 import org.apache.daffodil.io.DirectOrBufferedDataOutputStream
@@ -50,6 +51,7 @@ import org.apache.daffodil.processors.TermRuntimeData
 import org.apache.daffodil.processors.UnparseResult
 import org.apache.daffodil.processors.VariableBox
 import org.apache.daffodil.processors.VariableMap
+import org.apache.daffodil.processors.VariableRuntimeData
 import org.apache.daffodil.processors.charset.BitsCharset
 import org.apache.daffodil.processors.charset.BitsCharsetDecoder
 import org.apache.daffodil.processors.charset.BitsCharsetEncoder
@@ -73,6 +75,21 @@ abstract class UState(
   areDebugging: Boolean)
   extends ParseOrUnparseState(vbox, diagnosticsArg, dataProcArg, tunable)
   with Cursor[InfosetAccessor] with ThrowsSDE with SavesErrorsAndWarnings {
+
+  final def setVariable(vrd: VariableRuntimeData, newValue: DataValuePrimitive, referringContext: ThrowsSDE) =
+    vbox.vmap.setVariable(vrd, newValue, referringContext, this)
+
+  /**
+   * For unparsing, this throws a RetryableException in the case where the variable cannot (yet) be read.
+   *
+   * @param vrd Identifies the variable to read.
+   * @param referringContext Where to place blame if there is an error.
+   * @return The data value of the variable, or throws exceptions if there is no value.
+   */
+  final def getVariable(vrd: VariableRuntimeData, referringContext: ThrowsSDE): DataValuePrimitive =
+    vbox.vmap.readVariable(vrd, referringContext, this)
+
+
 
   /**
    * Push onto the dynamic TRD context stack

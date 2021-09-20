@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<testSuite
+  xmlns="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  suiteName="checkDigit" description="checkDigit layer tests"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:fn="http://www.w3.org/2005/xpath-functions" 
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:ex="http://example.com"
+  xmlns:cd="urn:org.apache.daffodil.layers.checkDigit"
+  defaultRoundTrip="onePass">
+
+  <!--
+  The check digit is the result of taking all digits 0-9 of the layer data, adding them together, and taking only the least-significant digit of the resulting sum.
+
+  Example: for 10:22:18.234 The sum is 23, so the check-digit is 3.
+  -->
+
+  <parserTestCase name="test_checkDigit_01" root="r" model="checkDigit.dfdl.xsd">
+    <document>2021-09-25:1</document>
+    <infoset><dfdlInfoset>
+      <ex:r xmlns="">
+       <value>2021-09-25</value>
+       <checkDigit>1</checkDigit>
+       <computedCheckDigit>1</computedCheckDigit>
+      </ex:r>
+    </dfdlInfoset></infoset>
+  </parserTestCase>
+
+  <parserTestCase name="test_checkDigit_01e" root="r" model="checkDigit.dfdl.xsd">
+    <document>2021-09-2</document>
+    <errors>
+      <error>Parse Error</error>
+      <error>insufficient</error>
+      <error>80</error>
+    </errors>
+  </parserTestCase>
+
+  <parserTestCase name="test_checkDigit_02" root="r" model="checkDigit.dfdl.xsd"
+    roundTrip="none">
+    <document>2021-09-25:7</document>
+    <infoset><dfdlInfoset>
+      <ex:r xmlns="">
+        <value>2021-09-25</value>
+        <checkDigit>7</checkDigit>
+        <computedCheckDigit>1</computedCheckDigit>
+      </ex:r>
+    </dfdlInfoset></infoset>
+    <warnings>
+      <warning>Incorrect check digit</warning>
+      <warning>7</warning>
+    </warnings>
+  </parserTestCase>
+
+  <unparserTestCase name="test_checkDigit_01u" root="r" model="checkDigit.dfdl.xsd"
+    roundTrip="none">
+    <document>2021-09-25:1</document>
+    <infoset><dfdlInfoset>
+      <ex:r xmlns="">
+        <value>2021-09-25</value>
+        <checkDigit>0</checkDigit><!-- value is ignored. Notice 1 came out in the data. -->
+        <computedCheckDigit>1</computedCheckDigit>
+      </ex:r>
+    </dfdlInfoset></infoset>
+  </unparserTestCase>
+
+</testSuite>

@@ -38,7 +38,11 @@ required to pad the data payload to a 6-bit boundary. So it is 0 to 5.
 The *5C is a NMEA 0183 data integrity checksum, preceded by "*" - computed on 
 the whole message including the AIVDM, but excluding the "!"
 
-Seems another role for layers is computing checksums.
+According to the wikipedia article on NMEA 0183, this checksum is just an XOR of the
+specific message bytes.
+
+Another role for layers is computing checksums. This schema could be enhanced to do that
+(DAFFODIL-2563)
 
 Example Multifragment sentence:
 !AIVDM,2,1,3,B,55P5TL01VIaAL@7WKO@mBplU@<PDhh000000001S;AJ::4A80?4i@E53,0*3E
@@ -95,6 +99,7 @@ Example Multifragment sentence:
             </xs:sequence>
             <xs:element name="bitsPad" type="xs:unsignedInt" dfdl:ref="ex:aisText" dfdl:lengthKind="explicit" dfdl:length="1" />
               <!--  must be 0 to 5 -->
+            <!-- DAFFODIL-2563 - recompute this checksum, with another layer transform -->
             <xs:element name="checksum" type="xs:string" dfdl:ref="ex:aisText" dfdl:initiator="*" />
           </xs:sequence>
         </xs:sequence>

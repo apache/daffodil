@@ -36,7 +36,10 @@ import org.apache.daffodil.util.Misc
  * This simple extension just gives us a public method for access to the underlying byte array.
  * That way we don't have to make a copy just to access the bytes.
  */
-private[io] class ByteArrayOutputStreamWithGetBuf() extends java.io.ByteArrayOutputStream {
+class ByteArrayOutputStreamWithGetBuf() extends java.io.ByteArrayOutputStream {
+  def setBuf(bufArg: Array[Byte]) : Unit = {
+    buf = bufArg
+  }
   def getBuf = buf
 }
 

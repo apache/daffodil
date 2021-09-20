@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+           xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
+           xmlns:fn="http://www.w3.org/2005/xpath-functions"
+           xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
+           xmlns:chksum="urn:org.apache.daffodil.layers.IPv4Checksum"
+           xmlns:tns="urn:org.apache.daffodil.layers.IPv4"
+           targetNamespace="urn:org.apache.daffodil.layers.IPv4" >
+
+  <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+
+  <xs:import namespace="urn:org.apache.daffodil.layers.IPv4Checksum"
+             schemaLocation="org/apache/daffodil/layers/xsd/IPv4ChecksumLayer.dfdl.xsd"/>
+
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/">
+      <dfdl:defineFormat name="basicBigEndianBinary">
+        <dfdl:format
+          ref="tns:GeneralFormat"
+          representation="binary"
+          binaryNumberRep="binary"
+          byteOrder="bigEndian"
+          bitOrder="mostSignificantBitFirst"
+          alignmentUnits="bits"
+          alignment="1"
+          occursCountKind="implicit"
+          lengthUnits="bits"/>
+      </dfdl:defineFormat>
+      <dfdl:format ref="tns:basicBigEndianBinary"/>
+    </xs:appinfo>
+  </xs:annotation>
+
+  <xs:element name="IPv4Header" type="tns:IPv4Header"/>
+
+  <xs:complexType name="IPv4Header">
+    <!--
+    Modified with proposed checksum computation via layer transform
+    -->
+    <xs:sequence>
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
+          <!--
+          The checksum field in an IPv4 actually lives in the middle of the
+          data that it is a checksum of.
+
+          That is, some of the 16-bit words going into the checksum are before
+          the checksum itself, others are after.
+
+          At parse time we must check that this computed checksum value, and the
+          actual value of the element in the infoset are equal.
+
+          We have an option to place the computed checksum in another element
+          and then have a schematron validation rule or just a DFDL assert (recoverable)
+          check that the checksum element and computed checksum are equal.
+
+          Below, that element is called "ComputedChecksum".
+
+          When unparsing, the infoset contains a checksum, which remains in the infoset, but
+          it is overwritten (in the layer transform) by the recomputed checksum available for comparison purposes in
+          the ComputedChecksum variable.
+          -->
+          <dfdl:newVariableInstance ref="chksum:IPv4Checksum"/>
+        </xs:appinfo>
+      </xs:annotation>
+
+      <xs:sequence dfdl:ref="chksum:IPv4ChecksumLayer">
+        <xs:sequence>
+        <xs:element name="Version" type="tns:bit" dfdl:length="4"/>
+        <xs:element name="IHL" type="tns:bit" dfdl:length="4"/>
+        <xs:element name="DSCP" type="tns:bit" dfdl:length="6"/>
+        <xs:element name="ECN" type="tns:bit" dfdl:length="2"/>
+        <xs:element name="Length" type="tns:bit" dfdl:length="16"
+          dfdl:outputValueCalc='{ ../FakeData }'/>
+        <xs:element name="Identification" type="tns:bit" dfdl:length="16"/>
+        <xs:element name="Flags" type="tns:bit" dfdl:length="3"/>
+        <xs:element name="FragmentOffset" type="tns:bit" dfdl:length="13"/>
+        <xs:element name="TTL" type="tns:bit" dfdl:length="8"/>
+        <xs:element name="Protocol" type="tns:bit" dfdl:length="8"/>
+        <xs:element name="Checksum" type="chksum:IPv4Checksum"/>
+        <xs:element name="IPSrc" type="tns:hexByte" dfdl:length="4"/>
+        <xs:element name="IPDest" type="tns:hexByte" dfdl:length="4"/>
+      </xs:sequence>
+      </xs:sequence>
+      <!--
+      This exists purely to make unparsing of the header suspend when trying to unparse
+      the Length element.
+
+      We just want the tests to rule out deadlock in this case.
+      -->
+      <xs:element name="FakeData" type="tns:bit"
+                  dfdl:inputValueCalc='{ ../Length }'/>
+      <!--
+      We want the schema author to have all options on what to do if the
+      checksum is incorrect when parsing. Hence, we just put the computed value
+      into this element.
+      -->
+      <xs:element name="ComputedChecksum" type="chksum:IPv4Checksum"
+                  dfdl:inputValueCalc='{ $chksum:IPv4Checksum }'/>
+      <!--
+      One recommendation is to treat incorrect checksum values as a validation
+      error. This preserves the ability to use the schema forensically to examine
+      data with incorrect checksums.
+
+      This uses a DFDL recoverable error assertion to report that the
+      checksum is incorrect. A recoverable error assert is not technically
+      a validation error, but behaves similarly in that it does not prevent the
+      parse from completing. It is essentially a warning about the data.
+
+      A schematron check would accomplish much the same thing, with the
+      advantage that the error would be reported as an "official" validation error.
+      -->
+      <xs:sequence>
+        <xs:annotation>
+          <xs:appinfo source="http://www.ogf.org/dfdl/">
+            <dfdl:assert
+              failureType="recoverableError"
+              message="Incorrect checksum."
+              test='{ Checksum eq ComputedChecksum }'
+            />
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:sequence>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="bit"
+                 dfdl:lengthKind="explicit"
+                 dfdl:lengthUnits="bits">
+    <xs:restriction base="xs:unsignedInt"/>
+  </xs:simpleType>
+
+  <xs:simpleType name="hexByte" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes">
+    <xs:restriction base="xs:hexBinary"/>
+  </xs:simpleType>
+
+
+</xs:schema>

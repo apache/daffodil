@@ -67,7 +67,7 @@ import org.apache.daffodil.schema.annotation.props.gen.TextPadKind
 import org.apache.daffodil.schema.annotation.props.gen.YesNo
 import org.apache.daffodil.processors.LayerTransformEv
 import org.apache.daffodil.processors.LayerEncodingEv
-import org.apache.daffodil.processors.LayerLengthInBytesEv
+import org.apache.daffodil.processors.LayerLengthEv
 import org.apache.daffodil.processors.LayerBoundaryMarkEv
 import org.apache.daffodil.processors.LayerCharsetEv
 import org.apache.daffodil.schema.annotation.props.TextStandardExponentRepMixin
@@ -778,10 +778,10 @@ trait LayeringRuntimeValuedPropertiesMixin
     ExpressionCompilers.JLong.compileProperty(qn, NodeInfo.Long, layerLengthRaw, decl, dpathCompileInfo)
   }
 
-  final lazy val maybeLayerLengthInBytesEv = {
+  final lazy val maybeLayerLengthEv = {
     if (optionLayerLengthRaw.isDefined) {
       layerLengthUnits
-      val ev = new LayerLengthInBytesEv(layerLengthExpr, tci)
+      val ev = new LayerLengthEv(layerLengthExpr, tci)
       ev.compile(tunable)
       One(ev)
     } else {

@@ -79,7 +79,7 @@ trait InfosetCachedEvaluatable[T <: AnyRef] { self: Evaluatable[T] =>
         }
         val cache = termNode.evalCache(state)
         val optHit = cache.get(this)
-        if (optHit.isDefined) optHit.get.asInstanceOf[T]
+        if (optHit.isDefined) optHit.get
         else {
           val v = compute(state)
           cache.put(this, v)
@@ -156,6 +156,11 @@ trait NoCacheEvaluatable[T <: AnyRef] { self: Evaluatable[T] =>
   protected def getCachedOrComputeAndCache(state: State): T = {
     compute(state)
   }
+
+  /**
+   * A NoCacheEvaluatable also never compiles into a constant.
+   */
+  final override protected def isNeverConstant = true
 }
 
 /**
@@ -177,6 +182,8 @@ abstract class Evaluatable[+T <: AnyRef](protected val ci: DPathCompileInfo, qNa
    * Been compiled yet?
    */
   private var isCompiled_ = false
+
+  protected def isNeverConstant = false
 
   @inline final def isCompiled = isCompiled_
 
@@ -218,9 +225,9 @@ abstract class Evaluatable[+T <: AnyRef](protected val ci: DPathCompileInfo, qNa
       //
       // Thrown if we're trying to navigate from parent to child and the child doesn't exist.
       // or there is no data, etc.
-      case e: ExpressionEvaluationException => Nope
-      case e: InfosetException => Nope
-      case e: VariableException => Nope
+      case _: ExpressionEvaluationException => Nope
+      case _: InfosetException => Nope
+      case _: VariableException => Nope
     }
     result
   }
@@ -303,10 +310,15 @@ abstract class Evaluatable[+T <: AnyRef](protected val ci: DPathCompileInfo, qNa
    * that errors out when data access to runtime-valued data is attempted.
    */
   final def compile(state: CompileState): Maybe[T] = {
-    val y = compileTimeEvaluate(state)
-    // just by getting here - and not throwing, we know it's a constant.
-    constValue_ = y
-    y
+    if (isNeverConstant) {
+      isCompiled_ = true
+      Nope
+    } else {
+      val y = compileTimeEvaluate(state)
+      // just by getting here - and not throwing, we know it's a constant.
+      constValue_ = y
+      y
+    }
   }
 
   final def compile(tunable: DaffodilTunables): Maybe[T] = {

@@ -42,7 +42,7 @@ final class LayerEncodingEv(override val expr: CompiledExpression[String], tci: 
 final class LayerCharsetEv(layerEncodingEv: LayerEncodingEv, override val ci: DPathCompileInfo)
   extends CharsetEvBase(layerEncodingEv, ci)
 
-final class LayerLengthInBytesEv(override val expr: CompiledExpression[JLong], override val ci: DPathCompileInfo)
+final class LayerLengthEv(override val expr: CompiledExpression[JLong], override val ci: DPathCompileInfo)
   extends EvaluatableExpression[JLong](
     expr,
     ci)
@@ -70,16 +70,16 @@ final class LayerTransformerEv(
   layerTransformEv: LayerTransformEv,
   maybeLayerCharsetEv: Maybe[LayerCharsetEv],
   maybeLayerLengthKind: Maybe[LayerLengthKind],
-  maybeLayerLengthInBytesEv: Maybe[LayerLengthInBytesEv],
+  maybeLayerLengthEv: Maybe[LayerLengthEv],
   maybeLayerLengthUnits: Maybe[LayerLengthUnits],
   maybeLayerBoundaryMarkEv: Maybe[LayerBoundaryMarkEv],
-  ci: DPathCompileInfo)
-  extends Evaluatable[LayerTransformer](ci)
+  srd: SequenceRuntimeData)
+  extends Evaluatable[LayerTransformer](srd.dpathCompileInfo)
   with NoCacheEvaluatable[LayerTransformer] {
 
   override lazy val runtimeDependencies = layerTransformEv +:
     (maybeLayerCharsetEv.toList ++
-      maybeLayerLengthInBytesEv.toList ++
+      maybeLayerLengthEv.toList ++
       maybeLayerBoundaryMarkEv.toList)
 
   /**
@@ -92,10 +92,10 @@ final class LayerTransformerEv(
     val xformer = factory.newInstance(
       maybeLayerCharsetEv,
       maybeLayerLengthKind,
-      maybeLayerLengthInBytesEv,
+      maybeLayerLengthEv,
       maybeLayerLengthUnits,
       maybeLayerBoundaryMarkEv,
-      ci)
+      srd)
     xformer
   }
 }

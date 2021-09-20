@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+           xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
+           xmlns:fn="http://www.w3.org/2005/xpath-functions"
+           xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
+           xmlns:tns="urn:org.apache.daffodil.layers.IPv4Checksum"
+           targetNamespace="urn:org.apache.daffodil.layers.IPv4Checksum">
+
+  <xs:annotation>
+    <xs:documentation>
+      Variable for the layer transform used for IPv4 checksum calculation.
+
+      Per the checksum algorithm described in IETF RFC791.
+
+      The data has a well-known fixed layer length. Hence, layerLengthKind is 'implicit'.
+
+      If the data doesn't match this expected fixed length, issue PE/UE.
+
+      This checksum is written into the result variable.
+    </xs:documentation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/">
+      <dfdl:defineVariable name="IPv4Checksum" type="xs:unsignedShort"/>
+      <dfdl:defineFormat name="IPv4ChecksumLayer">
+        <dfdl:format dfdlx:layerTransform='{ "IPv4Checksum" }' dfdlx:layerLengthKind="implicit"/>
+      </dfdl:defineFormat>
+    </xs:appinfo>
+  </xs:annotation>
+
+  <xs:simpleType name="IPv4Checksum"
+    dfdl:lengthKind="explicit" dfdl:length="16" dfdl:lengthUnits="bits">
+    <xs:restriction base="xs:unsignedShort"/>
+  </xs:simpleType>
+
+</xs:schema>

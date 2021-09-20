@@ -20,18 +20,19 @@ package org.apache.daffodil.layers
 import org.apache.daffodil.schema.annotation.props.gen.LayerLengthKind
 import org.apache.daffodil.schema.annotation.props.gen.LayerLengthUnits
 import org.apache.daffodil.util.Maybe
-import org.apache.daffodil.processors.LayerLengthInBytesEv
+import org.apache.daffodil.processors.LayerLengthEv
 import org.apache.daffodil.processors.LayerBoundaryMarkEv
 import org.apache.daffodil.processors.LayerCharsetEv
 import org.apache.daffodil.io.BoundaryMarkLimitingStream
 import org.apache.daffodil.processors.parsers.PState
 import org.apache.daffodil.processors.charset.BitsCharsetJava
+
 import java.nio.charset.Charset
 import org.apache.daffodil.processors.charset.BitsCharset
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.processors.unparsers.UState
 import org.apache.daffodil.io.LayerBoundaryMarkInsertingJavaOutputStream
-import org.apache.daffodil.dsom.DPathCompileInfo
+import org.apache.daffodil.processors.SequenceRuntimeData
 
 class Base64MIMETransformer(layerCharsetEv: LayerCharsetEv, layerBoundaryMarkEv: LayerBoundaryMarkEv)
   extends LayerTransformer() {
@@ -67,6 +68,7 @@ class Base64MIMETransformer(layerCharsetEv: LayerCharsetEv, layerBoundaryMarkEv:
     val newJOS = new LayerBoundaryMarkInsertingJavaOutputStream(jos, layerBoundaryMark, javaCharset)
     newJOS
   }
+
 }
 
 object Base64MIMETransformerFactory
@@ -75,25 +77,25 @@ object Base64MIMETransformerFactory
   override def newInstance(
     maybeLayerCharsetEv: Maybe[LayerCharsetEv],
     maybeLayerLengthKind: Maybe[LayerLengthKind],
-    maybeLayerLengthInBytesEv: Maybe[LayerLengthInBytesEv],
+    maybeLayerLengthEv: Maybe[LayerLengthEv],
     maybeLayerLengthUnits: Maybe[LayerLengthUnits],
     maybeLayerBoundaryMarkEv: Maybe[LayerBoundaryMarkEv],
-    tci: DPathCompileInfo): LayerTransformer = {
+    srd: SequenceRuntimeData) = {
 
-    tci.schemaDefinitionUnless(
+    srd.schemaDefinitionUnless(
       scala.util.Properties.isJavaAtLeast("1.8"),
       "Base64 layer support requires Java 8 (aka Java 1.8).")
 
-    tci.schemaDefinitionUnless(
+    srd.schemaDefinitionUnless(
       maybeLayerBoundaryMarkEv.isDefined,
       "Property dfdlx:layerBoundaryMark was not defined.")
-    tci.schemaDefinitionUnless(
+    srd.schemaDefinitionUnless(
       maybeLayerLengthKind.isEmpty ||
         (maybeLayerLengthKind.get eq LayerLengthKind.BoundaryMark),
       "Only dfdlx:layerLengthKind 'boundaryMark' is supported, but '%s' was specified",
       maybeLayerLengthKind.get.toString)
 
-    tci.schemaDefinitionUnless(
+    srd.schemaDefinitionUnless(
       maybeLayerCharsetEv.isDefined,
       "Property dfdlx:layerEncoding must be defined.")
 

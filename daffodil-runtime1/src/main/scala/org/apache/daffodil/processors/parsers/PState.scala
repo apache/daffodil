@@ -63,6 +63,7 @@ import org.apache.daffodil.util.Poolable
 import org.apache.daffodil.infoset.DIComplexState
 import org.apache.daffodil.infoset.DISimpleState
 import org.apache.daffodil.exceptions.Abort
+import org.apache.daffodil.exceptions.ThrowsSDE
 import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.xml.GlobalQName
 
@@ -327,9 +328,14 @@ final class PState private (
     this.infoset = newParent
   }
 
-  def setVariable(vrd: VariableRuntimeData, newValue: DataValuePrimitive, referringContext: VariableRuntimeData): Unit = {
+  def setVariable(vrd: VariableRuntimeData, newValue: DataValuePrimitive, referringContext: ThrowsSDE): Unit = {
     variableMap.setVariable(vrd, newValue, referringContext, this)
     changedVariablesStack.top += vrd.globalQName
+  }
+
+  def getVariable(vrd: VariableRuntimeData, referringContext: ThrowsSDE): DataValuePrimitive = {
+    val res = variableMap.readVariable(vrd, referringContext, this)
+    res
   }
 
   /**
