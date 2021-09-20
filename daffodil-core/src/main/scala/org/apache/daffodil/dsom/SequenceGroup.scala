@@ -229,10 +229,10 @@ abstract class SequenceGroupTermBase(
         maybeLayerTransformEv.get,
         maybeLayerCharsetEv,
         Maybe.toMaybe(optionLayerLengthKind),
-        maybeLayerLengthInBytesEv,
+        maybeLayerLengthEv,
         Maybe.toMaybe(optionLayerLengthUnits),
         maybeLayerBoundaryMarkEv,
-        dpathCompileInfo)
+        sequenceRuntimeData)
       lt.compile(tunable)
       Maybe.One(lt)
     }

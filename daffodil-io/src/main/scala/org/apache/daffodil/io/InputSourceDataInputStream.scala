@@ -189,7 +189,8 @@ final class InputSourceDataInputStream private(val inputSource: InputSource)
 
   def getByteArray(bitLengthFrom1: Int, finfo: FormatInfo, array: Array[Byte]): Unit = {
     // threadCheck()
-    if (!isDefinedForLength(bitLengthFrom1)) throw DataInputStream.NotEnoughDataException(bitLengthFrom1)
+    if (!isDefinedForLength(bitLengthFrom1))
+      throw DataInputStream.NotEnoughDataException(bitLengthFrom1)
 
     val bytesNeeded = (bitLengthFrom1 + 7) / 8
     Assert.usage(array.size >= bytesNeeded)

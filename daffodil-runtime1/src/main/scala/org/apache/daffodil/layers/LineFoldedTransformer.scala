@@ -20,20 +20,22 @@ package org.apache.daffodil.layers
 import org.apache.daffodil.schema.annotation.props.gen.LayerLengthKind
 import org.apache.daffodil.schema.annotation.props.gen.LayerLengthUnits
 import org.apache.daffodil.util.Maybe
-import org.apache.daffodil.processors.LayerLengthInBytesEv
+import org.apache.daffodil.processors.LayerLengthEv
 import org.apache.daffodil.processors.LayerBoundaryMarkEv
 import org.apache.daffodil.processors.LayerCharsetEv
 import org.apache.daffodil.processors.parsers.PState
+
 import java.nio.charset.StandardCharsets
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.processors.unparsers.UState
 import org.apache.daffodil.io.LayerBoundaryMarkInsertingJavaOutputStream
+
 import java.io.OutputStream
 import java.io.InputStream
 import org.apache.daffodil.exceptions.ThrowsSDE
 import org.apache.daffodil.schema.annotation.props.Enum
 import org.apache.daffodil.io.RegexLimitingStream
-import org.apache.daffodil.dsom.DPathCompileInfo
+import org.apache.daffodil.processors.SequenceRuntimeData
 
 /*
  * This and related classes implement so called "line folding" from
@@ -158,12 +160,12 @@ sealed abstract class LineFoldedTransformerFactory(mode: LineFoldMode, name: Str
   override def newInstance(
     maybeLayerCharsetEv: Maybe[LayerCharsetEv],
     maybeLayerLengthKind: Maybe[LayerLengthKind],
-    maybeLayerLengthInBytesEv: Maybe[LayerLengthInBytesEv],
+    maybeLayerLengthEv: Maybe[LayerLengthEv],
     maybeLayerLengthUnits: Maybe[LayerLengthUnits],
     maybeLayerBoundaryMarkEv: Maybe[LayerBoundaryMarkEv],
-    tci: DPathCompileInfo): LayerTransformer = {
+    srd: SequenceRuntimeData) = {
 
-    tci.schemaDefinitionUnless(
+    srd.schemaDefinitionUnless(
       maybeLayerLengthKind.isDefined,
       "The property dfdlx:layerLengthKind must be defined.")
 
@@ -176,7 +178,7 @@ sealed abstract class LineFoldedTransformerFactory(mode: LineFoldMode, name: Str
           new LineFoldedTransformerImplicit(mode)
         }
         case x =>
-          tci.SDE(
+          srd.SDE(
             "Property dfdlx:layerLengthKind can only be 'implicit' or 'boundaryMark', but was '%s'",
             x.toString)
       }

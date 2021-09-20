@@ -197,7 +197,7 @@ class VariableCircularDefinition(qname: NamedQName, context: VariableRuntimeData
  * Needed so that when unparsing multiple clones of a UState can share
  * and modify, the same VMap.
  *
- * This is a new mechanism, which allows for less rel-allocation of VariableMaps.
+ * This is a new mechanism, which allows for less re-allocation of VariableMaps.
  * There's a box that the variable map lives in, called vbox for convention.
  * by having two UState items point to the same vbox they can share the
  * variables. This is fine for unparsing, because all shared uses are not

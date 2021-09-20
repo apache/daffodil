@@ -22,12 +22,13 @@ import org.apache.daffodil.schema.annotation.props.gen.LayerLengthKind
 import org.apache.daffodil.schema.annotation.props.gen.LayerLengthUnits
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.MaybeInt
-import org.apache.daffodil.processors.LayerLengthInBytesEv
+import org.apache.daffodil.processors.LayerLengthEv
 import org.apache.daffodil.processors.LayerBoundaryMarkEv
 import org.apache.daffodil.processors.LayerCharsetEv
 import org.apache.daffodil.processors.parsers.PState
 import org.apache.daffodil.processors.unparsers.UState
 import org.apache.daffodil.processors.charset.BitsCharsetAISPayloadArmoring
+
 import java.nio._
 import java.nio.charset._
 import java.io._
@@ -44,7 +45,7 @@ import org.apache.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
 import org.apache.daffodil.schema.annotation.props.gen.UTF16Width
 import org.apache.daffodil.processors.charset.BitsCharsetDecoder
 import org.apache.daffodil.processors.charset.BitsCharsetEncoder
-import org.apache.daffodil.dsom.DPathCompileInfo
+import org.apache.daffodil.processors.SequenceRuntimeData
 
 object AISPayloadArmoringTransformer {
   val iso8859 = StandardCharsets.ISO_8859_1
@@ -164,10 +165,10 @@ object AISPayloadArmoringTransformerFactory
   override def newInstance(
     maybeLayerCharsetEv: Maybe[LayerCharsetEv],
     maybeLayerLengthKind: Maybe[LayerLengthKind],
-    maybeLayerLengthInBytesEv: Maybe[LayerLengthInBytesEv],
+    maybeLayerLengthEv: Maybe[LayerLengthEv],
     maybeLayerLengthUnits: Maybe[LayerLengthUnits],
     maybeLayerBoundaryMarkEv: Maybe[LayerBoundaryMarkEv],
-    tci: DPathCompileInfo): LayerTransformer = {
+    srd: SequenceRuntimeData) = {
 
     val xformer = new AISPayloadArmoringTransformer()
     xformer

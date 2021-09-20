@@ -18,7 +18,6 @@
 package org.apache.daffodil.processors.unparsers
 
 import org.apache.daffodil.processors.LayerTransformerEv
-import org.apache.daffodil.io.DirectOrBufferedDataOutputStream
 import org.apache.daffodil.processors.SequenceRuntimeData
 
 class LayeredSequenceUnparser(ctxt: SequenceRuntimeData,
@@ -36,18 +35,16 @@ class LayeredSequenceUnparser(ctxt: SequenceRuntimeData,
     val originalDOS = state.dataOutputStream // layer will output to the original, then finish it upon closing.
 
     val newDOS = originalDOS.addBuffered // newDOS is where unparsers after this one returns will unparse into.
-
-    //
-    // FIXME: Cast should not be necessary
     //
     // New layerDOS is where the layer will unparse into. Ultimately anything written
     // to layerDOS ends up, post transform, in originalDOS.
     //
-    val layerDOS = layerTransformer.addLayer(originalDOS, state).asInstanceOf[DirectOrBufferedDataOutputStream]
+    val layerDOS = layerTransformer.addLayer(originalDOS, state)
 
     // unparse the layer body into layerDOS
     state.dataOutputStream = layerDOS
     super.unparse(state)
+    layerTransformer.endLayerForUnparse(state)
 
     // now we're done with the layer, so finalize the layer
     layerDOS.lastInChain.setFinished(state)

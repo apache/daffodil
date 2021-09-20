@@ -21,18 +21,17 @@ import java.io.OutputStream
 import java.io.InputStream
 import java.util.ArrayDeque
 import java.util.Deque
-
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.schema.annotation.props.gen.LayerLengthKind
 import org.apache.daffodil.schema.annotation.props.gen.LayerLengthUnits
 import org.apache.daffodil.util.Maybe
-import org.apache.daffodil.processors.LayerLengthInBytesEv
+import org.apache.daffodil.processors.LayerLengthEv
 import org.apache.daffodil.processors.LayerBoundaryMarkEv
 import org.apache.daffodil.processors.LayerCharsetEv
 import org.apache.daffodil.processors.parsers.PState
 import org.apache.daffodil.io.ExplicitLengthLimitingStream
 import org.apache.daffodil.processors.unparsers.UState
-import org.apache.daffodil.dsom.DPathCompileInfo
+import org.apache.daffodil.processors.SequenceRuntimeData
 
 /**
  * An input stream wrapper that re-orders bytes according to wordsize.
@@ -158,7 +157,7 @@ class ByteSwapOutputStream(wordsize: Int, jos: OutputStream)
 /**
  * A LayerTransformer that re-orders bytes for the over/underlying layer.
  */
-class ByteSwapTransformer(wordsize: Int, layerLengthInBytesEv: LayerLengthInBytesEv)
+class ByteSwapTransformer(wordsize: Int, layerLengthEv: LayerLengthEv)
   extends LayerTransformer() {
 
   override def wrapLayerDecoder(jis: java.io.InputStream) = {
@@ -167,7 +166,7 @@ class ByteSwapTransformer(wordsize: Int, layerLengthInBytesEv: LayerLengthInByte
   }
 
   override def wrapLimitingStream(jis: java.io.InputStream, state: PState) = {
-    val layerLengthInBytes: Int = layerLengthInBytesEv.evaluate(state).toInt
+    val layerLengthInBytes: Int = layerLengthEv.evaluate(state).toInt
 
     val s = new ExplicitLengthLimitingStream(jis, layerLengthInBytes)
     s
@@ -196,22 +195,22 @@ sealed abstract class ByteSwapTransformerFactory(wordsize: Int, name: String)
   override def newInstance(
     maybeLayerCharsetEv: Maybe[LayerCharsetEv],
     maybeLayerLengthKind: Maybe[LayerLengthKind],
-    maybeLayerLengthInBytesEv: Maybe[LayerLengthInBytesEv],
+    maybeLayerLengthEv: Maybe[LayerLengthEv],
     maybeLayerLengthUnits: Maybe[LayerLengthUnits],
     maybeLayerBoundaryMarkEv: Maybe[LayerBoundaryMarkEv],
-    tci: DPathCompileInfo): LayerTransformer = {
+    srd: SequenceRuntimeData) = {
 
-    tci.schemaDefinitionUnless(
+    srd.schemaDefinitionUnless(
       maybeLayerLengthKind.isDefined,
       "The propert dfdlx:layerLengthKind must be defined.")
 
     val xformer =
       maybeLayerLengthKind.get match {
         case LayerLengthKind.Explicit => {
-          new ByteSwapTransformer(wordsize, maybeLayerLengthInBytesEv.get)
+          new ByteSwapTransformer(wordsize, maybeLayerLengthEv.get)
         }
         case x =>
-          tci.SDE(
+          srd.SDE(
             "Property dfdlx:layerLengthKind can only be 'explicit', but was '%s'",
             x.toString)
       }

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+
+<schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns="http://www.w3.org/2001/XMLSchema"
+           xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+           xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
+           xmlns:fn="http://www.w3.org/2005/xpath-functions"
+           xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
+           xmlns:cd="urn:org.apache.daffodil.layers.checkDigit"
+           xmlns:ex="http://example.com"
+           xmlns:tns="http://example.com"
+           targetNamespace="http://example.com">
+
+  <include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+
+  <import
+    namespace="urn:org.apache.daffodil.layers.checkDigit"
+    schemaLocation="org/apache/daffodil/layers/xsd/checkDigitLayer.dfdl.xsd"/>
+
+  <annotation>
+    <appinfo source="http://www.ogf.org/dfdl/">
+      <dfdl:format ref="tns:GeneralFormat" encoding="ascii" />
+    </appinfo>
+  </annotation>
+
+  <element name="r">
+    <complexType>
+      <sequence>
+        <annotation>
+          <appinfo source="http://www.ogf.org/dfdl/">
+            <dfdl:newVariableInstance ref="cd:checkDigit"/>
+            <dfdl:newVariableInstance ref="cd:checkDigitParams" defaultValue="verbose"/>
+          </appinfo>
+        </annotation>
+        <sequence>
+          <sequence dfdl:ref="cd:checkDigitExplicit" dfdlx:layerLength="10">
+            <element name="value" type="tns:dateType"/>
+          </sequence>
+          <element name="checkDigit" type="cd:checkDigitType" dfdl:initiator=":"
+                   dfdl:outputValueCalc='{ $cd:checkDigit }'/>
+          <element name="computedCheckDigit" type="cd:checkDigitType"
+                   dfdl:inputValueCalc='{ $cd:checkDigit }'/>
+          <sequence>
+            <annotation>
+              <appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:assert
+                  failureType="recoverableError"
+                  test='{ checkDigit eq $cd:checkDigit }'
+                  message='{ fn:concat("Incorrect check digit: ", checkDigit, ". Should be: ", $cd:checkDigit, ".") }' />
+              </appinfo>
+            </annotation>
+          </sequence>
+        </sequence>
+      </sequence>
+    </complexType>
+  </element>
+
+  <simpleType name="dateType"
+              dfdl:lengthKind="explicit"
+              dfdl:length="10"
+              dfdl:calendarPatternKind="explicit"
+              dfdl:calendarPattern="yyyy-MM-dd">
+    <restriction base="xs:date"/>
+  </simpleType>
+
+
+</schema>

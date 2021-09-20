@@ -17,8 +17,10 @@
 
 package org.apache.daffodil.processors.parsers
 
+import org.apache.daffodil.layers.LayerNotEnoughDataException
 import org.apache.daffodil.processors.SequenceRuntimeData
 import org.apache.daffodil.processors.LayerTransformerEv
+import org.apache.daffodil.util.MaybeULong
 
 class LayeredSequenceParser(
   rd: SequenceRuntimeData,
@@ -39,17 +41,18 @@ class LayeredSequenceParser(
       PE(state, "Unable to align to the mandatory layer alignment of %s(bits)",
         layerTransformer.mandatoryLayerAlignmentInBits)
 
-    val newDIS = layerTransformer.addLayer(savedDIS, state)
+    try {
+      val newDIS = layerTransformer.addLayer(savedDIS, state)
 
-    //
-    // FIXME: Cast should not be needed
-    //
-    state.dataInputStream = newDIS
-
-    super.parse(state)
-
-    layerTransformer.removeLayer(newDIS)
-
-    state.dataInputStream = savedDIS
+      state.dataInputStream = newDIS
+      layerTransformer.startLayerForParse(state)
+      super.parse(state)
+      layerTransformer.removeLayer(newDIS)
+    } catch {
+      case le: LayerNotEnoughDataException =>
+        PENotEnoughBits(le.state, le.nBytesRequired * 8, MaybeULong.Nope)
+    } finally {
+      state.dataInputStream = savedDIS
+    }
   }
 }
