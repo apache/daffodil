@@ -993,7 +993,6 @@ this to validate when we load a DFDL Schema.
         <!-- DFDL -->
         <xsd:attributeGroup ref="dfdl:SequenceAGQualified" />
         <xsd:attributeGroup ref="dfdl:SeparatorAGQualified" />
-        <xsd:attributeGroup ref="dfdl:LayeringAGQualified" />
       </xsd:extension>
     </xsd:complexContent>
   </xsd:complexType>

@@ -41,7 +41,6 @@ class TestLayers {
   @Test def test_layers1(): Unit = { runner.runOneTest("layers1") }
   @Test def test_layers2(): Unit = { runner.runOneTest("layers2") }
   @Test def test_layers3(): Unit = { runner.runOneTest("layers3") }
-  @Test def test_layers3_deprecated(): Unit = { runner.runOneTest("layers3_deprecated") }
   @Test def test_layersErr1(): Unit = { runner.runOneTest("layersErr1") }
   @Test def test_layers4(): Unit = { runner.runOneTest("layers4") }
 
