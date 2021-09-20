@@ -418,30 +418,6 @@
     <xsd:attribute name="sequenceKind" type="dfdl:SequenceKindEnum" />
     <xsd:attribute name="hiddenGroupRef" type="xsd:QName" />
   </xsd:attributeGroup>
-  
-  <xsd:attribute name="layerTransform"
-    type="dfdl:LayerTransformType_Or_DFDLExpression" />
-  <xsd:attribute name="layerEncoding"
-    type="dfdl:EncodingEnum_Or_DFDLExpression" />
-  <xsd:attribute name="layerLengthKind" type="dfdl:LayerLengthKindEnum" />
-  <xsd:attribute name="layerLength"
-    type="dfdl:DFDLNonNegativeInteger_Or_DFDLExpression" />
-  <xsd:attribute name="layerLengthUnits" type="dfdl:LayerLengthUnitsEnum" />
-  <xsd:attribute name="layerBoundaryMark"
-    type="dfdl:ListOfDFDLStringLiteral_Or_DFDLExpression" />
-      
-  <xsd:attributeGroup name="LayeringAG">
-    <xsd:attribute name="layerTransform"
-      type="dfdl:LayerTransformType_Or_DFDLExpression" />
-    <xsd:attribute name="layerEncoding"
-      type="dfdl:EncodingEnum_Or_DFDLExpression" />
-    <xsd:attribute name="layerLengthKind" type="dfdl:LayerLengthKindEnum" />
-    <xsd:attribute name="layerLength"
-      type="dfdl:DFDLNonNegativeInteger_Or_DFDLExpression" />
-    <xsd:attribute name="layerLengthUnits" type="dfdl:LayerLengthUnitsEnum" />
-    <xsd:attribute name="layerBoundaryMark"
-      type="dfdl:ListOfDFDLStringLiteral_Or_DFDLExpression" />
-  </xsd:attributeGroup>
 
   <!-- 14.2 Sequence Groups with Delimiters -->
   <xsd:attribute name="separator"
@@ -629,13 +605,6 @@
 
       <xsd:enumeration value="sequenceKind" />
       <xsd:enumeration value="hiddenGroupRef" />
-      
-      <xsd:enumeration value="layerTransform"/>
-      <xsd:enumeration value="layerEncoding" />
-      <xsd:enumeration value="layerLengthKind" />
-      <xsd:enumeration value="layerLength" />
-      <xsd:enumeration value="layerLengthUnits" />
-      <xsd:enumeration value="layerBoundaryMark" />
       
       <xsd:enumeration value="initiatedContent" />
 
@@ -1043,7 +1012,6 @@
   <xsd:attributeGroup name="GroupAGQualified">
     <xsd:attributeGroup ref="dfdl:GroupCommonAGQualified" />
     <xsd:attributeGroup ref="dfdl:SequenceAGQualified" />
-    <xsd:attributeGroup ref="dfdl:LayeringAGQualified" /> <!-- backwards compatibility -->
     <xsd:attributeGroup ref="dfdlx:ExtLayeringAGQualified" />
     <xsd:attributeGroup ref="dfdl:ChoiceAGQualified" />
     <xsd:attributeGroup ref="dfdl:SeparatorAGQualified" />
@@ -1068,19 +1036,6 @@
     <xsd:attributeGroup ref="dfdl:BooleanBinaryAGQualified" />
     <xsd:attributeGroup ref="dfdlx:SimpleTypeValueCalcAGQualified" />
     <xsd:attributeGroup ref="dfdlx:ObjectKindAGQualified" />
-  </xsd:attributeGroup>
-
-  <xsd:attributeGroup name="LayeringAGQualified">
-    <xsd:attribute form="qualified" name="layerTransform"
-      type="dfdl:LayerTransformType_Or_DFDLExpression" />
-    <xsd:attribute form="qualified" name="layerEncoding"
-      type="dfdl:EncodingEnum_Or_DFDLExpression" />
-    <xsd:attribute form="qualified" name="layerLengthKind" type="dfdl:LayerLengthKindEnum" />
-    <xsd:attribute form="qualified" name="layerLength"
-      type="dfdl:DFDLNonNegativeInteger_Or_DFDLExpression" />
-    <xsd:attribute form="qualified" name="layerLengthUnits" type="dfdl:LayerLengthUnitsEnum" />
-    <xsd:attribute form="qualified" name="layerBoundaryMark"
-      type="dfdl:ListOfDFDLStringLiteral_Or_DFDLExpression" />
   </xsd:attributeGroup>
   
 </xsd:schema>

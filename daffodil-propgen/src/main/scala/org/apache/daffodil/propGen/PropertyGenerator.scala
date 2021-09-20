@@ -41,8 +41,6 @@ class PropertyGenerator(arg: Node) {
     "BinaryBooleanFalseRepType",
     "BinaryBooleanTrueRepType",
     "EmptyElementParsePolicy",
-    "ExtLayeringAG",
-    "ExtLayeringAGQualified",
     "FillByteType",
     "Property",
     "PropertyNameType",
