@@ -128,6 +128,25 @@ final class EntityReplacer {
   def hasHexCodePoint(input: String): Boolean = isMatched(input, hexPattern)
   def hasByteCodePoint(input: String): Boolean = isMatched(input, bytePattern)
 
+  private def replaceEntityWithChar(input: String, entity: String, newChar: Char): String = {
+    val replacement =
+      if (newChar == '%') {
+        // Some character entities are not replaced in this EntityReplacer,
+        // such as double percents or character classes (NL, WSP, etc.). If
+        // this character entity results in a percent character (e.g. %#x25;),
+        // we must replace it with an escaped percent to be handled later.
+        "%%"
+      } else {
+        // This character might mean something special to the replaceAll method
+        // we are about to use (e.g. a dollar sign for regex group references).
+        // To be safe, call quoteReplaement which escapes any characters that
+        // mean something special in a replacement string so they are replaced
+        // with the literal value.
+        Matcher.quoteReplacement(newChar.toString)
+      }
+    input.replaceAll(entity, replacement)
+  }
+
   def replaceHex(input: String, prefix: String): String = {
     var res: String = input
 
@@ -141,12 +160,8 @@ final class EntityReplacer {
         val rawStr = m.group().toString()
         val trimmedStr = rawStr.replace(prefix, "").replace(";", "")
         val intStr = Integer.parseInt(trimmedStr, 16)
-        val newChar = intStr.toChar.toString
-        // Special case here
-        // $ is used by replaceAll to refer to prior groups
-        // so $ must be escaped into \$
-        val newCharNotDollar = if (newChar == "$") """\$""" else newChar
-        res = res.replaceAll(rawStr, newCharNotDollar)
+        val newChar = intStr.toChar
+        res = replaceEntityWithChar(res, rawStr, newChar)
       }
     }
     res
@@ -165,8 +180,8 @@ final class EntityReplacer {
         val rawStr = m.group().toString()
         val trimmedStr = rawStr.replace(prefix, "").replace(";", "")
         val intStr = Integer.parseInt(trimmedStr, 10)
-
-        res = res.replaceAll(rawStr, intStr.asInstanceOf[Char].toString())
+        val newChar = intStr.toChar
+        res = replaceEntityWithChar(res, rawStr, newChar)
       }
     }
 
@@ -188,8 +203,8 @@ final class EntityReplacer {
         val upperNibble: Int = JByte.parseByte(trimmedStr.substring(0, 1), 16) << 4
         val lowerNibble: Byte = JByte.parseByte(trimmedStr.substring(1, 2), 16)
         val byteStr: Int = upperNibble | lowerNibble
-
-        res = res.replaceAll(rawStr, byteStr.toChar.toString)
+        val newChar = byteStr.toChar
+        res = replaceEntityWithChar(res, rawStr, newChar)
       }
     }
 
@@ -256,18 +271,6 @@ final class EntityReplacer {
     val nlMarked = NLMatcher.replaceAll(markerForNL)
     val s2 = nlMarked.replaceAll(markerForDoublePercent, "%") // put back double percents. Leaving the markers for NL
     s2
-  }
-
-  /**
-   * replace marked NL entity with replacement string (from dfdl:outputNewline computation)
-   * and replace double-percent markers with "%".
-   */
-  def replaceNLForUnparse(input: String, replacement: String): String = {
-    markerForNLMatcher.reset(input)
-    val a = markerForNLMatcher.replaceAll(replacement)
-    markerForDPMatcher.reset(a)
-    val b = markerForDPMatcher.replaceAll("%")
-    b
   }
 
   private def stripLeadingPercent(s: String) = if (s.startsWith("%")) s substring (1) else s
