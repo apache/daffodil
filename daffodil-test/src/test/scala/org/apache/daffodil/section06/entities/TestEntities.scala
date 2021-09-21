@@ -119,4 +119,6 @@ class TestEntities {
   @Test def test_invalid_entity_06(): Unit = { runnerInvalid.runOneTest("text_invalid_entity_among_multiple_valid_combined") }
   @Test def test_invalid_entity_07(): Unit = { runnerInvalid.runOneTest("text_invalid_entity_escaped") }
 
+  @Test def test_allAsciiHexEntities(): Unit = { runner_01.runOneTest("allAsciiHexEntities") }
+  @Test def test_allAsciiDecEntities(): Unit = { runner_01.runOneTest("allAsciiDecEntities") }
 }
