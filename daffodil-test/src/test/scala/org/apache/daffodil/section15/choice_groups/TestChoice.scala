@@ -119,6 +119,9 @@ class TestChoice {
   @Test def test_direct_dispatch_16(): Unit = { runnerCH.runOneTest("direct_dispatch_16") }
   @Test def test_direct_dispatch_17(): Unit = { runnerCH.runOneTest("direct_dispatch_17") }
 
+  // DAFFODIL-2562
+  // @Test def test_dispatch_group_choice(): Unit = { runnerCH.runOneTest("dispatch_group_choice") }
+
   @Test def test_explicit_01(): Unit = { runnerCE.runOneTest("explicit_01") }
   @Test def test_explicit_02(): Unit = { runnerCE.runOneTest("explicit_02") }
   @Test def test_explicit_03(): Unit = { runnerCE.runOneTest("explicit_03") }
