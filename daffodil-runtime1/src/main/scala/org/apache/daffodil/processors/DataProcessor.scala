@@ -357,7 +357,14 @@ class DataProcessor private (
 
   def save(output: DFDL.Output): Unit = {
 
-    val oos = new ObjectOutputStream(new GZIPOutputStream(Channels.newOutputStream(output)))
+    val os = Channels.newOutputStream(output)
+
+    // write a null-terminated UTF-8 string as a simple version identifier
+    val headerString = "DAFFODIL " + Misc.getDaffodilVersion + "\u0000"
+    os.write(headerString.getBytes("utf-8"))
+
+    // serialize and compress the data processor to the outputstream
+    val oos = new ObjectOutputStream(new GZIPOutputStream(os))
 
     //
     // Make a copy of this object, so that our state mods below don't side-effect the user's object.

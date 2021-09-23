@@ -19,6 +19,7 @@ package org.apache.daffodil.compiler
 
 import java.io.File
 import java.io.FileInputStream
+import java.io.InvalidClassException
 import java.io.ObjectInputStream
 import java.io.StreamCorruptedException
 import java.nio.channels.Channels
@@ -26,6 +27,7 @@ import java.util.zip.GZIPInputStream
 import java.util.zip.ZipException
 
 import scala.collection.immutable.Queue
+import scala.collection.mutable.ArrayBuffer
 import scala.util.Try
 import scala.xml.Node
 
@@ -283,7 +285,34 @@ class Compiler private (var validateDFDLSchemas: Boolean,
 
   def reload(savedParser: java.nio.channels.ReadableByteChannel): DFDL.DataProcessor = {
     try {
-      val objInput = new ObjectInputStream(new GZIPInputStream(Channels.newInputStream(savedParser))) {
+      val is = Channels.newInputStream(savedParser)
+
+      // Read the required prefix and version information for this saved parser
+      // directly from the input stream. This information is not compressed or
+      // serialized by a Java ObjectOutputStream
+
+      val requiredDataPrefix = "DAFFODIL "
+      requiredDataPrefix.foreach { c =>
+        if (is.read() != c.toInt) throw new InvalidParserException("The saved parser is only compatible with an older version of Daffodil")
+      }
+
+      val ab = new ArrayBuffer[Byte]()
+      var byte = -1
+      while ({ byte = is.read(); byte > 0 }) {
+        ab.append(byte.toByte)
+      }
+      if (byte == -1) {
+        throw new InvalidParserException("The saved parser is corrupted")
+      }
+      val curVersion = Misc.getDaffodilVersion
+      val savedVersion = new String(ab.toArray, "utf-8")
+      if (savedVersion != curVersion) {
+        throw new InvalidParserException("The saved parser is only compatible with Daffodil " + savedVersion + ". Current version is " + curVersion)
+      }
+
+      // Decompress and deserilize the rest of the file using java object deserializtion
+
+      val objInput = new ObjectInputStream(new GZIPInputStream(is)) {
 
         ///
         /// This override is here because of a bug in sbt where the wrong class loader is being
@@ -302,31 +331,45 @@ class Compiler private (var validateDFDLSchemas: Boolean,
       dp
     } catch {
       case ex: ZipException => {
-        throw new InvalidParserException("The saved parser file is not the correct format.", ex)
+        throw new InvalidParserException("The saved parser is corrupted")
       }
       case ex: StreamCorruptedException => {
-        throw new InvalidParserException("The saved parser file is not a valid parser.", ex)
+        throw new InvalidParserException("The saved parser is corrupted")
+      }
+      case ex: InvalidClassException => {
+        // This should only happen if users saves a schema with one version of
+        // dependency and tries to reload with a different version that is not
+        // serialization-compatible (e.g. save with scala 2.12.6 but reload
+        // with scala 2.12.11). We don't really know which versions of
+        // dependencies maintain serialization compatibility, and we it would
+        // be nice to allow users to upgrade libraries themselves for security
+        // purposes. So locking Daffodil to specific versions isn't ideal. If
+        // this exception is thrown, try to figure out which jar the
+        // incompatible class came from and point the user towards that to help
+        // figure out the issue.
+        val cls = Class.forName(ex.classname)
+        val src = cls.getProtectionDomain.getCodeSource
+        val dependencyStr = if (src != null) (new File(src.getLocation().getFile)).getName else "a dependency"
+        throw new InvalidParserException("The saved parser was created with a different version of " + dependencyStr + " with incompatible class: " + ex.classname)
       }
       //
-      // If we are running on Java 7, and a class such as Base64 (only in Java 8)
-      // needs to be created as part of loading the schema, then we'll get a
-      // class not found exception. This catches that and issues a
-      // sensible diagnostic.
-      //
-      // Similarly, if a class *should* be on the classpath in order for this
-      // schema to reload, then we will get CNF, and we issue a diagnostic
-      // which also displays the classpath.
-      //
-      case cnf: ClassNotFoundException => {
-        val cpString =
-          if (Misc.classPath.isEmpty) " empty."
-          else ":\n" + Misc.classPath.mkString("\n\t")
-        val fmtMsg = "%s\nThe class may not exist in this Java JVM version (%s), or it is missing from the classpath which is%s"
-        val msg = fmtMsg.format(cnf.getMessage, scala.util.Properties.javaVersion, cpString)
-        throw new InvalidParserException(msg, cnf)
+      case ex @ (_: ClassNotFoundException | _: NoClassDefFoundError) => {
+        // Both of these exception happens if a class that was used when saving
+        // is no longer on the classpath when reloading.
+        //
+        // One example of this happening is saving a schema using Java 8 but
+        // then reloading on Java 7, since some features (like base64 layers)
+        // rely on classes only available in Java 8.
+        //
+        // Another likely cause is if a user just has their classpath all wrong
+        // when reloading a schema, and dependencies are just missing, or if a
+        // user switches depenency versions and the new version completely
+        // removes a class.
+        throw new InvalidParserException("The saved parser was created with a different set of dependencies containing a class no longer on the classpath: " + ex.getMessage)
       }
     }
   }
+
   /**
    * Compilation returns a parser factory, which must be interrogated for diagnostics
    * to see if compilation was successful or not.
