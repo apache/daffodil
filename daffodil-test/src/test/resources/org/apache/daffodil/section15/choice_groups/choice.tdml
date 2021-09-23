@@ -1779,6 +1779,32 @@ it sure is/
       </xs:complexType>
     </xs:element>
 
+    <xs:group name="groupOfChoice">
+      <xs:sequence>
+        <xs:element name="key" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1" />
+        <xs:choice dfdl:choiceDispatchKey="{ ./ex:key }">
+          <xs:sequence dfdl:choiceBranchKey="a">
+            <xs:element name="elt_a" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="3" />
+          </xs:sequence>
+          <xs:sequence dfdl:choiceBranchKey="b">
+            <xs:element name="elt_b" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="3" />
+            <xs:element name="elt_c" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="3"
+              minOccurs="0" maxOccurs="1" dfdl:occursCountKind="expression" dfdl:occursCount="{ if (fn:exists(../ex:elt_b)) then 1 else 0 }" />
+          </xs:sequence>
+        </xs:choice>
+      </xs:sequence>
+    </xs:group>
+
+    <xs:element name="dd9">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="prev" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1" />
+          <xs:group ref="groupOfChoice" />
+          <xs:element name="post" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
   </tdml:defineSchema>
 
   <tdml:parserTestCase name="direct_dispatch_01" root="dd1"
@@ -1999,6 +2025,23 @@ it sure is/
         <ex:dd8>
           <ex:branch>0</ex:branch>
         </ex:dd8>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="dispatch_group_choice" root="dd9"
+    model="direct_dispatch_1" roundTrip="true"
+    description="simple case of direct dispatch - DFDL-15-001R. Uses group containing a choice with direct dispatch">
+    <tdml:document><![CDATA[0bbbbccc1]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com">
+        <ex:dd9>
+          <ex:prev>0</ex:prev>
+          <ex:key>b</ex:key>
+          <ex:elt_b>bbb</ex:elt_b>
+          <ex:elt_c>ccc</ex:elt_c>
+          <ex:post>1</ex:post>
+        </ex:dd9>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
