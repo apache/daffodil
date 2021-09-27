@@ -17,10 +17,8 @@
 
 package org.apache.daffodil.dpath
 
-import java.lang.{ Number => JNumber }
-
+import java.lang.{Number => JNumber}
 import scala.xml.NodeSeq.seqToNodeSeq
-
 import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.dsom.DPathCompileInfo
 import org.apache.daffodil.dsom.SchemaDefinitionDiagnosticBase
@@ -38,6 +36,7 @@ import org.apache.daffodil.processors.CompileState
 import org.apache.daffodil.processors.ParseOrUnparseState
 import org.apache.daffodil.processors.ProcessingError
 import org.apache.daffodil.processors.VariableException
+import org.apache.daffodil.processors.VariableHasNoValue
 import org.apache.daffodil.processors.VariableRuntimeData
 import org.apache.daffodil.util.Misc
 
@@ -63,10 +62,8 @@ class CompiledDPath(val ops: RecipeOp*) extends Serializable {
       dstate.setContextNode(state.thisElement.asInstanceOf[DINode]) // used for diagnostics
     }
 
-    dstate.setVMap(state.variableMap)
     dstate.setArrayPos(state.arrayPos)
     dstate.setErrorOrWarn(state)
-    dstate.setParseOrUnparseState(state)
     dstate.resetValue
     dstate.isCompile = state match {
       case cs: CompileState => true
@@ -184,9 +181,9 @@ case class VRef(vrd: VariableRuntimeData, context: ThrowsSDE)
   extends RecipeOp {
 
   override def run(dstate: DState): Unit = {
-    Assert.invariant(dstate.vmap != null)
-    Assert.invariant(dstate.parseOrUnparseState.isDefined)
-    dstate.setCurrentValue(dstate.vmap.readVariable(vrd, context, dstate.parseOrUnparseState.get))
+    if(dstate.parseOrUnparseState.isEmpty) throw new VariableHasNoValue(vrd.globalQName, vrd)
+    val value = dstate.parseOrUnparseState.get.getVariable(vrd, context)
+    dstate.setCurrentValue(value)
   }
 
   override def toXML = toXML("$" + vrd.globalQName.toPrettyString)

@@ -340,13 +340,13 @@ class VariableMap private(vTable: Map[GlobalQName, ArrayBuffer[VariableInstance]
    * Returns the value of a variable and sets the state of the variable to be
    * VariableRead.
    */
-  def readVariable(vrd: VariableRuntimeData, referringContext: ThrowsSDE, pstate: ParseOrUnparseState): DataValuePrimitive = {
+  def readVariable(vrd: VariableRuntimeData, referringContext: ThrowsSDE, state: ParseOrUnparseState): DataValuePrimitive = {
     val varQName = vrd.globalQName
     vrd.direction match {
-      case VariableDirection.ParseOnly if (!pstate.isInstanceOf[PState]) =>
-        pstate.SDE("Attempting to read variable %s which is marked as parseOnly during unparsing".format(varQName))
-      case VariableDirection.UnparseOnly if (!pstate.isInstanceOf[UState]) =>
-        pstate.SDE("Attempting to read variable %s which is marked as unparseOnly during parsing".format(varQName))
+      case VariableDirection.ParseOnly if (!state.isInstanceOf[PState]) =>
+        state.SDE("Attempting to read variable %s which is marked as parseOnly during unparsing".format(varQName))
+      case VariableDirection.UnparseOnly if (!state.isInstanceOf[UState]) =>
+        state.SDE("Attempting to read variable %s which is marked as unparseOnly during parsing".format(varQName))
       case _ => // Do nothing
     }
 
@@ -356,9 +356,6 @@ class VariableMap private(vTable: Map[GlobalQName, ArrayBuffer[VariableInstance]
       variable.state match {
         case VariableRead if (variable.value.isDefined) => variable.value.getNonNullable
         case VariableDefined | VariableSet if (variable.value.isDefined) => {
-          if (pstate.isInstanceOf[PState])
-            pstate.asInstanceOf[PState].markVariableRead(vrd)
-
           variable.setState(VariableRead)
           variable.value.getNonNullable
         }
@@ -369,7 +366,7 @@ class VariableMap private(vTable: Map[GlobalQName, ArrayBuffer[VariableInstance]
         // have a defined value
         case VariableUndefined if (variable.rd.maybeDefaultValueExpr.isDefined) => {
           variable.setState(VariableBeingDefined)
-          val res = DataValue.unsafeFromAnyRef(variable.rd.maybeDefaultValueExpr.get.evaluate(pstate))
+          val res = DataValue.unsafeFromAnyRef(variable.rd.maybeDefaultValueExpr.get.evaluate(state))
 
           // Need to update the variable's value with the result of the
           // expression

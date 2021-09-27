@@ -50,6 +50,7 @@ import org.apache.daffodil.processors.SuspensionTracker
 import org.apache.daffodil.processors.TermRuntimeData
 import org.apache.daffodil.processors.UnparseResult
 import org.apache.daffodil.processors.VariableBox
+import org.apache.daffodil.processors.VariableInstance
 import org.apache.daffodil.processors.VariableMap
 import org.apache.daffodil.processors.VariableRuntimeData
 import org.apache.daffodil.processors.charset.BitsCharset
@@ -76,7 +77,8 @@ abstract class UState(
   extends ParseOrUnparseState(vbox, diagnosticsArg, dataProcArg, tunable)
   with Cursor[InfosetAccessor] with ThrowsSDE with SavesErrorsAndWarnings {
 
-  final def setVariable(vrd: VariableRuntimeData, newValue: DataValuePrimitive, referringContext: ThrowsSDE) =
+
+  final override def setVariable(vrd: VariableRuntimeData, newValue: DataValuePrimitive, referringContext: ThrowsSDE) =
     vbox.vmap.setVariable(vrd, newValue, referringContext, this)
 
   /**
@@ -86,10 +88,12 @@ abstract class UState(
    * @param referringContext Where to place blame if there is an error.
    * @return The data value of the variable, or throws exceptions if there is no value.
    */
-  final def getVariable(vrd: VariableRuntimeData, referringContext: ThrowsSDE): DataValuePrimitive =
+  final override def getVariable(vrd: VariableRuntimeData, referringContext: ThrowsSDE): DataValuePrimitive =
     vbox.vmap.readVariable(vrd, referringContext, this)
 
+  final override def newVariableInstance(vrd: VariableRuntimeData): VariableInstance = variableMap.newVariableInstance(vrd)
 
+  final override def removeVariableInstance(vrd: VariableRuntimeData): Unit = variableMap.removeVariableInstance(vrd)
 
   /**
    * Push onto the dynamic TRD context stack
@@ -119,7 +123,6 @@ abstract class UState(
   def currentInfosetNode: DINode
   def currentInfosetNodeMaybe: Maybe[DINode]
   def escapeSchemeEVCache: MStackOfMaybe[EscapeSchemeUnparserHelper]
-  def setVariables(newVariableMap: VariableMap): Unit
 
   // def charBufferDataOutputStream: LocalStack[CharBufferDataOutputStream]
   def withUnparserDataInputStream: LocalStack[StringDataInputStreamForUnparse]
@@ -381,7 +384,6 @@ final class UStateForSuspension(
   dState.setMode(UnparserBlocking)
   dState.setCurrentNode(thisElement.asInstanceOf[DINode])
   dState.setContextNode(thisElement.asInstanceOf[DINode])
-  dState.setVBox(vbox)
   dState.setErrorOrWarn(this)
 
   private def die = Assert.invariantFailed("Function should never be needed in UStateForSuspension")
@@ -431,8 +433,6 @@ final class UStateForSuspension(
   }
 
   override def escapeSchemeEVCache: MStackOfMaybe[EscapeSchemeUnparserHelper] = escapeSchemeEVCacheMaybe.get
-
-  override def setVariables(newVariableMap: VariableMap) = die
 
   override def pushTRD(trd: TermRuntimeData): Unit = die
   override def maybeTopTRD() = die
@@ -610,10 +610,6 @@ final class UStateMain private (
     delimiterStack.iterator.flatMap { dnode =>
       dnode.separator ++ dnode.terminator
     }.toList
-  }
-
-  override def setVariables(newVariableMap: VariableMap) = {
-    setVariableMap(newVariableMap)
   }
 
   /**

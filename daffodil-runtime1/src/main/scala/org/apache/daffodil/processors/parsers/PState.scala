@@ -328,22 +328,15 @@ final class PState private (
     this.infoset = newParent
   }
 
-  def setVariable(vrd: VariableRuntimeData, newValue: DataValuePrimitive, referringContext: ThrowsSDE): Unit = {
+  override def setVariable(vrd: VariableRuntimeData, newValue: DataValuePrimitive, referringContext: ThrowsSDE): Unit = {
     variableMap.setVariable(vrd, newValue, referringContext, this)
     changedVariablesStack.top += vrd.globalQName
   }
 
-  def getVariable(vrd: VariableRuntimeData, referringContext: ThrowsSDE): DataValuePrimitive = {
+  override def getVariable(vrd: VariableRuntimeData, referringContext: ThrowsSDE): DataValuePrimitive = {
     val res = variableMap.readVariable(vrd, referringContext, this)
-    res
-  }
-
-  /**
-   * Note that this function does not actually read the variable, it is used
-   * just to track that the variable was read in case we need to backtrack.
-   */
-  def markVariableRead(vrd: VariableRuntimeData): Unit = {
     changedVariablesStack.top += vrd.globalQName
+    res
   }
 
   def newVariableInstance(vrd: VariableRuntimeData): VariableInstance = {

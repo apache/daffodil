@@ -42,7 +42,7 @@ final class SetVariableSuspendableExpression(
   extends SuspendableExpression {
 
   override protected def processExpressionResult(ustate: UState, v: DataValuePrimitive): Unit = {
-      ustate.variableMap.setVariable(rd, v, referencingContext, ustate)
+      ustate.setVariable(rd, v, referencingContext)
   }
 
   override protected def maybeKnownLengthInBits(ustate: UState) = MaybeULong(0)
@@ -101,7 +101,7 @@ class NewVariableInstanceStartUnparser(override val context: VariableRuntimeData
   override lazy val childProcessors = Vector()
 
   override def unparse(state: UState) = {
-    val nvi = state.variableMap.newVariableInstance(context)
+    val nvi = state.newVariableInstance(context)
 
     if (context.maybeDefaultValueExpr.isDefined) {
       val dve = context.maybeDefaultValueExpr.get
@@ -123,7 +123,7 @@ class NewVariableInstanceEndUnparser(override val context: VariableRuntimeData)
 
   override lazy val childProcessors = Vector()
 
-  override def unparse(state: UState) = state.variableMap.removeVariableInstance(context)
+  override def unparse(state: UState) = state.removeVariableInstance(context)
 }
 
 class TypeValueCalcUnparser(typeCalculator: TypeCalculator, repTypeUnparser: Unparser, e: ElementRuntimeData, repTypeRuntimeData: ElementRuntimeData)

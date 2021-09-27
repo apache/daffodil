@@ -32,14 +32,11 @@ import org.apache.daffodil.infoset.InfosetNoNextSiblingException
 import org.apache.daffodil.infoset.RetryableException
 import org.apache.daffodil.processors.ParseOrUnparseState
 import org.apache.daffodil.processors.SchemaSetRuntimeData
-import org.apache.daffodil.processors.VariableBox
-import org.apache.daffodil.processors.VariableMap
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe.Nope
 import org.apache.daffodil.util.Maybe.One; object EqualityNoWarn2 { EqualitySuppressUnusedImportWarning() }
-import java.math.{ BigDecimal => JBigDecimal }
-import java.math.{ BigInteger => JBigInt }
-
+import java.math.{BigDecimal => JBigDecimal}
+import java.math.{BigInteger => JBigInt}
 import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.api.DataLocation
 import org.apache.daffodil.api.WarnID
@@ -116,7 +113,8 @@ case object UnparserNonBlocking extends EvalMode
  */
 case class DState(
   val maybeSsrd: Maybe[SchemaSetRuntimeData],
-  tunable: DaffodilTunables) {
+  tunable: DaffodilTunables,
+  val parseOrUnparseState: Maybe[ParseOrUnparseState]) {
   import org.apache.daffodil.util.Numbers._
 
   var isCompile = false
@@ -313,35 +311,6 @@ case class DState(
     }
   }
 
-  private var _vbox: VariableBox = null
-
-  def vmap = {
-    Assert.usage(_vbox ne null)
-    _vbox.vmap
-  }
-
-  /**
-   * Used by PState and parser, where we want to isolate the modifications
-   * to the vmap per expression evaluation. This isolate makes backtracking
-   * changes to the vmap easy. Just don't copy the vmap back from the DState
-   * into the PState, and the changes are gone.
-   */
-  def setVMap(m: VariableMap): Unit = {
-    if (_vbox eq null) {
-      _vbox = new VariableBox(m)
-    } else {
-      _vbox.setVMap(m)
-    }
-  }
-
-  /**
-   * Used by UState, where we want to shared the vmap as modified by the
-   * expression evaluations that use the DState.
-   */
-  def setVBox(box: VariableBox): Unit = {
-    _vbox = box
-  }
-
   def runtimeData = {
     if (contextNode.isDefined) One(contextNode.get.erd)
     else Nope
@@ -391,11 +360,6 @@ case class DState(
     _arrayPos = arrayPos1b
   }
 
-  private var _parseOrUnparseState: Maybe[ParseOrUnparseState] = Nope
-  def parseOrUnparseState = _parseOrUnparseState
-  def setParseOrUnparseState(state: ParseOrUnparseState): Unit = {
-    _parseOrUnparseState = One(state)
-  }
 
   def SDE(formatString: String, args: Any*) = {
     if (isCompile) {
@@ -462,7 +426,7 @@ object DState {
 
 class DStateForConstantFolding(
   override val compileInfo: DPathCompileInfo,
-  tunable: DaffodilTunables) extends DState(Nope, tunable) {
+  tunable: DaffodilTunables) extends DState(Nope, tunable, Nope) {
   private def die = throw new java.lang.IllegalStateException("No infoset at compile time.")
 
   override def currentSimple = currentNode.asInstanceOf[DISimple]
@@ -471,7 +435,6 @@ class DStateForConstantFolding(
   override def currentComplex = die
   override def currentNode = new FakeDINode
   override def runtimeData = die
-  override def vmap = die
   override def selfMove() = die
   override def fnExists() = die
   override def arrayPos = die
