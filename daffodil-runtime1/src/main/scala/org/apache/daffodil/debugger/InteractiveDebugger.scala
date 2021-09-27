@@ -1669,7 +1669,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
         }
 
         def act(args: Seq[String], state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
-          val vmap = state.variableMap
+          val vmap = state.variableMapForDebugger
           val allQNames = vmap.qnames
           val qnamesToPrint =
             if (args.size == 0) allQNames
@@ -1690,12 +1690,13 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
         }
 
         def diff(pre: StateForDebugger, post: StateForDebugger): Boolean = {
-          pre.variableMap.qnames.foldLeft(false) { case (foundDiff, qname) =>
-            val pre_instance = pre.variableMap.find(qname).get
+          val prevmap = pre.variableMapForDebugger
+          prevmap.qnames.foldLeft(false) { case (foundDiff, qname) =>
+            val pre_instance = prevmap.find(qname).get
             val pre_value = pre_instance.value
             val pre_state = pre_instance.state
 
-            val cur_instance = post.variableMap.find(qname).get
+            val cur_instance = post.variableMapForDebugger.find(qname).get
             val cur_value = cur_instance.value
             val cur_state = cur_instance.state
 

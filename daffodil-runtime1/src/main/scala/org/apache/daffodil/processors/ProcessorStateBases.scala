@@ -19,10 +19,8 @@ package org.apache.daffodil.processors
 
 import java.nio.CharBuffer
 import java.nio.LongBuffer
-
 import org.apache.daffodil.api.DFDL
 import org.apache.daffodil.api.DaffodilTunables
-import org.apache.daffodil.api.DataLocation
 import org.apache.daffodil.api.Diagnostic
 import org.apache.daffodil.api.WarnID
 import org.apache.daffodil.dpath.DState
@@ -30,12 +28,9 @@ import org.apache.daffodil.dsom.RuntimeSchemaDefinitionError
 import org.apache.daffodil.dsom.RuntimeSchemaDefinitionWarning
 import org.apache.daffodil.dsom.ValidationError
 import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.exceptions.SavesErrorsAndWarnings
-import org.apache.daffodil.exceptions.ThrowsSDE
 import org.apache.daffodil.io.DataStreamCommon
 import org.apache.daffodil.io.LocalBufferMixin
 import org.apache.daffodil.util.MStackOfLong
-import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe.Nope
 import org.apache.daffodil.util.Maybe.One
 import org.apache.daffodil.util.MaybeULong
@@ -60,9 +55,8 @@ import org.apache.daffodil.processors.charset.BitsCharsetEncoder
 import org.apache.daffodil.processors.unparsers.UState
 import org.apache.daffodil.processors.dfa.Registers
 import org.apache.daffodil.processors.dfa.RegistersPool
-import org.apache.daffodil.processors.dfa.RegistersPool
-import org.apache.daffodil.processors.dfa.RegistersPool
 import org.apache.daffodil.dsom.DPathCompileInfo
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
 
 /**
  * Trait mixed into the PState.Mark object class and the ParseOrUnparseState
@@ -76,7 +70,7 @@ trait StateForDebugger {
   def childPos: Long
   def groupPos: Long
   def arrayPos: Long
-  def variableMap: VariableMap
+  def variableMapForDebugger: VariableMap
   def delimitedParseResult: Maybe[dfa.ParseResult]
   def withinHiddenNest: Boolean
   def suspensions: Seq[Suspension]
@@ -89,7 +83,7 @@ case class TupleForDebugger(
   val childPos: Long,
   val groupPos: Long,
   val arrayPos: Long,
-  val variableMap: VariableMap,
+  val variableMapForDebugger: VariableMap,
   val delimitedParseResult: Maybe[dfa.ParseResult],
   val withinHiddenNest: Boolean,
   val suspensions: Seq[Suspension])
@@ -354,12 +348,37 @@ abstract class ParseOrUnparseState protected (
   }
 
   /**
-   * Variable map provides access to variable bindings.
+   * The variable map is accessed via methods below to set/get and create/remove instances.
+   *
+   * Everything should access the variables via these methods, not by using the variableMap object
+   * directly.
+   *
+   * The exception to this is the interactive debugger.
    */
-  final def variableMap = variableBox.vmap
-  final def setVariableMap(newMap: VariableMap): Unit = {
+  final protected def variableMap = variableBox.vmap
+  final protected def setVariableMap(newMap: VariableMap): Unit = {
     variableBox.setVMap(newMap)
   }
+
+  final def initializeVariables(): Unit = {
+    variableMap.forceExpressionEvaluations(this)
+    variableMap.setFirstInstanceInitialValues()
+  }
+
+  def setVariable(vrd: VariableRuntimeData, newValue: DataValuePrimitive, referringContext: ThrowsSDE): Unit
+
+  def getVariable(vrd: VariableRuntimeData, referringContext: ThrowsSDE): DataValuePrimitive
+
+  def newVariableInstance(vrd: VariableRuntimeData): VariableInstance
+
+  def removeVariableInstance(vrd: VariableRuntimeData): Unit
+
+  /**
+   * The interactive debugger can access the variableMap object state directly.
+   *
+   * Everthing else should get/set variables using methods on the PState/UState objects.
+   */
+  final def variableMapForDebugger = variableMap
 
   final protected var _processorStatus: ProcessorResult = Success
   final protected var _validationStatus: Boolean = true
@@ -417,7 +436,7 @@ abstract class ParseOrUnparseState protected (
 
   private val maybeSsrd = if (dataProc.isDefined) { One(dataProc.get.ssrd) } else Maybe.Nope
 
-  private val _dState = new DState(maybeSsrd, tunable)
+  private val _dState = new DState(maybeSsrd, tunable, One(this))
 
   /**
    * Used when evaluating expressions. Holds state of expression
@@ -547,7 +566,6 @@ abstract class ParseOrUnparseState protected (
 
     def finalCheck() = pool.finalCheck
   }
-
 }
 
 /**
@@ -600,4 +618,12 @@ final class CompileState(tci: DPathCompileInfo, maybeDataProc: Maybe[DataProcess
 
   def regexMatchBuffer: CharBuffer = Assert.usageError("Not to be used.")
   def regexMatchBitPositionBuffer: LongBuffer = Assert.usageError("Not to be used.")
+
+
+  // $COVERAGE-OFF$
+  override def setVariable(vrd: VariableRuntimeData, newValue: DataValuePrimitive, referringContext: ThrowsSDE): Unit = Assert.usageError("Not to be used.")
+  override def getVariable(vrd: VariableRuntimeData, referringContext: ThrowsSDE) = Assert.usageError("Not to be used.")
+  override def newVariableInstance(vrd: VariableRuntimeData) = Assert.usageError("Not to be used.")
+  override def removeVariableInstance(vrd: VariableRuntimeData): Unit = Assert.usageError("Not to be used.")
+  // $COVERAGE-ON$
 }
