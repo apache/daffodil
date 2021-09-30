@@ -47,7 +47,13 @@ trait SequenceGrammarMixin
       groupMembers.mkString(", "))
     val term = groupMembers(0)
     schemaDefinitionWhen(term.isArray, "Layered sequence body cannot be an array.")
-    LayeredSequence(this, new ScalarOrderedSequenceChild(this, term, 1)) // We use 1-based indexing for children.
+    this match {
+      case sgtb: SequenceGroupTermBase =>
+        LayeredSequence(sgtb, new ScalarOrderedSequenceChild(this, term, 1)) // We use 1-based indexing for children.
+      // $COVERAGE-OFF$
+      case _ => Assert.invariantFailed("Layered sequences must be SequenceGroupTermBase, not just SequenceTermBase")
+      // $COVERAGE-ON$
+    }
   }
 
   private lazy val seqChildren = LV('seqChildren) {

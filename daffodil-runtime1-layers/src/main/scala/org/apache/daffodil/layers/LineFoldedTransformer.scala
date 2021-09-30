@@ -18,16 +18,9 @@
 package org.apache.daffodil.layers
 
 import org.apache.daffodil.schema.annotation.props.gen.LayerLengthKind
-import org.apache.daffodil.schema.annotation.props.gen.LayerLengthUnits
-import org.apache.daffodil.util.Maybe
-import org.apache.daffodil.processors.LayerLengthEv
-import org.apache.daffodil.processors.LayerBoundaryMarkEv
-import org.apache.daffodil.processors.LayerCharsetEv
-import org.apache.daffodil.processors.parsers.PState
 
 import java.nio.charset.StandardCharsets
 import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.processors.unparsers.UState
 import org.apache.daffodil.io.LayerBoundaryMarkInsertingJavaOutputStream
 
 import java.io.OutputStream
@@ -35,7 +28,6 @@ import java.io.InputStream
 import org.apache.daffodil.exceptions.ThrowsSDE
 import org.apache.daffodil.schema.annotation.props.Enum
 import org.apache.daffodil.io.RegexLimitingStream
-import org.apache.daffodil.processors.SequenceRuntimeData
 
 /*
  * This and related classes implement so called "line folding" from
@@ -81,7 +73,56 @@ import org.apache.daffodil.processors.SequenceRuntimeData
  *
  * For MIME, the maximum line length is 76.
  */
-sealed trait LineFoldMode extends LineFoldMode.Value
+
+sealed abstract class LineFoldedLayerCompiler(mode: LineFoldMode)
+  extends LayerCompiler(mode.transformName) {
+
+  override def compileLayer(layerCompileInfo: LayerCompileInfo): LineFoldedTransformerFactory = {
+
+    layerCompileInfo.optLayerLengthKind match {
+      case Some(LayerLengthKind.BoundaryMark) =>
+        layerCompileInfo.SDEUnless(
+          layerCompileInfo.optLayerBoundaryMarkOptConstantValue.isDefined,
+          "Property dfdlx:layerBoundaryMark was not defined.")
+      case Some(LayerLengthKind.Implicit) => // ok
+      case Some(other) => layerCompileInfo.SDE(s"Property dfdlx:layerLengthKind can only be 'implicit' or 'boundaryMark', but was '$other'.")
+      case None => layerCompileInfo.SDE(s"Property dfdlx:layerLengthKind must be 'implicit' or 'boundaryMark'.")
+    }
+
+    //
+    // This layer assumes an ascii-family encoding.
+    //
+
+    val xformer = new LineFoldedTransformerFactory(mode, layerCompileInfo.optLayerLengthKind.get)
+    xformer
+  }
+}
+
+final class LineFoldedIMFLayerCompiler extends LineFoldedLayerCompiler(LineFoldMode.IMF)
+final class LineFoldedICalendarLayerCompiler extends LineFoldedLayerCompiler(LineFoldMode.iCalendar)
+
+final class LineFoldedTransformerFactory(mode: LineFoldMode, layerLengthKind: LayerLengthKind)
+  extends LayerTransformerFactory(mode.transformName) {
+
+  override def newInstance(layerRuntimeInfo: LayerRuntimeInfo): LayerTransformer = {
+    val xformer =
+      layerLengthKind match {
+        case LayerLengthKind.BoundaryMark => {
+          new LineFoldedTransformerDelimited(mode, layerRuntimeInfo)
+        }
+        case LayerLengthKind.Implicit => {
+          new LineFoldedTransformerImplicit(mode, layerRuntimeInfo)
+        }
+        case _ => Assert.invariantFailed("Should already have checked that it is only one of BoundaryMark or Implicit")
+      }
+    xformer
+  }
+}
+
+sealed trait LineFoldMode extends LineFoldMode.Value {
+  def transformName: String = s"lineFolded_${this.toString}"
+}
+
 object LineFoldMode extends Enum[LineFoldMode] {
 
   case object IMF extends LineFoldMode; forceConstruction(Left)
@@ -96,17 +137,17 @@ object LineFoldMode extends Enum[LineFoldMode] {
  * inserting/removing CRLF+Space (or CRLF+TAB). A CRLF not followed by space or tab
  * is ALWAYS the actual "delimiter". There's no means of supplying a specific delimiter.
  */
-class LineFoldedTransformerDelimited(mode: LineFoldMode)
-  extends LayerTransformer {
+final class LineFoldedTransformerDelimited(mode: LineFoldMode, layerRuntimeInfo: LayerRuntimeInfo)
+  extends LayerTransformer(mode.transformName, layerRuntimeInfo) {
 
-  override protected def wrapLimitingStream(jis: java.io.InputStream, state: PState) = {
+  override protected def wrapLimitingStream(jis: java.io.InputStream) = {
     // regex means CRLF not followed by space or tab.
     // NOTE: this regex cannot contain ANY capturing groups (per scaladoc on RegexLimitingStream)
     val s = new RegexLimitingStream(jis, "\\r\\n(?!(?:\\t|\\ ))", "\r\n", StandardCharsets.ISO_8859_1)
     s
   }
 
-  override protected def wrapLimitingStream(jos: java.io.OutputStream, state: UState): java.io.OutputStream = {
+  override protected def wrapLimitingStream(jos: java.io.OutputStream) = {
     //
     // Q: How do we insert a CRLF "not followed by tab or space" when we don't
     // control what follows?
@@ -133,14 +174,14 @@ class LineFoldedTransformerDelimited(mode: LineFoldMode)
  * also be used with a specified length enclosing element. This code cannot tell
  * the difference.
  */
-class LineFoldedTransformerImplicit(mode: LineFoldMode)
-  extends LayerTransformer {
+class LineFoldedTransformerImplicit(mode: LineFoldMode, layerRuntimeInfo: LayerRuntimeInfo)
+  extends LayerTransformer(mode.transformName, layerRuntimeInfo) {
 
-  override protected def wrapLimitingStream(jis: java.io.InputStream, state: PState) = {
+  override protected def wrapLimitingStream(jis: java.io.InputStream) = {
     jis // no limiting - just pull input until EOF.
   }
 
-  override protected def wrapLimitingStream(jos: java.io.OutputStream, state: UState): java.io.OutputStream = {
+  override protected def wrapLimitingStream(jos: java.io.OutputStream) = {
     jos // no limiting - just write output until EOF.
   }
 
@@ -153,44 +194,6 @@ class LineFoldedTransformerImplicit(mode: LineFoldMode)
     s
   }
 }
-
-sealed abstract class LineFoldedTransformerFactory(mode: LineFoldMode, name: String)
-  extends LayerTransformerFactory(name) {
-
-  override def newInstance(
-    maybeLayerCharsetEv: Maybe[LayerCharsetEv],
-    maybeLayerLengthKind: Maybe[LayerLengthKind],
-    maybeLayerLengthEv: Maybe[LayerLengthEv],
-    maybeLayerLengthUnits: Maybe[LayerLengthUnits],
-    maybeLayerBoundaryMarkEv: Maybe[LayerBoundaryMarkEv],
-    srd: SequenceRuntimeData) = {
-
-    srd.schemaDefinitionUnless(
-      maybeLayerLengthKind.isDefined,
-      "The property dfdlx:layerLengthKind must be defined.")
-
-    val xformer =
-      maybeLayerLengthKind.get match {
-        case LayerLengthKind.BoundaryMark => {
-          new LineFoldedTransformerDelimited(mode)
-        }
-        case LayerLengthKind.Implicit => {
-          new LineFoldedTransformerImplicit(mode)
-        }
-        case x =>
-          srd.SDE(
-            "Property dfdlx:layerLengthKind can only be 'implicit' or 'boundaryMark', but was '%s'",
-            x.toString)
-      }
-    xformer
-  }
-}
-
-object IMFLineFoldedTransformerFactory
-  extends LineFoldedTransformerFactory(LineFoldMode.IMF, "lineFolded_IMF")
-
-object ICalendarLineFoldedTransformerFactory
-  extends LineFoldedTransformerFactory(LineFoldMode.iCalendar, "lineFolded_iCalendar")
 
 /**
  * Doesn't enforce 998 max line length limit.

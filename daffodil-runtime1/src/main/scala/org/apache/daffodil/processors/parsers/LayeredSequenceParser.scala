@@ -18,22 +18,25 @@
 package org.apache.daffodil.processors.parsers
 
 import org.apache.daffodil.layers.LayerNotEnoughDataException
+import org.apache.daffodil.layers.LayerSerializedInfo
+import org.apache.daffodil.layers.LayerTransformerFactory
 import org.apache.daffodil.processors.SequenceRuntimeData
-import org.apache.daffodil.processors.LayerTransformerEv
 import org.apache.daffodil.util.MaybeULong
 
 class LayeredSequenceParser(
   rd: SequenceRuntimeData,
-  layerTransformerEv: LayerTransformerEv,
+  layerTransformerFactory: LayerTransformerFactory,
+  layerSerializedInfo: LayerSerializedInfo,
   bodyParser: SequenceChildParser)
   extends OrderedUnseparatedSequenceParser(rd, Vector(bodyParser)) {
   override def nom = "LayeredSequence"
 
-  override lazy val runtimeDependencies = Vector(layerTransformerEv)
+  override lazy val runtimeDependencies =
+    layerSerializedInfo.evaluatables.toVector
 
   override def parse(state: PState): Unit = {
 
-    val layerTransformer = layerTransformerEv.evaluate(state)
+    val layerTransformer = layerTransformerFactory.newInstance(layerSerializedInfo.layerRuntimeInfo(state))
     val savedDIS = state.dataInputStream
 
     val isAligned = savedDIS.align(layerTransformer.mandatoryLayerAlignmentInBits, state)
@@ -50,7 +53,7 @@ class LayeredSequenceParser(
       layerTransformer.removeLayer(newDIS)
     } catch {
       case le: LayerNotEnoughDataException =>
-        PENotEnoughBits(le.state, le.nBytesRequired * 8, MaybeULong.Nope)
+        PENotEnoughBits(state, le.schemaFileLocation, le.dataLocation, le.nBytesRequired * 8, MaybeULong.Nope)
     } finally {
       state.dataInputStream = savedDIS
     }

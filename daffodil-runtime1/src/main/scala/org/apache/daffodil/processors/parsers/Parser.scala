@@ -17,14 +17,15 @@
 
 package org.apache.daffodil.processors.parsers
 
+import org.apache.daffodil.api.DataLocation
 import org.apache.daffodil.api.Diagnostic
 import org.apache.daffodil.dsom.RuntimeSchemaDefinitionError
 import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.exceptions.SchemaFileLocation
 import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.processors.Processor
 import org.apache.daffodil.processors.RuntimeData
 import org.apache.daffodil.processors.Success
-import org.apache.daffodil.processors.Evaluatable
 import org.apache.daffodil.util.Maybe.One
 import org.apache.daffodil.util.MaybeULong
 import org.apache.daffodil.util.Misc
@@ -53,9 +54,18 @@ sealed trait Parser
     pstate.setFailed(new ParseError(One(context.schemaFileLocation), One(pstate.currentLocation), s, args: _*))
   }
 
+  def PE(pstate: PState, sfl: SchemaFileLocation, dataLoc: DataLocation, s: String, args: Any*) = {
+    pstate.setFailed(new ParseError(One(sfl), One(dataLoc), s, args: _*))
+  }
+
   def PENotEnoughBits(pstate: PState, neededBits: Long, remainingBits: MaybeULong) = {
     val remainingStr = if (remainingBits.isDefined) s" but found only ${remainingBits.get} available" else ""
     PE(pstate, "Insufficient bits in data. Needed %d bit(s)%s.", neededBits, remainingStr)
+  }
+
+  def PENotEnoughBits(pstate: PState, sfl:SchemaFileLocation, dataLoc: DataLocation, neededBits: Long, remainingBits: MaybeULong) = {
+    val remainingStr = if (remainingBits.isDefined) s" but found only ${remainingBits.get} available" else ""
+    PE(pstate, sfl, dataLoc, "Insufficient bits in data. Needed %d bit(s)%s.", neededBits, remainingStr)
   }
 
   def processingError(state: PState, str: String, args: Any*) =

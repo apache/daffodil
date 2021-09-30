@@ -273,7 +273,7 @@
         <xsd:sequence />
         <xsd:attributeGroup ref="dfdl:GroupCommonAG" />
         <xsd:attributeGroup ref="dfdl:SequenceAG" />
-        <xsd:attributeGroup ref="dfdlx:ExtLayeringAG" />
+        <xsd:attributeGroup ref="dfdlx:ExtLayeringAGQualified" />
         <xsd:attributeGroup ref="dfdl:SeparatorAG" />
       </xsd:extension>
     </xsd:complexContent>
@@ -339,7 +339,7 @@
   <xsd:attributeGroup name="GroupAG">
     <xsd:attributeGroup ref="dfdl:GroupCommonAG" />
     <xsd:attributeGroup ref="dfdl:SequenceAG" />
-    <xsd:attributeGroup ref="dfdlx:ExtLayeringAG" />
+    <xsd:attributeGroup ref="dfdlx:ExtLayeringAGQualified" />
     <xsd:attributeGroup ref="dfdl:ChoiceAG" />
     <xsd:attributeGroup ref="dfdl:SeparatorAG" />
   </xsd:attributeGroup>

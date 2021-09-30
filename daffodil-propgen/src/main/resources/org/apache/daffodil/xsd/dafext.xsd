@@ -647,6 +647,7 @@
           <xs:enumeration value="ignoreDFDLProperty" />
           <xs:enumeration value="inconsistentLengthKind" />
           <xs:enumeration value="invalidAnnotationPoint" />
+          <xs:enumeration value="layerCompileWarning" />
           <xs:enumeration value="multipleChoiceBranches" />
           <xs:enumeration value="namespaceDifferencesOnly" />
           <xs:enumeration value="noEmptyDefault" />

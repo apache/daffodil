@@ -17,11 +17,8 @@
 
 package org.apache.daffodil.validation
 
-import java.util.ServiceLoader
-
 import org.apache.daffodil.api.ValidatorFactory
-
-import scala.collection.JavaConverters._
+import org.apache.daffodil.util.SimpleNamedServiceLoader
 
 /**
  * Access SPI registered [[org.apache.daffodil.api.ValidatorFactory]] instances.
@@ -29,13 +26,9 @@ import scala.collection.JavaConverters._
  * Registered instances provide a unique name for lookup.
  */
 object Validators {
-  private lazy val impls: Map[String, ValidatorFactory] =
-    ServiceLoader
-      .load(classOf[ValidatorFactory])
-      .iterator()
-      .asScala
-      .map(v => v.name() -> v)
-      .toMap
+  private lazy val impls: Map[String, ValidatorFactory] = {
+    SimpleNamedServiceLoader.loadClass[ValidatorFactory](classOf[ValidatorFactory])
+  }
 
   /**
    * Get the factory by name or throw

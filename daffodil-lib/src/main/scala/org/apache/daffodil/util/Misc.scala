@@ -46,9 +46,11 @@ object Misc {
     if (test) Some(thing) else None
   }
 
-  def getNameFromClass(obj: Any): String = {
-    if (obj == null) return "null"
-    val nonPackageClassName = obj.getClass.getName.split("""\.""").toList.reverse.head
+  def getNameFromClass(obj: Any): String = getNameGivenAClassObject(obj.getClass)
+
+  def getNameGivenAClassObject(clazz: Class[_]): String = {
+    if (clazz == null) return "null"
+    val nonPackageClassName = clazz.getName.split("""\.""").toList.reverse.head
     val nonDollarsParts = nonPackageClassName.split("""\$""").toList.reverse
     val nonNumericParts = nonDollarsParts.filterNot { _.matches("""\d*""") }
     val nameToken = nonNumericParts.head

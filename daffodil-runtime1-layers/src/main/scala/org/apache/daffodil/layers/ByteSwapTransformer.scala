@@ -23,15 +23,39 @@ import java.util.ArrayDeque
 import java.util.Deque
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.schema.annotation.props.gen.LayerLengthKind
-import org.apache.daffodil.schema.annotation.props.gen.LayerLengthUnits
-import org.apache.daffodil.util.Maybe
-import org.apache.daffodil.processors.LayerLengthEv
-import org.apache.daffodil.processors.LayerBoundaryMarkEv
-import org.apache.daffodil.processors.LayerCharsetEv
-import org.apache.daffodil.processors.parsers.PState
 import org.apache.daffodil.io.ExplicitLengthLimitingStream
-import org.apache.daffodil.processors.unparsers.UState
-import org.apache.daffodil.processors.SequenceRuntimeData
+
+final class FourByteSwapLayerCompiler
+  extends LayerCompiler("fourbyteswap") {
+
+  override def compileLayer(layerCompileInfo: LayerCompileInfo): LayerTransformerFactory = {
+
+    layerCompileInfo.optLayerLengthKind match {
+      case Some(LayerLengthKind.Explicit) => // ok
+      case None => layerCompileInfo.SDE("The property dfdlx:layerLengthKind must be defined and have value 'explicit'.")
+      case Some(other) => layerCompileInfo.SDE("The property dfdlx:layerLengthKind must be 'explicit' but was '$other'.")
+    }
+
+    layerCompileInfo.SDEUnless(
+    layerCompileInfo.optLayerLengthOptConstantValue.isDefined,
+      "The property dfdlx:layerLength must be defined.")
+
+    val xformer = new ByteSwapTransformerFactory(4, name)
+    xformer
+  }
+}
+
+
+/**
+ * LayerTransformerFactory for ByteSwapTransformer instances.
+ *
+ * Requires that layerLengthKind="explicit".
+ */
+final class ByteSwapTransformerFactory(wordsize: Int, name: String)
+  extends LayerTransformerFactory(name) {
+
+  override def newInstance(layerRuntimeInfo: LayerRuntimeInfo)= new ByteSwapTransformer(wordsize, name, layerRuntimeInfo)
+}
 
 /**
  * An input stream wrapper that re-orders bytes according to wordsize.
@@ -157,16 +181,16 @@ class ByteSwapOutputStream(wordsize: Int, jos: OutputStream)
 /**
  * A LayerTransformer that re-orders bytes for the over/underlying layer.
  */
-class ByteSwapTransformer(wordsize: Int, layerLengthEv: LayerLengthEv)
-  extends LayerTransformer() {
+class ByteSwapTransformer(wordsize: Int, name: String, layerRuntimeInfo: LayerRuntimeInfo)
+  extends LayerTransformer(name, layerRuntimeInfo) {
 
   override def wrapLayerDecoder(jis: java.io.InputStream) = {
     val s = new ByteSwapInputStream(wordsize, jis)
     s
   }
 
-  override def wrapLimitingStream(jis: java.io.InputStream, state: PState) = {
-    val layerLengthInBytes: Int = layerLengthEv.evaluate(state).toInt
+  override def wrapLimitingStream(jis: java.io.InputStream) = {
+    val layerLengthInBytes = layerRuntimeInfo.optLayerLength.get
 
     val s = new ExplicitLengthLimitingStream(jis, layerLengthInBytes)
     s
@@ -177,49 +201,13 @@ class ByteSwapTransformer(wordsize: Int, layerLengthEv: LayerLengthEv)
     s
   }
 
-  override protected def wrapLimitingStream(jos: java.io.OutputStream, state: UState): java.io.OutputStream = {
+  override protected def wrapLimitingStream(jos: java.io.OutputStream) = {
     jos // just return jos. The way the length will be used/stored is by way of
     // taking the content length of the enclosing element. That will measure the
     // length relative to the "ultimate" data output stream.
   }
 }
 
-/**
- * LayerTransformerFactory for ByteSwapTransformer instances.
- *
- * Requires that layerLengthKind="explicit".
- */
-sealed abstract class ByteSwapTransformerFactory(wordsize: Int, name: String)
-  extends LayerTransformerFactory(name) {
 
-  override def newInstance(
-    maybeLayerCharsetEv: Maybe[LayerCharsetEv],
-    maybeLayerLengthKind: Maybe[LayerLengthKind],
-    maybeLayerLengthEv: Maybe[LayerLengthEv],
-    maybeLayerLengthUnits: Maybe[LayerLengthUnits],
-    maybeLayerBoundaryMarkEv: Maybe[LayerBoundaryMarkEv],
-    srd: SequenceRuntimeData) = {
 
-    srd.schemaDefinitionUnless(
-      maybeLayerLengthKind.isDefined,
-      "The propert dfdlx:layerLengthKind must be defined.")
 
-    val xformer =
-      maybeLayerLengthKind.get match {
-        case LayerLengthKind.Explicit => {
-          new ByteSwapTransformer(wordsize, maybeLayerLengthEv.get)
-        }
-        case x =>
-          srd.SDE(
-            "Property dfdlx:layerLengthKind can only be 'explicit', but was '%s'",
-            x.toString)
-      }
-    xformer
-  }
-}
-
-/**
- * Factory for ByteSwapTransformer instances with a wordsize of 4.
- */
-object FourByteSwapTransformerFactory
-  extends ByteSwapTransformerFactory(4, "fourbyteswap")

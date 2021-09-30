@@ -36,7 +36,7 @@ import java.nio.charset.StandardCharsets
  * Thread safety: This is inherently stateful - so not thread safe to use
  * this object from more than one thread.
  */
-class ExplicitLengthLimitingStream(in: InputStream, limit: Int)
+class ExplicitLengthLimitingStream(in: InputStream, limit: Long)
   extends FilterInputStream(in) {
 
   private var numRemaining = limit
@@ -46,7 +46,7 @@ class ExplicitLengthLimitingStream(in: InputStream, limit: Int)
     if (numRemaining == 0) -1
     else if (len == 0) 0
     else {
-      val requestSize = math.min(numRemaining, len)
+      val requestSize = math.min(numRemaining, len).toInt
       val actualSize = in.read(buf, off, requestSize)
       if (actualSize == -1)
         numRemaining = 0

@@ -17,24 +17,9 @@
 
 package org.apache.daffodil.processors
 
-import org.apache.daffodil.cookers.UpperCaseTokenCooker
 import org.apache.daffodil.dsom._
-import java.lang.{ Long => JLong }
-import org.apache.daffodil.schema.annotation.props.gen.LayerLengthUnits
-import org.apache.daffodil.util.Maybe
-import org.apache.daffodil.schema.annotation.props.gen.LayerLengthKind
-import org.apache.daffodil.layers.LayerTransformer
-import org.apache.daffodil.layers.LayerTransformerFactory
 
-/*
- * Layering-related Evaluatables
- */
-final class LayerTransformEv(override val expr: CompiledExpression[String], tci: DPathCompileInfo)
-  extends EvaluatableConvertedExpression[String, String](
-    expr,
-    UpperCaseTokenCooker, // cooker insures upper-case and trimmed of whitespace.
-    tci)
-  with NoCacheEvaluatable[String]
+import java.lang.{Long => JLong}
 
 final class LayerEncodingEv(override val expr: CompiledExpression[String], tci: DPathCompileInfo)
   extends EncodingEvBase(expr, tci)
@@ -64,38 +49,4 @@ final class LayerBoundaryMarkEv(override val expr: CompiledExpression[String], o
     ci)
   with NoCacheEvaluatable[String] {
   override lazy val runtimeDependencies = Vector()
-}
-
-final class LayerTransformerEv(
-  layerTransformEv: LayerTransformEv,
-  maybeLayerCharsetEv: Maybe[LayerCharsetEv],
-  maybeLayerLengthKind: Maybe[LayerLengthKind],
-  maybeLayerLengthEv: Maybe[LayerLengthEv],
-  maybeLayerLengthUnits: Maybe[LayerLengthUnits],
-  maybeLayerBoundaryMarkEv: Maybe[LayerBoundaryMarkEv],
-  srd: SequenceRuntimeData)
-  extends Evaluatable[LayerTransformer](srd.dpathCompileInfo)
-  with NoCacheEvaluatable[LayerTransformer] {
-
-  override lazy val runtimeDependencies = layerTransformEv +:
-    (maybeLayerCharsetEv.toList ++
-      maybeLayerLengthEv.toList ++
-      maybeLayerBoundaryMarkEv.toList)
-
-  /**
-   * Finds the proper layer transformer and constructs it with its parameters
-   * as needed from the various layer properties.
-   */
-  override def compute(state: State): LayerTransformer = {
-    val layerTransform = layerTransformEv.evaluate(state)
-    val factory = LayerTransformerFactory.find(layerTransform, state)
-    val xformer = factory.newInstance(
-      maybeLayerCharsetEv,
-      maybeLayerLengthKind,
-      maybeLayerLengthEv,
-      maybeLayerLengthUnits,
-      maybeLayerBoundaryMarkEv,
-      srd)
-    xformer
-  }
 }

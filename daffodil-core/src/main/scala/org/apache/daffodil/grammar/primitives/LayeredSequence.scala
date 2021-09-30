@@ -19,17 +19,40 @@ package org.apache.daffodil.grammar.primitives
 
 import org.apache.daffodil.grammar.Terminal
 import org.apache.daffodil.dsom._
-import org.apache.daffodil.processors.parsers.{ Parser => DaffodilParser }
-import org.apache.daffodil.processors.unparsers.{ Unparser => DaffodilUnparser }
+import org.apache.daffodil.layers.LayerCompileInfo
+import org.apache.daffodil.layers.LayerSerializedInfo
+import org.apache.daffodil.processors.parsers.{Parser => DaffodilParser}
+import org.apache.daffodil.processors.unparsers.{Unparser => DaffodilUnparser}
 import org.apache.daffodil.util.Misc
 import org.apache.daffodil.processors.parsers.LayeredSequenceParser
 import org.apache.daffodil.processors.unparsers.LayeredSequenceUnparser
+import org.apache.daffodil.util.Maybe
 
-case class LayeredSequence(sq: SequenceTermBase, bodyTerm: SequenceChild)
+case class LayeredSequence(sq: SequenceGroupTermBase, bodyTerm: SequenceChild)
   extends Terminal(sq, true) {
 
   private val srd = sq.sequenceRuntimeData
   private val trd = bodyTerm.termRuntimeData
+
+  val layerCompileInfo = new LayerCompileInfo(
+    sq,
+    new LayerSerializedInfo(
+      sq.sequenceRuntimeData,
+      sq.maybeLayerCharsetEv,
+      Maybe.toMaybe(sq.optionLayerLengthKind),
+      sq.maybeLayerLengthEv,
+      Maybe.toMaybe(sq.optionLayerLengthUnits),
+      sq.maybeLayerBoundaryMarkEv
+    ))
+
+  private val layerTransformerFactory = {
+    val layerCompiler = sq.layerCompiler
+    //
+    // this layer compilation step allows each layer to check
+    // the layering properties at schema-compilation time.
+    //
+    layerCompiler.compileLayer(layerCompileInfo)
+  }
 
   override def toString() =
     "<" + Misc.getNameFromClass(this) + ">" +
@@ -39,10 +62,12 @@ case class LayeredSequence(sq: SequenceTermBase, bodyTerm: SequenceChild)
   lazy val bodyParser = bodyTerm.parser
   lazy val bodyUnparser = bodyTerm.unparser
 
+  lazy val layerSerializedInfo = layerCompileInfo.layerSerializedInfo
+
   override lazy val parser: DaffodilParser =
-    new LayeredSequenceParser(srd, sq.maybeLayerTransformerEv.get, bodyParser)
+    new LayeredSequenceParser(srd, layerTransformerFactory,  layerSerializedInfo, bodyParser)
 
   override lazy val unparser: DaffodilUnparser = {
-    new LayeredSequenceUnparser(srd, sq.maybeLayerTransformerEv.get, bodyUnparser)
+    new LayeredSequenceUnparser(srd, layerTransformerFactory, layerSerializedInfo, bodyUnparser)
   }
 }

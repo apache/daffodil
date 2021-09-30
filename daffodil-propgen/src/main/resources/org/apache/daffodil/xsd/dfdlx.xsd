@@ -112,23 +112,109 @@
     <xs:attribute form="qualified" name="repValueRanges" type="dfdl:NonEmptyListOfInteger" />
   </xs:attributeGroup>
 
-  <xs:attributeGroup name="ExtLayeringAG">
-    <xs:attribute form="qualified" name="layerTransform" type="dfdl:LayerTransformType_Or_DFDLExpression" />
+  <xs:attributeGroup name="ExtLayeringAGQualified">
+    <xs:attribute form="qualified" name="layerTransform" type="dfdlx:LayerTransformType" />
     <xs:attribute form="qualified" name="layerEncoding" type="dfdl:EncodingEnum_Or_DFDLExpression" />
-    <xs:attribute form="qualified" name="layerLengthKind" type="dfdl:LayerLengthKindEnum" />
+    <xs:attribute form="qualified" name="layerLengthKind" type="dfdlx:LayerLengthKindEnum" />
     <xs:attribute form="qualified" name="layerLength" type="dfdl:DFDLNonNegativeInteger_Or_DFDLExpression" />
-    <xs:attribute form="qualified" name="layerLengthUnits" type="dfdl:LayerLengthUnitsEnum" />
+    <xs:attribute form="qualified" name="layerLengthUnits" type="dfdlx:LayerLengthUnitsEnum" />
     <xs:attribute form="qualified" name="layerBoundaryMark" type="dfdl:ListOfDFDLStringLiteral_Or_DFDLExpression" />
   </xs:attributeGroup>
 
-  <xs:attributeGroup name="ExtLayeringAGQualified">
-    <xs:attribute form="qualified" name="layerTransform" type="dfdl:LayerTransformType_Or_DFDLExpression" />
-    <xs:attribute form="qualified" name="layerEncoding" type="dfdl:EncodingEnum_Or_DFDLExpression" />
-    <xs:attribute form="qualified" name="layerLengthKind" type="dfdl:LayerLengthKindEnum" />
-    <xs:attribute form="qualified" name="layerLength" type="dfdl:DFDLNonNegativeInteger_Or_DFDLExpression" />
-    <xs:attribute form="qualified" name="layerLengthUnits" type="dfdl:LayerLengthUnitsEnum" />
-    <xs:attribute form="qualified" name="layerBoundaryMark" type="dfdl:ListOfDFDLStringLiteral_Or_DFDLExpression" />
-  </xs:attributeGroup>
+
+  <xs:simpleType name="LayerTransformType">
+    <xs:union>
+      <xs:simpleType>
+        <xs:restriction base="dfdlx:LayerTransformEnum" />
+      </xs:simpleType>
+      <xs:simpleType>
+        <xs:restriction base="xs:NCName" /><!-- for dynamically loaded layers -->
+      </xs:simpleType>
+    </xs:union>
+  </xs:simpleType>
+
+  <xs:simpleType name="LayerTransformEnum">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="fourbyteswap">
+        <xs:annotation>
+          <xs:documentation>
+            Swap bytes in 32 bit words.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="base64_MIME">
+        <xs:annotation>
+          <xs:documentation>
+            IETF RFC 2045
+
+            Max line length 76 characters.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="lineFolded_IMF">
+        <xs:annotation>
+          <xs:documentation><![CDATA[
+             IETF RFC 2822 Internet Message Format (IMF)
+
+             Each line of characters MUST be no more than
+             998 characters, and SHOULD be no more than 78 characters, excluding
+             the CRLF.
+
+             Though structured field bodies are defined in such a way that
+             folding can take place between many of the lexical tokens (and even
+             within some of the lexical tokens), folding SHOULD be limited to
+             placing the CRLF at higher-level syntactic breaks.  For instance, if
+             a field body is defined as comma-separated values, it is recommended
+             that folding occur after the comma separating the structured items in
+             preference to other places where the field could be folded, even if
+             it is allowed elsewhere.
+
+             Unfolding is accomplished by simply removing any CRLF
+             that is immediately followed by WSP.
+             ]]>
+          </xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="lineFolded_iCalendar">
+        <xs:annotation>
+          <xs:documentation><![CDATA[
+             IETF RFC 5545 Internet Calendaring and Scheduling (iCalendar)
+
+             Lines of text SHOULD NOT be longer than 75 octets, excluding the line
+             break.  Long content lines SHOULD be split into a multiple line
+             representations using a line "folding" technique.  That is, a long
+             line can be split between any two characters by inserting a CRLF
+             immediately followed by a single linear white-space character (i.e.,
+             SPACE or HTAB).  Any sequence of CRLF followed immediately by a
+             single linear white-space character is ignored (i.e., removed) when
+             processing the content type.
+             ]]>
+          </xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="gzip">
+        <xs:annotation>
+          <xs:documentation>
+            GZIP per https://www.ietf.org/rfc/rfc1952.txt
+          </xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="LayerLengthUnitsEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="bytes" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="LayerLengthKindEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="explicit" />
+      <xs:enumeration value="boundaryMark" />
+      <xs:enumeration value="implicit" />
+    </xs:restriction>
+  </xs:simpleType>
 
   <xs:attributeGroup name="ObjectKindAG">
     <xs:attribute form="qualified" name="objectKind" type="dfdlx:ObjectKindType" />

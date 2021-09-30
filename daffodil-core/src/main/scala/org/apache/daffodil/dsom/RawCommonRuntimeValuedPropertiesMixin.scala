@@ -64,8 +64,6 @@ trait RawSequenceRuntimeValuedPropertiesMixin
 
 trait RawLayeringRuntimeValuedPropertiesMixin
   extends PropertyMixin {
-  protected final lazy val optionLayerTransformRaw = findPropertyOption("layerTransform", expressionAllowed = true)
-  protected final lazy val layerTransformRaw = requireProperty(optionLayerTransformRaw)
   protected final lazy val optionLayerEncodingRaw = findPropertyOption("layerEncoding", expressionAllowed = true)
   protected final lazy val layerEncodingRaw = requireProperty(optionLayerEncodingRaw)
   protected final lazy val optionLayerLengthRaw = findPropertyOption("layerLength", expressionAllowed = true)
