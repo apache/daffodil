@@ -23,8 +23,6 @@ import org.junit.AfterClass
 
 object TestIPv4 {
 
-  LayerTransformerFactory.register(IPv4Checksum)
-
   val testDir = "/org/apache/daffodil/layers/"
   val runner = Runner(testDir, "IPv4.tdml")
 

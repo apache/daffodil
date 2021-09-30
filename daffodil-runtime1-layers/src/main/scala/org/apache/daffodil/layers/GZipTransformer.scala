@@ -18,26 +18,43 @@
 package org.apache.daffodil.layers
 
 import org.apache.daffodil.schema.annotation.props.gen.LayerLengthKind
-import org.apache.daffodil.schema.annotation.props.gen.LayerLengthUnits
-import org.apache.daffodil.util.Maybe
-import org.apache.daffodil.processors.LayerLengthEv
-import org.apache.daffodil.processors.LayerBoundaryMarkEv
-import org.apache.daffodil.processors.LayerCharsetEv
-import org.apache.daffodil.processors.parsers.PState
 import org.apache.daffodil.io.ExplicitLengthLimitingStream
-import org.apache.daffodil.processors.unparsers.UState
-import org.apache.daffodil.processors.SequenceRuntimeData
 
-class GZIPTransformer(layerLengthEv: LayerLengthEv)
-  extends LayerTransformer() {
+final class GZIPLayerCompiler
+  extends LayerCompiler("gzip") {
+
+  override def compileLayer(layerCompileInfo: LayerCompileInfo): GZIPTransformerFactory = {
+
+    layerCompileInfo.SDEUnless(
+      layerCompileInfo.optLayerLengthKind.isEmpty ||
+        (layerCompileInfo.optLayerLengthKind.get eq LayerLengthKind.Explicit),
+      "Only dfdlx:layerLengthKind 'explicit' is supported, but '%s' was specified",
+      layerCompileInfo.optLayerLengthKind.get.toString)
+
+    val xformer = new GZIPTransformerFactory(name)
+    xformer
+  }
+}
+
+final class GZIPTransformerFactory(name: String)
+  extends LayerTransformerFactory(name) {
+
+  override def newInstance(layerRuntimeInfo: LayerRuntimeInfo)= {
+    val xformer = new GZIPTransformer(name, layerRuntimeInfo)
+    xformer
+  }
+}
+
+class GZIPTransformer(name: String, layerRuntimeInfo: LayerRuntimeInfo)
+  extends LayerTransformer(name, layerRuntimeInfo) {
 
   override def wrapLayerDecoder(jis: java.io.InputStream) = {
     val s = new java.util.zip.GZIPInputStream(jis)
     s
   }
 
-  override def wrapLimitingStream(jis: java.io.InputStream, state: PState) = {
-    val layerLengthInBytes: Int = layerLengthEv.evaluate(state).toInt
+  override def wrapLimitingStream(jis: java.io.InputStream) = {
+    val layerLengthInBytes = layerRuntimeInfo.optLayerLength.get
     val s = new ExplicitLengthLimitingStream(jis, layerLengthInBytes)
     s
   }
@@ -47,29 +64,12 @@ class GZIPTransformer(layerLengthEv: LayerLengthEv)
     s
   }
 
-  override protected def wrapLimitingStream(jis: java.io.OutputStream, state: UState): java.io.OutputStream = {
+  override protected def wrapLimitingStream(jis: java.io.OutputStream) = {
     jis // just return jis. The way the length will be used/stored is by way of
     // taking the content length of the enclosing element. That will measure the
     // length relative to the "ultimate" data output stream.
   }
 }
-
-object GZIPTransformerFactory
-  extends LayerTransformerFactory("gzip") {
-
-  override def newInstance(
-    maybeLayerCharsetEv: Maybe[LayerCharsetEv],
-    maybeLayerLengthKind: Maybe[LayerLengthKind],
-    maybeLayerLengthEv: Maybe[LayerLengthEv],
-    maybeLayerLengthUnits: Maybe[LayerLengthUnits],
-    maybeLayerBoundaryMarkEv: Maybe[LayerBoundaryMarkEv],
-    srd: SequenceRuntimeData) = {
-
-    val xformer = new GZIPTransformer(maybeLayerLengthEv.get)
-    xformer
-  }
-}
-
 
 object GZIPFixedOutputStream {
 

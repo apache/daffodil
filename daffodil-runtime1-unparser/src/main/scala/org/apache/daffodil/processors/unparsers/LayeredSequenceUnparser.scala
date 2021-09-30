@@ -17,20 +17,23 @@
 
 package org.apache.daffodil.processors.unparsers
 
-import org.apache.daffodil.processors.LayerTransformerEv
+import org.apache.daffodil.layers.LayerSerializedInfo
+import org.apache.daffodil.layers.LayerTransformerFactory
 import org.apache.daffodil.processors.SequenceRuntimeData
 
 class LayeredSequenceUnparser(ctxt: SequenceRuntimeData,
-  layerTransformerEv: LayerTransformerEv,
+  layerTransformerFactory: LayerTransformerFactory,
+  layerSerializedInfo: LayerSerializedInfo,
   childUnparser: SequenceChildUnparser)
   extends OrderedUnseparatedSequenceUnparser(ctxt, Seq(childUnparser)) {
 
-  override lazy val runtimeDependencies = Vector(layerTransformerEv)
+  override lazy val runtimeDependencies =
+    layerSerializedInfo.evaluatables.toVector
 
   override def nom = "LayeredSequence"
 
   override def unparse(state: UState): Unit = {
-    val layerTransformer = layerTransformerEv.evaluate(state)
+    val layerTransformer = layerTransformerFactory.newInstance(layerSerializedInfo.layerRuntimeInfo(state))
 
     val originalDOS = state.dataOutputStream // layer will output to the original, then finish it upon closing.
 

@@ -39,12 +39,8 @@
       <dfdl:defineFormat name="checkDigitExplicit">
         <!-- up to an explicit length limit, only digits are totaled. Other characters
              are ignored --> 
-        <dfdl:format dfdlx:layerTransform='{ "checkDigit" }' dfdlx:layerLengthKind="explicit" dfdlx:layerLengthUnits="bytes"/>
-      </dfdl:defineFormat>
-
-      <dfdl:defineFormat name="checkDigitImplicit">
-        <!-- up to but not including the first non-digit character --> 
-        <dfdl:format dfdlx:layerTransform='{ "checkDigit" }' dfdlx:layerLengthKind="implicit"/>
+        <dfdl:format dfdlx:layerTransform='checkDigit' dfdlx:layerLengthKind="explicit" dfdlx:layerLengthUnits="bytes"
+          dfdlx:layerEncoding="ascii" />
       </dfdl:defineFormat>
      
     </appinfo>

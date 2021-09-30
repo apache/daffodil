@@ -29,14 +29,14 @@ import org.apache.daffodil.dsom.walker.SequenceView
 import org.apache.daffodil.grammar.SequenceGrammarMixin
 import org.apache.daffodil.schema.annotation.props.Found
 import org.apache.daffodil.schema.annotation.props.PropertyLookupResult
-import org.apache.daffodil.processors.LayerTransformerEv
-import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.schema.annotation.props.SeparatorSuppressionPolicy
 import org.apache.daffodil.schema.annotation.props.gen.SeparatorPosition
 import org.apache.daffodil.processors.SeparatorParseEv
 import org.apache.daffodil.schema.annotation.props.gen.LayerLengthUnits
 import org.apache.daffodil.processors.SeparatorUnparseEv
 import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.layers.LayerCompiler
+import org.apache.daffodil.layers.LayerCompilerRegistry
 import org.apache.daffodil.runtime1.ChoiceBranchImpliedSequenceRuntime1Mixin
 import org.apache.daffodil.schema.annotation.props.FindPropertyMixin
 
@@ -69,8 +69,6 @@ abstract class SequenceTermBase(
   def layerLengthUnits: LayerLengthUnits
 
   def isOrdered: Boolean
-
-  def maybeLayerTransformerEv: Maybe[LayerTransformerEv]
 
 }
 
@@ -216,29 +214,23 @@ abstract class SequenceGroupTermBase(
 
   private val layeredSequenceAllowedProps = Set("ref", "layerTransform", "layerEncoding", "layerLengthKind", "layerLength", "layerLengthUnits", "layerBoundaryMark")
 
-  final lazy val maybeLayerTransformerEv: Maybe[LayerTransformerEv] = {
-    if (maybeLayerTransformEv.isEmpty) Maybe.Nope
-    else { // need to check that only layering properties are specified
-      val localProps = this.formatAnnotation.justThisOneProperties
-      val localKeys = localProps.keySet
-      val disallowedKeys = localKeys.filterNot(k => layeredSequenceAllowedProps.contains(k))
-      if (disallowedKeys.size > 0)
-        SDE("Sequence has dfdlx:layerTransform specified, so cannot have non-layering properties: %s", disallowedKeys.mkString(", "))
+  private lazy val optionLayerTransform = findPropertyOption("layerTransform").toOption
 
-      val lt = new LayerTransformerEv(
-        maybeLayerTransformEv.get,
-        maybeLayerCharsetEv,
-        Maybe.toMaybe(optionLayerLengthKind),
-        maybeLayerLengthEv,
-        Maybe.toMaybe(optionLayerLengthUnits),
-        maybeLayerBoundaryMarkEv,
-        sequenceRuntimeData)
-      lt.compile(tunable)
-      Maybe.One(lt)
-    }
+  final lazy val layerCompiler: LayerCompiler = {
+
+    // need to check that only layering properties are specified
+    val localProps = this.formatAnnotation.justThisOneProperties
+    val localKeys = localProps.keySet
+    val disallowedKeys = localKeys.filterNot(k => layeredSequenceAllowedProps.contains(k))
+    if (disallowedKeys.size > 0)
+      SDE("Sequence has dfdlx:layerTransform specified, so cannot have non-layering properties: %s", disallowedKeys.mkString(", "))
+
+    optionLayerTransform.map { xformName =>
+      LayerCompilerRegistry.find(xformName, this)
+    }.get
   }
 
-  final def isLayered = maybeLayerTransformerEv.isDefined
+  final def isLayered = optionLayerTransform.isDefined
 }
 
 /**
@@ -358,8 +350,6 @@ final class ChoiceBranchImpliedSequence private (rawGM: Term)
   override def layerLengthUnits: LayerLengthUnits = Assert.usageError("Not to be called for choice branches.")
 
   override def isOrdered = true
-
-  override def maybeLayerTransformerEv: Maybe[LayerTransformerEv] = Maybe.Nope
 
   override def findPropertyOption(pname: String, expressionAllowed: Boolean = false): PropertyLookupResult =
     rawGM.findPropertyOption(pname, expressionAllowed)

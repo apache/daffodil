@@ -18,8 +18,10 @@
 package org.apache.daffodil.layers
 
 import org.junit.Assert._
+
 import java.io._
 import org.junit.Test
+
 import java.nio.charset.StandardCharsets
 
 class TestByteSwapStreams {

@@ -22,8 +22,6 @@ import org.apache.daffodil.tdml.Runner
 
 object TestCheckDigit {
 
-  LayerTransformerFactory.register(CheckDigit)
-
   lazy val runner = Runner("/org/apache/daffodil/layers", "TestCheckDigit.tdml")
 
   @AfterClass def shutDown(): Unit = {

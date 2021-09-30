@@ -35,7 +35,7 @@ lazy val genSchemas = taskKey[Seq[File]]("Generated DFDL schemas")
 
 lazy val daffodil         = project.in(file(".")).configs(IntegrationTest)
                               .enablePlugins(JavaUnidocPlugin, ScalaUnidocPlugin)
-                              .aggregate(macroLib, propgen, lib, io, runtime1, runtime1Unparser, runtime2, core, japi, sapi, tdmlLib, tdmlProc, cli, udf, schematron, test, testIBM1, tutorials, testStdLayout)
+                              .aggregate(macroLib, propgen, lib, io, runtime1, runtime1Unparser, runtime1Layers, runtime2, core, japi, sapi, tdmlLib, tdmlProc, cli, udf, schematron, test, testIBM1, tutorials, testStdLayout)
                               .settings(commonSettings, nopublish, ratSettings, unidocSettings)
 
 lazy val macroLib         = Project("daffodil-macro-lib", file("daffodil-macro-lib")).configs(IntegrationTest)
@@ -58,7 +58,11 @@ lazy val runtime1         = Project("daffodil-runtime1", file("daffodil-runtime1
                               .settings(commonSettings, usesMacros)
 
 lazy val runtime1Unparser = Project("daffodil-runtime1-unparser", file("daffodil-runtime1-unparser")).configs(IntegrationTest)
-                              .dependsOn(runtime1, lib % "test->test", runtime1 % "test->test")
+                              .dependsOn(runtime1, lib % "test->test", runtime1 % "test->test", runtime1Layers)
+                              .settings(commonSettings)
+
+lazy val runtime1Layers = Project("daffodil-runtime1-layers", file("daffodil-runtime1-layers")).configs(IntegrationTest)
+                              .dependsOn(runtime1, lib % "test->test")
                               .settings(commonSettings)
 
 val runtime2CFiles        = Library("libruntime2.a")

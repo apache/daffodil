@@ -81,6 +81,10 @@ object UserDefinedFunctionService {
   lazy val currentClassPath = Misc.classPath.map(_.toString).mkString("\n")
 
   {
+    //
+    // Note that this service loader does not share the SimpleNamedServiceLoader with the loadable validators
+    // and layering features. UDFs are not quite so simple, so the UDF system has its own implementation of service loading.
+    //
     val loader: ServiceLoader[UserDefinedFunctionProvider] = ServiceLoader.load(classOf[UserDefinedFunctionProvider])
 
     val providerIter = loader.iterator()

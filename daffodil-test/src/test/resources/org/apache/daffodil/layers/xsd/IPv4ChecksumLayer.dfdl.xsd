@@ -38,7 +38,7 @@
     <xs:appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:defineVariable name="IPv4Checksum" type="xs:unsignedShort"/>
       <dfdl:defineFormat name="IPv4ChecksumLayer">
-        <dfdl:format dfdlx:layerTransform='{ "IPv4Checksum" }' dfdlx:layerLengthKind="implicit"/>
+        <dfdl:format dfdlx:layerTransform='IPv4Checksum' dfdlx:layerLengthKind="implicit"/>
       </dfdl:defineFormat>
     </xs:appinfo>
   </xs:annotation>

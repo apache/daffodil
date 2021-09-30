@@ -65,7 +65,6 @@ import org.apache.daffodil.schema.annotation.props.gen.NilKind
 import org.apache.daffodil.schema.annotation.props.gen.TextTrimKind
 import org.apache.daffodil.schema.annotation.props.gen.TextPadKind
 import org.apache.daffodil.schema.annotation.props.gen.YesNo
-import org.apache.daffodil.processors.LayerTransformEv
 import org.apache.daffodil.processors.LayerEncodingEv
 import org.apache.daffodil.processors.LayerLengthEv
 import org.apache.daffodil.processors.LayerBoundaryMarkEv
@@ -724,26 +723,6 @@ trait SequenceRuntimeValuedPropertiesMixin
 
 trait LayeringRuntimeValuedPropertiesMixin
   extends RawLayeringRuntimeValuedPropertiesMixin { decl: SequenceTermBase =>
-
-  private lazy val layerTransformExpr = {
-    val qn = this.qNameForProperty("layerTransform")
-    ExpressionCompilers.String.compileProperty(qn, NodeInfo.NonEmptyString, layerTransformRaw, decl, dpathCompileInfo)
-  }
-
-  //  final lazy val layerTransformEv = {
-  //    if (maybeLayerTransformEv.isEmpty) layerTransformRaw // must be defined
-  //    maybeLayerTransformEv.get
-  //  }
-
-  final lazy val maybeLayerTransformEv = {
-    if (optionLayerTransformRaw.isDefined) {
-      val ev = new LayerTransformEv(layerTransformExpr, tci)
-      ev.compile(tunable)
-      One(ev)
-    } else {
-      Nope
-    }
-  }
 
   private lazy val layerEncodingExpr = {
     val qn = this.qNameForProperty("layerEncoding")

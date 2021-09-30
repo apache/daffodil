@@ -17,28 +17,18 @@
 
 package org.apache.daffodil.layers
 
+/**
+ * Factory for a layer transformer.
+ *
+ * This is the serialized object which is saved as part of a processor.
+ * It constructs the layer transformer at runtime when newInstance() is called.
+ *
+ * This must be implmented as part of implementation of a daffodil layer.
+ */
+abstract class LayerTransformerFactory(val name: String)
+  extends Serializable {
 
-import org.junit.Test
-import org.apache.daffodil.tdml.Runner
-import org.junit.AfterClass
-
-object TestLayers {
-  val testDir = "/org/apache/daffodil/layers/"
-  val runner = Runner(testDir, "layers.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runner.reset
-  }
+  def newInstance(layerRuntimeInfo: LayerRuntimeInfo): LayerTransformer
 }
 
-class TestLayers {
 
-  import TestLayers._
-
-  @Test def test_gzipLayer1(): Unit = { runner.runOneTest("gzipLayer1") }
-  @Test def test_foldedIMFBase64Layers1(): Unit = { runner.runOneTest("foldedIMFBase64Layers1") }
-  @Test def test_foldedIMF1(): Unit = { runner.runOneTest("foldedIMF1") }
-  @Test def test_layersErr1(): Unit = { runner.runOneTest("layersErr1") }
-  @Test def test_base64GzipLayers1(): Unit = { runner.runOneTest("base64GzipLayers1") }
-
-}

@@ -19,14 +19,7 @@ package org.apache.daffodil.layers
 
 import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.schema.annotation.props.gen.LayerLengthKind
-import org.apache.daffodil.schema.annotation.props.gen.LayerLengthUnits
-import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.MaybeInt
-import org.apache.daffodil.processors.LayerLengthEv
-import org.apache.daffodil.processors.LayerBoundaryMarkEv
-import org.apache.daffodil.processors.LayerCharsetEv
-import org.apache.daffodil.processors.parsers.PState
-import org.apache.daffodil.processors.unparsers.UState
 import org.apache.daffodil.processors.charset.BitsCharsetAISPayloadArmoring
 
 import java.nio._
@@ -45,16 +38,57 @@ import org.apache.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
 import org.apache.daffodil.schema.annotation.props.gen.UTF16Width
 import org.apache.daffodil.processors.charset.BitsCharsetDecoder
 import org.apache.daffodil.processors.charset.BitsCharsetEncoder
-import org.apache.daffodil.processors.SequenceRuntimeData
+import org.apache.daffodil.util.Maybe
 
-object AISPayloadArmoringTransformer {
-  val iso8859 = StandardCharsets.ISO_8859_1
+final class AISPayloadArmoringLayerCompiler
+extends LayerCompiler("aisPayloadArmor") {
+
+  override def compileLayer(layerCompileInfo: LayerCompileInfo): AISPayloadArmoringTransformerFactory = {
+
+    layerCompileInfo.optLayerBoundaryMarkOptConstantValue match {
+      case Some(Some(",")) => // ok
+      case None => // ok
+      case Some(Some(nonComma)) =>
+        layerCompileInfo.SDE(
+          "Property dfdlx:layerBoundaryMark was defined as '$nonComma'. It must be ',' or left undefined.")
+      case Some(None) =>
+        layerCompileInfo.SDE(
+          "Property dfdlx:layerBoundaryMark was defined as an expression. It must be omitted, or defined to be ','.")
+    }
+    layerCompileInfo.optLayerLengthKind match {
+      case Some(LayerLengthKind.BoundaryMark) => // ok
+      case Some(other) => layerCompileInfo.SDE(
+        s"Only dfdlx:layerLengthKind 'boundaryMark' is supported, but '$other' was specified")
+      case None => // ok
+    }
+    layerCompileInfo.optLayerJavaCharsetOptConstantValue match {
+      case Some(Some(_)) => // ok
+      case None => // ok
+      case _ => layerCompileInfo.SDE("Property dfdlx:layerEncoding must be defined, and must be an ordinary 8-bit wide encoding. ")
+    }
+    val xformer = new AISPayloadArmoringTransformerFactory(name)
+    xformer
+  }
 }
 
-class AISPayloadArmoringTransformer()
-  extends LayerTransformer() {
-  import AISPayloadArmoringTransformer._
 
+class AISPayloadArmoringTransformerFactory(name: String)
+  extends LayerTransformerFactory(name) {
+
+  override def newInstance(layerRuntimeInfo: LayerRuntimeInfo)= {
+     val xformer = new AISPayloadArmoringTransformer(name, layerRuntimeInfo)
+    xformer
+  }
+}
+
+object AISPayloadArmoringTransformer {
+  def iso8859 = StandardCharsets.ISO_8859_1
+}
+
+class AISPayloadArmoringTransformer(name: String, layerRuntimeInfo: LayerRuntimeInfo)
+  extends LayerTransformer(name, layerRuntimeInfo) {
+
+  import AISPayloadArmoringTransformer._
   /**
    * Decoding AIS payload armoring is encoding the ASCII text into the
    * underlying binary data.
@@ -63,7 +97,7 @@ class AISPayloadArmoringTransformer()
     new AISPayloadArmoringInputStream(jis)
   }
 
-  override def wrapLimitingStream(jis: java.io.InputStream, state: PState) = {
+  override def wrapLimitingStream(jis: java.io.InputStream) = {
     val layerBoundaryMark = ","
     val s = BoundaryMarkLimitingStream(jis, layerBoundaryMark, iso8859)
     s
@@ -73,7 +107,7 @@ class AISPayloadArmoringTransformer()
     new AISPayloadArmoringOutputStream(jos)
   }
 
-  override protected def wrapLimitingStream(jos: java.io.OutputStream, state: UState): java.io.OutputStream = {
+  override protected def wrapLimitingStream(jos: java.io.OutputStream) = {
     val layerBoundaryMark = ","
     val newJOS = new LayerBoundaryMarkInsertingJavaOutputStream(jos, layerBoundaryMark, iso8859)
     newJOS
@@ -159,18 +193,3 @@ class AISPayloadArmoringOutputStream(jos: java.io.OutputStream)
 
 }
 
-object AISPayloadArmoringTransformerFactory
-  extends LayerTransformerFactory("aisPayloadArmor") {
-
-  override def newInstance(
-    maybeLayerCharsetEv: Maybe[LayerCharsetEv],
-    maybeLayerLengthKind: Maybe[LayerLengthKind],
-    maybeLayerLengthEv: Maybe[LayerLengthEv],
-    maybeLayerLengthUnits: Maybe[LayerLengthUnits],
-    maybeLayerBoundaryMarkEv: Maybe[LayerBoundaryMarkEv],
-    srd: SequenceRuntimeData) = {
-
-    val xformer = new AISPayloadArmoringTransformer()
-    xformer
-  }
-}

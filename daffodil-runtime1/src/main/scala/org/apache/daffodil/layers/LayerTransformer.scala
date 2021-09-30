@@ -17,21 +17,23 @@
 
 package org.apache.daffodil.layers
 
+import org.apache.commons.io.IOUtils
+import org.apache.daffodil.api.DataLocation
 import org.apache.daffodil.api.ThinDiagnostic
 import org.apache.daffodil.schema.annotation.props.gen.LayerLengthKind
 import org.apache.daffodil.schema.annotation.props.gen.LayerLengthUnits
 import org.apache.daffodil.processors.LayerLengthEv
 import org.apache.daffodil.processors.LayerBoundaryMarkEv
 import org.apache.daffodil.processors.LayerCharsetEv
-
-import java.util.HashMap
 import org.apache.daffodil.processors.ParseOrUnparseState
-import org.apache.daffodil.util.NonAllocatingMap
 import org.apache.daffodil.io.DataOutputStream
 import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.io.DataInputStream.Mark
 import org.apache.daffodil.util.Misc
 import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.exceptions.SchemaFileLocation
+import org.apache.daffodil.infoset.DataValue
+import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe.One
 import org.apache.daffodil.util.Maybe.Nope
@@ -40,82 +42,20 @@ import org.apache.daffodil.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.processors.parsers.PState
 import org.apache.daffodil.processors.unparsers.UState
 import org.apache.daffodil.io.DirectOrBufferedDataOutputStream
+import org.apache.daffodil.processors.Evaluatable
+import org.apache.daffodil.processors.RuntimeData
 import passera.unsigned.ULong
 import org.apache.daffodil.processors.SequenceRuntimeData
+import org.apache.daffodil.processors.SuspendableOperation
+import org.apache.daffodil.processors.charset.BitsCharsetJava
+import org.apache.daffodil.util.ByteBufferOutputStream
 
+import java.io.ByteArrayInputStream
+import java.io.EOFException
 import java.io.InputStream
 import java.io.OutputStream
-
-/**
- * Factory for a layer transformer.
- *
- * Responsible for digesting the various args, erroring if the wrong ones
- * are specified, and ultimately constructing the LayerTransformer
- * of the correct type with the parameters it needs.
- */
-abstract class LayerTransformerFactory(nom: String)
-  extends Serializable {
-
-  val name = nom.toUpperCase()
-
-  def newInstance(
-    maybeLayerCharsetEv: Maybe[LayerCharsetEv],
-    maybeLayerLengthKind: Maybe[LayerLengthKind],
-    maybeLayerLengthEv: Maybe[LayerLengthEv],
-    maybeLayerLengthUnits: Maybe[LayerLengthUnits],
-    maybeLayerBoundaryMarkEv: Maybe[LayerBoundaryMarkEv],
-    srd: SequenceRuntimeData): LayerTransformer
-}
-
-/**
- * Transformers have factories. This lets you find the transformer factory
- * by the name obtained from dfdlx:layerTransform.
- */
-object LayerTransformerFactory {
-
-  private lazy val transformerMap = new NonAllocatingMap(new HashMap[String, LayerTransformerFactory])
-
-  def register(factory: LayerTransformerFactory): Unit = {
-    transformerMap.put(factory.name, factory)
-  }
-  /**
-   * Given name, finds the factory for the transformer. SDE otherwise.
-   *
-   * The state is passed in order to provide diagnostic context if not found.
-   */
-  def find(name: String, state: ParseOrUnparseState): LayerTransformerFactory = {
-    val maybeFactory = transformerMap.get(name)
-    if (maybeFactory.isEmpty) {
-      val choices = transformerMap.keySet.mkString(", ")
-      state.SDE("The dfdlx:layerTransform '%s' was not found. Available choices are: %s", name, choices)
-    } else {
-      maybeFactory.get
-    }
-  }
-
-  /**
-   * All transformers must be registered so they are available by name.
-   *
-   * It is possible to package a transformer in a separate jar also, but then
-   * someone has to register it by calling the register method.
-   *
-   * Transformers built into the primary Daffodil jars/packages should be
-   * registered here.
-   */
-  register(Base64MIMETransformerFactory)
-  register(GZIPTransformerFactory)
-  register(IMFLineFoldedTransformerFactory)
-  register(ICalendarLineFoldedTransformerFactory)
-
-  /**
-   * Arguably the above could be bundled with Daffodil.
-   *
-   * The transformers below really should be plugins defined
-   * outside Daffodil, per DAFFODIL-1927.
-   */
-  register(AISPayloadArmoringTransformerFactory)
-  register(FourByteSwapTransformerFactory)
-}
+import java.nio.ByteBuffer
+import java.nio.charset.Charset
 
 /**
  * Shared functionality of all LayerTransformers.
@@ -123,21 +63,21 @@ object LayerTransformerFactory {
  * A layer transformer is created at runtime as part of a single parse/unparse call.
  * Hence, they can be stateful without causing thread-safety issues.
  */
-abstract class LayerTransformer() {
+abstract class LayerTransformer(layerName: String, layerRuntimeInfo: LayerRuntimeInfo) {
 
   protected def wrapLayerDecoder(jis: InputStream): InputStream
 
-  protected def wrapLimitingStream(jis: InputStream, state: PState): InputStream
+  protected def wrapLimitingStream(jis: InputStream): InputStream
 
-  def wrapJavaInputStream(s: InputSourceDataInputStream, fInfo: FormatInfo): InputStream = {
+  final def wrapJavaInputStream(s: InputSourceDataInputStream, fInfo: FormatInfo): InputStream = {
     new JavaIOInputStream(s, fInfo)
   }
 
   protected def wrapLayerEncoder(jos: OutputStream): OutputStream
 
-  protected def wrapLimitingStream(jis: OutputStream, state: UState): OutputStream
+  protected def wrapLimitingStream(jis: OutputStream): OutputStream
 
-  def wrapJavaOutputStream(s: DataOutputStream, fInfo: FormatInfo): OutputStream = {
+  final def wrapJavaOutputStream(s: DataOutputStream, fInfo: FormatInfo): OutputStream = {
     new JavaIOOutputStream(s, fInfo)
   }
   /**
@@ -147,9 +87,9 @@ abstract class LayerTransformer() {
   val mandatoryLayerAlignmentInBits: Int = 8
   val mandatoryLengthUnit: LayerLengthUnits = LayerLengthUnits.Bytes
 
-  def addLayer(s: InputSourceDataInputStream, state: PState): InputSourceDataInputStream = {
+  final def addLayer(s: InputSourceDataInputStream, state: PState): InputSourceDataInputStream = {
     val jis = wrapJavaInputStream(s, state)
-    val limitedJIS = wrapLimitingStream(jis, state)
+    val limitedJIS = wrapLimitingStream(jis)
     val decodedInputStream = wrapLayerDecoder(limitedJIS)
 
     val newDIS = InputSourceDataInputStream(decodedInputStream)
@@ -158,13 +98,13 @@ abstract class LayerTransformer() {
     newDIS
   }
 
-  def removeLayer(s: InputSourceDataInputStream): Unit = {
+  final def removeLayer(s: InputSourceDataInputStream): Unit = {
     // nothing for now
   }
 
-  def addLayer(s: DataOutputStream, state: UState): DirectOrBufferedDataOutputStream = {
+  final def addLayer(s: DataOutputStream, state: UState): DirectOrBufferedDataOutputStream = {
     val jos = wrapJavaOutputStream(s, state)
-    val limitedJOS = wrapLimitingStream(jos, state)
+    val limitedJOS = wrapLimitingStream(jos)
     val encodedOutputStream = wrapLayerEncoder(limitedJOS)
     val newDOS = DirectOrBufferedDataOutputStream(
       encodedOutputStream,
@@ -179,7 +119,7 @@ abstract class LayerTransformer() {
     newDOS
   }
 
-  def removeLayer(s: DirectOrBufferedDataOutputStream, state: UState): Unit = {
+  final def removeLayer(s: DirectOrBufferedDataOutputStream, state: UState): Unit = {
     //
     // Because the layer may have suspensions that will write to it long after
     // this unparser has left the stack, it is not clear we can do any
@@ -271,15 +211,225 @@ class JavaIOOutputStream(dos: DataOutputStream, finfo: FormatInfo)
 }
 
 abstract class LayerException(
-  layerSRD: SequenceRuntimeData,
-  state: PState,
+  val schemaFileLocation: SchemaFileLocation,
+  dataLocation: DataLocation,
   maybeCause: Maybe[Throwable],
   maybeFormatString: Maybe[String],
   args: Any*)
-extends ThinDiagnostic(One(layerSRD.dpathCompileInfo.schemaFileLocation), One(state.currentLocation), maybeCause, maybeFormatString, args: _*)
+extends ThinDiagnostic(One(schemaFileLocation), One(dataLocation), maybeCause, maybeFormatString, args: _*)
 
-case class LayerNotEnoughDataException(layerSRD: SequenceRuntimeData, state: PState, cause: Throwable, nBytesRequired: Int)
-  extends LayerException(layerSRD, state, One(cause), None, nBytesRequired) {
+case class LayerNotEnoughDataException(sfl: SchemaFileLocation, dataLocation: DataLocation, cause: Throwable, nBytesRequired: Int)
+  extends LayerException(sfl, dataLocation, One(cause), None, nBytesRequired) {
   override def isError = true
   override def modeName = "Parse"
   }
+
+final class LayerSerializedInfo(val srd: SequenceRuntimeData,
+  val maybeLayerCharsetEv: Maybe[LayerCharsetEv],
+  val maybeLayerLengthKind: Maybe[LayerLengthKind],
+  val maybeLayerLengthEv: Maybe[LayerLengthEv],
+  val maybeLayerLengthUnits: Maybe[LayerLengthUnits],
+  val maybeLayerBoundaryMarkEv: Maybe[LayerBoundaryMarkEv])
+extends Serializable {
+
+  def evaluatables: Seq[Evaluatable[AnyRef]] =
+    maybeLayerCharsetEv.toScalaOption.toSeq ++
+      maybeLayerLengthEv.toScalaOption.toSeq ++
+      maybeLayerBoundaryMarkEv.toScalaOption.toSeq
+
+
+  def layerRuntimeInfo(state: ParseOrUnparseState): LayerRuntimeInfo =
+    new LayerRuntimeInfo(state, srd,
+      maybeLayerCharsetEv,
+      maybeLayerLengthKind,
+      maybeLayerLengthEv,
+      maybeLayerLengthUnits,
+      maybeLayerBoundaryMarkEv)
+}
+
+/**
+ * Allows access to all the layer properties, if defined, including
+ * evaluating expressions if the properties values are defined as expressions.
+ * Also provides access to variables.
+ */
+
+final class LayerRuntimeInfo(state: ParseOrUnparseState,
+  srd: SequenceRuntimeData,
+  maybeLayerCharsetEv: Maybe[LayerCharsetEv],
+  maybeLayerLengthKind: Maybe[LayerLengthKind],
+  maybeLayerLengthEv: Maybe[LayerLengthEv],
+  maybeLayerLengthUnits: Maybe[LayerLengthUnits],
+  maybeLayerBoundaryMarkEv: Maybe[LayerBoundaryMarkEv])
+{
+
+  def SDE(msg: String, args: Any*) =
+    state.SDE(msg, args)
+
+  /**
+   * Only needed because unparser suspensions need one, and it is used in too many places
+   * @return
+   */
+  def runtimeData: RuntimeData = srd
+
+  def optLayerCharset: Option[Charset] = maybeLayerCharsetEv.toScalaOption.map {
+    _.evaluate(state)
+  } match {
+    case Some(bitsCharsetJava: BitsCharsetJava) => Some(bitsCharsetJava.javaCharset)
+    case None => None
+    case Some(other) => None // only java charsets are supported.
+  }
+
+  def optLayerLengthKind: Option[LayerLengthKind] = maybeLayerLengthKind.toScalaOption
+
+  def optLayerLength: Option[Long] = maybeLayerLengthEv.toScalaOption.map{ _.evaluate(state) }
+
+  def optLayerLengthUnits: Option[LayerLengthUnits] = maybeLayerLengthUnits.toScalaOption
+
+  def optLayerBoundaryMark: Option[String] = maybeLayerBoundaryMarkEv.toScalaOption.map{ _.evaluate(state) }
+
+  def getVariable(vh: VariableHandle): DataValuePrimitive = state.getVariable(vh.asInstanceOf[VariableHandleImpl].vrd, srd)
+
+  def setVariable(vh: VariableHandle, value: DataValuePrimitive) =
+    state.setVariable(vh.asInstanceOf[VariableHandleImpl].vrd, value, srd)
+
+  def schemaFileLocation = srd.schemaFileLocation
+}
+
+
+abstract class ByteBufferExplicitLengthLayerTransform[T](
+  layerRuntimeInfo: LayerRuntimeInfo,
+  layerName: String,
+  inputVars: Seq[VariableHandle],
+  outputVar: VariableHandle)
+  extends LayerTransformer(layerName, layerRuntimeInfo) {
+
+  /**
+   * Override to specify the length exactly.
+   */
+  protected def layerBuiltInConstantLength: Option[Long]
+
+  private var explicitLengthInBytes_ : Long = _
+
+  final protected def explicitLengthInBytes = explicitLengthInBytes_
+
+  /**
+   * The header data will be captured here. All the limiting streams and
+   * the byte/short buffers are all aliases into this same object.
+   */
+  private var byteArr: Array[Byte] = _
+
+  /**
+   * ByteBuffer view of the header bytes.
+   */
+  private var byteBuf : ByteBuffer = _
+
+  private var limitingOutputStream: ByteBufferOutputStream = _
+
+  protected def compute(isUnparse: Boolean, inputs: Seq[Any], byteBuffer:ByteBuffer): T
+
+  /**
+   * Assigned by wrapLimitingStream for parsing to capture the original source
+   * of the header bytes for parsing.
+   */
+  private var optOriginalInputStream: Maybe[InputStream] = Maybe.Nope
+
+  /**
+   * Assigned by wrapLimitingStream for unparsing to capture the original
+   * output stream to which the bytes are ultimately written.
+   */
+  private var optOriginalOutputStream: Maybe[OutputStream] = Maybe.Nope
+
+  private var optLayerCharset_ : Option[Charset] = _
+
+  protected def optLayerCharset = {
+    Assert.invariant(optLayerCharset_ ne null)
+    optLayerCharset_
+  }
+
+  protected def wrapLayerDecoder(jis: InputStream) = jis
+
+  private def setup(layerRuntimeInfo: LayerRuntimeInfo): Unit = {
+    val olc = layerRuntimeInfo.optLayerCharset
+    optLayerCharset_ = olc
+    explicitLengthInBytes_  =
+      if (layerBuiltInConstantLength.isDefined) layerBuiltInConstantLength.get
+      else layerRuntimeInfo.optLayerLength.getOrElse {
+        layerRuntimeInfo.SDE("The layer does not have a built in length and the dfdl:layerLengthKind is 'explicit' yet no dfdlx:layerLength was provided.")
+      }
+    byteArr = new Array[Byte](explicitLengthInBytes_ .toInt)
+    byteBuf = ByteBuffer.wrap(byteArr)
+  }
+
+  protected def wrapLimitingStream(jis: InputStream) = {
+    setup(layerRuntimeInfo)
+    optOriginalInputStream = One(jis)
+    val limitingInputStream = new ByteArrayInputStream(byteArr)
+    limitingInputStream
+  }
+
+  protected def wrapLayerEncoder(jos: OutputStream) = jos
+
+  protected def wrapLimitingStream(jos: OutputStream) = {
+    setup(layerRuntimeInfo)
+    optOriginalOutputStream = One(jos)
+    limitingOutputStream = new ByteBufferOutputStream(byteBuf)
+    limitingOutputStream
+  }
+
+  final override def startLayerForParse(s: PState): Unit = {
+    //
+    // For parsing, all the hard work happens here, allowing the layered input stream to
+    // just deliver the bytes
+    //
+    Assert.invariant(optOriginalInputStream.isDefined)
+
+    try
+      IOUtils.readFully(optOriginalInputStream.get, byteArr)
+    catch {
+      case eof: EOFException =>
+        throw new LayerNotEnoughDataException(layerRuntimeInfo.schemaFileLocation, s.currentLocation, eof, explicitLengthInBytes_ .toInt)
+    }
+    val inputs = inputVars.map{ inputVar => layerRuntimeInfo.getVariable(inputVar).getAnyRef }
+    val checksum: T = compute(isUnparse = false, inputs, byteBuf)
+    layerRuntimeInfo.setVariable(outputVar, DataValue.unsafeFromAnyRef(checksum.asInstanceOf[AnyRef])) // assign to result variable.
+  }
+
+  final class SuspendableChecksumLayerOperation()
+    extends SuspendableOperation {
+    override def rd = layerRuntimeInfo.runtimeData
+
+    /**
+     * Test succeeds if all the data required has been written to the layer
+     */
+    protected def test(ustate: UState) = {
+      //
+      // Note: there is no unparse equivalent of not-enough-data error, because the unparser
+      // will just deadlock here waiting for more data.
+      //
+      limitingOutputStream.size() == explicitLengthInBytes_
+    }
+
+    /**
+     * Computes checksum and overwrites that part of the layer data
+     * with the new checksum, writes the layer data out,
+     * and assigns the output variable.
+     */
+    protected def continuation(ustate: UState): Unit = {
+      Assert.invariant(optOriginalOutputStream.isDefined)
+      byteBuf.position(0).limit(byteBuf.capacity())
+      val inputs = inputVars.map{ inputVRD => layerRuntimeInfo.getVariable(inputVRD).getAnyRef }
+      val finalChecksum = compute(isUnparse = true, inputs, byteBuf)
+      layerRuntimeInfo.setVariable(outputVar, DataValue.unsafeFromAnyRef(finalChecksum.asInstanceOf[AnyRef])) // assign to the result variable.
+      // write out the layer data (which has recomputed checksum in it.
+      optOriginalOutputStream.get.write(byteArr)
+      optOriginalOutputStream.get.close()
+    }
+  }
+
+  private lazy val suspendableOperation = new SuspendableChecksumLayerOperation()
+
+  final override def endLayerForUnparse(s: UState): Unit = {
+    suspendableOperation.run(s)
+  }
+
+}

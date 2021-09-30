@@ -67,7 +67,7 @@
 
 
 
-  <tdml:parserTestCase name="layers1" root="root" model="s1">
+  <tdml:parserTestCase name="gzipLayer1" root="root" model="s1">
     <tdml:document>
       <tdml:documentPart type="byte"><![CDATA[
       000000D41F8B08000000000000FF4D904176C3200C44AF3207C8F33DBA6F0F40CCD8568391
@@ -153,7 +153,7 @@
 12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
   -->
 
-  <tdml:unparserTestCase name="layers2" root="root" model="s2" roundTrip="true">
+  <tdml:unparserTestCase name="foldedIMFBase64Layers1" root="root" model="s2" roundTrip="true">
     <tdml:document>
       <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[boundary=frontier%CR;%LF;--frontier%CR;%LF;Comment: This simulates a header field that is so long it will get folded%CR;%LF; into multiple lines of text because it is too long and my job is at the%CR;%LF; redundancy department is where I work.%CR;%LF;Content-Transfer-Encoding: base64%CR;%LF;%CR;%LF;TG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQsIGNvbnNlY3RldHVyIGFkaXBpc2NpbmcgZWxpdCwg%CR;%LF;c2VkIGRvIGVpdXNtb2QgdGVtcG9yIGluY2lkaWR1bnQgdXQgbGFib3JlIGV0IGRvbG9yZSBtYWdu%CR;%LF;YSBhbGlxdWEuIFV0IGVuaW0gYWQ=%CR;%LF;--frontier--]]></tdml:documentPart>
     </tdml:document>
@@ -202,7 +202,7 @@
 
   </tdml:defineSchema>
 
-  <tdml:parserTestCase name="layers3" root="root" model="s3" roundTrip="true">
+  <tdml:parserTestCase name="foldedIMF1" root="root" model="s3" roundTrip="true">
     <tdml:document>
       <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[boundary=frontier%CR;%LF;xxx]]></tdml:documentPart>
     </tdml:document>
@@ -327,7 +327,7 @@
 
   </tdml:defineSchema>
 
-  <tdml:unparserTestCase name="layers4" root="file" model="s4" roundTrip="true">
+  <tdml:unparserTestCase name="base64GzipLayers1" root="file" model="s4" roundTrip="true">
     <tdml:document>
     <!-- 
     This data is gzipped, then base64 encoded:

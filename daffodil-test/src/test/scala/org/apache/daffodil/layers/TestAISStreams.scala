@@ -18,9 +18,11 @@
 package org.apache.daffodil.layers
 
 import org.junit.Assert._
+
 import java.io._
 import org.junit.Test
 import org.apache.daffodil.io.RegexLimitingStream
+
 import java.nio.charset.StandardCharsets
 import org.apache.daffodil.util.Misc
 import org.apache.commons.io.IOUtils

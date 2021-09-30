@@ -290,7 +290,7 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
-          <xs:sequence dfdlx:layerTransform="lineFolded_IMF" dfdlx:layerLengthKind="boundaryMark">
+          <xs:sequence dfdlx:layerTransform="lineFolded_IMF" dfdlx:layerLengthKind="implicit">
             <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited"/>
           </xs:sequence>
         </xs:complexType>
@@ -304,7 +304,7 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
    */
   val ipsumLorem3 = s"""Lorem ipsum\r\n dolor sit amet,\r\nconsectetur adipiscing elit"""
 
-  val ipsumLorem3Unfolded = s"""Lorem ipsum dolor sit amet,"""
+  val ipsumLorem3Unfolded = s"""Lorem ipsum dolor sit amet,\nconsectetur adipiscing elit"""
 
   @Test def testParseLineFoldIMF2(): Unit = {
     val sch = lineFoldLayer2Schema
@@ -317,7 +317,7 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
   val ipsumLorem4 = s"""Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod\r\n tempor incididunt\r\n"""
   ///////////////////// 123456789012345678901234567890123456789012345678901234567890123456789012 3 4567890123456789012345678901234567890123456789012345678901234567890
   /////////////////////          1         2         3         4         5         6         7           8
-  val ipsumLorem4Unfolded = s"""Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt"""
+  val ipsumLorem4Unfolded = s"""Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt\n"""
 
   @Test def testUnparseLineFoldIMF2(): Unit = {
     val sch = lineFoldLayer2Schema
