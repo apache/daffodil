@@ -31,10 +31,10 @@
 // Helper macro to reduce duplication of C code writing stream,
 // updating position, and checking for errors
 
-#define write_stream_update_position                                                                         \
-    size_t count = fwrite(buffer.c_val, 1, sizeof(buffer), ustate->stream);                                  \
+#define write_stream_update_position(ptr, num_bytes)                                                         \
+    size_t count = fwrite(ptr, 1, num_bytes, ustate->stream);                                                \
     ustate->position += count;                                                                               \
-    if (count < sizeof(buffer))                                                                              \
+    if (count < num_bytes)                                                                                   \
     {                                                                                                        \
         ustate->error = eof_or_error(ustate->stream);                                                        \
         if (ustate->error) return;                                                                           \
@@ -52,7 +52,7 @@
         } buffer;                                                                                            \
                                                                                                              \
         buffer.i_val = hto##endian##bits(number ? true_rep : false_rep);                                     \
-        write_stream_update_position;                                                                        \
+        write_stream_update_position(buffer.c_val, sizeof(uint##bits##_t));                                  \
     }
 
 #define define_unparse_endian_real(endian, type, bits)                                                       \
@@ -67,7 +67,7 @@
                                                                                                              \
         buffer.f_val = number;                                                                               \
         buffer.i_val = hto##endian##bits(buffer.i_val);                                                      \
-        write_stream_update_position;                                                                        \
+        write_stream_update_position(buffer.c_val, sizeof(type));                                            \
     }
 
 #define define_unparse_endian_integer(endian, type, bits)                                                    \
@@ -80,7 +80,7 @@
         } buffer;                                                                                            \
                                                                                                              \
         buffer.i_val = hto##endian##bits(number);                                                            \
-        write_stream_update_position;                                                                        \
+        write_stream_update_position(buffer.c_val, sizeof(type##bits##_t));                                  \
     }
 
 // Unparse binary booleans, real numbers, and integers
@@ -133,8 +133,16 @@ unparse_fill_bytes(size_t end_position, const char fill_byte, UState *ustate)
 
     while (ustate->position < end_position)
     {
-        write_stream_update_position;
+        write_stream_update_position(buffer.c_val, 1);
     }
+}
+
+// Unparse 8-bit bytes from hexBinary field
+
+void
+unparse_hexBinary(HexBinary hexBinary, UState *ustate)
+{
+    write_stream_update_position(hexBinary.array, hexBinary.lengthInBytes);
 }
 
 // Validate unparsed number is same as fixed value

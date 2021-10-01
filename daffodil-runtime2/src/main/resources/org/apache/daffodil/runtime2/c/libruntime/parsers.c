@@ -17,10 +17,12 @@
 
 // clang-format off
 #include "parsers.h"
+#include <assert.h>   // for assert
 #include <endian.h>   // for be32toh, le32toh, be16toh, be64toh, le16toh, le64toh
 #include <stdbool.h>  // for bool, false, true
 #include <stdio.h>    // for fread
-#include "errors.h"   // for eof_or_error, Error, ERR_PARSE_BOOL, Error::(anonymous), add_diagnostic, get_diagnostics, ERR_FIXED_VALUE, Diagnostics
+#include <stdlib.h>   // for free, malloc
+#include "errors.h"   // for eof_or_error, Error, ERR_PARSE_BOOL, Error::(anonymous), add_diagnostic, get_diagnostics, ERR_FIXED_VALUE, ERR_HEXBINARY_ALLOC, Diagnostics
 // clang-format on
 
 // Macros not defined by <endian.h> which we need for uniformity
@@ -31,10 +33,10 @@
 // Helper macro to reduce duplication of C code reading stream,
 // updating position, and checking for errors
 
-#define read_stream_update_position                                                                          \
-    size_t count = fread(&buffer.c_val, 1, sizeof(buffer), pstate->stream);                                  \
+#define read_stream_update_position(ptr, num_bytes)                                                          \
+    size_t count = fread(ptr, 1, num_bytes, pstate->stream);                                                 \
     pstate->position += count;                                                                               \
-    if (count < sizeof(buffer))                                                                              \
+    if (count < num_bytes)                                                                                   \
     {                                                                                                        \
         pstate->error = eof_or_error(pstate->stream);                                                        \
         if (pstate->error) return;                                                                           \
@@ -51,7 +53,7 @@
             uint##bits##_t i_val;                                                                            \
         } buffer;                                                                                            \
                                                                                                              \
-        read_stream_update_position;                                                                         \
+        read_stream_update_position(&buffer.c_val, sizeof(uint##bits##_t));                                  \
         buffer.i_val = endian##bits##toh(buffer.i_val);                                                      \
         if (true_rep < 0)                                                                                    \
         {                                                                                                    \
@@ -83,7 +85,7 @@
             uint##bits##_t i_val;                                                                            \
         } buffer;                                                                                            \
                                                                                                              \
-        read_stream_update_position;                                                                         \
+        read_stream_update_position(&buffer.c_val, sizeof(type));                                            \
         buffer.i_val = endian##bits##toh(buffer.i_val);                                                      \
         *number = buffer.f_val;                                                                              \
     }
@@ -97,7 +99,7 @@
             type##bits##_t i_val;                                                                            \
         } buffer;                                                                                            \
                                                                                                              \
-        read_stream_update_position;                                                                         \
+        read_stream_update_position(&buffer.c_val, sizeof(type##bits##_t));                                  \
         *number = endian##bits##toh(buffer.i_val);                                                           \
     }
 
@@ -149,8 +151,38 @@ parse_fill_bytes(size_t end_position, PState *pstate)
 
     while (pstate->position < end_position)
     {
-        read_stream_update_position;
+        read_stream_update_position(&buffer.c_val, 1);
     }
+}
+
+// Allocate memory for hexBinary array
+
+void
+alloc_hexBinary(HexBinary *hexBinary, size_t num_bytes, PState *pstate)
+{
+    // Free old byte array
+    assert(hexBinary->dynamic);
+    free(hexBinary->array);
+
+    // Allocate new byte array
+    hexBinary->array = malloc(num_bytes);
+    hexBinary->lengthInBytes = num_bytes;
+
+    // Return error if necessary
+    if (num_bytes && hexBinary->array == NULL)
+    {
+        static Error error = {ERR_HEXBINARY_ALLOC, {0}};
+        error.arg.d64 = (int64_t)num_bytes;
+        pstate->error = &error;
+    }
+}
+
+// Parse 8-bit bytes into hexBinary array
+
+void
+parse_hexBinary(HexBinary *hexBinary, PState *pstate)
+{
+    read_stream_update_position(hexBinary->array, hexBinary->lengthInBytes);
 }
 
 // Validate parsed number is same as fixed value

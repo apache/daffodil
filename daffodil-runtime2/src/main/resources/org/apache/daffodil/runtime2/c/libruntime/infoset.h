@@ -19,9 +19,11 @@
 #define INFOSET_H
 
 // clang-format off
-#include <stddef.h>  // for size_t
-#include <stdio.h>   // for FILE
-#include "errors.h"  // for Error, Diagnostics
+#include <stdbool.h>  // for bool
+#include <stddef.h>   // for size_t
+#include <stdint.h>   // for uint8_t
+#include <stdio.h>    // for FILE
+#include "errors.h"   // for Error, Diagnostics
 // clang-format on
 
 // Prototypes needed for compilation
@@ -44,7 +46,7 @@ typedef const Error *(*VisitStartComplex)(const struct VisitEventHandler *handle
                                           const struct InfosetBase *      base);
 typedef const Error *(*VisitEndComplex)(const struct VisitEventHandler *handler,
                                         const struct InfosetBase *      base);
-typedef const Error *(*VisitNumberElem)(const struct VisitEventHandler *handler, const struct ERD *erd,
+typedef const Error *(*VisitSimpleElem)(const struct VisitEventHandler *handler, const struct ERD *erd,
                                         const void *number);
 
 // NamedQName - name of an infoset element
@@ -65,6 +67,7 @@ enum TypeCode
     PRIMITIVE_BOOLEAN,
     PRIMITIVE_DOUBLE,
     PRIMITIVE_FLOAT,
+    PRIMITIVE_HEXBINARY,
     PRIMITIVE_INT16,
     PRIMITIVE_INT32,
     PRIMITIVE_INT64,
@@ -90,6 +93,15 @@ typedef struct ERD
     const ERDUnparseSelf unparseSelf;
     const InitChoiceRD   initChoice;
 } ERD;
+
+// HexBinary - data of a hexBinary element
+
+typedef struct HexBinary
+{
+    uint8_t *array;         // pointer to data in byte array
+    size_t   lengthInBytes; // length of data in bytes
+    bool     dynamic;       // true if byte array was malloc'ed
+} HexBinary;
 
 // InfosetBase - metadata of an infoset element
 
@@ -126,7 +138,7 @@ typedef struct VisitEventHandler
     const VisitEndDocument   visitEndDocument;
     const VisitStartComplex  visitStartComplex;
     const VisitEndComplex    visitEndComplex;
-    const VisitNumberElem    visitNumberElem;
+    const VisitSimpleElem    visitSimpleElem;
 } VisitEventHandler;
 
 // get_erd_name, get_erd_xmlns, get_erd_ns - get name and xmlns

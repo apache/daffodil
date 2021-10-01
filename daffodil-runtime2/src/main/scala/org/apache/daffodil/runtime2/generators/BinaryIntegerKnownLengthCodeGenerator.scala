@@ -17,26 +17,25 @@
 
 package org.apache.daffodil.runtime2.generators
 
-import org.apache.daffodil.grammar.primitives.BinaryIntegerKnownLength
+import org.apache.daffodil.dsom.ElementBase
 
-trait BinaryIntegerKnownLengthCodeGenerator extends BinaryAbstractCodeGenerator {
+trait BinaryIntegerKnownLengthCodeGenerator extends BinaryValueCodeGenerator {
 
-  def binaryIntegerKnownLengthGenerateCode(g: BinaryIntegerKnownLength, cgState: CodeGeneratorState): Unit = {
-
+  // Called by Runtime2CodeGenerator to generate C code for an integer element
+  def binaryIntegerKnownLengthGenerateCode(e: ElementBase, lengthInBits: Long, signed: Boolean, cgState: CodeGeneratorState): Unit = {
     // Use an unusual memory bit pattern (magic debug value) to mark our field
     // as uninitialized in case parsing or unparsing fails to set the field.
-    val e = g.e
-    val initialValue = g.lengthInBits match {
-      case 8 => "0xCC"
-      case 16 => "0xCCCC"
-      case 32 => "0xCCCCCCCC"
-      case 64 => "0xCCCCCCCCCCCCCCCC"
+    val initialValue = lengthInBits match {
+      case 8 => "0x77"
+      case 16 => "0x7777"
+      case 32 => "0x77777777"
+      case 64 => "0x7777777777777777"
       case _ => e.SDE("Integer lengths other than 8, 16, 32, or 64 bits are not supported.")
     }
-    val prim = if (g.signed) s"int${g.lengthInBits}" else s"uint${g.lengthInBits}"
-    val parseArgs = "pstate"
-    val unparseArgs = "ustate"
+    val primType = if (signed) s"int${lengthInBits}" else s"uint${lengthInBits}"
+    val addField = valueAddField(e, initialValue, primType, _, cgState)
+    val validateFixed = valueValidateFixed(e, _, cgState)
 
-    binaryAbstractGenerateCode(e, initialValue, prim, parseArgs, unparseArgs, cgState)
+    binaryValueGenerateCode(e, addField, validateFixed)
   }
 }

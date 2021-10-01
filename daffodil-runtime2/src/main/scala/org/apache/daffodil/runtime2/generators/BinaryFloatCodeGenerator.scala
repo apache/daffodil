@@ -19,20 +19,20 @@ package org.apache.daffodil.runtime2.generators
 
 import org.apache.daffodil.dsom.ElementBase
 
-trait BinaryFloatCodeGenerator extends BinaryAbstractCodeGenerator {
+trait BinaryFloatCodeGenerator extends BinaryValueCodeGenerator {
 
+  // Called by Runtime2CodeGenerator to generate C code for a float element
   def binaryFloatGenerateCode(e: ElementBase, lengthInBits: Int, cgState: CodeGeneratorState): Unit = {
-
-    // Use a NAN to mark our field as uninitialized in case parsing or unparsing
+    // Use a NAN to mark field as uninitialized in case parsing or unparsing
     // fails to set the field.
     val initialValue = lengthInBits match {
       case 32 | 64 => "NAN"
       case _ => e.SDE("Floating point lengths other than 32 or 64 bits are not supported.")
     }
-    val prim = if (lengthInBits == 32) "float" else "double"
-    val parseArgs = "pstate"
-    val unparseArgs = "ustate"
+    val primType = if (lengthInBits == 32) "float" else "double"
+    val addField = valueAddField(e, initialValue, primType, _, cgState)
+    val validateFixed = valueValidateFixed(e, _, cgState)
 
-    binaryAbstractGenerateCode(e, initialValue, prim, parseArgs, unparseArgs, cgState)
+    binaryValueGenerateCode(e, addField, validateFixed)
   }
 }

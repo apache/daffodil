@@ -65,6 +65,14 @@ extern void parse_le_uint8(uint8_t *number, PState *pstate);
 
 extern void parse_fill_bytes(size_t end_position, PState *pstate);
 
+// Allocate memory for hexBinary array
+
+extern void alloc_hexBinary(HexBinary *hexBinary, size_t num_bytes, PState *pstate);
+
+// Parse 8-bit bytes into hexBinary array
+
+extern void parse_hexBinary(HexBinary *hexBinary, PState *pstate);
+
 // Validate parsed number is same as fixed value
 
 extern void parse_validate_fixed(bool same, const char *element, PState *pstate);

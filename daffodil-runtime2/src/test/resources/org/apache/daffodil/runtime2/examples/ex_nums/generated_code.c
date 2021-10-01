@@ -1,14 +1,17 @@
+// clang-format off
 #include "generated_code.h"
 #include <math.h>       // for NAN
-#include <stdbool.h>    // for bool, true, false
+#include <stdbool.h>    // for true, false, bool
 #include <stddef.h>     // for NULL, size_t
+#include <string.h>     // for memset, memcmp
 #include "errors.h"     // for Error, PState, UState, ERR_CHOICE_KEY, UNUSED
-#include "parsers.h"    // for parse_be_float, parse_be_int16, parse_be_bool32, parse_validate_fixed, parse_be_bool16, parse_be_int32, parse_be_uint32, parse_le_bool32, parse_le_int64, parse_le_uint8, parse_be_bool8, parse_be_double, parse_be_int64, parse_be_int8, parse_be_uint16, parse_be_uint64, parse_be_uint8, parse_le_bool16, parse_le_bool8, parse_le_double, parse_le_float, parse_le_int16, parse_le_int32, parse_le_int8, parse_le_uint16, parse_le_uint32, parse_le_uint64
-#include "unparsers.h"  // for unparse_be_float, unparse_be_int16, unparse_be_bool32, unparse_validate_fixed, unparse_be_bool16, unparse_be_int32, unparse_be_uint32, unparse_le_bool32, unparse_le_int64, unparse_le_uint8, unparse_be_bool8, unparse_be_double, unparse_be_int64, unparse_be_int8, unparse_be_uint16, unparse_be_uint64, unparse_be_uint8, unparse_le_bool16, unparse_le_bool8, unparse_le_double, unparse_le_float, unparse_le_int16, unparse_le_int32, unparse_le_int8, unparse_le_uint16, unparse_le_uint32, unparse_le_uint64
+#include "parsers.h"    // for alloc_hexBinary, parse_hexBinary, parse_be_float, parse_be_int16, parse_validate_fixed, parse_be_bool32, parse_be_bool16, parse_be_int32, parse_be_uint16, parse_be_uint32, parse_le_bool32, parse_le_int64, parse_le_uint16, parse_le_uint8, parse_be_bool8, parse_be_double, parse_be_int64, parse_be_int8, parse_be_uint64, parse_be_uint8, parse_le_bool16, parse_le_bool8, parse_le_double, parse_le_float, parse_le_int16, parse_le_int32, parse_le_int8, parse_le_uint32, parse_le_uint64
+#include "unparsers.h"  // for unparse_hexBinary, unparse_be_float, unparse_be_int16, unparse_validate_fixed, unparse_be_bool32, unparse_be_bool16, unparse_be_int32, unparse_be_uint16, unparse_be_uint32, unparse_le_bool32, unparse_le_int64, unparse_le_uint16, unparse_le_uint8, unparse_be_bool8, unparse_be_double, unparse_be_int64, unparse_be_int8, unparse_be_uint64, unparse_be_uint8, unparse_le_bool16, unparse_le_bool8, unparse_le_double, unparse_le_float, unparse_le_int16, unparse_le_int32, unparse_le_int8, unparse_le_uint32, unparse_le_uint64
+// clang-format on
 
 // Initialize our program's name and version
 
-const char *daffodil_program_version = "daffodil-runtime2 3.1.0";
+const char *daffodil_program_version = "daffodil-runtime2 3.2.0-SNAPSHOT";
 
 // Declare prototypes for easier compilation
 
@@ -60,9 +63,29 @@ static const ERD be_int16_array_ex_nums_ERD = {
     0, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
+static const ERD hexBinary2_array_ex_nums_ERD = {
+    {
+        NULL, // namedQName.prefix
+        "hexBinary2", // namedQName.local
+        NULL, // namedQName.ns
+    },
+    PRIMITIVE_HEXBINARY, // typeCode
+    0, NULL, NULL, NULL, NULL, NULL, NULL
+};
+
+static const ERD hexBinaryPrefixed_array_ex_nums_ERD = {
+    {
+        NULL, // namedQName.prefix
+        "hexBinaryPrefixed", // namedQName.local
+        NULL, // namedQName.ns
+    },
+    PRIMITIVE_HEXBINARY, // typeCode
+    0, NULL, NULL, NULL, NULL, NULL, NULL
+};
+
 static const array array_compute_offsets;
 
-static const size_t array_offsets[8] = {
+static const size_t array_offsets[14] = {
     (const char *)&array_compute_offsets.be_bool16[0] - (const char *)&array_compute_offsets,
     (const char *)&array_compute_offsets.be_bool16[1] - (const char *)&array_compute_offsets,
     (const char *)&array_compute_offsets.be_float[0] - (const char *)&array_compute_offsets,
@@ -70,10 +93,16 @@ static const size_t array_offsets[8] = {
     (const char *)&array_compute_offsets.be_float[2] - (const char *)&array_compute_offsets,
     (const char *)&array_compute_offsets.be_int16[0] - (const char *)&array_compute_offsets,
     (const char *)&array_compute_offsets.be_int16[1] - (const char *)&array_compute_offsets,
-    (const char *)&array_compute_offsets.be_int16[2] - (const char *)&array_compute_offsets
+    (const char *)&array_compute_offsets.be_int16[2] - (const char *)&array_compute_offsets,
+    (const char *)&array_compute_offsets.hexBinary2[0] - (const char *)&array_compute_offsets,
+    (const char *)&array_compute_offsets.hexBinary2[1] - (const char *)&array_compute_offsets,
+    (const char *)&array_compute_offsets.hexBinary2[2] - (const char *)&array_compute_offsets,
+    (const char *)&array_compute_offsets.hexBinaryPrefixed[0] - (const char *)&array_compute_offsets,
+    (const char *)&array_compute_offsets.hexBinaryPrefixed[1] - (const char *)&array_compute_offsets,
+    (const char *)&array_compute_offsets.hexBinaryPrefixed[2] - (const char *)&array_compute_offsets
 };
 
-static const ERD *array_childrenERDs[8] = {
+static const ERD *array_childrenERDs[14] = {
     &be_bool16_array_ex_nums_ERD,
     &be_bool16_array_ex_nums_ERD,
     &be_float_array_ex_nums_ERD,
@@ -81,7 +110,13 @@ static const ERD *array_childrenERDs[8] = {
     &be_float_array_ex_nums_ERD,
     &be_int16_array_ex_nums_ERD,
     &be_int16_array_ex_nums_ERD,
-    &be_int16_array_ex_nums_ERD
+    &be_int16_array_ex_nums_ERD,
+    &hexBinary2_array_ex_nums_ERD,
+    &hexBinary2_array_ex_nums_ERD,
+    &hexBinary2_array_ex_nums_ERD,
+    &hexBinaryPrefixed_array_ex_nums_ERD,
+    &hexBinaryPrefixed_array_ex_nums_ERD,
+    &hexBinaryPrefixed_array_ex_nums_ERD
 };
 
 static const ERD array_ex_nums_ERD = {
@@ -91,7 +126,7 @@ static const ERD array_ex_nums_ERD = {
         NULL, // namedQName.ns
     },
     COMPLEX, // typeCode
-    8, // numChildren
+    14, // numChildren
     array_offsets, // offsets
     array_childrenERDs, // childrenERDs
     (ERDInitSelf)&array_initSelf, // initSelf
@@ -260,9 +295,29 @@ static const ERD be_nonNegativeInteger32_bigEndian_ex_nums_ERD = {
     0, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
+static const ERD hexBinary4_bigEndian_ex_nums_ERD = {
+    {
+        NULL, // namedQName.prefix
+        "hexBinary4", // namedQName.local
+        NULL, // namedQName.ns
+    },
+    PRIMITIVE_HEXBINARY, // typeCode
+    0, NULL, NULL, NULL, NULL, NULL, NULL
+};
+
+static const ERD hexBinaryPrefixed_bigEndian_ex_nums_ERD = {
+    {
+        NULL, // namedQName.prefix
+        "hexBinaryPrefixed", // namedQName.local
+        NULL, // namedQName.ns
+    },
+    PRIMITIVE_HEXBINARY, // typeCode
+    0, NULL, NULL, NULL, NULL, NULL, NULL
+};
+
 static const bigEndian bigEndian_compute_offsets;
 
-static const size_t bigEndian_offsets[16] = {
+static const size_t bigEndian_offsets[18] = {
     (const char *)&bigEndian_compute_offsets.be_bool16 - (const char *)&bigEndian_compute_offsets,
     (const char *)&bigEndian_compute_offsets.be_bool32 - (const char *)&bigEndian_compute_offsets,
     (const char *)&bigEndian_compute_offsets.be_bool8 - (const char *)&bigEndian_compute_offsets,
@@ -278,10 +333,12 @@ static const size_t bigEndian_offsets[16] = {
     (const char *)&bigEndian_compute_offsets.be_uint32 - (const char *)&bigEndian_compute_offsets,
     (const char *)&bigEndian_compute_offsets.be_uint64 - (const char *)&bigEndian_compute_offsets,
     (const char *)&bigEndian_compute_offsets.be_uint8 - (const char *)&bigEndian_compute_offsets,
-    (const char *)&bigEndian_compute_offsets.be_nonNegativeInteger32 - (const char *)&bigEndian_compute_offsets
+    (const char *)&bigEndian_compute_offsets.be_nonNegativeInteger32 - (const char *)&bigEndian_compute_offsets,
+    (const char *)&bigEndian_compute_offsets.hexBinary4 - (const char *)&bigEndian_compute_offsets,
+    (const char *)&bigEndian_compute_offsets.hexBinaryPrefixed - (const char *)&bigEndian_compute_offsets
 };
 
-static const ERD *bigEndian_childrenERDs[16] = {
+static const ERD *bigEndian_childrenERDs[18] = {
     &be_bool16_bigEndian_ex_nums_ERD,
     &be_bool32_bigEndian_ex_nums_ERD,
     &be_bool8_bigEndian_ex_nums_ERD,
@@ -297,7 +354,9 @@ static const ERD *bigEndian_childrenERDs[16] = {
     &be_uint32_bigEndian_ex_nums_ERD,
     &be_uint64_bigEndian_ex_nums_ERD,
     &be_uint8_bigEndian_ex_nums_ERD,
-    &be_nonNegativeInteger32_bigEndian_ex_nums_ERD
+    &be_nonNegativeInteger32_bigEndian_ex_nums_ERD,
+    &hexBinary4_bigEndian_ex_nums_ERD,
+    &hexBinaryPrefixed_bigEndian_ex_nums_ERD
 };
 
 static const ERD bigEndian_ex_nums_ERD = {
@@ -307,7 +366,7 @@ static const ERD bigEndian_ex_nums_ERD = {
         NULL, // namedQName.ns
     },
     COMPLEX, // typeCode
-    16, // numChildren
+    18, // numChildren
     bigEndian_offsets, // offsets
     bigEndian_childrenERDs, // childrenERDs
     (ERDInitSelf)&bigEndian_initSelf, // initSelf
@@ -476,9 +535,29 @@ static const ERD le_nonNegativeInteger8_littleEndian_ex_nums_ERD = {
     0, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
+static const ERD hexBinary0_littleEndian_ex_nums_ERD = {
+    {
+        NULL, // namedQName.prefix
+        "hexBinary0", // namedQName.local
+        NULL, // namedQName.ns
+    },
+    PRIMITIVE_HEXBINARY, // typeCode
+    0, NULL, NULL, NULL, NULL, NULL, NULL
+};
+
+static const ERD hexBinaryPrefixed_littleEndian_ex_nums_ERD = {
+    {
+        NULL, // namedQName.prefix
+        "hexBinaryPrefixed", // namedQName.local
+        NULL, // namedQName.ns
+    },
+    PRIMITIVE_HEXBINARY, // typeCode
+    0, NULL, NULL, NULL, NULL, NULL, NULL
+};
+
 static const littleEndian littleEndian_compute_offsets;
 
-static const size_t littleEndian_offsets[16] = {
+static const size_t littleEndian_offsets[18] = {
     (const char *)&littleEndian_compute_offsets.le_bool16 - (const char *)&littleEndian_compute_offsets,
     (const char *)&littleEndian_compute_offsets.le_bool32 - (const char *)&littleEndian_compute_offsets,
     (const char *)&littleEndian_compute_offsets.le_bool8 - (const char *)&littleEndian_compute_offsets,
@@ -494,10 +573,12 @@ static const size_t littleEndian_offsets[16] = {
     (const char *)&littleEndian_compute_offsets.le_uint32 - (const char *)&littleEndian_compute_offsets,
     (const char *)&littleEndian_compute_offsets.le_uint64 - (const char *)&littleEndian_compute_offsets,
     (const char *)&littleEndian_compute_offsets.le_uint8 - (const char *)&littleEndian_compute_offsets,
-    (const char *)&littleEndian_compute_offsets.le_nonNegativeInteger8 - (const char *)&littleEndian_compute_offsets
+    (const char *)&littleEndian_compute_offsets.le_nonNegativeInteger8 - (const char *)&littleEndian_compute_offsets,
+    (const char *)&littleEndian_compute_offsets.hexBinary0 - (const char *)&littleEndian_compute_offsets,
+    (const char *)&littleEndian_compute_offsets.hexBinaryPrefixed - (const char *)&littleEndian_compute_offsets
 };
 
-static const ERD *littleEndian_childrenERDs[16] = {
+static const ERD *littleEndian_childrenERDs[18] = {
     &le_bool16_littleEndian_ex_nums_ERD,
     &le_bool32_littleEndian_ex_nums_ERD,
     &le_bool8_littleEndian_ex_nums_ERD,
@@ -513,7 +594,9 @@ static const ERD *littleEndian_childrenERDs[16] = {
     &le_uint32_littleEndian_ex_nums_ERD,
     &le_uint64_littleEndian_ex_nums_ERD,
     &le_uint8_littleEndian_ex_nums_ERD,
-    &le_nonNegativeInteger8_littleEndian_ex_nums_ERD
+    &le_nonNegativeInteger8_littleEndian_ex_nums_ERD,
+    &hexBinary0_littleEndian_ex_nums_ERD,
+    &hexBinaryPrefixed_littleEndian_ex_nums_ERD
 };
 
 static const ERD littleEndian_ex_nums_ERD = {
@@ -523,7 +606,7 @@ static const ERD littleEndian_ex_nums_ERD = {
         NULL, // namedQName.ns
     },
     COMPLEX, // typeCode
-    16, // numChildren
+    18, // numChildren
     littleEndian_offsets, // offsets
     littleEndian_childrenERDs, // childrenERDs
     (ERDInitSelf)&littleEndian_initSelf, // initSelf
@@ -572,20 +655,56 @@ static const ERD int_32_fixed_ex_nums_ERD = {
     0, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
+static const ERD hexBinary_deadbeef_fixed_ex_nums_ERD = {
+    {
+        NULL, // namedQName.prefix
+        "hexBinary_deadbeef", // namedQName.local
+        NULL, // namedQName.ns
+    },
+    PRIMITIVE_HEXBINARY, // typeCode
+    0, NULL, NULL, NULL, NULL, NULL, NULL
+};
+
+static const ERD hexBinary0_fixed_ex_nums_ERD = {
+    {
+        NULL, // namedQName.prefix
+        "hexBinary0", // namedQName.local
+        NULL, // namedQName.ns
+    },
+    PRIMITIVE_HEXBINARY, // typeCode
+    0, NULL, NULL, NULL, NULL, NULL, NULL
+};
+
+static const ERD hexBinaryPrefixed_ab_fixed_ex_nums_ERD = {
+    {
+        NULL, // namedQName.prefix
+        "hexBinaryPrefixed_ab", // namedQName.local
+        NULL, // namedQName.ns
+    },
+    PRIMITIVE_HEXBINARY, // typeCode
+    0, NULL, NULL, NULL, NULL, NULL, NULL
+};
+
 static const fixed fixed_compute_offsets;
 
-static const size_t fixed_offsets[4] = {
+static const size_t fixed_offsets[7] = {
     (const char *)&fixed_compute_offsets.boolean_false - (const char *)&fixed_compute_offsets,
     (const char *)&fixed_compute_offsets.boolean_true - (const char *)&fixed_compute_offsets,
     (const char *)&fixed_compute_offsets.float_1_5 - (const char *)&fixed_compute_offsets,
-    (const char *)&fixed_compute_offsets.int_32 - (const char *)&fixed_compute_offsets
+    (const char *)&fixed_compute_offsets.int_32 - (const char *)&fixed_compute_offsets,
+    (const char *)&fixed_compute_offsets.hexBinary_deadbeef - (const char *)&fixed_compute_offsets,
+    (const char *)&fixed_compute_offsets.hexBinary0 - (const char *)&fixed_compute_offsets,
+    (const char *)&fixed_compute_offsets.hexBinaryPrefixed_ab - (const char *)&fixed_compute_offsets
 };
 
-static const ERD *fixed_childrenERDs[4] = {
+static const ERD *fixed_childrenERDs[7] = {
     &boolean_false_fixed_ex_nums_ERD,
     &boolean_true_fixed_ex_nums_ERD,
     &float_1_5_fixed_ex_nums_ERD,
-    &int_32_fixed_ex_nums_ERD
+    &int_32_fixed_ex_nums_ERD,
+    &hexBinary_deadbeef_fixed_ex_nums_ERD,
+    &hexBinary0_fixed_ex_nums_ERD,
+    &hexBinaryPrefixed_ab_fixed_ex_nums_ERD
 };
 
 static const ERD fixed_ex_nums_ERD = {
@@ -595,7 +714,7 @@ static const ERD fixed_ex_nums_ERD = {
         NULL, // namedQName.ns
     },
     COMPLEX, // typeCode
-    4, // numChildren
+    7, // numChildren
     fixed_offsets, // offsets
     fixed_childrenERDs, // childrenERDs
     (ERDInitSelf)&fixed_initSelf, // initSelf
@@ -662,9 +781,30 @@ array_initSelf(array *instance)
     instance->be_float[0] = NAN;
     instance->be_float[1] = NAN;
     instance->be_float[2] = NAN;
-    instance->be_int16[0] = 0xCCCC;
-    instance->be_int16[1] = 0xCCCC;
-    instance->be_int16[2] = 0xCCCC;
+    instance->be_int16[0] = 0x7777;
+    instance->be_int16[1] = 0x7777;
+    instance->be_int16[2] = 0x7777;
+    instance->hexBinary2[0].array = instance->_a_hexBinary2[0];
+    instance->hexBinary2[0].lengthInBytes = sizeof(instance->_a_hexBinary2[0]);
+    instance->hexBinary2[0].dynamic = false;
+    memset(instance->_a_hexBinary2[0], 0x77, sizeof(instance->_a_hexBinary2[0]));
+    instance->hexBinary2[1].array = instance->_a_hexBinary2[1];
+    instance->hexBinary2[1].lengthInBytes = sizeof(instance->_a_hexBinary2[1]);
+    instance->hexBinary2[1].dynamic = false;
+    memset(instance->_a_hexBinary2[1], 0x77, sizeof(instance->_a_hexBinary2[1]));
+    instance->hexBinary2[2].array = instance->_a_hexBinary2[2];
+    instance->hexBinary2[2].lengthInBytes = sizeof(instance->_a_hexBinary2[2]);
+    instance->hexBinary2[2].dynamic = false;
+    memset(instance->_a_hexBinary2[2], 0x77, sizeof(instance->_a_hexBinary2[2]));
+    instance->hexBinaryPrefixed[0].array = NULL;
+    instance->hexBinaryPrefixed[0].lengthInBytes = 0;
+    instance->hexBinaryPrefixed[0].dynamic = true;
+    instance->hexBinaryPrefixed[1].array = NULL;
+    instance->hexBinaryPrefixed[1].lengthInBytes = 0;
+    instance->hexBinaryPrefixed[1].dynamic = true;
+    instance->hexBinaryPrefixed[2].array = NULL;
+    instance->hexBinaryPrefixed[2].lengthInBytes = 0;
+    instance->hexBinaryPrefixed[2].dynamic = true;
 }
 
 static void
@@ -685,6 +825,33 @@ array_parseSelf(array *instance, PState *pstate)
     parse_be_int16(&instance->be_int16[1], pstate);
     if (pstate->error) return;
     parse_be_int16(&instance->be_int16[2], pstate);
+    if (pstate->error) return;
+    parse_hexBinary(&instance->hexBinary2[0], pstate);
+    if (pstate->error) return;
+    parse_hexBinary(&instance->hexBinary2[1], pstate);
+    if (pstate->error) return;
+    parse_hexBinary(&instance->hexBinary2[2], pstate);
+    if (pstate->error) return;
+    uint16_t _l_hexBinaryPrefixed0;
+    parse_be_uint16(&_l_hexBinaryPrefixed0, pstate);
+    if (pstate->error) return;
+    alloc_hexBinary(&instance->hexBinaryPrefixed[0], _l_hexBinaryPrefixed0, pstate);
+    if (pstate->error) return;
+    parse_hexBinary(&instance->hexBinaryPrefixed[0], pstate);
+    if (pstate->error) return;
+    uint16_t _l_hexBinaryPrefixed1;
+    parse_be_uint16(&_l_hexBinaryPrefixed1, pstate);
+    if (pstate->error) return;
+    alloc_hexBinary(&instance->hexBinaryPrefixed[1], _l_hexBinaryPrefixed1, pstate);
+    if (pstate->error) return;
+    parse_hexBinary(&instance->hexBinaryPrefixed[1], pstate);
+    if (pstate->error) return;
+    uint16_t _l_hexBinaryPrefixed2;
+    parse_be_uint16(&_l_hexBinaryPrefixed2, pstate);
+    if (pstate->error) return;
+    alloc_hexBinary(&instance->hexBinaryPrefixed[2], _l_hexBinaryPrefixed2, pstate);
+    if (pstate->error) return;
+    parse_hexBinary(&instance->hexBinaryPrefixed[2], pstate);
     if (pstate->error) return;
 }
 
@@ -707,6 +874,24 @@ array_unparseSelf(const array *instance, UState *ustate)
     if (ustate->error) return;
     unparse_be_int16(instance->be_int16[2], ustate);
     if (ustate->error) return;
+    unparse_hexBinary(instance->hexBinary2[0], ustate);
+    if (ustate->error) return;
+    unparse_hexBinary(instance->hexBinary2[1], ustate);
+    if (ustate->error) return;
+    unparse_hexBinary(instance->hexBinary2[2], ustate);
+    if (ustate->error) return;
+    unparse_be_uint16(instance->hexBinaryPrefixed[0].lengthInBytes, ustate);
+    if (ustate->error) return;
+    unparse_hexBinary(instance->hexBinaryPrefixed[0], ustate);
+    if (ustate->error) return;
+    unparse_be_uint16(instance->hexBinaryPrefixed[1].lengthInBytes, ustate);
+    if (ustate->error) return;
+    unparse_hexBinary(instance->hexBinaryPrefixed[1], ustate);
+    if (ustate->error) return;
+    unparse_be_uint16(instance->hexBinaryPrefixed[2].lengthInBytes, ustate);
+    if (ustate->error) return;
+    unparse_hexBinary(instance->hexBinaryPrefixed[2], ustate);
+    if (ustate->error) return;
 }
 
 static void
@@ -719,16 +904,23 @@ bigEndian_initSelf(bigEndian *instance)
     instance->be_boolean = true;
     instance->be_double = NAN;
     instance->be_float = NAN;
-    instance->be_int16 = 0xCCCC;
-    instance->be_int32 = 0xCCCCCCCC;
-    instance->be_int64 = 0xCCCCCCCCCCCCCCCC;
-    instance->be_int8 = 0xCC;
-    instance->be_integer16 = 0xCCCC;
-    instance->be_uint16 = 0xCCCC;
-    instance->be_uint32 = 0xCCCCCCCC;
-    instance->be_uint64 = 0xCCCCCCCCCCCCCCCC;
-    instance->be_uint8 = 0xCC;
-    instance->be_nonNegativeInteger32 = 0xCCCCCCCC;
+    instance->be_int16 = 0x7777;
+    instance->be_int32 = 0x77777777;
+    instance->be_int64 = 0x7777777777777777;
+    instance->be_int8 = 0x77;
+    instance->be_integer16 = 0x7777;
+    instance->be_uint16 = 0x7777;
+    instance->be_uint32 = 0x77777777;
+    instance->be_uint64 = 0x7777777777777777;
+    instance->be_uint8 = 0x77;
+    instance->be_nonNegativeInteger32 = 0x77777777;
+    instance->hexBinary4.array = instance->_a_hexBinary4;
+    instance->hexBinary4.lengthInBytes = sizeof(instance->_a_hexBinary4);
+    instance->hexBinary4.dynamic = false;
+    memset(instance->_a_hexBinary4, 0x77, sizeof(instance->_a_hexBinary4));
+    instance->hexBinaryPrefixed.array = NULL;
+    instance->hexBinaryPrefixed.lengthInBytes = 0;
+    instance->hexBinaryPrefixed.dynamic = true;
 }
 
 static void
@@ -765,6 +957,15 @@ bigEndian_parseSelf(bigEndian *instance, PState *pstate)
     parse_be_uint8(&instance->be_uint8, pstate);
     if (pstate->error) return;
     parse_be_uint32(&instance->be_nonNegativeInteger32, pstate);
+    if (pstate->error) return;
+    parse_hexBinary(&instance->hexBinary4, pstate);
+    if (pstate->error) return;
+    uint16_t _l_hexBinaryPrefixed;
+    parse_be_uint16(&_l_hexBinaryPrefixed, pstate);
+    if (pstate->error) return;
+    alloc_hexBinary(&instance->hexBinaryPrefixed, _l_hexBinaryPrefixed, pstate);
+    if (pstate->error) return;
+    parse_hexBinary(&instance->hexBinaryPrefixed, pstate);
     if (pstate->error) return;
 }
 
@@ -803,6 +1004,12 @@ bigEndian_unparseSelf(const bigEndian *instance, UState *ustate)
     if (ustate->error) return;
     unparse_be_uint32(instance->be_nonNegativeInteger32, ustate);
     if (ustate->error) return;
+    unparse_hexBinary(instance->hexBinary4, ustate);
+    if (ustate->error) return;
+    unparse_be_uint16(instance->hexBinaryPrefixed.lengthInBytes, ustate);
+    if (ustate->error) return;
+    unparse_hexBinary(instance->hexBinaryPrefixed, ustate);
+    if (ustate->error) return;
 }
 
 static void
@@ -815,16 +1022,22 @@ littleEndian_initSelf(littleEndian *instance)
     instance->le_boolean = true;
     instance->le_double = NAN;
     instance->le_float = NAN;
-    instance->le_int16 = 0xCCCC;
-    instance->le_int32 = 0xCCCCCCCC;
-    instance->le_int64 = 0xCCCCCCCCCCCCCCCC;
-    instance->le_int8 = 0xCC;
-    instance->le_integer64 = 0xCCCCCCCCCCCCCCCC;
-    instance->le_uint16 = 0xCCCC;
-    instance->le_uint32 = 0xCCCCCCCC;
-    instance->le_uint64 = 0xCCCCCCCCCCCCCCCC;
-    instance->le_uint8 = 0xCC;
-    instance->le_nonNegativeInteger8 = 0xCC;
+    instance->le_int16 = 0x7777;
+    instance->le_int32 = 0x77777777;
+    instance->le_int64 = 0x7777777777777777;
+    instance->le_int8 = 0x77;
+    instance->le_integer64 = 0x7777777777777777;
+    instance->le_uint16 = 0x7777;
+    instance->le_uint32 = 0x77777777;
+    instance->le_uint64 = 0x7777777777777777;
+    instance->le_uint8 = 0x77;
+    instance->le_nonNegativeInteger8 = 0x77;
+    instance->hexBinary0.array = NULL;
+    instance->hexBinary0.lengthInBytes = 0;
+    instance->hexBinary0.dynamic = false;
+    instance->hexBinaryPrefixed.array = NULL;
+    instance->hexBinaryPrefixed.lengthInBytes = 0;
+    instance->hexBinaryPrefixed.dynamic = true;
 }
 
 static void
@@ -861,6 +1074,15 @@ littleEndian_parseSelf(littleEndian *instance, PState *pstate)
     parse_le_uint8(&instance->le_uint8, pstate);
     if (pstate->error) return;
     parse_le_uint8(&instance->le_nonNegativeInteger8, pstate);
+    if (pstate->error) return;
+    parse_hexBinary(&instance->hexBinary0, pstate);
+    if (pstate->error) return;
+    uint16_t _l_hexBinaryPrefixed;
+    parse_le_uint16(&_l_hexBinaryPrefixed, pstate);
+    if (pstate->error) return;
+    alloc_hexBinary(&instance->hexBinaryPrefixed, _l_hexBinaryPrefixed, pstate);
+    if (pstate->error) return;
+    parse_hexBinary(&instance->hexBinaryPrefixed, pstate);
     if (pstate->error) return;
 }
 
@@ -899,6 +1121,12 @@ littleEndian_unparseSelf(const littleEndian *instance, UState *ustate)
     if (ustate->error) return;
     unparse_le_uint8(instance->le_nonNegativeInteger8, ustate);
     if (ustate->error) return;
+    unparse_hexBinary(instance->hexBinary0, ustate);
+    if (ustate->error) return;
+    unparse_le_uint16(instance->hexBinaryPrefixed.lengthInBytes, ustate);
+    if (ustate->error) return;
+    unparse_hexBinary(instance->hexBinaryPrefixed, ustate);
+    if (ustate->error) return;
 }
 
 static void
@@ -908,7 +1136,17 @@ fixed_initSelf(fixed *instance)
     instance->boolean_false = true;
     instance->boolean_true = true;
     instance->float_1_5 = NAN;
-    instance->int_32 = 0xCCCCCCCC;
+    instance->int_32 = 0x77777777;
+    instance->hexBinary_deadbeef.array = instance->_a_hexBinary_deadbeef;
+    instance->hexBinary_deadbeef.lengthInBytes = sizeof(instance->_a_hexBinary_deadbeef);
+    instance->hexBinary_deadbeef.dynamic = false;
+    memset(instance->_a_hexBinary_deadbeef, 0x77, sizeof(instance->_a_hexBinary_deadbeef));
+    instance->hexBinary0.array = NULL;
+    instance->hexBinary0.lengthInBytes = 0;
+    instance->hexBinary0.dynamic = false;
+    instance->hexBinaryPrefixed_ab.array = NULL;
+    instance->hexBinaryPrefixed_ab.lengthInBytes = 0;
+    instance->hexBinaryPrefixed_ab.dynamic = true;
 }
 
 static void
@@ -930,6 +1168,23 @@ fixed_parseSelf(fixed *instance, PState *pstate)
     if (pstate->error) return;
     parse_validate_fixed(instance->int_32 == 32, "int_32", pstate);
     if (pstate->error) return;
+    parse_hexBinary(&instance->hexBinary_deadbeef, pstate);
+    if (pstate->error) return;
+    uint8_t hexBinary_deadbeef_fixed[] = {0xDE, 0xAD, 0xBE, 0xEF};
+    parse_validate_fixed(memcmp(instance->hexBinary_deadbeef.array, hexBinary_deadbeef_fixed, sizeof(hexBinary_deadbeef_fixed)) == 0, "hexBinary_deadbeef", pstate);
+    if (pstate->error) return;
+    parse_hexBinary(&instance->hexBinary0, pstate);
+    if (pstate->error) return;
+    int8_t _l_hexBinaryPrefixed_ab;
+    parse_be_int8(&_l_hexBinaryPrefixed_ab, pstate);
+    if (pstate->error) return;
+    alloc_hexBinary(&instance->hexBinaryPrefixed_ab, _l_hexBinaryPrefixed_ab, pstate);
+    if (pstate->error) return;
+    parse_hexBinary(&instance->hexBinaryPrefixed_ab, pstate);
+    if (pstate->error) return;
+    uint8_t hexBinaryPrefixed_ab_fixed[] = {0xAB};
+    parse_validate_fixed(memcmp(instance->hexBinaryPrefixed_ab.array, hexBinaryPrefixed_ab_fixed, sizeof(hexBinaryPrefixed_ab_fixed)) == 0, "hexBinaryPrefixed_ab", pstate);
+    if (pstate->error) return;
 }
 
 static void
@@ -950,6 +1205,20 @@ fixed_unparseSelf(const fixed *instance, UState *ustate)
     unparse_be_int32(instance->int_32, ustate);
     if (ustate->error) return;
     unparse_validate_fixed(instance->int_32 == 32, "int_32", ustate);
+    if (ustate->error) return;
+    unparse_hexBinary(instance->hexBinary_deadbeef, ustate);
+    if (ustate->error) return;
+    uint8_t hexBinary_deadbeef_fixed[] = {0xDE, 0xAD, 0xBE, 0xEF};
+    unparse_validate_fixed(memcmp(instance->hexBinary_deadbeef.array, hexBinary_deadbeef_fixed, sizeof(hexBinary_deadbeef_fixed)) == 0, "hexBinary_deadbeef", ustate);
+    if (ustate->error) return;
+    unparse_hexBinary(instance->hexBinary0, ustate);
+    if (ustate->error) return;
+    unparse_be_int8(instance->hexBinaryPrefixed_ab.lengthInBytes, ustate);
+    if (ustate->error) return;
+    unparse_hexBinary(instance->hexBinaryPrefixed_ab, ustate);
+    if (ustate->error) return;
+    uint8_t hexBinaryPrefixed_ab_fixed[] = {0xAB};
+    unparse_validate_fixed(memcmp(instance->hexBinaryPrefixed_ab.array, hexBinaryPrefixed_ab_fixed, sizeof(hexBinaryPrefixed_ab_fixed)) == 0, "hexBinaryPrefixed_ab", ustate);
     if (ustate->error) return;
 }
 
