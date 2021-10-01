@@ -53,6 +53,9 @@ error_lookup(uint8_t code)
          "  infile        Input file to parse or unparse. If not specified,\n"
          "                or a value of -, reads from stdin\n",
          FIELD_S},
+        {CLI_HEXBINARY_LENGTH, "odd hexBinary length -- %" PRId64 " nibbles\n", FIELD_D64},
+        {CLI_HEXBINARY_PARSE, "invalid character in hexBinary -- '%c'\n", FIELD_C},
+        {CLI_HEXBINARY_SIZE, "hexBinary too long -- only %" PRId64 " bytes allowed\n", FIELD_D64},
         {CLI_INVALID_COMMAND, "invalid command -- '%s'\n" USAGE, FIELD_S},
         {CLI_INVALID_INFOSET, "invalid infoset type -- '%s'\n" USAGE, FIELD_S},
         {CLI_INVALID_OPTION, "invalid option -- '%c'\n" USAGE, FIELD_C},

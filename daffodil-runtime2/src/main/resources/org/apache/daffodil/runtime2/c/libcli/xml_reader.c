@@ -23,198 +23,282 @@
 #include <mxml.h>        // for mxmlWalkNext, mxmlGetElement, mxmlGetType, MXML_DESCEND, MXML_OPAQUE, mxmlDelete, mxmlGetOpaque, mxmlLoadFile, MXML_OPAQUE_CALLBACK
 #include <stdbool.h>     // for bool, false, true
 #include <stdint.h>      // for intmax_t, uintmax_t, int16_t, int32_t, int64_t, int8_t, uint16_t, uint32_t, uint64_t, uint8_t, INT16_MAX, INT16_MIN, INT32_MAX, INT32_MIN, INT64_MAX, INT64_MIN, INT8_MAX, INT8_MIN, UINT16_MAX, UINT32_MAX, UINT64_MAX, UINT8_MAX
-#include <stdlib.h>      // for strtod, strtof
-#include <string.h>      // for strcmp, strlen, strncmp
+#include <stdlib.h>      // for free, malloc, strtod, strtof
+#include <string.h>      // for memset, strcmp, strlen, strncmp
 #include "cli_errors.h"  // for CLI_STRTONUM_EMPTY, CLI_STRTONUM_NOT, CLI_XML_GONE, CLI_STRTOD_ERRNO, CLI_STRTOI_ERRNO, CLI_STRTONUM_RANGE, CLI_XML_MISMATCH, CLI_STRTOBOOL, CLI_XML_ERD, CLI_XML_INPUT, CLI_XML_LEFT
 #include "errors.h"      // for Error, Error::(anonymous), UNUSED
 // clang-format on
 
 // Convert an XML element's text to a boolean with error checking
 
-static bool
-strtobool(const char *numptr, const Error **errorptr)
+static const Error *
+strtobool(const char *text, bool *valueptr)
 {
     // The lexical space of xs:boolean accepts true, false, 1, and 0
     bool value = false;
 
     // Check for any errors converting the string to a boolean
-    if (strcmp(numptr, "true") == 0)
+    if (strcmp(text, "true") == 0)
     {
         value = true;
     }
-    else if (strcmp(numptr, "false") == 0)
+    else if (strcmp(text, "false") == 0)
     {
         value = false;
     }
-    else if (strcmp(numptr, "1") == 0)
+    else if (strcmp(text, "1") == 0)
     {
         value = true;
     }
-    else if (strcmp(numptr, "0") == 0)
+    else if (strcmp(text, "0") == 0)
     {
         value = false;
     }
     else
     {
         static Error error = {CLI_STRTOBOOL, {0}};
-        error.arg.s = numptr;
-        *errorptr = &error;
+        error.arg.s = text;
+        return &error;
     }
 
-    return value;
+    *valueptr = value;
+    return NULL;
 }
 
 // Convert an XML element's text to a double (call strtod with our own
 // error checking)
 
-static double
-strtodnum(const char *numptr, const Error **errorptr)
+static const Error *
+strtodnum(const char *text, double *valueptr)
 {
+    // Should point to text's end after conversion
     char *endptr = NULL;
 
     // Clear errno to detect error after calling strtod
     errno = 0;
-    const double value = strtod(numptr, &endptr);
+    const double value = strtod(text, &endptr);
 
-    // Check for any errors converting the string to a number
+    // Check for any errors converting the text to a number
     if (errno != 0)
     {
         static Error error = {CLI_STRTOD_ERRNO, {0}};
-        error.arg.s = numptr;
-        *errorptr = &error;
+        error.arg.s = text;
+        return &error;
     }
-    else if (endptr == numptr)
+    else if (endptr == text)
     {
         static Error error = {CLI_STRTONUM_EMPTY, {0}};
-        error.arg.s = numptr;
-        *errorptr = &error;
+        error.arg.s = text;
+        return &error;
     }
     else if (*endptr != '\0')
     {
         static Error error = {CLI_STRTONUM_NOT, {0}};
-        error.arg.s = numptr;
-        *errorptr = &error;
+        error.arg.s = text;
+        return &error;
     }
 
-    return value;
+    *valueptr = value;
+    return NULL;
 }
 
 // Convert an XML element's text to a float (call strtof with our own
 // error checking)
 
-static float
-strtofnum(const char *numptr, const Error **errorptr)
+static const Error *
+strtofnum(const char *text, float *valueptr)
 {
+    // Should point to text's end after conversion
     char *endptr = NULL;
 
     // Clear errno to detect error after calling strtof
     errno = 0;
-    const float value = strtof(numptr, &endptr);
+    const float value = strtof(text, &endptr);
 
-    // Check for any errors converting the string to a number
+    // Check for any errors converting the text to a number
     if (errno != 0)
     {
         static Error error = {CLI_STRTOD_ERRNO, {0}};
-        error.arg.s = numptr;
-        *errorptr = &error;
+        error.arg.s = text;
+        return &error;
     }
-    else if (endptr == numptr)
+    else if (endptr == text)
     {
         static Error error = {CLI_STRTONUM_EMPTY, {0}};
-        error.arg.s = numptr;
-        *errorptr = &error;
+        error.arg.s = text;
+        return &error;
     }
     else if (*endptr != '\0')
     {
         static Error error = {CLI_STRTONUM_NOT, {0}};
-        error.arg.s = numptr;
-        *errorptr = &error;
+        error.arg.s = text;
+        return &error;
     }
 
-    return value;
+    *valueptr = value;
+    return NULL;
 }
 
 // Convert an XML element's text to a signed integer (call strtoimax
 // with our own error checking)
 
-static intmax_t
-strtonum(const char *numptr, intmax_t minval, intmax_t maxval, const Error **errorptr)
+static const Error *
+strtonum(const char *text, intmax_t minval, intmax_t maxval, intmax_t *valueptr)
 {
+    // Should point to text's end after conversion
     char *endptr = NULL;
     assert(minval < maxval);
 
     // Clear errno to detect error after calling strtoimax
     errno = 0;
-    const intmax_t value = strtoimax(numptr, &endptr, 10);
+    const intmax_t value = strtoimax(text, &endptr, 10);
 
-    // Check for any errors converting the string to a number
+    // Check for any errors converting the text to a number
     if (errno != 0)
     {
         static Error error = {CLI_STRTOI_ERRNO, {0}};
-        error.arg.s = numptr;
-        *errorptr = &error;
+        error.arg.s = text;
+        return &error;
     }
-    else if (endptr == numptr)
+    else if (endptr == text)
     {
         static Error error = {CLI_STRTONUM_EMPTY, {0}};
-        error.arg.s = numptr;
-        *errorptr = &error;
+        error.arg.s = text;
+        return &error;
     }
     else if (*endptr != '\0')
     {
         static Error error = {CLI_STRTONUM_NOT, {0}};
-        error.arg.s = numptr;
-        *errorptr = &error;
+        error.arg.s = text;
+        return &error;
     }
     else if (value < minval || value > maxval)
     {
         static Error error = {CLI_STRTONUM_RANGE, {0}};
-        error.arg.s = numptr;
-        *errorptr = &error;
+        error.arg.s = text;
+        return &error;
     }
 
-    return value;
+    *valueptr = value;
+    return NULL;
 }
 
 // Convert an XML element's text to an unsigned integer (call strtoumax
 // with our own error checking)
 
-static uintmax_t
-strtounum(const char *numptr, uintmax_t maxval, const Error **errorptr)
+static const Error *
+strtounum(const char *text, uintmax_t maxval, uintmax_t *valueptr)
 {
+    // Should point to text's end after conversion
     char *endptr = NULL;
 
     // Clear errno to detect error after calling strtoumax
     errno = 0;
-    const uintmax_t value = strtoumax(numptr, &endptr, 10);
+    const uintmax_t value = strtoumax(text, &endptr, 10);
 
-    // Check for any errors converting the string to a number
+    // Check for any errors converting the text to a number
     if (errno != 0)
     {
         static Error error = {CLI_STRTOI_ERRNO, {0}};
-        error.arg.s = numptr;
-        *errorptr = &error;
+        error.arg.s = text;
+        return &error;
     }
-    else if (endptr == numptr)
+    else if (endptr == text)
     {
         static Error error = {CLI_STRTONUM_EMPTY, {0}};
-        error.arg.s = numptr;
-        *errorptr = &error;
+        error.arg.s = text;
+        return &error;
     }
     else if (*endptr != '\0')
     {
         static Error error = {CLI_STRTONUM_NOT, {0}};
-        error.arg.s = numptr;
-        *errorptr = &error;
+        error.arg.s = text;
+        return &error;
     }
     else if (value > maxval)
     {
         static Error error = {CLI_STRTONUM_RANGE, {0}};
-        error.arg.s = numptr;
-        *errorptr = &error;
+        error.arg.s = text;
+        return &error;
     }
 
-    return value;
+    *valueptr = value;
+    return NULL;
+}
+
+// Store an XML element's text (a string of hexadecimal characters,
+// two nibbles per byte) into a byte array.  Allocate memory for byte
+// array if needed.  Return error if text does not fit into byte
+// array or does not contain valid hexadecimal characters.
+
+static const Error *
+strtohexbinary(const char *text, HexBinary *hexBinary)
+{
+    // Check whether text has even number of hexadecimal characters
+    size_t numNibbles = text ? strlen(text) : 0;
+    size_t numBytes = numNibbles / 2;
+    if ((numNibbles % 2) != 0)
+    {
+        static Error error = {CLI_HEXBINARY_LENGTH, {0}};
+        error.arg.d64 = (int64_t)numNibbles;
+        return &error;
+    }
+
+    // Allocate memory for byte array if needed
+    if (hexBinary->dynamic && hexBinary->lengthInBytes < numBytes)
+    {
+        free(hexBinary->array);
+        hexBinary->array = malloc(numBytes);
+        hexBinary->lengthInBytes = numBytes;
+        if (hexBinary->array == NULL)
+        {
+            static Error error = {ERR_HEXBINARY_ALLOC, {0}};
+            error.arg.d64 = (int64_t)numBytes;
+            return &error;
+        }
+    }
+
+    // Check whether data fits into byte array
+    if (hexBinary->lengthInBytes < numBytes)
+    {
+        static Error error = {CLI_HEXBINARY_SIZE, {0}};
+        error.arg.d64 = (int64_t)hexBinary->lengthInBytes;
+        return &error;
+    }
+
+    // Store hexadecimal characters into byte array
+    if (hexBinary->array) memset(hexBinary->array, 0, hexBinary->lengthInBytes);
+    for (size_t i = 0; i < numNibbles; i++)
+    {
+        char    c = text[i];
+        uint8_t value = 0;
+
+        // Check whether c is valid hexadecimal character
+        if (c >= '0' && c <= '9')
+        {
+            value = (c - '0');
+        }
+        else if (c >= 'A' && c <= 'F')
+        {
+            value = (c - 'A') + 10;
+        }
+        else if (c >= 'a' && c <= 'f')
+        {
+            value = (c - 'a') + 10;
+        }
+        else
+        {
+            static Error error = {CLI_HEXBINARY_PARSE, {0}};
+            error.arg.c = c;
+            return &error;
+        }
+
+        // Shift high nibble, add low nibble on next iteration
+        value <<= (((i + 1) % 2) * 4);
+        hexBinary->array[i / 2] += value;
+    }
+
+    return NULL;
 }
 
 // Read XML data from file before walking infoset
@@ -322,11 +406,11 @@ xmlEndComplex(XMLReader *reader, const InfosetBase *base)
     return NULL;
 }
 
-// Read a boolean, 32-bit or 64-bit real number, or 8, 16, 32, or
-// 64-bit signed or unsigned integer from XML data
+// Read a boolean, 32-bit or 64-bit real number, hexBinary, or
+// 8, 16, 32, or 64-bit signed or unsigned integer from XML data
 
 static const Error *
-xmlNumberElem(XMLReader *reader, const ERD *erd, void *number)
+xmlSimpleElem(XMLReader *reader, const ERD *erd, void *valueptr)
 {
     // Consume any newlines or whitespace before the element
     while (mxmlGetType(reader->node) == MXML_OPAQUE)
@@ -337,7 +421,7 @@ xmlNumberElem(XMLReader *reader, const ERD *erd, void *number)
     // Get the element and consume it
     const char *name_from_xml = mxmlGetElement(reader->node);
     const char *name_from_erd = get_erd_name(erd);
-    const char *number_from_xml = mxmlGetOpaque(reader->node);
+    const char *text = mxmlGetOpaque(reader->node);
     reader->node = mxmlWalkNext(reader->node, reader->xml, MXML_DESCEND);
 
     // Check whether we are walking both XML data and infoset in lockstep
@@ -345,45 +429,54 @@ xmlNumberElem(XMLReader *reader, const ERD *erd, void *number)
     {
         if (strcmp(name_from_xml, name_from_erd) == 0)
         {
-            // Check for any errors getting the number
+            // Check for any errors calling strtonum or strtounum
             const Error *error = NULL;
+            intmax_t num = 0;
+            uintmax_t unum = 0;
 
-            // Handle varying bit lengths of both signed & unsigned numbers
+            // Handle various types of values
             const enum TypeCode typeCode = erd->typeCode;
             switch (typeCode)
             {
             case PRIMITIVE_BOOLEAN:
-                *(bool *)number = strtobool(number_from_xml, &error);
-                return error;
+                return strtobool(text, (bool *)valueptr);
             case PRIMITIVE_FLOAT:
-                *(float *)number = strtofnum(number_from_xml, &error);
-                return error;
+                return strtofnum(text, (float *)valueptr);
             case PRIMITIVE_DOUBLE:
-                *(double *)number = strtodnum(number_from_xml, &error);
-                return error;
+                return strtodnum(text, (double *)valueptr);
+            case PRIMITIVE_HEXBINARY:
+                return strtohexbinary(text, (HexBinary *)valueptr);
             case PRIMITIVE_INT16:
-                *(int16_t *)number = (int16_t)strtonum(number_from_xml, INT16_MIN, INT16_MAX, &error);
+                error = strtonum(text, INT16_MIN, INT16_MAX, &num);
+                *(int16_t *)valueptr = (int16_t)num;
                 return error;
             case PRIMITIVE_INT32:
-                *(int32_t *)number = (int32_t)strtonum(number_from_xml, INT32_MIN, INT32_MAX, &error);
+                error = strtonum(text, INT32_MIN, INT32_MAX, &num);
+                *(int32_t *)valueptr = (int32_t)num;
                 return error;
             case PRIMITIVE_INT64:
-                *(int64_t *)number = (int64_t)strtonum(number_from_xml, INT64_MIN, INT64_MAX, &error);
+                error = strtonum(text, INT64_MIN, INT64_MAX, &num);
+                *(int64_t *)valueptr = (int64_t)num;
                 return error;
             case PRIMITIVE_INT8:
-                *(int8_t *)number = (int8_t)strtonum(number_from_xml, INT8_MIN, INT8_MAX, &error);
+                error = strtonum(text, INT8_MIN, INT8_MAX, &num);
+                *(int8_t *)valueptr = (int8_t)num;
                 return error;
             case PRIMITIVE_UINT16:
-                *(uint16_t *)number = (uint16_t)strtounum(number_from_xml, UINT16_MAX, &error);
+                error = strtounum(text, UINT16_MAX, &unum);
+                *(uint16_t *)valueptr = (uint16_t)unum;
                 return error;
             case PRIMITIVE_UINT32:
-                *(uint32_t *)number = (uint32_t)strtounum(number_from_xml, UINT32_MAX, &error);
+                error = strtounum(text, UINT32_MAX, &unum);
+                *(uint32_t *)valueptr = (uint32_t)unum;
                 return error;
             case PRIMITIVE_UINT64:
-                *(uint64_t *)number = (uint64_t)strtounum(number_from_xml, UINT64_MAX, &error);
+                error = strtounum(text, UINT64_MAX, &unum);
+                *(uint64_t *)valueptr = (uint64_t)unum;
                 return error;
             case PRIMITIVE_UINT8:
-                *(uint8_t *)number = (uint8_t)strtounum(number_from_xml, UINT8_MAX, &error);
+                error = strtounum(text, UINT8_MAX, &unum);
+                *(uint8_t *)valueptr = (uint8_t)unum;
                 return error;
             default:
             {
@@ -412,5 +505,5 @@ xmlNumberElem(XMLReader *reader, const ERD *erd, void *number)
 const VisitEventHandler xmlReaderMethods = {
     (VisitStartDocument)&xmlStartDocument, (VisitEndDocument)&xmlEndDocument,
     (VisitStartComplex)&xmlStartComplex,   (VisitEndComplex)&xmlEndComplex,
-    (VisitNumberElem)&xmlNumberElem,
+    (VisitSimpleElem)&xmlSimpleElem,
 };

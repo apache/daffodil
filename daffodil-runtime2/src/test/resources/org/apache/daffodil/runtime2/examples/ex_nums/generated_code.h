@@ -1,10 +1,12 @@
 #ifndef GENERATED_CODE_H
 #define GENERATED_CODE_H
 
+// clang-format off
+#include "infoset.h"  // for HexBinary, InfosetBase
 #include <stdbool.h>  // for bool
 #include <stddef.h>   // for size_t
-#include <stdint.h>   // for int16_t, int32_t, int64_t, uint32_t, uint8_t, int8_t, uint16_t, uint64_t
-#include "infoset.h"  // for InfosetBase
+#include <stdint.h>   // for uint8_t, int16_t, int32_t, int64_t, uint32_t, int8_t, uint16_t, uint64_t
+// clang-format on
 
 // Define infoset structures
 
@@ -14,6 +16,9 @@ typedef struct array
     bool        be_bool16[2];
     float       be_float[3];
     int16_t     be_int16[3];
+    HexBinary   hexBinary2[3];
+    uint8_t     _a_hexBinary2[3][2];
+    HexBinary   hexBinaryPrefixed[3];
 } array;
 
 typedef struct bigEndian
@@ -35,6 +40,9 @@ typedef struct bigEndian
     uint64_t    be_uint64;
     uint8_t     be_uint8;
     uint32_t    be_nonNegativeInteger32;
+    HexBinary   hexBinary4;
+    uint8_t     _a_hexBinary4[4];
+    HexBinary   hexBinaryPrefixed;
 } bigEndian;
 
 typedef struct littleEndian
@@ -56,6 +64,8 @@ typedef struct littleEndian
     uint64_t    le_uint64;
     uint8_t     le_uint8;
     uint8_t     le_nonNegativeInteger8;
+    HexBinary   hexBinary0;
+    HexBinary   hexBinaryPrefixed;
 } littleEndian;
 
 typedef struct fixed
@@ -65,6 +75,10 @@ typedef struct fixed
     bool        boolean_true;
     float       float_1_5;
     int32_t     int_32;
+    HexBinary   hexBinary_deadbeef;
+    uint8_t     _a_hexBinary_deadbeef[4];
+    HexBinary   hexBinary0;
+    HexBinary   hexBinaryPrefixed_ab;
 } fixed;
 
 typedef struct ex_nums

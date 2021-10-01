@@ -31,7 +31,10 @@ import org.apache.daffodil.grammar.primitives.CaptureValueLengthEnd
 import org.apache.daffodil.grammar.primitives.CaptureValueLengthStart
 import org.apache.daffodil.grammar.primitives.ElementCombinator
 import org.apache.daffodil.grammar.primitives.ElementParseAndUnspecifiedLength
+import org.apache.daffodil.grammar.primitives.HexBinaryLengthPrefixed
+import org.apache.daffodil.grammar.primitives.HexBinarySpecifiedLength
 import org.apache.daffodil.grammar.primitives.OrderedSequence
+import org.apache.daffodil.grammar.primitives.RightFill
 import org.apache.daffodil.grammar.primitives.ScalarOrderedSequenceChild
 import org.apache.daffodil.grammar.primitives.SpecifiedLengthImplicit
 import org.apache.daffodil.runtime2.generators.BinaryBooleanCodeGenerator
@@ -39,6 +42,7 @@ import org.apache.daffodil.runtime2.generators.BinaryFloatCodeGenerator
 import org.apache.daffodil.runtime2.generators.BinaryIntegerKnownLengthCodeGenerator
 import org.apache.daffodil.runtime2.generators.CodeGeneratorState
 import org.apache.daffodil.runtime2.generators.ElementParseAndUnspecifiedLengthCodeGenerator
+import org.apache.daffodil.runtime2.generators.HexBinaryCodeGenerator
 import org.apache.daffodil.runtime2.generators.OrderedSequenceCodeGenerator
 import org.apache.daffodil.runtime2.generators.SeqCompCodeGenerator
 import org.apache.daffodil.util.Misc
@@ -50,6 +54,7 @@ object Runtime2CodeGenerator
     with BinaryIntegerKnownLengthCodeGenerator
     with BinaryFloatCodeGenerator
     with ElementParseAndUnspecifiedLengthCodeGenerator
+    with HexBinaryCodeGenerator
     with OrderedSequenceCodeGenerator
     with SeqCompCodeGenerator {
 
@@ -57,26 +62,29 @@ object Runtime2CodeGenerator
   def generateCode(gram: Gram, state: CodeGeneratorState): Unit = {
     gram match {
       case g: RootGrammarMixin => Runtime2CodeGenerator.generateCode(g.documentElement, state)
-      case g: Prod if (g.guard) => Runtime2CodeGenerator.generateCode(g.gram, state)
+      case g: Prod if g.guard => Runtime2CodeGenerator.generateCode(g.gram, state)
       case g: ElementCombinator => Runtime2CodeGenerator.generateCode(g.subComb, state)
       case g: SpecifiedLengthImplicit => Runtime2CodeGenerator.generateCode(g.eGram, state)
       case g: ScalarOrderedSequenceChild => Runtime2CodeGenerator.generateCode(g.term.termContentBody, state)
       case g: BinaryBoolean => binaryBooleanGenerateCode(g.e, state)
-      case g: BinaryDouble => binaryFloatGenerateCode(g.e, 64, state)
-      case g: BinaryFloat => binaryFloatGenerateCode(g.e, 32, state)
-      case g: BinaryIntegerKnownLength => binaryIntegerKnownLengthGenerateCode(g, state)
+      case g: BinaryDouble => binaryFloatGenerateCode(g.e,64, state)
+      case g: BinaryFloat => binaryFloatGenerateCode(g.e,32, state)
+      case g: BinaryIntegerKnownLength => binaryIntegerKnownLengthGenerateCode(g.e, g.lengthInBits, g.signed, state)
       case g: ElementParseAndUnspecifiedLength => elementParseAndUnspecifiedLengthGenerateCode(g, state)
+      case g: HexBinaryLengthPrefixed => hexBinaryLengthPrefixedGenerateCode(g.e, state)
+      case g: HexBinarySpecifiedLength => hexBinarySpecifiedLengthGenerateCode(g.e, state)
       case g: OrderedSequence => orderedSequenceGenerateCode(g, state)
       case g: SeqComp => seqCompGenerateCode(g, state)
-      case _: CaptureContentLengthStart => noop
-      case _: CaptureContentLengthEnd => noop
-      case _: CaptureValueLengthStart => noop
-      case _: CaptureValueLengthEnd => noop
+      case _: CaptureContentLengthStart => noop()
+      case _: CaptureContentLengthEnd => noop()
+      case _: CaptureValueLengthStart => noop()
+      case _: CaptureValueLengthEnd => noop()
+      case _: RightFill => noop()
       case _ => gram.SDE("Code generation not supported for: %s", Misc.getNameFromClass(gram))
     }
   }
 
-  private def noop: Unit = {
+  private def noop(): Unit = {
     // Not generating code here, but can use as a breakpoint
   }
 }

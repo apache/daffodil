@@ -28,15 +28,30 @@
     <xs:annotation>
         <xs:appinfo source="http://www.ogf.org/dfdl/">
             <dfdl:format
+                    alignment="1"
+                    alignmentUnits="bits"
                     binaryBooleanFalseRep="0"
                     binaryBooleanTrueRep=""
+                    binaryNumberRep="binary"
+                    bitOrder="mostSignificantBitFirst"
                     byteOrder="bigEndian"
-                    encoding="UTF-8"
                     lengthUnits="bits"
+                    prefixIncludesPrefixLength="no"
                     representation="binary"
                     ref="GeneralFormat"/>
         </xs:appinfo>
     </xs:annotation>
+
+    <!-- Types used in dfdl:prefixLengthType below -->
+    <xs:simpleType name="be_int8_count">
+        <xs:restriction base="xs:byte"/>
+    </xs:simpleType>
+    <xs:simpleType name="be_uint16_count">
+        <xs:restriction base="xs:unsignedShort"/>
+    </xs:simpleType>
+    <xs:simpleType name="le_uint16_count" dfdl:byteOrder="littleEndian">
+        <xs:restriction base="xs:unsignedShort"/>
+    </xs:simpleType>
 
     <xs:element name="ex_nums">
         <xs:complexType>
@@ -45,8 +60,8 @@
                     <xs:complexType>
                         <xs:sequence>
                             <xs:element name="be_bool16" type="xs:boolean"
-                                        dfdl:length="16"
                                         dfdl:lengthKind="explicit"
+                                        dfdl:length="16"
                                         dfdl:occursCountKind="fixed"
                                         maxOccurs="2" minOccurs="2"/>
                             <xs:element name="be_float" type="xs:float"
@@ -55,6 +70,16 @@
                             <xs:element name="be_int16" type="xs:short"
                                         dfdl:occursCountKind="fixed"
                                         minOccurs="3" maxOccurs="3"/>
+                            <xs:element name="hexBinary2" type="xs:hexBinary"
+                                        dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes"
+                                        dfdl:length="2"
+                                        dfdl:occursCountKind="fixed"
+                                        maxOccurs="3" minOccurs="3"/>
+                            <xs:element name="hexBinaryPrefixed" type="xs:hexBinary"
+                                        dfdl:lengthKind="prefixed" dfdl:lengthUnits="bytes"
+                                        dfdl:prefixLengthType="be_uint16_count"
+                                        dfdl:occursCountKind="fixed"
+                                        maxOccurs="3" minOccurs="3"/>
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
@@ -88,6 +113,12 @@
                             <xs:element name="be_nonNegativeInteger32" type="xs:nonNegativeInteger"
                                         dfdl:length="32"
                                         dfdl:lengthKind="explicit"/>
+                            <xs:element name="hexBinary4" type="xs:hexBinary"
+                                        dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes"
+                                        dfdl:length="4"/>
+                            <xs:element name="hexBinaryPrefixed" type="xs:hexBinary"
+                                        dfdl:lengthKind="prefixed" dfdl:lengthUnits="bytes"
+                                        dfdl:prefixLengthType="be_uint16_count"/>
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
@@ -137,6 +168,14 @@
                                         dfdl:byteOrder="littleEndian"
                                         dfdl:length="8"
                                         dfdl:lengthKind="explicit"/>
+                            <xs:element name="hexBinary0" type="xs:hexBinary"
+                                        dfdl:byteOrder="littleEndian"
+                                        dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes"
+                                        dfdl:length="0"/>
+                            <xs:element name="hexBinaryPrefixed" type="xs:hexBinary"
+                                        dfdl:byteOrder="littleEndian"
+                                        dfdl:lengthKind="prefixed" dfdl:lengthUnits="bytes"
+                                        dfdl:prefixLengthType="le_uint16_count"/>
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
@@ -151,6 +190,18 @@
                                         fixed="1.5"/>
                             <xs:element name="int_32" type="xs:int"
                                         fixed="32"/>
+                            <xs:element name="hexBinary_deadbeef" type="xs:hexBinary"
+                                        fixed="DEADBEEF"
+                                        dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes"
+                                        dfdl:length="4"/>
+                            <xs:element name="hexBinary0" type="xs:hexBinary"
+                                        fixed=""
+                                        dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes"
+                                        dfdl:length="0"/>
+                            <xs:element name="hexBinaryPrefixed_ab" type="xs:hexBinary"
+                                        fixed="AB"
+                                        dfdl:lengthKind="prefixed" dfdl:lengthUnits="bytes"
+                                        dfdl:prefixLengthType="be_int8_count"/>
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>

@@ -26,6 +26,12 @@
     <be_int16>1</be_int16>
     <be_int16>2</be_int16>
     <be_int16>3</be_int16>
+    <hexBinary2>DEAD</hexBinary2>
+    <hexBinary2>BEEF</hexBinary2>
+    <hexBinary2>1A2B</hexBinary2>
+    <hexBinaryPrefixed>00</hexBinaryPrefixed>
+    <hexBinaryPrefixed>FFFF</hexBinaryPrefixed>
+    <hexBinaryPrefixed/>
   </array>
   <bigEndian>
     <be_bool16>true</be_bool16>
@@ -44,6 +50,8 @@
     <be_uint64>64</be_uint64>
     <be_uint8>8</be_uint8>
     <be_nonNegativeInteger32>32</be_nonNegativeInteger32>
+    <hexBinary4>1A2B3C4D</hexBinary4>
+    <hexBinaryPrefixed>DEADBEEF</hexBinaryPrefixed>
   </bigEndian>
   <littleEndian>
     <le_bool16>true</le_bool16>
@@ -62,11 +70,16 @@
     <le_uint64>64</le_uint64>
     <le_uint8>8</le_uint8>
     <le_nonNegativeInteger8>8</le_nonNegativeInteger8>
+    <hexBinary0/>
+    <hexBinaryPrefixed>DEADBEEF</hexBinaryPrefixed>
   </littleEndian>
   <fixed>
     <boolean_false>true</boolean_false>
     <boolean_true>false</boolean_true>
     <float_1_5>0.0</float_1_5>
     <int_32>0</int_32>
+    <hexBinary_deadbeef>FEEDBEAD</hexBinary_deadbeef>
+    <hexBinary0/>
+    <hexBinaryPrefixed_ab>BAAB</hexBinaryPrefixed_ab>
   </fixed>
 </ex_nums>

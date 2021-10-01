@@ -155,6 +155,7 @@ walkInfosetNode(const VisitEventHandler *handler, const InfosetBase *infoNode)
         case PRIMITIVE_BOOLEAN:
         case PRIMITIVE_DOUBLE:
         case PRIMITIVE_FLOAT:
+        case PRIMITIVE_HEXBINARY:
         case PRIMITIVE_INT16:
         case PRIMITIVE_INT32:
         case PRIMITIVE_INT64:
@@ -163,7 +164,7 @@ walkInfosetNode(const VisitEventHandler *handler, const InfosetBase *infoNode)
         case PRIMITIVE_UINT32:
         case PRIMITIVE_UINT64:
         case PRIMITIVE_UINT8:
-            error = handler->visitNumberElem(handler, childERD, number);
+            error = handler->visitSimpleElem(handler, childERD, number);
             break;
         }
     }

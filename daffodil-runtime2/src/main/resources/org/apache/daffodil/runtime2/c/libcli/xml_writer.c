@@ -21,11 +21,81 @@
 #include <mxml.h>        // for mxmlNewOpaquef, mxml_node_t, mxmlElementSetAttr, mxmlGetOpaque, mxmlNewElement, mxmlDelete, mxmlGetElement, mxmlNewXML, mxmlSaveFile, MXML_NO_CALLBACK
 #include <stdbool.h>     // for bool
 #include <stdint.h>      // for int16_t, int32_t, int64_t, int8_t, uint16_t, uint32_t, uint64_t, uint8_t
+#include <stdlib.h>      // for free, malloc
 #include <string.h>      // for strcmp
 #include "cli_errors.h"  // for CLI_XML_DECL, CLI_XML_ELEMENT, CLI_XML_WRITE, LIMIT_XML_NESTING
 #include "errors.h"      // for Error, Error::(anonymous)
 #include "stack.h"       // for stack_is_empty, stack_pop, stack_push, stack_top, stack_init
 // clang-format on
+
+// Fix a real number to conform to xsd:float syntax if needed
+
+static void
+fixNumberIfNeeded(const char *text)
+{
+    // We aren't writing code to remove all textual differences
+    // between runtime1/runtime2 because it would be better to make
+    // Daffodil compare numbers numerically, not textually.  If we did
+    // have to match runtime1 perfectly, we would have to:
+    //  - Strip + from <f>E+<e> to get <f>E<e>
+    //  - Add .0 to 1 to get 1.0
+    //  - Change number of significant digits to match runtime1
+    if (text && text[0] == 'N' && text[1] == 'A')
+    {
+        // xsd:float requires NaN to be capitalized correctly
+        char *modifyInPlace = (char *)text;
+        modifyInPlace[1] = 'a';
+    }
+}
+
+// Convert a byte array to a string of hexadecimal characters (two
+// nibbles per byte).  Return NULL if no dynamic memory could be
+// allocated for string.  Reuse same dynamic memory next time if big
+// enough.  Caller is responsible for copying string before next call
+// and calling with freeMemory true to release dynamic memory at end.
+
+static const char *
+binaryToHex(HexBinary hexBinary, bool freeMemory)
+{
+    static char * text = NULL;
+    static size_t capacity = 256;
+
+    // Call with freeMemory true when finished
+    if (freeMemory)
+    {
+        free(text);
+        text = NULL;
+        capacity = 256;
+        return NULL;
+    }
+
+    // Make room for hexadecimal characters if necessary
+    size_t numNibbles = hexBinary.lengthInBytes * 2;
+    if (text == NULL || capacity < numNibbles)
+    {
+        free(text);
+        capacity = numNibbles > capacity ? numNibbles : capacity;
+        text = malloc(capacity + 1);
+    }
+
+    // Check whether dynamic memory allocation succeeded
+    if (text == NULL)
+    {
+        return NULL;
+    }
+
+    // Convert each binary byte to two hexadecimal characters
+    char *nibble = text;
+    for (size_t i = 0; i < hexBinary.lengthInBytes; i++)
+    {
+        static char hexDigit[] = "0123456789ABCDEF";
+        *(nibble++) = hexDigit[hexBinary.array[i] / 16]; // high nibble
+        *(nibble++) = hexDigit[hexBinary.array[i] % 16]; // low nibble
+    }
+    *(nibble++) = '\0';
+
+    return text;
+}
 
 // Push new XML document on stack (note the stack is stored in a
 // static array which could overflow and stop the program; it also
@@ -65,7 +135,12 @@ xmlEndDocument(XMLWriter *writer)
         static Error error = {CLI_XML_WRITE, {0}};
         return &error;
     }
+
+    // Free memory allocated by binaryToHex and mxml functions
+    HexBinary hexBinary = {NULL, 0, false};
+    (void)binaryToHex(hexBinary, true);
     mxmlDelete(xml);
+
     return NULL;
 }
 
@@ -76,6 +151,7 @@ static const Error *
 xmlStartComplex(XMLWriter *writer, const InfosetBase *base)
 {
     mxml_node_t *parent = stack_top(&writer->stack);
+
     const char * name = get_erd_name(base->erd);
     const char * xmlns = get_erd_xmlns(base->erd);
     mxml_node_t *complex = mxmlNewElement(parent, name);
@@ -85,6 +161,7 @@ xmlStartComplex(XMLWriter *writer, const InfosetBase *base)
         mxmlElementSetAttr(complex, xmlns, ns);
     }
     stack_push(&writer->stack, complex);
+
     return NULL;
 }
 
@@ -103,31 +180,11 @@ xmlEndComplex(XMLWriter *writer, const InfosetBase *base)
     return NULL;
 }
 
-// Fix a real number to conform to xsd:float syntax if needed
-
-static void
-fixNumberIfNeeded(const char *text)
-{
-    if (text[0] == 'N' && text[1] == 'A')
-    {
-        // xsd:float requires NaN to be capitalized correctly
-        char *modifyInPlace = (char *)text;
-        modifyInPlace[1] = 'a';
-    }
-    // We aren't writing code to remove all textual differences
-    // between runtime1/runtime2 because it would be better to make
-    // Daffodil compare numbers numerically, not textually.  If we did
-    // have to match runtime1 perfectly, we would have to:
-    //  - Strip + from <f>E+<e> to get <f>E<e>
-    //  - Add .0 to 1 to get 1.0
-    //  - Change number of significant digits to match runtime1
-}
-
-// Write a boolean, 32-bit or 64-bit real number, or 8, 16, 32, or
-// 64-bit signed or unsigned integer as an XML element's value
+// Write a boolean, 32-bit or 64-bit real number, hexBinary, or
+// 8, 16, 32, or 64-bit signed or unsigned integer as an XML element's text
 
 static const Error *
-xmlNumberElem(XMLWriter *writer, const ERD *erd, const void *number)
+xmlSimpleElem(XMLWriter *writer, const ERD *erd, const void *valueptr)
 {
     mxml_node_t *parent = stack_top(&writer->stack);
     const char * name = get_erd_name(erd);
@@ -141,47 +198,50 @@ xmlNumberElem(XMLWriter *writer, const ERD *erd, const void *number)
         mxmlElementSetAttr(simple, xmlns, ns);
     }
 
-    // Handle varying bit lengths of both signed & unsigned numbers
-    const enum TypeCode typeCode = erd->typeCode;
+    // Format various types of values as XML element's text
     mxml_node_t *       text = NULL;
+    const enum TypeCode typeCode = erd->typeCode;
     switch (typeCode)
     {
     case PRIMITIVE_BOOLEAN:
-        text = mxmlNewOpaquef(simple, "%s", *(const bool *)number ? "true" : "false");
+        text = mxmlNewOpaquef(simple, "%s", *(const bool *)valueptr ? "true" : "false");
         break;
     case PRIMITIVE_FLOAT:
-        // Round-trippable float, shortest possible
-        text = mxmlNewOpaquef(simple, "%.9G", *(const float *)number);
+        // Format as shortest possible round-trippable float
+        text = mxmlNewOpaquef(simple, "%.9G", *(const float *)valueptr);
         fixNumberIfNeeded(mxmlGetOpaque(text));
         break;
     case PRIMITIVE_DOUBLE:
-        // Round-trippable double, shortest possible
-        text = mxmlNewOpaquef(simple, "%.17lG", *(const double *)number);
+        // Format as shortest possible round-trippable double
+        text = mxmlNewOpaquef(simple, "%.17lG", *(const double *)valueptr);
         fixNumberIfNeeded(mxmlGetOpaque(text));
         break;
+    case PRIMITIVE_HEXBINARY:
+        text = mxmlNewOpaque(simple, binaryToHex(*(const HexBinary *)valueptr, false));
+        break;
     case PRIMITIVE_INT16:
-        text = mxmlNewOpaquef(simple, "%hi", *(const int16_t *)number);
+        text = mxmlNewOpaquef(simple, "%hi", *(const int16_t *)valueptr);
         break;
     case PRIMITIVE_INT32:
-        text = mxmlNewOpaquef(simple, "%i", *(const int32_t *)number);
+        text = mxmlNewOpaquef(simple, "%i", *(const int32_t *)valueptr);
         break;
     case PRIMITIVE_INT64:
-        text = mxmlNewOpaquef(simple, "%li", *(const int64_t *)number);
+        text = mxmlNewOpaquef(simple, "%li", *(const int64_t *)valueptr);
         break;
     case PRIMITIVE_INT8:
-        text = mxmlNewOpaquef(simple, "%hhi", *(const int8_t *)number);
+        text = mxmlNewOpaquef(simple, "%hhi", *(const int8_t *)valueptr);
         break;
     case PRIMITIVE_UINT16:
-        text = mxmlNewOpaquef(simple, "%hu", *(const uint16_t *)number);
+        text = mxmlNewOpaquef(simple, "%hu", *(const uint16_t *)valueptr);
         break;
     case PRIMITIVE_UINT32:
-        text = mxmlNewOpaquef(simple, "%u", *(const uint32_t *)number);
+        text = mxmlNewOpaquef(simple, "%u", *(const uint32_t *)valueptr);
         break;
     case PRIMITIVE_UINT64:
-        text = mxmlNewOpaquef(simple, "%lu", *(const uint64_t *)number);
+        text = mxmlNewOpaquef(simple, "%lu", *(const uint64_t *)valueptr);
         break;
     case PRIMITIVE_UINT8:
-        text = mxmlNewOpaquef(simple, "%hhu", *(const uint8_t *)number);
+        text = mxmlNewOpaquef(simple, "%hhu", *(const uint8_t *)valueptr);
         break;
     default:
         // Let text remain NULL and report error below
@@ -205,5 +265,5 @@ xmlNumberElem(XMLWriter *writer, const ERD *erd, const void *number)
 const VisitEventHandler xmlWriterMethods = {
     (VisitStartDocument)&xmlStartDocument, (VisitEndDocument)&xmlEndDocument,
     (VisitStartComplex)&xmlStartComplex,   (VisitEndComplex)&xmlEndComplex,
-    (VisitNumberElem)&xmlNumberElem,
+    (VisitSimpleElem)&xmlSimpleElem,
 };

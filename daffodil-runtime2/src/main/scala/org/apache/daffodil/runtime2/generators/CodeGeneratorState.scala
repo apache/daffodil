@@ -193,7 +193,7 @@ class CodeGeneratorState {
 
     // Implement padding if complex type has an explicit length
     if (context.maybeFixedLengthInBits.isDefined && context.maybeFixedLengthInBits.get > 0) {
-      val lengthInBytes = context.maybeFixedLengthInBits.get / 8;
+      val lengthInBytes = context.maybeFixedLengthInBits.get / 8
       val parseStatement = s"    const size_t end_position = pstate->position + $lengthInBytes;"
       val unparseStatement = s"    const size_t end_position = ustate->position + $lengthInBytes;"
 
@@ -436,6 +436,19 @@ class CodeGeneratorState {
   // Because schema authors don't always get types right, allows explicit lengths to override implicit lengths
   private def getPrimType(e: ElementBase): PrimType = {
     val primType = e.optPrimType.get match {
+      case PrimType.Boolean =>
+        getLengthInBits(e) match {
+          case 8 | 16 | 32 => PrimType.Boolean
+          case _ => e.SDE("Boolean lengths other than 8, 16, or 32 bits are not supported.")
+        }
+      case PrimType.Double
+           | PrimType.Float =>
+        getLengthInBits(e) match {
+          case 32 => PrimType.Float
+          case 64 => PrimType.Double
+          case _ =>  e.SDE("Floating point lengths other than 32 or 64 bits are not supported.")
+        }
+      case PrimType.HexBinary => PrimType.HexBinary
       case PrimType.Byte
          | PrimType.Short
          | PrimType.Int
@@ -460,18 +473,6 @@ class CodeGeneratorState {
           case 64 => PrimType.UnsignedLong
           case _ =>  e.SDE("Unsigned integer lengths other than 8, 16, 32, or 64 bits are not supported.")
         }
-      case PrimType.Double
-         | PrimType.Float =>
-        getLengthInBits(e) match {
-          case 32 => PrimType.Float
-          case 64 => PrimType.Double
-          case _ =>  e.SDE("Floating point lengths other than 32 or 64 bits are not supported.")
-        }
-      case PrimType.Boolean =>
-        getLengthInBits(e) match {
-          case 8 | 16 | 32 => PrimType.Boolean
-          case _ => e.SDE("Boolean lengths other than 8, 16, or 32 bits are not supported.")
-        }
       case p => e.SDE("PrimType %s is not supported in C code generator.", p.toString)
     }
     if (primType != e.optPrimType.get)
@@ -486,6 +487,7 @@ class CodeGeneratorState {
       case PrimType.Boolean => "PRIMITIVE_BOOLEAN"
       case PrimType.Double => "PRIMITIVE_DOUBLE"
       case PrimType.Float => "PRIMITIVE_FLOAT"
+      case PrimType.HexBinary => "PRIMITIVE_HEXBINARY"
       case PrimType.Short => "PRIMITIVE_INT16"
       case PrimType.Int => "PRIMITIVE_INT32"
       case PrimType.Long => "PRIMITIVE_INT64"
@@ -531,6 +533,7 @@ class CodeGeneratorState {
         case PrimType.Boolean => "bool       "
         case PrimType.Double => "double     "
         case PrimType.Float => "float      "
+        case PrimType.HexBinary => "HexBinary  "
         case PrimType.Short => "int16_t    "
         case PrimType.Int => "int32_t    "
         case PrimType.Long => "int64_t    "
@@ -550,6 +553,14 @@ class CodeGeneratorState {
     val declaration = s"$indent    $definition $e$arrayDef;"
 
     structs.top.declarations += declaration
+
+    // Add an array member to store a fixed length hexBinary element if needed
+    if (child.isSimpleType && child.isFixedLength && child.optPrimType.get == PrimType.HexBinary
+        && child.maybeFixedLengthInBits.get > 0) {
+      val fixedLength = child.maybeFixedLengthInBits.get / 8
+      val declaration2 = s"$indent    uint8_t     _a_$e$arrayDef[$fixedLength];"
+      structs.top.declarations += declaration2
+    }
   }
 
   def generateCodeHeader: String = {
@@ -558,11 +569,13 @@ class CodeGeneratorState {
       s"""#ifndef GENERATED_CODE_H
          |#define GENERATED_CODE_H
          |
+         |// clang-format off
+         |#include "infoset.h"  // for HexBinary, InfosetBase
          |#include <stdbool.h>  // for bool
          |#include <stddef.h>   // for size_t
-         |#include <stdint.h>   // for int16_t, int32_t, int64_t, uint32_t, uint8_t, int8_t, uint16_t, uint64_t
-         |#include "infoset.h"  // for InfosetBase
-
+         |#include <stdint.h>   // for uint8_t, int16_t, int32_t, int64_t, uint32_t, int8_t, uint16_t, uint64_t
+         |// clang-format on
+         |
          |// Define infoset structures
          |
          |$structs
@@ -578,13 +591,16 @@ class CodeGeneratorState {
     val erds = this.erds.mkString("\n")
     val finalImplementation = this.finalImplementation.mkString("\n")
     val code =
-      s"""#include "generated_code.h"
+      s"""// clang-format off
+         |#include "generated_code.h"
          |#include <math.h>       // for NAN
-         |#include <stdbool.h>    // for bool, true, false
+         |#include <stdbool.h>    // for true, false, bool
          |#include <stddef.h>     // for NULL, size_t
+         |#include <string.h>     // for memset, memcmp
          |#include "errors.h"     // for Error, PState, UState, ERR_CHOICE_KEY, UNUSED
-         |#include "parsers.h"    // for parse_be_float, parse_be_int16, parse_be_bool32, parse_validate_fixed, parse_be_bool16, parse_be_int32, parse_be_uint32, parse_le_bool32, parse_le_int64, parse_le_uint8, parse_be_bool8, parse_be_double, parse_be_int64, parse_be_int8, parse_be_uint16, parse_be_uint64, parse_be_uint8, parse_le_bool16, parse_le_bool8, parse_le_double, parse_le_float, parse_le_int16, parse_le_int32, parse_le_int8, parse_le_uint16, parse_le_uint32, parse_le_uint64
-         |#include "unparsers.h"  // for unparse_be_float, unparse_be_int16, unparse_be_bool32, unparse_validate_fixed, unparse_be_bool16, unparse_be_int32, unparse_be_uint32, unparse_le_bool32, unparse_le_int64, unparse_le_uint8, unparse_be_bool8, unparse_be_double, unparse_be_int64, unparse_be_int8, unparse_be_uint16, unparse_be_uint64, unparse_be_uint8, unparse_le_bool16, unparse_le_bool8, unparse_le_double, unparse_le_float, unparse_le_int16, unparse_le_int32, unparse_le_int8, unparse_le_uint16, unparse_le_uint32, unparse_le_uint64
+         |#include "parsers.h"    // for alloc_hexBinary, parse_hexBinary, parse_be_float, parse_be_int16, parse_validate_fixed, parse_be_bool32, parse_be_bool16, parse_be_int32, parse_be_uint16, parse_be_uint32, parse_le_bool32, parse_le_int64, parse_le_uint16, parse_le_uint8, parse_be_bool8, parse_be_double, parse_be_int64, parse_be_int8, parse_be_uint64, parse_be_uint8, parse_le_bool16, parse_le_bool8, parse_le_double, parse_le_float, parse_le_int16, parse_le_int32, parse_le_int8, parse_le_uint32, parse_le_uint64
+         |#include "unparsers.h"  // for unparse_hexBinary, unparse_be_float, unparse_be_int16, unparse_validate_fixed, unparse_be_bool32, unparse_be_bool16, unparse_be_int32, unparse_be_uint16, unparse_be_uint32, unparse_le_bool32, unparse_le_int64, unparse_le_uint16, unparse_le_uint8, unparse_be_bool8, unparse_be_double, unparse_be_int64, unparse_be_int8, unparse_be_uint64, unparse_be_uint8, unparse_le_bool16, unparse_le_bool8, unparse_le_double, unparse_le_float, unparse_le_int16, unparse_le_int32, unparse_le_int8, unparse_le_uint32, unparse_le_uint64
+         |// clang-format on
          |
          |// Initialize our program's name and version
          |
@@ -625,11 +641,11 @@ class CodeGeneratorState {
  * complex elements.
  */
 class ComplexCGState(val C: String) {
-  val declarations = mutable.ArrayBuffer[String]()
-  val offsetComputations = mutable.ArrayBuffer[String]()
-  val erdComputations = mutable.ArrayBuffer[String]()
-  val initStatements = mutable.ArrayBuffer[String]()
-  val initChoiceStatements = mutable.ArrayBuffer[String]()
-  val parserStatements = mutable.ArrayBuffer[String]()
-  val unparserStatements = mutable.ArrayBuffer[String]()
+  val declarations: mutable.ArrayBuffer[String] = mutable.ArrayBuffer[String]()
+  val offsetComputations: mutable.ArrayBuffer[String] = mutable.ArrayBuffer[String]()
+  val erdComputations: mutable.ArrayBuffer[String] = mutable.ArrayBuffer[String]()
+  val initStatements: mutable.ArrayBuffer[String] = mutable.ArrayBuffer[String]()
+  val initChoiceStatements: mutable.ArrayBuffer[String] = mutable.ArrayBuffer[String]()
+  val parserStatements: mutable.ArrayBuffer[String] = mutable.ArrayBuffer[String]()
+  val unparserStatements: mutable.ArrayBuffer[String] = mutable.ArrayBuffer[String]()
 }

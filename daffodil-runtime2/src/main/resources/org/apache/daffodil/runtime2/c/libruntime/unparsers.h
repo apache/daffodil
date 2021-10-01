@@ -65,6 +65,10 @@ extern void unparse_le_uint8(uint8_t number, UState *ustate);
 
 extern void unparse_fill_bytes(size_t end_position, const char fill_byte, UState *ustate);
 
+// Unparse 8-bit bytes from hexBinary field
+
+extern void unparse_hexBinary(HexBinary hexBinary, UState *ustate);
+
 // Validate unparsed number is same as fixed value
 
 extern void unparse_validate_fixed(bool same, const char *element, UState *ustate);
