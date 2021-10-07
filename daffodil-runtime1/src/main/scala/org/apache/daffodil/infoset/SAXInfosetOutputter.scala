@@ -180,6 +180,43 @@ class SAXInfosetOutputter(xmlReader: DFDL.DaffodilParseXMLReader,
     attrs
   }
 
+  /**
+   * Copied (with slight modification) from Scala-XML NamespaceBinding.scala to
+   * ensure we use the same logic to convert NamespaceBindings to mappings as
+   * other InfosetOutputters that use NamespaceBinding.buildString(stop)
+   */
+  private def shadowRedefined(start: NamespaceBinding, stop: NamespaceBinding): NamespaceBinding = {
+    def prefixList(x: NamespaceBinding): List[String] =
+      if ((x == null) || (x eq stop)) Nil
+      else x.prefix :: prefixList(x.parent)
+
+    // $COVERAGE-OFF$ See below comment for why coverage is disabled
+    def fromPrefixList(l: List[String]): NamespaceBinding = l match {
+      case Nil     => stop
+      case x :: xs => new NamespaceBinding(x, start.getURI(x), fromPrefixList(xs))
+    }
+    // $COVERAGE-ON$
+
+    val ps0 = prefixList(start).reverse
+    val ps = ps0.distinct
+    if (ps.size == ps0.size) start
+    else {
+      // $COVERAGE-OFF$
+      // this branch is only hit when the size of ps0 and ps0.distinct are
+      // different, i.e. there are duplicate prefix mappings in the namespace
+      // binding. But these namespace bindings come from minimizedScope, which
+      // removes duplicate prefixes. So it should be impossible for this branch
+      // to get hit--all mappings should already be distinct. So this branch
+      // and the fromPrefixList function should both be dead code. To make it
+      // more clear that this is copied from Scala XML, and in case there is an
+      // edge case bug related to minimizedScope that we don't have a test for,
+      // it is safest to just keep this logic from ScalaXML and just disable
+      // code coverage.
+      fromPrefixList(ps)
+      // $COVERAGE-ON$
+    }
+  }
+
   private def getNsbStartAndEnd(diElem: DIElement) = {
     val nsbStart = diElem.erd.minimizedScope
     val nsbEnd = if (diElem.isRoot) {
@@ -187,7 +224,24 @@ class SAXInfosetOutputter(xmlReader: DFDL.DaffodilParseXMLReader,
     } else {
       diElem.diParent.erd.minimizedScope
     }
-    (nsbStart, nsbEnd)
+
+    // the callers of getNsbStartAndEnd use reference equality to determine
+    // what mappings to create. But minimizedScope is broken (DAFFODIL-2282),
+    // so sometimes reference equality can sometimes result in incorrect
+    // mappings. So we first check if the two NamespaceBindings have value
+    // equality--if they have the same value then no namespace mappings are
+    // needed, and we just return (start, start). If they aren't value equal,
+    // then we need to shadow redefine the start in terms of the end, and use
+    // that as the new start (this is same logic as used by NamespaceBinding.buildString
+    // in other infoset outputters). This is all a hack to get consistent
+    // namespace bindings among SAX and different infoset outputters without
+    // needing to fix minimizedScope. Once that is fixed, this should be able
+    // to be removed.
+    if (nsbStart == nsbEnd) {
+      (nsbStart, nsbStart)
+    } else {
+      (shadowRedefined(nsbStart, nsbEnd), nsbEnd)
+    }
   }
 
   private def doStartElement(diElem: DIElement, contentHandler: ContentHandler): Unit = {

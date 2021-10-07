@@ -77,5 +77,68 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+
+  <!--
+    This complex schema caused an issue where the "value" element would get a
+    redundant xmlns:tns="nsB" prefix mapping when using SAX. Although the
+    infoset is still technically valid with the extra mapping (it's redundant
+    and nothing uses the prefix), The TDML Runner ensures SAX and non-SAX
+    infosets are exactly the same, so this would lead to a failure. This test
+    ensures we do not have any regressions with the complex schema and SAX
+    namespace issues.
+  -->
+  <tdml:parserTestCase name="complexIncludesNamespaces_01" root="root"
+    model="test05sch1.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text">1ab</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tns:root xmlns:nsB="nsB" xmlns:tns="nsA">
+          <elem>1</elem>
+          <tns:elem1 xmlns:tns="nsB">
+            <tns:elem1_fields>
+              <field_a>
+                <value>a</value>
+              </field_a>
+              <field_b>b</field_b>
+            </tns:elem1_fields>
+          </tns:elem1>
+        </tns:root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    This complex schema caused an issue where the "value" element would get a
+    redundant xmlns:tns="nsB" prefix mapping when using SAX. Although the
+    infoset is still technically valid with the extra mapping (it's redundant
+    and nothing uses the prefix), The TDML Runner ensures SAX and non-SAX
+    infosets are exactly the same, so this would lead to a failure. This test
+    ensures we do not have any regressions with the complex schema and SAX
+    namespace issues.
+  -->
+  <tdml:parserTestCase name="complexIncludesNamespaces_02" root="root"
+    model="test05sch1.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text">2cd</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tns:root xmlns:nsB="nsB" xmlns:tns="nsA">
+          <elem>2</elem>
+          <tns:elem2 xmlns:tns="nsB">
+            <tns:elem2_fields>
+              <field_c>
+                <value>c</value>
+              </field_c>
+              <field_d>d</field_d>
+            </tns:elem2_fields>
+          </tns:elem2>
+        </tns:root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
   
 </tdml:testSuite>

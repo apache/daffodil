@@ -931,6 +931,8 @@ Differences were (path, expected, actual):
     computeDiffOne(
       a,
       b,
+      TopScope,
+      TopScope,
       None,
       Nil,
       ignoreProcInstr,
@@ -952,6 +954,8 @@ Differences were (path, expected, actual):
   def computeDiffOne(
     an: Node,
     bn: Node,
+    aParentScope: NamespaceBinding,
+    bParentScope: NamespaceBinding,
     maybeIndex: Option[Int],
     parentPathSteps: Seq[String],
     ignoreProcInstr: Boolean,
@@ -968,16 +972,18 @@ Differences were (path, expected, actual):
         val maybeType: Option[String] = Option(typeA.getOrElse(typeB.getOrElse(null)))
         val nilledA = a.attribute(XSI_NAMESPACE.toString, "nil")
         val nilledB = b.attribute(XSI_NAMESPACE.toString, "nil")
+        val mappingsA = if (checkNamespaces) nsbA.buildString(aParentScope).trim else ""
+        val mappingsB = if (checkNamespaces) nsbB.buildString(bParentScope).trim else ""
 
         if (labelA != labelB) {
           // different label
           List((zPath, labelA, labelB))
         } else if (checkPrefixes && prefixA != prefixB) {
           // different prefix
-          List((zPath, prefixA, prefixB))
-        } else if (checkNamespaces && nsbA != nsbB ) {
+          List((zPath + "/" + labelA + "@prefix", prefixA, prefixB))
+        } else if (checkNamespaces && mappingsA != mappingsB) {
           // different namespace bindings
-          List((zPath, nsbA.toString(), nsbB.toString()))
+          List((zPath + "/" + labelA + "@xmlns", mappingsA, mappingsB))
         } else if (nilledA != nilledB) {
           // different xsi:nil
           List((zPath + "/" + labelA + "@xsi:nil",
@@ -1018,6 +1024,8 @@ Differences were (path, expected, actual):
             computeDiffOne(
               ca,
               cb,
+              nsbA,
+              nsbB,
               maybeChildIndex,
               thisPathStep,
               ignoreProcInstr,

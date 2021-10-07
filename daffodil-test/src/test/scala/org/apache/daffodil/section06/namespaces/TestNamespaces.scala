@@ -186,4 +186,7 @@ class TestNamespaces {
   @Test def test_toplevel_annotation_invalid_02(): Unit = { runner.runOneTest("toplevel_annotation_invalid_02") }
 
   @Test def test_incorrectAppinfoSource(): Unit = { runner.runOneTest("incorrectAppinfoSource") }
+
+  @Test def test_complexIncludesNamespaces_01(): Unit = { runner2.runOneTest("complexIncludesNamespaces_01") }
+  @Test def test_complexIncludesNamespaces_02(): Unit = { runner2.runOneTest("complexIncludesNamespaces_02") }
 }

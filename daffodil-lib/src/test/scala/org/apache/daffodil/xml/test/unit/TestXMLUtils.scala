@@ -91,6 +91,29 @@ class TestXMLUtils {
     assertEquals("", d2attribs)
   }
 
+  @Test def testPrefixDiff(): Unit = {
+    // different prefix should error, even though the namespace is the same
+    val d1 = <ns1:a xmlns:ns1="someprefix">a</ns1:a>
+    val d2 = <ns2:a xmlns:ns1="someprefix">a</ns2:a>
+    val diffs = XMLUtils.computeDiff(d1, d2, checkPrefixes = true)
+    val Seq((path, a, b)) = diffs
+    assertEquals("/a@prefix", path)
+    assertEquals("ns1", a)
+    assertEquals("ns2", b)
+  }
+
+  @Test def testNamespaceDiff(): Unit = {
+    // different namespace mappings should error
+    val d1 = <ns1:a xmlns:ns1="someprefixA">a</ns1:a>
+    val d2 = <ns1:a xmlns:ns1="someprefixB">a</ns1:a>
+    val diffs = XMLUtils.computeDiff(d1, d2, checkNamespaces = true)
+    val Seq((path, a, b)) = diffs
+    assertEquals("/a@xmlns", path)
+    assertEquals("xmlns:ns1=\"someprefixA\"", a)
+    assertEquals("xmlns:ns1=\"someprefixB\"", b)
+  }
+
+
   @Test def testIsNil(): Unit = {
     val d1 = JDOMUtils.elem2Element(<a xmlns:xsi={ XMLUtils.XSI_NAMESPACE } xsi:nil="true"/>)
     val d2 = JDOMUtils.elem2Element(<a xmlns:xsi={ XMLUtils.XSI_NAMESPACE }>foo</a>)
