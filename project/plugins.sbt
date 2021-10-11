@@ -21,7 +21,7 @@ addSbtPlugin("com.github.sbt" % "sbt-native-packager" % "1.9.5")
 
 addSbtPlugin("org.musigma" % "sbt-rat" % "0.7.0")
 
-addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.9.0")
+addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.9.1")
 
 addSbtPlugin("com.eed3si9n" % "sbt-unidoc" % "0.4.3")
 
