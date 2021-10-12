@@ -1,30 +1,48 @@
 This file contains the GPG keys of Apache Daffodil developers.
 
-Users:    gpg --import KEYS
+Users:
+
+    gpg --import KEYS
 
 Developers:
-  Create a key: 
-    Per Apache guidelines (https://www.apache.org/dev/openpgp.html#key-gen-generate-key)
-      - RSA and RSA key with keysize 4096, and no expiration
-      - Use your apache email
-    
+
+  Add some lines to your gpg.conf file:
+
+    # https://keys.openpgp.org/about/usage#gnupg
+    keyserver hkps://keys.openpgp.org
+
+    # https://infra.apache.org/openpgp.html#sha-defaults
+    personal-digest-preferences SHA512
+    cert-digest-algo SHA512
+    default-preference-list SHA512 SHA384 SHA256 SHA224 AES256 AES192 AES CAST5 ZLIB BZIP2 ZIP Uncompressed
+
+  Create a code signing key:
+
+    # Per https://infra.apache.org/openpgp.html#key-gen-generate-key
+    # - RSA and RSA key with keysize 4096, and no expiration
+    # - Use your apache email
     gpg --full-generate-key
 
+  Add your key to this file:
 
-  Adding your key to this file:
-    (gpg --list-sigs <key id> && gpg --armor --export <key id>) >> this file.
+    echo >> KEYS
+    gpg --list-sigs <key id> >> KEYS
+    gpg --armor --export <key id> >> KEYS
 
-  Publish the key:
-    gpg --keyserver pgp.mit.edu --send-keys <key id>
+  Publish your key so you can revoke it later if necessary:
 
-  Signing another developers key:
-    gpg --keyserver pgp.mit.edu --search-keys <name or email>
-    gpg --keyserver pgp.mit.edu --recv-keys <key id>
-    gpg --sign-key <key id>
-    gpg --keyserver pgp.mit.edu --send-keys <key id>
+    # Per https://infra.apache.org/release-signing.html#keyserver
+    # - Use OpenPGP Public Key Server
+    gpg --export <key id> > mykey.pgp
+    # Per https://keys.openpgp.org/about/faq#older-gnupg
+    # - Verify your email address when uploading your key
+    Go to https://keys.openpgp.org/upload, upload mykey.pgp, verify your email address
 
   Additional Information:
-    http://www.apache.org/dev/openpgp.html#generate-key
+
+    https://infra.apache.org/openpgp.html
+    https://keys.openpgp.org/about/usage
+    https://keys.openpgp.org/about/privacy
 
 ********************************* PLEASE NOTE **********************************
 
@@ -151,6 +169,7 @@ qIpenMsTA9TFms/EVMkvvyqllMVjjbLRlg0UMhnf/DzgrErp646LkAU0m4jSzGVn
 QDM28gGyQYTRoMudTseM7Q2//F9LF9pz4tzK0g==
 =09Ch
 -----END PGP PUBLIC KEY BLOCK-----
+
 pub   rsa4096 2020-04-01 [SC]
       EA0B5228201A90CD1BBCE006639637FDA8049411
 uid           [ultimate] Olabusayo Kilo <olabusayo@apache.org>
@@ -209,4 +228,64 @@ qJMAJH6vTUPJfGH3DEZ0bAnerivZZUqmwCq6phifMxIWsD5uUWlaa7HUHA9hnS6v
 KZd9BT4L/Legj/Z5RsN4j9dNfNOsYTVMw4Mk0VnUq7X1UxV1k9WbTyUm/ldRwPcf
 fA==
 =Grso
+-----END PGP PUBLIC KEY BLOCK-----
+
+pub   rsa4096 2021-10-12 [SC]
+      85849EC0374262C7110CA74404A735FC1A36AE84
+uid           [ultimate] John Interrante (Code Signing Key) <jinterrante@apache.org>
+sig 3        04A735FC1A36AE84 2021-10-12  John Interrante (Code Signing Key) <jinterrante@apache.org>
+sub   rsa4096 2021-10-12 [E]
+sig          04A735FC1A36AE84 2021-10-12  John Interrante (Code Signing Key) <jinterrante@apache.org>
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+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
+DPh7WksEmrAvbFk5HLWlENsXIoig2Tc=
+=qmBp
 -----END PGP PUBLIC KEY BLOCK-----
