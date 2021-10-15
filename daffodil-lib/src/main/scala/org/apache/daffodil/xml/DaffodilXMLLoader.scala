@@ -41,6 +41,7 @@ import scala.xml.SAXParseException
 import scala.xml.SAXParser
 import scala.xml.parsing.NoBindingFactoryAdapter
 
+import org.apache.xerces.jaxp.validation.XMLSchemaFactory
 import org.apache.xerces.xni.parser.XMLInputSource
 
 import org.apache.xml.resolver.Catalog
@@ -426,9 +427,17 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
    * right into Xerces. This is accomplished by
    * using the below SchemaFactory and SchemaFactory.newSchema calls.  The
    * newSchema call is what forces schema validation to take place.
+   *
+   * Note that this is intentionally a def rather than a val because an
+   * XMLSchemaFactory actually holds on to many large objects used when loading
+   * a schema, which can be massive memory leak. By making it a def, this
+   * factory and all its references can be garbage collected after a schema is
+   * loaded. And the schemaFactory is only used when validating a DFDL schema,
+   * so we should only create one factory per DaffodilXMLLoader, so saving it
+   * as val does not gain anything.
    */
-  private lazy val schemaFactory = {
-    val sf = new org.apache.xerces.jaxp.validation.XMLSchemaFactory()
+  private def schemaFactory: XMLSchemaFactory = {
+    val sf = new XMLSchemaFactory()
     sf.setResourceResolver(resolver)
     //
     // despite setting the errorHandler here, the validator
