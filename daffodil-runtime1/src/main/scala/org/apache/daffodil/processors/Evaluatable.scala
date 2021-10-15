@@ -26,9 +26,9 @@ import org.apache.daffodil.util.Misc
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe._
 import org.apache.daffodil.exceptions.Assert
+
 import scala.collection.JavaConverters._
 import org.apache.daffodil.dpath.ExpressionEvaluationException
-import org.apache.daffodil.xml._
 import org.apache.daffodil.api.Diagnostic
 import org.apache.daffodil.processors.unparsers.UState
 import org.apache.daffodil.dpath.EvalMode
@@ -319,7 +319,7 @@ abstract class Evaluatable[+T <: AnyRef](protected val ci: DPathCompileInfo, qNa
    * Looks like an attribute definition, but the value part
    * may contain XML-element-like syntax. If so it is either escaped with
    * CDATA bracketing (preferred), or if there are quotes in it, then
-   * it is escapified meaning &quot; &lt; etc.
+   * it is escapified meaning &amp;quot; &amp;lt; etc.
    *
    * Avoids inserting single quotes (aka apos) so that those can be used
    * surrounding this at a higher level.

@@ -95,7 +95,8 @@ final class Runtime2TDMLDFDLProcessorFactory private(
     schemaSource: DaffodilSchemaSource,
     useSerializedProcessor: Boolean,
     optRootName: Option[String] = None,
-    optRootNamespace: Option[String] = None): TDML.CompileResult = {
+    optRootNamespace: Option[String] = None,
+    tunables: Map[String, String]): TDML.CompileResult = {
 
     // Compile the DFDL schema into a ProcessorFactory
     val pf = compiler.compileSource(schemaSource, optRootName, optRootNamespace)

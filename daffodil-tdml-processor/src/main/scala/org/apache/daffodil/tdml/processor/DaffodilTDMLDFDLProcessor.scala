@@ -24,10 +24,7 @@ import java.nio.channels.Channels
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
-
 import scala.xml.Node
-
-import javax.xml.parsers.SAXParserFactory
 import org.apache.commons.io.IOUtils
 import org.apache.daffodil.api.DFDL.DaffodilUnhandledSAXException
 import org.apache.daffodil.api.DFDL.DaffodilUnparseErrorSAXException
@@ -45,12 +42,14 @@ import org.apache.daffodil.processors.DaffodilParseOutputStreamContentHandler
 import org.apache.daffodil.processors.DataProcessor
 import org.apache.daffodil.processors.UnparseResult
 import org.apache.daffodil.processors.unparsers.UState
+import org.apache.daffodil.tdml.SchemaCache
 import org.apache.daffodil.tdml.SchemaDataProcessorCache
 import org.apache.daffodil.tdml.TDMLException
 import org.apache.daffodil.tdml.TDMLInfosetInputter
 import org.apache.daffodil.tdml.TDMLInfosetOutputter
 import org.apache.daffodil.tdml.VerifyTestCase
 import org.apache.daffodil.util.MaybeULong
+import org.apache.daffodil.xml.DaffodilSAXParserFactory
 import org.apache.daffodil.xml.XMLUtils
 import org.apache.daffodil.xml.XMLUtils.XMLDifferenceException
 import org.xml.sax.ErrorHandler
@@ -126,16 +125,16 @@ final class TDMLDFDLProcessorFactory private (
       val diags = p.getDiagnostics
       Left(diags)
     } else {
-      val dp =
+      val dp = {
         if (useSerializedProcessor) {
           val os = new java.io.ByteArrayOutputStream()
           val output = Channels.newChannel(os)
           p.save(output)
-
           val is = new java.io.ByteArrayInputStream(os.toByteArray)
           val input = Channels.newChannel(is)
           compiler.reload(input)
         } else p
+      }
       val diags = p.getDiagnostics
       Right((diags, dp))
     }
@@ -159,14 +158,18 @@ final class TDMLDFDLProcessorFactory private (
   override def getProcessor(
     schemaSource: DaffodilSchemaSource,
     useSerializedProcessor: Boolean,
-    optRootName: Option[String] = None,
-    optRootNamespace: Option[String] = None): TDML.CompileResult = {
+    optRootName: Option[String],
+    optRootNamespace: Option[String],
+    tunables: Map[String, String]): TDML.CompileResult = {
     val cacheResult: SchemaDataProcessorCache.Types.CompileResult = schemaSource match {
       case uss: URISchemaSource =>
-        SchemaDataProcessorCache.compileAndCache(uss, useSerializedProcessor,
+        SchemaDataProcessorCache.compileAndCache(SchemaCache.Key(
+          uss,
+          useSerializedProcessor,
           checkAllTopLevel,
           optRootName,
-          optRootNamespace) {
+          optRootNamespace,
+          tunables)) {
             compileProcessor(uss, useSerializedProcessor, optRootName, optRootNamespace)
           }
       case _ => {
@@ -337,7 +340,9 @@ class DaffodilTDMLDFDLProcessor private (private var dp: DataProcessor) extends 
     new DaffodilTDMLParseResult(actual, outputter)
   }
 
-  def doUnparseWithBothApis(dpInputter: TDMLInfosetInputter, saxInputStream: java.io.InputStream,
+  def doUnparseWithBothApis(
+    dpInputter: TDMLInfosetInputter,
+    saxInputStream: java.io.InputStream,
     dpOutputStream: java.io.OutputStream): DaffodilTDMLUnparseResult = {
 
     val dpOutputChannel = java.nio.channels.Channels.newChannel(dpOutputStream)
@@ -345,7 +350,7 @@ class DaffodilTDMLDFDLProcessor private (private var dp: DataProcessor) extends 
     val saxOutputChannel = java.nio.channels.Channels.newChannel(saxOutputStream)
     val unparseContentHandler = dp.newContentHandlerInstance(saxOutputChannel)
     unparseContentHandler.enableInputterResolutionOfRelativeInfosetBlobURIs()
-    val xmlReader = SAXParserFactory.newInstance.newSAXParser.getXMLReader
+    val xmlReader = DaffodilSAXParserFactory().newSAXParser.getXMLReader
     xmlReader.setContentHandler(unparseContentHandler)
     xmlReader.setFeature(XMLUtils.SAX_NAMESPACES_FEATURE, true)
     xmlReader.setFeature(XMLUtils.SAX_NAMESPACE_PREFIXES_FEATURE, true)
@@ -412,7 +417,7 @@ class DaffodilTDMLDFDLProcessor private (private var dp: DataProcessor) extends 
 
     if (expected != actual) {
       throw TDMLException(
-        """SAX parse diagnostics do not match DataProcessor Parse diagnostics""" +
+        """SAX parse/unparse diagnostics do not match DataProcessor diagnostics""" +
           "\n" +
           """DataProcessor Parse diagnostics: """ + seqDiagExpected +
           (if (seqDiagActual.isEmpty) {

@@ -19,16 +19,12 @@ package org.apache.daffodil.validation.schematron
 
 import java.io.InputStream
 import java.io.StringWriter
-
-import javax.xml.parsers.ParserConfigurationException
-import javax.xml.parsers.SAXParserFactory
 import javax.xml.transform.Templates
 import javax.xml.transform.URIResolver
 import javax.xml.transform.sax.SAXSource
 import javax.xml.transform.stream.StreamResult
-import org.apache.daffodil.api.ValidatorInitializationException
+import org.apache.daffodil.xml.DaffodilSAXParserFactory
 import org.xml.sax.InputSource
-import org.xml.sax.SAXException
 import org.xml.sax.XMLReader
 
 
@@ -38,12 +34,6 @@ import org.xml.sax.XMLReader
 object Schematron {
   val templatesRootDir = "iso-schematron-xslt2"
 
-  private val featuress = Array(
-    Feature.on(javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING),
-    Feature.off("http://xml.org/sax/features/external-general-entities"),
-    Feature.off("http://xml.org/sax/features/external-parameter-entities"),
-    Feature.off("http://apache.org/xml/features/nonvalidating/load-external-dtd"))
-
   def fromRules(rules: Templates) = new Schematron(xmlReader.get(), rules)
 
   def isoTemplateResolver(child: Option[URIResolver]) = new ClassPathUriResolver(templatesRootDir, child)
@@ -51,22 +41,11 @@ object Schematron {
   // reduce overhead by caching the xml reader, but the SAXParser class is not thread safe so use a thread local
   private val xmlReader = new ThreadLocal[XMLReader] {
     override def initialValue(): XMLReader = {
-      val f = try featuress.foldLeft(SAXParserFactory.newInstance){ (fac, ft) =>
-        fac.setFeature(ft.name, ft.value); fac
-      }
-      catch {
-        case ex@(_: ParserConfigurationException | _: SAXException) =>
-          throw ValidatorInitializationException(s"Error setting feature on parser: ${ex.getMessage}")
-      }
+      val f = DaffodilSAXParserFactory()
       f.setValidating(false)
-      f.newSAXParser.getXMLReader
+      val xr = f.newSAXParser.getXMLReader
+      xr
     }
-  }
-
-  private case class Feature(name: String, value: Boolean)
-  private object Feature {
-    def on(name: String) = Feature(name, true)
-    def off(name: String) = Feature(name, false)
   }
 }
 

@@ -25,10 +25,9 @@ import java.nio.LongBuffer
 import java.nio.channels.Channels
 import java.nio.file.Files
 import java.util.zip.GZIPOutputStream
-
 import scala.collection.immutable.Queue
-
-import org.apache.daffodil.Implicits._; object INoWarn4 {
+import org.apache.daffodil.Implicits._
+object INoWarn4 {
   ImplicitsSuppressUnusedImportWarning() }
 import org.apache.daffodil.api.DFDL
 import org.apache.daffodil.api.DaffodilTunables
@@ -41,7 +40,8 @@ import org.apache.daffodil.api.WithDiagnostics
 import org.apache.daffodil.debugger.Debugger
 import org.apache.daffodil.dsom.TunableLimitExceededError
 import org.apache.daffodil.dsom._
-import org.apache.daffodil.equality._; object EqualityNoWarn3 {
+import org.apache.daffodil.equality._
+object EqualityNoWarn3 {
   EqualitySuppressUnusedImportWarning() }
 import org.apache.daffodil.events.MultipleEventHandler
 import org.apache.daffodil.exceptions.Assert
@@ -347,7 +347,10 @@ class DataProcessor private (
 
   override def getDiagnostics = ssrd.diagnostics
 
-  override def newXMLReaderInstance: DFDL.DaffodilParseXMLReader = new DaffodilParseXMLReader(this)
+  override def newXMLReaderInstance: DFDL.DaffodilParseXMLReader = {
+    val xrdr = new DaffodilParseXMLReader(this)
+    xrdr
+  }
 
   override def newContentHandlerInstance(output: DFDL.Output): DFDL.DaffodilUnparseContentHandler =
     new DaffodilUnparseContentHandler(this, output)

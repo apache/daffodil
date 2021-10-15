@@ -20,13 +20,13 @@ package org.apache.daffodil.dsom
 import org.xml.sax.SAXParseException
 import org.apache.daffodil.xml.DaffodilXMLLoader
 import org.apache.daffodil.xml.NS
-import org.apache.daffodil.xml.XMLUtils
 import org.apache.daffodil.api._
 import org.apache.daffodil.dsom.IIUtils._
 import org.apache.daffodil.api.Diagnostic
 import org.apache.daffodil.oolag.OOLAG
 import org.apache.daffodil.util.LogLevel
 import org.apache.daffodil.util.Misc
+import org.apache.daffodil.xml.XMLUtils
 
 /**
  * represents one schema document file
@@ -114,14 +114,14 @@ final class DFDLSchemaFile(
     }
     val node = try {
       log(LogLevel.Resolver, "Loading %s.", diagnosticDebugName)
-      val ldr = new DaffodilXMLLoader(this)
       //
       // We do not want to validate here ever, because we have to examine the
-      // root xs:schema eleemnt of a schema to decide if it is a  DFDL schema
+      // root xs:schema element of a schema to decide if it is a  DFDL schema
       // at all that we're even supposed to compile.
       //
-      ldr.setValidation(false)
-      val node = ldr.load(schemaSource)
+      val loader = new DaffodilXMLLoader(this)
+      // need line numbers for diagnostics
+      val node = loader.load(schemaSource, None, addPositionAttributes = true)
       schemaDefinitionUnless(node != null, "Unable to load XML from %s.", diagnosticDebugName)
       node
     } catch {
@@ -134,6 +134,8 @@ final class DFDLSchemaFile(
 
   lazy val isDFDLSchemaFile = iiXMLSchemaDocument.isDFDLSchema
 
+  private lazy val loader = new DaffodilXMLLoader(this)
+
   lazy val iiXMLSchemaDocument = LV('iiXMLSchemaDocument) {
     val res = loadXMLSchemaDocument(seenBefore, Some(this))
     if (res.isDFDLSchema && sset.validateDFDLSchemas) {
@@ -141,13 +143,8 @@ final class DFDLSchemaFile(
       // We validate DFDL schemas, only if validation is requested.
       // Some things, tests generally, want to turn this validation off.
       //
-
-      val ldr = new DaffodilXMLLoader(this)
-      ldr.setValidation(true)
-      try {
-        ldr.load(schemaSource) // validate as XML file with XML Schema for DFDL Schemas
-        ldr.validateSchema(schemaSource) // validate as XSD (catches UPA errors for example)
-      } catch {
+      try loader.validateAsDFDLSchema(schemaSource) // validate as XSD (catches UPA errors for example)
+      catch {
         // ok to absorb SAX Parse Exception as we've captured those errors in error handling
         // elsewhere.
         case _: org.xml.sax.SAXParseException => // ok

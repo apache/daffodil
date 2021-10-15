@@ -18,19 +18,18 @@
 package org.apache.daffodil.processor
 
 import java.io.ByteArrayOutputStream
-import java.io.File
 import java.io.OutputStream
 import java.io.OutputStreamWriter
-
 import scala.xml.Elem
-
 import org.apache.daffodil.api.DFDL
+import org.apache.daffodil.api.URISchemaSource
 import org.apache.daffodil.compiler.Compiler
 import org.apache.daffodil.processors.DaffodilParseOutputStreamContentHandler
 import org.apache.daffodil.processors.DataProcessor
 import org.apache.daffodil.processors.ParseResult
 import org.apache.daffodil.util.Misc
 import org.apache.daffodil.util.SchemaUtils
+import org.apache.daffodil.xml.DaffodilXMLLoader
 import org.apache.daffodil.xml.XMLUtils
 import org.jdom2.input.sax.BuilderErrorHandler
 import org.junit.Assert.fail
@@ -54,10 +53,12 @@ object TestSAXUtils {
   lazy val testInfosetString: String = expectedInfoset.toString()
   lazy val testData: String = "910"
 
+  lazy val loader = new DaffodilXMLLoader()
 
-  lazy val qualifiedWithNestedSchemasFile: File = new File(
-    Misc.getRequiredResource("/test/example_nested_namespaces_qualified.dfdl.xsd"))
-  lazy val qualifiedWithNestedSchemasElem: Elem = scala.xml.XML.loadFile(qualifiedWithNestedSchemasFile)
+  lazy val qualifiedWithNestedSchemasFile =
+    Misc.getRequiredResource("/test/example_nested_namespaces_qualified.dfdl.xsd")
+  lazy val qualifiedWithNestedSchemasElem: Elem =
+    loader.load(URISchemaSource(qualifiedWithNestedSchemasFile), None).asInstanceOf[Elem]
   lazy val dpQualifiedWithNestedSchemas: DataProcessor = testDataProcessor(qualifiedWithNestedSchemasElem)
   lazy val qualifiedWithNestedSchemasExpectedInfoset: Elem = {
 <b02:seq xmlns:xsi={XMLUtils.XSI_NAMESPACE} xmlns:b02="http://b02.com" xmlns:a02="http://a02.com">
@@ -121,9 +122,10 @@ object TestSAXUtils {
   lazy val nillableElementExpectedString: String = nillableElementExpectedInfoset.toString()
   lazy val nillableElementData: String = "^.-3.*4.7"
 
-  lazy val unqualifiedNoNamespacesFile: File = new File(
-    Misc.getRequiredResource("/test/example_no_targetnamespace.dfdl.xsd"))
-  lazy val unqualifiedNoNamespacesElem: Elem = scala.xml.XML.loadFile(unqualifiedNoNamespacesFile)
+  lazy val unqualifiedNoNamespacesFile =
+    Misc.getRequiredResource("/test/example_no_targetnamespace.dfdl.xsd")
+  lazy val unqualifiedNoNamespacesElem: Elem =
+    loader.load(URISchemaSource(unqualifiedNoNamespacesFile), None).asInstanceOf[Elem]
   /**
    * For an unqualified schemas with no targetnamespace and no default namespace, which means its
    * elements are not in any namespace and there are no prefixes
@@ -142,9 +144,10 @@ object TestSAXUtils {
   lazy val unqualifiedNoNamespacesExpectedString: String = unqualifiedNoNamespacesExpectedInfoset.toString()
   lazy val unqualifiedNoNamespacesData: String = "world.no.^.tea"
 
-  lazy val unqualifiedWithNestedQualifiedFile: File = new File(
-    Misc.getRequiredResource("/test/example_nested_namespaces_unqualified.dfdl.xsd"))
-  lazy val unqualifiedWithNestedQualifiedElem: Elem = scala.xml.XML.loadFile(unqualifiedWithNestedQualifiedFile)
+  lazy val unqualifiedWithNestedQualifiedFile =
+    Misc.getRequiredResource("/test/example_nested_namespaces_unqualified.dfdl.xsd")
+  lazy val unqualifiedWithNestedQualifiedElem: Elem =
+    loader.load(URISchemaSource(unqualifiedWithNestedQualifiedFile), None).asInstanceOf[Elem]
   /**
    * For an unqualified schemas with a targetnamespace and no default namespace, which means its
    * elements are in that targetnamespace, and only global elements need a prefix (unqualified).
@@ -174,9 +177,10 @@ object TestSAXUtils {
   lazy val unqualifiedWithNestedQualifiedExpectedString: String = unqualifiedWithNestedQualifiedExpectedInfoset.toString()
   lazy val unqualifiedWithNestedQualifiedData: String = "hello.^.bye"
 
-  lazy val qualifiedWithDefaultNamespaceFile: File = new File(
-    Misc.getRequiredResource("/test/example_c02_targetnamespace_qualified.dfdl.xsd"))
-  lazy val qualifiedWithDefaultNamespaceElem: Elem = scala.xml.XML.loadFile(qualifiedWithDefaultNamespaceFile)
+  lazy val qualifiedWithDefaultNamespaceFile =
+    Misc.getRequiredResource("/test/example_c02_targetnamespace_qualified.dfdl.xsd")
+  lazy val qualifiedWithDefaultNamespaceElem: Elem =
+    loader.load(URISchemaSource(qualifiedWithDefaultNamespaceFile), None).asInstanceOf[Elem]
   lazy val dpQualifiedWithDefaultNamespaceSchemas: DataProcessor = testDataProcessor(qualifiedWithDefaultNamespaceElem)
   lazy val qualifiedWithDefaultNamespaceExpectedInfoset: Elem = {
 <c xmlns="http://c02.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -186,9 +190,10 @@ object TestSAXUtils {
   lazy val qualifiedWithDefaultNamespaceExpectedString: String = qualifiedWithDefaultNamespaceExpectedInfoset.toString()
   lazy val qualifiedWithDefaultNamespaceData: String = "hello"
 
-  lazy val qualifiedWithDefaultAndNestedSchemasFile: File = new File(
-    Misc.getRequiredResource("/test/example_nested_namespaces_qualified_with_default.dfdl.xsd"))
-  lazy val qualifiedWithDefaultAndNestedSchemasElem: Elem = scala.xml.XML.loadFile(qualifiedWithDefaultAndNestedSchemasFile)
+  lazy val qualifiedWithDefaultAndNestedSchemasFile =
+    Misc.getRequiredResource("/test/example_nested_namespaces_qualified_with_default.dfdl.xsd")
+  lazy val qualifiedWithDefaultAndNestedSchemasElem: Elem =
+    loader.load(URISchemaSource(qualifiedWithDefaultAndNestedSchemasFile), None).asInstanceOf[Elem]
   lazy val dpQualifiedWithDefaultAndNestedSchemas: DataProcessor = testDataProcessor(qualifiedWithDefaultAndNestedSchemasElem)
   lazy val qualifiedWithDefaultAndNestedSchemasExpectedInfoset: Elem = {
 <a  xmlns="http://b02.com" xmlns:xsi={XMLUtils.XSI_NAMESPACE} xmlns:c02="http://c02.com">
@@ -217,7 +222,6 @@ object TestSAXUtils {
       val msgs = pf.getDiagnostics.map { _.getMessage() }.mkString("\n")
       fail("pf compile errors: " + msgs)
     }
-    pf.sset.root.erd.preSerialization // force evaluation of all compile-time constructs
     val dp = pf.onPath("/").asInstanceOf[DataProcessor]
     if (dp.isError) {
       val msgs = dp.getDiagnostics.map { _.getMessage() }.mkString("\n")

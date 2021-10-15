@@ -16,19 +16,28 @@
   limitations under the License.
 -->
 
-<tdml:testSuite suiteName="ProcessingErrorTests"
-	description="Section 2.3 - Processing Errors" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-	xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns:ex="http://example.com" xmlns:fn="http://www.w3.org/2005/xpath-functions"
-  >
+<tdml:testSuite
+	suiteName="ProcessingErrorTests"
+	description="Section 2.3 - Processing Errors"
+	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:ex="http://example.com"
+	xmlns:fn="http://www.w3.org/2005/xpath-functions">
 
-	<!-- ===================================================================== 
-		Schemas ======================================================================= -->
+	<!--
+	  =====================================================================
+		Schemas
+		=======================================================================
+		-->
 
-	<!-- DFDL-782: User test exposed an non-exhaustive match case due to using 
+	<!-- DFDL-782:
+	  User test exposed an non-exhaustive match case due to using
 		A custom TraceRunner as the Debugger. Last element (Subject) must not possess 
-		a CRLF terminating it in the data. -->
+		a CRLF terminating it in the data.
+		-->
 	<tdml:defineSchema name="dfdl782">
 
 		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
@@ -79,8 +88,11 @@
 
 	</tdml:defineSchema>
 
-	<!-- ===================================================================== 
-		Tests ======================================================================== -->
+	<!--
+	  =====================================================================
+		Tests
+		========================================================================
+		-->
 
 	<!-- DFDL-782: User test exposed an non-exhaustive match case due to using 
 		A custom TraceRunner as the Debugger. Last element (Subject) must not possess 
@@ -109,6 +121,7 @@
 	<tdml:parserTestCase name="test_prefix_separator_as_variable" root="MultipartBody"
 		model="MultipartBody.dfdl.xsd" description="Use of variable in separator - DFDL-7-091R">
 		<tdml:document>
+			<!-- Note that this file contains CRLF line endings -->
 			<tdml:documentPart type="file">test_prefix_separator_as_variable</tdml:documentPart>
 		</tdml:document>
 		

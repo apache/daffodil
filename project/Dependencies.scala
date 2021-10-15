@@ -23,7 +23,7 @@ object Dependencies {
 
   lazy val core = Seq(
     "com.lihaoyi" %% "os-lib" % "0.7.7", // for writing/compiling C source files
-    "org.scala-lang.modules" %% "scala-xml" % "1.3.0",
+    "org.scala-lang.modules" %% "scala-xml" % "2.0.0",
     "org.scala-lang.modules" %% "scala-parser-combinators" % "2.0.0",
     "com.ibm.icu" % "icu4j" % "69.1",
     "xerces" % "xercesImpl" % "2.12.1",

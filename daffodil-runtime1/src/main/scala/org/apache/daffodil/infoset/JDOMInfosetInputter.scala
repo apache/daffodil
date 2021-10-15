@@ -21,7 +21,6 @@ import org.apache.daffodil.util.MStackOf
 import org.apache.daffodil.util.MaybeBoolean
 import org.apache.daffodil.xml.XMLUtils
 import org.apache.daffodil.dpath.NodeInfo
-
 import org.jdom2.Document
 import org.jdom2.Element
 import org.jdom2.Text
@@ -29,6 +28,7 @@ import org.jdom2.Content
 import org.jdom2.Namespace
 import org.jdom2.ProcessingInstruction
 import org.jdom2.Comment
+import org.jdom2.DocType
 
 import java.util.Iterator
 
@@ -150,7 +150,13 @@ class JDOMInfosetInputter(doc: Document)
         case t: Text if t.getText().forall(_.isWhitespace) => // ignore empty text elements
         case _: ProcessingInstruction => // ignore
         case _: Comment => // ignore
-        case c => throw new IllegalContentWhereEventExpected("Found " + c.getCType.toString)
+        // $COVERAGE-OFF$ DocTypes should be detected before this.
+        // But keep this check here in case, under maintenance someone changes this invariant behavior
+        case dt: DocType =>
+          throw new IllegalContentWhereEventExpected("DOCTYPE declarations are not allowed.")
+        // $COVERAGE-ON$
+        case c =>
+          throw new IllegalContentWhereEventExpected("Found " + c.getCType.toString)
       }
     }
     descended

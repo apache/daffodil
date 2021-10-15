@@ -20,10 +20,10 @@ package org.apache.daffodil.tdml
 import java.io.File
 import org.junit.Assert.assertEquals
 import org.junit.Test
+
 import java.io.FileOutputStream
 import org.apache.daffodil.api.URISchemaSource
 import org.junit.Before
-import scala.Right
 
 class TestSchemaCache {
 
@@ -65,7 +65,7 @@ class TestSchemaCache {
   }
 
   def compileTheSchema(uss: URISchemaSource): Unit = {
-    SCache.compileAndCache(uss, false, false, null, null) {
+    SCache.compileAndCache(SchemaCache.Key(uss, false, false, null, null, Map.empty)) {
       compileCount += 1
       uss.newInputSource().getByteStream().close()
       Right(null)

@@ -48,8 +48,30 @@ import org.apache.daffodil.japi.infoset.JDOMInfosetOutputter;
 import org.apache.daffodil.japi.logger.ConsoleLogWriter;
 import org.apache.daffodil.japi.logger.LogLevel;
 import org.apache.daffodil.japi.io.InputSourceDataInputStream;
+import org.xml.sax.SAXNotRecognizedException;
+import org.xml.sax.SAXNotSupportedException;
+import org.xml.sax.XMLReader;
+
+import javax.xml.XMLConstants;
 
 public class TestJavaAPI {
+
+    /**
+     * Best practices for XML loading are to turn off anything that could lead to
+     * insecurity.
+     *
+     * This is probably unnecessary in the case of these tests, but as these tests
+     * are also used to illustrate API usage, this exemplifies best practice.
+     */
+    public static void setSecureDefaults(XMLReader xmlReader)
+            throws SAXNotSupportedException, SAXNotRecognizedException {
+        xmlReader.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        // since we're not really sure what they mean by secure processing
+        // we make doubly sure by setting these ourselves also.
+        xmlReader.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+        xmlReader.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+        xmlReader.setFeature("http://xml.org/sax/features/external-general-entities", false);
+    }
 
     String SAX_NAMESPACES_FEATURE = "http://xml.org/sax/features/namespaces";
     String SAX_NAMESPACE_PREFIXES_FEATURE = "http://xml.org/sax/features/namespace-prefixes";
@@ -1008,6 +1030,7 @@ public class TestJavaAPI {
         try {
             org.xml.sax.XMLReader unparseXMLReader = javax.xml.parsers.SAXParserFactory.newInstance()
                     .newSAXParser().getXMLReader();
+            setSecureDefaults(unparseXMLReader);
             unparseXMLReader.setContentHandler(unparseContentHandler);
             unparseXMLReader.setErrorHandler(errorHandler);
             unparseXMLReader.setFeature(SAX_NAMESPACES_FEATURE, true);
@@ -1143,6 +1166,7 @@ public class TestJavaAPI {
         try {
             org.xml.sax.XMLReader unparseXMLReader = javax.xml.parsers.SAXParserFactory.newInstance()
                     .newSAXParser().getXMLReader();
+            setSecureDefaults(unparseXMLReader);
             unparseXMLReader.setContentHandler(unparseContentHandler);
             unparseXMLReader.setFeature(SAX_NAMESPACES_FEATURE, true);
             unparseXMLReader.setFeature(SAX_NAMESPACE_PREFIXES_FEATURE, true);

@@ -28,29 +28,28 @@ import java.io.File
 import java.io.InputStream
 import java.io.Reader
 import java.net.URI
-
 import javax.xml.XMLConstants
 import javax.xml.transform.sax.SAXSource
-
 import scala.collection.JavaConverters.asScalaBufferConverter
-import scala.xml.Elem
 import scala.xml.InputSource
-import scala.xml.Node
 import scala.xml.SAXParseException
-import scala.xml.SAXParser
-import scala.xml.TopScope
 import scala.xml.parsing.NoBindingFactoryAdapter
-
 import org.w3c.dom.ls.LSInput
-
 import org.apache.daffodil.api.DaffodilSchemaSource
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.util.LogLevel
 import org.apache.daffodil.util.Logging
 import org.apache.daffodil.util.Misc
+import org.apache.daffodil.validation.XercesValidator
 import org.apache.xerces.xni.parser.XMLInputSource
 import org.apache.xml.resolver.Catalog
 import org.apache.xml.resolver.CatalogManager
+
+import javax.xml.parsers.SAXParserFactory
+import javax.xml.transform.stream.StreamSource
+import javax.xml.validation.Schema
+import javax.xml.validation.SchemaFactory
+import scala.xml.SAXParser
 
 /**
  * Resolves URI/URL/URNs to loadable files/streams.
@@ -216,7 +215,7 @@ class DFDLCatalogResolver private ()
         // This happens now in some unit tests.
         // Assert.invariantFailed("resolvedId and systemId were null.")
         log(LogLevel.Resolver, "Unable to resolve.")
-        return None
+        None
       }
       case (null, sysId) =>
         {
@@ -355,145 +354,6 @@ class InputStreamLSInput(var pubId: String, var sysId: String, inputStream: Inpu
 }
 
 /**
- * An Adapter in SAX parsing is both an XMLLoader, and a handler of events.
- */
-class DFDLXercesAdapter(val errorHandler: org.xml.sax.ErrorHandler)
-  extends NoBindingFactoryAdapter
-  with SchemaAwareLoaderMixin
-  //
-  // We really want a whole XML Stack that is based on SAX2 DefaultHandler2 so that
-  // we can handle CDATA elements right (we need events for them so we can
-  // create PCData objects from them directly.
-  //
-  // The above is the only reason the TDML runner has to use the ConstructingParser
-  // instead of calling this loader.
-  //
-  with Logging {
-
-  final val doValidation: Boolean = true
-
-  // everything interesting happens in the callbacks from the SAX parser
-  // to the adapter.
-  override def adapter = this
-
-  def load(uri: URI): Node = load(uri.toURL)
-  override def loadFile(f: File) = load(f.toURI)
-
-  // We disallow any of these except ones where we can definitely get an associated
-  // identifier or name from it.
-  private def noWay = Assert.usageError("Operation is not supported. Use load(uri) or loadFile(file)")
-  override def loadFile(fd: java.io.FileDescriptor): Node = noWay
-  override def loadFile(name: String): Node = loadFile(new File(name))
-  override def load(is: InputStream): Node = noWay
-  override def load(reader: Reader): Node = noWay
-  override def load(sysID: String): Node = noWay
-
-  //
-  // This is the common routine called by all the load calls to actually
-  // carry out the loading of the schema.
-  //
-  override def loadXML(source: InputSource, p: SAXParser): Node = {
-
-    val xr = p.getXMLReader()
-    xr.setErrorHandler(errorHandler)
-    scopeStack.push(TopScope)
-    xr.parse(source)
-    scopeStack.pop
-    rootElem.asInstanceOf[Elem]
-  }
-}
-
-/**
- * Manages the care and feeding of the Xerces schema-aware
- * XML parser that we use to do XML-Schema validation of the
- * files we are reading.
- *
- */
-trait SchemaAwareLoaderMixin {
-  // This is a single purpose trait
-  self: DFDLXercesAdapter =>
-
-  protected def doValidation: Boolean
-
-  def resolver = DFDLCatalogResolver.get
-
-  override lazy val parser: SAXParser = {
-    val f = new org.apache.xerces.jaxp.SAXParserFactoryImpl()
-    f.setNamespaceAware(true)
-    f.setFeature("http://xml.org/sax/features/namespace-prefixes", true)
-
-    // JIRA DFDL-1659 - make sure not accessing things remotely and protect from denial-of-service
-    // using XML trickery.
-    // f.setFeature("http://javax.xml.XMLConstants/property/accessExternalDTD", false)
-    //    f.setFeature("http://xml.org/sax/features/external-general-entities", false)
-    //    f.setFeature("http://xml.org/sax/features/external-parameter-entities", false)
-    f.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true)
-
-    if (doValidation) {
-      f.setFeature("http://xml.org/sax/features/validation", true)
-      f.setFeature("http://apache.org/xml/features/validation/dynamic", true)
-      f.setFeature("http://apache.org/xml/features/validation/schema", true)
-      f.setFeature("http://apache.org/xml/features/validation/schema-full-checking", true)
-      //      f.setValidating(true) // old style API?
-    }
-    val parser = f.newSAXParser()
-    val xr = parser.getXMLReader()
-    xr.setContentHandler(this)
-    //xr.setEntityResolver(resolver) // older API?? is this needed? Doesn't seem to hurt.
-    xr.setProperty(
-      "http://apache.org/xml/properties/internal/entity-resolver",
-      resolver)
-    parser
-  }
-
-  /**
-   * UPA errors are detected by xerces if the schema-full-checking feature is
-   * turned on, AND if you inform xerces that it is reading an XML Schema
-   * (i.e., xsd).
-   *
-   * Detecting these requires that we do THREE passes
-   * 1) load the DFDL schema as an XML document. This validates it against the XML Schema
-   * for DFDL schemas.
-   * 2) load the DFDL schema as an XSD - xerces then does lots of more intensive checking
-   * of the schema
-   * 3) load the schema for our own consumption by Daffodil code. This uses the
-   * constructing parser so as to preserve CDATA regions (xerces just does the wrong
-   * thing with those,...fatally so). Then our own semantic checking is performed
-   * as part of compiling the DFDL schema.
-   *
-   * Checks like UPA are in step (2) above. They are coded algorithmically
-   * right into Xerces. This is accomplished by
-   * using the below SchemaFactory and SchemaFactory.newSchema calls.  The
-   * newSchema call is what forces schema validation to take place.
-   */
-  protected val sf = new org.apache.xerces.jaxp.validation.XMLSchemaFactory()
-  sf.setResourceResolver(resolver)
-  sf.setErrorHandler(errorHandler)
-
-  /**
-   * This loads the DFDL schema as an XML Schema. This will
-   * check many more things about the DFDL schema other than
-   * just whether it validates against the XML Schema for DFDL schemas.
-   *
-   * Unfortunately, we don't have control over how Xerces loads up these schemas
-   * (other than the resolver anyway), so we can't really redirect the way
-   * it issues error messages so that it properly lays blame at say, the schema fragments
-   * inside an embedded schema of a TDML file.
-   *
-   * So if we want good file/line/column info from this, we have to give
-   * it a plain old file or resource, and not try to play games to get it to
-   * pick up the file/line/col information from attributes of the elements.
-   */
-  def validateSchema(source: DaffodilSchemaSource): Unit = {
-    val inputSource = source.newInputSource()
-    val saxSource = new SAXSource(inputSource)
-    sf.newSchema(saxSource)
-    inputSource.getByteStream().close()
-  }
-
-}
-
-/**
  * Our modified XML loader.
  *
  * The saga of the XML Loaders in scala - it's a long story. Xerces is java code.
@@ -538,47 +398,223 @@ trait SchemaAwareLoaderMixin {
  * do any validation either), however, once Daffodil starts processing the
  * DFDL schema nodes, it resolves references using the same one true XML catalog resolver.
  */
-class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler) {
+class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
+  extends NoBindingFactoryAdapter {
 
   def this() = this(RethrowSchemaErrorHandler)
 
-  def xercesAdapter = new DFDLXercesAdapter(errorHandler)
+  private def resolver = DFDLCatalogResolver.get
 
-  //
-  // Controls whether we setup Xerces for validation or not.
-  //
-  final var doValidation: Boolean = true
-
-  def setValidation(flag: Boolean): Unit = {
-    doValidation = flag
+  /**
+   * UPA errors are detected by xerces if the schema-full-checking feature is
+   * turned on, AND if you inform xerces that it is reading an XML Schema
+   * (i.e., xsd).
+   *
+   * Detecting these requires that we do THREE passes
+   * 1) load the DFDL schema as an XML document. This validates it against the XML Schema
+   * for DFDL schemas.
+   * 2) load the DFDL schema as an XSD - xerces then does lots of more intensive checking
+   * of the schema
+   * 3) load the schema for our own consumption by Daffodil code. This uses the
+   * constructing parser so as to preserve CDATA regions (xerces just does the wrong
+   * thing with those,...fatally so). Then our own semantic checking is performed
+   * as part of compiling the DFDL schema.
+   *
+   * Checks like UPA are in step (2) above. They are coded algorithmically
+   * right into Xerces. This is accomplished by
+   * using the below SchemaFactory and SchemaFactory.newSchema calls.  The
+   * newSchema call is what forces schema validation to take place.
+   */
+  private lazy val schemaFactory = {
+    val sf = new org.apache.xerces.jaxp.validation.XMLSchemaFactory()
+    sf.setResourceResolver(resolver)
+    sf.setErrorHandler(errorHandler)
+    sf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true)
+    sf.setFeature(XMLUtils.XML_DISALLOW_DOCTYPE_FEATURE, true)
+    // These are not recognized by a schemaFactory
+    // sf.setFeature("http://xml.org/sax/features/validation", true)
+    // sf.setFeature("http://apache.org/xml/features/validation/schema", true)
+    // sf.setFeature("http://apache.org/xml/features/validation/schema-full-checking", true)
+    sf
   }
 
   /**
-   * Does (optional) validation,
+   * This loads the DFDL schema as an XML Schema. This will
+   * check many more things (ex: UPA) about the DFDL schema other than
+   * just whether it validates against the XML Schema for DFDL schemas.
+   *
+   * Unfortunately, we don't have control over how Xerces loads up these schemas
+   * (other than the resolver anyway), so we can't really redirect the way
+   * it issues error messages so that it properly lays blame at say, the schema fragments
+   * inside an embedded schema of a TDML file.
+   *
+   * So if we want good file/line/column info from this, we have to give
+   * it a plain old file or resource, and not try to play games to get it to
+   * pick up the file/line/col information from attributes of the elements.
+   *
+   * Due to limitations in the xerces newSchema() method
+   * this method should be called only after loading
+   * the schema as a regular XML file, which itself insists
+   * on the XMLUtils.setSecureDefaults, so we don't need to
+   * further check that here.
    */
-  def load(source: DaffodilSchemaSource): scala.xml.Node = {
-    if (doValidation) {
-      val inputSource = source.newInputSource()
-      val xercesNode = xercesAdapter.load(inputSource) // validates
-      inputSource.getByteStream().close()
+  def validateAsDFDLSchema(source: DaffodilSchemaSource): Unit = {
+    // first we load it, with validation explicitly against the
+    // schema for DFDL Schemas.
+    load(source, Some(XMLUtils.schemaForDFDLSchemas), addPositionAttributes = true)
+    //
+    // Then we validate explicitly so Xerces can check things
+    // such as for UPA violations
+    //
+    val inputSource = source.newInputSource()
+    val saxSource = new SAXSource(inputSource)
+    //
+    // We would like this saxSource to be created from an XMLReader
+    // so that we can call XMLUtils.setSecureDefaults on it.
+    // but we get strange errors if I do that, where every symbol
+    // in the schema has an unrecognized namespace prefix.
+    //
+    schemaFactory.newSchema(saxSource)
+    inputSource.getByteStream().close()
+  }
 
-      if (xercesNode == null) return null
-      // Note: we don't call xercesAdapter.validateSchema(source)
-      // here, because this is an XML loader, not necessarily
-      // just a DFDL schema loader. So for example the doValidation flag
-      // above could be telling us to validate a TDML file or not.
+  // $COVERAGE-OFF$
+  override def parser = {
+    Assert.usageError("not to be called.")
+  }
+  // $COVERAGE-ON$
+
+  /**
+   * Obtain and initialize parser which validates the schema is defined.
+   */
+  private def parserFromURI(optSchemaURI: Option[URI]): SAXParser = {
+    if (optSchemaURI.isEmpty) noSchemaParser
+    else {
+      val f = parserFactory()
+      val schema = schemaFromURI(optSchemaURI.get)
+      f.setSchema(schema)
+      parserFromFactory(f)
+    }
+  }
+
+  private def schemaFromURI(schemaURI: URI): Schema = {
+    val sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI)
+    sf.setErrorHandler(errorHandler)
+    sf.setResourceResolver(resolver)
+    val schema = sf.newSchema(new StreamSource(schemaURI.toString))
+    schema
+  }
+
+  private def parserFactory() = {
+    val f = DaffodilSAXParserFactory()
+    f.setNamespaceAware(true)
+    f.setFeature(XMLUtils.SAX_NAMESPACE_PREFIXES_FEATURE, true)
+    f.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true)
+    f.setValidating(false)// according to javadoc, just controls DTD validation
+    f.setFeature("http://xml.org/sax/features/validation", true)
+    // not recognized by SAXParserFactory
+    // f.setFeature("http://xml.org/sax/features/validation/dynamic", true)
+    f.setFeature("http://apache.org/xml/features/honour-all-schemaLocations", true)
+    f.setFeature("http://apache.org/xml/features/validation/schema", true)
+    f.setFeature("http://apache.org/xml/features/validation/schema-full-checking", true)
+    f
+  }
+
+  private lazy val noSchemaParser: SAXParser = {
+    parserFromFactory(parserFactory())
+  }
+
+  private def parserFromFactory(f: SAXParserFactory) = {
+    val p = f.newSAXParser()
+    //
+    // Not allowed on a SAXParser
+    // p.setProperty(XMLUtils.SAX_NAvMESPACES_FEATURE, true)
+    // Not allowed on a SAXParser
+    // p.setProperty(XMLUtils.SAX_NAMESPACE_PREFIXES_FEATURE, true)
+    val xrdr = p.getXMLReader()
+    xrdr.setErrorHandler(errorHandler)
+    // not recognized by XMLReader
+    // xrdr.setFeature("http://xml.org/sax/features/validation/dynamic", true)
+    xrdr.setContentHandler(this)
+    //
+    // This is required to get the parse to really use our resolver.
+    // The setEntityResolver(resolver) does not work.
+    //
+    xrdr.setProperty("http://apache.org/xml/properties/internal/entity-resolver", resolver)
+    p
+  }
+
+  /**
+   * This is the common routine called to actually
+   * carry out the loading of the schema.
+   *
+   * Does (optional) validation if a schema is supplied.
+   *
+   * @param source The URI for the XML document which may be a XML or DFDL schema, or just XML data.
+   * @param optSchemaURI Optional URI for XML schema for the XML source document.
+   * @param addPositionAttributes True to add dafint:file dafint:line attributes to all elements.
+   *                              Defaults to false.
+   * @return an scala.xml.Node (Element actually) which is the document element of the source.
+   */
+  def load(source: DaffodilSchemaSource,
+    optSchemaURI: Option[URI],
+    addPositionAttributes: Boolean = false): scala.xml.Node =
+    load(source, optSchemaURI, addPositionAttributes, normalizeCRLFtoLF = true)
+
+  /**
+   * package private constructor gives access to normalizeCRLFtoLF feature.
+   *
+   * @param source The URI for the XML document which may be a XML or DFDL schema, or just XML data.
+   * @param optSchemaURI Optional URI for XML schema for the XML source document.
+   * @param addPositionAttributes True to add dafint:file dafint:line attributes to all elements.
+   *                              Defaults to false.
+   * @param normalizeCRLFtoLF True to normalize CRLF and isolated CR to LF. This should usually be true,
+   *                          but some special case situations may require preservation of CRLF/CR.
+   * @return an scala.xml.Node (Element actually) which is the document element of the source.
+   */
+  private [xml] def load(source: DaffodilSchemaSource,
+    optSchemaURI: Option[URI],
+    addPositionAttributes: Boolean,
+    normalizeCRLFtoLF: Boolean): scala.xml.Node = {
+    //
+    // First we invoke the validator to explicitly validate the XML against
+    // the XML Schema (not necessarily a DFDL schema), via the
+    // javax.xml.validation.Validator's validate method.
+    //
+    optSchemaURI.foreach { schemaURI =>
+
+      val validator = XercesValidator.fromURIs(Seq(schemaURI))
+      val inputStream = source.uriForLoading.toURL.openStream()
+      validator.validateXML(inputStream, errorHandler)
+      inputStream.close()
+      //
+      // Next we have to invoke a regular xerces loader, setup for validation
+      // because that will actually interpret things like xsi:schemaLocation attributes
+      // of the root element.
+      //
+      // The check of xsi:schemaLocation schemas seems to be the only reason we
+      // have to run this additional test.
+      //
+      // Possibly xsi:noNamespaceSchemaLocation would have the same issue, but as of
+      // this writing, we have no tests that use that.
+      //
+      val parser = parserFromURI(optSchemaURI)
+      val xrdr = parser.getXMLReader()
+      val saxSource = scala.xml.Source.fromSysId(source.uriForLoading.toString)
+      xrdr.parse(saxSource)
+      // no result, as the errors are reported separately
     }
     //
     // To get reliable xml nodes including conversion of CDATA syntax into
     // PCData nodes, we have to use a different loader.
     //
-    val constructingLoader = new DaffodilConstructingLoader(source.uriForLoading, errorHandler)
+    val constructingLoader =
+      new DaffodilConstructingLoader(source.uriForLoading,
+        errorHandler, addPositionAttributes, normalizeCRLFtoLF)
     val res = constructingLoader.load() // construct the XML objects for us.
     constructingLoader.input.close()
     res
   }
-
-  def validateSchema(source: DaffodilSchemaSource) = xercesAdapter.validateSchema(source)
 }
 
 /**

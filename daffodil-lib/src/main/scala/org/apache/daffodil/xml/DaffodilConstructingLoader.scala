@@ -68,14 +68,33 @@ object Position {
  * wrap these with CDATA, and use this loader, not Xerces, then these will be
  * preserved properly.
  *
- * Also, enhanced to capture file/line/column info for every element and add it
+ * Also, enhanced so that when addPositionAttributes is true, it will capture
+ * file/line/column info for every element and add it
  * as attributes onto each XML element.
  *
  * The way the constructing loader (aka ConstructingParser (for XML))
  * gets positions is different. It is given just an offset into the document file/stream,
  * and it therefore must synthesize line number/col number info itself.
+ *
+ * This primary constructor is package private as the normalizeCRLFtoLF feature
+ * is only for test/exploratory usage, or if a future need arises to preserve the
+ * non-normalizaing behavior.
+ *
+ * @param uri URI for the XML to be loaded.
+ * @param errorHandler Called back on load errors.
+ * @param addPositionAttributes Use true if you want dafint:file,
+ *                              dafint:col, and dafint:line attributes.
+ *                              Defaults to false.
+ * @param normalizeCRLFtoLF Use true to emulate the scala XML load
+ *                          behavior of normalizing CRLF to LF, and solitary CR to LF.
+ *                          Defaults to true. Should only be changed in special circumstances
+ *                          as not normalizing CRLFs is non-standard for XML.
+ *
  */
-class DaffodilConstructingLoader(uri: URI, errorHandler: org.xml.sax.ErrorHandler)
+class DaffodilConstructingLoader private[xml] (uri: URI,
+  errorHandler: org.xml.sax.ErrorHandler,
+  addPositionAttributes: Boolean,
+  normalizeCRLFtoLF: Boolean)
   extends ConstructingParser({
     // Note: we must open the XML carefully since it might be in some non
     // default encoding (we have tests that have UTF-16 for example)
@@ -85,6 +104,34 @@ class DaffodilConstructingLoader(uri: URI, errorHandler: org.xml.sax.ErrorHandle
     val enc = EncodingHeuristics.readEncodingFromStream(is)
     Source.fromInputStream(is, enc)
   }, true) {
+
+  /**
+   * Public constructor insists on normalizingCRLFtoLF behavior.
+   */
+  def this (uri: URI,
+    errorHandler: org.xml.sax.ErrorHandler,
+    addPositionAttributes: Boolean = false) =
+    this(uri, errorHandler, addPositionAttributes, normalizeCRLFtoLF = true)
+
+  /**
+   * Ensures that DOCTYPES aka DTDs, if encountered, are rejected.
+   *
+   * Coverage is off, because this should never be hit, because
+   * the loader always has loaded the data with xerces prior to
+   * this loader (for validation purposes), and that will have caught
+   * the doctype being in the XML.
+   *
+   * However, under code maintenance, suppose someone turned that off
+   * or made that pass optional (for performance reasons perhaps). Then this
+   * provides a last-gasp attempt to protect from DOCTYPE-related
+   * insecurity.
+   */
+  // $COVERAGE-OFF$
+  override def parseDTD(): Unit = {
+    val e = makeSAXParseException(pos, "DOCTYPE is disallowed.")
+    throw e
+  }
+  // $COVERAGE-ON$
 
   // This one line is a bit of a hack to get consistent line numbers. The
   // scala-xml libary reads XML from a scala.io.Source which maintains private
@@ -143,7 +190,7 @@ class DaffodilConstructingLoader(uri: URI, errorHandler: org.xml.sax.ErrorHandle
     val nsURI = NS(scope.getURI(pre))
     val isFileRootNode = (local.equalsIgnoreCase("schema") && nsURI == XMLUtils.XSD_NAMESPACE) ||
       (local.equalsIgnoreCase("testSuite") && nsURI == XMLUtils.TDML_NAMESPACE)
-    val hasLineCol = attrs.exists {
+    val alreadyHasLineCol = attrs.exists {
       case PrefixedAttribute(XMLUtils.INT_PREFIX, attr, _, _) => {
         attr.equalsIgnoreCase(XMLUtils.COLUMN_ATTRIBUTE_NAME) ||
           attr.equalsIgnoreCase(XMLUtils.LINE_ATTRIBUTE_NAME)
@@ -152,7 +199,7 @@ class DaffodilConstructingLoader(uri: URI, errorHandler: org.xml.sax.ErrorHandle
     }
 
     val newAttrs: MetaData = {
-      if (!hasLineCol) {
+      if (addPositionAttributes && !alreadyHasLineCol) {
         val withFile: MetaData =
           if (isFileRootNode) {
             new PrefixedAttribute(XMLUtils.INT_PREFIX, XMLUtils.FILE_ATTRIBUTE_NAME, uri.toString, attrs)
@@ -169,7 +216,7 @@ class DaffodilConstructingLoader(uri: URI, errorHandler: org.xml.sax.ErrorHandle
 
     // add the dafint prefix if it doesn't already exist
     val intPrefix = scope.getPrefix(XMLUtils.INT_NS)
-    val newScope = if (intPrefix == null) {
+    val newScope = if (addPositionAttributes && intPrefix == null) {
       NamespaceBinding(XMLUtils.INT_PREFIX, XMLUtils.INT_NS, scope)
     } else {
       Assert.usage(intPrefix == null || intPrefix == XMLUtils.INT_PREFIX) // can't deal with some other binding for dafint
@@ -177,6 +224,72 @@ class DaffodilConstructingLoader(uri: URI, errorHandler: org.xml.sax.ErrorHandle
     }
 
     super.elem(pos, pre, local, newAttrs, newScope, empty, nodes)
+  }
+
+  /**
+   * To emulate the behavior of Xerces loader (standard scala loader)
+   * we have to normalize CRLF to LF, and solitary CR to LF.
+   *
+   * This is optional controlled by a constructor parameter.
+   */
+  override def text(pos: Int, txt: String): Text = {
+    val newText:String = {
+      if (normalizeCRLFtoLF && txt.contains("\r")) {
+        txt.
+          replaceAll("\r\n", "\n").
+          replaceAll("\r", "\n")
+      } else {
+        txt
+      }
+    }
+    //
+    // On MS-Windows the TDML Runner previously would load XML
+    // files and due to git autoCRLF=true, they would
+    // have CRLFs in them. The loader the TDML Runner WAS
+    // using (not any more) was preserving these CRLFs
+    // in the XML infoset data, and so tests could come
+    // to depend on this and be non-portable between
+    // unix (LF only) and windows (CRLF only).
+    //
+    // Furthermore, the TDML file itself used to be loaded with this
+    // CRLF-preserving loader.
+    //
+    // The TDML Runner now always normalizes CRLF or
+    // isolated CR to LF like regular XML loaders do,
+    // for both the TDML file itself, and any files it
+    // loads. So this is no longer an issue.
+    //
+    super.text(pos, newText)
+  }
+
+  /**
+   * We override this to force the ConstrutingParser to process CDATA regions
+   * specially with an override-able method named cdata.
+   *
+   * Strangely, if you look at the implementation of this in the MarkupParser
+   * trait, it calls the handler for text, but then it ignores the result of that
+   * and constructs a PCDATA node from the original text.
+   *
+   * It's possible this is a bug fix.
+   */
+  override def xCharData: NodeSeq = {
+    xToken("[CDATA[")
+    def mkResult(pos: Int, s: String): NodeSeq = {
+      val s1 = cdata(pos, s).text
+      PCData(s1)
+    }
+    xTakeUntil(mkResult, () => pos, "]]>")
+  }
+
+  /**
+   * Same CRLF/CR => LF processing as text gets.
+   */
+  def cdata(pos: Int, s: String): NodeSeq = {
+    text(pos, s)
+  }
+
+  override def comment(pos: Int, s: String): Comment = {
+    Comment(text(pos, s).text)
   }
 
   def load(): Node = {
