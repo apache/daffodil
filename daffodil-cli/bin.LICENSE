@@ -758,7 +758,7 @@ is subject to the terms and conditions of the following licenses.
   This product bundles 'JLine', including the following files:
     - lib/org.jline.jline-<VERSION>.jar
   These files are available under a BSD-3-Clause license. For details, see
-  https://github.com/jline/jline3/blob/jline-parent-3.20.0/LICENSE.txt
+  https://github.com/jline/jline3/blob/HEAD/LICENSE.txt
 
     Copyright (c) 2002-2018, the original author or authors.
     All rights reserved.

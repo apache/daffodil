@@ -42,7 +42,7 @@ object Dependencies {
 
   lazy val cli = Seq(
     "org.fusesource.jansi" % "jansi" % "2.4.0",
-    "org.jline" % "jline" % "3.20.0",
+    "org.jline" % "jline" % "3.21.0",
     "org.rogach" %% "scallop" % "4.0.4",
     "net.sf.expectit" % "expectit-core" % "0.9.0" % "it,test",
     "org.apache.logging.log4j" % "log4j-core" % "2.14.1",
