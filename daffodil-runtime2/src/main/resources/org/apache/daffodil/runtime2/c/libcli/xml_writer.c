@@ -86,7 +86,8 @@ binaryToHex(HexBinary hexBinary, bool freeMemory)
 
     // Convert each binary byte to two hexadecimal characters
     char *nibble = text;
-    for (size_t i = 0; i < hexBinary.lengthInBytes; i++)
+    size_t i;
+    for (i = 0; i < hexBinary.lengthInBytes; i++)
     {
         static char hexDigit[] = "0123456789ABCDEF";
         *(nibble++) = hexDigit[hexBinary.array[i] / 16]; // high nibble
