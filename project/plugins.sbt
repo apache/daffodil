@@ -23,7 +23,7 @@ addSbtPlugin("org.musigma" % "sbt-rat" % "0.7.0")
 
 addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.9.1")
 
-addSbtPlugin("com.eed3si9n" % "sbt-unidoc" % "0.4.3")
+addSbtPlugin("com.github.sbt" % "sbt-unidoc" % "0.5.0")
 
 addSbtPlugin("com.typesafe.sbteclipse" % "sbteclipse-plugin" % "5.2.4")
 
