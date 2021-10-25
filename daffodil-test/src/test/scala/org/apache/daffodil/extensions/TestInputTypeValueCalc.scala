@@ -48,20 +48,8 @@ class TestInputTypeValueCalc {
   @Test def test_InputTypeCalc_unparse_keysetValue_01(): Unit = { runner.runOneTest("InputTypeCalc_unparse_keysetValue_01") }
   @Test def test_InputTypeCalc_unparse_keysetValue_02(): Unit = { runner.runOneTest("InputTypeCalc_unparse_keysetValue_02") }
 
-  @Test def test_InputTypeCalc_choiceDispatchByType_01(): Unit = { runner.runOneTest("InputTypeCalc_choiceDispatchByType_01") }
-  @Test def test_InputTypeCalc_choiceDispatchByType_02(): Unit = { runner.runOneTest("InputTypeCalc_choiceDispatchByType_02") }
-  @Test def test_InputTypeCalc_choiceDispatchByType_03(): Unit = { runner.runOneTest("InputTypeCalc_choiceDispatchByType_03") }
-
-  @Test def test_InputTypeCalc_unparse_choiceDispatchByType_01(): Unit = { runner.runOneTest("InputTypeCalc_unparse_choiceDispatchByType_01") }
-  @Test def test_InputTypeCalc_unparse_choiceDispatchByType_02(): Unit = { runner.runOneTest("InputTypeCalc_unparse_choiceDispatchByType_02") }
-
-  @Test def test_InputTypeCalc_choiceBranchKeyByType_01(): Unit = { runner.runOneTest("InputTypeCalc_choiceBranchKeyByType_01") }
-
   @Test def test_InputTypeCalc_unionOfKeysetValueCalcs_01(): Unit = { runner.runOneTest("InputTypeCalc_unionOfKeysetValueCalcs_01") }
   @Test def test_InputTypeCalc_unparse_unionOfKeysetValueCalcs_01(): Unit = { runner.runOneTest("InputTypeCalc_unparse_unionOfKeysetValueCalcs_01") }
-
-  @Test def test_InputTypeCalc_unionOfKeysetValueCalcs_02(): Unit = { runner.runOneTest("InputTypeCalc_unionOfKeysetValueCalcs_02") }
-  @Test def test_InputTypeCalc_unparse_unionOfKeysetValueCalcs_02(): Unit = { runner.runOneTest("InputTypeCalc_unparse_unionOfKeysetValueCalcs_02") }
 
   @Test def test_InputTypeCalc_expression_01(): Unit = { exprRunner.runOneTest("InputTypeCalc_expression_01") }
   @Test def test_OutputTypeCalc_expression_01(): Unit = { exprRunner.runOneTest("OutputTypeCalc_expression_01") }

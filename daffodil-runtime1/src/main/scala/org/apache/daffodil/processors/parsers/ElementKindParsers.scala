@@ -17,11 +17,9 @@
 
 package org.apache.daffodil.processors.parsers
 
-import java.math.{ BigInteger => JBigInt }
-
+import java.math.{BigInteger => JBigInt}
 import org.apache.daffodil.processors.ChoiceDispatchKeyEv
 import org.apache.daffodil.processors.DelimiterParseEv
-import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.processors.EscapeSchemeParseEv
 import org.apache.daffodil.processors.RangeBound
 import org.apache.daffodil.processors.RuntimeData
@@ -155,31 +153,6 @@ abstract class ChoiceDispatchCombinatorParserBase(rd: TermRuntimeData,
    */
   def computeDispatchKey(pstate: PState): Maybe[String]
 
-  /*
-   * having choiceDispatchKeyKind=byType introduces some subtle problems.
-   * In the basic case a naive implementation would try to parse the repType twice:
-   *  once to determine the dispatchKey, and once because the resulting branch would have the same repType
-   * However, it is also possible that the branch would have an inputValueCalc, in which case we would
-   *  only parse the repType when computing the dispatchKey.
-   * The difficulty is that, in both the above cases, the *correct* behavior is to parse the reptype exactly once
-   *
-   * Ideally, we would actually parse repType once, and pass the result into the branch's parser
-   * However, in practice, this would involve a significant amount of reworking of Daffodil parsing subsystem.
-   *
-   * Instead, we simulate parsing once by saving and restoring state as follows:
-   *
-   * initialState = pstate.mark()
-   * dispatchKey <- repType.parse()
-   * if(branch.isRepresented){
-   *   pstate.restore(initialState)
-   * }else{
-   *   pstate.discard(initialState)
-   * }
-   * branch.parse()
-   *
-   *
-   */
-
   def parse(pstate: PState): Unit = {
     pstate.withPointOfUncertainty("ChoiceDispatchCombinator", rd) { pou =>
 
@@ -262,21 +235,3 @@ class ChoiceDispatchCombinatorParser(rd: TermRuntimeData, dispatchKeyEv: ChoiceD
   override def computeDispatchKey(pstate: PState): Maybe[String] = Maybe(dispatchKeyEv.evaluate(pstate))
 }
 
-class ChoiceDispatchCombinatorKeyByTypeParser(rd: TermRuntimeData, repTypeParser: Parser, repTypeRuntimeData: ElementRuntimeData, 
-                                              dispatchBranchKeyMap: Map[String, (Parser, Boolean)], dispatchKeyRangeMap:Vector[(RangeBound,RangeBound,Parser, Boolean)])
-  extends ChoiceDispatchCombinatorParserBase(rd, dispatchBranchKeyMap, dispatchKeyRangeMap)
-  with WithDetachedParser {
-
-//  override lazy val childProcessors = dispatchBranchKeyMap.values.map(_._1).toVector ++ dispatchKeyRangeMap.map(_._3)
-  override lazy val childProcessors = super.childProcessors ++ Vector(repTypeParser)
-  
-  override def computeDispatchKey(pstate: PState): Maybe[String] = {
-    val ans1 = runDetachedParser(pstate, repTypeParser, repTypeRuntimeData)
-    if (ans1.isDefined) {
-      Maybe(ans1.getAnyRef.toString())
-    } else {
-      Maybe.Nope
-    }
-  }
-
-}

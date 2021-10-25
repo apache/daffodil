@@ -679,7 +679,6 @@ class TransitiveClosureSchemaComponents private() extends TransitiveClosure[Sche
     }
     val misc: SSC = sc match {
       case eb: ElementBase => eb.optPrefixLengthElementDecl.toSeq
-      case ch: ChoiceTermBase => ch.optRepTypeElement.toSeq
       case _ => Seq()
     }
 
