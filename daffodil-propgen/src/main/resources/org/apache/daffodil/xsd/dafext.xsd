@@ -436,22 +436,6 @@
             </xs:documentation>
           </xs:annotation>
         </xs:element>
-        <xs:element name="requireChoiceDispatchKeyKindProperty" type="xs:boolean" default="false" minOccurs="0">
-          <xs:annotation>
-            <xs:documentation>
-              If true, require that the dfdl:choiceDispatchKeyKind property is specified. If false, use a
-              default value if the property is not defined in the schema.
-            </xs:documentation>
-          </xs:annotation>
-        </xs:element>
-        <xs:element name="requireChoiceBranchKeyKindProperty" type="xs:boolean" default="false" minOccurs="0">
-          <xs:annotation>
-            <xs:documentation>
-              If true, require that the dfdl:choiceBranchKeyKind property is specified. If false, use a
-              default value if the property is not defined in the schema.
-            </xs:documentation>
-          </xs:annotation>
-        </xs:element>
         <xs:element name="requireEmptyElementParsePolicyProperty" type="xs:boolean" default="false" minOccurs="0">
           <xs:annotation>
             <xs:documentation>

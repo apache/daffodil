@@ -35,8 +35,6 @@ import org.apache.daffodil.util.Delay
 
 trait ChoiceTermRuntime1Mixin { self: ChoiceTermBase =>
 
-  requiredEvaluationsIfActivated(optRepTypeElement.map{ _.elementRuntimeData.initialize })
-
   /**
    * The members of the choice group with special treatment given to some kinds of members.
    *

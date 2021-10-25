@@ -104,80 +104,11 @@
       </xs:restriction>
     </xs:simpleType>
 
-    <xs:element name="choice_dispatchKeyByType_01">
-      <xs:complexType>
-        <xs:choice dfdlx:choiceBranchKeyKind="explicit" dfdlx:choiceDispatchKeyKind="byType" >
-          <xs:element name="unreachable" type="tns:unreachableRepTypeuint8" dfdl:choiceBranchKey="-1"/>
-          <xs:element name="one" type="tns:_1_to_string" dfdl:choiceBranchKey="1"/>
-          <xs:element name="two" type="tns:_2through100_to_string" dfdl:choiceBranchKey="2"/>
-          <xs:element name="three_four_five" type="tns:_2through100_to_string" dfdl:choiceBranchKey="3 4 5"/>
-          <xs:element name="_101_122" type="tns:complexSet_to_string" dfdl:choiceBranchKey="101 122"/>
-        </xs:choice>
-      </xs:complexType>
-    </xs:element>
-
-    <xs:element name="choice_dispatchKeyByType_02">
-      <xs:complexType>
-        <xs:sequence>
-          <xs:element name="byte" dfdl:occursCountKind="parsed" maxOccurs="unbounded">
-            <xs:complexType>
-              <xs:choice dfdlx:choiceBranchKeyKind="explicit" dfdlx:choiceDispatchKeyKind="byType" >
-                <xs:element name="unreachable" type="tns:unreachableRepTypeuint8" dfdl:choiceBranchKey="255"/>
-                <xs:element name="one" type="tns:_1_to_string" dfdl:choiceBranchKey="1"/>
-                <xs:element name="two" type="tns:_2through100_to_string" dfdl:choiceBranchKey="2"/>
-                <xs:element name="three_four_five" type="tns:_2through100_to_string" dfdl:choiceBranchKey="3 4 5"/>
-                <xs:element name="_101_122" type="tns:complexSet_to_string" dfdl:choiceBranchKey="101 122"/>
-              </xs:choice>
-            </xs:complexType>
-          </xs:element>
-        </xs:sequence>
-      </xs:complexType>
-    </xs:element>
-
-    <xs:element name="choice_branchKeyByType_01">
-      <xs:complexType>
-        <xs:sequence>
-          <xs:element name="byte" dfdl:occursCountKind="parsed" maxOccurs="unbounded">
-            <xs:complexType>
-              <xs:sequence>
-                <xs:element name="dispatchKey" type="tns:uint8">
-                  <xs:annotation>
-                    <xs:appinfo source="http://www.ogf.org/dfdl/">
-                      <dfdl:discriminator>{ fn:true() }</dfdl:discriminator>
-                    </xs:appinfo>
-                  </xs:annotation>
-                </xs:element>
-                <xs:choice dfdlx:choiceBranchKeyKind="byType" dfdlx:choiceDispatchKeyKind="explicit" dfdl:choiceDispatchKey="{ ex:dispatchKey }">
-                  <xs:element name="unreachable" type="tns:unreachableRepTypeuint8"/>
-                  <xs:element name="many" type="tns:_2through100_to_int"/>
-                  <xs:element name="one" type="tns:_1_to_string"/>
-                </xs:choice>
-              </xs:sequence>
-            </xs:complexType>
-          </xs:element>
-        </xs:sequence>
-      </xs:complexType>
-    </xs:element>
 
     <xs:element name="inputTypeCalc_unionOfKeysetValueCalcs_01">
       <xs:complexType>
         <xs:sequence>
           <xs:element name="byte" type="tns:_1through100_union_to_string" maxOccurs="unbounded" dfdl:occursCountKind="parsed"/>
-        </xs:sequence>
-      </xs:complexType>
-    </xs:element>
-
-    <xs:element name="inputTypeCalc_unionOfKeysetValueCalcs_02">
-      <xs:complexType>
-        <xs:sequence>
-          <xs:element name="byte" maxOccurs="unbounded" dfdl:occursCountKind="parsed">
-            <xs:complexType>
-              <xs:choice dfdlx:choiceBranchKeyKind="byType" dfdlx:choiceDispatchKeyKind="byType">
-                <xs:element name="a" type="tns:_1through100_union_to_string"/>
-                <xs:element name="b" type="tns:complexSet_to_string"/>
-              </xs:choice>
-            </xs:complexType>
-          </xs:element>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -305,126 +236,6 @@
     </tdml:infoset>
   </tdml:unparserTestCase>
 
-  <tdml:parserTestCase name="InputTypeCalc_choiceDispatchByType_01"
-    root="choice_dispatchKeyByType_01" model="inputTypeCalc-Embedded.dfdl.xsd" description="Extensions - choiceDispatchByType with keysetValue types">
-
-    <tdml:document>
-    <tdml:documentPart type="byte">
-    01
-    </tdml:documentPart>
-    </tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <choice_dispatchKeyByType_01>
-          <one>one</one>
-        </choice_dispatchKeyByType_01>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-  </tdml:parserTestCase>
-
-  <tdml:parserTestCase name="InputTypeCalc_choiceDispatchByType_02"
-    root="choice_dispatchKeyByType_02" model="inputTypeCalc-Embedded.dfdl.xsd" description="Extensions - choiceDispatchByType with keysetValue types">
-
-    <tdml:document>
-    <tdml:documentPart type="byte">
-    01 02 03 04 05 65 7A
-    </tdml:documentPart>
-    </tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <choice_dispatchKeyByType_02>
-          <byte><one>one</one></byte>
-          <byte><two>2-100</two></byte>
-          <byte><three_four_five>2-100</three_four_five></byte>
-          <byte><three_four_five>2-100</three_four_five></byte>
-          <byte><three_four_five>2-100</three_four_five></byte>
-          <byte><_101_122>101 103-110 115 120-125</_101_122></byte>
-          <byte><_101_122>101 103-110 115 120-125</_101_122></byte>
-        </choice_dispatchKeyByType_02>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-  </tdml:parserTestCase>
-
-  <tdml:parserTestCase name="InputTypeCalc_choiceDispatchByType_03"
-    root="choice_dispatchKeyByType_01" model="inputTypeCalc-Embedded.dfdl.xsd" description="Extensions - choiceDispatchByType with keysetValue types - bad key">
-
-    <tdml:document>
-    <tdml:documentPart type="byte">
-    ff
-    </tdml:documentPart>
-    </tdml:document>
-    <tdml:errors>
-      <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Failed to match any of the branch keys</tdml:error>
-    </tdml:errors>
-  </tdml:parserTestCase>
-
-  <tdml:unparserTestCase name="InputTypeCalc_unparse_choiceDispatchByType_01"
-    root="choice_dispatchKeyByType_01" model="inputTypeCalc-Embedded.dfdl.xsd" description="Extensions - choiceDispatchByType with keysetValue types">
-
-    <tdml:document>
-    <tdml:documentPart type="byte">
-    01
-    </tdml:documentPart>
-    </tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <choice_dispatchKeyByType_01>
-          <one>one</one>
-        </choice_dispatchKeyByType_01>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-  </tdml:unparserTestCase>
-
-  <tdml:unparserTestCase name="InputTypeCalc_unparse_choiceDispatchByType_02"
-    root="choice_dispatchKeyByType_02" model="inputTypeCalc-Embedded.dfdl.xsd" description="Extensions - choiceDispatchByType with keysetValue types">
-
-    <tdml:document>
-    <tdml:documentPart type="byte">
-    01 02 02 65
-    </tdml:documentPart>
-    </tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <choice_dispatchKeyByType_02>
-          <byte><one>one</one></byte>
-          <byte><two>2-100</two></byte>
-
-          <!-- It is a bit unclear what the below should unparse to.
-               Since it's type is 2-100, it would normally unparse to 2 if it
-               were outside of the choice, so this test expects that here.
-          -->
-          <byte><three_four_five>2-100</three_four_five></byte>
-          <byte><_101_122>101 103-110 115 120-125</_101_122></byte>
-        </choice_dispatchKeyByType_02>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-  </tdml:unparserTestCase>
-
-  <tdml:parserTestCase name="InputTypeCalc_choiceBranchKeyByType_01"
-    root="choice_branchKeyByType_01" model="inputTypeCalc-Embedded.dfdl.xsd" description="Extensions - choiceBranchKeyByType with keysetValue types">
-
-    <tdml:document>
-    <tdml:documentPart type="byte">
-    01 01 02 02 07 08
-    </tdml:documentPart>
-    </tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <choice_branchKeyByType_01>
-          <byte><dispatchKey>1</dispatchKey><one>one</one></byte>
-          <byte><dispatchKey>2</dispatchKey><many>2</many></byte>
-          <byte><dispatchKey>7</dispatchKey><many>8</many></byte>
-        </choice_branchKeyByType_01>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-  </tdml:parserTestCase>
-
   <tdml:parserTestCase name="InputTypeCalc_unionOfKeysetValueCalcs_01"
     root="inputTypeCalc_unionOfKeysetValueCalcs_01" model="inputTypeCalc-Embedded.dfdl.xsd" description="Extensions - repType with union of keysetValue types">
 
@@ -461,49 +272,6 @@
           <byte>one</byte>
           <byte>2-100</byte>
         </inputTypeCalc_unionOfKeysetValueCalcs_01>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-  </tdml:unparserTestCase>
-
-  <tdml:parserTestCase name="InputTypeCalc_unionOfKeysetValueCalcs_02"
-    root="inputTypeCalc_unionOfKeysetValueCalcs_02" model="inputTypeCalc-Embedded.dfdl.xsd" description="Extensions - repType with union of keysetValue types">
-
-    <tdml:document>
-    <tdml:documentPart type="byte">
-    01 02 03 64 65 67
-    </tdml:documentPart>
-    </tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <inputTypeCalc_unionOfKeysetValueCalcs_02>
-          <byte><a>one</a></byte>
-          <byte><a>2-100</a></byte>
-          <byte><a>2-100</a></byte>
-          <byte><a>2-100</a></byte>
-          <byte><b>101 103-110 115 120-125</b></byte>
-          <byte><b>101 103-110 115 120-125</b></byte>
-        </inputTypeCalc_unionOfKeysetValueCalcs_02>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-  </tdml:parserTestCase>
-
-  <tdml:unparserTestCase name="InputTypeCalc_unparse_unionOfKeysetValueCalcs_02"
-    root="inputTypeCalc_unionOfKeysetValueCalcs_02" model="inputTypeCalc-Embedded.dfdl.xsd" description="Extensions - repType with union of keysetValue types">
-
-    <tdml:document>
-    <tdml:documentPart type="byte">
-    01 02 65
-    </tdml:documentPart>
-    </tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <inputTypeCalc_unionOfKeysetValueCalcs_02>
-          <byte><a>one</a></byte>
-          <byte><a>2-100</a></byte>
-          <byte><b>101 103-110 115 120-125</b></byte>
-        </inputTypeCalc_unionOfKeysetValueCalcs_02>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:unparserTestCase>

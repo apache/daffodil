@@ -34,9 +34,7 @@
 
   <xs:simpleType name="PropertyNameType">
     <xs:restriction base="xs:string">
-      <xs:enumeration value="dfdlx:choiceBranchKeyKind" />
       <xs:enumeration value="dfdlx:choiceBranchKeyRanges" />
-      <xs:enumeration value="dfdlx:choiceDispatchKeyKind" />
       <xs:enumeration value="dfdlx:emptyElementParsePolicy"/>
       <xs:enumeration value="dfdlx:inputTypeCalc"/>
       <xs:enumeration value="dfdlx:objectKind"/>
@@ -72,17 +70,6 @@
     <xs:restriction base="xs:string">
       <xs:enumeration value="treatAsEmpty" />
       <xs:enumeration value="treatAsMissing" />
-    </xs:restriction>
-  </xs:simpleType>
-
-  <xs:attribute name="choiceBranchKeyKind" type="dfdlx:ChoiceKeyKindType"/>
-  <xs:attribute name="choiceDispatchKeyKind"  type="dfdlx:ChoiceKeyKindType"/>
-  <xs:simpleType name="ChoiceKeyKindType">
-    <xs:restriction base="xs:string">
-      <xs:enumeration value="byType"/>
-      <xs:enumeration value="explicit"/>
-      <xs:enumeration value="speculative"/>
-      <xs:enumeration value="implicit"/>
     </xs:restriction>
   </xs:simpleType>
   
