@@ -194,7 +194,7 @@ lazy val commonSettings = Seq(
   resourceManaged := baseDirectory.value / "resource_managed",
   libraryDependencies ++= Dependencies.common,
   IntegrationTest / parallelExecution := false,
-  testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "-v"),
+  testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "--verbosity=1"),
 ) ++ Defaults.itSettings
 
 def scalacCrossOptions(scalaVersion: String) =
