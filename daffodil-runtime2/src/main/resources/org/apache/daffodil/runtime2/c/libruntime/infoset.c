@@ -132,8 +132,7 @@ walkInfosetNode(const VisitEventHandler *handler, const InfosetBase *infoNode)
     const ERD **const childrenERDs = infoNode->erd->childrenERDs;
     const size_t *    offsets = infoNode->erd->offsets;
 
-    size_t i;
-    for (i = 0; i < count && !error; i++)
+    for (size_t i = 0; i < count && !error; i++)
     {
         const size_t offset = offsets[i];
         const ERD *  childERD = childrenERDs[i];
