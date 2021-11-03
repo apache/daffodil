@@ -112,6 +112,8 @@ class CodeGenerator(root: Root) extends DFDL.CodeGenerator {
     try {
       // Assemble the compiler's command line arguments
       val compiler = pickCompiler
+      val cFlags = Seq("-std=gnu11")
+      val includes = Seq("-Ilibcli", "-Ilibruntime")
       val absFiles = os.walk(codeDir).filter(_.ext == "c")
       val relFiles = Seq("libcli/*.c", "libruntime/*.c")
       val libs = Seq("-lmxml")
@@ -121,7 +123,7 @@ class CodeGenerator(root: Root) extends DFDL.CodeGenerator {
       // global cache directory, not a local zig_cache directory)
       if (compiler.nonEmpty) {
         val result = os
-          .proc(compiler, "-Ilibcli", "-Ilibruntime", if (isWin) relFiles else absFiles, libs, "-o", exe)
+          .proc(compiler, cFlags, includes, if (isWin) relFiles else absFiles, libs, "-o", exe)
           .call(cwd = codeDir, stderr = os.Pipe)
 
         // Report any compiler output as a warning

@@ -1,14 +1,17 @@
+// clang-format off
 #include "generated_code.h"
 #include <math.h>       // for NAN
-#include <stdbool.h>    // for bool, true, false
+#include <stdbool.h>    // for true, false, bool
 #include <stddef.h>     // for NULL, size_t
+#include <string.h>     // for memset, memcmp
 #include "errors.h"     // for Error, PState, UState, ERR_CHOICE_KEY, UNUSED
-#include "parsers.h"    // for parse_be_float, parse_be_int16, parse_be_bool32, parse_validate_fixed, parse_be_bool16, parse_be_int32, parse_be_uint32, parse_le_bool32, parse_le_int64, parse_le_uint8, parse_be_bool8, parse_be_double, parse_be_int64, parse_be_int8, parse_be_uint16, parse_be_uint64, parse_be_uint8, parse_le_bool16, parse_le_bool8, parse_le_double, parse_le_float, parse_le_int16, parse_le_int32, parse_le_int8, parse_le_uint16, parse_le_uint32, parse_le_uint64
-#include "unparsers.h"  // for unparse_be_float, unparse_be_int16, unparse_be_bool32, unparse_validate_fixed, unparse_be_bool16, unparse_be_int32, unparse_be_uint32, unparse_le_bool32, unparse_le_int64, unparse_le_uint8, unparse_be_bool8, unparse_be_double, unparse_be_int64, unparse_be_int8, unparse_be_uint16, unparse_be_uint64, unparse_be_uint8, unparse_le_bool16, unparse_le_bool8, unparse_le_double, unparse_le_float, unparse_le_int16, unparse_le_int32, unparse_le_int8, unparse_le_uint16, unparse_le_uint32, unparse_le_uint64
+#include "parsers.h"    // for alloc_hexBinary, parse_hexBinary, parse_be_float, parse_be_int16, parse_validate_fixed, parse_be_bool32, parse_be_bool16, parse_be_int32, parse_be_uint16, parse_be_uint32, parse_le_bool32, parse_le_int64, parse_le_uint16, parse_le_uint8, parse_be_bool8, parse_be_double, parse_be_int64, parse_be_int8, parse_be_uint64, parse_be_uint8, parse_le_bool16, parse_le_bool8, parse_le_double, parse_le_float, parse_le_int16, parse_le_int32, parse_le_int8, parse_le_uint32, parse_le_uint64
+#include "unparsers.h"  // for unparse_hexBinary, unparse_be_float, unparse_be_int16, unparse_validate_fixed, unparse_be_bool32, unparse_be_bool16, unparse_be_int32, unparse_be_uint16, unparse_be_uint32, unparse_le_bool32, unparse_le_int64, unparse_le_uint16, unparse_le_uint8, unparse_be_bool8, unparse_be_double, unparse_be_int64, unparse_be_int8, unparse_be_uint64, unparse_be_uint8, unparse_le_bool16, unparse_le_bool8, unparse_le_double, unparse_le_float, unparse_le_int16, unparse_le_int32, unparse_le_int8, unparse_le_uint32, unparse_le_uint64
+// clang-format on
 
 // Initialize our program's name and version
 
-const char *daffodil_program_version = "daffodil-runtime2 3.1.0";
+const char *daffodil_program_version = "daffodil-runtime2 3.2.0-SNAPSHOT";
 
 // Declare prototypes for easier compilation
 
@@ -247,9 +250,9 @@ static void
 foo_initSelf(foo *instance)
 {
     instance->_base.erd = &foo_data_NestedUnionType_ERD;
-    instance->a = 0xCCCCCCCC;
-    instance->b = 0xCCCCCCCC;
-    instance->c = 0xCCCCCCCC;
+    instance->a = 0x77777777;
+    instance->b = 0x77777777;
+    instance->c = 0x77777777;
 }
 
 static void
@@ -331,7 +334,7 @@ data_initChoice(data *instance, const NestedUnion *rootElement)
         instance->_choice = 1;
         break;
     default:
-        error.d64 = key;
+        error.arg.d64 = key;
         return &error;
     }
 
@@ -365,7 +368,7 @@ data_parseSelf(data *instance, PState *pstate)
         break;
     default:
         // Should never happen because initChoice would return an error first
-        error.d64 = (int64_t)instance->_choice;
+        error.arg.d64 = (int64_t)instance->_choice;
         pstate->error = &error;
         return;
     }
@@ -391,7 +394,7 @@ data_unparseSelf(const data *instance, UState *ustate)
         break;
     default:
         // Should never happen because initChoice would return an error first
-        error.d64 = (int64_t)instance->_choice;
+        error.arg.d64 = (int64_t)instance->_choice;
         ustate->error = &error;
         return;
     }
@@ -401,7 +404,7 @@ static void
 NestedUnion_initSelf(NestedUnion *instance)
 {
     instance->_base.erd = &NestedUnion_ERD;
-    instance->tag = 0xCCCCCCCC;
+    instance->tag = 0x77777777;
     data_initSelf(&instance->data);
 }
 

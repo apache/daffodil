@@ -104,8 +104,7 @@ parse_daffodil_cli(int argc, char *argv[])
     }
 
     // Get the command and the infile arg
-    int i;
-    for (i = optind; i < argc; i++)
+    for (int i = optind; i < argc; i++)
     {
         const char *arg = argv[i];
 

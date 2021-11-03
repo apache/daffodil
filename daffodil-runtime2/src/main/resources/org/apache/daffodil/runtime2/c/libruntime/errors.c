@@ -148,8 +148,7 @@ print_diagnostics(const Diagnostics *diagnostics)
 {
     if (diagnostics)
     {
-        size_t i;
-        for (i = 0; i < diagnostics->length; i++)
+        for (size_t i = 0; i < diagnostics->length; i++)
         {
             const Error *error = &diagnostics->array[i];
             print_maybe_stop(error, 0);

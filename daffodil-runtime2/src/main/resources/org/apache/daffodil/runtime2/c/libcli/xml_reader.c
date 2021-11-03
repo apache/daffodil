@@ -268,8 +268,7 @@ strtohexbinary(const char *text, HexBinary *hexBinary)
 
     // Store hexadecimal characters into byte array
     if (hexBinary->array) memset(hexBinary->array, 0, hexBinary->lengthInBytes);
-    size_t i;
-    for (i = 0; i < numNibbles; i++)
+    for (size_t i = 0; i < numNibbles; i++)
     {
         char    c = text[i];
         uint8_t value = 0;
