@@ -214,13 +214,7 @@ class DaffodilParseOutputStreamContentHandler(out: OutputStream, pretty: Boolean
     while (currentElementPrefixMapping != null) {
       val prefix = currentElementPrefixMapping.prefix
       val uri = currentElementPrefixMapping.uri
-
-      // check to see if the prefix is already mapped to the same URI. If it
-      // is, ignore this mapping since it adds nothing new
-      val maybeUri = XMLUtils.maybeURI(activePrefixMapping, prefix)
-      if (maybeUri.isEmpty || maybeUri.get != uri) {
-        activePrefixMapping = NamespaceBinding(prefix, uri, activePrefixMapping)
-      }
+      activePrefixMapping = NamespaceBinding(prefix, uri, activePrefixMapping)
       currentElementPrefixMapping = currentElementPrefixMapping.parent
     }
 
