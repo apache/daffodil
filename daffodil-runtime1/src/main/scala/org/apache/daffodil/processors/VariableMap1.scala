@@ -155,6 +155,7 @@ class VariableInstance private (val rd: VariableRuntimeData)
         this.setState(this.priorState)
         this.setValue(this.priorValue)
       }
+      case (VariableDefined, _, _) => // This should only occur for pre-defined variables
       case (_, _, _) => Assert.impossible("Should have SDE before reaching this")
     }
   }
