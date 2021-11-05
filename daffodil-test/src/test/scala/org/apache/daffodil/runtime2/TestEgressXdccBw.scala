@@ -31,24 +31,14 @@ object TestEgressXdccBw {
 class TestEgressXdccBw {
   import TestEgressXdccBw._
 
-  @Test def test_egress_xdcc_bw_parse_11(): Unit = { runner.runOneTest("egress_xdcc_bw_parse_11") }
-  @Test def test_egress_xdcc_bw_unparse_11(): Unit = { runner.runOneTest("egress_xdcc_bw_unparse_11") }
-  @Test def test_egress_xdcc_bw_parse_12(): Unit = { runner.runOneTest("egress_xdcc_bw_parse_12") }
-  @Test def test_egress_xdcc_bw_unparse_12(): Unit = { runner.runOneTest("egress_xdcc_bw_unparse_12") }
-  @Test def test_egress_xdcc_bw_parse_13(): Unit = { runner.runOneTest("egress_xdcc_bw_parse_13") }
-  @Test def test_egress_xdcc_bw_unparse_13(): Unit = { runner.runOneTest("egress_xdcc_bw_unparse_13") }
-  @Test def test_egress_xdcc_bw_parse_14(): Unit = { runner.runOneTest("egress_xdcc_bw_parse_14") }
-  @Test def test_egress_xdcc_bw_unparse_14(): Unit = { runner.runOneTest("egress_xdcc_bw_unparse_14") }
-  @Test def test_egress_xdcc_bw_parse_15(): Unit = { runner.runOneTest("egress_xdcc_bw_parse_15") }
-  @Test def test_egress_xdcc_bw_unparse_15(): Unit = { runner.runOneTest("egress_xdcc_bw_unparse_15") }
-  @Test def test_egress_xdcc_bw_parse_16(): Unit = { runner.runOneTest("egress_xdcc_bw_parse_16") }
-  @Test def test_egress_xdcc_bw_unparse_16(): Unit = { runner.runOneTest("egress_xdcc_bw_unparse_16") }
-  @Test def test_egress_xdcc_bw_parse_17(): Unit = { runner.runOneTest("egress_xdcc_bw_parse_17") }
-  @Test def test_egress_xdcc_bw_unparse_17(): Unit = { runner.runOneTest("egress_xdcc_bw_unparse_17") }
-  @Test def test_egress_xdcc_bw_parse_18(): Unit = { runner.runOneTest("egress_xdcc_bw_parse_18") }
-  @Test def test_egress_xdcc_bw_unparse_18(): Unit = { runner.runOneTest("egress_xdcc_bw_unparse_18") }
-  @Test def test_egress_xdcc_bw_parse_19(): Unit = { runner.runOneTest("egress_xdcc_bw_parse_19") }
-  @Test def test_egress_xdcc_bw_unparse_19(): Unit = { runner.runOneTest("egress_xdcc_bw_unparse_19") }
-  @Test def test_egress_xdcc_bw_parse_20(): Unit = { runner.runOneTest("egress_xdcc_bw_parse_20") }
-  @Test def test_egress_xdcc_bw_unparse_20(): Unit = { runner.runOneTest("egress_xdcc_bw_unparse_20") }
+  @Test def test_egress_xdcc_bw_11(): Unit = { runner.runOneTest("egress_xdcc_bw_11") }
+  @Test def test_egress_xdcc_bw_12(): Unit = { runner.runOneTest("egress_xdcc_bw_12") }
+  @Test def test_egress_xdcc_bw_13(): Unit = { runner.runOneTest("egress_xdcc_bw_13") }
+  @Test def test_egress_xdcc_bw_14(): Unit = { runner.runOneTest("egress_xdcc_bw_14") }
+  @Test def test_egress_xdcc_bw_15(): Unit = { runner.runOneTest("egress_xdcc_bw_15") }
+  @Test def test_egress_xdcc_bw_16(): Unit = { runner.runOneTest("egress_xdcc_bw_16") }
+  @Test def test_egress_xdcc_bw_17(): Unit = { runner.runOneTest("egress_xdcc_bw_17") }
+  @Test def test_egress_xdcc_bw_18(): Unit = { runner.runOneTest("egress_xdcc_bw_18") }
+  @Test def test_egress_xdcc_bw_19(): Unit = { runner.runOneTest("egress_xdcc_bw_19") }
+  @Test def test_egress_xdcc_bw_20(): Unit = { runner.runOneTest("egress_xdcc_bw_20") }
 }

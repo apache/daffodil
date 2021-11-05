@@ -31,6 +31,5 @@ object TestMpuGreenToOrange60004 {
 class TestMpuGreenToOrange60004 {
   import TestMpuGreenToOrange60004._
 
-  @Test def test_MPU_green_to_orange_60004_parse(): Unit = { runner.runOneTest("MPU_green_to_orange_60004_parse") }
-  @Test def test_MPU_green_to_orange_60004_unparse(): Unit = { runner.runOneTest("MPU_green_to_orange_60004_unparse") }
+  @Test def test_MPU_green_to_orange_60004(): Unit = { runner.runOneTest("MPU_green_to_orange_60004") }
 }

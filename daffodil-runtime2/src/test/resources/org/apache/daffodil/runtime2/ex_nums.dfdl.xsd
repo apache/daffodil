@@ -23,26 +23,24 @@
         xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
         xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <!-- Representation property bindings -->
 
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <xs:annotation>
         <xs:appinfo source="http://www.ogf.org/dfdl/">
             <dfdl:format
-                    alignment="1"
-                    alignmentUnits="bits"
+                    ref="GeneralFormat"
                     binaryBooleanFalseRep="0"
                     binaryBooleanTrueRep=""
                     binaryNumberRep="binary"
-                    bitOrder="mostSignificantBitFirst"
-                    byteOrder="bigEndian"
                     lengthUnits="bits"
                     prefixIncludesPrefixLength="no"
-                    representation="binary"
-                    ref="GeneralFormat"/>
+                    representation="binary"/>
         </xs:appinfo>
     </xs:annotation>
 
-    <!-- Types used in dfdl:prefixLengthType below -->
+    <!-- Simple types -->
+
     <xs:simpleType name="be_int8_count">
         <xs:restriction base="xs:byte"/>
     </xs:simpleType>
@@ -52,6 +50,8 @@
     <xs:simpleType name="le_uint16_count" dfdl:byteOrder="littleEndian">
         <xs:restriction base="xs:unsignedShort"/>
     </xs:simpleType>
+
+    <!-- Single root element -->
 
     <xs:element name="ex_nums">
         <xs:complexType>

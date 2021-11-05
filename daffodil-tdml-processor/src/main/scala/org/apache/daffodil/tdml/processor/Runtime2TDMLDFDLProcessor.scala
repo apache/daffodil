@@ -120,11 +120,10 @@ final class Runtime2TDMLDFDLProcessorFactory private(
         Left(generator.getDiagnostics) // C code compilation diagnostics
       } else {
         // Create a processor for running the test using the executable, passing it
-        // generator.diagnostics in order to let us check generator warnings later
-        val processor = new Runtime2TDMLDFDLProcessor(tempDir, executable, generator.getDiagnostics)
-        // Sadly, TDMLRunner never checks generator diagnostics in "Right" tuple below
-        // nor does it check processor diagnostics in cross tests (runtime2's TDML tests)
-        // unless you set defaultShouldDoWarningComparisonOnCrossTests true in RunnerFactory
+        // tempDir so its cleanUp function will delete tempDir for us
+        val processor = new Runtime2TDMLDFDLProcessor(tempDir, executable)
+        // Although we return generator diagnostics to TDMLRunner, TDMLRunner won't
+        // do anything with them in its usual path
         Right((generator.getDiagnostics, processor))
       }
       compileResult
@@ -140,13 +139,12 @@ final class Runtime2TDMLDFDLProcessorFactory private(
  * TDML XML Infosets, feeding to the unparser, creating XML from the result created by
  * the Runtime2DataProcessor. All the "real work" is done by Runtime2DataProcessor.
  */
-class Runtime2TDMLDFDLProcessor(tempDir: os.Path, executable: os.Path,
-                                var diagnostics: Seq[Diagnostic]) extends TDMLDFDLProcessor {
+class Runtime2TDMLDFDLProcessor(tempDir: os.Path, executable: os.Path)
+  extends TDMLDFDLProcessor {
 
   override type R = Runtime2TDMLDFDLProcessor
 
   private val dataProcessor = new Runtime2DataProcessor(executable)
-  private var anyErrors: Boolean = false
 
   @deprecated("Use withDebugging.", "2.6.0")
   override def setDebugging(b: Boolean) = ???
@@ -168,9 +166,9 @@ class Runtime2TDMLDFDLProcessor(tempDir: os.Path, executable: os.Path,
   override def setExternalDFDLVariables(externalVarBindings: Seq[Binding]): Unit = ???
   override def withExternalDFDLVariables(externalVarBindings: Seq[Binding]): Runtime2TDMLDFDLProcessor = this
 
-  // Save any errors from running the C code here to be returned later
-  override def isError: Boolean = anyErrors
-  override def getDiagnostics: Seq[Diagnostic] = diagnostics
+  // No need to report errors from this class itself
+  override def isError: Boolean = false
+  override def getDiagnostics: Seq[Diagnostic] = Seq.empty
 
   // Run the C code, collect and save the infoset with any errors and
   // diagnostics, and return a [[TDMLParseResult]] summarizing the result.
@@ -180,8 +178,6 @@ class Runtime2TDMLDFDLProcessor(tempDir: os.Path, executable: os.Path,
   override def parse(is: java.io.InputStream, lengthLimitInBits: Long): TDMLParseResult = {
     // TODO: pass lengthLimitInBits to the C program to tell it how big the data is
     val pr = dataProcessor.parse(is)
-    anyErrors = pr.isError
-    diagnostics = diagnostics ++ pr.getDiagnostics
     new Runtime2TDMLParseResult(pr)
   }
 
@@ -193,8 +189,6 @@ class Runtime2TDMLDFDLProcessor(tempDir: os.Path, executable: os.Path,
   override def unparse(infosetXML: scala.xml.Node, outStream: java.io.OutputStream): TDMLUnparseResult = {
     val inStream = new ByteArrayInputStream(infosetXML.toString.getBytes())
     val upr = dataProcessor.unparse(inStream, outStream)
-    anyErrors = upr.isError
-    diagnostics = diagnostics ++ upr.getDiagnostics
     new Runtime2TDMLUnparseResult(upr)
   }
 

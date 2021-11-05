@@ -19,9 +19,9 @@
 <tdml:testSuite
   defaultConfig="config-runtime2"
   defaultImplementations="daffodil daffodil-runtime2"
-  defaultRoundTrip="none"
+  defaultRoundTrip="onePass"
   defaultValidation="on"
-  description="TDML tests for MPU_orange_to_green_60006"
+  description="TDML tests for MPU_orange_to_green_60006.dfdl.xsd"
   xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData">
@@ -38,52 +38,22 @@
     </daf:tunables>
   </tdml:defineConfig>
 
-  <tdml:parserTestCase
-    model="MPU_orange_to_green_60006.dfdl.xsd"
-    name="MPU_orange_to_green_60006_parse_0"
-    root="MpuRequestDecl">
+  <tdml:parserTestCase model="MPU_orange_to_green_60006.dfdl.xsd" name="MPU_orange_to_green_60006_0">
     <tdml:document>
-      <tdml:documentPart type="file">MPU_orange_to_green_60006_parse_0.dat</tdml:documentPart>
+      <tdml:documentPart type="file">MPU_orange_to_green_60006.0.dat</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
-      <tdml:dfdlInfoset type="file">MPU_orange_to_green_60006_unparse_0.xml</tdml:dfdlInfoset>
+      <tdml:dfdlInfoset type="file">MPU_orange_to_green_60006.0.dat.xml</tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:unparserTestCase
-    model="MPU_orange_to_green_60006.dfdl.xsd"
-    name="MPU_orange_to_green_60006_unparse_0"
-    root="MpuRequestDecl">
-    <tdml:infoset>
-      <tdml:dfdlInfoset type="file">MPU_orange_to_green_60006_unparse_0.xml</tdml:dfdlInfoset>
-    </tdml:infoset>
+  <tdml:parserTestCase model="MPU_orange_to_green_60006.dfdl.xsd" name="MPU_orange_to_green_60006_1">
     <tdml:document>
-      <tdml:documentPart type="file">MPU_orange_to_green_60006_parse_0.dat</tdml:documentPart>
-    </tdml:document>
-  </tdml:unparserTestCase>
-
-  <tdml:parserTestCase
-    model="MPU_orange_to_green_60006.dfdl.xsd"
-    name="MPU_orange_to_green_60006_parse_1"
-    root="MpuRequestDecl">
-    <tdml:document>
-      <tdml:documentPart type="file">MPU_orange_to_green_60006_parse_1.dat</tdml:documentPart>
+      <tdml:documentPart type="file">MPU_orange_to_green_60006.1.dat</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
-      <tdml:dfdlInfoset type="file">MPU_orange_to_green_60006_unparse_1.xml</tdml:dfdlInfoset>
+      <tdml:dfdlInfoset type="file">MPU_orange_to_green_60006.1.dat.xml</tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
-
-  <tdml:unparserTestCase
-    model="MPU_orange_to_green_60006.dfdl.xsd"
-    name="MPU_orange_to_green_60006_unparse_1"
-    root="MpuRequestDecl">
-    <tdml:infoset>
-      <tdml:dfdlInfoset type="file">MPU_orange_to_green_60006_unparse_1.xml</tdml:dfdlInfoset>
-    </tdml:infoset>
-    <tdml:document>
-      <tdml:documentPart type="file">MPU_orange_to_green_60006_parse_1.dat</tdml:documentPart>
-    </tdml:document>
-  </tdml:unparserTestCase>
 
 </tdml:testSuite>

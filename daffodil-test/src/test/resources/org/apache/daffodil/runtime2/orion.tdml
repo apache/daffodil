@@ -20,7 +20,8 @@
   defaultConfig="config-runtime2"
   defaultImplementations="daffodil daffodil-runtime2"
   defaultRoundTrip="onePass"
-  description="TDML tests for ingress_xdcc_bw.dfdl.xsd"
+  defaultValidation="on"
+  description="TDML tests for orion.dfdl.xsd"
   xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData">
@@ -37,57 +38,48 @@
     </daf:tunables>
   </tdml:defineConfig>
 
-  <tdml:parserTestCase model="ingress_xdcc_bw.dfdl.xsd" name="ingress_xdcc_bw_111">
+  <tdml:parserTestCase model="orion.dfdl.xsd" name="orion_aptina">
     <tdml:document>
-      <tdml:documentPart type="file">ingress_xdcc_bw.111.dat</tdml:documentPart>
+      <tdml:documentPart type="file">orion.aptina.dat</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
-      <tdml:dfdlInfoset type="file">ingress_xdcc_bw.111.dat.xml</tdml:dfdlInfoset>
+      <tdml:dfdlInfoset type="file">orion.aptina.dat.xml</tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase model="ingress_xdcc_bw.dfdl.xsd" name="ingress_xdcc_bw_112">
+  <tdml:parserTestCase model="orion.dfdl.xsd" name="orion_camera">
     <tdml:document>
-      <tdml:documentPart type="file">ingress_xdcc_bw.112.dat</tdml:documentPart>
+      <tdml:documentPart type="file">orion.camera.dat</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
-      <tdml:dfdlInfoset type="file">ingress_xdcc_bw.112.dat.xml</tdml:dfdlInfoset>
+      <tdml:dfdlInfoset type="file">orion.camera.dat.xml</tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase model="ingress_xdcc_bw.dfdl.xsd" name="ingress_xdcc_bw_113">
+  <tdml:parserTestCase model="orion.dfdl.xsd" name="orion_command">
     <tdml:document>
-      <tdml:documentPart type="file">ingress_xdcc_bw.113.dat</tdml:documentPart>
+      <tdml:documentPart type="file">orion.command.dat</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
-      <tdml:dfdlInfoset type="file">ingress_xdcc_bw.113.dat.xml</tdml:dfdlInfoset>
+      <tdml:dfdlInfoset type="file">orion.command.dat.xml</tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase model="ingress_xdcc_bw.dfdl.xsd" name="ingress_xdcc_bw_114">
+  <tdml:parserTestCase model="orion.dfdl.xsd" name="orion_limits">
     <tdml:document>
-      <tdml:documentPart type="file">ingress_xdcc_bw.114.dat</tdml:documentPart>
+      <tdml:documentPart type="file">orion.limits.dat</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
-      <tdml:dfdlInfoset type="file">ingress_xdcc_bw.114.dat.xml</tdml:dfdlInfoset>
+      <tdml:dfdlInfoset type="file">orion.limits.dat.xml</tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase model="ingress_xdcc_bw.dfdl.xsd" name="ingress_xdcc_bw_115">
+  <tdml:parserTestCase model="orion.dfdl.xsd" name="orion_video">
     <tdml:document>
-      <tdml:documentPart type="file">ingress_xdcc_bw.115.dat</tdml:documentPart>
+      <tdml:documentPart type="file">orion.video.dat</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
-      <tdml:dfdlInfoset type="file">ingress_xdcc_bw.115.dat.xml</tdml:dfdlInfoset>
-    </tdml:infoset>
-  </tdml:parserTestCase>
-
-  <tdml:parserTestCase model="ingress_xdcc_bw.dfdl.xsd" name="ingress_xdcc_bw_116">
-    <tdml:document>
-      <tdml:documentPart type="file">ingress_xdcc_bw.116.dat</tdml:documentPart>
-    </tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset type="file">ingress_xdcc_bw.116.dat.xml</tdml:dfdlInfoset>
+      <tdml:dfdlInfoset type="file">orion.video.dat.xml</tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
 

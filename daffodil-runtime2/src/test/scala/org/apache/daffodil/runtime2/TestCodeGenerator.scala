@@ -120,6 +120,22 @@ class TestCodeGenerator {
     TestUtils.assertEqualsXMLElements(expected, pr.infosetAsXML)
   }
 
+  @Test def test_parse_error(): Unit = {
+    // Compile the test schema into a C executable
+    val pf = Compiler().compileNode(testSchema)
+    val cg = pf.forLanguage("c")
+    val codeDir = cg.generateCode(None, tempDir.toString)
+    val executable = cg.compileCode(codeDir)
+
+    // Create a Runtime2DataProcessor and parse an empty file unsuccessfully
+    val dp = new Runtime2DataProcessor(executable)
+    val b = Misc.hex2Bytes("")
+    val input = new ByteArrayInputStream(b)
+    val pr = dp.parse(input)
+    assert(pr.isError, "expected pr.isError to be true")
+    assert(pr.getDiagnostics.nonEmpty, "expected pr.getDiagnostics to be non-empty")
+  }
+
   @Test def test_unparse_success(): Unit = {
     // Compile the test schema into a C executable
     val pf = Compiler().compileNode(testSchema)
@@ -131,9 +147,25 @@ class TestCodeGenerator {
     val dp = new Runtime2DataProcessor(executable)
     val input = Channels.newInputStream(Misc.stringToReadableByteChannel("<e1><x>5</x></e1>"))
     val output = new ByteArrayOutputStream()
-    val pr = dp.unparse(input, output)
-    assert(!pr.isError && pf.getDiagnostics.isEmpty, pr.getDiagnostics.map(_.getMessage()).mkString("\n"))
+    val ur = dp.unparse(input, output)
+    assert(!ur.isError && pf.getDiagnostics.isEmpty, ur.getDiagnostics.map(_.getMessage()).mkString("\n"))
     val expected = Misc.hex2Bytes("00000005")
     assertArrayEquals(expected, output.toByteArray)
+  }
+
+  @Test def test_unparse_error(): Unit = {
+    // Compile the test schema into a C executable
+    val pf = Compiler().compileNode(testSchema)
+    val cg = pf.forLanguage("c")
+    val codeDir = cg.generateCode(None, tempDir.toString)
+    val executable = cg.compileCode(codeDir)
+
+    // Create a Runtime2DataProcessor and unparse a binary int32 number unsuccessfully
+    val dp = new Runtime2DataProcessor(executable)
+    val input = Channels.newInputStream(Misc.stringToReadableByteChannel("<e1><x>FAIL</x></e1>"))
+    val output = new ByteArrayOutputStream()
+    val ur = dp.unparse(input, output)
+    assert(ur.isError, "expected ur.isError to be true")
+    assert(ur.getDiagnostics.nonEmpty, "expected ur.getDiagnostics to be non-empty")
   }
 }

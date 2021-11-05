@@ -401,7 +401,7 @@ abstract class ParseOrUnparseState protected (
 
   final def validationError(msg: String, args: Any*): Unit = {
     val ctxt = getContext()
-    val vde = new ValidationError(Maybe(ctxt.schemaFileLocation), this, msg, args: _*)
+    val vde = new ValidationError(ctxt.schemaFileLocation, this, msg, args: _*)
     _validationStatus = false
     diagnostics = vde :: diagnostics
   }

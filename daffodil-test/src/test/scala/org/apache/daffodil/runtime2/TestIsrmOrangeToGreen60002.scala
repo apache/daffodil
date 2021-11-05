@@ -31,6 +31,5 @@ object TestIsrmOrangeToGreen60002 {
 class TestIsrmOrangeToGreen60002 {
   import TestIsrmOrangeToGreen60002._
 
-  @Test def test_ISRM_orange_to_green_60002_parse(): Unit = { runner.runOneTest("ISRM_orange_to_green_60002_parse") }
-  @Test def test_ISRM_orange_to_green_60002_unparse(): Unit = { runner.runOneTest("ISRM_orange_to_green_60002_unparse") }
+  @Test def test_ISRM_orange_to_green_60002(): Unit = { runner.runOneTest("ISRM_orange_to_green_60002") }
 }

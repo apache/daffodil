@@ -21,24 +21,19 @@ import org.junit.Test
 import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 
-object TestOrionCommand {
+object TestOrion {
   val testDir = "/org/apache/daffodil/runtime2/"
-  val runner = Runner(testDir, "orion-command.tdml")
+  val runner = Runner(testDir, "orion.tdml")
 
   @AfterClass def shutDown(): Unit = { runner.reset }
 }
 
-class TestOrionCommand {
-  import TestOrionCommand._
+class TestOrion {
+  import TestOrion._
 
-  @Test def test_command_parse(): Unit = { runner.runOneTest("command_parse") }
-  @Test def test_command_unparse(): Unit = { runner.runOneTest("command_unparse") }
-  @Test def test_camera_state_parse(): Unit = { runner.runOneTest("camera_state_parse") }
-  @Test def test_camera_state_unparse(): Unit = { runner.runOneTest("camera_state_unparse") }
-  @Test def test_video_settings_parse(): Unit = { runner.runOneTest("video_settings_parse") }
-  @Test def test_video_settings_unparse(): Unit = { runner.runOneTest("video_settings_unparse") }
-  @Test def test_aptina_settings_parse(): Unit = { runner.runOneTest("aptina_settings_parse") }
-  @Test def test_aptina_settings_unparse(): Unit = { runner.runOneTest("aptina_settings_unparse") }
-  @Test def test_limits_parse(): Unit = { runner.runOneTest("limits_parse") }
-  @Test def test_limits_unparse(): Unit = { runner.runOneTest("limits_unparse") }
+  @Test def test_orion_aptina(): Unit = { runner.runOneTest("orion_aptina") }
+  @Test def test_orion_camera(): Unit = { runner.runOneTest("orion_camera") }
+  @Test def test_orion_command(): Unit = { runner.runOneTest("orion_command") }
+  @Test def test_orion_limits(): Unit = { runner.runOneTest("orion_limits") }
+  @Test def test_orion_video(): Unit = { runner.runOneTest("orion_video") }
 }

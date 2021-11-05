@@ -19,9 +19,9 @@
 <tdml:testSuite
   defaultConfig="config-runtime2"
   defaultImplementations="daffodil daffodil-runtime2"
-  defaultRoundTrip="none"
+  defaultRoundTrip="onePass"
   defaultValidation="on"
-  description="TDML tests for ISRM_orange_to_green_60002"
+  description="TDML tests for ISRM_orange_to_green_60002.dfdl.xsd"
   xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData">
@@ -38,28 +38,13 @@
     </daf:tunables>
   </tdml:defineConfig>
 
-  <tdml:parserTestCase
-    model="ISRM_orange_to_green_60002.dfdl.xsd"
-    name="ISRM_orange_to_green_60002_parse"
-    root="IsrmRequestDecl">
+  <tdml:parserTestCase model="ISRM_orange_to_green_60002.dfdl.xsd" name="ISRM_orange_to_green_60002">
     <tdml:document>
-      <tdml:documentPart type="file">ISRM_orange_to_green_60002_parse.dat</tdml:documentPart>
+      <tdml:documentPart type="file">ISRM_orange_to_green_60002.dat</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
-      <tdml:dfdlInfoset type="file">ISRM_orange_to_green_60002_unparse.xml</tdml:dfdlInfoset>
+      <tdml:dfdlInfoset type="file">ISRM_orange_to_green_60002.dat.xml</tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
-
-  <tdml:unparserTestCase
-    model="ISRM_orange_to_green_60002.dfdl.xsd"
-    name="ISRM_orange_to_green_60002_unparse"
-    root="IsrmRequestDecl">
-    <tdml:infoset>
-      <tdml:dfdlInfoset type="file">ISRM_orange_to_green_60002_unparse.xml</tdml:dfdlInfoset>
-    </tdml:infoset>
-    <tdml:document>
-      <tdml:documentPart type="file">ISRM_orange_to_green_60002_parse.dat</tdml:documentPart>
-    </tdml:document>
-  </tdml:unparserTestCase>
 
 </tdml:testSuite>
