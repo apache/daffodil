@@ -25,6 +25,8 @@ import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.api.DataLocation
 import org.apache.daffodil.api.ValidationMode
 import org.apache.daffodil.api.ValidationResult
+import org.apache.daffodil.api.ValidationWarning
+import org.apache.daffodil.dsom.ValidationError
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.externalvars.Binding
 import org.apache.daffodil.processors.Failure
@@ -89,13 +91,14 @@ class Runtime2DataProcessor(executableFile: os.Path) extends DFDL.DataProcessorB
       os.write(infile, input)
       val result = os.proc(executableFile, "-o", outfile, "parse", infile).call(cwd = tempDir, stderr = os.Pipe)
       if (result.out.text.isEmpty && result.err.text.isEmpty) {
-        val parseResult = new ParseResult(outfile, Success, infile)
+        val parseResult = new ParseResult(infile, outfile, Success)
         parseResult
       } else {
-        val msg = s"Unexpected daffodil output on stdout: ${result.out.text} on stderr: ${result.err.text}"
-        val parseError = new ParseError(Nope, Nope, Nope, Maybe(msg))
-        val parseResult = new ParseResult(outfile, Failure(parseError), infile)
-        parseResult.addDiagnostic(parseError)
+        val msg = s"stdout: ${result.out.text} stderr: ${result.err.text}"
+        val warning = new ValidationWarning { override def getMessage: String = msg }
+        val validationResult = ValidationResult(Seq(warning), Seq.empty)
+        val parseResult = new ParseResult(infile, outfile, Success, Option(validationResult))
+        parseResult.addDiagnostic(new ValidationError(msg))
         parseResult
       }
     } catch {
@@ -103,10 +106,10 @@ class Runtime2DataProcessor(executableFile: os.Path) extends DFDL.DataProcessorB
         val parseError = if (e.result.out.text.isEmpty && e.result.err.text.isEmpty) {
           new ParseError(Nope, Nope, Maybe(e), Nope)
         } else {
-          val msg = s"${e.getMessage} with stdout: ${e.result.out.text} and stderr: ${e.result.err.text}"
+          val msg = s"${e.getMessage} stdout: ${e.result.out.text} stderr: ${e.result.err.text}"
           new ParseError(Nope, Nope, Nope, Maybe(msg))
         }
-        val parseResult = new ParseResult(outfile, Failure(parseError), infile)
+        val parseResult = new ParseResult(infile, outfile, Failure(parseError))
         parseResult.addDiagnostic(parseError)
         parseResult
     } finally {
@@ -130,7 +133,7 @@ class Runtime2DataProcessor(executableFile: os.Path) extends DFDL.DataProcessorB
         val unparseResult = new UnparseResult(finalBitPos0b, Success)
         unparseResult
       } else {
-        val msg = s"Unexpected daffodil output on stdout: ${result.out.text} on stderr: ${result.err.text}"
+        val msg = s"stdout: ${result.out.text} stderr: ${result.err.text}"
         val unparseError = new UnparseError(Nope, Nope, Nope, Maybe(msg))
         val unparseResult = new UnparseResult(finalBitPos0b, Failure(unparseError))
         unparseResult.addDiagnostic(unparseError)
@@ -141,7 +144,7 @@ class Runtime2DataProcessor(executableFile: os.Path) extends DFDL.DataProcessorB
         val unparseError = if (e.result.out.text.isEmpty && e.result.err.text.isEmpty) {
           new UnparseError(Nope, Nope, Maybe(e), Nope)
         } else {
-          val msg = s"${e.getMessage} with stdout: ${e.result.out.text} and stderr: ${e.result.err.text}"
+          val msg = s"${e.getMessage} stdout: ${e.result.out.text} stderr: ${e.result.err.text}"
           new UnparseError(Nope, Nope, Nope, Maybe(msg))
         }
         val finalBitPos0b = 0L
@@ -172,9 +175,10 @@ object Runtime2DataLocation {
   }
 }
 
-final class ParseResult(outfile: os.Path,
+final class ParseResult(infile: os.Path,
+                        outfile: os.Path,
                         override val processorStatus: ProcessorResult,
-                        infile: os.Path)
+                        override val validationResult: Option[ValidationResult] = None)
   extends DFDL.ParseResult
     with DFDL.State
     with WithDiagnosticsImpl {
@@ -186,13 +190,22 @@ final class ParseResult(outfile: os.Path,
 
   override def resultState: DFDL.State = this
 
-  override def validationResult(): Option[ValidationResult] = None
-
-  override def validationStatus: Boolean = processorStatus.isSuccess
+  override def validationStatus: Boolean = validationResult.isEmpty
 
   override def currentLocation: DataLocation = loc
 
-  val infosetAsXML : scala.xml.Elem = scala.xml.XML.loadFile(outfile.toIO)
+  // We must read outFile right away (def or lazy val will not work) because the
+  // parse method will delete outFile before returning ParseResult, but we must
+  // prevent loadFile errors from interrupting ParseResult's construction.
+  val infosetAsXML : scala.xml.Elem = {
+    val elem = try {
+      scala.xml.XML.loadFile(outfile.toIO)
+    } catch {
+      case _: org.xml.sax.SAXParseException =>
+        <dummy></dummy>
+    }
+    elem
+  }
 }
 
 final class UnparseResult(val finalBitPos0b: Long,

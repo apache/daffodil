@@ -31,9 +31,8 @@ object TestExNums {
 class TestExNums {
   import TestExNums._
 
-  @Test def test_ex_nums_parse_runtime1(): Unit = { runner.runOneTest("ex_nums_parse_runtime1") }
-  @Test def test_ex_nums_unparse_runtime1(): Unit = { runner.runOneTest("ex_nums_unparse_runtime1") }
-  @Test def test_ex_nums_parse_runtime2(): Unit = { runner.runOneTest("ex_nums_parse_runtime2") }
-  @Test def test_ex_nums_unparse_runtime2(): Unit = { runner.runOneTest("ex_nums_unparse_runtime2") }
-  @Test def test_ex_nums_unparse_errors(): Unit = { runner.runOneTest("ex_nums_unparse_errors") }
+  @Test def test_ex_nums_runtime1(): Unit = { runner.runOneTest("ex_nums_runtime1") }
+  @Test def test_ex_nums_runtime1_error(): Unit = { runner.runOneTest("ex_nums_runtime1_error") }
+  @Test def test_ex_nums_runtime2(): Unit = { runner.runOneTest("ex_nums_runtime2") }
+  @Test def test_ex_nums_runtime2_error(): Unit = { runner.runOneTest("ex_nums_runtime2_error") }
 }

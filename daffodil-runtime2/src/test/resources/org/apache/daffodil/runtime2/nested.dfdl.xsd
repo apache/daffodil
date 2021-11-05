@@ -16,21 +16,33 @@
   limitations under the License.
 -->
 
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:idl="urn:idl:1.0" targetNamespace="urn:idl:1.0">
+<xs:schema
+ xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+ xmlns:idl="urn:idl:1.0"
+ xmlns:xs="http://www.w3.org/2001/XMLSchema"
+ targetNamespace="urn:idl:1.0">
+
+  <!-- Representation property bindings -->
+
+  <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/">
-      <dfdl:defineFormat name="defaults">
-        <dfdl:format alignment="8" alignmentUnits="bits" binaryBooleanFalseRep="0" binaryBooleanTrueRep="1" binaryFloatRep="ieee" binaryNumberCheckPolicy="lax" binaryNumberRep="binary" bitOrder="mostSignificantBitFirst" byteOrder="bigEndian" choiceLengthKind="implicit" encoding="utf-8" encodingErrorPolicy="replace" escapeSchemeRef="" fillByte="%#r20;" floating="no" ignoreCase="no" initiatedContent="no" initiator="" leadingSkip="0" lengthKind="implicit" lengthUnits="bits" occursCountKind="implicit" prefixIncludesPrefixLength="no" representation="binary" separator="" separatorPosition="infix" sequenceKind="ordered" terminator="" textBidi="no" textPadKind="none" trailingSkip="0" truncateSpecifiedLengthString="no"/>
-      </dfdl:defineFormat>
-      <dfdl:format ref="idl:defaults"/>
+      <dfdl:format
+        ref="GeneralFormat"
+        binaryBooleanFalseRep="0"
+        binaryBooleanTrueRep="1"
+        prefixIncludesPrefixLength="no"
+        representation="binary"/>
     </xs:appinfo>
   </xs:annotation>
 
-  <xs:simpleType name="double" dfdl:length="64" dfdl:lengthKind="explicit">
+  <!-- Simple and complex types -->
+
+  <xs:simpleType name="double">
     <xs:restriction base="xs:double"/>
   </xs:simpleType>
 
-  <xs:simpleType name="int32" dfdl:length="32" dfdl:lengthKind="explicit">
+  <xs:simpleType name="int32">
     <xs:restriction base="xs:int"/>
   </xs:simpleType>
 
@@ -76,6 +88,8 @@
       </xs:element>
     </xs:sequence>
   </xs:complexType>
+
+  <!-- Root elements -->
 
   <xs:element name="NestedStruct" type="idl:NestedStructType"/>
 

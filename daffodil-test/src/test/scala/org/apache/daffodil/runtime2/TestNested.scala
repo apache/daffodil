@@ -31,10 +31,7 @@ object TestNested {
 class TestNested {
   import TestNested._
 
-  @Test def test_nested_struct_parse(): Unit = { runner.runOneTest("nested_struct_parse") }
-  @Test def test_nested_struct_unparse(): Unit = { runner.runOneTest("nested_struct_unparse") }
-  @Test def test_nested_union_parse_2(): Unit = { runner.runOneTest("nested_union_parse_2") }
-  @Test def test_nested_union_unparse_2(): Unit = { runner.runOneTest("nested_union_unparse_2") }
-  @Test def test_nested_union_parse_4(): Unit = { runner.runOneTest("nested_union_parse_4") }
-  @Test def test_nested_union_unparse_4(): Unit = { runner.runOneTest("nested_union_unparse_4") }
+  @Test def test_nested_struct(): Unit = { runner.runOneTest("nested_struct") }
+  @Test def test_nested_union_bar(): Unit = { runner.runOneTest("nested_union_bar") }
+  @Test def test_nested_union_foo(): Unit = { runner.runOneTest("nested_union_foo") }
 }

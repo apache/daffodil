@@ -19,8 +19,8 @@
 <tdml:testSuite
   defaultConfig="config-runtime2"
   defaultImplementations="daffodil daffodil-runtime2"
-  defaultRoundTrip="none"
-  description="TDML tests for egress_xdcc_bw"
+  defaultRoundTrip="onePass"
+  description="TDML tests for egress_xdcc_bw.dfdl.xsd"
   xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData">
@@ -37,264 +37,94 @@
     </daf:tunables>
   </tdml:defineConfig>
 
-  <tdml:parserTestCase
-    description="egress_xdcc_bw parse test 11"
-    model="egress_xdcc_bw.dfdl.xsd"
-    name="egress_xdcc_bw_parse_11"
-    root="GapsPDU">
+  <tdml:parserTestCase model="egress_xdcc_bw.dfdl.xsd" name="egress_xdcc_bw_11">
     <tdml:document>
-      <tdml:documentPart type="file">egress_xdcc_bw_parse_11.dat</tdml:documentPart>
+      <tdml:documentPart type="file">egress_xdcc_bw.11.dat</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
-      <tdml:dfdlInfoset type="file">egress_xdcc_bw_unparse_11.xml</tdml:dfdlInfoset>
+      <tdml:dfdlInfoset type="file">egress_xdcc_bw.11.dat.xml</tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:unparserTestCase
-    description="egress_xdcc_bw unparse test 11"
-    model="egress_xdcc_bw.dfdl.xsd"
-    name="egress_xdcc_bw_unparse_11"
-    root="GapsPDU">
-    <tdml:infoset>
-      <tdml:dfdlInfoset type="file">egress_xdcc_bw_unparse_11.xml</tdml:dfdlInfoset>
-    </tdml:infoset>
+  <tdml:parserTestCase model="egress_xdcc_bw.dfdl.xsd" name="egress_xdcc_bw_12">
     <tdml:document>
-      <tdml:documentPart type="file">egress_xdcc_bw_parse_11.dat</tdml:documentPart>
-    </tdml:document>
-  </tdml:unparserTestCase>
-
-  <tdml:parserTestCase
-    description="egress_xdcc_bw parse test 12"
-    model="egress_xdcc_bw.dfdl.xsd"
-    name="egress_xdcc_bw_parse_12"
-    root="GapsPDU">
-    <tdml:document>
-      <tdml:documentPart type="file">egress_xdcc_bw_parse_12.dat</tdml:documentPart>
+      <tdml:documentPart type="file">egress_xdcc_bw.12.dat</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
-      <tdml:dfdlInfoset type="file">egress_xdcc_bw_unparse_12.xml</tdml:dfdlInfoset>
+      <tdml:dfdlInfoset type="file">egress_xdcc_bw.12.dat.xml</tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:unparserTestCase
-    description="egress_xdcc_bw unparse test 12"
-    model="egress_xdcc_bw.dfdl.xsd"
-    name="egress_xdcc_bw_unparse_12"
-    root="GapsPDU">
-    <tdml:infoset>
-      <tdml:dfdlInfoset type="file">egress_xdcc_bw_unparse_12.xml</tdml:dfdlInfoset>
-    </tdml:infoset>
+  <tdml:parserTestCase model="egress_xdcc_bw.dfdl.xsd" name="egress_xdcc_bw_13">
     <tdml:document>
-      <tdml:documentPart type="file">egress_xdcc_bw_parse_12.dat</tdml:documentPart>
-    </tdml:document>
-  </tdml:unparserTestCase>
-
-  <tdml:parserTestCase
-    description="egress_xdcc_bw parse test 13"
-    model="egress_xdcc_bw.dfdl.xsd"
-    name="egress_xdcc_bw_parse_13"
-    root="GapsPDU">
-    <tdml:document>
-      <tdml:documentPart type="file">egress_xdcc_bw_parse_13.dat</tdml:documentPart>
+      <tdml:documentPart type="file">egress_xdcc_bw.13.dat</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
-      <tdml:dfdlInfoset type="file">egress_xdcc_bw_unparse_13.xml</tdml:dfdlInfoset>
+      <tdml:dfdlInfoset type="file">egress_xdcc_bw.13.dat.xml</tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:unparserTestCase
-    description="egress_xdcc_bw unparse test 13"
-    model="egress_xdcc_bw.dfdl.xsd"
-    name="egress_xdcc_bw_unparse_13"
-    root="GapsPDU">
-    <tdml:infoset>
-      <tdml:dfdlInfoset type="file">egress_xdcc_bw_unparse_13.xml</tdml:dfdlInfoset>
-    </tdml:infoset>
+  <tdml:parserTestCase model="egress_xdcc_bw.dfdl.xsd" name="egress_xdcc_bw_14">
     <tdml:document>
-      <tdml:documentPart type="file">egress_xdcc_bw_parse_13.dat</tdml:documentPart>
-    </tdml:document>
-  </tdml:unparserTestCase>
-
-  <tdml:parserTestCase
-    description="egress_xdcc_bw parse test 14"
-    model="egress_xdcc_bw.dfdl.xsd"
-    name="egress_xdcc_bw_parse_14"
-    root="GapsPDU">
-    <tdml:document>
-      <tdml:documentPart type="file">egress_xdcc_bw_parse_14.dat</tdml:documentPart>
+      <tdml:documentPart type="file">egress_xdcc_bw.14.dat</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
-      <tdml:dfdlInfoset type="file">egress_xdcc_bw_unparse_14.xml</tdml:dfdlInfoset>
+      <tdml:dfdlInfoset type="file">egress_xdcc_bw.14.dat.xml</tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:unparserTestCase
-    description="egress_xdcc_bw unparse test 14"
-    model="egress_xdcc_bw.dfdl.xsd"
-    name="egress_xdcc_bw_unparse_14"
-    root="GapsPDU">
-    <tdml:infoset>
-      <tdml:dfdlInfoset type="file">egress_xdcc_bw_unparse_14.xml</tdml:dfdlInfoset>
-    </tdml:infoset>
+  <tdml:parserTestCase model="egress_xdcc_bw.dfdl.xsd" name="egress_xdcc_bw_15">
     <tdml:document>
-      <tdml:documentPart type="file">egress_xdcc_bw_parse_14.dat</tdml:documentPart>
-    </tdml:document>
-  </tdml:unparserTestCase>
-
-  <tdml:parserTestCase
-    description="egress_xdcc_bw parse test 15"
-    model="egress_xdcc_bw.dfdl.xsd"
-    name="egress_xdcc_bw_parse_15"
-    root="GapsPDU">
-    <tdml:document>
-      <tdml:documentPart type="file">egress_xdcc_bw_parse_15.dat</tdml:documentPart>
+      <tdml:documentPart type="file">egress_xdcc_bw.15.dat</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
-      <tdml:dfdlInfoset type="file">egress_xdcc_bw_unparse_15.xml</tdml:dfdlInfoset>
+      <tdml:dfdlInfoset type="file">egress_xdcc_bw.15.dat.xml</tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:unparserTestCase
-    description="egress_xdcc_bw unparse test 15"
-    model="egress_xdcc_bw.dfdl.xsd"
-    name="egress_xdcc_bw_unparse_15"
-    root="GapsPDU">
-    <tdml:infoset>
-      <tdml:dfdlInfoset type="file">egress_xdcc_bw_unparse_15.xml</tdml:dfdlInfoset>
-    </tdml:infoset>
+  <tdml:parserTestCase model="egress_xdcc_bw.dfdl.xsd" name="egress_xdcc_bw_16">
     <tdml:document>
-      <tdml:documentPart type="file">egress_xdcc_bw_parse_15.dat</tdml:documentPart>
-    </tdml:document>
-  </tdml:unparserTestCase>
-
-  <tdml:parserTestCase
-    description="egress_xdcc_bw parse test 16"
-    model="egress_xdcc_bw.dfdl.xsd"
-    name="egress_xdcc_bw_parse_16"
-    root="GapsPDU">
-    <tdml:document>
-      <tdml:documentPart type="file">egress_xdcc_bw_parse_16.dat</tdml:documentPart>
+      <tdml:documentPart type="file">egress_xdcc_bw.16.dat</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
-      <tdml:dfdlInfoset type="file">egress_xdcc_bw_unparse_16.xml</tdml:dfdlInfoset>
+      <tdml:dfdlInfoset type="file">egress_xdcc_bw.16.dat.xml</tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:unparserTestCase
-    description="egress_xdcc_bw unparse test 16"
-    model="egress_xdcc_bw.dfdl.xsd"
-    name="egress_xdcc_bw_unparse_16"
-    root="GapsPDU">
-    <tdml:infoset>
-      <tdml:dfdlInfoset type="file">egress_xdcc_bw_unparse_16.xml</tdml:dfdlInfoset>
-    </tdml:infoset>
+  <tdml:parserTestCase model="egress_xdcc_bw.dfdl.xsd" name="egress_xdcc_bw_17">
     <tdml:document>
-      <tdml:documentPart type="file">egress_xdcc_bw_parse_16.dat</tdml:documentPart>
-    </tdml:document>
-  </tdml:unparserTestCase>
-
-  <tdml:parserTestCase
-    description="egress_xdcc_bw parse test 17"
-    model="egress_xdcc_bw.dfdl.xsd"
-    name="egress_xdcc_bw_parse_17"
-    root="GapsPDU">
-    <tdml:document>
-      <tdml:documentPart type="file">egress_xdcc_bw_parse_17.dat</tdml:documentPart>
+      <tdml:documentPart type="file">egress_xdcc_bw.17.dat</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
-      <tdml:dfdlInfoset type="file">egress_xdcc_bw_unparse_17.xml</tdml:dfdlInfoset>
+      <tdml:dfdlInfoset type="file">egress_xdcc_bw.17.dat.xml</tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:unparserTestCase
-    description="egress_xdcc_bw unparse test 17"
-    model="egress_xdcc_bw.dfdl.xsd"
-    name="egress_xdcc_bw_unparse_17"
-    root="GapsPDU">
-    <tdml:infoset>
-      <tdml:dfdlInfoset type="file">egress_xdcc_bw_unparse_17.xml</tdml:dfdlInfoset>
-    </tdml:infoset>
+  <tdml:parserTestCase model="egress_xdcc_bw.dfdl.xsd" name="egress_xdcc_bw_18">
     <tdml:document>
-      <tdml:documentPart type="file">egress_xdcc_bw_parse_17.dat</tdml:documentPart>
-    </tdml:document>
-  </tdml:unparserTestCase>
-
-  <tdml:parserTestCase
-    description="egress_xdcc_bw parse test 18"
-    model="egress_xdcc_bw.dfdl.xsd"
-    name="egress_xdcc_bw_parse_18"
-    root="GapsPDU">
-    <tdml:document>
-      <tdml:documentPart type="file">egress_xdcc_bw_parse_18.dat</tdml:documentPart>
+      <tdml:documentPart type="file">egress_xdcc_bw.18.dat</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
-      <tdml:dfdlInfoset type="file">egress_xdcc_bw_unparse_18.xml</tdml:dfdlInfoset>
+      <tdml:dfdlInfoset type="file">egress_xdcc_bw.18.dat.xml</tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:unparserTestCase
-    description="egress_xdcc_bw unparse test 18"
-    model="egress_xdcc_bw.dfdl.xsd"
-    name="egress_xdcc_bw_unparse_18"
-    root="GapsPDU">
-    <tdml:infoset>
-      <tdml:dfdlInfoset type="file">egress_xdcc_bw_unparse_18.xml</tdml:dfdlInfoset>
-    </tdml:infoset>
+  <tdml:parserTestCase model="egress_xdcc_bw.dfdl.xsd" name="egress_xdcc_bw_19">
     <tdml:document>
-      <tdml:documentPart type="file">egress_xdcc_bw_parse_18.dat</tdml:documentPart>
-    </tdml:document>
-  </tdml:unparserTestCase>
-
-  <tdml:parserTestCase
-    description="egress_xdcc_bw parse test 19"
-    model="egress_xdcc_bw.dfdl.xsd"
-    name="egress_xdcc_bw_parse_19"
-    root="GapsPDU">
-    <tdml:document>
-      <tdml:documentPart type="file">egress_xdcc_bw_parse_19.dat</tdml:documentPart>
+      <tdml:documentPart type="file">egress_xdcc_bw.19.dat</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
-      <tdml:dfdlInfoset type="file">egress_xdcc_bw_unparse_19.xml</tdml:dfdlInfoset>
+      <tdml:dfdlInfoset type="file">egress_xdcc_bw.19.dat.xml</tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:unparserTestCase
-    description="egress_xdcc_bw unparse test 19"
-    model="egress_xdcc_bw.dfdl.xsd"
-    name="egress_xdcc_bw_unparse_19"
-    root="GapsPDU">
-    <tdml:infoset>
-      <tdml:dfdlInfoset type="file">egress_xdcc_bw_unparse_19.xml</tdml:dfdlInfoset>
-    </tdml:infoset>
+  <tdml:parserTestCase model="egress_xdcc_bw.dfdl.xsd" name="egress_xdcc_bw_20">
     <tdml:document>
-      <tdml:documentPart type="file">egress_xdcc_bw_parse_19.dat</tdml:documentPart>
-    </tdml:document>
-  </tdml:unparserTestCase>
-
-  <tdml:parserTestCase
-    description="egress_xdcc_bw parse test 20"
-    model="egress_xdcc_bw.dfdl.xsd"
-    name="egress_xdcc_bw_parse_20"
-    root="GapsPDU">
-    <tdml:document>
-      <tdml:documentPart type="file">egress_xdcc_bw_parse_20.dat</tdml:documentPart>
+      <tdml:documentPart type="file">egress_xdcc_bw.20.dat</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
-      <tdml:dfdlInfoset type="file">egress_xdcc_bw_unparse_20.xml</tdml:dfdlInfoset>
+      <tdml:dfdlInfoset type="file">egress_xdcc_bw.20.dat.xml</tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
-
-  <tdml:unparserTestCase
-    description="egress_xdcc_bw unparse test 20"
-    model="egress_xdcc_bw.dfdl.xsd"
-    name="egress_xdcc_bw_unparse_20"
-    root="GapsPDU">
-    <tdml:infoset>
-      <tdml:dfdlInfoset type="file">egress_xdcc_bw_unparse_20.xml</tdml:dfdlInfoset>
-    </tdml:infoset>
-    <tdml:document>
-      <tdml:documentPart type="file">egress_xdcc_bw_parse_20.dat</tdml:documentPart>
-    </tdml:document>
-  </tdml:unparserTestCase>
 
 </tdml:testSuite>

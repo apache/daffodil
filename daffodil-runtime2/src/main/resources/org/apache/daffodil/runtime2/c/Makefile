@@ -35,14 +35,14 @@ LIBS = -lmxml
 $(PROGRAM): $(HEADERS) $(SOURCES)
 	$(CC) $(CFLAGS) $(INCLUDES) $(SOURCES) $(LIBS) -o $(PROGRAM)
 
-# Step 2: Copy your test files here and rename them to parse.dat and
-# unparse.xml or else edit PARSE_DAT and UNPARSE_XML below.
+# Step 2: Copy your test files here and rename them to test.dat and
+# test.dat.xml or else edit TEST_DAT and TEST_DAT_XML below.
 
-# $ cp ../ex_nums_parse.dat parse.dat
-# $ cp ../ex_nums_unparse_runtime2.xml unparse.xml
+# $ cp ../ex_nums.dat test.dat
+# $ cp ../ex_nums.dat.xml.runtime2 test.dat.xml
 
-PARSE_DAT = parse.dat
-UNPARSE_XML = unparse.xml
+TEST_DAT = test.dat
+TEST_DAT_XML = test.dat.xml
 
 # Step 3: Run the executable on the test files and check that the new
 # scratch files match the original test files.
@@ -52,18 +52,18 @@ UNPARSE_XML = unparse.xml
 check: parse-check unparse-check
 
 parse-check: $(PROGRAM)
-	$(PROGRAM) -o tmp_$(UNPARSE_XML) parse $(PARSE_DAT)
-	xmldiff $(UNPARSE_XML) tmp_$(UNPARSE_XML)
+	$(PROGRAM) -o $(TEST_DAT_XML).tmp parse $(TEST_DAT)
+	xmldiff $(TEST_DAT_XML) $(TEST_DAT_XML).tmp
 
 unparse-check: $(PROGRAM)
-	$(PROGRAM) -o tmp_$(PARSE_DAT) unparse $(UNPARSE_XML)
-	diff $(PARSE_DAT) tmp_$(PARSE_DAT)
+	$(PROGRAM) -o $(TEST_DAT).tmp unparse $(TEST_DAT_XML)
+	diff $(TEST_DAT) $(TEST_DAT).tmp
 
 # Step 4: Remove the executable and scratch files (optional).
 
 # $ make clean
 
 clean:
-	rm -f $(PROGRAM) tmp_$(PARSE_DAT) tmp_$(UNPARSE_XML)
+	rm -f $(PROGRAM) $(TEST_DAT).tmp $(TEST_DAT_XML).tmp
 
 .PHONY: check parse-check unparse-check clean

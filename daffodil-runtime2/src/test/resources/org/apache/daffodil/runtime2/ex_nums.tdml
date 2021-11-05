@@ -18,8 +18,8 @@
 
 <tdml:testSuite
   defaultImplementations="daffodil daffodil-runtime2"
-  defaultRoundTrip="none"
-  description="TDML tests for ex_nums"
+  defaultRoundTrip="onePass"
+  description="TDML tests for ex_nums.dfdl.xsd"
   xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData">
@@ -37,66 +37,95 @@
   </tdml:defineConfig>
 
   <tdml:parserTestCase
-    name="ex_nums_parse_runtime1"
+    config="config-runtime1"
     model="ex_nums.dfdl.xsd"
-    config="config-runtime1">
+    name="ex_nums_runtime1">
     <tdml:document>
-      <tdml:documentPart type="file">ex_nums_parse.dat</tdml:documentPart>
+      <tdml:documentPart type="file">ex_nums.dat</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
-      <tdml:dfdlInfoset type="file">ex_nums_unparse_runtime1.xml</tdml:dfdlInfoset>
+      <tdml:dfdlInfoset type="file">ex_nums.runtime1.dat.xml</tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
-
-  <tdml:unparserTestCase
-    name="ex_nums_unparse_runtime1"
-    model="ex_nums.dfdl.xsd"
-    config="config-runtime1">
-    <tdml:infoset>
-      <tdml:dfdlInfoset type="file">ex_nums_unparse_runtime1.xml</tdml:dfdlInfoset>
-    </tdml:infoset>
-    <tdml:document>
-      <tdml:documentPart type="file">ex_nums_parse.dat</tdml:documentPart>
-    </tdml:document>
-  </tdml:unparserTestCase>
 
   <tdml:parserTestCase
-    name="ex_nums_parse_runtime2"
+    config="config-runtime2"
     model="ex_nums.dfdl.xsd"
-    config="config-runtime2">
+    name="ex_nums_runtime2">
     <tdml:document>
-      <tdml:documentPart type="file">ex_nums_parse.dat</tdml:documentPart>
+      <tdml:documentPart type="file">ex_nums.dat</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
-      <tdml:dfdlInfoset type="file">ex_nums_unparse_runtime2.xml</tdml:dfdlInfoset>
+      <tdml:dfdlInfoset type="file">ex_nums.runtime2.dat.xml</tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:unparserTestCase
-    name="ex_nums_unparse_runtime2"
+  <!-- validation="limited" will report no validation errors, while
+       validation="on" will report errors which cannot be captured -->
+  <tdml:parserTestCase
+    config="config-runtime1"
     model="ex_nums.dfdl.xsd"
-    config="config-runtime2">
-    <tdml:infoset>
-      <tdml:dfdlInfoset type="file">ex_nums_unparse_runtime2.xml</tdml:dfdlInfoset>
-    </tdml:infoset>
+    name="ex_nums_runtime1_error"
+    validation="limited"> 
     <tdml:document>
-      <tdml:documentPart type="file">ex_nums_parse.dat</tdml:documentPart>
+      <tdml:documentPart type="file">ex_nums.error.dat</tdml:documentPart>
     </tdml:document>
-  </tdml:unparserTestCase>
-
-  <tdml:unparserTestCase
-    name="ex_nums_unparse_errors"
-    model="ex_nums.dfdl.xsd"
-    config="config-runtime2">
     <tdml:infoset>
-      <tdml:dfdlInfoset type="file">ex_nums_unparse_errors.xml</tdml:dfdlInfoset>
+      <tdml:dfdlInfoset type="file">ex_nums.runtime1.error.dat.xml</tdml:dfdlInfoset>
     </tdml:infoset>
-    <tdml:errors>
+  </tdml:parserTestCase>
+
+  <!-- disable round tripping since TDMLRunner can process parse
+       validation errors but not unparse validation errors -->
+  <tdml:parserTestCase
+    config="config-runtime2"
+    model="ex_nums.dfdl.xsd"
+    name="ex_nums_runtime2_error"
+    roundTrip="none"
+    validation="limited"> 
+    <tdml:document>
+      <tdml:documentPart type="file">ex_nums.error.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">ex_nums.runtime2.error.dat.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
       <tdml:error>value</tdml:error>
+      <tdml:error>boolean_false</tdml:error>
       <tdml:error>does not match</tdml:error>
       <tdml:error>fixed</tdml:error>
       <tdml:error>attribute</tdml:error>
-    </tdml:errors>
-  </tdml:unparserTestCase>
+
+      <tdml:error>value</tdml:error>
+      <tdml:error>boolean_true</tdml:error>
+      <tdml:error>does not match</tdml:error>
+      <tdml:error>fixed</tdml:error>
+      <tdml:error>attribute</tdml:error>
+
+      <tdml:error>value</tdml:error>
+      <tdml:error>float_1_5</tdml:error>
+      <tdml:error>does not match</tdml:error>
+      <tdml:error>fixed</tdml:error>
+      <tdml:error>attribute</tdml:error>
+
+      <tdml:error>value</tdml:error>
+      <tdml:error>int_32</tdml:error>
+      <tdml:error>does not match</tdml:error>
+      <tdml:error>fixed</tdml:error>
+      <tdml:error>attribute</tdml:error>
+
+      <tdml:error>value</tdml:error>
+      <tdml:error>hexBinary_deadbeef</tdml:error>
+      <tdml:error>does not match</tdml:error>
+      <tdml:error>fixed</tdml:error>
+      <tdml:error>attribute</tdml:error>
+
+      <tdml:error>value</tdml:error>
+      <tdml:error>hexBinaryPrefixed_ab</tdml:error>
+      <tdml:error>does not match</tdml:error>
+      <tdml:error>fixed</tdml:error>
+      <tdml:error>attribute</tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
 
 </tdml:testSuite>

@@ -93,28 +93,28 @@ class SchemaDefinitionWarning(schemaContext: Option[SchemaFileLocation],
   def modeName = "Schema Definition"
 }
 
-class ValidationError(schemaContext: Maybe[SchemaFileLocation],
-  runtimeContext: ParseOrUnparseState,
-  maybeCause: Maybe[Throwable],
-  maybeFormatString: Maybe[String],
-  args: Any*)
+class ValidationError(maybeSchemaContext: Maybe[SchemaFileLocation],
+                      maybeRuntimeContext: Maybe[ParseOrUnparseState],
+                      maybeCause: Maybe[Throwable],
+                      maybeFormatString: Maybe[String],
+                      args: Any*)
   extends SchemaDefinitionDiagnosticBase(
-    (if (schemaContext.isDefined) schemaContext else {
-      val mERD = runtimeContext.maybeERD
-      if (mERD.isDefined) Maybe(mERD.get.schemaFileLocation)
-      else Nope
-    }),
-    Maybe(runtimeContext), None, maybeCause, maybeFormatString, args: _*) {
+    maybeSchemaContext, maybeRuntimeContext, None, maybeCause, maybeFormatString, args: _*) {
 
-  def this(runtimeContext: ParseOrUnparseState, formatString: String, args: Any*) =
-    this(Nope, runtimeContext, Nope, Maybe(formatString), args: _*)
-
-  def this(scheamContext: Maybe[SchemaFileLocation],
-    runtimeContext: ParseOrUnparseState, formatString: String, args: Any*) =
-    this(Nope, runtimeContext, Nope, Maybe(formatString), args: _*)
+  def this(schemaContext: SchemaFileLocation,
+           runtimeContext: ParseOrUnparseState, formatString: String, args: Any*) =
+    this(Maybe(schemaContext), Maybe(runtimeContext), Nope, Maybe(formatString), args: _*)
 
   def this(runtimeContext: ParseOrUnparseState, cause: Throwable) =
-    this(Nope, runtimeContext, Maybe(cause), Nope)
+    this(
+      if (runtimeContext.maybeERD.isDefined)
+        Maybe(runtimeContext.maybeERD.get.schemaFileLocation)
+      else
+        Nope,
+      Maybe(runtimeContext), Maybe(cause), Nope)
+
+  def this(formatString: String, args: Any*) =
+    this(Nope, Nope, Nope, Maybe(formatString), args: _*)
 
   override def isError = true
   

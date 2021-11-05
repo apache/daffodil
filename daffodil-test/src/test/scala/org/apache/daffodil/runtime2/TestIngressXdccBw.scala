@@ -31,16 +31,10 @@ object TestIngressXdccBw {
 class TestIngressXdccBw {
   import TestIngressXdccBw._
 
-  @Test def test_ingress_xdcc_bw_parse_111(): Unit = { runner.runOneTest("ingress_xdcc_bw_parse_111") }
-  @Test def test_ingress_xdcc_bw_unparse_111(): Unit = { runner.runOneTest("ingress_xdcc_bw_unparse_111") }
-  @Test def test_ingress_xdcc_bw_parse_112(): Unit = { runner.runOneTest("ingress_xdcc_bw_parse_112") }
-  @Test def test_ingress_xdcc_bw_unparse_112(): Unit = { runner.runOneTest("ingress_xdcc_bw_unparse_112") }
-  @Test def test_ingress_xdcc_bw_parse_113(): Unit = { runner.runOneTest("ingress_xdcc_bw_parse_113") }
-  @Test def test_ingress_xdcc_bw_unparse_113(): Unit = { runner.runOneTest("ingress_xdcc_bw_unparse_113") }
-  @Test def test_ingress_xdcc_bw_parse_114(): Unit = { runner.runOneTest("ingress_xdcc_bw_parse_114") }
-  @Test def test_ingress_xdcc_bw_unparse_114(): Unit = { runner.runOneTest("ingress_xdcc_bw_unparse_114") }
-  @Test def test_ingress_xdcc_bw_parse_115(): Unit = { runner.runOneTest("ingress_xdcc_bw_parse_115") }
-  @Test def test_ingress_xdcc_bw_unparse_115(): Unit = { runner.runOneTest("ingress_xdcc_bw_unparse_115") }
-  @Test def test_ingress_xdcc_bw_parse_116(): Unit = { runner.runOneTest("ingress_xdcc_bw_parse_116") }
-  @Test def test_ingress_xdcc_bw_unparse_116(): Unit = { runner.runOneTest("ingress_xdcc_bw_unparse_116") }
+  @Test def test_ingress_xdcc_bw_111(): Unit = { runner.runOneTest("ingress_xdcc_bw_111") }
+  @Test def test_ingress_xdcc_bw_112(): Unit = { runner.runOneTest("ingress_xdcc_bw_112") }
+  @Test def test_ingress_xdcc_bw_113(): Unit = { runner.runOneTest("ingress_xdcc_bw_113") }
+  @Test def test_ingress_xdcc_bw_114(): Unit = { runner.runOneTest("ingress_xdcc_bw_114") }
+  @Test def test_ingress_xdcc_bw_115(): Unit = { runner.runOneTest("ingress_xdcc_bw_115") }
+  @Test def test_ingress_xdcc_bw_116(): Unit = { runner.runOneTest("ingress_xdcc_bw_116") }
 }
