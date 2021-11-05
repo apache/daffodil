@@ -584,7 +584,6 @@ case class WholeExpression(
     // object will have been created and given this as its parent pointer.
     //
     Assert.invariant(subExpr == ifor || ifor.isInstanceOf[FunctionCallExpression])
-
     // The result of this function will be used to coerce the result of the
     // expression to the target type. However, we do not always want to allow
     // type coercion even when it might be possible. For example, if the
@@ -596,7 +595,6 @@ case class WholeExpression(
     // then we should still allow that coercion. Below we allow coercion
     // between decimal-like types where precision would not be lost, and all
     // integer-like types (which check for precision loss when evaluated).
-
     val allowCoercion = (inherentType, targetType) match {
       case (_, _) if inherentType == targetType => true
       case (_, _) if (inherentType.isSubtypeOf(NodeInfo.String) && targetType.isSubtypeOf(NodeInfo.String)) => true
@@ -1663,6 +1661,9 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           NodeInfo.Boolean, NodeInfo.String, DFDLContainsDFDLEntities(_, _))
       }
 
+
+
+
       case (RefQName(_, "testBit", DFDL), args) => {
         DFDLTestBitExpr(functionQNameString, functionQName, args)
       }
@@ -1686,6 +1687,16 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
       }
 
       //End typeValueCalc related functions
+
+      case (RefQName(_, "doubleFromRawLong", DFDLX), args) => {
+        FNOneArgExpr(functionQNameString, functionQName, args,
+           NodeInfo.Double, NodeInfo.Long, DFDLXDoubleFromRawLong(_, _))
+      }
+
+      case (RefQName(_, "doubleToRawLong", DFDLX), args) => {
+        FNOneArgExpr(functionQNameString, functionQName, args,
+          NodeInfo.Long, NodeInfo.Double, DFDLXDoubleToRawLong(_, _))
+      }
 
       case (RefQName(_, "lookAhead", DFDLX), args) =>
         FNTwoArgsExpr(functionQNameString, functionQName, args,
