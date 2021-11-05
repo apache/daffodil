@@ -18,7 +18,7 @@
 package org.apache.daffodil.dpath
 
 import java.math.{BigInteger => JBigInt}
-
+import java.lang.{Double => JDouble}
 import org.apache.daffodil.dpath.NodeInfo.PrimType.PrimNumeric
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.infoset.DINode
@@ -31,6 +31,8 @@ import org.apache.daffodil.processors.unparsers.UnparseError
 import org.apache.daffodil.util.Maybe.Nope
 import org.apache.daffodil.util.Maybe.One
 import passera.unsigned.{UByte, UInt, ULong, UShort}
+import org.apache.daffodil.infoset.DataValue.DataValueLong
+import org.apache.daffodil.infoset.DataValue.DataValueDouble
 
 /**
  * This is the "logical" shift left.
@@ -267,5 +269,20 @@ case class DFDLXLookAhead(recipes: List[CompiledDPath])
       Assert.invariant(dstate.parseOrUnparseState.get.isInstanceOf[UState])
       dstate.SDE("Cannot call dfdlx:lookAhead() during unparse")
     }
+  }
+}
+
+
+case class DFDLXDoubleFromRawLong(recipes: CompiledDPath, argType: NodeInfo.Kind )
+  extends FNOneArg(recipes, argType) {
+  override def computeValue(value: DataValuePrimitive, dstate: DState): DataValueDouble = {
+    JDouble.longBitsToDouble(value.getLong)
+  }
+}
+
+case class DFDLXDoubleToRawLong(recipes: CompiledDPath, argType: NodeInfo.Kind )
+  extends FNOneArg(recipes, argType) {
+  override def computeValue(value: DataValuePrimitive, dstate: DState): DataValueLong = {
+    JDouble.doubleToRawLongBits(value.getDouble)
   }
 }

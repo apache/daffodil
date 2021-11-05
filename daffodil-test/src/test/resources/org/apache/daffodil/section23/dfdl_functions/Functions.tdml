@@ -13920,4 +13920,56 @@
     <tdml:infoset><tdml:dfdlInfoset><pow34>NaN</pow34></tdml:dfdlInfoset></tdml:infoset>
   </tdml:parserTestCase>
 
+	<tdml:defineSchema name="DoubleToRawLong.dfdl.xsd">
+		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+		<dfdl:format ref="ex:GeneralFormat" lengthUnits="bytes" representation="binary" />
+		<xs:element name="root">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element type="xs:double" name="DoubleValue" dfdl:length="8" />
+					<xs:element type="xs:long" name="LongValue" dfdl:inputValueCalc="{ dfdlx:doubleToRawLong(../ex:DoubleValue) }" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+	<tdml:parserTestCase name="DoubleToRawLong" root="root" model="DoubleToRawLong.dfdl.xsd" description="Extensions - DoubleToRawLong">
+		<tdml:document>
+			<tdml:documentPart type="byte">5DC8 225C AF53 6E1F</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<root>
+					<DoubleValue>5.886014640420331E143</DoubleValue>
+					<LongValue>6757689022343245343</LongValue>
+				</root>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+  <tdml:defineSchema name="DoubleFromRawLong.dfdl.xsd">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+      <dfdl:format ref="ex:GeneralFormat" lengthUnits="bytes" representation="binary" />
+        <xs:element name="root">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element type="xs:long" name="LongValue" dfdl:length="8" />
+              <xs:element type="xs:double" name="DoubleValue" dfdl:inputValueCalc="{ dfdlx:doubleFromRawLong(../ex:LongValue) }" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="DoubleFromRawLong" root="root" model="DoubleFromRawLong.dfdl.xsd" description="Extensions - doubleFromRawLong">
+    <tdml:document>
+      <tdml:documentPart type="byte">5DC8 225C AF53 6E1F</tdml:documentPart>
+      </tdml:document>
+        <tdml:infoset>
+          <tdml:dfdlInfoset>
+            <root>
+              <LongValue>6757689022343245343</LongValue>
+              <DoubleValue>5.886014640420331E143</DoubleValue>
+            </root>
+          </tdml:dfdlInfoset>
+        </tdml:infoset>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>

@@ -1031,4 +1031,7 @@ class TestDFDLExpressions {
   @Test def test_short_parent_axis_01(): Unit = { runner.runOneTest("short_parent_axis_01") }
 
   @Test def test_element_long_form_whitespace(): Unit = { runner.runOneTest("element_long_form_whitespace") }
+
+  @Test def test_DoubleFromRawLong(): Unit = { runner2.runOneTest("DoubleFromRawLong") }
+  @Test def test_DoubleToRawLong(): Unit = { runner2.runOneTest("DoubleToRawLong") }
 }
