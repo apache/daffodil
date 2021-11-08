@@ -35,6 +35,8 @@ REM DAFFODIL_JAVA_OPTS environment variable. If not specified, the JAVA_OPTS
 REM environment variable will be used. If that is not specified, reasonable
 REM defaults for Daffodil will be defined.
 
+setlocal
+
 set MAINCLASS=org.apache.daffodil.Main
 set BINDIR=%~dp0
 set LIBDIR=%BINDIR%..\lib
@@ -42,13 +44,13 @@ set CONFDIR=%BINDIR%..\conf
 set CLASSPATH=%LIBDIR%\*
 
 if defined DAFFODIL_JAVA_OPTS (
-	set JOPTS=%DAFFODIL_JAVA_OPTS%
+	set "JOPTS=%DAFFODIL_JAVA_OPTS%"
 ) else if defined JAVA_OPTS (
-	set JOPTS=%JAVA_OPTS%
+	set "JOPTS=%JAVA_OPTS%"
 )
 
 if defined DAFFODIL_CLASSPATH (
-	set CLASSPATH=%CLASSPATH%;%DAFFODIL_CLASSPATH%
+	set "CLASSPATH=%CLASSPATH%;%DAFFODIL_CLASSPATH%"
 )
 
 REM Prepend additional java options that must be provided. By prepending, a user

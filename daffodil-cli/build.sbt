@@ -138,11 +138,9 @@ wixProductUpgradeId := "4C966AFF-585E-4E17-8CC2-059FD70FEC77"
 // re-installation of the same version. Despite the presence of
 // specific XML to enable this, the WiX compiler and linker
 // complain about it unless you specifically suppress the warning.
-lightOptions := Seq(
+lightOptions ++= Seq(
   "-sval", // validation does not currently work under Wine, this disables that
   "-sice:ICE61",
-  "-ext", "WixUIExtension",
-  "-cultures:en-us",
   "-loc", ((Windows / sourceDirectory).value / "Product_en-us.wxl").toString
 )
 
