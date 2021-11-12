@@ -60,7 +60,7 @@ in its own repositories.  You'll have to install the latest [SBT]
 version following its website's instructions and you'll have to build
 the [Mini-XML] library from source:
 
-    git clone -b v3.2 https://github.com/michaelrsweet/mxml.git
+    git clone -b v3.3 https://github.com/michaelrsweet/mxml.git
     # ./configure fails if you use CC=clang
     unset CC AR
     cd mxml
@@ -71,7 +71,7 @@ the [Mini-XML] library from source:
 Now you can build Daffodil from source and the sbt and daffodil
 commands you type will be able to call the C compiler.
 
-## Fedora 34
+## Fedora 35
 
 You can use the `dnf` package manager to install most of the tools
 needed to build Daffodil:
@@ -131,7 +131,7 @@ environment variables `CC` and `AR` to the clang binaries' names:
 However, MSYS2 has no [libmxml-devel][Mini-XML] package so you'll have
 to build the [Mini-XML] library from source:
 
-    git clone -b v3.2 https://github.com/michaelrsweet/mxml.git
+    git clone -b v3.3 https://github.com/michaelrsweet/mxml.git
     # some daffodil tests fail if you build mxml with clang
     unset CC AR
     cd mxml

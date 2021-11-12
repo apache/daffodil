@@ -39,8 +39,7 @@ import org.junit.Test
  */
 class TestCodeGenerator {
   // Ensure all tests remove tempDir after creating it
-  val tempDir: os.Path = os.temp.dir()
-
+  val tempDir: os.Path = os.temp.dir(dir = null, prefix = "daffodil-runtime2-")
   @After def after(): Unit = {
     os.remove.all(tempDir)
   }
@@ -86,9 +85,14 @@ class TestCodeGenerator {
 
     // Generate code from the test schema successfully
     val codeDir = cg.generateCode(None, tempDir.toString)
+    val daffodilMain = codeDir/"libcli"/"daffodil_main.c"
+    val generatedCodeHeader = codeDir/"libruntime"/"generated_code.h"
+    val generatedCodeFile = codeDir/"libruntime"/"generated_code.c"
     assert(!cg.isError, cg.getDiagnostics.map(_.getMessage()).mkString("\n"))
     assert(os.exists(codeDir))
-    assert(os.exists(codeDir/"libruntime"/"generated_code.c"))
+    assert(os.exists(daffodilMain))
+    assert(os.exists(generatedCodeHeader))
+    assert(os.exists(generatedCodeFile))
   }
 
   @Test def test_compileCode_success(): Unit = {
@@ -167,5 +171,13 @@ class TestCodeGenerator {
     val ur = dp.unparse(input, output)
     assert(ur.isError, "expected ur.isError to be true")
     assert(ur.getDiagnostics.nonEmpty, "expected ur.getDiagnostics to be non-empty")
+  }
+
+  // Test added for code coverage because "sbt coverage compile" doesn't include genExamples
+  @Test def test_CodeGenerator_main(): Unit = {
+    val rootDir = if (os.exists(os.pwd/"src")) os.pwd/os.up else os.pwd
+    val examplesDir = rootDir/"daffodil-runtime2"/"target"/"test_CodeGenerator_main"
+    val args = Array(examplesDir.toString)
+    CodeGenerator.main(args)
   }
 }

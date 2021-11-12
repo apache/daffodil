@@ -29,14 +29,15 @@ Global / excludeLintKeys ++= Set(
   EclipseKeys.classpathTransformerFactories,
 )
 
-lazy val genManaged = taskKey[Unit]("Generate managed sources and resources")
+lazy val genManaged = taskKey[Seq[File]]("Generate managed sources and resources")
 lazy val genProps = taskKey[Seq[File]]("Generate properties scala source")
 lazy val genSchemas = taskKey[Seq[File]]("Generated DFDL schemas")
+lazy val genExamples = taskKey[Seq[File]]("Generate runtime2 example files")
 
 lazy val daffodil         = project.in(file(".")).configs(IntegrationTest)
                               .enablePlugins(JavaUnidocPlugin, ScalaUnidocPlugin)
                               .aggregate(macroLib, propgen, lib, io, runtime1, runtime1Unparser, runtime1Layers, runtime2, core, japi, sapi, tdmlLib, tdmlProc, cli, udf, schematron, test, testIBM1, tutorials, testStdLayout)
-                              .settings(commonSettings, nopublish, ratSettings, unidocSettings)
+                              .settings(commonSettings, nopublish, ratSettings, unidocSettings, genExamplesSettings)
 
 lazy val macroLib         = Project("daffodil-macro-lib", file("daffodil-macro-lib")).configs(IntegrationTest)
                               .settings(commonSettings, nopublish)
@@ -83,7 +84,6 @@ lazy val runtime2         = Project("daffodil-runtime2", file("daffodil-runtime2
                                   runtime2CFiles -> Seq(
                                     (Compile / resourceDirectory).value / "org" / "apache" / "daffodil" / "runtime2" / "c" / "libcli",
                                     (Compile / resourceDirectory).value / "org" / "apache" / "daffodil" / "runtime2" / "c" / "libruntime",
-                                    (Compile / resourceDirectory).value / "org" / "apache" / "daffodil" / "runtime2" / "examples"
                                   )
                                 ),
                                 Compile / cFlags := (Compile / cFlags).value.withDefaultValue(Seq("-Wall", "-Wextra", "-Wpedantic", "-std=gnu11"))
@@ -259,9 +259,7 @@ lazy val usesMacros = Seq(
 
 lazy val libManagedSettings = Seq(
   genManaged := {
-    (Compile / genProps).value
-    (Compile / genSchemas).value
-    ()
+    (Compile / genProps).value ++ (Compile / genSchemas).value
   },
   Compile / genProps := {
     val cp = (propgen / Runtime / dependencyClasspath).value
@@ -269,14 +267,15 @@ lazy val libManagedSettings = Seq(
     val inRSrc = (propgen / Compile / resources).value
     val stream = (propgen / streams).value
     val outdir = (Compile / sourceManaged).value
+    val mainClass = "org.apache.daffodil.propGen.PropertyGenerator"
+    val args = Seq(mainClass, outdir.toString)
     val filesToWatch = (inSrc ++ inRSrc).toSet
-    val cachedFun = FileFunction.cached(stream.cacheDirectory / "propgen") { (in: Set[File]) =>
-      val mainClass = "org.apache.daffodil.propGen.PropertyGenerator"
+    val cachedFun = FileFunction.cached(stream.cacheDirectory / "propgen") { _ =>
       val out = new java.io.ByteArrayOutputStream()
       val forkOpts = ForkOptions()
                        .withOutputStrategy(Some(CustomOutput(out)))
                        .withBootJars(cp.files.toVector)
-      val ret = new Fork("java", Some(mainClass)).fork(forkOpts, Seq(outdir.toString)).exitValue()
+      val ret = Fork.java(forkOpts, args)
       if (ret != 0) {
         sys.error("Failed to generate code")
       }
@@ -285,9 +284,9 @@ lazy val libManagedSettings = Seq(
       val br = new java.io.BufferedReader(isr)
       val iterator = Iterator.continually(br.readLine()).takeWhile(_ != null)
       val files = iterator.map { f =>
-        stream.log.info("generated %s".format(f))
         new File(f)
       }.toSet
+      stream.log.info(s"generated ${files.size} Scala sources to ${outdir}")
       files
     }
     cachedFun(filesToWatch).toSeq
@@ -298,12 +297,13 @@ lazy val libManagedSettings = Seq(
     val outdir = (Compile / resourceManaged).value
     val filesToWatch = inRSrc.filter{_.isFile}.toSet
     val cachedFun = FileFunction.cached(stream.cacheDirectory / "schemasgen") { (schemas: Set[File]) =>
-      schemas.map { schema =>
+      val files = schemas.map { schema =>
         val out = outdir / "org" / "apache" / "daffodil" / "xsd" / schema.getName
         IO.copyFile(schema, out)
-        stream.log.info("generated %s".format(out))
         out
       }
+      stream.log.info(s"generated ${files.size} XML schemas to ${outdir}")
+      files
     }
     cachedFun(filesToWatch).toSeq
   },
@@ -341,4 +341,42 @@ lazy val unidocSettings = Seq(
       source.toString.contains("$") || source.toString.contains("packageprivate")
     }
   },
+)
+
+lazy val genExamplesSettings = Seq(
+  Compile / genExamples := {
+    val cp = (runtime2 / Test / dependencyClasspath).value
+    val inSrc = (runtime2 / Compile / sources).value
+    val inRSrc = (runtime2 / Test / resources).value
+    val stream = (runtime2 / streams).value
+    val filesToWatch = (inSrc ++ inRSrc).toSet
+    val cachedFun = FileFunction.cached(stream.cacheDirectory / "genExamples") { _ =>
+      val out = new java.io.ByteArrayOutputStream()
+      val forkOpts = ForkOptions()
+                       .withOutputStrategy(Some(CustomOutput(out)))
+                       .withBootJars(cp.files.toVector)
+      val mainClass = "org.apache.daffodil.runtime2.CodeGenerator"
+      val outdir = (runtime2 / Test / sourceDirectory).value / "c" / "examples"
+      val args = Seq(mainClass, outdir.toString)
+      val ret = Fork.java(forkOpts, args)
+      if (ret != 0) {
+        stream.log.error(s"failed to generate example files")
+      }
+      val bis = new java.io.ByteArrayInputStream(out.toByteArray)
+      val isr = new java.io.InputStreamReader(bis)
+      val br = new java.io.BufferedReader(isr)
+      val iterator = Iterator.continually(br.readLine()).takeWhile(_ != null).filterNot(_.startsWith("WARN"))
+      val files = iterator.map { f =>
+        new File(f)
+      }.toSet
+      stream.log.info(s"generated ${files.size} runtime2 example files to ${outdir}")
+      files
+    }
+    cachedFun(filesToWatch).toSeq
+  },
+  Compile / compile := {
+    val res = (Compile / compile).value
+    (Compile / genExamples).value
+    res
+  }
 )

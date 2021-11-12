@@ -22,7 +22,7 @@
 #include <stdbool.h>  // for bool
 #include <stddef.h>   // for size_t
 #include <stdint.h>   // for uint32_t, int16_t, int32_t, int64_t, int8_t, uint16_t, uint64_t, uint8_t
-#include "infoset.h"  // for UState
+#include "infoset.h"  // for UState, HexBinary
 // clang-format on
 
 // Unparse binary booleans, real numbers, and integers

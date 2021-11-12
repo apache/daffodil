@@ -86,7 +86,7 @@ jobs:
         uses: actions/checkout@v2.4.0
         with:
           repository: michaelrsweet/mxml
-          ref: v3.2
+          ref: v3.3
           path: mxml
 
       - name: Install mxml library (Windows)
@@ -148,6 +148,9 @@ jobs:
 
       - name: Run Integration Tests
         run: $SBT coverage IntegrationTest/test
+
+      - name: Run Modified Example Files Check
+        run: git diff --color --exit-code
 
       - name: Generate Coverage Report
         run: $SBT coverageAggregate

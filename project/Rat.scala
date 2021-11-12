@@ -36,7 +36,7 @@ object Rat {
     file("daffodil-cli/src/windows/dialog.bmp"),
 
     // generated_code.[ch] examples
-    file("daffodil-runtime2/src/test/resources/org/apache/daffodil/runtime2/examples"),
+    file("daffodil-runtime2/src/test/c/examples"),
 
     // test files that cannot include the Apache license without breaking tests
     file("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/debugger/982"),

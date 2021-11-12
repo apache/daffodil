@@ -18,9 +18,9 @@
 // clang-format off
 #include "xml_writer.h"
 #include <assert.h>      // for assert
-#include <mxml.h>        // for mxmlNewOpaquef, mxml_node_t, mxmlElementSetAttr, mxmlGetOpaque, mxmlNewElement, mxmlDelete, mxmlGetElement, mxmlNewXML, mxmlSaveFile, MXML_NO_CALLBACK
-#include <stdbool.h>     // for bool
-#include <stdint.h>      // for int16_t, int32_t, int64_t, int8_t, uint16_t, uint32_t, uint64_t, uint8_t
+#include <mxml.h>        // for mxmlNewOpaquef, mxml_node_t, mxmlElementSetAttr, mxmlGetOpaque, mxmlNewElement, mxmlDelete, mxmlGetElement, mxmlNewOpaque, mxmlNewXML, mxmlSaveFile, MXML_NO_CALLBACK
+#include <stdbool.h>     // for bool, false, true
+#include <stdint.h>      // for uint8_t, int16_t, int32_t, int64_t, int8_t, uint16_t, uint32_t, uint64_t
 #include <stdlib.h>      // for free, malloc
 #include <string.h>      // for strcmp
 #include "cli_errors.h"  // for CLI_XML_DECL, CLI_XML_ELEMENT, CLI_XML_WRITE, LIMIT_XML_NESTING
