@@ -66,4 +66,15 @@ unparse-check: $(PROGRAM)
 clean:
 	rm -f $(PROGRAM) $(TEST_DAT).tmp $(TEST_DAT_XML).tmp
 
-.PHONY: check parse-check unparse-check clean
+# Maintainer only: Format C source files or check includes.
+
+FMT = clang-format -i
+IWYU = iwyu -Xiwyu --max_line_length=999 -Xiwyu --update_comments
+
+format:
+	$(FMT) $(HEADERS) $(SOURCES)
+
+iwyu:
+	-for f in $(SOURCES); do $(IWYU) $(CFLAGS) $(INCLUDES) $$f; done
+
+.PHONY: check parse-check unparse-check clean format iwyu

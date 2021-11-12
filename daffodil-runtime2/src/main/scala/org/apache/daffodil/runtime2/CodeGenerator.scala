@@ -24,10 +24,12 @@ import java.nio.file.Paths
 import java.util.Collections
 import org.apache.daffodil.api.DFDL
 import org.apache.daffodil.api.Diagnostic
+import org.apache.daffodil.compiler.Compiler
 import org.apache.daffodil.dsom.Root
 import org.apache.daffodil.dsom.SchemaDefinitionError
 import org.apache.daffodil.runtime2.generators.CodeGeneratorState
 import org.apache.daffodil.util.Misc
+import org.apache.daffodil.xml.QName
 import org.apache.daffodil.xml.RefQName
 
 import scala.util.Properties.isWin
@@ -197,4 +199,67 @@ class CodeGenerator(root: Root) extends DFDL.CodeGenerator {
   // Implements the WithDiagnostics methods
   override def getDiagnostics: Seq[Diagnostic] = diagnostics
   override def isError: Boolean = errorStatus
+}
+
+/** Runs from "sbt compile" to keep all example generated code files up to date */
+object CodeGenerator {
+  // Update one set of example generated code files from an example schema
+  private def updateGeneratedCodeExample(schemaFile: os.Path, rootName: Option[String],
+                                         exampleCodeHeader: os.Path, exampleCodeFile: os.Path): Unit = {
+    // Generate code from the example schema file
+    val pf = Compiler().compileFile(schemaFile.toIO, rootName)
+    assert(!pf.isError, pf.getDiagnostics.map(_.getMessage()).mkString("\n"))
+    val cg = pf.forLanguage("c")
+    val rootNS = QName.refQNameFromExtendedSyntax(rootName.getOrElse("")).toOption
+    val tempDir = os.temp.dir(dir = null, prefix = "daffodil-runtime2-")
+    val codeDir = cg.generateCode(rootNS, tempDir.toString)
+    assert(!cg.isError, cg.getDiagnostics.map(_.getMessage()).mkString("\n"))
+
+    // Replace the example generated files with the newly generated files
+    val generatedCodeHeader = codeDir/"libruntime"/"generated_code.h"
+    val generatedCodeFile = codeDir/"libruntime"/"generated_code.c"
+    os.copy(generatedCodeHeader, exampleCodeHeader, replaceExisting = true, createFolders = true)
+    os.copy(generatedCodeFile, exampleCodeFile, replaceExisting = true, createFolders = true)
+
+    // Print the example generated files' names so "sbt 'show genExamples'" can list them
+    System.out.println(exampleCodeHeader)
+    System.out.println(exampleCodeFile)
+
+    // tempDir should be removed automatically after main exits; this is just in case
+    os.remove.all(tempDir)
+  }
+
+  // Make sure "sbt compile" calls this main method
+  def main(args: Array[String]): Unit = {
+    // We expect one mandatory parameter, the examples directory's absolute location.
+    if (args.length != 1) {
+      System.err.println(s"Usage: ${CodeGenerator} <examples directory location>")
+      System.exit(1);
+    }
+
+    // Get paths to our example schemas and example generated code files
+    val rootDir = if (os.exists(os.pwd/"src")) os.pwd/os.up else os.pwd
+
+    val schemaDir = rootDir/"daffodil-runtime2"/"src"/"test"/"resources"/"org"/"apache"/"daffodil"/"runtime2"
+    val exNumsSchema = schemaDir/"ex_nums.dfdl.xsd"
+    val exNumsRootName = None
+    val nestedSchema = schemaDir/"nested.dfdl.xsd"
+    val nestedRootName = Some("NestedUnion")
+
+    val examplesDir = os.Path(args(0))
+    val exNumsCodeHeader = examplesDir/"ex_nums"/"generated_code.h"
+    val exNumsCodeFile = examplesDir/"ex_nums"/"generated_code.c"
+    val nestedCodeHeader = examplesDir/"NestedUnion"/"generated_code.h"
+    val nestedCodeFile = examplesDir/"NestedUnion"/"generated_code.c"
+
+    // Update each set of example generated code files
+    try {
+      updateGeneratedCodeExample(exNumsSchema, exNumsRootName, exNumsCodeHeader, exNumsCodeFile)
+      updateGeneratedCodeExample(nestedSchema, nestedRootName, nestedCodeHeader, nestedCodeFile)
+    } catch {
+      case e: Throwable =>
+        System.err.println(s"Error generating example code files: $e")
+        System.exit(1);
+    }
+  }
 }

@@ -22,11 +22,11 @@
 #include <inttypes.h>    // for strtoimax, strtoumax
 #include <mxml.h>        // for mxmlWalkNext, mxmlGetElement, mxmlGetType, MXML_DESCEND, MXML_OPAQUE, mxmlDelete, mxmlGetOpaque, mxmlLoadFile, MXML_OPAQUE_CALLBACK
 #include <stdbool.h>     // for bool, false, true
-#include <stdint.h>      // for intmax_t, uintmax_t, int16_t, int32_t, int64_t, int8_t, uint16_t, uint32_t, uint64_t, uint8_t, INT16_MAX, INT16_MIN, INT32_MAX, INT32_MIN, INT64_MAX, INT64_MIN, INT8_MAX, INT8_MIN, UINT16_MAX, UINT32_MAX, UINT64_MAX, UINT8_MAX
+#include <stdint.h>      // for int64_t, intmax_t, uint8_t, uintmax_t, int16_t, int32_t, int8_t, uint16_t, uint32_t, uint64_t, INT16_MAX, INT16_MIN, INT32_MAX, INT32_MIN, INT64_MAX, INT64_MIN, INT8_MAX, INT8_MIN, UINT16_MAX, UINT32_MAX, UINT64_MAX, UINT8_MAX
 #include <stdlib.h>      // for free, malloc, strtod, strtof
-#include <string.h>      // for memset, strcmp, strlen, strncmp
-#include "cli_errors.h"  // for CLI_STRTONUM_EMPTY, CLI_STRTONUM_NOT, CLI_XML_GONE, CLI_STRTOD_ERRNO, CLI_STRTOI_ERRNO, CLI_STRTONUM_RANGE, CLI_XML_MISMATCH, CLI_STRTOBOOL, CLI_XML_ERD, CLI_XML_INPUT, CLI_XML_LEFT
-#include "errors.h"      // for Error, Error::(anonymous), UNUSED
+#include <string.h>      // for strcmp, strlen, strncmp, memset
+#include "cli_errors.h"  // for CLI_STRTONUM_EMPTY, CLI_STRTONUM_NOT, CLI_XML_GONE, CLI_STRTOD_ERRNO, CLI_STRTOI_ERRNO, CLI_STRTONUM_RANGE, CLI_XML_MISMATCH, CLI_HEXBINARY_LENGTH, CLI_HEXBINARY_PARSE, CLI_HEXBINARY_SIZE, CLI_STRTOBOOL, CLI_XML_ERD, CLI_XML_INPUT, CLI_XML_LEFT
+#include "errors.h"      // for Error, Error::(anonymous), ERR_HEXBINARY_ALLOC, UNUSED
 // clang-format on
 
 // Convert an XML element's text to a boolean with error checking
@@ -267,35 +267,38 @@ strtohexbinary(const char *text, HexBinary *hexBinary)
     }
 
     // Store hexadecimal characters into byte array
-    if (hexBinary->array) memset(hexBinary->array, 0, hexBinary->lengthInBytes);
-    for (size_t i = 0; i < numNibbles; i++)
+    if (hexBinary->array)
     {
-        char    c = text[i];
-        uint8_t value = 0;
+        memset(hexBinary->array, 0, hexBinary->lengthInBytes);
+        for (size_t i = 0; i < numNibbles; i++)
+        {
+            char    c = text[i];
+            uint8_t value = 0;
 
-        // Check whether c is valid hexadecimal character
-        if (c >= '0' && c <= '9')
-        {
-            value = (c - '0');
-        }
-        else if (c >= 'A' && c <= 'F')
-        {
-            value = (c - 'A') + 10;
-        }
-        else if (c >= 'a' && c <= 'f')
-        {
-            value = (c - 'a') + 10;
-        }
-        else
-        {
-            static Error error = {CLI_HEXBINARY_PARSE, {0}};
-            error.arg.c = c;
-            return &error;
-        }
+            // Check whether c is valid hexadecimal character
+            if (c >= '0' && c <= '9')
+            {
+                value = (c - '0');
+            }
+            else if (c >= 'A' && c <= 'F')
+            {
+                value = (c - 'A') + 10;
+            }
+            else if (c >= 'a' && c <= 'f')
+            {
+                value = (c - 'a') + 10;
+            }
+            else
+            {
+                static Error error = {CLI_HEXBINARY_PARSE, {0}};
+                error.arg.c = c;
+                return &error;
+            }
 
-        // Shift high nibble, add low nibble on next iteration
-        value <<= (((i + 1) % 2) * 4);
-        hexBinary->array[i / 2] += value;
+            // Shift high nibble, add low nibble on next iteration
+            value <<= (((i + 1) % 2) * 4);
+            hexBinary->array[i / 2] += value;
+        }
     }
 
     return NULL;
@@ -431,8 +434,8 @@ xmlSimpleElem(XMLReader *reader, const ERD *erd, void *valueptr)
         {
             // Check for any errors calling strtonum or strtounum
             const Error *error = NULL;
-            intmax_t num = 0;
-            uintmax_t unum = 0;
+            intmax_t     num = 0;
+            uintmax_t    unum = 0;
 
             // Handle various types of values
             const enum TypeCode typeCode = erd->typeCode;

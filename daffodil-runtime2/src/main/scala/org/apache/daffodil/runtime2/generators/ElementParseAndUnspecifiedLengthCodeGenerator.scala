@@ -38,7 +38,7 @@ trait ElementParseAndUnspecifiedLengthCodeGenerator {
     if (context.isSimpleType) {
       cgState.addSimpleTypeERD(context) // ERD static initializer
       Runtime2CodeGenerator.generateCode(elementContentGram, cgState) // initSelf, parseSelf, unparseSelf
-    } else {
+    } else if (cgState.elementNotSeenYet(context)) {
       cgState.pushComplexElement(context)
       cgState.addBeforeSwitchStatements(context) // switch statements for choices
       context.elementChildren.foreach { child =>

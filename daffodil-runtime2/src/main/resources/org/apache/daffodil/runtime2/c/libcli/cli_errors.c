@@ -18,9 +18,8 @@
 // clang-format off
 #include "cli_errors.h"
 #include <assert.h>    // for assert
-#include <inttypes.h>  // for PRId64
+#include <inttypes.h>  // for PRId64, uint8_t
 #include <stddef.h>    // for NULL
-#include <stdint.h>    // for uint8_t
 // clang-format on
 
 // USAGE - second line to append to CLI usage messages
@@ -65,7 +64,7 @@ error_lookup(uint8_t code)
          "unexpected getopt code %" PRId64 "\n"
          "Check for program error\n",
          FIELD_D64},
-        {CLI_PROGRAM_VERSION, "%s\n", FIELD_S},
+        {CLI_PROGRAM_VERSION, "%s\n", FIELD_S_ON_STDOUT},
         {CLI_STACK_EMPTY, "stack empty, stopping program\n", FIELD_ZZZ},
         {CLI_STACK_OVERFLOW, "stack overflow, stopping program\n", FIELD_ZZZ},
         {CLI_STACK_UNDERFLOW, "stack underflow, stopping program\n", FIELD_ZZZ},

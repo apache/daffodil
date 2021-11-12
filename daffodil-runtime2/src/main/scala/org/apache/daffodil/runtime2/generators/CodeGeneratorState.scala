@@ -25,6 +25,7 @@ import org.apache.daffodil.dsom.Choice
 import org.apache.daffodil.dsom.ElementBase
 import org.apache.daffodil.dsom.GlobalComplexTypeDef
 import org.apache.daffodil.dsom.GlobalElementDecl
+import org.apache.daffodil.dsom.Root
 import org.apache.daffodil.dsom.SchemaComponent
 import org.apache.daffodil.exceptions.ThrowsSDE
 import org.apache.daffodil.schema.annotation.props.gen.OccursCountKind
@@ -36,11 +37,32 @@ import scala.collection.mutable
  * Builds up the state of generated code.
  */
 class CodeGeneratorState {
+  private val elementsAlreadySeen = mutable.Map[String, ElementBase]()
   private val structs = mutable.Stack[ComplexCGState]()
   private val prototypes = mutable.ArrayBuffer[String]()
   private val erds = mutable.ArrayBuffer[String]()
   private val finalStructs = mutable.ArrayBuffer[String]()
   private val finalImplementation = mutable.ArrayBuffer[String]()
+
+  // Returns true if the global element has not been seen before (checking
+  // if a map already contains the element, otherwise adding it to the map)
+  def elementNotSeenYet(context: ElementBase): Boolean = {
+    val key = context.namedQName.toString
+    val alreadySeen = elementsAlreadySeen.contains(key)
+    if (!alreadySeen) elementsAlreadySeen += (key -> context)
+    !alreadySeen
+  }
+
+  // Specially handles an element reference by returning only the first
+  // element reference seen in order to build the correct ERD name
+  private def firstElementSeen(context: ElementBase): ElementBase = {
+    if (context.isSimpleType) {
+      context
+    } else {
+      val aContext = elementsAlreadySeen.getOrElse(context.namedQName.toString, context)
+      aContext
+    }
+  }
 
   // Builds an ERD name for the given element that needs to be unique in C file scope
   private def erdName(context: ElementBase): String = {
@@ -56,8 +78,9 @@ class CodeGeneratorState {
       }
       sb
     }
-    val sb = buildName(context, new StringBuilder) ++= "ERD"
-    sb.toString()
+    val aContext = firstElementSeen(context)
+    val sb = buildName(aContext, new StringBuilder) ++= "ERD"
+    sb.toString
   }
 
   // Returns the given element's local name (doesn't have to be unique)
@@ -71,14 +94,12 @@ class CodeGeneratorState {
       structs.top.parserStatements.mkString("\n")
     else
       s"""    // Empty struct, but need to prevent compiler warnings
-         |    UNUSED(${C}_compute_offsets);
          |    UNUSED(instance);
          |    UNUSED(pstate);""".stripMargin
     val unparserStatements = if (structs.top.unparserStatements.nonEmpty)
       structs.top.unparserStatements.mkString("\n")
     else
       s"""    // Empty struct, but need to prevent compiler warnings
-         |    UNUSED(${C}_compute_offsets);
          |    UNUSED(instance);
          |    UNUSED(ustate);""".stripMargin
     val hasChoice = structs.top.initChoiceStatements.nonEmpty
@@ -157,30 +178,41 @@ class CodeGeneratorState {
    * - we can store the accessed value in an int64_t local variable safely
    */
   private def choiceDispatchField(context: ElementBase): String = {
-    // We want to use SchemaComponent.scPath but it's private so duplicate it here (for now...)
+    // We want to call SchemaComponent.scPath but it's private so duplicate it here for now
     def scPath(sc: SchemaComponent): Seq[SchemaComponent] = sc.optLexicalParent.map { scPath }.getOrElse(Nil) :+ sc
-    val localNames = scPath(context).map {
-      case er: AbstractElementRef => er.refQName.local
-      case e: ElementBase => e.namedQName.local
-      case ed: GlobalElementDecl => ed.namedQName.local
-      case _ => ""
-    }
-    val absoluteSlashPath = localNames.mkString("/")
-    val dispatchSlashPath = context.complexType.modelGroup match {
+
+    // We handle only direct dispatch choices, so ignore other elements
+    context.complexType.modelGroup match {
       case choice: Choice if choice.isDirectDispatch =>
+        // Get parent path against which to perform up paths
+        val parentNames = scPath(context).map {
+          case _: Root => ""
+          case er: AbstractElementRef => er.refQName.local
+          case e: ElementBase => e.namedQName.local
+          case ed: GlobalElementDecl => ed.namedQName.local
+          case _ => ""
+        }
+        val parentPath = parentNames.mkString("/")
+
+        // Convert expression to a relative path (may have up paths)
         val expr = choice.choiceDispatchKeyEv.expr.toBriefXML()
         val before = "'{xs:string("
         val after = ")}'"
         val relativePath = if (expr.startsWith(before) && expr.endsWith(after))
           expr.substring(before.length, expr.length - after.length) else expr
-        val normalizedURI = new URI(absoluteSlashPath + "/" + relativePath).normalize
-        normalizedURI.getPath.substring(1)
+
+        // Remove redundant slashes (//) and up paths (../)
+        val normalizedURI = new URI(parentPath + "/" + relativePath).normalize
+
+        // Strip namespace prefixes since C code uses only local names (for now)
+        val dispatchPath = normalizedURI.getPath.replaceAll("/[^/:]+:", "/")
+
+        // Convert to C struct dot notation without any leading dot
+        val notation = dispatchPath.replace('/', '.').substring(1)
+        notation
+      // We get called on every group element, so we need to return "" for non-choice elements
       case _ => ""
     }
-    // Strip namespace prefixes since C code uses only local names (for now...)
-    val localDispatchSlashPath = dispatchSlashPath.replaceAll("/[^:]+:", "/")
-    val res = localDispatchSlashPath.replace('/', '.')
-    res
   }
 
   // We know context is a complex type.  We need to 1) support choice groups; 2) support
@@ -321,7 +353,7 @@ class CodeGeneratorState {
     val hasChoice = structs.top.initChoiceStatements.nonEmpty
     val numChildren = if (hasChoice) 2 else count
     val initChoice = if (hasChoice) s"(InitChoiceRD)&${C}_initChoice" else "NULL"
-    val complexERD =
+    val complexERD = if (numChildren > 0)
       s"""static const $C ${C}_compute_offsets;
          |
          |static const size_t ${C}_offsets[$count] = {
@@ -338,6 +370,19 @@ class CodeGeneratorState {
          |    $numChildren, // numChildren
          |    ${C}_offsets, // offsets
          |    ${C}_childrenERDs, // childrenERDs
+         |    (ERDInitSelf)&${C}_initSelf, // initSelf
+         |    (ERDParseSelf)&${C}_parseSelf, // parseSelf
+         |    (ERDUnparseSelf)&${C}_unparseSelf, // unparseSelf
+         |    $initChoice // initChoice
+         |};
+         |""".stripMargin
+    else
+      s"""static const ERD $erd = {
+         |$qnameInit
+         |    COMPLEX, // typeCode
+         |    $numChildren, // numChildren
+         |    NULL, // offsets
+         |    NULL, // childrenERDs
          |    (ERDInitSelf)&${C}_initSelf, // initSelf
          |    (ERDParseSelf)&${C}_parseSelf, // parseSelf
          |    (ERDUnparseSelf)&${C}_unparseSelf, // unparseSelf
@@ -570,10 +615,10 @@ class CodeGeneratorState {
          |#define GENERATED_CODE_H
          |
          |// clang-format off
-         |#include "infoset.h"  // for HexBinary, InfosetBase
          |#include <stdbool.h>  // for bool
          |#include <stddef.h>   // for size_t
          |#include <stdint.h>   // for uint8_t, int16_t, int32_t, int64_t, uint32_t, int8_t, uint16_t, uint64_t
+         |#include "infoset.h"  // for InfosetBase, HexBinary
          |// clang-format on
          |
          |// Define infoset structures
@@ -581,7 +626,7 @@ class CodeGeneratorState {
          |$structs
          |#endif // GENERATED_CODE_H
          |""".stripMargin
-    header
+    header.replace("\r\n", "\n").replace("\n", System.lineSeparator)
   }
 
   def generateCodeFile(rootElementName: String): String = {
@@ -594,10 +639,10 @@ class CodeGeneratorState {
       s"""// clang-format off
          |#include "generated_code.h"
          |#include <math.h>       // for NAN
-         |#include <stdbool.h>    // for true, false, bool
+         |#include <stdbool.h>    // for false, bool, true
          |#include <stddef.h>     // for NULL, size_t
          |#include <string.h>     // for memset, memcmp
-         |#include "errors.h"     // for Error, PState, UState, ERR_CHOICE_KEY, UNUSED
+         |#include "errors.h"     // for Error, PState, UState, ERR_CHOICE_KEY, Error::(anonymous), UNUSED
          |#include "parsers.h"    // for alloc_hexBinary, parse_hexBinary, parse_be_float, parse_be_int16, parse_validate_fixed, parse_be_bool32, parse_be_bool16, parse_be_int32, parse_be_uint16, parse_be_uint32, parse_le_bool32, parse_le_int64, parse_le_uint16, parse_le_uint8, parse_be_bool8, parse_be_double, parse_be_int64, parse_be_int8, parse_be_uint64, parse_be_uint8, parse_le_bool16, parse_le_bool8, parse_le_double, parse_le_float, parse_le_int16, parse_le_int32, parse_le_int8, parse_le_uint32, parse_le_uint64
          |#include "unparsers.h"  // for unparse_hexBinary, unparse_be_float, unparse_be_int16, unparse_validate_fixed, unparse_be_bool32, unparse_be_bool16, unparse_be_int32, unparse_be_uint16, unparse_be_uint32, unparse_le_bool32, unparse_le_int64, unparse_le_uint16, unparse_le_uint8, unparse_be_bool8, unparse_be_double, unparse_be_int64, unparse_be_int8, unparse_be_uint64, unparse_be_uint8, unparse_le_bool16, unparse_le_bool8, unparse_le_double, unparse_le_float, unparse_le_int16, unparse_le_int32, unparse_le_int8, unparse_le_uint32, unparse_le_uint64
          |// clang-format on
@@ -632,7 +677,7 @@ class CodeGeneratorState {
          |
          |$finalImplementation
          |""".stripMargin
-    code
+    code.replace("\r\n", "\n").replace("\n", System.lineSeparator)
   }
 }
 

@@ -28,10 +28,11 @@ const char *
 get_erd_name(const ERD *erd)
 {
     static char name[LIMIT_NAME_LENGTH];
-    char *      next = name;
-    char *      last = name + sizeof(name) - 1;
 
-    if (next && erd->namedQName.prefix)
+    char *next = name;
+    char *last = name + sizeof(name) - 1;
+
+    if (erd->namedQName.prefix)
     {
         next = memccpy(next, erd->namedQName.prefix, 0, last - next);
         if (next)
@@ -119,19 +120,14 @@ get_erd_ns(const ERD *erd)
 static const Error *
 walkInfosetNode(const VisitEventHandler *handler, const InfosetBase *infoNode)
 {
-    const Error *error = NULL;
-
-    // Start visiting the node
-    if (!error)
-    {
-        error = handler->visitStartComplex(handler, infoNode);
-    }
-
-    // Walk the node's children recursively
     const size_t      count = infoNode->erd->numChildren;
     const ERD **const childrenERDs = infoNode->erd->childrenERDs;
     const size_t *    offsets = infoNode->erd->offsets;
 
+    // Start visiting the node
+    const Error *error = handler->visitStartComplex(handler, infoNode);
+
+    // Walk the node's children recursively
     for (size_t i = 0; i < count && !error; i++)
     {
         const size_t offset = offsets[i];
@@ -182,12 +178,8 @@ walkInfosetNode(const VisitEventHandler *handler, const InfosetBase *infoNode)
 const Error *
 walkInfoset(const VisitEventHandler *handler, const InfosetBase *infoset)
 {
-    const Error *error = NULL;
+    const Error *error = handler->visitStartDocument(handler);
 
-    if (!error)
-    {
-        error = handler->visitStartDocument(handler);
-    }
     if (!error)
     {
         error = walkInfosetNode(handler, infoset);
