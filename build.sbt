@@ -156,6 +156,7 @@ lazy val commonSettings = Seq(
   scalaVersion := "2.12.15",
   crossScalaVersions := Seq("2.12.15"),
   scalacOptions ++= Seq(
+    "-target:jvm-1.8",
     "-feature",
     "-deprecation",
     "-language:experimental.macros",
@@ -169,6 +170,8 @@ lazy val commonSettings = Seq(
   // Workaround issue that some options are valid for javac, not javadoc.
   // These javacOptions are for code compilation only. (Issue sbt/sbt#355)
   Compile / compile / javacOptions  ++= Seq(
+    "-source", "8",
+    "-target", "8",
     "-Werror",
     "-Xlint:deprecation"
   ),
