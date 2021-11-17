@@ -17,7 +17,7 @@
 
 addSbtPlugin("com.github.tnakamot" % "sbt-cc" % "0.0.3")
 
-addSbtPlugin("com.github.sbt" % "sbt-native-packager" % "1.9.6")
+addSbtPlugin("com.github.sbt" % "sbt-native-packager" % "1.9.7")
 
 addSbtPlugin("org.musigma" % "sbt-rat" % "0.7.0")
 
