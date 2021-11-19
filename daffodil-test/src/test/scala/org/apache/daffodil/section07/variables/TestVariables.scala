@@ -132,6 +132,12 @@ class TestVariables {
   @Test def test_setVar1_d_parse(): Unit = { runner_01.runOneTest("setVar1_d_parse") }
   @Test def test_setVar1_d_unparse(): Unit = { runner_01.runOneTest("setVar1_d_unparse") }
 
+  @Test def test_escapeCharVars_01(): Unit = { runner.runOneTest("escapeCharVars_01") }
+  @Test def test_escapeCharVars_02(): Unit = { runner.runOneTest("escapeCharVars_02") }
+
+  @Test def test_multipleVarReadInPoU_01(): Unit = { runner.runOneTest("multipleVarReadInPoU_01") }
+
+
 /*****************************************************************/
   val tdmlVal = XMLUtils.TDML_NAMESPACE
   val dfdl = XMLUtils.DFDL_NAMESPACE

@@ -2590,4 +2590,122 @@
     </tdml:document>
   </tdml:unparserTestCase>
 
+  <tdml:defineSchema name="escapeCharVars">
+
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+
+    <dfdl:defineVariable defaultValue="\" name="EscapeChar" type="xs:string"/>
+
+    <dfdl:format ref="GeneralFormat"
+      escapeSchemeRef="escapeScheme" />
+
+    <dfdl:defineEscapeScheme name="escapeScheme">
+      <dfdl:escapeScheme
+        escapeKind="escapeCharacter"
+        escapeCharacter="{ $EscapeChar }"
+        escapeEscapeCharacter="{ $EscapeChar }"
+        extraEscapedCharacters=""/>
+    </dfdl:defineEscapeScheme>
+
+    <xs:element name="root">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="delims" dfdl:initiator="[" dfdl:terminator="]" dfdl:length="1" dfdl:lengthKind="explicit" minOccurs="0">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="escapeChar" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:escapeSchemeRef="">
+                  <xs:annotation>
+                    <xs:appinfo source="http://www.ogf.org/dfdl/">
+                      <dfdl:setVariable ref="EscapeChar" value="{ . }" />
+                    </xs:appinfo>
+                  </xs:annotation>
+                </xs:element>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:sequence dfdl:separator=",">
+            <xs:element name="field" type="xs:string" dfdl:lengthKind="delimited" maxOccurs="unbounded" />
+          </xs:sequence>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="escapeCharVars_01" root="root" model="escapeCharVars">
+    <tdml:document>[=]fieldOne,field=,Two,fieldThree</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root xmlns="http://example.com">
+          <delims>
+            <escapeChar>=</escapeChar>
+          </delims>
+          <field>fieldOne</field>
+          <field>field,Two</field>
+          <field>fieldThree</field>
+        </root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="escapeCharVars_02" root="root" model="escapeCharVars">
+    <tdml:document>fieldOne,field\,Two,fieldThree</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root xmlns="http://example.com">
+          <field>fieldOne</field>
+          <field>field,Two</field>
+          <field>fieldThree</field>
+        </root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+
+  <tdml:defineSchema name="multipleVarReadInPoU">
+
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+
+    <dfdl:defineVariable defaultValue="x" name="var1" type="xs:string"/>
+
+    <dfdl:format ref="GeneralFormat" />
+
+    <xs:element name="root">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="opt" minOccurs="0">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:sequence>
+                  <xs:annotation>
+                    <xs:appinfo source="http://www.ogf.org/dfdl/">
+                      <dfdl:assert test="{ $var1 eq 'x' }" />
+                    </xs:appinfo>
+                  </xs:annotation>
+                </xs:sequence>
+                <xs:sequence>
+                  <xs:annotation>
+                    <xs:appinfo source="http://www.ogf.org/dfdl/">
+                      <dfdl:assert test="{ $var1 eq 'y' }" />
+                    </xs:appinfo>
+                  </xs:annotation>
+                </xs:sequence>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="multipleVarReadInPoU_01" root="root" model="multipleVarReadInPoU">
+    <tdml:document></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root xmlns="http://example.com"></root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>
