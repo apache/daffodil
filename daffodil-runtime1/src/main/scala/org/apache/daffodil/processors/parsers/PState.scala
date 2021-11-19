@@ -65,7 +65,6 @@ import org.apache.daffodil.infoset.DISimpleState
 import org.apache.daffodil.exceptions.Abort
 import org.apache.daffodil.exceptions.ThrowsSDE
 import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
-import org.apache.daffodil.xml.GlobalQName
 
 object MPState {
 
@@ -210,17 +209,6 @@ final class PState private (
    */
   val pointsOfUncertainty = new MStackOf[PState.Mark]()
 
-  /**
-   * This stack tracks variables that have changed within the current point of
-   * uncertainty. This tracking is necessary to revert changes made to variables
-   * when the parser needs to backtrack. This stack needs to be pushed when a
-   * new mark is created and popped when it is discarded or reset. It is
-   * necessary for every mark to either be discarded or reset to inorder for
-   * this stack to funciton correctly.
-   */
-  private val changedVariablesStack = new MStackOf[mutable.MutableList[GlobalQName]]()
-  changedVariablesStack.push(mutable.MutableList[GlobalQName]())
-
   override def dataStream = One(dataInputStream)
 
   def saveDelimitedParseResult(result: Maybe[dfa.ParseResult]): Unit = {
@@ -244,7 +232,6 @@ final class PState private (
 
   private def mark(requestorID: String, context: RuntimeData): PState.Mark = {
     // threadCheck()
-    changedVariablesStack.push(mutable.MutableList[GlobalQName]())
     val m = markPool.getFromPool(requestorID)
     m.captureFrom(this, requestorID, context)
     m.element.infosetWalkerBlockCount += 1
@@ -263,12 +250,6 @@ final class PState private (
     m.restoreInto(this)
     m.clear()
     markPool.returnToPool(m)
-    changedVariablesStack.top.foreach { v => {
-      val variable = variableMap.find(v)
-      if (variable.isDefined)
-        variable.get.reset
-    }}
-    changedVariablesStack.pop
   }
 
   private def discard(m: PState.Mark): Unit = {
@@ -276,7 +257,6 @@ final class PState private (
     dataInputStream.discard(m.disMark)
     m.clear()
     markPool.returnToPool(m)
-    changedVariablesStack.pop
   }
 
   override def toString() = {
@@ -328,24 +308,57 @@ final class PState private (
     this.infoset = newParent
   }
 
+  /**
+   * When we take marks of this PState when we enter a PoU, we intentionally do
+   * not take a deep copy of the variable map because that is too expensive of
+   * an operation for a data structure that rarely changes. So taking a mark
+   * just makes a shallow copy of the PState variable map.
+   *
+   * But this means modifications of the variable map could potentially affect
+   * PoU marks, which means resetting back to a mark does not work as intended.
+   * To resolve this issue, anytime a function is called that will change the
+   * state of a variable, we must first call this function. This will take a
+   * deep copy of the variable map and set that copy as the variable map for
+   * this PState. This way, the state already captured in the mark will not be
+   * modified and we can correctly reset back to that state when resetting the
+   * PoU. Note that we only do this if we have not already done a deep copy in
+   * this PoU--if we've already done a deep copy, we don't need to do it again
+   * since the PoU copy can't be modified.
+   */
+  @inline
+  private def changingVariable(): Unit = {
+    if (!pointsOfUncertainty.isEmpty) {
+      val curPoU = pointsOfUncertainty.top
+      if (curPoU.variableMap eq this.variableMap) {
+        this.setVariableMap(this.variableMap.copy())
+      }
+    }
+  }
+
   override def setVariable(vrd: VariableRuntimeData, newValue: DataValuePrimitive, referringContext: ThrowsSDE): Unit = {
+    changingVariable()
     variableMap.setVariable(vrd, newValue, referringContext, this)
-    changedVariablesStack.top += vrd.globalQName
   }
 
   override def getVariable(vrd: VariableRuntimeData, referringContext: ThrowsSDE): DataValuePrimitive = {
-    val res = variableMap.readVariable(vrd, referringContext, this)
-    changedVariablesStack.top += vrd.globalQName
-    res
+    // Skip the call to changingVariable if this variable has already been
+    // read, which means another read will not actually change the state. This
+    // potentially avoids an expensive deep copy if we've read a variable,
+    // entered a PoU, and then read that variable again
+    if (variableMap.readVariableWillChangeState(vrd)) {
+      changingVariable()
+    }
+    variableMap.readVariable(vrd, referringContext, this)
   }
 
   def newVariableInstance(vrd: VariableRuntimeData): VariableInstance = {
-    val v = variableMap.newVariableInstance(vrd)
-    changedVariablesStack.top += vrd.globalQName
-    v
+    changingVariable()
+    variableMap.newVariableInstance(vrd)
   }
 
   def removeVariableInstance(vrd: VariableRuntimeData): Unit = {
+    // we do not need to call changingVariable() here even though this changes
+    // variable state, because newVariableInstance would have already called it
     variableMap.removeVariableInstance(vrd)
   }
 
@@ -579,13 +592,20 @@ object PState {
       else
         complexElementState.captureFrom(element)
       this.disMark = ps.dataInputStream.mark(requestorID)
-      this.variableMap = ps.variableMap
       this.processorStatus = ps.processorStatus
       this.validationStatus = ps.validationStatus
       this.diagnostics = ps.diagnostics
       this.mpStateMark.captureFrom(ps.mpstate)
       this.blobPaths = ps.blobPaths
       this.context = context
+
+      // Note that this is intentionally a shallow copy. This normally would
+      // not work because the variable map is mutable so other state changes
+      // could mutate this snapshot. This is avoided by carefully changing the
+      // PState variable map to a deep copy of this variable map right before a
+      // change is made. This essentially makes the PState variable map behave
+      // as copy-on-write.
+      this.variableMap = ps.variableMap
     }
 
     def restoreInfoset(ps: PState) = {

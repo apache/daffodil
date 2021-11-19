@@ -99,65 +99,43 @@ class VariableInstance private (val rd: VariableRuntimeData)
   extends Serializable {
 
   var state: VariableState = VariableUndefined
-  var priorState: VariableState = VariableUndefined
   var value: DataValuePrimitiveNullable = DataValue.NoValue
-  var priorValue: DataValuePrimitiveNullable = DataValue.NoValue
 
   // This represents the default value at the start of processing, provided by
   // either the defaultValue expression or by an external binding
   var firstInstanceInitialValue: DataValuePrimitiveNullable = DataValue.NoValue
 
   def setState(s: VariableState) = {
-    this.priorState = this.state
     this.state = s
   }
 
   def setValue(v: DataValuePrimitiveNullable) = {
-    this.priorValue = this.value
     this.value = v
   }
 
-  /* This is used to set a default value without assigning a priorValue */
+  /* This is used to set a default value with the appropriate state */
   def setDefaultValue(v: DataValuePrimitiveNullable) = {
     Assert.invariant((this.state == VariableUndefined || this.state == VariableInProcess) && v.isDefined)
     this.state = VariableDefined
     this.value = v
   }
 
-  override def toString: String = "VariableInstance(%s,%s,%s,%s,%s,%s)".format(
+  override def toString: String = "VariableInstance(%s,%s,%s,%s)".format(
                                                     state,
                                                     value,
                                                     rd,
-                                                    rd.maybeDefaultValueExpr,
-                                                    priorState,
-                                                    priorValue)
+                                                    rd.maybeDefaultValueExpr)
 
   def copy(
     state: VariableState = state,
     value: DataValuePrimitiveNullable = value,
-    rd: VariableRuntimeData = rd,
-    priorState: VariableState = priorState,
-    priorValue: DataValuePrimitiveNullable = priorValue) = {
+    rd: VariableRuntimeData = rd) = {
       val inst = new VariableInstance(rd)
       inst.state = state
-      inst.priorState = priorState
       inst.value = value
-      inst.priorValue = priorValue
       inst
   }
 
-  def reset() = {
-    Assert.invariant(this.state != VariableUndefined)
-    (this.state, this.priorState, this.rd.maybeDefaultValueExpr.isDefined) match {
-      case (VariableRead, VariableSet, _) => this.setState(VariableSet)
-      case (VariableRead, _, true) => this.setState(VariableDefined)
-      case (VariableSet, _, _) => {
-        this.setState(this.priorState)
-        this.setValue(this.priorValue)
-      }
-      case (_, _, _) => Assert.impossible("Should have SDE before reaching this")
-    }
-  }
 }
 
 object VariableUtils {
@@ -330,10 +308,21 @@ class VariableMap private(vTable: Map[GlobalQName, ArrayBuffer[VariableInstance]
   lazy val context = Assert.invariantFailed("unused.")
 
   /**
-   * Used only for testing.
+   * Determine if a call to readVariable will change any state in this
+   * VariableMap. This should only be used for optimizations and should not
+   * prevent readVariable from actually being called. It does not do any
+   * checking related to SDE's or invariant checking that readVariable might
+   * perform
    */
-  def getVariableBindings(qn: GlobalQName): ArrayBuffer[VariableInstance] = {
-    vTable.get(qn).get
+  def readVariableWillChangeState(vrd: VariableRuntimeData): Boolean = {
+    val variableInstances = vTable.get(vrd.globalQName)
+    if (variableInstances.isDefined) {
+      val variable = variableInstances.get.last
+      val variableRead = (variable.state eq VariableRead) && variable.value.isDefined
+      !variableRead
+    } else {
+      true
+    }
   }
 
   /**
