@@ -142,11 +142,11 @@ final class DFDLNewVariableInstance(node: Node, decl: AnnotatedSchemaComponent)
   }
 
   final def gram(term: Term) = LV('gram) {
-    NewVariableInstanceStart(decl, this)
+    NewVariableInstanceStart(decl, this, term)
   }.value
 
   final def endGram(term: Term) = LV('endGram) {
-    NewVariableInstanceEnd(decl, this)
+    NewVariableInstanceEnd(decl, this, term)
   }.value
 }
 
@@ -164,6 +164,6 @@ final class DFDLSetVariable(node: Node, decl: AnnotatedSchemaComponent)
   }
 
   final def gram(term: Term) = LV('gram) {
-    SetVariable(this)
+    SetVariable(this, term)
   }.value
 }
