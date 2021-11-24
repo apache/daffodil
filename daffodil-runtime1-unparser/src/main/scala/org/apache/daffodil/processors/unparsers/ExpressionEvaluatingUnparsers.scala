@@ -28,6 +28,7 @@ import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.processors.Evaluatable
 import org.apache.daffodil.processors.NonTermRuntimeData
 import org.apache.daffodil.processors.Success
+import org.apache.daffodil.processors.TermRuntimeData
 import org.apache.daffodil.processors.TypeCalculator
 import org.apache.daffodil.processors.VariableRuntimeData
 import org.apache.daffodil.processors.VariableInProcess
@@ -93,20 +94,21 @@ final class NewVariableInstanceDefaultValueSuspendableExpression(
 
 // When implemented this almost certainly wants to be a combinator
 // Not two separate unparsers.
-class NewVariableInstanceStartUnparser(override val context: VariableRuntimeData)
+class NewVariableInstanceStartUnparser(vrd: VariableRuntimeData, trd: TermRuntimeData)
   extends PrimUnparserNoData {
 
+  override def context = trd
   override lazy val runtimeDependencies = Vector()
 
   override lazy val childProcessors = Vector()
 
   override def unparse(state: UState) = {
-    val nvi = state.newVariableInstance(context)
+    val nvi = state.newVariableInstance(vrd)
 
-    if (context.maybeDefaultValueExpr.isDefined) {
-      val dve = context.maybeDefaultValueExpr.get
+    if (vrd.maybeDefaultValueExpr.isDefined) {
+      val dve = vrd.maybeDefaultValueExpr.get
       nvi.setState(VariableInProcess)
-      val suspendableExpression = new NewVariableInstanceDefaultValueSuspendableExpression(dve, context, nvi)
+      val suspendableExpression = new NewVariableInstanceDefaultValueSuspendableExpression(dve, vrd, nvi)
       suspendableExpression.run(state)
     } else if (nvi.firstInstanceInitialValue.isDefined) {
       // The NVI will inherit the default value of the original variable instance
@@ -116,14 +118,15 @@ class NewVariableInstanceStartUnparser(override val context: VariableRuntimeData
   }
 }
 
-class NewVariableInstanceEndUnparser(override val context: VariableRuntimeData)
+class NewVariableInstanceEndUnparser(vrd: VariableRuntimeData, trd: TermRuntimeData)
   extends PrimUnparserNoData {
 
+  override def context = trd
   override lazy val runtimeDependencies = Vector()
 
   override lazy val childProcessors = Vector()
 
-  override def unparse(state: UState) = state.removeVariableInstance(context)
+  override def unparse(state: UState) = state.removeVariableInstance(vrd)
 }
 
 class TypeValueCalcUnparser(typeCalculator: TypeCalculator, repTypeUnparser: Unparser, e: ElementRuntimeData, repTypeRuntimeData: ElementRuntimeData)

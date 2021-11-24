@@ -171,7 +171,7 @@ case class InitiatedContent(
   override def unparser = hasNoUnparser
 }
 
-case class SetVariable(stmt: DFDLSetVariable)
+case class SetVariable(stmt: DFDLSetVariable, override val term: Term)
   extends ExpressionEvaluatorBase(stmt.annotatedSC) {
 
   val baseName = "SetVariable[" + stmt.varQName.local + "]"
@@ -186,7 +186,7 @@ case class SetVariable(stmt: DFDLSetVariable)
     if (stmt.defv.runtimeData.direction == VariableDirection.UnparseOnly)
       new NadaParser(stmt.defv.runtimeData)
     else
-      new SetVariableParser(expr, stmt.defv.runtimeData)
+      new SetVariableParser(expr, stmt.defv.runtimeData, term.termRuntimeData)
   }
 
   override lazy val unparser: DaffodilUnparser = {
@@ -201,39 +201,39 @@ abstract class NewVariableInstanceBase(decl: AnnotatedSchemaComponent, stmt: DFD
   extends Terminal(decl, true) {
 }
 
-case class NewVariableInstanceStart(decl: AnnotatedSchemaComponent, stmt: DFDLNewVariableInstance)
+case class NewVariableInstanceStart(decl: AnnotatedSchemaComponent, stmt: DFDLNewVariableInstance, override val term: Term)
   extends NewVariableInstanceBase(decl, stmt) {
 
   lazy val parser: DaffodilParser = {
     if (stmt.defv.runtimeData.direction == VariableDirection.UnparseOnly)
       new NadaParser(stmt.variableRuntimeData)
     else
-      new NewVariableInstanceStartParser(stmt.variableRuntimeData)
+      new NewVariableInstanceStartParser(stmt.variableRuntimeData, term.termRuntimeData)
   }
 
   override lazy val unparser: DaffodilUnparser = {
     if (stmt.defv.runtimeData.direction == VariableDirection.ParseOnly)
       new NadaUnparser(stmt.variableRuntimeData)
     else
-      new NewVariableInstanceStartUnparser(stmt.variableRuntimeData)
+      new NewVariableInstanceStartUnparser(stmt.variableRuntimeData, term.termRuntimeData)
   }
 }
 
-case class NewVariableInstanceEnd(decl: AnnotatedSchemaComponent, stmt: DFDLNewVariableInstance)
+case class NewVariableInstanceEnd(decl: AnnotatedSchemaComponent, stmt: DFDLNewVariableInstance, override val term: Term)
   extends NewVariableInstanceBase(decl, stmt) {
 
   lazy val parser: DaffodilParser = {
     if (stmt.defv.runtimeData.direction == VariableDirection.UnparseOnly)
       new NadaParser(stmt.variableRuntimeData)
     else
-      new NewVariableInstanceEndParser(stmt.variableRuntimeData)
+      new NewVariableInstanceEndParser(stmt.variableRuntimeData, term.termRuntimeData)
   }
 
   override lazy val unparser: DaffodilUnparser = {
     if (stmt.defv.runtimeData.direction == VariableDirection.ParseOnly)
       new NadaUnparser(stmt.variableRuntimeData)
     else
-      new NewVariableInstanceEndUnparser(stmt.variableRuntimeData)
+      new NewVariableInstanceEndUnparser(stmt.variableRuntimeData, term.termRuntimeData)
   }
 }
 

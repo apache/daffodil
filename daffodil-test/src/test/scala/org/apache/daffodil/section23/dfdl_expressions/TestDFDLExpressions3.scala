@@ -49,4 +49,13 @@ class TestDFDLExpressions3 {
   // @Test def test_array_self_expr1() { runner.runOneTest("test_array_self_expr1") }
   @Test def test_array_self_expr2(): Unit = { runner.runOneTest("test_array_self_expr2") }
 
+  @Test def test_setVariable_neg_01(): Unit = { runner.runOneTest("setVariable_neg_01") }
+
+  // DAFFODIL-2594
+  // @Test def test_setVariable_neg_line_info_01(): Unit = { runner.runOneTest("setVariable_neg_line_info_01") }
+
+  @Test def test_newVariableInstance_neg_01(): Unit = { runner.runOneTest("newVariableInstance_neg_01") }
+
+  // DAFFODIL-2594
+  // @Test def test_newVariableInstance_neg_line_info_01(): Unit = { runner.runOneTest("newVariableInstance_neg_line_info_01") }
 }

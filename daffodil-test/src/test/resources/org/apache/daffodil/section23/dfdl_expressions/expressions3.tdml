@@ -529,4 +529,55 @@
       <tdml:error>42</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="setVariable_neg_01"
+                       root="setVariable_neg_01" model="setVar.dfdl.xsd"
+                       description="setVariable negative runtime error test.">
+
+    <tdml:document/>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>/ by zero</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="setVariable_neg_line_info_01"
+                       root="setVariable_neg_01" model="setVar.dfdl.xsd"
+                       description="setVariable negative runtime error reports useful line number of setVar statement.">
+
+    <tdml:document/>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>/ by zero</tdml:error>
+      <tdml:error>Location line 49</tdml:error><!-- need proper line number -->
+      <tdml:error>dfdl:setVariable</tdml:error><!-- should mention the kind of DFDL statement -->
+      <tdml:error>setVar.dfdl.xsd</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="newVariableInstance_neg_01"
+                       root="newVariableInstance_neg_01" model="setVar.dfdl.xsd"
+                       description="newVariableInstance negative runtime error test.">
+
+    <tdml:document/>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>/ by zero</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="newVariableInstance_neg_line_info_01"
+                       root="newVariableInstance_neg_01" model="setVar.dfdl.xsd"
+                       description="newVariableInstance negative runtime error reports useful line number of newVariableInstance statement.">
+
+    <tdml:document/>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>/ by zero</tdml:error>
+      <tdml:error>Location line 69</tdml:error> <!-- need proper line number -->
+      <tdml:error>dfdl:newVariableInstance</tdml:error> <!-- should mention the kind of DFDL statement -->
+      <tdml:error>setVar.dfdl.xsd</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>

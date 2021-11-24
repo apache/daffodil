@@ -30,6 +30,7 @@ import org.apache.daffodil.processors.Evaluatable
 import org.apache.daffodil.processors.Failure
 import org.apache.daffodil.processors.RuntimeData
 import org.apache.daffodil.processors.Success
+import org.apache.daffodil.processors.TermRuntimeData
 import org.apache.daffodil.processors.TypeCalculator
 import org.apache.daffodil.processors.VariableRuntimeData
 import org.apache.daffodil.schema.annotation.props.gen.FailureType
@@ -150,8 +151,10 @@ class TypeValueCalcParser(typeCalculator: TypeCalculator, repTypeParser: Parser,
 
 }
 
-class SetVariableParser(expr: CompiledExpression[AnyRef], decl: VariableRuntimeData)
+final class SetVariableParser(expr: CompiledExpression[AnyRef], decl: VariableRuntimeData, trd: TermRuntimeData)
   extends ExpressionEvaluationParser(expr, decl) {
+
+  override val context = trd
 
   def parse(start: PState): Unit = {
     Logger.log.debug(s"This is ${toString}") // important. Don't toString unless we have to log.
@@ -161,15 +164,18 @@ class SetVariableParser(expr: CompiledExpression[AnyRef], decl: VariableRuntimeD
   }
 }
 
-class NewVariableInstanceStartParser(override val context: VariableRuntimeData)
+final class NewVariableInstanceStartParser(vrd: VariableRuntimeData, trd: TermRuntimeData)
   extends PrimParser {
+
+  override def context = trd
+
   override lazy val runtimeDependencies = Vector()
 
   def parse(start: PState): Unit = {
-    val nvi = start.newVariableInstance(context)
+    val nvi = start.newVariableInstance(vrd)
 
-    if (context.maybeDefaultValueExpr.isDefined) {
-      val dve = context.maybeDefaultValueExpr.get
+    if (vrd.maybeDefaultValueExpr.isDefined) {
+      val dve = vrd.maybeDefaultValueExpr.get
       val res = DataValue.unsafeFromAnyRef(dve.evaluate(start))
       nvi.setDefaultValue(res)
     } else if (nvi.firstInstanceInitialValue.isDefined){
@@ -180,16 +186,18 @@ class NewVariableInstanceStartParser(override val context: VariableRuntimeData)
   }
 }
 
-class NewVariableInstanceEndParser(override val context: VariableRuntimeData)
+final class NewVariableInstanceEndParser(vrd: VariableRuntimeData, trd: TermRuntimeData)
   extends PrimParser {
+
+  override def context = trd
   override lazy val runtimeDependencies = Vector()
 
   def parse(start: PState) = {
-    start.removeVariableInstance(context)
+    start.removeVariableInstance(vrd)
   }
 }
 
-class AssertExpressionEvaluationParser(
+final class AssertExpressionEvaluationParser(
   override val messageExpr: CompiledExpression[String],
   override val discrim: Boolean, // are we a discriminator or not.
   decl: RuntimeData,

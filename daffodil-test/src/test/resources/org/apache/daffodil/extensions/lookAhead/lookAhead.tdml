@@ -31,6 +31,9 @@
       dfdlx:emptyElementParsePolicy="treatAsEmpty"
       />
 
+    <dfdl:defineVariable name="myVar1" type="xs:integer" />
+    <dfdl:defineVariable name="myVar2" type="xs:integer" />
+
    <xs:element name="lookAhead_01">
      <xs:complexType>
        <xs:sequence>
@@ -134,6 +137,35 @@
        <xs:sequence>
          <xs:element type="xs:int" name="zero" dfdl:inputValueCalc=" { dfdlx:lookAhead(0, 0) }" />
          <xs:element type="xs:hexBinary" name="data" dfdl:length="8" dfdl:lengthKind="explicit" />
+       </xs:sequence>
+     </xs:complexType>
+   </xs:element>
+
+   <xs:element name="lookAhead_newVariableInstance_01" >
+     <xs:complexType>
+       <xs:sequence>
+         <xs:annotation>
+           <xs:appinfo source="http://www.ogf.org/dfdl/">
+             <dfdl:newVariableInstance ref="ex:myVar1"
+               defaultValue="{ dfdlx:lookAhead(0, 63) }" />
+           </xs:appinfo>
+         </xs:annotation>
+         <xs:element type="xs:hexBinary" name="data" dfdl:length="64" dfdl:lengthKind="explicit" />
+         <xs:element type="xs:integer" name="varValue" dfdl:inputValueCalc="{ $ex:myVar1 }" />
+       </xs:sequence>
+     </xs:complexType>
+   </xs:element>
+
+   <xs:element name="lookAhead_setVariable_01" >
+     <xs:complexType>
+       <xs:sequence>
+         <xs:annotation>
+           <xs:appinfo source="http://www.ogf.org/dfdl/">
+             <dfdl:setVariable ref="ex:myVar2">{ dfdlx:lookAhead(0, 63) }</dfdl:setVariable>
+           </xs:appinfo>
+         </xs:annotation>
+         <xs:element type="xs:hexBinary" name="data" dfdl:length="64" dfdl:lengthKind="explicit" />
+         <xs:element type="xs:integer" name="varValue" dfdl:inputValueCalc="{ $ex:myVar2 }" />
        </xs:sequence>
      </xs:complexType>
    </xs:element>
@@ -389,5 +421,42 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="lookAhead_newVariableInstance_01"
+    root="lookAhead_newVariableInstance_01" model="lookAhead-Embedded.dfdl.xsd" description="Extensions - lookAhead">
+
+    <tdml:document>
+    <tdml:documentPart type="byte">
+    FF ff FF ff FF ff FF FF
+    </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <lookAhead_newVariableInstance_01>
+          <data>FFFFFFFFFFFFFFFF</data>
+          <varValue>9223372036854775807</varValue>
+        </lookAhead_newVariableInstance_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="lookAhead_setVariable_01"
+    root="lookAhead_setVariable_01" model="lookAhead-Embedded.dfdl.xsd" description="Extensions - lookAhead">
+
+    <tdml:document>
+    <tdml:documentPart type="byte">
+    FF ff FF ff FF ff FF FF
+    </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <lookAhead_setVariable_01>
+          <data>FFFFFFFFFFFFFFFF</data>
+          <varValue>9223372036854775807</varValue>
+        </lookAhead_setVariable_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
 
 </tdml:testSuite>
