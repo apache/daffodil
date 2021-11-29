@@ -300,6 +300,18 @@
       dfdl:textStandardGroupingSeparator="." dfdl:textStandardDecimalSeparator=","
       dfdl:textNumberRoundingIncrement="0.1" dfdl:textNumberRoundingMode="roundHalfEven" />
 
+    <xs:element name="tnp97" type="xs:decimal" dfdl:textNumberPattern="#,##0.02#"
+      dfdl:textNumberRounding="explicit" dfdl:textNumberRoundingIncrement="0.02" />
+
+    <xs:element name="tnp98" type="xs:decimal" dfdl:textNumberPattern="#,##0.020"
+      dfdl:textNumberRounding="explicit" dfdl:textNumberRoundingIncrement="0.02" />
+
+    <xs:element name="tnp99" type="xs:decimal" dfdl:textNumberPattern="0.0#E+000"
+      dfdl:textNumberRounding="explicit" dfdl:textNumberRoundingIncrement="1" />
+
+    <xs:element name="tnp100" type="xs:decimal" dfdl:textNumberPattern="##00"
+      dfdl:textNumberRounding="explicit" dfdl:textNumberRoundingIncrement="1" />
+
   </tdml:defineSchema>
   
   <tdml:defineSchema name="textNumberPattern2"  elementFormDefault="qualified">
@@ -4308,6 +4320,70 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
 
+  </tdml:unparserTestCase>
+
+  <!--
+     Test Name: textNumberRoundingIncrement1
+        Schema: textNumberPattern
+          Root: tnp97
+  -->
+  <tdml:unparserTestCase name="textNumberRoundingIncrement1" root="tnp97" model="textNumberPattern" roundTrip="none">
+    <tdml:document>
+      <tdml:documentPart type="text">0.12</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp97>0.128</tnp97>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <!--
+     Test Name: textNumberRoundingIncrement2
+        Schema: textNumberPattern
+          Root: tnp98
+  -->
+  <tdml:unparserTestCase name="textNumberRoundingIncrement2" root="tnp98" model="textNumberPattern" roundTrip="none">
+    <tdml:document>
+      <tdml:documentPart type="text">0.120</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp98>0.128</tnp98>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <!--
+     Test Name: textNumberRoundingIncrement3
+        Schema: textNumberPattern
+          Root: tnp99
+  -->
+  <tdml:unparserTestCase name="textNumberRoundingIncrement3" root="tnp99" model="textNumberPattern" roundTrip="none">
+    <tdml:document>
+      <tdml:documentPart type="text">9.0E-200</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp99>8.6E-200</tnp99>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <!--
+     Test Name: textNumberRoundingIncrement4
+        Schema: textNumberPattern
+          Root: tnp100
+  -->
+  <tdml:unparserTestCase name="textNumberRoundingIncrement4" root="tnp100" model="textNumberPattern" roundTrip="none">
+    <tdml:document>
+      <tdml:documentPart type="text">1236</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp100>1235.5</tnp100>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:unparserTestCase>
 
 </tdml:testSuite>

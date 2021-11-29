@@ -240,4 +240,9 @@ class TestTextNumberProps {
 
   @Test def test_textStandardFloatPatternNoSeparators1(): Unit = { runner.runOneTest("textStandardFloatPatternNoSeparators1") }
   @Test def test_textStandardFloatPatternNoSeparators2(): Unit = { runner.runOneTest("textStandardFloatPatternNoSeparators2") }
+
+  @Test def test_textStandardRoundingIncrement1(): Unit = { runner.runOneTest("textNumberRoundingIncrement1") }
+  @Test def test_textStandardRoundingIncrement2(): Unit = { runner.runOneTest("textNumberRoundingIncrement2") }
+  @Test def test_textStandardRoundingIncrement3(): Unit = { runner.runOneTest("textNumberRoundingIncrement3") }
+  @Test def test_textStandardRoundingIncrement4(): Unit = { runner.runOneTest("textNumberRoundingIncrement4") }
 }
