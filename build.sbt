@@ -155,26 +155,8 @@ lazy val commonSettings = Seq(
   version := "3.2.0-SNAPSHOT",
   scalaVersion := "2.12.15",
   crossScalaVersions := Seq("2.12.15"),
-  scalacOptions ++= Seq(
-    "-target:jvm-1.8",
-    "-feature",
-    "-deprecation",
-    "-language:experimental.macros",
-    "-unchecked",
-    "-Xfatal-warnings",
-    "-Xxml:-coalescing",
-    "-Xfuture"
-  ),
-  // add scalac options that are version specific
-  scalacOptions ++= scalacCrossOptions(scalaVersion.value),
-  // Workaround issue that some options are valid for javac, not javadoc.
-  // These javacOptions are for code compilation only. (Issue sbt/sbt#355)
-  Compile / compile / javacOptions  ++= Seq(
-    "-source", "8",
-    "-target", "8",
-    "-Werror",
-    "-Xlint:deprecation"
-  ),
+  scalacOptions ++= buildScalacOptions(scalaVersion.value),
+  Compile / compile / javacOptions ++= buildJavacOptions(),
   logBuffered := true,
   transitiveClassifiers := Seq("sources", "javadoc"),
   retrieveManaged := true,
@@ -200,13 +182,49 @@ lazy val commonSettings = Seq(
   testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "--verbosity=1"),
 ) ++ Defaults.itSettings
 
-def scalacCrossOptions(scalaVersion: String) =
-  CrossVersion.partialVersion(scalaVersion) match {
+
+def buildScalacOptions(scalaVersion: String) = {
+  val commonOptions = Seq(
+    "-target:jvm-1.8",
+    "-feature",
+    "-deprecation",
+    "-language:experimental.macros",
+    "-unchecked",
+    "-Xfatal-warnings",
+    "-Xxml:-coalescing",
+    "-Xfuture"
+  )
+
+  val scalaVersionSpecificOptions = CrossVersion.partialVersion(scalaVersion) match {
     case Some((2, 12)) => Seq(
       "-Ywarn-unused:imports"
     )
     case _ => Seq.empty
   }
+
+  val javaVersionSpecificOptions =
+    if (scala.util.Properties.isJavaAtLeast("9"))
+      Seq("-release", "8") // ensure Java backwards compatibility (DAFFODIL-2579)
+    else
+      Seq.empty
+
+    commonOptions ++ scalaVersionSpecificOptions ++ javaVersionSpecificOptions
+}
+
+def buildJavacOptions() = {
+  val commonOptions = Seq(
+    "-Werror",
+    "-Xlint:deprecation"
+  )
+
+  val javaVersionSpecificOptions =
+    if (scala.util.Properties.isJavaAtLeast("9"))
+      Seq("--release", "8") // ensure Java backwards compatibility (DAFFODIL-2579)
+    else
+      Seq.empty
+
+  commonOptions ++ javaVersionSpecificOptions
+}
 
 lazy val nopublish = Seq(
   publish := {},
