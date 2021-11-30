@@ -103,7 +103,7 @@ trait SchemaSetRuntime1Mixin {
       variableMap,
       typeCalcMap)
     if (root.numComponents > root.numUniqueComponents)
-      Logger.log.info(s"Compiler: component counts: unique ${root.numUniqueComponents}, actual ${root.numComponents}.")
+      Logger.log.debug(s"Compiler: component counts: unique ${root.numUniqueComponents}, actual ${root.numComponents}.")
     val dataProc = new DataProcessor(ssrd, tunable, self.compilerExternalVarSettings)
     if (dataProc.isError) {
     } else {
