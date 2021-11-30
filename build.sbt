@@ -289,19 +289,16 @@ lazy val libManagedSettings = Seq(
     val args = Seq(mainClass, outdir.toString)
     val filesToWatch = (inSrc ++ inRSrc).toSet
     val cachedFun = FileFunction.cached(stream.cacheDirectory / "propgen") { _ =>
-      val out = new java.io.ByteArrayOutputStream()
+      val forkCaptureLogger = ForkCaptureLogger()
       val forkOpts = ForkOptions()
-                       .withOutputStrategy(Some(CustomOutput(out)))
+                       .withOutputStrategy(Some(LoggedOutput(forkCaptureLogger)))
                        .withBootJars(cp.files.toVector)
       val ret = Fork.java(forkOpts, args)
+      forkCaptureLogger.stderr.foreach { stream.log.error(_) }
       if (ret != 0) {
         sys.error("Failed to generate code")
       }
-      val bis = new java.io.ByteArrayInputStream(out.toByteArray)
-      val isr = new java.io.InputStreamReader(bis)
-      val br = new java.io.BufferedReader(isr)
-      val iterator = Iterator.continually(br.readLine()).takeWhile(_ != null)
-      val files = iterator.map { f =>
+      val files = forkCaptureLogger.stdout.map { f =>
         new File(f)
       }.toSet
       stream.log.info(s"generated ${files.size} Scala sources to ${outdir}")
@@ -369,22 +366,19 @@ lazy val genExamplesSettings = Seq(
     val stream = (runtime2 / streams).value
     val filesToWatch = (inSrc ++ inRSrc).toSet
     val cachedFun = FileFunction.cached(stream.cacheDirectory / "genExamples") { _ =>
-      val out = new java.io.ByteArrayOutputStream()
+      val forkCaptureLogger = ForkCaptureLogger()
       val forkOpts = ForkOptions()
-                       .withOutputStrategy(Some(CustomOutput(out)))
+                       .withOutputStrategy(Some(LoggedOutput(forkCaptureLogger)))
                        .withBootJars(cp.files.toVector)
       val mainClass = "org.apache.daffodil.runtime2.CodeGenerator"
       val outdir = (runtime2 / Test / sourceDirectory).value / "c" / "examples"
       val args = Seq(mainClass, outdir.toString)
       val ret = Fork.java(forkOpts, args)
+      forkCaptureLogger.stderr.foreach { stream.log.error(_) }
       if (ret != 0) {
-        stream.log.error(s"failed to generate example files")
+        sys.error("failed to generate example files")
       }
-      val bis = new java.io.ByteArrayInputStream(out.toByteArray)
-      val isr = new java.io.InputStreamReader(bis)
-      val br = new java.io.BufferedReader(isr)
-      val iterator = Iterator.continually(br.readLine()).takeWhile(_ != null).filterNot(_.startsWith("WARN"))
-      val files = iterator.map { f =>
+      val files = forkCaptureLogger.stdout.filterNot(_.startsWith("WARNING")).map { f =>
         new File(f)
       }.toSet
       stream.log.info(s"generated ${files.size} runtime2 example files to ${outdir}")

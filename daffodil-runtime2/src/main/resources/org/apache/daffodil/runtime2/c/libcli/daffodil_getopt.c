@@ -20,6 +20,7 @@
 #include <string.h>      // for strcmp, strrchr
 #include <unistd.h>      // for optarg, getopt, optopt, optind
 #include "cli_errors.h"  // for CLI_UNEXPECTED_ARGUMENT, CLI_HELP_USAGE, CLI_INVALID_COMMAND, CLI_INVALID_INFOSET, CLI_INVALID_OPTION, CLI_MISSING_COMMAND, CLI_MISSING_VALUE, CLI_PROGRAM_ERROR, CLI_PROGRAM_VERSION
+#include "version.h"
 // clang-format on
 
 // Initialize our "daffodil" CLI options

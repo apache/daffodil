@@ -92,12 +92,15 @@ class CodeGenerator(root: Root) extends DFDL.CodeGenerator {
     diagnostics = diagnostics ++ root.warnings
     val codeHeaderText = codeGeneratorState.generateCodeHeader
     val codeFileText = codeGeneratorState.generateCodeFile(rootElementName)
+    val versionHeaderText = codeGeneratorState.generateVersionHeader
 
     // Write the generated C code into our code subdirectory
     val generatedCodeHeader = codeDir/"libruntime"/"generated_code.h"
     val generatedCodeFile = codeDir/"libruntime"/"generated_code.c"
+    val generatedVersionHeader = codeDir/"libcli"/"version.h"
     os.write(generatedCodeHeader, codeHeaderText)
     os.write(generatedCodeFile, codeFileText)
+    os.write.over(generatedVersionHeader, versionHeaderText)
 
     // Return our code directory in case caller wants to call compileCode next
     codeDir
