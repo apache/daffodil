@@ -207,7 +207,8 @@ class SAXInfosetInputter(
       }
     } catch {
       case e: Exception => {
-        batchedInfosetEvents(currentIndex).causeError = One(new DaffodilUnhandledSAXException(e.getMessage, e))
+        batchedInfosetEvents(currentIndex).causeError = One(new DaffodilUnhandledSAXException(e))
+
       }
     } finally {
       returnedInfosetEvent(0) = batchedInfosetEvents(currentIndex)

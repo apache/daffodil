@@ -263,9 +263,11 @@ object DFDL {
   /**
    * Used in SAXInfosetEvent.causeError to identify when an unexpected error occurs
    */
-  class DaffodilUnhandledSAXException(description: String, cause: Exception)
-    extends org.xml.sax.SAXException(description, cause)
 
+  class DaffodilUnhandledSAXException(description: String, cause: Exception)
+    extends org.xml.sax.SAXException(description, cause) {
+      def this(cause: Exception)= this(null, cause)
+}
   class SAXInfosetEvent() {
     var localName: Maybe[String] = Nope
     var simpleText: Maybe[String] = Nope
