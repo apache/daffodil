@@ -50,6 +50,9 @@
       </xs:complexType>
     </xs:element>
 
+    <!-- lengthKind="implicit" triggers DAFFODIL-2596 -->
+    <xs:element name="keysetValue_03" type="tns:keysetValue_01" dfdl:lengthKind="implicit"/>
+
     <xs:simpleType name="uint8" dfdl:lengthKind="explicit" dfdl:length="1">
       <xs:restriction base="xs:unsignedInt"/>
     </xs:simpleType>
@@ -180,6 +183,23 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+  <tdml:parserTestCase name="RepType_lengthKind_inherited_01"
+    root="keysetValue_03" model="inputTypeCalc-Embedded.dfdl.xsd"
+    description="Verify that the lengthKind property is inherited from the repType, not the element using the repType">
+
+    <tdml:document>
+    <tdml:documentPart type="byte">
+    01
+    </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <keysetValue_03>one</keysetValue_03>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
   <tdml:unparserTestCase name="InputTypeCalc_unparse_keysetValue_00"
     root="keysetValue_00" model="inputTypeCalc-Embedded.dfdl.xsd" description="Extensions - inputTypeCalc keysetValue transform">
 
@@ -232,6 +252,22 @@
           <byte>2-100</byte>
           <byte>101 103-110 115 120-125</byte>
         </keysetValue_02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="InputTypeCalc_unparse_keysetValue_03"
+    root="keysetValue_03" model="inputTypeCalc-Embedded.dfdl.xsd" description="Extensions - inputTypeCalc keysetValue transform">
+
+    <tdml:document>
+    <tdml:documentPart type="byte">
+    01
+    </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <keysetValue_03>one</keysetValue_03>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:unparserTestCase>

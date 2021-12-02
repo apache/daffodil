@@ -650,13 +650,13 @@ trait ElementBase
     // lengthUnits is bytes/bits, but the fixed length is given in characters
     // of a variable-width charset, so greater than 0, but we don't know
     // exactly.
-    Assert.usage(isFixedLength)
-    if (lengthKind =:= LengthKind.Explicit) lengthEv.optConstant.get
+    Assert.usage(repElement.isFixedLength)
+    if (repElement.lengthKind =:= LengthKind.Explicit) repElement.lengthEv.optConstant.get
     else {
-      Assert.invariant(lengthKind =:= LengthKind.Implicit)
+      Assert.invariant(repElement.lengthKind =:= LengthKind.Implicit)
       // it's a string with implicit length. get from facets
-      schemaDefinitionUnless(this.hasMaxLength, "String with dfdl:lengthKind='implicit' must have an XSD maxLength facet value.")
-      val ml = this.maxLength
+      schemaDefinitionUnless(repElement.hasMaxLength, "String with dfdl:lengthKind='implicit' must have an XSD maxLength facet value.")
+      val ml = repElement.maxLength
       ml.longValue()
     }
   }
@@ -680,7 +680,7 @@ trait ElementBase
   }
 
   final lazy val fixedLength = {
-    if (isFixedLength) lengthEv.optConstant.get.longValue() else -1L
+    if (isFixedLength) repElement.lengthEv.optConstant.get.longValue() else -1L
     // FIXME: shouldn't even be asking for this if not isFixedLength
     // try changing to Assert.usage(isFixedLength)
     // FIXME: needs to return fixed length in lengthUnits.
@@ -693,23 +693,19 @@ trait ElementBase
 
   // FIXME: bless this method. Deprecate and remove other less reliable things.
   final lazy val maybeFixedLengthInBits: MaybeULong = {
-    if (optRepTypeElement.isDefined) {
-      optRepTypeElement.get.maybeFixedLengthInBits
-    } else {
-      if (isRepresented && isFixedLength) {
-        val bitsMultiplier = lengthUnits match {
-          case LengthUnits.Bits => 1
-          case LengthUnits.Bytes => 8
-          case LengthUnits.Characters => if (knownEncodingIsFixedWidth) knownEncodingWidthInBits else -1
-        }
-        if (bitsMultiplier > 0) {
-          MaybeULong(fixedLengthValue * bitsMultiplier)
-        } else {
-          MaybeULong.Nope
-        }
+    if (isRepresented && repElement.isFixedLength) {
+      val bitsMultiplier = repElement.lengthUnits match {
+        case LengthUnits.Bits => 1
+        case LengthUnits.Bytes => 8
+        case LengthUnits.Characters => if (knownEncodingIsFixedWidth) knownEncodingWidthInBits else -1
+      }
+      if (bitsMultiplier > 0) {
+        MaybeULong(repElement.fixedLengthValue * bitsMultiplier)
       } else {
         MaybeULong.Nope
       }
+    } else {
+      MaybeULong.Nope
     }
   }
 

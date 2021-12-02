@@ -44,9 +44,12 @@ class TestInputTypeValueCalc {
   @Test def test_InputTypeCalc_keysetValue_01(): Unit = { runner.runOneTest("InputTypeCalc_keysetValue_01") }
   @Test def test_InputTypeCalc_keysetValue_02(): Unit = { runner.runOneTest("InputTypeCalc_keysetValue_02") }
 
+  @Test def test_RepType_lengthKind_inherited_01(): Unit = { runner.runOneTest("RepType_lengthKind_inherited_01") }
+
   @Test def test_InputTypeCalc_unparse_keysetValue_00(): Unit = { runner.runOneTest("InputTypeCalc_unparse_keysetValue_00") }
   @Test def test_InputTypeCalc_unparse_keysetValue_01(): Unit = { runner.runOneTest("InputTypeCalc_unparse_keysetValue_01") }
   @Test def test_InputTypeCalc_unparse_keysetValue_02(): Unit = { runner.runOneTest("InputTypeCalc_unparse_keysetValue_02") }
+  @Test def test_InputTypeCalc_unparse_keysetValue_03(): Unit = { runner.runOneTest("InputTypeCalc_unparse_keysetValue_03") }
 
   @Test def test_InputTypeCalc_unionOfKeysetValueCalcs_01(): Unit = { runner.runOneTest("InputTypeCalc_unionOfKeysetValueCalcs_01") }
   @Test def test_InputTypeCalc_unparse_unionOfKeysetValueCalcs_01(): Unit = { runner.runOneTest("InputTypeCalc_unparse_unionOfKeysetValueCalcs_01") }

@@ -277,23 +277,23 @@ trait ElementRuntimeValuedPropertiesMixin
   }
 
   private lazy val explicitLengthEv: ExplicitLengthEv = {
-    Assert.usage(lengthKind eq LengthKind.Explicit)
-    val ev = new ExplicitLengthEv(lengthExpr, eci)
+    Assert.usage(repElement.lengthKind eq LengthKind.Explicit)
+    val ev = new ExplicitLengthEv(repElement.lengthExpr, eci)
     ev.compile(tunable)
     ev
   }
 
   private lazy val implicitLengthEv: LengthEv = {
-    Assert.usage(lengthKind eq LengthKind.Implicit)
+    Assert.usage(repElement.lengthKind eq LengthKind.Implicit)
     import Representation._
     import NodeInfo._
-    lazy val maxLengthLong = maxLength.longValueExact
-    val ev = (impliedRepresentation, typeDef.typeNode) match {
+    lazy val maxLengthLong = repElement.maxLength.longValueExact
+    val ev = (repElement.impliedRepresentation, repElement.typeDef.typeNode) match {
       case (Text, String) => new ImplicitLengthEv(maxLengthLong, eci)
       case (Binary, HexBinary) => new ImplicitLengthEv(maxLengthLong, eci)
       case (Binary, _) => new ImplicitLengthEv(implicitBinaryLengthInBits, eci)
       case (Text, _) =>
-        SDE("Type %s with dfdl:representation='text' cannot have dfdl:lengthKind='implicit'", typeDef.typeNode.name)
+        SDE("Type %s with dfdl:representation='text' cannot have dfdl:lengthKind='implicit'", repElement.typeDef.typeNode.name)
     }
     ev.compile(tunable)
     ev
@@ -334,21 +334,21 @@ trait ElementRuntimeValuedPropertiesMixin
    * is constant.
    */
   lazy val elementLengthInBitsEv: LengthInBitsEv = {
-    Assert.usage((lengthKind eq LengthKind.Implicit) || (lengthKind eq LengthKind.Explicit))
+    Assert.usage((repElement.lengthKind eq LengthKind.Implicit) || (repElement.lengthKind eq LengthKind.Explicit))
     import LengthKind._
     import Representation._
     import NodeInfo._
     val (units: LengthUnits, lenEv: LengthEv) =
-      (lengthKind, impliedRepresentation, typeDef.typeNode) match {
-        case (Explicit, Binary, HexBinary) => (lengthUnits, explicitLengthEv)
+      (repElement.lengthKind, repElement.impliedRepresentation, repElement.typeDef.typeNode) match {
+        case (Explicit, Binary, HexBinary) => (repElement.lengthUnits, explicitLengthEv)
         case (Implicit, Binary, HexBinary) => (LengthUnits.Bytes, implicitLengthEv)
-        case (Explicit, Binary, _) => (lengthUnits, explicitLengthEv)
+        case (Explicit, Binary, _) => (repElement.lengthUnits, explicitLengthEv)
         case (Implicit, Binary, _) => (LengthUnits.Bits, implicitLengthEv)
-        case (Explicit, Text, _) => (lengthUnits, explicitLengthEv)
-        case (Implicit, Text, _) => (lengthUnits, implicitLengthEv)
+        case (Explicit, Text, _) => (repElement.lengthUnits, explicitLengthEv)
+        case (Implicit, Text, _) => (repElement.lengthUnits, implicitLengthEv)
         case _ => Assert.invariantFailed("not Implicit or Explicit")
       }
-    val ev = new LengthInBitsEv(units, lengthKind, maybeCharsetEv, lenEv, eci)
+    val ev = new LengthInBitsEv(units, repElement.lengthKind, repElement.maybeCharsetEv, lenEv, eci)
     ev.compile(tunable)
     ev
   }
@@ -363,7 +363,7 @@ trait ElementRuntimeValuedPropertiesMixin
    *
    */
   private lazy val minLengthInBitsEv: MinLengthInBitsEv = {
-    val ev = new MinLengthInBitsEv(minLenUnits, lengthKind, maybeCharsetEv, minLen, eci)
+    val ev = new MinLengthInBitsEv(repElement.minLenUnits, repElement.lengthKind, repElement.maybeCharsetEv, repElement.minLen, eci)
     ev.compile(tunable)
     ev
   }
@@ -435,17 +435,13 @@ trait ElementRuntimeValuedPropertiesMixin
   }
 
   final lazy val maybeUnparseTargetLengthInBitsEv: Maybe[UnparseTargetLengthInBitsEv] = {
-    if (this.isSimpleType && this.simpleType.optRepTypeElement.isDefined) {
-      this.simpleType.optRepTypeElement.get.maybeUnparseTargetLengthInBitsEv
-    } else {
-      if ((this.optionLengthRaw.isDefined &&
-        (lengthKind _eq_ LengthKind.Explicit)) ||
-        ((lengthKind _eq_ LengthKind.Implicit) && isSimpleType)) {
-        val ev = unparseTargetLengthInBitsEv
-        One(ev)
-      } else
-        Nope
-    }
+    if ((repElement.optionLengthRaw.isDefined &&
+      (repElement.lengthKind _eq_ LengthKind.Explicit)) ||
+      ((repElement.lengthKind _eq_ LengthKind.Implicit) && repElement.isSimpleType)) {
+      val ev = repElement.unparseTargetLengthInBitsEv
+      One(ev)
+    } else
+      Nope
   }
 
   /**
@@ -453,53 +449,42 @@ trait ElementRuntimeValuedPropertiesMixin
    * for delimited.
    */
   final lazy val maybeUnparseMinOrTargetLengthInBitsEv: Maybe[Evaluatable[MaybeJULong]] = {
-    if (this.isSimpleType && this.simpleType.optRepTypeElement.isDefined) {
-      this.simpleType.optRepTypeElement.get.maybeUnparseMinOrTargetLengthInBitsEv
-    } else {
-      if ((this.optionLengthRaw.isDefined &&
-        (lengthKind _eq_ LengthKind.Explicit)) ||
-        ((lengthKind _eq_ LengthKind.Implicit) && isSimpleType)) {
-        maybeUnparseTargetLengthInBitsEv
-      } else if (this.isDelimitedPrefixedPatternWithPadding) {
-        //
-        // if delimited but there is a min length, we just need the min
-        // length. There is no target length other than it.
-        //
-        val ev = minLengthInBitsEv
-        One(ev)
-      } else
-        Nope
-    }
+    if ((repElement.optionLengthRaw.isDefined &&
+      (repElement.lengthKind _eq_ LengthKind.Explicit)) ||
+      ((repElement.lengthKind _eq_ LengthKind.Implicit) && repElement.isSimpleType)) {
+      repElement.maybeUnparseTargetLengthInBitsEv
+    } else if (this.isDelimitedPrefixedPatternWithPadding) {
+      //
+      // if delimited but there is a min length, we just need the min
+      // length. There is no target length other than it.
+      //
+      val ev = minLengthInBitsEv
+      One(ev)
+    } else
+      Nope
   }
 
   final lazy val unparseTargetLengthInBitsEv: UnparseTargetLengthInBitsEv = {
-    if (this.isSimpleType && this.simpleType.optRepTypeElement.isDefined) {
-      this.simpleType.optRepTypeElement.get.unparseTargetLengthInBitsEv
-    } else {
-      val ev = new UnparseTargetLengthInBitsEv(elementLengthInBitsEv, minLengthInBitsEv, eci)
-      ev.compile(tunable)
-      ev
-    }
+    val ev = new UnparseTargetLengthInBitsEv(repElement.elementLengthInBitsEv, minLengthInBitsEv, eci)
+    ev.compile(tunable)
+    ev
   }
 
+
   final lazy val maybeUnparseTargetLengthInCharactersEv: Maybe[UnparseTargetLengthInCharactersEv] = {
-    if (this.isSimpleType && this.simpleType.optRepTypeElement.isDefined) {
-      this.simpleType.optRepTypeElement.get.maybeUnparseTargetLengthInCharactersEv
-    } else {
-      if ((lengthUnits eq LengthUnits.Characters) &&
-        (this.optionLengthRaw.isDefined &&
-          (lengthKind _eq_ LengthKind.Explicit)) ||
-          ((lengthKind _eq_ LengthKind.Implicit) && isSimpleType)) {
-        val optCs = charsetEv.optConstant
-        if (optCs.isEmpty || optCs.get.maybeFixedWidth.isEmpty) {
-          val ev = new UnparseTargetLengthInCharactersEv(lengthEv, charsetEv, minLen, eci)
-          ev.compile(tunable)
-          One(ev)
-        } else
-          Nope
+    if ((repElement.lengthUnits eq LengthUnits.Characters) &&
+      (this.optionLengthRaw.isDefined &&
+        (repElement.lengthKind _eq_ LengthKind.Explicit)) ||
+        ((repElement.lengthKind _eq_ LengthKind.Implicit) && repElement.isSimpleType)) {
+      val optCs = repElement.charsetEv.optConstant
+      if (optCs.isEmpty || optCs.get.maybeFixedWidth.isEmpty) {
+        val ev = new UnparseTargetLengthInCharactersEv(repElement.lengthEv, repElement.charsetEv, repElement.minLen, eci)
+        ev.compile(tunable)
+        One(ev)
       } else
         Nope
-    }
+    } else
+      Nope
   }
 
   //
