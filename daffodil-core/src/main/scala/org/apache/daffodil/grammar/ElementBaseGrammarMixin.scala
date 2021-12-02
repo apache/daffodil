@@ -526,10 +526,9 @@ trait ElementBaseGrammarMixin
    * SDE if the lengthKind is inconsistent with binary numbers, not yet implemented
    * for binary numbers, or not supported by Daffodil.
    */
-  protected lazy val binaryNumberKnownLengthInBits: Long = lengthKind match {
-    case _ if optRepTypeElement.isDefined => optRepTypeElement.get.binaryNumberKnownLengthInBits
-    case LengthKind.Implicit => implicitBinaryLengthInBits
-    case LengthKind.Explicit if (lengthEv.isConstant) => explicitBinaryLengthInBits()
+  protected lazy val binaryNumberKnownLengthInBits: Long = repElement.lengthKind match {
+    case LengthKind.Implicit => repElement.implicitBinaryLengthInBits
+    case LengthKind.Explicit if (repElement.lengthEv.isConstant) => explicitBinaryLengthInBits()
     case LengthKind.Explicit => -1 // means must be computed at runtime.
     case LengthKind.Prefixed => -1 // means must be computed at runtime
     case LengthKind.Delimited => primType match {
@@ -545,8 +544,8 @@ trait ElementBaseGrammarMixin
   }
 
   private def explicitBinaryLengthInBits() = {
-    val lengthFromProp: JLong = lengthEv.optConstant.get
-    val nbits = lengthUnits match {
+    val lengthFromProp: JLong = repElement.lengthEv.optConstant.get
+    val nbits = repElement.lengthUnits match {
       case LengthUnits.Bits => lengthFromProp.longValue()
       case LengthUnits.Bytes => lengthFromProp.longValue() * 8
       case LengthUnits.Characters => SDE("The lengthUnits for the binary type %s must be either 'bits' or 'bytes'. Not 'characters'.", primType.name)
@@ -1149,6 +1148,7 @@ trait ElementBaseGrammarMixin
       Some(simpleType.optRepTypeElement.get)
     else
       None
+  lazy val repElement = optRepTypeElement.getOrElse(this)
 
   /**
    * the element left framing does not include the initiator nor the element right framing the terminator
