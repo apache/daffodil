@@ -19,6 +19,7 @@ package org.apache.daffodil.processors
 
 import java.io.OutputStream
 import java.io.OutputStreamWriter
+import java.nio.charset.StandardCharsets
 
 import scala.xml.NamespaceBinding
 
@@ -42,7 +43,7 @@ import org.xml.sax.Locator
  */
 class DaffodilParseOutputStreamContentHandler(out: OutputStream, pretty: Boolean = false)
   extends ContentHandler with Indentable {
-  private val writer = new OutputStreamWriter(out)
+  private val writer = new OutputStreamWriter(out, StandardCharsets.UTF_8)
   /**
    * represents the currently active prefix mappings (i.e all mappings include from parent element),
    * which is usefully for doing lookups

@@ -21,6 +21,7 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.OutputStreamWriter
 import java.nio.channels.Channels
+import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -269,10 +270,9 @@ class DaffodilTDMLDFDLProcessor private (private var dp: DataProcessor) extends 
     unparse(inputter, resNode, outStream)
   }
 
-  def unparse(inputter: TDMLInfosetInputter, infosetXML: scala.xml.Node, outStream: java.io
-  .OutputStream): TDMLUnparseResult = {
+  def unparse(inputter: TDMLInfosetInputter, infosetXML: scala.xml.Node, outStream: java.io.OutputStream): TDMLUnparseResult = {
     val bos = new ByteArrayOutputStream()
-    val osw = new OutputStreamWriter(bos)
+    val osw = new OutputStreamWriter(bos, StandardCharsets.UTF_8)
     scala.xml.XML.write(osw, infosetXML, "UTF-8", xmlDecl = true, null)
     osw.flush()
     osw.close()
@@ -312,7 +312,7 @@ class DaffodilTDMLDFDLProcessor private (private var dp: DataProcessor) extends 
     xri.parse(sis)
 
     if (!actual.isError && !errorHandler.isError) {
-      verifySameParseOutput(outputter, saxOutputStream)
+      verifySameParseOutput(outputter.xmlStream, saxOutputStream)
     }
     val dpParseDiag = actual.getDiagnostics.map(_.getMessage())
     val saxParseDiag = errorHandler.getDiagnostics.map(_.getMessage())
@@ -367,18 +367,16 @@ class DaffodilTDMLDFDLProcessor private (private var dp: DataProcessor) extends 
     new DaffodilTDMLUnparseResult(actualDP, dpOutputStream)
   }
 
-  def verifySameParseOutput(dpOutputter: TDMLInfosetOutputter, outputStream: ByteArrayOutputStream): Unit = {
-    val dpParseOutputString = dpOutputter.getXmlString()
-    val saxParseOutputString = outputStream.toString
+  def verifySameParseOutput(dpOutputStream: ByteArrayOutputStream, saxOutputStream: ByteArrayOutputStream): Unit = {
+    val dpParseOutputString = dpOutputStream.toString("UTF-8")
+    val saxParseOutputString = saxOutputStream.toString("UTF-8")
+
+    val dpParseXMLNodeOutput = scala.xml.XML.loadString(dpParseOutputString)
     val saxParseXMLNodeOutput = scala.xml.XML.loadString(saxParseOutputString)
-    // scala.xml.XML.loadString reverses the order of the namespace mappings, so we call it for the
-    // dpParseXMLNodeOutput as well so the reversal is mirrored and we can do a proper prefixes and namespaces
-    // comparison. dpOutputter.getOutput returns it in the right order, which is why we don't use it
-    val dpParseXMLNodeOutputReloaded = scala.xml.XML.loadString(dpParseOutputString)
 
     try {
       XMLUtils.compareAndReport(
-        dpParseXMLNodeOutputReloaded,
+        dpParseXMLNodeOutput,
         saxParseXMLNodeOutput,
         checkNamespaces = true,
         checkPrefixes = true)
@@ -391,8 +389,7 @@ class DaffodilTDMLDFDLProcessor private (private var dp: DataProcessor) extends 
     }
   }
 
-  private def verifySameDiagnostics(seqDiagExpected: Seq[String], seqDiagActual: Seq[String]): Unit
-  = {
+  private def verifySameDiagnostics(seqDiagExpected: Seq[String], seqDiagActual: Seq[String]): Unit = {
     val expected = seqDiagExpected.sorted
     val actual = seqDiagActual.sorted
 

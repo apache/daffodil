@@ -26,6 +26,7 @@ import java.net.URI
 import java.nio.ByteBuffer
 import java.nio.channels.Channels
 import java.nio.file.Paths
+import java.nio.charset.StandardCharsets
 import java.util.Scanner
 import java.util.concurrent.Executors
 
@@ -944,7 +945,7 @@ object Main {
                 // InfosetOutputters must manually get the result and write it to the stream below
                 eitherOutputterOrHandler match {
                   case Left(sxml: ScalaXMLInfosetOutputter) => {
-                    val writer = new java.io.OutputStreamWriter(output, "UTF-8")
+                    val writer = new java.io.OutputStreamWriter(output, StandardCharsets.UTF_8)
                     scala.xml.XML.write(writer, sxml.getResult, "UTF-8", true, null)
                     writer.flush()
                   }

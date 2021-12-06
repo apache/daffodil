@@ -23,6 +23,7 @@ import java.io.ObjectOutputStream
 import java.nio.CharBuffer
 import java.nio.LongBuffer
 import java.nio.channels.Channels
+import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.util.zip.GZIPOutputStream
 import scala.collection.immutable.Queue
@@ -361,7 +362,7 @@ class DataProcessor private (
 
     // write a null-terminated UTF-8 string as a simple version identifier
     val headerString = "DAFFODIL " + Misc.getDaffodilVersion + "\u0000"
-    os.write(headerString.getBytes("utf-8"))
+    os.write(headerString.getBytes(StandardCharsets.UTF_8))
 
     // serialize and compress the data processor to the outputstream
     val oos = new ObjectOutputStream(new GZIPOutputStream(os))

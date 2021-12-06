@@ -30,6 +30,7 @@ import java.nio.channels.ReadableByteChannel
 import java.nio.channels.WritableByteChannel
 import java.nio.charset.CodingErrorAction
 import java.nio.charset.{ Charset => JavaCharset }
+import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Paths
 
@@ -340,7 +341,7 @@ object Misc {
   // Moved here from Compiler object.
 
   def stringToReadableByteChannel(s: String): ReadableByteChannel = {
-    val bytes = s.getBytes("utf-8") // never use default charset. NEVER.
+    val bytes = s.getBytes(StandardCharsets.UTF_8) // never use default charset. NEVER.
     byteArrayToReadableByteChannel(bytes)
   }
 

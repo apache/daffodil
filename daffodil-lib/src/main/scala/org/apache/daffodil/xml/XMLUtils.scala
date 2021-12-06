@@ -18,6 +18,7 @@
 package org.apache.daffodil.xml
 
 import java.io.File
+import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardOpenOption
@@ -1214,7 +1215,7 @@ Differences were (path, expected, actual):
     val pp = new org.apache.daffodil.xml.PrettyPrinter(2)
     val xmlString = pp.format(xml)
     val fos = new java.io.FileOutputStream(tmpSchemaFile)
-    val fw = new java.io.OutputStreamWriter(fos, "utf-8")
+    val fw = new java.io.OutputStreamWriter(fos, StandardCharsets.UTF_8)
     fw.write(xmlString)
     fw.close()
     tmpSchemaFile

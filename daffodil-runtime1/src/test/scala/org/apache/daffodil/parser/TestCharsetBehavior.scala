@@ -114,7 +114,7 @@ class TestUnicodeErrorTolerance {
    */
   @Test def testUTF8Decode3ByteSurrogateIsMalformed(): Unit = {
     //    val exp = "\udcd0" // that's the trailing surrogate in the surrogate pair for U+1d4d0
-    val cs = Charset.forName("utf-8")
+    val cs = StandardCharsets.UTF_8
     val dn = cs.displayName()
     assertEquals("UTF-8", dn)
     val decoder = cs.newDecoder()
@@ -165,7 +165,7 @@ class TestUnicodeErrorTolerance {
    */
   @Test def testUTF8Encode3ByteSurrogateIsMalformed(): Unit = {
     val s = "\udcd0\udcd0\udcd0\udcd0" // that's the 2nd half of a surrogate pair for U+1d4d0
-    val cs = Charset.forName("utf-8")
+    val cs = StandardCharsets.UTF_8
     val dn = cs.displayName()
     assertEquals("UTF-8", dn)
     val encoder = cs.newEncoder()
@@ -184,7 +184,7 @@ class TestUnicodeErrorTolerance {
    */
   @Test def testUTF8ToSurrogatePair(): Unit = {
     val exp = "\ud800\udc00" // surrogate pair for U+010000
-    val cs = Charset.forName("utf-8")
+    val cs = StandardCharsets.UTF_8
     val dn = cs.displayName()
     assertEquals("UTF-8", dn)
     val decoder = cs.newDecoder()
@@ -204,7 +204,7 @@ class TestUnicodeErrorTolerance {
    * of this code point possible.
    */
   @Test def testUTF8Extreme6ByteToSurrogatePair(): Unit = {
-    val cs = Charset.forName("utf-8")
+    val cs = StandardCharsets.UTF_8
     val dn = cs.displayName()
     assertEquals("UTF-8", dn)
     val decoder = cs.newDecoder()
@@ -219,7 +219,7 @@ class TestUnicodeErrorTolerance {
   }
 
   @Test def testUTF8Extreme4ByteToSurrogatePair(): Unit = {
-    val cs = Charset.forName("utf-8")
+    val cs = StandardCharsets.UTF_8
     val dn = cs.displayName()
     assertEquals("UTF-8", dn)
     val decoder = cs.newDecoder()
@@ -239,7 +239,7 @@ class TestUnicodeErrorTolerance {
    */
   @Test def testUTF8Decode6ByteSurrogatePairIsMalformed(): Unit = {
     // val exp = "\ud4d0" // that's the 2nd half of a surrogate pair for U+1d4d0
-    val cs = Charset.forName("utf-8")
+    val cs = StandardCharsets.UTF_8
     val dn = cs.displayName()
     assertEquals("UTF-8", dn)
     val decoder = cs.newDecoder()
@@ -271,7 +271,7 @@ class TestUnicodeErrorTolerance {
    */
   @Test def testUTF16DecodeBadSurrogate(): Unit = {
     val exp = "\ud4d0" // that's the 2nd half of a surrogate pair for U+1d4d0
-    val cs = Charset.forName("utf-16BE")
+    val cs = StandardCharsets.UTF_16BE
     val dn = cs.displayName()
     assertEquals("UTF-16BE", dn)
     val decoder = cs.newDecoder()
@@ -286,7 +286,7 @@ class TestUnicodeErrorTolerance {
    */
   @Test def testUTF16DecodeBOMsInMidString(): Unit = {
     val exp = "\uFEFF@\uFEFF@" // BOM, then @ then ZWNBS (aka BOM), then @
-    val cs = Charset.forName("utf-16BE")
+    val cs = StandardCharsets.UTF_16BE
     val dn = cs.displayName()
     assertEquals("UTF-16BE", dn)
     val decoder = cs.newDecoder()
@@ -298,7 +298,7 @@ class TestUnicodeErrorTolerance {
 
   def howManyBadBytes(inBuf: Array[Byte]): Int = {
 
-    val cs = Charset.forName("utf-8")
+    val cs = StandardCharsets.UTF_8
     val dn = cs.displayName()
     var counter: Int = 0
 
@@ -356,7 +356,7 @@ class TestUnicodeErrorTolerance {
   }
 
   def replaceBadCharacters(inBuf: Array[Byte]): String = {
-    val cs = Charset.forName("utf-8")
+    val cs = StandardCharsets.UTF_8
     val dn = cs.displayName()
     assertEquals("UTF-8", dn)
     val decoder = cs.newDecoder()
@@ -367,7 +367,7 @@ class TestUnicodeErrorTolerance {
   }
 
   def replaceBadCharactersEncoding(s: String): Array[Byte] = {
-    val cs = Charset.forName("utf-8")
+    val cs = StandardCharsets.UTF_8
     val dn = cs.displayName()
     assertEquals("UTF-8", dn)
     val encoder = cs.newEncoder()
@@ -424,7 +424,7 @@ class TestUnicodeErrorTolerance {
    * This test shows that Java ISO-8859-1 can decode any byte at all.
    */
   @Test def testISO8859HandlesAllBytes(): Unit = {
-    val cs = Charset.forName("iso-8859-1")
+    val cs = StandardCharsets.ISO_8859_1
     val decoder = cs.newDecoder()
 
     val inBuf = Array[Int](
