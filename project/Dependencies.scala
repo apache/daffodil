@@ -31,6 +31,7 @@ object Dependencies {
     "commons-io" % "commons-io" % "2.11.0",
     "com.typesafe" % "config" % "1.4.1",
     "org.apache.logging.log4j" %% "log4j-api-scala" % "12.0",
+    "org.apache.logging.log4j" % "log4j-api" % "2.14.1",
     "org.apache.logging.log4j" % "log4j-core" % "2.14.1" % "it,test",
   )
 
