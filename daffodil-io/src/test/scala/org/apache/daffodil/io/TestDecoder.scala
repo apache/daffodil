@@ -20,7 +20,7 @@
 //
 package org.apache.daffodil.io
 //
-import java.nio.charset.{ Charset => JavaCharset }
+import java.nio.charset.StandardCharsets
 import java.nio.charset.CodingErrorAction
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
@@ -66,7 +66,7 @@ class TestDecoder {
    * checked for enough room for a surrogate pair.
    */
   @Test def testDecoder1: Unit = {
-    val originalDecoder = JavaCharset.forName("utf-8").newDecoder()
+    val originalDecoder = StandardCharsets.UTF_8.newDecoder()
     originalDecoder.onMalformedInput(CodingErrorAction.REPORT)
     originalDecoder.onUnmappableCharacter(CodingErrorAction.REPORT)
     val decoder = originalDecoder
@@ -133,7 +133,7 @@ class TestDecoder {
   }
 
   @Test def testDecoderWorkaround1: Unit = {
-    val originalDecoder = JavaCharset.forName("utf-8").newDecoder()
+    val originalDecoder = StandardCharsets.UTF_8.newDecoder()
     originalDecoder.onMalformedInput(CodingErrorAction.REPORT)
     originalDecoder.onUnmappableCharacter(CodingErrorAction.REPORT)
     val decoder = originalDecoder
@@ -183,7 +183,7 @@ class TestDecoder {
   // Delete once it's clear we're never going to have to do that.
   //
   //  @Test def testDecoder2 {
-  //    val originalDecoder = Charset.forName("utf-8").newDecoder()
+  //    val originalDecoder = StandardCharsets.UTF_8.newDecoder()
   //    originalDecoder.onMalformedInput(CodingErrorAction.REPORT)
   //    originalDecoder.onUnmappableCharacter(CodingErrorAction.REPORT)
   //    val decoder = DecoderWrapper(originalDecoder)
@@ -205,7 +205,7 @@ class TestDecoder {
   //  }
   //
   //  @Test def testDecoder3 {
-  //    val originalDecoder = Charset.forName("utf-8").newDecoder()
+  //    val originalDecoder = StandardCharsets.UTF_8.newDecoder()
   //    originalDecoder.onMalformedInput(CodingErrorAction.REPLACE)
   //    originalDecoder.onUnmappableCharacter(CodingErrorAction.REPLACE)
   //    val decoder = DecoderWrapper(originalDecoder)
@@ -229,7 +229,7 @@ class TestDecoder {
   //  }
   //
   //  @Test def testDecoder4 {
-  //    val originalDecoder = Charset.forName("utf-8").newDecoder()
+  //    val originalDecoder = StandardCharsets.UTF_8.newDecoder()
   //    originalDecoder.onMalformedInput(CodingErrorAction.REPLACE)
   //    originalDecoder.onUnmappableCharacter(CodingErrorAction.REPLACE)
   //    val decoder = DecoderWrapper(originalDecoder)

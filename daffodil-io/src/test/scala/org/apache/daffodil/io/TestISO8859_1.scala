@@ -49,7 +49,7 @@ class TestISO8859_1 {
   @Test def test_ISO_8859_1_has256CodepointsIsomorphicToUnicodeCodepointsU0000toU00FF(): Unit = {
     val byteArray = (0 to 255).map { _.toByte }.toArray
     val bb = ByteBuffer.wrap(byteArray)
-    val cs = Charset.forName("iso-8859-1")
+    val cs = StandardCharsets.ISO_8859_1
     val decoder = cs.newDecoder()
     decoder.onMalformedInput(CodingErrorAction.REPORT)
     decoder.onUnmappableCharacter(CodingErrorAction.REPORT)

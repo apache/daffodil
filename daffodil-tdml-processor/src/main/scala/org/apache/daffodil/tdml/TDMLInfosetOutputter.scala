@@ -40,7 +40,7 @@ class TDMLInfosetOutputter() extends InfosetOutputter {
   private def implString: String = "daffodil"
 
   private val jsonStream = new ByteArrayOutputStream()
-  private val xmlStream = new ByteArrayOutputStream()
+  val xmlStream = new ByteArrayOutputStream()
 
   private val scalaOut = new ScalaXMLInfosetOutputter()
   private val jdomOut = new JDOMInfosetOutputter()
@@ -103,8 +103,6 @@ class TDMLInfosetOutputter() extends InfosetOutputter {
   }
 
   def getResult() = scalaOut.getResult
-
-  def getXmlString() = xmlStream.toString
 
   def toInfosetInputter() = {
     val scalaIn = new ScalaXMLInfosetInputter(scalaOut.getResult)

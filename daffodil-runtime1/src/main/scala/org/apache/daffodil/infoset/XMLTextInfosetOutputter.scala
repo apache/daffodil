@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.infoset
 
-import java.nio.charset.Charset
+import java.nio.charset.StandardCharsets
 
 import org.apache.daffodil.util.Indentable
 import org.apache.daffodil.dpath.NodeInfo
@@ -38,7 +38,7 @@ class XMLTextInfosetOutputter private (writer: java.io.Writer, pretty: Boolean, 
   }
 
   def this(os: java.io.OutputStream, pretty: Boolean) = {
-    this(new java.io.OutputStreamWriter(os, Charset.forName("UTF-8")), pretty, 0)
+    this(new java.io.OutputStreamWriter(os, StandardCharsets.UTF_8), pretty, 0)
   }
 
   private val sb = new StringBuilder()

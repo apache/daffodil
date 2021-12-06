@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.infoset
 
-import java.nio.charset.Charset
+import java.nio.charset.StandardCharsets
 
 import com.fasterxml.jackson.core.io.JsonStringEncoder
 
@@ -34,7 +34,7 @@ class JsonInfosetOutputter private (writer: java.io.Writer, pretty: Boolean, dum
   }
 
   def this(os: java.io.OutputStream, pretty: Boolean) = {
-    this(new java.io.OutputStreamWriter(os, Charset.forName("UTF-8")), pretty, 0)
+    this(new java.io.OutputStreamWriter(os, StandardCharsets.UTF_8), pretty, 0)
   }
 
   // Keeps track of if the next element we see is the first child or not of a

@@ -18,6 +18,7 @@
 package org.apache.daffodil.processors.parsers
 
 import java.nio.channels.Channels
+import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
 import scala.collection.mutable
@@ -719,7 +720,7 @@ object PState {
     output: InfosetOutputter,
     dataProc: DFDL.DataProcessor,
     areDebugging: Boolean): PState = {
-    val in = InputSourceDataInputStream(data.getBytes("utf-8"))
+    val in = InputSourceDataInputStream(data.getBytes(StandardCharsets.UTF_8))
     createInitialPState(root, in, output, dataProc, areDebugging)
   }
 

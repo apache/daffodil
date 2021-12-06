@@ -19,9 +19,9 @@ package org.apache.daffodil.processors.charset
 
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
-import java.nio.charset.{ Charset => JavaCharset }
 import java.nio.charset.CoderResult
 import java.nio.charset.CodingErrorAction
+import java.nio.charset.StandardCharsets
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.io.LocalBufferMixin
 import org.apache.daffodil.util.MaybeInt
@@ -48,7 +48,7 @@ object CharsetUtils {
    * Java 7 at some point in the future.
    */
   lazy val hasJava7DecoderBug = {
-    val decoder = JavaCharset.forName("utf-8").newDecoder()
+    val decoder = StandardCharsets.UTF_8.newDecoder()
     decoder.onMalformedInput(CodingErrorAction.REPORT)
     decoder.onUnmappableCharacter(CodingErrorAction.REPORT)
     val bb = ByteBuffer.allocate(6)

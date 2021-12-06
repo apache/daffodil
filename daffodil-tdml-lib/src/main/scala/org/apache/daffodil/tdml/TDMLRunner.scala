@@ -27,7 +27,7 @@ import java.nio.ByteBuffer
 import java.nio.CharBuffer
 import java.nio.LongBuffer
 import java.nio.charset.CoderResult
-import java.nio.charset.{Charset => JavaCharset}
+import java.nio.charset.StandardCharsets
 
 import scala.collection.mutable
 import scala.language.postfixOps
@@ -1781,16 +1781,14 @@ object VerifyTestCase {
     }
   }
 
-  private val cs8859 = JavaCharset.forName("iso-8859-1")
-
   def verifyBinaryOrMixedData(expectedData: InputStream, actualOutStream: java.io.ByteArrayOutputStream,
     implString: Option[String]): Unit = {
     val actualBytes = actualOutStream.toByteArray
-    lazy val actual8859String = cs8859.newDecoder().decode(ByteBuffer.wrap(actualBytes)).toString()
+    lazy val actual8859String = StandardCharsets.ISO_8859_1.newDecoder().decode(ByteBuffer.wrap(actualBytes)).toString()
     lazy val displayableActual = Misc.remapControlsAndLineEndingsToVisibleGlyphs(actual8859String)
 
     val expectedBytes = IOUtils.toByteArray(expectedData)
-    lazy val expected8859String = cs8859.newDecoder().decode(ByteBuffer.wrap(expectedBytes)).toString()
+    lazy val expected8859String = StandardCharsets.ISO_8859_1.newDecoder().decode(ByteBuffer.wrap(expectedBytes)).toString()
     lazy val displayableExpected = Misc.remapControlsAndLineEndingsToVisibleGlyphs(expected8859String)
 
     lazy val expectedAndActualDisplayStrings = "\n" +
