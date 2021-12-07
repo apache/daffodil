@@ -124,7 +124,7 @@ lazy val schematron       = Project("daffodil-schematron", file("daffodil-schema
                               .configs(IntegrationTest)
 
 lazy val test             = Project("daffodil-test", file("daffodil-test")).configs(IntegrationTest)
-                              .dependsOn(tdmlProc, , runtime2 % "test->test", udf % "test->test", core, core % "test->test")
+                              .dependsOn(tdmlProc, runtime2 % "test->test", udf % "test->test", core, core % "test->test")
                               .settings(commonSettings, nopublish)
                               //
                               // Uncomment the following line to run these tests 

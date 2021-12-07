@@ -32,12 +32,14 @@ import java.io.InputStream
 import org.apache.daffodil.api.DFDL
 import org.apache.daffodil.api._
 import org.apache.daffodil.compiler.Compiler
+import org.apache.daffodil.compiler.ProcessorFactory
 import org.apache.daffodil.debugger._
 import org.apache.daffodil.dsom._
 import org.apache.daffodil.externalvars.Binding
 import org.apache.daffodil.grammar.VariableMapFactory
 import org.apache.daffodil.infoset.InfosetInputter
 import org.apache.daffodil.infoset.InfosetOutputter
+import org.apache.daffodil.infoset.JsonInfosetOutputter
 import org.apache.daffodil.infoset.ScalaXMLInfosetInputter
 import org.apache.daffodil.infoset.ScalaXMLInfosetOutputter
 import org.apache.daffodil.io.InputSourceDataInputStream
@@ -212,11 +214,6 @@ object TestUtils {
   def compileSchema(testSchema: Node) = {
     val compiler = Compiler()
     val pf = compiler.compileNode(testSchema)
-    runSchemaOnData(pf, data, areTracing, outputterArg)
-  }
-
-  def runSchemaOnData(pf: ProcessorFactory, data: ReadableByteChannel, areTracing: Boolean,
-    outputterArg: InfosetOutputter) = {
     val isError = pf.isError
     val msgs = pf.getDiagnostics.map(_.getMessage()).mkString("\n")
 
@@ -258,33 +255,7 @@ object TestUtils {
       val msgs = diags.map(_.getMessage()).mkString("\n")
       throw new Exception(msgs)
     }
-    val result = outputter match {
-      case s: ScalaXMLInfosetOutputter => s.getResult
-      case _ => null
-    }
-    (actual, result)
-  }
-
-  private val defaultIncludeImports =
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
-  private val defaultTopLevels =
-    <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" encoding="US-ASCII"/>
-
-  /**
-   * For convenient unit testing of schema compiler attributes defined on Term types.
-   */
-  def getRoot(
-    contentElements: Seq[Node],
-    elementFormDefault: String = "unqualified",
-    includeImports: Seq[Node] = defaultIncludeImports,
-    topLevels: Seq[Node] = defaultTopLevels): Root = {
-    val testSchema = SchemaUtils.dfdlTestSchema(
-      includeImports,
-      topLevels,
-      contentElements,
-      elementFormDefault = elementFormDefault)
-    val sset = new SchemaSet(testSchema)
-    sset.root
+    (actual, outputter.getResult)
   }
 
   private val defaultIncludeImports =

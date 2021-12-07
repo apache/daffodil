@@ -35,7 +35,7 @@ class TestNamespacesJSON {
 
   import TestNamespaces._
 
-  @Test def test_combinations_04_JSON() {
+  @Test def test_combinations_04_JSON(): Unit = {
 
     val infoset =
       <base:baseSeq4 xmlns:base="http://baseSchema.com" xmlns:b06="http://b06.com">
@@ -48,7 +48,7 @@ class TestNamespacesJSON {
     val uri = Misc.getRequiredResource(filename)
     val source = URISchemaSource(uri)
     val pf = compiler.compileSource(source)
-    val str = TestUtils.testPFUnparse(pf, infoset, data, false)
+    val str = TestUtils.testPFUnparse(pf, infoset, data, areTracing = false)
     println(str)
   }
 
