@@ -15,14 +15,14 @@
  * limitations under the License.
  */
 
-#ifndef VERSION_H
-#define VERSION_H
+#ifndef DAFFODIL_VERSION_H
+#define DAFFODIL_VERSION_H
 
-// This file will be overwritten with the correct program version information
+// This file will be overwritten with the correct Daffodil version information
 // when code is generated. This file exists here to support compiling the other
 // C files without generated code during Daffodil builds to ensure there are no
 // compilation errors in these C files.
 
-const char *daffodil_program_version = "DAFFODIL_PROGRAM_VERSION";
+const char *daffodil_version = "DAFFODIL VERSION";
 
-#endif // VERSION_H
+#endif // DAFFODIL_VERSION_H

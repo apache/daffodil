@@ -609,15 +609,15 @@ class CodeGeneratorState {
   }
 
   def generateVersionHeader: String = {
-    val program = this.getClass.getPackage.getImplementationTitle
+    val daffodil = this.getClass.getPackage.getImplementationTitle
     val version = this.getClass.getPackage.getImplementationVersion
     val versionHeader =
-      s"""#ifndef VERSION_H
-         |#define VERSION_H
+      s"""#ifndef DAFFODIL_VERSION_H
+         |#define DAFFODIL_VERSION_H
          |
-         |const char *daffodil_program_version = "$program $version";
+         |const char *daffodil_version = "$daffodil $version";
          |
-         |#endif // VERSION_H
+         |#endif // DAFFODIL_VERSION_H
          |""".stripMargin
     versionHeader.replace("\r\n", "\n").replace("\n", System.lineSeparator)
   }
