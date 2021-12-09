@@ -50,6 +50,14 @@
 
   <xs:element name="IPv4Header" type="tns:IPv4Header"/>
 
+  <xs:element name="testArray">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="IPv4Header" type="tns:IPv4Header" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
   <xs:complexType name="IPv4Header">
     <!--
     Modified with proposed checksum computation via layer transform
