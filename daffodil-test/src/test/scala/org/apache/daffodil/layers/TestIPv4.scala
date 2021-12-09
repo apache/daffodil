@@ -36,6 +36,10 @@ class TestIPv4 {
   import TestIPv4._
 
   @Test def test_IPv4_1(): Unit = { runner.runOneTest("IPv4_1") }
+
+  // DAFFODIL-2608
+  // @Test def test_IPv4_array(): Unit = { runner.runOneTest("IPv4_array") }
+
   @Test def test_IPv4_1e(): Unit = { runner.runOneTest("IPv4_1e") }
 
   @Test def test_IPv4_2(): Unit = { runner.runOneTest("IPv4_2") }

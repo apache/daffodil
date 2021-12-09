@@ -69,6 +69,69 @@ c0a8 0001 c0a8 00c7
     </tdml:infoset>
   </tdml:parserTestCase>
 
+
+  <tdml:unparserTestCase name="IPv4_array" root="testArray" model="org/apache/daffodil/layers/IPv4.dfdl.xsd"
+                       roundTrip="none">
+    <tdml:document>
+      <!--
+      see https://en.wikipedia.org/wiki/IPv4_header_checksum
+      for working through the details of this IPv4 Header
+
+      The first line of 5 words is the part 1 of the header
+      The second line is the checksum
+      The third line of 4 words is the part 2 of the header (src, dest addresses)
+      -->
+      <tdml:documentPart type="byte"><![CDATA[
+4500 0073 0000 4000 4011
+b861
+c0a8 0001 c0a8 00c7
+4500 0073 0000 4000 4011
+b861
+c0a8 0001 c0a8 00c7
+       ]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ipv4:testArray>
+        <IPv4Header>
+          <Version>4</Version>
+          <IHL>5</IHL>
+          <DSCP>0</DSCP>
+          <ECN>0</ECN>
+          <Length>115</Length>
+          <Identification>0</Identification>
+          <Flags>2</Flags>
+          <FragmentOffset>0</FragmentOffset>
+          <TTL>64</TTL>
+          <Protocol>17</Protocol>
+          <Checksum>47201</Checksum>
+          <IPSrc>C0A80001</IPSrc>
+          <IPDest>C0A800C7</IPDest>
+          <FakeData>115</FakeData>
+          <ComputedChecksum>47201</ComputedChecksum>
+        </IPv4Header>
+        <IPv4Header>
+          <Version>4</Version>
+          <IHL>5</IHL>
+          <DSCP>0</DSCP>
+          <ECN>0</ECN>
+          <Length>115</Length>
+          <Identification>0</Identification>
+          <Flags>2</Flags>
+          <FragmentOffset>0</FragmentOffset>
+          <TTL>64</TTL>
+          <Protocol>17</Protocol>
+          <Checksum>47201</Checksum>
+          <IPSrc>C0A80001</IPSrc>
+          <IPDest>C0A800C7</IPDest>
+          <FakeData>115</FakeData>
+          <ComputedChecksum>47201</ComputedChecksum>
+        </IPv4Header>
+        </ipv4:testArray>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
   <tdml:parserTestCase name="IPv4_1e" root="IPv4Header"  model="org/apache/daffodil/layers/IPv4.dfdl.xsd"
                        roundTrip="none">
     <tdml:document>
