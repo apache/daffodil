@@ -66,7 +66,6 @@ final class StringDataInputStreamForUnparse
 
   // $COVERAGE-OFF$ Nothing should be calling these.
   private def doNotUse = Assert.usageError("Not to be called on " + Misc.getNameFromClass(this))
-
   override def futureData(nBytesRequested: Int): java.nio.ByteBuffer = doNotUse
   override def getBinaryDouble(finfo: FormatInfo): Double = doNotUse
   override def getBinaryFloat(finfo: FormatInfo): Float = doNotUse
@@ -83,4 +82,5 @@ final class StringDataInputStreamForUnparse
   override def hasData: Boolean = doNotUse
   override def skip(nBits: Long, finfo: FormatInfo): Boolean = doNotUse
   override def resetBitLimit0b(savedBitLimit0b: MaybeULong): Unit = doNotUse
+  // $COVERAGE-ON$
 }

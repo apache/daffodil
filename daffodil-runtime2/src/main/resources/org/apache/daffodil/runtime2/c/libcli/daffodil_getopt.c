@@ -17,10 +17,10 @@
 
 // clang-format off
 #include "daffodil_getopt.h"
-#include <string.h>      // for strcmp, strrchr
-#include <unistd.h>      // for optarg, getopt, optopt, optind
-#include "cli_errors.h"  // for CLI_UNEXPECTED_ARGUMENT, CLI_HELP_USAGE, CLI_INVALID_COMMAND, CLI_INVALID_INFOSET, CLI_INVALID_OPTION, CLI_MISSING_COMMAND, CLI_MISSING_VALUE, CLI_PROGRAM_ERROR, CLI_PROGRAM_VERSION
-#include "version.h"
+#include <string.h>            // for strcmp, strrchr
+#include <unistd.h>            // for optarg, getopt, optopt, optind
+#include "cli_errors.h"        // for CLI_UNEXPECTED_ARGUMENT, CLI_HELP_USAGE, CLI_INVALID_COMMAND, CLI_INVALID_INFOSET, CLI_INVALID_OPTION, CLI_MISSING_COMMAND, CLI_MISSING_VALUE, CLI_PROGRAM_ERROR, CLI_PROGRAM_VERSION
+#include "daffodil_version.h"  // for daffodil_version
 // clang-format on
 
 // Initialize our "daffodil" CLI options
@@ -86,7 +86,7 @@ parse_daffodil_cli(int argc, char *argv[])
             break;
         case 'V':
             error.code = CLI_PROGRAM_VERSION;
-            error.arg.s = daffodil_program_version;
+            error.arg.s = daffodil_version;
             return &error;
         case ':':
             error.code = CLI_MISSING_VALUE;

@@ -90,17 +90,17 @@ class CodeGenerator(root: Root) extends DFDL.CodeGenerator {
     val codeGeneratorState = new CodeGeneratorState()
     Runtime2CodeGenerator.generateCode(root.document, codeGeneratorState)
     diagnostics = diagnostics ++ root.warnings
+    val versionHeaderText = codeGeneratorState.generateVersionHeader
     val codeHeaderText = codeGeneratorState.generateCodeHeader
     val codeFileText = codeGeneratorState.generateCodeFile(rootElementName)
-    val versionHeaderText = codeGeneratorState.generateVersionHeader
 
     // Write the generated C code into our code subdirectory
+    val generatedVersionHeader = codeDir/"libcli"/"daffodil_version.h"
     val generatedCodeHeader = codeDir/"libruntime"/"generated_code.h"
     val generatedCodeFile = codeDir/"libruntime"/"generated_code.c"
-    val generatedVersionHeader = codeDir/"libcli"/"version.h"
+    os.write.over(generatedVersionHeader, versionHeaderText)
     os.write(generatedCodeHeader, codeHeaderText)
     os.write(generatedCodeFile, codeFileText)
-    os.write.over(generatedVersionHeader, versionHeaderText)
 
     // Return our code directory in case caller wants to call compileCode next
     codeDir
