@@ -31,6 +31,7 @@ import org.apache.daffodil.io.BoundaryMarkLimitingStream
 import org.apache.daffodil.io.LayerBoundaryMarkInsertingJavaOutputStream
 import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.io.FormatInfo
+import org.apache.daffodil.processors.ParseOrUnparseState
 import org.apache.daffodil.schema.annotation.props.gen.BinaryFloatRep
 import org.apache.daffodil.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.schema.annotation.props.gen.ByteOrder
@@ -97,7 +98,7 @@ class AISPayloadArmoringTransformer(name: String, layerRuntimeInfo: LayerRuntime
     new AISPayloadArmoringInputStream(jis)
   }
 
-  override def wrapLimitingStream(jis: java.io.InputStream) = {
+  override def wrapLimitingStream(state: ParseOrUnparseState, jis: java.io.InputStream) = {
     val layerBoundaryMark = ","
     val s = BoundaryMarkLimitingStream(jis, layerBoundaryMark, iso8859)
     s
@@ -107,7 +108,7 @@ class AISPayloadArmoringTransformer(name: String, layerRuntimeInfo: LayerRuntime
     new AISPayloadArmoringOutputStream(jos)
   }
 
-  override protected def wrapLimitingStream(jos: java.io.OutputStream) = {
+  override protected def wrapLimitingStream(state: ParseOrUnparseState, jos: java.io.OutputStream) = {
     val layerBoundaryMark = ","
     val newJOS = new LayerBoundaryMarkInsertingJavaOutputStream(jos, layerBoundaryMark, iso8859)
     newJOS

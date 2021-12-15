@@ -28,6 +28,7 @@ import java.io.InputStream
 import org.apache.daffodil.exceptions.ThrowsSDE
 import org.apache.daffodil.schema.annotation.props.Enum
 import org.apache.daffodil.io.RegexLimitingStream
+import org.apache.daffodil.processors.ParseOrUnparseState
 
 /*
  * This and related classes implement so called "line folding" from
@@ -140,14 +141,14 @@ object LineFoldMode extends Enum[LineFoldMode] {
 final class LineFoldedTransformerDelimited(mode: LineFoldMode, layerRuntimeInfo: LayerRuntimeInfo)
   extends LayerTransformer(mode.transformName, layerRuntimeInfo) {
 
-  override protected def wrapLimitingStream(jis: java.io.InputStream) = {
+  override protected def wrapLimitingStream(state: ParseOrUnparseState, jis: java.io.InputStream) = {
     // regex means CRLF not followed by space or tab.
     // NOTE: this regex cannot contain ANY capturing groups (per scaladoc on RegexLimitingStream)
     val s = new RegexLimitingStream(jis, "\\r\\n(?!(?:\\t|\\ ))", "\r\n", StandardCharsets.ISO_8859_1)
     s
   }
 
-  override protected def wrapLimitingStream(jos: java.io.OutputStream) = {
+  override protected def wrapLimitingStream(state: ParseOrUnparseState, jos: java.io.OutputStream) = {
     //
     // Q: How do we insert a CRLF "not followed by tab or space" when we don't
     // control what follows?
@@ -177,11 +178,11 @@ final class LineFoldedTransformerDelimited(mode: LineFoldMode, layerRuntimeInfo:
 class LineFoldedTransformerImplicit(mode: LineFoldMode, layerRuntimeInfo: LayerRuntimeInfo)
   extends LayerTransformer(mode.transformName, layerRuntimeInfo) {
 
-  override protected def wrapLimitingStream(jis: java.io.InputStream) = {
+  override protected def wrapLimitingStream(state: ParseOrUnparseState, jis: java.io.InputStream) = {
     jis // no limiting - just pull input until EOF.
   }
 
-  override protected def wrapLimitingStream(jos: java.io.OutputStream) = {
+  override protected def wrapLimitingStream(state: ParseOrUnparseState, jos: java.io.OutputStream) = {
     jos // no limiting - just write output until EOF.
   }
 

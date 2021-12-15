@@ -24,6 +24,7 @@ import java.util.Deque
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.schema.annotation.props.gen.LayerLengthKind
 import org.apache.daffodil.io.ExplicitLengthLimitingStream
+import org.apache.daffodil.processors.ParseOrUnparseState
 
 final class FourByteSwapLayerCompiler
   extends LayerCompiler("fourbyteswap") {
@@ -189,8 +190,8 @@ class ByteSwapTransformer(wordsize: Int, name: String, layerRuntimeInfo: LayerRu
     s
   }
 
-  override def wrapLimitingStream(jis: java.io.InputStream) = {
-    val layerLengthInBytes = layerRuntimeInfo.optLayerLength.get
+  override def wrapLimitingStream(state: ParseOrUnparseState, jis: java.io.InputStream) = {
+    val layerLengthInBytes = layerRuntimeInfo.optLayerLength(state).get
 
     val s = new ExplicitLengthLimitingStream(jis, layerLengthInBytes)
     s
@@ -201,7 +202,7 @@ class ByteSwapTransformer(wordsize: Int, name: String, layerRuntimeInfo: LayerRu
     s
   }
 
-  override protected def wrapLimitingStream(jos: java.io.OutputStream) = {
+  override protected def wrapLimitingStream(state: ParseOrUnparseState, jos: java.io.OutputStream) = {
     jos // just return jos. The way the length will be used/stored is by way of
     // taking the content length of the enclosing element. That will measure the
     // length relative to the "ultimate" data output stream.

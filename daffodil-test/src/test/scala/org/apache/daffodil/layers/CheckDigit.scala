@@ -17,6 +17,8 @@
 
 package org.apache.daffodil.layers
 
+import org.apache.daffodil.processors.ParseOrUnparseState
+import org.apache.daffodil.processors.VariableRuntimeData
 import org.apache.daffodil.util.Logger
 
 import java.nio.ByteBuffer
@@ -25,8 +27,8 @@ import java.nio.ByteBuffer
 final class CheckDigitExplicit(
   name: String,
   layerRuntimeInfo: LayerRuntimeInfo,
-  outputVar: VariableHandle,
-  inputVars: Seq[VariableHandle])
+  outputVar: VariableRuntimeData,
+  inputVars: Seq[VariableRuntimeData])
 extends ByteBufferExplicitLengthLayerTransform[Int](
   layerRuntimeInfo,
   name,
@@ -61,9 +63,9 @@ extends ByteBufferExplicitLengthLayerTransform[Int](
    *
    * The checkDigit is the total of all digits, viewed as a string, the last digit of that total.
    */
-  protected def compute(isUnparse: Boolean, inputs: Seq[Any], byteBuffer: ByteBuffer) = {
+  protected def compute(state: ParseOrUnparseState, isUnparse: Boolean, inputs: Seq[Any], byteBuffer: ByteBuffer) = {
     assert(inputs.length == 1)
-    val charset = layerRuntimeInfo.optLayerCharset.get
+    val charset = layerRuntimeInfo.optLayerCharset(state).get
     assert(charset.newDecoder().maxCharsPerByte() == 1) // is a SBCS charset
     val isVerbose = parseParams(inputs(0).asInstanceOf[String]).isVerbose
     val s = new String(byteBuffer.array(), charset)

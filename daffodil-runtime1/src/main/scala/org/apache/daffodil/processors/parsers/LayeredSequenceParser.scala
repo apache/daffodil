@@ -18,7 +18,7 @@
 package org.apache.daffodil.processors.parsers
 
 import org.apache.daffodil.layers.LayerNotEnoughDataException
-import org.apache.daffodil.layers.LayerSerializedInfo
+import org.apache.daffodil.layers.LayerRuntimeInfo
 import org.apache.daffodil.layers.LayerTransformerFactory
 import org.apache.daffodil.processors.SequenceRuntimeData
 import org.apache.daffodil.util.MaybeULong
@@ -26,17 +26,17 @@ import org.apache.daffodil.util.MaybeULong
 class LayeredSequenceParser(
   rd: SequenceRuntimeData,
   layerTransformerFactory: LayerTransformerFactory,
-  layerSerializedInfo: LayerSerializedInfo,
+  layerRuntimeInfo: LayerRuntimeInfo,
   bodyParser: SequenceChildParser)
   extends OrderedUnseparatedSequenceParser(rd, Vector(bodyParser)) {
   override def nom = "LayeredSequence"
 
   override lazy val runtimeDependencies =
-    layerSerializedInfo.evaluatables.toVector
+    layerRuntimeInfo.evaluatables.toVector
 
   override def parse(state: PState): Unit = {
 
-    val layerTransformer = layerTransformerFactory.newInstance(layerSerializedInfo.layerRuntimeInfo(state))
+    val layerTransformer = layerTransformerFactory.newInstance(layerRuntimeInfo)
     val savedDIS = state.dataInputStream
 
     val isAligned = savedDIS.align(layerTransformer.mandatoryLayerAlignmentInBits, state)

@@ -20,7 +20,7 @@ package org.apache.daffodil.grammar.primitives
 import org.apache.daffodil.grammar.Terminal
 import org.apache.daffodil.dsom._
 import org.apache.daffodil.layers.LayerCompileInfo
-import org.apache.daffodil.layers.LayerSerializedInfo
+import org.apache.daffodil.layers.LayerRuntimeInfo
 import org.apache.daffodil.processors.parsers.{Parser => DaffodilParser}
 import org.apache.daffodil.processors.unparsers.{Unparser => DaffodilUnparser}
 import org.apache.daffodil.util.Misc
@@ -36,7 +36,7 @@ case class LayeredSequence(sq: SequenceGroupTermBase, bodyTerm: SequenceChild)
 
   val layerCompileInfo = new LayerCompileInfo(
     sq,
-    new LayerSerializedInfo(
+    new LayerRuntimeInfo(
       sq.sequenceRuntimeData,
       sq.maybeLayerCharsetEv,
       Maybe.toMaybe(sq.optionLayerLengthKind),
@@ -62,12 +62,12 @@ case class LayeredSequence(sq: SequenceGroupTermBase, bodyTerm: SequenceChild)
   lazy val bodyParser = bodyTerm.parser
   lazy val bodyUnparser = bodyTerm.unparser
 
-  lazy val layerSerializedInfo = layerCompileInfo.layerSerializedInfo
+  lazy val layerRuntimeInfo = layerCompileInfo.layerRuntimeInfo
 
   override lazy val parser: DaffodilParser =
-    new LayeredSequenceParser(srd, layerTransformerFactory,  layerSerializedInfo, bodyParser)
+    new LayeredSequenceParser(srd, layerTransformerFactory,  layerRuntimeInfo, bodyParser)
 
   override lazy val unparser: DaffodilUnparser = {
-    new LayeredSequenceUnparser(srd, layerTransformerFactory, layerSerializedInfo, bodyUnparser)
+    new LayeredSequenceUnparser(srd, layerTransformerFactory, layerRuntimeInfo, bodyUnparser)
   }
 }

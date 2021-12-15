@@ -43,7 +43,7 @@ abstract class LayerCompiler(nom: String) {
 
   /**
    * Performs all schema-compile-time checking for the layer parameters, and constructs
-   * a LayerTransfomrmerFactory which is the serialized runtime object that becomes part of the
+   * a LayerTransformerFactory which is the serialized runtime object that becomes part of the
    * processor.
    * @param layerCompileInfo Schema-compilation time information about the layer properties.
    * @return
@@ -52,24 +52,18 @@ abstract class LayerCompiler(nom: String) {
 
 }
 
-sealed trait VariableHandle
-
-final class VariableHandleImpl(private[layers] val vrd: VariableRuntimeData) // package private because its an internal thing.
-extends VariableHandle with Serializable
-
-
 /**
  * Provides access to DFDL schema compile-time information about the layer properties.
  *
  * Allows reporting of schema definition errors and warnings at schema compile time.
  */
 final class LayerCompileInfo(sequence: ImplementsThrowsOrSavesSDE,
-  val layerSerializedInfo: LayerSerializedInfo) {
+  val layerRuntimeInfo: LayerRuntimeInfo) {
 
-  private def lsi = layerSerializedInfo
-  private def srd: SequenceRuntimeData = lsi.srd
+  private def lri = layerRuntimeInfo
+  private def srd: SequenceRuntimeData = lri.runtimeData
 
-  def getVariableHandle(prefix: String, namespace: String, localName: String, primType: PrimType) : VariableHandle = {
+  def getVariableRuntimeData(prefix: String, namespace: String, localName: String, primType: PrimType) : VariableRuntimeData = {
     val varNamespace = NS(namespace)
     val qName = RefQName(Some(prefix), localName, varNamespace).toGlobalQName
     val vrd = srd.variableMap.getVariableRuntimeData(qName).getOrElse {
@@ -77,7 +71,7 @@ final class LayerCompileInfo(sequence: ImplementsThrowsOrSavesSDE,
     }
     srd.schemaDefinitionUnless(vrd.primType == primType,
       "Variable '%s' is not of type '%s'.", qName.toExtendedSyntax, primType)
-    new VariableHandleImpl(vrd)
+    vrd
   }
 
   /**
@@ -86,32 +80,32 @@ final class LayerCompileInfo(sequence: ImplementsThrowsOrSavesSDE,
    * If undefined, the value is None
    */
   def optLayerJavaCharsetOptConstantValue: Option[Option[java.nio.charset.Charset]] = {
-    if (lsi.maybeLayerCharsetEv.isEmpty) None
+    if (lri.maybeLayerCharsetEv.isEmpty) None
     else
-      lsi.maybeLayerCharsetEv.get.optConstant.map {
+      lri.maybeLayerCharsetEv.get.optConstant.map {
         case java: BitsCharsetJava => Some(java.javaCharset)
         case _: BitsCharsetNonByteSize => None
       }
   }
 
   def optLayerLengthKind: Option[LayerLengthKind] = {
-    lsi.maybeLayerLengthKind.toScalaOption
+    lri.maybeLayerLengthKind.toScalaOption
   }
 
   def optLayerLengthOptConstantValue: Option[Option[Long]] = {
-    if (lsi.maybeLayerLengthEv.isEmpty) None
-    else Some(lsi.maybeLayerLengthEv.get.optConstant.map {
+    if (lri.maybeLayerLengthEv.isEmpty) None
+    else Some(lri.maybeLayerLengthEv.get.optConstant.map {
       _.toLong
     })
   }
 
   def optLayerLengthUnits: Option[LayerLengthUnits] = {
-    lsi.maybeLayerLengthUnits.toScalaOption
+    lri.maybeLayerLengthUnits.toScalaOption
   }
 
   def optLayerBoundaryMarkOptConstantValue: Option[Option[String]] = {
-    if (lsi.maybeLayerBoundaryMarkEv.isEmpty) None
-    else Some(lsi.maybeLayerBoundaryMarkEv.get.optConstant)
+    if (lri.maybeLayerBoundaryMarkEv.isEmpty) None
+    else Some(lri.maybeLayerBoundaryMarkEv.get.optConstant)
   }
 
   def schemaDefinitionError(message: String, args: Any*): Nothing = {
@@ -122,9 +116,9 @@ final class LayerCompileInfo(sequence: ImplementsThrowsOrSavesSDE,
     sequence.SDW(WarnID.LayerCompileWarning, message, args: _*)
   }
 
-  final def SDEUnless(test: Boolean, message: String, args: Any*) = if (!test) SDE(message, args: _*)
+  def SDEUnless(test: Boolean, message: String, args: Any*): Unit = if (!test) SDE(message, args: _*)
 
-  final def SDE(message: String, args: Any*): Nothing = schemaDefinitionError(message, args: _*)
+  def SDE(message: String, args: Any*): Nothing = schemaDefinitionError(message, args: _*)
 }
 
 

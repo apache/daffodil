@@ -19,6 +19,7 @@ package org.apache.daffodil.layers
 
 import org.apache.daffodil.io.BoundaryMarkLimitingStream
 import org.apache.daffodil.io.LayerBoundaryMarkInsertingJavaOutputStream
+import org.apache.daffodil.processors.ParseOrUnparseState
 import org.apache.daffodil.schema.annotation.props.gen.LayerLengthKind
 
 final class Base64MIMELayerCompiler
@@ -67,9 +68,9 @@ final class Base64MIMETransformer(name: String, layerRuntimeInfo: LayerRuntimeIn
     b64
   }
 
-  override def wrapLimitingStream(jis: java.io.InputStream) = {
-    val javaCharset = layerRuntimeInfo.optLayerCharset.get
-    val layerBoundaryMark = layerRuntimeInfo.optLayerBoundaryMark.get
+  override def wrapLimitingStream(state: ParseOrUnparseState, jis: java.io.InputStream) = {
+    val javaCharset = layerRuntimeInfo.optLayerCharset(state).get
+    val layerBoundaryMark = layerRuntimeInfo.optLayerBoundaryMark(state).get
     val s = BoundaryMarkLimitingStream(jis, layerBoundaryMark, javaCharset)
     s
   }
@@ -79,9 +80,9 @@ final class Base64MIMETransformer(name: String, layerRuntimeInfo: LayerRuntimeIn
     b64
   }
 
-  override protected def wrapLimitingStream(jos: java.io.OutputStream) = {
-    val javaCharset = layerRuntimeInfo.optLayerCharset.get
-    val layerBoundaryMark = layerRuntimeInfo.optLayerBoundaryMark.get
+  override protected def wrapLimitingStream(state: ParseOrUnparseState, jos: java.io.OutputStream) = {
+    val javaCharset = layerRuntimeInfo.optLayerCharset(state).get
+    val layerBoundaryMark = layerRuntimeInfo.optLayerBoundaryMark(state).get
     val newJOS = new LayerBoundaryMarkInsertingJavaOutputStream(jos, layerBoundaryMark, javaCharset)
     newJOS
   }
