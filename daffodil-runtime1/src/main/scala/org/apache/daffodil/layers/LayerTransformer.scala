@@ -33,7 +33,6 @@ import org.apache.daffodil.util.Misc
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.exceptions.SchemaFileLocation
 import org.apache.daffodil.infoset.DataValue
-import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe.One
 import org.apache.daffodil.util.Maybe.Nope
@@ -43,10 +42,10 @@ import org.apache.daffodil.processors.parsers.PState
 import org.apache.daffodil.processors.unparsers.UState
 import org.apache.daffodil.io.DirectOrBufferedDataOutputStream
 import org.apache.daffodil.processors.Evaluatable
-import org.apache.daffodil.processors.RuntimeData
 import passera.unsigned.ULong
 import org.apache.daffodil.processors.SequenceRuntimeData
 import org.apache.daffodil.processors.SuspendableOperation
+import org.apache.daffodil.processors.VariableRuntimeData
 import org.apache.daffodil.processors.charset.BitsCharsetJava
 import org.apache.daffodil.util.ByteBufferOutputStream
 
@@ -67,7 +66,7 @@ abstract class LayerTransformer(layerName: String, layerRuntimeInfo: LayerRuntim
 
   protected def wrapLayerDecoder(jis: InputStream): InputStream
 
-  protected def wrapLimitingStream(jis: InputStream): InputStream
+  protected def wrapLimitingStream(state: ParseOrUnparseState, jis: InputStream): InputStream
 
   final def wrapJavaInputStream(s: InputSourceDataInputStream, fInfo: FormatInfo): InputStream = {
     new JavaIOInputStream(s, fInfo)
@@ -75,7 +74,7 @@ abstract class LayerTransformer(layerName: String, layerRuntimeInfo: LayerRuntim
 
   protected def wrapLayerEncoder(jos: OutputStream): OutputStream
 
-  protected def wrapLimitingStream(jis: OutputStream): OutputStream
+  protected def wrapLimitingStream(state: ParseOrUnparseState, jis: OutputStream): OutputStream
 
   final def wrapJavaOutputStream(s: DataOutputStream, fInfo: FormatInfo): OutputStream = {
     new JavaIOOutputStream(s, fInfo)
@@ -89,7 +88,7 @@ abstract class LayerTransformer(layerName: String, layerRuntimeInfo: LayerRuntim
 
   final def addLayer(s: InputSourceDataInputStream, state: PState): InputSourceDataInputStream = {
     val jis = wrapJavaInputStream(s, state)
-    val limitedJIS = wrapLimitingStream(jis)
+    val limitedJIS = wrapLimitingStream(state, jis)
     val decodedInputStream = wrapLayerDecoder(limitedJIS)
 
     val newDIS = InputSourceDataInputStream(decodedInputStream)
@@ -104,7 +103,7 @@ abstract class LayerTransformer(layerName: String, layerRuntimeInfo: LayerRuntim
 
   final def addLayer(s: DataOutputStream, state: UState): DirectOrBufferedDataOutputStream = {
     val jos = wrapJavaOutputStream(s, state)
-    val limitedJOS = wrapLimitingStream(jos)
+    val limitedJOS = wrapLimitingStream(state, jos)
     val encodedOutputStream = wrapLayerEncoder(limitedJOS)
     val newDOS = DirectOrBufferedDataOutputStream(
       encodedOutputStream,
@@ -224,54 +223,28 @@ case class LayerNotEnoughDataException(sfl: SchemaFileLocation, dataLocation: Da
   override def modeName = "Parse"
   }
 
-final class LayerSerializedInfo(val srd: SequenceRuntimeData,
+/**
+ * Allows access to all the layer properties, if defined, including
+ * evaluating expressions if the properties values are defined as expressions.
+ */
+final class LayerRuntimeInfo(
+  srd: SequenceRuntimeData,
   val maybeLayerCharsetEv: Maybe[LayerCharsetEv],
   val maybeLayerLengthKind: Maybe[LayerLengthKind],
   val maybeLayerLengthEv: Maybe[LayerLengthEv],
   val maybeLayerLengthUnits: Maybe[LayerLengthUnits],
   val maybeLayerBoundaryMarkEv: Maybe[LayerBoundaryMarkEv])
-extends Serializable {
+  extends Serializable
+{
 
   def evaluatables: Seq[Evaluatable[AnyRef]] =
     maybeLayerCharsetEv.toScalaOption.toSeq ++
       maybeLayerLengthEv.toScalaOption.toSeq ++
       maybeLayerBoundaryMarkEv.toScalaOption.toSeq
 
+  def runtimeData: SequenceRuntimeData = srd
 
-  def layerRuntimeInfo(state: ParseOrUnparseState): LayerRuntimeInfo =
-    new LayerRuntimeInfo(state, srd,
-      maybeLayerCharsetEv,
-      maybeLayerLengthKind,
-      maybeLayerLengthEv,
-      maybeLayerLengthUnits,
-      maybeLayerBoundaryMarkEv)
-}
-
-/**
- * Allows access to all the layer properties, if defined, including
- * evaluating expressions if the properties values are defined as expressions.
- * Also provides access to variables.
- */
-
-final class LayerRuntimeInfo(state: ParseOrUnparseState,
-  srd: SequenceRuntimeData,
-  maybeLayerCharsetEv: Maybe[LayerCharsetEv],
-  maybeLayerLengthKind: Maybe[LayerLengthKind],
-  maybeLayerLengthEv: Maybe[LayerLengthEv],
-  maybeLayerLengthUnits: Maybe[LayerLengthUnits],
-  maybeLayerBoundaryMarkEv: Maybe[LayerBoundaryMarkEv])
-{
-
-  def SDE(msg: String, args: Any*) =
-    state.SDE(msg, args)
-
-  /**
-   * Only needed because unparser suspensions need one, and it is used in too many places
-   * @return
-   */
-  def runtimeData: RuntimeData = srd
-
-  def optLayerCharset: Option[Charset] = maybeLayerCharsetEv.toScalaOption.map {
+  def optLayerCharset(state: ParseOrUnparseState): Option[Charset] = maybeLayerCharsetEv.toScalaOption.map {
     _.evaluate(state)
   } match {
     case Some(bitsCharsetJava: BitsCharsetJava) => Some(bitsCharsetJava.javaCharset)
@@ -281,16 +254,11 @@ final class LayerRuntimeInfo(state: ParseOrUnparseState,
 
   def optLayerLengthKind: Option[LayerLengthKind] = maybeLayerLengthKind.toScalaOption
 
-  def optLayerLength: Option[Long] = maybeLayerLengthEv.toScalaOption.map{ _.evaluate(state) }
+  def optLayerLength(state: ParseOrUnparseState): Option[Long] = maybeLayerLengthEv.toScalaOption.map{ _.evaluate(state) }
 
   def optLayerLengthUnits: Option[LayerLengthUnits] = maybeLayerLengthUnits.toScalaOption
 
-  def optLayerBoundaryMark: Option[String] = maybeLayerBoundaryMarkEv.toScalaOption.map{ _.evaluate(state) }
-
-  def getVariable(vh: VariableHandle): DataValuePrimitive = state.getVariable(vh.asInstanceOf[VariableHandleImpl].vrd, srd)
-
-  def setVariable(vh: VariableHandle, value: DataValuePrimitive) =
-    state.setVariable(vh.asInstanceOf[VariableHandleImpl].vrd, value, srd)
+  def optLayerBoundaryMark(state: ParseOrUnparseState): Option[String] = maybeLayerBoundaryMarkEv.toScalaOption.map{ _.evaluate(state) }
 
   def schemaFileLocation = srd.schemaFileLocation
 }
@@ -299,8 +267,8 @@ final class LayerRuntimeInfo(state: ParseOrUnparseState,
 abstract class ByteBufferExplicitLengthLayerTransform[T](
   layerRuntimeInfo: LayerRuntimeInfo,
   layerName: String,
-  inputVars: Seq[VariableHandle],
-  outputVar: VariableHandle)
+  inputVars: Seq[VariableRuntimeData],
+  outputVar: VariableRuntimeData)
   extends LayerTransformer(layerName, layerRuntimeInfo) {
 
   /**
@@ -325,7 +293,7 @@ abstract class ByteBufferExplicitLengthLayerTransform[T](
 
   private var limitingOutputStream: ByteBufferOutputStream = _
 
-  protected def compute(isUnparse: Boolean, inputs: Seq[Any], byteBuffer:ByteBuffer): T
+  protected def compute(s: ParseOrUnparseState, isUnparse: Boolean, inputs: Seq[Any], byteBuffer:ByteBuffer): T
 
   /**
    * Assigned by wrapLimitingStream for parsing to capture the original source
@@ -348,20 +316,20 @@ abstract class ByteBufferExplicitLengthLayerTransform[T](
 
   protected def wrapLayerDecoder(jis: InputStream) = jis
 
-  private def setup(layerRuntimeInfo: LayerRuntimeInfo): Unit = {
-    val olc = layerRuntimeInfo.optLayerCharset
+  private def setup(state: ParseOrUnparseState, layerRuntimeInfo: LayerRuntimeInfo): Unit = {
+    val olc = layerRuntimeInfo.optLayerCharset(state)
     optLayerCharset_ = olc
     explicitLengthInBytes_  =
       if (layerBuiltInConstantLength.isDefined) layerBuiltInConstantLength.get
-      else layerRuntimeInfo.optLayerLength.getOrElse {
-        layerRuntimeInfo.SDE("The layer does not have a built in length and the dfdl:layerLengthKind is 'explicit' yet no dfdlx:layerLength was provided.")
+      else layerRuntimeInfo.optLayerLength(state).getOrElse {
+        state.SDE("The layer does not have a built in length and the dfdl:layerLengthKind is 'explicit' yet no dfdlx:layerLength was provided.")
       }
     byteArr = new Array[Byte](explicitLengthInBytes_ .toInt)
     byteBuf = ByteBuffer.wrap(byteArr)
   }
 
-  protected def wrapLimitingStream(jis: InputStream) = {
-    setup(layerRuntimeInfo)
+  protected def wrapLimitingStream(state: ParseOrUnparseState, jis: InputStream) = {
+    setup(state, layerRuntimeInfo)
     optOriginalInputStream = One(jis)
     val limitingInputStream = new ByteArrayInputStream(byteArr)
     limitingInputStream
@@ -369,8 +337,8 @@ abstract class ByteBufferExplicitLengthLayerTransform[T](
 
   protected def wrapLayerEncoder(jos: OutputStream) = jos
 
-  protected def wrapLimitingStream(jos: OutputStream) = {
-    setup(layerRuntimeInfo)
+  protected def wrapLimitingStream(state: ParseOrUnparseState, jos: OutputStream) = {
+    setup(state, layerRuntimeInfo)
     optOriginalOutputStream = One(jos)
     limitingOutputStream = new ByteBufferOutputStream(byteBuf)
     limitingOutputStream
@@ -389,9 +357,9 @@ abstract class ByteBufferExplicitLengthLayerTransform[T](
       case eof: EOFException =>
         throw new LayerNotEnoughDataException(layerRuntimeInfo.schemaFileLocation, s.currentLocation, eof, explicitLengthInBytes_ .toInt)
     }
-    val inputs = inputVars.map{ inputVar => layerRuntimeInfo.getVariable(inputVar).getAnyRef }
-    val checksum: T = compute(isUnparse = false, inputs, byteBuf)
-    layerRuntimeInfo.setVariable(outputVar, DataValue.unsafeFromAnyRef(checksum.asInstanceOf[AnyRef])) // assign to result variable.
+    val inputs = inputVars.map{ inputVar => s.getVariable(inputVar, layerRuntimeInfo.runtimeData).getAnyRef }
+    val checksum: T = compute(s, isUnparse = false, inputs, byteBuf)
+    s.setVariable(outputVar, DataValue.unsafeFromAnyRef(checksum.asInstanceOf[AnyRef]), layerRuntimeInfo.runtimeData) // assign to result variable.
   }
 
   final class SuspendableChecksumLayerOperation()
@@ -417,9 +385,11 @@ abstract class ByteBufferExplicitLengthLayerTransform[T](
     protected def continuation(ustate: UState): Unit = {
       Assert.invariant(optOriginalOutputStream.isDefined)
       byteBuf.position(0).limit(byteBuf.capacity())
-      val inputs = inputVars.map{ inputVRD => layerRuntimeInfo.getVariable(inputVRD).getAnyRef }
-      val finalChecksum = compute(isUnparse = true, inputs, byteBuf)
-      layerRuntimeInfo.setVariable(outputVar, DataValue.unsafeFromAnyRef(finalChecksum.asInstanceOf[AnyRef])) // assign to the result variable.
+      val inputs = inputVars.map{ inputVRD => ustate.getVariable(inputVRD, layerRuntimeInfo.runtimeData).getAnyRef }
+      val finalChecksum = compute(ustate, isUnparse = true, inputs, byteBuf)
+      ustate.setVariable(outputVar,
+        DataValue.unsafeFromAnyRef(finalChecksum.asInstanceOf[AnyRef]),
+        layerRuntimeInfo.runtimeData) // assign to the result variable.
       // write out the layer data (which has recomputed checksum in it.
       optOriginalOutputStream.get.write(byteArr)
       optOriginalOutputStream.get.close()

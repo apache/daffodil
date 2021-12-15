@@ -19,6 +19,7 @@ package org.apache.daffodil.layers
 
 import org.apache.daffodil.schema.annotation.props.gen.LayerLengthKind
 import org.apache.daffodil.io.ExplicitLengthLimitingStream
+import org.apache.daffodil.processors.ParseOrUnparseState
 
 final class GZIPLayerCompiler
   extends LayerCompiler("gzip") {
@@ -53,8 +54,8 @@ class GZIPTransformer(name: String, layerRuntimeInfo: LayerRuntimeInfo)
     s
   }
 
-  override def wrapLimitingStream(jis: java.io.InputStream) = {
-    val layerLengthInBytes = layerRuntimeInfo.optLayerLength.get
+  override def wrapLimitingStream(state: ParseOrUnparseState, jis: java.io.InputStream) = {
+    val layerLengthInBytes = layerRuntimeInfo.optLayerLength(state).get
     val s = new ExplicitLengthLimitingStream(jis, layerLengthInBytes)
     s
   }
@@ -64,7 +65,7 @@ class GZIPTransformer(name: String, layerRuntimeInfo: LayerRuntimeInfo)
     s
   }
 
-  override protected def wrapLimitingStream(jis: java.io.OutputStream) = {
+  override protected def wrapLimitingStream(state: ParseOrUnparseState, jis: java.io.OutputStream) = {
     jis // just return jis. The way the length will be used/stored is by way of
     // taking the content length of the enclosing element. That will measure the
     // length relative to the "ultimate" data output stream.

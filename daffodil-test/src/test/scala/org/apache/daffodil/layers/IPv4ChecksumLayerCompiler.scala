@@ -18,6 +18,7 @@
 package org.apache.daffodil.layers
 
 import org.apache.daffodil.dpath.NodeInfo.PrimType
+import org.apache.daffodil.processors.VariableRuntimeData
 import org.apache.daffodil.schema.annotation.props.gen.LayerLengthKind
 import org.apache.daffodil.schema.annotation.props.gen.LayerLengthUnits
 
@@ -32,7 +33,7 @@ final class IPv4ChecksumLayerCompiler
 
   override def compileLayer(layerCompileInfo: LayerCompileInfo) = {
 
-    val outputVar = layerCompileInfo.getVariableHandle(
+    val outputVar = layerCompileInfo.getVariableRuntimeData(
       variablesPreferredNamespacePrefix,
       variablesNamespace,
       localNameOfVariableToWrite,
@@ -57,7 +58,7 @@ final class IPv4ChecksumLayerCompiler
   }
 }
 
-class IPv4ChecksumLayerTransformerFactory(name: String, outputVar: VariableHandle)
+class IPv4ChecksumLayerTransformerFactory(name: String, outputVar: VariableRuntimeData)
     extends LayerTransformerFactory(name) {
 
   override def newInstance(layerRuntimeInfo: LayerRuntimeInfo)= {

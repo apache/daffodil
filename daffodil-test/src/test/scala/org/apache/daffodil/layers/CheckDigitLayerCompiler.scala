@@ -18,6 +18,7 @@
 package org.apache.daffodil.layers
 
 import org.apache.daffodil.dpath.NodeInfo.PrimType
+import org.apache.daffodil.processors.VariableRuntimeData
 import org.apache.daffodil.schema.annotation.props.gen.LayerLengthKind
 import org.apache.daffodil.schema.annotation.props.gen.LayerLengthUnits
 
@@ -32,7 +33,7 @@ extends LayerCompiler("checkDigit") {
 
   override def compileLayer(layerCompileInfo: LayerCompileInfo) = {
     val outputVar =
-      layerCompileInfo.getVariableHandle(
+      layerCompileInfo.getVariableRuntimeData(
         variablesPreferredNamespacePrefix,
         variablesNamespace,
         localNameOfVariableToWrite,
@@ -40,7 +41,7 @@ extends LayerCompiler("checkDigit") {
 
     val inputVRDs = localNamesAndTypesOfVariablesToRead.map {
       case (local, primType) =>
-        layerCompileInfo.getVariableHandle(variablesPreferredNamespacePrefix, variablesNamespace, local, primType)
+        layerCompileInfo.getVariableRuntimeData(variablesPreferredNamespacePrefix, variablesNamespace, local, primType)
     }
     layerCompileInfo.optLayerLengthKind match {
       case Some(LayerLengthKind.Explicit) => // ok
@@ -63,7 +64,7 @@ extends LayerCompiler("checkDigit") {
   }
 }
 
-class CheckDigitLayerTransformerFactory(name: String, inputVars: Seq[VariableHandle], outputVar: VariableHandle)
+class CheckDigitLayerTransformerFactory(name: String, inputVars: Seq[VariableRuntimeData], outputVar: VariableRuntimeData)
   extends LayerTransformerFactory("checkDigit") {
 
   override def newInstance(layerRuntimeInfo: LayerRuntimeInfo)= {

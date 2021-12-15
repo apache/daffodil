@@ -17,27 +17,27 @@
 
 package org.apache.daffodil.processors.unparsers
 
-import org.apache.daffodil.layers.LayerSerializedInfo
+import org.apache.daffodil.layers.LayerRuntimeInfo
 import org.apache.daffodil.layers.LayerTransformerFactory
 import org.apache.daffodil.processors.SequenceRuntimeData
 
 class LayeredSequenceUnparser(ctxt: SequenceRuntimeData,
   layerTransformerFactory: LayerTransformerFactory,
-  layerSerializedInfo: LayerSerializedInfo,
+  layerRuntimeInfo: LayerRuntimeInfo,
   childUnparser: SequenceChildUnparser)
   extends OrderedUnseparatedSequenceUnparser(ctxt, Seq(childUnparser)) {
 
   override lazy val runtimeDependencies =
-    layerSerializedInfo.evaluatables.toVector
+    layerRuntimeInfo.evaluatables.toVector
 
   override def nom = "LayeredSequence"
 
   override def unparse(state: UState): Unit = {
-    val layerTransformer = layerTransformerFactory.newInstance(layerSerializedInfo.layerRuntimeInfo(state))
+    val layerTransformer = layerTransformerFactory.newInstance(layerRuntimeInfo)
 
     val originalDOS = state.dataOutputStream // layer will output to the original, then finish it upon closing.
 
-    val newDOS = originalDOS.addBuffered // newDOS is where unparsers after this one returns will unparse into.
+    val newDOS = originalDOS.addBuffered() // newDOS is where unparsers after this one returns will unparse into.
     //
     // New layerDOS is where the layer will unparse into. Ultimately anything written
     // to layerDOS ends up, post transform, in originalDOS.
