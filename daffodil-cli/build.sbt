@@ -49,6 +49,9 @@ maintainer := "Apache Daffodil <dev@daffodil.apache.org>"
 //
 rpmVendor := "Apache Daffodil"
 
+// Add an alias so users can install either "apache-daffodil" or "daffodil" with dnf
+rpmProvides := Seq("daffodil = %{version}-%{release}")
+
 Rpm / packageArchitecture := "noarch"
 
 Rpm / packageSummary := "Open-source implementation of the Data Format Description Language (DFDL)"
