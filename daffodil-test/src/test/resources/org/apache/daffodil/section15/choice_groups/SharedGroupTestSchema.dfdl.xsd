@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns="http://www.w3.org/2001/XMLSchema"
+           xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+           xmlns:ex="http://example.com"
+           targetNamespace="http://example.com"
+           elementFormDefault="unqualified">
+
+  <include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+
+  <annotation>
+    <appinfo source="http://www.ogf.org/dfdl/">
+      <dfdl:format ref="ex:GeneralFormat"/>
+    </appinfo>
+  </annotation>
+
+  <simpleType name="str" dfdl:lengthKind="explicit" dfdl:length="1">
+    <restriction base="xs:string"/>
+  </simpleType>
+
+  <simpleType name="str0" dfdl:lengthKind="explicit" dfdl:length="0">
+    <restriction base="xs:string"/>
+  </simpleType>
+
+  <element name="msg">
+    <complexType>
+      <sequence>
+        <element name="messageID" type="ex:str"/>
+        <choice dfdl:choiceDispatchKey="{ messageID }">
+          <sequence dfdl:choiceBranchKey="1">
+            <element name="ack" type="ex:str"/>
+            <group ref="ex:check"/>
+            <element name="ackInfo" type="ex:str"/>
+          </sequence>
+          <sequence dfdl:choiceBranchKey="2">
+            <!--
+            DAFFODIL-2615
+            Ack test works, but Nack test fails
+            because the group ref below shares the group "ex:check" with the above choice branch.
+
+            The error is an Unparse Error:
+            Expected element start event for {}nackInfo, but received element start event for (invalid) {}nackInfo.
+
+            To make the Nack test work, add suffix _b so you are referencing "ex:check_b".
+            This group is a clone of the ex:check group. But doing this there is no longer
+            a group being shared.
+            -->
+            <element name="nack" type="ex:str"/>
+            <group ref="ex:check"/>
+            <element name="nackInfo" type="ex:str"/>
+          </sequence>
+        </choice>
+      </sequence>
+    </complexType>
+  </element>
+
+
+  <group name="check">
+    <choice dfdl:choiceDispatchKey="{ 'V' }">
+      <sequence dfdl:choiceBranchKey="V"/>
+      <element dfdl:choiceBranchKey="I" name="invalid" type="ex:str0"/>
+    </choice>
+  </group>
+
+  <!--
+  DAFFODIL-2615
+
+  To workaround the bug, we cloned check, and added "_b" suffix.
+  This allows users to invoke the same check, but without sharing the group.
+  -->
+  <group name="check_b">
+    <choice dfdl:choiceDispatchKey="{ 'V' }">
+      <sequence dfdl:choiceBranchKey="V"/>
+      <element dfdl:choiceBranchKey="I" name="invalid" type="ex:str0"/>
+    </choice>
+  </group>
+
+</schema>
