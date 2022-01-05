@@ -28,6 +28,7 @@ import org.apache.daffodil.infoset.JDOMInfosetInputter
 import org.apache.daffodil.infoset.JDOMInfosetOutputter
 import org.apache.daffodil.infoset.JsonInfosetInputter
 import org.apache.daffodil.infoset.JsonInfosetOutputter
+import org.apache.daffodil.infoset.NullInfosetInputter
 import org.apache.daffodil.infoset.ScalaXMLInfosetInputter
 import org.apache.daffodil.infoset.ScalaXMLInfosetOutputter
 import org.apache.daffodil.infoset.W3CDOMInfosetInputter
@@ -110,6 +111,10 @@ class TDMLInfosetOutputter() extends InfosetOutputter {
     val w3cdomIn = new W3CDOMInfosetInputter(w3cdomOut.getResult)
     val jsonIn = new JsonInfosetInputter(new ByteArrayInputStream(jsonStream.toByteArray))
     val xmlIn = new XMLTextInfosetInputter(new ByteArrayInputStream(xmlStream.toByteArray))
-    new TDMLInfosetInputter(scalaIn, Seq(jdomIn, w3cdomIn, jsonIn, xmlIn))
+    val nullIn = {
+      val events = NullInfosetInputter.toEvents(new ByteArrayInputStream(xmlStream.toByteArray))
+      new NullInfosetInputter(events)
+    }
+    new TDMLInfosetInputter(scalaIn, Seq(jdomIn, w3cdomIn, jsonIn, xmlIn, nullIn))
   }
 }

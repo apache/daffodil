@@ -873,9 +873,14 @@ object XMLUtils {
   }
 
   /**
-   * Prepares an XML node for diff comparison
+   * Normalizes scala XML, performing the following tasks
+   *
+   * - Removes comments
+   * - Converts PCData to Text nodes
+   * - Combines adjacent Text nodes
+   * - Removes unnecessary whitespace
    */
-  private def prepareForDiffComparison(n: Node): Node = {
+  def normalize(n: Node): Node = {
     val noComments = removeComments(n)
     val noPCData = convertPCDataToText(noComments)
     val combinedText = coalesceAllAdjacentTextNodes(noPCData)
@@ -891,8 +896,8 @@ object XMLUtils {
     ignoreProcInstr: Boolean = true,
     checkPrefixes: Boolean = false,
     checkNamespaces: Boolean = false): Unit = {
-    val expectedMinimized = prepareForDiffComparison(expected)
-    val actualMinimized = prepareForDiffComparison(actual)
+    val expectedMinimized = normalize(expected)
+    val actualMinimized = normalize(actual)
     val diffs = XMLUtils.computeDiff(
       expectedMinimized,
       actualMinimized,
