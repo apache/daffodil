@@ -86,6 +86,7 @@ import org.apache.daffodil.infoset.JDOMInfosetInputter
 import org.apache.daffodil.infoset.JDOMInfosetOutputter
 import org.apache.daffodil.infoset.JsonInfosetInputter
 import org.apache.daffodil.infoset.JsonInfosetOutputter
+import org.apache.daffodil.infoset.NullInfosetInputter
 import org.apache.daffodil.infoset.NullInfosetOutputter
 import org.apache.daffodil.infoset.ScalaXMLInfosetInputter
 import org.apache.daffodil.infoset.ScalaXMLInfosetOutputter
@@ -345,7 +346,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments) {
 
     val config = opt[File](short = 'c', argName = "file", descr = "XML file containing configuration items")
     val vars = props[String](name = 'D', keyName = "variable", valueName = "value", descr = "Variables to be used when parsing. Can be prefixed with {namespace}.")
-    val infosetType = opt[InfosetType.Type](short = 'I', argName = "infoset_type", descr = "Infoset type to unparse. Use 'xml', 'scala-xml', 'json', 'jdom', 'w3cdom', or 'sax'. Defaults to 'xml'.", default = Some(InfosetType.XML))
+    val infosetType = opt[InfosetType.Type](short = 'I', argName = "infoset_type", descr = "Infoset type to unparse. Use 'xml', 'scala-xml', 'json', 'jdom', 'w3cdom', 'sax', or 'null'. Defaults to 'xml'.", default = Some(InfosetType.XML))
     val output = opt[String](argName = "file", descr = "Output file to write data to. If not given or is -, data is written to stdout.")
     val parser = opt[File](short = 'P', argName = "file", descr = "Previously saved parser to reuse")
     val path = opt[String](argName = "path", descr = "Path from root element to node from which to start unparsing", hidden = true)
@@ -363,11 +364,6 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments) {
 
     validateOpt(debug, infile) {
       case (Some(_), Some("-")) | (Some(_), None) => Left("Input must not be stdin during interactive debugging")
-      case _ => Right(Unit)
-    }
-
-    validateOpt(infosetType) {
-      case (Some(InfosetType.NULL)) => Left("Invalid infoset type: null") // null is not valid for unparsing
       case _ => Right(Unit)
     }
   }
@@ -449,11 +445,6 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments) {
     requireOne(schema, parser) // must have one of --schema or --parser
     conflicts(parser, List(rootNS)) // if --parser is provided, cannot also provide --root
     validateFileIsFile(config) // --config must be a file that exists
-
-    validateOpt(infosetType, unparse) {
-      case (Some(InfosetType.NULL), Some(true)) => Left("null infoset type not valid with performance --unparse")
-      case _ => Right(Unit)
-    }
   }
 
   // Generate Subcommand Options
@@ -815,6 +806,14 @@ object Main {
           }
         }
       }
+      case InfosetType.NULL => {
+        val is = data match {
+          case Left(bytes) => new ByteArrayInputStream(bytes)
+          case Right(is) => is
+        }
+        val events = NullInfosetInputter.toEvents(is)
+        events
+      }
     }
   }
 
@@ -847,6 +846,10 @@ object Main {
       case InfosetType.W3CDOM => {
         val tl = anyRef.asInstanceOf[ThreadLocal[org.w3c.dom.Document]]
         Left(new W3CDOMInfosetInputter(tl.get))
+      }
+      case InfosetType.NULL => {
+        val events = anyRef.asInstanceOf[Array[NullInfosetInputter.Event]]
+        Left(new NullInfosetInputter(events))
       }
       case InfosetType.SAX => {
         val dp = processor
