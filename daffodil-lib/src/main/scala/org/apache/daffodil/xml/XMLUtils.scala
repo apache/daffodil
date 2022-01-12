@@ -360,9 +360,19 @@ object XMLUtils {
         tn = null
       }
     }
-    while (i < seq.length) {
-      val current = seq(i)
-      i = i + 1
+
+    // Note that there are no performance guarantees about the different
+    // functions of a Seq. Accessing length, updating an index, etc. may have
+    // constant, linear, or worse time-complexity depending on the underlying
+    // Seq implementation (usually a List, but not guaranteed) and could lead
+    // to algorithms that scale very poorly. If a collection function exists to
+    // do what we need (e.g. map, foreach), we should be sure to use that,
+    // which should hopefully have the best possible performance characteristics.
+    // If performance is crucial, we may even want to avoid Seq entirely and be
+    // explicit about the collection type needed to get the required
+    // performance characteristics. In this case, all we need to do is iterate
+    // over each NOde in the Seq, so foreach is appropriate.
+    seq.foreach { current =>
       if ((current.isInstanceOf[Text] || current.isInstanceOf[Unparsed])) {
         if (tn == null) {
           if (sb == null || sb.length == 0) {
