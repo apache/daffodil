@@ -158,11 +158,6 @@ trait PropertyMixin
   with ThrowsSDE
   with SavesErrorsAndWarnings {
 
-  //  /**
-  //   * Only for testing purposes
-  //   */
-  //  def properties: PropMap
-
   /**
    * Properties will push their toString function onto this list
    *
