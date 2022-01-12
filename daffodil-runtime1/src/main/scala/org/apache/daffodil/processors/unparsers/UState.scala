@@ -111,8 +111,6 @@ abstract class UState(
    */
   def popTRD(trd: TermRuntimeData): TermRuntimeData
 
-  // def unparse1(unparser: Unparser): Unit
-
   override def toString = {
     val elt = if (this.currentInfosetNodeMaybe.isDefined) "node=" + this.currentInfosetNode.toString else ""
     "UState(" + elt + " DOS=" + dataOutputStream.toString() + ")"
@@ -124,7 +122,6 @@ abstract class UState(
   def currentInfosetNodeMaybe: Maybe[DINode]
   def escapeSchemeEVCache: MStackOfMaybe[EscapeSchemeUnparserHelper]
 
-  // def charBufferDataOutputStream: LocalStack[CharBufferDataOutputStream]
   def withUnparserDataInputStream: LocalStack[StringDataInputStreamForUnparse]
   def withByteArrayOutputStream: LocalStack[(ByteArrayOutputStream, DirectOrBufferedDataOutputStream)]
 

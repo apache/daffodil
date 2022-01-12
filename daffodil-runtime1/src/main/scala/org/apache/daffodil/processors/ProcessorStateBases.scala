@@ -485,7 +485,6 @@ abstract class ParseOrUnparseState protected (
   // in sensible ways, etc.
   final def bitPos = bitPos0b
   final def bytePos = bytePos0b
-  // def charPos: Long
 
   def groupPos: Long
   def arrayPos: Long
